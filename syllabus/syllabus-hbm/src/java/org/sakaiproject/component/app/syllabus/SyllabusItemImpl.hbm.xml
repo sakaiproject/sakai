@@ -30,8 +30,6 @@
             <column name="redirectURL" not-null="false" length="512"/>
         </property>
 
-        <property name="openInNewWindow" not-null="false" type="boolean"/>
-
         <set name="syllabi" lazy="true" sort="natural"
              order-by="position_c asc" cascade="all-delete-orphan" batch-size="50">
             <key column="surrogateKey"/>                        

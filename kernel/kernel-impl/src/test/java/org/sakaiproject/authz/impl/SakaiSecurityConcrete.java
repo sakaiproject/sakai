@@ -1,3 +1,18 @@
+/**
+ * Copyright (c) 2003-2017 The Apereo Foundation
+ *
+ * Licensed under the Educational Community License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *             http://opensource.org/licenses/ecl2
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.sakaiproject.authz.impl;
 
 import org.sakaiproject.authz.api.AuthzGroupService;
@@ -9,6 +24,7 @@ import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.thread_local.api.ThreadLocalManager;
 import org.sakaiproject.tool.api.SessionManager;
+import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.user.api.UserDirectoryService;
 
 /**
@@ -24,6 +40,7 @@ public class SakaiSecurityConcrete extends SakaiSecurity {
     private EventTrackingService eventTrackingService;
     private FunctionManager functionManager;
     private SiteService siteService;
+    private ToolManager toolManager;
 
     public void setThreadLocalManager(ThreadLocalManager threadLocalManager) {
         this.threadLocalManager = threadLocalManager;
@@ -59,6 +76,10 @@ public class SakaiSecurityConcrete extends SakaiSecurity {
 
     public void setSiteService(SiteService siteService) {
         this.siteService = siteService;
+    }
+
+    public void setToolManager(ToolManager toolManager) {
+        this.toolManager = toolManager;
     }
 
     public void setServerConfigurationService(ServerConfigurationService serverConfigurationService) {
@@ -110,4 +131,10 @@ public class SakaiSecurityConcrete extends SakaiSecurity {
     protected SiteService siteService() {
         return siteService;
     }
+
+	@Override
+	protected ToolManager toolManager() {
+		// TODO Auto-generated method stub
+		return toolManager;
+	}
 }

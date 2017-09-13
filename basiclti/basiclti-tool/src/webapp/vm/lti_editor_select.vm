@@ -1,0 +1,36 @@
+<div class="portletBody">
+#if ( $toolsLaunch  || $toolsCI )
+#else
+<p>$tlang.getString("contentitem.notools")</p>
+#end
+#if ( $toolsLaunch )
+<p>$tlang.getString("contentitem.tools.launch")</p>
+<ul>
+#foreach($tool in $toolsLaunch)
+<li>
+#if( $tool.get("fa_icon"))
+<i class="fa $tool.get("fa_icon")" aria-hidden="true"></i>
+#else
+<i class="fa fa-globe" aria-hidden="true"></i>
+#end
+<a href="$sakai_ActionURL.setPanel("CKEditor")&tool_id=$tool.get("id")">$tool.get('title')</a></li>
+#end
+</ul>
+#end
+#if ( $toolsCI )
+<p>$tlang.getString("contentitem.tools")</p>
+<ul>
+#foreach($tool in $toolsCI)
+<li>
+#if( $tool.get("fa_icon"))
+<i class="fa $tool.get("fa_icon")" aria-hidden="true"></i>
+#else
+<i class="fa fa-globe" aria-hidden="true"></i>
+#end
+<a href="$sakai_ActionURL.setPanel("CKEditor")&tool_id=$tool.get("id")">$tool.get('title')</a>
+<i class="fa fa-search" style="color:blue;" aria-hidden="true"></i>
+</li>
+#end
+</ul>
+#end
+</div>

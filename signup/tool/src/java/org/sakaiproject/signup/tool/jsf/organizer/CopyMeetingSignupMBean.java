@@ -79,6 +79,9 @@ public class CopyMeetingSignupMBean extends SignupUIBaseBean {
 	/* singup deadline before this minutes/hours/days */
 	private int deadlineTime;
 	
+	//Meeting title
+	private String title;
+	
 	//Location selected from the dropdown
 	private String selectedLocation;
 	
@@ -161,7 +164,7 @@ public class CopyMeetingSignupMBean extends SignupUIBaseBean {
 		}
 		
 		//sendEmailAttendeeOnly = false;
-		sendEmailToSelectedPeopleOnly = SEND_EMAIL_ALL_PARTICIPANTS;
+		sendEmailToSelectedPeopleOnly = DEFAULT_SEND_EMAIL_TO_SELECTED_PEOPLE_ONLY;
 		publishToCalendar= DEFAULT_EXPORT_TO_CALENDAR_TOOL;
 		Calendar calendar = Calendar.getInstance();
 		calendar.setTime(new Date());
@@ -182,7 +185,10 @@ public class CopyMeetingSignupMBean extends SignupUIBaseBean {
 		/*refresh copy of original*/
 		this.signupMeeting = signupMeetingService.loadSignupMeeting(meetingWrapper.getMeeting().getId(), sakaiFacade
 				.getCurrentUserId(), sakaiFacade.getCurrentLocationId());
-		
+
+		/*get meeting title*/
+		title = this.signupMeeting.getTitle();
+
 		/*prepare new attachments*/		
 		assignMainAttachmentsCopyToSignupMeeting();
 		//TODO not consider copy time slot attachment yet
@@ -363,6 +369,16 @@ public class CopyMeetingSignupMBean extends SignupUIBaseBean {
 		Date eventEndTime = signupMeeting.getEndTime();
 		Date eventStartTime = signupMeeting.getStartTime();
 		
+		//Set Title		
+		if (StringUtils.isNotBlank(title)){
+			logger.debug("title set: " + title);
+			this.signupMeeting.setTitle(title);
+		}else{
+			validationError = true;
+			Utilities.addErrorMessage(Utilities.rb.getString("event.title_cannot_be_blank"));
+			return;
+		}
+
 		/*user defined own TS case*/
 		if(isUserDefinedTS()){
 			eventEndTime= getUserDefineTimeslotBean().getEventEndTime();
@@ -795,7 +811,15 @@ public class CopyMeetingSignupMBean extends SignupUIBaseBean {
 	public void setDeadlineTimeType(String deadlineTimeType) {
 		this.deadlineTimeType = deadlineTimeType;
 	}
-	
+
+	public String getTitle() {
+		return title;
+	}
+
+	public void setTitle(String title) {
+		this.title = title;
+	}
+
 	/**
 	 * This is a getter method to provide selected location.
 	 * 

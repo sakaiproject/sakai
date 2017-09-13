@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE urlrewrite PUBLIC "-//tuckey.org//DTD UrlRewrite 4.0//EN"
+        "http://www.tuckey.org/res/dtds/urlrewrite4.0.dtd">
+
+<!--
+
+    Configuration file for UrlRewriteFilter
+    http://www.tuckey.org/urlrewrite/
+
+-->
+<urlrewrite>
+
+    <rule>
+        <note>This is so that if someone upgrades ckeditor the old URLs in content continue to work. While the
+        versions are the same the redirect is needless. This is because some early versions of Sakai 11.x have content
+        with the 4.5.7 version in it. This could have been done with a wildcard from but then we could never have
+        switched the filter back to use the FORWARD dispatcher.</note>
+        <from>/webjars/ckeditor/4.5.7/full/plugins/smiley/images/(.*)</from>
+        <to last="true">/webjars/ckeditor/${ckeditor.version}/full/plugins/smiley/images/$1</to>
+    </rule>
+
+    <rule>
+        <note>Some images (smiley) end up in the HTML content. This means if the version of ckeditor moves URLs
+        we need to redirect the old URLs to the new ones.</note>
+        <from>/editor/ckeditor/plugins/smiley/images/(.*)</from>
+        <to>/webjars/ckeditor/${ckeditor.version}/full/plugins/smiley/images/$1</to>
+    </rule>
+
+</urlrewrite>
+

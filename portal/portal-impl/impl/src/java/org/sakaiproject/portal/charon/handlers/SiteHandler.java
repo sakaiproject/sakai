@@ -37,8 +37,6 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.thread_local.cover.ThreadLocalManager;
@@ -79,12 +77,15 @@ import org.sakaiproject.portal.util.URLUtils;
 import org.sakaiproject.portal.util.ToolUtils;
 import org.sakaiproject.portal.util.ByteArrayServletResponse;
 import org.sakaiproject.util.Validator;
+import lombok.extern.slf4j.Slf4j;
+
 
 /**
  * @author ieb
  * @since Sakai 2.4
  * @version $Rev$
  */
+@Slf4j
 public class SiteHandler extends WorksiteHandler
 {
 
@@ -93,8 +94,6 @@ public class SiteHandler extends WorksiteHandler
 	private static final String INCLUDE_LOGO = "include-logo";
 
 	private static final String INCLUDE_TABS = "include-tabs";
-
-	private static final Logger log = LoggerFactory.getLogger(SiteHandler.class);
 
 	private static final String URL_FRAGMENT = "site";
 
@@ -483,7 +482,7 @@ public class SiteHandler extends WorksiteHandler
 
 		// Note that this does not call includeTool()
 		PortalRenderContext rcontext = portal.startPageContext(siteType, title, site
-				.getSkin(), req);
+				.getSkin(), req, site);
 
 		if ( allowBuffer ) {
 			log.debug("Starting the buffer process...");
@@ -611,9 +610,7 @@ public class SiteHandler extends WorksiteHandler
 			if (toolContextPath.contains(toolSegment)) {
 				toolId = toolContextPath.substring(toolContextPath.lastIndexOf(toolSegment)+toolSegment.length());
 				ToolConfiguration toolConfig = site.getToolForCommonId(toolId);
-				if (log.isDebugEnabled()) {
-					log.debug("trying to resolve page id from toolId: ["+toolId+"]");
-				}
+				log.debug("trying to resolve page id from toolId: [{}]", toolId);
 				if (toolConfig != null) {
 					pageId = toolConfig.getPageId();
 				}
@@ -885,11 +882,13 @@ public class SiteHandler extends WorksiteHandler
 			rcontext.put("roleSwitchState", roleswitchstate); // this will tell our UI if we are in a role swapped state or not
 
 			int tabDisplayLabel = 1;
-			
+			boolean toolsCollapsed = false;
+
 			if (loggedIn) 
 			{
 				Preferences prefs = PreferencesService.getPreferences(session.getUserId());
 				ResourceProperties props = prefs.getProperties(org.sakaiproject.user.api.PreferencesService.SITENAV_PREFS_KEY);
+
 				try 
 				{
 					tabDisplayLabel = (int) props.getLongProperty("tab:label");
@@ -898,9 +897,14 @@ public class SiteHandler extends WorksiteHandler
 				{
 					tabDisplayLabel = 1;
 				}
+
+				try {
+					toolsCollapsed = props.getBooleanProperty("toolsCollapsed");
+				} catch (Exception any) {}
 			}
-			
+
 			rcontext.put("tabDisplayLabel", tabDisplayLabel);
+			rcontext.put("toolsCollapsed", Boolean.valueOf(toolsCollapsed));
 			
 			SiteView siteView = portal.getSiteHelper().getSitesView(
 					SiteView.View.DHTML_MORE_VIEW, req, session, siteId);

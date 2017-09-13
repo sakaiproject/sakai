@@ -23,6 +23,7 @@
 package org.sakaiproject.tool.assessment.shared.impl.grading;
 
 import java.util.List;
+import org.sakaiproject.section.api.coursemanagement.EnrollmentRecord;
 
 import org.sakaiproject.tool.assessment.integration.context.IntegrationContextFactory;
 import org.sakaiproject.tool.assessment.integration.helper.ifc.SectionAwareServiceHelper;
@@ -68,7 +69,7 @@ public class GradingSectionAwareServiceImpl implements GradingSectionAwareServic
   *      an EnrollmentRecord list for each student that the current user
   *  is allowed to grade.
   */
-  public List getAvailableEnrollments(String Uid, String userUid){
+  public List<EnrollmentRecord> getAvailableEnrollments(String Uid, String userUid){
     return helper.getAvailableEnrollments(Uid, userUid);
   }
 

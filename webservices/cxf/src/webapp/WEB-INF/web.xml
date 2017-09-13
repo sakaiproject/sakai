@@ -1,49 +1,12 @@
-<!DOCTYPE web-app PUBLIC
-        "-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN"
-        "http://java.sun.com/dtd/web-app_2_3.dtd" >
-
-<web-app>
+<web-app version="2.4" xmlns="http://java.sun.com/xml/ns/j2ee"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd">
     <display-name>Sakai Soap Web Service (CXF)</display-name>
     <filter>
         <filter-name>sakai.request</filter-name>
         <filter-class>org.sakaiproject.util.RequestFilter</filter-class>
     </filter>
 
-    <filter>
-        <filter-name>RemoteHostFilter</filter-name>
-        <filter-class>
-            org.sakaiproject.util.RemoteHostFilter
-        </filter-class>
-        <!--
-        <description>
-            Filters (allows/denies) requests based on configured
-            hostname/ip-address
-        </description>
-        -->
-        <init-param>
-            <param-name>allow</param-name>
-            <!-- Allow "Private Use" IP addresses by default -->
-            <param-value>
-                localhost, 127\.0\.0\.1, 192\.168\.[0-9.]+, 10\.[0-9.]+,
-                172\.1[6-9]\.[0-9.]+, 172\.2[0-9]\.[0-9.]+,
-                172\.3[0-1]\.[0-9.]+
-            </param-value>
-        </init-param>
-        <init-param>
-            <param-name>log-allowed</param-name>
-            <param-value>true</param-value>
-        </init-param>
-        <init-param>
-            <param-name>deny</param-name>
-            <!-- No Explicit Denials, implies deny unless allowed -->
-            <param-value></param-value>
-        </init-param>
-        <init-param>
-            <param-name>log-denied</param-name>
-            <param-value>true</param-value>
-        </init-param>
-    </filter>
-
     <filter-mapping>
         <filter-name>sakai.request</filter-name>
         <servlet-name>
@@ -53,18 +16,6 @@
         <dispatcher>FORWARD</dispatcher>
         <dispatcher>INCLUDE</dispatcher>
     </filter-mapping>
-
-    <filter-mapping>
-        <filter-name>RemoteHostFilter</filter-name>
-        <servlet-name>
-            CXFServlet
-        </servlet-name>
-        <dispatcher>REQUEST</dispatcher>
-        <dispatcher>FORWARD</dispatcher>
-        <dispatcher>INCLUDE</dispatcher>
-    </filter-mapping>
-
-
 
     <!-- Context Params -->
     <context-param>
@@ -79,7 +30,6 @@
     <!-- Servlets -->
     <servlet>
         <servlet-name>CXFServlet</servlet-name>
-        <display-name>CXF Servlet</display-name>
         <servlet-class>org.apache.cxf.transport.servlet.CXFServlet</servlet-class>
         <load-on-startup>1</load-on-startup>
     </servlet>

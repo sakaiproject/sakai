@@ -99,10 +99,6 @@
       <h:outputLabel for="template_title" value="#{templateMessages.template_title}"/>
       <h:inputText id="template_title" value="#{template.templateName}" size="30" maxlength="255"/>
 
-
-      <h:outputLabel for="author" value="#{templateMessages.author_opt}"/>
-      <h:inputText id="author" value="#{template.templateAuthor}" size="30" maxlength="255"/>
-
       <!-- WYSIWYG -->
 
       <h:outputLabel value="#{templateMessages.description_intro_opt}"/>

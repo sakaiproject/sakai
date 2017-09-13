@@ -60,6 +60,7 @@ public class EntityUser implements User {
     private String firstName;
     private String lastName;
     private String displayName;
+    private String displayId;
     private String type;
     private String owner;
     private long lastModified;
@@ -81,6 +82,7 @@ public class EntityUser implements User {
         this.firstName = user.getFirstName();
         this.lastName = user.getLastName();
         this.displayName = user.getDisplayName();
+        this.displayId = user.getDisplayId();
         this.owner = user.getCreatedBy() == null ? null : "/user/" + user.getCreatedBy().getId();
         this.lastModified = user.getModifiedTime() == null ? System.currentTimeMillis() : user.getModifiedTime().getTime();
         this.type = user.getType();
@@ -93,13 +95,14 @@ public class EntityUser implements User {
     }
 
     public EntityUser(String eid, String email, String firstName, String lastName,
-            String displayName, String password, String type) {
+            String displayName, String displayId, String password, String type) {
         this.eid = eid;
         this.password = password;
         this.email = email;
         this.firstName = firstName;
         this.lastName = lastName;
         this.displayName = displayName;
+        this.displayId = displayId;
         this.type = type;
     }
 
@@ -236,10 +239,7 @@ public class EntityUser implements User {
     }
 
     public String getDisplayId() {
-        if (user != null) {
-            return user.getDisplayId();
-        }
-        return eid;
+        return displayId;
     }
 
     public User getModifiedBy() {

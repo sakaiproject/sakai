@@ -32,8 +32,6 @@ import java.util.Vector;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sakaiproject.alias.api.Alias;
 import org.sakaiproject.alias.api.AliasService;
 import org.sakaiproject.component.api.ServerConfigurationService;
@@ -50,16 +48,16 @@ import org.sakaiproject.user.api.Preferences;
 import org.sakaiproject.user.api.PreferencesService;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * @author ieb
  */
+@Slf4j
 public class SiteNeighbourhoodServiceImpl implements SiteNeighbourhoodService
 {
 
 	private static final String SITE_ALIAS = "/sitealias/";
-
-	private static final Logger log = LoggerFactory.getLogger(SiteNeighbourhoodServiceImpl.class);
 
 	private SiteService siteService;
 
@@ -225,11 +223,10 @@ public class SiteNeighbourhoodServiceImpl implements SiteNeighbourhoodService
 				ResourceProperties rp = s.getProperties();
 				ourParent = rp.getProperty(SiteService.PROP_PARENT_ID);
 			}
-			// System.out.println("Top Site:"+s.getTitle()+"
-			// parent="+ourParent);
+			log.debug("Top Site:{} parent={}", s.getTitle(), ourParent);
 			if (siteCount > 200 || ourParent == null)
 			{
-				// System.out.println("Added at root");
+				log.debug("Added at root");
 				ordered.add(s);
 				added.add(s.getId());
 			}
@@ -259,8 +256,7 @@ public class SiteNeighbourhoodServiceImpl implements SiteNeighbourhoodService
 				String ourParent = rp.getProperty(SiteService.PROP_PARENT_ID);
 				if (ourParent == null) continue;
 				haveChildren = true;
-				// System.out.println("Child Site:"+s.getTitle()+
-				// "parent="+ourParent);
+				log.debug("Child Site:{} parent={}", s.getTitle(), ourParent);
 				// Search the already added pages for a parent
 				// or sibling node
 				boolean found = false;
@@ -288,7 +284,7 @@ public class SiteNeighbourhoodServiceImpl implements SiteNeighbourhoodService
 				j = j + 1;
 				if (found && j >= 0 && j < ordered.size())
 				{
-					// System.out.println("Added after parent");
+					log.debug("Added after parent");
 					ordered.insertElementAt(s, j);
 					added.add(s.getId());
 					addedSites = true; // Worth going another level deeper
@@ -301,7 +297,7 @@ public class SiteNeighbourhoodServiceImpl implements SiteNeighbourhoodService
 		{
 			Site s = mySites.get(i);
 			if (added.contains(s.getId())) continue;
-			// System.out.println("Orphan Site:"+s.getId()+" "+s.getTitle());
+			log.debug("Orphan Site:{} {}", s.getId(), s.getTitle());
 			ordered.add(s);
 		}
 
@@ -538,10 +534,7 @@ public class SiteNeighbourhoodServiceImpl implements SiteNeighbourhoodService
 		{
 			if (aliases.size() > 1 && log.isInfoEnabled())
 			{
-				if (log.isDebugEnabled())
-				{
-					log.debug("More than one alias for "+ id+ " sorting.");
-				}
+				log.debug("More than one alias for {} sorting.", id);
 				Collections.sort(aliases, new Comparator<Alias>()
 				{
 					public int compare(Alias o1, Alias o2)
@@ -590,10 +583,7 @@ public class SiteNeighbourhoodServiceImpl implements SiteNeighbourhoodService
 		}
 		catch (IdUnusedException e)
 		{
-			if (log.isDebugEnabled())
-			{
-				log.debug("No alias found for "+ id);
-			}
+			log.debug("No alias found for {}", id);
 		}
 		return null;
 	}

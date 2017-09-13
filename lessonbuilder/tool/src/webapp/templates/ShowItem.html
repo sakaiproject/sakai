@@ -183,6 +183,9 @@ function toggleShortUrlOutput(defaultUrl, checkbox, textbox) {
 			frameborder="0"
 			marginwidth="0"
 			marginheight="0"
+			allowfullscreen="true"
+			webkitallowfullscreen="true"
+			mozallowfullscreen="true"
 			scrolling="auto">
 		</iframe>
 		<script>
@@ -194,6 +197,9 @@ function toggleShortUrlOutput(defaultUrl, checkbox, textbox) {
 					var height = message.height;
 					document.getElementById(idval).height = height;
 					console.log('Reveived lti.frameResize height='+height);
+				}
+				else if ( message.subject == 'lti.pageRefresh' ) {
+                                        location.reload(true);
 				}
 			} catch (error) {
 				console.log('lti.frameResize of '+idval+' failed height='+height);

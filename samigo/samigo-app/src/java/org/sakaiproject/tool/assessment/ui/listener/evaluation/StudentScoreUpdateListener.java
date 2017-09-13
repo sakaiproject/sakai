@@ -88,10 +88,10 @@ public class StudentScoreUpdateListener
     AbortProcessingException
   {
     log.debug("Student Score Update LISTENER.");
-    StudentScoresBean bean = (StudentScoresBean) cu.lookupBean("studentScores");
-    TotalScoresBean tbean = (TotalScoresBean) cu.lookupBean("totalScores");
+    StudentScoresBean bean = (StudentScoresBean) ContextUtil.lookupBean("studentScores");
+    TotalScoresBean tbean = (TotalScoresBean) ContextUtil.lookupBean("totalScores");
     tbean.setAssessmentGradingHash(tbean.getPublishedAssessment().getPublishedAssessmentId());
-    DeliveryBean delivery = (DeliveryBean) cu.lookupBean("delivery");
+    DeliveryBean delivery = (DeliveryBean) ContextUtil.lookupBean("delivery");
     log.debug("Calling saveStudentScores.");
     try {
       if (!saveStudentScores(bean, tbean, delivery))
@@ -100,7 +100,7 @@ public class StudentScoreUpdateListener
       }
     } catch (GradebookServiceException ge) {
        FacesContext context = FacesContext.getCurrentInstance();
-       String err=(String)cu.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages", "gradebook_exception_error");
+       String err=(String)ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages", "gradebook_exception_error");
        context.addMessage(null, new FacesMessage(err));
 
     }
@@ -157,10 +157,8 @@ public class StudentScoreUpdateListener
           
           log.debug("****3a Gradingarray length2 = " + gradingarray.size());
           log.debug("****3b set points = " + question.getExactPoints() + ", comments to " + question.getGradingComment());
-          Iterator iter3 = gradingarray.iterator();
-          while (iter3.hasNext())
+          for (ItemGradingData data : gradingarray)
           {
-            ItemGradingData data = (ItemGradingData) iter3.next();
             if (adata == null && data.getAssessmentGradingId() != null){
               adata = delegate.load(data.getAssessmentGradingId().toString());
             }
@@ -181,7 +179,7 @@ public class StudentScoreUpdateListener
             }
             double oldAutoScore = 0;
             if (data.getAutoScore() !=null) {
-              oldAutoScore=data.getAutoScore().doubleValue();
+              oldAutoScore=data.getAutoScore();
             }
             String newComments = TextFormat.convertPlaintextToFormattedTextNoHighUnicode(log, question.getGradingComment());
             if (newComments != null) {
@@ -201,14 +199,14 @@ public class StudentScoreUpdateListener
             // if newAutoScore != oldAutoScore then updateScore = true
             boolean updateScore = !(Precision.equalsIncludingNaN(newAutoScore, oldAutoScore, 0.0001));
             boolean updateComments = !newComments.equals(oldComments);
-            StringBuffer logString = new StringBuffer();
+            StringBuilder logString = new StringBuilder();
             logString.append("gradedBy=");
             logString.append(AgentFacade.getAgentString());
             logString.append(", itemGradingId=");
             logString.append(data.getItemGradingId());
             
             if (updateScore) {
-              data.setAutoScore(Double.valueOf(newAutoScore));
+              data.setAutoScore(newAutoScore);
               logString.append(", newAutoScore=");
               logString.append(newAutoScore);
               logString.append(", oldAutoScore=");
@@ -231,14 +229,14 @@ public class StudentScoreUpdateListener
               log.debug("****4 itemGradingId="+data.getItemGradingId());
               log.debug("****5 set points = " + data.getAutoScore() + ", comments to " + data.getComments());
             }
-		data.setAnswerText(ContextUtil.stringWYSIWYG(data.getAnswerText()));
+		data.setAnswerText(data.getAnswerText());
             itemGradingSet.add(data);
           }
         }
         if (adata==null){
           // this is for cases when studnet submitted an assessment but skipped all teh questions
           // when we won't be able to get teh assessmentGrading based on itemGrdaing ('cos there is none).
-          String assessmentGradingId = cu.lookupParam("gradingData");
+          String assessmentGradingId = ContextUtil.lookupParam("gradingData");
           adata = delegate.load(assessmentGradingId);
         }
         adata.setItemGradingSet(itemGradingSet);
@@ -262,7 +260,7 @@ public class StudentScoreUpdateListener
     	  oldComments = "";
       }
 
-      StringBuffer logString = new StringBuffer();
+      StringBuilder logString = new StringBuilder();
       logString.append("gradedBy=");
       logString.append(AgentFacade.getAgentString());
       logString.append(", assessmentGradingId=");
@@ -279,7 +277,7 @@ public class StudentScoreUpdateListener
       }
 
       if (updateFlag) {
-    	  delegate.updateAssessmentGradingScore(adata, tbean.getPublishedAssessment());
+    	  delegate.updateAssessmentGradingScore(adata, tbean.getPublishedAssessment(), newComments, oldComments);
     	  eventTrackingService.post(eventTrackingService.newEvent(SamigoConstants.EVENT_ASSESSMENT_STUDENT_SCORE_UPDATE, logString.toString(), AgentFacade.getCurrentSiteId(), true, NotificationService.NOTI_OPTIONAL, SamigoLRSStatements.getStatementForStudentScoreUpdate(adata, tbean.getPublishedAssessment())));
       }
       log.debug("Saved student scores.");
@@ -288,13 +286,13 @@ public class StudentScoreUpdateListener
 
     } catch (GradebookServiceException ge) {
        FacesContext context = FacesContext.getCurrentInstance();
-       String err=(String)cu.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages", "gradebook_exception_error");
+       String err=(String)ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages", "gradebook_exception_error");
        context.addMessage(null, new FacesMessage(err));
 
     }
     catch (Exception e)
     {
-      e.printStackTrace();
+      log.warn("Error saving scores", e);
       return false;
     }
     return true;
@@ -318,7 +316,7 @@ public class StudentScoreUpdateListener
     				ItemGradingData itemGradingData = iter3.next();
     				List oldList = itemGradingData.getItemGradingAttachmentList();
     				List newList = question.getItemGradingAttachmentList();
-    				if ((oldList == null || oldList.size() == 0 ) && (newList == null || newList.size() == 0)) {
+    				if ((oldList == null || oldList.isEmpty() ) && (newList == null || newList.isEmpty())) {
     					continue;
     				}
     				

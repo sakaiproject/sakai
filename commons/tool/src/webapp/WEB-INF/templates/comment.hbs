@@ -1,0 +1,19 @@
+<div class="commons-comment-photo" style="background-image:url(/direct/profile/{{creatorId}}/image/thumb)"></div>
+<div class="commons-comment-body">
+    <span id="commons-comment-author-name-{{id}}"><a id="commons-author-name-{{id}}" href="javascript:;" class="commons-comment-author-name">{{creatorDisplayName}}</a></span>
+    <span id="commons-comment-content-{{id}}" class="commons-comment-content">{{{content}}}</span>
+    <div id="commons-comment-options-{{id}}" class="commons-comment-options">
+        {{#if canEdit}}
+        <a href="javascript:;" id="commons-comment-edit-link-{{id}}" class="commons-comment-edit-link" data-comment-id="{{id}}" data-creator-id="{{creatorId}}">{{tr 'commons' 'edit'}}</a>
+        {{/if}}
+        {{!--
+        {{#if canComment}}
+        <a href="javascript:;" class="commons-comment-reply-link" data-comment-id="{{id}}">{{tr 'commons' 'reply'}}</a>
+        {{/if}}
+        --}}
+        {{#if canDelete}}
+        <a href="javascript:;" id="commons-comment-delete-link-{{id}}" class="commons-comment-delete-link" data-post-id="{{postId}}" data-comment-id="{{id}}">{{tr 'commons' 'del'}}</a>
+        {{/if}}
+        <span class="commons-date">{{formattedCreatedDate}}</span>
+    </div>
+</div>

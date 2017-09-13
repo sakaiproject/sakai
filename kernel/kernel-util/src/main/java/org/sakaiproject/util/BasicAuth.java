@@ -223,7 +223,7 @@ public class BasicAuth {
 							String eid = auth.substring(0, colon);
 							String pw = auth.substring(colon + 1);
 							if (eid.length() > 0 && pw.length() > 0) {
-								e = new IdPwEvidence(eid, pw);
+								e = new IdPwEvidence(eid, pw, req.getRemoteAddr());
 							}
 						}
 					}

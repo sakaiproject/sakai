@@ -1,52 +1,61 @@
 /**
-* For toggling the Minimize and Maximize tools menu in Morpheus: Adds classes to the <body> and changes the label text for accessibility
+* For toggling the Minimize and Maximize tools menu in Morpheus: Adds classes to the <body>
 */
 
-function toggleMinimizeNav(){
+portal = portal || {};
 
-  $PBJQ('body').toggleClass('Mrphs-toolMenu-collapsed');
-  // Remove any popout div for subsites.  Popout only displayed when portal.showSubsitesAsFlyout is set to true.
-  $PBJQ('#subSites.floating').css({'display': 'none'});
-
-  var el = $PBJQ(this);
-  var label = $PBJQ('.accessibility-btn-label' , el);
-
-  el.toggleClass('min max');
-  
-  if (label.text() == el.data("title-expand") || collapsed) {
-	document.cookie = "sakai_nav_minimized=false; path=/";
-	collapsed = false;
-	label.text(el.data("text-original"));
-    el.attr('title', (el.data("text-original")));
-    el.attr('aria-pressed', true);
-  } else {
-	document.cookie = "sakai_nav_minimized=true; path=/";
-	collapsed = true;
-	el.data("text-original", label.text());
-    label.text(el.data("title-expand"));
-    el.attr('title', (el.data("title-expand")));
-    el.attr('aria-pressed', false);
-  }
+if (portal.toolsCollapsed === undefined) {
+	portal.toolsCollapsed = false;
 }
 
-$PBJQ(".js-toggle-nav").on("click", toggleMinimizeNav);
+portal.updateToolsCollapsedPref = function (collapsed) {
 
-var collapsed = false;
+	var url = '/direct/userPrefs/updateKey/' + portal.user.id + '/sakai:portal:sitenav?toolsCollapsed=' + collapsed;
+	$PBJQ.ajax(url, {method: 'PUT', cache: false});
+};
 
-$PBJQ(document).ready(function(){
-	if(getCookieVal('sakai_nav_minimized') === 'true') {
-		$PBJQ(".js-toggle-nav").click();
-		collapsed = true;
+portal.toggleMinimizeNav = function () {
+
+	$PBJQ('body').toggleClass('Mrphs-toolMenu-collapsed');
+	// Remove any popout div for subsites.  Popout only displayed when portal.showSubsitesAsFlyout is set to true.
+	$PBJQ('#subSites.floating').css({'display': 'none'});
+
+	var el = $PBJQ(this);
+	el.toggleClass('min max').children().toggleClass('min max');
+
+	if (portal.toolsCollapsed) {
+		portal.updateToolsCollapsedPref(false);
+		portal.toolsCollapsed = false;
+		el.attr('aria-pressed', false);
+	} else {
+		portal.updateToolsCollapsedPref(true);
+		portal.toolsCollapsed = true;
+		el.attr('aria-pressed', true);
 	}
+};
+
+$PBJQ("#toolsNav-toggle-li button").on("click", portal.toggleMinimizeNav);
+
+$PBJQ(document).ready(function () {
+//Shows or hides the subsites in a popout div. This isn't used unless
+// portal.showSubsitesAsFlyout is set to true in sakai.properties.
+    $PBJQ("#toggleSubsitesLink").click(function (e) {
+        var subsitesLink = $PBJQ(this);
+        if ($PBJQ('#subSites').css('display') == 'block') {
+            $PBJQ('#subSites').hide();
+            $PBJQ('#subSites').removeClass('floating');
+        } else {
+            var position = subsitesLink.position();
+            var _top = ( -1 * ( $PBJQ('#toolMenu').height() - position.top ) );
+            $PBJQ('#subSites').css({
+                'display': 'block',
+                'left': position.left + subsitesLink.width() + 6 + 'px',
+                'top': _top + 'px'
+            });
+            $PBJQ('#subSites').addClass('floating');
+            if ($PBJQ("#toggleSubsitesLink").position().top < 240) {
+                $PBJQ("#subSites.floating").addClass('ontop');
+            }
+        }
+    });
 });
-
-function getCookieVal(cookieName) {
-	var cks = document.cookie.split(';');
-	for (var i = 0; i < cks.length; ++i) {
-		var curCookie = (cks[i].substring(0,cks[i].indexOf('='))).trim();
-		if(curCookie === cookieName) {
-			return ((cks[i].split('='))[1]).trim();;
-		}
-	}
-	return undefined;
-}

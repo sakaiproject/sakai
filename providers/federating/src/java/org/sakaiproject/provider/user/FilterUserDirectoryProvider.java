@@ -37,6 +37,7 @@ import org.slf4j.LoggerFactory;
 
 import org.sakaiproject.user.api.ExternalUserSearchUDP;
 import org.sakaiproject.user.api.AuthenticationIdUDP;
+import org.sakaiproject.user.api.DisplayAdvisorUDP;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryProvider;
 import org.sakaiproject.user.api.UserEdit;
@@ -82,7 +83,7 @@ import org.sakaiproject.user.api.UsersShareEmailUDP;
  * @author Ian Boston, Andrew Thornton, Daniel Parry, Raad
  * @version $Revision$
  */
-public class FilterUserDirectoryProvider implements UserDirectoryProvider, ExternalUserSearchUDP, UsersShareEmailUDP, AuthenticationIdUDP
+public class FilterUserDirectoryProvider implements UserDirectoryProvider, ExternalUserSearchUDP, UsersShareEmailUDP, AuthenticationIdUDP, DisplayAdvisorUDP
 {
 	/** Our log (commons). */
 	private static Logger m_logger = LoggerFactory.getLogger(FilterUserDirectoryProvider.class);
@@ -614,6 +615,40 @@ public class FilterUserDirectoryProvider implements UserDirectoryProvider, Exter
 			}
 		}
 		return false;
+	}
+
+	public String getDisplayId(User user) {
+		String displayId = null;
+		if (myProvider instanceof DisplayAdvisorUDP) {
+			displayId = ((DisplayAdvisorUDP)myProvider).getDisplayId(user); 
+			if (displayId != null) {
+				return displayId;
+			}
+		}
+		if (nextProvider instanceof DisplayAdvisorUDP) {
+			displayId = ((DisplayAdvisorUDP)nextProvider).getDisplayId(user); 
+			if (displayId != null) {
+				return displayId;
+			}
+		}
+		return null;
+	}
+
+	public String getDisplayName(User user) {
+		String displayName = null;
+		if (myProvider instanceof DisplayAdvisorUDP) {
+			displayName = ((DisplayAdvisorUDP)myProvider).getDisplayName(user);
+			if (displayName != null) {
+				return displayName;
+			}
+		}
+		if (nextProvider instanceof DisplayAdvisorUDP) {
+			displayName = ((DisplayAdvisorUDP)nextProvider).getDisplayName(user);
+			if (displayName != null) {
+				return displayName;
+			}
+		}
+		return null;
 	}
 
 

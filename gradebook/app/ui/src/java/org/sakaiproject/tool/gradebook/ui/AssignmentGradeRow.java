@@ -1,36 +1,30 @@
-/**********************************************************************************
-*
-* $Id:$
-*
-***********************************************************************************
-*
- * Copyright (c) 2005, 2006, 2007, 2008 The Sakai Foundation, The MIT Corporation
+/**
+ * Copyright (c) 2003-2014 The Apereo Foundation
  *
  * Licensed under the Educational Community License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *       http://www.opensource.org/licenses/ECL-2.0
+ *             http://opensource.org/licenses/ecl2
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
-*
-**********************************************************************************/
+ */
 
 package org.sakaiproject.tool.gradebook.ui;
 
 import java.io.Serializable;
 import java.util.List;
 
-import org.sakaiproject.tool.gradebook.Assignment;
+import org.sakaiproject.tool.gradebook.GradebookAssignment;
 import org.sakaiproject.tool.gradebook.AssignmentGradeRecord;
 import org.sakaiproject.tool.gradebook.Gradebook;
 
 public class AssignmentGradeRow implements Serializable {
-	private Assignment assignment;
+	private GradebookAssignment assignment;
     private AssignmentGradeRecord gradeRecord;
     private String commentText;
     private Gradebook gradebook;
@@ -44,12 +38,12 @@ public class AssignmentGradeRow implements Serializable {
     private String scoringComponentUrl;
     private String retrieveScoreUrl;
 
-    public AssignmentGradeRow(Assignment assignment, Gradebook gradebook) {
+    public AssignmentGradeRow(GradebookAssignment assignment, Gradebook gradebook) {
     	this.assignment = assignment;
     	this.gradebook = gradebook;
     	commentText = "";
     }
-    public AssignmentGradeRow(Assignment assignment, Gradebook gradebook, boolean userCanGrade) {
+    public AssignmentGradeRow(GradebookAssignment assignment, Gradebook gradebook, boolean userCanGrade) {
     	this.assignment = assignment;
     	this.gradebook = gradebook;
     	commentText = "";
@@ -59,7 +53,7 @@ public class AssignmentGradeRow implements Serializable {
     	this.gradeRecord = gradeRecord;
     }
     // not getAssignment b/c will clash with isAssignment in UI
-    public Assignment getAssociatedAssignment() {
+    public GradebookAssignment getAssociatedAssignment() {
     	return assignment;
     }
     public AssignmentGradeRecord getGradeRecord() {

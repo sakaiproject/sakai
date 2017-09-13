@@ -4,7 +4,7 @@
     <parent>
         <groupId>org.sakaiproject.emailtemplateservice</groupId>
         <artifactId>emailtemplateservice</artifactId>
-        <version>12-SNAPSHOT</version>
+        <version>13-SNAPSHOT</version>
 		<relativePath>../../pom.xml</relativePath>
     </parent>
 
@@ -94,9 +94,10 @@
             <artifactId>commons-collections</artifactId>
         </dependency>
         <dependency>
-            <groupId>easymock</groupId>
+            <groupId>org.easymock</groupId>
             <artifactId>easymock</artifactId>
-            <version>1.2_Java1.3</version>
+            <version>3.4</version>
+            <scope>test</scope>
         </dependency>
          <dependency>
             <groupId>org.freemarker</groupId>

@@ -42,6 +42,7 @@ import org.sakaiproject.javax.PagingPosition;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.tool.EnrolmentsHandler.Enrolment;
+import org.sakaiproject.site.tool.EnrolmentsHandler.EnrolmentsWrapper;
 import org.sakaiproject.site.util.SiteTextEditUtil;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
@@ -110,7 +111,17 @@ public class MembershipAction extends PagedResourceActionII
 				{
 					ENROLMENTS_HANDLER.getSectionEnrolments( currentUserID );
 				}
-				size = ENROLMENTS_HANDLER.getEnrolmentsCacheMap().get( currentUserID ).getEnrolments().size();
+
+				EnrolmentsWrapper wrapper = ENROLMENTS_HANDLER.getEnrolmentsCacheMap().get( currentUserID );
+				if( wrapper != null )
+				{
+					List<Enrolment> enrolments = wrapper.getEnrolments();
+					size = enrolments != null ? enrolments.size() : 0;
+				}
+				else
+				{
+					size = 0;
+				}
 			}
 		}
 		else if( JOINABLE_MODE.equals( mode ) )

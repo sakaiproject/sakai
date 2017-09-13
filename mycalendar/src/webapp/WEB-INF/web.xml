@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<web-app xmlns="http://java.sun.com/xml/ns/j2ee"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         version="2.5">
+
+    <display-name>sakai.mycalendar</display-name>
+
+    <!--  This application's servlet class -->
+    <servlet>
+        <servlet-name>sakai.mycalendar</servlet-name>
+        <servlet-class>org.apache.wicket.protocol.http.WicketServlet</servlet-class>
+        <init-param>
+            <param-name>applicationClassName</param-name>
+            <param-value>org.sakaiproject.mycalendar.WidgetApplication</param-value>
+        </init-param>
+        <load-on-startup>1</load-on-startup>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>sakai.mycalendar</servlet-name>
+        <url-pattern>/*</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>default</servlet-name>
+        <url-pattern>/fonts/*</url-pattern>
+        <url-pattern>/images/*</url-pattern>
+        <url-pattern>/scripts/*</url-pattern>
+        <url-pattern>/styles/*</url-pattern>
+    </servlet-mapping>
+
+    <filter>
+        <description>Response Header Filter to enable caching</description>
+        <display-name>Cache Filter For One Week</display-name>
+        <filter-name>CacheFilterForWeek</filter-name>
+        <filter-class>org.sakaiproject.util.ResponseHeaderFilter</filter-class>
+        <init-param>
+            <param-name>Cache-Control</param-name>
+            <param-value>max-age=2678400, public</param-value>
+        </init-param>
+    </filter>
+    <filter-mapping>
+        <filter-name>CacheFilterForWeek</filter-name>
+        <url-pattern>/fonts/*</url-pattern>
+        <url-pattern>/images/*</url-pattern>
+        <url-pattern>/scripts/*</url-pattern>
+        <url-pattern>/styles/*</url-pattern>
+    </filter-mapping>
+
+    <!-- Deploy mode -->
+    <context-param>
+            <param-name>configuration</param-name>
+            <!-- <param-value>development</param-value> -->
+            <param-value>deployment</param-value>
+    </context-param>
+
+    <!-- Sakai Request Filter -->
+    <filter>
+        <filter-name>sakai.request</filter-name>
+        <filter-class>org.sakaiproject.util.RequestFilter</filter-class>
+        <init-param>
+            <param-name>upload.enabled</param-name>
+            <param-value>false</param-value>
+        </init-param>
+    </filter>
+    <filter-mapping>
+        <filter-name>sakai.request</filter-name>
+        <servlet-name>sakai.mycalendar</servlet-name>
+        <dispatcher>REQUEST</dispatcher>
+        <dispatcher>FORWARD</dispatcher>
+        <dispatcher>INCLUDE</dispatcher>
+    </filter-mapping>
+
+    <!-- Sakai Tool Listener -->
+    <listener>
+        <listener-class>org.sakaiproject.util.ToolListener</listener-class>
+    </listener>
+
+    <!-- Sakai Spring Listener -->
+    <listener>
+        <listener-class>org.sakaiproject.util.SakaiContextLoaderListener</listener-class>
+    </listener>
+
+    <mime-mapping> 
+        <extension>properties</extension>
+        <mime-type>text/plain</mime-type> 
+    </mime-mapping>
+
+</web-app>

@@ -1,3 +1,18 @@
+/**
+ * Copyright (c) 2003-2017 The Apereo Foundation
+ *
+ * Licensed under the Educational Community License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *             http://opensource.org/licenses/ecl2
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.sakaiproject.gradebookng.tool.panels;
 
 import org.apache.wicket.RestartResponseException;
@@ -13,8 +28,8 @@ import org.sakaiproject.gradebookng.tool.pages.AccessDeniedPage;
 import org.sakaiproject.tool.gradebook.Gradebook;
 
 /**
- * Panel extension to abstract away some common functionality that many GBNG panels share.
- * Classes extending {@link BasePanel} do not need to inject the {@link GradebookNgBusinessService} as it is in here.
+ * Panel extension to abstract away some common functionality that many GBNG panels share. Classes extending {@link BasePanel} do not need
+ * to inject the {@link GradebookNgBusinessService} as it is in here.
  */
 public abstract class BasePanel extends Panel {
 
@@ -33,6 +48,7 @@ public abstract class BasePanel extends Panel {
 
 	/**
 	 * Helper to get the user role, via the business service. Handles the Access Denied scenario.
+	 * 
 	 * @return
 	 */
 	public GbRole getUserRole() {
@@ -50,6 +66,7 @@ public abstract class BasePanel extends Panel {
 
 	/**
 	 * Get the current user, via the business service
+	 * 
 	 * @return
 	 */
 	public String getCurrentUserId() {
@@ -58,6 +75,7 @@ public abstract class BasePanel extends Panel {
 
 	/**
 	 * Get the Gradebook for the panel, via the business service
+	 * 
 	 * @return
 	 */
 	public Gradebook getGradebook() {
@@ -65,4 +83,3 @@ public abstract class BasePanel extends Panel {
 	}
 
 }
-

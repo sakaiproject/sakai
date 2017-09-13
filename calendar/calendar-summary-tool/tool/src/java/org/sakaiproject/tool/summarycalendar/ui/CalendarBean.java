@@ -39,7 +39,6 @@ import javax.faces.context.FacesContext;
 import javax.faces.event.ActionEvent;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.joda.time.DateTime;
@@ -67,6 +66,7 @@ import org.sakaiproject.user.api.PreferencesService;
 import org.sakaiproject.util.CalendarChannelReferenceMaker;
 import org.sakaiproject.util.CalendarReferenceToChannelConverter;
 import org.sakaiproject.util.CalendarUtil;
+import org.sakaiproject.util.CalendarEventType;
 import org.sakaiproject.util.EntryProvider;
 import org.sakaiproject.util.MergedList;
 import org.sakaiproject.util.MergedListEntryProviderFixedListWrapper;
@@ -94,6 +94,8 @@ public class CalendarBean {
 
 	/** Resource bundle */
 	private transient ResourceLoader				msgs					= new ResourceLoader("calendar");
+	
+	private CalendarUtil calendarUtil = new CalendarUtil();
 	
 	/** Bean members */
 	private String									viewMode				= MODE_MONTHVIEW;
@@ -152,9 +154,6 @@ public class CalendarBean {
 	}
 	
 	public String getInitValues() {
-		// reload localized event types
-		EventTypes.reloadLocalization();
-		
 		long lastModified = PrefsBean.getPreferenceLastModified();
 		if(lastModifiedPrefs != lastModified)
 			readPreferences();
@@ -364,7 +363,7 @@ public class CalendarBean {
 			EventSummary es = new EventSummary();
 			es.setDisplayName(e.getDisplayName());
 			es.setType(e.getType());
-			es.setTypeLocalized(EventTypes.getLocalizedEventType(e.getType()));
+			es.setTypeLocalized(calendarUtil.getLocalizedEventType(e.getType()));
 			es.setCalendarRef(e.getCalendarReference());
 			es.setEventRef(e.getId());
 			es.setUrl(e.getUrl());
@@ -745,7 +744,7 @@ public class CalendarBean {
 				selectedEvent.setDisplayName(event.getDisplayName());
 				selectedEvent.setDate(event.getRange());
 				selectedEvent.setType(event.getType());
-				selectedEvent.setTypeLocalized(EventTypes.getLocalizedEventType(event.getType()));
+				selectedEvent.setTypeLocalized(calendarUtil.getLocalizedEventType(event.getType()));
 				selectedEvent.setDescription(event.getDescriptionFormatted());
 				selectedEvent.setLocation(event.getLocation());
 				Site site = M_ss.getSite(calendar.getContext());
@@ -839,31 +838,16 @@ public class CalendarBean {
 		}
 	}
 
-	public synchronized Map<String, String> getEventIconMap() {
-		if(eventIconMap == null || eventIconMap.size() == 0){
-			eventIconMap = new HashMap<String, String>();
-			eventIconMap.put("Academic Calendar", "<span class=\"icon icon-calendar-academic-calendar\"></span>");
-			eventIconMap.put("Activity", "<span class=\"icon icon-calendar-activity\"></span>");
-			eventIconMap.put("Cancellation", "<span class=\"icon icon-calendar-cancellation\"></span>");
-			eventIconMap.put("Class section - Discussion", "<span class=\"icon icon-calendar-class-section-discussion\"></span>");
-			eventIconMap.put("Class section - Lab", "<span class=\"icon icon-calendar-class-section-lab\"></span>");
-			eventIconMap.put("Class section - Lecture", "<span class=\"icon icon-calendar-class-section-lecture\"></span>");
-			eventIconMap.put("Class section - Small Group", "<span class=\"icon icon-calendar-class-section-small-group\"></span>");
-			eventIconMap.put("Class session", "<span class=\"icon icon-calendar-class-session\"></span>");
-			eventIconMap.put("Computer Session", "<span class=\"icon icon-calendar-computer-session\"></span>");
-			eventIconMap.put("Deadline", "<span class=\"icon icon-calendar-deadline\"></span>");
-			eventIconMap.put("Exam", "<span class=\"icon icon-calendar-exam\"></span>");
-			eventIconMap.put("Formative Assessment", "<span class=\"icon icon-calendar-formative-assessment\"></span>");
-			eventIconMap.put("Meeting", "<span class=\"icon icon-calendar-meeting\"></span>");
-			eventIconMap.put("Multidisciplinary Conference", "<span class=\"icon icon-calendar-multidisciplinary-conference\"></span>");
-			eventIconMap.put("Quiz", "<span class=\"icon icon-calendar-quiz\"></span>");
-			eventIconMap.put("Special event", "<span class=\"icon icon-calendar-special-event\"></span>");
-			eventIconMap.put("Submission Date", "<span class=\"icon icon-calendar-submission-date\"></span>");
-			eventIconMap.put("Tutorial", "<span class=\"icon icon-calendar-tutorial\"></span>");
-			eventIconMap.put("Web Assignment", "<span class=\"icon icon-calendar-web-assignment\"></span>");
-			eventIconMap.put("Workshop", "<span class=\"icon icon-calendar-workshop\"></span>");
+	public Map<String, String> getEventIconMap() {
+		Map<String, String> spanIconMap = new HashMap<>();
+		Map<String, String> iconMap = CalendarEventType.getIcons();
+		Set<String> eventKeys = iconMap.keySet();
+		for (String eventType: eventKeys)
+		{
+			spanIconMap.put(eventType, "<span class=\"icon " + iconMap.get(eventType) + "\"></span>");
 		}
-		return eventIconMap;
+		
+		return spanIconMap;
 	}
 	
 	public String getImgLocation() {

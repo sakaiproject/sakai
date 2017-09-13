@@ -3,15 +3,52 @@
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns:jaxrs="http://cxf.apache.org/jaxrs"
        xmlns:jaxws="http://cxf.apache.org/jaxws"
-       xsi:schemaLocation="
-	       http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
-	       http://cxf.apache.org/jaxrs http://cxf.apache.org/schemas/jaxrs.xsd
-	       http://cxf.apache.org/jaxws http://cxf.apache.org/schemas/jaxws.xsd">
+       xmlns:cxf="http://cxf.apache.org/core"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+           http://cxf.apache.org/jaxrs http://cxf.apache.org/schemas/jaxrs.xsd
+           http://cxf.apache.org/jaxws http://cxf.apache.org/schemas/jaxws.xsd
+           http://cxf.apache.org/core http://cxf.apache.org/schemas/core.xsd
+           ">
 
 
-  <import resource="classpath:META-INF/cxf/cxf.xml" />
-  <!--import resource="classpath:META-INF/cxf/cxf-extension-jaxrs-binding.xml" /-->
-  <import resource="classpath:META-INF/cxf/cxf-servlet.xml" />
+    <import resource="classpath:META-INF/cxf/cxf.xml" />
+    <!--import resource="classpath:META-INF/cxf/cxf-extension-jaxrs-binding.xml" /-->
+    <import resource="classpath:META-INF/cxf/cxf-servlet.xml" />
+
+    <bean id="RemoteHostFilter" class="org.sakaiproject.webservices.interceptor.RemoteHostMatcher" init-method="init">
+        <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
+        <property name="allowRequests">
+            <list>
+            </list>
+        </property>
+        <property name="allow">
+            <list>
+                <value>localhost</value>
+                <value>127\.0\.0\.1</value>
+                <value>192\.168\.[0-9.]+</value>
+                <value>10\.[0-9.]+</value>
+                <value>172\.1[6-9]\.[0-9.]+</value>
+                <value>172\.2[0-9]\.[0-9.]+</value>
+                <value>172\.3[0-1]\.[0-9.]+</value>
+            </list>
+        </property>
+        <!-- property name="deny">
+            <list>
+                <value>x\.x\.x\.x</value>
+            </list>
+        </property -->
+        <property name="logAllowed" value="false"/>
+        <property name="logDenied" value="true"/>
+    </bean>
+
+    <!-- This registers a matcher for all requests -->
+    <cxf:bus>
+        <cxf:inInterceptors>
+            <bean class="org.sakaiproject.webservices.interceptor.NetworkAddressValidatingInterceptor">
+                <constructor-arg ref="RemoteHostFilter"/>
+            </bean>
+        </cxf:inInterceptors>
+    </cxf:bus>
 
     <!-- JAX-RS -->
     <jaxrs:server id="SakaiLoginRS" address="/rest/login">
@@ -169,6 +206,7 @@
         <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
         <property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager"/>
         <property name="usageSessionService" ref="org.sakaiproject.event.api.UsageSessionService"/>
+        <property name="authenticationManager" ref="org.sakaiproject.user.api.AuthenticationManager"/>
         <property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService"/>
         <property name="authzGroupService" ref="org.sakaiproject.authz.api.AuthzGroupService"/>
         <property name="calendarService" ref="org.sakaiproject.calendar.api.CalendarService"/>

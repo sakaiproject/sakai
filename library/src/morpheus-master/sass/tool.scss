@@ -18,13 +18,16 @@
 
 @import "modules/tool/calendar/calendar";
 @import "modules/tool/chat/chat";
+@import "modules/tool/commons/commons";
 @import "modules/tool/lessons/lessons";
 @import "modules/tool/sitemanage/sitemanage";
 @import "modules/tool/announcements/announcements";
 @import "modules/tool/assignments/assignments";
 @import "modules/tool/messages/messages";
+@import "modules/tool/mycalendar/mycalendar";
 @import "modules/tool/polls/polls";
 @import "modules/tool/lessonbuilder/lessonbuilder";
+@import "modules/tool/myconnections/myconnections";
 @import "modules/tool/samigo/samigo";
 @import "modules/tool/resources/resources";
 @import "modules/tool/synoptic/synoptic";
@@ -37,6 +40,7 @@
 @import "modules/tool/pasystem/pasystem";
 @import "modules/tool/signup/signup";
 @import "modules/tool/sitesetup/sitesetup";
+@import "modules/tool/sitemembers/sitemembers";
 @import "modules/tool/dropbox/dropbox";
 @import "modules/tool/sitestats/sitestats";
 @import "modules/tool/syllabus/syllabus";
@@ -55,7 +59,9 @@
 @import "modules/cookies/base";
 @import "modules/tutorial/base";
 @import "modules/profile-popup/base";
+@import "modules/reorderer/base";
 @import "modules/bullhorn-alerts/base";
+@import "modules/connection-manager/base";
 @import "modules/profile-popup/base";
 
 @import "modules/editor/base";

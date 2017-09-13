@@ -1,38 +1,38 @@
 <?xml version="1.0"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-  <modelVersion>4.0.0</modelVersion>
-  <parent>
-    <groupId>org.sakaiproject</groupId>
-    <artifactId>master</artifactId>
-    <version>12-SNAPSHOT</version>
-    <relativePath>../master/pom.xml</relativePath>
-  </parent>
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>org.sakaiproject</groupId>
+        <artifactId>master</artifactId>
+        <version>13-SNAPSHOT</version>
+        <relativePath>../master/pom.xml</relativePath>
+    </parent>
 
-  <name>sakai-assignment base pom</name>
-  <groupId>org.sakaiproject.assignment</groupId>
-  <artifactId>assignment</artifactId>
-  <packaging>pom</packaging>
+    <name>sakai-assignment base pom</name>
+    <groupId>org.sakaiproject.assignment</groupId>
+    <artifactId>assignment</artifactId>
+    <packaging>pom</packaging>
 
-  <modules>
-    <module>assignment-api/api</module>
-    <module>assignment-bundles</module>
-    <module>assignment-impl/impl</module>
-    <module>assignment-tool/tool</module>
-  </modules>
+    <modules>
+        <module>api</module>
+        <module>bundles</module>
+        <module>impl</module>
+        <module>tool</module>
+    </modules>
 
-  <dependencyManagement>
-    <dependencies>
-      <dependency>
-        <groupId>${project.groupId}</groupId>
-        <artifactId>sakai-assignment-impl</artifactId>
-        <version>${project.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>${project.groupId}</groupId>
-        <artifactId>sakai-assignment-bundles</artifactId>
-        <version>${project.version}</version>
-      </dependency>
-    </dependencies>
-  </dependencyManagement>
-
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.sakaiproject.assignment</groupId>
+                <artifactId>sakai-assignment-impl</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.sakaiproject.assignment</groupId>
+                <artifactId>sakai-assignment-bundles</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 </project>

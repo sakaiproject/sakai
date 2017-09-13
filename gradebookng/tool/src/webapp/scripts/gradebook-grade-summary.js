@@ -108,20 +108,27 @@ GradebookGradeSummary.prototype.setupStudentNavigation = function() {
   var $showNext = this.$content.find(".gb-summary-next-student");
   var $done = this.$content.find(".gb-summary-close");
 
-  var $previous = sakai.gradebookng.spreadsheet.findVisibleStudentBefore(this.studentId);
-  var $next = sakai.gradebookng.spreadsheet.findVisibleStudentAfter(this.studentId);
+  var currentStudentIndex = GbGradeTable.rowForStudent(this.studentId);
 
-  if ($previous) {
+  var previousStudentId, nextStudentId;
+  if (currentStudentIndex > 0) {
+    previousStudentId = GbGradeTable.students[currentStudentIndex - 1].userId;
+  }
+  if (currentStudentIndex < GbGradeTable.students.length - 1) {
+    nextStudentId = GbGradeTable.students[currentStudentIndex + 1].userId;
+  } 
+
+  if (previousStudentId) {
     $showPrevious.click(function() {
-      $previous.find("a.gb-student-label").trigger("click");
+      GbGradeTable.viewGradeSummary(previousStudentId);
     });
   } else {
     $showPrevious.hide();
   }
 
-  if ($next) {
+  if (nextStudentId) {
     $showNext.click(function() {
-      $next.find("a.gb-student-label").trigger("click");
+      GbGradeTable.viewGradeSummary(nextStudentId);
     });    
   } else {
     $showNext.hide();

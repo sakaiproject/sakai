@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+
+	<bean parent="org.sakaiproject.entitybroker.entityprovider.AbstractEntityProvider"
+		class="org.sakaiproject.commons.tool.entityprovider.CommonsEntityProvider">
+		<property name="commonsManager"><ref bean="org.sakaiproject.commons.api.CommonsManager"/></property>
+        <property name="commonsSecurityManager"><ref bean="org.sakaiproject.commons.api.CommonsSecurityManager"/></property>
+        <property name="sakaiProxy"><ref bean="org.sakaiproject.commons.api.SakaiProxy"/></property>
+    </bean>
+
+</beans>

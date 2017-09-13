@@ -4,7 +4,7 @@
     <parent>
         <groupId>org.sakaiproject.edu-services.course-management</groupId>
         <artifactId>course-management</artifactId>
-        <version>12-SNAPSHOT</version><!-- ProjectVersion -->
+        <version>13-SNAPSHOT</version><!-- ProjectVersion -->
         <relativePath>../../pom.xml</relativePath>
     </parent>
     <name>coursemanagement-api</name>

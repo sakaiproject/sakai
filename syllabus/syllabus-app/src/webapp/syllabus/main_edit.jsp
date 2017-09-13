@@ -11,7 +11,7 @@
 	<sakai:view_content>
 
 <script>includeLatestJQuery('main_edit.jsp');</script>
-<link rel="stylesheet" href="/library/webjars/jquery-ui/1.11.3/jquery-ui.min.css" type="text/css" />
+<link rel="stylesheet" href="/library/webjars/jquery-ui/1.12.1/jquery-ui.min.css" type="text/css" />
 <script type="text/javascript" src="/library/js/lang-datepicker/lang-datepicker.js"></script>
 <script type="text/javascript" src="js/syllabus.js"></script>
 <script type="text/javascript">
@@ -332,17 +332,14 @@
 			<f:verbatim></p></f:verbatim>		  
 		  </syllabus:syllabus_if>
 
-          <syllabus:syllabus_ifnot test="#{SyllabusTool.syllabusItem.redirectURL}">
-            <sakai:tool_bar_message value="#{msgs.redirect_sylla}" />
-
-            <syllabus:syllabus_if test="#{SyllabusTool.openInNewWindowAsString}">
-                <syllabus:syllabus_iframe redirectUrl="#{SyllabusTool.syllabusItem.redirectURL}" width="100%"/>
-            </syllabus:syllabus_if>
-            <syllabus:syllabus_ifnot test="#{SyllabusTool.openInNewWindowAsString}">
-                <h:outputText escape="false"
-                              value="<script>javascript:printFriendly('#{SyllabusTool.syllabusItem.redirectURL}');</script>"/>
-            </syllabus:syllabus_ifnot>
-          </syllabus:syllabus_ifnot>
+			<syllabus:syllabus_ifnot test="#{SyllabusTool.syllabusItem.redirectURL}">
+				<sakai:tool_bar_message value="#{msgs.redirect_sylla}" />
+				<br/>
+				<h:outputText escape="false" value="#{msgs.redirect_explanation} " />
+				<h:outputLink target="_blank" rel="noopener" title="#{msgs.openLinkNewWindow}" value="#{SyllabusTool.syllabusItem.redirectURL}">
+					<h:outputText escape="false" value="#{SyllabusTool.syllabusItem.redirectURL}" />
+				</h:outputLink>
+			</syllabus:syllabus_ifnot>
 
         </h:form>
 	</sakai:view_content>

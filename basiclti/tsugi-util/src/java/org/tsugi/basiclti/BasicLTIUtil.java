@@ -41,6 +41,7 @@ import static org.tsugi.basiclti.BasicLTIConstants.TOOL_CONSUMER_INSTANCE_URL;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Date;
+import java.util.TimeZone;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
@@ -49,6 +50,8 @@ import java.util.UUID;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import java.text.SimpleDateFormat;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -115,6 +118,11 @@ public class BasicLTIUtil {
 
 	// We use the built-in Java logger because this code needs to be very generic
 	private static Logger M_log = Logger.getLogger(BasicLTIUtil.class.toString());
+
+	// How to make ISO8601 Dates
+	// https://stackoverflow.com/questions/2891361/how-to-set-time-zone-of-a-java-util-date
+	// https://stackoverflow.com/questions/2201925/converting-iso-8601-compliant-string-to-java-util-date
+	public static final String ISO_8601_FORMAT = "yyyy-MM-dd'T'HH:mm:ssz";
 
 	/** To turn on really verbose debugging */
 	private static boolean verbosePrint = false;
@@ -553,14 +561,18 @@ public class BasicLTIUtil {
 		}
 
 		// Paint the submit button
-		text.append("<input type=\"submit\" value=\"");
-		text.append(htmlspecialchars(launchtext));
-		text.append("\">\n");
-
 		if ( debug ) {
+			text.append("<input type=\"submit\" value=\"");
+			text.append(htmlspecialchars(launchtext));
+			text.append("\">\n");
+
 			text.append(" <input type=\"Submit\" value=\"Show Launch Data\" onclick=\"document.getElementById('ltiLaunchDebug_");
 			text.append(submit_uuid);
 			text.append("').style.display = 'block';return false;\">\n");
+		} else {
+			text.append("<input type=\"submit\" style=\"display: none\" value=\"");
+			text.append(htmlspecialchars(launchtext));
+			text.append("\">\n");
 		}
 
 		if ( extra != null ) {
@@ -1142,4 +1154,26 @@ public class BasicLTIUtil {
 	public static boolean equalsIgnoreCase(String str1, String str2) {
 		return str1 == null ? str2 == null : str1.equalsIgnoreCase(str2);
 	}
+
+	/**
+         * Return a ISO 8601 formatted date
+	 */
+	public static String getISO8601() {
+		return getISO8601(null);
+	}
+
+	/**
+         * Return a ISO 8601 formatted date
+	 */
+	public static String getISO8601(Date date) {
+		if ( date == null ) {
+			date = new Date();
+		}
+		SimpleDateFormat isoFormat = new SimpleDateFormat(ISO_8601_FORMAT);
+		isoFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
+		String timestamp = isoFormat.format(date);
+		timestamp = timestamp.replace("GMT", "Z");
+		return timestamp;
+	}
+
 }

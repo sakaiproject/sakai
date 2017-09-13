@@ -24,12 +24,11 @@ package org.sakaiproject.portal.charon.velocity;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.portal.api.Portal;
 import org.sakaiproject.portal.api.cover.PortalService;
 import org.sakaiproject.tool.cover.SessionManager;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Context Listener for the render engine.
@@ -38,11 +37,9 @@ import org.sakaiproject.tool.cover.SessionManager;
  * @since Sakai 2.4
  * @version $Rev$
  */
+@Slf4j
 public class PortalRenderEngineContextListener implements ServletContextListener
 {
-
-	private static final Logger log = LoggerFactory.getLogger(PortalRenderEngineContextListener.class);
-
 	private VelocityPortalRenderEngine vengine;
 
 	/*

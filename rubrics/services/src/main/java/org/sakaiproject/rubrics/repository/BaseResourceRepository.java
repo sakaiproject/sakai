@@ -37,7 +37,7 @@ public interface BaseResourceRepository<T extends BaseResource, ID extends Seria
         extends PagingAndSortingRepository<T, ID> {
 
     static final String QUERY_CONTEXT_CONSTRAINT = "(resource.metadata.ownerId = ?#{principal.contextId} " +
-            "or 1 = ?#{principal.hasWildcardContextId() ? 1 : 0})";
+            "or 1 = ?#{principal.isSuperUser() ? 1 : 0})";
 
     @Override
     @PreAuthorize("canWrite(#resource)")

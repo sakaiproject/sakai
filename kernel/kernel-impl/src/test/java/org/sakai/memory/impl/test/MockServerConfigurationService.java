@@ -1,9 +1,11 @@
 package org.sakai.memory.impl.test;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 import org.sakaiproject.component.api.ServerConfigurationService;
 
@@ -23,6 +25,14 @@ public class MockServerConfigurationService implements
 	public boolean getBoolean(String name, boolean dflt) {
 		// TODO Auto-generated method stub
 		return false;
+	}
+
+	public List<String> getStringList(String name, List<String> dflt) {
+		return new ArrayList<String>();
+	}
+
+	public List<Pattern> getPatternList(String name, List<String> dflt) {
+		return new ArrayList<Pattern>();
 	}
 
 	public List getDefaultTools(String category) {

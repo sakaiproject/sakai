@@ -1697,7 +1697,7 @@ public class DeliveryBean
                                                           .collect(Collectors.joining(";")));
       }	  
 
-	  EventTrackingService.post(EventTrackingService.newEvent(SamigoConstants.EVENT_ASSESSMENT_SUBMITTED, notificationValues.toString(), AgentFacade.getCurrentSiteId(), true, SamigoConstants.NOTI_EVENT_ASSESSMENT_SUBMITTED));
+	  EventTrackingService.post(EventTrackingService.newEvent(SamigoConstants.EVENT_ASSESSMENT_SUBMITTED_NOTI, notificationValues.toString(), AgentFacade.getCurrentSiteId(), true, SamigoConstants.NOTI_EVENT_ASSESSMENT_SUBMITTED));
  
 	  return returnValue;
 	  }
@@ -2527,7 +2527,6 @@ public class DeliveryBean
                         GradingService gradingService){
     // 1. create a media record
     File media = new File(mediaLocation);
-    byte[] mediaByte = getMediaStream(mediaLocation);
     String mimeType = MimeTypesLocator.getInstance().getContentType(media);
     boolean SAVETODB = getSaveToDb();
     log.debug("**** SAVETODB=" + SAVETODB);
@@ -2551,6 +2550,7 @@ public class DeliveryBean
     
     if (SAVETODB)
     { // put the byte[] in
+      byte[] mediaByte = getMediaStream(mediaLocation);
       mediaData = new MediaData(itemGradingData, mediaByte,
                                 Long.valueOf(mediaByte.length + ""),
                                 mimeType, "description", null,
@@ -2561,7 +2561,7 @@ public class DeliveryBean
     else
     { // put the location in
       mediaData = new MediaData(itemGradingData, null,
-    		  					Long.valueOf(mediaByte.length + ""),
+    		  					Long.valueOf(media.length() + ""),
                                 mimeType, "description", mediaLocation,
                                 updatedFilename, false, false, 1,
                                 agent, new Date(),
@@ -3409,7 +3409,7 @@ public class DeliveryBean
 	  return isAvailable;
   }
   
-  private boolean pastDueDate(){
+  public boolean pastDueDate(){
     boolean pastDue = true;
     Date currentDate = new Date();
 		Date dueDate;
@@ -3424,7 +3424,7 @@ public class DeliveryBean
     return pastDue;
   }
 
-  private boolean isAcceptLateSubmission() {
+  public boolean isAcceptLateSubmission() {
 	  boolean acceptLateSubmission = AssessmentAccessControlIfc.ACCEPT_LATE_SUBMISSION.equals(publishedAssessment.getAssessmentAccessControl().getLateHandling());
 	  //If using extended Time Delivery, the late submission setting is based on retracted
 	  if (extendedTimeDeliveryService.hasExtendedTime()) {
@@ -3434,7 +3434,7 @@ public class DeliveryBean
 	  return acceptLateSubmission;
   }
 
-  private boolean isRetracted(boolean isSubmitForGrade){
+  public boolean isRetracted(boolean isSubmitForGrade){
     boolean isRetracted = true;
     Date currentDate = new Date();
     Date retractDate;
@@ -3753,7 +3753,7 @@ public class DeliveryBean
 
 		  // We get the id of the question
 		  String radioId = (String) FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap().get("radioId");
-		  StringBuffer redrawAnchorName = new StringBuffer("p");
+		  StringBuilder redrawAnchorName = new StringBuilder("p");
 		  String tmpAnchorName = "";
 		  List parts = this.pageContents.getPartsContents();
 

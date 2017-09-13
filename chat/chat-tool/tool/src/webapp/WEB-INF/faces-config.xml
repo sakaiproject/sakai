@@ -78,11 +78,6 @@
       <to-view-id>/jsp/room.jsp</to-view-id>
       <redirect/>
     </navigation-case>
-    <navigation-case><!-- not needed if using the courier -->
-      <from-outcome>roomActions</from-outcome>
-      <to-view-id>/jsp/roomActions.jsp</to-view-id>
-      <redirect/>
-    </navigation-case>
     <navigation-case>
       <from-outcome>editRoom</from-outcome>
       <to-view-id>/jsp/editRoom.jsp</to-view-id>
@@ -91,11 +86,6 @@
     <navigation-case>
       <from-outcome>listRooms</from-outcome>
       <to-view-id>/jsp/listRooms.jsp</to-view-id>
-      <redirect/>
-    </navigation-case>
-    <navigation-case>
-      <from-outcome>deleteMessageConfirm</from-outcome>
-      <to-view-id>/jsp/deleteMessageConfirm.jsp</to-view-id>
       <redirect/>
     </navigation-case>
     <navigation-case>

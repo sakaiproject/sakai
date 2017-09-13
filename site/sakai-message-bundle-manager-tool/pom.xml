@@ -4,7 +4,7 @@
 	<parent>
         <groupId>org.sakaiproject.site</groupId>
         <artifactId>site</artifactId>
-        <version>12-SNAPSHOT</version>
+        <version>13-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 	<groupId>org.sakaiproject.mbm.tool</groupId>

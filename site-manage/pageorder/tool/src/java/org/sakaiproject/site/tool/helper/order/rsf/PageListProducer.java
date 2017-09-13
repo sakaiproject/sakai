@@ -1,3 +1,18 @@
+/**
+ * Copyright (c) 2003-2017 The Apereo Foundation
+ *
+ * Licensed under the Educational Community License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *             http://opensource.org/licenses/ecl2
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.sakaiproject.site.tool.helper.order.rsf;
 
 import java.util.Iterator;
@@ -82,8 +97,6 @@ public class PageListProducer
                 UIBranchContainer pagerow = 
                     UIBranchContainer.make(pageForm, "page-row:", page.getId());
     
-                pagerow.decorate(new UITooltipDecorator(UIMessage.make("page_click_n_drag")));
-                
                 UIOutput.make(pagerow, "page-name", page.getTitle());
                 UIInput.make(pagerow, "page-name-input", "#{SitePageEditHandler.nil}", page.getTitle());
                 UIMessage.make(pagerow, "page-name-label", "title");
@@ -133,6 +146,7 @@ public class PageListProducer
                     //for all tools that want special configuration and/or allow multiple instances 
                     //per site
                     if ("sakai.iframe".equals(tool.getToolId())) {
+                        UIMessage.make(pagerow, "page-config-label", "url");
                         UIInput.make(pagerow, "page-config-input", "#{SitePageEditHandler.nil}", 
                                 tool.getPlacementConfig().getProperty("source"));
                     }
@@ -208,11 +222,12 @@ public class PageListProducer
  
             frameAdjustingProducer.fillComponents(tofill, "resize", "resetFrame");
 
-            //If allow reorder is set, show the sort-alpha button and startup the javascript to allow reordering
+            // If reorder is set, show the sort-alpha button
             if (serverConfigurationService.getBoolean(ALLOW_REORDER, true)) {
-                UIInitBlock.make(tofill, "jsreorder","enableReorder",new Object[] {});
-
                 fullyDecorate(UICommand.make(pageForm, "sort_alpha", UIMessage.make("sort_alpha"), "#{SitePageEditHandler.sort_alpha}"), UIMessage.make("sort_alpha"));
+            }
+            else {
+                UIInitBlock.make(tofill, "jsreorder","disableReorder",new Object[] {});
             }
  
         }

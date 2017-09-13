@@ -621,27 +621,5 @@ public class ViewBean
 				.getName());
 	}
 
-	
-	/**
-	 * Returns a print view URL with no breadcrumbs
-	 * 
-	 * @return
-	 */
-	public String getPrintViewUrl()
-	{
-		return getPrintViewUrl(false);
-	}
-
-	/**
-	 * Returns a string representation of an url to perma view the current page
-	 * 
-	 * @return url as string
-	 */
-	public String getPrintViewUrl(boolean withBreadcrumbs)
-	{
-		return getPageUrl(pageName, WikiPageAction.PRINTVIEW_ACTION.getName(),
-				withBreadcrumbs);
-	}
-
 
 }

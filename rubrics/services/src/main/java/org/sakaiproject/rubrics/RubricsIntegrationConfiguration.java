@@ -33,11 +33,5 @@ public class RubricsIntegrationConfiguration {
     String sakaiRestUrl;
 
     @NotNull
-    String sakaiAdminUser;
-
-    @NotNull
-    String sakaiAdminPassword;
-
-    @NotNull
     String tokenSecret;
 }

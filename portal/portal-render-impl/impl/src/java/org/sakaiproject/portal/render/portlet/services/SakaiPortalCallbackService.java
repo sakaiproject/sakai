@@ -27,8 +27,6 @@ import javax.portlet.PortletMode;
 import javax.portlet.WindowState;
 import javax.servlet.http.HttpServletRequest;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.apache.pluto.PortletWindow;
 import org.apache.pluto.spi.PortalCallbackService;
 import org.apache.pluto.spi.PortletURLProvider;
@@ -39,17 +37,16 @@ import org.sakaiproject.portal.render.portlet.services.state.PortletStateAccess;
 import org.sakaiproject.portal.render.portlet.services.state.PortletStateEncoder;
 
 import org.sakaiproject.component.cover.ServerConfigurationService;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * @author csev
  * @since Sakai 2.4
  * @version $Rev$
  */
+@Slf4j
 public class SakaiPortalCallbackService implements PortalCallbackService
 {
-
-	private static final Logger LOG = LoggerFactory.getLogger(SakaiPortalCallbackService.class);
-
 	public static final String PORTLET_STATE_QUERY_PARAM = "org.sakaiproject.portal.pluto.PORTLET_STATE";
 
 	private PortletStateEncoder portletStateEncoder = new EnhancedPortletStateEncoder();
@@ -66,7 +63,7 @@ public class SakaiPortalCallbackService implements PortalCallbackService
 
 	public void setTitle(HttpServletRequest request, PortletWindow window, String title)
 	{
-		LOG.debug("Setting portlet title for window '" + window.getId() + "' to '"
+		log.debug("Setting portlet title for window '" + window.getId() + "' to '"
 				+ title + "'.");
 		PortletStateAccess.getPortletState(request, window.getId().getStringId())
 				.setTitle(title);

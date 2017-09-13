@@ -106,7 +106,7 @@
 }
 
 .instruction{
-	@include bs-callout($tool-border-color, $background-color);
+	@include bs-callout($instruction-color, $instruction-background-color);
 }
 
 .listNav{

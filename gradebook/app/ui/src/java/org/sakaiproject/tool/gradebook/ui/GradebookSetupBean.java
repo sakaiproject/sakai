@@ -27,17 +27,16 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.HashMap;
 import java.util.Set;
 import java.math.BigDecimal;
 
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ValueChangeEvent;
 
+import org.sakaiproject.tool.gradebook.GradebookAssignment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import org.sakaiproject.tool.gradebook.Assignment;
 import org.sakaiproject.tool.gradebook.Category;
 import org.sakaiproject.tool.gradebook.GradeMapping;
 import org.sakaiproject.tool.gradebook.Gradebook;
@@ -98,7 +97,8 @@ public class GradebookSetupBean extends GradebookDependentBean implements Serial
 		if (localGradebook == null)
 		{
 			localGradebook = getGradebook();
-			categories = getGradebookManager().getCategoriesWithStats(getGradebookId(),Assignment.DEFAULT_SORT, true, Category.SORT_BY_NAME, true);
+			categories = getGradebookManager().getCategoriesWithStats(getGradebookId(),
+                    GradebookAssignment.DEFAULT_SORT, true, Category.SORT_BY_NAME, true);
             populateCategoryAssignments(categories);
 			convertWeightsFromDecimalsToPercentages();
 			intializeGradeEntryAndCategorySettings();
@@ -151,9 +151,9 @@ public class GradebookSetupBean extends GradebookDependentBean implements Serial
                         List assignmentsToUpdate = new ArrayList();
                      // only include assignments which are not adjustments must not update adjustment item pointsPossible
                         for(Object o : assignments) { 
-                            if(o instanceof Assignment) {
-                                Assignment assignment = (Assignment)o;
-                                if(!Assignment.item_type_adjustment.equals(assignment.getItemType())) {
+                            if(o instanceof GradebookAssignment) {
+                                GradebookAssignment assignment = (GradebookAssignment)o;
+                                if(!GradebookAssignment.item_type_adjustment.equals(assignment.getItemType())) {
                                     assignmentsToUpdate.add(assignment);
                                 }
                             }
@@ -478,11 +478,11 @@ public class GradebookSetupBean extends GradebookDependentBean implements Serial
 		// now be "unassigned"
 		/*if (localGradebook.getCategory_type() == GradebookService.CATEGORY_TYPE_NO_CATEGORY &&
 				(categorySetting.equals(CATEGORY_OPT_CAT_ONLY) || categorySetting.equals(CATEGORY_OPT_CAT_AND_WEIGHT))) {
-			List assignmentsInGb = getGradebookManager().getAssignments(getGradebookId(), Assignment.DEFAULT_SORT, true);
+			List assignmentsInGb = getGradebookManager().getAssignments(getGradebookId(), GradebookAssignment.DEFAULT_SORT, true);
 			if (assignmentsInGb != null && !assignmentsInGb.isEmpty()) {
 				Iterator assignIter = assignmentsInGb.iterator();
 				while (assignIter.hasNext()) {
-					Assignment assignment = (Assignment) assignIter.next();
+					GradebookAssignment assignment = (GradebookAssignment) assignIter.next();
 					assignment.setCounted(false);
 					getGradebookManager().updateAssignment(assignment);
 				}
@@ -657,9 +657,9 @@ public class GradebookSetupBean extends GradebookDependentBean implements Serial
                                 List assignments = getGradebookManager().getAssignmentsForCategory(updatedCategory.getId());
                                 List assignmentsToUpdate = new ArrayList();
                                 for(Object o : assignments) { // must not update adjustment item pointsPossible
-                                    if(o instanceof Assignment) {
-                                        Assignment assignment = (Assignment)o;
-                                        if(!Assignment.item_type_adjustment.equals(assignment.getItemType())) {
+                                    if(o instanceof GradebookAssignment) {
+                                        GradebookAssignment assignment = (GradebookAssignment)o;
+                                        if(!GradebookAssignment.item_type_adjustment.equals(assignment.getItemType())) {
                                             assignmentsToUpdate.add(assignment);
                                         }
                                     }
@@ -721,7 +721,7 @@ public class GradebookSetupBean extends GradebookDependentBean implements Serial
 		List assigns = getGradebookManager().getAssignmentsWithNoCategory(gradebookId, null, true);
 		for(Iterator iter = assigns.iterator(); iter.hasNext();)
 		{
-			Assignment assignment = (Assignment) iter.next();
+			GradebookAssignment assignment = (GradebookAssignment) iter.next();
 			assignment.setCounted(false);
 			getGradebookManager().updateAssignment(assignment);
 		}

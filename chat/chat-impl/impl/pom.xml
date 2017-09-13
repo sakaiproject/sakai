@@ -4,7 +4,7 @@
   <parent>
     <artifactId>chat-base</artifactId>
     <groupId>org.sakaiproject</groupId>
-    <version>12-SNAPSHOT</version>
+    <version>13-SNAPSHOT</version>
     <relativePath>../../pom.xml</relativePath>
   </parent>
 
@@ -71,12 +71,16 @@
       <artifactId>entitybroker-api</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.sakaiproject.courier</groupId>
-      <artifactId>sakai-courier-api</artifactId>
+     <groupId>org.sakaiproject.presence</groupId>
+     <artifactId>sakai-presence-api</artifactId>
+   </dependency>
+    <dependency>
+        <groupId>org.jgroups</groupId>
+        <artifactId>jgroups</artifactId>
     </dependency>
-        <dependency>
-      <groupId>org.sakaiproject.courier</groupId>
-      <artifactId>sakai-courier-util</artifactId>
+    <dependency>
+        <groupId>com.google.guava</groupId>
+        <artifactId>guava</artifactId>
     </dependency>
     <dependency>
       <groupId>commons-lang</groupId>
@@ -95,6 +99,12 @@
         <directory>${basedir}/src/bundle</directory>
         <includes>
           <include>**/*.properties</include>
+        </includes>
+      </resource>
+      <resource>
+        <directory>${basedir}/conf</directory>
+        <includes>
+          <include>**/*.xml</include>
         </includes>
       </resource>
     </resources>

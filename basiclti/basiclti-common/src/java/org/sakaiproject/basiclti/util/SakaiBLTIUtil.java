@@ -380,6 +380,14 @@ public class SakaiBLTIUtil {
 				setProperty(lti2subst,LTI2Vars.COURSESECTION_SOURCEDID,site.getId());
 				setProperty(lti2subst,LTI2Vars.COURSEOFFERING_SOURCEDID,site.getId());
 			}
+
+			// SAK-31282 - Add the Academic Session (ext_sakai_academic_session) to LTI launches
+			String termPropertyName = ServerConfigurationService.getString("irubric.termPropertyName", "");
+			if ( termPropertyName.length() > 0 ) {
+				String academicSessionId = site.getProperties().getProperty(termPropertyName);
+				if ((academicSessionId == "") || (academicSessionId == null)) academicSessionId = "OTHER";
+				setProperty(props,"ext_sakai_academic_session", academicSessionId);
+			}
 		}
 
 		// Fix up the return Url
@@ -399,6 +407,7 @@ public class SakaiBLTIUtil {
 		}
 
 		setProperty(props, BasicLTIConstants.LAUNCH_PRESENTATION_RETURN_URL, returnUrl);
+
 	}
 
 	public static void addUserInfo(Properties ltiProps, Properties lti2subst, Map<String, Object> tool)
@@ -698,7 +707,8 @@ public class SakaiBLTIUtil {
 
 		// Get the organizational information
 		setProperty(props,BasicLTIConstants.TOOL_CONSUMER_INSTANCE_GUID, 
-				ServerConfigurationService.getString("basiclti.consumer_instance_guid",null));
+				ServerConfigurationService.getString("basiclti.consumer_instance_guid",
+				ServerConfigurationService.getString("serverName", null)));
 		setProperty(props,BasicLTIConstants.TOOL_CONSUMER_INSTANCE_NAME, 
 				ServerConfigurationService.getString("basiclti.consumer_instance_name",null));
 		setProperty(props,BasicLTIConstants.TOOL_CONSUMER_INSTANCE_DESCRIPTION, 
@@ -706,7 +716,8 @@ public class SakaiBLTIUtil {
 		setProperty(props,BasicLTIConstants.TOOL_CONSUMER_INSTANCE_CONTACT_EMAIL, 
 				ServerConfigurationService.getString("basiclti.consumer_instance_contact_email",null));
 		setProperty(props,BasicLTIConstants.TOOL_CONSUMER_INSTANCE_URL, 
-				ServerConfigurationService.getString("basiclti.consumer_instance_url",null));
+				ServerConfigurationService.getString("basiclti.consumer_instance_url",
+				ServerConfigurationService.getString("serverUrl", null)));
 
 		// Send along the CSS URL
 		String tool_css = ServerConfigurationService.getString("basiclti.consumer.launch_presentation_css_url",null);
@@ -1380,9 +1391,11 @@ public class SakaiBLTIUtil {
 		if ( launch_url == null ) launch_url = toolProps.getProperty("launch_url");
 		if ( launch_url == null ) return postError("<p>" + getRB(rb, "error.missing" ,"Not configured")+"</p>");
 
-		String org_guid = ServerConfigurationService.getString("basiclti.consumer_instance_guid",null);
+		String org_guid = ServerConfigurationService.getString("basiclti.consumer_instance_guid",
+			ServerConfigurationService.getString("serverName", null));
 		String org_desc = ServerConfigurationService.getString("basiclti.consumer_instance_description",null);
-		String org_url = ServerConfigurationService.getString("basiclti.consumer_instance_url",null);
+		String org_url = ServerConfigurationService.getString("basiclti.consumer_instance_url",
+			ServerConfigurationService.getString("serverUrl", null));
 
 		// Look up the LMS-wide secret and key - default key is guid
 		String key = getToolConsumerInfo(launch_url,"key");

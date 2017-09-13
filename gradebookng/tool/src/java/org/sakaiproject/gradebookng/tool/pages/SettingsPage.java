@@ -1,3 +1,18 @@
+/**
+ * Copyright (c) 2003-2017 The Apereo Foundation
+ *
+ * Licensed under the Educational Community License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *             http://opensource.org/licenses/ecl2
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.sakaiproject.gradebookng.tool.pages;
 
 import java.math.BigDecimal;
@@ -101,7 +116,8 @@ public class SettingsPage extends BasePage {
 						}
 
 						// ensure we don't have drop highest and keep highest at the same time
-						if((cat.getDropHighest().intValue() > 0 && cat.getKeepHighest().intValue() > 0) || (cat.getDrop_lowest().intValue() > 0 && cat.getKeepHighest().intValue() > 0)) {
+						if ((cat.getDropHighest().intValue() > 0 && cat.getKeepHighest().intValue() > 0)
+								|| (cat.getDrop_lowest().intValue() > 0 && cat.getKeepHighest().intValue() > 0)) {
 							error(getString("settingspage.update.failure.categorydropkeepenabled"));
 						}
 
@@ -163,7 +179,7 @@ public class SettingsPage extends BasePage {
 					getSession().error(getString("settingspage.update.failure.gradingschemamapping"));
 					responsePage = getPage();
 				} catch (final Exception e) {
-					//catch all to prevent stacktraces
+					// catch all to prevent stacktraces
 					getSession().error(e.getMessage());
 					responsePage = getPage();
 				}
@@ -219,7 +235,7 @@ public class SettingsPage extends BasePage {
 
 		// Drag and Drop (requires jQueryUI)
 		response.render(JavaScriptHeaderItem
-			.forUrl(String.format("/library/webjars/jquery-ui/1.11.3/jquery-ui.min.js?version=%s", version)));
+				.forUrl(String.format("/library/webjars/jquery-ui/1.12.1/jquery-ui.min.js?version=%s", version)));
 
 		response.render(CssHeaderItem.forUrl(String.format("/gradebookng-tool/styles/gradebook-settings.css?version=%s", version)));
 		response.render(

@@ -447,14 +447,16 @@ public class SimplePageBean {
 		public String Url;
 		public String label;
 		public String fa_icon = null;
+		public Boolean search = Boolean.FALSE;
 		public UrlItem(String Url, String label) {
 			this.Url = Url;
 			this.label = label;
 		}
-		public UrlItem(String Url, String label, String fa_icon) {
+		public UrlItem(String Url, String label, String fa_icon, Boolean search) {
 			this.Url = Url;
 			this.label = label;
 			this.fa_icon = fa_icon;
+			this.search = search;
 		}
 	}
 
@@ -846,9 +848,11 @@ public class SimplePageBean {
 		this.hasReleaseDate = hasReleaseDate;
 	}
 
-	public void setNodownloads(boolean n) {
+        // Can this method be safely commented out (in tandem with the nodownloads reference in applicationContext.xml)?
+        // See LSNBLDR-816.
+    	public void setNodownloads(boolean n) {
 		this.nodownloads = n;
-	}
+	} 
 
 	public void setAddBefore(String n) {
 		this.addBefore = n;
@@ -2513,8 +2517,45 @@ public class SimplePageBean {
 	public String adjustPath(String op, Long pageId, Long pageItemId, String title) {
 		List<PathEntry> path = (List<PathEntry>)sessionManager.getCurrentToolSession().getAttribute(LESSONBUILDER_PATH);
 
+		// Allow the new portal lessons subnav to push a subpage on the context
+		if (op.equals("clear_and_push")) {
+			// clear path for top level subpage
+			path = new ArrayList<PathEntry>();
+
+			// add an entry for the parent page
+			SimplePage parentPage = null;
+
+			// the current page may have a parent
+			if (currentPage.getParent() != null && currentPage.getParent() != 0) {
+				parentPage = getPage(currentPage.getParent());
+
+			// try and get it from the current item
+			} else if (currentPageItemId != null) {
+				SimplePageItem item = getCurrentPageItem(currentPageItemId);
+				parentPage = getPage(item.getPageId());
+			}
+
+			PathEntry parentEntry = new PathEntry();
+			parentEntry.pageItemId = -1L;
+			if (parentPage == null) {
+				// we tried our best, default these values so things don't break
+				parentEntry.pageId = -1L;
+				parentEntry.title = "";
+			} else {
+				parentEntry.pageId = parentPage.getPageId();
+				parentEntry.title = parentPage.getTitle();
+			}
+			path.add(parentEntry);
+
+			// add the subpage
+			PathEntry entry = new PathEntry();
+			entry.pageId = pageId;
+			entry.pageItemId = pageItemId;
+			entry.title = title;
+			path.add(entry);  // put it on the end
+
 		// if no current path, op doesn't matter. we can just do the current page
-		if (path == null || path.size() == 0) {
+		} else if (path == null || path.size() == 0) {
 			PathEntry entry = new PathEntry();
 			entry.pageId = pageId;
 			entry.pageItemId = pageItemId;
@@ -4217,19 +4258,6 @@ public class SimplePageBean {
 			}
 			if (add)
 			    page.setGradebookPoints(newPoints);
-			boolean oldDownloads = site.getProperties().getProperty("lessonbuilder-nodownloadlinks") != null;
-			if (oldDownloads != nodownloads) {
-			    if (oldDownloads)
-				site.getPropertiesEdit().removeProperty("lessonbuilder-nodownloadlinks");
-			    else if (nodownloads)
-				site.getPropertiesEdit().addProperty("lessonbuilder-nodownloadlinks", "true");
-			    try {
-				siteService.save(site);
-			    } catch (Exception e) {
-				log.error("editTitle unable to save site " + e);
-			    }
-
-			}
 
 			isOwner = currentUserId!=null && page!=null && currentUserId.equals(page.getOwner());
 			if (newOwner==null){
@@ -7045,7 +7073,7 @@ public class SimplePageBean {
 		if (!checkCsrf())
 		    return;
 
-		if(getCurrentPage().getOwner() == null) {
+		if(canEditPage()) {
 			SimplePageItem item = appendItem("", messageLocator.getMessage("simplepage.student-content"), SimplePageItem.STUDENT_CONTENT);
 			item.setDescription(messageLocator.getMessage("simplepage.student-content"));
 			saveItem(item);
@@ -7331,7 +7359,6 @@ public class SimplePageBean {
 			
 			item.setAttribute("questionShowPoll", String.valueOf(questionShowPoll));
 
-			simplePageToolDao.syncQRTotals(item);
 
 		}
 		
@@ -7352,7 +7379,10 @@ public class SimplePageBean {
 
 		if(gradebookTitle != null && (item.getGradebookId() == null || item.getGradebookId().equals(""))) {
 			// Creating new gradebook entry
-			
+			if (itemId != null && itemId < 0) {
+				saveItem(item);
+			}
+
 			String gradebookId = "lesson-builder:question:" + item.getId();
 			String title = gradebookTitle;
 			if(title == null || title.equals("")) {
@@ -7393,6 +7423,10 @@ public class SimplePageBean {
 		setItemGroups(item, selectedGroups);
 
 		saveOrUpdate(item);
+
+		if(questionType.equals("multipleChoice")) {
+			simplePageToolDao.syncQRTotals(item);
+		}
 
 		regradeAllQuestionResponses(item.getId());
 		
@@ -8147,8 +8181,13 @@ public class SimplePageBean {
 			resourceCache.put(collectionId, resources);
 		}
 		
+		// For a while, up to Sakai 11.3, uploading a custom css file directly from
+		// the lessonbuilder page could cause Sakai to generate file names like foo.css-1
+		// In such cases, they should appear in the dropdown for custom css
+		Pattern cssPattern = Pattern.compile("\\.css(-[0-9][0-9]*){0,1}$", Pattern.CASE_INSENSITIVE);
+		
 		for(ContentResource r : resources) {
-			if(r.getUrl().endsWith(".css")) {
+			if(cssPattern.matcher(r.getUrl()).find()) {
 				list.add(r);
 			}
 		}
@@ -8170,7 +8209,7 @@ public class SimplePageBean {
 		}
 		
 		for(ContentResource r : resources) {
-			if(r.getUrl().endsWith(".css")) {
+			if(cssPattern.matcher(r.getUrl()).find()) {
 				list.add(r);
 			}
 		}

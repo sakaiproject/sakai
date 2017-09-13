@@ -38,8 +38,7 @@ import org.sakaiproject.portal.render.api.ToolRenderService;
 import org.sakaiproject.portal.util.URLUtils;
 import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.util.Web;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * I Frame tool renderer, renders the iframe header to contain the tool content
@@ -48,13 +47,10 @@ import org.slf4j.LoggerFactory;
  * @since Sakai 2.4
  * @version $Rev$
  */
+@Slf4j
 public class IFrameToolRenderService implements ToolRenderService
 {
-
-	private static final Logger LOG = LoggerFactory.getLogger(IFrameToolRenderService.class);
-
 	private PortalService portalService;
-
 
 	// private static ResourceLoader rb = new ResourceLoader("sitenav");
 
@@ -74,7 +70,7 @@ public class IFrameToolRenderService implements ToolRenderService
 		String toolUrl = ServerConfigurationService.getToolUrl() + "/"
 				+ Web.escapeUrl(configuration.getId());
 		StoredState ss = portalService.getStoredState();
-		LOG.debug("Restoring Iframe [" + ss + "]");
+		log.debug("Restoring Iframe [" + ss + "]");
 
 		Map parametermap = ss == null ? request.getParameterMap() : ss
 				.getRequest(request).getParameterMap();

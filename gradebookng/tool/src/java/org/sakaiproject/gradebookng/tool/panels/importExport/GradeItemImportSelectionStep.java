@@ -1,3 +1,18 @@
+/**
+ * Copyright (c) 2003-2017 The Apereo Foundation
+ *
+ * Licensed under the Educational Community License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *             http://opensource.org/licenses/ecl2
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.sakaiproject.gradebookng.tool.panels.importExport;
 
 import java.util.ArrayList;
@@ -65,7 +80,8 @@ public class GradeItemImportSelectionStep extends BasePanel {
 		final ImportWizardModel importWizardModel = this.model.getObject();
 
 		// get the count of items that are selectable
-		GradeItemImportSelectionStep.this.selectableItems = importWizardModel.getProcessedGradeItems().stream().filter(item -> item.getStatus() != Status.SKIP).collect(Collectors.toList()).size();
+		GradeItemImportSelectionStep.this.selectableItems = importWizardModel.getProcessedGradeItems().stream()
+				.filter(item -> item.getStatus() != Status.SKIP).collect(Collectors.toList()).size();
 
 		// label to show if all items are actually hidden
 		final Label allHiddenLabel = new Label("allHiddenLabel", new ResourceModel("importExport.selection.hideitemsallhidden")) {
@@ -87,13 +103,13 @@ public class GradeItemImportSelectionStep extends BasePanel {
 			public void onClick(final AjaxRequestTarget target) {
 
 				// toggle button state
-				if(GradeItemImportSelectionStep.this.naHidden) {
-					//toggling off
+				if (GradeItemImportSelectionStep.this.naHidden) {
+					// toggling off
 					GradeItemImportSelectionStep.this.naHidden = false;
 					this.add(AttributeModifier.replace("class", "button"));
 					this.add(AttributeModifier.replace("aria-pressed", "false"));
 				} else {
-					//toggling on
+					// toggling on
 					GradeItemImportSelectionStep.this.naHidden = true;
 					this.add(AttributeModifier.replace("class", "button on"));
 					this.add(AttributeModifier.replace("aria-pressed", "true"));
@@ -103,14 +119,13 @@ public class GradeItemImportSelectionStep extends BasePanel {
 
 				// toggle elements
 				target.appendJavaScript("$('.no_changes').toggle();");
-				if(GradeItemImportSelectionStep.this.selectableItems == 0) {
+				if (GradeItemImportSelectionStep.this.selectableItems == 0) {
 					target.appendJavaScript("$('.selection_form').toggle();");
-					//TODO show a message
+					// TODO show a message
 				}
 			}
 		};
 		add(hideNoChanges);
-
 
 		// get the list of items to display
 		// to retain order we use the grade items as the primary list
@@ -129,8 +144,10 @@ public class GradeItemImportSelectionStep extends BasePanel {
 				boolean validated = true;
 
 				// get the items that were selected
-				final List<ProcessedGradeItem> selectedGradeItems = filterListByType(allItems.stream().filter(item -> item.isSelected()).collect(Collectors.toList()), Type.GB_ITEM);
-				final List<ProcessedGradeItem> selectedCommentItems = filterListByType(allItems.stream().filter(item -> item.isSelected()).collect(Collectors.toList()), Type.COMMENT);
+				final List<ProcessedGradeItem> selectedGradeItems = filterListByType(
+						allItems.stream().filter(item -> item.isSelected()).collect(Collectors.toList()), Type.GB_ITEM);
+				final List<ProcessedGradeItem> selectedCommentItems = filterListByType(
+						allItems.stream().filter(item -> item.isSelected()).collect(Collectors.toList()), Type.COMMENT);
 
 				log.debug("Selected grade items: " + selectedGradeItems.size());
 				log.debug("Selected grade items: " + selectedGradeItems);
@@ -138,7 +155,8 @@ public class GradeItemImportSelectionStep extends BasePanel {
 				log.debug("Selected comment items: " + selectedCommentItems.size());
 				log.debug("Selected comment items: " + selectedCommentItems);
 
-				// combine the two lists. since comments can be toggled independently, the selectedGradeItems may not contain the item we need to update
+				// combine the two lists. since comments can be toggled independently, the selectedGradeItems may not contain the item we
+				// need to update
 				// this is combined with a 'type' and 'selected' check when adding the data to the gradebook, in the next step
 				final List<ProcessedGradeItem> itemsToProcess = new ArrayList<>();
 				itemsToProcess.addAll(selectedGradeItems);
@@ -146,26 +164,29 @@ public class GradeItemImportSelectionStep extends BasePanel {
 
 				// this has an odd model so we need to have the validation in the onSubmit.
 				if (itemsToProcess.size() == 0) {
- 					validated = false;
- 					error(getString("importExport.selection.noneselected"));
- 				}
+					validated = false;
+					error(getString("importExport.selection.noneselected"));
+				}
 
-				if(validated) {
+				if (validated) {
 					// clear any previous errors
 					final ImportExportPage page = (ImportExportPage) getPage();
 					page.clearFeedback();
 
 					// Process the selected items into the create/update lists
-					// Note that create and modify can only be for gb items - even if comments are Status.NEW they are handled as part of the corresponding gb item data import
-					final List<ProcessedGradeItem> itemsToCreate = filterListByType(filterListByStatus(itemsToProcess, Status.NEW), Type.GB_ITEM);
+					// Note that create and modify can only be for gb items - even if comments are Status.NEW they are handled as part of
+					// the corresponding gb item data import
+					final List<ProcessedGradeItem> itemsToCreate = filterListByType(filterListByStatus(itemsToProcess, Status.NEW),
+							Type.GB_ITEM);
 					final List<ProcessedGradeItem> itemsToUpdate = filterListByStatus(itemsToProcess, Status.UPDATE);
-					final List<ProcessedGradeItem> itemsToModify = filterListByType(filterListByStatus(itemsToProcess, Status.MODIFIED), Type.GB_ITEM);
+					final List<ProcessedGradeItem> itemsToModify = filterListByType(filterListByStatus(itemsToProcess, Status.MODIFIED),
+							Type.GB_ITEM);
 
 					log.debug("Items to create: " + itemsToCreate.size());
 					log.debug("Items to update: " + itemsToUpdate.size());
 					log.debug("Items to modify: " + itemsToModify.size());
 
-					//set data for next page
+					// set data for next page
 					importWizardModel.setItemsToCreate(itemsToCreate);
 					importWizardModel.setItemsToUpdate(itemsToUpdate);
 					importWizardModel.setItemsToModify(itemsToModify);
@@ -251,12 +272,13 @@ public class GradeItemImportSelectionStep extends BasePanel {
 				// render the item row
 				final AjaxCheckBox gradeItemCheckbox = new AjaxCheckBox("checkbox", new PropertyModel<Boolean>(gradeItem, "selected")) {
 					private static final long serialVersionUID = 1L;
+
 					@Override
 					protected void onUpdate(final AjaxRequestTarget target) {
-						if(gradeItem.isSelected()) {
+						if (gradeItem.isSelected()) {
 							gbItemWrap.addStyle(GbStyle.SELECTED);
 
-							if(commentItem.isSelectable()) {
+							if (commentItem.isSelectable()) {
 								commentItem.setSelected(true);
 								commentWrap.addStyle(GbStyle.SELECTED);
 							}
@@ -283,9 +305,10 @@ public class GradeItemImportSelectionStep extends BasePanel {
 				// render the comments row
 				final AjaxCheckBox commentsCheckbox = new AjaxCheckBox("checkbox", new PropertyModel<Boolean>(commentItem, "selected")) {
 					private static final long serialVersionUID = 1L;
+
 					@Override
 					protected void onUpdate(final AjaxRequestTarget target) {
-						if(commentItem.isSelected()) {
+						if (commentItem.isSelected()) {
 							commentWrap.addStyle(GbStyle.SELECTED);
 						} else {
 							commentWrap.removeStyle(GbStyle.SELECTED);
@@ -295,7 +318,8 @@ public class GradeItemImportSelectionStep extends BasePanel {
 					}
 				};
 
-				final Label commentsStatus = new Label("status", new ResourceModel("importExport.status." + commentItem.getStatus().name()));
+				final Label commentsStatus = new Label("status",
+						new ResourceModel("importExport.status." + commentItem.getStatus().name()));
 				commentWrap.add(commentsCheckbox);
 				commentWrap.add(commentsStatus);
 				item.add(commentWrap);
@@ -332,18 +356,21 @@ public class GradeItemImportSelectionStep extends BasePanel {
 
 	/**
 	 * Filter the list of items by the given statuses
+	 * 
 	 * @param itemList
 	 * @param statuses
 	 * @return
 	 */
 	private List<ProcessedGradeItem> filterListByStatus(final List<ProcessedGradeItem> itemList, final Status... statuses) {
 		final List<Status> statusList = Arrays.asList(statuses);
-		final List<ProcessedGradeItem> filteredList = itemList.stream().filter(item -> statusList.contains(item.getStatus())).collect(Collectors.toList());
+		final List<ProcessedGradeItem> filteredList = itemList.stream().filter(item -> statusList.contains(item.getStatus()))
+				.collect(Collectors.toList());
 		return filteredList;
 	}
 
 	/**
 	 * Filter the list of items by the given type
+	 * 
 	 * @param itemList
 	 * @param type
 	 * @return
@@ -353,10 +380,10 @@ public class GradeItemImportSelectionStep extends BasePanel {
 		return filteredList;
 	}
 
-
 	/**
 	 * Map a gradebook item to its comment column, if any. All gb items will have an entry, the value may be null if there are no comments.
 	 * Entries are keyed on the gradebook item title.
+	 * 
 	 * @param items
 	 * @return
 	 */
@@ -367,9 +394,10 @@ public class GradeItemImportSelectionStep extends BasePanel {
 
 		final Map<String, ProcessedGradeItem> rval = new HashMap<>();
 
-		//match up the gradebook items with the comment columns. comment columns have the same title.
+		// match up the gradebook items with the comment columns. comment columns have the same title.
 		gbItems.forEach(gbItem -> {
-			final ProcessedGradeItem commentItem = commentItems.stream().filter(item -> StringUtils.equalsIgnoreCase(item.getItemTitle(), gbItem.getItemTitle())).findFirst().orElse(null);
+			final ProcessedGradeItem commentItem = commentItems.stream()
+					.filter(item -> StringUtils.equalsIgnoreCase(item.getItemTitle(), gbItem.getItemTitle())).findFirst().orElse(null);
 			rval.put(gbItem.getItemTitle(), commentItem);
 		});
 
@@ -378,18 +406,21 @@ public class GradeItemImportSelectionStep extends BasePanel {
 
 	/**
 	 * Create a map of item title to item. Only gb items are in this map.
+	 * 
 	 * @param items
 	 * @return
 	 */
 	private Map<String, ProcessedGradeItem> createGradeItemMap(final List<ProcessedGradeItem> items) {
 		final List<ProcessedGradeItem> gbItems = filterListByType(items, Type.GB_ITEM);
-		final Map<String, ProcessedGradeItem> rval = gbItems.stream().collect(Collectors.toMap(ProcessedGradeItem::getItemTitle, Function.identity()));
+		final Map<String, ProcessedGradeItem> rval = gbItems.stream()
+				.collect(Collectors.toMap(ProcessedGradeItem::getItemTitle, Function.identity()));
 
 		return rval;
 	}
 
 	/**
 	 * If there is no comment item imported we need a blank object so that the row renders correctly
+	 * 
 	 * @return
 	 */
 	private ProcessedGradeItem setupBlankCommentItem() {
@@ -400,5 +431,3 @@ public class GradeItemImportSelectionStep extends BasePanel {
 	}
 
 }
-
-

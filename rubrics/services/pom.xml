@@ -4,7 +4,7 @@
 
     <groupId>org.sakaiproject.rubrics</groupId>
     <artifactId>rubrics-service</artifactId>
-    <version>12-SNAPSHOT</version>
+    <version>13-SNAPSHOT</version>
     <packaging>war</packaging>
 
     <name>Sakai Rubrics - REST API &amp; Web Components</name>
@@ -13,7 +13,7 @@
     <parent>
         <groupId>org.sakaiproject.rubrics</groupId>
         <artifactId>rubrics</artifactId>
-        <version>12-SNAPSHOT</version>
+        <version>13-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 

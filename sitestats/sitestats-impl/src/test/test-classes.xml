@@ -34,6 +34,11 @@
                 <property name="entityManager" ref="org.sakaiproject.sitestats.test.mocks.FakeEntityManager"/>
                 <property name="eventTrackingService" ref="org.sakaiproject.sitestats.test.mocks.FakeEventTrackingService"/>
                 <property name="usageSessionService" ref="org.sakaiproject.sitestats.test.mocks.FakeUsageSessionService" />
+                <property name="transactionTemplate">
+                    <bean class="org.springframework.transaction.support.TransactionTemplate">
+                        <property name="transactionManager" ref="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager"/>
+                    </bean>
+                </property>
     </bean>
     
     <bean id="org.sakaiproject.sitestats.test.StatsManager" parent="sstTxTemplate"

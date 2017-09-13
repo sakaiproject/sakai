@@ -1,3 +1,18 @@
+/**
+ * Copyright (c) 2010-2017 The Apereo Foundation
+ *
+ * Licensed under the Educational Community License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *             http://opensource.org/licenses/ecl2
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 /*
 * Licensed to The Apereo Foundation under one or more contributor license
 * agreements. See the NOTICE file distributed with this work for
@@ -20,8 +35,11 @@
 package org.sakaiproject.roster.impl;
 
 import java.util.*;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang.ArrayUtils;
+import org.sakaiproject.entity.api.ResourceProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sakaiproject.api.privacy.PrivacyManager;
@@ -131,6 +149,10 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
 
         if (!registered.contains(RosterFunctions.ROSTER_FUNCTION_VIEWSITEVISITS)) {
             functionManager.registerFunction(RosterFunctions.ROSTER_FUNCTION_VIEWSITEVISITS, true);
+        }
+
+        if (!registered.contains(RosterFunctions.ROSTER_FUNCTION_VIEWUSERPROPERTIES)) {
+            functionManager.registerFunction(RosterFunctions.ROSTER_FUNCTION_VIEWUSERPROPERTIES, true);
         }
 
         eventTrackingService.addObserver(this);
@@ -285,6 +307,19 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
 				"roster.display.userDisplayId", DEFAULT_VIEW_USER_DISPLAY_ID);
 	}
 
+	@Override
+	public Boolean getViewUserProperty() {
+		return getViewUserProperty(getCurrentSiteId());
+	}
+
+	@Override
+	public Boolean getViewUserProperty(String siteId) {
+		if(serverConfigurationService.getBoolean("roster_view_user_properties", DEFAULT_VIEW_USER_PROPERTIES)) {
+			return hasUserSitePermission(getCurrentUserId(), RosterFunctions.ROSTER_FUNCTION_VIEWUSERPROPERTIES, siteId);
+		}
+		return false;
+	}
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -292,6 +327,14 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
 		return serverConfigurationService.getBoolean(
 				"roster.display.officialPicturesByDefault", true);
     }
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	public int getPageSize() {
+		return serverConfigurationService.getInt(
+				"roster.display.pageSize", 10);
+	}
 	
 	public RosterMember getMember(String siteId, String userId, String enrollmentSetId) {
 
@@ -457,6 +500,8 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
 						filtered.addAll(filterHiddenMembers(unfiltered, currentUserId, site.getId(), group));
 					}
 				}
+				// The group loop is shuffling members, sort the list again
+				Collections.sort(filtered,memberComparator);
 			} else if (null != site.getGroup(groupId)) {
 				// get all members of requested groupId if current user is
 				// member
@@ -591,6 +636,22 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
 		rosterMember.setDisplayName(user.getDisplayName());
 		rosterMember.setSortName(user.getSortName());
 
+		Map<String, String> userPropertiesMap = new HashMap<>();
+		ResourceProperties props = user.getProperties();
+
+		// avoid multi-valued properties by using ResourceProperties.getProperty()
+		props.getPropertyNames().forEachRemaining(p -> userPropertiesMap.put(p, props.getProperty(p)));
+
+		// remove null values from map
+		userPropertiesMap.values().removeIf(Objects::isNull);
+
+		// filter values that are configured to be removed
+		Pattern regex = Pattern.compile(serverConfigurationService.getString("roster.filter.user.properties.regex", "^udp\\.dn$"));
+		Set<String> keysToRemove = userPropertiesMap.keySet().stream().filter(regex.asPredicate()).collect(Collectors.toSet());
+		userPropertiesMap.keySet().removeAll(keysToRemove);
+
+		rosterMember.setUserProperties(userPropertiesMap);
+
 		for (Group group : groups) {
 			if (group.getMember(userId) != null) {
 			    rosterMember.addGroup(group.getId(), group.getTitle());
@@ -628,9 +689,7 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
 
         String key = (enrollmentStatusId == null) ? enrollmentSetId + "#all" : enrollmentSetId + "#" + enrollmentStatusId;
 
-        if (log.isDebugEnabled()) {
-            log.debug("Trying to get members list " + key + " from membersMap ...");
-        }
+        log.debug("Trying to get members list {} from membersMap ...", key);
 
         List<RosterMember> members = membersMap.get(key);
 
@@ -771,28 +830,21 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
         Cache cache = getCache(ENROLLMENTS_CACHE);
 
         log.debug("Trying to get '{}' from enrollments cache ...", siteId);
-
         Map<String, List<RosterMember>> membersMap = (Map<String, List<RosterMember>>) cache.get(siteId);
 
         if (membersMap == null) {
-            if (log.isDebugEnabled()) {
-                log.debug("Cache miss. Putting empty membersMap on " + siteId + " ...");
-            }
-            membersMap = new HashMap<String, List<RosterMember>>();
+            log.debug("Cache miss. Putting empty membersMap on {} ...", siteId);
+            membersMap = new HashMap<>();
             cache.put(siteId, membersMap);
         }
 
         if (membersMap.containsKey(enrollmentSetId + "#all")
                 && membersMap.containsKey(enrollmentSetId + "#wait")
                 && membersMap.containsKey(enrollmentSetId + "#enrolled")) {
-            if (log.isDebugEnabled()) {
-                log.debug("Cache hit on '" + enrollmentSetId + "'");
-            }
+            log.debug("Cache hit on '{}'", enrollmentSetId);
             return membersMap;
         } else {
-            if (log.isDebugEnabled()) {
-                log.debug("Cache miss on '" + enrollmentSetId + "'");
-            }
+            log.debug("Cache miss on '{}'", enrollmentSetId);
 
             EnrollmentSet enrollmentSet = null;
             try {
@@ -808,9 +860,9 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
 
 		    Map<String, RosterMember> membership = getMembershipMapped(site, null);
 
-            List<RosterMember> members = new ArrayList<RosterMember>();
-            List<RosterMember> waiting = new ArrayList<RosterMember>();
-            List<RosterMember> enrolled = new ArrayList<RosterMember>();
+            List<RosterMember> members = new ArrayList<>();
+            List<RosterMember> waiting = new ArrayList<>();
+            List<RosterMember> enrolled = new ArrayList<>();
 
             Map<String, String> statusCodes
                 = courseManagementService.getEnrollmentStatusDescriptions(new ResourceLoader().getLocale());
@@ -835,14 +887,11 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
             Collections.sort(waiting, memberComparator);
             Collections.sort(enrolled, memberComparator);
 
-            if (log.isDebugEnabled()) {
-                log.debug("Caching all enrollment set members on '" + enrollmentSetId + "#all' ...");
-                log.debug("Caching watlisted members on '" + enrollmentSetId + "#wait' ...");
-                log.debug("Caching enrolled members on '" + enrollmentSetId + "#enrolled' ...");
-            }
-
+            log.debug("Caching all enrollment set members on '{}#all' ...", enrollmentSetId);
             membersMap.put(enrollmentSetId + "#all", members);
+            log.debug("Caching watlisted members on '{}#wait' ...", enrollmentSetId);
             membersMap.put(enrollmentSetId + "#wait", waiting);
+            log.debug("Caching enrolled members on '{}#enrolled' ...", enrollmentSetId);
             membersMap.put(enrollmentSetId + "#enrolled", enrolled);
 
             return membersMap;
@@ -860,7 +909,7 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
 			return null;
 		}
 		
-		if (log.isDebugEnabled()) log.debug("currentUserId: " + currentUserId);
+		log.debug("currentUserId: {}", currentUserId);
 
 		Site site = getSite(siteId);
 		if (null == site) {
@@ -868,7 +917,7 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
 			return null;
 		}
 		
-		if (log.isDebugEnabled()) log.debug("site: " + site.getId());
+		log.debug("site: {}", site.getId());
 		
 		RosterSite rosterSite = new RosterSite(siteId);
 
@@ -876,8 +925,7 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
 
         rosterSite.setMembersTotal(site.getMembers().size());
 
-		List<RosterGroup> siteGroups = getViewableSiteGroups(currentUserId,
-				site);
+		List<RosterGroup> siteGroups = getViewableSiteGroups(currentUserId, site);
 
 		if (0 == siteGroups.size()) {
 			// to avoid IndexOutOfBoundsException in EB code
@@ -886,8 +934,8 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
 			rosterSite.setSiteGroups(siteGroups);
 		}
 
-        Map<String, Integer> roleCounts = new HashMap<String, Integer>();
-		List<String> userRoles = new ArrayList<String>();
+        Map<String, Integer> roleCounts = new HashMap<>();
+		List<String> userRoles = new ArrayList<>();
 		for (Role role : site.getRoles()) {
             String roleId = role.getId();
 			userRoles.add(roleId);
@@ -1146,8 +1194,10 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
 
         if (arg instanceof Event) {
             Event event = (Event) arg;
-            if (SiteService.SECURE_UPDATE_SITE_MEMBERSHIP.equals(event.getEvent())) {
-                if (log.isDebugEnabled()) log.debug("Site membership updated. Clearing caches ...");
+            String eventName = event.getEvent();
+            if (SiteService.SECURE_UPDATE_SITE_MEMBERSHIP.equals(eventName)
+                    || SiteService.SECURE_UPDATE_GROUP_MEMBERSHIP.equals(eventName)) {
+                log.debug("Site membership or groups updated. Clearing caches ...");
                 String siteId = event.getContext();
 
                 Cache enrollmentsCache = getCache(ENROLLMENTS_CACHE);

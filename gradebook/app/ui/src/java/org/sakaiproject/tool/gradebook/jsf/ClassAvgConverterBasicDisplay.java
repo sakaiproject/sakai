@@ -25,11 +25,11 @@ package org.sakaiproject.tool.gradebook.jsf;
 import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;
 
+import org.sakaiproject.tool.gradebook.GradebookAssignment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sakaiproject.tool.gradebook.ui.AssignmentGradeRow;
 import org.sakaiproject.tool.gradebook.ui.GradebookBean;
-import org.sakaiproject.tool.gradebook.Assignment;
 import org.sakaiproject.tool.gradebook.Category;
 import org.sakaiproject.tool.gradebook.CourseGrade;
 import org.sakaiproject.tool.gradebook.Gradebook;
@@ -74,8 +74,8 @@ public class ClassAvgConverterBasicDisplay extends PointsConverter {
 		Gradebook gradebook;
 
 		if (value != null) {
-			if (value instanceof Assignment) {
-				Assignment assignment = (Assignment)value;
+			if (value instanceof GradebookAssignment) {
+				GradebookAssignment assignment = (GradebookAssignment)value;
 				gradebook = assignment.getGradebook();
 
 				if (gradebook.getGrade_type() == GradebookService.GRADE_TYPE_POINTS) {

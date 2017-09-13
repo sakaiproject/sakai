@@ -1,5 +1,3 @@
-#javascript("/library/js/fluid/1.5/MyInfusion.js")
-#javascript("/library/js/reorderer.js")
 <div class="portletBody container-fluid">
 	#if($menu && $EnabledMenuItemExists)
 			#toolbar($menu)
@@ -43,7 +41,7 @@
 		<span id="lastMoveArrayInit" style="display:none"></span>
 		<span id="lastItemMoved"  style="display:none"></span>
 		<form name="announcementListForm" action="#toolForm("AnnouncementAction")" method="post">
-			<div id="reorder-list-sortingToolBar" class=" row itemAction">
+			<div id="reorder-list-sortingToolBar" class="row itemAction">
 				<div class="col-md-4 col-sm-4 col-xs-12">
 					#if (!$currentSortedBy.equals("subject"))
 						<a href="#" class="title" onclick="location='#toolLink("AnnouncementAction" "doSortbysubject")';return false;"  title ="$tlang.getString('gen.sortby')">$tlang.getString('gen.sortby')</a>
@@ -100,13 +98,13 @@
 					#end
 				</div>
 			</div>
-				<ul id="reorder-list">
+				<ul id="reorder-list" class="styled-reorder-list">
 
 				#set($count = 0)
 				#foreach ($ann_item in $showMessagesList)
 					#set($ann_item_props=$ann_item.getProperties())
-					<li #rowTRconstruct($ann_item_props $displayOptions $ann_item.Header.draft true) id="listitem.orderable$count">
-							<span style="display:none" class="grabHandle">
+					<li #rowTRconstruct($ann_item_props $displayOptions $ann_item.Header.draft true) id="listitem.orderable$count" tabindex="0">
+						<span style="display:none" class="grabHandle">
 							<input type="text" size="3" value="$count" id="index$count" style="z-index:5"/>
 							<input type="hidden" size="3" id="holder$count"  value="$count"/>
 						</span>	

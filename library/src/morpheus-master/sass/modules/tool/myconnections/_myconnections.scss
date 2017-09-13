@@ -1,0 +1,60 @@
+.#{$namespace}sakai-myconnections{
+
+    /* apply to an element with a background image to make rounded and centred */
+    .rounded {
+        width: 70px;
+        height: 70px;
+        display: inline-block;
+        background-size: auto 100%;
+        background-position: 50%;
+        border-radius: 50%;
+        position: relative;
+        margin-top: 0;
+    }
+
+    .myconnections-cell {
+        position: relative;
+        text-align: center;
+        width: 160px;
+        padding-top: 20px;
+        vertical-align: top;
+    }
+
+    nav.#{$namespace}toolTitleNav, div.#{$namespace}toolBody>nav.#{$namespace}toolTitleNav {
+        border: 1px solid #e0e0e0;
+        background-color: #f0f0f0;
+        text-align: center;
+        box-sizing: border-box;
+    }
+
+    nav.#{$namespace}toolTitleNav>h2.#{$namespace}toolTitleNav__title, div.#{$namespace}toolBody>nav.#{$namespace}toolTitleNav>h2.#{$namespace}toolTitleNav__title {
+        color: #333;
+        font-weight: bold;
+        font-size: 1em;
+    }
+
+    div.#{$namespace}toolBody--sakai-myconnections>h3 {
+        text-align: center;
+    }
+
+    div.#{$namespace}toolBody--sakai-myconnections>div>table {
+        margin: 0 auto;
+    }
+
+    div.online-status {
+        display: block;
+        height: 16px;
+        width: 16px;
+        position: absolute;
+        left: 61%;
+        top: 80px;
+        border-radius: 8px;
+    }
+
+    div.online-status.online {
+        background-color: yellowgreen;
+    }
+    div.online-status.away {
+        background-color: gold
+    }
+}

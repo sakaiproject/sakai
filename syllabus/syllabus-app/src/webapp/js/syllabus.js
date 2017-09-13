@@ -501,14 +501,17 @@ function doAddItemButtonClick( msgs, published )
 		if( $( "#successInfo" ).is( ":visible" ) )
 		{
 			location.reload();
+			return true;
 		}
 	}
+
+	return false;
 }
 
 function showConfirmAdd(msgs, mainframeId){
 	$('#container', this.top.document).append("<div></div>");
 	$('<div></div>').appendTo('body')
-		.html("<div><h6>" + msgs.syllabus_title + "</h6><input type='text' id='newTitle'/></div><div style='display:none' id='requiredTitle' class='warning'>" + msgs.required + "</div>" +
+		.html("<div><h6><span class='reqStar'>* </span>" + msgs.syllabus_title + "</h6><input type='text' id='newTitle'/></div><div style='display:none' id='requiredTitle' class='warning'>" + msgs.required + "</div>" +
 				"<h6>" + msgs.syllabus_content + "</h6><div class='bodyInput' id='newContentDiv'><textarea cols='120' id='newContentTextAreaWysiwyg'/></div>")
 		.dialog({
 			position: {
@@ -526,11 +529,11 @@ function showConfirmAdd(msgs, mainframeId){
 			buttons: [
 				{
 					text: msgs.bar_publish,
-					click: function() { doAddItemButtonClick( msgs, true ); $( this ).dialog( "close" ); }
+					click: function() { if (doAddItemButtonClick( msgs, true )) {$( this ).dialog( "close" );} }
 				},
 				{
 					text: msgs.bar_new,
-					click: function() { doAddItemButtonClick( msgs, false ); $( this ).dialog( "close" ); }
+					click: function() { if (doAddItemButtonClick( msgs, false )) {$( this ).dialog( "close" );} }
 				},
 				{
 					text: msgs.bar_cancel,

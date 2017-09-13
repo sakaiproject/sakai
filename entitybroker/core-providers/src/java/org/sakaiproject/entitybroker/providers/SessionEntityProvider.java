@@ -54,9 +54,14 @@ import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.SecurityService;
+import org.sakaiproject.user.api.Authentication;
+import org.sakaiproject.user.api.AuthenticationException;
+import org.sakaiproject.user.api.AuthenticationManager;
+import org.sakaiproject.user.api.Evidence;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
+import org.sakaiproject.util.IdPwEvidence;
 
 /**
  * Entity provider for Sakai Sessions
@@ -71,6 +76,11 @@ public class SessionEntityProvider extends AbstractEntityProvider implements Cor
 
    private static Logger log = LoggerFactory.getLogger(SessionEntityProvider.class);
    protected static final String SU_WS_BECOME_USER = "su.ws.become";
+
+   public AuthenticationManager authenticationManager;
+   public void setAuthenticationManager(AuthenticationManager authenticationManager) {
+      this.authenticationManager = authenticationManager;
+   }
 
    public SessionManager sessionManager;
    public void setSessionManager(SessionManager sessionManager) {
@@ -199,18 +209,21 @@ public class SessionEntityProvider extends AbstractEntityProvider implements Cor
                      + "the username must be provided as '_username' and the password as '_password' in the POST");
             }
             // now we auth
-            User u = userDirectoryService.authenticate(username, password);
-            if (u == null) {
+            try {
+                Evidence evidence = new IdPwEvidence(username, password, req.getRemoteAddr());
+                Authentication auth = authenticationManager.authenticate(evidence);
+
+                // create session or update existing one
+                currentSession = sessionManager.getCurrentSession();
+                if (currentSession == null) {
+                   // start a session if none is found
+                   currentSession = sessionManager.startSession();
+                }
+                currentSession.setUserId(auth.getUid());
+                currentSession.setUserEid(auth.getEid());
+            } catch (AuthenticationException ae) {
                throw new SecurityException("The username or password provided were invalid, could not authenticate user ("+username+") to create a session");
             }
-            // create session or update existing one
-            currentSession = sessionManager.getCurrentSession();
-            if (currentSession == null) {
-               // start a session if none is found
-               currentSession = sessionManager.startSession();
-            }
-            currentSession.setUserId(u.getId());
-            currentSession.setUserEid(u.getEid());
          }
       }
 

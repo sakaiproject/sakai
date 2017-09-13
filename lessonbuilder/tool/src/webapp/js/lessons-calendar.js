@@ -37,7 +37,7 @@ $(function(){
                                     start: startDate,
                                     site_name: this["siteName"],
                                     type: this["type"],
-                                    icon: this["eventImage"],
+                                    icon: this["eventIcon"],
                                     event_id: this["eventId"],
                                     attachments: this["attachments"],
                                     eventReference: this["eventReference"],
@@ -58,23 +58,24 @@ $(function(){
             var endDate = new Date(event.end).toLocaleString();
             $("#startTime").text(moment(startDate, 'DD/MM/YYYY, HH:mm:ss').format('DD-MM-YYYY hh:mm A'));
             $("#endTime").text(moment(endDate, 'DD/MM/YYYY, hh:mm:').format('DD-MM-YYYY hh:mm A'));
-            var src = "/library/image/" + event.icon;
-            $('#event-type-icon').attr("src",src);
+            $('#event-type-icon').attr("class","icon " + event.icon);
             $("#event-type").text(event.type);
             $("#event-description").html(event.descriptionFormatted);
             $("#site-name").text(event.site_name);
             //if event has attachment show attachment info div , else hide it
             if(event.attachments.length >= 1){
-                var attachments = "<ul class='eventAttachmentList'>";
+                var attachments = "<br><ul class='eventAttachmentList'>";
                 var altMessage = msg("simplepage.eventAttachments");
                 for(i=0; i< event.attachments.length; i++){
                     var href = event.attachments[i].url;
                     var filename = href.split('/');
                     filename = filename[filename.length-1];
-                    attachments += '<li class="eventAttachmentItem"><a href="'+href+'" target="_blank">'+filename+'</a><img src="/library/image/sakai/attachments.gif" alt="' + altMessage + '"></li>';
+                    attachments += '<li class="eventAttachmentItem"><a href="'+href+'" target="_blank" alt="' + altMessage + '"><span class="icon icon-calendar-attachment"></span>'+
+                                   '<span class="eventAttachmentFilename">'+filename+'</span></a></li>';
                 }
                 attachments += "</ul>"
                 $('#event-attachments').html(attachments);
+                $("#eventAttachmentsDiv").show();
             }
             else{
                 $("#eventAttachmentsDiv").hide();

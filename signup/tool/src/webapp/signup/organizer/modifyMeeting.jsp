@@ -141,9 +141,8 @@
 					<div class="form-group row ">
 						<h:outputLabel value="#{msgs.event_name}" for="title" escape="false" styleClass="col-lg-2 form-control-label form-required"/>
 						<div class="col-lg-10">
-							<h:inputText id="title" value="#{EditMeetingSignupMBean.signupMeeting.title}" required="true" size="40" 
+							<h:inputText id="title" value="#{EditMeetingSignupMBean.title}" size="40" 
 										styleClass="editText form-control">
-								<f:validator validatorId="Signup.EmptyStringValidator"/>
 								<f:validateLength maximum="255" />
 							</h:inputText>
 							<h:message for="title" errorClass="alertMessageInline"/>
@@ -354,7 +353,7 @@
 								<h:panelGrid columns="1" columnClasses="miCol1">
 									<%-- multiple: --%>
 									<h:panelGroup rendered="#{EditMeetingSignupMBean.individualType}">
-										<h:panelGrid columns="2" id="mutipleCh" styleClass="mi" columnClasses="miCol1,miCol2"> 
+										<h:panelGrid columns="2" id="multipleCh" styleClass="mi" columnClasses="miCol1,miCol2"> 
 											<h:outputText id="maxAttendeesPerSlot" style="display:none" value="#{EditMeetingSignupMBean.maxAttendeesPerSlot}"></h:outputText>
 											<h:outputText id="maxSlots" style="display:none" value="#{EditMeetingSignupMBean.maxSlots}"></h:outputText>   
 											<h:outputText value="#{msgs.event_num_slot_avail_for_signup}" />

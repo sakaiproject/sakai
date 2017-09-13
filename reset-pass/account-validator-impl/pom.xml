@@ -19,7 +19,7 @@
 	<parent>
 		<groupId>org.sakaiproject.reset-pass</groupId>
 		<artifactId>reset-pass</artifactId>
-		<version>12-SNAPSHOT</version>
+		<version>13-SNAPSHOT</version>
 	</parent>
 	<dependencies>
 
@@ -86,8 +86,8 @@
 			<artifactId>sakai-util-api</artifactId> </dependency>
 		-->
 		<dependency>
-			<groupId>commons-lang</groupId>
-			<artifactId>commons-lang</artifactId>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-lang3</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>org.sakaiproject.entitybroker
@@ -137,13 +137,9 @@
 			<artifactId>commons-codec</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>commons-collections</groupId>
-			<artifactId>commons-collections</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>easymock</groupId>
+			<groupId>org.easymock</groupId>
 			<artifactId>easymock</artifactId>
-			<version>1.2_Java1.3</version>
+			<version>3.4</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>

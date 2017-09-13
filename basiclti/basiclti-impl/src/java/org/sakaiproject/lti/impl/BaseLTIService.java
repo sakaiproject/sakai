@@ -445,6 +445,73 @@ public abstract class BaseLTIService implements LTIService {
 		return deleteToolDao(key, siteId, isAdmin(siteId), isMaintain(siteId));
 	}
 
+	/** Delete a tool and delete the content items and site links assocated with the tool
+	 *
+	 * This is called by a maintain user in a regualr site and deletes a tool, its content
+	 * item, and pages with it on the page.
+	 *
+	 * For the admin user in the !admin site - it deletes a tool and then removes the
+	 * placements + pages from all the sites that have the tool - might take a second or two.
+	 *
+	 * @return A list of strings that are error messages
+	 */
+	@Override
+	public List<String> deleteToolAndContents(Long key, String siteId) {
+
+		List<String> retval = new ArrayList<String> ();
+		String errstr;
+
+		List<Map<String,Object>> contents;
+		if ( isAdmin(siteId) ) {
+			contents = this.getContentsDao("lti_content.tool_id = "+key,null,0,5000, null, isAdmin(siteId));
+		} else {
+			contents = this.getContents("lti_content.tool_id = "+key, null,0,5000, siteId);
+		}
+
+		for ( Map<String,Object> content : contents ) {
+			// the content with same tool id remove the content link first
+			Long content_key = foorm.getLongNull(content.get(LTIService.LTI_ID));
+			if ( content_key == null ) continue;
+
+			// Check the tool_id - just double checking in case the WHER clause fails
+			Long tool_id = foorm.getLongNull(content.get(LTIService.LTI_TOOL_ID));
+			if ( ! key.equals(tool_id) ) continue;
+
+			// Admin edits all sites with the content item
+			String contentSite = siteId;
+			if ( isAdmin(siteId) ) {
+				contentSite = content.get(LTIService.LTI_SITE_ID).toString();
+			}
+
+			// Is there is a tool placement in the left Nav (i.e. not Lessons)
+			// remove the tool content link page from the site
+			String pstr = (String) content.get(LTIService.LTI_PLACEMENT);
+			if ( pstr != null && pstr.length() > 1 ) {
+				errstr = this.deleteContentLink(content_key, contentSite);
+				if ( errstr != null ) {
+					M_log.debug(errstr);
+					retval.add(errstr);
+				}
+			}
+
+			// remove the content item that depends on the tool
+			if ( ! this.deleteContent(content_key, contentSite) ) {
+				errstr = "Unable to delete content itemkey="+key+" site="+siteId;
+				M_log.debug(errstr);
+				retval.add(errstr);
+			}
+		}
+
+		// We are going to delete the tool even if there were problems along the way
+		// Since that is the one thing we are supposed to do in this method
+		if ( ! this.deleteTool(key, siteId) ) {
+			errstr = "Unable to delete tool key="+key+" site="+siteId;
+			M_log.debug(errstr);
+			retval.add(errstr);
+		}
+		return retval;
+	}
+
 	@Override
 	public Map<String, Object> getTool(Long key, String siteId) {
 		return getToolDao(key, siteId, isAdmin(siteId));
@@ -566,6 +633,26 @@ public abstract class BaseLTIService implements LTIService {
 		String returnUrl = reqProps.getProperty("returnUrl");
 
 		Long contentKey = null;
+		Long toolKey = new Long(toolId);
+		Map<String,Object> tool = getToolDao(toolKey, siteId, isAdminRole);
+		if ( tool == null ) {
+			retval = rb.getString("error.tool.not.found");
+			return retval;
+		}
+
+		// Make sure any missing required bits are inherited from the tool.
+		if ( ! reqProps.containsKey(LTIService.LTI_TOOL_ID) ) {
+			reqProps.setProperty(LTIService.LTI_TOOL_ID,toolId);
+		}
+
+		if ( ! reqProps.containsKey(LTIService.LTI_TITLE) ) {
+			reqProps.setProperty(LTIService.LTI_TITLE,(String) tool.get(LTIService.LTI_TITLE));
+		}
+
+		if ( ! reqProps.containsKey(LTIService.LTI_PAGETITLE) ) {
+			reqProps.setProperty(LTIService.LTI_PAGETITLE,(String) tool.get(LTIService.LTI_PAGETITLE));
+		}
+
 		if ( id == null ) 
 		{
 			reqProps.setProperty(LTIService.LTI_PLACEMENTSECRET, UUID.randomUUID().toString());
@@ -573,11 +660,6 @@ public abstract class BaseLTIService implements LTIService {
 			retval = insertContentDao(reqProps, siteId, isAdminRole, isMaintainRole);
 		} else {
 			contentKey = new Long(id);
-			Long toolKey = new Long(toolId);
-			Map<String,Object> tool = getToolDao(toolKey, siteId, isAdminRole);
-			if ( tool == null ) {
-				retval = rb.getString("error.tool.not.found");
-			}
 			if ( returnUrl != null ) {
 				if ( LTI_SECRET_INCOMPLETE.equals((String) tool.get(LTI_SECRET)) &&
 						LTI_SECRET_INCOMPLETE.equals((String) tool.get(LTI_CONSUMERKEY)) ) {
@@ -656,14 +738,14 @@ public abstract class BaseLTIService implements LTIService {
 			catch (PermissionException ee)
 			{
 				retval = new String("0" + rb.getFormattedMessage("error.link.placement.update", new Object[]{id}));
-				M_log.warn(this + " cannot add page and basic lti tool to site " + siteId);
+				M_log.warn("Cannot add page and basic lti tool to site " + siteId);
 			}
 		}
 		catch (IdUnusedException e)
 		{
 			// cannot find site
 			retval = new String("0" + rb.getFormattedMessage("error.link.placement.update", new Object[]{id}));
-			M_log.warn(this + " cannot find site " + contentSite);
+			M_log.warn("Cannot find site " + contentSite);
 		}
 				
 		return retval;
@@ -700,7 +782,7 @@ public abstract class BaseLTIService implements LTIService {
 		}
 
 		String siteStr = (String) content.get(LTI_SITE_ID);
-		// only admin can remve content from other site
+		// only admin can remove content from other site
 		if ( ! siteId.equals(siteStr) && !isAdminRole ) {
 			return rb.getString("error.placement.not.found");
 		}
@@ -719,10 +801,11 @@ public abstract class BaseLTIService implements LTIService {
 					return rb.getString("error.placement.not.removed");
 				}
 			} else {
-				M_log.warn(this + " LTI content="+key+" placement="+tool.getId()+" could not find page in site=" + siteStr);
+				M_log.warn("LTI content="+key+" placement="+tool.getId()+" could not find page in site=" + siteStr);
 			}
 	
 			// Remove the placement from the content item
+			// Our caller can remove the contentitem if they like
 			Properties newProps = new Properties();
 			newProps.setProperty(LTIService.LTI_PLACEMENT, "");
 			Object retval = updateContentDao(key, newProps, siteId, isAdminRole, isMaintainRole);
@@ -736,7 +819,7 @@ public abstract class BaseLTIService implements LTIService {
 		}
 		catch (IdUnusedException ee)
 		{
-			M_log.warn(this + " LTI content="+key+" placement="+tool.getId()+" could not remove page from site=" + siteStr);
+			M_log.warn("LTI content="+key+" placement="+tool.getId()+" could not remove page from site=" + siteStr);
 			return new String(rb.getFormattedMessage("error.link.placement.update", new Object[]{key.toString()}));
 		}
 	}

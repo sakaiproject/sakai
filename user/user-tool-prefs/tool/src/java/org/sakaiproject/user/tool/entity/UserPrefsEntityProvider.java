@@ -345,25 +345,23 @@ public class UserPrefsEntityProvider extends AbstractEntityProvider implements C
 		String key = view.getPathSegment(3);
 		Map<String, Object> params = requestStorage.getStorageMapCopy();
 	
-		if(log.isDebugEnabled()) {
-			log.debug(this + " updateKeyProperties for userId=" + userId + " key=" + key);
-		}
+		log.debug("updateKeyProperties for userId={} key={}", userId, key);
 		
 		String queryString = (String) params.get("queryString");
+		log.debug("queryString = {}", queryString);
 		if (queryString != null)
 		{
 			// queryString is of type name1=val1&name2=val2&name3=val3...
-			String[] parts0 = queryString.split("&");
+			String[] pairs = queryString.split("&");
 
-			if (parts0 != null && parts0.length> 0)
+			if (pairs != null && pairs.length> 0)
 			{
 				// get the edit object
 				PreferencesEdit m_edit = getPreferencesEdit(userId);
 				ResourcePropertiesEdit props = m_edit.getPropertiesEdit(key);
-				for (int i=0; i< parts0.length;i++)
+				for (String pair : pairs)
 				{
-					String part0=parts0[i];
-					String[] parts = part0.split("=");
+					String[] parts = pair.split("=");
 					if (parts != null && parts.length==2)
 					{
 						String name = parts[0];
@@ -374,7 +372,6 @@ public class UserPrefsEntityProvider extends AbstractEntityProvider implements C
 				
 				preferencesService.commit(m_edit);
 			}
-			
 		}
 	}
 }

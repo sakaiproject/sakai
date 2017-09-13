@@ -1,24 +1,18 @@
-/**********************************************************************************
-*
-* $Id$
-*
-***********************************************************************************
-*
- * Copyright (c) 2005, 2006, 2007, 2008, 2009 The Sakai Foundation, The MIT Corporation
+/**
+ * Copyright (c) 2003-2016 The Apereo Foundation
  *
  * Licensed under the Educational Community License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *       http://www.opensource.org/licenses/ECL-2.0
+ *             http://opensource.org/licenses/ecl2
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
-*
-**********************************************************************************/
+ */
 
 package org.sakaiproject.tool.gradebook.ui;
 
@@ -34,6 +28,7 @@ import java.util.Set;
 import javax.faces.event.ActionEvent;
 
 import org.apache.commons.lang.StringUtils;
+import org.sakaiproject.tool.gradebook.GradebookAssignment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sakaiproject.section.api.coursemanagement.EnrollmentRecord;
@@ -42,7 +37,6 @@ import org.sakaiproject.service.gradebook.shared.StaleObjectModificationExceptio
 import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.tool.gradebook.AbstractGradeRecord;
-import org.sakaiproject.tool.gradebook.Assignment;
 import org.sakaiproject.tool.gradebook.AssignmentGradeRecord;
 import org.sakaiproject.tool.gradebook.Category;
 import org.sakaiproject.tool.gradebook.Comment;
@@ -64,9 +58,9 @@ public class AssignmentDetailsBean extends EnrollmentTableBean {
 	private List updatedComments;
 
 	private Long assignmentId;
-    private Assignment assignment;
-	private Assignment previousAssignment;
-	private Assignment nextAssignment;
+    private GradebookAssignment assignment;
+	private GradebookAssignment previousAssignment;
+	private GradebookAssignment nextAssignment;
 	
 	private String assignmentCategory;
 	private String assignmentWeight;
@@ -280,7 +274,7 @@ public class AssignmentDetailsBean extends EnrollmentTableBean {
 				// are enabled, we need to retrieve the categories and extract the assignments
 				// b/c the assignments will be grouped by category
 				List assignments;
-                if(!getCategoriesEnabled() && Assignment.SORT_BY_MEAN.equals(getAssignmentSortColumn())) {
+                if(!getCategoriesEnabled() && GradebookAssignment.SORT_BY_MEAN.equals(getAssignmentSortColumn())) {
                     assignments = getGradebookManager().getAssignmentsWithStats(getGradebookId(),
                             getAssignmentSortColumn(), isAssignmentSortAscending());
                 } else if (!getCategoriesEnabled()){
@@ -296,9 +290,9 @@ public class AssignmentDetailsBean extends EnrollmentTableBean {
                     if(assignment.getCategory() != null && assignment.getCategory().isDropScores()) {
                     	for(Object obj : categoryListWithCG) {
                     	    if(obj instanceof Category) {
-                        	    List<Assignment> catAssignments = ((Category)obj).getAssignmentList();
+                        	    List<GradebookAssignment> catAssignments = ((Category)obj).getAssignmentList();
                         	    if(catAssignments != null) {
-                            	    for(Assignment catAssignment : catAssignments) {
+                            	    for(GradebookAssignment catAssignment : catAssignments) {
                             	        if(catAssignment.equals(assignment)) {
                             	            assignment.setAverageTotal(catAssignment.getAverageTotal());
                             	            assignment.setMean(catAssignment.getMean());
@@ -361,10 +355,10 @@ public class AssignmentDetailsBean extends EnrollmentTableBean {
                 // Set up next and previous links, if any.
                 int thisIndex = assignments.indexOf(assignment);
 				if (thisIndex > 0) {
-					previousAssignment = (Assignment)assignments.get(thisIndex - 1);
+					previousAssignment = (GradebookAssignment)assignments.get(thisIndex - 1);
 				}
 				if (thisIndex < (assignments.size() - 1)) {
-					nextAssignment = (Assignment)assignments.get(thisIndex + 1);
+					nextAssignment = (GradebookAssignment)assignments.get(thisIndex + 1);
 				}
 
 				Category category = assignment.getCategory();
@@ -713,22 +707,22 @@ public class AssignmentDetailsBean extends EnrollmentTableBean {
     public void setSortColumn(String sortColumn) {
         getPreferencesBean().setAssignmentDetailsTableSortColumn(sortColumn);
     }
-    public Assignment getAssignment() {
+    public GradebookAssignment getAssignment() {
         return assignment;
     }
-    public void setAssignment(Assignment assignment) {
+    public void setAssignment(GradebookAssignment assignment) {
         this.assignment = assignment;
     }
-    public Assignment getNextAssignment() {
+    public GradebookAssignment getNextAssignment() {
         return nextAssignment;
     }
-    public void setNextAssignment(Assignment nextAssignment) {
+    public void setNextAssignment(GradebookAssignment nextAssignment) {
         this.nextAssignment = nextAssignment;
     }
-    public Assignment getPreviousAssignment() {
+    public GradebookAssignment getPreviousAssignment() {
         return previousAssignment;
     }
-    public void setPreviousAssignment(Assignment previousAssignment) {
+    public void setPreviousAssignment(GradebookAssignment previousAssignment) {
         this.previousAssignment = previousAssignment;
     }
 	public String getAssignmentCategory() {

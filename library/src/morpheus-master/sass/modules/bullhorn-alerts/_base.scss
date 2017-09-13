@@ -13,7 +13,7 @@
 }
 
 .bullhorn-counter-red {
-    background-color: #f00;
+    background-color: #a20000;
 }
 
 .bullhorn-counter-blue {
@@ -37,7 +37,7 @@
     }
 }
 
-.portal-bullhorn-alerts {
+.portal-bullhorn-social-alerts, .portal-bullhorn-academic-alerts {
     padding-bottom: 5px;
     @media #{$nonPhone} {
         width: 450px;
@@ -46,7 +46,7 @@
         width: 240px;
     }
 
-    .portal-bullhorn-alert {
+    .portal-bullhorn-social-alert, .portal-bullhorn-academic-alert {
         overflow: auto;
         border: solid #E0E0E0;
         border-width: 0px 0px 1px 0px;

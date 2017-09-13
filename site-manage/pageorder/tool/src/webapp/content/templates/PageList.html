@@ -6,8 +6,7 @@
 	<link href="/library/skin/default/tool.css" rsf:id="scr=portal-matter" type="text/css" rel="stylesheet" media="all"/>
 	<link href="../css/PageList.css" rel="stylesheet" type="text/css" />
 	<script type="text/javascript" rsf:id="resize"/>
-	<script type="text/javascript" src="/library/js/fluid/1.5/MyInfusion.js"></script>
-	<script type="text/javascript" src="../js/orderUtil.js" rsf:id="scr=rewrite-url"></script>
+	<script type="text/javascript" src="../js/orderUtil.js" rsf:id="scr=rewrite-url" defer="1"></script>
 	<script type="text/javascript" src="/library/js/headscripts.js"></script>
 	<script type="text/javascript" src="/library/js/spinner.js"></script>
 </head>
@@ -29,8 +28,8 @@
 							<div id="list-label">
 								<strong rsf:id="msg=curr_pages">Current Pages</strong>
 							</div>
-							<ul tabIndex="2" class="sortable" id="sort1">
-								<li rsf:id="page-row:" id="content:::page-row::" class="sortable_item" title="Click And Drag Pages Into The Order That You Want" >
+							<ul class="sortable" id="reorder-list">
+								<li rsf:id="page-row:" id="content:::page-row::" class="sortable_item" tabindex="0">
 									<div rsf:id="tool-icon"></div>
 									<div class="item_edit_box" style="display: none;">
 										<div>
@@ -38,7 +37,7 @@
 											<input rsf:id="page-name-input" class="new_title" id="page-name-input"></input>
 										</div>
 										<div>
-											<label rsf:id="msg=url" for="page-config-input">URL</label>
+											<label rsf:id="page-config-label" for="page-config-input">URL</label>
 											<input rsf:id="page-config-input" id="page-config-input" class="new_config" ></input>
 											<a href="#" onclick="doBrowseLocalContent(this)" rsf:id="browse-link">Browse</a>
 										</div>
@@ -56,14 +55,14 @@
 										<a data-target="#" href="#" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
 											<span class="glyphicon glyphicon-cog"></span>
 										</a>
-										<ul class="dropdown-menu">
-											<li>
+										<ul class="dropdown-menu dropdown-menu-right">
+											<li class="notsortable">
 												<a href="#" rsf:id="edit-link" class="item_control" title="Edit This Item" alt="Edit This Page" onclick="showEditPage(this); return false;">
 													<span class="glyphicon glyphicon-pencil"></span>
 													<span rsf:id="msg=menu_edit_page_title">Edit Page Title</span>
 												</a>
 											</li>
-											<li>
+											<li class="notsortable">
 												<a href="#" rsf:id="hide-link" class="item_control hide_link" title="Hide This Page From Normal Users" alt="hide this page" onclick="doHidePage(this); return false;">
 													<span class="glyphicon glyphicon-eye-close"></span>
 													<span rsf:id="msg=menu_hide_page">Make Page Invisible to Students</span>
@@ -73,7 +72,7 @@
 													<span rsf:id="msg=menu_show_page">Make Page Visible to Students</span>
 												</a>
 											</li>
-											<li>
+											<li class="notsortable">
 												<a href="#" rsf:id="hide-link-off" class="item_control hide_link" style="display: none" title="Hide This Page From Normal Users" alt="hide this page" onclick="doHidePage(this); return false;">
 													<span class="glyphicon glyphicon-eye-close"></span>
 													<span rsf:id="msg=menu_hide_page">Make Page Invisible to Students</span>
@@ -83,7 +82,7 @@
 													<span rsf:id="msg=menu_show_page">Make Page Visible to Students</span>
 												</a>
 											</li>
-											<li>
+											<li class="notsortable">
 												<a href="#" rsf:id="disable-link" class="item_control disable_link" title="Disable This Page For Normal Users" alt="disable this page" onclick="doDisablePage(this); return false;">
 													<span class="glyphicon glyphicon-lock"></span>
 													<span rsf:id="msg=menu_lock_page">Lock Access to this Page</span>
@@ -93,7 +92,7 @@
 													<span rsf:id="msg=menu_enable_page">Enable Access to this Page</span>
 												</a>
 											</li>
-											<li>
+											<li class="notsortable">
 												<a href="#" rsf:id="disable-link-off" class="item_control disable_link" style="display: none" title="Disable This Page For Normal Users" alt="disable this page" onclick="doDisablePage(this); return false;">
 													<span class="glyphicon glyphicon-lock"></span>
 													<span rsf:id="msg=menu_lock_page">Lock Access to this Page</span>
@@ -103,7 +102,7 @@
 													<span rsf:id="msg=menu_enable_page">Enable Access to this Page</span>
 												</a>
 											</li>
-											<li>
+											<li class="notsortable">
 												<a href="#" rsf:id="del-link" class="item_control del-link" title="Remove This Page" alt="remove this page" onclick="doRemovePage(this); return false;">
 													<span class="glyphicon glyphicon-trash"></span>
 													<span rsf:id="msg=menu_remove_page">Delete this Page</span>
@@ -127,7 +126,7 @@
 					</div>
 				</div>
 				<p class="act">
-					<input accesskey ="s" class="active" rsf:id="save" value="Save" type="submit" onclick="SPNR.disableControlsAndSpin( this, null ); serialize('sort1');"/>
+					<input accesskey ="s" class="active" rsf:id="save" value="Save" type="submit" onclick="SPNR.disableControlsAndSpin( this, null ); serialize('reorder-list');"/>
 					<input accesskey ="x" rsf:id="revert" value="Cancel" type="submit" onclick="SPNR.disableControlsAndSpin( this, null );"/>
 					<input accesskey ="r" rsf:id="reset" value="Reset" type="submit" onclick="SPNR.disableControlsAndSpin( this, null ); return checkReset();"/>
 					<input accesskey ="a" rsf:id="sort_alpha" value="Sort" type="button" onclick="return sortByTitle();"/>
@@ -138,22 +137,22 @@
 
 
 <script type="text/javascript">
-var fluidList;
-var reorder=false;
+//<![CDATA[
+var reorder=true;
 //Called by Producer
-function enableReorder() {
-    reorder=true;
+function disableReorder() {
+	reorder=false;
 }
-jQuery(document).ready(function () {
-    var opts = {
-        selectors: {
-            movables: ".sortable_item"
-        }
-    };
-    if (reorder == true) {
-        fluidList = fluid.reorderList("ul#sort1", opts);
-    }
-});
+window.onload = function() {
+	if (reorder === false) {
+		var ul = document.getElementById('reorder-list');
+		var items = ul.getElementsByTagName('li');
+		for (var i = 0; i < items.length; ++i) {
+			items[i].className += ' notsortable';
+		}
+	}
+}
+//]]>
 </script>
 
 <script type="text/javascript" rsf:id="jsreorder">

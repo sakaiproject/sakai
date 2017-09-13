@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.sakaiproject</groupId>
         <artifactId>master</artifactId>
-        <version>12-SNAPSHOT</version>
+        <version>13-SNAPSHOT</version>
         <relativePath>../master/pom.xml</relativePath>
     </parent>
 
@@ -26,7 +26,9 @@
     
     <modules>
         <module>pack-bin</module>
+        <!--
         <module>pack-demo</module>
+        -->
         <module>pack-src</module>
     </modules>
     

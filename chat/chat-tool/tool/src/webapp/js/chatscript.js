@@ -3,7 +3,7 @@
  * $Id: $
  ***********************************************************************************
  *
- * Copyright (c) 2003, 2004, 2005, 2006, 2007, 2008, 2009 The Sakai Foundation
+ * Copyright (c) 2017 The Sakai Foundation
  *
  * Licensed under the Educational Community License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,254 +18,302 @@
  * limitations under the License.
  *
  **********************************************************************************/
+var chatscript = {
+	url_submit : "/direct/chat-message/",
+	keycode_enter : 13,
+	pollInterval : 5000,
+	currentChatChannelId : null,
+	timeoutVar : null,
+	
+	init : function(){
+		var me = this;
+		
+		me.updateShownText();
+		me.scrollChat();
+		me.updateChatData();
+		
+		var textarea = $("#topForm\\:controlPanel\\:message");
+		var submitButton = $("#topForm\\:controlPanel\\:submit");
+		var resetButton = $("#topForm\\:controlPanel\\:reset");
+		submitButton.bind('click', function() {
+			var messageBody = textarea.val();
+			submitButton.prop("disabled", true);
+			var params = {
+				"chatChannelId": me.currentChatChannelId,
+				"body": messageBody
+			}
+			// If message body or currentChatChannelId are empty
+			if (!me.currentChatChannelId || !messageBody || !messageBody.replace(/\n/g, "").replace(/ /g, "").length) {
+				textarea.val("").focus();
+				submitButton.prop("disabled", false);
+				return false;
+			}
+			me.sendMessage(params, textarea, submitButton);
+		});
+		textarea.keydown(function(e) {
+			var keycode = e.keyCode;
+			if (keycode == me.keycode_enter && !submitButton.prop("disabled")) {
+				submitButton.trigger("click");
+				return false;
+			}
+		});
+		resetButton.click(function() {
+			textarea.val("").focus();
+		});
 
-// add a message to the chat list from chef_chat-List.vm
-function appendMessage(uname, uid, removeable, pdate, ptime, pid, msg, msgId)
-{
-	var undefined;
-	var position = 100000, docheight = 0, frameheight = 300;
-	var transcript = document.getElementById("topForm:chatList");
 
-	// compose the time/date according to user preferences for this session
-	var msgTime = "";
-	if(window.display_date && window.display_time)
-	{
-		msgTime = " (" + pdate + " " + ptime + ") " ;
-	}
-	else if (window.display_date)
-	{
-		msgTime = " (" + pdate + ") " ;
-	}
-	else if(window.display_time)
-	{
-		msgTime = " (" + ptime + ") " ;
-	}
-	else if(window.display_id)
-	{
-		msgTime = " (" + pid + ") " ;
-	}
+		$(".chatList").on('click', '.chatRemove', function() {
+			var messageItem = $(this).parent().parent();
+			var messageId = messageItem.attr("data-message-id");
+			var ownerDisplayName = messageItem.find(".chatName").text();
+			var date = messageItem.find(".chatDate").text();
+			var messageBody = messageItem.find(".chatText").html();
+			me.showRemoveModal(messageId, ownerDisplayName, date, messageBody);
+		});
+		$("#deleteButton").click(function() { 
+			var messageId = $(this).attr("data-message-id");
+			me.deleteMessage(messageId);
+		});
 
-
-	var newDiv = document.createElement('li');
-	var color = ColorMap[uid];
-	if(color == null)
-	{
-		color = Colors[nextColor++];
-		ColorMap[uid] = color;
-		if(nextColor >= numColors)
-		{
-			nextColor = 0;
-		}
-	}
-
-	var deleteHtml = "";
-	if (removeable == "true")
-	{
-		newComponentId = $(transcript).children("li").size();
-		var builtId = "topForm:chatList:" + newComponentId + ":deleteMessage";
-		var tmpdeleteUrl = deleteUrl + msgId;
-		deleteHtml =
-			" <a id=\"" + builtId + "\" href=\"#\" onclick=\"location.href='" + tmpdeleteUrl + "'\" title=\"" + deleteMsg + "\" >" +
-			"<img src=\"/library/image/sakai/delete.gif\" style=\"margin-bottom:-2px;\" border=\"0\" alt=\"" + deleteMsg + "\" /></a>";
-	}
-
-	newDiv.innerHTML = '<span style="color: ' + color + '">' + uname + '</span>'
-		+ deleteHtml
-		+ '<span class="chatDate">' + msgTime + '</span>'
-		+ msg;
-	transcript.appendChild(newDiv);
-
-	// adjust scroll
-	var objDiv = document.getElementById("Monitor");
-    objDiv.scrollTop = objDiv.scrollHeight;
-
-    // update the messages count
-    chat2_totalMessages++;
-    chat2_shownMessages++;
-    updateShownText();
-
-}                           
-
-function updateShownText() {
-    var countText = chat2_messageCountTemplate + '';
-    countText = countText.replace('*SHOWN*', chat2_shownMessages);
-    countText = countText.replace('*TOTAL*', chat2_totalMessages);
-    $("#chat2_messages_shown_total").html(countText);
-}
-
-// can't just pass a list of <li>'s, because $(string) will only parse a single object
-function sortChildren(list) {
-    var children = list.children('li');
-
-    // sort uses last name if present, and is case-insensitive.
-    children = children.sort(function(a,b){
-	    var an = a.innerHTML.toLowerCase();
-	    var i = an.indexOf(' ');
-	    if (i >= 0)
-		an = an.substring(i);
-	    var bn = b.innerHTML.toLowerCase();
-	    var j = bn.indexOf(' ');
-	    if (j >= 0)
-		bn = bn.substring(j);
-
-	    if(an > bn) {
-		return 1;
-	    }
-	    if(an < bn) {
-		return -1;
-	    }
-	    // equal, take full name first
-	    if (i <= 0 && j >= 0)
-		return 1;
-	    if (j <= 0 && i >= 0)
-		return -1;
-	    // equal, now do it on original so uppercase comes first
-	    an = a.innerHTML;
-	    bn = b.innerHTML;
-	    if(an > bn) {
-		return 1;
-	    }
-	    if(an < bn) {
-		return -1;
-	    }
-	    return 0;
-	});
-    list.empty();
-    list.append(children);
-    return list;
-}
-
-function addUser(user) {
-    var existing = $("#presence").find("li:contains('" + user + "')");
-    if (existing.size() == 0) {
-	$("#presence").append($('<li>' + user + '</li>'));
-	var newChildren = sortChildren($("#presence")).children();
-	$("#presence").empty();
-	$("#presence").append(newChildren);
-    }
-}
-
-function delUser(user) {
-    $("#presence").find("li:contains('" + user + "')").remove();
-}
-
-function updateUsers() {
-    var url = "roomUsers?channel=" + currentChatChannelId;
-    $.ajax({
-    	    url: url,
-	    type: "GET"})
-    	.done(function(data) {
-		var newChildren = sortChildren($('<ul>' + data + '</ul>')).children();
-		$("#presence").empty();
-		$("#presence").append(newChildren);
-    	    });
-}
-
-//Library to ajaxify the Chatroom message submit action
-	$(document).ready(function() {
-		updateShownText();
-		updateUsers();
-
-                // the iframe has a src of roomUsers.
-                // in frameless situation that will be added to /portal/site ...
-                // but the tool will only recognize /portal/tool. Do the mapping
-
-		// fix up the delete links. They use /sakai.chat ... That won't work. without the leading /
-		// it works. 
-		var urlpath = location.pathname;
-		var frameless = false;
-		if (urlpath.indexOf('/portal/site') == 0) {
-		    var i = urlpath.indexOf('/tool/');
-		    if (i >= 0) {
-			frameless = true;
-		    }
-		}
- 
-		if (frameless) {
-		    $('.chatList a[id*="deleteMessage"]').each(function(index) {
-			    $(this).attr('onclick', $(this).attr('onclick').replace("'/sakai.chat.deleteMessage.helper","'sakai.chat.deleteMessage.helper"));
+		$("#chatListWrapper").scroll(function() {
+			if (($(".chatListWrapper")[0].scrollHeight - $(".chatListWrapper").scrollTop()) <= $(".chatListWrapper").height()) {
+				setTimeout(function() {
+					$(".divisorNewMessages[id!=divisorNewMessages]").fadeOut(300, function() {
+						$(".divisorNewMessages[id!=divisorNewMessages]").remove();
+					});
+				}, 3000);
+				$(".scrollBottom").fadeOut(300, function() {
+					unreadedMessages = 0;
+					me.updateUnreadedMessages();
+				});
+			}
+		});
+		$(".scrollBottom").click(function() {
+			me.scrollChat();
+			setTimeout(function() {
+				$(".divisorNewMessages[id!=divisorNewMessages]").fadeOut(300, function() {
+					$(".divisorNewMessages[id!=divisorNewMessages]").remove();
+				});
+			}, 3000);
+			$(".scrollBottom").fadeOut(300, function() {
+				unreadedMessages = 0;
+				me.updateUnreadedMessages();
 			});
-		    
-		    if (deleteUrl.indexOf('/sakai.chat.deleteMessage.helper') == 0)
-			deleteUrl = deleteUrl.substring(1);
+		});
+	},
+	sendMessage : function(params, textarea, submitButton) {
+		var me = this;
+		var errorSubmit = $("#errorSubmit");
+		$.ajax({
+			url: me.url_submit + 'new',
+			data: params,
+			type: "POST",
+			beforeSend: function() {
+				errorSubmit.slideUp('fast');
+			},
+			error: function(xhr, ajaxOptions, thrownError) {
+				errorSubmit.slideDown('fast');
+				textarea.focus();
+				submitButton.prop("disabled", false);
+			},
+			success: function(data) {
+				me.scrollChat();
+				me.updateChatData();
+				textarea.val("").focus();
+				submitButton.prop("disabled", false);
+			}
+		});
+	},
+	deleteMessage : function(messageId) {
+		var me = this;
+		var removeModal = $("#removemodal");
+		removeModal.modal("hide");
+		$.ajax({
+			url: me.url_submit + messageId,
+			type: "DELETE",
+			success: function(data) {
+				removeModal.modal("hide");
+				me.updateChatData();
+			}
+		});
+	},
+	updateChatData : function () {
+		var me = this;
+		this.doUpdateChatData();
+		if(this.timeoutVar != null) {
+			clearTimeout(this.timeoutVar);
+		}
+		this.timeoutVar = setTimeout(function() {
+			me.updateChatData();
+		}, this.pollInterval);
+	},
+	doUpdateChatData : function() {
+		var me = this;
+		var url = me.url_submit + portal.user.id + "/chatData.json";
+		var params = {
+			"siteId": portal.siteId,
+			"channelId": this.currentChatChannelId
+		};
+		$.ajax({
+			url: url,
+			data: params,
+			type: "GET",
+			cache: false,
+			success: function(data) {
+				me.addMessages(data.data.messages);
+				me.updatePresentUsers(data.data.presentUsers);
+				me.deleteMessages(data.data.deletedMessages);
+			}
+		});
+	},
+	addMessages : function (messages) {
+		var me = this;
+		var scrolledToBottom = true;
+		if (($(".chatListWrapper")[0].scrollHeight - $(".chatListWrapper").scrollTop()) > $(".chatListWrapper").height()) {
+			scrolledToBottom = false;
 		}
 
- 		//resize horizontal chat area to get rid of horizontal scrollbar in IE
+		if (messages.length > 0 && !scrolledToBottom) {
+			if ($(".divisorNewMessages").length < 2) {
+				var divisorNewMessages = $("#divisorNewMessages").clone();
+				divisorNewMessages.removeAttr("id");
+				divisorNewMessages.removeClass("hide");
+				$("#topForm\\:chatList").append(divisorNewMessages);
+			}
+		}
 
-	    var options = {
-	        //RESTful submit URL
-	        url_submit: '/direct/chat-message/new',
-	        control_key: 13,
-            dom_button_submit_raw: document.getElementById("topForm:controlPanel:submit"),
-            dom_button_submit: $(document.getElementById("topForm:controlPanel:submit")),
-	        dom_button_reset: $(document.getElementById("topForm:controlPanel:reset")),
-	        dom_textarea: $(document.getElementById("topForm:controlPanel:message")),
-	        channelId: document.getElementById("topForm:chatidhidden").value,
-	        enterKeyCheck:''
-	    };
-        
-	    //Bind button submit action
-	    options.dom_button_submit.bind('click', function() {
-	    	options.dom_button_submit_raw.disabled = true;
-	    	var params = [{
-	            name:"chatChannelId", value:options.channelId
-	            },{
-	            name:"body", value:options.dom_textarea.val()
-	        }];
-	        if(options.channelId == null || options.channelId == "" ||
-                options.dom_textarea.val() == null || options.dom_textarea.val() == ""){
-                 options.dom_textarea.focus();
-                 options.dom_button_submit_raw.disabled = false;
-                 return false;
-             }
-             if(options.dom_textarea.val().replace(/\n/g, "").replace(/ /g, "").length == 0){
-                     options.dom_textarea
-                        .val("")
-                        .focus();
-                     options.dom_button_submit_raw.disabled = false;
-                   return false;
-            }
-            $.ajax({
-	            url: options.url_submit,
-	            data: params,
-	            type: "POST",
-	            beforeSend: function() {
-	                 $("#errorSubmit").slideUp('fast');
-                },
-	            error: function(xhr, ajaxOptions, thrownError) {
-	                $("#errorSubmit").slideDown('fast');
-	                options.dom_textarea.focus();
-	                options.dom_button_submit_raw.disabled = false;
-	                return false;
-	            },
-	            success: function(data) {
-	                //Run dom update from headscripts.js
-	               try { updateNow(); } catch (error) {alert(error);}
-                    options.dom_textarea
-	                    .val("")
-	                    .focus();
-	                options.dom_button_submit_raw.disabled = false;
-	                return false;
-	            }
-	        });
-            return false;
-	    });
-        //Avoid submitting on mouse click in textarea
-        options.dom_textarea.bind('click', function(){
-	        return false;
-	    });
-	    //Bind textarea keypress to submit btn
-	    options.dom_textarea.keydown(function(e){
-	        var key = e.charCode || e.keyCode || 0;
-	        if( options.control_key == key && !options.dom_button_submit_raw.disabled ){
-              options.dom_button_submit.trigger('click');
-	          return false;
-	        }
-	    });
-	    options.dom_button_reset.bind('click', function(){
-	        options.dom_textarea
-	                .val("")
-	                .focus();
-	        return false;
-	    });
-	});
+		for (var i=0; i<messages.length; i++) {
+			var lastMessageOwnerId = $("#topForm\\:chatList li[class!='divisorNewMessages']").last().attr("data-owner-id");
+			var messageId = messages[i].id;
+			var ownerId = messages[i].owner;
+			var ownerDisplayName = messages[i].ownerDisplayName;
+
+			var messageDate = messages[i].messageDate;
+			var localizedDate = messages[i].messageDateString.localizedDate;
+			var localizedTime = messages[i].messageDateString.localizedTime;
+			var dateID = messages[i].messageDateString.dateID;
+			var dateStr = this.renderDate(localizedDate, localizedTime, dateID);
+
+			var messageBody = messages[i].body;
+			var removeable = messages[i].removeable;
+			var exists = $("#topForm\\:chatList li[data-message-id=" + messageId + "]").length;
+			if (!exists) {
+				var messageItem = $("#chatListItem").clone();
+				messageItem.removeClass("hide");
+				messageItem.removeAttr("id");
+				messageItem.attr("data-message-id", messageId);
+				messageItem.attr("data-owner-id", ownerId);
+				messageItem.find(".chatUserAvatar").css("background-image", "url(/direct/profile/" + ownerId + "/image)");
+				messageItem.find(".chatMessage").attr("data-message-id", messageId);
+				messageItem.find(".chatName").attr("id", ownerId);
+				messageItem.find(".chatName").text(ownerDisplayName);
+				messageItem.find(".chatDate").text(dateStr);
+				messageItem.find(".chatText").html(messageBody);
+				if (removeable) {
+					messageItem.find(".chatRemove").removeClass("hide");
+				}
+				if (lastMessageOwnerId == ownerId) {
+					messageItem.addClass("nestedMessage");
+					messageItem.find(".chatMessageDate").text(dateStr);
+				}
+				$("#topForm\\:chatList").append(messageItem);
+				someMessageAdded = true;
+				chat2_totalMessages++;
+				chat2_shownMessages++;
+				this.updateShownText();
+				if (scrolledToBottom) {
+					this.scrollChat();
+					setTimeout(function() {
+						$(".divisorNewMessages[id!=divisorNewMessages]").fadeOut(300, function() {
+							$(".divisorNewMessages[id!=divisorNewMessages]").remove();
+						});
+					}, 3000);
+					$(".scrollBottom").fadeOut(300, function() {
+						unreadedMessages = 0;
+						me.updateUnreadedMessages();
+					});
+				} else {
+					unreadedMessages++;
+					me.updateUnreadedMessages();
+					$(".divisorNewMessages[id!=divisorNewMessages]").find(".newMessages").text(unreadedMessages);
+					$(".scrollBottom").fadeIn(300).removeClass("hide");
+				}
+			}
+		}
+	},
+	deleteMessages : function (messages) {
+		for (var i=0; i<messages.length; i++) {
+			var messageId = messages[i].id;
+			if(messageId != '*') {
+				var existsMessage = $("#topForm\\:chatList li[data-message-id=" + messageId + "]").length;
+				if (existsMessage > 0) {
+					var message = $("#topForm\\:chatList li[data-message-id=" + messageId + "]");
+					if (!message.hasClass("nestedMessage") && message.next().hasClass("nestedMessage")) {
+						message.next().removeClass("nestedMessage");
+					}
+					message.remove();
+					chat2_totalMessages--;
+					chat2_shownMessages--;
+					this.updateShownText();
+				}
+			} else {
+				$("#topForm\\:chatList li:not(#chatListItem, #divisorNewMessages)").remove();
+				chat2_totalMessages = 0;
+				chat2_shownMessages = 0;
+				this.updateShownText();
+			}
+		}
+	},
+	updatePresentUsers : function (users) {
+		$("#presence").empty();
+		$("#topForm\\:chatList li .chatUserOnline").removeClass("is-online");
+		for (var i=0; i<users.length; i++) {
+			var ownerId = users[i].id;
+			var userId = ownerId;
+			if(ownerId.indexOf(':') > -1) {
+				userId = ownerId.substring(ownerId.indexOf(":") + 1)
+			}
+			var userElement = document.createElement("li");
+			userElement.setAttribute("data-user-id", ownerId);
+			userElement.innerHTML = users[i].name;
+			$("#presence").append(userElement);
+			$("#topForm\\:chatList li[data-owner-id=" + userId + "] .chatUserOnline").addClass("is-online");
+		}
+	},
+	showRemoveModal : function(messageId, ownerDisplayName, date, messageBody) {
+		var removeModal = $("#removemodal");
+		removeModal.find("#owner").text(ownerDisplayName);
+		removeModal.find("#date").text(date);
+		removeModal.find("#message").html(messageBody);
+		removeModal.find("#deleteButton").attr("data-message-id", messageId);
+		removeModal.modal("show");
+	},
+	scrollChat : function () {
+		var scrollableChat = $("#chatListWrapper");
+		scrollableChat.scrollTop(scrollableChat.prop("scrollHeight"));
+	},
+	updateShownText : function () {
+		var countText = chat2_messageCountTemplate + '';
+		countText = countText.replace('*SHOWN*', chat2_shownMessages);
+		countText = countText.replace('*TOTAL*', chat2_totalMessages);
+		$("#chat2_messages_shown_total").html(countText);
+	},
+	updateUnreadedMessages : function () {
+		var text = chat2_messagesUnreadedTemplate.replace("*UNREADED*", unreadedMessages);
+		$(".scrollBottom").attr("title", text);
+		$(".scrollBottom .newMessages").text(unreadedMessages);
+	},
+	renderDate : function(localizedDate, localizedTime, dateID) {
+		var msgTime = "";
+		if(window.display_date && window.display_time) {
+			msgTime = " " + localizedDate + " " + localizedTime + " " ;
+		} else if (window.display_date) {
+			msgTime = " " + localizedDate + " " ;
+		} else if(window.display_time) {
+			msgTime = " " + localizedTime + " " ;
+		} else if(window.display_id) {
+			msgTime = " (" + dateID + ") " ;
+		}
+		return msgTime;
+	}
+};

@@ -4,7 +4,7 @@
   <parent>
     <artifactId>search</artifactId>
     <groupId>org.sakaiproject.search</groupId>
-    <version>12-SNAPSHOT</version><!-- ProjectVersion -->
+    <version>13-SNAPSHOT</version><!-- ProjectVersion -->
     <relativePath>../../pom.xml</relativePath>
   </parent>
   <name>search-impl</name>
@@ -206,8 +206,7 @@
     <dependency>
       <groupId>org.easymock</groupId>
       <artifactId>easymock</artifactId>
-      <version>2.4</version>
-      <type>jar</type>
+      <version>3.4</version>
       <scope>test</scope>
     </dependency>
     <dependency>

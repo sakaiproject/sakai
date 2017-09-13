@@ -141,15 +141,54 @@
     </ul>
     </div>
     <div class="mathJaxToggleArea">
-      <p>$tlang.getString("sinfo.mathjax.allowForSite")</p>
+      <label class="onoffswitch-label" for="isMathJaxEnabledForSite">
+          $tlang.getString("sinfo.mathjax.allowForSite")
+      </label>
       <div class="onoffswitch">
           <input type="checkbox" name="isMathJaxEnabledForSite" class="onoffswitch-checkbox" id="isMathJaxEnabledForSite" #if($isMathJaxEnabledForSite)checked="checked"#end>
-          <label class="onoffswitch-label" for="isMathJaxEnabledForSite">
-              <span class="onoffswitch-inner"></span>
-              <span class="onoffswitch-switch"></span>
-          </label>
       </div>
     </div>
+    <div class="lessonsSubNavToggleArea" style='display: none'>
+      <label class="onoffswitch-label" for="isLessonsSubNavEnabledForSite">
+          $tlang.getString("sinfo.lessonbuildersubnav.allowForSite")
+      </label>
+      <div class="onoffswitch">
+          <input type="checkbox" name="isLessonsSubNavEnabledForSite" class="onoffswitch-checkbox" id="isLessonsSubNavEnabledForSite" #if($isLessonsSubNavEnabledForSite)checked="checked"#end>
+      </div>
+    </div>
+    <script>
+        $(function() {
+            var lessonsSubNavToggleArea = $('.lessonsSubNavToggleArea');
+            var toolSelectionList = $('#toolSelectionList');
+            var toolList = $('#toolHolderW');
+            var isLessonsSubNavEnabledForSiteCheckbox = $('#isLessonsSubNavEnabledForSite');
+
+            function checkForSelectedLessonsTools() {
+              if (toolSelectionList.find('li[id*=sakai_lessonbuildertool]:visible').length > 0) {
+                  lessonsSubNavToggleArea.show();
+              } else {
+                  lessonsSubNavToggleArea.hide();
+              }
+            };
+
+            toolList.find('input[type=checkbox]').on('click', function() {
+                setTimeout(checkForSelectedLessonsTools, 200); // fade out on selected item takes ~100ms
+                return true;
+            });
+
+            toolSelectionList.on('click', '.removeTool', function() {
+                setTimeout(checkForSelectedLessonsTools, 200); // fade out on selected item takes ~100ms
+                return true;
+            });
+
+            toolSelectionList.on('click mouseup keyup', '#alertBoxYes', function() {
+                setTimeout(checkForSelectedLessonsTools, 0);
+                return true;
+            });
+
+            checkForSelectedLessonsTools();
+        });
+    </script>
     </div>
   </div> <!-- row -->
 </div> <!-- toolHolderWW -->

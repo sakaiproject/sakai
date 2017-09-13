@@ -173,27 +173,8 @@
 			<tr>
 				<th>$tlang.getString("new.itemtype")</th>
 				<td>
-					#iconImage( $event.getType() )
-					#if ($event.getType()=="Academic Calendar") $tlang.getString("legend.key1") #end
-					#if ($event.getType()=="Activity") $tlang.getString("legend.key2") #end
-					#if ($event.getType()=="Cancellation") $tlang.getString("legend.key3") #end
-					#if ($event.getType()=="Class section - Discussion") $tlang.getString("legend.key4") #end
-					#if ($event.getType()=="Class section - Lab") $tlang.getString("legend.key5") #end
-					#if ($event.getType()=="Class section - Lecture") $tlang.getString("legend.key6") #end
-					#if ($event.getType()=="Class section - Small Group") $tlang.getString("legend.key7") #end
-					#if ($event.getType()=="Class session") $tlang.getString("legend.key8") #end
-					#if ($event.getType()=="Computer Session") $tlang.getString("legend.key9") #end
-					#if ($event.getType()=="Deadline") $tlang.getString("legend.key10") #end
-					#if ($event.getType()=="Exam") $tlang.getString("legend.key11") #end
-					#if ($event.getType()=="Formative Assessment") $tlang.getString("legend.key17") #end
-					#if ($event.getType()=="Meeting")$tlang.getString("legend.key12") #end
-					#if ($event.getType()=="Multidisciplinary Conference") $tlang.getString("legend.key13") #end
-					#if ($event.getType()=="Quiz") $tlang.getString("legend.key14") #end
-					#if ($event.getType()=="Special event") $tlang.getString("legend.key15") #end
-					#if ($event.getType()=="Submission Date") $tlang.getString("legend.key18") #end
-					#if ($event.getType()=="Tutorial") $tlang.getString("legend.key19") #end
-					#if ($event.getType()=="Web Assignment") $tlang.getString("legend.key16") #end
-					#if ($event.getType()=="Workshop") $tlang.getString("legend.key20") #end
+					<span class="icon $eventIconMap.get($event.getType()) " title="$localizedEventTypes.get($event.getType())"></span>
+						$localizedEventTypes.get($event.getType())
 				</td>	
 			</tr>
 			#if($owner_name && $owner_name !="")

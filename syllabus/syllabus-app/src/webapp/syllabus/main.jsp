@@ -29,7 +29,7 @@
 <script type="text/javascript" src="js/syllabus.js"></script>
 <sakai:stylesheet path="/syllabus/css/jqueryui-editable.css" />
 <script type="text/javascript" src="js/jquery-ui-timepicker-addon.js"></script>
-<link rel="stylesheet" href="/library/webjars/jquery-ui/1.11.3/jquery-ui.min.css" type="text/css" />
+<link rel="stylesheet" href="/library/webjars/jquery-ui/1.12.1/jquery-ui.min.css" type="text/css" />
 
 <script type="text/javascript">
 	var msgs;
@@ -307,12 +307,11 @@
 				<h:outputText value="#{msgs.syllabus_noEntry}" styleClass="instruction" rendered="#{SyllabusTool.displayNoEntryMsg}"/>
 			</syllabus:syllabus_if>				
 			<syllabus:syllabus_ifnot test="#{SyllabusTool.syllabusItem.redirectURL}">
-               <syllabus:syllabus_if test="#{SyllabusTool.openInNewWindowAsString}">
-  			     <syllabus:syllabus_iframe redirectUrl="#{SyllabusTool.syllabusItem.redirectURL}" width="100%"/>
-               </syllabus:syllabus_if>
-                <syllabus:syllabus_ifnot test="#{SyllabusTool.openInNewWindowAsString}">
-                    <h:outputText escape="false" value="<script>javascript:printFriendly('#{SyllabusTool.syllabusItem.redirectURL}');</script>" />
-                </syllabus:syllabus_ifnot>
+				<br/>
+				<h:outputText escape="false" value="#{msgs.redirect_explanation} " />
+				<h:outputLink target="_blank" rel="noopener" title="#{msgs.openLinkNewWindow}" value="#{SyllabusTool.syllabusItem.redirectURL}">
+					<h:outputText escape="false" value="#{SyllabusTool.syllabusItem.redirectURL}" />
+				</h:outputLink>
 			</syllabus:syllabus_ifnot>
 			<f:verbatim>
 				<div id="confirmDelete" style="display:none">
@@ -326,11 +325,6 @@
 						<input type="button" name="cancelDelete" value="</f:verbatim><h:outputText value="#{msgs.cancel}"/><f:verbatim>" title="</f:verbatim><h:outputText value="#{msgs.cancel}"/><f:verbatim>" onlclick="">
 					</p>
 				</div>
-				<syllabus:syllabus_ifnot test="#{SyllabusTool.openInNewWindowAsString}">
-					<h:outputFormat value="#{msgs.syllabus_PopupBlocked}" escape="false">
-						<f:param value="#{SyllabusTool.syllabusItem.redirectURL}"/>
-					</h:outputFormat>
-				</syllabus:syllabus_ifnot>
 		</f:verbatim>
         <f:verbatim><div style="padding-top: 600px" frameborder="0"></div></f:verbatim>
 		</h:form>

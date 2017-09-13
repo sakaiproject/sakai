@@ -19,8 +19,11 @@
 	<div id="toolSubsitesContainer">
 		<nav id="toolMenu" role="navigation" aria-label="${rloader.sit_toolshead}" class="Mrphs-toolsNav__menu">
 			<ul>
-				<li class="Mrphs-toolsNav__menuitem Mrphs-collapseTools js-toggle-nav" style='display: none;'>
-					<i class="fa fa-lg fa-angle-double-left" aria-hidden="true"></i>
+				<li id="toolsNav-toggle-li" class="Mrphs-toolsNav__menuitem Mrphs-collapseTools #if ($toolsCollapsed) min #else max #end" style='display: none;'>
+					<button type="button" aria-pressed="$toolsCollapsed" title="${rloader.sit_toggle_nav}" class="Mrphs-toggleNav js-toggle-nav btn-link  #if ($toolsCollapsed) min #else max #end">
+						<span class="fa fa-lg fa-angle-double-left" aria-hidden="true"></span>
+						<span class="sr-only">${rloader.sit_toggle_nav}</span>
+					</button>
 				</li>
 			#set( $categoryMap = {})
 			#set( $categoryList = [])
@@ -38,7 +41,7 @@
 						#set( $breadToolName  = $page.pageTitle )
 	
 						<li class="Mrphs-toolsNav__menuitem is-current">
-							<a class="Mrphs-toolsNav__menuitem--link #if(${page.hidden})is-invisible#end" href="${page.pageResetUrl}" title="${page.pageTitle}" role="presentation">
+							<a class="Mrphs-toolsNav__menuitem--link #if(${page.hidden})is-invisible#end" href="${page.pageResetUrl}" title="${page.pageTitle}">
 								<span class="Mrphs-toolsNav__menuitem--icon ${page.menuClass} $!{page.menuClassOverride} icon-active"></span>
 								<span class="Mrphs-toolsNav__menuitem--title">${page.pageTitle}</span>
 							</a>
@@ -93,7 +96,7 @@
 					#if (${page.current})
 	
 						<li class="Mrphs-toolsNav__menuitem is-current">
-							<a class="Mrphs-toolsNav__menuitem--link #if(${page.hidden})is-invisible#end" href="${page.pageResetUrl}" title="${page.pageTitle}" role="presentation">
+							<a class="Mrphs-toolsNav__menuitem--link #if(${page.hidden})is-invisible#end" href="${page.pageResetUrl}" title="${page.pageTitle}">
 								<span class="Mrphs-toolsNav__menuitem--icon ${page.menuClass} $!{page.menuClassOverride} icon-active"></span>
 								<span class="Mrphs-toolsNav__menuitem--title">${page.pageTitle}</span>
 							</a>
@@ -153,6 +156,17 @@
 	
 				#end ## END of if ( $subSites && $showSubsitesAsFlyout )
 	
+				#if (${sitePages.pageNavCanAddMoreTools})
+
+					<li>
+						<a class="Mrphs-toolsNav__menuitem--link" href="${sitePages.pageNavAddMoreToolsUrl}">
+							<span class="Mrphs-toolsNav__menuitem--icon icon-sakai--add-tool"></span>
+							<span class="Mrphs-toolsNav__menuitem--title">${rloader.sit_addmoretools}</span>
+						</a>
+					</li>
+
+				#end ## END of IF (${sitePages.pageNavCanAddMoreTools})
+
 				#if (${sitePages.pageNavShowHelp})
 	
 					<li class="Mrphs-toolsNav__menuitem--help">
@@ -165,29 +179,18 @@
 	
 				#end ## END of IF (${sitePages.pageNavShowHelp})
 	
-				#if (${sitePages.pageNavCanAddMoreTools})
-	
-					<li>
-						<a class="Mrphs-toolsNav__menuitem--link" href="${sitePages.pageNavAddMoreToolsUrl}">
-							<span class="Mrphs-toolsNav__menuitem--icon icon-sakai--add-tool"></span>
-							<span class="Mrphs-toolsNav__menuitem--title">${rloader.sit_addmoretools}</span>
-						</a>
-					</li>
-	
-				#end ## END of IF (${sitePages.pageNavCanAddMoreTools})
-	
 			</ul>
 		</nav>
 	
 		#if ( $subSites )
 	
 			<nav id="subSites" #if ($showSubsitesAsFlyout) class="is-hidden"#end>
-					<ul role="menu">
+					<ul>
 	
 						#foreach ( $site in $subSites )
 	
 							<li>
-								<a class="Mrphs-toolsNav__menuitem--link #if(!${site.isPublished})is-invisible#end" href="${site.siteUrl}" title="${rloader.subsite} ${site.fullTitle}" role="menuitem">
+								<a class="Mrphs-toolsNav__menuitem--link #if(!${site.isPublished})is-invisible#end" href="${site.siteUrl}" title="${rloader.subsite} ${site.fullTitle}">
 									<span class="Mrphs-toolsNav__menuitem--icon ${sitePages.subsiteClass}"></span>
 									<span class="Mrphs-toolsNav__menuitem--title">${rloader.subsite} ${site.siteTitle}</span>
 								</a>
@@ -200,6 +203,13 @@
 	
 		#end ## END of IF ( $subSites )
 	</div>
+
+	#if (${sitePages.additionalLessonsPages})
+		<script src="/library/js/lessons-subnav.js$!{portalCDNQuery}"></script>
+		<script>
+			sakai.lessons_subnav = new LessonsSubPageNavigation($sitePages.additionalLessonsPages);
+		</script>
+	#end
 </div>
 
 <!-- END VM includePageNav.vm -->

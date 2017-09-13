@@ -21,11 +21,9 @@ package org.sakaiproject.tool.assessment.services.assessment;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.TreeMap;
 
 import org.apache.commons.lang.StringUtils;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentAccessControl;
@@ -715,7 +713,7 @@ public class PublishedAssessmentService extends AssessmentService{
 	   .getPublishedAssessmentInfoForRemove(publishedAssessmentId);
    }
    
-   public Map<String, String> getToGradebookPublishedAssessmentSiteIdMap() {
+   public Map<Long, String> getToGradebookPublishedAssessmentSiteIdMap() {
 	   return PersistenceService.getInstance().getPublishedAssessmentFacadeQueries()
 	   .getToGradebookPublishedAssessmentSiteIdMap();
    }
@@ -726,7 +724,7 @@ public class PublishedAssessmentService extends AssessmentService{
 	   getBasicInfoOfLastOrHighestOrAverageSubmittedAssessmentsByScoringOption(agentId, siteId, allAssessments);
    }
 
-	public List getAllAssessmentsGradingDataByAgentAndSiteId(String agentId, String siteId) {
+	public List<AssessmentGradingData> getAllAssessmentsGradingDataByAgentAndSiteId(String agentId, String siteId) {
 		return PersistenceService.getInstance().getPublishedAssessmentFacadeQueries()
 				.getAllAssessmentsGradingDataByAgentAndSiteId(agentId, siteId);
 	}

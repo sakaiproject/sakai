@@ -25,6 +25,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 import org.sakaiproject.component.locales.SakaiLocales;
 
@@ -210,6 +211,32 @@ public interface ServerConfigurationService
 	 * @return The configuration value with this name, or the default value if not found.
 	 */
 	boolean getBoolean(String name, boolean dflt);
+
+	/**
+	 * Access some named configuration value as a <code>List<String></code>.
+	 * The value must be a comma separated set of values.
+	 *
+	 * @param name
+	 *        The configuration value name.
+	 * @param dflt
+	 *        The value to return if not found.
+	 * @return The configuration value with this name, as
+	 * 		   a <code>List<String></code>, or the default value if not found.
+	 */
+	List<String> getStringList(String name, List<String> dflt);
+
+	/**
+	 * Access some named configuration value as a <code>List<Pattern></code>.
+	 * The value must be a comma separated set of regexes.
+	 *
+	 * @param name
+	 *        The configuration value name.
+	 * @param dflt
+	 *        The value to return if not found.
+	 * @return The configuration value with this name, as
+	 * 		   a <code>List<Pattern></code>, or the default value if not found.
+	 */
+	List<Pattern> getPatternList(String name, List<String> dflt);
 	
 	/**
 	 * Access the undereferenced value of the given property. That is,

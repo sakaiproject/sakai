@@ -6,7 +6,7 @@
         <groupId>org.sakaiproject.lessonbuilder</groupId>
         <artifactId>lessonbuilder</artifactId>
         <relativePath>../pom.xml</relativePath>
-        <version>12-SNAPSHOT</version>
+        <version>13-SNAPSHOT</version>
     </parent>
 
     <name>sakai-lessonbuildertool-tool-components</name>
@@ -82,6 +82,9 @@
                 <includes>
                     <include>**/*.sql</include>
                 </includes>
+            </resource>
+            <resource>
+                <directory>${basedir}/src/resources</directory>
             </resource>
         </resources>
     </build>

@@ -15,11 +15,9 @@
  */
 package org.sakaiproject.webservices;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.util.Resource;
 import org.sakaiproject.util.ResourceLoader;
+import org.sakaiproject.webservices.interceptor.NoIPRestriction;
 
 import javax.jws.WebMethod;
 import javax.jws.WebParam;
@@ -33,23 +31,23 @@ import java.util.Iterator;
 import java.util.Locale;
 import java.util.Set;
 
+import lombok.extern.slf4j.Slf4j;
+
 /**
  * A set of web services for i18n
  *
  * @author Unicon
  */
 
+@Slf4j
 @WebService
 @SOAPBinding(style = SOAPBinding.Style.RPC, use = SOAPBinding.Use.LITERAL)
 public class SakaiI18n extends AbstractWebService {
-
-    private static final Log LOG = LogFactory.getLog(SakaiI18n.class);
 
     /**
      *Returns the content of the specified properties file in a defined language
      * and returns the default value if the key doesn't exists in that lanaguage.
      *
-     * @param sessionid        id of a valid session
      * @param locale            the language to return in  IETF BCP 47 language tag string (samples: es-ES, jap)
      * @param resourceClass   Where to find the properties files (Samples: org.sakaiproject.rubrics.logic.RubricsService  or org.sakaiproject.sharedI18n.SharedProperties)
      * @param resourceBundle  The bundle itself (Samples: rubricsMessages, or org.sakaiproject.sharedI18n.bundle.shared)
@@ -60,33 +58,28 @@ public class SakaiI18n extends AbstractWebService {
     @Path("/getI18nProperties")
     @Produces("text/plain")
     @GET
+    @NoIPRestriction
     public String getI18nProperties(
-            @WebParam(name = "sessionid", partName = "sessionid") @QueryParam("sessionid") String sessionid,
             @WebParam(name = "locale", partName = "locale") @QueryParam("locale") String locale,
             @WebParam(name = "resourceclass", partName = "resourceclass") @QueryParam("resourceclass") String resourceClass,
             @WebParam(name = "resourcebundle", partName = "resourcebundle") @QueryParam("resourcebundle") String resourceBundle) {
 
-        Session session = establishSession(sessionid);
-        if (!securityService.isSuperUser()) {
-            LOG.warn("NonSuperUser trying to access to translations: " + session.getUserId());
-            throw new RuntimeException("NonSuperUser trying to access to translations: " + session.getUserId());
-        }
+        log.debug("locale: {}", locale);
+        log.debug("resourceClass: {}", resourceClass);
+        log.debug("resourceBundle: {}", resourceBundle);
+
         try {
+            ResourceLoader rb = new Resource().getLoader(resourceClass, resourceBundle);
+            rb.setContextLocale(Locale.forLanguageTag(locale));
+            Iterator keys = rb.keySet().iterator();
             StringBuilder lines = new StringBuilder();
-            //Convert the locale string in a Locale object
-            Locale loc = Locale.forLanguageTag(locale);
-            ResourceLoader rb = new Resource().getLoader(resourceClass,resourceBundle);
-            rb.setContextLocale(loc);
-            //Get all the properties and iterate to return the right value
-            Set properties = rb.keySet();
-            Iterator keys = properties.iterator();
             while (keys.hasNext()){
                 String key = keys.next().toString();
                 lines.append(key + "=" + rb.getString(key) + "\n");
             }
             return lines.toString();
         } catch (Exception e) {
-            LOG.warn("WS getI18nProperties(): " + e.getClass().getName() + " : " + e.getMessage());
+            log.warn("WS getI18nProperties(): {} : {}", e.getClass().getName(), e.getMessage());
             return "";
         }
 

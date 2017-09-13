@@ -4,7 +4,7 @@
     <parent>
       <groupId>org.sakaiproject</groupId>
       <artifactId>master</artifactId>
-      <version>12-SNAPSHOT</version>
+      <version>13-SNAPSHOT</version>
       <relativePath>../master/pom.xml</relativePath>
     </parent>
   <name>Sakai Chat Project</name>
@@ -31,6 +31,16 @@
         <groupId>org.sakaiproject</groupId>
         <artifactId>sakai-chat-impl</artifactId>
         <version>${project.version}</version>
+      </dependency>
+      <dependency>
+          <groupId>org.jgroups</groupId>
+          <artifactId>jgroups</artifactId>
+          <version>3.6.13.Final</version>
+      </dependency>
+      <dependency>
+          <groupId>com.google.guava</groupId>
+          <artifactId>guava</artifactId>
+          <version>22.0</version>
       </dependency>
     </dependencies>
   </dependencyManagement>

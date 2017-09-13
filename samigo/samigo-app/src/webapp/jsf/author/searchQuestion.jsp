@@ -48,7 +48,7 @@ PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
             });
         </script>
 
-        <script type="text/javascript" src="/library/webjars/jquery/1.11.3/jquery.min.js"></script>
+        <script type="text/javascript" src="/library/webjars/jquery/1.12.4/jquery.min.js"></script>
         <script src="/library/js/spinner.js" type="text/javascript"></script>
         <script src="/library/webjars/select2/4.0.3/dist/js/select2.full.min.js"></script>
         <link href="/library/webjars/select2/4.0.3/dist/css/select2.css" rel="stylesheet" type="text/css">

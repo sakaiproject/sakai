@@ -89,7 +89,7 @@ public class PortalUtils
              "var needJQuery = true;\n" +
              "if ( window.jQuery ) {\n" +
              "       tver = jQuery.fn.jquery;\n" +
-             "       if ( tver.indexOf('1.11.') == 0 ) {\n" +
+             "       if ( tver.indexOf('1.12.') == 0 ) {\n" +
              "               window.console && console.log('"+where+" PortalUtils.includeLatestJquery() detected jQuery '+tver);\n" +
              "               needJQuery = false;\n" +
              "       } else {\n" +
@@ -99,24 +99,24 @@ public class PortalUtils
              "}\n" +
              "if ( needJQuery ) {\n" +
              "   document.write('\\x3Cscript type=\"text/javascript\" src=\"" +
-                 getWebjarsPath() + "jquery/1.11.3/jquery.min.js" + getCDNQuery() + 
+                 getLatestJQueryPath() + getCDNQuery() + 
                  "\">'+'\\x3C/script>')\n" +
              "   document.write('\\x3Cscript type=\"text/javascript\" src=\"" +
-                 getWebjarsPath() + "jquery-migrate/1.4.0/jquery-migrate.min.js" + getCDNQuery() + 
+                 getWebjarsPath() + "jquery-migrate/1.4.1/jquery-migrate.min.js" + getCDNQuery() + 
                  "\">'+'\\x3C/script>')\n" +
              "   document.write('\\x3Cscript type=\"text/javascript\" src=\"" +
                  getWebjarsPath() + "bootstrap/3.3.7/js/bootstrap.min.js" + getCDNQuery() +
                  "\">'+'\\x3C/script>')\n" +
              "   document.write('\\x3Cscript type=\"text/javascript\" src=\"" +
-                 getWebjarsPath() + "jquery-ui/1.11.3/jquery-ui.min.js" + getCDNQuery() + 
+                 getWebjarsPath() + "jquery-ui/1.12.1/jquery-ui.min.js" + getCDNQuery() + 
                  "\">'+'\\x3C/script>')\n" +
              "   document.write('\\x3Clink rel=\"stylesheet\" href=\"" +
-                 getWebjarsPath() + "jquery-ui/1.11.3/jquery-ui.min.css" + getCDNQuery() + 
+                 getWebjarsPath() + "jquery-ui/1.12.1/jquery-ui.min.css" + getCDNQuery() + 
                  "\"/>')\n" +
              "} else { \n" +
              "   window.console && console.log('jQuery already loaded '+jQuery.fn.jquery+' in '+'" + where + "');\n" +
              "   if (typeof jQuery.migrateWarnings == 'undefined') {\n" +
-             "           document.write('\\x3Cscript type=\"text/javascript\" src=\"" + getWebjarsPath() + "jquery/jquery-migrate-1.4.0.min.js" + getCDNQuery() + "\">'+'\\x3C/script>')\n" +
+             "           document.write('\\x3Cscript type=\"text/javascript\" src=\"" + getWebjarsPath() + "jquery/jquery-migrate-1.4.1.min.js" + getCDNQuery() + "\">'+'\\x3C/script>')\n" +
              "           window.console && console.log('Adding jQuery migrate');\n" +
              "   }\n" +
              "   if ( typeof jQuery.fn.popover == 'undefined') {\n" +
@@ -124,8 +124,8 @@ public class PortalUtils
              "           window.console && console.log('Adding Bootstrap');\n" +
              "   }\n" +
              "   if (typeof jQuery.ui == 'undefined') {\n" +
-             "           document.write('\\x3Cscript type=\"text/javascript\" src=\"" + getWebjarsPath() + "jquery-ui/1.11.3/jquery-ui.min.js" + getCDNQuery() + "\">'+'\\x3C/script>')\n" +
-             "           document.write('\\x3Clink rel=\"stylesheet\" href=\"" + getWebjarsPath() + "jquery-ui/1.11.3/jquery-ui.min.css" + getCDNQuery() + "\"/>')\n" +
+             "           document.write('\\x3Cscript type=\"text/javascript\" src=\"" + getWebjarsPath() + "jquery-ui/1.12.1/jquery-ui.min.js" + getCDNQuery() + "\">'+'\\x3C/script>')\n" +
+             "           document.write('\\x3Clink rel=\"stylesheet\" href=\"" + getWebjarsPath() + "jquery-ui/1.12.1/jquery-ui.min.css" + getCDNQuery() + "\"/>')\n" +
              "           window.console && console.log('Adding jQuery UI');\n" +
              "   }\n" +
              "}\n" +
@@ -140,5 +140,8 @@ public class PortalUtils
 		return retval;
 	}
 
+	public static String getLatestJQueryPath() {
+		 return getWebjarsPath() + "jquery/1.12.4/jquery.min.js";
+	}
 }
 

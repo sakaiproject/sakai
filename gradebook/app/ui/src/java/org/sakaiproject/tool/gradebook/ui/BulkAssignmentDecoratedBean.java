@@ -1,8 +1,23 @@
+/**
+ * Copyright (c) 2003-2011 The Apereo Foundation
+ *
+ * Licensed under the Educational Community License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *             http://opensource.org/licenses/ecl2
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.sakaiproject.tool.gradebook.ui;
 
 import java.io.Serializable;
 
-import org.sakaiproject.tool.gradebook.Assignment;
+import org.sakaiproject.tool.gradebook.GradebookAssignment;
 
 /**
  * Created to validate pointsPossible during bulk gradebook item
@@ -12,7 +27,7 @@ import org.sakaiproject.tool.gradebook.Assignment;
  * @author josephrodriguez
  */
 public class BulkAssignmentDecoratedBean implements Serializable {
-	private Assignment assignment;
+	private GradebookAssignment assignment;
 	private String category;
 	private String pointsPossible;
     public String bulkNoPointsError;
@@ -20,7 +35,7 @@ public class BulkAssignmentDecoratedBean implements Serializable {
     public Boolean saveThisItem;
     public String selectedGradeEntryValue;
 
-	public BulkAssignmentDecoratedBean(Assignment assignment, String category) {
+	public BulkAssignmentDecoratedBean(GradebookAssignment assignment, String category) {
 		this.assignment = assignment;
 		this.category = category;
 		bulkNoPointsError = "OK";
@@ -28,10 +43,10 @@ public class BulkAssignmentDecoratedBean implements Serializable {
 		saveThisItem = Boolean.FALSE;
 	}
 	
-	public Assignment getAssignment() {
+	public GradebookAssignment getAssignment() {
 		return assignment;
 	}
-	public void setAssignment(Assignment assignment) {
+	public void setAssignment(GradebookAssignment assignment) {
 		this.assignment = assignment;
 	}
 	public String getCategory() {

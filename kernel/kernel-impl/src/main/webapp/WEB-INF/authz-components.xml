@@ -51,7 +51,8 @@
 		<lookup-method name="sessionManager" bean="org.sakaiproject.tool.api.SessionManager" />
 		<lookup-method name="eventTrackingService" bean="org.sakaiproject.event.api.EventTrackingService" />
 		<lookup-method name="siteService" bean="org.sakaiproject.site.api.SiteService"/>
-    <lookup-method name="functionManager" bean="org.sakaiproject.authz.api.FunctionManager" />
+		<lookup-method name="functionManager" bean="org.sakaiproject.authz.api.FunctionManager" />
+		<lookup-method name="toolManager" bean="org.sakaiproject.tool.api.ToolManager" />
 
   		<property name="cacheMinutes"><value>5</value></property>
 	</bean>

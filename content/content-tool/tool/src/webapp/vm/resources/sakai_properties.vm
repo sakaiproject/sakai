@@ -239,7 +239,7 @@
 		</div>
 		<div id="collapseAccess" class="panel-collapse collapse in">
 			<div class="panel-body">
-				#if($availability_is_enabled && !$model.isUserSite() && !$model.isDropbox() && ! $model.isSiteCollection())
+				#if($availability_is_enabled && !$model.isUserSite() && !$model.isDropbox())
 					<p class="instruction">
 						#if($model.isCollection())
 							$tlang.getString("instr.access.fldr")
@@ -593,7 +593,7 @@
 							</th>
 							<td>
 								<div class="form-group">
-									<a class="textPanelFooter" href="#fileURLHolder" onclick="document.getElementById('fileURLHolder').style.overflow='auto';document.getElementById('fileURLHolder').focus();document.getElementById('fileURLHolder').select();alert('$tlang.getString("props.select.help")');">$tlang.getString("props.select")</a>
+									<a class="textPanelFooter" href="#fileURLHolder" onclick="document.getElementById('fileURLHolder').style.overflow='auto';document.getElementById('fileURLHolder').select();document.execCommand('copy');return false;">$tlang.getString("props.select")</a>
 									<a class="textPanelFooter" href="$model.accessUrl" target ="_blank">$tlang.getString("props.open")</a>
 									#if($shortUrlEnabled)
 										<span class="textPanelFooter">

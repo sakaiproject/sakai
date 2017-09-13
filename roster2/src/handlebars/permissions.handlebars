@@ -47,6 +47,12 @@
             {{/each}}
         </tr>
         <tr>
+            <td align="left">{{translate 'permissions_user_properties'}}</td>
+            {{#each roles}}
+            <td align="center"><input type="checkbox" class="roster_permission_checkbox" {{#if (roleAllowed permission='roster.viewuserproperties')}}checked="checked"{{/if}}" id="{{name}}:roster.viewuserproperties"/></td>
+            {{/each}}
+        </tr>
+        <tr>
             <td align="left">{{translate 'permissions_photo'}}</td>
             {{#each roles}}
             <td align="center"><input type="checkbox" class="roster_permission_checkbox" {{#if (roleAllowed permission='roster.viewofficialphoto')}}checked="checked"{{/if}}" id="{{name}}:roster.viewofficialphoto"/></td>

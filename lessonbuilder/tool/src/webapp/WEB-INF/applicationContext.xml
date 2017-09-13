@@ -34,6 +34,12 @@
 
    <!-- Define the bean roots from the request scope file that are accessible 
     via incoming request URL -->
+
+<!-- Is it safe to remove the following line from the bean's value element 
+(in tandem with the corresponding field in SimplePageBean)? See LSNBLDR-816. 
+
+simplePageBean.nodownloads,
+-->
    <bean parent="requestAddressibleParent">
 	  <property name="value">
 	    <value>
@@ -252,6 +258,7 @@ simplePageBean.addForumSummary
     <property name="memoryService"><ref bean="org.sakaiproject.memory.api.MemoryService"/></property>
     <property name="messageLocator" ref="messageLocator"/>
     <property name="assignmentSupplementItemService" ref="org.sakaiproject.assignment.api.model.AssignmentSupplementItemService"/>
+	<property name="assignmentService" ref="org.sakaiproject.assignment.api.AssignmentService"/>
   </bean>
 
   <bean id="org.sakaiproject.lessonbuildertool.service.BltiEntity"

@@ -325,6 +325,7 @@ public class PortletIFrame extends GenericPortlet {
 						StringBuilder alertMsg = new StringBuilder();
 						if ( siteInfo != null ) siteInfo = validator.processFormattedText(siteInfo, alertMsg);
 						context.put("siteInfo", siteInfo);
+						context.put("height",height);
 						vHelper.doTemplate(vengine, "/vm/info.vm", context, out);
 						return;
 					}
@@ -469,6 +470,9 @@ public class PortletIFrame extends GenericPortlet {
             HttpURLConnection con =
                 (HttpURLConnection) new URL(url).openConnection();
             con.setRequestMethod("HEAD");
+
+            String sakaiVersion = ServerConfigurationService.getString("version.sakai", "?");
+            con.setRequestProperty("User-Agent","Java Sakai/"+sakaiVersion);
 
             Map headerfields = con.getHeaderFields();
             Set headers = headerfields.entrySet(); 
@@ -754,7 +758,7 @@ public class PortletIFrame extends GenericPortlet {
             }
 
             // If we have a URL from the user, lets validate it
-            if ((!StringUtils.isBlank(source)) && (!validateURL(source)) ) {
+            if ((StringUtils.isNotBlank(source)) && (!validateURL(source)) ) {
                 addAlert(request, rb.getString("gen.url.invalid"));
                 return;
             }
@@ -772,7 +776,7 @@ public class PortletIFrame extends GenericPortlet {
             }
 
             // If we have an infourl from the user, lets validate it
-            if ((!StringUtils.isBlank(infoUrl)) && (!validateURL(infoUrl)) ) {
+            if ((StringUtils.isNotBlank(infoUrl)) && (!validateURL(infoUrl)) ) {
                 addAlert(request, rb.getString("gen.url.invalid"));
                 return;
             }
