@@ -4134,8 +4134,7 @@ public class AssignmentAction extends PagedResourceActionII {
     /**
      * build the instructor view of an assignment
      */
-    private String build_instructor_view_assignment_context(VelocityPortlet portlet, Context context, RunData data,
-                                                            SessionState state) {
+    private String build_instructor_view_assignment_context(VelocityPortlet portlet, Context context, RunData data, SessionState state) {
         context.put("tlang", rb);
 
         String assignmentId = (String) state.getAttribute(VIEW_ASSIGNMENT_ID);
@@ -4158,6 +4157,10 @@ public class AssignmentAction extends PagedResourceActionII {
             Map<String, String> properties = assignment.getProperties();
             context.put("scheduled", properties.get(ResourceProperties.NEW_ASSIGNMENT_CHECK_ADD_DUE_DATE));
             context.put("announced", properties.get(ResourceProperties.NEW_ASSIGNMENT_CHECK_AUTO_ANNOUNCE));
+
+            Map<String, Reference> attachmentReferences = new HashMap<>();
+            assignment.getAttachments().forEach(r -> attachmentReferences.put(r, entityManager.newReference(r)));
+            context.put("attachmentReferences", attachmentReferences);
         }
 
         if (taggingManager.isTaggable() && assignment != null) {
