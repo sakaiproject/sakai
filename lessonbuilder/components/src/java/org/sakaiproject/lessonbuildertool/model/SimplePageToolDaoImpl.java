@@ -1809,7 +1809,7 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 	}
 
 
-	public String getLessonSubPageJSON(final String userId, final boolean isInstructor, final List pages) {
+	public String getLessonSubPageJSON(final String userId, final boolean isInstructor, final String siteId, final List pages) {
 		final String sql = ("SELECT p.toolId AS sakaiPageId," +
 				" p.pageId AS lessonsPageId," +
 				" s.site_id AS sakaiSiteId," +
@@ -1844,7 +1844,7 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 			fields[i+1] = pageIds.get(i);
 		}
 
-		final LessonsSubNavBuilder lessonsSubNavBuilder = new LessonsSubNavBuilder(isInstructor);
+		final LessonsSubNavBuilder lessonsSubNavBuilder = new LessonsSubNavBuilder(siteId, isInstructor);
 
 		sqlService.dbRead(sql, fields, new SqlReader() {
 			public Object readSqlResultRecord(final ResultSet result) {
@@ -1857,5 +1857,21 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 		});
 
 		return lessonsSubNavBuilder.toJSON();
+	}
+
+	public List<SimplePage> getTopLevelPages(final String siteId) {
+		DetachedCriteria d = DetachedCriteria.forClass(SimplePage.class).add(Restrictions.eq("siteId", siteId))
+			.add(Restrictions.disjunction()
+				.add(Restrictions.isNull("owner"))
+				.add(Restrictions.eq("owned", true)))
+			.add(Restrictions.isNull("parent"));
+
+		List<SimplePage> l = (List<SimplePage>) getHibernateTemplate().findByCriteria(d);
+
+		if (l != null && l.size() > 0) {
+			return l;
+		} else {
+			return null;
+		}
 	}
 }
