@@ -265,6 +265,11 @@ public interface SiteServiceSql
 	 * returns the sql statement which is part of the where clause to retrieve sites.
 	 */
 	String getSitesWhere15Sql();
+	
+	/**
+	 * returns the sql statement which is part of the where clause to retrieve sites.
+	 */
+	String getSitesWhere16Sql(int size);
 
 	/**
 	 * returns the sql statement which retrieves the skin and whether the site has been published from the sakai_site table.

@@ -409,6 +409,21 @@ public class SiteServiceSqlDefault implements SiteServiceSql
 	{
 		return "SAKAI_SITE.MODIFIEDBY = SAKAI_USER_ID_MAP.USER_ID and ";
 	}
+	
+	/**
+	 * returns the sql statement which is part of the where clause to retrieve sites.
+	 */
+	public String getSitesWhere16Sql(int size)
+	{
+		StringBuilder values = new StringBuilder();
+		for(int i=0; i < size; i++){
+			if(i>0){
+				values.append(",");
+			}
+			values.append("?");
+		}
+		return "SAKAI_SITE.SITE_ID not in ("+values.toString()+") and ";
+	}
 
 	/**
 	 * returns the sql statement which is part of the where clause to retrieve the number of sites.
