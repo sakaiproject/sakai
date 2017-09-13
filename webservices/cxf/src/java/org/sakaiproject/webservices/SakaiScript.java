@@ -2923,7 +2923,7 @@ public class SakaiScript extends AbstractWebService {
     		cedit.setDescriptionFormatted(descriptionFormatted);
     		if (recurrenceFrequency != null) {
     			RecurrenceRule rule = calendarService.newRecurrence(recurrenceFrequency, recurrenceInterval);
-            	cedit.setRecurrenceRule(rule);
+    			cedit.setRecurrenceRule(rule);
     		}
     		calendar.commitEvent(cedit);
     		calendarService.commitCalendar(calendar);
