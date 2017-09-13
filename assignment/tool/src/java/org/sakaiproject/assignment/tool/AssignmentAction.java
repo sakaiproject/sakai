@@ -880,16 +880,6 @@ public class AssignmentAction extends PagedResourceActionII {
     private static final String PARAMS_VIEW_SUBS_ONLY_CHECKBOX = "chkSubsOnly1";
     private static ResourceLoader rb = new ResourceLoader("assignment");
     private final String NO_SUBMISSION = rb.getString("listsub.nosub");
-    private ContentHostingService m_contentHostingService = null;
-    private org.sakaiproject.entity.api.EntityManager m_entityManager = null;
-    private EventTrackingService m_eventTrackingService = null;
-    private NotificationService m_notificationService = null;
-    private SecurityService m_securityService = null;
-    private AuthzGroupService authzGroupService = null;
-    private CandidateDetailProvider candidateDetailProvider = null;
-    /********************** Supplement item ************************/
-    private AssignmentSupplementItemService m_assignmentSupplementItemService = null;
-    // SAK-29314
     private boolean nextUngraded = false;
     private boolean prevUngraded = false;
     private boolean nextWithSubmission = false;
@@ -902,17 +892,25 @@ public class AssignmentAction extends PagedResourceActionII {
     private String prevWithSubmissionRef = "";
     private String nextUngradedWithSubmissionRef = "";
     private String prevUngradedWithSubmissionRef = "";
+
     private AnnouncementService announcementService;
     private AssignmentActivityProducer assignmentActivityProducer;
     private AssignmentPeerAssessmentService assignmentPeerAssessmentService;
     private AssignmentService assignmentService;
+    private AssignmentSupplementItemService assignmentSupplementItemService;
+    private AuthzGroupService authzGroupService;
     private CalendarService calendarService;
+    private CandidateDetailProvider candidateDetailProvider;
+    private ContentHostingService contentHostingService;
     private ContentReviewService contentReviewService;
     private ContentTypeImageService contentTypeImageService;
     private EntityManager entityManager;
+    private EventTrackingService eventTrackingService;
     private GradebookService gradebookService;
     private GradebookExternalAssessmentService gradebookExternalAssessmentService;
     private LearningResourceStoreService learningResourceStoreService;
+    private NotificationService notificationService;
+    private SecurityService securityService;
     private ServerConfigurationService serverConfigurationService;
     private SessionManager sessionManager;
     private SiteService siteService;
@@ -925,30 +923,30 @@ public class AssignmentAction extends PagedResourceActionII {
     public AssignmentAction() {
         super();
 
-        assignmentService = ComponentManager.get(AssignmentService.class);
-        m_contentHostingService = ComponentManager.get(ContentHostingService.class);
-        m_assignmentSupplementItemService = ComponentManager.get(AssignmentSupplementItemService.class);
-        m_eventTrackingService = ComponentManager.get(EventTrackingService.class);
-        m_notificationService = ComponentManager.get(NotificationService.class);
-        assignmentPeerAssessmentService = ComponentManager.get(AssignmentPeerAssessmentService.class);
-        authzGroupService = ComponentManager.get(AuthzGroupService.class);
-        serverConfigurationService = ComponentManager.get(ServerConfigurationService.class);
-        entityManager = ComponentManager.get(EntityManager.class);
-        siteService = ComponentManager.get(SiteService.class);
-        sessionManager = ComponentManager.get(SessionManager.class);
-        toolManager = ComponentManager.get(ToolManager.class);
-        userDirectoryService = ComponentManager.get(UserDirectoryService.class);
         announcementService = ComponentManager.get(AnnouncementService.class);
+        assignmentActivityProducer = ComponentManager.get(AssignmentActivityProducer.class);
+        assignmentPeerAssessmentService = ComponentManager.get(AssignmentPeerAssessmentService.class);
+        assignmentService = ComponentManager.get(AssignmentService.class);
+        assignmentSupplementItemService = ComponentManager.get(AssignmentSupplementItemService.class);
+        authzGroupService = ComponentManager.get(AuthzGroupService.class);
         calendarService = ComponentManager.get(CalendarService.class);
+        contentHostingService = ComponentManager.get(ContentHostingService.class);
+        contentReviewService = ComponentManager.get(ContentReviewService.class);
         contentTypeImageService = ComponentManager.get(ContentTypeImageService.class);
-        m_securityService = ComponentManager.get(SecurityService.class);
+        entityManager = ComponentManager.get(EntityManager.class);
+        eventTrackingService = ComponentManager.get(EventTrackingService.class);
         gradebookExternalAssessmentService = (GradebookExternalAssessmentService) ComponentManager.get("org.sakaiproject.service.gradebook.GradebookExternalAssessmentService");
         gradebookService = (GradebookService) ComponentManager.get("org.sakaiproject.service.gradebook.GradebookService");
         learningResourceStoreService = ComponentManager.get(LearningResourceStoreService.class);
+        notificationService = ComponentManager.get(NotificationService.class);
+        securityService = ComponentManager.get(SecurityService.class);
+        serverConfigurationService = ComponentManager.get(ServerConfigurationService.class);
+        sessionManager = ComponentManager.get(SessionManager.class);
+        siteService = ComponentManager.get(SiteService.class);
         taggingManager = ComponentManager.get(TaggingManager.class);
-        assignmentActivityProducer = ComponentManager.get(AssignmentActivityProducer.class);
-        contentReviewService = ComponentManager.get(ContentReviewService.class);
         timeService = ComponentManager.get(TimeService.class);
+        toolManager = ComponentManager.get(ToolManager.class);
+        userDirectoryService = ComponentManager.get(UserDirectoryService.class);
     }
 
     /**
@@ -1284,7 +1282,7 @@ public class AssignmentAction extends PagedResourceActionII {
             SecurityAdvisor secAdv = pushSecurityAdvisor(session, "assignment.security.advisor", false);
             String assignmentId = AssignmentReferenceReckoner.reckoner().reference(assignmentReference).reckon().getId();
             rv = assignmentService.getAssignment(assignmentId);
-            m_securityService.popAdvisor(secAdv);
+            securityService.popAdvisor(secAdv);
         } catch (IdUnusedException e) {
             log.warn(this + ":" + callingFunctionName + " " + e.getMessage() + " " + assignmentReference);
             addAlert(state, rb.getFormattedMessage("cannotfin_assignment", assignmentReference));
@@ -1310,7 +1308,7 @@ public class AssignmentAction extends PagedResourceActionII {
             Session session = sessionManager.getCurrentSession();
             SecurityAdvisor secAdv = pushSecurityAdvisor(session, "assignment.grade.security.advisor", false);
             rv = assignmentService.getSubmission(submissionId);
-            m_securityService.popAdvisor(secAdv);
+            securityService.popAdvisor(secAdv);
         } catch (IdUnusedException e) {
             log.warn(this + ":" + callingFunctionName + " " + e.getMessage() + " " + submissionId);
             addAlert(state, rb.getFormattedMessage("cannotfin_submission", submissionId));
@@ -1679,7 +1677,6 @@ public class AssignmentAction extends PagedResourceActionII {
             }
         }
 
-        TaggingManager taggingManager = (TaggingManager) ComponentManager.get("org.sakaiproject.taggable.api.TaggingManager");
         if (taggingManager.isTaggable() && assignment != null) {
             addProviders(context, state);
             addActivity(context, assignment);
@@ -1716,7 +1713,7 @@ public class AssignmentAction extends PagedResourceActionII {
                 Group _g = site.getGroup(_gRef);
                 if (_g != null && _g.getMember(member) != null) {// && _g.getProperties().get(GROUP_SECTION_PROPERTY) == null)
                     groups.add(_g);
-                } else if (_g != null && m_securityService.isSuperUser()) {// allow admin to submit on behalf of groups
+                } else if (_g != null && securityService.isSuperUser()) {// allow admin to submit on behalf of groups
                     groups.add(_g);
                 }
             }
@@ -1865,8 +1862,6 @@ public class AssignmentAction extends PagedResourceActionII {
             assignment_resubmission_option_into_context(context, state);
         }
 
-        TaggingManager taggingManager = (TaggingManager) ComponentManager
-                .get("org.sakaiproject.taggable.api.TaggingManager");
         if (taggingManager.isTaggable() && assignment != null) {
             addProviders(context, state);
             addActivity(context, assignment);
@@ -1941,10 +1936,10 @@ public class AssignmentAction extends PagedResourceActionII {
 
     private void canViewAssignmentIntoContext(Context context,
                                               Assignment assignment, AssignmentSubmission submission) {
-        boolean canViewModelAnswer = m_assignmentSupplementItemService.canViewModelAnswer(assignment, submission);
+        boolean canViewModelAnswer = assignmentSupplementItemService.canViewModelAnswer(assignment, submission);
         context.put("allowViewModelAnswer", Boolean.valueOf(canViewModelAnswer));
         if (canViewModelAnswer) {
-            context.put("modelAnswer", m_assignmentSupplementItemService.getModelAnswer(assignment.getId()));
+            context.put("modelAnswer", assignmentSupplementItemService.getModelAnswer(assignment.getId()));
         }
     }
 
@@ -1959,7 +1954,7 @@ public class AssignmentAction extends PagedResourceActionII {
     private SecurityAdvisor pushSecurityAdvisor(Session session, String sessionKey, boolean removeFromSession) {
         SecurityAdvisor asgnAdvisor = (SecurityAdvisor) session.getAttribute(sessionKey);
         if (asgnAdvisor != null) {
-            m_securityService.pushAdvisor(asgnAdvisor);
+            securityService.pushAdvisor(asgnAdvisor);
             if (removeFromSession)
                 session.removeAttribute(sessionKey);
         }
@@ -1985,7 +1980,7 @@ public class AssignmentAction extends PagedResourceActionII {
         }
 
         if (contentAdvisor != null && contentRefs != null) {
-            m_securityService.pushAdvisor(contentAdvisor);
+            securityService.pushAdvisor(contentAdvisor);
 
             Map<String, String> urlMap = new HashMap<String, String>();
             for (String refStr : contentRefs) {
@@ -1994,7 +1989,7 @@ public class AssignmentAction extends PagedResourceActionII {
                 urlMap.put(url, url.replaceFirst("access/content", "access/" + decoratedContentWrapper + "/content"));
             }
             context.put("decoratedUrlMap", urlMap);
-            m_securityService.popAdvisor(contentAdvisor);
+            securityService.popAdvisor(contentAdvisor);
         }
     }
 
@@ -2066,7 +2061,7 @@ public class AssignmentAction extends PagedResourceActionII {
                                 List<Reference> attachmentRefList = new ArrayList<>();
                                 for (PeerAssessmentAttachment attachment : attachments) {
                                     try {
-                                        Reference ref = m_entityManager.newReference(m_contentHostingService.getReference(attachment.getResourceId()));
+                                        Reference ref = entityManager.newReference(contentHostingService.getReference(attachment.getResourceId()));
                                         attachmentRefList.add(ref);
                                     } catch (Exception e) {
                                         log.warn(e.getMessage(), e);
@@ -2086,20 +2081,14 @@ public class AssignmentAction extends PagedResourceActionII {
             }
         }
 
-        TaggingManager taggingManager = (TaggingManager) ComponentManager
-                .get("org.sakaiproject.taggable.api.TaggingManager");
         if (taggingManager.isTaggable() && submission != null) {
-            AssignmentActivityProducer assignmentActivityProducer = (AssignmentActivityProducer) ComponentManager
-                    .get("org.sakaiproject.assignment.taggable.api.AssignmentActivityProducer");
             List<DecoratedTaggingProvider> providers = addProviders(context, state);
             List<TaggingHelperInfo> itemHelpers = new ArrayList<TaggingHelperInfo>();
             for (DecoratedTaggingProvider provider : providers) {
-                TaggingHelperInfo helper = provider.getProvider()
-                        .getItemHelperInfo(
-                                assignmentActivityProducer.getItem(
-                                        submission,
-                                        userDirectoryService.getCurrentUser()
-                                                .getId()).getReference());
+                TaggingHelperInfo helper = provider.getProvider().getItemHelperInfo(
+                        assignmentActivityProducer.getItem(
+                                submission,
+                                userDirectoryService.getCurrentUser().getId()).getReference());
                 if (helper != null) {
                     itemHelpers.add(helper);
                 }
@@ -2114,7 +2103,7 @@ public class AssignmentAction extends PagedResourceActionII {
         supplementItemIntoContext(state, context, assignment, submission);
 
         if (asgnAdvisor != null) {
-            m_securityService.popAdvisor(asgnAdvisor);
+            securityService.popAdvisor(asgnAdvisor);
         }
 
         String template = (String) getContext(data).get("template");
@@ -2126,9 +2115,8 @@ public class AssignmentAction extends PagedResourceActionII {
      * build the view of assignments list
      */
     private String build_list_assignments_context(VelocityPortlet portlet, Context context, RunData data, SessionState state) {
-        TaggingManager taggingManager = (TaggingManager) ComponentManager.get("org.sakaiproject.taggable.api.TaggingManager");
         if (taggingManager.isTaggable()) {
-            context.put("producer", ComponentManager.get("org.sakaiproject.assignment.taggable.api.AssignmentActivityProducer"));
+            context.put("producer", assignmentActivityProducer);
             context.put("providers", taggingManager.getProviders());
             context.put("taggable", Boolean.TRUE);
         }
@@ -2231,8 +2219,8 @@ public class AssignmentAction extends PagedResourceActionII {
         context.put(SHOW_NUMBER_SUBMISSION_COLUMN, state.getAttribute(SHOW_NUMBER_SUBMISSION_COLUMN));
 
         // clear out peer_attachment list just in case
-        state.setAttribute(PEER_ATTACHMENTS, m_entityManager.newReferenceList());
-        context.put(PEER_ATTACHMENTS, m_entityManager.newReferenceList());
+        state.setAttribute(PEER_ATTACHMENTS, entityManager.newReferenceList());
+        context.put(PEER_ATTACHMENTS, entityManager.newReferenceList());
 
         String template = (String) getContext(data).get("template");
         return template + TEMPLATE_LIST_ASSIGNMENTS;
@@ -2669,8 +2657,8 @@ public class AssignmentAction extends PagedResourceActionII {
         // get attachment for model answer object
         putSupplementItemAttachmentStateIntoContext(state, context, MODELANSWER_ATTACHMENTS);
         // private notes
-        context.put("allowReadAssignmentNoteItem", m_assignmentSupplementItemService.canReadNoteItem(a, contextString));
-        context.put("allowEditAssignmentNoteItem", m_assignmentSupplementItemService.canEditNoteItem(a));
+        context.put("allowReadAssignmentNoteItem", assignmentSupplementItemService.canReadNoteItem(a, contextString));
+        context.put("allowEditAssignmentNoteItem", assignmentSupplementItemService.canEditNoteItem(a));
         context.put("note", state.getAttribute(NOTE) != null ? Boolean.TRUE : Boolean.FALSE);
         context.put("note_text", state.getAttribute(NOTE_TEXT));
         context.put("note_to", state.getAttribute(NOTE_SHAREWITH) != null ? state.getAttribute(NOTE_SHAREWITH) : String.valueOf(0));
@@ -3541,10 +3529,10 @@ public class AssignmentAction extends PagedResourceActionII {
                         && assignmentService.allowGradeSubmission(assignmentId)) {
                     //coming from instructor view submissions page
                     state.setAttribute(STATE_MODE, MODE_INSTRUCTOR_GRADE_ASSIGNMENT);
-                    state.setAttribute(PEER_ATTACHMENTS, m_entityManager.newReferenceList());
+                    state.setAttribute(PEER_ATTACHMENTS, entityManager.newReferenceList());
                 } else {
                     state.setAttribute(STATE_MODE, MODE_LIST_ASSIGNMENTS);
-                    state.setAttribute(PEER_ATTACHMENTS, m_entityManager.newReferenceList());
+                    state.setAttribute(PEER_ATTACHMENTS, entityManager.newReferenceList());
                 }
             }
             if (submissionId != null && submissionIds.contains(submissionId)) {
@@ -4111,23 +4099,23 @@ public class AssignmentAction extends PagedResourceActionII {
         String contextString = (String) state.getAttribute(STATE_CONTEXT_STRING);
 
         // for model answer
-        boolean allowViewModelAnswer = m_assignmentSupplementItemService.canViewModelAnswer(assignment, s);
+        boolean allowViewModelAnswer = assignmentSupplementItemService.canViewModelAnswer(assignment, s);
         context.put("allowViewModelAnswer", allowViewModelAnswer);
         if (allowViewModelAnswer) {
-            context.put("assignmentModelAnswerItem", m_assignmentSupplementItemService.getModelAnswer(assignment.getId()));
+            context.put("assignmentModelAnswerItem", assignmentSupplementItemService.getModelAnswer(assignment.getId()));
         }
 
         // for note item
-        boolean allowReadAssignmentNoteItem = m_assignmentSupplementItemService.canReadNoteItem(assignment, contextString);
+        boolean allowReadAssignmentNoteItem = assignmentSupplementItemService.canReadNoteItem(assignment, contextString);
         context.put("allowReadAssignmentNoteItem", allowReadAssignmentNoteItem);
         if (allowReadAssignmentNoteItem) {
-            context.put("assignmentNoteItem", m_assignmentSupplementItemService.getNoteItem(assignment.getId()));
+            context.put("assignmentNoteItem", assignmentSupplementItemService.getNoteItem(assignment.getId()));
         }
         // for all purpose item
-        boolean allowViewAllPurposeItem = m_assignmentSupplementItemService.canViewAllPurposeItem(assignment);
+        boolean allowViewAllPurposeItem = assignmentSupplementItemService.canViewAllPurposeItem(assignment);
         context.put("allowViewAllPurposeItem", allowViewAllPurposeItem);
         if (allowViewAllPurposeItem) {
-            context.put("assignmentAllPurposeItem", m_assignmentSupplementItemService.getAllPurposeItem(assignment.getId()));
+            context.put("assignmentAllPurposeItem", assignmentSupplementItemService.getAllPurposeItem(assignment.getId()));
         }
     }
 
@@ -4254,14 +4242,14 @@ public class AssignmentAction extends PagedResourceActionII {
         AssignmentSubmission s = null;
         try {
             //surround with a try/catch/finally for the security advisor
-            m_securityService.pushAdvisor(secAdv);
+            securityService.pushAdvisor(secAdv);
             s = getSubmission((String) state.getAttribute(GRADE_SUBMISSION_SUBMISSION_ID), "build_student_review_edit_context", state);
-            m_securityService.popAdvisor(secAdv);
+            securityService.popAdvisor(secAdv);
         } catch (Exception e) {
             log.error(e.getMessage(), e);
         } finally {
             if (secAdv != null) {
-                m_securityService.popAdvisor(secAdv);
+                securityService.popAdvisor(secAdv);
             }
         }
         if (s != null) {
@@ -4322,7 +4310,7 @@ public class AssignmentAction extends PagedResourceActionII {
                 if (attachments != null && !attachments.isEmpty()) {
                     for (PeerAssessmentAttachment attachment : attachments) {
                         try {
-                            Reference ref = m_entityManager.newReference(m_contentHostingService.getReference(attachment.getResourceId()));
+                            Reference ref = entityManager.newReference(contentHostingService.getReference(attachment.getResourceId()));
                             attachmentRefList.add(ref);
                         } catch (Exception e) {
                             log.warn(e.getMessage(), e);
@@ -4482,13 +4470,13 @@ public class AssignmentAction extends PagedResourceActionII {
         // put supplement item into context
         try {
             //surround with a try/catch/finally for the security advisor
-            m_securityService.pushAdvisor(secAdv);
+            securityService.pushAdvisor(secAdv);
             supplementItemIntoContext(state, context, assignment, null);
         } catch (Exception e) {
             log.error(e.getMessage(), e);
         } finally {
             if (secAdv != null) {
-                m_securityService.popAdvisor(secAdv);
+                securityService.popAdvisor(secAdv);
             }
         }
         // put the grade confirmation message if applicable
@@ -5038,7 +5026,7 @@ public class AssignmentAction extends PagedResourceActionII {
 
         // From enter as student link chef_assignments_list_assignments.vm
         try {
-            if (m_securityService.isUserRoleSwapped()) {
+            if (securityService.isUserRoleSwapped()) {
                 submitterIdInstructor = "instructor";
             }
         } catch (IdUnusedException iue) {
@@ -5094,14 +5082,14 @@ public class AssignmentAction extends PagedResourceActionII {
 
             if (submission != null) {
                 // submission read event
-                Event event = m_eventTrackingService.newEvent(AssignmentConstants.EVENT_ACCESS_ASSIGNMENT_SUBMISSION, submission.getId(),
+                Event event = eventTrackingService.newEvent(AssignmentConstants.EVENT_ACCESS_ASSIGNMENT_SUBMISSION, submission.getId(),
                         false);
-                m_eventTrackingService.post(event);
+                eventTrackingService.post(event);
                 learningResourceStoreService.registerStatement(getStatementForViewSubmittedAssignment(learningResourceStoreService.getEventActor(event), event, a.getTitle()), "assignment");
             } else {
                 // otherwise, the student just read assignment description and prepare for submission
-                Event event = m_eventTrackingService.newEvent(AssignmentConstants.EVENT_ACCESS_ASSIGNMENT, a.getId(), false);
-                m_eventTrackingService.post(event);
+                Event event = eventTrackingService.newEvent(AssignmentConstants.EVENT_ACCESS_ASSIGNMENT, a.getId(), false);
+                eventTrackingService.post(event);
                 learningResourceStoreService.registerStatement(getStatementForViewAssignment(learningResourceStoreService.getEventActor(event), event, a.getTitle()), "assignment");
             }
         }
@@ -6200,24 +6188,23 @@ public class AssignmentAction extends PagedResourceActionII {
                             addAlert(state, rb.getString("youarenot13"));
                             log.warn(this + ":post_save_submission " + e.getMessage());
                         }
-                    } // if-else
-
-                } // if
-
-            } // if
+                    }
+                }
+            }
 
             if (state.getAttribute(STATE_MESSAGE) == null) {
                 state.setAttribute(STATE_MODE, MODE_STUDENT_VIEW_SUBMISSION_CONFIRMATION);
             }
-            LearningResourceStoreService lrss = (LearningResourceStoreService) ComponentManager
-                    .get("org.sakaiproject.event.api.LearningResourceStoreService");
-            if (null != lrss && StringUtils.isNotEmpty(assignmentId)) {
-                Event event = m_eventTrackingService.newEvent(AssignmentConstants.EVENT_SUBMIT_ASSIGNMENT_SUBMISSION, assignmentId, false);
-                lrss.registerStatement(
-                        getStatementForSubmitAssignment(lrss.getEventActor(event), event, serverConfigurationService.getAccessUrl(),
-                                a.getTitle()), "sakai.assignment");
+            if (StringUtils.isNotEmpty(assignmentId)) {
+                Event event = eventTrackingService.newEvent(AssignmentConstants.EVENT_SUBMIT_ASSIGNMENT_SUBMISSION, assignmentId, false);
+                learningResourceStoreService.registerStatement(
+                        getStatementForSubmitAssignment(learningResourceStoreService.getEventActor(event),
+                                event,
+                                serverConfigurationService.getAccessUrl(),
+                                a.getTitle()),
+                        "sakai.assignment");
             }
-        }    // if
+        }
 
     } // post_save_submission
 
@@ -6273,7 +6260,7 @@ public class AssignmentAction extends PagedResourceActionII {
         int maxChars = ContentHostingService.MAXIMUM_RESOURCE_ID_LENGTH - attachmentCollectionLength - fileExtension.length() - 1;
         String resourceId = StringUtils.substring(sb_resourceId.toString(), 0, maxChars) + fileExtension;
 
-        ResourcePropertiesEdit inlineProps = m_contentHostingService.newResourceProperties();
+        ResourcePropertiesEdit inlineProps = contentHostingService.newResourceProperties();
         inlineProps.addProperty(ResourceProperties.PROP_DISPLAY_NAME, rb.getString("submission.inline"));
         inlineProps.addProperty(ResourceProperties.PROP_DESCRIPTION, resourceId);
         inlineProps.addProperty(AssignmentConstants.PROP_INLINE_SUBMISSION, "true");
@@ -6290,14 +6277,14 @@ public class AssignmentAction extends PagedResourceActionII {
 
         SecurityAdvisor sa = createSubmissionSecurityAdvisor();
         try {
-            m_securityService.pushAdvisor(sa);
-            ContentResource attachment = m_contentHostingService.addAttachmentResource(resourceId, siteId, toolName, contentType, contentStream, inlineProps);
+            securityService.pushAdvisor(sa);
+            ContentResource attachment = contentHostingService.addAttachmentResource(resourceId, siteId, toolName, contentType, contentStream, inlineProps);
             // TODO: need to put this file in some kind of list to improve performance with web service impls of content-review service
             String contentUserId = isOnBehalfOfStudent ? student.getId() : currentUser.getId();
             contentReviewService.queueContent(contentUserId, siteId, AssignmentReferenceReckoner.reckoner().assignment(submission.getAssignment()).reckon().getReference(), Collections.singletonList(attachment));
 
             try {
-                Reference ref = entityManager.newReference(m_contentHostingService.getReference(attachment.getId()));
+                Reference ref = entityManager.newReference(contentHostingService.getReference(attachment.getId()));
                 attachments.add(ref.getReference());
                 assignmentService.updateSubmission(submission);
             } catch (Exception e) {
@@ -6306,7 +6293,7 @@ public class AssignmentAction extends PagedResourceActionII {
         } catch (PermissionException e) {
             addAlert(state, rb.getString("notpermis4"));
         } catch (RuntimeException e) {
-            if (m_contentHostingService.ID_LENGTH_EXCEPTION.equals(e.getMessage())) {
+            if (contentHostingService.ID_LENGTH_EXCEPTION.equals(e.getMessage())) {
                 addAlert(state, rb.getFormattedMessage("alert.toolong", resourceId));
             }
         } catch (ServerOverloadException e) {
@@ -6316,7 +6303,7 @@ public class AssignmentAction extends PagedResourceActionII {
             log.debug(this + ".prepareInlineForContentReview() ***** Unknown Exception ***** " + ignore.getMessage());
             addAlert(state, rb.getString("failed"));
         } finally {
-            m_securityService.popAdvisor(sa);
+            securityService.popAdvisor(sa);
         }
     }
 
@@ -7347,21 +7334,16 @@ public class AssignmentAction extends PagedResourceActionII {
                 .getPortletSessionState(((JetspeedRunData) data).getJs_peid());
         ParameterParser params = data.getParameters();
 
-        TaggingManager taggingManager = (TaggingManager) ComponentManager
-                .get("org.sakaiproject.taggable.api.TaggingManager");
-        TaggingProvider provider = taggingManager.findProviderById(params
-                .getString(PROVIDER_ID));
+        TaggingProvider provider = taggingManager.findProviderById(params.getString(PROVIDER_ID));
 
         String activityRef = params.getString(ACTIVITY_REF);
 
-        TaggingHelperInfo helperInfo = provider
-                .getItemsHelperInfo(activityRef);
+        TaggingHelperInfo helperInfo = provider.getItemsHelperInfo(activityRef);
 
         // get into helper mode with this helper tool
         startHelper(data.getRequest(), helperInfo.getHelperId());
 
-        Map<String, ?> helperParms = helperInfo
-                .getParameterMap();
+        Map<String, ?> helperParms = helperInfo.getParameterMap();
 
         for (Map.Entry<String, ?> entry : helperParms.entrySet()) {
             state.setAttribute(entry.getKey(), entry.getValue());
@@ -7376,21 +7358,16 @@ public class AssignmentAction extends PagedResourceActionII {
                 .getPortletSessionState(((JetspeedRunData) data).getJs_peid());
         ParameterParser params = data.getParameters();
 
-        TaggingManager taggingManager = (TaggingManager) ComponentManager
-                .get("org.sakaiproject.taggable.api.TaggingManager");
-        TaggingProvider provider = taggingManager.findProviderById(params
-                .getString(PROVIDER_ID));
+        TaggingProvider provider = taggingManager.findProviderById(params.getString(PROVIDER_ID));
 
         String itemRef = params.getString(ITEM_REF);
 
-        TaggingHelperInfo helperInfo = provider
-                .getItemHelperInfo(itemRef);
+        TaggingHelperInfo helperInfo = provider.getItemHelperInfo(itemRef);
 
         // get into helper mode with this helper tool
         startHelper(data.getRequest(), helperInfo.getHelperId());
 
-        Map<String, ? extends Object> helperParms = helperInfo
-                .getParameterMap();
+        Map<String, ? extends Object> helperParms = helperInfo.getParameterMap();
 
         for (Map.Entry<String, ? extends Object> entry : helperParms.entrySet()) {
             state.setAttribute(entry.getKey(), entry.getValue());
@@ -7405,21 +7382,16 @@ public class AssignmentAction extends PagedResourceActionII {
                 .getPortletSessionState(((JetspeedRunData) data).getJs_peid());
         ParameterParser params = data.getParameters();
 
-        TaggingManager taggingManager = (TaggingManager) ComponentManager
-                .get("org.sakaiproject.taggable.api.TaggingManager");
-        TaggingProvider provider = taggingManager.findProviderById(params
-                .getString(PROVIDER_ID));
+        TaggingProvider provider = taggingManager.findProviderById(params.getString(PROVIDER_ID));
 
         String activityRef = params.getString(ACTIVITY_REF);
 
-        TaggingHelperInfo helperInfo = provider
-                .getActivityHelperInfo(activityRef);
+        TaggingHelperInfo helperInfo = provider.getActivityHelperInfo(activityRef);
 
         // get into helper mode with this helper tool
         startHelper(data.getRequest(), helperInfo.getHelperId());
 
-        Map<String, ?> helperParms = helperInfo
-                .getParameterMap();
+        Map<String, ?> helperParms = helperInfo.getParameterMap();
 
         for (Map.Entry<String, ?> entry : helperParms.entrySet()) {
             state.setAttribute(entry.getKey(), entry.getValue());
@@ -7823,34 +7795,34 @@ public class AssignmentAction extends PagedResourceActionII {
                         // log event if there is a title update
                         if (!StringUtils.equals(aOldTitle, title)) {
                             // title changed
-                            m_eventTrackingService.post(m_eventTrackingService.newEvent(AssignmentConstants.EVENT_UPDATE_ASSIGNMENT_TITLE, assignmentId, true));
+                            eventTrackingService.post(eventTrackingService.newEvent(AssignmentConstants.EVENT_UPDATE_ASSIGNMENT_TITLE, assignmentId, true));
                         }
 
                         if (!aOldAccess.equals(a.getAccess())) {
                             // site-group access setting changed
-                            m_eventTrackingService.post(m_eventTrackingService.newEvent(AssignmentConstants.EVENT_UPDATE_ASSIGNMENT_ACCESS, assignmentId, true));
+                            eventTrackingService.post(eventTrackingService.newEvent(AssignmentConstants.EVENT_UPDATE_ASSIGNMENT_ACCESS, assignmentId, true));
                         } else {
                             Collection aGroups = a.getGroups();
                             if (!(aOldGroups == null && aGroups == null)
                                     && !(aOldGroups != null && aGroups != null && aGroups.containsAll(aOldGroups) && aOldGroups.containsAll(aGroups))) {
                                 //group changed
-                                m_eventTrackingService.post(m_eventTrackingService.newEvent(AssignmentConstants.EVENT_UPDATE_ASSIGNMENT_ACCESS, assignmentId, true));
+                                eventTrackingService.post(eventTrackingService.newEvent(AssignmentConstants.EVENT_UPDATE_ASSIGNMENT_ACCESS, assignmentId, true));
                             }
                         }
 
                         if (oldOpenTime != null && !oldOpenTime.equals(a.getOpenDate())) {
                             // open time change
-                            m_eventTrackingService.post(m_eventTrackingService.newEvent(AssignmentConstants.EVENT_UPDATE_ASSIGNMENT_OPENDATE, assignmentId, true));
+                            eventTrackingService.post(eventTrackingService.newEvent(AssignmentConstants.EVENT_UPDATE_ASSIGNMENT_OPENDATE, assignmentId, true));
                         }
 
                         if (oldDueTime != null && !oldDueTime.equals(a.getDueDate())) {
                             // due time change
-                            m_eventTrackingService.post(m_eventTrackingService.newEvent(AssignmentConstants.EVENT_UPDATE_ASSIGNMENT_DUEDATE, assignmentId, true));
+                            eventTrackingService.post(eventTrackingService.newEvent(AssignmentConstants.EVENT_UPDATE_ASSIGNMENT_DUEDATE, assignmentId, true));
                         }
 
                         if (oldCloseTime != null && !oldCloseTime.equals(a.getCloseDate())) {
                             // due time change
-                            m_eventTrackingService.post(m_eventTrackingService.newEvent(AssignmentConstants.EVENT_UPDATE_ASSIGNMENT_CLOSEDATE, assignmentId, true));
+                            eventTrackingService.post(eventTrackingService.newEvent(AssignmentConstants.EVENT_UPDATE_ASSIGNMENT_CLOSEDATE, assignmentId, true));
                         }
                     }
                 }
@@ -7873,56 +7845,56 @@ public class AssignmentAction extends PagedResourceActionII {
         //model answer
         if (state.getAttribute(MODELANSWER_TO_DELETE) != null && "true".equals((String) state.getAttribute(MODELANSWER_TO_DELETE))) {
             // to delete the model answer
-            AssignmentModelAnswerItem mAnswer = m_assignmentSupplementItemService.getModelAnswer(aId);
+            AssignmentModelAnswerItem mAnswer = assignmentSupplementItemService.getModelAnswer(aId);
             if (mAnswer != null) {
-                m_assignmentSupplementItemService.cleanAttachment(mAnswer);
-                m_assignmentSupplementItemService.removeModelAnswer(mAnswer);
+                assignmentSupplementItemService.cleanAttachment(mAnswer);
+                assignmentSupplementItemService.removeModelAnswer(mAnswer);
             }
         } else if (state.getAttribute(MODELANSWER_TEXT) != null) {
             // edit/add model answer
-            AssignmentModelAnswerItem mAnswer = m_assignmentSupplementItemService.getModelAnswer(aId);
+            AssignmentModelAnswerItem mAnswer = assignmentSupplementItemService.getModelAnswer(aId);
             if (mAnswer == null) {
-                mAnswer = m_assignmentSupplementItemService.newModelAnswer();
-                m_assignmentSupplementItemService.saveModelAnswer(mAnswer);
+                mAnswer = assignmentSupplementItemService.newModelAnswer();
+                assignmentSupplementItemService.saveModelAnswer(mAnswer);
             }
             mAnswer.setAssignmentId(a.getId());
             mAnswer.setText((String) state.getAttribute(MODELANSWER_TEXT));
             mAnswer.setShowTo(state.getAttribute(MODELANSWER_SHOWTO) != null ? Integer.parseInt((String) state.getAttribute(MODELANSWER_SHOWTO)) : 0);
             mAnswer.setAttachmentSet(getAssignmentSupplementItemAttachment(state, mAnswer, MODELANSWER_ATTACHMENTS));
-            m_assignmentSupplementItemService.saveModelAnswer(mAnswer);
+            assignmentSupplementItemService.saveModelAnswer(mAnswer);
         }
         // note
         if (state.getAttribute(NOTE_TO_DELETE) != null && "true".equals((String) state.getAttribute(NOTE_TO_DELETE))) {
             // to remove note item
-            AssignmentNoteItem nNote = m_assignmentSupplementItemService.getNoteItem(aId);
+            AssignmentNoteItem nNote = assignmentSupplementItemService.getNoteItem(aId);
             if (nNote != null)
-                m_assignmentSupplementItemService.removeNoteItem(nNote);
+                assignmentSupplementItemService.removeNoteItem(nNote);
         } else if (state.getAttribute(NOTE_TEXT) != null) {
             // edit/add private note
-            AssignmentNoteItem nNote = m_assignmentSupplementItemService.getNoteItem(aId);
+            AssignmentNoteItem nNote = assignmentSupplementItemService.getNoteItem(aId);
             if (nNote == null)
-                nNote = m_assignmentSupplementItemService.newNoteItem();
+                nNote = assignmentSupplementItemService.newNoteItem();
             nNote.setAssignmentId(a.getId());
             nNote.setNote((String) state.getAttribute(NOTE_TEXT));
             nNote.setShareWith(state.getAttribute(NOTE_SHAREWITH) != null ? Integer.parseInt((String) state.getAttribute(NOTE_SHAREWITH)) : 0);
             nNote.setCreatorId(userDirectoryService.getCurrentUser().getId());
-            m_assignmentSupplementItemService.saveNoteItem(nNote);
+            assignmentSupplementItemService.saveNoteItem(nNote);
         }
         // all purpose
         if (state.getAttribute(ALLPURPOSE_TO_DELETE) != null && "true".equals((String) state.getAttribute(ALLPURPOSE_TO_DELETE))) {
             // to remove allPurpose item
-            AssignmentAllPurposeItem nAllPurpose = m_assignmentSupplementItemService.getAllPurposeItem(aId);
+            AssignmentAllPurposeItem nAllPurpose = assignmentSupplementItemService.getAllPurposeItem(aId);
             if (nAllPurpose != null) {
-                m_assignmentSupplementItemService.cleanAttachment(nAllPurpose);
-                m_assignmentSupplementItemService.cleanAllPurposeItemAccess(nAllPurpose);
-                m_assignmentSupplementItemService.removeAllPurposeItem(nAllPurpose);
+                assignmentSupplementItemService.cleanAttachment(nAllPurpose);
+                assignmentSupplementItemService.cleanAllPurposeItemAccess(nAllPurpose);
+                assignmentSupplementItemService.removeAllPurposeItem(nAllPurpose);
             }
         } else if (state.getAttribute(ALLPURPOSE_TITLE) != null) {
             // edit/add private note
-            AssignmentAllPurposeItem nAllPurpose = m_assignmentSupplementItemService.getAllPurposeItem(aId);
+            AssignmentAllPurposeItem nAllPurpose = assignmentSupplementItemService.getAllPurposeItem(aId);
             if (nAllPurpose == null) {
-                nAllPurpose = m_assignmentSupplementItemService.newAllPurposeItem();
-                m_assignmentSupplementItemService.saveAllPurposeItem(nAllPurpose);
+                nAllPurpose = assignmentSupplementItemService.newAllPurposeItem();
+                assignmentSupplementItemService.saveAllPurposeItem(nAllPurpose);
             }
             nAllPurpose.setAssignmentId(a.getId());
             nAllPurpose.setTitle((String) state.getAttribute(ALLPURPOSE_TITLE));
@@ -7954,7 +7926,7 @@ public class AssignmentAction extends PagedResourceActionII {
                 // get the access settings
                 List<String> accessList = (List<String>) state.getAttribute(ALLPURPOSE_ACCESS);
 
-                m_assignmentSupplementItemService.cleanAllPurposeItemAccess(nAllPurpose);
+                assignmentSupplementItemService.cleanAllPurposeItemAccess(nAllPurpose);
                 Set<AssignmentAllPurposeItemAccess> accessSet = new HashSet<AssignmentAllPurposeItemAccess>();
                 try {
                     AuthzGroup realm = authzGroupService.getAuthzGroup(siteService.siteReference(siteId));
@@ -7963,10 +7935,10 @@ public class AssignmentAction extends PagedResourceActionII {
                         // iterator through roles first
                         Role r = (Role) iRoles.next();
                         if (accessList.contains(r.getId())) {
-                            AssignmentAllPurposeItemAccess access = m_assignmentSupplementItemService.newAllPurposeItemAccess();
+                            AssignmentAllPurposeItemAccess access = assignmentSupplementItemService.newAllPurposeItemAccess();
                             access.setAccess(r.getId());
                             access.setAssignmentAllPurposeItem(nAllPurpose);
-                            m_assignmentSupplementItemService.saveAllPurposeItemAccess(access);
+                            assignmentSupplementItemService.saveAllPurposeItemAccess(access);
                             accessSet.add(access);
                         } else {
                             // if the role is not selected, iterate through the users with this role
@@ -7974,10 +7946,10 @@ public class AssignmentAction extends PagedResourceActionII {
                             for (Iterator iUserIds = userIds.iterator(); iUserIds.hasNext(); ) {
                                 String userId = (String) iUserIds.next();
                                 if (accessList.contains(userId)) {
-                                    AssignmentAllPurposeItemAccess access = m_assignmentSupplementItemService.newAllPurposeItemAccess();
+                                    AssignmentAllPurposeItemAccess access = assignmentSupplementItemService.newAllPurposeItemAccess();
                                     access.setAccess(userId);
                                     access.setAssignmentAllPurposeItem(nAllPurpose);
-                                    m_assignmentSupplementItemService.saveAllPurposeItemAccess(access);
+                                    assignmentSupplementItemService.saveAllPurposeItemAccess(access);
                                     accessSet.add(access);
                                 }
                             }
@@ -7988,13 +7960,13 @@ public class AssignmentAction extends PagedResourceActionII {
                 }
                 nAllPurpose.setAccessSet(accessSet);
             }
-            m_assignmentSupplementItemService.saveAllPurposeItem(nAllPurpose);
+            assignmentSupplementItemService.saveAllPurposeItem(nAllPurpose);
         }
     }
 
     private Set<AssignmentSupplementItemAttachment> getAssignmentSupplementItemAttachment(SessionState state, AssignmentSupplementItemWithAttachment mItem, String attachmentString) {
         Set<AssignmentSupplementItemAttachment> sAttachments = new HashSet<AssignmentSupplementItemAttachment>();
-        List<String> attIdList = m_assignmentSupplementItemService.getAttachmentListForSupplementItem(mItem);
+        List<String> attIdList = assignmentSupplementItemService.getAttachmentListForSupplementItem(mItem);
         if (state.getAttribute(attachmentString) != null) {
             List currentAttachments = (List) state.getAttribute(attachmentString);
             for (Iterator aIterator = currentAttachments.iterator(); aIterator.hasNext(); ) {
@@ -8002,10 +7974,10 @@ public class AssignmentAction extends PagedResourceActionII {
                 String attRefId = attRef.getReference();
                 // if the attachment is not exist, add it into db
                 if (!attIdList.contains(attRefId)) {
-                    AssignmentSupplementItemAttachment mAttach = m_assignmentSupplementItemService.newAttachment();
+                    AssignmentSupplementItemAttachment mAttach = assignmentSupplementItemService.newAttachment();
                     mAttach.setAssignmentSupplementItemWithAttachment(mItem);
                     mAttach.setAttachmentId(attRefId);
-                    m_assignmentSupplementItemService.saveAttachment(mAttach);
+                    assignmentSupplementItemService.saveAttachment(mAttach);
                     sAttachments.add(mAttach);
                 }
             }
@@ -8791,14 +8763,14 @@ public class AssignmentAction extends PagedResourceActionII {
             try {
                 // put in a security advisor so we can create citationAdmin site without need
                 // of further permissions
-                m_securityService.pushAdvisor(sa);
+                securityService.pushAdvisor(sa);
                 a.setPosition(Integer.valueOf(assignmentposition));
                 assignmentService.updateAssignment(a);
             } catch (Exception e) {
                 log.warn(this + ":reorderAssignments : not able to edit assignment " + assignmentid + e.toString());
             } finally {
                 // remove advisor
-                m_securityService.popAdvisor(sa);
+                securityService.popAdvisor(sa);
             }
         }
 
@@ -8906,7 +8878,7 @@ public class AssignmentAction extends PagedResourceActionII {
         assignment_resubmission_option_into_state(a, null, state);
 
         // assignment read event
-        m_eventTrackingService.post(m_eventTrackingService.newEvent(AssignmentConstants.EVENT_ACCESS_ASSIGNMENT, assignmentId, false));
+        eventTrackingService.post(eventTrackingService.newEvent(AssignmentConstants.EVENT_ACCESS_ASSIGNMENT, assignmentId, false));
 
         if (state.getAttribute(STATE_MESSAGE) == null) {
             state.setAttribute(STATE_MODE, MODE_INSTRUCTOR_VIEW_ASSIGNMENT);
@@ -9264,7 +9236,7 @@ public class AssignmentAction extends PagedResourceActionII {
         String assignmentId = a.getId();
 
         // model answer
-        AssignmentModelAnswerItem mAnswer = m_assignmentSupplementItemService.getModelAnswer(assignmentId);
+        AssignmentModelAnswerItem mAnswer = assignmentSupplementItemService.getModelAnswer(assignmentId);
         if (mAnswer != null) {
             if (state.getAttribute(MODELANSWER_TEXT) == null) {
                 state.setAttribute(MODELANSWER_TEXT, mAnswer.getText());
@@ -9281,7 +9253,7 @@ public class AssignmentAction extends PagedResourceActionII {
         putSupplementItemAttachmentInfoIntoState(state, mAnswer, MODELANSWER_ATTACHMENTS);
 
         // private notes
-        AssignmentNoteItem mNote = m_assignmentSupplementItemService.getNoteItem(assignmentId);
+        AssignmentNoteItem mNote = assignmentSupplementItemService.getNoteItem(assignmentId);
         if (mNote != null) {
             if (state.getAttribute(NOTE) == null) {
                 state.setAttribute(NOTE, Boolean.TRUE);
@@ -9295,7 +9267,7 @@ public class AssignmentAction extends PagedResourceActionII {
         }
 
         // all purpose item
-        AssignmentAllPurposeItem aItem = m_assignmentSupplementItemService.getAllPurposeItem(assignmentId);
+        AssignmentAllPurposeItem aItem = assignmentSupplementItemService.getAllPurposeItem(assignmentId);
         if (aItem != null) {
             if (state.getAttribute(ALLPURPOSE) == null) {
                 state.setAttribute(ALLPURPOSE, Boolean.TRUE);
@@ -9662,7 +9634,7 @@ public class AssignmentAction extends PagedResourceActionII {
             state.setAttribute(STATE_MODE, MODE_INSTRUCTOR_GRADE_SUBMISSION);
             state.setAttribute(FROM_VIEW, (String) params.getString("option"));
             // assignment read event
-            m_eventTrackingService.post(m_eventTrackingService.newEvent(AssignmentConstants.EVENT_ACCESS_ASSIGNMENT_SUBMISSION, submissionId, false));
+            eventTrackingService.post(eventTrackingService.newEvent(AssignmentConstants.EVENT_ACCESS_ASSIGNMENT_SUBMISSION, submissionId, false));
         }
     } // doGrade_submission
 
@@ -10891,20 +10863,6 @@ public class AssignmentAction extends PagedResourceActionII {
      */
     protected void initState(SessionState state, VelocityPortlet portlet, JetspeedRunData data) {
         super.initState(state, portlet, data);
-
-        if (m_contentHostingService == null) {
-            m_contentHostingService = (ContentHostingService) ComponentManager.get("org.sakaiproject.content.api.ContentHostingService");
-        }
-
-        if (m_entityManager == null) {
-            m_entityManager = (org.sakaiproject.entity.api.EntityManager) ComponentManager.get("org.sakaiproject.entity.api.EntityManager");
-        }
-
-
-        if (candidateDetailProvider == null) {
-            candidateDetailProvider = ComponentManager.get(CandidateDetailProvider.class);
-        }
-
 
         String siteId = toolManager.getCurrentPlacement().getContext();
 
@@ -12425,7 +12383,7 @@ public class AssignmentAction extends PagedResourceActionII {
             ToolSession toolSession = sessionManager.getCurrentToolSession();
             String userId = sessionManager.getCurrentSessionUserId();
             String siteId = siteService.getUserSiteId(userId);
-            String collectionId = m_contentHostingService.getSiteCollection(siteId);
+            String collectionId = contentHostingService.getSiteCollection(siteId);
             toolSession.setAttribute(FilePickerHelper.DEFAULT_COLLECTION_ID, collectionId);
             doAttachments(data);
         } else if ("removeAttachment".equals(option)) {
@@ -12759,7 +12717,7 @@ public class AssignmentAction extends PagedResourceActionII {
                         // no SECURE_ADD_ASSIGNMENT_SUBMISSION permission or
                         // if user has both SECURE_ADD_ASSIGNMENT_SUBMISSION
                         // and SECURE_GRADE_ASSIGNMENT_SUBMISSION permission (TAs and Instructors)
-                        if (m_securityService.unlock(user, AssignmentServiceConstants.SECURE_ADD_ASSIGNMENT_SUBMISSION, s.getReference()) && !m_securityService.unlock(user, AssignmentServiceConstants.SECURE_GRADE_ASSIGNMENT_SUBMISSION, s.getReference())) {
+                        if (securityService.unlock(user, AssignmentServiceConstants.SECURE_ADD_ASSIGNMENT_SUBMISSION, s.getReference()) && !securityService.unlock(user, AssignmentServiceConstants.SECURE_GRADE_ASSIGNMENT_SUBMISSION, s.getReference())) {
                             retVal.add(populate_ids ? user.getId() : user.getDisplayName() + " (" + sb.toString() + ")");
                         }
                     } catch (UserNotDefinedException unde) {
@@ -12807,7 +12765,7 @@ public class AssignmentAction extends PagedResourceActionII {
             SessionState state,
             String base_message) {
         Collection<String> retVal = new ArrayList<String>();
-        if (m_securityService.isSuperUser()) {//don't check this for admin users
+        if (securityService.isSuperUser()) {//don't check this for admin users
             return retVal;
         }
         if (groups != null && groups.size() > 0) {
@@ -13457,7 +13415,7 @@ public class AssignmentAction extends PagedResourceActionII {
             String extension = "";
             if (!fName.contains(".") || (fName.contains(".") && fName.indexOf(".") != 0)) {
                 // add the file as attachment
-                ResourceProperties properties = m_contentHostingService.newResourceProperties();
+                ResourceProperties properties = contentHostingService.newResourceProperties();
                 properties.addProperty(ResourceProperties.PROP_DISPLAY_NAME, fName);
 
                 String[] parts = fName.split("\\.");
@@ -13467,11 +13425,11 @@ public class AssignmentAction extends PagedResourceActionII {
 
                 try {
                     String contentType = iService.getContentType(extension);
-                    ContentResourceEdit attachment = m_contentHostingService.addAttachmentResource(fName);
+                    ContentResourceEdit attachment = contentHostingService.addAttachmentResource(fName);
                     attachment.setContent(zin);
                     attachment.setContentType(contentType);
                     attachment.getPropertiesEdit().addAll(properties);
-                    m_contentHostingService.commitResource(attachment);
+                    contentHostingService.commitResource(attachment);
 
                     UploadGradeWrapper r = (UploadGradeWrapper) submissionTable.get(userEid);
                     List attachments = "submission".equals(submissionOrFeedback) ? r.getSubmissionAttachments() : r.getFeedbackAttachments();
@@ -13633,8 +13591,6 @@ public class AssignmentAction extends PagedResourceActionII {
     } // doPrep_upload_all
 
     private List<DecoratedTaggingProvider> initDecoratedProviders() {
-        TaggingManager taggingManager = (TaggingManager) ComponentManager
-                .get("org.sakaiproject.taggable.api.TaggingManager");
         List<DecoratedTaggingProvider> providers = new ArrayList<DecoratedTaggingProvider>();
         for (TaggingProvider provider : taggingManager.getProviders()) {
             providers.add(new DecoratedTaggingProvider(provider));
@@ -13654,20 +13610,14 @@ public class AssignmentAction extends PagedResourceActionII {
     }
 
     private void addActivity(Context context, Assignment assignment) {
-        AssignmentActivityProducer assignmentActivityProducer = (AssignmentActivityProducer) ComponentManager
-                .get("org.sakaiproject.assignment.taggable.api.AssignmentActivityProducer");
-        context.put("activity", assignmentActivityProducer
-                .getActivity(assignment));
+        context.put("activity", assignmentActivityProducer.getActivity(assignment));
 
         String placement = toolManager.getCurrentPlacement().getId();
         context.put("iframeId", Validator.escapeJavascript("Main" + placement));
     }
 
     private void addItem(Context context, AssignmentSubmission submission, String userId) {
-        AssignmentActivityProducer assignmentActivityProducer = (AssignmentActivityProducer) ComponentManager
-                .get("org.sakaiproject.assignment.taggable.api.AssignmentActivityProducer");
-        context.put("item", assignmentActivityProducer
-                .getItem(submission, userId));
+        context.put("item", assignmentActivityProducer.getItem(submission, userId));
     }
 
     /**
@@ -13973,7 +13923,7 @@ public class AssignmentAction extends PagedResourceActionII {
                     String resourceId = Validator.escapeResourceName(name);
 
                     // make a set of properties to add for the new resource
-                    ResourcePropertiesEdit props = m_contentHostingService.newResourceProperties();
+                    ResourcePropertiesEdit props = contentHostingService.newResourceProperties();
                     props.addProperty(ResourceProperties.PROP_DISPLAY_NAME, name);
                     props.addProperty(ResourceProperties.PROP_DESCRIPTION, filename);
 
@@ -13985,8 +13935,8 @@ public class AssignmentAction extends PagedResourceActionII {
                         // add attachment
                         // put in a security advisor so we can create citationAdmin site without need
                         // of further permissions
-                        m_securityService.pushAdvisor(sa);
-                        ContentResource attachment = m_contentHostingService.addAttachmentResource(resourceId, siteId, "Assignments", contentType, fileContentStream, props);
+                        securityService.pushAdvisor(sa);
+                        ContentResource attachment = contentHostingService.addAttachmentResource(resourceId, siteId, "Assignments", contentType, fileContentStream, props);
 
                         Site s = null;
                         try {
@@ -14011,7 +13961,7 @@ public class AssignmentAction extends PagedResourceActionII {
 
                         if (!blockedByCRS) {
                             try {
-                                Reference ref = entityManager.newReference(m_contentHostingService.getReference(attachment.getId()));
+                                Reference ref = entityManager.newReference(contentHostingService.getReference(attachment.getId()));
                                 if (singleFileUpload && attachments.size() > 1) {
                                     //SAK-26319	- the assignment type is 'single file upload' and the user has existing attachments, so they must be uploading a 'newSingleUploadedFile'	--bbailla2
                                     state.setAttribute("newSingleUploadedFile", ref);
@@ -14031,7 +13981,7 @@ public class AssignmentAction extends PagedResourceActionII {
                     } catch (PermissionException e) {
                         addAlert(state, rb.getString("notpermis4"));
                     } catch (RuntimeException e) {
-                        if (m_contentHostingService.ID_LENGTH_EXCEPTION.equals(e.getMessage())) {
+                        if (contentHostingService.ID_LENGTH_EXCEPTION.equals(e.getMessage())) {
                             // couldn't we just truncate the resource-id instead of rejecting the upload?
                             addAlert(state, rb.getFormattedMessage("alert.toolong", new String[]{name}));
                         } else {
@@ -14047,7 +13997,7 @@ public class AssignmentAction extends PagedResourceActionII {
                         log.debug(this + ".doAttachupload ***** Unknown Exception ***** " + ignore.getMessage());
                         addAlert(state, rb.getString("failed"));
                     } finally {
-                        m_securityService.popAdvisor(sa);
+                        securityService.popAdvisor(sa);
                     }
                 }
             } catch (IOException e) {
@@ -14065,12 +14015,12 @@ public class AssignmentAction extends PagedResourceActionII {
     private SecurityAdvisor createSubmissionSecurityAdvisor() {
         return (userId, function, reference) -> {
             //Needed to be able to add or modify their own
-            if (function.equals(m_contentHostingService.AUTH_RESOURCE_ADD) ||
-                    function.equals(m_contentHostingService.AUTH_RESOURCE_WRITE_OWN) ||
-                    function.equals(m_contentHostingService.AUTH_RESOURCE_HIDDEN)
+            if (function.equals(contentHostingService.AUTH_RESOURCE_ADD) ||
+                    function.equals(contentHostingService.AUTH_RESOURCE_WRITE_OWN) ||
+                    function.equals(contentHostingService.AUTH_RESOURCE_HIDDEN)
                     ) {
                 return SecurityAdvisor.SecurityAdvice.ALLOWED;
-            } else if (function.equals(m_contentHostingService.AUTH_RESOURCE_WRITE_ANY)) {
+            } else if (function.equals(contentHostingService.AUTH_RESOURCE_WRITE_ANY)) {
                 log.info(userId + " requested ability to write to any content on " + reference +
                         " which we didn't expect, this should be investigated");
                 return SecurityAdvisor.SecurityAdvice.ALLOWED;
