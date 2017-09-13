@@ -37,7 +37,7 @@
 	// if redirected, just open in another window else
 	// open with size approx what actual print out will look like
 	function printFriendly(url) {
-		if (url.indexOf("printFriendly") == -1) {
+		if (url.indexOf("printFriendly") === -1) {
 			window.open(url,"mywindow");
 		}
 		else {
@@ -69,7 +69,8 @@
 				bar_new: $("#messages #bar_new").html(),
 				bar_publish: $("#messages #bar_publish").html(),
 				addItemTitle: $("#messages #addItemTitle").html(),
-				draftTitlePrefix: $("#messages #draftTitlePrefix").html()
+				draftTitlePrefix: $("#messages #draftTitlePrefix").html(),
+				noUndoWarning: $("#messages #noUndoWarning").html()
 			};
 		setupAccordion('<%= org.sakaiproject.util.Web.escapeJavascript(thisId)%>',<h:outputText value="#{SyllabusTool.editAble == 'true' ? true : false}"/>, msgs, 
 							'<h:outputText value="#{SyllabusTool.openDataId}"/>');
@@ -355,11 +356,12 @@
 				<span id="bar_cancel"></f:verbatim><h:outputText value="#{msgs.bar_cancel}"/><f:verbatim></span>
 				<span id="confirmDelete"></f:verbatim><h:outputText value="#{msgs.confirmDelete}"/><f:verbatim></span>
 				<span id="deleteItemTitle"></f:verbatim><h:outputText value="#{msgs.deleteItemTitle}"/><f:verbatim></span>
-				<span id="deleteAttachmentTitle"></f:verbatim><h:outputText value="#{msgs.addItemTitle}"/><f:verbatim></span>
+				<span id="deleteAttachmentTitle"></f:verbatim><h:outputText value="#{msgs.deleteAttachmentTitle}"/><f:verbatim></span>
 				<span id="bar_new"></f:verbatim><h:outputText value="#{msgs.bar_new}"/><f:verbatim></span>
 				<span id="bar_publish"></f:verbatim><h:outputText value="#{msgs.bar_publish}" /><f:verbatim></span>
 				<span id="addItemTitle"></f:verbatim><h:outputText value="#{msgs.addItemTitle}"/><f:verbatim></span>
 				<span id="draftTitlePrefix"></f:verbatim><h:outputText value="#{msgs.draftTitlePrefix}"/><f:verbatim></span>
+				<span id="noUndoWarning"></f:verbatim><h:outputText value="#{msgs.noUndoWarning}"/><f:verbatim></span>
 			</span>
 		</f:verbatim>
 	</sakai:view_content>
