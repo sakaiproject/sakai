@@ -1531,7 +1531,7 @@ public abstract class BasicSqlService implements SqlService
 			//make sure we return the connection even if the rollback etc above
 			// KNL-492 connFromThreadLocal is tested so we can avoid returning a
 			// connection that is being managed elsewhere
-			if (conn != null && !connFromThreadLocal)
+			if (conn != null && connFromThreadLocal)
 			{
 				returnConnection(conn);
 			}
