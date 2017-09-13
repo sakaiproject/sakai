@@ -215,42 +215,44 @@
 				$validator.escapeHtmlFormattedText($assignment.Instructions)
 			#end
 		</div>
-		#set ($size = 0)
-		#set ($props = false)
-		#foreach ($attachment in $assignment.Attachments)
-			#set ($props = $attachment.Properties) 
-			#if ($!props)
-				#set ($size = $size + 1)
+
+		## Assignment attachments
+		#set ($attachments = $assignment.Attachments)
+		#if ($attachments)
+			#set ($size = $attachments.size())
+			#if ($size < 1)
+				$tlang.getString("gen.noatt")
+			#else
+				<h4>
+					$tlang.getString("gen.addres2")
+				</h4>
+				<ul class="attachList">
+					#foreach ($attachmentReference in $attachments)
+						#set ($reference = $attachmentReferences.get($attachmentReference))
+						#if ($reference)
+							#set ($props = false)
+							#set ($props = $reference.Properties)
+							#if ($!props)
+								<li>
+									#if ($props.getBooleanProperty($props.NamePropIsCollection))
+										<img src = "#imageLink($contentTypeImageService.getContentTypeImage("folder"))" border="0" alt="$tlang.getString("gen.folatt")" />
+									#else
+										<img src = "#imageLink($contentTypeImageService.getContentTypeImage($props.getProperty($props.NamePropContentType)))" border="0" alt="$tlang.getString("gen.filatt")" />
+									#end
+									#if ($decoratedUrlMap)
+										<a href="$decoratedUrlMap.get($reference.Url)" target="_blank">$validator.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))</a>
+									#else
+										<a href="$reference.Url" target="_blank">$validator.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))</a>
+									#end
+									#propertyDetails($props)
+								</li>
+							#end
+						#end
+					#end
+				</ul>
 			#end
 		#end
-		#if ($size == 0)
-##			$tlang.getString("gen.noatt")
-		#else
-			<h4>
-				$tlang.getString("gen.addres2")
-			</h4>	
-			<ul class="attachList">
-				#foreach ($attachment in $assignment.Attachments)
-					#set ($props = false)
-					#set ($props = $attachment.Properties) 
-					#if ($!props)
-						<li>
-							#if ($props.getBooleanProperty($props.NamePropIsCollection))
-								<img src = "#imageLink($contentTypeImageService.getContentTypeImage("folder"))" border="0" alt="$tlang.getString("gen.folatt")" />
-							#else
-								<img src = "#imageLink($contentTypeImageService.getContentTypeImage($props.getProperty($props.NamePropContentType)))" border="0" alt="$tlang.getString("gen.filatt")" />
-							#end
-							#if ($decoratedUrlMap)
-								<a href="$decoratedUrlMap.get($attachment.Url)" target="_blank">$validator.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))</a>
-							#else
-								<a href="$attachment.Url" target="_blank">$validator.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))</a>
-							#end
-							#propertyDetails($props)
-						</li>
-					#end
-				#end
-			</ul>
-		#end
+
 		#if ($taggable)
    	    	#parse ("/vm/assignment/chef_assignments_tags_list.vm")
 		#end
@@ -370,42 +372,44 @@
 				#if ($!assignment.Instructions)
 					<div class="textPanel">$validator.escapeHtmlFormattedText($!assignment.Instructions)</div>
 				#end
-				#set ($size = 0)
-				#set ($props = false)
-				#foreach ($attachment in $assignment.Attachments)
-					#set ($props = $attachment.Properties) 
-					#if ($!props)
-						#set ($size = $size + 1)
+
+				## Student Assignment attachments
+				#set ($attachments = $assignment.Attachments)
+				#if ($attachments)
+					#set ($size = $attachments.size())
+					#if ($size < 1)
+						$tlang.getString("gen.noatt")
+					#else
+                        <h4>
+							$tlang.getString("gen.addres2")
+                        </h4>
+                        <ul class="attachList">
+							#foreach ($attachmentReference in $attachments)
+								#set ($reference = $attachmentReferences.get($attachmentReference))
+								#if ($reference)
+									#set ($props = false)
+									#set ($props = $reference.Properties)
+									#if ($!props)
+                                        <li>
+											#if ($props.getBooleanProperty($props.NamePropIsCollection))
+                                                <img src = "#imageLink($contentTypeImageService.getContentTypeImage("folder"))" border="0" alt="$tlang.getString("gen.folatt")" />
+											#else
+                                                <img src = "#imageLink($contentTypeImageService.getContentTypeImage($props.getProperty($props.NamePropContentType)))" border="0" alt="$tlang.getString("gen.filatt")" />
+											#end
+											#if ($decoratedUrlMap)
+                                                <a href="$decoratedUrlMap.get($reference.Url)" target="_blank">$validator.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))</a>
+											#else
+                                                <a href="$reference.Url" target="_blank">$validator.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))</a>
+											#end
+											#propertyDetails($props)
+                                        </li>
+									#end
+								#end
+							#end
+                        </ul>
 					#end
 				#end
-				#if ($size == 0)
-	##			$tlang.getString("gen.noatt")
-				#else
-					<h4>
-						$tlang.getString("gen.addres2")
-					</h4>	
-					<ul class="attachList">
-						#foreach ($attachment in $assignment.Attachments)
-							#set ($props = false)
-							#set ($props = $attachment.Properties) 
-							#if ($!props)
-								<li>
-									#if ($props.getBooleanProperty($props.NamePropIsCollection))
-										<img src = "#imageLink($contentTypeImageService.getContentTypeImage("folder"))" border="0" alt="$tlang.getString("gen.folatt")" />
-									#else
-										<img src = "#imageLink($contentTypeImageService.getContentTypeImage($props.getProperty($props.NamePropContentType)))" border="0" alt="$tlang.getString("gen.filatt")" />
-									#end
-									#if ($decoratedUrlMap)
-										<a href="$decoratedUrlMap.get($attachment.Url)" target="_blank">$validator.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))</a>
-									#else
-										<a href="$attachment.Url" target="_blank">$validator.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))</a>
-									#end
-									#propertyDetails($props)
-								</li>
-							#end
-						#end
-					</ul>
-				#end	
+
 				<h4>
 					$tlang.getString("gen.submission")
 				</h4>	
@@ -438,7 +442,7 @@
 						</p>
 					#end
 					## if honor pledge is required
-					#if ($assignment.HonorPledge != 1)
+					#if ($assignment.HonorPledge)
 						<p class="checkbox">
 							<label for="yes">$honor_pledge_text</label>
 							<input name="Yes" type="checkbox" id="yes" value="" disabled="disabled" /><br />
