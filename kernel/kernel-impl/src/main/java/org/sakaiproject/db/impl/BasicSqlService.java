@@ -1151,6 +1151,71 @@ public abstract class BasicSqlService implements SqlService
 	public int dbWriteCount(String sql, Object[] fields, String lastField, Connection callerConnection,boolean failQuiet) {
 		return dbWriteCount(sql,fields,lastField,callerConnection,failQuiet ? 1 : 0);
 	}
+	
+	/**
+	 * @see org.sakaiproject.db.api.SqlService#dbWriteBatch(String, Set<Object[]>)
+	 */
+	public boolean dbWriteBatch(String sql, List<Object[]> fieldsList)
+	{
+		boolean success = false;
+	
+		try
+		{
+			Connection conn = borrowConnection();
+			success = dbWriteBatch(conn, sql, fieldsList);
+			conn.commit();
+			returnConnection(conn);
+		}
+		catch (SQLException e)
+		{
+			LOG.warn("Sql.dbWriteBatch()", e);
+		}
+
+		return success;
+	}
+
+	/**
+	 * @see org.sakaiproject.db.api.SqlService#dbWriteBatch(Connection, String, Set<Object[]>)
+	 */
+	public boolean dbWriteBatch(Connection callerConnection, String sql, List<Object[]> fieldsList)
+	{
+		boolean success = false;
+		PreparedStatement pstmt = null;
+
+		try
+		{
+			pstmt = callerConnection.prepareStatement(sql);
+			for (Object[] fields : fieldsList)
+			{
+			    prepareStatement(pstmt, fields);
+			    pstmt.addBatch();
+			}
+			pstmt.executeBatch();
+			success = true;
+		}
+		catch (UnsupportedEncodingException e)
+		{
+			LOG.warn("Sql.dbWriteBatch()", e);
+		}
+		catch (SQLException e)
+		{
+			LOG.warn("Sql.dbWriteBatch(): error code: " + e.getErrorCode() + " sql: " + sql + " " + e);
+		}
+		finally
+		{
+			try
+			{
+				pstmt.close();
+			}
+			catch (Exception e)
+			{
+				LOG.warn("Sql.dbWriteBatch(): " + e);
+				throw new RuntimeException("SqlService.dbWriteBatch failure", e);
+			}
+		}
+
+		return success;
+	}
 
 	/**
 	 * @see org.sakaiproject.db.api.SqlService#dbWriteCount(String, Object[], String, Connection, int)

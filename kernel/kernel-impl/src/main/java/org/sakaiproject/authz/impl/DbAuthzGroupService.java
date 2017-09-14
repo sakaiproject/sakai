@@ -1538,28 +1538,33 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 				}
 			});
 
-			fields = new Object[3];
-			fields[0] = caseId(azg.getId());
+			String azgId = caseId(azg.getId());
 
-			// delete what we need to
+			// delete what we need to in one batch
 			sql = dbAuthzGroupSql.getDeleteRealmRoleFunction1Sql();
+			List<Object[]> batchList = new ArrayList<>();
 			for (RoleAndFunction raf : toDelete)
 			{
+				fields = new Object[3];
+				fields[0] = azgId;
 				fields[1] = raf.role;
 				fields[2] = raf.function;
-				m_sql.dbWrite(sql, fields);
+				batchList.add(fields);
 			}
+			m_sql.dbWriteBatch(sql, batchList);
 
-			// add what we need to
+			// add what we need to in one batch
 			sql = dbAuthzGroupSql.getInsertRealmRoleFunctionSql();
-
-			fields[0] = getValueForSubquery(dbAuthzGroupSql.getInsertRealmRoleFunction1Sql(), fields[0]);
+			batchList = new ArrayList<>();
 			for (RoleAndFunction raf : toAdd)
 			{
+				fields = new Object[3];
+				fields[0] = fields[0] = getValueForSubquery(dbAuthzGroupSql.getInsertRealmRoleFunction1Sql(), azgId);
 				fields[1] = getValueForSubquery(dbAuthzGroupSql.getInsertRealmRoleFunction2Sql(), raf.role);
 				fields[2] = getValueForSubquery(dbAuthzGroupSql.getInsertRealmRoleFunction3Sql(), raf.function);
-				m_sql.dbWrite(sql, fields);
+				batchList.add(fields);
 			}
+			m_sql.dbWriteBatch(sql, batchList);
 
             // KNL-1230 need to be able to tell when changes occur in the AZG
             HashSet<RoleAndFunction> lastChanged = new HashSet<RoleAndFunction>();
@@ -1623,31 +1628,37 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 				}
 			});
 
-			fields = new Object[5];
-			fields[0] = caseId(azg.getId());
+			String azgId = caseId(azg.getId());
 
 			// delete what we need to
 			sql = dbAuthzGroupSql.getDeleteRealmRoleGroup1Sql();
+			List<Object[]> batchList = new ArrayList<>();
 			for (UserAndRole uar : toDelete)
 			{
+				fields = new Object[5];
+				fields[0] = azgId;
 				fields[1] = uar.role;
 				fields[2] = uar.userId;
 				fields[3] = uar.active ? "1" : "0";
 				fields[4] = uar.provided ? "1" : "0";
-				m_sql.dbWrite(sql, fields);
+				batchList.add(fields);
 			}
+			m_sql.dbWriteBatch(sql, batchList);
 
 			// add what we need to
 			sql = dbAuthzGroupSql.getInsertRealmRoleGroup1Sql();
-			fields[0] = getValueForSubquery(dbAuthzGroupSql.getInsertRealmRoleGroup1_1Sql(), fields[0]);
+			batchList = new ArrayList<>();
 			for (UserAndRole uar : toAdd)
 			{
+				fields = new Object[5];
+				fields[0] = getValueForSubquery(dbAuthzGroupSql.getInsertRealmRoleGroup1_1Sql(), azgId);
 				fields[1] = uar.userId;
 				fields[2] = getValueForSubquery(dbAuthzGroupSql.getInsertRealmRoleGroup1_2Sql(), uar.role);
 				fields[3] = uar.active ? "1" : "0";
 				fields[4] = uar.provided ? "1" : "0";
-				m_sql.dbWrite(sql, fields);
+				batchList.add(fields);
 			}
+			m_sql.dbWriteBatch(sql, batchList);
 		}
 
 		protected void save_REALM_PROVIDER(AuthzGroup azg)
@@ -2542,17 +2553,19 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 					m_sql.dbWrite(sql, fields);
 				}
 
-				// insert
+				// insert lots of rows in one batch statement
 				sql = dbAuthzGroupSql.getInsertRealmRoleGroup2Sql();
-				fields = new Object[3];
-				fields[1] = userId;
+
+				List<Object[]> batchInserts = new ArrayList<>();
 				for (RealmAndRole rar : toInsert)
 				{
+					fields = new Object[3];
 					fields[0] = rar.realmId;
+					fields[1] = userId;
 					fields[2] = getValueForSubquery(dbAuthzGroupSql.getInsertRealmRoleGroup2_1Sql(), rar.role);
-
-					m_sql.dbWrite(sql, fields);
+					batchInserts.add(fields);
 				}
+				m_sql.dbWriteBatch(sql, batchInserts);
 			}
 		}
 
