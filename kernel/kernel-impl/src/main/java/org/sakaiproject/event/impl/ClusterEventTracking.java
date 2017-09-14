@@ -421,10 +421,6 @@ public abstract class ClusterEventTracking extends BaseEventTrackingService impl
 
                 // process the insert
                 if (cachingEnabled) {
-                    conn = sqlService().borrowConnection();
-                    if (conn.getAutoCommit()) {
-                        conn.setAutoCommit(false);
-                    }
                     Long eventId = sqlService().dbInsert(conn, statement, fields, "EVENT_ID");
                     if (eventId != null) {
                         // write event to cache
