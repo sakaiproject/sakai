@@ -3628,7 +3628,7 @@ public class SakaiScript extends AbstractWebService {
      * <tools>
      * <tool id="dafd2a4d-8d3f-4f4c-8e12-171968b259cd">
      * <tool-id>sakai.iframe.site</tool-id>
-     * <tool-title>Site Information Display</tool-title>
+     * <tool-title>Welcome</tool-title>
      * </tool>
      * ...
      * </tools>
