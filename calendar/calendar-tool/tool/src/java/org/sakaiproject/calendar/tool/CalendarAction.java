@@ -3319,10 +3319,11 @@ extends VelocityPortletStateAction
 		boolean firstTime = true; // Don't need to do complex checking the first time.
 		Vector events = new Vector(); // A vector of vectors, each of the vectors containing a range of previous events.
 		
-		Time timeObj = TimeService.newTimeLocal(year,month,day,time,00,00,000);
+		//This +1 and -1 here are from SAK-13120 to work around an issue with endTime being included and not adding correctly
+		Time timeObj = TimeService.newTimeLocal(year,month,day,time,00,00,000+1);
 		
 		long duration = ((30*60)*(1000));
-		Time updatedTime = TimeService.newTime(timeObj.getTime()+ duration);
+		Time updatedTime = TimeService.newTime(timeObj.getTime()+ duration-1);
 		
 		/*** include the start time ***/
 		TimeRange timeRangeObj = TimeService.newTimeRange(timeObj,updatedTime,true,false);
