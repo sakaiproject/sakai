@@ -52,6 +52,7 @@ import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.util.ResourceLoader;
+import org.sakaiproject.util.api.FormattedText;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -177,6 +178,11 @@ public class AssignmentTestConfiguration {
     @Bean(name = "org.sakaiproject.email.api.EmailService")
     public EmailService emailService() {
         return mock(EmailService.class);
+    }
+
+    @Bean(name = "org.sakaiproject.util.api.FormattedText")
+    public FormattedText formattedText() {
+        return mock(FormattedText.class);
     }
 
     @Bean(name = "org.sakaiproject.authz.api.FunctionManager")
