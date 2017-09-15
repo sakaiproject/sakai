@@ -1772,7 +1772,6 @@ public class AssignmentAction extends PagedResourceActionII {
         Assignment currentAssignment = getAssignment(currentAssignmentReference, "build_student_view_submission_confirmation_context", state);
         if (currentAssignment != null) {
             context.put("assignment", currentAssignment);
-            context.put("assignment_title", currentAssignment.getTitle());
 
             // differenciate submission type
             Assignment.SubmissionType submissionType = currentAssignment.getTypeOfSubmission();
@@ -1787,20 +1786,14 @@ public class AssignmentAction extends PagedResourceActionII {
                 context.put("textSubmissionOnly", Boolean.FALSE);
             }
 
-            context.put("submissionType", submissionType.ordinal());
-
             AssignmentSubmission s = getSubmission(currentAssignmentReference, submitter, "build_student_view_submission_confirmation_context", state);
             if (s != null) {
                 context.put("submission", s);
-                context.put("submitted", Boolean.valueOf(s.getSubmitted()));
-                context.put("submission_id", s.getId());
-                if (s.getDateSubmitted() != null) {
-                    context.put("submit_time", s.getDateSubmitted().toInstant().toString());
-                }
-                Set<String> attachments = s.getAttachments();
-                if (attachments != null && !attachments.isEmpty()) {
-                    context.put("submit_attachments", attachments);
-                }
+
+                Map<String, Reference> attachmentReferences = new HashMap<>();
+                s.getAttachments().forEach(r -> attachmentReferences.put(r, entityManager.newReference(r)));
+                context.put("attachmentReferences", attachmentReferences);
+
                 context.put("submit_text", StringUtils.trimToNull(s.getSubmittedText()));
                 context.put("email_confirmation", serverConfigurationService.getBoolean("assignment.submission.confirmation.email", true));
             }
