@@ -18,7 +18,7 @@
 		<bootstrap-version>3.3.7</bootstrap-version>
 		<font-awesome-version>4.7.0</font-awesome-version>
 		<!-- Default extra plugins enabled, currently autosave disabled via SAK-33362 -->
-		<ckeditor-extra-plugins>sakaipreview,image2,audiorecorder,contentitem,movieplayer,wordcount,fmath_formula,notification</ckeditor-extra-plugins>
+		<ckeditor-extra-plugins>sakaipreview,image2,audiorecorder,contentitem,movieplayer,wordcount,notification</ckeditor-extra-plugins>
 		<!-- Empty defaults for a11y-->
 		<ckeditor-a11y-extra-plugins></ckeditor-a11y-extra-plugins>
 	</properties>
