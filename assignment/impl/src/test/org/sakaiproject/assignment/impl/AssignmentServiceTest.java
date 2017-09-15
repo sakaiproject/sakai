@@ -24,11 +24,11 @@ package org.sakaiproject.assignment.impl;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
+import java.text.NumberFormat;
 import java.time.Instant;
-import java.util.Collection;
-import java.util.Date;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 import com.github.javafaker.Faker;
 import lombok.extern.slf4j.Slf4j;
@@ -56,6 +56,7 @@ import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.util.ResourceLoader;
+import org.sakaiproject.util.api.FormattedText;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.AbstractTransactionalJUnit4SpringContextTests;
@@ -75,6 +76,7 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
     @Autowired private ServerConfigurationService serverConfigurationService;
     @Autowired private UserDirectoryService userDirectoryService;
     @Autowired private SiteService siteService;
+    @Autowired private FormattedText formattedText;
 
     private ResourceLoader resourceLoader;
 
@@ -85,6 +87,11 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
         when(resourceLoader.getString("gen.inpro")).thenReturn("In progress");
         when(resourceLoader.getString("gen.dra2")).thenReturn("Draft -");
         when(resourceLoader.getString("gen.subm4")).thenReturn("Submitted");
+        when(resourceLoader.getString("gen.nograd")).thenReturn("No Grade");
+        when(resourceLoader.getString("ungra")).thenReturn("Ungraded");
+        when(resourceLoader.getString("pass")).thenReturn("Pass");
+        when(resourceLoader.getString("fail")).thenReturn("Fail");
+        when(resourceLoader.getString("gen.checked")).thenReturn("Checked");
         ((AssignmentServiceImpl) assignmentService).setResourceLoader(resourceLoader);
     }
 
@@ -328,6 +335,40 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
         }
     }
 
+    @Test
+    public void gradeDisplay() {
+        Character ds = DecimalFormatSymbols.getInstance().getDecimalSeparator();
+        when(formattedText.getDecimalSeparator()).thenReturn(ds.toString());
+
+        Assert.assertEquals("0", assignmentService.getGradeDisplay("0", Assignment.GradeType.SCORE_GRADE_TYPE, null));
+
+        configureScale(10);
+        Assert.assertEquals("0.5", assignmentService.getGradeDisplay("5", Assignment.GradeType.SCORE_GRADE_TYPE, 10));
+        Assert.assertEquals("10.0", assignmentService.getGradeDisplay("100", Assignment.GradeType.SCORE_GRADE_TYPE, 10));
+
+        configureScale(100);
+        Assert.assertEquals("0.05", assignmentService.getGradeDisplay("5", Assignment.GradeType.SCORE_GRADE_TYPE, 100));
+        Assert.assertEquals("5.00", assignmentService.getGradeDisplay("500", Assignment.GradeType.SCORE_GRADE_TYPE, 100));
+        Assert.assertEquals("100.00", assignmentService.getGradeDisplay("10000", Assignment.GradeType.SCORE_GRADE_TYPE, 100));
+
+        configureScale(1000);
+        Assert.assertEquals("0.005", assignmentService.getGradeDisplay("5", Assignment.GradeType.SCORE_GRADE_TYPE, 1000));
+        Assert.assertEquals("50.000", assignmentService.getGradeDisplay("50000", Assignment.GradeType.SCORE_GRADE_TYPE, 1000));
+
+        Assert.assertEquals("", assignmentService.getGradeDisplay("", Assignment.GradeType.UNGRADED_GRADE_TYPE, null));
+        Assert.assertEquals("No Grade", assignmentService.getGradeDisplay("gen.nograd", Assignment.GradeType.UNGRADED_GRADE_TYPE, null));
+
+        Assert.assertEquals("Pass", assignmentService.getGradeDisplay("pass", Assignment.GradeType.PASS_FAIL_GRADE_TYPE, null));
+        Assert.assertEquals("Fail", assignmentService.getGradeDisplay("fail", Assignment.GradeType.PASS_FAIL_GRADE_TYPE, null));
+        Assert.assertEquals("Ungraded", assignmentService.getGradeDisplay("any", Assignment.GradeType.PASS_FAIL_GRADE_TYPE, null));
+
+        Assert.assertEquals("Ungraded", assignmentService.getGradeDisplay("any", Assignment.GradeType.CHECK_GRADE_TYPE, null));
+        Assert.assertEquals("Checked", assignmentService.getGradeDisplay("checked", Assignment.GradeType.CHECK_GRADE_TYPE, null));
+
+        Assert.assertEquals("Ungraded", assignmentService.getGradeDisplay("", Assignment.GradeType.GRADE_TYPE_NONE, null));
+        Assert.assertEquals("self", assignmentService.getGradeDisplay("self", Assignment.GradeType.GRADE_TYPE_NONE, null));
+    }
+
     private AssignmentSubmission createNewSubmission(String context, String submitterId) throws UserNotDefinedException {
         Assignment assignment = createNewAssignment(context);
         User userMock = Mockito.mock(User.class);
@@ -353,5 +394,14 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
             Assert.fail(e.getMessage());
         }
         return assignment;
+    }
+
+    private void configureScale(int scale) {
+        int dec = new Double(Math.log10(scale)).intValue();
+        NumberFormat nf = NumberFormat.getInstance();
+        nf.setMaximumFractionDigits(dec);
+        nf.setMinimumFractionDigits(dec);
+        nf.setGroupingUsed(false);
+        when(formattedText.getNumberFormat(dec, dec, false)).thenReturn(nf);
     }
 }

@@ -278,7 +278,7 @@ $(document).ready(function(){
 						</div>
 						<div class="col-lg-4 col-sm-6 col-xs-12">
 							<div class="itemSummaryValue">
-								$gradeScale
+								$gradeTypeTable.get($gradeScale)
 								#if ($gradeTypeTable.get($gradeScale) == $!tlang.getString("points"))
 									($tlang.getString("grade.max") $assignment.MaxGradePoint)
 								#end

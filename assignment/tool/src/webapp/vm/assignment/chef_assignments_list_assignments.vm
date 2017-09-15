@@ -511,7 +511,7 @@
 										A-F
 									#elseif ($gradeScale == 3)
 										## Score based grade type
-										0-$assignment.getMaxGradePointDisplay()
+										0-$!service.getMaxPointGradeDisplay($assignment.ScaleFactor, $assignment.MaxGradePoint)
 									#elseif ($gradeScale == 4)
 										## Pass/fail grade type
 										$tlang.getString("gen.pf")
