@@ -86,7 +86,11 @@ import org.sakaiproject.user.api.CandidateDetailProvider;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
-import org.sakaiproject.util.*;
+import org.sakaiproject.util.BaseResourceProperties;
+import org.sakaiproject.util.ResourceLoader;
+import org.sakaiproject.util.SortedIterator;
+import org.sakaiproject.util.Validator;
+import org.sakaiproject.util.api.FormattedText;
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
@@ -115,6 +119,7 @@ public class AssignmentServiceImpl implements AssignmentService {
     @Setter private EmailService emailService;
     @Setter private EntityManager entityManager;
     @Setter private EventTrackingService eventTrackingService;
+    @Setter private FormattedText formattedText;
     @Setter private FunctionManager functionManager;
     @Setter private GradebookExternalAssessmentService gradebookExternalAssessmentService;
     @Setter private GradebookService gradebookService;
@@ -1981,7 +1986,7 @@ public class AssignmentServiceImpl implements AssignmentService {
     public String getCsvSeparator() {
         String defaultSeparator = ",";
         //If the decimal separator is a comma
-        if (",".equals(FormattedText.getDecimalSeparator())) {
+        if (",".equals(formattedText.getDecimalSeparator())) {
             defaultSeparator = ";";
         }
 
@@ -2085,9 +2090,9 @@ public class AssignmentServiceImpl implements AssignmentService {
             String gString = def.getGrade();
             if (StringUtils.isNotBlank(gString)) {
                 try {
-                    String decSeparator = FormattedText.getDecimalSeparator();
+                    String decSeparator = formattedText.getDecimalSeparator();
                     rv = StringUtils.replace(gString, (",".equals(decSeparator) ? "." : ","), decSeparator);
-                    NumberFormat nbFormat = FormattedText.getNumberFormat(new Double(Math.log10(m.getScaleFactor())).intValue(), new Double(Math.log10(m.getScaleFactor())).intValue(), false);
+                    NumberFormat nbFormat = formattedText.getNumberFormat(new Double(Math.log10(m.getScaleFactor())).intValue(), new Double(Math.log10(m.getScaleFactor())).intValue(), false);
                     DecimalFormat dcformat = (DecimalFormat) nbFormat;
                     Double dblGrade = dcformat.parse(rv).doubleValue();
                     rv = nbFormat.format(dblGrade);
@@ -2100,77 +2105,98 @@ public class AssignmentServiceImpl implements AssignmentService {
         return rv;
     }
 
+    /**
+     * Contains logic to consistently output a String based version of a grade
+     * Interprets the grade using the scale for display
+     *
+     * This should probably be moved to a static utility class - ern
+     *
+     * @param grade
+     * @param typeOfGrade
+     * @param scaleFactor
+     * @return
+     */
     @Override
     public String getGradeDisplay(String grade, Assignment.GradeType typeOfGrade, Integer scaleFactor) {
-        if (StringUtils.isBlank(grade)) return null;
+        String returnGrade = StringUtils.trimToEmpty(grade);
 
-        if (typeOfGrade == Assignment.GradeType.SCORE_GRADE_TYPE) {
-            if (grade != null && grade.length() > 0 && !"0".equals(grade)) {
-                int dec = new Double(Math.log10(scaleFactor)).intValue();
-                String decSeparator = FormattedText.getDecimalSeparator();
-                String decimalGradePoint = "";
-                try {
-                    Integer.parseInt(grade);
-                    // if point grade, display the grade with factor decimal place
-                    int length = grade.length();
-                    if (length > dec) {
-                        decimalGradePoint = grade.substring(0, grade.length() - dec) + decSeparator + grade.substring(grade.length() - dec);
-                    } else {
-                        String newGrade = "0".concat(decSeparator);
-                        for (int i = length; i < dec; i++) {
-                            newGrade = newGrade.concat("0");
-                        }
-                        decimalGradePoint = newGrade.concat(grade);
-                    }
-                } catch (NumberFormatException e) {
+        switch (typeOfGrade) {
+            case SCORE_GRADE_TYPE:
+                if (!grade.isEmpty() && !"0".equals(grade)) {
+                    int dec = new Double(Math.log10(scaleFactor)).intValue();
+                    String decSeparator = formattedText.getDecimalSeparator();
+                    String decimalGradePoint = null;
                     try {
-                        Float.parseFloat(grade);
-                        decimalGradePoint = grade;
-                    } catch (Exception e1) {
-                        return grade;
+                        Integer.parseInt(grade);
+                        // if point grade, display the grade with factor decimal place
+                        if (grade.length() > dec) {
+                            decimalGradePoint = grade.substring(0, grade.length() - dec) + decSeparator + grade.substring(grade.length() - dec);
+                        } else {
+                            String newGrade = "0".concat(decSeparator);
+                            for (int i = grade.length(); i < dec; i++) {
+                                newGrade = newGrade.concat("0");
+                            }
+                            decimalGradePoint = newGrade.concat(grade);
+                        }
+                    } catch (NumberFormatException nfe1) {
+                        log.debug("Could not parse grade [{}] as an Integer trying as a Float, {}", grade, nfe1.getMessage());
+                        try {
+                            Float.parseFloat(grade);
+                            decimalGradePoint = grade;
+                        } catch (NumberFormatException nfe2) {
+                            log.debug("Could not parse grade [{}] as a Float, {}", grade, nfe2.getMessage());
+                        }
+                    }
+                    // get localized number format
+                    NumberFormat nbFormat = formattedText.getNumberFormat(dec, dec, false);
+                    DecimalFormat dcformat = (DecimalFormat) nbFormat;
+                    // show grade in localized number format
+                    try {
+                        Double dblGrade = dcformat.parse(decimalGradePoint).doubleValue();
+                        decimalGradePoint = nbFormat.format(dblGrade);
+                        returnGrade = decimalGradePoint;
+                    } catch (Exception e) {
+                        log.warn("Could not parse grade [{}], {}", grade, e.getMessage());
                     }
                 }
-                // get localized number format
-                NumberFormat nbFormat = FormattedText.getNumberFormat(dec, dec, false);
-                DecimalFormat dcformat = (DecimalFormat) nbFormat;
-                // show grade in localized number format
-                try {
-                    Double dblGrade = dcformat.parse(decimalGradePoint).doubleValue();
-                    decimalGradePoint = nbFormat.format(dblGrade);
-                } catch (Exception e) {
-                    return grade;
+                break;
+            case UNGRADED_GRADE_TYPE:
+                returnGrade = "";
+                if (grade.equalsIgnoreCase("gen.nograd")) {
+                    returnGrade = resourceLoader.getString("gen.nograd");
                 }
-                return decimalGradePoint;
-            } else {
-                return StringUtils.trimToEmpty(grade);
-            }
-        } else if (typeOfGrade == Assignment.GradeType.UNGRADED_GRADE_TYPE) {
-            String ret = "";
-            if (grade != null) {
-                if (grade.equalsIgnoreCase("gen.nograd")) ret = resourceLoader.getString("gen.nograd");
-            }
-            return ret;
-        } else if (typeOfGrade == Assignment.GradeType.PASS_FAIL_GRADE_TYPE) {
-            String ret = resourceLoader.getString("ungra");
-            if (grade != null) {
-                if (grade.equalsIgnoreCase("Pass")) ret = resourceLoader.getString("pass");
-                else if (grade.equalsIgnoreCase("Fail")) ret = resourceLoader.getString("fail");
-            }
-            return ret;
-        } else if (typeOfGrade == Assignment.GradeType.CHECK_GRADE_TYPE) {
-            String ret = resourceLoader.getString("ungra");
-            if (grade != null) {
-                if (grade.equalsIgnoreCase("Checked")) ret = resourceLoader.getString("gen.checked");
-            }
-            return ret;
-        } else {
-            if (grade != null && grade.length() > 0) {
-                return StringUtils.trimToEmpty(grade);
-            } else {
-                // return "ungraded" in stead
-                return resourceLoader.getString("ungra");
-            }
+                break;
+            case PASS_FAIL_GRADE_TYPE:
+                returnGrade = resourceLoader.getString("ungra");
+                if (grade.equalsIgnoreCase("Pass")) {
+                    returnGrade = resourceLoader.getString("pass");
+                } else if (grade.equalsIgnoreCase("Fail")) {
+                    returnGrade = resourceLoader.getString("fail");
+                }
+                break;
+            case CHECK_GRADE_TYPE:
+                returnGrade = resourceLoader.getString("ungra");
+                if (grade.equalsIgnoreCase("Checked")) {
+                    returnGrade = resourceLoader.getString("gen.checked");
+                }
+                break;
+            default:
+                if (grade.isEmpty()) {
+                    returnGrade = resourceLoader.getString("ungra");
+                }
         }
+        return returnGrade;
+    }
+
+    @Override
+    public String getMaxPointGradeDisplay(int factor, int maxGradePoint) {
+        // formated to show factor decimal places, for example, 1000 to 100.0
+        // get localized number format
+        //        NumberFormat nbFormat = FormattedText.getNumberFormat((int)Math.log10(factor),(int)Math.log10(factor),false);
+        // show grade in localized number format
+        //        Double dblGrade = new Double(maxGradePoint/(double)factor);
+        //        return nbFormat.format(dblGrade);
+        return getGradeDisplay(Integer.toString(maxGradePoint), Assignment.GradeType.SCORE_GRADE_TYPE, factor);
     }
 
     @Override
@@ -2680,7 +2706,7 @@ public class AssignmentServiceImpl implements AssignmentService {
                                     // the comments.txt file to show instructor's comments
                                     ZipEntry textEntry = new ZipEntry(submittersName + "comments" + AssignmentConstants.ZIP_COMMENT_FILE_TYPE);
                                     out.putNextEntry(textEntry);
-                                    byte[] b = FormattedText.encodeUnicode(s.getFeedbackComment()).getBytes();
+                                    byte[] b = formattedText.encodeUnicode(s.getFeedbackComment()).getBytes();
                                     out.write(b);
                                     textEntry.setSize(b.length);
                                     out.closeEntry();
@@ -2910,7 +2936,7 @@ public class AssignmentServiceImpl implements AssignmentService {
                                 // the comments.txt file to show instructor's comments
                                 ZipEntry textEntry = new ZipEntry(submittersName + "comments" + AssignmentConstants.ZIP_COMMENT_FILE_TYPE);
                                 out.putNextEntry(textEntry);
-                                byte[] b = FormattedText.encodeUnicode(s.getFeedbackComment()).getBytes();
+                                byte[] b = formattedText.encodeUnicode(s.getFeedbackComment()).getBytes();
                                 out.write(b);
                                 textEntry.setSize(b.length);
                                 out.closeEntry();
@@ -2930,7 +2956,7 @@ public class AssignmentServiceImpl implements AssignmentService {
                                 // the comments.txt file to show instructor's comments
                                 ZipEntry textEntry = new ZipEntry(submittersName + "members" + AssignmentConstants.ZIP_COMMENT_FILE_TYPE);
                                 out.putNextEntry(textEntry);
-                                byte[] b = FormattedText.encodeUnicode(submittersString).getBytes();
+                                byte[] b = formattedText.encodeUnicode(submittersString).getBytes();
                                 out.write(b);
                                 textEntry.setSize(b.length);
                                 out.closeEntry();

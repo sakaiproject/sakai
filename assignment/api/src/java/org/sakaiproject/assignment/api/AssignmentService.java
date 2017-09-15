@@ -611,6 +611,8 @@ public interface AssignmentService extends EntityProducer {
 
     String getGradeDisplay(String grade, Assignment.GradeType typeOfGrade, Integer scaleFactor);
 
+    String getMaxPointGradeDisplay(int factor, int maxGradePoint);
+
     Optional<AssignmentSubmissionSubmitter> getSubmissionSubmittee(AssignmentSubmission submission);
 
     Collection<User> getSubmissionSubmittersAsUsers(AssignmentSubmission submission);
