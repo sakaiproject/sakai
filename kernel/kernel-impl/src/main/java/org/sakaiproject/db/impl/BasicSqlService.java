@@ -1153,7 +1153,7 @@ public abstract class BasicSqlService implements SqlService
 	}
 
 	/**
-	 * @see org.sakaiproject.db.api.SqlService#dbWriteBatch(Connection, String, Set<Object[]>)
+	 * @see org.sakaiproject.db.api.SqlService#dbWriteBatch(Connection, String, List<Object[]>)
 	 */
 	public boolean dbWriteBatch(Connection callerConnection, String sql, List<Object[]> fieldsList)
 	{
