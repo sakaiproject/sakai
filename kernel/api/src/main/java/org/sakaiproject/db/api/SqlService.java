@@ -264,7 +264,7 @@ public interface SqlService
 	 *        The connection to use.
 	 * @param sql
 	 *        The sql statement.
-	 * @param fields
+	 * @param fieldsList
 	 *        The List of array of fields for parameters.
 	 * @return true if successful, false if not.
 	 */
