@@ -415,7 +415,7 @@ public abstract class ClusterEventTracking extends BaseEventTrackingService impl
 				bindValues(event, fields);
 				eventList.add(fields);
 
-				// For clustered setups, going to use legacy, individual inserts
+				// For clustered setups with caching enabled, use legacy, individual inserts
 				// TODO: it might be possible to write the entire batch to database and still get return values. But this will need testing on MySQL and Oracle.
 				if (cachingEnabled) {
 					Long eventId = sqlService().dbInsert(conn, statement, fields, "EVENT_ID");
