@@ -19,6 +19,8 @@ import au.com.bytecode.opencsv.CSVWriter;
 
 import org.apache.poi.hssf.usermodel.*;
 import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellType;
+import org.apache.poi.ss.usermodel.Font;
 import org.apache.poi.ss.usermodel.IndexedColors;
 import org.sakaiproject.util.Validator;
 
@@ -133,7 +135,7 @@ class ExcelExporter extends SpreadsheetExporter {
         HSSFFont font = gradesWorkbook.createFont();
         font.setFontName(HSSFFont.FONT_ARIAL);
         font.setColor(IndexedColors.PLUM.getIndex());
-        font.setBoldweight(HSSFFont.BOLDWEIGHT_BOLD);
+        font.setBold(true);
         HSSFCellStyle cellStyle = gradesWorkbook.createCellStyle();
         cellStyle.setFont(font);
         return cellStyle;
@@ -156,7 +158,7 @@ class ExcelExporter extends SpreadsheetExporter {
         HSSFRow dataRow = dataSheet.createRow(rowCount++);
         for (int i = 0; i < values.length; i++) {
             HSSFCell cell = dataRow.createCell(i);
-            cell.setCellType(Cell.CELL_TYPE_STRING);
+            cell.setCellType(CellType.STRING);
             cell.setCellValue(values[i]);
         }
         return this;
