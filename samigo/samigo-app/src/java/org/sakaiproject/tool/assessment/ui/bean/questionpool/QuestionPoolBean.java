@@ -2536,7 +2536,7 @@ String poolId = ContextUtil.lookupParam("qpid");
 
 		CellStyle boldStyle = wb.createCellStyle();
 		Font font = wb.createFont();
-		font.setBoldweight(Font.BOLDWEIGHT_BOLD);
+		font.setBold(true);
 		boldStyle.setFont(font);
 		CellStyle headerStyle = boldStyle;
 		
