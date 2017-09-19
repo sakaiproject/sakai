@@ -229,6 +229,12 @@ public class DbCalendarServiceSerializationTest extends TestCase
 				return false;
 			}
 
+			public boolean dbWriteBatch(Connection connection, String sql, List<Object[]> fieldsList)
+			{
+				// TODO Auto-generated method stub
+				return false;
+			}
+
 			public boolean dbWriteBinary(String sql, Object[] fields, byte[] var, int offset, int len)
 			{
 				// TODO Auto-generated method stub

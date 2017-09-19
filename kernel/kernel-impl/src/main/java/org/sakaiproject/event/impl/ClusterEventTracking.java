@@ -401,38 +401,38 @@ public abstract class ClusterEventTracking extends BaseEventTrackingService impl
 		try
 		{
 			conn = sqlService().borrowConnection();
-			wasCommit = conn.getAutoCommit();
-			if (wasCommit)
-			{
-				conn.setAutoCommit(false);
-			}
 
-			// Note: investigate batch writing via the jdbc driver: make sure we can still use prepared statements (check out host arrays, too)
-			// -ggolden
+			// common preparation for each insert
+			String statement = insertStatement();
 
-            // common preparation for each insert
-            String statement = insertStatement();
-            Object fields[] = new Object[6];
+			// Setup a batch of events if not using a cluster
+			List<Object[]> eventList = new ArrayList<>();
 
 			// write all events
 			for (Event event : events)
 			{
+				Object fields[] = new Object[6];
 				bindValues(event, fields);
+				eventList.add(fields);
 
-                // process the insert
-                if (cachingEnabled) {
-                    Long eventId = sqlService().dbInsert(conn, statement, fields, "EVENT_ID");
-                    if (eventId != null) {
-                        // write event to cache
-                        writeEventToCluster(event, eventId);
-                    }
-                } else {
-                    boolean ok = sqlService().dbWrite(conn, statement, fields);
-                    if (!ok) {
-                        M_log.warn("dbWrite failed: session: {} event: {}", fields[3], event.toString());
-                    }
-                }
-            }
+				// For clustered setups with caching enabled, use legacy, individual inserts
+				// TODO: it might be possible to write the entire batch to database and still get return values. But this will need testing on MySQL and Oracle.
+				if (cachingEnabled) {
+					Long eventId = sqlService().dbInsert(conn, statement, fields, "EVENT_ID");
+					if (eventId != null) {
+						// write event to cache
+						writeEventToCluster(event, eventId);
+					}
+				}
+			}
+
+			// Write all of these events in a batch if not using clustering
+			if (!cachingEnabled) {
+				boolean ok = sqlService().dbWriteBatch(conn, statement, eventList);
+				if (!ok) {
+					M_log.warn("dbWriteBatch failed: event count: {}", eventList.size());
+				}
+			}
 
 			// commit
 			if (!conn.isClosed()) {
