@@ -31,7 +31,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sakaiproject.jsf.spreadsheet.SpreadsheetDataFileWriterCsv;
-import org.sakaiproject.jsf.spreadsheet.SpreadsheetDataFileWriterXls;
+import org.sakaiproject.jsf.spreadsheet.SpreadsheetDataFileWriterXlsx;
 import org.sakaiproject.jsf.spreadsheet.SpreadsheetUtil;
 import org.sakaiproject.util.ResourceLoader;
 
@@ -50,7 +50,7 @@ public class Export {
      * @param prefixFileName A filename prefix. This will be appended with unique data and the proper file extension.
      */
     public static void writeAsXls(List<List<Object>> content, String prefixFileName) {
-		SpreadsheetUtil.downloadSpreadsheetData(content, getFileName(prefixFileName), new SpreadsheetDataFileWriterXls());
+		SpreadsheetUtil.downloadSpreadsheetData(content, getFileName(prefixFileName), new SpreadsheetDataFileWriterXlsx());
     }
 
 	public static void writeAsCsv(List<List<Object>> content, String prefixFileName) {
