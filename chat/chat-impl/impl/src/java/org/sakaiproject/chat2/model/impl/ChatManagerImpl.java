@@ -44,7 +44,6 @@ import java.util.Map;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.lang.StringUtils;
@@ -1250,7 +1249,7 @@ public class ChatManagerImpl extends HibernateDaoSupport implements ChatManager,
      */
     public String getUserTimeZone() {
 		String userId = sessionManager.getCurrentSessionUserId();
-		if (userId == null) { return TimeZone.getDefault().getID(); }
+		if (userId == null) { return ZoneId.systemDefault().getId(); }
 		
 		String elementCacheId = "TZ_"+userId;
 		String element = timezoneCache.getIfPresent(elementCacheId);
@@ -1262,8 +1261,19 @@ public class ChatManagerImpl extends HibernateDaoSupport implements ChatManager,
 		ResourceProperties tzProps = prefs.getProperties(TimeService.APPLICATION_ID);
 		String timeZone = tzProps.getProperty(TimeService.TIMEZONE_KEY);
 		
+		try {
+			ZoneId.of(timeZone);
+		} catch(java.time.zone.ZoneRulesException e){
+			try {
+				//maybe the given zoneId was a shortId (like 'CST')
+				timeZone = ZoneId.SHORT_IDS.get(timeZone);
+			}catch(Exception ex){
+				timeZone = null;
+			}
+		}
+		
 		if(StringUtils.isBlank(timeZone)) {
-			timeZone = TimeZone.getDefault().getID();
+			timeZone = ZoneId.systemDefault().getId();
 		}
 		
 		timezoneCache.put(elementCacheId, timeZone);
