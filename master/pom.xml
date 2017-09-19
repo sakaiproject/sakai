@@ -1790,6 +1790,12 @@
         <version>1.0_01-ea</version>
         <scope>provided</scope>
       </dependency>
+      <!-- SAK-32707 -->
+      <dependency>
+        <groupId>org.apache.xmlgraphics</groupId>
+        <artifactId>xmlgraphics-commons</artifactId>
+        <version>1.5</version>
+      </dependency>
     </dependencies>
   </dependencyManagement>
 
