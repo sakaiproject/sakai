@@ -90,6 +90,9 @@
     <sakai.hibernate.groupId>org.hibernate</sakai.hibernate.groupId>
     <sakai.hibernate.artifactId>hibernate-core</sakai.hibernate.artifactId>
     <sakai.hibernate.version>4.3.11.Final</sakai.hibernate.version>
+    <sakai.httpclient.version>4.5.3</sakai.httpclient.version>
+    <sakai.httpcore.version>4.4.7</sakai.httpcore.version>
+    <sakai.httpmime.version>4.5.3</sakai.httpmime.version>
     <sakai.jackson.version>2.8.6</sakai.jackson.version>
     <sakai.java.jwt.version>3.1.0</sakai.java.jwt.version>
     <sakai.jcr.version>1.0</sakai.jcr.version>
@@ -742,6 +745,24 @@
         <groupId>org.hibernate</groupId>
         <artifactId>hibernate-validator</artifactId>
         <version>5.3.4.Final</version>
+        <scope>provided</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.httpcomponents</groupId>
+        <artifactId>httpcore</artifactId>
+        <version>${sakai.httpcore.version}</version>
+        <scope>provided</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.httpcomponents</groupId>
+        <artifactId>httpclient</artifactId>
+        <version>${sakai.httpclient.version}</version>
+        <scope>provided</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.httpcomponents</groupId>
+        <artifactId>httpmime</artifactId>
+        <version>${sakai.httpmime.version}</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
