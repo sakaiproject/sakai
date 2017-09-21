@@ -28,7 +28,6 @@ import java.util.Set;
 
 import org.hibernate.Query;
 import org.sakaiproject.assignment.api.AssignmentConstants;
-import org.sakaiproject.assignment.api.AssignmentEntity;
 import org.sakaiproject.assignment.api.AssignmentService;
 import org.sakaiproject.assignment.api.model.Assignment;
 import org.sakaiproject.assignment.api.model.AssignmentAllPurposeItem;
@@ -479,7 +478,7 @@ public class AssignmentSupplementItemServiceImpl extends HibernateDaoSupport imp
 					{
 						return true;
 					}
-					else if (show == AssignmentConstants.MODEL_ANSWER_SHOW_TO_STUDENT_AFTER_SUBMIT && s != null && s.getUserSubmission())
+					else if (show == AssignmentConstants.MODEL_ANSWER_SHOW_TO_STUDENT_AFTER_SUBMIT && s != null && s.getUserSubmission() && s.getSubmitted())
 					{
 						return true;
 					}
