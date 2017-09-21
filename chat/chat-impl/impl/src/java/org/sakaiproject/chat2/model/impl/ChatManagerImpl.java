@@ -1262,7 +1262,9 @@ public class ChatManagerImpl extends HibernateDaoSupport implements ChatManager,
 		String timeZone = tzProps.getProperty(TimeService.TIMEZONE_KEY);
 		
 		try {
-			ZoneId.of(timeZone);
+			if (StringUtils.isNotBlank(timeZone)) {
+				ZoneId.of(timeZone);
+			}
 		} catch(java.time.zone.ZoneRulesException e){
 			try {
 				//maybe the given zoneId was a shortId (like 'CST')
@@ -1270,6 +1272,8 @@ public class ChatManagerImpl extends HibernateDaoSupport implements ChatManager,
 			}catch(Exception ex){
 				timeZone = null;
 			}
+		} catch(java.time.DateTimeException e) {
+			timeZone = null;
 		}
 		
 		if(StringUtils.isBlank(timeZone)) {
