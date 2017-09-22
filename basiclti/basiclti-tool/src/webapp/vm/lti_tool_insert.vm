@@ -55,6 +55,9 @@ $(document).ready( function() {
     $("#pl_contenteditor").change(function(){
         checkRadioSettings();
     });
+
+    var toolorderspinner = $("#toolorder").spinner({min:0,max:99});
+
 });
 </script>
 </div>
