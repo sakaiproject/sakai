@@ -38,6 +38,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
 import au.com.bytecode.opencsv.CSVReader;
+import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -1050,7 +1051,6 @@ public class AssignmentAction extends PagedResourceActionII {
     public String buildMainPanelContext(VelocityPortlet portlet, Context context, RunData data, SessionState state) {
         String template = null;
         context.put("action", "AssignmentAction");
-
         context.put("tlang", rb);
         context.put("dateFormat", getDateFormatString());
         context.put("cheffeedbackhelper", this);
@@ -1297,13 +1297,15 @@ public class AssignmentAction extends PagedResourceActionII {
     /**
      * local function for getting assignment submission object
      *
-     * @param submissionId
+     * @param submissionReference
      * @param callingFunctionName
      * @param state
      * @return
      */
-    private AssignmentSubmission getSubmission(String submissionId, String callingFunctionName, SessionState state) {
+    private AssignmentSubmission getSubmission(String submissionReference, String callingFunctionName, SessionState state) {
+        log.info("function {} requesting submission with reference = {}", callingFunctionName, submissionReference);
         AssignmentSubmission rv = null;
+        String submissionId = AssignmentReferenceReckoner.reckoner().reference(submissionReference).reckon().getId();
         try {
             Session session = sessionManager.getCurrentSession();
             SecurityAdvisor secAdv = pushSecurityAdvisor(session, "assignment.grade.security.advisor", false);
@@ -1411,7 +1413,7 @@ public class AssignmentAction extends PagedResourceActionII {
             }
             context.put("submitter", submitter);
             s = getSubmission(assignment.getId(), submitter, "build_student_view_submission_context", state);
-            List currentAttachments = (List) state.getAttribute(ATTACHMENTS);
+            List<Reference> currentAttachments = (List<Reference>) state.getAttribute(ATTACHMENTS);
 
             if (s != null) {
                 log.debug("BUILD SUBMISSION FORM HAS SUBMISSION FOR USER " + user.getId() + " NAME " + user.getDisplayName());
@@ -3010,7 +3012,6 @@ public class AssignmentAction extends PagedResourceActionII {
      * build the instructor view to grade an submission
      */
     protected String build_instructor_grade_submission_context(VelocityPortlet portlet, Context context, RunData data, SessionState state) {
-        String submissionId = "";
         Assignment.GradeType gradeType = GRADE_TYPE_NONE;
 
         // need to show the alert for grading drafts?
@@ -3021,6 +3022,7 @@ public class AssignmentAction extends PagedResourceActionII {
         Assignment a = getAssignment(assignmentId, "build_instructor_grade_submission_context", state);
         if (a != null) {
             context.put("assignment", a);
+            context.put("assignmentReference", AssignmentReferenceReckoner.reckoner().assignment(a).reckon().getReference());
             gradeType = a.getTypeOfGrade();
 
             // SAK-17606
@@ -3038,13 +3040,31 @@ public class AssignmentAction extends PagedResourceActionII {
                 }
             }
             context.put("allowToGrade", allowToGrade);
+
+            Map<String, Reference> attachmentReferences = new HashMap<>();
+            a.getAttachments().forEach(r -> attachmentReferences.put(r, entityManager.newReference(r)));
+            context.put("assignmentAttachmentReferences", attachmentReferences);
         }
 
+        String submissionId = "";
         // assignment submission
         AssignmentSubmission s = getSubmission((String) state.getAttribute(GRADE_SUBMISSION_SUBMISSION_ID), "build_instructor_grade_submission_context", state);
         if (s != null) {
             submissionId = s.getId();
             context.put("submission", s);
+            context.put("submissionReference", AssignmentReferenceReckoner.reckoner().submission(s).reckon().getReference());
+
+            StringBuilder submitterNames = new StringBuilder();
+            s.getSubmitters().forEach(u -> {
+                try {
+                    User user = userDirectoryService.getUser(u.getSubmitter());
+                    submitterNames.append(user.getDisplayName()).append(" (").append(user.getDisplayId()).append(")");
+                } catch (UserNotDefinedException e) {
+                    log.warn("Could not find user = {}, who is a submitter on submission = {}, {}", u, s.getId(), e.getMessage());
+                }
+            });
+            context.put("submitterNames", Validator.escapeHtml(submitterNames.toString()));
+            context.put("submissionStatus", assignmentService.getSubmissionStatus(s.getId()));
 
             if (a != null) {
                 setScoringAgentProperties(context, a, s, true);
@@ -3110,6 +3130,10 @@ public class AssignmentAction extends PagedResourceActionII {
                 log.warn(":build_instructor_grade_submission_context: Site not found!", e);
                 context.put("isAdditionalNotesEnabled", false);
             }
+
+            Map<String, Reference> attachmentReferences = new HashMap<>();
+            s.getAttachments().forEach(r -> attachmentReferences.put(r, entityManager.newReference(r)));
+            context.put("submissionAttachmentReferences", attachmentReferences);
         }
 
         context.put("user", state.getAttribute(STATE_USER));
@@ -3819,7 +3843,14 @@ public class AssignmentAction extends PagedResourceActionII {
             context.put("assignmentReference", assignmentRef);
             state.setAttribute(EXPORT_ASSIGNMENT_ID, assignment.getId());
             context.put("value_SubmissionType", assignment.getTypeOfSubmission().ordinal());
-            context.put("typeOfGrade", assignment.getTypeOfGrade().ordinal());
+
+            Assignment.GradeType gradeType = assignment.getTypeOfGrade();
+            context.put("typeOfGrade", gradeType.ordinal());
+            context.put("typeOfGradeString", getTypeOfGradeString(gradeType));
+            if (gradeType.equals(SCORE_GRADE_TYPE)) {
+                Integer scaleFactor = assignment.getScaleFactor() != null ? assignment.getScaleFactor() : assignmentService.getScaleFactor();
+                context.put("maxGradePointString", assignmentService.getMaxPointGradeDisplay(scaleFactor, assignment.getMaxGradePoint()));
+            }
 
             // put creator information into context
             putCreatorIntoContext(context, assignment);
@@ -5563,12 +5594,7 @@ public class AssignmentAction extends PagedResourceActionII {
         // for points grading, one have to enter number as the points
         String grade = (String) state.getAttribute(GRADE_SUBMISSION_GRADE);
 
-        AssignmentSubmission submission = null;
-        try {
-            submission = assignmentService.getSubmission(sId);
-        } catch (IdUnusedException | PermissionException e) {
-            log.warn("Could not get submission: {}, {}", sId, e.getMessage());
-        }
+        AssignmentSubmission submission = getSubmission(sId, "grade_submission_option", state);
 
         if (submission != null) {
             //This logic could be done in one line, but would be harder to read, so break it out to make it easier to follow
@@ -9670,13 +9696,10 @@ public class AssignmentAction extends PagedResourceActionII {
 
                 state.setAttribute(GRADE_SUBMISSION_FEEDBACK_COMMENT, s.getFeedbackComment());
 
-                List v = entityManager.newReferenceList();
-                Iterator attachments = s.getFeedbackAttachments().iterator();
-                while (attachments.hasNext()) {
-                    v.add(attachments.next());
-                }
-                state.setAttribute(GRADE_SUBMISSION_FEEDBACK_ATTACHMENT, v);
+                List<Reference> v = entityManager.newReferenceList();
+                s.getFeedbackAttachments().forEach(f -> v.add(entityManager.newReference(f)));
                 state.setAttribute(ATTACHMENTS, v);
+                state.setAttribute(GRADE_SUBMISSION_FEEDBACK_ATTACHMENT, v);
 
                 state.setAttribute(GRADE_SUBMISSION_GRADE, s.getGrade());
 
@@ -10277,7 +10300,7 @@ public class AssignmentAction extends PagedResourceActionII {
             state.setAttribute(FilePickerHelper.FILE_PICKER_INSTRUCTION_TEXT, rb.getString("gen.addatttoassiginstr"));
 
             // process existing attachments
-            List attachments = (List) state.getAttribute(ATTACHMENTS);
+            List<Reference> attachments = (List<Reference>) state.getAttribute(ATTACHMENTS);
             if (singleAttachment && attachments != null && attachments.size() > 1) {
                 // multiple attachments -> Single Uploaded File Only
                 List newSingleAttachmentList = entityManager.newReferenceList();
@@ -10598,12 +10621,11 @@ public class AssignmentAction extends PagedResourceActionII {
 
             // any change inside attachment list?
             if (!hasChange && submission != null) {
+                List<Reference> inputAttachments = (List<Reference>) state.getAttribute(ATTACHMENTS);
                 Set<String> stateAttachments = submission.getFeedbackAttachments();
-                List inputAttachments = (List) state.getAttribute(ATTACHMENTS);
+                Set<String> inputAttachmentsRefs = inputAttachments.stream().map(Reference::getReference).collect(Collectors.toSet());
 
-                if (stateAttachments == null && inputAttachments != null
-                        || stateAttachments != null && inputAttachments == null
-                        || stateAttachments != null && !(stateAttachments.containsAll(inputAttachments) && inputAttachments.containsAll(stateAttachments))) {
+                if (!stateAttachments.equals(inputAttachmentsRefs)) {
                     hasChange = true;
                 }
             }
@@ -10613,7 +10635,7 @@ public class AssignmentAction extends PagedResourceActionII {
 
             if (submission != null) {
                 Assignment a = submission.getAssignment();
-                int factor = a.getScaleFactor();
+                int factor = a.getScaleFactor() != null ? a.getScaleFactor() : assignmentService.getScaleFactor();
                 Assignment.GradeType typeOfGrade = a.getTypeOfGrade();
 
                 if (withGrade) {
@@ -13876,16 +13898,16 @@ public class AssignmentAction extends PagedResourceActionII {
         String max_file_size_mb = serverConfigurationService.getString("content.upload.max", "1");
 
         String mode = (String) state.getAttribute(STATE_MODE);
-        List attachments;
+        List<Reference> attachments;
 
         boolean inPeerReviewMode = MODE_STUDENT_REVIEW_EDIT.equals(mode);
         if (inPeerReviewMode) {
             // construct the state variable for peer attachment list
-            attachments = state.getAttribute(PEER_ATTACHMENTS) != null ? (List) state.getAttribute(PEER_ATTACHMENTS) : entityManager.newReferenceList();
+            attachments = state.getAttribute(PEER_ATTACHMENTS) != null ? (List<Reference>) state.getAttribute(PEER_ATTACHMENTS) : entityManager.newReferenceList();
         } else {
 
             // construct the state variable for attachment list
-            attachments = state.getAttribute(ATTACHMENTS) != null ? (List) state.getAttribute(ATTACHMENTS) : entityManager.newReferenceList();
+            attachments = state.getAttribute(ATTACHMENTS) != null ? (List<Reference>) state.getAttribute(ATTACHMENTS) : entityManager.newReferenceList();
         }
 
         FileItem fileitem = null;
@@ -14443,102 +14465,43 @@ public class AssignmentAction extends PagedResourceActionII {
     }
 
     /**
-     * the SubmitterSubmission clas
+     * This is a type of backing bean for the ui it is used by sizeResources
      */
+    @Data
     public class SubmitterSubmission {
-        /**
-         * the User object
-         */
-        User m_user = null;
+        User user;
+        Group group;
+        String reference;
+        User submittedBy;
+        Boolean multiGroup = false;
+        AssignmentSubmission submission;
 
-        /**
-         * is the Submitter in more than one group
-         */
-        Boolean m_multi_group = false;
-
-        /**
-         * the Group
-         */
-        Group m_group = null;
-
-        /**
-         * the AssignmentSubmission object
-         */
-        AssignmentSubmission m_submission = null;
-
-        /**
-         * the AssignmentSubmission object
-         */
-        User m_submittedBy = null;
-
-        public SubmitterSubmission(User u, AssignmentSubmission s) {
-            m_user = u;
-            m_submission = s;
+        SubmitterSubmission(User user, AssignmentSubmission submission) {
+            this.user = user;
+            this.submission = submission;
+            reference = AssignmentReferenceReckoner.reckoner().submission(submission).reckon().getReference();
         }
 
-        public SubmitterSubmission(Group g, AssignmentSubmission s) {
-            m_group = g;
-            m_submission = s;
+        SubmitterSubmission(Group group, AssignmentSubmission submission) {
+            this.group = group;
+            this.submission = submission;
+            reference = AssignmentReferenceReckoner.reckoner().submission(submission).reckon().getReference();
         }
 
-        /**
-         * Returns the AssignmentSubmission object
-         */
-        public AssignmentSubmission getSubmission() {
-            return m_submission;
-        }
-
-        /**
-         * Returns the User object
-         */
-        public User getUser() {
-            return m_user;
-        }
-
-        /**
-         * Returns the User object of the submitter,
-         * if null, the user submitted the assignment himself.
-         */
-        public User getSubmittedBy() {
-            return m_submittedBy;
-        }
-
-        public void setSubmittedBy(User submittedBy) {
-            m_submittedBy = submittedBy;
-        }
-
-        public Group getGroup() {
-            return m_group;
-        }
-
-        public void setGroup(Group _group) {
-            m_group = _group;
-        }
-
-        public Boolean getIsMultiGroup() {
-            return m_multi_group;
-        }
-
-        public void setMultiGroup(Boolean _multi) {
-            m_multi_group = _multi;
-        }
-
-        public String getGradeForUser(String id) {
-            AssignmentSubmission s = getSubmission();
+        String getGradeForUser(String id) {
             String grade = null;
 
-            if (s != null) {
-                Assignment a = s.getAssignment();
-                AssignmentSubmissionSubmitter submitter = s.getSubmitters().stream().filter(sbm -> StringUtils.equals(sbm.getSubmitter(), id)).findFirst().get();
+            if (submission != null) {
+                Assignment a = submission.getAssignment();
                 String g = StringUtils.trimToNull(a.getProperties().get(AssignmentServiceConstants.PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT));
                 if (g != null && a.getTypeOfGrade() == SCORE_GRADE_TYPE) {
                     // check if they already have a gb entry
                     grade = assignmentService.getGradeForUserInGradeBook(a.getId(), id);
-                    if (grade == null) {
-                        grade = submitter.getGrade();
-                    }
-                } else {
-                    grade = submitter.getGrade();
+                }
+                if (grade == null) {
+                    AssignmentSubmissionSubmitter submitter = submission.getSubmitters().stream().filter(sbm -> StringUtils.equals(sbm.getSubmitter(), id)).findFirst().get();
+                    // if the submitter has a specific grade then use that one first
+                    grade = StringUtils.isNotBlank(submitter.getGrade()) ? submitter.getGrade() : submission.getGrade();
                 }
             }
             return grade;
