@@ -527,6 +527,9 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
         if (sa != null) {
             securityService.popAdvisor(sa);
         }
+        else {
+            throw new IllegalArgumentException("popAdvisor was called with a null SecurityAdvisor");
+        }
     }
 
     protected boolean checkMediaCollection(String id) {
