@@ -865,7 +865,7 @@ public class AssessmentService {
 		} catch (Exception e) {
 			log.warn("Could not copy resource " + resourceId + ", " + e.getMessage());
 		} finally{
-			securityService.popAdvisor();
+			securityService.popAdvisor(securityAdvisor);
 		}
 		return cr_copy;
 	}
@@ -1121,7 +1121,7 @@ public class AssessmentService {
 						log.error(e.getMessage());
 					}
 					finally{
-						securityService.popAdvisor();
+						securityService.popAdvisor(securityAdvisor);
 					}
 				}
 			}
