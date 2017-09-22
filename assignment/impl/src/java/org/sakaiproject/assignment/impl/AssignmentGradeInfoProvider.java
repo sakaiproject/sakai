@@ -107,7 +107,10 @@ public class AssignmentGradeInfoProvider implements ExternalAssignmentProvider, 
         return assignment;
     }
 
-    public boolean isAssignmentDefined(String id) {
+    public boolean isAssignmentDefined(String externalAppName, String id) {
+        if (!externalAppName.equals(getAppKey())) {
+          return false;
+        }
         return getAssignment(id) != null;
     }
 

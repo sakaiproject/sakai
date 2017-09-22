@@ -21,6 +21,7 @@ package org.sakaiproject.assignment.api;
 
 public final class AssignmentServiceConstants {
 
+    public static final String ASSIGNMENT_TOOL_ID = "sakai.assignment.grades";
     /**
      * The type string for this application: should not change over time as it may be stored in various parts of persistent entities.
      */
