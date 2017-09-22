@@ -210,51 +210,52 @@ public class RedirectingAssignmentEntityServlet extends HttpServlet implements
 		}
 
 		public boolean equals(Object obj) {
-			MySecurityAdvisor mine = (MySecurityAdvisor) obj;
-			if (mine == null)
-				return false;
-			if (mine.m_userId == null && m_userId != null)
-				return false;
-			if (mine.m_functions == null && m_functions != null)
-				return false;
-			if (mine.m_functions != null && mine.m_functions.isEmpty()
-					&& m_functions != null && !m_functions.isEmpty())
-				return false;
-			if (mine.m_references == null && m_references != null)
-				return false;
-			if (mine.m_references != null && mine.m_references.isEmpty()
-					&& m_references != null && !m_references.isEmpty())
-				return false;
-			if (mine.m_userId != null && m_userId == null)
-				return false;
-			if (mine.m_functions != null && m_functions == null)
-				return false;
-			if (mine.m_functions != null && !mine.m_functions.isEmpty()
-					&& m_functions != null && m_functions.isEmpty())
-				return false;
-			if (mine.m_references != null && m_references == null)
-				return false;
-			if (mine.m_references != null && !mine.m_references.isEmpty()
-					&& m_references != null && m_references.isEmpty())
-				return false;
-			// if both m_references == null, return true?
-			if (mine.m_references == null && m_references == null)
-				return true;
+			if (obj == null) return false;
+			if (obj == this) return true;
+			if (obj instanceof MySecurityAdvisor) {
+				MySecurityAdvisor mine = (MySecurityAdvisor) obj;
+				if (mine.m_userId == null && m_userId != null)
+					return false;
+				if (mine.m_functions == null && m_functions != null)
+					return false;
+				if (mine.m_functions != null && mine.m_functions.isEmpty()
+						&& m_functions != null && !m_functions.isEmpty())
+					return false;
+				if (mine.m_references == null && m_references != null)
+					return false;
+				if (mine.m_references != null && mine.m_references.isEmpty()
+						&& m_references != null && !m_references.isEmpty())
+					return false;
+				if (mine.m_userId != null && m_userId == null)
+					return false;
+				if (mine.m_functions != null && m_functions == null)
+					return false;
+				if (mine.m_functions != null && !mine.m_functions.isEmpty()
+						&& m_functions != null && m_functions.isEmpty())
+					return false;
+				if (mine.m_references != null && m_references == null)
+					return false;
+				if (mine.m_references != null && !mine.m_references.isEmpty()
+						&& m_references != null && m_references.isEmpty())
+					return false;
+				// if both m_references == null, return true?
+				if (mine.m_references == null && m_references == null)
+					return true;
 
-			Set<String> mineRSet = new HashSet<String>(mine.m_references);
-			Set<String> thisRSet = new HashSet<String>(m_references);
-			if (mineRSet.hashCode() != thisRSet.hashCode())
-				return false;
+				Set<String> mineRSet = new HashSet<String>(mine.m_references);
+				Set<String> thisRSet = new HashSet<String>(m_references);
+				if (mineRSet.hashCode() != thisRSet.hashCode())
+					return false;
 
-			Set<String> mineFSet = new HashSet<String>(mine.m_functions);
-			Set<String> thisFSet = new HashSet<String>(m_functions);
-			if (mineFSet.hashCode() != thisFSet.hashCode())
-				return false;
+				Set<String> mineFSet = new HashSet<String>(mine.m_functions);
+				Set<String> thisFSet = new HashSet<String>(m_functions);
+				if (mineFSet.hashCode() != thisFSet.hashCode())
+					return false;
 
-			if (m_userId.equals(mine.m_userId) && thisFSet.equals(mineFSet)
-					&& thisRSet.equals(mineRSet))
-				return true;
-
+				if (m_userId.equals(mine.m_userId) && thisFSet.equals(mineFSet)
+						&& thisRSet.equals(mineRSet))
+					return true;
+			}
 			return false;
 		}
 
