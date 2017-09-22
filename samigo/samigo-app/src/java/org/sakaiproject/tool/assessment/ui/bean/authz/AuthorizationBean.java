@@ -31,7 +31,8 @@ import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.tool.assessment.data.dao.authz.AuthorizationData;
 import org.sakaiproject.tool.cover.ToolManager;
 import java.io.Serializable;
-import java.util.HashMap;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.Map;
 import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 
@@ -47,7 +48,7 @@ public class AuthorizationBean implements Serializable {
 
 private static Logger log = LoggerFactory.getLogger(AuthorizationBean.class);
 
-  private HashMap<String, Boolean> map = new HashMap<String, Boolean>();
+  private Map<String, Boolean> map = new ConcurrentHashMap<String, Boolean>();
   private boolean adminPrivilege = false;
   private boolean adminNewAssessmentPrivilege = false;
   private boolean adminCoreAssessmentPrivilege = false;
@@ -60,7 +61,7 @@ private static Logger log = LoggerFactory.getLogger(AuthorizationBean.class);
   public AuthorizationBean(){
   }
 
-  public HashMap<String, Boolean> getAuthzMap(){
+  public Map<String, Boolean> getAuthzMap(){
     return map;
   }
   public boolean getAdminPrivilege(){
