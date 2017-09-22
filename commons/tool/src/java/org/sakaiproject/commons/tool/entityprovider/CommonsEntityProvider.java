@@ -204,12 +204,17 @@ public class CommonsEntityProvider extends AbstractEntityProvider implements Req
         boolean isNew = "".equals(id);
 
         Post post = new Post();
-        post.setId(id);
-        post.setCreatorId(userId);
-        post.setSiteId(siteId);
-        post.setCommonsId(commonsId);
-        post.setEmbedder(embedder);
-        post.setContent(content);
+
+        if (!isNew) {
+            post = commonsManager.getPost(id, false);
+            post.setContent(content);
+        } else {
+            post.setCreatorId(userId);
+            post.setSiteId(siteId);
+            post.setCommonsId(commonsId);
+            post.setEmbedder(embedder);
+            post.setContent(content);
+        }
 
         Post createdOrUpdatedPost = commonsManager.savePost(post);
         if (createdOrUpdatedPost != null) {
