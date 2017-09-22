@@ -1,4 +1,3 @@
-<!-- $Id$ -->
 <!-- start: chef_assignments_instructor_list_submissions.vm  -->
 #set( $H = '-' )
 <script type="text/javascript">includeLatestJQuery('assignments');</script>
@@ -519,8 +518,10 @@ function printView(url) {
 					</th>
 				</tr>
 				#foreach ($userSubmission in $userSubmissions)
+					## userSubmission is a AssignmentAction.SubmitterSubmission and kind of backing bean
 					#set($submission=false)
 					#set($submission = $userSubmission.Submission)
+					## submission is the real AssignmentSubmission
 					#set($siteUser=false)
 					#set($submittedBy=false)
 					#set($submittedBy=$userSubmission.SubmittedBy)
@@ -605,7 +606,7 @@ function printView(url) {
 									#end
 									#if(!$disableGrade)
 										<div class="itemAction">
-											<a href="#toolLinkParam("AssignmentAction" "doGrade_submission" "assignmentId=$validator.escapeUrl($assignmentReference)&submissionId=$validator.escapeUrl($submission.Reference)")" title="$tlang.getString("listsub.grasub")">$!tlang.getString("gen.assign.gra")<span class="skip">:#if($value_CheckAnonymousGrading.equals("true"))$anonymousSubmissionId#else$validator.escapeHtml($submitterName)#end</span></a>
+											<a href="#toolLinkParam("AssignmentAction" "doGrade_submission" "assignmentId=$validator.escapeUrl($assignmentReference)&submissionId=$validator.escapeUrl($userSubmission.Reference)")" title="$tlang.getString("listsub.grasub")">$!tlang.getString("gen.assign.gra")<span class="skip">:#if($value_CheckAnonymousGrading.equals("true"))$anonymousSubmissionId#else$validator.escapeHtml($submitterName)#end</span></a>
 											#foreach ($provider in $providers)
 												#set ($item = $producer.getItem($submission, $siteUser.getId()))
 												#set ($helperInfo = false)
@@ -618,7 +619,7 @@ function printView(url) {
 									#end
 								#else
 									#if(!$disableGrade)
-										<a href="#toolLinkParam("AssignmentAction" "doGrade_submission" "assignmentId=$validator.escapeUrl($assignmentReference)&submissionId=$validator.escapeUrl($submission.Reference)")" title="$tlang.getString("listsub.grasub")">
+										<a href="#toolLinkParam("AssignmentAction" "doGrade_submission" "assignmentId=$validator.escapeUrl($assignmentReference)&submissionId=$validator.escapeUrl($userSubmission.Reference)")" title="$tlang.getString("listsub.grasub")">
 											#if (!$!submission.submitted)
 												#set($submittedText = $!submission.submittedText)
 												#set($submittedAttachments = $submission.submittedAttachments)
@@ -678,7 +679,7 @@ function printView(url) {
 								<td>
 									#if($!submission)
 										#foreach($item in $peerAssessmentItems.get($submission.getId()))
-											<a href='#toolLinkParam("$action" "doView_submissionReviews" "submissionId=$submission.getId()&assessorId=$item.getAssessorUserId()&assignmentId=$validator.escapeUrl($!assignmentReference)")'>
+											<a href='#toolLinkParam("$action" "doView_submissionReviews" "submissionId=${userSubmission.Reference}&assessorId=$item.getAssessorUserId()&assignmentId=$validator.escapeUrl($!assignmentReference)")'>
 											#if($item.isRemoved())
 												<span style="text-decoration: line-through">
 											#else
@@ -720,8 +721,7 @@ function printView(url) {
 							#end
 							#if ($withGrade)
 								<td headers="grade">
-									$!submission.Grade
-									##$submission.getGradeDisplay($typeOfGrade)
+									$!service.getGradeDisplay($submission.Grade, $assignment.TypeOfGrade, $assignment.ScaleFactor)
 								</td>
 							#end	
 							#if ($allowReviewService && $assignment.AllowReviewService)
@@ -865,10 +865,10 @@ function printView(url) {
 			</th>
 			<td>
 				## get gradeScale
-				#set ($gradeScale = $assignment.TypeOfGrade.ordinal())
+				#set ($gradeScale = $typeOfGradeString)
 				$gradeScale
-				#if ($!gradeType == 3)
-					($tlang.getString("grade.max") $assignment.MaxGradePoint)
+				#if ($gradeTypeTable.get($assignment.TypeOfGrade.ordinal()) == $!tlang.getString("points"))
+					($tlang.getString("grade.max") $maxGradePointString)
 				#end
 			</td>
 		</tr>

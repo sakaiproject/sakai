@@ -1,4 +1,3 @@
-<!-- $Id$ -->
 <!-- start:  assignment_macros.vm -->
 #macro( propertyDetails $props )
     <span class="textPanelFooter">(
@@ -21,7 +20,7 @@
 #end
 
 #macro( assignmentTitleIcon $assignment )
-    #if ($!assignment.isGroup() )
+    #if ($!assignment.IsGroup)
         <i class="fa fa-users" aria-hidden="true" title="$tlang.getString('gen.groupassignment')"></i>
     #end
 #end
