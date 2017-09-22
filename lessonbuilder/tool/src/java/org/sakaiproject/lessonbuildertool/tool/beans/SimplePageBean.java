@@ -7248,6 +7248,7 @@ public class SimplePageBean {
 	}
 	
 	private void popAdvisor(SecurityAdvisor sa) {
+		// If pushAdvisor() was called on a non-student page, this SecurityAdvisor will be null
 		if (sa != null) {
 			securityService.popAdvisor(sa);
 		}
