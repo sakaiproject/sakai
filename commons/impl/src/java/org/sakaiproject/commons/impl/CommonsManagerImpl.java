@@ -109,23 +109,27 @@ public class CommonsManagerImpl implements CommonsManager, Observer {
 
     public Post savePost(Post post) {
 
-        try {
-            Post newOrUpdatedPost = persistenceManager.savePost(post);
-            if (newOrUpdatedPost != null) {
-                String commonsId = post.getCommonsId();
-                List<String> contextIds = new ArrayList();
-                if (persistenceManager.getCommons(commonsId).isSocial()) {
-                    contextIds = getConnectionUserIds(sakaiProxy.getCurrentUserId());
+        if (commonsSecurityManager.canCurrentUserEditPost(post)) {
+            try {
+                Post newOrUpdatedPost = persistenceManager.savePost(post);
+                if (newOrUpdatedPost != null) {
+                    String commonsId = post.getCommonsId();
+                    List<String> contextIds = new ArrayList();
+                    if (persistenceManager.getCommons(commonsId).isSocial()) {
+                        contextIds = getConnectionUserIds(sakaiProxy.getCurrentUserId());
+                    } else {
+                        contextIds.add(post.getCommonsId());
+                    }
+                    removeContextIdsFromCache(contextIds);
+                    return newOrUpdatedPost;
                 } else {
-                    contextIds.add(post.getCommonsId());
+                    log.error("Failed to save post");
                 }
-                removeContextIdsFromCache(contextIds);
-                return newOrUpdatedPost;
-            } else {
-                log.error("Failed to save post");
+            } catch (Exception e) {
+                log.error("Caught exception whilst saving post", e);
             }
-        } catch (Exception e) {
-            log.error("Caught exception whilst saving post", e);
+        } else {
+            log.warn("Current user cannot save post with id '{}'. Null will be returned.", post.getId());
         }
 
         return null;
