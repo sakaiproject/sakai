@@ -2823,8 +2823,10 @@ GbGradeTable.syncCategoryAverage = function(studentId, categoryId, categoryScore
     // update table
     var tableRow = GbGradeTable.rowForStudent(studentId);
     var tableCol = GbGradeTable.colForCategoryScore(categoryId);
-    GbGradeTable.setCellState('synced', tableRow, tableCol);
-    GbGradeTable.instance.setDataAtCell(tableRow, tableCol, categoryScoreAsLocaleString);
+    if (tableCol >= 0) { // column is visible?
+        GbGradeTable.setCellState('synced', tableRow, tableCol);
+        GbGradeTable.instance.setDataAtCell(tableRow, tableCol, categoryScoreAsLocaleString);
+    }
 
     // update model
     var modelRow = GbGradeTable.modelIndexForStudent(studentId);
