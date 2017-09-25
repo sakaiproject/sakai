@@ -1543,7 +1543,7 @@ public abstract class GradebookManagerHibernateImpl extends GradebookServiceHibe
     			}
     			else if(gradebook.getCategory_type() == GradebookService.CATEGORY_TYPE_ONLY_CATEGORY)
 				{
-                    if (pointsPossible!=null && !asn.getCategory().getIsExtraCredit())
+				if (pointsPossible!=null && asn.getCategory() != null && !asn.getCategory().getIsExtraCredit())
     					totalPointsPossible += pointsPossible.doubleValue();
                     for(int i=0; i<categories.size(); i++)
                     {
