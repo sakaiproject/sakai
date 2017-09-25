@@ -307,6 +307,12 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
       // this slightly odd code is for testing. It lets us test by reloading just lesson builder.
       // otherwise we have to restart sakai, since the entity stuff can't be restarted
       if (false) {
+	  SecurityAdvisor mergeAdvisor = new SecurityAdvisor() {
+		  public SecurityAdvice isAllowed(String userId, String function, String reference) {
+		      return SecurityAdvice.ALLOWED;
+		  }
+	      };
+
       try {
 	  Document doc = Xml.createDocument();
 	  Stack stack = new Stack();
@@ -326,20 +332,13 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 	  Xml.writeDocument(doc, "/tmp/xmlout");
 
 	  // we don't have an actual user at this point, so need to force checks to work
-	  securityService.pushAdvisor(new SecurityAdvisor() {
-		  public SecurityAdvice isAllowed(String userId, String function, String reference) {
-		      return SecurityAdvice.ALLOWED;
-		  }
-	      });
-
+	  securityService.pushAdvisor(mergeAdvisor);
 
 	  merge("0134937b-ce16-440c-80a6-fb088d79e5ad",  (Element)doc.getFirstChild().getFirstChild(), "/tmp/archive", "45d48248-ba23-4829-914a-7219c3ced2dd", null, null, null);
-
-
       } catch (Exception e) {
 	  logger.info(e.getMessage(), e);
       } finally {
-	  securityService.popAdvisor();
+	  securityService.popAdvisor(mergeAdvisor);
       }
       }
 
