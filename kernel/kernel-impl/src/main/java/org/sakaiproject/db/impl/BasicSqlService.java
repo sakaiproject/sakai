@@ -1158,17 +1158,32 @@ public abstract class BasicSqlService implements SqlService
 	public boolean dbWriteBatch(String sql, List<Object[]> fieldsList)
 	{
 		boolean success = false;
+		Connection conn = null;
 	
 		try
 		{
-			Connection conn = borrowConnection();
+			conn = borrowConnection();
 			success = dbWriteBatch(conn, sql, fieldsList);
-			conn.commit();
-			returnConnection(conn);
+			if (success)
+			{
+				conn.commit();
+			}
+			else
+			{
+				conn.rollback();
+				LOG.warn("Sql.dbWriteBatch() rolled back conn");
+			}
 		}
 		catch (SQLException e)
 		{
 			LOG.warn("Sql.dbWriteBatch()", e);
+		}
+		finally
+		{
+			if (conn != null)
+			{
+				returnConnection(conn);
+                        }
 		}
 
 		return success;
