@@ -418,7 +418,7 @@ commons.utils = {
 
         p.currentUserId = commons.userId;
 
-        p.canComment = commons.currentUserPermissions.commentCreate;
+        p.canComment = commons.currentUserPermissions.commentCreate || commons.currentUserPermissions.commentUpdateAny;
         p.canDelete = commons.currentUserPermissions.postDeleteAny
                         || (commons.currentUserPermissions.postDeleteOwn && p.creatorId === commons.userId);
         p.canEdit = commons.currentUserPermissions.postUpdateAny
@@ -431,7 +431,7 @@ commons.utils = {
 
         var postCreatorId = document.getElementById('commons-post-' + c.postId).dataset.creatorId;
 
-        c.canComment = commons.currentUserPermissions.commentCreate;
+        c.canComment = commons.currentUserPermissions.commentCreate || commons.currentUserPermissions.commentUpdateAny;
         c.modified = c.modifiedDate > c.createdDate;
         c.canDelete = commons.currentUserPermissions.commentDeleteAny
                         || (commons.currentUserPermissions.commentDeleteOwn && c.creatorId === commons.userId)

@@ -317,7 +317,7 @@ public class CommonsEntityProvider extends AbstractEntityProvider implements Req
 
         content = escape(content);
 
-        boolean isNew = "".equals(comment.getId());
+        boolean isNew = StringUtils.isBlank(comment.getId());
 
         Comment savedComment = commonsManager.saveComment(commonsId, comment);
         if (savedComment != null) {
