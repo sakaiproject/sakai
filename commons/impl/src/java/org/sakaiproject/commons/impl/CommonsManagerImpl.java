@@ -29,6 +29,7 @@ import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.profile2.logic.ProfileConnectionsLogic;
 import org.sakaiproject.profile2.model.BasicConnection;
 import org.sakaiproject.profile2.util.ProfileConstants;
+import org.sakaiproject.util.FormattedText;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -111,6 +112,7 @@ public class CommonsManagerImpl implements CommonsManager, Observer {
 
         if (commonsSecurityManager.canCurrentUserEditPost(post)) {
             try {
+                post.setContent(FormattedText.processFormattedText(post.getContent(), new StringBuilder(), true, false));
                 Post newOrUpdatedPost = persistenceManager.savePost(post);
                 if (newOrUpdatedPost != null) {
                     String commonsId = post.getCommonsId();
