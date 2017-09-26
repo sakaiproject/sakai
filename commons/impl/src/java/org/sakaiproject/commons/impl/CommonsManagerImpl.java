@@ -176,17 +176,19 @@ public class CommonsManagerImpl implements CommonsManager, Observer {
     public Comment saveComment(String commonsId, Comment comment) {
 
         try {
-            Comment savedComment = persistenceManager.saveComment(comment);
-            if (savedComment != null) {
-                List<String> contextIds = new ArrayList();
-                if (persistenceManager.getCommons(commonsId).isSocial()) {
-                    Post post = persistenceManager.getPost(comment.getPostId(), false);
-                    contextIds = getConnectionUserIds(post.getCreatorId());
-                } else {
-                    contextIds.add(commonsId);
+            Post post = persistenceManager.getPost(comment.getPostId(), false);
+            if (commonsSecurityManager.canCurrentUserCommentOnPost(post)) {
+                Comment savedComment = persistenceManager.saveComment(comment);
+                if (savedComment != null) {
+                    List<String> contextIds = new ArrayList();
+                    if (persistenceManager.getCommons(commonsId).isSocial()) {
+                        contextIds = getConnectionUserIds(post.getCreatorId());
+                    } else {
+                        contextIds.add(commonsId);
+                    }
+                    removeContextIdsFromCache(contextIds);
+                    return savedComment;
                 }
-                removeContextIdsFromCache(contextIds);
-                return savedComment;
             }
         } catch (Exception e) {
             log.error("Caught exception whilst saving comment", e);
