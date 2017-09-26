@@ -113,6 +113,8 @@ public interface PublishedAssessmentFacadeQueriesAPI
   public Set preparePublishedAnswerFeedbackSet(PublishedAnswer publishedAnswer,
       Set answerFeedbackSet);
 
+  public boolean isPublishedAssessmentIdValid(Long publishedAssessmentId);
+
   public PublishedAssessmentFacade getPublishedAssessment(Long assessmentId);
   
   public PublishedAssessmentFacade getPublishedAssessment(Long assessmentId, boolean withGroupsInfo);

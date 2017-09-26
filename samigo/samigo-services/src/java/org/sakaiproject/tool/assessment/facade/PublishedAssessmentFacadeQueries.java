@@ -663,6 +663,21 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport
 		return h;
 	}
 
+	/**
+	 * This was created for GradebookExternalAssessmentService.
+	 * We just want a quick answer whether Samigo is responsible for an id.
+	 */
+	public boolean isPublishedAssessmentIdValid(Long publishedAssessmentId) {
+		List<PublishedAssessmentData> list = (List<PublishedAssessmentData>) getHibernateTemplate()
+				.findByNamedParam("from PublishedAssessmentData where publishedAssessmentId = :id", "id", publishedAssessmentId);
+
+		if (!list.isEmpty()) {
+			PublishedAssessmentData f = list.get(0);
+			return f.getPublishedAssessmentId() > 0;
+		}
+		return false;
+	}
+
 	public PublishedAssessmentFacade getPublishedAssessment(Long assessmentId) {
 		return getPublishedAssessment(assessmentId, true);
 	}
