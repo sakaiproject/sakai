@@ -67,6 +67,7 @@ public class SamigoExpressionParser
       // initialize all variables
       expr = new_expr;     // copy the given expression to expr
       ans = BigDecimal.valueOf(0.0);
+      this.decimals = decimals;
 
       // get the first character in expr
       getFirstChar();
@@ -709,7 +710,7 @@ public class SamigoExpressionParser
 
       // level 5
       case MULTIPLY:  return bdlhs.multiply(bdrhs);
-      case DIVIDE:    return bdlhs.divide(bdrhs);
+      case DIVIDE:    return bdlhs.divide(bdrhs, decimals, BigDecimal.ROUND_HALF_UP);
 
       case MODULUS:   return BigDecimal.valueOf(SamigoExpressionFunctions.modulus(lhs, rhs));
       case XOR:       return BigDecimal.valueOf((int)lhs ^ (int)rhs);
@@ -828,6 +829,7 @@ public class SamigoExpressionParser
   private String token;         /// holds the token
   private TOKENTYPE token_type; /// type of the token
 
+  private int decimals;
   private BigDecimal ans;           /// holds the result of the expression
   private String ans_str;       /// holds a string containing the result
                                 /// of the expression
