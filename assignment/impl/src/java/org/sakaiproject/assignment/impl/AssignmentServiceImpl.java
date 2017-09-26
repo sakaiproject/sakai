@@ -2125,7 +2125,7 @@ public class AssignmentServiceImpl implements AssignmentService {
      *
      * This should probably be moved to a static utility class - ern
      *
-     * @param grade
+     * @param returnGrade
      * @param typeOfGrade
      * @param scaleFactor
      * @return
@@ -2136,29 +2136,29 @@ public class AssignmentServiceImpl implements AssignmentService {
 
         switch (typeOfGrade) {
             case SCORE_GRADE_TYPE:
-                if (!grade.isEmpty() && !"0".equals(grade)) {
+                if (!returnGrade.isEmpty() && !"0".equals(returnGrade)) {
                     int dec = new Double(Math.log10(scaleFactor)).intValue();
                     String decSeparator = formattedText.getDecimalSeparator();
                     String decimalGradePoint = null;
                     try {
-                        Integer.parseInt(grade);
+                        Integer.parseInt(returnGrade);
                         // if point grade, display the grade with factor decimal place
-                        if (grade.length() > dec) {
-                            decimalGradePoint = grade.substring(0, grade.length() - dec) + decSeparator + grade.substring(grade.length() - dec);
+                        if (returnGrade.length() > dec) {
+                            decimalGradePoint = returnGrade.substring(0, returnGrade.length() - dec) + decSeparator + returnGrade.substring(returnGrade.length() - dec);
                         } else {
                             String newGrade = "0".concat(decSeparator);
-                            for (int i = grade.length(); i < dec; i++) {
+                            for (int i = returnGrade.length(); i < dec; i++) {
                                 newGrade = newGrade.concat("0");
                             }
-                            decimalGradePoint = newGrade.concat(grade);
+                            decimalGradePoint = newGrade.concat(returnGrade);
                         }
                     } catch (NumberFormatException nfe1) {
-                        log.debug("Could not parse grade [{}] as an Integer trying as a Float, {}", grade, nfe1.getMessage());
+                        log.debug("Could not parse grade [{}] as an Integer trying as a Float, {}", returnGrade, nfe1.getMessage());
                         try {
-                            Float.parseFloat(grade);
-                            decimalGradePoint = grade;
+                            Float.parseFloat(returnGrade);
+                            decimalGradePoint = returnGrade;
                         } catch (NumberFormatException nfe2) {
-                            log.debug("Could not parse grade [{}] as a Float, {}", grade, nfe2.getMessage());
+                            log.debug("Could not parse grade [{}] as a Float, {}", returnGrade, nfe2.getMessage());
                         }
                     }
                     // get localized number format
@@ -2170,32 +2170,33 @@ public class AssignmentServiceImpl implements AssignmentService {
                         decimalGradePoint = nbFormat.format(dblGrade);
                         returnGrade = decimalGradePoint;
                     } catch (Exception e) {
-                        log.warn("Could not parse grade [{}], {}", grade, e.getMessage());
+                        log.warn("Could not parse grade [{}], {}", returnGrade, e.getMessage());
                     }
                 }
                 break;
             case UNGRADED_GRADE_TYPE:
-                returnGrade = "";
-                if (grade.equalsIgnoreCase("gen.nograd")) {
+                if (returnGrade.equalsIgnoreCase("gen.nograd")) {
                     returnGrade = resourceLoader.getString("gen.nograd");
                 }
                 break;
             case PASS_FAIL_GRADE_TYPE:
-                returnGrade = resourceLoader.getString("ungra");
-                if (grade.equalsIgnoreCase("Pass")) {
+                if (returnGrade.equalsIgnoreCase("Pass")) {
                     returnGrade = resourceLoader.getString("pass");
-                } else if (grade.equalsIgnoreCase("Fail")) {
+                } else if (returnGrade.equalsIgnoreCase("Fail")) {
                     returnGrade = resourceLoader.getString("fail");
+                } else {
+                    returnGrade = resourceLoader.getString("ungra");
                 }
                 break;
             case CHECK_GRADE_TYPE:
-                returnGrade = resourceLoader.getString("ungra");
-                if (grade.equalsIgnoreCase("Checked")) {
+                if (returnGrade.equalsIgnoreCase("Checked")) {
                     returnGrade = resourceLoader.getString("gen.checked");
+                } else {
+                    returnGrade = resourceLoader.getString("ungra");
                 }
                 break;
             default:
-                if (grade.isEmpty()) {
+                if (returnGrade.isEmpty()) {
                     returnGrade = resourceLoader.getString("ungra");
                 }
         }

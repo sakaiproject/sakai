@@ -1,7 +1,7 @@
 <!-- resources/sakai_create_uploads.vm, use with org.sakaiproject.tool.content.ResourcesHelperAction.java -->
 <div class="portletBody specialLink">
 	<h3>
-		$tlang.getString("create.url")
+		$tlang.getString("create.urls")
 	</h3>
 	#if ($itemAlertMessage)
 		<div class="alertMessage">$tlang.getString("label.alert") $validator.escapeHtml($itemAlertMessage)</div>
@@ -70,9 +70,7 @@
 				</div>
 			#end
 		</div>
-		<!-- Disabled - See SAK-31520
 		<p><a href="#" onclick="addFileInput();return false">$tlang.getString("label.addurl")</a><br></p>
-		-->
 
 		#if ($model.resourceTypeDef.hasNotificationDialog())
 			#if($model.isDropbox())

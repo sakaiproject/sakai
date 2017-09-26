@@ -153,13 +153,15 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
                             + view
                             + "): e.g. /assignment/a/{context}/{assignmentId}");
         }
+
+        SecurityAdvisor securityAdvisor = createSecurityAdvisor(
+            sessionManager.getCurrentSessionUserId(),
+            AssignmentServiceConstants.SECURE_ADD_ASSIGNMENT,
+            assignmentService.assignmentReference(null, context)
+        );
+
         try {
             // enable permission to view possible draft assignment
-            SecurityAdvisor securityAdvisor = createSecurityAdvisor(
-                    sessionManager.getCurrentSessionUserId(),
-                    AssignmentServiceConstants.SECURE_ADD_ASSIGNMENT,
-                    assignmentService.assignmentReference(null, context)
-            );
             securityService.pushAdvisor(securityAdvisor);
 
             Assignment a = assignmentService.getAssignment(assignmentService
@@ -264,7 +266,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
             assignData.remove("assignmentUrl");
             throw new SecurityException(e);
         } finally {
-            securityService.popAdvisor();
+            securityService.popAdvisor(securityAdvisor);
         }
         return assignData;
     }

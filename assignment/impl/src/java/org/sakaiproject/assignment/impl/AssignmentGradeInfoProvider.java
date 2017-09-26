@@ -32,6 +32,7 @@ import org.sakaiproject.assignment.api.AssignmentServiceConstants;
 import org.sakaiproject.assignment.api.model.Assignment;
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.AuthzGroupService;
+import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.entity.api.Reference;
@@ -80,15 +81,13 @@ public class AssignmentGradeInfoProvider implements ExternalAssignmentProvider, 
         Reference aref = null;
         if (assignmentReference != null) {
             aref = entityManager.newReference(assignmentReference);
+            SecurityAdvisor accessAssignmentAdvisor = new MySecurityAdvisor(sessionManager.getCurrentSessionUserId(),
+                AssignmentServiceConstants.SECURE_ACCESS_ASSIGNMENT, assignmentReference);
+            SecurityAdvisor accessGroupsAdvisor = new MySecurityAdvisor(sessionManager.getCurrentSessionUserId(),
+                AssignmentServiceConstants.SECURE_ALL_GROUPS, siteService.siteReference(aref.getContext()));
             try {
-                securityService.pushAdvisor(
-                        new MySecurityAdvisor(sessionManager.getCurrentSessionUserId(),
-                                AssignmentServiceConstants.SECURE_ACCESS_ASSIGNMENT,
-                                assignmentReference));
-                securityService.pushAdvisor(
-                        new MySecurityAdvisor(sessionManager.getCurrentSessionUserId(),
-                                AssignmentServiceConstants.SECURE_ALL_GROUPS,
-                                siteService.siteReference(aref.getContext())));
+                securityService.pushAdvisor(accessAssignmentAdvisor);
+                securityService.pushAdvisor(accessGroupsAdvisor);
                 assignment = assignmentService.getAssignment(assignmentReference);
             } catch (IdUnusedException e) {
                 log.info("Unexpected IdUnusedException after finding assignment with ID: " + id);
@@ -96,8 +95,8 @@ public class AssignmentGradeInfoProvider implements ExternalAssignmentProvider, 
                 log.info("Unexpected Permission Exception while using security advisor "
                         + "for assignment with ID: " + id);
             } finally {
-                securityService.popAdvisor();
-                securityService.popAdvisor();
+                securityService.popAdvisor(accessAssignmentAdvisor);
+                securityService.popAdvisor(accessGroupsAdvisor);
             }
         } else {
             if (log.isDebugEnabled()) {

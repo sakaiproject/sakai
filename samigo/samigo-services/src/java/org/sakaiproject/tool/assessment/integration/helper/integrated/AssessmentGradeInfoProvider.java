@@ -89,11 +89,6 @@ public class AssessmentGradeInfoProvider implements ExternalAssignmentProvider, 
 
     
     private PublishedAssessmentIfc getPublishedAssessment(String id) {
-        // SAM-3068 avoid looking up another tool's id
-        if (!StringUtils.isNumeric(id)) {
-            return null;
-        }
-
         PublishedAssessmentIfc a = (PublishedAssessmentIfc) pubAssessmentCache.get(id);
         if (a != null) {
             log.debug("Returning assessment {} from cache", id);
@@ -118,22 +113,33 @@ public class AssessmentGradeInfoProvider implements ExternalAssignmentProvider, 
     }
 
     public boolean isAssignmentDefined(String externalAppName, String id) {
+    	    // SAM-3068 avoid looking up another tool's id
+    	    if (!StringUtils.isNumeric(id)) {
+            return false;
+    	    }
+
     	    GradebookServiceHelper gbsHelper = IntegrationContextFactory.getInstance().getGradebookServiceHelper();
     	    String toolName = gbsHelper.getAppName();
     	    if (!StringUtils.equals(externalAppName, getAppKey()) && !StringUtils.equals(externalAppName, toolName)) {
     	    	    return false;
     	    }
-        if (log.isDebugEnabled()) {
+
+    	    if (log.isDebugEnabled()) {
             log.debug("Samigo provider isAssignmentDefined: " + id);
-        }
-        return getPublishedAssessment(id) != null;
+    	    }
+
+    	    Long longId = Long.parseLong(id);
+    	    return PersistenceService.getInstance().getPublishedAssessmentFacadeQueries().isPublishedAssessmentIdValid(longId);
     }
 
     
     public boolean isAssignmentGrouped(String id) {
-        if (log.isDebugEnabled()) {
-            log.debug("Samigo provider isAssignmentGrouped: " + id);
+        // SAM-3068 avoid looking up another tool's id
+        if (!StringUtils.isNumeric(id)) {
+            return false;
         }
+
+        log.debug("Samigo provider isAssignmentGrouped: {}", id);
         
         Boolean g = null;
         if (groupedCache.containsKey(id)) {
