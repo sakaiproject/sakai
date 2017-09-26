@@ -17,6 +17,8 @@
 
 package org.sakaiproject.commons.impl;
 
+import org.apache.commons.lang.StringUtils;
+
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -95,8 +97,12 @@ public class CommonsSecurityManagerImpl implements CommonsSecurityManager {
         String currentUser = sakaiProxy.getCurrentUserId();
 
         // If the current user is authenticated and the post author, yes.
-        if (currentUser != null && currentUser.equals(post.getCreatorId()) && sakaiProxy.isAllowedFunction(CommonsFunctions.POST_UPDATE_OWN, post.getSiteId())) {
-            return true;
+        if (currentUser != null && currentUser.equals(post.getCreatorId())) {
+            if (StringUtils.isEmpty(post.getId())) {
+                return sakaiProxy.isAllowedFunction(CommonsFunctions.POST_CREATE, post.getSiteId());
+            } else {
+                return sakaiProxy.isAllowedFunction(CommonsFunctions.POST_UPDATE_OWN, post.getSiteId());
+            }
         }
 
         return false;
