@@ -53,18 +53,16 @@
 					</div>
 					<input type="hidden" id="prev${DOT}$i" name="prev${DOT}$i" value="#if($prev >= 0)${prev}#end" />
 					<input type="hidden" id="next${DOT}$i" name="next${DOT}$i" value="#if($next < $pipes.size())${next}#end" />
-				</div>
-				<div id="propertiesDiv${DOT}$i" style="display:none;" aria-expanded="false">
-#parse("/vm/resources/sakai_properties.vm")
-					<hr class="itemSeparator" />
+					<div id="propertiesDiv${DOT}$i" style="display:none;" aria-expanded="false">
+						#parse("/vm/resources/sakai_properties.vm")
+						<hr class="itemSeparator" />
+					</div>
 				</div>
 			#end
 		</div>
-		<!-- Disabled See SAK-32136
 		<p class="act">
 			<a href="#" onclick="addFileInput();return false">$tlang.getString("label.addFolder")</a>
 		</p>
-		-->
 #*
 		#if ($model.resourceTypeDef.hasNotificationDialog())
 			<p class="shorttext">

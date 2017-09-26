@@ -270,10 +270,10 @@
 									#set($release_day = $model.getReleaseDate().breakdownLocal().day)
 									#set($release_hour = $model.getReleaseDate().breakdownLocal().hour)
 									#set($release_minute = $model.getReleaseDate().breakdownLocal().min)
-									<input type="text" id="releaseDatePicker" name="releaseDatePicker" class="datepicker" value="">
+									<input type="text" id="releaseDatePicker${DOT}$i" name="releaseDatePicker${DOT}$i" class="datepicker" value="">
 									<script type="text/javascript">
 										localDatePicker({
-											input:'#releaseDatePicker',
+											input:'#releaseDatePicker${DOT}$i',
 											useTime:1,
 											val:"$release_year$H$release_month$H$release_day $release_hour:$release_minute",
 											parseFormat: 'YYYY-MM-DD HH:mm',
@@ -300,10 +300,10 @@
 									#set($retract_day = $model.getRetractDate().breakdownLocal().day)
 									#set($retract_hour = $model.getRetractDate().breakdownLocal().hour)
 									#set($retract_minute = $model.getRetractDate().breakdownLocal().min)
-									<input type="text" id="retractDatePicker" name="retractDatePicker" class="datepicker" value="">
+									<input type="text" id="retractDatePicker${DOT}$i" name="retractDatePicker${DOT}$i" class="datepicker" value="">
 									<script type="text/javascript">
 										localDatePicker({
-											input:'#retractDatePicker',
+											input:'#retractDatePicker${DOT}$i',
 											useTime:1,
 											val:"$retract_year$H$retract_month$H$retract_day $retract_hour:$retract_minute",
 											parseFormat: 'YYYY-MM-DD HH:mm',
