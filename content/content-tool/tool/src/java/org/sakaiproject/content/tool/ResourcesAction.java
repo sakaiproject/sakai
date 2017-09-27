@@ -4223,10 +4223,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 			// notshow the public option or notification when in dropbox mode
 			context.put("dropboxMode", Boolean.TRUE);
 			// allow filtering of dropboxes by group (SAK-14625)
-			String homeCollectionId = (String) state.getAttribute(STATE_HOME_COLLECTION_ID);
-			String containingCollectionId = contentHostingService.getContainingCollectionId(homeCollectionId);
-			//Boolean showDropboxGroupFilter = Boolean.valueOf(homeCollectionId.equals(collectionId));			
-			Boolean showDropboxGroupFilter = Boolean.valueOf(true);	
+			Boolean showDropboxGroupFilter = isDropboxMaintainer() || isDropboxGroupMaintainer();
 			if(showDropboxGroupFilter)
 			{
 				List<Group> site_groups = new ArrayList<Group>();
@@ -4737,6 +4734,37 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		}
 	}
 
+	/**
+	 * Check if you have 'dropbox.maintain' in the site.
+	 * @return true if you have the dropbox.maintain permission in the site; false otherwise
+	 */
+	public boolean isDropboxMaintainer() {
+		boolean isDropboxMaintainer = false;
+		try {
+			Site site = siteService.getSite(toolManager.getCurrentPlacement().getContext());
+			isDropboxMaintainer = securityService.unlock(ContentHostingService.AUTH_DROPBOX_MAINTAIN, site.getReference());
+		} catch (IdUnusedException ex) {
+			logger.debug("Can't find current site", ex);
+		}
+
+		return isDropboxMaintainer;
+	}
+
+	/**
+	 * Check if you have 'dropbox.maintain.own.groups' in the site.
+	 * @return true if you have the dropbox.maintain.own.groups permission in the site; false otherwise
+	 */
+	public boolean isDropboxGroupMaintainer() {
+		boolean isDropboxGroupMaintainer = false;
+		try {
+			Site site = siteService.getSite(toolManager.getCurrentPlacement().getContext());
+			isDropboxGroupMaintainer = securityService.unlock(ContentHostingService.AUTH_DROPBOX_GROUPS, site.getReference());
+		} catch (IdUnusedException ex) {
+			logger.debug("Can't find current site", ex);
+		}
+
+		return isDropboxGroupMaintainer;
+	}
 
 	/**
 	 * Check if you have 'content.revise.own' in the site @return
