@@ -615,15 +615,21 @@ public class AssignmentServiceImpl implements AssignmentService {
     public Assignment addDuplicateAssignment(String context, String assignmentId) throws IdInvalidException, PermissionException, IdUsedException, IdUnusedException {
         Assignment assignment = null;
 
-        if (StringUtils.isNotBlank(assignmentId)) {
+        if (StringUtils.isNoneBlank(context, assignmentId)) {
             if (!assignmentRepository.existsAssignment(assignmentId)) {
                 throw new IdUnusedException(assignmentId);
             } else {
+                if (!allowAddAssignment(context)) {
+                    throw new PermissionException(sessionManager.getCurrentSessionUserId(), SECURE_ADD_ASSIGNMENT, null);
+                }
+
                 log.debug("duplicating assignment with ref = {}", assignmentId);
 
                 Assignment existingAssignment = getAssignment(assignmentId);
 
+                assignment = new Assignment();
                 assignment.setContext(context);
+                assignment.setAuthor(sessionManager.getCurrentSessionUserId());
                 assignment.setTitle(existingAssignment.getTitle() + " - " + resourceLoader.getString("assignment.copy"));
                 assignment.setSection(existingAssignment.getSection());
                 assignment.setOpenDate(existingAssignment.getOpenDate());
@@ -632,10 +638,18 @@ public class AssignmentServiceImpl implements AssignmentService {
                 assignment.setCloseDate(existingAssignment.getCloseDate());
                 assignment.setDraft(true);
                 assignment.setIsGroup(existingAssignment.getIsGroup());
-                Map<String, String> properties = existingAssignment.getProperties();
-                assignment.setAuthor(sessionManager.getCurrentSessionUserId());
-                assignment.setProperties(properties);
+
+                Map<String, String> properties = assignment.getProperties();
+                existingAssignment.getProperties().entrySet().stream()
+                        .filter(e -> !PROPERTIES_EXCLUDED_FROM_DUPLICATE_ASSIGNMENTS.contains(e.getKey()))
+                        .forEach(e -> properties.put(e.getKey(), e.getValue()));
+
                 assignmentRepository.newAssignment(assignment);
+                log.debug("Created duplicate assignment {} from {}", assignment.getId(), assignmentId);
+
+                String reference = AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getReference();
+                // event for tracking
+                eventTrackingService.post(eventTrackingService.newEvent(AssignmentConstants.EVENT_ADD_ASSIGNMENT, reference, true));
             }
         }
         return assignment;

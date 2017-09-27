@@ -6649,16 +6649,8 @@ public class AssignmentAction extends PagedResourceActionII {
             }
         }
 
-        String b, r;
-        r = params.getString(NEW_ASSIGNMENT_PEER_ASSESSMENT_ANON_EVAL);
-        if (r == null) b = Boolean.FALSE.toString();
-        else b = Boolean.TRUE.toString();
-        state.setAttribute(NEW_ASSIGNMENT_PEER_ASSESSMENT_ANON_EVAL, b);
-
-        r = params.getString(NEW_ASSIGNMENT_PEER_ASSESSMENT_STUDENT_VIEW_REVIEWS);
-        if (r == null) b = Boolean.FALSE.toString();
-        else b = Boolean.TRUE.toString();
-        state.setAttribute(NEW_ASSIGNMENT_PEER_ASSESSMENT_STUDENT_VIEW_REVIEWS, b);
+        state.setAttribute(NEW_ASSIGNMENT_PEER_ASSESSMENT_ANON_EVAL, params.getBoolean(NEW_ASSIGNMENT_PEER_ASSESSMENT_ANON_EVAL));
+        state.setAttribute(NEW_ASSIGNMENT_PEER_ASSESSMENT_STUDENT_VIEW_REVIEWS, params.getBoolean(NEW_ASSIGNMENT_PEER_ASSESSMENT_STUDENT_VIEW_REVIEWS));
         if (peerAssessment) {
             if (params.get(NEW_ASSIGNMENT_PEER_ASSESSMENT_NUM_REVIEWS) != null && !"".equals(params.get(NEW_ASSIGNMENT_PEER_ASSESSMENT_NUM_REVIEWS))) {
                 try {
@@ -6679,6 +6671,7 @@ public class AssignmentAction extends PagedResourceActionII {
         String peerAssessmentInstructions = processFormattedTextFromBrowser(state, params.getString(NEW_ASSIGNMENT_PEER_ASSESSMENT_INSTRUCTIONS), true);
         state.setAttribute(NEW_ASSIGNMENT_PEER_ASSESSMENT_INSTRUCTIONS, peerAssessmentInstructions);
 
+        String b, r;
         //REVIEW SERVICE
         r = params.getString(NEW_ASSIGNMENT_USE_REVIEW_SERVICE);
         // set whether we use the review service or not
@@ -7560,8 +7553,8 @@ public class AssignmentAction extends PagedResourceActionII {
             //Peer Assessment
             boolean usePeerAssessment = "true".equalsIgnoreCase((String) state.getAttribute(NEW_ASSIGNMENT_USE_PEER_ASSESSMENT));
             Instant peerPeriodTime = getTimeFromState(state, NEW_ASSIGNMENT_PEERPERIODMONTH, NEW_ASSIGNMENT_PEERPERIODDAY, NEW_ASSIGNMENT_PEERPERIODYEAR, NEW_ASSIGNMENT_PEERPERIODHOUR, NEW_ASSIGNMENT_PEERPERIODMIN);
-            boolean peerAssessmentAnonEval = "true".equalsIgnoreCase((String) state.getAttribute(NEW_ASSIGNMENT_PEER_ASSESSMENT_ANON_EVAL));
-            boolean peerAssessmentStudentViewReviews = "true".equalsIgnoreCase((String) state.getAttribute(NEW_ASSIGNMENT_PEER_ASSESSMENT_STUDENT_VIEW_REVIEWS));
+            boolean peerAssessmentAnonEval = (Boolean) state.getAttribute(NEW_ASSIGNMENT_PEER_ASSESSMENT_ANON_EVAL);
+            boolean peerAssessmentStudentViewReviews = (Boolean) state.getAttribute(NEW_ASSIGNMENT_PEER_ASSESSMENT_STUDENT_VIEW_REVIEWS);
             int peerAssessmentNumReviews = 0;
             if (state.getAttribute(NEW_ASSIGNMENT_PEER_ASSESSMENT_NUM_REVIEWS) != null) {
                 peerAssessmentNumReviews = (Integer) state.getAttribute(NEW_ASSIGNMENT_PEER_ASSESSMENT_NUM_REVIEWS);
@@ -9149,8 +9142,8 @@ public class AssignmentAction extends PagedResourceActionII {
                 if (peerAssessmentPeriod != null) {
                     state.setAttribute(NEW_ASSIGNMENT_USE_PEER_ASSESSMENT, a.getAllowPeerAssessment().toString());
                     putTimePropertiesInState(state, peerAssessmentPeriod.toInstant(), NEW_ASSIGNMENT_PEERPERIODMONTH, NEW_ASSIGNMENT_PEERPERIODDAY, NEW_ASSIGNMENT_PEERPERIODYEAR, NEW_ASSIGNMENT_PEERPERIODHOUR, NEW_ASSIGNMENT_PEERPERIODMIN);
-                    state.setAttribute(NEW_ASSIGNMENT_PEER_ASSESSMENT_ANON_EVAL, a.getPeerAssessmentAnonEval().toString());
-                    state.setAttribute(NEW_ASSIGNMENT_PEER_ASSESSMENT_STUDENT_VIEW_REVIEWS, a.getPeerAssessmentStudentViewReview().toString());
+                    state.setAttribute(NEW_ASSIGNMENT_PEER_ASSESSMENT_ANON_EVAL, a.getPeerAssessmentAnonEval());
+                    state.setAttribute(NEW_ASSIGNMENT_PEER_ASSESSMENT_STUDENT_VIEW_REVIEWS, a.getPeerAssessmentStudentViewReview());
                     state.setAttribute(NEW_ASSIGNMENT_PEER_ASSESSMENT_NUM_REVIEWS, a.getPeerAssessmentNumberReviews());
                     state.setAttribute(NEW_ASSIGNMENT_PEER_ASSESSMENT_INSTRUCTIONS, a.getPeerAssessmentInstructions());
                 }
@@ -9601,23 +9594,12 @@ public class AssignmentAction extends PagedResourceActionII {
 
         String contextString = (String) state.getAttribute(STATE_CONTEXT_STRING);
         ParameterParser params = data.getParameters();
-        String assignmentId = StringUtils.trimToNull(params.getString("assignmentId"));
+        String assignmentReference = StringUtils.trimToNull(params.getString("assignmentId"));
+        String assignmentId = AssignmentReferenceReckoner.reckoner().reference(assignmentReference).reckon().getId();
 
         if (assignmentId != null) {
             try {
                 Assignment assignment = assignmentService.addDuplicateAssignment(contextString, assignmentId);
-
-                // clean the duplicate's property
-                Map<String, String> properties = assignment.getProperties();
-                properties.remove(NEW_ASSIGNMENT_DUE_DATE_SCHEDULED);
-                properties.remove(ResourceProperties.PROP_ASSIGNMENT_DUEDATE_CALENDAR_EVENT_ID);
-                properties.remove(ResourceProperties.PROP_ASSIGNMENT_DUEDATE_ADDITIONAL_CALENDAR_EVENT_ID);
-                properties.remove(NEW_ASSIGNMENT_OPEN_DATE_ANNOUNCED);
-                properties.remove(ResourceProperties.PROP_ASSIGNMENT_OPENDATE_ANNOUNCEMENT_MESSAGE_ID);
-                properties.remove(NEW_ASSIGNMENT_ADD_TO_GRADEBOOK);
-                properties.remove(AssignmentServiceConstants.PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT);
-
-                assignmentService.updateAssignment(assignment);
             } catch (PermissionException e) {
                 addAlert(state, rb.getString("youarenot5"));
                 log.warn(this + ":doDuplicate_assignment " + e.getMessage());
@@ -9630,9 +9612,7 @@ public class AssignmentAction extends PagedResourceActionII {
             } catch (Exception e) {
                 log.warn(this + ":doDuplicate_assignment " + e.getMessage());
             }
-
         }
-
     } // doDuplicate_Assignment
 
     /**
@@ -11204,8 +11184,8 @@ public class AssignmentAction extends PagedResourceActionII {
         state.setAttribute(NEW_ASSIGNMENT_PEERPERIODHOUR, 17);
         state.setAttribute(NEW_ASSIGNMENT_PEERPERIODMIN, 10);
 
-        state.setAttribute(NEW_ASSIGNMENT_PEER_ASSESSMENT_ANON_EVAL, Boolean.TRUE.toString());
-        state.setAttribute(NEW_ASSIGNMENT_PEER_ASSESSMENT_STUDENT_VIEW_REVIEWS, Boolean.TRUE.toString());
+        state.setAttribute(NEW_ASSIGNMENT_PEER_ASSESSMENT_ANON_EVAL, Boolean.TRUE);
+        state.setAttribute(NEW_ASSIGNMENT_PEER_ASSESSMENT_STUDENT_VIEW_REVIEWS, Boolean.TRUE);
         state.setAttribute(NEW_ASSIGNMENT_PEER_ASSESSMENT_NUM_REVIEWS, 1);
 
         state.setAttribute(NEW_ASSIGNMENT_SECTION, "001");

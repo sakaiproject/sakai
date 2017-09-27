@@ -15,6 +15,13 @@
  */
 package org.sakaiproject.assignment.api;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
+
+import org.sakaiproject.entity.api.ResourceProperties;
+
 /**
  * Created by enietzel on 2/20/17.
  */
@@ -131,6 +138,16 @@ public final class AssignmentServiceConstants {
     // and the prop name
     public static final String PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT = "prop_new_assignment_add_to_gradebook";
     public static final String NEW_ASSIGNMENT_CHECK_ANONYMOUS_GRADING = "new_assignment_check_anonymous_grading";
+
+    public static final Set<String> PROPERTIES_EXCLUDED_FROM_DUPLICATE_ASSIGNMENTS =
+            Collections.unmodifiableSet(new HashSet<>(Arrays.asList(
+                    AssignmentConstants.NEW_ASSIGNMENT_DUE_DATE_SCHEDULED,
+                    AssignmentConstants.NEW_ASSIGNMENT_OPEN_DATE_ANNOUNCED,
+                    ResourceProperties.PROP_ASSIGNMENT_DUEDATE_CALENDAR_EVENT_ID,
+                    ResourceProperties.PROP_ASSIGNMENT_OPENDATE_ANNOUNCEMENT_MESSAGE_ID,
+                    ResourceProperties.PROP_ASSIGNMENT_DUEDATE_ADDITIONAL_CALENDAR_EVENT_ID,
+                    AssignmentServiceConstants.NEW_ASSIGNMENT_ADD_TO_GRADEBOOK,
+                    AssignmentServiceConstants.PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT)));
 
     private AssignmentServiceConstants() {
         throw new RuntimeException(this.getClass().getCanonicalName() + " is not to be instantiated");
