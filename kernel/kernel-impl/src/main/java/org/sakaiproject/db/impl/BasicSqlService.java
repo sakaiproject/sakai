@@ -2235,6 +2235,11 @@ public abstract class BasicSqlService implements SqlService
 					pstmt.setBoolean(pos, ((Boolean) fields[i]).booleanValue());
 					pos++;
 				}
+				else if (fields[i] instanceof String)
+				{
+					pstmt.setString(pos, ((String) fields[i]).toString());
+					pos++;
+				}
 				else if ( fields[i] instanceof byte[] ) 
 				{
 					sqlServiceSql.setBytes(pstmt, (byte[])fields[i], pos);
