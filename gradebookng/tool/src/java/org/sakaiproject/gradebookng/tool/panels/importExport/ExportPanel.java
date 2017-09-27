@@ -91,18 +91,22 @@ public class ExportPanel extends BasePanel {
 			}
 		});
 		
-		if (businessService.isStudentNumberVisible())
-		{
-			add(new AjaxCheckBox("includeStudentNumber", Model.of(this.includeStudentNumber)) {
-				private static final long serialVersionUID = 1L;
+		final boolean stuNumVisible = businessService.isStudentNumberVisible();
+		add(new AjaxCheckBox("includeStudentNumber", Model.of(this.includeStudentNumber)) {
+			private static final long serialVersionUID = 1L;
 
-				@Override
-				protected void onUpdate(final AjaxRequestTarget ajaxRequestTarget) {
-					ExportPanel.this.includeStudentNumber = !ExportPanel.this.includeStudentNumber;
-					setDefaultModelObject(ExportPanel.this.includeStudentNumber);
-				}
-			});
-		}
+			@Override
+			protected void onUpdate(final AjaxRequestTarget ajaxRequestTarget) {
+				ExportPanel.this.includeStudentNumber = !ExportPanel.this.includeStudentNumber;
+				setDefaultModelObject(ExportPanel.this.includeStudentNumber);
+			}
+
+			@Override
+			public boolean isVisible()
+			{
+				return stuNumVisible;
+			}
+		});
 
 		add(new AjaxCheckBox("includeGradeItemScores", Model.of(this.includeGradeItemScores)) {
 			private static final long serialVersionUID = 1L;
