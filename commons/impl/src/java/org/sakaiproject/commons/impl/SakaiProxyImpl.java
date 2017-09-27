@@ -38,6 +38,7 @@ import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.entity.api.EntityProducer;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.event.api.EventTrackingService;
+import org.sakaiproject.event.api.NotificationService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.memory.api.Cache;
@@ -51,7 +52,6 @@ import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.util.FormattedText;
-import org.sakaiproject.event.api.NotificationService;
 
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -497,6 +497,12 @@ public class SakaiProxyImpl implements SakaiProxy {
 
     public String storeFile(FileItem fileItem, String siteId) {
 
+        SecurityAdvisor advisor = new SecurityAdvisor() {
+            public SecurityAdvice isAllowed(String userId, String function, String reference) {
+                return SecurityAdvice.ALLOWED;
+            }
+        };
+        securityService.pushAdvisor(advisor);
         try {
             String fileName = fileItem.getName();
             int lastIndexOf = fileName.lastIndexOf("/");
@@ -511,8 +517,8 @@ public class SakaiProxyImpl implements SakaiProxy {
             }
             String toolCollection = Entity.SEPARATOR + "group" + Entity.SEPARATOR +
                 siteId + Entity.SEPARATOR + "commons" + Entity.SEPARATOR;
-            try
-            {
+
+            try {
                 contentHostingService.checkCollection(toolCollection);
             } catch (Exception e) {
                 // add this collection
@@ -524,11 +530,13 @@ public class SakaiProxyImpl implements SakaiProxy {
             ContentResourceEdit edit
                 = contentHostingService.addResource(toolCollection, fileName, suffix , 2);
             edit.setContent(fileItem.getInputStream());
-            contentHostingService.commitResource(edit);
+            contentHostingService.commitResource(edit, NotificationService.NOTI_NONE);
             return edit.getUrl();
         } catch (Exception e) {
             log.error("Failed to store file.", e);
             return null;
+        } finally {
+            securityService.popAdvisor(advisor);
         }
     }
 }

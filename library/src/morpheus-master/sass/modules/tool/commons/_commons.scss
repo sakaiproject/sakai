@@ -232,7 +232,7 @@
     }
 
     #commons-single-post-title {
-        font-size: bigger;
+        font-size: larger;
         padding-top: 10px;
         font-weight: bold;
     }
@@ -241,4 +241,10 @@
         padding-left: 3px;
         padding-right: 3px;
     }
+}
+
+#commons-imagefile-instruction {
+    font-weight: bold;
+    font-size: larger;
+    margin-bottom: 5px;
 }
