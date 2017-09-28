@@ -1,4 +1,3 @@
-<!-- $Id$ -->
 <!-- start: chef_assignments_instructor_view_students_details.vm  -->
 #set ($submissionType = $assignmentContent.getTypeOfSubmission())
 

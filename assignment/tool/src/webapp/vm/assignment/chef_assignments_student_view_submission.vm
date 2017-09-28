@@ -1,4 +1,3 @@
-<!-- $Id$ -->
 <!-- start: chef_assignments_student_view_submission.vm  -->
 <script type="text/javascript">
 $(document).ready(function(){

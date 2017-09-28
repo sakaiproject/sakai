@@ -1,6 +1,4 @@
-<!-- $Id$ -->
 <!-- start: check_assignments_student_view_assignment.vm -->
-##<!-- $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/assignment/chef_assignments_student_view_grade.vm,v 1.2 2005/05/19 19:39:49 gsilver.umich.edu Exp $ -->
 <script type="text/javascript">
     $(document).ready(function(){
         ASN.setupToggleAreas('toggleAnchor', 'toggledContent', false, 'fast');
