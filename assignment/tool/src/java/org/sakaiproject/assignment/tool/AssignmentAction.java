@@ -4635,8 +4635,8 @@ public class AssignmentAction extends PagedResourceActionII {
         }
         context.put("hasAtLeastOneAnonAssignment", hasAtLeastOneAnonAssigment);
 
-        context.put("sortedBy", (String) state.getAttribute(SORTED_SUBMISSION_BY));
-        context.put("sortedAsc", (String) state.getAttribute(SORTED_SUBMISSION_ASC));
+        context.put("sortedBy", state.getAttribute(SORTED_SUBMISSION_BY));
+        context.put("sortedAsc", state.getAttribute(SORTED_SUBMISSION_ASC));
 
         context.put("sortedBy_lastName", SORTED_GRADE_SUBMISSION_BY_LASTNAME);
         context.put("sortedBy_submitTime", SORTED_GRADE_SUBMISSION_BY_SUBMIT_TIME);
@@ -4673,11 +4673,11 @@ public class AssignmentAction extends PagedResourceActionII {
 
         pagingInfoToContext(state, context);
 
-        context.put("assignmentService", assignmentService);
+        context.put("service", assignmentService);
 
         addAdditionalNotesToContext(submissions, context, state);
 
-        String template = (String) getContext(data).get("template");
+        String template = getContext(data).get("template");
         return template + TEMPLATE_INSTRUCTOR_REPORT_SUBMISSIONS;
 
     } // build_instructor_report_submissions

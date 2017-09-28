@@ -482,9 +482,10 @@ public class AssignmentServiceImpl implements AssignmentService {
     @Override
     public List allowGradeAssignmentUsers(String assignmentReference) {
         List<User> users = securityService.unlockUsers(SECURE_GRADE_ASSIGNMENT_SUBMISSION, assignmentReference);
+        String assignmentId = AssignmentReferenceReckoner.reckoner().reference(assignmentReference).reckon().getId();
 
         try {
-            Assignment a = getAssignment(assignmentReference);
+            Assignment a = getAssignment(assignmentId);
             if (a.getAccess() == Assignment.Access.GROUPED) {
                 // for grouped assignment, need to include those users that with "all.groups" and "grade assignment" permissions on the site level
                 try {
@@ -506,18 +507,18 @@ public class AssignmentServiceImpl implements AssignmentService {
                                             users.add(u);
                                         }
                                     } catch (Exception ee) {
-                                        log.warn("problem with getting user = {}", userId);
+                                        log.warn("problem with getting user = {}, {}", userId, ee.getMessage());
                                     }
                                 }
                             }
                         }
                     }
                 } catch (GroupNotDefinedException gnde) {
-                    log.warn("Cannot get authz group for site = {}", a.getContext());
+                    log.warn("Cannot get authz group for site = {}, {}", a.getContext(), gnde.getMessage());
                 }
             }
         } catch (Exception e) {
-            log.warn("Could not fetch assignment with assignmentReference = {}", assignmentReference);
+            log.warn("Could not fetch assignment with assignmentId = {}", assignmentId, e);
         }
 
         return users;
@@ -1905,16 +1906,8 @@ public class AssignmentServiceImpl implements AssignmentService {
     }
 
     @Override
-    public boolean assignmentUsesAnonymousGrading(Assignment a) {
-        ResourceProperties properties = new BaseResourceProperties(a.getProperties());
-        try {
-            return properties.getBooleanProperty(AssignmentServiceConstants.NEW_ASSIGNMENT_CHECK_ANONYMOUS_GRADING);
-        } catch (EntityPropertyNotDefinedException e) {
-            log.debug("Entity Property {} not defined {}", AssignmentServiceConstants.NEW_ASSIGNMENT_CHECK_ANONYMOUS_GRADING, e.getMessage());
-        } catch (EntityPropertyTypeException e) {
-            log.debug("Entity Property {} type not defined {}", AssignmentServiceConstants.NEW_ASSIGNMENT_CHECK_ANONYMOUS_GRADING, e.getMessage());
-        }
-        return false;
+    public boolean assignmentUsesAnonymousGrading(Assignment assignment) {
+        return Boolean.valueOf(assignment.getProperties().get(AssignmentServiceConstants.NEW_ASSIGNMENT_CHECK_ANONYMOUS_GRADING));
     }
 
     @Override
@@ -2126,7 +2119,7 @@ public class AssignmentServiceImpl implements AssignmentService {
      *
      * This should probably be moved to a static utility class - ern
      *
-     * @param returnGrade
+     * @param grade
      * @param typeOfGrade
      * @param scaleFactor
      * @return
