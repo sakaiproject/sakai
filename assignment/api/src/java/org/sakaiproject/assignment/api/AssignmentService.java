@@ -259,15 +259,12 @@ public interface AssignmentService extends EntityProducer {
     /**
      * Creates and adds a new Assignment to the service which is a copy of an existing Assignment.
      *
-     * @param context             -
-     *                            From DefaultId.getChannel(RunData)
-     * @param assignmentReference -
-     *                            The reference of the Assignment to be duplicated.
-     * @return The new AssignmentEdit object, or null if the original Assignment does not exist.
+     * @param context The context for the new assignment
+     * @param assignmentId The id of the Assignment to be duplicated.
+     * @return The new Assignment object, or null if the original Assignment does not exist.
      * @throws PermissionException if current User does not have permission to do this.
      */
-    public Assignment addDuplicateAssignment(String context, String assignmentReference) throws IdInvalidException,
-            PermissionException, IdUsedException, IdUnusedException;
+    public Assignment addDuplicateAssignment(String context, String assignmentId) throws IdInvalidException, PermissionException, IdUsedException, IdUnusedException;
 
     /**
      * Removes this Assignment
