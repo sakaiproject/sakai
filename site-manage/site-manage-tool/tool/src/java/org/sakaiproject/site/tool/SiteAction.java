@@ -6490,7 +6490,7 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 	 */
 	private List getLtiToolGroup(String groupName, File moreInfoDir, Site site) {
 		List ltiSelectedTools = selectedLTITools(site);
-		List ltiTools = new ArrayList();
+		List <MyTool> ltiTools = new ArrayList<MyTool>();
 		List<Map<String, Object>> allTools;
 		String siteId = "";
 		if ( site == null ) {
@@ -6520,7 +6520,7 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 						if (ltiToolId != null && ((!toolStealthed && allowedForSite) || ltiToolSelected) ) {
 							String relativeWebPath = null;
 							MyTool newTool = new MyTool();
-							newTool.title = tool.get("title").toString();
+							newTool.title = StringUtils.defaultString(tool.get("title").toString());
 							newTool.id = LTITOOL_ID_PREFIX + ltiToolId;
 							newTool.description = (String) tool.get("description");
 							newTool.group = groupName;
@@ -6541,7 +6541,13 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 				}
 			}
 		}
+		Collections.sort(ltiTools, new Comparator<MyTool>() {
+		    public int compare(MyTool t1, MyTool t2) {
+		        return t1.getTitle().compareTo(t2.getTitle());
+		    }
+		});
 		return ltiTools;
+
 	}
 
 
