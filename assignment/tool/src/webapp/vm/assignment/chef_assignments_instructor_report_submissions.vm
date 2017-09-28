@@ -1,6 +1,4 @@
-<!-- $Id$ -->
 <!-- start: chef_assignments_instructory_report_submissions.vm  -->
-##<!-- $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/assignment/chef_assignments_instructor_report_submissions.vm,v 1.6 2005/06/03 15:38:27 gsilver.umich.edu Exp $ -->
 <div class="portletBody">
 	#navBarHREF( $allowAddAssignment $withGrade $allowGradeSubmission $allowAddAssignment $allowAllGroups $assignmentscheck $allowUpdateSite $enableViewOption $view "" )
 
