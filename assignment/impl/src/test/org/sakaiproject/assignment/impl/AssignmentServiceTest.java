@@ -24,11 +24,13 @@ package org.sakaiproject.assignment.impl;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.text.NumberFormat;
+import java.time.Duration;
 import java.time.Instant;
 import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import com.github.javafaker.Faker;
 import lombok.extern.slf4j.Slf4j;
@@ -48,7 +50,9 @@ import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityManager;
+import org.sakaiproject.exception.IdInvalidException;
 import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.exception.IdUsedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.SessionManager;
@@ -92,6 +96,7 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
         when(resourceLoader.getString("pass")).thenReturn("Pass");
         when(resourceLoader.getString("fail")).thenReturn("Fail");
         when(resourceLoader.getString("gen.checked")).thenReturn("Checked");
+        when(resourceLoader.getString("assignment.copy")).thenReturn("Copy");
         ((AssignmentServiceImpl) assignmentService).setResourceLoader(resourceLoader);
     }
 
@@ -303,6 +308,56 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
     }
 
     @Test
+    public void duplicateAssignment() throws IdUnusedException {
+        // Setup a new Assignment
+        String context = UUID.randomUUID().toString();
+        Assignment assignment = createNewAssignment(context);
+        Assert.assertNotNull(assignment);
+
+        Instant now = Instant.now();
+        assignment.setTitle("Assignment Week One");
+        assignment.setSection("0001");
+        assignment.setOpenDate(Date.from(now));
+        assignment.setDueDate(Date.from(now.plus(Duration.ofDays(1))));
+        assignment.setDropDeadDate(Date.from(now.plus(Duration.ofDays(2))));
+        assignment.setCloseDate(Date.from(now.plus(Duration.ofDays(3))));
+        Map<String, String> properties = assignment.getProperties();
+        IntStream.range(0, 10).forEach(i -> properties.put("PROP_NAME_" + i, "PROP_VALUE_" + i));
+        AssignmentServiceConstants.PROPERTIES_EXCLUDED_FROM_DUPLICATE_ASSIGNMENTS.stream().forEach(p -> properties.put(p, p + "_VALUE"));
+        assignment.setProperties(properties);
+
+        when(securityService.unlock(AssignmentServiceConstants.SECURE_UPDATE_ASSIGNMENT, AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getReference())).thenReturn(true);
+        try {
+            assignmentService.updateAssignment(assignment);
+        } catch (PermissionException e) {
+            Assert.fail("Updating assignment, " + e.getMessage());
+        }
+
+        // Duplicate the Assignment
+        Assignment duplicateAssignment = null;
+        try {
+            duplicateAssignment = assignmentService.addDuplicateAssignment(context, assignment.getId());
+        } catch (IdInvalidException | PermissionException | IdUsedException e) {
+            Assert.fail("Duplicating assignment, " + e.getMessage());
+        }
+        Assert.assertNotNull(duplicateAssignment);
+        // Compare the 2 assignments
+        Assert.assertNotEquals(assignment, duplicateAssignment);
+        Assert.assertNotEquals(assignment.getId(), duplicateAssignment.getId());
+        Assert.assertEquals(assignment.getContext(), duplicateAssignment.getContext());
+        Assert.assertEquals(assignment.getSection(), duplicateAssignment.getSection());
+        Assert.assertEquals(assignment.getOpenDate(), duplicateAssignment.getOpenDate());
+        Assert.assertEquals(assignment.getDueDate(), duplicateAssignment.getDueDate());
+        Assert.assertEquals(assignment.getDropDeadDate(), duplicateAssignment.getDropDeadDate());
+        Assert.assertEquals(assignment.getCloseDate(), duplicateAssignment.getCloseDate());
+        Assert.assertEquals(
+                assignment.getProperties().entrySet().stream()
+                        .filter(e -> !AssignmentServiceConstants.PROPERTIES_EXCLUDED_FROM_DUPLICATE_ASSIGNMENTS.contains(e.getKey()))
+                        .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)),
+                duplicateAssignment.getProperties());
+    }
+
+    @Test
     public void submissionStatus() {
         // gen.resub         = Re-submitted
         // gen.late2         = - late
@@ -387,6 +442,7 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
 
     private Assignment createNewAssignment(String context) {
         when(securityService.unlock(AssignmentServiceConstants.SECURE_ADD_ASSIGNMENT, AssignmentReferenceReckoner.reckoner().context(context).reckon().getReference())).thenReturn(true);
+        when(sessionManager.getCurrentSessionUserId()).thenReturn(UUID.randomUUID().toString());
         Assignment assignment = null;
         try {
             assignment = assignmentService.addAssignment(context);
