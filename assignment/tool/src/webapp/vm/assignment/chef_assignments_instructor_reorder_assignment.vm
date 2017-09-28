@@ -1,8 +1,4 @@
-<!-- $Id$ -->
 <!-- start: chef_assignments_instructor_reorder_assignment.vm  -->
-##<!-- $Header: Exp $ -->
-## Assignments - reorder view
-
 <div class="portletBody container-fluid">
 	#if ($allowAddAssignment || ($withGrade && $!allowGradeSubmission))
 		## for user who cannot create assignment nor grade submission, no need to show "Assignment List" link at all since there is really no other toolbar choices

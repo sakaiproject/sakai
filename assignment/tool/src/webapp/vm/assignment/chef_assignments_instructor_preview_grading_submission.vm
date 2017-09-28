@@ -1,6 +1,4 @@
-<!-- $Id$ -->
 <!-- start:  chef_assignments_instructor_preview_grading_submission.vm -->
-##<!-- $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/assignment/chef_assignments_instructor_preview_grading_submission.vm,v 1.5 2005/05/16 02:26:05 zqian.umich.edu Exp $ -->
 <div class="portletBody">
 	#navBarHREF( $allowAddAssignment $withGrade $allowGradeSubmission $allowAddAssignment $allowAllGroups $assignmentscheck $allowUpdateSite $enableViewOption $view "" )
 		<h3>$tlang.getString("gen.pre") $tlang.getString("gen.instrcomment") 	$tlang.getString("gen.to") 				$tlang.getString("gen.openquote")$validator.escapeHtml($assignment.title)$tlang.getString("gen.closequote")</h3>

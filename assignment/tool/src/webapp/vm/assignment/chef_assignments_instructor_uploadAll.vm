@@ -1,6 +1,4 @@
-<!-- $Id$ -->
 <!-- start: chef_assignments_instructor_uploadALL.vm  -->
-## showing the page for preparing upload zip file
 <div class="portletBody">
 	<h3>
 	#if ($!download)
