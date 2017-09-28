@@ -6490,8 +6490,9 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 	 */
 	private List getLtiToolGroup(String groupName, File moreInfoDir, Site site) {
 		List ltiSelectedTools = selectedLTITools(site);
-		List <MyTool> ltiTools = new ArrayList<MyTool>();
+		List <MyTool> ltiTools = new ArrayList<>();
 		List<Map<String, Object>> allTools;
+		Map <String, Integer> toolOrder = new HashMap<>();
 		String siteId = "";
 		if ( site == null ) {
 			// We dont' have a site yet so just ask for all the available ones.
@@ -6525,6 +6526,10 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 							newTool.description = (String) tool.get("description");
 							newTool.group = groupName;
 							relativeWebPath = getMoreInfoUrl(moreInfoDir, ltiToolId);
+							Integer order = (Integer) tool.get("toolorder");
+							if (order != null) {
+								toolOrder.put(newTool.id, order);
+							}
 							if (relativeWebPath != null) {
 								newTool.moreInfo = relativeWebPath;
 							}
@@ -6543,7 +6548,11 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 		}
 		Collections.sort(ltiTools, new Comparator<MyTool>() {
 		    public int compare(MyTool t1, MyTool t2) {
-		        return t1.getTitle().compareTo(t2.getTitle());
+		    	int result = ObjectUtils.compare(toolOrder.get(t1.getId()),toolOrder.get(t2.getId()),true);
+		    	if (result == 0) {
+		    		result =  ObjectUtils.compare(t1.getTitle(), t2.getTitle());
+		    	}
+		    	return result;
 		    }
 		});
 		return ltiTools;
