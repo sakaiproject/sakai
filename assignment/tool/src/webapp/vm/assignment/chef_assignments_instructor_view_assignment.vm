@@ -1,4 +1,3 @@
-<!-- $Id$ -->
 <!-- start: chef_assignments_instructor_view_assignment.vm  -->
 <div class="portletBody">
 	#if ($taggable && $allowAddAssignment)

@@ -1,6 +1,4 @@
-<!-- $Id$ -->
 <!-- start:  chef_assignments_student_view_submission_confirmation.vm  -->
-## showing the submission confirmation page
 <div class="portletBody">
     <h3>
         #if ($!assignment.IsGroup)
