@@ -637,6 +637,7 @@ public class AssignmentServiceImpl implements AssignmentService {
                 assignment.setDropDeadDate(existingAssignment.getDropDeadDate());
                 assignment.setCloseDate(existingAssignment.getCloseDate());
                 assignment.setDraft(true);
+                assignment.setPosition(existingAssignment.getPosition());
                 assignment.setIsGroup(existingAssignment.getIsGroup());
 
                 Map<String, String> properties = assignment.getProperties();

@@ -11956,8 +11956,7 @@ public class AssignmentAction extends PagedResourceActionII {
             try {
                 Collections.sort(returnResources, ac);
             } catch (Exception e) {
-                // log exception during sorting for helping debugging
-                log.warn(this + ":sizeResources mode=" + mode + " sort=" + sort + " ascending=" + ascending + " " + e.getStackTrace());
+                log.warn("sorting mode = {}, sort = {}, ascending = {}, {}", mode, sort, ascending, e.getMessage());
             }
         }
 
