@@ -98,7 +98,7 @@ public class AssignmentEntity implements LessonEntity, AssignmentInterface {
     private static Cache assignmentCache = null;
 
     private SimplePageBean simplePageBean;
-    @Setter private AssignmentService assignmentService;
+    @Setter private static AssignmentService assignmentService;
 
     public void setSimplePageBean(SimplePageBean simplePageBean) {
 	this.simplePageBean = simplePageBean;
