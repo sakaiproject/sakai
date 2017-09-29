@@ -87,6 +87,7 @@ import org.sakaiproject.taggable.api.TaggingManager;
 import org.sakaiproject.taggable.api.TaggingProvider;
 import org.sakaiproject.time.api.TimeService;
 import org.sakaiproject.tool.api.SessionManager;
+import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.user.api.CandidateDetailProvider;
 import org.sakaiproject.user.api.User;
@@ -175,6 +176,19 @@ public class AssignmentServiceImpl implements AssignmentService {
     @Override
     public String getLabel() {
         return "assignment";
+    }
+
+    @Override
+    public String getToolTitle() {
+        Tool tool = toolManager.getTool(AssignmentServiceConstants.ASSIGNMENT_TOOL_ID);
+        String toolTitle = null;
+
+        if (tool == null)
+            toolTitle = "Assignments";
+        else
+            toolTitle = tool.getTitle();
+
+        return toolTitle;
     }
 
     @Override

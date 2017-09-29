@@ -640,4 +640,10 @@ public interface AssignmentService extends EntityProducer {
     void resetAssignment(Assignment assignment);
 
     void postReviewableSubmissonAttachments(String submissionId);
+
+    /**
+    * This will return the internationalized title of the tool.
+    * This is used when creating a new gradebook item.
+    */
+    public String getToolTitle();
 }

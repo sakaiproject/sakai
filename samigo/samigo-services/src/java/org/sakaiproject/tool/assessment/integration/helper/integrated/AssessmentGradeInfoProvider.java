@@ -50,6 +50,8 @@ import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentAccessCont
 import org.sakaiproject.tool.assessment.data.dao.authz.AuthorizationData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentIfc;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
+import org.sakaiproject.tool.assessment.integration.context.IntegrationContextFactory;
+import org.sakaiproject.tool.assessment.integration.helper.ifc.GradebookServiceHelper;
 import org.sakaiproject.tool.assessment.services.PersistenceService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 import org.sakaiproject.user.api.UserDirectoryService;
@@ -110,15 +112,24 @@ public class AssessmentGradeInfoProvider implements ExternalAssignmentProvider, 
         return a;
     }
 
-    public boolean isAssignmentDefined(String id) {
-        // SAM-3068 avoid looking up another tool's id
-        if (!StringUtils.isNumeric(id)) {
+    public boolean isAssignmentDefined(String externalAppName, String id) {
+    	    // SAM-3068 avoid looking up another tool's id
+    	    if (!StringUtils.isNumeric(id)) {
             return false;
-        }
+    	    }
 
-        log.debug("Samigo provider isAssignmentDefined: {}", id);
-        Long longId = Long.parseLong(id);
-        return PersistenceService.getInstance().getPublishedAssessmentFacadeQueries().isPublishedAssessmentIdValid(longId);
+    	    GradebookServiceHelper gbsHelper = IntegrationContextFactory.getInstance().getGradebookServiceHelper();
+    	    String toolName = gbsHelper.getAppName();
+    	    if (!StringUtils.equals(externalAppName, getAppKey()) && !StringUtils.equals(externalAppName, toolName)) {
+    	    	    return false;
+    	    }
+
+    	    if (log.isDebugEnabled()) {
+            log.debug("Samigo provider isAssignmentDefined: " + id);
+    	    }
+
+    	    Long longId = Long.parseLong(id);
+    	    return PersistenceService.getInstance().getPublishedAssessmentFacadeQueries().isPublishedAssessmentIdValid(longId);
     }
 
     

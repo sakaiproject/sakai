@@ -37,15 +37,12 @@ public interface ExternalAssignmentProvider {
 
 	/**
 	 * Check if an assignment/assessment exists with the given identifier.
-	 * This will be in the form that is supplied to the Gradebook, so it
-	 * will need to be parsed. If the prefix is not recognized as matching
-	 * for this service, false is expected to be returned, even if there
-	 * may be an assignment with the prefixed id.
-	 * Note that this may seem strange but it is required because services
-	 * do not currently register their prefixes with the Gradebook, so the
-	 * external IDs are completely opaque and do not identify their source.
+	 * If the externalAppName is not the tool's responsibility or if the 
+	 * id is not recognized as matching
+	 * for this service, false is expected to be returned.
+	 * @param externalId 
 	 */
-	boolean isAssignmentDefined(String id);
+	boolean isAssignmentDefined(String externalAppName, String externalId);
 
 	/**
 	 * Check if the given assignment is grouped.

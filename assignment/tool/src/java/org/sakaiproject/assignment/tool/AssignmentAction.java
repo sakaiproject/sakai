@@ -2775,7 +2775,7 @@ public class AssignmentAction extends PagedResourceActionII {
             // filtering out those from Samigo
             for (Iterator i = gradebookAssignments.iterator(); i.hasNext(); ) {
                 org.sakaiproject.service.gradebook.shared.Assignment gAssignment = (org.sakaiproject.service.gradebook.shared.Assignment) i.next();
-                if (!gAssignment.isExternallyMaintained() || gAssignment.isExternallyMaintained() && gAssignment.getExternalAppName().equals(getToolTitle())) {
+                if (!gAssignment.isExternallyMaintained() || gAssignment.isExternallyMaintained() && gAssignment.getExternalAppName().equals(assignmentService.getToolTitle())) {
                     gradebookAssignmentsExceptSamigo.add(gAssignment);
 
                     // gradebook item has been associated or not
@@ -4752,22 +4752,6 @@ public class AssignmentAction extends PagedResourceActionII {
     } // build_instructor_upload_all
 
     /**
-     * * Retrieve tool title from Tool configuration file or use default
-     * * (This should return i18n version of tool title if available)
-     **/
-    private String getToolTitle() {
-        Tool tool = toolManager.getTool(ASSIGNMENT_TOOL_ID);
-        String toolTitle = null;
-
-        if (tool == null)
-            toolTitle = "Assignments";
-        else
-            toolTitle = tool.getTitle();
-
-        return toolTitle;
-    }
-
-    /**
      * integration with gradebook
      *
      * @param state
@@ -4789,7 +4773,7 @@ public class AssignmentAction extends PagedResourceActionII {
         // b. if Gradebook exists, just call addExternal and removeExternal and swallow any exception. The
         // exception are indication that the assessment is already in the Gradebook or there is nothing
         // to remove.
-        String assignmentToolTitle = getToolTitle();
+        String assignmentToolTitle = assignmentService.getToolTitle();
 
         String gradebookUid = toolManager.getCurrentPlacement().getContext();
         if (gradebookService.isGradebookDefined(gradebookUid) && gradebookService.currentUserHasGradingPerm(gradebookUid)) {

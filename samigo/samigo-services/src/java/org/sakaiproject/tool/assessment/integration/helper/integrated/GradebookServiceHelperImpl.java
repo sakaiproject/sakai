@@ -154,6 +154,26 @@ public void removeExternalAssessment(String gradebookUId,
     String gradebookUId = GradebookFacade.getGradebookUId();
     return g.isAssignmentDefined(gradebookUId, assessmentTitle);
   }
+  
+  public String getAppName()
+  {
+      // Tool name code added by Josh Holtzman
+      Tool tool = ToolManager.getTool("sakai.samigo");
+      String appName = null;
+
+      if (tool == null)
+      {
+        log.warn(
+          "could not get tool named sakai.samigo, " +
+          "so we're going to assume we're called 'Tests & Quizzes'");
+        appName = "Tests & Quizzes";
+      }
+      else
+      {
+        appName = tool.getTitle();
+      }
+      return appName;
+  }
 
   /**
    * Add a published assessment to gradebook.
@@ -181,23 +201,6 @@ public void removeExternalAssessment(String gradebookUId,
     //          g.isGradebookDefined(gradebookUId));
     if (g.isGradebookDefined(gradebookUId))
     {
-
-      // Tool name code added by Josh Holtzman
-      Tool tool = ToolManager.getTool("sakai.samigo");
-      String appName = null;
-
-      if (tool == null)
-      {
-        log.warn(
-          "could not get tool named sakai.samigo, " +
-          "so we're going to assume we're called 'Tests & Quizzes'");
-        appName = "Tests & Quizzes";
-      }
-      else
-      {
-        appName = tool.getTitle();
-      }
-
       String title = StringEscapeUtils.unescapeHtml(publishedAssessment.getTitle());
       if(!g.isAssignmentDefined(gradebookUId, title))
       {
@@ -208,7 +211,7 @@ public void removeExternalAssessment(String gradebookUId,
                               publishedAssessment.getTotalScore().doubleValue(),
                               publishedAssessment.getAssessmentAccessControl().
                               getDueDate(),
-                              appName,	// Use the app name from sakai
+                              getAppName(),	// Use the app name from sakai
                               false,
                               categoryId); 
         added = true;

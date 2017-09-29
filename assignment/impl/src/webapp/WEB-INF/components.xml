@@ -44,6 +44,7 @@
         <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
         <property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
         <property name="taggingManager" ref="org.sakaiproject.taggable.api.TaggingManager"/>
+        <property name="toolManager" ref="org.sakaiproject.tool.api.ToolManager"/>
         <property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService"/>
     </bean>
 
