@@ -280,8 +280,6 @@ public class DeliveryBean
   
   private boolean isFromPrint;
   
-  private ExtendedTimeService extendedTimeService = null;
-
   private boolean showTimeWarning;
   private boolean hasShowTimeWarning;
   private boolean turnIntoTimedAssessment;
@@ -3226,8 +3224,6 @@ public class DeliveryBean
       assessmentGrading = service.load(adata.getAssessmentGradingId().toString(), false);
     }
     
-    extendedTimeService = new ExtendedTimeService(publishedAssessment);
-    
     // log.debug("check 0");
     if (isRemoved()){
         return "isRemoved";
@@ -3389,11 +3385,7 @@ public class DeliveryBean
 	  boolean isAvailable = true;
 	  Date currentDate = new Date();
 		Date startDate;
-		if (extendedTimeService.hasExtendedTime()) {
-			startDate = extendedTimeService.getStartDate();
-		} else {
-			startDate = publishedAssessment.getAssessmentAccessControl().getStartDate();
-		}
+		startDate = publishedAssessment.getAssessmentAccessControl().getStartDate();
 	  if (startDate != null && startDate.after(currentDate)){
 		  isAvailable = false;
 	  }
@@ -3404,11 +3396,7 @@ public class DeliveryBean
     boolean pastDue = true;
     Date currentDate = new Date();
 		Date dueDate;
-		if (extendedTimeService.hasExtendedTime()) {
-			dueDate = extendedTimeService.getDueDate();
-		} else {
-			dueDate = publishedAssessment.getAssessmentAccessControl().getDueDate();
-		}
+		dueDate = publishedAssessment.getAssessmentAccessControl().getDueDate();
     if (dueDate == null || dueDate.after(currentDate)){
         pastDue = false;
     }
@@ -3419,12 +3407,7 @@ public class DeliveryBean
     boolean isRetracted = true;
     Date currentDate = new Date();
     Date retractDate;
-    if (extendedTimeService.hasExtendedTime()) {
-    	retractDate = extendedTimeService.getRetractDate();
-    }
-    else {
-    	retractDate = publishedAssessment.getAssessmentAccessControl().getRetractDate();
-    }
+    retractDate = publishedAssessment.getAssessmentAccessControl().getRetractDate();
     if (retractDate == null || retractDate.after(currentDate)){
         isRetracted = false;
     }
