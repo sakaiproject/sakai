@@ -109,7 +109,7 @@ TrimPathFragmentCache.prototype.getFragment = function (values) {
     self.cacheSize += 1
 
     self.cacheHitRates[key] = 1;
-    html = self.cache[key];
+    html = self.cache[key].clone(false);
   }
 
   if (self.cacheSize > self.maxCacheSize) {
