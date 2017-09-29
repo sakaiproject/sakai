@@ -139,6 +139,7 @@ ${includeLatestJQuery}
                 <th id="launch" data-placeholder="$tlang.getString('search.url')">$tlang.getString("bl_launch")</th>
                 <th id="site_id" data-placeholder="$tlang.getString('search.siteid')">$tlang.getString("bl_site")</th>
                 #if ($isAdmin) <th id="use" data-placeholder="$tlang.getString('search.uses')">$tlang.getString("bl_use")</th> #end
+                #if ($isAdmin) <th id="toolorder" class="filter-false">$tlang.getString("bl_toolorder")</th> #end
                 #if ($isAdmin || $allowMaintainerAddSystemTool) <th id="action" class="filter-false">$tlang.getString("bl_action")</th>#end
 	        </tr>
 	        </thead>
@@ -158,6 +159,7 @@ ${includeLatestJQuery}
 	                	$!siteId
 	                </td>
 	                #if ($isAdmin) <td headers="use"><a href="$sakai_ActionURL.setPanel("ToolSite").setParameter("sakai_action","doFilter").setQueryString("id=$tool.get('id')")">$tool.get("lti_content_count")</a></td> #end
+	                #if ($isAdmin) <td headers="toolorder">$!tool.get("toolorder")</a></td> #end
 	                #if ( $isAdmin || $allowMaintainerAddSystemTool) 
 		                <td headers="action">
 		                	#if ( $isAdmin || ($allowMaintainerAddSystemTool && $getContext == $tool.get("SITE_ID")))
