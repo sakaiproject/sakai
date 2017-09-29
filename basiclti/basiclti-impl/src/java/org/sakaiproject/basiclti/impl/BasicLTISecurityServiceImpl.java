@@ -236,7 +236,7 @@ public class BasicLTISecurityServiceImpl implements EntityProducer {
 		}
 		catch (Exception e)
 		{
-			e.printStackTrace();
+			logger.warn("Failed to send HTML page.", e);
 		}
 
 	}
@@ -487,7 +487,7 @@ public class BasicLTISecurityServiceImpl implements EntityProducer {
 				} 
 				catch (Exception e)
 				{
-					e.printStackTrace();
+					logger.warn("Failed to track event.", e);
 				}
 
 			}
@@ -580,15 +580,8 @@ public class BasicLTISecurityServiceImpl implements EntityProducer {
 				
 					SiteService.save(site);
 				}
-			} catch (IdUnusedException ie) {
-				// This would be thrown by SiteService.getSite(siteId)
-				ie.printStackTrace();
-			} catch (PermissionException pe) {
-				// This would be thrown by SiteService.save(site)
-				pe.printStackTrace();
 			} catch (Exception e) {
-				// This is a generic exception that would be thrown by the BasicLTIArchiveBean constructor.
-				e.printStackTrace();
+				logger.warn("Failed to merge site: {}", siteId, e);
 			}
 
 			results.append(".");
@@ -639,7 +632,7 @@ public class BasicLTISecurityServiceImpl implements EntityProducer {
 			}
 			// Something we did not expect
 			catch (Exception e) {
-				e.printStackTrace();
+				logger.warn("Failed to archive: {}", siteId, e);
 				results.append("basiclti exception:"+e.getClass().getName()+"\n");
 			}
 			results.append("archiving basiclti ("+count+") tools archived\n");

@@ -157,7 +157,7 @@ public class SiteMembershipsSynchroniserImpl implements SiteMembershipsSynchroni
 
             processMembershipsResponse(connection, site, oauth_consumer_key, isEmailTrustedConsumer);
         } catch (Exception e) {
-            e.printStackTrace();
+            M_log.warn("Problem synchronizing LTI1 memberships.", e);
         }
     }
 
@@ -231,7 +231,7 @@ public class SiteMembershipsSynchroniserImpl implements SiteMembershipsSynchroni
 
             processMembershipsResponse(connection, site, oauth_consumer_key, isEmailTrustedConsumer);
         } catch (Exception e) {
-            e.printStackTrace();
+            M_log.warn("Problem synchronizing Mooodle memberships.", e);
         }
     }
 
