@@ -2192,50 +2192,49 @@ public abstract class BasicSqlService implements SqlService
 					// Treat a Java null as an SQL null.
 					// This makes sure that Oracle vs MySQL use the same value for null.
 					sqlServiceSql.setNull(pstmt, pos);
-
-					pos++;
-				} else if (field instanceof String) {
+				}
+				else if (field instanceof String) {
 					String s = (String) field;
 					if (s.isEmpty()) {
 						// Treat a zero-length Java string as an SQL null
 						sqlServiceSql.setNull(pstmt, pos);
-					} else {
+					}
+					else {
 						pstmt.setString(pos, s);
 					}
-					pos++;
-				} else if (field instanceof Time) {
+				}
+				else if (field instanceof Time) {
 					Time t = (Time) field;
 					sqlServiceSql.setTimestamp(pstmt, new Timestamp(t.getTime()), m_cal, pos);
-					pos++;
-				} else if (field instanceof Date) {
+				}
+				else if (field instanceof Date) {
 					Date d = (Date) field;
 					sqlServiceSql.setTimestamp(pstmt, new Timestamp(d.getTime()), m_cal, pos);
-					pos++;
-				} else if (field instanceof Long) {
+				}
+				else if (field instanceof Long) {
 					long l = (Long) field;
 					pstmt.setLong(pos, l);
-					pos++;
-				} else if (field instanceof Integer) {
+				}
+				else if (field instanceof Integer) {
 					int n = (Integer) field;
 					pstmt.setInt(pos, n);
-					pos++;
-				} else if (field instanceof Float) {
+				}
+				else if (field instanceof Float) {
 					float f = (Float) field;
 					pstmt.setFloat(pos, f);
-					pos++;
-				} else if (field instanceof Boolean) {
+				}
+				else if (field instanceof Boolean) {
 					pstmt.setBoolean(pos, (Boolean) field);
-					pos++;
-				} else if (field instanceof byte[]) {
-
+				}
+				else if (field instanceof byte[]) {
 					sqlServiceSql.setBytes(pstmt, (byte[]) field, pos);
-					pos++;
-				} else {
+				}
+				else {
 					// %%% support any other types specially?
 					String value = field.toString();
 					sqlServiceSql.setBytes(pstmt, value, pos);
-					pos++;
 				}
+				pos++;
 			}
 		}
 
