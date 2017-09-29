@@ -106,6 +106,11 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
     }
 
     @Test
+    public void checkAssignmentToolTitle() {
+        Assert.assertNotNull(assignmentService.getToolTitle());
+    }
+
+    @Test
     public void addAndGetAssignment() {
         String userId = UUID.randomUUID().toString();
         String context = UUID.randomUUID().toString();
