@@ -102,6 +102,11 @@
             <version>${sakai.poi.version}</version>
         </dependency>
         <dependency>
+            <groupId>org.apache.poi</groupId>
+             <artifactId>poi-ooxml</artifactId>
+             <version>${sakai.poi.version}</version>
+        </dependency>
+        <dependency>
             <groupId>org.hibernate</groupId>
             <artifactId>hibernate-core</artifactId>
         </dependency>
