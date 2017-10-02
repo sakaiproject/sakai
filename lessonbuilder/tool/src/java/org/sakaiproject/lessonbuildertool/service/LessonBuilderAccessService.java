@@ -747,8 +747,7 @@ public class LessonBuilderAccessService {
 							// note that by default inline is always set. If we have inline and dangerous (i.e. HTML or
 							// potentially HTML, we set security headers to provide some protection.
 							if (inline && dangerous && useCsp) {
-							    res.addHeader("Content-Security-Policy", "sandbox allow-forms allow-scripts allow-top-navigation allow-popups allow-pointer-lock");
-							    res.addHeader("X-Content-Security-Policy", "sandbox allow-forms allow-scripts allow-top-navigation allow-popups allow-pointer-lock");
+							    res.addHeader("Content-Security-Policy", "sandbox allow-forms allow-scripts allow-top-navigation allow-popups allow-pointer-lock allow-popups-to-escape-sandbox");
 							}
 
 							// NOTE: Only set the encoding on the content we have to.
