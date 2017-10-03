@@ -229,7 +229,7 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 
 			List<SimplePage> lessonsPages = (List<SimplePage>) getHibernateTemplate().findByCriteria(d);
 			List<String> lessonsPageIds = new ArrayList<>();
-			if (lessonsPages != null && lessonsPages.size() > 0) {
+			if (!lessonsPages.isEmpty()) {
 				for (SimplePage lessonsPage : lessonsPages) {
 					String pageId = String.valueOf(lessonsPage.getPageId());
 					lessonsPageIds.add(pageId);
