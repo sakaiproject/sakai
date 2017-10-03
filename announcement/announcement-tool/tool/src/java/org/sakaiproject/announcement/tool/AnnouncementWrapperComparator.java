@@ -18,7 +18,6 @@ package org.sakaiproject.announcement.tool;
 import org.sakaiproject.announcement.api.AnnouncementMessage;
 import org.sakaiproject.announcement.cover.AnnouncementService;
 import org.sakaiproject.entity.api.ResourceProperties;
-import org.sakaiproject.site.api.Group;
 import org.sakaiproject.time.api.Time;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,9 +30,9 @@ import java.util.Comparator;
 /**
  * Comparator for announcements.
  */
-class AnnouncementComparator implements Comparator<AnnouncementAction.AnnouncementWrapper> {
+class AnnouncementWrapperComparator implements Comparator<AnnouncementAction.AnnouncementWrapper> {
 
-    private Logger log = LoggerFactory.getLogger(AnnouncementComparator.class);
+    private Logger log = LoggerFactory.getLogger(AnnouncementWrapperComparator.class);
 
 
     private static RuleBasedCollator collator_ini = (RuleBasedCollator)Collator.getInstance();
@@ -58,7 +57,7 @@ class AnnouncementComparator implements Comparator<AnnouncementAction.Announceme
      *  @param criteria The sort criteria string
      * @param asc      The sort order string. "true" if ascending; "false" otherwise.
      */
-    public AnnouncementComparator(String criteria, boolean asc) {
+    public AnnouncementWrapperComparator(String criteria, boolean asc) {
         m_criteria = criteria;
         m_asc = asc;
 
@@ -114,8 +113,8 @@ class AnnouncementComparator implements Comparator<AnnouncementAction.Announceme
             }
         } else if (m_criteria.equals(AnnouncementAction.SORT_MESSAGE_ORDER)) {
             // sorted by the message order
-            if ((((AnnouncementMessage) o1).getAnnouncementHeader().getMessage_order()) <
-                    (((AnnouncementMessage) o2).getAnnouncementHeader().getMessage_order())) {
+            if ((o1.getAnnouncementHeader().getMessage_order()) <
+                    (o2.getAnnouncementHeader().getMessage_order())) {
                 result = -1;
             } else {
                 result = 1;
@@ -125,13 +124,13 @@ class AnnouncementComparator implements Comparator<AnnouncementAction.Announceme
             Time o2releaseDate = null;
 
             try {
-                o1releaseDate = ((AnnouncementMessage) o1).getProperties().getTimeProperty(AnnouncementService.RELEASE_DATE);
+                o1releaseDate = o1.getProperties().getTimeProperty(AnnouncementService.RELEASE_DATE);
             } catch (Exception e) {
                 // release date not set, go on
             }
 
             try {
-                o2releaseDate = ((AnnouncementMessage) o2).getProperties().getTimeProperty(AnnouncementService.RELEASE_DATE);
+                o2releaseDate = o2.getProperties().getTimeProperty(AnnouncementService.RELEASE_DATE);
             } catch (Exception e) {
                 // release date not set, go on
             }
@@ -153,13 +152,13 @@ class AnnouncementComparator implements Comparator<AnnouncementAction.Announceme
             Time o2retractDate = null;
 
             try {
-                o1retractDate = ((AnnouncementMessage) o1).getProperties().getTimeProperty(AnnouncementService.RETRACT_DATE);
+                o1retractDate = o1.getProperties().getTimeProperty(AnnouncementService.RETRACT_DATE);
             } catch (Exception e) {
                 // release date not set, go on
             }
 
             try {
-                o2retractDate = ((AnnouncementMessage) o2).getProperties().getTimeProperty(AnnouncementService.RETRACT_DATE);
+                o2retractDate = o2.getProperties().getTimeProperty(AnnouncementService.RETRACT_DATE);
             } catch (Exception e) {
                 // release date not set, go on
             }
@@ -179,11 +178,11 @@ class AnnouncementComparator implements Comparator<AnnouncementAction.Announceme
         } else if (m_criteria.equals(AnnouncementAction.SORT_FROM)) {
             // sorted by the discussion message author
             // The anonymous user doesn't have a sort name (it's null).
-            String sortName1 = ((AnnouncementMessage) o1).getAnnouncementHeader().getFrom().getSortName();
+            String sortName1 = o1.getAnnouncementHeader().getFrom().getSortName();
             if (sortName1 == null) {
                 sortName1 = "";
             }
-            String sortName2 = ((AnnouncementMessage) o2).getAnnouncementHeader().getFrom().getSortName();
+            String sortName2 = o2.getAnnouncementHeader().getFrom().getSortName();
             if (sortName2 == null) {
                 sortName2 = "";
             }
@@ -191,19 +190,19 @@ class AnnouncementComparator implements Comparator<AnnouncementAction.Announceme
                     sortName2);
         } else if (m_criteria.equals(AnnouncementAction.SORT_CHANNEL)) {
             // sorted by the channel name.
-            result = collator.compare(((AnnouncementAction.AnnouncementWrapper) o1).getChannelDisplayName(),
-                    ((AnnouncementAction.AnnouncementWrapper) o2).getChannelDisplayName());
+            result = collator.compare(o1.getChannelDisplayName(),
+                    o2.getChannelDisplayName());
         } else if (m_criteria.equals(AnnouncementAction.SORT_PUBLIC)) {
             // sorted by the public view attribute
-            String factor1 = ((AnnouncementMessage) o1).getProperties().getProperty(ResourceProperties.PROP_PUBVIEW);
+            String factor1 = o1.getProperties().getProperty(ResourceProperties.PROP_PUBVIEW);
             if (factor1 == null) factor1 = "false";
-            String factor2 = ((AnnouncementMessage) o2).getProperties().getProperty(ResourceProperties.PROP_PUBVIEW);
+            String factor2 = o2.getProperties().getProperty(ResourceProperties.PROP_PUBVIEW);
             if (factor2 == null) factor2 = "false";
             result = collator.compare(factor1, factor2);
         } else if (m_criteria.equals(AnnouncementAction.SORT_FOR)) {
             // sorted by the public view attribute
-            String factor1 = ((AnnouncementAction.AnnouncementWrapper) o1).getRange();
-            String factor2 = ((AnnouncementAction.AnnouncementWrapper) o2).getRange();
+            String factor1 = o1.getRange();
+            String factor2 = o2.getRange();
             result = collator.compare(factor1, factor2);
         }
 
@@ -215,4 +214,4 @@ class AnnouncementComparator implements Comparator<AnnouncementAction.Announceme
 
     } // compare
 
-} // AnnouncementComparator
+} // AnnouncementWrapperComparator

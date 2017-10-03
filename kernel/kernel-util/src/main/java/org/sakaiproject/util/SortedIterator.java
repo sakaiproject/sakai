@@ -42,12 +42,12 @@ public class SortedIterator<E> implements Iterator<E>
 	/**
 	 * Creates new SortedIterator based on the base iterator and the comparator function
 	 * 
-	 * @param aIterator
+	 * @param iterator
 	 *        The original Iterator
-	 * @param aComparator
+	 * @param comparator
 	 *        The comparator object
 	 */
-	public SortedIterator(Iterator iterator, Comparator comparator)
+	public SortedIterator(Iterator<? extends E> iterator, Comparator<? super E> comparator)
 	{
 		// construct a collection (Vector) from the base iterator so we can sort
 		Vector collection = new Vector();
