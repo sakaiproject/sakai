@@ -69,7 +69,7 @@ public interface AssignmentService extends EntityProducer {
      *                Describes the portlet context - generated with DefaultId.getChannel().
      * @return the List (User) of users who are allowed to receive the email, false if not.
      */
-    public List allowReceiveSubmissionNotificationUsers(String context);
+    public List<User> allowReceiveSubmissionNotificationUsers(String context);
 
     Collection getGroupsAllowRemoveAssignment(String context);
 
@@ -176,7 +176,7 @@ public interface AssignmentService extends EntityProducer {
     *        a reference to an assignment
     * @return the List (User) of users who can grade submission for this assignment.
     */
-    public List allowGradeAssignmentUsers(String assignmentReference);
+    public List<User> allowGradeAssignmentUsers(String assignmentReference);
 
     /**
      * Get the list of users who can add submission for at lease one assignment within the context
