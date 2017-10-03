@@ -205,7 +205,7 @@
  				$tlang.getString("sinfo.language")
  			</label> 
  			<div class="col-sm-6">
-				<select name="locales" class="indnt2" id="locales" size="5">
+				<select name="locales" class="indnt2" id="locales" >
 					<option value="" #if ($locale_string == "")selected="true" #end>$tlang.getString("sinfo.language.defaultUserLanguage")</option>			
 					#foreach($locale in $locales)			
 						<option value="$locale.toString()" #if ($locale.toString() == $locale_string)selected="true" #end>$validator.escapeHtml($tlang.getLocaleDisplayName($locale))</option>	
