@@ -90,9 +90,11 @@ ${includeLatestJQuery}
 		      filter_functions : {} 
 		 
 		    },
+		    //Default sort
+		    sortList : [ [ 4,0] ],
 			headers: { 
-	            // assign the fourth column (we start counting zero) 
-	            4: { 
+	            // special configuration for this column (we start counting zero) 
+	            5: { 
 	                // disable it by setting the property sorter to false 
 	                sorter: false
 	            }
