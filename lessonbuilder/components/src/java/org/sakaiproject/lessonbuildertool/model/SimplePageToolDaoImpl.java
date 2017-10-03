@@ -235,7 +235,7 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 					lessonsPageIds.add(pageId);
 				}
 
-				List<SimplePageItem> pageItems = findTopLevelPageItemBySakaiIds(lessonsPageIds);
+				List<SimplePageItem> pageItems = findTopLevelPageItemsBySakaiIds(lessonsPageIds);
 				return pageItems;
 			}
 		} catch (IdUnusedException e) {
@@ -520,7 +520,7 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 		return list.get(0);
 	}
 
-	public List<SimplePageItem> findTopLevelPageItemBySakaiIds(List<String> ids) {
+	public List<SimplePageItem> findTopLevelPageItemsBySakaiIds(List<String> ids) {
 		DetachedCriteria d = DetachedCriteria.forClass(SimplePageItem.class)
 			.add(Restrictions.in("sakaiId", ids))
 			.add(Restrictions.eq("pageId", 0L))
