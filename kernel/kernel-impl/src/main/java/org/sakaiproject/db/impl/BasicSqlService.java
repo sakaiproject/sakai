@@ -40,9 +40,11 @@ import java.sql.Statement;
 import java.sql.Timestamp;
 import java.sql.Types;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.TimeZone;
 import java.util.Vector;
 
@@ -2151,76 +2153,61 @@ public abstract class BasicSqlService implements SqlService
 	 */
 	protected int prepareStatement(PreparedStatement pstmt, Object[] fields) throws SQLException, UnsupportedEncodingException
 	{
-		if (LOG.isDebugEnabled())
-		{
-			LOG.debug("prepareStatement(PreparedStatement " + pstmt + ", Object[] " + Arrays.toString(fields) + ")");
+		if (LOG.isDebugEnabled()) {
+			LOG.debug("pstmt = {}, fields = {}", pstmt, Arrays.toString(fields));
 		}
 
 		// put in all the fields
 		int pos = 1;
-		if ((fields != null) && (fields.length > 0))
-		{
-			for (int i = 0; i < fields.length; i++)
-			{
-				if (fields[i] == null || (fields[i] instanceof String && ((String) fields[i]).length() == 0))
-				{
-					// treat a Java null as an SQL null,
-					// and ALSO treat a zero-length Java string as an SQL null
-					// This makes sure that Oracle vs MySQL use the same value
-					// for null.
+		if ((fields != null) && (fields.length > 0)) {
+			for (Object field : fields) {
+				if (field == null) {
+					// Treat a Java null as an SQL null.
+					// This makes sure that Oracle vs MySQL use the same value for null.
 					sqlServiceSql.setNull(pstmt, pos);
-
-					pos++;
 				}
-				else if (fields[i] instanceof Time)
-				{
-					Time t = (Time) fields[i];
+				else if (field instanceof String) {
+					String s = (String) field;
+					if (s.isEmpty()) {
+						// Treat a zero-length Java string as an SQL null
+						sqlServiceSql.setNull(pstmt, pos);
+					}
+					else {
+						pstmt.setString(pos, s);
+					}
+				}
+				else if (field instanceof Time) {
+					Time t = (Time) field;
 					sqlServiceSql.setTimestamp(pstmt, new Timestamp(t.getTime()), m_cal, pos);
-					pos++;
 				}
-				//KNL-558 an obvious one
-				else if (fields[i] instanceof java.util.Date)
-				{
-					java.util.Date d = (java.util.Date) fields[i];
+				else if (field instanceof Date) {
+					Date d = (Date) field;
 					sqlServiceSql.setTimestamp(pstmt, new Timestamp(d.getTime()), m_cal, pos);
-					pos++;
 				}
-				else if (fields[i] instanceof Long)
-				{
-					long l = ((Long) fields[i]).longValue();
+				else if (field instanceof Long) {
+					long l = (Long) field;
 					pstmt.setLong(pos, l);
-					pos++;
 				}
-				else if (fields[i] instanceof Integer)
-				{
-					int n = ((Integer) fields[i]).intValue();
+				else if (field instanceof Integer) {
+					int n = (Integer) field;
 					pstmt.setInt(pos, n);
-					pos++;
 				}
-				else if (fields[i] instanceof Float)
-				{
-					float f = ((Float) fields[i]).floatValue();
+				else if (field instanceof Float) {
+					float f = (Float) field;
 					pstmt.setFloat(pos, f);
-					pos++;
 				}
-				else if (fields[i] instanceof Boolean)
-				{
-					pstmt.setBoolean(pos, ((Boolean) fields[i]).booleanValue());
-					pos++;
+				else if (field instanceof Boolean) {
+					pstmt.setBoolean(pos, (Boolean) field);
 				}
-				else if ( fields[i] instanceof byte[] ) 
-				{
-					sqlServiceSql.setBytes(pstmt, (byte[])fields[i], pos);
-					pos++;
+				else if (field instanceof byte[]) {
+					sqlServiceSql.setBytes(pstmt, (byte[]) field, pos);
 				}
-
-				// %%% support any other types specially?
-				else
-				{
-					String value = fields[i].toString();
+				else {
+					// %%% support any other types specially?
+					String value = field.toString();
 					sqlServiceSql.setBytes(pstmt, value, pos);
-					pos++;
 				}
+				pos++;
 			}
 		}
 
