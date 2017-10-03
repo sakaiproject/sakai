@@ -16,7 +16,7 @@ import java.util.Comparator;
 /**
  * Comparator for announcements.
  */
-class AnnouncementComparator implements Comparator<AnnouncementAction.AnnouncementWrapper> {
+class AnnouncementComparator implements Comparator {
 
     private Logger log = LoggerFactory.getLogger(AnnouncementComparator.class);
 
@@ -56,7 +56,7 @@ class AnnouncementComparator implements Comparator<AnnouncementAction.Announceme
      * @param o2 The second object
      * @return The compare result. 1 is o1 < o2; -1 otherwise
      */
-    public int compare(AnnouncementAction.AnnouncementWrapper o1, AnnouncementAction.AnnouncementWrapper o2) {
+    public int compare(Object o1, Object o2) {
         int result = -1;
 
         if (m_criteria.equals(AnnouncementAction.SORT_SUBJECT)) {
