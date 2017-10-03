@@ -106,8 +106,6 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 	private SiteService siteService;
 	private SqlService sqlService;
 	private AuthzGroupService authzGroupService;
-	private static String SITE_UPD = "site.upd";
-	private static int MAX_ITEMS_FOR_SITE = 1000;
 
         // part of HibernateDaoSupport; this is the only context in which it is OK
         // to modify the template configuration
