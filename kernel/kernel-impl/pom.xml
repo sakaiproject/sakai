@@ -270,7 +270,7 @@
     <dependency>
       <groupId>org.owasp.antisamy</groupId>
       <artifactId>antisamy</artifactId>
-      <version>1.5.6</version>
+      <version>1.5.7</version>
     </dependency>
     <!-- KNL-1253 -->
     <dependency>
