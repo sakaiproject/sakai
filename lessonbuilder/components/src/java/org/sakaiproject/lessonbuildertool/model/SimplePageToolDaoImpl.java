@@ -242,7 +242,7 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 			log.warn("Could not find site: " + siteId, e);
 		}
 
-	    return null;
+		return null;
 	}
 
 	public List<SimplePageItem> findDummyItemsInSite(String siteId) {
@@ -521,15 +521,15 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 	}
 
 	public List<SimplePageItem> findTopLevelPageItemBySakaiIds(List<String> ids) {
-        DetachedCriteria d = DetachedCriteria.forClass(SimplePageItem.class)
-        	.add(Restrictions.in("sakaiId", ids))
-	    .add(Restrictions.eq("pageId", 0L))
-	    .add(Restrictions.eq("type",SimplePageItem.PAGE));
+		DetachedCriteria d = DetachedCriteria.forClass(SimplePageItem.class)
+			.add(Restrictions.in("sakaiId", ids))
+			.add(Restrictions.eq("pageId", 0L))
+			.add(Restrictions.eq("type",SimplePageItem.PAGE));
 
 		List<SimplePageItem> list = (List<SimplePageItem>) getHibernateTemplate().findByCriteria(d);
 
 		if (list == null || list.size() < 1) {
-		    return null;
+			return null;
 		}
 
 		return list;
