@@ -36,8 +36,8 @@ public class EditorRegistryImpl implements EditorRegistry {
 		//TODO: pull this out to somewhere appropriate
 		register("textarea", "textarea", "/library/editor/textarea/textarea.js", "/library/editor/textarea.launch.js", "");
 		register("fckeditor", "FCKeditor", "/library/editor/FCKeditor/fckeditor.js", "/library/editor/fckeditor.launch.js", "");
-		register("ckeditor", "CKEditor", "/library/webjars/ckeditor/4.5.7/full/ckeditor.js", "/library/editor/ckeditor.launch.js",
-				"var CKEDITOR_BASEPATH='/library/webjars/ckeditor/4.5.7/full/';\n");
+		register("ckeditor", "CKEditor", "/library/webjars/ckeditor/4.5.11/full/ckeditor.js", "/library/editor/ckeditor.launch.js",
+				"var CKEDITOR_BASEPATH='/library/webjars/ckeditor/4.5.11/full/';\n");
 	}
 	
 	public void destroy() {
