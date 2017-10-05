@@ -45,6 +45,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.Random;
 import java.util.Set;
 import java.util.SortedSet;
@@ -58,6 +59,7 @@ import java.util.Vector;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -184,7 +186,7 @@ import org.apache.tika.mime.MimeTypes;
  * BaseContentService is an abstract base implementation of the Sakai ContentHostingService.
  * </p>
  */
-public abstract class BaseContentService implements ContentHostingService, CacheRefresher, ContextObserver, EntityTransferrer, 
+public abstract class BaseContentService implements ContentHostingService, ContextObserver, EntityTransferrer,
 SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRefMigrator, HardDeleteAware
 {
 	/** Our logger. */
@@ -276,11 +278,11 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 	 *********************************************************************************************************************************************************************************************************************************************************/
 
 	/** Dependency: MemoryService. */
-	protected MemoryService m_memoryService = null;
+	protected MemoryService m_memoryService;
+	protected Cache<String, ContentCollection> contentCollectionCache;
+	protected Cache<String, ContentResource> contentResourceCache;
 
-    	/**
-	 * Use a timer for repeating actions
-	 */
+	/** Use a timer for repeating actions */
 	private Timer virusScanTimer = new Timer(true);
 
     /** How long to wait between virus scan checks (seconds) */
@@ -850,6 +852,9 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 
 			M_log.info("Loaded Storage as "+m_storage+" for "+this);
 
+			contentCollectionCache = m_memoryService.getCache("org.sakaiproject.content.impl.BaseContentService.contentCollection");
+			contentResourceCache = m_memoryService.getCache("org.sakaiproject.content.impl.BaseContentService.contentResource");
+
 			// register a transient notification for resources
 			NotificationEdit edit = m_notificationService.addTransientNotification();
 
@@ -921,7 +926,6 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 
             virusScanDelay += new Random().nextInt(60); // add some random delay to get the servers out of sync
             virusScanTimer.schedule(new VirusTimerTask(), (virusScanDelay * 1000), (virusScanPeriod * 1000) );
-
 		}
 		catch (Exception t)
 		{
@@ -1629,27 +1633,13 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 			}
 			else
 			{
-				try
+				if (isCollection(id))
 				{
-					if (isCollection(id))
-					{
-						entity = findCollection(id);
-					}
-					else
-					{
-						entity = findResource(id);
-					}
+					entity = findCollection(id);
 				}
-				catch (TypeException ignore)
+				else
 				{
-					if(isCollection(id))
-					{
-						M_log.warn("trying to get collection, found resource: " + id);
-					}
-					else
-					{
-						M_log.warn("trying to get resource, found collection: " + id);
-					}
+					entity = findResource(id);
 				}
 
 				if (entity == null)
@@ -2160,9 +2150,6 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 		}
 
 		String containerId = isolateContainingId(id);
-		threadLocalManager.set("members@" + containerId, null);
-		threadLocalManager.set("getCollections@" + containerId, null);
-		//threadLocalManager.set("getResources@" + containerId, null);
 
 		// check security
 		unlock(AUTH_RESOURCE_ADD, id);
@@ -2511,16 +2498,10 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 		}
 
 		// get the collection members
-		try
+		ContentCollection collection = findCollection(id);
+		if (collection != null)
 		{
-			ContentCollection collection = findCollection(id);
-			if (collection != null)
-			{
-				getAllResources(collection, rv, false);
-			}
-		}
-		catch (TypeException e)
-		{
+			getAllResources(collection, rv, false);
 		}
 
 		return rv;
@@ -2575,23 +2556,12 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 	/**
 	 * Access the collection with this local resource id. Internal find does the guts of finding without security or event tracking. The collection internal members and properties are accessible from the returned Colelction object.
 	 * 
-	 * @param id
-	 *        The id of the collection.
-	 * @exception TypeException
-	 *            if the resource exists but is not a collection.
+	 * @param id The id of the collection.
 	 * @return The ContentCollection object found, or null if not.
 	 */
-	protected ContentCollection findCollection(String id) throws TypeException
+	protected ContentCollection findCollection(String id)
 	{
-		ContentCollection collection = null;
-		try
-		{
-			collection = (ContentCollection) threadLocalManager.get("findCollection@" + id);
-		}
-		catch(ClassCastException e)
-		{
-			throw new TypeException(id);
-		}
+		ContentCollection collection = contentCollectionCache.get(id);
 
 		if(collection == null)
 		{
@@ -2599,16 +2569,11 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 
 			if(collection != null)
 			{
-				threadLocalManager.set("findCollection@" + id, collection);	// new BaseCollectionEdit(collection));
+				contentCollectionCache.put(collection.getId(), collection);
 			}
-		}
-		else
-		{
-			collection = new BaseCollectionEdit(collection);
 		}
 
 		return collection;
-
 	} // findCollection
 
 	/**
@@ -2778,11 +2743,6 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 			throw new PermissionException(sessionManager.getCurrentSessionUserId(), 
 					AUTH_RESOURCE_REMOVE_ANY, edit.getReference());
 
-		// clear thread-local cache SAK-12126
-		threadLocalManager.set("members@" + edit.getId(), null);
-		threadLocalManager.set("getResources@" + edit.getId(), null);
-		threadLocalManager.set("getCollections@" + edit.getId(), null);
-
 		// check for members
 		List members = edit.getMemberResources();
 		if (!members.isEmpty()) throw new InconsistentException(edit.getId());
@@ -2796,7 +2756,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 		((BaseCollectionEdit) edit).setRemoved();
 
 		// remove the old version from thread-local cache.
-		threadLocalManager.set("findCollection@" + edit.getId(), null);
+		invalidateContentCollection(edit.getId(), true);
 
 		// remove any realm defined for this resource
 		try
@@ -2854,11 +2814,6 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 
 		// get an edit
 		ContentCollectionEdit edit = editCollection(id);
-
-		// clear thread-local cache SAK-12126
-		threadLocalManager.set("members@" + id, null);
-		threadLocalManager.set("getResources@" + id, null);
-		threadLocalManager.set("getCollections@" + edit.getId(), null);
 
 		// clear of all members (recursive)
 		// Note: may fail if something's in use or not permitted. May result in a partial clear.
@@ -2939,12 +2894,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 		((BaseCollectionEdit) edit).closeEdit();
 
 		// the collection has changed so we must remove the old version from thread-local cache
-		threadLocalManager.set("findCollection@" + edit.getId(), null);
-		String containerId = isolateContainingId(edit.getId());
-		threadLocalManager.set("findCollection@" + containerId, null);
-		threadLocalManager.set("members@" + containerId, null);
-		threadLocalManager.set("getCollections@" + containerId, null);
-		//threadLocalManager.set("getResources@" + containerId, null);
+		invalidateContentCollection(edit.getId(), true);
 
 		// track it (no notification)
 		String ref = edit.getReference(null);
@@ -3140,11 +3090,12 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 		m_storage.cancelCollection(edit);
 
 		// if the edit is newly created during an add collection process, remove it from the storage
-    String event = ((BaseCollectionEdit) edit).getEvent();
+		String event = ((BaseCollectionEdit) edit).getEvent();
 		if (EVENT_RESOURCE_ADD.equals(event))
 		{
 			removeRecursive(edit);
 			m_storage.removeCollection(edit);
+			invalidateContentCollection(edit.getId(), false);
 		}
 
 		// close the edit object
@@ -3215,11 +3166,11 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 			}
 			else if(entity instanceof ContentResource)
 			{
-				threadLocalManager.set("findResource@" + entity.getId(), entity);
+				contentResourceCache.put(entity.getId(), (ContentResource) entity);
 			}
 			else if(entity instanceof ContentCollection)
 			{
-				threadLocalManager.set("findCollection@" + entity.getId(), entity);
+				contentCollectionCache.put(entity.getId(), (ContentCollection) entity);
 			}
 		}
 	}
@@ -3468,15 +3419,12 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 			}
 
 			SortedSet<String> siblings = new TreeSet<String>();
-			try
-			{
-				ContentCollection collection = findCollection(collectionId);
-				siblings.addAll(collection.getMembers());
-			}
-			catch (TypeException inner_e)
+			ContentCollection collection = findCollection(collectionId);
+			if (collection == null)
 			{
 				throw new InconsistentException(collectionId);
 			}
+			siblings.addAll(collection.getMembers());
 
 			int index = name.lastIndexOf(".");
 			String base = name;
@@ -3611,15 +3559,12 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 			catch(IdUsedException e)
 			{
 				SortedSet<String> siblings = new TreeSet<String>();
-				try
-				{
-					ContentCollection collection = findCollection(collectionId);
-					siblings.addAll(collection.getMembers());
-				}
-				catch (TypeException inner_e)
+				ContentCollection collection = findCollection(collectionId);
+				if (collection == null)
 				{
 					throw new IdUnusedException(collectionId);
 				}
+				siblings.addAll(collection.getMembers());
 
 				// see end of loop for condition that enforces attempts <= limit)
 				do
@@ -3640,20 +3585,8 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 				}
 				while (siblings.contains(id));
 			}
-
 		}
-
-		threadLocalManager.set("members@" + collectionId, null);
-		//threadLocalManager.set("getCollections@" + collectionId, null);
-		threadLocalManager.set("getResources@" + collectionId, null);
-
-		//		if (edit == null)
-		//		{
-		//			throw new IdUniquenessException(id);
-		//		}
-
 		return edit;
-
 	}
 
 	/**
@@ -3893,15 +3826,12 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 			}
 
 			SortedSet<String> siblings = new TreeSet<String>();
-			try
-			{
-				ContentCollection collection = findCollection(collectionId);
-				siblings.addAll(collection.getMembers());
-			}
-			catch (TypeException inner_e)
+			ContentCollection collection = findCollection(collectionId);
+			if (collection == null)
 			{
 				throw new InconsistentException(collectionId);
 			}
+			siblings.addAll(collection.getMembers());
 
 			int index = name.lastIndexOf(".");
 			String base = name;
@@ -4456,23 +4386,12 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 	/**
 	 * Access the resource with this resource id. For non-collection resources only. Internal find that doesn't do security or event tracking The resource content and properties are accessible from the returned Resource object.
 	 * 
-	 * @param id
-	 *        The resource id.
-	 * @exception TypeException
-	 *            if the resource is a collection.
+	 * @param id The resource id.
 	 * @return the ContentResource object found, or null if there's a problem.
 	 */
-	protected ContentResource findResource(String id) throws TypeException
+	protected ContentResource findResource(String id)
 	{
-		ContentResource resource = null;
-		try
-		{
-			resource = (ContentResource) threadLocalManager.get("findResource@" + id);
-		}
-		catch(ClassCastException e)
-		{
-			throw new TypeException(id);
-		}
+		ContentResource resource = contentResourceCache.get(id);
 
 		if(resource == null)
 		{
@@ -4480,19 +4399,11 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 
 			if(resource != null)
 			{
-				threadLocalManager.set("findResource@" + id, resource); 	// new BaseResourceEdit(resource));
+				contentResourceCache.put(resource.getId(), resource);
 			}
 		}
-		else
-		{
-			resource = new BaseResourceEdit(resource);
-		}
-
-		
-
 
 		return resource;
-
 	} // findResource
 
 	/**
@@ -4625,7 +4536,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 		((BaseResourceEdit) edit).setRemoved();
 
 		// remove old version of this edit from thread-local cache
-		threadLocalManager.set("findResource@" + edit.getId(), null);
+		invalidateContentResource(edit.getId());
 
 		// remove any realm defined for this resource
 		try
@@ -4689,7 +4600,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 		((BaseResourceEdit) edit).setRemoved();
 
 		// remove old version of this edit from thread-local cache
-		threadLocalManager.set("findResource@" + edit.getId(), null);
+		invalidateContentResource(edit.getId());
 
 		// remove any realm defined for this resource
 		try
@@ -5472,6 +5383,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 
 				// we need to not remove the content if we just did a reference copy above (or remove the content when there was no reference copy)
 				m_storage.removeResource(thisResource, !referenceCopy);
+				invalidateContentResource(thisResource.getId());
 
 				// track it (no notification)
 				String thisRef = thisResource.getReference(null);
@@ -6329,12 +6241,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 
 		// must remove old version of this edit from thread-local cache
 		// so we get new version if we try to retrieve it in same thread
-		threadLocalManager.set("findResource@" + edit.getId(), null);
-		String containerId = isolateContainingId(edit.getId());
-		threadLocalManager.set("findCollection@" +  containerId, null);
-		threadLocalManager.set("members@" + containerId, null);
-		//threadLocalManager.set("getCollections@" + containerId, null);
-		threadLocalManager.set("getResources@" + containerId, null);
+		invalidateContentResource(edit.getId());
 
 		// only send notifications if the resource is available
 		// an 'available' event w/ notification will be sent when the resource becomes available
@@ -6452,19 +6359,13 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 
 		Entity o = null;
 
-		try
+		if (collectionHint)
 		{
-			if (collectionHint)
-			{
-				o = findCollection(id);
-			}
-			else
-			{
-				o = findResource(id);
-			}
+			o = findCollection(id);
 		}
-		catch (TypeException ignore)
+		else
 		{
+			o = findResource(id);
 		}
 
 		// unlikely, but...
@@ -9299,22 +9200,16 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 		// get this collection
 		String id = Entity.SEPARATOR + parts[1] + Entity.SEPARATOR + parts[2] + Entity.SEPARATOR;
 		ContentCollection collection = null;
-		try
-		{
-			collection = findCollection(id);
-			// Limit size per user inside dropbox
-			if (edit.getId().startsWith(COLLECTION_DROPBOX)) {
-				try {
-					// if successful, the context is already a valid user id
-					userDirectoryService.getUser(parts[3]);
-					collection = findCollection(id + parts[3] + Entity.SEPARATOR);
-				} catch (UserNotDefinedException tryEid) {
-					// Nothing to do
-				}
+		collection = findCollection(id);
+		// Limit size per user inside dropbox
+		if (edit.getId().startsWith(COLLECTION_DROPBOX)) {
+			try {
+				// if successful, the context is already a valid user id
+				userDirectoryService.getUser(parts[3]);
+				collection = findCollection(id + parts[3] + Entity.SEPARATOR);
+			} catch (UserNotDefinedException tryEid) {
+				// Nothing to do
 			}
-		}
-		catch (TypeException ignore)
-		{
 		}
 
 		if (collection == null) return false;
@@ -9339,14 +9234,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 		}
 
 		// find the resource being edited
-		ContentResource inThere = null;
-		try
-		{
-			inThere = findResource(edit.getId());
-		}
-		catch (TypeException ignore)
-		{
-		}
+		ContentResource inThere = findResource(edit.getId());
 
 		if (inThere != null)
 		{
@@ -9415,13 +9303,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 		// get this collection
 		String id = Entity.SEPARATOR + parts[1] + Entity.SEPARATOR + parts[2] + Entity.SEPARATOR;
 		ContentCollection collection = null;
-		try
-		{
-			collection = findCollection(id);
-		}
-		catch (TypeException ignore)
-		{
-		}
+		collection = findCollection(id);
 
 		if (collection == null) return;
 
@@ -9448,13 +9330,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 		// get this collection
 		String id = Entity.SEPARATOR + parts[1] + Entity.SEPARATOR + parts[2] + Entity.SEPARATOR;
 		ContentCollection collection = null;
-		try
-		{
-			collection = findCollection(id);
-		}
-		catch (TypeException ignore)
-		{
-		}
+		collection = findCollection(id);
 
 		if (collection == null) return;
 
@@ -9498,10 +9374,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 			if (collection.getId().startsWith(COLLECTION_DROPBOX)) {
 				default_quota = DEFAULT_DROPBOX_QUOTA;
 				quota = m_dropBoxQuota;
-				try {
-					parentCollection = findCollection(Entity.SEPARATOR + parts[1] + Entity.SEPARATOR + parts[2] + Entity.SEPARATOR);
-				} catch (TypeException tex) {
-				}
+				parentCollection = findCollection(Entity.SEPARATOR + parts[1] + Entity.SEPARATOR + parts[2] + Entity.SEPARATOR);
 			}
 			String siteType = null;
 			// get the site type
@@ -10147,11 +10020,6 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 				commitCollection(edit);
 			}
 		}
-		catch (TypeException e)
-		{
-			M_log.warn("createDropboxCollection: TypeException: " + dropbox);
-			return;
-		}
 		catch (IdUsedException e)
 		{
 			M_log.warn("createDropboxCollection: IdUsedException: " + dropbox);
@@ -10170,15 +10038,12 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 		//		}
 
 		SortedSet<String> members = new TreeSet<String>();
-		try
-		{
-			ContentCollection topDropbox = findCollection(dropbox);
-			members.addAll((List<String>) topDropbox.getMembers());
-		}
-		catch(TypeException e)
+		ContentCollection topDropbox = findCollection(dropbox);
+		if (topDropbox == null)
 		{
 			M_log.warn("createDropboxCollection(): File exists where dropbox collection is expected: "+ dropbox);
 		}
+		members.addAll(topDropbox.getMembers());
 
 		// The AUTH_DROPBOX_OWN is granted within the site, so we can ask for all the users who have this ability
 		// using just the dropbox collection
@@ -10205,10 +10070,6 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 						commitCollection(edit);
 					}
 				}
-			}
-			catch (TypeException e)
-			{
-				M_log.warn("createDropboxCollectionn(): TypeException: " + userFolder);
 			}
 			catch (IdUsedException e)
 			{
@@ -10266,71 +10127,54 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 	{
 		String dropbox = COLLECTION_DROPBOX + siteId + "/";
 
-		try 
+		if (findCollection(dropbox) == null)
 		{
-			if (findCollection(dropbox) == null)
+			try
 			{
-				try
-				{
-					ContentCollectionEdit edit = addValidPermittedCollection(dropbox);
-					commitCollection(edit);
-				}
-				catch(IdUsedException e)
-				{
-					// hmmmm ... couldn't find it, but it's already in use???  let's bail out.
-					return;
-				}
-				catch(InconsistentException e)
-				{
-					return;
-				}
+				ContentCollectionEdit edit = addValidPermittedCollection(dropbox);
+				commitCollection(edit);
 			}
-
-
-			User user = userDirectoryService.getCurrentUser();
-
-			// the folder id for this user's dropbox in this group
-			String userFolder = dropbox + user.getId() + "/";
-
-			if(m_securityService.unlock(AUTH_DROPBOX_OWN, getReference(dropbox)))
+			catch(IdUsedException e)
 			{
-				// see if it exists - add if it doesn't
-				try
-				{
-					if (findCollection(userFolder) == null)
-					{
-						ContentCollectionEdit edit = addValidPermittedCollection(userFolder);
-						ResourcePropertiesEdit props = edit.getPropertiesEdit();
-						props.addProperty(ResourceProperties.PROP_DISPLAY_NAME,getDisplayName(user));
-						props.addProperty(ResourceProperties.PROP_DESCRIPTION, rb.getString("use1"));
-						// props.addProperty(ResourceProperties.PROP_DESCRIPTION, PROP_MEMBER_DROPBOX_DESCRIPTION);
-						commitCollection(edit);
-					}
-				}
-				catch (TypeException e)
-				{
-					M_log.warn("createIndividualDropbox(): TypeException: " + userFolder);
-				}
-				catch (IdUsedException e)
-				{
-					M_log.warn("createIndividualDropbox(): idUsedException: " + userFolder);
-				}
-				catch (InconsistentException e)
-				{
-					M_log.warn("createIndividualDropbox(): InconsistentException: " + userFolder);
-				} 
-				//				catch (PermissionException e) 
-				//				{
-				//					M_log.warn("createIndividualDropbox(): PermissionException: " + userFolder);
-				//				}
+				// hmmmm ... couldn't find it, but it's already in use???  let's bail out.
+				return;
 			}
-
-		} 
-		catch (TypeException e) 
-		{
-			M_log.warn("createIndividualDropbox(): TypeException: " + dropbox);
+			catch(InconsistentException e)
+			{
+				return;
+			}
 		}
 
+
+		User user = userDirectoryService.getCurrentUser();
+
+		// the folder id for this user's dropbox in this group
+		String userFolder = dropbox + user.getId() + "/";
+
+		if(m_securityService.unlock(AUTH_DROPBOX_OWN, getReference(dropbox)))
+		{
+			// see if it exists - add if it doesn't
+			try
+			{
+				if (findCollection(userFolder) == null)
+				{
+					ContentCollectionEdit edit = addValidPermittedCollection(userFolder);
+					ResourcePropertiesEdit props = edit.getPropertiesEdit();
+					props.addProperty(ResourceProperties.PROP_DISPLAY_NAME,getDisplayName(user));
+					props.addProperty(ResourceProperties.PROP_DESCRIPTION, rb.getString("use1"));
+					// props.addProperty(ResourceProperties.PROP_DESCRIPTION, PROP_MEMBER_DROPBOX_DESCRIPTION);
+					commitCollection(edit);
+				}
+			}
+			catch (IdUsedException e)
+			{
+				M_log.warn("createIndividualDropbox(): idUsedException: " + userFolder);
+			}
+			catch (InconsistentException e)
+			{
+				M_log.warn("createIndividualDropbox(): InconsistentException: " + userFolder);
+			}
+		}
 	}
 
 	/**
@@ -10568,10 +10412,6 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 					}
 				}
 
-			}
-			catch (TypeException e1)
-			{
-				// ignore
 			}
 			catch(IdUnusedException e)
 			{
@@ -11057,11 +10897,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 			boolean available = !this.isHidden();
 			boolean isHiddenWebFolder = false;
 			ContentEntity currentEntity = null;
-			try {
-				currentEntity = isCollection(this.m_id)?findCollection(m_id):findResource(m_id);
-			} catch (TypeException te) {
-				return false;
-			}
+			currentEntity = isCollection(this.m_id)?findCollection(m_id):findResource(m_id);
 
 			while (available && currentEntity != null) {
 			
@@ -11222,16 +11058,8 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 
 		public ContentCollection getContainingCollection()
 		{
-			ContentCollection container = null;
 			String containerId = isolateContainingId(this.getId());
-			try
-			{
-				container = findCollection(containerId);
-			}
-			catch (TypeException e)
-			{
-			}
-			return container;
+			return findCollection(containerId);
 		}
 
 		public void setPriority()
@@ -11319,6 +11147,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 	public class BaseCollectionEdit extends BasicGroupAwareEdit implements ContentCollectionEdit, SessionBindingListener, SerializableEntity,  SerializableCollectionAccess
 	{
 		private boolean m_sessionBound = false;
+		private Integer m_count = null;
 		/**
 		 * Construct with an id.
 		 * 
@@ -11687,14 +11516,14 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 		 * 
 		 * @return a List of the collection's internal members, each a resource id string (may be empty).
 		 */
-		public List getMembers()
+		public List<String> getMembers()
 		{
 			// get the objects
 			Collection<String> memberResourceIds = m_storage.getMemberResourceIds(this.m_id);
 			Collection<String> memberCollectionIds = m_storage.getMemberCollectionIds(this.m_id);
 
 			// form the list of just ids
-			List<String> mbrs = new ArrayList<String>();
+			List<String> mbrs = new ArrayList<>();
 			if(memberResourceIds != null)
 			{
 				mbrs.addAll(memberResourceIds);
@@ -11771,53 +11600,15 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 		 */
 		public List<ContentEntity> getMemberResources()
 		{
-			List<ContentEntity> mbrs = (List<ContentEntity>) threadLocalManager.get("members@" + this.m_id);
-			if(mbrs == null)
-			{
-				mbrs = new ArrayList();
+			List<ContentEntity> mbrs = new ArrayList<>();
 
-				// TODO: current service caching
-				mbrs.addAll(m_storage.getCollections(this));
-				mbrs.addAll(m_storage.getResources(this));
-
-				threadLocalManager.set("members@" + this.m_id, mbrs);
-			}
-
-			//if (mbrs.size() == 0) return mbrs;
-
-			// sort %%%
-			// Collections.sort(mbrs);
-
-			cacheEntities(mbrs); 
+			// TODO: current service caching
+			Collection<String> memberResourceIds = m_storage.getMemberResourceIds(m_id);
+			Collection<String> memberCollectionIds = m_storage.getMemberCollectionIds(m_id);
+			mbrs.addAll(memberCollectionIds.stream().map(BaseContentService.this::findCollection).filter(Objects::nonNull).collect(Collectors.toList()));
+			mbrs.addAll(memberResourceIds.stream().map(BaseContentService.this::findResource).filter(Objects::nonNull).collect(Collectors.toList()));
 
 			return mbrs;
-
-		} // getMemberResources
-
-		protected List copyEntityList(List entities)
-		{
-			List list = new ArrayList();
-
-			for(ContentEntity entity : (List<ContentEntity>)entities)
-			{
-				ContentEntity copy = null;
-				if(entity instanceof ContentResource)
-				{
-					copy = new BaseResourceEdit((ContentResource) entity);
-					threadLocalManager.set("findResource@" + entity.getId(), entity);	// new BaseResourceEdit((ContentResource) entity));
-				}
-				else if(entity instanceof ContentCollection)
-				{
-					copy = new BaseCollectionEdit((ContentCollection) entity);
-					threadLocalManager.set("findCollection@" + entity.getId(), entity); 	// new BaseCollectionEdit((ContentCollection) entity));
-				}
-				if(copy != null)
-				{
-					list.add(copy);
-				}
-			}
-
-			return list;
 		}
 
 		/**
@@ -12075,7 +11866,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 							((BaseCollectionEdit) entity).closeEdit();
 
 							// the collection has changed so we must remove the old version from thread-local cache
-							threadLocalManager.set("findCollection@" + entity.getId(), null);
+							invalidateContentCollection(entity.getId(), false);
 						}
 						else
 						{
@@ -12091,7 +11882,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 
 							// must remove old version of this edit from thread-local cache
 							// so we get new version if we try to retrieve it in same thread
-							threadLocalManager.set("findResource@" + entity.getId(), null);
+							invalidateContentResource(entity.getId());
 
 							// close the edit object
 							((BaseResourceEdit) entity).closeEdit();
@@ -12129,18 +11920,11 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 
 		public int getMemberCount() 
 		{
-			int count = 0;
-			Integer countObj = (Integer) threadLocalManager.get("getMemberCount@" + this.m_id);
-			if(countObj == null)
-			{
-				count = m_storage.getMemberCount(this.m_id);
-				threadLocalManager.set("getMemberCount@" + this.m_id, Integer.valueOf(count));
+			if (m_count == null) {
+				m_count = m_storage.getMemberCount(m_id);
+				M_log.debug("Collection {} has {} members", m_id, m_count);
 			}
-			else
-			{
-				count = countObj.intValue();
-			}
-			return count;
+			return m_count;
 		}
 
 		/*************************************************************************************************************************************************************
@@ -12161,26 +11945,9 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 		{
 			ContentEntity ce  = m_storage.getCollection(nextId);
 			if ( ce == null ) {
-				try
-				{
-					ce = m_storage.getResource(nextId);
-				}
-				catch (TypeException e)
-				{
-					M_log.error("Type Exception ",e);
-				}
+				ce = m_storage.getResource(nextId);
 			}
 			return ce;
-			/*
-			List l = getMemberResources();
-			for ( Iterator li = l.iterator(); li.hasNext(); ) {
-				ContentEntity ce = (ContentEntity) li.next();
-				if ( nextId.equals(ce.getId())) {
-					return ce;
-				}
-			}
-			return null;
-			 */
 		}
 
 
@@ -13644,7 +13411,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 		 * Return the identified resource, or null if not found.
 		 * @throws TypeException 
 		 */
-		public ContentResource getResource(String id) throws TypeException;
+		public ContentResource getResource(String id);
 
 		/**
 		 * Return true if the identified resource exists.
@@ -13767,54 +13534,6 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 		public Collection<ContentResource> getContextResourcesOfType(String resourceType, Set<String> contextIds);
 		
 	} // Storage
-
-	/**********************************************************************************************************************************************************************************************************************************************************
-	 * CacheRefresher implementation (no container)
-	 *********************************************************************************************************************************************************************************************************************************************************/
-
-	/**
-	 * Get a new value for this key whose value has already expired in the cache.
-	 * 
-	 * @param key
-	 *        The key whose value has expired and needs to be refreshed.
-	 * @param oldValue
-	 *        The old exipred value of the key.
-	 * @param event
-	 *        The event which triggered this refresh.
-	 * @return a new value for use in the cache for this key; if null, the entry will be removed.
-	 */
-	public Object refresh(Object key, Object oldValue, Event event)
-	{
-		Object rv = null;
-
-		// key is a reference
-		Reference ref = m_entityManager.newReference((String) key);
-		String id = ref.getId();
-
-		if (M_log.isDebugEnabled()) M_log.debug("refresh(): key " + key + " id : " + ref.getId());
-
-		// get from storage only (not cache!)
-		boolean collectionHint = id.endsWith(Entity.SEPARATOR);
-		if (collectionHint)
-		{
-			rv = m_storage.getCollection(id);
-		}
-		else
-		{
-			try
-			{
-				rv = m_storage.getResource(id);
-			}
-			catch (TypeException e)
-			{
-				M_log.error("Type Exception",e);
-			}
-		}
-
-		return rv;
-
-	} // refresh
-
 
 	/* Content Hosting Handlers are not implemented in the Base Content Service */
 	public boolean isContentHostingHandlersEnabled()
@@ -14466,5 +14185,31 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 		}
 	}
 
+	private void invalidateContentResource(String id) {
+    	if (id == null) {
+    		contentResourceCache.clear();
+    		M_log.warn("Cache ContentResource RESET");
+		} else {
+    		contentResourceCache.remove(id);
+			M_log.debug("Cache ContentResource[{}] removed", id);
+			String containingCollectionId = getContainingCollectionId(id);
+			invalidateContentCollection(containingCollectionId, false);
+		}
+	}
+
+	private void invalidateContentCollection(String id, boolean invalidateContainingCollection) {
+    	if (id == null) {
+    		contentCollectionCache.clear();
+			M_log.warn("Cache for ContentCollection reset");
+		} else {
+    		contentCollectionCache.remove(id);
+    		M_log.debug("Cache ContentCollection[{}] removed", id);
+    		if (invalidateContainingCollection) {
+    			String containingCollectionId = getContainingCollectionId(id);
+    			contentCollectionCache.remove(containingCollectionId);
+				M_log.debug("Cache ContentCollection[{}] removed", containingCollectionId);
+			}
+		}
+	}
 } // BaseContentService
 

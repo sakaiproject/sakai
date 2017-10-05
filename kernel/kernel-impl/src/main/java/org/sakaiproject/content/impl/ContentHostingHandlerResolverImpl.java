@@ -85,14 +85,7 @@ public class ContentHostingHandlerResolverImpl implements ContentHostingHandlerR
 		ContentEntity ce = storage.getCollection(id);
 		if (ce == null)
 		{
-			try {
 			ce = storage.getResource(id);
-			}
-			catch (TypeException e)
-			{
-				log.debug("Type Exception ",e);
-			}
-
 		}
 		if (ce == null)
 		{
@@ -475,15 +468,7 @@ public class ContentHostingHandlerResolverImpl implements ContentHostingHandlerR
 	public ContentResource getResource( String id)
 	{
 
-		ContentResource cc = null;
-		try
-		{
-			cc = storage.getResource(id);
-		}
-		catch (TypeException e)
-		{
-			log.debug("Type Exception ",e);
-		}
+		ContentResource cc = storage.getResource(id);
 		if (cc != null)
 		{
 			return cc;
