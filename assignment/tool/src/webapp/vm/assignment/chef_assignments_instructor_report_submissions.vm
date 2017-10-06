@@ -1,4 +1,4 @@
-<!-- start: chef_assignments_instructory_report_submissions.vm  -->
+<!-- start: chef_assignments_instructor_report_submissions.vm  -->
 <div class="portletBody">
 	#navBarHREF( $allowAddAssignment $withGrade $allowGradeSubmission $allowAddAssignment $allowAllGroups $assignmentscheck $allowUpdateSite $enableViewOption $view "" )
 
