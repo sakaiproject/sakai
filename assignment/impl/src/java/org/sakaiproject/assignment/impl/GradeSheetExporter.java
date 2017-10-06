@@ -29,14 +29,14 @@ import java.util.Optional;
 import java.util.TreeMap;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.poi.hssf.usermodel.HSSFCell;
-import org.apache.poi.hssf.usermodel.HSSFCellStyle;
-import org.apache.poi.hssf.usermodel.HSSFRow;
-import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.util.WorkbookUtil;
-import org.sakaiproject.assignment.api.AssignmentEntity;
+import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 import org.sakaiproject.assignment.api.AssignmentService;
 import org.sakaiproject.assignment.api.AssignmentServiceConstants;
 import org.sakaiproject.assignment.api.model.Assignment;
@@ -119,12 +119,12 @@ public class GradeSheetExporter {
         } else {
             int rowNum = 0;
 
-            HSSFWorkbook wb = new HSSFWorkbook();
+            Workbook wb = new SXSSFWorkbook();
 
-            HSSFSheet sheet = wb.createSheet(WorkbookUtil.createSafeSheetName(sheetName));
+            Sheet sheet = wb.createSheet(WorkbookUtil.createSafeSheetName(sheetName));
 
             // Create a row and put some cells in it. Rows are 0 based.
-            HSSFRow row = sheet.createRow(rowNum++);
+            Row row = sheet.createRow(rowNum++);
 
             row.createCell(0).setCellValue(rb.getString("download.spreadsheet.title"));
 
@@ -144,8 +144,8 @@ public class GradeSheetExporter {
             row = sheet.createRow(rowNum++);
             row.createCell(0).setCellValue("");
 
-            HSSFCellStyle style = wb.createCellStyle();
-            HSSFCell cell;
+            CellStyle style = wb.createCellStyle();
+            Cell cell;
 
             // this is the header row number
             int headerRowNumber = rowNum;
@@ -353,7 +353,7 @@ public class GradeSheetExporter {
                 // The map is already sorted and so we just iterate over it and output rows.
                 for (Iterator<Map.Entry<Submitter, List<Object>>> resultsIt = results.entrySet().iterator(); resultsIt.hasNext(); ) {
                     Map.Entry<Submitter, List<Object>> entry = resultsIt.next();
-                    HSSFRow sheetRow = sheet.createRow(rowNum++);
+                    Row sheetRow = sheet.createRow(rowNum++);
                     Submitter submitter = entry.getKey();
                     List<Object> rowValues = entry.getValue();
                     int column = 0;

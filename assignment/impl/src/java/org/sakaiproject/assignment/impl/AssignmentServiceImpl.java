@@ -388,8 +388,8 @@ public class AssignmentServiceImpl implements AssignmentService {
                             log.error("Could not stream the zip of submissions for ref = {}", ref.getReference());
                         }
                     } else if (REF_TYPE_GRADES.equals(ref.getSubType())) {
-                        res.setContentType("application/vnd.ms-excel");
-                        res.setHeader("Content-Disposition", "attachment; filename = export_grades_file.xls");
+                        res.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+                        res.setHeader("Content-Disposition", "attachment; filename = export_grades_file.xlsx");
 
                         try (OutputStream out = res.getOutputStream()) {
                             gradeSheetExporter.getGradesSpreadsheet(out, ref.getReference());
