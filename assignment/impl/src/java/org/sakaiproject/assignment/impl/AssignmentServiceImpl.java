@@ -41,8 +41,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.sakaiproject.announcement.api.AnnouncementChannel;
 import org.sakaiproject.announcement.api.AnnouncementService;
 import org.sakaiproject.assignment.api.*;
@@ -67,7 +69,11 @@ import org.sakaiproject.email.api.DigestService;
 import org.sakaiproject.email.api.EmailService;
 import org.sakaiproject.entity.api.*;
 import org.sakaiproject.entitybroker.DeveloperHelperService;
+import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.EventTrackingService;
+import org.sakaiproject.event.api.LearningResourceStoreService;
+import org.sakaiproject.event.api.LearningResourceStoreService.*;
+import org.sakaiproject.event.api.LearningResourceStoreService.LRS_Verb.SAKAI_VERB;
 import org.sakaiproject.exception.*;
 import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.service.gradebook.shared.GradeDefinition;
@@ -117,6 +123,7 @@ public class AssignmentServiceImpl implements AssignmentService {
     @Setter private DeveloperHelperService developerHelperService;
     @Setter private DigestService digestService;
     @Setter private EmailService emailService;
+    @Setter private EmailUtil emailUtil;
     @Setter private EntityManager entityManager;
     @Setter private EventTrackingService eventTrackingService;
     @Setter private FormattedText formattedText;
@@ -124,6 +131,7 @@ public class AssignmentServiceImpl implements AssignmentService {
     @Setter private GradebookExternalAssessmentService gradebookExternalAssessmentService;
     @Setter private GradebookService gradebookService;
     @Setter private GradeSheetExporter gradeSheetExporter;
+    @Setter private LearningResourceStoreService learningResourceStoreService;
     @Setter private MemoryService memoryService;
     @Setter private ResourceLoader resourceLoader;
     @Setter private SecurityService securityService;
@@ -405,7 +413,7 @@ public class AssignmentServiceImpl implements AssignmentService {
     }
 
     @Override
-    public List allowReceiveSubmissionNotificationUsers(String context) {
+    public List<User> allowReceiveSubmissionNotificationUsers(String context) {
         String resourceString = AssignmentReferenceReckoner.reckoner().context(context).reckon().getReference();
         return securityService.unlockUsers(SECURE_ASSIGNMENT_RECEIVE_NOTIFICATIONS, resourceString);
     }
@@ -480,10 +488,9 @@ public class AssignmentServiceImpl implements AssignmentService {
     }
 
     @Override
-    public List allowGradeAssignmentUsers(String assignmentReference) {
+    public List<User> allowGradeAssignmentUsers(String assignmentReference) {
         List<User> users = securityService.unlockUsers(SECURE_GRADE_ASSIGNMENT_SUBMISSION, assignmentReference);
-        String assignmentId = AssignmentReferenceReckoner.reckoner().reference(assignmentReference).reckon().getId();
-
+String assignmentId = AssignmentReferenceReckoner.reckoner().reference(assignmentReference).reckon().getId();
         try {
             Assignment a = getAssignment(assignmentId);
             if (a.getAccess() == Assignment.Access.GROUPED) {
@@ -796,7 +803,8 @@ public class AssignmentServiceImpl implements AssignmentService {
             submission.setDateCreated(Date.from(Instant.now()));
             assignmentRepository.newSubmission(assignment, submission, Optional.of(submissionSubmitters), Optional.empty(), Optional.empty(), Optional.empty());
 
-            eventTrackingService.post(eventTrackingService.newEvent(AssignmentConstants.EVENT_ADD_ASSIGNMENT_SUBMISSION, submission.getId(), true));
+            String submissionReference = AssignmentReferenceReckoner.reckoner().submission(submission).reckon().getReference();
+            eventTrackingService.post(eventTrackingService.newEvent(AssignmentConstants.EVENT_ADD_ASSIGNMENT_SUBMISSION, submissionReference, true));
         } catch (IdUnusedException iue) {
             log.error("A submission cannot be added to an unknown assignement: {}", assignmentId);
         }
@@ -873,8 +881,10 @@ public class AssignmentServiceImpl implements AssignmentService {
         if (!allowUpdateAssignment(reference)) {
             throw new PermissionException(sessionManager.getCurrentSessionUserId(), SECURE_UPDATE_ASSIGNMENT, null);
         }
+        eventTrackingService.post(eventTrackingService.newEvent(AssignmentConstants.EVENT_UPDATE_ASSIGNMENT, reference, true));
 
         assignmentRepository.updateAssignment(assignment);
+
     }
 
     @Override
@@ -882,13 +892,80 @@ public class AssignmentServiceImpl implements AssignmentService {
     public void updateSubmission(AssignmentSubmission submission) throws PermissionException {
         Assert.notNull(submission, "Submission cannot be null");
         Assert.notNull(submission.getId(), "Submission doesn't appear to have been persisted yet");
-        Assert.notNull(submission.getAssignment(), "Submission doesn't appear to have been persisted yet");
 
-        if (!allowAddSubmission(submission.getAssignment().getContext())) {
-            throw new PermissionException(sessionManager.getCurrentSessionUserId(), SECURE_ADD_ASSIGNMENT_SUBMISSION, null);
+        String reference = AssignmentReferenceReckoner.reckoner().submission(submission).reckon().getReference();
+        if (!allowUpdateSubmission(reference)) {
+            throw new PermissionException(sessionManager.getCurrentSessionUserId(), SECURE_UPDATE_ASSIGNMENT_SUBMISSION, null);
         }
+        eventTrackingService.post(eventTrackingService.newEvent(AssignmentConstants.EVENT_UPDATE_ASSIGNMENT_SUBMISSION, reference, true));
 
         assignmentRepository.updateSubmission(submission);
+
+        // Assignment Submission Notifications
+        Date dateReturned = submission.getDateReturned();
+        Date dateSubmitted = submission.getDateSubmitted();
+        if (!submission.getSubmitted()) {
+            // if the submission is not submitted then saving a submission event
+            eventTrackingService.post(eventTrackingService.newEvent(AssignmentConstants.EVENT_SAVE_ASSIGNMENT_SUBMISSION, reference, true));
+        } else if (dateReturned == null && !submission.getReturned() && (dateSubmitted == null || submission.getDateModified().getTime() - dateSubmitted.getTime() > 1000 * 60)) {
+            // make sure the last modified time is at least one minute after the submit time
+            if (!(StringUtils.trimToNull(submission.getSubmittedText()) == null && submission.getAttachments().isEmpty() && StringUtils.trimToNull(submission.getGrade()) == null && StringUtils.trimToNull(submission.getFeedbackText()) == null && StringUtils.trimToNull(submission.getFeedbackComment()) == null && submission.getFeedbackAttachments().isEmpty())) {
+                // graded and saved before releasing it
+                Event event = eventTrackingService.newEvent(AssignmentConstants.EVENT_GRADE_ASSIGNMENT_SUBMISSION, reference, true);
+                eventTrackingService.post(event);
+                if (submission.getGraded()) {
+                    for (AssignmentSubmissionSubmitter submitter : submission.getSubmitters()) {
+                        try {
+                            User user = userDirectoryService.getUser(submitter.getSubmitter());
+                            learningResourceStoreService.registerStatement(getStatementForAssignmentGraded(learningResourceStoreService.getEventActor(event), event, submission.getAssignment(), submission, user), "assignment");
+                        } catch (UserNotDefinedException e) {
+                            log.warn("Assignments could not find user ({}) while registering Event for LRSS", submitter.getSubmitter());
+                        }
+                    }
+                }
+            }
+        } else if (dateReturned != null && submission.getGraded() && (dateSubmitted == null || dateReturned.after(dateSubmitted) || dateSubmitted.after(dateReturned) && submission.getDateModified().after(dateSubmitted))) {
+            // releasing a submitted assignment or releasing grade to an unsubmitted assignment
+            Event event = eventTrackingService.newEvent(AssignmentConstants.EVENT_GRADE_ASSIGNMENT_SUBMISSION, reference, true);
+            eventTrackingService.post(event);
+            if (submission.getGraded()) {
+                for (AssignmentSubmissionSubmitter submitter : submission.getSubmitters()) {
+                    try {
+                        User user = userDirectoryService.getUser(submitter.getSubmitter());
+                        learningResourceStoreService.registerStatement(getStatementForAssignmentGraded(learningResourceStoreService.getEventActor(event), event, submission.getAssignment(), submission, user), "assignment");
+                    } catch (UserNotDefinedException e) {
+                        log.warn("Assignments could not find user ({}) while registering Event for LRSS", submitter.getSubmitter());
+                    }
+                }
+            }
+
+            // if this is releasing grade, depending on the release grade notification setting, send email notification to student
+            sendGradeReleaseNotification(submission);
+        } else if (dateSubmitted == null) {
+            // releasing a submitted assignment or releasing grade to an unsubmitted assignment
+            Event event = eventTrackingService.newEvent(AssignmentConstants.EVENT_GRADE_ASSIGNMENT_SUBMISSION, reference, true);
+            eventTrackingService.post(event);
+            for (AssignmentSubmissionSubmitter submitter : submission.getSubmitters()) {
+                try {
+                    User user = userDirectoryService.getUser(submitter.getSubmitter());
+                    learningResourceStoreService.registerStatement(getStatementForUnsubmittedAssignmentGraded(learningResourceStoreService.getEventActor(event), event, submission.getAssignment(), submission, user), "sakai.assignment");
+                } catch (UserNotDefinedException e) {
+                    log.warn("Assignments could not find user ({}) while registering Event for LRSS", submitter.getSubmitter());
+                }
+            }
+        } else {
+            // submitting a submission
+            eventTrackingService.post(eventTrackingService.newEvent(AssignmentConstants.EVENT_SUBMIT_ASSIGNMENT_SUBMISSION, reference, true));
+
+            // only doing the notification for real online submissions
+            if (submission.getAssignment().getTypeOfSubmission() != Assignment.SubmissionType.NON_ELECTRONIC_ASSIGNMENT_SUBMISSION) {
+                // instructor notification
+                notificationToInstructors(submission, submission.getAssignment());
+
+                // student notification, whether the student gets email notification once he submits an assignment
+                notificationToStudent(submission);
+            }
+        }
     }
 
     @Override
@@ -2775,12 +2852,12 @@ public class AssignmentServiceImpl implements AssignmentService {
                     ZipEntry additionalEntry = new ZipEntry(root + resourceLoader.getString("assignment.additional.notes.file.title") + ".html");
                     out.putNextEntry(additionalEntry);
 
-                    String htmlString = htmlPreamble("additionalnotes");
+                    String htmlString = emailUtil.htmlPreamble("additionalnotes");
                     htmlString += "<h1>" + resourceLoader.getString("assignment.additional.notes.export.title") + "</h1>";
                     htmlString += "<div>" + resourceLoader.getString("assignment.additional.notes.export.header") + "</div><br/>";
                     htmlString += "<table border=\"1\"  style=\"border-collapse:collapse;\"><tr><th>" + resourceLoader.getString("gen.student") + "</th><th>" + resourceLoader.getString("gen.notes") + "</th>" + submittersAdditionalNotesHtml + "</table>";
                     htmlString += "<br/><div>" + resourceLoader.getString("assignment.additional.notes.export.footer") + "</div>";
-                    htmlString += htmlEnd();
+                    htmlString += emailUtil.htmlEnd();
                     log.debug("Additional information html: " + htmlString);
 
                     byte[] wes = htmlString.getBytes();
@@ -3129,35 +3206,6 @@ public class AssignmentServiceImpl implements AssignmentService {
         } // for
     }
 
-    private String htmlPreamble(String submissionOrReleaseGrade) {
-        StringBuilder buf = new StringBuilder();
-        buf.append("<!DOCTYPE html PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\"\n");
-        buf.append("    \"http://www.w3.org/TR/html4/loose.dtd\">\n");
-        buf.append("<html>\n");
-        buf.append("  <head><title>");
-        buf.append(getSubject(submissionOrReleaseGrade));
-        buf.append("</title></head>\n");
-        buf.append("  <body>\n");
-        return buf.toString();
-    }
-
-    private String htmlEnd() {
-        return "\n  </body>\n</html>\n";
-    }
-
-    private String getSubject(String submissionOrReleaseGrade) {
-        String subject = "";
-        if ("submission".equals(submissionOrReleaseGrade))
-            subject = resourceLoader.getString("noti.subject.content");
-        else if ("releasegrade".equals(submissionOrReleaseGrade))
-            subject = resourceLoader.getString("noti.releasegrade.subject.content");
-        else if ("additionalnotes".equals(submissionOrReleaseGrade))
-            subject = resourceLoader.getString("assignment.additional.notes.export.title");
-        else
-            subject = resourceLoader.getString("noti.releaseresubmission.subject.content");
-        return "Subject: " + subject;
-    }
-
     @Transactional
     public void resetAssignment(Assignment assignment) {
         assignmentRepository.resetAssignment(assignment);
@@ -3191,6 +3239,139 @@ public class AssignmentServiceImpl implements AssignmentService {
             }
         } catch (IdUnusedException | PermissionException e) {
             log.warn("Could not locate submission: {}, {}", submissionId, e.getMessage());
+        }
+    }
+
+    private LRS_Statement getStatementForAssignmentGraded(LRS_Actor instructor, Event event, Assignment a, AssignmentSubmission s, User studentUser) {
+        LRS_Verb verb = new LRS_Verb(SAKAI_VERB.scored);
+        LRS_Object lrsObject = new LRS_Object(serverConfigurationService.getPortalUrl() + event.getResource(), "received-grade-assignment");
+        Map<String, String> nameMap = new HashMap<>();
+        nameMap.put("en-US", "User received a grade");
+        lrsObject.setActivityName(nameMap);
+        Map<String, String> descMap = new HashMap<>();
+        String resubmissionNumber = StringUtils.defaultString(s.getProperties().get(AssignmentConstants.ALLOW_RESUBMIT_NUMBER), "0");
+        descMap.put("en-US", "User received a grade for their assginment: " + a.getTitle() + "; Submission #: " + resubmissionNumber);
+        lrsObject.setDescription(descMap);
+        LRS_Actor student = new LRS_Actor(studentUser.getEmail());
+        student.setName(studentUser.getDisplayName());
+        LRS_Context context = new LRS_Context(instructor);
+        context.setActivity("other", "assignment");
+        return new LRS_Statement(student, verb, lrsObject, getLRS_Result(a, s, true), context);
+    }
+
+    private LRS_Result getLRS_Result(Assignment a, AssignmentSubmission s, boolean completed) {
+        LRS_Result result = null;
+        String decSeparator = formattedText.getDecimalSeparator();
+        // gradeDisplay ready to conversion to Float
+        String gradeDisplay = StringUtils.replace(getGradeDisplay(s.getGrade(), a.getTypeOfGrade(), a.getScaleFactor()), decSeparator, ".");
+        if (Assignment.GradeType.SCORE_GRADE_TYPE == a.getTypeOfGrade() && NumberUtils.isCreatable(gradeDisplay)) { // Points
+            String maxGradePointDisplay = StringUtils.replace(getMaxPointGradeDisplay(a.getScaleFactor(), a.getMaxGradePoint()), decSeparator, ".");
+            result = new LRS_Result(new Float(gradeDisplay), 0.0f, new Float(maxGradePointDisplay), null);
+            result.setCompletion(completed);
+        } else {
+            result = new LRS_Result(completed);
+            result.setGrade(getGradeDisplay(s.getGrade(), a.getTypeOfGrade(), a.getScaleFactor()));
+        }
+        return result;
+    }
+
+    private LRS_Statement getStatementForUnsubmittedAssignmentGraded(LRS_Actor instructor, Event event, Assignment a, AssignmentSubmission s, User studentUser) {
+        LRS_Verb verb = new LRS_Verb(SAKAI_VERB.scored);
+        LRS_Object lrsObject = new LRS_Object(serverConfigurationService.getAccessUrl() + event.getResource(), "received-grade-unsubmitted-assignment");
+        Map<String, String> nameMap = new HashMap<>();
+        nameMap.put("en-US", "User received a grade");
+        lrsObject.setActivityName(nameMap);
+        Map<String, String> descMap = new HashMap<>();
+        descMap.put("en-US", "User received a grade for an unsubmitted assginment: " + a.getTitle());
+        lrsObject.setDescription(descMap);
+        LRS_Actor student = new LRS_Actor(studentUser.getEmail());
+        student.setName(studentUser.getDisplayName());
+        LRS_Context context = new LRS_Context(instructor);
+        context.setActivity("other", "assignment");
+        return new LRS_Statement(student, verb, lrsObject, getLRS_Result(a, s, false), context);
+    }
+
+    private void sendGradeReleaseNotification(AssignmentSubmission submission) {
+        Set<User> filteredUsers;
+        Assignment assignment = submission.getAssignment();
+        Map<String, String> assignmentProperties = assignment.getProperties();
+        String siteId = assignment.getContext();
+        String resubmitNumber = submission.getProperties().get(AssignmentConstants.ALLOW_RESUBMIT_NUMBER);
+
+        boolean released = BooleanUtils.toBoolean(submission.getGradeReleased());
+        Set<String> submitterIds = submission.getSubmitters().stream().map(AssignmentSubmissionSubmitter::getSubmitter).collect(Collectors.toSet());
+        try {
+            Set<String> siteUsers = siteService.getSite(siteId).getUsers();
+            filteredUsers = submitterIds.stream().filter(siteUsers::contains).map(id -> {
+                try {
+                    return userDirectoryService.getUser(id);
+                } catch (UserNotDefinedException e) {
+                    log.warn("Could not find user with id = {}, {}", id, e.getMessage());
+                }
+                return null;
+            }).filter(Objects::nonNull).collect(Collectors.toSet());
+        } catch (IdUnusedException e) {
+            log.warn("Site ({}) not found.", siteId);
+            return;
+        }
+
+        if (released && StringUtils.equals(AssignmentConstants.ASSIGNMENT_RELEASEGRADE_NOTIFICATION_EACH, assignmentProperties.get(AssignmentConstants.ASSIGNMENT_RELEASEGRADE_NOTIFICATION_VALUE))) {
+            // send email to every submitters
+            if (!filteredUsers.isEmpty()) {
+                // send the message immidiately
+                emailService.sendToUsers(filteredUsers, emailUtil.getHeaders(null, "releasegrade"), emailUtil.getNotificationMessage(submission, "releasegrade"));
+            }
+        }
+        if (StringUtils.isNotBlank(resubmitNumber) && StringUtils.equals(AssignmentConstants.ASSIGNMENT_RELEASERESUBMISSION_NOTIFICATION_EACH, assignmentProperties.get(AssignmentConstants.ASSIGNMENT_RELEASEGRADE_NOTIFICATION_VALUE))) {
+            // send email to every submitters
+            if (!filteredUsers.isEmpty()) {
+                // send the message immidiately
+                emailService.sendToUsers(filteredUsers, emailUtil.getHeaders(null, "releaseresumbission"), emailUtil.getNotificationMessage(submission, "releaseresumbission"));
+            }
+        }
+    }
+
+    private void notificationToInstructors(AssignmentSubmission submission, Assignment assignment) {
+        String notiOption = assignment.getProperties().get(AssignmentConstants.ASSIGNMENT_INSTRUCTOR_NOTIFICATIONS_VALUE);
+        if (notiOption != null && !notiOption.equals(AssignmentConstants.ASSIGNMENT_INSTRUCTOR_NOTIFICATIONS_NONE)) {
+            // need to send notification email
+            String context = assignment.getContext();
+            String assignmentReference = AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getReference();
+
+            // compare the list of users with the receive.notifications and list of users who can actually grade this assignment
+            List<User> receivers = allowReceiveSubmissionNotificationUsers(context);
+            List allowGradeAssignmentUsers = allowGradeAssignmentUsers(assignmentReference);
+            receivers.retainAll(allowGradeAssignmentUsers);
+
+            String messageBody = emailUtil.getNotificationMessage(submission, "submission");
+
+            if (notiOption.equals(AssignmentConstants.ASSIGNMENT_INSTRUCTOR_NOTIFICATIONS_EACH)) {
+                // send the message immediately
+                emailService.sendToUsers(receivers, emailUtil.getHeaders(null, "submission"), messageBody);
+            } else if (notiOption.equals(AssignmentConstants.ASSIGNMENT_INSTRUCTOR_NOTIFICATIONS_DIGEST)) {
+                // just send plain/text version for now
+                String digestMsgBody = emailUtil.getPlainTextNotificationMessage(submission, "submission");
+
+                // digest the message to each user
+                for (User user : receivers) {
+                    digestService.digest(user.getId(), emailUtil.getSubject("submission"), digestMsgBody);
+                }
+            }
+        }
+    }
+
+    private void notificationToStudent(AssignmentSubmission submission) {
+        if (serverConfigurationService.getBoolean("assignment.submission.confirmation.email", true)) {
+            Set<String> submitterIds = submission.getSubmitters().stream().map(AssignmentSubmissionSubmitter::getSubmitter).collect(Collectors.toSet());
+            Set<User> users = submitterIds.stream().map(id -> {
+                try {
+                    return userDirectoryService.getUser(id);
+                } catch (UserNotDefinedException e) {
+                    log.warn("Could not find user with id = {}, {}", id, e.getMessage());
+                }
+                return null;
+            }).filter(Objects::nonNull).collect(Collectors.toSet());
+            emailService.sendToUsers(users, emailUtil.getHeaders(null, "submission"), emailUtil.getNotificationMessage(submission, "submission"));
         }
     }
 }

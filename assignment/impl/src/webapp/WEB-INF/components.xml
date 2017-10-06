@@ -28,6 +28,7 @@
         <property name="developerHelperService" ref="org.sakaiproject.entitybroker.DeveloperHelperService"/>
         <property name="digestService" ref="org.sakaiproject.email.api.DigestService"/>
         <property name="emailService" ref="org.sakaiproject.email.api.EmailService"/>
+        <property name="emailUtil" ref="org.sakaiproject.assignment.impl.EmailUtil"/>
         <property name="entityManager" ref="org.sakaiproject.entity.api.EntityManager"/>
         <property name="eventTrackingService" ref="org.sakaiproject.event.api.EventTrackingService"/>
         <property name="formattedText" ref="org.sakaiproject.util.api.FormattedText"/>
@@ -35,6 +36,7 @@
         <property name="gradebookExternalAssessmentService" ref="org_sakaiproject_service_gradebook_GradebookExternalAssessmentService"/>
         <property name="gradebookService" ref="org.sakaiproject.service.gradebook.GradebookService"/>
         <property name="gradeSheetExporter" ref="org.sakaiproject.assignment.impl.GradeSheetExporter"/>
+        <property name="learningResourceStoreService" ref="org.sakaiproject.event.api.LearningResourceStoreService"/>
         <property name="memoryService" ref="org.sakaiproject.memory.api.MemoryService"/>
         <property name="resourceLoader" ref="org.sakaiproject.util.ResourceLoader.assignment"/>
         <property name="securityService" ref="org.sakaiproject.authz.api.SecurityService"/>
@@ -63,6 +65,16 @@
         <property name="targetBeanName" value="org.sakaiproject.assignment.api.AssignmentEntity"/>
     </bean>
 
+    <bean id="org.sakaiproject.assignment.impl.EmailUtil"
+          class="org.sakaiproject.assignment.impl.EmailUtil">
+        <property name="assignmentService" ref="org.sakaiproject.assignment.api.AssignmentService"/>
+        <property name="developerHelperService" ref="org.sakaiproject.entitybroker.DeveloperHelperService"/>
+        <property name="formattedText" ref="org.sakaiproject.util.api.FormattedText"/>
+        <property name="resourceLoader" ref="org.sakaiproject.util.ResourceLoader.assignment"/>
+        <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
+        <property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
+        <property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService"/>
+    </bean>
     <bean id="org.sakaiproject.assignment.impl.GradeSheetExporter"
           class="org.sakaiproject.assignment.impl.GradeSheetExporter">
         <property name="assignmentService" ref="org.sakaiproject.assignment.api.AssignmentService"/>

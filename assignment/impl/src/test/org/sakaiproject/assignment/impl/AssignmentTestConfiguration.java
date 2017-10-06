@@ -41,6 +41,7 @@ import org.sakaiproject.email.api.EmailService;
 import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.entitybroker.DeveloperHelperService;
 import org.sakaiproject.event.api.EventTrackingService;
+import org.sakaiproject.event.api.LearningResourceStoreService;
 import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
@@ -248,5 +249,10 @@ public class AssignmentTestConfiguration {
     @Bean(name = "org.sakaiproject.contentreview.service.ContentReviewService")
     public ContentReviewService contentReviewService() {
         return mock(ContentReviewService.class);
+    }
+
+    @Bean(name = "org.sakaiproject.event.api.LearningResourceStoreService")
+    public LearningResourceStoreService learningResourceStoreService() {
+        return mock(LearningResourceStoreService.class);
     }
 }

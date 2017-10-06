@@ -379,8 +379,8 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
             String status = assignmentService.getSubmissionStatus(submission.getId());
             Assert.assertEquals("Draft - In progress", status);
 
-            String submissionContext = AssignmentReferenceReckoner.reckoner().context(context).subtype("s").reckon().getReference();
-            when(securityService.unlock(AssignmentServiceConstants.SECURE_ADD_ASSIGNMENT_SUBMISSION, submissionContext)).thenReturn(true);
+            String reference = AssignmentReferenceReckoner.reckoner().submission(submission).reckon().getReference();
+            when(securityService.unlock(AssignmentServiceConstants.SECURE_UPDATE_ASSIGNMENT_SUBMISSION, reference)).thenReturn(true);
             submission.setSubmitted(true);
             submission.setDateSubmitted(Date.from(Instant.now()));
             assignmentService.updateSubmission(submission);
