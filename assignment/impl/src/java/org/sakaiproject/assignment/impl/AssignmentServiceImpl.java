@@ -452,7 +452,7 @@ public class AssignmentServiceImpl implements AssignmentService {
     }
 
     @Override
-    public Collection getGroupsAllowAddAssignment(String context) {
+    public Collection<Group> getGroupsAllowAddAssignment(String context) {
         return getGroupsAllowFunction(SECURE_ACCESS_ASSIGNMENT, context, null);
     }
 
@@ -472,7 +472,7 @@ public class AssignmentServiceImpl implements AssignmentService {
     }
 
     @Override
-    public Collection getGroupsAllowRemoveAssignment(String context) {
+    public Collection<Group> getGroupsAllowRemoveAssignment(String context) {
         return getGroupsAllowFunction(SECURE_REMOVE_ASSIGNMENT, context, null);
     }
 
@@ -546,7 +546,7 @@ String assignmentId = AssignmentReferenceReckoner.reckoner().reference(assignmen
     }
 
     @Override
-    public List allowAddAnySubmissionUsers(String context) {
+    public List<String> allowAddAnySubmissionUsers(String context) {
         List<String> rv = new ArrayList<>();
 
         try {
@@ -568,7 +568,7 @@ String assignmentId = AssignmentReferenceReckoner.reckoner().reference(assignmen
     }
 
     @Override
-    public List allowAddAssignmentUsers(String context) {
+    public List<User> allowAddAssignmentUsers(String context) {
         String resourceString = AssignmentReferenceReckoner.reckoner().context(context).reckon().getReference();
         return securityService.unlockUsers(SECURE_ADD_ASSIGNMENT, resourceString);
     }
@@ -1220,7 +1220,7 @@ String assignmentId = AssignmentReferenceReckoner.reckoner().reference(assignmen
 //    }
 
     @Override
-    public AssignmentSubmission getSubmission(List submissions, User person) {
+    public AssignmentSubmission getSubmission(List<AssignmentSubmission> submissions, User person) {
         throw new UnsupportedOperationException("Method is deprecated, remove");
     }
 
