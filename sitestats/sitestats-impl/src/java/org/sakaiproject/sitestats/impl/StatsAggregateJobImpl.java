@@ -292,7 +292,7 @@ public class StatsAggregateJobImpl implements StatefulJob {
 							context = rs.getString("CONTEXT");
 						eventsQueue.add( statsUpdateManager.buildEvent(date, event, ref, context, sessionUser, sessionId) );
 						
-						lastProcessedEventId = rs.getInt("EVENT_ID");
+						lastProcessedEventId = rs.getLong("EVENT_ID");
 						lastEventDate = date;
 						if(firstEventIdProcessed == -1)
 							firstEventIdProcessed = jobRun.getStartEventId(); //was: lastProcessedEventId;
