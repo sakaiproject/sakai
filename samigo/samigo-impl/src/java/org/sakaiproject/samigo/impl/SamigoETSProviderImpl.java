@@ -222,8 +222,7 @@ public class SamigoETSProviderImpl implements SamigoETSProvider {
             Site            site                    = siteService.getSite(siteID);
             Set<String>     siteUsersHasRole;
             
-            if (replacementValues.get("releaseToGroups") != null){
-            	siteUsersHasRole = extractInstructorsFromGroups(site,replacementValues.get("releaseToGroups") );
+            if ((replacementValues.get("releaseToGroups") != null) && !((siteUsersHasRole=extractInstructorsFromGroups(site,replacementValues.get("releaseToGroups") )).isEmpty())){
             }else{
             	AuthzGroup azGroup = authzGroupService.getAuthzGroup("/site/" + siteID);
             	siteUsersHasRole = site.getUsersHasRole(azGroup.getMaintainRole());
