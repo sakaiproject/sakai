@@ -6948,7 +6948,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 							nAssignment.setTitle(oAssignment.getTitle());
 							nAssignment.setPosition_order(oAssignment.getPosition_order());
 							
-							nAssignment.setAllowPeerAssessment(nAssignment.getAllowPeerAssessment());
+							nAssignment.setAllowPeerAssessment(oAssignment.getAllowPeerAssessment());
 							nAssignment.setPeerAssessmentAnonEval(oAssignment.getPeerAssessmentAnonEval());
 							nAssignment.setPeerAssessmentInstructions(oAssignment.getPeerAssessmentInstructions());
 							nAssignment.setPeerAssessmentNumReviews(oAssignment.getPeerAssessmentNumReviews());
