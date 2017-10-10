@@ -479,7 +479,7 @@ a.edit-link:link, a.edit-link:visited, a.section-merge-link:link, a.section-merg
    background-color: #f0f0f0;
    border-color: #222;
 }
-.colgray .commentDiv, .colgray .studentContentTable, .colgray .questionDiv .contentCol, .colgray .checklistDiv, .colgray .forumSummaryHeaderDiv, .colgray .announcementsHeaderDiv {
+.colgray .commentDiv, .colgray .studentContentTable, .colgray .questionDiv .contentCol, .colgray .checklistDiv, .colgray .forumSummaryHeaderDiv, .colgray .announcementsHeaderDiv, .colgray .fc-toolbar {
   background-color: #b8b8b8;
 }
 .colgray a[href]{
@@ -490,7 +490,7 @@ a.edit-link:link, a.edit-link:visited, a.section-merge-link:link, a.section-merg
    border-color: #600;
    color: #4660000;
 }
-.colred .commentDiv, .colred .studentContentTable, .colred .questionDiv .contentCol, .colred .checklistDiv, .colred .forumSummaryHeaderDiv, .colred .announcementsHeaderDiv {
+.colred .commentDiv, .colred .studentContentTable, .colred .questionDiv .contentCol, .colred .checklistDiv, .colred .forumSummaryHeaderDiv, .colred .announcementsHeaderDiv, .colred .fc-toolbar {
   background-color: #ffb3b3;
 }
 .colred a[href], .colred h3.author {
@@ -502,7 +502,7 @@ a.edit-link:link, a.edit-link:visited, a.section-merge-link:link, a.section-merg
    border-color: #004;
    color: #004;
 }
-.colblue .commentDiv, .colblue .studentContentTable, .colblue .questionDiv .contentCol, .colblue .checklistDiv, .colblue .forumSummaryHeaderDiv, .colblue .announcementsHeaderDiv {
+.colblue .commentDiv, .colblue .studentContentTable, .colblue .questionDiv .contentCol, .colblue .checklistDiv, .colblue .forumSummaryHeaderDiv, .colblue .announcementsHeaderDiv, .colblue .fc-toolbar {
   background-color: #b3d9ff;
   background-color: #99e7ff;
 }
@@ -514,7 +514,7 @@ a.edit-link:link, a.edit-link:visited, a.section-merge-link:link, a.section-merg
    border-color: #030;
    color: #030;
 }
-.colgreen .commentDiv, .colgreen .studentContentTable, .colgreen .questionDiv .contentCol, .colgreen .checklistDiv, .colgreen .forumSummaryHeaderDiv, .colgreen .announcementsHeaderDiv {
+.colgreen .commentDiv, .colgreen .studentContentTable, .colgreen .questionDiv .contentCol, .colgreen .checklistDiv, .colgreen .forumSummaryHeaderDiv, .colgreen .announcementsHeaderDiv, .colgreen .fc-toolbar {
   background-color: #9fc;
 }
 .colgreen a[href] {
@@ -525,7 +525,7 @@ a.edit-link:link, a.edit-link:visited, a.section-merge-link:link, a.section-merg
    border-color: #840;
    color: #4b2600;
 }
-.colyellow .commentDiv, .colyellow .studentContentTable, .colyellow .questionDiv .contentCol, .colyellow .checklistDiv, .colyellow .forumSummaryHeaderDiv, .colyellow .announcementsHeaderDiv {
+.colyellow .commentDiv, .colyellow .studentContentTable, .colyellow .questionDiv .contentCol, .colyellow .checklistDiv, .colyellow .forumSummaryHeaderDiv, .colyellow .announcementsHeaderDiv, .colyellow .fc-toolbar {
   background-color:  #ffd480
 }
 .colyellow a[href],.colyellow h3.author {
