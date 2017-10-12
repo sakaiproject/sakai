@@ -58,14 +58,15 @@
         $(document).ready(function() {
           // set up the accordion for settings
           var accordionPanel = 1;
-          if (window.sessionStorage && window.sessionStorage.getItem('samigo_publishedsettings')) {
-              accordionPanel = parseInt(window.sessionStorage.getItem('samigo_publishedsettings'));
+          var itemName = "samigo_publishedsettings_" + <h:outputText value="#{publishedSettings.assessmentId}"/>;
+          if (window.sessionStorage && window.sessionStorage.getItem(itemName)) {
+              accordionPanel = parseInt(window.sessionStorage.getItem(itemName));
           }
           $("#jqueryui-accordion").accordion({
               heightStyle: "content",
               activate: function(event, ui) {
                   if (window.sessionStorage) {
-                      window.sessionStorage.setItem('samigo_publishedsettings', $("#jqueryui-accordion").accordion("option", "active"));
+                      window.sessionStorage.setItem(itemName, $("#jqueryui-accordion").accordion("option", "active"));
                   }
               },
               active: accordionPanel,
