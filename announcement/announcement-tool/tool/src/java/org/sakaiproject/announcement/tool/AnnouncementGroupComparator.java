@@ -97,4 +97,4 @@ class AnnouncementGroupComparator implements Comparator<Group> {
 
     } // compare
 
-} // AnnouncementComparator
+} // AnnouncementWrapperComparator
