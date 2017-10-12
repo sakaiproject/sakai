@@ -108,7 +108,7 @@ sakai.editor.editors.ckeditor.launch = function(targetId, config, w, h) {
             "attemptAllowed" : Number.MAX_VALUE,
             "attemptsRemaining": Number.MAX_VALUE
         },
-        skin: 'moono',
+        skin: 'moono-lisa',
         defaultLanguage: 'en',
         
         // SAK-31829, SAK-33279 Disable functionality in table plugin
