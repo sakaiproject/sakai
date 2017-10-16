@@ -860,11 +860,12 @@ GbGradeTable.renderTable = function (elementId, tableData) {
   var $link;
   $(window).on('show.bs.dropdown', function (event) {
     $link = $(event.target);
-    $dropdownMenu = $(event.target).find('.dropdown-menu');
 
     if ($link.closest("#gradeTable").length == 0) {
       return true;
     }
+
+    $dropdownMenu = $(event.target).find('.dropdown-menu');
 
     $dropdownMenu.addClass("gb-dropdown-menu");
 
