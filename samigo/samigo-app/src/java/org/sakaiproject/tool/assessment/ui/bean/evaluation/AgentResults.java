@@ -58,7 +58,7 @@ public class AgentResults
 	 * 
 	 */
 	private static final long serialVersionUID = 2820488402465439395L;
-	private static Logger log = LoggerFactory.getLogger(AgentResults.class);
+	private static final Logger LOG = LoggerFactory.getLogger(AgentResults.class);
 	
   private Long assessmentGradingId;
   private Long itemGradingId;
@@ -90,7 +90,7 @@ public class AgentResults
   private List itemGradingArrayList;
   private String rationale="";
   private boolean retakeAllowed;
-  private boolean isAutoSubmitted;
+  private Boolean isAutoSubmitted;
   private boolean isAttemptDateAfterDueDate;
   private ItemGradingData itemGrading;
   private AssessmentGradingData assessmentGrading;
@@ -404,11 +404,11 @@ public class AgentResults
 		this.retakeAllowed = retakeAllowed;
 	}
 	
-	public boolean getIsAutoSubmitted() {
+	public Boolean getIsAutoSubmitted() {
 		return this.isAutoSubmitted;
 	}
 	
-	public void setIsAutoSubmitted(boolean isAutoSubmitted) {
+	public void setIsAutoSubmitted(Boolean isAutoSubmitted) {
 		this.isAutoSubmitted = isAutoSubmitted;
 	}
 	
@@ -459,7 +459,7 @@ public class AgentResults
 			  context.redirect("sakai.filepicker.helper/tool");
 		  }
 		  catch(Exception e){
-			  log.error("fail to redirect to attachment page: " + e.getMessage());
+			  LOG.error("fail to redirect to attachment page: " + e.getMessage());
 		  }
 		  return "sakai.filepicker.helper";
 	  }
@@ -503,7 +503,7 @@ public class AgentResults
 			  context.redirect("sakai.filepicker.helper/tool");
 		  }
 		  catch(Exception e){
-			  log.error("fail to redirect to attachment page: " + e.getMessage());
+			  LOG.error("fail to redirect to attachment page: " + e.getMessage());
 		  }
 		  return "sakai.filepicker.helper";
 	  }
@@ -518,9 +518,9 @@ public class AgentResults
 	
 	public String getFormatedTimeElapsed() {
 	    String timeElapsedInString = "n/a";
-	    if (this.timeElapsed!=null && this.timeElapsed.intValue() >0)
+	    if (this.timeElapsed!=null && this.timeElapsed >0)
 	    {
-	      int totalSec = this.timeElapsed.intValue();
+	      int totalSec = this.timeElapsed;
 	      int hr = totalSec / 3600;
 	      int min = (totalSec % 3600)/60;
 	      int sec = (totalSec % 3600)%60;

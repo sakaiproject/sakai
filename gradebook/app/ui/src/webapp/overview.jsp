@@ -45,20 +45,6 @@
 		</h:panelGrid>
 
 		<%@ include file="/inc/globalMessages.jspf"%>
-		
-		<h:panelGroup rendered="#{overviewBean.isLetterGrade}" styleClass="validation">
-		  <h:outputText value="#{msgs.overview_lettergrade1}" rendered="#{overviewBean.isLetterGrade}"/>
-	  	<h:outputLink value="http://kb.iu.edu/data/awsj.html" rendered="#{overviewBean.isLetterGrade}" target="support_window1">
-	  		<h:outputText value="#{msgs.overview_lettergrade2}" rendered="#{overviewBean.isLetterGrade}"/>
-		  </h:outputLink>
-		  <h:outputText value=" " rendered="#{overviewBean.isLetterGrade}"/>
-		  <h:outputText value="#{msgs.overview_lettergrade3}" rendered="#{overviewBean.isLetterGrade}"/>
-	  	<h:outputLink value="http://kb.iu.edu/data/aitz.html" rendered="#{overviewBean.isLetterGrade}" target="support_window2">
-	  		<h:outputText value="#{msgs.overview_lettergrade4}" rendered="#{overviewBean.isLetterGrade}"/>
-		  </h:outputLink>
-		  <h:outputText value=" " rendered="#{overviewBean.isLetterGrade}"/>
-		  <h:outputText value="#{msgs.overview_lettergrade5}" rendered="#{overviewBean.isLetterGrade}"/>
-		</h:panelGroup>
 
 		<h4><h:outputText value="#{msgs.overview_assignments_title}"/></h4>
         <div style="width: 100%;">

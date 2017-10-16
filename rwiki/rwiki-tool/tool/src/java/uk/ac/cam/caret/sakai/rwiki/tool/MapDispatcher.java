@@ -59,7 +59,6 @@ public class MapDispatcher implements Dispatcher
 		targets.put("/WEB-INF/command-pages/preferences.jsp", "/WEB-INF/vm/preferences");
 		targets.put("/WEB-INF/command-pages/preview.jsp", "/WEB-INF/vm/preview");
 		targets.put("/WEB-INF/command-pages/publicview.jsp", "/WEB-INF/vm/publicview");
-		targets.put("/WEB-INF/command-pages/printview.jsp", "/WEB-INF/vm/printview");
 		targets.put("/WEB-INF/command-pages/review.jsp", "/WEB-INF/vm/review");
 		targets.put("/WEB-INF/command-pages/search.jsp", "/WEB-INF/vm/search");
 		targets.put("/WEB-INF/command-pages/title.jsp", "/WEB-INF/vm/title");
@@ -79,7 +78,6 @@ public class MapDispatcher implements Dispatcher
 		dispatchers.put("/WEB-INF/command-pages/preferences.jsp", velocityDispatcher);
 		dispatchers.put("/WEB-INF/command-pages/preview.jsp", velocityDispatcher);
 		dispatchers.put("/WEB-INF/command-pages/publicview.jsp", velocityDispatcher);
-		dispatchers.put("/WEB-INF/command-pages/printview.jsp", velocityDispatcher);
 		dispatchers.put("/WEB-INF/command-pages/review.jsp", velocityDispatcher);
 		dispatchers.put("/WEB-INF/command-pages/search.jsp", velocityDispatcher);
 		dispatchers.put("/WEB-INF/command-pages/title.jsp", velocityDispatcher);

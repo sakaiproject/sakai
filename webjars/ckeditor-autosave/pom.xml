@@ -3,23 +3,28 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <artifactId>webjars</artifactId>
-        <groupId>org.sakaiproject.webjars</groupId>
-        <version>12-SNAPSHOT</version>
-        <relativePath>../pom.xml</relativePath>
+        <groupId>org.sonatype.oss</groupId>
+        <artifactId>oss-parent</artifactId>
+        <version>9</version>
     </parent>
 
     <packaging>jar</packaging>
     <groupId>org.sakaiproject.webjars</groupId>
     <artifactId>ckeditor-autosave</artifactId>
-    <version>${ckeditor.autosave.version}</version>
     <name>CKEditor-autosave-webjar</name>
     <description>WebJar for CKEditor-autosave</description>
     <url>http://webjars.org</url>
 
+    <!-- You must keep these synced in master so they're picked up correctly in library -->
+    <!-- They're separate here so this can be released independently of the rest of Sakai -->
+    <!-- Either use a tag or a SHA so the version is predictable. -->
+    <!-- Source at https://github.com/w8tcha/CKEditor-AutoSave-Plugin -->
+
+    <version>786318aefed553a62cebbe4cd10b67c3ab266437</version>
+
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <upstream.version>${ckeditor.autosave.version}</upstream.version>
+        <upstream.version>${project.version}</upstream.version>
         <upstream.url>https://github.com/w8tcha/CKEditor-AutoSave-Plugin/archive/${upstream.version}</upstream.url>
         <destDir>${project.build.outputDirectory}/META-INF/resources/webjars/autosave/${upstream.version}</destDir>
         <requirejs>
@@ -61,11 +66,6 @@
             </plugin>
 
             <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-release-plugin</artifactId>
-            </plugin>
-
-            <plugin>
                 <groupId>org.sonatype.plugins</groupId>
                 <artifactId>nexus-staging-maven-plugin</artifactId>
                 <version>1.6.7</version>
@@ -73,7 +73,7 @@
                 <configuration>
                     <serverId>sonatype-nexus-staging</serverId>
                     <nexusUrl>https://oss.sonatype.org/</nexusUrl>
-                    <autoReleaseAfterClose>true</autoReleaseAfterClose>
+                    <autoReleaseAfterClose>false</autoReleaseAfterClose>
                 </configuration>
             </plugin>
         </plugins>

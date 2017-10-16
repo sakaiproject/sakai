@@ -118,8 +118,8 @@
                                 </li>
 
                                 <li class="Mrphs-userNav__submenuitem Mrphs-userNav__submenuitem-indented">
-                                    <a role="menuitem" href="${site.siteUrl}" class="Mrphs-userNav__submenuitem--dashboard">
-                                        <span>${rloader.sit_dashboard}</span>
+                                    <a role="menuitem" href="javascript:;" id="Mrphs-userNav__submenuitem--connections">
+                                        <span>${rloader.sit_connections}</span>
                                     </a>
                                 </li>
 

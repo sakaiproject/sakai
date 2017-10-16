@@ -1,3 +1,18 @@
+/**
+ * Copyright (c) 2003-2017 The Apereo Foundation
+ *
+ * Licensed under the Educational Community License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *             http://opensource.org/licenses/ecl2
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.sakaiproject.gradebookng.tool.panels.importExport;
 
 import java.io.File;
@@ -39,6 +54,7 @@ public class ExportPanel extends BasePanel {
 	ExportFormat exportFormat = ExportFormat.CSV;
 	boolean includeStudentName = true;
 	boolean includeStudentId = true;
+	boolean includeStudentNumber = false;
 	boolean includeGradeItemScores = true;
 	boolean includeGradeItemComments = true;
 	boolean includeCourseGrade = false;
@@ -72,6 +88,23 @@ public class ExportPanel extends BasePanel {
 			protected void onUpdate(final AjaxRequestTarget ajaxRequestTarget) {
 				ExportPanel.this.includeStudentName = !ExportPanel.this.includeStudentName;
 				setDefaultModelObject(ExportPanel.this.includeStudentName);
+			}
+		});
+		
+		final boolean stuNumVisible = businessService.isStudentNumberVisible();
+		add(new AjaxCheckBox("includeStudentNumber", Model.of(this.includeStudentNumber)) {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			protected void onUpdate(final AjaxRequestTarget ajaxRequestTarget) {
+				ExportPanel.this.includeStudentNumber = !ExportPanel.this.includeStudentNumber;
+				setDefaultModelObject(ExportPanel.this.includeStudentNumber);
+			}
+
+			@Override
+			public boolean isVisible()
+			{
+				return stuNumVisible;
 			}
 		});
 
@@ -184,26 +217,32 @@ public class ExportPanel extends BasePanel {
 				header.add(getString("importExport.export.csv.headers.studentName"));
 			}
 
-			// get list of assignments. this allows us to build the columns and then fetch the grades for each student for each assignment from the map
+			if (isCustomExport && this.includeStudentNumber)
+			{
+				header.add(String.join(" ", IGNORE_COLUMN_PREFIX, getString("importExport.export.csv.headers.studentNumber")));
+			}
+
+			// get list of assignments. this allows us to build the columns and then fetch the grades for each student for each assignment
+			// from the map
 			final List<Assignment> assignments = this.businessService.getGradebookAssignments();
 
 			// no assignments, give a template
-			if(assignments.isEmpty()) {
-				//with points
+			if (assignments.isEmpty()) {
+				// with points
 				header.add(String.join(" ", getString("importExport.export.csv.headers.example.points"), "[100]"));
 
 				// no points
 				header.add(getString("importExport.export.csv.headers.example.nopoints"));
 
-				//points and comments
-				header.add(String.join(" ", COMMENTS_COLUMN_PREFIX, getString("importExport.export.csv.headers.example.pointscomments"), "[50]"));
+				// points and comments
+				header.add(String.join(" ", COMMENTS_COLUMN_PREFIX, getString("importExport.export.csv.headers.example.pointscomments"),
+						"[50]"));
 
-				//ignore
+				// ignore
 				header.add(String.join(" ", IGNORE_COLUMN_PREFIX, getString("importExport.export.csv.headers.example.ignore")));
 			}
 
-
-			//build column header
+			// build column header
 			assignments.forEach(assignment -> {
 				final String assignmentPoints = assignment.getPoints().toString();
 				if (!isCustomExport || this.includeGradeItemScores) {
@@ -232,14 +271,18 @@ public class ExportPanel extends BasePanel {
 			// get the grade matrix
 			final List<GbStudentGradeInfo> grades = this.businessService.buildGradeMatrix(assignments);
 
-			//add grades
+			// add grades
 			grades.forEach(studentGradeInfo -> {
 				final List<String> line = new ArrayList<String>();
 				if (!isCustomExport || this.includeStudentId) {
 					line.add(studentGradeInfo.getStudentEid());
 				}
-				if (!isCustomExport ||this.includeStudentName) {
+				if (!isCustomExport || this.includeStudentName) {
 					line.add(studentGradeInfo.getStudentLastName() + ", " + studentGradeInfo.getStudentFirstName());
+				}
+				if (isCustomExport && this.includeStudentNumber)
+				{
+					line.add(studentGradeInfo.getStudentNumber());
 				}
 				if (!isCustomExport || this.includeGradeItemScores || this.includeGradeItemComments) {
 					assignments.forEach(assignment -> {

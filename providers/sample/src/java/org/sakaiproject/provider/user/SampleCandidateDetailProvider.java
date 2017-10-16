@@ -50,12 +50,16 @@ public class SampleCandidateDetailProvider implements CandidateDetailProvider
 {
 	private static final String USER_PROP_CANDIDATE_ID = "candidateID";
 	private static final String USER_PROP_ADDITIONAL_INFO = "additionalInfo";
+	private static final String USER_PROP_STUDENT_NUMBER = "studentNumber";
 	
 	private final static String SITE_PROP_USE_INSTITUTIONAL_ANONYMOUS_ID = "useInstitutionalAnonymousID";
 	private final static String SITE_PROP_DISPLAY_ADDITIONAL_INFORMATION = "displayAdditionalInformation";
+	private final static String SITE_PROP_USE_INSTITUTIONAL_NUMERIC_ID = "useInstitutionalNumericID";
 	
 	private final static String SYSTEM_PROP_USE_INSTITUTIONAL_ANONYMOUS_ID = "useInstitutionalAnonymousID";
 	private final static String SYSTEM_PROP_DISPLAY_ADDITIONAL_INFORMATION = "displayAdditionalInformation";
+	private final static String SYSTEM_PROP_USE_INSTITUTIONAL_NUMERIC_ID = "useInstitutionalNumericID";
+	private final static String SYSTEM_PROP_ENCRYPT_NUMERIC_ID = "encryptInstitutionalNumericID";
 
 	/** Our log (commons). */
 	private final Logger log = LoggerFactory.getLogger(SampleCandidateDetailProvider.class);
@@ -200,6 +204,49 @@ public class SampleCandidateDetailProvider implements CandidateDetailProvider
 		return Optional.empty();
 	}
 	
+	@Override
+	public Optional<String> getInstitutionalNumericId(User user, Site site){
+		if(site == null) {
+			log.error("getInstitutionalNumericId: Null site.");
+			return Optional.empty();
+		}
+		try {
+			if(user != null) {
+				//check if student number is enabled (system-wide or site-based)
+				if(isInstitutionalNumericIdEnabled(site)) {
+					if(user.getProperties() != null && StringUtils.isNotBlank(user.getProperties().getProperty(USER_PROP_STUDENT_NUMBER))) {
+						log.debug("Using user candidateID property for user {}", user.getId());
+						String studentNumber = user.getProperties().getProperty(USER_PROP_STUDENT_NUMBER);
+						if (serverConfigurationService.getBoolean(SYSTEM_PROP_ENCRYPT_NUMERIC_ID, true))
+						{
+							studentNumber = encryptionUtilities.decrypt(studentNumber);
+						}
+
+						return Optional.ofNullable(studentNumber);
+					} else {
+						int hashInt = user.getId().hashCode();
+						if(hashInt % 10 == 4){
+							log.debug("Not generating random sample student number for user " + user.getId());
+							return Optional.empty();
+						} else {
+							log.debug("Generating sample candidate id for user {}", user.getId());
+							return Optional.ofNullable(String.valueOf(Math.abs(hashInt % 100000)));
+						}
+					}
+				}
+			}
+		} catch(Exception e) {
+			log.error("Error getting sample studentNumber for "+((user != null) ? user.getId() : "-null-"), e);
+		}
+		return Optional.empty();
+	}
+	
+	@Override
+	public Optional<String> getInstitutionalNumericIdIgnoringCandidatePermissions(User candidate, Site site)
+	{
+		return getInstitutionalNumericId(candidate, site);
+	}
+	
 	public boolean isAdditionalNotesEnabled(Site site) {
 		try {
 			return (serverConfigurationService.getBoolean(SYSTEM_PROP_DISPLAY_ADDITIONAL_INFORMATION, false) || (site != null && Boolean.parseBoolean(site.getProperties().getProperty(SITE_PROP_DISPLAY_ADDITIONAL_INFORMATION))));
@@ -214,6 +261,17 @@ public class SampleCandidateDetailProvider implements CandidateDetailProvider
 			return (serverConfigurationService.getBoolean(SYSTEM_PROP_USE_INSTITUTIONAL_ANONYMOUS_ID, false) || (site != null && Boolean.parseBoolean(site.getProperties().getProperty(SITE_PROP_USE_INSTITUTIONAL_ANONYMOUS_ID))));
 		} catch(Exception e) {
 			log.warn("Error on useInstitutionalAnonymousId (sample) ", e);
+		}
+		return false;
+	}
+	
+	@Override
+	public boolean isInstitutionalNumericIdEnabled(Site site) {
+		try {
+			return (serverConfigurationService.getBoolean(SYSTEM_PROP_USE_INSTITUTIONAL_NUMERIC_ID, false)
+					|| (site != null && Boolean.parseBoolean(site.getProperties().getProperty(SITE_PROP_USE_INSTITUTIONAL_NUMERIC_ID))));
+		} catch(Exception e) {
+			log.warn("Error on isInstitutionalNumericIdEnabled (sample) ", e);
 		}
 		return false;
 	}

@@ -980,60 +980,71 @@ div.collapsed {
 /*	Tiers for Question Pool Table */
 
 #questionpool .tier0,
-#editform .tier0 {
-	margin-left: 0  !important;
+#editform .tier0,
+#transferPool .tier0 {
+	margin-left: 0;
 }
 
 #questionpool .tier1,
-#editform .tier1 {
-	margin-left: 1em  !important;
+#editform .tier1,
+#transferPool .tier1 {
+	margin-left: 1em;
 }
 
 #questionpool .tier2,
-#editform .tier2 {
-	margin-left: 2em  !important;
+#editform .tier2,
+#transferPool .tier2 {
+	margin-left: 2em;
 }
 
 #partialCredit_toggle .tier3,
 #mcms_credit_toggle .tier3,
 #questionpool .tier3,
-#editform .tier3{
-	margin-left: 3em  !important;
+#editform .tier3,
+#transferPool .tier3 {
+	margin-left: 3em;
 }
 
 #questionpool .tier4,
-#editform .tier4{
-	margin-left: 4em  !important;
+#editform .tier4,
+#transferPool .tier4 {
+	margin-left: 4em;
 }
 
 #questionpool .tier5,
-#editform .tier5{
-	margin-left: 5em  !important;
+#editform .tier5,
+#transferPool .tier5 {
+	margin-left: 5em;
 }
 
 #questionpool .tier6,
-#editform .tier6{
-	margin-left: 6em  !important;
+#editform .tier6,
+#transferPool .tier6 {
+	margin-left: 6em;
 }
 
 #questionpool .tier7,
-#editform .tier7{
-	margin-left: 7em  !important;
+#editform .tier7,
+#transferPool .tier7 {
+	margin-left: 7em;
 }
 
 #questionpool .tier8,
-#editform .tier8{
-	margin-left: 8em  !important;
+#editform .tier8,
+#transferPool .tier8 {
+	margin-left: 8em;
 }
 
 #questionpool .tier9,
-#editform .tier9{
-	margin-left: 9em  !important;
+#editform .tier9,
+#transferPool .tier9 {
+	margin-left: 9em;
 }
 
 #questionpool .tier10,
-#editform .tier10{
-	margin-left: 10em  !important;
+#editform .tier10,
+#transferPool .tier10 {
+	margin-left: 10em;
 }
 
 ul.groupList {

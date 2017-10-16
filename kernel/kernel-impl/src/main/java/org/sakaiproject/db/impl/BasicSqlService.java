@@ -38,9 +38,11 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Timestamp;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.TimeZone;
 import java.util.Vector;
 
@@ -1151,6 +1153,86 @@ public abstract class BasicSqlService implements SqlService
 	public int dbWriteCount(String sql, Object[] fields, String lastField, Connection callerConnection,boolean failQuiet) {
 		return dbWriteCount(sql,fields,lastField,callerConnection,failQuiet ? 1 : 0);
 	}
+	
+	/**
+	 * @see org.sakaiproject.db.api.SqlService#dbWriteBatch(String, Set<Object[]>)
+	 */
+	public boolean dbWriteBatch(String sql, List<Object[]> fieldsList)
+	{
+		boolean success = false;
+		Connection conn = null;
+	
+		try
+		{
+			conn = borrowConnection();
+			success = dbWriteBatch(conn, sql, fieldsList);
+			if (success)
+			{
+				conn.commit();
+			}
+			else
+			{
+				conn.rollback();
+				LOG.warn("Sql.dbWriteBatch() rolled back conn");
+			}
+		}
+		catch (SQLException e)
+		{
+			LOG.warn("Sql.dbWriteBatch()", e);
+		}
+		finally
+		{
+			if (conn != null)
+			{
+				returnConnection(conn);
+                        }
+		}
+
+		return success;
+	}
+
+	/**
+	 * @see org.sakaiproject.db.api.SqlService#dbWriteBatch(Connection, String, List<Object[]>)
+	 */
+	public boolean dbWriteBatch(Connection callerConnection, String sql, List<Object[]> fieldsList)
+	{
+		boolean success = false;
+		PreparedStatement pstmt = null;
+
+		try
+		{
+			pstmt = callerConnection.prepareStatement(sql);
+			for (Object[] fields : fieldsList)
+			{
+			    prepareStatement(pstmt, fields);
+			    pstmt.addBatch();
+			}
+			pstmt.executeBatch();
+			success = true;
+		}
+		catch (UnsupportedEncodingException e)
+		{
+			LOG.warn("Sql.dbWriteBatch()", e);
+		}
+		catch (SQLException e)
+		{
+			LOG.warn("Sql.dbWriteBatch(): error code: " + e.getErrorCode() + " sql: " + sql + " " + e);
+		}
+		finally
+		{
+			try
+			{
+				pstmt.close();
+			}
+			catch (Exception e)
+			{
+				LOG.warn("Sql.dbWriteBatch(): " + e);
+				throw new RuntimeException("SqlService.dbWriteBatch failure", e);
+			}
+		}
+
+		return success;
+	}
 
 	/**
 	 * @see org.sakaiproject.db.api.SqlService#dbWriteCount(String, Object[], String, Connection, int)
@@ -1367,18 +1449,10 @@ public abstract class BasicSqlService implements SqlService
 	 */
 	public Long dbInsert(Connection callerConnection, String sql, Object[] fields, String autoColumn, InputStream last, int lastLength)
 	{
-		boolean connFromThreadLocal = false;
-		
-		// check for a transaction conncetion
+		// check for a transaction connection
 		if (callerConnection == null)
 		{
 			callerConnection = (Connection) threadLocalManager().get(TRANSACTION_CONNECTION);
-			
-			if(callerConnection != null)
-			{
-				// KNL-492 We set this so we can avoid returning a connection that is being managed elsewhere
-				connFromThreadLocal = true;
-			}
 		}
 
 		if (LOG.isDebugEnabled())
@@ -1520,7 +1594,7 @@ public abstract class BasicSqlService implements SqlService
 					{
 						conn.setAutoCommit(autoCommit);
 					}
-
+					returnConnection(conn);
 				}
 			}
 			catch (Exception e)
@@ -1528,14 +1602,6 @@ public abstract class BasicSqlService implements SqlService
 				LOG.warn("Sql.dbInsert(): " + e);
 				throw new RuntimeException("SqlService.dbInsert failure", e);
 			}
-			//make sure we return the connection even if the rollback etc above
-			// KNL-492 connFromThreadLocal is tested so we can avoid returning a
-			// connection that is being managed elsewhere
-			if (conn != null && !connFromThreadLocal)
-			{
-				returnConnection(conn);
-			}
-
 		}
 
 		if (m_showSql) debug("Sql.dbWrite(): len: " + "  time: " + connectionTime + " /  " + (System.currentTimeMillis() - start), sql, fields);
@@ -2114,76 +2180,61 @@ public abstract class BasicSqlService implements SqlService
 	 */
 	protected int prepareStatement(PreparedStatement pstmt, Object[] fields) throws SQLException, UnsupportedEncodingException
 	{
-		if (LOG.isDebugEnabled())
-		{
-			LOG.debug("prepareStatement(PreparedStatement " + pstmt + ", Object[] " + Arrays.toString(fields) + ")");
+		if (LOG.isDebugEnabled()) {
+			LOG.debug("pstmt = {}, fields = {}", pstmt, Arrays.toString(fields));
 		}
 
 		// put in all the fields
 		int pos = 1;
-		if ((fields != null) && (fields.length > 0))
-		{
-			for (int i = 0; i < fields.length; i++)
-			{
-				if (fields[i] == null || (fields[i] instanceof String && ((String) fields[i]).length() == 0))
-				{
-					// treat a Java null as an SQL null,
-					// and ALSO treat a zero-length Java string as an SQL null
-					// This makes sure that Oracle vs MySQL use the same value
-					// for null.
+		if ((fields != null) && (fields.length > 0)) {
+			for (Object field : fields) {
+				if (field == null) {
+					// Treat a Java null as an SQL null.
+					// This makes sure that Oracle vs MySQL use the same value for null.
 					sqlServiceSql.setNull(pstmt, pos);
-
-					pos++;
 				}
-				else if (fields[i] instanceof Time)
-				{
-					Time t = (Time) fields[i];
+				else if (field instanceof String) {
+					String s = (String) field;
+					if (s.isEmpty()) {
+						// Treat a zero-length Java string as an SQL null
+						sqlServiceSql.setNull(pstmt, pos);
+					}
+					else {
+						pstmt.setString(pos, s);
+					}
+				}
+				else if (field instanceof Time) {
+					Time t = (Time) field;
 					sqlServiceSql.setTimestamp(pstmt, new Timestamp(t.getTime()), m_cal, pos);
-					pos++;
 				}
-				//KNL-558 an obvious one
-				else if (fields[i] instanceof java.util.Date)
-				{
-					java.util.Date d = (java.util.Date) fields[i];
+				else if (field instanceof Date) {
+					Date d = (Date) field;
 					sqlServiceSql.setTimestamp(pstmt, new Timestamp(d.getTime()), m_cal, pos);
-					pos++;
 				}
-				else if (fields[i] instanceof Long)
-				{
-					long l = ((Long) fields[i]).longValue();
+				else if (field instanceof Long) {
+					long l = (Long) field;
 					pstmt.setLong(pos, l);
-					pos++;
 				}
-				else if (fields[i] instanceof Integer)
-				{
-					int n = ((Integer) fields[i]).intValue();
+				else if (field instanceof Integer) {
+					int n = (Integer) field;
 					pstmt.setInt(pos, n);
-					pos++;
 				}
-				else if (fields[i] instanceof Float)
-				{
-					float f = ((Float) fields[i]).floatValue();
+				else if (field instanceof Float) {
+					float f = (Float) field;
 					pstmt.setFloat(pos, f);
-					pos++;
 				}
-				else if (fields[i] instanceof Boolean)
-				{
-					pstmt.setBoolean(pos, ((Boolean) fields[i]).booleanValue());
-					pos++;
+				else if (field instanceof Boolean) {
+					pstmt.setBoolean(pos, (Boolean) field);
 				}
-				else if ( fields[i] instanceof byte[] ) 
-				{
-					sqlServiceSql.setBytes(pstmt, (byte[])fields[i], pos);
-					pos++;
+				else if (field instanceof byte[]) {
+					sqlServiceSql.setBytes(pstmt, (byte[]) field, pos);
 				}
-
-				// %%% support any other types specially?
-				else
-				{
-					String value = fields[i].toString();
+				else {
+					// %%% support any other types specially?
+					String value = field.toString();
 					sqlServiceSql.setBytes(pstmt, value, pos);
-					pos++;
 				}
+				pos++;
 			}
 		}
 

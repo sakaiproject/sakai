@@ -4,7 +4,7 @@
     <parent>
         <artifactId>master</artifactId>
         <groupId>org.sakaiproject</groupId>
-        <version>12-SNAPSHOT</version>
+        <version>13-SNAPSHOT</version>
         <relativePath>master/pom.xml</relativePath>
     </parent>
 
@@ -52,18 +52,18 @@
                 <module>citations</module>
                 <module>cmprovider</module>
                 <module>common</module>
+                <module>commons</module>
                 <module>config</module>
                 <module>cloud-content</module>
                 <module>content</module>
                 <module>content-review</module>
                 <module>courier</module>
-                <module>dashboard</module>
                 <module>dav</module>
                 <module>delegatedaccess</module>
                 <module>deploy</module>
                 <module>edu-services</module>
                 <module>emailtemplateservice</module>
-		<module>endorsed</module>
+                <module>endorsed</module>
                 <module>entitybroker</module>
                 <module>external-calendaring-service</module>
                 <module>feedback</module>
@@ -81,6 +81,8 @@
                 <module>mailsender</module>
                 <module>message</module>
                 <module>msgcntr</module>
+                <module>mycalendar</module>
+                <module>myconnections</module>
                 <module>oauth</module>
                 <module>pasystem</module>
                 <module>podcasts</module>
@@ -93,7 +95,7 @@
                 <module>reset-pass</module>
                 <module>roster2</module>
                 <module>rsf</module>
-                <module>rubrics</module>
+                <!--<module>rubrics</module>-->
                 <module>rwiki</module>
                 <module>tags</module>
                 <module>samigo</module>
@@ -132,14 +134,13 @@
                 <module>chat</module>
                 <module>citations</module>
                 <module>clog</module>
-                <module>clogdashboardintegration</module>
                 <module>common</module>
+                <module>commons</module>
                 <module>config</module>
                 <module>cloud-content</module>
                 <module>content</module>
                 <module>content-review</module>
                 <module>courier</module>
-                <module>dashboard</module>
                 <module>dav</module>
                 <module>delegatedaccess</module>
                 <module>deploy</module>
@@ -164,6 +165,8 @@
                 <module>message</module>
                 <module>metaobj</module>
                 <module>msgcntr</module>
+                <module>mycalendar</module>
+                <module>myconnections</module>
                 <module>osp</module>
                 <module>podcasts</module>
                 <module>polls</module>
@@ -176,7 +179,7 @@
                 <module>reset-pass</module>
                 <module>roster2</module>
                 <module>rss</module>
-                <module>rubrics</module>
+                <!--<module>rubrics</module>-->
                 <module>rwiki</module>
                 <module>tags</module>
                 <module>samigo</module>
@@ -218,6 +221,7 @@
                 <module>pack/pack-bin</module>
             </modules>
         </profile>
+        <!--
         <profile>
             <id>pack-demo</id>
             <modules>
@@ -225,6 +229,7 @@
                 <module>pack/pack-demo</module>
             </modules>
         </profile>
+        -->
         <profile>
             <id>pack-src</id>
             <modules>

@@ -10,16 +10,32 @@
     <div id="gbConnectionTimeoutFeedback" class="messageWarning" style="display:none;">
         <wicket:message key="feedback.connectiontimeout" />
     </div>
+    <div id="gbReorderColumnsFailed" class="messageWarning" style="display:none;">
+        <wicket:message key="feedback.reordercolumnsfailed" />
+    </div>
 
     <div class="row">
         <div class="col-sm-12">
-            <div class="pull-left">
+            <div class="col-sm-6">
                 <button wicket:id="addGradeItem" class="button_color gb-add-gradebook-item-button">
                     <wicket:message key="button.addgradeitem" />
                 </button>
-            </div>
-            <div class="pull-left">
+
                 <div wicket:id="liveGradingFeedback" class="gb-live-feedback"></div>
+            </div>
+            <div class="col-sm-6 text-right">
+                <wicket:enclosure>
+                    <label for="filterByGroup" class="sr-only"><wicket:message key="filter.groups" /></label>
+                    <select id="filterByGroup" wicket:id="groupFilter">
+                        <option value="1">Section 1</option>
+                        <option value="2">Section 2</option>
+                    </select>
+                </wicket:enclosure>
+                <a wicket:id="captionToggle" href="javascript:void(0);" id="captionToggle" aria-popup="true" aria-controls="gradeTableCaption">
+                    <span class="sr-only">
+                        <wicket:message key="label.toolbar.togglehelp"/>
+                    </span>
+                </a>
             </div>
         </div>
     </div>
@@ -32,60 +48,46 @@
 	<div wicket:id="deleteItemWindow" />
 	<div wicket:id="gradeStatisticsWindow" />
 	<div wicket:id="updateCourseGradeDisplayWindow" />
+	<div wicket:id="sortGradeItemsWindow" />
 
-    <div wicket:id="toolbar" id="gradebookGradesToolbar">
+    <div wicket:id="toolbar" id="gradebookGradesToolbar" class="btn-toolbar">
       <ul class="gb-toolbar-left">
         <li>
-          <label for="filterByGroup" style="display:none" aria-hidden="true"><wicket:message key="filter.groups" /></label>
-          <select id="filterByGroup" wicket:id="groupFilter">
-            <option value="1">Section 1</option>
-            <option value="2">Section 2</option>
-          </select>
+            <div class="gb-student-filter">
+                <label for="studentFilterInput" class="sr-only"><wicket:message key="filter.students"/></label>
+                <input type="text" id="studentFilterInput" class="form-control" aria-controls="gradeTable" wicket:message="placeholder:filter.students" accesskey="f">
+                <a class="gb-student-filter-clear-button" wicket:message="title:filter.studentsclear" href="javascript:void(0)">
+                    <i class="fa fa-times-circle" aria-hidden="true"></i>
+                </a>
+            </div>
         </li>
         <wicket:enclosure>
-        	<li><span wicket:id="groupFilterOnlyOne" class="gb-group-title" role="status">Section 001</span></li>
+            <li><span wicket:id="groupFilterOnlyOne" class="gb-group-title" role="status">Section 001</span></li>
         </wicket:enclosure>
-        <li><span wicket:id="studentSummary" class="gradebook-student-summary" role="status">Showing 20 of 25 Students</span></li>
+        <li class="gb-student-summary"><!-- Populated by JavaScript --></li>
       </ul>
       <ul class="gb-toolbar-right">
-        <li><span wicket:id="gradeItemSummary" class="gb-item-summary" role="status" aria-live="polite">Viewing <span class="counts"><strong class="visible">8</strong> out of <strong class="total">8</strong></span> Grade Items</span></li>
+        <li class="gb-grade-item-summary"><!-- Populated by JavaScript --></li>
         <li>
-          <button wicket:id="toggleGradeItemsToolbarItem" id="toggleGradeItemsToolbarItem" class="button" aria-popup="true" aria-controls="gradeItemsTogglePanel"><wicket:message key="label.toolbar.gradeitemstoggle"/></button>
+          <button wicket:id="toggleGradeItemsToolbarItem" id="toggleGradeItemsToolbarItem" class="button" aria-popup="true" aria-controls="gradeItemsTogglePanel"><wicket:message key="label.toolbar.toggleitems"/></button>
         </li>
         <li>
-          <button wicket:id="toggleCategoriesToolbarItem" id="toggleCategoriesToolbarItem" class="button" aria-controls="gradebookGradesTable"><wicket:message key="table.toolbar.categorytoggle"/></button>
+          <button wicket:id="sortGradeItemsToolbarItem" id="sortGradeItemsToolbarItem" class="button" aria-popup="true"><wicket:message key="label.toolbar.sortgradeitems"/></button>
         </li>
+        <wicket:enclosure>
+            <li>
+              <button wicket:id="toggleCategoriesToolbarItem" id="toggleCategoriesToolbarItem" class="button" aria-controls="gradeTable"><wicket:message key="label.toolbar.togglecategories"/></button>
+            </li>
+        </wicket:enclosure>
       </ul>
     </div>
-    <div id="gradebookGrades">
-      <div id="gradebookHorizontalOverflowWrapper">
-          <div id="gradebookVerticalOverflowWrapper">
-              <table wicket:id="table" id="gradebookGradesTable" class="table-striped table-bordered table-hover" role="grid"></table>
-          </div>
-      </div>
-    </div>
+
+    <!-- Here we go... -->
+    <div wicket:id="gradeTable" />
+
   </form>
 
   <div wicket:id="gradeItemsTogglePanel" id="gradeItemsTogglePanel" style="display: none;"/>
-  <div id="gradeItemsConcurrentUserWarning" style="display: none;">
-    <ul class="gb-popover-notifications">
-      <li class="gb-popover-notification-concurrentedit text-danger">
-        <wicket:message key="grade.notifications.concurrenteditbyuser" />
-      </li>
-    </ul>
-  </div>
-
-	<div id="gradeItemCellDropdownMenu" style="display:none">
-		<div class="btn-group">
-			<a class="btn btn-sm btn-default dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" wicket:message="title:grade.menulabel">
-				<span class="caret"></span>
-			</a>
-			<ul class="dropdown-menu dropdown-menu-right" role="menu">
-				<li><a class="gb-view-log" href="#" role="menuitem"><wicket:message key="grade.option.viewlog" /></a></li>
-				<li><a class="gb-edit-comments" href="#" role="menuitem"><wicket:message key="comment.option.edit" /></a></li>
-			</ul>
-		</div>
-	</div>
 </wicket:extend>
 
 </body>

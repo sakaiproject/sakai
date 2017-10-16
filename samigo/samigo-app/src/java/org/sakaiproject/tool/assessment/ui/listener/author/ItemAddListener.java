@@ -131,8 +131,8 @@ public class ItemAddListener
     ItemBean item = itemauthorbean.getCurrentItem();
     
     item.setEmiVisibleItems("0");
-    String iText = ContextUtil.stringWYSIWYG(item.getItemText());
-    String iInstruction = ContextUtil.stringWYSIWYG(item.getInstruction());
+    String iText = item.getItemText();
+    String iInstruction = item.getInstruction();
     String iType = item.getItemType();
     String err="";
     FacesContext context=FacesContext.getCurrentInstance();
@@ -388,7 +388,7 @@ public class ItemAddListener
 			} // end of while
 		}
 		else { // Rich Options
-			String richText = ContextUtil.stringWYSIWYG(item.getEmiAnswerOptionsRich());;
+			String richText = item.getEmiAnswerOptionsRich();;
 			if (richText.toLowerCase().replaceAll("<^[^(img)]*?>", "").trim()
 					.equals("")) {
 				item.setEmiAnswerOptionsRich("");
@@ -491,7 +491,7 @@ public class ItemAddListener
 	  if(item.getMultipleChoiceAnswers()!=null){
 		  while (iter.hasNext()) {
 			  AnswerBean answerbean = (AnswerBean) iter.next();
-			  String answerTxt=ContextUtil.stringWYSIWYG(answerbean.getText());
+			  String answerTxt=answerbean.getText();
 			  //  if(answerTxt.replaceAll("<.*?>", "").trim().equals(""))        
 			  // SAK-6050
 			  if(answerTxt.toLowerCase().replaceAll("<^[^(img)]*?>", "").trim().equals("")) {

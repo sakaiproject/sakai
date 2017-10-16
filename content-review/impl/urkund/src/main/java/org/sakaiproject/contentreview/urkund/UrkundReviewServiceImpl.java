@@ -35,12 +35,12 @@ import java.util.TreeSet;
 import lombok.Setter;
 
 import org.apache.commons.lang3.StringUtils;
+import org.sakaiproject.assignment.api.AssignmentConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.apache.commons.validator.routines.EmailValidator;
 import org.sakaiproject.api.common.edu.person.SakaiPerson;
 import org.sakaiproject.api.common.edu.person.SakaiPersonManager;
-import org.sakaiproject.assignment.api.AssignmentSubmission;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentResource;
@@ -693,7 +693,7 @@ public class UrkundReviewServiceImpl implements ContentReviewService {
 			ResourceProperties resourceProperties = resource.getProperties();
 			fileName = resourceProperties.getProperty(resourceProperties.getNamePropDisplayName());
 			fileName = escapeFileName(fileName, resource.getId());
-			if("true".equals(resourceProperties.getProperty(AssignmentSubmission.PROP_INLINE_SUBMISSION))) {
+			if("true".equals(resourceProperties.getProperty(AssignmentConstants.PROP_INLINE_SUBMISSION))) {
 				fileName += ".html";
 			}
 		} catch (PermissionException e2) {

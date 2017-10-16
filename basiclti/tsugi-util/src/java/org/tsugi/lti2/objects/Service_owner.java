@@ -6,6 +6,7 @@ import java.util.Map;
 import javax.annotation.Generated;
 
 import org.tsugi.lti2.LTI2Config;
+import org.tsugi.basiclti.BasicLTIUtil;
 
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonAnySetter;
@@ -41,6 +42,7 @@ public class Service_owner {
         this.service_owner_name = new Service_owner_name(cnf.getService_owner_owner_name());
         this.description = new Description(cnf.getService_owner_description());
         this.support = new Support(cnf.getService_owner_support_email());
+        this.timestamp = BasicLTIUtil.getISO8601(null);
     }
 
     @JsonProperty("@id")

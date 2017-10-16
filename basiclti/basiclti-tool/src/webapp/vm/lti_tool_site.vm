@@ -4,8 +4,8 @@
 	<!-- jQuery -->
 ${includeLatestJQuery}
 
-<script type="text/javascript" src="/library/webjars/jquery-ui/1.11.3/jquery-ui.min.js"></script>
-<link type="text/css" href="/library/webjars/jquery-ui/1.11.3/jquery-ui.min.css" rel="stylesheet" media="screen" />
+<script type="text/javascript" src="/library/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
+<link type="text/css" href="/library/webjars/jquery-ui/1.12.1/jquery-ui.min.css" rel="stylesheet" media="screen" />
 
 	<!-- Tablesorter: required -->
 	<link rel="stylesheet" href="/basiclti-admin-tool/css/blue/style.css">

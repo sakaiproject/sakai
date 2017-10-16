@@ -205,7 +205,7 @@ public class UrlResourceType extends BaseResourceType
 	@Override
     public boolean hasRightsDialog()
     {
-		return serverConfigurationService.getBoolean("content.url.rightsdialog", false);
+		return serverConfigurationService.getBoolean("content.url.rightsdialog", true);
     }
 
 }

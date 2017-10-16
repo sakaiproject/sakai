@@ -7,7 +7,7 @@
     lang="${language}">
     <head>
         <link rel="stylesheet" type="text/css" href="/feedback-tool/css/feedback.css" />
-        <script type="text/javascript" src="/library/webjars/jquery/1.11.3/jquery.min.js"></script>
+        <script type="text/javascript" src="/library/webjars/jquery/1.12.4/jquery.min.js"></script>
         <script type="text/javascript" src="/feedback-tool/lib/jquery.form.min.js"></script>
         <script type="text/javascript" src="/feedback-tool/lib/jquery.MultiFile.pack.js"></script>
         <script type="text/javascript" src="//www.google.com/recaptcha/api/js/recaptcha_ajax.js"></script>

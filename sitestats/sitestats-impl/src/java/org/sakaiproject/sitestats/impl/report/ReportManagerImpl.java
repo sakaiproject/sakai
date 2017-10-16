@@ -53,8 +53,8 @@ import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.util.WorkbookUtil;
+import org.apache.xpath.operations.Bool;
 import org.hibernate.Criteria;
-import org.hibernate.Transaction;
 import org.hibernate.criterion.Expression;
 import org.sakaiproject.content.api.ContentCollection;
 import org.sakaiproject.content.api.ContentHostingService;
@@ -606,28 +606,22 @@ public class ReportManagerImpl extends HibernateDaoSupport implements ReportMana
 			LOG.warn("saveReportDefinition(): unable to generate xml string from report parameters.", e);
 			return false;
 		}
-		HibernateCallback<Boolean> hcb = session -> {
-            Transaction tx = null;
-            try{
-                tx = session.beginTransaction();
-                session.saveOrUpdate(reportDef);
-                tx.commit();
-            }catch(Exception e){
-                if(tx != null) tx.rollback();
-                LOG.warn("Unable to commit transaction: ", e);
-                return Boolean.FALSE;
-            }
-            return Boolean.TRUE;
+		HibernateCallback<Void> hcb = session -> {
+            session.saveOrUpdate(reportDef);
+            return null;
         };
-		Boolean success = getHibernateTemplate().execute(hcb);
-		if(success) {
+		try {
+			getHibernateTemplate().execute(hcb);
 			String siteId = reportDef.getSiteId();
 			if(siteId == null) {
 				siteId = reportDef.getReportParams().getSiteId();
 			}
 			M_sm.logEvent(reportDef, isNew ? StatsManager.LOG_ACTION_NEW : StatsManager.LOG_ACTION_EDIT, siteId, false);
+			return true;
+		} catch (DataAccessException dae) {
+			LOG.error("Could not save report definition: {}", dae.getMessage(), dae);
 		}
-		return success;
+		return false;
 	}
 	
 	/* (non-Javadoc)
@@ -635,27 +629,27 @@ public class ReportManagerImpl extends HibernateDaoSupport implements ReportMana
 	 */
 	public boolean removeReportDefinition(final ReportDef reportDef) {
 		HibernateCallback<Boolean> hcb = session -> {
-            Transaction tx = null;
-            try{
-                tx = session.beginTransaction();
-                session.delete(reportDef);
-                tx.commit();
-            }catch(Exception e){
-                if(tx != null) tx.rollback();
-                LOG.warn("Unable to commit transaction: ", e);
-                return Boolean.FALSE;
-            }
-            return Boolean.TRUE;
-        };
-		Boolean success = getHibernateTemplate().execute(hcb);
-		if(success) {
-			String siteId = reportDef.getSiteId();
-			if(siteId == null) {
-				siteId = reportDef.getReportParams().getSiteId();
+			ReportDef persistedReportDef = (ReportDef) session.get(ReportDef.class, reportDef.getId());
+			if (persistedReportDef != null) {
+				session.delete(persistedReportDef);
+				return true;
 			}
-			M_sm.logEvent(reportDef, StatsManager.LOG_ACTION_DELETE, siteId, false);
+            return false;
+        };
+		try {
+			Boolean success = getHibernateTemplate().execute(hcb);
+			if (success) {
+				String siteId = reportDef.getSiteId();
+				if (siteId == null) {
+					siteId = reportDef.getReportParams().getSiteId();
+				}
+				M_sm.logEvent(reportDef, StatsManager.LOG_ACTION_DELETE, siteId, false);
+				return true;
+			}
+		} catch (DataAccessException dae) {
+			LOG.error("Could not remove report definition: {}", dae.getMessage(), dae);
 		}
-		return success;
+		return false;
 	}
 	
 	/* (non-Javadoc)

@@ -98,7 +98,8 @@ public interface GradebookService {
     /**
      * Array of chars that are not allowed in a gb item title
      */
-    public static final char[] INVALID_CHARS_IN_GB_ITEM_NAME = {'*', '#', '[', ']'};
+    public static final char[] INVALID_CHARS_IN_GB_ITEM_NAME = {'*', '[', ']'};
+    public static final String[] INVALID_CHARS_AT_START_OF_GB_ITEM_NAME = {"#"};
 	
     /**
      * Comparator to ensure correct ordering of letter grades, catering for + and - in the grade
@@ -582,6 +583,12 @@ public interface GradebookService {
 	 * @return true if the current user has the gradebook.viewOwnGrades permission
 	 */
 	public boolean currentUserHasViewOwnGradesPerm(String gradebookUid);
+	
+	/**
+	 * @param gradebookUid
+	 * @return true if the current user has the gradebook.viewStudentNumbers permission 
+	 */
+	public boolean currentUserHasViewStudentNumbersPerm(String gradebookUid);
 	
 	/**
 	 * Get the grade records for the given list of students and the given assignment.

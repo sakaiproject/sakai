@@ -1,13 +1,528 @@
-//SAK-29873
-.unpublishedLabel {
-  opacity:0.2;
-}
+.#{$namespace}sakai-membership {
+  //SAK-29873
+  .unpublishedLabel {
+    opacity:0.2;
+  }
 
-.#{$namespace}sakai-membership{
-
-	#membership{
-		td[headers="checkbox"]{
+	#membership {
+		td[headers="checkbox"] {
 			border: none;
 		}
 	}
+}
+
+.#{$namespace}sakai-siteinfo, .#{$namespace}sakai-sitesetup {
+  .toggledContent {
+    margin: 0;
+    border: 2px solid #cef;
+    border-top: none;
+    padding: .5em;
+  }
+  #templateSettings {
+    padding: .5em;
+    background: #eee;
+    width: 100%;
+    @include border-radius( 5px );
+  }
+  #siteTypeList {
+    padding: .5em;
+    background: #eee;
+    width: 100%;
+    @include border-radius( 5px );
+    p {
+      border: none;
+      padding: .1em 0;
+      margin: 5px !important;
+    }
+  }
+  #archiveSettings {
+    padding: .5em;
+    background: #eee;
+    width: 100%;
+    @include border-radius( 5px );
+  }
+  .getSiteDesc {
+    margin-right: 20px;
+    float: right;
+  }
+  #templateList {
+    margin: 0 !important;
+    padding: 0;
+    list-style: none;
+    li {
+      background: #fff;
+      margin: 0 5px !important;
+      padding: 10px 5px;
+      height: 100%;
+      overflow: hidden;
+      border-bottom: 1px solid #ccc;
+      &.siteTypeRow {
+        padding: 2px 5px;
+        background: #eee;
+        outline: none;
+        margin: 5px 0 0 0 !important;
+        border-bottom: none;
+        h4 {
+          margin: 0 !important;
+          a {
+            border: 1px solid #d6d7d9;
+            background: linear-gradient(to bottom, #e3e4e5 0,#d9d9d9 100%);
+            text-decoration: none;
+            padding: 5px;
+            display: block;
+            margin: 0;
+            @include border-radius( 5px );
+            text-transform: capitalize;
+            em {
+              font-style: normal;
+            }
+            .siteType {
+              text-transform: capitalize;
+              padding: 2px 8px;
+              background: #fff;
+              @include border-radius( 3px );
+            }
+            &:hover {
+              border: 1px solid #cccdd1;
+              background: linear-gradient(to bottom, #d9dadd 0,#cccccc 100%);
+            }
+            &.openDisc {
+              border-bottom-right-radius: 0;
+              border-bottom-left-radius: 0;
+            }
+          }
+        }
+        span.siteTypeRowBlurb {
+          color: #555;
+          padding: 5px;
+          font-size: 85%;
+          text-transform: none;
+        }
+      }
+      .templateName {
+        float: left;
+        width: 25%;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .templateDescription {
+        float: right;
+        width: 68%;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        p:first-child {
+          margin: 0;
+        }
+      }
+      &.selectedTemplate {
+        background: #ffe;
+      }
+    }
+  }
+  #allTemplateSettings {
+    margin: 15px 5px 0;
+    height: 100%;
+    overflow: hidden;
+    background: #fff;
+    border: 1px solid #eee;
+  }
+  .allTemplateSettingsHighlight {
+    border: 1px solid #aaa !important;
+  }
+  #templateSettingsTitleTermContainer {
+    padding: 5px 8px;
+    float: left;
+  }
+  #fromTemplateSettingsContainer {
+    padding: 5px 8px;
+    float: left;
+  }
+  .templateSettingsPlaceholder {
+    float: none;
+    clear: both;
+    height: 100%;
+    overflow: hidden;
+  }
+  #fromTemplateSettingsContainer_instruction_control {
+    padding-left: 4em;
+  }
+  #fromTemplateSettingsContainer_instruction_body {
+    position: absolute;
+    background: #ffe;
+    color: #000;
+    border: 1px solid #9d9d9d;
+    padding: 3px;
+    //Instead of the line below you could use @include box-shadow($shadow-1, $shadow-2, $shadow-3, $shadow-4, $shadow-5, $shadow-6, $shadow-7, $shadow-8, $shadow-9, $shadow-10)
+    box-shadow: 2px 2px 2px 2px #cecece;
+    font-size: 90%;
+    &:hover {
+      cursor: pointer;
+    }
+    p {
+      padding: 5px;
+      margin: 0;
+    }
+  }
+  #toolHolderW {
+    background: none repeat scroll 0 0 #eeeeee;
+    @include border-radius( 5px );
+    padding: 0.5em;
+    margin-bottom: 12px;
+  }
+  #toolSelectionList {
+    margin: 0;
+    line-height: 200%;
+    border: 1px solid #dddddd;
+    @include border-radius( 5px );
+    padding: 0;
+    h4 {
+      margin: 0 0 1em 0;
+    }
+    li {
+      display: table-row;
+      text-align: center;
+      &:first-child {
+        border-top-left-radius: 3px;
+        border-top-right-radius: 3px;
+      }
+      &:last-child {
+        border-bottom-right-radius: 3px;
+        border-bottom-left-radius: 3px;
+      }
+      span {
+        display: table-cell;
+        vertical-align: middle;
+        text-align: center;
+        i {
+          font-size: 0.9em;
+        }
+      }
+      .selectedToolTitle {
+        padding: 6px 0 6px 30px;
+        text-align: left;
+        background-position: 8px 8px;
+        background-repeat: no-repeat;
+      }
+    }
+    ul {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      position: relative;
+      width: 100%;
+      display: table;
+      border-collapse: collapse;
+      li {
+        line-height: 1.4;
+        position: static;
+        border-top: 1px solid #ddd;
+        &.highlightTool {
+          background-color: #ffc;
+        }
+        &:first-child {
+          border-top: none;
+        }
+      }
+    }
+    #toolSelectionListHeader {
+      display: table-header-group;
+      background-image: none;
+    }
+    h3 {
+      display: table-cell;
+      padding: 0 8px;
+      &#toolSelectionListToolHeader {
+        text-align: left;
+      }
+    }
+  }
+  #toolHolder {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    ul {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      padding: 5px 20px;
+      display: none;
+      li div {
+        &.toolListDesc {
+          padding: 5px;
+          padding: 0 30px 5px;
+        }
+        &.toolListControl {
+          padding: 5px;
+          label {
+            color: #555;
+          }
+        }
+      }
+    }
+    h4 {
+      margin-top: 5px;
+      a {
+        border: 1px solid #d6d7d9;
+        background: linear-gradient(to bottom, #e3e4e5 0,#d9d9d9 100%);
+        text-decoration: none;
+        text-transform: capitalize;
+        padding: 5px;
+        display: block;
+        margin: 0;
+        @include border-radius( 5px );
+        &:hover {
+          border: 1px solid #cccdd1;
+          background: linear-gradient(to bottom, #d9dadd 0,#cccccc 100%);
+        }
+        &:before {
+          content: "\25B8\0020\0020";
+        }
+        &.toggleNone {
+          &:before {
+            content: "";
+          }
+          &:hover {
+            border: 1px solid #d6d7d9;
+            background: linear-gradient(to bottom, #e3e4e5 0,#d9d9d9 100%);
+            color: #555;
+          }
+        }
+        &.open:before {
+          content: "\25BE\0020\0020";
+        }
+      }
+      &.communication a {
+        color: #fff;
+        border: 1px solid #47a2ff;
+        background: linear-gradient(to bottom, #7abcff 0,#60abf8 44%,#4096ee 100%);
+      }
+      &.assessment a {
+        color: #fff;
+        border: 1px solid #a89e37;
+        background: linear-gradient(to bottom, #bbb03d 0,#928b36 100%);
+      }
+      &.content a {
+        color: #fff;
+        border: 1px solid #b80324;
+        background: linear-gradient(to bottom, #d10329 0,#bc0224 44%,#9e001d 100%);
+      }
+      &.site_management a {
+        color: #fff;
+        border: 1px solid #754326;
+        background: linear-gradient(to bottom, #884e2c 0,#6b3d21 100%);
+      }
+      &.miscellaneous a {
+      }
+    }
+    .checkedCount {
+      color: #555;
+      margin: 0;
+      display: block;
+      float: right;
+      padding: 0 3px;
+      text-align: center;
+      min-width: 10px;
+      background: #eee;
+      font-size: 90%;
+      @include border-radius( 3px );
+    }
+    li:first-child ul {
+      display: block;
+    }
+  }
+  .selectAll {
+    font-style: normal;
+    margin-left: 10px;
+    color: #0064cd;
+    font-weight: bold;
+    text-decoration: none;
+    font-size: 90%;
+    text-transform: none;
+    &:hover {
+      cursor: pointer;
+    }
+  }
+  #collExpContainer {
+    text-align: right;
+    a {
+      font-style: normal;
+      margin-left: 10px;
+      color: #0064cd;
+      font-weight: bold;
+      text-decoration: none;
+      font-size: 90%;
+      text-transform: none;
+    }
+  }
+  .removeTool {
+    text-decoration: none !important;
+  }
+  #alertBox {
+    @include border-radius( 3px );
+    position: absolute;
+    padding: 5px 10px;
+    background: #c00;
+    color: #fff;
+    white-space: nowrap;
+    z-index: 100;
+    a {
+      color: #fff;
+      margin: 0 5px;
+      &:first-child {
+        margin-left: 20px;
+      }
+    }
+  }
+  .multitool {
+    padding-left: 30px !important;
+  }
+  #newSiteAlert {
+    position: absolute;
+    top: 25px;
+    left: 30%;
+    right: 30%;
+    padding: 15px;
+    border: 1px solid #ccc;
+    background: #ffe;
+    @include border-radius( 3px );
+    box-shadow: 2px 2px 2px #cccccc;
+    vertical-align: middle;
+    a.newSiteAlertClose {
+      text-decoration: none;
+      font-size: 120%;
+      position: absolute;
+      top: 5px;
+      right: 5px;
+    }
+  }
+  #toolSelectionListHeader {
+    position: relative;
+    background-image: none;
+    background-color: #eeeeee;
+  }
+  #joinLimitByAccountType {
+    margin-bottom: 1em;
+  }
+  .unpublishedLabel {
+    opacity: 0.2;
+  }
+  .actionsContainer {
+    margin-top: 1em;
+  }
+  #summary {
+    border: none;
+    tr {
+      background: transparent;
+    }
+    td {
+      border: none;
+    }
+    th {
+      font-weight: bold;
+    }
+  }
+  #removeClass {
+    max-width: 800px;
+    #remove {
+      width: 5%;
+    }
+  }
+  th {
+    &#term {
+      width: 25%;
+    }
+    &#section {
+      width: 50%;
+    }
+  }
+  td {
+    &.noWrap {
+      white-space: nowrap;
+    }
+    &.grayText {
+      color: #888;
+    }
+  }
+  #toolHolderWW {
+    .mathJaxToggleArea {
+      border: 1px solid #dddddd;
+      @include border-radius( 5px );
+      padding: 10px;
+      margin: 20px 0 0;
+    }
+    .lessonsSubNavToggleArea {
+      border: 1px solid #dddddd;
+      @include border-radius( 5px );
+      padding: 10px;
+      margin: 20px 0 0;
+    }
+  }
+  h4.toggleAnchor {
+    border: 1px solid #cef;
+    background: #cef !important;
+    padding: 5px !important;
+    cursor: pointer;
+    outline: none;
+    color: black;
+  }
+  .toggleAnchor:hover {
+    border: 1px solid #9cf;
+  }
+  dl.defList {
+    margin: 0;
+    padding: 0;
+    dt {
+      padding: 5px 0;
+    }
+    dd {
+      padding: 5px 0;
+      padding: 5px 1em;
+    }
+  }
+  .indnt3 .row {
+    margin: 10px 0 0;
+    &:first-child {
+      margin-top: 0;
+    }
+  }
+  #moreInfoHolder img {
+    width: 100%;
+  }
+  #flashNotif .newSiteAlertActions {
+    float: right;
+    margin-right: 10px;
+    a {
+      padding: 3px 6px;
+      background: linear-gradient(to bottom, #e3e4e5 0,#d9d9d9 100%);
+      text-decoration: none !important;
+      margin: 0 0 0 5px;
+      border: 1px solid #e0e3e5 !important;
+      @include border-radius( 3px );
+      //Instead of the line below you could use @include box-shadow($shadow-1, $shadow-2, $shadow-3, $shadow-4, $shadow-5, $shadow-6, $shadow-7, $shadow-8, $shadow-9, $shadow-10)
+      box-shadow: 0 1px 1px 0 #999999 !important;
+      color: #555555 !important;
+      font-size: 11px !important;
+      font-weight: bold !important;
+      height: 24px !important;
+      margin-left: 0 !important;
+      margin-right: 3px;
+      //Instead of the line below you could use @include text-shadow($shadow-1, $shadow-2, $shadow-3, $shadow-4, $shadow-5, $shadow-6, $shadow-7, $shadow-8, $shadow-9, $shadow-10)
+      text-shadow: 0 2px 3px #ffffff !important;
+    }
+  }
+  input#btnSearch {
+    margin-left: 0.7em;
+  }
+  h3.toolHeading {
+    margin: 0;
+    padding: 0;
+  }
+  p#messageHolder {
+    width: 50%;
+    padding: 0 0 0 2em;
+    margin: 0;
+  }
+  label.onoffswitch-label {
+    font-weight: normal;
+  }
 }

@@ -411,18 +411,22 @@
         <navigation-case>
         	<from-outcome>forumsMain</from-outcome>
         	<to-view-id>/jsp/discussionForum/forumsOnly/dfForums.jsp</to-view-id>
+        	<redirect/>
         </navigation-case>
            <navigation-case>
         	<from-outcome>dfStatisticsAllAuthoredMessageForOneUser</from-outcome>
         	<to-view-id>/jsp/discussionForum/statistics/dfStatisticsAllAuthoredMsgForOneUser.jsp</to-view-id>
+        	<redirect/>
         </navigation-case>
          <navigation-case>
         	<from-outcome>dfStatisticsFullTextForOne</from-outcome>
         	<to-view-id>/jsp/discussionForum/statistics/dfStatisticsFullTextForOne.jsp</to-view-id>
+        	<redirect/>
         </navigation-case>
         <navigation-case>
         	<from-outcome>dfStatisticsDisplayInThread</from-outcome>
         	<to-view-id>/jsp/discussionForum/statistics/dfStatisticsDisplayInThread.jsp</to-view-id>
+        	<redirect/>
         </navigation-case>
     </navigation-rule>
   

@@ -160,7 +160,7 @@ public class PageHandler extends BasePortalHandler
 		String siteType = portal.calcSiteType(site.getId());
 		// start the response
 		PortalRenderContext rcontext = portal.startPageContext(siteType, title, page
-				.getSkin(), req);
+				.getSkin(), req, site);
 		
 		addLocale(rcontext, site);
 

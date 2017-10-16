@@ -71,8 +71,13 @@
 		padding: 0 1em 0 1em;
 	}
 	
-	.feedBackCheck, .feedBackCross{
+	.feedBackCheck, .feedBackCross, .feedBackNone{
+		min-width: 20px;
 		margin-right: 0.2em;
+	}
+	
+	.feedBackNone{
+		visibility: hidden;
 	}
 	
 	.feedBackCheck{
@@ -233,6 +238,10 @@
 		.extendedTime-mins {
 			min-width: 70px;
 		}
+	}
+	
+	.navIntraTool {
+		margin: 0px !important;
 	}
 
 }

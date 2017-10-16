@@ -143,7 +143,7 @@ function resizeFrame(){
 							<h4>$tlang.getString("displayto.access")</h4>
 						</legend>
 					
-				#if ($!groups || ($!groups.size()>1)) #set ($show_group = "true") #else #set ($show_group = "false") #end
+				#if ($!groups && ($!groups.size()>1)) #set ($show_group = "true") #else #set ($show_group = "false") #end
 				#if ( $motd )
 					## no show this selection, but set default to public
 					<input type="hidden" name="announceTo" id="pubview" value="pubview" checked="checked" onclick="updateEmailDropdownOptions()" />

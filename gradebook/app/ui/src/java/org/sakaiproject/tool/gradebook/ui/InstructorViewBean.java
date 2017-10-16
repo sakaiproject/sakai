@@ -27,6 +27,7 @@ import java.util.Set;
 
 import javax.faces.event.ActionEvent;
 
+import org.sakaiproject.tool.gradebook.GradebookAssignment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,7 +35,6 @@ import org.sakaiproject.section.api.coursemanagement.EnrollmentRecord;
 import org.sakaiproject.service.gradebook.shared.StaleObjectModificationException;
 import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.tool.gradebook.AbstractGradeRecord;
-import org.sakaiproject.tool.gradebook.Assignment;
 import org.sakaiproject.tool.gradebook.AssignmentGradeRecord;
 import org.sakaiproject.tool.gradebook.Category;
 import org.sakaiproject.tool.gradebook.CourseGrade;
@@ -373,7 +373,7 @@ public class InstructorViewBean extends ViewByStudentBean implements Serializabl
 		if (gradableObject.isCourseGrade()) {
 			return getLocalizedString("roster_course_grade_column_name");
 		} else {
-			return ((Assignment)gradableObject).getName();
+			return ((GradebookAssignment)gradableObject).getName();
 		}
 	}
 	
@@ -490,7 +490,7 @@ public class InstructorViewBean extends ViewByStudentBean implements Serializabl
 
 		Long assignmentIdAsLong = getAssignmentIdAsLong();
 		if (assignmentIdAsLong != null) {
-			Assignment prevAssignment = getGradebookManager().getAssignment(assignmentIdAsLong);
+			GradebookAssignment prevAssignment = getGradebookManager().getAssignment(assignmentIdAsLong);
 			Category category = prevAssignment.getCategory();
 			Long catId = null;
 			if (category != null)
@@ -603,7 +603,7 @@ public class InstructorViewBean extends ViewByStudentBean implements Serializabl
 	}
 	
 	/**
-	 * Go to either Roster or Assignment Details page.
+	 * Go to either Roster or GradebookAssignment Details page.
 	 */
 	public String processCancel() {
 		if (new Boolean((String) SessionManager.getCurrentToolSession().getAttribute("middle")).booleanValue()) {

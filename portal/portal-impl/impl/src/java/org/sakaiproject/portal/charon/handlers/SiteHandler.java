@@ -482,7 +482,7 @@ public class SiteHandler extends WorksiteHandler
 
 		// Note that this does not call includeTool()
 		PortalRenderContext rcontext = portal.startPageContext(siteType, title, site
-				.getSkin(), req);
+				.getSkin(), req, site);
 
 		if ( allowBuffer ) {
 			log.debug("Starting the buffer process...");
@@ -904,7 +904,7 @@ public class SiteHandler extends WorksiteHandler
 			}
 
 			rcontext.put("tabDisplayLabel", tabDisplayLabel);
-			rcontext.put("toolsCollapsed", toolsCollapsed);
+			rcontext.put("toolsCollapsed", Boolean.valueOf(toolsCollapsed));
 			
 			SiteView siteView = portal.getSiteHelper().getSitesView(
 					SiteView.View.DHTML_MORE_VIEW, req, session, siteId);

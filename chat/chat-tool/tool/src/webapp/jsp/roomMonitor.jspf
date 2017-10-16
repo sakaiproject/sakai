@@ -1,39 +1,78 @@
-
-	<sakai:messages rendered="#{!empty facesContext.maximumSeverity}" />
-
-	<c:set var="deleteUrl" value="${ChatTool.toolContext}/sakai.chat.deleteMessage.helper/deleteMessageConfirm?session.current_message=" />
-
-    <c:set var="serial" value="0" />
-    <ul id="topForm:chatList" class="chatList">
+<sakai:messages rendered="#{!empty facesContext.maximumSeverity}" />
+<c:set var="deleteUrl" value="${ChatTool.toolContext}/sakai.chat.deleteMessage.helper/deleteMessageConfirm?session.current_message=" />
+<c:set var="serial" value="0" />
+<c:set var="lastMessageOwnerId" value="0" />
+<ul id="topForm:chatList" class="chatList">
+    <li id="chatListItem" class="hide">
+        <c:out value="
+            <span class=\"chatUserAvatar\">
+                <span class=\"chatUserOnline\"></span>
+            </span>
+            <span class=\"chatNameDate\">
+                <span class=\"chatName\"></span>
+                <span class=\"chatDate\"></span>
+            </span>
+            <span class=\"chatMessage\">
+                <span class=\"chatMessageDate\"></span>
+                <span class=\"chatText\"></span>
+                <span class=\"chatRemove fa fa-trash hide\" id=\"topForm:chatList:${serial}:deleteMessage\" href=\"#\" title=\"${msgs['list.del']}\" aria-label=\"${msgs['list.del']}\"></span>
+            </span>
+        " escapeXml="false" />
+    </li>
+    <li id="divisorNewMessages" class="hide divisorNewMessages">
+        <c:out value="
+            <span class=\"newMessages\">
+            </span>${msgs['new_messages']}" escapeXml="false" />
+    </li>
     <c:forEach items="${ChatTool.roomMessages}" var="message">
-	  <li><c:out value="<span style=\"color: ${message.color}\">" escapeXml="false"/><c:out value="${message.owner}"/><c:out value="</span>" escapeXml="false" /> 
+        <c:choose>
+            <c:when test="${lastMessageOwnerId eq message.chatMessage.owner}">
+                <c:out value="<li data-message-id='${message.chatMessage.id}' data-owner-id='${message.chatMessage.owner}' class='nestedMessage'>" escapeXml="false" />
+            </c:when>
+            <c:otherwise>
+                <c:out value="<li data-message-id='${message.chatMessage.id}' data-owner-id='${message.chatMessage.owner}'>" escapeXml="false" />
+            </c:otherwise>
+        </c:choose>        
+            <c:out value="<span class='chatUserAvatar' style=\"background-image: url(/direct/profile/${message.chatMessage.owner}/image)\">" escapeXml="false"/>
+            <c:out value="<span class='chatUserOnline'></span>" escapeXml="false" />
+            <c:out value="</span>" escapeXml="false" />
 
-   	  <c:if test="${message.canRemoveMessage}">
-	     <c:out value="<a id=\"topForm:chatList:${serial}:deleteMessage\" href=\"#\" title=\"${msgs['list.del']}\" onclick=\"location.href='${deleteUrl}${message.chatMessage.id}'\"><img id=\"topForm:chatList:${serial}:deleteIcon\" style=\"margin-bottom:-2px;\" src=\"${ChatTool.serverUrl}/library/image/sakai/delete.gif\" alt=\"${msgs['list.del']}\" /></a>" escapeXml="false" />
-  	  </c:if>
+            <c:out value="<span class='chatNameDate'><span class='chatName'>${message.owner}</span>" escapeXml="false" />
+            <c:set var="chatDate" value="" />
 
-  	  <c:if test="${ChatTool.displayId}">
-	    <c:out value="<span class=\"chatDate\">(${message.id})</span>" escapeXml="false" /> 
-	  </c:if>
+            <c:if test="${ChatTool.displayDate && ChatTool.displayTime}">
+                <c:out value="<span class=\"chatDate\">${message.dateTime}</span>" escapeXml="false" /> 
+                <c:set var="chatDate" value="${message.dateTime}" />
+            </c:if>
 
-	  <c:if test="${ChatTool.displayDate && ChatTool.displayTime}">
-	    <c:out value="<span class=\"chatDate\">(${message.dateTime})</span>" escapeXml="false" /> 
-	  </c:if>
+            <c:if test="${ChatTool.displayDate && !ChatTool.displayTime}">
+                <c:out value="<span class=\"chatDate\">${message.date}</span>" escapeXml="false" /> 
+                <c:set var="chatDate" value="${message.date}" />
+            </c:if>
 
-	  <c:if test="${ChatTool.displayDate && !ChatTool.displayTime}">
-	    <c:out value="<span class=\"chatDate\">(${message.date})</span>" escapeXml="false" /> 
-	  </c:if>
+            <c:if test="${!ChatTool.displayDate && ChatTool.displayTime}">
+                <c:out value="<span class=\"chatDate\">${message.time}</span>" escapeXml="false" /> 
+                <c:set var="chatDate" value="${message.time}" />
+            </c:if>
 
-	  <c:if test="${!ChatTool.displayDate && ChatTool.displayTime}">
-	    <c:out value="<span class=\"chatDate\">(${message.time})</span>" escapeXml="false" /> 
-	  </c:if>
+            <c:if test="${ChatTool.displayId}">
+                <c:out value="<span class=\"chatDate\">(${message.id})</span>" escapeXml="false" /> 
+                <c:set var="chatDate" value="(${message.id})" />
+            </c:if>
 
-	  <c:out value="${message.chatMessage.body}" escapeXml="false" />
-
-	  </li>
-    <c:set var="serial" value="${serial + 1}" />
+            <c:out value="</span>" escapeXml="false" />
+            <c:out value="<span class='chatMessage'>" escapeXml="false" />
+                <c:out value="<span class='chatMessageDate'>${chatDate}</span>" escapeXml="false" />
+                <c:out value="<span class='chatText'>${message.chatMessage.body}</span>" escapeXml="false" />
+                <c:if test="${message.canRemoveMessage}">
+                    <c:out value="<span class='chatRemove fa fa-trash' data-message-id='${message.chatMessage.id}' aria-label='${msgs['list.del']}'></span>" escapeXml="false" />
+                </c:if>
+            <c:out value="</span>" escapeXml="false" />
+        <c:out value="</li>" escapeXml="false" />
+        <c:set var="serial" value="${serial + 1}" />
+        <c:set var="lastMessageOwnerId" value="${message.chatMessage.owner}" />
     </c:forEach>
-    </ul>
+</ul>
 
 <script type="text/javascript">
     //set for the chatscript.js
@@ -41,22 +80,11 @@
     deleteUrl = "<h:outputText value="#{ChatTool.toolContext}/sakai.chat.deleteMessage.helper/deleteMessageConfirm?session.current_message=" />";
     chat2_shownMessages = ${serial};
 
-    var Colors = [ <c:forEach items="${ChatTool.colorMapper.colors}" var="color">"<c:out value="${color}" />", </c:forEach> ""];
-	Colors.pop();
-
-	var numColors = Colors.length;
-	var nextColor = <c:out value="${ChatTool.colorMapper.next}" />;
-
-	var ColorMap = new Object();
-<c:forEach items="${ChatTool.colorMapper.mappingList}" var="keyvalue">
-	ColorMap["<c:out value="${keyvalue.key}" />"] = "<c:out value="${keyvalue.value}" />";
-</c:forEach>
-
     var display_date = <c:out value="${ChatTool.displayDate}" />;
     var display_time = <c:out value="${ChatTool.displayTime}" />;
     var display_id = <c:out value="${ChatTool.displayId}" />;
     var sound_alert = <c:out value="${ChatTool.soundAlert}" />;
 
     var objDiv = document.getElementById("Monitor");
-   	objDiv.scrollTop = objDiv.scrollHeight;
+        objDiv.scrollTop = objDiv.scrollHeight;
 </script>

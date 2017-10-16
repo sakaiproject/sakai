@@ -404,7 +404,7 @@ function setupToggleImages(action, imgClass, classOn, classOff, msgs){
 function showConfirmDeleteAttachment(deleteButton, msgs, event){
 	var title = $(deleteButton).parent().find(".attachment").html();
 	$('<div></div>').appendTo('body')
-		.html('<div><h6>' + msgs.confirmDelete + " '" + title + "'?</h6></div>")
+		.html('<div><div class="messageError">' + msgs.noUndoWarning + '</div><h6>' + msgs.confirmDelete + " '" + title + "'?</h6></div>")
 		.dialog({
 			position: { my: 'left center', at: 'right center', of: $(deleteButton)},
 			modal: true, title: msgs.deleteAttachmentTitle, zIndex: 10000, autoOpen: true,
@@ -440,7 +440,7 @@ function showConfirmDeleteAttachment(deleteButton, msgs, event){
 function showConfirmDelete(deleteButton, msgs, event){
 	var title = $(deleteButton).parent().find(".editItemTitle").html();
 	$('<div></div>').appendTo('body')
-		.html('<div><h6>' + msgs.confirmDelete + " '" + title + "'?</h6></div>")
+		.html('<div><div class="messageError">' + msgs.noUndoWarning + '</div><h6>' + msgs.confirmDelete + " '" + title + "'?</h6></div>")
 		.dialog({
 			position: { my: 'left center', at: 'right center', of: $(deleteButton)},
 			modal: true, title: msgs.deleteItemTitle, zIndex: 10000, autoOpen: true,
@@ -501,14 +501,17 @@ function doAddItemButtonClick( msgs, published )
 		if( $( "#successInfo" ).is( ":visible" ) )
 		{
 			location.reload();
+			return true;
 		}
 	}
+
+	return false;
 }
 
 function showConfirmAdd(msgs, mainframeId){
 	$('#container', this.top.document).append("<div></div>");
 	$('<div></div>').appendTo('body')
-		.html("<div><h6>" + msgs.syllabus_title + "</h6><input type='text' id='newTitle'/></div><div style='display:none' id='requiredTitle' class='warning'>" + msgs.required + "</div>" +
+		.html("<div><h6><span class='reqStar'>* </span>" + msgs.syllabus_title + "</h6><input type='text' id='newTitle'/></div><div style='display:none' id='requiredTitle' class='messageError'>" + msgs.required + "</div>" +
 				"<h6>" + msgs.syllabus_content + "</h6><div class='bodyInput' id='newContentDiv'><textarea cols='120' id='newContentTextAreaWysiwyg'/></div>")
 		.dialog({
 			position: {
@@ -526,11 +529,11 @@ function showConfirmAdd(msgs, mainframeId){
 			buttons: [
 				{
 					text: msgs.bar_publish,
-					click: function() { doAddItemButtonClick( msgs, true ); $( this ).dialog( "close" ); }
+					click: function() { if (doAddItemButtonClick( msgs, true )) {$( this ).dialog( "close" );} }
 				},
 				{
 					text: msgs.bar_new,
-					click: function() { doAddItemButtonClick( msgs, false ); $( this ).dialog( "close" ); }
+					click: function() { if (doAddItemButtonClick( msgs, false )) {$( this ).dialog( "close" );} }
 				},
 				{
 					text: msgs.bar_cancel,

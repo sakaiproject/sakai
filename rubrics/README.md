@@ -232,8 +232,6 @@ spring.datasource.username=sakai
 spring.datasource.password=sakai
 
 rubrics.integration.sakai-rest-url=http://sakai-core:8080/sakai-ws/rest/
-rubrics.integration.sakai-admin-user=admin
-rubrics.integration.sakai-admin-password=admin
 
 rubrics.integration.token-secret=<Unique secret to support JWT signing>
 ```
@@ -242,9 +240,8 @@ Rubrics can be loaded into the same database as Sakai core, or a
 separate database. The spring.datasource settings above must be
 configured either way.
 
-NOTE: The Sakai web services requires admin access, so the configuration
-should be locked down to the IP address or hostname restriction of the
-appropriate interface per Sakai web services configuration.
+NOTE: The Sakai web services requires access, so the configuration
+should allow at least localhost to access
 ```
 webservices.allowlogin=true
 webservices.allow=localhost

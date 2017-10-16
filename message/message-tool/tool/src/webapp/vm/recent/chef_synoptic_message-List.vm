@@ -12,7 +12,7 @@
 				</span></li>
 			</ul>
 			#end
-			#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div><div class="clear"></div>#end
+			#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert.message") $validator.escapeHtml($alertMessage)</div><div class="clear"></div>#end
 			<ul class="synopticList">
 			#foreach ($item in $messages)
 				<li>
@@ -70,7 +70,7 @@
 				</span></li>
 			</ul>
 			#end
-			#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div><div class="clear"></div>#end
+			#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert.message") $validator.escapeHtml($alertMessage)</div><div class="clear"></div>#end
 			<ul class="synopticList">
 			#foreach ($item in $messages)
 				<li>

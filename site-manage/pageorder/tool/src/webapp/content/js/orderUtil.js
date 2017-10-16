@@ -240,14 +240,13 @@ function sortByTitle() {
         	}
         	return b[i]? -1:0;
     }).appendTo('ul.sortable');
-    fluidList.refresh();
 }
 				
 function addTool(draggable, manual) {
 	if (manual == true) {
 		// we got fired via the add link not a drag and drop..
 		//  so we need to manually add to the list
-		$('#sort1').append(draggable);
+		$('#reorder-list').append(draggable);
 	}
 	$(draggable).attr("style", "");
 	//force possitioning so IE displays this right

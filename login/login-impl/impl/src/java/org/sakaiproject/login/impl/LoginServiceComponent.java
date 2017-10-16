@@ -85,7 +85,7 @@ public abstract class LoginServiceComponent implements LoginService {
 			// Do NOT trim the password, since many authentication systems allow whitespace.
 			eid = eid.trim();
 
-			Evidence e = new IdPwEvidence(eid, pw);
+			Evidence e = new IdPwEvidence(eid, pw, credentials.getRemoteAddr());
 
 			Authentication a = authenticationManager().authenticate(e);
 

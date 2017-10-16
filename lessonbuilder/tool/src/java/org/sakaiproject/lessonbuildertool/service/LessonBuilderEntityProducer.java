@@ -1,3 +1,18 @@
+/**
+ * Copyright (c) 2003-2017 The Apereo Foundation
+ *
+ * Licensed under the Educational Community License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *             http://opensource.org/licenses/ecl2
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 /**********************************************************************************
  * $URL: $
@@ -292,6 +307,12 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
       // this slightly odd code is for testing. It lets us test by reloading just lesson builder.
       // otherwise we have to restart sakai, since the entity stuff can't be restarted
       if (false) {
+	  SecurityAdvisor mergeAdvisor = new SecurityAdvisor() {
+		  public SecurityAdvice isAllowed(String userId, String function, String reference) {
+		      return SecurityAdvice.ALLOWED;
+		  }
+	      };
+
       try {
 	  Document doc = Xml.createDocument();
 	  Stack stack = new Stack();
@@ -311,20 +332,13 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 	  Xml.writeDocument(doc, "/tmp/xmlout");
 
 	  // we don't have an actual user at this point, so need to force checks to work
-	  securityService.pushAdvisor(new SecurityAdvisor() {
-		  public SecurityAdvice isAllowed(String userId, String function, String reference) {
-		      return SecurityAdvice.ALLOWED;
-		  }
-	      });
-
+	  securityService.pushAdvisor(mergeAdvisor);
 
 	  merge("0134937b-ce16-440c-80a6-fb088d79e5ad",  (Element)doc.getFirstChild().getFirstChild(), "/tmp/archive", "45d48248-ba23-4829-914a-7219c3ced2dd", null, null, null);
-
-
       } catch (Exception e) {
 	  logger.info(e.getMessage(), e);
       } finally {
-	  securityService.popAdvisor();
+	  securityService.popAdvisor(mergeAdvisor);
       }
       }
 
@@ -1225,6 +1239,8 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 	   return false;
        String id = reference.substring(i);
        i = id.indexOf("/", 1);
+       if (i < 0)
+	   return false;
        type = id.substring(1, i);
        String numstring = id.substring(i+1);
        i = numstring.indexOf("/");

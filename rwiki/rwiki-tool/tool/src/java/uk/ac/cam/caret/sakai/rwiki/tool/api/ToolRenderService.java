@@ -38,31 +38,6 @@ public interface ToolRenderService
 	String renderPublicPage(RWikiObject rwo, boolean withBreadcrumbs);
 
 	/**
-	 * Renders a print view of the page
-	 * 
-	 * @param rwo
-	 *        The RWikiObject representing the page
-	 * @param user
-	 *        The user making the request
-	 * @param realm
-	 *        The default realm to render in
-	 * @return an string representing the rendered content
-	 */
-	String renderPrintPage(RWikiObject rwo, String realm,
-			boolean withBreadcrumbs);
-	
-	/**
-	 * Renders a print view of the page
-	 * 
-	 * @param rwo
-	 *        the RWiki object
-	 * @param user
-	 *        The user
-	 * @return and string containing the rendered content
-	 */
-	String renderPrintPage(RWikiObject rwo, boolean withBreadcrumbs);
-
-	/**
 	 * Renders a public view of the page
 	 * 
 	 * @param rwo

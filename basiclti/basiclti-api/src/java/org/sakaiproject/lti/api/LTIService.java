@@ -62,6 +62,7 @@ public interface LTIService {
             "pagetitle:text:label=bl_pagetitle:required=true:allowed=true:maxlength=1024",
             "fa_icon:text:label=bl_fa_icon:allowed=true:maxlength=1024",
             "frameheight:integer:label=bl_frameheight:allowed=true",
+            "toolorder:integer:label=bl_toolorder:maxlength=2",
             "newpage:checkbox:label=bl_newpage",
             "debug:checkbox:label=bl_debug",
             "custom:textarea:label=bl_custom:rows=5:cols=25:allowed=true:maxlength=16384",
@@ -114,7 +115,9 @@ public interface LTIService {
             "secret:text:label=bl_secret:maxlength=1024",
             "allowsecret:radio:label=bl_allowsecret:choices=disallow,allow:only=lti1",
             "frameheight:integer:label=bl_frameheight",
+            "toolorder:integer:label=bl_toolorder:maxlength=2",
             "allowframeheight:radio:label=bl_allowframeheight:choices=disallow,allow",
+            "siteinfoconfig:radio:label=bl_siteinfoconfig:choices=bypass,config",
             "privacy:header:fields=sendname,sendemailaddr",
             "sendname:checkbox:label=bl_sendname",
             "sendemailaddr:checkbox:label=bl_sendemailaddr",
@@ -126,9 +129,9 @@ public interface LTIService {
             "pl_header:header:fields=pl_launch,pl_linkselection,pl_importitem,pl_fileitem,pl_contenteditor,pl_assessmentselection",
             "pl_launch:checkbox:label=bl_pl_launch",
             "pl_linkselection:checkbox:label=bl_pl_linkselection",
+            "pl_contenteditor:checkbox:label=bl_pl_contenteditor",
             "pl_importitem:checkbox:label=bl_pl_importitem:role=admin",
             "pl_fileitem:checkbox:label=bl_pl_fileitem:role=admin",
-            "pl_contenteditor:checkbox:label=bl_pl_contenteditor:role=admin",
             "pl_assessmentselection:checkbox:label=bl_pl_assessmentselection:role=admin",
             "newpage:radio:label=bl_newpage:choices=off,on,content",
             "debug:radio:label=bl_debug:choices=off,on,content",
@@ -216,6 +219,7 @@ public interface LTIService {
     String LTI_SECRET_INCOMPLETE = "-----";
     String LTI_FRAMEHEIGHT = "frameheight";
     String LTI_ALLOWFRAMEHEIGHT = "allowframeheight";
+    String LTI_TOOLORDER = "toolorder";
     String LTI_SENDNAME = "sendname";
     String LTI_SENDEMAILADDR = "sendemailaddr";
     String LTI_ALLOWOUTCOMES = "allowoutcomes";
@@ -255,6 +259,7 @@ public interface LTIService {
     String LTI_TOOL_PROXY_BINDING = "tool_proxy_binding";
     // End of BLTI-230 - LTI 2.0
     String LTI_PL_LAUNCH = "pl_launch";
+    String LTI_SITEINFOCONFIG = "siteinfoconfig";
     String LTI_PL_LINKSELECTION = "pl_linkselection";
     String LTI_PL_FILEITEM = "pl_fileitem";
     String LTI_PL_IMPORTITEM = "pl_importitem";
@@ -322,6 +327,8 @@ public interface LTIService {
     Object insertToolDao(Object newProps, String siteId, boolean isAdminRole, boolean isMaintainRole);
 
     boolean deleteTool(Long key, String siteId);
+
+    public List<String>  deleteToolAndContents(Long key, String siteId);
 
     boolean deleteToolDao(Long key, String siteId, boolean isAdminRole, boolean isMaintainRole);
 

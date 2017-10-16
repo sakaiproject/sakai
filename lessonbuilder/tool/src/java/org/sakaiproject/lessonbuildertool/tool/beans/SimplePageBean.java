@@ -447,14 +447,16 @@ public class SimplePageBean {
 		public String Url;
 		public String label;
 		public String fa_icon = null;
+		public Boolean search = Boolean.FALSE;
 		public UrlItem(String Url, String label) {
 			this.Url = Url;
 			this.label = label;
 		}
-		public UrlItem(String Url, String label, String fa_icon) {
+		public UrlItem(String Url, String label, String fa_icon, Boolean search) {
 			this.Url = Url;
 			this.label = label;
 			this.fa_icon = fa_icon;
+			this.search = search;
 		}
 	}
 
@@ -846,9 +848,11 @@ public class SimplePageBean {
 		this.hasReleaseDate = hasReleaseDate;
 	}
 
-	public void setNodownloads(boolean n) {
+        // Can this method be safely commented out (in tandem with the nodownloads reference in applicationContext.xml)?
+        // See LSNBLDR-816.
+    	public void setNodownloads(boolean n) {
 		this.nodownloads = n;
-	}
+	} 
 
 	public void setAddBefore(String n) {
 		this.addBefore = n;
@@ -1518,9 +1522,9 @@ public class SimplePageBean {
 			mimeType = null; // use default rules if we can't find it
 			String url = null;
 			// part 1, fix up the type fields
-			boolean pushed = false;
+			SecurityAdvisor editUrlAdvisor = null;
 			try {
-				pushed = pushAdvisor();
+				editUrlAdvisor = pushAdvisor();
 				ContentResourceEdit res = contentHostingService.editResource(id);
 				res.setContentType("text/url");
 				res.setResourceType("org.sakaiproject.content.types.urlResource");
@@ -1529,7 +1533,7 @@ public class SimplePageBean {
 			} catch (Exception ignore) {
 				return "no-reference";
 			}finally {
-				if(pushed) popAdvisor();
+				popAdvisor(editUrlAdvisor);
 			}
 			// part 2, find the actual data type.
 			if (url != null)
@@ -1537,22 +1541,22 @@ public class SimplePageBean {
 		} else if (isCaption) {
 			// sakai probably sees it as a normal text file.
 			// some browsers require the mime type to be right
-			boolean pushed = false;
+			SecurityAdvisor editAdvisor = null;
 			try {
-				pushed = pushAdvisor();
+				editAdvisor = pushAdvisor();
 				ContentResourceEdit res = contentHostingService.editResource(id);
 				res.setContentType("text/vtt");
 				contentHostingService.commitResource(res, NotificationService.NOTI_NONE);
 			} catch (Exception ignore) {
 				return "no-reference";
 			}finally {
-				if(pushed) popAdvisor();
+				popAdvisor(editAdvisor);
 			}
-		}boolean pushed = false;
+		}
+
 		try {
 		    // I don't think we want the user adding anything he doesn't have access to
 		    // accessservice depends upon that
-		    //	pushed = pushAdvisor();
 			contentHostingService.checkResource(id);
 		} catch (PermissionException e) {
 			return "permission-exception";
@@ -1562,9 +1566,6 @@ public class SimplePageBean {
 		} catch (TypeException e) {
 			return "type-exception";
 		}
-		// }finally {
-		//   if(pushed) popAdvisor();
-		//}
 
 		String[] split = id.split("/");
 
@@ -1642,7 +1643,7 @@ public class SimplePageBean {
 	private ContentResource getContentResource(String id)
 	{
 		ContentResource res = null;
-		boolean pushed = false;
+		SecurityAdvisor pushed = null;
 		try
 		{
 			pushed = pushAdvisor();
@@ -1662,10 +1663,7 @@ public class SimplePageBean {
 		}
 		finally
 		{
-			if (pushed)
-			{
-				popAdvisor();
-			}
+			popAdvisor(pushed);
 		}
 		
 		return res;
@@ -2513,8 +2511,45 @@ public class SimplePageBean {
 	public String adjustPath(String op, Long pageId, Long pageItemId, String title) {
 		List<PathEntry> path = (List<PathEntry>)sessionManager.getCurrentToolSession().getAttribute(LESSONBUILDER_PATH);
 
+		// Allow the new portal lessons subnav to push a subpage on the context
+		if (op.equals("clear_and_push")) {
+			// clear path for top level subpage
+			path = new ArrayList<PathEntry>();
+
+			// add an entry for the parent page
+			SimplePage parentPage = null;
+
+			// the current page may have a parent
+			if (currentPage.getParent() != null && currentPage.getParent() != 0) {
+				parentPage = getPage(currentPage.getParent());
+
+			// try and get it from the current item
+			} else if (currentPageItemId != null) {
+				SimplePageItem item = getCurrentPageItem(currentPageItemId);
+				parentPage = getPage(item.getPageId());
+			}
+
+			PathEntry parentEntry = new PathEntry();
+			parentEntry.pageItemId = -1L;
+			if (parentPage == null) {
+				// we tried our best, default these values so things don't break
+				parentEntry.pageId = -1L;
+				parentEntry.title = "";
+			} else {
+				parentEntry.pageId = parentPage.getPageId();
+				parentEntry.title = parentPage.getTitle();
+			}
+			path.add(parentEntry);
+
+			// add the subpage
+			PathEntry entry = new PathEntry();
+			entry.pageId = pageId;
+			entry.pageItemId = pageItemId;
+			entry.title = title;
+			path.add(entry);  // put it on the end
+
 		// if no current path, op doesn't matter. we can just do the current page
-		if (path == null || path.size() == 0) {
+		} else if (path == null || path.size() == 0) {
 			PathEntry entry = new PathEntry();
 			entry.pageId = pageId;
 			entry.pageItemId = pageItemId;
@@ -3563,12 +3598,13 @@ public class SimplePageBean {
 
 	   // only here for object types with underlying entities
 	   boolean exists = false;
+	   SecurityAdvisor sa = null;
 	   try {
-	       pushAdvisorAlways();  // assignments won't let the student look
+	       sa = pushAdvisorAlways();  // assignments won't let the student look
 	       if (entity != null)
 		   exists = entity.objectExists();
 	   } finally {
-	       popAdvisor();
+	       popAdvisor(sa);
 	   }
 
 	   if (!exists) {
@@ -3600,11 +3636,12 @@ public class SimplePageBean {
 		   ;  // leave ret as an empty list
 	   } else {
 	       // not under our control, use list from tool
+	       SecurityAdvisor advisor = null;
 	       try {
-		   pushAdvisorAlways();
+		   advisor = pushAdvisorAlways();
 		   ret = entity.getGroups(nocache); // assignments won't let a student see
 	       } finally {
-		   popAdvisor();
+		   popAdvisor(advisor);
 	       }
 	   }
 
@@ -3680,15 +3717,7 @@ public class SimplePageBean {
 	       // so the advisor will cause the wrong answer
 	   	   boolean inheritingPubView =  contentHostingService.isInheritingPubView(i.getSakaiId());
 
-  	   	  // for isItemVisible to work, users need to be able to get this all the time
-                   //if(getCurrentPage().getOwner() != null) {
-    			   advisor = new SecurityAdvisor() {
-						public SecurityAdvice isAllowed(String userId, String function, String reference) {
-							return SecurityAdvice.ALLOWED;
-						}
-					};
-					securityService.pushAdvisor(advisor);
-		   //   }
+		   advisor = pushAdvisorAlways();
     	   
     		   Collection<String> ret = null;
 
@@ -3736,9 +3765,9 @@ public class SimplePageBean {
     		   
     		   return ret;
     	   }finally {
-	       if(advisor != null) securityService.popAdvisor();
+    		  popAdvisor(advisor);
     	   }
-       }
+   	}
 
     // no obvious need to cache
        public Collection<String>getLBItemGroups (SimplePageItem i) {
@@ -3846,9 +3875,9 @@ public class SimplePageBean {
 	   ContentResourceEdit resource = null;
 	   List<String>ret = null;
 
-	   boolean pushed = false;
+	   SecurityAdvisor pushedAdvisor = null;
 	   try {
-		   pushed = pushAdvisor();
+	       pushedAdvisor = pushAdvisor();
 	       resource = contentHostingService.editResource(i.getSakaiId());
 
 	       if (AccessMode.GROUPED.equals(resource.getInheritedAccess())) {
@@ -3889,7 +3918,7 @@ public class SimplePageBean {
 	       if (resource != null) {
 		   contentHostingService.cancelResource(resource);
 	       }
-	       if(pushed) popAdvisor();
+	       popAdvisor(pushedAdvisor);
 	   }
 
 	   return ret;
@@ -4217,19 +4246,6 @@ public class SimplePageBean {
 			}
 			if (add)
 			    page.setGradebookPoints(newPoints);
-			boolean oldDownloads = site.getProperties().getProperty("lessonbuilder-nodownloadlinks") != null;
-			if (oldDownloads != nodownloads) {
-			    if (oldDownloads)
-				site.getPropertiesEdit().removeProperty("lessonbuilder-nodownloadlinks");
-			    else if (nodownloads)
-				site.getPropertiesEdit().addProperty("lessonbuilder-nodownloadlinks", "true");
-			    try {
-				siteService.save(site);
-			    } catch (Exception e) {
-				log.error("editTitle unable to save site " + e);
-			    }
-
-			}
 
 			isOwner = currentUserId!=null && page!=null && currentUserId.equals(page.getOwner());
 			if (newOwner==null){
@@ -4257,11 +4273,10 @@ public class SimplePageBean {
 		}
 
 		if (pageTitle != null && pageItem.getPageId() == 0) {
-			try {
 				// we need a security advisor because we're allowing users to edit the page if they
 				// have
 				// simplepage.upd privileges, but site.save requires site.upd.
-				securityService.pushAdvisor(new SecurityAdvisor() {
+				SecurityAdvisor siteUpdAdvisor = new SecurityAdvisor() {
 					public SecurityAdvice isAllowed(String userId, String function, String reference) {
 						if (function.equals(SITE_UPD) && reference.equals("/site/" + getCurrentSiteId())) {
 							return SecurityAdvice.ALLOWED;
@@ -4269,7 +4284,10 @@ public class SimplePageBean {
 							return SecurityAdvice.PASS;
 						}
 					}
-				});
+				};
+
+			try {
+				securityService.pushAdvisor(siteUpdAdvisor);
 
 				SitePage sitePage = site.getPage(page.getToolId());
 					
@@ -4307,7 +4325,7 @@ public class SimplePageBean {
 			} catch (Exception e) {
 				e.printStackTrace();
 			} finally {
-				securityService.popAdvisor();
+				securityService.popAdvisor(siteUpdAdvisor);
 			}
 		} else if (pageTitle != null) {
 			page.setTitle(pageTitle);
@@ -5061,10 +5079,9 @@ public class SimplePageBean {
 		}
 
 		Collection<String>itemGroups = null;
-		boolean pushed = false;
+		SecurityAdvisor advisor = null;
 		try {
-		    pushAdvisorAlways();
-		    pushed = true;
+		    advisor = pushAdvisorAlways();
 		    LessonEntity entity = null;
 		    if (!canSeeAll()) {
 			switch (item.getType()) {
@@ -5089,15 +5106,13 @@ public class SimplePageBean {
 				return false;
 			}
 		    }
-		    popAdvisor();
-		    pushed = false;
 		    // entity can be null. passing the actual entity just avoids a second lookup
 		    itemGroups = getItemGroups(item, entity, false);
 		} catch (IdUnusedException exc) {
 		    visibleCache.put(item.getId(), false);
 		    return false; // underlying entity missing, don't show it
 		} finally {
-		    if (pushed) popAdvisor();
+		    popAdvisor(advisor);
 		}
 		if (itemGroups == null || itemGroups.size() == 0) {
 		    // this includes items for which for which visibility doesn't apply
@@ -5739,7 +5754,7 @@ public class SimplePageBean {
 		}catch(Exception ex) {
 			ex.printStackTrace();
 		}finally {
-		    if(advisor != null) securityService.popAdvisor();
+		    if(advisor != null) securityService.popAdvisor(advisor);
 		}
 		
 		// 	no
@@ -6188,14 +6203,7 @@ public class SimplePageBean {
 
 		SecurityAdvisor advisor = null;
 		try {
-			if(isStudentPage(getCurrentPage())) {
-				advisor = new SecurityAdvisor() {
-					public SecurityAdvice isAllowed(String userId, String function, String reference) {
-							return SecurityAdvice.ALLOWED;
-					}
-				};
-				securityService.pushAdvisor(advisor);
-			}
+			advisor = pushAdvisor();
 			if (!itemOk(itemId))
 				return;
 			if (!canEditPage())
@@ -6227,7 +6235,7 @@ public class SimplePageBean {
 		} catch (Exception exception) {
 			exception.printStackTrace();
 		} finally {
-			if(advisor != null) securityService.popAdvisor();
+			popAdvisor(advisor);
 		}
 		
 	}
@@ -7045,7 +7053,7 @@ public class SimplePageBean {
 		if (!checkCsrf())
 		    return;
 
-		if(getCurrentPage().getOwner() == null) {
+		if(canEditPage()) {
 			SimplePageItem item = appendItem("", messageLocator.getMessage("simplepage.student-content"), SimplePageItem.STUDENT_CONTENT);
 			item.setDescription(messageLocator.getMessage("simplepage.student-content"));
 			saveItem(item);
@@ -7215,29 +7223,35 @@ public class SimplePageBean {
 		return map;
 	}
 	
-	private void pushAdvisorAlways() {
-	    securityService.pushAdvisor(new SecurityAdvisor() {
+	private SecurityAdvisor pushAdvisorAlways() {
+	    SecurityAdvisor alwaysAdvisor = new SecurityAdvisor() {
 		    public SecurityAdvice isAllowed(String userId, String function, String reference) {
 			return SecurityAdvice.ALLOWED;
 		    }
-		});
+		};
+	    securityService.pushAdvisor(alwaysAdvisor);
+	    return alwaysAdvisor;
 	}
 
-	private boolean pushAdvisor() {
+	private SecurityAdvisor pushAdvisor() {
 		if(isStudentPage(getCurrentPage())) {
-			securityService.pushAdvisor(new SecurityAdvisor() {
+			SecurityAdvisor studentAdvisor = new SecurityAdvisor() {
 				public SecurityAdvice isAllowed(String userId, String function, String reference) {
 					return SecurityAdvice.ALLOWED;
 				}
-			});
-			return true;
+			};
+			securityService.pushAdvisor(studentAdvisor);
+			return studentAdvisor;
 		}else {
-			return false;
+			return null;
 		}
 	}
 	
-	private void popAdvisor() {
-		securityService.popAdvisor();
+	private void popAdvisor(SecurityAdvisor sa) {
+		// If pushAdvisor() was called on a non-student page, this SecurityAdvisor will be null
+		if (sa != null) {
+			securityService.popAdvisor(sa);
+		}
 	}
 	
 	public void setAddAnswerData(String data) {
@@ -7331,7 +7345,6 @@ public class SimplePageBean {
 			
 			item.setAttribute("questionShowPoll", String.valueOf(questionShowPoll));
 
-			simplePageToolDao.syncQRTotals(item);
 
 		}
 		
@@ -7352,7 +7365,10 @@ public class SimplePageBean {
 
 		if(gradebookTitle != null && (item.getGradebookId() == null || item.getGradebookId().equals(""))) {
 			// Creating new gradebook entry
-			
+			if (itemId != null && itemId < 0) {
+				saveItem(item);
+			}
+
 			String gradebookId = "lesson-builder:question:" + item.getId();
 			String title = gradebookTitle;
 			if(title == null || title.equals("")) {
@@ -7393,6 +7409,10 @@ public class SimplePageBean {
 		setItemGroups(item, selectedGroups);
 
 		saveOrUpdate(item);
+
+		if(questionType.equals("multipleChoice")) {
+			simplePageToolDao.syncQRTotals(item);
+		}
 
 		regradeAllQuestionResponses(item.getId());
 		
@@ -8147,8 +8167,13 @@ public class SimplePageBean {
 			resourceCache.put(collectionId, resources);
 		}
 		
+		// For a while, up to Sakai 11.3, uploading a custom css file directly from
+		// the lessonbuilder page could cause Sakai to generate file names like foo.css-1
+		// In such cases, they should appear in the dropdown for custom css
+		Pattern cssPattern = Pattern.compile("\\.css(-[0-9][0-9]*){0,1}$", Pattern.CASE_INSENSITIVE);
+		
 		for(ContentResource r : resources) {
-			if(r.getUrl().endsWith(".css")) {
+			if(cssPattern.matcher(r.getUrl()).find()) {
 				list.add(r);
 			}
 		}
@@ -8170,7 +8195,7 @@ public class SimplePageBean {
 		}
 		
 		for(ContentResource r : resources) {
-			if(r.getUrl().endsWith(".css")) {
+			if(cssPattern.matcher(r.getUrl()).find()) {
 				list.add(r);
 			}
 		}

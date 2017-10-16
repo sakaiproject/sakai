@@ -11,7 +11,7 @@
 	<parent>
 		<artifactId>content-review</artifactId>
 		<groupId>org.sakaiproject.contentreview</groupId>
-		<version>12-SNAPSHOT</version>
+		<version>13-SNAPSHOT</version>
 	</parent>
 
 	<dependencies>

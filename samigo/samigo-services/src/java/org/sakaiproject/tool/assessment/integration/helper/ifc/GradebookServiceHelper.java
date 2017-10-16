@@ -68,4 +68,6 @@ public interface GradebookServiceHelper extends Serializable
   
   public Long getExternalAssessmentCategoryId(String gradebookUId,
 		  String publishedAssessmentId, GradebookExternalAssessmentService g);
+
+  public String getAppName();
 }

@@ -54,6 +54,7 @@ import org.sakaiproject.calendar.api.Calendar;
 import org.sakaiproject.calendar.api.CalendarEdit;
 import org.sakaiproject.calendar.api.CalendarEvent;
 import org.sakaiproject.calendar.api.CalendarEventEdit;
+import org.sakaiproject.calendar.api.RecurrenceRule;
 import org.sakaiproject.entity.api.EntityProducer;
 import org.sakaiproject.entity.api.EntityTransferrer;
 import org.sakaiproject.entity.api.EntityTransferrerRefMigrator;
@@ -70,6 +71,7 @@ import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.api.SiteService.SelectionType;
 import org.sakaiproject.site.api.SiteService.SortType;
 import org.sakaiproject.site.api.ToolConfiguration;
+import org.sakaiproject.time.api.TimeRange;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.user.api.PreferencesEdit;
@@ -2862,6 +2864,77 @@ public class SakaiScript extends AbstractWebService {
         }
     }
 
+   /**
+     * Add a new single calendar event
+     * 
+     * @param sessionid    			the id of a valid session
+     * @param sourceSiteId 			the id of the site containing the calendar entries you want copied from
+     * @param startTime 			start time in java milliseconds
+     * @param endTime		    	end time in java milliseconds
+     * @param startIncluded 		to include start in range
+     * @param endIncluded 			to include end in range
+     * @param displayName 			display name for the calendar
+     * @param description			description for the calendar
+     * @param type					calendar type (must match defined types)
+     * @param location				calendar location
+     * @param descriptionFormatted	formatted description
+     * @param recurrenceFrequency 	recurrence frequency, must match a recurrence rule defined in RecurrenceRule.java 
+     * @param recurrenceInterval	recurrence interval
+     * @return success or exception
+     * @throws RuntimeException
+     */
+    @WebMethod
+    @Path("/addCalendarEvent")
+    @Produces("text/plain")
+    @GET
+    public String addCalendarEvent(
+            @WebParam(name = "sessionid", partName = "sessionid") @QueryParam("sessionid") String sessionid,
+            @WebParam(name = "sourceSiteId", partName = "sourceSiteId") @QueryParam("sourceSiteId") String sourceSiteId,
+            @WebParam(name = "startTime", partName = "startTime") @QueryParam("startTime") long startTime,
+            @WebParam(name = "endTime", partName = "endTime") @QueryParam("endTime") long endTime, 
+            @WebParam(name = "startIncluded", partName = "startIncluded") @QueryParam("startIncluded") boolean startIncluded,
+            @WebParam(name = "endIncluded", partName = "endIncluded") @QueryParam("endIncluded") boolean endIncluded,
+            @WebParam(name = "displayName", partName = "displayName") @QueryParam("displayName") String displayName,
+            @WebParam(name = "description", partName = "description") @QueryParam("description") String description,
+            @WebParam(name = "type", partName = "type") @QueryParam("type") String type,
+            @WebParam(name = "location", partName = "location") @QueryParam("location") String location,
+            @WebParam(name = "descriptionFormatted", partName = "descriptionFormatted") @QueryParam("descriptionFormatted") String descriptionFormatted,
+            @WebParam(name = "recurrenceFrequency", partName = "recurrenceFrequency") @QueryParam("recurrenceFrequency") String recurrenceFrequency,
+            @WebParam(name = "recurrenceInterval", partName = "recurrenceInterval") @QueryParam("recurrenceInterval") int recurrenceInterval){
+
+        Session session = establishSession(sessionid);
+
+        //setup source and target calendar strings
+        String calId = "/calendar/calendar/" + sourceSiteId + "/main";
+
+        CalendarEdit calendar = null;
+
+    	try {
+    		//get calendars
+    		calendar = calendarService.editCalendar(calId);
+
+    		CalendarEventEdit cedit = calendar.addEvent();
+    		TimeRange timeRange = timeService.newTimeRange(timeService.newTime(startTime), timeService.newTime(endTime), startIncluded, endIncluded);
+    		cedit.setRange(timeRange);
+    		cedit.setDisplayName(displayName);
+    		cedit.setDescription(description);
+    		cedit.setType(type);
+    		cedit.setLocation(location);
+    		cedit.setDescriptionFormatted(descriptionFormatted);
+    		if (recurrenceFrequency != null) {
+    			RecurrenceRule rule = calendarService.newRecurrence(recurrenceFrequency, recurrenceInterval);
+    			cedit.setRecurrenceRule(rule);
+    		}
+    		calendar.commitEvent(cedit);
+    		calendarService.commitCalendar(calendar);
+
+    	} catch (Exception e) {
+    		calendarService.cancelCalendar(calendar);
+    		LOG.error("WS addCalendarEvent(): error " + e.getClass().getName() + " : " + e.getMessage());
+    		return e.getClass().getName() + " : " + e.getMessage();
+    	}
+    	return "success";
+    }
 
     /**
      * Copy the calendar events from one site to another
@@ -3541,7 +3614,7 @@ public class SakaiScript extends AbstractWebService {
      * <tools>
      * <tool id="dafd2a4d-8d3f-4f4c-8e12-171968b259cd">
      * <tool-id>sakai.iframe.site</tool-id>
-     * <tool-title>Site Information Display</tool-title>
+     * <tool-title>Welcome</tool-title>
      * </tool>
      * ...
      * </tools>

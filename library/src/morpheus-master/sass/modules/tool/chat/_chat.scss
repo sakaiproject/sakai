@@ -1,20 +1,322 @@
 //////////////////////////////
 // MODULES: Styles that are layout independent 
 //////////////////////////////
-
 @import "_chat_variables";
-
 .Mrphs-{
 	&sakai-chat{
-		#chatLeft{
-			textarea{
-				width: 100%;
+		.panel-chat {
+			padding: 0;
+			margin: 14px 0 0 0;
+			.panel-heading {
+				h3 {
+					margin: 0;
+					padding-top: 0;
+				}
+				.chat-block {
+					.viewoptions-grp {
+						margin-right: 10px;
+					}
+					.viewoptions-grp, .msgoptions-grp {
+						display: inline-block;
+						margin-top: 10px;
+					}
+					select {
+						margin-left: 8px;
+					}
+				}
+			}
+			.nav.nav-tabs {
+				margin: 10px 0 0 0;
+				border-color: #dddddd;
+				display: none;
+				@media #{$tablet} {
+					display: block;
+				}
+				li {
+					a {
+						padding: 10px 9px;
+					}
+				}
+			}
+			.panel-body-chat {
+				display: -webkit-box;
+				display: -moz-box;
+				display: -ms-flexbox;
+				display: -webkit-flex;
+				display: flex;
+				padding: 0;
+				@media #{$tablet} {
+					-webkit-flex-flow: column-reverse;
+					flex-flow: column-reverse;
+				}
+				.chatListWrapperCont {
+					width: 100%;
+					max-height: 517px;
+					position: relative;
+
+					.chatListWrapper {
+						width: 100%;
+						height: 100%;
+						max-height: 517px;
+						overflow-y: scroll;
+						@media #{$desktop} {
+							display: block;
+						}
+						@media #{$tablet} {
+							width: 100%;
+						}
+						.chatListHeadWrapper {
+							padding: 8px 17px 0;
+							color: #888888;
+							text-align: center;
+						}
+						.shown_total {
+							color: #888888;
+							text-align: center;
+							margin: 0 17px 0 17px;
+							padding-bottom: 8px;
+						}
+						.alertMessage {
+							margin: 10px;
+						}
+						.chatListMonitor {
+							border: 0 !important;
+							padding: 0 !important;
+							.chatList {
+								list-style: none;
+								padding: 0;
+								margin: 0;
+								li {
+									margin: 0 17px;
+									padding: 19px 0 5px 0;
+									border-top: 1px solid #f1f1f1;
+									position: relative;
+									&.nestedMessage {
+										padding: 0 0 5px 0;
+										border-top: 0;
+										.chatUserAvatar, .chatNameDate {
+											display: none;
+										}
+										.chatMessage {
+											margin-top: 0;
+											.chatMessageDate {
+												display: none;
+											}
+										}
+									}
+									&.divisorNewMessages:not(.hide) {
+										margin: 0 0 5px 0;
+										padding: 5px 17px;
+										text-align: center;
+										border-bottom: 1px solid #f1f1f1;
+										background: #f7f7f7;
+										+ li {
+											border-top: 0;
+										}
+
+										.newMessages {
+											background: $link-color;
+											border-radius: 50px;
+											padding: 2px 7px;
+											font-size: 10px;
+											color: #fff;
+											margin-right: 5px;
+										}
+									}
+									.chatUserAvatar {
+										position: absolute;
+										top: 13px;
+										left: 0;
+										margin-right: 8px;
+										display: inline-block;
+										width: 42px;
+										height: 42px;
+										border-radius: 21px;
+										line-height: 40px;
+										color: #fff;
+										text-align: center;
+										font-weight: bold;
+										font-size: 15px;
+										text-transform: uppercase;
+										background-size: cover;
+										background-repeat: no-repeat;
+										background-position-x: center;
+										.chatUserOnline {
+											background: #8BC34A;
+											height: 12px;
+											width: 12px;
+											position: absolute;
+											bottom: -2px;
+											border-radius: 6px;
+											right: -2px;
+											display: none;
+											&.is-online {
+												display: block;
+											}
+										}
+									}
+									.chatNameDate {
+										margin-left: 54px;
+										line-height: 13px;
+										display: block;
+										.chatName {
+											display: inline-block;
+											font-weight: bold;
+											margin-right: 4px
+										}
+										.chatDate {
+											font-size: 9px;
+											color: #cacaca;
+											display: inline-block;
+											margin-right: 32px;
+										}
+									}
+									.chatMessage {
+										display: block;
+										color: #656565;
+										position: relative;
+										line-height: 19px;
+										margin: 5px 0 5px 53px;
+										.chatMessageDate {
+											font-size: 9px;
+											color: #cacaca;
+											position: absolute;
+											top: -13px;
+											display: none;
+										}
+										.chatText {
+											padding-right: 32px;
+											word-wrap: break-word;
+											display: block;
+										}
+										.chatRemove {
+											font-size: 20px;
+											position: absolute;
+											top: 0;
+											right: 8px;
+											cursor: pointer;
+											color: $link-color;
+										}
+									}
+								}
+							}
+						}
+					}
+
+					.scrollBottom {
+						position: absolute;
+						bottom: 0;
+						left: 50%;
+						margin: 17px;
+						transform: translate(-50%);
+						max-width: 500px;
+						text-align: center;
+						width: 40px;
+						height: 40px;
+						border-radius: 20px;
+						background: white;
+						border: 1px solid #dcdcdc;
+						cursor: pointer;
+
+						.newMessages {
+							position: absolute;
+							top: -10px;
+							background: $link-color;
+							border-radius: 50px;
+							padding: 2px 7px;
+							font-size: 10px;
+							transform: translate(-50%);
+							left: 50%;
+							color: #fff;
+						}
+
+						.scrollIcon {
+							line-height: 39px;
+						}
+					}
+				}
+				.chatListOnline {
+					width: 300px;
+					border-left: 1px solid #f1f1f1;
+					max-height: 517px;
+					overflow-y: scroll;
+					@media #{$desktop} {
+						display: block;
+					}
+					@media #{$tablet} {
+						border-left: 0;
+						padding: 10px 0;
+						width: 100%;
+					}
+					.chatListHeadWrapper {
+						margin: 0 10px 0 10px;
+						padding: 8px 0 5px 0;
+						font-size: 15px;
+						border-bottom: 1px solid #f1f1f1;
+						text-align: center;
+						@media #{$tablet} {
+							display: none;
+						}
+					}
+					.presenceList {
+						list-style: none;
+						li {
+							padding: 5px 17px 0 17px;
+							line-height: 15px;
+							&:last-of-type {
+								padding-bottom: 5px;
+							}
+						}
+					}
+				}
+			}
+			.panel-footer {
+				#topForm\:controlPanel\:message {
+					width: 100%;
+					border: 1px solid #dddddd;
+					padding: 2px 5px;
+				}
+				.act {
+					padding: 5px 0 0 0;
+				}
 			}
 		}
-		.chatListMonitor{
-			border: 1px solid #000;
-			font-size: 0.9em;
-			padding: 0.5em;
+
+		.list-rooms {
+			h3 {
+				padding-top: 0;
+			}
+			.exclude {
+				font-weight: bold;
+			}
+		}
+
+		.edit-room {
+			.jsfFormTable .shorttext input[type='text']{
+				margin: 0 10px;
+			}
+		}
+		
+		#removemodal {
+			.modal-header {
+				.close {
+					padding-top: 6px;
+				}
+			}
+			.modal-body {
+				th {
+					vertical-align: top;
+					padding-right: 5px;
+				}
+				td {
+					word-break: break-word;
+				}
+			}
+			.modal-footer {
+				.btn {
+					margin-bottom: 0.5em;
+				}
+			}
 		}
 	}
 	&footerApp{

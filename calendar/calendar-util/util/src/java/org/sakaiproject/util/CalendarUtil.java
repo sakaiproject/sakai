@@ -31,10 +31,11 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Properties;
-import java.util.ResourceBundle;
+import java.util.Set;
 import java.util.HashMap;
-import java.util.Enumeration;
+import java.util.LinkedHashMap;
+import java.util.TreeMap;
+import java.util.stream.Collectors;
 
 import org.apache.commons.logging.LogFactory;
 import org.slf4j.Logger;
@@ -81,7 +82,6 @@ public class CalendarUtil
 	private Map<String, String> eventIconMap = new HashMap<String, String>();
 
 	public final static String NEW_ASSIGNMENT_DUEDATE_CALENDAR_ASSIGNMENT_ID = "new_assignment_duedate_calendar_assignment_id";
-	
 	/**
 	* Construct.
 	*/
@@ -606,26 +606,39 @@ public class CalendarUtil
 		return df.print(dt);
 	}
 
-	/**
-	 * get Map for eventType and image
-	 * @param configProps
-	 * @return
-	 */
-	public Map<String, String> getEventImageMap(Properties configProps){
-		if(eventIconMap.size() == 0){
-			//load keys for locale root
-			Map<String, String> eventKeyMap = new HashMap<String, String>();
-			ResourceBundle bundle = ResourceBundle.getBundle("calendar", Locale.ROOT);
-			for(Enumeration e = bundle.getKeys(); e.hasMoreElements();){
-				String bundleKey = (String)e.nextElement();
-				eventKeyMap.put(bundleKey, bundle.getString(bundleKey));
-			}
-			for(int i=1; i<=20; i++){
-				String key = eventKeyMap.get("legend.key" + i);
-				String value = configProps.getProperty("legend.icon" + i);
-				eventIconMap.put(key, value);
-			}
+	// Non-static event type methods to get localized event names
+	public Map<String, String> getLocalizedEventTypes() {
+		Map<String, String> eventLegends = CalendarEventType.getLocalizedLegends();
+		Set<Map.Entry<String, String>> set = eventLegends.entrySet();
+
+		Map<String, String> localizedEventTypes = new HashMap<>();
+		
+		for (Map.Entry<String, String> me : set){
+			localizedEventTypes.put(me.getKey(), rb.getString(me.getValue()));
 		}
-		return eventIconMap;
+		Map sortedLocalizedEventTypes = sortByValue(localizedEventTypes);
+		return sortedLocalizedEventTypes;
+	}
+
+	private static <K, V extends Comparable<? super V>> Map<K, V> sortByValue(Map<K, V> map) {
+		return map.entrySet()
+				.stream()
+				.sorted(Map.Entry.comparingByValue())
+				.collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
+	}
+
+	public Map<String, String> getLocalizedEventTypesAndIcons() {
+		Map<String, String> icons = CalendarEventType.getIcons();
+		Map<String, String> localizedEventTypesAndIcons = new TreeMap<>();
+
+		for (String eventType: icons.keySet()) {
+			// Localized event types put first so that they can be sorted in the code below.
+			localizedEventTypesAndIcons.put(getLocalizedEventType(eventType), icons.get(eventType));
+		}
+		return localizedEventTypesAndIcons;
+	}
+
+	public String getLocalizedEventType(String eventType) {
+		return rb.getString(CalendarEventType.getLocalizedLegendFromEventType(eventType));
 	}
 }	 // CalendarUtil

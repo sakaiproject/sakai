@@ -503,9 +503,12 @@ public class QuestionPoolServiceImpl
 					  addToReport("\nCould NOT copy old attachment "+attachment+" to new attachment in site "+contextToReplace+" .\n\n");
 					  e2.printStackTrace();
 				  }
+				  finally
+				  {
+					  SecurityService.popAdvisor();
+				  }
 			  }
 
-			  SecurityService.popAdvisor();
 		  }
 		  return attachment;
 	  }

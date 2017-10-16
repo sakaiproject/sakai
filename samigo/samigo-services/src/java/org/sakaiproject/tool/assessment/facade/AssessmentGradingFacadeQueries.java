@@ -513,32 +513,39 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
         return saveMedia(mediaData);
     }
 
-    protected void pushAdvisor() {
-        securityService.pushAdvisor(new SecurityAdvisor() {
+    protected SecurityAdvisor pushAdvisor() {
+        SecurityAdvisor samigoAdvisor = new SecurityAdvisor() {
             public SecurityAdvice isAllowed(String userId, String function, String reference) {
                 return SecurityAdvice.ALLOWED;
             }
-        });
+        };
+        securityService.pushAdvisor(samigoAdvisor);
+        return samigoAdvisor;
     }
 
-    protected void popAdvisor() {
-        securityService.popAdvisor();
+    protected void popAdvisor(SecurityAdvisor sa) {
+        if (sa != null) {
+            securityService.popAdvisor(sa);
+        }
+        else {
+            throw new IllegalArgumentException("popAdvisor was called with a null SecurityAdvisor");
+        }
     }
 
     protected boolean checkMediaCollection(String id) {
-        pushAdvisor();
+        SecurityAdvisor resourceAdvisor = pushAdvisor();
         try {
             contentHostingService.checkCollection(id);
         } catch (IdUnusedException | TypeException | PermissionException e) {
             return false;
         } finally {
-            popAdvisor();
+            popAdvisor(resourceAdvisor);
         }
         return true;
     }
 
     protected boolean ensureMediaCollection(String id) {
-        pushAdvisor();
+        SecurityAdvisor resourceAdvisor = pushAdvisor();
         try {
             ContentCollection coll = contentHostingService.getCollection(id);
         } catch (IdUnusedException ie) {
@@ -561,7 +568,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
         } catch (TypeException | PermissionException e) {
             log.warn("[Samigo Media Attachments] General exception while ensuring collection: " + e.toString());
         } finally {
-            popAdvisor();
+            popAdvisor(resourceAdvisor);
         }
         return true;
     }
@@ -600,7 +607,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
         String mediaPath = getMediaPath(mediaData);
         if (mediaData.getMedia() != null && ensureMediaPath(mediaPath)) {
             log.debug("=====> Saving media: " + mediaPath);
-            pushAdvisor();
+            SecurityAdvisor resourceAdvisor = pushAdvisor();
             boolean newResource = true;
 
             try {
@@ -632,7 +639,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
             } catch (PermissionException | IdUsedException | IdInvalidException | InconsistentException | ServerOverloadException | OverQuotaException | VirusFoundException | IdUnusedException | TypeException | InUseException e) {
                 log.warn("Exception while saving media to content: " + e.toString());
             } finally {
-                popAdvisor();
+                popAdvisor(resourceAdvisor);
             }
         }
         return null;
@@ -646,7 +653,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
         String id = getMediaPath(mediaData);
         log.debug("=====> Reading media: " + id);
         if (id != null) {
-            pushAdvisor();
+            SecurityAdvisor resourceAdvisor = pushAdvisor();
             try {
                 ContentResource res = contentHostingService.getResource(id);
                 return res;
@@ -655,7 +662,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
             } catch (PermissionException | TypeException e) {
                 log.debug("Exception while reading media from content (" + mediaData.getMediaId() + "):" + e.toString());
             } finally {
-                popAdvisor();
+                popAdvisor(resourceAdvisor);
             }
         }
         return null;
@@ -3022,7 +3029,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 
         GradebookExternalAssessmentService g = null;
         boolean updateGrades = false;
-        Map toGradebookPublishedAssessmentSiteIdMap = null;
+        Map<Long, String> toGradebookPublishedAssessmentSiteIdMap = null;
         GradebookServiceHelper gbsHelper = null;
         if (IntegrationContextFactory.getInstance() != null) {
             boolean integrated = IntegrationContextFactory.getInstance().isIntegrated();

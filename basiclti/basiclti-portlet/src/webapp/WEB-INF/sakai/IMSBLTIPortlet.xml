@@ -41,6 +41,7 @@
                 <configuration name="imsti.newpage" />
                 <configuration name="imsti.maximize" />
                 <configuration name="imsti.frameheight" />
+                <configuration name="imsti.toolorder" />
                 <configuration name="imsti.debug" />
                 <configuration name="imsti.releasename" />
                 <configuration name="imsti.releaseemail" />
@@ -50,7 +51,7 @@
                 <configuration name="imsti.allowoutcomes" />
                 <configuration name="imsti.contentlink" />
                 <configuration name="imsti.splash" />
-                <configuration name="imsti.fa-icon" /> <!-- A font awesome icon line "fa-adjust" -->
+                <configuration name="imsti.fa_icon" /> <!-- A font awesome icon line "fa-adjust" -->
 
                 <!-- Setting these to true means the corresponding above values 
 		     cannot be altered by by the instructor.  -->
@@ -65,6 +66,7 @@
                 <configuration name="final.newpage" value="false"/>
                 <configuration name="final.maximize" value="false"/>
                 <configuration name="final.frameheight" value="false"/>
+                <configuration name="final.toolorder" value="false"/>
                 <configuration name="final.debug" value="false"/>
                 <configuration name="final.releasename" value="false"/>
                 <configuration name="final.releaseemail" value="false"/>
@@ -74,7 +76,7 @@
                 <configuration name="final.allowoutcomes" value="false"/>
                 <configuration name="final.contentlink" value="false"/>
                 <configuration name="final.splash" value="false"/>
-                <configuration name="final.fa-icon" value="false"/>
+                <configuration name="final.fa_icon" value="false"/>
 
                 <!-- Allow multiple instances of this tool within one site -->
                 <configuration name="allowMultipleInstances" value="true" />

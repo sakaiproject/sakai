@@ -28,6 +28,7 @@
     <bean parent="org.sakaiproject.entitybroker.entityprovider.AbstractEntityProvider"
             class="org.sakaiproject.entitybroker.providers.SessionEntityProvider">
         <property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager" />
+        <property name="authenticationManager" ref="org.sakaiproject.user.api.AuthenticationManager"/>
         <property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService" />
         <property name="securityService" ref="org.sakaiproject.authz.api.SecurityService" />
         <property name="authzGroupService" ref="org.sakaiproject.authz.api.AuthzGroupService"/>

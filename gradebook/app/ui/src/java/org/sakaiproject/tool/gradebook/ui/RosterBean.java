@@ -1,24 +1,18 @@
-/**********************************************************************************
-*
-* $Id$
-*
-***********************************************************************************
-*
- * Copyright (c) 2005, 2006, 2007, 2008, 2009 The Sakai Foundation, The MIT Corporation
+/**
+ * Copyright (c) 2003-2016 The Apereo Foundation
  *
  * Licensed under the Educational Community License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *       http://www.opensource.org/licenses/ECL-2.0
+ *             http://opensource.org/licenses/ecl2
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
-*
-**********************************************************************************/
+ */
 
 package org.sakaiproject.tool.gradebook.ui;
 
@@ -39,15 +33,14 @@ import java.text.NumberFormat;
 import javax.faces.application.Application;
 import javax.faces.component.UIColumn;
 import javax.faces.component.html.HtmlOutputText;
-import javax.faces.component.UIComponent;
 import javax.faces.component.html.HtmlPanelGroup;
 import javax.faces.component.html.HtmlCommandLink;
 import javax.faces.component.UIParameter;
 import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 import javax.faces.event.ActionEvent;
-import javax.faces.event.ValueChangeEvent;
 
+import org.sakaiproject.tool.gradebook.GradebookAssignment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.apache.myfaces.component.html.ext.HtmlDataTable;
@@ -58,16 +51,12 @@ import org.sakaiproject.jsf.spreadsheet.SpreadsheetDataFileWriterPdf;
 import org.sakaiproject.jsf.spreadsheet.SpreadsheetUtil;
 import org.sakaiproject.section.api.coursemanagement.EnrollmentRecord;
 import org.sakaiproject.section.api.coursemanagement.User;
-import org.sakaiproject.tool.api.ToolSession;
-import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.tool.gradebook.AbstractGradeRecord;
-import org.sakaiproject.tool.gradebook.Assignment;
 import org.sakaiproject.tool.gradebook.AssignmentGradeRecord;
 import org.sakaiproject.tool.gradebook.Category;
 import org.sakaiproject.tool.gradebook.CourseGrade;
 import org.sakaiproject.tool.gradebook.CourseGradeRecord;
 import org.sakaiproject.tool.gradebook.GradableObject;
-import org.sakaiproject.tool.gradebook.Gradebook;
 import org.sakaiproject.tool.gradebook.jsf.AssignmentPointsConverter;
 import org.sakaiproject.tool.gradebook.jsf.CategoryPointsConverter;
 import org.sakaiproject.tool.gradebook.jsf.FacesUtil;
@@ -114,8 +103,8 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
 			categoryColumn = false;
 			assignmentId = getColumnHeaderAssignmentId(gradableObject);
 			assignmentColumn = !gradableObject.isCourseGrade();
-			inactive = (!gradableObject.isCourseGrade() && !((Assignment)gradableObject).isReleased() ? true : false);
-			hideInAllGradesTable = assignmentColumn ? ((Assignment) gradableObject).isHideInAllGradesTable() : false;
+			inactive = (!gradableObject.isCourseGrade() && !((GradebookAssignment)gradableObject).isReleased() ? true : false);
+			hideInAllGradesTable = assignmentColumn ? ((GradebookAssignment) gradableObject).isHideInAllGradesTable() : false;
 			hiddenChanged = hideInAllGradesTable;
 		}
 
@@ -235,10 +224,11 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
 		NumberFormat nf = NumberFormat.getInstance(new ResourceLoader().getLocale());
 		
 		List<Category> categories = new ArrayList<Category>();
-        List<Assignment> allAssignments = new ArrayList<Assignment>();
+        List<GradebookAssignment> allAssignments = new ArrayList<GradebookAssignment>();
 
 		// get all of the assignments and categories
-		List assignCategoryCGList = getGradebookManager().getAssignmentsCategoriesAndCourseGradeWithStats(getGradebookId(),Assignment.DEFAULT_SORT, true, Category.SORT_BY_NAME, true);
+		List assignCategoryCGList = getGradebookManager().getAssignmentsCategoriesAndCourseGradeWithStats(getGradebookId(),
+                GradebookAssignment.DEFAULT_SORT, true, Category.SORT_BY_NAME, true);
 
 		// let's filter these into assignment list, category list, and course grade
 		for (Iterator listIter = assignCategoryCGList.iterator(); listIter.hasNext();) {
@@ -247,8 +237,8 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
 				categories.add((Category)assignCatOrCourseGrade);
 			} else if (assignCatOrCourseGrade instanceof CourseGrade) {
 				avgCourseGrade = (CourseGrade)assignCatOrCourseGrade;
-			} else if (assignCatOrCourseGrade instanceof Assignment) {
-			    allAssignments.add((Assignment)assignCatOrCourseGrade);
+			} else if (assignCatOrCourseGrade instanceof GradebookAssignment) {
+			    allAssignments.add((GradebookAssignment)assignCatOrCourseGrade);
 			}
 		}
 		
@@ -313,7 +303,7 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
 					// not allowed to view the unassigned category
 				} else {
 					//get Assignments with no category
-					List unassignedAssignments = getGradebookManager().getAssignmentsWithNoCategory(getGradebookId(), Assignment.DEFAULT_SORT, true);
+					List unassignedAssignments = getGradebookManager().getAssignmentsWithNoCategory(getGradebookId(), GradebookAssignment.DEFAULT_SORT, true);
 					int unassignedAssignmentCount = unassignedAssignments.size();
 					for (Iterator assignmentsIter = unassignedAssignments.iterator(); assignmentsIter.hasNext(); ){
 						gradableObjectColumns.add(new GradableObjectColumn((GradableObject) assignmentsIter.next()));
@@ -364,8 +354,8 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
         if (!allAssignments.isEmpty()) {
         	for (Iterator assignIter = allAssignments.iterator(); assignIter.hasNext();) {
         		Object obj = assignIter.next();
-        		if (obj instanceof Assignment){
-	        		Assignment assignment = (Assignment) obj;
+        		if (obj instanceof GradebookAssignment){
+	        		GradebookAssignment assignment = (GradebookAssignment) obj;
 	        		if (assignment != null) {
 	        			Long assignId = assignment.getId();
 	        			if (viewableAssignmentIds.contains(assignId)) {
@@ -400,8 +390,8 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
         			Map itemIdFunctionMap = (Map)studentIdItemIdFunctionMap.get(studentId);
         			for (Iterator itemIter = allAssignments.iterator(); itemIter.hasNext();) {
         				Object obj = itemIter.next();
-        				if (obj instanceof Assignment){
-        					Assignment assignment = (Assignment) obj;
+        				if (obj instanceof GradebookAssignment){
+        					GradebookAssignment assignment = (GradebookAssignment) obj;
         					if (assignment != null) {
         						Long itemId = assignment.getId();
         						if (itemIdFunctionMap == null || itemIdFunctionMap.get(itemId) == null){
@@ -539,7 +529,7 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
 		if (gradableObject.isCourseGrade()) {
 			return getLocalizedString("roster_course_grade_column_name");
 		} else {
-			return ((Assignment)gradableObject).getName();
+			return ((GradebookAssignment)gradableObject).getName();
 		}
 	}
 	
@@ -547,7 +537,7 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
 		if (gradableObject.isCourseGrade()) {
 			return new Long(-1);
 		} else {
-			return ((Assignment)gradableObject).getId();
+			return ((GradebookAssignment)gradableObject).getId();
 		}
 	}
 
@@ -774,7 +764,8 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
     	//if selectedUid is not null (not All Categories) then proceed
     	if (selectedUid != null){
     		//get a list of all the categories with the stats
-	    	List categories = getGradebookManager().getCategoriesWithStats(getGradebookId(),Assignment.DEFAULT_SORT, true, Category.SORT_BY_NAME, true);
+	    	List categories = getGradebookManager().getCategoriesWithStats(getGradebookId(),
+                    GradebookAssignment.DEFAULT_SORT, true, Category.SORT_BY_NAME, true);
 	    	for (Iterator iter = categories.iterator(); iter.hasNext(); ){
 	    		Object obj = iter.next();
 	    		//last item of list is the CourseGrade, so ignore
@@ -957,7 +948,7 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
 						if (assignmentList != null && !assignmentList.isEmpty()) {
 							Iterator assignIter = assignmentList.iterator();
 							while (assignIter.hasNext()) {
-								Assignment assign = (Assignment) assignIter.next();
+								GradebookAssignment assign = (GradebookAssignment) assignIter.next();
 								allAssignments.add(assign);
 							}
 						}
@@ -972,7 +963,7 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
 				if (unassignedList != null && !unassignedList.isEmpty()) {	
 					Iterator unassignedIter = unassignedList.iterator();
 					while (unassignedIter.hasNext()) {
-						Assignment assignWithNoCat = (Assignment) unassignedIter.next();
+						GradebookAssignment assignWithNoCat = (GradebookAssignment) unassignedIter.next();
 						allAssignments.add(assignWithNoCat);
 					}
 				}
@@ -984,7 +975,7 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
 		
 		if (!allAssignments.isEmpty()) {
 			for (Iterator assignIter = allAssignments.iterator(); assignIter.hasNext();) {
-				Assignment assign = (Assignment) assignIter.next();
+				GradebookAssignment assign = (GradebookAssignment) assignIter.next();
 				if (availableItems.contains(assign.getId()) && (selCategoryView == null || (assign.getCategory() != null && (assign.getCategory()).getId().equals(selCategoryView.getId())))) {
 					gradableObjects.add(assign);
 				}
@@ -1010,7 +1001,7 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
      * Creates the actual 'spreadsheet' List needed from gradebook objects
      * Modified to export without Course Grade column if desired
      * Format:
-     * 	Header Row: Student id, Student Name, Assignment(s) (with [points possible] after title)
+     * 	Header Row: Student id, Student Name, GradebookAssignment(s) (with [points possible] after title)
      *  Student Rows
      * 
      * @param enrollments
@@ -1035,9 +1026,9 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
         	String colName = null;
         	Double ptsPossible = 0.0;
 
-        	if (gradableObject instanceof Assignment) {
-         		ptsPossible = new Double(((Assignment) gradableObject).getPointsPossible());
-         		colName = ((Assignment)gradableObject).getName() + " [" + nf.format(ptsPossible) + "]";
+        	if (gradableObject instanceof GradebookAssignment) {
+         		ptsPossible = new Double(((GradebookAssignment) gradableObject).getPointsPossible());
+         		colName = ((GradebookAssignment)gradableObject).getName() + " [" + nf.format(ptsPossible) + "]";
          	} else if (gradableObject instanceof CourseGrade && includeCourseGrade) {
          		colName = getLocalizedString("roster_course_grade_column_name");
          		if(ServerConfigurationService.getBoolean("gradebook.roster.showCourseGradePoints", false)
@@ -1133,7 +1124,7 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
 			GradableObjectColumn col = (GradableObjectColumn) listIter.next();
 			if(col.hasHiddenChanged()){
 				//save
-				Assignment assignment = getGradebookManager().getAssignment(col.getAssignmentId());
+				GradebookAssignment assignment = getGradebookManager().getAssignment(col.getAssignmentId());
 				assignment.setHideInAllGradesTable(col.getHideInAllGradesTable());
 				getGradebookManager().updateAssignment(assignment);
 			}

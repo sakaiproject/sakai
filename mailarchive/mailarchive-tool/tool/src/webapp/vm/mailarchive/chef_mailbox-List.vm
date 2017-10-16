@@ -59,7 +59,7 @@
 		#set ($sort-img = "sakai/sortdescending.gif")
 		#set ($sort-dir = "descending")
 	#end
-	#if($allMsgNumberInt > 0)
+	#if($!allMsgNumberInt && $allMsgNumberInt > 0)
 			<div class="listNav">
 				<div class="instruction">$tlang.getString("list.viewing") $topMsgPos - $btmMsgPos $tlang.getString("list.of") $allMsgNumber</div>
 				#if ($pagesize != 0)

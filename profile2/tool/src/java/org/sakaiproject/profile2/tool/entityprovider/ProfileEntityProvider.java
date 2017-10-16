@@ -231,8 +231,7 @@ public class ProfileEntityProvider extends AbstractEntityProvider implements Cor
 		if(connections == null) {
 			throw new EntityException("Error retrieving connections for " + ref.getId(), ref.getReference());
 		}
-		ActionReturn actionReturn = new ActionReturn(connections);
-		return actionReturn;
+		return new ActionReturn(connections);
 	}
 		
 	@EntityCustomAction(action="friendStatus",viewKey=EntityView.VIEW_SHOW)
@@ -402,13 +401,17 @@ public class ProfileEntityProvider extends AbstractEntityProvider implements Cor
 			throw new EntityNotFoundException("Invalid user.", ref.getId());
 		}
 		
-		final List<BasicPerson> requests = connectionsLogic.getConnectionRequestsForUser(uuid).stream().map(p -> {
-				BasicPerson bp = new BasicPerson();
-				bp.setUuid(p.getUuid());
-				bp.setDisplayName(p.getDisplayName());
-				bp.setType(p.getType());
-				return bp;
-			}).collect(Collectors.toList());
+		final List<BasicConnection> requests
+			= connectionsLogic.getConnectionRequestsForUser(uuid).stream().map(p -> {
+							BasicConnection bc = new BasicConnection();
+							bc.setUuid(p.getUuid());
+							bc.setDisplayName(p.getDisplayName());
+							bc.setEmail(p.getProfile().getEmail());
+                            bc.setProfileUrl(linkLogic.getInternalDirectUrlToUserProfile(p.getUuid()));
+							bc.setType(p.getType());
+							bc.setSocialNetworkingInfo(p.getProfile().getSocialInfo());
+							return bc;
+				}).collect(Collectors.toList());
 
 		if (requests == null) {
 			throw new EntityException("Error retrieving connection requests for " + ref.getId(), ref.getReference());
@@ -429,14 +432,17 @@ public class ProfileEntityProvider extends AbstractEntityProvider implements Cor
 			throw new EntityNotFoundException("Invalid user.", ref.getId());
 		}
 
-		final List<BasicPerson> requests
+		final List<BasicConnection> requests
 			= connectionsLogic.getOutgoingConnectionRequestsForUser(uuid).stream().map(p -> {
-						   BasicPerson bp = new BasicPerson();
-						   bp.setUuid(p.getUuid());
-						   bp.setDisplayName(p.getDisplayName());
-						   bp.setType(p.getType());
-						   return bp;
-			}).collect(Collectors.toList());
+							BasicConnection bc = new BasicConnection();
+							bc.setUuid(p.getUuid());
+							bc.setDisplayName(p.getDisplayName());
+							bc.setEmail(p.getProfile().getEmail());
+                            bc.setProfileUrl(linkLogic.getInternalDirectUrlToUserProfile(p.getUuid()));
+							bc.setType(p.getType());
+							bc.setSocialNetworkingInfo(p.getProfile().getSocialInfo());
+							return bc;
+				}).collect(Collectors.toList());
 
 		if (requests == null) {
 			throw new EntityException("Error retrieving outgoing connection requests for " + uuid, ref.getReference());

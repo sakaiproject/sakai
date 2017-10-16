@@ -436,6 +436,11 @@ public class MembershipEntityProviderTest {
         when(userEntityProvider.findAndCheckUserId("user-foo", "user-foo")).thenReturn("user-foo");
         when(developerHelperService.getCurrentUserReference()).thenReturn("/user/me");
 
+        EntityUser user = new EntityUser();
+        user.setId("user-foo");
+        user.setEid("user-foo@school.edu");
+        when(userDirectoryService.getCurrentUser()).thenReturn(user);
+
         String entityId = provider.createEntity(null, member, new HashMap<String, Object>());
 
         verify(siteService).saveSiteMembership(site);
@@ -491,6 +496,7 @@ public class MembershipEntityProviderTest {
         when(site.getMembers()).thenReturn(members);
 
         when(siteService.getSite("site.with.dots")).thenReturn(site);
+        when(userDirectoryService.getCurrentUser()).thenReturn(user);
 
         provider.deleteEntity(ref, new HashMap<String, Object>());
 

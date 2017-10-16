@@ -349,8 +349,8 @@ public class EntityManagerComponent implements EntityManager
 					sb.append("\n     [").append(c).append("]")
 							.append(m_producers.get(c));
 				}
-				M_log.debug("EntityManager Montor " + sb.toString());
-				M_log.info("EntityManager Montor Average " + rate + " ms per parse");
+				M_log.debug("EntityManager Monitor " + sb.toString());
+				M_log.info("EntityManager Monitor Average " + rate + " ms per parse");
 			}
 
 			String ref = reference;

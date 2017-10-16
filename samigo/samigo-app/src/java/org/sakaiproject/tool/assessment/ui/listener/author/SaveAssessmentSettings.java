@@ -33,7 +33,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.TreeMap;
 
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -50,6 +49,7 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessCont
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAttachmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentMetaDataIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.EvaluationModelIfc;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
 import org.sakaiproject.tool.assessment.facade.AuthzQueriesFacadeAPI;
@@ -84,7 +84,7 @@ public class SaveAssessmentSettings
     // #1 - set Assessment
     Long assessmentId = assessmentSettings.getAssessmentId();
     ItemAuthorBean iAuthor=new ItemAuthorBean();
-    iAuthor.setShowFeedbackAuthoring(assessmentSettings.getFeedbackAuthoring());;
+    iAuthor.setShowFeedbackAuthoring(assessmentSettings.getFeedbackAuthoring());
     AssessmentService assessmentService = new AssessmentService();
     AssessmentFacade assessment = assessmentService.getAssessment(
         assessmentId.toString());
@@ -274,21 +274,21 @@ public class SaveAssessmentSettings
     
     String firstTargetSelected = assessmentSettings.getFirstTargetSelected();
 	if ("Anonymous Users".equals(firstTargetSelected)) {
-		evaluation.setAnonymousGrading(Integer.valueOf("1"));
-		evaluation.setToGradeBook("2");
+		evaluation.setAnonymousGrading(EvaluationModelIfc.ANONYMOUS_GRADING);
+		evaluation.setToGradeBook(Integer.toString(EvaluationModelIfc.NOT_TO_GRADEBOOK));
 	}
 	else {
 		if (assessmentSettings.getAnonymousGrading()) {
-		      evaluation.setAnonymousGrading(1);
+			evaluation.setAnonymousGrading(EvaluationModelIfc.ANONYMOUS_GRADING);
 		}
 		else {
-			evaluation.setAnonymousGrading(2);
+			evaluation.setAnonymousGrading(EvaluationModelIfc.NON_ANONYMOUS_GRADING);
 		}
 		if (assessmentSettings.getToDefaultGradebook()) {
-			evaluation.setToGradeBook("1");
+			evaluation.setToGradeBook(Integer.toString(EvaluationModelIfc.TO_DEFAULT_GRADEBOOK));
 		}
 		else {
-			evaluation.setToGradeBook("2");
+			evaluation.setToGradeBook(Integer.toString(EvaluationModelIfc.NOT_TO_GRADEBOOK));
 		}
 	}
     

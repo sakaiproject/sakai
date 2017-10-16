@@ -1,0 +1,24 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns:wicket="http://wicket.apache.org/dtds.data/wicket-xhtml1.4-strict.dtd" >
+
+<head>
+    <title><wicket:message key="app.title" /></title>
+    <script language="javascript">
+    $(document).ready(function () {
+        profile.attachPopups($('td.my-connections-cell a'));
+    });
+    </script>
+</head>
+<body>
+
+<wicket:enclosure>
+    <nav class="Mrphs-toolTitleNav Mrphs-container Mrphs-container--toolTitleNav">
+        <h2 class="Mrphs-toolTitleNav__title"><wicket:message key="app.title" /></h2>
+        <div class="Mrphs-toolTitleNav__button_container"></div>
+    </nav>
+    <div wicket:id="roster">
+    </div>
+</wicket:enclosure>
+
+</body>
+</html>

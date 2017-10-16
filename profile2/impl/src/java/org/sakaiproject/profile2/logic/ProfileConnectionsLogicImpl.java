@@ -425,21 +425,30 @@ public class ProfileConnectionsLogicImpl implements ProfileConnectionsLogic {
  	 */
 	@Override
 	public List<BasicConnection> getBasicConnections(List<User> users) {
+
+		String currentUserUuid = sakaiProxy.getCurrentUserId();
+		if (currentUserUuid == null) {
+			throw new SecurityException("You must be logged in to get a connection list.");
+		}
 		
-		List<BasicConnection> list = new ArrayList<BasicConnection>();
+		List<BasicConnection> list = new ArrayList<>();
 		
 		//get online status
 		Map<String,Integer> onlineStatus = getOnlineStatus(sakaiProxy.getUuids(users));
 		
 		//this is created manually so that we can use the bulk retrieval of the online status method.
 		for(User u:users){
-			BasicConnection p = new BasicConnection();
-			p.setUuid(u.getId());
-			p.setDisplayName(u.getDisplayName());
-			p.setType(u.getType());
-			p.setOnlineStatus(onlineStatus.get(u.getId()));
-			
-			list.add(p);
+			BasicConnection bc = new BasicConnection();
+			bc.setUuid(u.getId());
+			bc.setDisplayName(u.getDisplayName());
+			bc.setEmail(u.getEmail());
+			bc.setProfileUrl(linkLogic.getInternalDirectUrlToUserProfile(u.getId()));
+			bc.setType(u.getType());
+			bc.setOnlineStatus(onlineStatus.get(u.getId()));
+			if (privacyLogic.isActionAllowed(u.getId(), currentUserUuid, PrivacyType.PRIVACY_OPTION_SOCIALINFO)) {
+				bc.setSocialNetworkingInfo(profileLogic.getSocialNetworkingInfo(u.getId()));
+			}
+			list.add(bc);
 		}
 		return list;
 	}

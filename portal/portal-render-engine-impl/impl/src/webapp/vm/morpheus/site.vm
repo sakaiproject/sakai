@@ -47,7 +47,7 @@
           <div class='desktop'></div>
         </div>
 
-        ## Make sure we at least have a jQuery 1.11 or higher, log messages
+        ## Make sure we at least have a jQuery 1.12 or higher, log messages
     #set ( $d = "$")
     <script>
         var needJQuery = true;
@@ -74,7 +74,7 @@
         }
         if ( window.jQuery ) {
             tver = jQuery.fn.jquery;
-            if ( tver.indexOf('1.11.') == 0 ) {
+            if ( tver.indexOf('1.12.') == 0 ) {
                 window.console && console.log('Using tool jQuery '+tver);
                 needJQuery = false;
             } else {
@@ -82,18 +82,18 @@
             }
         }
         if ( needJQuery ) {
-            document.write('\x3Cscript src="${pageWebjarsPath}jquery/1.11.3/jquery.min.js$!{portalCDNQuery}">'+'\x3C/script>')
-            document.write('\x3Cscript src="${pageWebjarsPath}jquery-migrate/1.4.0/jquery-migrate.min.js$!{portalCDNQuery}">'+'\x3C/script>')
+            document.write('\x3Cscript src="${pageWebjarsPath}/jquery/1.12.4/jquery.min.js$!{portalCDNQuery}">'+'\x3C/script>')
+            document.write('\x3Cscript src="${pageWebjarsPath}jquery-migrate/1.4.1/jquery-migrate.min.js$!{portalCDNQuery}">'+'\x3C/script>')
             document.write('\x3Cscript src="${pageWebjarsPath}bootstrap/3.3.7/js/bootstrap.min.js$!{portalCDNQuery}">'+'\x3C/script>')
-            document.write('\x3Cscript src="${pageWebjarsPath}jquery-ui/1.11.3/jquery-ui.min.js$!{portalCDNQuery}">'+'\x3C/script>')
-            document.write('\x3Clink rel="stylesheet" href="${pageWebjarsPath}jquery-ui/1.11.3/jquery-ui.min.css$!{portalCDNQuery}"/>')
+            document.write('\x3Cscript src="${pageWebjarsPath}jquery-ui/1.12.1/jquery-ui.min.js$!{portalCDNQuery}">'+'\x3C/script>')
+            document.write('\x3Clink rel="stylesheet" href="${pageWebjarsPath}jquery-ui/1.12.1/jquery-ui.min.css$!{portalCDNQuery}"/>')
             if (Modernizr.touch) {
               document.write('\x3Cscript type="text/javascript" src="${pageWebjarsPath}jquery-ui-touch-punch/0.2.3/jquery.ui.touch-punch.min.js$!{portalCDNQuery}">'+'\x3C/script>')
             }
             window.console && console.log('Portal scripts loaded JQ+MI+BS+UI');
         } else {
             if (typeof jQuery.migrateWarnings == 'undefined') {
-                document.write('\x3Cscript type="text/javascript" src="${pageWebjarsPath}jquery-migrate/1.4.0/jquery-migrate.min.js$!{portalCDNQuery}">'+'\x3C/script>')
+                document.write('\x3Cscript type="text/javascript" src="${pageWebjarsPath}jquery-migrate/1.4.1/jquery-migrate.min.js$!{portalCDNQuery}">'+'\x3C/script>')
                 window.console && console.log('Portal adding jQuery migrate');
             }
             if ( typeof jQuery.fn.popover == 'undefined') {
@@ -101,8 +101,8 @@
                 window.console && console.log('Portal adding Bootstrap');
             }
             if (typeof jQuery.ui == 'undefined') {
-                document.write('\x3Cscript type="text/javascript" src="${pageWebjarsPath}jquery-ui/1.11.3/jquery-ui.min.js$!{portalCDNQuery}">'+'\x3C/script>')
-		document.write('\x3Clink rel="stylesheet" href="${pageWebjarsPath}jquery-ui/1.11.3/jquery-ui.min.css$!{portalCDNQuery}"/>')
+                document.write('\x3Cscript type="text/javascript" src="${pageWebjarsPath}jquery-ui/1.12.1/jquery-ui.min.js$!{portalCDNQuery}">'+'\x3C/script>')
+		document.write('\x3Clink rel="stylesheet" href="${pageWebjarsPath}jquery-ui/1.12.1/jquery-ui.min.css$!{portalCDNQuery}"/>')
                 window.console && console.log('Portal adding jQuery UI');
             }
             if (typeof jQuery.ui == 'undefined' || (typeof jQuery.ui.mouse != 'undefined' && typeof jQuery.ui.mouse.prototype._touchStart == 'undefined')) {
@@ -123,12 +123,25 @@
             <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7/html5shiv.min.js"></script>
 <![endif]-->
 
+        <script>
+            if (typeof Handlebars == 'undefined') {
+                document.write('\x3Cscript src="${pageWebjarsPath}handlebars/4.0.5/handlebars.runtime.min.js$!{portalCDNQuery}">\x3C/script>');
+            }
+        </script>
+        <script src="/library/templates.js$!{portalCDNQuery}"></script>
         <script src="${pageScriptPath}trimpath-template-latest.js$!{portalCDNQuery}"></script>
         <script src="${pageScriptPath}jquery/bgiframe/jquery.bgiframe.min.js$!{portalCDNQuery}"></script>
         <script src="${pageScriptPath}jquery/cluetip/1.2.10/jquery.cluetip.min.js$!{portalCDNQuery}"></script>
+        <script>
+            if (typeof jQuery.i18n == 'undefined') {
+                document.write('\x3Cscript src="/library/webjars/jquery-i18n-properties/1.2.2/jquery.i18n.properties.min.js$!{portalCDNQuery}">\x3C/script>');
+            }
+        </script>
+        <script src="/library/js/jquery/jquery.clearsearch.js$!{portalCDNQuery}"></script>
         <script src="${pageSkinRepo}/${pageSkin}/js/morpheus.plugins.min.js$!{portalCDNQuery}"></script>
         <script src="${pageSkinRepo}/${pageSkin}/js/morpheus.scripts.min.js$!{portalCDNQuery}"></script>
         <script src="${pageWebjarsPath}/pnotify/2.1.0/pnotify.core.min.js$!{portalCDNQuery}"></script>
+	<script src="${pageWebjarsPath}/pnotify/2.1.0/pnotify.buttons.min.js$!{portalCDNQuery}"></script>
         <script src="${pageScriptPath}jquery/qtip/jquery.qtip-latest.min.js$!{portalCDNQuery}"></script>
         <script src="${pageScriptPath}jquery/qtip/tutorial.js$!{portalCDNQuery}"></script>
         <script src="${pageWebjarsPath}cropper/2.3.2/dist/cropper.min.js$!{portalCDNQuery}"></script>
@@ -245,5 +258,6 @@
             </div>
         </div>
 
+        #parse("/vm/morpheus/connection-manager.vm")
     </body>
 </html>

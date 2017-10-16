@@ -13,7 +13,7 @@ body > .portletBody {
 }
 .#{$namespace}sakai-iframe-site{
 	.siteDescription{
-		margin: 2em 0 0 0;
+		overflow: auto;
 	}
 }
 

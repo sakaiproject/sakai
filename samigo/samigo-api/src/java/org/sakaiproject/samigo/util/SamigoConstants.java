@@ -42,16 +42,17 @@ public final class SamigoConstants {
      */
     // Submission events
     public static final     String      EVENT_ASSESSMENT_SUBMITTED                          = "sam.assessment.submit";
+    public static final     String      EVENT_ASSESSMENT_SUBMITTED_NOTI                     = "sam.assessment.submit.noti";
     public static final     String      EVENT_ASSESSMENT_SUBMITTED_CHECKED                  = "sam.assessment.submit.checked";
     public static final     String      EVENT_ASSESSMENT_SUBMITTED_CLICKSUB                 = "sam.assessment.submit.click_sub";
     public static final     String      EVENT_ASSESSMENT_SUBMITTED_AUTO                     = "sam.assessment.submit.auto";
-    public static final     String      EVENT_ASSESSMENT_SUBMITTED_FROM_LASTPAGE            = "sam.assessment.submit.from_last_page";
+    public static final     String      EVENT_ASSESSMENT_SUBMITTED_FROM_LASTPAGE            = "sam.assessment.submit.from_last";
     public static final     String      EVENT_ASSESSMENT_SUBMITTED_FROM_TOC                 = "sam.assessment.submit.from_toc";
     public static final     String      EVENT_ASSESSMENT_SUBMITTED_VIA_URL                  = "sam.assessment.submit.via_url";
     public static final     String      EVENT_ASSESSMENT_SUBMITTED_THREAD                   = "sam.assessment.submit.thread";
     public static final     String      EVENT_ASSESSMENT_SUBMITTED_TIMER                    = "sam.assessment.submit.timer";
     public static final     String      EVENT_ASSESSMENT_SUBMITTED_TIMER_VIA_URL            = "sam.assessment.submit.timer.url";
-    public static final     String      EVENT_ASSESSMENT_SUBMITTED_TIMER_THREAD             = "sam.assessment.submit.timer.thread";
+    public static final     String      EVENT_ASSESSMENT_SUBMITTED_TIMER_THREAD             = "sam.assessment.submit.timer.thrd";
 
     //Assessment scoring events
     public static final     String      EVENT_ASSESSMENT_TOTAL_SCORE_UPDATE                 = "sam.total.score.update";

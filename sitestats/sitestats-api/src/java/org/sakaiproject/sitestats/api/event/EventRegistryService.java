@@ -22,13 +22,20 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.sakaiproject.sitestats.api.StatsManager;
 import org.sakaiproject.sitestats.api.parser.EventFactory;
 import org.sakaiproject.sitestats.api.parser.ToolFactory;
 
 
 public interface EventRegistryService {
 	public final String		NOTIF_EVENT_REGISTRY_EXPIRED	= "SiteStats-EventRegistry_expired";
-	
+
+	/**
+	 * StatsManager dependency injection
+	 * @param statsManager
+	 */
+	public void setStatsManager(StatsManager statsManager);
+
 	/**
 	 * Get all statisticable tool events.
 	 * @return A set of event ids.

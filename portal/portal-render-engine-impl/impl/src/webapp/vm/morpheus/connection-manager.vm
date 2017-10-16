@@ -1,0 +1,63 @@
+        <!-- Social connection manager modal-->
+        <div class="modal fade" id="connection-manager" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <span id="connection-manager-title">${cmLoader.getString("connection_manager_title")}</span>
+                        <button id="connection-manager-close-button" class="close" title="Close" aria-label="Close" data-dismiss="modal"><span id="connection-manager-close-icon" aria-hidden="true" class="fa fa-times"></span></button>
+                    </div>
+                    <div class="modal-body">
+                        <div id="connection-manager-connectionsview">
+                            <div id="connection-manager-connectionsview-topbar">
+                                <div id="connection-manager-connectionsview-searchbox-wrapper">
+                                    <input type="text" id="connection-manager-connectionsview-searchbox" class="connection-manager-searchbox" placeholder="${cmLoader.getString("connection_manager_search_text")}"/>
+                                    <div id="connection-manager-connectionsview-searchresults-wrapper">
+                                        <div id="connection-manager-connectionsview-searchresults"></div>
+                                        <div id="connection-manager-connectionsview-searchresults-more"><a id="connection-manager-view-more-link" href="javascript:;">View More</a></div>
+                                    </div>
+                                </div>
+                                <ul id="connection-manager-navbar" class="navIntraTool actionToolBar" role="menu">
+                                    <li id="connection-manager-navbar-current" role="menuitem"><span class="firstToolBarItem current"><a href="javascript:;">${cmLoader.getString("connection_manager_current")}</a></span></li>
+                                    <li id="connection-manager-navbar-pending" role="menuitem"><span><a href="javascript:;">${cmLoader.getString("connection_manager_pending")}</a></span></li>
+                                </ul>
+                            </div>
+                            <div id="connection-manager-current-connections-wrapper" class="connection-manager-connections-wrapper">
+                                <div id="connection-manager-current-connections" class="connection-manager-connections">
+                                </div>
+                                <div id="connection-manager-no-current-connections-wrapper" class="connection-manager-no-connections-wrapper">
+                                    <div id="connection-manager-no-current-connections" class="connection-manager-no-connections">
+                                        <div id="connection-manager-no-current-connections-image" class="connection-manager-no-connections-image"></div>
+                                        <div id="connection-manager-no-current-connections-text" class="connection-manager-no-connections-text">${cmLoader.getString("connection_manager_no_current")}</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div id="connection-manager-pending-connections-wrapper" class="connection-manager-connections-wrapper">
+                                <div id="connection-manager-pending-connections" class="connection-manager-connections">
+                                </div>
+                                <div id="connection-manager-no-pending-connections-wrapper" class="connection-manager-no-connections-wrapper">
+                                    <div id="connection-manager-no-pending-connections" class="connection-manager-no-connections">
+                                        <div id="connection-manager-no-pending-connections-image" class="connection-manager-no-connections-image"></div>
+                                        <div id="connection-manager-no-pending-connections-text" class="connection-manager-no-connections-text">${cmLoader.getString("connection_manager_no_pending")}</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="connection-manager-searchresultsview">
+                            <div id="connection-manager-searchresultsview-topbar">
+                                <div id="connection-manager-searchresultsview-backlinkwrapper">
+                                    <span class="fa fa-long-arrow-left"></span><a href="javascript:;" id="connection-manager-backtoconnections-link">${cmLoader.getString("connection_manager_backtoconnections")}</a>
+                                </div>
+                                <input type="text" id="connection-manager-searchresultsview-searchbox" class="connection-manager-searchbox" placeholder="${cmLoader.getString("connection_manager_search_text")}"/>
+                            </div>
+                            <div id="connection-manager-searchresultsview-content">
+                                <div id="connection-manager-searchresultsview-count">$({cmLoader.getString("connection_manager_no_results")}</div>
+                                <div id="connection-manager-searchresultsview-results"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="button pull-right" data-dismiss="modal">${cmLoader.getString("connection_manager_done")}</button>
+                    </div>
+                </div>
+            </div>
+        </div> <!-- Social connection manager modal -->

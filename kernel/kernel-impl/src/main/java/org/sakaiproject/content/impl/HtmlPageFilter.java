@@ -169,7 +169,7 @@ public class HtmlPageFilter implements ContentFilter {
 			if (entity instanceof Site) {
 				Site site = (Site)entity;
 				String strMathJaxEnabled = site.getProperties().getProperty(MATHJAX_ENABLED);
-				if (!StringUtils.isBlank(strMathJaxEnabled))
+				if (StringUtils.isNotBlank(strMathJaxEnabled))
 				{
 					String[] mathJaxTools = strMathJaxEnabled.split(",");
 					if (ArrayUtils.contains(mathJaxTools, "sakai.resources"))

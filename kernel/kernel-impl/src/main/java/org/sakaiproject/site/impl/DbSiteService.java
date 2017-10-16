@@ -509,8 +509,12 @@ public abstract class DbSiteService extends BaseSiteService
 		{
 			return super.countAllResources();
 		}
+		
+		private String getSitesWhere(SelectionType type, Object ofType, String criteria, Map propertyCriteria, SortType sort){
+			return getSitesWhere(type, ofType, criteria, propertyCriteria, sort, null);
+		}
 
-		private String getSitesWhere(SelectionType type, Object ofType, String criteria, Map propertyCriteria, SortType sort)
+		private String getSitesWhere(SelectionType type, Object ofType, String criteria, Map propertyCriteria, SortType sort, List excludedSites)
 		{
 			// Note: super users are not treated any differently - they get only those sites they have permission for,
 			// not based on super user status
@@ -615,6 +619,11 @@ public abstract class DbSiteService extends BaseSiteService
 				// sort by modifiedby
 				where.append(siteServiceSql.getSitesWhere15Sql());
 			}
+			
+			if(excludedSites != null && !excludedSites.isEmpty()){
+				// exclude selected IDs
+				where.append(siteServiceSql.getSitesWhere16Sql(excludedSites.size()));
+			}
 
 			// where has a trailing 'and ' to remove
 			if ((where.length() > 5) && (where.substring(where.length() - 5).equals(" and ")))
@@ -698,7 +707,7 @@ public abstract class DbSiteService extends BaseSiteService
 		}
 
 		
-		private Object[] getSitesFields(SelectionType type, Object ofType, String criteria, Map propertyCriteria, String userId)
+		private Object[] getSitesFields(SelectionType type, Object ofType, String criteria, Map propertyCriteria, String userId, List excludedSites)
 		{
 			int fieldCount = 0;
 			if (ofType != null)
@@ -725,6 +734,7 @@ public abstract class DbSiteService extends BaseSiteService
 			if (criteria != null) fieldCount += 1;
 			if ((type == SelectionType.JOINABLE) || (type == SelectionType.ACCESS) || (type == SelectionType.UPDATE) || (type == SelectionType.MEMBER) || (type == SelectionType.DELETED) || (type == SelectionType.INACTIVE_ONLY)) fieldCount++;
 			if (propertyCriteria != null) fieldCount += (2 * propertyCriteria.size());
+			if(excludedSites != null && !excludedSites.isEmpty()) { fieldCount += excludedSites.size(); }
 			Object fields[] = null;
 			if (fieldCount > 0)
 			{
@@ -785,6 +795,11 @@ public abstract class DbSiteService extends BaseSiteService
 						fields[pos++] = "%" + value + "%";
 					}
 				}
+				if(excludedSites != null && excludedSites.size() > 0) {
+					for(Object o : excludedSites){
+						fields[pos++] = o;
+					}
+				}
 			}
 
 			return fields;
@@ -802,6 +817,12 @@ public abstract class DbSiteService extends BaseSiteService
 		{
 			// getSitesFields with null userId returns the current user's site fields
 			return getSitesFields(type, ofType, criteria, propertyCriteria, null);
+		}
+		
+		private Object[] getSitesFields(SelectionType type, Object ofType, String criteria, Map propertyCriteria, String userId)
+		{
+			// no excluded sites
+			return getSitesFields(type, ofType, criteria, propertyCriteria, userId, null);
 		}
 		
 		private String getSitesJoin(SelectionType type, SortType sort )
@@ -963,14 +984,14 @@ public abstract class DbSiteService extends BaseSiteService
 		/**
 		 * {@inheritDoc}
 		 */
-		public List<String> getSiteIds(SelectionType type, Object ofType, String criteria, Map<String, String> propertyCriteria, SortType sort, PagingPosition page, String userId)
+		public List<String> getSiteIds(SelectionType type, Object ofType, String criteria, Map<String, String> propertyCriteria, List<String> excludedSites, SortType sort, PagingPosition page, String userId)
 		{
 			userId = getCurrentUserIdIfNull(userId);
 
 			String join = getSitesJoin( type, sort );
 			String order = getSitesOrder( sort );
-			Object[] values = getSitesFields( type, ofType, criteria, propertyCriteria, userId );
-			String where = getSitesWhere(type, ofType, criteria, propertyCriteria, sort);
+			Object[] values = getSitesFields( type, ofType, criteria, propertyCriteria, userId, excludedSites );
+			String where = getSitesWhere(type, ofType, criteria, propertyCriteria, sort, excludedSites);
 
 			String sql;
 			if (page != null)
@@ -997,6 +1018,24 @@ public abstract class DbSiteService extends BaseSiteService
 		{
 			// getSiteIds with userId returns the current user's site Ids
 			return getSiteIds(type, ofType, criteria, propertyCriteria, sort, page, null);
+		}
+		
+		/**
+		 * {@inheritDoc}
+		 */
+		private List<String> getSiteIds(SelectionType type, Object ofType, String criteria, Map<String, String> propertyCriteria, SortType sort, PagingPosition page, String userId)
+		{
+			// no excluded sites
+			return getSiteIds(type, ofType, criteria, propertyCriteria, null, sort, page, userId);
+		}
+		
+		/**
+		 * {@inheritDoc}
+		 */
+		private List<String> getSiteIds(SelectionType type, Object ofType, String criteria, Map<String, String> propertyCriteria, List<String> excludedSites, SortType sort, PagingPosition page)
+		{
+			// no excluded sites
+			return getSiteIds(type, ofType, criteria, propertyCriteria, excludedSites, sort, page, null);
 		}
 
 		/**
@@ -1051,10 +1090,10 @@ public abstract class DbSiteService extends BaseSiteService
 		 * @inheritDoc
 		 */
 		@SuppressWarnings("unchecked")
-		public List getSites(SelectionType type, Object ofType, String criteria, Map propertyCriteria, SortType sort, PagingPosition page, boolean requireDescription, String userId)
+		public List getSites(SelectionType type, Object ofType, String criteria, Map propertyCriteria,  List excludedSites, SortType sort, PagingPosition page, boolean requireDescription, String userId)
 		{
 			userId = getCurrentUserIdIfNull(userId);
-			List<String> siteIds = getSiteIds(type, ofType, criteria, propertyCriteria, sort, page, userId);
+			List<String> siteIds = getSiteIds(type, ofType, criteria, propertyCriteria, excludedSites, sort, page, userId);
 			LinkedHashMap<String, Site> siteMap = getOrderedSiteMap(siteIds, requireDescription);
 
 			SqlReader reader = requireDescription ? fullSiteReader : lightSiteReader;
@@ -1108,6 +1147,26 @@ public abstract class DbSiteService extends BaseSiteService
 		{
 			// getSites with null userId returns the current user's sites
 			return getSites(type, ofType, criteria, propertyCriteria, sort, page, requireDescription, null);
+		}
+		
+		/**
+		 * @inheritDoc
+		 */
+		@SuppressWarnings("unchecked")
+		public List getSites(SelectionType type, Object ofType, String criteria, Map propertyCriteria, SortType sort, PagingPosition page, boolean requireDescription, String userId) 
+		{
+			// no excluded sites
+			return getSites(type, ofType, criteria, propertyCriteria, null, sort, page, requireDescription, userId);
+		}
+		
+		/**
+		 * @inheritDoc
+		 */
+		@SuppressWarnings("unchecked")
+		public List getSites(SelectionType type, Object ofType, String criteria, Map propertyCriteria, List excludedSites, SortType sort, PagingPosition page, boolean requireDescription)
+		{
+			// getSites with null userId returns the current user's sites
+			return getSites(type, ofType, criteria, propertyCriteria, excludedSites, sort, page, requireDescription, null);
 		}
 		
 		/**
@@ -1775,17 +1834,17 @@ public abstract class DbSiteService extends BaseSiteService
 			// normalize the input parameters - remove any user in more than one set
 
 			// adjust visitSites to remove any that are in visitUnpSites or updateSites
-			Set targetVisit = new HashSet();
+			Set<String> targetVisit = new HashSet<>();
 			targetVisit.addAll(visitSites);
 			targetVisit.removeAll(visitUnpSites);
 			targetVisit.removeAll(updateSites);
 
 			// adjust visitUnpSites to remove any that are in updateSites
-			Set targetUnp = new HashSet();
+			Set<String> targetUnp = new HashSet<>();
 			targetUnp.addAll(visitUnpSites);
 			targetUnp.removeAll(updateSites);
 
-			Set targetUpdate = updateSites;
+			Set<String> targetUpdate = updateSites;
 
 			// read existing
 			String statement = siteServiceSql.getSiteId4Sql();
@@ -1793,9 +1852,9 @@ public abstract class DbSiteService extends BaseSiteService
 			fields[0] = userId;
 
 			// collect the current data in three sets, update, unp, visit
-			final Set existingUpdate = new HashSet();
-			final Set existingUnp = new HashSet();
-			final Set existingVisit = new HashSet();
+			final Set<String> existingUpdate = new HashSet();
+			final Set<String> existingUnp = new HashSet();
+			final Set<String> existingVisit = new HashSet();
 
 			m_sql.dbRead(statement, fields, new SqlReader()
 			{
@@ -1833,24 +1892,24 @@ public abstract class DbSiteService extends BaseSiteService
 			// compute the delete and insert sets for each of the three permissions
 
 			// delete if the site is in targetUpdate, but it is already in one of the other categories
-			Set updDeletes = new HashSet();
+			Set<String> updDeletes = new HashSet<>();
 			updDeletes.addAll(existingUnp);
 			updDeletes.addAll(existingVisit);
 			updDeletes.retainAll(targetUpdate);
 
 			// also delete if the user is in the existing and not in the target
-			Set obsolete = new HashSet();
+			Set<String> obsolete = new HashSet<>();
 			obsolete.addAll(existingUpdate);
 			obsolete.removeAll(targetUpdate);
 			updDeletes.addAll(obsolete);
 
 			// insert if the site is in targetUpdate, but is not already in update
-			Set updInserts = new HashSet();
+			Set<String> updInserts = new HashSet<>();
 			updInserts.addAll(targetUpdate);
 			updInserts.removeAll(existingUpdate);
 
 			// delete if the site is in targetUnp, but it is already in one of the other categories
-			Set unpDeletes = new HashSet();
+			Set<String> unpDeletes = new HashSet<>();
 			unpDeletes.addAll(existingUpdate);
 			unpDeletes.addAll(existingVisit);
 			unpDeletes.retainAll(targetUnp);
@@ -1862,12 +1921,12 @@ public abstract class DbSiteService extends BaseSiteService
 			unpDeletes.addAll(obsolete);
 
 			// insert if the site is in targetUnp, but is not already in unp
-			Set unpInserts = new HashSet();
+			Set<String> unpInserts = new HashSet<>();
 			unpInserts.addAll(targetUnp);
 			unpInserts.removeAll(existingUnp);
 
 			// delete if the site is in targetVisit, but it is already in one of the other categories
-			Set visitDeletes = new HashSet();
+			Set<String> visitDeletes = new HashSet<>();
 			visitDeletes.addAll(existingUpdate);
 			visitDeletes.addAll(existingUnp);
 			visitDeletes.retainAll(targetVisit);
@@ -1879,7 +1938,7 @@ public abstract class DbSiteService extends BaseSiteService
 			visitDeletes.addAll(obsolete);
 
 			// insert if the site is in targetVisit, but is not already in visit
-			Set visitInserts = new HashSet();
+			Set<String> visitInserts = new HashSet<>();
 			visitInserts.addAll(targetVisit);
 			visitInserts.removeAll(existingVisit);
 
@@ -1915,32 +1974,36 @@ public abstract class DbSiteService extends BaseSiteService
 
 				// insert
 				statement = siteServiceSql.getInsertUserSql();
-				fields = new Object[3];
-				fields[1] = userId;
 
-				fields[2] = Integer.valueOf(-1);
-				for (Iterator i = updInserts.iterator(); i.hasNext();)
+				List<Object[]> batchList = new ArrayList<>();
+				for (String siteId : updInserts)
 				{
-					String siteId = (String) i.next();
+					fields = new Object[3];
 					fields[0] = caseId(siteId);
-					m_sql.dbWrite(statement, fields);
+					fields[1] = userId;
+					fields[2] = Integer.valueOf(-1);
+					batchList.add(fields);
 				}
+				m_sql.dbWriteBatch(statement, batchList);
 
-				fields[2] = Integer.valueOf(0);
-				for (Iterator i = unpInserts.iterator(); i.hasNext();)
+				batchList = new ArrayList<>();
+				for (String siteId : unpInserts)
 				{
-					String siteId = (String) i.next();
+					fields = new Object[3];
 					fields[0] = caseId(siteId);
-					m_sql.dbWrite(statement, fields);
+					fields[1] = userId;
+					fields[2] = Integer.valueOf(0);
 				}
+				m_sql.dbWriteBatch(statement, batchList);
 
-				fields[2] = Integer.valueOf(1);
-				for (Iterator i = visitInserts.iterator(); i.hasNext();)
+				batchList = new ArrayList<>();
+				for (String siteId : visitInserts)
 				{
-					String siteId = (String) i.next();
 					fields[0] = caseId(siteId);
-					m_sql.dbWrite(statement, fields);
+					fields[1] = userId;
+					fields[2] = Integer.valueOf(1);
 				}
+				m_sql.dbWriteBatch(statement, batchList);
 			}
 		}
 

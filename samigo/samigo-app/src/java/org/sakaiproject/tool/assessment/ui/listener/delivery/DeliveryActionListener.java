@@ -159,6 +159,21 @@ public class DeliveryActionListener
     	// there is no action needed (the outcome is set in BeginDeliveryActionListener).
       	return;
       }
+
+      if (delivery.pastDueDate()){
+        if (delivery.isAcceptLateSubmission()) {
+          if(delivery.getTotalSubmissions() > 0) {
+            // Not during a Retake
+            if (delivery.getActualNumberRetake() == delivery.getNumberRetake()) {
+              return;
+            }
+          }
+        } else {
+          if(delivery.isRetracted(false)){
+              return;
+          }
+        }
+      }
       // Clear elapsed time, set not timed out
       clearElapsedTime(delivery);
 
@@ -1746,7 +1761,7 @@ public class DeliveryActionListener
     	String responseText = itemBean.getResponseText();
     	// SAK-17021
     	// itemBean.setResponseText(FormattedText.convertFormattedTextToPlaintext(responseText));
-    	itemBean.setResponseText(ContextUtil.stringWYSIWYG(responseText));
+    	itemBean.setResponseText(responseText);
     }
     else if (item.getTypeId().equals(TypeIfc.MATRIX_CHOICES_SURVEY))
     {

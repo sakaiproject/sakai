@@ -1,3 +1,18 @@
+/**
+ * Copyright (c) 2003-2017 The Apereo Foundation
+ *
+ * Licensed under the Educational Community License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *             http://opensource.org/licenses/ecl2
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.sakaiproject.gradebookng.tool.panels;
 
 import java.util.ArrayList;
@@ -103,7 +118,7 @@ public class SettingsGradeReleasePanel extends BasePanel {
 				settingsPage.getSettingsCategoryPanel().updateCategoriesAndWeightingRadioState();
 				target.add(categoriesAndWeightingRadio);
 
-				//disabling this should also uncheck all formatting types
+				// disabling this should also uncheck all formatting types
 				updatePointsCheckboxState();
 				updateLetterGradeCheckboxState();
 				updatePercentageCheckboxState();
@@ -303,7 +318,7 @@ public class SettingsGradeReleasePanel extends BasePanel {
 		final GradebookInformation settings = this.model.getObject().getGradebookInformation();
 		final GbCategoryType type = GbCategoryType.valueOf(settings.getCategoryType());
 
-		//if categories and weighting, disable course grade points
+		// if categories and weighting, disable course grade points
 		if (settings.isCourseGradeDisplayed()) {
 			if (type == GbCategoryType.WEIGHTED_CATEGORY) {
 				this.points.setEnabled(false);
@@ -312,17 +327,16 @@ public class SettingsGradeReleasePanel extends BasePanel {
 			}
 		}
 
-		//if course grade disabled, clear this field
+		// if course grade disabled, clear this field
 		if (!settings.isCourseGradeDisplayed()) {
 			this.points.setDefaultModelObject(Boolean.FALSE);
 		}
 	}
 
-
 	void updateLetterGradeCheckboxState() {
 		final GradebookInformation settings = this.model.getObject().getGradebookInformation();
 
-		//if course grade disabled, clear this field
+		// if course grade disabled, clear this field
 		if (!settings.isCourseGradeDisplayed()) {
 			this.letterGrade.setDefaultModelObject(Boolean.FALSE);
 		}
@@ -331,12 +345,10 @@ public class SettingsGradeReleasePanel extends BasePanel {
 	void updatePercentageCheckboxState() {
 		final GradebookInformation settings = this.model.getObject().getGradebookInformation();
 
-		//if course grade disabled, clear this field
+		// if course grade disabled, clear this field
 		if (!settings.isCourseGradeDisplayed()) {
 			this.percentage.setDefaultModelObject(Boolean.FALSE);
 		}
 	}
-
-
 
 }

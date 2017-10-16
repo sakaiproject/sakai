@@ -232,19 +232,24 @@ public class BaseExternalCalendarSubscriptionService implements
 		if (enabled)
 		{
 			// INIT the caches
-			long cacheRefreshRate = 43200; // 12 hours
-			SimpleConfiguration<String, BaseExternalSubscriptionDetails> cacheConfig = new SimpleConfiguration<>(1000, cacheRefreshRate, 0); // 12 hours
-			cacheConfig.setStatisticsEnabled(true);
+			long userCacheRefreshRate = 60 * m_configurationService.getInt(SAK_PROP_EXTSUBSCRIPTIONS_USER_CACHETIME, 120);
+			long instCacheRefreshRate = 60 * m_configurationService.getInt(SAK_PROP_EXTSUBSCRIPTIONS_INST_CACHETIME, 120);
+			long userCacheMaxEntries = m_configurationService.getInt(SAK_PROP_EXTSUBSCRIPTIONS_USER_CACHEENTRIES, 32);
+			long instCacheMaxEntries = m_configurationService.getInt(SAK_PROP_EXTSUBSCRIPTIONS_INST_CACHEENTRIES, 32);
+			SimpleConfiguration<String, BaseExternalSubscriptionDetails> userCacheConfig = new SimpleConfiguration<>(userCacheMaxEntries, userCacheRefreshRate, 0);
+			SimpleConfiguration<String, BaseExternalSubscriptionDetails> instCacheConfig = new SimpleConfiguration<>(instCacheMaxEntries, instCacheRefreshRate, 0);
+			userCacheConfig.setStatisticsEnabled(true);
+			instCacheConfig.setStatisticsEnabled(true);
 			institutionalSubscriptionCache = new SubscriptionCache(
-					m_memoryService.createCache("org.sakaiproject.calendar.impl.BaseExternalCacheSubscriptionService.institutionalCache", cacheConfig), clock);
+					m_memoryService.createCache("org.sakaiproject.calendar.impl.BaseExternalCacheSubscriptionService.institutionalCache", instCacheConfig), clock);
 			usersSubscriptionCache = new SubscriptionCache(
-					m_memoryService.createCache("org.sakaiproject.calendar.impl.BaseExternalCacheSubscriptionService.userCache", cacheConfig), clock);
+					m_memoryService.createCache("org.sakaiproject.calendar.impl.BaseExternalCacheSubscriptionService.userCache", userCacheConfig), clock);
 			// TODO replace this with a real solution for when the caches are distributed by disabling the timer and using jobscheduler
 			if (institutionalSubscriptionCache.getCache().isDistributed()) {
-				m_log.error(institutionalSubscriptionCache.getCache().getName()+" is distributed but calendar subscription caches have a local timer refresh which means they will cause cache replication storms once every "+cacheRefreshRate+" seconds, do NOT distribute this cache");
+				m_log.error(institutionalSubscriptionCache.getCache().getName()+" is distributed but calendar subscription caches have a local timer refresh which means they will cause cache replication storms once every "+instCacheRefreshRate+" seconds, do NOT distribute this cache");
 			}
 			if (usersSubscriptionCache.getCache().isDistributed()) {
-				m_log.error(usersSubscriptionCache.getCache().getName()+" is distributed but calendar subscription caches have a local timer refresh which means they will cause cache replication storms once every "+cacheRefreshRate+" seconds, do NOT distribute this cache");
+				m_log.error(usersSubscriptionCache.getCache().getName()+" is distributed but calendar subscription caches have a local timer refresh which means they will cause cache replication storms once every "+userCacheRefreshRate+" seconds, do NOT distribute this cache");
 			}
 
 			// iCal column map

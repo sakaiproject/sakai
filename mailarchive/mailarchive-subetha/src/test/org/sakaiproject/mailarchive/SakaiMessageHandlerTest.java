@@ -1,3 +1,18 @@
+/**
+ * Copyright (c) 2014-2017 The Apereo Foundation
+ *
+ * Licensed under the Educational Community License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *             http://opensource.org/licenses/ecl2
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.sakaiproject.mailarchive;
 
 import org.apache.commons.io.IOUtils;
@@ -162,6 +177,31 @@ public class SakaiMessageHandlerTest {
         SmartClient client = createClient();
         client.from("sender@example.com");
         client.to("siteId@sakai.example.com");
+        writeData(client, "/simple-email.txt");
+
+        verify(channel, times(1)).addMailArchiveMessage(anyString(), eq("sender@example.com"), any(), any(), any(), any());
+    }
+
+    @Test
+    public void testBadDomainCase() throws Exception {
+        // Checks that we ignore the case on the domain
+        when(serverConfigurationService.getServerName()).thenReturn("saKai.exAmple.cOm");
+        User sender = mock(User.class);
+        when(userDirectoryService.findUsersByEmail("sender@example.com")).thenReturn(Collections.singleton(sender));
+
+        MailArchiveChannel channel = mock(MailArchiveChannel.class);
+        when(channel.getEnabled()).thenReturn(true);
+        when(channel.getOpen()).thenReturn(false);
+        when(channel.allowAddMessage(sender)).thenReturn(true);
+        when(channel.getId()).thenReturn("channelId");
+        when(channel.getContext()).thenReturn("siteId");
+
+        when(mailArchiveService.channelReference("siteId", SiteService.MAIN_CONTAINER)).thenReturn("/site/siteId");
+        when(mailArchiveService.getMailArchiveChannel("/site/siteId")).thenReturn(channel);
+
+        SmartClient client = createClient();
+        client.from("sender@example.com");
+        client.to("siteId@Sakai.Example.Com");
         writeData(client, "/simple-email.txt");
 
         verify(channel, times(1)).addMailArchiveMessage(anyString(), eq("sender@example.com"), any(), any(), any(), any());

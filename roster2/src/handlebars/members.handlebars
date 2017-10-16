@@ -90,5 +90,17 @@
             <a href="mailto:{{email}}" title="{{translate 'profile_email'}} {{email}}">{{email}}</a>
         </div>
     {{/if}}
+
+    {{#if ../viewUserProperty}}
+        <div class="roster-table-cell">
+            <div class="roster-mobile-label">{{translate 'facet_userProperties'}}</div>
+            <ul class="roster-user-properties">
+            {{#each userProperties}}
+                <li>{{@key}}: {{this}}</li>
+            {{/each}}
+            </ul>
+        </div>
+    {{/if}}
+
     </div> <!-- /roster-table-row -->
 {{/each}}

@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+			    http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <bean id="org.sakaiproject.commons.api.PersistenceManager"
+        class="org.sakaiproject.commons.impl.PersistenceManagerImpl"
+        init-method="init">
+
+        <property name="sakaiProxy"><ref bean="org.sakaiproject.commons.api.SakaiProxy"/></property>
+        <property name="serverConfigurationService"><ref bean="org.sakaiproject.component.api.ServerConfigurationService"/></property>
+        <property name="sqlService"><ref bean="org.sakaiproject.db.api.SqlService"/></property>
+    </bean>
+
+    <bean id="org.sakaiproject.commons.api.SakaiProxy"
+        class="org.sakaiproject.commons.impl.SakaiProxyImpl"
+        init-method="init">
+
+        <property name="authzGroupService"><ref bean="org.sakaiproject.authz.api.AuthzGroupService"/></property>
+        <property name="contentHostingService"><ref bean="org.sakaiproject.content.api.ContentHostingService"/></property>
+        <property name="siteService"><ref bean="org.sakaiproject.site.api.SiteService"/></property>
+        <property name="serverConfigurationService"><ref bean="org.sakaiproject.component.api.ServerConfigurationService"/></property>
+        <property name="sessionManager"><ref bean="org.sakaiproject.tool.api.SessionManager"/></property>
+        <property name="toolManager"><ref bean="org.sakaiproject.tool.api.ToolManager"/></property>
+        <property name="functionManager"><ref bean="org.sakaiproject.authz.api.FunctionManager"/></property>
+        <property name="securityService"><ref bean="org.sakaiproject.authz.api.SecurityService"/></property>
+        <property name="userDirectoryService"><ref bean="org.sakaiproject.user.api.UserDirectoryService"/></property>
+        <property name="entityManager"><ref bean="org.sakaiproject.entity.api.EntityManager"/></property>
+        <property name="memoryService"><ref bean="org.sakaiproject.memory.api.MemoryService"/></property>
+        <property name="eventTrackingService"><ref bean="org.sakaiproject.event.api.EventTrackingService"/></property>
+        <property name="projectLogic"><ref bean="org.sakaiproject.delegatedaccess.logic.ProjectLogic"/></property>
+
+    </bean>
+
+    <bean id="org.sakaiproject.commons.api.CommonsSecurityManager"
+        class="org.sakaiproject.commons.impl.CommonsSecurityManagerImpl">
+        <property name="sakaiProxy"><ref bean="org.sakaiproject.commons.api.SakaiProxy"/></property>
+        <property name="securityService"><ref bean="org.sakaiproject.authz.api.SecurityService"/></property>
+        <property name="siteService"><ref bean="org.sakaiproject.site.api.SiteService"/></property>
+        <property name="toolManager"><ref bean="org.sakaiproject.tool.api.ToolManager"/></property>
+    </bean>
+
+    <bean id="org.sakaiproject.commons.api.CommonsManager"
+        class="org.sakaiproject.commons.impl.CommonsManagerImpl"
+        init-method="init">
+        <property name="sakaiProxy"><ref bean="org.sakaiproject.commons.api.SakaiProxy"/></property>
+        <property name="commonsSecurityManager"><ref bean="org.sakaiproject.commons.api.CommonsSecurityManager"/></property>
+        <property name="persistenceManager"><ref bean="org.sakaiproject.commons.api.PersistenceManager"/></property>
+        <property name="profileConnectionsLogic"><ref bean="org.sakaiproject.profile2.logic.ProfileConnectionsLogic"/></property>
+    </bean>
+
+</beans>

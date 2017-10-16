@@ -357,7 +357,7 @@ public class ExportResponsesBean implements Serializable, PhaseAware {
 
 		CellStyle boldStyle = wb.createCellStyle();
 		Font font = wb.createFont();
-		font.setBoldweight(Font.BOLDWEIGHT_BOLD);
+		font.setBold(true);
 		String fontName = ServerConfigurationService.getString("spreadsheet.font");
 		if (fontName != null) {
 			font.setFontName(fontName);

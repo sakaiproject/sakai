@@ -28,6 +28,17 @@
 	</filter>
 
 	<filter>
+		<description>Response Header Filter to allow CORS on fonts</description>
+		<display-name>CORS Allow Filter</display-name>
+		<filter-name>CORSAllowFilter</filter-name>
+		<filter-class>org.sakaiproject.util.ResponseHeaderFilter</filter-class>
+		<init-param>
+			<param-name>Access-Control-Allow-Origin</param-name>
+			<param-value>*</param-value>
+		</init-param>
+	</filter>
+
+	<filter>
 		<filter-name>sakai.request</filter-name>
 		<filter-class>org.sakaiproject.util.RequestFilter</filter-class>
 		<init-param>
@@ -45,7 +56,27 @@
 	<filter-mapping>
 		<filter-name>CacheFilterForWeek</filter-name>
 		<url-pattern>/*</url-pattern>
-	</filter-mapping>	
+	</filter-mapping>
+
+	<!-- Allow cross origin requests for our font files, due to the restrictions lessons places on pages served
+	     from content hosting this is needed to get fontawesome icons working -->
+	<filter-mapping>
+		<filter-name>CORSAllowFilter</filter-name>
+		<url-pattern>*.ttf</url-pattern>
+	</filter-mapping>
+	<filter-mapping>
+		<filter-name>CORSAllowFilter</filter-name>
+		<url-pattern>*.woff</url-pattern>
+	</filter-mapping>
+	<filter-mapping>
+		<filter-name>CORSAllowFilter</filter-name>
+		<url-pattern>*.woff2</url-pattern>
+	</filter-mapping>
+	<filter-mapping>
+		<filter-name>CORSAllowFilter</filter-name>
+		<url-pattern>*.eot</url-pattern>
+	</filter-mapping>
+
 	<!-- 
 	<filter-mapping>
 		<filter-name>CacheFilterForWeek</filter-name>

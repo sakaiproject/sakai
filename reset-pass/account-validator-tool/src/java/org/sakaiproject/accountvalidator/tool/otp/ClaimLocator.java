@@ -186,7 +186,7 @@ public class ClaimLocator implements BeanLocator {
 
 	private void authenticateUser(ValidationClaim vc, String oldUserRef) {
 		//log the user in
-		Evidence e = new IdPwEvidence(vc.getUserEid(), vc.getPassword1());
+		Evidence e = new IdPwEvidence(vc.getUserEid(), vc.getPassword1(), httpServletRequest.getRemoteAddr());
 		try {
 			Authentication a = authenticationManager.authenticate(e);
 			log.debug("authenticated " + a.getEid() + "(" + a.getUid() + ")");

@@ -239,7 +239,7 @@
 		</div>
 		<div id="collapseAccess" class="panel-collapse collapse in">
 			<div class="panel-body">
-				#if($availability_is_enabled && !$model.isUserSite() && !$model.isDropbox() && ! $model.isSiteCollection())
+				#if($availability_is_enabled && !$model.isUserSite() && !$model.isDropbox())
 					<p class="instruction">
 						#if($model.isCollection())
 							$tlang.getString("instr.access.fldr")
@@ -270,10 +270,10 @@
 									#set($release_day = $model.getReleaseDate().breakdownLocal().day)
 									#set($release_hour = $model.getReleaseDate().breakdownLocal().hour)
 									#set($release_minute = $model.getReleaseDate().breakdownLocal().min)
-									<input type="text" id="releaseDatePicker" name="releaseDatePicker" class="datepicker" value="">
+									<input type="text" id="releaseDatePicker${DOT}$i" name="releaseDatePicker${DOT}$i" class="datepicker" value="">
 									<script type="text/javascript">
 										localDatePicker({
-											input:'#releaseDatePicker',
+											input:'#releaseDatePicker${DOT}$i',
 											useTime:1,
 											val:"$release_year$H$release_month$H$release_day $release_hour:$release_minute",
 											parseFormat: 'YYYY-MM-DD HH:mm',
@@ -300,10 +300,10 @@
 									#set($retract_day = $model.getRetractDate().breakdownLocal().day)
 									#set($retract_hour = $model.getRetractDate().breakdownLocal().hour)
 									#set($retract_minute = $model.getRetractDate().breakdownLocal().min)
-									<input type="text" id="retractDatePicker" name="retractDatePicker" class="datepicker" value="">
+									<input type="text" id="retractDatePicker${DOT}$i" name="retractDatePicker${DOT}$i" class="datepicker" value="">
 									<script type="text/javascript">
 										localDatePicker({
-											input:'#retractDatePicker',
+											input:'#retractDatePicker${DOT}$i',
 											useTime:1,
 											val:"$retract_year$H$retract_month$H$retract_day $retract_hour:$retract_minute",
 											parseFormat: 'YYYY-MM-DD HH:mm',
@@ -593,7 +593,7 @@
 							</th>
 							<td>
 								<div class="form-group">
-									<a class="textPanelFooter" href="#fileURLHolder" onclick="document.getElementById('fileURLHolder').style.overflow='auto';document.getElementById('fileURLHolder').focus();document.getElementById('fileURLHolder').select();alert('$tlang.getString("props.select.help")');">$tlang.getString("props.select")</a>
+									<a class="textPanelFooter" href="#fileURLHolder" onclick="document.getElementById('fileURLHolder').style.overflow='auto';document.getElementById('fileURLHolder').select();document.execCommand('copy');return false;">$tlang.getString("props.select")</a>
 									<a class="textPanelFooter" href="$model.accessUrl" target ="_blank">$tlang.getString("props.open")</a>
 									#if($shortUrlEnabled)
 										<span class="textPanelFooter">

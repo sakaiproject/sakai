@@ -251,7 +251,7 @@ public class SakaiProxyImpl implements SakaiProxy {
 		try {
 			type = this.userDirectoryService.getUser(userId).getType();
 		} catch (final UserNotDefinedException e) {
-			log.info("User with eid: " + userId + " does not exist : " + e.getClass() + " : " + e.getMessage());
+			log.debug("User with eid: " + userId + " does not exist : " + e.getClass() + " : " + e.getMessage());
 		}
 		return type;
 	}
@@ -265,7 +265,7 @@ public class SakaiProxyImpl implements SakaiProxy {
 		try {
 			u = this.userDirectoryService.getUser(userId);
 		} catch (final UserNotDefinedException e) {
-			log.info("User with id: " + userId + " does not exist : " + e.getClass() + " : " + e.getMessage());
+			log.debug("User with id: " + userId + " does not exist : " + e.getClass() + " : " + e.getMessage());
 		}
 
 		return u;

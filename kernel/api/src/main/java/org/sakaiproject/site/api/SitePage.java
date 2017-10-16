@@ -231,4 +231,10 @@ public interface SitePage extends Edit, Serializable
 	public int getPosition();
 
 	public void setupPageCategory(String toolId);
+	
+	/**
+	 * Is this an exception to the tool titles (Based on a default value)
+	 */
+	public boolean isTitleToolException(String toolId);
+	
 }

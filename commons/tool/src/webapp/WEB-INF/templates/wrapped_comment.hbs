@@ -1,0 +1,5 @@
+<div id="commons-comment-{{id}}" class="commons-comment {{orderClass}}"
+            data-post-id="{{postId}}" data-creator-id="{{creatorId}}" data-creator-display-name="{{creatorDisplayName}}"
+            data-created-date="{{createdDate}}" data-modified-date="{{modifiedDate}}" {{#unless isRecent}}style="display: none;"{{/unless}}>
+    {{> comment postId=../id canComment=../canComment}}
+</div> <!-- commons-comment -->

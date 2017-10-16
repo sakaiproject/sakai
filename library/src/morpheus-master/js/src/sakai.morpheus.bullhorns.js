@@ -80,7 +80,14 @@
                                 var markup = '<div class="portal-bullhorn-social-alerts">';
                                 data.alerts.forEach(function (alert) {
 
-                                    markup += '<a href="' + alert.url + '"><div id="portal-bullhorn-alert-' + alert.id + '" class="portal-bullhorn-social-alert">'
+                                    if (alert.event === 'profile.friend.request') {
+                                        markup += '<a href="javascript:;" class="portal-bullhorn-connectionmanager-pending">';
+                                    } else if (alert.event === 'profile.friend.confirm') {
+                                        markup += '<a href="javascript:;" class="portal-bullhorn-connectionmanager-current">';
+                                    } else {
+                                        markup += '<a href="' + alert.url + '">';
+                                    }
+                                    markup += '<div id="portal-bullhorn-alert-' + alert.id + '" class="portal-bullhorn-social-alert">'
                                                 + '<div class="portal-bullhorn-photo" style="background-image:url(/direct/profile/' + alert.from + '/image/thumb)"></div>'
                                                 + '<div class="portal-bullhorn-content"><div class="portal-bullhorn-message"><span class="portal-bullhorn-display-name">' + alert.fromDisplayName + '</span>';
 
@@ -124,6 +131,22 @@
                             api.set('content.text', status + ': ' + error);
                         });
                 }
+            },
+            events: {
+                visible: function (event, api) {
+
+                    $PBJQ('.portal-bullhorn-connectionmanager-pending').click(function (e) {
+
+                        portal.connectionManager.show({state: 'pending'});
+                        api.hide();
+                    });
+
+                    $PBJQ('.portal-bullhorn-connectionmanager-current').click(function (e) {
+
+                        portal.connectionManager.show();
+                        api.hide();
+                    });
+                }
             }
         });
 
@@ -155,6 +178,8 @@
                                     if (alert.event === 'asn.new.assignment'
                                                                 || alert.event === 'asn.grade.submission') {
                                         faClass = 'fa-file-text';
+                                    } else if (alert.event === 'lessonbuilder.comment.create') {
+                                        faClass = 'fa-leanpub';
                                     }
 
                                     markup += '<a href="' + alert.url + '" style="text-decoration: none;"><div id="portal-bullhorn-alert-' + alert.id + '" class="portal-bullhorn-academic-alert">'
@@ -174,6 +199,8 @@
                                             = data.i18n.assignmentSubmissionGraded.replace('{0}', title).replace('{1}', siteTitle);
                                     } else if (alert.event === 'commons.comment.created') {
                                         markup += data.i18n.academicCommentCreated.replace('{0}', siteTitle);
+                                    } else if (alert.event === 'lessonbuilder.comment.create') {
+                                        markup += data.i18n.academicLessonBuilderCommentCreate.replace('{0}', siteTitle);
                                     } else {
                                         markup += data.i18n.unrecognisedAlert;
                                     }
@@ -238,7 +265,6 @@
 
     if (portal.loggedIn) {
         updateCounts();
-        //portal.bullhornCountIntervalId = setInterval(updateCounts, portal.bullhorns.pollInterval);
-        portal.bullhornCountIntervalId = setInterval(updateCounts, 10000);
+        portal.bullhornCountIntervalId = setInterval(updateCounts, portal.bullhorns.pollInterval);
     }
 }) ($PBJQ);

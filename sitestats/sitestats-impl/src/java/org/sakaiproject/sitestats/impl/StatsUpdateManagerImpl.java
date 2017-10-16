@@ -1,15 +1,11 @@
 /**
-/**
- * $URL$
- * $Id$
- *
- * Copyright (c) 2006-2009 The Sakai Foundation
+ * Copyright (c) 2006-2017 The Apereo Foundation
  *
  * Licensed under the Educational Community License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *			   http://www.opensource.org/licenses/ECL-2.0
+ *             http://opensource.org/licenses/ecl2
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -37,7 +33,6 @@ import org.hibernate.Criteria;
 import org.hibernate.HibernateException;
 import org.hibernate.Query;
 import org.hibernate.Session;
-import org.hibernate.Transaction;
 import org.hibernate.criterion.Expression;
 import org.hibernate.criterion.Order;
 import org.sakaiproject.alias.api.AliasService;
@@ -69,8 +64,14 @@ import org.sakaiproject.sitestats.api.event.ToolInfo;
 import org.sakaiproject.sitestats.api.parser.EventParserTip;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.dao.DataAccessException;
 import org.springframework.orm.hibernate4.HibernateCallback;
+import org.springframework.orm.hibernate4.SessionHolder;
 import org.springframework.orm.hibernate4.support.HibernateDaoSupport;
+import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.support.TransactionCallbackWithoutResult;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
+import org.springframework.transaction.support.TransactionTemplate;
 
 
 /**
@@ -86,6 +87,7 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 	public long								collectThreadUpdateInterval			= 4000L;
 	private boolean							collectAdminEvents					= false;
 	private boolean							collectEventsForSiteWithToolOnly	= true;
+	private TransactionTemplate				transactionTemplate;
 
 	/** Sakai services */
 	private StatsManager					M_sm;
@@ -204,6 +206,10 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 		this.M_uss = uss;
 	}
 
+	public void setTransactionTemplate(TransactionTemplate template) {
+		this.transactionTemplate = template;
+	}
+
 	public void init(){
 		StringBuilder buff = new StringBuilder();
 		buff.append("init(): collect thread enabled: ");
@@ -314,20 +320,17 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 		if(jobRun == null) {
 			return false;
 		}
-		Boolean r = getHibernateTemplate().execute(session -> {
-            Transaction tx = null;
-            try{
-                tx = session.beginTransaction();
-                session.saveOrUpdate(jobRun);
-                tx.commit();
-            }catch(Exception e){
-                if(tx != null) tx.rollback();
-                LOG.warn("Unable to commit transaction: ", e);
-                return Boolean.FALSE;
-            }
-            return Boolean.TRUE;
-        });
-		return r;
+
+        try {
+			getHibernateTemplate().execute(session -> {
+				session.saveOrUpdate(jobRun);
+				return null;
+			});
+			return true;
+		} catch(DataAccessException dae) {
+			LOG.error("Could not save job: {}", dae.getMessage(), dae);
+		}
+		return false;
 	}
 	
 	/* (non-Javadoc)
@@ -490,7 +493,12 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 					//long endTime2 = System.currentTimeMillis();
 					//LOG.debug("Time spent pre-processing " + eventCount + " event(s): " + (endTime2-startTime2) + " ms");
 				}
-				doUpdateConsolidatedEvents();
+				transactionTemplate.execute(new TransactionCallbackWithoutResult() {
+					@Override
+					protected void doInTransactionWithoutResult(TransactionStatus status) {
+						doUpdateConsolidatedEvents();
+					}
+				});
 				isIdle = true;
 				totalTimeInEventProcessing += (System.currentTimeMillis() - startTime);
 
@@ -505,11 +513,11 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 				}
 			}
 		}catch(Throwable t){
-			LOG.debug("Failed to execute statistics update thread", t);
+			LOG.warn("Failed to execute statistics update thread", t);
 		}finally{
 			if(collectThreadRunning){
 				// thread was stopped by an unknown error: restart
-				LOG.debug("Statistics update thread was stoped by an unknown error: restarting...");
+				LOG.warn("Statistics update thread was stoped by an unknown error: restarting...");
 				startUpdateThread();
 			}else
 				LOG.debug("Finished statistics update thread");
@@ -629,7 +637,13 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 		
 		//else LOG.debug("EventInfo ignored:  '"+e.toString()+"' ("+e.toString()+") USER_ID: "+userId);
 	}
-	
+
+	/**
+     * This processes events and updates in-memory cache. This doesn't push those changes back to the
+	 * DB yet.
+	 *
+	 * @param dateTime Can this be <code>null</code>?
+	 */
 	private void consolidateEvent(Date dateTime, String eventId, String resourceRef, String userId, String siteId) {
 		if(eventId == null)
 			return;
@@ -798,6 +812,14 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 				try{
 					SitePresenceConsolidation spc = presencesMap.get(pKey);
 					if(spc == null) {
+						Calendar c = Calendar.getInstance(); 
+						c.setTime(date); 
+						c.add(Calendar.DATE, -1);
+						Date dateOneDayBefore = c.getTime();						 
+						pKey = siteId+userId+dateOneDayBefore;
+						spc = presencesMap.get(pKey);
+					}
+					if(spc == null) {
 						SitePresence sp = new SitePresenceImpl();
 						sp.setSiteId(siteId);
 						sp.setUserId(userId);
@@ -898,10 +920,9 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 				|| activityMap.size() > 0 || uniqueVisitsMap.size() > 0 
 				|| visitsMap.size() > 0 || presencesMap.size() > 0
 				|| serverStatMap.size() > 0 || userStatMap.size() > 0) {
-			Boolean r = getHibernateTemplate().execute(session -> {
-                Transaction tx = null;
-                try{
-                    tx = session.beginTransaction();
+
+		    try {
+				getHibernateTemplate().execute(session -> {
                     // do: EventStat
                     if(eventStatMap.size() > 0) {
                         Collection<EventStat> tmp1 = null;
@@ -992,22 +1013,15 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
                         }
                         doUpdateUserStatObjects(session, tmp8);
                     }
-
-                    // commit ALL
-                    tx.commit();
-                }catch(Exception e){
-                    if(tx != null) tx.rollback();
-                    LOG.warn("Unable to commit transaction: ", e);
-                    return Boolean.FALSE;
-                }
-                return Boolean.TRUE;
-            });
+                    return null;
+            	});
+			} catch(DataAccessException dae) {
+				return false;
+			}
 			long endTime = System.currentTimeMillis();
 			LOG.debug("Time spent in doUpdateConsolidatedEvents(): " + (endTime-startTime) + " ms");
-			return r;
-		}else{
-			return true;
 		}
+		return true;
 	}
 	
 	private void doUpdateEventStatObjects(Session session, Collection<EventStat> o) {
@@ -1251,53 +1265,7 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 					session.saveOrUpdate(eExisting);
 		}
 	}
-	
-	private void doUpdateSiteVisitTimeObjects(Session session, Collection<SitePresence> o) {
-		if(o == null) return;
-		List<SitePresence> objects = new ArrayList<SitePresence>(o);
-		Collections.sort(objects);
-		Iterator<SitePresence> i = objects.iterator();
-		while(i.hasNext()){
-			SitePresence eUpdate = i.next();
-			SitePresence eExisting = null;
-			String eExistingSiteId = null;
-			try{
-				Criteria c = session.createCriteria(SitePresenceImpl.class);
-				c.add(Expression.eq("siteId", eUpdate.getSiteId()));
-				c.add(Expression.eq("userId", eUpdate.getUserId()));
-				c.add(Expression.eq("date", eUpdate.getDate()));
-				try{
-					eExisting = (SitePresence) c.uniqueResult();
-				}catch(HibernateException ex){
-					try{
-						List<SitePresence> events = (List<SitePresence>) c.list();
-						if ((events!=null) && (events.size()>0)){
-							LOG.debug("More than 1 result when unique result expected.", ex);
-							eExisting = (SitePresence) c.list().get(0);
-						}else{
-							LOG.debug("No result found", ex);
-							eExisting = null;
-						}
-					}catch(Exception ex3){
-						eExisting = null;
-					}
-				}catch(Exception ex2){
-					LOG.warn("Probably ddbb error when loading data at java object", ex2);
-				}
-				if(eExisting == null){
-					eExisting = eUpdate;
-				}else{
-					eExisting.setDuration(eExisting.getDuration() + eUpdate.getDuration());
-				}
-				eExistingSiteId = eExisting.getSiteId();
-			}catch(Exception ex){
-				LOG.warn("Failed to event:" + eUpdate.getId(), ex);
-			}
-			if ((eExistingSiteId!=null) && (eExistingSiteId.trim().length()>0))
-					session.saveOrUpdate(eExisting);
-		}
-	}
-	
+
 	private void doUpdateServerStatObjects(Session session, Collection<ServerStat> o) {
 		if(o == null) return;
 		List<ServerStat> objects = new ArrayList<ServerStat>(o);
@@ -1432,7 +1400,7 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 	
 	private void doUpdateSitePresencesObjects(Session session, Collection<SitePresenceConsolidation> o) {
 		if(o == null) return;
-		List<SitePresenceConsolidation> objects = new ArrayList<SitePresenceConsolidation>(o);
+		List<SitePresenceConsolidation> objects = new ArrayList<>(o);
 		Collections.sort(objects);
 		Iterator<SitePresenceConsolidation> i = objects.iterator();
 		while(i.hasNext()){
@@ -1441,14 +1409,18 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 				SitePresence sp = spc.sitePresence;
 				SitePresence spExisting = doGetSitePresence(session, sp.getSiteId(), sp.getUserId(), sp.getDate());
 				if(spExisting == null) {
+					// Should we be doing this save if this is an end event?
 					session.save(sp);
 					if (!spc.firstEventIsPresEnd) {
 						doUpdateSitePresenceTotal(session, sp);
+					} else {
+						// TODO Should deal with midnight crossing.
+						// Should we at least warn that we've just got a end event without a start.
 					}
 				}else{
 					long previousTotalPresence = spExisting.getDuration();
 					long previousPresence = 0;
-					long newTotalPresence = 0;
+					long newTotalPresence;
 					if(spc.firstEventIsPresEnd) {
 						if(spExisting.getLastVisitStartTime() != null)
 							previousPresence = spc.firstPresEndDate.getTime() - spExisting.getLastVisitStartTime().getTime();
@@ -1472,14 +1444,12 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 	}
 
 	private void doUpdateSitePresenceTotal(Session session, SitePresence sp) throws Exception {
-
-		SitePresenceTotal spt = new SitePresenceTotalImpl(sp);
 		SitePresenceTotal sptExisting = doGetSitePresenceTotal(session, sp.getSiteId(), sp.getUserId());
 		if (sptExisting == null) {
+			SitePresenceTotal spt = new SitePresenceTotalImpl(sp);
 			session.save(spt);
 		} else {
-			sptExisting.incrementTotalVisits();
-			sptExisting.setLastVisitTime(sp.getLastVisitStartTime());
+			sptExisting.updateFrom(sp);
 			session.update(sptExisting);
 		}
 	}
@@ -1758,8 +1728,13 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 			return c.getTime();
 		}
 	}
-	
+
+	/**
+	 * This is used to hold the summary of a set of SitePresence objects in memory before
+	 * they get written out to the DB later.
+	 */
 	private static class SitePresenceConsolidation implements Comparable<SitePresenceConsolidation>{
+	    // Used to track if we never saw the presence start.
 		public boolean firstEventIsPresEnd;
 		public Date firstPresEndDate;
 		public SitePresence sitePresence;
@@ -1767,7 +1742,11 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 		public SitePresenceConsolidation(SitePresence sitePresence) {
 			this(sitePresence, null);
 		}
-		
+
+		/**
+		 * @param firstPresEndDate The date of the end of the first site presence and we never saw start. This may happen
+		 *                         when we process the start in one batch and end in another batch.
+		 */
 		public SitePresenceConsolidation(SitePresence sitePresence, Date firstPresEndDate) {
 			this.sitePresence = sitePresence;
 			if(firstPresEndDate == null) {

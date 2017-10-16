@@ -176,12 +176,16 @@
                             <td headers="term" class="grayText">$sessionHelper.getSessionByEID( $enrolment.getSessionEID() ).getTitle()</td>
                             <td headers="section">$enrolment.getSectionTitle()</td>
                             <td headers="worksite">
-                                #foreach( $site in $enrolment.getSiteWrappers() )
-                                    <h4>
-                                        <a href="$site.getSiteURL()" target="_top" title="$tlang.getString( "mb.gotosite" ) $validator.escapeHtml( $site.getSiteTitle() )">
-                                            $validator.escapeHtml( $site.getSiteTitle() )
-                                        </a>
-                                    </h4>
+                                #if ($enrolment.siteWrappers.size() > 0)
+                                    #foreach( $site in $enrolment.siteWrappers )
+                                        <h4>
+                                            <a href="$site.getSiteURL()" target="_top" title="$tlang.getString( "mb.gotosite" ) $validator.escapeHtml( $site.getSiteTitle() )">
+                                                $validator.escapeHtml( $site.getSiteTitle() )
+                                            </a>
+                                        </h4>
+                                    #end
+                                #else
+                                    $tlang.getString('mb.enrolments.siteNotAvailable')
                                 #end
                             </td>
                         </tr>

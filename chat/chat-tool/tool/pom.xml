@@ -4,7 +4,7 @@
   <parent>
     <artifactId>chat-base</artifactId>
     <groupId>org.sakaiproject</groupId>
-    <version>12-SNAPSHOT</version>
+    <version>13-SNAPSHOT</version>
     <relativePath>../../pom.xml</relativePath>
   </parent>
   <name>sakai-chat-tool</name>
@@ -36,22 +36,6 @@
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-chat-api</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.sakaiproject.courier</groupId>
-      <artifactId>sakai-courier-api</artifactId>
-    </dependency>
-     <dependency>
-      <groupId>org.sakaiproject.presence</groupId>
-      <artifactId>sakai-presence-api</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.sakaiproject.presence</groupId>
-      <artifactId>sakai-presence-util</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.sakaiproject.courier</groupId>
-      <artifactId>sakai-courier-util</artifactId>
     </dependency>
     <dependency>
       <groupId>org.sakaiproject.site</groupId>
@@ -106,6 +90,10 @@
     <dependency>
       <groupId>commons-beanutils</groupId>
       <artifactId>commons-beanutils</artifactId>
+    </dependency>
+        <dependency>
+        <groupId>commons-lang</groupId>
+        <artifactId>commons-lang</artifactId>
     </dependency>
     <dependency>
       <groupId>taglibs</groupId>

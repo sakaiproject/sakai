@@ -27,6 +27,7 @@ import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.authz.api.*;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityManager;
@@ -41,6 +42,7 @@ import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.thread_local.api.ThreadLocalManager;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.SessionManager;
+import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 
@@ -113,6 +115,11 @@ public abstract class SakaiSecurity implements SecurityService, Observer
      * @return the SiteService collaborator
      */
     protected abstract SiteService siteService();
+    
+    /**
+     * @return the ToolManager collaborator.
+    */
+    protected abstract ToolManager toolManager();
 
     protected ServerConfigurationService serverConfigurationService;
 
@@ -1049,5 +1056,44 @@ public abstract class SakaiSecurity implements SecurityService, Observer
 				resetSecurityCache(site.getReference());
 			}
 		}
+	}
+	
+	/**
+	 * Helper to get siteid. This will ONLY work in a portal site context, it will return null otherwise (ie via an entityprovider).
+	 *
+	 * @return currentSiteId
+	 */
+	private String getCurrentSiteId() {
+		try {
+			return toolManager().getCurrentPlacement().getContext();
+		} catch (final Exception e) {
+			return null;
+		}
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	public boolean isUserRoleSwapped() throws IdUnusedException {
+		return isUserRoleSwapped(null);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public boolean isUserRoleSwapped(String siteId) throws IdUnusedException {
+
+		if (siteId == null) {
+			siteId = getCurrentSiteId();
+		}
+
+		final Site site = siteService().getSite(siteId);
+
+		// they are roleswapped if they have an 'effective role'
+		final String effectiveRole = getUserEffectiveRole(site.getReference());
+		if (StringUtils.isNotBlank(effectiveRole)) {
+			return true;
+		}
+		return false;
 	}
 }

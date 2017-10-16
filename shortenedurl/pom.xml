@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.sakaiproject</groupId>
         <artifactId>master</artifactId>
-        <version>12-SNAPSHOT</version>
+        <version>13-SNAPSHOT</version>
 		<relativePath>../master/pom.xml</relativePath>
     </parent>
     
@@ -51,14 +51,6 @@
 				<scope>runtime</scope>
 	      	</dependency>
 		    
-		    <!-- external dependencies -->
-		    <dependency>
-				<groupId>org.apache.httpcomponents</groupId>
-				<artifactId>httpclient</artifactId>
-				<version>4.5.3</version>
-				<scope>compile</scope>
-			</dependency>
-
 			
 			<!-- java 1.5 requires this at compilation time for org.apache.http.impl.client.DefaultHttpClient -->
 			<dependency>

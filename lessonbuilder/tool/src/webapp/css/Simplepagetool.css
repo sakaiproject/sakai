@@ -446,11 +446,11 @@ a.edit-link:link, a.edit-link:visited, a.section-merge-link:link, a.section-merg
   padding-right: 7px;
 }
 
-.split ul {
+.split .mainList {
     -webkit-column-count: 2;
     -moz-column-count: 2;
     column-count: 2;
-}
+} 
 .split .edit-col {
     right:0px;
 }
@@ -466,7 +466,7 @@ a.edit-link:link, a.edit-link:visited, a.section-merge-link:link, a.section-merg
    make them subjectively the same darkness.
 */
 /* default */
-.column .commentDiv, .column .studentContentTable, .column .questionDiv .contentCol, .column .checklistDiv, .column .forumSummaryHeaderDiv, .column .announcementsHeaderDiv, .column .fc-toolbar .timeline-Header{
+.column .commentDiv, .column .studentContentTable, .column .questionDiv .contentCol, .column .checklistDiv, .column .forumSummaryHeaderDiv, .column .announcementsHeaderDiv, .column .fc-toolbar {
   background-color: #b3ecff;
 }
 .column a[href]{
@@ -476,7 +476,7 @@ a.edit-link:link, a.edit-link:visited, a.section-merge-link:link, a.section-merg
    background-color: #f0f0f0;
    border-color: #222;
 }
-.colgray .commentDiv, .colgray .studentContentTable, .colgray .questionDiv .contentCol, .colgray .checklistDiv, .colgray .forumSummaryHeaderDiv, .colgray .announcementsHeaderDiv .timeline-Header{
+.colgray .commentDiv, .colgray .studentContentTable, .colgray .questionDiv .contentCol, .colgray .checklistDiv, .colgray .forumSummaryHeaderDiv, .colgray .announcementsHeaderDiv, .colgray .fc-toolbar {
   background-color: #b8b8b8;
 }
 .colgray a[href]{
@@ -487,7 +487,7 @@ a.edit-link:link, a.edit-link:visited, a.section-merge-link:link, a.section-merg
    border-color: #600;
    color: #4660000;
 }
-.colred .commentDiv, .colred .studentContentTable, .colred .questionDiv .contentCol, .colred .checklistDiv, .colred .forumSummaryHeaderDiv, .colred .announcementsHeaderDiv .timeline-Header{
+.colred .commentDiv, .colred .studentContentTable, .colred .questionDiv .contentCol, .colred .checklistDiv, .colred .forumSummaryHeaderDiv, .colred .announcementsHeaderDiv, .colred .fc-toolbar {
   background-color: #ffb3b3;
 }
 .colred a[href], .colred h3.author {
@@ -499,7 +499,7 @@ a.edit-link:link, a.edit-link:visited, a.section-merge-link:link, a.section-merg
    border-color: #004;
    color: #004;
 }
-.colblue .commentDiv, .colblue .studentContentTable, .colblue .questionDiv .contentCol, .colblue .checklistDiv, .colblue .forumSummaryHeaderDiv, .colblue .announcementsHeaderDiv .timeline-Header{
+.colblue .commentDiv, .colblue .studentContentTable, .colblue .questionDiv .contentCol, .colblue .checklistDiv, .colblue .forumSummaryHeaderDiv, .colblue .announcementsHeaderDiv, .colblue .fc-toolbar {
   background-color: #b3d9ff;
   background-color: #99e7ff;
 }
@@ -511,7 +511,7 @@ a.edit-link:link, a.edit-link:visited, a.section-merge-link:link, a.section-merg
    border-color: #030;
    color: #030;
 }
-.colgreen .commentDiv, .colgreen .studentContentTable, .colgreen .questionDiv .contentCol, .colgreen .checklistDiv. .colgreen .forumSummaryHeaderDiv, .colgreen .announcementsHeaderDiv  .timeline-Header{
+.colgreen .commentDiv, .colgreen .studentContentTable, .colgreen .questionDiv .contentCol, .colgreen .checklistDiv, .colgreen .forumSummaryHeaderDiv, .colgreen .announcementsHeaderDiv, .colgreen .fc-toolbar {
   background-color: #9fc;
 }
 .colgreen a[href] {
@@ -522,7 +522,7 @@ a.edit-link:link, a.edit-link:visited, a.section-merge-link:link, a.section-merg
    border-color: #840;
    color: #4b2600;
 }
-.colyellow .commentDiv, .colyellow .studentContentTable, .colyellow .questionDiv .contentCol, .colyellow .checklistDiv. colyellow .forumSummaryHeaderDiv, .colyellow .announcementsHeaderDiv .timeline-Header{
+.colyellow .commentDiv, .colyellow .studentContentTable, .colyellow .questionDiv .contentCol, .colyellow .checklistDiv, .colyellow .forumSummaryHeaderDiv, .colyellow .announcementsHeaderDiv, .colyellow .fc-toolbar {
   background-color:  #ffd480
 }
 .colyellow a[href],.colyellow h3.author {
@@ -534,33 +534,33 @@ a.edit-link:link, a.edit-link:visited, a.section-merge-link:link, a.section-merg
 .columnopen, .addbottom {
   text-decoration: none;
 }
-.mainList li {
+.mainList div.item {
     position: relative;
 }
-.mainList li.canEdit > div.edit-col {
+.mainList div.canEdit > div.edit-col {
     vertical-align:top;
     padding-top: 0.35em;
     padding-left: 0;
     z-index:4
 }
-.mainList li.canEdit > div.edit-col {
+.mainList div.canEdit > div.edit-col {
     display: inline-block;
 }
-.mainList li.question, .mainList li.studentContentType  {
+.mainList div.question, .mainList div.studentContentType  {
     margin-top: 10px;
     margin-bottom: 20px;
 }
-.mainList li.commentsType {
+.mainList div.commentsType {
     margin-top: 10px;
     margin-bottom: 0px;
 }
-.mainList li.textType, .mainList li.multimediaType, .mainList li.checklistType {
+.mainList div.textType, .mainList div.multimediaType, .mainList div.checklistType {
     margin-top: 10px;
     margin-bottom: 10px;
 } 
-.mainList li.question .multipleChoiceAnswer {
+.mainList div.question .multipleChoiceAnswer {
 }
-.mainList li.question .multipleChoiceForm input.bold {
+.mainList div.question .multipleChoiceForm input.bold {
 }
 .multipleChoiceAnswer label {
   margin-left: 5px;
@@ -574,17 +574,20 @@ a.edit-link:link, a.edit-link:visited, a.section-merge-link:link, a.section-merg
 .questionStatusText {
 }
 .mainList .textbox ul {
-    display: inline;
+
 }
-.mainList li .textbox {
+.mainList .textbox ul.forumSummaryList, .mainList .textbox ul.announcementSummaryList {
+    display: inherit;
+}
+.mainList div.item .textbox {
 
 }
 /*maybe a universal selector, instead of a p*/
-.mainList li .textbox p:first-child{
+.mainList div.item .textbox p:first-child{
     margin-top:0;
 }
 /*maybe a universal selector, instead of a p*/
-.mainList li .textbox p:last-child{
+.mainList div.item .textbox p:last-child{
     margin-bottom:0;
 }
 
@@ -930,7 +933,8 @@ a.peer-eval-stats {
 /* negative bottom margin because we set a top margin for the section below for the case where there's no toolbar */
 #toolbar {
   margin: 0;
-  margin-bottom:-10px;
+  margin-bottom: -10px;
+  margin-top: -10px;
   display: inline-block;
 }
 
@@ -985,7 +989,7 @@ a.peer-eval-stats {
 }
 .lessons-siteHierarchy-title {
    font-weight: bold;
-   margin-left: 0.5em;
+   margin-left: 0;
 }
 .itemAction {
   padding-top: 0px;
@@ -1275,9 +1279,12 @@ div[role="dialog"] {
 }
 .action {
   float: right;
+  clear: both;
 }
 .action a {
   margin-top: 0;
+  margin-right: 0;
+  margin-left: 3px;
 }
 .Mrphs-siteHierarchy {
     height: auto !important;
@@ -1444,7 +1451,7 @@ div.navIntraTool {
    margin-right: 5px;
 }
 #print-view {
-   margin-right: 7px;
+    margin-right: 7px;
 }
 
 /* temporary, to avoid changing old stuff for the moment */
@@ -1637,7 +1644,7 @@ li.resourceType .right-col {
  border:none;
 }
 .itemclass {
- margin-top:3.0em !important;
+  margin-top: 2.0em !important;
 }
 .add-comment-button span {
 font-size: 90%;
@@ -1653,7 +1660,7 @@ font-size: 90%;
    first region is split, the right column doesn't fit
    must be overridden for narrow format */
 .Mrphs-container--toolTitleNav {
-  margin-bottom:-30px !important;
+  margin-bottom:-30px;
 }
 
 /* for ShowItem */
@@ -1673,6 +1680,7 @@ font-size: 12px;
 
 .forumSummaryItem, .announcementSummaryItem{
  margin-bottom: 10px;
+ display: inline-block;
 }
 
 .itemTitle {
@@ -1692,7 +1700,7 @@ font-size: 12px;
 /* 800 is when the left margin collapses */
 @media only screen and (max-width: 800px) {
 .Mrphs-container--toolTitleNav {
-  margin-bottom: 0px !important;
+  margin-bottom: 10px !important;
 }
 .genTitle {
   display:none;
@@ -1706,7 +1714,7 @@ div.portletBody[sakaiversion="12"] {
   margin-top:-5px;
 }
 .itemclass {
-  margin-top: 0.5em !important;
+  margin-top: 2em !important;
 }
 .itemTitle {
   width: calc(100% - 100px);
@@ -1725,11 +1733,12 @@ div.portletBody[sakaiversion="12"] {
   padding-left: 7px;
   padding-right: 7px;
 }
-.split ul {
+
+.split .mainList {
     -webkit-column-count: 1;
     -moz-column-count: 1;
     column-count: 1;
-}
+} 
 /* with narrow screen, don't use multiple columns */
 .cols1, .cols2, .cols3, .cols4, .cols5, .cols6, .cols7, .cols8, .cols9, 
 [class~="cols9"][class~="double"],
@@ -1816,7 +1825,7 @@ span.nextprev {
   font-size:16px;
   font-family:FontAwesome;
 }
-.mainList li:hover.canEdit {
+.mainList div:hover.canEdit {
     background-color: #eee;
 }
 .peer-eval-row .newPeerCell {
@@ -1872,7 +1881,7 @@ body > .portletBody {
 }
 /* put back default value if an instructor */
 .navIntraTool ~ div.itemclass {
-  margin-top: 3.0em !important;
+  margin-top: 2.0em !important;
 }
 .title-tools {
   float:none;
@@ -2030,4 +2039,9 @@ nav.Mrphs-container--toolTitleNav .Mrphs-directUrl__dropDown .active {
 
 .top-next-prev .nextprev.next {
     float: right;
+}
+
+.subpage-breadcrumb-div {
+    margin-top: 1.5em;
+    margin-bottom: -1em
 }
