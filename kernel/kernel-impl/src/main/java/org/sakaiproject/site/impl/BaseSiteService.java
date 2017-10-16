@@ -1982,21 +1982,20 @@ public abstract class BaseSiteService implements SiteService, Observer
 	 * @param requireDescription when true, full descriptions will be included; when false, full descriptions may be omitted.
 	 * @param userID the returned sites will be those which can be accessed by the user with this internal ID. Uses the current user if null.
 	 * @param includeUnpublishedSites when true, unpublished sites will be included; when false, unpublished sites will be omitted.
-	 * @param excludedSites list with siteIDs to be excluded from being loaded. If no exclusions are required, set to NULL or empty list.
 	 * @return 
 	 */
-	private List<Site> getUserSitesByPublishedStatus( boolean requireDescription, String userID, boolean includeUnpublishedSites, List excludedSites)
+	private List<Site> getUserSitesByPublishedStatus( boolean requireDescription, String userID, boolean includeUnpublishedSites )
 	{
 		SortType sortType = SortType.TITLE_ASC;
 		SelectionType selectionType = includeUnpublishedSites ? SelectionType.MEMBER : SelectionType.ACCESS;
 
 		if( StringUtils.isBlank( userID ) )
 		{
-			return (List<Site>) getSites( selectionType, null, null, null, excludedSites, sortType, null, requireDescription );
+			return (List<Site>) getSites( selectionType, null, null, null, sortType, null, requireDescription );
 		}
 		else
 		{
-			return (List<Site>) getSites( selectionType, null, null, null, excludedSites, sortType, null, requireDescription, userID );
+			return (List<Site>) getSites( selectionType, null, null, null, sortType, null, requireDescription, userID );
 		}
 	}
 
@@ -2013,18 +2012,11 @@ public abstract class BaseSiteService implements SiteService, Observer
 	public List<Site> getUserSites(boolean requireDescription) {
 		return getUserSites( requireDescription, false );
 	}
-	
-	/**
-	 * @inheritDoc
-	 */
-	public List<Site> getUserSites( boolean requireDescription, boolean includeUnpublishedSites ) {
-		return getUserSites( requireDescription, false, null );
-	}
 
 	/**
 	 * @inheritDoc
 	 */
-	public List<Site> getUserSites( boolean requireDescription, boolean includeUnpublishedSites, List excludedSites )
+	public List<Site> getUserSites( boolean requireDescription, boolean includeUnpublishedSites )
 	{
 		String userID = sessionManager().getCurrentSessionUserId();
 		List<Site> userSites = getCachedUserSites( userID );
@@ -2033,7 +2025,7 @@ public abstract class BaseSiteService implements SiteService, Observer
 		// Retrieve sites on cache miss or anonymous user
 		if( userSites == null )
 		{
-			userSites = getUserSitesByPublishedStatus( requireDescription, null, includeUnpublishedSites, excludedSites );
+			userSites = getUserSitesByPublishedStatus( requireDescription, null, includeUnpublishedSites );
 
 			// Cache the results
 			setCachedUserSites( userID, userSites );
@@ -2049,25 +2041,17 @@ public abstract class BaseSiteService implements SiteService, Observer
 	{
 		return getUserSites( requireDescription, userId, false );
 	}
-	
-	/**
-	 * @inheritDoc
-	 */
-	public List<Site> getUserSites( boolean requireDescription, String userId, boolean includeUnpublishedSites )
-	{
-		return getUserSites( requireDescription, userId, includeUnpublishedSites, null );
-	}
 
 	/**
 	 * @inheritDoc
 	 */
-	public List<Site> getUserSites( boolean requireDescription, String userID, boolean includeUnpublishedSites, List excludedSites )
+	public List<Site> getUserSites( boolean requireDescription, String userID, boolean includeUnpublishedSites )
 	{
 		List<Site> userSites = getCachedUserSites( userID );
 
 		if( userSites == null )
 		{
-			userSites = getUserSitesByPublishedStatus( requireDescription, userID, includeUnpublishedSites, excludedSites );
+			userSites = getUserSitesByPublishedStatus( requireDescription, userID, includeUnpublishedSites );
 
 			// Cache the results
 			setCachedUserSites( userID, userSites );
@@ -2164,16 +2148,7 @@ public abstract class BaseSiteService implements SiteService, Observer
 	public List<Site> getSites(SelectionType type, Object ofType, String criteria, Map propertyCriteria, SortType sort,
 			PagingPosition page, boolean requireDescription)
 	{
-		return getSites(type, ofType, criteria, propertyCriteria, null, sort, page, requireDescription);
-	}
-	
-	/**
-	 * @inheritDoc
-	 */
-	public List<Site> getSites(SelectionType type, Object ofType, String criteria, Map propertyCriteria, List excludedSites, SortType sort,
-			PagingPosition page, boolean requireDescription)
-	{
-		return storage().getSites(type, ofType, criteria, propertyCriteria, excludedSites, sort, page, requireDescription);
+		return storage().getSites(type, ofType, criteria, propertyCriteria, sort, page, requireDescription);
 	}
 
 	/**
@@ -2181,15 +2156,7 @@ public abstract class BaseSiteService implements SiteService, Observer
 	 */
 	public List<Site> getSites(SelectionType type, Object ofType, String criteria, Map propertyCriteria, SortType sort, PagingPosition page, boolean requireDescription, String userId)
 	{
-		return getSites(type, ofType, criteria, propertyCriteria, null, sort, page, requireDescription, userId);
-	}
-	
-	/**
-	 * @inheritDoc
-	 */
-	public List<Site> getSites(SelectionType type, Object ofType, String criteria, Map propertyCriteria, List excludedSites, SortType sort, PagingPosition page, boolean requireDescription, String userId)
-	{
-		return storage().getSites(type, ofType, criteria, propertyCriteria, excludedSites, sort, page, requireDescription, userId);
+		return storage().getSites(type, ofType, criteria, propertyCriteria, sort, page, requireDescription, userId);
 	}
 
 	/* (non-Javadoc)
@@ -2993,38 +2960,6 @@ public abstract class BaseSiteService implements SiteService, Observer
 		 */
 		public List<Site> getSites(SelectionType type, Object ofType, String criteria, Map propertyCriteria, SortType sort,
 				PagingPosition page, boolean requireDescription);
-		
-		/**
-		 * Access a list of Site objects that meet specified criteria, with control over description retrieval.
-		 * Note that this signature is primarily provided to help with performance when retrieving lists of
-		 * sites not for full display, specifically for the list of a user's sites for navigation. Note that
-		 * any sites that have their descriptions, pages, or tools cached will be returned completely, so some
-		 * or all full descriptions may be present even when requireDescription is passed as false.
-		 *
-		 * If a fully populated Site is desired from a potentially partially populated Site, call
-		 * {@link #getSite(String id) getSite} or {@link Site#loadAll()}. Either method will load and cache
-		 * whatever additional data is not yet cached.
-		 *
-		 * @param type
-		 *        The SelectionType specifying what sort of selection is intended.
-		 * @param ofType
-		 *        Site type criteria: null for any type; a String to match a single type; A String[], List or Set to match any type in the collection.
-		 * @param criteria
-		 *        Additional selection criteria: sits returned will match this string somewhere in their id, title, description, or skin.
-		 * @param propertyCriteria
-		 *        Additional selection criteria: sites returned will have a property named to match each key in the map, whose values match (somewhere in their value) the value in the map (may be null or empty).
-		 * @param excludedSites 
-		 *        List with siteIDs to be excluded from being loaded. If no exclusions are required, set to NULL or empty list.
-		 * @param sort
-		 *        A SortType indicating the desired sort. For no sort, set to SortType.NONE.
-		 * @param page
-		 *        The PagePosition subset of items to return.
-		 * @param requireDescription
-		 *        When true, force a full retrieval of each description; when false, return any uncached descriptions as the empty string
-		 * @return The List of Site objects that meet specified criteria.
-		 */
-		public List<Site> getSites(SelectionType type, Object ofType, String criteria, Map propertyCriteria, List excludedSites, SortType sort,
-				PagingPosition page, boolean requireDescription);
 
 		/**
 		 * Access a list of Site objects that meet specified criteria, with control over description retrieval.
@@ -3056,39 +2991,6 @@ public abstract class BaseSiteService implements SiteService, Observer
 		 * @return The List of Site objects that meet specified criteria.
 		 */
 		public List<Site> getSites(SelectionType type, Object ofType, String criteria, Map propertyCriteria, SortType sort, PagingPosition page, boolean requireDescription, String userId);
-		
-		/**
-		 * Access a list of Site objects that meet specified criteria, with control over description retrieval.
-		 * Note that this signature is primarily provided to help with performance when retrieving lists of
-		 * sites not for full display, specifically for the list of a user's sites for navigation. Note that
-		 * any sites that have their descriptions, pages, or tools cached will be returned completely, so some
-		 * or all full descriptions may be present even when requireDescription is passed as false.
-		 *
-		 * If a fully populated Site is desired from a potentially partially populated Site, call
-		 * {@link #getSite(String id) getSite} or {@link Site#loadAll()}. Either method will load and cache
-		 * whatever additional data is not yet cached.
-		 *
-		 * @param type
-		 *        The SelectionType specifying what sort of selection is intended.
-		 * @param ofType
-		 *        Site type criteria: null for any type; a String to match a single type; A String[], List or Set to match any type in the collection.
-		 * @param criteria
-		 *        Additional selection criteria: sits returned will match this string somewhere in their id, title, description, or skin.
-		 * @param propertyCriteria
-		 *        Additional selection criteria: sites returned will have a property named to match each key in the map, whose values match (somewhere in their value) the value in the map (may be null or empty).
-		 * @param excludedSites 
-		 *        List with siteIDs to be excluded from being loaded. If no exclusions are required, set to NULL or empty list.
-		 * @param sort
-		 *        A SortType indicating the desired sort. For no sort, set to SortType.NONE.
-		 * @param page
-		 *        The PagePosition subset of items to return.
-		 * @param requireDescription
-		 *        When true, force a full retrieval of each description; when false, return any uncached descriptions as the empty string
-		 * @param userId
-		 *        The returned sites will be those which can be accessed by the user with this internal ID
-		 * @return The List of Site objects that meet specified criteria.
-		 */
-		public List<Site> getSites(SelectionType type, Object ofType, String criteria, Map propertyCriteria, List excludedSites, SortType sort, PagingPosition page, boolean requireDescription, String userId);
 
 		/**
 		 * Get the Site IDs for all sites matching criteria.
