@@ -108,6 +108,20 @@
                                 </div>
                             </div>
                         </div>
+
+                        <div class="row">
+                            <wicket:enclosure>
+                                <div class="col-sm-12">
+                                    <div class="form-group">
+                                        <label for="filterByGroup"><wicket:message key="filter.groups" /></label>
+                                        <select id="filterByGroup" wicket:id="groupFilter">
+                                            <option value="1">Section 1</option>
+                                            <option value="2">Section 2</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </wicket:enclosure>
+                        </div>
                     </div>
                     <div class="modal-footer">
                         <button wicket:id="downloadCustomGradebook" type="button" class="button_color pull-left" data-dismiss="modal">
