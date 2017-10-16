@@ -71,7 +71,11 @@ public interface AssignmentService extends EntityProducer {
      */
     public List<User> allowReceiveSubmissionNotificationUsers(String context);
 
-    Collection getGroupsAllowRemoveAssignment(String context);
+    /**
+     * @param context
+     * @return
+     */
+    public Collection<Group> getGroupsAllowRemoveAssignment(String context);
 
     /**
      * Check permissions for adding an Assignment.
@@ -116,7 +120,7 @@ public interface AssignmentService extends EntityProducer {
      *                Describes the portlet context - generated with DefaultId.getChannel().
      * @return The Collection (Group) of groups defined for the context of this site that the end user has add assignment permissions in, empty if none.
      */
-    Collection getGroupsAllowAddAssignment(String context);
+    public Collection<Group> getGroupsAllowAddAssignment(String context);
 
     /**
      * Get the collection of Groups defined for the context of this site that the end user has grade assignment permissions in.
@@ -125,7 +129,7 @@ public interface AssignmentService extends EntityProducer {
      *                Describes the portlet context - generated with DefaultId.getChannel().
      * @return The Collection (Group) of groups defined for the context of this site that the end user has grade assignment permissions in, empty if none.
      */
-    Collection getGroupsAllowGradeAssignment(String context, String assignmentReference);
+    public Collection<Group> getGroupsAllowGradeAssignment(String context, String assignmentReference);
 
     /**
      * Check permissions for updating an Assignment.
@@ -184,7 +188,7 @@ public interface AssignmentService extends EntityProducer {
      * @param context the context string
      * @return the list of user (ids)
      */
-    public List allowAddAnySubmissionUsers(String context);
+    public List<String> allowAddAnySubmissionUsers(String context);
 
     /**
      * Get the List of Users who can add assignment
@@ -193,7 +197,7 @@ public interface AssignmentService extends EntityProducer {
      *                Describes the portlet context - generated with DefaultId.getChannel().
      * @return the List (User) of users who can add assignment
      */
-    public List allowAddAssignmentUsers(String context);
+    public List<User> allowAddAssignmentUsers(String context);
 
     /**
      * Check permissions for reading a Submission.
@@ -317,11 +321,25 @@ public interface AssignmentService extends EntityProducer {
      */
     public void removeSubmission(AssignmentSubmission submission) throws PermissionException;
 
-    void updateAssignment(Assignment assignment) throws PermissionException;
+    /**
+     * @param assignment
+     * @throws PermissionException
+     */
+    public void updateAssignment(Assignment assignment) throws PermissionException;
 
-    void updateSubmission(AssignmentSubmission submission) throws PermissionException;
+    /**
+     * @param submission
+     * @throws PermissionException
+     */
+    public void updateSubmission(AssignmentSubmission submission) throws PermissionException;
 
-    Assignment getAssignment(Reference reference) throws IdUnusedException, PermissionException;
+    /**
+     * @param reference
+     * @return
+     * @throws IdUnusedException
+     * @throws PermissionException
+     */
+    public Assignment getAssignment(Reference reference) throws IdUnusedException, PermissionException;
 
     /**
      * Access the Assignment with the specified id.
@@ -404,7 +422,8 @@ public interface AssignmentService extends EntityProducer {
      *               The User who's Submission you would like.
      * @return AssignmentSubmission The user's submission for that Assignment, or null if one does not exist.
      */
-    public AssignmentSubmission getSubmission(List submissions, User person);
+    @Deprecated
+    public AssignmentSubmission getSubmission(List<AssignmentSubmission> submissions, User person);
 
     /**
      * Get the submissions for an assignment.
@@ -415,14 +434,22 @@ public interface AssignmentService extends EntityProducer {
      */
     public Set<AssignmentSubmission> getSubmissions(Assignment assignment);
 
-    String getAssignmentStatus(String assignmentId);
+    /**
+     * @param assignmentId
+     * @return
+     */
+    public String getAssignmentStatus(String assignmentId);
 
-    String getSubmissionStatus(String submissionId);
+    /**
+     * @param submissionId
+     * @return
+     */
+    public String getSubmissionStatus(String submissionId);
 
     /**
      * Return a sorted list of users representing a group.
      */
-    public List getSortedGroupUsers(Group g);
+    public List<User> getSortedGroupUsers(Group g);
 
     /**
      * Get the number of submissions which has been submitted.
@@ -507,15 +534,30 @@ public interface AssignmentService extends EntityProducer {
 
     /**
      * Whether a specific user can submit
+     * @param context
+     * @param a
+     * @param userId
+     * @return
      */
     public boolean canSubmit(String context, Assignment a, String userId);
 
     /**
      * Whether the current user can submit
+     * @param context
+     * @param a
+     * @return
      */
     public boolean canSubmit(String context, Assignment a);
 
 
+    /**
+     * @param searchFilterOnly
+     * @param allOrOneGroup
+     * @param searchString
+     * @param aRef
+     * @param contextString
+     * @return
+     */
     public Collection<Group> getSubmitterGroupList(String searchFilterOnly, String allOrOneGroup, String searchString, String aRef, String contextString);
 
     /**
@@ -547,9 +589,13 @@ public interface AssignmentService extends EntityProducer {
      */
     public Map<User, AssignmentSubmission> getSubmitterMap(String searchFilterOnly, String allOrOneGroup, String search, String aRef, String contextString);
 
+    /**
+     * @param accentedString
+     * @return
+     */
     public String escapeInvalidCharsEntry(String accentedString);
 
-    /*
+    /**
      * If the assignment uses anonymous grading returns true, else false
      *
      * Params: AssignmentSubmission s
@@ -563,7 +609,7 @@ public interface AssignmentService extends EntityProducer {
      */
     public Integer getScaleFactor();
 
-    /*
+    /**
      * This method allows you to know if there are submissions submitted
      *
      * Params: AssignmentSubmission s
@@ -602,17 +648,45 @@ public interface AssignmentService extends EntityProducer {
      */
     public String getCsvSeparator();
 
-    String getXmlAssignment(Assignment assignment);
+    /**
+     * @param assignment
+     * @return
+     */
+    public String getXmlAssignment(Assignment assignment);
 
-    String getGradeForUserInGradeBook(String assignmentId, String userId);
+    /**
+     * @param assignmentId
+     * @param userId
+     * @return
+     */
+    public String getGradeForUserInGradeBook(String assignmentId, String userId);
 
-    String getGradeDisplay(String grade, Assignment.GradeType typeOfGrade, Integer scaleFactor);
+    /**
+     * @param grade
+     * @param typeOfGrade
+     * @param scaleFactor
+     * @return
+     */
+    public String getGradeDisplay(String grade, Assignment.GradeType typeOfGrade, Integer scaleFactor);
 
-    String getMaxPointGradeDisplay(int factor, int maxGradePoint);
+    /**
+     * @param factor
+     * @param maxGradePoint
+     * @return
+     */
+    public String getMaxPointGradeDisplay(int factor, int maxGradePoint);
 
-    Optional<AssignmentSubmissionSubmitter> getSubmissionSubmittee(AssignmentSubmission submission);
+    /**
+     * @param submission
+     * @return
+     */
+    public Optional<AssignmentSubmissionSubmitter> getSubmissionSubmittee(AssignmentSubmission submission);
 
-    Collection<User> getSubmissionSubmittersAsUsers(AssignmentSubmission submission);
+    /**
+     * @param submission
+     * @return
+     */
+    public Collection<User> getSubmissionSubmittersAsUsers(AssignmentSubmission submission);
 
     /**
      * peer assessment is set for this assignment and the current time
@@ -637,9 +711,15 @@ public interface AssignmentService extends EntityProducer {
      */
     public boolean isPeerAssessmentClosed(Assignment assignment);
 
-    void resetAssignment(Assignment assignment);
+    /**
+     * @param assignment
+     */
+    public void resetAssignment(Assignment assignment);
 
-    void postReviewableSubmissonAttachments(String submissionId);
+    /**
+     * @param submissionId
+     */
+    public void postReviewableSubmissonAttachments(String submissionId);
 
     /**
     * This will return the internationalized title of the tool.
