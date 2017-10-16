@@ -387,7 +387,7 @@ GbGradeTable.cellRenderer = function (instance, td, row, col, prop, value, cellP
     $cellDiv.addClass("gb-concurrent-edit");
     notifications.push({
       type: 'concurrent-edit',
-      conflict: $.data(td, "concurrent-edit"),
+      conflict: GbGradeTable.conflictFor(student, column.assignmentId),
       showSaveError: (scoreState == 'error')
     });
   } else if (scoreState == "error") {
@@ -1281,6 +1281,15 @@ GbGradeTable.hasConcurrentEdit = function(student, assignmentId) {
 };
 
 
+GbGradeTable.conflictFor = function(student, assignmentId) {
+  if (student.hasConcurrentEdit == null || student.conflicts == null) {
+    return null;
+  }
+
+  return student.conflicts[assignmentId];
+};
+
+
 GbGradeTable.setHasConcurrentEdit = function(conflict) {
   var student = GbGradeTable.modelForStudent(conflict.studentUuid);
 
@@ -1294,15 +1303,25 @@ GbGradeTable.setHasConcurrentEdit = function(conflict) {
   var row = GbGradeTable.rowForStudent(conflict.studentUuid);
   var col = GbGradeTable.colForAssignment(conflict.assignmentId);
 
-  $.data(GbGradeTable.instance.getCell(row, col), "concurrent-edit", conflict);
-
   var assignmentIndex = $.inArray(GbGradeTable.colModelForAssignment(conflict.assignmentId), GbGradeTable.columns);
 
   student.hasConcurrentEdit = hasConcurrentEdit.substr(0, assignmentIndex) + "1" + hasConcurrentEdit.substr(assignmentIndex+1);
 
-  GbGradeTable.instance.setDataAtCell(row, GbGradeTable.STUDENT_COLUMN_INDEX, student);
-  GbGradeTable.redrawCell(row, col);
-}
+  if (!student.hasOwnProperty('conflicts')) {
+    student.conflicts = {}
+  }
+  student.conflicts[conflict.assignmentId] = conflict;
+
+  // redraw student cell if visible
+  if (row >= 0) {
+    GbGradeTable.instance.setDataAtCell(row, GbGradeTable.STUDENT_COLUMN_INDEX, student);
+    GbGradeTable.redrawCell(row, GbGradeTable.STUDENT_COLUMN_INDEX);
+  }
+  // redraw grade cell if visible
+  if (row >= 0 && col >= 0) {
+    GbGradeTable.redrawCell(row, col);
+  }
+};
 
 
 GbGradeTable.colModelForCategoryScore = function(categoryName) {
