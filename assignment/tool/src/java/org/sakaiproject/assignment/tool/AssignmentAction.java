@@ -1891,11 +1891,15 @@ public class AssignmentAction extends PagedResourceActionII {
         Assignment assignment = getAssignment(aReference, "build_student_preview_submission_context", state);
         if (assignment != null) {
             context.put("assignment", assignment);
+            context.put("assignmentReference", AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getReference());
+            context.put("typeOfGradeString", getTypeOfGradeString(assignment.getTypeOfGrade()));
+            context.put("canSubmit", assignmentService.canSubmit((String) state.getAttribute(STATE_CONTEXT_STRING), assignment));
 
             AssignmentSubmission submission = getSubmission(aReference, user, "build_student_preview_submission_context", state);
-            context.put("submission", submission);
-
-            context.put("canSubmit", assignmentService.canSubmit((String) state.getAttribute(STATE_CONTEXT_STRING), assignment));
+            if (submission != null) {
+                context.put("submission", submission);
+                context.put("submissionReference", AssignmentReferenceReckoner.reckoner().submission(submission).reckon().getReference());
+            }
 
             setScoringAgentProperties(context, assignment, submission, false);
 
@@ -1917,7 +1921,6 @@ public class AssignmentAction extends PagedResourceActionII {
                 context.put("returnedFeedback", Boolean.TRUE);
                 state.removeAttribute(RETURNED_FEEDBACK);
             }
-
         }
 
         context.put("text", state.getAttribute(PREVIEW_SUBMISSION_TEXT));
@@ -1930,8 +1933,7 @@ public class AssignmentAction extends PagedResourceActionII {
         return template + TEMPLATE_STUDENT_PREVIEW_SUBMISSION;
     } // build_student_preview_submission_context
 
-    private void canViewAssignmentIntoContext(Context context,
-                                              Assignment assignment, AssignmentSubmission submission) {
+    private void canViewAssignmentIntoContext(Context context, Assignment assignment, AssignmentSubmission submission) {
         boolean canViewModelAnswer = assignmentSupplementItemService.canViewModelAnswer(assignment, submission);
         context.put("allowViewModelAnswer", Boolean.valueOf(canViewModelAnswer));
         if (canViewModelAnswer) {
