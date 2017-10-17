@@ -1384,7 +1384,11 @@ public class AssignmentAction extends PagedResourceActionII {
         if (assignment != null) {
             context.put("assignment", assignment);
             context.put("canSubmit", assignmentService.canSubmit(contextString, assignment));
-            // SAK-26322
+
+            Map<String, Reference> assignmentAttachmentReferences = new HashMap<>();
+            assignment.getAttachments().forEach(r -> assignmentAttachmentReferences.put(r, entityManager.newReference(r)));
+            context.put("assignmentAttachmentReferences", assignmentAttachmentReferences);
+
             if (assignment.getContentReview()) {
                 Map<String, String> properties = assignment.getProperties();
                 context.put("plagiarismNote", rb.getFormattedMessage("gen.yoursubwill", contentReviewService.getServiceName()));
