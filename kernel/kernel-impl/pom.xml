@@ -272,22 +272,6 @@
       <artifactId>antisamy</artifactId>
       <version>1.5.7</version>
     </dependency>
-    <!-- This is needed by antisamy because batik-css has wrong versions getting pulled in -->
-    <dependency>
-      <groupId>xml-apis</groupId>
-      <artifactId>xml-apis</artifactId>
-      <scope>runtime</scope>
-    </dependency>
-    <dependency>
-      <groupId>xerces</groupId>
-      <artifactId>xmlParserAPIs</artifactId>
-      <scope>runtime</scope>
-    </dependency>
-    <dependency>
-      <groupId>xerces</groupId>
-      <artifactId>xercesImpl</artifactId>
-      <scope>runtime</scope>
-    </dependency>
     <!-- KNL-1253 -->
     <dependency>
       <groupId>org.jsoup</groupId>
