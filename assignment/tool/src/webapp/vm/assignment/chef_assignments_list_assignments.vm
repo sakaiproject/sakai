@@ -205,9 +205,10 @@
 						## get submission instance only if 1) not an instructor type user or 2) is an instructor type user but in student view
 						#set($submission=false)
 						#set($submission=$service.getSubmission($assignment.Id, $user))
-						#set($submissionReturned=$!submission.returned)
-						#set($submissionSubmitted=$!submission.submitted)
-						#set($submissionProperties=$!submission.getProperties())
+						#set($submissionReference=$service.submissionReference($assignment.Context, $submission.Id, $assignment.Id))
+						#set($submissionReturned=$!submission.Returned)
+						#set($submissionSubmitted=$!submission.Submitted)
+						#set($submissionProperties=$!submission.Properties)
 						#set($submitTime=false)
 						#set ($submitTime = $submission.DateSubmitted)
 					#end

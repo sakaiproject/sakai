@@ -1054,6 +1054,7 @@ public class AssignmentAction extends PagedResourceActionII {
         context.put("tlang", rb);
         context.put("dateFormat", getDateFormatString());
         context.put("cheffeedbackhelper", this);
+        context.put("service", assignmentService);
 
         String contextString = (String) state.getAttribute(STATE_CONTEXT_STRING);
 
@@ -1998,17 +1999,32 @@ public class AssignmentAction extends PagedResourceActionII {
         addDecoUrlMapToContext(session, context, false);
         SecurityAdvisor asgnAdvisor = pushSecurityAdvisor(session, "assignment.security.advisor", false);
 
-        AssignmentSubmission submission = null;
-        Assignment assignment = null;
         String submissionId = (String) state.getAttribute(VIEW_GRADE_SUBMISSION_ID);
-        submission = getSubmission(submissionId, "build_student_view_grade_context", state);
+        AssignmentSubmission submission = getSubmission(submissionId, "build_student_view_grade_context", state);
+        Assignment assignment = null;
         if (submission != null) {
             assignment = submission.getAssignment();
             context.put("assignment", assignment);
+
+            context.put("typeOfGradeString", getTypeOfGradeString(assignment.getTypeOfGrade()));
             if (assignment.getTypeOfSubmission() == Assignment.SubmissionType.NON_ELECTRONIC_ASSIGNMENT_SUBMISSION) {
                 context.put("nonElectronicType", Boolean.TRUE);
             }
+
+            context.put("users", assignmentService.getSubmissionSubmittersAsUsers(submission));
+
+            Map<String, Reference> assignmentAttachmentReferences = new HashMap<>();
+            assignment.getAttachments().forEach(r -> assignmentAttachmentReferences.put(r, entityManager.newReference(r)));
+            context.put("assignmentAttachmentReferences", assignmentAttachmentReferences);
+
             context.put("submission", submission);
+            Map<String, Reference> submissionAttachmentReferences = new HashMap<>();
+            submission.getAttachments().forEach(r -> submissionAttachmentReferences.put(r, entityManager.newReference(r)));
+            context.put("submissionAttachmentReferences", submissionAttachmentReferences);
+
+            Map<String, Reference> submissionFeedbackAttachmentReferences = new HashMap<>();
+            submission.getFeedbackAttachments().forEach(r -> submissionFeedbackAttachmentReferences.put(r, entityManager.newReference(r)));
+            context.put("submissionFeedbackAttachmentReferences", submissionFeedbackAttachmentReferences);
 
             if (assignment.getIsGroup()) {
                 String grade_override = (StringUtils.trimToNull(assignment.getProperties().get(AssignmentServiceConstants.PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT)) != null) && (assignment.getTypeOfGrade() == SCORE_GRADE_TYPE) ?
@@ -2119,7 +2135,6 @@ public class AssignmentAction extends PagedResourceActionII {
         String contextString = (String) state.getAttribute(STATE_CONTEXT_STRING);
         context.put("contextString", contextString);
         context.put("user", state.getAttribute(STATE_USER));
-        context.put("service", assignmentService);
         context.put("AuthzGroupService", authzGroupService);
         context.put("LongObject", Instant.now().toEpochMilli());
         context.put("currentTime", Instant.now());
@@ -3140,7 +3155,6 @@ public class AssignmentAction extends PagedResourceActionII {
         context.put("submissionTypeTable", submissionTypeTable());
         context.put("instructorAttachments", state.getAttribute(ATTACHMENTS));
         context.put("contentTypeImageService", contentTypeImageService);
-        context.put("service", assignmentService);
 
         // names
         context.put("name_grade_assignment_id", GRADE_SUBMISSION_ASSIGNMENT_ID);
@@ -3771,7 +3785,6 @@ public class AssignmentAction extends PagedResourceActionII {
         context.put("user", user);
         context.put("submissionTypeTable", submissionTypeTable());
         context.put("contentTypeImageService", contentTypeImageService);
-        context.put("service", assignmentService);
 
         // filter the feedback text for the instructor comment and mark it as red
         String feedbackText = (String) state.getAttribute(GRADE_SUBMISSION_FEEDBACK_TEXT);
@@ -3821,7 +3834,6 @@ public class AssignmentAction extends PagedResourceActionII {
             return template + TEMPLATE_INSTRUCTOR_VIEW_STUDENTS_DETAILS;
         }
 
-        context.put("service", assignmentService);
         context.put("user", state.getAttribute(STATE_USER));
 
         // sorting related fields
@@ -3998,11 +4010,7 @@ public class AssignmentAction extends PagedResourceActionII {
 
         context.put("submissionTypeTable", submissionTypeTable());
         context.put("attachments", state.getAttribute(ATTACHMENTS));
-
-
         context.put("contentTypeImageService", contentTypeImageService);
-        context.put("service", assignmentService);
-
         context.put("assignment_expand_flag", state.getAttribute(GRADE_ASSIGNMENT_EXPAND_FLAG));
         context.put("submission_expand_flag", state.getAttribute(GRADE_SUBMISSION_EXPAND_FLAG));
 
@@ -4485,8 +4493,6 @@ public class AssignmentAction extends PagedResourceActionII {
         context.put("submissionTypeTable", submissionTypeTable());
         context.put("instructorAttachments", state.getAttribute(ATTACHMENTS));
         context.put("contentTypeImageService", contentTypeImageService);
-        context.put("service", assignmentService);
-        // names
         context.put("name_grade_assignment_id", GRADE_SUBMISSION_ASSIGNMENT_ID);
         context.put("name_feedback_comment", GRADE_SUBMISSION_FEEDBACK_COMMENT);
         context.put("name_feedback_text", GRADE_SUBMISSION_FEEDBACK_TEXT);
@@ -4672,8 +4678,6 @@ public class AssignmentAction extends PagedResourceActionII {
         }
 
         pagingInfoToContext(state, context);
-
-        context.put("service", assignmentService);
 
         addAdditionalNotesToContext(submissions, context, state);
 
