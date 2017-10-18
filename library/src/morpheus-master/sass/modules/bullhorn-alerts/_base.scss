@@ -30,6 +30,11 @@
     max-width: 450px;
     z-index: 100003 !important;
 
+    @media #{$phone} {
+        max-width: calc(100% - 4px);
+        width: calc(100% - 4px);
+    }
+
     .qtip-content {
         background-color: $background-color;
         padding: 0;
@@ -42,7 +47,7 @@
         width: 450px;
     }
     @media #{$phone} {
-        width: 290px;
+        width: calc(100% - 4px);
     }
 
     .portal-bullhorn-social-alert, .portal-bullhorn-academic-alert {
@@ -80,7 +85,7 @@
                 width: 390px;
             }
             @media #{$phone} {
-                width: 220px;
+                width: calc(100% - 50px);
             }
 
             .portal-bullhorn-message {
@@ -100,7 +105,7 @@
                 font-style: italic;
                 color: $tool-menu-item-icon-color;
                 display: inline-block;
-                @media #{$phone} {
+                @media #{$tablet} {
                     margin-top: 0;
                 }
             }
@@ -141,7 +146,7 @@
     border-bottom: 1px solid #E0E0E0;
     position: absolute;
     right: 0;
-    @media #{$phone} {
+    @media #{$tablet} {
       display: block;
       position: relative;
     }
@@ -158,7 +163,7 @@
     font-style: normal;
     font-weight: bold;
     color: #707070;
-    @media #{$phone} {
+    @media #{$tablet} {
       display: none;
     }
 }
@@ -171,7 +176,7 @@
 #portal-bullhorns-label {
     @extend .all-sites-label;
     padding-top: 3px;
-    @media #{$phone} {
+    @media #{$tablet} {
         display: none;
     }
 }

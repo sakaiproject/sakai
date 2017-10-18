@@ -152,9 +152,19 @@
             }
         });
 
+        if (window.matchMedia("(max-width : 800px)").matches) {
+            portal.My = 'top middle';
+            portal.At = 'bottom middle';
+            portal.Target = $('.Mrphs-topHeader');
+        } else {
+            portal.My = 'top right';
+            portal.At = 'bottom left';
+            portal.Target = portal.academicBullhorn;
+        }
+
         portal.academicBullhorn.qtip({
             suppress: false,
-            position: { adjust: { scroll: false }, my: 'top right', at: 'bottom left', target: portal.academicBullhorn, effect: false },
+            position: { adjust: { scroll: false }, my: portal.My, at: portal.At, target: portal.Target, effect: false },
             show: { event: 'click', delay: 0, solo: true },
             style: { classes: 'portal-bullhorns qtip-bootstrap' },
             hide: { event: 'click unfocus' },
