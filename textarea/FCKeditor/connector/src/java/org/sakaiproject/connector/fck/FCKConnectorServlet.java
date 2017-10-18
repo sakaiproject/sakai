@@ -373,7 +373,9 @@ public class FCKConnectorServlet extends HttpServlet {
      }
      
 
-    private static final int MAX_SAVE_RETRIES = 1000;
+    // Set to be consistent with
+    // org.sakaiproject.content.api.ContentHostingService.MAXIMUM_ATTEMPTS_FOR_UNIQUENESS
+    private static final int MAX_SAVE_RETRIES = 100;
 
      /**
       * Manage the Post requests (FileUpload).<br>
