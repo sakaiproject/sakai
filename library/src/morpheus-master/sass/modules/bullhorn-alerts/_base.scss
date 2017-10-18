@@ -30,6 +30,11 @@
     max-width: 450px;
     z-index: 100003 !important;
 
+    @media #{$phone} {
+        max-width: calc(100% - 4px);
+        width: calc(100% - 4px);
+    }
+
     .qtip-content {
         background-color: $tool-tab-background-color;
         padding: 0;
@@ -42,7 +47,7 @@
         width: 450px;
     }
     @media #{$phone} {
-        width: 240px;
+        width: calc(100% - 4px);
     }
 
     .portal-bullhorn-social-alert, .portal-bullhorn-academic-alert {
@@ -70,7 +75,7 @@
                 width: 390px;
             }
             @media #{$phone} {
-                width: 180px;
+                width: calc(100% - 50px);
             }
 
             .portal-bullhorn-message {
@@ -88,6 +93,21 @@
                 font-size: $default-font-size - 3px;
                 white-space: nowrap;
                 font-style: italic;
+                color: $tool-menu-item-icon-color;
+                display: inline-block;
+                @media #{$tablet} {
+                    margin-top: 0;
+                }
+            }
+            .portal-bullhorn-site {
+                padding-left: 6px;
+                margin-top: 5px;
+                font-size: $default-font-size - 3px;
+                white-space: nowrap;
+                font-style: normal;
+                font-weight: bold;
+                color: $tool-menu-item-icon-color;
+                display: inline-block;
             }
             .portal-bullhorn-options {
                 padding-left: 5px;
@@ -114,6 +134,23 @@
     padding: 5px;
     text-align: right;
     border-bottom: 1px solid #E0E0E0;
+    position: absolute;
+    right: 0;
+    @media #{$tablet} {
+      display: block;
+      position: relative;
+    }
+}
+
+#portal-bullhorn-title {
+    display: inline-block;
+    padding: 5px 10px;
+    font-style: normal;
+    font-weight: bold;
+    color: #707070;
+    @media #{$tablet} {
+      display: none;
+    }
 }
 
 .portal-bullhorn-no-alerts {
@@ -124,7 +161,7 @@
 #portal-bullhorns-label {
     @extend .all-sites-label;
     padding-top: 3px;
-    @media #{$phone} {
+    @media #{$tablet} {
         display: none;
     }
 }
