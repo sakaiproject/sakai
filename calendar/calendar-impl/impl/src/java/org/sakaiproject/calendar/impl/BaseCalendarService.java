@@ -30,15 +30,9 @@ import net.fortuna.ical4j.model.component.VEvent;
 import net.fortuna.ical4j.model.parameter.Value;
 import net.fortuna.ical4j.model.property.*;
 
-import org.apache.avalon.framework.logger.ConsoleLogger;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.apache.fop.apps.Driver;
-import org.apache.fop.apps.FOPException;
-import org.apache.fop.apps.Options;
-import org.apache.fop.configuration.Configuration;
-import org.apache.fop.messaging.MessageHandler;
 import org.sakaiproject.alias.api.Alias;
 import org.sakaiproject.alias.api.AliasService;
 import org.sakaiproject.authz.api.*;
@@ -87,8 +81,6 @@ import javax.servlet.http.HttpServletResponse;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.transform.*;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.sax.SAXResult;
 import javax.xml.transform.stream.StreamSource;
 
 import java.io.ByteArrayOutputStream;
@@ -126,8 +118,6 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 	/** SAK-29003 Google needs .ics at end of URL **/
 	public static final String ICAL_EXTENSION = ".ics";
 
-	private TransformerFactory transformerFactory = null;
-   
    private DocumentBuilder docBuilder = null;
    
    private ResourceLoader rb = new ResourceLoader("calendar");
@@ -135,6 +125,8 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
    private ContentHostingService contentHostingService;
 
    private ExternalCalendarSubscriptionService externalCalendarSubscriptionService;
+
+   PDFExportService pdfExportService;
    
 	private GroupComparator groupComparator = new GroupComparator();
 	
@@ -674,9 +666,6 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 			m_storage = newStorage();
 			m_storage.open();
 
-         // create transformerFactory object needed by generatePDF
-         transformerFactory = TransformerFactory.newInstance();
-         transformerFactory.setURIResolver( new MyURIResolver(getClass().getClassLoader()) );
 
 			// create DocumentBuilder object needed by printSchedule
 			docBuilder =  DocumentBuilderFactory.newInstance().newDocumentBuilder();
@@ -710,6 +699,7 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 		cache = this.m_memoryService.createCache("org.sakaiproject.calendar.cache", cacheConfig);
 
 		m_eventTrackingService.addObserver(this);
+		pdfExportService = new PDFExportService(m_timeService, rb);
 	}
 
 	/**
@@ -2138,8 +2128,8 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 	/**
 	 * Setup a calendar for the site.
 	 * 
-	 * @param site
-	 *        The site.
+	 * @param context
+	 *        The site ID.
 	 */
 	protected void enableSchedule(String context)
 	{
@@ -2168,8 +2158,8 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 	/**
 	 * Remove a calendar for the site.
 	 * 
-	 * @param site
-	 *        The site.
+	 * @param context
+	 *        The site ID.
 	 */
 	protected void disableSchedule(String context)
 	{
@@ -2231,7 +2221,7 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 		/**
 		 * Construct as a copy of another.
 		 * 
-		 * @param id
+		 * @param other
 		 *        The other to copy.
 		 */
 		public BaseCalendarEdit(Calendar other)
@@ -2800,7 +2790,7 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 		/**
 		 * Remove an event from the calendar, one locked for edit. Note: if the event is a recurring event, the entire sequence is modified by this commit (MOD_ALL).
 		 * 
-		 * @param event
+		 * @param edit
 		 *        The event from this calendar to remove.
 		 */
 		public void removeEvent(CalendarEventEdit edit) throws PermissionException
@@ -2812,7 +2802,7 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 		/**
 		 * Remove an event from the calendar, one locked for edit.
 		 * 
-		 * @param event
+		 * @param edit
 		 *        The event from this calendar to remove.
 		 * @param intention
 		 *        The recurring event modification intention, based on values in the CalendarService "MOD_*", used if the event is part of a recurring event sequence to determine how much of the sequence is removed.
@@ -2925,7 +2915,7 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 		/**
 		 * check permissions for editEvent()
 		 * 
-		 * @param id
+		 * @param eventId
 		 *        The event id.
 		 * @return true if the user is allowed to update the event, false if not.
 		 */
@@ -3220,7 +3210,7 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 		/**
 		 * Set the extra fields kept for each event in this calendar.
 		 * 
-		 * @param meta
+		 * @param fields
 		 *        The extra fields kept for each event in this calendar, formatted into a single string. %%%
 		 */
 		public void setEventFields(String fields)
@@ -3841,7 +3831,7 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 		/**
 		 * Replace the time range
 		 * 
-		 * @param The
+		 * @param range
 		 *        new event time range
 		 */
 		public void setRange(TimeRange range)
@@ -5147,37 +5137,16 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 	 * PDF file generation
 	 *********************************************************************************************************************************************************************************************************************************************************/
 
-	// XSL File Names
-	protected final static String DAY_VIEW_XSLT_FILENAME = "schedule.xsl";
 
-	protected final static String LIST_VIEW_XSLT_FILENAME = "schlist.xsl";
-
-	protected final static String MONTH_VIEW_XSLT_FILENAME = "schedulemm.xsl";
-
-	protected final static String WEEK_VIEW_XSLT_FILENAME = "schedule.xsl";
-	
-	// FOP Configuration
-	protected final static String FOP_USERCONFIG = "fonts/userconfig.xml";
-	protected final static String FOP_FONTBASEDIR = "fonts";
 
 	// Mime Types
 	protected final static String PDF_MIME_TYPE = "application/pdf";
 	protected final static String ICAL_MIME_TYPE = "text/calendar";
 
-	// Constants for time calculations
-	protected static long MILLISECONDS_IN_DAY = (60 * 60 * 24 * 1000);
 
-	protected final static long MILLISECONDS_IN_HOUR = (60 * 60 * 1000);
 
-	protected final static long MILLISECONDS_IN_MINUTE = (1000 * 60);
 
-	protected static final long MINIMUM_EVENT_LENGTH_IN_MSECONDS = (29 * MILLISECONDS_IN_MINUTE);
 
-	protected static final int SCHEDULE_INTERVAL_IN_MINUTES = 15;
-
-	protected static final int MAX_OVERLAPPING_COLUMNS = 7;
-
-	protected static final int TIMESLOT_FOR_OVERLAP_DETECTION_IN_MINUTES = 10;
 
 	// URL Parameter Constants
 	protected static final String TIME_RANGE_PARAMETER_NAME = "timeRange";
@@ -5190,704 +5159,10 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 
 	protected final static String SCHEDULE_TYPE_PARAMETER_NAME = "scheduleType";
 
-	// XML Node/Attribute Names
-	protected static final String COLUMN_NODE_NAME = "col";
 
-	protected static final String EVENT_NODE_NAME = "event";
 
-	protected static final String FACULTY_EVENT_ATTRIBUTE_NAME = "Faculty";
 
-	protected static final String FACULTY_NODE = "faculty";
 
-	protected static final String DESCRIPTION_NODE = "description";
-
-	protected static final String FROM_ATTRIBUTE_STRING = "from";
-
-	protected static final String GROUP_NODE = "grp";
-
-	protected static final String LIST_DATE_ATTRIBUTE_NAME = "dt";
-
-	protected static final String LIST_DAY_OF_MONTH_ATTRIBUTE_NAME = "dayofmonth";
-
-	protected static final String LIST_DAY_OF_WEEK_ATTRIBUTE_NAME = "dayofweek";
-
-	protected static final String LIST_NODE_NAME = "list";
-
-	protected static final String MONTH_NODE_NAME = "month";
-
-	protected static final String MAX_CONCURRENT_EVENTS_NAME = "maxConcurrentEvents";
-
-	protected static final String PLACE_NODE = "place";
-
-	protected static final String ROW_NODE_NAME = "row";
-
-	protected static final String SCHEDULE_NODE = "schedule";
-
-	protected static final String START_DAY_WEEK_ATTRIBUTE_NAME = "startdayweek";
-
-	protected static final String MONTH_ATTRIBUTE_NAME = "month";
-
-	protected static final String YEAR_ATTRIBUTE_NAME = "yyyy";
-
-	protected static final String START_TIME_ATTRIBUTE_NAME = "start-time";
-
-	protected static final String SUB_EVENT_NODE_NAME = "subEvent";
-
-	protected static final String TITLE_NODE = "title";
-
-	protected static final String TO_ATTRIBUTE_STRING = "to";
-
-	protected static final String TYPE_NODE = "type";
-
-	protected static final String UID_NODE = "uid";
-
-	// Misc.
-	protected static final String HOUR_MINUTE_SEPARATOR = ":";
-
-	/**
-	 * This is a container for a list of columns, plus the timerange for all the events contained in the row. This time range is a union of all the separate time ranges.
-	 */
-	protected class LayoutRow extends ArrayList
-	{
-		// Union of all event time ranges in this row.
-		private TimeRange rowTimeRange;
-
-		/**
-		 * Gets the union of all event time ranges in this row.
-		 */
-		public TimeRange getRowTimeRange()
-		{
-			return rowTimeRange;
-		}
-
-		/**
-		 * Sets the union of all event time ranges in this row.
-		 */
-		public void setRowTimeRange(TimeRange range)
-		{
-			rowTimeRange = range;
-		}
-	}
-
-	/**
-	 * Table used to layout a single day, with potentially overlapping events.
-	 */
-	protected class SingleDayLayoutTable
-	{
-		protected long millisecondsPerTimeslot;
-
-		protected int numCols;
-
-		protected int numRows;
-
-		protected ArrayList rows;
-
-		// Overall time range for this table.
-		protected TimeRange timeRange;
-
-		/**
-		 * Constructor for SingleDayLayoutTable
-		 */
-		public SingleDayLayoutTable(TimeRange timeRange, int maxNumberOverlappingEvents, int timeslotInMinutes)
-		{
-			this.timeRange = timeRange;
-			numCols = maxNumberOverlappingEvents;
-
-			millisecondsPerTimeslot = timeslotInMinutes * MILLISECONDS_IN_MINUTE;
-
-			numRows = getNumberOfRowsNeeded(timeRange);
-
-			rows = new ArrayList(numRows);
-
-			for (int i = 0; i < numRows; i++)
-			{
-				ArrayList newRow = new ArrayList(numCols);
-
-				rows.add(i, newRow);
-
-				for (int j = 0; j < numCols; j++)
-				{
-					newRow.add(j, new LayoutTableCell());
-				}
-			}
-		}
-
-		/**
-		 * Adds an event to the SingleDayLayoutTable
-		 */
-		public void addEvent(CalendarEvent calendarEvent)
-		{
-			if (calendarEvent == null)
-			{
-				return;
-			}
-
-			int startingRow = getStartingRow(roundRangeToMinimumTimeInterval(calendarEvent.getRange()));
-
-			int numRowsNeeded = getNumberOfRowsNeeded(roundRangeToMinimumTimeInterval(calendarEvent.getRange()));
-
-			// Trim to the end of the table.
-			if (startingRow + numRowsNeeded >= getNumRows())
-			{
-				numRowsNeeded = getNumRows() - startingRow;
-			}
-
-			// Get the first column that has enough sequential free intervals to
-			// contain this event.
-			int columnNumber = getFreeColumn(startingRow, numRowsNeeded);
-
-			if (columnNumber != -1)
-			{
-				for (int i = startingRow; i < startingRow + numRowsNeeded; i++)
-				{
-					LayoutTableCell cell = getCell(i, columnNumber);
-
-					// All cells have the calendar event information.
-					cell.setCalendarEvent(calendarEvent);
-
-					// Only the first cell is marked as such.
-					if (i == startingRow)
-					{
-						cell.setFirstCell(true);
-					}
-
-					cell.setFirstCellRow(startingRow);
-					cell.setFirstCellColumn(columnNumber);
-
-					cell.setThisCellRow(i);
-					cell.setThisCellColumn(columnNumber);
-
-					cell.setNumCellsInEvent(numRowsNeeded);
-				}
-			}
-		}
-
-		/**
-		 * Convert the time range to fall entirely within the time range of the layout table.
-		 */
-		protected TimeRange adjustTimeRangeToLayoutTable(TimeRange eventTimeRange)
-		{
-			Time lowerBound = null, upperBound = null;
-
-			//
-			// Make sure that the upper/lower bounds fall within the layout table.
-			//
-			if (this.timeRange.firstTime().compareTo(eventTimeRange.firstTime()) > 0)
-			{
-				lowerBound = this.timeRange.firstTime();
-			}
-			else
-			{
-				lowerBound = eventTimeRange.firstTime();
-			}
-
-			if (this.timeRange.lastTime().compareTo(eventTimeRange.lastTime()) < 0)
-			{
-				upperBound = this.timeRange.lastTime();
-			}
-			else
-			{
-				upperBound = eventTimeRange.lastTime();
-			}
-
-			return m_timeService.newTimeRange(lowerBound, upperBound, true, false);
-		}
-
-		/**
-		 * Returns true if there are any events in this or other rows that overlap the event associated with this cell.
-		 */
-		protected boolean cellHasOverlappingEvents(int rowNum, int colNum)
-		{
-			LayoutTableCell cell = this.getFirstCell(rowNum, colNum);
-
-			// Start at the first cell of this event and check every row
-			// to see if we find any cells in that row that are not empty
-			// and are not one of ours.
-			if (cell != null && !cell.isEmptyCell())
-			{
-				for (int i = cell.getFirstCellRow(); i < (cell.getFirstCellRow() + cell.getNumCellsInEvent()); i++)
-				{
-					for (int j = 0; j < this.numCols; j++)
-					{
-						LayoutTableCell curCell = this.getCell(i, j);
-
-						if (curCell != null && !curCell.isEmptyCell() && curCell.getCalendarEvent() != cell.getCalendarEvent())
-						{
-							return true;
-						}
-					}
-				}
-			}
-
-			return false;
-		}
-
-		/**
-		 * Get a particular cell. Returns a reference to the actual cell and not a copy.
-		 */
-		protected LayoutTableCell getCell(int rowNum, int colNum)
-		{
-			if (rowNum < 0 || rowNum >= this.numRows || colNum < 0 || colNum >= this.numCols)
-			{
-				// Illegal cell indices
-				return null;
-			}
-			else
-			{
-				ArrayList row = (ArrayList) rows.get(rowNum);
-				return (LayoutTableCell) row.get(colNum);
-			}
-		}
-
-		/**
-		 * Gets the first cell associated with the event that's stored at this row/column
-		 */
-		protected LayoutTableCell getFirstCell(int rowNum, int colNum)
-		{
-			LayoutTableCell cell = this.getCell(rowNum, colNum);
-
-			if (cell == null || cell.isEmptyCell())
-			{
-				return null;
-			}
-			else
-			{
-				return getCell(cell.getFirstCellRow(), cell.getFirstCellColumn());
-			}
-		}
-
-		/**
-		 * Looks for a column where the whole event can be placed.
-		 */
-		protected int getFreeColumn(int rowNum, int numberColumnsNeeded)
-		{
-			// Keep going through the columns until we hit one that has
-			// enough empty cells to accomodate our event.
-			for (int i = 0; i < this.numCols; i++)
-			{
-				boolean foundOccupiedCell = false;
-
-				for (int j = rowNum; j < rowNum + numberColumnsNeeded; j++)
-				{
-					LayoutTableCell cell = getCell(j, i);
-
-					if (cell == null)
-					{
-						// Out of range.
-						return -1;
-					}
-
-					if (!cell.isEmptyCell())
-					{
-						foundOccupiedCell = true;
-						break;
-					}
-				}
-
-				if (!foundOccupiedCell)
-				{
-					return i;
-				}
-			}
-
-			return -1;
-		}
-
-		/**
-		 * Creates a list of lists of lists. The outer list is a list of rows. Each row is a list of columns. Each column is a list of column values.
-		 */
-		public List getLayoutRows()
-		{
-			List allRows = new ArrayList();
-
-			// Scan all rows in the table.
-			for (int mainRowIndex = 0; mainRowIndex < this.getNumRows(); mainRowIndex++)
-			{
-				// If we hit a starting row, then iterate through all rows of the
-				// event group.
-				if (isStartingRowOfGroup(mainRowIndex))
-				{
-					LayoutRow newRow = new LayoutRow();
-					allRows.add(newRow);
-
-					int numRowsInGroup = getNumberRowsInEventGroup(mainRowIndex);
-
-					newRow.setRowTimeRange(getTimeRangeForEventGroup(mainRowIndex, numRowsInGroup));
-
-					for (int columnIndex = 0; columnIndex < this.getNumCols(); columnIndex++)
-					{
-						List columnList = new ArrayList();
-						boolean addedCell = false;
-
-						for (int eventGroupRowIndex = mainRowIndex; eventGroupRowIndex < mainRowIndex + numRowsInGroup; eventGroupRowIndex++)
-						{
-							LayoutTableCell cell = getCell(eventGroupRowIndex, columnIndex);
-
-							if (cell.isFirstCell())
-							{
-								columnList.add(cell.getCalendarEvent());
-								addedCell = true;
-							}
-						}
-
-						// Don't add to our list unless we actually added a cell.
-						if (addedCell)
-						{
-							newRow.add(columnList);
-						}
-					}
-
-					// Get ready for the next iteration. Skip those
-					// rows that we have already processed.
-					mainRowIndex += (numRowsInGroup - 1);
-				}
-			}
-
-			return allRows;
-		}
-
-		protected int getNumberOfRowsNeeded(TimeRange eventTimeRange)
-		{
-			TimeRange adjustedTimeRange = adjustTimeRangeToLayoutTable(eventTimeRange);
-
-			// Use the ceiling function to obtain the next highest integral number of time slots.
-			return (int) (Math.ceil((double) (adjustedTimeRange.duration()) / (double) millisecondsPerTimeslot));
-		}
-
-		/**
-		 * Gets the number of rows in an event group. This function assumes that the row that it starts on is the starting row of the group.
-		 */
-		protected int getNumberRowsInEventGroup(int rowNum)
-		{
-			int numEventRows = 0;
-
-			if (isStartingRowOfGroup(rowNum))
-			{
-				numEventRows++;
-
-				// Keep going unless we see an all empty row
-				// or another starting row.
-				for (int i = rowNum + 1; i < this.getNumRows() && !isEmptyRow(i) && !isStartingRowOfGroup(i); i++)
-				{
-					numEventRows++;
-				}
-			}
-
-			return numEventRows;
-		}
-
-		/**
-		 * Gets the total number of columns in the layout table.
-		 */
-		public int getNumCols()
-		{
-			return this.numCols;
-		}
-
-		/**
-		 * Gets the total number of rows in the layout table.
-		 */
-		public int getNumRows()
-		{
-			return rows.size();
-		}
-
-		/**
-		 * Given a time range, returns the starting row number in the layout table.
-		 */
-		protected int getStartingRow(TimeRange eventTimeRange)
-		{
-			TimeRange adjustedTimeRange = adjustTimeRangeToLayoutTable(eventTimeRange);
-
-			TimeRange timeRangeToStart = m_timeService.newTimeRange(this.timeRange.firstTime(), adjustedTimeRange.firstTime(), true,
-					true);
-
-			//
-			// We form a new time range where the ending time is the (adjusted) event
-			// time range and the starting time is the starting time of the layout table.
-			// The number of rows required for this range will be the starting row of the table.
-			//
-			return getNumberOfRowsNeeded(timeRangeToStart);
-		}
-
-		/**
-		 * Returns the earliest/latest times for events in this group. This function assumes that the row that it starts on is the starting row of the group.
-		 */
-		public TimeRange getTimeRangeForEventGroup(int rowNum, int numRowsInThisEventGroup)
-		{
-			Time firstTime = null;
-			Time lastTime = null;
-
-			for (int i = rowNum; i < rowNum + numRowsInThisEventGroup; i++)
-			{
-				for (int j = 0; j < this.getNumCols(); j++)
-				{
-					LayoutTableCell cell = getCell(i, j);
-					CalendarEvent event = cell.getCalendarEvent();
-
-					if (event != null)
-					{
-						TimeRange adjustedTimeRange = adjustTimeRangeToLayoutTable(roundRangeToMinimumTimeInterval(cell
-								.getCalendarEvent().getRange()));
-
-						//
-						// Replace our earliest time to date with the
-						// time from the event, if the time from the
-						// event is earlier.
-						//
-						if (firstTime == null)
-						{
-							firstTime = adjustedTimeRange.firstTime();
-						}
-						else
-						{
-							Time eventFirstTime = adjustedTimeRange.firstTime();
-
-							if (eventFirstTime.compareTo(firstTime) < 0)
-							{
-								firstTime = eventFirstTime;
-							}
-						}
-
-						//
-						// Replace our latest time to date with the
-						// time from the event, if the time from the
-						// event is later.
-						//
-						if (lastTime == null)
-						{
-							lastTime = adjustedTimeRange.lastTime();
-						}
-						else
-						{
-							Time eventLastTime = adjustedTimeRange.lastTime();
-
-							if (eventLastTime.compareTo(lastTime) > 0)
-							{
-								lastTime = eventLastTime;
-							}
-						}
-					}
-				}
-			}
-
-			return m_timeService.newTimeRange(firstTime, lastTime, true, false);
-		}
-
-		/**
-		 * Returns true if this row has only empty cells.
-		 */
-		protected boolean isEmptyRow(int rowNum)
-		{
-			boolean sawNonEmptyCell = false;
-
-			for (int i = 0; i < this.getNumCols(); i++)
-			{
-				LayoutTableCell cell = getCell(rowNum, i);
-
-				if (!cell.isEmptyCell())
-				{
-					sawNonEmptyCell = true;
-					break;
-				}
-			}
-			return !sawNonEmptyCell;
-		}
-
-		/**
-		 * Returns true if this row has only starting cells and no continuation cells.
-		 */
-		protected boolean isStartingRowOfGroup(int rowNum)
-		{
-			boolean sawContinuationCells = false;
-			boolean sawFirstCell = false;
-
-			for (int i = 0; i < this.getNumCols(); i++)
-			{
-				LayoutTableCell cell = getCell(rowNum, i);
-
-				if (cell.isContinuationCell())
-				{
-					sawContinuationCells = true;
-				}
-
-				if (cell.isFirstCell)
-				{
-					sawFirstCell = true;
-				}
-			}
-
-			//
-			// In order to be a starting row must have a "first"
-			// cell no continuation cells.
-			//
-			return (!sawContinuationCells && sawFirstCell);
-		}
-
-		/**
-		 * Returns true if there are any cells in this row associated with events which overlap each other in this row or any other row.
-		 */
-		public boolean rowHasOverlappingEvents(int rowNum)
-		{
-			for (int i = 0; i < this.getNumCols(); i++)
-			{
-				if (cellHasOverlappingEvents(rowNum, i))
-				{
-					return true;
-				}
-			}
-
-			return false;
-		}
-	}
-
-	/**
-	 * This is a single cell in a layout table (an instance of SingleDayLayoutTable).
-	 */
-	protected class LayoutTableCell
-	{
-		protected CalendarEvent calendarEvent = null;
-
-		protected int firstCellColumn = -1;
-
-		protected int firstCellRow = -1;
-
-		protected boolean isFirstCell = false;
-
-		protected int numCellsInEvent = 0;
-
-		protected int thisCellColumn = -1;
-
-		protected int thisCellRow = -1;
-
-		/**
-		 * Gets the calendar event associated with this cell.
-		 */
-		public CalendarEvent getCalendarEvent()
-		{
-			return calendarEvent;
-		}
-
-		/**
-		 * Gets the first column associated with this cell.
-		 */
-		public int getFirstCellColumn()
-		{
-			return firstCellColumn;
-		}
-
-		/**
-		 * Gets the first row associated with this cell.
-		 */
-		public int getFirstCellRow()
-		{
-			return firstCellRow;
-		}
-
-		/**
-		 * Get the number of cells in this event.
-		 */
-		public int getNumCellsInEvent()
-		{
-			return numCellsInEvent;
-		}
-
-		/**
-		 * Gets the column associated with this particular cell.
-		 */
-		public int getThisCellColumn()
-		{
-			return thisCellColumn;
-		}
-
-		/**
-		 * Gets the row associated with this cell.
-		 */
-		public int getThisCellRow()
-		{
-			return thisCellRow;
-		}
-
-		/**
-		 * Returns true if this cell is a continuation of an event and not the first cell in the event.
-		 */
-		public boolean isContinuationCell()
-		{
-			return !isFirstCell() && !isEmptyCell();
-		}
-
-		/**
-		 * Returns true if this cell is not associated with any events.
-		 */
-		public boolean isEmptyCell()
-		{
-			return calendarEvent == null;
-		}
-
-		/**
-		 * Returns true if this is the first cell in a column of cells associated with an event.
-		 */
-		public boolean isFirstCell()
-		{
-			return isFirstCell;
-		}
-
-		/**
-		 * Set the calendar event associated with this cell.
-		 */
-		public void setCalendarEvent(CalendarEvent event)
-		{
-			calendarEvent = event;
-		}
-
-		/**
-		 * Set flag indicating that this is the first cell in column of cells associated with an event.
-		 */
-		public void setFirstCell(boolean b)
-		{
-			isFirstCell = b;
-		}
-
-		/**
-		 * Sets a value in this cell to point to the very first cell in the column of cells associated with this event.
-		 */
-		public void setFirstCellColumn(int i)
-		{
-			firstCellColumn = i;
-		}
-
-		/**
-		 * Sets a value in this cell to point to the very first cell in the column of cells associated with this event.
-		 */
-		public void setFirstCellRow(int i)
-		{
-			firstCellRow = i;
-		}
-
-		/**
-		 * Gets the number of cells (if any) in the group of cells associated with this cell by event.
-		 */
-		public void setNumCellsInEvent(int i)
-		{
-			numCellsInEvent = i;
-		}
-
-		/**
-		 * Sets the actual column index for this cell.
-		 */
-		public void setThisCellColumn(int i)
-		{
-			thisCellColumn = i;
-		}
-
-		/**
-		 * Sets the actual row index for this cell.
-		 */
-		public void setThisCellRow(int i)
-		{
-			thisCellRow = i;
-		}
-	}
 
 	/**
 	 * Debugging routine to get a string for a TimeRange. This should probably be in the TimeRange class.
@@ -5905,412 +5180,9 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 	}
 
 	/**
-	 * Takes a DOM structure and renders a PDF
-	 * 
-	 * @param doc
-	 *        DOM structure
-	 * @param xslFileName
-	 *        XSL file to use to translate the DOM document to FOP
-	 */
-	protected void generatePDF(Document doc, String xslFileName, OutputStream streamOut)
-	{
-		Driver driver = new Driver();
-
-		org.apache.avalon.framework.logger.Logger logger = new ConsoleLogger(ConsoleLogger.LEVEL_ERROR);
-		MessageHandler.setScreenLogger(logger);
-		driver.setLogger(logger);
-
-		try {
-			String baseDir = getClass().getClassLoader().getResource(FOP_FONTBASEDIR).toString();
-			Configuration.put("fontBaseDir", baseDir);
-			InputStream userConfig = getClass().getClassLoader().getResourceAsStream(FOP_USERCONFIG);
-			new Options(userConfig);
-		}
-      catch (FOPException fe){
-			M_log.warn(this+".generatePDF: ", fe);
-		}
-      catch(Exception e){
-			M_log.warn(this+".generatePDF: ", e);
-		}
-
-		driver.setOutputStream(streamOut);
-		driver.setRenderer(Driver.RENDER_PDF);
-
-		try
-		{
-			InputStream in = getClass().getClassLoader().getResourceAsStream(xslFileName);
-			Transformer transformer = transformerFactory.newTransformer(new StreamSource(in));
-
-			Source src = new DOMSource(doc);
-			
-			java.util.Calendar c = java.util.Calendar.getInstance(m_timeService.getLocalTimeZone(),new ResourceLoader().getLocale());
-			CalendarUtil calUtil = new CalendarUtil(c);
-			String[] dayNames = calUtil.getCalendarDaysOfWeekNames(true);
-			String[] monthNames = calUtil.getCalendarMonthNames(true);
-         
-			// Kludge: Xalan in JDK 1.4/1.5 does not properly resolve java classes 
-			// (http://xml.apache.org/xalan-j/faq.html#jdk14)
-			// Clean this up in JDK 1.6 and pass ResourceBundle/ArrayList parms
-			transformer.setParameter("dayNames0", dayNames[0]);
-			transformer.setParameter("dayNames1", dayNames[1]);
-			transformer.setParameter("dayNames2", dayNames[2]);
-			transformer.setParameter("dayNames3", dayNames[3]);
-			transformer.setParameter("dayNames4", dayNames[4]);
-			transformer.setParameter("dayNames5", dayNames[5]);
-			transformer.setParameter("dayNames6", dayNames[6]);
-			
-			transformer.setParameter("jan", monthNames[0]);
-			transformer.setParameter("feb", monthNames[1]);
-			transformer.setParameter("mar", monthNames[2]);
-			transformer.setParameter("apr", monthNames[3]);
-			transformer.setParameter("may", monthNames[4]);
-			transformer.setParameter("jun", monthNames[5]);
-			transformer.setParameter("jul", monthNames[6]);
-			transformer.setParameter("aug", monthNames[7]);
-			transformer.setParameter("sep", monthNames[8]);
-			transformer.setParameter("oct", monthNames[9]);
-			transformer.setParameter("nov", monthNames[10]);
-			transformer.setParameter("dec", monthNames[11]);
-         
-			transformer.setParameter("site", rb.getString("event.site"));
-			transformer.setParameter("event", rb.getString("event.event"));
-			transformer.setParameter("location", rb.getString("event.location"));
-			transformer.setParameter("type", rb.getString("event.type"));
-			transformer.setParameter("from", rb.getString("event.from"));
-			 
-			transformer.setParameter("sched", rb.getString("sched.for"));
-			transformer.transform(src, new SAXResult(driver.getContentHandler()));
-		}
-
-		catch (TransformerException e)
-		{
-			e.printStackTrace();
-			M_log.warn(this+".generatePDF(): " + e);
-			return;
-		}
-	}
-
-	/**
-	 * Make a full-day time range given a year, month, and day
-	 */
-	protected TimeRange getFullDayTimeRangeFromYMD(int year, int month, int day)
-	{
-		return m_timeService.newTimeRange(m_timeService.newTimeLocal(year, month, day, 0, 0, 0, 0), m_timeService.newTimeLocal(year,
-				month, day, 23, 59, 59, 999));
-	}
-
-	/**
-	 * Make a list of days for use in generating an XML document for the list view.
-	 */
-	protected List makeListViewTimeRangeList(TimeRange timeRange, List calendarReferenceList)
-	{
-		// This is used to dimension a hash table. The default load factor is .75.
-		// A rehash isn't done until the number of items in the table is .75 * the number
-		// of items in the capacity.
-		final int DEFAULT_INITIAL_HASH_CAPACITY = 150;
-
-		List listOfDays = new ArrayList();
-
-		// Get a list of merged events.
-		CalendarEventVector calendarEventVector = getEvents(calendarReferenceList, timeRange);
-
-		Iterator itEvents = calendarEventVector.iterator();
-		HashMap datesSeenSoFar = new HashMap(DEFAULT_INITIAL_HASH_CAPACITY);
-
-		while (itEvents.hasNext())
-		{
-
-			CalendarEvent event = (CalendarEvent) itEvents.next();
-
-			//
-			// Each event may span multiple days, so we need to split each
-			// events's time range into single day slots.
-			//
-			List timeRangeList = splitTimeRangeIntoListOfSingleDayTimeRanges(event.getRange(), null);
-
-			Iterator itDatesInRange = timeRangeList.iterator();
-
-			while (itDatesInRange.hasNext())
-			{
-				TimeRange curDay = (TimeRange) itDatesInRange.next();
-				String curDate = curDay.firstTime().toStringLocalDate();
-
-				if (!datesSeenSoFar.containsKey(curDate))
-				{
-					// Add this day to list
-					TimeBreakdown startBreakDown = curDay.firstTime().breakdownLocal();
-
-					listOfDays.add(getFullDayTimeRangeFromYMD(startBreakDown.getYear(), startBreakDown.getMonth(), startBreakDown
-							.getDay()));
-
-					datesSeenSoFar.put(curDate, "");
-				}
-			}
-		}
-
-		return listOfDays;
-	}
-
-	/**
-	 * @param scheduleType
-	 *        daily, weekly, monthly, or list (no yearly).
-	 * @param doc
-	 *        XML output document
-	 * @param timeRange
-	 *        this is the overall time range. For example, for a weekly schedule, it would be the start/end times for the currently selected week period.
-	 * @param dailyTimeRange
-	 *        On a weekly time schedule, even if the overall time range is for a week, you're only looking at a portion of the day (e.g., 8 AM to 6 PM, etc.)
-	 * @param userID
-	 *        This is the name of the user whose schedule is being printed.
-	 */
-	protected void generateXMLDocument(int scheduleType, Document doc, TimeRange timeRange, TimeRange dailyTimeRange,
-			List calendarReferenceList, String userID)
-	{
-
-		// This list will have an entry for every week day that we care about.
-		List timeRangeList = null;
-		TimeRange actualTimeRange = null;
-		Element topLevelMaxConcurrentEvents = null;
-
-		switch (scheduleType)
-		{
-			case WEEK_VIEW:
-				actualTimeRange = timeRange;
-				timeRangeList = getTimeRangeListForWeek(actualTimeRange, calendarReferenceList, dailyTimeRange);
-				break;
-
-			case MONTH_VIEW:
-				// Make sure that we trim off the days of the previous and next
-				// month. The time range that we're being passed is "padded"
-				// with extra days to make up a full block of an integral number
-				// of seven day weeks.
-				actualTimeRange = shrinkTimeRangeToCurrentMonth(timeRange);
-				timeRangeList = splitTimeRangeIntoListOfSingleDayTimeRanges(actualTimeRange, null);
-				break;
-
-			case LIST_VIEW:
-				//
-				// With the list view, we want to come up with a list of days
-				// that have events, not every day in the range.
-				//
-				actualTimeRange = timeRange;
-
-				timeRangeList = makeListViewTimeRangeList(actualTimeRange, calendarReferenceList);
-				break;
-
-			case DAY_VIEW:
-				//
-				// We have a single entry in the list for a day. Having a singleton
-				// list may seem wasteful, but it allows us to use one loop below
-				// for all processing.
-				//
-				actualTimeRange = timeRange;
-				timeRangeList = splitTimeRangeIntoListOfSingleDayTimeRanges(actualTimeRange, dailyTimeRange);
-				break;
-
-			default:
-				M_log.warn(".generateXMLDocument(): bad scheduleType parameter = " + scheduleType);
-				break;
-		}
-
-		if (timeRangeList != null)
-		{
-			// Create Root Element
-			Element root = doc.createElement(SCHEDULE_NODE);
-
-			if (userID != null)
-			{
-				writeStringNodeToDom(doc, root, UID_NODE, userID);
-			}
-
-			// Write out the number of events that we have per timeslot.
-			// This is used to figure out how to display overlapping events.
-			// At this level, assume that we start with 1 event.
-			topLevelMaxConcurrentEvents = writeStringNodeToDom(doc, root, MAX_CONCURRENT_EVENTS_NAME, "1");
-
-			// Add a start time node.
-			writeStringNodeToDom(doc, root, START_TIME_ATTRIBUTE_NAME, getTimeString(dailyTimeRange.firstTime()));
-
-			// Add the Root Element to Document
-			doc.appendChild(root);
-
-			//
-			// Only add a "month" node with the first numeric day
-			// of the month if we're in the month view.
-			//
-			if (scheduleType == MONTH_VIEW)
-			{
-				CalendarUtil monthCalendar = new CalendarUtil();
-
-				// Use the middle of the month since the start/end ranges
-				// may be in an adjacent month.
-				TimeBreakdown breakDown = actualTimeRange.firstTime().breakdownLocal();
-
-				monthCalendar.setDay(breakDown.getYear(), breakDown.getMonth(), breakDown.getDay());
-
-				int firstDayOfMonth = monthCalendar.getFirstDayOfMonth(breakDown.getMonth() - 1);
-
-				// Create a list of events for the given day.
-				Element monthElement = doc.createElement(MONTH_NODE_NAME);
-				monthElement.setAttribute(START_DAY_WEEK_ATTRIBUTE_NAME, Integer.toString(firstDayOfMonth));
-				monthElement.setAttribute(MONTH_ATTRIBUTE_NAME, Integer.toString(breakDown.getMonth()));
-				monthElement.setAttribute(YEAR_ATTRIBUTE_NAME, Integer.toString(breakDown.getYear()));
-
-				root.appendChild(monthElement);
-			}
-
-			Iterator itList = timeRangeList.iterator();
-
-			int maxNumberOfColumnsPerRow = 1;
-
-			// Go through all the time ranges (days)
-			while (itList.hasNext())
-			{
-				TimeRange currentTimeRange = (TimeRange) itList.next();
-				int maxConcurrentEventsOverListNode = 1;
-
-				// Get a list of merged events.
-				CalendarEventVector calendarEventVector = getEvents(calendarReferenceList, currentTimeRange);
-
-				//
-				// We don't need to generate "empty" event lists for the list view.
-				//
-				if (scheduleType == LIST_VIEW && calendarEventVector.size() == 0)
-				{
-					continue;
-				}
-
-				// Create a list of events for the given day.
-				Element eventList = doc.createElement(LIST_NODE_NAME);
-
-				// Set the current date
-				eventList.setAttribute(LIST_DATE_ATTRIBUTE_NAME, getDateFromTime(currentTimeRange.firstTime()));
-				
-				eventList.setAttribute(LIST_DAY_OF_MONTH_ATTRIBUTE_NAME, getDayOfMonthFromTime(currentTimeRange.firstTime()));
-
-				// Set the maximum number of events per timeslot
-				// Assume 1 as a starting point. This may be changed
-				// later on.
-				eventList.setAttribute(MAX_CONCURRENT_EVENTS_NAME, Integer.toString(maxConcurrentEventsOverListNode));
-
-				// Calculate the day of the week.
-				java.util.Calendar c = java.util.Calendar.getInstance(m_timeService.getLocalTimeZone(),new ResourceLoader().getLocale());
-				CalendarUtil cal = new CalendarUtil(c);
-
-				Time date = currentTimeRange.firstTime();
-				TimeBreakdown breakdown = date.breakdownLocal();
-
-				cal.setDay(breakdown.getYear(), breakdown.getMonth(), breakdown.getDay());
-
-				// Set the day of the week as a node attribute.
-				eventList.setAttribute(LIST_DAY_OF_WEEK_ATTRIBUTE_NAME, Integer.toString(cal.getDay_Of_Week(true) - 1));
-
-				// Attach this list to the top-level node
-				root.appendChild(eventList);
-
-				Iterator itEvent = calendarEventVector.iterator();
-
-				//
-				// Day and week views use a layout table to assist in constructing the
-				// rowspan information for layout.
-				//
-				if (scheduleType == DAY_VIEW || scheduleType == WEEK_VIEW)
-				{
-					SingleDayLayoutTable layoutTable = new SingleDayLayoutTable(currentTimeRange, MAX_OVERLAPPING_COLUMNS,
-							SCHEDULE_INTERVAL_IN_MINUTES);
-
-					// Load all the events into our layout table.
-					while (itEvent.hasNext())
-					{
-						CalendarEvent event = (CalendarEvent) itEvent.next();
-						layoutTable.addEvent(event);
-					}
-
-					List layoutRows = layoutTable.getLayoutRows();
-
-					Iterator rowIterator = layoutRows.iterator();
-
-					// Iterate through the list of rows.
-					while (rowIterator.hasNext())
-					{
-						LayoutRow layoutRow = (LayoutRow) rowIterator.next();
-						TimeRange rowTimeRange = layoutRow.getRowTimeRange();
-
-						if (maxNumberOfColumnsPerRow < layoutRow.size())
-						{
-							maxNumberOfColumnsPerRow = layoutRow.size();
-						}
-
-						if (maxConcurrentEventsOverListNode < layoutRow.size())
-						{
-							maxConcurrentEventsOverListNode = layoutRow.size();
-						}
-
-						Element eventNode = doc.createElement(EVENT_NODE_NAME);
-						eventList.appendChild(eventNode);
-
-						// Add the "from" time as an attribute.
-						eventNode.setAttribute(FROM_ATTRIBUTE_STRING, getTimeString(rowTimeRange.firstTime()));
-
-						// Add the "to" time as an attribute.
-						eventNode.setAttribute(TO_ATTRIBUTE_STRING, getTimeString(performEndMinuteKludge(rowTimeRange.lastTime()
-								.breakdownLocal())));
-
-						Element rowNode = doc.createElement(ROW_NODE_NAME);
-
-						// Set an attribute indicating the number of columns in this row.
-						rowNode.setAttribute(MAX_CONCURRENT_EVENTS_NAME, Integer.toString(layoutRow.size()));
-
-						eventNode.appendChild(rowNode);
-
-						Iterator layoutRowIterator = layoutRow.iterator();
-
-						// Iterate through our list of column lists.
-						while (layoutRowIterator.hasNext())
-						{
-							Element columnNode = doc.createElement(COLUMN_NODE_NAME);
-							rowNode.appendChild(columnNode);
-
-							List columnList = (List) layoutRowIterator.next();
-
-							Iterator columnListIterator = columnList.iterator();
-
-							// Iterate through the list of columns.
-							while (columnListIterator.hasNext())
-							{
-								CalendarEvent event = (CalendarEvent) columnListIterator.next();
-								generateXMLEvent(doc, columnNode, event, SUB_EVENT_NODE_NAME, rowTimeRange, true, false, false);
-							}
-						}
-					}
-				}
-				else
-				{
-					// Generate XML for all the events.
-					while (itEvent.hasNext())
-					{
-						CalendarEvent event = (CalendarEvent) itEvent.next();
-						generateXMLEvent(doc, eventList, event, EVENT_NODE_NAME, currentTimeRange, false, false,
-								(scheduleType == LIST_VIEW ? true : false));
-					}
-				}
-
-				// Update this event after having gone through all the rows.
-				eventList.setAttribute(MAX_CONCURRENT_EVENTS_NAME, Integer.toString(maxConcurrentEventsOverListNode));
-
-			}
-
-			// Set the node value way up at the head of the document to indicate
-			// what the maximum number of columns was for the entire document.
-			topLevelMaxConcurrentEvents.getFirstChild().setNodeValue(Integer.toString(maxNumberOfColumnsPerRow));
-		}
-
-	}
-
-	/**
 	 * @param ical
 	 *        iCal object
-	 * @param calendarReferenceList
+	 * @param calRefs
 	 *        This is the name of the user whose schedule is being printed.
 	 * @return Number of events generated in ical object
 	 */
@@ -6412,108 +5284,7 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 		return m_timeService.newTimeRange(startTime,endTime,true,true);
 	}
 	
-	/**
-	 * Trim the range that is passed in to the containing time range.
-	 */
-	protected TimeRange trimTimeRange(TimeRange containingRange, TimeRange rangeToTrim)
-	{
-		long containingRangeStartTime = containingRange.firstTime().getTime();
-		long containingRangeEndTime = containingRange.lastTime().getTime();
 
-		long rangeToTrimStartTime = rangeToTrim.firstTime().getTime();
-		long rangeToTrimEndTime = rangeToTrim.lastTime().getTime();
-
-		long trimmedStartTime = 0, trimmedEndTime = 0;
-
-		trimmedStartTime = Math.min(Math.max(containingRangeStartTime, rangeToTrimStartTime), containingRangeEndTime);
-		trimmedEndTime = Math.max(Math.min(containingRangeEndTime, rangeToTrimEndTime), rangeToTrimStartTime);
-
-		return m_timeService.newTimeRange(m_timeService.newTime(trimmedStartTime), m_timeService.newTime(trimmedEndTime), true, false);
-	}
-
-	/**
-	 * Rounds a time range up to a minimum interval.
-	 */
-	protected TimeRange roundRangeToMinimumTimeInterval(TimeRange timeRange)
-	{
-		TimeRange roundedTimeRange = timeRange;
-
-		if (timeRange.duration() < MINIMUM_EVENT_LENGTH_IN_MSECONDS)
-		{
-			roundedTimeRange = m_timeService.newTimeRange(timeRange.firstTime().getTime(), MINIMUM_EVENT_LENGTH_IN_MSECONDS);
-		}
-
-		return roundedTimeRange;
-	}
-
-	/**
-	 * Generates the XML for an event.
-	 */
-	protected void generateXMLEvent(Document doc, Element parent, CalendarEvent event, String eventNodeName,
-			TimeRange containingTimeRange, boolean forceMinimumTime, boolean hideGroupIfNoSpace, boolean performEndTimeKludge)
-	{
-		Element eventElement = doc.createElement(eventNodeName);
-
-		TimeRange trimmedTimeRange = trimTimeRange(containingTimeRange, event.getRange());
-
-		// Optionally force the event to have a minimum time slot.
-		if (forceMinimumTime)
-		{
-			trimmedTimeRange = roundRangeToMinimumTimeInterval(trimmedTimeRange);
-		}
-
-		// Add the "from" time as an attribute.
-		eventElement.setAttribute(FROM_ATTRIBUTE_STRING, getTimeString(trimmedTimeRange.firstTime()));
-
-		// Add the "to" time as an attribute.
-		Time endTime = null;
-
-		// Optionally adjust the end time
-		if (performEndTimeKludge)
-		{
-			endTime = performEndMinuteKludge(trimmedTimeRange.lastTime().breakdownLocal());
-		}
-		else
-		{
-			endTime = trimmedTimeRange.lastTime();
-		}
-
-		eventElement.setAttribute(TO_ATTRIBUTE_STRING, getTimeString(endTime));
-
-		//
-		// Add the group (really "site") node
-		// Provide that we have space or if we've been told we need to display it.
-		//
-		if (!hideGroupIfNoSpace || trimmedTimeRange.duration() > MINIMUM_EVENT_LENGTH_IN_MSECONDS)
-		{
-			writeStringNodeToDom(doc, eventElement, GROUP_NODE, event.getSiteName());
-		}
-
-		// Add the display name node.
-		writeStringNodeToDom(doc, eventElement, TITLE_NODE, event.getDisplayName());
-
-		// Add the event type node.
-		writeStringNodeToDom(doc, eventElement, TYPE_NODE, getEventDescription(event.getType()));
-
-		// Add the place/location node.
-		writeStringNodeToDom(doc, eventElement, PLACE_NODE, event.getLocation());
-
-		// If a "Faculty" extra field is present, then add the node.
-		writeStringNodeToDom(doc, eventElement, FACULTY_NODE, event.getField(FACULTY_EVENT_ATTRIBUTE_NAME));
-
-		// If a "Description" field is present, then add the node.
-		writeStringNodeToDom(doc, eventElement, DESCRIPTION_NODE, event.getDescription());
-
-		parent.appendChild(eventElement);
-	}
-
-	protected String getEventDescription(String type){
-		if ((type!=null) && (type.trim()!="")){
-			return CalendarEventType.getLocalizedLegendFromEventType(type);
-		}else{
-			return CalendarEventType.getLocalizedLegendFromEventType("Activity");
-		}
-	}
 	/*
 	 * Gets the daily start time parameter from a Properties object filled from URL parameters.
 	 */
@@ -6522,22 +5293,6 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 		return getTimeRangeParameterByName(parameters, DAILY_START_TIME_PARAMETER_NAME);
 	}
 
-	/**
-	 * Gets the standard date string from the time parameter
-	 */
-	protected String getDateFromTime(Time time)
-	{
-		TimeBreakdown timeBreakdown = time.breakdownLocal();
-		DateFormat dateFormat = DateFormat.getDateInstance(DateFormat.SHORT,rb.getLocale());
-		return dateFormat.format(new Date(time.getTime()));
-		
-	}
-	
-	protected String getDayOfMonthFromTime(Time time)
-	{
-		TimeBreakdown timeBreakdown = time.breakdownLocal();
-		return Integer.toString(timeBreakdown.getDay());
-	}
 
 	/**
 	 * Gets the schedule type from a Properties object (filled from a URL parameter list).
@@ -6576,52 +5331,6 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 	}
 
 	/**
-	 * Generates a list of time ranges for a week. Each range in the list is a day.
-	 * 
-	 * @param timeRange start & end date range
-	 * @param calendarReferenceList list of calendar(s) 
-	 * @param dailyTimeRange start and end hour/minute time range
-	 */
-	protected ArrayList getTimeRangeListForWeek(TimeRange timeRange, List calendarReferenceList, TimeRange dailyTimeRange)
-	{
-		TimeBreakdown startBreakdown = timeRange.firstTime().breakdownLocal();
-
-		GregorianCalendar startCalendarDate = (GregorianCalendar)GregorianCalendar.getInstance(m_timeService.getLocalTimeZone(), rb.getLocale());
-		startCalendarDate.set(startBreakdown.getYear(),	startBreakdown.getMonth() - 1, startBreakdown.getDay(), 0, 0, 0);
-
-		ArrayList weekDayTimeRanges = new ArrayList();
-
-		TimeBreakdown startBreakDown = dailyTimeRange.firstTime().breakdownLocal();
-
-		TimeBreakdown endBreakDown = dailyTimeRange.lastTime().breakdownLocal();
-
-		// Search all seven weekdays
-		// Note: no assumption can be made regarding the first day being Sunday, 
-		// since in some locales, the first weekday is Monday.
-		for (int i = 0; i <= 6; i++)
-		{
-			//
-			// Use the same start/end times for all days.
-			//
-			Time curStartTime = m_timeService.newTimeLocal(startCalendarDate.get(GregorianCalendar.YEAR), startCalendarDate
-					.get(GregorianCalendar.MONTH) + 1, startCalendarDate.get(GregorianCalendar.DAY_OF_MONTH), startBreakDown
-					.getHour(), startBreakDown.getMin(), startBreakDown.getSec(), startBreakDown.getMs());
-
-			Time curEndTime = m_timeService.newTimeLocal(startCalendarDate.get(GregorianCalendar.YEAR), startCalendarDate
-					.get(GregorianCalendar.MONTH) + 1, startCalendarDate.get(GregorianCalendar.DAY_OF_MONTH), endBreakDown
-					.getHour(), endBreakDown.getMin(), endBreakDown.getSec(), endBreakDown.getMs());
-
-			TimeRange newTimeRange = m_timeService.newTimeRange(curStartTime, curEndTime, true, false);
-			weekDayTimeRanges.add(newTimeRange);
-
-			// Move to the next day.
-			startCalendarDate.add(GregorianCalendar.DATE, 1);
-		}
-
-		return weekDayTimeRanges;
-	}
-
-	/**
 	 * Utility routine to get a time range parameter from the URL parameters store in a Properties object.
 	 */
 	protected TimeRange getTimeRangeParameterByName(Properties parameters, String name)
@@ -6635,78 +5344,8 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 		return timeRange;
 	}
 
-	/**
-	 * Gets a standard time string give the time parameter.
-	 */
-	protected String getTimeString(Time time)
-	{
-		TimeBreakdown timeBreakdown = time.breakdownLocal();
 
-		DecimalFormat twoDecimalDigits = new DecimalFormat("00");
 
-		return timeBreakdown.getHour() + HOUR_MINUTE_SEPARATOR + twoDecimalDigits.format(timeBreakdown.getMin());
-	}
-
-	/**
-	 * Given a schedule type, the appropriate XSLT file is returned
-	 */
-	protected String getXSLFileNameForScheduleType(int scheduleType)
-	{
-		// get a relative path to the file
-		String baseFileName = "";
-
-		switch (scheduleType)
-		{
-			case WEEK_VIEW:
-				baseFileName = WEEK_VIEW_XSLT_FILENAME;
-				break;
-
-			case DAY_VIEW:
-				baseFileName = DAY_VIEW_XSLT_FILENAME;
-				break;
-
-			case MONTH_VIEW:
-				baseFileName = MONTH_VIEW_XSLT_FILENAME;
-				break;
-
-			case LIST_VIEW:
-				baseFileName = LIST_VIEW_XSLT_FILENAME;
-				break;
-
-			default:
-				M_log.debug("PrintFileGeneration.getXSLFileNameForScheduleType(): unexpected scehdule type = " + scheduleType);
-				break;
-		}
-
-		return baseFileName;
-	}
-
-	/**
-	 * This routine is used to round the end time. The time is stored at one minute less than the actual end time, 
-	 * but the user will expect to see the end time on the hour. For example, an event that ends at 10:00 is 
-	 * actually stored at 9:59. This code should really be in a central place so that the velocity template can see it as well.
-	 */
-	protected Time performEndMinuteKludge(TimeBreakdown breakDown)
-	{
-		int endMin = breakDown.getMin();
-		int endHour = breakDown.getHour();
-
-		int tmpMinVal = endMin % TIMESLOT_FOR_OVERLAP_DETECTION_IN_MINUTES;
-
-		if (tmpMinVal == 4 || tmpMinVal == 9)
-		{
-			endMin = endMin + 1;
-
-			if (endMin == 60)
-			{
-				endMin = 00;
-				endHour = endHour + 1;
-			}
-		}
-
-		return m_timeService.newTimeLocal(breakDown.getYear(), breakDown.getMonth(), breakDown.getDay(), endHour, endMin, breakDown
-				.getSec(), breakDown.getMs());
-	}
 
 	protected List getCalendarReferenceList()
 	throws PermissionException
@@ -6796,189 +5435,20 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 
 		Document document = docBuilder.newDocument();
 
-		generateXMLDocument(scheduleType, document, timeRange, getDailyStartTimeFromParameters(parameters),
-				calendarReferenceList, userName);
+		pdfExportService.generateXMLDocument(scheduleType, document, timeRange, getDailyStartTimeFromParameters(parameters),
+				calendarReferenceList, userName, this);
 
-		generatePDF(document, getXSLFileNameForScheduleType(scheduleType), os);
+		pdfExportService.generatePDF(document, pdfExportService.getXSLFileNameForScheduleType(scheduleType), os);
 	}
 
-	/**
-	 * The time ranges that we get from the CalendarAction class have days in the week of the first and last weeks padded out to make a full week. This function will shrink this range to only one month.
-	 */
-	protected TimeRange shrinkTimeRangeToCurrentMonth(TimeRange expandedTimeRange)
-	{
-		long millisecondsInWeek = (7 * MILLISECONDS_IN_DAY);
-
-		Time startTime = expandedTimeRange.firstTime();
-
-		// Grab something in the middle of the time range so that we know that we're
-		// in the right month.
-		Time somewhereInTheMonthTime = m_timeService.newTime(startTime.getTime() + 2 * millisecondsInWeek);
-
-		TimeBreakdown somewhereInTheMonthBreakdown = somewhereInTheMonthTime.breakdownLocal();
-
-		CalendarUtil calendar = new CalendarUtil();
-
-		calendar.setDay(somewhereInTheMonthBreakdown.getYear(), somewhereInTheMonthBreakdown.getMonth(),
-				somewhereInTheMonthBreakdown.getDay());
-
-		int numDaysInMonth = calendar.getNumberOfDays();
-
-		//
-		// Construct a new time range starting on the first day of the month and ending on
-		// the last day at one millisecond before midnight.
-		//
-		return m_timeService.newTimeRange(m_timeService.newTimeLocal(somewhereInTheMonthBreakdown.getYear(),
-				somewhereInTheMonthBreakdown.getMonth(), 1, 0, 0, 0, 0), m_timeService.newTimeLocal(somewhereInTheMonthBreakdown
-				.getYear(), somewhereInTheMonthBreakdown.getMonth(), numDaysInMonth, 23, 59, 59, 999));
-	}
-
-	/**
-	 * Calculate the number of days in a range of time given two dates.
-	 * 
-	 * @param startMonth
-	 *        (zero based, 0-11)
-	 * @param startDay
-	 *        (one based, 1-31)
-	 * @param endYear
-	 *        (one based, 1-31)
-	 * @param endMonth
-	 *        (zero based, 0-11
-	 */
-	protected long getNumberDaysGivenTwoDates(int startYear, int startMonth, int startDay, int endYear, int endMonth, int endDay)
-	{
-		GregorianCalendar startDate = new GregorianCalendar();
-		GregorianCalendar endDate = new GregorianCalendar();
-
-		startDate.set(startYear, startMonth, startDay, 0, 0, 0);
-		endDate.set(endYear, endMonth, endDay, 0, 0, 0);
-
-		long duration = endDate.getTime().getTime() - startDate.getTime().getTime();
-
-		// Allow for daylight savings time.
-		return ((duration + MILLISECONDS_IN_HOUR) / (24 * MILLISECONDS_IN_HOUR)) + 1;
-	}
-
-	/**
-	 * Returns a list of daily time ranges for every day in a range.
-	 * 
-	 * @param timeRange
-	 *        overall time range
-	 * @param dailyTimeRange
-	 *        representative daily time range (start hour/minute, end hour/minute). If null, this parameter is ignored.
-	 */
-	protected ArrayList splitTimeRangeIntoListOfSingleDayTimeRanges(TimeRange timeRange, TimeRange dailyTimeRange)
-	{
-
-		TimeBreakdown startBreakdown = timeRange.firstTime().breakdownLocal();
-		TimeBreakdown endBreakdown = timeRange.lastTime().breakdownLocal();
-
-		GregorianCalendar startCalendarDate = new GregorianCalendar();
-		startCalendarDate.set(startBreakdown.getYear(), startBreakdown.getMonth() - 1, startBreakdown.getDay(), 0, 0, 0);
-
-		long numDaysInTimeRange = getNumberDaysGivenTwoDates(startBreakdown.getYear(), startBreakdown.getMonth() - 1,
-				startBreakdown.getDay(), endBreakdown.getYear(), endBreakdown.getMonth() - 1, endBreakdown.getDay());
-
-		ArrayList splitTimeRanges = new ArrayList();
-
-		TimeBreakdown dailyStartBreakDown = null;
-		TimeBreakdown dailyEndBreakDown = null;
-
-		if (dailyTimeRange != null)
-		{
-			dailyStartBreakDown = dailyTimeRange.firstTime().breakdownLocal();
-			dailyEndBreakDown = dailyTimeRange.lastTime().breakdownLocal();
-		}
-
-		for (long i = 0; i < numDaysInTimeRange; i++)
-		{
-			Time curStartTime = null;
-			Time curEndTime = null;
-
-			if (dailyTimeRange != null)
-			{
-				//
-				// Use the same start/end times for all days.
-				//
-				curStartTime = m_timeService.newTimeLocal(startCalendarDate.get(GregorianCalendar.YEAR), startCalendarDate
-						.get(GregorianCalendar.MONTH) + 1, startCalendarDate.get(GregorianCalendar.DAY_OF_MONTH),
-						dailyStartBreakDown.getHour(), dailyStartBreakDown.getMin(), dailyStartBreakDown.getSec(),
-						dailyStartBreakDown.getMs());
-
-				curEndTime = m_timeService.newTimeLocal(startCalendarDate.get(GregorianCalendar.YEAR), startCalendarDate
-						.get(GregorianCalendar.MONTH) + 1, startCalendarDate.get(GregorianCalendar.DAY_OF_MONTH), dailyEndBreakDown
-						.getHour(), dailyEndBreakDown.getMin(), dailyEndBreakDown.getSec(), dailyEndBreakDown.getMs());
-
-				splitTimeRanges.add(m_timeService.newTimeRange(curStartTime, curEndTime, true, false));
-			}
-			else
-			{
-				//
-				// Add a full day range since no start/stop time was specified.
-				//
-				splitTimeRanges.add(getFullDayTimeRangeFromYMD(startCalendarDate.get(GregorianCalendar.YEAR), startCalendarDate
-						.get(GregorianCalendar.MONTH) + 1, startCalendarDate.get(GregorianCalendar.DAY_OF_MONTH)));
-			}
-
-			// Move to the next day.
-			startCalendarDate.add(GregorianCalendar.DATE, 1);
-		}
-
-		return splitTimeRanges;
-	}
-
-	/**
-	 * Utility routine to write a string node to the DOM.
-	 */
-	protected Element writeStringNodeToDom(Document doc, Element parent, String nodeName, String nodeValue)
-	{
-		if (nodeValue != null && nodeValue.length() != 0)
-		{
-			Element name = doc.createElement(nodeName);
-			name.appendChild(doc.createTextNode(nodeValue));
-			parent.appendChild(name);
-			return name;
-		}
-
-		return null;
-	}
    
-   /**
-    ** Internal class for resolving stylesheet URIs
-    **/
-   protected class MyURIResolver implements URIResolver
-   {
-      ClassLoader classLoader = null;
-      
-      /**
-       ** Constructor: use BaseCalendarService ClassLoader
-       **/
-      public MyURIResolver( ClassLoader classLoader )
-      {
-         this.classLoader = classLoader;
-      }
-      
-      /**
-       ** Resolve XSLT pathnames invoked within stylesheet (e.g. xsl:import)
-       ** using ClassLoader.
-       **
-       ** @param href href attribute of XSLT file
-       ** @param base base URI in affect when href attribute encountered
-       ** @return Source object for requested XSLT file
-       **/
-      public Source resolve( String href, String base )
-         throws TransformerException
-      {
-         InputStream in = classLoader.getResourceAsStream(href);
-         return (Source)(new StreamSource(in));
-      }
-   }
+
    
    
    /**
 	 * Get a DefaultHandler so that the StorageUser here can parse using SAX events.
 	 * 
-	 * @see org.sakaiproject.util.SAXEntityReader#getDefaultHandler()
+	 * @see org.sakaiproject.util.SAXEntityReader#getDefaultHandler(Map<String,Object>)
 	 */
 	public DefaultEntityHandler getDefaultHandler(final Map<String,Object> services)
 	{
