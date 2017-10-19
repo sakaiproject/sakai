@@ -188,7 +188,7 @@ $(document).ready(function(){
 				#if($!resubmitNumber && !$!resubmitNumber.equals("0") )
 					<div class="row">
 						<div class="col-lg-4 col-sm-6 col-xs-12">
-							<div class="itemSummaryHeader">$tlang.getString("allow.resubmit.closeDate")</div>
+							<div class="itemSummaryHeader">$tlang.getString("allow.resubmit.closeTime")</div>
 						</div>
 						<div class="col-lg-4 col-sm-6 col-xs-12">
 							<div class="itemSummaryValue">
@@ -259,7 +259,7 @@ $(document).ready(function(){
 										$tlang.getString("gen.nograd")
 									#end
 									#if ($gradeTypeTable.get($gradeScale) == $!tlang.getString("points"))
-										($tlang.getString("grade.max") $assignment.MaxGradePoint)
+                                        ($tlang.getString("grade.max") $!service.getMaxPointGradeDisplay($!assignment.ScaleFactor, $!assignment.MaxGradePoint))
 									#end
 								</strong>
 									
@@ -279,7 +279,7 @@ $(document).ready(function(){
 							<div class="itemSummaryValue">
 								$gradeTypeTable.get($gradeScale)
 								#if ($gradeTypeTable.get($gradeScale) == $!tlang.getString("points"))
-									($tlang.getString("grade.max") $assignment.MaxGradePoint)
+                                    ($tlang.getString("grade.max") $!service.getMaxPointGradeDisplay($!assignment.ScaleFactor, $!assignment.MaxGradePoint))
 								#end
 								
 								<!--for grading via an external scoring service, if enabled for an associated gradebook item -->
@@ -366,38 +366,40 @@ $(document).ready(function(){
 		#if (!$!assignment.Instructions.isEmpty())
 			<div class="textPanel">$validator.escapeHtmlFormattedText($!assignment.Instructions)</div>
 		#end
-		## assignment attachment
-		#set ($size = 0)
-		#set ($props = false)
-		#foreach ($attachment in $assignment.Attachments)
-			#set ($props = $attachment.Properties) 
-			#if ($!props)
-				#set ($size = $size + 1)
-			#end
-		#end
-		#if ($size > 0)
-			<h4>
-				$tlang.getString("gen.addres2")
-			</h4>	
+
+		## Assignment Attachments
+		#set ($aAttachments = $assignment.Attachments)
+		#if ($aAttachments)
+			#set ($size = $attachments.size())
+			#if ($size < 1)
+				$tlang.getString("gen.noatt")
+			#else
+				<h4>
+					$tlang.getString("gen.addres2")
+				</h4>
 				<ul class="attachList indnt1">
-					#foreach ($attachment in $assignment.Attachments)
-						#set ($props = false)
-						#set ($props = $attachment.Properties) 
-						#if ($!props)
-							<li>
-								#if ($props.getBooleanProperty($props.NamePropIsCollection))
-									<img src = "#imageLink($contentTypeImageService.getContentTypeImage("folder"))" border="0" alt="$tlang.getString("gen.folatt")" />
-								#else
-									<img src = "#imageLink($contentTypeImageService.getContentTypeImage($props.getProperty($props.NamePropContentType)))" border="0" alt="$tlang.getString("gen.filatt")" />
-								#end
-									<a href="$attachment.Url" target="_blank">$validator.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))</a>						
-								#propertyDetails($props)
-							</li>
+					#foreach ($attachmentReference in $aAttachments)
+						#set ($reference = $assignmentAttachmentReferences.get($attachmentReference))
+						#if ($reference)
+							#set ($props = false)
+							#set ($props = $reference.Properties)
+							#if ($!props)
+								<li>
+									#if ($props.getBooleanProperty($props.NamePropIsCollection))
+										<img src = "#imageLink($contentTypeImageService.getContentTypeImage("folder"))" border="0" alt="$tlang.getString("gen.folatt")" />
+									#else
+										<img src = "#imageLink($contentTypeImageService.getContentTypeImage($props.getProperty($props.NamePropContentType)))" border="0" alt="$tlang.getString("gen.filatt")" />
+									#end
+									<a href="$reference.Url" target="_blank">$validator.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))</a>
+									#propertyDetails($props)
+								</li>
+							#end
 						#end
 					#end
 				</ul>
-				##end
+			#end
 		#end
+
 			## model answer
 			#if($allowViewModelAnswer)
 			<h4  id="toggleModel" class="toggleAnchor specialLink"><img alt="expand" class="expand" src="/library/image/sakai/expand.gif" /><img alt="collapse" class="collapse" src="/library/image/sakai/collapse.gif" />$tlang.getString('modelAnswer')</h4>
