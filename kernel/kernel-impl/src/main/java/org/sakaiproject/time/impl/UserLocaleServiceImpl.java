@@ -12,7 +12,7 @@ import java.util.Objects;
  * This provides a cached lookup to the user's locale. This might not be needed but due to the number of calls
  * made to formatting dates we need to be careful about constantly going back to the service to find out the user's
  * locale as it isn't cached at the moment.
- *
+ * <p>
  * In the future the ResourceLoader should be refactored so that getting a user's locale is separated out from the
  * looking up of resource strings.
  */

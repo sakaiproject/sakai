@@ -51,8 +51,7 @@ public class UserTimeServiceImpl implements UserTimeService {
         M_userTzCache = memoryService.getCache("org.sakaiproject.time.impl.BasicTimeService.userTimezoneCache");
     }
 
-    protected String getUserTimezone()
-    {
+    protected String getUserTimezone() {
         // Check if we already cached this user's timezone
         String userId = sessionManager.getCurrentSessionUserId();
         if (userId == null) return defaultTimezone;
@@ -79,8 +78,7 @@ public class UserTimeServiceImpl implements UserTimeService {
      * {@inheritDoc}
      */
     @Override
-    public TimeZone getLocalTimeZone()
-    {
+    public TimeZone getLocalTimeZone() {
         String tz = getUserTimezone();
         // Not holding a cache can be slow.
         return tzCache.computeIfAbsent(tz, TimeZone::getTimeZone);
@@ -90,8 +88,7 @@ public class UserTimeServiceImpl implements UserTimeService {
      * {@inheritDoc}
      */
     @Override
-    public boolean clearLocalTimeZone(String userId)
-    {
+    public boolean clearLocalTimeZone(String userId) {
         M_userTzCache.remove(userId);
         return true;
     }
