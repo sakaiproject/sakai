@@ -1470,7 +1470,6 @@ public class AssignmentAction extends PagedResourceActionII {
             assignment_resubmission_option_into_context(context, state);
 
             if (assignment.getIsGroup()) {
-                context.put("assignmentService", assignmentService);
                 // get current site
                 Collection<Group> groups = null;
                 Site st = null;
