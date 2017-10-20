@@ -3561,11 +3561,14 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 					for (Group _g : groups)
 					{
 						M_log.debug("Checking submission for group: " + _g.getTitle());
-						submission = getSubmission(a.getReference(), _g.getId());
-						if (submission != null && allowGetSubmission(submission.getReference()))
+						if(a.getGroups().contains(_g.getReference()))
 						{
-							userSubmissionMap.put(user, submission);
-							break;
+							submission = getSubmission(a.getReference(), _g.getId());
+							if (submission != null && allowGetSubmission(submission.getReference()))
+							{
+								userSubmissionMap.put(user, submission);
+								break;
+							}
 						}
 					}
 				}
