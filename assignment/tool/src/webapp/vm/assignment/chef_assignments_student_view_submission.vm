@@ -370,7 +370,7 @@ $(document).ready(function(){
 		## Assignment Attachments
 		#set ($aAttachments = $assignment.Attachments)
 		#if ($aAttachments)
-			#set ($size = $attachments.size())
+			#set ($size = $aAttachments.size())
 			#if ($size < 1)
 				$tlang.getString("gen.noatt")
 			#else
@@ -628,7 +628,7 @@ $(document).ready(function(){
 							</td>
                                                         <td headers="description" width="100%"> ##mozilla does not resize table children dynamically , so set here
 							<span style="font-size: smaller; color: blue;">	
-								#set($gusers = $assignmentService.getSortedGroupUsers($group))
+								#set($gusers = $!service.getSortedGroupUsers($group))
 								#foreach ($user in $gusers)
 									$user.getDisplayName()
 									##$!userDirectoryService.getUser($user).getDisplayName()
