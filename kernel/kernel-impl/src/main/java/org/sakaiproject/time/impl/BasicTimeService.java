@@ -133,7 +133,7 @@ public class BasicTimeService implements TimeService
 
 	protected String[] getUserTimezoneLocale()
 	{
-	    String timeZone = userTimeService.getLocalTimeZone().getID();
+		String timeZone = userTimeService.getLocalTimeZone().getID();
 		// Now, get user's preferred locale
 		String localeId = userLocaleService.getLocalLocale();
 
