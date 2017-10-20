@@ -1166,11 +1166,11 @@ public class FCKConnectorServlet extends HttpServlet {
     				 function.equals(contentHostingService.AUTH_RESOURCE_WRITE_OWN) ||
     				 function.equals(contentHostingService.AUTH_RESOURCE_HIDDEN)
     				 ) {
-    			 return SecurityAdvisor.SecurityAdvice.ALLOWED;
+    			 return securityService.unlock(userId, contentHostingService.AUTH_RESOURCE_READ, reference) ? SecurityAdvisor.SecurityAdvice.ALLOWED : SecurityAdvisor.SecurityAdvice.NOT_ALLOWED;
     		 } else if (function.equals(contentHostingService.AUTH_RESOURCE_WRITE_ANY)) {
     			 M_log.info(userId + " requested ability to write to any content on "+ reference+
     					 " which we didn't expect, this should be investigated");
-    			 return SecurityAdvisor.SecurityAdvice.ALLOWED;
+    			 return securityService.unlock(userId, contentHostingService.AUTH_RESOURCE_READ, reference) ? SecurityAdvisor.SecurityAdvice.ALLOWED : SecurityAdvisor.SecurityAdvice.NOT_ALLOWED;
     		 }
     		 return SecurityAdvisor.SecurityAdvice.PASS;
     	 };
