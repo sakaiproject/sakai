@@ -23,18 +23,16 @@ package org.sakaiproject.umem.tool.ui;
 
 import java.io.Serializable;
 import java.sql.Connection;
-import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.sql.Timestamp;
 import java.text.Collator;
 import java.text.ParseException;
 import java.text.RuleBasedCollator;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -47,16 +45,15 @@ import javax.faces.event.ValueChangeEvent;
 import javax.faces.model.SelectItem;
 
 import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.db.api.SqlService;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.umem.api.Authz;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
-import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.util.ResourceLoader;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 
@@ -133,8 +130,8 @@ public class UserListBean {
 		private String				userEmail;
 		private String				userType;
 		private String				authority;
-		private String              createdOn;
-		private String              modifiedOn;
+		private Date              createdOn;
+		private Date              modifiedOn;
 
 		static {
 			try{
@@ -148,8 +145,8 @@ public class UserListBean {
 		}
 
 		public UserRow(String userID, String userEID, String userDisplayId, String userName, 
-				       String userEmail, String userType, String authority, String createdOn, 
-				       String modifiedOn) {
+				       String userEmail, String userType, String authority, Date createdOn, 
+				       Date modifiedOn) {
 			this.userID = userID;
 			this.userEID = userEID;
 			this.userDisplayId = userDisplayId;
@@ -190,11 +187,11 @@ public class UserListBean {
 			return this.authority;
 		}
 
-		public String getCreatedOn() {
+		public Date getCreatedOn() {
 			return createdOn;
 		}
 
-		public String getModifiedOn() {
+		public Date getModifiedOn() {
 			return modifiedOn;
 		}
 		
@@ -253,15 +250,15 @@ public class UserListBean {
 							if(sortAscending) return res;
 							else return -res;
 						}else if(fieldName.equals(SORT_USER_CREATED_ON)){
-							String s1 = r1.getCreatedOn();
-							String s2 = r2.getCreatedOn();
-							int res = collator.compare(s1!=null? s1.toLowerCase():"", s2!=null? s2.toLowerCase():"");
+							Date s1 = r1.getCreatedOn();
+							Date s2 = r2.getCreatedOn();
+							int res = collator.compare(s1!=null? s1.toString():"", s2!=null? s2.toString():"");
 							if(sortAscending) return res;
 							else return -res;
 						}else if(fieldName.equals(SORT_USER_MODIFIED_ON)){
-							String s1 = r1.getModifiedOn();
-							String s2 = r2.getModifiedOn();
-							int res = collator.compare(s1!=null? s1.toLowerCase():"", s2!=null? s2.toLowerCase():"");
+							Date s1 = r1.getModifiedOn();
+							Date s2 = r2.getModifiedOn();
+							int res = collator.compare(s1!=null? s1.toString():"", s2!=null? s2.toString():"");
 							if(sortAscending) return res;
 							else return -res;
 						}else if(fieldName.equals(SORT_INTERNAL_USER_ID)){
@@ -342,8 +339,8 @@ public class UserListBean {
 								u.getEmail(), 
 								u.getType(), 
 								msgs.getString("user_auth_internal"), 
-								(u.getCreatedTime() == null) ? "" : u.getCreatedTime().toStringLocalDate(), 
-								(u.getModifiedTime() == null) ? "" : u.getModifiedTime().toStringLocalDate()
+								u.getCreatedDate(), 
+								u.getModifiedDate()
 								)
 						);
 					}
@@ -376,8 +373,8 @@ public class UserListBean {
 								u.getEmail(), 
 								u.getType(), 
 								msgs.getString("user_auth_external"), 
-								(u.getCreatedTime() == null) ? "" : u.getCreatedTime().toStringLocalDate(), 
-								(u.getModifiedTime() == null) ? "" : u.getModifiedTime().toStringLocalDate()
+								u.getCreatedDate(), 
+								u.getModifiedDate()
 								)
 						);
 					}
@@ -694,4 +691,5 @@ public class UserListBean {
 		
 		return table;
 	}
+
 }
