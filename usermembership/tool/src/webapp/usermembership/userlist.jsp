@@ -149,7 +149,7 @@
 		            </t:commandSortHeader>
 		        </f:facet>
 				<h:outputText value="#{row.createdOn}">
-					<f:convertDateTime pattern="#{msgs.date_format}"/>
+					<f:convertDateTime dateStyle="medium"/>
 				</h:outputText>
 			</h:column>
 			<h:column id="modifiedOn">
@@ -159,7 +159,7 @@
 		            </t:commandSortHeader>
 		        </f:facet>
 				<h:outputText value="#{row.modifiedOn}">
-					<f:convertDateTime pattern="#{msgs.date_format}"/>
+					<f:convertDateTime dateStyle="medium"/>
 				</h:outputText>
 			</h:column>
 		</t:dataTable>
