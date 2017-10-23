@@ -29,9 +29,8 @@ import java.io.StringReader;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.apache.pdfbox.pdfparser.PDFParser;
 import org.apache.pdfbox.pdmodel.PDDocument;
-import org.apache.pdfbox.util.PDFTextStripper;
+import org.apache.pdfbox.text.PDFTextStripper;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.exception.ServerOverloadException;
 import org.sakaiproject.search.api.SearchUtils;
@@ -50,13 +49,10 @@ public class PDFContentDigester extends BaseContentDigester
 		}
 
 		InputStream contentStream = null;
-		PDFParser parser = null;
 		PDDocument pddoc = null;
 		try {
 			contentStream = contentResource.streamContent();
-			parser = new PDFParser(new BufferedInputStream(contentStream));
-			parser.parse();
-			pddoc = parser.getPDDocument();
+			pddoc = PDDocument.load(contentStream);
 			if (pddoc != null) {
 				PDFTextStripper stripper = new PDFTextStripper();
 				stripper.setLineSeparator("\n");		
