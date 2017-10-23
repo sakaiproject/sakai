@@ -181,7 +181,7 @@ function clickSubmitForGrade(){
                 <h:outputText escape="false" value="#{question.sequence}#{deliveryMessages.dot} #{question.strippedText}">
                 	<f:convertNumber maxFractionDigits="2"/>
                 </h:outputText>
-                <h:outputText escape="false" value=" (#{question.pointsDisplayString}#{question.roundedMaxPoints} #{deliveryMessages.pt})" rendered="#{(delivery.settings.displayScoreDuringAssessments != '2' && question.itemData.scoreDisplayFlag) || question.pointsDisplayString!=''}">
+                <h:outputText escape="false" value=" (#{question.pointsDisplayString}#{question.roundedMaxPointsToDisplay} #{deliveryMessages.pt})" rendered="#{(delivery.settings.displayScoreDuringAssessments != '2' && question.itemData.scoreDisplayFlag) || question.pointsDisplayString!=''}">
                 	<f:convertNumber maxFractionDigits="2"/>
                 </h:outputText>
                 <f:param name="partnumber" value="#{part.number}" />

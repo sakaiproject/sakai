@@ -530,6 +530,10 @@ public class ItemContentsBean implements Serializable {
 		//return Precision.round(maxPoints, 2);
 		return maxPoints;
 	}
+	
+	public double getRoundedMaxPointsToDisplay() {
+		return Precision.round(maxPoints, 2);		
+	}
 
 	/**
 	 * String representation of the max points available for this question.
@@ -1324,8 +1328,8 @@ public class ItemContentsBean implements Serializable {
 	public String getPointsDisplayString() {
 		String pointsDisplayString = "";
 		if (showStudentQuestionScore) {
-			//pointsDisplayString = Precision.round(points, 2) + "/";
-			pointsDisplayString = points + "/";
+			pointsDisplayString = Precision.round(points, 2) + "/";
+			//pointsDisplayString = points + "/";
 		}
 		return pointsDisplayString;
 	}

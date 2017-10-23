@@ -395,6 +395,17 @@ private static Logger log = LoggerFactory.getLogger(DeliveryBeanie.class);
     }
 
   }
+  
+  public String getRoundedRawScoreToDisplay() {
+	try {
+	  String newscore= ContextUtil.getRoundedValue(rawScore, 2);	      
+	  return Validator.check(newscore, "N/A");
+	}
+	catch (Exception e) {
+	  // encountered some weird number format/locale
+	  return Validator.check(rawScore, "0");
+	}
+  }
 
   public String getSubmissionDateString()
   {
