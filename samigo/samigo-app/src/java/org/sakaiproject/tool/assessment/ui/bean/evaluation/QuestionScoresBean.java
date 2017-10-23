@@ -362,12 +362,12 @@ public class QuestionScoresBean
 	  ResourceLoader rb=new ResourceLoader("org.sakaiproject.tool.assessment.bundle.EvaluationMessages");
 	try{
 		if (this.getMaxScore() == 1.0)
-			return this.getMaxScore()+ " " + rb.getString("point");
+			return Precision.round(this.getMaxScore(), 2)+ " " + rb.getString("point");
 	else
-		return this.getMaxScore()+ " " + rb.getString("points");
+		return Precision.round(this.getMaxScore(), 2)+ " " + rb.getString("points");
 	}
 	catch(NumberFormatException e){
-		return this.getMaxScore()+ " " + rb.getString("point");
+		return Precision.round(this.getMaxScore(), 2)+ " " + rb.getString("point");
 	}
     }
 
