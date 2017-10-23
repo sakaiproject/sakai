@@ -421,7 +421,7 @@ public class ExportResponsesBean implements Serializable, PhaseAware {
 						}
 						if (data != null) {
 							if (data instanceof Double) {
-								cell.setCellValue(((Double)data).doubleValue());
+								cell.setCellValue(ContextUtil.getRoundedValue(((Double)data).doubleValue(), 2));
 							} else {
 								AnswerSurveyConverter converter = new AnswerSurveyConverter();
 								String datac = converter.getAsString(null, null, data.toString());
