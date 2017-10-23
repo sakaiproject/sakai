@@ -113,7 +113,7 @@
     <sakai.spring.security.version>3.2.9.RELEASE</sakai.spring.security.version>
     <sakai.spring.test.artifactId>spring-test</sakai.spring.test.artifactId>
     <sakai.spring.test.version>4.1.9.RELEASE</sakai.spring.test.version>
-    <sakai.tika.version>1.14</sakai.tika.version>
+    <sakai.tika.version>1.16</sakai.tika.version>
     <sakai.tomcat.version>8.0.46</sakai.tomcat.version>
     <sakai.velocity.version>1.6.4</sakai.velocity.version>
     <sakai.xerces.impl.version>2.11.0</sakai.xerces.impl.version>
