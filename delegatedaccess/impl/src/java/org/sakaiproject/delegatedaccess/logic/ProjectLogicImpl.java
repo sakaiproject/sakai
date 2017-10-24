@@ -18,6 +18,7 @@ package org.sakaiproject.delegatedaccess.logic;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -230,7 +231,7 @@ public class ProjectLogicImpl implements ProjectLogic {
 			// Remove any existing notifications for this node
 	    	scheduledInvocationManager.deleteDelayedInvocation("org.sakaiproject.delegatedaccess.jobs.DelegatedAccessShoppingPeriodJob", nodeModel.getNode().id);
 			//update the shopping period site settings (realm, site properties, etc)
-			scheduledInvocationManager.createDelayedInvocation(new Date().toInstant(),
+			scheduledInvocationManager.createDelayedInvocation(Instant.now(),
 					"org.sakaiproject.delegatedaccess.jobs.DelegatedAccessShoppingPeriodJob",
 					nodeModel.getNode().id);
 		}
@@ -2490,7 +2491,7 @@ public class ProjectLogicImpl implements ProjectLogic {
 		// Remove any existing notifications for this node
     	scheduledInvocationManager.deleteDelayedInvocation("org.sakaiproject.delegatedaccess.jobs.DelegatedAccessAddToolToMyWorkspacesJob", "");
 		//update the shopping period site settings (realm, site properties, etc)
-		scheduledInvocationManager.createDelayedInvocation(new Date().toInstant(),
+		scheduledInvocationManager.createDelayedInvocation(Instant.now(),
 				"org.sakaiproject.delegatedaccess.jobs.DelegatedAccessAddToolToMyWorkspacesJob", "");
 		
 		updateAddDAMyworkspaceJobStatus("0");
