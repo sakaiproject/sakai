@@ -18,7 +18,7 @@
 
     <tool id="sakai.commons"
         title="Commons"
-        description="The Commons tool is a Facebook style tool allowing posts with url to thumbnail expansion, and unthreaded replies.">
+        description="The Commons tool is a social networking style tool allowing posts with url to thumbnail expansion, and unthreaded replies.">
 
         <category name="course" />
         <category name="project" />
