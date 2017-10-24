@@ -26,9 +26,24 @@ package org.sakaiproject.lessonbuildertool.tool.producers;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.Map;
 
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+import lombok.Setter;
+import org.apache.commons.lang.StringUtils;
+import org.sakaiproject.content.api.ContentTypeImageService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.sakaiproject.lessonbuildertool.SimplePage;
+import org.sakaiproject.lessonbuildertool.SimplePageItem;
+import org.sakaiproject.lessonbuildertool.model.SimplePageToolDao;
+import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean;
+import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean.Status;
+import org.sakaiproject.lessonbuildertool.tool.view.GeneralViewParameters;
+
+import org.sakaiproject.tool.cover.SessionManager;
+import org.sakaiproject.tool.api.ToolSession;
 
 import uk.org.ponder.localeutil.LocaleGetter;
 import uk.org.ponder.messageutil.MessageLocator;
@@ -42,6 +57,8 @@ import uk.org.ponder.rsf.components.UIOutput;
 import uk.org.ponder.rsf.components.UILink;
 import uk.org.ponder.rsf.components.UIComponent;
 import uk.org.ponder.rsf.components.decorators.UIFreeAttributeDecorator;
+
+import uk.org.ponder.rsf.components.decorators.UIStyleDecorator;
 import uk.org.ponder.rsf.flow.jsfnav.NavigationCase;
 import uk.org.ponder.rsf.flow.jsfnav.NavigationCaseReporter;
 import uk.org.ponder.rsf.view.ComponentChecker;
@@ -78,6 +95,9 @@ public class ReorderProducer implements ViewComponentProducer, NavigationCaseRep
 	public MessageLocator messageLocator;
 	public LocaleGetter localeGetter;                                                                                             
 	public static final String VIEW_ID = "Reorder";
+
+	@Setter
+	private Map<String,String> imageToMimeMap;
 
 	public String getViewID() {
 		return VIEW_ID;
@@ -164,6 +184,10 @@ public class ReorderProducer implements ViewComponentProducer, NavigationCaseRep
 			UIOutput.make(tofill, "itemTable");
 
 			boolean second = false;
+
+			UIBranchContainer sectionContainer = null;
+			UIBranchContainer columnContainer = null;
+
 			for (SimplePageItem i : items) {
 
 				if (i == null) {
@@ -176,6 +200,16 @@ public class ReorderProducer implements ViewComponentProducer, NavigationCaseRep
 					second = false;
 				}
 
+				if (i.getType() == SimplePageItem.BREAK) {
+					if ("section".equals(i.getFormat()) || sectionContainer == null) {
+						sectionContainer = UIBranchContainer.make(tofill, "sectionContainer:");
+					}
+					columnContainer = UIBranchContainer.make(sectionContainer, "columnContainer:");
+				} else if (sectionContainer == null) {
+					sectionContainer = UIBranchContainer.make(tofill, "sectionContainer:");
+					columnContainer = UIBranchContainer.make(sectionContainer, "columnContainer:");
+				}
+
 				String subtype = null;
 				if (i.getType() == 7) {
 					i.setType(1); // Temporarily change multimedia to standard resource
@@ -183,35 +217,17 @@ public class ReorderProducer implements ViewComponentProducer, NavigationCaseRep
 					subtype = i.getAttribute("multimediaDisplayType");
 				}
 
-				UIContainer row = UIBranchContainer.make(tofill, "item:");
+				UIContainer row = UIBranchContainer.make(columnContainer, "item:");
+
 				// * prefix indicates items are from the other page, and have to be copied.
 				UIOutput.make(row, "seq", (second ? "*" : "") +
 					                   String.valueOf(i.getSequence()));
 
+				UIOutput icon = UIOutput.make(row, "icon");
+				icon.decorate(this.getImageSourceDecorator(i));
+
 				if (i.getType() == 5) {
-				    if (i.getAttribute("isFolder")!=null && i.getAttribute("isFolder").equals("true")){
-					    UIOutput.make(row, "text-snippet", messageLocator.getMessage("simplepage.resources-snippet"));
-				    }
-				    else {
-					    String text = i.getHtml();
-					    if (text == null) {
-						    text = "";
-					    }
-					    text = formattedText.convertFormattedTextToPlaintext(text);
-					    if (text.length() > 100)
-						    text = text.substring(0, 100);
-					    UIOutput.make(row, "text-snippet", text);
-				    }
-				} else if (SimplePageItem.ANNOUNCEMENTS == i.getType()) {
-					UIOutput.make(row, "text-snippet", messageLocator.getMessage("simplepage.announcements-snippet"));
-				} else if (SimplePageItem.FORUM_SUMMARY == i.getType()) {
-					UIOutput.make(row, "text-snippet", messageLocator.getMessage("simplepage.forum-header-title"));
-				} else if (SimplePageItem.TWITTER == i.getType()) {
-					UIOutput.make(row, "text-snippet", messageLocator.getMessage("simplepage.twitter-snippet"));
-				} else if (SimplePageItem.RESOURCE_FOLDER == i.getType()) {
-					UIOutput.make(row, "text-snippet", messageLocator.getMessage("simplepage.resources-snippet"));
-				} else if (SimplePageItem.CALENDAR == i.getType()) {
-					UIOutput.make(row, "text-snippet", messageLocator.getMessage("simplepage.calendar-snippet"));
+				    UIOutput.make(row, "text-snippet", messageLocator.getMessage("simplepage.text.item"));
 				} else if ("1".equals(subtype)) {
 				    // embed code, nothing useful to show
 				    UIOutput.make(row, "text-snippet", messageLocator.getMessage("simplepage.embedded-video"));
@@ -226,21 +242,28 @@ public class ReorderProducer implements ViewComponentProducer, NavigationCaseRep
 					text = text.substring(0,100);
 				    UIOutput.make(row, "text-snippet", text);
 				} else if (i.getType() == SimplePageItem.BREAK) {
-				    String text = null;
-				    if ("section".equals(i.getFormat()))
-					text = messageLocator.getMessage("simplepage.break-here");
-				    else 
-					text = messageLocator.getMessage("simplepage.break-column-here");
-				    UIOutput.make(row, "text-snippet", text);
+				    if ("section".equals(i.getFormat())) {
+				    	String sectionName = messageLocator.getMessage("simplepage.break-here") + (StringUtils.isBlank(i.getName()) ? "" : " (" + i.getName() + ")");
+				    	UIOutput.make(row, "section-label", sectionName);
+						row.decorate(new UIStyleDecorator("active"));
+					} else {
+						String text = messageLocator.getMessage("simplepage.break-column-here");
+						UIOutput textSnippet = UIOutput.make(row, "text-snippet", text);
+						textSnippet.decorate(new UIStyleDecorator("column-section-break-text"));
+				    	row.decorate(new UIStyleDecorator("list-group-item-info"));
+					}
 				} else {
 				    UIOutput.make(row, "description", i.getDescription());
 				    showPageProducer.makeLink(row, "link", i, simplePageBean, simplePageToolDao, messageLocator, true, currentPage, false, Status.NOT_REQUIRED);
 				}
 				UIComponent del = UIOutput.make(row, "dellink").decorate(new UIFreeAttributeDecorator("alt", messageLocator.getMessage("simplepage.delete")));
-				if (second)
-				    del.decorate(new UIFreeAttributeDecorator("style", "display:block"));
+				if (i.getType() == SimplePageItem.BREAK && "section".equals(i.getFormat())) {
+					del.decorate(new UIFreeAttributeDecorator("style", "display:none;"));
+					UIOutput.make(row, "dellinkoptions").decorate(new UIFreeAttributeDecorator("alt", messageLocator.getMessage("simplepage.delete")));
+				} else if (second) {
+					del.decorate(new UIFreeAttributeDecorator("style", "display:block"));
+				}
 			}
-
 
 			// don't offer to add from other page if we already have second page items
 			// our bookkeeping can't keep track of more than one extra page
@@ -260,6 +283,7 @@ public class ReorderProducer implements ViewComponentProducer, NavigationCaseRep
 			if (secondPageId != null)
 			    UIInput.make(form, "otherpage", "#{simplePageBean.selectedEntity}", secondPageId.toString());
 			UIInput.make(form, "order", "#{simplePageBean.order}");
+			UIInput.make(form, "section", "#{simplePageBean.selectedSectionForColumn}");
 			UICommand.make(form, "save", messageLocator.getMessage("simplepage.save_message"), "#{simplePageBean.reorder}");
 			UICommand.make(form, "cancel", messageLocator.getMessage("simplepage.cancel_message"), "#{simplePageBean.cancel}");
 		}
@@ -286,8 +310,81 @@ public class ReorderProducer implements ViewComponentProducer, NavigationCaseRep
 		List<NavigationCase> togo = new ArrayList<NavigationCase>();
 		togo.add(new NavigationCase(null, new SimpleViewParameters(ShowPageProducer.VIEW_ID)));
 		togo.add(new NavigationCase("success", new SimpleViewParameters(ReloadPageProducer.VIEW_ID)));
+		togo.add(new NavigationCase("preview", new SimpleViewParameters(ReorderProducer.VIEW_ID)));
 		togo.add(new NavigationCase("cancel", new SimpleViewParameters(ShowPageProducer.VIEW_ID)));
 
 		return togo;
 	}
+
+	private UIStyleDecorator getImageSourceDecorator(SimplePageItem pageItem) {
+
+		switch (pageItem.getType()) {
+			case SimplePageItem.FORUM:
+				return new UIStyleDecorator("icon-sakai--sakai-forums darkblueLessonsIcon");
+			case SimplePageItem.ASSIGNMENT:
+				return new UIStyleDecorator("icon-sakai--sakai-assignment-grades darkblueLessonsIcon");
+			case SimplePageItem.ASSESSMENT:
+				return new UIStyleDecorator("icon-sakai--sakai-samigo darkblueLessonsIcon");
+			case SimplePageItem.QUESTION:
+				return new UIStyleDecorator("fa fa-question darkgrayLessonsIcon");
+			case SimplePageItem.COMMENTS:
+				return new UIStyleDecorator("fa fa-commenting darkgrayLessonsIcon");
+			case SimplePageItem.BLTI:
+				return new UIStyleDecorator("fa fa-globe darkgrayLessonsIcon");
+			case SimplePageItem.PAGE:
+				return new UIStyleDecorator("fa fa-folder-open-o darkgrayLessonsIcon");
+			case SimplePageItem.CHECKLIST:
+				return new UIStyleDecorator("fa fa-list darkgrayLessonsIcon");
+			case SimplePageItem.URL:
+				return new UIStyleDecorator("fa fa-external-link blueLessonsIcon");
+			case SimplePageItem.STUDENT_CONTENT:
+				return new UIStyleDecorator("fa fa-user darkgrayLessonsIcon");
+			case SimplePageItem.PEEREVAL:
+				return new UIStyleDecorator("fa fa-users darkgrayLessonsIcon");
+			case SimplePageItem.RESOURCE:
+				return getImageSourceDecoratorFromMimeType(pageItem);
+			case SimplePageItem.MULTIMEDIA:
+				return getImageSourceDecoratorFromMimeType(pageItem);
+			case SimplePageItem.TEXT:
+				return new UIStyleDecorator("fa fa-font darkgrayLessonsIcon");
+			default:
+				return new UIStyleDecorator("");
+		}
+	}
+
+	private UIStyleDecorator getImageSourceDecoratorFromMimeType(SimplePageItem pageItem) {
+
+		String mimeType = pageItem.getHtml();
+
+		if(SimplePageItem.TEXT == pageItem.getType()) {
+			mimeType = "text/html";
+		} else if("application/octet-stream".equals(mimeType)) {
+			// OS X reports octet stream for things like MS Excel documents.
+			// Force a mimeType lookup so we get a decent icon.
+			mimeType = null;
+		}
+
+		if (mimeType == null || mimeType.equals("")) {
+			String s = pageItem.getSakaiId();
+			int j = s.lastIndexOf(".");
+			if (j >= 0)
+				s = s.substring(j+1);
+			mimeType = contentTypeImageService.getContentType(s);
+		}
+
+		String src = null;
+
+		src = imageToMimeMap.get(mimeType);
+
+		if (src == null) {
+			src = "fa-file-o darkgrayLessonsIcon";
+		}
+
+		return new UIStyleDecorator("fa " + src);
+	}
+
+	@Setter
+	private ContentTypeImageService contentTypeImageService;
+
+
 }
