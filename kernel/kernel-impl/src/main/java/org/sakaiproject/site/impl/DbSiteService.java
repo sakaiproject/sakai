@@ -1984,24 +1984,21 @@ public abstract class DbSiteService extends BaseSiteService
 					fields[2] = Integer.valueOf(-1);
 					batchList.add(fields);
 				}
-				m_sql.dbWriteBatch(statement, batchList);
-
-				batchList = new ArrayList<>();
 				for (String siteId : unpInserts)
 				{
 					fields = new Object[3];
 					fields[0] = caseId(siteId);
 					fields[1] = userId;
 					fields[2] = Integer.valueOf(0);
+					batchList.add(fields);
 				}
-				m_sql.dbWriteBatch(statement, batchList);
-
-				batchList = new ArrayList<>();
 				for (String siteId : visitInserts)
 				{
+					fields = new Object[3];
 					fields[0] = caseId(siteId);
 					fields[1] = userId;
 					fields[2] = Integer.valueOf(1);
+					batchList.add(fields);
 				}
 				m_sql.dbWriteBatch(statement, batchList);
 			}
