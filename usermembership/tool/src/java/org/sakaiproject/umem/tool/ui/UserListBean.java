@@ -37,6 +37,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Properties;
+import java.util.TimeZone;
 
 import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
@@ -47,6 +48,7 @@ import javax.faces.model.SelectItem;
 import org.apache.commons.lang.StringUtils;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.db.api.SqlService;
+import org.sakaiproject.time.api.TimeService;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.umem.api.Authz;
 import org.sakaiproject.user.api.User;
@@ -116,7 +118,7 @@ public class UserListBean {
 	private transient ToolManager			M_tm				= (ToolManager) ComponentManager.get(ToolManager.class.getName());
 	private transient SqlService			M_sql				= (SqlService) ComponentManager.get(SqlService.class.getName());
 	private transient Authz					authz				= (Authz) ComponentManager.get(Authz.class.getName());
-	
+	private transient TimeService timeService = (TimeService)ComponentManager.get(TimeService.class.getName());
 	
 	// ######################################################################################
 	// UserRow, UserSitesRow CLASS
@@ -297,6 +299,16 @@ public class UserListBean {
 		}
 		
 		return "";
+	}
+	
+	public TimeZone getUserTimeZone() {
+		TimeZone timeZone = timeService.getLocalTimeZone();
+		
+		if (timeZone == null) {
+			timeZone = TimeZone.getDefault();
+		}
+		
+		return timeZone;
 	}
 
 	private void doSearch() {

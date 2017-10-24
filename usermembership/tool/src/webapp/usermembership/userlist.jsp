@@ -149,7 +149,7 @@
 		            </t:commandSortHeader>
 		        </f:facet>
 				<h:outputText value="#{row.createdOn}">
-					<f:convertDateTime dateStyle="medium"/>
+					<f:convertDateTime dateStyle="medium" timeZone="#{UserListBean.userTimeZone}"/>
 				</h:outputText>
 			</h:column>
 			<h:column id="modifiedOn">
@@ -159,7 +159,7 @@
 		            </t:commandSortHeader>
 		        </f:facet>
 				<h:outputText value="#{row.modifiedOn}">
-					<f:convertDateTime dateStyle="medium"/>
+					<f:convertDateTime dateStyle="medium" timeZone="#{UserListBean.userTimeZone}"/>
 				</h:outputText>
 			</h:column>
 		</t:dataTable>
