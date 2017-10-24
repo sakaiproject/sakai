@@ -634,7 +634,10 @@ a.edit-link:link, a.edit-link:visited, a.section-merge-link:link, a.section-merg
 }
 .columnSetup2 {
     padding:5px;
-    float:none;height:100%;overflow:hidden;margin:1em 0
+    float:none;
+    height:100%;
+    overflow:visible;
+    margin:1em 0;
 }
 
 .layoutReorderer-module-content {
@@ -669,9 +672,11 @@ a.edit-link:link, a.edit-link:visited, a.section-merge-link:link, a.section-merg
     padding:0px;
     
 }
-
+#layoutReorderer .reordItemContainer > .reorder-icon {
+    font-size: 1.3em;
+}
 .reordItemContainer {
-     padding: 0px 20px 0px 30px;
+     padding: 0 20px 0 0;
 }
 .reordItemContainerDesc {
     margin-top:5px;
@@ -691,12 +696,25 @@ a.edit-link:link, a.edit-link:visited, a.section-merge-link:link, a.section-merg
     display: none
 }
 
+.column-section-break-text {
+    font-weight: bold;
+}
+
 .reordDeleteContainer {
     position: absolute;
-    width:17px;
     top:1px;
     right:5px;
+    font-size: 1.35em;
+}
+#reorderCol1 .import-indicator {
+    margin-left: -36px;
+    margin-right: 22px;
+    font-size: 18px;
+}
 
+span.reorder-icon {
+    dispay: inline-block;
+    width: 22px;
 }
 /**
  * Interaction styling.
@@ -728,31 +746,21 @@ a.edit-link:link, a.edit-link:visited, a.section-merge-link:link, a.section-merg
 }
 
 .layoutReorderer-dropMarker {
-    background: #9f9 url("/library/image/silk/arrow_right.png")  1% 50% no-repeat;
-    height: 20px;
+    background: #d9edf7;
+    color: #31708f;
+    height: 40px;
     padding: 0 0 0 0;
     margin-left: 1em;
     margin-right: 1em;
 }
 
-.col1 {
-    min-width:60%;
-    width:60%;
-    min-height:50px;
+.layoutReorderer-dropMarker:before {
+    font-family: FontAwesome;
+    content: "\f061";
+    font-size: 1.5em;
+    line-height: 2em;
 }
-.col2 {
-    border: 1px solid #CCCCCC;
-    margin-left: 16px;
-    margin-top: 4px;
-    min-height: 50px;
-    min-width: 30%;
-    padding: 5px 5px 5px;
-    width: 30%;
-}
-.col1, .col2{
-    float:left;
-    background:#fff;
-}
+
 .deleteListMessage {
     padding:5px;
     padding-left: 25px;
@@ -764,6 +772,58 @@ a.edit-link:link, a.edit-link:visited, a.section-merge-link:link, a.section-merg
     background: #fff url(/library/image/silk/bin_empty.png) 5px 5px no-repeat;
     
 }
+.deleteListMessage.panel-heading, .deleteListMessageEmpty.panel-heading {
+    padding: 5px;
+    padding-left: 25px;
+}
+
+#reorderCol1 {
+    background: #eee;
+    padding: .5em;
+    border: 1px solid #ccc;
+}
+
+#reorderCol1 .list-group-item:not(.list-group-item-info):not(.active) {
+    margin-left: 2em;
+}
+
+h3.section-label {
+    margin: 0;
+}
+
+.active .column-section-break-text {
+    color: #fff;
+}
+
+.deleteAnswerLinkOptions > span {
+    font-size: 1.5em;
+    color: #fff;
+    padding: 8px 4px;
+}
+
+.deleteAnswerLinkOptions:hover {
+    cursor: pointer;
+}
+
+.deleteAnswerTrashLink > span {
+    font-size: 20px;
+    top: 6px;
+    position: relative;
+}
+
+.section-delete-icon {
+    color: #fff;
+    font-size: 24px !important;
+    margin-top: 8px;
+}
+
+#reorderCol2 {
+    padding: 0;
+}
+#reorderCol2 .list-group-item.active, #reorderCol2 .list-group-item.active:hover, #reorderCol2 .list-group-item.active:focus {
+    z-index: 1;
+}
+
 .afterheader {
 	margin-top: 1em
 }

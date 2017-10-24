@@ -39,7 +39,8 @@ import java.util.stream.Collectors;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
-import uk.org.ponder.localeutil.LocaleGetter;      
+import org.apache.commons.lang3.StringUtils;
+import uk.org.ponder.localeutil.LocaleGetter;
 import uk.org.ponder.messageutil.MessageLocator;                                                                                    
 import uk.org.ponder.rsf.components.UIBoundBoolean;
 import uk.org.ponder.rsf.components.UIBranchContainer;
@@ -269,6 +270,8 @@ public class PagePickerProducer implements ViewComponentProducer, NavigationCase
             }
         }
 
+        String returnView = ((GeneralViewParameters) viewparams).getReturnView();
+
         UIOutput.make(tofill, "html").decorate(new UIFreeAttributeDecorator("lang", localeGetter.get().getLanguage()))
             .decorate(new UIFreeAttributeDecorator("xml:lang", localeGetter.get().getLanguage()));
 
@@ -289,8 +292,14 @@ public class PagePickerProducer implements ViewComponentProducer, NavigationCase
             UIInternalLink.make(tofill, "return", returnText, view);
 
             UIOutput.make(tofill, "title", messageLocator.getMessage("simplepage.page.index"));
+        } else if (StringUtils.equals(returnView, "reorder")){
+            UIOutput.make(tofill, "title", messageLocator.getMessage("simplepage.page.add.from.other"));
         } else {
             UIOutput.make(tofill, "title", messageLocator.getMessage("simplepage.page.chooser"));
+        }
+
+        if (!StringUtils.equals(returnView, "reorder")) {
+            UIOutput.make(tofill, "hide-show-container");
         }
 
         // Explain which pages may be deleted
@@ -617,18 +626,19 @@ public class PagePickerProducer implements ViewComponentProducer, NavigationCase
 
             if (itemId == -1 && !((GeneralViewParameters) viewparams).newTopLevel) {
                 UIOutput.make(form, "hr");
-                UIOutput.make(form, "options");
+                if (!StringUtils.equals(returnView, "reorder")) {
+                    UIOutput.make(form, "options");
+                }
                 UIBoundBoolean.make(form, "subpage-next", "#{simplePageBean.subpageNext}", false);
                 UIBoundBoolean.make(form, "subpage-button", "#{simplePageBean.subpageButton}", false);
             }
 
-            String returnView = ((GeneralViewParameters) viewparams).getReturnView();
             if (returnView != null && returnView.equals("reorder")) {
                 // return to Reorder, to add items from this page
                 UICommand.make(form, "submit", messageLocator.getMessage("simplepage.chooser.select"), "#{simplePageBean.selectPage}");
             } else if (((GeneralViewParameters) viewparams).newTopLevel) {
                 UIInput.make(form, "addBefore", "#{simplePageBean.addBefore}", ((GeneralViewParameters) viewparams).getAddBefore());
-                UICommand.make(form, "submit", messageLocator.getMessage("simplepage.chooser.select"), "#{simplePageBean.addOldPage}");
+                UICommand.make(form, "submit", messageLocator.getMessage("simplepage.chooser.add.form.select"), "#{simplePageBean.selectPage}");
             } else {
                 UIInput.make(form, "addBefore", "#{simplePageBean.addBefore}", ((GeneralViewParameters) viewparams).getAddBefore());
                 UICommand.make(form, "submit", messageLocator.getMessage("simplepage.chooser.select"), "#{simplePageBean.createSubpage}");

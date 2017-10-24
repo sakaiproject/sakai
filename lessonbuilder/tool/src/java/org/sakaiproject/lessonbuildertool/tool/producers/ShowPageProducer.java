@@ -4181,6 +4181,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		}
 		UIComponent subpagelink = UIInternalLink.makeURL(tofill, "subpage-link", "#");
 		subpagelink.decorate(new UITooltipDecorator(messageLocator.getMessage("simplepage.subpage-descrip")));
+		createAddFromSubpageToolBarLink(PagePickerProducer.VIEW_ID, tofill, "add-from-subpage", "simplepage.reorder-addpage", currentPage, "simplepage.reorder-addpage");
 
 		UIOutput.make(tofill, "add-break1");
 		UIOutput.make(tofill, "add-break2");
@@ -4305,6 +4306,14 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		return params;
 	}
 
+
+	private GeneralViewParameters createAddFromSubpageToolBarLink(String viewID, UIContainer tofill, String ID, String message, SimplePage currentPage, String tooltip) {
+		GeneralViewParameters params = new GeneralViewParameters();
+		params.setSendingPage(currentPage.getPageId());
+		params.setReturnView("reorder"); // flag to pagepicker that it needs to come back
+		createStandardToolBarLink(viewID, tofill, ID, message, params, tooltip);
+		return params;
+	}
 
 	private FilePickerViewParameters createFilePickerToolBarLink(String viewID, UIContainer tofill, String ID, String message, boolean resourceType, boolean website, SimplePage currentPage, String tooltip) {
 		FilePickerViewParameters fileparams = new FilePickerViewParameters();
