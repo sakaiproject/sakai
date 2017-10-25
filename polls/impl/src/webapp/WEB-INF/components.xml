@@ -35,6 +35,7 @@
 	<bean id="org.sakaiproject.poll.logic.ExternalLogic" class="org.sakaiproject.poll.logic.impl.ExternalLogicImpl"
 			init-method="init">
 		<property name="developerHelperService" ref="org.sakaiproject.entitybroker.DeveloperHelperService"/>
+		<property name="learningResourceStoreService" ref="org.sakaiproject.event.api.LearningResourceStoreService"/>
 		<property name="authzGroupService" ref="org.sakaiproject.authz.api.AuthzGroupService"/>
 		<property name="emailService" ref="org.sakaiproject.email.api.EmailService" />
 		<property name="emailTemplateService" ref="org.sakaiproject.emailtemplateservice.service.EmailTemplateService" />
