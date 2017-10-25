@@ -810,7 +810,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
             }
             this.position = a.getPosition();
             this.groups = a.getGroups();
-            this.access = a.getAccess();
+            this.access = a.getTypeOfAccess();
             this.instructions = a.getInstructions();
 
 
