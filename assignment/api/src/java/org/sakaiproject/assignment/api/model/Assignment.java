@@ -201,8 +201,8 @@ public class Assignment {
     @Column(name = "PEER_ASSESSMENT_ANON_EVAL")
     private Boolean peerAssessmentAnonEval;
 
-    @Column(name = "PEER_ASSESSMENT_STUDENT_VIEW_REVIEW")
-    private Boolean peerAssessmentStudentViewReview = Boolean.FALSE;
+    @Column(name = "PEER_ASSESSMENT_STUDENT_REVIEW")
+    private Boolean peerAssessmentStudentReview = Boolean.FALSE;
 
     @Column(name = "PEER_ASSESSMENT_NUMBER_REVIEW")
     private Integer peerAssessmentNumberReviews;

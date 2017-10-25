@@ -2056,7 +2056,7 @@ public class AssignmentAction extends PagedResourceActionII {
 
             //peer review
             if (assignment.getAllowPeerAssessment()
-                    && assignment.getPeerAssessmentStudentViewReview()
+                    && assignment.getPeerAssessmentStudentReview()
                     && assignmentService.isPeerAssessmentClosed(assignment)) {
                 List<PeerAssessmentItem> reviews = assignmentPeerAssessmentService.getPeerAssessmentItems(submission.getId(), assignment.getScaleFactor());
                 if (reviews != null) {
@@ -8648,7 +8648,7 @@ public class AssignmentAction extends PagedResourceActionII {
             a.setPeerAssessmentPeriodDate(Date.from(peerAssessmentPeriodTime));
         }
         a.setPeerAssessmentAnonEval(peerAssessmentAnonEval);
-        a.setPeerAssessmentStudentViewReview(peerAssessmentStudentViewReviews);
+        a.setPeerAssessmentStudentReview(peerAssessmentStudentViewReviews);
         a.setPeerAssessmentNumberReviews(peerAssessmentNumReviews);
         a.setPeerAssessmentInstructions(peerAssessmentInstructions);
 
@@ -9154,7 +9154,7 @@ public class AssignmentAction extends PagedResourceActionII {
                     state.setAttribute(NEW_ASSIGNMENT_USE_PEER_ASSESSMENT, a.getAllowPeerAssessment().toString());
                     putTimePropertiesInState(state, peerAssessmentPeriod.toInstant(), NEW_ASSIGNMENT_PEERPERIODMONTH, NEW_ASSIGNMENT_PEERPERIODDAY, NEW_ASSIGNMENT_PEERPERIODYEAR, NEW_ASSIGNMENT_PEERPERIODHOUR, NEW_ASSIGNMENT_PEERPERIODMIN);
                     state.setAttribute(NEW_ASSIGNMENT_PEER_ASSESSMENT_ANON_EVAL, a.getPeerAssessmentAnonEval());
-                    state.setAttribute(NEW_ASSIGNMENT_PEER_ASSESSMENT_STUDENT_VIEW_REVIEWS, a.getPeerAssessmentStudentViewReview());
+                    state.setAttribute(NEW_ASSIGNMENT_PEER_ASSESSMENT_STUDENT_VIEW_REVIEWS, a.getPeerAssessmentStudentReview());
                     state.setAttribute(NEW_ASSIGNMENT_PEER_ASSESSMENT_NUM_REVIEWS, a.getPeerAssessmentNumberReviews());
                     state.setAttribute(NEW_ASSIGNMENT_PEER_ASSESSMENT_INSTRUCTIONS, a.getPeerAssessmentInstructions());
                 }
