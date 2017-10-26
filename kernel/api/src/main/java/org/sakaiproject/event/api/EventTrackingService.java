@@ -93,7 +93,7 @@ public interface EventTrackingService
 	 * @param resource
 	 *        The resource reference.
 	 * @param context
-	 *        The Event's context (may be null).
+	 *        The Event's context (may be null, if null will try to detect context).
 	 * @param modify
 	 *        Set to true if this event caused a resource modification, false if it was just an access.
 	 * @param priority
