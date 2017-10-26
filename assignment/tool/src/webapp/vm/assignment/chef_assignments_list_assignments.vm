@@ -398,7 +398,7 @@
 						#if ($!allowGradeSubmission)
 							<td headers="for" class="hidden-xs">
 								#set( $groupTitleList = [] )
-								#set( $siteRelease = $assignment.Access.toString() == "SITE")
+								#set( $siteRelease = $assignment.TypeOfAccess.toString() == "SITE")
 								#if( !$siteRelease )
 									#foreach( $groupID in $assignment.Groups )
 										#set( $group = $!site.getGroup( $groupID ) )

@@ -534,10 +534,10 @@
                 </div>
 
                 #set( $selectGroupsDisplay = "block" )
-                #if( (($!range == "groups" || $!assignment.Access == $groupAccess) && !$selectedGroupsNotFound) || $selectedGroupsNotFound || $!range == "site" )
+                #if( (($!range == "groups" || $!assignment.TypeOfAccess == $groupAccess) && !$selectedGroupsNotFound) || $selectedGroupsNotFound || $!range == "site" )
                     #set( $selectGroupsDisplay = "none" )
                 #end
-                #if( ($!range == "groups" || $!assignment.Access == $groupAccess) && !$selectedGroupsNotFound )
+                #if( ($!range == "groups" || $!assignment.TypeOfAccess == $groupAccess) && !$selectedGroupsNotFound )
                     #set( $listDisplay = "block" )
 			#else
                     #set( $listDisplay = "none" )
