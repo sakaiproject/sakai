@@ -63,6 +63,7 @@
 			<th>$tlang.getString("del.item")</th>
 				<td>
 					<span class="icon $eventIconMap.get($event.getType())" title="$localizedEventTypes.get($event.getType())"></span>
+					$localizedEventTypes.get($event.getType())
 				</td>
 		</tr>
 		#if (!$validator.escapeHtml($event.Location)=="")
