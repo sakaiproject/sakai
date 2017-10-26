@@ -616,7 +616,10 @@ public abstract class BaseEventTrackingService implements EventTrackingService
 		public BaseEvent(String event, String resource, String context, boolean modify, int priority, LRS_Statement lrsStatement)
 		{
 			this(event, resource, modify, priority, lrsStatement);
-			m_context = context;
+			//Use the context parameter if it's not null, otherwise default to the detected context
+			if (context != null) {
+				m_context = context;
+			}
 		}
 		
 		/**
