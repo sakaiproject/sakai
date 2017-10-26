@@ -343,29 +343,16 @@ public class BaseLearningResourceStoreService implements LearningResourceStoreSe
         }
         return statement;
     }
-
     /* (non-Javadoc)
-     * @see org.sakaiproject.event.api.LearningResourceStoreService#getEventActor(org.sakaiproject.event.api.Event)
+     * @see org.sakaiproject.event.api.LearningResourceStoreService#getActor(String)
      */
-    public LRS_Actor getEventActor(Event event) {
+    public LRS_Actor getActor(String userId) {
         LRS_Actor actor = null;
         User user = null;
-        if (event.getUserId() != null) {
-            try {
-                user = this.userDirectoryService.getUser(event.getUserId());
-            } catch (UserNotDefinedException e) {
-                user = null;
-            }
-        }
-        if (user == null && event.getSessionId() != null) {
-            Session session = this.sessionManager.getSession(event.getSessionId());
-            if (session != null) {
-                try {
-                    user = this.userDirectoryService.getUser(session.getUserId());
-                } catch (UserNotDefinedException e) {
-                    user = null;
-                }
-            }
+        try {
+            user = this.userDirectoryService.getUser(userId);
+        } catch (UserNotDefinedException e) {
+            user = null;
         }
         if (user != null) {
             String actorEmail;
@@ -391,6 +378,30 @@ public class BaseLearningResourceStoreService implements LearningResourceStoreSe
             // TODO implement OpenID support
         }
         return actor;
+    }
+    
+    /* (non-Javadoc)
+     * @see org.sakaiproject.event.api.LearningResourceStoreService#getEventActor(org.sakaiproject.event.api.Event)
+     */
+    public LRS_Actor getEventActor(Event event) {
+    	return getActor(event);
+    }
+
+    /* (non-Javadoc)
+     * @see org.sakaiproject.event.api.LearningResourceStoreService#getActor(org.sakaiproject.event.api.Event)
+     */
+    public LRS_Actor getActor(Event event) {
+    	String userId = null;
+    	if (event != null) {
+    		userId = event.getUserId();
+    	}
+    	if (userId == null && event != null && event.getSessionId() != null) {
+    		Session session = this.sessionManager.getSession(event.getSessionId());
+    		if (session != null) {
+    			userId = session.getUserId();
+    		}
+    	}
+    	return getActor(userId);
     }
 
     /**
