@@ -25,7 +25,9 @@ package org.sakaiproject.time.api;
  * <p>
  * TimeRange ...
  * </p>
+ * @deprecated the use of time is discouraged in favour of {@link java.time.Period} and {@link java.time.Duration}. This interface will be removed in 13.0
  */
+@Deprecated
 public interface TimeRange extends Cloneable
 {
 	/**
