@@ -20,11 +20,15 @@ import javax.jws.WebParam;
 import javax.jws.WebService;
 import javax.jws.soap.SOAPBinding;
 import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
+
+import javax.ws.rs.core.MediaType;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -57,7 +61,7 @@ public class SakaiLogin extends AbstractWebService {
      */
     @WebMethod
     @Path("/login")
-    @Produces("text/plain")
+    @Produces(MediaType.TEXT_PLAIN)
     @GET
     public java.lang.String loginGET(
             @WebParam(partName = "id", name = "id")
@@ -78,14 +82,14 @@ public class SakaiLogin extends AbstractWebService {
      */
     @WebMethod
     @Path("/login")
-    @Produces("text/plain")
+    @Produces(MediaType.TEXT_PLAIN)
+    //Can't get MediaType.MULTIPART_FORM_DATA to work
+    @Consumes({MediaType.APPLICATION_FORM_URLENCODED})
     @POST
     public java.lang.String loginPOST(
-            @WebParam(partName = "id", name = "id")
-            @QueryParam("id")
+            @FormParam("id")
             java.lang.String id,
-            @WebParam(partName = "pw", name = "pw")
-            @QueryParam("pw")
+            @FormParam("pw")
             java.lang.String pw) {
     	return login (id,pw);
     }
@@ -148,7 +152,7 @@ public class SakaiLogin extends AbstractWebService {
      * @throws InterruptedException
      */
     @WebMethod
-    @Produces("text/plain")
+    @Produces(MediaType.TEXT_PLAIN)
     @GET
     @Path("/logout")
     public boolean logoutGET(
@@ -166,12 +170,13 @@ public class SakaiLogin extends AbstractWebService {
      * @throws InterruptedException
      */
     @WebMethod
-    @Produces("text/plain")
+    @Produces(MediaType.TEXT_PLAIN)
+    //Can't get MediaType.MULTIPART_FORM_DATA to work
+    @Consumes({MediaType.APPLICATION_FORM_URLENCODED})
     @POST
     @Path("/logout")
     public boolean logoutPOST(
-            @QueryParam("sessionid")
-            @WebParam(partName = "sessionid", name = "sessionid")
+            @FormParam("sessionid")
             java.lang.String sessionid) {
     	return logout (sessionid);
     }
@@ -197,7 +202,7 @@ public class SakaiLogin extends AbstractWebService {
     }
 
     @WebMethod
-    @Produces("text/plain")
+    @Produces(MediaType.TEXT_PLAIN)
     @GET
     @Path("/loginToServer")
     public java.lang.String loginToServerGET(
@@ -212,15 +217,15 @@ public class SakaiLogin extends AbstractWebService {
 
 
     @WebMethod
-    @Produces("text/plain")
+    @Produces(MediaType.TEXT_PLAIN)
+    //Can't get MediaType.MULTIPART_FORM_DATA to work
+    @Consumes({MediaType.APPLICATION_FORM_URLENCODED})
     @POST
     @Path("/loginToServer")
     public java.lang.String loginToServerPOST(
-            @WebParam(partName = "id", name = "id")
-            @QueryParam("id")
+            @FormParam("id")
             java.lang.String id,
-            @WebParam(partName = "pw", name = "pw")
-            @QueryParam("pw")
+            @FormParam("pw")
             java.lang.String pw) {
         return login(id, pw) + "," + serverConfigurationService.getString("webservices.directurl", serverConfigurationService.getString("serverUrl"));
     }
