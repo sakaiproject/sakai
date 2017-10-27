@@ -255,6 +255,7 @@ public class CourseGradeOverridePanel extends BasePanel {
 					}
 				}
 				if (dValue.compareTo(maxValue) > 0) throw new NumberFormatException("Grade exceeds the maximum number allowed in current scale.");
+				if (dValue < 0) throw new NumberFormatException("Grade cannot be lower than 0.");
 			}
 			return newGrade;
 		}
