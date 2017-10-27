@@ -308,8 +308,8 @@ public class BaseLearningResourceStoreService implements LearningResourceStoreSe
         LRS_Result result = null;
         if (event.getLrsStatement() != null) {
             statement =  event.getLrsStatement();
-            //If the statement is fully populated nothing left to do
-            if (statement.isPopulated()) {
+            //If the statement is fully populated (with context) nothing left to do
+            if (statement.isPopulated() && statement.getContext() != null) {
                 return statement;
             }
             verb=statement.getVerb();
