@@ -37,6 +37,7 @@ import org.sakaiproject.gradebookng.business.GradeSaveResponse;
 import org.sakaiproject.gradebookng.business.model.ProcessedGradeItem;
 import org.sakaiproject.gradebookng.business.model.ProcessedGradeItem.Type;
 import org.sakaiproject.gradebookng.business.model.ProcessedGradeItemDetail;
+import org.sakaiproject.gradebookng.business.util.FormatHelper;
 import org.sakaiproject.gradebookng.business.util.MessageHelper;
 import org.sakaiproject.gradebookng.tool.model.ImportWizardModel;
 import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
@@ -367,6 +368,6 @@ public class GradeImportConfirmationStep extends BasePanel {
 	private GradeSaveResponse saveGrade(final Long assignmentId, final ProcessedGradeItemDetail processedGradeItemDetail) {
 		return GradeImportConfirmationStep.this.businessService.saveGrade(assignmentId,
 				processedGradeItemDetail.getStudentUuid(),
-				processedGradeItemDetail.getGrade(), processedGradeItemDetail.getComment());
+				FormatHelper.formatGradeForDisplay(processedGradeItemDetail.getGrade()), processedGradeItemDetail.getComment());
 	}
 }
