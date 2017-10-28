@@ -54,6 +54,7 @@ import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.api.FormattedText;
+import org.sakaiproject.util.api.LinkMigrationHelper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -254,5 +255,10 @@ public class AssignmentTestConfiguration {
     @Bean(name = "org.sakaiproject.event.api.LearningResourceStoreService")
     public LearningResourceStoreService learningResourceStoreService() {
         return mock(LearningResourceStoreService.class);
+    }
+
+    @Bean(name = "org.sakaiproject.util.api.LinkMigrationHelper")
+    public LinkMigrationHelper linkMigrationHelper() {
+        return mock(LinkMigrationHelper.class);
     }
 }
