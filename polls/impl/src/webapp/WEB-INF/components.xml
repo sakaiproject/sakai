@@ -43,8 +43,8 @@
 			ref="org.sakaiproject.event.api.EventTrackingService" />
 		<property name="functionManager"
 			ref="org.sakaiproject.authz.api.FunctionManager" />
-		<property name="timeService"
-			ref="org.sakaiproject.time.api.TimeService" />
+		<property name="userTimeService"
+			ref="org.sakaiproject.time.api.UserTimeService" />
 		<property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
 		<property name="securityService" ref="org.sakaiproject.authz.api.SecurityService" />
 		<property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService" />
