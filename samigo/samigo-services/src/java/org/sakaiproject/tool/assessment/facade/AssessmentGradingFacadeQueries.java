@@ -2179,37 +2179,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 
                             count++;
                         } else if (typeId.equals(TypeIfc.IMAGEMAP_QUESTION)) {
-                            log.debug("MATCHING");
-
-                            ItemTextIfc itemTextIfc = (ItemTextIfc) publishedItemTextHash.get(grade.getPublishedItemTextId());
-                            Long sequence = itemTextIfc.getSequence();
-                            String temptext = (grade.getIsCorrect()) ? "OK" : "No OK";
-
-                            String thistext = sequence + ": " + temptext;
-
-                            if (count == 0)
-                                maintext = thistext;
-                            else
-                                maintext = maintext + "|" + thistext;
-
-                            count++;
-                        } else if (typeId.equals(TypeIfc.IMAGEMAP_QUESTION)) {
-                            log.debug("MATCHING");
-
-                            ItemTextIfc itemTextIfc = (ItemTextIfc) publishedItemTextHash.get(grade.getPublishedItemTextId());
-                            Long sequence = itemTextIfc.getSequence();
-                            String temptext = (grade.getIsCorrect()) ? "OK" : "No OK";
-
-                            String thistext = sequence + ": " + temptext;
-
-                            if (count == 0)
-                                maintext = thistext;
-                            else
-                                maintext = maintext + "|" + thistext;
-
-                            count++;
-                        } else if (typeId.equals(TypeIfc.IMAGEMAP_QUESTION)) {
-                            log.debug("MATCHING");
+                            log.debug("IMAGEMAP_QUESTION");
 
                             ItemTextIfc itemTextIfc = (ItemTextIfc) publishedItemTextHash.get(grade.getPublishedItemTextId());
                             Long sequence = itemTextIfc.getSequence();
