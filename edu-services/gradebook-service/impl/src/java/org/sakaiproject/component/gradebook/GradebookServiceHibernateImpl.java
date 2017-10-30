@@ -2306,8 +2306,9 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 				  }
 			  } else {
 				  try {
-					  percentage = Double.parseDouble(grade);
-				  } catch (NumberFormatException nfe) {
+					  NumberFormat nbFormat = NumberFormat.getInstance(new ResourceLoader().getLocale());
+					  percentage = new Double (nbFormat.parse(grade).doubleValue());
+				  } catch (NumberFormatException | ParseException nfe) {
 					  throw new IllegalArgumentException("Invalid % grade passed to convertInputGradeToPoints");
 				  }
 			  }
