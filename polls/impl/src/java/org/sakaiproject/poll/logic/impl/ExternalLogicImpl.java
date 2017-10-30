@@ -21,26 +21,16 @@
 
 package org.sakaiproject.poll.logic.impl;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TimeZone;
-import java.util.Map.Entry;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.AuthzPermissionException;
@@ -51,7 +41,6 @@ import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.email.api.EmailService;
-import org.sakaiproject.emailtemplateservice.model.EmailTemplate;
 import org.sakaiproject.emailtemplateservice.model.RenderedTemplate;
 import org.sakaiproject.emailtemplateservice.service.EmailTemplateService;
 import org.sakaiproject.entity.api.EntityManager;
@@ -72,18 +61,15 @@ import org.sakaiproject.poll.model.PollRolePerms;
 import org.sakaiproject.poll.model.Vote;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
-import org.sakaiproject.time.api.TimeService;
+import org.sakaiproject.time.api.UserTimeService;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-import org.xml.sax.SAXException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ExternalLogicImpl implements ExternalLogic {
 
@@ -103,6 +89,8 @@ public class ExternalLogicImpl implements ExternalLogic {
 	/**
 	 * Injected services
 	 */
+	
+
 	private DeveloperHelperService developerHelperService;
 	public void setDeveloperHelperService(
 			DeveloperHelperService developerHelperService) {
@@ -144,11 +132,6 @@ public class ExternalLogicImpl implements ExternalLogic {
     public void setFunctionManager(FunctionManager fm) {
         functionManager = fm;
     }
-    
-	private TimeService timeService;
-	public void setTimeService(TimeService ts) {
-		timeService = ts;
-	}
 
     private SiteService siteService;
     public void setSiteService(SiteService siteService) {
@@ -176,6 +159,12 @@ public class ExternalLogicImpl implements ExternalLogic {
 	public void setUserDirectoryService(UserDirectoryService userDirectoryService) {
 		this.userDirectoryService = userDirectoryService;
 	}
+	
+	private UserTimeService userTimeService;
+	public void setUserTimeService(UserTimeService userTimeService) {
+		this.userTimeService = userTimeService;
+	}
+
 
 	private String fromEmailAddress;
 	public void setFromEmailAddress(String fromEmailAddress) {
@@ -286,7 +275,7 @@ public class ExternalLogicImpl implements ExternalLogic {
 	}
 
 	public TimeZone getLocalTimeZone() {
-		return timeService.getLocalTimeZone();
+		return userTimeService.getLocalTimeZone();
 	}
 
 
