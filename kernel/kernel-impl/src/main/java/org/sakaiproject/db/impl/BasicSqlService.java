@@ -30,6 +30,7 @@ import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.sql.Clob;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -37,6 +38,7 @@ import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Timestamp;
+import java.sql.Types;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.GregorianCalendar;
@@ -568,7 +570,18 @@ public abstract class BasicSqlService implements SqlService
 
                 // without a reader, we read the first String from each record
                 if (reader == null) {
-                    String s = result.getString(1);
+                    String s;
+                	ResultSetMetaData metadataResult = result.getMetaData();
+                	
+                	if(metadataResult != null && Types.CLOB == metadataResult.getColumnType(1))
+                	{
+                		Clob clobResult = result.getClob(1);
+                		s = clobResult.getSubString(1, (int) clobResult.length());
+                	}
+                	else
+                	{
+                		s = result.getString(1);
+                	}
                     if (s != null) {
                         rv.add(s);
                     }
