@@ -1,11 +1,14 @@
 package org.sakaiproject.calendar.impl;
 
-import org.apache.avalon.framework.logger.ConsoleLogger;
-import org.apache.fop.apps.Driver;
+import org.apache.avalon.framework.configuration.ConfigurationException;
+import org.apache.avalon.framework.configuration.DefaultConfigurationBuilder;
 import org.apache.fop.apps.FOPException;
-import org.apache.fop.apps.Options;
-import org.apache.fop.configuration.Configuration;
-import org.apache.fop.messaging.MessageHandler;
+import org.apache.fop.apps.Fop;
+import org.apache.fop.apps.FopFactory;
+import org.apache.fop.apps.FopFactoryBuilder;
+import org.apache.fop.apps.MimeConstants;
+import org.apache.xmlgraphics.io.Resource;
+import org.apache.xmlgraphics.io.ResourceResolver;
 import org.sakaiproject.calendar.api.CalendarEvent;
 import org.sakaiproject.calendar.api.CalendarEventVector;
 import org.sakaiproject.calendar.api.CalendarService;
@@ -20,6 +23,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.xml.sax.SAXException;
 
 import javax.xml.transform.Source;
 import javax.xml.transform.Transformer;
@@ -28,9 +32,14 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.URIResolver;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.sax.SAXResult;
+import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
@@ -128,12 +137,14 @@ public class PDFExportService {
     private static final String HOUR_MINUTE_SEPARATOR = ":";
 
     // FOP Configuration
-    private final static String FOP_USERCONFIG = "fonts/userconfig.xml";
+    private final static String FOP_USERCONFIG = "fonts/fop.xml";
     private final static String FOP_FONTBASEDIR = "fonts";
 
     private TimeService timeService;
     private TransformerFactory transformerFactory;
     private ResourceLoader rb;
+    private FopFactory fopFactory;
+
 
     public PDFExportService(TimeService timeService, ResourceLoader rb) {
         this.timeService = timeService;
@@ -141,40 +152,35 @@ public class PDFExportService {
 
         transformerFactory = TransformerFactory.newInstance();
         transformerFactory.setURIResolver( new MyURIResolver(getClass().getClassLoader()) );
+
+        try {
+
+            URI baseDir = getClass().getClassLoader().getResource(FOP_FONTBASEDIR).toURI();
+            FopFactoryBuilder builder = new FopFactoryBuilder(baseDir, new ClassPathResolver());
+            InputStream userConfig = getClass().getClassLoader().getResourceAsStream(FOP_USERCONFIG);
+            fopFactory = builder.setConfiguration(new DefaultConfigurationBuilder().build(userConfig)).build();
+
+        } catch (IOException | URISyntaxException | SAXException | ConfigurationException e) {
+            // We won't be able to do anything if we can't create a FopFactory so may as well get caller to handle.
+            throw new RuntimeException("Failed to setup Apache FOP for calendar PDF exports.", e);
+        }
+
     }
 
     /**
      * Takes a DOM structure and renders a PDF
      *
      * @param doc         DOM structure
-     * @param xslFileName
-     * @param streamOut
+     * @param xslFileName The XSLT file to use to do the transform
+     * @param streamOut The outputstream to write the output to.
+     * @throws RuntimeException If there was a problem transforming the document to PDF.
      */
     void generatePDF(Document doc, String xslFileName, OutputStream streamOut) {
-        Driver driver = new Driver();
-
-        org.apache.avalon.framework.logger.Logger logger = new ConsoleLogger(ConsoleLogger.LEVEL_ERROR);
-        MessageHandler.setScreenLogger(logger);
-        driver.setLogger(logger);
-
-        try {
-            String baseDir = getClass().getClassLoader().getResource(FOP_FONTBASEDIR).toString();
-            Configuration.put("fontBaseDir", baseDir);
-            InputStream userConfig = getClass().getClassLoader().getResourceAsStream(FOP_USERCONFIG);
-            new Options(userConfig);
-        } catch (FOPException fe) {
-            log.warn(".generatePDF: ", fe);
-        } catch (Exception e) {
-            log.warn(".generatePDF: ", e);
-        }
-
-        driver.setOutputStream(streamOut);
-        driver.setRenderer(Driver.RENDER_PDF);
 
         try {
             InputStream in = getClass().getClassLoader().getResourceAsStream(xslFileName);
-            Transformer transformer = transformerFactory.newTransformer(new StreamSource(in));
-
+            StreamSource source = new StreamSource(in);
+            Transformer transformer = transformerFactory.newTransformer(source);
             Source src = new DOMSource(doc);
 
             Calendar c = Calendar.getInstance(timeService.getLocalTimeZone(), rb.getLocale());
@@ -213,11 +219,21 @@ public class PDFExportService {
             transformer.setParameter("from", rb.getString("event.from"));
 
             transformer.setParameter("sched", rb.getString("sched.for"));
-            transformer.transform(src, new SAXResult(driver.getContentHandler()));
+            if (log.isDebugEnabled()) {
+
+                ByteArrayOutputStream bos = new ByteArrayOutputStream();
+                transformer.transform(src, new StreamResult(bos));
+                log.debug(new String(bos.toByteArray()));
+            }
+
+            Fop fop = fopFactory.newFop(MimeConstants.MIME_PDF, streamOut);
+            transformer.transform(src, new SAXResult(fop.getDefaultHandler()));
         } catch (TransformerException e) {
-            e.printStackTrace();
-            log.warn(".generatePDF(): " + e);
-            return;
+            log.warn("Failed to generate XSL-FO with XSLT.", e);
+            throw new RuntimeException(e);
+        } catch (FOPException e) {
+            log.warn("Failed to produce PDF from XSL-FO.", e);
+            throw new RuntimeException(e);
         }
     }
 
@@ -1608,6 +1624,24 @@ public class PDFExportService {
             return (Source)(new StreamSource(in));
         }
 
+    }
+
+    /**
+     * This is a hack to get fonts to load out of the classpath in both tests and production. Tomcat has a URI
+     * handler for classpath: but this doesn't exist when running in tests.
+     */
+    private static final class ClassPathResolver implements ResourceResolver {
+        @Override
+        public OutputStream getOutputStream(URI uri) throws IOException {
+            return getClass().getResource(uri.toString()).openConnection()
+                    .getOutputStream();
+        }
+
+        @Override
+        public Resource getResource(URI uri) throws IOException {
+            InputStream inputStream = getClass().getResourceAsStream(uri.getPath());
+            return new Resource(inputStream);
+        }
     }
 
 }

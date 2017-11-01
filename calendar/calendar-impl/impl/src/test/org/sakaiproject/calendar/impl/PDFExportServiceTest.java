@@ -20,9 +20,16 @@ import org.w3c.dom.Document;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
 import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.StringWriter;
 import java.nio.file.Files;
 import java.nio.file.OpenOption;
 import java.nio.file.Path;
@@ -93,7 +100,6 @@ public class PDFExportServiceTest {
         when(event.getDisplayName()).thenReturn("Test Event");
         events.add(event);
 
-        when(baseCalendarService.getEvents(eq(calendarReferenceList), any(TimeRange.class))).thenReturn(new CalendarEventVector());
         when(baseCalendarService.getEvents(eq(calendarReferenceList), argThat(arg -> arg.contains(eventTimeRange)))).thenReturn(events);
 
         Path file = Files.createTempFile("calendar", ".pdf");
@@ -170,15 +176,15 @@ public class PDFExportServiceTest {
     }
 
     @Test
-    public void testMonthExport() throws IOException, InterruptedException {
+    public void testMonthExport() throws IOException, InterruptedException, TransformerException {
         Document doc = docBuilder.newDocument();
-        TimeRange officeHours = newTimeRange("2007-12-03T09:00:00.00Z", "PT8H");
+        TimeRange officeHours = newTimeRange("2007-11-03T09:00:00.00Z", "PT8H");
         // One week.
-        TimeRange range = newTimeRange("2007-12-03T00:00:00.00Z", "P7D");
+        TimeRange range = newTimeRange("2007-11-03T00:00:00.00Z", "P7D");
         List<String> calendarReferenceList = Collections.singletonList("/calendar/1");
         CalendarEventVector events = new CalendarEventVector();
         CalendarEvent event = mock(CalendarEvent.class);
-        TimeRange eventTimeRange = newTimeRange("2007-12-03T10:30:00.00Z", "PT1H");
+        TimeRange eventTimeRange = newTimeRange("2007-11-03T10:30:00.00Z", "PT1H");
         when(event.getRange()).thenReturn(eventTimeRange);
         when(event.getDisplayName()).thenReturn("Test Event");
         events.add(event);
@@ -192,6 +198,7 @@ public class PDFExportServiceTest {
 
         String xslFileNameForScheduleType = pdfExportService.getXSLFileNameForScheduleType(CalendarService.MONTH_VIEW);
         pdfExportService.generateXMLDocument(CalendarService.MONTH_VIEW, doc, range, officeHours, calendarReferenceList, "userId", baseCalendarService);
+
         pdfExportService.generatePDF(doc, xslFileNameForScheduleType, out);
         out.close();
         if (!deleteFiles) {
@@ -204,5 +211,18 @@ public class PDFExportServiceTest {
         return timeService.newTimeRange(beginning.toEpochMilli(), duration.toMillis());
     }
 
+    // Useful in debugging.
+    private void writeOutDOM(Document doc) {
+        try {
+            StringWriter writer = new StringWriter();
+            Transformer transformer = TransformerFactory.newInstance().newTransformer();
+            transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+            transformer.transform(new DOMSource(doc), new StreamResult(writer));
+            System.out.println(writer);
+        } catch (Exception e) {
+            System.out.println("Error: "+e.getMessage());
+        }
+
+    }
 
 }

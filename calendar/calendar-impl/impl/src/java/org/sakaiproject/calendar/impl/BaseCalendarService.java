@@ -5685,6 +5685,10 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 				}
 			}
 		}
+		catch (RuntimeException e)
+		{
+			throw e;
+		}
 		catch (Throwable t)
 		{
 			throw new EntityNotDefinedException(ref.getReference());
