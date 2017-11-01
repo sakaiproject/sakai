@@ -49,6 +49,7 @@ import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.springframework.orm.hibernate.AdditionalHibernateMappings;
 import org.sakaiproject.taggable.api.TaggingManager;
 import org.sakaiproject.time.api.TimeService;
+import org.sakaiproject.time.api.UserTimeService;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.user.api.UserDirectoryService;
@@ -260,5 +261,10 @@ public class AssignmentTestConfiguration {
     @Bean(name = "org.sakaiproject.util.api.LinkMigrationHelper")
     public LinkMigrationHelper linkMigrationHelper() {
         return mock(LinkMigrationHelper.class);
+    }
+
+    @Bean(name = "org.sakaiproject.time.api.UserTimeService")
+    public UserTimeService userTimeService() {
+        return mock(UserTimeService.class);
     }
 }

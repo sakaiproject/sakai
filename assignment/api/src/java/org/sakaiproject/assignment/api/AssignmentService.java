@@ -22,6 +22,7 @@
 package org.sakaiproject.assignment.api;
 
 import java.io.OutputStream;
+import java.time.Instant;
 import java.util.*;
 
 import org.sakaiproject.assignment.api.model.Assignment;
@@ -726,4 +727,6 @@ public interface AssignmentService extends EntityProducer {
     * This is used when creating a new gradebook item.
     */
     public String getToolTitle();
+
+    String getUsersLocalDateTimeString(Instant date);
 }

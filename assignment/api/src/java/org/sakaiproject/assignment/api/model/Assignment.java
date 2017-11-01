@@ -21,14 +21,35 @@
 
 package org.sakaiproject.assignment.api.model;
 
-import java.util.*;
-import javax.persistence.*;
+import java.time.Instant;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+import javax.persistence.CascadeType;
+import javax.persistence.CollectionTable;
+import javax.persistence.Column;
+import javax.persistence.ElementCollection;
+import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.Lob;
+import javax.persistence.MapKeyColumn;
+import javax.persistence.OneToMany;
+import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 import org.hibernate.annotations.GenericGenerator;
+import org.hibernate.annotations.Type;
 
 /**
  * Assignment represents a specific assignment for a specific section or class.
@@ -93,33 +114,33 @@ public class Assignment {
     @Column(name = "SECTION")
     private String section;
 
+    @Type(type = "org.sakaiproject.springframework.orm.hibernate.type.InstantType")
     @Column(name = "CREATED_DATE", nullable = false)
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date dateCreated;
+    private Instant dateCreated;
 
+    @Type(type = "org.sakaiproject.springframework.orm.hibernate.type.InstantType")
     @Column(name = "MODIFIED_DATE")
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date dateModified;
+    private Instant dateModified;
 
+    @Type(type = "org.sakaiproject.springframework.orm.hibernate.type.InstantType")
     @Column(name = "VISIBLE_DATE")
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date visibleDate;
+    private Instant visibleDate;
 
+    @Type(type = "org.sakaiproject.springframework.orm.hibernate.type.InstantType")
     @Column(name = "OPEN_DATE")
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date openDate;
+    private Instant openDate;
 
+    @Type(type = "org.sakaiproject.springframework.orm.hibernate.type.InstantType")
     @Column(name = "DUE_DATE")
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date dueDate;
+    private Instant dueDate;
 
+    @Type(type = "org.sakaiproject.springframework.orm.hibernate.type.InstantType")
     @Column(name = "CLOSE_DATE")
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date closeDate;
+    private Instant closeDate;
 
+    @Type(type = "org.sakaiproject.springframework.orm.hibernate.type.InstantType")
     @Column(name = "DROP_DEAD_DATE")
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date dropDeadDate;
+    private Instant dropDeadDate;
 
     @Column(name = "MODIFIER")
     private String modifier;

@@ -16,6 +16,7 @@
 package org.sakaiproject.portal.service;
 
 import java.lang.reflect.Method;
+import java.time.Instant;
 import java.util.*;
 import java.sql.ResultSet;
 
@@ -303,8 +304,8 @@ public class BullhornServiceImpl implements BullhornService, Observer {
                             try {
                                 Assignment assignment = assignmentService.getAssignment(assignmentId);
                                 switchToNull();
-                                Date openTime = assignment.getOpenDate();
-                                if (openTime == null || openTime.getTime() < (new Date().getTime())) {
+                                Instant openTime = assignment.getOpenDate();
+                                if (openTime == null || openTime.isBefore(Instant.now())) {
                                     Site site = siteService.getSite(siteId);
                                     String title = assignment.getTitle();
                                     String url = assignmentService.getDeepLink(siteId, assignmentId);

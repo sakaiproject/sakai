@@ -107,24 +107,24 @@ public class Assignments extends AbstractWebService {
     				
     				LOG.debug("About to get dates");
     				
-    				Date dueTime = thisA.getDueDate();
-    				Date openTime = thisA.getOpenDate();
-    				Date closeTime = thisA.getCloseDate();
+    				Instant dueTime = thisA.getDueDate();
+    				Instant openTime = thisA.getOpenDate();
+    				Instant closeTime = thisA.getCloseDate();
     				LOG.debug("got dates");
     				DateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss z");
     				
     				if (openTime != null){
     					LOG.debug("open time is " + openTime.toString());
-    					uElement.setAttribute("openTime", format.format(new Date(openTime.getTime())) );
+    					uElement.setAttribute("openTime", format.format(Date.from(openTime)));
     				}
     				if (closeTime != null) {
     					LOG.debug("close time is " + closeTime.toString());
-    					uElement.setAttribute("closeTime", format.format(new Date(closeTime.getTime())) );
+    					uElement.setAttribute("closeTime", format.format(Date.from(closeTime)));
     				}
     				
     				if (dueTime != null) {
     					LOG.debug("due time is " + dueTime.toString());
-    					uElement.setAttribute("dueTime", format.format(new Date(dueTime.getTime())) );
+    					uElement.setAttribute("dueTime", format.format(Date.from(dueTime)));
     				}
     				
     				LOG.debug("apending element to parent");
@@ -297,9 +297,9 @@ public class Assignments extends AbstractWebService {
     		//set the values for the assignemnt
     		assign.setTitle(title);
     		assign.setDraft(false);
-    		assign.setDueDate(Date.from(dt));
-    		assign.setOpenDate(Date.from(ot));
-    		assign.setCloseDate(Date.from(ct));
+    		assign.setDueDate(dt);
+    		assign.setOpenDate(ot);
+    		assign.setCloseDate(ct);
     		
     		/*
     		 *3 - points
@@ -403,29 +403,29 @@ public class Assignments extends AbstractWebService {
 
     		java.util.Calendar cal = java.util.Calendar.getInstance();
 
-    		cal.setTimeInMillis(assignment.getOpenDate().getTime());
+    		cal.setTimeInMillis(assignment.getOpenDate().toEpochMilli());
     		cal.add(java.util.Calendar.DAY_OF_YEAR, shiftDays);
     		cal.add(java.util.Calendar.HOUR, shiftHours);
     		Date shiftedOpenDate = cal.getTime();
-    		assignment.setOpenDate(shiftedOpenDate);
+    		assignment.setOpenDate(shiftedOpenDate.toInstant());
 
-    		cal.setTimeInMillis(assignment.getDueDate().getTime());
+    		cal.setTimeInMillis(assignment.getDueDate().toEpochMilli());
     		cal.add(java.util.Calendar.DAY_OF_YEAR, shiftDays);
     		cal.add(java.util.Calendar.HOUR, shiftHours);
     		Date shiftedDueDate = cal.getTime();
-    		assignment.setDueDate(shiftedDueDate);
+    		assignment.setDueDate(shiftedDueDate.toInstant());
 
-    		cal.setTimeInMillis(assignment.getCloseDate().getTime());
+    		cal.setTimeInMillis(assignment.getCloseDate().toEpochMilli());
     		cal.add(java.util.Calendar.DAY_OF_YEAR, shiftDays);
     		cal.add(java.util.Calendar.HOUR, shiftHours);
     		Date shiftedCloseDate = cal.getTime();
-    		assignment.setCloseDate(shiftedCloseDate);
+    		assignment.setCloseDate(shiftedCloseDate.toInstant());
 
-    		cal.setTimeInMillis(assignment.getDropDeadDate().getTime());
+    		cal.setTimeInMillis(assignment.getDropDeadDate().toEpochMilli());
     		cal.add(java.util.Calendar.DAY_OF_YEAR, shiftDays);
     		cal.add(java.util.Calendar.HOUR, shiftHours);
     		Date shiftedDropDeadDate = cal.getTime();
-    		assignment.setDropDeadDate(shiftedDropDeadDate);
+    		assignment.setDropDeadDate(shiftedDropDeadDate.toInstant());
 
     		cal.setTimeInMillis(assignment.getPeerAssessmentPeriodDate().getTime());
     		cal.add(java.util.Calendar.DAY_OF_YEAR, shiftDays);
@@ -770,7 +770,7 @@ public class Assignments extends AbstractWebService {
     		submitter.setSubmittee(true);
     		ase.setSubmitted(true);
     		
-    		Date subTime = Date.from(Instant.ofEpochMilli(time));
+    		Instant subTime = Instant.ofEpochMilli(time);
     		LOG.info("Setting time to " + time);
     		ase.setDateSubmitted(subTime);
     		assignmentService.updateSubmission(ase);
