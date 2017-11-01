@@ -3099,11 +3099,12 @@ public class SakaiScript extends AbstractWebService {
                 //KNL-250, SAK-16819 - if position too large, will throw ArrayIndexOutOfBoundsException
                 //deal with this here and just set to the number of pages - 1 so its at the bottom.
                 int numPages = siteEdit.getPages().size();
-                if (position > numPages) {
-                    position = numPages - 1;
+                int newPosition = position;
+                if (newPosition >= numPages) {
+                    newPosition = numPages - 1;
                 }
 
-                sitePageEdit.setPosition(position);
+                sitePageEdit.setPosition(newPosition);
                 sitePageEdit.setPopup(popup);
 
                 ToolConfiguration tool = sitePageEdit.addTool();
