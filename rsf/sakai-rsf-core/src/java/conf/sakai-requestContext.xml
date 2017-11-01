@@ -21,7 +21,7 @@
 	<bean id="sakaiRequestParser" class="org.sakaiproject.rsf.servlet.SakaiRequestParser" init-method="init">
 		<property name="httpServletRequest" ref="httpServletRequest" />
 		<property name="siteService" ref="org.sakaiproject.site.api.SiteService" />
-		<property name="timeService" ref="org.sakaiproject.time.api.TimeService" />
+		<property name="userTimeService" ref="org.sakaiproject.time.api.UserTimeService" />
 		<property name="baseURLProvider" ref="sakai-BaseURLProvider" />
 	</bean>
 
