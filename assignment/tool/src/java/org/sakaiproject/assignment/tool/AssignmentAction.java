@@ -5120,15 +5120,14 @@ public class AssignmentAction extends PagedResourceActionII {
 
             if (submission != null) {
                 // submission read event
-                Event event = eventTrackingService.newEvent(AssignmentConstants.EVENT_ACCESS_ASSIGNMENT_SUBMISSION, submission.getId(),
-                        false);
+            	LRS_Statement statement = getStatementForViewSubmittedAssignment(submission.getId(), a.getTitle());
+                Event event = eventTrackingService.newEvent(AssignmentConstants.EVENT_ACCESS_ASSIGNMENT_SUBMISSION, submission.getId(), null, false, NotificationService.NOTI_OPTIONAL, statement);
                 eventTrackingService.post(event);
-                learningResourceStoreService.registerStatement(getStatementForViewSubmittedAssignment(learningResourceStoreService.getEventActor(event), event, a.getTitle()), "assignment");
             } else {
                 // otherwise, the student just read assignment description and prepare for submission
-                Event event = eventTrackingService.newEvent(AssignmentConstants.EVENT_ACCESS_ASSIGNMENT, a.getId(), false);
+            	LRS_Statement statement = getStatementForViewAssignment(a.getId(), a.getTitle());
+                Event event = eventTrackingService.newEvent(AssignmentConstants.EVENT_ACCESS_ASSIGNMENT, a.getId(), null, false, NotificationService.NOTI_OPTIONAL, statement);
                 eventTrackingService.post(event);
-                learningResourceStoreService.registerStatement(getStatementForViewAssignment(learningResourceStoreService.getEventActor(event), event, a.getTitle()), "assignment");
             }
         }
 
@@ -6229,13 +6228,9 @@ public class AssignmentAction extends PagedResourceActionII {
                 state.setAttribute(STATE_MODE, MODE_STUDENT_VIEW_SUBMISSION_CONFIRMATION);
             }
             if (StringUtils.isNotEmpty(assignmentId)) {
-                Event event = eventTrackingService.newEvent(AssignmentConstants.EVENT_SUBMIT_ASSIGNMENT_SUBMISSION, assignmentId, false);
-                learningResourceStoreService.registerStatement(
-                        getStatementForSubmitAssignment(learningResourceStoreService.getEventActor(event),
-                                event,
-                                serverConfigurationService.getAccessUrl(),
-                                a.getTitle()),
-                        "sakai.assignment");
+                LRS_Statement statement = getStatementForSubmitAssignment(assignmentId, serverConfigurationService.getAccessUrl(), a.getTitle());
+                Event event = eventTrackingService.newEvent(AssignmentConstants.EVENT_SUBMIT_ASSIGNMENT_SUBMISSION, assignmentId, null, false, NotificationService.NOTI_OPTIONAL, statement);
+                eventTrackingService.post(event);
             }
         }
 
@@ -14210,10 +14205,11 @@ public class AssignmentAction extends PagedResourceActionII {
         context.put("letterGradeOptions", StringUtils.split(lOptions, ","));
     }
 
-    private LRS_Statement getStatementForViewSubmittedAssignment(LRS_Actor actor, Event event, String assignmentName) {
+    private LRS_Statement getStatementForViewSubmittedAssignment(String reference, String assignmentName) {
+    	LRS_Actor actor = learningResourceStoreService.getActor(sessionManager.getCurrentSessionUserId());
         String url = serverConfigurationService.getPortalUrl();
         LRS_Verb verb = new LRS_Verb(SAKAI_VERB.interacted);
-        LRS_Object lrsObject = new LRS_Object(url + event.getResource(), "view-submitted-assignment");
+        LRS_Object lrsObject = new LRS_Object(url + reference, "view-submitted-assignment");
         HashMap<String, String> nameMap = new HashMap<String, String>();
         nameMap.put("en-US", "User reviewed a submitted assignment");
         lrsObject.setActivityName(nameMap);
@@ -14224,10 +14220,11 @@ public class AssignmentAction extends PagedResourceActionII {
         return new LRS_Statement(actor, verb, lrsObject);
     }
 
-    private LRS_Statement getStatementForViewAssignment(LRS_Actor actor, Event event, String assignmentName) {
+    private LRS_Statement getStatementForViewAssignment(String reference, String assignmentName) {
+    	LRS_Actor actor = learningResourceStoreService.getActor(sessionManager.getCurrentSessionUserId());
         String url = serverConfigurationService.getPortalUrl();
         LRS_Verb verb = new LRS_Verb(SAKAI_VERB.interacted);
-        LRS_Object lrsObject = new LRS_Object(url + event.getResource(), "view-assignment");
+        LRS_Object lrsObject = new LRS_Object(url + reference, "view-assignment");
         HashMap<String, String> nameMap = new HashMap<String, String>();
         nameMap.put("en-US", "User viewed an assignment");
         lrsObject.setActivityName(nameMap);
@@ -14237,9 +14234,10 @@ public class AssignmentAction extends PagedResourceActionII {
         return new LRS_Statement(actor, verb, lrsObject);
     }
 
-    private LRS_Statement getStatementForSubmitAssignment(LRS_Actor actor, Event event, String accessUrl, String assignmentName) {
+    private LRS_Statement getStatementForSubmitAssignment(String reference, String accessUrl, String assignmentName) {
+    	LRS_Actor actor = learningResourceStoreService.getActor(sessionManager.getCurrentSessionUserId());
         LRS_Verb verb = new LRS_Verb(SAKAI_VERB.attempted);
-        LRS_Object lrsObject = new LRS_Object(accessUrl + event.getResource(), "submit-assignment");
+        LRS_Object lrsObject = new LRS_Object(accessUrl + reference, "submit-assignment");
         HashMap<String, String> nameMap = new HashMap<String, String>();
         nameMap.put("en-US", "User submitted an assignment");
         lrsObject.setActivityName(nameMap);
