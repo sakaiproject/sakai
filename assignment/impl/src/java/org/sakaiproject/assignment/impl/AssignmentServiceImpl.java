@@ -981,14 +981,15 @@ String assignmentId = AssignmentReferenceReckoner.reckoner().reference(assignmen
         } else if (dateReturned == null && !submission.getReturned() && (dateSubmitted == null || submission.getDateModified().getTime() - dateSubmitted.getTime() > 1000 * 60)) {
             // make sure the last modified time is at least one minute after the submit time
             if (!(StringUtils.trimToNull(submission.getSubmittedText()) == null && submission.getAttachments().isEmpty() && StringUtils.trimToNull(submission.getGrade()) == null && StringUtils.trimToNull(submission.getFeedbackText()) == null && StringUtils.trimToNull(submission.getFeedbackComment()) == null && submission.getFeedbackAttachments().isEmpty())) {
-                // graded and saved before releasing it
-                Event event = eventTrackingService.newEvent(AssignmentConstants.EVENT_GRADE_ASSIGNMENT_SUBMISSION, reference, true);
-                eventTrackingService.post(event);
                 if (submission.getGraded()) {
+                	//TODO: This should use an LRS_Group when that exists rather than firing off individual events for each LRS_Actor KNL-1560
                     for (AssignmentSubmissionSubmitter submitter : submission.getSubmitters()) {
                         try {
                             User user = userDirectoryService.getUser(submitter.getSubmitter());
-                            learningResourceStoreService.registerStatement(getStatementForAssignmentGraded(learningResourceStoreService.getEventActor(event), event, submission.getAssignment(), submission, user), "assignment");
+                            LRS_Statement statement = getStatementForAssignmentGraded(reference, submission.getAssignment(), submission, user);
+                            // graded and saved before releasing it
+                            Event event = eventTrackingService.newEvent(AssignmentConstants.EVENT_GRADE_ASSIGNMENT_SUBMISSION, reference, null, true, NotificationService.NOTI_OPTIONAL, statement);
+                            eventTrackingService.post(event);
                         } catch (UserNotDefinedException e) {
                             log.warn("Assignments could not find user ({}) while registering Event for LRSS", submitter.getSubmitter());
                         }
@@ -996,14 +997,15 @@ String assignmentId = AssignmentReferenceReckoner.reckoner().reference(assignmen
                 }
             }
         } else if (dateReturned != null && submission.getGraded() && (dateSubmitted == null || dateReturned.after(dateSubmitted) || dateSubmitted.after(dateReturned) && submission.getDateModified().after(dateSubmitted))) {
-            // releasing a submitted assignment or releasing grade to an unsubmitted assignment
-            Event event = eventTrackingService.newEvent(AssignmentConstants.EVENT_GRADE_ASSIGNMENT_SUBMISSION, reference, true);
-            eventTrackingService.post(event);
             if (submission.getGraded()) {
+            	//TODO: This should use an LRS_Group when that exists rather than firing off individual events for each LRS_Actor KNL-1560
                 for (AssignmentSubmissionSubmitter submitter : submission.getSubmitters()) {
                     try {
                         User user = userDirectoryService.getUser(submitter.getSubmitter());
-                        learningResourceStoreService.registerStatement(getStatementForAssignmentGraded(learningResourceStoreService.getEventActor(event), event, submission.getAssignment(), submission, user), "assignment");
+                    	LRS_Statement statement = getStatementForAssignmentGraded(reference, submission.getAssignment(), submission, user);
+                    	// releasing a submitted assignment or releasing grade to an unsubmitted assignment
+                    	Event event = eventTrackingService.newEvent(AssignmentConstants.EVENT_GRADE_ASSIGNMENT_SUBMISSION, reference, null, true, NotificationService.NOTI_OPTIONAL, statement);
+                    	eventTrackingService.post(event);
                     } catch (UserNotDefinedException e) {
                         log.warn("Assignments could not find user ({}) while registering Event for LRSS", submitter.getSubmitter());
                     }
@@ -1013,13 +1015,14 @@ String assignmentId = AssignmentReferenceReckoner.reckoner().reference(assignmen
             // if this is releasing grade, depending on the release grade notification setting, send email notification to student
             sendGradeReleaseNotification(submission);
         } else if (dateSubmitted == null) {
-            // releasing a submitted assignment or releasing grade to an unsubmitted assignment
-            Event event = eventTrackingService.newEvent(AssignmentConstants.EVENT_GRADE_ASSIGNMENT_SUBMISSION, reference, true);
-            eventTrackingService.post(event);
+           	//TODO: This should use an LRS_Group when that exists rather than firing off individual events for each LRS_Actor KNL-1560
             for (AssignmentSubmissionSubmitter submitter : submission.getSubmitters()) {
                 try {
                     User user = userDirectoryService.getUser(submitter.getSubmitter());
-                    learningResourceStoreService.registerStatement(getStatementForUnsubmittedAssignmentGraded(learningResourceStoreService.getEventActor(event), event, submission.getAssignment(), submission, user), "sakai.assignment");
+                    LRS_Statement statement = getStatementForUnsubmittedAssignmentGraded(reference, submission.getAssignment(), submission, user);
+                    // releasing a submitted assignment or releasing grade to an unsubmitted assignment
+                    Event event = eventTrackingService.newEvent(AssignmentConstants.EVENT_GRADE_ASSIGNMENT_SUBMISSION, reference, null, true, NotificationService.NOTI_OPTIONAL, statement);
+                    eventTrackingService.post(event);
                 } catch (UserNotDefinedException e) {
                     log.warn("Assignments could not find user ({}) while registering Event for LRSS", submitter.getSubmitter());
                 }
@@ -3658,9 +3661,10 @@ String assignmentId = AssignmentReferenceReckoner.reckoner().reference(assignmen
         return reference;
     }
 
-    private LRS_Statement getStatementForAssignmentGraded(LRS_Actor instructor, Event event, Assignment a, AssignmentSubmission s, User studentUser) {
+    private LRS_Statement getStatementForAssignmentGraded(String reference, Assignment a, AssignmentSubmission s, User studentUser) {
+    	LRS_Actor instructor = learningResourceStoreService.getActor(sessionManager.getCurrentSessionUserId());
         LRS_Verb verb = new LRS_Verb(SAKAI_VERB.scored);
-        LRS_Object lrsObject = new LRS_Object(serverConfigurationService.getPortalUrl() + event.getResource(), "received-grade-assignment");
+        LRS_Object lrsObject = new LRS_Object(serverConfigurationService.getPortalUrl() + reference, "received-grade-assignment");
         Map<String, String> nameMap = new HashMap<>();
         nameMap.put("en-US", "User received a grade");
         lrsObject.setActivityName(nameMap);
@@ -3691,9 +3695,10 @@ String assignmentId = AssignmentReferenceReckoner.reckoner().reference(assignmen
         return result;
     }
 
-    private LRS_Statement getStatementForUnsubmittedAssignmentGraded(LRS_Actor instructor, Event event, Assignment a, AssignmentSubmission s, User studentUser) {
+    private LRS_Statement getStatementForUnsubmittedAssignmentGraded(String reference, Assignment a, AssignmentSubmission s, User studentUser) {
+    	LRS_Actor instructor = learningResourceStoreService.getActor(sessionManager.getCurrentSessionUserId());
         LRS_Verb verb = new LRS_Verb(SAKAI_VERB.scored);
-        LRS_Object lrsObject = new LRS_Object(serverConfigurationService.getAccessUrl() + event.getResource(), "received-grade-unsubmitted-assignment");
+        LRS_Object lrsObject = new LRS_Object(serverConfigurationService.getAccessUrl() + reference, "received-grade-unsubmitted-assignment");
         Map<String, String> nameMap = new HashMap<>();
         nameMap.put("en-US", "User received a grade");
         lrsObject.setActivityName(nameMap);
