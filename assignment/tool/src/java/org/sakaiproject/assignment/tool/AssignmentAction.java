@@ -9710,6 +9710,8 @@ public class AssignmentAction extends PagedResourceActionII {
                 // put the resubmission info into state
                 assignment_resubmission_option_into_state(a, s, state);
             }
+        } else {
+            log.error("Failed to get assignment for id {}", assignmentId);
         }
     }
 

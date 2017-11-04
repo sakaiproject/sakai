@@ -175,7 +175,7 @@
                                     var siteTitle = alert.siteTitle;
 
                                     var faClass = 'fa-bullhorn';
-                                    if (alert.event === 'asn.new.assignment'
+                                    if (alert.event === 'asn.revise.assignment'
                                                                 || alert.event === 'asn.grade.submission') {
                                         faClass = 'fa-file-text';
                                     } else if (alert.event === 'lessonbuilder.comment.create') {
@@ -191,7 +191,7 @@
                                     if (alert.event === 'annc.new') {
                                         message
                                             = data.i18n.announcement.replace('{0}', title).replace('{1}', siteTitle);
-                                    } else if (alert.event === 'asn.new.assignment') {
+                                    } else if (alert.event === 'asn.revise.assignment') {
                                         message
                                             = data.i18n.assignmentCreated.replace('{0}', title).replace('{1}', siteTitle);
                                     } else if (alert.event === 'asn.grade.submission') {

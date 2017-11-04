@@ -174,7 +174,7 @@ public class BullhornServiceImpl implements BullhornService, Observer {
             HANDLED_EVENTS.add(ProfileConstants.EVENT_FRIEND_IGNORE);
             HANDLED_EVENTS.add(ProfileConstants.EVENT_MESSAGE_SENT);
             HANDLED_EVENTS.add(AnnouncementService.SECURE_ANNC_ADD);
-            HANDLED_EVENTS.add(AssignmentConstants.EVENT_ADD_ASSIGNMENT);
+            HANDLED_EVENTS.add(AssignmentConstants.EVENT_UPDATE_ASSIGNMENT);
             HANDLED_EVENTS.add(AssignmentConstants.EVENT_GRADE_ASSIGNMENT_SUBMISSION);
             HANDLED_EVENTS.add(COMMONS_COMMENT_CREATED);
             HANDLED_EVENTS.add(LessonBuilderEvents.COMMENT_CREATE);
@@ -295,21 +295,19 @@ public class BullhornServiceImpl implements BullhornService, Observer {
                             } finally {
                                 lock(sa);
                             }
-                        } else if (AssignmentConstants.EVENT_ADD_ASSIGNMENT.equals(event)) {
+                        } else if (AssignmentConstants.EVENT_UPDATE_ASSIGNMENT.equals(event)) {
                             String siteId = pathParts[3];
                             String assignmentId = pathParts[pathParts.length - 1];
                             SecurityAdvisor sa = unlock(new String[] {AssignmentServiceConstants.SECURE_ACCESS_ASSIGNMENT, AssignmentServiceConstants.SECURE_ADD_ASSIGNMENT_SUBMISSION});
-                            switchToAdmin();
                             try {
                                 Assignment assignment = assignmentService.getAssignment(assignmentId);
-                                switchToNull();
                                 Date openTime = assignment.getOpenDate();
                                 if (openTime == null || openTime.getTime() < (new Date().getTime())) {
                                     Site site = siteService.getSite(siteId);
                                     String title = assignment.getTitle();
                                     String url = assignmentService.getDeepLink(siteId, assignmentId);
-                                    // Get all the members of the site with read ability
-                                    for (String  to : site.getUsersIsAllowed(AssignmentServiceConstants.SECURE_ACCESS_ASSIGNMENT)) {
+                                    // Get all the members of the site with submit ability
+                                    for (String to : site.getUsersIsAllowed(AssignmentServiceConstants.SECURE_ADD_ASSIGNMENT_SUBMISSION)) {
                                         if (!from.equals(to) && !securityService.isSuperUser(to)) {
                                             doAcademicInsert(from, to, event, ref, title, siteId, e.getEventTime(), url);
                                             countCache.remove(to);
@@ -319,7 +317,6 @@ public class BullhornServiceImpl implements BullhornService, Observer {
                             } catch (IdUnusedException idue) {
                                 log.error("Failed to find either the assignment or the site", idue);
                             } finally {
-                                switchToNull();
                                 lock(sa);
                             }
                         } else if (AssignmentConstants.EVENT_GRADE_ASSIGNMENT_SUBMISSION.equals(event)) {
