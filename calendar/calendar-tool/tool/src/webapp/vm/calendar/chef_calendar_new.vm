@@ -720,7 +720,7 @@ $(function() {
 			#end
 			<select  id="eventType" name="eventType">
                 #foreach ($key in $localizedEventTypes.keySet())
-                    <option #if ($type == $key) selected="selected" #end value=$key>$localizedEventTypes.get($key)</option>
+                    <option #if ($type == $key) selected="selected" #end value="$key">$localizedEventTypes.get($key)</option>
                 #end
 			</select>
 		</p>

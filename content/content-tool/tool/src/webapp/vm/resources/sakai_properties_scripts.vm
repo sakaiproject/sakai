@@ -462,6 +462,10 @@
 					hideGroupsTable(index);
 				}
 			}
+			// hide the properties div by default
+			var propertiesDiv = document.getElementById("propertiesDiv$DOT" + index);
+			propertiesDiv.style.display = 'none';
+
 			setupDatePickers(newContentDiv, index);
 		}
 		

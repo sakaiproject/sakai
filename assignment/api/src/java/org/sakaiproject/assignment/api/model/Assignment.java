@@ -162,8 +162,8 @@ public class Assignment {
     private Set<String> attachments = new HashSet<>();
 
     @Enumerated(value = EnumType.STRING)
-    @Column(name = "ACCESS", nullable = false)
-    private Access access = Access.SITE;
+    @Column(name = "ACCESS_TYPE", nullable = false)
+    private Access typeOfAccess = Access.SITE;
 
     @Column(name = "HONOR_PLEDGE")
     private Boolean honorPledge = Boolean.FALSE;
@@ -201,8 +201,8 @@ public class Assignment {
     @Column(name = "PEER_ASSESSMENT_ANON_EVAL")
     private Boolean peerAssessmentAnonEval;
 
-    @Column(name = "PEER_ASSESSMENT_STUDENT_VIEW_REVIEW")
-    private Boolean peerAssessmentStudentViewReview = Boolean.FALSE;
+    @Column(name = "PEER_ASSESSMENT_STUDENT_REVIEW")
+    private Boolean peerAssessmentStudentReview = Boolean.FALSE;
 
     @Column(name = "PEER_ASSESSMENT_NUMBER_REVIEW")
     private Integer peerAssessmentNumberReviews;

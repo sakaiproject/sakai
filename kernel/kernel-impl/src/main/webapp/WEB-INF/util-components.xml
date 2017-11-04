@@ -13,14 +13,6 @@
 			init-method="init"
 			destroy-method="destroy"/>
 
-	<bean id="org.sakaiproject.time.api.TimeService"
-			class="org.sakaiproject.time.impl.BasicTimeService"
-			init-method="init"
-			destroy-method="destroy">
-			<property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager"/>
-			<property name="preferencesService" ref="org.sakaiproject.user.api.PreferencesService"/>
-			<property name="memoryService" ref="org.sakaiproject.memory.api.MemoryService"/>
-	</bean>
 
 	<bean id="org.sakaiproject.log.api.LogConfigurationManager"
 			class="org.sakaiproject.log.impl.Log4jConfigurationManager"

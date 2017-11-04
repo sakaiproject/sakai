@@ -25,7 +25,6 @@ package org.sakaiproject.lessonbuildertool.service;
 
 import java.io.IOException;
 import java.time.Instant;
-import java.time.temporal.ChronoField;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 
@@ -48,7 +47,6 @@ import org.sakaiproject.assignment.api.model.AssignmentNoteItem;
 import org.sakaiproject.assignment.api.model.AssignmentSupplementItemService;
 
 import org.sakaiproject.exception.IdUnusedException;
-import org.sakaiproject.exception.InUseException;
 import org.sakaiproject.exception.PermissionException;
 
 import org.sakaiproject.site.api.Group;
@@ -61,10 +59,6 @@ import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.component.cover.ServerConfigurationService;             
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.cover.EntityManager;
-
-import org.sakaiproject.time.api.Time;
-import org.sakaiproject.time.api.TimeBreakdown;
-import org.sakaiproject.time.cover.TimeService;
 
 import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.MemoryService;
@@ -354,7 +348,7 @@ public class AssignmentEntity implements LessonEntity, AssignmentInterface {
 	try {
 	    // need this to make sure we always unlock
 	    
-	    if (edit.getAccess() == Assignment.Access.GROUPED) {
+	    if (edit.getTypeOfAccess() == Assignment.Access.GROUPED) {
 		Collection<String> groups = edit.getGroups();
 		groupId = "/site/" + siteId + "/group/" + groupId;
 
@@ -387,7 +381,7 @@ public class AssignmentEntity implements LessonEntity, AssignmentInterface {
 
 			// this change mode to grouped
 			edit.setGroups(groups);
-			edit.setAccess(Assignment.Access.GROUPED);
+			edit.setTypeOfAccess(Assignment.Access.GROUPED);
 
 			assignmentService.updateAssignment(edit);
 		doCancel = false;
@@ -427,7 +421,7 @@ public class AssignmentEntity implements LessonEntity, AssignmentInterface {
 	try {
 	    // need this to make sure we always unlock
 	    
-	    if (edit.getAccess() == Assignment.Access.GROUPED) {
+	    if (edit.getTypeOfAccess() == Assignment.Access.GROUPED) {
 		Collection<String> groups = edit.getGroups();
 		groupId = "/site/" + siteId + "/group/" + groupId;
 		
@@ -452,7 +446,7 @@ public class AssignmentEntity implements LessonEntity, AssignmentInterface {
 				edit.setGroups(newGroups);
 		} else {
 		    // no groups left, put site access back
-		    edit.setAccess(Assignment.Access.SITE);
+		    edit.setTypeOfAccess(Assignment.Access.SITE);
 		    edit.setGroups(new HashSet<>());
 		}
 
@@ -589,7 +583,7 @@ public class AssignmentEntity implements LessonEntity, AssignmentInterface {
 	if (assignment == null)
 	    return null;
 	
-	if (assignment.getAccess() != Assignment.Access.GROUPED)
+	if (assignment.getTypeOfAccess() != Assignment.Access.GROUPED)
 	    return null;
 	    
 	Collection<String> groupRefs = assignment.getGroups();
@@ -652,7 +646,7 @@ public class AssignmentEntity implements LessonEntity, AssignmentInterface {
 
 		edit.setGroups(groupObjs);
 	    } else {
-		edit.setAccess(Assignment.Access.SITE);
+		edit.setTypeOfAccess(Assignment.Access.SITE);
 		edit.setGroups(new HashSet<>());
 	    }
 
@@ -733,7 +727,7 @@ public class AssignmentEntity implements LessonEntity, AssignmentInterface {
 	    a.setOpenDate(Date.from(Instant.now()));
 	    a.setDueDate(Date.from(Instant.now().plus(1, ChronoUnit.YEARS)));
 	    a.setDraft(hide);
-	    a.setAccess(Assignment.Access.SITE);
+	    a.setTypeOfAccess(Assignment.Access.SITE);
 	    a.setGroups(new HashSet<>());
 	    a.setSection("");
 	    a.setTitle(title);
@@ -850,7 +844,7 @@ public class AssignmentEntity implements LessonEntity, AssignmentInterface {
 	    a.setDueDate(Date.from(Instant.now().plus(1, ChronoUnit.YEARS)));
 
 	    a.setDraft(hide);
-	    a.setAccess(Assignment.Access.SITE);
+	    a.setTypeOfAccess(Assignment.Access.SITE);
 	    a.setGroups(new HashSet<>());
 	    a.setSection("");
 	    a.setTitle(title);

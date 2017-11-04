@@ -51,7 +51,6 @@ import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.api.ToolConfiguration;
-import org.sakaiproject.time.api.TimeService;
 import org.sakaiproject.tool.api.SessionManager;
 
 @Slf4j
@@ -69,7 +68,6 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
     @Setter private GradebookService gradebookService;
     @Setter private GradebookExternalAssessmentService gradebookExternalService;
     @Setter private ServerConfigurationService serverConfigurationService;
-    @Setter private TimeService timeService;
 
     // HTML is deliberately not handled here, so that it will be handled by RedirectingAssignmentEntityServlet
     public String[] getHandledOutputFormats() {
@@ -812,7 +810,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
             }
             this.position = a.getPosition();
             this.groups = a.getGroups();
-            this.access = a.getAccess();
+            this.access = a.getTypeOfAccess();
             this.instructions = a.getInstructions();
 
 

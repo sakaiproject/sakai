@@ -18,18 +18,34 @@ package org.sakaiproject.assignment.impl;
 import static org.sakaiproject.assignment.api.AssignmentServiceConstants.*;
 
 import java.io.BufferedInputStream;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.text.DecimalFormat;
 import java.text.Normalizer;
 import java.text.NumberFormat;
+import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+import java.util.Stack;
+import java.util.StringTokenizer;
 import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
@@ -47,16 +63,34 @@ import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.sakaiproject.announcement.api.AnnouncementChannel;
 import org.sakaiproject.announcement.api.AnnouncementService;
-import org.sakaiproject.assignment.api.*;
+import org.sakaiproject.assignment.api.AssignmentConstants;
+import org.sakaiproject.assignment.api.AssignmentEntity;
+import org.sakaiproject.assignment.api.AssignmentPeerAssessmentService;
+import org.sakaiproject.assignment.api.AssignmentReferenceReckoner;
+import org.sakaiproject.assignment.api.AssignmentService;
+import org.sakaiproject.assignment.api.AssignmentServiceConstants;
 import org.sakaiproject.assignment.api.model.Assignment;
+import org.sakaiproject.assignment.api.model.AssignmentAllPurposeItem;
+import org.sakaiproject.assignment.api.model.AssignmentAllPurposeItemAccess;
+import org.sakaiproject.assignment.api.model.AssignmentModelAnswerItem;
+import org.sakaiproject.assignment.api.model.AssignmentNoteItem;
 import org.sakaiproject.assignment.api.model.AssignmentSubmission;
 import org.sakaiproject.assignment.api.model.AssignmentSubmissionSubmitter;
+import org.sakaiproject.assignment.api.model.AssignmentSupplementItemAttachment;
+import org.sakaiproject.assignment.api.model.AssignmentSupplementItemService;
 import org.sakaiproject.assignment.impl.sort.AnonymousSubmissionComparator;
 import org.sakaiproject.assignment.impl.sort.AssignmentSubmissionComparator;
 import org.sakaiproject.assignment.impl.sort.UserComparator;
 import org.sakaiproject.assignment.persistence.AssignmentRepository;
 import org.sakaiproject.assignment.taggable.api.AssignmentActivityProducer;
-import org.sakaiproject.authz.api.*;
+import org.sakaiproject.authz.api.AuthzGroup;
+import org.sakaiproject.authz.api.AuthzGroupService;
+import org.sakaiproject.authz.api.AuthzPermissionException;
+import org.sakaiproject.authz.api.FunctionManager;
+import org.sakaiproject.authz.api.GroupNotDefinedException;
+import org.sakaiproject.authz.api.Member;
+import org.sakaiproject.authz.api.SecurityAdvisor;
+import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.calendar.api.Calendar;
 import org.sakaiproject.calendar.api.CalendarEvent;
 import org.sakaiproject.calendar.api.CalendarService;
@@ -67,14 +101,36 @@ import org.sakaiproject.contentreview.exception.QueueException;
 import org.sakaiproject.contentreview.service.ContentReviewService;
 import org.sakaiproject.email.api.DigestService;
 import org.sakaiproject.email.api.EmailService;
-import org.sakaiproject.entity.api.*;
+import org.sakaiproject.entity.api.Entity;
+import org.sakaiproject.entity.api.EntityAccessOverloadException;
+import org.sakaiproject.entity.api.EntityCopyrightException;
+import org.sakaiproject.entity.api.EntityManager;
+import org.sakaiproject.entity.api.EntityNotDefinedException;
+import org.sakaiproject.entity.api.EntityPermissionException;
+import org.sakaiproject.entity.api.EntityTransferrer;
+import org.sakaiproject.entity.api.EntityTransferrerRefMigrator;
+import org.sakaiproject.entity.api.HttpAccess;
+import org.sakaiproject.entity.api.Reference;
+import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entitybroker.DeveloperHelperService;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.event.api.LearningResourceStoreService;
-import org.sakaiproject.event.api.LearningResourceStoreService.*;
+import org.sakaiproject.event.api.LearningResourceStoreService.LRS_Actor;
+import org.sakaiproject.event.api.LearningResourceStoreService.LRS_Context;
+import org.sakaiproject.event.api.LearningResourceStoreService.LRS_Object;
+import org.sakaiproject.event.api.LearningResourceStoreService.LRS_Result;
+import org.sakaiproject.event.api.LearningResourceStoreService.LRS_Statement;
+import org.sakaiproject.event.api.LearningResourceStoreService.LRS_Verb;
 import org.sakaiproject.event.api.LearningResourceStoreService.LRS_Verb.SAKAI_VERB;
-import org.sakaiproject.exception.*;
+import org.sakaiproject.event.api.NotificationService;
+import org.sakaiproject.exception.IdInvalidException;
+import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.exception.IdUsedException;
+import org.sakaiproject.exception.InUseException;
+import org.sakaiproject.exception.PermissionException;
+import org.sakaiproject.exception.ServerOverloadException;
+import org.sakaiproject.exception.TypeException;
 import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.service.gradebook.shared.GradeDefinition;
 import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService;
@@ -85,7 +141,6 @@ import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.taggable.api.TaggingManager;
 import org.sakaiproject.taggable.api.TaggingProvider;
-import org.sakaiproject.time.api.TimeService;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.tool.api.ToolManager;
@@ -98,6 +153,7 @@ import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.SortedIterator;
 import org.sakaiproject.util.Validator;
 import org.sakaiproject.util.api.FormattedText;
+import org.sakaiproject.util.api.LinkMigrationHelper;
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
@@ -109,13 +165,14 @@ import org.w3c.dom.Element;
  */
 @Slf4j
 @Transactional(readOnly = true)
-public class AssignmentServiceImpl implements AssignmentService {
+public class AssignmentServiceImpl implements AssignmentService, EntityTransferrer, EntityTransferrerRefMigrator {
 
     @Setter private AnnouncementService announcementService;
     @Setter private AssignmentActivityProducer assignmentActivityProducer;
     @Setter private ObjectFactory<AssignmentEntity> assignmentEntityFactory;
     @Setter private AssignmentPeerAssessmentService assignmentPeerAssessmentService;
     @Setter private AssignmentRepository assignmentRepository;
+    @Setter private AssignmentSupplementItemService assignmentSupplementItemService;
     @Setter private AuthzGroupService authzGroupService;
     @Setter private CalendarService calendarService;
     @Setter private CandidateDetailProvider candidateDetailProvider;
@@ -133,6 +190,7 @@ public class AssignmentServiceImpl implements AssignmentService {
     @Setter private GradebookService gradebookService;
     @Setter private GradeSheetExporter gradeSheetExporter;
     @Setter private LearningResourceStoreService learningResourceStoreService;
+    @Setter private LinkMigrationHelper linkMigrationHelper;
     @Setter private MemoryService memoryService;
     @Setter private ResourceLoader resourceLoader;
     @Setter private SecurityService securityService;
@@ -140,7 +198,6 @@ public class AssignmentServiceImpl implements AssignmentService {
     @Setter private ServerConfigurationService serverConfigurationService;
     @Setter private SiteService siteService;
     @Setter private TaggingManager taggingManager;
-    @Setter private TimeService timeService;
     @Setter private ToolManager toolManager;
     @Setter private UserDirectoryService userDirectoryService;
 
@@ -351,7 +408,7 @@ public class AssignmentServiceImpl implements AssignmentService {
                         if (reference.getId() != null) {
                             Assignment a = getAssignment(reference);
                             if (a != null) {
-                                grouped = Assignment.Access.GROUPED == a.getAccess();
+                                grouped = Assignment.Access.GROUPED == a.getTypeOfAccess();
                                 groups = a.getGroups();
                             }
                         }
@@ -507,7 +564,7 @@ public class AssignmentServiceImpl implements AssignmentService {
 String assignmentId = AssignmentReferenceReckoner.reckoner().reference(assignmentReference).reckon().getId();
         try {
             Assignment a = getAssignment(assignmentId);
-            if (a.getAccess() == Assignment.Access.GROUPED) {
+            if (a.getTypeOfAccess() == Assignment.Access.GROUPED) {
                 // for grouped assignment, need to include those users that with "all.groups" and "grade assignment" permissions on the site level
                 try {
                     AuthzGroup group = authzGroupService.getAuthzGroup(siteService.siteReference(a.getContext()));
@@ -924,14 +981,15 @@ String assignmentId = AssignmentReferenceReckoner.reckoner().reference(assignmen
         } else if (dateReturned == null && !submission.getReturned() && (dateSubmitted == null || submission.getDateModified().getTime() - dateSubmitted.getTime() > 1000 * 60)) {
             // make sure the last modified time is at least one minute after the submit time
             if (!(StringUtils.trimToNull(submission.getSubmittedText()) == null && submission.getAttachments().isEmpty() && StringUtils.trimToNull(submission.getGrade()) == null && StringUtils.trimToNull(submission.getFeedbackText()) == null && StringUtils.trimToNull(submission.getFeedbackComment()) == null && submission.getFeedbackAttachments().isEmpty())) {
-                // graded and saved before releasing it
-                Event event = eventTrackingService.newEvent(AssignmentConstants.EVENT_GRADE_ASSIGNMENT_SUBMISSION, reference, true);
-                eventTrackingService.post(event);
                 if (submission.getGraded()) {
+                	//TODO: This should use an LRS_Group when that exists rather than firing off individual events for each LRS_Actor KNL-1560
                     for (AssignmentSubmissionSubmitter submitter : submission.getSubmitters()) {
                         try {
                             User user = userDirectoryService.getUser(submitter.getSubmitter());
-                            learningResourceStoreService.registerStatement(getStatementForAssignmentGraded(learningResourceStoreService.getEventActor(event), event, submission.getAssignment(), submission, user), "assignment");
+                            LRS_Statement statement = getStatementForAssignmentGraded(reference, submission.getAssignment(), submission, user);
+                            // graded and saved before releasing it
+                            Event event = eventTrackingService.newEvent(AssignmentConstants.EVENT_GRADE_ASSIGNMENT_SUBMISSION, reference, null, true, NotificationService.NOTI_OPTIONAL, statement);
+                            eventTrackingService.post(event);
                         } catch (UserNotDefinedException e) {
                             log.warn("Assignments could not find user ({}) while registering Event for LRSS", submitter.getSubmitter());
                         }
@@ -939,14 +997,15 @@ String assignmentId = AssignmentReferenceReckoner.reckoner().reference(assignmen
                 }
             }
         } else if (dateReturned != null && submission.getGraded() && (dateSubmitted == null || dateReturned.after(dateSubmitted) || dateSubmitted.after(dateReturned) && submission.getDateModified().after(dateSubmitted))) {
-            // releasing a submitted assignment or releasing grade to an unsubmitted assignment
-            Event event = eventTrackingService.newEvent(AssignmentConstants.EVENT_GRADE_ASSIGNMENT_SUBMISSION, reference, true);
-            eventTrackingService.post(event);
             if (submission.getGraded()) {
+            	//TODO: This should use an LRS_Group when that exists rather than firing off individual events for each LRS_Actor KNL-1560
                 for (AssignmentSubmissionSubmitter submitter : submission.getSubmitters()) {
                     try {
                         User user = userDirectoryService.getUser(submitter.getSubmitter());
-                        learningResourceStoreService.registerStatement(getStatementForAssignmentGraded(learningResourceStoreService.getEventActor(event), event, submission.getAssignment(), submission, user), "assignment");
+                    	LRS_Statement statement = getStatementForAssignmentGraded(reference, submission.getAssignment(), submission, user);
+                    	// releasing a submitted assignment or releasing grade to an unsubmitted assignment
+                    	Event event = eventTrackingService.newEvent(AssignmentConstants.EVENT_GRADE_ASSIGNMENT_SUBMISSION, reference, null, true, NotificationService.NOTI_OPTIONAL, statement);
+                    	eventTrackingService.post(event);
                     } catch (UserNotDefinedException e) {
                         log.warn("Assignments could not find user ({}) while registering Event for LRSS", submitter.getSubmitter());
                     }
@@ -956,13 +1015,14 @@ String assignmentId = AssignmentReferenceReckoner.reckoner().reference(assignmen
             // if this is releasing grade, depending on the release grade notification setting, send email notification to student
             sendGradeReleaseNotification(submission);
         } else if (dateSubmitted == null) {
-            // releasing a submitted assignment or releasing grade to an unsubmitted assignment
-            Event event = eventTrackingService.newEvent(AssignmentConstants.EVENT_GRADE_ASSIGNMENT_SUBMISSION, reference, true);
-            eventTrackingService.post(event);
+           	//TODO: This should use an LRS_Group when that exists rather than firing off individual events for each LRS_Actor KNL-1560
             for (AssignmentSubmissionSubmitter submitter : submission.getSubmitters()) {
                 try {
                     User user = userDirectoryService.getUser(submitter.getSubmitter());
-                    learningResourceStoreService.registerStatement(getStatementForUnsubmittedAssignmentGraded(learningResourceStoreService.getEventActor(event), event, submission.getAssignment(), submission, user), "sakai.assignment");
+                    LRS_Statement statement = getStatementForUnsubmittedAssignmentGraded(reference, submission.getAssignment(), submission, user);
+                    // releasing a submitted assignment or releasing grade to an unsubmitted assignment
+                    Event event = eventTrackingService.newEvent(AssignmentConstants.EVENT_GRADE_ASSIGNMENT_SUBMISSION, reference, null, true, NotificationService.NOTI_OPTIONAL, statement);
+                    eventTrackingService.post(event);
                 } catch (UserNotDefinedException e) {
                     log.warn("Assignments could not find user ({}) while registering Event for LRSS", submitter.getSubmitter());
                 }
@@ -1075,7 +1135,7 @@ String assignmentId = AssignmentReferenceReckoner.reckoner().reference(assignmen
             Collection<Assignment> assignments = getAssignmentsForContext(context);
             for (Assignment assignment : assignments) {
                 Set<String> userIds = new HashSet<>();
-                if (assignment.getAccess() == Assignment.Access.GROUPED) {
+                if (assignment.getTypeOfAccess() == Assignment.Access.GROUPED) {
                     for (String groupRef : assignment.getGroups()) {
                         if (groupIdUserIds.containsKey(groupRef)) {
                             userIds.addAll(groupIdUserIds.get(groupRef));
@@ -1683,7 +1743,7 @@ String assignmentId = AssignmentReferenceReckoner.reckoner().reference(assignmen
             if (a != null) {
                 Site st = siteService.getSite(contextString);
                 if (StringUtils.equals(allOrOneGroup, AssignmentConstants.ALL) || StringUtils.isEmpty(allOrOneGroup)) {
-                    if (a.getAccess().equals(Assignment.Access.SITE)) {
+                    if (a.getTypeOfAccess().equals(Assignment.Access.SITE)) {
                         for (Group group : st.getGroups()) {
                             //if (_gg.getProperties().get(GROUP_SECTION_PROPERTY) == null) {		// NO SECTIONS (this might not be valid test for manually created sections)
                             rv.add(group);
@@ -1847,7 +1907,7 @@ String assignmentId = AssignmentReferenceReckoner.reckoner().reference(assignmen
                         // add those users who haven't made any submissions and with submission rights
                         //only initiate the group list once
                         if (groupRefs.isEmpty()) {
-                            if (a.getAccess() == Assignment.Access.SITE) {
+                            if (a.getTypeOfAccess() == Assignment.Access.SITE) {
                                 // for site range assignment, add the site reference first
                                 groupRefs.add(siteService.siteReference(contextString));
                             }
@@ -2381,7 +2441,7 @@ String assignmentId = AssignmentReferenceReckoner.reckoner().reference(assignmen
 
     private Assignment checkAssignmentAccessibleForUser(Assignment assignment, String currentUserId) throws PermissionException {
 
-        if (assignment.getAccess() == Assignment.Access.GROUPED) {
+        if (assignment.getTypeOfAccess() == Assignment.Access.GROUPED) {
             String context = assignment.getContext();
             Collection<String> asgGroups = assignment.getGroups();
             Collection<Group> allowedGroups = getGroupsAllowFunction(SECURE_ACCESS_ASSIGNMENT, context, currentUserId);
@@ -3256,9 +3316,355 @@ String assignmentId = AssignmentReferenceReckoner.reckoner().reference(assignmen
         }
     }
 
-    private LRS_Statement getStatementForAssignmentGraded(LRS_Actor instructor, Event event, Assignment a, AssignmentSubmission s, User studentUser) {
+    @Override
+    @Transactional
+    public void transferCopyEntities(String fromContext, String toContext, List<String> ids) {
+        transferCopyEntitiesRefMigrator(fromContext, toContext, ids);
+    }
+
+    @Override
+    public String[] myToolIds() {
+        return new String[] { "sakai.assignment", "sakai.assignment.grades" };
+    }
+
+    @Override
+    @Transactional
+    public void transferCopyEntities(String fromContext, String toContext, List<String> ids, boolean cleanup) {
+        transferCopyEntitiesRefMigrator(fromContext, toContext, ids, cleanup);
+    }
+
+    @Override
+    @Transactional
+    public void updateEntityReferences(String toContext, Map<String, String> transversalMap) {
+        if (transversalMap != null && !transversalMap.isEmpty()) {
+            Collection<Assignment> assignments = getAssignmentsForContext(toContext);
+            for (Assignment assignment : assignments) {
+                try {
+                    String msgBody = assignment.getInstructions();
+                    StringBuffer msgBodyPreMigrate = new StringBuffer(msgBody);
+                    msgBody = linkMigrationHelper.migrateAllLinks(transversalMap.entrySet(), msgBody);
+//                    SecurityAdvisor securityAdvisor = new MySecurityAdvisor(sessionManager.getCurrentSessionUserId(),
+//                            new ArrayList<String>(Arrays.asList(SECURE_UPDATE_ASSIGNMENT_CONTENT)),
+//                            AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getReference());
+                    try {
+                        if (!msgBody.equals(msgBodyPreMigrate.toString())) {
+                            // add permission to update assignment content
+//                            securityService.pushAdvisor(securityAdvisor);
+                            assignment.setInstructions(msgBody);
+                            updateAssignment(assignment);
+                        }
+                    } catch (Exception e) {
+                        // exception
+                        log.warn("UpdateEntityReference: cannot get assignment content for {}, {}", assignment.getId(), e.getMessage());
+                    } finally {
+                        // remove advisor
+//                        securityService.popAdvisor(securityAdvisor);
+                    }
+                } catch (Exception ee) {
+                    log.warn("UpdateEntityReference: remove Assignment and all references for {}, {}", assignment.getId(), ee.getMessage());
+                }
+            }
+        }
+    }
+
+    @Override
+    @Transactional
+    public Map<String, String> transferCopyEntitiesRefMigrator(String fromContext, String toContext, List<String> ids) {
+        Map<String, String> transversalMap = new HashMap<>();
+        Collection<Assignment> assignments = getAssignmentsForContext(fromContext);
+
+        for (Assignment oAssignment : assignments) {
+            String oAssignmentId = oAssignment.getId();
+            String nAssignmentId = null;
+
+            if (ids == null || ids.isEmpty() || ids.contains(oAssignmentId)) {
+                try {
+                    Assignment nAssignment = addAssignment(toContext);
+                    nAssignmentId = nAssignment.getId();
+
+                    nAssignment.setTitle(oAssignment.getTitle());
+                    // replace all occurrence of old context with new context inside instruction text
+                    nAssignment.setInstructions(oAssignment.getInstructions().replaceAll(fromContext, toContext));
+                    nAssignment.setTypeOfGrade(oAssignment.getTypeOfGrade());
+                    nAssignment.setTypeOfSubmission(oAssignment.getTypeOfSubmission());
+                    // when importing, refer to property to determine draft status
+                    if (serverConfigurationService.getBoolean("import.importAsDraft", false)) {
+                        nAssignment.setDraft(true);
+                    } else {
+                        nAssignment.setDraft(oAssignment.getDraft());
+                    }
+
+                    nAssignment.setCloseDate(oAssignment.getCloseDate());
+                    nAssignment.setDropDeadDate(oAssignment.getDropDeadDate());
+                    nAssignment.setDueDate(oAssignment.getDueDate());
+                    nAssignment.setOpenDate(oAssignment.getOpenDate());
+                    nAssignment.setHideDueDate(oAssignment.getHideDueDate());
+
+                    nAssignment.setSection(oAssignment.getSection());
+                    nAssignment.setPosition(oAssignment.getPosition());
+                    nAssignment.setIsGroup(oAssignment.getIsGroup());
+                    nAssignment.setAllowAttachments(oAssignment.getAllowAttachments());
+                    nAssignment.setHonorPledge(oAssignment.getHonorPledge());
+                    nAssignment.setIndividuallyGraded(oAssignment.getIndividuallyGraded());
+                    nAssignment.setMaxGradePoint(oAssignment.getMaxGradePoint());
+                    nAssignment.setScaleFactor(oAssignment.getScaleFactor());
+                    nAssignment.setReleaseGrades(oAssignment.getReleaseGrades());
+                    // TODO review service
+                    // nAssignment.setAllowReviewService(oContent.getAllowReviewService());
+
+                    // attachments
+                    Set<String> oAttachments = oAssignment.getAttachments();
+                    List<Reference> nAttachments = entityManager.newReferenceList();
+                    for (String oAttachment : oAttachments) {
+                        if (entityManager.checkReference(oAttachment)) {
+                            Reference oReference = entityManager.newReference(oAttachment);
+                            String oAttachmentId = oReference.getId();
+                            if (oAttachmentId.contains(fromContext)) {
+                                // transfer attachment, replace the context string and add new attachment if necessary
+                                transferAttachment(fromContext, toContext, nAttachments, oAttachmentId);
+                            } else {
+                                nAttachments.add(oReference);
+                            }
+                        }
+                    }
+
+                    // peer review
+                    nAssignment.setAllowPeerAssessment(oAssignment.getAllowPeerAssessment());
+                    nAssignment.setPeerAssessmentAnonEval(oAssignment.getPeerAssessmentAnonEval());
+                    nAssignment.setPeerAssessmentInstructions(oAssignment.getPeerAssessmentInstructions());
+                    nAssignment.setPeerAssessmentNumberReviews(oAssignment.getPeerAssessmentNumberReviews());
+                    nAssignment.setPeerAssessmentStudentReview(oAssignment.getPeerAssessmentStudentReview());
+                    nAssignment.setPeerAssessmentPeriodDate(oAssignment.getPeerAssessmentPeriodDate());
+                    if (nAssignment.getPeerAssessmentPeriodDate() == null && nAssignment.getCloseDate() != null) {
+                        // set the peer period time to be 10 mins after accept until date
+                        Instant tenMinutesAfterCloseDate = Instant.from(nAssignment.getCloseDate().toInstant().plus(Duration.ofMinutes(10)));
+                        nAssignment.setPeerAssessmentPeriodDate(Date.from(tenMinutesAfterCloseDate));
+                    }
+
+                    // properties
+                    Map<String, String> nProperties = nAssignment.getProperties();
+                    nProperties.putAll(oAssignment.getProperties());
+                    // remove the link btw assignment and announcement item. One can announce the open date afterwards
+                    nProperties.remove(ResourceProperties.NEW_ASSIGNMENT_CHECK_AUTO_ANNOUNCE);
+                    nProperties.remove(AssignmentConstants.NEW_ASSIGNMENT_OPEN_DATE_ANNOUNCED);
+                    nProperties.remove(ResourceProperties.PROP_ASSIGNMENT_OPENDATE_ANNOUNCEMENT_MESSAGE_ID);
+
+                    // remove the link btw assignment and calendar item. One can add the due date to calendar afterwards
+                    nProperties.remove(ResourceProperties.NEW_ASSIGNMENT_CHECK_ADD_DUE_DATE);
+                    nProperties.remove(AssignmentConstants.NEW_ASSIGNMENT_DUE_DATE_SCHEDULED);
+                    nProperties.remove(ResourceProperties.PROP_ASSIGNMENT_DUEDATE_CALENDAR_EVENT_ID);
+
+                    // gradebook-integration link
+                    String associatedGradebookAssignment = StringUtils.trimToNull(nProperties.get(PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT));
+                    if (associatedGradebookAssignment != null) {
+                        // see if the old assignment's associated gradebook item is an internal gradebook entry or externally defined
+                        boolean isExternalAssignmentDefined = gradebookExternalAssessmentService.isExternalAssignmentDefined(oAssignment.getContext(), associatedGradebookAssignment);
+                        if (isExternalAssignmentDefined) {
+                            // if this is an external defined (came from assignment)
+                            // mark the link as "add to gradebook" for the new imported assignment, since the assignment is still of draft state
+                            //later when user posts the assignment, the corresponding assignment will be created in gradebook.
+                            nProperties.remove(PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT);
+                            nProperties.put(NEW_ASSIGNMENT_ADD_TO_GRADEBOOK, GRADEBOOK_INTEGRATION_ADD);
+                        }
+                    }
+
+                    updateAssignment(nAssignment);
+
+                    transversalMap.put("assignment/" + oAssignmentId, "assignment/" + nAssignmentId);
+                    log.info("Old assignment id: {} - new assignment id: {}", oAssignmentId, nAssignmentId);
+
+                    try {
+                        if (taggingManager.isTaggable()) {
+                            for (TaggingProvider provider : taggingManager.getProviders()) {
+                                provider.transferCopyTags(assignmentActivityProducer.getActivity(oAssignment), assignmentActivityProducer.getActivity(nAssignment));
+                            }
+                        }
+                    } catch (PermissionException pe) {
+                        log.error("{} oAssignmentId={} nAssignmentId={}", pe.toString(), oAssignmentId, nAssignmentId);
+                    }
+
+                    // Import supplementary items if they are present in the assignment to be imported
+                    // Model Answer
+                    AssignmentModelAnswerItem oModelAnswerItem = assignmentSupplementItemService.getModelAnswer(oAssignmentId);
+                    if (oModelAnswerItem != null) {
+                        AssignmentModelAnswerItem nModelAnswerItem = assignmentSupplementItemService.newModelAnswer();
+                        assignmentSupplementItemService.saveModelAnswer(nModelAnswerItem);
+                        nModelAnswerItem.setAssignmentId(nAssignmentId);
+                        nModelAnswerItem.setText(oModelAnswerItem.getText());
+                        nModelAnswerItem.setShowTo(oModelAnswerItem.getShowTo());
+                        Set<AssignmentSupplementItemAttachment> oModelAnswerItemAttachments = oModelAnswerItem.getAttachmentSet();
+                        Set<AssignmentSupplementItemAttachment> nModelAnswerItemAttachments = new HashSet<>();
+                        for (AssignmentSupplementItemAttachment oAttachment : oModelAnswerItemAttachments) {
+                            AssignmentSupplementItemAttachment nAttachment = assignmentSupplementItemService.newAttachment();
+                            // New attachment creation
+                            String nAttachmentId = transferAttachment(fromContext, toContext, null, oAttachment.getAttachmentId().replaceFirst("/content", ""));
+                            if (StringUtils.isNotEmpty(nAttachmentId)) {
+                                nAttachment.setAssignmentSupplementItemWithAttachment(nModelAnswerItem);
+                                nAttachment.setAttachmentId(nAttachmentId);
+                                assignmentSupplementItemService.saveAttachment(nAttachment);
+                                nModelAnswerItemAttachments.add(nAttachment);
+                            }
+                        }
+                        nModelAnswerItem.setAttachmentSet(nModelAnswerItemAttachments);
+                        assignmentSupplementItemService.saveModelAnswer(nModelAnswerItem);
+                    }
+
+                    // Private Note
+                    AssignmentNoteItem oNoteItem = assignmentSupplementItemService.getNoteItem(oAssignmentId);
+                    if (oNoteItem != null) {
+                        AssignmentNoteItem nNoteItem = assignmentSupplementItemService.newNoteItem();
+                        //assignmentSupplementItemService.saveNoteItem(nNoteItem);
+                        nNoteItem.setAssignmentId(nAssignment.getId());
+                        nNoteItem.setNote(oNoteItem.getNote());
+                        nNoteItem.setShareWith(oNoteItem.getShareWith());
+                        nNoteItem.setCreatorId(userDirectoryService.getCurrentUser().getId());
+                        assignmentSupplementItemService.saveNoteItem(nNoteItem);
+                    }
+
+                    // All Purpose
+                    AssignmentAllPurposeItem oAllPurposeItem = assignmentSupplementItemService.getAllPurposeItem(oAssignmentId);
+                    if (oAllPurposeItem != null) {
+                        AssignmentAllPurposeItem nAllPurposeItem = assignmentSupplementItemService.newAllPurposeItem();
+                        assignmentSupplementItemService.saveAllPurposeItem(nAllPurposeItem);
+                        nAllPurposeItem.setAssignmentId(nAssignment.getId());
+                        nAllPurposeItem.setTitle(oAllPurposeItem.getTitle());
+                        nAllPurposeItem.setText(oAllPurposeItem.getText());
+                        nAllPurposeItem.setHide(oAllPurposeItem.getHide());
+                        nAllPurposeItem.setReleaseDate(null);
+                        nAllPurposeItem.setRetractDate(null);
+                        Set<AssignmentSupplementItemAttachment> oAllPurposeItemAttachments = oAllPurposeItem.getAttachmentSet();
+                        Set<AssignmentSupplementItemAttachment> nAllPurposeItemAttachments = new HashSet<>();
+                        for (AssignmentSupplementItemAttachment oAttachment : oAllPurposeItemAttachments) {
+                            AssignmentSupplementItemAttachment nAttachment = assignmentSupplementItemService.newAttachment();
+                            // New attachment creation
+                            String nAttachId = transferAttachment(fromContext, toContext, null, oAttachment.getAttachmentId().replaceFirst("/content", ""));
+                            if (StringUtils.isNotEmpty(nAttachId)) {
+                                nAttachment.setAssignmentSupplementItemWithAttachment(nAllPurposeItem);
+                                nAttachment.setAttachmentId(nAttachId);
+                                assignmentSupplementItemService.saveAttachment(nAttachment);
+                                nAllPurposeItemAttachments.add(nAttachment);
+                            }
+                        }
+                        nAllPurposeItem.setAttachmentSet(nAllPurposeItemAttachments);
+                        assignmentSupplementItemService.cleanAllPurposeItemAccess(nAllPurposeItem);
+                        Set<AssignmentAllPurposeItemAccess> accessSet = new HashSet<>();
+                        AssignmentAllPurposeItemAccess access = assignmentSupplementItemService.newAllPurposeItemAccess();
+                        access.setAccess(userDirectoryService.getCurrentUser().getId());
+                        access.setAssignmentAllPurposeItem(nAllPurposeItem);
+                        assignmentSupplementItemService.saveAllPurposeItemAccess(access);
+                        accessSet.add(access);
+                        nAllPurposeItem.setAccessSet(accessSet);
+                        assignmentSupplementItemService.saveAllPurposeItem(nAllPurposeItem);
+                    }
+                } catch (Exception e) {
+                    log.error("{} oAssignmentId={} nAssignmentId={}", e.toString(), oAssignmentId, nAssignmentId);
+                }
+            }
+        }
+        return transversalMap;
+    }
+
+    @Override
+    @Transactional
+    public Map<String, String> transferCopyEntitiesRefMigrator(String fromContext, String toContext, List<String> ids, boolean cleanup) {
+        Map<String, String> transversalMap = new HashMap<>();
+
+        try {
+            if (cleanup) {
+                Collection<Assignment> assignments = getAssignmentsForContext(toContext);
+                for (Assignment assignment : assignments) {
+                    String assignmentId = assignment.getId();
+
+//                    SecurityAdvisor securityAdvisor = new MySecurityAdvisor(sessionManager.getCurrentSessionUserId(),
+//                            new ArrayList<>(Arrays.asList(SECURE_UPDATE_ASSIGNMENT, SECURE_REMOVE_ASSIGNMENT)),
+//                            assignmentId);
+                    try {
+                        // advisor to allow edit and remove assignment
+//                        securityService.pushAdvisor(securityAdvisor);
+
+                        // remove this assignment with all its associated items
+                        removeAssignmentAndAllReferences(assignment);
+                    } catch (Exception e) {
+                        log.warn("Remove assignment and all references for {}, {}", assignmentId, e.getMessage());
+                    } finally {
+                        // remove SecurityAdvisor
+//                        securityService.popAdvisor(securityAdvisor);
+                    }
+                }
+            }
+            transversalMap.putAll(transferCopyEntitiesRefMigrator(fromContext, toContext, ids));
+        } catch (Exception e) {
+            log.info("End removing Assignmentt data {}", e.getMessage());
+        }
+
+        return transversalMap;
+    }
+
+    private String transferAttachment(String fromContext, String toContext, List<Reference> nAttachments, String oAttachmentId) {
+        String reference = "";
+        String nAttachmentId = oAttachmentId.replaceAll(fromContext, toContext);
+        try {
+            ContentResource attachment = contentHostingService.getResource(nAttachmentId);
+            if (nAttachments != null) {
+                nAttachments.add(entityManager.newReference(attachment.getReference()));
+            }
+            reference = attachment.getReference();
+        } catch (IdUnusedException iue) {
+            try {
+                ContentResource oAttachment = contentHostingService.getResource(oAttachmentId);
+                try (InputStream content = new ByteArrayInputStream(oAttachment.getContent())) {
+                    if (contentHostingService.isAttachmentResource(nAttachmentId)) {
+                        // add the new resource into attachment collection area
+                        ContentResource attachment = contentHostingService.addAttachmentResource(
+                                Validator.escapeResourceName(oAttachment.getProperties().getProperty(ResourceProperties.PROP_DISPLAY_NAME)),
+                                toContext,
+                                toolManager.getTool("sakai.assignment.grades").getTitle(),
+                                oAttachment.getContentType(),
+                                content,
+                                oAttachment.getProperties());
+                        // add to attachment list
+                        if (nAttachments != null) {
+                            nAttachments.add(entityManager.newReference(attachment.getReference()));
+                        }
+                        reference = attachment.getReference();
+                    } else {
+                        // add the new resource into resource area
+                        ContentResource attachment = contentHostingService.addResource(
+                                Validator.escapeResourceName(oAttachment.getProperties().getProperty(ResourceProperties.PROP_DISPLAY_NAME)),
+                                toContext,
+                                1,
+                                oAttachment.getContentType(),
+                                content,
+                                oAttachment.getProperties(),
+                                Collections.emptyList(),
+                                false,
+                                null,
+                                null,
+                                NotificationService.NOTI_NONE);
+                        // add to attachment list
+                        if (nAttachments != null) {
+                            nAttachments.add(entityManager.newReference(attachment.getReference()));
+                        }
+                        reference = attachment.getReference();
+                    }
+                } catch (Exception e) {
+                    // if the new resource cannot be added
+                    log.warn("Cannot add new attachment with id = {}, {}", nAttachmentId, e.getMessage());
+                }
+            } catch (Exception e) {
+                // if cannot find the original attachment, do nothing.
+                log.warn("Cannot get the original attachment with id = {}, {}", oAttachmentId, e.getMessage());
+            }
+        } catch (Exception e) {
+            log.warn("Could not get the new attachment with id = {}, {}", nAttachmentId, e.getMessage());
+        }
+        return reference;
+    }
+
+    private LRS_Statement getStatementForAssignmentGraded(String reference, Assignment a, AssignmentSubmission s, User studentUser) {
+    	LRS_Actor instructor = learningResourceStoreService.getActor(sessionManager.getCurrentSessionUserId());
         LRS_Verb verb = new LRS_Verb(SAKAI_VERB.scored);
-        LRS_Object lrsObject = new LRS_Object(serverConfigurationService.getPortalUrl() + event.getResource(), "received-grade-assignment");
+        LRS_Object lrsObject = new LRS_Object(serverConfigurationService.getPortalUrl() + reference, "received-grade-assignment");
         Map<String, String> nameMap = new HashMap<>();
         nameMap.put("en-US", "User received a grade");
         lrsObject.setActivityName(nameMap);
@@ -3289,9 +3695,10 @@ String assignmentId = AssignmentReferenceReckoner.reckoner().reference(assignmen
         return result;
     }
 
-    private LRS_Statement getStatementForUnsubmittedAssignmentGraded(LRS_Actor instructor, Event event, Assignment a, AssignmentSubmission s, User studentUser) {
+    private LRS_Statement getStatementForUnsubmittedAssignmentGraded(String reference, Assignment a, AssignmentSubmission s, User studentUser) {
+    	LRS_Actor instructor = learningResourceStoreService.getActor(sessionManager.getCurrentSessionUserId());
         LRS_Verb verb = new LRS_Verb(SAKAI_VERB.scored);
-        LRS_Object lrsObject = new LRS_Object(serverConfigurationService.getAccessUrl() + event.getResource(), "received-grade-unsubmitted-assignment");
+        LRS_Object lrsObject = new LRS_Object(serverConfigurationService.getAccessUrl() + reference, "received-grade-unsubmitted-assignment");
         Map<String, String> nameMap = new HashMap<>();
         nameMap.put("en-US", "User received a grade");
         lrsObject.setActivityName(nameMap);

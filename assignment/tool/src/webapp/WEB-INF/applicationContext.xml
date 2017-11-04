@@ -16,7 +16,6 @@
 		<property name="gradebookService" ref="org.sakaiproject.service.gradebook.GradebookService" />
 		<property name="gradebookExternalService" ref="org.sakaiproject.service.gradebook.GradebookExternalAssessmentService" />
 		<property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService" />
-		<property name="timeService" ref="org.sakaiproject.time.api.TimeService" />
 	</bean>
 	
 </beans>
