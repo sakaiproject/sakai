@@ -51,7 +51,7 @@ $(document).ready(function(){
 		#set($closeDate = $submission.CloseDate)
 	#end
 	#set ($submissionType = $assignment.TypeOfSubmission.ordinal())
-	#if ($allowSubmit && !$submission && $!closeDate && $currentTime.after($closeDate) )
+	#if ($allowSubmit && $submission && $closeDate && $currentTime.isAfter($closeDate) )
 		<div class="alertMessage">$tlang.getString("stuviewsubm.theclodat")</div><div class="clear"></div>
 	#end
 
@@ -74,7 +74,7 @@ $(document).ready(function(){
 ##						</span>
 					#end
 				#end
-				#if ($!dateReturned && $!dateSubmitted && $!dateReturned.after($!dateSubmitted))
+				#if ($dateReturned && $dateSubmitted && $dateReturned.isAfter($dateSubmitted))
 				$validator.escapeHtml($assignment.getTitle())
 					<span class="highlight">
 						 - $tlang.getString("resubmit")
@@ -83,14 +83,14 @@ $(document).ready(function(){
 				</h3>
 			#end
 			#if ($returned)
-					#if ($!dateSubmitted && $!dateReturned && $!dateReturned.after($!dateSubmitted))
+					#if ($dateSubmitted && $dateReturned && $dateReturned.isAfter($dateSubmitted))
 					<p class="instruction">
-						$tlang.getString("stuviewsubm.asshasbee4") $submission.DateReturned.toString(). $tlang.getString("stuviewsubm.plesub")
+						$tlang.getString("stuviewsubm.asshasbee4") $!service.getUsersLocalDateTimeString($submission.DateReturned) $tlang.getString("stuviewsubm.plesub")
 					</p>	
 					#else
 					<p class="instruction">
-						$tlang.getString("stuviewsubm.asshasbee3") $submission.DateSubmitted.toString().
-						#if ($!dateSubmitted && $!dateSubmitted.after($assignment.DueDate))
+						$tlang.getString("stuviewsubm.asshasbee3") $!service.getUsersLocalDateTimeString($submission.DateSubmitted)
+						#if ($dateSubmitted && $dateSubmitted.isAfter($assignment.DueDate))
 							<span class="highlight"> $tlang.getString("gen.late")</span>
 						#end
 					</p>	
@@ -100,8 +100,8 @@ $(document).ready(function(){
                         #elseif (!$submission.Submitted)
                                         $submission.getStatus()
 			#else
-					<p class="instruction">$tlang.getString("gen.hasbee") $submission.DateSubmitted.toString()</p>
-					#if ($!dateSubmitted && $!dateSubmitted.after($assignment.DueDate))
+					<p class="instruction">$tlang.getString("gen.hasbee") $!service.getUsersLocalDateTimeString($submission.DateSubmitted)</p>
+					#if ($!dateSubmitted && $!dateSubmitted.isAfter($assignment.DueDate))
 						<span class="highlight"> $tlang.getString("gen.late")</span>
 					#end
 			#end
@@ -167,7 +167,7 @@ $(document).ready(function(){
 				<div class="col-lg-4 col-sm-6 col-xs-12">
 					<div class="itemSummaryValue">
 						#if (!$assignment.HideDueDate || $!allowUpdateAssignment)
-							$!assignment.DueDate.toString()
+							$!service.getUsersLocalDateTimeString($!assignment.DueDate)
 						#end
 					</div>
 				</div>
@@ -207,13 +207,13 @@ $(document).ready(function(){
 					<div class="col-lg-4 col-sm-6 col-xs-12">
 						<div class="itemSummaryValue">
 							#if ($!submission)
-								#if ($submitted && $!dateSubmitted)
+								#if ($submitted && $dateSubmitted)
 									#if ($returned)
-										#if ($!dateReturned && $!dateSubmitted && $!dateReturned.after($!dateSubmitted))
-											$tlang.getString("gen.retu") $submission.dateReturned.toString()
+										#if ($dateReturned && $dateSubmitted && $dateReturned.isAfter($dateSubmitted))
+											$tlang.getString("gen.retu") $!service.getUsersLocalDateTimeString($submission.dateReturned)
 										#else
-											$tlang.getString("gen.resub") $submission.DateSubmitted.toString()
-											#if ($!dateSubmitted && $!dateSubmitted.after($assignment.DueDate))
+											$tlang.getString("gen.resub") $!service.getUsersLocalDateTimeString($submission.DateSubmitted)
+											#if ($dateSubmitted && $!dateSubmitted.isAfter($assignment.DueDate))
 												<span class="highlight"> $tlang.getString("gen.late")</span>
 											#end
 										#end
@@ -224,8 +224,8 @@ $(document).ready(function(){
 											$tlang.getString("gen.commented")
 										#end
 									#else
-										$tlang.getString("gen.subm4") $submission.dateSubmitted.toString()
-										#if ($!dateSubmitted && $!dateSubmitted.after($assignment.DueDate))
+										$tlang.getString("gen.subm4") $!service.getUsersLocalDateTimeString($submission.DateSubmitted)
+										#if ($dateSubmitted && $dateSubmitted.isAfter($assignment.DueDate))
 											<span class="highlight">$tlang.getString("gen.late2")</span>
 										#end
 									#end
@@ -294,14 +294,14 @@ $(document).ready(function(){
 			##show alert when assignment is modified and the modified date is after its open date	
 			#set($newAssignment="false")
 			#set($newAssignment=$assignment.Properties.get("newAssignment"))
-			#if ($assignment.DateModified.after($assignment.OpenDate) && !$!newAssignment.equalsIgnoreCase("true"))
+			#if ($assignment.DateModified.isAfter($assignment.OpenDate) && !$!newAssignment.equalsIgnoreCase("true"))
 				<div class="row">
 					<div class="col-lg-4 col-sm-6 col-xs-12">
 						<div class="itemSummaryHeader">$tlang.getString("gen.modbyins")</div>
 					</div>
 					<div class="col-lg-4 col-sm-6 col-xs-12">
 						<div class="itemSummaryValue">
-							$assignment.DateModified.toString()
+							$!service.getUsersLocalDateTimeString($assignment.DateModified)
 						</div>
 					</div>
 				</div>
@@ -744,7 +744,7 @@ $(document).ready(function(){
 			#if (($submissionType==2) || ($submissionType==3) || ($submissionType==5)) 
 				#if ($submissionType==2 && !$unsubmittableInline)
 					<p class="instruction">
-						#if (($submitted && !$returned) || ($returned && $!dateReturned && $!dateSubmitted && $!dateReturned.before($!dateSubmitted)) || ($!closeDate && $currentTime.after($closeDate)))
+						#if (($submitted && !$returned) || ($returned && $dateReturned && $dateSubmitted && $dateReturned.isBefore($dateSubmitted)) || ($closeDate && $currentTime.isAfter($closeDate)))
 							## for submitted not yet returned submission; or returned by resubmitted submission; or after close date
 							$tlang.getString("stuviewsubm.youatt")
 						#else
@@ -986,7 +986,7 @@ $(document).ready(function(){
 				#end
 			#end
 
-				#if ($returned && $!dateReturned && ($!dateSubmitted && $!dateReturned && $!dateReturned.after($!dateSubmitted) || !$!dateSubmitted))
+				#if ($returned && $dateReturned && ($dateSubmitted && $dateReturned && $dateReturned.isAfter($dateSubmitted) || !$dateSubmitted))
 					#if (($!submission.FeedbackComment) && ($submission.FeedbackComment.trim().length()>0))
 						#if ($submissionType==2)
 							<h3>$tlang.getString("gen.addinst2")</h3>

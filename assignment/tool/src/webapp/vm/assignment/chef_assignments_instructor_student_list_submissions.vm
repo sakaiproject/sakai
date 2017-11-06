@@ -168,8 +168,8 @@
 										<td headers="submitted">
 											#if ($!submission.submitted)
 												#if (!$isAnon)
-													$!submission.TimeSubmitted.toStringLocalFull()
-													#if ($submission.getTimeSubmitted().after($assignment.DueTime))<span class="highlight">$tlang.getString("gen.late2")</span>
+													$!service.getUsersLocalDateTimeString($!submission.DateSubmitted)
+													#if ($submission.DateSubmitted.isAfter($assignment.DueTime))<span class="highlight">$tlang.getString("gen.late2")</span>
 													#end
 													#set ($submitterId = false)
 													#set ($submitterId = $!submission.getProperties().getProperty("submitted_user_id"))
@@ -179,7 +179,7 @@
 															($tlang.getString("listsub.submitted.on.behalf") $validator.escapeHtml($member.sortName))
 														#end
 													#end
-												#elseif ($!submission.TimeSubmitted.toStringLocalFull())
+												#elseif ($!submission.DateSubmitted)
 													$tlang.getString("gen.subm4") $tlang.getString("submitted.date.redacted")
 												#end
 											#end

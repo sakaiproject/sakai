@@ -312,7 +312,7 @@ public class AssignmentEntity implements LessonEntity, AssignmentInterface {
 	    assignment = getAssignment(id);
 	if (assignment == null)
 	    return null;
-	return assignment.getDueDate();
+	return Date.from(assignment.getDueDate());
     }
 
     // the following methods all take references. So they're in effect static.
@@ -724,8 +724,8 @@ public class AssignmentEntity implements LessonEntity, AssignmentInterface {
 	    attachments.add(EntityManager.newReference("/content" + href).getReference());
 	    a.setAttachments(attachments);
 	    a.setContext(context);
-	    a.setOpenDate(Date.from(Instant.now()));
-	    a.setDueDate(Date.from(Instant.now().plus(1, ChronoUnit.YEARS)));
+	    a.setOpenDate(Instant.now());
+	    a.setDueDate(Instant.now().plus(1, ChronoUnit.YEARS));
 	    a.setDraft(hide);
 	    a.setTypeOfAccess(Assignment.Access.SITE);
 	    a.setGroups(new HashSet<>());
@@ -840,8 +840,8 @@ public class AssignmentEntity implements LessonEntity, AssignmentInterface {
 		a.setAttachments(attachs);
 
 		a.setContext(context);
-	    a.setOpenDate(Date.from(Instant.now()));
-	    a.setDueDate(Date.from(Instant.now().plus(1, ChronoUnit.YEARS)));
+	    a.setOpenDate(Instant.now());
+	    a.setDueDate(Instant.now().plus(1, ChronoUnit.YEARS));
 
 	    a.setDraft(hide);
 	    a.setTypeOfAccess(Assignment.Access.SITE);

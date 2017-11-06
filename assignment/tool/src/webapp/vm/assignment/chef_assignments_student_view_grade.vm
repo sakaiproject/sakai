@@ -105,7 +105,7 @@
                 <td>
                     ## get submit time
                     #if ($!submitTime)
-                        $submitTime.toString()
+                        $!service.getUsersLocalDateTimeString($submitTime)
                     #end
                     <br/>
                 </td>

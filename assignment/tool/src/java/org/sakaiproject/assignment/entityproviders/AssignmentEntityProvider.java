@@ -186,7 +186,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
                         .allowGetAssignment(assignmentContext);
                 // check for read permission
                 if (allowReadAssignment
-                        && a.getOpenDate().toInstant().isBefore(Instant.now())) {
+                        && a.getOpenDate().isBefore(Instant.now())) {
                     // this checks if we want to display an assignment link
                     try {
                         Site site = siteService.getSite(assignmentContext); // site id
@@ -520,19 +520,19 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
             props.put("status", assignmentService.getAssignmentCannonicalStatus(assignmentId).toString());
             props.put("portalURL", entity.getUrl());
             if (assignment.getDateCreated() != null) {
-                props.put("created_time", assignment.getDateCreated().toInstant().toString());
+                props.put("created_time", assignment.getDateCreated().toString());
             }
             // TODO add
 //			if (assignment.getAuthorLastModified() != null) {
 //				props.put("modified_by", assignment.getAuthorLastModified());
 //			}
             if (assignment.getDateModified() != null) {
-                props.put("modified_time", assignment.getDateModified().toInstant().toString());
+                props.put("modified_time", assignment.getDateModified().toString());
             }
-            props.put("due_time", assignment.getDueDate().toInstant().toString());
-            props.put("open_time", assignment.getOpenDate().toInstant().toString());
+            props.put("due_time", assignment.getDueDate().toString());
+            props.put("open_time", assignment.getOpenDate().toString());
             if (assignment.getDropDeadDate() != null) {
-                props.put("retract_time", assignment.getDropDeadDate().toInstant().toString());
+                props.put("retract_time", assignment.getDropDeadDate().toString());
             }
 
             Site site = siteService.getSite(assignment.getContext());
@@ -618,7 +618,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
         /**
          * the first time at which the assignment can be viewed; may be null.
          */
-        private Date openTime;
+        private Instant openTime;
 
         /**
          * the first time at which the assignment can be viewed; (String)
@@ -628,7 +628,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
         /**
          * the time at which the assignment is due; may be null.
          */
-        private Date dueTime;
+        private Instant dueTime;
 
         /**
          * the time at which the assignment is due; (String)
@@ -639,7 +639,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
          * the drop dead time after which responses to this assignment are
          * considered late; may be null.
          */
-        private Date dropDeadTime;
+        private Instant dropDeadTime;
 
         /**
          * the drop dead time after which responses to this assignment are
@@ -651,7 +651,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
          * the close time after which this assignment can no longer be viewed,
          * and after which submissions will not be accepted. May be null.
          */
-        private Date closeTime;
+        private Instant closeTime;
 
         /**
          * the close time after which this assignment can no longer be viewed,
@@ -682,7 +682,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
         /**
          * the time that this object was created.
          */
-        private Date timeCreated;
+        private Instant timeCreated;
 
         /**
          * the list of authors.
@@ -697,7 +697,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
         /**
          * the time of last modificaiton.
          */
-        private Date timeLastModified;
+        private Instant timeLastModified;
 
         /**
          * the author of last modification
@@ -788,13 +788,13 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
             this.id = a.getId();
             this.contentReference = AssignmentReferenceReckoner.reckoner().assignment(a).reckon().getReference();
             this.openTime = a.getOpenDate();
-            this.openTimeString = a.getOpenDate().toInstant().toString();
+            this.openTimeString = a.getOpenDate().toString();
             this.dueTime = a.getDueDate();
-            this.dueTimeString = a.getDueDate().toInstant().toString();
+            this.dueTimeString = a.getDueDate().toString();
             this.dropDeadTime = a.getDropDeadDate();
-            this.dropDeadTimeString = a.getDropDeadDate().toInstant().toString();
+            this.dropDeadTimeString = a.getDropDeadDate().toString();
             this.closeTime = a.getCloseDate();
-            this.closeTimeString = a.getCloseDate().toInstant().toString();
+            this.closeTimeString = a.getCloseDate().toString();
             this.section = a.getSection();
             this.context = a.getContext();
             this.draft = a.getDraft();
