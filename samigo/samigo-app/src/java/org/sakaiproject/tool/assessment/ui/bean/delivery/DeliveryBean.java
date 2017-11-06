@@ -279,7 +279,6 @@ public class DeliveryBean
   private boolean showTimeWarning;
   private boolean hasShowTimeWarning;
   private boolean turnIntoTimedAssessment;
-  private boolean useDueDate;
   private boolean submitFromTimeoutPopup;
   private boolean  skipFlag;
   private Date deadline;
@@ -3699,7 +3698,6 @@ public class DeliveryBean
 				  else {
 					  if (retractDate != null) {
 						  finalTimeLimit = getTimeBeforeRetract(timeLimit);
-						  useDueDate = false;
 					  }
 				  }
 			  }
@@ -3707,7 +3705,6 @@ public class DeliveryBean
 		  else {
 			  if (retractDate != null) {
 				  finalTimeLimit = getTimeBeforeRetract(timeLimit);
-				  useDueDate = false;
 			  }
 		  }
 		 
@@ -4042,16 +4039,6 @@ public class DeliveryBean
 	  public void setTurnIntoTimedAssessment(boolean turnIntoTimedAssessment)
 	  {
 	    this.turnIntoTimedAssessment = turnIntoTimedAssessment;
-	  }
-	  
-	  public boolean getUseDueDate()
-	  {
-	    return useDueDate;
-	  }
-
-	  public void setUseDueDate(boolean useDueDate)
-	  {
-	    this.useDueDate = useDueDate;
 	  }
 
 	  public boolean getsubmitFromTimeoutPopup() {
