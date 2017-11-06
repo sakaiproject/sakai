@@ -457,7 +457,7 @@
 								$!service.getUsersLocalDateTimeString($!assignment.OpenDate)
 							</td>
 							<td headers="dueDate">
-							#if ($assignment.HideDueDate || $!allowUpdateAssignment)
+							#if (!$assignment.HideDueDate || $!allowUpdateAssignment)
 								##Instructors can still see the due date
 								<span class="highlight">$!service.getUsersLocalDateTimeString($!assignment.DueDate)</span>
 							#end
