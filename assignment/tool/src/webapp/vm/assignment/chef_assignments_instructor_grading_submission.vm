@@ -157,9 +157,9 @@
                         #set($timeSubmitted=false)
                         #set($timeSubmitted=$submission.DateSubmitted)
                         #if ($!timeSubmitted)
-                            $!timeSubmitted.toString()
+                            $!service.getUsersLocalDateTimeString($!timeSubmitted)
                         #end
-                        #if ($!timeSubmitted && $timeSubmitted.after($assignment.DueDate))
+                        #if ($!timeSubmitted && $timeSubmitted.isAfter($assignment.DueDate))
                             <span class="highlight">$tlang.getString("gen.late2")</span>
                         #end
                     </td>

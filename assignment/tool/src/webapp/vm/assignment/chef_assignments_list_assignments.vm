@@ -282,7 +282,7 @@
 									#else
 										#if ($!allowAddAssignment)
 											## still for instructor, different view
-											#if ($!submission && $!submitTime)
+											#if ($!submission && $submitTime)
 												#set($allowResubmitNumber=$!submissionProperties.getProperty($!allowResubmitNumberProp))
 												#if(!$!allowResubmitNumber.equals("0"))
 													#set($allowResubmitCloseTimeString=$!submissionProperties.getProperty($!allowResubmitCloseTimeProp))
@@ -328,7 +328,7 @@
 											## SAK-21525 END
 											#if($!allowSubmit)
 												## for those who can submit
-												#if ($!submission && ($!submitTime || $!submissionReturned))
+												#if ($!submission && ($submitTime || $!submissionReturned))
 													## is there a submission already?
 													#set($allowResubmitNumber=$!submissionProperties.getProperty($!allowResubmitNumberProp))
 													#if(!$!allowResubmitNumber.equals("0"))
@@ -444,7 +444,7 @@
 									#if ($!submission)
 										$!service.getSubmissionStatus($submission.Id)
 										#if ($submission.Submitted)
-											#if ($assignment.DueDate && $submission.DateSubmitted && $submission.DateSubmitted.after($assignment.DueDate))
+											#if ($assignment.DueDate && $submission.DateSubmitted && $submission.DateSubmitted.isAfter($assignment.DueDate))
 												<span class="highlight">$tlang.getString("gen.late2")</span>
 											#end
 										#end
@@ -454,12 +454,12 @@
 								#end
 							</td>
 							<td headers="openDate" class="hidden-xs">
-								$!assignment.OpenDate.toString()
+								$!service.getUsersLocalDateTimeString($!assignment.OpenDate)
 							</td>
 							<td headers="dueDate">
-							#if ($assignment.HideDueDate != "true" || $!allowUpdateAssignment)
+							#if ($assignment.HideDueDate || $!allowUpdateAssignment)
 								##Instructors can still see the due date
-								<span class="highlight">$!assignment.DueDate.toString()</span>
+								<span class="highlight">$!service.getUsersLocalDateTimeString($!assignment.DueDate)</span>
 							#end
 
 							</td>
@@ -593,7 +593,7 @@
 								</td>
 								<!-- open col -->
 								<td>
-									$!assignment.CloseDate.toString()
+									$!service.getUsersLocalDateTimeString($!assignment.CloseDate)
 								</td>
 								<!-- due col -->
 								<td>

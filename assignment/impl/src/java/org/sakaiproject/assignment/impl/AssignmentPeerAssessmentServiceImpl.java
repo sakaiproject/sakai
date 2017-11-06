@@ -15,6 +15,7 @@
  */
 package org.sakaiproject.assignment.impl;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -68,15 +69,14 @@ public class AssignmentPeerAssessmentServiceImpl extends HibernateDaoSupport imp
         try {
             assignment = assignmentService.getAssignment(assignmentId);
             if (!assignment.getDraft() && assignment.getAllowPeerAssessment()) {
-                Date assignmentCloseTime = assignment.getCloseDate();
-                Date openTime = null;
+                Instant assignmentCloseTime = assignment.getCloseDate();
+                Instant openTime = null;
                 if (assignmentCloseTime != null) {
-                    openTime = new Date(assignmentCloseTime.getTime());
+                    openTime = assignmentCloseTime;
                 }
                 // Schedule the new notification
                 if (openTime != null) {
-                    scheduledInvocationManager.createDelayedInvocation(openTime.toInstant(),
-                            "org.sakaiproject.assignment.api.AssignmentPeerAssessmentService", assignmentId);
+                    scheduledInvocationManager.createDelayedInvocation(openTime, "org.sakaiproject.assignment.api.AssignmentPeerAssessmentService", assignmentId);
                 }
             }
         } catch (Exception e) {

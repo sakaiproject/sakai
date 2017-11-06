@@ -97,10 +97,10 @@
 					$validator.escapeHtml($validator.limit($!assignment.Title, 45))
 				</span>
 				<span class="col-md-3 col-sm-3 col-xs-12">
-					$!assignment.OpenDate.toString()
+					$!service.getUsersLocalDateTimeString($!assignment.OpenDate)
 				</span>
 				<span class="col-md-3 col-sm-3 col-xs-12">
-					$!assignment.DueDate.toString()
+					$!service.getUsersLocalDateTimeString($!assignment.DueDate)
 					<select name="position_$validator.escapeUrl("$assignment.id")" class="selectSet">
 						#foreach($i in [1..$assignmentsize])
 						<option value="$i"#if("$i" == "$count") selected="selected"#end>$i</option>
