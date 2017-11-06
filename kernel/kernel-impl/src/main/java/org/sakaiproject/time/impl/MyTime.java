@@ -72,7 +72,7 @@ public class MyTime implements Time
 	public MyTime(BasicTimeService timeService)
 	{
 		this.timeService = timeService;
-		m_millisecondsSince = System.currentTimeMillis();
+		m_millisecondsSince = timeService.getClock().millis();
 	}
 
 	/**
