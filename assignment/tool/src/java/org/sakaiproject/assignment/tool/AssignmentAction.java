@@ -1519,7 +1519,7 @@ public class AssignmentAction extends PagedResourceActionII {
         context.put("value_submission_text", state.getAttribute(VIEW_SUBMISSION_TEXT));
         context.put("name_submission_honor_pledge_yes", VIEW_SUBMISSION_HONOR_PLEDGE_YES);
         context.put("value_submission_honor_pledge_yes", state.getAttribute(VIEW_SUBMISSION_HONOR_PLEDGE_YES));
-        context.put("honor_pledge_text", serverConfigurationService.getString("assignment.honor.pledge", rb.getString("gen.honple2")));
+        context.put("honor_pledge_text", serverConfigurationService.getString("assignment.honor.pledge", HonorPledge.honorPledge2()));
         context.put("attachments", stripInvisibleAttachments(state.getAttribute(ATTACHMENTS)));
         context.put("new_attachments", newAttachments);
         context.put("userDirectoryService", userDirectoryService);
