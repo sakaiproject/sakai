@@ -195,7 +195,7 @@
 			</tr>
 			<tr> 
 				<th>
-					$tlang.getString("gen.honple")
+					$honor_pledge
 				</th>
 				<td> 
 					#if ($assignment.HonorPledge)

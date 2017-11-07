@@ -1094,6 +1094,7 @@ $(document).ready(function(){
 					#end
 				#end
 				#if ($!assignment.HonorPledge)
+					<span class="messageInformation">
 					<p class="checkbox highlightPanel">
 						<label for="$name_submission_honor_pledge_yes">
 							#if (!$!canSubmit)
@@ -1115,6 +1116,7 @@ $(document).ready(function(){
 						<br />
 						$tlang.getString("gen.youmus")
 					</p>
+					</span>
 				#end
 				<div id="submitPanel"
 					#if ($!deleted.equalsIgnoreCase("true") || !$!canSubmit)

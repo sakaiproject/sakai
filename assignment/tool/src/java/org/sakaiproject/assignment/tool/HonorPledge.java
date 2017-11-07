@@ -33,13 +33,48 @@ public class HonorPledge {
 		ServerConfigurationService serverConfigurationService = ComponentManager.get(ServerConfigurationService.class);
 		String ui = serverConfigurationService.getString("assignment.ui", "sakai");
 		String hp2 = null; 
-		//String ui = "uct";
 		String honorpledge = ui + ".gen.honple2";
 		hp2 = rb.getString(honorpledge);
 
 		if (("[missing key (mre): honorpledge " + honorpledge + "]").equals(hp2)) {
 			log.debug("gen.honple2 null!");
 			hp2 = rb2.getString("gen.honple2");
+		}
+		
+		return hp2;
+	}
+	
+	/**
+	 * @return
+	 */
+	public static String honorPledge() {
+		ServerConfigurationService serverConfigurationService = ComponentManager.get(ServerConfigurationService.class);
+		String ui = serverConfigurationService.getString("assignment.ui", "sakai");
+		String hp2 = null; 
+		String honorpledge = ui + ".gen.honple";
+		hp2 = rb.getString(honorpledge);
+
+		if (("[missing key (mre): honorpledge " + honorpledge + "]").equals(hp2)) {
+			log.debug("gen.honple2 null!");
+			hp2 = rb2.getString("gen.honple");
+		}
+		
+		return hp2;
+	}
+	
+	/**
+	 * @return
+	 */
+	public static String addHonorPledge() {
+		ServerConfigurationService serverConfigurationService = ComponentManager.get(ServerConfigurationService.class);
+		String ui = serverConfigurationService.getString("assignment.ui", "sakai");
+		String hp2 = null; 
+		String honorpledge = ui + ".gen.addhonple";
+		hp2 = rb.getString(honorpledge);
+
+		if (("[missing key (mre): honorpledge " + honorpledge + "]").equals(hp2)) {
+			log.debug("gen.honple2 null!");
+			hp2 = rb2.getString("gen.addhonple");
 		}
 		
 		return hp2;
