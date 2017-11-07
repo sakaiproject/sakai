@@ -41,11 +41,13 @@
             </activation>
             <modules>
                 <module>master</module>
-                <module>admin-tools</module>
+                <!--module>admin-tools</module> : UCT not using it -->
                 <module>access</module>
+                <!--module>alias</module> : dropped in 12.x -->
                 <module>announcement</module>
                 <module>archive</module>
                 <module>assignment</module>
+                <!--module>authz</module> : dropped in 12.x -->
                 <module>basiclti</module>
                 <module>calendar</module>
                 <module>chat</module>
@@ -78,7 +80,8 @@
                 <module>library</module>
                 <module>login</module>
                 <module>mailarchive</module>
-                <module>mailsender</module>
+                <!--module>mailsender</module> : UCT not using it -->
+                <!--module>memory</module> : dropped in 12.x -->
                 <module>message</module>
                 <module>msgcntr</module>
                 <module>mycalendar</module>
@@ -92,8 +95,10 @@
                 <module>presence</module>
                 <module>profile2</module>
                 <module>providers</module>
+                <!--module>reference</module> : dropped in 12.x -->
                 <module>reset-pass</module>
-                <module>roster2</module>
+                <!--module>rights</module> : dropped in 12.x -->
+		            <module>roster2</module>
                 <module>rsf</module>
                 <!--<module>rubrics</module>-->
                 <module>rwiki</module>
@@ -118,6 +123,29 @@
                 <module>web</module>
                 <module>webjars</module>
                 <module>webservices</module>
+
+            		<!-- UCT -->
+            		<module>uct-quartz</module>
+            		<module>uct-site-manage</module>
+            		<module>profilesearch</module>
+            		<module>spml</module>
+            		<module>profilewow</module>
+
+            		<!-- contrib -->
+            		<module>useralias</module>
+            		<module>sms</module>
+            		<module>qna</module>
+            		<module>groupmanager</module>
+            		<module>blogwow</module>
+            		<module>evaluation</module>
+
+            		<!-- Turnitin Legacy API content-review implementation -->
+            		<module>turnitin/contentreview-impl</module>
+                
+                <!-- Older, removed from 11.x but still in use at UCT -->
+            		<module>linktool</module>
+                <module>profile</module>
+                <module>roster</module>
             </modules>
         </profile>
         <profile>
