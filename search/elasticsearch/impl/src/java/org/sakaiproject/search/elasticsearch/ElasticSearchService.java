@@ -558,9 +558,8 @@ public class ElasticSearchService implements SearchService {
         return (int) response.getCount();
     }
 
-    private double roundTwoDecimals(double d) {
-            DecimalFormat twoDForm = new DecimalFormat("#.##");
-        return Double.valueOf(twoDForm.format(d));
+    private String roundTwoDecimals(double d) {
+        return String.format("%1.2g", d);
     }
 
     @Override
