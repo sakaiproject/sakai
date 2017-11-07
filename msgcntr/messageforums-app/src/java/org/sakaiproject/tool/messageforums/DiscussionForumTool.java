@@ -1837,7 +1837,7 @@ public class DiscussionForumTool
             .get("org.sakaiproject.event.api.LearningResourceStoreService");
     if (null != lrss) {
     	try{
-    		Event event = EventTrackingService.newEvent("msgcntr", "topic created", true);
+    		Event event = EventTrackingService.newEvent("msgcntr", DiscussionForumService.EVENT_FORUMS_TOPIC_ADD, true);
     		lrss.registerStatement(getStatementForUserPosted(lrss.getEventActor(event), selectedTopic.getTopic().getTitle(), SAKAI_VERB.interacted), "msgcntr");
     	}catch(Exception e){
     		LOG.error(e.getMessage(), e);
@@ -1926,7 +1926,7 @@ public class DiscussionForumTool
             .get("org.sakaiproject.event.api.LearningResourceStoreService");
     if (null != lrss) {
     	try{
-	        Event event = EventTrackingService.newEvent("msgcntr", "topic created", true);
+	        Event event = EventTrackingService.newEvent("msgcntr", DiscussionForumService.EVENT_FORUMS_TOPIC_ADD, true);
 	        lrss.registerStatement(getStatementForUserPosted(lrss.getEventActor(event), selectedTopic.getTopic().getTitle(), SAKAI_VERB.interacted), "msgcntr");
     	}catch(Exception e){
     		LOG.error(e.getMessage(), e);
@@ -2672,7 +2672,7 @@ public class DiscussionForumTool
                 .get("org.sakaiproject.event.api.LearningResourceStoreService");
         if (null != lrss) {
         	try{
-	            Event event = EventTrackingService.newEvent("msgcntr", "view thread", true);
+	            Event event = EventTrackingService.newEvent("msgcntr", DiscussionForumService.EVENT_FORUMS_READ, true);
 	            lrss.registerStatement(getStatementForUserReadViewed(lrss.getEventActor(event), threadMessage.getTitle(), "thread"), "msgcntr");
         	}catch(Exception e){
         		LOG.error(e.getMessage(), e);
@@ -2760,7 +2760,7 @@ public class DiscussionForumTool
             .get("org.sakaiproject.event.api.LearningResourceStoreService");
     if (null != lrss) {
     	try{
-	        Event event = EventTrackingService.newEvent("msgcntr", "view thread", true);
+	        Event event = EventTrackingService.newEvent("msgcntr", DiscussionForumService.EVENT_FORUMS_READ, true);
 	        lrss.registerStatement(getStatementForUserReadViewed(lrss.getEventActor(event), message.getTitle(), "thread"), "msgcntr");
     	}catch(Exception e){
     		LOG.error(e.getMessage(), e);
@@ -2858,7 +2858,7 @@ public class DiscussionForumTool
             .get("org.sakaiproject.event.api.LearningResourceStoreService");
     if (null != lrss) {
     	try{
-	        Event event = EventTrackingService.newEvent("msgcntr", "view thread", true);
+	        Event event = EventTrackingService.newEvent("msgcntr", DiscussionForumService.EVENT_FORUMS_READ, true);
 	        lrss.registerStatement(getStatementForUserReadViewed(lrss.getEventActor(event), selectedMessage.getMessage().getTitle(), "thread"), "msgcntr");
     	}catch(Exception e){
     		LOG.error(e.getMessage(), e);
@@ -2908,7 +2908,7 @@ public class DiscussionForumTool
             .get("org.sakaiproject.event.api.LearningResourceStoreService");
     if (null != lrss) {
     	try{
-	        Event event = EventTrackingService.newEvent("msgcntr", "view thread", true);
+	        Event event = EventTrackingService.newEvent("msgcntr", DiscussionForumService.EVENT_FORUMS_READ, true);
 	        lrss.registerStatement(getStatementForUserReadViewed(lrss.getEventActor(event), selectedMessage.getMessage().getTitle(), "thread"), "msgcntr");
     	}catch(Exception e){
     		LOG.error(e.getMessage(), e);
@@ -3564,7 +3564,7 @@ public class DiscussionForumTool
                 .get("org.sakaiproject.event.api.LearningResourceStoreService");
         if (null != lrss) {
         	try{
-	            Event event = EventTrackingService.newEvent("msgcntr", "view topics", true);
+	            Event event = EventTrackingService.newEvent("msgcntr", DiscussionForumService.EVENT_FORUMS_TOPIC_READ, true);
 	            lrss.registerStatement(getStatementForUserReadViewed(lrss.getEventActor(event), selectedTopic.getTopic().getTitle(), "topic"), "msgcntr");
         	}catch(Exception e){
         		LOG.error(e.getMessage(), e);
@@ -3858,7 +3858,7 @@ public class DiscussionForumTool
             .get("org.sakaiproject.event.api.LearningResourceStoreService");
     if (null != lrss) {
     	try{
-	        Event event = EventTrackingService.newEvent("msgcntr", "responded", true);
+	        Event event = EventTrackingService.newEvent("msgcntr", DiscussionForumService.EVENT_FORUMS_RESPONSE, true);
 	        lrss.registerStatement(getStatementForUserPosted(lrss.getEventActor(event), dMsg.getTitle(), SAKAI_VERB.responded), "msgcntr");
     	}catch(Exception e){
     		LOG.error(e.getMessage(), e);
@@ -4687,7 +4687,7 @@ public class DiscussionForumTool
                 .get("org.sakaiproject.event.api.LearningResourceStoreService");
         if (null != lrss) {
         	try{
-	            Event event = EventTrackingService.newEvent("msgcntr", "responded", true);
+	            Event event = EventTrackingService.newEvent("msgcntr", DiscussionForumService.EVENT_FORUMS_RESPONSE, true);
 	            lrss.registerStatement(getStatementForUserPosted(lrss.getEventActor(event), dMsg.getTitle(), SAKAI_VERB.responded), "msgcntr");
         	}catch(Exception e){
         		LOG.error(e.getMessage(), e);
@@ -4969,7 +4969,7 @@ public class DiscussionForumTool
             .get("org.sakaiproject.event.api.LearningResourceStoreService");
     if (null != lrss) {
     	try{
-	        Event event = EventTrackingService.newEvent("msgcntr", "responded", true);
+	        Event event = EventTrackingService.newEvent("msgcntr", DiscussionForumService.EVENT_FORUMS_RESPONSE, true);
 	        lrss.registerStatement(getStatementForUserPosted(lrss.getEventActor(event), selectedMessage.getMessage().getTitle(), SAKAI_VERB.responded), "msgcntr");
     	}catch(Exception e){
     		LOG.error(e.getMessage(), e);
@@ -8577,7 +8577,7 @@ public class DiscussionForumTool
 	duplicateTopic(topicId, forum, false);
     LearningResourceStoreService lrss = (LearningResourceStoreService) ComponentManager
             .get("org.sakaiproject.event.api.LearningResourceStoreService");
-    Event event = EventTrackingService.newEvent("msgcntr", "topic created", true);
+    Event event = EventTrackingService.newEvent("msgcntr", DiscussionForumService.EVENT_FORUMS_TOPIC_ADD, true);
     if (null != lrss) {
     	try{
     		lrss.registerStatement(getStatementForUserPosted(lrss.getEventActor(event), selectedTopic.getTopic().getTitle(), SAKAI_VERB.interacted), "msgcntr");

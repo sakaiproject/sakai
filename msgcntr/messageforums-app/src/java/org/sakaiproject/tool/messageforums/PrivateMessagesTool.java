@@ -1620,7 +1620,7 @@ public void processChangeSelectView(ValueChangeEvent eve)
     moveToTopic=selectedTopicId;
     LearningResourceStoreService lrss = (LearningResourceStoreService) ComponentManager
             .get("org.sakaiproject.event.api.LearningResourceStoreService");
-    Event event = EventTrackingService.newEvent("msgcntr", "read private message", true);
+    Event event = EventTrackingService.newEvent("msgcntr", DiscussionForumService.EVENT_MESSAGES_READ, true);
     if (null != lrss) {
     	try{
     		lrss.registerStatement(getStatementForUserReadPvtMsg(lrss.getEventActor(event), getDetailMsg().getMsg().getTitle()), "msgcntr");
@@ -2452,7 +2452,7 @@ private   int   getNum(char letter,   String   a)
     }    
     LearningResourceStoreService lrss = (LearningResourceStoreService) ComponentManager
             .get("org.sakaiproject.event.api.LearningResourceStoreService");
-    Event event = EventTrackingService.newEvent("msgcntr", "read private message", true);
+    Event event = EventTrackingService.newEvent("msgcntr", DiscussionForumService.EVENT_MESSAGES_READ, true);
     if (null != lrss) {
     	try{
     		lrss.registerStatement(getStatementForUserReadPvtMsg(lrss.getEventActor(event), getDetailMsg().getMsg().getTitle()), "msgcntr");
@@ -2513,7 +2513,7 @@ private   int   getNum(char letter,   String   a)
     }
     LearningResourceStoreService lrss = (LearningResourceStoreService) ComponentManager
             .get("org.sakaiproject.event.api.LearningResourceStoreService");
-    Event event = EventTrackingService.newEvent("msgcntr", "read private message", true);
+    Event event = EventTrackingService.newEvent("msgcntr", DiscussionForumService.EVENT_MESSAGES_READ, true);
     if (null != lrss) {
     	try{
     		lrss.registerStatement(getStatementForUserReadPvtMsg(lrss.getEventActor(event), getDetailMsg().getMsg().getTitle()), "msgcntr");
