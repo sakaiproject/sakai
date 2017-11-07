@@ -1,4 +1,4 @@
-<!-- start: check_assignments_student_view_assignment.vm -->
+<!-- start: chef_assignments_student_view_assignment.vm -->
 <script type="text/javascript">
     $(document).ready(function(){
         ASN.setupToggleAreas('toggleAnchor', 'toggledContent', false, 'fast');
@@ -46,7 +46,7 @@
 					$tlang.getString("gen.due")
 				</th>
 				<td>
-                    #if ($assignment.HideDueDate || $!allowUpdateAssignment)
+                    #if (!$assignment.HideDueDate || $!allowUpdateAssignment)
                         $!service.getUsersLocalDateTimeString($!assignment.DueDate)
                     #end
 				</td>
@@ -277,7 +277,6 @@
 		#end
 	<form name="viewAssignmentsForm" action="#toolForm("AssignmentAction")" method="post">
 		<input type="hidden" name="assignmentId" value="$assignment.Reference" />
-		<input type="hidden" name="assignmentContentId" value="$assignment.ContentReference" />
 			<div class="act">
 				<input type="submit" name="eventSubmit_doCancel_student_view_assignment" value="$tlang.getString("gen.don")" onclick="SPNR.disableControlsAndSpin( this, null );" />
 			</div>
