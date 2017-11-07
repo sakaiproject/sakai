@@ -671,6 +671,7 @@ String assignmentId = AssignmentReferenceReckoner.reckoner().reference(assignmen
         Assignment assignment = new Assignment();
         assignment.setContext(context);
         assignment.setAuthor(sessionManager.getCurrentSessionUserId());
+        assignment.setPosition(0);
         assignmentRepository.newAssignment(assignment);
 
         log.debug("Created new assignment {}", assignment.getId());
