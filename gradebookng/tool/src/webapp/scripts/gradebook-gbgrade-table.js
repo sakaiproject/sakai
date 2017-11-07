@@ -912,6 +912,17 @@ GbGradeTable.renderTable = function (elementId, tableData) {
   }).on("focus", function() {
     // deselect the table so subsequent keyboard entry isn't entered into cells
     GbGradeTable.instance.deselectCell();
+  }).on("keydown", function(event) {
+    // Disable the Wicket behavior that triggers the click on the form's first button
+    // after a 'return' keypress within a text input
+    //
+    // See https://issues.apache.org/jira/browse/WICKET-4499
+    if (event.keyCode == 13) {
+      clearTimeout(filterTimeout);
+      GbGradeTable.redrawTable(true);
+
+      return false;
+    }
   });
   $(document).on('click', '.gb-student-filter-clear-button', function(event) {
     event.preventDefault();
