@@ -1834,17 +1834,17 @@ public abstract class DbSiteService extends BaseSiteService
 			// normalize the input parameters - remove any user in more than one set
 
 			// adjust visitSites to remove any that are in visitUnpSites or updateSites
-			Set<String> targetVisit = new HashSet<>();
+			Set targetVisit = new HashSet();
 			targetVisit.addAll(visitSites);
 			targetVisit.removeAll(visitUnpSites);
 			targetVisit.removeAll(updateSites);
 
 			// adjust visitUnpSites to remove any that are in updateSites
-			Set<String> targetUnp = new HashSet<>();
+			Set targetUnp = new HashSet();
 			targetUnp.addAll(visitUnpSites);
 			targetUnp.removeAll(updateSites);
 
-			Set<String> targetUpdate = updateSites;
+			Set targetUpdate = updateSites;
 
 			// read existing
 			String statement = siteServiceSql.getSiteId4Sql();
@@ -1852,9 +1852,9 @@ public abstract class DbSiteService extends BaseSiteService
 			fields[0] = userId;
 
 			// collect the current data in three sets, update, unp, visit
-			final Set<String> existingUpdate = new HashSet();
-			final Set<String> existingUnp = new HashSet();
-			final Set<String> existingVisit = new HashSet();
+			final Set existingUpdate = new HashSet();
+			final Set existingUnp = new HashSet();
+			final Set existingVisit = new HashSet();
 
 			m_sql.dbRead(statement, fields, new SqlReader()
 			{
@@ -1892,24 +1892,24 @@ public abstract class DbSiteService extends BaseSiteService
 			// compute the delete and insert sets for each of the three permissions
 
 			// delete if the site is in targetUpdate, but it is already in one of the other categories
-			Set<String> updDeletes = new HashSet<>();
+			Set updDeletes = new HashSet();
 			updDeletes.addAll(existingUnp);
 			updDeletes.addAll(existingVisit);
 			updDeletes.retainAll(targetUpdate);
 
 			// also delete if the user is in the existing and not in the target
-			Set<String> obsolete = new HashSet<>();
+			Set obsolete = new HashSet();
 			obsolete.addAll(existingUpdate);
 			obsolete.removeAll(targetUpdate);
 			updDeletes.addAll(obsolete);
 
 			// insert if the site is in targetUpdate, but is not already in update
-			Set<String> updInserts = new HashSet<>();
+			Set updInserts = new HashSet();
 			updInserts.addAll(targetUpdate);
 			updInserts.removeAll(existingUpdate);
 
 			// delete if the site is in targetUnp, but it is already in one of the other categories
-			Set<String> unpDeletes = new HashSet<>();
+			Set unpDeletes = new HashSet();
 			unpDeletes.addAll(existingUpdate);
 			unpDeletes.addAll(existingVisit);
 			unpDeletes.retainAll(targetUnp);
@@ -1921,12 +1921,12 @@ public abstract class DbSiteService extends BaseSiteService
 			unpDeletes.addAll(obsolete);
 
 			// insert if the site is in targetUnp, but is not already in unp
-			Set<String> unpInserts = new HashSet<>();
+			Set unpInserts = new HashSet();
 			unpInserts.addAll(targetUnp);
 			unpInserts.removeAll(existingUnp);
 
 			// delete if the site is in targetVisit, but it is already in one of the other categories
-			Set<String> visitDeletes = new HashSet<>();
+			Set visitDeletes = new HashSet();
 			visitDeletes.addAll(existingUpdate);
 			visitDeletes.addAll(existingUnp);
 			visitDeletes.retainAll(targetVisit);
@@ -1938,7 +1938,7 @@ public abstract class DbSiteService extends BaseSiteService
 			visitDeletes.addAll(obsolete);
 
 			// insert if the site is in targetVisit, but is not already in visit
-			Set<String> visitInserts = new HashSet<>();
+			Set visitInserts = new HashSet();
 			visitInserts.addAll(targetVisit);
 			visitInserts.removeAll(existingVisit);
 
@@ -1974,33 +1974,32 @@ public abstract class DbSiteService extends BaseSiteService
 
 				// insert
 				statement = siteServiceSql.getInsertUserSql();
+				fields = new Object[3];
+				fields[1] = userId;
 
-				List<Object[]> batchList = new ArrayList<>();
-				for (String siteId : updInserts)
+				fields[2] = Integer.valueOf(-1);
+				for (Iterator i = updInserts.iterator(); i.hasNext();)
 				{
-					fields = new Object[3];
+					String siteId = (String) i.next();
 					fields[0] = caseId(siteId);
-					fields[1] = userId;
-					fields[2] = Integer.valueOf(-1);
-					batchList.add(fields);
+					m_sql.dbWrite(statement, fields);
 				}
-				for (String siteId : unpInserts)
+
+				fields[2] = Integer.valueOf(0);
+				for (Iterator i = unpInserts.iterator(); i.hasNext();)
 				{
-					fields = new Object[3];
+					String siteId = (String) i.next();
 					fields[0] = caseId(siteId);
-					fields[1] = userId;
-					fields[2] = Integer.valueOf(0);
-					batchList.add(fields);
+					m_sql.dbWrite(statement, fields);
 				}
-				for (String siteId : visitInserts)
+
+				fields[2] = Integer.valueOf(1);
+				for (Iterator i = visitInserts.iterator(); i.hasNext();)
 				{
-					fields = new Object[3];
+					String siteId = (String) i.next();
 					fields[0] = caseId(siteId);
-					fields[1] = userId;
-					fields[2] = Integer.valueOf(1);
-					batchList.add(fields);
+					m_sql.dbWrite(statement, fields);
 				}
-				m_sql.dbWriteBatch(statement, batchList);
 			}
 		}
 
