@@ -1012,6 +1012,9 @@ public class SakaiBLTIUtil {
 			LTI2Util.filterLTI1LaunchProperties(ltiProps, enabledCapabilities, allowExt);
 		}
 
+		// See if there are any locally deployed substitutions
+		ltiService.filterCustomSubstitutions(lti2subst, tool, site);
+
 		M_log.debug("ltiProps="+ltiProps);
 		M_log.debug("lti2subst="+lti2subst);
 		M_log.debug("before custom="+custom);
