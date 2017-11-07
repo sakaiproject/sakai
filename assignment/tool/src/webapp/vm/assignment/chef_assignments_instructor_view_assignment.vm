@@ -443,9 +443,11 @@
 					#end
 					## if honor pledge is required
 					#if ($assignment.HonorPledge)
-						<p class="checkbox">
-							<label for="yes">$honor_pledge_text</label>
-							<input name="Yes" type="checkbox" id="yes" value="" disabled="disabled" /><br />
+						<p class="checkbox highlightPanel">
+							<label for="yes">
+							<input name="Yes" type="checkbox" id="yes" value="" />
+							$honor_pledge_text</label>
+							<br />
 							$tlang.getString("gen.youmus")
 						</p>	
 					#end
