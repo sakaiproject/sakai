@@ -254,11 +254,9 @@ public class ForumScheduleNotificationImpl implements ForumScheduleNotification 
 			numOfAttempts--;
 
 			if (numOfAttempts <= 0) {
-				System.out.println(
-						"ForumScheduleNotificationImpl: HibernateOptimisticLockingFailureException no more retries left");
-				holfe.printStackTrace();
+				LOG.warn("ForumScheduleNotificationImpl: HibernateOptimisticLockingFailureException no more retries left", holfe);
 			} else {
-				System.out.println(
+				LOG.warn(
 						"ForumScheduleNotificationImpl: HibernateOptimisticLockingFailureException: attempts left: "
 								+ numOfAttempts);
 				updateSynopticMessagesForForumComparingOldMessagesCount(siteId, forumId, topicId, beforeChangeHM,
