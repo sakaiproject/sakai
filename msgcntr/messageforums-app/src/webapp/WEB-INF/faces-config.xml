@@ -511,7 +511,16 @@
             <property-name>anonymousManager</property-name>
             <value>#{Components["org.sakaiproject.api.app.messageforums.AnonymousManager"]}</value>
         </managed-property>
-        
+        <managed-property>
+            <description>Learning Resource Store Service</description>
+            <property-name>learningResourceStoreService</property-name>
+            <value>#{Components["org.sakaiproject.event.api.LearningResourceStoreService"]}</value>
+        </managed-property>
+        <managed-property>
+            <description>Event Tracking Service</description>
+            <property-name>eventTrackingService</property-name>
+            <value>#{Components["org.sakaiproject.event.api.EventTrackingService"]}</value>
+        </managed-property>
     </managed-bean>
     <managed-bean>
         <description>Private Messages Tool</description>
@@ -557,6 +566,16 @@
          	<description>User Preferences Manager</description>
          	<property-name>userPreferencesManager</property-name>
          	<value>#{Components["org.sakaiproject.api.app.messageforums.UserPreferencesManager"]}</value>
+        </managed-property>
+        <managed-property>
+            <description>Learning Resource Store Service</description>
+            <property-name>learningResourceStoreService</property-name>
+            <value>#{Components["org.sakaiproject.event.api.LearningResourceStoreService"]}</value>
+        </managed-property>
+        <managed-property>
+            <description>Event Tracking Service</description>
+            <property-name>eventTrackingService</property-name>
+            <value>#{Components["org.sakaiproject.event.api.EventTrackingService"]}</value>
         </managed-property>
     </managed-bean>
     
