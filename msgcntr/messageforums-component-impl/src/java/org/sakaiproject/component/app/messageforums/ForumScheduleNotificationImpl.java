@@ -248,7 +248,7 @@ public class ForumScheduleNotificationImpl implements ForumScheduleNotification 
 			try {
 				Thread.sleep(SynopticMsgcntrManager.OPT_LOCK_WAIT);
 			} catch (InterruptedException e) {
-				e.printStackTrace();
+				LOG.warn("updateSynopticMessagesForForumComparingOldMessagesCount Thread intrrupted", e);
 			}
 
 			numOfAttempts--;
