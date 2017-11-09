@@ -216,18 +216,7 @@
 						#set ($assignmentCount = $assignmentCount + 1)
 						<tr>
 							<td headers="attachments" class="attach hidden-xs">
-								#set ($attachments = $assignment.getAttachments())
-								#set ($size = 0)
-								#set ($props = false)
-								#if (!$!attachments.isEmpty())
-									#foreach ($attachment in $attachments)
-										#set ($props = $attachment.Properties) 
-										#if ($!props)
-											#set ($size = $size + 1)
-										#end
-									#end
-								#end
-								#if ($size > 0)
+								#if (!$assignment.getAttachments().isEmpty())
 									<i class="icon-sakai--clip"></i>
 								#else
 									&nbsp;
@@ -397,43 +386,39 @@
 							</td>
 						#if ($!allowGradeSubmission)
 							<td headers="for" class="hidden-xs">
-								#set( $groupTitleList = [] )
-								#set( $siteRelease = $assignment.TypeOfAccess.toString() == "SITE")
-								#if( !$siteRelease )
-									#foreach( $groupID in $assignment.Groups )
-										#set( $group = $!site.getGroup( $groupID ) )
-										#if( $!group )
-											#set( $success = $groupTitleList.add( $validator.escapeHtml( $group.Title ) ) )
-											#set( $group = false )
+								#if($assignment.TypeOfAccess == "SITE")
+									$tlang.getString("gen.viewallgroupssections")
+								#elseif($assignment.TypeOfAccess == "GROUP")
+									#set($groupTitleList = [])
+									#foreach($groupID in $assignment.Groups)
+										#set($group = $!site.getGroup($groupID))
+										#if($!group)
+											#set($success = $groupTitleList.add($validator.escapeHtml($group.Title)))
+											#set($group = false)
 										#end
 									#end
-								#end
-
-								#if( $siteRelease )
-									$tlang.getString("gen.viewallgroupssections")
-								#elseif( $groupTitleList.size() > 0 )
-									<div class="groupsContainer">
-										<strong class="collapse" onclick="ASN.toggleGroups( this ); ASN.resizeFrame();">
+                                    <div class="groupsContainer">
+                                        <strong class="collapse" onclick="ASN.toggleGroups( this ); ASN.resizeFrame();">
 											$groupTitleList.size()
-											#if( $groupTitleList.size() == 1 )
+											#if($groupTitleList.size() == 1)
 												$tlang.getString( "selected.group" )
 											#else
 												$tlang.getString( "selected.groups" )
 											#end
-										</strong>
+                                        </strong>
 
-										<div id="groupsPanel" style="display: none;">
-											<ul>
+                                        <div id="groupsPanel" style="display: none;">
+                                            <ul>
 												#foreach( $title in $groupTitleList )
-													<li>$title</li>
-												 #end
-											</ul>
-										</div>
-									</div>
+                                                    <li>$title</li>
+												#end
+                                            </ul>
+                                        </div>
+                                    </div>
 								#else
-									<div class="alertMessage">
+                                    <div class="alertMessage">
 										$tlang.getString( "assignment.inaccessible" )
-									</div>
+                                    </div>
 								#end
 							</td>
 							#end

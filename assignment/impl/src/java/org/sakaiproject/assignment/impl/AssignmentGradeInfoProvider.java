@@ -114,7 +114,7 @@ public class AssignmentGradeInfoProvider implements ExternalAssignmentProvider, 
     }
 
     public boolean isAssignmentGrouped(String id) {
-        return Assignment.Access.GROUPED.equals(getAssignment(id).getTypeOfAccess());
+        return Assignment.Access.GROUP.equals(getAssignment(id).getTypeOfAccess());
     }
 
     public boolean isAssignmentVisible(String id, String userId) {
@@ -125,7 +125,7 @@ public class AssignmentGradeInfoProvider implements ExternalAssignmentProvider, 
         Assignment a = getAssignment(id);
         if (a == null) {
             visible = false;
-        } else if (Assignment.Access.GROUPED.equals(a.getTypeOfAccess())) {
+        } else if (Assignment.Access.GROUP.equals(a.getTypeOfAccess())) {
             ArrayList<String> azgList = new ArrayList<String>((Collection<String>) a.getGroups());
             List<AuthzGroup> matched = authzGroupService.getAuthzUserGroupIds(azgList, userId);
             visible = (matched.size() > 0);

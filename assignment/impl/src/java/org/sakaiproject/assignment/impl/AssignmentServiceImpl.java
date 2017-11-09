@@ -27,7 +27,6 @@ import java.text.Normalizer;
 import java.text.NumberFormat;
 import java.time.Duration;
 import java.time.Instant;
-import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
@@ -393,8 +392,8 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
 
         // for AssignmentService assignments:
         // if access set to SITE, use the assignment and site authzGroups.
-        // if access set to GROUPED, use the assignment, and the groups, but not the site authzGroups.
-        // if the user has SECURE_ALL_GROUPS in the context, ignore GROUPED access and treat as if SITE
+        // if access set to GROUP, use the assignment, and the groups, but not the site authzGroups.
+        // if the user has SECURE_ALL_GROUPS in the context, ignore GROUP access and treat as if SITE
 
         try {
             switch (reference.getSubType()) {
@@ -413,7 +412,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                         if (reference.getId() != null) {
                             Assignment a = getAssignment(reference);
                             if (a != null) {
-                                grouped = Assignment.Access.GROUPED == a.getTypeOfAccess();
+                                grouped = Assignment.Access.GROUP == a.getTypeOfAccess();
                                 groups = a.getGroups();
                             }
                         }
@@ -583,7 +582,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
         String assignmentId = AssignmentReferenceReckoner.reckoner().reference(assignmentReference).reckon().getId();
         try {
             Assignment a = getAssignment(assignmentId);
-            if (a.getTypeOfAccess() == Assignment.Access.GROUPED) {
+            if (a.getTypeOfAccess() == Assignment.Access.GROUP) {
                 // for grouped assignment, need to include those users that with "all.groups" and "grade assignment" permissions on the site level
                 try {
                     AuthzGroup group = authzGroupService.getAuthzGroup(siteService.siteReference(a.getContext()));
@@ -1235,7 +1234,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
             Collection<Assignment> assignments = getAssignmentsForContext(context);
             for (Assignment assignment : assignments) {
                 Set<String> userIds = new HashSet<>();
-                if (assignment.getTypeOfAccess() == Assignment.Access.GROUPED) {
+                if (assignment.getTypeOfAccess() == Assignment.Access.GROUP) {
                     for (String groupRef : assignment.getGroups()) {
                         if (groupIdUserIds.containsKey(groupRef)) {
                             userIds.addAll(groupIdUserIds.get(groupRef));
@@ -2503,7 +2502,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
 
     private Assignment checkAssignmentAccessibleForUser(Assignment assignment, String currentUserId) throws PermissionException {
 
-        if (assignment.getTypeOfAccess() == Assignment.Access.GROUPED) {
+        if (assignment.getTypeOfAccess() == Assignment.Access.GROUP) {
             String context = assignment.getContext();
             Collection<String> asgGroups = assignment.getGroups();
             Collection<Group> allowedGroups = getGroupsAllowFunction(SECURE_ACCESS_ASSIGNMENT, context, currentUserId);
