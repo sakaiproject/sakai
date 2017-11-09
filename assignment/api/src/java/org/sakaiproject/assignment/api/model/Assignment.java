@@ -238,7 +238,7 @@ public class Assignment {
 
     public enum Access {
         SITE,
-        GROUPED
+        GROUP
     }
 
     public enum SubmissionType {
