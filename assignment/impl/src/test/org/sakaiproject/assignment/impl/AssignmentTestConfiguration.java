@@ -49,10 +49,10 @@ import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.springframework.orm.hibernate.AdditionalHibernateMappings;
 import org.sakaiproject.taggable.api.TaggingManager;
 import org.sakaiproject.time.api.TimeService;
+import org.sakaiproject.time.api.UserTimeService;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.user.api.UserDirectoryService;
-import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.api.FormattedText;
 import org.sakaiproject.util.api.LinkMigrationHelper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -106,6 +106,7 @@ public class AssignmentTestConfiguration {
                 setProperty(org.hibernate.cfg.Environment.DIALECT, environment.getProperty(org.hibernate.cfg.Environment.DIALECT, HSQLDialect.class.getName()));
                 setProperty(org.hibernate.cfg.Environment.HBM2DDL_AUTO, environment.getProperty(org.hibernate.cfg.Environment.HBM2DDL_AUTO));
                 setProperty(org.hibernate.cfg.Environment.ENABLE_LAZY_LOAD_NO_TRANS, environment.getProperty(org.hibernate.cfg.Environment.ENABLE_LAZY_LOAD_NO_TRANS, "true"));
+                setProperty(org.hibernate.cfg.Environment.CACHE_REGION_FACTORY, environment.getProperty(org.hibernate.cfg.Environment.CACHE_REGION_FACTORY));
             }
         };
     }
@@ -260,5 +261,10 @@ public class AssignmentTestConfiguration {
     @Bean(name = "org.sakaiproject.util.api.LinkMigrationHelper")
     public LinkMigrationHelper linkMigrationHelper() {
         return mock(LinkMigrationHelper.class);
+    }
+
+    @Bean(name = "org.sakaiproject.time.api.UserTimeService")
+    public UserTimeService userTimeService() {
+        return mock(UserTimeService.class);
     }
 }

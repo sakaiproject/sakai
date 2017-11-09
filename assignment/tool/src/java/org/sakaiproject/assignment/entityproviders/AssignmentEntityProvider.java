@@ -186,7 +186,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
                         .allowGetAssignment(assignmentContext);
                 // check for read permission
                 if (allowReadAssignment
-                        && a.getOpenDate().toInstant().isBefore(Instant.now())) {
+                        && a.getOpenDate().isBefore(Instant.now())) {
                     // this checks if we want to display an assignment link
                     try {
                         Site site = siteService.getSite(assignmentContext); // site id
@@ -520,19 +520,19 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
             props.put("status", assignmentService.getAssignmentCannonicalStatus(assignmentId).toString());
             props.put("portalURL", entity.getUrl());
             if (assignment.getDateCreated() != null) {
-                props.put("created_time", assignment.getDateCreated().toInstant().toString());
+                props.put("created_time", assignment.getDateCreated().toString());
             }
             // TODO add
 //			if (assignment.getAuthorLastModified() != null) {
 //				props.put("modified_by", assignment.getAuthorLastModified());
 //			}
             if (assignment.getDateModified() != null) {
-                props.put("modified_time", assignment.getDateModified().toInstant().toString());
+                props.put("modified_time", assignment.getDateModified().toString());
             }
-            props.put("due_time", assignment.getDueDate().toInstant().toString());
-            props.put("open_time", assignment.getOpenDate().toInstant().toString());
+            props.put("due_time", assignment.getDueDate().toString());
+            props.put("open_time", assignment.getOpenDate().toString());
             if (assignment.getDropDeadDate() != null) {
-                props.put("retract_time", assignment.getDropDeadDate().toInstant().toString());
+                props.put("retract_time", assignment.getDropDeadDate().toString());
             }
 
             Site site = siteService.getSite(assignment.getContext());
@@ -611,14 +611,9 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
         private Assignment content;
 
         /**
-         * the reference of the AssignmentContent of this Assignment.
-         */
-        private String contentReference;
-
-        /**
          * the first time at which the assignment can be viewed; may be null.
          */
-        private Date openTime;
+        private Instant openTime;
 
         /**
          * the first time at which the assignment can be viewed; (String)
@@ -628,7 +623,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
         /**
          * the time at which the assignment is due; may be null.
          */
-        private Date dueTime;
+        private Instant dueTime;
 
         /**
          * the time at which the assignment is due; (String)
@@ -639,7 +634,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
          * the drop dead time after which responses to this assignment are
          * considered late; may be null.
          */
-        private Date dropDeadTime;
+        private Instant dropDeadTime;
 
         /**
          * the drop dead time after which responses to this assignment are
@@ -651,7 +646,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
          * the close time after which this assignment can no longer be viewed,
          * and after which submissions will not be accepted. May be null.
          */
-        private Date closeTime;
+        private Instant closeTime;
 
         /**
          * the close time after which this assignment can no longer be viewed,
@@ -682,7 +677,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
         /**
          * the time that this object was created.
          */
-        private Date timeCreated;
+        private Instant timeCreated;
 
         /**
          * the list of authors.
@@ -697,7 +692,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
         /**
          * the time of last modificaiton.
          */
-        private Date timeLastModified;
+        private Instant timeLastModified;
 
         /**
          * the author of last modification
@@ -712,7 +707,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
         /**
          * Return string representation of assignment status
          */
-        private AssignmentConstants.Status status;
+        private String status;
 
         /**
          * the position order field for the assignment.
@@ -728,7 +723,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
          * the access mode for the assignment - how we compute who has access to
          * the assignment.
          */
-        private Assignment.Access access;
+        private String access;
 
         /**
          * the attachment list
@@ -738,7 +733,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
         /**
          * Grade scale description.
          */
-        private Assignment.GradeType gradeScale;
+        private String gradeScale;
 
         /**
          * Max points used when grade scale = "Points"
@@ -748,7 +743,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
         /**
          * Submission type description (e.g. inline only, inline and attachments)
          */
-        private Assignment.SubmissionType submissionType;
+        private String submissionType;
 
         /**
          * Allow re-submission flag
@@ -786,15 +781,14 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
                 return;
             }
             this.id = a.getId();
-            this.contentReference = AssignmentReferenceReckoner.reckoner().assignment(a).reckon().getReference();
             this.openTime = a.getOpenDate();
-            this.openTimeString = a.getOpenDate().toInstant().toString();
+            this.openTimeString = a.getOpenDate().toString();
             this.dueTime = a.getDueDate();
-            this.dueTimeString = a.getDueDate().toInstant().toString();
+            this.dueTimeString = a.getDueDate().toString();
             this.dropDeadTime = a.getDropDeadDate();
-            this.dropDeadTimeString = a.getDropDeadDate().toInstant().toString();
+            this.dropDeadTimeString = a.getDropDeadDate().toString();
             this.closeTime = a.getCloseDate();
-            this.closeTimeString = a.getCloseDate().toInstant().toString();
+            this.closeTimeString = a.getCloseDate().toString();
             this.section = a.getSection();
             this.context = a.getContext();
             this.draft = a.getDraft();
@@ -804,13 +798,13 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
             this.authorLastModified = a.getModifier();
             this.title = a.getTitle();
             try {
-                this.status = assignmentService.getAssignmentCannonicalStatus(a.getId());
+                this.status = assignmentService.getAssignmentCannonicalStatus(a.getId()).toString();
             } catch (IdUnusedException | PermissionException e) {
                 log.warn("Couldn't get Assignment status, {}", e.getMessage());
             }
-            this.position = a.getPosition();
+            this.position = (a.getPosition() != null) ? a.getPosition() : 0;
             this.groups = a.getGroups();
-            this.access = a.getTypeOfAccess();
+            this.access = a.getTypeOfAccess().toString();
             this.instructions = a.getInstructions();
 
 
@@ -856,7 +850,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
                 }
             }
             // Translate grade scale from its numeric value to its description.
-            this.gradeScale = a.getTypeOfGrade();
+            this.gradeScale = a.getTypeOfGrade().toString();
 
             // If grade scale is "points" we also capture the maximum points allowed.
             if (a.getTypeOfGrade() == Assignment.GradeType.SCORE_GRADE_TYPE) {
@@ -868,7 +862,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
             if (a.getProperties().get(AssignmentConstants.ALLOW_RESUBMIT_NUMBER) != null && a.getTypeOfSubmission() != Assignment.SubmissionType.NON_ELECTRONIC_ASSIGNMENT_SUBMISSION) {
                 this.allowResubmission = true;
             }
-            this.submissionType = a.getTypeOfSubmission();
+            this.submissionType = a.getTypeOfSubmission().toString();
 
             // Supplement Items
             AssignmentModelAnswerItem assignmentModelAnswerItem = assignmentSupplementItemService.getModelAnswer(a.getId());
