@@ -61,10 +61,11 @@ public class SitePermsService {
     private long maxUpdateTimeMS = DEFAULT_MAX_UPDATE_TIME_SECS * 1000l;
     private int sitesUntilPause = DEFAULT_SITES_BEFORE_PAUSE;
 
-    public static String[] templates = {
-        "!site.template",
-        "!site.template.course",
-        "!site.template.portfolio",
+    public static final String SITE_TEMPLATE_PREFIX = "!site.template";
+
+    public static final String[] DEFAULT_SITE_TEMPLATES = {
+        SITE_TEMPLATE_PREFIX,
+        SITE_TEMPLATE_PREFIX+ "."+ "course",
         "!site.user"
     };
 
@@ -306,12 +307,18 @@ public class SitePermsService {
         return perms;
     }
 
+    private List<String> getTemplateRoles() {
+        Set<String> templates = new HashSet<>(Arrays.asList(DEFAULT_SITE_TEMPLATES));
+        siteService.getSiteTypes().stream().map(s -> SITE_TEMPLATE_PREFIX + "."+ s).forEach(templates::add);
+        return new ArrayList<>(templates);
+    }
+
     /**
      * @return a list of all valid roles names
      */
     public List<String> getValidRoles() {
         HashSet<String> roleIds = new HashSet<String>();
-        for (String templateRef : templates) {
+        for (String templateRef : getTemplateRoles()) {
             AuthzGroup ag;
             try {
                 ag = authzGroupService.getAuthzGroup(templateRef);
