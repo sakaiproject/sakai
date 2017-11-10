@@ -53,12 +53,12 @@ public class SitePermsService {
 
     private static final String STATUS_COMPLETE = "COMPLETE";
 
-    private static int DEFAULT_PAUSE_TIME_MS = 1001; // just over 1 second
-    private static int DEFAULT_MAX_UPDATE_TIME_SECS = 60*60; // 1 hour
+    private static int DEFAULT_PAUSE_TIME_MS = 100; // 100ms
+    private static int DEFAULT_MAX_UPDATE_TIME_SECS = 60*60*24; // 1 day
     private static int DEFAULT_SITES_BEFORE_PAUSE = 10;
 
     private int pauseTimeMS = DEFAULT_PAUSE_TIME_MS;
-    private long maxUpdateTimeMS = DEFAULT_MAX_UPDATE_TIME_SECS * 1000l;
+    private long maxUpdateTimeMS = DEFAULT_MAX_UPDATE_TIME_SECS * 1000L;
     private int sitesUntilPause = DEFAULT_SITES_BEFORE_PAUSE;
 
     public static String[] templates = {
@@ -99,8 +99,7 @@ public class SitePermsService {
         }
         // get the configurable values
         pauseTimeMS = serverConfigurationService.getConfig("site.adminperms.pause.ms", pauseTimeMS);
-        int maxUpdateTimeS = serverConfigurationService.getConfig("site.adminperms.maxrun.secs", DEFAULT_MAX_UPDATE_TIME_SECS);
-        maxUpdateTimeMS = 1000l * maxUpdateTimeS; // covert to milliseconds
+        maxUpdateTimeMS = serverConfigurationService.getConfig("site.adminperms.maxrun.secs", DEFAULT_MAX_UPDATE_TIME_SECS) * 1000L;
         sitesUntilPause = serverConfigurationService.getConfig("site.adminperms.sitesuntilpause", sitesUntilPause);
         // get the current state
         final User currentUser = userDirectoryService.getCurrentUser();
