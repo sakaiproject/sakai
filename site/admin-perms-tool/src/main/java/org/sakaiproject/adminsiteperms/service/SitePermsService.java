@@ -218,7 +218,8 @@ public class SitePermsService {
                             // only save if the group was updated
                             authzGroupService.save(ag);
                             updatesCount++;
-                            log.info("Added Permissions ("+permsString+") for roles ("+rolesString+") to group:" + siteRef);
+                            log.info("{} Permissions ({}) for roles ({}) to group: {}", (add)?"Added":"Removed",
+                                    siteRef, permsString, rolesString, siteRef);
                         }
                         successCount++;
                         if (updatesCount > 0 && updatesCount % sitesUntilPause == 0) {
