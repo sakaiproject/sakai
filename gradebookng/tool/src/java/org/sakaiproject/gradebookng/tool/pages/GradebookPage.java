@@ -46,6 +46,8 @@ import org.sakaiproject.gradebookng.tool.actions.EditAssignmentAction;
 import org.sakaiproject.gradebookng.tool.actions.EditCommentAction;
 import org.sakaiproject.gradebookng.tool.actions.EditSettingsAction;
 import org.sakaiproject.gradebookng.tool.actions.GradeUpdateAction;
+import org.sakaiproject.gradebookng.tool.actions.CheckGradeExcludedStatusAction;
+import org.sakaiproject.gradebookng.tool.actions.SetGradeAsExcludedAction;
 import org.sakaiproject.gradebookng.tool.actions.MoveAssignmentLeftAction;
 import org.sakaiproject.gradebookng.tool.actions.MoveAssignmentRightAction;
 import org.sakaiproject.gradebookng.tool.actions.OverrideCourseGradeAction;
@@ -251,6 +253,8 @@ public class GradebookPage extends BasePage {
 					}
 				});
 		gradeTable.addEventListener("setScore", new GradeUpdateAction());
+		gradeTable.addEventListener("setExcluded", new SetGradeAsExcludedAction());
+		gradeTable.addEventListener("checkExcluded", new CheckGradeExcludedStatusAction());
 		gradeTable.addEventListener("viewLog", new ViewGradeLogAction());
 		gradeTable.addEventListener("editAssignment", new EditAssignmentAction());
 		gradeTable.addEventListener("viewStatistics", new ViewAssignmentStatisticsAction());

@@ -131,6 +131,7 @@ public class InstructorGradeSummaryGradesPanel extends BasePanel {
 		tableModel.put("isGroupedByCategory", this.isGroupedByCategory);
 		tableModel.put("showingStudentView", false);
 		tableModel.put("gradingType", GradingType.valueOf(gradebook.getGrade_type()));
+		tableModel.put("studentuid", studentGradeInfo.getStudentUuid());
 
 		addOrReplace(new GradeSummaryTablePanel("gradeSummaryTable", new LoadableDetachableModel<Map<String, Object>>() {
 			@Override
