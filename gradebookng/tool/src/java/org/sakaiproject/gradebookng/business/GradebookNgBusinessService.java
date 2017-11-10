@@ -494,6 +494,17 @@ public class GradebookNgBusinessService {
 		String oldGradeAdjusted = oldGrade;
 		String storedGradeAdjusted = storedGrade;
 
+		// Fix a problem when the grades comes from the old Gradebook API with locale separator, always compare the values using the same
+		// separator
+		if (StringUtils.isNotBlank(oldGradeAdjusted)) {
+			oldGradeAdjusted = oldGradeAdjusted.replace(newGradeAdjusted.contains(",") ? "." : ",",
+					newGradeAdjusted.contains(",") ? "," : ".");
+		}
+		if (StringUtils.isNotBlank(storedGradeAdjusted)) {
+			storedGradeAdjusted = storedGradeAdjusted.replace(newGradeAdjusted.contains(",") ? "." : ",",
+					newGradeAdjusted.contains(",") ? "," : ".");
+		}
+
 		if (gradingType == GbGradingType.PERCENTAGE) {
 			// the passed in grades represents a percentage so the number needs to be adjusted back to points
 			final Double newGradePercentage = NumberUtils.toDouble(newGrade);
