@@ -35,7 +35,6 @@ import java.util.stream.Collectors;
 import javax.xml.bind.JAXBException;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.math.NumberUtils;
 import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
@@ -84,6 +83,7 @@ import org.sakaiproject.tool.gradebook.GradingEvent;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
+import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.util.ResourceLoader;
 
 import lombok.Setter;
@@ -541,17 +541,22 @@ public class GradebookNgBusinessService {
 		// Fix a problem when the grades comes from the old Gradebook API with locale separator, always compare the values using the same
 		// separator
 		if (StringUtils.isNotBlank(oldGradeAdjusted)) {
-			oldGradeAdjusted = oldGradeAdjusted.replace(newGradeAdjusted.contains(",") ? "." : ",",
-					newGradeAdjusted.contains(",") ? "," : ".");
+			oldGradeAdjusted = oldGradeAdjusted.replace(",".equals(FormattedText.getDecimalSeparator()) ? "." : ",",
+					",".equals(FormattedText.getDecimalSeparator()) ? "," : ".");
 		}
 		if (StringUtils.isNotBlank(storedGradeAdjusted)) {
-			storedGradeAdjusted = storedGradeAdjusted.replace(newGradeAdjusted.contains(",") ? "." : ",",
-					newGradeAdjusted.contains(",") ? "," : ".");
+			storedGradeAdjusted = storedGradeAdjusted.replace(",".equals(FormattedText.getDecimalSeparator()) ? "." : ",",
+					",".equals(FormattedText.getDecimalSeparator()) ? "," : ".");
 		}
 
 		if (gradingType == GradingType.PERCENTAGE) {
 			// the passed in grades represents a percentage so the number needs to be adjusted back to points
-			final Double newGradePercentage = NumberUtils.toDouble(newGrade);
+			Double newGradePercentage = new Double("0.0");
+
+			if(StringUtils.isNotBlank(newGrade)){
+				newGradePercentage = FormatHelper.validateDouble(newGrade);
+			}
+
 			final Double newGradePointsFromPercentage = (newGradePercentage / 100) * maxPoints;
 			newGradeAdjusted = FormatHelper.formatDoubleToDecimal(newGradePointsFromPercentage);
 
@@ -563,10 +568,13 @@ public class GradebookNgBusinessService {
 				// comparing apples with apples, we first determine the number of decimal places
 				// on the score, so the converted points-as-percentage is in the expected format.
 
-				final Double oldGradePercentage = NumberUtils.toDouble(oldGrade);
+				final Double oldGradePercentage = FormatHelper.validateDouble(oldGradeAdjusted);
 				final Double oldGradePointsFromPercentage = (oldGradePercentage / 100) * maxPoints;
 
 				oldGradeAdjusted = FormatHelper.formatDoubleToMatch(oldGradePointsFromPercentage, storedGradeAdjusted);
+
+				oldGradeAdjusted = oldGradeAdjusted.replace(",".equals(FormattedText.getDecimalSeparator()) ? "." : ",",
+					",".equals(FormattedText.getDecimalSeparator()) ? "," : ".");
 			}
 
 			// we dont need processing of the stored grade as the service does that when persisting.
@@ -578,6 +586,10 @@ public class GradebookNgBusinessService {
 		storedGradeAdjusted = StringUtils.trimToNull(StringUtils.removeEnd(storedGradeAdjusted, ".0"));
 		oldGradeAdjusted = StringUtils.trimToNull(StringUtils.removeEnd(oldGradeAdjusted, ".0"));
 		newGradeAdjusted = StringUtils.trimToNull(StringUtils.removeEnd(newGradeAdjusted, ".0"));
+
+		storedGradeAdjusted = StringUtils.trimToNull(StringUtils.removeEnd(storedGradeAdjusted, ",0"));
+		oldGradeAdjusted = StringUtils.trimToNull(StringUtils.removeEnd(oldGradeAdjusted, ",0"));
+		newGradeAdjusted = StringUtils.trimToNull(StringUtils.removeEnd(newGradeAdjusted, ",0"));
 
 		if (log.isDebugEnabled()) {
 			log.debug("storedGradeAdjusted: " + storedGradeAdjusted);
@@ -595,7 +607,7 @@ public class GradebookNgBusinessService {
 
 		// no change
 		if (StringUtils.equals(storedGradeAdjusted, newGradeAdjusted)) {
-			final Double storedGradePoints = NumberUtils.toDouble(storedGradeAdjusted);
+			final Double storedGradePoints = FormatHelper.validateDouble(storedGradeAdjusted);
 			if (storedGradePoints.compareTo(maxPoints) > 0) {
 				return GradeSaveResponse.OVER_LIMIT;
 			} else {
@@ -613,7 +625,7 @@ public class GradebookNgBusinessService {
 		GradeSaveResponse rval = null;
 
 		if (StringUtils.isNotBlank(newGradeAdjusted)) {
-			final Double newGradePoints = NumberUtils.toDouble(newGradeAdjusted);
+			final Double newGradePoints = FormatHelper.validateDouble(newGradeAdjusted);
 
 			// if over limit, still save but return the warning
 			if (newGradePoints.compareTo(maxPoints) > 0) {
