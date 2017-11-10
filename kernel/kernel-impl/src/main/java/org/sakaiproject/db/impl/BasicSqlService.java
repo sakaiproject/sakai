@@ -571,17 +571,14 @@ public abstract class BasicSqlService implements SqlService
                 // without a reader, we read the first String from each record
                 if (reader == null) {
                     String s;
-                	ResultSetMetaData metadataResult = result.getMetaData();
+                    ResultSetMetaData metadataResult = result.getMetaData();
                 	
-                	if(metadataResult != null && Types.CLOB == metadataResult.getColumnType(1))
-                	{
-                		Clob clobResult = result.getClob(1);
-                		s = clobResult.getSubString(1, (int) clobResult.length());
-                	}
-                	else
-                	{
-                		s = result.getString(1);
-                	}
+                    if (metadataResult != null && Types.CLOB == metadataResult.getColumnType(1)) {
+                        Clob clobResult = result.getClob(1);
+                        s = clobResult.getSubString(1, (int) clobResult.length());
+                    } else {
+                        s = result.getString(1);
+                    }
                     if (s != null) {
                         rv.add(s);
                     }
