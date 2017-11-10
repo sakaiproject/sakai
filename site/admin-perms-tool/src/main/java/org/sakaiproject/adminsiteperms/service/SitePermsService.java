@@ -113,7 +113,7 @@ public class SitePermsService {
                 } catch (IllegalStateException e) {
                     throw e; // rethrow this back out
                 } catch (Exception e) {
-                    log.error("SitePerms background perms runner thread died: "+e, e);
+                    log.error("SitePerms background perms runner thread died", e);
                 }
             }
         };
@@ -166,7 +166,8 @@ public class SitePermsService {
         // update the session with a status message
         String msg = getMessage("siterole.message.processing."+(add?"add":"remove"), 
                 new Object[] {permsString, typesString, rolesString, 0});
-        log.info("STARTED: "+msg+" :: pauseTimeMS="+pauseTimeMS+", sitesUntilPause="+sitesUntilPause+", maxUpdateTimeMS="+maxUpdateTimeMS);
+        log.info("STARTED: {} :: pauseTimeMS={}, sitesUntilPause={}, maxUpdateTimeMS={}",
+            msg, pauseTimeMS, sitesUntilPause, maxUpdateTimeMS);
         updateStatus = "RUNNING";
         updateMessage = msg;
         // set the current user in this thread so they can perform the operations
@@ -231,12 +232,12 @@ public class SitePermsService {
                             currentSession.setActive();
                         }
                     } else {
-                        log.warn("Cannot update authz group: " + siteRef + ", unable to apply any perms change");
+                        log.warn("Cannot update authz group: {} unable to apply any perms change", siteRef);
                     }
                 } catch (GroupNotDefinedException e) {
-                    log.error("Could not find authz group: " + siteRef + ", unable to apply any perms change");
+                    log.error("Could not find authz group: {} unable to apply any perms change", siteRef);
                 } catch (AuthzPermissionException e) {
-                    log.error("Could not save authz group: " + siteRef + ", unable to apply any perms change");
+                    log.error("Could not save authz group: {} unable to apply any perms change", siteRef);
                 }
                 sitesCounter++;
                 if (!isLockedForUpdates()) {
