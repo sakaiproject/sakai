@@ -3917,7 +3917,7 @@ public class AssignmentAction extends PagedResourceActionII {
             // SAK-17606
             state.setAttribute(NEW_ASSIGNMENT_CHECK_ANONYMOUS_GRADING, assignment.getProperties().get(NEW_ASSIGNMENT_CHECK_ANONYMOUS_GRADING));
 
-            Collection groupsAllowGradeAssignment = assignmentService.getGroupsAllowGradeAssignment((String) state.getAttribute(STATE_CONTEXT_STRING), AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getReference());
+            Collection groupsAllowGradeAssignment = assignmentService.getGroupsAllowGradeAssignment(AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getReference());
 
             // group list which user can add message to
             if (groupsAllowGradeAssignment.size() > 0) {
@@ -11888,7 +11888,7 @@ public class AssignmentAction extends PagedResourceActionII {
                     Collection<Group> submitterGroups = assignmentService.getSubmitterGroupList("false", allOrOneGroup, "", assignment.getId(), contextString);
 
                     // construct the group-submission list
-                    if (submitterGroups != null && !submitterGroups.isEmpty()) {
+                    if (submitterGroups != null) {
                         for (Group gId : submitterGroups) {
                             AssignmentSubmission sub = null;
                             try {

@@ -515,12 +515,26 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
 
     @Override
     public Collection<Group> getGroupsAllowAddAssignment(String context) {
-        return getGroupsAllowFunction(SECURE_ACCESS_ASSIGNMENT, context, null);
+        return getGroupsAllowFunction(SECURE_ADD_ASSIGNMENT, context, null);
     }
 
     @Override
-    public Collection<Group> getGroupsAllowGradeAssignment(String context, String assignmentReference) {
-        return getGroupsAllowFunction(SECURE_ADD_ASSIGNMENT, context, null);
+    public Collection<Group> getGroupsAllowGradeAssignment(String assignmentReference) {
+        AssignmentReferenceReckoner.AssignmentReference referenceReckoner = AssignmentReferenceReckoner.reckoner().reference(assignmentReference).reckon();
+        if (allowGradeSubmission(assignmentReference)) {
+            Collection<Group> groupsAllowed = getGroupsAllowFunction(SECURE_GRADE_ASSIGNMENT_SUBMISSION, referenceReckoner.getContext(), null);
+            Assignment assignment = assignmentRepository.findAssignment(referenceReckoner.getId());
+            if (assignment != null) {
+                switch (assignment.getTypeOfAccess()) {
+                    case SITE: // return all groups for site access
+                        return groupsAllowed;
+                    case GROUP: // return only matching groups for group access
+                        Set<String> assignmentGroups = assignment.getGroups();
+                        return groupsAllowed.stream().filter(g -> assignmentGroups.contains(g.getId())).collect(Collectors.toSet());
+                }
+            }
+        }
+        return Collections.emptySet();
     }
 
     @Override
@@ -541,7 +555,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
     @Override
     public boolean allowAddAssignment(String context) {
         String resourceString = AssignmentReferenceReckoner.reckoner().context(context).reckon().getReference();
-        if (permissionCheck(SECURE_ADD_ASSIGNMENT_CONTENT, resourceString, null)) return true;
+        if (permissionCheck(SECURE_ADD_ASSIGNMENT, resourceString, null)) return true;
         // if not, see if the user has any groups to which adds are allowed
         return (!getGroupsAllowAddAssignment(context).isEmpty());
     }
@@ -566,7 +580,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
     @Override
     public List<User> allowGradeAssignmentUsers(String assignmentReference) {
         List<User> users = securityService.unlockUsers(SECURE_GRADE_ASSIGNMENT_SUBMISSION, assignmentReference);
-String assignmentId = AssignmentReferenceReckoner.reckoner().reference(assignmentReference).reckon().getId();
+        String assignmentId = AssignmentReferenceReckoner.reckoner().reference(assignmentReference).reckon().getId();
         try {
             Assignment a = getAssignment(assignmentId);
             if (a.getTypeOfAccess() == Assignment.Access.GROUPED) {
@@ -1966,7 +1980,7 @@ String assignmentId = AssignmentReferenceReckoner.reckoner().reference(assignmen
                                 groupRefs.add(siteService.siteReference(contextString));
                             }
                             // add all groups inside the site
-                            Collection<Group> groups = getGroupsAllowGradeAssignment(contextString, AssignmentReferenceReckoner.reckoner().assignment(a).reckon().getReference());
+                            Collection<Group> groups = getGroupsAllowGradeAssignment(AssignmentReferenceReckoner.reckoner().assignment(a).reckon().getReference());
                             for (Group g : groups) {
                                 groupRefs.add(g.getReference());
                             }
@@ -2045,7 +2059,7 @@ String assignmentId = AssignmentReferenceReckoner.reckoner().reference(assignmen
                     }
                 } else {
                     // get all those groups that user is allowed to grade
-                    Collection<Group> groups = getGroupsAllowGradeAssignment(contextString, AssignmentReferenceReckoner.reckoner().assignment(a).reckon().getReference());
+                    Collection<Group> groups = getGroupsAllowGradeAssignment(AssignmentReferenceReckoner.reckoner().assignment(a).reckon().getReference());
                     groups.forEach(g -> authzRefs.add(g.getReference()));
                 }
             } else {
