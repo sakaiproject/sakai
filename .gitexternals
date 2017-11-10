@@ -1,85 +1,80 @@
-# Modules from UCT fork (UI customizations)
-#login 			https://github.com/cilt-uct/sakai/branches/11.x/login
-# [external "login"]
-#	path = login
-#	url = https://github.com/cilt-uct/sakai/branches/11.x/login
-#	branch = master
-
-#portal 			https://github.com/cilt-uct/sakai/branches/11.x/portal
-#reference 		https://github.com/cilt-uct/sakai/branches/11.x/reference
-#lessonbuilder 		https://github.com/cilt-uct/sakai/branches/11.x/lessonbuilder
-
 # Contrib tools
 [external "evaluation"]
 	path = evaluation
 	url = https://github.com/cilt-uct/evaluation.git
-	branch = 11.x
+	branch = 12.x
 [external "qna"]
 	path = qna
 	url = https://github.com/cilt-uct/QnA.git
-	branch = sakai-11.x
+	branch = 12.x
 [external "blogwow"]
 	path = blogwow
 	url = https://github.com/cilt-uct/blogwow.git
-	branch = 11.x
+	branch = 12.x
 [external "useralias"]
 	path = useralias
 	url = https://github.com/cilt-uct/Roleplay.git
-	branch = sakai-11.x
+	branch = 12.x
 [external "sms"]
 	path = sms
 	url = https://github.com/cilt-uct/sms.git
-	branch = sakai-11.x
+	branch = 12.x
 
 # Turnitin Legacy API content-review implementation
 [external "turnitin"]
 	path = turnitin
-	url = https://github.com/cilt-uct/turnitin
-	branch = sakai-11.x
+	url = https://github.com/cilt-uct/turnitin.git
+	branch = 12.x
 
 # No longer in 11.x but still in use at UCT
-#[external "linktool"]
-#	path = linktool
-#	url = https://github.com/cilt-uct/linktool.git
-#	branch = master
+[external "linktool"]
+	path = linktool
+	url = https://github.com/cilt-uct/linktool.git
+	branch = 12.x
 [external "roster"]
 	path = roster
 	url = https://github.com/cilt-uct/roster.git
-	branch = master
+	branch = 12.x
 [external "profile"]
 	path = profile
 	url = https://github.com/cilt-uct/profile.git
-	branch = master
+	branch = 12.x
 
 # Local UCT tools and services
-#providers https://github.com/cilt-uct/uct-providers/branches/vula-11.x
-#[external "providers"]
-#	path = providers
-#	url = https://github.com/cilt-uct/uct-providers
-#	branch = master
-# providers/cm-authz-provider https://github.com/sakaiproject/sakai/branches/11.x/providers/cm-authz-provider/
-
 [external "uct-quartz"]
 	path = uct-quartz
-	url = https://github.com/cilt-uct/uct-quartz
-	branch = vula-11.x
+	url = https://github.com/cilt-uct/uct-quartz.git
+	branch = 12.x
 [external "uct-site-manage"]
 	path = uct-site-manage
 	url = https://github.com/cilt-uct/uct-site-manage.git
-	branch = vula-11.x
+	branch = 12.x
 [external "profilesearch"]
 	path = profilesearch
 	url = https://github.com/cilt-uct/profilesearch.git
-	branch = master
+	branch = 12.x
 [external "spml"]
 	path = spml
 	url = https://github.com/cilt-uct/spml.git
-	branch = vula-11.x
+	branch = 12.x
 [external "profilewow"]
 	path = profilewow
 	url = https://github.com/cilt-uct/profileWOW.git
-	branch = vula-11.x
+	branch = 12.x
 [external "groupmanager"]
 	path = groupmanager
 	url = https://github.com/cilt-uct/group-manager.git
-	branch = sakai-11.x
+	branch = 12.x
+
+# modules not included
+#alias https://github.com/sakaiproject/sakai/branches/11.x/alias
+#authz https://github.com/sakaiproject/sakai/branches/11.x/authz
+#memory https://github.com/sakaiproject/sakai/branches/11.x/memory
+#rights https://github.com/sakaiproject/sakai/branches/11.x/rights
+
+#login 			https://github.com/cilt-uct/sakai/branches/11.x/login
+#portal 			https://github.com/cilt-uct/sakai/branches/11.x/portal
+# =reference 		https://github.com/cilt-uct/sakai/branches/11.x/reference
+#lessonbuilder 		https://github.com/cilt-uct/sakai/branches/11.x/lessonbuilder
+#providers https://github.com/cilt-uct/uct-providers/branches/vula-11.x
+#providers/cm-authz-provider https://github.com/sakaiproject/sakai/branches/11.x/providers/cm-authz-provider/
