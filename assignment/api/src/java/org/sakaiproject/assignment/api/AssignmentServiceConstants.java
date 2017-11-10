@@ -46,10 +46,6 @@ public final class AssignmentServiceConstants {
      */
     public static final String SECURE_ADD_ASSIGNMENT = "asn.new";
     /**
-     * Security lock for adding an assignment.
-     */
-    public static final String SECURE_ADD_ASSIGNMENT_CONTENT = "asn.new";
-    /**
      * Security lock for adding an assignment submission.
      */
     public static final String SECURE_ADD_ASSIGNMENT_SUBMISSION = "asn.submit";
@@ -57,10 +53,6 @@ public final class AssignmentServiceConstants {
      * Security lock for removing an assignment.
      */
     public static final String SECURE_REMOVE_ASSIGNMENT = "asn.delete";
-    /**
-     * Security lock for removing an assignment content.
-     */
-    public static final String SECURE_REMOVE_ASSIGNMENT_CONTENT = "asn.delete";
     /**
      * Security lock for removing an assignment submission.
      */
@@ -70,10 +62,6 @@ public final class AssignmentServiceConstants {
      */
     public static final String SECURE_ACCESS_ASSIGNMENT = "asn.read";
     /**
-     * Security lock for accessing an assignment content.
-     */
-    public static final String SECURE_ACCESS_ASSIGNMENT_CONTENT = "asn.read";
-    /**
      * Security lock for accessing an assignment submission.
      */
     public static final String SECURE_ACCESS_ASSIGNMENT_SUBMISSION = "asn.submit";
@@ -81,10 +69,6 @@ public final class AssignmentServiceConstants {
      * Security lock for updating an assignment.
      */
     public static final String SECURE_UPDATE_ASSIGNMENT = "asn.revise";
-    /**
-     * Security lock for updating an assignment content.
-     */
-    public static final String SECURE_UPDATE_ASSIGNMENT_CONTENT = "asn.revise";
     /**
      * Security lock for updating an assignment submission.
      */

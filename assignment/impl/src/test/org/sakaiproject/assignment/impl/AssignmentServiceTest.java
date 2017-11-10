@@ -46,6 +46,7 @@ import org.sakaiproject.assignment.api.AssignmentServiceConstants;
 import org.sakaiproject.assignment.api.model.Assignment;
 import org.sakaiproject.assignment.api.model.AssignmentSubmission;
 import org.sakaiproject.assignment.api.model.AssignmentSubmissionSubmitter;
+import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.entity.api.Entity;
@@ -54,6 +55,8 @@ import org.sakaiproject.exception.IdInvalidException;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.IdUsedException;
 import org.sakaiproject.exception.PermissionException;
+import org.sakaiproject.site.api.Group;
+import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.user.api.User;
@@ -73,6 +76,7 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
 
     private static final Faker faker = new Faker();
 
+    @Autowired private AuthzGroupService authzGroupService;
     @Autowired private SecurityService securityService;
     @Autowired private SessionManager sessionManager;
     @Autowired private AssignmentService assignmentService;
@@ -108,6 +112,38 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
     @Test
     public void checkAssignmentToolTitle() {
         Assert.assertNotNull(assignmentService.getToolTitle());
+    }
+
+    @Test
+    public void securityAllowAddAssignment() {
+        // normal user security check
+        String context1 = UUID.randomUUID().toString();
+        when(securityService.unlock(AssignmentServiceConstants.SECURE_ADD_ASSIGNMENT, AssignmentReferenceReckoner.reckoner().context(context1).reckon().getReference())).thenReturn(true);
+        Assert.assertTrue(assignmentService.allowAddAssignment(context1));
+
+        // group security check
+        String context2 = UUID.randomUUID().toString();
+        String userId = UUID.randomUUID().toString();
+        when(sessionManager.getCurrentSessionUserId()).thenReturn(userId);
+        Site site = mock(Site.class);
+        Collection<Group> siteGroups = new HashSet<>();
+        Set<String> groupARef = new HashSet<>();
+        Group groupA = mock(Group.class);
+        String groupAId = UUID.randomUUID().toString();
+        when(groupA.getId()).thenReturn(groupAId);
+        when(groupA.getReference()).thenReturn("/site/" + context2 + "/group/" + groupAId);
+        siteGroups.add(groupA);
+        groupARef.add(groupA.getReference());
+        when(site.getGroups()).thenReturn(siteGroups);
+        when(securityService.unlock(AssignmentServiceConstants.SECURE_ADD_ASSIGNMENT, AssignmentReferenceReckoner.reckoner().context(context2).reckon().getReference())).thenReturn(false);
+        try {
+            when(siteService.getSite(context2)).thenReturn(site);
+        } catch (IdUnusedException e) {
+            Assert.fail("missing mock site");
+        }
+        when(authzGroupService.getAuthzGroupsIsAllowed(userId, AssignmentServiceConstants.SECURE_ADD_ASSIGNMENT, groupARef)).thenReturn(groupARef);
+
+        Assert.assertTrue(assignmentService.allowAddAssignment(context2));
     }
 
     @Test
