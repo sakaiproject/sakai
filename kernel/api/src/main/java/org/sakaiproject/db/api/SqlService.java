@@ -255,19 +255,6 @@ public interface SqlService
 	 * @return true if successful, false if not.
 	 */
 	boolean dbWrite(Connection connection, String sql, Object[] fields);
-	
-	/**
-	 * Execute the "write" sql in a batch - no response, using an array of fields in a List.
-	 * This is optimized to execute an entire batch of writes in one prepared statement transaction.
-	 * This method will create a new connection and will write everything in one transaction.
-	 *
-	 * @param sql
-	 *        The sql statement.
-	 * @param fields
-	 *        The List of array of fields for parameters.
-	 * @return true if successful, false if not.
-	 */
-	boolean dbWriteBatch(String sql, List<Object[]> fieldsList);
 
 	/**
 	 * Execute the "write" sql in a batch - no response, using an array of fields in a List and a given connection.

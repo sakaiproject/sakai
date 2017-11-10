@@ -348,7 +348,7 @@ public class AssignmentEntity implements LessonEntity, AssignmentInterface {
 	try {
 	    // need this to make sure we always unlock
 	    
-	    if (edit.getTypeOfAccess() == Assignment.Access.GROUPED) {
+	    if (edit.getTypeOfAccess() == Assignment.Access.GROUP) {
 		Collection<String> groups = edit.getGroups();
 		groupId = "/site/" + siteId + "/group/" + groupId;
 
@@ -381,7 +381,7 @@ public class AssignmentEntity implements LessonEntity, AssignmentInterface {
 
 			// this change mode to grouped
 			edit.setGroups(groups);
-			edit.setTypeOfAccess(Assignment.Access.GROUPED);
+			edit.setTypeOfAccess(Assignment.Access.GROUP);
 
 			assignmentService.updateAssignment(edit);
 		doCancel = false;
@@ -421,7 +421,7 @@ public class AssignmentEntity implements LessonEntity, AssignmentInterface {
 	try {
 	    // need this to make sure we always unlock
 	    
-	    if (edit.getTypeOfAccess() == Assignment.Access.GROUPED) {
+	    if (edit.getTypeOfAccess() == Assignment.Access.GROUP) {
 		Collection<String> groups = edit.getGroups();
 		groupId = "/site/" + siteId + "/group/" + groupId;
 		
@@ -583,7 +583,7 @@ public class AssignmentEntity implements LessonEntity, AssignmentInterface {
 	if (assignment == null)
 	    return null;
 	
-	if (assignment.getTypeOfAccess() != Assignment.Access.GROUPED)
+	if (assignment.getTypeOfAccess() != Assignment.Access.GROUP)
 	    return null;
 	    
 	Collection<String> groupRefs = assignment.getGroups();

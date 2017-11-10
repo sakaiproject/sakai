@@ -169,7 +169,6 @@ public class SMWRecurrenceRule extends RecurrenceRuleBase
 				}
 				
 				// use this one
-				String eventHR=eventTimeRange.toStringHR();
 				rv.add(new RecurrenceInstance(eventTimeRange, currentCount));
 			}
 			
