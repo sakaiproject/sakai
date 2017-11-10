@@ -25,13 +25,12 @@ import lombok.extern.slf4j.Slf4j;
 public class HonorPledge {
 	private static ResourceLoader rb = new ResourceLoader("honorpledge");
 	private static ResourceLoader rb2 = new ResourceLoader("assignment");
-	
+	private static ServerConfigurationService serverConfigurationService = ComponentManager.get(ServerConfigurationService.class);
 	/**
 	 * @return
 	 */
 	public static String honorPledge2() {
-		ServerConfigurationService serverConfigurationService = ComponentManager.get(ServerConfigurationService.class);
-		String ui = serverConfigurationService.getString("assignment.ui", "sakai");
+		String ui = getInstitution();
 		String hp2 = null; 
 		String honorpledge = ui + ".gen.honple2";
 		hp2 = rb.getString(honorpledge);
@@ -43,13 +42,18 @@ public class HonorPledge {
 		
 		return hp2;
 	}
+
+	private static String getInstitution() {
+		
+		String ui = serverConfigurationService.getString("assignment.institution", "sakai");
+		return ui;
+	}
 	
 	/**
 	 * @return
 	 */
 	public static String honorPledge() {
-		ServerConfigurationService serverConfigurationService = ComponentManager.get(ServerConfigurationService.class);
-		String ui = serverConfigurationService.getString("assignment.ui", "sakai");
+		String ui = getInstitution();
 		String hp2 = null; 
 		String honorpledge = ui + ".gen.honple";
 		hp2 = rb.getString(honorpledge);
@@ -66,8 +70,8 @@ public class HonorPledge {
 	 * @return
 	 */
 	public static String addHonorPledge() {
-		ServerConfigurationService serverConfigurationService = ComponentManager.get(ServerConfigurationService.class);
-		String ui = serverConfigurationService.getString("assignment.ui", "sakai");
+		
+		String ui = getInstitution();
 		String hp2 = null; 
 		String honorpledge = ui + ".gen.addhonple";
 		hp2 = rb.getString(honorpledge);
