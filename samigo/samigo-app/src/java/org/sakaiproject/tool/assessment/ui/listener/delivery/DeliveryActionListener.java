@@ -2720,7 +2720,7 @@ public class DeliveryActionListener
     delivery.setSkipFlag(false);  
     
     delivery.setTurnIntoTimedAssessment(delivery.getTurnIntoTimedAssessment());
-    if (delivery.getTurnIntoTimedAssessment() && !delivery.getHasShowTimeWarning()) {
+    if (delivery.getTurnIntoTimedAssessment() && !delivery.getHasShowTimeWarning() && (delivery.getDueDate() != null || delivery.getRetractDate() != null)) {
     	delivery.setShowTimeWarning(true);
     	delivery.setHasShowTimeWarning(true);
     }
