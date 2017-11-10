@@ -25,14 +25,17 @@
         <div class="commons-dialog-container">
             <div id="commons-link-dialog-table">
                 <div class="commons-link-dialog-row">
-                    <div>{{tr 'commons' 'display_text'}}</div><input type="text" id="commons-link-dialog-text" />
+                    <div>{{tr 'commons' 'display_text'}}</div>
+                    <div><input type="text" id="commons-link-dialog-text" /></div>
                 </div>
                 <div class="commons-link-dialog-row">
-                    <div>{{tr 'commons' 'link_to'}}</div><input type="text" id="commons-link-dialog-url" />
+                    <div>{{tr 'commons' 'link_to'}}</div>
+                    <div><input type="text" id="commons-link-dialog-url" /></div>
                 </div>
-                <div class="commons-link-dialog-row">
-                    <div>{{tr 'commons' 'load_thumbnail'}}</div><input type="checkbox" id="commons-link-dialog-load-thumbnail"/ >
-                </div>
+            </div>
+            <div id="commons-link-dialog-thumbnail-setting">
+                <input type="checkbox" id="commons-link-dialog-load-thumbnail"/ >
+                <label for="commons-link-dialog-load-thumbnail">{{tr 'commons' 'load_thumbnail'}}</label>
             </div>
             <button id="commons-link-dialog-insert-button" disabled="true">{{tr 'commons' 'insert'}}</button>
             <button id="commons-link-dialog-cancel-button">{{tr 'commons' 'cancel'}}</button>
