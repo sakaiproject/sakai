@@ -221,9 +221,13 @@ public class LessonBuilderAccessService {
 	public static final String INLINEHTML = "lessonbuilder.inlinehtml";
 	private boolean inlineHtml = ServerConfigurationService.getBoolean(INLINEHTML, true);
 	public static final String USECSP = "lessonbuilder.use-csp-headers";
-	// if using separate content domain we don't need this protection
-	private boolean useCsp = ServerConfigurationService.getBoolean(USECSP, 
-				   !ServerConfigurationService.getBoolean("content.separateDomains", false));
+
+	public static final String useCSPDefault = "sandbox allow-forms allow-scripts allow-top-navigation allow-popups allow-pointer-lock allow-popups-to-escape-sandbox";
+	
+	//This will either be true/false or a list of headers
+	private String useCSPHeaders = ServerConfigurationService.getString(USECSP, useCSPDefault);
+	
+	private boolean useCsp = true;
         
         protected static final String MIME_SEPARATOR = "SAKAI_MIME_BOUNDARY";
 
@@ -286,6 +290,21 @@ public class LessonBuilderAccessService {
 		    String keyString = prop.getValue();
 		    byte[] keyBytes = DatatypeConverter.parseHexBinary(keyString);
 		    sessionKey = new SecretKeySpec(keyBytes, "Blowfish");
+		}
+		
+		//Explicit true/false
+		if ("true".equals(useCSPHeaders)) {
+			useCsp = true;
+			useCSPHeaders = useCSPDefault;
+		}
+		else if ("false".equals(useCSPHeaders)) {
+			useCsp = false;
+			//No headers needed
+			useCSPHeaders = "";
+		}
+		else {
+			//Custom headers but if using separate content domain we don't need this protection
+			useCsp = !ServerConfigurationService.getBoolean("content.separateDomains", false);
 		}
 
 	}
@@ -738,7 +757,7 @@ public class LessonBuilderAccessService {
 							// note that by default inline is always set. If we have inline and dangerous (i.e. HTML or
 							// potentially HTML, we set security headers to provide some protection.
 							if (inline && dangerous && useCsp) {
-							    res.addHeader("Content-Security-Policy", "sandbox allow-forms allow-scripts allow-top-navigation allow-popups allow-pointer-lock allow-popups-to-escape-sandbox");
+							    res.addHeader("Content-Security-Policy", useCSPHeaders);
 							}
 
 							// NOTE: Only set the encoding on the content we have to.
