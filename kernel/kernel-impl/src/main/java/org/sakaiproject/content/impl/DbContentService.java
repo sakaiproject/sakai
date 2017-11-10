@@ -45,6 +45,7 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sakaiproject.component.cover.ComponentManager;
@@ -149,6 +150,8 @@ public class DbContentService extends BaseContentService
      * The ID that is used in the content_resource table to test UTF8
      */
     private static final String UTF8TESTID = "UTF8TEST";
+
+    private static final String BASE_PUBLIC_ID = "/public/";
 
     private static final String[] BASE_COLLECTION_IDS = new String[]{
         "/","/attachment/","/group-user/","/group/","/private/","/public/","/user/"   
@@ -2569,6 +2572,11 @@ public class DbContentService extends BaseContentService
             if (collectionId == null || collectionId.trim().length() == 0)
             {
                 return 0;
+            }
+            // KNL-1477: Avoid querying CONTENT_COLLECTION and counting many thousands of rows
+            else if (ArrayUtils.contains(BASE_COLLECTION_IDS, collectionId) && !BASE_PUBLIC_ID.equals(collectionId))
+            {
+                return -1;
             }
             boolean goin = in();
             try

@@ -137,7 +137,7 @@ public class ListItem
 	/** A long representing the number of milliseconds in one week.  Used for date calculations */
 	public static final long ONE_WEEK = 7L * ONE_DAY;
 	
-	public static final int EXPANDABLE_FOLDER_NAV_SIZE_LIMIT = ServerConfigurationService.getInt("sakai.content.resourceLimit", 0);  //SAK-21955
+	public static final int EXPANDABLE_FOLDER_NAV_SIZE_LIMIT = ServerConfigurationService.getInt("sakai.content.resourceLimit", 1000);  //SAK-21955
 
 	/**
 	 * Services
@@ -638,24 +638,29 @@ public class ListItem
 			{
 				shortSizeStr = typeDef.getSizeLabel(entity);
 			}
-        	int collection_size = collection.getMemberCount();
+			int collection_size = collection.getMemberCount();
 			if(shortSizeStr == null)
 			{
-	        	if(collection_size == 1)
-	        	{
-	        		shortSizeStr = rb.getString("size.item");
-	        	}
-	        	else
-	        	{
-		        	String[] args = { Integer.toString(collection_size) };
-		        	shortSizeStr = rb.getFormattedMessage("size.items", args);
-	        	}
+				if(collection_size == 1)
+				{
+					shortSizeStr = rb.getString("size.item");
+				}
+				else if(collection_size == -1)
+				{
+					shortSizeStr = "-";
+					setIsTooBig(true);
+				}
+				else
+				{
+					String[] args = { Integer.toString(collection_size) };
+					shortSizeStr = rb.getFormattedMessage("size.items", args);
+				}
 			}
 			else if(shortSizeStr.length() > ResourceType.MAX_LENGTH_SHORT_SIZE_LABEL)
 			{
 				shortSizeStr = shortSizeStr.substring(0, ResourceType.MAX_LENGTH_SHORT_SIZE_LABEL);
 			}
-			setIsEmpty(collection_size < 1);
+			setIsEmpty(collection_size == 0);
 			setSize(shortSizeStr);
 			String longSizeStr = null;
 			if(typeDef != null)
@@ -668,7 +673,6 @@ public class ListItem
 			}
 			else if(longSizeStr.length() > ResourceType.MAX_LENGTH_LONG_SIZE_LABEL)
 			{
-				
 				longSizeStr = longSizeStr.substring(0, ResourceType.MAX_LENGTH_LONG_SIZE_LABEL);
 			}
 			setSizzle(longSizeStr);
@@ -683,7 +687,8 @@ public class ListItem
 			//Prevent concurrent mode failures in admin Resource tool when clicking on resources that are too large.  Similar to 'isTooBig' but defined in properties
 			//To enable add the property sakai.content.resourceLimit=<int> to sakai.properties where int is the limit of an accessible resource folder
 			String siteId = getSiteContext(refstr);
-			if(this.EXPANDABLE_FOLDER_NAV_SIZE_LIMIT != 0 && siteId != null && ("!admin".equals(siteId) || SiteService.getUserSiteId("admin").contains(siteId)) && (collection_size > this.EXPANDABLE_FOLDER_NAV_SIZE_LIMIT))
+			if(this.EXPANDABLE_FOLDER_NAV_SIZE_LIMIT != 0 && siteId != null && 
+				("!admin".equals(siteId) || SiteService.getUserSiteId("admin").contains(siteId) || collection_size > this.EXPANDABLE_FOLDER_NAV_SIZE_LIMIT))
 			{
 				setIsTooBigNav(true);
 			}
