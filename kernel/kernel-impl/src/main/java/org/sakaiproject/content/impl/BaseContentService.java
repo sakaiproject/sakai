@@ -13844,6 +13844,10 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 				// Get the root collection
 				ContentCollection oCollection = getCollection(toContext);
 
+				if (!isSiteLevelCollection(oCollection.getId())) {
+					throw new IllegalArgumentException("transferCopyEntitiesRefMigrator operation rejected on non site collection: " + oCollection.getId());
+				}
+
 				if(oCollection != null)
 				{
 					// Get the collection members from the old collection
