@@ -3429,7 +3429,7 @@ public class DeliveryBean
 	  //If using extended Time Delivery, the late submission setting is based on retracted
 	  if (extendedTimeDeliveryService.hasExtendedTime()) {
 		  //Accept it if it's not retracted on the extended time entry
-		  acceptLateSubmission = !isRetracted(false);
+		  acceptLateSubmission = (extendedTimeDeliveryService.getRetractDate() != null) ? !isRetracted(false) : false;
 	  }
 	  return acceptLateSubmission;
   }
