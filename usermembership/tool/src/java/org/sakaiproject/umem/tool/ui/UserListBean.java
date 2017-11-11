@@ -48,7 +48,7 @@ import javax.faces.model.SelectItem;
 import org.apache.commons.lang.StringUtils;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.db.api.SqlService;
-import org.sakaiproject.time.api.TimeService;
+import org.sakaiproject.time.api.UserTimeService;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.umem.api.Authz;
 import org.sakaiproject.user.api.User;
@@ -118,7 +118,7 @@ public class UserListBean {
 	private transient ToolManager			M_tm				= (ToolManager) ComponentManager.get(ToolManager.class.getName());
 	private transient SqlService			M_sql				= (SqlService) ComponentManager.get(SqlService.class.getName());
 	private transient Authz					authz				= (Authz) ComponentManager.get(Authz.class.getName());
-	private transient TimeService timeService = (TimeService)ComponentManager.get(TimeService.class.getName());
+	private transient UserTimeService userTimeService = (UserTimeService)ComponentManager.get(UserTimeService.class.getName());
 	
 	// ######################################################################################
 	// UserRow, UserSitesRow CLASS
@@ -302,7 +302,7 @@ public class UserListBean {
 	}
 	
 	public TimeZone getUserTimeZone() {
-		TimeZone timeZone = timeService.getLocalTimeZone();
+		TimeZone timeZone = userTimeService.getLocalTimeZone();
 		
 		if (timeZone == null) {
 			timeZone = TimeZone.getDefault();
