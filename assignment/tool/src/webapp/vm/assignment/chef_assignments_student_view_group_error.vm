@@ -23,7 +23,7 @@
 						$tlang.getString("gen.due")
 					</th>
 					<td>
-						$!assignment.getDueTime().toStringLocalFull()
+						$!service.getUsersLocalDateTimeString($!assignment.DueDate)
 					</td>
 				</tr>
                                 <tr>

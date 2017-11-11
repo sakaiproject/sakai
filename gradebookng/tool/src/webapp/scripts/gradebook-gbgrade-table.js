@@ -109,7 +109,7 @@ TrimPathFragmentCache.prototype.getFragment = function (values) {
     self.cacheSize += 1
 
     self.cacheHitRates[key] = 1;
-    html = self.cache[key];
+    html = self.cache[key].clone(false);
   }
 
   if (self.cacheSize > self.maxCacheSize) {
@@ -387,7 +387,7 @@ GbGradeTable.cellRenderer = function (instance, td, row, col, prop, value, cellP
     $cellDiv.addClass("gb-concurrent-edit");
     notifications.push({
       type: 'concurrent-edit',
-      conflict: $.data(td, "concurrent-edit"),
+      conflict: GbGradeTable.conflictFor(student, column.assignmentId),
       showSaveError: (scoreState == 'error')
     });
   } else if (scoreState == "error") {
@@ -912,6 +912,17 @@ GbGradeTable.renderTable = function (elementId, tableData) {
   }).on("focus", function() {
     // deselect the table so subsequent keyboard entry isn't entered into cells
     GbGradeTable.instance.deselectCell();
+  }).on("keydown", function(event) {
+    // Disable the Wicket behavior that triggers the click on the form's first button
+    // after a 'return' keypress within a text input
+    //
+    // See https://issues.apache.org/jira/browse/WICKET-4499
+    if (event.keyCode == 13) {
+      clearTimeout(filterTimeout);
+      GbGradeTable.redrawTable(true);
+
+      return false;
+    }
   });
   $(document).on('click', '.gb-student-filter-clear-button', function(event) {
     event.preventDefault();
@@ -1282,6 +1293,15 @@ GbGradeTable.hasConcurrentEdit = function(student, assignmentId) {
 };
 
 
+GbGradeTable.conflictFor = function(student, assignmentId) {
+  if (student.hasConcurrentEdit == null || student.conflicts == null) {
+    return null;
+  }
+
+  return student.conflicts[assignmentId];
+};
+
+
 GbGradeTable.setHasConcurrentEdit = function(conflict) {
   var student = GbGradeTable.modelForStudent(conflict.studentUuid);
 
@@ -1295,15 +1315,25 @@ GbGradeTable.setHasConcurrentEdit = function(conflict) {
   var row = GbGradeTable.rowForStudent(conflict.studentUuid);
   var col = GbGradeTable.colForAssignment(conflict.assignmentId);
 
-  $.data(GbGradeTable.instance.getCell(row, col), "concurrent-edit", conflict);
-
   var assignmentIndex = $.inArray(GbGradeTable.colModelForAssignment(conflict.assignmentId), GbGradeTable.columns);
 
   student.hasConcurrentEdit = hasConcurrentEdit.substr(0, assignmentIndex) + "1" + hasConcurrentEdit.substr(assignmentIndex+1);
 
-  GbGradeTable.instance.setDataAtCell(row, GbGradeTable.STUDENT_COLUMN_INDEX, student);
-  GbGradeTable.redrawCell(row, col);
-}
+  if (!student.hasOwnProperty('conflicts')) {
+    student.conflicts = {}
+  }
+  student.conflicts[conflict.assignmentId] = conflict;
+
+  // redraw student cell if visible
+  if (row >= 0) {
+    GbGradeTable.instance.setDataAtCell(row, GbGradeTable.STUDENT_COLUMN_INDEX, student);
+    GbGradeTable.redrawCell(row, GbGradeTable.STUDENT_COLUMN_INDEX);
+  }
+  // redraw grade cell if visible
+  if (row >= 0 && col >= 0) {
+    GbGradeTable.redrawCell(row, col);
+  }
+};
 
 
 GbGradeTable.colModelForCategoryScore = function(categoryName) {
@@ -2805,8 +2835,10 @@ GbGradeTable.syncCategoryAverage = function(studentId, categoryId, categoryScore
     // update table
     var tableRow = GbGradeTable.rowForStudent(studentId);
     var tableCol = GbGradeTable.colForCategoryScore(categoryId);
-    GbGradeTable.setCellState('synced', tableRow, tableCol);
-    GbGradeTable.instance.setDataAtCell(tableRow, tableCol, categoryScoreAsLocaleString);
+    if (tableCol >= 0) { // column is visible?
+        GbGradeTable.setCellState('synced', tableRow, tableCol);
+        GbGradeTable.instance.setDataAtCell(tableRow, tableCol, categoryScoreAsLocaleString);
+    }
 
     // update model
     var modelRow = GbGradeTable.modelIndexForStudent(studentId);

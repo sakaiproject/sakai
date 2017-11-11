@@ -75,7 +75,7 @@
 					#else
 						($reviewNumber $tlang.getString("gen.of") $totalReviews)
 						<br/>
-						$tlang.getFormattedMessage("peerassessment.peerReviewDueDateWithDate", $!assignment.peerAssessmentPeriod.toStringLocalFull())
+						$tlang.getFormattedMessage("peerassessment.peerReviewDueDateWithDate", $!assignment.peerAssessmentPeriod.toString())
 					#end
 					</span>
 				</h3>

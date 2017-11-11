@@ -3429,7 +3429,7 @@ public class DeliveryBean
 	  //If using extended Time Delivery, the late submission setting is based on retracted
 	  if (extendedTimeDeliveryService.hasExtendedTime()) {
 		  //Accept it if it's not retracted on the extended time entry
-		  acceptLateSubmission = !isRetracted(false);
+		  acceptLateSubmission = (extendedTimeDeliveryService.getRetractDate() != null) ? !isRetracted(false) : false;
 	  }
 	  return acceptLateSubmission;
   }
@@ -3437,11 +3437,12 @@ public class DeliveryBean
   public boolean isRetracted(boolean isSubmitForGrade){
     boolean isRetracted = true;
     Date currentDate = new Date();
-    Date retractDate;
+    Date retractDate = null;
+    boolean acceptLateSubmission = AssessmentAccessControlIfc.ACCEPT_LATE_SUBMISSION.equals(publishedAssessment.getAssessmentAccessControl().getLateHandling());
     if (extendedTimeDeliveryService.hasExtendedTime()) {
     	retractDate = extendedTimeDeliveryService.getRetractDate();
     }
-    else {
+    else if (acceptLateSubmission) {
     	retractDate = publishedAssessment.getAssessmentAccessControl().getRetractDate();
     }
     if (retractDate == null || retractDate.after(currentDate)){

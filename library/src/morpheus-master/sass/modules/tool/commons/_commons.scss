@@ -34,15 +34,12 @@
                 .commons-link-dialog-row {
                     display: table-row;
                     padding-bottom: 5px;
-                }
-                    .commons-link-dialog-row div {
+                    div {
                         display: table-cell;
                         white-space: nowrap;
                         padding-right: 10px;
                     }
-                    .commons-link-dialog-row input {
-                        display: table-cell;
-                    }
+                }
             .commons-dialog-container button {
                 border-radius: 0px;
                 font-weight: bold;

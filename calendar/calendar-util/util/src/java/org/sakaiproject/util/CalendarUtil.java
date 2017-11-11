@@ -118,6 +118,22 @@ public class CalendarUtil
 	}
 
 	/**
+	 * Constructor for testing.
+	 */
+	public CalendarUtil(Calendar calendar, ResourceLoader rb)
+	{
+		this.rb = rb;
+		m_calendar = calendar;
+		initDates();
+	}
+
+	public CalendarUtil(ResourceLoader rb) {
+		Locale locale = rb.getLocale();
+		m_calendar = Calendar.getInstance(locale);
+		initDates();
+	}
+
+	/**
 	 * This creates a calendar based on the clock. This is to allow testing of the class.
 	 * @return A calendar.
 	 */

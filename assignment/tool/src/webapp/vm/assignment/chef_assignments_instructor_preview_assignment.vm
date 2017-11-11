@@ -32,7 +32,7 @@
 									<th>
 										$tlang.getString("gen.creby")
 									</th>
-									<td>$user.DisplayName ($time.toStringLocalFull())
+									<td>$user.DisplayName ($!service.getUsersLocalDateTimeString($time))
 									</td>
 								</tr>
 								<tr>
@@ -40,7 +40,7 @@
 										$tlang.getString("gen.mod")
 									</th>
 									<td>
-										$time.toStringLocalFull()
+										$!service.getUsersLocalDateTimeString($time)
 									</td>
 								</tr>
 								<tr>
@@ -48,7 +48,7 @@
 										$tlang.getString("gen.open")
 									</th>
 									<td>
-										$value_OpenDate.toStringLocalFull()
+										$!service.getUsersLocalDateTimeString($value_OpenDate)
 									</td>
 								</tr>
 								<tr>
@@ -56,7 +56,7 @@
 										$tlang.getString("gen.due")
 									</th>
 									<td>
-										$value_DueDate.toStringLocalFull()
+										$!service.getUsersLocalDateTimeString($value_DueDate)
 									</td>
 								</tr>
 								#if ($value_EnableCloseDate)
@@ -67,7 +67,7 @@
 
 										</th>
 										<td>
-											$value_CloseDate.toStringLocalFull()
+											$!service.getUsersLocalDateTimeString($value_CloseDate)
 										</td>
 									</tr>
 								#end
@@ -208,7 +208,7 @@
 								$tlang.getString("gen.due")
 							</th>
 							<td>
-								$value_DueDate.toStringLocalFull()<br />
+								$!service.getUsersLocalDateTimeString($value_DueDate)<br />
 							</td>
 						</tr>
 						#if ($withGrade)
@@ -217,11 +217,11 @@
 									$tlang.getString("gen.status")
 								</th>
 								<td>
-									#if ($value_OpenDate.after($currentTime))
+									#if ($value_OpenDate.isAfter($currentTime))
 										$tlang.getString("gen.notope")
-									#elseif ($value_DueDate.after($currentTime))
+									#elseif ($value_DueDate.isAfter($currentTime))
 										$tlang.getString("gen.open")
-									#elseif (($!$value_CloseDate)&&($value_CloseDate.before($currentTime)))
+									#elseif ($value_CloseDate && $value_CloseDate.isBefore($currentTime))
 										$tlang.getString("gen.closed")
 									#else
 										$tlang.getString("gen.due")

@@ -18,6 +18,7 @@
         <property name="assignmentEntityFactory" ref="org.sakaiproject.assignment.api.AssignmentEntity.factory"/>
         <property name="assignmentPeerAssessmentService" ref="org.sakaiproject.assignment.api.AssignmentPeerAssessmentService"/>
         <property name="assignmentRepository" ref="org.sakaiproject.assignment.persistence.AssignmentRepository"/>
+        <property name="assignmentSupplementItemService" ref="org.sakaiproject.assignment.api.model.AssignmentSupplementItemService"/>
         <property name="authzGroupService" ref="org.sakaiproject.authz.api.AuthzGroupService"/>
         <property name="calendarService" ref="org.sakaiproject.calendar.api.CalendarService"/>
         <property name="candidateDetailProvider">
@@ -37,6 +38,7 @@
         <property name="gradebookService" ref="org.sakaiproject.service.gradebook.GradebookService"/>
         <property name="gradeSheetExporter" ref="org.sakaiproject.assignment.impl.GradeSheetExporter"/>
         <property name="learningResourceStoreService" ref="org.sakaiproject.event.api.LearningResourceStoreService"/>
+        <property name="linkMigrationHelper" ref="org.sakaiproject.util.api.LinkMigrationHelper"/>
         <property name="memoryService" ref="org.sakaiproject.memory.api.MemoryService"/>
         <property name="resourceLoader" ref="org.sakaiproject.util.ResourceLoader.assignment"/>
         <property name="securityService" ref="org.sakaiproject.authz.api.SecurityService"/>
@@ -46,6 +48,7 @@
         <property name="taggingManager" ref="org.sakaiproject.taggable.api.TaggingManager"/>
         <property name="toolManager" ref="org.sakaiproject.tool.api.ToolManager"/>
         <property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService"/>
+        <property name="userTimeService" ref="org.sakaiproject.time.api.UserTimeService"/>
     </bean>
 
     <bean id="org.sakaiproject.util.ResourceLoader.assignment"

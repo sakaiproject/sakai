@@ -319,6 +319,10 @@ a.noPointers, input.noPointers {
 	}
 }
 
+.ui-dialog .ui-dialog-buttonpane button{
+	@include sakai_primary_button();
+}
+
 label.panelGridLabel{
 	margin-right: 0.5em;
 }

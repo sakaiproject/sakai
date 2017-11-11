@@ -28,6 +28,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -398,7 +399,11 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 			rval.setSelectedGradeMappingId(Long.toString(selectedGradeMapping.getId()));
 			
 			//note that these are not the DEFAULT bottom percents but the configured ones per gradebook
-			rval.setSelectedGradingScaleBottomPercents(new HashMap<String,Double>(selectedGradeMapping.getGradeMap()));
+			Map<String,Double> gradeMap = selectedGradeMapping.getGradeMap().entrySet().stream()
+					.sorted(Map.Entry.comparingByValue(Comparator.reverseOrder()))
+					.collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue,
+					(oldValue, newValue) -> oldValue, LinkedHashMap::new));
+			rval.setSelectedGradingScaleBottomPercents(gradeMap);
 			rval.setGradeScale(selectedGradeMapping.getGradingScale().getName());
 		}
 		
@@ -2306,8 +2311,9 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 				  }
 			  } else {
 				  try {
-					  percentage = Double.parseDouble(grade);
-				  } catch (NumberFormatException nfe) {
+					  NumberFormat nbFormat = NumberFormat.getInstance(new ResourceLoader().getLocale());
+					  percentage = new Double (nbFormat.parse(grade).doubleValue());
+				  } catch (NumberFormatException | ParseException nfe) {
 					  throw new IllegalArgumentException("Invalid % grade passed to convertInputGradeToPoints");
 				  }
 			  }

@@ -2186,37 +2186,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 
                             count++;
                         } else if (typeId.equals(TypeIfc.IMAGEMAP_QUESTION)) {
-                            log.debug("MATCHING");
-
-                            ItemTextIfc itemTextIfc = (ItemTextIfc) publishedItemTextHash.get(grade.getPublishedItemTextId());
-                            Long sequence = itemTextIfc.getSequence();
-                            String temptext = (grade.getIsCorrect()) ? "OK" : "No OK";
-
-                            String thistext = sequence + ": " + temptext;
-
-                            if (count == 0)
-                                maintext = thistext;
-                            else
-                                maintext = maintext + "|" + thistext;
-
-                            count++;
-                        } else if (typeId.equals(TypeIfc.IMAGEMAP_QUESTION)) {
-                            log.debug("MATCHING");
-
-                            ItemTextIfc itemTextIfc = (ItemTextIfc) publishedItemTextHash.get(grade.getPublishedItemTextId());
-                            Long sequence = itemTextIfc.getSequence();
-                            String temptext = (grade.getIsCorrect()) ? "OK" : "No OK";
-
-                            String thistext = sequence + ": " + temptext;
-
-                            if (count == 0)
-                                maintext = thistext;
-                            else
-                                maintext = maintext + "|" + thistext;
-
-                            count++;
-                        } else if (typeId.equals(TypeIfc.IMAGEMAP_QUESTION)) {
-                            log.debug("MATCHING");
+                            log.debug("IMAGEMAP_QUESTION");
 
                             ItemTextIfc itemTextIfc = (ItemTextIfc) publishedItemTextHash.get(grade.getPublishedItemTextId());
                             Long sequence = itemTextIfc.getSequence();
@@ -3065,8 +3035,8 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
                     //If it has extended time, just continue for now, no method to tell if the time is passed
                     if (assessmentExtended.hasExtendedTime()) {
                         //If the due date or retract date hasn't passed yet, go on to the next one, don't consider it yet
-                        if (currentTime.before(assessmentExtended.getRetractDate()) || currentTime.before(
-                                assessmentExtended.getDueDate())) {
+                        if ((assessmentExtended.getRetractDate()!=null && currentTime.before(assessmentExtended.getRetractDate())) || (assessmentExtended.getDueDate() != null && currentTime.before(
+                                assessmentExtended.getDueDate()))) {
                             continue;
                         }
                         //Continue on and try to submit it but it may be late, just change the due date

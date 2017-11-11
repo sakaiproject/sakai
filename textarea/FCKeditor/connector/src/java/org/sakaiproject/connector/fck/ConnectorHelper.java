@@ -17,6 +17,7 @@ package org.sakaiproject.connector.fck;
 
 import java.lang.reflect.Method;
 import java.text.SimpleDateFormat;
+import java.time.Instant;
 import java.util.*;
 
 import org.slf4j.Logger;
@@ -114,12 +115,11 @@ public class ConnectorHelper {
 
 
 			java.util.Date now = new java.util.Date();
-			long nowMs = now.getTime();
 			for (Assignment thisAssignment : assignmentService.getAssignmentsForContext(thisSite.getId())) {
-				Date thisAssignmentCloseTime = thisAssignment.getCloseDate();
+				Instant thisAssignmentCloseTime = thisAssignment.getCloseDate();
 				boolean assignmentClosed = true;
 				if(thisAssignmentCloseTime!=null){
-					if(thisAssignmentCloseTime.getTime()<nowMs){
+					if(thisAssignmentCloseTime.isBefore(Instant.now())){
 						assignmentClosed=false;
 					}
 				}else{

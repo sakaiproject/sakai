@@ -160,7 +160,7 @@ public class DeliveryActionListener
       	return;
       }
 
-      if (delivery.pastDueDate()){
+      if (delivery.pastDueDate() && (DeliveryBean.TAKE_ASSESSMENT == action || DeliveryBean.TAKE_ASSESSMENT_VIA_URL == action)) {
         if (delivery.isAcceptLateSubmission()) {
           if(delivery.getTotalSubmissions() > 0) {
             // Not during a Retake
@@ -2720,7 +2720,7 @@ public class DeliveryActionListener
     delivery.setSkipFlag(false);  
     
     delivery.setTurnIntoTimedAssessment(delivery.getTurnIntoTimedAssessment());
-    if (delivery.getTurnIntoTimedAssessment() && !delivery.getHasShowTimeWarning()) {
+    if (delivery.getTurnIntoTimedAssessment() && !delivery.getHasShowTimeWarning() && (delivery.getDueDate() != null || delivery.getRetractDate() != null)) {
     	delivery.setShowTimeWarning(true);
     	delivery.setHasShowTimeWarning(true);
     }
