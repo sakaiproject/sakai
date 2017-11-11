@@ -134,7 +134,7 @@
 
 <!-- content... -->
 <h:form id="takeAssessmentForm" enctype="multipart/form-data"
-   onsubmit="saveTime(); serializeImagePoints()">
+   onsubmit="saveTime(); serializeImagePoints();">
 
 <!-- JAVASCRIPT -->
 <%@ include file="/js/delivery.js" %>

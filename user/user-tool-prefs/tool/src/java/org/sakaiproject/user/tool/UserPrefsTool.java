@@ -65,6 +65,9 @@ import org.sakaiproject.util.Web;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import lombok.Getter;
+import lombok.Setter;
+
 /**
  * UserPrefsTool is the Sakai end-user tool to view and edit one's preferences.
  */
@@ -240,7 +243,7 @@ public class UserPrefsTool
 
 	private String[] tablist;
 
-	private int noti_selection, tab_selection, timezone_selection, language_selection, privacy_selection, hidden_selection, j;
+	private int noti_selection, tab_selection, timezone_selection, language_selection, privacy_selection, hidden_selection, editor_selection, j;
 
 	private String hiddenSitesInput = null;
 
@@ -250,6 +253,7 @@ public class UserPrefsTool
 	private String Language="prefs_lang_title";
 	private String Privacy="prefs_privacy_title";
 	private String Hidden="prefs_hidden_title";
+	private String Editor="prefs_editor_title";
 	
 	private boolean refreshMode=false;
 
@@ -259,10 +263,15 @@ public class UserPrefsTool
 
 	protected final static String TAB_LABEL_PREF = "tab:label";
 
+	protected final static String EDITOR_TYPE = "editor:type";
+
 	protected boolean isNewUser = false;
 
 	// user's currently selected time zone
 	private TimeZone m_timeZone = null;
+
+	// user's currently selected editor type 
+	private String m_editorType = null;
 
 	// user's currently selected regional language locale
 	private Locale m_locale = null;
@@ -505,6 +514,26 @@ public class UserPrefsTool
 	}
 
 	/**
+	 * @return Returns the user's selected Editor Type
+	 */
+	public String getSelectedEditorType()
+	{
+		if (m_editorType != null) return m_editorType;
+
+		Preferences prefs = (PreferencesEdit) m_preferencesService.getPreferences(getUserId());
+		ResourceProperties props = prefs.getProperties(PreferencesService.EDITOR_PREFS_KEY);
+		String editorType = props.getProperty(PreferencesService.EDITOR_PREFS_TYPE);
+
+		if (hasValue(editorType))
+			m_editorType = editorType;
+		else
+			m_editorType = "auto";
+
+		return m_editorType;
+	}
+
+
+	/**
 	 * @param selectedTimeZone
 	 *        The selectedTimeZone to set.
 	 */
@@ -515,6 +544,19 @@ public class UserPrefsTool
 		else
 			LOG.warn(this + "setSelctedTimeZone() has null TimeZone");
 	}
+
+	/**
+	 * @param selectedTimeZone
+	 *        The selectedTimeZone to set.
+	 */
+	public void setSelectedEditorType(String selectedEditorType)
+	{
+		if (selectedEditorType != null)
+			m_editorType = selectedEditorType;
+		else
+			LOG.warn(this + "setSelectedEditorType() has null Editor");
+	}
+
 
 	/**
 	 * @return Returns the user's selected Locale ID
@@ -655,7 +697,7 @@ public class UserPrefsTool
 
 		//To indicate that it is in the refresh mode
 		refreshMode=true;
-		String tabOrder = ServerConfigurationService.getString("preference.pages", "prefs_noti_title, prefs_timezone_title, prefs_lang_title, prefs_hidden_title, prefs_hidden_title");
+		String tabOrder = ServerConfigurationService.getString("preference.pages", "prefs_noti_title, prefs_timezone_title, prefs_lang_title, prefs_hidden_title, prefs_hidden_title, prefs_editor_title");
 		LOG.debug("Setting preference.pages as " + tabOrder);
 
 		tablist=tabOrder.split(",");
@@ -668,6 +710,7 @@ public class UserPrefsTool
 			else if (tablist[i].equals(Language)) language_selection=i+1;
 			else if (tablist[i].equals(Privacy)) privacy_selection=i+1;
 			else if (tablist[i].equals(Hidden)) hidden_selection=i+1;
+			else if (tablist[i].equals(Editor)) editor_selection=i+1;
 			else LOG.warn(tablist[i] + " is not valid!!! Please fix preference.pages property in sakai.properties");
 		}
 
@@ -741,6 +784,17 @@ public class UserPrefsTool
 		}
 		return hidden_selection;
 	}
+	
+
+	public int getEditor_selection()
+	{
+		//Loading the data for notification in the refresh mode
+		if (editor_selection==1 && refreshMode==true)
+		{
+			processActionHiddenFrmEdit();
+		}
+		return editor_selection;
+	}
 
 	public String getTabTitle()
 	{
@@ -808,6 +862,21 @@ public class UserPrefsTool
 		cancelEdit();
 		// navigation page data are loaded through getter method as navigation is the default page for 'sakai.preferences' tool.
 		return "timezone";
+	}
+	
+	/**
+	 * Process the cancel command from the edit view.
+	 * 
+	 * @return navigation outcome to editor page (list)
+	 */
+	public String processActionEditorFrmEdit()
+	{
+		LOG.debug("processActionEditorFrmEdit()");
+
+		refreshMode=false;
+		cancelEdit();
+		// navigation page data are loaded through getter method as navigation is the default page for 'sakai.preferences' tool.
+		return "editor";
 	}
 
 	/**
@@ -883,6 +952,7 @@ public class UserPrefsTool
 		locUpdated = false;
 		refreshUpdated = false;
 		hiddenUpdated = false;
+		editorUpdated = false;
 	}
 
 	/**
@@ -1038,83 +1108,20 @@ public class UserPrefsTool
 	
 	private DecoratedNotificationPreference currentDecoratedNotificationPreference = null;
 	
+	@Getter @Setter
 	protected boolean notiUpdated = false;
 
+	@Getter @Setter
 	protected boolean tzUpdated = false;
 
+	@Getter @Setter
 	protected boolean locUpdated = false;
 
-	// ///////////////////////////////// GETTER AND SETTER ///////////////////////////////////
-	// TODO chec for any preprocessor for handling request for first time. This can simplify getter() methods as below
+	@Getter @Setter
+	protected boolean hiddenUpdated = false;
 	
-	/**
-	 * @return Returns the notiUpdated.
-	 */
-	public boolean getNotiUpdated()
-	{
-		return notiUpdated;
-	}
-
-	/**
-	 * @param notiUpdated
-	 *        The notiUpdated to set.
-	 */
-	public void setNotiUpdated(boolean notiUpdated)
-	{
-		this.notiUpdated = notiUpdated;
-	}
-
-	/**
-	 * @return Returns the tzUpdated.
-	 */
-	public boolean getTzUpdated()
-	{
-		return tzUpdated;
-	}
-
-	/**
-	 * @param notiUpdated
-	 *        The tzUpdated to set.
-	 */
-	public void setTzUpdated(boolean tzUpdated)
-	{
-		this.tzUpdated = tzUpdated;
-	}
-
-	/**
-	 * @return Returns the tzUpdated.
-	 */
-	public boolean getLocUpdated()
-	{
-		return locUpdated;
-	}
-
-	/**
-	 * @param notiUpdated
-	 *        The locUpdated to set.
-	 */
-	public void setLocUpdated(boolean locUpdated)
-	{
-		this.locUpdated = locUpdated;
-	}
-
-	/**
-	 * @return Returns the hiddenUpdated.
-	 */
-	public boolean getHiddenUpdated()
-	{
-		return hiddenUpdated;
-	}
-
-	/**
-	 * @param hiddenUpdated
-	 *        The hiddenUpdated to set.
-	 */
-	public void setHiddenUpdated(boolean hiddenUpdated)
-	{
-		this.hiddenUpdated = hiddenUpdated;
-	}
-
+	@Getter @Setter
+	protected boolean editorUpdated = false;
 
 	// ///////////////////////////////////////NOTIFICATION ACTION - copied from NotificationprefsAction.java////////
 	// TODO - clean up method call. These are basically copied from legacy legacy implementations.
@@ -1176,9 +1183,28 @@ public class UserPrefsTool
 
 		TimeService.clearLocalTimeZone(getUserId()); // clear user's cached timezone
 
-		tzUpdated = true; // set for display of text massage
+		tzUpdated = true; // set for display of text message
 		return "timezone";
 	}
+	/**
+	 * 
+	 * Processes the save command from the edit vieprefShowEditorLabelOptionw
+	 * @return navigation outcome to editor page
+	 */
+	
+	public String processActionEditorSave() 
+	{
+		setUserEditingOn();
+		ResourcePropertiesEdit props = m_edit.getPropertiesEdit(PreferencesService.EDITOR_PREFS_KEY);
+		props.addProperty(PreferencesService.EDITOR_PREFS_TYPE, m_editorType);
+		m_preferencesService.commit(m_edit);
+
+
+		
+		editorUpdated = true; // set for display of text message
+		return "editor";
+	}
+	
 
 	/**
 	 * process timezone cancel
@@ -1194,6 +1220,22 @@ public class UserPrefsTool
 		getSelectedTimeZone();
 
 		return "timezone";
+	}
+	
+	/**
+	 * process editor cancel
+	 * 
+	 * @return navigation outcome to editor page
+	 */
+	public String processActionEditorCancel()
+	{
+		LOG.debug("processActionEditorCancel()");
+		
+		// restore original editor
+		m_editorType = null;
+		getSelectedEditorType();
+
+		return "editor";
 	}
 
 	/**
@@ -1217,7 +1259,7 @@ public class UserPrefsTool
 		// reset notification items with the locale
 		initRegisteredNotificationItems();
 
-		locUpdated = true; // set for display of text massage
+		locUpdated = true; // set for display of text message
 		return "locale";
 	}
 
@@ -2189,7 +2231,6 @@ public class UserPrefsTool
 		}
 	}
 		
-	protected boolean hiddenUpdated = false;
 
 	public String processHiddenSites()
 	{

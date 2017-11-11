@@ -2,7 +2,7 @@ package uk.ac.cam.caret.sakai.rwiki.bean.test;
 
 import junit.framework.TestCase;
 
-import org.easymock.MockControl;
+import org.easymock.EasyMock;
 
 import uk.ac.cam.caret.sakai.rwiki.service.api.RWikiObjectService;
 import uk.ac.cam.caret.sakai.rwiki.service.api.model.RWikiObject;
@@ -30,7 +30,6 @@ public class RenderBeanTest extends TestCase
 
 	RenderBean rb;
 
-	MockControl renderServiceControl, objectServiceControl, rwikiObjectControl;
 
 	public RenderBeanTest(String test)
 	{
@@ -40,23 +39,16 @@ public class RenderBeanTest extends TestCase
 	protected void setUp() throws Exception
 	{
 		super.setUp();
-		renderServiceControl = MockControl
-				.createControl(ToolRenderService.class);
-		objectServiceControl = MockControl
-				.createControl(RWikiObjectService.class);
-		rwikiObjectControl = MockControl.createControl(RWikiObject.class);
 
-		mockToolRenderService = (ToolRenderService) renderServiceControl
-				.getMock();
-		mockObjectService = (RWikiObjectService) objectServiceControl.getMock();
-		mockObject = (RWikiObject) rwikiObjectControl.getMock();
-		// mockObject = new RWikiObjectImpl();
+		mockToolRenderService = EasyMock.mock(ToolRenderService.class);
+		mockObjectService = EasyMock.mock(RWikiObjectService.class);
+		mockObject = EasyMock.mock(RWikiObject.class);
 
-		mockObjectService.checkUpdate(mockObject);
-		objectServiceControl.setReturnValue(false);
-		mockObjectService.checkRead(mockObject);
-		objectServiceControl.setReturnValue(false);
-		objectServiceControl.replay();
+		EasyMock.expect(mockObjectService.checkUpdate(mockObject)).andReturn(true);
+		EasyMock.expect(mockObjectService.checkCreate(mockObject)).andReturn(true);
+		EasyMock.expect(mockObjectService.checkRead(mockObject)).andReturn(true);
+
+		EasyMock.replay(mockObjectService);
 
 		rb = new RenderBean(mockObject, mockToolRenderService,
 				mockObjectService, true);
@@ -69,15 +61,13 @@ public class RenderBeanTest extends TestCase
 	 */
 	public void testRenderPage()
 	{
-		mockToolRenderService.renderPage(mockObject);
-		renderServiceControl.setReturnValue(value);
-		rwikiObjectControl.replay();
-		renderServiceControl.replay();
+		EasyMock.expect(mockToolRenderService.renderPage(mockObject))
+				.andReturn(value);
+
+		EasyMock.replay(mockToolRenderService, mockObject);
 
 		assertTrue(value.equals(rb.renderPage()));
-		objectServiceControl.verify();
-		renderServiceControl.verify();
-		rwikiObjectControl.verify();
+		EasyMock.verify(mockToolRenderService, mockObject);
 	}
 
 	/*

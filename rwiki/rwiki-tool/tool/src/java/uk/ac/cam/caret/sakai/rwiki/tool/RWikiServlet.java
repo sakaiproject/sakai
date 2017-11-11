@@ -298,8 +298,6 @@ public class RWikiServlet extends HttpServlet
 
 		if (WikiPageAction.PUBLICVIEW_ACTION.getName().equals(
 				request.getParameter(RequestHelper.ACTION))) return false;
-		if (WikiPageAction.PRINTVIEW_ACTION.getName().equals(
-				request.getParameter(RequestHelper.ACTION))) return false;
 
 		
 		if ("GET".equalsIgnoreCase(request.getMethod())) return true;

@@ -1,3 +1,18 @@
+/**
+ * Copyright (c) 2003-2017 The Apereo Foundation
+ *
+ * Licensed under the Educational Community License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *             http://opensource.org/licenses/ecl2
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.sakaiproject.component.gradebook;
 
 import java.util.ArrayList;
@@ -8,7 +23,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.sakaiproject.section.api.SectionAwareness;
@@ -19,7 +34,7 @@ import org.sakaiproject.service.gradebook.shared.GradebookPermissionService;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.service.gradebook.shared.GraderPermission;
 import org.sakaiproject.service.gradebook.shared.PermissionDefinition;
-import org.sakaiproject.tool.gradebook.Assignment;
+import org.sakaiproject.tool.gradebook.GradebookAssignment;
 import org.sakaiproject.tool.gradebook.Category;
 import org.sakaiproject.tool.gradebook.Gradebook;
 import org.sakaiproject.tool.gradebook.Permission;
@@ -479,7 +494,7 @@ public class GradebookPermissionServiceImpl extends BaseHibernateManager impleme
 			{
 				for(Iterator iter = assignmentList.iterator(); iter.hasNext();)
 				{
-					Assignment assign = (Assignment) iter.next();
+					GradebookAssignment assign = (GradebookAssignment) iter.next();
 					if(grade && assign != null)
 						assignMap.put(assign.getId(), GradebookService.gradePermission);
 					else if(view && assign != null)
@@ -521,7 +536,7 @@ public class GradebookPermissionServiceImpl extends BaseHibernateManager impleme
 				}
 				for(Iterator iter = assignments.iterator(); iter.hasNext();)
 				{
-					Assignment as = (Assignment) iter.next();
+					GradebookAssignment as = (GradebookAssignment) iter.next();
 					if(grade == true && as != null)
 						assignMap.put(as.getId(), GradebookService.gradePermission);
 					else if(view == true && as != null)
@@ -565,7 +580,7 @@ public class GradebookPermissionServiceImpl extends BaseHibernateManager impleme
 									if (assignmentList != null) {
 										for(Iterator assignIter = assignmentList.iterator(); assignIter.hasNext();)
 										{
-											Assignment as = (Assignment)assignIter.next();
+											GradebookAssignment as = (GradebookAssignment)assignIter.next();
 											if(as != null)
 											{
 												Long assignId = as.getId();
@@ -722,7 +737,7 @@ public class GradebookPermissionServiceImpl extends BaseHibernateManager impleme
 			{
 				for(Iterator iter = assignmentList.iterator(); iter.hasNext();)
 				{
-					Long assignId = ((Assignment)iter.next()).getId();
+					Long assignId = ((GradebookAssignment)iter.next()).getId();
 	                for(Iterator<Map.Entry<String, List>> groupIter = sectionIdStudentIdsMap.entrySet().iterator(); groupIter.hasNext();)
 	                {
 	                    Map.Entry<String, List> entry = groupIter.next();
@@ -768,7 +783,7 @@ public class GradebookPermissionServiceImpl extends BaseHibernateManager impleme
 							if (assignmentList != null) {
 								for(Iterator assignIter = assignmentList.iterator(); assignIter.hasNext();)
 								{
-									Assignment as = (Assignment)assignIter.next();
+									GradebookAssignment as = (GradebookAssignment)assignIter.next();
 									if(as != null && sectionIdStudentIdsMap != null)
 									{
 										Long assignId = as.getId();

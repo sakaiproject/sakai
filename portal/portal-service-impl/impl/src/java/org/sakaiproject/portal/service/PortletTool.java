@@ -28,14 +28,13 @@ import java.util.Set;
 
 import javax.servlet.ServletContext;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.apache.pluto.descriptors.portlet.PortletDD;
 import org.apache.pluto.descriptors.portlet.PortletInfoDD;
 import org.apache.pluto.internal.InternalPortletContext;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.portal.api.PortalService;
 import org.sakaiproject.tool.api.Tool;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * <p>
@@ -46,11 +45,9 @@ import org.sakaiproject.tool.api.Tool;
  * @since Sakai 2.4
  * @version $Rev$
  */
+@Slf4j
 public class PortletTool implements org.sakaiproject.tool.api.Tool, Comparable
 {
-	/** Our log (commons). */
-	private static Logger M_log = LoggerFactory.getLogger(PortletTool.class);
-
 	/** The access security. */
 	protected PortletTool.AccessSecurity m_accessSecurity = PortletTool.AccessSecurity.PORTAL;
 
@@ -107,7 +104,7 @@ public class PortletTool implements org.sakaiproject.tool.api.Tool, Comparable
 			m_keywords = t.getKeywords();
 			m_mutableConfig = t.getMutableConfig();
 			// RegisteredConfig is derived in the getter of this class
-			M_log.info("Portlet registered from tool registration with Sakai toolId="
+			log.info("Portlet registered from tool registration with Sakai toolId="
 				+ m_id);
 		}
 		else
@@ -124,14 +121,14 @@ public class PortletTool implements org.sakaiproject.tool.api.Tool, Comparable
 
 			if ("stealth".equals(portletSupport))
 			{
-				M_log.info("Portlet stealth-registered with Sakai toolId=" + m_id);
+				log.info("Portlet stealth-registered with Sakai toolId=" + m_id);
 			}
 			else
 			{
 				m_categories.add("myworkspace");
 				m_categories.add("project");
 				m_categories.add("course");
-				M_log.info("Portlet auto-registered with Sakai toolId=" + m_id);
+				log.info("Portlet auto-registered with Sakai toolId=" + m_id);
 			}
 		}
 

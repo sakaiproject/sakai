@@ -1,11 +1,24 @@
+/**
+ * Copyright (c) 2003-2017 The Apereo Foundation
+ *
+ * Licensed under the Educational Community License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *             http://opensource.org/licenses/ecl2
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.sakaiproject.calendar.impl;
 
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.sakaiproject.calendar.api.ExternalSubscription;
-import org.sakaiproject.calendar.impl.BaseExternalSubscription;
-import org.sakaiproject.calendar.impl.SubscriptionCache;
+import org.sakaiproject.calendar.api.ExternalSubscriptionDetails;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.AbstractJUnit4SpringContextTests;
 
@@ -26,12 +39,7 @@ public class IntegrationTests extends AbstractJUnit4SpringContextTests {
 
 	@Test
 	public void testCacheRoundtrip() throws InterruptedException {
-		ExternalSubscription subscription = new BaseExternalSubscription();
-		subscription.setSubscriptionUrl("http://example.com");
-		subscription.setSubscriptionName("Example");
-		subscription.setContext("context");
-		subscription.setInstitutional(false);
-		cache.put(subscription);
+		ExternalSubscriptionDetails subscription = new BaseExternalSubscriptionDetails();
 		Assert.assertEquals(subscription, cache.get("http://example.com"));
 	}
 

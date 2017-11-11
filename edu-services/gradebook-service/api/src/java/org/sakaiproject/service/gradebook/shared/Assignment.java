@@ -24,9 +24,9 @@ package org.sakaiproject.service.gradebook.shared;
 import java.io.Serializable;
 import java.util.Date;
 
-import org.apache.commons.lang.builder.CompareToBuilder;
-import org.apache.commons.lang.builder.ToStringBuilder;
-import org.apache.commons.lang.builder.ToStringStyle;
+import org.apache.commons.lang3.builder.CompareToBuilder;
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
 
 /**
  * JavaBean to hold data associated with a Gradebook assignment.

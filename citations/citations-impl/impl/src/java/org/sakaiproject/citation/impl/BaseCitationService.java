@@ -23,12 +23,8 @@ package org.sakaiproject.citation.impl;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.io.UnsupportedEncodingException;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.net.URLEncoder;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -50,12 +46,8 @@ import org.sakaiproject.content.api.ContentEntity;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.content.api.ContentResourceEdit;
-import org.sakaiproject.content.api.InteractionAction;
-import org.sakaiproject.content.api.ResourceType;
 import org.sakaiproject.content.api.ResourceTypeRegistry;
 import org.sakaiproject.content.api.ResourceToolAction;
-import org.sakaiproject.content.api.ServiceLevelAction;
-import org.sakaiproject.content.api.ResourceToolAction.ActionType;
 import org.sakaiproject.content.util.BaseInteractionAction;
 import org.sakaiproject.content.util.BaseResourceAction;
 import org.sakaiproject.content.util.BasicSiteSelectableResourceType;
@@ -80,8 +72,6 @@ import org.sakaiproject.id.api.IdManager;
 import org.sakaiproject.javax.Filter;
 import org.sakaiproject.time.cover.TimeService;
 import org.sakaiproject.tool.api.SessionManager;
-import org.sakaiproject.user.api.User;
-import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.util.ResourceLoader;
 import org.apache.commons.lang.StringUtils;
 import org.w3c.dom.Document;
@@ -3909,6 +3899,12 @@ public abstract class BaseCitationService implements CitationService
 
 		public CitationCollection getUnnestedCitationCollection(String citationCollectionId);
 
+		public List<CitationCollectionOrder> getNestedCollectionAsList(String citationCollectionId);
+
+		public String getNextCitationCollectionOrderId(String collectionId);
+
+		public CitationCollectionOrder getCitationCollectionOrder(String collectionId, int locationId);
+
 		public void removeLocation(String collectionId, int locationId);
 
 		public void updateSchema(Schema schema);
@@ -5581,6 +5577,33 @@ public abstract class BaseCitationService implements CitationService
 	public CitationCollection getUnnestedCitationCollection(String citationCollectionId)
 	{
 		return this.m_storage.getUnnestedCitationCollection(citationCollectionId);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see org.sakaiproject.citation.api.CitationService#getNestedCollectionAsList(java.lang.String)
+	 */
+	public List<CitationCollectionOrder> getNestedCollectionAsList(String citationCollectionId) {
+		return this.m_storage.getNestedCollectionAsList(citationCollectionId);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see org.sakaiproject.citation.api.CitationService#getNextCitationCollectionOrderId(java.lang.String)
+	 */
+	public String getNextCitationCollectionOrderId(String collectionId) {
+		return this.m_storage.getNextCitationCollectionOrderId(collectionId);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see org.sakaiproject.citation.api.CitationService#getCitationCollectionOrder(java.lang.String, java.lang.String)
+	 */
+	public CitationCollectionOrder getCitationCollectionOrder(String collectionId, int locationId) {
+		return this.m_storage.getCitationCollectionOrder(collectionId, locationId);
 	}
 
 	/*

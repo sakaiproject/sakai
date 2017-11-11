@@ -1,0 +1,8 @@
+<div class="commons-photo commons-comment-photo" style="background-image:url(/direct/profile/{{#if currentUserId}}{{currentUserId}}{{else}}{{creatorId}}{{/if}}/image/thumb)"></div>
+<div class="commons-editor-text-wrapper">
+    <div class="commons-editor-text commons-comment-editor-text" data-post-id="{{id}}"><textarea id="commons-comment-textarea-{{id}}" class="commons-comment-textarea" data-post-id="{{id}}"></textarea></div>
+    <div id="commons-comment-post-buttons-{{id}}">
+        <button id="commons-inplace-comment-editor-post-button-{{id}}">{{tr 'commons' 'post_comment'}}</button>
+        <button id="commons-inplace-comment-editor-cancel-button-{{id}}">{{tr 'commons' 'cancel'}}</button>
+    </div>
+</div>

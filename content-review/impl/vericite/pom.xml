@@ -9,7 +9,7 @@
 	<parent>
 		<groupId>org.sakaiproject.contentreview</groupId>
 		<artifactId>content-review-impl</artifactId>
-		<version>12-SNAPSHOT</version>
+		<version>13-SNAPSHOT</version>
 	</parent>
 
         <properties>
@@ -19,7 +19,6 @@
         	<swagger-core-version>1.5.9</swagger-core-version>
 		<okhttp-version>2.7.5</okhttp-version>
 		<gson-version>2.6.2</gson-version>
-		<jodatime-version>2.9.3</jodatime-version>
 	</properties>
 
 	<dependencies>
@@ -96,7 +95,7 @@
 		<dependency>
 			<groupId>joda-time</groupId>
 			<artifactId>joda-time</artifactId>
-			<version>${jodatime-version}</version>
+			<version>${joda.time.version}</version>
 		</dependency>
 
 
@@ -130,5 +129,10 @@
                         <artifactId>migbase64</artifactId>
                         <version>2.2</version>
                 </dependency>
+		<dependency>
+			<groupId>com.vericite</groupId>
+			<artifactId>vericite-lms-api</artifactId>
+			<version>1.2</version>
+		</dependency>
 	</dependencies>
 </project>

@@ -187,7 +187,7 @@
 	</h:column>
 
 	<!-- IP Address -->
-	<h:column>
+	<h:column rendered="#{eventLog.enabledIpAddress}">
 	  <f:facet name="header">
         <h:commandLink title="#{eventLogMessages.t_sortIP}" action="eventLog">
         <h:outputText value="#{eventLogMessages.ipAddress}"/>

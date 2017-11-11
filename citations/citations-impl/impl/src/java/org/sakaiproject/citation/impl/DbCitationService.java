@@ -243,6 +243,28 @@ public class DbCitationService extends BaseCitationService
 		}
 
 		@Override
+		public String getNextCitationCollectionOrderId(String collectionId) {
+			String statement = "SELECT MAX(LOCATION)+1 FROM " + m_collectionOrderTableName + " where COLLECTION_ID = ? AND SECTION_TYPE IS NOT NULL ";
+
+			Object fields[] = new Object[1];
+			fields[0] = collectionId;
+
+			List list = m_sqlService.dbRead(statement, fields, null);
+
+			String nextSeqForCollection = null;
+			if(!list.isEmpty())
+			{
+				nextSeqForCollection = (String) list.get(0);
+			}
+			return nextSeqForCollection==null ? "1" : nextSeqForCollection;
+		}
+
+		@Override
+		public CitationCollectionOrder getCitationCollectionOrder(String collectionId, int locationId) {
+			return this.getCitCollectionOrder(collectionId, locationId);
+		}
+
+		@Override
 		public void removeLocation(String collectionId, int locationId) {
 			this.removeNestedLocation(collectionId, locationId);
 		}
@@ -548,6 +570,27 @@ public class DbCitationService extends BaseCitationService
 		}
 
 		/* (non-Javadoc)
+		* @see org.sakaiproject.citation.impl.BaseCitationService.Storage#getCitCollectionOrder(java.lang.String, java.lang.String)
+		*/
+		public CitationCollectionOrder getCitCollectionOrder(String collectionId, int locationId)
+		{
+			String statement = "select COLLECTION_ID, CITATION_ID, LOCATION, SECTION_TYPE, VALUE FROM " + m_collectionOrderTableName + " where COLLECTION_ID = ? and LOCATION = ? ";
+
+			Object fields[] = new Object[2];
+			fields[0] = collectionId;
+			fields[1] = locationId;
+
+			List list = m_sqlService.dbRead(statement, fields, new CitationCollectionOrderReader());
+			CitationCollectionOrder c = null;
+			if(! list.isEmpty())
+			{
+				c = (CitationCollectionOrder) list.get(0);
+			}
+
+			return c;
+		}
+
+		/* (non-Javadoc)
 		* @see org.sakaiproject.citation.impl.BaseCitationService.Storage#getNestedCollection(java.lang.String)
 		*/
 		protected CitationCollectionOrder getNestedCollection(String citationCollectionId)
@@ -608,7 +651,7 @@ public class DbCitationService extends BaseCitationService
 		/* (non-Javadoc)
 		* @see org.sakaiproject.citation.impl.BaseCitationService.Storage#getNestedCollectionAsList(java.lang.String)
 		*/
-		protected List<CitationCollectionOrder> getNestedCollectionAsList(String citationCollectionId)
+		public List<CitationCollectionOrder> getNestedCollectionAsList(String citationCollectionId)
 		{
 			String statement = "select COLLECTION_ID, CITATION_ID, LOCATION, SECTION_TYPE, VALUE from " + m_collectionOrderTableName
 					+ " where (COLLECTION_ID = ? and SECTION_TYPE is not NULL) ORDER BY LOCATION ASC";

@@ -504,7 +504,7 @@ public class AnnouncementEntityProviderImpl extends AbstractEntityProvider imple
 		
 		//check if logged in
 		String currentUserId = sessionManager.getCurrentSessionUserId();
-		boolean isLoggedIn = !StringUtils.isBlank(currentUserId);
+		boolean isLoggedIn = StringUtils.isNotBlank(currentUserId);
 		boolean canReadThemAnyway = securityService.unlock(AnnouncementService.SECURE_ANNC_READ, siteService.siteReference(siteId));
 
 		if (isLoggedIn || canReadThemAnyway) {

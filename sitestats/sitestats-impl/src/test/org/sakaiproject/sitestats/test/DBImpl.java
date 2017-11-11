@@ -21,73 +21,64 @@ package org.sakaiproject.sitestats.test;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.hibernate.Transaction;
 import org.sakaiproject.sitestats.impl.EventStatImpl;
 import org.sakaiproject.sitestats.impl.ResourceStatImpl;
 import org.sakaiproject.sitestats.impl.SiteActivityImpl;
 import org.sakaiproject.sitestats.impl.SitePresenceImpl;
 import org.sakaiproject.sitestats.impl.SiteVisitsImpl;
+import org.springframework.dao.DataAccessException;
 import org.springframework.orm.hibernate4.HibernateCallback;
 import org.springframework.orm.hibernate4.support.HibernateDaoSupport;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 public class DBImpl extends HibernateDaoSupport implements DB {
 
 	public void insertObject(final Object obj) {
-		getHibernateTemplate().execute(session -> {
-            Transaction tx = null;
-            try{
-                tx = session.beginTransaction();
+        try {
+		    getHibernateTemplate().execute(session -> {
                 session.saveOrUpdate(obj);
-                tx.commit();
-            }catch(Exception e){
-                if(tx != null) tx.rollback();
-            }
-            return Boolean.TRUE;
-        });
+                return null;
+            });
+        } catch(DataAccessException dae) {
+            log.error("Error while saving: {}", dae.getMessage(), dae);
+        }
 	}
 	
 	@SuppressWarnings("unchecked")
 	public List getResultsForClass(final Class classz) {
-		return (List) getHibernateTemplate().execute(session -> {
-            Transaction tx = null;
-            List result;
-            try{
-                tx = session.beginTransaction();
-                result = session.createCriteria(classz).list();
-                tx.commit();
-            }catch(Exception e){
-                if(tx != null) tx.rollback();
-                return new ArrayList<>();
-            }
-            return result;
-        });
+        List results;
+	    try {
+            results = getHibernateTemplate().execute(session -> {
+                return session.createCriteria(classz).list();
+            });
+        } catch(DataAccessException dae) {
+            log.error("Error while retrieving results: {}", dae.getMessage(), dae);
+            results = new ArrayList<>();
+        }
+        return results;
 	}
 	
 	@SuppressWarnings("unchecked")
 	public void deleteAllForClass(final Class classz) {
-		getHibernateTemplate().execute((HibernateCallback) session -> {
-            Transaction tx = null;
-            int count = 0;
-            try{
-                tx = session.beginTransaction();
+        try {
+		    getHibernateTemplate().execute((HibernateCallback) session -> {
                 List all = session.createCriteria(classz).list();
                 for(Object o : all) {
                     session.delete(o);
                 }
-                tx.commit();
-            }catch(Exception e){
-                if(tx != null) tx.rollback();
-            }
-            return Integer.valueOf(count);
-        });
+                return null;
+            });
+        } catch(DataAccessException dae) {
+            log.error("Error while performing deletion: {}", dae.getMessage(), dae);
+        }
 	}
 	
 	@SuppressWarnings("unchecked")
 	public void deleteAll() {
-		getHibernateTemplate().execute((HibernateCallback) session -> {
-            Transaction tx = null;
-            try{
-                tx = session.beginTransaction();
+        try{
+		    getHibernateTemplate().execute((HibernateCallback) session -> {
                 List all = session.createCriteria(SiteVisitsImpl.class).list();
                 for(Object o : all) {
                     session.delete(o);
@@ -108,11 +99,10 @@ public class DBImpl extends HibernateDaoSupport implements DB {
                 for(Object o : all) {
                     session.delete(o);
                 }
-                tx.commit();
-            }catch(Exception e){
-                if(tx != null) tx.rollback();
-            }
-            return null;
-        });
+                return null;
+            });
+        } catch(DataAccessException dae){
+            log.error("Error while performing deletion: {}", dae.getMessage(), dae);
+        }
 	}
 }

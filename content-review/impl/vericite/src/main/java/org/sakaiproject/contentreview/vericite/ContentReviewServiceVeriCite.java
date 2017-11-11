@@ -33,6 +33,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.SortedSet;
 
@@ -53,15 +54,15 @@ import org.sakaiproject.contentreview.exception.SubmissionException;
 import org.sakaiproject.contentreview.exception.TransientSubmissionException;
 import org.sakaiproject.contentreview.service.ContentReviewQueueService;
 import org.sakaiproject.contentreview.service.ContentReviewService;
-import org.sakaiproject.contentreview.vericite.client.ApiClient;
-import org.sakaiproject.contentreview.vericite.client.ApiException;
-import org.sakaiproject.contentreview.vericite.client.api.DefaultApi;
-import org.sakaiproject.contentreview.vericite.client.model.AssignmentData;
-import org.sakaiproject.contentreview.vericite.client.model.ExternalContentData;
-import org.sakaiproject.contentreview.vericite.client.model.ExternalContentUploadInfo;
-import org.sakaiproject.contentreview.vericite.client.model.ReportMetaData;
-import org.sakaiproject.contentreview.vericite.client.model.ReportScoreReponse;
-import org.sakaiproject.contentreview.vericite.client.model.ReportURLLinkReponse;
+import com.vericite.client.ApiClient;
+import com.vericite.client.ApiException;
+import com.vericite.client.api.DefaultApi;
+import com.vericite.client.model.AssignmentData;
+import com.vericite.client.model.ExternalContentData;
+import com.vericite.client.model.ExternalContentUploadInfo;
+import com.vericite.client.model.ReportMetaData;
+import com.vericite.client.model.ReportScoreReponse;
+import com.vericite.client.model.ReportURLLinkReponse;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.entity.api.EntityProducer;
@@ -132,10 +133,10 @@ public class ContentReviewServiceVeriCite implements ContentReviewService {
 		serviceUrl = serverConfigurationService.getString("vericite.serviceUrl", "");
 		consumer = serverConfigurationService.getString("vericite.consumer", "");
 		consumerSecret = serverConfigurationService.getString("vericite.consumerSecret", "");
-		userUrlCache = memoryService.createCache("org.sakaiproject.contentreview.vericite.ContentReviewServiceVeriCite.userUrlCache", new SimpleConfiguration<>(10000, CACHE_EXPIRE_URLS_MINS * 60, -1));
-		contentScoreCache = memoryService.createCache("org.sakaiproject.contentreview.vericite.ContentReviewServiceVeriCite.contentScoreCache", new SimpleConfiguration<>(10000, CONTENT_SCORE_CACHE_MINS * 60, -1));
-		assignmentLastCheckedCache = memoryService.createCache("org.sakaiproject.contentreview.vericite.ContentReviewServiceVeriCite.assignmentLastCheckedCache", new SimpleConfiguration<>(10000, CONTENT_SCORE_CACHE_MINS * 60, -1));
-		assignmentTitleCache = memoryService.getCache("org.sakaiproject.contentreview.vericite.ContentReviewServiceVeriCite.assignmentTitleCache");
+		userUrlCache = memoryService.createCache("com.vericite.ContentReviewServiceVeriCite.userUrlCache", new SimpleConfiguration<>(10000, CACHE_EXPIRE_URLS_MINS * 60, -1));
+		contentScoreCache = memoryService.createCache("com.vericite.ContentReviewServiceVeriCite.contentScoreCache", new SimpleConfiguration<>(10000, CONTENT_SCORE_CACHE_MINS * 60, -1));
+		assignmentLastCheckedCache = memoryService.createCache("com.vericite.ContentReviewServiceVeriCite.assignmentLastCheckedCache", new SimpleConfiguration<>(10000, CONTENT_SCORE_CACHE_MINS * 60, -1));
+		assignmentTitleCache = memoryService.getCache("com.vericite.ContentReviewServiceVeriCite.assignmentTitleCache");
 		showPreliminary = serverConfigurationService.getBoolean("contentreview.config.show_preliminary_score", true);
 	}
 	
@@ -252,7 +253,7 @@ public class ContentReviewServiceVeriCite implements ContentReviewService {
 									//upload this attachment
 									ContentResource res = attachmentsMap.get(info.getExternalContentId());
 									try {
-										uploadExternalContent(info.getUrlPost(), res.getContent());
+										uploadExternalContent(info.getUrlPost(), res.getContent(), info.getHeaders());
 									} catch (ServerOverloadException e) {
 										log.error(e.getMessage(), e);
 									}
@@ -738,7 +739,7 @@ public class ContentReviewServiceVeriCite implements ContentReviewService {
 				for(ExternalContentUploadInfo info : uploadInfo){
 					if(externalContentId.equals(info.getExternalContentId())){
 							try {
-								uploadExternalContent(info.getUrlPost(), resource.getContent());
+								uploadExternalContent(info.getUrlPost(), resource.getContent(), info.getHeaders());
 							} catch (Exception e) {
 								log.warn("ServerOverloadException: " + item.getContentId(), e);
 								item.setLastError(e.getMessage());
@@ -900,7 +901,7 @@ public class ContentReviewServiceVeriCite implements ContentReviewService {
 		return "/" + consumer + resourceid;
 	}
 	
-	private void uploadExternalContent(String urlString, byte[] data){
+	private void uploadExternalContent(String urlString, byte[] data, Object headers){
 		URL url = null;
 		HttpURLConnection connection = null;
 		DataOutputStream out = null;
@@ -910,6 +911,20 @@ public class ContentReviewServiceVeriCite implements ContentReviewService {
 			connection=(HttpURLConnection) url.openConnection();
 			connection.setDoOutput(true);
 			connection.setRequestMethod("PUT");
+
+			String headerString = Objects.toString(headers, "");
+			log.debug("Headers: " + headerString);
+			//{x-amz-server-side-encryption=AES256}
+			headerString = headerString.replace("{", "").replace("}", "");
+			String[] headerPairs = headerString.split(",");
+			for (String headerPair : headerPairs) {
+				headerPair = headerPair.trim();
+				String[] pairKeyValue = headerPair.split("=");
+				if (pairKeyValue.length == 2) {
+					connection.setRequestProperty(pairKeyValue[0].trim(), pairKeyValue[1].trim());
+				}
+			}
+
 			out = new DataOutputStream(connection.getOutputStream());
 			out.write(data);
 			out.close();

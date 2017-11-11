@@ -1076,7 +1076,7 @@ public class DavServlet extends HttpServlet
 		{
 			String eid = prin.getName();
 			String pw = ((DavPrincipal) prin).getPassword();
-			Evidence e = new IdPwEvidence(eid, pw);
+			Evidence e = new IdPwEvidence(eid, pw, req.getRemoteAddr());
 
 			// in older versions of this code, we didn't authenticate
 			// if there was a session for this user. Unfortunately the

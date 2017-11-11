@@ -28,6 +28,9 @@ import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -522,7 +525,7 @@ public class BasicConfigurationService implements ServerConfigurationService, Ap
                 int pointer = 0;
                 while (matcher.find()) {
                     String name = matcher.group(1);
-                    if (name != null && StringUtils.isNotBlank(name)) {
+                    if (StringUtils.isNotBlank(name)) {
                         // look up the value
                         String replacementValue = null;
                         ConfigItemImpl ci = findConfigItem(name, null);
@@ -638,6 +641,57 @@ public class BasicConfigurationService implements ServerConfigurationService, Ap
         if (StringUtils.isEmpty(value)) return dflt;
 
         return Boolean.valueOf(value);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public List<String> getStringList(String name, List<String> dflt) {
+
+        String value = getString(name, null);
+        if (StringUtils.isNotBlank(value)) {
+            return Stream.of(StringUtils.split(value, ",")).collect(Collectors.toList());
+        } else {
+            return dflt != null ? dflt : new ArrayList<>();
+        }
+    }
+
+    /**
+     * Converts the given list of Strings to a list of Pattern objects
+     *
+     * @param regexps
+     *            A list of regex pattern strings
+     *
+     * @exception IllegalArgumentException
+     *            if one of the patterns has invalid regular expression
+     *            syntax
+     */
+    private List<Pattern> getRegExPatterns(List<String> regexps) {
+
+        ArrayList<Pattern> patterns = new ArrayList<>();
+        for (String regexp : regexps) {
+            String regex = StringUtils.trimToNull(regexp);
+            if (regex != null) {
+                // if :empty: is in any of the then return an empty list
+                if (StringUtils.equals(":empty:", regex)) return new ArrayList<>();
+
+                try {
+                    patterns.add(Pattern.compile(regex, Pattern.CASE_INSENSITIVE));
+                } catch (PatternSyntaxException e) {
+                    throw new IllegalArgumentException("Illegal Regular Expression Syntax: [" + regex + "] - " + e.getMessage());
+                }
+            }
+        }
+        return patterns;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public List<Pattern> getPatternList(String name, List<String> dflt) {
+
+        List<String> list = getStringList(name, dflt);
+        return getRegExPatterns(list);
     }
 
     /**

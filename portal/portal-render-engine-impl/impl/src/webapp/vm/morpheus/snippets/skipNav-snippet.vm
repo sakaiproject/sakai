@@ -1,27 +1,27 @@
 <nav id="skipNav" class="Mrphs-skipNav">
-    <ul role="menu" class="Mrphs-skipNav__menu">
+    <ul class="Mrphs-skipNav__menu">
 
         #if ($siteNavHasAccessibilityURL)
-            <li role="menuitem" class="Mrphs-skipNav__menuitem Mrphs-skipNav__menuitem--accessibility">
+            <li class="Mrphs-skipNav__menuitem Mrphs-skipNav__menuitem--accessibility">
                 <a href="$siteNavAccessibilityURL" class="Mrphs-skipNav__link" title="${rloader.sit_accessibility}" accesskey="0">
                     ${rloader.sit_accessibility}
                     <span class="accesibility_key">[0]</span>
                 </a>
             </li>
         #end ## END of IF ($siteNavHasAccessibilityURL)
-        <li role="menuitem" class="Mrphs-skipNav__menuitem Mrphs-skipNav__menuitem--content">
+        <li class="Mrphs-skipNav__menuitem Mrphs-skipNav__menuitem--content">
             <a href="#tocontent" class="Mrphs-skipNav__link" title="${rloader.sit_jumpcontent}" accesskey="c">
                 ${rloader.sit_jumpcontent}
                 <span class="accesibility_key">[c]</span>
             </a>
         </li>
-        <li role="menuitem" class="Mrphs-skipNav__menuitem Mrphs-skipNav__menuitem--worksite">
+        <li class="Mrphs-skipNav__menuitem Mrphs-skipNav__menuitem--worksite">
             <a href="#sitetabs" id="more-sites-menu" class="Mrphs-skipNav__link js-toggle-sites-nav" title="${rloader.sit_jumpworksite}" accesskey="w">
                 <i class="fa fa-th all-sites-icon" aria-hidden="true"></i> ${rloader.sit_worksites}
                 <span class="accesibility_key">[w]</span>
             </a>
         </li>
-        <li role="menuitem" class="Mrphs-skipNav__menuitem Mrphs-skipNav__menuitem--tools">
+        <li class="Mrphs-skipNav__menuitem Mrphs-skipNav__menuitem--tools">
             <a href="#totoolmenu" class="Mrphs-skipNav__link js-toggle-tools-nav" title="${rloader.sit_jumptools}" accesskey="l">
                 <i class="fa fa-bars tools-icon" aria-hidden="true"></i>
                 ${rloader.sit_menutools}

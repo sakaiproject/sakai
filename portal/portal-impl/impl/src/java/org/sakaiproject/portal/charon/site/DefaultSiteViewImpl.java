@@ -28,9 +28,6 @@ import java.util.Iterator;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.exception.IdUnusedException;
@@ -45,14 +42,14 @@ import org.sakaiproject.user.api.Preferences;
 import org.sakaiproject.user.api.PreferencesService;
 
 import org.sakaiproject.util.Web;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * @author ieb
  */
+@Slf4j
 public class DefaultSiteViewImpl extends AbstractSiteViewImpl
 {
-    private static final Logger LOG = LoggerFactory.getLogger(DefaultSiteViewImpl.class);
-
 	/**
 	 * @param siteHelper
 	 * @param request

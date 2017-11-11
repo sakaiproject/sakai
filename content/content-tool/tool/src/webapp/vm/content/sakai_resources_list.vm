@@ -18,6 +18,12 @@
   .selectPageSize {
     margin-right: 0.7em;
   }
+  .truncate{
+    width: 180px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
 </style>
 
 #javascript("/sakai-content-tool/js/content.js")
@@ -397,12 +403,6 @@
 					</td>
 					<td style="text-indent:$width" class="specialLink title" scope="row">
 					#if($item.isHot("$!dropboxHighlight")) #set($iconDecor="recentItem") #set($newNote="new") #else  #set($iconDecor="nil")  #set($newNote="")#end 
-              #if($validator.escapeHtml($item.name).length() > 25)
-                #set($trimmed = $validator.escapeHtml($item.name).substring(0,25))
-                #set($trimmedTitle = "$trimmed ...")
-              #else
-                #set($trimmedTitle = $validator.escapeHtml($item.name))
-              #end
 
               #if ($item.canRead())
 								#if($item.isCollection()) 
@@ -412,11 +412,11 @@
 										<span class="sr-only">$!item.hoverText</span>
 									#else
 										<span class="sr-only">$!item.hoverText</span>
-										<a class="$iconDecor $item.iconClass" href="#"
+										<a class="$iconDecor $item.iconClass" href="#$qid" name="$qid"
 											#if($item.isExpanded())
-												onclick="document.getElementById('sakai_action').value='doCollapse_collection';document.getElementById('collectionId').value='$qid';document.getElementById('showForm').submit();"
+												onclick="document.getElementById('sakai_action').value='doCollapse_collection';document.getElementById('collectionId').value='$qid';thisForm=document.getElementById('showForm');thisForm.action+='#$qid';thisForm.submit();"
 											#else
-												onclick="document.getElementById('sakai_action').value='doExpand_collection';document.getElementById('collectionId').value='$qid';document.getElementById('showForm').submit();"
+												onclick="document.getElementById('sakai_action').value='doExpand_collection';document.getElementById('collectionId').value='$qid';thisForm=document.getElementById('showForm');thisForm.action+='#$qid';thisForm.submit();""
 											#end
 											title= "$item.expandLabel"><span class="sr-only">$item.expandLabel: $validator.escapeHtml($item.name)</span></a>
 									#end
@@ -447,23 +447,23 @@
 									&#169;
 								#elseif($item.isCollection())
     								#if($item.isTooBigNav())
-                      <span class="visible-sm-inline visible-xs-inline">$trimmedTitle</span>
+                      <span class="visible-sm-inline-block visible-xs-inline-block truncate">$validator.escapeHtml($item.name)</span>
                       <span class="hidden-sm hidden-xs">$validator.escapeHtml($item.name)</span>
 									#else
 										<a href="#"
     										onclick="document.getElementById('sakai_action').value='doNavigate';document.getElementById('collectionId').value='$qid';document.getElementById('navRoot').value='$validator.escapeUrl($item.root)';document.getElementById('showForm').submit();"
     										title= "$item.hoverText">
-                        <span class="visible-sm-inline visible-xs-inline">$trimmedTitle</span>
+                        <span class="visible-sm-inline-block visible-xs-inline-block truncate">$validator.escapeHtml($item.name)</span>
                         <span class="hidden-sm hidden-xs">$validator.escapeHtml($item.name)</span>
     									</a>
 									#end	
 								#else
 									#if($item.isTooBigNav())
-                        <span class="visible-sm-inline visible-xs-inline">$trimmedTitle</span>
+                        <span class="visible-sm-inline-block visible-xs-inline-block truncate">$validator.escapeHtml($item.name)</span>
                         <span class="hidden-sm hidden-xs">$validator.escapeHtml($item.name)</span>
 									#else
 										<a href="$item.accessUrl" target="$item.target" title="$item.hoverText">
-                        <span class="visible-sm-inline visible-xs-inline">$trimmedTitle</span>
+                        <span class="visible-sm-inline-block visible-xs-inline-block truncate">$validator.escapeHtml($item.name)</span>
                         <span class="hidden-sm hidden-xs">$validator.escapeHtml($item.name)</span>
     									</a>
 									#end
@@ -475,7 +475,7 @@
 									<span class="fa fa-lock" aria-hidden="true"></span>
 									<span class="sr-only">$clang.getString('locked')</span>
 								#end
-                <span class="visible-sm-inline visible-xs-inline">$trimmedTitle</span>
+                <span class="visible-sm-inline-block visible-xs-inline-block truncate">$validator.escapeHtml($item.name)</span>
                 <span class="hidden-sm hidden-xs">$validator.escapeHtml($item.name)</span>
 								#if ($item.hasCopyrightAlert())
 									&#169;
@@ -858,7 +858,12 @@
 				},
 			error: function (xhr, ajaxOptions, thrownError) {
 				window.console && console.log("Error from GET request"+thrownError);
-				
+				//If its a URL match it might be denied by CORS, just try to post it, it's should have already passed copyright
+				if (url.match(/\.URL$/)) {
+					var form = jQuery('<form method="GET" action="' + url + '" target="_blank">');
+					jQuery('body').append(form);
+					form.submit();
+				}
 			}
 			});
 		};

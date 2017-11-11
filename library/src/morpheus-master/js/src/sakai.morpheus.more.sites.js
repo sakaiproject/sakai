@@ -2,6 +2,8 @@
  * For More Sites in Morpheus
  */
 
+var selectSiteModalLinks, selectSiteLastModalInTab;
+
 var dhtml_view_sites = function(){
 
   // first time through set up the DOM
@@ -15,9 +17,44 @@ var dhtml_view_sites = function(){
     var modal = $PBJQ('#selectSiteModal');
     
     modal.show();
+
+    // Find all focusable items
+    if (typeof selectSiteModalLinks == 'undefined' || typeof selectSiteLastModalInTab == 'undefined') {
+      selectSiteModalLinks = modal.find('button, a');
+      selectSiteLastModalInTab = modal.find('.tab-box a:last');
+    }
+
+    // Lock the focus into the modal links
+    modal.on('keydown', function (e) {
+      var cancel = false;
+      if (e.ctrlKey || e.metaKey || e.altKey) {
+        return;
+      }
+      switch(e.which) {
+        case 27: // ESC
+          closeDrawer();
+          cancel = true;
+          break;
+        case 9: // TAB
+          if (e.shiftKey) {
+            if (e.target === selectSiteModalLinks[0]) {
+              selectSiteModalLinks[selectSiteModalLinks.length - 1].focus();
+              cancel = true;
+            }
+          } else {
+            if (e.target === selectSiteModalLinks[selectSiteModalLinks.length - 1] || e.target === selectSiteLastModalInTab[selectSiteLastModalInTab.length - 1]) {
+              selectSiteModalLinks[0].focus();
+              cancel = true;
+            }
+          }
+          break;
+      }
+      if (cancel) {
+        e.preventDefault();
+      }
+    });
     
     if (modal.hasClass('outscreen') ) {
-
       $PBJQ('body').toggleClass('active-more-sites');
 
       // Align with the bottom of the main header in desktop mode
@@ -104,12 +141,16 @@ function closeDrawer() {
 function createDHTMLMask(callback){
   $PBJQ('body').append('<div id="portalMask">&nbsp;</div>');
 
-  $PBJQ('#portalMask').css('height', browserSafeDocHeight()).css({
+  $PBJQ('#portalMask')
+  .css('height', browserSafeDocHeight())
+  .css({
     'width': '100%',
     'z-index': 1000,
     'top': 0,
     'left': 0
-  }).bind("click", function(event){
+  })
+  .attr('tabindex', -1)
+  .bind("click", function(event){
     callback();
     return false;
   });
@@ -217,7 +258,6 @@ $PBJQ(document).ready(function(){
   var siteTitle = portal.siteTitle;
 
   if (siteTitle) {
-
     if (portal.shortDescription) {
       siteTitle = siteTitle + " ("+portal.shortDescription+")"
     }
@@ -226,7 +266,6 @@ $PBJQ(document).ready(function(){
   }
 
   $PBJQ('#txtSearch').keyup(function(event){
-
     if (event.keyCode == 27) {
       resetSearch();
     }
@@ -670,16 +709,38 @@ $PBJQ(document).ready(function($){
   });
 
   $PBJQ(container).on('click', '.tab-btn', function () {
-    $PBJQ('.tab-btn', container).removeClass('active');
-    $PBJQ('.tab-btn', container).attr('aria-selected', 'false');
-    $PBJQ(this).addClass('active');
-    $PBJQ(this).attr('aria-selected', 'true');
+    $PBJQ('.tab-btn', container).removeClass('active').attr('aria-selected', 'false').attr('tabindex', '-1');
+    $PBJQ(this).addClass('active').attr('aria-selected', 'true').attr('tabindex', '0');
 
     var panel = $PBJQ(this).data('tab-target');
 
     $PBJQ('.tab-box').hide();
     $PBJQ(container).trigger('tab-shown', panel);
     $PBJQ('#' + panel).show();
+  });
+
+  // Arrow and spacebar nav for tabs
+  $PBJQ(container).on('keydown', '.tab-btn', function (e) {
+    if (e.keyCode == 32) {
+      $PBJQ(this).click();
+      e.preventDefault();
+    }
+    if (e.keyCode == 37) {
+      $PBJQ("[aria-selected=true]").prev().click().focus();
+      e.preventDefault();
+    }
+    if (e.keyCode == 38) {
+      $PBJQ("[aria-selected=true]").prev().click().focus();
+      e.preventDefault();
+    }
+    if (e.keyCode == 39) {
+      $PBJQ("[aria-selected=true]").next().click().focus();
+      e.preventDefault();
+    }
+    if (e.keyCode == 40) {
+      $PBJQ("[aria-selected=true]").next().click().focus();
+      e.preventDefault();
+    }
   });
 
   $PBJQ(document).on('view-sites-shown', function () {
@@ -757,10 +818,10 @@ $PBJQ(document).ready(function($){
 
       highlightMaxItems();
 
-      list.sortable({
+      list.keyboardSortable({
         items: "li:not(.favorites-max-marker)",
         handle: ".fav-drag-handle",
-        stop: function () {
+        update: function () {
           // Rehighlight the first N items
           highlightMaxItems();
 
@@ -776,7 +837,7 @@ $PBJQ(document).ready(function($){
 
       list.disableSelection();
 
-      $('#autoFavoritesEnabled').prop('checked', autoFavoritesEnabled)
+      $('#autoFavoritesEnabled').attr('aria-checked', autoFavoritesEnabled);
       $('#organizeFavorites .onoffswitch').show();
     }
   });
@@ -842,12 +903,20 @@ $PBJQ(document).ready(function($){
 
   });
 
+  $PBJQ("#autoFavoritesEnabled").click(function() {
+	$(this).attr('aria-checked', function(index, clicked) {
+		var pressed = (clicked === 'true');
+		return String(!pressed);
+	});
+	$(this).trigger('change');
+  });
+
   $PBJQ('#autoFavoritesEnabled').on('change', function () {
-    autoFavoritesEnabled = this.checked;
+    autoFavoritesEnabled = $(this).attr('aria-checked') === 'true';
 
     $('.favorites-help-text').hide();
 
-    if (this.checked) {
+    if (autoFavoritesEnabled) {
       $('.favorites-help-text.autofavorite-enabled').show();
     } else {
       $('.favorites-help-text.autofavorite-disabled').show();

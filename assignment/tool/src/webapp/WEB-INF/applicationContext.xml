@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <!-- entity providers -->
+	<bean
+		parent="org.sakaiproject.entitybroker.entityprovider.AbstractEntityProvider"
+		class="org.sakaiproject.assignment.entityproviders.AssignmentEntityProvider">
+		<property name="assignmentService" ref="org.sakaiproject.assignment.api.AssignmentService" />
+        <property name="entityBroker" ref="org.sakaiproject.entitybroker.EntityBroker" />
+        <property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager" />
+		<property name="siteService" ref="org.sakaiproject.site.api.SiteService" />
+        <property name="securityService" ref="org.sakaiproject.authz.api.SecurityService" />
+        <property name="assignmentSupplementItemService" ref="org.sakaiproject.assignment.api.model.AssignmentSupplementItemService" />
+		<property name="gradebookService" ref="org.sakaiproject.service.gradebook.GradebookService" />
+		<property name="gradebookExternalService" ref="org.sakaiproject.service.gradebook.GradebookExternalAssessmentService" />
+		<property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService" />
+	</bean>
+	
+</beans>

@@ -50,12 +50,6 @@ import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.Xml;
 import org.sakaiproject.util.api.FormattedText;
 
-import java.nio.ByteBuffer;
-import java.nio.charset.StandardCharsets;
-import java.nio.charset.Charset;
-import java.nio.charset.CharsetDecoder;
-import java.nio.charset.CodingErrorAction;
-import java.nio.charset.CharacterCodingException;
 
 /**
  * FormattedText provides support for user entry of formatted text; the formatted text is HTML. This includes text formatting in user input such as bold, underline, and fonts.
@@ -98,6 +92,10 @@ public class FormattedTextImpl implements FormattedText
     private boolean logErrors = false;
     private boolean cleanUTF8 = true;
     private String restrictReplacement = null;
+
+    private String referrerPolicy = null;
+    private static final String SAK_PROP_REFERRER_POLICY = "content.cleaner.referrer-policy";
+    private static final String SAKAI_REFERRER_POLICY_DEFAULT = "noopener";
 
     private final String DEFAULT_RESOURCECLASS = "org.sakaiproject.localization.util.ContentProperties";
     protected final String DEFAULT_RESOURCEBUNDLE = "org.sakaiproject.localization.bundle.content.content";
@@ -143,6 +141,8 @@ public class FormattedTextImpl implements FormattedText
                     "; return to tool=" + returnErrorToTool + 
                     "; notify user=" + showErrorToUser + 
                     "; details to user=" + showDetailedErrorToUser);
+
+            referrerPolicy = serverConfigurationService.getString(SAK_PROP_REFERRER_POLICY, SAKAI_REFERRER_POLICY_DEFAULT);
         }
         if (useLegacy) {
             M_log.error(
@@ -273,6 +273,9 @@ public class FormattedTextImpl implements FormattedText
     /** Matches all anchor tags that have a target attribute. */
     public final Pattern M_patternAnchorTagWithTarget = Pattern.compile("([<]a\\s[^<>]*?)target=[^<>\\s]*([^<>]*?)[>]",
             Pattern.CASE_INSENSITIVE | Pattern.DOTALL);
+    /** Matches all anchor tags that have target="_blank" not accompanied by a rel attribute. */
+    public final Pattern M_patternAnchorTagWithTargetBlankAndWithOutRel = Pattern.compile("([<]a\\s[^<>]*?)(?![^>]*rel[^<>\\s]*=)(target[^<>\\s]*=[^<>\\s]*_blank)([^<>]*?)[>]",
+            Pattern.CASE_INSENSITIVE | Pattern.DOTALL);
     /** Matches all anchor tags that do not have a target attribute. */
     public final Pattern M_patternAnchorTagWithOutTarget = 
             Pattern.compile("([<]a\\s)(?![^>]*target=)([^>]*?)[>]",
@@ -284,6 +287,8 @@ public class FormattedTextImpl implements FormattedText
     private Pattern M_patternHrefTarget = Pattern.compile("\\starget\\s*=\\s*(\".*?\"|'.*?')",
             Pattern.CASE_INSENSITIVE | Pattern.DOTALL);
     private Pattern M_patternHrefTitle = Pattern.compile("\\stitle\\s*=\\s*(\".*?\"|'.*?')",
+            Pattern.CASE_INSENSITIVE | Pattern.DOTALL);
+    private Pattern M_patternHrefRel = Pattern.compile("\\srel\\s*=\\s*(\".*?\"|'.*?')",
             Pattern.CASE_INSENSITIVE | Pattern.DOTALL);
 
     /* (non-Javadoc)
@@ -400,7 +405,20 @@ public class FormattedTextImpl implements FormattedText
                     if (addBlankTargetToLinks() && StringUtils.isNotBlank(val)) {
                         Matcher m = M_patternAnchorTagWithOutTarget.matcher(val);
                         if (m.find()) {
-                            val = m.replaceAll("$1$2 target=\"_blank\">"); // adds a target to A tags without one
+                            if (StringUtils.isNotBlank(referrerPolicy)) {
+                                val = m.replaceAll("$1$2 target=\"_blank\" rel=\"" + referrerPolicy + "\">"); // adds a target and rel to A tags without one
+                            } else {
+                                val = m.replaceAll("$1$2 target=\"_blank\">"); // adds a target to A tags without one
+                            }
+                        }
+                    }
+
+                    // If there is a referrer policy defined...
+                    if (StringUtils.isNotBlank(referrerPolicy) && StringUtils.isNotBlank(val) ) {
+                        // If the A tag contains target="_blank" but is not accompanied by a rel attribute, add it
+                        Matcher m = M_patternAnchorTagWithTargetBlankAndWithOutRel.matcher(val);
+                        if (m.find()) {
+                            val = m.replaceAll("$1$2$3 rel=\"" + referrerPolicy + "\">"); // adds a rel to A tags without one
                         }
                     }
                 } catch (ScanException e) {
@@ -520,7 +538,20 @@ public class FormattedTextImpl implements FormattedText
         if (addBlankTargetToLinks()) {
             Matcher m = M_patternAnchorTagWithOutTarget.matcher(value);
             if (m.find()) {
-                value = m.replaceAll("$1$2 target=\"_blank\">"); // adds a target to A tags without one
+                if (StringUtils.isNotBlank(referrerPolicy)) {
+                    value = m.replaceAll("$1$2 target=\"_blank\" rel=\"" + referrerPolicy + "\">"); // adds a target and rel to A tags without one
+                } else {
+                    value = m.replaceAll("$1$2 target=\"_blank\">"); // adds a target to A tags without one
+                }
+            }
+        }
+
+        // If there is a referrer policy defined...
+        if (StringUtils.isNotBlank(referrerPolicy) && StringUtils.isNotBlank(value)) {
+            // If the A tag contains target="_blank" but is not accompanied by a rel attribute, add it
+            Matcher m = M_patternAnchorTagWithTargetBlankAndWithOutRel.matcher(value);
+            if (m.find()) {
+                value = m.replaceAll("$1$2$3 rel=\"" + referrerPolicy + "\">"); // adds a rel to A tags without one
             }
         }
 
@@ -645,6 +676,7 @@ public class FormattedTextImpl implements FormattedText
         String href = null;
         String hrefTarget = null;
         String hrefTitle = null;
+        String hrefRel = null;
 
         try {
             // get HREF value
@@ -661,6 +693,11 @@ public class FormattedTextImpl implements FormattedText
             matcher = M_patternHrefTitle.matcher(anchor);
             if (matcher.find()) {
                 hrefTitle = matcher.group();
+            }
+            // get rel value
+            matcher = M_patternHrefRel.matcher(anchor);
+            if (matcher.find()) {
+                hrefRel = matcher.group();
             }
         } catch (Exception e) {
             M_log.error("FormattedText.processAnchor ", e);
@@ -680,6 +717,18 @@ public class FormattedTextImpl implements FormattedText
             }
         }
 
+        if (hrefRel != null) {
+            // use the existing one
+            hrefRel = hrefRel.trim();
+            hrefRel = hrefRel.replaceAll("\"", ""); // slightly paranoid
+            hrefRel = hrefRel.replaceAll(">", ""); // slightly paranoid
+            hrefRel = hrefRel.replaceFirst("rel=", ""); // slightly paranoid
+            hrefRel = " rel=\"" + hrefRel + "\"";
+        } else if (hrefRel == null && " target=\"_blank\"".equals(hrefTarget) && StringUtils.isNotBlank(referrerPolicy)) {
+            // target is _blank but has no rel attribute
+            hrefRel = " rel=\"" + referrerPolicy + "\"";
+        }
+
         if (hrefTitle != null) {
             // use the existing one
             hrefTitle = hrefTitle.trim();
@@ -695,6 +744,9 @@ public class FormattedTextImpl implements FormattedText
             href = href.replaceAll(">", "");
             href = href.replaceFirst("href=", "href=\"");
             newAnchor = "<a " + href + "\"" + hrefTarget;
+            if (hrefRel != null) {
+                newAnchor += hrefRel;
+            }
             if (hrefTitle != null)
             {
                 newAnchor += hrefTitle;

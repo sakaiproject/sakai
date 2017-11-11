@@ -27,6 +27,8 @@ public abstract class AbstractMembershipContainerCmImpl extends
 		AbstractNamedCourseManagementObjectCmImpl implements Serializable {
 
 
+	private static final long serialVersionUID = 1L;
+	
 	private Set members;
 
 	public Set getMembers() {

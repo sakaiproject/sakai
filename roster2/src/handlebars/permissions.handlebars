@@ -13,57 +13,63 @@
         <tr>
             <td align="left">{{translate 'permissions_allmembers'}}</td>
             {{#each roles}}
-            <td align="center"><input type="checkbox" class="roster_permission_checkbox" {{#if (roleAllowed permission='roster.viewallmembers')}}checked="checked"{{/if}}" id="{{name}}:roster.viewallmembers"/></td>
+            <td align="center"><input type="checkbox" class="roster_permission_checkbox" {{#if (roleAllowed permission='roster.viewallmembers')}}checked="checked"{{/if}} id="{{name}}:roster.viewallmembers"/></td>
             {{/each}}
         </tr>
         <tr>
             <td align="left">{{translate 'permissions_hidden'}}</td>
             {{#each roles}}
-            <td align="center"><input type="checkbox" class="roster_permission_checkbox" {{#if (roleAllowed permission='roster.viewhidden')}}checked="checked"{{/if}}" id="{{name}}:roster.viewhidden"/></td>
+            <td align="center"><input type="checkbox" class="roster_permission_checkbox" {{#if (roleAllowed permission='roster.viewhidden')}}checked="checked"{{/if}} id="{{name}}:roster.viewhidden"/></td>
             {{/each}}
         </tr>
         <tr>
 	        <td align="left">{{translate 'permissions_groups'}}</td>
             {{#each roles}}
-            <td align="center"><input type="checkbox" class="roster_permission_checkbox" {{#if (roleAllowed permission='roster.viewgroup')}}checked="checked"{{/if}}" id="{{name}}:roster.viewgroup"/></td>
+            <td align="center"><input type="checkbox" class="roster_permission_checkbox" {{#if (roleAllowed permission='roster.viewgroup')}}checked="checked"{{/if}} id="{{name}}:roster.viewgroup"/></td>
             {{/each}}
         </tr>
         <tr>
             <td align="left">{{translate 'permissions_enrollment'}}</td>
             {{#each roles}}
-            <td align="center"><input type="checkbox" class="roster_permission_checkbox" {{#if (roleAllowed permission='roster.viewenrollmentstatus')}}checked="checked"{{/if}}" id="{{name}}:roster.viewenrollmentstatus"/></td>
+            <td align="center"><input type="checkbox" class="roster_permission_checkbox" {{#if (roleAllowed permission='roster.viewenrollmentstatus')}}checked="checked"{{/if}} id="{{name}}:roster.viewenrollmentstatus"/></td>
             {{/each}}
         </tr>
         <tr>
             <td align="left">{{translate 'permissions_profile'}}</td>
             {{#each roles}}
-            <td align="center"><input type="checkbox" class="roster_permission_checkbox" {{#if (roleAllowed permission='roster.viewprofile')}}checked="checked"{{/if}}" id="{{name}}:roster.viewprofile"/></td>
+            <td align="center"><input type="checkbox" class="roster_permission_checkbox" {{#if (roleAllowed permission='roster.viewprofile')}}checked="checked"{{/if}} id="{{name}}:roster.viewprofile"/></td>
             {{/each}}
         </tr>
         <tr>
             <td align="left">{{translate 'permissions_email'}}</td>
             {{#each roles}}
-            <td align="center"><input type="checkbox" class="roster_permission_checkbox" {{#if (roleAllowed permission='roster.viewemail')}}checked="checked"{{/if}}" id="{{name}}:roster.viewemail"/></td>
+            <td align="center"><input type="checkbox" class="roster_permission_checkbox" {{#if (roleAllowed permission='roster.viewemail')}}checked="checked"{{/if}} id="{{name}}:roster.viewemail"/></td>
+            {{/each}}
+        </tr>
+        <tr>
+            <td align="left">{{translate 'permissions_user_properties'}}</td>
+            {{#each roles}}
+            <td align="center"><input type="checkbox" class="roster_permission_checkbox" {{#if (roleAllowed permission='roster.viewuserproperties')}}checked="checked"{{/if}} id="{{name}}:roster.viewuserproperties"/></td>
             {{/each}}
         </tr>
         <tr>
             <td align="left">{{translate 'permissions_photo'}}</td>
             {{#each roles}}
-            <td align="center"><input type="checkbox" class="roster_permission_checkbox" {{#if (roleAllowed permission='roster.viewofficialphoto')}}checked="checked"{{/if}}" id="{{name}}:roster.viewofficialphoto"/></td>
+            <td align="center"><input type="checkbox" class="roster_permission_checkbox" {{#if (roleAllowed permission='roster.viewofficialphoto')}}checked="checked"{{/if}} id="{{name}}:roster.viewofficialphoto"/></td>
             {{/each}}
         </tr>
         {{#if showVisits}}
         <tr>
             <td align="left">{{translate 'permissions_visits'}}</td>
             {{#each roles}}
-            <td align="center"><input type="checkbox" class="roster_permission_checkbox" {{#if (roleAllowed permission='roster.viewsitevisits')}}checked="checked"{{/if}}" id="{{name}}:roster.viewsitevisits"/></td>
+            <td align="center"><input type="checkbox" class="roster_permission_checkbox" {{#if (roleAllowed permission='roster.viewsitevisits')}}checked="checked"{{/if}} id="{{name}}:roster.viewsitevisits"/></td>
             {{/each}}
         </tr>
         {{/if}}
         <tr>
             <td align="left">{{translate 'permissions_export'}}</td>
             {{#each roles}}
-            <td align="center"><input type="checkbox" class="roster_permission_checkbox" {{#if (roleAllowed permission='roster.export')}}checked="checked"{{/if}}" id="{{name}}:roster.export"/></td>
+            <td align="center"><input type="checkbox" class="roster_permission_checkbox" {{#if (roleAllowed permission='roster.export')}}checked="checked"{{/if}} id="{{name}}:roster.export"/></td>
             {{/each}}
         </tr>
     </tbody>

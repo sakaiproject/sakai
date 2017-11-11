@@ -366,8 +366,10 @@ public class BltiEntity implements LessonEntity, BltiInterface {
 		String url = ServerConfigurationService.getToolUrl() + "/" + toolId + "/sakai.basiclti.admin.helper.helper?panel=ContentConfig&tool_id=" 
 			+ tool.get(LTIService.LTI_ID) + "&returnUrl=" + URLEncoder.encode(returnUrl);
 		String fa_icon = (String) tool.get(LTIService.LTI_FA_ICON);
+		Long ls = getLong(tool.get(LTIService.LTI_PL_LINKSELECTION));
+		Boolean selector = (new Long(1)).equals(ls);
 
-		list.add(new UrlItem(url, (String) tool.get(LTIService.LTI_TITLE), fa_icon));
+		list.add(new UrlItem(url, (String) tool.get(LTIService.LTI_TITLE), fa_icon, selector));
 	}
 
 	String url = ServerConfigurationService.getToolUrl() + "/" + toolId + "/sakai.basiclti.admin.helper.helper?panel=Main" + 

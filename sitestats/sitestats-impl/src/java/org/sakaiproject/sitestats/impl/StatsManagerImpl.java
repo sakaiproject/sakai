@@ -38,7 +38,6 @@ import org.apache.commons.digester.Digester;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.hibernate.Criteria;
 import org.hibernate.Query;
-import org.hibernate.Transaction;
 import org.hibernate.criterion.Expression;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentHostingService;
@@ -79,6 +78,7 @@ import org.sakaiproject.sitestats.api.event.EventInfo;
 import org.sakaiproject.sitestats.api.event.EventRegistryService;
 import org.sakaiproject.sitestats.api.event.ToolInfo;
 import org.sakaiproject.sitestats.api.report.ReportDef;
+import org.sakaiproject.sitestats.impl.event.EventRegistryServiceImpl;
 import org.sakaiproject.sitestats.impl.event.EventUtil;
 import org.sakaiproject.sitestats.impl.parser.DigesterUtil;
 import org.sakaiproject.tool.api.SessionManager;
@@ -89,6 +89,7 @@ import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.util.ResourceLoader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.dao.DataAccessException;
 import org.springframework.orm.hibernate4.HibernateCallback;
 import org.springframework.orm.hibernate4.support.HibernateDaoSupport;
 
@@ -338,6 +339,9 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 		
 		logger.info("init(): - (Event.getContext()?, site visits enabled, charts background color, charts in 3D, charts transparency, item labels visible on bar charts) : " +
 							isEventContextSupported+','+enableSiteVisits+','+chartBackgroundColor+','+chartIn3D+','+chartTransparency+','+itemLabelsVisible);
+
+		// To avoid a circular dependency in spring we set the StatsManager in the EventRegistryService here
+		M_ers.setStatsManager(this);
 	}
 	
 	public void checkAndSetDefaultPropertiesIfNotSet() {
@@ -477,12 +481,8 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 		}else if(prefsdata == null){
 			throw new IllegalArgumentException("Null preferences");
 		}else{
-			HibernateCallback<Boolean> hcb = session -> {
-                Transaction tx = null;
-                try{
-                    tx = session.beginTransaction();
-                    Criteria c = session.createCriteria(PrefsImpl.class)
-                            .add(Expression.eq("siteId", siteId));
+			HibernateCallback hcb = session -> {
+                    Criteria c = session.createCriteria(PrefsImpl.class).add(Expression.eq("siteId", siteId));
                     Prefs prefs = (Prefs) c.uniqueResult();
                     if(prefs == null){
                         prefs = new PrefsImpl();
@@ -490,22 +490,19 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
                     }
                     prefs.setPrefs(prefsdata.toXmlPrefs());
                     session.saveOrUpdate(prefs);
-                    tx.commit();
-                    return Boolean.TRUE;
-                }catch(Exception e){
-                    if(tx != null) tx.rollback();
-                    LOG.warn("Unable to commit transaction: ", e);
-                    return Boolean.FALSE;
-                }
+                    return null;
             };
-			Boolean success = getHibernateTemplate().execute(hcb);
-			if(success) {
+			try {
+				getHibernateTemplate().execute(hcb);
 				logEvent(prefsdata, LOG_ACTION_EDIT, siteId, false);
+				return true;
+			} catch (DataAccessException dae) {
+				LOG.warn("Exception while saving preferences: {}", dae.getMessage(), dae);
 			}
-			return success;
 		}
+		return false;
 	}
-	
+
 	/* (non-Javadoc)
 	 * @see org.sakaiproject.sitestats.api.StatsManager#getSiteUsers(java.lang.String)
 	 */

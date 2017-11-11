@@ -159,6 +159,21 @@ public class DeliveryActionListener
     	// there is no action needed (the outcome is set in BeginDeliveryActionListener).
       	return;
       }
+
+      if (delivery.pastDueDate() && (DeliveryBean.TAKE_ASSESSMENT == action || DeliveryBean.TAKE_ASSESSMENT_VIA_URL == action)) {
+        if (delivery.isAcceptLateSubmission()) {
+          if(delivery.getTotalSubmissions() > 0) {
+            // Not during a Retake
+            if (delivery.getActualNumberRetake() == delivery.getNumberRetake()) {
+              return;
+            }
+          }
+        } else {
+          if(delivery.isRetracted(false)){
+              return;
+          }
+        }
+      }
       // Clear elapsed time, set not timed out
       clearElapsedTime(delivery);
 
@@ -442,7 +457,10 @@ public class DeliveryActionListener
                   eventLogData.setErrorMsg(eventLogMessages.getString("no_submission"));
                   eventLogData.setEndDate(null);
                   eventLogData.setEclipseTime(null);
-                      
+                  				  
+                  String thisIp = ( (javax.servlet.http.HttpServletRequest) FacesContext.getCurrentInstance().getExternalContext().getRequest()).getRemoteAddr();
+                  eventLogData.setIpAddress(thisIp);
+				  					  
                   eventLogFacade.setData(eventLogData);
                   eventService.saveOrUpdateEventLog(eventLogFacade);           	  
                   
@@ -572,7 +590,10 @@ public class DeliveryActionListener
     		eventLogData.setEndDate(null);
     		eventLogData.setEclipseTime(null);
     	}
-    	
+    			
+    	String thisIp = ( (javax.servlet.http.HttpServletRequest) FacesContext.getCurrentInstance().getExternalContext().getRequest()).getRemoteAddr();
+    	eventLogData.setIpAddress(thisIp);
+				
         eventLogFacade.setData(eventLogData);
     	eventService.saveOrUpdateEventLog(eventLogFacade);
     	throw e;
@@ -1740,7 +1761,7 @@ public class DeliveryActionListener
     	String responseText = itemBean.getResponseText();
     	// SAK-17021
     	// itemBean.setResponseText(FormattedText.convertFormattedTextToPlaintext(responseText));
-    	itemBean.setResponseText(ContextUtil.stringWYSIWYG(responseText));
+    	itemBean.setResponseText(responseText);
     }
     else if (item.getTypeId().equals(TypeIfc.MATRIX_CHOICES_SURVEY))
     {
@@ -2699,7 +2720,7 @@ public class DeliveryActionListener
     delivery.setSkipFlag(false);  
     
     delivery.setTurnIntoTimedAssessment(delivery.getTurnIntoTimedAssessment());
-    if (delivery.getTurnIntoTimedAssessment() && !delivery.getHasShowTimeWarning()) {
+    if (delivery.getTurnIntoTimedAssessment() && !delivery.getHasShowTimeWarning() && (delivery.getDueDate() != null || delivery.getRetractDate() != null)) {
     	delivery.setShowTimeWarning(true);
     	delivery.setHasShowTimeWarning(true);
     }

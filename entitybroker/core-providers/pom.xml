@@ -15,7 +15,7 @@
     <parent>
         <artifactId>entitybroker</artifactId>
         <groupId>org.sakaiproject</groupId>
-        <version>12-SNAPSHOT</version><!--entitybroker.version-->
+        <version>13-SNAPSHOT</version><!--entitybroker.version-->
     </parent>
     <dependencies>
         <!-- internal dependencies -->
@@ -73,6 +73,10 @@
         <dependency>
             <groupId>org.sakaiproject.kernel</groupId>
             <artifactId>sakai-kernel-util</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.sakaiproject.userauditservice</groupId>
+            <artifactId>userauditservice-api</artifactId>
         </dependency>
     </dependencies>
     <build>

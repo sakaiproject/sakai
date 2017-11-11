@@ -1,3 +1,18 @@
+/**
+ * Copyright (c) 2005-2017 The Apereo Foundation
+ *
+ * Licensed under the Educational Community License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *             http://opensource.org/licenses/ecl2
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.sakaiproject.user.detail;
 
 import org.apache.commons.lang.StringUtils;
@@ -72,6 +87,50 @@ public class ChainedDetailProvider implements CandidateDetailProvider {
 				return true;
 			}
 		}
+		return false;
+	}
+	
+	@Override
+	public Optional<String> getInstitutionalNumericId(User user, Site site)
+	{
+		for (CandidateDetailProvider provider : getProviders())
+		{
+			String studentNumber = provider.getInstitutionalNumericId(user, site).orElse("");
+			if (StringUtils.isNotBlank(studentNumber))
+			{
+				return Optional.of(studentNumber);
+			}
+		}
+		
+		return Optional.empty();
+	}
+	
+	@Override
+	public Optional<String> getInstitutionalNumericIdIgnoringCandidatePermissions(User candidate, Site site)
+	{
+		for (CandidateDetailProvider provider : getProviders())
+		{
+			String studentNumber = provider.getInstitutionalNumericIdIgnoringCandidatePermissions(candidate, site).orElse("");
+			if (StringUtils.isNotBlank(studentNumber))
+			{
+				return Optional.of(studentNumber);
+			}
+		}
+		
+		return Optional.empty();
+	}
+	
+	@Override
+	public boolean isInstitutionalNumericIdEnabled(Site site)
+	{
+		for (CandidateDetailProvider provider : getProviders())
+		{
+			if (provider.isInstitutionalNumericIdEnabled(site))
+			{
+				return true;
+			}
+		}
+		
 		return false;
 	}
 }

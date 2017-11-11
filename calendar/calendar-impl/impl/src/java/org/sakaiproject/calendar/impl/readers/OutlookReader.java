@@ -261,7 +261,7 @@ public class OutlookReader extends CSVReader
 	 */
 	public Map<String, String> getDefaultColumnMap()
 	{
-		Map<String, String> columnHeaderMap = new HashMap<String, String>();
+		Map<String, String> columnHeaderMap = new HashMap<>();
 
 		columnHeaderMap.put(GenericCalendarImporter.TITLE_DEFAULT_COLUMN_HEADER, rb.getString("import.outlook.subject_header"));
 		columnHeaderMap.put(GenericCalendarImporter.DESCRIPTION_DEFAULT_COLUMN_HEADER, rb.getString("import.outlook.description_header"));

@@ -1,5 +1,10 @@
 (function ($) {
 
+    //Fail if dependencies aren't available
+    if ((typeof qtip !== 'object' && typeof moment !== 'object' && typeof portal !== 'object') || typeof moment === 'undefined') {
+        return;
+    }
+
     moment.locale(portal.locale);
 
     portal.socialBullhorn = $('#Mrphs-social-bullhorn');
@@ -15,39 +20,42 @@
         return '<div class="portal-bullhorn-no-alerts">' + noAlertsString + '</div>';
     };
 
-    portal.clearBullhornAlert = function (id, noAlerts) {
+    portal.clearBullhornAlert = function (type, id, noAlerts) {
 
             $.get('/direct/portal/clearBullhornAlert', { id: id })
                 .done(function () {
 
                     var alertDiv = $('#portal-bullhorn-alert-' + id);
-                    var empty = $('.portal-bullhorn-alert').length === 1;
+                    var empty = $('.portal-bullhorn-' + type + '-alert').length === 1;
                     alertDiv.remove();
                     if (empty) {
-                        $('.portal-bullhorn-alerts').html(portal.wrapNoAlertsString(noAlerts));
+                        $('.portal-bullhorn-' + type +'-alerts').html(portal.wrapNoAlertsString(noAlerts));
                     }
+                    var count = $('.portal-bullhorn-' + type + '-alert').length;
+                    portal.setCounter(type, count);
                 });
         };
 
     portal.clearAllAlerts = function (type, noAlerts) {
 
-        $.get('/direct/portal/clearAll' + type + 'Alerts')
+        $.ajax({url: '/direct/portal/clearAll' + type + 'Alerts', cache: false})
             .done(function () {
 
-                $('.portal-bullhorn-alerts').html(portal.wrapNoAlertsString(noAlerts));
+                $('.portal-bullhorn-' + type.toLowerCase() + '-alerts').html(portal.wrapNoAlertsString(noAlerts));
+                portal.setCounter(type.toLowerCase(), 0);
             });
     };
 
     portal.acceptFriendRequest = function (requestorId, friendId, alertId, noAlertsMessage) {
 
         confirmFriendRequest(friendId,requestorId);
-        this.clearBullhornAlert(alertId, noAlertsMessage);
+        this.clearBullhornAlert(portal.SOCIAL, alertId, noAlertsMessage);
     };
 
     portal.ignoreFriendRequest = function (ignorerId, friendId, alertId, noAlertsMessage) {
 
         ignoreFriendRequest(friendId, ignorerId);
-        this.clearBullhornAlert(alertId, noAlertsMessage);
+        this.clearBullhornAlert(portal.SOCIAL, alertId, noAlertsMessage);
     };
 
     $(document).ready(function () {
@@ -69,10 +77,17 @@
                             if (data.message && data.message === 'NO_ALERTS') {
                                 return portal.wrapNoAlertsString(data.i18n.noAlerts);
                             } else {
-                                var markup = '<div class="portal-bullhorn-alerts">';
+                                var markup = '<div class="portal-bullhorn-social-alerts">';
                                 data.alerts.forEach(function (alert) {
 
-                                    markup += '<a href="' + alert.url + '"><div id="portal-bullhorn-alert-' + alert.id + '" class="portal-bullhorn-alert">'
+                                    if (alert.event === 'profile.friend.request') {
+                                        markup += '<a href="javascript:;" class="portal-bullhorn-connectionmanager-pending">';
+                                    } else if (alert.event === 'profile.friend.confirm') {
+                                        markup += '<a href="javascript:;" class="portal-bullhorn-connectionmanager-current">';
+                                    } else {
+                                        markup += '<a href="' + alert.url + '">';
+                                    }
+                                    markup += '<div id="portal-bullhorn-alert-' + alert.id + '" class="portal-bullhorn-social-alert">'
                                                 + '<div class="portal-bullhorn-photo" style="background-image:url(/direct/profile/' + alert.from + '/image/thumb)"></div>'
                                                 + '<div class="portal-bullhorn-content"><div class="portal-bullhorn-message"><span class="portal-bullhorn-display-name">' + alert.fromDisplayName + '</span>';
 
@@ -104,7 +119,7 @@
                                     }
 
                                     markup += '</div>';
-                                    markup += '</div><div class="portal-bullhorn-clear"><a href="javascript:;" onclick="portal.clearBullhornAlert(\'' + alert.id + '\',\'' + data.i18n.noAlerts + '\');" title="' + data.i18n.clear + '"><i class="fa fa-times" aria-hidden="true"></i></a></div></div></a>';
+                                    markup += '</div><div class="portal-bullhorn-clear"><a href="javascript:;" onclick="portal.clearBullhornAlert(\'social\', \'' + alert.id + '\',\'' + data.i18n.noAlerts + '\');" title="' + data.i18n.clear + '"><i class="fa fa-times" aria-hidden="true"></i></a></div></div></a>';
                                 });
 
                                 markup += '<div id="portal-bullhorn-clear-all"><a href="javascript:;" onclick="portal.clearAllAlerts(\'Social\',\'' + data.i18n.noAlerts + '\');">' + data.i18n.clearAll + '</a></div>';
@@ -115,6 +130,22 @@
                         }, function (xhr, status, error) {
                             api.set('content.text', status + ': ' + error);
                         });
+                }
+            },
+            events: {
+                visible: function (event, api) {
+
+                    $PBJQ('.portal-bullhorn-connectionmanager-pending').click(function (e) {
+
+                        portal.connectionManager.show({state: 'pending'});
+                        api.hide();
+                    });
+
+                    $PBJQ('.portal-bullhorn-connectionmanager-current').click(function (e) {
+
+                        portal.connectionManager.show();
+                        api.hide();
+                    });
                 }
             }
         });
@@ -137,7 +168,7 @@
                             if (data.message && data.message === 'NO_ALERTS') {
                                 return portal.wrapNoAlertsString(data.i18n.noAlerts);
                             } else {
-                                var markup = '<div class="portal-bullhorn-alerts">';
+                                var markup = '<div class="portal-bullhorn-academic-alerts">';
                                 data.alerts.forEach(function (alert) {
 
                                     var title = alert.title;
@@ -147,9 +178,11 @@
                                     if (alert.event === 'asn.new.assignment'
                                                                 || alert.event === 'asn.grade.submission') {
                                         faClass = 'fa-file-text';
+                                    } else if (alert.event === 'lessonbuilder.comment.create') {
+                                        faClass = 'fa-leanpub';
                                     }
 
-                                    markup += '<a href="' + alert.url + '" style="text-decoration: none;"><div id="portal-bullhorn-alert-' + alert.id + '" class="portal-bullhorn-alert">'
+                                    markup += '<a href="' + alert.url + '" style="text-decoration: none;"><div id="portal-bullhorn-alert-' + alert.id + '" class="portal-bullhorn-academic-alert">'
                                                 + '<div class="portal-bullhorn-icon fa fa-stack"><i class="fa fa-circle fa-stack-2x"></i><i class="fa ' + faClass + ' fa-stack-1x fa-inverse"></i></div>'
                                                 + '<div class="portal-bullhorn-content"><div class="portal-bullhorn-message"><span class="portal-bullhorn-display-name">' + alert.fromDisplayName + '</span>';
 
@@ -166,6 +199,8 @@
                                             = data.i18n.assignmentSubmissionGraded.replace('{0}', title).replace('{1}', siteTitle);
                                     } else if (alert.event === 'commons.comment.created') {
                                         markup += data.i18n.academicCommentCreated.replace('{0}', siteTitle);
+                                    } else if (alert.event === 'lessonbuilder.comment.create') {
+                                        markup += data.i18n.academicLessonBuilderCommentCreate.replace('{0}', siteTitle);
                                     } else {
                                         markup += data.i18n.unrecognisedAlert;
                                     }
@@ -173,7 +208,7 @@
                                     var time = formatDate(alert.eventDate);
 
                                     markup += message + '</div><div class="portal-bullhorn-time">' + time + '</div>';
-                                    markup += '</div><div class="portal-bullhorn-clear"><a href="javascript:;" onclick="portal.clearBullhornAlert(\'' + alert.id + '\',\'' + data.i18n.noAlerts + '\');" title="' + data.i18n.clear + '"><i class="fa fa-times" aria-hidden="true"></i></a></div></div></a>';
+                                    markup += '</div><div class="portal-bullhorn-clear"><a href="javascript:;" onclick="portal.clearBullhornAlert(\'academic\', \'' + alert.id + '\',\'' + data.i18n.noAlerts + '\');" title="' + data.i18n.clear + '"><i class="fa fa-times" aria-hidden="true"></i></a></div></div></a>';
                                 });
 
                                 markup += '<div id="portal-bullhorn-clear-all"><a href="javascript:;" onclick="portal.clearAllAlerts(\'Academic\',\'' + data.i18n.noAlerts + '\');">' + data.i18n.clearAll + '</a></div>';
@@ -189,15 +224,15 @@
         });
     });
 
+    portal.setCounter = function (type, count) {
+
+        var horn = $('#Mrphs-' + type + '-bullhorn');
+        var colour = (type === 'social') ? 'blue' : 'red';
+        horn.find('.bullhorn-counter').remove();
+        horn.append('<span class="bullhorn-counter bullhorn-counter-' + colour + '">' + count + '</span>');
+    };
+
     var updateCounts = function () {
-
-            var setCounter = function (type, count) {
-
-                    var horn = $('#Mrphs-' + type + '-bullhorn');
-                    var colour = (type === 'social') ? 'blue' : 'red';
-                    horn.find('.bullhorn-counter').remove();
-                    horn.append('<span class="bullhorn-counter bullhorn-counter-' + colour + '">' + count + '</span>');
-                };
 
             $.ajax({
                 url: '/direct/portal/bullhornCounts.json',
@@ -207,13 +242,13 @@
                     portal.failedBullhornCounts = 0;
 
                     if (data.academic > 0) {
-                        setCounter('academic', data.academic);
+                        portal.setCounter('academic', data.academic);
                     } else {
                         portal.academicBullhorn.find('.bullhorn-counter').remove();
                     }
 
                     if (data.social > 0) {
-                        setCounter('social', data.social);
+                        portal.setCounter('social', data.social);
                     } else {
                         portal.socialBullhorn.find('.bullhorn-counter').remove();
                     }

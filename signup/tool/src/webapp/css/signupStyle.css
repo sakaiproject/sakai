@@ -45,11 +45,30 @@ table.userDefineTsTable th {
 }
 
 .titleColumn {
-	vertical-align: top;
 	text-align: right;
 	font-weight: bold;
 	padding: 0.2em 1em;
-	white-space: nowrap;
+}
+
+#meeting .form, #meetingInfoDetails, #showMeetingTitleOnly {
+	padding: 1px;
+}
+
+@media (max-width: 991px) {
+	#meeting .form .titleColumn {
+		text-align: left;
+		margin-top: 10px;
+	}
+	#meetingInfoDetails .titleColumn, #showMeetingTitleOnly .titleColumn {
+		text-align: left;
+		margin-top: 5px;
+	}
+	#meeting .form .valueColumn {
+		margin-bottom: 10px;
+	}
+	#meetingInfoDetails .valueColumn, #showMeetingTitleOnly .valueColumn {
+		margin-bottom: 5px;
+	}
 }
 
 .plainTitleColumn {
@@ -233,7 +252,7 @@ table.organizer td {
 .mi {
 	vertical-align: top;
 	margin-left: 30px;	
-	width: 350px;
+	max-width: 650px;
 }
 
 .greyed_mi{
@@ -244,10 +263,6 @@ table.organizer td {
 	color:#A3A3A3;
 }
 
-.longtext_red{
-	color:#b11;
-}
-
 .greyed_mi input, .greyed_si label, .greyed_mi longtext_red{
 	color:#A3A3A3;
 }
@@ -255,7 +270,7 @@ table.organizer td {
 .si {
 	vertical-align: top;
 	margin-left: 30px;	
-	width: 350px;
+	max-width: 650px;
 }
 
 .greyed_si{
@@ -318,6 +333,14 @@ table.organizer td {
 	color: #e7eef5;
 }
 
+#multiple.mi .row, #single.si .row {
+	margin-top: 5px;
+}
+
+#multiple.mi .row:first-of-type, #single.si .row:first-of-type {
+	margin-top: 0;
+}
+
 .displaySites {
 	background: #c12;
 	background-color: #c12;
@@ -360,6 +383,8 @@ table.sitegroup td {
 .published_sitetitle {
 	margin: 10px 0px;
 	line-height: 100%;
+	word-wrap: break-word;
+	white-space: normal;
 }
 
 table.published_sitegroup td {
@@ -405,10 +430,6 @@ table.instruction td.desc{
 	color: #b11;
 	margin: 5px 0px 5px 0;
 	padding: 3px 3px 3px 25px;
-}
-
-.noMeetingsWarn {
-	margin-left: 2em;
 }
 
 .organizerToplevelTable {
@@ -504,4 +525,12 @@ table.emailTable td.valueColumn {
 .dateExact {
 	color: #888;
 	margin-left: 10px;
+}
+@media (max-width: 991px) {
+	.form-group label {
+		margin-top: 10px;
+	}
+	.form-group label:first-of-type {
+		margin-top: 0;
+	}
 }

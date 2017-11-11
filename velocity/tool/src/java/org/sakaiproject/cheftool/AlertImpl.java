@@ -30,6 +30,9 @@ import java.io.Serializable;
  */
 public class AlertImpl implements org.sakaiproject.cheftool.api.Alert, Serializable
 {
+
+	private static final long serialVersionUID = 1L;
+	
 	/** The Alert text. */
 	protected String m_msg = null;
 

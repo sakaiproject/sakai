@@ -4,7 +4,7 @@
     <parent>
         <artifactId>sections</artifactId>
         <groupId>org.sakaiproject.edu-services.sections</groupId>
-        <version>12-SNAPSHOT</version><!-- ProjectVersion -->
+        <version>13-SNAPSHOT</version><!-- ProjectVersion -->
         <relativePath>../../../pom.xml</relativePath>
     </parent>
     <name>sakai-sections-impl</name>
@@ -52,8 +52,8 @@
             <artifactId>quartz</artifactId>
         </dependency>
         <dependency>
-            <groupId>commons-lang</groupId>
-            <artifactId>commons-lang</artifactId>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
         </dependency>
       
     </dependencies>

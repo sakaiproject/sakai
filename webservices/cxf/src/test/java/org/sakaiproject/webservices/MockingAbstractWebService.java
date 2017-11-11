@@ -43,6 +43,7 @@ import org.sakaiproject.time.api.TimeService;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.tool.assessment.samlite.api.SamLiteService;
+import org.sakaiproject.user.api.AuthenticationManager;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.PreferencesService;
 import org.sakaiproject.tool.assessment.shared.impl.questionpool.QuestionPoolServiceImpl;
@@ -55,6 +56,7 @@ public class MockingAbstractWebService {
 			instance = service.newInstance();
 			instance.setAreaManager(mock(AreaManager.class));
 			instance.setSessionManager(mock(SessionManager.class));
+			instance.setAuthenticationManager(mock(AuthenticationManager.class));
 			instance.setAssignmentService(mock(AssignmentService.class));
 			instance.setAuthzGroupService(mock(AuthzGroupService.class));
 			instance.setCalendarService(mock(CalendarService.class));

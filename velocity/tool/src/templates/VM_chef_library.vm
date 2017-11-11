@@ -643,4 +643,5 @@ scheduleUpdate();
 
 #macro (toolLinkParam $toolLinkJunk $toolLinkAction $toolLinkQuery)$sakai_ActionURL.setParameter("sakai_action","$toolLinkAction").setQueryString("$toolLinkQuery")#end
 
+#macro (siteLink $siteId)${config.getPortalUrl()}/site/${siteId}#end
 

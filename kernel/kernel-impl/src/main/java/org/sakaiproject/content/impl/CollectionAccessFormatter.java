@@ -95,6 +95,11 @@ public class CollectionAccessFormatter
 
 		PrintWriter out = null;
 
+		// don't set the writer until we verify that
+		// getallresources is going to work.
+		boolean printedHeader = false;
+		boolean printedDiv = false;
+
 		try
 		{
 			res.setContentType("text/html; charset=UTF-8");
@@ -125,49 +130,158 @@ public class CollectionAccessFormatter
 					new Object[]{ formattedText.escapeHtml(pl.getProperty(ResourceProperties.PROP_DISPLAY_NAME))}) + "</title>");
 			out.println("<link href=\"" + webappRoot + skinRepo+ "/" + skinName + 
 			"/access.css\" type=\"text/css\" rel=\"stylesheet\" media=\"screen\">");
-			//we need tool.css to load font-awesome
-			out.println("<link href=\"" + webappRoot + skinRepo+ "/" + skinName + 
-			"/tool.css\" type=\"text/css\" rel=\"stylesheet\" media=\"screen\">");
 			out.println("<script type=\"text/javascript\" language=\"JavaScript\" src=\"/library/js/headscripts.js\"></script>");
 			out.println("<script type=\"text/javascript\">includeLatestJQuery(\"access\");</script>");
-			
-			//folder-listing libraries (JS + CSS) 
-			out.println("<script type=\"text/javascript\" language=\"JavaScript\" src=\"/library/editor/ckextraplugins/folder-listing/js/file-tree.js\"></script>");
-			out.println("<script type=\"text/javascript\" language=\"JavaScript\" src=\"/library/editor/ckextraplugins/folder-listing/js/folder-listing.js\"></script>");
-			out.println("<script type=\"text/javascript\" language=\"JavaScript\" src=\"/library/editor/ckextraplugins/folder-listing/js/get-available-sites.js\"></script>");
-			out.println("<link href=\"/library/editor/ckextraplugins/folder-listing/css/file-tree.css\" type=\"text/css\" rel=\"stylesheet\" media=\"screen\">");
-
-			//load data via AJAX
-			out.println("<script type=\"text/javascript\" language=\"JavaScript\">");
-			out.println("$(function() { $('.listing').folderListing({displayRootDirectory: true}); });");
-			out.println("</script>");
 			out.println("</head><body class=\"specialLink\">");
 
 			out.println("<script type=\"text/javascript\" src=\"/library/js/access.js\"></script>");
-			
 			out.println("<div class=\"directoryIndex\">");
+
+			// for content listing it's best to use a real title
+			out.println("<h3>" + formattedText.escapeHtml(pl.getProperty(ResourceProperties.PROP_DISPLAY_NAME)) + "</h3>");
+			out.println("<p id=\"toggle\"><a id=\"toggler\" href=\"#\">" + rb.getString("colformat.showhide") + "</a></p>");
 			String folderdesc = pl.getProperty(ResourceProperties.PROP_DESCRIPTION);
-			if (folderdesc != null && !folderdesc.equals("")){ out.println("<div class=\"textPanel\">" + folderdesc + "</div>"); }
-			
+			if (folderdesc != null && !folderdesc.equals("")) out.println("<div class=\"textPanel\">" + folderdesc + "</div>");
+
+			out.println("<ul>");
+			out.println("<li style=\"display:none\">");
+			out.println("</li>");
+
+			printedHeader = true;
+			printedDiv = true;
+
 			if (parts.length > 2)
 			{
 				// go up a level
-				out.println("<ul><li class=\"upfolder\"><a class=\"fa fa-level-up\" href=\"../\"> " + rb.getString("colformat.uplevel") + "</a></li></ul>");
+				out.println("<li class=\"upfolder\"><a href=\"../\"><span class=\"faicon\"></span>" + rb.getString("colformat.uplevel") + "</a></li>");
 			}
-			out.println("</div>");
-			
-			out.println("<div data-multifolder=\"true\" data-copyright=\"true\" id=\"workspace\" data-description=\"true\" class=\"listing wait\" data-files=\"true\" data-directory=\"" + x.getUrl(true).replace("/access", "").replace("/content", "") + "\">");
-			
-			out.println("<ul class=\"jqueryFileTree\">");
-			out.println("</ul>");
 
-			out.println("</div>");
-			out.println("</body></html>");
+			// Sort the collection items
+
+			List<ContentEntity> members = x.getMemberResources();
+
+			boolean hasCustomSort = false;
+			try {
+				hasCustomSort = x.getProperties().getBooleanProperty(ResourceProperties.PROP_HAS_CUSTOM_SORT);
+			} catch (Exception e) {
+				// use false that's already there
+			}
+
+			if (hasCustomSort)
+				Collections.sort(members, new ContentHostingComparator(ResourceProperties.PROP_CONTENT_PRIORITY, true));
+			else
+				Collections.sort(members, new ContentHostingComparator(ResourceProperties.PROP_DISPLAY_NAME, true));
+
+			// Iterate through content items
+
+			URI baseUri = new URI(x.getUrl());
+
+			String hiddenClassParent = x.isAvailable() ? "" : " inactive";
+			String hiddenClass;
+			for (ContentEntity content : members) {
+
+				hiddenClass = hiddenClassParent;
+				ResourceProperties properties = content.getProperties();
+				boolean isCollection = content.isCollection();
+				String xs = content.getId();
+				String contentUrl = content.getUrl();
+
+				// These both perform the same check in the implementation but we should observe the API.
+				// This also checks to see if a resource is hidden or time limited.
+				if ( isCollection) {
+					if (!contentHostingService.allowGetCollection(xs)) {
+						continue;
+					}
+				} else {
+					if (!contentHostingService.allowGetResource(xs)) {
+						continue;
+					}
+				}
+
+				if (isCollection)
+				{
+					xs = xs.substring(0, xs.length() - 1);
+					xs = xs.substring(xs.lastIndexOf('/') + 1) + '/';
+				}
+				else
+				{
+					xs = xs.substring(xs.lastIndexOf('/') + 1);
+				}
+
+				try
+				{
+					// Relativize the URL (canonical item URL relative to canonical collection URL). 
+					// Inter alias this will preserve alternate access paths via aliases, e.g. /web/
+					
+					URI contentUri = new URI(contentUrl);
+					URI relativeUri = baseUri.relativize(contentUri);
+					contentUrl = relativeUri.toString();
+					if(!content.isAvailable()) {
+							hiddenClass = " inactive";
+					}
+					String displayName = properties.getProperty(ResourceProperties.PROP_DISPLAY_NAME);
+
+					if (isCollection)
+					{
+						// Folder
+						String desc = properties.getProperty(ResourceProperties.PROP_DESCRIPTION);
+						if (desc == null) {
+							desc = "";
+						} else {
+							desc = "<div class=\"textPanel\">" +  desc + "</div>";
+						}
+						StringBuilder li
+							= new StringBuilder("<li class=\"folder\"><a href=\"").append(contentUrl).append("\"");
+						li.append(" class=\""+hiddenClass+"\"");
+						li.append("><span class=\"faicon\"></span>")
+							.append(formattedText.escapeHtml(displayName))
+							.append("</a>")
+							.append(desc)
+							.append("</li>");
+
+						out.println(li.toString());
+					}
+					else
+					{
+						// File
+						String desc = properties.getProperty(ResourceProperties.PROP_DESCRIPTION);
+						if (desc == null) {
+							desc = "";
+						} else {
+							desc = "<div class=\"textPanel\">" + formattedText.escapeHtml(desc) + "</div>";
+						}
+						String resourceType = content.getResourceType().replace('.', '_');
+						StringBuilder li
+							= new StringBuilder("<li class=\"file" + hiddenClass +"\"><a href=\"").append(contentUrl).append("\" target=_blank class=\"");
+						li.append(resourceType);
+						li.append(hiddenClass);
+						li.append("\"><span class=\"faicon\"></span>");
+						li.append(formattedText.escapeHtml(displayName));
+						li.append("</a>").append(desc).append("</li>");
+
+						out.println(li.toString());
+					}
+				}
+				catch (Exception e)
+				{
+					M_log.info("Problem rendering item falling back to default rendering: "+ x.getId()+ ", "+ e.getMessage());
+					out.println("<li class=\"file\"><a href=\"" + contentUrl + "\" target=_blank>" + formattedText.escapeHtml(xs)
+							+ "</a></li>");
+				}
+			}
 
 		}
 		catch (Exception e)
 		{
 			M_log.warn("Problem formatting HTML for collection: "+ x.getId(), e);
+		}
+
+		if (out != null && printedHeader)
+		{
+			out.println("</ul>");
+
+			if (printedDiv) out.println("</div>");
+			out.println("</body></html>");
 		}
 	}
 }

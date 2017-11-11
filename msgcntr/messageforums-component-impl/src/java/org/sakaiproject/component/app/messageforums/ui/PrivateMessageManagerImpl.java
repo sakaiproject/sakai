@@ -1794,6 +1794,20 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements Pr
     else
       return false;
   }
+  
+  @Override 
+  public boolean isAllowToFieldMyGroupRoles() {
+	  return isAllowToFieldMyGroupRoles(userDirectoryService.getCurrentUser());
+  }
+  
+  private boolean isAllowToFieldMyGroupRoles(User user)
+  {
+	  LOG.debug("isAllowToFieldMyGroupRoles(User {})",user);
+	  if (user != null)
+		  return securityService.unlock(user, DefaultPermissionsManager.MESSAGE_FUNCTION_ALLOW_TO_FIELD_MYGROUPROLES, getContextSiteId());
+	  else
+		  return false;
+  }
 
   /**
    * @return siteId

@@ -1,3 +1,18 @@
+/**
+ * Copyright (c) 2003-2017 The Apereo Foundation
+ *
+ * Licensed under the Educational Community License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *             http://opensource.org/licenses/ecl2
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.sakaiproject.gradebookng.tool.pages;
 
 import java.util.Locale;
@@ -197,17 +212,17 @@ public class BasePage extends WebPage {
 		// Shared JavaScript and stylesheets
 		// Force Wicket to use Sakai's version of jQuery
 		response.render(
-			new PriorityHeaderItem(
-				JavaScriptHeaderItem
-					.forUrl(String.format("/library/webjars/jquery/1.11.3/jquery.min.js?version=%s", version))));
+				new PriorityHeaderItem(
+						JavaScriptHeaderItem
+								.forUrl(String.format("/library/webjars/jquery/1.12.4/jquery.min.js?version=%s", version))));
 		// And pair this instance of jQuery with a Bootstrap version we've tested with
 		response.render(
-			new PriorityHeaderItem(
-				JavaScriptHeaderItem
-					.forUrl(String.format("/library/webjars/bootstrap/3.3.7/js/bootstrap.min.js?version=%s", version))));
+				new PriorityHeaderItem(
+						JavaScriptHeaderItem
+								.forUrl(String.format("/library/webjars/bootstrap/3.3.7/js/bootstrap.min.js?version=%s", version))));
 		// Some global gradebookng styles
 		response.render(CssHeaderItem
-			.forUrl(String.format("/gradebookng-tool/styles/gradebook-shared.css?version=%s", version)));
+				.forUrl(String.format("/gradebookng-tool/styles/gradebook-shared.css?version=%s", version)));
 
 	}
 
@@ -262,12 +277,17 @@ public class BasePage extends WebPage {
 
 	/**
 	 * Send a user to the access denied page with a message
+	 * 
 	 * @param message the message
 	 */
-	public void sendToAccessDeniedPage(final String message){
+	public void sendToAccessDeniedPage(final String message) {
 		final PageParameters params = new PageParameters();
 		params.add("message", message);
 		log.debug("Redirecting to AccessDeniedPage: " + message);
 		throw new RestartResponseException(AccessDeniedPage.class, params);
+	}
+
+	public GbRole getCurrentRole() {
+		return BasePage.this.role;
 	}
 }

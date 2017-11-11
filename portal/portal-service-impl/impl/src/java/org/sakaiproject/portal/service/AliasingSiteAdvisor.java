@@ -1,11 +1,24 @@
+/**
+ * Copyright (c) 2003-2017 The Apereo Foundation
+ *
+ * Licensed under the Educational Community License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *             http://opensource.org/licenses/ecl2
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.sakaiproject.portal.service;
 
 import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sakaiproject.alias.api.Alias;
 import org.sakaiproject.alias.api.AliasService;
 import org.sakaiproject.component.api.ServerConfigurationService;
@@ -20,6 +33,7 @@ import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.api.SiteService;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * When a site is updated we check that all the pages have aliases.
@@ -29,6 +43,7 @@ import org.sakaiproject.site.api.SiteService;
  * @author buckett
  *
  */
+@Slf4j
 public class AliasingSiteAdvisor implements Observer
 {
 	/**
@@ -36,8 +51,6 @@ public class AliasingSiteAdvisor implements Observer
 	 */
 	private static final String PORTAL_USE_PAGE_ALIASES = "portal.use.page.aliases";
 
-	private static Logger log = LoggerFactory.getLogger(AliasingSiteAdvisor.class);
-	
 	private static String PAGE_ALIAS = Entity.SEPARATOR+ "pagealias"+ Entity.SEPARATOR;
 	
 	private AliasService aliasService;
@@ -129,10 +142,7 @@ public class AliasingSiteAdvisor implements Observer
 				}
 				catch (IdUsedException e)
 				{
-					if (log.isDebugEnabled())
-					{
-						log.debug("Alias already exists for: "+possibleAlias);
-					}
+					log.debug("Alias already exists for: {}", possibleAlias);
 				}
 				catch (IdInvalidException e)
 				{

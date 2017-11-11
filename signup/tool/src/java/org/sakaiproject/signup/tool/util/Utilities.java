@@ -1,3 +1,18 @@
+/**
+ * Copyright (c) 2007-2017 The Apereo Foundation
+ *
+ * Licensed under the Educational Community License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *             http://opensource.org/licenses/ecl2
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 /*
 * Licensed to The Apereo Foundation under one or more contributor license
 * agreements. See the NOTICE file distributed with this work for
@@ -24,6 +39,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.faces.context.FacesContext;
 import javax.faces.event.ActionEvent;
@@ -461,7 +477,19 @@ public final class Utilities implements SignupBeanConstants, MeetingTypes {
 		return cal.getTime();
 	}
 	
+	//Backward compatibility, no property validation
 	public static String getSignupConfigParamVal(String paramName, String defaultValue) {
+		return getSignupConfigParamVal(paramName, defaultValue, null);
+	}
+	
+	/**
+	 * @param paramName - Name of the parameter
+	 * @param defaultValue - Default value
+	 * @param acceptValues - Set of acceptable values (optional, null if all values allowed) 
+	 * 		If specified and the value isn't allowed returns the default
+	 * @return config parameter
+	 */
+	public static String getSignupConfigParamVal(String paramName, String defaultValue, Set <String> acceptValues) {
 		/* first look at sakai.properties and the tool bundle*/
 		String myConfigValue=defaultValue;
 		if (paramName != null) {
@@ -477,7 +505,12 @@ public final class Utilities implements SignupBeanConstants, MeetingTypes {
 				myConfigValue = defaultValue;
 			}
 		}
-
+		
+		//If acceptable values is defined and this isn't acceptable, just return the default anyway
+		if (acceptValues != null && !acceptValues.contains(myConfigValue)) {
+			myConfigValue = defaultValue;
+		}
+			
 		return myConfigValue;
 
 	}

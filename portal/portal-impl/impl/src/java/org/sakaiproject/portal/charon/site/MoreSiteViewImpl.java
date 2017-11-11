@@ -34,8 +34,7 @@ import java.util.TreeMap;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.commons.lang.StringEscapeUtils;
 
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.entity.api.ResourceProperties;
@@ -56,16 +55,16 @@ import org.sakaiproject.coursemanagement.api.CourseManagementService;
 import org.sakaiproject.component.cover.ComponentManager;
 
 import org.sakaiproject.util.Web;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * @author ieb
  */
+@Slf4j
 public class MoreSiteViewImpl extends AbstractSiteViewImpl
 {
-	private static final Logger LOG = LoggerFactory.getLogger(MoreSiteViewImpl.class);
-
-        /** messages. */
-        private static ResourceLoader rb = new ResourceLoader("sitenav");
+	/** messages. */
+	private static ResourceLoader rb = new ResourceLoader("sitenav");
 	private CourseManagementService courseManagementService = (CourseManagementService) ComponentManager.get(CourseManagementService.class);
 
 	/**
@@ -338,7 +337,7 @@ public class MoreSiteViewImpl extends AbstractSiteViewImpl
 				String secondTitle = (String) second.get("siteTitle");
 
 				if (firstTitle != null)
-					return firstTitle.compareToIgnoreCase(secondTitle);
+					return StringEscapeUtils.unescapeHtml(firstTitle).compareToIgnoreCase(StringEscapeUtils.unescapeHtml(secondTitle));
 
 				return 0;
 

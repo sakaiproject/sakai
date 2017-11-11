@@ -34,6 +34,7 @@ import org.sakaiproject.user.api.IdPwEvidence;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
+import org.sakaiproject.util.IPAddrUtil;
 
 /**
  * <p>
@@ -111,10 +112,18 @@ public abstract class UserAuthnComponent implements AuthenticationManager
 				authenticationCache().putAuthenticationFailure(evidence.getIdentifier(), evidence.getPassword());
 				throw new AuthenticationException("Invalid Login: Either user not found or password incorrect.");
 			}
+
+			// Check to see if the user account is disabled
 			String disabled = user.getProperties().getProperty("disabled");
 			if (disabled != null && "true".equals(disabled))
 			{
-				throw new AuthenticationException("Account Disabled: The users authentication has been disabled");
+				throw new AuthenticationException("Account Disabled: The user's authentication has been disabled");
+			}
+
+			// Check optional whitelist for this account
+			String whitelist = user.getProperties().getProperty("ip-whitelist");
+			if (whitelist != null && !whitelist.isEmpty() && !IPAddrUtil.matchIPList(whitelist, evidence.getRemoteAddr())) {
+				throw new AuthenticationException("Authentication refused: The user may only authenticate from whitelisted addresses");
 			}
 
 			rv = new org.sakaiproject.util.Authentication(user.getId(), user.getEid());

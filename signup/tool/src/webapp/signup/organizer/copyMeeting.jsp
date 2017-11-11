@@ -198,9 +198,8 @@
 						<h:outputLabel value="#{msgs.event_name}" for="meetingTitle" escape="false" 
 									styleClass="col-lg-2 form-control-label form-required"/>
 						<div class="col-lg-10">
-							<h:inputText id="meetingTitle" value="#{CopyMeetingSignupMBean.signupMeeting.title}" 
-								required="true" size="40" styleClass="editText form-control">
-								<f:validator validatorId="Signup.EmptyStringValidator"/>
+							<h:inputText id="meetingTitle" value="#{CopyMeetingSignupMBean.title}" 
+								size="40" styleClass="editText form-control">
 								<f:validateLength maximum="255" />
 							</h:inputText>
 							<h:message for="meetingTitle" errorClass="alertMessageInline"/>
@@ -544,7 +543,7 @@
 								<h:panelGrid columns="1" columnClasses="miCol1">
 									<%-- multiple: --%>
 									<h:panelGroup rendered="#{CopyMeetingSignupMBean.individualType}">            
-										<h:panelGrid columns="2" id="mutipleCh" styleClass="mi" columnClasses="miCol1,miCol2"> 
+										<h:panelGrid columns="2" id="multipleCh" styleClass="mi" columnClasses="miCol1,miCol2"> 
 											<h:outputText id="maxAttendeesPerSlot" style="display:none" value="#{CopyMeetingSignupMBean.maxAttendeesPerSlot}"></h:outputText>
 											<h:outputText id="maxSlots" style="display:none" value="#{CopyMeetingSignupMBean.maxSlots}"></h:outputText>   
 											<h:outputText value="#{msgs.event_num_slot_avail_for_signup}" />

@@ -1,24 +1,18 @@
-/**********************************************************************************
-*
-* $Id$
-*
-***********************************************************************************
-*
- * Copyright (c) 2011 The Sakai Foundation
+/**
+ * Copyright (c) 2003-2013 The Apereo Foundation
  *
  * Licensed under the Educational Community License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *       http://www.opensource.org/licenses/ECL-2.0
+ *             http://opensource.org/licenses/ecl2
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
-*
-**********************************************************************************/
+ */
 package org.sakaiproject.service.gradebook.shared;
 
 import java.util.Collection;
@@ -43,15 +37,12 @@ public interface ExternalAssignmentProvider {
 
 	/**
 	 * Check if an assignment/assessment exists with the given identifier.
-	 * This will be in the form that is supplied to the Gradebook, so it
-	 * will need to be parsed. If the prefix is not recognized as matching
-	 * for this service, false is expected to be returned, even if there
-	 * may be an assignment with the prefixed id.
-	 * Note that this may seem strange but it is required because services
-	 * do not currently register their prefixes with the Gradebook, so the
-	 * external IDs are completely opaque and do not identify their source.
+	 * If the externalAppName is not the tool's responsibility or if the 
+	 * id is not recognized as matching
+	 * for this service, false is expected to be returned.
+	 * @param externalId 
 	 */
-	boolean isAssignmentDefined(String id);
+	boolean isAssignmentDefined(String externalAppName, String externalId);
 
 	/**
 	 * Check if the given assignment is grouped.

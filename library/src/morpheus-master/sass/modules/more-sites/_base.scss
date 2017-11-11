@@ -802,53 +802,23 @@ li.organizeFavorites:not(.active) .favoriteCountAndWarning.maxFavoritesReached {
 	width: 28%;
 	padding-left: 1em;
 
-	/* Switch generator CSS from https://proto.io/freebies/onoff/ */
-	.onoffswitch {
-		position: relative; width: 66px;
-		-webkit-user-select:none; -moz-user-select:none; -ms-user-select: none;
+	button {
+		color: $text-color !important;
+		background: $background-color;
+		border-color: $button-primary-border-color;
+		border-radius: $button-radius;
+		padding: 0.6em;
+
+		&[aria-checked="true"] :first-child, &[aria-checked="false"] :last-child {
+			background-color: $button-primary-hover-background-color;
+			color: $button-primary-text-color;
+		}
+
+		span {
+			padding: 0.2em 0.6em;
+			border-radius: $button-radius;
+		}
 	}
-	.onoffswitch-checkbox {
-		display: none;
-	}
-	.onoffswitch-label {
-		display: block; overflow: hidden; cursor: pointer;
-		border: 2px solid #999999; border-radius: 20px;
-	}
-	.onoffswitch-inner {
-		display: block; width: 200%; margin-left: -100%;
-		transition: margin 0.3s ease-in 0s;
-	}
-	.onoffswitch-inner:before, .onoffswitch-inner:after {
-		display: block; float: left; width: 50%; height: 23px; padding: 0; line-height: 23px;
-		font-size: 14px; color: white; font-family: Trebuchet, Arial, sans-serif; font-weight: bold;
-		box-sizing: border-box;
-	}
-	.onoffswitch-inner:before {
-		content: "ON";
-		padding-left: 10px;
-		background-color: #4ACC5F; color: #FFFFFF;
-	}
-	.onoffswitch-inner:after {
-		content: "OFF";
-		padding-right: 10px;
-		background-color: #EEEEEE; color: #999999;
-		text-align: right;
-	}
-	.onoffswitch-switch {
-		display: block; width: 16px; margin: 3.5px;
-		background: #FFFFFF;
-		position: absolute; top: 0; bottom: 0;
-		right: 39px;
-		border: 2px solid #999999; border-radius: 20px;
-		transition: all 0.3s ease-in 0s; 
-	}
-	.onoffswitch-checkbox:checked + .onoffswitch-label .onoffswitch-inner {
-		margin-left: 0;
-	}
-	.onoffswitch-checkbox:checked + .onoffswitch-label .onoffswitch-switch {
-		right: 0px;
-	}
-	/* End switch generator CSS from https://proto.io/freebies/onoff/ */
 }
 
 @media #{$phone} {

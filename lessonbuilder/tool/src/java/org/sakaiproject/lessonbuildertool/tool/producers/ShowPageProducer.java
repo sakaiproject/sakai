@@ -195,7 +195,6 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
         public boolean allowDeleteOrphans = ServerConfigurationService.getBoolean("lessonbuilder.delete-orphans", false);
         public String portalTemplates = ServerConfigurationService.getString("portal.templates", "morpheus");
 
-
 	// I don't much like the static, because it opens us to a possible race
 	// condition, but I don't see much option
 	// see the setter. It has to be static because it's used in makeLink, which
@@ -1113,6 +1112,8 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 			postedCommentId = findMostRecentComment();
 		}
 
+		// Show a link for downloading media when no plugin 
+		// for media playback is available in the browser.
 		boolean showDownloads = (simplePageBean.getCurrentSite().getProperties().getProperty("lessonbuilder-nodownloadlinks") == null);
 
 		//
@@ -1255,28 +1256,28 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 
 				// set class name showing what the type is, so people can do funky CSS
 
-				String itemClassName = null;
+				String itemClassName = "item ";
 
 				switch (i.getType()) {
-				case SimplePageItem.RESOURCE: itemClassName = "resourceType"; break;
-				case SimplePageItem.PAGE: itemClassName = "pageType"; break;
-				case SimplePageItem.ASSIGNMENT: itemClassName = "assignmentType"; break;
-				case SimplePageItem.ASSESSMENT: itemClassName = "assessmentType"; break;
-				case SimplePageItem.TEXT: itemClassName = "textType"; break;
-				case SimplePageItem.URL: itemClassName = "urlType"; break;
-				case SimplePageItem.MULTIMEDIA: itemClassName = "multimediaType"; break;
-				case SimplePageItem.FORUM: itemClassName = "forumType"; break;
-				case SimplePageItem.COMMENTS: itemClassName = "commentsType"; break;
-				case SimplePageItem.STUDENT_CONTENT: itemClassName = "studentContentType"; break;
-				case SimplePageItem.QUESTION: itemClassName = "question"; break;
-				case SimplePageItem.BLTI: itemClassName = "bltiType"; break;
-				case SimplePageItem.RESOURCE_FOLDER: itemClassName = "resourceFolderType"; break;
-				case SimplePageItem.PEEREVAL: itemClassName = "peereval"; break;
-				case SimplePageItem.TWITTER: itemClassName = "twitter"; break;
-				case SimplePageItem.FORUM_SUMMARY: itemClassName = "forumSummary"; break;
-				case SimplePageItem.ANNOUNCEMENTS: itemClassName = "announcementsType"; break;
-				case SimplePageItem.CALENDAR: itemClassName = "calendar"; break;
-				case SimplePageItem.CHECKLIST: itemClassName = "checklistType"; break;
+				case SimplePageItem.RESOURCE: itemClassName += "resourceType"; break;
+				case SimplePageItem.PAGE: itemClassName += "pageType"; break;
+				case SimplePageItem.ASSIGNMENT: itemClassName += "assignmentType"; break;
+				case SimplePageItem.ASSESSMENT: itemClassName += "assessmentType"; break;
+				case SimplePageItem.TEXT: itemClassName += "textType"; break;
+				case SimplePageItem.URL: itemClassName += "urlType"; break;
+				case SimplePageItem.MULTIMEDIA: itemClassName += "multimediaType"; break;
+				case SimplePageItem.FORUM: itemClassName += "forumType"; break;
+				case SimplePageItem.COMMENTS: itemClassName += "commentsType"; break;
+				case SimplePageItem.STUDENT_CONTENT: itemClassName += "studentContentType"; break;
+				case SimplePageItem.QUESTION: itemClassName += "question"; break;
+				case SimplePageItem.BLTI: itemClassName += "bltiType"; break;
+				case SimplePageItem.RESOURCE_FOLDER: itemClassName += "resourceFolderType"; break;
+				case SimplePageItem.PEEREVAL: itemClassName += "peereval"; break;
+				case SimplePageItem.TWITTER: itemClassName += "twitter"; break;
+				case SimplePageItem.FORUM_SUMMARY: itemClassName += "forumSummary"; break;
+				case SimplePageItem.ANNOUNCEMENTS: itemClassName += "announcementsType"; break;
+				case SimplePageItem.CALENDAR: itemClassName += "calendar"; break;
+				case SimplePageItem.CHECKLIST: itemClassName += "checklistType"; break;
 				}
 
 				// inline LTI. Our code calls all BLTI items listItem, but the inline version really isn't
@@ -1852,6 +1853,11 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 						    if(lengthOk(height)) {
 							    item.decorate(new UIFreeAttributeDecorator("height", height.getOld()));
 						    }
+						    else if(!lengthOk(height) && lengthOk(width)) {
+							    // Youtube seems to use aspect ratio of 16*9 from 2015 on
+							    int youtubeDerivedHeight = (int) Math.ceil(new Double(width.getOld()) * 9 / 16);
+							    item.decorate(new UIFreeAttributeDecorator("height", youtubeDerivedHeight + ""));
+						    }
 						
 						    if(lengthOk(width)) {
 							    item.decorate(new UIFreeAttributeDecorator("width", width.getOld()));
@@ -1939,8 +1945,6 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
                                 movieUrl = movieUrl + "?lb.session=" + sessionParameter;
 
 			    UIComponent movieLink = UIOutput.make(tableRow, "movie-link-div");
-			    if (showDownloads)
-				UILink.make(tableRow, "movie-link-link", messageLocator.getMessage("simplepage.download_file"), movieUrl);
 
                             //	if (allowSessionId)
                             //  movieUrl = movieUrl + "?sakai.session=" + SessionManager.getCurrentSession().getId();
@@ -2056,11 +2060,11 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
                                     UIOutput.make(tableRow, "wmode");
 
                                 UIOutput.make(tableRow, "movieURLInject").decorate(new UIFreeAttributeDecorator("value", movieUrl));
-                                if (!isMp4 && showDownloads) {
+				if (!isMp4 && showDownloads) {
                                     UIOutput.make(tableRow, "noplugin-p", messageLocator.getMessage("simplepage.noplugin"));
                                     UIOutput.make(tableRow, "noplugin-br");
                                     UILink.make(tableRow, "noplugin", i.getName(), movieUrl);
-                                }
+				} 
                             }
 
                             if (isMp4) {
@@ -2100,7 +2104,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 				    if (showDownloads) {
 					UIOutput.make(tableRow, "mp4-noplugin-p", messageLocator.getMessage("simplepage.noplugin"));
 					UILink.make(tableRow, "mp4-noplugin", i.getName(), i.getItemURL(simplePageBean.getCurrentSiteId(),currentPage.getOwner()));
-				    }
+				    } 
                                 }
                             }
 			    UIOutput.make(tableRow, "description3", i.getDescription());
@@ -3042,7 +3046,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 							UISelectChoice multipleChoiceInput = UISelectChoice.make(answerContainer, "multipleChoiceAnswerRadio", multipleChoiceSelect.getFullID(), j);
 							
 							multipleChoiceInput.decorate(new UIFreeAttributeDecorator("id", multipleChoiceInput.getFullID()));
-							UIOutput.make(answerContainer, "multipleChoiceAnswerText", answers.get(j).getText())
+							UIOutput.make(answerContainer, "multipleChoiceAnswerText", Integer.toString(j+1) + " : " + answers.get(j).getText())
 								.decorate(new UIFreeAttributeDecorator("for", multipleChoiceInput.getFullID()));
 							
 							if(!isAvailable || response != null) {
@@ -3120,7 +3124,8 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 						
 						for(int j = 0; j < answers.size(); j++) {
 							UIBranchContainer pollContainer = UIBranchContainer.make(tableRow, "questionPollData:", String.valueOf(j));
-							UIOutput.make(pollContainer, "questionPollText", answers.get(j).getText());
+							UIOutput.make(pollContainer, "questionPollText", Integer.toString(j+1));
+							UIOutput.make(pollContainer, "questionPollLegend", Integer.toString(j+1) + ":" + answers.get(j).getText());
 							UIOutput.make(pollContainer, "questionPollNumber", String.valueOf(responseCounts.get(answers.get(j).getId())));
 						}
 					}
@@ -3365,7 +3370,13 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 					if(canSeeAll || isAvailable) {
 					    if (!isAvailable)
 						UIOutput.make(tableRow, "notAvailableText", messageLocator.getMessage("simplepage.textItemUnavailable"));
-					    UIVerbatim.make(tableRow, "content", (i.getHtml() == null ? "" : i.getHtml()));
+					    String itemText;
+					    if (ServerConfigurationService.getBoolean("lessonbuilder.personalize.text", false)) {
+						itemText = personalizeText(i.getHtml());
+					    } else {
+						itemText = i.getHtml();
+					    }
+					    UIVerbatim.make(tableRow, "content", (itemText == null ? "" : itemText));
 					} else {
 					    UIOutput.make(tableRow, "notAvailableText", messageLocator.getMessage("simplepage.textItemUnavailable"));
 					}
@@ -3473,6 +3484,24 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		}
 
 		createDialogs(tofill, currentPage, pageItem, cssLink);
+
+		// Add pageids to the page so the portal lessons subnav menu can update its state
+		List<SimplePageBean.PathEntry> path = simplePageBean.getHierarchy();
+		if (path.size() > 2) {
+			SimplePageBean.PathEntry topLevelSubPage = path.get(1);
+			UIOutput.make(tofill, "lessonsSubnavTopLevelPageId")
+				.decorate(new UIFreeAttributeDecorator("value", String.valueOf(topLevelSubPage.pageId)));
+		} else {
+			UIOutput.make(tofill, "lessonsSubnavPageId")
+				.decorate(new UIFreeAttributeDecorator("value", String.valueOf(simplePageBean.getCurrentPage().getPageId())));
+		}
+		UIOutput.make(tofill, "lessonsSubnavToolId")
+			.decorate(new UIFreeAttributeDecorator("value", String.valueOf(placement.getId())));
+		UIOutput.make(tofill, "lessonsSubnavItemId")
+			.decorate(new UIFreeAttributeDecorator("value", String.valueOf(pageItem.getId())));
+
+		UIOutput.make(tofill, "lessonsCurrentPageId")
+			.decorate(new UIFreeAttributeDecorator("value", String.valueOf(simplePageBean.getCurrentPage().getPageId())));
 	}
 	
 	public void makeCsrf(UIContainer tofill, String rsfid) {
@@ -4811,9 +4840,6 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 			UIOutput.make(form, "cssDefaultInstructions", messageLocator.getMessage("simplepage.css-default-instructions"));
 			UIOutput.make(form, "cssUploadLabel", messageLocator.getMessage("simplepage.css-upload-label"));
 			UIOutput.make(form, "cssUpload");
-			UIBoundBoolean.make(form, "nodownloads", 
-					    "#{simplePageBean.nodownloads}", 
-					    (simplePageBean.getCurrentSite().getProperties().getProperty("lessonbuilder-nodownloadlinks") != null));
 			boolean showSetOwner = ServerConfigurationService.getBoolean("lessonbuilder.show.set.owner", true);
 			if (showSetOwner){
 				//Set the changeOwner dropdown in the settings dialog
@@ -5496,6 +5522,16 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		peerReviewRows = UIBranchContainer.make(parent, "peer-eval-sample-data:");
 		UIOutput.make(peerReviewRows, "peer-eval-sample-id", "4");
 		UIOutput.make(peerReviewRows, "peer-eval-sample-text", messageLocator.getMessage("simplepage.peer-eval.sample.4"));
+	}
+
+	private String personalizeText(String itemText) {
+		if (StringUtils.isNotBlank(itemText)) {
+			User currentUser = UserDirectoryService.getCurrentUser();
+			itemText = StringUtils.replace(itemText, "{{firstname}}", currentUser.getFirstName() == null ? "" : currentUser.getFirstName());
+			itemText = StringUtils.replace(itemText, "{{lastname}}", currentUser.getLastName() == null ? "" : currentUser.getLastName());
+			itemText = StringUtils.replace(itemText, "{{fullname}}", currentUser.getDisplayName() == null ? "" : currentUser.getDisplayName());
+		}
+		return itemText;
 	}
 
 }

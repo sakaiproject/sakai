@@ -30,8 +30,6 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.portal.api.Editor;
 import org.sakaiproject.portal.api.EditorRegistry;
@@ -39,11 +37,16 @@ import org.sakaiproject.portal.api.PortalService;
 import org.sakaiproject.portal.util.ErrorReporter;
 import org.sakaiproject.portal.util.URLUtils;
 import org.sakaiproject.site.api.ToolConfiguration;
+import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.util.EditorConfiguration;
 import org.sakaiproject.util.StringUtil;
 import org.sakaiproject.portal.util.CSSUtils;
+import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.exception.PermissionException;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class EditorServlet extends HttpServlet
 {
 
@@ -53,9 +56,6 @@ public class EditorServlet extends HttpServlet
 	
 	public static final PortalService portalService = (PortalService) ComponentManager.get(PortalService.class);
 	public static final EditorRegistry editorRegistry = (EditorRegistry) ComponentManager.get(EditorRegistry.class);
-
-	/** Our log (commons). */
-	private static Logger M_log = LoggerFactory.getLogger(EditorServlet.class);
 
 	/**
 	 * Access the Servlet's information display.
@@ -80,7 +80,7 @@ public class EditorServlet extends HttpServlet
 	{
 		super.init(config);
 
-		M_log.info("init()");
+		log.info("init()");
 	}
 
 	/**
@@ -89,7 +89,7 @@ public class EditorServlet extends HttpServlet
 	@Override
 	public void destroy()
 	{
-		M_log.info("destroy()");
+		log.info("destroy()");
 
 		super.destroy();
 	}
@@ -137,10 +137,31 @@ public class EditorServlet extends HttpServlet
 				
 				//Note that this is the same stuff as in SkinnableCharonPortal. We should probably do a bit of refactoring.
 				PrintWriter out = res.getWriter();
+				out.print("<!-- EditorServlet -->\n");
 				out.print("var sakai = sakai || {}; sakai.editor = sakai.editor || {}; " +
 						"sakai.editor.editors = sakai.editor.editors || {}; " +
 						"sakai.editor.editors.ckeditor = sakai.editor.editors.ckeditor || {}; " +
 						"\n");
+				Site site = null;
+				if ( tool != null ) {
+					String siteId = tool.getSiteId();
+					try {
+						site = SiteService.getSiteVisit(siteId);
+					}
+					catch (IdUnusedException e) {
+						site = null;
+					}
+					catch (PermissionException e) {
+						site = null;
+					}
+				}
+
+				String contentItemUrl = portalService.getContentItemUrl(site);
+				if ( contentItemUrl != null ) {
+					out.print("sakai.editor.contentItemUrl = '" + contentItemUrl + "';\n");
+				} else {
+					out.print("sakai.editor.contentItemUrl = false;\n");
+				}
 				out.print("sakai.editor.collectionId = '" + portalService.getBrowserCollectionId(tool) + "';\n");
 				out.print("sakai.editor.enableResourceSearch = '" + EditorConfiguration.enableResourceSearch() + "';\n");
 				out.print("sakai.editor.editors.ckeditor.browser = '" + EditorConfiguration.getCKEditorFileBrowser() + "';\n");

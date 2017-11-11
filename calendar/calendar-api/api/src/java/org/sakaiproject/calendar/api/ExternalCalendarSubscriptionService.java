@@ -43,14 +43,18 @@ public interface ExternalCalendarSubscriptionService
 	public final static String SAK_PROP_EXTSUBSCRIPTIONS_EVENTTYPE = "calendar.external.subscriptions.eventtype";
 
 	/**
+	 * sakai.properties: number of cached entries for institutional ical external subscriptions
+	 */
+	public final static String SAK_PROP_EXTSUBSCRIPTIONS_INST_CACHEENTRIES = "calendar.external.subscriptions.user.cacheentries";
+	
+	/**
 	 * sakai.properties: cache time for institutional ical external
 	 * subscriptions (iCal updated after expiration)
 	 */
 	public final static String SAK_PROP_EXTSUBSCRIPTIONS_INST_CACHETIME = "calendar.external.subscriptions.institutional.cachetime";
 
 	/**
-	 * sakai.properties: number of cached entries for user procided ical
-	 * external subscriptions
+	 * sakai.properties: number of cached entries for user-provided ical external subscriptions
 	 */
 	public final static String SAK_PROP_EXTSUBSCRIPTIONS_USER_CACHEENTRIES = "calendar.external.subscriptions.user.cacheentries";
 
@@ -90,11 +94,11 @@ public interface ExternalCalendarSubscriptionService
 	 * Get list of available institutional calendar subscriptions for a given
 	 * Calendar channel
 	 */
-	public Set<ExternalSubscription> getAvailableInstitutionalSubscriptionsForChannel(
+	public Set<ExternalSubscriptionDetails> getAvailableInstitutionalSubscriptionsForChannel(
 			String reference);
 
 	/** Get list of calendar subscriptions for a given Calendar channel */
-	public Set<ExternalSubscription> getSubscriptionsForChannel(String reference,
+	public Set<ExternalSubscriptionDetails> getSubscriptionsForChannel(String reference,
 			boolean loadCalendar);
 
 	/** Set list of calendar subscriptions for a given Calendar channel */

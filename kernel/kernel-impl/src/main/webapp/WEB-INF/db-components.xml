@@ -244,9 +244,9 @@
 			<value>10</value>
 		</property>
 
-		<!-- This property controls the maximum size of the pool for idle and in use. Default 10 (TODO: Seems low)-->
+		<!-- This property controls the maximum size of the pool for idle and in use. Default 50 -->
 		<property name="maximumPoolSize">
-			<value>10</value>
+			<value>50</value>
 		</property>
 
 		<!-- Register MBeans -->
@@ -444,6 +444,7 @@
 				<prop key="hibernate.cache.region.factory_class">org.hibernate.cache.SingletonEhCacheRegionFactory</prop>
 				<prop key="hibernate.hbm2ddl.auto">${hibernate.hbm2ddl.auto}</prop>
 				<prop key="hibernate.generate_statistics">true</prop>
+				<prop key="hibernate.enable_lazy_load_no_trans">true</prop>
 			</props>
 		</property>
 	</bean>

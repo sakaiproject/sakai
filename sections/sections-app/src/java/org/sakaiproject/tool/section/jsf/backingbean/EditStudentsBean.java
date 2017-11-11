@@ -40,7 +40,8 @@ import org.sakaiproject.section.api.exception.RoleConfigurationException;
 import org.sakaiproject.section.api.facade.Role;
 import org.sakaiproject.tool.section.decorator.SectionDecorator;
 import org.sakaiproject.tool.section.jsf.JsfUtil;
-import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.tool.section.jsf.backingbean.EditManagersBean;
+import org.sakaiproject.component.cover.ServerConfigurationService;	
 /**
  * Controls the edit students page (where students are assigned to sections).
  * 
@@ -76,7 +77,32 @@ public class EditStudentsBean extends EditManagersBean implements Serializable {
 		List available;
 		if(StringUtils.trimToNull(availableSectionUuid) == null) {
 			available = getSectionManager().getUnsectionedEnrollments(currentSection.getCourse().getUuid(), currentSection.getCategory());
-		} else {
+		} 
+		else if (this.isFromCategoryReadOnly(availableSectionUuid)) {
+			List available1=getSectionManager().getUnsectionedEnrollments(currentSection.getCourse().getUuid(), currentSection.getCategory());
+			List available2= getSectionManager().getSectionEnrollments(availableSectionUuid);
+			available=new ArrayList();
+			
+			Collections.sort(available1, EditManagersBean.sortNameComparator);
+			Collections.sort(available2, EditManagersBean.sortNameComparator);
+			
+			int k1 = 0; int k2 = 0;
+			while (k1<available1.size() && k2 < available2.size()) {
+				ParticipationRecord p1=(ParticipationRecord)available1.get(k1);
+				ParticipationRecord p2=(ParticipationRecord)available2.get(k2);
+				String a1=p1.getUser().getSortName();
+				String a2=p2.getUser().getSortName();
+				if (a1.compareTo(a2)==0) {
+				   available.add(p2);
+				   k1++; k2++;
+				} else if (a1.compareTo(a2) < 0) {
+				   k1++;
+				} else {
+				   k2++;
+			   }
+			}
+		}
+		else {
 			available = getSectionManager().getSectionEnrollments(availableSectionUuid);
 		}
 		Collections.sort(available, EditManagersBean.sortNameComparator);
@@ -89,9 +115,23 @@ public class EditStudentsBean extends EditManagersBean implements Serializable {
 		
 		// Build the list of available sections
 		List sectionsInCategory = getSectionManager().getSectionsInCategory(getSiteContext(), currentSection.getCategory());
+		List<CourseSection> all= getAllSiteSections();
+		List sectionsReadOnly= new ArrayList<CourseSection>();
+		for (CourseSection section : all){
+			String sectionUid=section.getUuid();
+			if(this.isFromCategoryReadOnly(sectionUid))
+			{
+				sectionsReadOnly.add(section);
+			}
+		}
 		Collections.sort(sectionsInCategory);
+		Collections.sort(sectionsReadOnly);
 		availableSectionItems = new ArrayList();
 		availableSectionItems.add(new SelectItem("", JsfUtil.getLocalizedMessage("edit_student_unassigned")));
+		for (CourseSection section : ((List<CourseSection>) sectionsReadOnly)){
+			
+			availableSectionItems.add(new SelectItem(section.getUuid(), section.getTitle()+" ("+JsfUtil.getLocalizedMessage("edit_student_unassigned")+")"));
+		}
 		for(Iterator iter = sectionsInCategory.iterator(); iter.hasNext();) {
 			CourseSection section = (CourseSection)iter.next();
 			// Don't include the current section
@@ -142,7 +182,9 @@ public class EditStudentsBean extends EditManagersBean implements Serializable {
 		if(StringUtils.trimToNull(availableSectionUuid) != null) {
 			availableUserUuids = getHighlightedUsers("memberForm:availableUsers");
 			try {
-				getSectionManager().setSectionMemberships(availableUserUuids, Role.STUDENT, availableSectionUuid);
+				if(!(this.isFromCategoryReadOnly(availableSectionUuid))) {
+					getSectionManager().setSectionMemberships(availableUserUuids, Role.STUDENT, availableSectionUuid);
+				}
 			} catch (RoleConfigurationException rce) {
 				JsfUtil.addErrorMessage(JsfUtil.getLocalizedMessage("role_config_error"));
 				return null;
@@ -274,4 +316,12 @@ public class EditStudentsBean extends EditManagersBean implements Serializable {
 	public Integer getSectionMax() {
 		return sectionMax;
 	}
+	//SAK-32515
+	//We only need sections that belong to "readonly" categories from property 
+	//called "section.info.readonly.section.categories" in sakai.properties.
+	public boolean isFromCategoryReadOnly(String secUuid) {
+		CourseSection section=getSectionManager().getSection(secUuid);
+		SectionDecorator sc=new SectionDecorator(section, true);
+		return sc.isReadOnly() && !section.isLocked();
+    }
 }

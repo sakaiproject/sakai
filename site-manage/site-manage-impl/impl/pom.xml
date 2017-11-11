@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.sakaiproject.sitemanage</groupId>
         <artifactId>sitemanage</artifactId>
-        <version>12-SNAPSHOT</version>
+        <version>13-SNAPSHOT</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
 
@@ -54,6 +54,10 @@
         <dependency>
             <groupId>org.sakaiproject.emailtemplateservice</groupId>
             <artifactId>emailtemplateservice-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.sakaiproject.shortenedurl</groupId>
+            <artifactId>shortenedurl-api</artifactId>
         </dependency>
         <dependency>
             <groupId>commons-lang</groupId>

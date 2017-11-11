@@ -239,5 +239,6 @@
     <property name="endDate" type="timestamp" column="ENDDATE" not-null="false" />
     <property name="eclipseTime" type="integer" column="ECLIPSETIME" not-null="false" />
     <property name="errorMsg" type="string" length="255" column="ERRORMSG" not-null="false" />
+    <property name="ipAddress" type="string" length="99" column="IPADDRESS" not-null="false" />
  </class>
 </hibernate-mapping>

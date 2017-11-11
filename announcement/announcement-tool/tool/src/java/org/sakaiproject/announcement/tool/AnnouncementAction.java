@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -166,7 +167,6 @@ public class AnnouncementAction extends PagedResourceActionII
 
 	public static final String SORT_FOR = "for";
 
-	public static String SORT_CURRENTORDER = "date";
 
 	private static final String CONTEXT_VAR_DISPLAY_OPTIONS = "displayOptions";
 
@@ -257,12 +257,12 @@ public class AnnouncementAction extends PagedResourceActionII
 	 */
 	public String getCurrentOrder() {
 		
-		String enableReorder=serverConfigurationService.getString("sakai.announcement.reorder", "true");
-		
-		if (enableReorder.equals("true")){
-			SORT_CURRENTORDER="message_order";
-		}			
-		return SORT_CURRENTORDER;
+		boolean enableReorder=serverConfigurationService.getBoolean("sakai.announcement.reorder", true);
+		String sortCurrentOrder = SORT_DATE;
+		if (enableReorder){
+			sortCurrentOrder=SORT_MESSAGE_ORDER;
+		}
+		return sortCurrentOrder;
 	}
 
 	/**
@@ -1034,7 +1034,7 @@ public class AnnouncementAction extends PagedResourceActionII
 						// this checks for any possibility of an add, channel or any site group
 						menu_new = channel.allowAddMessage();
 	
-						List messages = null;
+						List<AnnouncementWrapper> messages = null;
 	
 						String view = (String) sstate.getAttribute(STATE_SELECTED_VIEW);
 	
@@ -1249,24 +1249,24 @@ public class AnnouncementAction extends PagedResourceActionII
 	public void buildSortedContext(VelocityPortlet portlet, Context context, RunData rundata, SessionState sstate)
 	{
 		//SAK-21532: making one list of messages in order to allow uniform sorting
-		Vector messageList = new Vector();
+		Vector<AnnouncementWrapper> messageList = new Vector<>();
 		Vector showMessagesList = new Vector();
 
-		List messages = prepPage(sstate);
+		List<AnnouncementWrapper> messages = prepPage(sstate);
 		for (int i = 0; i < messages.size(); i++)
 		{
-			final AnnouncementMessage m = (AnnouncementMessage) messages.get(i);
+			final AnnouncementWrapper m = messages.get(i);
 			messageList.addElement(m);
 		}
 
 		AnnouncementActionState state = (AnnouncementActionState) getState(portlet, rundata, AnnouncementActionState.class);
 
-		SortedIterator sortedMessageIterator;
+		SortedIterator<AnnouncementWrapper> sortedMessageIterator;
 		//For Announcement in User's MyWorkspace, the sort order for announcement is by date SAK-22667
 		if (isOnWorkspaceTab()){
-			sortedMessageIterator = new SortedIterator(messageList.iterator(), new AnnouncementComparator(SORT_DATE, state.getCurrentSortAsc()));
+			sortedMessageIterator = new SortedIterator<>(messageList.iterator(), new AnnouncementWrapperComparator(SORT_DATE, state.getCurrentSortAsc()));
 		} else {
-			sortedMessageIterator = new SortedIterator(messageList.iterator(), new AnnouncementComparator(state
+			sortedMessageIterator = new SortedIterator<>(messageList.iterator(), new AnnouncementWrapperComparator(state
 					.getCurrentSortedBy(), state.getCurrentSortAsc()));
 		}
 		
@@ -1641,15 +1641,15 @@ public class AnnouncementAction extends PagedResourceActionII
 	 * 
 	 * @throws PermissionException
 	 */
-	private List getMessagesByGroups(Site site, AnnouncementChannel defaultChannel, Filter filter, boolean ascending,
+	private List<AnnouncementWrapper> getMessagesByGroups(Site site, AnnouncementChannel defaultChannel, Filter filter, boolean ascending,
 			AnnouncementActionState state, VelocityPortlet portlet) throws PermissionException
 	{
-		List messageList = getMessages(defaultChannel, filter, ascending, state, portlet);
-		List rv = new Vector();
+		List<AnnouncementWrapper> messageList = getMessages(defaultChannel, filter, ascending, state, portlet);
+		List<AnnouncementWrapper> rv = new Vector<>();
 
 		for (int i = 0; i < messageList.size(); i++)
 		{
-			AnnouncementWrapper aMessage = (AnnouncementWrapper) messageList.get(i);
+			AnnouncementWrapper aMessage = messageList.get(i);
 			String pubview = aMessage.getProperties().getProperty(ResourceProperties.PROP_PUBVIEW);
 			if (pubview != null && Boolean.valueOf(pubview).booleanValue())
 			{
@@ -1689,15 +1689,15 @@ public class AnnouncementAction extends PagedResourceActionII
 	 * 
 	 * @throws PermissionException
 	 */
-	private List getMessagesPublic(Site site, AnnouncementChannel defaultChannel, Filter filter, boolean ascending,
+	private List<AnnouncementWrapper> getMessagesPublic(Site site, AnnouncementChannel defaultChannel, Filter filter, boolean ascending,
 			AnnouncementActionState state, VelocityPortlet portlet) throws PermissionException
 	{
-		List messageList = getMessages(defaultChannel, filter, ascending, state, portlet);
-		List rv = new Vector();
+		List<AnnouncementWrapper> messageList = getMessages(defaultChannel, filter, ascending, state, portlet);
+		List<AnnouncementWrapper> rv = new Vector<>();
 
 		for (int i = 0; i < messageList.size(); i++)
 		{
-			AnnouncementMessage aMessage = (AnnouncementMessage) messageList.get(i);
+			AnnouncementWrapper aMessage = messageList.get(i);
 			String pubview = aMessage.getProperties().getProperty(ResourceProperties.PROP_PUBVIEW);
 			if (pubview != null && Boolean.valueOf(pubview).booleanValue())
 			{
@@ -1713,18 +1713,18 @@ public class AnnouncementAction extends PagedResourceActionII
 	/**
 	 * This will limit the maximum number of announcements that is shown.
 	 */
-	private List trimListToMaxNumberOfAnnouncements(List messageList, AnnouncementActionState.DisplayOptions options)
+	private List<AnnouncementWrapper> trimListToMaxNumberOfAnnouncements(List<AnnouncementWrapper> messageList, AnnouncementActionState.DisplayOptions options)
 	{
 		if (options !=null && options.isEnforceNumberOfAnnouncementsLimit() && !isOnWorkspaceTab())
 		{
 			int numberOfAnnouncements = options.getNumberOfAnnouncements();
-			ArrayList destList = new ArrayList();
+			ArrayList<AnnouncementWrapper> destList = new ArrayList<>();
 
 			// We need to go backwards through the list, limiting it to the number
 			// of announcements that we're allowed to display.
 			for (int i = 0, curAnnouncementCount = 0; i < messageList.size() && curAnnouncementCount < numberOfAnnouncements; i++)
 			{
-				AnnouncementMessage message = (AnnouncementMessage) messageList.get(i);
+				AnnouncementWrapper message = messageList.get(i);
 
 				destList.add(message);
 					
@@ -3888,11 +3888,6 @@ public class AnnouncementAction extends PagedResourceActionII
 		setupSort(rundata, context, SORT_DATE);
 	} // doSortbydate
 	
-	public void doSortbymessage_order(RunData rundata, Context context)
-	{
-		setupSort(rundata, context, SORT_MESSAGE_ORDER);
-	} // doSortbymessage_order
-
 	public void doSortbyreleasedate(RunData rundata, Context context)
 	{
 		setupSort(rundata, context, SORT_RELEASEDATE);
@@ -4452,9 +4447,6 @@ public class AnnouncementAction extends PagedResourceActionII
 		String peid = ((JetspeedRunData) rundata).getJs_peid();
 		SessionState sstate = ((JetspeedRunData) rundata).getPortletSessionState(peid);
 
-		// get the channel and message id information from state object
-		String messageReference = state.getMessageReference();
-		
 		// Storing the re-ordered sequence of the announcements
 		if (state.getIsListVM())
 		{
@@ -4466,7 +4458,7 @@ public class AnnouncementAction extends PagedResourceActionII
 				
 				try {
 				//grab all messages before the order changes:	
-				List<Message> allMessages = AnnouncementService.getChannel(state.getChannelId()).getMessages(null, true);
+				List<AnnouncementMessage> allMessages = AnnouncementService.getChannel(state.getChannelId()).getMessages(null, true);
 				int msgCount =  allMessages.size(); //used to find msg order number
 				//store the updated message ids so we know which ones didn't get updated
 				List<String> updatedMessageIds = new ArrayList<String>();
@@ -4512,11 +4504,12 @@ public class AnnouncementAction extends PagedResourceActionII
 					//need to update the message order of the remaining untouched messages (only sorts the top 10)
 				
 					//order by message order:
-					SortedIterator messagesSorted = new SortedIterator(allMessages.iterator(), new AnnouncementComparator(SORT_MESSAGE_ORDER, true));
+					Comparator<AnnouncementMessage> comparing = Comparator.comparing(o -> (o.getAnnouncementHeader().getMessage_order()));
+					SortedIterator<AnnouncementMessage> messagesSorted = new SortedIterator<>(allMessages.iterator(), comparing);
 					//start at last message and increment up
 					int messageOrder = 1;
 					while(messagesSorted.hasNext()){
-						Message message = (Message) messagesSorted.next();
+						Message message = messagesSorted.next();
 						if(!updatedMessageIds.contains(message.getId())){
 							//since this list is ordered, we can assign the message order in order:
 							AnnouncementChannel channel2 = AnnouncementService.getAnnouncementChannel(this
@@ -4720,10 +4713,10 @@ public class AnnouncementAction extends PagedResourceActionII
 	 * 
 	 * @see org.sakaiproject.cheftool.PagedResourceActionII#readResourcesPage(org.sakaiproject.service.framework.session.SessionState, int, int)
 	 */
-	protected List readResourcesPage(SessionState state, int first, int last)
+	protected List<AnnouncementWrapper> readResourcesPage(SessionState state, int first, int last)
 	{
-		List rv = (List) state.getAttribute("messages");
-		if (rv == null) return new Vector();
+		List<AnnouncementWrapper> rv = (List) state.getAttribute("messages");
+		if (rv == null) return new Vector<>();
 
 		String sortedBy = "";
 		if (state.getAttribute(STATE_CURRENT_SORTED_BY) != null) sortedBy = state.getAttribute(STATE_CURRENT_SORTED_BY).toString();
@@ -4737,7 +4730,7 @@ public class AnnouncementAction extends PagedResourceActionII
 			sortedBy = isOnWorkspaceTab() ? SORT_DATE : getCurrentOrder();
 			asc = false;
 		}
-		SortedIterator rvSorted = new SortedIterator(rv.iterator(), new AnnouncementComparator(sortedBy, asc));
+		SortedIterator<AnnouncementWrapper> rvSorted = new SortedIterator<>(rv.iterator(), new AnnouncementWrapperComparator(sortedBy, asc));
 
 		PagingPosition page = new PagingPosition(first, last);
 		page.validate(rv.size());

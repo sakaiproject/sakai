@@ -283,28 +283,28 @@
 	}
 }
 
-.#{$namespace}sakai-schedule, #calendarForm {
-	.icon{
-			@extend .fa;
-			&.icon-calendar-academic-calendar				{	@extend .fa-graduation-cap}
-			&.icon-calendar-activity						{	@extend .fa-rocket}
-			&.icon-calendar-cancellation					{	@extend .fa-calendar-times-o}
-			&.icon-calendar-class-section-discussion		{	@extend .fa-comments}
-			&.icon-calendar-class-section-lab				{	@extend .fa-flask}
-			&.icon-calendar-class-section-lecture			{	@extend .fa-book}
-			&.icon-calendar-class-section-small-group		{	@extend .fa-users}
-			&.icon-calendar-class-session					{	@extend .fa-bell}
-			&.icon-calendar-computer-session				{	@extend .fa-desktop}
-			&.icon-calendar-deadline						{	@extend .fa-hourglass-end}
-			&.icon-calendar-exam							{	@extend .fa-check-square-o}
-			&.icon-calendar-meeting							{	@extend .fa-clock-o}
-			&.icon-calendar-multidisciplinary-conference	{	@extend .fa-cubes}
-			&.icon-calendar-quiz							{	@extend .fa-star}
-			&.icon-calendar-special-event					{	@extend .fa-certificate}
-			&.icon-calendar-web-assignment					{	@extend .fa-code}
-			&.icon-calendar-formative-assessment			{	@extend .fa-pencil-square-o}
-			&.icon-calendar-submission-date					{	@extend .fa-hourglass-end}
-			&.icon-calendar-tutorial						{	@extend .fa-graduation-cap}
-			&.icon-calendar-workshop						{	@extend .fa-group}
-	}
+// Icons used in more than one tool so not restricted by a specific namespace.
+.icon{
+	@extend .fa;
+	&.icon-calendar-academic-calendar				{	@extend .fa-graduation-cap}
+	&.icon-calendar-activity						{	@extend .fa-rocket}
+	&.icon-calendar-cancellation					{	@extend .fa-calendar-times-o}
+	&.icon-calendar-class-section-discussion		{	@extend .fa-comments}
+	&.icon-calendar-class-section-lab				{	@extend .fa-flask}
+	&.icon-calendar-class-section-lecture			{	@extend .fa-book}
+	&.icon-calendar-class-section-small-group		{	@extend .fa-users}
+	&.icon-calendar-class-session					{	@extend .fa-bell}
+	&.icon-calendar-computer-session				{	@extend .fa-desktop}
+	&.icon-calendar-deadline						{	@extend .fa-hourglass-end}
+	&.icon-calendar-exam							{	@extend .fa-check-square-o}
+	&.icon-calendar-meeting							{	@extend .fa-clock-o}
+	&.icon-calendar-multidisciplinary-conference	{	@extend .fa-cubes}
+	&.icon-calendar-quiz							{	@extend .fa-star}
+	&.icon-calendar-special-event					{	@extend .fa-certificate}
+	&.icon-calendar-web-assignment					{	@extend .fa-code}
+	&.icon-calendar-formative-assessment			{	@extend .fa-pencil-square-o}
+	&.icon-calendar-submission-date					{	@extend .fa-hourglass-end}
+	&.icon-calendar-tutorial						{	@extend .fa-graduation-cap}
+	&.icon-calendar-workshop						{	@extend .fa-group}
+	&.icon-calendar-attachment						{	@extend .fa-paperclip}
 }

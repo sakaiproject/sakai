@@ -29,8 +29,6 @@ import java.util.Map;
 
 import junit.framework.TestCase;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
 
 import com.meterware.httpunit.GetMethodWebRequest;
@@ -41,15 +39,15 @@ import com.meterware.httpunit.WebLink;
 import com.meterware.httpunit.WebRequest;
 import com.meterware.httpunit.WebResponse;
 import com.meterware.servletunit.ServletUnitClient;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * @author ieb
  */
 
+@Slf4j
 public class AnonPortalTest extends TestCase
 {
-	private static final Logger log = LoggerFactory.getLogger(AnonPortalTest.class);
-
 	private static final String TEST_URL = "http://localhost:8080/library/js/headscripts.js";
 
 	private static final String BASE_URL = "http://localhost:8080/";

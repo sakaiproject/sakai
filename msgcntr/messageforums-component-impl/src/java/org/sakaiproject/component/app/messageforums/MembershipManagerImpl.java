@@ -139,7 +139,7 @@ public class MembershipManagerImpl implements MembershipManager{
     
     Set membershipRoleSet = new HashSet();    
     
-    if(getPrtMsgManager().isAllowToFieldRoles()){
+    if(getPrtMsgManager().isAllowToFieldRoles() || getPrtMsgManager().isAllowToFieldMyGroupRoles()){
     	/** generate set of roles which has members */
     	for (Iterator i = allCourseUsers.iterator(); i.hasNext();){
     		MembershipItem item = (MembershipItem) i.next();
@@ -165,7 +165,7 @@ public class MembershipManagerImpl implements MembershipManager{
       Map.Entry entry = (Map.Entry) i.next();
       MembershipItem item = (MembershipItem) entry.getValue();
       
-      if (MembershipItem.TYPE_ROLE.equals(item.getType())){
+      if (MembershipItem.TYPE_ROLE.equals(item.getType()) || MembershipItem.TYPE_MYGROUPROLES.equals(item.getType())){
         /** if no member belongs to role, filter role */
         if (!membershipRoleSet.contains(item.getRole())){          
           i.remove();
@@ -351,6 +351,37 @@ public class MembershipManagerImpl implements MembershipManager{
 				}
 			} catch (IdUnusedException e) {
 				LOG.warn("Unable to retrieve site to determine current user's group members.");
+			}
+		}
+		
+		if (getPrtMsgManager().isAllowToFieldMyGroupRoles()) {
+			/** handle roles in current user's groups */
+
+			try {
+				Collection<Group> groups = siteService.getSite(toolManager.getCurrentPlacement().getContext())
+						.getGroupsWithMember(userDirectoryService.getCurrentUser().getId());
+				if (groups != null) {
+					for (Group group : groups) {
+						Set<Role> groupRoles = group.getRoles();
+						for (Role role : groupRoles) {
+							MembershipItem member = MembershipItem.getInstance();
+							member.setType(MembershipItem.TYPE_MYGROUPROLES);
+							String roleId = role.getId();
+							if (roleId != null && roleId.length() > 0) {
+								roleId = roleId.substring(0, 1).toUpperCase() + roleId.substring(1);
+							}
+							member.setName(rl.getFormattedMessage("group_role_desc", new Object[] { group.getTitle(), roleId }));
+							member.setRole(role);
+							member.setGroup(group);
+
+							if (!isGroupAlreadyInMap(returnMap, member)) {
+								returnMap.put(member.getId(), member);
+							}
+						}
+					}
+				}
+			} catch (IdUnusedException e) {
+				LOG.warn("Unable to retrieve site to determine current user's group member roles.");
 			}
 		}
 

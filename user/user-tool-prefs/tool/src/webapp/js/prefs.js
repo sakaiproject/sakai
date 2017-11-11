@@ -64,7 +64,7 @@ var setupMultipleSelect = function(){
                 $(selectedItems).prependTo('#reorderCol2 > span');
              }
              postMoveCleanUp(selectedItems);
-        })
+        });
         $('#movePanelLeft').click(function(e){
             e.preventDefault();
              var selectedItems = $('#layoutReorderer :checked').closest('div.flc-reorderer-module');
@@ -72,25 +72,25 @@ var setupMultipleSelect = function(){
                  $(selectedItems).prependTo($('#reorderCol1 > span'));
              };
              postMoveCleanUp(selectedItems);
-        })
+        });
         $('#movePanelTop').click(function(e){
              e.preventDefault();
              var selectedItems = $('#layoutReorderer :checked').closest('div.flc-reorderer-module');
              var selectedCol = $(selectedItems).first().closest('span');
              $(selectedItems).prependTo(selectedCol);
              postMoveCleanUp(selectedItems);
-        })
+        });
          $('#movePanelBottom').click(function(e){
              e.preventDefault();
              var selectedItems = $('#layoutReorderer :checked').closest('div.flc-reorderer-module');
              var selectedCol = $(selectedItems).first().closest('span');
              $(selectedItems).appendTo(selectedCol);
              postMoveCleanUp(selectedItems);
-        })
+        });
 var postMoveCleanUp = function(selectedItems) {
     var ids ='';
-    var newTitle1=$('.checkboxSelectMessage').text().replace('{1}',$('.checkboxFromMessFav').text())
-    var newTitle2=$('.checkboxSelectMessage').text().replace('{1}',$('.checkboxFromMessArc').text())
+    var newTitle1=$('.checkboxSelectMessage').text().replace('{1}',$('.checkboxFromMessFav').text());
+    var newTitle2=$('.checkboxSelectMessage').text().replace('{1}',$('.checkboxFromMessArc').text());
 
     $('.col1 .last-login').each(function(idx, item) {  
         var $thisCheckbox =$(this).find(':checkbox');
@@ -107,7 +107,7 @@ var postMoveCleanUp = function(selectedItems) {
     var ids ='';
     $('.col2 .last-login').each(function(idx, item) {  
         var $thisCheckbox =$(this).find(':checkbox');
-        var thisTitle = $(this).find('.siteLabel').text()
+        var thisTitle = $(this).find('.siteLabel').text();
         $thisCheckbox.attr('title',newTitle2.replace('{0}', thisTitle));
         if (idx > 0) {
             ids =ids + ', ' + $(this).attr('id');
@@ -120,21 +120,17 @@ var postMoveCleanUp = function(selectedItems) {
     $(selectedItems).hide();
     $(selectedItems).fadeIn(1500, function(){ 
     $(selectedItems).removeClass('siteSelected');
-    })    
+    });
      $('#layoutReorderer :checked').prop('checked',false);
      $('#movePanel').css('top','-999px');
      resizeFrame('grow');
-}
-}
+};
+};
 
 setupPrefsGen = function(){
     if ($('.success').length) {
         $('.success').attr('tabindex','-1').fadeTo(5000,1).fadeOut(1000).css('outline','none').focus();
     }
-    $('.formButton').click(function(e){
-        $('.formButton').hide();
-        $('.dummy').show();
-    });
 };
 
 setupPrefsTabs = function(from, to){
@@ -161,7 +157,6 @@ setupPrefsTabs = function(from, to){
         $('.ud').attr('onclick', '');
         $('.ud').addClass('blocked');
     }
-	
 };
 
 /* Converts implicit form control labeling to explicit by
@@ -182,23 +177,23 @@ fixImplicitLabeling = function(){
             $(oInput).parents('label').eq(0).attr('for', $(oInput).attr('id'));
         }
     });
-}
+};
 
 toggle_visibility = function(id) {
 	   var e = document.getElementById(id);
 	   var elabel = document.getElementById('toggle' + id);
-	   if(e.style.display == 'block')
+	   if(e.style.display === 'block')
 	   {
 		  e.style.display = 'none';
-		  elabel.src='/library/image/sakai/expand.gif'
-		  elabel.title='</f:verbatim><h:outputText value="#{msgs.hideshowdesc_toggle_show}"/><f:verbatim>'
+		  elabel.src='/library/image/sakai/expand.gif';
+		  elabel.title='</f:verbatim><h:outputText value="#{msgs.hideshowdesc_toggle_show}"/><f:verbatim>';
 		  resizeFrame('shrink');
 		}
 	   else
 	   {
 		  e.style.display = 'block';
-		  elabel.src='/library/image/sakai/collapse.gif'
-		  elabel.title='</f:verbatim><h:outputText value="#{msgs.hideshowdesc_toggle_hide}"/><f:verbatim>'
+		  elabel.src='/library/image/sakai/collapse.gif';
+		  elabel.title='</f:verbatim><h:outputText value="#{msgs.hideshowdesc_toggle_hide}"/><f:verbatim>';
 		  resizeFrame();
 		}  
 	};
@@ -212,7 +207,7 @@ showHideDivBlock = function(hideDivisionNo, context, key)
 	  if(divisionNo)
 	 
 	  {
-	    if(divisionNo.style.display =="block")
+	    if(divisionNo.style.display ==="block")
 	    {
 	      divisionNo.style.display="none";
 	      if (imgNo)
@@ -236,7 +231,7 @@ showHideDivBlock = function(hideDivisionNo, context, key)
 saveDivState = function (key, displayState) {
 		var state = 0;
 		
-		if (displayState == "block")
+		if (displayState === "block")
 			state = 1;
 		
 		jQuery.ajax({
@@ -269,7 +264,7 @@ getTheElement = function(thisid)
 
 	  if(thiselm)   
 	  {
-	    if(thiselm == null)
+	    if(thiselm === null)
 	    {
 	      return;
 	    }
@@ -284,7 +279,7 @@ getTheElement = function(thisid)
 resizeFrame = function (updown) {
 	  var frame = parent.document.getElementById( window.name );
 	  if( frame ) {
-		if(updown=='shrink')
+		if(updown==='shrink')
 		{
 		var clientH = document.body.clientHeight + 30;
 	  }
@@ -296,62 +291,4 @@ resizeFrame = function (updown) {
 	  } else {
 		window.console && console.log("no frame to resize");
 	  }
-	};
-
-    
-
-
-//var demo = demo || {};
-(function ($, fluid) {
-    //fluid.setLogging(true);
-    initlayoutReorderer = function () {
-        fluid.reorderLayout("#layoutReorderer", {
-            listeners: {
-       	    	afterMove: function (args) {
-					//resize iframe in case one of the lists made the doc higher
-					resizeFrame('grow');
-					// uncheck any selection that was checked and then moved via mouse or kbd 
-					$(args).find('.selectSiteCheck').prop('checked',false);
-                    $('#movePanel').css('top','-999px');
-                    $('.siteSelected').removeClass('siteSelected')
-
-    		    var ids = '';
-                var newTitle1=$('.checkboxSelectMessage').text().replace('{1}',$('.checkboxFromMessFav').text())
-                var newTitle2=$('.checkboxSelectMessage').text().replace('{1}',$('.checkboxFromMessArc').text())
-  
-		    jQuery('.col1 .last-login').each(function(idx, item) {
-                var $thisCheckbox =$(this).find(':checkbox');
-                var thisTitle = $(this).find('.siteLabel').text();
-                $thisCheckbox.attr('title',newTitle1.replace('{0}', thisTitle));
-
-                        if ( ids.length > 1 ) ids += ', ' ;
-            	        ids += item.id ; //xxx 
-    		    });
-            	    jQuery('input[name$=prefTabString]').val(ids);
-    		    var ids = '';  
-		    jQuery('.col2 .last-login').each(function(idx, item) {
-                var $thisCheckbox =$(this).find(':checkbox');
-                var thisTitle = $(this).find('.siteLabel').text();
-                $thisCheckbox.attr('title',newTitle2.replace('{0}', thisTitle));
-               if ( ids.length > 1 ) ids += ', ' ;
-        	        ids += item.id ; 
-    		    });
-            	    jQuery('input[name$=prefHiddenString]').val(ids);
-       	        }
-	    },
-            selectors: {
-                lockedModules: ".layoutReorderer-locked"
-            },
-            styles: {
-                defaultStyle: "layoutReorderer-movable-default",
-                selected: "layoutReorderer-movable-selected",
-                dragging: "layoutReorderer-movable-dragging",
-                mouseDrag: "layoutReorderer-movable-mousedrag",
-                dropMarker: "layoutReorderer-dropMarker",
-                avatar: "layoutReorderer-avatar"
-            },
-            disableWrap: true
-        });
-    };
-})(jQuery, fluid);
-    
+};

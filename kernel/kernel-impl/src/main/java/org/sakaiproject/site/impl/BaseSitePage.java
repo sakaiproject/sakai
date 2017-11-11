@@ -86,7 +86,22 @@ public class BaseSitePage implements SitePage, Identifiable
 	protected String m_skin = null;
    
 	private BaseSiteService siteService;
+	
+	protected String[] SAKAI_DEFAULT_EXCEPTION_IDS = {"sakai.iframe","sakai.rutgers.linktool","sakai.news"};
+	/** String array of default exception ids to not override the title */
+	protected String[] m_titleExceptionIds;
 
+	/**
+	 * Private constructor to setup some defaults
+	 */
+	private BaseSitePage (BaseSiteService siteService) {
+		this.siteService = siteService;
+		m_titleExceptionIds = siteService.serverConfigurationService().getStrings("site.tool.custom.titles");
+		if (m_titleExceptionIds == null) {
+			m_titleExceptionIds = SAKAI_DEFAULT_EXCEPTION_IDS;
+		}
+	}
+	
 	/**
 	 * Construct. Auto-generate the id.
 	 * 
@@ -95,7 +110,7 @@ public class BaseSitePage implements SitePage, Identifiable
 	 */
 	protected BaseSitePage(BaseSiteService siteService, Site site)
 	{
-		this.siteService = siteService;
+		this(siteService);
 		m_site = site;
 		m_id = siteService.idManager().createUuid();
 		m_properties = new BaseResourcePropertiesEdit();
@@ -119,7 +134,7 @@ public class BaseSitePage implements SitePage, Identifiable
 	protected BaseSitePage(BaseSiteService siteService, Site site, String id, String title, String layout,
 			boolean popup)
 	{
-		this.siteService = siteService;
+		this(siteService);
 		m_site = site;
 		m_id = id;
 
@@ -163,7 +178,7 @@ public class BaseSitePage implements SitePage, Identifiable
 	protected BaseSitePage(BaseSiteService siteService, String pageId, String title, String layout, boolean popup,
 			String siteId, String skin)
 	{
-		this.siteService = siteService;
+		this(siteService);
 
 		m_site = null;
 		m_id = pageId;
@@ -205,7 +220,7 @@ public class BaseSitePage implements SitePage, Identifiable
 	 */
 	protected BaseSitePage(BaseSiteService siteService, SitePage other, Site site, boolean exact)
 	{
-		this.siteService = siteService;
+		this(siteService);
 
 		BaseSitePage bOther = (BaseSitePage) other;
 
@@ -276,7 +291,7 @@ public class BaseSitePage implements SitePage, Identifiable
 	 */
 	protected BaseSitePage(BaseSiteService siteService, Element el, Site site)
 	{
-		this.siteService = siteService;
+		this(siteService);
 
 		m_site = site;
 
@@ -377,6 +392,25 @@ public class BaseSitePage implements SitePage, Identifiable
         if (M_log.isDebugEnabled()) M_log.debug("Returning default m_title:" + m_title + " for toolId:" + toolId);
 
         return m_title;
+	}
+	
+	/** 
+	 * Checks to see if this is a title exception 
+	 * @param toolId
+	 * @return
+	 */
+	public boolean isTitleToolException(String toolId) {
+		if (toolId == null) {
+			return false;
+		}
+
+		for (String titleExceptionId : m_titleExceptionIds) {
+			if (titleExceptionId.equals(toolId) || toolId.startsWith(titleExceptionId)) {
+				return true;
+			}
+					
+		}
+		return false;
 	}
 
 	/**
@@ -553,7 +587,7 @@ public class BaseSitePage implements SitePage, Identifiable
 		if (getTools().size() > 0 && getProperties().getProperty(IS_HOME_PAGE) == null)
 		{
 			String toolId = ( (BaseToolConfiguration) (getTools().get(0))).getToolId();
-			return  "sakai.iframe".equals(toolId) || "sakai.news".equals(toolId) || "sakai.rutgers.linktool".equals(toolId);
+			return isTitleToolException(toolId);
 		}
 		return false;
 	}

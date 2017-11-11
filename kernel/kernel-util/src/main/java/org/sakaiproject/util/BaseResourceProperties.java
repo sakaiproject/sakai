@@ -70,7 +70,7 @@ public class BaseResourceProperties implements ResourceProperties, SerializableP
 	private static final long serialVersionUID = 1L;
 
 	/** The hashtable of properties. */
-	protected Hashtable m_props = null;
+	protected Hashtable<String, Object> m_props = null;
 
 	/** If the full properties have not yet been read. */
 	protected transient boolean m_lazy = false;
@@ -80,7 +80,16 @@ public class BaseResourceProperties implements ResourceProperties, SerializableP
 	 */
 	public BaseResourceProperties()
 	{
-		m_props = new Hashtable();
+		m_props = new Hashtable<>();
+	}
+
+	public BaseResourceProperties(Map<String, String> map) {
+		this();
+		for (Map.Entry<String, String> entry : map.entrySet()) {
+		    if (entry.getKey() != null) {
+		    	addProperty(entry.getKey(), entry.getValue());
+			}
+		}
 	}
 
 	/**
@@ -918,8 +927,7 @@ public class BaseResourceProperties implements ResourceProperties, SerializableP
 	/**
 	 * Take all values from this object.
 	 * 
-	 * @param user
-	 *        The ResourceProperties object to take values from.
+	 * @param props the ResourceProperties object to take values from.
 	 */
 	public void set(ResourceProperties props)
 	{

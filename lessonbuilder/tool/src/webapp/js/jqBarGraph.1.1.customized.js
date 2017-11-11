@@ -36,6 +36,8 @@
 // Customized to fix a small bug in a for..in loop over an array, where it would also loop over other structures
 // in the array, such as "contains"
 
+// Customized to add legends to data array and legendsAtTitle to display legends as title in the div
+
 (function($) {
 	var opts = new Array;
 	var level = new Array;
@@ -126,8 +128,12 @@
  			
  			lbl = data[val][1];
  			color = data[val][2];
-			unique = val+el.id; //unique identifier
-			
+ 			legendLbl = data[val][3];
+ 			unique = val+el.id; //unique identifier
+ 			
+ 			if (legendLbl == undefined && arr.legends !== undefined) {
+ 				legendLbl = legends[val];
+ 			}
  			if (color == undefined && arr.colors == false) 
  				color = arr.color;
  				
@@ -149,7 +155,7 @@
 
 			// if there is no legend or exist legends display lbl at the bottom
  			if(!arr.legend || arr.legends)
- 				out += "<div class='graphLabel"+el.id+"' id='graphLabel"+unique+"' style='white-space:nowrap;overflow:hidden;text-overflow:clip'>"+lbl+"</div>";
+ 				out += "<div class='graphLabel"+el.id+"' id='graphLabel"+unique+"' style='white-space:nowrap;overflow:hidden;text-overflow:clip' title='"+legendLbl+"'>"+lbl+"</div>";
  			out += "</div>";
  			
 			$(el).append(out);
@@ -195,7 +201,7 @@
 
 			//creating legend array from lbl if there is no legends param
  			if(!arr.legends)
- 				leg.push([ color, lbl, el.id, unique ]); 
+ 				leg.push([ color, legendLbl, el.id, unique ]); 
  			
  			// animated apearing
  			if(arr.animate){

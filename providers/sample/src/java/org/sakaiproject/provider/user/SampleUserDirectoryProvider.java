@@ -411,7 +411,7 @@ public class SampleUserDirectoryProvider implements UserDirectoryProvider, Users
 	 */
 	public String getDisplayId(User user)
 	{
-		return "display-"+user.getEid();
+		return user.getEid();
 	}
 
 	/**

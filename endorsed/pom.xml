@@ -6,14 +6,14 @@
     <parent>
         <groupId>org.sakaiproject</groupId>
         <artifactId>master</artifactId>
-        <version>12-SNAPSHOT</version>
+        <version>13-SNAPSHOT</version>
         <relativePath>../master/pom.xml</relativePath>
     </parent>
 
     <name>Sakai Endorsed Project</name>
     <groupId>org.sakaiproject.endorsed</groupId>
     <artifactId>endorsed</artifactId>
-    <version>12-SNAPSHOT</version>
+    <version>13-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <properties>

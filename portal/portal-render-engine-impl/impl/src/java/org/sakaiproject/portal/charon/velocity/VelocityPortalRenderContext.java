@@ -26,12 +26,11 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.context.Context;
 import org.sakaiproject.portal.api.PortalRenderContext;
 import org.sakaiproject.portal.api.PortalRenderEngine;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * A render context based on the velocity context
@@ -41,10 +40,9 @@ import org.sakaiproject.portal.api.PortalRenderEngine;
  * @version $Rev$
  */
 
+@Slf4j
 public class VelocityPortalRenderContext implements PortalRenderContext
 {
-	private static final Logger log = LoggerFactory.getLogger(VelocityPortalRenderContext.class);
-
 	private Context vcontext = new VelocityContext();
 
 	private boolean debug = false;

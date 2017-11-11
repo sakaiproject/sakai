@@ -65,7 +65,7 @@
           }
 
           var selection = editor.getSelection();
-          if (selection.getType() == CKEDITOR.SELECTION_TEXT) {
+          if (selection && selection.getType() == CKEDITOR.SELECTION_TEXT) {
             if (CKEDITOR.env.ie) {
               selection.unlock(true);
               highlightedText = selection.getNative().createRange().text;

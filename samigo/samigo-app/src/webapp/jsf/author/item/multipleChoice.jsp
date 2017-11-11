@@ -250,7 +250,7 @@
           </div>
 
   <!-- if multiple correct, use checkboxes -->
-  <h:selectManyCheckbox value="#{itemauthor.currentItem.corrAnswers}" id="mccheckboxes"
+  <h:selectManyCheckbox onclick="updateHiddenMultipleChoice();" onkeypress="updateHiddenMultipleChoice();" value="#{itemauthor.currentItem.corrAnswers}" id="mccheckboxes"
 	rendered="#{itemauthor.currentItem.itemType == 2 || itemauthor.currentItem.itemType == 12}">
 	<f:selectItem itemValue="#{answer.label}" itemLabel="#{answer.label}"/>
   </h:selectManyCheckbox>
@@ -318,6 +318,7 @@
 </h:dataTable>
 
 <h:inputHidden id="selectedRadioBtn" value="#{itemauthor.currentItem.corrAnswer}" />
+<h:inputHidden id="selectedCheckboxesAnswers" value="#{itemauthor.currentItem.corrAnswers}" />
 
   <div class="form-group row">
     <h:outputLabel styleClass="col-md-2" value="#{authorMessages.insert_additional_a}" />

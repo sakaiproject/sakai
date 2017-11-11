@@ -27,6 +27,8 @@ package org.sakaiproject.coursemanagement.impl;
  * @author <a href="mailto:jholtzman@berkeley.edu">Josh Holtzman</a>
  */
 public abstract class CrossListableCmImpl extends AbstractMembershipContainerCmImpl {
+
+	private static final long serialVersionUID = 1L;
 	public abstract CrossListingCmImpl getCrossListing();
 	public abstract void setCrossListing(CrossListingCmImpl crossListingCmImpl);
 }

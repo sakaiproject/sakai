@@ -373,6 +373,10 @@ public class FCKConnectorServlet extends HttpServlet {
      }
      
 
+    // Set to be consistent with
+    // org.sakaiproject.content.api.ContentHostingService.MAXIMUM_ATTEMPTS_FOR_UNIQUENESS
+    private static final int MAX_SAVE_RETRIES = 100;
+
      /**
       * Manage the Post requests (FileUpload).<br>
       *
@@ -478,8 +482,9 @@ public class FCKConnectorServlet extends HttpServlet {
 
                     int counter = 1;
                     boolean done = false;
+                    Throwable lastException = null;
 
-                    while(!done) {
+                    for (int retry = 0; !done && retry < MAX_SAVE_RETRIES; retry++) {
                          try {
                              ResourcePropertiesEdit resourceProperties = contentHostingService.newResourceProperties();
                              resourceProperties.addProperty (ResourceProperties.PROP_DISPLAY_NAME, fileName);
@@ -508,6 +513,7 @@ public class FCKConnectorServlet extends HttpServlet {
                          }
                          catch (IdUsedException iue) {
                               //the name is already used, so we do a slight rename to prevent the colision
+                              lastException = iue;
                               fileName = nameWithoutExt + "(" + counter + ")" + ext;
                               status = "201";
                               counter++;
@@ -516,10 +522,19 @@ public class FCKConnectorServlet extends HttpServlet {
                          catch (Exception ex) {
                               //this user can't write where they are trying to write.
                               done = true;
+                              lastException = ex;
                               ex.printStackTrace();
                               status = "203";
                          }
                     }
+
+                    if (!done) {
+                        // Hit our limit on retries.  This shouldn't happen
+                        // unless the state of things is strange (see SAK-32346
+                        // for an example of that)
+                        throw new RuntimeException("Retry limit exceeded", lastException);
+                    }
+
                }
                catch (Exception ex) {
                     ex.printStackTrace();
@@ -1151,11 +1166,11 @@ public class FCKConnectorServlet extends HttpServlet {
     				 function.equals(contentHostingService.AUTH_RESOURCE_WRITE_OWN) ||
     				 function.equals(contentHostingService.AUTH_RESOURCE_HIDDEN)
     				 ) {
-    			 return SecurityAdvisor.SecurityAdvice.ALLOWED;
+    			 return securityService.unlock(userId, contentHostingService.AUTH_RESOURCE_READ, reference) ? SecurityAdvisor.SecurityAdvice.ALLOWED : SecurityAdvisor.SecurityAdvice.NOT_ALLOWED;
     		 } else if (function.equals(contentHostingService.AUTH_RESOURCE_WRITE_ANY)) {
     			 M_log.info(userId + " requested ability to write to any content on "+ reference+
     					 " which we didn't expect, this should be investigated");
-    			 return SecurityAdvisor.SecurityAdvice.ALLOWED;
+    			 return securityService.unlock(userId, contentHostingService.AUTH_RESOURCE_READ, reference) ? SecurityAdvisor.SecurityAdvice.ALLOWED : SecurityAdvisor.SecurityAdvice.NOT_ALLOWED;
     		 }
     		 return SecurityAdvisor.SecurityAdvice.PASS;
     	 };

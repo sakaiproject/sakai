@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html xmlns:wicket="http://wicket.apache.org/dtds.data/wicket-xhtml1.4-strict.dtd">
+
+<body>
+	<wicket:panel>
+
+		<div id="gradebookSorter" class="by-grade-item">
+			<input type="hidden" name="orderby" value="item"/>
+			<ul>
+				<li wicket:id="gradeItemList" class="gb-sorter-sortable">
+					<input wicket:id="id" type="hidden"/>
+					<input wicket:id="order" type="hidden"/>
+					<input wicket:id="current_order" type="hidden"/>
+					<span wicket:id="name"></span>
+
+					<button class="gb-sort-up"></button>
+					<button class="gb-sort-down"></button>
+				</li>
+			</ul>
+		</div>
+
+		<script>new GradebookSorter($("#gradebookSorter"));</script>
+	</wicket:panel>
+</body>
+</html>

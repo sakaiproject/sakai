@@ -239,7 +239,7 @@
       </property>
       <property name="transactionAttributes">
         <props>
-          <prop key="*">PROPAGATION_REQUIRES_NEW</prop>
+          <prop key="*">PROPAGATION_REQUIRED</prop>
         </props>
       </property>
     </bean>

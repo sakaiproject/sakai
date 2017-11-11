@@ -1,3 +1,18 @@
+/**
+ * Copyright (c) 2003-2017 The Apereo Foundation
+ *
+ * Licensed under the Educational Community License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *             http://opensource.org/licenses/ecl2
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.sakaiproject.gradebookng.tool.pages;
 
 import java.io.Serializable;
@@ -72,7 +87,7 @@ public class PermissionsPage extends BasePage {
 		final List<GbUser> teachingAssistants = this.businessService.getTeachingAssistants();
 
 		// get the TA GbUser for selected (if provided)
-		if (!StringUtils.isBlank(taUuid)) {
+		if (StringUtils.isNotBlank(taUuid)) {
 			for (final GbUser gbUser : teachingAssistants) {
 				if (taUuid.equals(gbUser.getUserUuid())) {
 					this.taSelected = gbUser;
@@ -251,14 +266,15 @@ public class PermissionsPage extends BasePage {
 					permissions.add(viewCourseGradePermission);
 				}
 
-				//remove any dupes - we also present a message if dupes were removed
+				// remove any dupes - we also present a message if dupes were removed
 				final List<PermissionDefinition> distinctPermissions = permissions.stream().distinct().collect(Collectors.toList());
 
-				PermissionsPage.this.businessService.updatePermissionsForUser(PermissionsPage.this.taSelected.getUserUuid(), distinctPermissions);
+				PermissionsPage.this.businessService.updatePermissionsForUser(PermissionsPage.this.taSelected.getUserUuid(),
+						distinctPermissions);
 
 				getSession().success(getString("permissionspage.update.success"));
 
-				if(distinctPermissions.size() < permissions.size()) {
+				if (distinctPermissions.size() < permissions.size()) {
 					getSession().success(getString("permissionspage.update.dupes"));
 				}
 
@@ -320,19 +336,19 @@ public class PermissionsPage extends BasePage {
 				// function list
 				final DropDownChoice<String> functionChooser = new DropDownChoice<String>("function",
 						new PropertyModel<String>(permission, "function"), assignablePermissions, new ChoiceRenderer<String>() {
-					private static final long serialVersionUID = 1L;
+							private static final long serialVersionUID = 1L;
 
-					@Override
-					public Object getDisplayValue(final String function) {
-						return getString("permissionspage.function." + function);
-					}
+							@Override
+							public Object getDisplayValue(final String function) {
+								return getString("permissionspage.function." + function);
+							}
 
-					@Override
-					public String getIdValue(final String function, final int index) {
-						return function;
-					}
+							@Override
+							public String getIdValue(final String function, final int index) {
+								return function;
+							}
 
-				});
+						});
 				functionChooser.setNullValid(false);
 				item.add(functionChooser);
 
@@ -340,21 +356,21 @@ public class PermissionsPage extends BasePage {
 				final List<Long> categoryIdList = new ArrayList<Long>(categoryMap.keySet());
 				final DropDownChoice<Long> categoryChooser = new DropDownChoice<Long>("category",
 						new PropertyModel<Long>(permission, "categoryId"), categoryIdList, new ChoiceRenderer<Long>() {
-					private static final long serialVersionUID = 1L;
+							private static final long serialVersionUID = 1L;
 
-					@Override
-					public Object getDisplayValue(final Long l) {
-						return categoryMap.get(l);
-					}
+							@Override
+							public Object getDisplayValue(final Long l) {
+								return categoryMap.get(l);
+							}
 
-					@Override
-					public String getIdValue(final Long l, final int index) {
-						if (l == null) {
-							return ""; // to match what the service stores
-						}
-						return l.toString();
-					}
-				});
+							@Override
+							public String getIdValue(final Long l, final int index) {
+								if (l == null) {
+									return ""; // to match what the service stores
+								}
+								return l.toString();
+							}
+						});
 				// set selected or first item
 				categoryChooser.setModelObject((permission.getCategoryId() != null) ? permission.getCategoryId() : categoryIdList.get(0));
 				categoryChooser.setNullValid(false);
@@ -370,18 +386,18 @@ public class PermissionsPage extends BasePage {
 				final List<String> groupRefList = new ArrayList<String>(groupMap.keySet());
 				final DropDownChoice<String> groupChooser = new DropDownChoice<String>("group",
 						new PropertyModel<String>(permission, "groupReference"), groupRefList, new ChoiceRenderer<String>() {
-					private static final long serialVersionUID = 1L;
+							private static final long serialVersionUID = 1L;
 
-					@Override
-					public Object getDisplayValue(final String groupRef) {
-						return groupMap.get(groupRef);
-					}
+							@Override
+							public Object getDisplayValue(final String groupRef) {
+								return groupMap.get(groupRef);
+							}
 
-					@Override
-					public String getIdValue(final String groupRef, final int index) {
-						return groupRef;
-					}
-				});
+							@Override
+							public String getIdValue(final String groupRef, final int index) {
+								return groupRef;
+							}
+						});
 				// set selected or first item
 				groupChooser
 						.setModelObject((permission.getGroupReference() != null) ? permission.getGroupReference() : groupRefList.get(0));

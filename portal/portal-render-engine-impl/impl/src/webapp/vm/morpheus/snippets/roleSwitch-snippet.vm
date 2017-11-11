@@ -8,7 +8,6 @@
     #else
         <a id="roleSwitchDropDownToggle" href="javascript:void('0')" aria-hidden='true' aria-haspopup="true" title='${rloader.rs_menuTooltip}'>
             <i class="fa fa-user-secret" aria-hidden="true"></i>
-            <span class='skip'>${rloader.rs_toggleRoleSwitcher}</span>
         </a>
         <div id="roleSwitchDropDown">
             <i class="fa fa-user-secret" aria-hidden="true"></i>

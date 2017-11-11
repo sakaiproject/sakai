@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <bean id="org.sakaiproject.time.api.TimeService"
+          class="org.sakaiproject.time.impl.BasicTimeService"
+          init-method="init"
+          destroy-method="destroy">
+        <property name="userLocaleService" ref="org.sakaiproject.time.impl.UserLocaleServiceImpl"/>
+        <property name="userTimeService" ref="org.sakaiproject.time.api.UserTimeService"/>
+    </bean>
+
+    <bean id="org.sakaiproject.time.api.UserTimeService"
+          class="org.sakaiproject.time.impl.UserTimeServiceImpl"
+          init-method="init">
+        <property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager"/>
+        <property name="preferencesService" ref="org.sakaiproject.user.api.PreferencesService"/>
+        <property name="memoryService" ref="org.sakaiproject.memory.api.MemoryService"/>
+    </bean>
+
+    <bean id="org.sakaiproject.time.impl.UserLocaleServiceImpl"
+          class="org.sakaiproject.time.impl.UserLocaleServiceImpl"
+          init-method="init">
+        <property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager"/>
+        <property name="memoryService" ref="org.sakaiproject.memory.api.MemoryService"/>
+        <property name="resourceLoader">
+            <bean class="org.sakaiproject.util.ResourceLoader"/>
+        </property>
+    </bean>
+
+</beans>

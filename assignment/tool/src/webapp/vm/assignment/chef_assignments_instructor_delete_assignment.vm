@@ -1,0 +1,60 @@
+<!-- start: chef_assignments_instructor_delete_assignment.vm  -->
+<div class="portletBody">
+	<h3>
+		#if ($assignments.size()>1)
+			$tlang.getString("delete_assig.delass")
+		#else
+			$tlang.getString("delete_assig.delanass")
+		#end
+	</h3>
+
+		#if ($alertMessage)
+			<div class="alertMessage">  $tlang.getString("gen.alert")  $alertMessage</div><div class="clear"></div>
+		#else
+			<div class="alertMessage">
+				$confirmMessage
+			</div><div class="clear"></div>
+		#end
+		<form name="form1" method="post" action="#toolForm("AssignmentAction")">
+			<table class="listHier lines nolines" cellspacing="0" summary="$tlang.getString("gen.lisofassto")">
+				<tr>
+					<th id="title">$tlang.getString("gen.title")</th>
+					<th id="duedate">$tlang.getString("gen.duedat")</th>
+					##<th id="section">$tlang.getString("gen.sect")</th>
+					<th id="status">$tlang.getString("gen.status")</th>
+					<th id="submissions">$tlang.getString("gen.subm2")</th>
+				</tr>
+				#foreach ($assignment in $assignments)
+					<tr>
+						<td headers="title">
+							#if ($assignment.draft)
+								<span class="highlight">$tlang.getString("gen.dra2") </span>
+							#end
+							$validator.escapeHtml($assignment.Title)</td>
+						<td headers="duedate">$!service.getUsersLocalDateTimeString($assignment.DueDate)</td>
+						##<td headers="section">$assignment.Section</td>
+						<td headers="status">
+							  #if ($assignment.OpenDate.isAfter($currentTime))
+								$tlang.getString("gen.notope")
+							  #elseif ($assignment.DueDate.isAfter($currentTime))
+								$tlang.getString("gen.open")
+							  #elseif (($!assignment.CloseDate) && ($assignment.CloseDate.isBefore($currentTime)))
+								$tlang.getString("gen.closed")
+							  #else
+								$tlang.getString("gen.due")
+							  #end
+						</td>
+						<td headers="submissions">
+							$submissionCountTable.get($assignment.Id)
+						</td>
+					</tr>
+				#end
+			</table>
+			<p class="act">
+				<input type="submit" accesskey="s" id="delete" onclick="SPNR.disableControlsAndSpin( this, null );" class="active" name="eventSubmit_doDelete_assignment" value="$tlang.getString("delet")" />
+				<input type="submit" accesskey="x" id="cancel" onclick="SPNR.disableControlsAndSpin( this, null );" name="eventSubmit_doCancel_delete_assignment" value="$tlang.getString("gen.can")" />
+			</p>
+			<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+		</form>
+	</div>
+<!-- end: chef_assignments_instructor_delete_assignment.vm  -->

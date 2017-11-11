@@ -143,6 +143,7 @@ public class ListItem
 	 * Services
 	 */
 	private static final MetadataService metadataService = (MetadataService) ComponentManager.get(MetadataService.class.getCanonicalName());
+	private static SecurityService securityService  = ComponentManager.get(SecurityService.class);
 	private static final org.sakaiproject.tool.api.ToolManager toolManager = (org.sakaiproject.tool.api.ToolManager) ComponentManager.get(org.sakaiproject.tool.api.ToolManager.class.getCanonicalName());
 
 	/** 
@@ -2670,9 +2671,9 @@ public class ListItem
     	if (group == null || group.getContainingSite() == null) return false;
     	
     	String userId = UserDirectoryService.getCurrentUser().getId();
-    	if (group.getContainingSite().isAllowed(userId, ContentHostingService.AUTH_RESOURCE_ALL_GROUPS)) return true;
-    	
-    	return group.isAllowed(userId, SiteService.SITE_VISIT);
+    	if (securityService.unlock(userId,ContentHostingService.AUTH_RESOURCE_ALL_GROUPS, group.getContainingSite().getReference())) return true;
+    			
+    	return securityService.unlock(userId,SiteService.SITE_VISIT,group.getReference());
     }
     
 	/**

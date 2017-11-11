@@ -1,0 +1,68 @@
+<?xml version="1.0"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+    <modelVersion>4.0.0</modelVersion>
+
+    <name>COMMONS</name>
+    <groupId>org.sakaiproject.commons</groupId>
+    <artifactId>commons</artifactId>
+    <version>13-SNAPSHOT</version>
+    <packaging>pom</packaging>
+
+    <parent>
+        <groupId>org.sakaiproject</groupId>
+        <artifactId>master</artifactId>
+        <version>13-SNAPSHOT</version>
+        <relativePath>../master/pom.xml</relativePath>
+    </parent>
+
+    <organization>
+        <name>Noodle Partners, Inc.</name>
+        <url>http://noodle-partners.com</url>
+    </organization>
+
+    <developers>
+        <developer>
+            <name>Adrian Fish</name>
+            <email>a.fish@lancaster.ac.uk</email>
+        </developer>
+    </developers>
+
+    <modules>
+        <module>components</module>
+        <module>api</module>
+        <module>impl</module>
+        <module>tool</module>
+    </modules>
+
+    <scm>
+        <connection>scm:git:git://github.com/adrianfish/commons.git</connection>
+        <developerConnection>scm:git:git://github.com/adrianfish/commons.git</developerConnection>
+        <url>https://github.com/adrianfish/commons</url>
+    </scm>
+
+    <issueManagement>
+        <system>JIRA</system>
+        <url>http://jira.sakaiproject.org/browse/COMMONS</url>
+    </issueManagement>
+
+    <dependencyManagement>
+        <dependencies>
+
+            <dependency>
+                <groupId>org.sakaiproject.commons</groupId>
+                <artifactId>commons-api</artifactId>
+                <version>${project.version}</version>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.sakaiproject.commons</groupId>
+                <artifactId>commons-impl</artifactId>
+                <version>${project.version}</version>
+                <scope>runtime</scope>
+            </dependency>
+
+        </dependencies>
+    </dependencyManagement>
+
+</project>

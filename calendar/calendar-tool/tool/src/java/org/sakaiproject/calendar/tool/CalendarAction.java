@@ -45,18 +45,25 @@ import java.util.Vector;
 import java.util.Map.Entry;
 
 import org.apache.commons.lang.StringUtils;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sakaiproject.alias.api.Alias;
 import org.sakaiproject.alias.api.AliasService;
 import org.sakaiproject.authz.api.PermissionsHelper;
 import org.sakaiproject.authz.cover.SecurityService;
-import org.sakaiproject.calendar.api.*;
 import org.sakaiproject.calendar.api.Calendar;
+import org.sakaiproject.calendar.api.CalendarEdit;
+import org.sakaiproject.calendar.api.CalendarEvent;
+import org.sakaiproject.calendar.api.CalendarEventEdit;
+import org.sakaiproject.calendar.api.CalendarEventVector;
+import org.sakaiproject.calendar.api.ExternalCalendarSubscriptionService;
+import org.sakaiproject.calendar.api.ExternalSubscriptionDetails;
+import org.sakaiproject.calendar.api.OpaqueUrl;
+import org.sakaiproject.calendar.api.OpaqueUrlDao;
+import org.sakaiproject.calendar.api.RecurrenceRule;
 import org.sakaiproject.calendar.cover.CalendarImporterService;
 import org.sakaiproject.calendar.cover.CalendarService;
-import org.sakaiproject.entitybroker.exception.EntityNotFoundException;
-import org.sakaiproject.calendar.cover.ExternalCalendarSubscriptionService;
 import org.sakaiproject.calendar.tool.CalendarActionState.LocalEvent;
 import org.sakaiproject.cheftool.Context;
 import org.sakaiproject.cheftool.JetspeedRunData;
@@ -99,6 +106,7 @@ import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.util.CalendarChannelReferenceMaker;
 import org.sakaiproject.util.CalendarReferenceToChannelConverter;
+import org.sakaiproject.util.CalendarEventType;
 import org.sakaiproject.util.CalendarUtil;
 import org.sakaiproject.util.EntryProvider;
 import org.sakaiproject.util.FileItem;
@@ -127,9 +135,6 @@ extends VelocityPortletStateAction
 	/** Resource bundle using current language locale */
 	private static ResourceLoader rb = new ResourceLoader("calendar");
 
-	// configuration properties (initialized in initState()	 
-   Properties configProps = null;
-	
 	private static final String ALERT_MSG_KEY = "alertMessage";
 	
 	private static final String CONFIRM_IMPORT_WIZARD_STATE = "CONFIRM_IMPORT";
@@ -207,6 +212,8 @@ extends VelocityPortletStateAction
 	// Dependency: setup in init
 	private OpaqueUrlDao opaqueUrlDao;
 
+	private ExternalCalendarSubscriptionService externalCalendarSubscriptionService;
+
 	private AliasService aliasService;
    
 	// tbd fix shared definition from org.sakaiproject.assignment.api.AssignmentEntityProvider
@@ -215,12 +222,11 @@ extends VelocityPortletStateAction
 	private final static String ASSN_ENTITY_PREFIX = EntityReference.SEPARATOR+ASSN_ENTITY_ID+EntityReference.SEPARATOR+ASSN_ENTITY_ACTION+EntityReference.SEPARATOR;
    
 	private NumberFormat monthFormat = null;
-	//Map for event icons
-	private Map<String, String> eventIconMap;
 
 	public CalendarAction() {
 		super();
 		aliasService = ComponentManager.get(AliasService.class);
+		externalCalendarSubscriptionService = ComponentManager.get(ExternalCalendarSubscriptionService.class);
 	}
 	
 	/**
@@ -997,7 +1003,6 @@ extends VelocityPortletStateAction
 			// can get at it.
 			context.put(mergedCalendarsCollection, calendarList);
 			context.put("tlang",rb);
-			context.put("config",configProps);
 			sstate.setAttribute(
 									  CalendarAction.SSTATE_ATTRIBUTE_MERGED_CALENDARS,
 									  calendarList);
@@ -1238,7 +1243,6 @@ extends VelocityPortletStateAction
 			// can get at it.
 			context.put(ADDFIELDS_CALENDARS_COLLECTION, addFieldsCalendarArray);
 			context.put("tlang",rb);
-			context.put("config",configProps);
 			if (addFieldsCalendarArray == null)
 				context.put(ADDFIELDS_CALENDARS_COLLECTION_ISEMPTY, Boolean.valueOf(true));
 			else
@@ -1541,7 +1545,6 @@ extends VelocityPortletStateAction
 			// can get at it.
 			context.put(ADDFIELDS_CALENDARS_COLLECTION, addfieldsCalendarArray);
 			context.put("tlang",rb);
-			context.put("config",configProps);
 			if (addfieldsCalendarArray == null)
 				context.put(ADDFIELDS_CALENDARS_COLLECTION_ISEMPTY, Boolean.valueOf(true));
 			else
@@ -1586,10 +1589,6 @@ extends VelocityPortletStateAction
 
 		private final String userSubscriptionsCollection = "userSubscriptionsCollection";
 
-		private final String REF_DELIMITER = ExternalCalendarSubscriptionService.SUBS_REF_DELIMITER;
-
-		private final String NAME_DELIMITER = ExternalCalendarSubscriptionService.SUBS_NAME_DELIMITER;
-
 		public CalendarSubscriptionsPage()
 		{
 			super();
@@ -1602,17 +1601,17 @@ extends VelocityPortletStateAction
 				RunData runData, CalendarActionState state, SessionState sstate)
 		{
 			String channel = state.getPrimaryCalendarReference();
-			Set<ExternalSubscription> availableSubscriptions = ExternalCalendarSubscriptionService
+			Set<ExternalSubscriptionDetails> availableInstitutionalSubscriptions= externalCalendarSubscriptionService
 					.getAvailableInstitutionalSubscriptionsForChannel(channel);
-			Set<ExternalSubscription> subscribedByUser = ExternalCalendarSubscriptionService
+			Set<ExternalSubscriptionDetails> subscribedByUser = externalCalendarSubscriptionService
 					.getSubscriptionsForChannel(channel, false);
 
 			// Institutional subscriptions
-			List<SubscriptionWrapper> institutionalSubscriptions = new ArrayList<SubscriptionWrapper>();
-			for (ExternalSubscription available : availableSubscriptions)
+			List<SubscriptionWrapper> institutionalSubscriptions = new ArrayList<>();
+			for (ExternalSubscriptionDetails available : availableInstitutionalSubscriptions)
 			{
 				boolean selected = false;
-				for (ExternalSubscription subscribed : subscribedByUser)
+				for (ExternalSubscriptionDetails subscribed : subscribedByUser)
 				{
 					if (subscribed.getReference().equals(available.getReference()))
 					{
@@ -1620,9 +1619,7 @@ extends VelocityPortletStateAction
 						break;
 					}
 				}
-				if (available.isInstitutional())
-					institutionalSubscriptions.add(new SubscriptionWrapper(available,
-							selected));
+				institutionalSubscriptions.add(new SubscriptionWrapper(available, selected));
 			}
 
 			// User subscriptions
@@ -1630,8 +1627,8 @@ extends VelocityPortletStateAction
 					.getAttribute(CalendarAction.SSTATE_ATTRIBUTE_ADDSUBSCRIPTIONS);
 			if (userSubscriptions == null)
 			{
-				userSubscriptions = new ArrayList<SubscriptionWrapper>();
-				for (ExternalSubscription subscribed : subscribedByUser)
+				userSubscriptions = new ArrayList<>();
+				for (ExternalSubscriptionDetails subscribed : subscribedByUser)
 				{
 					if (!subscribed.isInstitutional())
 					{
@@ -1715,9 +1712,9 @@ extends VelocityPortletStateAction
 			{
 				String contextId = EntityManager.newReference(
 						state.getPrimaryCalendarReference()).getContext();
-				String id = ExternalCalendarSubscriptionService
+				String id = externalCalendarSubscriptionService
 						.getIdFromSubscriptionUrl(calendarUrl);
-				String ref = ExternalCalendarSubscriptionService
+				String ref = externalCalendarSubscriptionService
 						.calendarSubscriptionReference(contextId, id);
 				addSubscriptions.add(new SubscriptionWrapper(calendarName, ref, true));
 
@@ -1784,8 +1781,6 @@ extends VelocityPortletStateAction
 				{
 					if (params.getString(subs.getReference()) != null)
 					{
-						String name = subs.getDisplayName();
-						if (name == null || name.equals("")) name = subs.getUrl();
 						subscriptionTC.add(subs.getReference());
 					}
 				}
@@ -1800,8 +1795,7 @@ extends VelocityPortletStateAction
 					{
 						String name = add.getDisplayName();
 						if (name == null || name.equals("")) name = add.getUrl();
-						subscriptionTC.add(add.getReference() + NAME_DELIMITER
-								+ add.getDisplayName());
+						subscriptionTC.add(add.getReference() + ExternalCalendarSubscriptionService.SUBS_NAME_DELIMITER + name);
 					}
 				}
 			}
@@ -1814,10 +1808,10 @@ extends VelocityPortletStateAction
 				if (config != null)
 				{
 					boolean first = true;
-					StringBuffer propValue = new StringBuffer();
+					StringBuilder propValue = new StringBuilder();
 					for (String ref : subscriptionTC)
 					{
-						if (!first) propValue.append(REF_DELIMITER);
+						if (!first) propValue.append(ExternalCalendarSubscriptionService.SUBS_REF_DELIMITER);
 						first = false;
 						propValue.append(ref);
 					}
@@ -1861,7 +1855,7 @@ extends VelocityPortletStateAction
 			{
 			}
 
-			public SubscriptionWrapper(ExternalSubscription subscription, boolean selected)
+			public SubscriptionWrapper(ExternalSubscriptionDetails subscription, boolean selected)
 			{
 				this.reference = subscription.getReference();
 				this.url = subscription.getSubscriptionUrl();
@@ -1875,10 +1869,10 @@ extends VelocityPortletStateAction
 				Reference _reference = EntityManager.newReference(ref);
 				this.reference = ref;
 				// this.id = _reference.getId();
-				this.url = ExternalCalendarSubscriptionService
+				this.url = externalCalendarSubscriptionService
 						.getSubscriptionUrlFromId(_reference.getId());
 				this.displayName = calendarName;
-				this.isInstitutional = ExternalCalendarSubscriptionService
+				this.isInstitutional = externalCalendarSubscriptionService
 						.isInstitutionalCalendar(ref);
 				this.isSelected = selected;
 			}
@@ -2333,7 +2327,7 @@ extends VelocityPortletStateAction
 		
 		// add external calendar subscriptions
       List referenceList = mergedCalendarList.getReferenceList();
-      Set subscriptionRefList = ExternalCalendarSubscriptionService.getCalendarSubscriptionChannelsForChannels(
+      Set subscriptionRefList = externalCalendarSubscriptionService.getCalendarSubscriptionChannelsForChannels(
     		  primaryCalendarReference,
     		  referenceList);
       referenceList.addAll(subscriptionRefList);
@@ -2501,11 +2495,12 @@ extends VelocityPortletStateAction
 		context.put("message", state.getState());
 		context.put("state", state.getKey());
 		context.put("tlang",rb);
-		context.put("config",configProps);
-		context.put("eventIconMap", eventIconMap);
+		context.put("eventIconMap", CalendarEventType.getIcons());
+		context.put("localizedEventTypes", new CalendarUtil().getLocalizedEventTypes());
+		context.put("iconsAndLocalizedEventTypes", new CalendarUtil().getLocalizedEventTypesAndIcons());
 		context.put("dateFormat", getDateFormatString());
 		context.put("timeFormat", getTimeFormatString());
-      
+
 		return template;
 		
 	}	 // buildMainPanelContext
@@ -2529,7 +2524,6 @@ extends VelocityPortletStateAction
 		// Set whatever the current wizard state is.
 		context.put("importWizardState", state.getImportWizardState());
 		context.put("tlang",rb);
-		context.put("config",configProps);
 		// Set the imported events into the context.
 		context.put("wizardImportedEvents", state.getWizardImportedEvents());
 		
@@ -2645,7 +2639,6 @@ extends VelocityPortletStateAction
 		context.put("freq", freq);
 		context.put("tlang",rb);
 		context.put("cutil",calutil);
-		context.put("config",configProps);
 		// get the data the user just input in the preview new/revise page
 		context.put("savedData",state.getNewData());
 		
@@ -2670,7 +2663,6 @@ extends VelocityPortletStateAction
 		// to get the content Type Image Service
 		context.put("contentTypeImageService", ContentTypeImageService.getInstance());
 		context.put("tlang",rb);
-		context.put("config",configProps);
 		Calendar calendarObj = null;
 		CalendarEvent calEvent = null;
 		CalendarUtil calObj= new CalendarUtil(); //null;
@@ -2727,7 +2719,6 @@ extends VelocityPortletStateAction
 					// Add any additional fields in the calendar.
 					customizeCalendarPage.loadAdditionalFieldsIntoContextFromCalendar( calendarObj, context);
 					context.put("tlang",rb);
-					context.put("config",configProps);
 					context.put("calEventFlag","true");
 					context.put("new", "false");
 					// if from the metadata view of announcement, the message is already the system resource
@@ -2772,7 +2763,6 @@ extends VelocityPortletStateAction
 			// if this a new annoucement, get the subject and body from temparory record
 			context.put("new", "true");
 			context.put("tlang",rb);
-			context.put("config",configProps);
 			context.put("attachments", attachments);
 			context.put("fromAttachmentFlag",state.getfromAttachmentFlag());
 		}
@@ -2863,7 +2853,6 @@ extends VelocityPortletStateAction
 			return;
 		}
 		context.put("tlang",rb);
-		context.put("config",configProps);
 		context.put("event", calEvent);
 		context.put("helper",new Helper());
 		context.put("message","revise");
@@ -2896,7 +2885,6 @@ extends VelocityPortletStateAction
 		// to get the content Type Image Service
 		context.put("contentTypeImageService", ContentTypeImageService.getInstance());
 		context.put("tlang",rb);
-		context.put("config",configProps);
 		context.put("Context", ToolManager.getCurrentPlacement().getContext());
 		context.put("CalendarService", CalendarService.getInstance());
 		context.put("SiteService", SiteService.getInstance());
@@ -2957,7 +2945,6 @@ extends VelocityPortletStateAction
 				
 				context.put(EVENT_CONTEXT_VAR, calEvent);
 				context.put("tlang",rb);
-				context.put("config",configProps);
 				
 				// Get the attachments from assignment tool for viewing
 				String assignmentId = calEvent.getField(CalendarUtil.NEW_ASSIGNMENT_DUEDATE_CALENDAR_ASSIGNMENT_ID);
@@ -3143,7 +3130,6 @@ extends VelocityPortletStateAction
 		}
 		calObj.setDay(dateObj1.getYear(),dateObj1.getMonth(),dateObj1.getDay());
 		context.put("tlang",rb);
-		context.put("config",configProps);
 		context.put("yearArray",yearObj);
 		SimpleDateFormat formatter = new SimpleDateFormat(rb.getString("viewy.date_format"), rb.getLocale());
 		context.put("year", formatter.format(calObj.getTime()));
@@ -3157,7 +3143,6 @@ extends VelocityPortletStateAction
 		context.put("allow_delete", Boolean.valueOf(false));
 		context.put("allow_revise", Boolean.valueOf(false));
 		context.put("tlang",rb);
-		context.put("config",configProps);
 		context.put(Menu.CONTEXT_ACTION, "CalendarAction");
 		
 		context.put("selectedView", rb.getString("java.byyear"));
@@ -3231,7 +3216,6 @@ extends VelocityPortletStateAction
 		context.put("viewingDate", formatter.format(calObj.getTime()));
 		context.put("monthArray",monthObj2);
 		context.put("tlang",rb);
-		context.put("config",configProps);
 		int row = 5;
 		context.put("row",Integer.valueOf(row));
 		context.put("date",dateObj1);
@@ -3253,10 +3237,11 @@ extends VelocityPortletStateAction
 		boolean firstTime = true; // Don't need to do complex checking the first time.
 		Vector events = new Vector(); // A vector of vectors, each of the vectors containing a range of previous events.
 		
-		Time timeObj = TimeService.newTimeLocal(year,month,day,time,00,00,000);
+		//This +1 and -1 here are from SAK-13120 to work around an issue with endTime being included and not adding correctly
+		Time timeObj = TimeService.newTimeLocal(year,month,day,time,00,00,000+1);
 		
 		long duration = ((30*60)*(1000));
-		Time updatedTime = TimeService.newTime(timeObj.getTime()+ duration);
+		Time updatedTime = TimeService.newTime(timeObj.getTime()+ duration-1);
 		
 		/*** include the start time ***/
 		TimeRange timeRangeObj = TimeService.newTimeRange(timeObj,updatedTime,true,false);
@@ -3526,7 +3511,6 @@ extends VelocityPortletStateAction
 		context.put("helper",new Helper());
 		context.put("calObj", calObj);
 		context.put("tlang",rb);
-		context.put("config",configProps);
 		state.setState("day");
 		context.put("message", state.getState());
 		
@@ -3543,7 +3527,6 @@ extends VelocityPortletStateAction
 		
 		context.put("permissionallowed",Boolean.valueOf(allowed));
 		context.put("tlang",rb);
-		context.put("config",configProps);
 
 		context.put("selectedView", rb.getString("java.byday"));
 		
@@ -3734,7 +3717,6 @@ extends VelocityPortletStateAction
 		context.put("page",state.getCurrentPage());
 		state.setState("week");
 		context.put("tlang",rb);
-		context.put("config",configProps);
 		context.put("message",state.getState());
 
 		DateFormat formatter = DateFormat.getDateInstance(DateFormat.FULL, new ResourceLoader().getLocale());
@@ -3757,7 +3739,6 @@ extends VelocityPortletStateAction
 		
 		context.put("realDate", TimeService.newTime());
 		context.put("tlang",rb);
-		context.put("config",configProps);
 		Vector vec = new Vector();
 		context.put("vec", vec);
 		Vector conflictVec = new Vector();
@@ -3788,7 +3769,6 @@ extends VelocityPortletStateAction
 	CalendarActionState state)
 	{
 		context.put("tlang",rb);
-		context.put("config",configProps);
 		// to get the content Type Image Service
 		context.put("contentTypeImageService", ContentTypeImageService.getInstance());
 		
@@ -3904,7 +3884,6 @@ extends VelocityPortletStateAction
 		}
 
 		context.put("tlang", rb);
-		context.put("config",configProps);
 
 		// provide form names
 		context.put("form-alias", FORM_ALIAS);
@@ -3997,7 +3976,6 @@ extends VelocityPortletStateAction
 	CalendarActionState state)
 	{
 		context.put("tlang",rb);
-		context.put("config",configProps);
 		// to get the content Type Image Service
 		context.put("contentTypeImageService", ContentTypeImageService.getInstance());
 		
@@ -6981,7 +6959,6 @@ extends VelocityPortletStateAction
 		// to get the content Type Image Service
 		context.put("contentTypeImageService", ContentTypeImageService.getInstance());
 		context.put("tlang",rb);
-		context.put("config",configProps);
 		MyMonth monthObj2 = null;
 		MyDate dateObj1 = new MyDate();
 		CalendarEventVector calendarEventVectorObj = null;
@@ -7319,7 +7296,6 @@ extends VelocityPortletStateAction
 		
 		context.put("selectedView", rb.getString("java.listeve"));
 		context.put("tlang",rb);
-		context.put("config",configProps);		
 
 		context.put("calendarFormattedText", new CalendarFormattedText());
 
@@ -7589,7 +7565,6 @@ extends VelocityPortletStateAction
 		SessionState stateForMenus = ((JetspeedRunData)runData).getPortletSessionState(portlet.getID());
 		stateForMenus.setAttribute(MenuItem.STATE_MENU, bar);
 		context.put("tlang",rb);
-		context.put("config",configProps);
 		context.put(Menu.CONTEXT_MENU, bar);
 		context.put("menu_PDF", bar_print);
 		context.put(Menu.CONTEXT_ACTION, "CalendarAction");
@@ -7997,40 +7972,6 @@ extends VelocityPortletStateAction
 								  portlet.getPortletConfig().getInitParameter(PORTLET_CONFIG_PARM_MERGED_CALENDARS),
 								  null );
 		}
-		
-		// Initialize configuration properties
-		InputStream inConfig = null;
-		try
-		{
-			if ( configProps == null )
-			{
-				configProps = new Properties();
-				inConfig = this.getClass().getResourceAsStream("calendar.config");
-				configProps.load(inConfig);
-			}
-			//get map with key as event and value as image, if empty then create one.
-			eventIconMap = new CalendarUtil().getEventImageMap(configProps);
-		}
-		catch ( IOException e )
-		{
-			M_log.warn("unable to load calendar.config: " + e);
-			
-		}
-		finally {
-			if(inConfig != null)
-			{
-				try
-				{
-					inConfig.close();
-				}
-				catch(IOException e1)
-				{
-					M_log.warn("I(O error occurred while closing 'inConfig' inputstream", e1);
-				}
-			}
-		}
-		
-		
 	} // initState
 
 	/**

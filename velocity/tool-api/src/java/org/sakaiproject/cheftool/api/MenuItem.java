@@ -107,7 +107,7 @@ public interface MenuItem
 	 * 
 	 * @return The sub-items of the item.
 	 */
-	List getItems();
+	List<MenuItem> getItems();
 
 	/**
 	 * Count the sub-items of the item. Note: if !isContainer(), the count is 0.

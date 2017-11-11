@@ -5,7 +5,7 @@
 	<parent>
 		<artifactId>master</artifactId>
 		<groupId>org.sakaiproject</groupId>
-		<version>12-SNAPSHOT</version>
+		<version>13-SNAPSHOT</version>
 		<relativePath>../master/pom.xml</relativePath>
 	</parent>
 	<name>Sakai Library</name>
@@ -13,9 +13,13 @@
 	<artifactId>library</artifactId>
 	<packaging>war</packaging>
 	<properties>
+		<!-- This is used in re-write rules as well -->
+		<ckeditor.version>4.7.3</ckeditor.version>
 		<bootstrap-version>3.3.7</bootstrap-version>
 		<font-awesome-version>4.7.0</font-awesome-version>
-		<!-- Empty defaults -->
+		<!-- Default extra plugins enabled, currently autosave disabled via SAK-33362 -->
+		<ckeditor-extra-plugins>sakaipreview,image2,audiorecorder,contentitem,movieplayer,wordcount,notification,autosave</ckeditor-extra-plugins>
+		<!-- Empty defaults for a11y-->
 		<ckeditor-a11y-extra-plugins></ckeditor-a11y-extra-plugins>
 	</properties>
 	<dependencies>
@@ -36,6 +40,11 @@
 			<artifactId>sakai-fck-connector</artifactId>
 			<type>war</type>
 		</dependency>
+		<dependency>
+			<groupId>org.tuckey</groupId>
+			<artifactId>urlrewritefilter</artifactId>
+			<version>4.0.3</version>
+		</dependency>
 		<!-- At the moment we're unpacking the webjars, so we don't want them bundled into the WAR
 		     but we still need them as dependencies so the plugin unpacks them, that's why they
 		     have a scope of runtime -->
@@ -48,7 +57,7 @@
 		<dependency>
 			<groupId>org.webjars</groupId>
 			<artifactId>ckeditor</artifactId>
-			<version>4.5.7</version>
+			<version>${ckeditor.version}</version>
 			<scope>runtime</scope>
 		</dependency>
 		<dependency>
@@ -85,25 +94,25 @@
 		<dependency>
 			<groupId>org.webjars</groupId>
 			<artifactId>jquery</artifactId>
-			<version>1.11.3</version>
+			<version>1.12.4</version>
 			<scope>runtime</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.webjars</groupId>
 			<artifactId>jquery-migrate</artifactId>
-			<version>1.4.0</version>
+			<version>1.4.1</version>
 			<scope>runtime</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.webjars</groupId>
 			<artifactId>jquery-ui</artifactId>
-			<version>1.11.3</version>
+			<version>1.12.1</version>
 			<scope>runtime</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.webjars</groupId>
 			<artifactId>jquery-ui-themes</artifactId>
-			<version>1.11.3</version>
+			<version>1.12.1</version>
 			<scope>runtime</scope>
 		</dependency>
 		<dependency>
@@ -139,7 +148,7 @@
 		<dependency>
 			<groupId>org.webjars.bower</groupId>
 			<artifactId>elfinder</artifactId>
-			<version>2.1.12</version>
+			<version>2.1.23</version>
 			<scope>runtime</scope>
 			<exclusions>
 				<!-- The exclusions are because the bower versions don't have concat/min versions -->
@@ -178,7 +187,7 @@
 			<version>3.0.0</version>
 			<scope>runtime</scope>
 		</dependency>
-    </dependencies>
+	</dependencies>
 	<profiles>
 		<profile>
 			<id>with-jsmath</id>
@@ -323,6 +332,22 @@
 									</includes>
 									<output>${project.build.directory}/${project.build.finalName}/skin/${sakai.skin.target}/js/morpheus.plugins.min.js</output>
 								</aggregation>
+								<aggregation>
+									<inputDir>src/webapp/editor/elfinder/sakai/js/src</inputDir>
+									<includes>
+										<include>sakai.js</include>
+										<include>query.js</include>
+										<include>tools.js</include>
+										<include>ui.js</include>
+										<include>resizer.js</include>
+										<include>options.js</include>
+										<include>editors.js</include>
+										<include>confirm.js</include>
+										<include>i18n.js</include>
+										<include>init.js</include>
+									</includes>
+									<output>${project.build.directory}/${project.build.finalName}/editor/elfinder/sakai/js/sakai-elfinder.min.js</output>
+								</aggregation>
 							</aggregations>
 						</configuration>
 					</plugin>
@@ -385,7 +410,25 @@
 							</execution>
 						</executions>
 					</plugin>
-
+					<plugin>
+						<groupId>com.github.jknack</groupId>
+						<artifactId>handlebars-maven-plugin</artifactId>
+						<version>4.0.5</version>
+						<executions>
+							<execution>
+								<id>templates</id>
+								<phase>prepare-package</phase>
+								<goals>
+									<goal>precompile</goal>
+								</goals>
+								<configuration>
+									<output>${basedir}/src/webapp/templates.js</output>
+									<prefix>${basedir}/src/templates</prefix>
+									<amd>false</amd>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
 				</plugins>
 			</build>
 		</profile>
@@ -438,6 +481,7 @@
 				<artifactId>maven-war-plugin</artifactId>
 				<version>3.0.0</version>
 				<configuration>
+					<warSourceExcludes>editor/elfinder/sakai/js/src/**</warSourceExcludes>
 					<webResources>
 						<resource>
 							<directory>src/webapp-filtered</directory>

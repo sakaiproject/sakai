@@ -183,6 +183,10 @@ public LocaleGetter localeGetter;
 				    .decorate(new UIFreeAttributeDecorator("class", "fa " + createLink.fa_icon));
 			    }
 
+			    if ( createLink.search ) {
+				UIOutput.make(link, "blti-search-icon");
+			    }
+
 			}
 			
 			if ( toolcount > 0 ) {

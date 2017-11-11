@@ -42,6 +42,7 @@ import org.sakaiproject.time.api.TimeService;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.ToolManager;
+import org.sakaiproject.user.api.AuthenticationManager;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.PreferencesService;
 import org.sakaiproject.shortenedurl.api.ShortenedUrlService;
@@ -62,6 +63,7 @@ public class AbstractWebService {
     protected SessionManager sessionManager;
 
     protected AssignmentService assignmentService;
+    protected AuthenticationManager authenticationManager;
     protected AuthzGroupService authzGroupService;
     protected CalendarService calendarService;
     protected EventTrackingService eventTrackingService;
@@ -123,6 +125,11 @@ public class AbstractWebService {
         Message message = PhaseInterceptorChain.getCurrentMessage();
         HttpServletRequest request = (HttpServletRequest)message.get(AbstractHTTPDestination.HTTP_REQUEST);
         return request.getRemoteAddr();
+    }
+
+    @WebMethod(exclude = true)
+    public void setAuthenticationManager(AuthenticationManager authenticationManager) {
+        this.authenticationManager = authenticationManager;
     }
 
     @WebMethod(exclude = true)

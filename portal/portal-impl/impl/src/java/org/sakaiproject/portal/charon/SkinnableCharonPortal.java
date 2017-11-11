@@ -44,6 +44,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
+import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
@@ -128,12 +129,11 @@ import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.util.BasicAuth;
 import org.sakaiproject.util.EditorConfiguration;
+import org.sakaiproject.util.Resource;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.Validator;
 import org.sakaiproject.util.Web;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * <p/> Charon is the Sakai Site based portal.
@@ -144,6 +144,7 @@ import org.slf4j.LoggerFactory;
  * 
  */
 @SuppressWarnings("deprecation")
+@Slf4j
 public class SkinnableCharonPortal extends HttpServlet implements Portal
 {
 	/**
@@ -152,14 +153,10 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 	private static final long serialVersionUID = 2645929710236293089L;
 
 	/**
-	 * Our log (commons).
-	 */
-	private static Logger M_log = LoggerFactory.getLogger(SkinnableCharonPortal.class);
-
-	/**
 	 * messages.
 	 */
 	private static ResourceLoader rloader = new ResourceLoader("sitenav");
+	private static ResourceLoader cmLoader = new Resource().getLoader("org.sakaiproject.portal.api.PortalService", "connection-manager");
 
 	/**
 	 * Parameter value to indicate to look up a tool ID within a site
@@ -173,6 +170,9 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 	private PortalService portalService;
 	
 	private SecurityService securityService = null;
+
+	//Get user preferences
+	private PreferencesService preferencesService;
 
 	/**
 	 * Keyword to look for in sakai.properties copyright message to replace
@@ -257,7 +257,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 	 */
 	public void destroy()
 	{
-		M_log.info("destroy()");
+		log.info("destroy()");
 		portalService.removePortal(this);
 
 		super.destroy();
@@ -301,7 +301,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		String title = ServerConfigurationService.getString("ui.service","Sakai") + " : Portal";
 
 		// start the response
-		PortalRenderContext rcontext = startPageContext("", title, null, req);
+		PortalRenderContext rcontext = startPageContext("", title, null, req, null);
 
 		showSession(rcontext, true);
 
@@ -431,7 +431,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 
 		ResourceProperties rp = site.getProperties();
 		String showSub = rp.getProperty(PROP_SHOW_SUBSITES);
-		// System.out.println("Checking subsite pref:"+site.getTitle()+" pref="+pref+" show="+showSub);
+		log.debug("Checking subsite pref:{} pref={} show={}", site.getTitle(), pref, showSub);
 		if ( "false".equals(showSub) ) return;
 
 		if ( "false".equals(pref) )
@@ -529,7 +529,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 			siteSkin = site.getSkin();
 		}
 
-		PortalRenderContext rcontext = startPageContext(siteType, title, siteSkin, req);
+		PortalRenderContext rcontext = startPageContext(siteType, title, siteSkin, req, site);
 
 		// Make the top Url where the "top" url is
 		String portalTopUrl = Web.serverUrl(req)
@@ -537,7 +537,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		if (prefix != null) portalTopUrl = portalTopUrl + prefix + "/";
 
 		rcontext.put("portalTopUrl", portalTopUrl);
-		rcontext.put("loggedIn", Boolean.valueOf(session.getUserId() != null));
+		rcontext.put("loggedIn", StringUtils.isNotBlank(session.getUserId()));
 		rcontext.put("siteId", siteId);
 
 		if (placement != null)
@@ -604,7 +604,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 			// set renderInline = true to enable this, in the tool config
 			renderResult = this.getInlineRenderingForTool(res, req, placement);
 			if(renderResult != null) {
-				M_log.debug("Using buffered content rendering");
+				log.debug("Using buffered content rendering");
 				toolInline = true;
 			}
 		}
@@ -642,7 +642,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		// for the reset button
 		String toolUrl = ServerConfigurationService.getToolUrl() + "/"
 		   + Web.escapeUrl(placement.getId()) + "/";
-		M_log.debug("includeTool toolInline="+toolInline+" toolUrl="+toolUrl);
+		log.debug("includeTool toolInline={} toolUrl={}", toolInline, toolUrl);
 
 		// Reset is different (and awesome) when inlining
 		if ( toolInline ) {
@@ -657,14 +657,14 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 			ToolSession ts = s.getToolSession(placement.getId());
 			ts.clearAttributes();
 			portalService.setResetState(null);
-			M_log.debug("includeTool state reset");
+			log.debug("includeTool state reset");
 		}
 
 		boolean showResetButton = !"false".equals(placement.getConfig().getProperty(
 				Portal.TOOLCONFIG_SHOW_RESET_BUTTON));
 
 		String resetActionUrl = PortalStringUtil.replaceFirst(toolUrl, "/tool/", "/tool-reset/");
-		M_log.debug("includeTool resetActionUrl="+resetActionUrl);
+		log.debug("includeTool resetActionUrl={}", resetActionUrl);
 
 		// SAK-20462 - Pass through the sakai_action parameter
 		String sakaiAction = req.getParameter("sakai_action");
@@ -719,7 +719,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		
 		if(renderResult == null) {
 			//standard iframe
-			M_log.debug("Using standard iframe rendering");
+			log.debug("Using standard iframe rendering");
 			renderResult = ToolRenderService.render(this, placement, req, res, getServletContext());
 		}
 				
@@ -931,8 +931,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		{
 			if (basicAuth.doAuth(req, res))
 			{
-				// System.err.println("BASIC Auth Request Sent to the Browser
-				// ");
+				log.debug("BASIC Auth Request Sent to the Browser");
 				return;
 			}
 		}
@@ -1008,7 +1007,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 	}
 
 	public PortalRenderContext startPageContext(String siteType, String title,
-			String skin, HttpServletRequest request)
+			String skin, HttpServletRequest request, Site site)
 	{
 		PortalRenderEngine rengine = portalService
 		.getRenderEngine(portalContext, request);
@@ -1027,6 +1026,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		rcontext.put("includeLatestJQuery", PortalUtils.includeLatestJQuery("Portal"));
 		rcontext.put("pageTop", Boolean.valueOf(true));
 		rcontext.put("rloader", rloader);
+		rcontext.put("cmLoader", cmLoader);
 		//rcontext.put("browser", new BrowserDetector(request));
 		// Allow for inclusion of extra header code via property
 		String includeExtraHead = ServerConfigurationService.getString("portal.include.extrahead", "");
@@ -1052,10 +1052,20 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 			rcontext.put("googleTagManagerContainerId", googleTagManagerContainerId);
 		}
 
-		Session s = SessionManager.getCurrentSession();
-		rcontext.put("loggedIn", Boolean.valueOf(s.getUserId() != null));
-		rcontext.put("userId", s.getUserId());
-		rcontext.put("userEid", s.getUserEid());
+				
+		User currentUser = UserDirectoryService.getCurrentUser();
+		Role role = site != null && currentUser != null ? site.getUserRole(currentUser.getId()) : null;
+		
+		Preferences prefs = preferencesService.getPreferences(currentUser.getId());
+		String editorType = prefs.getProperties(PreferencesService.EDITOR_PREFS_KEY).getProperty(PreferencesService.EDITOR_PREFS_TYPE);
+
+		rcontext.put("loggedIn", StringUtils.isNotBlank(currentUser.getId()));
+		rcontext.put("userId", currentUser.getId());
+		rcontext.put("userEid", currentUser.getEid());
+		rcontext.put("userType", currentUser.getType());
+		rcontext.put("userSiteRole", role != null ? role.getId() : "");
+		rcontext.put("editorType", editorType);
+
 		rcontext.put("loggedOutUrl",ServerConfigurationService.getLoggedOutUrl());
 		rcontext.put("portalPath",ServerConfigurationService.getPortalUrl());
 		rcontext.put("timeoutDialogEnabled",Boolean.valueOf(ServerConfigurationService.getBoolean("timeoutDialogEnabled", true)));
@@ -1080,7 +1090,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		rcontext.put("toolParamResetState", portalService.getResetStateParam());
 
                 // Get the tool header properties
-                Properties props = toolHeaderProperties(request, skin);
+                Properties props = toolHeaderProperties(request, skin, site, null);
                 for(Object okey : props.keySet() ) 
                 {
                         String key = (String) okey;
@@ -1122,7 +1132,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 			basicAuth.doLogin(req);
 			if (!ToolRenderService.preprocess(this,req, res, getServletContext()))
 			{
-				// System.err.println("POST FAILED, REDIRECT ?");
+				log.debug("POST FAILED, REDIRECT ?");
 				return;
 			}
 
@@ -1270,17 +1280,10 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 
 	}
 
-	// NOTE: This code is duplicated in ToolPortal.java - make sure to change 
-	// both places
-	public Properties toolHeaderProperties(HttpServletRequest req, String skin)
-	{
-		return toolHeaderProperties(req, skin, null);
-	}
-	
 	// Note - When modifying this code, make sure to review
-	// org.sakaiproject.portal.charon.velocity.VelocityPortalRenderEngine.java
-	// as it has its own setupForward that tweaks these values
-	public Properties toolHeaderProperties(HttpServletRequest req, String skin, Placement placement) 
+	// org.sakaiproject.editor.EditorServlet.java
+	// as it includes these values when it is running in its own frame
+	public Properties toolHeaderProperties(HttpServletRequest req, String skin, Site site, Placement placement) 
 	{
 		Properties retval = new Properties();
 
@@ -1306,28 +1309,14 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 				+ "\"></script>\n";
 		
 		StringBuilder headJs = new StringBuilder();
-        
-        // SAK-22384
-        if (placement != null && MATHJAX_ENABLED_AT_SYSTEM_LEVEL)
-        {  
-            ToolConfiguration toolConfig = SiteService.findTool(placement.getId());
-            if (toolConfig != null) {
-                String siteId = toolConfig.getSiteId();
-                Site site;
-                try {
-                    site = SiteService.getSiteVisit(siteId);
-                }
-                catch (IdUnusedException e) {
-                    site = null;
-                }
-                catch (PermissionException e) {
-                    site = null;
-                }
 
+        // SAK-22384
+        if (site != null && MATHJAX_ENABLED_AT_SYSTEM_LEVEL)
+        {
                 if (site != null)
                 {                           
                     String strMathJaxEnabledForSite = site.getProperties().getProperty(MATHJAX_ENABLED);
-                    if (!StringUtils.isBlank(strMathJaxEnabledForSite))
+                    if (StringUtils.isNotBlank(strMathJaxEnabledForSite))
                     {
                         if (Boolean.valueOf(strMathJaxEnabledForSite))
                         {
@@ -1337,9 +1326,9 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
                         }                     
                     }
                 }
-            }
         }
-                
+
+		String contentItemUrl = portalService.getContentItemUrl(site);
 		headJs.append("<script type=\"text/javascript\" src=\"");
 		headJs.append(PortalUtils.getCDNPath());
 		headJs.append("/library/js/headscripts.js");
@@ -1354,6 +1343,11 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		headJs.append("sakai.locale.userLocale = '" + rloader.getLocale().toString() + "';\n");
 		headJs.append("sakai.editor.collectionId = '" + portalService.getBrowserCollectionId(placement) + "';\n");
 		headJs.append("sakai.editor.enableResourceSearch = " + EditorConfiguration.enableResourceSearch() + ";\n");
+		if ( contentItemUrl != null ) {
+			headJs.append("sakai.editor.contentItemUrl = '" + contentItemUrl + "';\n");
+		} else {
+			headJs.append("sakai.editor.contentItemUrl = false;\n");
+		}
 		headJs.append("sakai.editor.siteToolSkin = '" + CSSUtils.getCssToolSkin(skin) + "';\n");
 		headJs.append("sakai.editor.sitePrintSkin = '" + CSSUtils.getCssPrintSkin(skin) + "';\n");
 		headJs.append("sakai.editor.editors.ckeditor.browser = '"+ EditorConfiguration.getCKEditorFileBrowser()+ "';\n");
@@ -1387,8 +1381,18 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 	public void setupForward(HttpServletRequest req, HttpServletResponse res,
 			Placement p, String skin) throws ToolException
         {
+                Site site = null;
+		if ( p != null ) {
+			try {
+				site = SiteService.getSite(p.getContext());
+			}
+			catch (IdUnusedException ex) {
+				log.debug(ex.getMessage());
+			}
+                }
+
 		// Get the tool header properties
-		Properties props = toolHeaderProperties(req, skin, p);
+		Properties props = toolHeaderProperties(req, skin, site, p);
 		for(Object okey : props.keySet() ) 
 		{
 			String key = (String) okey;
@@ -1450,7 +1454,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 
 		String reqUrl = req.getRequestURL().toString();
 		if ( reqUrl.indexOf(toolContextPath) < 0 ) {
-			M_log.debug("Mismatch between request url " + reqUrl + " and toolContextPath " + toolContextPath);
+			log.debug("Mismatch between request url {} and toolContextPath {}", reqUrl, toolContextPath);
 			if ( toolContextPath.indexOf("/~") > 0 && reqUrl.indexOf("/~") < 1 ) {
 				if ( reqUrl.indexOf("/%7e") > 0 ) {
 					toolContextPath = toolContextPath.replace("/~","/%7e");
@@ -1459,7 +1463,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 				}
 			}
 		}
-		M_log.debug("forwardtool call " + req.getRequestURL().toString() + " toolPathInfo " + toolPathInfo + " ctx " + toolContextPath);
+		log.debug("forwardtool call {} toolPathInfo {} ctx {}", req.getRequestURL(), toolPathInfo, toolContextPath);
 
 		// if there is a stored request state, and path, extract that from the
 		// session and reinstance it
@@ -1477,7 +1481,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 			{
 				setupForward(req, res, p, skin);
 				req.setAttribute(ToolURL.MANAGER, new ToolURLManagerImpl(res));
-				M_log.debug("tool forward 1 " + toolPathInfo + " context " + toolContextPath);
+				log.debug("tool forward 1 {} context {}", toolPathInfo, toolContextPath);
 				needNative = (req.getAttribute(Tool.NATIVE_URL) != null);
 				if (needNative)
 					req.removeAttribute(Tool.NATIVE_URL);
@@ -1487,7 +1491,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 			}
 			else
 			{
-				M_log.debug("Restoring StoredState [" + ss + "]");
+				log.debug("Restoring StoredState [{}]", ss);
 				HttpServletRequest sreq = ss.getRequest(req);
 				Placement splacement = ss.getPlacement();
 				StringBuilder sctx = new StringBuilder(ss.getToolContextPath());
@@ -1498,7 +1502,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 				String sskin = ss.getSkin();
 				setupForward(sreq, res, splacement, sskin);
 				req.setAttribute(ToolURL.MANAGER, new ToolURLManagerImpl(res));
-				M_log.debug("tool forward 2 " + stoolPathInfo + " context " + stoolContext);
+				log.debug("tool forward 2 {} context {}", stoolPathInfo, stoolContext);
 				needNative = (sreq.getAttribute(Tool.NATIVE_URL) != null);
 				if (needNative)
 					sreq.removeAttribute(Tool.NATIVE_URL);
@@ -1514,7 +1518,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		{
 			setupForward(req, res, p, skin);
 			req.setAttribute(ToolURL.MANAGER, new ToolURLManagerImpl(res));
-			M_log.debug("tool forward 3 " + toolPathInfo + " context " + toolContextPath);
+			log.debug("tool forward 3 {} context {}", toolPathInfo, toolContextPath);
 			needNative = (req.getAttribute(Tool.NATIVE_URL) != null);
 			if (needNative)
 				req.removeAttribute(Tool.NATIVE_URL);
@@ -1578,8 +1582,6 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 			String thisUser = SessionManager.getCurrentSessionUserId();
 			
 			//Get user preferences
-            PreferencesService preferencesService = (PreferencesService) ComponentManager.get(PreferencesService.class);
-
             Preferences prefs = preferencesService.getPreferences(thisUser);
 
 			boolean showServerTime = ServerConfigurationService.getBoolean("portal.show.time", true);
@@ -1702,7 +1704,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
                         			props.addProperty("sakaiTutorialFlag", "1");
                         			preferencesService.commit(preferences);   
                         		} catch (SakaiException e1) {
-                        			M_log.error(e1.getMessage(), e1);
+                        			log.error(e1.getMessage(), e1);
                         		}
                         	}
                         }
@@ -1980,7 +1982,9 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		portalService = org.sakaiproject.portal.api.cover.PortalService.getInstance();
 		securityService = (SecurityService) ComponentManager.get("org.sakaiproject.authz.api.SecurityService");
 		chatHelper = org.sakaiproject.portal.api.cover.PortalChatPermittedHelper.getInstance();
-		M_log.info("init()");
+		preferencesService = ComponentManager.get(PreferencesService.class);
+
+		log.info("init()");
 
 		forceContainer = ServerConfigurationService.getBoolean("login.use.xlogin.to.relogin", true);
 
@@ -2154,7 +2158,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 	{
 		Exception e = new Exception();
 		StackTraceElement se = e.getStackTrace()[1];
-		M_log.info("Log marker " + se.getMethodName() + ":" + se.getFileName() + ":"
+		log.info("Log marker " + se.getMethodName() + ":" + se.getFileName() + ":"
 				+ se.getLineNumber());
 	}
 
@@ -2187,7 +2191,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 	protected void sendPortalRedirect(HttpServletResponse res, String url)
 	throws IOException
 	{
-		PortalRenderContext rcontext = startPageContext("", null, null, null);
+		PortalRenderContext rcontext = startPageContext("", null, null, null, null);
 		rcontext.put("redirectUrl", url);
 		sendResponse(rcontext, res, "portal-redirect", null);
 	}
@@ -2210,7 +2214,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		}
 		catch (UserNotDefinedException e)
 		{
-			M_log.warn("getUserEidBasedSiteId: user id not found for eid: " + userId);
+			log.warn("getUserEidBasedSiteId: user id not found for eid: " + userId);
 			return SiteService.getUserSiteId(userId);
 		}
 	}
@@ -2349,7 +2353,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 				}
 				catch (UserNotDefinedException e)
 				{
-					M_log.debug("Unable to retrieve user for id: " + originalUserId);
+					log.debug("Unable to retrieve user for id: {}", originalUserId);
 				}
 			}
 		}

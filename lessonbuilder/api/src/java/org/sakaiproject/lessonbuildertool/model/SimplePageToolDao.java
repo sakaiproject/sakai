@@ -196,6 +196,8 @@ public interface SimplePageToolDao {
 
 	public SimplePage getPage(long pageId);
 
+	public String getPageUrl(long pageId);
+
     // list of all pages in the site, not just top level
 	public List<SimplePage> getSitePages(String siteId);
 
@@ -327,4 +329,7 @@ public interface SimplePageToolDao {
 
     public boolean doesPageFolderExist(final String siteId, final String folder);
 
+    public String getLessonSubPageJSON(String userId, boolean isInstructor, String siteId, List pages);
+
+    public List<SimplePage> getTopLevelPages(String siteId);
 }

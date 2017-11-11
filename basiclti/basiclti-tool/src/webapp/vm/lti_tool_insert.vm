@@ -4,21 +4,21 @@
 <script type="text/javascript" src="/library/js/fontIconPicker/2.0.1-cs/jquery.fonticonpicker.min.js"></script>
 <link rel="stylesheet" type="text/css" href="/library/js/fontIconPicker/2.0.1-cs/css/jquery.fonticonpicker.css" />
 <link rel="stylesheet" type="text/css" href="/library/js/fontIconPicker/2.0.1-cs/themes/grey-theme/jquery.fonticonpicker.grey.min.css" />
-	<h3>
-		$tlang.getString("tool.put")
-	</h3>
-	#if ($messageSuccess)<div class="messageSuccess">$tlang.getString("gen.success") $validator.escapeHtml($messageSuccess)</div><div class="clear"></div>#end
-	#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div><div class="clear"></div>#end
-	<form action="#toolForm("")" method="post" name="customizeForm" >
-		$formInput
+    <h3>
+        $tlang.getString("tool.put")
+    </h3>
+    #if ($messageSuccess)<div class="messageSuccess">$tlang.getString("gen.success") $validator.escapeHtml($messageSuccess)</div><div class="clear"></div>#end
+    #if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div><div class="clear"></div>#end
+    <form action="#toolForm("")" method="post" name="customizeForm" >
+        $formInput
                 <input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
-		<p class="act">
-			<input type="submit" accesskey ="s" class="active" name="$doToolAction" 
-				value="$tlang.getString('gen.save')" />
-			<input type="submit" accesskey ="x" name="$doCancel" value="$tlang.getString('gen.cancel')" 
- 				onclick="location = '$sakai_ActionURL.setPanel("ToolSystem")';return false;">
-		</p>
-	</form>
+        <p class="act">
+            <input type="submit" accesskey ="s" class="active" name="$doToolAction"
+                value="$tlang.getString('gen.save')" />
+            <input type="submit" accesskey ="x" name="$doCancel" value="$tlang.getString('gen.cancel')"
+                 onclick="location = '$sakai_ActionURL.setPanel("ToolSystem")';return false;">
+        </p>
+    </form>
 <script type="text/javascript">$(document).ready(function () { fontawesome_icon_picker('#fa_icon'); });</script>
 #if ( ! $isAdmin )
 <script>
@@ -31,4 +31,33 @@ $(document).ready( function() {
 });
 </script>
 #end
+<div id="radioDialog" title="$tlang.getString("tool.patch.title")" style="display:none">
+<p>
+$tlang.getString("tool.patch.body")
+</p>
+</div>
+<script>
+function checkRadioSettings() {
+    if ($('#pl_linkselection').is(":checked") || $('#pl_contenteditor').is(":checked")) {
+        var changed = false;
+        if ( $("input[name='allowtitle']:checked").val() == 0 ||
+             $("input[name='allowlaunch']:checked").val() == 0 ) {
+            $("#allowtitle_allow").click();
+            $("#allowlaunch_allow").click();
+            $( "#radioDialog" ).dialog();
+        }
+    }
+}
+$(document).ready( function() {
+    $("#pl_linkselection").change(function(){
+        checkRadioSettings();
+    });
+    $("#pl_contenteditor").change(function(){
+        checkRadioSettings();
+    });
+
+    var toolorderspinner = $("#toolorder").spinner({min:0,max:99});
+
+});
+</script>
 </div>

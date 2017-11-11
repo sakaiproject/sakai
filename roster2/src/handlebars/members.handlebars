@@ -5,7 +5,7 @@
         {{#if ../viewProfile}}
             <a href="javascript:;" class="profile" data-user-id="{{userId}}">
         {{/if}}
-        <img class="roster-picture" src="{{profileImageUrl}}" title="{{translate 'profile_picture_alt'}} alt="{{translate 'profile_picture_alt'}} {{displayName}}" />
+        <img class="roster-picture" src="{{profileImageUrl}}" title="{{translate 'profile_picture_alt'}}" alt="{{translate 'profile_picture_alt'}} {{displayName}}" />
         {{#if ../viewProfile}}
             </a>
         {{/if}}
@@ -90,5 +90,17 @@
             <a href="mailto:{{email}}" title="{{translate 'profile_email'}} {{email}}">{{email}}</a>
         </div>
     {{/if}}
+
+    {{#if ../viewUserProperty}}
+        <div class="roster-table-cell">
+            <div class="roster-mobile-label">{{translate 'facet_userProperties'}}</div>
+            <ul class="roster-user-properties">
+            {{#each userProperties}}
+                <li>{{@key}}: {{this}}</li>
+            {{/each}}
+            </ul>
+        </div>
+    {{/if}}
+
     </div> <!-- /roster-table-row -->
 {{/each}}

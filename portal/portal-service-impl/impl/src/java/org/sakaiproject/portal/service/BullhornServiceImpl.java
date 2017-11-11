@@ -1,18 +1,38 @@
+/**
+ * Copyright (c) 2003-2017 The Apereo Foundation
+ *
+ * Licensed under the Educational Community License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *             http://opensource.org/licenses/ecl2
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.sakaiproject.portal.service;
 
 import java.lang.reflect.Method;
+import java.time.Instant;
 import java.util.*;
 import java.sql.ResultSet;
 
 import org.apache.commons.lang.StringUtils;
 
+import org.hibernate.HibernateException;
+import org.hibernate.SessionFactory;
+
 import org.sakaiproject.announcement.api.AnnouncementMessage;
 import org.sakaiproject.announcement.api.AnnouncementMessageHeader;
 import org.sakaiproject.announcement.api.AnnouncementService;
-import org.sakaiproject.assignment.api.Assignment;
 import org.sakaiproject.assignment.api.AssignmentConstants;
 import org.sakaiproject.assignment.api.AssignmentService;
-import org.sakaiproject.assignment.api.AssignmentSubmission;
+import org.sakaiproject.assignment.api.AssignmentServiceConstants;
+import org.sakaiproject.assignment.api.model.Assignment;
+import org.sakaiproject.assignment.api.model.AssignmentSubmission;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ComponentManager;
@@ -23,6 +43,11 @@ import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.lessonbuildertool.api.LessonBuilderEvents;
+import org.sakaiproject.lessonbuildertool.model.SimplePageToolDao;
+import org.sakaiproject.lessonbuildertool.SimplePage;
+import org.sakaiproject.lessonbuildertool.SimplePageComment;
+import org.sakaiproject.lessonbuildertool.SimplePageItem;
 import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.portal.api.BullhornService;
@@ -32,6 +57,7 @@ import org.sakaiproject.profile2.logic.ProfileLinkLogic;
 import org.sakaiproject.profile2.logic.ProfileStatusLogic;
 import org.sakaiproject.profile2.util.ProfileConstants;
 import org.sakaiproject.site.api.Site;
+import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.time.api.Time;
 import org.sakaiproject.tool.api.Session;
@@ -90,9 +116,13 @@ public class BullhornServiceImpl implements BullhornService, Observer {
     @Setter
     private SessionManager sessionManager;
     @Setter
+    private SimplePageToolDao simplePageToolDao;
+    @Setter
     private SiteService siteService;
     @Setter
     private SqlService sqlService;
+    @Setter
+    private SessionFactory sessionFactory;
 
     private Object commonsManager = null;
     private Method commonsManagerGetPostMethod = null;
@@ -148,6 +178,7 @@ public class BullhornServiceImpl implements BullhornService, Observer {
             HANDLED_EVENTS.add(AssignmentConstants.EVENT_ADD_ASSIGNMENT);
             HANDLED_EVENTS.add(AssignmentConstants.EVENT_GRADE_ASSIGNMENT_SUBMISSION);
             HANDLED_EVENTS.add(COMMONS_COMMENT_CREATED);
+            HANDLED_EVENTS.add(LessonBuilderEvents.COMMENT_CREATE);
             eventTrackingService.addObserver(this);
         }
 
@@ -164,8 +195,17 @@ public class BullhornServiceImpl implements BullhornService, Observer {
             Event e = (Event) arg;
             String event = e.getEvent();
             if (HANDLED_EVENTS.contains(event)) {
+                // About to start a new thread that expects the changes in this hibernate session
+                // to have been persisted, so we flush.
+                try {
+                    sessionFactory.getCurrentSession().flush();
+                } catch (HibernateException he) {
+                    // This will be thrown if there is no current Hibernate session. Nothing to do.
+                }
+
                 new Thread(() -> {
                     String ref = e.getResource();
+                    String context = e.getContext();
                     String[] pathParts = ref.split("/");
                     String from = e.getUserId();
                     long at = e.getEventTime().getTime();
@@ -196,6 +236,7 @@ public class BullhornServiceImpl implements BullhornService, Observer {
                             String url = profileLinkLogic.getInternalDirectUrlToUserConnections(to);
                             doSocialInsert(from, to, event, ref, e.getEventTime(), url);
                             countCache.remove(from);
+                            countCache.remove(to);
                         } else if (ProfileConstants.EVENT_MESSAGE_SENT.equals(event)) {
                             String to = pathParts[2];
                             String siteId = "~" + to;
@@ -258,18 +299,18 @@ public class BullhornServiceImpl implements BullhornService, Observer {
                         } else if (AssignmentConstants.EVENT_ADD_ASSIGNMENT.equals(event)) {
                             String siteId = pathParts[3];
                             String assignmentId = pathParts[pathParts.length - 1];
-                            SecurityAdvisor sa = unlock(new String[] {AssignmentService.SECURE_ACCESS_ASSIGNMENT, AssignmentService.SECURE_ADD_ASSIGNMENT_SUBMISSION});
+                            SecurityAdvisor sa = unlock(new String[] {AssignmentServiceConstants.SECURE_ACCESS_ASSIGNMENT, AssignmentServiceConstants.SECURE_ADD_ASSIGNMENT_SUBMISSION});
                             switchToAdmin();
                             try {
                                 Assignment assignment = assignmentService.getAssignment(assignmentId);
                                 switchToNull();
-                                Time openTime = assignment.getOpenTime();
-                                if (openTime == null || openTime.getTime() < (new Date().getTime())) {
+                                Instant openTime = assignment.getOpenDate();
+                                if (openTime == null || openTime.isBefore(Instant.now())) {
                                     Site site = siteService.getSite(siteId);
                                     String title = assignment.getTitle();
                                     String url = assignmentService.getDeepLink(siteId, assignmentId);
                                     // Get all the members of the site with read ability
-                                    for (String  to : site.getUsersIsAllowed(AssignmentService.SECURE_ACCESS_ASSIGNMENT)) {
+                                    for (String  to : site.getUsersIsAllowed(AssignmentServiceConstants.SECURE_ACCESS_ASSIGNMENT)) {
                                         if (!from.equals(to) && !securityService.isSuperUser(to)) {
                                             doAcademicInsert(from, to, event, ref, title, siteId, e.getEventTime(), url);
                                             countCache.remove(to);
@@ -285,9 +326,9 @@ public class BullhornServiceImpl implements BullhornService, Observer {
                         } else if (AssignmentConstants.EVENT_GRADE_ASSIGNMENT_SUBMISSION.equals(event)) {
                             String siteId = pathParts[3];
                             String submissionId = pathParts[pathParts.length - 1];
-                            SecurityAdvisor sa = unlock(new String[] {AssignmentService.SECURE_ACCESS_ASSIGNMENT_SUBMISSION
-                                                            , AssignmentService.SECURE_ACCESS_ASSIGNMENT
-                                                            , AssignmentService.SECURE_ADD_ASSIGNMENT_SUBMISSION});
+                            SecurityAdvisor sa = unlock(new String[] {AssignmentServiceConstants.SECURE_ACCESS_ASSIGNMENT_SUBMISSION
+                                                            , AssignmentServiceConstants.SECURE_ACCESS_ASSIGNMENT
+                                                            , AssignmentServiceConstants.SECURE_ADD_ASSIGNMENT_SUBMISSION});
 
                             // Without hacking assignment's permissions model, this is only way to
                             // get a submission, other than switching to the submitting user.
@@ -300,16 +341,59 @@ public class BullhornServiceImpl implements BullhornService, Observer {
                                     Assignment assignment = submission.getAssignment();
                                     String title = assignment.getTitle();
                                     String url = assignmentService.getDeepLink(siteId, assignment.getId());
-                                    for (String to : ((List<String>) submission.getSubmitterIds())) {
-                                        doAcademicInsert(from, to, event, ref, title, siteId, e.getEventTime(), url);
-                                        countCache.remove(to);
-                                    }
+                                    submission.getSubmitters().forEach(to -> {
+                                        doAcademicInsert(from, to.getSubmitter(), event, ref, title, siteId, e.getEventTime(), url);
+                                        countCache.remove(to.getSubmitter());
+                                    });
                                 }
                             } catch (IdUnusedException idue) {
                                 log.error("Failed to find either the submission or the site", idue);
                             } finally {
                                 switchToNull();
                                 lock(sa);
+                            }
+                        } else if (LessonBuilderEvents.COMMENT_CREATE.equals(event)) {
+                            try {
+                                long commentId = Long.parseLong(pathParts[pathParts.length - 1]);
+                                SimplePageComment comment = simplePageToolDao.findCommentById(commentId);
+
+                                String url = simplePageToolDao.getPageUrl(comment.getPageId());
+
+                                if (url != null) {
+                                    List<String> done = new ArrayList<>();
+                                    // Alert tutor types.
+                                    List<User> receivers = securityService.unlockUsers(
+                                        SimplePage.PERMISSION_LESSONBUILDER_UPDATE, "/site/" + context);
+                                    for (User receiver : receivers) {
+                                        String to = receiver.getId();
+                                        if (!to.equals(from)) {
+                                            doAcademicInsert(from, to, event, ref, "title", context, e.getEventTime(), url);
+                                            done.add(to);
+                                            countCache.remove(to);
+                                        }
+                                    }
+
+                                    // Get all the comments in the same item
+                                    List<SimplePageComment> comments
+                                        = simplePageToolDao.findCommentsOnItems(
+                                            Arrays.asList(new Long[] {comment.getItemId()}));
+
+                                    if (comments.size() > 1) {
+                                        // Not the first, alert all the other commenters unless they already have been
+                                        for (SimplePageComment c : comments) {
+                                            String to = c.getAuthor();
+                                            if (!to.equals(from) && !done.contains(to)) {
+                                                doAcademicInsert(from, to, event, ref, "title", context, e.getEventTime(), url);
+                                                done.add(to);
+                                                countCache.remove(to);
+                                            }
+                                        }
+                                    }
+                                } else {
+                                    log.error("null url for page {}", comment.getPageId());
+                                }
+                            } catch (NumberFormatException nfe) {
+                                log.error("Caught number format exception whilst handling events", nfe);
                             }
                         }
                     } catch (Exception ex) {
@@ -491,7 +575,7 @@ public class BullhornServiceImpl implements BullhornService, Observer {
             try {
                 User fromUser = userDirectoryService.getUser(alert.from);
                 alert.fromDisplayName = fromUser.getDisplayName();
-                if (!StringUtils.isBlank(alert.siteId)) {
+                if (StringUtils.isNotBlank(alert.siteId)) {
                     alert.siteTitle = siteService.getSite(alert.siteId).getTitle();
                 }
             } catch (UserNotDefinedException unde) {

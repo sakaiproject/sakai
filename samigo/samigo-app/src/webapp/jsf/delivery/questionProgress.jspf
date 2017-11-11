@@ -58,7 +58,7 @@
 		<f:verbatim><p class="progressItem"></f:verbatim>
               <h:panelGroup styleClass="#{((question.number eq delivery.questionIndex+1) and (part.number eq delivery.partIndex+1)) ? 'currentQuestion' : ''} #{((delivery.navigation eq '1') and ((part.number le delivery.partIndex+1 and question.number lt delivery.questionIndex+1) or (part.number lt delivery.partIndex+1))) ? 'linearPastQuestion' : ''}">
 		<h:graphicImage alt="Loading question..." url="/images/loading.gif" style="display:none;padding-left:1em;"/>
-		<h:commandLink title="#{question.strippedText} (#{question.pointsDisplayString}#{question.roundedMaxPoints} #{deliveryMessages.pt})" action="#{delivery.goto_question}" rendered="#{delivery.navigation eq '2'}" onmouseup="questionProgress.disableLink(this);">
+		<h:commandLink title="#{question.strippedText} (#{question.pointsDisplayString}#{question.roundedMaxPoints} #{deliveryMessages.pt})" action="#{delivery.goto_question}" rendered="#{delivery.navigation eq '2'}" onmouseup="questionProgress.disableLink(this); serializeImagePoints();">
                 <h:outputText escape="false" value="#{question.sequence} " >
 			<f:convertNumber maxFractionDigits="2"/>
         	</h:outputText>

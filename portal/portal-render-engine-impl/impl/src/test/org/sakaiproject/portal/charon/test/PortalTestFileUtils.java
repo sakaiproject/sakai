@@ -32,13 +32,12 @@ import java.security.MessageDigest;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * @author ieb
  */
+@Slf4j
 public class PortalTestFileUtils
 {
 	/**
@@ -64,8 +63,6 @@ public class PortalTestFileUtils
 		void doAfterFile(File f);
 
 	}
-
-	private static final Logger log = LoggerFactory.getLogger(PortalTestFileUtils.class);
 
 	/**
 	 * delete all files under this file and including this file
@@ -270,8 +267,7 @@ public class PortalTestFileUtils
 				// searchIndexDirectory... hence this is correct
 
 				File f = new File(destination, zipEntry.getName());
-				if (log.isDebugEnabled())
-					log.debug("         Unpack " + f.getAbsolutePath());
+				log.debug("         Unpack {}" + f.getAbsolutePath());
 				f.getParentFile().mkdirs();
 
 				fout = new FileOutputStream(f);

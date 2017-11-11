@@ -10,6 +10,7 @@
         <property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService" />
         <property name="developerHelperService" ref="org.sakaiproject.entitybroker.DeveloperHelperService"/>
         <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
+        <property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
     </bean>
 
     <bean parent="org.sakaiproject.entitybroker.entityprovider.AbstractEntityProvider"
@@ -27,6 +28,7 @@
     <bean parent="org.sakaiproject.entitybroker.entityprovider.AbstractEntityProvider"
             class="org.sakaiproject.entitybroker.providers.SessionEntityProvider">
         <property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager" />
+        <property name="authenticationManager" ref="org.sakaiproject.user.api.AuthenticationManager"/>
         <property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService" />
         <property name="securityService" ref="org.sakaiproject.authz.api.SecurityService" />
         <property name="authzGroupService" ref="org.sakaiproject.authz.api.AuthzGroupService"/>
@@ -47,7 +49,9 @@
         <property name="userEntityProvider" ref="org.sakaiproject.entitybroker.providers.UserEntityProvider" />
         <property name="emailService" ref="org.sakaiproject.email.api.EmailService" />
         <property name="privacyManager" ref="org.sakaiproject.api.privacy.PrivacyManager" />
-	<property name="securityService" ref="org.sakaiproject.authz.api.SecurityService" />
+        <property name="securityService" ref="org.sakaiproject.authz.api.SecurityService" />
+        <property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService" />
+        <property name="userAuditRegistration" ref="org.sakaiproject.userauditservice.api.UserAuditRegistration.direct" />
     </bean>
 
     <bean parent="org.sakaiproject.entitybroker.entityprovider.AbstractEntityProvider"

@@ -8,6 +8,13 @@
 		}
 	}
 
+	legend.samigo-legend {
+		margin-bottom: 1em;
+		font-size: 1.2em;
+		font-weight: normal;
+		color: inherit;
+	}
+
 	#samigo-create-new-box, #samigo-create-import-box {
 		@extend .bs-callout-primary;
 		border-left-width: 1px;
@@ -64,8 +71,13 @@
 		padding: 0 1em 0 1em;
 	}
 	
-	.feedBackCheck, .feedBackCross{
+	.feedBackCheck, .feedBackCross, .feedBackNone{
+		min-width: 20px;
 		margin-right: 0.2em;
+	}
+	
+	.feedBackNone{
+		visibility: hidden;
 	}
 	
 	.feedBackCheck{
@@ -226,6 +238,10 @@
 		.extendedTime-mins {
 			min-width: 70px;
 		}
+	}
+	
+	.navIntraTool {
+		margin: 0px !important;
 	}
 
 }

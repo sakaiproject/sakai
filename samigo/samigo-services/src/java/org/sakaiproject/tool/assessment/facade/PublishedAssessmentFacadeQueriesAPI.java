@@ -111,6 +111,8 @@ public interface PublishedAssessmentFacadeQueriesAPI
   public Set preparePublishedAnswerFeedbackSet(PublishedAnswer publishedAnswer,
       Set answerFeedbackSet);
 
+  public boolean isPublishedAssessmentIdValid(Long publishedAssessmentId);
+
   public PublishedAssessmentFacade getPublishedAssessment(Long assessmentId);
   
   public PublishedAssessmentFacade getPublishedAssessment(Long assessmentId, boolean withGroupsInfo);
@@ -308,7 +310,7 @@ public interface PublishedAssessmentFacadeQueriesAPI
   public Map getGroupsForSite();
   public PublishedAssessmentFacade getPublishedAssessmentInfoForRemove(Long publishedAssessmentId);
   
-  public Map<String, String> getToGradebookPublishedAssessmentSiteIdMap();
+  public Map<Long, String> getToGradebookPublishedAssessmentSiteIdMap();
   
   public List<AssessmentGradingData> getBasicInfoOfLastOrHighestOrAverageSubmittedAssessmentsByScoringOption(final String agentId, final String siteId, boolean allAssessments);
      

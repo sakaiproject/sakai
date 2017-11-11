@@ -4,7 +4,7 @@
   <parent>
     <artifactId>user</artifactId>
     <groupId>org.sakaiproject.user</groupId>
-    <version>12-SNAPSHOT</version>
+    <version>13-SNAPSHOT</version>
     <relativePath>../../pom.xml</relativePath>
   </parent>
   <name>sakai-user-tool-prefs</name>
@@ -82,7 +82,7 @@
     <dependency>
       <groupId>taglibs</groupId>
       <artifactId>standard</artifactId>
-      <version>1.0.4</version>
+      <version>1.1.2</version>
     </dependency>
     <dependency>
       <groupId>javax.servlet</groupId>

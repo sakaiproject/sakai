@@ -28,9 +28,6 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.portal.api.Portal;
@@ -50,7 +47,7 @@ import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.util.Web;
 import org.sakaiproject.portal.util.URLUtils;
-
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * 
@@ -59,10 +56,9 @@ import org.sakaiproject.portal.util.URLUtils;
  * @version $Rev$
  * 
  */
+@Slf4j
 public class ToolHandler extends BasePortalHandler
 {
-	private static Logger M_log = LoggerFactory.getLogger(ToolHandler.class);
-
 	private static final String URL_FRAGMENT = "tool";
 
 	public ToolHandler()
@@ -135,7 +131,7 @@ public class ToolHandler extends BasePortalHandler
 			ToolSession ts = s.getToolSession(placementId);
 			ts.clearAttributes();
 			portalService.setResetState(null);
-			M_log.debug("Tool state reset");
+			log.debug("Tool state reset");
 		}
 
 		// find the tool registered for this
@@ -192,7 +188,7 @@ public class ToolHandler extends BasePortalHandler
 				+ portal.getSiteHelper().getUserSpecificSiteTitle( site, false ) + " : " + siteTool.getTitle();
 
 			PortalRenderContext rcontext = portal.startPageContext(siteType, title, 
-				siteTool.getSkin(), req);
+				siteTool.getSkin(), req, site);
 
 			Map m = portal.includeTool(res, req, siteTool);
 			rcontext.put("tool", m);
@@ -200,7 +196,7 @@ public class ToolHandler extends BasePortalHandler
 			portal.sendResponse(rcontext, res, "tool", null);
 
 		} else {
-			M_log.debug("forwardtool in ToolHandler");
+			log.debug("forwardtool in ToolHandler");
 			portal.forwardTool(tool, req, res, siteTool, siteTool.getSkin(), toolContextPath,
 				toolPathInfo);
 		}

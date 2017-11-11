@@ -10,7 +10,7 @@
 	<parent>
 		<artifactId>content-review-impl</artifactId>
 		<groupId>org.sakaiproject.contentreview</groupId>
-		<version>12-SNAPSHOT</version>
+		<version>13-SNAPSHOT</version>
 	</parent>
 
 	<dependencies>
@@ -130,7 +130,7 @@
 		<dependency>
 			<groupId>org.easymock</groupId>
 			<artifactId>easymock</artifactId>
-			<version>2.3</version>
+			<version>3.4</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>

@@ -453,6 +453,9 @@ public class PublishAssessmentListener
 	  if ("1".equals(scoringType)) {
 		  message.append(rl.getString("record_highest"));
 	  }
+	  else if ("4".equals(scoringType)) {
+		message.append(rl.getString("record_average"));
+	  }
 	  else {
 		  message.append(rl.getString("record_last"));
 	  }

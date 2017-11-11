@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.sakaiproject.basiclti</groupId>
         <artifactId>basiclti</artifactId>
-        <version>12-SNAPSHOT</version>
+        <version>13-SNAPSHOT</version>
     </parent>
 
     <name>Portlet utilities (portlet-util)</name>

@@ -47,6 +47,8 @@ import org.sakaiproject.util.ResourceLoader;
 public abstract class PagedResourceAction extends VelocityPortletPaneledAction
 {
 
+	private static final long serialVersionUID = 1L;
+
 	private static ResourceLoader rb = new ResourceLoader("velocity-tool");
 
 	/** The default number of messages per page. */

@@ -21,7 +21,7 @@
 	
 	
 	<!-- StatsManager ______________________________________________________________________________ -->
-	<bean id="org.sakaiproject.sitestats.api.StatsManager"
+	<bean id="org.sakaiproject.sitestats.api.StatsManager.target"
 		class="org.sakaiproject.sitestats.impl.StatsManagerImpl"
 		depends-on="org.sakaiproject.sitestats.api.DBHelper"
 		init-method="init">
@@ -81,10 +81,10 @@
 		<property name="sessionFactory" ref="@{sitestats.db}SitestatsSessionFactory" />
 	</bean>
 	<!-- Transaction proxy: StatsManager -->
-	<bean id="org.sakaiproject.sitestats.api.StatsManagerTransactionProxyFactoryBean"
+	<bean id="org.sakaiproject.sitestats.api.StatsManager"
 		class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
 		<property name="transactionManager" ref="@{sitestats.db}SitestatsTransactionManager" />
-		<property name="target" ref="org.sakaiproject.sitestats.api.StatsManager"/>
+		<property name="target" ref="org.sakaiproject.sitestats.api.StatsManager.target"/>
 		<property name="transactionAttributes">
 			<props><prop key="*">PROPAGATION_REQUIRED</prop></props>
 		</property>
@@ -105,7 +105,6 @@
 		<property name="serverEventIds" ref="org.sakaiproject.sitestats.api.serverevents.List" />
 		
 		<!-- Sakai services -->
-		<property name="statsManager" ref="org.sakaiproject.sitestats.api.StatsManager"/>
 		<property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
 		<property name="toolManager" ref="org.sakaiproject.tool.api.ToolManager"/>
 		<property name="memoryService" ref="org.sakaiproject.memory.api.MemoryService" />   
@@ -140,7 +139,7 @@
 	
 	
 	<!-- ReportManager ______________________________________________________________________________ -->
-	<bean id="org.sakaiproject.sitestats.api.report.ReportManager"
+	<bean id="org.sakaiproject.sitestats.api.report.ReportManager.target"
 		class="org.sakaiproject.sitestats.impl.report.ReportManagerImpl"
         lazy-init="true"
 		init-method="init" destroy-method="destroy">
@@ -160,10 +159,10 @@
         <property name="sessionFactory" ref="@{sitestats.db}SitestatsSessionFactory" />
 	</bean>
     <!-- Transaction proxy: ReportManager -->
-    <bean id="org.sakaiproject.sitestats.api.report.ReportManagerTransactionProxyFactoryBean"
+    <bean id="org.sakaiproject.sitestats.api.report.ReportManager"
         class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">        
         <property name="transactionManager" ref="@{sitestats.db}SitestatsTransactionManager" />
-        <property name="target" ref="org.sakaiproject.sitestats.api.report.ReportManager"/>
+        <property name="target" ref="org.sakaiproject.sitestats.api.report.ReportManager.target"/>
         <property name="transactionAttributes">
             <props><prop key="*">PROPAGATION_REQUIRED</prop></props>
         </property>
@@ -200,7 +199,7 @@
 	
 	
 	<!-- StatsUpdateManager ____________________________________________________________________________ -->
-	<bean id="org.sakaiproject.sitestats.api.StatsUpdateManager"
+	<bean id="org.sakaiproject.sitestats.api.StatsUpdateManager.target"
 		class="org.sakaiproject.sitestats.impl.StatsUpdateManagerImpl"
 		init-method="init"
 		destroy-method="destroy">
@@ -228,12 +227,17 @@
         <property name="entityManager" ref="org.sakaiproject.entity.api.EntityManager"/>
 		<property name="eventTrackingService" ref="org.sakaiproject.event.api.EventTrackingService"/>
 		<property name="usageSessionService" ref="org.sakaiproject.event.api.UsageSessionService" />
+		<property name="transactionTemplate">
+			<bean class="org.springframework.transaction.support.TransactionTemplate">
+				<property name="transactionManager" ref="@{sitestats.db}SitestatsTransactionManager"/>
+			</bean>
+		</property>
 	</bean>
 	<!-- Transaction proxy: StatsUpdateManager -->
-	<bean id="org.sakaiproject.sitestats.api.StatsUpdateManagerTransactionProxyFactoryBean"
+	<bean id="org.sakaiproject.sitestats.api.StatsUpdateManager"
 		class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
 		<property name="transactionManager" ref="@{sitestats.db}SitestatsTransactionManager" />
-		<property name="target" ref="org.sakaiproject.sitestats.api.StatsUpdateManager"/>
+		<property name="target" ref="org.sakaiproject.sitestats.api.StatsUpdateManager.target"/>
 		<property name="transactionAttributes">
 			<props><prop key="*">PROPAGATION_REQUIRED</prop></props>
 		</property>
@@ -326,16 +330,16 @@
       
     
     <!-- DBHelper ______________________________________________________________________________ -->
-    <bean id="org.sakaiproject.sitestats.api.DBHelper"
+    <bean id="org.sakaiproject.sitestats.api.DBHelper.target"
         class="org.sakaiproject.sitestats.impl.DBHelper"
         init-method="init">
         <property name="sessionFactory" ref="@{sitestats.db}SitestatsSessionFactory" />
     </bean>
     <!-- Transaction proxy: ReportManager -->
-    <bean id="org.sakaiproject.sitestats.api.DBHelperTransactionProxyFactoryBean"
+    <bean id="org.sakaiproject.sitestats.api.DBHelper"
         class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">        
         <property name="transactionManager" ref="@{sitestats.db}SitestatsTransactionManager" />
-        <property name="target" ref="org.sakaiproject.sitestats.api.DBHelper"/>
+        <property name="target" ref="org.sakaiproject.sitestats.api.DBHelper.target"/>
         <property name="transactionAttributes">
             <props><prop key="*">PROPAGATION_REQUIRED</prop></props>
         </property>

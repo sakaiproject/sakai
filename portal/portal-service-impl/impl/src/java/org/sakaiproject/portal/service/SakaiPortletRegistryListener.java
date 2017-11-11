@@ -28,8 +28,6 @@ import java.io.InputStream;
 
 import javax.servlet.ServletContext;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.apache.pluto.PortletContainerException;
 import org.apache.pluto.core.PortletContextManager;
 import org.apache.pluto.descriptors.portlet.PortletAppDD;
@@ -40,18 +38,16 @@ import org.apache.pluto.spi.optional.PortletRegistryListener;
 import org.sakaiproject.tool.api.ActiveToolManager;
 import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.component.cover.ServerConfigurationService;
-
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * @author ieb
  * @since Sakai 2.4
  * @version $Rev$
  */
-
+@Slf4j
 public class SakaiPortletRegistryListener implements PortletRegistryListener
 {
-	private static final Logger log = LoggerFactory.getLogger(SakaiPortletRegistryListener.class);
-
 	private PortletContextManager registry;
 
 	private ActiveToolManager activeToolManager;

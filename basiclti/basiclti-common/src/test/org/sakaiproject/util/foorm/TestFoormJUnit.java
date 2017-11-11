@@ -117,8 +117,34 @@ public class TestFoormJUnit {
 	@Test
 	public void testSearchCheckSql() {
 		Foorm foorm = new Foorm();
-		// There was a problem with a NPE being thrown when there weren't any colons in the search
-		assertEquals(null, foorm.searchCheck("COLUMN = 'value'", "table", new String[]{}));
+		// SAK-32704 - Want to review all this can perhaps adjust how the decision is made
+		// about which search approach is in use
+		String whereStyle = "COLUMN = 'value'";
+		assertEquals(whereStyle, foorm.searchCheck(whereStyle, "table", new String[]{}));
+		whereStyle = "COLUMN='value'";
+		assertEquals(whereStyle, foorm.searchCheck(whereStyle, "table", new String[]{}));
+		whereStyle = "COLUMN='value' OR OTHER=42";
+		assertEquals(whereStyle,foorm.searchCheck(whereStyle, "table", new String[]{}));
+		whereStyle = "COLUMN='value' OR ( OTHER=42 and zap=21)";
+		assertEquals(whereStyle, foorm.searchCheck(whereStyle, "table", new String[]{}));
+
+		// Workaround for the Null ones below - not pretty but works
+		whereStyle = "1=1 and (table.COLUMN LIKE '%zap%' OR ( othertable.OTHER=42 and zap=21))";
+		assertEquals(whereStyle, foorm.searchCheck(whereStyle, "table", new String[]{}));
+
+		// At some point we might want these to pass
+		whereStyle = "(1=1) and (table.COLUMN LIKE '%zap%' OR ( othertable.OTHER=42 and zap=21))";
+		assertNull(foorm.searchCheck(whereStyle, "table", new String[]{}));
+		whereStyle = "table.COLUMN LIKE '%zap%' OR ( othertable.OTHER=42 and zap=21)";
+		assertNull(foorm.searchCheck(whereStyle, "table", new String[]{}));
+
+		// A parenthesis first should be OK
+		whereStyle = "(COLUMN='value') OR ( OTHER=42 and zap=21)";
+		assertNull(foorm.searchCheck(whereStyle, "table", new String[]{}));
+		whereStyle = "( COLUMN = 'value' ) OR ( OTHER=42 and zap=21)";
+		assertNull(foorm.searchCheck(whereStyle, "table", new String[]{}));
+		whereStyle = " ( COLUMN = 'value' ) OR ( OTHER=42 and zap=21)";
+		assertNull(foorm.searchCheck(whereStyle, "table", new String[]{}));
 	}
 
 	@Test

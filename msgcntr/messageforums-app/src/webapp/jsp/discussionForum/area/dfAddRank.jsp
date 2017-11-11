@@ -12,7 +12,7 @@
 <f:view>
     <sakai:view title="Forums">
         <link rel="stylesheet" href="/messageforums-tool/css/msgcntr.css" type="text/css" />
-        <link rel="stylesheet" href="/library/webjars/jquery-ui/1.11.3/jquery-ui.min.css" type="text/css" />
+        <link rel="stylesheet" href="/library/webjars/jquery-ui/1.12.1/jquery-ui.min.css" type="text/css" />
         <link rel="stylesheet" href="/messageforums-tool/css/forum_rank.css" type="text/css" />
         
         <script type="text/javascript">includeLatestJQuery("msgcntr");</script>

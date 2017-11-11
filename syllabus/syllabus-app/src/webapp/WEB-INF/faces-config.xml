@@ -72,11 +72,6 @@
   </component>
 
   <component>
-    <component-type>SakaiSyllabusIframe</component-type>
-    <component-class>org.sakaiproject.jsf.syllabus.SyllabusIframeComponent</component-class>
-  </component>
-  
-  <component>
     <component-type>SakaiSyllabusIf</component-type>
     <component-class>org.sakaiproject.jsf.syllabus.SyllabusIfComponent</component-class>
   </component>
@@ -92,12 +87,6 @@
   </component>
 
   <render-kit>
-    <renderer>
-      <component-family>SakaiSyllabusIframe</component-family>
-      <renderer-type>SakaiSyllabusIframeRender</renderer-type>
-      <renderer-class>org.sakaiproject.jsf.syllabus.SyllabusIframeRender</renderer-class>
-    </renderer>
-
     <renderer>
       <component-family>SakaiSyllabusIf</component-family>
       <renderer-type>SakaiSyllabusIfRender</renderer-type>
@@ -209,6 +198,11 @@
     <navigation-case>
       <from-outcome>permission_error</from-outcome>
       <to-view-id>/syllabus/permission_error.jsp</to-view-id>
+      <redirect/>
+    </navigation-case>
+    <navigation-case>
+      <from-outcome>main</from-outcome>
+      <to-view-id>/syllabus/main.jsp</to-view-id>
       <redirect/>
     </navigation-case>
   </navigation-rule>

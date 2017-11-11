@@ -7,11 +7,11 @@
 	<jsp:useBean id="msgs" class="org.sakaiproject.util.ResourceLoader" scope="session">
 		<jsp:setProperty name="msgs" property="baseName" value="org.sakaiproject.tool.syllabus.bundle.Messages"/>
 	</jsp:useBean>
-	<sakai:view_container title="#{msgs.title_edit_bulk}">
+	<sakai:view_container title="#{msgs.bar_create_edit}">
 		<sakai:view_content>
 
 <script>includeLatestJQuery('edit_bulk.jsp');</script>
-<link rel="stylesheet" href="/library/webjars/jquery-ui/1.11.3/jquery-ui.min.css" type="text/css" />
+<link rel="stylesheet" href="/library/webjars/jquery-ui/1.12.1/jquery-ui.min.css" type="text/css" />
 <script type="text/javascript" src="/library/js/lang-datepicker/lang-datepicker.js"></script>
 <script type="text/javascript" src="js/jquery-ui-timepicker-addon.js"></script>
 

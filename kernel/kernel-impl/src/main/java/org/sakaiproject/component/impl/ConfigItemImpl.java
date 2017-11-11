@@ -161,7 +161,7 @@ public class ConfigItemImpl extends BasicConfigItem implements ConfigItem, Compa
             this.value = ci.getValue();
             this.type = setValue(ci.getValue());
             this.description = ci.getDescription();
-            if (!StringUtils.isBlank(ci.getSource())) {
+            if (StringUtils.isNotBlank(ci.getSource())) {
                 this.source = ci.getSource();
             }
             this.defaultValue = ci.getDefaultValue();

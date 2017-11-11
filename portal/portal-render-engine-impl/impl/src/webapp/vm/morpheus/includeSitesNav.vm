@@ -2,14 +2,14 @@
     <h1 class="skip" tabindex="-1" id="sitetabs">${rloader.sit_worksiteshead}</h1>
     <div id="show-all-sites" tabindex="-1"><i class="fa fa-angle-double-left" aria-hidden="true"></i><span>${rloader.sit_more}</span></div>
     <div id="topnav_container">
-        <ul class="Mrphs-sitesNav__menu" id="topnav" role="menubar" aria-label="${rloader.sit_worksiteshead}">
+        <ul class="Mrphs-sitesNav__menu" id="topnav" aria-label="${rloader.sit_worksiteshead}">
 
             #foreach ( $site in $tabsSites.tabsSites )
 
-        		 #if (${site.isMyWorkspace})
+                #if (${site.isMyWorkspace})
                     <li class="Mrphs-sitesNav__menuitem Mrphs-sitesNav__menuitem--myworkspace #if (${site.isCurrentSite}) is-selected #end">
-                        <a class="link-container" href="${site.siteUrl}" title="${rloader.sit_mywor}" role="menuitem">
-                            <i class="fa fa-home" aria-hidden="true"></i>
+                        <a class="link-container" href="${site.siteUrl}" title="${rloader.sit_mywor}">
+                            <span class="fa fa-home" aria-hidden="true"></span>
                             <span class="Mrphs-sitesNav__menuitem--myworkspace-label">${rloader.sit_mywor}</span>
                             <span class="Mrphs-sitesNav__drop" tabindex="-1" data-site-id="${site.siteId}"></span>
                         </a>
@@ -19,7 +19,7 @@
                 ## Only show other sites if they're the current site, a favorite of the current user, or if there *is* no current user and we're showing Gateway sites.
                 #if (!${site.isMyWorkspace} && (${site.favorite} == "true" || ${site.isCurrentSite} || !${userIsLoggedIn}))
                     <li class="Mrphs-sitesNav__menuitem #if (${site.isCurrentSite}) is-selected #end">
-                        <a class="link-container" href="${site.siteUrl}" title="${site.fullTitle}" role="menuitem" aria-haspopup="true">
+                        <a class="link-container" href="${site.siteUrl}" title="${site.fullTitle}">
                             <span>#if ( ( ${tabDisplayLabel} == 2 ) && ( ${site.shortDescription} ) )${site.shortDescription}#else${site.siteTitle}#end</span>
                         </a>
                         <a class="Mrphs-sitesNav__dropdown" href="#" data-site-id="${site.siteId}" role="separator"></a>

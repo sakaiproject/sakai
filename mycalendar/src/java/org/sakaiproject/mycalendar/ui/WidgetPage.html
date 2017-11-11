@@ -1,0 +1,55 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns:wicket="http://wicket.apache.org/dtds.data/wicket-xhtml1.4-strict.dtd" >
+
+<head>
+    <title><wicket:message key="app.title" /></title>
+</head>
+<body>
+
+<!-- TODO may need a way to namespace all of this, aka uPortal style. By adding an element to the data div for namespace. For now just look it up and assume one per page -->
+
+<!-- data container, added as data- attributes -->
+<div class="mycalendar-data" wicket:id="data" />
+
+<!--  layout -->
+<div class="Mrphs-sakai-mycalendar">
+    <div class="mycalendar"></div>
+    <div class="mycalendar-event-heading"></div>
+    <div class="mycalendar-events-div">
+        <table class="mycalendar-events">
+        </table>
+    </div>
+</div>
+
+<script type="text/javascript" src="/library/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
+<script type="text/javascript" src="/library/webjars/momentjs/2.11.1/min/moment-with-locales.min.js"></script>
+<script type="text/javascript" src="/mycalendar/scripts/moment-timezone-with-data.js"></script>
+<script type="text/javascript" src="/mycalendar/scripts/jsrender.min.js"></script>
+<script type="text/javascript" src="/library/webjars/jquery-i18n-properties/1.2.2/jquery.i18n.properties.min.js"></script>
+
+<!--  templates -->
+<script id="mycalendar-event-template" type="text/x-jsrender">
+        <tr>
+            <td class="mycalendar-event-time"> {{:eventTime}} </td>
+            <td class="mycalendar-event-type"> {{:eventType}} </td>
+        </tr>
+        <tr>
+            <td></td>
+            <td> {{if eventUrl}} <a href="{{:eventUrl}}" target="{{:target}}">{{:eventTitle}}</a> {{else}} {{:eventTitle}} {{/if}} </td>
+        </tr>
+        <tr>
+            <td></td>
+            <td> (<a href="{{:siteUrl}}" target="_top">{{:siteName}}</a>) </td>
+        </tr>
+</script>
+
+<script id="mycalendar-heading-template" type="text/x-jsrender">
+        <div class="fa fa-chevron-circle-left left-arrow" aria-hidden="true"></div>
+        <div id="mycalendar-event-heading-text">{{:heading}}</div>
+        <div class="fa fa-chevron-circle-right right-arrow" aria-hidden="true"></div>
+</script>
+
+<script type="text/javascript" src="/mycalendar/scripts/mycalendar.js"></script>
+
+</body>
+</html>

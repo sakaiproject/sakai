@@ -4,7 +4,7 @@
   <parent>
     <artifactId>kernel</artifactId>
     <groupId>org.sakaiproject</groupId>
-    <version>12-SNAPSHOT</version><!-- KernelVersion -->
+    <version>13-SNAPSHOT</version><!-- KernelVersion -->
     <relativePath>../pom.xml</relativePath>
   </parent>
   <name>Sakai Core Kernel Implementation</name>
@@ -37,6 +37,32 @@
             <known.issues />
           </systemPropertyVariables>
         </configuration>
+      </plugin>
+
+        <!-- This means we get a JAR artifact for this project, this allows other projects to depend on it
+             in their tests. This isn't an optimal solution as you end up with the situation where tests
+             in a very different part of the codebase break when you attempt to refactor something in the
+             kernel. The problem is that some interfaces/classes aren't easy to mock out. -->
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>build-helper-maven-plugin</artifactId>
+        <version>3.0.0</version>
+        <executions>
+          <execution>
+            <phase>package</phase>
+            <goals>
+              <goal>attach-artifact</goal>
+            </goals>
+            <configuration>
+            <artifacts>
+              <artifact>
+                <file>${project.build.directory}/${project.build.finalName}/WEB-INF/lib/${project.build.finalName}.jar</file>
+                <type>jar</type>
+              </artifact>
+            </artifacts>
+            </configuration>
+          </execution>
+        </executions>
       </plugin>
     </plugins>
   </build>
@@ -237,7 +263,7 @@
     <dependency>
       <groupId>org.jasypt</groupId>
       <artifactId>jasypt</artifactId>
-      <version>1.9.0</version>
+      <version>1.9.2</version>
     </dependency>
     <dependency>
         <groupId>com.ibm.icu</groupId>
@@ -251,7 +277,13 @@
     <dependency>
       <groupId>org.owasp.antisamy</groupId>
       <artifactId>antisamy</artifactId>
-      <version>1.5.5</version>
+      <version>1.5.7</version>
+    </dependency>
+    <!-- This is needed by antisamy because batik-css has wrong versions getting pulled in -->
+    <dependency>
+      <groupId>xml-apis</groupId>
+      <artifactId>xml-apis</artifactId>
+      <scope>runtime</scope>
     </dependency>
     <dependency>
       <groupId>xerces</groupId>
@@ -267,7 +299,7 @@
     <dependency>
       <groupId>org.jsoup</groupId>
       <artifactId>jsoup</artifactId>
-      <version>1.7.3</version>
+      <version>1.10.3</version>
       <type>jar</type>
       <scope>compile</scope>
     </dependency>
@@ -402,6 +434,7 @@
               </arguments>
             </configuration>
           </plugin>
+
         </plugins>
       </build>
     </profile>

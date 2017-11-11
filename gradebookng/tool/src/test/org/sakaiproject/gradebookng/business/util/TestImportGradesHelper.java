@@ -1,3 +1,18 @@
+/**
+ * Copyright (c) 2003-2017 The Apereo Foundation
+ *
+ * Licensed under the Educational Community License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *             http://opensource.org/licenses/ecl2
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.sakaiproject.gradebookng.business.util;
 
 import java.io.InputStream;
@@ -36,14 +51,8 @@ public class TestImportGradesHelper {
 		String headerValue = "Week #1: Intro to A-B-C [55.4]";
 		Matcher m1 = ImportGradesHelper.ASSIGNMENT_WITH_POINTS_PATTERN.matcher(headerValue);
 		Assert.assertTrue(m1.matches());
-
-		Matcher titleMatcher = ImportGradesHelper.STANDARD_HEADER_PATTERN.matcher(headerValue);
-		Assert.assertTrue(titleMatcher.find());
-		Assert.assertEquals(StringUtils.trimToNull(titleMatcher.group()), "Week #1: Intro to A-B-C");
-
-		Matcher pointsMatcher = ImportGradesHelper.POINTS_PATTERN.matcher(headerValue);
-		Assert.assertTrue(pointsMatcher.find());
-		Assert.assertEquals(pointsMatcher.group(), "55.4");
+		Assert.assertEquals(StringUtils.trimToNull(m1.group(1)), "Week #1: Intro to A-B-C");
+		Assert.assertEquals(m1.group(2), "55.4");
 	}
 
 	@Test
@@ -57,21 +66,10 @@ public class TestImportGradesHelper {
 		Matcher m2 = ImportGradesHelper.ASSIGNMENT_WITH_POINTS_PATTERN.matcher(headerValueB);
 		Assert.assertTrue(m2.matches());
 
-		Matcher titleMatcherA = ImportGradesHelper.STANDARD_HEADER_PATTERN.matcher(headerValueA);
-		Assert.assertTrue(titleMatcherA.find());
-		Assert.assertEquals(StringUtils.trimToNull(titleMatcherA.group()), "Week #1");
-
-		Matcher titleMatcherB = ImportGradesHelper.STANDARD_HEADER_PATTERN.matcher(headerValueB);
-		Assert.assertTrue(titleMatcherB.find());
-		Assert.assertEquals(StringUtils.trimToNull(titleMatcherB.group()), "Week #2");
-
-		Matcher pointsMatcherA = ImportGradesHelper.POINTS_PATTERN.matcher(headerValueA);
-		Assert.assertTrue(pointsMatcherA.find());
-		Assert.assertEquals(pointsMatcherA.group(), "55.1");
-
-		Matcher pointsMatcherB = ImportGradesHelper.POINTS_PATTERN.matcher(headerValueB);
-		Assert.assertTrue(pointsMatcherB.find());
-		Assert.assertEquals(pointsMatcherB.group(), "55.2");
+		Assert.assertEquals(StringUtils.trimToNull(m1.group(1)), "Week #1");
+		Assert.assertEquals(StringUtils.trimToNull(m2.group(1)), "Week #2");
+		Assert.assertEquals(m1.group(2), "55.1");
+		Assert.assertEquals(m2.group(2), "55.2");
 	}
 
 	@Test
@@ -79,14 +77,8 @@ public class TestImportGradesHelper {
 		String headerValue = "Week #2 [5]";
 		Matcher m1 = ImportGradesHelper.ASSIGNMENT_WITH_POINTS_PATTERN.matcher(headerValue);
 		Assert.assertTrue(m1.matches());
-
-		Matcher titleMatcher = ImportGradesHelper.STANDARD_HEADER_PATTERN.matcher(headerValue);
-		Assert.assertTrue(titleMatcher.find());
-		Assert.assertEquals(StringUtils.trimToNull(titleMatcher.group()), "Week #2");
-
-		Matcher pointsMatcher = ImportGradesHelper.POINTS_PATTERN.matcher(headerValue);
-		Assert.assertTrue(pointsMatcher.find());
-		Assert.assertEquals(pointsMatcher.group(), "5");
+		Assert.assertEquals(StringUtils.trimToNull(m1.group(1)), "Week #2");
+		Assert.assertEquals(m1.group(2), "5");
 	}
 
 	@Test
@@ -219,23 +211,23 @@ public class TestImportGradesHelper {
 
 		// assignment 1
 		final ProcessedGradeItem item1 = processedGradeItems.get(0);
-		Assert.assertEquals("Incorrect title: " + "Assignment 1", item1.getItemTitle());
+		Assert.assertEquals("Incorrect title: " + "GradebookAssignment 1", item1.getItemTitle());
 		Assert.assertEquals("wrong status", Status.SKIP, item1.getStatus());
 
 		// assignment 2
 		final ProcessedGradeItem item2 = processedGradeItems.get(1);
-		Assert.assertEquals("Incorrect title: " + "Assignment 2", item2.getItemTitle());
+		Assert.assertEquals("Incorrect title: " + "GradebookAssignment 2", item2.getItemTitle());
 		Assert.assertEquals("wrong status", Status.MODIFIED, item2.getStatus());
 
 		// assignment 3
 		// this does not exist in the mocked data so should be new
 		final ProcessedGradeItem item3 = processedGradeItems.get(2);
-		Assert.assertEquals("Incorrect title: " + "Assignment 3", item3.getItemTitle());
+		Assert.assertEquals("Incorrect title: " + "GradebookAssignment 3", item3.getItemTitle());
 		Assert.assertEquals("wrong status", Status.NEW, item3.getStatus());
 
 		// assignment ext
 		final ProcessedGradeItem item4 = processedGradeItems.get(3);
-		Assert.assertEquals("Incorrect title: " + "Assignment Ext", item4.getItemTitle());
+		Assert.assertEquals("Incorrect title: " + "GradebookAssignment Ext", item4.getItemTitle());
 		Assert.assertEquals("wrong status", Status.EXTERNAL, item4.getStatus());
 
 	}
@@ -249,19 +241,19 @@ public class TestImportGradesHelper {
 		final List<Assignment> assignments = new ArrayList<Assignment>();
 		final Assignment assignment1 = new Assignment();
 		assignment1.setId(1L);
-		assignment1.setName("Assignment 1");
+		assignment1.setName("GradebookAssignment 1");
 		assignment1.setPoints(10.0);
 		assignments.add(assignment1);
 
 		final Assignment assignment2 = new Assignment();
 		assignment2.setId(2L);
-		assignment2.setName("Assignment 2");
+		assignment2.setName("GradebookAssignment 2");
 		assignment2.setPoints(100.0);
 		assignments.add(assignment2);
 
 		final Assignment assignment3 = new Assignment();
 		assignment3.setId(3L);
-		assignment3.setName("Assignment Ext");
+		assignment3.setName("GradebookAssignment Ext");
 		assignment3.setPoints(1000.0);
 		assignment3.setExternalAppName("From a test");
 		assignment3.setExternalId("ext_asdf");
@@ -322,13 +314,13 @@ public class TestImportGradesHelper {
 		// only list actual columns to be turned into the import here
 		columns.add(new ImportedColumn("Student ID", null, ImportedColumn.Type.GB_ITEM_WITHOUT_POINTS));
 		columns.add(new ImportedColumn("Student Name", null, ImportedColumn.Type.GB_ITEM_WITHOUT_POINTS));
-		columns.add(new ImportedColumn("Assignment 1", "10.0", ImportedColumn.Type.GB_ITEM_WITH_POINTS));
-		columns.add(new ImportedColumn("Assignment 1", "N/A", ImportedColumn.Type.COMMENTS));
-		columns.add(new ImportedColumn("Assignment 2", "10.0", ImportedColumn.Type.GB_ITEM_WITH_POINTS));
-		columns.add(new ImportedColumn("Assignment 2", "N/A", ImportedColumn.Type.COMMENTS));
-		columns.add(new ImportedColumn("Assignment 3", "100.0", ImportedColumn.Type.GB_ITEM_WITH_POINTS));
-		columns.add(new ImportedColumn("Assignment 3", "N/A", ImportedColumn.Type.COMMENTS));
-		columns.add(new ImportedColumn("Assignment Ext", "1000.0", ImportedColumn.Type.GB_ITEM_WITH_POINTS));
+		columns.add(new ImportedColumn("GradebookAssignment 1", "10.0", ImportedColumn.Type.GB_ITEM_WITH_POINTS));
+		columns.add(new ImportedColumn("GradebookAssignment 1", "N/A", ImportedColumn.Type.COMMENTS));
+		columns.add(new ImportedColumn("GradebookAssignment 2", "10.0", ImportedColumn.Type.GB_ITEM_WITH_POINTS));
+		columns.add(new ImportedColumn("GradebookAssignment 2", "N/A", ImportedColumn.Type.COMMENTS));
+		columns.add(new ImportedColumn("GradebookAssignment 3", "100.0", ImportedColumn.Type.GB_ITEM_WITH_POINTS));
+		columns.add(new ImportedColumn("GradebookAssignment 3", "N/A", ImportedColumn.Type.COMMENTS));
+		columns.add(new ImportedColumn("GradebookAssignment Ext", "1000.0", ImportedColumn.Type.GB_ITEM_WITH_POINTS));
 
 		importedSpreadsheetWrapper.setColumns(columns);
 
@@ -340,12 +332,12 @@ public class TestImportGradesHelper {
 		row1.setStudentName("User 1");
 		final Map<String, ImportedCell> cellMap1 = new HashMap<>();
 
-		cellMap1.put("Assignment 1", new ImportedCell());
-		cellMap1.get("Assignment 1").setComment("comment 1");
-		cellMap1.get("Assignment 1").setScore("1");
-		cellMap1.put("Assignment 2", new ImportedCell());
-		cellMap1.get("Assignment 2").setComment("comment 2");
-		cellMap1.get("Assignment 2").setScore("2");
+		cellMap1.put("GradebookAssignment 1", new ImportedCell());
+		cellMap1.get("GradebookAssignment 1").setComment("comment 1");
+		cellMap1.get("GradebookAssignment 1").setScore("1");
+		cellMap1.put("GradebookAssignment 2", new ImportedCell());
+		cellMap1.get("GradebookAssignment 2").setComment("comment 2");
+		cellMap1.get("GradebookAssignment 2").setScore("2");
 		row1.setCellMap(cellMap1);
 		rows.add(row1);
 
@@ -355,12 +347,12 @@ public class TestImportGradesHelper {
 		row2.setStudentName("User 2");
 		final Map<String, ImportedCell> cellMap2 = new HashMap<>();
 
-		cellMap2.put("Assignment 1", new ImportedCell());
-		cellMap2.get("Assignment 1").setComment("comment 12");
-		cellMap2.get("Assignment 1").setScore("5");
-		cellMap2.put("Assignment 2", new ImportedCell());
-		cellMap2.get("Assignment 2").setComment("comment 222");
-		cellMap2.get("Assignment 2").setScore("3");
+		cellMap2.put("GradebookAssignment 1", new ImportedCell());
+		cellMap2.get("GradebookAssignment 1").setComment("comment 12");
+		cellMap2.get("GradebookAssignment 1").setScore("5");
+		cellMap2.put("GradebookAssignment 2", new ImportedCell());
+		cellMap2.get("GradebookAssignment 2").setComment("comment 222");
+		cellMap2.get("GradebookAssignment 2").setScore("3");
 		row2.setCellMap(cellMap2);
 		rows.add(row2);
 
@@ -370,12 +362,12 @@ public class TestImportGradesHelper {
 		row3.setStudentName("User 3");
 		final Map<String, ImportedCell> cellMap3 = new HashMap<>();
 
-		cellMap3.put("Assignment 2", new ImportedCell());
-		cellMap3.get("Assignment 2").setComment("comment 23");
-		cellMap3.get("Assignment 2").setScore("6");
-		cellMap3.put("Assignment 3", new ImportedCell());
-		cellMap3.get("Assignment 3").setComment("comment 233");
-		cellMap3.get("Assignment 3").setScore("7");
+		cellMap3.put("GradebookAssignment 2", new ImportedCell());
+		cellMap3.get("GradebookAssignment 2").setComment("comment 23");
+		cellMap3.get("GradebookAssignment 2").setScore("6");
+		cellMap3.put("GradebookAssignment 3", new ImportedCell());
+		cellMap3.get("GradebookAssignment 3").setComment("comment 233");
+		cellMap3.get("GradebookAssignment 3").setScore("7");
 		row3.setCellMap(cellMap3);
 		rows.add(row3);
 

@@ -8,7 +8,7 @@
 	<parent>
 		<groupId>org.sakaiproject.contentreview</groupId>
 		<artifactId>content-review</artifactId>
-		<version>12-SNAPSHOT</version>
+		<version>13-SNAPSHOT</version>
 	</parent>
 
 	<modules>
@@ -28,16 +28,6 @@
 			  <artifactId>json-lib</artifactId>
 			  <classifier>jdk15</classifier>
 			  <version>2.4</version>
-		  </dependency>
-		  <dependency>
-			  <groupId>org.apache.httpcomponents</groupId>
-			  <artifactId>httpclient</artifactId>
-			  <version>4.3.1</version>
-		  </dependency>
-		  <dependency>
-			  <groupId>org.apache.httpcomponents</groupId>
-			  <artifactId>httpmime</artifactId>
-			  <version>4.3.1</version>
 		  </dependency>
 		</dependencies>
 	</dependencyManagement>

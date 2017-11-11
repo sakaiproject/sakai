@@ -21,11 +21,7 @@
 
 package org.sakaiproject.util;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.UnsupportedEncodingException;
 
 /**
  * FileItem is a file uploaded by the end user's browser.

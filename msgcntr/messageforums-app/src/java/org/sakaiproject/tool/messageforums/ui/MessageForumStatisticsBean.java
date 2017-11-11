@@ -2641,7 +2641,7 @@ public class MessageForumStatisticsBean {
 			    gradeByLetter = false;
 			}        
 
-			Assignment assignment = gradebookService.getAssignment(gradebookUid, selAssignName);
+			Assignment assignment = gradebookService.getAssignmentByNameOrId(gradebookUid, selAssignName);
 			if(assignment != null){
 				gbItemPointsPossible = assignment.getPoints().toString();			
 
@@ -2747,7 +2747,7 @@ public class MessageForumStatisticsBean {
 					}
 				}
 				
-				gradebookService.saveGradesAndComments(gradebookUuid, gradebookService.getAssignment(gradebookUuid, selectedAssignName).getId(), gradeInfoToSave);
+				gradebookService.saveGradesAndComments(gradebookUuid, gradebookService.getAssignmentByNameOrId(gradebookUuid, selectedAssignName).getId(), gradeInfoToSave);
 
 				setSuccessMessage(getResourceBundleString(GRADE_SUCCESSFUL));
 			} 

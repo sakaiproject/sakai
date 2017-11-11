@@ -30,6 +30,8 @@ import java.util.Properties;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.commons.collections4.iterators.EnumerationIterator;
+
 /**
  * ParameterParser is a wrapper over the request that provides compatibility with Sakai 1.5 and before.
  */
@@ -72,7 +74,7 @@ public class ParameterParser
 	 * 
 	 * @return An Iterator of parameter names (String).
 	 */
-	public Iterator getNames()
+	public Iterator<String> getNames()
 	{
 		return new EnumerationIterator(m_req.getParameterNames());
 	}

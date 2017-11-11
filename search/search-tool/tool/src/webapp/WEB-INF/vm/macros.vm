@@ -6,7 +6,7 @@
       <meta http-equiv="Content-Style-Type" content="text/css" />
      <title>${rlb.jsp_search}: ${pageTitle}</title>
       <link href="/sakai-search-tool/styles/${skin}/searchStyle.css" type="text/css" rel="stylesheet" media="all" />
-      <link href="/library/js/jquery/ui/1.11.3/themes/ui-lightness/jquery-ui.min.css" type="text/css" rel="stylesheet" media="all" />
+      <link href="/library/js/jquery/ui/1.12.1/themes/ui-lightness/jquery-ui.min.css" type="text/css" rel="stylesheet" media="all" />
 
 		   ${sakaiheader}
   			<script type="text/javascript" src="/sakai-search-tool/scripts/search.js"> </script>

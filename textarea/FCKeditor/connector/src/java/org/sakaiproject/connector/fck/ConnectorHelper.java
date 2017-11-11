@@ -1,28 +1,33 @@
+/**
+ * Copyright (c) 2005-2016 The Apereo Foundation
+ *
+ * Licensed under the Educational Community License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *             http://opensource.org/licenses/ecl2
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.sakaiproject.connector.fck;
 
 import java.lang.reflect.Method;
-import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.GregorianCalendar;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
-import java.util.Vector;
+import java.time.Instant;
+import java.util.*;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sakaiproject.assignment.api.AssignmentService;
-import org.sakaiproject.assignment.api.Assignment;
+import org.sakaiproject.assignment.api.model.Assignment;
 import org.sakaiproject.authz.api.AuthzGroupService;
-import org.sakaiproject.authz.api.Role;
 
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.cover.ComponentManager;
-import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.entitybroker.EntityBroker;
 import org.sakaiproject.entitybroker.entityprovider.search.Restriction;
 import org.sakaiproject.entitybroker.entityprovider.search.Search;
@@ -38,13 +43,8 @@ import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.site.api.SiteService.SortType;
 import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.time.api.Time;
-import org.sakaiproject.time.api.TimeBreakdown;
-import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
 import org.sakaiproject.tool.cover.SessionManager;
-import org.sakaiproject.user.api.UserNotDefinedException;
-import org.sakaiproject.user.cover.UserDirectoryService;
-
 
 
 public class ConnectorHelper {
@@ -113,16 +113,13 @@ public class ConnectorHelper {
 				return returnAssignmentList;
 			}		
 
-			Iterator assignmentIterator = assignmentService.getAssignmentsForContext(thisSite.getId(), loggedInUserId);
+
 			java.util.Date now = new java.util.Date();
-			long nowMs = now.getTime();
-			while(assignmentIterator.hasNext()){
-				Assignment thisAssignment = (Assignment) assignmentIterator.next();
-				System.out.println("Assignment"+thisAssignment.getId());
-				Time thisAssignmentCloseTime = thisAssignment.getCloseTime();
+			for (Assignment thisAssignment : assignmentService.getAssignmentsForContext(thisSite.getId())) {
+				Instant thisAssignmentCloseTime = thisAssignment.getCloseDate();
 				boolean assignmentClosed = true;
 				if(thisAssignmentCloseTime!=null){
-					if(thisAssignmentCloseTime.getTime()<nowMs){
+					if(thisAssignmentCloseTime.isBefore(Instant.now())){
 						assignmentClosed=false;
 					}
 				}else{

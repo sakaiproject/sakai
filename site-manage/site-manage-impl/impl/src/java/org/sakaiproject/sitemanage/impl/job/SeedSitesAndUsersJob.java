@@ -1,3 +1,18 @@
+/**
+ * Copyright (c) 2003-2017 The Apereo Foundation
+ *
+ * Licensed under the Educational Community License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *             http://opensource.org/licenses/ecl2
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.sakaiproject.sitemanage.impl.job;
 
 import java.sql.Connection;
@@ -87,6 +102,7 @@ public class SeedSitesAndUsersJob implements Job {
 	private int numberOfStudents = 100;
 	private int numberOfEnnrollmentsPerSite = 50;
 	private int numberOfInstructorsPerSite = 1;
+	private String emailDomain = "mailinator.com";
 
 	private long repositorySize = 10485760;        //  10 MB
 	//private long repositorySize = 1073741824L;   //   1 GB
@@ -109,7 +125,8 @@ public class SeedSitesAndUsersJob implements Job {
 		numberOfStudents = serverConfigurationService.getInt("site.seed.create.students", 100);
 		numberOfEnnrollmentsPerSite = serverConfigurationService.getInt("site.seed.enrollments.per.site", 50);
 		numberOfInstructorsPerSite = serverConfigurationService.getInt("site.seed.instructors.per.site", 1);
-		
+		emailDomain = serverConfigurationService.getString("site.seed.email.domain", "mailinator.com");
+
 		try {
 	        repositorySize = Long.parseLong(serverConfigurationService.getString("site.seed.repository.size", "10485760"));
         } catch (NumberFormatException nfe) {
@@ -258,7 +275,7 @@ public class SeedSitesAndUsersJob implements Job {
 			String lastName = faker.name().lastName();
 			String eid = faker.numerify("#########");
 			try {
-	            user = userDirectoryService.addUser(null, eid, faker.name().firstName(), lastName, eid + "@nowhere.com", faker.letterify("???????"), userType, null);
+	            user = userDirectoryService.addUser(null, eid, faker.name().firstName(), lastName, eid + "@" + emailDomain, faker.letterify("???????"), userType, null);
             } catch (UserIdInvalidException uiue) {
             	log.error("invalid userId: ", uiue);
             } catch (UserAlreadyDefinedException uade) {
