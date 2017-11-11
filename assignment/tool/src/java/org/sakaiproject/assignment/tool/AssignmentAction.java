@@ -5913,7 +5913,7 @@ public class AssignmentAction extends PagedResourceActionII {
 
                     if (a.getHonorPledge()) {
                         if (!Boolean.valueOf(honorPledgeYes)) {
-                            addAlert(state, rb.getString("youarenot18"));
+                            addAlert(state,  HonorPledge.youAreNot());
                         }
                         state.setAttribute(VIEW_SUBMISSION_HONOR_PLEDGE_YES, honorPledgeYes);
                     }

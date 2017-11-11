@@ -83,5 +83,18 @@ public class HonorPledge {
 		
 		return hp2;
 	}
+	
+	public static String youAreNot() {
+		String ui = getInstitution();
+		String hp2 = null; 
+		String honorpledge = ui + ".youarenot18";
+		hp2 = rb.getString(honorpledge);
 
+		if (("[missing key (mre): honorpledge " + honorpledge + "]").equals(hp2)) {
+			log.debug("gen.honple2 null!");
+			hp2 = rb2.getString("youarenot18");
+		}
+		
+		return hp2;
+	}
 }
