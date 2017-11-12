@@ -15,6 +15,7 @@
  */
 package org.sakaiproject.component.app.messageforums;
 
+import java.time.Instant;
 import java.util.Date;
 import java.util.HashMap;
 
@@ -28,8 +29,6 @@ import org.sakaiproject.api.app.messageforums.SynopticMsgcntrManager;
 import org.sakaiproject.api.app.messageforums.cover.SynopticMsgcntrManagerCover;
 import org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager;
 import org.sakaiproject.api.app.scheduler.ScheduledInvocationManager;
-import org.sakaiproject.time.api.Time;
-import org.sakaiproject.time.api.TimeService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.orm.hibernate4.HibernateOptimisticLockingFailureException;
@@ -55,12 +54,6 @@ public class ForumScheduleNotificationImpl implements ForumScheduleNotification 
 	public void setForumManager(DiscussionForumManager forumManager){
 		this.forumManager = forumManager;
 	}
-
-	private TimeService timeService;
-    public void setTimeService(TimeService timeService)
-    {
-        this.timeService = timeService;
-    }
 
     private ScheduledInvocationManager scheduledInvocationManager;
 
@@ -94,21 +87,21 @@ public class ForumScheduleNotificationImpl implements ForumScheduleNotification 
     	scheduledInvocationManager.deleteDelayedInvocation("org.sakaiproject.api.app.messageforums.ForumScheduleNotification", id);
     	if (availabilityRestricted)
     	{
-    		Time openTime = null;
-    		Time closeTime = null;
+    		Instant openTime = null;
+    		Instant closeTime = null;
     		if(openDate != null){
-    			openTime = timeService.newTime(openDate.getTime());
+    			openTime = openDate.toInstant();
     		}
     		if(closeDate != null){
-    			closeTime = timeService.newTime(closeDate.getTime());
+    			closeTime = closeDate.toInstant();
     		}
     		// Schedule the new notification
-    		if (openTime != null && openTime.after(timeService.newTime()))
+    		if (openTime != null && openTime.isAfter(Instant.now()))
     		{
     			scheduledInvocationManager.createDelayedInvocation(openTime,
     					"org.sakaiproject.api.app.messageforums.ForumScheduleNotification",
     					id);
-    		} else if(closeTime != null && closeTime.after(timeService.newTime())){
+    		} else if(closeTime != null && closeTime.isAfter(Instant.now())){
     			scheduledInvocationManager.createDelayedInvocation(closeTime,
     					"org.sakaiproject.api.app.messageforums.ForumScheduleNotification",
     					id);
@@ -207,13 +200,13 @@ public class ForumScheduleNotificationImpl implements ForumScheduleNotification 
 			
 			boolean afterOpen = false;
 			boolean beforeClose = false;
-			Time openTime = null;
-    		Time closeTime = null;
+			Instant openTime = null;
+			Instant closeTime = null;
     		if(openDate != null){
-    			openTime = timeService.newTime(openDate.getTime());
+    			openTime = openDate.toInstant();
     		}
     		if(closeDate != null){
-    			closeTime = timeService.newTime(closeDate.getTime());
+    			closeTime = closeDate.toInstant();
     		}
     		if(closeDate == null && openDate == null){
     			//user didn't specify either, so open topic
@@ -221,12 +214,12 @@ public class ForumScheduleNotificationImpl implements ForumScheduleNotification 
     		}
     		
     		
-			if(openTime != null && openTime.before(timeService.newTime())){
+			if(openTime != null && openTime.isBefore(Instant.now())){
 				afterOpen = true;
 			}else if(openTime == null){
 				afterOpen = true;
 			}
-			if(closeTime != null && closeTime.after(timeService.newTime())){
+			if(closeTime != null && closeTime.isAfter(Instant.now())){
 				beforeClose = true;
 			}else if(closeTime == null){
 				beforeClose = true;
