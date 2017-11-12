@@ -617,7 +617,6 @@
     </bean>
  		
 	<bean id="org.sakaiproject.api.app.messageforums.ForumScheduleNotification" class="org.sakaiproject.component.app.messageforums.ForumScheduleNotificationImpl">
- 		<property name="timeService" ref="org.sakaiproject.time.api.TimeService" />
 		<property name="scheduledInvocationManager" ref="org.sakaiproject.api.app.scheduler.ScheduledInvocationManager" />
 		<property name="typeManager">
           <ref bean="org.sakaiproject.api.app.messageforums.MessageForumsTypeManager"/>
