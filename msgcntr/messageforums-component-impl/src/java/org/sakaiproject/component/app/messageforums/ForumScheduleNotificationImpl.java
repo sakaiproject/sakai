@@ -109,7 +109,7 @@ public class ForumScheduleNotificationImpl implements ForumScheduleNotification 
 	}
 
 	public void execute(String opaqueContext) {
-		LOG.info("ForumScheduleNotificationImpl.execute(): " + opaqueContext);
+		LOG.info("execute: {}", opaqueContext);
 		if (opaqueContext.startsWith(AREA_PREFIX)) {
 			String siteId = opaqueContext.substring(AREA_PREFIX.length());
 			Area area = areaManager.getAreaByContextIdAndTypeId(siteId, typeManager.getDiscussionForumType());
@@ -240,27 +240,23 @@ public class ForumScheduleNotificationImpl implements ForumScheduleNotification 
 			HashMap<String, Integer> beforeChangeHM, int numOfAttempts) {
 		try {
 			// update synotpic info for forums only:
-			SynopticMsgcntrManagerCover.updateSynopticMessagesForForumComparingOldMessagesCount(siteId, forumId,
-					topicId, beforeChangeHM);
+			SynopticMsgcntrManagerCover.updateSynopticMessagesForForumComparingOldMessagesCount(siteId, forumId, topicId, beforeChangeHM);
 		} catch (HibernateOptimisticLockingFailureException holfe) {
 
 			// failed, so wait and try again
 			try {
 				Thread.sleep(SynopticMsgcntrManager.OPT_LOCK_WAIT);
 			} catch (InterruptedException e) {
-				LOG.warn("updateSynopticMessagesForForumComparingOldMessagesCount Thread intrrupted", e);
+				LOG.warn("Thread intrrupted while updating synoptic info for forums", e);
 			}
 
 			numOfAttempts--;
 
 			if (numOfAttempts <= 0) {
-				LOG.warn("ForumScheduleNotificationImpl: HibernateOptimisticLockingFailureException no more retries left", holfe);
+				LOG.warn("HibernateOptimisticLockingFailureException no more retries left", holfe);
 			} else {
-				LOG.warn(
-						"ForumScheduleNotificationImpl: HibernateOptimisticLockingFailureException: attempts left: "
-								+ numOfAttempts);
-				updateSynopticMessagesForForumComparingOldMessagesCount(siteId, forumId, topicId, beforeChangeHM,
-						numOfAttempts);
+				LOG.warn("HibernateOptimisticLockingFailureException: attempts left: {}", numOfAttempts);
+				updateSynopticMessagesForForumComparingOldMessagesCount(siteId, forumId, topicId, beforeChangeHM, numOfAttempts);
 			}
 		}
 	}
