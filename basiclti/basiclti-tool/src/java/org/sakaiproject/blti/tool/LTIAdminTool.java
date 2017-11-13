@@ -131,7 +131,6 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 	private static String ATTR_SORT_PAGESIZE = "SORT_PAGESIZE";
 	private static String ATTR_SEARCH_LAST_FIELD = "SEARCH_LAST_FIELD";
 	private static String ATTR_SEARCH_MAP = "search_map";
-	private static String ATTR_ATTRIBUTION_VALUES = "attribution_values";
 
 	/** Service Implementations */
 	protected static ToolManager toolManager = null;
@@ -366,7 +365,6 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		state.setAttribute(ATTR_SORT_INDEX, 0);
 		state.setAttribute(ATTR_LAST_SORTED_FIELD, null);
 		state.setAttribute(ATTR_ASCENDING_ORDER, true);
-		state.setAttribute(ATTR_ATTRIBUTION_VALUES, null);
 	}
 	
 	public String buildToolSitePanelContext(VelocityPortlet portlet, Context context,
@@ -498,33 +496,6 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 				attribution_name = aux;
 			}
 			context.put("attribution_name", attribution_name);
-			
-			//join all available attribution values in a single set
-			SortedSet<String> availableAttributionValues = (SortedSet<String>)state.getAttribute(ATTR_ATTRIBUTION_VALUES);
-			
-			//just the first time
-			if(availableAttributionValues == null) {
-				availableAttributionValues = new TreeSet<String>();
-				
-				//if we are not in !admin site, we don't want to look for other sites
-				if(ltiService.isAdmin(getSiteId(state))) {
-					String attribution_key = serverConfigurationService.getString(LTIService.LTI_SITE_ATTRIBUTION_PROPERTY_KEY, LTIService.LTI_SITE_ATTRIBUTION_PROPERTY_KEY_DEFAULT);
-					Map propertyCriteria = new HashMap();			
-					propertyCriteria.put(attribution_key, "");
-					
-					List<Site> list = SiteService.getSites(org.sakaiproject.site.api.SiteService.SelectionType.ANY, null, null, propertyCriteria, org.sakaiproject.site.api.SiteService.SortType.NONE, null);			
-					if(list != null && list.size() > 0) {
-						for(Site s : list) {
-							String prop = s.getProperties().getProperty(attribution_key);
-							if (StringUtils.isNotEmpty(prop)) {
-								availableAttributionValues.add(prop);
-							}
-						}
-					}
-				}
-			}
-			context.put(ATTR_ATTRIBUTION_VALUES, availableAttributionValues);
-			state.setAttribute(ATTR_ATTRIBUTION_VALUES, availableAttributionValues);
 		}
 		
 		// top navigation menu
