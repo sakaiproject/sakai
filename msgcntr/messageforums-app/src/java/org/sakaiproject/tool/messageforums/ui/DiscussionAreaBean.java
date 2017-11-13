@@ -26,15 +26,13 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import javax.faces.context.FacesContext;
- 
+
 import org.apache.commons.lang.StringUtils;
+import org.sakaiproject.api.app.messageforums.Area;
+import org.sakaiproject.api.app.messageforums.UserPreferencesManager;
+import org.sakaiproject.component.cover.ComponentManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import org.sakaiproject.api.app.messageforums.Area;
-
-import org.sakaiproject.component.cover.ComponentManager;
-import org.sakaiproject.time.api.TimeService;
 
 
 /**
@@ -45,7 +43,7 @@ import org.sakaiproject.time.api.TimeService;
 public class DiscussionAreaBean 
 {
 	 private static final Logger LOG = LoggerFactory.getLogger(DiscussionAreaBean.class);
-	 private static TimeService timeService = (TimeService)ComponentManager.get(TimeService.class);
+	 private static UserPreferencesManager userPreferencesManager = ComponentManager.get(UserPreferencesManager.class);
 
 	 private Area area;
 	 private int numPendingMsgs;
@@ -53,7 +51,7 @@ public class DiscussionAreaBean
 
 	 private SimpleDateFormat ourDateFormat() {
 	     SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
-	     df.setTimeZone(timeService.getLocalTimeZone());
+	     df.setTimeZone(userPreferencesManager.getTimeZone());
 	     return df;
 	 }
 
