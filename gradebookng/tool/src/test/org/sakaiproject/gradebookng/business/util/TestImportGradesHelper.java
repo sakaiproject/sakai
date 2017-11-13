@@ -56,6 +56,15 @@ public class TestImportGradesHelper {
 	}
 
 	@Test
+	public void when_pointsHasDecimalWithComma_thenImportSucceeds() throws Exception {
+		String headerValue = "Week #1: Intro to A-B-C [55,4]";
+		Matcher m1 = ImportGradesHelper.ASSIGNMENT_WITH_POINTS_PATTERN.matcher(headerValue);
+		Assert.assertTrue(m1.matches());
+		Assert.assertEquals(StringUtils.trimToNull(m1.group(1)), "Week #1: Intro to A-B-C");
+		Assert.assertEquals(m1.group(2), "55,4");
+	}
+
+	@Test
 	public void when_itemsSimilarButDistinct_thenImportSucceeds() throws Exception {
 		String headerValueA = "Week #1 [55.1]";
 		String headerValueB = "Week #2 [55.2]";
@@ -73,6 +82,23 @@ public class TestImportGradesHelper {
 	}
 
 	@Test
+	public void when_itemsSimilarButDistinctWithComma_thenImportSucceeds() throws Exception {
+		String headerValueA = "Week #1 [55,1]";
+		String headerValueB = "Week #2 [55,2]";
+
+		Matcher m1 = ImportGradesHelper.ASSIGNMENT_WITH_POINTS_PATTERN.matcher(headerValueA);
+		Assert.assertTrue(m1.matches());
+
+		Matcher m2 = ImportGradesHelper.ASSIGNMENT_WITH_POINTS_PATTERN.matcher(headerValueB);
+		Assert.assertTrue(m2.matches());
+
+		Assert.assertEquals(StringUtils.trimToNull(m1.group(1)), "Week #1");
+		Assert.assertEquals(StringUtils.trimToNull(m2.group(1)), "Week #2");
+		Assert.assertEquals(m1.group(2), "55,1");
+		Assert.assertEquals(m2.group(2), "55,2");
+	}
+
+	@Test
 	public void when_headerHasPoundSign_thenImportSucceeds() throws Exception {
 		String headerValue = "Week #2 [5]";
 		Matcher m1 = ImportGradesHelper.ASSIGNMENT_WITH_POINTS_PATTERN.matcher(headerValue);
@@ -85,6 +111,14 @@ public class TestImportGradesHelper {
 	public void when_textcsv_thenCsvImportSucceeds() throws Exception {
 		final InputStream is = this.getClass().getClassLoader().getResourceAsStream("grades_import.csv");
 		final ImportedSpreadsheetWrapper importedSpreadsheetWrapper = ImportGradesHelper.parseImportedGradeFile(is, "text/csv", "grades_import.csv", mockUserMap());
+		is.close();
+		testImport(importedSpreadsheetWrapper);
+	}
+
+	@Test
+	public void when_textcsv_i18n_thenCsvImportSucceeds() throws Exception {
+		final InputStream is = this.getClass().getClassLoader().getResourceAsStream("grades_import_i18n.csv");
+		final ImportedSpreadsheetWrapper importedSpreadsheetWrapper = ImportGradesHelper.parseImportedGradeFile(is, "text/csv", "grades_import_i18n.csv", mockUserMap(), ",");
 		is.close();
 		testImport(importedSpreadsheetWrapper);
 	}
