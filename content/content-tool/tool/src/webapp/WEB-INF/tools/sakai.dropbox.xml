@@ -12,6 +12,10 @@
 		<category name="course" />
 		<category name="project" />
 
+		<!-- This is final because it's being added long after the tool has rolled out so making it final means
+		     all existing placements get this in their configuration without backfilling -->
+		<configuration name="functions.require" type="final"
+					   value="dropbox.own | dropbox.maintain | dropbox.maintain.own.groups" />
 	</tool>
 
 </registration>
