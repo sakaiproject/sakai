@@ -62,6 +62,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.ByteArrayOutputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.time.Instant;
 import java.util.*;
 
 
@@ -2715,12 +2716,12 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser
 				// if an immediate notification is needed or a scheduled one
 				// Put here since need to store uuid for notification just in case need to
 				// delete/modify
-				Time now = m_timeService.newTime();
-				
+				Instant now = Instant.now();
+				Instant date = Instant.ofEpochMilli(edit.getHeader().getDate().getTime());
 
-				if (now.before(edit.getHeader().getDate()) && priority != NotificationService.NOTI_NONE)
+				if (now.isBefore(date) && priority != NotificationService.NOTI_NONE)
 				{
-					final String uuid = scheduledInvocationManager.createDelayedInvocation(edit.getHeader().getDate(), 
+					final String uuid = scheduledInvocationManager.createDelayedInvocation(date, 
 							invokee, edit.getReference());
 
 					final ResourcePropertiesEdit editProps = edit.getPropertiesEdit();
