@@ -466,8 +466,8 @@ public class LessonBuilderAccessService {
 					String owner = currentPage.getOwner();  // if student content
 					String group = currentPage.getGroup();  // if student content
 					
-					//If owner != null it's a student page (Does group factor into this?)
-					boolean studentcontent = (owner != null);
+					//If owner != null or group != null it's a student page, if both null/either null it isn't
+					boolean studentcontent = (owner != null || group != null);
 
 					if (group != null)
 					    group = "/site/" + currentPage.getSiteId() + "/group/" + group;
