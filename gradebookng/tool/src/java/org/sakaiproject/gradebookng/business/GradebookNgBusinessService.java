@@ -32,8 +32,6 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
 
-import javax.xml.bind.JAXBException;
-
 import org.apache.commons.lang.StringUtils;
 import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.authz.api.SecurityService;
@@ -80,6 +78,7 @@ import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.tool.gradebook.Gradebook;
 import org.sakaiproject.tool.gradebook.GradingEvent;
+import org.sakaiproject.user.api.CandidateDetailProvider;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
@@ -88,7 +87,6 @@ import org.sakaiproject.util.ResourceLoader;
 
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
-import org.sakaiproject.user.api.CandidateDetailProvider;
 
 /**
  * Business service for GradebookNG
@@ -146,26 +144,43 @@ public class GradebookNgBusinessService {
 	 * @return a list of users as uuids or null if none
 	 */
 	public List<String> getGradeableUsers() {
-		return this.getGradeableUsers(null);
+		return this.getGradeableUsers(getCurrentSiteId());
+	}
+	
+	/**
+	 * Get a list of all users in the given site that can have grades
+	 *
+	 * @return a list of users as uuids or null if none
+	 */
+	public List<String> getGradeableUsers(final String siteId) {
+		return this.getGradeableUsers(siteId, null);
 	}
 
-	// Return a CandidateDetailProvider or null if it's not enabled
-	private CandidateDetailProvider getCandidateDetailProvider() {
-		return (CandidateDetailProvider)ComponentManager.get("org.sakaiproject.user.api.CandidateDetailProvider");
-	};
-
+	/**
+	 * Get the list of gradeable users
+	 * @param groupFilter
+	 * @return
+	 * 
+	 */
+	public List<String> getGradeableUsers(final GbGroup groupFilter) {
+		return this.getGradeableUsers(null, groupFilter);
+	}
 
 	/**
-	 * Get a list of all users in the current site, filtered by the given group, that can have grades
+	 * Get a list of all users in the given site, filtered by the given group, that can have grades
 	 *
+	 * @param siteId the id of the site to lookup
 	 * @param groupFilter GbGroupType to filter on
 	 *
 	 * @return a list of users as uuids or null if none
 	 */
-	public List<String> getGradeableUsers(final GbGroup groupFilter) {
+	public List<String> getGradeableUsers(String siteId, final GbGroup groupFilter) {
 
 		try {
-			final String siteId = getCurrentSiteId();
+			
+			if(StringUtils.isBlank(siteId)) {
+				siteId = getCurrentSiteId();
+			}
 
 			// note that this list MUST exclude TAs as it is checked in the
 			// GradebookService and will throw a SecurityException if invalid
@@ -176,12 +191,6 @@ public class GradebookNgBusinessService {
 			if (groupFilter != null && groupFilter.getType() != GbGroup.Type.ALL) {
 
 				final Set<String> groupMembers = new HashSet<>();
-
-				/*
-				 * groups handles both if(groupFilter.getType() == GbGroup.Type.SECTION) { Set<Membership> members =
-				 * this.courseManagementService.getSectionMemberships( groupFilter.getId()); for(Membership m: members) {
-				 * if(userUuids.contains(m.getUserId())) { groupMembers.add(m.getUserId()); } } }
-				 */
 
 				if (groupFilter.getType() == GbGroup.Type.GROUP) {
 					final Set<Member> members = this.siteService.getSite(siteId).getGroup(groupFilter.getId())
@@ -281,7 +290,7 @@ public class GradebookNgBusinessService {
 			this.gradebookFrameworkService.addGradebook(siteId, siteId);
 			try {
 				gradebook = (Gradebook) this.gradebookService.getGradebook(siteId);
-			} catch (GradebookNotFoundException e2) {
+			} catch (final GradebookNotFoundException e2) {
 				log.error("Request made and could not add inaccessible gradebookUid=" + siteId);
 			}
 		}
@@ -437,6 +446,19 @@ public class GradebookNgBusinessService {
 
 		return rval;
 	}
+	
+	/**
+	 * Get a map of course grades for all students in the given site. key = studentUuid, value = course grade
+	 *
+	 * @param siteId siteId to get course grades for
+	 * @return the map of course grades for students, or an empty map
+	 */
+	public Map<String, CourseGrade> getCourseGrades(final String siteId) {
+		final Gradebook gradebook = this.getGradebook(siteId);
+		final List<String> studentUuids = this.getGradeableUsers(siteId);
+		return this.getCourseGrades(gradebook, studentUuids);
+	}
+
 
 	/**
 	 * Get a map of course grades for the given users. key = studentUuid, value = course grade
@@ -445,10 +467,18 @@ public class GradebookNgBusinessService {
 	 * @return the map of course grades for students, or an empty map
 	 */
 	public Map<String, CourseGrade> getCourseGrades(final List<String> studentUuids) {
-
-		Map<String, CourseGrade> rval = new HashMap<>();
-
 		final Gradebook gradebook = this.getGradebook();
+		return this.getCourseGrades(gradebook, studentUuids);
+	}
+	
+	/**
+	 * Get a map of course grades for the given gradebook and users. key = studentUuid, value = course grade
+	 *
+	 * @param studentUuids uuids for the students
+	 * @return the map of course grades for students, or an empty map
+	 */
+	private Map<String, CourseGrade> getCourseGrades(final Gradebook gradebook, final List<String> studentUuids) {
+		Map<String, CourseGrade> rval = new HashMap<>();
 		if (gradebook != null) {
 			rval = this.gradebookService.getCourseGradeForStudents(gradebook.getUid(), studentUuids);
 		}
@@ -728,7 +758,7 @@ public class GradebookNgBusinessService {
 			throw new GbException("Error getting role for current user", e);
 		}
 
-		Optional<Site> site = getCurrentSite();
+		final Optional<Site> site = getCurrentSite();
 
 		// get uuids as list of Users.
 		// this gives us our base list and will be sorted as per our desired
@@ -1177,14 +1207,14 @@ public class GradebookNgBusinessService {
 	 */
 	public Optional<Site> getCurrentSite()
 	{
-		String siteId = getCurrentSiteId();
+		final String siteId = getCurrentSiteId();
 		if (siteId != null)
 		{
 			try
 			{
-				return Optional.of(siteService.getSite(siteId));
+				return Optional.of(this.siteService.getSite(siteId));
 			}
-			catch (IdUnusedException e)
+			catch (final IdUnusedException e)
 			{
 				// do nothing
 			}
@@ -1922,13 +1952,13 @@ public class GradebookNgBusinessService {
 			return false;
 		}
 
-		User user = getCurrentUser();
-		Optional<Site> site = getCurrentSite();
+		final User user = getCurrentUser();
+		final Optional<Site> site = getCurrentSite();
 		return user != null && site.isPresent() && getCandidateDetailProvider().isInstitutionalNumericIdEnabled(site.get())
-				&& gradebookService.currentUserHasViewStudentNumbersPerm(getGradebook().getUid());
+				&& this.gradebookService.currentUserHasViewStudentNumbersPerm(getGradebook().getUid());
 	}
 
-	public String getStudentNumber(User u, Site site)
+	public String getStudentNumber(final User u, final Site site)
 	{
 		if (site == null || getCandidateDetailProvider() == null)
 		{
@@ -2046,7 +2076,7 @@ public class GradebookNgBusinessService {
 	 */
 	public boolean isUserRoleSwapped() {
 		try {
-			return securityService.isUserRoleSwapped();
+			return this.securityService.isUserRoleSwapped();
 		} catch (final IdUnusedException e) {
 			// something has happened between getting the siteId and getting the site.
 			throw new GbException("An error occurred checking some bits and pieces, please try again.", e);
@@ -2080,12 +2110,12 @@ public class GradebookNgBusinessService {
 	public Map<String, String> getIconClassMap() {
 		final Map<String, String> mapping = new HashMap<>();
 
-		final Tool assignment = toolManager.getTool("sakai.assignment.grades");
+		final Tool assignment = this.toolManager.getTool("sakai.assignment.grades");
 		if (assignment != null) {
 			mapping.put(assignment.getTitle(), getAssignmentsIconClass());
 		}
 
-		final Tool samigo = toolManager.getTool("sakai.samigo");
+		final Tool samigo = this.toolManager.getTool("sakai.samigo");
 		if (samigo != null) {
 			mapping.put(samigo.getTitle(), getSamigoIconClass());
 		}
@@ -2109,5 +2139,10 @@ public class GradebookNgBusinessService {
 
 	private String getLessonBuilderIconClass() {
 		return ICON_SAKAI + "sakai-lessonbuildertool";
+	}
+	
+	// Return a CandidateDetailProvider or null if it's not enabled
+	private CandidateDetailProvider getCandidateDetailProvider() {
+		return (CandidateDetailProvider)ComponentManager.get("org.sakaiproject.user.api.CandidateDetailProvider");
 	}
 }
