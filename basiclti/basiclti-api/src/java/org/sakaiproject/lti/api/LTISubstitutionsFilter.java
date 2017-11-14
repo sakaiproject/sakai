@@ -12,7 +12,8 @@ public interface LTISubstitutionsFilter {
 
     /**
      * This is called on the custom substitution properties to perform custom filtering.
-     * @param properties The custom properties ready to be substituted.
+     * @param properties The custom properties ready to be substituted. The filter should directly change this
+     *                   object to pass changes back to the caller.
      * @param tool The LTI tool.
      * @param site The site in which the launch is happening.
      */
