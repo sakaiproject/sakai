@@ -41,6 +41,8 @@ import org.sakaiproject.gradebookng.business.GbRole;
 import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
 import org.sakaiproject.gradebookng.business.exception.GbAccessDeniedException;
 import org.sakaiproject.gradebookng.business.model.GbGradeCell;
+import org.sakaiproject.gradebookng.rest.model.CourseGradeSummary;
+import org.sakaiproject.service.gradebook.shared.CourseGrade;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.SessionManager;
 
@@ -182,6 +184,26 @@ public class GradebookNgEntityProvider extends AbstractEntityProvider implements
 		checkInstructorOrTA(siteId);
 
 		return this.businessService.getAssignmentGradeComment(siteId, assignmentId, studentUuid);
+	}
+	
+	@EntityCustomAction(action = "course-grades", viewKey = EntityView.VIEW_LIST)
+	public CourseGradeSummary getCourseGradeSummary(final EntityView view, final Map<String, Object> params) {
+		
+		// get params
+		final String siteId = (String) params.get("siteId");
+				
+		checkValidSite(siteId);
+		checkInstructor(siteId);
+		
+		CourseGradeSummary summary = new CourseGradeSummary();
+		
+		// get course grades and re-map
+		Map<String, CourseGrade> courseGrades = this.businessService.getCourseGrades(siteId);
+		courseGrades.forEach((k,v) -> {
+			summary.add(v.getDisplayGrade());
+		});
+		
+		return summary;
 	}
 
 	/**
