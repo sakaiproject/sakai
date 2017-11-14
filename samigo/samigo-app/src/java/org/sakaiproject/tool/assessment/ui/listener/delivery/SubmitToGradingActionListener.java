@@ -65,6 +65,7 @@ import org.sakaiproject.tool.assessment.ui.bean.delivery.ItemContentsBean;
 import org.sakaiproject.tool.assessment.ui.bean.delivery.SectionContentsBean;
 import org.sakaiproject.tool.assessment.ui.bean.shared.PersonBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
+import org.sakaiproject.tool.assessment.util.ExtendedTimeDeliveryService;
 import org.sakaiproject.tool.assessment.util.SamigoLRSStatements;
 import org.sakaiproject.tool.assessment.util.TextFormat;
 import org.sakaiproject.user.api.Preferences;
@@ -465,7 +466,7 @@ public class SubmitToGradingActionListener implements ActionListener {
 		}
 		
 		adata.setSubmitFromTimeoutPopup(delivery.getsubmitFromTimeoutPopup());
-		adata.setIsLate(isLate(publishedAssessment, delivery.getsubmitFromTimeoutPopup()));
+		adata.setIsLate(isLate(publishedAssessment, delivery.getsubmitFromTimeoutPopup(), adata.getAgentId()));
 		adata.setForGrade(delivery.getForGrade());
 		
 		// If this assessment grading data has been updated (comments or adj. score) by grader and then republic and allow student to resubmit
@@ -979,16 +980,27 @@ public class SubmitToGradingActionListener implements ActionListener {
     }
 
    
-	private Boolean isLate(PublishedAssessmentIfc pub, boolean submitFromTimeoutPopup) {
+	private Boolean isLate(PublishedAssessmentIfc pub, boolean submitFromTimeoutPopup, String adataAgentId) {
 		AssessmentAccessControlIfc a = pub.getAssessmentAccessControl();
 		// If submit from timeout popup, we don't record LATE
 		if(submitFromTimeoutPopup) {
 			return Boolean.FALSE;
-		}		
-		
-		if (a.getDueDate() != null && a.getDueDate().before(new Date()))
-			return Boolean.TRUE;
-		else
-			return Boolean.FALSE;
+		}
+
+		Boolean isLate = false;
+		if (a.getDueDate() != null && a.getDueDate().before(new Date())) {
+			isLate = Boolean.TRUE;
+		} else {
+			isLate = Boolean.FALSE;
+		}
+
+		if (isLate) {
+			ExtendedTimeDeliveryService assessmentExtended = new ExtendedTimeDeliveryService((PublishedAssessmentFacade) a, adataAgentId);
+			if (assessmentExtended.getDueDate() != null && assessmentExtended.getDueDate().after(new Date())) {
+				isLate = Boolean.FALSE;	
+			}
+		}
+
+		return isLate;
 	}
 }
