@@ -97,6 +97,7 @@ import org.sakaiproject.calendar.api.CalendarService;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentResource;
+import org.sakaiproject.content.api.ContentResourceEdit;
 import org.sakaiproject.contentreview.exception.QueueException;
 import org.sakaiproject.contentreview.service.ContentReviewService;
 import org.sakaiproject.email.api.DigestService;
@@ -112,6 +113,7 @@ import org.sakaiproject.entity.api.EntityTransferrerRefMigrator;
 import org.sakaiproject.entity.api.HttpAccess;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
+import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.entitybroker.DeveloperHelperService;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.EventTrackingService;
@@ -727,14 +729,63 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                 assignment.setContext(context);
                 assignment.setAuthor(sessionManager.getCurrentSessionUserId());
                 assignment.setTitle(existingAssignment.getTitle() + " - " + resourceLoader.getString("assignment.copy"));
+                assignment.setInstructions(existingAssignment.getInstructions());
+                assignment.setHonorPledge(existingAssignment.getHonorPledge());
                 assignment.setSection(existingAssignment.getSection());
                 assignment.setOpenDate(existingAssignment.getOpenDate());
                 assignment.setDueDate(existingAssignment.getDueDate());
                 assignment.setDropDeadDate(existingAssignment.getDropDeadDate());
                 assignment.setCloseDate(existingAssignment.getCloseDate());
+                assignment.setHideDueDate(existingAssignment.getHideDueDate());
                 assignment.setDraft(true);
                 assignment.setPosition(existingAssignment.getPosition());
                 assignment.setIsGroup(existingAssignment.getIsGroup());
+                assignment.setAllowPeerAssessment(existingAssignment.getAllowPeerAssessment());
+
+                // peer properties
+                assignment.setPeerAssessmentInstructions(existingAssignment.getPeerAssessmentInstructions());
+                assignment.setPeerAssessmentAnonEval(existingAssignment.getPeerAssessmentAnonEval());
+                assignment.setPeerAssessmentNumberReviews(existingAssignment.getPeerAssessmentNumberReviews());
+                assignment.setPeerAssessmentPeriodDate(existingAssignment.getPeerAssessmentPeriodDate());
+                assignment.setPeerAssessmentStudentReview(existingAssignment.getPeerAssessmentStudentReview());
+
+                assignment.setTypeOfSubmission(existingAssignment.getTypeOfSubmission());
+                assignment.setTypeOfGrade(existingAssignment.getTypeOfGrade());
+                assignment.setMaxGradePoint(existingAssignment.getMaxGradePoint());
+                assignment.setScaleFactor(existingAssignment.getScaleFactor());
+                assignment.setIndividuallyGraded(existingAssignment.getIndividuallyGraded());
+                assignment.setReleaseGrades(existingAssignment.getReleaseGrades());
+                assignment.setAllowAttachments(existingAssignment.getAllowAttachments());
+                // for ContentReview service
+                assignment.setContentReview(existingAssignment.getContentReview());
+
+                //duplicating attachments
+                Set<String> tempAttach = existingAssignment.getAttachments();
+                if (tempAttach != null && !tempAttach.isEmpty()){
+                    for (String attachId : tempAttach){
+                        Reference tempRef = entityManager.newReference(attachId);
+                        if (tempRef != null){
+                            String tempRefId = tempRef.getId();
+                            String tempRefCollectionId = contentHostingService.getContainingCollectionId(tempRefId);
+                            try {
+                                // get the original attachment display name
+                                ResourceProperties p = contentHostingService.getProperties(tempRefId);
+                                String displayName = p.getProperty(ResourceProperties.PROP_DISPLAY_NAME);
+                                // add another attachment instance
+                                String newItemId = contentHostingService.copyIntoFolder(tempRefId, tempRefCollectionId);
+                                ContentResourceEdit copy = contentHostingService.editResource(newItemId);
+                                // with the same display name
+                                ResourcePropertiesEdit pedit = copy.getPropertiesEdit();
+                                pedit.addProperty(ResourceProperties.PROP_DISPLAY_NAME, displayName);
+                                contentHostingService.commitResource(copy, NotificationService.NOTI_NONE);
+                                Reference newRef = entityManager.newReference(copy.getReference());
+                                assignment.getAttachments().add(newRef.getReference());
+                            } catch (Exception e){
+                                log.warn("ERROR DUPLICATING ATTACHMENTS : " + e.toString());
+                            }
+                        }
+                    }
+                }
 
                 Map<String, String> properties = assignment.getProperties();
                 existingAssignment.getProperties().entrySet().stream()
