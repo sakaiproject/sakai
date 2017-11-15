@@ -42,9 +42,15 @@ should be included in file importing DeliveryMessages
 <h:outputText value="#{deliveryMessages.fin_invalid_characters_error} " escape="false" rendered="#{question.isInvalidFinInput}" styleClass="messageSamigo3"/>
 <f:verbatim><br /></f:verbatim>
 
+<div class="sr-only">
+  <h:outputFormat value="#{deliveryMessages.fin_sr_explanation}" escape="false">
+    <f:param value="#{question.finArray.size()-1}" />
+  </h:outputFormat>
+</div>
+
 <samigo:dataLine value="#{question.finArray}" var="answer" separator=" " first="0" rows="100">
   <h:column>
-      <h:outputLabel for="fillinnumeric" value="#{answer.text} " escape="false" />
+      <h:outputText id="fin-question-text" styleClass="fin-question-text" value="#{answer.text} " escape="false" />
       <f:verbatim>&nbsp;</f:verbatim>
       <h:panelGroup styleClass="icon-sakai--check feedBackCheck" id="image"
         rendered="#{delivery.feedback eq 'true' &&
@@ -57,17 +63,12 @@ should be included in file importing DeliveryMessages
                     delivery.feedbackComponent.showCorrectResponse &&
                     answer.isCorrect != null && !answer.isCorrect && answer.hasInput && !delivery.noFeedback=='true'}">
       </h:panelGroup>
-	  <h:inputText size="10" rendered="#{answer.hasInput 
-		&& delivery.actionString !='gradeAssessment' 
-		&& delivery.actionString !='reviewAssessment'}"
-		 value="#{answer.response}" onkeypress="return noenter()" id="fillinnumeric">
- 	  </h:inputText>
-
-      <h:outputText style="text-decoration: underline" 
-		rendered="#{delivery.actionString=='gradeAssessment' 
-			|| delivery.actionString=='reviewAssessment'}"
-             value="#{answer.response}"/>
-
+      <h:panelGroup rendered="#{answer.hasInput && delivery.actionString !='gradeAssessment' && delivery.actionString !='reviewAssessment'}">
+        <h:outputLabel styleClass="sr-only" for="fin" value="#{deliveryMessages.fin_sr_answer_label_part1} #{question.answerCounter}. #{deliveryMessages.fin_sr_answer_label_part2}" />
+        <h:inputText size="20" value="#{answer.response}" onkeypress="return noenter()" id="fin" />
+      </h:panelGroup>
+      <h:outputText style="text-decoration: underline" rendered="#{delivery.actionString=='gradeAssessment' || delivery.actionString=='reviewAssessment'}"
+         value="#{answer.response}"/>
   </h:column>
 </samigo:dataLine>
 
