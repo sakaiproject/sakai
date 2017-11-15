@@ -638,7 +638,7 @@ public class GradebookNgBusinessService {
 		// no change
 		if (StringUtils.equals(storedGradeAdjusted, newGradeAdjusted)) {
 			final Double storedGradePoints = FormatHelper.validateDouble(storedGradeAdjusted);
-			if (storedGradePoints.compareTo(maxPoints) > 0) {
+			if (storedGradePoints != null && storedGradePoints.compareTo(maxPoints) > 0) {
 				return GradeSaveResponse.OVER_LIMIT;
 			} else {
 				return GradeSaveResponse.NO_CHANGE;
