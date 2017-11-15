@@ -142,7 +142,6 @@
         <property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService"/>
         <property name="authzGroupService" ref="org.sakaiproject.authz.api.AuthzGroupService"/>
         <property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
-        <property name="timeService" ref="org.sakaiproject.time.api.TimeService"/>
     </bean>
 
     <bean id="org.sakaiproject.assignment.impl.AssignmentGradeInfoProvider"

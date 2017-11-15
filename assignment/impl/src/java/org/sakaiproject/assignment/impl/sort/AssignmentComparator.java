@@ -15,12 +15,10 @@
  */
 package org.sakaiproject.assignment.impl.sort;
 
-import org.sakaiproject.assignment.api.model.Assignment;
-import org.sakaiproject.time.api.Time;
-
 import java.time.Instant;
 import java.util.Comparator;
-import java.util.Date;
+
+import org.sakaiproject.assignment.api.model.Assignment;
 
 /**
  * The AssignmentComparator class that sorts by the due date of the assignment.
