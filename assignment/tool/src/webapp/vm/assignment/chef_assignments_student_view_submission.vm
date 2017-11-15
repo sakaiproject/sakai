@@ -50,7 +50,7 @@ $(document).ready(function(){
 		#set($closeDate = $submission.CloseDate)
 	#end
 	#set ($submissionType = $assignment.TypeOfSubmission.ordinal())
-	#if ($allowSubmit && $submission && $closeDate && $currentTime.isAfter($closeDate) )
+	#if ($allowSubmit && !$submission && $closeDate && $currentTime.isAfter($closeDate) )
 		<div class="alertMessage">$tlang.getString("stuviewsubm.theclodat")</div><div class="clear"></div>
 	#end
 
