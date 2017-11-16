@@ -703,6 +703,9 @@ a.edit-link:link, a.edit-link:visited, a.section-merge-link:link, a.section-merg
     right:5px;
     font-size: 1.35em;
 }
+#layoutReorderer a.preview-link {
+    text-decoration: none;
+}
 /**
  * Interaction styling.
  */

@@ -33,6 +33,7 @@ import lombok.extern.slf4j.Slf4j;
 import lombok.Setter;
 import org.apache.commons.lang.StringUtils;
 import org.sakaiproject.content.api.ContentTypeImageService;
+import org.sakaiproject.util.FormattedText;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sakaiproject.lessonbuildertool.SimplePage;
@@ -47,15 +48,7 @@ import org.sakaiproject.tool.api.ToolSession;
 
 import uk.org.ponder.localeutil.LocaleGetter;
 import uk.org.ponder.messageutil.MessageLocator;
-import uk.org.ponder.rsf.components.UIBranchContainer;
-import uk.org.ponder.rsf.components.UICommand;
-import uk.org.ponder.rsf.components.UIInternalLink;
-import uk.org.ponder.rsf.components.UIContainer;
-import uk.org.ponder.rsf.components.UIForm;
-import uk.org.ponder.rsf.components.UIInput;
-import uk.org.ponder.rsf.components.UIOutput;
-import uk.org.ponder.rsf.components.UILink;
-import uk.org.ponder.rsf.components.UIComponent;
+import uk.org.ponder.rsf.components.*;
 import uk.org.ponder.rsf.components.decorators.UIFreeAttributeDecorator;
 
 import uk.org.ponder.rsf.components.decorators.UIStyleDecorator;
@@ -226,11 +219,27 @@ public class ReorderProducer implements ViewComponentProducer, NavigationCaseRep
 				UIOutput icon = UIOutput.make(row, "icon");
 				icon.decorate(this.getImageSourceDecorator(i));
 
-				if (i.getType() == 5) {
-				    UIOutput.make(row, "text-snippet", messageLocator.getMessage("simplepage.text.item"));
+				if (i.getType() == SimplePageItem.TEXT) {
+					String text = FormattedText.convertFormattedTextToPlaintext(i.getHtml());
+					if (StringUtils.isBlank(text)) {
+						text = messageLocator.getMessage("simplepage.text.item");
+					} else if (StringUtils.length(text) > 50) {
+						text = StringUtils.substring(text, 0, 50) + "...";
+					}
+				    UIOutput.make(row, "text-snippet", text + " | ");
+					UIOutput previewLink = UIOutput.make(row, "previewlink");
+					previewLink.decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.preview.link")));
+					previewLink.decorate(new UIFreeAttributeDecorator("href", "#preview" + i.getId()));
+					UIOutput.make(row, "previewmodal").decorate(new UIFreeAttributeDecorator("id", "preview" + i.getId()));
+					UIVerbatim.make(row, "previewcontent", i.getHtml());
 				} else if ("1".equals(subtype)) {
 				    // embed code, nothing useful to show
-				    UIOutput.make(row, "text-snippet", messageLocator.getMessage("simplepage.embedded-video"));
+				    UIOutput.make(row, "text-snippet", messageLocator.getMessage("simplepage.embedded-video") + " | ");
+					UIOutput previewLink = UIOutput.make(row, "previewlink");
+					previewLink.decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.preview.link")));
+					previewLink.decorate(new UIFreeAttributeDecorator("href", "#preview" + i.getId()));
+					UIOutput.make(row, "previewmodal").decorate(new UIFreeAttributeDecorator("id", "preview" + i.getId()));
+					UIVerbatim.make(row, "previewcontent", i.getAttribute("multimediaEmbedCode"));
 				} else if ("3".equals(subtype)) {
 				    // oembed. use the URL
 				    UILink.make(row, "link", i.getAttribute("multimediaUrl"), i.getAttribute("multimediaUrl"));
@@ -253,7 +262,14 @@ public class ReorderProducer implements ViewComponentProducer, NavigationCaseRep
 				    	row.decorate(new UIStyleDecorator("list-group-item-info"));
 					}
 				} else {
-				    UIOutput.make(row, "description", i.getDescription());
+					String description = i.getDescription();
+					if (StringUtils.isNotBlank(description) && i.getType() != SimplePageItem.COMMENTS && i.getType() != SimplePageItem.STUDENT_CONTENT) {
+						description = " | " + description;
+						if (StringUtils.length(description) > 50) {
+							description = StringUtils.substring(description, 0, 50) + "...";
+						}
+					}
+				    UIOutput.make(row, "description", description);
 				    showPageProducer.makeLink(row, "link", i, simplePageBean, simplePageToolDao, messageLocator, true, currentPage, false, Status.NOT_REQUIRED);
 				}
 				UIComponent del = UIOutput.make(row, "dellink").decorate(new UIFreeAttributeDecorator("alt", messageLocator.getMessage("simplepage.delete")));
