@@ -7875,9 +7875,9 @@ public class AssignmentAction extends PagedResourceActionII {
             AssignmentModelAnswerItem mAnswer = assignmentSupplementItemService.getModelAnswer(aId);
             if (mAnswer == null) {
                 mAnswer = assignmentSupplementItemService.newModelAnswer();
+                mAnswer.setAssignmentId(aId);
                 assignmentSupplementItemService.saveModelAnswer(mAnswer);
             }
-            mAnswer.setAssignmentId(a.getId());
             mAnswer.setText((String) state.getAttribute(MODELANSWER_TEXT));
             mAnswer.setShowTo(state.getAttribute(MODELANSWER_SHOWTO) != null ? Integer.parseInt((String) state.getAttribute(MODELANSWER_SHOWTO)) : 0);
             mAnswer.setAttachmentSet(getAssignmentSupplementItemAttachment(state, mAnswer, MODELANSWER_ATTACHMENTS));
