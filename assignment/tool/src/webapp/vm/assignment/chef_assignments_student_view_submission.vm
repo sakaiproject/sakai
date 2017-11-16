@@ -371,7 +371,7 @@ $(document).ready(function(){
 		#if ($aAttachments)
 			#set ($size = $aAttachments.size())
 			#if ($size < 1)
-				$tlang.getString("gen.noatt")
+				##$tlang.getString("gen.noatt")
 			#else
 				<h4>
 					$tlang.getString("gen.addres2")
