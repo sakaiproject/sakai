@@ -325,7 +325,6 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
             Assert.assertEquals(1, submitters.size());
             AssignmentSubmissionSubmitter submitter = submitters.stream().findAny().get();
             Assert.assertNotNull(submitter);
-            Assert.assertNotNull(submitter.getId());
             Assert.assertEquals(submitterId, submitter.getSubmitter());
         } catch (Exception e) {
             Assert.fail("Could not create submission, " + e.getMessage());
