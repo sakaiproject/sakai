@@ -1323,7 +1323,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                         User user = userDirectoryService.getUser(submitter.getSubmitter());
                         userSubmissionMap.put(user, submission);
                     } catch (UserNotDefinedException e) {
-                        log.warn("Could not find user: {}, that is a submitter for submission: {}", submitter.getId(), submission.getId());
+                        log.warn("Could not find user: {}, that is a submitter for submission: {}", submitter.getSubmitter(), submission.getId());
                     }
                 }
             }
