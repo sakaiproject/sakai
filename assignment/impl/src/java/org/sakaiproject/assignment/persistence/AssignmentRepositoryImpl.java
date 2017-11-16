@@ -173,6 +173,7 @@ public class AssignmentRepositoryImpl extends BasicSerializableRepository<Assign
                 .add(Restrictions.eq("assignment.id", assignmentId))
                 .add(Restrictions.eq("submitted", Boolean.TRUE))
                 .add(Restrictions.eq("userSubmission", Boolean.TRUE))
+                .add(Restrictions.isNotNull("dateSubmitted"))
                 .uniqueResult();
         return number.longValue();
     }
@@ -183,7 +184,8 @@ public class AssignmentRepositoryImpl extends BasicSerializableRepository<Assign
                 .setProjection(Projections.rowCount())
                 .add(Restrictions.eq("assignment.id", assignmentId))
                 .add(Restrictions.eq("submitted", Boolean.TRUE))
-                .add(Restrictions.eq("graded", Boolean.TRUE))
+                .add(Restrictions.eq("graded", Boolean.FALSE))
+                .add(Restrictions.isNotNull("dateSubmitted"))
                 .uniqueResult();
         return number.longValue();
     }

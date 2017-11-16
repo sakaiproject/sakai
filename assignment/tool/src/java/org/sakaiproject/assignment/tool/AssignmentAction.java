@@ -5970,6 +5970,7 @@ public class AssignmentAction extends PagedResourceActionII {
                             submission.setGroupId(group_id);
                         }
 
+                        submission.setUserSubmission(true);
                         submission.setSubmittedText(text);
                         submission.setHonorPledge(Boolean.valueOf(honorPledgeYes));
                         submission.setDateSubmitted(Instant.now());
@@ -6166,6 +6167,7 @@ public class AssignmentAction extends PagedResourceActionII {
                                     submission.setGroupId(group_id);
                                     log.debug("NEW SUBMISSION: group: {}", group_id);
                                 }
+                                submission.setUserSubmission(true);
                                 submission.setSubmittedText(text);
                                 submission.setHonorPledge(Boolean.valueOf(honorPledgeYes));
                                 submission.setDateSubmitted(Instant.now());
