@@ -133,7 +133,7 @@ public class GradeItemCellPanel extends Panel {
 		this.formattedGrade = FormatHelper.formatGrade(this.rawGrade);
 		
 		//TODO move this to the format helper?
-		this.displayGrade = formatDisplayGrade(this.formattedGrade);
+		this.displayGrade = formatDisplayGrade(FormatHelper.formatGradeForDisplay(this.formattedGrade));
 
 		// RENDER
 		if (isExternal || !this.gradeable) {
