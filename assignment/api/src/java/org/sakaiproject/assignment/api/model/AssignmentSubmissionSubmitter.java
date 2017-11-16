@@ -27,7 +27,7 @@ import lombok.ToString;
 @Data
 @NoArgsConstructor
 @ToString(exclude = {"submission"})
-@EqualsAndHashCode(of = "id")
+@EqualsAndHashCode(of = {"submission", "submitter"})
 public class AssignmentSubmissionSubmitter {
 
     @Id

@@ -11886,13 +11886,12 @@ public class AssignmentAction extends PagedResourceActionII {
                     // construct the group-submission list
                     if (submitterGroups != null) {
                         for (Group gId : submitterGroups) {
-                            AssignmentSubmission sub = null;
-                            try {
-                                sub = assignmentService.getSubmission(aRef, gId.getId());
-                            } catch (PermissionException e) {
-                                log.warn("Cannot find submission with reference = {}, group = {}, {}", aRef, gId.getId(), e.getMessage());
+                            AssignmentSubmission sub = getSubmission(aRef, gId.getId(), "sizeResources", state);
+                            if (sub != null) {
+                                returnResources.add(new SubmitterSubmission(gId, sub));  // UserSubmission accepts either User or Group
+                            } else {
+                                log.warn("Cannot find submission with reference = {}, group = {}, {}", aRef, gId.getId());
                             }
-                            returnResources.add(new SubmitterSubmission(gId, sub));  // UserSubmission accepts either User or Group
                         }
                     }
                 } else {
