@@ -5990,7 +5990,7 @@ public class AssignmentAction extends PagedResourceActionII {
                         // need this to handle feedback and comments, which we have to do even if ungraded
                         // get the previous graded date
                         String prevGradedDate = properties.get(AssignmentConstants.PROP_LAST_GRADED_DATE);
-                        if (prevGradedDate == null) {
+                        if (prevGradedDate == null && submission.getDateModified() != null) {
                             // since this is a newly added property, if no value is set, get the default as the submission last modified date
                             prevGradedDate = submission.getDateModified().toString();
                             properties.put(AssignmentConstants.PROP_LAST_GRADED_DATE, prevGradedDate);
