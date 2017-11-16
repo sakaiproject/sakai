@@ -911,7 +911,6 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
     @Override
     @Transactional
     public AssignmentSubmission addSubmission(String assignmentId, String submitter) throws PermissionException {
-        AssignmentSubmission submission = null;
         try {
             Assignment assignment = getAssignment(assignmentId);
 
@@ -920,34 +919,56 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                 throw new PermissionException(sessionManager.getCurrentSessionUserId(), SECURE_ADD_ASSIGNMENT_SUBMISSION, assignmentReference);
             }
 
-            User user = null;
+            AssignmentSubmission submission = new AssignmentSubmission();
+            Set<AssignmentSubmissionSubmitter> submissionSubmitters = new HashSet<>();
+
             try {
-                user = userDirectoryService.getUser(submitter);
-            } catch (UserNotDefinedException e) {
-                try {
-                    user = userDirectoryService.getUser(sessionManager.getCurrentSessionUserId());
-                } catch (UserNotDefinedException e1) {
-                    log.error("Unknown submitter while adding a submission to assignment: {}", assignmentId);
-                    return null;
+                Site site = siteService.getSite(assignment.getContext());
+
+                if (assignment.getIsGroup()) {
+                    Group group = site.getGroup(submitter);
+                    if (assignment.getGroups().contains(group.getReference())) {
+                        for (Member member : group.getMembers()) {
+                            AssignmentSubmissionSubmitter ass = new AssignmentSubmissionSubmitter();
+                            ass.setSubmitter(member.getUserId());
+                            submissionSubmitters.add(ass);
+                        }
+                        submission.setGroupId(submitter);
+                    } else {
+                        log.warn("A submission cannot be added to assignment: {}, for group: {}", assignmentId, submitter);
+                    }
+                } else {
+                    if (site.getMember(submitter) != null) {
+                        AssignmentSubmissionSubmitter submissionSubmitter = new AssignmentSubmissionSubmitter();
+                        submissionSubmitter.setSubmitter(submitter);
+                        submissionSubmitters.add(submissionSubmitter);
+                    } else {
+                        log.warn("Unknown submitter while adding a submission to assignment: {}", assignmentId);
+                    }
                 }
+            } catch (IdUnusedException iue) {
+                log.warn("Site not found while attempting to add a submission to assignment: {}, site: {}", assignmentId, assignment.getContext());
+                return null;
             }
 
-            AssignmentSubmissionSubmitter submissionSubmitter = new AssignmentSubmissionSubmitter();
-            submissionSubmitter.setSubmitter(user.getId());
-            submissionSubmitter.setSubmittee(true);
-            Set<AssignmentSubmissionSubmitter> submissionSubmitters = new HashSet<>();
-            submissionSubmitters.add(submissionSubmitter);
+            if (!submissionSubmitters.isEmpty()) {
+                String currentUser = sessionManager.getCurrentSessionUserId();
+                // identify who the submittee is using the session
+                submissionSubmitters.stream().filter(s -> s.getSubmitter().equals(currentUser)).findFirst().ifPresent(s -> s.setSubmittee(true));
 
-            submission = new AssignmentSubmission();
-            assignmentRepository.newSubmission(assignment, submission, Optional.of(submissionSubmitters), Optional.empty(), Optional.empty(), Optional.empty());
+                assignmentRepository.newSubmission(assignment, submission, Optional.of(submissionSubmitters), Optional.empty(), Optional.empty(), Optional.empty());
 
-            String submissionReference = AssignmentReferenceReckoner.reckoner().submission(submission).reckon().getReference();
-            eventTrackingService.post(eventTrackingService.newEvent(AssignmentConstants.EVENT_ADD_ASSIGNMENT_SUBMISSION, submissionReference, true));
+                String submissionReference = AssignmentReferenceReckoner.reckoner().submission(submission).reckon().getReference();
+                eventTrackingService.post(eventTrackingService.newEvent(AssignmentConstants.EVENT_ADD_ASSIGNMENT_SUBMISSION, submissionReference, true));
+
+                log.debug("New submission: {} added to assignment: {}", submission.getId(), assignmentId);
+                return submission;
+            }
         } catch (IdUnusedException iue) {
-            log.error("A submission cannot be added to an unknown assignement: {}", assignmentId);
+            log.warn("A submission cannot be added to an unknown assignment: {}", assignmentId);
         }
 
-        return submission;
+        return null;
     }
 
     @Override
@@ -1232,36 +1253,33 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
 
     @Override
     public AssignmentSubmission getSubmission(String assignmentId, String submitterId) throws PermissionException {
-        AssignmentSubmission submission = null;
 
         if (!StringUtils.isAnyBlank(assignmentId, submitterId)) {
-            // First check their personal submission
-            submission = assignmentRepository.findSubmissionForUser(assignmentId, submitterId);
-            if (submission != null && allowGetSubmission(AssignmentReferenceReckoner.reckoner().submission(submission).reckon().getReference())) {
-                return submission;
-            }
             try {
-                Assignment a = getAssignment(assignmentId);
-                if (a.getIsGroup()) {
-                    log.debug("Checking assignment {}, for group submission", assignmentId);
-                    // TODO check for group submission
-                    // return getUserGroupSubmissionMap(a, Collections.singletonList(person)).get(person);
+                AssignmentSubmission submission;
+                Assignment assignment = getAssignment(assignmentId);
+
+                if (assignment.getIsGroup()) {
+                    submission = assignmentRepository.findSubmissionForGroup(assignmentId, submitterId);
+                } else {
+                    submission = assignmentRepository.findSubmissionForUser(assignmentId, submitterId);
                 }
-            } catch (IdUnusedException | PermissionException e) {
-                log.debug("Could not get assignment with id = {}", assignmentId);
+
+                if (submission != null) {
+                    String reference = AssignmentReferenceReckoner.reckoner().submission(submission).reckon().getReference();
+                    if (allowGetSubmission(reference)) {
+                        return submission;
+                    } else {
+                        throw new PermissionException(sessionManager.getCurrentSessionUserId(), SECURE_ACCESS_ASSIGNMENT_SUBMISSION, reference);
+                    }
+                } else {
+                    log.debug("No submission found for user {} in assignment {}", submitterId, assignmentId);
+                }
+            } catch (IdUnusedException e) {
+                log.warn("Could not find assignment with id {} while attempting to retrieve a submission for {}", assignmentId, submitterId);
             }
         }
-
-        log.debug("No submission found for user {} in assignment {}", submitterId, assignmentId);
-
-        if (submission != null) {
-            String reference = AssignmentReferenceReckoner.reckoner().submission(submission).reckon().getReference();
-            if (!allowGetSubmission(reference)) {
-                throw new PermissionException(sessionManager.getCurrentSessionUserId(), SECURE_ACCESS_ASSIGNMENT_SUBMISSION, reference);
-            }
-        }
-
-        return submission;
+        return null;
     }
 
     private Map<User, AssignmentSubmission> getUserSubmissionMap(Assignment assignment) {
@@ -1312,39 +1330,6 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
         }
         return userSubmissionMap;
     }
-
-//    private Map<User, AssignmentSubmission> getUserGroupSubmissionMap(Assignment assignment, List<User> users) {
-//        Map<User, AssignmentSubmission> userSubmissionMap = new HashMap<>();
-//        if (assignment == null || !assignment.getIsGroup()) {
-//            throw new IllegalArgumentException("Assignment must be a group assignment");
-//        }
-//
-//        try {
-//            Site site = siteService.getSite(assignment.getContext());
-//            for (User user : users) {
-//                AssignmentSubmission submission = null;
-//                Collection<Group> groups = site.getGroupsWithMember(user.getId());
-//                if (groups != null) {
-//                    for (Group g : groups) {
-//                        log.debug("Checking submission for group: {}" + g.getTitle());
-//                        submission = getSubmission(assignment.getId(), g.getId());
-//                        if (submission != null && allowGetSubmission(AssignmentReferenceReckoner.reckoner().submission(submission).reckon().getReference())) {
-//                            userSubmissionMap.put(user, submission);
-//                            break;
-//                        }
-//                    }
-//                } else {
-//                    log.info("Assignment {} is grouped but {} is not in any of the site groups", assignment.getId(), user.getId());
-//                }
-//            }
-//        } catch (IdUnusedException e) {
-//            log.warn("invoked with an argument whose 'context' value doesn't match any siteId in the system");
-//        } catch (PermissionException e) {
-//            log.warn("Cannot access submission");
-//        }
-//
-//        return userSubmissionMap;
-//    }
 
     @Override
     public AssignmentSubmission getSubmission(List<AssignmentSubmission> submissions, User person) {

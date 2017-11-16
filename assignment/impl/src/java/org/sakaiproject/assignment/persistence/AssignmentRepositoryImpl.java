@@ -149,6 +149,14 @@ public class AssignmentRepositoryImpl extends BasicSerializableRepository<Assign
     }
 
     @Override
+    public AssignmentSubmission findSubmissionForGroup(String assignmentId, String groupId) {
+        return (AssignmentSubmission) sessionFactory.getCurrentSession().createCriteria(AssignmentSubmission.class)
+                .add(Restrictions.eq("assignment.id", assignmentId))
+                .add(Restrictions.eq("groupId", groupId))
+                .uniqueResult();
+    }
+
+    @Override
     public void initializeAssignment(Assignment assignment) {
         sessionFactory.getCurrentSession().refresh(assignment);
     }
