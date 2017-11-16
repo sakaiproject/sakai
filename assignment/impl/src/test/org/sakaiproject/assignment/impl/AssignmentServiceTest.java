@@ -47,6 +47,7 @@ import org.sakaiproject.assignment.api.model.Assignment;
 import org.sakaiproject.assignment.api.model.AssignmentSubmission;
 import org.sakaiproject.assignment.api.model.AssignmentSubmissionSubmitter;
 import org.sakaiproject.authz.api.AuthzGroupService;
+import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.entity.api.Entity;
@@ -466,11 +467,12 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
         Assert.assertEquals("self", assignmentService.getGradeDisplay("self", Assignment.GradeType.GRADE_TYPE_NONE, null));
     }
 
-    private AssignmentSubmission createNewSubmission(String context, String submitterId) throws UserNotDefinedException {
+    private AssignmentSubmission createNewSubmission(String context, String submitterId) throws UserNotDefinedException, IdUnusedException {
         Assignment assignment = createNewAssignment(context);
-        User userMock = Mockito.mock(User.class);
-        when(userMock.getId()).thenReturn(submitterId);
-        when(userDirectoryService.getUser(submitterId)).thenReturn(userMock);
+        Site site = mock(Site.class);
+        when(site.getGroup(submitterId)).thenReturn(mock(Group.class));
+        when(site.getMember(submitterId)).thenReturn(mock(Member.class));
+        when(siteService.getSite(context)).thenReturn(site);
         when(siteService.siteReference(assignment.getContext())).thenReturn("/site/" + assignment.getContext());
         when(securityService.unlock(AssignmentServiceConstants.SECURE_ADD_ASSIGNMENT_SUBMISSION, "/site/" + assignment.getContext())).thenReturn(true);
         AssignmentSubmission submission = null;
