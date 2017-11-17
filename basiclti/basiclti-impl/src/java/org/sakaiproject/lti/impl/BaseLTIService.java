@@ -25,6 +25,7 @@ import java.util.UUID;
 import java.util.List;
 import java.util.Map;
 
+import org.sakaiproject.lti.api.LTISubstitutionsFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sakaiproject.authz.api.SecurityService;
@@ -46,7 +47,11 @@ import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.foorm.SakaiFoorm;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 import java.util.Properties;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * <p>
@@ -70,6 +75,9 @@ public abstract class BaseLTIService implements LTIService {
 
 	/** Dependency: SessionManager */
 	protected SessionManager m_sessionManager = null;
+
+	// The filters that are applied to custom properties.
+	protected List<LTISubstitutionsFilter> filters = new CopyOnWriteArrayList<>();
 
 	/**
 	 * Dependency: SessionManager.
@@ -854,5 +862,20 @@ public abstract class BaseLTIService implements LTIService {
 	public abstract boolean deleteProxyBindingDao(Long key);
 	public abstract Map<String, Object> getProxyBindingDao(Long key);
 	public abstract Map<String, Object> getProxyBindingDao(Long tool_id, String siteId);
+
+	@Override
+	public void registerPropertiesFilter(LTISubstitutionsFilter filter) {
+		filters.add(filter);
+	}
+
+	@Override
+	public void removePropertiesFilter(LTISubstitutionsFilter filter) {
+		filters.remove(filter);
+	}
+
+	@Override
+	public void filterCustomSubstitutions(Properties properties, Map<String, Object> tool, Site site) {
+		filters.forEach(filter -> filter.filterCustomSubstitutions(properties, tool, site));
+	}
 
 }
