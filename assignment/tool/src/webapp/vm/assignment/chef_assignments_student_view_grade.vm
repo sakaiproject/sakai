@@ -240,9 +240,7 @@
     #set ($attachments = $assignment.Attachments)
     #if ($attachments)
         #set ($size = $attachments.size())
-        #if ($size < 1)
-            ##$tlang.getString("gen.noatt")
-        #else
+        #if ($size > 0)
             <h4>
                 $tlang.getString("gen.addres2")
             </h4>
