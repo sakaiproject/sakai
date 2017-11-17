@@ -518,7 +518,7 @@
                                 #end
                             </label>
                             <input type="text" name="$name_grade" size="5" maxlength="11" value="$!value_grade" id="grade" onkeypress="return ASN.handleEnterKeyPress(event);"/>
-                            <span class="text-info">($tlang.getString("grade.max") $!service.getMaxPointGradeDisplay($!assignment.ScaleFactor, $!assignment.MacGradePoint))</span>
+                            <span class="text-info">($tlang.getString("grade.max") $!service.getMaxPointGradeDisplay($!assignment.ScaleFactor, $!assignment.MaxGradePoint))</span>
 
                             <!--for grading via an external scoring service, if enabled for the associated gradebook item -->
                             #if($scoringComponentEnabled)
