@@ -38,7 +38,7 @@ import org.sakaiproject.site.api.Site;
  * Location is a combination of site id, (optional) page id and (optional) tool id
  * </p>
  */
-public interface LTIService {
+public interface LTIService extends LTISubstitutionsFilter {
     /**
      * This string starts the references to resources in this service.
      */
@@ -507,4 +507,16 @@ public interface LTIService {
     String formInput(Object row, String[] fieldInfo);
 
     boolean isAdmin(String siteId);
+
+    /**
+     * This adds a filter for the custom properties.
+     * @param filter The filter to add.
+     */
+    void registerPropertiesFilter(LTISubstitutionsFilter filter);
+
+    /**
+     * This removes a filter for custom properties.
+     * @param filter The filter to remove.
+     */
+    void removePropertiesFilter(LTISubstitutionsFilter filter);
 }
