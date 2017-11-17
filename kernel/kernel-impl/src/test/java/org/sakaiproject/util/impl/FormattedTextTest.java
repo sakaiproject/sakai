@@ -141,14 +141,18 @@ public class FormattedTextTest {
 
     @Test
     public void testRegexTargetMatch() {
-        Pattern patternAnchorTagWithOutTarget = formattedText.M_patternAnchorTagWithOutTarget;
-        /*  Pattern.compile("([<]a\\s)(?![^>]*target=)([^>]*?)[>]",
+        Pattern patternAnchorTagWithOutTarget = formattedText.M_patternAnchorTagWithOutTargetAndWithHrefAndHrefNotStartingWithHash;
+        /*  Pattern.compile("([<]a\s)(?=[^>]*href=)(?![^>]*href="#)(?![^>]*target=)([^>]*?)[>]",
             Pattern.CASE_INSENSITIVE | Pattern.DOTALL); */
         Assert.assertTrue(patternAnchorTagWithOutTarget.matcher("<a href=\"other.html\">link</a>").find());
         Assert.assertFalse(patternAnchorTagWithOutTarget.matcher("<a target=\"AZ\" href=\"other.html\">link</a>").find());
         Assert.assertTrue(patternAnchorTagWithOutTarget.matcher("<a href=\"other.html\" class=\"AZ\">link</a>").find());
         Assert.assertFalse(patternAnchorTagWithOutTarget.matcher("<a target=\"AZ\" href=\"other.html\">link</a>").find());
         Assert.assertFalse(patternAnchorTagWithOutTarget.matcher("<a href=\"other.html\" target=\"AZ\">link</a>").find());
+
+        Assert.assertFalse(patternAnchorTagWithOutTarget.matcher("<a name=\"anchor\">link</a>").find());
+        Assert.assertFalse(patternAnchorTagWithOutTarget.matcher("<a href=\"#other\" target=\"AZ\">link</a>").find());
+        Assert.assertFalse(patternAnchorTagWithOutTarget.matcher("<a href=\"#other\">link</a>").find());
     }
 
     @Test

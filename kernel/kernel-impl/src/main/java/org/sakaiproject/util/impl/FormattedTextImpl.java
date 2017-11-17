@@ -276,9 +276,9 @@ public class FormattedTextImpl implements FormattedText
     /** Matches all anchor tags that have target="_blank" not accompanied by a rel attribute. */
     public final Pattern M_patternAnchorTagWithTargetBlankAndWithOutRel = Pattern.compile("([<]a\\s[^<>]*?)(?![^>]*rel[^<>\\s]*=)(target[^<>\\s]*=[^<>\\s]*_blank)([^<>]*?)[>]",
             Pattern.CASE_INSENSITIVE | Pattern.DOTALL);
-    /** Matches all anchor tags that do not have a target attribute. */
-    public final Pattern M_patternAnchorTagWithOutTarget = 
-            Pattern.compile("([<]a\\s)(?![^>]*target=)([^>]*?)[>]",
+    /** Matches all anchor tags that do not have a target attribute AND href not starting with # AND href exists */
+    public final Pattern M_patternAnchorTagWithOutTargetAndWithHrefAndHrefNotStartingWithHash =
+            Pattern.compile("([<]a\\s)(?=[^>]*href=)(?![^>]*href=\"#)(?![^>]*target=)([^>]*?)[>]",
                     Pattern.CASE_INSENSITIVE | Pattern.DOTALL);
 
     /** Matches href attribute */
@@ -403,7 +403,7 @@ public class FormattedTextImpl implements FormattedText
 
                     // now replace all the A tags WITHOUT a target with _blank (to match the old functionality)
                     if (addBlankTargetToLinks() && StringUtils.isNotBlank(val)) {
-                        Matcher m = M_patternAnchorTagWithOutTarget.matcher(val);
+                        Matcher m = M_patternAnchorTagWithOutTargetAndWithHrefAndHrefNotStartingWithHash.matcher(val);
                         if (m.find()) {
                             if (StringUtils.isNotBlank(referrerPolicy)) {
                                 val = m.replaceAll("$1$2 target=\"_blank\" rel=\"" + referrerPolicy + "\">"); // adds a target and rel to A tags without one
@@ -536,7 +536,7 @@ public class FormattedTextImpl implements FormattedText
         // added for KNL-526
 
         if (addBlankTargetToLinks()) {
-            Matcher m = M_patternAnchorTagWithOutTarget.matcher(value);
+            Matcher m = M_patternAnchorTagWithOutTargetAndWithHrefAndHrefNotStartingWithHash.matcher(value);
             if (m.find()) {
                 if (StringUtils.isNotBlank(referrerPolicy)) {
                     value = m.replaceAll("$1$2 target=\"_blank\" rel=\"" + referrerPolicy + "\">"); // adds a target and rel to A tags without one
@@ -712,7 +712,9 @@ public class FormattedTextImpl implements FormattedText
             hrefTarget = " target=\"" + hrefTarget + "\"";
         } else {
             // default to _blank if not set and configured to force
-            if (addBlankTargetToLinks()) {
+            // do not add if anchor link to same page (editor page)
+            if (addBlankTargetToLinks() &&
+                    !(href != null && href.startsWith("#"))) {
                 hrefTarget = " target=\"_blank\"";
             }
         }
