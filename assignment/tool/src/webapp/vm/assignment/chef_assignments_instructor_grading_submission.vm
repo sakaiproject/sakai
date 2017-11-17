@@ -15,7 +15,7 @@
         )
                 $pan.hide();
         });
-        disableBackButton();
+        disableBackButton("$!tlang.getString("use_form_navigation")");
     });
 </script>
 <div class="portletBody">

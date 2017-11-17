@@ -51,6 +51,8 @@
 
 			$.blockUI({ message: '<h3>' + please_wait + ' <img src="/library/image/sakai/spinner.gif" /></h3>', overlayCSS: { backgroundColor: '#ccc', opacity: 0.25} });
 		}); 
+		//Disable the back button
+		disableBackButton("<h:outputText value="#{deliveryMessages.use_form_navigation}"/>");
 
 	});
 
