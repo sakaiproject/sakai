@@ -3467,16 +3467,11 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                     Set<String> oAttachments = oAssignment.getAttachments();
                     List<Reference> nAttachments = entityManager.newReferenceList();
                     for (String oAttachment : oAttachments) {
-                        if (entityManager.checkReference(oAttachment)) {
-                            Reference oReference = entityManager.newReference(oAttachment);
-                            String oAttachmentId = oReference.getId();
-                            if (oAttachmentId.contains(fromContext)) {
-                                // transfer attachment, replace the context string and add new attachment if necessary
-                                transferAttachment(fromContext, toContext, nAttachments, oAttachmentId);
-                            } else {
-                                nAttachments.add(oReference);
-                            }
-                        }
+                        Reference oReference = entityManager.newReference(oAttachment);
+                        String oAttachmentId = oReference.getId();
+                        // transfer attachment, replace the context string if necessary and add new attachment
+                        String nReference = transferAttachment(fromContext, toContext, oAttachmentId);
+                        nAssignment.getAttachments().add(nReference);
                     }
 
                     // peer review
@@ -3548,7 +3543,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                         for (AssignmentSupplementItemAttachment oAttachment : oModelAnswerItemAttachments) {
                             AssignmentSupplementItemAttachment nAttachment = assignmentSupplementItemService.newAttachment();
                             // New attachment creation
-                            String nAttachmentId = transferAttachment(fromContext, toContext, null, oAttachment.getAttachmentId().replaceFirst("/content", ""));
+                            String nAttachmentId = transferAttachment(fromContext, toContext, oAttachment.getAttachmentId().replaceFirst("/content", ""));
                             if (StringUtils.isNotEmpty(nAttachmentId)) {
                                 nAttachment.setAssignmentSupplementItemWithAttachment(nModelAnswerItem);
                                 nAttachment.setAttachmentId(nAttachmentId);
@@ -3588,7 +3583,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                         for (AssignmentSupplementItemAttachment oAttachment : oAllPurposeItemAttachments) {
                             AssignmentSupplementItemAttachment nAttachment = assignmentSupplementItemService.newAttachment();
                             // New attachment creation
-                            String nAttachId = transferAttachment(fromContext, toContext, null, oAttachment.getAttachmentId().replaceFirst("/content", ""));
+                            String nAttachId = transferAttachment(fromContext, toContext, oAttachment.getAttachmentId().replaceFirst("/content", ""));
                             if (StringUtils.isNotEmpty(nAttachId)) {
                                 nAttachment.setAssignmentSupplementItemWithAttachment(nAllPurposeItem);
                                 nAttachment.setAttachmentId(nAttachId);
@@ -3651,14 +3646,11 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
         return transversalMap;
     }
 
-    private String transferAttachment(String fromContext, String toContext, List<Reference> nAttachments, String oAttachmentId) {
+    private String transferAttachment(String fromContext, String toContext, String oAttachmentId) {
         String reference = "";
         String nAttachmentId = oAttachmentId.replaceAll(fromContext, toContext);
         try {
             ContentResource attachment = contentHostingService.getResource(nAttachmentId);
-            if (nAttachments != null) {
-                nAttachments.add(entityManager.newReference(attachment.getReference()));
-            }
             reference = attachment.getReference();
         } catch (IdUnusedException iue) {
             try {
@@ -3673,10 +3665,6 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                                 oAttachment.getContentType(),
                                 content,
                                 oAttachment.getProperties());
-                        // add to attachment list
-                        if (nAttachments != null) {
-                            nAttachments.add(entityManager.newReference(attachment.getReference()));
-                        }
                         reference = attachment.getReference();
                     } else {
                         // add the new resource into resource area
@@ -3692,10 +3680,6 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                                 null,
                                 null,
                                 NotificationService.NOTI_NONE);
-                        // add to attachment list
-                        if (nAttachments != null) {
-                            nAttachments.add(entityManager.newReference(attachment.getReference()));
-                        }
                         reference = attachment.getReference();
                     }
                 } catch (Exception e) {
