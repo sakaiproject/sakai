@@ -1266,28 +1266,23 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
     public AssignmentSubmission getSubmission(String assignmentId, String submitterId) throws PermissionException {
 
         if (!StringUtils.isAnyBlank(assignmentId, submitterId)) {
-            try {
-                AssignmentSubmission submission;
-                Assignment assignment = getAssignment(assignmentId);
+            // normal submission lookup where submitterId is for a user
+            AssignmentSubmission submission = assignmentRepository.findSubmissionForUser(assignmentId, submitterId);
+            if (submission == null) {
+                // if not found submitterId could be a group id
+                submission = assignmentRepository.findSubmissionForGroup(assignmentId, submitterId);
+            }
 
-                if (assignment.getIsGroup()) {
-                    submission = assignmentRepository.findSubmissionForGroup(assignmentId, submitterId);
+            if (submission != null) {
+                String reference = AssignmentReferenceReckoner.reckoner().submission(submission).reckon().getReference();
+                if (allowGetSubmission(reference)) {
+                    return submission;
                 } else {
-                    submission = assignmentRepository.findSubmissionForUser(assignmentId, submitterId);
+                    throw new PermissionException(sessionManager.getCurrentSessionUserId(), SECURE_ACCESS_ASSIGNMENT_SUBMISSION, reference);
                 }
-
-                if (submission != null) {
-                    String reference = AssignmentReferenceReckoner.reckoner().submission(submission).reckon().getReference();
-                    if (allowGetSubmission(reference)) {
-                        return submission;
-                    } else {
-                        throw new PermissionException(sessionManager.getCurrentSessionUserId(), SECURE_ACCESS_ASSIGNMENT_SUBMISSION, reference);
-                    }
-                } else {
-                    log.debug("No submission found for user {} in assignment {}", submitterId, assignmentId);
-                }
-            } catch (IdUnusedException e) {
-                log.warn("Could not find assignment with id {} while attempting to retrieve a submission for {}", assignmentId, submitterId);
+            } else {
+                // submission not found looked for a user submission and group submission
+                log.debug("No submission found for user {} in assignment {}", submitterId, assignmentId);
             }
         }
         return null;
@@ -1400,7 +1395,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                 if (submission.getReturned()) {
                     if (returnTime != null && returnTime.isBefore(submitTime)) {
                         if (!submission.getGraded()) {
-                            status = resourceLoader.getString("gen.resub") + " " + submitTime.toString();
+                            status = resourceLoader.getString("gen.resub") + " " + getUsersLocalDateTimeString(submitTime);
                             if (submitTime.isAfter(assignment.getDueDate())) {
                                 status = status + resourceLoader.getString("gen.late2");
                             }
@@ -1415,7 +1410,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                         // ungraded submission
                         status = resourceLoader.getString("ungra");
                     } else {
-                        status = resourceLoader.getString("gen.subm4") + " " + submitTime.toString();
+                        status = resourceLoader.getString("gen.subm4") + " " + getUsersLocalDateTimeString(submitTime);
                     }
                 }
             } else {

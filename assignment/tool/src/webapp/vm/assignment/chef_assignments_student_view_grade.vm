@@ -148,7 +148,7 @@
                     <td>
                         $gradeScale
                         #if ($!assignment.TypeOfGrade.ordinal() == 3)
-                            ($tlang.getString("grade.max") $!assignment.MaxGradePoint)
+                            ($tlang.getString("grade.max") $!service.getMaxPointGradeDisplay($!assignment.ScaleFactor, $!assignment.MaxGradePoint))
 
                             ## for grading via an external scoring service, if enabled for an associated gradebook item
                             #if($scoringComponentEnabled)
