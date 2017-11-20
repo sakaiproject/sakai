@@ -113,6 +113,7 @@ import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.entitybroker.DeveloperHelperService;
+import org.sakaiproject.entitybroker.util.SakaiToolData;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.LearningResourceStoreService;
 import org.sakaiproject.event.api.LearningResourceStoreService.LRS_Actor;
@@ -8353,7 +8354,6 @@ private String editorRows;
 		
 		String path = "/discussionForum/message/dfViewMessageDirect";
 		
-		Map<String, String> params = new HashMap<String, String>();
 		if (getSelectedMessage() == null || getSelectedMessage().getMessage() == null) {
 			return null;
 		}
@@ -8361,9 +8361,6 @@ private String editorRows;
 		String msgId = getSelectedMessage().getMessage().getId().toString();
 		String topicId = getSelectedTopic().getTopic().getId().toString();
 		String forumId = getSelectedTopic().getTopic().getOpenForum().getId().toString();
-		params.put("messageId", msgId);
-		params.put("topicId", topicId);
-		params.put("forumId", forumId);
 		LOG.debug("message: " + msgId + " topic: " + topicId + " forum: " + forumId);
 		
 		String context = SiteService.siteReference(ToolManager.getCurrentPlacement().getContext());
@@ -8372,7 +8369,11 @@ private String editorRows;
 		developerHelperService = getDevelperHelperService();
 		String url = "";
 		try{
-			url = developerHelperService.getToolViewURL("sakai.forums", path, params, context);
+			SakaiToolData toolData = developerHelperService.getToolData("sakai.forums", context);
+			String toolId = toolData.getPlacementId();
+			String pageUrl = toolData.getToolURL();
+			String toolUrl = pageUrl.substring(0,pageUrl.indexOf("/page/")); 
+			url =  toolUrl + "/tool/" + toolId + path + "?forumId=" + forumId + "&topicId=" + topicId + "&messageId=" + msgId;
 			LOG.debug("url: " + url);
 		}catch (Exception e) {
 			LOG.warn(e.getMessage());
