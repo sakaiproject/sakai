@@ -706,11 +706,12 @@ function supports_history_api() {
 	return !!(window.history && history.pushState);
 }
 //Call this to disable the back button in a page context - SAK-23247
-function disableBackButton() {
+function disableBackButton(message) {
 	if (supports_history_api()) {
 		history.pushState(null, null, 'no-back-button');
 		window.addEventListener('popstate', function(event) {
 			history.pushState(null, null, 'no-back-button');
+			window.alert(message);
 		});
 	}
 }
