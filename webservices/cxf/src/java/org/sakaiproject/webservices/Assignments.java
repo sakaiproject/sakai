@@ -886,13 +886,12 @@ public class Assignments extends AbstractWebService {
     			Map<String, String> rp = ass.getProperties();
     			
     			try {
-                    String deleted = rp.get(ResourceProperties.PROP_ASSIGNMENT_DELETED);
+                    Boolean deleted = ass.getDeleted();
 
-                    LOG.info("Assignment " + ass.getTitle()+ " deleted status: " + deleted);
-    				if (deleted != null) {
+                    LOG.info("Assignment {} deleted status: {}", ass.getTitle(), deleted);
+    				if (deleted) {
     					LOG.info("undeleting" + ass.getTitle() + " for site " + context);
-    					rp.remove(ResourceProperties.PROP_ASSIGNMENT_DELETED);
-    				
+    					ass.setDeleted(false);
     					assignmentService.updateAssignment(ass);
     				}
     			} catch (PermissionException e) {

@@ -221,9 +221,8 @@ public class AssignmentEntity implements LessonEntity, AssignmentInterface {
 	List<LessonEntity> ret = new ArrayList<LessonEntity>();
 	// security. assume this is only used in places where it's OK, so skip security checks
 	for (Assignment a : assignmentService.getAssignmentsForContext(ToolManager.getCurrentPlacement().getContext())) {
-	    String deleted = a.getProperties().get(ResourceProperties.PROP_ASSIGNMENT_DELETED);
 	    // this somewhat odd test for deleted is the one used in the Assignment code
-	    if ((deleted == null || "".equals(deleted)) && !a.getDraft()) {
+	    if (!a.getDraft()) {
 		AssignmentEntity entity = new AssignmentEntity(TYPE_ASSIGNMENT, a.getId(), 1);
 		entity.assignment = a;
 		entity.simplePageBean = bean;
@@ -565,9 +564,9 @@ public class AssignmentEntity implements LessonEntity, AssignmentInterface {
     public boolean notPublished() {
 	if (!objectExists())
 	    return true;
-	String deleted = assignment.getProperties().get(ResourceProperties.PROP_ASSIGNMENT_DELETED);
+
 	// this somewhat odd test for deleted is the one used in the Assignment code
-	if ((deleted == null || "".equals(deleted)) && !assignment.getDraft())
+	if (!assignment.getDeleted() && !assignment.getDraft())
 	    return false;
 	else
 	    return true;

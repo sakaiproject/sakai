@@ -89,8 +89,7 @@ public class AssignmentExport {
 	List<AssignmentItem> ret = new ArrayList<AssignmentItem>();
 
 	for (Assignment assignment : assignmentService.getAssignmentsForContext(siteId)) {
-	    String deleted = assignment.getProperties().get(ResourceProperties.PROP_ASSIGNMENT_DELETED);
-	    if ((deleted == null || "".equals(deleted)) && !assignment.getDraft()) {
+	    if (!assignment.getDraft()) {
 		Set<String> attachments = assignment.getAttachments();
 		String instructions = assignment.getInstructions();
 
