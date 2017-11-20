@@ -290,15 +290,7 @@
                         #set ($size = $size + 1)
                     #end
                 #end
-                #if ($size == 0)
-                    <<p class="instruction">
-                    #if ($!assignment.TypeOfSubmission.ordinal() == 5)
-                        $tlang.getString("gen.noatt.single")
-                    #else
-                        $tlang.getString("gen.noatt")
-                    #end
-                </p>
-                #else
+                #if ($size > 0)
                     #foreach ($attachment in $mAttachments)
                         #set ($props = false)
                         #set ($props = $attachment.Properties)
