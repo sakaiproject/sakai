@@ -9418,7 +9418,7 @@ public class AssignmentAction extends PagedResourceActionII {
 
                 // we use to check "assignment.delete.cascade.submission" setting. But the implementation now is always remove submission objects when the assignment is removed.
                 // delete assignment and its submissions altogether
-                deleteAssignmentObjects(state, assignment, true);
+                deleteAssignmentObjects(state, assignment);
 
                 Collection<String> groups = assignment.getGroups();
 
@@ -9477,12 +9477,11 @@ public class AssignmentAction extends PagedResourceActionII {
      *
      * @param state
      * @param assignment
-     * @param removeSubmissions Whether or not to remove the submission objects
      */
-    private void deleteAssignmentObjects(SessionState state, Assignment assignment, boolean removeSubmissions) {
+    private void deleteAssignmentObjects(SessionState state, Assignment assignment) {
 
         try {
-            assignmentService.removeAssignment(assignment);
+            assignmentService.deleteAssignmentAndAllReferences(assignment);
         } catch (PermissionException e) {
             addAlert(state, rb.getString("youarenot11") + " " + assignment.getTitle() + ". ");
             log.warn("Could not delete assignment, {}", e.getMessage());
@@ -9571,7 +9570,7 @@ public class AssignmentAction extends PagedResourceActionII {
                         }
                     }
 
-                    assignmentService.removeAssignment(a);
+                    assignmentService.deleteAssignmentAndAllReferences(a);
                 }
 
             } catch (IdUnusedException | PermissionException e) {

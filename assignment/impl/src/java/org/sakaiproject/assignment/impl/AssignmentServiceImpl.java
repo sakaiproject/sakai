@@ -806,9 +806,8 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
 
     @Override
     @Transactional
-    public void removeAssignment(Assignment assignment) throws PermissionException {
+    public void deleteAssignment(Assignment assignment) throws PermissionException {
         Objects.requireNonNull(assignment, "Assignment cannot be null");
-        // TODO we don't actually want to delete assignments just mark them as deleted "soft delete feature"
         log.debug("Attempting to delete assignment with id = {}", assignment.getId());
         String reference = AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getReference();
 
@@ -829,18 +828,34 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
         }
     }
 
+    @Override
+    @Transactional
+    public void softDeleteAssignment(Assignment assignment) throws PermissionException {
+        Objects.requireNonNull(assignment, "Assignment cannot be null");
+        // we don't actually want to delete assignments just mark them as deleted "soft delete feature"
+        log.debug("Attempting to soft delete assignment with id = {}", assignment.getId());
+        String reference = AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getReference();
+
+        if (!allowRemoveAssignment(reference)) {
+            throw new PermissionException(sessionManager.getCurrentSessionUserId(), SECURE_REMOVE_ASSIGNMENT, null);
+        }
+
+        assignmentRepository.softDeleteAssignment(assignment.getId());
+
+        // we post the same event as remove assignment
+        eventTrackingService.post(eventTrackingService.newEvent(AssignmentConstants.EVENT_REMOVE_ASSIGNMENT, reference, true));
+    }
+
     // TODO removing related content from other tools shouldn't be the concern for assignments service
     // it should post an event and let those tools take action.
     // * Unless a transaction is required
     @Override
     @Transactional
-    public void removeAssignmentAndAllReferences(Assignment assignment) throws PermissionException {
+    public void deleteAssignmentAndAllReferences(Assignment assignment) throws PermissionException {
         Objects.requireNonNull(assignment, "Assignment cannot be null");
-        // TODO we don't actually want to delete assignments just mark them as deleted "soft delete feature"
-        log.debug("attempting to delete assignment with id = {}", assignment.getId());
-        Entity entity = createAssignmentEntity(assignment.getId());
+        log.debug("Removing all associated reference to assignment with id = {}", assignment.getId());
 
-        log.debug(this + " removeAssignmentAndAllReferences with id : " + assignment.getId());
+        Entity entity = createAssignmentEntity(assignment.getId());
 
         // CHECK PERMISSION
         permissionCheck(SECURE_REMOVE_ASSIGNMENT, entity.getReference(), null);
@@ -883,17 +898,17 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
 //            try {
 //                removeAssignmentContent(editAssignmentContent(assignment.getContent().getReference()));
 //            } catch (AssignmentContentNotEmptyException e) {
-//                M_log.warn(" removeAssignmentAndAllReferences(): cannot remove non-empty AssignmentContent object for assignment = " + assignment.getId() + ". " + e.getMessage());
+//                M_log.warn(" deleteAssignmentAndAllReferences(): cannot remove non-empty AssignmentContent object for assignment = " + assignment.getId() + ". " + e.getMessage());
 //            } catch (PermissionException e) {
-//                M_log.warn(" removeAssignmentAndAllReferences(): not allowed to remove AssignmentContent object for assignment = " + assignment.getId() + ". " + e.getMessage());
+//                M_log.warn(" deleteAssignmentAndAllReferences(): not allowed to remove AssignmentContent object for assignment = " + assignment.getId() + ". " + e.getMessage());
 //            } catch (InUseException e) {
-//                M_log.warn(" removeAssignmentAndAllReferences(): AssignmentContent object for assignment = " + assignment.getId() + " is in used. " + e.getMessage());
+//                M_log.warn(" deleteAssignmentAndAllReferences(): AssignmentContent object for assignment = " + assignment.getId() + " is in used. " + e.getMessage());
 //            } catch (IdUnusedException e) {
-//                M_log.warn(" removeAssignmentAndAllReferences(): cannot find AssignmentContent object for assignment = " + assignment.getId() + ". " + e.getMessage());
+//                M_log.warn(" deleteAssignmentAndAllReferences(): cannot find AssignmentContent object for assignment = " + assignment.getId() + ". " + e.getMessage());
 //            }
 
         // 7. remove assignment
-        removeAssignment(assignment);
+        softDeleteAssignment(assignment);
 
         // close the edit object
 //            ((BaseAssignmentEdit) assignment).closeEdit();
@@ -902,7 +917,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
 //            try {
 //                authzGroupService.removeAuthzGroup(assignment.getReference());
 //            } catch (AuthzPermissionException e) {
-//                M_log.warn(" removeAssignment: removing realm for assignment reference=" + assignment.getReference() + " : " + e.getMessage());
+//                M_log.warn(" deleteAssignment: removing realm for assignment reference=" + assignment.getReference() + " : " + e.getMessage());
 //            }
 //
 //            // track event
@@ -3624,7 +3639,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
 //                        securityService.pushAdvisor(securityAdvisor);
 
                         // remove this assignment with all its associated items
-                        removeAssignmentAndAllReferences(assignment);
+                        deleteAssignmentAndAllReferences(assignment);
                     } catch (Exception e) {
                         log.warn("Remove assignment and all references for {}, {}", assignmentId, e.getMessage());
                     } finally {

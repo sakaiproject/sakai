@@ -270,23 +270,28 @@ public interface AssignmentService extends EntityProducer {
     public Assignment addDuplicateAssignment(String context, String assignmentId) throws IdInvalidException, PermissionException, IdUsedException, IdUnusedException;
 
     /**
-     * Removes this Assignment
+     * Delete this Assignment
      *
-     * @param assignment -
-     *                   The Assignment to remove.
+     * @param assignment - The Assignment to delete.
      * @throws PermissionException if current User does not have permission to do this.
      */
-    public void removeAssignment(Assignment assignment) throws PermissionException;
-
+    public void deleteAssignment(Assignment assignment) throws PermissionException;
 
     /**
-     * Removes this Assignment and all references to it.
+     * Softly delete this Assignment
      *
-     * @param assignment -
-     *                   The Assignment to remove.
+     * @param assignment - The Assignment to softly delete.
      * @throws PermissionException if current User does not have permission to do this.
      */
-    public void removeAssignmentAndAllReferences(Assignment assignment) throws PermissionException;
+    public void softDeleteAssignment(Assignment assignment) throws PermissionException;
+
+    /**
+     * Softly delete this Assignment and remove all references to it.
+     *
+     * @param assignment - The Assignment to softly delete.
+     * @throws PermissionException if current User does not have permission to do this.
+     */
+    public void deleteAssignmentAndAllReferences(Assignment assignment) throws PermissionException;
 
     /**
      * Adds an AssignmentSubmission
