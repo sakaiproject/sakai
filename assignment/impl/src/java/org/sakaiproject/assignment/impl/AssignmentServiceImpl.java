@@ -1179,17 +1179,13 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
         if (StringUtils.isBlank(context)) return assignments;
 
         for (Assignment assignment : assignmentRepository.findAssignmentsBySite(context)) {
-            String deleted = assignment.getProperties().get(ResourceProperties.PROP_ASSIGNMENT_DELETED);
-            if (StringUtils.isBlank(deleted)) {
-                // not deleted, show it
-                if (assignment.getDraft()) {
-                    if (isDraftAssignmentVisible(assignment)) {
-                        // only those who can see a draft assignment
-                        assignments.add(assignment);
-                    }
-                } else {
+            if (assignment.getDraft()) {
+                if (isDraftAssignmentVisible(assignment)) {
+                    // only those who can see a draft assignment
                     assignments.add(assignment);
                 }
+            } else {
+                assignments.add(assignment);
             }
         }
 
@@ -2514,8 +2510,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
     }
 
     private boolean isAvailableOrSubmitted(Assignment assignment, String userId) {
-        String deleted = assignment.getProperties().get(ResourceProperties.PROP_ASSIGNMENT_DELETED);
-        if (StringUtils.isBlank(deleted)) {
+        if (!assignment.getDeleted()) {
             // show not deleted, not draft, opened assignments
             // TODO do we need to use time zone
             Instant openTime = assignment.getOpenDate();
@@ -2527,9 +2522,9 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
             }
         } else {
             try {
-                if (StringUtils.equalsIgnoreCase(deleted, Boolean.TRUE.toString())
-                        && (assignment.getTypeOfSubmission() != Assignment.SubmissionType.NON_ELECTRONIC_ASSIGNMENT_SUBMISSION)
-                        && getSubmission(assignment.getId(), userId) != null) {
+                if (assignment.getDeleted() &&
+                        assignment.getTypeOfSubmission() != Assignment.SubmissionType.NON_ELECTRONIC_ASSIGNMENT_SUBMISSION &&
+                        getSubmission(assignment.getId(), userId) != null) {
                     // and those deleted but not non-electronic assignments but the user has made submissions to them
                     return true;
                 }
