@@ -42,7 +42,10 @@ public class AssignmentRepositoryImpl extends BasicSerializableRepository<Assign
     @Override
     @SuppressWarnings("unchecked")
     public List<Assignment> findAssignmentsBySite(String siteId) {
-        return startCriteriaQuery().add(Restrictions.eq("context", siteId)).list();
+        return startCriteriaQuery()
+                .add(Restrictions.eq("context", siteId))
+                .add(Restrictions.eq("deleted", Boolean.FALSE))
+                .list();
     }
 
     @Override
@@ -96,8 +99,10 @@ public class AssignmentRepositoryImpl extends BasicSerializableRepository<Assign
 
     @Override
     @Transactional
-    public void softDeleteAssignment(Assignment assignment) {
-        throw new NotImplementedException("Soft Delete is currently not implemented");
+    public void softDeleteAssignment(String assignmentId) {
+        Assignment assignment = findOne(assignmentId);
+        assignment.setDeleted(Boolean.TRUE);
+        updateAssignment(assignment);
     }
 
     @Override

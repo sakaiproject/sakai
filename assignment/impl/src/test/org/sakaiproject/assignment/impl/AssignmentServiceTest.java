@@ -234,42 +234,59 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
     }
 
     @Test
-    public void removeAssignment() {
+    public void softDeleteAssignment() {
         String context = UUID.randomUUID().toString();
         Assignment assignment = createNewAssignment(context);
         String stringRef = AssignmentReferenceReckoner.reckoner().context(assignment.getContext()).subtype("a").id(assignment.getId()).reckon().getReference();
-        Assignment removed = null;
+
         when(securityService.unlock(AssignmentServiceConstants.SECURE_REMOVE_ASSIGNMENT, stringRef)).thenReturn(true);
         try {
-            assignmentService.removeAssignment(assignment);
-            removed = assignmentService.getAssignment(assignment.getId());
+            assignmentService.softDeleteAssignment(assignment);
+            Assignment deleted = assignmentService.getAssignment(assignment.getId());
+            Assert.assertNotNull(deleted);
+            Assert.assertTrue(assignment.getDeleted());
+        } catch (PermissionException | IdUnusedException e) {
+            Assert.fail("Assignment soft deleted");
+        }
+    }
+
+    @Test
+    public void deleteAssignment() {
+        String context = UUID.randomUUID().toString();
+        Assignment assignment = createNewAssignment(context);
+        String stringRef = AssignmentReferenceReckoner.reckoner().context(assignment.getContext()).subtype("a").id(assignment.getId()).reckon().getReference();
+        Assignment deleted = null;
+        when(securityService.unlock(AssignmentServiceConstants.SECURE_REMOVE_ASSIGNMENT, stringRef)).thenReturn(true);
+        try {
+            assignmentService.deleteAssignment(assignment);
+            deleted = assignmentService.getAssignment(assignment.getId());
         } catch (PermissionException e) {
-            Assert.fail("Assignment not removed");
+            Assert.fail("Assignment not deleted");
         } catch (IdUnusedException e) {
             // tests pass if assignment doesn't exist
-            Assert.assertNull(removed);
+            Assert.assertNull(deleted);
             return;
         }
         Assert.fail("Should never reach this line");
     }
 
     @Test
-    public void removeAssignmentPermissionDenied() {
+    public void deleteAssignmentPermissionDenied() {
         String context = UUID.randomUUID().toString();
         Assignment assignment = createNewAssignment(context);
         String stringRef = AssignmentReferenceReckoner.reckoner().context(assignment.getContext()).subtype("a").id(assignment.getId()).reckon().getReference();
         when(securityService.unlock(AssignmentServiceConstants.SECURE_REMOVE_ASSIGNMENT, stringRef)).thenReturn(false);
         try {
-            assignmentService.removeAssignment(assignment);
+            assignmentService.deleteAssignment(assignment);
         } catch (PermissionException e) {
-            Assignment notRemoved = null;
+            Assignment notDeleted = null;
             try {
-                notRemoved = assignmentService.getAssignment(assignment.getId());
+                notDeleted = assignmentService.getAssignment(assignment.getId());
             } catch (Exception e1) {
                 Assert.fail("Cannot verify if assignment exists");
             }
-            Assert.assertNotNull(notRemoved);
-            Assert.assertEquals(assignment.getId(), notRemoved.getId());
+            Assert.assertNotNull(notDeleted);
+            Assert.assertEquals(assignment.getId(), notDeleted.getId());
             return;
         }
         Assert.fail("Should never reach this line");

@@ -45,7 +45,7 @@ public interface AssignmentRepository extends SerializableRepository<Assignment,
 
     void deleteSubmission(String submissionId);
 
-    void softDeleteAssignment(Assignment assignment);
+    void softDeleteAssignment(String assignmentId);
 
     AssignmentSubmission findSubmission(String submissionId);
 
