@@ -73,6 +73,7 @@
           class="org.sakaiproject.assignment.impl.EmailUtil">
         <property name="assignmentService" ref="org.sakaiproject.assignment.api.AssignmentService"/>
         <property name="developerHelperService" ref="org.sakaiproject.entitybroker.DeveloperHelperService"/>
+        <property name="entityManager" ref="org.sakaiproject.entity.api.EntityManager"/>
         <property name="formattedText" ref="org.sakaiproject.util.api.FormattedText"/>
         <property name="resourceLoader" ref="org.sakaiproject.util.ResourceLoader.assignment"/>
         <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
@@ -145,7 +146,6 @@
         <property name="assignmentService" ref="org.sakaiproject.assignment.api.AssignmentService"/>
         <property name="authzGroupService" ref="org.sakaiproject.authz.api.AuthzGroupService"/>
         <property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
-        <property name="timeService" ref="org.sakaiproject.time.api.TimeService"/>
     </bean>
 
     <bean id="org.sakaiproject.assignment.impl.AssignmentGradeInfoProvider"

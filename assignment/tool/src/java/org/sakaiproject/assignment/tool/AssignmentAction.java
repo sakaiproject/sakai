@@ -2423,7 +2423,9 @@ public class AssignmentAction extends PagedResourceActionII {
         context.put("value_GradeType", state.getAttribute(NEW_ASSIGNMENT_GRADE_TYPE));
         // format to show one decimal place
         String maxGrade = (String) state.getAttribute(NEW_ASSIGNMENT_GRADE_POINTS);
-        context.put("value_GradePoints", displayGrade(state, maxGrade, a != null && a.getScaleFactor() != null ? a.getScaleFactor() : assignmentService.getScaleFactor()));
+        if (a != null) {
+            context.put("value_GradePoints", assignmentService.getGradeDisplay(maxGrade, a.getTypeOfGrade(), a.getScaleFactor() != null ? a.getScaleFactor() : assignmentService.getScaleFactor()));
+        }
         context.put("value_Description", state.getAttribute(NEW_ASSIGNMENT_DESCRIPTION));
 
         // SAK-17606
@@ -5990,7 +5992,7 @@ public class AssignmentAction extends PagedResourceActionII {
                         // need this to handle feedback and comments, which we have to do even if ungraded
                         // get the previous graded date
                         String prevGradedDate = properties.get(AssignmentConstants.PROP_LAST_GRADED_DATE);
-                        if (prevGradedDate == null) {
+                        if (prevGradedDate == null && submission.getDateModified() != null) {
                             // since this is a newly added property, if no value is set, get the default as the submission last modified date
                             prevGradedDate = submission.getDateModified().toString();
                             properties.put(AssignmentConstants.PROP_LAST_GRADED_DATE, prevGradedDate);
@@ -7875,9 +7877,9 @@ public class AssignmentAction extends PagedResourceActionII {
             AssignmentModelAnswerItem mAnswer = assignmentSupplementItemService.getModelAnswer(aId);
             if (mAnswer == null) {
                 mAnswer = assignmentSupplementItemService.newModelAnswer();
+                mAnswer.setAssignmentId(aId);
                 assignmentSupplementItemService.saveModelAnswer(mAnswer);
             }
-            mAnswer.setAssignmentId(a.getId());
             mAnswer.setText((String) state.getAttribute(MODELANSWER_TEXT));
             mAnswer.setShowTo(state.getAttribute(MODELANSWER_SHOWTO) != null ? Integer.parseInt((String) state.getAttribute(MODELANSWER_SHOWTO)) : 0);
             mAnswer.setAttachmentSet(getAssignmentSupplementItemAttachment(state, mAnswer, MODELANSWER_ATTACHMENTS));
@@ -11886,13 +11888,12 @@ public class AssignmentAction extends PagedResourceActionII {
                     // construct the group-submission list
                     if (submitterGroups != null) {
                         for (Group gId : submitterGroups) {
-                            AssignmentSubmission sub = null;
-                            try {
-                                sub = assignmentService.getSubmission(aRef, gId.getId());
-                            } catch (PermissionException e) {
-                                log.warn("Cannot find submission with reference = {}, group = {}, {}", aRef, gId.getId(), e.getMessage());
+                            AssignmentSubmission sub = getSubmission(aRef, gId.getId(), "sizeResources", state);
+                            if (sub != null) {
+                                returnResources.add(new SubmitterSubmission(gId, sub));  // UserSubmission accepts either User or Group
+                            } else {
+                                log.warn("Cannot find submission with reference = {}, group = {}, {}", aRef, gId.getId());
                             }
-                            returnResources.add(new SubmitterSubmission(gId, sub));  // UserSubmission accepts either User or Group
                         }
                     }
                 } else {

@@ -41,8 +41,6 @@ import org.sakaiproject.assignment.api.model.AssignmentSupplementItemService;
 import org.sakaiproject.assignment.api.model.AssignmentSupplementItemWithAttachment;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.site.api.SiteService;
-import org.sakaiproject.time.api.Time;
-import org.sakaiproject.time.api.TimeService;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.springframework.dao.DataAccessException;
@@ -120,11 +118,6 @@ public class AssignmentSupplementItemServiceImpl extends HibernateDaoSupport imp
 		m_siteService = siteService;
 	}
 
-	protected TimeService timeService;
-
-	public void setTimeService(TimeService timeService) {
-		this.timeService = timeService;
-	}
 	/********************** attachment   ************************/
 	/**
 	 * {@inheritDoc}
@@ -589,7 +582,7 @@ public class AssignmentSupplementItemServiceImpl extends HibernateDaoSupport imp
 			{
 				if (!aItem.getHide())
 				{
-					Time now = timeService.newTime();
+					Instant now = Instant.now();
 					Date releaseDate = aItem.getReleaseDate();
 					Date retractDate = aItem.getRetractDate();
 					
@@ -601,18 +594,18 @@ public class AssignmentSupplementItemServiceImpl extends HibernateDaoSupport imp
 					else if (releaseDate != null && retractDate == null)
 					{
 						// has relase date but not retract date
-						rv = now.getTime() > releaseDate.getTime();
+						rv = now.toEpochMilli() > releaseDate.getTime();
 					}
 					else if (releaseDate == null && retractDate != null)
 					{
 						// has retract date but not release date
-						rv = now.getTime() < retractDate.getTime();
+						rv = now.toEpochMilli() < retractDate.getTime();
 					}
 					else if (now != null)
 					{
 						// both releaseDate and retract date are not null
 						// has both release and retract dates
-						rv = now.getTime() > releaseDate.getTime() && now.getTime() < retractDate.getTime();
+						rv = now.toEpochMilli() > releaseDate.getTime() && now.toEpochMilli() < retractDate.getTime();
 					}
 				}
 				else
