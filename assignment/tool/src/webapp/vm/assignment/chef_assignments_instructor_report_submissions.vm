@@ -242,19 +242,19 @@
 									$tlang.getString("nonelec")
 								#else
 									#if ($assignmentSubmission)
-										#if ($!assignmentSubmission.Submitted)
+										#if ($assignmentSubmission.Submitted)
 											#if (!$isAnon)
 												#set($timeSubmitted=false)
-												#set($timeSubmitted=$!assignmentSubmission.DateSubmitted)
-												#if($!timeSubmitted)
-													$!timeSubmitted.toString()
+												#set($timeSubmitted=$assignmentSubmission.DateSubmitted)
+												#if($timeSubmitted)
+													$!service.getUsersLocalDateTimeString($timeSubmitted)
 												#end
-												#if ($!timeSubmitted && $timeSubmitted.after($assignment.DueDate))
+												#if ($timeSubmitted && $timeSubmitted.isAfter($assignment.DueDate))
 													<span class="highlight">
 														$tlang.getString("gen.late2")
 													</span>
 												#end
-											#elseif ($!assignmentSubmission.DateSubmitted.toString())
+											#elseif ($assignmentSubmission.DateSubmitted)
 												$tlang.getString("gen.subm4") $tlang.getString("submitted.date.redacted")
 											#end
 										#end

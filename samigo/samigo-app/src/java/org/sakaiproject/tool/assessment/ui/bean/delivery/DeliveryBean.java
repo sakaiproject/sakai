@@ -279,7 +279,6 @@ public class DeliveryBean
   private boolean showTimeWarning;
   private boolean hasShowTimeWarning;
   private boolean turnIntoTimedAssessment;
-  private boolean useDueDate;
   private boolean submitFromTimeoutPopup;
   private boolean  skipFlag;
   private Date deadline;
@@ -3429,7 +3428,7 @@ public class DeliveryBean
 	  //If using extended Time Delivery, the late submission setting is based on retracted
 	  if (extendedTimeDeliveryService.hasExtendedTime()) {
 		  //Accept it if it's not retracted on the extended time entry
-		  acceptLateSubmission = !isRetracted(false);
+		  acceptLateSubmission = (extendedTimeDeliveryService.getRetractDate() != null) ? !isRetracted(false) : false;
 	  }
 	  return acceptLateSubmission;
   }
@@ -3437,11 +3436,12 @@ public class DeliveryBean
   public boolean isRetracted(boolean isSubmitForGrade){
     boolean isRetracted = true;
     Date currentDate = new Date();
-    Date retractDate;
+    Date retractDate = null;
+    boolean acceptLateSubmission = AssessmentAccessControlIfc.ACCEPT_LATE_SUBMISSION.equals(publishedAssessment.getAssessmentAccessControl().getLateHandling());
     if (extendedTimeDeliveryService.hasExtendedTime()) {
     	retractDate = extendedTimeDeliveryService.getRetractDate();
     }
-    else {
+    else if (acceptLateSubmission) {
     	retractDate = publishedAssessment.getAssessmentAccessControl().getRetractDate();
     }
     if (retractDate == null || retractDate.after(currentDate)){
@@ -3699,7 +3699,6 @@ public class DeliveryBean
 				  else {
 					  if (retractDate != null) {
 						  finalTimeLimit = getTimeBeforeRetract(timeLimit);
-						  useDueDate = false;
 					  }
 				  }
 			  }
@@ -3707,7 +3706,6 @@ public class DeliveryBean
 		  else {
 			  if (retractDate != null) {
 				  finalTimeLimit = getTimeBeforeRetract(timeLimit);
-				  useDueDate = false;
 			  }
 		  }
 		 
@@ -4042,16 +4040,6 @@ public class DeliveryBean
 	  public void setTurnIntoTimedAssessment(boolean turnIntoTimedAssessment)
 	  {
 	    this.turnIntoTimedAssessment = turnIntoTimedAssessment;
-	  }
-	  
-	  public boolean getUseDueDate()
-	  {
-	    return useDueDate;
-	  }
-
-	  public void setUseDueDate(boolean useDueDate)
-	  {
-	    this.useDueDate = useDueDate;
 	  }
 
 	  public boolean getsubmitFromTimeoutPopup() {

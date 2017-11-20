@@ -49,7 +49,7 @@ public class AssignmentRepositoryImpl extends BasicSerializableRepository<Assign
     @Transactional
     public void newAssignment(Assignment assignment) {
         if (!existsAssignment(assignment.getId())) {
-            assignment.setDateCreated(Date.from(Instant.now()));
+            assignment.setDateCreated(Instant.now());
             sessionFactory.getCurrentSession().persist(assignment);
         }
     }
@@ -57,7 +57,7 @@ public class AssignmentRepositoryImpl extends BasicSerializableRepository<Assign
     @Override
     @Transactional
     public void updateAssignment(Assignment assignment) {
-        assignment.setDateModified(Date.from(Instant.now()));
+        assignment.setDateModified(Instant.now());
         sessionFactory.getCurrentSession().update(assignment);
     }
 
@@ -108,7 +108,7 @@ public class AssignmentRepositoryImpl extends BasicSerializableRepository<Assign
     @Override
     @Transactional
     public void updateSubmission(AssignmentSubmission submission) {
-        submission.setDateModified(Date.from(Instant.now()));
+        submission.setDateModified(Instant.now());
         sessionFactory.getCurrentSession().update(submission);
     }
 
@@ -125,7 +125,7 @@ public class AssignmentRepositoryImpl extends BasicSerializableRepository<Assign
     @Transactional
     public void newSubmission(Assignment assignment, AssignmentSubmission submission, Optional<Set<AssignmentSubmissionSubmitter>> submitters, Optional<Set<String>> feedbackAttachments, Optional<Set<String>> submittedAttachments, Optional<Map<String, String>> properties) {
         if (!existsSubmission(submission.getId()) && exists(assignment.getId())) {
-            submission.setDateCreated(Date.from(Instant.now()));
+            submission.setDateCreated(Instant.now());
             submitters.ifPresent(submission::setSubmitters);
             submitters.ifPresent(s -> s.forEach(submitter -> submitter.setSubmission(submission)));
             feedbackAttachments.ifPresent(submission::setFeedbackAttachments);
@@ -145,6 +145,14 @@ public class AssignmentRepositoryImpl extends BasicSerializableRepository<Assign
                 .add(Restrictions.eq("assignment.id", assignmentId))
                 .createAlias("submitters", "s")
                 .add(Restrictions.eq("s.submitter", userId))
+                .uniqueResult();
+    }
+
+    @Override
+    public AssignmentSubmission findSubmissionForGroup(String assignmentId, String groupId) {
+        return (AssignmentSubmission) sessionFactory.getCurrentSession().createCriteria(AssignmentSubmission.class)
+                .add(Restrictions.eq("assignment.id", assignmentId))
+                .add(Restrictions.eq("groupId", groupId))
                 .uniqueResult();
     }
 

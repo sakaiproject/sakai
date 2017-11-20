@@ -21,7 +21,7 @@ package org.sakaiproject.component.app.messageforums;
 import java.util.TimeZone;
 
 import org.sakaiproject.api.app.messageforums.UserPreferencesManager;
-import org.sakaiproject.time.api.TimeService;
+import org.sakaiproject.time.api.UserTimeService;
 
 /**
  * @author branden
@@ -29,16 +29,16 @@ import org.sakaiproject.time.api.TimeService;
  */
 public class SakaiUserPreferencesManagerImpl implements UserPreferencesManager {
 
-	protected TimeService timeService;
-	public void setTimeService(TimeService timeService) {
-		this.timeService = timeService;
+	protected UserTimeService userTimeService;
+	public void setUserTimeService(UserTimeService userTimeService) {
+		this.userTimeService = userTimeService;
 	}
 	
 	/* (non-Javadoc)
 	 * @see org.sakaiproject.api.app.messageforums.UserPreferencesManager#getTimeZone()
 	 */
 	public TimeZone getTimeZone() {
-		TimeZone timeZone = timeService.getLocalTimeZone();
+		TimeZone timeZone = userTimeService.getLocalTimeZone();
 		
 		if (timeZone == null) {
 			timeZone = TimeZone.getDefault();

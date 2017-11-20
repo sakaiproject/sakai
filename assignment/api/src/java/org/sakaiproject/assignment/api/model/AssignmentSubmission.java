@@ -21,20 +21,41 @@
 
 package org.sakaiproject.assignment.api.model;
 
-import java.util.*;
-import javax.persistence.*;
+import java.time.Instant;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+
+import javax.persistence.CascadeType;
+import javax.persistence.CollectionTable;
+import javax.persistence.Column;
+import javax.persistence.ElementCollection;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.Lob;
+import javax.persistence.ManyToOne;
+import javax.persistence.MapKeyColumn;
+import javax.persistence.OneToMany;
+import javax.persistence.Table;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.GenericGenerator;
+import org.hibernate.annotations.Type;
 
 /**
  * AssignmentSubmission represents a student submission for an assignment.
  */
 
 @Entity
+@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 @Table(name = "ASN_SUBMISSION")
 @Data
 @NoArgsConstructor
@@ -57,21 +78,21 @@ public class AssignmentSubmission {
 
     //private List submissionLog;
 
+    @Type(type = "org.sakaiproject.springframework.orm.hibernate.type.InstantType")
     @Column(name = "SUBMITTED_DATE")
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date dateSubmitted;
+    private Instant dateSubmitted;
 
+    @Type(type = "org.sakaiproject.springframework.orm.hibernate.type.InstantType")
     @Column(name = "RETURNED_DATE")
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date dateReturned;
+    private Instant dateReturned;
 
+    @Type(type = "org.sakaiproject.springframework.orm.hibernate.type.InstantType")
     @Column(name = "CREATED_DATE")
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date dateCreated;
+    private Instant dateCreated;
 
+    @Type(type = "org.sakaiproject.springframework.orm.hibernate.type.InstantType")
     @Column(name = "MODIFIED_DATE")
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date dateModified;
+    private Instant dateModified;
 
     @ElementCollection
     @Column(name = "ATTACHMENT")

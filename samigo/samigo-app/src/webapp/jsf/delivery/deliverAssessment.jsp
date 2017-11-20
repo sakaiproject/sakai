@@ -106,11 +106,8 @@
 		</div>
 		
 		<div id="time-30-warning" style="display:none;text-align:center">
-		<h:outputFormat value="#{deliveryMessages.time_30_warning}" escape="false" rendered="#{delivery.useDueDate}">
+		<h:outputFormat value="#{deliveryMessages.time_30_warning}" escape="false">
                 <f:param value="#{delivery.dayDueDateString}"/>
-        </h:outputFormat>
-        <h:outputFormat value="#{deliveryMessages.time_30_warning}" escape="false" rendered="#{!delivery.useDueDate}">
-                <f:param value="#{delivery.dayRetractDateString}"/>
         </h:outputFormat>
         <br /><br /><br />
         <h:outputText value="#{deliveryMessages.time_30_warning_2}" escape="false"/>

@@ -22,6 +22,7 @@
 package org.sakaiproject.assignment.api;
 
 import java.io.OutputStream;
+import java.time.Instant;
 import java.util.*;
 
 import org.sakaiproject.assignment.api.model.Assignment;
@@ -125,11 +126,9 @@ public interface AssignmentService extends EntityProducer {
     /**
      * Get the collection of Groups defined for the context of this site that the end user has grade assignment permissions in.
      *
-     * @param context -
-     *                Describes the portlet context - generated with DefaultId.getChannel().
      * @return The Collection (Group) of groups defined for the context of this site that the end user has grade assignment permissions in, empty if none.
      */
-    public Collection<Group> getGroupsAllowGradeAssignment(String context, String assignmentReference);
+    public Collection<Group> getGroupsAllowGradeAssignment(String assignmentReference);
 
     /**
      * Check permissions for updating an Assignment.
@@ -726,4 +725,6 @@ public interface AssignmentService extends EntityProducer {
     * This is used when creating a new gradebook item.
     */
     public String getToolTitle();
+
+    String getUsersLocalDateTimeString(Instant date);
 }

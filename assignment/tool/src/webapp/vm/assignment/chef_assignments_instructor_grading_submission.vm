@@ -157,9 +157,9 @@
                         #set($timeSubmitted=false)
                         #set($timeSubmitted=$submission.DateSubmitted)
                         #if ($!timeSubmitted)
-                            $!timeSubmitted.toString()
+                            $!service.getUsersLocalDateTimeString($!timeSubmitted)
                         #end
-                        #if ($!timeSubmitted && $timeSubmitted.after($assignment.DueDate))
+                        #if ($!timeSubmitted && $timeSubmitted.isAfter($assignment.DueDate))
                             <span class="highlight">$tlang.getString("gen.late2")</span>
                         #end
                     </td>
@@ -518,7 +518,7 @@
                                 #end
                             </label>
                             <input type="text" name="$name_grade" size="5" maxlength="11" value="$!value_grade" id="grade" onkeypress="return ASN.handleEnterKeyPress(event);"/>
-                            <span class="text-info">($tlang.getString("grade.max") $!service.getMaxPointGradeDisplay($!assignment.ScaleFactor, $!assignment.MacGradePoint))</span>
+                            <span class="text-info">($tlang.getString("grade.max") $!service.getMaxPointGradeDisplay($!assignment.ScaleFactor, $!assignment.MaxGradePoint))</span>
 
                             <!--for grading via an external scoring service, if enabled for the associated gradebook item -->
                             #if($scoringComponentEnabled)

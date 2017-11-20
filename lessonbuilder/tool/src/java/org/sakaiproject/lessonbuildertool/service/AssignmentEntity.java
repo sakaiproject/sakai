@@ -312,7 +312,7 @@ public class AssignmentEntity implements LessonEntity, AssignmentInterface {
 	    assignment = getAssignment(id);
 	if (assignment == null)
 	    return null;
-	return assignment.getDueDate();
+	return Date.from(assignment.getDueDate());
     }
 
     // the following methods all take references. So they're in effect static.
@@ -348,7 +348,7 @@ public class AssignmentEntity implements LessonEntity, AssignmentInterface {
 	try {
 	    // need this to make sure we always unlock
 	    
-	    if (edit.getTypeOfAccess() == Assignment.Access.GROUPED) {
+	    if (edit.getTypeOfAccess() == Assignment.Access.GROUP) {
 		Collection<String> groups = edit.getGroups();
 		groupId = "/site/" + siteId + "/group/" + groupId;
 
@@ -381,7 +381,7 @@ public class AssignmentEntity implements LessonEntity, AssignmentInterface {
 
 			// this change mode to grouped
 			edit.setGroups(groups);
-			edit.setTypeOfAccess(Assignment.Access.GROUPED);
+			edit.setTypeOfAccess(Assignment.Access.GROUP);
 
 			assignmentService.updateAssignment(edit);
 		doCancel = false;
@@ -421,7 +421,7 @@ public class AssignmentEntity implements LessonEntity, AssignmentInterface {
 	try {
 	    // need this to make sure we always unlock
 	    
-	    if (edit.getTypeOfAccess() == Assignment.Access.GROUPED) {
+	    if (edit.getTypeOfAccess() == Assignment.Access.GROUP) {
 		Collection<String> groups = edit.getGroups();
 		groupId = "/site/" + siteId + "/group/" + groupId;
 		
@@ -583,7 +583,7 @@ public class AssignmentEntity implements LessonEntity, AssignmentInterface {
 	if (assignment == null)
 	    return null;
 	
-	if (assignment.getTypeOfAccess() != Assignment.Access.GROUPED)
+	if (assignment.getTypeOfAccess() != Assignment.Access.GROUP)
 	    return null;
 	    
 	Collection<String> groupRefs = assignment.getGroups();
@@ -724,8 +724,8 @@ public class AssignmentEntity implements LessonEntity, AssignmentInterface {
 	    attachments.add(EntityManager.newReference("/content" + href).getReference());
 	    a.setAttachments(attachments);
 	    a.setContext(context);
-	    a.setOpenDate(Date.from(Instant.now()));
-	    a.setDueDate(Date.from(Instant.now().plus(1, ChronoUnit.YEARS)));
+	    a.setOpenDate(Instant.now());
+	    a.setDueDate(Instant.now().plus(1, ChronoUnit.YEARS));
 	    a.setDraft(hide);
 	    a.setTypeOfAccess(Assignment.Access.SITE);
 	    a.setGroups(new HashSet<>());
@@ -840,8 +840,8 @@ public class AssignmentEntity implements LessonEntity, AssignmentInterface {
 		a.setAttachments(attachs);
 
 		a.setContext(context);
-	    a.setOpenDate(Date.from(Instant.now()));
-	    a.setDueDate(Date.from(Instant.now().plus(1, ChronoUnit.YEARS)));
+	    a.setOpenDate(Instant.now());
+	    a.setDueDate(Instant.now().plus(1, ChronoUnit.YEARS));
 
 	    a.setDraft(hide);
 	    a.setTypeOfAccess(Assignment.Access.SITE);

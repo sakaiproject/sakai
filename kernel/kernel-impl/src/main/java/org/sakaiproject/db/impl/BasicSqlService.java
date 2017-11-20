@@ -30,6 +30,7 @@ import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.sql.Clob;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -37,6 +38,7 @@ import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Timestamp;
+import java.sql.Types;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.GregorianCalendar;
@@ -568,7 +570,15 @@ public abstract class BasicSqlService implements SqlService
 
                 // without a reader, we read the first String from each record
                 if (reader == null) {
-                    String s = result.getString(1);
+                    String s;
+                    ResultSetMetaData metadataResult = result.getMetaData();
+                	
+                    if (metadataResult != null && Types.CLOB == metadataResult.getColumnType(1)) {
+                        Clob clobResult = result.getClob(1);
+                        s = clobResult.getSubString(1, (int) clobResult.length());
+                    } else {
+                        s = result.getString(1);
+                    }
                     if (s != null) {
                         rv.add(s);
                     }
@@ -1152,43 +1162,6 @@ public abstract class BasicSqlService implements SqlService
 	 */
 	public int dbWriteCount(String sql, Object[] fields, String lastField, Connection callerConnection,boolean failQuiet) {
 		return dbWriteCount(sql,fields,lastField,callerConnection,failQuiet ? 1 : 0);
-	}
-	
-	/**
-	 * @see org.sakaiproject.db.api.SqlService#dbWriteBatch(String, Set<Object[]>)
-	 */
-	public boolean dbWriteBatch(String sql, List<Object[]> fieldsList)
-	{
-		boolean success = false;
-		Connection conn = null;
-	
-		try
-		{
-			conn = borrowConnection();
-			success = dbWriteBatch(conn, sql, fieldsList);
-			if (success)
-			{
-				conn.commit();
-			}
-			else
-			{
-				conn.rollback();
-				LOG.warn("Sql.dbWriteBatch() rolled back conn");
-			}
-		}
-		catch (SQLException e)
-		{
-			LOG.warn("Sql.dbWriteBatch()", e);
-		}
-		finally
-		{
-			if (conn != null)
-			{
-				returnConnection(conn);
-                        }
-		}
-
-		return success;
 	}
 
 	/**

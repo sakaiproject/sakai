@@ -32,6 +32,7 @@ import org.sakaiproject.user.api.UserDirectoryService;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
@@ -218,12 +219,11 @@ public class AssignmentSiteVolumeFactory implements SiteVolumeFactory {
         public FsItem[] listChildren(FsItem fsItem) {
             List<FsItem> items = new ArrayList<>();
             if(this.getRoot().equals(fsItem)){
-                long nowMs = System.currentTimeMillis();
                 for (Assignment thisAssignment : assignmentService.getAssignmentsForContext(this.siteId)) {
-                    Date thisAssignmentCloseTime = thisAssignment.getCloseDate();
+                    Instant thisAssignmentCloseTime = thisAssignment.getCloseDate();
                     boolean assignmentClosed = false;
                     if(thisAssignmentCloseTime!=null){
-                        if(thisAssignmentCloseTime.getTime() < nowMs){
+                        if (thisAssignmentCloseTime.isBefore(Instant.now())) {
                             assignmentClosed=true;
                         }
                     }
