@@ -47,23 +47,6 @@ Audio.prototype.createCKElement = function () {
 	return audioElement;
 }
 
-/** Create Movie html */
-Audio.prototype.getInnerHTML = function (objectId){
-	var rnd = Math.floor(Math.random()*1000001);
-    var mediaurl = this.url.trim();
-
-	var s = "";
-	// html
-    if(audioMimeSupported.contains(this.contentType)) {
-		s += '<object class="audioobject" type="'+this.contentType+'" width="110" height="90">';
-	   	//s += ' classid="CLSID:6BF52A52-394A-11d3-B153-00C04F79FAA6"><param name = "url" value = "'+mediaurl+'">';
-        s += '<param name = "src" value = "'+mediaurl+'">';
-        s += '<param name = "autostart" value = "0"></object>';
-    }
-	return s;
-}
-
-
 /** Set movie attribute */
 Audio.prototype.setAttribute = function(attr, val) {
 	if (val=="true") {
@@ -143,16 +126,10 @@ CKEDITOR.plugins.add( 'audiorecorder',
                     var e = (oAudio || new Audio()) ;
                     e.updateObject(tab1doc) ;
 
-//					var newElement = new CKEDITOR.dom.element('section');
-//					newElement.setAttributes({'class': 'x'});
-//					newElement.setText("test text");
-//					editor.insertElement(newElement);
 					//Fix for IE8 because createFromHtml doesn't work, so have to create it by hand
 					var audioElement = e.createCKElement();
-					var objectElement = CKEDITOR.dom.element.createFromHtml(e.getInnerHTML());
 
 					editor.insertElement(audioElement);
-					editor.insertElement(objectElement);
 				}
 
             };
