@@ -2832,6 +2832,27 @@ public class AssignmentAction extends PagedResourceActionII
 			context.put("value_assignment_instructor_notifications_none", Assignment.ASSIGNMENT_INSTRUCTOR_NOTIFICATIONS_NONE);
 			context.put("value_assignment_instructor_notifications_each", Assignment.ASSIGNMENT_INSTRUCTOR_NOTIFICATIONS_EACH);
 			context.put("value_assignment_instructor_notifications_digest", Assignment.ASSIGNMENT_INSTRUCTOR_NOTIFICATIONS_DIGEST);
+
+			List<User> receivers = getNotificationReceivers(contextString, a);
+			context.put("submissionNotificationReceivers", submissionNotificationReceiversTable(receivers));
+			context.put("submissionNotificationReceiversLength", receivers.size() + 1);
+			String selectedReceiver = (String)state.getAttribute(Assignment.ASSIGNMENT_INSTRUCTOR_NOTIFICATIONS_NAME);
+			if (selectedReceiver == null || selectedReceiver.isEmpty() || selectedReceiver.equals("All"))
+			{
+				selectedReceiver = rb.getString("assignment_instructor_notifications_name_all", "All");
+			} else if (StringUtils.isNumeric(selectedReceiver)) {
+				// This happens when save assignment retries saving
+				int i = Integer.parseInt(selectedReceiver);
+				// Index from form starts with 1 and 1 is always "all" is not present in receivers list
+				if (i == 1) {
+					selectedReceiver = "All";
+				} else if(receivers.size() > 0 && i - 1 <= receivers.size()) {
+					selectedReceiver = receivers.get(i - 2).getDisplayName();
+				}
+			}
+			context.put("value_SubmissionNotificationReceiver", selectedReceiver);
+			context.put("name_assignment_instructor_notifications_receiver", Assignment.ASSIGNMENT_INSTRUCTOR_NOTIFICATIONS_NAME);
+
 		}
 		
 		// release grade notification option
@@ -2905,6 +2926,32 @@ public class AssignmentAction extends PagedResourceActionII
 		context.put("value_additionalOptions", contextAdditionalOptions);
 		
 	} // setAssignmentFormContext
+
+	private List<User> getNotificationReceivers(String context, Assignment a)
+	{
+		List receivers = AssignmentService.allowReceiveSubmissionNotificationUsers(context);
+		if (a != null) {
+			List allowGradeAssignmentUsers = AssignmentService.allowGradeAssignmentUsers(a.getReference());
+			receivers.retainAll(allowGradeAssignmentUsers);
+		}
+		return receivers;
+	}
+
+	/**
+	 * construct a HashMap using the integer as the key and submission type String as the value
+	 */
+	private HashMap submissionNotificationReceiversTable(List<User> receivers)
+	{
+		HashMap<Integer, String> n = new HashMap();
+		int i = 1;
+		String all = rb.getString("assignment_instructor_notifications_name_all", "All");
+		n.put(i, all);
+
+		for(User user: receivers) {
+			n.put(++i, user.getDisplayName());
+		}
+		return n;
+	}
 
 	/**
 	 * Get a user facing String message represeting the list of file types that are accepted by the content review service
@@ -7590,7 +7637,14 @@ public class AssignmentAction extends PagedResourceActionII
 		{
 			state.setAttribute(Assignment.ASSIGNMENT_INSTRUCTOR_NOTIFICATIONS_VALUE, notiOption);
 		}
-		
+
+		// assignment notification receiver
+		String notiName = params.getString(Assignment.ASSIGNMENT_INSTRUCTOR_NOTIFICATIONS_NAME);
+		if (notiName != null)
+		{
+			state.setAttribute(Assignment.ASSIGNMENT_INSTRUCTOR_NOTIFICATIONS_NAME, notiName);
+		}
+
 		// release grade notification option
 		String releaseGradeOption = params.getString(ASSIGNMENT_RELEASEGRADE_NOTIFICATION);
 		if (releaseGradeOption != null)
@@ -8398,7 +8452,19 @@ public class AssignmentAction extends PagedResourceActionII
 				{
 					aPropertiesEdit.addProperty(Assignment.ASSIGNMENT_INSTRUCTOR_NOTIFICATIONS_VALUE, (String) state.getAttribute(Assignment.ASSIGNMENT_INSTRUCTOR_NOTIFICATIONS_VALUE));
 				}
-				
+				if (state.getAttribute(Assignment.ASSIGNMENT_INSTRUCTOR_NOTIFICATIONS_NAME) != null)
+				{
+					int i = Integer.parseInt((String)state.getAttribute(Assignment.ASSIGNMENT_INSTRUCTOR_NOTIFICATIONS_NAME));
+					// Index from form starts with 1 and 1 is always "all" is not present in receivers list
+					List<User> receivers = getNotificationReceivers(siteId, a);
+					if (i == 1) {
+						aPropertiesEdit.addProperty(Assignment.ASSIGNMENT_INSTRUCTOR_NOTIFICATIONS_NAME, "All");
+					} else if(receivers.size() > 0 && i - 1 <= receivers.size()) {
+						String receiver = receivers.get(i - 2).getDisplayName();
+						aPropertiesEdit.addProperty(Assignment.ASSIGNMENT_INSTRUCTOR_NOTIFICATIONS_NAME, receiver);
+					}
+				}
+
 				// the release grade notification option
 				if (state.getAttribute(Assignment.ASSIGNMENT_RELEASEGRADE_NOTIFICATION_VALUE) != null)
 				{
@@ -10120,6 +10186,13 @@ public class AssignmentAction extends PagedResourceActionII
 				{
 					state.setAttribute(Assignment.ASSIGNMENT_INSTRUCTOR_NOTIFICATIONS_VALUE, properties.getProperty(Assignment.ASSIGNMENT_INSTRUCTOR_NOTIFICATIONS_VALUE));
 				}
+				if (properties.getProperty(Assignment.ASSIGNMENT_INSTRUCTOR_NOTIFICATIONS_NAME) != null)
+				{
+					state.setAttribute(Assignment.ASSIGNMENT_INSTRUCTOR_NOTIFICATIONS_NAME, properties.getProperty(Assignment.ASSIGNMENT_INSTRUCTOR_NOTIFICATIONS_NAME));
+				} else {
+					state.setAttribute(Assignment.ASSIGNMENT_INSTRUCTOR_NOTIFICATIONS_NAME, "All");
+				}
+
 				// release grade notification option
 				if (properties.getProperty(Assignment.ASSIGNMENT_RELEASEGRADE_NOTIFICATION_VALUE) != null)
 				{
