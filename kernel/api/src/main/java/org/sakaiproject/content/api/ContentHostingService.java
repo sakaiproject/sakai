@@ -348,7 +348,7 @@ public interface ContentHostingService extends EntityProducer
 	 * @throws IdInvalidException 
 	 * @throws IdUsedException 
 	 * @deprecated Suggest use of {@link #addCollection(String)} followed by {@link Entity#getProperties()},
-	 * 		{@link GroupAwareEdit#setGroupAccess(Collection)}, {@link GroupAwareEdit#setAvailability(boolean, Time, Time)} 
+	 * 		{@link GroupAwareEdit#setGroupAccess(Collection)}, {@link GroupAwareEdit#setAvailability(boolean, Instant, Instant)} 
 	 * 		and {@link #commitCollection(ContentCollectionEdit)}
 	 */
 	public ContentCollection addCollection(String id, ResourceProperties properties, Collection<String>  groups, boolean hidden, Time releaseDate, Time retractDate) throws IdUsedException, IdInvalidException, PermissionException, InconsistentException;

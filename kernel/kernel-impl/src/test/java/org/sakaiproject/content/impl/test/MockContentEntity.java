@@ -21,6 +21,7 @@
 
 package org.sakaiproject.content.impl.test;
 
+import java.time.Instant;
 import java.util.*;
 
 import org.slf4j.Logger;
@@ -401,6 +402,10 @@ public class MockContentEntity implements ContentEntity, GroupAwareEdit
 		}
 	}
 
+	@Override
+	public void setAvailabilityInstant(boolean hidden, Instant releaseDate, Instant retractDate) {
+		setAvailability(hidden, TimeService.newTime(releaseDate.toEpochMilli()), TimeService.newTime(retractDate.toEpochMilli()));	
+	}
 	/* (non-Javadoc)
 	 * @see org.sakaiproject.content.api.GroupAwareEdit#setGroupAccess(java.util.Collection)
 	 */
@@ -485,5 +490,24 @@ public class MockContentEntity implements ContentEntity, GroupAwareEdit
 	{
 		return this.isActiveEdit;
 	}
+	@Override
+	public Instant getReleaseInstant() {
+		return Instant.ofEpochMilli(this.releaseDate.getTime());
+	}
+	@Override
+	public Instant getRetractInstant() {
+		return Instant.ofEpochMilli(this.releaseDate.getTime());
+	}
+	@Override
+	public void setReleaseInstant(Instant date) {
+		this.releaseDate = TimeService.newTime(date.toEpochMilli());
+		
+	}
+	@Override
+	public void setRetractInstant(Instant time) {
+		this.retractDate = TimeService.newTime(time.toEpochMilli());
+		
+	}
+
 
 }
