@@ -39,6 +39,7 @@ import org.sakaiproject.gradebookng.business.model.GbCourseGrade;
 import org.sakaiproject.gradebookng.business.model.GbGradeInfo;
 import org.sakaiproject.gradebookng.business.model.GbGroup;
 import org.sakaiproject.gradebookng.business.model.GbStudentGradeInfo;
+import org.sakaiproject.gradebookng.business.util.EventHelper;
 import org.sakaiproject.gradebookng.business.util.FormatHelper;
 import org.sakaiproject.gradebookng.tool.model.GradebookUiSettings;
 import org.sakaiproject.gradebookng.tool.panels.BasePanel;
@@ -397,6 +398,8 @@ public class ExportPanel extends BasePanel {
 		} catch (final IOException e) {
 			throw new RuntimeException(e);
 		}
+
+		EventHelper.postExportEvent(getGradebook(), isCustomExport);
 
 		return tempFile;
 	}
