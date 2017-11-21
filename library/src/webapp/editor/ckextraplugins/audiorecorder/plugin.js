@@ -133,7 +133,7 @@ CKEDITOR.plugins.add( 'audiorecorder',
 	//audio_plugin.js
     CKEDITOR.dialog.add( 'audiorecorder.dlg', function( api ) {
             var dialogDef = {
-                title : editor.lang.audiorecorder.dlgtitle, minWidth : 390, minHeight : 230,
+                title : editor.lang.audiorecorder.dlgtitle, minWidth : 550, minHeight : 230,
                 contents : [ {
                         id : 'tab1', label : '', title : '', expand : true, padding : 0,
                         elements : [ 
