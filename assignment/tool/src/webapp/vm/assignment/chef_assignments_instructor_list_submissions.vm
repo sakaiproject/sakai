@@ -653,14 +653,12 @@ function printView(url) {
 							</td>
 							#end
 							<td headers="submitted">
-									#if ($!submission)
+									#if ($!submission && $submission.DateSubmitted)
 										#set($submitTime = $submission.DateSubmitted)
 										#if ($!submitTime) $!service.getUsersLocalDateTimeString($submitTime) #end
 										#if ($!submitTime && $submitTime.isAfter($assignment.DueDate))
 											<span class="highlight">$tlang.getString("gen.late2")</span> 
 										#end
-									#else
-										$tlang.getString("listsub.nosub")
 									#end
 									#if ($!submittedBy) 
 									<br /> $tlang.getString("listsub.submitted.by") $!submittedBy.sortName ($tlang.getString("listsub.submitted.on.behalf") $validator.escapeHtml($submitterSortName))
