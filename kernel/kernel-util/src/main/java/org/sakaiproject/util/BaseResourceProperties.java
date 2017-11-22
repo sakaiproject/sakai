@@ -21,6 +21,7 @@
 
 package org.sakaiproject.util;
 
+import java.time.Instant;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -489,6 +490,11 @@ public class BaseResourceProperties implements ResourceProperties, SerializableP
 		return new Date(time.getTime());
 	}
 	
+	public Instant getInstantProperty(String name) throws EntityPropertyNotDefinedException, EntityPropertyTypeException
+	{
+		Time time = getTimeProperty(name);
+		return Instant.ofEpochMilli(time.getTime());
+	}
 	/**
 	 * Access a named property as a User.
 	 * 
