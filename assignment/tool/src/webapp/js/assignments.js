@@ -796,7 +796,7 @@ ASN.enableSubmitUnlessNoFile = function(checkForFile)
     }
 };
 
-ASN.submitForm = function( formID, option, submissionID, view )
+ASN.submitForm = function( formID, option, submissionID, view, focusId )
 {
     // Get the form
     var form = document.getElementById( formID );
@@ -806,6 +806,10 @@ ASN.submitForm = function( formID, option, submissionID, view )
         if( submissionID !== null )
         {
             form.action = ASN.updateQueryStringParameter(form.action,"submissionId",submissionID);
+        }
+
+        if(focusId){
+            form.action = form.action + '#' + focusId;
         }
 
         // Do the onsubmit() if the form has one
@@ -842,10 +846,10 @@ ASN.submitForm = function( formID, option, submissionID, view )
     }
 };
 
-ASN.doStudentViewSubmissionAction = function( formID, option, attachmentID )
+ASN.doStudentViewSubmissionAction = function( formID, option, attachmentID, focusId )
 {
     document.getElementById( formID ).currentAttachment.value = attachmentID;
-    ASN.submitForm( formID, option, null, null );
+    ASN.submitForm( formID, option, null, null, focusId );
 };
 
 ASN.doTagsListAction = function( formID, value, providerID )
