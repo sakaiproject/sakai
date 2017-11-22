@@ -33,6 +33,7 @@ import java.net.SocketException;
 import java.net.URI;
 import java.net.URLDecoder;
 import java.text.SimpleDateFormat;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -11030,6 +11031,30 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 		{
 			return new Date(m_retractDate.getTime());
 		}
+		
+		@Override
+		public Instant getReleaseInstant() {
+			// TODO Auto-generated method stub
+			return Instant.ofEpochMilli(m_releaseDate.getTime());
+		}
+
+		@Override
+		public Instant getRetractInstant() {
+			return Instant.ofEpochMilli(m_retractDate.getTime());
+		}
+
+		@Override
+		public void setReleaseInstant(Instant date) {
+			setReleaseDate(timeService.newTime(date.toEpochMilli()));
+			
+		}
+
+		@Override
+		public void setRetractInstant(Instant time) {
+			setRetractDate(timeService.newTime(time.toEpochMilli()));
+			
+		}
+
 
 		/**
 		 * @return true if a change has been maded in any settings affecting visibility 
@@ -11202,6 +11227,11 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 
 		}
 
+		@Override
+		public void setAvailabilityInstant(boolean hidden, Instant releaseDate, Instant retractDate) {
+			setAvailability(hidden, timeService.newTime(releaseDate.toEpochMilli()), timeService.newTime(retractDate.toEpochMilli()));	
+		}
+		
 		public void setHidden() 
 		{
 			if(!m_hidden) {
