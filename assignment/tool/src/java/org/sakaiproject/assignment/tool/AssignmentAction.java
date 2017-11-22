@@ -13816,7 +13816,8 @@ public class AssignmentAction extends PagedResourceActionII {
                 for (String userId : userIds) {
                     try {
                         String assignmentRef = (String) state.getAttribute(EXPORT_ASSIGNMENT_REF);
-                        AssignmentSubmission submission = assignmentService.getSubmission(assignmentRef, userId);
+                        Assignment assignment = getAssignment(assignmentRef, "doSave_send_feedback", state);
+                        AssignmentSubmission submission = assignmentService.getSubmission(assignment.getId(), userId);
                         if (submission != null) {
                             String newFeedbackComment = "";
                             if (overwrite != null) {
