@@ -768,7 +768,7 @@ $(document).ready(function(){
 				#end
 			#end
 			#if (($submissionType==2) || ($submissionType==3) || ($submissionType==5 && $size < 2))
-				<div class="highlightPanel" style="background:#ffe">
+				<div id="attachmentspanel" class="highlightPanel" style="background:#ffe">
 					<h3 style="margin-top:0;margin-bottom:.5em">
 						#if ($submissionType == 5)
 							$tlang.getString("gen.att.single")
@@ -804,7 +804,7 @@ $(document).ready(function(){
 										</td>
 										<td class="itemAction">
 											<div class="spinnerBesideContainer">
-												<a href="javascript:void(0)" onclick="SPNR.insertSpinnerAfter( this, null, null ); ASN.doStudentViewSubmissionAction( 'addSubmissionForm', 'removeAttachment', '$attachment.id' ); return false;">
+												<a href="javascript:void(0)" onclick="SPNR.insertSpinnerAfter( this, null, null ); ASN.doStudentViewSubmissionAction( 'addSubmissionForm', 'removeAttachment', '$attachment.id', 'attachmentspanel' ); return false;">
 													$tlang.getString("stuviewsubm.removeatt")<span class="skip"> $validator.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))</span>
 												</a>
 											</div>
@@ -836,7 +836,7 @@ $(document).ready(function(){
 											</td>
 											<td>
 												<div id="clonableUploadW spinnerBesideContainer"> 
-													<input type="file" name="upload" class="upload" id="clonableUpload" #if($content_review_acceptedMimeTypes) accept="$content_review_acceptedMimeTypes" #end onchange="SPNR.insertSpinnerAfter( this, null, null ); document.getElementById('addSubmissionForm').action='#toolLinkParam("AssignmentAction" "doAttachUpload" "sakai_csrf_token=$validator.escapeUrl($sakai_csrf_token)")';ASN.submitForm( 'addSubmissionForm', null, null, null );"/> 
+													<input type="file" name="upload" class="upload" id="clonableUpload" #if($content_review_acceptedMimeTypes) accept="$content_review_acceptedMimeTypes" #end onchange="SPNR.insertSpinnerAfter( this, null, null ); document.getElementById('addSubmissionForm').action='#toolLinkParam("AssignmentAction" "doAttachUpload" "sakai_csrf_token=$validator.escapeUrl($sakai_csrf_token)")';ASN.submitForm( 'addSubmissionForm', null, null, null, 'attachmentspanel' );"/> 
 												</div>
 												</td>
 												##Only show for inline and attachments
@@ -844,7 +844,7 @@ $(document).ready(function(){
 												<td>
 													<span class="navIntraToolLink">
 														<input class="disableme enabled" type="button" value="$howManySubAttsLinks" name="attach" id="attach" accesskey="a" #if(!$allowSubmit) disabled="disabled"#end
-															onclick="SPNR.disableControlsAndSpin( this, null ); ASN.submitForm( 'addSubmissionForm', 'attach', null, null ); return false;" />
+															onclick="SPNR.disableControlsAndSpin( this, null ); ASN.submitForm( 'addSubmissionForm', 'attach', null, null, 'attachmentspanel' ); return false;" />
 													</span>
 												</td>
 												#end
@@ -872,7 +872,7 @@ $(document).ready(function(){
 										</td>
 										<td>
 											<div class="spinnerBesideContainer">
-												<input type="file" name="upload" class="upload" id="clonableUpload" #if($content_review_acceptedMimeTypes) accept="$content_review_acceptedMimeTypes" #end onchange="SPNR.insertSpinnerAfter( this, null, null ); document.getElementById('addSubmissionForm').action='#toolLinkParam("AssignmentAction" "doAttachUploadSingle" "sakai_csrf_token=$validator.escapeUrl($sakai_csrf_token)")';ASN.submitForm( 'addSubmissionForm', null, null, null );"/>
+												<input type="file" name="upload" class="upload" id="clonableUpload" #if($content_review_acceptedMimeTypes) accept="$content_review_acceptedMimeTypes" #end onchange="SPNR.insertSpinnerAfter( this, null, null ); document.getElementById('addSubmissionForm').action='#toolLinkParam("AssignmentAction" "doAttachUploadSingle" "sakai_csrf_token=$validator.escapeUrl($sakai_csrf_token)")';ASN.submitForm( 'addSubmissionForm', null, null, null, 'attachmentspanel' );"/>
 											</div>
 											<input type="hidden" name="submissionFileCount" id="submissionFileCount" value="1"/>
 										</td>
@@ -919,13 +919,13 @@ $(document).ready(function(){
 							#set($props = $attachment.Properties)
 							#if ($props)
 								#attachmentDetails()
-								<a href="javascript:void(0)" onclick="SPNR.insertSpinnerAfter( this, null, null ); ASN.submitForm( 'addSubmissionForm', 'removeNewSingleUploadedFile', null, null ); return false;">
+								<a href="javascript:void(0)" onclick="SPNR.insertSpinnerAfter( this, null, null ); ASN.submitForm( 'addSubmissionForm', 'removeNewSingleUploadedFile', null, null, 'attachmentspanel' ); return false;">
 									$tlang.getString("stuviewsubm.removeatt")<span class="skip"> $validator.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))</span>
 								</a>
 								<br>
 							#else
 								$tlang.getString("stuviewsubm.uploadnew")
-								<input type="file" name="upload" class="upload" id="clonableUpload" #if($content_review_acceptedMimeTypes) accept="$content_review_acceptedMimeTypes" #end onchange="SPNR.insertSpinnerAfter( this, null, null ); document.getElementById('addSubmissionForm').action='#toolLinkParam("AssignmentAction" "doAttachUploadSingle" "sakai_csrf_token=$validator.escapeUrl($sakai_csrf_token)")';ASN.submitForm( 'addSubmissionForm', null, null, null );"/>
+								<input type="file" name="upload" class="upload" id="clonableUpload" #if($content_review_acceptedMimeTypes) accept="$content_review_acceptedMimeTypes" #end onchange="SPNR.insertSpinnerAfter( this, null, null ); document.getElementById('addSubmissionForm').action='#toolLinkParam("AssignmentAction" "doAttachUploadSingle" "sakai_csrf_token=$validator.escapeUrl($sakai_csrf_token)")';ASN.submitForm( 'addSubmissionForm', null, null, null, 'attachmentspanel' );"/>
 							#end
 						</span>
 					</div>
