@@ -493,12 +493,12 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
 
     private AssignmentSubmission createNewSubmission(String context, String submitterId) throws UserNotDefinedException, IdUnusedException {
         Assignment assignment = createNewAssignment(context);
+        String assignmentReference = AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getReference();
         Site site = mock(Site.class);
         when(site.getGroup(submitterId)).thenReturn(mock(Group.class));
         when(site.getMember(submitterId)).thenReturn(mock(Member.class));
         when(siteService.getSite(context)).thenReturn(site);
-        when(siteService.siteReference(assignment.getContext())).thenReturn("/site/" + assignment.getContext());
-        when(securityService.unlock(AssignmentServiceConstants.SECURE_ADD_ASSIGNMENT_SUBMISSION, "/site/" + assignment.getContext())).thenReturn(true);
+        when(securityService.unlock(AssignmentServiceConstants.SECURE_ADD_ASSIGNMENT_SUBMISSION, assignmentReference)).thenReturn(true);
         AssignmentSubmission submission = null;
         try {
             submission = assignmentService.addSubmission(assignment.getId(), submitterId);
@@ -509,7 +509,9 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
     }
 
     private Assignment createNewAssignment(String context) {
-        when(securityService.unlock(AssignmentServiceConstants.SECURE_ADD_ASSIGNMENT, AssignmentReferenceReckoner.reckoner().context(context).reckon().getReference())).thenReturn(true);
+        String contextReference = AssignmentReferenceReckoner.reckoner().context(context).reckon().getReference();
+        when(securityService.unlock(AssignmentServiceConstants.SECURE_ADD_ASSIGNMENT, contextReference)).thenReturn(true);
+        when(securityService.unlock(AssignmentServiceConstants.SECURE_ACCESS_ASSIGNMENT, contextReference)).thenReturn(true);
         when(sessionManager.getCurrentSessionUserId()).thenReturn(UUID.randomUUID().toString());
         Assignment assignment = null;
         try {
