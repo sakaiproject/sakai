@@ -252,7 +252,7 @@ public class ReorderProducer implements ViewComponentProducer, NavigationCaseRep
 				    UIOutput.make(row, "text-snippet", text);
 				} else if (i.getType() == SimplePageItem.BREAK) {
 				    if ("section".equals(i.getFormat())) {
-				    	String sectionName = messageLocator.getMessage("simplepage.break-here") + (StringUtils.isBlank(i.getName()) ? "" : " (" + i.getName() + ")");
+				    	String sectionName = (second ? ">> " : "") + messageLocator.getMessage("simplepage.break-here") + (StringUtils.isBlank(i.getName()) ? "" : " (" + i.getName() + ")");
 				    	UIOutput.make(row, "section-label", sectionName);
 						row.decorate(new UIStyleDecorator("active"));
 					} else {
@@ -276,8 +276,13 @@ public class ReorderProducer implements ViewComponentProducer, NavigationCaseRep
 				if (i.getType() == SimplePageItem.BREAK && "section".equals(i.getFormat())) {
 					del.decorate(new UIFreeAttributeDecorator("style", "display:none;"));
 					UIOutput.make(row, "dellinkoptions").decorate(new UIFreeAttributeDecorator("alt", messageLocator.getMessage("simplepage.delete")));
-				} else if (second) {
-					del.decorate(new UIFreeAttributeDecorator("style", "display:block"));
+				}
+
+				if(second) {
+					if (i.getType() != SimplePageItem.BREAK) {
+						UIOutput.make(row, "import-indicator");
+						row.decorate(new UIStyleDecorator("list-group-item-warning"));
+					}
 				}
 			}
 

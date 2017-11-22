@@ -706,6 +706,11 @@ a.edit-link:link, a.edit-link:visited, a.section-merge-link:link, a.section-merg
 #layoutReorderer a.preview-link {
     text-decoration: none;
 }
+#reorderCol1 .import-indicator {
+    margin-left: -36px;
+    margin-right: 22px;
+    font-size: 18px;
+}
 /**
  * Interaction styling.
  */
