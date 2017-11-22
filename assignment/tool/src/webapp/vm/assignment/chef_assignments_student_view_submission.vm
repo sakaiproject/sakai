@@ -873,6 +873,10 @@ $(document).ready(function(){
 										<td>
 											<div class="spinnerBesideContainer">
 												<input type="file" name="upload" class="upload" id="clonableUpload" #if($content_review_acceptedMimeTypes) accept="$content_review_acceptedMimeTypes" #end onchange="SPNR.insertSpinnerAfter( this, null, null ); document.getElementById('addSubmissionForm').action='#toolLinkParam("AssignmentAction" "doAttachUploadSingle" "sakai_csrf_token=$validator.escapeUrl($sakai_csrf_token)")';ASN.submitForm( 'addSubmissionForm', null, null, null );"/>
+												<span class="navIntraToolLink">
+													<input class="disableme enabled" type="button" value="$tlang.getString("stuviewsubm.attfromserverlabel")" name="attach" id="attach" accesskey="a" #if(!$allowSubmit) disabled="disabled"#end
+														onclick="SPNR.disableControlsAndSpin( this, null ); ASN.submitForm( 'addSubmissionForm', 'attach', null, null ); return false;" />
+												</span>
 											</div>
 											<input type="hidden" name="submissionFileCount" id="submissionFileCount" value="1"/>
 										</td>
@@ -926,6 +930,10 @@ $(document).ready(function(){
 							#else
 								$tlang.getString("stuviewsubm.uploadnew")
 								<input type="file" name="upload" class="upload" id="clonableUpload" #if($content_review_acceptedMimeTypes) accept="$content_review_acceptedMimeTypes" #end onchange="SPNR.insertSpinnerAfter( this, null, null ); document.getElementById('addSubmissionForm').action='#toolLinkParam("AssignmentAction" "doAttachUploadSingle" "sakai_csrf_token=$validator.escapeUrl($sakai_csrf_token)")';ASN.submitForm( 'addSubmissionForm', null, null, null );"/>
+								<span class="navIntraToolLink">
+									<input class="disableme enabled" type="button" value="$tlang.getString("stuviewsubm.attfromserverlabel")" name="attach" id="attach" accesskey="a" #if(!$allowSubmit) disabled="disabled"#end
+										onclick="SPNR.disableControlsAndSpin( this, null ); ASN.submitForm( 'addSubmissionForm', 'attach', null, null ); return false;" />
+								</span>
 							#end
 						</span>
 					</div>
