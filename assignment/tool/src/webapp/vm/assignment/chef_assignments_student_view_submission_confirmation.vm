@@ -106,7 +106,7 @@
                         $tlang.getString('noti.submit.time')
                     </th>
                     <td>
-                        $!submission.DateSubmitted.toString()
+                        $!service.getUsersLocalDateTimeString($!submission.DateSubmitted)
                     </td>
                 </tr>
             #end

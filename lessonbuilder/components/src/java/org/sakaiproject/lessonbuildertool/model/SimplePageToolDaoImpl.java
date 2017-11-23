@@ -51,6 +51,7 @@ import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.db.api.SqlReader;
 import org.sakaiproject.db.api.SqlService;
 import org.sakaiproject.event.cover.EventTrackingService;
+import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.lessonbuildertool.api.LessonBuilderEvents;
 import org.sakaiproject.lessonbuildertool.ChecklistItemStatus;
 import org.sakaiproject.lessonbuildertool.SimpleChecklistItem;
@@ -80,6 +81,7 @@ import org.sakaiproject.lessonbuildertool.SimpleStudentPage;
 import org.sakaiproject.lessonbuildertool.SimpleStudentPageImpl;
 import org.sakaiproject.lessonbuildertool.api.LessonBuilderConstants;
 import org.sakaiproject.lessonbuildertool.util.LessonsSubNavBuilder;
+import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.api.ToolConfiguration;
@@ -104,7 +106,6 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 	private SiteService siteService;
 	private SqlService sqlService;
 	private AuthzGroupService authzGroupService;
-	private static String SITE_UPD = "site.upd";
 
         // part of HibernateDaoSupport; this is the only context in which it is OK
         // to modify the template configuration
@@ -209,19 +210,39 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 	}
 
 	public List<SimplePageItem> findItemsInSite(String siteId) {
-	    Object [] fields = new Object[1];
-	    fields[0] = siteId;
-	    List<String> ids = sqlService.dbRead("select b.id from lesson_builder_pages a,lesson_builder_items b,SAKAI_SITE_PAGE c where a.siteId = ? and a.parent is null and a.pageId = b.sakaiId and b.type = 2 and b.pageId = 0 and a.toolId = c.PAGE_ID order by c.SITE_ORDER", fields, null);
+		// This is a three-step process.
+		// 1) Find the pages in the site
+		// 2) Find the Lessons pages 
+		// 3) Find the Lessons items
+		try {
+			Site site = siteService.getSite(siteId);
+			List<SitePage> sitePages = site.getOrderedPages();
 
-	    List<SimplePageItem> result = new ArrayList<SimplePageItem>();
-	    
-	    if (result != null) {
-		for (String id: ids) {
-		    SimplePageItem i = findItem(new Long(id));
-		    result.add(i);
+			List<String> sitePageIds = new ArrayList<>();
+			for (SitePage page : sitePages) {
+				sitePageIds.add(page.getId());
+			}
+
+			DetachedCriteria d = DetachedCriteria.forClass(SimplePage.class);
+			d.add(Restrictions.in("toolId", sitePageIds));
+			d.add(Restrictions.isNull("parent"));
+
+			List<SimplePage> lessonsPages = (List<SimplePage>) getHibernateTemplate().findByCriteria(d);
+			List<String> lessonsPageIds = new ArrayList<>();
+			if (!lessonsPages.isEmpty()) {
+				for (SimplePage lessonsPage : lessonsPages) {
+					String pageId = String.valueOf(lessonsPage.getPageId());
+					lessonsPageIds.add(pageId);
+				}
+
+				List<SimplePageItem> pageItems = findTopLevelPageItemsBySakaiIds(lessonsPageIds);
+				return pageItems;
+			}
+		} catch (IdUnusedException e) {
+			log.warn("Could not find site: " + siteId, e);
 		}
-	    }
-	    return result;
+
+		return null;
 	}
 
 	public List<SimplePageItem> findDummyItemsInSite(String siteId) {
@@ -497,6 +518,21 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 		    return null;
 			
 		return list.get(0);
+	}
+
+	public List<SimplePageItem> findTopLevelPageItemsBySakaiIds(List<String> ids) {
+		DetachedCriteria d = DetachedCriteria.forClass(SimplePageItem.class)
+			.add(Restrictions.in("sakaiId", ids))
+			.add(Restrictions.eq("pageId", 0L))
+			.add(Restrictions.eq("type",SimplePageItem.PAGE));
+
+		List<SimplePageItem> list = (List<SimplePageItem>) getHibernateTemplate().findByCriteria(d);
+
+		if (list == null || list.size() < 1) {
+			return null;
+		}
+
+		return list;
 	}
 
 	public List<SimplePageItem> findPageItemsBySakaiId(String id) {
@@ -1809,7 +1845,14 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 	}
 
 
-	public String getLessonSubPageJSON(final String userId, final boolean isInstructor, final List pages) {
+	public String getLessonSubPageJSON(final String userId, final boolean isInstructor, final String siteId, final List pages) {
+		final List<String> pageIds = LessonsSubNavBuilder.collectPageIds(pages);
+
+		if (pageIds.isEmpty()) {
+			// no lesson pages, so no JSON!
+			return null;
+		}
+
 		final String sql = ("SELECT p.toolId AS sakaiPageId," +
 				" p.pageId AS lessonsPageId," +
 				" s.site_id AS sakaiSiteId," +
@@ -1833,18 +1876,17 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 				" LEFT OUTER JOIN lesson_builder_log log" +
 				"   ON (log.itemId = i.id AND log.userId = ?)" +
 				" WHERE p.parent IS NULL" +
-				"   AND p.toolId IN (" + pages.stream().map(i -> "?").collect(Collectors.joining(",")) + ")" +
+				"   AND p.toolId IN (" + pageIds.stream().map(i -> "?").collect(Collectors.joining(",")) + ")" +
 				" ORDER BY i.sequence");
 
-		final Object [] fields = new Object[pages.size() + 1];
+		final Object [] fields = new Object[pageIds.size() + 1];
 		fields[0] = userId;
 
-		final List<String> pageIds = LessonsSubNavBuilder.collectPageIds(pages);
 		for (int i=0; i<pageIds.size(); i++) {
 			fields[i+1] = pageIds.get(i);
 		}
 
-		final LessonsSubNavBuilder lessonsSubNavBuilder = new LessonsSubNavBuilder(isInstructor);
+		final LessonsSubNavBuilder lessonsSubNavBuilder = new LessonsSubNavBuilder(siteId, isInstructor);
 
 		sqlService.dbRead(sql, fields, new SqlReader() {
 			public Object readSqlResultRecord(final ResultSet result) {
@@ -1857,5 +1899,21 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 		});
 
 		return lessonsSubNavBuilder.toJSON();
+	}
+
+	public List<SimplePage> getTopLevelPages(final String siteId) {
+		DetachedCriteria d = DetachedCriteria.forClass(SimplePage.class).add(Restrictions.eq("siteId", siteId))
+			.add(Restrictions.disjunction()
+				.add(Restrictions.isNull("owner"))
+				.add(Restrictions.eq("owned", true)))
+			.add(Restrictions.isNull("parent"));
+
+		List<SimplePage> l = (List<SimplePage>) getHibernateTemplate().findByCriteria(d);
+
+		if (l != null && l.size() > 0) {
+			return l;
+		} else {
+			return null;
+		}
 	}
 }

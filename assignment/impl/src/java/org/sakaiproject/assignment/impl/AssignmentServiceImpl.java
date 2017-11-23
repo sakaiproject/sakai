@@ -31,6 +31,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.format.FormatStyle;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -141,6 +142,7 @@ import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.taggable.api.TaggingManager;
 import org.sakaiproject.taggable.api.TaggingProvider;
+import org.sakaiproject.time.api.UserTimeService;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.tool.api.ToolManager;
@@ -200,6 +202,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
     @Setter private TaggingManager taggingManager;
     @Setter private ToolManager toolManager;
     @Setter private UserDirectoryService userDirectoryService;
+    @Setter private UserTimeService userTimeService;
 
     private DateTimeFormatter dateTimeFormatter;
     private boolean allowSubmitByInstructor;
@@ -871,7 +874,6 @@ String assignmentId = AssignmentReferenceReckoner.reckoner().reference(assignmen
             submissionSubmitters.add(submissionSubmitter);
 
             submission = new AssignmentSubmission();
-            submission.setDateCreated(Date.from(Instant.now()));
             assignmentRepository.newSubmission(assignment, submission, Optional.of(submissionSubmitters), Optional.empty(), Optional.empty(), Optional.empty());
 
             String submissionReference = AssignmentReferenceReckoner.reckoner().submission(submission).reckon().getReference();
@@ -973,37 +975,39 @@ String assignmentId = AssignmentReferenceReckoner.reckoner().reference(assignmen
         assignmentRepository.updateSubmission(submission);
 
         // Assignment Submission Notifications
-        Date dateReturned = submission.getDateReturned();
-        Date dateSubmitted = submission.getDateSubmitted();
+        Instant dateReturned = submission.getDateReturned();
+        Instant dateSubmitted = submission.getDateSubmitted();
         if (!submission.getSubmitted()) {
             // if the submission is not submitted then saving a submission event
             eventTrackingService.post(eventTrackingService.newEvent(AssignmentConstants.EVENT_SAVE_ASSIGNMENT_SUBMISSION, reference, true));
-        } else if (dateReturned == null && !submission.getReturned() && (dateSubmitted == null || submission.getDateModified().getTime() - dateSubmitted.getTime() > 1000 * 60)) {
+        } else if (dateReturned == null && !submission.getReturned() && (dateSubmitted == null || submission.getDateModified().toEpochMilli() - dateSubmitted.toEpochMilli() > 1000 * 60)) {
             // make sure the last modified time is at least one minute after the submit time
             if (!(StringUtils.trimToNull(submission.getSubmittedText()) == null && submission.getAttachments().isEmpty() && StringUtils.trimToNull(submission.getGrade()) == null && StringUtils.trimToNull(submission.getFeedbackText()) == null && StringUtils.trimToNull(submission.getFeedbackComment()) == null && submission.getFeedbackAttachments().isEmpty())) {
-                // graded and saved before releasing it
-                Event event = eventTrackingService.newEvent(AssignmentConstants.EVENT_GRADE_ASSIGNMENT_SUBMISSION, reference, true);
-                eventTrackingService.post(event);
                 if (submission.getGraded()) {
+                	//TODO: This should use an LRS_Group when that exists rather than firing off individual events for each LRS_Actor KNL-1560
                     for (AssignmentSubmissionSubmitter submitter : submission.getSubmitters()) {
                         try {
                             User user = userDirectoryService.getUser(submitter.getSubmitter());
-                            learningResourceStoreService.registerStatement(getStatementForAssignmentGraded(learningResourceStoreService.getEventActor(event), event, submission.getAssignment(), submission, user), "assignment");
+                            LRS_Statement statement = getStatementForAssignmentGraded(reference, submission.getAssignment(), submission, user);
+                            // graded and saved before releasing it
+                            Event event = eventTrackingService.newEvent(AssignmentConstants.EVENT_GRADE_ASSIGNMENT_SUBMISSION, reference, null, true, NotificationService.NOTI_OPTIONAL, statement);
+                            eventTrackingService.post(event);
                         } catch (UserNotDefinedException e) {
                             log.warn("Assignments could not find user ({}) while registering Event for LRSS", submitter.getSubmitter());
                         }
                     }
                 }
             }
-        } else if (dateReturned != null && submission.getGraded() && (dateSubmitted == null || dateReturned.after(dateSubmitted) || dateSubmitted.after(dateReturned) && submission.getDateModified().after(dateSubmitted))) {
-            // releasing a submitted assignment or releasing grade to an unsubmitted assignment
-            Event event = eventTrackingService.newEvent(AssignmentConstants.EVENT_GRADE_ASSIGNMENT_SUBMISSION, reference, true);
-            eventTrackingService.post(event);
+        } else if (dateReturned != null && submission.getGraded() && (dateSubmitted == null || dateReturned.isAfter(dateSubmitted) || dateSubmitted.isAfter(dateReturned) && submission.getDateModified().isAfter(dateSubmitted))) {
             if (submission.getGraded()) {
+            	//TODO: This should use an LRS_Group when that exists rather than firing off individual events for each LRS_Actor KNL-1560
                 for (AssignmentSubmissionSubmitter submitter : submission.getSubmitters()) {
                     try {
                         User user = userDirectoryService.getUser(submitter.getSubmitter());
-                        learningResourceStoreService.registerStatement(getStatementForAssignmentGraded(learningResourceStoreService.getEventActor(event), event, submission.getAssignment(), submission, user), "assignment");
+                    	LRS_Statement statement = getStatementForAssignmentGraded(reference, submission.getAssignment(), submission, user);
+                    	// releasing a submitted assignment or releasing grade to an unsubmitted assignment
+                    	Event event = eventTrackingService.newEvent(AssignmentConstants.EVENT_GRADE_ASSIGNMENT_SUBMISSION, reference, null, true, NotificationService.NOTI_OPTIONAL, statement);
+                    	eventTrackingService.post(event);
                     } catch (UserNotDefinedException e) {
                         log.warn("Assignments could not find user ({}) while registering Event for LRSS", submitter.getSubmitter());
                     }
@@ -1013,13 +1017,14 @@ String assignmentId = AssignmentReferenceReckoner.reckoner().reference(assignmen
             // if this is releasing grade, depending on the release grade notification setting, send email notification to student
             sendGradeReleaseNotification(submission);
         } else if (dateSubmitted == null) {
-            // releasing a submitted assignment or releasing grade to an unsubmitted assignment
-            Event event = eventTrackingService.newEvent(AssignmentConstants.EVENT_GRADE_ASSIGNMENT_SUBMISSION, reference, true);
-            eventTrackingService.post(event);
+           	//TODO: This should use an LRS_Group when that exists rather than firing off individual events for each LRS_Actor KNL-1560
             for (AssignmentSubmissionSubmitter submitter : submission.getSubmitters()) {
                 try {
                     User user = userDirectoryService.getUser(submitter.getSubmitter());
-                    learningResourceStoreService.registerStatement(getStatementForUnsubmittedAssignmentGraded(learningResourceStoreService.getEventActor(event), event, submission.getAssignment(), submission, user), "sakai.assignment");
+                    LRS_Statement statement = getStatementForUnsubmittedAssignmentGraded(reference, submission.getAssignment(), submission, user);
+                    // releasing a submitted assignment or releasing grade to an unsubmitted assignment
+                    Event event = eventTrackingService.newEvent(AssignmentConstants.EVENT_GRADE_ASSIGNMENT_SUBMISSION, reference, null, true, NotificationService.NOTI_OPTIONAL, statement);
+                    eventTrackingService.post(event);
                 } catch (UserNotDefinedException e) {
                     log.warn("Assignments could not find user ({}) while registering Event for LRSS", submitter.getSubmitter());
                 }
@@ -1069,11 +1074,11 @@ String assignmentId = AssignmentReferenceReckoner.reckoner().reference(assignmen
         // TODO these status's should be an enum and translation should occur in tool
         if (assignment.getDraft()) {
             return AssignmentConstants.Status.DRAFT;
-        } else if (assignment.getOpenDate().toInstant().isAfter(currentTime.toInstant())) {
+        } else if (assignment.getOpenDate().isAfter(currentTime.toInstant())) {
             return AssignmentConstants.Status.NOT_OPEN;
-        } else if (assignment.getDueDate().toInstant().isAfter(currentTime.toInstant())) {
+        } else if (assignment.getDueDate().isAfter(currentTime.toInstant())) {
             return AssignmentConstants.Status.OPEN;
-        } else if ((assignment.getCloseDate() != null) && (assignment.getCloseDate().toInstant().isBefore(currentTime.toInstant()))) {
+        } else if ((assignment.getCloseDate() != null) && (assignment.getCloseDate().isBefore(currentTime.toInstant()))) {
             return AssignmentConstants.Status.CLOSED;
         } else {
             return AssignmentConstants.Status.DUE;
@@ -1296,11 +1301,11 @@ String assignmentId = AssignmentReferenceReckoner.reckoner().reference(assignmen
             Instant now = Instant.now();
             if (assignment.getDraft()) {
                 return resourceLoader.getString("gen.dra1");
-            } else if (assignment.getOpenDate().toInstant().isAfter(now)) {
+            } else if (assignment.getOpenDate().isAfter(now)) {
                 return resourceLoader.getString("gen.notope");
-            } else if (assignment.getDueDate().toInstant().isAfter(now)) {
+            } else if (assignment.getDueDate().isAfter(now)) {
                 return resourceLoader.getString("gen.open");
-            } else if ((assignment.getCloseDate() != null) && (assignment.getCloseDate().toInstant().isBefore(now))) {
+            } else if ((assignment.getCloseDate() != null) && (assignment.getCloseDate().isBefore(now))) {
                 return resourceLoader.getString("gen.closed");
             } else {
                 return resourceLoader.getString("gen.due");
@@ -1325,17 +1330,17 @@ String assignmentId = AssignmentReferenceReckoner.reckoner().reference(assignmen
         String assignmentReference = AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getReference();
         boolean allowGrade = assignment != null && allowGradeSubmission(assignmentReference);
 
-        Date submitTime = submission.getDateSubmitted();
-        Date returnTime = submission.getDateReturned();
-        Date lastModTime = submission.getDateModified();
+        Instant submitTime = submission.getDateSubmitted();
+        Instant returnTime = submission.getDateReturned();
+        Instant lastModTime = submission.getDateModified();
 
         if (submission.getSubmitted() || (!submission.getSubmitted() && allowGrade)) {
             if (submitTime != null) {
                 if (submission.getReturned()) {
-                    if (returnTime != null && returnTime.before(submitTime)) {
+                    if (returnTime != null && returnTime.isBefore(submitTime)) {
                         if (!submission.getGraded()) {
                             status = resourceLoader.getString("gen.resub") + " " + submitTime.toString();
-                            if (submitTime.after(assignment.getDueDate())) {
+                            if (submitTime.isAfter(assignment.getDueDate())) {
                                 status = status + resourceLoader.getString("gen.late2");
                             }
                         } else
@@ -1373,7 +1378,7 @@ String assignmentId = AssignmentReferenceReckoner.reckoner().reference(assignmen
             if (submission.getGraded()) {
                 if (submission.getReturned()) {
                     // modified time is after returned time + 10 seconds
-                    if (lastModTime != null && returnTime != null && lastModTime.toInstant().isAfter(returnTime.toInstant().plusSeconds(10)) && !allowGrade) {
+                    if (lastModTime != null && returnTime != null && lastModTime.isAfter(returnTime.plusSeconds(10)) && !allowGrade) {
                         // working on a returned submission now
                         status = resourceLoader.getString("gen.dra2") + " " + resourceLoader.getString("gen.inpro");
                     } else {
@@ -1663,16 +1668,16 @@ String assignmentId = AssignmentReferenceReckoner.reckoner().reference(assignmen
             // get user
             User u = userDirectoryService.getUser(userId);
 
-            LocalDateTime currentTime = LocalDateTime.now();
+            Instant currentTime = Instant.now();
 
             // return false if the assignment is draft or is not open yet
-            LocalDateTime openTime = LocalDateTime.ofInstant(a.getOpenDate().toInstant(), ZoneId.systemDefault());
+            Instant openTime = a.getOpenDate();
             if (a.getDraft() || openTime.isAfter(currentTime)) {
                 return false;
             }
 
             // return false if the current time has passed the assignment close time
-            LocalDateTime closeTime = LocalDateTime.ofInstant(a.getCloseDate().toInstant(), ZoneId.systemDefault());
+            Instant closeTime = a.getCloseDate();
 
             // get user's submission
             AssignmentSubmission submission = null;
@@ -1687,14 +1692,14 @@ String assignmentId = AssignmentReferenceReckoner.reckoner().reference(assignmen
                 try {
                     int allowResubmitNumber = Integer.parseInt(allowResubmitNumString);
                     String allowResubmitCloseTime = submission.getProperties().get(AssignmentConstants.ALLOW_RESUBMIT_CLOSETIME);
-                    LocalDateTime resubmitCloseTime = null;
+                    Instant resubmitCloseTime = null;
 
                     if (allowResubmitCloseTime != null) {
                         // see if a resubmission close time is set on submission level
-                        resubmitCloseTime = LocalDateTime.ofInstant(Instant.ofEpochMilli(Long.parseLong(allowResubmitCloseTime)), ZoneId.systemDefault());
+                        resubmitCloseTime = Instant.ofEpochMilli(Long.parseLong(allowResubmitCloseTime));
                     } else {
                         // otherwise, use assignment close time as the resubmission close time
-                        resubmitCloseTime = LocalDateTime.ofInstant(a.getCloseDate().toInstant(), ZoneId.systemDefault());
+                        resubmitCloseTime = a.getCloseDate();
                     }
                     return (allowResubmitNumber > 0 || allowResubmitNumber == -1) && currentTime.isBefore(resubmitCloseTime);
                 } catch (NumberFormatException e) {
@@ -1788,7 +1793,7 @@ String assignmentId = AssignmentReferenceReckoner.reckoner().reference(assignmen
                                         String assignmentAllowResubmitCloseDate = assignmentProperties.get(AssignmentConstants.ALLOW_RESUBMIT_CLOSETIME);
                                         // if assignment's setting of resubmit close time is null, use assignment close time as the close time for resubmit
                                         s.getProperties().put(AssignmentConstants.ALLOW_RESUBMIT_CLOSETIME,
-                                                assignmentAllowResubmitCloseDate != null ? assignmentAllowResubmitCloseDate : String.valueOf(a.getCloseDate().getTime()));
+                                                assignmentAllowResubmitCloseDate != null ? assignmentAllowResubmitCloseDate : String.valueOf(a.getCloseDate().toEpochMilli()));
                                     }
 
                                     assignmentRepository.updateSubmission(s);
@@ -1946,7 +1951,7 @@ String assignmentId = AssignmentReferenceReckoner.reckoner().reference(assignmen
                                         String assignmentAllowResubmitCloseDate = assignmentProperties.get(AssignmentConstants.ALLOW_RESUBMIT_CLOSETIME);
                                         // if assignment's setting of resubmit close time is null, use assignment close time as the close time for resubmit
                                         s.getProperties().put(AssignmentConstants.ALLOW_RESUBMIT_CLOSETIME,
-                                                assignmentAllowResubmitCloseDate != null ? assignmentAllowResubmitCloseDate : String.valueOf(a.getCloseDate().getTime()));
+                                                assignmentAllowResubmitCloseDate != null ? assignmentAllowResubmitCloseDate : String.valueOf(a.getCloseDate().toEpochMilli()));
                                     }
 
                                     assignmentRepository.updateSubmission(s);
@@ -2089,7 +2094,7 @@ String assignmentId = AssignmentReferenceReckoner.reckoner().reference(assignmen
         Assignment a = getAssignment(assignmentId);
 
         String assignmentContext = a.getContext(); // assignment context
-        if (allowReadAssignment && a.getOpenDate().toInstant().isBefore(ZonedDateTime.now().toInstant())) {
+        if (allowReadAssignment && a.getOpenDate().isBefore(ZonedDateTime.now().toInstant())) {
             // this checks if we want to display an assignment link
             try {
                 Site site = siteService.getSite(assignmentContext);
@@ -2380,8 +2385,8 @@ String assignmentId = AssignmentReferenceReckoner.reckoner().reference(assignmen
     @Override
     public boolean isPeerAssessmentOpen(Assignment assignment) {
         if (assignment.getAllowPeerAssessment()) {
-            Date now = new Date();
-            return now.before(assignment.getPeerAssessmentPeriodDate()) && now.after(assignment.getCloseDate());
+            Instant now = Instant.now();
+            return now.isBefore(assignment.getPeerAssessmentPeriodDate().toInstant()) && now.isAfter(assignment.getCloseDate());
         }
         return false;
     }
@@ -2389,8 +2394,7 @@ String assignmentId = AssignmentReferenceReckoner.reckoner().reference(assignmen
     @Override
     public boolean isPeerAssessmentPending(Assignment assignment) {
         if (assignment.getAllowPeerAssessment()) {
-            Date now = new Date();
-            return now.before(assignment.getCloseDate());
+            return Instant.now().isBefore(assignment.getCloseDate());
         }
         return false;
     }
@@ -2398,8 +2402,7 @@ String assignmentId = AssignmentReferenceReckoner.reckoner().reference(assignmen
     @Override
     public boolean isPeerAssessmentClosed(Assignment assignment) {
         if (assignment.getAllowPeerAssessment()) {
-            Date now = new Date();
-            return now.after(assignment.getPeerAssessmentPeriodDate());
+            return Instant.now().isAfter(assignment.getPeerAssessmentPeriodDate().toInstant());
         }
         return false;
     }
@@ -2464,10 +2467,10 @@ String assignmentId = AssignmentReferenceReckoner.reckoner().reference(assignmen
         if (StringUtils.isBlank(deleted)) {
             // show not deleted, not draft, opened assignments
             // TODO do we need to use time zone
-            Date openTime = assignment.getOpenDate();
-            Date visibleTime = assignment.getVisibleDate();
-            if ((openTime != null && LocalDateTime.now().isAfter(LocalDateTime.ofInstant(openTime.toInstant(), ZoneId.systemDefault()))
-                    || (visibleTime != null && LocalDateTime.now().isAfter(LocalDateTime.ofInstant(visibleTime.toInstant(), ZoneId.systemDefault()))))
+            Instant openTime = assignment.getOpenDate();
+            Instant visibleTime = assignment.getVisibleDate();
+            if ((openTime != null && Instant.now().isAfter(openTime))
+                    || (visibleTime != null && Instant.now().isAfter(visibleTime))
                     && !assignment.getDraft()) {
                 return true;
             }
@@ -3168,12 +3171,12 @@ String assignmentId = AssignmentReferenceReckoner.reckoner().reference(assignmen
 
     // TODO refactor this
     private String whenSubmissionMade(AssignmentSubmission s) {
-        Date dueTime = s.getAssignment().getDueDate();
-        Date submittedTime = s.getDateSubmitted();
+        Instant dueTime = s.getAssignment().getDueDate();
+        Instant submittedTime = s.getDateSubmitted();
         String latenessStatus;
         if (submittedTime == null) {
             latenessStatus = resourceLoader.getString("grades.lateness.unknown");
-        } else if (dueTime != null && submittedTime.after(dueTime)) {
+        } else if (dueTime != null && submittedTime.isAfter(dueTime)) {
             latenessStatus = resourceLoader.getString("grades.lateness.late");
         } else {
             latenessStatus = resourceLoader.getString("grades.lateness.ontime");
@@ -3434,7 +3437,7 @@ String assignmentId = AssignmentReferenceReckoner.reckoner().reference(assignmen
                     nAssignment.setPeerAssessmentPeriodDate(oAssignment.getPeerAssessmentPeriodDate());
                     if (nAssignment.getPeerAssessmentPeriodDate() == null && nAssignment.getCloseDate() != null) {
                         // set the peer period time to be 10 mins after accept until date
-                        Instant tenMinutesAfterCloseDate = Instant.from(nAssignment.getCloseDate().toInstant().plus(Duration.ofMinutes(10)));
+                        Instant tenMinutesAfterCloseDate = Instant.from(nAssignment.getCloseDate().plus(Duration.ofMinutes(10)));
                         nAssignment.setPeerAssessmentPeriodDate(Date.from(tenMinutesAfterCloseDate));
                     }
 
@@ -3658,9 +3661,10 @@ String assignmentId = AssignmentReferenceReckoner.reckoner().reference(assignmen
         return reference;
     }
 
-    private LRS_Statement getStatementForAssignmentGraded(LRS_Actor instructor, Event event, Assignment a, AssignmentSubmission s, User studentUser) {
+    private LRS_Statement getStatementForAssignmentGraded(String reference, Assignment a, AssignmentSubmission s, User studentUser) {
+    	LRS_Actor instructor = learningResourceStoreService.getActor(sessionManager.getCurrentSessionUserId());
         LRS_Verb verb = new LRS_Verb(SAKAI_VERB.scored);
-        LRS_Object lrsObject = new LRS_Object(serverConfigurationService.getPortalUrl() + event.getResource(), "received-grade-assignment");
+        LRS_Object lrsObject = new LRS_Object(serverConfigurationService.getPortalUrl() + reference, "received-grade-assignment");
         Map<String, String> nameMap = new HashMap<>();
         nameMap.put("en-US", "User received a grade");
         lrsObject.setActivityName(nameMap);
@@ -3691,9 +3695,10 @@ String assignmentId = AssignmentReferenceReckoner.reckoner().reference(assignmen
         return result;
     }
 
-    private LRS_Statement getStatementForUnsubmittedAssignmentGraded(LRS_Actor instructor, Event event, Assignment a, AssignmentSubmission s, User studentUser) {
+    private LRS_Statement getStatementForUnsubmittedAssignmentGraded(String reference, Assignment a, AssignmentSubmission s, User studentUser) {
+    	LRS_Actor instructor = learningResourceStoreService.getActor(sessionManager.getCurrentSessionUserId());
         LRS_Verb verb = new LRS_Verb(SAKAI_VERB.scored);
-        LRS_Object lrsObject = new LRS_Object(serverConfigurationService.getAccessUrl() + event.getResource(), "received-grade-unsubmitted-assignment");
+        LRS_Object lrsObject = new LRS_Object(serverConfigurationService.getAccessUrl() + reference, "received-grade-unsubmitted-assignment");
         Map<String, String> nameMap = new HashMap<>();
         nameMap.put("en-US", "User received a grade");
         lrsObject.setActivityName(nameMap);
@@ -3789,5 +3794,11 @@ String assignmentId = AssignmentReferenceReckoner.reckoner().reference(assignmen
             }).filter(Objects::nonNull).collect(Collectors.toSet());
             emailService.sendToUsers(users, emailUtil.getHeaders(null, "submission"), emailUtil.getNotificationMessage(submission, "submission"));
         }
+    }
+
+    @Override
+    public String getUsersLocalDateTimeString(Instant date) {
+        ZoneId zone = userTimeService.getLocalTimeZone().toZoneId();
+        return DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM, FormatStyle.SHORT).withZone(zone).format(date);
     }
 }

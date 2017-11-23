@@ -24,7 +24,7 @@
             </th>
             <td>
                 #if (!$!assignment.HideDueDate || $!allowUpdateAssignment)
-                    $!assignment.DueDate.toString()
+                    $!service.getUsersLocalDateTimeString($!assignment.DueDate)
                 #end
             </td>
         </tr>
@@ -87,13 +87,13 @@
         ## show alert when assignment is modified and the modified date is after its open date
         #set($newAssignment="false")
         #set($newAssignment=$assignment.getProperties().get("newAssignment"))
-        #if ($!assignment.DateModified.after($assignment.OpenDate) && !$!newAssignment.equalsIgnoreCase("true"))
+        #if ($!assignment.DateModified.isAfter($assignment.OpenDate) && !$!newAssignment.equalsIgnoreCase("true"))
             <tr>
                 <th>
                     $tlang.getString("gen.modbyins")
                 </th>
                 <td>
-                    $assignment.DateModified.toString()
+                    $!service.getUsersLocalDateTimeString($assignment.DateModified)
                 </td>
             </tr>
         #end

@@ -23,7 +23,10 @@ import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.ajax.markup.html.form.AjaxCheckBox;
+import org.apache.wicket.markup.html.form.ChoiceRenderer;
+import org.apache.wicket.markup.html.form.DropDownChoice;
 import org.apache.wicket.markup.html.link.DownloadLink;
 import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.model.Model;
@@ -31,8 +34,10 @@ import org.apache.wicket.util.time.Duration;
 import org.sakaiproject.gradebookng.business.GbCategoryType;
 import org.sakaiproject.gradebookng.business.model.GbCourseGrade;
 import org.sakaiproject.gradebookng.business.model.GbGradeInfo;
+import org.sakaiproject.gradebookng.business.model.GbGroup;
 import org.sakaiproject.gradebookng.business.model.GbStudentGradeInfo;
 import org.sakaiproject.gradebookng.business.util.FormatHelper;
+import org.sakaiproject.gradebookng.tool.model.GradebookUiSettings;
 import org.sakaiproject.gradebookng.tool.panels.BasePanel;
 import org.sakaiproject.service.gradebook.shared.Assignment;
 import org.sakaiproject.service.gradebook.shared.CourseGrade;
@@ -62,6 +67,7 @@ public class ExportPanel extends BasePanel {
 	boolean includeLastLogDate = false;
 	boolean includeCalculatedGrade = false;
 	boolean includeGradeOverride = false;
+	GbGroup group;
 
 	public ExportPanel(final String id) {
 		super(id);
@@ -179,6 +185,34 @@ public class ExportPanel extends BasePanel {
 			}
 		});
 
+		this.group = new GbGroup(null, getString("groups.all"), null, GbGroup.Type.ALL);
+
+		final List<GbGroup> groups = this.businessService.getSiteSectionsAndGroups();
+		groups.add(0, this.group);
+		add(new DropDownChoice<GbGroup>("groupFilter", Model.of(this.group), groups, new ChoiceRenderer<GbGroup>() {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public Object getDisplayValue(final GbGroup g) {
+				return g.getTitle();
+			}
+
+			@Override
+			public String getIdValue(final GbGroup g, final int index) {
+				return g.getId();
+			}
+		}).add(new AjaxFormComponentUpdatingBehavior("onchange") {
+			@Override
+			protected void onUpdate(AjaxRequestTarget target) {
+				GbGroup value = (GbGroup) ((DropDownChoice) getComponent()).getDefaultModelObject();
+				if (value == null) {
+					ExportPanel.this.group = new GbGroup(null, getString("groups.all"), null, GbGroup.Type.ALL);
+				} else {
+					ExportPanel.this.group = (GbGroup) ((DropDownChoice) getComponent()).getDefaultModelObject();
+				}
+			}
+		}));
+
 		add(new DownloadLink("downloadFullGradebook", new LoadableDetachableModel<File>() {
 			private static final long serialVersionUID = 1L;
 
@@ -268,8 +302,14 @@ public class ExportPanel extends BasePanel {
 
 			csvWriter.writeNext(header.toArray(new String[] {}));
 
+			// apply section/group filter
+			final GradebookUiSettings settings = new GradebookUiSettings();
+			if (isCustomExport && !GbGroup.Type.ALL.equals(this.group.getType())) {
+				settings.setGroupFilter(this.group);
+			}
+
 			// get the grade matrix
-			final List<GbStudentGradeInfo> grades = this.businessService.buildGradeMatrix(assignments);
+			final List<GbStudentGradeInfo> grades = this.businessService.buildGradeMatrix(assignments, settings);
 
 			// add grades
 			grades.forEach(studentGradeInfo -> {

@@ -540,12 +540,7 @@ function printView(url) {
 						##attach the displayId
 						#set($submitterName=$submitterName.concat(" (").concat($submitterDisplayId).concat(")"))
 					#end
-					#set($submitTime=false)
-					#set($returnedTime=false)
-					#if ($!submission)## && $submission.submitted) 
-						#set($returnedTime = $submission.DateReturned)
-						#set($submitTime = $submission.DateSubmitted)
-
+					#if ($!submission)## && $submission.submitted)
 						## SAK-17606
 						#set($anonymousSubmissionId = $submission.getAnonymousSubmissionId())
 
@@ -659,8 +654,9 @@ function printView(url) {
 							#end
 							<td headers="submitted">
 									#if ($!submission)
-										#if ($!submitTime)$submitTime.toString() #end
-										#if ($!submitTime && $submitTime.after($assignment.DueDate))
+										#set($submitTime = $submission.DateSubmitted)
+										#if ($!submitTime) $!service.getUsersLocalDateTimeString($submitTime) #end
+										#if ($!submitTime && $submitTime.isAfter($assignment.DueDate))
 											<span class="highlight">$tlang.getString("gen.late2")</span> 
 										#end
 									#else
@@ -813,7 +809,7 @@ function printView(url) {
 				$tlang.getString("gen.creby")
 			</th>
 			<td>
-				$validator.escapeHtml($!creator) ($assignment.DateCreated.toString())
+				$validator.escapeHtml($!creator) ($!service.getUsersLocalDateTimeString($assignment.DateCreated))
 			</td>
 		</tr>
 		<tr>
@@ -821,7 +817,7 @@ function printView(url) {
 				$tlang.getString("gen.mod")
 			</th>
 			<td>
-				$assignment.DateModified.toString()
+				$!service.getUsersLocalDateTimeString($assignment.DateModified)
 			</td>
 		</tr>
 		<tr> 
@@ -829,7 +825,7 @@ function printView(url) {
 				$tlang.getString("gen.open")
 			</th>
 			<td>
-				$assignment.OpenDate.toString()
+				$!service.getUsersLocalDateTimeString($assignment.OpenDate)
 			</td>
 		</tr>
 		<tr> 
@@ -837,7 +833,7 @@ function printView(url) {
 					$tlang.getString("gen.due")
 			</th>
 			<td>
-				$assignment.DueDate.toString()
+				$!service.getUsersLocalDateTimeString($assignment.DueDate)
 			</td>
 		</tr>
 		#set ($closeDate = $assignment.CloseDate)
@@ -847,7 +843,7 @@ function printView(url) {
 					$tlang.getString("gen.acesubunt")
 				</th>
 				<td>
-					$closeDate.toString()
+					$!service.getUsersLocalDateTimeString($closeDate)
 				</td>
 			</tr>
 		#end

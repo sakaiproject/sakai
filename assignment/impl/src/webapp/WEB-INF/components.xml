@@ -48,6 +48,7 @@
         <property name="taggingManager" ref="org.sakaiproject.taggable.api.TaggingManager"/>
         <property name="toolManager" ref="org.sakaiproject.tool.api.ToolManager"/>
         <property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService"/>
+        <property name="userTimeService" ref="org.sakaiproject.time.api.UserTimeService"/>
     </bean>
 
     <bean id="org.sakaiproject.util.ResourceLoader.assignment"

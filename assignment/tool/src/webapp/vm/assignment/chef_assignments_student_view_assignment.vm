@@ -1,4 +1,4 @@
-<!-- start: check_assignments_student_view_assignment.vm -->
+<!-- start: chef_assignments_student_view_assignment.vm -->
 <script type="text/javascript">
     $(document).ready(function(){
         ASN.setupToggleAreas('toggleAnchor', 'toggledContent', false, 'fast');
@@ -30,7 +30,7 @@
 					$tlang.getString("gen.open")
 				</th>
 				<td>
-					$assignment.OpenDate.toString()
+					$!service.getUsersLocalDateTimeString($assignment.OpenDate)
 				</td>
 			</tr>
 			<tr>
@@ -38,7 +38,7 @@
 					$tlang.getString("viewassig.datcre")
 				</th>
 				<td>
-					$assignment.TimeCreated.toString()
+					$!service.getUsersLocalDateTimeString($assignment.DateCreated)
 				</td>
 			</tr>
 			<tr> 
@@ -46,8 +46,8 @@
 					$tlang.getString("gen.due")
 				</th>
 				<td>
-                    #if ($assignment.HideDueDate || $!allowUpdateAssignment)
-                        $!assignment.DueDate.toString()
+                    #if (!$assignment.HideDueDate || $!allowUpdateAssignment)
+                        $!service.getUsersLocalDateTimeString($!assignment.DueDate)
                     #end
 				</td>
 			</tr>
@@ -56,7 +56,7 @@
 					$tlang.getString("viewassig.datcre")
 				</th>
 				<td>
-					$assignment.TimeLastModified.toStringLocalFull()
+					$!service.getUsersLocalDateTimeString($assignment.DateModified)
 				</td>
 			</tr>
 			#set ($closeDate = $assignment.CloseDate)
@@ -66,7 +66,7 @@
 						$tlang.getString("gen.acesubunt")
 					</th>
 					<td>
-						$closeDate.toString()
+						$!service.getUsersLocalDateTimeString($closeDate)
 					</td>
 				</tr>
 			#end
@@ -277,7 +277,6 @@
 		#end
 	<form name="viewAssignmentsForm" action="#toolForm("AssignmentAction")" method="post">
 		<input type="hidden" name="assignmentId" value="$assignment.Reference" />
-		<input type="hidden" name="assignmentContentId" value="$assignment.ContentReference" />
 			<div class="act">
 				<input type="submit" name="eventSubmit_doCancel_student_view_assignment" value="$tlang.getString("gen.don")" onclick="SPNR.disableControlsAndSpin( this, null );" />
 			</div>

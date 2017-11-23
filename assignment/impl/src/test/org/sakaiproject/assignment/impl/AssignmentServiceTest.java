@@ -322,13 +322,13 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
         Instant now = Instant.now();
         assignment.setTitle("Assignment Week One");
         assignment.setSection("0001");
-        assignment.setOpenDate(Date.from(now));
-        assignment.setDueDate(Date.from(now.plus(Duration.ofDays(1))));
-        assignment.setDropDeadDate(Date.from(now.plus(Duration.ofDays(2))));
-        assignment.setCloseDate(Date.from(now.plus(Duration.ofDays(3))));
+        assignment.setOpenDate(now);
+        assignment.setDueDate(now.plus(Duration.ofDays(1)));
+        assignment.setDropDeadDate(now.plus(Duration.ofDays(2)));
+        assignment.setCloseDate(now.plus(Duration.ofDays(3)));
         Map<String, String> properties = assignment.getProperties();
         IntStream.range(0, 10).forEach(i -> properties.put("PROP_NAME_" + i, "PROP_VALUE_" + i));
-        AssignmentServiceConstants.PROPERTIES_EXCLUDED_FROM_DUPLICATE_ASSIGNMENTS.stream().forEach(p -> properties.put(p, p + "_VALUE"));
+        AssignmentServiceConstants.PROPERTIES_EXCLUDED_FROM_DUPLICATE_ASSIGNMENTS.forEach(p -> properties.put(p, p + "_VALUE"));
         assignment.setProperties(properties);
 
         when(securityService.unlock(AssignmentServiceConstants.SECURE_UPDATE_ASSIGNMENT, AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getReference())).thenReturn(true);
@@ -387,7 +387,7 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
             String reference = AssignmentReferenceReckoner.reckoner().submission(submission).reckon().getReference();
             when(securityService.unlock(AssignmentServiceConstants.SECURE_UPDATE_ASSIGNMENT_SUBMISSION, reference)).thenReturn(true);
             submission.setSubmitted(true);
-            submission.setDateSubmitted(Date.from(Instant.now()));
+            submission.setDateSubmitted(Instant.now());
             assignmentService.updateSubmission(submission);
             status = assignmentService.getSubmissionStatus(submission.getId());
             Assert.assertEquals("Submitted " + submission.getDateSubmitted().toString(), status);
