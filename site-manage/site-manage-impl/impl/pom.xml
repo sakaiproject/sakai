@@ -17,10 +17,11 @@
         <url>http://sakaiproject.org/</url>
     </organization>
     <inceptionYear>2003</inceptionYear>
-    <packaging>sakai-component</packaging>
+    <packaging>jar</packaging>
+    <!--packaging>sakai-component</packaging>
     <properties>
         <deploy.target>components</deploy.target>
-    </properties>
+    </properties-->
 
     <dependencies>
         <dependency>
@@ -112,10 +113,20 @@
         	<groupId>org.sakaiproject.entitybroker</groupId>
         	<artifactId>entitybroker-api</artifactId>
         </dependency>
-        
+
     </dependencies>
 
     <build>
+        <plugins>
+          <plugin>
+            <artifactId>maven-war-plugin</artifactId>
+            <version>3.0.0</version>
+            <configuration>
+                <attachClasses>true</attachClasses>
+                <classesClassifier>classes</classesClassifier>
+            </configuration>
+          </plugin>
+        </plugins>
         <resources>
             <resource>
                 <directory>${basedir}/src/bundle</directory>
