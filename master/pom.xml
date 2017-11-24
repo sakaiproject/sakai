@@ -136,7 +136,7 @@
 
     <!-- Sakai modules that are versioned separately -->
     <!-- lessonbuilder tool pom depends on msgcntr ver prop. Need to add a profile to the LB tool pom to mark change between 10.x master and earlier versions -->
-    <sakai.msgcntr.version>${sakai.version}</sakai.msgcntr.version> 
+    <sakai.msgcntr.version>${sakai.version}</sakai.msgcntr.version>
     <!-- Set the source encoding to avoid maven warnings -->
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <sakai.jdk.version>1.8</sakai.jdk.version>
@@ -803,7 +803,7 @@
          <artifactId>backport-util-concurrent</artifactId>
          <version>3.1</version>
          <scope>provided</scope>
-      </dependency> 
+      </dependency>
       <dependency>
         <groupId>jaxen</groupId>
         <artifactId>jaxen</artifactId>
@@ -845,7 +845,7 @@
         <artifactId>dumbster</artifactId>
         <version>1.6</version>
       </dependency>
-      
+
       <!-- KERNEL -->
       <dependency>
         <groupId>org.sakaiproject.kernel</groupId>
@@ -975,7 +975,7 @@
         <artifactId>pluto-taglib</artifactId>
         <version>${sakai.pluto.version}</version>
         <scope>provided</scope>
-      </dependency>    
+      </dependency>
       <!-- Job Scheduler deploys quartz to shared. -->
       <dependency>
         <groupId>org.quartz-scheduler</groupId>
@@ -1020,13 +1020,13 @@
         <artifactId>lucene-codecs</artifactId>
         <version>${sakai.lucene.version}</version>
         <scope>provided</scope>
-      </dependency>      
+      </dependency>
       <dependency>
         <groupId>org.apache.lucene</groupId>
         <artifactId>lucene-grouping</artifactId>
         <version>${sakai.lucene.version}</version>
         <scope>provided</scope>
-      </dependency>      
+      </dependency>
       <dependency>
         <groupId>org.apache.lucene</groupId>
         <artifactId>lucene-queries</artifactId>
@@ -1335,7 +1335,7 @@
         <artifactId>delegatedaccess-api</artifactId>
         <version>${sakai.version}</version>
         <scope>provided</scope>
-      </dependency> 
+      </dependency>
       <dependency>
         <groupId>org.sakaiproject.edu-services.course-management</groupId>
         <artifactId>coursemanagement-api</artifactId>
@@ -1388,7 +1388,7 @@
         <artifactId>hierarchy-api</artifactId>
         <version>${sakai.version}</version>
         <scope>provided</scope>
-      </dependency> 
+      </dependency>
       <dependency>
         <groupId>org.sakaiproject.mailarchive</groupId>
         <artifactId>sakai-mailarchive-api</artifactId>
@@ -2246,16 +2246,19 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-project-info-reports-plugin</artifactId>
+        <version>2.8</version>
       </plugin>
       <plugin>
         <!-- to do and deprecated tags report -->
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>taglist-maven-plugin</artifactId>
+        <version>2.4</version>
       </plugin>
       <!-- taglib plugin used to generate taglib jars during release -->
       <plugin>
         <groupId>net.sourceforge.maven-taglib</groupId>
         <artifactId>maven-taglib-plugin</artifactId>
+        <version>2.4</version>
       </plugin>
       <!-- javadoc plugin requires more than 1GB to run - disabling by default -->
       <!-- Disabled since it fails on OSX -https://jira.codehaus.org/browse/MCOBERTURA-180
