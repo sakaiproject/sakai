@@ -37,6 +37,7 @@ import org.apache.wicket.markup.head.StringHeaderItem;
 import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.spring.injection.annot.SpringBean;
+import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.portal.util.PortalUtils;
@@ -70,6 +71,9 @@ public class WidgetPage extends WebPage {
     @SpringBean(name = "org.sakaiproject.tool.api.ToolManager")
     private ToolManager toolManager;
 
+    @SpringBean(name = "org.sakaiproject.authz.api.SecurityService")
+    private SecurityService securityService;
+
     @SpringBean(name = "org.sakaiproject.site.api.SiteService")
     private SiteService siteService;
 
@@ -81,8 +85,14 @@ public class WidgetPage extends WebPage {
 
     public static final String SITE_MEMBERS_HIDE = "sitemembers.hide";
 
+    /**
+     * This permission gives admins the ability to hide students from roles on a site by site basis.
+     */
+    public static final String SITE_MEMBERS_ARE_STUDENTS_HIDDEN_FROM_ROLE = "sitemembers.arestudentshiddenfromrole";
+
     static {
         registerFunction(SITE_MEMBERS_HIDE);
+        registerFunction(SITE_MEMBERS_ARE_STUDENTS_HIDDEN_FROM_ROLE);
     }
 
     /**
@@ -144,7 +154,10 @@ public class WidgetPage extends WebPage {
         // Concat 3 list into 1
         finalList.addAll(instructors);
         finalList.addAll(tas);
-        finalList.addAll(students);
+
+        if (!securityService.unlock(SITE_MEMBERS_ARE_STUDENTS_HIDDEN_FROM_ROLE, currentSite.getReference())) {
+            finalList.addAll(students);
+        }
 
         // add instructors grid
         add(new ConnectionsGrid("roster", Model.ofList(finalList), cols, isCourse) {
