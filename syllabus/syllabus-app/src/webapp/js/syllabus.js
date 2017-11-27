@@ -65,7 +65,7 @@ function setupAccordion(iframId, isInstructor, msgs, openDataId){
 	if(isInstructor){
 		$( "#accordion span" ).sortable({
 			axis: "y",
-			handle: "h3",
+			handle: "h3 span.actionIcon",
 			start: function(event, ui){
 			dragStartIndex = ui.item.index();
 		},
