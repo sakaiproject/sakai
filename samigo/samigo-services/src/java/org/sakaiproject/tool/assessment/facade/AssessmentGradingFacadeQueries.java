@@ -2976,12 +2976,8 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 						" and c.retractDate <= :retractDate" +
 						" and a.status not in (5) and (a.hasAutoSubmissionRun = 0 or a.hasAutoSubmissionRun is null) and c.autoSubmit = 1 " +
 						" and a.attemptDate is not null " +
-						" and (a.attemptDate <= c.retractDate " +
-							" or (c.dueDate <= :dueDate and c.lateHandling = 2) " +
-						"     ) " +
 						" order by a.publishedAssessmentId, a.agentId, a.forGrade desc, a.assessmentGradingId");
 	    
-		query.setTimestamp("dueDate",currentTime);
 		query.setTimestamp("retractDate",currentTime);
 		
 		List<AssessmentGradingData> list = query.list();
@@ -3029,17 +3025,20 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
                     PublishedAssessmentFacade assessment = (PublishedAssessmentFacade) publishedAssessmentService.getAssessment(
                             adata.getPublishedAssessmentId());
                     Date dueDate = assessment.getAssessmentAccessControl().getDueDate();
+                    Date retractDate = assessment.getAssessmentAccessControl().getRetractDate();
                     ExtendedTimeDeliveryService assessmentExtended = new ExtendedTimeDeliveryService(assessment,
                             adata.getAgentId());
+
                     //If it has extended time, just continue for now, no method to tell if the time is passed
                     if (assessmentExtended.hasExtendedTime()) {
-                        //If the due date or retract date hasn't passed yet, go on to the next one, don't consider it yet
-                        if ((assessmentExtended.getRetractDate()!=null && currentTime.before(assessmentExtended.getRetractDate())) || (assessmentExtended.getDueDate() != null && currentTime.before(
-                                assessmentExtended.getDueDate()))) {
-                            continue;
-                        }
                         //Continue on and try to submit it but it may be late, just change the due date
                         dueDate = assessmentExtended.getDueDate();
+                        retractDate = assessmentExtended.getRetractDate();
+                    }
+
+                    //If the due date or retract date hasn't passed yet, go on to the next one, don't consider it yet
+                    if ((retractDate!=null && (currentTime.before(retractDate) || adata.getAttemptDate().after(retractDate))) || (dueDate != null && currentTime.before(dueDate))) {
+                        continue;
                     }
 
                     adata.setForGrade(Boolean.TRUE);
