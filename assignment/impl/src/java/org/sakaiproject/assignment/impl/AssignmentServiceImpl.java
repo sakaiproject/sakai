@@ -948,7 +948,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
 
                 if (assignment.getIsGroup()) {
                     Group group = site.getGroup(submitter);
-                    if (assignment.getGroups().contains(group.getReference())) {
+                    if (group != null && assignment.getGroups().contains(group.getReference())) {
                         for (Member member : group.getMembers()) {
                             AssignmentSubmissionSubmitter ass = new AssignmentSubmissionSubmitter();
                             ass.setSubmitter(member.getUserId());
@@ -2517,7 +2517,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
             Collection<Group> allowedGroups = getGroupsAllowFunction(SECURE_ACCESS_ASSIGNMENT, context, currentUserId);
             // reject and throw PermissionException if there is no intersection
             if (!allowAllGroups(context)
-                    && StringUtils.equals(assignment.getAuthor(), currentUserId)
+                    && !StringUtils.equals(assignment.getAuthor(), currentUserId)
                     && !CollectionUtils.containsAny(asgGroups, allowedGroups.stream().map(Group::getReference).collect(Collectors.toSet()))) {
                 throw new PermissionException(currentUserId, SECURE_ACCESS_ASSIGNMENT, assignment.getId());
             }
