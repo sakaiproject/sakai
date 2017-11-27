@@ -61,7 +61,7 @@ public class GradeLogPanel extends Panel {
 				final GbGradeLog gradeLog = item.getModelObject();
 
 				final String logDate = FormatHelper.formatDateTime(gradeLog.getDateGraded());
-				final String grade = FormatHelper.formatGrade(gradeLog.getGrade());
+				final String grade = gradeLog.getGrade();
 
 				final GbUser grader = GradeLogPanel.this.businessService.getUser(gradeLog.getGraderUuid());
 				final String graderDisplayId = (grader != null) ? grader.getDisplayId() : getString("unknown.user.id");
