@@ -28,6 +28,7 @@ import java.text.DecimalFormatSymbols;
 import java.text.NumberFormat;
 import java.time.Duration;
 import java.time.Instant;
+import java.time.Period;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Map;
@@ -340,6 +341,39 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
     }
 
     @Test
+    public void addAndGetGroupSubmission() {
+        String context = UUID.randomUUID().toString();
+        String groupSubmitter = UUID.randomUUID().toString();
+        String submitter1 = UUID.randomUUID().toString();
+        String submitter2 = UUID.randomUUID().toString();
+        Set<String> submitters = new HashSet<>();
+        submitters.add(submitter1);
+        submitters.add(submitter2);
+
+        try {
+            AssignmentSubmission savedSubmission = createNewGroupSubmission(context, groupSubmitter, submitters);
+            Assert.assertNotNull(savedSubmission);
+            Assert.assertNotNull(savedSubmission.getId());
+
+            AssignmentSubmission getSubmission = assignmentService.getSubmission(savedSubmission.getId());
+            Assert.assertNotNull(getSubmission);
+            Assert.assertNotNull(getSubmission.getId());
+
+            Assignment assignment = getSubmission.getAssignment();
+            Assert.assertNotNull(assignment.getId());
+            Assert.assertEquals(context, assignment.getContext());
+
+            Set<AssignmentSubmissionSubmitter> submissionSubmitters = getSubmission.getSubmitters();
+            Assert.assertEquals(2, submissionSubmitters.size());
+            submissionSubmitters.forEach(s -> Assert.assertTrue(submitters.contains(s.getSubmitter())));
+            Assert.assertEquals(1, submissionSubmitters.stream().filter(AssignmentSubmissionSubmitter::getSubmittee).collect(Collectors.toList()).size());
+            Assert.assertEquals(groupSubmitter, getSubmission.getGroupId());
+        } catch (Exception e) {
+            Assert.fail("Could not create submission, " + e.getMessage());
+        }
+    }
+
+    @Test
     public void removeSubmission() {
         String context = UUID.randomUUID().toString();
         String submitterId = UUID.randomUUID().toString();
@@ -506,6 +540,55 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
             Assert.fail(e.getMessage());
         }
         return submission;
+    }
+
+    private AssignmentSubmission createNewGroupSubmission(String context, String groupSubmitter, Set<String> submitters) throws UserNotDefinedException, IdUnusedException, PermissionException {
+
+        // Setup an Assignment for Group Submission
+        Assignment assignment = createNewAssignment(context);
+        assignment.setTypeOfAccess(Assignment.Access.GROUP);
+        assignment.setIsGroup(true);
+        assignment.setOpenDate(Instant.now().minus(Period.ofDays(1)));
+        String groupRef = "/site/" + context + "/group/" + groupSubmitter;
+        assignment.getGroups().add(groupRef);
+        String assignmentReference = AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getReference();
+        when(securityService.unlock(AssignmentServiceConstants.SECURE_UPDATE_ASSIGNMENT, assignmentReference)).thenReturn(true);
+        assignmentService.updateAssignment(assignment);
+
+        // configure mock group objects
+        Site site = mock(Site.class);
+        Group group = mock(Group.class);
+        when(group.getReference()).thenReturn(groupRef);
+        Collection<Group> groups = new HashSet<>();
+        groups.add(group);
+        when(site.getGroups()).thenReturn(groups);
+        when(site.getGroup(groupSubmitter)).thenReturn(group);
+        Set<Member> members = new HashSet<>();
+        submitters.forEach(s -> {
+                Member member = mock(Member.class);
+                when(member.getUserId()).thenReturn(s);
+                members.add(member);
+        });
+        when(group.getMembers()).thenReturn(members);
+        when(siteService.getSite(context)).thenReturn(site);
+        Set<String> groupRefs = groups.stream().map(Group::getReference).collect(Collectors.toSet());
+
+        // pick a submitter to be the current user
+        String currentUser = submitters.stream().findAny().get();
+        when(sessionManager.getCurrentSessionUserId()).thenReturn(currentUser);
+
+        // drop security to student permissions
+        when(authzGroupService.getAuthzGroupsIsAllowed(currentUser, AssignmentServiceConstants.SECURE_ACCESS_ASSIGNMENT, groupRefs)).thenReturn(groupRefs);
+        when(securityService.unlock(AssignmentServiceConstants.SECURE_ACCESS_ASSIGNMENT, groupSubmitter)).thenReturn(true);
+        when(securityService.unlock(AssignmentServiceConstants.SECURE_ADD_ASSIGNMENT, AssignmentReferenceReckoner.reckoner().context(context).reckon().getReference())).thenReturn(false);
+        when(securityService.unlock(AssignmentServiceConstants.SECURE_ADD_ASSIGNMENT_SUBMISSION, groupRef)).thenReturn(true);
+
+        try {
+            return assignmentService.addSubmission(assignment.getId(), groupSubmitter);
+        } catch (PermissionException e) {
+            Assert.fail(e.getMessage());
+        }
+        return null;
     }
 
     private Assignment createNewAssignment(String context) {
