@@ -1314,18 +1314,11 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 	 */
 	public List<User> searchUsers(String criteria, int first, int last)
 	{
-		//KNL-691 split term on whitespace and perform multiple searches, no duplicates will be returned
-		Set<User> users = new TreeSet<User>();
-		List<String> terms = Arrays.asList(StringUtils.split(criteria));
-		for(String term:terms){
-			users.addAll(m_storage.search(term, first, last));
-		}
-		
-		List<User> userList = new ArrayList<User>(users);
-		
+		List<User> userList = new ArrayList<>();
+		userList.addAll(m_storage.search(criteria, first, last));
 		//sort on sortName, default.
 		Collections.sort(userList);
-		
+
 		return userList;
 	}
 
@@ -3000,7 +2993,7 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 		 *        The last record position to return.
 		 * @return The List (BaseUserEdit) of all alias.
 		 */
-		public List search(String criteria, int first, int last);
+		public List<BaseUserEdit> search(String criteria, int first, int last);
 
 		/**
 		 * Count all the users with id or email, first or last name matching criteria.

@@ -300,7 +300,7 @@ public abstract class DbUserService extends BaseUserDirectoryService
 			super.removeResource(edit);
 		}
 
-		public List search(String criteria, int first, int last)
+		public List<BaseUserEdit> search(String criteria, int first, int last)
 		{
 			String search = "%" + criteria + "%";
 			Object[] fields = new Object[5];

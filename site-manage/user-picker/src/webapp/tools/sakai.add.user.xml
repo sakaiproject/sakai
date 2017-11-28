@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+
+<registration>
+	<tool id="sakai.add.user"
+		title="Add Users to Site"
+		description="Adds new users to a Sakai site">
+		<category name="sakai.helper" />
+		<configuration name="functions.require" value="site.upd" />
+	</tool>	
+</registration>

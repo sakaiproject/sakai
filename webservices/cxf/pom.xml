@@ -4,7 +4,6 @@
     <modelVersion>4.0.0</modelVersion>
 
     <name>Sakai Soap (CXF)</name>
-    <groupId>org.sakaiproject.webservices</groupId>
     <artifactId>sakai-ws</artifactId>
 
     <packaging>war</packaging>
@@ -41,6 +40,11 @@
             <groupId>org.apache.cxf</groupId>
             <artifactId>cxf-rt-transports-http</artifactId>
             <version>${cxf.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.codehaus.jackson</groupId>
+            <artifactId>jackson-jaxrs</artifactId>
+            <version>1.9.0</version>
         </dependency>
         <dependency>
             <groupId>org.apache.cxf</groupId>
@@ -126,6 +130,16 @@
           <artifactId>samigo-services</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.sakaiproject.userauditservice</groupId>
+            <artifactId>userauditservice-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.sakaiproject.sitemanage</groupId>
+            <artifactId>sakai-site-manage-api</artifactId>
+            <version>${sakai.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
           <groupId>org.quartz-scheduler</groupId>
           <artifactId>quartz</artifactId>
         </dependency> 
@@ -137,6 +151,10 @@
         <dependency>
             <groupId>commons-lang</groupId>
             <artifactId>commons-lang</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>commons-validator</groupId>
+            <artifactId>commons-validator</artifactId>
         </dependency>
         <dependency>
             <groupId>org.json</groupId>
@@ -197,6 +215,17 @@
             <artifactId>javax.servlet-api</artifactId>
             <version>3.0.1</version>
             <scope>test</scope>
+        </dependency>
+        <!-- Validation -->
+        <dependency>
+            <groupId>javax.validation</groupId>
+            <artifactId>validation-api</artifactId>
+            <version>1.1.0.Final</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.bval</groupId>
+            <artifactId>bval-jsr</artifactId>
+            <version>1.1.2</version>
         </dependency>
     </dependencies>
 
