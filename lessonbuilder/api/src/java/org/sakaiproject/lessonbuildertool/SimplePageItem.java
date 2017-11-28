@@ -63,6 +63,7 @@ public interface SimplePageItem {
     // custom css class for simple page item stored as {"customCssClass":"customclass1"} where customclass1 is defined by the user
     public static final String CUSTOMCSSCLASS = "customCssClass";
 
+    public static final String BUTTONCOLOR = "btnColor";
     // name of nameHidden JSON attribute
     public static final String NAMEHIDDEN = "namehidden";
 

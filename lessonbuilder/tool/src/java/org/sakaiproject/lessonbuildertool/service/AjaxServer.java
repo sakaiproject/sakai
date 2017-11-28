@@ -595,7 +595,7 @@ public class AjaxServer extends HttpServlet
 
     }
 
-    public static String setColumnProperties(String itemId, String width, String split, String color, String csrfToken) {
+    public static String setColumnProperties(String itemId, String width, String split, String forceBtn, String color, String csrfToken) {
 
 	if (itemId == null || width == null || split == null) {
 	    log.error("Ajax setColumnProperties passed null argument");
@@ -619,7 +619,7 @@ public class AjaxServer extends HttpServlet
 	if (color != null) {
 	    if (color.equals(""))
 		color = null;
-	    else if (!color.matches("^[a-z]*$")) {
+	    else if (!color.matches("^[a-z0-9-]*$")) {
 		log.error("Ajax setColumnProperties passwd unreasonable color");
 		return null;
 	    }
@@ -665,6 +665,7 @@ public class AjaxServer extends HttpServlet
 	else
 	    item.setAttribute("colcolor", color);
 
+	item.setAttribute("forceBtn", forceBtn);
 	simplePageToolDao.quickUpdate(item);
 	return "ok";
 
@@ -916,8 +917,9 @@ public class AjaxServer extends HttpServlet
 	  String width = req.getParameter("width");
 	  String split = req.getParameter("split");
 	  String color = req.getParameter("color");
+	  String forceBtn = req.getParameter("forceBtn");
 	  String csrfToken = req.getParameter("csrf");
-	  out.println(setColumnProperties(itemId, width, split, color, csrfToken));
+	  out.println(setColumnProperties(itemId, width, split, forceBtn, color, csrfToken));
 	  } else if (op.equals("setsectioncollapsible")) {
 	  String itemId = req.getParameter("itemid");
 	  String collapsible = req.getParameter("collapsible");

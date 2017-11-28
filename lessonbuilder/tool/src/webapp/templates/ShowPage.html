@@ -228,6 +228,7 @@
                 
 		<li rsf:id="remove-student" class="contentButton"><span><a role="button" href="#" rsf:id="remove-page-student" class="add-at-end remove-page"><span rsf:id="msg=simplepage.remove-page" role="menuitem"></span></a></span></li>
 
+                <li class="contentButton"><span><a role="menuitem button" aria-haspopup="dialog" aria-controls="layout-dialog"  href="#" rsf:id="layout-link" class="layout-link"><span rsf:id="msg=simplepage.layoutlinktext"></span></a></span></li>
                 <li class="contentButton"><span><a role="button" class="add-at-end" href="#" rsf:id="reorder"><span aria-hidden="true" class="fa-button-text"></span></a></span></li>
                 <li  class="contentButton">
                     <span rsf:id="title-descrip">
@@ -432,12 +433,17 @@
 			<h2 rsf:id="msg=simplepage.maincontent" class="offscreen" id="maintablelabel"></h2>
 <!-- WARNING: javascript for add-break-section adds section, ul, li, and sectionedit markup, so if you change here, keep it in sync -->
 			<div rsf:id="sectionWrapper:"><!-- start section wrapper -->
-			<h3 rsf:id="sectionHeader" id="sectionHeader" class="sectionHeader"><span rsf:id="sectionHeaderText" class="sectionHeaderText"></span><span rsf:id="sectionCollapsedIcon" class="sectionCollapsedIcon fa-bars" aria-hidden="true"></span><span class="toggleCollapse" rsf:id="msg=simplepage.clickToCollapse"></span><span aria-hidden="true" class="collapseIcon fa-toggle-up"></span></h3>
+			<h3 rsf:id="sectionHeader" id="sectionHeader" class="sectionHeader"><span aria-hidden="true" class="collapseIcon fa-caret-down"></span><span rsf:id="sectionHeaderText" class="sectionHeaderText"></span><span class="toggleCollapse" rsf:id="msg=simplepage.clickToCollapse"></span></h3>
 			<div rsf:id="section:" id="section" class="section">
 			<div rsf:id="column:" class="column">
 			  <div class="editsection">
-			  <span rsf:id="section-td" class="sectionedit"><h3 class="offscreen" rsf:id="break-msg"></h3><a role="button" rsf:id="section-del-link" href="#"  onclick="return false"><span aria-hidden="true" class="fa-compress fa-edit-icon"></span></a></span>
-			  <span rsf:id="section2" class="sectionedit sectionedit2"><a role="button" aria-haspopup="dialog" aria-controls="column-dialog" rsf:id="section3" href="#" class="columnopen"><span aria-hidden="true" class="fa-columns fa-edit-icon sectioneditfont"></span></a></span>
+			  <span rsf:id="section-td" class="sectionedit">
+                  <h3 class="offscreen" rsf:id="break-msg"></h3>
+                  <a role="button" rsf:id="section-del-link" href="#"  onclick="return false"><span aria-hidden="true" class="fa-compress fa-edit-icon"></span></a>
+              </span>
+			  <span rsf:id="section2" class="sectionedit sectionedit2">
+                  <a role="button" aria-haspopup="dialog" aria-controls="column-dialog" rsf:id="section3" href="#" class="columnopen" style="text-decoration: none;"><span aria-hidden="true" class="fa-cog fa-edit-icon sectioneditfont"></span></a>
+              </span>
 			  </div>
 			<span rsf:id="addbottom" class="sectionedit addbottom"><a role="button" aria-haspopup="dialog" aria-controls="addContentDiv" rsf:id="addbottom2" class="add-bottom" href="#" ><span aria-hidden="true" class="fa-plus fa-edit-icon plus-edit-icon"></span></a></span>
 
@@ -1122,6 +1128,10 @@
                     <label for="subpage-next"><span rsf:id="msg=simplepage.subpage-next"></span></label></p>
                     <p class="checkbox"><input type="checkbox" name="subpage-button" id="subpage-button" rsf:id="subpage-button" />
                     <label for="subpage-button"><span rsf:id="msg=simplepage.subpage-button"></span></label></p>
+                    <label for="subpage-btncolor" rsf:id="msg=simplepage.btncolor" id="subpage-buttonColorLabel"></label>
+                    <select rsf:id="subpage-btncolor" id="subpage-btncolor">
+                    </select>
+                    <p rsf:id="msg=simplepage.needbtn" id="subpage-needbtn" style="display: none"></p>
 
 		    <input type="hidden" rsf:id="subpage-add-before" id="subpage-add-before"/>
                     <div class="act">
@@ -1234,6 +1244,24 @@
                     </div>
 
                     <div id="stylingstuff" class="stylingstuff">
+                        <div class="row-no-margin edit-header">
+                            <span rsf:id="msg=simplepage.layoutstyle"></span>
+                        </div>
+                        <div class="row-no-margin pageItem">
+                            <input type="checkbox" name="item-button" id="item-button" rsf:id="item-button" />
+                            <label for="item-button" id="label-item-button"><span rsf:id="msg=simplepage.subpage-button"></span></label>
+                            <br />
+                            <div class="row-no-margin color-select-section">
+                                <label for="btncolor" rsf:id="msg=simplepage.btncolor" class="col-sm-1"id="buttonColorLabel"></label>
+                                <select rsf:id="btncolor" class="col-sm-2" id="btncolor">
+                                </select>
+                                <div class="col-sm-6">
+                                    <p rsf:id="msg=simplepage.forcebtn.forced" id="btncolor-forced" class="force-btn-msg" style="display: none"></p>
+                                    <p rsf:id="msg=simplepage.needbtn" id="needbtn" class="force-btn-msg" style="display: none;"></p>
+                                </div>
+                            </div>
+                            <br />
+                        </div>
                         <p class="shorttext">
                             <label for="indent-level"><span rsf:id="msg=simplepage.indent.level"/></label>
                             <select rsf:id="indent-level" name="indent-level" id="indent-level"/>
@@ -2178,39 +2206,199 @@
                     </p>
                 </form>
 			</div>
-	  <div id="column-dialog" class="controlsPanel lessonsDialog">
+
+            <div id="layout-dialog" rsf:id="layout-dialog" class="lessonsDialog Mrphs-sakai-lessonbuildertool">
+                <div class="ui-widget" id="layout-error-container">
+                    <div class="messageError">
+                        <p><span class="ui-icon ui-icon-alert" style="float: left; margin-right: .3em;"></span>
+                            <strong rsf:id="msg=simplepage.error_colon"></strong> <span id="layout-error"></span></p>
+                    </div>
+                </div>
+
+                <form action="#" rsf:id="layout-form" class="controlsPanel form">
+                    <input type="hidden" rsf:id="csrf28" />
+
+                    <h3><span rsf:id="msg=simplepage.layout.add.from.template"></span></h3>
+
+                    <div class="row row-no-margin">
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <h4><span rsf:id="msg=simplepage.layout.section.title"></span></h4>
+                                <label class="sr-only" for="layout-section-title"><span rsf:id="msg=simplepage.layout.section.title"></span></label>
+                                <input type="text" class="form-control" id="layout-section-title" rsf:id="layout-section-title" placeholder="Section Title" />
+                            </div>
+                            <div class="form-group">
+                                <h4><span rsf:id="msg=simplepage.layout.color.scheme"></span></h4>
+                                <label class="sr-only" for="layout-color-scheme"><span rsf:id="msg=simplepage.layout.color.scheme"></span></label>
+                                <select rsf:id="layout-color-scheme" id="layout-color-scheme">
+                                    <option rsf:id="schemes:"><span rsf:id="schemeLabel"></span></option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-4 col-md-offset-1">
+                            <h4><span rsf:id="msg=simplepage.layout.additional.options"></span></h4>
+
+                            <div class="form-group">
+                                <label><input rsf:id="layout-section-collapsible" id="layout-section-collapsible" type="checkbox" disabled="disabled" /> <span rsf:id="msg=simplepage.layout.section.collapsible"></span></label>
+                            </div>
+                            <div class="form-group">
+                                <label><input rsf:id="layout-section-start-collapsed" id="layout-section-start-collapsed" type="checkbox" disabled="disabled" /> <span rsf:id="msg=simplepage.layout.section.start.collapsed"></span></label>
+                            </div>
+                            <div class="form-group">
+                                <label><input rsf:id="layout-section-show-borders" id="layout-section-show-borders" type="checkbox" /> <span rsf:id="msg=simplepage.layout.show.borders"></span></label>
+                            </div>
+                            <div class="form-group">
+                                <input type="checkbox" rsf:id="layout-section-force-button-color" id="layout-section-force-button-color" />
+                                <label for="layout-section-force-button-color" rsf:id="msg=simplepage.forcebutton"></label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row row-no-margin">
+                        <span rsf:id="layout-select-layout"></span>
+                        <div class="col-md-12">
+                            <h4><span rsf:id="msg=simplepage.layout.select.layout"></span></h4>
+                        </div>
+                        <div class="col-md-3 col-sm-4">
+                            <div class="layout-option" style="border-color: darkblue;">
+                                <div>
+                                    <div class="col-xs-12" style="padding-left:2px;padding-right:2px;"><div class="addSectionTitleExample">
+                                        <span class="fa fa-caret-down pull-left collapsible-section" style="display:none;padding-top:2px;"></span>
+                                        <span class="addSectionTitleText"><span rsf:id="msg=simplepage.layout.section.title"></span></span>
+                                    </div></div>
+                                    <div class="col-xs-12" style="padding-left:2px;padding-right:2px;"><div class="addSectionColumn"><span rsf:id="msg=simplepage.layout.sample.text"></span></div></div>
+                                </div>
+                                <div class="caption">
+                                    <label><input rsf:id="layout-single" type="radio" name="layoutRadio" /> <span rsf:id="msg=simplepage.layout.single.column"></span></label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3 col-sm-4">
+                            <div class="layout-option">
+                                <div>
+                                    <div class="col-xs-12" style="padding-left:2px;padding-right:2px;"><div class="addSectionTitleExample">
+                                        <span class="fa fa-caret-down pull-left collapsible-section" style="display:none;padding-top:2px;"></span>
+                                        <span class="addSectionTitleText"><span rsf:id="msg=simplepage.layout.section.title"></span></span>
+                                    </div></div>
+                                    <div class="col-xs-6" style="padding-left:2px;padding-right:0;"><div class="addSectionColumn"><span rsf:id="msg=simplepage.layout.sample.text"></span></div></div>
+                                    <div class="col-xs-6" style="padding-left:0;padding-right:2px;"><div class="addSectionColumn"><span rsf:id="msg=simplepage.layout.sample.text"></span></div></div>
+                                </div>
+                                <div class="caption">
+                                    <label><input rsf:id="layout-two-equal" type="radio" name="layoutRadio" /> <span rsf:id="msg=simplepage.layout.two.columns"></span></label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3 col-sm-4">
+                            <div class="layout-option">
+                                <div>
+                                    <div class="col-xs-12" style="padding-left:2px;padding-right:2px;"><div class="addSectionTitleExample">
+                                        <span class="fa fa-caret-down pull-left collapsible-section" style="display:none;padding-top:2px;"></span>
+                                        <span class="addSectionTitleText"><span rsf:id="msg=simplepage.layout.section.title"></span></span>
+                                    </div></div>
+                                    <div class="col-xs-8" style="padding-left:2px;padding-right:0;"><div class="addSectionColumn"><span rsf:id="msg=simplepage.layout.sample.text"></span></div></div>
+                                    <div class="col-xs-4" style="padding-left:0;padding-right:2px;"><div class="addSectionColumn"><span rsf:id="msg=simplepage.layout.sample.text"></span></div></div>
+                                </div>
+                                <div class="caption">
+                                    <label><input rsf:id="layout-left-double" type="radio" name="layoutRadio" /> <span rsf:id="msg=simplepage.layout.double.left"></span></label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3 col-sm-4">
+                            <div class="layout-option">
+                                <div>
+                                    <div class="col-xs-12" style="padding-left:2px;padding-right:2px;"><div class="addSectionTitleExample">
+                                        <span class="fa fa-caret-down pull-left collapsible-section" style="display:none;padding-top:2px;"></span>
+                                        <span class="addSectionTitleText"><span rsf:id="msg=simplepage.layout.section.title"></span></span>
+                                    </div></div>
+                                    <div class="col-xs-4" style="padding-left:2px;padding-right:0;"><div class="addSectionColumn"><span rsf:id="msg=simplepage.layout.sample.text"></span></div></div>
+                                    <div class="col-xs-8" style="padding-left:0;padding-right:2px;"><div class="addSectionColumn"><span rsf:id="msg=simplepage.layout.sample.text"></span></div></div>
+                                </div>
+                                <div class="caption">
+                                    <label><input rsf:id="layout-right-double" type="radio" name="layoutRadio" /> <span rsf:id="msg=simplepage.layout.double.right"></span></label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3 col-sm-4">
+                            <div class="layout-option">
+                                <div>
+                                    <div class="col-xs-12" style="padding-left:2px;padding-right:2px;"><div class="addSectionTitleExample">
+                                        <span class="fa fa-caret-down pull-left collapsible-section" style="display:none;padding-top:2px;"></span>
+                                        <span class="addSectionTitleText"><span rsf:id="msg=simplepage.layout.section.title"></span></span>
+                                    </div></div>
+                                    <div class="col-xs-4" style="padding-left:2px;padding-right:0;"><div class="addSectionColumn"><span rsf:id="msg=simplepage.layout.sample.text"></span></div></div>
+                                    <div class="col-xs-4" style="padding-left:0;padding-right:0;"><div class="addSectionColumn"><span rsf:id="msg=simplepage.layout.sample.text"></span></div></div>
+                                    <div class="col-xs-4" style="padding-left:0;padding-right:2px;"><div class="addSectionColumn"><span rsf:id="msg=simplepage.layout.sample.text"></span></div></div>
+                                </div>
+                                <div class="caption">
+                                    <label><input rsf:id="layout-three-equal" type="radio" name="layoutRadio" /> <span rsf:id="msg=simplepage.layout.three.columns"></span></label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <p class="act">
+                        <input type="submit" rsf:id="layout-submit" class="btn btn-primary" />
+                        <input type="submit" rsf:id="layout-cancel" class="btn btn-link" />
+                    </p>
+
+                </form>
+            </div>
+
+	  <div id="column-dialog" rsf:id="column-dialog" class="controlsPanel lessonsDialog">
             <form rsf:id="column-dialog-form"  action="#" method="post" enctype="multipart/form-data">
-              <div class="">                  
+              <div class="">
                 <input type="hidden" name="columnitem" id="columnitem" />
+                <input type="hidden" name="isSection" id="isSection" />
 		<div>
-                  <span>
+            <div id="sectionSettings" style="display:none;">
+                <h3><span rsf:id="msg=simplepage.section.settings"></span></h3>
+                <label for="sectionTitle" rsf:id="msg=simplepage.sectionTitle"></label>
+                <input type="text" id="sectionTitle" /><br />
+
+                <input type="checkbox" id="collapsible" />
+                <label for="collapsible" rsf:id="msg=simplepage.collapsible"></label><br />
+
+                <span id="defaultClosedSpan"><input type="checkbox" id="defaultClosed" />
+                    <label for="defaultClosed" rsf:id="msg=simplepage.default.closed"></label></span>
+            </div>
+
+            <h3><span rsf:id="simplepage.column.settings"></span></h3>
                     <input type="checkbox" id="columndouble" />
                     <label for="columndouble"><span rsf:id="msg=simplepage.columndouble"></span></label><br />
 		    
                     <input type="checkbox" id="columnsplit" />
-                    <label for="columnsplit" rsf:id="msg=simplepage.columnsplit"></label><br />
-		    <select id="columnbackground">
+                    <label for="columnsplit" rsf:id="msg=simplepage.columnsplit"></label>
+
+            <h3 id="column-styling-header" style="display:none;"><span rsf:id="msg=simplepage.column.styling"></span></h3>
+            <h3 id="section-styling-header"><span rsf:id="msg=simplepage.section.styling"></span></h3>
+
+            <label for="columnbackground" rsf:id="msg=simplepage.columnbackground" id="columnColorLabel" style="display:none;"></label>
+            <label for="columnbackground" rsf:id="msg=simplepage.sectionbackground" id="sectionColorLabel"></label>
+            <select id="columnbackground">
 		      <option value="none" id="columnnone"><span rsf:id="msg=simplepage.columnnone">none</span></option>
-		      <option value="trans" id="columntrans"><span rsf:id="msg=simplepage.columntrans">transparent</span></option>
+		      <option value="ngray" id="columnnewgray"><span rsf:id="msg=simplepage.col.newgray"></span></option>
+		      <option value="nblack" id="columnnewblack"><span rsf:id="msg=simplepage.col.newblack"></span></option>
+		      <option value="nblue" id="columnnewblue"><span rsf:id="msg=simplepage.col.newblue"></span></option>
+		      <option value="nblue2" id="columnnewblue2"><span rsf:id="msg=simplepage.col.newblue2"></span></option>
+		      <option value="nred" id="columnnewred"><span rsf:id="msg=simplepage.col.newred"></span></option>
+		      <option value="nrudy" id="columnnewrudy"><span rsf:id="msg=simplepage.col.newrudy"></span></option>
+		      <option value="nnavy" id="columnnewnavy"><span rsf:id="msg=simplepage.col.newnavy"></span></option>
+		      <option value="nnavy2" id="columnnewnavy2"><span rsf:id="msg=simplepage.col.newnavy2"></span></option>
+		      <option value="ngreen" id="columnnewgreen"><span rsf:id="msg=simplepage.col.newgreen"></span></option>
 		      <option value="gray" id="columngray"><span rsf:id="msg=simplepage.columngray">gray</span></option>
 		      <option value="red" id="columnred"><span rsf:id="msg=simplepage.columnred">red</span></option>
 		      <option value="blue" id="columnblue"><span rsf:id="msg=simplepage.columnblue">blue</span></option>
 		      <option value="green" id="columngreen"><span rsf:id="msg=simplepage.columngreen">green</span></option>
 		      <option value="yellow" id="columnyellow"><span rsf:id="msg=simplepage.columnyellow">yellow</span></option>
 		    </select>
-                    <label for="columnbackground" rsf:id="msg=simplepage.columnbackground"></label><br />
+            <br />
 
-                    <br />
-                    <label for="sectionTitle" rsf:id="msg=simplepage.sectionTitle"></label>
-                    <input type="text" id="sectionTitle" /><br />
+            <input type="checkbox" id="force-button-color" />
+            <label for="force-button-color" rsf:id="msg=simplepage.forcebutton"></label>
+            <br />
 
-                    <input type="checkbox" id="collapsible" />
-                    <label for="collapsible" rsf:id="msg=simplepage.collapsible"></label><br />
-
-                    <span id="defaultClosedSpan"><input type="checkbox" id="defaultClosed" />
-                    <label for="defaultClosed" rsf:id="msg=simplepage.default.closed"></label></span>
-
-                  </span>
+            <input type="checkbox" id="show-borders" />
+            <label for="show-borders" rsf:id="msg=simplepage.layout.show.borders"></label>
 		</div>
 		<p class="act">
                   <input rsf:id="column-submit"  class="bold" type="submit" id="column-submit" />
