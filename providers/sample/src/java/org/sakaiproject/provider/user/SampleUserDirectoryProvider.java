@@ -25,9 +25,14 @@ import java.text.DecimalFormat;
 import java.util.Collection;
 import java.util.Hashtable;
 import java.util.Iterator;
+import java.util.List;
+import java.util.Objects;
 import java.util.Vector;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.sakaiproject.user.api.DisplayAdvisorUDP;
+import org.sakaiproject.user.api.ExternalUserSearchUDP;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryProvider;
 import org.sakaiproject.user.api.UserEdit;
@@ -42,7 +47,7 @@ import org.slf4j.LoggerFactory;
  * SampleUserDirectoryProvider is a samaple UserDirectoryProvider.
  * </p>
  */
-public class SampleUserDirectoryProvider implements UserDirectoryProvider, UsersShareEmailUDP, DisplayAdvisorUDP
+public class SampleUserDirectoryProvider implements UserDirectoryProvider, UsersShareEmailUDP, DisplayAdvisorUDP, ExternalUserSearchUDP
 {
 	private static final String USER_PROP_CANDIDATE_ID = "candidateID";
 	private static final String USER_PROP_ADDITIONAL_INFO = "additionalInfo";
@@ -203,6 +208,12 @@ public class SampleUserDirectoryProvider implements UserDirectoryProvider, Users
 			this.email = email;
 		}
 
+		boolean contains(CharSequence sequence)
+		{
+			return id.contains(sequence) || firstName.contains(sequence) || lastName.contains(sequence)
+				|| email.contains(sequence);
+		}
+
 	} // class info
 
 	/**
@@ -354,18 +365,31 @@ public class SampleUserDirectoryProvider implements UserDirectoryProvider, Users
 	{
 		Collection<UserEdit> rv = new Vector<>();
 
-		// get a UserEdit to populate
-		UserEdit edit = factory.newUser();
-
 		int pos = email.indexOf(EMAIL_DOMAIN);
 		if (pos != -1)
 		{
+			// get a UserEdit to populate
 			String id = email.substring(0, pos);
-			edit.setEid(id);
+			UserEdit edit = factory.newUser(id);
 			if (getUser(edit)) rv.add(edit);
 		}
 
 		return rv;
+	}
+
+	@Override
+	public List<UserEdit> searchExternalUsers(String criteria, int first, int last, UserFactory factory) {
+		Stream<Info> stream = m_info.values().stream().filter(i -> i.contains(criteria));
+		if (first != -1) {
+			stream = stream.skip(first);
+		}
+		if (last != -1) {
+			stream = stream.limit(last-first+1);
+		}
+		return stream.map(i -> {
+			UserEdit edit = factory.newUser(i.id);
+			return getUser(edit)?edit:null;
+		}).filter(Objects::nonNull).collect(Collectors.toList());
 	}
 
 	/**
