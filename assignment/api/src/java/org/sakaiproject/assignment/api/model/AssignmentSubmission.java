@@ -102,7 +102,7 @@ public class AssignmentSubmission {
     // TODO combine attachments and feedbackAttachements into a single table
     @ElementCollection
     @Column(name = "FEEDBACK_ATTACHMENT")
-    @CollectionTable(name = "ASN_SUBMISSION_FEEDBACK_ATTACHMENTS", joinColumns = @JoinColumn(name = "SUBMISSION_ID"))
+    @CollectionTable(name = "ASN_SUBMISSION_FEEDBACK_ATTACH", joinColumns = @JoinColumn(name = "SUBMISSION_ID"))
     private Set<String> feedbackAttachments = new HashSet<>();
 
     @Lob
