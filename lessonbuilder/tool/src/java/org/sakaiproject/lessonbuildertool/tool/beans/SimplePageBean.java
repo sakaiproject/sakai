@@ -373,6 +373,12 @@ public class SimplePageBean {
 	private String twitterUsername;
 	private String twitterWidgetHeight;
 
+	private String layoutSectionTitle;
+	private boolean layoutSectionCollapsible = false;
+	private boolean layoutSectionStartCollapsed = false;
+	private boolean layoutSectionShowBorders = true;
+	private String layoutSelect;
+
         // SAK-41846 - Counters to adjust item sequences when multiple files are added simultaneously
         private int totalMultimediaFilesToAdd = 0;
         private int remainingMultimediaFilesToAdd = 0;
@@ -1060,6 +1066,47 @@ public class SimplePageBean {
 
 	public void setTwitterWidgetHeight(String twitterWidgetHeight) {
 		this.twitterWidgetHeight = twitterWidgetHeight;
+	}
+
+
+	public String getLayoutSectionTitle() {
+		return layoutSectionTitle;
+	}
+
+	public void setLayoutSectionTitle(String layoutSectionTitle) {
+		this.layoutSectionTitle = layoutSectionTitle;
+	}
+
+	public boolean isLayoutSectionCollapsible() {
+		return layoutSectionCollapsible;
+	}
+
+	public void setLayoutSectionCollapsible(boolean layoutSectionCollapsible) {
+		this.layoutSectionCollapsible = layoutSectionCollapsible;
+	}
+
+	public boolean isLayoutSectionStartCollapsed() {
+		return layoutSectionStartCollapsed;
+	}
+
+	public void setLayoutSectionStartCollapsed(boolean layoutSectionStartCollapsed) {
+		this.layoutSectionStartCollapsed = layoutSectionStartCollapsed;
+	}
+
+	public boolean isLayoutSectionShowBorders() {
+		return layoutSectionShowBorders;
+	}
+
+	public void setLayoutSectionShowBorders(boolean layoutSectionShowBorders) {
+		this.layoutSectionShowBorders = layoutSectionShowBorders;
+	}
+
+	public String getLayoutSelect() {
+		return layoutSelect;
+	}
+
+	public void setLayoutSelect(String layoutSelect) {
+		this.layoutSelect = layoutSelect;
 	}
 
     // hibernate interposes something between us and saveItem, and that proxy gets an
@@ -4524,6 +4571,47 @@ public class SimplePageBean {
 		}else {
 			return null;
 		}
+	}
+
+	public String addLayout() {
+		if (!canEditPage()) {
+			return "permission-fail";
+		}
+		if (!checkCsrf()) {
+			return "permission-fail";
+		}
+
+		SimplePageItem newSection = appendItem("", this.layoutSectionTitle, SimplePageItem.BREAK);
+		newSection.setFormat("section");
+		if (this.layoutSectionCollapsible) {
+			newSection.setAttribute("collapsible", "1");
+		}
+		if (this.layoutSectionStartCollapsed) {
+			newSection.setAttribute("defaultClosed", "1");
+		}
+		if (StringUtils.equals(this.layoutSelect, "left-double")) {
+			newSection.setAttribute("colwidth", "2");
+		}
+		saveOrUpdate(newSection);
+
+		if (!StringUtils.equals(this.layoutSelect, "single-column")) {
+			SimplePageItem col1 = appendItem("-" + newSection.getId(), "", SimplePageItem.BREAK);
+			col1.setFormat("column");
+			if (StringUtils.equals(this.layoutSelect, "right-double")) {
+				col1.setAttribute("colwidth", "2");
+			}
+			saveOrUpdate(col1);
+
+			if (StringUtils.equals(this.layoutSelect, "three-equal")) {
+				SimplePageItem col2 = appendItem("-" + col1.getId(), "", SimplePageItem.BREAK);
+				col2.setFormat("column");
+				saveOrUpdate(col2);
+			}
+		}
+
+		setTopRefresh();
+
+		return "success";
 	}
 
 	public String addPages()  {

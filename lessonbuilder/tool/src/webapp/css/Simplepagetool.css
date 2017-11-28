@@ -2123,3 +2123,29 @@ form#revise[action$=dfReviseForumSettingsAttach] #forum_grading {
     padding: 3px 0 3px 6px;
   }
 }
+
+.layout-option {
+    border: 1px solid #025aa5;
+    padding: 4px;
+}
+.layout-option:hover {
+    cursor: pointer;
+}
+.addSectionTitleExample {
+    border:1px solid #ccc;
+    background:white;
+    color:black;
+    padding:4px;
+}
+
+.addSectionTitleText {
+    display: block;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+}
+
+.addSectionColumn {
+    border:1px solid #aaa;
+    height:150px;
+}

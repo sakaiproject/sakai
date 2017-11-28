@@ -361,6 +361,14 @@ $(document).ready(function() {
 			draggable: false
 		});
 
+        $('#layout-dialog').dialog({
+            autoOpen: false,
+            width: modalDialogWidth(),
+            modal: true,
+            resizable: false,
+            draggable: false
+        });
+
 		$('#addContentDiv').dialog({
 			autoOpen: false,
 			modal: false,
@@ -401,7 +409,7 @@ $(document).ready(function() {
 			var modalDialogList = ['#subpage-dialog', '#edit-item-dialog', '#edit-multimedia-dialog',
 			'#add-multimedia-dialog', '#edit-title-dialog', '#new-page-dialog', '#remove-page-dialog',
 			'#youtube-dialog', '#movie-dialog', '#import-cc-dialog', '#export-cc-dialog',
-		        '#comments-dialog', '#student-dialog', '#question-dialog', '#delete-confirm'];
+		        '#comments-dialog', '#student-dialog', '#question-dialog', '#layout-dialog', '#delete-confirm'];
 			for (var i = 0; i < modalDialogList.length; i++) {
 				$(modalDialogList[i]).dialog("option", "width", modalDialogWidth());
 			}
@@ -1534,6 +1542,76 @@ $(document).ready(function() {
 			$("#grouplist").show();
 		    });
 
+		$('.layout-link').click(function() {
+            oldloc = $(this);
+            closeDropdowns();
+            $('li').removeClass('editInProgress');
+
+            $('#layout-error-container').hide();
+
+            $('#layout-dialog').dialog('open');
+            setupdialog($('#layout-dialog'));
+            return false;
+		});
+
+		$('.layout-option').click(function() {
+			$('.layout-option').each(function(){
+				$(this).css('border-color', '#fff');
+			});
+			$(this).css('border-color', '#025aa5');
+			$(this).find("input:radio").prop('checked', true);
+		});
+
+		$('#addStylingChoice').on('change', function(){
+			var colorChoice = $(this).val();
+			$('.addSectionTitleExample').each(function(){
+				$(this).css('background-color', colorChoice);
+                $(this).css('border-color', colorChoice);
+                $(this).css('color', 'white');
+			});
+		});
+
+        $('#layout-section-collapsible').on('change', function(){
+            $('span.collapsible-section').toggle();
+            if(!$(this).is(':checked')) {
+                $('#layout-section-start-collapsed').prop('checked', false);
+            }
+        });
+
+        $('#layout-section-start-collapsed').on('change', function(){
+            if($(this).is(':checked')) {
+                $('#layout-section-collapsible').prop('checked', true);
+                $('span.collapsible-section').show();
+            }
+        });
+
+        $('#layout-section-title').on('keyup', function(){
+            var sectionTitle = $(this).val();
+            var collapsibleInput = $('#layout-section-collapsible');
+            $('.addSectionTitleText').text(sectionTitle);
+            collapsibleInput.prop('disabled', !sectionTitle);
+            $('#layout-section-start-collapsed').prop('disabled', !sectionTitle);
+            if (!sectionTitle) {
+                $('span.collapsible-section').hide();
+            } else if (collapsibleInput.is(':checked')) {
+                $('span.collapsible-section').show();
+            }
+        });
+
+        $('#layout-section-show-borders').on('change', function(){
+            if($(this).is(':checked')) {
+                $('.addSectionColumn').each(function(){
+                    $(this).css('border-color', '#aaa');
+                    $(this).css('border-style', 'solid');
+                });
+            } else {
+                $('.addSectionColumn').each(function(){
+                    $(this).css('border-color', '#ddd');
+                    $(this).css('border-style', 'dashed');
+                });
+            }
+        });
+
 		$('#add-comments-link').click(function() {
 			$("#comments-addBefore").val(addAboveItem);
                         $("#add-comments").click();
@@ -2281,7 +2359,8 @@ $(document).ready(function() {
 				$('#add-twitter-dialog').dialog('isOpen')||
 				$('#column-dialog').dialog('isOpen') ||
 			        $('#student-dialog').dialog('isOpen') ||
-			        $('#question-dialog').dialog('isOpen'))) {
+			        $('#question-dialog').dialog('isOpen') ||
+					$('#layout-dialog').dialog('isOpen'))) {
 		    unhideMultimedia();
                     $('.edit-col').removeClass('edit-colHidden');
                     $('div.item').removeClass('editInProgress');
@@ -2828,6 +2907,11 @@ function closeStudentDialog() {
 
 function closeQuestionDialog() {
 	$('#question-dialog').dialog('close');
+	oldloc.focus();
+}
+
+function closeLayoutDialog() {
+	$('#layout-dialog').dialog('close');
 	oldloc.focus();
 }
 

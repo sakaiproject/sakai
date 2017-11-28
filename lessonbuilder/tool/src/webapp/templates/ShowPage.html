@@ -228,6 +228,7 @@
                 
 		<li rsf:id="remove-student" class="contentButton"><span><a role="button" href="#" rsf:id="remove-page-student" class="add-at-end remove-page"><span rsf:id="msg=simplepage.remove-page" role="menuitem"></span></a></span></li>
 
+                <li class="contentButton"><span><a role="menuitem button" aria-haspopup="dialog" aria-controls="layout-dialog"  href="#" rsf:id="layout-link" class="layout-link"><span rsf:id="msg=simplepage.layoutlinktext"></span></a></span></li>
                 <li class="contentButton"><span><a role="button" class="add-at-end" href="#" rsf:id="reorder"><span aria-hidden="true" class="fa-button-text"></span></a></span></li>
                 <li  class="contentButton">
                     <span rsf:id="title-descrip">
@@ -2172,6 +2173,145 @@
                     </p>
                 </form>
 			</div>
+
+            <div id="layout-dialog" rsf:id="layout-dialog" class="lessonsDialog">
+                <div class="ui-widget" id="layout-error-container">
+                    <div class="messageError">
+                        <p><span class="ui-icon ui-icon-alert" style="float: left; margin-right: .3em;"></span>
+                            <strong rsf:id="msg=simplepage.error_colon"></strong> <span id="layout-error"></span></p>
+                    </div>
+                </div>
+
+                <form action="#" rsf:id="layout-form" class="controlsPanel form">
+                    <input type="hidden" rsf:id="csrf28" />
+
+                    <h3>Add Layout From Template</h3>
+
+                    <div class="row" style="margin-left:0;margin-right:0">
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <h4>Section Title</h4>
+                                <label class="sr-only" for="addSectionTitle">Section Title</label>
+                                <input type="text" class="form-control" id="layout-section-title" rsf:id="layout-section-title" placeholder="Section Title" />
+                            </div>
+                            <div class="form-group">
+                                <h4>Styling</h4>
+                                <label class="sr-only" for="addStylingChoice">Styling</label>
+                                <select class="form-control" id="addStylingChoice">
+                                    <option value="none">Default</option>
+                                    <option value="gray">Gray</option>
+                                    <option value="red">Red</option>
+                                    <option value="blue">Blue</option>
+                                    <option value="green">Green</option>
+                                    <option value="yellow">Yellow</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-4 col-md-offset-1">
+                            <h4>Additional Options</h4>
+
+                            <div class="form-group">
+                                <label><input rsf:id="layout-section-collapsible" id="layout-section-collapsible" type="checkbox" disabled="disabled" /> Make Section Collapsible</label>
+                            </div>
+                            <div class="form-group">
+                                <label><input rsf:id="layout-section-start-collapsed" id="layout-section-start-collapsed" type="checkbox" disabled="disabled" /> Start Section Collapsed</label>
+                            </div>
+                            <div class="form-group">
+                                <label><input rsf:id="layout-section-show-borders" id="layout-section-show-borders" type="checkbox" /> Show Borders</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row" style="margin-left:0;margin-right:0">
+                        <span rsf:id="layout-select-layout" />
+                        <div class="col-md-12">
+                            <h4>Select Layout</h4>
+                        </div>
+                        <div class="col-md-3 col-sm-4">
+                            <div class="layout-option" style="border:2px solid darkblue; padding:4px;">
+                                <div style="padding:8px;">
+                                    <div class="col-xs-12" style="padding-left:2px;padding-right:2px;"><div class="addSectionTitleExample">
+                                        <span class="fa fa-caret-square-o-up pull-right collapsible-section" style="display:none;"></span>
+                                        <span class="addSectionTitleText">Section Title</span>
+                                    </div></div>
+                                    <div class="col-xs-12" style="padding-left:2px;padding-right:2px;"><div class="addSectionColumn"></div></div>
+                                </div>
+                                <div class="caption">
+                                    <label><input rsf:id="layout-single" type="radio" name="layoutRadio" /> Single column section</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3 col-sm-4">
+                            <div class="layout-option" style="border:2px solid white; padding:4px;">
+                                <div style="padding:8px;">
+                                    <div class="col-xs-12" style="padding-left:2px;padding-right:2px;"><div class="addSectionTitleExample">
+                                        <span class="fa fa-caret-square-o-up pull-right collapsible-section" style="display:none;"></span>
+                                        <span class="addSectionTitleText">Section Title</span>
+                                    </div></div>
+                                    <div class="col-xs-6" style="padding-left:2px;padding-right:0;"><div class="addSectionColumn"></div></div>
+                                    <div class="col-xs-6" style="padding-left:0;padding-right:2px;"><div class="addSectionColumn"></div></div>
+                                </div>
+                                <div class="caption">
+                                    <label><input rsf:id="layout-two-equal" type="radio" name="layoutRadio" /> Two equal columns</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3 col-sm-4">
+                            <div class="layout-option" style="border:2px solid white; padding:4px;">
+                                <div style="padding:8px;">
+                                    <div class="col-xs-12" style="padding-left:2px;padding-right:2px;"><div class="addSectionTitleExample">
+                                        <span class="fa fa-caret-square-o-up pull-right collapsible-section" style="display:none;"></span>
+                                        <span class="addSectionTitleText">Section Title</span>
+                                    </div></div>
+                                    <div class="col-xs-8" style="padding-left:2px;padding-right:0;"><div class="addSectionColumn"></div></div>
+                                    <div class="col-xs-4" style="padding-left:0;padding-right:2px;"><div class="addSectionColumn"></div></div>
+                                </div>
+                                <div class="caption">
+                                    <label><input rsf:id="layout-left-double" type="radio" name="layoutRadio" /> Two columns - double width left</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3 col-sm-4">
+                            <div class="layout-option" style="border:2px solid white; padding:4px;">
+                                <div style="padding:8px;">
+                                    <div class="col-xs-12" style="padding-left:2px;padding-right:2px;"><div class="addSectionTitleExample">
+                                        <span class="fa fa-caret-square-o-up pull-right collapsible-section" style="display:none;"></span>
+                                        <span class="addSectionTitleText">Section Title</span>
+                                    </div></div>
+                                    <div class="col-xs-4" style="padding-left:2px;padding-right:0;"><div class="addSectionColumn"></div></div>
+                                    <div class="col-xs-8" style="padding-left:0;padding-right:2px;"><div class="addSectionColumn"></div></div>
+                                </div>
+                                <div class="caption">
+                                    <label><input rsf:id="layout-right-double" type="radio" name="layoutRadio" /> Two columns - double width right</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3 col-sm-4">
+                            <div class="layout-option" style="border:2px solid white; padding:4px;">
+                                <div style="padding:8px;">
+                                    <div class="col-xs-12" style="padding-left:2px;padding-right:2px;"><div class="addSectionTitleExample">
+                                        <span class="fa fa-caret-square-o-up pull-right collapsible-section" style="display:none;"></span>
+                                        <span class="addSectionTitleText">Section Title</span>
+                                    </div></div>
+                                    <div class="col-xs-4" style="padding-left:2px;padding-right:0;"><div class="addSectionColumn"></div></div>
+                                    <div class="col-xs-4" style="padding-left:0;padding-right:0;"><div class="addSectionColumn"></div></div>
+                                    <div class="col-xs-4" style="padding-left:0;padding-right:2px;"><div class="addSectionColumn"></div></div>
+                                </div>
+                                <div class="caption">
+                                    <label><input rsf:id="layout-three-equal" type="radio" name="layoutRadio" /> Three equal columns</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <p class="act">
+                        <input type="submit" rsf:id="layout-submit" class="btn btn-primary" />
+                        <input type="submit" rsf:id="layout-cancel" class="btn btn-link" />
+                    </p>
+
+                </form>
+            </div>
+
 	  <div id="column-dialog" class="controlsPanel lessonsDialog">
             <form rsf:id="column-dialog-form"  action="#" method="post" enctype="multipart/form-data">
               <div class="">                  

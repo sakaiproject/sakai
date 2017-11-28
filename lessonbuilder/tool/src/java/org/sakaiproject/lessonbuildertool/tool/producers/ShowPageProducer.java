@@ -3603,6 +3603,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		createQuestionDialog(tofill, currentPage);
 		createTwitterDialog(tofill, currentPage);
 		createForumSummaryDialog(tofill, currentPage);
+		createLayoutDialog(tofill, currentPage);
 		createDeleteItemDialog(tofill, currentPage);
 		createAnnouncementsDialog(tofill, currentPage);
 		createColumnDialog(tofill, currentPage);
@@ -4162,6 +4163,10 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 
 		// right side
 		createToolBarLink(ReorderProducer.VIEW_ID, toolBar, "reorder", "simplepage.reorder", currentPage, "simplepage.reorder-tooltip");
+
+		UIComponent layoutlink = UIInternalLink.makeURL(tofill, "layout-link", "#");
+		layoutlink.decorate(new UITooltipDecorator(messageLocator.getMessage("simplepage.layout-descrip")));
+
 
 		// add content menu
 		createToolBarLink(EditPageProducer.VIEW_ID, tofill, "add-text1", null, currentPage, "simplepage.text.tooltip").setItemId(null);
@@ -5158,6 +5163,31 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		UICommand.make(form, "delete-question-item", messageLocator.getMessage("simplepage.delete"), "#{simplePageBean.deleteItem}");
 		UICommand.make(form, "update-question", messageLocator.getMessage("simplepage.edit"), "#{simplePageBean.updateQuestion}");
 		UICommand.make(form, "cancel-question", messageLocator.getMessage("simplepage.cancel"), null);
+	}
+
+	private void createLayoutDialog(UIContainer tofill, SimplePage currentPage) {
+		UIOutput.make(tofill, "layout-dialog").decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.add_layout")));
+
+		UIForm form = UIForm.make(tofill, "layout-form");
+		makeCsrf(form, "csrf28");
+
+		UIInput.make(form, "layout-section-title", "#{simplePageBean.layoutSectionTitle}");
+		//UIInput.make(form, "layout-section-styling", "#{simplePageBean.layoutSectionStyling}");
+		UIBoundBoolean.make(form, "layout-section-collapsible", "#{simplePageBean.layoutSectionCollapsible}", false);
+		UIBoundBoolean.make(form, "layout-section-start-collapsed", "#{simplePageBean.layoutSectionStartCollapsed}", false);
+		UIBoundBoolean.make(form, "layout-section-show-borders", "#{simplePageBean.layoutSectionShowBorders}", true);
+
+		UISelect layouts = UISelect.make(form, "layout-select-layout",
+				new String[] {"single-column", "two-equal", "left-double", "right-double", "three-equal"},
+				"#{simplePageBean.layoutSelect}", "single-column");
+		UISelectChoice.make(form, "layout-single", layouts.getFullID(), 0);
+		UISelectChoice.make(form, "layout-two-equal", layouts.getFullID(), 1);
+		UISelectChoice.make(form, "layout-left-double", layouts.getFullID(), 2);
+		UISelectChoice.make(form, "layout-right-double", layouts.getFullID(), 3);
+		UISelectChoice.make(form, "layout-three-equal", layouts.getFullID(), 4);
+
+		UICommand.make(form, "layout-submit", messageLocator.getMessage("simplepage.add_layout"), "#{simplePageBean.addLayout}");
+		UICommand.make(form, "layout-cancel", messageLocator.getMessage("simplepage.cancel"), "#{simplePageBean.cancel}");
 	}
 
 	private void createDeleteItemDialog(UIContainer tofill, SimplePage currentPage) {
