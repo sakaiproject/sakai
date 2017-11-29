@@ -117,7 +117,6 @@ import org.sakaiproject.entitybroker.util.SakaiToolData;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.LearningResourceStoreService;
 import org.sakaiproject.event.api.LearningResourceStoreService.LRS_Actor;
-import org.sakaiproject.event.api.LearningResourceStoreService.LRS_Context;
 import org.sakaiproject.event.api.LearningResourceStoreService.LRS_Object;
 import org.sakaiproject.event.api.LearningResourceStoreService.LRS_Result;
 import org.sakaiproject.event.api.LearningResourceStoreService.LRS_Statement;
@@ -9893,9 +9892,7 @@ private String editorRows;
         User studentUser = UserDirectoryService.getUser(studentUid);
         LRS_Actor student = new LRS_Actor(studentUser.getEmail());
         student.setName(studentUser.getDisplayName());
-        LRS_Context context = new LRS_Context(instructor);
-        context.setActivity("other", "assignment");
-        LRS_Statement statement = new LRS_Statement(student, verb, lrsObject, getLRS_Result(score), context);
+        LRS_Statement statement = new LRS_Statement(student, verb, lrsObject, getLRS_Result(score), null);
         return statement;
     }
 

@@ -119,7 +119,6 @@ import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.event.api.LearningResourceStoreService;
 import org.sakaiproject.event.api.LearningResourceStoreService.LRS_Actor;
-import org.sakaiproject.event.api.LearningResourceStoreService.LRS_Context;
 import org.sakaiproject.event.api.LearningResourceStoreService.LRS_Object;
 import org.sakaiproject.event.api.LearningResourceStoreService.LRS_Result;
 import org.sakaiproject.event.api.LearningResourceStoreService.LRS_Statement;
@@ -3698,9 +3697,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
         lrsObject.setDescription(descMap);
         LRS_Actor student = new LRS_Actor(studentUser.getEmail());
         student.setName(studentUser.getDisplayName());
-        LRS_Context context = new LRS_Context(instructor);
-        context.setActivity("other", "assignment");
-        return new LRS_Statement(student, verb, lrsObject, getLRS_Result(a, s, true), context);
+        return new LRS_Statement(student, verb, lrsObject, getLRS_Result(a, s, true), null);
     }
 
     private LRS_Result getLRS_Result(Assignment a, AssignmentSubmission s, boolean completed) {
@@ -3731,9 +3728,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
         lrsObject.setDescription(descMap);
         LRS_Actor student = new LRS_Actor(studentUser.getEmail());
         student.setName(studentUser.getDisplayName());
-        LRS_Context context = new LRS_Context(instructor);
-        context.setActivity("other", "assignment");
-        return new LRS_Statement(student, verb, lrsObject, getLRS_Result(a, s, false), context);
+        return new LRS_Statement(student, verb, lrsObject, getLRS_Result(a, s, false), null);
     }
 
     private void sendGradeReleaseNotification(AssignmentSubmission submission) {
