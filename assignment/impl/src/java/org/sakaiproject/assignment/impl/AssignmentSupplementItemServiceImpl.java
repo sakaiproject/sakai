@@ -52,16 +52,6 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class AssignmentSupplementItemServiceImpl extends HibernateDaoSupport implements AssignmentSupplementItemService {
 
-   public void init()
-   {
-      log.info("init()");
-   }
-   
-   public void destroy()
-   {
-      log.info("destroy()");
-   }
-   
    /** Dependency: UserDirectoryService */
 	protected UserDirectoryService m_userDirectoryService = null;
 
