@@ -425,8 +425,8 @@ public class CourseGradeDetailsBean extends EnrollmentTableBean {
 		//FacesContext facesContext = FacesContext.getCurrentInstance();
         //HttpServletRequest request = (HttpServletRequest) facesContext.getExternalContext().getRequest();
         List<String> fields = new ArrayList<String>();
-        if(includeUsereid) fields.add("usereid");
         if(includeSortname) fields.add("sortname");
+        if(includeUsereid) fields.add("usereid");
         if(includeFinalscore) fields.add("finalscore");
         if(includeCalculatedgrade) fields.add("calculatedgrade");
         if(includeLastmodifieddate) fields.add("lastmodifieddate");
