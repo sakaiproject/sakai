@@ -614,13 +614,6 @@ public interface AssignmentService extends EntityProducer {
     public Integer getScaleFactor();
 
     /**
-     * This method allows you to know if there are submissions submitted
-     *
-     * Params: AssignmentSubmission s
-     */
-    public boolean hasBeenSubmitted(AssignmentSubmission s);
-
-    /**
      * Get a link directly into an assignment itself, supplying the permissions to use when
      * generating the link. Depending on your status, you get a different view on the assignment.
      *

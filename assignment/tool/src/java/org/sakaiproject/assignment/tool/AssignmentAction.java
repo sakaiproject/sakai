@@ -5953,7 +5953,7 @@ public class AssignmentAction extends PagedResourceActionII {
                          * SAK-22150 We will need to know later if there was a previous submission time. DH
                          */
                         boolean isPreviousSubmissionTime = true;
-                        if (submission.getDateSubmitted() == null || "".equals(submission.getDateSubmitted()) || !assignmentService.hasBeenSubmitted(submission)) {
+                        if (submission.getDateSubmitted() == null || "".equals(submission.getDateSubmitted()) || !submission.getSubmitted()) {
                             isPreviousSubmissionTime = false;
                         }
 
