@@ -1759,7 +1759,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
             // return true if resubmission is allowed and current time is before resubmission close time
             // get the resubmit settings from submission object first
             String allowResubmitNumString = submission != null ? submission.getProperties().get(AssignmentConstants.ALLOW_RESUBMIT_NUMBER) : null;
-            if (allowResubmitNumString != null && submission.getDateSubmitted() != null && this.hasBeenSubmitted(submission)) {
+            if (allowResubmitNumString != null && submission.getDateSubmitted() != null && submission.getSubmitted()) {
                 try {
                     int allowResubmitNumber = Integer.parseInt(allowResubmitNumString);
                     String allowResubmitCloseTime = submission.getProperties().get(AssignmentConstants.ALLOW_RESUBMIT_CLOSETIME);
@@ -2138,26 +2138,6 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
     public Integer getScaleFactor() {
         Integer decimals = serverConfigurationService.getInt("assignment.grading.decimals", AssignmentConstants.DEFAULT_DECIMAL_POINT);
         return Double.valueOf(Math.pow(10.0, decimals)).intValue();
-    }
-
-    @Override
-    public boolean hasBeenSubmitted(AssignmentSubmission submission) {
-        try {
-            List<String> submissionLog = new ArrayList<>(); // TODO - submission.getSubmissionLog();
-
-            //Special case for old submissions prior to Sakai 10 where the submission log did not exist. Just return true for backward compatibility.
-            if (submissionLog == null || submissionLog.size() == 0) {
-                return true;
-            }
-            for (String itemString : submissionLog) {
-                if (itemString.contains("submitted")) {
-                    return true;
-                }
-            }
-        } catch (Exception e) {
-            log.warn("Could not get submission log, {}", e.getMessage());
-        }
-        return false;
     }
 
     @Override

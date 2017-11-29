@@ -30,6 +30,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.time.Period;
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -478,6 +479,7 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
             AssignmentSubmission submission = createNewSubmission(context, submitterId);
             String status = assignmentService.getSubmissionStatus(submission.getId());
             Assert.assertEquals("Draft - In progress", status);
+            Assert.assertFalse(submission.getSubmitted());
 
             String reference = AssignmentReferenceReckoner.reckoner().submission(submission).reckon().getReference();
             when(securityService.unlock(AssignmentServiceConstants.SECURE_UPDATE_ASSIGNMENT_SUBMISSION, reference)).thenReturn(true);
@@ -524,6 +526,65 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
         Assert.assertEquals("Ungraded", assignmentService.getGradeDisplay("", Assignment.GradeType.GRADE_TYPE_NONE, null));
         Assert.assertEquals("self", assignmentService.getGradeDisplay("self", Assignment.GradeType.GRADE_TYPE_NONE, null));
     }
+
+    @Test
+    public void peerAssignmentDateTests() {
+
+        // Setup a new Assignment
+        String context = UUID.randomUUID().toString();
+        Assignment assignment = createNewAssignment(context);
+        Assert.assertNotNull(assignment);
+
+        // assignment doesnt allow peer assessment
+        Assert.assertFalse(assignmentService.isPeerAssessmentOpen(assignment));
+        Assert.assertFalse(assignmentService.isPeerAssessmentPending(assignment));
+        Assert.assertFalse(assignmentService.isPeerAssessmentClosed(assignment));
+
+        assignment.setAllowPeerAssessment(true);
+        Instant now = Instant.now();
+        assignment.setCloseDate(now);
+        Date dateYesterday = Date.from(now.minus(Duration.ofDays(1)));
+        assignment.setPeerAssessmentPeriodDate(dateYesterday);
+
+        when(securityService.unlock(AssignmentServiceConstants.SECURE_UPDATE_ASSIGNMENT, AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getReference())).thenReturn(true);
+        try {
+            assignmentService.updateAssignment(assignment);
+        } catch (PermissionException e) {
+            Assert.fail("Updating assignment, " + e.getMessage());
+        }
+        // assignment allows peer assessment, close date and peer period past
+        Assert.assertFalse(assignmentService.isPeerAssessmentOpen(assignment));
+        Assert.assertFalse(assignmentService.isPeerAssessmentPending(assignment));
+        Assert.assertTrue(assignmentService.isPeerAssessmentClosed(assignment));
+
+        assignment.setCloseDate(now.plus(Duration.ofDays(3)));
+        Date dateTomorrow = Date.from(now.plus(Duration.ofDays(1)));
+        assignment.setPeerAssessmentPeriodDate(dateTomorrow);
+        when(securityService.unlock(AssignmentServiceConstants.SECURE_UPDATE_ASSIGNMENT, AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getReference())).thenReturn(true);
+        try {
+            assignmentService.updateAssignment(assignment);
+        } catch (PermissionException e) {
+            Assert.fail("Updating assignment, " + e.getMessage());
+        }
+        // close date and peer period in the future
+        Assert.assertFalse(assignmentService.isPeerAssessmentOpen(assignment));
+        Assert.assertTrue(assignmentService.isPeerAssessmentPending(assignment));
+        Assert.assertFalse(assignmentService.isPeerAssessmentClosed(assignment));
+
+        assignment.setCloseDate(now.minus(Duration.ofDays(2)));
+        when(securityService.unlock(AssignmentServiceConstants.SECURE_UPDATE_ASSIGNMENT, AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getReference())).thenReturn(true);
+        try {
+            assignmentService.updateAssignment(assignment);
+        } catch (PermissionException e) {
+            Assert.fail("Updating assignment, " + e.getMessage());
+        }
+        // close date past and peer period in the future
+        Assert.assertTrue(assignmentService.isPeerAssessmentOpen(assignment));
+        Assert.assertFalse(assignmentService.isPeerAssessmentPending(assignment));
+        Assert.assertFalse(assignmentService.isPeerAssessmentClosed(assignment));
+
+    }
+
 
     private AssignmentSubmission createNewSubmission(String context, String submitterId) throws UserNotDefinedException, IdUnusedException {
         Assignment assignment = createNewAssignment(context);
