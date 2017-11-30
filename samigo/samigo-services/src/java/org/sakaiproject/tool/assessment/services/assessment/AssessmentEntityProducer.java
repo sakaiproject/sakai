@@ -30,9 +30,8 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.Stack;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.content.api.ContentResource;
@@ -62,14 +61,12 @@ import org.w3c.dom.NodeList;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
-
-
+@Slf4j
 public class AssessmentEntityProducer implements EntityTransferrer,
 		EntityProducer, EntityTransferrerRefMigrator {
 
     private static final int QTI_VERSION = 1;
     private static final String ARCHIVED_ELEMENT = "assessment";
-    private Logger log = LoggerFactory.getLogger(AssessmentEntityProducer.class);
     private QTIServiceAPI qtiService;
 
 	public void init() {
@@ -255,8 +252,7 @@ public class AssessmentEntityProducer implements EntityTransferrer,
 		}
 		catch (Exception e)
 		{
-			e.printStackTrace();
-			log.info("transferCopyEntities: End removing Assessment data");
+			log.error("transferCopyEntities: End removing Assessment data", e);
 		}
 		
 		return transferCopyEntitiesRefMigrator(fromContext, toContext, ids);

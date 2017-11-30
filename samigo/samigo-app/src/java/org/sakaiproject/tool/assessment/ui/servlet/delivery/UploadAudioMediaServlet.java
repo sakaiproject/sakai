@@ -19,9 +19,8 @@
  *
  **********************************************************************************/
 
-
-
 package org.sakaiproject.tool.assessment.ui.servlet.delivery;
+
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -31,15 +30,18 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.nio.file.Files;
-import javax.servlet.ServletContext;
-import javax.servlet.ServletException;
-import javax.servlet.ServletInputStream;
+import java.util.Date;
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.ServletContext;
+import javax.servlet.ServletException;
+import javax.servlet.ServletInputStream;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
 import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData;
@@ -48,10 +50,6 @@ import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemText;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 import org.sakaiproject.tool.assessment.services.GradingService;
-
-import java.util.Date;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * <p>Title: Samigo</p>
@@ -62,14 +60,13 @@ import java.util.List;
  * @author Ed Smiley
  * @version $Id$
  */
-
+@Slf4j
 public class UploadAudioMediaServlet extends HttpServlet
 {
   /**
 	 * 
 	 */
 	private static final long serialVersionUID = 8389831837152012411L;
-private static Logger log = LoggerFactory.getLogger(UploadAudioMediaServlet.class);
 
   public UploadAudioMediaServlet()
   {
@@ -111,7 +108,7 @@ private static Logger log = LoggerFactory.getLogger(UploadAudioMediaServlet.clas
     	  File mediaDir = mediaFile.getParentFile(); 
           if (!mediaDir.exists())
             mediaDir.mkdirs();
-          //log.debug("*** directory exist="+mediaDir.exists());
+
           mediaIsValid=writeToFile(req, mediaLocation);  
       }else{
     	  log.debug ("****Error in file paths " + mediaFile.getCanonicalPath() + " is not equal to " + mediaLocation);
@@ -319,9 +316,6 @@ private static Logger log = LoggerFactory.getLogger(UploadAudioMediaServlet.clas
 						     questionIndex - 1);
     String questionId = mediaLocation.substring(questionIndex + 8, agentIndex);
     //String agentEid = mediaLocation.substring(agentIndex+1, myfileIndex);
-    //log.debug("****pubAss="+pubAssessmentId);
-    //log.debug("****questionId="+questionId);
-    //log.debug("****agent="+agentId);
 
     PublishedItemData item = pubService.loadPublishedItem(questionId);
     PublishedItemText itemText = (PublishedItemText)(item.getItemTextSet()).iterator().next();

@@ -23,8 +23,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.calendar.api.Calendar;
 import org.sakaiproject.calendar.api.CalendarEvent;
 import org.sakaiproject.calendar.api.CalendarEventEdit;
@@ -48,8 +48,8 @@ import org.sakaiproject.tool.assessment.integration.helper.ifc.CalendarServiceHe
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 import org.sakaiproject.tool.cover.ToolManager;
 
+@Slf4j
 public class CalendarServiceHelperImpl implements CalendarServiceHelper {
-	private static final Logger log = LoggerFactory.getLogger(CalendarServiceHelperImpl.class);
 	private CalendarService calendarService;
 	private Boolean calendarExistsForSite = null;
 	private Map<String, Boolean> calendarExistCache = new HashMap<String, Boolean>();

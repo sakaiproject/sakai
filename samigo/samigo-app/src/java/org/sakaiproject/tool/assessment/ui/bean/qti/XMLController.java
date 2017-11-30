@@ -19,21 +19,16 @@
  *
  **********************************************************************************/
 
-
 package org.sakaiproject.tool.assessment.ui.bean.qti;
 
 import java.io.InputStream;
 import java.io.Serializable;
 import java.util.StringTokenizer;
-//import javax.faces.context.FacesContext;
 
+import lombok.extern.slf4j.Slf4j;
 import org.w3c.dom.Document;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import org.sakaiproject.tool.assessment.qti.constants.QTIVersion;
-//import org.sakaiproject.tool.assessment.qti.helper.AuthoringHelper;
 import org.sakaiproject.tool.assessment.qti.helper.AuthoringXml;
 import org.sakaiproject.tool.assessment.services.qti.QTIService;
 import org.sakaiproject.tool.assessment.qti.util.XmlUtil;
@@ -45,15 +40,13 @@ import org.sakaiproject.tool.assessment.qti.util.XmlUtil;
  * @author Ed Smiley esmiley@stanford.edu
    * @version $Id$
  */
-
+@Slf4j
 public class XMLController implements Serializable
 {
   /**
 	 * 
 	 */
 	private static final long serialVersionUID = 7064783681056628447L;
-
-private static Logger log = LoggerFactory.getLogger(XMLController.class);
 
   private static final String XML_DECL =
     "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>" + "\n";
@@ -141,7 +134,7 @@ private static Logger log = LoggerFactory.getLogger(XMLController.class);
       xmlBean.setDescription(ex.toString());
       xmlBean.setName("error");
       xmlBean.setId("");
-      ex.printStackTrace();
+      log.error(ex.getMessage(), ex);
     }
 
     return "xmlDisplay";

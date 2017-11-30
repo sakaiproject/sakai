@@ -19,25 +19,22 @@
  *
  **********************************************************************************/
 
-
-
 package org.sakaiproject.tool.assessment.ui.listener.evaluation;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 
+import javax.faces.application.FacesMessage;
+import javax.faces.context.FacesContext;
 import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
 import javax.faces.event.ValueChangeEvent;
 import javax.faces.event.ValueChangeListener;
-import javax.faces.application.FacesMessage;
-import javax.faces.context.FacesContext;
 
+import lombok.extern.slf4j.Slf4j;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData;
 import org.sakaiproject.tool.assessment.services.GradingService;
 import org.sakaiproject.tool.assessment.services.GradebookServiceException;
@@ -60,11 +57,10 @@ import org.sakaiproject.tool.assessment.util.BeanSort;
  * @author Ed Smiley
  * @version $Id$
  */
-
+@Slf4j
 public class QuestionScorePagerListener
   implements ActionListener, ValueChangeListener
 {
-  private static Logger log = LoggerFactory.getLogger(QuestionScorePagerListener.class);
   //private static EvaluationListenerUtil util;
   //private static BeanSort bs;
   //private static ContextUtil cu;

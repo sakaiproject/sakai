@@ -13,21 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.sakaiproject.tool.assessment.business.entity.helper;
 
 import java.io.InputStream;
 import java.util.ArrayList;
-//import javax.faces.context.FacesContext;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import lombok.extern.slf4j.Slf4j;
 import org.w3c.dom.Document;
+
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
+import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import org.sakaiproject.tool.assessment.qti.constants.QTIVersion;
 import org.sakaiproject.tool.assessment.qti.helper.AuthoringHelper;
 import org.sakaiproject.tool.assessment.qti.helper.AuthoringXml;
-import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import org.sakaiproject.tool.assessment.qti.util.XmlUtil;
 
 /**
@@ -37,9 +36,8 @@ import org.sakaiproject.tool.assessment.qti.util.XmlUtil;
  * @author Ed Smiley esmiley@stanford.edu
  * @version $Id$
  */
-
+@Slf4j
 public class QTITester {
-  private static Logger log = LoggerFactory.getLogger(QTITester.class);
 //  private static boolean useContextPath = true;
   private static boolean useContextPath = false;
 //  private static int version = QTIVersion.VERSION_1_2;

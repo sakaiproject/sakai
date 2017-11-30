@@ -19,8 +19,6 @@
  *
  **********************************************************************************/
 
-
-
 package org.sakaiproject.tool.assessment.ui.listener.evaluation;
 
 import java.lang.reflect.InvocationTargetException;
@@ -40,10 +38,10 @@ import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.math3.util.Precision;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.event.api.NotificationService;
@@ -75,11 +73,10 @@ import org.sakaiproject.tool.assessment.util.TextFormat;
  * @author Ed Smiley
  * @version $Id$
  */
-
+@Slf4j
 public class TotalScoreUpdateListener
   implements ActionListener
 {
-  private static Logger log = LoggerFactory.getLogger(TotalScoreUpdateListener.class);
   private final EventTrackingService eventTrackingService= ComponentManager.get( EventTrackingService.class );
 
   
@@ -298,7 +295,7 @@ public class TotalScoreUpdateListener
 
   private boolean needUpdate(AgentResults agentResults, Map map, StringBuilder newScoreString, TotalScoresBean bean) throws NumberFormatException{
     boolean update = true;
-    String newComments = TextFormat.convertPlaintextToFormattedTextNoHighUnicode(log, agentResults.getComments());
+    String newComments = TextFormat.convertPlaintextToFormattedTextNoHighUnicode(agentResults.getComments());
     agentResults.setComments(newComments);
     log.debug("newComments = " + newComments);
 

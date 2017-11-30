@@ -39,6 +39,7 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
 
+import lombok.extern.slf4j.Slf4j;
 import org.hibernate.Criteria;
 import org.hibernate.HibernateException;
 import org.hibernate.Query;
@@ -102,8 +103,6 @@ import org.sakaiproject.tool.assessment.util.ExtendedTimeDeliveryService;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.springframework.orm.hibernate4.HibernateCallback;
 import org.springframework.orm.hibernate4.support.HibernateDaoSupport;
-
-import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implements AssessmentGradingFacadeQueriesAPI {
@@ -402,7 +401,6 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
             HashMap map = new HashMap();
             AssessmentGradingData gdata = load(new Long(assessmentGradingId), loadGradingAttachment);
             log.debug("****#6, gdata=" + gdata);
-            //log.debug("****#7, item size="+gdata.getItemGradingSet().size());
             for (ItemGradingData data : gdata.getItemGradingSet()) {
                 ArrayList thisone = (ArrayList)
                         map.get(data.getPublishedItemId());

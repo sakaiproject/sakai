@@ -29,6 +29,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
+import lombok.extern.slf4j.Slf4j;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.samigo.util.SamigoConstants;
 import org.sakaiproject.tool.assessment.api.SamigoApiFactory;
@@ -42,7 +43,8 @@ import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
  * </p>
  *
  */
-public class TemplateBean implements Serializable
+@Slf4j
+ public class TemplateBean implements Serializable
 {
   private static final long serialVersionUID = 7526471155622776147L;
   private Map values = new HashMap();
@@ -923,7 +925,7 @@ public class TemplateBean implements Serializable
          modifiedDate=dateFm.parse(getLastModified());
 	}
 	catch(ParseException e){
-	    e.printStackTrace();
+	    log.error(e.getMessage(), e);
        }
     return modifiedDate;
 

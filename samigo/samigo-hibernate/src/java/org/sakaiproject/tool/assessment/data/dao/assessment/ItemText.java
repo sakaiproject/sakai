@@ -20,6 +20,7 @@
  **********************************************************************************/
 
 package org.sakaiproject.tool.assessment.data.dao.assessment;
+
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -31,8 +32,6 @@ import java.util.Map;
 import java.util.HashMap;
 import java.util.HashSet;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sakaiproject.tool.assessment.data.dao.shared.TypeD;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AnswerIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextAttachmentIfc;
@@ -41,7 +40,6 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextIfc;
 
 public class ItemText
     implements Serializable, ItemTextIfc, Comparable<ItemTextIfc> {
-  static Logger errorLogger = LoggerFactory.getLogger("errorLogger");
 
   private static final long serialVersionUID = 7526471155622776147L;
 

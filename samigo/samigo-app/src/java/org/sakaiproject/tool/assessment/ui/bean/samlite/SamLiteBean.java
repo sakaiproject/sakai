@@ -20,8 +20,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacadeQueries;
@@ -37,8 +36,8 @@ import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.util.ResourceLoader;
 import org.w3c.dom.Document;
 
+@Slf4j
 public class SamLiteBean implements Serializable {
-	private static Logger log = LoggerFactory.getLogger(SamLiteBean.class);
 	private static final long serialVersionUID = -3122436861866172596L;
 	public static final String DEFAULT_CHARSET = "ascii-us";
 
@@ -72,9 +71,9 @@ public class SamLiteBean implements Serializable {
 	}
 	
 	public void parse() {
-		questionGroup = samLiteService.parse(TextFormat.convertPlaintextToFormattedTextNoHighUnicode(log, name), 
-				TextFormat.convertPlaintextToFormattedTextNoHighUnicode(log, description), 
-				TextFormat.convertPlaintextToFormattedTextNoHighUnicode(log, data));
+		questionGroup = samLiteService.parse(TextFormat.convertPlaintextToFormattedTextNoHighUnicode(name), 
+				TextFormat.convertPlaintextToFormattedTextNoHighUnicode(description), 
+				TextFormat.convertPlaintextToFormattedTextNoHighUnicode(data));
 	}
 	
 	public Document createDocument() {

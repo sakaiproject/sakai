@@ -34,6 +34,7 @@ import java.util.Set;
 import java.util.Vector;
 import java.util.stream.Collectors;
 
+import lombok.extern.slf4j.Slf4j;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.sakaiproject.component.cover.ComponentManager;
@@ -56,15 +57,13 @@ import org.sakaiproject.tool.assessment.services.ItemService;
 import org.sakaiproject.tool.assessment.services.PersistenceService;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import org.sakaiproject.util.api.FormattedText;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataAccessException;
 import org.springframework.orm.hibernate4.HibernateCallback;
 import org.springframework.orm.hibernate4.support.HibernateDaoSupport;
 
+@Slf4j
 public class QuestionPoolFacadeQueries
     extends HibernateDaoSupport implements QuestionPoolFacadeQueriesAPI {
-  private Logger log = LoggerFactory.getLogger(QuestionPoolFacadeQueries.class);
   
   // SAM-2049
   private static final String VERSION_START = " - ";
@@ -423,7 +422,7 @@ public class QuestionPoolFacadeQueries
       }
     }
     catch (Exception e) {
-      e.printStackTrace();
+        log.error(e.getMessage(), e);
     }
   }
 
@@ -1008,8 +1007,8 @@ public class QuestionPoolFacadeQueries
       return idList;
     }
     catch (Exception e) {
-      e.printStackTrace();
-      return null;
+        log.error(e.getMessage(), e);
+        return null;
     }
   }
 
@@ -1091,7 +1090,7 @@ public class QuestionPoolFacadeQueries
       }
     }
     catch (Exception e) {
-      e.printStackTrace();
+        log.error(e.getMessage(), e);
     }
   }
 
@@ -1135,7 +1134,7 @@ public class QuestionPoolFacadeQueries
       }
     }
     catch (Exception e) {
-      e.printStackTrace();
+        log.error(e.getMessage(), e);
     }
     return questionPoolFacade;
   }

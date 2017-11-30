@@ -30,8 +30,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedMetaData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessControlIfc;
@@ -45,11 +45,11 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 
+@Slf4j
 public class PublishedAssessmentFacade
     implements java.io.Serializable, PublishedAssessmentIfc, Cloneable
 {
   private static final long serialVersionUID = 7526471155622776147L;
-  private Logger log = LoggerFactory.getLogger(PublishedAssessmentFacade.class);
   public static final Integer ACTIVE_STATUS =  Integer.valueOf(1);
   public static final Integer INACTIVE_STATUS = Integer.valueOf(0);
   public static final Integer ANY_STATUS = Integer.valueOf(2);

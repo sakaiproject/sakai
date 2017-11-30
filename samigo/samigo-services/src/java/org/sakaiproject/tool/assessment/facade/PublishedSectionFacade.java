@@ -20,15 +20,15 @@
  **********************************************************************************/
 
 package org.sakaiproject.tool.assessment.facade;
+
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.osid.assessment.AssessmentException;
+
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAssessmentData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedSectionMetaData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentIfc;
@@ -40,8 +40,7 @@ import org.sakaiproject.tool.assessment.services.PersistenceService;
 public class PublishedSectionFacade extends SectionFacade implements Serializable, Comparable {
 
 	private static final long serialVersionUID = 5788637014806801101L;
-	private Logger log = LoggerFactory.getLogger(PublishedSectionFacade.class);
-	
+
   /**
    * This is a very important constructor. Please make sure that you have
    * set all the properties (declared above as private) of SectionFacade using

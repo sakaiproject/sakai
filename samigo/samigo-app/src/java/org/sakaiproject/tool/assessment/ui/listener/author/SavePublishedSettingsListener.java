@@ -19,8 +19,6 @@
  *
  **********************************************************************************/
 
-
-
 package org.sakaiproject.tool.assessment.ui.listener.author;
 
 import java.util.ArrayList;
@@ -37,7 +35,9 @@ import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
 import javax.faces.model.SelectItem;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
+
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.samigo.util.SamigoConstants;
@@ -78,8 +78,6 @@ import org.sakaiproject.tool.assessment.ui.bean.author.PublishedAssessmentSettin
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.util.TextFormat;
 import org.sakaiproject.util.ResourceLoader;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * <p>Title: Samigo</p>2
@@ -87,11 +85,10 @@ import org.slf4j.LoggerFactory;
  * @author Ed Smiley
  * @version $Id$
  */
-
+@Slf4j
 public class SavePublishedSettingsListener
 implements ActionListener
 {
-	private static final Logger LOG = LoggerFactory.getLogger(SavePublishedSettingsListener.class);
 	private static final GradebookServiceHelper gbsHelper =
 		IntegrationContextFactory.getInstance().getGradebookServiceHelper();
 	private static final boolean integrated =
@@ -110,7 +107,7 @@ implements ActionListener
 				"publishedSettings");
 		// #1 - set Assessment
 		Long assessmentId = assessmentSettings.getAssessmentId();
-		LOG.debug("**** save assessment assessmentId ="+assessmentId.toString());
+		log.debug("**** save assessment assessmentId ="+assessmentId.toString());
 		PublishedAssessmentService assessmentService = new PublishedAssessmentService();
 		PublishedAssessmentFacade assessment = assessmentService.getPublishedAssessment(
 				assessmentId.toString());
@@ -176,7 +173,7 @@ implements ActionListener
 	    SecureDeliveryServiceAPI secureDeliveryService = SamigoApiFactory.getInstance().getSecureDeliveryServiceAPI();
 	    assessment.updateAssessmentMetaData(SecureDeliveryServiceAPI.MODULE_KEY, assessmentSettings.getSecureDeliveryModule() );
 	    String encryptedPassword = secureDeliveryService.encryptPassword( assessmentSettings.getSecureDeliveryModule(), assessmentSettings.getSecureDeliveryModuleExitPassword() );
-	    assessment.updateAssessmentMetaData(SecureDeliveryServiceAPI.EXITPWD_KEY, TextFormat.convertPlaintextToFormattedTextNoHighUnicode(LOG, encryptedPassword ));
+	    assessment.updateAssessmentMetaData(SecureDeliveryServiceAPI.EXITPWD_KEY, TextFormat.convertPlaintextToFormattedTextNoHighUnicode(encryptedPassword ));
 	    
 	    // kk. remove the existing title decoration (if any) and then add the new one (if any)	    
 	    String titleDecoration = assessment.getAssessmentMetaDataByLabel( SecureDeliveryServiceAPI.TITLE_DECORATION );
@@ -200,7 +197,7 @@ implements ActionListener
 	    }
 	    catch( NullPointerException | NumberFormatException ex )
 	    {
-	        LOG.warn(ex.getMessage(), ex);
+	        log.warn(ex.getMessage(), ex);
 	        assessment.setInstructorNotification( SamigoConstants.NOTI_PREF_INSTRUCTOR_EMAIL_DEFAULT );
 	    }
 	    
@@ -243,7 +240,7 @@ implements ActionListener
 			error=true;
 		}
 		else {
-			assessmentName = TextFormat.convertPlaintextToFormattedTextNoHighUnicode(LOG, assessmentName.trim());
+			assessmentName = TextFormat.convertPlaintextToFormattedTextNoHighUnicode(assessmentName.trim());
 			// check if name is unique 
 			if(!assessmentService.publishedAssessmentTitleIsUnique(assessmentSettings.getAssessmentId().toString(), assessmentName)){
 				String nameUnique_err = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","assessmentName_error");
@@ -445,7 +442,7 @@ implements ActionListener
 		catch (Exception ex)
 		{
 			// keep default
-			LOG.warn("Expecting Boolean hasTimeAssessment, got: " + time + ", exception: " + ex);
+			log.warn("Expecting Boolean hasTimeAssessment, got: " + time + ", exception: " + ex);
 		}
 		if(isTime && (assessmentSettings.getTimeLimit())==0){
 			String time_err = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages", "timeSelect_error");
@@ -530,7 +527,7 @@ implements ActionListener
 	// Check if title has been changed. If yes, update it.
 	private boolean isTitleChanged(PublishedAssessmentSettingsBean assessmentSettings, PublishedAssessmentFacade assessment) {
 		if (assessment.getTitle() != null && assessmentSettings.getTitle() != null) {
-			String assessmentTitle = TextFormat.convertPlaintextToFormattedTextNoHighUnicode(LOG, assessmentSettings.getTitle().trim());
+			String assessmentTitle = TextFormat.convertPlaintextToFormattedTextNoHighUnicode(assessmentSettings.getTitle().trim());
 				if (!assessment.getTitle().trim().equals(assessmentTitle)) {
 					assessment.setTitle(assessmentTitle);
 					return true;
@@ -644,7 +641,7 @@ implements ActionListener
 			}
 			catch( NumberFormatException ex )
 			{
-				LOG.warn(ex.getMessage(), ex);
+				log.warn(ex.getMessage(), ex);
 				assessment.setInstructorNotification( SamigoConstants.NOTI_PREF_INSTRUCTOR_EMAIL_DEFAULT );
 			}
 		}
@@ -663,11 +660,11 @@ implements ActionListener
 		// e. set Submission Messages
 	    control.setSubmissionMessage(assessmentSettings.getSubmissionMessage());
 	    // g. set password
-	    control.setPassword(TextFormat.convertPlaintextToFormattedTextNoHighUnicode(LOG, StringUtils.trim(assessmentSettings.getPassword())));
+	    control.setPassword(TextFormat.convertPlaintextToFormattedTextNoHighUnicode(StringUtils.trim(assessmentSettings.getPassword())));
 	    // h. set finalPageUrl
 	    String finalPageUrl = "";
 	    if (assessmentSettings.getFinalPageUrl() != null) {
-	    	finalPageUrl = TextFormat.convertPlaintextToFormattedTextNoHighUnicode(LOG, assessmentSettings.getFinalPageUrl().trim());
+	    	finalPageUrl = TextFormat.convertPlaintextToFormattedTextNoHighUnicode(assessmentSettings.getFinalPageUrl().trim());
 	    	if (finalPageUrl.length() != 0 && !finalPageUrl.toLowerCase().startsWith("http")) {
 	    		finalPageUrl = "http://" + finalPageUrl;
 	    	}
@@ -758,13 +755,13 @@ implements ActionListener
 		extendedTimeFacade.saveEntriesPub(assessment.getData(), assessmentSettings.getExtendedTimes());
 
 		// i. set Graphics
-		assessment.updateAssessmentMetaData(AssessmentMetaDataIfc.BGCOLOR, TextFormat.convertPlaintextToFormattedTextNoHighUnicode(LOG, assessmentSettings.getBgColor()));
-		assessment.updateAssessmentMetaData(AssessmentMetaDataIfc.BGIMAGE, TextFormat.convertPlaintextToFormattedTextNoHighUnicode(LOG, assessmentSettings.getBgImage()));
+		assessment.updateAssessmentMetaData(AssessmentMetaDataIfc.BGCOLOR, TextFormat.convertPlaintextToFormattedTextNoHighUnicode(assessmentSettings.getBgColor()));
+		assessment.updateAssessmentMetaData(AssessmentMetaDataIfc.BGIMAGE, TextFormat.convertPlaintextToFormattedTextNoHighUnicode(assessmentSettings.getBgImage()));
 
 	    // j. set objectives,rubrics,keywords
-		assessment.updateAssessmentMetaData(AssessmentMetaDataIfc.KEYWORDS, TextFormat.convertPlaintextToFormattedTextNoHighUnicode(LOG, assessmentSettings.getKeywords()));
-	    assessment.updateAssessmentMetaData(AssessmentMetaDataIfc.OBJECTIVES, TextFormat.convertPlaintextToFormattedTextNoHighUnicode(LOG, assessmentSettings.getObjectives()));
-	    assessment.updateAssessmentMetaData(AssessmentMetaDataIfc.RUBRICS, TextFormat.convertPlaintextToFormattedTextNoHighUnicode(LOG, assessmentSettings.getRubrics()));
+		assessment.updateAssessmentMetaData(AssessmentMetaDataIfc.KEYWORDS, TextFormat.convertPlaintextToFormattedTextNoHighUnicode(assessmentSettings.getKeywords()));
+	    assessment.updateAssessmentMetaData(AssessmentMetaDataIfc.OBJECTIVES, TextFormat.convertPlaintextToFormattedTextNoHighUnicode(assessmentSettings.getObjectives()));
+	    assessment.updateAssessmentMetaData(AssessmentMetaDataIfc.RUBRICS, TextFormat.convertPlaintextToFormattedTextNoHighUnicode(assessmentSettings.getRubrics()));
 	}
 
 	public boolean checkScore(PublishedAssessmentSettingsBean assessmentSettings, PublishedAssessmentFacade assessment, FacesContext context) {
@@ -807,7 +804,7 @@ implements ActionListener
 			String assessmentName;
 			boolean gbItemExists = false;
 			try{
-				assessmentName = TextFormat.convertPlaintextToFormattedTextNoHighUnicode(LOG, assessmentSettings.getTitle().trim());
+				assessmentName = TextFormat.convertPlaintextToFormattedTextNoHighUnicode(assessmentSettings.getTitle().trim());
 				gbItemExists = gbsHelper.isAssignmentDefined(assessmentName, g);
 				if (assessmentSettings.getToDefaultGradebook() && gbItemExists && isTitleChanged){
 					String gbConflict_error=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","gbConflict_error");
@@ -816,7 +813,7 @@ implements ActionListener
 				}
 			}
 			catch(Exception e){
-				LOG.warn("external assessment in GB has the same title:"+e.getMessage());
+				log.warn("external assessment in GB has the same title:"+e.getMessage());
 			}
 			
 			if (assessmentSettings.getToDefaultGradebook()) {
@@ -837,12 +834,12 @@ implements ActionListener
 				if (isTitleChanged || isScoringTypeChanged) {
 					// Because GB use title instead of id, we remove and re-add to GB if title changes.
 					try {
-						LOG.debug("before gbsHelper.removeGradebook()");
+						log.debug("before gbsHelper.removeGradebook()");
 						categoryId = gbsHelper.getExternalAssessmentCategoryId(GradebookFacade.getGradebookUId(), assessment.getPublishedAssessmentId().toString(), g);
 						gbsHelper.removeExternalAssessment(GradebookFacade.getGradebookUId(), assessment.getPublishedAssessmentId().toString(), g);
 					} catch (Exception e1) {
 						// Should be the external assessment doesn't exist in GB. So we quiet swallow the exception. Please check the log for the actual error.
-						LOG.info("Exception thrown in updateGB():" + e1.getMessage());
+						log.info("Exception thrown in updateGB():" + e1.getMessage());
 					}
 				}
 				
@@ -850,12 +847,12 @@ implements ActionListener
 					try {
 						gbsHelper.updateGradebook(assessment, g);
 					} catch (Exception e) {
-						LOG.warn("Exception thrown in updateGB():" + e.getMessage());
+						log.warn("Exception thrown in updateGB():" + e.getMessage());
 					}
 				}
 				else{
 					try{
-						LOG.debug("before gbsHelper.addToGradebook()");
+						log.debug("before gbsHelper.addToGradebook()");
 						gbsHelper.addToGradebook((PublishedAssessmentData)assessment.getData(), categoryId, g);
 
 						// any score to copy over? get all the assessmentGradingData and copy over
@@ -872,11 +869,11 @@ implements ActionListener
 						}
 
 						//ArrayList list = gradingService.getAllSubmissions(assessment.getPublishedAssessmentId().toString());
-						LOG.debug("list size =" + list.size()	);
+						log.debug("list size =" + list.size()	);
 						for (int i=0; i<list.size();i++){
 							try {
 								AssessmentGradingData ag = (AssessmentGradingData)list.get(i);
-								LOG.debug("ag.scores " + ag.getTotalAutoScore());
+								log.debug("ag.scores " + ag.getTotalAutoScore());
 								// Send the average score if average was selected for multiple submissions
 								if (scoringType.equals(EvaluationModelIfc.AVERAGE_SCORE)) {							
 									// status = 5: there is no submission but grader update something in the score page
@@ -892,12 +889,12 @@ implements ActionListener
 								gbsHelper.updateExternalAssessmentComment(ag.getPublishedAssessmentId(),ag.getAgentId() , ag.getComments(), g);
 							}
 							catch (Exception e) {
-								LOG.warn("Exception occues in " + i + "th record. Message:" + e.getMessage());
+								log.warn("Exception occues in " + i + "th record. Message:" + e.getMessage());
 							}
 						}
 					}
 					catch(Exception e){
-						LOG.warn("oh well, must have been added already:"+e.getMessage());
+						log.warn("oh well, must have been added already:"+e.getMessage());
 					}
 				}
 			}
@@ -908,7 +905,7 @@ implements ActionListener
 							assessment.getPublishedAssessmentId().toString(), g);
 				}
 				catch(Exception e){
-					LOG.warn("*** oh well, looks like there is nothing to remove:"+e.getMessage());
+					log.warn("*** oh well, looks like there is nothing to remove:"+e.getMessage());
 				}
 			}
 		}

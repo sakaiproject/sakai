@@ -15,10 +15,7 @@
  *
  */
 
-
-
 package org.sakaiproject.tool.assessment.ui.bean.delivery;
-
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -35,8 +32,8 @@ import javax.faces.context.FacesContext;
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang.StringUtils;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.event.cover.NotificationService;
@@ -92,7 +89,6 @@ import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.util.ResourceLoader;
 
-import org.apache.commons.lang.StringUtils;
 /**
  *
  * @author casong
@@ -101,10 +97,10 @@ import org.apache.commons.lang.StringUtils;
  *
  * Used to be org.navigoproject.ui.web.asi.delivery.XmlDeliveryForm.java
  */
+@Slf4j
 public class DeliveryBean
   implements Serializable
 {
-  private static final Logger log = LoggerFactory.getLogger(DeliveryBean.class);
 
   //SAM-2517
   private ServerConfigurationService serverConfigurationService;
@@ -2603,8 +2599,7 @@ public class DeliveryBean
     ExternalContext external = context.getExternalContext();
     Long fileSize = (Long)((ServletContext)external.getContext()).getAttribute("TEMP_FILEUPLOAD_SIZE");
     Long maxSize = (Long)((ServletContext)external.getContext()).getAttribute("FILEUPLOAD_SIZE_MAX");
-    //log.info("**** filesize is ="+fileSize);
-    //log.info("**** maxsize is ="+maxSize);
+
     ((ServletContext)external.getContext()).removeAttribute("TEMP_FILEUPLOAD_SIZE");
     if (fileSize!=null){
       float fileSize_float = fileSize.floatValue()/1024;
@@ -3236,7 +3231,6 @@ public class DeliveryBean
       assessmentGrading = service.load(adata.getAssessmentGradingId().toString(), false);
     }
     
-    // log.debug("check 0");
     if (isRemoved()){
         return "isRemoved";
     }
