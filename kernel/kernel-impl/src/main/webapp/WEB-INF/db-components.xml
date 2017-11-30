@@ -445,6 +445,7 @@
 				<prop key="hibernate.hbm2ddl.auto">${hibernate.hbm2ddl.auto}</prop>
 				<prop key="hibernate.generate_statistics">true</prop>
 				<prop key="hibernate.enable_lazy_load_no_trans">true</prop>
+				<prop key="net.sf.ehcache.configurationResourceName">/org/sakaiproject/memory/api/ehcache.xml</prop>
 			</props>
 		</property>
 	</bean>
