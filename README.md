@@ -1,4 +1,4 @@
-# Sakai CLE
+# Sakai Collaboration and Learning Environment (Sakai CLE)
 
 This is the source code for the Sakai CLE.
 
@@ -6,6 +6,7 @@ This is the source code for the Sakai CLE.
 
 [![Build Status](https://travis-ci.org/sakaiproject/sakai.svg?branch=master)](https://travis-ci.org/sakaiproject/sakai)
 
+This is the "Mini Quick Start" for more complete steps to get Sakai configured please look at [this guide on the wiki](https://github.com/sakaiproject/sakai/wiki/Quick-Start-from-Source).
 
 To build Sakai you need Java 1.8 and Maven 3.2. Once you have clone a copy of this repository you can
 build it by running:
