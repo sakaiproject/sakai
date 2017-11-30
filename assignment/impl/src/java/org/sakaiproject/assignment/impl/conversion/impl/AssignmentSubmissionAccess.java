@@ -32,13 +32,13 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
+import lombok.extern.slf4j.Slf4j;
+
 import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
 import org.sakaiproject.assignment.api.AssignmentConstants;
 import org.sakaiproject.assignment.impl.conversion.api.SerializableSubmissionAccess;
 import org.sakaiproject.assignment.impl.conversion.impl.SAXSerializablePropertiesAccess;
-import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.serialize.EntityParseException;
 import org.sakaiproject.entity.api.serialize.SerializableEntity;
 import org.sakaiproject.util.Xml;
@@ -52,11 +52,10 @@ import org.xml.sax.helpers.DefaultHandler;
 /**
  * 
  */
+@Slf4j
 public class AssignmentSubmissionAccess implements SerializableSubmissionAccess,
 		SerializableEntity
 {
-	protected static final Logger log = LoggerFactory.getLogger(AssignmentSubmissionAccess.class);
-
 	private SAXParserFactory parserFactory;
 	protected SAXSerializablePropertiesAccess saxSerializableProperties = new SAXSerializablePropertiesAccess();
 
@@ -298,13 +297,13 @@ public class AssignmentSubmissionAccess implements SerializableSubmissionAccess,
 					}
 					else
 					{
-						log.warn(".toXml: in list not string: " + key);
+						log.warn(".toXml: in list not string: {}", key);
 					}
 				}
 			}
 			else
 			{
-				log.warn(".toXml: not a string, not a value: " + key);
+				log.warn(".toXml: not a string, not a value: {}", key);
 			}
 		}
 		
@@ -334,7 +333,7 @@ public class AssignmentSubmissionAccess implements SerializableSubmissionAccess,
 		}
 		catch (ParserConfigurationException e)
 		{
-			log.warn(this + ":parse " + e.getMessage());
+			log.warn("{}:parse {}", this, e.getMessage());
 			throw new SAXException("Failed to get a parser ", e);
 		}
 		final Map<String, Object> props = new HashMap<String, Object>();
@@ -398,7 +397,7 @@ public class AssignmentSubmissionAccess implements SerializableSubmissionAccess,
 						// if it's not a list, it's wrong!
 						else
 						{
-							log.warn("construct(el): value set not a list: " + name);
+							log.warn("construct(el): value set not a list: {}", name);
 						}
 					}
 					else
@@ -455,7 +454,7 @@ public class AssignmentSubmissionAccess implements SerializableSubmissionAccess,
 							}
 							catch (Exception e)
 							{
-								log.warn(this + ":parse grade " + e.getMessage());
+								log.warn("{}:parse grade {}", this, e.getMessage());
 							}
 						}
 					}
