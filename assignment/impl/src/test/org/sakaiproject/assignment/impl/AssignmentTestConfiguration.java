@@ -148,11 +148,6 @@ public class AssignmentTestConfiguration {
         return mock(AssignmentActivityProducer.class);
     }
 
-    @Bean(name = "org.sakaiproject.assignment.api.AssignmentPeerAssessmentService")
-    public AssignmentPeerAssessmentService assignmentPeerAssessmentService() {
-        return mock(AssignmentPeerAssessmentService.class);
-    }
-
     @Bean(name = "org.sakaiproject.authz.api.AuthzGroupService")
     public AuthzGroupService authzGroupService() {
         return mock(AuthzGroupService.class);

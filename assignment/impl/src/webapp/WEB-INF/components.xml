@@ -16,7 +16,6 @@
         <property name="announcementService" ref="org.sakaiproject.announcement.api.AnnouncementService"/>
         <property name="assignmentActivityProducer" ref="org.sakaiproject.assignment.taggable.api.AssignmentActivityProducer"/>
         <property name="assignmentEntityFactory" ref="org.sakaiproject.assignment.api.AssignmentEntity.factory"/>
-        <property name="assignmentPeerAssessmentService" ref="org.sakaiproject.assignment.api.AssignmentPeerAssessmentService"/>
         <property name="assignmentRepository" ref="org.sakaiproject.assignment.persistence.AssignmentRepository"/>
         <property name="assignmentSupplementItemService" ref="org.sakaiproject.assignment.api.model.AssignmentSupplementItemService"/>
         <property name="authzGroupService" ref="org.sakaiproject.authz.api.AuthzGroupService"/>
@@ -26,7 +25,6 @@
         </property>
         <property name="contentHostingService" ref="org.sakaiproject.content.api.ContentHostingService"/>
         <property name="contentReviewService" ref="org.sakaiproject.contentreview.service.ContentReviewService"/>
-        <property name="developerHelperService" ref="org.sakaiproject.entitybroker.DeveloperHelperService"/>
         <property name="digestService" ref="org.sakaiproject.email.api.DigestService"/>
         <property name="emailService" ref="org.sakaiproject.email.api.EmailService"/>
         <property name="emailUtil" ref="org.sakaiproject.assignment.impl.EmailUtil"/>
@@ -139,11 +137,9 @@
     </bean>
 
     <bean id="org.sakaiproject.assignment.impl.AssignmentSupplementItemServiceImpl"
-          class="org.sakaiproject.assignment.impl.AssignmentSupplementItemServiceImpl"
-          init-method="init" destroy-method="destroy">
+          class="org.sakaiproject.assignment.impl.AssignmentSupplementItemServiceImpl">
         <property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
         <property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService"/>
-        <property name="assignmentService" ref="org.sakaiproject.assignment.api.AssignmentService"/>
         <property name="authzGroupService" ref="org.sakaiproject.authz.api.AuthzGroupService"/>
         <property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
         <property name="timeService" ref="org.sakaiproject.time.api.TimeService"/>
