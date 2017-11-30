@@ -5827,7 +5827,6 @@ public class AssignmentAction extends PagedResourceActionII {
         String contextString = (String) state.getAttribute(STATE_CONTEXT_STRING);
         String aReference = (String) state.getAttribute(VIEW_SUBMISSION_ASSIGNMENT_REFERENCE);
         Assignment a = getAssignment(aReference, "post_save_submission", state);
-        String assignmentId = "";
 
         if (a != null && assignmentService.canSubmit(contextString, a)) {
             ParameterParser params = data.getParameters();
@@ -5909,8 +5908,6 @@ public class AssignmentAction extends PagedResourceActionII {
 
 
                 if (state.getAttribute(STATE_MESSAGE) == null) {
-                    assignmentId = a.getId();
-
                     if (a.getHonorPledge()) {
                         if (!Boolean.valueOf(honorPledgeYes)) {
                             addAlert(state, rb.getString("youarenot18"));
@@ -6159,8 +6156,13 @@ public class AssignmentAction extends PagedResourceActionII {
                         // new submission
                         try {
                             // if assignment is a group submission... send group id and not user id
-                            // TODO need to validate Group as submitter?
-                            submission = assignmentService.addSubmission(assignmentId, sessionManager.getCurrentSessionUserId());
+                            String submitterId = null;
+                            if (a.getIsGroup()) {
+                                submitterId = group_id;
+                            } else {
+                                submitterId = submitter.getId();
+                            }
+                            submission = assignmentService.addSubmission(a.getId(), submitterId);
                             if (submission != null) {
                                 log.debug("NEW SUBMISSION:submitter: {}", submission.getSubmitters().toArray(new AssignmentSubmissionSubmitter[]{})[0].getSubmitter());
                                 if (a.getIsGroup()) {
@@ -6172,7 +6174,6 @@ public class AssignmentAction extends PagedResourceActionII {
                                 submission.setHonorPledge(Boolean.valueOf(honorPledgeYes));
                                 submission.setDateSubmitted(Instant.now());
                                 submission.setSubmitted(post);
-                                submission.setAssignment(a);
                                 Map<String, String> properties = submission.getProperties();
 
                                 // add attachments
@@ -6230,13 +6231,11 @@ public class AssignmentAction extends PagedResourceActionII {
             if (state.getAttribute(STATE_MESSAGE) == null) {
                 state.setAttribute(STATE_MODE, MODE_STUDENT_VIEW_SUBMISSION_CONFIRMATION);
             }
-            if (StringUtils.isNotEmpty(assignmentId)) {
-                LRS_Statement statement = getStatementForSubmitAssignment(assignmentId, serverConfigurationService.getAccessUrl(), a.getTitle());
-                Event event = eventTrackingService.newEvent(AssignmentConstants.EVENT_SUBMIT_ASSIGNMENT_SUBMISSION, assignmentId, null, false, NotificationService.NOTI_OPTIONAL, statement);
-                eventTrackingService.post(event);
-            }
-        }
 
+            LRS_Statement statement = getStatementForSubmitAssignment(a.getId(), serverConfigurationService.getAccessUrl(), a.getTitle());
+            Event event = eventTrackingService.newEvent(AssignmentConstants.EVENT_SUBMIT_ASSIGNMENT_SUBMISSION, a.getId(), null, false, NotificationService.NOTI_OPTIONAL, statement);
+            eventTrackingService.post(event);
+        }
     } // post_save_submission
 
     /**
