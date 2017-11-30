@@ -158,11 +158,10 @@ public interface AssignmentService extends EntityProducer {
     public boolean allowAddSubmission(String context);
 
     /**
-     * @param context
      * @param assignment - An Assignment object. Needed for the groups to be checked.
      * @return
      */
-    public boolean allowAddSubmissionCheckGroups(String context, Assignment assignment);
+    public boolean allowAddSubmissionCheckGroups(Assignment assignment);
 
     /**
      * Get the List of Users who can addSubmission() for this assignment.
