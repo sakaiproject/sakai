@@ -2426,7 +2426,12 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 		 */
 		public Date getCreatedDate()
 		{
-			return new Date(m_createdTime.getTime());
+			Date date = null;
+			if (m_createdTime != null) 
+			{
+				date = new Date(m_createdTime.getTime());
+			} 
+			return date;
 		}
 		/**
 		 * @inheritDoc
@@ -2441,7 +2446,11 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 		 */
 		public Date getModifiedDate()
 		{
-			return new Date(m_lastModifiedTime.getTime());
+			Date date = null;
+			if (m_lastModifiedTime != null) {
+				date = new Date(m_lastModifiedTime.getTime());
+			}
+			return date;
 		}
 		
 		/**
