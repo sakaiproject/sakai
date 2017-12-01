@@ -1750,22 +1750,21 @@ public class AssessmentSettingsBean
 
     //Internal to be able to supress error easier
     public void addExtendedTime(boolean errorToContext) {
-    	ExtendedTime entry = this.extendedTime;
-  	if(StringUtils.isBlank(entry.getUser()) && StringUtils.isBlank(entry.getGroup())) {
-  		if (errorToContext) {
-  			  FacesContext context = FacesContext.getCurrentInstance();
-  			  String errorString = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages", "extended_time_user_and_group_set");
-  			  errorString = errorString.replace("{0}", entry.getUser()).replace("{1}", entry.getGroup());
-  			  context.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_WARN, errorString, null));
-  		}
-    	}
-    	else {
-    		this.extendedTime.syncDates();
-    		this.extendedTimes.add(this.extendedTime);
-    		resetExtendedTime();
-    	}
+        ExtendedTime entry = this.extendedTime;
+        if (StringUtils.isBlank(entry.getUser()) && StringUtils.isBlank(entry.getGroup())) {
+            if (errorToContext) {
+                FacesContext context = FacesContext.getCurrentInstance();
+                String errorString = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages", "extended_time_user_and_group_set");
+                context.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_WARN, errorString, null));
+            }
+        }
+        else {
+            this.extendedTime.syncDates();
+            this.extendedTimes.add(this.extendedTime);
+            resetExtendedTime();
+        }
     }
-    
+
     public void deleteExtendedTime() {
         this.extendedTimes.remove(this.transitoryExtendedTime);
         this.transitoryExtendedTime = null;
