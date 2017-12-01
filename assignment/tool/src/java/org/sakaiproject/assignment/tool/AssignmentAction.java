@@ -1528,7 +1528,7 @@ public class AssignmentAction extends PagedResourceActionII {
         context.put("currentTime", Instant.now());
 
         // SAK-21525 - Groups were not being queried for authz
-        boolean allowSubmit = assignmentService.allowAddSubmissionCheckGroups((String) state.getAttribute(STATE_CONTEXT_STRING), assignment);
+        boolean allowSubmit = assignmentService.allowAddSubmissionCheckGroups(assignment);
         if (!allowSubmit) {
             addAlert(state, rb.getString("not_allowed_to_submit"));
         }
