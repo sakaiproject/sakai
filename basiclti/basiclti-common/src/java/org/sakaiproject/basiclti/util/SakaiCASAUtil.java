@@ -19,7 +19,7 @@
 
 package org.sakaiproject.basiclti.util;
 
-import java.util.ArrayList;
+import lombok.extern.slf4j.Slf4j;
 
 import org.tsugi.casa.objects.Launch;
 import org.tsugi.casa.objects.Use;
@@ -27,24 +27,14 @@ import org.tsugi.casa.objects.Contact;
 import org.tsugi.casa.objects.Original;
 import org.tsugi.casa.objects.Identity;
 import org.tsugi.casa.objects.Application;
-
-import org.tsugi.jackson.JacksonUtil;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import org.tsugi.basiclti.BasicLTIUtil;
-import org.tsugi.casa.CASAUtil;
 import org.tsugi.lti2.LTI2Config;
 
-import org.sakaiproject.lti2.SakaiLTI2Config;
+import org.sakaiproject.basiclti.util.SakaiBLTIUtil;
+import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.lti2.SakaiLTI2Base;
-
+import org.sakaiproject.lti2.SakaiLTI2Config;
 import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.tool.cover.ToolManager;
-import org.sakaiproject.component.cover.ServerConfigurationService;
-
-import org.sakaiproject.basiclti.util.SakaiBLTIUtil;
 
 /**
  * Some Sakai Utility code for IMS CASA
@@ -52,9 +42,8 @@ import org.sakaiproject.basiclti.util.SakaiBLTIUtil;
  * dealing with CASA.
  */
 @SuppressWarnings("deprecation")
+@Slf4j
 public class SakaiCASAUtil {
-
-	private static Logger M_log = LoggerFactory.getLogger(SakaiCASAUtil.class);
 
 	public static Application getCASAEntry(String toolRegistration)
 	{

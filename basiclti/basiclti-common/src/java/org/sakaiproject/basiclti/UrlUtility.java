@@ -18,6 +18,8 @@
  */
 package org.sakaiproject.basiclti;
 
+import lombok.extern.slf4j.Slf4j;
+
 import org.apache.commons.codec.binary.Base64;
 
 /**
@@ -25,6 +27,7 @@ import org.apache.commons.codec.binary.Base64;
  * <a href="http://en.wikipedia.org/wiki/Base64">http://en.wikipedia.org/wiki/
  * Base64</a>.
  */
+@Slf4j
 public class UrlUtility {
 	private UrlUtility() {
 		// non-instantiable, no setup needed
@@ -113,9 +116,9 @@ public class UrlUtility {
 		String encoded = encodeUrl(sample);
 		String decoded = decodeUrl(encoded);
 		boolean same = sample.equals(decoded);
-		System.out.println("encoded=" + encoded);
-		System.out.println(" sample=" + sample);
-		System.out.println("decoded=" + decoded);
-		System.out.println("sample.equals(decoded)=" + same);
+		log.debug("encoded={}", encoded);
+		log.debug("sample={}", sample);
+		log.debug("decoded={}", decoded);
+		log.debug("sample.equals(decoded)={}", same);
 	}
 }

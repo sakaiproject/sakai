@@ -19,8 +19,7 @@ import java.util.Map;
 import java.util.AbstractMap;
 import java.util.Set;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import org.tsugi.basiclti.BasicLTIConstants;
 import org.tsugi.basiclti.BasicLTIUtil;
@@ -34,14 +33,11 @@ import org.sakaiproject.user.api.User;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 
-
 /**
  *  @author Adrian Fish <a.fish@lancaster.ac.uk>
  */
+@Slf4j
 public class LTIRoleMapperImpl implements LTIRoleMapper {
-
-	private static Logger M_log = LoggerFactory.getLogger(LTIRoleMapperImpl.class);
-
     /**
      *  Injected from Spring, see components.xml
      */
@@ -66,12 +62,12 @@ public class LTIRoleMapperImpl implements LTIRoleMapper {
                 return new AbstractMap.SimpleImmutableEntry(userRole(payload), member.getRole().getId());
             }
         } catch (Exception e) {
-            M_log.warn(e.getLocalizedMessage(), e);
+            log.warn(e.getLocalizedMessage(), e);
             throw new LTIException( "launch.site.invalid", "siteId="+site.getId(), e);
         }
 
-        if (M_log.isDebugEnabled()) {
-            M_log.debug("userExistsInSite=" + userExistsInSite);
+        if (log.isDebugEnabled()) {
+            log.debug("userExistsInSite={}", userExistsInSite);
         }
 
         // If not a member of the site, and we are a trusted consumer, error
@@ -91,8 +87,8 @@ public class LTIRoleMapperImpl implements LTIRoleMapper {
             ltiRole = userRole(payload);
         }
 
-        if (M_log.isDebugEnabled()) {
-            M_log.debug("ltiRole=" + ltiRole);
+        if (log.isDebugEnabled()) {
+            log.debug("ltiRole={}", ltiRole);
         }
 
         try {
@@ -101,16 +97,16 @@ public class LTIRoleMapperImpl implements LTIRoleMapper {
 
             //BLTI-151 see if we can directly map the incoming role to the list of site roles
             String newRole = null;
-            if (M_log.isDebugEnabled()) {
-                M_log.debug("Incoming ltiRole:" + ltiRole);
+            if (log.isDebugEnabled()) {
+                log.debug("Incoming ltiRole: {}", ltiRole);
             }
             for (Role r : roles) {
                 String roleId = r.getId();
 
                 if (BasicLTIUtil.equalsIgnoreCase(roleId, ltiRole)) {
                     newRole = roleId;
-                    if (M_log.isDebugEnabled()) {
-                        M_log.debug("Matched incoming role to role in site:" + roleId);
+                    if (log.isDebugEnabled()) {
+                        log.debug("Matched incoming role to role in site: {}", roleId);
                     }
                     break;
                 }
@@ -119,8 +115,8 @@ public class LTIRoleMapperImpl implements LTIRoleMapper {
             //if we haven't mapped a role, check against the standard roles and fallback
             if (BasicLTIUtil.isBlank(newRole)) {
 
-                if (M_log.isDebugEnabled()) {
-                    M_log.debug("No match, falling back to determine role");
+                if (log.isDebugEnabled()) {
+                    log.debug("No match, falling back to determine role");
                 }
 
 		String maintainRole = site.getMaintainRole();
@@ -137,20 +133,20 @@ public class LTIRoleMapperImpl implements LTIRoleMapper {
 		}
               
 
-                if (M_log.isDebugEnabled()) {
-                    M_log.debug("Determined newRole as: " + newRole);
+                if (log.isDebugEnabled()) {
+                    log.debug("Determined newRole as: {}", newRole);
                 }
             }
             if (newRole == null) {
-                M_log.warn("Could not find Sakai role, role=" + ltiRole+ " user=" + user.getId() + " site=" + site.getId());
+                log.warn("Could not find Sakai role, role={} user={} site={}", ltiRole, user.getId(), site.getId());
                 throw new LTIException( "launch.role.missing", "siteId="+site.getId(), null);
 
             }
 
             return new AbstractMap.SimpleImmutableEntry(ltiRole, newRole);
         } catch (Exception e) {
-            M_log.warn("Could not map role role=" + ltiRole + " user="+ user.getId() + " site=" + site.getId());
-            M_log.warn(e.getLocalizedMessage(), e);
+            log.warn("Could not map role role={} user={} site={}", ltiRole, user.getId(), site.getId());
+            log.warn(e.getLocalizedMessage(), e);
             throw new LTIException( "map.role", "siteId="+site.getId(), e);
         }
     }

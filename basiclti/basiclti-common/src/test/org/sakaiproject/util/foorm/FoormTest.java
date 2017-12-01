@@ -35,6 +35,9 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Properties;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 public class FoormTest {
 	static Connection conn = null;
 
@@ -66,26 +69,25 @@ public class FoormTest {
 	};
 
 	public void testBasics() {
-		System.out.println("Hello, World");
 		Foorm foorm = new Foorm();
-		System.out.println(foorm.parseFormString("title:text:required=true:maxlength=25"));
-		System.out.println(foorm.parseFormString("description:textarea:required=true:rows=2:cols=25"));
-		System.out.println(foorm.parseFormString("sendemail:radio:requred=true:label=bl_sendemail:choices=on,off,part"));
+		log.debug("{}", foorm.parseFormString("title:text:required=true:maxlength=25"));
+		log.debug("{}", foorm.parseFormString("description:textarea:required=true:rows=2:cols=25"));
+		log.debug("{}", foorm.parseFormString("sendemail:radio:requred=true:label=bl_sendemail:choices=on,off,part"));
 
 		HashMap row = new HashMap(); row.put("title", "Fred"); row.put("description","Desc");
 		row.put("sendemail", new Integer(1)); 
 		row.put("acceptgrades", new Integer(1));
 		row.put("preferheight", new Integer(100));
 
-		System.out.println(foorm.getField(row,"title"));
+		log.debug("{}", foorm.getField(row,"title"));
 
-		System.out.println(foorm.formInput(row,"title:text:required=true:maxlength=25"));
-		System.out.println(foorm.formInput(row,"description:textarea:required=true:rows=2:cols=25"));
-		System.out.println(foorm.formInput(row,"sendemail:radio:requred=true:label=bl_sendemail:choices=on,off,part"));
+		log.debug(foorm.formInput(row,"title:text:required=true:maxlength=25"));
+		log.debug(foorm.formInput(row,"description:textarea:required=true:rows=2:cols=25"));
+		log.debug(foorm.formInput(row,"sendemail:radio:requred=true:label=bl_sendemail:choices=on,off,part"));
 
-		System.out.println(foorm.formInput(row, test_form));
+		log.debug(foorm.formInput(row, test_form));
 
-		System.out.println(foorm.formOutput(row, test_form, null));
+		log.debug(foorm.formOutput(row, test_form, null));
 
 		Properties pro = new Properties(); 
 		pro.setProperty("title","blah");
@@ -95,15 +97,14 @@ public class FoormTest {
 		pro.setProperty("webpage","http://www.cnn.com/");
 
 		// Properties parms, String[] formDefinition, boolean forInsert, Object loader, SortedMap<String,String> errors
-		System.out.println(foorm.formValidate(pro, test_form, true, null, null));
+		log.debug(foorm.formValidate(pro, test_form, true, null, null));
 
 		HashMap<String, Object> rm = new HashMap<String,Object> ();
 
 		// Object parms, String[] formDefinition, Object loader, boolean forInsert, Map<String, Object> dataMap, 
 		//    SortedMap<String,String> errors
-		System.out.println(foorm.formExtract(pro, test_form, null, false, rm, null));
-		System.out.println("--- Result Map ---"); 
-		System.out.println(rm);
+		log.debug(foorm.formExtract(pro, test_form, null, false, rm, null));
+		log.debug("--- Result Map --- {}", rm);
 
 		HashMap crow = new HashMap(); 
 		crow.put("allowtitle", new Integer(0)); 
@@ -117,11 +118,10 @@ public class FoormTest {
 		// crow.put("preferheight", new Integer(100)); (Leave alone - should be allowed)
 
 		String [] ff = foorm.filterForm(crow, test_form); 
-		System.out.println(Arrays.toString(ff));
+		log.debug(Arrays.toString(ff));
 
-		System.out.println("--- Required I18N Strings ---"); 
 		ArrayList<String> strings = foorm.utilI18NStrings(test_form); 
-		System.out.println(strings);
+		log.debug("--- Required I18N Strings --- {}", strings);
 	}
 
 	// Code inspiration from http://hsqldb.org/doc/guide/apb.html
@@ -144,7 +144,7 @@ public class FoormTest {
 		st = conn.createStatement();    // statements
 		int i = st.executeUpdate(expression);    // run the query
 		if (i == -1) {
-			System.out.println("db error : " + expression);
+			log.debug("db error : {}", expression);
 		}
 		st.close();
 	} 
@@ -157,10 +157,8 @@ public class FoormTest {
 		for (; rs.next(); ) {
 			for (i = 0; i < colmax; ++i) {
 				o = rs.getObject(i + 1);
-				System.out.print(o.toString() + " ");
+				log.debug("{}", o.toString());
 			}
-
-			System.out.println(" ");
 		}
 	}
 
@@ -168,15 +166,13 @@ public class FoormTest {
 		ResultSetMetaData md   = rs.getMetaData();
 		// Print the column labels
 		for( int i = 1; i <= md.getColumnCount(); i++ ) {
-			System.out.println( md.getColumnLabel(i) + " (" + md.getColumnDisplaySize(i) + ") auto=" + md.isAutoIncrement(i)) ;
-			System.out.println(" type="+md.getColumnClassName(i));
+			log.debug("{} ({}) auto={}", md.getColumnLabel(i), md.getColumnDisplaySize(i), md.isAutoIncrement(i));
+			log.debug("type={}", md.getColumnClassName(i));
 		}
-		System.out.println() ;
 
 		// Loop through the result set
 		while( rs.next() ) {
-			for( int i = 1; i <= md.getColumnCount(); i++ ) System.out.print( rs.getString(i) + " " ) ;
-			System.out.println() ;
+			for( int i = 1; i <= md.getColumnCount(); i++ ) log.debug("{}", rs.getString(i));
 		}
 	}
 
@@ -184,11 +180,10 @@ public class FoormTest {
 		try {
 			Class.forName("org.hsqldb.jdbcDriver");
 			conn = DriverManager.getConnection("jdbc:hsqldb:file:testdb", "sa", "");
-			System.out.println("Got Connection="+conn);
+			log.debug("Got Connection={}", conn);
 			return conn;
 		} catch (Exception e) {
-			System.out.println("Unable to connect to hsql database");
-			e.printStackTrace();
+			log.error("Unable to connect to hsql database", e);
 			assert false;
 		}
 		return null;
@@ -199,15 +194,15 @@ public class FoormTest {
 
 		try {
 			update(conn,"DROP TABLE sample_table");
-			System.out.println("Dropped Existing table");
+			log.debug("Dropped Existing table");
 		} catch (SQLException ex2) {
-			System.out.println("Creating fresh table");
+			log.error("Creating fresh table", ex2);
 		}
 
 		try {
 			update(conn,"CREATE TABLE sample_table ( id INTEGER IDENTITY, str_col VARCHAR(256), num_col INTEGER)");
 		} catch (SQLException ex2) {
-			ex2.printStackTrace();
+			log.error("Unable to create table sample_table", ex2);
 			assert false;
 		}
 
@@ -220,7 +215,7 @@ public class FoormTest {
 			// do a query
 			query(conn,"SELECT * FROM sample_table WHERE num_col < 250");
 		} catch (SQLException ex3) {
-			ex3.printStackTrace();
+			log.error("Unable to insert into sample_table or select from sample_table", ex3);
 			assert false;
 		}
 
@@ -229,7 +224,7 @@ public class FoormTest {
 			st.execute("SHUTDOWN");
 			conn.close();
 		} catch (SQLException ex3) {
-			ex3.printStackTrace();
+			log.error("Unable to close connection", ex3);
 		}
 
 	}
@@ -241,7 +236,7 @@ public class FoormTest {
 		conn = getHSqlDatabase();
 
 		for (String sql : sqls) {
-			System.out.println("SQL="+sql);
+			log.debug("SQL={}", sql);
 			try {
 				update(conn, sql);
 			} catch (SQLException e) {
@@ -252,29 +247,29 @@ public class FoormTest {
 		try {
 			query(conn,"SELECT * FROM lti_content");
 		} catch (SQLException ex3) {
-			ex3.printStackTrace();
+			log.error("Unable to query from lti_content table", ex3);
 			assert false;
 		}
 
 		try {
-			System.out.println("Second time...");
+			log.debug("Second time...");
 			doReset = false;
 			Statement st = conn.createStatement(); 
 			ResultSet rs =  st.executeQuery("SELECT * FROM lti_content");
 			ResultSetMetaData md   = rs.getMetaData();
 			sqls = foorm.formAdjustTable("lti_content", test_form_2, "hsqldb", md);
 			for (String sql : sqls) {
-				System.out.println("SQL="+sql);
+				log.debug("SQL={}", sql);
 				try {
 					update(conn, sql);
 				} catch (SQLException e) {
-					e.printStackTrace();
+					log.error("Unable to update: {}, error: {}", sql, e);
 					assert false;
 				}
 			}
 			query(conn,"SELECT * FROM lti_content");
 		} catch (SQLException ex3) {
-			ex3.printStackTrace();
+			log.error("Unable to query from lti_content table", ex3);
 			assert false;
 		}
 

@@ -23,6 +23,8 @@ import java.util.Map;
 
 import javax.portlet.PortletRequest;
 
+import lombok.extern.slf4j.Slf4j;
+
 /**
  * The gridsphere attribute information is available from the following:
  * http://www.gridsphere.org/gridsphere/docs/FAQ/FAQ.html question #5
@@ -34,7 +36,7 @@ import javax.portlet.PortletRequest;
  * am trying to stick to the suggestions in the JSR 168 Portlet Standard (PLT.D).
  */
 
-
+@Slf4j
 public class PortalUser {
 
 	// If we 
@@ -51,8 +53,6 @@ public class PortalUser {
 	public static final int ORACLEPORTAL = 3;
 
 	private int portalType = NOTSET;
-
-	private boolean doDebug = true;
 
 	// Leave not set
 	public PortalUser() {
@@ -77,7 +77,7 @@ public class PortalUser {
 	{
 		if ( portalType != NOTSET ) return;
 		portalType = lookupPortalType(request);
-		System.out.println("Setting portalType="+portalType);
+		log.debug("Setting portalType={}", portalType);
 	}
 
 	public String getUsername(PortletRequest request) {
@@ -92,13 +92,13 @@ public class PortalUser {
 				}
 				break;
 			case ORACLEPORTAL:
-				//System.out.println("userInfo" + userInfo); // Changes by Venkatesh for Oracle Portal
-				//System.out.println("Remote User=" + username); // Oracle portal is populating user name with [1] at the end
+				log.debug("userInfo {}", userInfo); // Changes by Venkatesh for Oracle Portal
+				log.debug("Remote User={}", username); // Oracle portal is populating user name with [1] at the end
 				// the following code will get rid of the unnecessary characters
 				username = request.getRemoteUser();
 				if(username != null && username.indexOf("[") != -1)
 				{
-					if ( doDebug ) System.out.println("Modifying user name for Oracle Portal=" + username);
+					log.debug("Modifying user name for Oracle Portal={}", username);
 					int corruptIndex = username.indexOf('[');
 					username = username.substring(0,corruptIndex);
 				}
@@ -108,7 +108,7 @@ public class PortalUser {
 				username = request.getRemoteUser();
 				break;
 		}
-		if ( doDebug) System.out.println("Remote User=" + username);
+		log.debug("Remote User={}", username);
 		return username;
 	}
 
@@ -134,7 +134,7 @@ public class PortalUser {
 				}
 				break;
 		}
-		if ( doDebug ) System.out.println("First Name="+firstName);
+		log.debug("First Name={}", firstName);
 		return firstName;
 	}
 
@@ -155,7 +155,7 @@ public class PortalUser {
 				}
 				break;
 		}
-		if ( doDebug ) System.out.println("Last Name="+lastName);
+		log.debug("Last Name={}", lastName);
 		return lastName;
 	}
 
@@ -177,7 +177,7 @@ public class PortalUser {
 				}
 		}
 
-		if ( doDebug ) System.out.println("EMail="+email);
+		log.debug("EMail={}", email);
 		return email;
 	}
 
