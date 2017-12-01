@@ -96,6 +96,10 @@
                                                 <h:outputText value="#{site.title}" />
                                                 <f:verbatim></span></f:verbatim>
 
+                                                <f:verbatim><span class="site-titleFull"></f:verbatim>
+                                                <h:outputText value="#{site.infoUrl}" />
+                                                <f:verbatim></span></f:verbatim>
+
                                                 <f:verbatim><span class="site-short-description"></f:verbatim>
                                                 <h:outputText value="#{site.shortDescription}" />
                                                 <f:verbatim></span></f:verbatim>
