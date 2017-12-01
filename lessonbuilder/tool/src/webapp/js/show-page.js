@@ -3000,6 +3000,8 @@ function openDropdown(dropDiv, button, title) {
 	dropDiv.find(".addContentMessage").show();
     else
 	dropDiv.find(".addContentMessage").hide();
+    //jquery-ui#position does not work properly with large scrolls : https://bugs.jqueryui.com/ticket/15253. (if the ticket is solved, remove the line below)
+    $("[aria-describedby='addContentDiv']").offset({top : button.offset().top + button.height()});
     return false;
 }
 
