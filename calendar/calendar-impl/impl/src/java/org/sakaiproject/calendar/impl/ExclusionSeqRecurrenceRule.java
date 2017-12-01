@@ -28,29 +28,29 @@ import java.util.Stack;
 import java.util.TimeZone;
 import java.util.Vector;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.sakaiproject.calendar.api.RecurrenceRule;
-import org.sakaiproject.time.api.Time;
-import org.sakaiproject.time.api.TimeRange;
+import lombok.extern.slf4j.Slf4j;
+
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+
 import org.xml.sax.Attributes;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
+import org.sakaiproject.calendar.api.RecurrenceRule;
+import org.sakaiproject.time.api.Time;
+import org.sakaiproject.time.api.TimeRange;
+
 /**
 * <p>ExclusionSeqRecurrenceRule is a rule which excludes specific sequence numbers from a list of instances.</p>
 */
+@Slf4j
 public class ExclusionSeqRecurrenceRule
 	implements RecurrenceRule
 {
-	/** Our logger. */
-	private static Logger M_log = LoggerFactory.getLogger(ExclusionSeqRecurrenceRule.class);
-
 	/** The list of sequence number (Integer) values to exclude. */
 	protected List m_exclusions = null;
 
@@ -101,7 +101,7 @@ public class ExclusionSeqRecurrenceRule
 				{
 					m_exclusions.add(new Integer(element.getAttribute("sequence")));
 				}
-				catch (Exception e) { M_log.warn("set: while reading exclude sequence: " + e); }
+				catch (Exception e) { log.warn("set: while reading exclude sequence: " + e); }
 			}
 		}
 
@@ -243,7 +243,7 @@ public class ExclusionSeqRecurrenceRule
 					}
 					catch (Exception e)
 					{
-						M_log.warn("set: while reading exclude sequence: " + e);
+						log.warn("set: while reading exclude sequence: " + e);
 					}
 				}
 			}

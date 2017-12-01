@@ -28,8 +28,8 @@ import java.sql.Statement;
 import java.util.Iterator;
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.calendar.api.Calendar;
 import org.sakaiproject.calendar.impl.BaseCalendarService.BaseCalendarEventEdit;
 import org.sakaiproject.component.api.ServerConfigurationService;
@@ -38,10 +38,9 @@ import org.sakaiproject.db.api.SqlService;
 /**
  * @author ieb
  */
+@Slf4j
 public class SAK11204Fix
 {
-	private static final Logger log = LoggerFactory.getLogger(SAK11204Fix.class);
-
 	private static final int MIGRATE = 1;
 
 	private static final int UPGRADE_SCHEMA = 2;

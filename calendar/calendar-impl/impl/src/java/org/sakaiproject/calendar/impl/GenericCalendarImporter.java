@@ -35,9 +35,12 @@ import java.util.Map;
 import java.util.Stack;
 import java.util.Vector;
 
+import lombok.extern.slf4j.Slf4j;
+
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+
 import org.sakaiproject.util.CalendarEventType;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sakaiproject.calendar.api.Calendar;
 import org.sakaiproject.calendar.api.CalendarEvent;
 import org.sakaiproject.calendar.api.CalendarEventEdit;
@@ -59,17 +62,13 @@ import org.sakaiproject.time.api.TimeRange;
 import org.sakaiproject.time.api.TimeService;
 import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.util.ResourceLoader;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
 
 /**
  * This class provides common importing functionality after a lower-level reader has taken care of the peculiarities of a given import format.
  */
+@Slf4j
 public class GenericCalendarImporter implements CalendarImporterService
 {
-	/** Our logger. */
-	private static Logger M_log = LoggerFactory.getLogger(GenericCalendarImporter.class);
-
 	public static final String LOCATION_PROPERTY_NAME = "Location";
 
 	public static final String LOCATION_DEFAULT_COLUMN_HEADER = "Location";
@@ -1124,7 +1123,7 @@ public class GenericCalendarImporter implements CalendarImporterService
 		}
 		catch (Throwable t)
 		{
-			M_log.warn("init(): ", t);
+			log.warn("init(): ", t);
 		}
 	}
 
@@ -1133,6 +1132,6 @@ public class GenericCalendarImporter implements CalendarImporterService
 	 */
 	public void destroy()
 	{
-		M_log.info("destroy()");
+		log.info("destroy()");
 	}
 }

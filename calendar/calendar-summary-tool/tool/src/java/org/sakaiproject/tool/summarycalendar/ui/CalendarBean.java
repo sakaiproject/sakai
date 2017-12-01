@@ -38,9 +38,9 @@ import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 import javax.faces.event.ActionEvent;
 
+import lombok.extern.slf4j.Slf4j;
+
 import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.sakaiproject.authz.api.SecurityService;
@@ -77,6 +77,7 @@ import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.entitybroker.entityprovider.extension.ActionReturn;
 import org.sakaiproject.entitybroker.exception.EntityNotFoundException;
 
+@Slf4j
 public class CalendarBean {
 
 	public static final String 						MODE_MONTHVIEW			= "month";
@@ -88,9 +89,6 @@ public class CalendarBean {
 	private static final String 					SCHEDULE_TOOL_ID		= "sakai.schedule";
 	
 	private static final String 					MERGED_CALENDARS_PROP 	= "mergedCalendarReferences";
-	
-	/** Our log (commons). */
-	private static Logger								LOG						= LoggerFactory.getLogger(CalendarBean.class);
 
 	/** Resource bundle */
 	private transient ResourceLoader				msgs					= new ResourceLoader("calendar");
@@ -168,7 +166,7 @@ public class CalendarBean {
 	// Private methods
 	// ######################################################################################
 	private void readPreferences() {
-		LOG.debug("Reading preferences...");
+		log.debug("Reading preferences...");
 		lastModifiedPrefs = PrefsBean.getPreferenceLastModified();
 		
 		// view mode
@@ -325,7 +323,7 @@ public class CalendarBean {
 		
 		TimeZone timeZone = getCurrentUserTimezone();
 		DateTime start = new DateTime(c).withZone(DateTimeZone.forTimeZone(timeZone)).withTime(0, 0, 0, 0);
-		LOG.debug("looking for events for: " + start);
+		log.debug("looking for events for: {}", start);
 		Time sod = M_ts.newTime(start.getMillis());
 		DateTime endOfDay = new DateTime(c).withZone(DateTimeZone.forTimeZone(timeZone)).withTime(23, 59, 59, 0);
 		Time eod = M_ts.newTime(endOfDay.getMillis());
@@ -336,7 +334,7 @@ public class CalendarBean {
 			CalendarEvent ce = (CalendarEvent) i.next();
 			TimeRange tr = ce.getRange();
 			if(range.contains(tr.firstTime()) || range.contains(tr.lastTime())){
-				LOG.debug("found event: " + ce.getDisplayName());
+				log.debug("found event: {}", ce.getDisplayName());
 				cev.add(ce);
 			}
 		}
@@ -350,7 +348,7 @@ public class CalendarBean {
 	private TimeZone getCurrentUserTimezone() {
 		
 		TimeZone tz = TimeService.getLocalTimeZone();
-		LOG.debug("got tz " + tz.getDisplayName());
+		log.debug("got tz {}", tz.getDisplayName());
 		return tz;
 	}
 //	}
@@ -486,7 +484,7 @@ public class CalendarBean {
 			selectedEventRef = null;
 			updateEventList = true;
 		}catch(Exception ex){
-			LOG.error("Error getting selectedDate:" + ex.toString());
+			log.error("Error getting selectedDate: {}", ex.toString());
 		}
 	}
 
@@ -499,7 +497,7 @@ public class CalendarBean {
 			selectedEvent = null;
 			updateEventList = false;
 		}catch(Exception ex){
-			LOG.error("Error getting selectedEventRef:" + ex.toString());
+			log.error("Error getting selectedEventRef: {}", ex.toString());
 		}
 	}
 
@@ -508,7 +506,7 @@ public class CalendarBean {
 			selectedEventRef = null;
 			updateEventList = true;
 		}catch(Exception ex){
-			LOG.error("Error in backToEventList:" + ex.toString());
+			log.error("Error in backToEventList: {}", ex.toString());
 		}
 	}
 	
@@ -787,10 +785,9 @@ public class CalendarBean {
 				}
 				
 			}catch(IdUnusedException e){
-				LOG.error("IdUnusedException: " + e.getMessage());
+				log.error("IdUnusedException: {}", e.getMessage());
 			}catch(PermissionException e){
-				e.printStackTrace();
-				LOG.error("Permission exception: " + e.getMessage());
+				log.error("Permission exception: {}", e.getMessage());
 			}
 		}
 		return selectedEvent;
@@ -817,7 +814,7 @@ public class CalendarBean {
 			}
 			catch (IdUnusedException e)
 			{
-				LOG.error("IdUnusedException: " + e.getMessage());
+				log.error("IdUnusedException: {}", e.getMessage());
 			}
 		}
 		if (tc == null)
