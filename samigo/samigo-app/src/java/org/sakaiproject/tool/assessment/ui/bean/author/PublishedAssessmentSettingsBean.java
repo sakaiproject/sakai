@@ -1586,7 +1586,7 @@ public void setFeedbackComponentOption(String feedbackComponentOption) {
 			// list.
 			int listSize = 1 + studentTargets.size();
 			usersInSite = new SelectItem[listSize];
-			usersInSite[0] = new SelectItem("1", "Select User/Group");
+			usersInSite[0] = new SelectItem("", assessmentSettingMessages.getString("extendedTime_select_User"));
 			int selectCount = 1;
 
 			// Add in students to select item list
@@ -1697,6 +1697,8 @@ public void setFeedbackComponentOption(String feedbackComponentOption) {
 
   private void resetExtendedTime() {
     this.extendedTime = new ExtendedTime(this.getAssessment().getData());
+    this.transitoryExtendedTime = null;
+    this.editingExtendedTime = false;
   }
 
         public String getDisplayScoreDuringAssessments(){
