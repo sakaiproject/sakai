@@ -567,9 +567,8 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
     }
 
     @Override
-    public boolean allowAddSubmissionCheckGroups(String context, Assignment assignment) {
-        String resourceString = AssignmentReferenceReckoner.reckoner().context(context).subtype("s").reckon().getReference();
-        return permissionCheckWithGroups(SECURE_ADD_ASSIGNMENT_SUBMISSION, resourceString, assignment);
+    public boolean allowAddSubmissionCheckGroups(Assignment assignment) {
+        return permissionCheckWithGroups(SECURE_ADD_ASSIGNMENT_SUBMISSION, assignment);
     }
 
     @Override
@@ -932,7 +931,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
 
             String assignmentReference = AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getReference();
             if (assignment.getTypeOfAccess() == Assignment.Access.GROUP) {
-                if (!permissionCheckWithGroups(SECURE_ADD_ASSIGNMENT_SUBMISSION, assignmentReference, assignment)) {
+                if (!permissionCheckWithGroups(SECURE_ADD_ASSIGNMENT_SUBMISSION, assignment)) {
                     throw new PermissionException(sessionManager.getCurrentSessionUserId(), SECURE_ADD_ASSIGNMENT_SUBMISSION, assignmentReference);
                 }
             } else {
@@ -1210,7 +1209,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                     assignments.add(assignment);
                 }
             } else if (assignment.getTypeOfAccess() == Assignment.Access.GROUP) {
-                if (permissionCheckWithGroups(AssignmentServiceConstants.SECURE_ACCESS_ASSIGNMENT, context, assignment)) {
+                if (permissionCheckWithGroups(AssignmentServiceConstants.SECURE_ACCESS_ASSIGNMENT, assignment)) {
                     assignments.add(assignment);
                 }
             } else if (allowGetAssignment(context)) {
@@ -1724,7 +1723,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
         }
 
         // return false if not allowed to submit at all
-        if (!allowAddSubmissionCheckGroups(context, a) && !allowAddAssignment(context)) return false;
+        if (!allowAddSubmissionCheckGroups(a) && !allowAddAssignment(context)) return false;
 
         //If userId is not defined look it up
         if (userId == null) {
@@ -2558,18 +2557,20 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
         return access;
     }
 
-    private boolean permissionCheckWithGroups(String permission, String resource, Assignment assignment) {
-
-        // if the user has permission asn.all.groups and has permission for the site
-        if (allowAllGroups(assignment.getContext()) && securityService.unlock(permission, siteService.siteReference(assignment.getContext()))) {
-            return true;
+    private boolean permissionCheckWithGroups(String permission, Assignment assignment) {
+        Collection<String> groupIds = assignment.getGroups();
+        if (groupIds.isEmpty()) {
+            return securityService.unlock(permission, siteService.siteReference(assignment.getContext()));
         } else {
-            // otherwise check the permission in the groups
-            Collection<String> groupIds = assignment.getGroups();
+            // check the permission in the groups
             for (String groupId : groupIds) {
                 if (securityService.unlock(permission, groupId)) {
                     return true;
                 }
+            }
+            // lastly if the user has permission asn.all.groups and has permission for the site
+            if (allowAllGroups(assignment.getContext()) && securityService.unlock(permission, siteService.siteReference(assignment.getContext()))) {
+                return true;
             }
         }
         return false;
