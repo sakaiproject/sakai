@@ -24,8 +24,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.chat2.model.ChatChannel;
 import org.sakaiproject.chat2.model.ChatManager;
 import org.sakaiproject.chat2.model.ChatMessage;
@@ -52,9 +52,9 @@ import org.sakaiproject.util.ResourceLoader;
  * @author chrismaurer
  *
  */
+@Slf4j
 public class ChatContentProducer implements EntityContentProducer {
 
-   protected final Logger logger = LoggerFactory.getLogger(getClass());
    private SearchService searchService = null;
    private SearchIndexBuilder searchIndexBuilder = null;
    private EntityManager entityManager = null;
@@ -72,7 +72,7 @@ public class ChatContentProducer implements EntityContentProducer {
    }
 
 protected void init() throws Exception {
-      logger.info("init()");
+      log.info("init()");
       
       if ("true".equals(ServerConfigurationService.getString( //$NON-NLS-1$
             "search.enable", "false"))) //$NON-NLS-1$ //$NON-NLS-2$
@@ -99,7 +99,7 @@ protected void init() throws Exception {
     */
    protected void destroy()
    {
-      logger.info("destroy()");
+      log.info("destroy()");
    }
 
    
@@ -202,7 +202,7 @@ protected void init() throws Exception {
          }
          catch (Exception ex)
          {
-            logger.error("Got error on channel ", ex); //$NON-NLS-1$
+            log.error("Got error on channel ", ex); //$NON-NLS-1$
 
          }
       }
@@ -227,7 +227,7 @@ protected void init() throws Exception {
       try {
          sender = UserDirectoryService.getUser(user);
       } catch(UserNotDefinedException e) {
-         logger.error(e.getMessage());
+         log.error(e.getMessage(), e);
          return user;
       }
       if (contextualUserDisplayService == null) {
@@ -276,8 +276,8 @@ protected void init() throws Exception {
             */
             
             sb.append("\n"); //$NON-NLS-1$
-            logger.debug("Message Content for " + ref.getReference() + " is " //$NON-NLS-1$ //$NON-NLS-2$
-                  + sb.toString());
+            log.debug("Message Content for {} is {}", ref.getReference(), //$NON-NLS-1$ //$NON-NLS-2$
+                    sb.toString());
 
             return sb.toString();
          }
@@ -353,9 +353,8 @@ protected void init() throws Exception {
          }
          catch (Exception ex)
          {
-            ex.printStackTrace();
-            logger.warn("Failed to get channel " + c.getId()); //$NON-NLS-1$
-
+            log.warn("Failed to get channel {}", c.getId()); //$NON-NLS-1$
+            log.error(ex.getMessage(), ex);
          }
       }
       return all;
@@ -408,9 +407,8 @@ protected void init() throws Exception {
                }
                catch (Exception ex)
                {
-                  ex.printStackTrace();
-                  logger.warn("Failed to get channel " + c.getId()); //$NON-NLS-1$
-
+                  log.warn("Failed to get channel {}", c.getId()); //$NON-NLS-1$
+                  log.error(ex.getMessage(), ex);
                }
             }
             return false;
@@ -536,19 +534,19 @@ protected void init() throws Exception {
             ChatMessage m = cep.getMessage(ref);
             if (m == null)
             {
-               logger.debug("Rejected null message " + ref.getReference()); //$NON-NLS-1$
+               log.debug("Rejected null message {}", ref.getReference()); //$NON-NLS-1$
                return false;
             }
          }
          catch (IdUnusedException e)
          {
-            logger.debug("Rejected Missing message or Collection " //$NON-NLS-1$
-                  + ref.getReference());
+            log.debug("Rejected Missing message or Collection {}", //$NON-NLS-1$
+                  ref.getReference());
             return false;
          }
          catch (PermissionException e)
          {
-            logger.warn("Rejected private message " + ref.getReference()); //$NON-NLS-1$
+            log.warn("Rejected private message {}", ref.getReference()); //$NON-NLS-1$
             return false;
          }
          return true;
