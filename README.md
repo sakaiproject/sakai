@@ -73,7 +73,7 @@ If you can't find your  "at institution.edu" on the Apereo signup page then send
 Sakai 2.9 and earlier are no longer supported by the community.
 
 ## Under Development
-Sakai 12 is under development and expected to branch in the third or fourth quarter of 2017. Please note that originally we were targetting the first quarter of 2017 but decided to change our schedule for various reasons including scope change and taking into consideration that many institutions are still upgrading to Sakai 11 this year, 2017, so adoption cycles were a consideration.
+Sakai 12 is under development and expected to be released in the first quarter of 2018.
 
 ## Accessibility
 [The Sakai Accessibility Working Group](https://confluence.sakaiproject.org/display/2ACC/Accessibility+Working+Group) is responsible for ensuring that the Sakai framework and its tools are accessible to persons with disabilities. [The Sakai Ra11y plan](https://confluence.sakaiproject.org/display/2ACC/rA11y+Plan) is working towards a VPAT and/or a WCAG2 certification.
