@@ -6160,7 +6160,7 @@ public class AssignmentAction extends PagedResourceActionII {
                             if (a.getIsGroup()) {
                                 submitterId = group_id;
                             } else {
-                                submitterId = submitter.getId();
+                                submitterId = u.getId();
                             }
                             submission = assignmentService.addSubmission(a.getId(), submitterId);
                             if (submission != null) {
