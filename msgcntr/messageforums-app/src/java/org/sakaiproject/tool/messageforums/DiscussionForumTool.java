@@ -4507,12 +4507,11 @@ private String editorRows;
 
 	  NumberFormat numberFormat = DecimalFormat.getInstance(new ResourceLoader().getLocale());
 	  if (!selGBItemRestricted) {
-		  Assignment assign = gradebookService.getAssignmentByNameOrId(gradebookUid, selAssignmentName);
-		  if (assign != null && assign.getPoints() != null) {
-			  gbItemPointsPossible = ((DecimalFormat) numberFormat).format(assign.getPoints());
+		  if (assignment != null && assignment.getPoints() != null) {
+			  gbItemPointsPossible = ((DecimalFormat) numberFormat).format(assignment.getPoints());
 		  }
 		  
-		  GradeDefinition gradeDef = gradebookService.getGradeDefinitionForStudentForItem(gradebookUid, assign.getId(), studentId);
+		  GradeDefinition gradeDef = gradebookService.getGradeDefinitionForStudentForItem(gradebookUid, assignment.getId(), studentId);
 
 		  if (gradeDef.getGrade() != null) {
 		      String decSeparator = FormattedText.getDecimalSeparator();
@@ -6357,7 +6356,6 @@ private String editorRows;
 
 			  if(!DEFAULT_GB_ITEM.equalsIgnoreCase(selectedAssign)) {
 				  String gradebookUid = ToolManager.getCurrentPlacement().getContext();
-				  String selAssignName = ((SelectItem)assignments.get((Integer.valueOf(selectedAssign)).intValue())).getLabel();	
 				  String studentId;
 				  if(selectedMessage == null && selectedGradedUserId != null && !"".equals(selectedGradedUserId)){
 					  studentId = selectedGradedUserId;
@@ -6365,7 +6363,7 @@ private String editorRows;
 					  studentId = UserDirectoryService.getUser(selectedMessage.getMessage().getCreatedBy()).getId();  
 				  }				   
 				  
-				  setUpGradeInformation(gradebookUid, selAssignName, studentId);
+				  setUpGradeInformation(gradebookUid, selectedAssign, studentId);
 			  } else {
 				  // this is the "Select a gradebook item" option
 				  allowedToGradeItem = false;
@@ -6518,7 +6516,6 @@ private String editorRows;
     String studentUid = null;
     try 
     {   
-        String selectedAssignName = ((SelectItem)assignments.get((Integer.valueOf(selectedAssign)).intValue())).getLabel();
         String gradebookUuid = ToolManager.getCurrentPlacement().getContext();
         if(selectedMessage == null && selectedGradedUserId != null && !"".equals(selectedGradedUserId)){
         	studentUid = selectedGradedUserId;
@@ -6526,7 +6523,7 @@ private String editorRows;
         	studentUid = UserDirectoryService.getUser(selectedMessage.getMessage().getCreatedBy()).getId();
         }
         
-        Long gbItemId = gradebookService.getAssignmentByNameOrId(gradebookUuid, selectedAssignName).getId();
+        Long gbItemId = gradebookService.getAssignmentByNameOrId(gradebookUuid, selectedAssign).getId();
         gradebookService.saveGradeAndCommentForStudent(gradebookUuid, gbItemId, studentUid, gradePoint, gradeComment);
         
         if(selectedMessage != null){
