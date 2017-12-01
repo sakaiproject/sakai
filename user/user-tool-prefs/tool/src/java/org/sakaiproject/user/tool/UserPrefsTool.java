@@ -809,12 +809,20 @@ public class UserPrefsTool
 	 * title (default behaviour)
 	 * 
 	 * @param site the site in question
+	 * @param truncate whether or not to truncate the site title for display purposes
 	 * @return the site or section title
 	 */
-	public static String getUserSpecificSiteTitle( Site site )
+	public static String getUserSpecificSiteTitle( Site site, boolean truncate )
 	{
 		String retVal = SiteService.getUserSpecificSiteTitle( site, UserDirectoryService.getCurrentUser().getId() );
-		return Web.escapeHtml( FormattedText.makeShortenedText( retVal, null, null, null ) );
+		if (truncate)
+		{
+			return Web.escapeHtml( FormattedText.makeShortenedText( retVal, null, null, null ) );
+		}
+		else
+		{
+			return Web.escapeHtml( retVal );
+		}
 	}
 
 	/**
@@ -2303,7 +2311,7 @@ public class UserPrefsTool
 			
 			try {
 				Site site = SiteService.getSite(siteId);
-				this.siteTitle = getUserSpecificSiteTitle(site);
+				this.siteTitle = getUserSpecificSiteTitle(site, true);
 			} catch (IdUnusedException e) {
 				LOG.warn("Unable to get Site object for id: " + siteId, e);
 			}
@@ -2358,7 +2366,7 @@ public class UserPrefsTool
 			this.defaultOpen = defaultOpen;
 			
 			for (DecoratedSiteBean dsb : sites) {
-				sitesAsSelects.add(new SelectItem(dsb.getSite().getId(), getUserSpecificSiteTitle(dsb.getSite())));
+				sitesAsSelects.add(new SelectItem(dsb.getSite().getId(), getUserSpecificSiteTitle(dsb.getSite(), true)));
 			}			
 		}
 		
@@ -2617,7 +2625,15 @@ public class UserPrefsTool
 					termsToSites.put(term, new ArrayList<Site>(1));
 				}
 
-				site.setTitle(getUserSpecificSiteTitle(site));
+				// This is being used to display the full site title in the tool tip.
+				// It's necessary to pack this into some random/unused field of the Site object
+				// because the tool is using an old JSF version, which does not support calling
+				// methods with parameters in a JSP file to a backing bean. So, as a hack, we stuff
+				// the untruncated site title into the 'infoUrl' String to accomplish this.
+				// The site object is never saved, so we don't have to worry about overwriting the 'infoUrl' value
+				site.setInfoUrl(getUserSpecificSiteTitle(site, false));
+
+				site.setTitle(getUserSpecificSiteTitle(site, true));
 				termsToSites.get(term).add(site);
 			}
 
