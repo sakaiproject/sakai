@@ -36,6 +36,10 @@
 		<managed-bean-name>UserListBean</managed-bean-name>
 		<managed-bean-class>org.sakaiproject.umem.tool.ui.UserListBean</managed-bean-class>
 		<managed-bean-scope>session</managed-bean-scope>
+		<managed-property>
+			<property-name>sakaiFacade</property-name>
+			<value>#{org_sakaiproject_umem_api_SakaiFacade}</value>
+		</managed-property>
 	</managed-bean>
 	
 	<managed-bean>
