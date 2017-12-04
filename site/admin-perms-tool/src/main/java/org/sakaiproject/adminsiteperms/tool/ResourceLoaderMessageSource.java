@@ -17,10 +17,10 @@ package org.sakaiproject.adminsiteperms.tool;
 import java.text.MessageFormat;
 import java.util.Locale;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.sakaiproject.util.ResourceLoader;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.support.AbstractMessageSource;
+
+import org.sakaiproject.util.ResourceLoader;
 
 /**
  * Simple spring message source that uses the Sakai resource loader as the source
@@ -29,9 +29,8 @@ import org.springframework.context.support.AbstractMessageSource;
  * 
  * @author Aaron Zeckoski (azeckoski @ vt.edu)
  */
+@Slf4j
 public class ResourceLoaderMessageSource extends AbstractMessageSource {
-    private static Logger log = LoggerFactory.getLogger(ResourceLoaderMessageSource.class);
-
     ResourceLoader resourceLoader;
 
     public void setBasename(String baseName) {
