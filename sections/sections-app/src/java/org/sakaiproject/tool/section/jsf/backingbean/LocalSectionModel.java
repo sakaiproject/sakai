@@ -25,15 +25,15 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.builder.ToStringBuilder;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
 import org.sakaiproject.section.api.coursemanagement.Course;
 import org.sakaiproject.section.api.coursemanagement.CourseSection;
 import org.sakaiproject.section.api.coursemanagement.Meeting;
 
+@Slf4j
 public class LocalSectionModel implements CourseSection, Serializable {
-	private static final Logger log = LoggerFactory.getLogger(LocalSectionModel.class);
 	private static final long serialVersionUID = 1L;
 
 	private Course course;
