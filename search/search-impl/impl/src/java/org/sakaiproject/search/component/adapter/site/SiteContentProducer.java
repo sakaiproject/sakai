@@ -29,8 +29,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityManager;
@@ -51,10 +51,9 @@ import org.sakaiproject.site.api.SiteService;
 /**
  * @author ieb
  */
+@Slf4j
 public class SiteContentProducer implements EntityContentProducer
 {
-
-	private static final Logger log = LoggerFactory.getLogger(SiteContentProducer.class);
 
 	private EntityManager entityManager;
 
