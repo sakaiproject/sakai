@@ -1469,18 +1469,11 @@ public class BasicEmailService implements EmailService
 		if (M_log.isInfoEnabled())
 		{
 			StringBuilder buf = new StringBuilder();
-			buf.append("Email.sendMail: from: ");
-			for(Address from : msg.getFrom()) {
-				buf.append(toEmail(from));
-				buf.append(" ");
-			}
+			buf.append("Email.sendMail:");
+			appendAddresses(buf, msg.getFrom(), " from:");
 			buf.append("subject: ");
 			buf.append(msg.getSubject());
-			buf.append(" to:");
-			for (InternetAddress aTo : to) {
-				buf.append(" ");
-				buf.append(toEmail(aTo));
-			}
+			appendAddresses(buf, to, " to:");
 			appendAddresses(buf, msg.getRecipients(Message.RecipientType.TO), " headerTo{to}:");
 			appendAddresses(buf, msg.getRecipients(Message.RecipientType.CC), " headerTo{cc}:");
 			appendAddresses(buf, msg.getRecipients(Message.RecipientType.BCC), " headerTo{bcc}:");
@@ -1516,9 +1509,11 @@ public class BasicEmailService implements EmailService
 	 * @param label The label for these addresses.
 	 */
 	private void appendAddresses(StringBuilder buffer, Address[] addresses, String label) {
-		if (addresses != null) {
+		if (addresses != null)
+		{
 			buffer.append(label);
-			for (Address address : addresses) {
+			for (Address address : addresses)
+			{
 				buffer.append(" ");
 				buffer.append(toEmail(address));
 			}
