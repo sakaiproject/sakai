@@ -54,6 +54,9 @@
 		//Disable the back button
 		disableBackButton("<h:outputText value="#{deliveryMessages.use_form_navigation}"/>");
 
+		if($('#submittedForm\\:renderTimeoutMessage').length > 0){
+			showTimerExpiredWarning(function() { ($('#timer-expired-warning').parent()).css('display', 'none');});
+		}
 	});
 
 	function checkIfHonorPledgeIsChecked() {
