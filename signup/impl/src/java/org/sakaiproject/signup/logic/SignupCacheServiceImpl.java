@@ -39,14 +39,12 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.sakaiproject.event.api.Event;
 import org.sakaiproject.memory.api.Cache;
-import org.sakaiproject.memory.api.CacheRefresher;
 import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.signup.dao.SignupMeetingDao;
 import org.sakaiproject.signup.model.SignupMeeting;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * <p>
@@ -58,8 +56,7 @@ import org.sakaiproject.signup.model.SignupMeeting;
  * 
  */
 
-public class SignupCacheServiceImpl implements SignupCacheService,
-		CacheRefresher {
+public class SignupCacheServiceImpl implements SignupCacheService {
 
 	private MemoryService memoryService;
 
@@ -78,7 +75,7 @@ public class SignupCacheServiceImpl implements SignupCacheService,
 		try {
 			// The other parameters are not needed for this cache
 			m_signupSiteCache = memoryService
-					.newCache("org.sakaiproject.signup.logic.siteCache");
+					.getCache("org.sakaiproject.signup.logic.siteCache");
 			if (m_instance == null) {
 				m_instance = this;
 			}
@@ -86,7 +83,7 @@ public class SignupCacheServiceImpl implements SignupCacheService,
 			if (M_log.isDebugEnabled()) {
 				M_log.debug(this + ".init()");
 			}
-		} catch (Throwable t) {
+		} catch (Exception t) {
 			M_log.warn(this + "init(): ", t);
 		}
 	}
@@ -172,16 +169,6 @@ public class SignupCacheServiceImpl implements SignupCacheService,
 		M_log.info("destroy()");
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public Object refresh(Object key, Object oldValue, Event event) {
-		/*
-		 * instead of refreshing when an entry expires, let it go and we'll get
-		 * it again if needed
-		 */
-		return null;
-	}
 
 	public MemoryService getMemoryService() {
 		return memoryService;
