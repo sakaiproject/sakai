@@ -7422,6 +7422,7 @@ public class AssignmentAction extends PagedResourceActionII {
 
     /**
      * post or save assignment
+     * TODO much of the logic in this method should be moved to the assignment service
      */
     private void post_save_assignment(RunData data, String postOrSave) {
         SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
@@ -7473,20 +7474,31 @@ public class AssignmentAction extends PagedResourceActionII {
         // whether there is a change in the assignment resubmission choice
         boolean bool_change_resubmit_option = false;
 
-        if (state.getAttribute(STATE_MESSAGE) == null) {
-            Assignment a = null;
-            if (StringUtils.isBlank(assignmentId)) {
-                try {
-                    a = assignmentService.addAssignment(siteId);
-                } catch (PermissionException e) {
-                    log.warn("Could not create new assignment for site: {}, {}", siteId, e.getMessage());
-                    addAlert(state, rb.getFormattedMessage("youarenot_editAssignment", siteId));
-                    return;
-                }
-            } else {
-                a = getAssignment(assignmentId, "post_save_assignment", state);
-            }
+        // if there is a message at this point usually means there was some type of error
+        if (StringUtils.isNotBlank((String) state.getAttribute(STATE_MESSAGE))) {
+            return;
+        }
 
+        Assignment a;
+        // if there is no assignmentId
+        if (StringUtils.isBlank(assignmentId)) {
+            //  create a new assignment
+            try {
+                a = assignmentService.addAssignment(siteId);
+            } catch (PermissionException e) {
+                log.warn("Could not create new assignment for site: {}, {}", siteId, e.getMessage());
+                addAlert(state, rb.getFormattedMessage("youarenot_editAssignment", siteId));
+                return;
+            }
+        } else {
+            // otherwise get the existing
+            a = getAssignment(assignmentId, "post_save_assignment", state);
+        }
+
+        if (a == null) {
+            log.warn("Could not create/retrieve assignment in/for site: {}, assignment is null", siteId);
+            addAlert(state, rb.getFormattedMessage("theisno"));
+        } else {
             Map<String, String> p = a.getProperties();
 
             if ((a.getTypeOfGrade() != SCORE_GRADE_TYPE) && ((Integer) state.getAttribute(NEW_ASSIGNMENT_GRADE_TYPE) == SCORE_GRADE_TYPE.ordinal())) {
@@ -7848,9 +7860,9 @@ public class AssignmentAction extends PagedResourceActionII {
                         }
                     }
                 }
-            } // if
-        } // if
-    } // post_save_assignment
+            }
+        }
+    }
 
     /**
      * supplement item related information
