@@ -19,22 +19,19 @@
  *
  **********************************************************************************/
 
-
 package org.sakaiproject.tool.assessment.integration.helper.integrated;
 
 import java.util.*;
 import java.text.Collator;
 import java.text.ParseException;
-import java.text.RuleBasedCollator; 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.text.RuleBasedCollator;
+
 import org.sakaiproject.section.api.coursemanagement.EnrollmentRecord;
 
 /**
  * borrowed gradebook's FacadeUtils class
  */
 public class FacadeUtils {
-	private static final Logger log = LoggerFactory.getLogger(FacadeUtils.class);
 
 	// Enforce noninstantiability.
 	private FacadeUtils() {
@@ -92,8 +89,4 @@ public class FacadeUtils {
 		}
 		return studentUids;
 	}
-
 }
-
-
-

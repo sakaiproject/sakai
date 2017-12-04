@@ -38,9 +38,8 @@ import javax.faces.event.ActionListener;
 import javax.faces.event.ValueChangeEvent;
 import javax.faces.event.ValueChangeListener;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.beanutils.BeanUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAssessmentData;
 import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
 import org.sakaiproject.tool.assessment.data.dao.grading.StudentGradingSummaryData;
@@ -59,16 +58,15 @@ import org.sakaiproject.tool.assessment.util.BeanSort;
 import org.sakaiproject.tool.assessment.integration.helper.ifc.AgentHelper;
 import org.sakaiproject.tool.assessment.integration.context.IntegrationContextFactory;
 
-
 /**
  * <p>Description: Action Listener for displaying Submission Status for anonymnous grading</p>
  * @version $Id$
  */
 
+@Slf4j
 public class SubmissionStatusListener
   implements ActionListener, ValueChangeListener
 {
-  private static Logger log = LoggerFactory.getLogger(SubmissionStatusListener.class);
   //private static EvaluationListenerUtil util;
   private static BeanSort bs;
   //private static ContextUtil cu;
@@ -81,13 +79,11 @@ public class SubmissionStatusListener
   public void processAction(ActionEvent ae) throws
     AbortProcessingException
   {
-    //log.info("Submission Status LISTENER.");
     SubmissionStatusBean bean = (SubmissionStatusBean) ContextUtil.lookupBean("submissionStatus");
     TotalScoresBean totalScoresBean = (TotalScoresBean) ContextUtil.lookupBean("totalScores");
 
     // we probably want to change the poster to be consistent
     String publishedId = ContextUtil.lookupParam("publishedId");
-    //log.info("Got publishedId " + publishedId);
 
     // Reset the search field
     String defaultSearchString = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.EvaluationMessages", "search_default_student_search_string");
@@ -284,13 +280,13 @@ public class SubmissionStatusListener
 
     catch (RuntimeException e)
     {
-      e.printStackTrace();
+      log.error(e.getMessage(), e);
       return false;
     } catch (IllegalAccessException e) {
-		e.printStackTrace();
+		log.error(e.getMessage(), e);
 		return false;
 	} catch (InvocationTargetException e) {
-		e.printStackTrace();
+		log.error(e.getMessage(), e);
 		return false;
 	}
 

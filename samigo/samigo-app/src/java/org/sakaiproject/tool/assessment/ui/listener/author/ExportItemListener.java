@@ -19,16 +19,13 @@
  *
  **********************************************************************************/
 
-
-
 package org.sakaiproject.tool.assessment.ui.listener.author;
 
 import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import org.sakaiproject.tool.assessment.ui.bean.qti.XMLController;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
@@ -39,10 +36,9 @@ import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
  * @author Ed Smiley
  * @version $Id$
  */
-
+@Slf4j
 public class ExportItemListener implements ActionListener
 {
-  private static Logger log = LoggerFactory.getLogger(ExportItemListener.class);
   private static ContextUtil cu;
 
   public ExportItemListener()

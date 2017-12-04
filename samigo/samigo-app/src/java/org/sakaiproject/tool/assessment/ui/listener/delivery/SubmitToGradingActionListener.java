@@ -37,7 +37,9 @@ import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
+
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.entity.api.EntityPropertyNotDefinedException;
 import org.sakaiproject.entity.api.EntityPropertyTypeException;
@@ -71,8 +73,6 @@ import org.sakaiproject.tool.assessment.util.TextFormat;
 import org.sakaiproject.user.api.Preferences;
 import org.sakaiproject.user.api.PreferencesService;
 import org.sakaiproject.user.api.UserDirectoryService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * <p>
@@ -85,9 +85,8 @@ import org.slf4j.LoggerFactory;
  * @version $Id: SubmitToGradingActionListener.java 11634 2006-07-06 17:35:54Z
  *          daisyf@stanford.edu $
  */
-
+@Slf4j
 public class SubmitToGradingActionListener implements ActionListener {
-	private static final Logger log = LoggerFactory.getLogger(SubmitToGradingActionListener.class);
     private final EventTrackingService eventTrackingService= ComponentManager.get( EventTrackingService.class );
 
 	
@@ -579,20 +578,15 @@ public class SubmitToGradingActionListener implements ActionListener {
 			        String newAnswerText = newItem.getAnswerText();
 			        oldItem.setReview(newItem.getReview());
 			        oldItem.setPublishedAnswerId(newItem.getPublishedAnswerId());
-			        String newRationale = TextFormat.convertPlaintextToFormattedTextNoHighUnicode(log, newItem.getRationale());
+			        String newRationale = TextFormat.convertPlaintextToFormattedTextNoHighUnicode(newItem.getRationale());
 			        oldItem.setRationale(newRationale);
 			        oldItem.setAnswerText(newAnswerText);
 			        oldItem.setSubmittedDate(new Date());
 			        oldItem.setAutoScore(newItem.getAutoScore());
 			        oldItem.setOverrideScore(newItem.getOverrideScore());
 			        updateItemGradingSet.add(oldItem);
-			        // log.debug("**** SubmitToGrading: need update
-			        // "+oldItem.getItemGradingId());
 			    }
-			} else { // itemGrading from new set doesn't exist, add to set in
-				// this case
-				// log.debug("**** SubmitToGrading: need add new item");
-				//a new item should always have the grading ID set to null
+			} else { // itemGrading from new set doesn't exist, add to set in this case a new item should always have the grading ID set to null
 				newItem.setItemGradingId(null);
 				newItem.setAgentId(adata.getAgentId());
 				updateItemGradingSet.add(newItem);
@@ -695,7 +689,7 @@ public class SubmitToGradingActionListener implements ActionListener {
 							itemgrading.setAgentId(AgentFacade.getAgentString());
 							itemgrading.setSubmittedDate(new Date());
 							if (itemgrading.getRationale() != null && itemgrading.getRationale().length() > 0) {
-								itemgrading.setRationale(TextFormat.convertPlaintextToFormattedTextNoHighUnicode(log, itemgrading.getRationale()));
+								itemgrading.setRationale(TextFormat.convertPlaintextToFormattedTextNoHighUnicode(itemgrading.getRationale()));
 							}
 							// the rest of the info is collected by
 							// ItemContentsBean via JSF form
@@ -872,7 +866,7 @@ public class SubmitToGradingActionListener implements ActionListener {
 						itemgrading.setAgentId(AgentFacade.getAgentString());
 						itemgrading.setSubmittedDate(new Date());
 						if (itemgrading.getRationale() != null && itemgrading.getRationale().length() > 0) {
-							itemgrading.setRationale(TextFormat.convertPlaintextToFormattedTextNoHighUnicode(log, itemgrading.getRationale()));
+							itemgrading.setRationale(TextFormat.convertPlaintextToFormattedTextNoHighUnicode(itemgrading.getRationale()));
 						}
 						adds.add(itemgrading);
 					}

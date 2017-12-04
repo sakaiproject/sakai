@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.sakaiproject.tool.assessment.ui.listener.author;
 
 import java.util.ArrayList;
@@ -27,8 +28,8 @@ import javax.faces.event.ValueChangeEvent;
 import javax.faces.event.ValueChangeListener;
 import javax.faces.model.SelectItem;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.tool.assessment.data.dao.assessment.EventLogData;
@@ -41,10 +42,10 @@ import org.sakaiproject.tool.assessment.ui.bean.author.EventLogBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.util.BeanSort;
 
+@Slf4j
 public class EventLogListener
 implements ActionListener, ValueChangeListener
 {
-	private static Logger log = LoggerFactory.getLogger(EventLogListener.class);
 	private static BeanSort bs;
 	private static String userFilterString = null;
 	

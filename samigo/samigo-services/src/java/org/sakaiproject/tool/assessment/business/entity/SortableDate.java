@@ -19,14 +19,12 @@
  *
  **********************************************************************************/
 
-
 package org.sakaiproject.tool.assessment.business.entity;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * <p>
@@ -54,9 +52,9 @@ import org.slf4j.LoggerFactory;
  * @author Ed Smiley
  * @version $Id$
  */
+@Slf4j
 public class SortableDate
 {
-  private Logger log = LoggerFactory.getLogger(SortableDate.class);
 
   /**
    * standard date format string used in AAM

@@ -32,8 +32,7 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -60,9 +59,9 @@ import org.sakaiproject.util.FormattedText;
  * @author Shastri, Rashmi <rshastri@iupui.edu>
  * @version $Id$
  */
-public class Section extends ASIBaseClass
+ @Slf4j
+ public class Section extends ASIBaseClass
 {
-  private static Logger log = LoggerFactory.getLogger(Section.class);
   public String basePath;
 
   /**
@@ -296,7 +295,6 @@ public void setTitle(String title)
     	this.addElement(xpath, element);
     } catch(ParserConfigurationException pce) {
     	log.error("Exception thrown from addItemRef() : " + pce.getMessage());
-		pce.printStackTrace();
     }
   }
 
@@ -339,7 +337,6 @@ public void setTitle(String title)
     	this.addElement(xpath, element);
     } catch(ParserConfigurationException pce) {
     	log.error("Exception thrown from addSectionRef() : " + pce.getMessage());
-		pce.printStackTrace();
     }
   }
 

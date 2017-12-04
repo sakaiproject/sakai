@@ -40,13 +40,12 @@ import java.util.TreeSet;
 import javax.activation.MimetypesFileTypeMap;
 import javax.xml.parsers.ParserConfigurationException;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.entity.api.ResourceProperties;
-//import org.sakaiproject.tool.assessment.api.SamigoApiFactory;
 import org.sakaiproject.tool.assessment.data.dao.assessment.Answer;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AnswerFeedback;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentAccessControl;
@@ -105,6 +104,7 @@ import org.xml.sax.SAXException;
  * @version $Id$
  */
 
+@Slf4j
 public class ExtractionHelper
 {
   private static final String QTI_VERSION_1_2_PATH = "v1p2";
@@ -120,7 +120,6 @@ public class ExtractionHelper
   private static final String ITEM_TRANSFORM = "extractItem.xsl";
   private static final String ITEM_EMI_TRANSFORM = "extractEMIItem.xsl";
   public static final String REMOVE_NAMESPACE_TRANSFORM = "removeDefaultNamespaceFromQTI.xsl";
-  private static Logger log = LoggerFactory.getLogger(ExtractionHelper.class);
 
   private int qtiVersion = QTIVersion.VERSION_1_2;
   private String overridePath = null; // override defaults and settings
@@ -312,17 +311,14 @@ public class ExtractionHelper
     catch (IOException ex)
     {
       log.error(ex.getMessage(), ex);
-      ex.printStackTrace(System.out);
     }
     catch (SAXException ex)
     {
       log.error(ex.getMessage(), ex);
-      ex.printStackTrace(System.out);
     }
     catch (ParserConfigurationException ex)
     {
       log.error(ex.getMessage(), ex);
-      ex.printStackTrace(System.out);
     }
     return map;
 
@@ -362,7 +358,6 @@ public class ExtractionHelper
       catch (DOMException ex)
       {
         log.error(ex.getMessage(), ex);
-        ex.printStackTrace(System.out);
       }
     }
     return sectionXmlList;
@@ -400,7 +395,6 @@ public class ExtractionHelper
       catch (DOMException ex)
       {
         log.error(ex.getMessage(), ex);
-        ex.printStackTrace(System.out);
       }
     }
     return itemXmlList;
@@ -490,7 +484,7 @@ public class ExtractionHelper
         if (assessment.getAssessmentMetaDataByLabel("EXIT_PASSWARD") != null || 
         		!((String) assessment.getAssessmentMetaDataByLabel("EXIT_PASSWARD")).trim().equals("") ) {
         	String encryptedPassword = secureDeliveryService.encryptPassword( assessmentSettings.getSecureDeliveryModule(), assessment.getAssessmentMetaDataByLabel("EXIT_PASSWARD"));
-        	assessment.updateAssessmentMetaData(SecureDeliveryServiceAPI.EXITPWD_KEY, TextFormat.convertPlaintextToFormattedTextNoHighUnicode(log, encryptedPassword ));
+        	assessment.updateAssessmentMetaData(SecureDeliveryServiceAPI.EXITPWD_KEY, TextFormat.convertPlaintextToFormattedTextNoHighUnicode(encryptedPassword ));
         }
     	
         assessment.updateAssessmentMetaData(SecureDeliveryServiceAPI.TITLE_DECORATION, assessment.getTitle());
@@ -1029,7 +1023,7 @@ public class ExtractionHelper
 //    String considerUserId = assessment.getAssessmentMetaDataByLabel(
 //        "CONSIDER_USERID"); //
     String password = assessment.getAssessmentMetaDataByLabel("PASSWORD");
-    String finalPageUrl = TextFormat.convertPlaintextToFormattedTextNoHighUnicode(log, assessment.getAssessmentMetaDataByLabel("FINISH_URL"));
+    String finalPageUrl = TextFormat.convertPlaintextToFormattedTextNoHighUnicode(assessment.getAssessmentMetaDataByLabel("FINISH_URL"));
 
     if (//"TRUE".equalsIgnoreCase(considerUserId) &&
         notNullOrEmpty(password))
@@ -1055,9 +1049,6 @@ public class ExtractionHelper
     {
       securedIPAddressSet = new HashSet();
     }
-    //log.info("Getting securedIPAddressSet=" + securedIPAddressSet);
-
-    //log.info("ipList: " + ipList);
 
     if (ipList == null)
       ipList = "";
@@ -1065,7 +1056,6 @@ public class ExtractionHelper
 
     for (int j = 0; j < ip.length; j++)
     {
-      //log.info("ip # " + j + ": " + ip[j]);
       if (ip[j] != null)
       {
         SecuredIPAddress sip = new SecuredIPAddress(data, null, ip[j]);
@@ -1074,10 +1064,8 @@ public class ExtractionHelper
       }
     }
 
-    //log.info("securedIPAddressSet.size()=" + securedIPAddressSet.size());
     if (securedIPAddressSet.size()>0)
     {
-      //log.info("Setting securedIPAddressSet;addAssessmentMetaData(hasIpAddress, true)");
       //AssessmentService assessmentService = new AssessmentService();
 //      assessment.getData().setSecuredIPAddressSet(securedIPAddressSet);
 //      assessment.getData().addAssessmentMetaData("hasIpAddress", "true");
@@ -1204,7 +1192,7 @@ public class ExtractionHelper
 	  if (text == null) {
 		  return text;
 	  }
-	  String processedText = XmlUtil.processFormattedText(log, text);
+	  String processedText = XmlUtil.processFormattedText(text);
 	  // if unzipLocation is null, there is no assessment attachment - no action is needed
 	  if (unzipLocation == null || processedText.equals("")) {
 		  return processedText;
@@ -1281,7 +1269,7 @@ public class ExtractionHelper
 	  if (text == null) {
 		  return text;
 	  }
-	  String processedText = XmlUtil.processFormattedText(log, text);
+	  String processedText = XmlUtil.processFormattedText(text);
 	  // if unzipLocation is null, there is no assessment attachment - no action is needed
 	  if (unzipLocation == null || text.equals("")) {
 		  return processedText;
@@ -1428,7 +1416,7 @@ public class ExtractionHelper
 	  StringBuffer updatedText = new StringBuffer();
 	  while (iter.hasNext()) {
 		  itemText = (String) iter.next();
-		  formattedText = XmlUtil.processFormattedText(log, itemText);
+		  formattedText = XmlUtil.processFormattedText(itemText);
 		  formattedText = formattedText.replaceAll("\\?\\?"," ");
 		  String [] splittedText = formattedText.split(":::");
 		  if ("mattext".equals(splittedText[0])) {
@@ -1511,7 +1499,7 @@ public class ExtractionHelper
    */
   public void updateSection(SectionFacade section, Map sectionMap)
   {
-    section.setTitle(TextFormat.convertPlaintextToFormattedTextNoHighUnicode(log, (String) sectionMap.get("title")));
+    section.setTitle(TextFormat.convertPlaintextToFormattedTextNoHighUnicode((String) sectionMap.get("title")));
     section.setDescription(makeFCKAttachment((String) sectionMap.get("description")));
     
     // Add Section MetaData
@@ -1893,7 +1881,7 @@ public class ExtractionHelper
 		  for (int a = 0; a < answerList.size(); a++)
 		  {
 			  Answer answer = new Answer();
-			  String answerText = XmlUtil.processFormattedText(log, (String) answerList.get(a));
+			  String answerText = XmlUtil.processFormattedText((String) answerList.get(a));
 			  String ident = "";
 			  // these are not supposed to be empty
 			  if (notNullOrEmpty(answerText))
@@ -1946,7 +1934,7 @@ public class ExtractionHelper
 						  answerFeedback.setTypeId(AnswerFeedbackIfc.GENERAL_FEEDBACK);
 						  if (answerFeedbackList.get(sequence - 1) != null)
 						  {
-							  answerFeedback.setText(makeFCKAttachment(XmlUtil.processFormattedText(log, (String) answerFeedbackList.get(sequence - 1))));
+							  answerFeedback.setText(makeFCKAttachment(XmlUtil.processFormattedText((String) answerFeedbackList.get(sequence - 1))));
 							  set.add(answerFeedback);
 							  answer.setAnswerFeedbackSet(set);
 						  }
@@ -2195,8 +2183,8 @@ public class ExtractionHelper
     {
       try
       {
-        String firstFib = XmlUtil.processFormattedText(log, (String) itemTextList.get(0));
-        String firstText = XmlUtil.processFormattedText(log, (String) itemTList.get(0));
+        String firstFib = XmlUtil.processFormattedText((String) itemTextList.get(0));
+        String firstText = XmlUtil.processFormattedText((String) itemTList.get(0));
         if (firstFib.equals(firstText))
         {
           log.debug("Setting FIB instructional text.");
@@ -2232,7 +2220,7 @@ public class ExtractionHelper
         itemTextStringbuf.append(FIB_BLANK_INDICATOR);
       }
     }
-    String itemTextString = XmlUtil.processFormattedText(log,itemTextStringbuf.toString());
+    String itemTextString = XmlUtil.processFormattedText(itemTextStringbuf.toString());
     
     itemTextString=itemTextString.replaceAll("\\?\\?"," ");//SAK-2298
     log.debug("itemTextString="+itemTextString);
@@ -2410,7 +2398,7 @@ public class ExtractionHelper
     String itemTextString = "";
     if (itemTextList.size()>0)
     {
-      itemTextString = XmlUtil.processFormattedText(log, (String) itemTextList.get(0));
+      itemTextString = XmlUtil.processFormattedText((String) itemTextList.get(0));
     }
 
     HashSet itemTextSet = new HashSet();
@@ -2455,7 +2443,7 @@ public class ExtractionHelper
       char answerLabel = 'A';
       for (int a = 0; a < targetList.size(); a++)
       {
-        targetString = XmlUtil.processFormattedText(log, (String) targetList.get(a));
+        targetString = XmlUtil.processFormattedText((String) targetList.get(a));
         if (targetString == null)
         {
           targetString = "";
@@ -2688,7 +2676,7 @@ public class ExtractionHelper
 		  String itemTextString = "";
 		  if (itemTextList.size()>0)
 		  {
-			  itemTextString = XmlUtil.processFormattedText(log, (String) itemTextList.get(0));
+			  itemTextString = XmlUtil.processFormattedText((String) itemTextList.get(0));
 		  }
 
 		  HashSet itemTextSet = new HashSet();
@@ -2703,7 +2691,7 @@ public class ExtractionHelper
 		  for (int i = 0; i < targetList.size(); i++)
 		  {
 			  // create the entry for the row
-			  String sourceText = XmlUtil.processFormattedText(log, (String) targetList.get(i));
+			  String sourceText = XmlUtil.processFormattedText((String) targetList.get(i));
 			  if (sourceText == null) sourceText="";
 			  sourceText=sourceText.replaceAll("\\?\\?"," ");//SAK-2298
 			  log.debug("sourceText: " + sourceText);
@@ -2719,7 +2707,7 @@ public class ExtractionHelper
 			  char answerLabel = 'A';
 			  for (int a = 0; a < sourceList.size(); a++)
 			  {
-				  String targetString = XmlUtil.processFormattedText(log, (String) sourceList.get(a));
+				  String targetString = XmlUtil.processFormattedText((String) sourceList.get(a));
 				  if (targetString == null)
 				  {
 					  targetString = "";
@@ -2835,7 +2823,7 @@ public class ExtractionHelper
       if (instructions.size() > 0) {
           String instruction = instructions.get(0);
           if (instruction != null && instruction.length() > 0) {
-              instruction = XmlUtil.processFormattedText(log, (String) instructions.get(0));
+              instruction = XmlUtil.processFormattedText((String) instructions.get(0));
               instruction = instruction.replaceAll("\\?\\?"," ");//SAK-2298
               item.setInstruction(makeFCKAttachment(instruction));
           }

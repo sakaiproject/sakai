@@ -19,13 +19,10 @@
  *
  **********************************************************************************/
 
-
 package org.sakaiproject.tool.assessment.integration.context.spring;
 
 import java.io.File;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.xml.XmlBeanFactory;
 import org.springframework.core.io.ClassPathResource;
@@ -40,7 +37,6 @@ import org.sakaiproject.spring.SpringBeanLocator;
  */
 public class FactoryUtil
 {
-  private Logger log = LoggerFactory.getLogger(FactoryUtil.class);
   private static boolean useLocator = false;
 //  private static boolean useLocator = true;
 

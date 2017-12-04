@@ -37,8 +37,7 @@ import javax.faces.event.ValueChangeEvent;
 import javax.faces.event.ValueChangeListener;
 import javax.faces.model.SelectItem;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAssessmentData;
 import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
@@ -57,9 +56,9 @@ import org.sakaiproject.section.api.coursemanagement.EnrollmentRecord;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedSectionData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.EvaluationModelIfc;
 
+@Slf4j
 public class SectionActivityListener implements ActionListener, ValueChangeListener
 {
-    private static final Logger LOG = LoggerFactory.getLogger(SectionActivityListener.class);
     private static BeanSort bs;
 
     public SectionActivityListener()
@@ -68,7 +67,7 @@ public class SectionActivityListener implements ActionListener, ValueChangeListe
 
     public void processAction(ActionEvent ae)
     {
-        LOG.debug("*****Log: inside SectionActivityListener =debugging ActionEvent: " + ae);
+        log.debug("*****Log: inside SectionActivityListener =debugging ActionEvent: " + ae);
 
         // get service and managed bean    
         GradingSectionAwareServiceAPI service = new GradingSectionAwareServiceImpl();

@@ -30,8 +30,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.osid.shared.SharedException;
 
 import org.sakaiproject.tool.assessment.data.dao.questionpool.QuestionPoolData;
@@ -40,17 +39,13 @@ import org.sakaiproject.tool.assessment.facade.QuestionPoolFacade;
 import org.sakaiproject.tool.assessment.facade.QuestionPoolIteratorFacade;
 import org.sakaiproject.tool.assessment.util.BeanSort;
 
-//import org.sakaiproject.tool.assessment.osid.shared.impl.IdImpl;
-//import osid.shared.*;
-// import org.osid.shared.Id;  // should only use Long for id.
-
-
 /**
  * DOCUMENTATION PENDING
  *
  * @author $author$
  * @version $Id$
  */
+@Slf4j
 public class QuestionPoolTreeImpl
   implements Tree
 {
@@ -59,10 +54,6 @@ public class QuestionPoolTreeImpl
 	 * 
 	 */
 	private static final long serialVersionUID = 2173986944623441011L;
-
-
-private static Logger log = LoggerFactory.getLogger(QuestionPoolTreeImpl.class);
-
 
   private HashMap poolMap;
   private HashMap poolFamilies;
@@ -155,11 +146,11 @@ private static Logger log = LoggerFactory.getLogger(QuestionPoolTreeImpl.class);
     }
     catch (SharedException se)
     {
-      se.printStackTrace();
+      log.error(se.getMessage(), se);
     }
     catch(RuntimeException e)
     {
-      e.printStackTrace();
+      log.error(e.getMessage(), e);
     }
   }
 
@@ -192,7 +183,7 @@ private static Logger log = LoggerFactory.getLogger(QuestionPoolTreeImpl.class);
     }
     catch(Exception e)
     {
-      e.printStackTrace();
+      log.error(e.getMessage(), e);
       return null;
     }
   }
@@ -227,7 +218,7 @@ private static Logger log = LoggerFactory.getLogger(QuestionPoolTreeImpl.class);
     }
     catch(Exception e)
     {
-      e.printStackTrace();
+      log.error(e.getMessage(), e);
 
       return null;
     }
@@ -276,7 +267,7 @@ private static Logger log = LoggerFactory.getLogger(QuestionPoolTreeImpl.class);
 
     catch(RuntimeException e)
     {
-      e.printStackTrace();
+      log.error(e.getMessage(), e);
       return "0";
     }
 
@@ -306,7 +297,7 @@ private static Logger log = LoggerFactory.getLogger(QuestionPoolTreeImpl.class);
 
     catch(Exception e)
     {
-      e.printStackTrace();
+      log.error(e.getMessage(), e);
       return "0";
     }
 
@@ -385,7 +376,7 @@ private static Logger log = LoggerFactory.getLogger(QuestionPoolTreeImpl.class);
       }
       catch(Exception e)
       {
-        e.printStackTrace();
+        log.error(e.getMessage(), e);
         throw new RuntimeException(e);
 
       }
@@ -429,7 +420,7 @@ private static Logger log = LoggerFactory.getLogger(QuestionPoolTreeImpl.class);
     }
     catch(Exception e)
     {
-      e.printStackTrace();
+      log.error(e.getMessage(), e);
       throw new RuntimeException(e);
     }
 
@@ -448,7 +439,7 @@ private static Logger log = LoggerFactory.getLogger(QuestionPoolTreeImpl.class);
     }
     catch(Exception e)
     {
-      e.printStackTrace();
+      log.error(e.getMessage(), e);
       throw new RuntimeException(e);
     }
 
@@ -680,7 +671,7 @@ private static Logger log = LoggerFactory.getLogger(QuestionPoolTreeImpl.class);
     	return rootA.equals(rootB);
     }
 	catch(Exception e){
-                e.printStackTrace();
+                log.error(e.getMessage(), e);
       		return false;
     	}
   }
@@ -700,7 +691,7 @@ private static Logger log = LoggerFactory.getLogger(QuestionPoolTreeImpl.class);
       return false;
 
     }catch(Exception e){
-      e.printStackTrace();
+      log.error(e.getMessage(), e);
       return false;
     }
   }
@@ -725,7 +716,7 @@ private static Logger log = LoggerFactory.getLogger(QuestionPoolTreeImpl.class);
     }
     return level;
     }catch(Exception e){
-      e.printStackTrace();
+      log.error(e.getMessage(), e);
       return 0;
     }
   }

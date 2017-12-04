@@ -19,15 +19,12 @@
  *
  **********************************************************************************/
 
-
-
 package org.sakaiproject.tool.assessment.ui.bean.author;
 
 import java.io.Serializable;
 import java.util.ArrayList;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * @author rshastri
@@ -37,9 +34,9 @@ import org.slf4j.LoggerFactory;
  *
  * Used to be org.navigoproject.ui.web.asi.author.assessment.published.PublishedAssessmentActionForm.java
  */
+@Slf4j
 public class PublishedAssessmentBean implements Serializable
 {
-  private static Logger log = LoggerFactory.getLogger(PublishedAssessmentBean.class);
 
   /** Use serialVersionUID for interoperability. */
   private final static long serialVersionUID = 206375673822116682L;

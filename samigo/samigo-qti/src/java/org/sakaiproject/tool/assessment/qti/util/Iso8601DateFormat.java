@@ -19,7 +19,6 @@
  *
  **********************************************************************************/
 
-
 package org.sakaiproject.tool.assessment.qti.util;
 
 import java.text.SimpleDateFormat;
@@ -30,8 +29,7 @@ import java.util.TimeZone;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import org.sakaiproject.tool.assessment.qti.exception.Iso8601FormatException;
 
@@ -41,10 +39,10 @@ import org.sakaiproject.tool.assessment.qti.exception.Iso8601FormatException;
  * @author <a href="mailto:lance@indiana.edu">Lance Speelmon</a>
  * @version $Id$
  */
+@Slf4j
 public class Iso8601DateFormat
 {
   public static final String BASIC_FORMAT = "yyyyMMdd'T'HHmmssZ";
-  private static Logger log = LoggerFactory.getLogger(Iso8601DateFormat.class);
   private static final String GMT = "GMT";
 
   // 20031107T152420-0500  or

@@ -19,10 +19,9 @@
  *
  **********************************************************************************/
 
-
 package org.sakaiproject.tool.assessment.ui.bean.shared;
 
-import org.sakaiproject.util.ResourceLoader;
+
 
 import java.io.Serializable;
 import java.util.HashMap;
@@ -30,14 +29,14 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-//import org.sakaiproject.tool.assessment.services.PersistenceService;
-import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.authz.cover.SecurityService;
+import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.ui.bean.delivery.DeliveryBean;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
-import org.slf4j.LoggerFactory;
-import org.slf4j.Logger;
+import org.sakaiproject.util.ResourceLoader;
 
 /**
  * <p> </p>
@@ -47,14 +46,13 @@ import org.slf4j.Logger;
  * @author Ed Smiley
  * @version $id: $
  */
-
+@Slf4j
 public class PersonBean implements Serializable
 {
   /**
 	 * 
 	 */
 	private static final long serialVersionUID = 1884634498046475698L;
-private static Logger log = LoggerFactory.getLogger(PersonBean.class);
   private String anonymousId;
   private String previewFromPage;
   

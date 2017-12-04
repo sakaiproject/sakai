@@ -19,27 +19,26 @@
  *
  **********************************************************************************/
 
-
-
 package org.sakaiproject.tool.assessment.ui.servlet;
 
 import javax.servlet.http.HttpServlet;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.web.context.WebApplicationContext;
-import org.springframework.web.context.support.WebApplicationContextUtils;
+
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.spring.SpringBeanLocator;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
+import org.springframework.web.context.WebApplicationContext;
+import org.springframework.web.context.support.WebApplicationContextUtils;
 
+@Slf4j
 public class StoreApplicationContext extends HttpServlet{
 
   /**
 	 * 
 	 */
 	private static final long serialVersionUID = -930231313808212406L;
-private static Logger log = LoggerFactory.getLogger(StoreApplicationContext.class);
   private WebApplicationContext ctx = null;
 
   public void init (ServletConfig config) throws ServletException {
@@ -47,7 +46,6 @@ private static Logger log = LoggerFactory.getLogger(StoreApplicationContext.clas
     if (ctx == null){
       ctx = WebApplicationContextUtils
 	 .getRequiredWebApplicationContext(config.getServletContext());
-      //log.log("***context="+ctx);
       SpringBeanLocator.setApplicationContext(ctx);
 
       ContextUtil.setServletContext(config.getServletContext());
@@ -55,7 +53,3 @@ private static Logger log = LoggerFactory.getLogger(StoreApplicationContext.clas
   }
 
 }
-
-
-
-

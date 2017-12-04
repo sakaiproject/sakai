@@ -19,11 +19,10 @@
  *
  **********************************************************************************/
 
-
-
 package org.sakaiproject.tool.assessment.ui.listener.author;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 
 /**
@@ -32,11 +31,10 @@ import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentS
  * @author Qingru Zhang
  * @version $Id$
  */
-
+@Slf4j
 public class RemovePublishedAssessmentThread extends Thread
 {
 
-  private static Logger log = LoggerFactory.getLogger(RemovePublishedAssessmentThread.class);
   private String assessmentId;
   private String action;
   public RemovePublishedAssessmentThread(String assessmentId){
@@ -53,5 +51,4 @@ public class RemovePublishedAssessmentThread extends Thread
     log.debug("** remove assessmentId= "+this.assessmentId);
     assessmentService.removeAssessment(this.assessmentId, this.action);
   }
-
 }

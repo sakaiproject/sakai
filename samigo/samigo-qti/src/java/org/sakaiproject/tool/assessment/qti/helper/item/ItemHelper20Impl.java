@@ -19,8 +19,6 @@
  *
  **********************************************************************************/
 
-
-
 package org.sakaiproject.tool.assessment.qti.helper.item;
 
 import java.util.ArrayList;
@@ -29,8 +27,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
@@ -50,11 +47,10 @@ import org.sakaiproject.tool.assessment.qti.helper.AuthoringXml;
  * @author Ed Smiley esmiley@stanford.edu
  * @version $Id$
  */
-
+@Slf4j
 public class ItemHelper20Impl extends ItemHelperBase
   implements ItemHelperIfc
 {
-  private static Logger log = LoggerFactory.getLogger(ItemHelper20Impl.class);
   private AuthoringXml authoringXml;
 
   public ItemHelper20Impl()

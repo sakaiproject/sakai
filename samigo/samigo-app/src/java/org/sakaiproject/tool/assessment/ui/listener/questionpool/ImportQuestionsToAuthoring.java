@@ -27,10 +27,13 @@ import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Collections;
+
 import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
 
+import lombok.extern.slf4j.Slf4j;
+import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.samigo.util.SamigoConstants;
 import org.sakaiproject.tool.assessment.data.dao.assessment.ItemData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.ItemMetaData;
@@ -47,7 +50,6 @@ import org.sakaiproject.tool.assessment.ui.bean.author.ItemAuthorBean;
 import org.sakaiproject.tool.assessment.ui.bean.questionpool.QuestionPoolBean;
 import org.sakaiproject.tool.assessment.ui.listener.author.ItemAddListener;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
-import org.sakaiproject.event.cover.EventTrackingService;
 
 /**
  * <p>Title: Samigo</p>
@@ -55,9 +57,9 @@ import org.sakaiproject.event.cover.EventTrackingService;
  * @version $Id$
  */
 
-public class ImportQuestionsToAuthoring implements ActionListener
+@Slf4j
+ public class ImportQuestionsToAuthoring implements ActionListener
 {
-  //private static Logger log = LoggerFactory.getLogger(ImportQuestionsToAuthoring.class);
   //private static ContextUtil cu;
 
 
@@ -68,7 +70,6 @@ public class ImportQuestionsToAuthoring implements ActionListener
    */
   public void processAction(ActionEvent ae) throws AbortProcessingException
   {
-    //log.info("ImportQuestionsToAuthoring:");
     QuestionPoolBean  qpoolbean= (QuestionPoolBean) ContextUtil.lookupBean("questionpool");
     if (!importItems(qpoolbean))
     {
@@ -176,8 +177,8 @@ public class ImportQuestionsToAuthoring implements ActionListener
       }
     }
     catch (RuntimeException e) {
-	e.printStackTrace();
-	return false;
+        log.error(e.getMessage(), e);
+        return false;
     }
     return true;
   }
@@ -189,6 +190,4 @@ public class ImportQuestionsToAuthoring implements ActionListener
       attach.setLocation(url);
     }
   }
-
-
 }

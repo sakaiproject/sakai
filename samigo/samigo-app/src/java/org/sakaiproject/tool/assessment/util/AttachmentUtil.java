@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.sakaiproject.tool.assessment.util;
 
 import java.util.ArrayList;
@@ -21,8 +22,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.content.api.FilePickerHelper;
 import org.sakaiproject.content.cover.ContentHostingService;
@@ -43,9 +44,8 @@ import org.sakaiproject.tool.assessment.services.GradingService;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.cover.SessionManager;
 
+@Slf4j
 public class AttachmentUtil {
-
-	private static Logger log = LoggerFactory.getLogger(AttachmentUtil.class);
 
 	public AttachmentUtil() {}
 

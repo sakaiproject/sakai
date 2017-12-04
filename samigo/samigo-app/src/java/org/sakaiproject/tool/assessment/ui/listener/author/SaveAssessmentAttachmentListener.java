@@ -19,9 +19,8 @@
  *
  **********************************************************************************/
 
-
-
 package org.sakaiproject.tool.assessment.ui.listener.author;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -33,8 +32,8 @@ import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.content.api.FilePickerHelper;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.tool.api.ToolSession;
@@ -53,11 +52,10 @@ import org.sakaiproject.tool.cover.SessionManager;
  * <p>Description: Sakai Assessment Manager</p>
  * @version $Id$
  */
-
+@Slf4j
 public class SaveAssessmentAttachmentListener
     implements ActionListener
 {
-  private static Logger log = LoggerFactory.getLogger(SaveAssessmentAttachmentListener.class);
   
   // this is to indicate which flow
   // if it is true, that means we save the assessment attachment in setting page of a pending assessment (authorSettings.jsp)

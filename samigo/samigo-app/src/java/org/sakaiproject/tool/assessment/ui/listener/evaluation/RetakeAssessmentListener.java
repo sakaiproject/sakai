@@ -42,7 +42,6 @@ import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
  */
 
 public class RetakeAssessmentListener implements ActionListener {
-	//private static Logger log = LoggerFactory.getLogger(ConfirmRemovePartListener.class);
 
 	public RetakeAssessmentListener() {
 	}
@@ -70,5 +69,4 @@ public class RetakeAssessmentListener implements ActionListener {
 		
 		gradingService.saveStudentGradingSummaryData(studentGradingSummaryData);
 	}
-
 }

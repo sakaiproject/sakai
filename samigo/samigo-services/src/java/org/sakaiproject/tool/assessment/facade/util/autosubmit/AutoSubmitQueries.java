@@ -20,6 +20,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import lombok.extern.slf4j.Slf4j;
 import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.samigo.util.SamigoConstants;
 import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService;
@@ -34,8 +35,6 @@ import org.sakaiproject.tool.assessment.services.AutoSubmitAssessmentsJob;
 import org.sakaiproject.tool.assessment.services.PersistenceHelper;
 import org.sakaiproject.tool.assessment.services.assessment.EventLogService;
 import org.springframework.orm.hibernate4.support.HibernateDaoSupport;
-
-import lombok.extern.slf4j.Slf4j;
 
 /**
  * Queries for persisting a single attempt/submission and all related updates in a single transaction

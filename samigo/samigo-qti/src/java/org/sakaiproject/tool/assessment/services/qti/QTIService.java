@@ -24,17 +24,16 @@ package org.sakaiproject.tool.assessment.services.qti;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.w3c.dom.Document;
+
 import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
 import org.sakaiproject.tool.assessment.facade.ItemFacade;
 import org.sakaiproject.tool.assessment.facade.QuestionPoolFacade;
 import org.sakaiproject.tool.assessment.qti.constants.QTIVersion;
 import org.sakaiproject.tool.assessment.qti.exception.RespondusMatchingException;
 import org.sakaiproject.tool.assessment.qti.helper.AuthoringHelper;
-import org.sakaiproject.tool.assessment.shared.api.qti.QTIServiceAPI;
-import org.w3c.dom.Document;
 import org.sakaiproject.tool.assessment.qti.util.XmlUtil;
+import org.sakaiproject.tool.assessment.shared.api.qti.QTIServiceAPI;
 
 /**
  * <p>This service provides translation between database and QTI representations.
@@ -45,10 +44,8 @@ import org.sakaiproject.tool.assessment.qti.util.XmlUtil;
  * @author Ed Smiley esmiley@stanford.edu
  * @version $Id$
  */
-
 public class QTIService implements QTIServiceAPI
 {
-  private static Logger log = LoggerFactory.getLogger(QTIService.class);
   public QTIService()
   {
   }
@@ -281,5 +278,4 @@ public class QTIService implements QTIServiceAPI
         new IllegalArgumentException("NOT Legal Qti Version."));
     }
   }
-
 }

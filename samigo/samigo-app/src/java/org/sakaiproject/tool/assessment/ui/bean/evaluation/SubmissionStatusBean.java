@@ -19,8 +19,6 @@
  *
  **********************************************************************************/
 
-
-
 package org.sakaiproject.tool.assessment.ui.bean.evaluation;
 
 import java.io.Serializable;
@@ -32,6 +30,7 @@ import java.util.Map;
 
 import javax.faces.event.ActionEvent;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.sakaiproject.jsf.model.PhaseAware;
 import org.sakaiproject.tool.assessment.business.entity.RecordingData;
@@ -39,15 +38,13 @@ import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentS
 import org.sakaiproject.tool.assessment.ui.bean.util.Validator;
 import org.sakaiproject.tool.assessment.ui.listener.evaluation.SubmissionStatusListener;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 
 /**
  * <p>Description: class form for evaluating submission status</p>
  *
  *
  */
+@Slf4j
 public class SubmissionStatusBean
   implements Serializable, PhaseAware
 {
@@ -76,7 +73,6 @@ public class SubmissionStatusBean
   private String totalPeople;
   private String firstItem;
   private Map answeredItems;
-  private static Logger log = LoggerFactory.getLogger(SubmissionStatusBean.class);
   
   //private String selectedSectionFilterValue = TotalScoresBean.ALL_SECTIONS_SELECT_VALUE;
   private String selectedSectionFilterValue = null;

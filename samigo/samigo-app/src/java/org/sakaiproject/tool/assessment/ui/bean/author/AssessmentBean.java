@@ -30,8 +30,7 @@ import java.util.List;
 
 import javax.faces.model.SelectItem;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
@@ -54,8 +53,8 @@ import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
  *
  * Used to be org.navigoproject.ui.web.asi.author.assessment.AssessmentActionForm.java
  */
-public class AssessmentBean  implements Serializable {
-    private static Logger log = LoggerFactory.getLogger(AssessmentBean.class);
+ @Slf4j
+ public class AssessmentBean  implements Serializable {
 
   /** Use serialVersionUID for interoperability. */
   private final static long serialVersionUID = -630950053380808339L;
@@ -111,7 +110,7 @@ public class AssessmentBean  implements Serializable {
       setSectionList(sectionArray);
     }
     catch (Exception ex) {
-	ex.printStackTrace();
+	log.error(ex.getMessage(), ex);
     }
   }
 

@@ -19,7 +19,6 @@
  *
  **********************************************************************************/
 
-
 package org.sakaiproject.tool.assessment.integration.helper.integrated;
 
 import java.util.ArrayList;
@@ -31,10 +30,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.exception.IdUnusedException;
@@ -60,9 +57,9 @@ import org.sakaiproject.user.api.UserDirectoryService;
 /**
  * Provides info to the gradebook about which assessments are visible
  */
+@Slf4j
 public class AssessmentGradeInfoProvider implements ExternalAssignmentProvider, ExternalAssignmentProviderCompat {
 
-    private Logger log = LoggerFactory.getLogger(AssessmentGradeInfoProvider.class);
     private GradebookExternalAssessmentService geaService;
     private UserDirectoryService userDirectoryService;
     private SiteService siteService;

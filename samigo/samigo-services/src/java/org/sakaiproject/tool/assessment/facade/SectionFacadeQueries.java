@@ -23,18 +23,18 @@ package org.sakaiproject.tool.assessment.facade;
 
 import java.util.List;
 
+import lombok.extern.slf4j.Slf4j;
 import org.hibernate.Query;
+import org.springframework.orm.hibernate4.HibernateCallback;
+import org.springframework.orm.hibernate4.support.HibernateDaoSupport;
+
 import org.sakaiproject.tool.assessment.data.dao.assessment.SectionData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.SectionMetaData;
 import org.sakaiproject.tool.assessment.osid.shared.impl.IdImpl;
 import org.sakaiproject.tool.assessment.services.PersistenceService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.orm.hibernate4.HibernateCallback;
-import org.springframework.orm.hibernate4.support.HibernateDaoSupport;
 
+@Slf4j
 public class SectionFacadeQueries  extends HibernateDaoSupport implements SectionFacadeQueriesAPI {
-  private Logger log = LoggerFactory.getLogger(SectionFacadeQueries.class);
 
   public SectionFacadeQueries () {
   }

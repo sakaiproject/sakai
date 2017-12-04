@@ -19,7 +19,6 @@
  *
  **********************************************************************************/
 
-
 package org.sakaiproject.tool.assessment.services;
 
 import java.util.HashSet;
@@ -27,6 +26,8 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.List;
 import java.util.Set;
+
+import lombok.extern.slf4j.Slf4j;
 
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.content.api.ContentResource;
@@ -50,16 +51,14 @@ import org.sakaiproject.tool.assessment.facade.BackfillItemHashResult;
 import org.sakaiproject.tool.assessment.facade.ItemFacade;
 import org.sakaiproject.tool.assessment.integration.helper.ifc.TagServiceHelper;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * The ItemService calls persistent service locator to reach the
  * manager on the back end.
  */
+@Slf4j
 public class ItemService
 {
-  private Logger log = LoggerFactory.getLogger(ItemService.class);
   private static final TagService tagService= (TagService) ComponentManager.get( TagService.class );
 
 
