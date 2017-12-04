@@ -21,16 +21,16 @@ import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentIfc;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 import org.sakaiproject.tool.assessment.ui.bean.author.PublishedAssessmentSettingsBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 
+@Slf4j
 public class ResetPublishedAssessmentAttachmentListener implements ActionListener {
-	private static Logger log = LoggerFactory.getLogger(ResetPublishedAssessmentAttachmentListener.class);
 
 	public ResetPublishedAssessmentAttachmentListener() {
 	}

@@ -20,9 +20,9 @@
  **********************************************************************************/
 package org.sakaiproject.tool.assessment.integration.helper.integrated;
 
+import java.util.Optional;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.Notification;
 import org.sakaiproject.event.api.NotificationAction;
@@ -34,12 +34,8 @@ import org.sakaiproject.tool.assessment.services.ItemService;
 import org.sakaiproject.tool.assessment.services.PublishedItemService;
 import org.w3c.dom.Element;
 
-import java.util.Optional;
-
+@Slf4j
 public class TagSyncEventHandlerImpl implements TagEventHandler {
-
-
-    private static Log log = LogFactory.getLog(TagSyncEventHandlerImpl.class);
 
     // For now we're going to see how far we can get without actually having a direct
     // dependency on TagService. These are well-known Event IDs, so even _with_ a direct

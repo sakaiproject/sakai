@@ -26,9 +26,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.beanutils.BeanUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
@@ -45,9 +44,9 @@ import org.sakaiproject.tool.assessment.qti.util.XmlUtil;
  * @author @author Ed Smiley
  * @version $Id$
  */
+@Slf4j
 public class XmlMapper
 {
-  private static Logger log = LoggerFactory.getLogger(XmlMapper.class);
 
   public static final String ATTRIBUTE_PREFIX = "attribute_";
 

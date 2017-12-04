@@ -19,8 +19,6 @@
  *
  **********************************************************************************/
 
-
-
 package org.sakaiproject.tool.assessment.ui.listener.delivery;
 
 
@@ -28,19 +26,14 @@ import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import org.sakaiproject.tool.assessment.ui.bean.delivery.DeliveryBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil; 
 
 /**
  * @version $Id$
  */
-
 public class UpdateTimerFromTOCListener implements ActionListener
 {
-  //private static Logger log = LoggerFactory.getLogger(UpdateTimerListener.class);
   //private static ContextUtil cu;
 
   /**
@@ -53,6 +46,5 @@ public class UpdateTimerFromTOCListener implements ActionListener
   {
     DeliveryBean delivery = (DeliveryBean) ContextUtil.lookupBean("delivery");
     delivery.syncTimeElapsedWithServer();
-    //System.out.println("****time elapsed="+delivery.getTimeElapse());
   }
 }

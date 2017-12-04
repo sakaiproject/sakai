@@ -38,16 +38,15 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletRequestWrapper;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.fileupload.DiskFileUpload;
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.FileUpload;
 import org.apache.commons.fileupload.FileUploadException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 
+@Slf4j
 public class UploadFilter implements Filter {
-  private static Logger log = LoggerFactory.getLogger(UploadFilter.class);
 
    private int sizeThreshold = -1;
    private long sizeMax = -1;
@@ -74,11 +73,12 @@ public class UploadFilter implements Filter {
          if (paramValue != null)
             saveMediaToDb = paramValue;
 
-	 //System.out.println("**** repositoryPath="+repositoryPath);
-	 //System.out.println("**** sabeMediaToDb="+saveMediaToDb);
-	 //System.out.println("**** sizeThreshold="+sizeThreshold);
-	 //System.out.println("**** sizeMax="+sizeMax);
-      }
+         log.debug("**** repositoryPath="+repositoryPath);
+         log.debug("**** saveMediaToDb="+saveMediaToDb);
+         log.debug("**** sizeThreshold="+sizeThreshold);
+         log.debug("**** sizeMax="+sizeMax);
+
+  }
       catch (NumberFormatException ex) {
          ServletException servletEx = new ServletException();
          servletEx.initCause(ex);
@@ -98,13 +98,11 @@ public class UploadFilter implements Filter {
       ServletResponse response, FilterChain chain)
       throws IOException, ServletException {
 
-      //System.out.println("**** doFilter #1");
       if (!(request instanceof HttpServletRequest)) {
          chain.doFilter(request, response);
          return;
       }
 
-      //System.out.println("**** doFilter #2");
       HttpServletRequest httpRequest = (HttpServletRequest) request;
       boolean isMultipartContent = FileUpload.isMultipartContent(httpRequest);
       if (!isMultipartContent) {
@@ -112,7 +110,6 @@ public class UploadFilter implements Filter {
          return;
       }
 
-      //System.out.println("**** doFilter #3");
       DiskFileUpload upload = new DiskFileUpload();
       if (repositoryPath != null)
          upload.setRepositoryPath(repositoryPath);
@@ -122,9 +119,8 @@ public class UploadFilter implements Filter {
          final Map map = new HashMap();
          for (int i = 0; i < list.size(); i ++) {
             FileItem item = (FileItem) list.get(i);
-            //System.out.println("form filed="+item.getFieldName()+" : "+str);
             if (item.isFormField()){
-              String str = item.getString("UTF-8");	
+              String str = item.getString("UTF-8");
               map.put(item.getFieldName(), new String[] {str});
             }
             else{

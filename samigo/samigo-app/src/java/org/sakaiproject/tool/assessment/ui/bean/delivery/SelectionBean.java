@@ -23,20 +23,18 @@ package org.sakaiproject.tool.assessment.ui.bean.delivery;
 
 import java.util.List;
 
+import lombok.extern.slf4j.Slf4j;
 import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AnswerIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextIfc;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * This is the JSF backing bean for delivery, used for TF and MC questions
  * 
  * $Id$
  */
+@Slf4j
 public class SelectionBean {
-
-	private static Logger log = LoggerFactory.getLogger(SelectionBean.class);
 
 	private ItemContentsBean parent;
 

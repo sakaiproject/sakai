@@ -32,6 +32,7 @@ import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
 
+import lombok.extern.slf4j.Slf4j;
 import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
 import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
@@ -45,10 +46,6 @@ import org.sakaiproject.tool.assessment.ui.listener.evaluation.util.EvaluationLi
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.util.BeanSort;
 import org.sakaiproject.util.FormattedText;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-
 
 /**
  * <p>
@@ -61,10 +58,10 @@ import org.slf4j.LoggerFactory;
  * @version $Id$
  */
 
-public class StudentScoreListener
+@Slf4j
+ public class StudentScoreListener
   implements ActionListener
 {
-  private static Logger log = LoggerFactory.getLogger(StudentScoreListener.class);
   private static EvaluationListenerUtil util;
   private static BeanSort bs;
 
@@ -149,7 +146,7 @@ public class StudentScoreListener
 
       return true;
     } catch (Exception e) {
-      e.printStackTrace();
+      log.error(e.getMessage(), e);
       return false;
     }
   }

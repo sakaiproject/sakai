@@ -19,16 +19,11 @@
  *
  **********************************************************************************/
 
-
-
 package org.sakaiproject.tool.assessment.ui.bean.delivery;
-
-
 
 import java.io.Serializable;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.sakaiproject.tool.assessment.ui.bean.util.Validator;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.ui.listener.util.TimeUtil;
@@ -41,6 +36,7 @@ import org.sakaiproject.tool.assessment.ui.listener.util.TimeUtil;
  *
  * Used to be org.navigoproject.ui.web.asi.delivery.XmlDeliveryForm.java
  */
+@Slf4j
 public class DeliveryBeanie
   implements Serializable
 {
@@ -48,8 +44,6 @@ public class DeliveryBeanie
 	 * 
 	 */
 	private static final long serialVersionUID = 3740101653033385370L;
-
-private static Logger log = LoggerFactory.getLogger(DeliveryBeanie.class);
 
   private String assessmentId;
   private String assessmentTitle;

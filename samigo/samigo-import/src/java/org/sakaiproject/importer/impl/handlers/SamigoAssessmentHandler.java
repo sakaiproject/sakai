@@ -33,6 +33,7 @@ import java.util.Vector;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import lombok.extern.slf4j.Slf4j;
 import org.osid.assessment.AssessmentException;
 import org.sakaiproject.importer.api.HandlesImportable;
 import org.sakaiproject.importer.api.Importable;
@@ -56,13 +57,8 @@ import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-
+@Slf4j
 public class SamigoAssessmentHandler implements HandlesImportable {
-	private static Logger log = LoggerFactory.getLogger(SamigoAssessmentHandler.class);
-    
 	// Samigo identifies each question type with an int
 	public static final int TRUE_FALSE = 4;
 	public static final int FILL_BLANK = 8;
@@ -141,10 +137,10 @@ public class SamigoAssessmentHandler implements HandlesImportable {
 			as.saveAssessment(assessment);
 		} catch (Exception e) {
 			// error creating this assessment
-			e.printStackTrace();
+			log.error(e.getMessage(), e);
 		} catch (AssessmentException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			log.error(e.getMessage(), e);
 		}
 	}
 	

@@ -32,8 +32,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.lang.ArrayUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.sakaiproject.tool.assessment.facade.ItemFacade;
 
 import org.sakaiproject.util.ResourceLoader;
@@ -64,6 +63,7 @@ import javax.faces.context.ExternalContext;
 import org.sakaiproject.tool.assessment.jsf.convert.AnswerSurveyConverter;
 
 @SuppressWarnings("deprecation")
+@Slf4j
 public class AnswerBean implements Serializable, Comparable{
   private static final long serialVersionUID = 7526471155622776147L;
 
@@ -86,7 +86,6 @@ public class AnswerBean implements Serializable, Comparable{
   //for navigation
   private String outcome;
   
-  private static Logger log = LoggerFactory.getLogger(AnswerBean.class);
   private String partialCredit = "0";  //to incorporate partial credit
   private static ResourceLoader rb = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.AuthorMessages");
 

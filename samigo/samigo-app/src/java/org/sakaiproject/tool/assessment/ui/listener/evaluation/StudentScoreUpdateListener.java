@@ -19,8 +19,6 @@
  *
  **********************************************************************************/
 
-
-
 package org.sakaiproject.tool.assessment.ui.listener.evaluation;
 
 import java.util.ArrayList;
@@ -38,9 +36,9 @@ import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.math3.util.Precision;
+
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.event.api.NotificationService;
@@ -70,11 +68,10 @@ import org.sakaiproject.tool.assessment.util.TextFormat;
  * @author Rachel Gollub
  * @version $Id$
  */
-
+@Slf4j
 public class StudentScoreUpdateListener
   implements ActionListener
 {
-  private static Logger log = LoggerFactory.getLogger(StudentScoreUpdateListener.class);
   private final EventTrackingService eventTrackingService= ComponentManager.get( EventTrackingService.class );
 
   private static ContextUtil cu;
@@ -181,7 +178,7 @@ public class StudentScoreUpdateListener
             if (data.getAutoScore() !=null) {
               oldAutoScore=data.getAutoScore();
             }
-            String newComments = TextFormat.convertPlaintextToFormattedTextNoHighUnicode(log, question.getGradingComment());
+            String newComments = TextFormat.convertPlaintextToFormattedTextNoHighUnicode(question.getGradingComment());
             if (newComments != null) {
       		  newComments = newComments.trim();
             }
@@ -245,7 +242,7 @@ public class StudentScoreUpdateListener
       if (adata == null)
         return true; // Nothing to save.
 
-      String newComments = TextFormat.convertPlaintextToFormattedTextNoHighUnicode(log, bean.getComments());
+      String newComments = TextFormat.convertPlaintextToFormattedTextNoHighUnicode(bean.getComments());
       if (newComments != null) {
     	  newComments = newComments.trim();
       }

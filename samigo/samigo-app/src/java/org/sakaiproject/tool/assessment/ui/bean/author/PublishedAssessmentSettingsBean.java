@@ -19,8 +19,6 @@
  *
  **********************************************************************************/
 
-
-
 package org.sakaiproject.tool.assessment.ui.bean.author;
 
 import java.io.Serializable;
@@ -41,8 +39,7 @@ import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 import javax.faces.model.SelectItem;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.tool.assessment.facade.*;
 import org.sakaiproject.site.api.Group;
@@ -86,9 +83,9 @@ import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.FormattedText;
 
+@Slf4j
 public class PublishedAssessmentSettingsBean
   implements Serializable {
-  private static final Logger log = LoggerFactory.getLogger(PublishedAssessmentSettingsBean.class);
   
   private static final IntegrationContextFactory integrationContextFactory =
     IntegrationContextFactory.getInstance();

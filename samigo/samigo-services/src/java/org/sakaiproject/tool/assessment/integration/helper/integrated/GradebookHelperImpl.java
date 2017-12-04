@@ -22,8 +22,8 @@
 
 package org.sakaiproject.tool.assessment.integration.helper.integrated;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.tool.api.Placement;
 import org.sakaiproject.tool.assessment.integration.helper.ifc.GradebookHelper;
 import org.sakaiproject.tool.cover.ToolManager;
@@ -46,10 +46,9 @@ import org.sakaiproject.tool.cover.ToolManager;
  * @author Ed Smiley <esmiley@stanford.edu>
  * based on code originally in GradebookFacade
  */
-
+@Slf4j
 public class GradebookHelperImpl implements GradebookHelper
 {
-  private Logger log = LoggerFactory.getLogger(GradebookHelperImpl.class);
 
   /**
    * Get current gradebook uid.

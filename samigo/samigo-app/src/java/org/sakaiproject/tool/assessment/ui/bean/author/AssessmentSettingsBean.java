@@ -36,8 +36,7 @@ import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 import javax.faces.model.SelectItem;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.content.api.FilePickerHelper;
@@ -88,9 +87,9 @@ import org.sakaiproject.util.ResourceLoader;
  *
  * Used to be org.navigoproject.ui.web.asi.author.assessment.AssessmentActionForm.java
  */
+@Slf4j
 public class AssessmentSettingsBean
     implements Serializable {
-    private static final Logger log = LoggerFactory.getLogger(AssessmentSettingsBean.class);
 
     private static final IntegrationContextFactory integrationContextFactory =
       IntegrationContextFactory.getInstance();

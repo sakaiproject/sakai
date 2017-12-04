@@ -21,9 +21,6 @@
 
 package org.sakaiproject.tool.assessment.shared.impl.assessment;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
 import org.sakaiproject.tool.assessment.facade.SectionFacade;
 import org.sakaiproject.tool.assessment.services.SectionService;
@@ -37,7 +34,6 @@ import org.sakaiproject.tool.assessment.shared.api.assessment.SectionServiceAPI;
  */
 public class SectionServiceImpl implements SectionServiceAPI
 {
-  private Logger log = LoggerFactory.getLogger(SectionServiceImpl.class);
   public SectionServiceImpl()
   {
   }
@@ -60,5 +56,4 @@ public class SectionServiceImpl implements SectionServiceAPI
 
     return section;
   }
-
 }
