@@ -97,7 +97,7 @@ public interface GroupAwareEdit extends GroupAwareEntity, Edit
 	 * Set the release date before which this entity should not be available to users 
 	 * except those with adequate permission (what defines "adequate permission" is TBD).
 	 * @param time The date/time at which the entity may be accessed by all users.
-	 * @deprecated see {{@link #setReleaseTime(Instant)
+	 * @deprecated see {@link #setReleaseTime(Instant)}
 	 */
 	public void setReleaseDate(Time time);
 	
@@ -105,7 +105,7 @@ public interface GroupAwareEdit extends GroupAwareEntity, Edit
 	 * Set the release date before which this entity should not be available to users 
 	 * except those with adequate permission (what defines "adequate permission" is TBD).
 	 * @param time The date/time at which the entity may be accessed by all users.
-	 * @deprecated see {{@link #setReleaseTime(Instant)
+	 * @deprecated see {@link #setReleaseTime(Instant)}
 	 */
 	public void setReleaseTime(Date date);
 	
@@ -157,7 +157,7 @@ public interface GroupAwareEdit extends GroupAwareEntity, Edit
 	 * @param hidden
 	 * @param releaseDate
 	 * @param retractDate
-	 * @deprecated see {{@link #setAvailabilityInstant(boolean, Instant, Instant)}
+	 * @deprecated see {@link #setAvailabilityInstant(boolean, Instant, Instant)}
 	 */
 	public void setAvailability(boolean hidden, Time releaseDate, Time retractDate);
 	
