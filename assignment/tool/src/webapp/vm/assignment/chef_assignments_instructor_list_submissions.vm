@@ -542,7 +542,7 @@ function printView(url) {
 					#end
 					#if ($!submission)## && $submission.submitted)
 						## SAK-17606
-						#set($anonymousSubmissionId = $submission.getAnonymousSubmissionId())
+						#set($anonymousSubmissionId = $submission.getId() + ' ' + ($tlang.getString("grading.anonymous.title")))
 
 						<tr>
 							<td headers="allowResubmit" class="screenOnly smallCol">

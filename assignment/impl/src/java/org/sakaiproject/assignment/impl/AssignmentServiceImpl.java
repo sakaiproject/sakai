@@ -2788,8 +2788,8 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                                 // Work out if submission is late.
                                 String latenessStatus = whenSubmissionMade(s);
 
-                                String fullAnonId = s.getAnonymousSubmissionId();
                                 String anonTitle = resourceLoader.getString("grading.anonymous.title");
+                                String fullAnonId = s.getId() + " " + anonTitle;
 
                                 String[] params = new String[7];
                                 if (isAdditionalNotesEnabled && candidateDetailProvider != null) {
@@ -2828,8 +2828,8 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
 
                                 // SAK-17606
                                 if (isAnon) {
-                                    submittersName = root + s.getAnonymousSubmissionId();
-                                    submittersString = s.getAnonymousSubmissionId();
+                                    submittersString = s.getId() + " " + resourceLoader.getString("grading.anonymous.title");
+                                    submittersName = root + submittersString;
                                 }
 
                                 if (!withoutFolders) {
