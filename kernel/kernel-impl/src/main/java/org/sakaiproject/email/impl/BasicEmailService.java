@@ -626,7 +626,7 @@ public class BasicEmailService implements EmailService
 			}
 		}
 
-		sendMessageAndLog(from, to, subject, headerTo, start, msg, session);
+		sendMessageAndLog(to, start, msg, session);
 			}
 
 
@@ -1450,8 +1450,7 @@ public class BasicEmailService implements EmailService
 		}
 	}
 
-	protected void sendMessageAndLog(InternetAddress from, InternetAddress[] to, String subject,
-			Map<RecipientType, InternetAddress[]> headerTo, long start, MimeMessage msg,Session session)
+	protected void sendMessageAndLog(InternetAddress[] to, long start, MimeMessage msg, Session session)
 			throws MessagingException
 	{
 		long preSend = 0;
@@ -1461,7 +1460,7 @@ public class BasicEmailService implements EmailService
 		{
 			msg.saveChanges();
 
-			transportMessage(session, getMessageSets(new ArrayList<InternetAddress>(Arrays.asList(to))), new ArrayList<String>(), msg);
+			transportMessage(session, getMessageSets(new ArrayList<>(Arrays.asList(to))), new ArrayList<>(), msg);
 		}
 
 		long end = 0;
@@ -1471,48 +1470,22 @@ public class BasicEmailService implements EmailService
 		{
 			StringBuilder buf = new StringBuilder();
 			buf.append("Email.sendMail: from: ");
-			buf.append(from);
-			buf.append(" subject: ");
-			buf.append(subject);
-			buf.append(" to:");
-			for (int i = 0; i < to.length; i++)
-			{
+			for(Address from : msg.getFrom()) {
+				buf.append(toEmail(from));
 				buf.append(" ");
-				buf.append(to[i]);
 			}
-			if (headerTo != null)
-			{
-				if (headerTo.containsKey(RecipientType.TO))
-				{
-					buf.append(" headerTo{to}:");
-					InternetAddress[] headerToTo = headerTo.get(RecipientType.TO);
-					for (int i = 0; i < headerToTo.length; i++)
-					{
-						buf.append(" ");
-						buf.append(headerToTo[i]);
-					}
-				}
-				if (headerTo.containsKey(RecipientType.CC))
-				{
-					buf.append(" headerTo{cc}:");
-					InternetAddress[] headerToCc = headerTo.get(RecipientType.CC);
-					for (int i = 0; i < headerToCc.length; i++)
-					{
-						buf.append(" ");
-						buf.append(headerToCc[i]);
-					}
-				}
-				if (headerTo.containsKey(RecipientType.BCC))
-				{
-					buf.append(" headerTo{bcc}:");
-					InternetAddress[] headerToBcc = headerTo.get(RecipientType.BCC);
-					for (int i = 0; i < headerToBcc.length; i++)
-					{
-						buf.append(" ");
-						buf.append(headerToBcc[i]);
-					}
-				}
+			buf.append("subject: ");
+			buf.append(msg.getSubject());
+			buf.append(" to:");
+			for (InternetAddress aTo : to) {
+				buf.append(" ");
+				buf.append(toEmail(aTo));
 			}
+			appendAddresses(buf, msg.getRecipients(Message.RecipientType.TO), " headerTo{to}:");
+			appendAddresses(buf, msg.getRecipients(Message.RecipientType.CC), " headerTo{cc}:");
+			appendAddresses(buf, msg.getRecipients(Message.RecipientType.BCC), " headerTo{bcc}:");
+			appendAddresses(buf, msg.getReplyTo(), " replyTo:");
+
 			try
 			{
 				if (msg.getContent() instanceof Multipart)
@@ -1534,6 +1507,40 @@ public class BasicEmailService implements EmailService
 			M_log.info(buf.toString());
 		}
 	}
+
+
+	/**
+	 * Utility method to append addresses to a StringBuilder.
+	 * @param buffer The string builder to append to.
+	 * @param addresses The addresses to append.
+	 * @param label The label for these addresses.
+	 */
+	private void appendAddresses(StringBuilder buffer, Address[] addresses, String label) {
+		if (addresses != null) {
+			buffer.append(label);
+			for (Address address : addresses) {
+				buffer.append(" ");
+				buffer.append(toEmail(address));
+			}
+		}
+	}
+
+	/**
+	 * @param address The address, hopefully an {@link InternetAddress}
+	 * @return The email address if it can, otherwise the whole address.
+	 */
+	private String toEmail(Address address)
+	{
+		if (address instanceof InternetAddress)
+		{
+			return ((InternetAddress) address).getAddress();
+		}
+		else
+		{
+			return address.toString();
+		}
+	}
+
 
 	protected void setRecipients(Map<RecipientType, InternetAddress[]> headerTo, MimeMessage msg)
 			throws MessagingException
