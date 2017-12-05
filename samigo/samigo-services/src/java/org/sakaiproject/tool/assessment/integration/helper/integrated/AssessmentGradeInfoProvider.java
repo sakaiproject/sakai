@@ -65,14 +65,14 @@ public class AssessmentGradeInfoProvider implements ExternalAssignmentProvider, 
     private SiteService siteService;
     private MemoryService memoryService;
 
-    private Cache groupedCache;
-    private Cache pubAssessmentCache;
+    private Cache<String, Boolean> groupedCache;
+    private Cache<String, PublishedAssessmentIfc> pubAssessmentCache;
     
     public void init() {
         log.info("INIT and Register Samigo AssessmentGradeInfoProvider");
         geaService.registerExternalAssignmentProvider(this);
-        groupedCache = memoryService.newCache("org.sakaiproject.tool.assessment.integration.helper.integrated.AssessmentGradeInfoProvider.groupedCache");
-        pubAssessmentCache = memoryService.newCache("org.sakaiproject.tool.assessment.integration.helper.integrated.AssessmentGradeInfoProvider.pubAssessmentCache");
+        groupedCache = memoryService.getCache("org.sakaiproject.tool.assessment.integration.helper.integrated.AssessmentGradeInfoProvider.groupedCache");
+        pubAssessmentCache = memoryService.getCache("org.sakaiproject.tool.assessment.integration.helper.integrated.AssessmentGradeInfoProvider.pubAssessmentCache");
     }
 
     public void destroy() {
