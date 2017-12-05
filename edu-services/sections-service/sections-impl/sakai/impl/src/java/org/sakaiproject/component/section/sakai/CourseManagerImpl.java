@@ -20,8 +20,8 @@
  **********************************************************************************/
 package org.sakaiproject.component.section.sakai;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.section.api.CourseManager;
 import org.sakaiproject.section.api.coursemanagement.Course;
 import org.sakaiproject.section.api.coursemanagement.ParticipationRecord;
@@ -38,9 +38,8 @@ import org.sakaiproject.site.cover.SiteService;
  * @author <a href="mailto:jholtzman@berkeley.edu">Josh Holtzman</a>
  *
  */
+@Slf4j
 public class CourseManagerImpl implements CourseManager {
-
-	private static final Logger log = LoggerFactory.getLogger(CourseManagerImpl.class);
 
 	/**
 	 * @inheritDoc

@@ -15,11 +15,9 @@
  */
 package org.sakaiproject.tool.gradebook.facades.sakai2impl;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import org.sakaiproject.db.api.SqlService;
-
 import org.sakaiproject.service.gradebook.shared.GradebookConfiguration;
 
 /**
@@ -29,9 +27,8 @@ import org.sakaiproject.service.gradebook.shared.GradebookConfiguration;
  * at least 3.1.3, this includes any index definitions. (See Hibernate JIRA
  * issue HHH-1012.)
  */
+@Slf4j
 public class GradebookConfigurationSakai extends GradebookConfiguration {
-    private static final Logger log = LoggerFactory.getLogger(GradebookConfigurationSakai.class);
-
     private SqlService sqlService;
     private boolean autoDdl;
 

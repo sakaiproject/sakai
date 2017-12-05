@@ -16,8 +16,8 @@
 
 package org.sakaiproject.tool.gradebook.facades.sakai2impl;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.tool.api.Placement;
 import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.tool.gradebook.facades.ContextManagement;
@@ -27,8 +27,8 @@ import org.sakaiproject.tool.gradebook.facades.ContextManagement;
  *
  * @author <a href="mailto:jholtzman@berkeley.edu">Josh Holtzman</a>
  */
+@Slf4j
 public class ContextManagementSakai2Impl implements ContextManagement {
-    private static final Logger log = LoggerFactory.getLogger(ContextManagementSakai2Impl.class);
     private static final String DEFAULT_GRADEBOOK_NAME = "QA_6";
 
 	/**
@@ -45,5 +45,3 @@ public class ContextManagementSakai2Impl implements ContextManagement {
         return placement.getContext();
 	}
 }
-
-

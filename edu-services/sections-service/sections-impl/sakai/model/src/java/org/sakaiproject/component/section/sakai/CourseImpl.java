@@ -22,15 +22,16 @@ package org.sakaiproject.component.section.sakai;
 
 import java.io.Serializable;
 
+import lombok.extern.slf4j.Slf4j;
+
 import org.apache.commons.lang3.builder.ToStringBuilder;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.sakaiproject.section.api.coursemanagement.Course;
+
 import org.sakaiproject.entity.api.ResourceProperties;
+import org.sakaiproject.section.api.coursemanagement.Course;
 import org.sakaiproject.site.api.Site;
 
+@Slf4j
 public class CourseImpl implements Course, Serializable {
-	private static final Logger log = LoggerFactory.getLogger(CourseImpl.class);
 	private static final long serialVersionUID = 1L;
 
 	public static final String EXTERNALLY_MAINTAINED = "sections_externally_maintained";

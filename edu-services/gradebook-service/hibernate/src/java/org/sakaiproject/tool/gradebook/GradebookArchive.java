@@ -15,6 +15,7 @@
  */
 
 package org.sakaiproject.tool.gradebook;
+
 import java.beans.XMLDecoder;
 import java.beans.XMLEncoder;
 import java.io.BufferedInputStream;
@@ -23,8 +24,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.util.Collection;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Models a gradebook and all of its dependent objects, which can all be
@@ -32,9 +32,8 @@ import org.slf4j.LoggerFactory;
  *
  * @author <a href="mailto:jholtzman@berkeley.edu">Josh Holtzman</a>
  */
+@Slf4j
 public class GradebookArchive {
-    private static Logger log = LoggerFactory.getLogger(GradebookArchive.class);
-
     private Gradebook gradebook;
     private GradeMapping selectedGradeMapping;
     private Collection gradeMappings;
