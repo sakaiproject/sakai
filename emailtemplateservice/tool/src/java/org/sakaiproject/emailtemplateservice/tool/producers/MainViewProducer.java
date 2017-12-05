@@ -19,12 +19,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.sakaiproject.emailtemplateservice.model.EmailTemplate;
-import org.sakaiproject.emailtemplateservice.service.EmailTemplateService;
-import org.sakaiproject.emailtemplateservice.service.external.ExternalLogic;
-import org.sakaiproject.emailtemplateservice.tool.params.EmailTemplateViewParams;
+import lombok.extern.slf4j.Slf4j;
 
 import uk.org.ponder.messageutil.TargettedMessage;
 import uk.org.ponder.messageutil.TargettedMessageList;
@@ -38,6 +33,12 @@ import uk.org.ponder.rsf.view.DefaultView;
 import uk.org.ponder.rsf.view.ViewComponentProducer;
 import uk.org.ponder.rsf.viewstate.ViewParameters;
 
+import org.sakaiproject.emailtemplateservice.model.EmailTemplate;
+import org.sakaiproject.emailtemplateservice.service.EmailTemplateService;
+import org.sakaiproject.emailtemplateservice.service.external.ExternalLogic;
+import org.sakaiproject.emailtemplateservice.tool.params.EmailTemplateViewParams;
+
+@Slf4j
 public class MainViewProducer implements ViewComponentProducer, DefaultView {
 
 	public static final String VIEW_ID = "main";
@@ -46,8 +47,6 @@ public class MainViewProducer implements ViewComponentProducer, DefaultView {
 		// TODO Auto-generated method stub
 		return VIEW_ID;
 	}
-
-	private static Logger log = LoggerFactory.getLogger(MainViewProducer.class);
 
 	private EmailTemplateService emailTemplateService;
 	public void setEmailTemplateService(EmailTemplateService ets) {
