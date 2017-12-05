@@ -78,11 +78,36 @@ window.close();
   </h1>
 </div>
 
-<h:outputText styleClass="messageSamigo3" value="#{deliveryMessages.timeOutSubmission}" rendered="#{delivery.timeOutSubmission=='true'}"/>
+<%@ include file="/jsf/delivery/deliveryjQuery.jsp" %>
+<div id="timer-expired-warning" style="display:none;">
+	<h3><h:outputText value="#{deliveryMessages.time_expired1}" /></h3>
+    <p><h:outputText value="#{deliveryMessages.time_expired3}" /></p>
+    <div id="squaresWaveG">
+		<div id="squaresWaveG_1" class="squaresWaveG">
+		</div>
+		<div id="squaresWaveG_2" class="squaresWaveG">
+		</div>
+		<div id="squaresWaveG_3" class="squaresWaveG">
+		</div>
+		<div id="squaresWaveG_4" class="squaresWaveG">
+		</div>
+		<div id="squaresWaveG_5" class="squaresWaveG">
+		</div>
+		<div id="squaresWaveG_6" class="squaresWaveG">
+		</div>
+		<div id="squaresWaveG_7" class="squaresWaveG">
+		</div>
+		<div id="squaresWaveG_8" class="squaresWaveG">
+		</div>
+	</div>
+</div>
 
 <div class="table-responsive">
 
 <h:form id="submittedForm">
+
+	<h:outputText id="renderTimeoutMessage" styleClass="messageSamigo3" value="#{deliveryMessages.timeOutSubmission}" rendered="#{delivery.timeOutSubmission=='true'}"/>
+
 <h:messages styleClass="messageSamigo" rendered="#{! empty facesContext.maximumSeverity}" layout="table"/>
 
 	<h:outputText value="#{deliveryMessages.submission_confirmation_message_1}" rendered="#{!delivery.actionString=='takeAssessmentViaUrl'}"/>

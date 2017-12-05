@@ -52,6 +52,9 @@
 			$.blockUI({ message: '<h3>' + please_wait + ' <img src="/library/image/sakai/spinner.gif" /></h3>', overlayCSS: { backgroundColor: '#ccc', opacity: 0.25} });
 		}); 
 
+		if($('#submittedForm\\:renderTimeoutMessage').length > 0){
+			showTimerExpiredWarning(function() { ($('#timer-expired-warning').parent()).css('display', 'none');});
+		}
 	});
 
 	function checkIfHonorPledgeIsChecked() {
