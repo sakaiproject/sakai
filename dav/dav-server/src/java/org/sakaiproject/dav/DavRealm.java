@@ -23,22 +23,19 @@ package org.sakaiproject.dav;
 
 import java.security.Principal;
 
-import org.apache.catalina.LifecycleException;
+import lombok.extern.slf4j.Slf4j;
+
 import org.apache.catalina.realm.RealmBase;
 import org.apache.catalina.Wrapper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Simple implementation of <b>Realm</b> that consults the Sakai user directory service to provide container security equivalent to then application security in CHEF.
  * <p>
  * <strong>IMPLEMENTATION NOTE</strong>: The user is assumed to have all "roles" because servlets and teamlets will enforce roles within Sakai - so in this realm, we simply indicate "true".
  */
+@Slf4j
 public final class DavRealm extends RealmBase
 {
-	
-	private static Logger M_log = LoggerFactory.getLogger(DavRealm.class);
-
 	/** Descriptive information about this Realm implementation. */
 	protected static final String info = "org.sakaiproject.realm.DavRealm/1.0";
 
@@ -79,7 +76,7 @@ public final class DavRealm extends RealmBase
 
 	protected Principal getPrincipal(String username)
 	{
-		M_log.debug("DavRealm.getPrincipal(" + username + ") -- why is this being called?");
+		log.debug("DavRealm.getPrincipal({}) -- why is this being called?", username);
 
 		if (username == null) return null;
 
@@ -91,7 +88,7 @@ public final class DavRealm extends RealmBase
 	 */
 	protected String getPassword(String username)
 	{
-		M_log.debug("DavRealm.getPassword(" + username + ")");
+		log.debug("DavRealm.getPassword({})", username);
 		return null;
 	}
 
