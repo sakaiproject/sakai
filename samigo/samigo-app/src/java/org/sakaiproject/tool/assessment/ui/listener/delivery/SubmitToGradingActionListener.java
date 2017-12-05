@@ -990,7 +990,7 @@ public class SubmitToGradingActionListener implements ActionListener {
 
 		if (isLate) {
 			ExtendedTimeDeliveryService assessmentExtended = new ExtendedTimeDeliveryService((PublishedAssessmentFacade) pub, adataAgentId);
-			if (assessmentExtended.getDueDate() != null && assessmentExtended.getDueDate().after(new Date())) {
+			if (assessmentExtended.hasExtendedTime() && assessmentExtended.getDueDate() != null && assessmentExtended.getDueDate().after(new Date())) {
 				isLate = Boolean.FALSE;	
 			}
 		}
