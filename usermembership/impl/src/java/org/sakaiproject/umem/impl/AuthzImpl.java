@@ -21,17 +21,15 @@
 
 package org.sakaiproject.umem.impl;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.authz.cover.FunctionManager;
 import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.umem.api.Authz;
 
-
-
+@Slf4j
 public class AuthzImpl implements Authz {
-	private static Logger				LOG								= LoggerFactory.getLogger(AuthzImpl.class);
 
 	/** Sakai services */
 	private SecurityService			M_secs;
@@ -44,7 +42,7 @@ public class AuthzImpl implements Authz {
 	}
 
 	public void init() {
-		LOG.info("init()");		
+		log.info("init()");		
 		// register functions
 		FunctionManager.registerFunction(PERMISSION_UMEM_VIEW);
 	}
