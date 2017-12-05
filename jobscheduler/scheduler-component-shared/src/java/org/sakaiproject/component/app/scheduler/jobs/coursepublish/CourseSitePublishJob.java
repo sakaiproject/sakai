@@ -15,11 +15,12 @@
  */
 package org.sakaiproject.component.app.scheduler.jobs.coursepublish;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.quartz.StatefulJob;
+
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.coursemanagement.api.CourseSitePublishService;
 import org.sakaiproject.tool.api.Session;
@@ -32,10 +33,8 @@ import org.sakaiproject.user.api.UserNotDefinedException;
 /**
  * quartz job to remove course sites after a specified period of time.
  */
+@Slf4j
 public class CourseSitePublishJob implements StatefulJob {
-
-   // logger
-   private final transient Logger logger = LoggerFactory.getLogger(getClass());
 
    // sakai.properties
    public final static String PROPERTY_COURSE_SITE_PUBLISH_USER                             = "course_site_publish_service.user";
@@ -68,7 +67,7 @@ public class CourseSitePublishJob implements StatefulJob {
     * called by the spring framework.
     */
    public void destroy() {
-      logger.info("destroy()");
+      log.info("destroy()");
 
       // no code necessary
    }
@@ -82,17 +81,17 @@ public class CourseSitePublishJob implements StatefulJob {
     */
    public void init() {
 
-      logger.debug("init()");
+      log.debug("init()");
 
       // get the number of days after a term ends after which course sites that have expired will be removed
       try{
          numDaysBeforeTermStarts= serverConfigurationService.getInt(PROPERTY_COURSE_SITE_PUBLISH_NUM_DAYS_BEFORE_TERM_STARTS, DEFAULT_VALUE_COURSE_SITE_PUBLISH_NUM_DAYS_BEFORE_TERM_STARTS);
          } catch (NumberFormatException ex) {
-            logger.error("The value specified for numDaysBeforeTermStarts in sakai.properties, " + PROPERTY_COURSE_SITE_PUBLISH_NUM_DAYS_BEFORE_TERM_STARTS + ", is not valid.  A default value of " + DEFAULT_VALUE_COURSE_SITE_PUBLISH_NUM_DAYS_BEFORE_TERM_STARTS + " will be used instead.");
+            log.error("The value specified for numDaysBeforeTermStarts in sakai.properties, " + PROPERTY_COURSE_SITE_PUBLISH_NUM_DAYS_BEFORE_TERM_STARTS + ", is not valid.  A default value of " + DEFAULT_VALUE_COURSE_SITE_PUBLISH_NUM_DAYS_BEFORE_TERM_STARTS + " will be used instead.");
             numDaysBeforeTermStarts = DEFAULT_VALUE_COURSE_SITE_PUBLISH_NUM_DAYS_BEFORE_TERM_STARTS;
          }
       if (numDaysBeforeTermStarts < 0) {
-         logger.error("The value specified for numDaysBeforeTermStartsString in sakai.properties, " + PROPERTY_COURSE_SITE_PUBLISH_NUM_DAYS_BEFORE_TERM_STARTS + ", is not valid.  A default value of " + DEFAULT_VALUE_COURSE_SITE_PUBLISH_NUM_DAYS_BEFORE_TERM_STARTS + " will be used instead.");
+         log.error("The value specified for numDaysBeforeTermStartsString in sakai.properties, " + PROPERTY_COURSE_SITE_PUBLISH_NUM_DAYS_BEFORE_TERM_STARTS + ", is not valid.  A default value of " + DEFAULT_VALUE_COURSE_SITE_PUBLISH_NUM_DAYS_BEFORE_TERM_STARTS + " will be used instead.");
          numDaysBeforeTermStarts = DEFAULT_VALUE_COURSE_SITE_PUBLISH_NUM_DAYS_BEFORE_TERM_STARTS;
       }
 
@@ -103,7 +102,7 @@ public class CourseSitePublishJob implements StatefulJob {
          user = userDirectoryService.getUser(userId);
       } catch (UserNotDefinedException ex) {
          user = null;
-         logger.error("The user with eid " + userId + " was not found.  The course site publish job has been aborted.");
+         log.error("The user with eid " + userId + " was not found.  The course site publish job has been aborted.");
       }
 	}
 
@@ -113,10 +112,10 @@ public class CourseSitePublishJob implements StatefulJob {
     */
    public void execute(JobExecutionContext context) throws JobExecutionException {
       synchronized (this) {
-         logger.info("execute()");
+         log.info("execute()");
 
          if (user == null) {
-            logger.error("The scheduled job to remove course sites can not be run with an invalid user.  No courses were published.");
+            log.error("The scheduled job to remove course sites can not be run with an invalid user.  No courses were published.");
          } else {
             try {
                // switch the current user to the one specified to run the quartz job
@@ -124,9 +123,9 @@ public class CourseSitePublishJob implements StatefulJob {
                sakaiSesson.setUserId(user.getId());
 
                int numSitesPublished = courseSitePublishService.publishCourseSites(numDaysBeforeTermStarts);
-               logger.info(numSitesPublished + " course sites were published.");
+               log.info(numSitesPublished + " course sites were published.");
             } catch (Exception ex) {
-               logger.error(ex.getMessage());
+               log.error(ex.getMessage());
             }
          }
       }

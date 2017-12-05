@@ -15,24 +15,24 @@
  */
 package org.sakaiproject.component.app.scheduler.jobs;
 
+import lombok.extern.slf4j.Slf4j;
+
 import org.quartz.StatefulJob;
-import org.sakaiproject.api.app.scheduler.JobBeanWrapper;
-import org.sakaiproject.api.app.scheduler.SchedulerManager;
-import org.sakaiproject.component.cover.ComponentManager;
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import org.sakaiproject.api.app.scheduler.JobBeanWrapper;
+import org.sakaiproject.api.app.scheduler.SchedulerManager;
+import org.sakaiproject.component.cover.ComponentManager;
 
 /**
  * This class is final to ensure that it will be constructable
  * by the scheduler infrastructure
  * @see SpringStatefulJobBeanWrapper
  */
+@Slf4j
 public class SpringJobBeanWrapper implements JobBeanWrapper, Job {
-
-   private static final Logger log = LoggerFactory.getLogger(SpringJobBeanWrapper.class);
 
    private String beanId;
    private String jobName;

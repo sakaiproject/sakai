@@ -21,15 +21,15 @@
 
 package org.sakaiproject.component.app.scheduler.jobs;
 
+import lombok.extern.slf4j.Slf4j;
+
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 
+@Slf4j
 public class LongTestJob implements Job
 {
-
- 
-
   /**
    * @see org.quartz.Job#execute(org.quartz.JobExecutionContext)
    */
@@ -37,12 +37,11 @@ public class LongTestJob implements Job
   {
      try {
         for(int i = 0; i < 60; i++) {
-           System.out.println("LongTestJob: second " + i);
+           log.debug("LongTestJob: second {}", i);
            java.lang.Thread.sleep(1000);
         }
      } catch(java.lang.InterruptedException e) {
-        System.out.println("the LongTestJob was interrupted");
-        e.printStackTrace();
+        log.error("the LongTestJob was interrupted {}", e.getMessage());
      }
   }
 

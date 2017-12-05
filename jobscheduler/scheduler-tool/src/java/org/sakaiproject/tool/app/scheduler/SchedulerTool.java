@@ -31,8 +31,8 @@ import javax.faces.event.ActionEvent;
 import javax.faces.model.SelectItem;
 import javax.faces.validator.ValidatorException;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+
 import org.quartz.CronScheduleBuilder;
 import org.quartz.CronTrigger;
 import org.quartz.InterruptableJob;
@@ -48,6 +48,7 @@ import org.quartz.TriggerKey;
 import org.quartz.impl.matchers.GroupMatcher;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobKey;
+
 import org.sakaiproject.api.app.scheduler.ConfigurableJobBeanWrapper;
 import org.sakaiproject.api.app.scheduler.ConfigurableJobProperty;
 import org.sakaiproject.api.app.scheduler.ConfigurableJobPropertyValidationException;
@@ -61,11 +62,9 @@ import org.sakaiproject.component.app.scheduler.JobDetailWrapperImpl;
 import org.sakaiproject.component.app.scheduler.TriggerWrapperImpl;
 import org.sakaiproject.util.ResourceLoader;
 
+@Slf4j
 public class SchedulerTool
 {
-
-  private static final Logger LOG = LoggerFactory.getLogger(SchedulerTool.class);
-
   private static final String CRON_CHECK_ASTERISK = "**";
   private static final String CRON_CHECK_QUESTION_MARK = "??";
   /** The maximum length of a trigger name. */
@@ -177,7 +176,7 @@ public class SchedulerTool
 
       if (configurableJobResources == null)
       {
-          LOG.error ("no resource bundle provided for jobs of type: " + job.getJobType() + ". Labels will not be rendered correctly in the scheduler UI");
+          log.error ("no resource bundle provided for jobs of type: " + job.getJobType() + ". Labels will not be rendered correctly in the scheduler UI");
       }
 
 
@@ -218,20 +217,20 @@ public class SchedulerTool
 
                   if (labelKey == null)
                   {
-                      LOG.error ("no resource key provided for property label - NullPointerExceptions may occur in scheduler when processing jobs of type " + job.getJobType());
+                      log.error ("no resource key provided for property label - NullPointerExceptions may occur in scheduler when processing jobs of type " + job.getJobType());
                   }
                   else if (configurableJobResources.get(labelKey) == null)
                   {
-                      LOG.warn("no resource string provided for the property label key '" + labelKey + "' for the job type " + job.getJobType());
+                      log.warn("no resource string provided for the property label key '" + labelKey + "' for the job type " + job.getJobType());
                   }
 
                   if (descKey == null)
                   {
-                      LOG.warn ("no resource key provided for property description in job type " + job.getJobType());
+                      log.warn ("no resource key provided for property description in job type " + job.getJobType());
                   }
                   else if (configurableJobResources.get(descKey) == null)
                   {
-                      LOG.warn("no resource string provided for the property description key '" + descKey + "' for the job type " + job.getJobType());
+                      log.warn("no resource string provided for the property description key '" + descKey + "' for the job type " + job.getJobType());
                   }
               }
           }
@@ -529,7 +528,7 @@ public class SchedulerTool
      Scheduler scheduler = schedulerManager.getScheduler();
      if (scheduler == null)
      {
-       LOG.error("Scheduler is down!");
+       log.error("Scheduler is down!");
        return 2;
      }
      try
@@ -545,7 +544,7 @@ public class SchedulerTool
      }
      catch (Exception e)
      {
-       LOG.error("Failed to trigger job now", e);
+       log.error("Failed to trigger job now", e);
        return 2;
      }
   }
@@ -581,7 +580,7 @@ public class SchedulerTool
     Scheduler scheduler = schedulerManager.getScheduler();
     if (scheduler == null)
     {
-      LOG.error("Scheduler is down!");
+      log.error("Scheduler is down!");
       return "error";
     }
     try
@@ -637,7 +636,7 @@ public class SchedulerTool
     }
     catch (Exception e)
     {
-      LOG.error("Failed to create job.", e);
+      log.error("Failed to create job.", e);
       return "error";
     }
   }
@@ -652,7 +651,7 @@ public class SchedulerTool
       Scheduler scheduler = schedulerManager.getScheduler();
       if (scheduler == null)
       {
-        LOG.error("Scheduler is down!");
+        log.error("Scheduler is down!");
         return "error";
       }
 
@@ -748,7 +747,7 @@ public class SchedulerTool
       }
       catch (Exception e)
       {
-          LOG.error("Failed to create job.", e);
+          log.error("Failed to create job.", e);
           return "error";          
       }
   }
@@ -785,7 +784,7 @@ public class SchedulerTool
     Scheduler scheduler = schedulerManager.getScheduler();
     if (scheduler == null)
     {
-      LOG.error("Scheduler is down!");
+      log.error("Scheduler is down!");
       return "error";
     }
     try {
@@ -829,7 +828,7 @@ public class SchedulerTool
     }
     catch (Exception e)
     {
-      LOG.error("Failed to create trigger.", e);
+      log.error("Failed to create trigger.", e);
       return "error";
     }
     finally
@@ -849,7 +848,7 @@ public class SchedulerTool
       Scheduler scheduler = schedulerManager.getScheduler();
       if (scheduler == null)
       {
-        LOG.error("Scheduler is down!");
+        log.error("Scheduler is down!");
         return "error";
       }
 
@@ -937,7 +936,7 @@ public class SchedulerTool
       }
       catch (Exception e)
       {
-          LOG.error("Failed to create job.", e);
+          log.error("Failed to create job.", e);
           return "error";          
       }
 
@@ -983,7 +982,7 @@ public class SchedulerTool
     }
     catch (SchedulerException e)
     {
-      LOG.error("Failed to delete jobs.", e);
+      log.error("Failed to delete jobs.", e);
     }
     processRefreshJobs();
     return "jobs";
@@ -1003,7 +1002,7 @@ public class SchedulerTool
     }
     catch (SchedulerException e)
     {
-      LOG.error("Failed to delete triggers.", e);
+      log.error("Failed to delete triggers.", e);
     }
     return "edit_triggers";
   }
@@ -1033,7 +1032,7 @@ public class SchedulerTool
     }
     catch (SchedulerException e)
     {
-      LOG.error("Failed to get job details.", e);
+      log.error("Failed to get job details.", e);
     }
 
     // test for select all
@@ -1066,7 +1065,7 @@ public class SchedulerTool
       Scheduler scheduler = schedulerManager.getScheduler();
       if (scheduler == null)
       {
-        LOG.error("Scheduler is down!");
+        log.error("Scheduler is down!");
         return "error";
       }
 
@@ -1100,7 +1099,7 @@ public class SchedulerTool
       }
       catch (Exception e)
       {
-    	LOG.error("Failed to run job now.", e);
+    	log.error("Failed to run job now.", e);
         return "error";
       }
   }
@@ -1115,7 +1114,7 @@ public class SchedulerTool
       Scheduler scheduler = schedulerManager.getScheduler();
       if (scheduler == null)
       {
-        LOG.error("Scheduler is down!");
+        log.error("Scheduler is down!");
         return "error";
       }
       try
@@ -1200,7 +1199,7 @@ public class SchedulerTool
       }
       catch (Exception e)
       {
-          LOG.error("Failed to trigger job now", e);
+          log.error("Failed to trigger job now", e);
           return "error";
       }
   }
@@ -1216,7 +1215,7 @@ public class SchedulerTool
      Scheduler scheduler = schedulerManager.getScheduler();
      if (scheduler == null)
      {
-       LOG.error("Scheduler is down!");
+       log.error("Scheduler is down!");
        return "error";
      }
      try
@@ -1267,7 +1266,7 @@ public class SchedulerTool
      }
      catch (Exception e)
      {
-       LOG.error("Failed to trigger job now", e);
+       log.error("Failed to trigger job now", e);
        return "error";
      }
   }
@@ -1278,13 +1277,13 @@ public class SchedulerTool
 	  Scheduler scheduler = schedulerManager.getScheduler();
 	  if (scheduler == null)
 	  {
-		  LOG.error("Scheduler is down!");
+		  log.error("Scheduler is down!");
 	  }
 	  else {
 		  try {
 			  currentJobs = scheduler.getCurrentlyExecutingJobs();
 		  } catch (SchedulerException e) {
-			  LOG.warn("Unable to get currently executing jobs");
+			  log.warn("Unable to get currently executing jobs");
 		  }
 	  }
 
@@ -1356,7 +1355,7 @@ public class SchedulerTool
       }
       catch (SchedulerException e)
       {
-        LOG.error("Scheduler down!");
+        log.error("Scheduler down!");
       }
     }
   }
@@ -1383,7 +1382,7 @@ public class SchedulerTool
       }
       catch (SchedulerException e)
       {
-        LOG.error("Scheduler down!");
+        log.error("Scheduler down!");
       }
     }
   }
