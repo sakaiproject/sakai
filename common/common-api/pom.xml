@@ -7,9 +7,9 @@
     <version>13-SNAPSHOT</version><!-- ProjectVersion -->
     <relativePath>../pom.xml</relativePath>
   </parent>
-  <name>Sakai Common Type API</name>
+  <name>Sakai Common API</name>
   <groupId>org.sakaiproject.common</groupId>
-  <artifactId>sakai-common-type-api</artifactId>
+  <artifactId>sakai-common-api</artifactId>
   <organization>
     <name>Sakai Project</name>
     <url>http://sakaiproject.org/</url>
@@ -19,13 +19,6 @@
   <properties>
     <deploy.target>shared</deploy.target>
   </properties>
-  <dependencies>
-    <dependency>
-      <groupId>org.sakaiproject.common</groupId>
-      <artifactId>sakai-common-manager-api</artifactId>
-      <scope>provided</scope>
-    </dependency>
-  </dependencies>
   <build>
     <resources />
 <!-- java source -->
