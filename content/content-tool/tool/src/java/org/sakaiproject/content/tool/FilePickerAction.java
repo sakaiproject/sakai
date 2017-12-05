@@ -417,6 +417,10 @@ public class FilePickerAction extends PagedResourceHelperAction
 			context.put("INHERITED_ACCESS", AccessMode.INHERITED.toString());
 			context.put("PUBLIC_ACCESS", ResourcesAction.PUBLIC_ACCESS);
 		}
+		
+		// Get default notification ("r", "o" or "n")
+		context.put("noti", ServerConfigurationService.getString("content.default.notification", "n"));
+		
 		return template;
     }
 

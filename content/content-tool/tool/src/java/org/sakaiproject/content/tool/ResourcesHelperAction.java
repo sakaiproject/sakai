@@ -442,6 +442,9 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 		int requestStateId = ResourcesAction.preserveRequestState(state, new String[]{ResourcesAction.PREFIX + ResourcesAction.REQUEST});
 		context.put("requestStateId", requestStateId);
 		
+		// Get default notification ("r", "o" or "n") 
+		context.put("noti", ServerConfigurationService.getString("content.default.notification", "n"));
+		
 		return CREATE_URLS_TEMPLATE;
 	 }
 
@@ -502,6 +505,9 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 		int requestStateId = ResourcesAction.preserveRequestState(state, new String[]{ResourcesAction.PREFIX + ResourcesAction.REQUEST});
 		context.put("requestStateId", requestStateId);
 
+		// Get default notification ("r", "o" or "n") 
+		context.put("noti", ServerConfigurationService.getString("content.default.notification", "n"));
+		
 		return CREATE_FOLDERS_TEMPLATE;
 	}
 
@@ -543,6 +549,9 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 		int requestStateId = ResourcesAction.preserveRequestState(state, new String[]{ResourcesAction.PREFIX + ResourcesAction.REQUEST});
 		context.put("requestStateId", requestStateId);
 
+		// Get default notification ("r", "o" or "n") 
+		context.put("noti", ServerConfigurationService.getString("content.default.notification", "n"));
+		
 		return REPLACE_CONTENT_TEMPLATE;
 	}
 
@@ -622,6 +631,9 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 		int requestStateId = ResourcesAction.preserveRequestState(state, new String[]{ResourcesAction.PREFIX + ResourcesAction.REQUEST});
 		context.put("requestStateId", requestStateId);
 
+		// Get default notification ("r", "o" or "n") 
+		context.put("noti", ServerConfigurationService.getString("content.default.notification", "n"));
+		
 		return template;
 	}
 
@@ -728,6 +740,9 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 		int requestStateId = ResourcesAction.preserveRequestState(state, new String[]{ResourcesAction.PREFIX + ResourcesAction.REQUEST});
 		context.put("requestStateId", requestStateId);
 
+		// Get default notification ("r", "o" or "n") 
+		context.put("noti", ServerConfigurationService.getString("content.default.notification", "n"));
+		
 		return CREATE_UPLOADS_TEMPLATE;
 	}
 	
