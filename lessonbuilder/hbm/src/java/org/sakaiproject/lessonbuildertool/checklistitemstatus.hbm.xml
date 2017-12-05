@@ -6,7 +6,7 @@
 
         <cache usage="nonstrict-read-write" />
 
-        <composite-id>
+        <composite-id name="id" class="org.sakaiproject.lessonbuildertool.ChecklistItemStatusId">
             <key-property name="checklistId" type="long"/>
             <key-property name="checklistItemId" type="long"/>
             <key-property name="owner" type="string" length="99"/>
