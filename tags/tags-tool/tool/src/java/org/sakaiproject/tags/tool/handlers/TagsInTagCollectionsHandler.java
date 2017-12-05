@@ -25,22 +25,23 @@
 package org.sakaiproject.tags.tool.handlers;
 
 import java.util.Map;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.tags.api.TagService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * A handler for creating and updating Tag collections in the Tags Service administration tool.
  */
+@Slf4j
 public class TagsInTagCollectionsHandler extends BaseHandler {
 
     private final TagService tagService;
     private final int defaultPaginationSize = 10;
     private final int countPerPageGroup = 10;
-
-    private static final Logger LOG = LoggerFactory.getLogger(TagsInTagCollectionsHandler.class);
 
     public TagsInTagCollectionsHandler(TagService tagservice) {
         this.tagService = tagservice;

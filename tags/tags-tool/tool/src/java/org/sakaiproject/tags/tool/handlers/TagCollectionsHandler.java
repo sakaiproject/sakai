@@ -27,20 +27,21 @@ package org.sakaiproject.tags.tool.handlers;
 import java.io.IOException;
 import java.util.Map;
 import java.util.Optional;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.tags.api.TagCollection;
 import org.sakaiproject.tags.api.TagService;
 import org.sakaiproject.tags.tool.forms.TagCollectionForm;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * A handler for creating and updating Tag collections in the Tags Service administration tool.
  */
+@Slf4j
 public class TagCollectionsHandler extends CrudHandler {
-
-    private static final Logger LOG = LoggerFactory.getLogger(TagCollectionsHandler.class);
 
     private final TagService tagService;
 

@@ -22,6 +22,15 @@
 
 package org.sakaiproject.tags.impl;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.authz.api.FunctionManager;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.db.api.SqlService;
@@ -31,20 +40,12 @@ import org.sakaiproject.tags.api.TagService;
 import org.sakaiproject.tags.api.TagServiceException;
 import org.sakaiproject.tags.api.Tags;
 import org.sakaiproject.tags.impl.common.SakaiI18n;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
 
 /**
  * The implementation of the Tags Service service.  Provides system initialization
  * and access to the Tags Service and sub-services.
  */
+@Slf4j
 public class TagServiceImpl implements TagService {
 
     private static final String TAGSERVICE_MANAGE_PERMISSION =  "tagservice.manage";
@@ -56,7 +57,6 @@ public class TagServiceImpl implements TagService {
     private static final Boolean TAGSERVICE_ENABLED_DEFAULT_VALUE =  true;
     private static final int TAGSERVICE_MAXPAGESIZE_DEFAULT_VALUE = 200;
 
-    private static final Logger LOG = LoggerFactory.getLogger(TagServiceImpl.class);
     private SqlService	sqlService	= null;
     private FunctionManager	functionManager	= null;
     private ServerConfigurationService	serverConfigurationService = null;
@@ -122,7 +122,7 @@ public class TagServiceImpl implements TagService {
                         ps.execute();
                         ps.close();
                     } catch (SQLException e) {
-                        LOG.warn("runDBMigration: " + e + "(sql: " + sql + ")");
+                        log.warn("runDBMigration: " + e + "(sql: " + sql + ")");
                     }
                 }
             } catch (IOException e) {
