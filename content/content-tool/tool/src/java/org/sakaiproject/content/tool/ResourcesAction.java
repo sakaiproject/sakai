@@ -4028,6 +4028,10 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 			
 			ResourceConditionsHelper.buildConditionContext(context, state);
 		}
+		
+		// Get default notification ("r", "o" or "n") 
+		context.put("noti", ServerConfigurationService.getString("content.default.notification", "n"));
+		
 		return template;
 	}
 
@@ -5597,6 +5601,9 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		ResourceConditionsHelper.buildConditionContext(context, state);
 		
 		context.put("shortUrlEnabled", ServerConfigurationService.getBoolean("shortenedurl.resources.enabled", true));
+		
+		// Get default notification ("r", "o" or "n") 
+		context.put("noti", ServerConfigurationService.getString("content.default.notification", "n"));
 		
 		return TEMPLATE_REVISE_METADATA;
 	}
