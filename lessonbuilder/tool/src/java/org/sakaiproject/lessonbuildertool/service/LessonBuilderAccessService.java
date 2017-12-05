@@ -23,51 +23,40 @@
 
 package org.sakaiproject.lessonbuildertool.service;
 
+import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.BufferedInputStream;
+import java.net.SocketException;
 import java.net.URI;
 import java.net.URLDecoder;
-import java.util.Collection;
-import java.util.List;
+import java.text.SimpleDateFormat;
+import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.Locale;
 import java.util.StringTokenizer;
-import java.util.Vector;
 import java.util.TimeZone;
-import java.text.SimpleDateFormat;
-
-import org.apache.commons.io.IOUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.net.SocketException;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import java.util.Vector;
 
 import javax.crypto.Cipher;
 import javax.crypto.KeyGenerator;
-import javax.crypto.Mac;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.xml.bind.DatatypeConverter;
 
-import org.sakaiproject.content.api.ContentFilterService;
-import org.sakaiproject.memory.api.SimpleConfiguration;
-import org.sakaiproject.time.api.Time;
-import org.sakaiproject.time.cover.TimeService;
+import org.apache.commons.io.IOUtils;
+import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityService;
-import org.sakaiproject.authz.api.SecurityAdvisor.SecurityAdvice;
-import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.content.api.ContentEntity;
+import org.sakaiproject.content.api.ContentFilterService;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentResource;
-import org.sakaiproject.content.api.ContentEntity;
-import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.entity.api.EntityAccessOverloadException;
 import org.sakaiproject.entity.api.EntityCopyrightException;
 import org.sakaiproject.entity.api.EntityNotDefinedException;
@@ -77,30 +66,31 @@ import org.sakaiproject.entity.api.HttpAccess;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.event.api.EventTrackingService;
+import org.sakaiproject.event.api.UsageSession;
+import org.sakaiproject.event.cover.UsageSessionService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.ServerOverloadException;
 import org.sakaiproject.exception.TypeException;
-import org.sakaiproject.lessonbuildertool.api.LessonBuilderEvents;
 import org.sakaiproject.lessonbuildertool.LessonBuilderAccessAPI;
+import org.sakaiproject.lessonbuildertool.SimplePage;
 import org.sakaiproject.lessonbuildertool.SimplePageItem;
 import org.sakaiproject.lessonbuildertool.SimplePageLogEntry;
 import org.sakaiproject.lessonbuildertool.SimplePageProperty;
-import org.sakaiproject.lessonbuildertool.SimplePage;
+import org.sakaiproject.lessonbuildertool.api.LessonBuilderEvents;
 import org.sakaiproject.lessonbuildertool.model.SimplePageToolDao;
 import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean;
 import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.MemoryService;
+import org.sakaiproject.memory.api.SimpleConfiguration;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.SessionManager;
-import org.sakaiproject.event.api.UsageSession;
-import org.sakaiproject.event.cover.UsageSessionService;
 import org.sakaiproject.tool.api.ToolManager;
-import org.sakaiproject.tool.api.Placement;
+import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.util.Validator;
 import org.sakaiproject.util.Web;
-import org.sakaiproject.id.cover.IdManager;
-import org.sakaiproject.tool.api.Session;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import uk.org.ponder.messageutil.MessageLocator;
 
@@ -639,8 +629,8 @@ public class LessonBuilderAccessService {
 						long lastModTime = 0;
 
 						try {
-							Time modTime = rp.getTimeProperty(ResourceProperties.PROP_MODIFIED_DATE);
-							lastModTime = modTime.getTime();
+							Instant modTime = rp.getInstantProperty(ResourceProperties.PROP_MODIFIED_DATE);
+							lastModTime = modTime.getEpochSecond();
 						} catch (Exception e1) {
 							M_log.info("Could not retrieve modified time for: " + resource.getId());
 						}
@@ -1365,12 +1355,12 @@ public class LessonBuilderAccessService {
         // check release dates, both resource and collection. assumes it is called with advisor in place
         // NOTE: does not enforce hidden
         protected boolean isAvailable(ContentEntity entity) {
-	    Time now = TimeService.newTime();
-	    Time releaseDate = entity.getReleaseDate();
-	    if (releaseDate != null && ! releaseDate.before(now))
+        Instant now = Instant.now();
+        Instant releaseDate = entity.getReleaseInstant();
+	    if (releaseDate != null && ! releaseDate.isBefore(now))
 		return false;
-	    Time retractDate = entity.getRetractDate();
-	    if (retractDate != null && ! retractDate.after(now))
+	    Instant retractDate = entity.getRetractInstant();
+	    if (retractDate != null && ! retractDate.isAfter(now))
 		return false;
 	    ContentEntity parent = (ContentEntity)entity.getContainingCollection();
 	    if (parent != null)
