@@ -16,13 +16,12 @@
 
 package org.sakaiproject.tool.gradebook.ui;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.jsf.model.PhaseAware;
 
+@Slf4j
 public abstract class InitializableBean implements PhaseAware {
-	private static final Logger logger = LoggerFactory.getLogger(InitializableBean.class);
-
 	private transient boolean notValidated;
 
 	/**
@@ -45,12 +44,12 @@ public abstract class InitializableBean implements PhaseAware {
 	 */
 	public void endProcessValidators() {
 		setNotValidated(true);
-		if (logger.isDebugEnabled()) logger.debug("endProcessValidators");
+		if (log.isDebugEnabled()) log.debug("endProcessValidators");
 	}
 
 	public void endProcessUpdates() {
 		setNotValidated(false);
-		if (logger.isDebugEnabled()) logger.debug("endProcessUpdates");
+		if (log.isDebugEnabled()) log.debug("endProcessUpdates");
 	}
 
 	/**
@@ -59,7 +58,7 @@ public abstract class InitializableBean implements PhaseAware {
 	 * only been tested with request scope.)
 	 */
 	public void startRenderResponse() {
-		if (logger.isDebugEnabled()) logger.debug("startRenderResponse notValidated=" + isNotValidated());
+		if (log.isDebugEnabled()) log.debug("startRenderResponse notValidated=" + isNotValidated());
 		init();
 	}
 
@@ -74,13 +73,9 @@ public abstract class InitializableBean implements PhaseAware {
 	 * Signals that configuration is finished.
 	 */
 	public void setConfigured(boolean isConfigured) {
-		if (logger.isDebugEnabled()) logger.debug("setConfigured " + isConfigured);
+		if (log.isDebugEnabled()) log.debug("setConfigured " + isConfigured);
 		if (isConfigured) {
 			init();
 		}
 	}
-
 }
-
-
-

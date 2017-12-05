@@ -20,18 +20,17 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+
+import org.sakaiproject.component.section.support.IntegrationSupport;
 import org.sakaiproject.section.api.coursemanagement.Course;
 import org.sakaiproject.section.api.coursemanagement.ParticipationRecord;
-import org.sakaiproject.component.section.support.IntegrationSupport;
 import org.sakaiproject.service.gradebook.shared.GradebookNotFoundException;
 import org.sakaiproject.tool.gradebook.Gradebook;
 import org.sakaiproject.tool.gradebook.business.GradebookManager;
 
+@Slf4j
 public class FrameworkManagerSectionsImpl implements FrameworkManager {
-	private static Logger log = LoggerFactory.getLogger(FrameworkManagerSectionsImpl.class);
-
 	private IntegrationSupport integrationSupport;
 	private GradebookManager gradebookManager;
 

@@ -28,9 +28,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.sakaiproject.tool.gradebook.GradebookAssignment;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService;
 import org.sakaiproject.service.gradebook.shared.UnknownUserException;
@@ -41,6 +40,7 @@ import org.sakaiproject.tool.gradebook.CourseGrade;
 import org.sakaiproject.tool.gradebook.CourseGradeRecord;
 import org.sakaiproject.tool.gradebook.GradableObject;
 import org.sakaiproject.tool.gradebook.Gradebook;
+import org.sakaiproject.tool.gradebook.GradebookAssignment;
 import org.sakaiproject.tool.gradebook.GradingEvent;
 
 /**
@@ -48,9 +48,8 @@ import org.sakaiproject.tool.gradebook.GradingEvent;
  * instructor and student views. Based upon original StudentViewBean
  *
  */
+@Slf4j
 public class ViewByStudentBean extends EnrollmentTableBean implements Serializable {
-	private static Logger logger = LoggerFactory.getLogger(ViewByStudentBean.class);
-
     // View maintenance fields - serializable.
     private String userDisplayName;
     private boolean courseGradeReleased;
@@ -213,7 +212,7 @@ public class ViewByStudentBean extends EnrollmentTableBean implements Serializab
     	try {
     		userDisplayName = getUserDirectoryService().getUserDisplayName(studentUid);
     	} catch (UnknownUserException e) {
-    		if(logger.isErrorEnabled())logger.error("User " + studentUid + " is unknown but referenced in gradebook " + gradebook.getUid());
+    		if(log.isErrorEnabled())log.error("User " + studentUid + " is unknown but referenced in gradebook " + gradebook.getUid());
     		userDisplayName = "";
     	}
     	
@@ -406,9 +405,9 @@ public class ViewByStudentBean extends EnrollmentTableBean implements Serializab
     	if (assignments == null)
     		return gradeRows;
 
-    	if(logger.isDebugEnabled()) {
-    		logger.debug(assignments.size() + " total assignments");
-    		logger.debug(gradeRecords.size()  +"  grade records");
+    	if(log.isDebugEnabled()) {
+    		log.debug(assignments.size() + " total assignments");
+    		log.debug(gradeRecords.size()  +"  grade records");
     	}
     	
 		boolean userHasGraderPerms;
@@ -511,8 +510,8 @@ public class ViewByStudentBean extends EnrollmentTableBean implements Serializab
     			if(comment.getCommentText().length() > 0)
     				asnGradeRow.setCommentText(comment.getCommentText());
     		}catch(NullPointerException npe){
-    			if(logger.isDebugEnabled())
-    				logger.debug("assignment has no associated comment");
+    			if(log.isDebugEnabled())
+    				log.debug("assignment has no associated comment");
     		}
     	}
 
@@ -575,7 +574,7 @@ public class ViewByStudentBean extends EnrollmentTableBean implements Serializab
     		//get grade comments and load them into a map assignmentId->comment
     		commentMap = new HashMap();
     		List assignmentComments = getGradebookManager().getStudentAssignmentComments(studentUid, gradebook.getId());
-    		logger.debug("number of comments "+assignmentComments.size());
+    		log.debug("number of comments "+assignmentComments.size());
     		Iterator iteration = assignmentComments.iterator();
     		while (iteration.hasNext()){
     			Comment comment = (Comment)iteration.next();
@@ -758,6 +757,3 @@ public class ViewByStudentBean extends EnrollmentTableBean implements Serializab
     	}
     }
 }
-
-
-
