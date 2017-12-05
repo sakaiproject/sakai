@@ -43,6 +43,9 @@ import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 public class LegacyShaUtil {
 	private static final char[] TOHEX = "0123456789abcdef".toCharArray();
 	public static final String UTF8 = "UTF8";
@@ -127,17 +130,15 @@ public class LegacyShaUtil {
 		final String sample1Hash = sha1Hash(sample1);
 		final String sample2Hash = sha1Hash(sample2);
 		final String sample3Hash = sha1Hash(sample3);
-		System.out.println(sample1Hash);
-		System.out.println(sample2Hash);
-		System.out.println(sample3Hash);
+		log.debug(sample1Hash);
+		log.debug(sample2Hash);
+		log.debug(sample3Hash);
 		assert (sample1Hash.equals(sample2Hash));
-		System.out.println(sample1Hash.equals(sample2Hash)
-				+ "=(sample1Hash.equals(sample2Hash))");
+		log.debug("{}=(sample1Hash.equals(sample2Hash))", sample1Hash.equals(sample2Hash));
 		assert (!sample3Hash.equals(sample1Hash));
-		System.out.println(!sample3Hash.equals(sample1Hash)
-				+ "=(!sample3Hash.equals(sample1Hash))");
+		log.debug("{}=(!sample3Hash.equals(sample1Hash))", !sample3Hash.equals(sample1Hash));
 		assert (null == byteToHex(null));
 		final boolean testNull = (null == byteToHex(null));
-		System.out.println(testNull + "=(null == byteToHex(null))");
+		log.debug("{}=(null == byteToHex(null))", testNull);
 	}
 }

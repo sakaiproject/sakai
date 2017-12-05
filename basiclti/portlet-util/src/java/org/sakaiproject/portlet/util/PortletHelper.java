@@ -25,18 +25,18 @@ import java.io.ByteArrayOutputStream;
 
 import java.util.Map;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import javax.portlet.PortletRequest;
 import javax.portlet.PortletPreferences;
 import javax.portlet.PortletSession;
+
+import lombok.extern.slf4j.Slf4j;
 
 import org.sakaiproject.util.FormattedText;
 
 /**
  * Some Utility Functions
  */
+@Slf4j
 public class PortletHelper {
 
 	public static String snoopPortlet(PortletRequest request)
@@ -114,11 +114,8 @@ public class PortletHelper {
 		OutputStream oStream = new ByteArrayOutputStream();
 		PrintStream pStream = new PrintStream(oStream);
 
-		t.printStackTrace(pStream);
-
-		// System.out.println("+++++++++++++++++++++++++");
-		// System.out.println(oStream.toString());
-		// System.out.println("+++++++++++++++++++++++++");
+		log.error("{}", oStream);
+		log.error("{}", pStream);
 
 		// errorMsg = errorMsg .replaceAll("<","&lt;").replaceAll(">","&gt;");
 
@@ -211,8 +208,8 @@ public class PortletHelper {
 				}
 				break;
 			case ORACLEPORTAL:
-				//System.out.println("userInfo" + userInfo); // Changes by Venkatesh for Oracle Portal
-				//System.out.println("Remote User=" + username); // Oracle portal is populating user name with [1] at the end
+				log.debug("userInfo {}", userInfo); // Changes by Venkatesh for Oracle Portal
+				log.debug("Remote User={}", username); // Oracle portal is populating user name with [1] at the end
 				// the following code will get rid of the unnecessary characters
 				username = request.getRemoteUser();
 				if(username != null && username.indexOf("[") != -1)
