@@ -44,6 +44,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -1333,29 +1334,24 @@ public class DbContentService extends BaseContentService
                      * accept(Object o) { // o is a String, the collection id return StringUtil.referencePath((String) o).equals(target); } } );
                      */
 
-                    List<ContentCollectionEdit> collections = (List<ContentCollectionEdit>) threadLocalManager.get("getCollections@" + target);
-                    if (collections == null)
+                    List<ContentCollectionEdit> collections = m_collectionStore.getAllResourcesWhere("IN_COLLECTION", target);
+                    if(collections != null && collections.size() > 0 && isSiteLevelDropbox(target))
                     {
-                        collections = m_collectionStore.getAllResourcesWhere("IN_COLLECTION", target);
-                        if(collections != null && collections.size() > 0 && isSiteLevelDropbox(target))
+                        Map<String,Long> updateTimes = getMostRecentUpdate(collection.getId());
+                        Iterator it = collections.iterator();
+                        while(it.hasNext())
                         {
-                            Map<String,Long> updateTimes = getMostRecentUpdate(collection.getId());
-                            Iterator it = collections.iterator();
-                            while(it.hasNext())
+                            BaseCollectionEdit dropbox = (BaseCollectionEdit) it.next();
+                            Long update = updateTimes.get(dropbox.getId());
+                            if(update != null)
                             {
-                                BaseCollectionEdit dropbox = (BaseCollectionEdit) it.next();
-                                Long update = updateTimes.get(dropbox.getId());
-                                if(update != null)
-                                {
-                                    ResourcePropertiesEdit props = dropbox.getPropertiesEdit();
-                                    Time time = timeService.newTime(update);
-                                    props.addProperty(PROP_DROPBOX_CHANGE_TIMESTAMP, time.toString());
-                                }
+                                ResourcePropertiesEdit props = dropbox.getPropertiesEdit();
+                                Time time = timeService.newTime(update);
+                                props.addProperty(PROP_DROPBOX_CHANGE_TIMESTAMP, time.toString());
                             }
                         }
-                        threadLocalManager.set("getCollections@" + target, collections);
-                        cacheEntities(collections);
                     }
+                    cacheEntities(collections);
                     // read the records with a where clause to let the database
                     // select
                     // those in this collection
@@ -1589,13 +1585,8 @@ public class DbContentService extends BaseContentService
                      * accept(Object o) { // o is a String, the resource id return StringUtil.referencePath((String) o).equals(target); } } );
                      */
 
-                    List<ContentResourceEdit> resources = (List<ContentResourceEdit>) threadLocalManager.get("getResources@" + target);
-                    if (resources == null)
-                    {
-                        resources = m_resourceStore.getAllResourcesWhere("IN_COLLECTION", target);
-                        threadLocalManager.set("getResources@" + target, resources);
-                        cacheEntities(resources);
-                    }
+                    List<ContentResourceEdit> resources = m_resourceStore.getAllResourcesWhere("IN_COLLECTION", target);
+                    cacheEntities(resources);
                     // read the records with a where clause to let the database
                     // select
                     // those in this collection
@@ -2598,7 +2589,6 @@ public class DbContentService extends BaseContentService
                     {
                         // ignore -- means this is not a collection or the collection contains no folders, so zero is right answer
                     }
-                    ;
                     return fileCount + folderCount;
                 }
             }
