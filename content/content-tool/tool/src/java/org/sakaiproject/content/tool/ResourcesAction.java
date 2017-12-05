@@ -52,13 +52,31 @@ import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
+
+import javax.servlet.ServletException;
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import lombok.extern.slf4j.Slf4j;
 
 import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import org.w3c.dom.Element;
+
+import org.quartz.Scheduler;
+import org.quartz.SchedulerException;
+import org.quartz.JobDetail;
+import org.quartz.JobKey;
+import org.quartz.Trigger;
+
 import org.sakaiproject.alias.api.AliasEdit;
 import org.sakaiproject.alias.api.AliasService;
 import org.sakaiproject.antivirus.api.VirusFoundException;
+import org.sakaiproject.api.app.scheduler.JobBeanWrapper;
+import org.sakaiproject.api.app.scheduler.SchedulerManager;
 import org.sakaiproject.authz.api.PermissionsHelper;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.SecurityService;
@@ -138,22 +156,6 @@ import org.sakaiproject.util.Resource;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.Validator;
 import org.sakaiproject.util.FileItem;
-import org.w3c.dom.Element;
-
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipOutputStream;
-
-import javax.servlet.http.Cookie;
-import org.sakaiproject.api.app.scheduler.SchedulerManager;
-import org.sakaiproject.api.app.scheduler.JobBeanWrapper;
-import org.quartz.Scheduler;
-import org.quartz.SchedulerException;
-import org.quartz.JobDetail;
-import org.quartz.JobKey;
-import org.quartz.Trigger;
 
 /**
 * <p>ResourceAction is a ContentHosting application</p>
@@ -161,6 +163,7 @@ import org.quartz.Trigger;
 * @author University of Michigan, CHEF Software Development Team
 * @version $Revision$
 */
+@Slf4j
 public class ResourcesAction 
 	extends PagedResourceHelperAction // VelocityPortletPaneledAction
 {
@@ -442,8 +445,6 @@ public class ResourcesAction
 	private final String resourceClass = ServerConfigurationService.getString(RESOURCECLASS, DEFAULT_RESOURCECLASS);
 	private final String resourceBundle = ServerConfigurationService.getString(RESOURCEBUNDLE, DEFAULT_RESOURCEBUNDLE);
 	private final ResourceLoader srb = new Resource().getLoader(resourceClass, resourceBundle);
-
-	static final Logger logger = LoggerFactory.getLogger(ResourcesAction.class);
 	
 	static final ResourceConditionsHelper conditionsHelper = new ResourceConditionsHelper();
 
@@ -949,7 +950,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 	 */
 	private static void addObservingPattern(String pattern, SessionState state)
 	{
-		logger.debug("ResourcesAction.addObservingPattern()");
+		log.debug("ResourcesAction.addObservingPattern()");
 //		// get the observer and add the pattern
 //		ContentObservingCourier o = (ContentObservingCourier) state.getAttribute(STATE_OBSERVER);
 //		o.addResourcePattern(ContentHostingService.getReference(pattern));
@@ -967,7 +968,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 									RunData data,
 									SessionState state)
 	{
-		logger.debug("ResourcesAction.buildMoreContext()");
+		log.debug("ResourcesAction.buildMoreContext()");
 		context.put("tlang",rb);
 		
 		// find the ContentTypeImage service
@@ -1036,7 +1037,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 	 */
 	public static void copyrightChoicesIntoContext(SessionState state, Context context)
 	{
-		logger.debug("ResourcesAction.copyrightChoicesIntoContext()");
+		log.debug("ResourcesAction.copyrightChoicesIntoContext()");
 		boolean usingCreativeCommons = state.getAttribute(STATE_USING_CREATIVE_COMMONS) != null && state.getAttribute(STATE_USING_CREATIVE_COMMONS).equals(Boolean.TRUE.toString());		
 		
 		if(usingCreativeCommons)
@@ -1108,7 +1109,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 	
 	public static void publicDisplayChoicesIntoContext(SessionState state, Context context)
 	{
-		logger.debug("ResourcesAction.publicDisplayChoicesIntoContext()");
+		log.debug("ResourcesAction.publicDisplayChoicesIntoContext()");
 		Boolean preventPublicDisplay = (Boolean) state.getAttribute(STATE_PREVENT_PUBLIC_DISPLAY);
 		if(preventPublicDisplay == null)
 		{
@@ -1124,7 +1125,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 	 */
 	public static List<ContentCollection> createFolders(SessionState state, ResourceToolActionPipe pipe)
 	{
-		logger.debug("ResourcesAction.createFolders()");
+		log.debug("ResourcesAction.createFolders()");
 		List<ContentCollection> new_collections = new ArrayList<>();
 		String collectionId = pipe.getContentEntity().getId();
 		MultiFileUploadPipe mfp = (MultiFileUploadPipe) pipe;
@@ -1178,30 +1179,29 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 			catch (IdInvalidException e)
 			{
 				// TODO Auto-generated catch block
-				logger.warn("IdInvalidException {}{}", collectionId, name, e);
+				log.warn("IdInvalidException {}{}", collectionId, name, e);
 			}
 			catch (IdUsedException|IdUniquenessException e)
 			{
 				String[] args = { name };
 				addAlert(state, trb.getFormattedMessage("alert.exists", (Object[]) args));
-				// logger.warn("IdUsedException ", e);
 			}
 			catch (IdUnusedException e)
 			{
 				// TODO Auto-generated catch block
-				logger.warn("IdUnusedException {}{}", collectionId, name, e);
+				log.warn("IdUnusedException {}{}", collectionId, name, e);
 				break;
 			}
 			catch (IdLengthException e)
 			{
 				String[] args = { name };
 				addAlert(state, trb.getFormattedMessage("alert.toolong", (Object[]) args));
-				logger.warn("IdLengthException {}{}", collectionId, name, e);
+				log.warn("IdLengthException {}{}", collectionId, name, e);
 			}
 			catch (TypeException e)
 			{
 				// TODO Auto-generated catch block
-				logger.warn("TypeException id = {}{}", collectionId, name, e);
+				log.warn("TypeException id = {}{}", collectionId, name, e);
 			}
 		}
 		return (new_collections.isEmpty() ? null : new_collections);
@@ -1212,7 +1212,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 	 */
 	public static List<ContentResource> createResources(ResourceToolActionPipe pipe)
 	{
-		logger.debug("ResourcesAction.createResources()");
+		log.debug("ResourcesAction.createResources()");
 		boolean item_added = false;
 		String collectionId;
 		List<ContentResource> new_resources = new ArrayList<>();
@@ -1302,66 +1302,66 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 				catch(OverQuotaException e)
 				{
 					addAlert(trb.getFormattedMessage("alert.overquota", new Object[]{name}));
-					logger.debug("OverQuotaException {}", (Object) e);
+					log.debug("OverQuotaException {}", (Object) e);
 					try
 					{
 						contentHostingService.removeResource(resource.getId());
 					}
 					catch(Exception e1)
 					{
-						logger.debug("Unable to remove partially completed resource: {}\n", resource.getId(), e);
+						log.debug("Unable to remove partially completed resource: {}\n", resource.getId(), e);
 					}
 				}
 				catch(ServerOverloadException e)
 				{
 					addAlert(trb.getFormattedMessage("alert.unable1", new Object[]{name}));
-					logger.debug("ServerOverloadException {}", (Object) e);
+					log.debug("ServerOverloadException {}", (Object) e);
 					try
 					{
 						contentHostingService.removeResource(resource.getId());
 					}
 					catch(Exception e1)
 					{
-						logger.debug("Unable to remove partially completed resource: {}\n", resource.getId(), e);
+						log.debug("Unable to remove partially completed resource: {}\n", resource.getId(), e);
 					}
 				}
 			}
 			catch (PermissionException e)
 			{
 				addAlert(trb.getString("alert.perm"));
-				logger.warn("PermissionException ", e);
+				log.warn("PermissionException ", e);
 			}
 			catch (IdUnusedException e)
 			{
 				// TODO Auto-generated catch block
-				logger.warn("IdUsedException ", e);
+				log.warn("IdUsedException ", e);
 			}
 			catch (IdInvalidException e)
 			{
 				// TODO Auto-generated catch block
-				logger.warn("IdInvalidException ", e);
+				log.warn("IdInvalidException ", e);
 			}
 			catch (IdUniquenessException e)
 			{
 				// TODO Auto-generated catch block
-				logger.warn("IdUniquenessException ", e);
+				log.warn("IdUniquenessException ", e);
 			}
 			catch (IdLengthException e)
 			{
 				addAlert(trb.getFormattedMessage("alert.toolong", new Object[]{name}));
 				
 				// TODO Need to give error message to user
-				logger.warn("IdLengthException {}", (Object) e);
+				log.warn("IdLengthException {}", (Object) e);
 			}
 			catch (OverQuotaException e)
 			{
 				addAlert(trb.getFormattedMessage("alert.overquota", new Object[]{name}));
-				logger.warn("OverQuotaException {}", (Object) e);
+				log.warn("OverQuotaException {}", (Object) e);
 			}
 			catch (ServerOverloadException e)
 			{
 				addAlert(trb.getFormattedMessage("alert.unable1", new Object[]{name}));
-				logger.warn("ServerOverloadException {}", (Object) e);
+				log.warn("ServerOverloadException {}", (Object) e);
 			}
 		}
 		
@@ -1373,14 +1373,14 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
      */
     protected static void extractContent(ResourceToolActionPipe pipe, ContentResourceEdit resource)
     {
-		logger.debug("ResourcesAction.extractContent()");
+		log.debug("ResourcesAction.extractContent()");
 	    byte[] content = pipe.getRevisedContent();
 	    if(content == null)
 	    {
 	    	InputStream stream = pipe.getRevisedContentStream();
 	    	if(stream == null)
 	    	{
-	    		logger.debug("pipe with null content and null stream: {}", pipe.getFileName());
+	    		log.debug("pipe with null content and null stream: {}", pipe.getFileName());
 	    	}
 	    	else
 	    	{
@@ -1398,7 +1398,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 	*/
 	public static void doMoveitems ( RunData data)
 	{
-		logger.debug("ResourcesAction.doMoveItems()");
+		log.debug("ResourcesAction.doMoveItems()");
 		
 		if (!"POST".equals(data.getRequest().getMethod())) {
 			return;
@@ -1481,7 +1481,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 			}
 			catch(RuntimeException e)
 			{
-				logger.debug("ResourcesAction.doMoveitems ***** Unknown Exception ***** {}", e.getMessage());
+				log.debug("ResourcesAction.doMoveitems ***** Unknown Exception ***** {}", e.getMessage());
 				addAlert(state, rb.getString("failed"));
 			}	// try-catch
 
@@ -1514,7 +1514,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 	*/
 	public static void doPasteitem ( RunData data)
 	{
-		logger.debug("ResourcesAction.doPasteItem()");
+		log.debug("ResourcesAction.doPasteItem()");
 		
 		if (!"POST".equals(data.getRequest().getMethod())) {
 			return;
@@ -1538,7 +1538,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 	*/
 	public static void doPasteitems ( RunData data)
 	{
-		logger.debug("ResourcesAction.doPasteItems()");
+		log.debug("ResourcesAction.doPasteItems()");
 		
 		if (!"POST".equals(data.getRequest().getMethod())) {
 			return;
@@ -1615,7 +1615,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 			}	// try-catch
 			catch(RuntimeException e)
 			{
-				logger.debug("ResourcesAction.doPasteitems ***** Unknown Exception ***** {}", e.getMessage());
+				log.debug("ResourcesAction.doPasteitems ***** Unknown Exception ***** {}", e.getMessage());
 				addAlert(state, rb.getString("failed"));
 			}
 
@@ -1650,7 +1650,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 	 */
 	protected static String duplicateItem(SessionState state, String itemId, String collectionId)
 	{
-		logger.debug("ResourcesAction.duplicateItem()");
+		log.debug("ResourcesAction.duplicateItem()");
 		String originalDisplayName = NULL_STRING;
 
 		String newId = null;
@@ -1690,27 +1690,27 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 				catch(OverQuotaException e)
 				{
 					addAlert(state, trb.getFormattedMessage("alert.overquota", new Object[]{displayName}));
-					logger.debug("OverQuotaException {}", (Object) e);
+					log.debug("OverQuotaException {}", (Object) e);
 					try
 					{
 						contentHostingService.removeResource(resource.getId());
 					}
 					catch(Exception e1)
 					{
-						logger.debug("Unable to remove partially completed resource: {}", resource.getId(), e);
+						log.debug("Unable to remove partially completed resource: {}", resource.getId(), e);
 					}
 				}
 				catch(ServerOverloadException e)
 				{
 					addAlert(state, trb.getFormattedMessage("alert.unable1", new Object[]{displayName}));
-					logger.debug("ServerOverloadException {}", (Object) e);
+					log.debug("ServerOverloadException {}", (Object) e);
 					try
 					{
 						contentHostingService.removeResource(resource.getId());
 					}
 					catch(Exception e1)
 					{
-						logger.debug("Unable to remove partially completed resource: {}", resource.getId(), e);
+						log.debug("Unable to remove partially completed resource: {}", resource.getId(), e);
 					}
 				}
 			}	// if-else
@@ -1797,7 +1797,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
      */
     protected static List<ResourceToolAction> getActions(ContentEntity selectedItem, Set<ContentPermissions> permissions, ResourceTypeRegistry registry)
     {
-		logger.debug("ResourcesAction.getActions()");
+		log.debug("ResourcesAction.getActions()");
 	    List<ResourceToolAction> actions = new ArrayList<>();
 	    
 	    ResourceType typeDef = getResourceType(selectedItem, registry);
@@ -1884,7 +1884,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
      */
     protected static ResourceType getResourceType(ContentEntity selectedItem, ResourceTypeRegistry registry)
     {
-		logger.debug("ResourcesAction.getResourceType()");
+		log.debug("ResourcesAction.getResourceType()");
 	    String resourceType = selectedItem.getResourceType();
 	    if(resourceType == null)
 	    {
@@ -1905,7 +1905,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 	
     public static List<ResourceToolAction> getPasteActions(ContentEntity selectedItem, Set<ContentPermissions> permissions, ResourceTypeRegistry registry, List<String> items_to_be_moved, List<String> items_to_be_copied)
     {
-		logger.debug("ResourcesAction.getPasteActions()");
+		log.debug("ResourcesAction.getPasteActions()");
 	    List<ResourceToolAction> actions = new ArrayList<>();
 	    
 	    // if nothing to paste, just return an empty list
@@ -2017,7 +2017,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
      */
     protected static List<ResourceToolAction> getAddActions(ContentEntity selectedItem, Set<ContentPermissions> permissions, ResourceTypeRegistry registry)
     {
-		logger.debug("ResourcesAction.getAddActions()");
+		log.debug("ResourcesAction.getAddActions()");
 	    Reference ref = entityManager.newReference(selectedItem.getReference());
 	    
 	    List<ResourceToolAction> actions = new ArrayList<>();
@@ -2078,7 +2078,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 	 */
 	public static List getCollectionPath(SessionState state)
 	{
-		logger.debug("ResourcesAction.getCollectionPath()");
+		log.debug("ResourcesAction.getCollectionPath()");
 		//org.sakaiproject.content.api.contentHostingService contentService = (org.sakaiproject.content.api.contentHostingService) state.getAttribute (STATE_CONTENT_SERVICE);
 		ContentHostingService contentService = contentHostingService;
 		// make sure the channedId is set
@@ -2180,7 +2180,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 	
 	public static ResourcesEditItem getEditItem(String id, String collectionId, RunData data)
 	{
-		logger.debug("ResourcesAction.getEditItem()");
+		log.debug("ResourcesAction.getEditItem()");
 		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
 
 		Stack operations_stack = (Stack) state.getAttribute(STATE_SUSPENDED_OPERATIONS_STACK);
@@ -2503,12 +2503,12 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
                 catch (EntityPropertyNotDefinedException e)
                 {
 	                // TODO Auto-generated catch block
-	                logger.warn("EntityPropertyNotDefinedException for size of {}", item.getId());
+	                log.warn("EntityPropertyNotDefinedException for size of {}", item.getId());
                 }
                 catch (EntityPropertyTypeException e)
                 {
 	                // TODO Auto-generated catch block
-	                logger.warn("EntityPropertyTypeException for size of {}", item.getId());
+	                log.warn("EntityPropertyTypeException for size of {}", item.getId());
                 }
 				size = getFileSizeString(size_long, rb);
 			}
@@ -2534,7 +2534,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 				item.setCopyrightAlert(false);
 			}
 			
-			logger.info("here we are!");
+			log.info("here we are!");
 			
 			// for collections only
 			if(item.isFolder())
@@ -2558,7 +2558,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 						}
 						catch (Exception any)
 						{
-							logger.debug("got exception: ", any);
+							log.debug("got exception: ", any);
 						}
 					}
 					
@@ -2587,7 +2587,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		}
 		catch(RuntimeException e)
 		{
-			logger.debug("ResourcesAction.getEditItem ***** Unknown Exception ***** {}", e.getMessage());
+			log.debug("ResourcesAction.getEditItem ***** Unknown Exception ***** {}", e.getMessage());
 			addAlert(state, rb.getString("failed"));
 		}
 
@@ -2602,7 +2602,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 	 */
 	public static String getFileSizeString(long size_long, ResourceLoader rl) 
 	{
-		logger.debug("ResourcesAction.getFileSizeString()");
+		log.debug("ResourcesAction.getFileSizeString()");
 		String size;
 		NumberFormat formatter = NumberFormat.getInstance(rl.getLocale());
 		formatter.setMaximumFractionDigits(1);
@@ -2640,7 +2640,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 	 */
 	protected List<ResourcesBrowseItem> getListView(String collectionId, Set highlightedItems, ResourcesBrowseItem parent, boolean isLocal, SessionState state)
 	{
-		logger.debug("ResourcesAction.getListView()");
+		log.debug("ResourcesAction.getListView()");
 		// find the ContentHosting service
 		org.sakaiproject.content.api.ContentHostingService contentService = (org.sakaiproject.content.api.ContentHostingService) state.getAttribute (STATE_CONTENT_SERVICE);
 
@@ -3151,7 +3151,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 	 */
 	protected static Collection<ContentPermissions> getPermissions(String id, Collection<ContentPermissions> inheritedPermissions)
 	{
-		logger.debug("ResourcesAction.getPermissions()");
+		log.debug("ResourcesAction.getPermissions()");
 		// get the site id
 		String siteId = null;
 		Reference ref = entityManager.newReference(id);
@@ -3234,7 +3234,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 
 	protected static User getUserProperty(ResourceProperties props, String name)
 	{
-		logger.debug("ResourcesAction.getUserProperty()");
+		log.debug("ResourcesAction.getUserProperty()");
 		String id = props.getProperty(name);
 		if (id != null)
 		{
@@ -3255,7 +3255,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 	*/
 	private static void initCopyContext (SessionState state)
 	{
-		logger.debug("ResourcesAction.initCopyContext()");
+		log.debug("ResourcesAction.initCopyContext()");
 		state.setAttribute (STATE_COPIED_IDS, new ArrayList ());
 
 		state.setAttribute (STATE_COPY_FLAG, Boolean.FALSE.toString());
@@ -3267,7 +3267,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 	*/
 	private static void initMoveContext (SessionState state)
 	{
-		logger.debug("ResourcesAction.initMoveContext()");
+		log.debug("ResourcesAction.initMoveContext()");
 		state.setAttribute (STATE_MOVED_IDS, new ArrayList ());
 
 		state.setAttribute (STATE_MOVE_FLAG, Boolean.FALSE.toString());
@@ -3298,7 +3298,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 	 */
 	protected static String isolateName(String id)
 	{
-		logger.debug("ResourcesAction.isolateName()");
+		log.debug("ResourcesAction.isolateName()");
 		if (id == null) {return null;}
 		if (id.length() == 0) {return null;}
 
@@ -3315,7 +3315,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 	 */
 	private static boolean isStackEmpty(SessionState state)
 	{
-		logger.debug("ResourcesAction.isStackEmpty()");
+		log.debug("ResourcesAction.isStackEmpty()");
 		Stack operations_stack = (Stack) state.getAttribute(STATE_SUSPENDED_OPERATIONS_STACK);
 		if(operations_stack == null)
 		{
@@ -3327,7 +3327,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 
 	protected static List newEditItems(String collectionId, String itemtype, String encoding, String defaultCopyrightStatus, boolean preventPublicDisplay, Time defaultRetractDate, int number)
 	{
-		logger.debug("ResourcesAction.newEditItems()");
+		log.debug("ResourcesAction.newEditItems()");
 		List new_items = new ArrayList();
 		
 		ContentCollection collection = null;
@@ -3348,17 +3348,17 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		catch(PermissionException e)
 		{
 			//alerts.add(rb.getString("notpermis4"));
-			logger.warn("ResourcesAction.newEditItems() PermissionException ", e);
+			log.warn("ResourcesAction.newEditItems() PermissionException ", e);
 		} 
 		catch (IdUnusedException e) 
 		{
 			// TODO Auto-generated catch block
-			logger.warn("ResourcesAction.newEditItems() IdUnusedException ", e);
+			log.warn("ResourcesAction.newEditItems() IdUnusedException ", e);
 		} 
 		catch (TypeException e) 
 		{
 			// TODO Auto-generated catch block
-			logger.warn("ResourcesAction.newEditItems() TypeException ", e);
+			log.warn("ResourcesAction.newEditItems() TypeException ", e);
 		}
 		
 		boolean isUserSite = false;
@@ -3386,7 +3386,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		} 
 		catch (IdUnusedException e) 
 		{
-			logger.warn("resourcesAction.newEditItems() IdUnusedException ", e);
+			log.warn("resourcesAction.newEditItems() IdUnusedException ", e);
 		}
 		if(site != null)
 		{
@@ -3474,7 +3474,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 	 */
 	private static Map peekAtStack(SessionState state)
 	{
-		logger.debug("ResourcesAction.peekAtStack()");
+		log.debug("ResourcesAction.peekAtStack()");
 		Map current_stack_frame = null;
 		Stack operations_stack = (Stack) state.getAttribute(STATE_SUSPENDED_OPERATIONS_STACK);
 		if(operations_stack == null)
@@ -3497,7 +3497,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 	 */
 	private static Map popFromStack(SessionState state)
 	{
-		logger.debug("ResourcesAction.popFromStack()");
+		log.debug("ResourcesAction.popFromStack()");
 		Map current_stack_frame = null;
 		Stack operations_stack = (Stack) state.getAttribute(STATE_SUSPENDED_OPERATIONS_STACK);
 		if(operations_stack == null)
@@ -3528,7 +3528,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 	 */
 	private static Map pushOnStack(SessionState state)
 	{
-		logger.debug("ResourcesAction.pushOnStack()");
+		log.debug("ResourcesAction.pushOnStack()");
 		Map current_stack_frame = null;
 		Stack operations_stack = (Stack) state.getAttribute(STATE_SUSPENDED_OPERATIONS_STACK);
 		if(operations_stack == null)
@@ -3557,7 +3557,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 	 */
 	private static void removeObservingPattern(String pattern, SessionState state)
 	{
-		logger.debug("ResourcesAction.removeObservingPattern()");
+		log.debug("ResourcesAction.removeObservingPattern()");
 //		// get the observer and remove the pattern
 //		ContentObservingCourier o = (ContentObservingCourier) state.getAttribute(STATE_OBSERVER);
 //		o.removeResourcePattern(ContentHostingService.getReference(pattern));
@@ -3575,7 +3575,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 	 */
 	private static boolean replaceable(ResourceProperties p)
 	{
-		logger.debug("ResourcesAction.replaceable()");
+		log.debug("ResourcesAction.replaceable()");
 		boolean rv = true;
 
 		if (p.getPropertyFormatted (ResourceProperties.PROP_IS_COLLECTION).equals (Boolean.TRUE.toString()))
@@ -3601,7 +3601,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 	 */
 	public static void reviseContent(ResourceToolActionPipe pipe)
 	{
-		logger.debug("ResourcesAction.reviseContent()");
+		log.debug("ResourcesAction.reviseContent()");
 		ResourceToolAction action = pipe.getAction();
 		ContentEntity entity = pipe.getContentEntity();
 		try
@@ -3610,23 +3610,6 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 			ResourcePropertiesEdit props = edit.getPropertiesEdit();
 			// update content
 			extractContent(pipe, edit);
-//			byte[] content = pipe.getRevisedContent();
-//			if(content == null)
-//			{
-//				InputStream stream = pipe.getRevisedContentStream();
-//				if(stream == null)
-//				{
-//					logger.debug("pipe with null content and null stream: " + pipe.getFileName());
-//				}
-//				else
-//				{
-//					edit.setContent(stream);
-//				}
-//			}
-//			else
-//			{
-//				edit.setContent(content);
-//			}
 			// update properties
 			if(action instanceof InteractionAction)
 			{
@@ -3660,32 +3643,32 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		{
 			addAlert(trb.getString("alert.noperm"));
 			// TODO Auto-generated catch block
-			logger.warn("PermissionException ", e);
+			log.warn("PermissionException ", e);
 		}
 		catch (IdUnusedException e)
 		{
 			// TODO Auto-generated catch block
-			logger.warn("IdUnusedException ", e);
+			log.warn("IdUnusedException ", e);
 		}
 		catch (TypeException e)
 		{
 			// TODO Auto-generated catch block
-			logger.warn("TypeException ", e);
+			log.warn("TypeException ", e);
 		}
 		catch (InUseException e)
 		{
 			// TODO Auto-generated catch block
-			logger.warn("InUseException ", e);
+			log.warn("InUseException ", e);
 		}
 		catch (OverQuotaException e)
 		{
 			addAlert(trb.getString("alert.quota"));
-			logger.warn("OverQuotaException ", e);
+			log.warn("OverQuotaException ", e);
 		}
 		catch (ServerOverloadException e)
 		{
 			addAlert(rb.getString("failed"));
-			logger.warn("ServerOverloadException ", e);
+			log.warn("ServerOverloadException ", e);
 		}
 	}
 
@@ -3696,7 +3679,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 	 */
 	protected static String validateURL(String url) throws MalformedURLException
 	{
-		logger.debug("ResourcesAction.validateURL()");
+		log.debug("ResourcesAction.validateURL()");
 		
 		// ignore the empty url field
 		if(StringUtils.isBlank(url)){
@@ -3754,7 +3737,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 	 */
 	protected  boolean addInstance(String field, List properties)
 	{
-		logger.debug("{}.addInstance()", this);
+		log.debug("{}.addInstance()", this);
 		Iterator propIt = properties.iterator();
 		boolean found = false;
 		while(!found && propIt.hasNext())
@@ -3774,7 +3757,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 	 */
 	public String buildColumnsContext(VelocityPortlet portlet, Context context, RunData data, SessionState state) 
 	{
-		logger.debug("{}.buildColumnsContext()", this);
+		log.debug("{}.buildColumnsContext()", this);
 		context.put("tlang",trb);
 		
 		// need to check permissions
@@ -3818,17 +3801,17 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 				catch (IdUnusedException e)
 				{
 					// TODO Auto-generated catch block
-					logger.warn("IdUnusedException ", e);
+					log.warn("IdUnusedException ", e);
 				}
 				catch (TypeException e)
 				{
 					// TODO Auto-generated catch block
-					logger.warn("TypeException ", e);
+					log.warn("TypeException ", e);
 				}
 				catch (PermissionException e)
 				{
 					// TODO Auto-generated catch block
-					logger.warn("PermissionException ", e);
+					log.warn("PermissionException ", e);
 				}
 			}
 			roots.add(root);
@@ -3885,17 +3868,17 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 			catch (IdUnusedException e) 
 			{
 				// TODO Auto-generated catch block
-				logger.warn("IdUnusedException {}", e.getMessage());
+				log.warn("IdUnusedException {}", e.getMessage());
 			} 
 			catch (TypeException e) 
 			{
 				// TODO Auto-generated catch block
-				logger.warn("TypeException {}", e.getMessage());
+				log.warn("TypeException {}", e.getMessage());
 			} 
 			catch (PermissionException e) 
 			{
 				// TODO Auto-generated catch block
-				logger.warn("PermissionException {}", e.getMessage());
+				log.warn("PermissionException {}", e.getMessage());
 			}
 			
 		}
@@ -3919,7 +3902,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 
 	public String buildCreateWizardContext(VelocityPortlet portlet, Context context, RunData data, SessionState state) 
 	{
-		logger.debug("{}.buildCreateWizardContext()", this);
+		log.debug("{}.buildCreateWizardContext()", this);
 		context.put("tlang",trb);
 		context.put("metaLang", metaLang);
 		context.put("site_id", toolManager.getCurrentPlacement().getContext());
@@ -3992,7 +3975,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 			if(parent.isDropbox)
 			{
 				String dropboxNotificationsProperty = getDropboxNotificationsProperty();
-				logger.debug("dropboxNotificationAllowed: buildCreateWizardContext: {}", ResourcesAction.DROPBOX_NOTIFICATIONS_ALLOW.equals(dropboxNotificationsProperty));
+				log.debug("dropboxNotificationAllowed: buildCreateWizardContext: {}", ResourcesAction.DROPBOX_NOTIFICATIONS_ALLOW.equals(dropboxNotificationsProperty));
 				context.put("dropboxNotificationAllowed", ResourcesAction.DROPBOX_NOTIFICATIONS_ALLOW.equals(dropboxNotificationsProperty));
 			}
 			
@@ -4043,7 +4026,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 											RunData data,
 											SessionState state)
 	{
-		logger.debug("{}.buildDeleteConfirmContext()", this);
+		log.debug("{}.buildDeleteConfirmContext()", this);
 		context.put("tlang",rb);
 		// find the ContentTypeImage service
 		context.put ("contentTypeImageService", state.getAttribute (STATE_CONTENT_TYPE_IMAGE_SERVICE));
@@ -4076,7 +4059,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 			// not show the public option or notification when in dropbox mode
 			context.put("dropboxMode", Boolean.TRUE);
 			String dropboxNotificationsProperty = getDropboxNotificationsProperty();
-			logger.debug("dropboxNotificationAllowed: buildDeleteConfirmContext: {}", DROPBOX_NOTIFICATIONS_ALLOW.equals(dropboxNotificationsProperty));
+			log.debug("dropboxNotificationAllowed: buildDeleteConfirmContext: {}", DROPBOX_NOTIFICATIONS_ALLOW.equals(dropboxNotificationsProperty));
 			context.put("dropboxNotificationAllowed", DROPBOX_NOTIFICATIONS_ALLOW.equals(dropboxNotificationsProperty));
 		}
 		context.put("homeCollection", (String) state.getAttribute (STATE_HOME_COLLECTION_ID));
@@ -4097,7 +4080,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 	 */
 	public String buildDeleteFinishContext(VelocityPortlet portlet, Context context, RunData data, SessionState state)
 	{
-		logger.debug("{}.buildDeleteFinishContext()", this);
+		log.debug("{}.buildDeleteFinishContext()", this);
 		context.put("tlang",trb);
 		context.put ("collectionId", state.getAttribute (STATE_COLLECTION_ID) );
 
@@ -4146,7 +4129,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 										RunData data,
 										SessionState state)
 	{
-		logger.debug("{}.buildListContext()", this);
+		log.debug("{}.buildListContext()", this);
 		context.put("clang",rb);
 		context.put("tlang",trb);
 		context.put("slang",srb);
@@ -4282,7 +4265,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 			}
 			catch (IdUnusedException e)
 			{
-				logger.warn("DropboxGroupPermission error: {}", (Object) e);
+				log.warn("DropboxGroupPermission error: {}", (Object) e);
 			}
 		}
 		else
@@ -4388,7 +4371,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 			}
 			catch(IdUnusedException ex)
 			{
-				logger.warn("{}IdUnusedException: {}", this, collectionId);
+				log.warn("{}IdUnusedException: {}", this, collectionId);
 				try
 				{
 					ContentCollectionEdit coll = contentService.addCollection(collectionId);
@@ -4397,30 +4380,30 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 				catch(IdUsedException inner)
 				{
 					// how can this happen??
-					logger.warn("{}IdUsedException: {}", this, collectionId);
+					log.warn("{}IdUsedException: {}", this, collectionId);
 					throw ex;
 				}
 				catch(IdInvalidException inner)
 				{
-					logger.warn("{}IdInvalidException: {}", this, collectionId);
+					log.warn("{}IdInvalidException: {}", this, collectionId);
 					// what now?
 					throw ex;
 				}
 				catch(InconsistentException inner)
 				{
-					logger.warn("{}InconsistentException: {}", this, collectionId);
+					log.warn("{}InconsistentException: {}", this, collectionId);
 					// what now?
 					throw ex;
 				}
 			}
 			catch(TypeException ex)
 			{
-				logger.warn("{}TypeException.", this);
+				log.warn("{}TypeException.", this);
 				throw ex;				
 			}
 			catch(PermissionException ex)
 			{
-				logger.warn("{}PermissionException.", this);
+				log.warn("{}PermissionException.", this);
 				throw ex;
 			}
 			
@@ -4656,7 +4639,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		}
 		catch(TypeException e)
 		{
-			logger.warn("{}TypeException.", this);
+			log.warn("{}TypeException.", this);
 			context.put ("collectionFlag", Boolean.FALSE.toString());
 		}
 		catch(PermissionException e)
@@ -4677,7 +4660,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		}
 		catch (IdUnusedException e)
 		{
-			logger.debug("{}{}", this, e);
+			log.debug("{}{}", this, e);
 		}
 
 		context.put("expandallflag", state.getAttribute(STATE_EXPAND_ALL_FLAG));
@@ -4740,7 +4723,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 			Site site = siteService.getSite(toolManager.getCurrentPlacement().getContext());
 			isDropboxMaintainer = securityService.unlock(ContentHostingService.AUTH_DROPBOX_MAINTAIN, site.getReference());
 		} catch (IdUnusedException ex) {
-			logger.debug("Can't find current site", ex);
+			log.debug("Can't find current site", ex);
 		}
 
 		return isDropboxMaintainer;
@@ -4756,7 +4739,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 			Site site = siteService.getSite(toolManager.getCurrentPlacement().getContext());
 			isDropboxGroupMaintainer = securityService.unlock(ContentHostingService.AUTH_DROPBOX_GROUPS, site.getReference());
 		} catch (IdUnusedException ex) {
-			logger.debug("Can't find current site", ex);
+			log.debug("Can't find current site", ex);
 		}
 
 		return isDropboxGroupMaintainer;
@@ -4774,7 +4757,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 	                ContentHostingService.AUTH_RESOURCE_WRITE_OWN, site.getReference());
 
 	    } catch (IdUnusedException e) {
-	        logger.debug("ResourcesAction.canReviseOwn: cannot find current site");
+	        log.debug("ResourcesAction.canReviseOwn: cannot find current site");
 	    }
 	    return canReviseOwn;
 	}
@@ -4791,7 +4774,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 	                ContentHostingService.AUTH_RESOURCE_HIDDEN, site.getReference());
 
 	    } catch (IdUnusedException e) {
-	        logger.debug("ResourcesAction.canViewHidden: cannot find current site");
+	        log.debug("ResourcesAction.canViewHidden: cannot find current site");
 	    }
 	    return canViewHidden;
 	}
@@ -4808,7 +4791,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 	                ContentHostingService.AUTH_RESOURCE_WRITE_ANY, site.getReference());
 
 	    } catch (IdUnusedException e) {
-	        logger.debug("ResourcesAction.canReviseAny: cannot find current site");
+	        log.debug("ResourcesAction.canReviseAny: cannot find current site");
 	    }
 	    return canReviseAny;
 	}
@@ -4827,7 +4810,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 	    	                ContentHostingService.AUTH_RESOURCE_REMOVE_OWN, site.getReference());
 
 	    } catch (IdUnusedException e) {
-	        logger.debug("ResourcesAction.canDeleteResource: cannot find current site");
+	        log.debug("ResourcesAction.canDeleteResource: cannot find current site");
 	    }
 	    return canDeleteResource;
 	}
@@ -4841,7 +4824,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 											RunData data,
 											SessionState state)
 	{
-		logger.debug("{}.buildMainPanelContext()", this);
+		log.debug("{}.buildMainPanelContext()", this);
 		// find the ContentTypeImage service
 		
 		context.put ("contentTypeImageService", state.getAttribute (STATE_CONTENT_TYPE_IMAGE_SERVICE));
@@ -4988,7 +4971,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 
 	public String buildMakeSitePageContext(VelocityPortlet portlet, Context context,
 			RunData data, SessionState state) {	
-		logger.debug("{}.buildMakeSitePage()", this);
+		log.debug("{}.buildMakeSitePage()", this);
 		
 		context.put("tlang", trb);
 		context.put("page", state.getAttribute(STATE_PAGE_TITLE));
@@ -5062,9 +5045,9 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 				state.removeAttribute(STATE_PAGE_TITLE);
 
 			} catch (IdUnusedException e) {
-				logger.warn("Somehow we couldn't find the site.", e);
+				log.warn("Somehow we couldn't find the site.", e);
 			} catch (PermissionException e) {
-				logger.info("No permission to add page.", e);
+				log.info("No permission to add page.", e);
 				addAlert(state, trb.getString("alert.page.permission"));
 			}
 		}
@@ -5078,7 +5061,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 											RunData data,
 											SessionState state)
 	{
-		logger.debug("{}.buildOptionsPanelContext()", this);
+		log.debug("{}.buildOptionsPanelContext()", this);
 		context.put("tlang",trb);
 		String home = (String) state.getAttribute(STATE_HOME_COLLECTION_ID);
 		Reference ref = entityManager.newReference(contentHostingService.getReference(home));
@@ -5156,7 +5139,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 			dropboxNotifications = DROPBOX_NOTIFICATIONS_DEFAULT_VALUE;
 		}
 
-		logger.debug("{}.getDropboxNotificationsProperty() dropboxNotifications == {}", this, dropboxNotifications);
+		log.debug("{}.getDropboxNotificationsProperty() dropboxNotifications == {}", this, dropboxNotifications);
 
 		return dropboxNotifications;
 	}
@@ -5297,15 +5280,15 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 							}
 							catch (IdUnusedException e)
 							{
-								logger.warn("{} buildRestoreContext cannot get resource {} {}", this, currentFolderId, e.getMessage());
+								log.warn("{} buildRestoreContext cannot get resource {} {}", this, currentFolderId, e.getMessage());
 							}
 							catch (TypeException e)
 							{
-								logger.warn("{} buildRestoreContext cannot get resource {} {}", this, currentFolderId, e.getMessage());
+								log.warn("{} buildRestoreContext cannot get resource {} {}", this, currentFolderId, e.getMessage());
 							}
 							catch (PermissionException e)
 							{
-								logger.warn("{} buildRestoreContext cannot get resource {} {}", this, currentFolderId, e.getMessage());
+								log.warn("{} buildRestoreContext cannot get resource {} {}", this, currentFolderId, e.getMessage());
 							}
 							finally
 							{
@@ -5431,7 +5414,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 	 */
 	public String buildReorderContext(VelocityPortlet portlet, Context context, RunData data, SessionState state) 
 	{
-		logger.debug("{}.buildReorderContext()", this);
+		log.debug("{}.buildReorderContext()", this);
 		context.put("tlang",rb);
 		
 		String folderId = (String) state.getAttribute(STATE_REORDER_FOLDER);
@@ -5520,7 +5503,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 	 */
 	public String buildReviseMetadataContext(VelocityPortlet portlet, Context context, RunData data, SessionState state)
 	{
-		logger.debug("{}.buildReviseMetadataContext()", this);
+		log.debug("{}.buildReviseMetadataContext()", this);
 		context.put("tlang", trb);
 		context.put("metaLang", metaLang);
 
@@ -5560,7 +5543,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		if(item.isDropbox)
 		{
 			String dropboxNotificationsProperty = getDropboxNotificationsProperty();
-			logger.debug("dropboxNotificationAllowed: buildReviseMetadataContext: {}", ResourcesAction.DROPBOX_NOTIFICATIONS_ALLOW.equals(dropboxNotificationsProperty));
+			log.debug("dropboxNotificationAllowed: buildReviseMetadataContext: {}", ResourcesAction.DROPBOX_NOTIFICATIONS_ALLOW.equals(dropboxNotificationsProperty));
 			context.put("dropboxNotificationAllowed", ResourcesAction.DROPBOX_NOTIFICATIONS_ALLOW.equals(dropboxNotificationsProperty));
 		}
 		
@@ -5614,7 +5597,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
      */
     protected ListItem getListItem(SessionState state)
     {
-		logger.debug("{}.getListItem()", this);
+		log.debug("{}.getListItem()", this);
 	    // complete the create wizard
 		String defaultCopyrightStatus = (String) state.getAttribute(STATE_DEFAULT_COPYRIGHT);
 		if(StringUtils.isBlank(defaultCopyrightStatus))
@@ -5663,7 +5646,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 										RunData data,
 										SessionState state)
 	{
-		logger.debug("{}.buildWebdavContext()", this);
+		log.debug("{}.buildWebdavContext()", this);
 		context.put("tlang",rb);
 		// find the ContentTypeImage service
 		context.put ("contentTypeImageService", state.getAttribute (STATE_CONTENT_TYPE_IMAGE_SERVICE));
@@ -5805,7 +5788,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 										RunData data,
 										SessionState state)
 	{
-		logger.debug("{}.buildQuotaContext()", this);
+		log.debug("{}.buildQuotaContext()", this);
 		context.put("tlang",rb);
 		// find the ContentTypeImage service
 		
@@ -5835,13 +5818,13 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		}
 		catch (IdUnusedException e)
 		{
-			logger.warn("Can't find collection for site: {}", siteCollectionId, e);
+			log.warn("Can't find collection for site: {}", siteCollectionId, e);
 		}
 		catch(TypeException e){
-			logger.warn("Site collection is of wrong type.", e);
+			log.warn("Site collection is of wrong type.", e);
 		}
 		catch(PermissionException e){
-			logger.warn("User doesn't have permission to access site collection", e);
+			log.warn("User doesn't have permission to access site collection", e);
 		}
 
 		context.put("dropboxMode", Boolean.toString(dropboxMode));
@@ -5861,7 +5844,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 	 */
 	protected void cleanup(ToolSession toolSession, String prefix) 
 	{
-		logger.debug("{}.cleanup()", this);
+		log.debug("{}.cleanup()", this);
 		Enumeration attributeNames = toolSession.getAttributeNames();
 		while(attributeNames.hasMoreElements())
 		{
@@ -5880,7 +5863,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 	 */
 	protected void deleteItem(SessionState state, String itemId)
 	{
-		logger.debug("{}.deleteItem()", this);
+		log.debug("{}.deleteItem()", this);
 		List deleteItems = new ArrayList();
 		List notDeleteItems = new ArrayList();
 		List nonEmptyFolders = new ArrayList();
@@ -5929,17 +5912,17 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		catch (IdUnusedException e)
 		{
 			// TODO Auto-generated catch block
-			logger.warn("IdUnusedException ", e);
+			log.warn("IdUnusedException ", e);
 		}
 		catch (TypeException e)
 		{
 			// TODO Auto-generated catch block
-			logger.warn("TypeException ", e);
+			log.warn("TypeException ", e);
 		}
 		catch (PermissionException e)
 		{
 			// TODO Auto-generated catch block
-			logger.warn("PermissionException ", e);
+			log.warn("PermissionException ", e);
 		}
 		
 
@@ -5981,7 +5964,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 	 */
 	protected void deleteItems(SessionState state, Set deleteIdSet)
 	{
-		logger.debug("{}.deleteItems()", this);
+		log.debug("{}.deleteItems()", this);
 		List deleteItems = new ArrayList();
 		List notDeleteItems = new ArrayList();
 		List nonEmptyFolders = new ArrayList();
@@ -6026,15 +6009,15 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 			}
 			catch(PermissionException e)
 			{
-				logger.warn("PermissionException", e);
+				log.warn("PermissionException", e);
 			} 
 			catch (IdUnusedException e) 
 			{
-				logger.warn("IdUnusedException", e);
+				log.warn("IdUnusedException", e);
 			} 
 			catch (TypeException e) 
 			{
-				logger.warn("TypeException", e);
+				log.warn("TypeException", e);
 			}
 		}
 
@@ -6073,7 +6056,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 	*/
 	public void doCancel ( RunData data)
 	{
-		logger.debug("{}.doCancel()", this);
+		log.debug("{}.doCancel()", this);
 		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
 
 		state.setAttribute(STATE_LIST_SELECTIONS, new TreeSet());
@@ -6097,7 +6080,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 	*/
 	public void doCollapse_collection(RunData data)
 	{
-		logger.debug("{}.doCollapse_collection()", this);
+		log.debug("{}.doCollapse_collection()", this);
 		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
 		Set<String> expandedItems = getExpandedCollections(state);
 		Map folderSortMap = setStateAttributeExpandedFolderSortMap(state);
@@ -6179,7 +6162,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 			return;
 		}
 		
-		logger.debug("{}.doColumns()", this);
+		log.debug("{}.doColumns()", this);
 		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
 		state.setAttribute(STATE_LIST_PREFERENCE, LIST_COLUMNS);
 	}
@@ -6212,7 +6195,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 			return;
 		}
 		
-		logger.debug("{}.doCompleteCreateWizard()", this);
+		log.debug("{}.doCompleteCreateWizard()", this);
 		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
 		
 		ListItem item = (ListItem) state.getAttribute(STATE_CREATE_WIZARD_ITEM);
@@ -6331,23 +6314,6 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 				item.updateContentResourceEdit(resource);
 				
 				extractContent(pipe, resource);
-//				byte[] content = pipe.getRevisedContent();
-//				if(content == null)
-//				{
-//					InputStream stream = pipe.getRevisedContentStream();
-//					if(stream == null)
-//					{
-//						logger.debug("pipe with null content and null stream: " + pipe.getFileName());
-//					}
-//					else
-//					{
-//						resource.setContent(stream);
-//					}
-//				}
-//				else
-//				{
-//					resource.setContent(content);
-//				}
 
 				resource.setContentType(pipe.getRevisedMimeType());
 				
@@ -6391,7 +6357,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 			   				}
 						}
 					}
-					logger.debug("{}.doCompleteCreateWizard() noti == {}", this, noti);
+					log.debug("{}.doCompleteCreateWizard() noti == {}", this, noti);
 				}
 				else
 				{
@@ -6431,27 +6397,27 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 					catch(OverQuotaException e)
 					{
 						addAlert(state, trb.getFormattedMessage("alert.overquota", new Object[]{resource.getId()}));
-						logger.debug("OverQuotaException {}", (Object) e);
+						log.debug("OverQuotaException {}", (Object) e);
 						try
 						{
 							contentHostingService.removeResource(resource.getId());
 						}
 						catch(Exception e1)
 						{
-							logger.debug("Unable to remove partially completed resource: {}\n{}", resource.getId(), e);
+							log.debug("Unable to remove partially completed resource: {}\n{}", resource.getId(), e);
 						}
 					}
 					catch(ServerOverloadException e)
 					{
 						addAlert(state, trb.getFormattedMessage("alert.unable1", new Object[]{resource.getId()}));
-						logger.debug("ServerOverloadException {}", (Object) e);
+						log.debug("ServerOverloadException {}", (Object) e);
 						try
 						{
 							contentHostingService.removeResource(resource.getId());
 						}
 						catch(Exception e1)
 						{
-							logger.debug("Unable to remove partially completed resource: {}\n{}", resource.getId(), e);
+							log.debug("Unable to remove partially completed resource: {}\n{}", resource.getId(), e);
 						}
 					}
 				}
@@ -6466,25 +6432,25 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 			} 
 			catch (IdUnusedException e) 
 			{
-				logger.warn("IdUnusedException", e);
+				log.warn("IdUnusedException", e);
 			} 
 			catch (PermissionException e) 
 			{
-				logger.warn("PermissionException", e);
+				log.warn("PermissionException", e);
 			} 
 			catch (IdInvalidException e) 
 			{
-				logger.warn("IdInvalidException", e);
+				log.warn("IdInvalidException", e);
 			} 
 			catch (ServerOverloadException e) 
 			{
 				addAlert(state, trb.getFormattedMessage("alert.unable1", new Object[]{name}));
-				logger.warn("ServerOverloadException{}", (Object) e);
+				log.warn("ServerOverloadException{}", (Object) e);
 			}
 			catch (OverQuotaException e)
 			{
 				addAlert(state, trb.getFormattedMessage("alert.overquota", new Object[]{name}));
-				logger.warn("OverQuotaException {}", (Object) e);
+				log.warn("OverQuotaException {}", (Object) e);
 			}
             catch (IdUniquenessException e)
             {
@@ -6523,7 +6489,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 	*/
 	public void doCopy ( RunData data )
 	{
-		logger.debug("{}.doCopy()", this);
+		log.debug("{}.doCopy()", this);
 		
 		if (!"POST".equals(data.getRequest().getMethod())) {
 			return;
@@ -6601,7 +6567,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 	*/
 	public void doDeleteconfirm ( RunData data)
 	{
-		logger.debug("{}.doDeleteconfirm()", this);
+		log.debug("{}.doDeleteconfirm()", this);
 		
 		if (!"POST".equals(data.getRequest().getMethod())) {
 			return;
@@ -6645,7 +6611,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 
 	public void doDispatchAction(RunData data)
 	{
-		logger.debug("{}.doDispatchAction()", this);
+		log.debug("{}.doDispatchAction()", this);
 
 		if (!"POST".equals(data.getRequest().getMethod())) {
 			return;
@@ -6851,7 +6817,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		}
 		catch(Exception e)
 		{
-			logger.warn("doDispatchAction ", e);
+			log.warn("doDispatchAction ", e);
 		}
 	}
 	
@@ -6860,7 +6826,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 	 */
 	public void doSetHotDropbox(RunData data)
 	{
-		logger.debug("{}.doSetHotDropbox()", this);
+		log.debug("{}.doSetHotDropbox()", this);
 		
 		if (!"POST".equals(data.getRequest().getMethod())) {
 			return;
@@ -6903,7 +6869,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 			}
 			catch(Exception e)
 			{
-				logger.warn("Something went wrong", e);
+				log.warn("Something went wrong", e);
 				// something failed, hide group filter
 				groupUsers = null;
 			}
@@ -6919,7 +6885,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 	*/
 	public void doExpand_collection(RunData data) throws IdUnusedException, TypeException, PermissionException
 	{
-		logger.debug("{}.doExpand_collection()", this);
+		log.debug("{}.doExpand_collection()", this);
 		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
 		Set<String> expandedItems = getExpandedCollections(state);
 
@@ -6975,7 +6941,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 	*/
 	public void doExpandall ( RunData data)
 	{
-		logger.debug("{}.doExpandall()", this);
+		log.debug("{}.doExpandall()", this);
 		// get the state object
 		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
 
@@ -7002,7 +6968,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 	*/
 	public void doFinalizeDelete( RunData data)
 	{
-		logger.debug("{}.doFinalizeDelete()", this);
+		log.debug("{}.doFinalizeDelete()", this);
 		
 		if (!"POST".equals(data.getRequest().getMethod())) {
 			return;
@@ -7079,7 +7045,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 					{
 						if (oldCollectionId.equals(item.getId())) {
 							state.setAttribute(STATE_COLLECTION_ID, item.getParent().getId());
-							logger.debug("set current collection to parent: {}", item.getParent().getId());
+							log.debug("set current collection to parent: {}", item.getParent().getId());
 						}
 						contentHostingService.removeCollection(item.getId());
 					}
@@ -7111,7 +7077,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 				}// try - catch
 				catch(RuntimeException e)
 				{
-					logger.debug("ResourcesAction.doDelete ***** Unknown Exception ***** {}", e.getMessage());
+					log.debug("ResourcesAction.doDelete ***** Unknown Exception ***** {}", e.getMessage());
 					addAlert(state, rb.getString("failed"));
 				}
 			}	// for
@@ -7139,7 +7105,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 	 */
 	public void doHideOtherSites(RunData data)
 	{
-		logger.debug("{}.doHideOtherSites()", this);
+		log.debug("{}.doHideOtherSites()", this);
 		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
 
 		state.setAttribute(STATE_SHOW_OTHER_SITES, Boolean.FALSE.toString());
@@ -7160,7 +7126,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 
 	public void doHierarchy(RunData data)
 	{
-		logger.debug("{}.doHierarchy()", this);
+		log.debug("{}.doHierarchy()", this);
 		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
 		state.setAttribute(STATE_LIST_PREFERENCE, LIST_HIERARCHY);
 	}
@@ -7196,7 +7162,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 	*/
 	public void doList ( RunData data)
 	{
-		logger.debug("{}.doList()", this);
+		log.debug("{}.doList()", this);
 		// get the state object
 		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
 
@@ -7209,7 +7175,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 	*/
 	public void doMove ( RunData data )
 	{
-		logger.debug("{}.doMove()", this);
+		log.debug("{}.doMove()", this);
 		// get the state object
 		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
 
@@ -7283,7 +7249,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 	
 	public void doMultiItemDispatch ( RunData data )
 	{
-		logger.debug("{}.doMultiItemDispatch()", this);
+		log.debug("{}.doMultiItemDispatch()", this);
 		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
 		
 		ParameterParser params = data.getParameters();
@@ -7352,7 +7318,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 	*/
 	public void doNavigate ( RunData data )
 	{
-		logger.debug("{}.doNavigate()", this);
+		log.debug("{}.doNavigate()", this);
 		
 		if (!"POST".equals(data.getRequest().getMethod())) {
 			return;
@@ -7483,7 +7449,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 	*/
 	public void doPermissions(RunData data, Context context)
 	{
-		logger.debug("{}.doPermissions()", this);
+		log.debug("{}.doPermissions()", this);
 	
 		SessionState state = ((JetspeedRunData)data).getPortletSessionState(((JetspeedRunData)data).getJs_peid());
 
@@ -7531,7 +7497,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 	*/
 	public void doReorder ( RunData data)
 	{
-		logger.debug("{}.doReorder()", this);
+		log.debug("{}.doReorder()", this);
 		
 		if (!"POST".equals(data.getRequest().getMethod())) {
 			return;
@@ -7575,7 +7541,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 
 	public void doReviseProperties(RunData data)
 	{
-		logger.debug("{}.doReviseProperties()", this);
+		log.debug("{}.doReviseProperties()", this);
 		
 		if (!"POST".equals(data.getRequest().getMethod())) {
 			return;
@@ -7649,7 +7615,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		   				}
 					}
 				}
-				logger.debug("{}.doReviseProperties() noti == {}", this, noti);
+				log.debug("{}.doReviseProperties() noti == {}", this, noti);
 			}
 			else
 			{
@@ -7698,29 +7664,29 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 				} 
 				catch (IdUnusedException e) 
 				{
-					logger.warn("IdUnusedException", e);
+					log.warn("IdUnusedException", e);
 				} 
 				catch (TypeException e) 
 				{
-					logger.warn("TypeException", e);
+					log.warn("TypeException", e);
 				} 
 				catch (PermissionException e) 
 				{
-					logger.warn("PermissionException", e);
+					log.warn("PermissionException", e);
 				} 
 				catch (ServerOverloadException e) 
 				{
-					logger.warn("ServerOverloadException", e);
+					log.warn("ServerOverloadException", e);
 				}
 				catch (OverQuotaException e)
 				{
 					// TODO Auto-generated catch block
-					logger.warn("OverQuotaException ", e);
+					log.warn("OverQuotaException ", e);
 				}
 				catch (InUseException e)
 				{
 					// TODO Auto-generated catch block
-					logger.warn("InUseException ", e);
+					log.warn("InUseException ", e);
 				}
 			}
 			else
@@ -7767,7 +7733,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 					} catch (Exception e) {
 						String[] args = { e.getClass().getName(), selectedItem, e.getMessage()};
 						addAlert(state, trb.getFormattedMessage("action.exception", (Object[]) args));
-						logger.error("Unable to restore recourse with ID {}", selectedItem, e);
+						log.error("Unable to restore recourse with ID {}", selectedItem, e);
 					}
 				}
 			} 
@@ -7780,7 +7746,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 					} catch (Exception ex) {
 						String[] args = {ex.getClass().getName(),selectedItem, ex.getMessage() };
 						addAlert(state, trb.getFormattedMessage("action.exception", (Object[]) args));
-						logger.error("Unable to permanently remove recourse with ID {}", selectedItem, ex);
+						log.error("Unable to permanently remove recourse with ID {}", selectedItem, ex);
 					}
 				}				
 			}
@@ -7806,7 +7772,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 	*/
 	public void doSaveOrder ( RunData data)
 	{
-		logger.debug("{}.doSaveOrder()", this);
+		log.debug("{}.doSaveOrder()", this);
 		
 		if (!"POST".equals(data.getRequest().getMethod())) {
 			return;
@@ -7856,22 +7822,22 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 				catch(IdUnusedException e)
 				{
 					addAlert(state, trb.getString("alert.nosort"));
-					logger.warn("IdUnusedException{}", (Object) e);
+					log.warn("IdUnusedException{}", (Object) e);
 				}
 				catch(TypeException e)
 				{
 					addAlert(state, trb.getString("alert.nosort"));
-					logger.warn("TypeException{}", (Object) e);
+					log.warn("TypeException{}", (Object) e);
 				}
 				catch(PermissionException e)
 				{
 					addAlert(state, trb.getString("alert.nosort"));
-					logger.warn("PermissionException{}", (Object) e);
+					log.warn("PermissionException{}", (Object) e);
 				}
 				catch(InUseException e)
 				{
 					addAlert(state, trb.getString("alert.nosort"));
-					logger.warn("InUseException{}", (Object) e);
+					log.warn("InUseException{}", (Object) e);
 				}
 			}
 		}
@@ -7889,7 +7855,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 	*/
 	public void doShow_webdav ( RunData data )
 	{
-		logger.debug("{}.doShow_webdav()", this);
+		log.debug("{}.doShow_webdav()", this);
 		
 		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
 
@@ -7916,7 +7882,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 	*/
 	public void doShowQuota ( RunData data )
 	{
-		logger.debug("{}.doShowQuota()", this);
+		log.debug("{}.doShowQuota()", this);
 		
 		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
 
@@ -7929,7 +7895,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 
 	public void doShowMembers(RunData data)
 	{
-		logger.debug("{}.doShowMembers()", this);
+		log.debug("{}.doShowMembers()", this);
 
 		if (!"POST".equals(data.getRequest().getMethod())) {
 			return;
@@ -7955,7 +7921,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 	 */
 	public void doShowOtherSites(RunData data)
 	{
-		logger.debug("{}.doShowOtherSites()", this);
+		log.debug("{}.doShowOtherSites()", this);
 
 		if (!"POST".equals(data.getRequest().getMethod())) {
 			return;
@@ -7983,7 +7949,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 	*/
 	public void doSort ( RunData data)
 	{
-		logger.debug("{}.doSort()", this);
+		log.debug("{}.doSort()", this);
 		
 		if (!"POST".equals(data.getRequest().getMethod())) {
 			return;
@@ -8079,7 +8045,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 	*/
 	public void doUnexpandall ( RunData data)
 	{
-		logger.debug("{}.doUnexpandall()", this);
+		log.debug("{}.doUnexpandall()", this);
 		
 		if (!"POST".equals(data.getRequest().getMethod())) {
 			return;
@@ -8116,7 +8082,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 	*/
 	public void doUpdateOptions(RunData data)
 	{
-		logger.debug("{}.doUpdateOptions()", this);
+		log.debug("{}.doUpdateOptions()", this);
 		
 		if (!"POST".equals(data.getRequest().getMethod())) {
 			return;
@@ -8176,7 +8142,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 			return;
 		}
 		
-		logger.debug("{}.doCancelOptions()", this);
+		log.debug("{}.doCancelOptions()", this);
 		// get the state object
 		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
 
@@ -8192,7 +8158,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 	*/
 	protected int findResourceInList(List resources, String id)
 	{
-		logger.debug("{}.findResourceInList()", this);
+		log.debug("{}.findResourceInList()", this);
 		for (int i = 0; i < resources.size(); i++)
 		{
 			// if this is the one, return this index
@@ -8211,7 +8177,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 	 */
 	protected void finishAction(SessionState state, ToolSession toolSession, ResourceToolActionPipe pipe)
 	{
-		logger.debug("{}.finishAction()", this);
+		log.debug("{}.finishAction()", this);
 		if(pipe.isErrorEncountered())
 		{
 			String msg = pipe.getErrorMessage();
@@ -8302,7 +8268,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 
 	protected void replaceContent(ResourceToolActionPipe pipe) 
 	{
-		logger.debug("{}.replaceContent()", this);
+		log.debug("{}.replaceContent()", this);
 		ResourceToolAction action = pipe.getAction();
 		ContentEntity entity = pipe.getContentEntity();
 		try
@@ -8311,23 +8277,6 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 			ResourcePropertiesEdit props = edit.getPropertiesEdit();
 			// update content
 			extractContent(pipe, edit);
-//			byte[] content = pipe.getRevisedContent();
-//			if(content == null)
-//			{
-//				InputStream stream = pipe.getRevisedContentStream();
-//				if(stream == null)
-//				{
-//					logger.debug("pipe with null content and null stream: " + pipe.getFileName());
-//				}
-//				else
-//				{
-//					edit.setContent(stream);
-//				}
-//			}
-//			else
-//			{
-//				edit.setContent(content);
-//			}
 			
 			// update properties
 			if(action instanceof InteractionAction)
@@ -8371,42 +8320,42 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 			pipe.setErrorEncountered(true);
 			pipe.setErrorMessage(trb.getString("alert.noperm"));
 			addAlert(pipe.getErrorMessage());
-			logger.warn("PermissionException {}", (Object) e);
+			log.warn("PermissionException {}", (Object) e);
 		}
 		catch (IdUnusedException e)
 		{
 			pipe.setErrorEncountered(true);
 			pipe.setErrorMessage(trb.getString("alert.unknown"));
 			addAlert(pipe.getErrorMessage());
-			logger.warn("IdUnusedException ", e);
+			log.warn("IdUnusedException ", e);
 		}
 		catch (TypeException e)
 		{
 			pipe.setErrorEncountered(true);
 			pipe.setErrorMessage(trb.getString("alert.unknown"));
 			addAlert(pipe.getErrorMessage());
-			logger.warn("TypeException ", e);
+			log.warn("TypeException ", e);
 		}
 		catch (InUseException e)
 		{
 			pipe.setErrorEncountered(true);
 			pipe.setErrorMessage(trb.getString("alert.unknown"));
 			addAlert(pipe.getErrorMessage());
-			logger.warn("InUseException ", e);
+			log.warn("InUseException ", e);
 		}
 		catch (OverQuotaException e)
 		{
 			pipe.setErrorEncountered(true);
 			pipe.setErrorMessage(trb.getString("alert.quota"));
 			addAlert(trb.getString("alert.quota"));
-			logger.warn("OverQuotaException {}", (Object) e);
+			log.warn("OverQuotaException {}", (Object) e);
 		}
 		catch (ServerOverloadException e)
 		{
 			pipe.setErrorEncountered(true);
 			pipe.setErrorMessage(trb.getString("alert.unable"));
 			addAlert(trb.getString("alert.unable"));
-			logger.warn("ServerOverloadException ", e);
+			log.warn("ServerOverloadException ", e);
 		}
 		catch (VirusFoundException e) {
 			pipe.setErrorEncountered(true);
@@ -8420,7 +8369,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 	*/
 	protected void initState(SessionState state, VelocityPortlet portlet, JetspeedRunData data)
 	{
-		logger.debug("{}.initState()", this);
+		log.debug("{}.initState()", this);
 		super.initState(state, portlet, data);
 		
 		if(state.getAttribute(STATE_INITIALIZED) == null)
@@ -8435,7 +8384,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 
 	public void initStateAttributes(SessionState state, VelocityPortlet portlet)
 	{
-		logger.debug("{}.initStateAttributes()", this);
+		log.debug("{}.initStateAttributes()", this);
 		if (state.getAttribute (STATE_INITIALIZED) != null) return;
 
 		if (state.getAttribute(STATE_FILE_UPLOAD_MAX_SIZE) == null)
@@ -8732,7 +8681,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		}
 		catch (SchedulerException e)
 		{
-			logger.warn("{} exception to get Scheduler Jobs {}", this, e.getMessage());
+			log.warn("{} exception to get Scheduler Jobs {}", this, e.getMessage());
 		}
 		return rv;
 	}
@@ -8743,7 +8692,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 	*/
 	protected boolean notificationEnabled(SessionState state)
 	{
-		logger.debug("{}.notificationEnabled()", this);
+		log.debug("{}.notificationEnabled()", this);
 		return true;
 
 	}	// notificationEnabled
@@ -8753,7 +8702,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 	 */
 	protected void pasteItem(SessionState state, String collectionId)
 	{
-		logger.debug("{}.pasteItem()", this);
+		log.debug("{}.pasteItem()", this);
 		boolean moving = true;
 		boolean copying = false;
 		List<String> items_to_be_pasted = (List<String>) state.removeAttribute(STATE_ITEMS_TO_BE_MOVED);
@@ -8880,9 +8829,9 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 					slAction.cancelAction(ref);
 				}
 				if (ref != null) {
-					logger.warn(ref.getReference(), e);
+					log.warn(ref.getReference(), e);
 				} else {
-					logger.warn("exception pasting item: ", e);
+					log.warn("exception pasting item: ", e);
 				}
 			}
 		}
@@ -8897,7 +8846,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 	*/
 	protected List<ListItem> prepPage(SessionState state)
 	{
-		logger.debug("{}.prepPage()", this);
+		log.debug("{}.prepPage()", this);
 		List<ListItem> rv = new ArrayList<>();
 
 		// access the page size
@@ -9127,7 +9076,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 	 */
 	private String processHtmlDocumentFromBrowser(SessionState state, String strFromBrowser)
 	{
-		logger.debug("{}.processHtmlDocumentFromBrowser()", this);
+		log.debug("{}.processHtmlDocumentFromBrowser()", this);
 		StringBuilder alertMsg = new StringBuilder();
 		String text = FormattedText.processHtmlDocument(strFromBrowser, alertMsg);
 		if (alertMsg.length() > 0) addAlert(state, alertMsg.toString());
@@ -9140,7 +9089,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 	*/
 	protected List<ListItem> readAllResources(SessionState state)
 	{
-		logger.debug("{}.readAllResources()", this);
+		log.debug("{}.readAllResources()", this);
 		ResourceTypeRegistry registry = (ResourceTypeRegistry) state.getAttribute(STATE_RESOURCES_TYPE_REGISTRY);
 		if(registry == null)
 		{
@@ -9183,17 +9132,17 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
             catch (IdUnusedException e)
             {
 	            // TODO Auto-generated catch block
-	            logger.warn("IdUnusedException ", e);
+	            log.warn("IdUnusedException ", e);
             }
             catch (TypeException e)
             {
 	            // TODO Auto-generated catch block
-	            logger.warn("TypeException ", e);
+	            log.warn("TypeException ", e);
             }
             catch (PermissionException e)
             {
 	            // TODO Auto-generated catch block
-	            logger.warn("PermissionException ", e);
+	            log.warn("PermissionException ", e);
             }
 		}
 		
@@ -9230,17 +9179,17 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
                 catch (IdUnusedException e)
                 {
 	                // TODO Auto-generated catch block
-	                logger.warn("IdUnusedException {}", (Object) e);
+	                log.warn("IdUnusedException {}", (Object) e);
                 }
                 catch (TypeException e)
                 {
 	                // TODO Auto-generated catch block
-	                logger.warn("TypeException {}", (Object) e);
+	                log.warn("TypeException {}", (Object) e);
                 }
                 catch (PermissionException e)
                 {
 	                // TODO Auto-generated catch block
-	                logger.warn("PermissionException {}", (Object) e);
+	                log.warn("PermissionException {}", (Object) e);
                 }
 			}
           }
@@ -9253,7 +9202,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
  	*/
  	private void updateObservation(SessionState state, String peid)
  	{
-		logger.debug("{}.updateObservation()", this);
+		log.debug("{}.updateObservation()", this);
 // 		ContentObservingCourier observer = (ContentObservingCourier) state.getAttribute(STATE_OBSERVER);
 //
 // 		// the delivery location for this tool
@@ -9263,7 +9212,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 
 	public static List<ContentResource> createUrls(SessionState state, ResourceToolActionPipe pipe)
     {
-		logger.debug("ResourcesAction.createUrls()");
+		log.debug("ResourcesAction.createUrls()");
 		boolean item_added = false;
 		String collectionId;
 		List<ContentResource> new_resources = new ArrayList<>();
@@ -9299,12 +9248,12 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 					cleanedURL = uri.toString();
 				} catch (Exception e) {
 					//ok to ignore, just use the original url
-					logger.debug("URL can not be encoded: {}:{}", e.getClass(), e.getCause());
+					log.debug("URL can not be encoded: {}:{}", e.getClass(), e.getCause());
 				}
 				
 				if (!StringUtils.equals(originalUrl, cleanedURL)) {
 				    // the url was cleaned up, log it and update it
-				    logger.info("Resources URL cleanup changed url to '{}' from '{}'", cleanedURL, originalUrl);
+				    log.info("Resources URL cleanup changed url to '{}' from '{}'", cleanedURL, originalUrl);
 				    resource.setContent(cleanedURL.getBytes());
 				}
 				
@@ -9351,62 +9300,62 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 				catch(OverQuotaException e)
 				{
 					addAlert(state, trb.getFormattedMessage("alert.overquota", new Object[]{name}));
-					logger.debug("OverQuotaException {}", (Object) e);
+					log.debug("OverQuotaException {}", (Object) e);
 					try
 					{
 						contentHostingService.removeResource(resource.getId());
 					}
 					catch(Exception e1)
 					{
-						logger.debug("Unable to remove partially completed resource: {}\n{}", resource.getId(), e);
+						log.debug("Unable to remove partially completed resource: {}\n{}", resource.getId(), e);
 					}
 				}
 				catch(ServerOverloadException e)
 				{
 					addAlert(state, trb.getFormattedMessage("alert.unable1", new Object[]{name}));
-					logger.debug("ServerOverloadException {}", (Object) e);
+					log.debug("ServerOverloadException {}", (Object) e);
 					try
 					{
 						contentHostingService.removeResource(resource.getId());
 					}
 					catch(Exception e1)
 					{
-						logger.debug("Unable to remove partially completed resource: {}\n{}", resource.getId(), e);
+						log.debug("Unable to remove partially completed resource: {}\n{}", resource.getId(), e);
 					}
 				}
 			}
 			catch (PermissionException e)
 			{
 				addAlert(state, trb.getString("alert.perm"));
-				logger.warn("PermissionException ", e);
+				log.warn("PermissionException ", e);
 			}
 			catch (IdUnusedException e)
 			{
-				logger.warn("IdUsedException ", e);
+				log.warn("IdUsedException ", e);
 			}
 			catch (IdInvalidException e)
 			{
-				logger.warn("IdInvalidException ", e);
+				log.warn("IdInvalidException ", e);
 			}
 			catch (IdUniquenessException e)
 			{
-				logger.warn("IdUniquenessException ", e);
+				log.warn("IdUniquenessException ", e);
 			}
 			catch (IdLengthException e)
 			{
 				addAlert(state, trb.getFormattedMessage("alert.toolong", new Object[]{e.getMessage()}));
 				// TODO Auto-generated catch block
-				logger.warn("IdLengthException ", e);
+				log.warn("IdLengthException ", e);
 			}
 			catch (OverQuotaException e)
 			{
 				addAlert(state, trb.getFormattedMessage("alert.overquota", new Object[]{name}));
-				logger.warn("OverQuotaException ", e);
+				log.warn("OverQuotaException ", e);
 			}
 			catch (ServerOverloadException e)
 			{
 				addAlert(state, trb.getFormattedMessage("alert.unable1", new Object[]{name}));
-				logger.warn("ServerOverloadException ", e);
+				log.warn("ServerOverloadException ", e);
 			}
 		}
 		
@@ -9415,7 +9364,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 
 	public static void addAlert(String message)
 	{
-		logger.debug("ResourcesAction.addAlert()");
+		log.debug("ResourcesAction.addAlert()");
 		ToolSession toolSession = sessionManager.getCurrentToolSession();
 		Collection<String> errorMessages = (Collection<String>) toolSession.getAttribute(STATE_MESSAGE_LIST);
 		if(errorMessages == null)
@@ -9428,7 +9377,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 	
 	public static void checkMessageList(SessionState state)
 	{
-		logger.debug("ResourcesAction.checkMessageList()");
+		log.debug("ResourcesAction.checkMessageList()");
 		ToolSession toolSession = sessionManager.getCurrentToolSession();
 		Collection<String> errorMessages = (Collection<String>) toolSession.getAttribute(STATE_MESSAGE_LIST);
 		if(errorMessages == null)
@@ -9480,14 +9429,14 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		}
 
 		state.setAttribute(PREFIX + SYS + requestStateId, requestState);
-		logger.debug("preserveRequestState() requestStateId == {}\n{}", requestStateId, requestState);
+		log.debug("preserveRequestState() requestStateId == {}\n{}", requestStateId, requestState);
 		return requestStateId;
 	}
 	
 	public static void restoreRequestState(SessionState state, String[] prefixes, int requestStateId)
 	{
 		Map requestState = (Map) state.removeAttribute(PREFIX + SYS + requestStateId);
-		logger.debug("restoreRequestState() requestStateId == {}\n{}", requestStateId, requestState);
+		log.debug("restoreRequestState() requestStateId == {}\n{}", requestStateId, requestState);
 		if(requestState != null)
 		{
 			List<String> attrNames = state.getAttributeNames();
@@ -9583,11 +9532,11 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 	                tempList.add("user");
 	                usersDropboxList.add(tempList);
 	            } catch (UserNotDefinedException e) {
-	                logger.error("User is not defined", e);
+	                log.error("User is not defined", e);
 	            }
 	        }
 	    } catch (Exception ex) {
-	        logger.error("Exception while getting users collections", ex);
+	        log.error("Exception while getting users collections", ex);
 	    }
 	    context.put("usersDropboxList", usersDropboxList);
 	    return TEMPLATE_DROPBOX_MULTIPLE_FOLDERS_UPLOAD;
@@ -9616,7 +9565,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 			return;
 		}
 		
-	    logger.debug("{}.doMultipleFoldersUpload()", this);
+	    log.debug("{}.doMultipleFoldersUpload()", this);
 	    SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
 	    ParameterParser params = data.getParameters();
 	    String siteId = toolManager.getCurrentPlacement().getContext();
@@ -9712,7 +9661,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 							}
 						}catch (IdUnusedException e) {
 							// Error finding a previously selected group.
-							logger.error("Error in {}.doMultipleFoldersUpload(): Unable to find selected Group", this, e);
+							log.error("Error in {}.doMultipleFoldersUpload(): Unable to find selected Group", this, e);
 						}
 					}
 				}
@@ -9746,27 +9695,27 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 						}
 						contentHostingService.commitResource(cr, noti);
 					} catch (IOException e) {
-						logger.warn("Failed to close stream.", e);
+						log.warn("Failed to close stream.", e);
 					}
 				}
 	        } catch (PermissionException e) {
 	            addAlert(state, trb.getString("alert.perm"));
-	            logger.warn("PermissionException {}", (Object) e);
+	            log.warn("PermissionException {}", (Object) e);
 	        } catch (IdUnusedException e) {
-	            logger.warn("IdUnusedException: Error while getting dropbox collection, this error happens when a selected group contains a maintain user");
+	            log.warn("IdUnusedException: Error while getting dropbox collection, this error happens when a selected group contains a maintain user");
 	        } catch (IdInvalidException e) {
-	            logger.warn("IdInvalidException {}", (Object) e);
+	            log.warn("IdInvalidException {}", (Object) e);
 	        } catch (IdUniquenessException e) {
-	            logger.warn("IdUniquenessException {}", (Object) e);
+	            log.warn("IdUniquenessException {}", (Object) e);
 	        } catch (IdLengthException e) {
 	            addAlert(state, trb.getFormattedMessage("alert.toolong", new Object[] { e.getMessage() }));
-	            logger.warn("IdLengthException {}", (Object) e);
+	            log.warn("IdLengthException {}", (Object) e);
 	        } catch (OverQuotaException e) {
 	            addAlert(state, trb.getFormattedMessage("alert.overquota", new Object[] { filename }));
-	            logger.warn("OverQuotaException {}", (Object) e);
+	            log.warn("OverQuotaException {}", (Object) e);
 	        } catch (ServerOverloadException e) {
 	            addAlert(state, trb.getFormattedMessage("alert.unable1", new Object[] { filename }));
-	            logger.warn("ServerOverloadException {}", (Object) e);
+	            log.warn("ServerOverloadException {}", (Object) e);
 	        }
 	    }
 	    state.setAttribute(STATE_LIST_SELECTIONS, new TreeSet());
@@ -9910,15 +9859,15 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 	        }
 	        catch(PermissionException e)
 	        {
-	            logger.warn("PermissionException: {}", e,e);
+	            log.warn("PermissionException: {}", e,e);
 	        }
 	        catch (IdUnusedException e)
 	        {
-	            logger.warn("IdUnusedException: {}", e,e);
+	            log.warn("IdUnusedException: {}", e,e);
 	        }
 	        catch (TypeException e)
 	        {
-	            logger.warn("TypeException: {}", e,e);
+	            log.warn("TypeException: {}", e,e);
 	        }
 	    }
 
@@ -10001,15 +9950,15 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 	        }
 	        catch(PermissionException e)
 	        {
-	            logger.warn("PermissionException: {}", e,e);
+	            log.warn("PermissionException: {}", e,e);
 	        }
 	        catch (IdUnusedException e)
 	        {
-	            logger.warn("IdUnusedException: {}", e,e);
+	            log.warn("IdUnusedException: {}", e,e);
 	        }
 	        catch (TypeException e)
 	        {
-	            logger.warn("TypeException: {}", e,e);
+	            log.warn("TypeException: {}", e,e);
 	        }
 	    }
 
@@ -10112,7 +10061,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 	    }
 	    catch (IdUnusedException e)
 	    {
-	        logger.debug("ResourcesAction.buildHideFinishContext: cannot find current site");
+	        log.debug("ResourcesAction.buildHideFinishContext: cannot find current site");
 	    }
 	    context.put ("sitetype",siteType);
 	    return TEMPLATE_HIDE_FINISH;
@@ -10183,7 +10132,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 	            {
 	                if (item.isCollection())
 	                {
-	                    logger.debug("show this collection resource{}", item.getId());
+	                    log.debug("show this collection resource{}", item.getId());
 	                    ContentCollectionEdit edit= contentHostingService.editCollection(item.getId());
 	                    edit.setAvailability(false, null, null);
 	                    contentHostingService.commitCollection(edit);
@@ -10191,7 +10140,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 	                }
 	                else
 	                {
-	                    logger.debug("show this non-collection resource {}", item.getId());
+	                    log.debug("show this non-collection resource {}", item.getId());
 	                    ContentResourceEdit edit= contentHostingService.editResource(item.getId());
 	                    edit.setAvailability(false, null, null);
 	                    contentHostingService.commitResource(edit, 0);
@@ -10200,27 +10149,27 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 	            }
 	            catch (IdUnusedException e)
 	            {
-	                logger.warn("IdUnusedException", e);
+	                log.warn("IdUnusedException", e);
 	            }
 	            catch (TypeException e)
 	            {
-	                logger.warn("TypeException", e);
+	                log.warn("TypeException", e);
 	            }
 	            catch (PermissionException e)
 	            {
-	                logger.warn("PermissionException", e);
+	                log.warn("PermissionException", e);
 	            }
 	            catch (ServerOverloadException e)
 	            {
-	                logger.warn("ServerOverloadException", e);
+	                log.warn("ServerOverloadException", e);
 	            }
 	            catch (OverQuotaException e)
 	            {
-	                logger.warn("OverQuotaException ", e);
+	                log.warn("OverQuotaException ", e);
 	            }
 	            catch (InUseException e)
 	            {
-	                logger.warn("InUseException ", e);
+	                log.warn("InUseException ", e);
 	            }
 	        }       // for
 	    }       // for
@@ -10305,7 +10254,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 	            {
 	                if (item.isCollection())
 	                {
-	                    logger.debug("show this collection resource{}", item.getId());
+	                    log.debug("show this collection resource{}", item.getId());
 	                    ContentCollectionEdit edit= contentHostingService.editCollection(item.getId());
 	                    edit.setAvailability(true, null, null);
 	                    contentHostingService.commitCollection(edit);
@@ -10313,7 +10262,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 	                }
 	                else
 	                {
-	                    logger.debug("show this non-collection resource {}", item.getId());
+	                    log.debug("show this non-collection resource {}", item.getId());
 	                    ContentResourceEdit edit= contentHostingService.editResource(item.getId());
 	                    edit.setAvailability(true, null, null);
 	                    contentHostingService.commitResource(edit, 0);
@@ -10323,27 +10272,27 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 
 	            catch (IdUnusedException e)
 	            {
-	                logger.warn("IdUnusedException", e);
+	                log.warn("IdUnusedException", e);
 	            }
 	            catch (TypeException e)
 	            {
-	                logger.warn("TypeException", e);
+	                log.warn("TypeException", e);
 	            }
 	            catch (PermissionException e)
 	            {
-	                logger.warn("PermissionException", e);
+	                log.warn("PermissionException", e);
 	            }
 	            catch (ServerOverloadException e)
 	            {
-	                logger.warn("ServerOverloadException", e);
+	                log.warn("ServerOverloadException", e);
 	            }
 	            catch (OverQuotaException e)
 	            {
-	                logger.warn("OverQuotaException ", e);
+	                log.warn("OverQuotaException ", e);
 	            }
 	            catch (InUseException e)
 	            {
-	                logger.warn("InUseException ", e);
+	                log.warn("InUseException ", e);
 	            }
 	        }       // for
 	    }       // for
@@ -10374,7 +10323,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 	 */
 	protected void printFile(SessionState state, RunData data, String selectedItemId)
 	{
-		logger.info("{}.printFile()", this);
+		log.info("{}.printFile()", this);
 		
 		if (!"POST".equals(data.getRequest().getMethod())) {
 			return;
@@ -10408,21 +10357,21 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 				catch (Exception e)
 				{
 					// TODO: do something
-					logger.warn("{}.printFile() error with executeMultiPartRequest {}", this, r.getReference());
+					log.warn("{}.printFile() error with executeMultiPartRequest {}", this, r.getReference());
 				}
 			}
 		}
 		catch (IdUnusedException e)
 		{
-			logger.warn("{}.printFile() IdUnusedException {}", this, selectedItemId);
+			log.warn("{}.printFile() IdUnusedException {}", this, selectedItemId);
 		}
 		catch (TypeException e)
 		{
-			logger.warn("{}.printFile() TypeException {}", this, selectedItemId);
+			log.warn("{}.printFile() TypeException {}", this, selectedItemId);
 		}
 		catch (PermissionException e)
 		{
-			logger.warn("{}.printFile() PermissionException {}", this, selectedItemId);
+			log.warn("{}.printFile() PermissionException {}", this, selectedItemId);
 		}
 		
 	}
@@ -10540,7 +10489,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 			}
 			catch (SakaiException e)
 			{
-				logger.error("Failed to include {} in Zipfile", showId, e);
+				log.error("Failed to include {} in Zipfile", showId, e);
 			}
 		}
 
@@ -10609,7 +10558,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 			}
 			catch (IOException e)
 			{
-				logger.error("IOException when reporting permission exception",e);
+				log.error("IOException when reporting permission exception",e);
 			}
 		}
 		catch (Throwable ignore)
@@ -10620,7 +10569,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 			}
 			catch (IOException e)
 			{
-				logger.error("IOException when reporting unavailable content",e);
+				log.error("IOException when reporting unavailable content",e);
 			}
 		}
 		finally
@@ -10634,7 +10583,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 				}
 				catch (Throwable ignore)
 				{
-					logger.warn("Throwable exception",ignore);
+					log.warn("Throwable exception",ignore);
 				}
 			}
 		}
@@ -10696,12 +10645,12 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 					}
 					catch (IOException ioException)
 					{
-						logger.error("IOException when closing zip file entry",ioException);
+						log.error("IOException when closing zip file entry",ioException);
 					}
 				}
 				catch (IllegalArgumentException iException)
 				{
-					logger.error("IllegalArgumentException while creating zip file",iException);
+					log.error("IllegalArgumentException while creating zip file",iException);
 				}
 				catch (java.util.zip.ZipException e)
 				{
@@ -10712,7 +10661,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 					}
 					catch (IOException ioException)
 					{
-						logger.error("IOException when closing zip file entry",ioException);
+						log.error("IOException when closing zip file entry",ioException);
 					}
 				}
 				finally
@@ -10725,7 +10674,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 						}
 						catch (IOException ioException)
 						{
-							logger.error("IOException when closing zip file",ioException);
+							log.error("IOException when closing zip file",ioException);
 						}
 					}
 				}
