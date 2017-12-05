@@ -173,7 +173,7 @@ public class Assignment2Entity implements LessonEntity, AssignmentInterface {
 
 	if (haveA2) {
 	    assignmentCache = memoryService
-		.newCache("org.sakaiproject.lessonbuildertool.service.Assignment2Entity.cache");
+		.getCache("org.sakaiproject.lessonbuildertool.service.Assignment2Entity.cache");
 
 	    // Unfortunately the interface class is part of the component, not the shared library,
 	    // so we can't get to it. The only way to invoke stuff in the DAO is through introspection.
