@@ -60,7 +60,7 @@ public class EventRegistryServiceImpl implements EventRegistry, EventRegistrySer
 	private List<String> 				serverEventIds				= new ArrayList<String>();
 
 	/** Caching */
-	private Cache						eventRegistryCache			= null;
+	private Cache<String, List>						eventRegistryCache			= null;
 
 	/** Sakai services */
 	private StatsManager				M_sm;
@@ -111,7 +111,7 @@ public class EventRegistryServiceImpl implements EventRegistry, EventRegistrySer
 		LOG.info("init(): " + willCheckLocalEventNamesFirst);
 		
 		// configure cache
-		eventRegistryCache = M_ms.newCache(CACHENAME);		
+		eventRegistryCache = M_ms.getCache(CACHENAME);		
 	}
 
 	// ################################################################

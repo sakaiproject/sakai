@@ -47,7 +47,7 @@ public class EntityBrokerEventRegistry extends Observable implements EventRegist
 	private Map<String, String>		eventIdToEPPrefix		= new HashMap<String, String>();
 
 	/** Caching */
-	private Cache					eventNamesCache			= null;
+	private Cache<String, String>					eventNamesCache			= null;
 
 	/** Sakai Services */
 	private SessionManager			M_sm;
@@ -79,7 +79,7 @@ public class EntityBrokerEventRegistry extends Observable implements EventRegist
 		LOG.info("init()");
 		
 		// configure cache
-		eventNamesCache = M_ms.newCache(CACHENAME);
+		eventNamesCache = M_ms.getCache(CACHENAME);
 		
 		// register EntityBrokerListener
 		M_epm.registerListener(this, true);

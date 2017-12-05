@@ -76,7 +76,7 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
   private DiscussionForumManager forumManager;
   private AreaManager areaManager;
   private MemoryService memoryService;
-  private Cache userGroupMembershipCache;
+  private Cache<String, Collection<?>> userGroupMembershipCache;
   private UserDirectoryService userDirectoryService;
   private SiteService siteService;
   private ThreadLocalManager threadLocalManager;
@@ -84,7 +84,7 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
   public void init()
   {
      LOG.info("init()");
-     userGroupMembershipCache = memoryService.newCache("org.sakaiproject.component.app.messageforums.ui.UIPermissionsManagerImpl.userGroupMembershipCache");
+     userGroupMembershipCache = memoryService.getCache("org.sakaiproject.component.app.messageforums.ui.UIPermissionsManagerImpl.userGroupMembershipCache");
   }
 
   /**
