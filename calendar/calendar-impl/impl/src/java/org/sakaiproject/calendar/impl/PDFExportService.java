@@ -1,39 +1,5 @@
 package org.sakaiproject.calendar.impl;
 
-import org.apache.avalon.framework.configuration.ConfigurationException;
-import org.apache.avalon.framework.configuration.DefaultConfigurationBuilder;
-import org.apache.fop.apps.FOPException;
-import org.apache.fop.apps.Fop;
-import org.apache.fop.apps.FopFactory;
-import org.apache.fop.apps.FopFactoryBuilder;
-import org.apache.fop.apps.MimeConstants;
-import org.apache.xmlgraphics.io.Resource;
-import org.apache.xmlgraphics.io.ResourceResolver;
-import org.sakaiproject.calendar.api.CalendarEvent;
-import org.sakaiproject.calendar.api.CalendarEventVector;
-import org.sakaiproject.calendar.api.CalendarService;
-import org.sakaiproject.time.api.Time;
-import org.sakaiproject.time.api.TimeBreakdown;
-import org.sakaiproject.time.api.TimeRange;
-import org.sakaiproject.time.api.TimeService;
-import org.sakaiproject.util.CalendarEventType;
-import org.sakaiproject.util.CalendarUtil;
-import org.sakaiproject.util.ResourceLoader;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.xml.sax.SAXException;
-
-import javax.xml.transform.Source;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.URIResolver;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.sax.SAXResult;
-import javax.xml.transform.stream.StreamResult;
-import javax.xml.transform.stream.StreamSource;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -50,12 +16,48 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 
+import javax.xml.transform.Source;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.URIResolver;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.sax.SAXResult;
+import javax.xml.transform.stream.StreamResult;
+import javax.xml.transform.stream.StreamSource;
+
+import lombok.extern.slf4j.Slf4j;
+
+import org.apache.avalon.framework.configuration.ConfigurationException;
+import org.apache.avalon.framework.configuration.DefaultConfigurationBuilder;
+import org.apache.fop.apps.FOPException;
+import org.apache.fop.apps.Fop;
+import org.apache.fop.apps.FopFactory;
+import org.apache.fop.apps.FopFactoryBuilder;
+import org.apache.fop.apps.MimeConstants;
+import org.apache.xmlgraphics.io.Resource;
+import org.apache.xmlgraphics.io.ResourceResolver;
+
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.xml.sax.SAXException;
+
+import org.sakaiproject.calendar.api.CalendarEvent;
+import org.sakaiproject.calendar.api.CalendarEventVector;
+import org.sakaiproject.calendar.api.CalendarService;
+import org.sakaiproject.time.api.Time;
+import org.sakaiproject.time.api.TimeBreakdown;
+import org.sakaiproject.time.api.TimeRange;
+import org.sakaiproject.time.api.TimeService;
+import org.sakaiproject.util.CalendarEventType;
+import org.sakaiproject.util.CalendarUtil;
+import org.sakaiproject.util.ResourceLoader;
+
 /**
  * This class deals with the generation of a PDF for a calendar.
  */
+@Slf4j
 public class PDFExportService {
-
-    private final Logger log = LoggerFactory.getLogger(PDFExportService.class);
 
     private static final int SCHEDULE_INTERVAL_IN_MINUTES = 15;
 

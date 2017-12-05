@@ -21,10 +21,25 @@
 
 package org.sakaiproject.calendar.impl;
 
+import java.io.BufferedInputStream;
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLConnection;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.time.Clock;
+import java.time.Instant;
+import java.util.*;
+
+import lombok.extern.slf4j.Slf4j;
+
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.binary.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.calendar.api.Calendar;
 import org.sakaiproject.calendar.api.*;
@@ -49,30 +64,11 @@ import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.util.BaseResourcePropertiesEdit;
 import org.sakaiproject.util.FormattedText;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
 
-import java.io.BufferedInputStream;
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLConnection;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.time.Clock;
-import java.time.Instant;
-import java.time.temporal.ChronoUnit;
-import java.time.temporal.TemporalUnit;
-import java.util.*;
-
-import static org.sakaiproject.calendar.api.ExternalSubscriptionDetails.*;
-
+@Slf4j
 public class BaseExternalCalendarSubscriptionService implements
 		ExternalCalendarSubscriptionService
 {
-	/** Logging */
-	private static Logger m_log = LoggerFactory.getLogger(BaseExternalCalendarSubscriptionService.class);
-
 	/** Schedule tool ID */
 	final static String SCHEDULE_TOOL_ID = "sakai.schedule";
 
@@ -227,7 +223,7 @@ public class BaseExternalCalendarSubscriptionService implements
 		// external calendar subscriptions: enable?
 		enabled = m_configurationService.getBoolean(SAK_PROP_EXTSUBSCRIPTIONS_ENABLED, true);
 		mergeIntoMyworkspace = m_configurationService.getBoolean(SAK_PROP_EXTSUBSCRIPTIONS_MERGEINTOMYWORKSPACE, true); 
-		m_log.info("init(): enabled: " + enabled + ", merge from other sites into My Workspace? "+mergeIntoMyworkspace);
+		log.info("init(): enabled: " + enabled + ", merge from other sites into My Workspace? "+mergeIntoMyworkspace);
 
 		if (enabled)
 		{
@@ -246,10 +242,10 @@ public class BaseExternalCalendarSubscriptionService implements
 					m_memoryService.createCache("org.sakaiproject.calendar.impl.BaseExternalCacheSubscriptionService.userCache", userCacheConfig), clock);
 			// TODO replace this with a real solution for when the caches are distributed by disabling the timer and using jobscheduler
 			if (institutionalSubscriptionCache.getCache().isDistributed()) {
-				m_log.error(institutionalSubscriptionCache.getCache().getName()+" is distributed but calendar subscription caches have a local timer refresh which means they will cause cache replication storms once every "+instCacheRefreshRate+" seconds, do NOT distribute this cache");
+				log.error(institutionalSubscriptionCache.getCache().getName()+" is distributed but calendar subscription caches have a local timer refresh which means they will cause cache replication storms once every "+instCacheRefreshRate+" seconds, do NOT distribute this cache");
 			}
 			if (usersSubscriptionCache.getCache().isDistributed()) {
-				m_log.error(usersSubscriptionCache.getCache().getName()+" is distributed but calendar subscription caches have a local timer refresh which means they will cause cache replication storms once every "+userCacheRefreshRate+" seconds, do NOT distribute this cache");
+				log.error(usersSubscriptionCache.getCache().getName()+" is distributed but calendar subscription caches have a local timer refresh which means they will cause cache replication storms once every "+userCacheRefreshRate+" seconds, do NOT distribute this cache");
 			}
 
 			// iCal column map
@@ -260,8 +256,7 @@ public class BaseExternalCalendarSubscriptionService implements
 			}
 			catch (ImportException e1)
 			{
-				m_log
-						.error("Unable to get column map for ICal import. External subscriptions will be disabled.");
+				log.error("Unable to get column map for ICal import. External subscriptions will be disabled.");
 				enabled = false;
 			}
 		}
@@ -310,23 +305,23 @@ public class BaseExternalCalendarSubscriptionService implements
 		Reference _ref = m_entityManager.newReference(reference);
 		String subscriptionUrl = getSubscriptionUrlFromId(_ref.getId());
 		if (subscriptionUrl == null || subscriptionUrl.equals("null")) return null;
-		m_log.debug("ExternalCalendarSubscriptionService.getCalendarSubscription("
+		log.debug("ExternalCalendarSubscriptionService.getCalendarSubscription("
 				+ reference + ")");
-		m_log.debug(" |-> subscriptionUrl: " + subscriptionUrl);
+		log.debug(" |-> subscriptionUrl: " + subscriptionUrl);
 
 		BaseExternalSubscriptionDetails subscription = getExternalSubscription(subscriptionUrl,
 				_ref.getContext());
 
 
-		m_log.debug(" |-> Subscription is " + subscription);
+		log.debug(" |-> Subscription is " + subscription);
 		if (subscription != null)
 		{
-			m_log.debug(" |-> Calendar is " + subscription.getCalendar());
+			log.debug(" |-> Calendar is " + subscription.getCalendar());
 			return subscription.getCalendar();
 		}
 		else
 		{
-			m_log.debug(" |-> Calendar is NULL");
+			log.debug(" |-> Calendar is NULL");
 			return null;
 		}
 	}
@@ -390,8 +385,7 @@ public class BaseExternalCalendarSubscriptionService implements
 		}
 		catch (IdUnusedException e)
 		{
-			m_log
-					.error("ExternalCalendarSubscriptionService.getCalendarSubscriptionChannelsForChannel(): IdUnusedException for context in reference: "
+			log.error("ExternalCalendarSubscriptionService.getCalendarSubscriptionChannelsForChannel(): IdUnusedException for context in reference: "
 							+ reference);
 			return channels;
 		}
@@ -448,8 +442,7 @@ public class BaseExternalCalendarSubscriptionService implements
 		}
 		catch (IdUnusedException e)
 		{
-			m_log
-					.error("ExternalCalendarSubscriptionService.getSubscriptionsForChannel(): IdUnusedException for context in reference: "
+			log.error("ExternalCalendarSubscriptionService.getSubscriptionsForChannel(): IdUnusedException for context in reference: "
 							+ reference);
 			return subscriptions;
 		}
@@ -514,8 +507,7 @@ public class BaseExternalCalendarSubscriptionService implements
 		}
 		catch (IdUnusedException e)
 		{
-			m_log
-					.error("ExternalCalendarSubscriptionService.setSubscriptionsForChannel(): IdUnusedException for context in reference: "
+			log.error("ExternalCalendarSubscriptionService.setSubscriptionsForChannel(): IdUnusedException for context in reference: "
 							+ reference);
 			return;
 		}
@@ -689,36 +681,36 @@ public class BaseExternalCalendarSubscriptionService implements
 			}
 			calendar.setName(calendarName);
 			BaseExternalSubscriptionDetails subscription = new BaseExternalSubscriptionDetails(calendarName, url, context, calendar, institutional, true, null, Instant.now(clock));
-			m_log.info("Loaded calendar subscription: " + subscription.toString());
+			log.info("Loaded calendar subscription: " + subscription.toString());
 			return subscription;
 		}
 		catch (ImportException e)
 		{
-			m_log.info("Error loading calendar subscription '" + calendarName
+			log.info("Error loading calendar subscription '" + calendarName
 					+ "' (will NOT retry again): " + url);
 
 		}
 		catch (PermissionException e)
 		{
 			// This should never be called (for now)
-			m_log.warn("Failed to add event to calendar '"+ calendarName, e);
+			log.warn("Failed to add event to calendar '"+ calendarName, e);
 			error = "Failed to parse calendar.";
 		}
 		catch (MalformedURLException e)
 		{
-			m_log.info("Mal-formed URL in calendar subscription '" + calendarName
+			log.info("Mal-formed URL in calendar subscription '" + calendarName
 					+ "': " + url);
 			error = "Bad URL";
 		}
 		catch (IOException e)
 		{
-			m_log.info("Unable to read calendar subscription '" + calendarName
+			log.info("Unable to read calendar subscription '" + calendarName
 					+ "' from URL (I/O Error): " + url);
 			error = "Failed to connect to server";
 		}
 		catch (Exception e)
 		{
-			m_log.info("Unknown error occurred while reading calendar subscription '"
+			log.info("Unknown error occurred while reading calendar subscription '"
 					+ calendarName + "' from URL: " + url);
 			error = "Unknown";
 		}
@@ -1483,7 +1475,7 @@ public class BaseExternalCalendarSubscriptionService implements
 				}
 				catch (IdUnusedException e)
 				{
-					m_log.warn(".getSiteName(): " + e);
+					log.warn(".getSiteName(): " + e);
 				}
 			}
 			
