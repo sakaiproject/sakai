@@ -17,18 +17,16 @@
 package org.sakaiproject.chat2.model.impl;
 
 import java.util.Date;
-import java.util.HashMap;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import lombok.Data;
 import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 
 import org.apache.commons.lang.StringUtils;
+
 import org.sakaiproject.chat2.model.ChatChannel;
 import org.sakaiproject.chat2.model.ChatManager;
 import org.sakaiproject.chat2.model.ChatMessage;
@@ -56,6 +54,7 @@ import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.util.api.FormattedText;
 
+@Slf4j
 public class ChatMessageEntityProvider implements CoreEntityProvider,
 		AutoRegisterEntityProvider, Outputable, Inputable, Resolvable,
 		Describeable, Createable, Deleteable, CollectionResolvable, ActionsExecutable {
@@ -67,8 +66,6 @@ public class ChatMessageEntityProvider implements CoreEntityProvider,
 	@Setter private FormattedText formattedText;
 
 	public final static String ENTITY_PREFIX = "chat-message";
-
-	protected final Logger LOG = LoggerFactory.getLogger(getClass());
 
 	// We use a custom object here to avoid side-effects of EB setting the body value for new messages,
 	// and avoid returning unwanted fields for getting messages.
@@ -312,23 +309,23 @@ public class ChatMessageEntityProvider implements CoreEntityProvider,
 		User anon = userDirectoryService.getAnonymousUser();
 		
 		if (anon.equals(currentUser)) {
-            LOG.debug("No current user");
+			log.debug("No current user");
 			throw new SecurityException("You must be logged in to use this service");
 		}
 		
 		String siteId = (String) params.get("siteId");
 		if (StringUtils.isBlank(siteId)) {
-            LOG.debug("No siteId specified");
+			log.debug("No siteId specified");
 			throw new SecurityException("You must be specify the site ID");
 		}
-		LOG.debug("siteId: {}", siteId);
+		log.debug("siteId: {}", siteId);
 		
 		String channelId = (String) params.get("channelId");
 		if (StringUtils.isBlank(channelId)) {
-            LOG.debug("No channelId specified");
+			log.debug("No channelId specified");
 			throw new SecurityException("You must be specify the channel ID");
 		}
-		LOG.debug("channelId: {}", channelId);
+		log.debug("channelId: {}", channelId);
 		
 		ChatChannel channel = chatManager.getChatChannel(channelId);
 		if (!chatManager.getCanReadMessage(channel)) {
