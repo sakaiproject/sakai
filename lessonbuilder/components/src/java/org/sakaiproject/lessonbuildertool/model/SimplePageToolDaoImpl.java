@@ -1773,9 +1773,9 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 	@SuppressWarnings("unchecked")
 	public boolean isChecklistItemChecked(long checklistId, long checklistItemId, String userId) {
 		DetachedCriteria d = DetachedCriteria.forClass(ChecklistItemStatus.class)
-				.add(Restrictions.eq("checklistId", checklistId))
-				.add(Restrictions.eq("checklistItemId", checklistItemId))
-				.add(Restrictions.eq("owner", userId));
+				.add(Restrictions.eq("id.checklistId", checklistId))
+				.add(Restrictions.eq("id.checklistItemId", checklistItemId))
+				.add(Restrictions.eq("id.owner", userId));
 
 		List<ChecklistItemStatus> list = (List<ChecklistItemStatus>) getHibernateTemplate().findByCriteria(d);
 
@@ -1789,7 +1789,7 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 	@SuppressWarnings("unchecked")
 	public List<ChecklistItemStatus> findChecklistItemStatusesForChecklist(long checklistId) {
 		DetachedCriteria d = DetachedCriteria.forClass(ChecklistItemStatus.class)
-				.add(Restrictions.eq("checklistId", checklistId));
+				.add(Restrictions.eq("id.checklistId", checklistId));
 		List<ChecklistItemStatus> list = (List<ChecklistItemStatus>) getHibernateTemplate().findByCriteria(d);
 
 		if(list.size() > 0) {
@@ -1802,8 +1802,8 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 	@SuppressWarnings("unchecked")
 	public List<ChecklistItemStatus> findChecklistItemStatusesForChecklistItem(long checklistId, long checklistItemId) {
 		DetachedCriteria d = DetachedCriteria.forClass(ChecklistItemStatus.class)
-				.add(Restrictions.eq("checklistId", checklistId))
-				.add(Restrictions.eq("checklistItemId", checklistItemId));
+				.add(Restrictions.eq("id.checklistId", checklistId))
+				.add(Restrictions.eq("id.checklistItemId", checklistItemId));
 		List<ChecklistItemStatus> list = (List<ChecklistItemStatus>) getHibernateTemplate().findByCriteria(d);
 
 		if(list.size() > 0) {
@@ -1816,9 +1816,9 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 	@SuppressWarnings("unchecked")
 	public ChecklistItemStatus findChecklistItemStatus(long checklistId, long checklistItemId, String userId) {
 		DetachedCriteria d = DetachedCriteria.forClass(ChecklistItemStatus.class)
-				.add(Restrictions.eq("checklistId", checklistId))
-				.add(Restrictions.eq("checklistItemId", checklistItemId))
-				.add(Restrictions.eq("owner", userId));
+				.add(Restrictions.eq("id.checklistId", checklistId))
+				.add(Restrictions.eq("id.checklistItemId", checklistItemId))
+				.add(Restrictions.eq("id.owner", userId));
 		List<ChecklistItemStatus> list = (List<ChecklistItemStatus>) getHibernateTemplate().findByCriteria(d);
 
 		if(list.size() > 0) {

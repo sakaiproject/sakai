@@ -66,4 +66,6 @@
         <property name="autoDdl" value="${auto.ddl}"/>
   </bean>
 
+
+
 </beans>
