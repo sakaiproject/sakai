@@ -28,6 +28,9 @@ import java.util.List;
 import java.util.Set;
 
 import org.hibernate.Query;
+
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.assignment.api.AssignmentConstants;
 import org.sakaiproject.assignment.api.AssignmentService;
 import org.sakaiproject.assignment.api.model.Assignment;
@@ -46,8 +49,6 @@ import org.sakaiproject.user.api.UserDirectoryService;
 import org.springframework.dao.DataAccessException;
 import org.springframework.orm.hibernate4.HibernateCallback;
 import org.springframework.orm.hibernate4.support.HibernateDaoSupport;
-
-import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class AssignmentSupplementItemServiceImpl extends HibernateDaoSupport implements AssignmentSupplementItemService {
@@ -126,8 +127,7 @@ public class AssignmentSupplementItemServiceImpl extends HibernateDaoSupport imp
 		}
 		catch (DataAccessException e)
 		{
-			e.printStackTrace();
-		 log.warn(this + ".saveModelAnswerQuestion() Hibernate could not save attachment " + attachment.getId());
+			log.warn("{}.saveModelAnswerQuestion() Hibernate could not save attachment {}", this, attachment.getId(), e);
 			return false;
 		}
 	}
@@ -176,8 +176,7 @@ public class AssignmentSupplementItemServiceImpl extends HibernateDaoSupport imp
 		}
 		catch (DataAccessException e)
 		{
-			e.printStackTrace();
-		 log.warn(this + ".removeAttachment() Hibernate could not delete attachment " + attachment.getId());
+			log.warn("{}.removeAttachment() Hibernate could not delete attachment {}", this, attachment.getId(), e);
 			return false;
 		}
 	}
@@ -203,8 +202,7 @@ public class AssignmentSupplementItemServiceImpl extends HibernateDaoSupport imp
 		}
 		catch (DataAccessException e)
 		{
-			e.printStackTrace();
-		 log.warn(this + ".saveModelAnswerQuestion() Hibernate could not save model answer for assignment " + mItem.getAssignmentId());
+			log.warn("{}.saveModelAnswerQuestion() Hibernate could not save model answer for assignment {}", this, mItem.getAssignmentId(), e);
 			return false;
 		}
 	}
@@ -222,8 +220,7 @@ public class AssignmentSupplementItemServiceImpl extends HibernateDaoSupport imp
 		}
 		catch (DataAccessException e)
 		{
-			e.printStackTrace();
-		 log.warn(this + ".removeModelAnswer() Hibernate could not delete ModelAnswer for assignment " + mItem.getAssignmentId());
+			log.warn("{}.removeModelAnswer() Hibernate could not delete ModelAnswer for assignment {}", this, mItem.getAssignmentId(), e);
 			return false;
 		}
 		
@@ -263,8 +260,7 @@ public class AssignmentSupplementItemServiceImpl extends HibernateDaoSupport imp
 		}
 		catch (DataAccessException e)
 		{
-			e.printStackTrace();
-		 log.warn(this + ".saveNoteItem() Hibernate could not save private note for assignment " + nItem.getAssignmentId());
+			log.warn("{}.saveNoteItem() Hibernate could not save private note for assignment {}", this, nItem.getAssignmentId(), e);
 			return false;
 		}
 	}
@@ -282,8 +278,7 @@ public class AssignmentSupplementItemServiceImpl extends HibernateDaoSupport imp
 		}
 		catch (DataAccessException e)
 		{
-			e.printStackTrace();
-		 log.warn(this + ".removeNoteItem() Hibernate could not delete NoteItem for assignment " + mItem.getAssignmentId());
+			log.warn("{}.removeNoteItem() Hibernate could not delete NoteItem for assignment {}", this, mItem.getAssignmentId(), e);
 			return false;
 		}
 		
@@ -324,8 +319,7 @@ public class AssignmentSupplementItemServiceImpl extends HibernateDaoSupport imp
 		}
 		catch (DataAccessException e)
 		{
-			e.printStackTrace();
-		 log.warn(this + ".saveAllPurposeItem() Hibernate could not save private AllPurpose for assignment " + nItem.getAssignmentId());
+			log.warn("{}.saveAllPurposeItem() Hibernate could not save private AllPurpose for assignment {}", this, nItem.getAssignmentId(), e);
 			return false;
 		}
 	}
@@ -343,8 +337,7 @@ public class AssignmentSupplementItemServiceImpl extends HibernateDaoSupport imp
 		}
 		catch (DataAccessException e)
 		{
-			e.printStackTrace();
-		 log.warn(this + ".removeAllPurposeItem() Hibernate could not delete AllPurposeItem for assignment " + mItem.getAssignmentId());
+			log.warn("{}.removeAllPurposeItem() Hibernate could not delete AllPurposeItem for assignment {}", this, mItem.getAssignmentId(), e);
 			return false;
 		}
 		
@@ -401,8 +394,7 @@ public class AssignmentSupplementItemServiceImpl extends HibernateDaoSupport imp
 		}
 		catch (DataAccessException e)
 		{
-			e.printStackTrace();
-		 log.warn(this + ".saveAllPurposeItemAccess() Hibernate could not save access " + access.getAccess() + " for " + access.getAssignmentAllPurposeItem().getTitle());
+			log.warn("{}.saveAllPurposeItemAccess() Hibernate could not save access {} for {}", this, access.getAccess(), access.getAssignmentAllPurposeItem().getTitle(), e);
 			return false;
 		}
 	}
@@ -420,8 +412,7 @@ public class AssignmentSupplementItemServiceImpl extends HibernateDaoSupport imp
 		}
 		catch (DataAccessException e)
 		{
-			e.printStackTrace();
-		 log.warn(this + ".removeAllPurposeItemAccess() Hibernate could not delete access for all purpose item " + access.getAssignmentAllPurposeItem().getId() + " for access" + access.getAccess());
+			log.warn("{}.removeAllPurposeItemAccess() Hibernate could not delete access for all purpose item {} for access {}", this, access.getAssignmentAllPurposeItem().getId(), access.getAccess(), e);
 			return false;
 		}
 	}
