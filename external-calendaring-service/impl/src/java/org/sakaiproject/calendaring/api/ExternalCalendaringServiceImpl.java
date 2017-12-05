@@ -47,6 +47,7 @@ import java.util.UUID;
 
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+
 import net.fortuna.ical4j.data.CalendarOutputter;
 import net.fortuna.ical4j.model.Calendar;
 import net.fortuna.ical4j.model.DateTime;
@@ -60,11 +61,23 @@ import net.fortuna.ical4j.model.parameter.Cn;
 import net.fortuna.ical4j.model.parameter.PartStat;
 import net.fortuna.ical4j.model.parameter.Role;
 import net.fortuna.ical4j.model.parameter.Rsvp;
-import net.fortuna.ical4j.model.property.*;
-
+import net.fortuna.ical4j.model.property.Attendee;
+import net.fortuna.ical4j.model.property.CalScale;
+import net.fortuna.ical4j.model.property.Description;
+import net.fortuna.ical4j.model.property.Location;
+import net.fortuna.ical4j.model.property.Method;
+import net.fortuna.ical4j.model.property.Organizer;
+import net.fortuna.ical4j.model.property.ProdId;
+import net.fortuna.ical4j.model.property.Sequence;
+import net.fortuna.ical4j.model.property.Status;
+import net.fortuna.ical4j.model.property.Uid;
+import net.fortuna.ical4j.model.property.Url;
+import net.fortuna.ical4j.model.property.Version;
 import net.fortuna.ical4j.validate.ValidationException;
+
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
+
 import org.sakaiproject.calendar.api.CalendarEvent;
 import org.sakaiproject.calendaring.logic.SakaiProxy;
 import org.sakaiproject.time.api.TimeRange;
@@ -370,14 +383,11 @@ public class ExternalCalendaringServiceImpl implements ExternalCalendaringServic
 			fout.flush();
 			fout.close();
 		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			log.error(e.getMessage(), e);
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			log.error(e.getMessage(), e);
 		} catch (ValidationException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			log.error(e.getMessage(), e);
 		}
  
 		return path;
