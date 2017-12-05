@@ -29,8 +29,8 @@ import javax.faces.component.UIData;
 import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.PermissionsHelper;
 import org.sakaiproject.exception.IdUnusedException;
@@ -51,9 +51,8 @@ import org.sakaiproject.tool.cover.SessionManager;
  * 
  * </P>
  */
+@Slf4j
 public class SignupPermissionsUpdateBean {
-
-	private Logger logger = LoggerFactory.getLogger(SignupPermissionsUpdateBean.class);
 
 	private SakaiFacade sakaiFacade;
 
@@ -124,7 +123,7 @@ public class SignupPermissionsUpdateBean {
 			ExternalContext context = FacesContext.getCurrentInstance().getExternalContext();
 			context.redirect("sakai.permissions.helper.helper/tool");
 		} catch (Exception e) {
-			logger.error(this + ".processPermissionUpdateRedirect - " + e);
+			log.error(this + ".processPermissionUpdateRedirect - " + e);
 		}
 
 		return null;
@@ -158,7 +157,7 @@ public class SignupPermissionsUpdateBean {
 
 			}
 		} catch (IdUnusedException e) {
-			logger.error("IdUnusedException: siteId is not found" + e);
+			log.error("IdUnusedException: siteId is not found" + e);
 			Utilities.addErrorMessage("No such site Id is found!");
 		}
 

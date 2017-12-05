@@ -39,12 +39,12 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.signup.dao.SignupMeetingDao;
 import org.sakaiproject.signup.model.SignupMeeting;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * <p>
@@ -55,14 +55,12 @@ import org.slf4j.LoggerFactory;
  * @author Peter Liu
  * 
  */
-
+@Slf4j
 public class SignupCacheServiceImpl implements SignupCacheService {
 
 	private MemoryService memoryService;
 
 	protected SignupMeetingDao signupMeetingDao;
-
-	private static Logger M_log = LoggerFactory.getLogger(SignupCacheServiceImpl.class);
 
 	private Cache m_signupSiteCache = null;
 
@@ -80,11 +78,11 @@ public class SignupCacheServiceImpl implements SignupCacheService {
 				m_instance = this;
 			}
 
-			if (M_log.isDebugEnabled()) {
-				M_log.debug(this + ".init()");
+			if (log.isDebugEnabled()) {
+				log.debug(this + ".init()");
 			}
 		} catch (Exception t) {
-			M_log.warn(this + "init(): ", t);
+			log.warn(this + "init(): ", t);
 		}
 	}
 
@@ -166,7 +164,7 @@ public class SignupCacheServiceImpl implements SignupCacheService {
 
 		}
 
-		M_log.info("destroy()");
+		log.info("destroy()");
 	}
 
 
