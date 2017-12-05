@@ -21,13 +21,25 @@
 
 package org.sakaiproject.portlets;
 
+import javax.portlet.*;
+import javax.servlet.ServletRequest;
+import java.io.File;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.net.URLEncoder;
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.apache.commons.validator.routines.UrlValidator;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.VelocityEngine;
 import org.apache.velocity.context.Context;
+
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.GroupNotDefinedException;
 import org.sakaiproject.authz.api.Role;
@@ -57,26 +69,13 @@ import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.util.ResourceLoader;
 
-import javax.portlet.*;
-import javax.servlet.ServletRequest;
-import java.io.File;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.net.URLEncoder;
-import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 // Velocity
 
 /**
  * a simple PortletIFrame Portlet
  */
+@Slf4j
 public class PortletIFrame extends GenericPortlet {
-
-	private static final Logger M_log = LoggerFactory.getLogger(PortletIFrame.class);
 
 	/** Event for accessing the web-content tool */
 	protected final static String EVENT_ACCESS_WEB_CONTENT = "webcontent.read";
@@ -265,7 +264,7 @@ public class PortletIFrame extends GenericPortlet {
 		{
 			throw new PortletException("Cannot initialize Velocity ", e);
 		}
-		M_log.info("iFrame Portlet vengine="+vengine+" rb="+rb);
+		log.info("iFrame Portlet vengine="+vengine+" rb="+rb);
 	}
 
 	private void addAlert(ActionRequest request,String message) {
@@ -332,7 +331,7 @@ public class PortletIFrame extends GenericPortlet {
 				}
 				catch (Exception any)
 				{
-					any.printStackTrace();
+					log.error(any.getMessage(), any);
 				}
 			}
 
@@ -355,7 +354,7 @@ public class PortletIFrame extends GenericPortlet {
 			if ( url != null && url.trim().length() > 0 ) {
 				url = sanitizeHrefURL(url);
 				if ( url == null || ! validateURL(url) ) {
-					M_log.warn("invalid URL suppressed placement="+placement.getId()+" site="+placement.getContext()+" url="+url);
+					log.warn("invalid URL suppressed placement="+placement.getId()+" site="+placement.getContext()+" url="+url);
 					url = "about:blank";
 				}
 
@@ -453,11 +452,11 @@ public class PortletIFrame extends GenericPortlet {
             lastTime = -1;
         }
 
-        M_log.debug("lastTime="+lastTime+" nowTime="+nowTime);
+        log.debug("lastTime="+lastTime+" nowTime="+nowTime);
 
         if ( lastTime > 0 && nowTime < lastTime + xframeCache ) {
             String lastXF = placement.getPlacementConfig().getProperty(XFRAME_LAST_STATUS);
-            M_log.debug("Status from placement="+lastXF);
+            log.debug("Status from placement="+lastXF);
             return "true".equals(lastXF);
         }
 
@@ -493,14 +492,14 @@ public class PortletIFrame extends GenericPortlet {
         }
         catch (Exception e) {
             // Fail pretty silently because this could be pretty chatty with bad urls and all
-            M_log.debug(e.getMessage());
+            log.debug(e.getMessage());
             retval = false;
         }
         placement.getPlacementConfig().setProperty(XFRAME_LAST_STATUS, String.valueOf(retval));
         // Permanently set popup to true as we don't expect that a site will go back
         if ( retval == true ) placement.getPlacementConfig().setProperty(POPUP, "true");
         placement.save();
-        M_log.debug("Retrieved="+url+" XFrame="+retval);
+        log.debug("Retrieved="+url+" XFrame="+retval);
         return retval;
     }
 
@@ -861,7 +860,7 @@ public class PortletIFrame extends GenericPortlet {
 			}
 			catch (Exception ignore)
 			{
-				M_log.warn("doConfigure_update: " + ignore);
+				log.warn("doConfigure_update: " + ignore);
 			}
 
 			// popup and maximize
@@ -904,7 +903,7 @@ public class PortletIFrame extends GenericPortlet {
                 }
                 catch (Throwable e)
                 {
-                    M_log.warn("doConfigure_update: " + e);
+                    log.warn("doConfigure_update: " + e);
                 }
             }
 
