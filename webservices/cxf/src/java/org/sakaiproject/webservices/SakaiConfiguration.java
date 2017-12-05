@@ -15,19 +15,11 @@
  */
 package org.sakaiproject.webservices;
 
-import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.apache.log4j.LogManager;
-import org.apache.log4j.PropertyConfigurator;
-import org.sakaiproject.component.api.ServerConfigurationService;
-import org.sakaiproject.component.api.ServerConfigurationService.ConfigItem;
-import org.sakaiproject.component.cover.ComponentManager;
-import org.sakaiproject.tool.api.Session;
-import org.sakaiproject.util.BasicConfigItem;
-import org.sakaiproject.util.Xml;
-import org.w3c.dom.Document;
-import org.w3c.dom.Node;
+import java.io.InputStream;
+import java.lang.reflect.Method;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Properties;
 
 import javax.jws.WebMethod;
 import javax.jws.WebParam;
@@ -37,11 +29,20 @@ import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
-import java.io.InputStream;
-import java.lang.reflect.Method;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Properties;
+
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.LogManager;
+import org.apache.log4j.PropertyConfigurator;
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
+
+import org.sakaiproject.component.api.ServerConfigurationService;
+import org.sakaiproject.component.api.ServerConfigurationService.ConfigItem;
+import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.tool.api.Session;
+import org.sakaiproject.util.BasicConfigItem;
+import org.sakaiproject.util.Xml;
 
 /**
  * Created by IntelliJ IDEA.
@@ -52,8 +53,8 @@ import java.util.Properties;
  */
 @WebService
 @SOAPBinding(style = SOAPBinding.Style.RPC, use = SOAPBinding.Use.LITERAL)
+@Slf4j
 public class SakaiConfiguration extends AbstractWebService {
-    private static final Logger LOG = LoggerFactory.getLogger(SakaiConfiguration.class);
 
     @WebMethod
     @Path("/adjustLogLevel")
@@ -65,7 +66,7 @@ public class SakaiConfiguration extends AbstractWebService {
             @WebParam(name = "level", partName = "level") @QueryParam("level") String level) {
         Session session = establishSession(sessionid);
         if (!securityService.isSuperUser()) {
-            LOG.warn("NonSuperUser trying to collect configuration: " + session.getUserId());
+            log.warn("NonSuperUser trying to collect configuration: " + session.getUserId());
             throw new RuntimeException("NonSuperUser trying to collect configuration: " + session.getUserId());
         }
         Properties props = new Properties();
@@ -83,7 +84,7 @@ public class SakaiConfiguration extends AbstractWebService {
             LogManager.resetConfiguration();
             PropertyConfigurator.configure(props);
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error(e.getMessage(), e);
         }
 
         return "success";
@@ -98,7 +99,7 @@ public class SakaiConfiguration extends AbstractWebService {
             @WebParam(name = "propName", partName = "propName") @QueryParam("propName") String propName) {
         Session session = establishSession(sessionid);
         if (!securityService.isSuperUser()) {
-            LOG.warn("NonSuperUser trying to collect configuration: " + session.getUserId());
+            log.warn("NonSuperUser trying to collect configuration: " + session.getUserId());
             throw new RuntimeException("NonSuperUser trying to collect configuration: " + session.getUserId());
         }
         return lookupConfigValue(propName);
@@ -115,13 +116,13 @@ public class SakaiConfiguration extends AbstractWebService {
             @WebParam(name = "propType", partName = "propType") @QueryParam("propType") String propType,
             @WebParam(name = "propValue", partName = "propValue") @QueryParam("propValue") String propValue) {
         if (StringUtils.isBlank(sessionid) || StringUtils.isBlank(propName) || StringUtils.isBlank(propType) || StringUtils.isBlank(propValue)) {
-            LOG.warn("IllegalArgument: One or more of the parameters were empty or null");
+            log.warn("IllegalArgument: One or more of the parameters were empty or null");
             throw new RuntimeException("IllegalArgument: One or more of the parameters were empty or null");
         }
 
         Session session = establishSession(sessionid);
         if (!securityService.isSuperUser()) {
-            LOG.warn("NonSuperUser trying to adjust configuration: " + session.getUserId());
+            log.warn("NonSuperUser trying to adjust configuration: " + session.getUserId());
             throw new RuntimeException("NonSuperUser trying to adjust configuration: " + session.getUserId());
         }
         return changeConfigValue(propName, propType, propValue);
@@ -141,7 +142,7 @@ public class SakaiConfiguration extends AbstractWebService {
             @WebParam(name = "propNames", partName = "propNames") @QueryParam("propNames") String propNames) {
         Session session = establishSession(sessionid);
         if (!securityService.isSuperUser()) {
-            LOG.warn("NonSuperUser trying to collect configuration: " + session.getUserId());
+            log.warn("NonSuperUser trying to collect configuration: " + session.getUserId());
             throw new RuntimeException("NonSuperUser trying to collect configuration: " + session.getUserId());
         }
         String[] propNamesArray = propNames.split(",");
@@ -151,7 +152,7 @@ public class SakaiConfiguration extends AbstractWebService {
             String propName = propNamesArray[i].trim().replace("@", "-").replace(".", "_");
             propertyMap.put(propName, propValue);
         }
-        LOG.debug(getXML("properties", propertyMap));
+        log.debug(getXML("properties", propertyMap));
         return getXML("properties", propertyMap);
 
     }
@@ -161,7 +162,7 @@ public class SakaiConfiguration extends AbstractWebService {
         String propType = type.trim();
         Object propValue = null;
         if (propName.contains("@")) {
-            LOG.error("UnSupported: Bean setting is not supported for, " + propName + "=" + propValue);
+            log.error("UnSupported: Bean setting is not supported for, " + propName + "=" + propValue);
             throw new RuntimeException("UnSupported: Bean setting is not supported for, " + propName + "=" + propValue);
         }
 
@@ -175,7 +176,7 @@ public class SakaiConfiguration extends AbstractWebService {
         } else if (ServerConfigurationService.TYPE_ARRAY.equalsIgnoreCase(propType)) {
             propValue = value.split(",");
         } else {
-            LOG.error("UnSupported: type, " + propType);
+            log.error("UnSupported: type, " + propType);
             throw new RuntimeException("UnSupported: type, " + propType);
         }
         ConfigItem item = BasicConfigItem.makeConfigItem(propName, propValue, SakaiConfiguration.class.getName());
@@ -188,7 +189,7 @@ public class SakaiConfiguration extends AbstractWebService {
         String propValue = null;
         if (propName.contains("@")) {
             propValue = getValueFromBean(propName);
-            LOG.debug(propName + "=" + propValue);
+            log.debug(propName + "=" + propValue);
         } else {
             propValue = serverConfigurationService.getString(propName);
         }
@@ -215,13 +216,13 @@ public class SakaiConfiguration extends AbstractWebService {
                 method = clazz.getMethod("get" + methodNameEnd, null);
             } catch (NoSuchMethodException e) {
 
-                LOG.info("can't find method called " + " get" + methodNameEnd +
+                log.info("can't find method called " + " get" + methodNameEnd +
                         " in class " + clazz.getName());
                 try {
 
                     method = clazz.getMethod("is" + methodNameEnd, null);
                 } catch (NoSuchMethodException e1) {
-                    LOG.info("can't find method called " + " is" + methodNameEnd +
+                    log.info("can't find method called " + " is" + methodNameEnd +
                             " in class " + clazz.getName());
                 }
             }
@@ -231,12 +232,12 @@ public class SakaiConfiguration extends AbstractWebService {
                     Object returnValue = method.invoke(bean, null);
                     return returnValue.toString();
                 } catch (Exception e) {
-                    LOG.error("error calling accessor on bean :" + beanName + " msg: " + e.getMessage(), e);
+                    log.error("error calling accessor on bean :" + beanName + " msg: " + e.getMessage(), e);
                 }
             }
-            LOG.error("couldn't find config value for propName: " + propName);
+            log.error("couldn't find config value for propName: " + propName);
         } else {
-            LOG.error("can't find bean with id: " + beanName);
+            log.error("can't find bean with id: " + beanName);
         }
         return null;
     }

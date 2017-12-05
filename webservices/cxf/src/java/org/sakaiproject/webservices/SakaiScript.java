@@ -40,13 +40,13 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.LocaleUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.PhaseInterceptorChain;
 import org.apache.cxf.transport.http.AbstractHTTPDestination;
+
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.authz.api.Role;
@@ -96,9 +96,8 @@ import org.w3c.dom.Node;
 
 @WebService
 @SOAPBinding(style = SOAPBinding.Style.RPC, use = SOAPBinding.Use.LITERAL)
+@Slf4j
 public class SakaiScript extends AbstractWebService {
-
-    private static final Logger LOG = LoggerFactory.getLogger(SakaiScript.class);
 
     private static final String ADMIN_SITE_REALM = "/site/!admin";
     private static final String SESSION_ATTR_NAME_ORIGIN = "origin";
@@ -155,7 +154,7 @@ public class SakaiScript extends AbstractWebService {
         Session session = establishSession(sessionid);
 
         if (!securityService.isSuperUser()) {
-            LOG.warn("NonSuperUser trying to add accounts: " + session.getUserId());
+            log.warn("NonSuperUser trying to add accounts: " + session.getUserId());
             throw new RuntimeException("NonSuperUser trying to add accounts: " + session.getUserId());
         }
         try {
@@ -164,7 +163,7 @@ public class SakaiScript extends AbstractWebService {
             addeduser = userDirectoryService.addUser(null, eid, firstname, lastname, email, password, type, null);
 
         } catch (Exception e) {
-            LOG.warn("WS addNewUser(): " + e.getClass().getName() + " : " + e.getMessage());
+            log.warn("WS addNewUser(): " + e.getClass().getName() + " : " + e.getMessage());
             return e.getClass().getName() + " : " + e.getMessage();
         }
         return "success";
@@ -200,7 +199,7 @@ public class SakaiScript extends AbstractWebService {
         Session session = establishSession(sessionid);
 
         if (!securityService.isSuperUser()) {
-            LOG.warn("NonSuperUser trying to add accounts: " + session.getUserId());
+            log.warn("NonSuperUser trying to add accounts: " + session.getUserId());
             throw new RuntimeException("NonSuperUser trying to add accounts: " + session.getUserId());
         }
         try {
@@ -209,7 +208,7 @@ public class SakaiScript extends AbstractWebService {
             addeduser = userDirectoryService.addUser(id, eid, firstname, lastname, email, password, type, null);
 
         } catch (Exception e) {
-            LOG.warn("WS addNewUser(): " + e.getClass().getName() + " : " + e.getMessage());
+            log.warn("WS addNewUser(): " + e.getClass().getName() + " : " + e.getMessage());
             return e.getClass().getName() + " : " + e.getMessage();
         }
         return "success";
@@ -238,7 +237,7 @@ public class SakaiScript extends AbstractWebService {
             userEdit = userDirectoryService.editUser(userid);
             userDirectoryService.removeUser(userEdit);
         } catch (Exception e) {
-            LOG.error("WS removeUser(): " + e.getClass().getName() + " : " + e.getMessage());
+            log.error("WS removeUser(): " + e.getClass().getName() + " : " + e.getMessage());
             return e.getClass().getName() + " : " + e.getMessage();
         }
         return "success";
@@ -283,7 +282,7 @@ public class SakaiScript extends AbstractWebService {
             userDirectoryService.commitEdit(userEdit);
         } catch (Exception e) {
             userDirectoryService.cancelEdit(userEdit);
-            LOG.error("WS removeUser(): " + e.getClass().getName() + " : " + e.getMessage());
+            log.error("WS removeUser(): " + e.getClass().getName() + " : " + e.getMessage());
             return e.getClass().getName() + " : " + e.getMessage();
         }
         return "success";
@@ -319,7 +318,7 @@ public class SakaiScript extends AbstractWebService {
             userDirectoryService.commitEdit(userEdit);
         } catch (Exception e) {
             userDirectoryService.cancelEdit(userEdit);
-            LOG.error("WS changeUserName(): " + e.getClass().getName() + " : " + e.getMessage());
+            log.error("WS changeUserName(): " + e.getClass().getName() + " : " + e.getMessage());
             return e.getClass().getName() + " : " + e.getMessage();
         }
         return "success";
@@ -352,7 +351,7 @@ public class SakaiScript extends AbstractWebService {
             userDirectoryService.commitEdit(userEdit);
         } catch (Exception e) {
             userDirectoryService.cancelEdit(userEdit);
-            LOG.error("WS changeUserEmail(): " + e.getClass().getName() + " : " + e.getMessage());
+            log.error("WS changeUserEmail(): " + e.getClass().getName() + " : " + e.getMessage());
             return e.getClass().getName() + " : " + e.getMessage();
         }
         return "success";
@@ -385,7 +384,7 @@ public class SakaiScript extends AbstractWebService {
             userDirectoryService.commitEdit(userEdit);
         } catch (Exception e) {
             userDirectoryService.cancelEdit(userEdit);
-            LOG.error("WS changeUserType(): " + e.getClass().getName() + " : " + e.getMessage());
+            log.error("WS changeUserType(): " + e.getClass().getName() + " : " + e.getMessage());
             return e.getClass().getName() + " : " + e.getMessage();
         }
         return "success";
@@ -418,7 +417,7 @@ public class SakaiScript extends AbstractWebService {
             userDirectoryService.commitEdit(userEdit);
         } catch (Exception e) {
             userDirectoryService.cancelEdit(userEdit);
-            LOG.error("WS changeUserPassword(): " + e.getClass().getName() + " : " + e.getMessage());
+            log.error("WS changeUserPassword(): " + e.getClass().getName() + " : " + e.getMessage());
             return e.getClass().getName() + " : " + e.getMessage();
         }
         return "success";
@@ -446,11 +445,11 @@ public class SakaiScript extends AbstractWebService {
         try{
             Locale localeParam = LocaleUtils.toLocale(locale);
             if(!LocaleUtils.isAvailableLocale(localeParam)){
-                LOG.warn("WS changeUserLocale(): Locale not available");
+                log.warn("WS changeUserLocale(): Locale not available");
                 return "";
             }
         } catch(Exception e){
-            LOG.error("WS changeUserLocale(): " + e.getClass().getName() + " : " + e.getMessage());
+            log.error("WS changeUserLocale(): " + e.getClass().getName() + " : " + e.getMessage());
             return e.getClass().getName() + " : " + e.getMessage();
         }
 
@@ -469,7 +468,7 @@ public class SakaiScript extends AbstractWebService {
             preferencesService.commit(prefs);
         } catch (Exception e) {
             preferencesService.cancel(prefs);
-            LOG.error("WS changeUserLocale(): " + e.getClass().getName() + " : " + e.getMessage());
+            log.error("WS changeUserLocale(): " + e.getClass().getName() + " : " + e.getMessage());
             return e.getClass().getName() + " : " + e.getMessage();
         }
         return "success";
@@ -516,7 +515,7 @@ public class SakaiScript extends AbstractWebService {
             User user = userDirectoryService.getUserByEid(userid);
             return user.getEmail();
         } catch (Exception e) {
-            LOG.error("WS getUserEmail() failed for user: " + userid + " : " + e.getClass().getName() + " : " + e.getMessage());
+            log.error("WS getUserEmail() failed for user: " + userid + " : " + e.getClass().getName() + " : " + e.getMessage());
             return "";
         }
     }
@@ -562,7 +561,7 @@ public class SakaiScript extends AbstractWebService {
             User user = userDirectoryService.getUserByEid(userid);
             return user.getDisplayName();
         } catch (Exception e) {
-            LOG.error("WS getUserDisplayName() failed for user: " + userid + " : " + e.getClass().getName() + " : " + e.getMessage());
+            log.error("WS getUserDisplayName() failed for user: " + userid + " : " + e.getClass().getName() + " : " + e.getMessage());
             return "";
         }
     }
@@ -604,7 +603,7 @@ public class SakaiScript extends AbstractWebService {
             siteService.save(site);
             return group.getId();
         } catch (Exception e) {
-            LOG.error("WS addGroupToSite(): " + e.getClass().getName() + " : " + e.getMessage());
+            log.error("WS addGroupToSite(): " + e.getClass().getName() + " : " + e.getMessage());
             return "";
 
         }
@@ -635,7 +634,7 @@ public class SakaiScript extends AbstractWebService {
             Site site = siteService.getSite(siteid);
             Group group = site.getGroup(groupid);
             if (group == null) {
-                LOG.error("addMemberToGroup called with group that does not exist: " + groupid);
+                log.error("addMemberToGroup called with group that does not exist: " + groupid);
                 return false;
             }
 
@@ -645,12 +644,12 @@ public class SakaiScript extends AbstractWebService {
                 group.insertMember(userid, r != null ? r.getId() : "", m != null ? m.isActive() : true, false);
                 siteService.saveGroupMembership(site);
             } catch (IllegalStateException e) {
-                LOG.error(".addMemberToGroup: User with id {} cannot be inserted in group with id {} because the group is locked", userid, group.getId());
+                log.error(".addMemberToGroup: User with id {} cannot be inserted in group with id {} because the group is locked", userid, group.getId());
                 return false;
             }
             return true;
         } catch (Exception e) {
-            LOG.error("WS addMemberToGroup(): " + e.getClass().getName() + " : " + e.getMessage());
+            log.error("WS addMemberToGroup(): " + e.getClass().getName() + " : " + e.getMessage());
             return false;
         }
     }
@@ -727,7 +726,7 @@ public class SakaiScript extends AbstractWebService {
             }
             return Xml.writeDocumentToString(dom);
         } catch (Exception e) {
-            LOG.error("WS getGroupsInSite(): " + e.getClass().getName() + " : " + e.getMessage());
+            log.error("WS getGroupsInSite(): " + e.getClass().getName() + " : " + e.getMessage());
             return "<exception/>";
 
         }
@@ -757,7 +756,7 @@ public class SakaiScript extends AbstractWebService {
             authzGroupService.save(authzgroup);
 
         } catch (Exception e) {
-            LOG.error("WS addNewAuthzGroup(): " + e.getClass().getName() + " : " + e.getMessage());
+            log.error("WS addNewAuthzGroup(): " + e.getClass().getName() + " : " + e.getMessage());
             return e.getClass().getName() + " : " + e.getMessage();
         }
         return "success";
@@ -785,7 +784,7 @@ public class SakaiScript extends AbstractWebService {
             authzGroupService.removeAuthzGroup(authzgroup);
 
         } catch (Exception e) {
-            LOG.error("WS removeAuthzGroup(): " + e.getClass().getName() + " : " + e.getMessage());
+            log.error("WS removeAuthzGroup(): " + e.getClass().getName() + " : " + e.getMessage());
             return e.getClass().getName() + " : " + e.getMessage();
         }
         return "success";
@@ -819,7 +818,7 @@ public class SakaiScript extends AbstractWebService {
             authzGroupService.save(authzgroup);
 
         } catch (Exception e) {
-            LOG.error("WS addNewRoleToAuthzGroup(): " + e.getClass().getName() + " : " + e.getMessage());
+            log.error("WS addNewRoleToAuthzGroup(): " + e.getClass().getName() + " : " + e.getMessage());
             return e.getClass().getName() + " : " + e.getMessage();
         }
         return "success";
@@ -848,7 +847,7 @@ public class SakaiScript extends AbstractWebService {
             authzGroupService.save(authzgroup);
 
         } catch (Exception e) {
-            LOG.error("WS removeAllRolesFromAuthzGroup(): " + e.getClass().getName() + " : " + e.getMessage());
+            log.error("WS removeAllRolesFromAuthzGroup(): " + e.getClass().getName() + " : " + e.getMessage());
             return e.getClass().getName() + " : " + e.getMessage();
         }
         return "success";
@@ -881,13 +880,13 @@ public class SakaiScript extends AbstractWebService {
             Role role = authzgroup.getRole(roleid);
             if (role == null) {
                 //log warning, but still continue so as not to break any existing implementations
-                LOG.warn("WS removeRoleFromAuthzGroup(): authzgroup: " + authzgroupid + " does not contain role: " + roleid);
+                log.warn("WS removeRoleFromAuthzGroup(): authzgroup: " + authzgroupid + " does not contain role: " + roleid);
             }
             authzgroup.removeRole(roleid);
             authzGroupService.save(authzgroup);
 
         } catch (Exception e) {
-            LOG.error("WS removeRoleFromAuthzGroup(): " + e.getClass().getName() + " : " + e.getMessage());
+            log.error("WS removeRoleFromAuthzGroup(): " + e.getClass().getName() + " : " + e.getMessage());
             return e.getClass().getName() + " : " + e.getMessage();
         }
         return "success";
@@ -917,7 +916,7 @@ public class SakaiScript extends AbstractWebService {
 
         // check that ONLY super user's are accessing this (see SAK-18494)
         if (!securityService.isSuperUser(session.getUserId())) {
-            LOG.warn("WS allowFunctionForRole(): Permission denied. Restricted to super users.");
+            log.warn("WS allowFunctionForRole(): Permission denied. Restricted to super users.");
             throw new RuntimeException("WS allowFunctionForRole(): Permission denied. Restricted to super users.");
         }
 
@@ -927,7 +926,7 @@ public class SakaiScript extends AbstractWebService {
             role.allowFunction(functionname);
             authzGroupService.save(authzgroup);
         } catch (Exception e) {
-            LOG.error("WS allowFunctionForRole(): " + e.getClass().getName() + " : " + e.getMessage());
+            log.error("WS allowFunctionForRole(): " + e.getClass().getName() + " : " + e.getMessage());
             return e.getClass().getName() + " : " + e.getMessage();
         }
         return "success";
@@ -959,7 +958,7 @@ public class SakaiScript extends AbstractWebService {
             authzGroupService.save(authzgroup);
 
         } catch (Exception e) {
-            LOG.error("WS disallowAllFunctionsForRole(): " + e.getClass().getName() + " : " + e.getMessage());
+            log.error("WS disallowAllFunctionsForRole(): " + e.getClass().getName() + " : " + e.getMessage());
             return e.getClass().getName() + " : " + e.getMessage();
         }
         return "success";
@@ -995,7 +994,7 @@ public class SakaiScript extends AbstractWebService {
             authzGroupService.save(authzgroup);
 
         } catch (Exception e) {
-            LOG.error("WS disallowFunctionForRole(): " + e.getClass().getName() + " : " + e.getMessage());
+            log.error("WS disallowFunctionForRole(): " + e.getClass().getName() + " : " + e.getMessage());
             return e.getClass().getName() + " : " + e.getMessage();
         }
         return "success";
@@ -1029,7 +1028,7 @@ public class SakaiScript extends AbstractWebService {
             authzGroupService.save(authzgroup);
 
         } catch (Exception e) {
-            LOG.error("WS setRoleDescription(): " + e.getClass().getName() + " : " + e.getMessage());
+            log.error("WS setRoleDescription(): " + e.getClass().getName() + " : " + e.getMessage());
             return e.getClass().getName() + " : " + e.getMessage();
         }
         return "success";
@@ -1064,7 +1063,7 @@ public class SakaiScript extends AbstractWebService {
             Role role = authzgroup.getRole(roleid);
             if (role == null) {
                 //log warning and return error as it would return success even if it failed
-                LOG.error("WS addMemberToAuthzGroupWithRole(): authzgroup: " + authzgroupid + " does not contain role: " + roleid);
+                log.error("WS addMemberToAuthzGroupWithRole(): authzgroup: " + authzgroupid + " does not contain role: " + roleid);
                 return "WS addMemberToAuthzGroupWithRole(): authzgroup: " + authzgroupid + " does not contain role: " + roleid;
             }
 
@@ -1073,7 +1072,7 @@ public class SakaiScript extends AbstractWebService {
             authzGroupService.save(authzgroup);
 
         } catch (Exception e) {
-            LOG.error("WS addMemberToAuthzGroupWithRole(): " + e.getClass().getName() + " : " + e.getMessage());
+            log.error("WS addMemberToAuthzGroupWithRole(): " + e.getClass().getName() + " : " + e.getMessage());
             return e.getClass().getName() + " : " + e.getMessage();
         }
         return "success";
@@ -1105,7 +1104,7 @@ public class SakaiScript extends AbstractWebService {
             authzGroupService.save(authzgroup);
 
         } catch (Exception e) {
-            LOG.error("WS removeMemberFromAuthzGroup(): " + e.getClass().getName() + " : " + e.getMessage());
+            log.error("WS removeMemberFromAuthzGroup(): " + e.getClass().getName() + " : " + e.getMessage());
             return e.getClass().getName() + " : " + e.getMessage();
         }
         return "success";
@@ -1134,7 +1133,7 @@ public class SakaiScript extends AbstractWebService {
             authzGroupService.save(realmEdit);
 
         } catch (Exception e) {
-            LOG.error("WS removeAllMembersFromAuthzGroup(): " + e.getClass().getName() + " : " + e.getMessage());
+            log.error("WS removeAllMembersFromAuthzGroup(): " + e.getClass().getName() + " : " + e.getMessage());
             return e.getClass().getName() + " : " + e.getMessage();
         }
         return "success";
@@ -1167,7 +1166,7 @@ public class SakaiScript extends AbstractWebService {
             //check Role exists
             Role role = authzgroup.getRole(roleid);
             if (role == null) {
-                LOG.warn("WS setRoleForAuthzGroupMaintenance(): authzgroup: " + authzgroupid + " does not contain role: " + roleid);
+                log.warn("WS setRoleForAuthzGroupMaintenance(): authzgroup: " + authzgroupid + " does not contain role: " + roleid);
                 return "WS setRoleForAuthzGroupMaintenance(): authzgroup: " + authzgroupid + " does not contain role: " + roleid;
             }
 
@@ -1175,7 +1174,7 @@ public class SakaiScript extends AbstractWebService {
             authzGroupService.save(authzgroup);
 
         } catch (Exception e) {
-            LOG.error("WS setRoleForAuthzGroupMaintenance(): " + e.getClass().getName() + " : " + e.getMessage());
+            log.error("WS setRoleForAuthzGroupMaintenance(): " + e.getClass().getName() + " : " + e.getMessage());
             return e.getClass().getName() + " : " + e.getMessage();
         }
         return "success";
@@ -1209,7 +1208,7 @@ public class SakaiScript extends AbstractWebService {
             site.addMember(userid, roleid, true, false);
             siteService.saveSiteMembership(site);
         } catch (Exception e) {
-            LOG.error("WS addMemberToSiteWithRole(): " + e.getClass().getName() + " : " + e.getMessage());
+            log.error("WS addMemberToSiteWithRole(): " + e.getClass().getName() + " : " + e.getMessage());
             return e.getClass().getName() + " : " + e.getMessage();
         }
         return "success";
@@ -1239,7 +1238,7 @@ public class SakaiScript extends AbstractWebService {
         Session session = establishSession(sessionid);
 
         if (!securityService.isSuperUser(session.getUserId())) {
-            LOG.warn("NonSuperUser trying to addMemberToSiteWithRoleBatch: " + session.getUserId());
+            log.warn("NonSuperUser trying to addMemberToSiteWithRoleBatch: " + session.getUserId());
             throw new RuntimeException("NonSuperUser trying to addMemberToSiteWithRoleBatch: " + session.getUserId());
         }
 
@@ -1253,7 +1252,7 @@ public class SakaiScript extends AbstractWebService {
             siteService.save(site);
         }
         catch (Exception e) {
-            LOG.error("WS addMemberToSiteWithRoleBatch(): " + e.getClass().getName() + " : " + e.getMessage());
+            log.error("WS addMemberToSiteWithRoleBatch(): " + e.getClass().getName() + " : " + e.getMessage());
             return e.getClass().getName() + " : " + e.getMessage();
         }
         return "success";
@@ -1326,7 +1325,7 @@ public class SakaiScript extends AbstractWebService {
             siteService.save(siteEdit);
 
         } catch (Exception e) {
-            LOG.error("WS addNewSite(): " + e.getClass().getName() + " : " + e.getMessage());
+            log.error("WS addNewSite(): " + e.getClass().getName() + " : " + e.getMessage());
             return e.getClass().getName() + " : " + e.getMessage();
         }
         return "success";
@@ -1355,7 +1354,7 @@ public class SakaiScript extends AbstractWebService {
             siteService.removeSite(siteEdit);
 
         } catch (Exception e) {
-            LOG.error("WS removeSite(): " + e.getClass().getName() + " : " + e.getMessage());
+            log.error("WS removeSite(): " + e.getClass().getName() + " : " + e.getMessage());
             return e.getClass().getName() + " : " + e.getMessage();
         }
         return "success";
@@ -1408,7 +1407,7 @@ public class SakaiScript extends AbstractWebService {
             // If not admin, check maintainer membership in the source site
             if (!securityService.isSuperUser(session.getUserId()) &&
                     !securityService.unlock(SiteService.SECURE_UPDATE_SITE, site.getReference())) {
-                LOG.warn("WS copySite(): Permission denied. Must be super user to copy a site in which you are not a maintainer.");
+                log.warn("WS copySite(): Permission denied. Must be super user to copy a site in which you are not a maintainer.");
                 throw new RuntimeException("WS copySite(): Permission denied. Must be super user to copy a site in which you are not a maintainer.");
             }
 
@@ -1436,7 +1435,7 @@ public class SakaiScript extends AbstractWebService {
             siteService.save(siteEdit);
 
         } catch (Exception e) {
-            LOG.error("WS copySite(): " + e.getClass().getName() + " : " + e.getMessage());
+            log.error("WS copySite(): " + e.getClass().getName() + " : " + e.getMessage());
             return e.getClass().getName() + " : " + e.getMessage();
         }
         return "success";
@@ -1473,7 +1472,7 @@ public class SakaiScript extends AbstractWebService {
             siteService.save(siteEdit);
 
         } catch (Exception e) {
-            LOG.error("WS addNewPageToSite(): " + e.getClass().getName() + " : " + e.getMessage());
+            log.error("WS addNewPageToSite(): " + e.getClass().getName() + " : " + e.getMessage());
             return e.getClass().getName() + " : " + e.getMessage();
         }
         return "success";
@@ -1521,7 +1520,7 @@ public class SakaiScript extends AbstractWebService {
             siteService.save(siteEdit);
 
         } catch (Exception e) {
-            LOG.error("WS removePageFromSite(): " + e.getClass().getName() + " : " + e.getMessage());
+            log.error("WS removePageFromSite(): " + e.getClass().getName() + " : " + e.getMessage());
             return e.getClass().getName() + " : " + e.getMessage();
         }
         return "success";
@@ -1572,7 +1571,7 @@ public class SakaiScript extends AbstractWebService {
                 }
 
                 if (!toolVisible) {
-                    LOG.warn("WS addNewToolToPage(): Permission denied. Must be super user to add a stealthed tool to a site.");
+                    log.warn("WS addNewToolToPage(): Permission denied. Must be super user to add a stealthed tool to a site.");
                     throw new RuntimeException("WS addNewToolToPage(): Permission denied. Must be super user to add a stealthed tool to a site.");
                 }
 
@@ -1587,7 +1586,7 @@ public class SakaiScript extends AbstractWebService {
                 }
 
                 if (!toolAvailable) {
-                    LOG.warn("WS addNewToolToPage(): Permission denied. Must be super user to add a tool which is not available for this site type.");
+                    log.warn("WS addNewToolToPage(): Permission denied. Must be super user to add a tool which is not available for this site type.");
                     throw new RuntimeException("WS addNewToolToPage(): Permission denied. Must be super user to add a tool which is not available for this site type.");
                 }
             }
@@ -1609,7 +1608,7 @@ public class SakaiScript extends AbstractWebService {
             siteService.save(siteEdit);
 
         } catch (Exception e) {
-            LOG.error("WS addNewToolToPage(): " + e.getClass().getName() + " : " + e.getMessage());
+            log.error("WS addNewToolToPage(): " + e.getClass().getName() + " : " + e.getMessage());
             return e.getClass().getName() + " : " + e.getMessage();
         }
         return "success";
@@ -1663,7 +1662,7 @@ public class SakaiScript extends AbstractWebService {
             siteService.save(siteEdit);
 
         } catch (Exception e) {
-            LOG.error("WS addConfigPropertyToTool(): " + e.getClass().getName() + " : " + e.getMessage());
+            log.error("WS addConfigPropertyToTool(): " + e.getClass().getName() + " : " + e.getMessage());
             return e.getClass().getName() + " : " + e.getMessage();
         }
         return "success";
@@ -1707,7 +1706,7 @@ public class SakaiScript extends AbstractWebService {
             siteService.save(siteEdit);
 
         } catch (Exception e) {
-            LOG.error("WS addConfigPropertyToPage(): " + e.getClass().getName() + " : " + e.getMessage());
+            log.error("WS addConfigPropertyToPage(): " + e.getClass().getName() + " : " + e.getMessage());
             return e.getClass().getName() + " : " + e.getMessage();
         }
         return "success";
@@ -1740,7 +1739,7 @@ public class SakaiScript extends AbstractWebService {
                 return false;
             }
         } catch (Exception e) {
-            LOG.error("WS checkForUser(): " + e.getClass().getName() + " : " + e.getMessage());
+            log.error("WS checkForUser(): " + e.getClass().getName() + " : " + e.getMessage());
             return false;
         }
     }
@@ -1770,7 +1769,7 @@ public class SakaiScript extends AbstractWebService {
                 return false;
             }
         } catch (Exception e) {
-            LOG.error("WS checkForSite(): " + e.getClass().getName() + " : " + e.getMessage());
+            log.error("WS checkForSite(): " + e.getClass().getName() + " : " + e.getMessage());
             return false;
         }
     }
@@ -1796,7 +1795,7 @@ public class SakaiScript extends AbstractWebService {
         Session s = establishSession(sessionid);
 
         if (ADMIN_SITE_REALM.equalsIgnoreCase(authzgroupid) && !securityService.isSuperUser(s.getUserId())) {
-            LOG.warn("WS checkForMemberInAuthzGroupWithRole(): Permission denied. Restricted to super users.");
+            log.warn("WS checkForMemberInAuthzGroupWithRole(): Permission denied. Restricted to super users.");
             throw new RuntimeException("WS checkForMemberInAuthzGroupWithRole(): Permission denied. Restricted to super users.");
         }
 
@@ -1810,7 +1809,7 @@ public class SakaiScript extends AbstractWebService {
                 return authzgroup.hasRole(userid, role);
             }
         } catch (Exception e) {
-            LOG.error("WS checkForMemberInAuthzGroupWithRole(): " + e.getClass().getName() + " : " + e.getMessage());
+            log.error("WS checkForMemberInAuthzGroupWithRole(): " + e.getClass().getName() + " : " + e.getMessage());
             return false;
         }
     }
@@ -1856,7 +1855,7 @@ public class SakaiScript extends AbstractWebService {
             return getSiteListXml(allSites);
             
         } catch (Exception e) {
-            LOG.error("WS getSitesCurrentUserCanAccess(): " + e.getClass().getName() + " : " + e.getMessage());
+            log.error("WS getSitesCurrentUserCanAccess(): " + e.getClass().getName() + " : " + e.getMessage());
             return "<exception/>";
         }
     }
@@ -1925,7 +1924,7 @@ public class SakaiScript extends AbstractWebService {
                 Site myWorkspace = siteService.getSiteVisit(siteService.getUserSiteId(s.getUserId()));
                 allSites.add(myWorkspace);
             } catch (Exception e) {
-                LOG.error("WS getAllSitesForCurrentUser(): cannot add My Workspace site: " + e.getClass().getName() + " : " + e.getMessage());
+                log.error("WS getAllSitesForCurrentUser(): cannot add My Workspace site: " + e.getClass().getName() + " : " + e.getMessage());
             }
 
             if (allSites == null || (allSites.size() == 0)) {
@@ -1934,7 +1933,7 @@ public class SakaiScript extends AbstractWebService {
 
             return this.getSiteListXml(allSites);
         } catch (Exception e) {
-            LOG.error("WS getAllSitesForCurrentUser(): " + e.getClass().getName() + " : " + e.getMessage());
+            log.error("WS getAllSitesForCurrentUser(): " + e.getClass().getName() + " : " + e.getMessage());
             return "<exception/>";
         }
     }
@@ -1991,7 +1990,7 @@ public class SakaiScript extends AbstractWebService {
             Site site = siteService.getSite(siteid);
             siteTitle = site.getTitle();
         } catch (Exception e) {
-            LOG.error("WS getSiteTitle(): " + e.getClass().getName() + " : " + e.getMessage());
+            log.error("WS getSiteTitle(): " + e.getClass().getName() + " : " + e.getMessage());
             return e.getClass().getName() + " : " + e.getMessage();
         }
 
@@ -2023,7 +2022,7 @@ public class SakaiScript extends AbstractWebService {
             Site site = siteService.getSite(siteid);
             siteDescription = site.getDescription();
         } catch (Exception e) {
-            LOG.error("WS getSiteDescription(): " + e.getClass().getName() + " : " + e.getMessage());
+            log.error("WS getSiteDescription(): " + e.getClass().getName() + " : " + e.getMessage());
             return e.getClass().getName() + " : " + e.getMessage();
         }
 
@@ -2055,7 +2054,7 @@ public class SakaiScript extends AbstractWebService {
             Site site = siteService.getSite(siteid);
             siteSkin = site.getSkin();
         } catch (Exception e) {
-            LOG.error("WS getSiteSkin(): " + e.getClass().getName() + " : " + e.getMessage());
+            log.error("WS getSiteSkin(): " + e.getClass().getName() + " : " + e.getMessage());
             return e.getClass().getName() + " : " + e.getMessage();
         }
 
@@ -2088,7 +2087,7 @@ public class SakaiScript extends AbstractWebService {
                 return false;
             }
         } catch (Exception e) {
-            LOG.error("WS isSiteJoinable(): " + e.getClass().getName() + " : " + e.getMessage());
+            log.error("WS isSiteJoinable(): " + e.getClass().getName() + " : " + e.getMessage());
             return false;
         }
     }
@@ -2121,7 +2120,7 @@ public class SakaiScript extends AbstractWebService {
             siteService.save(siteEdit);
 
         } catch (Exception e) {
-            LOG.error("WS changeSiteTitle(): " + e.getClass().getName() + " : " + e.getMessage());
+            log.error("WS changeSiteTitle(): " + e.getClass().getName() + " : " + e.getMessage());
             return e.getClass().getName() + " : " + e.getMessage();
         }
         return "success";
@@ -2154,7 +2153,7 @@ public class SakaiScript extends AbstractWebService {
             siteService.save(siteEdit);
 
         } catch (Exception e) {
-            LOG.error("WS changeSiteSkin(): " + e.getClass().getName() + " : " + e.getMessage());
+            log.error("WS changeSiteSkin(): " + e.getClass().getName() + " : " + e.getMessage());
             return e.getClass().getName() + " : " + e.getMessage();
         }
         return "success";
@@ -2193,7 +2192,7 @@ public class SakaiScript extends AbstractWebService {
             siteService.save(siteEdit);
 
         } catch (Exception e) {
-            LOG.error("WS changeSiteJoinable(): " + e.getClass().getName() + " : " + e.getMessage());
+            log.error("WS changeSiteJoinable(): " + e.getClass().getName() + " : " + e.getMessage());
             return e.getClass().getName() + " : " + e.getMessage();
         }
         return "success";
@@ -2227,7 +2226,7 @@ public class SakaiScript extends AbstractWebService {
             siteService.save(siteEdit);
 
         } catch (Exception e) {
-            LOG.error("WS changeSiteIconUrl(): " + e.getClass().getName() + " : " + e.getMessage());
+            log.error("WS changeSiteIconUrl(): " + e.getClass().getName() + " : " + e.getMessage());
             return e.getClass().getName() + " : " + e.getMessage();
         }
         return "success";
@@ -2270,7 +2269,7 @@ public class SakaiScript extends AbstractWebService {
             siteService.save(siteEdit);
 
         } catch (Exception e) {
-            LOG.error("WS changeSiteDescription(): " + e.getClass().getName() + " : " + e.getMessage());
+            log.error("WS changeSiteDescription(): " + e.getClass().getName() + " : " + e.getMessage());
             return e.getClass().getName() + " : " + e.getMessage();
         }
         return "success";
@@ -2309,7 +2308,7 @@ public class SakaiScript extends AbstractWebService {
             return propvalue;
 
         } catch (Exception e) {
-            LOG.error("WS getSiteProperty(): " + e.getClass().getName() + " : " + e.getMessage());
+            log.error("WS getSiteProperty(): " + e.getClass().getName() + " : " + e.getMessage());
             return "";
         }
     }
@@ -2337,7 +2336,7 @@ public class SakaiScript extends AbstractWebService {
         Session session = establishSession(sessionid);
 
         if (!securityService.isSuperUser()) {
-            LOG.warn("WS setSiteProperty(): Permission denied. Restricted to super users.");
+            log.warn("WS setSiteProperty(): Permission denied. Restricted to super users.");
             throw new RuntimeException("WS setSiteProperty(): Permission denied. Restricted to super users.");
         }
 
@@ -2355,7 +2354,7 @@ public class SakaiScript extends AbstractWebService {
             siteService.save(site);
 
         } catch (Exception e) {
-            LOG.error("WS setSiteProperty(): " + e.getClass().getName() + " : " + e.getMessage());
+            log.error("WS setSiteProperty(): " + e.getClass().getName() + " : " + e.getMessage());
             return e.getClass().getName() + " : " + e.getMessage();
         }
         return "success";
@@ -2396,7 +2395,7 @@ public class SakaiScript extends AbstractWebService {
             siteService.save(site);
 
         } catch (Exception e) {
-            LOG.error("WS removeSiteProperty(): " + e.getClass().getName() + " : " + e.getMessage());
+            log.error("WS removeSiteProperty(): " + e.getClass().getName() + " : " + e.getMessage());
             return e.getClass().getName() + " : " + e.getMessage();
         }
         return "success";
@@ -2434,7 +2433,7 @@ public class SakaiScript extends AbstractWebService {
             return false;
 
         } catch (Exception e) {
-            LOG.error("WS checkForRoleInAuthzGroup(): " + e.getClass().getName() + " : " + e.getMessage());
+            log.error("WS checkForRoleInAuthzGroup(): " + e.getClass().getName() + " : " + e.getMessage());
             return false;
         }
     }
@@ -2465,7 +2464,7 @@ public class SakaiScript extends AbstractWebService {
             return roleEmpty;
 
         } catch (Exception e) {
-            LOG.error("WS checkForEmptyRolesInAuthzGroup(): " + e.getClass().getName() + " : " + e.getMessage());
+            log.error("WS checkForEmptyRolesInAuthzGroup(): " + e.getClass().getName() + " : " + e.getMessage());
             return false;
         }
     }
@@ -2505,12 +2504,12 @@ public class SakaiScript extends AbstractWebService {
 
             //validate input
             if (("").equals(criteria)) {
-                LOG.warn("WS searchForUsers(): no search criteria");
+                log.warn("WS searchForUsers(): no search criteria");
                 return "<exception/>";
             }
 
             if (first == 0 || last == 0) {
-                LOG.warn("WS searchForUsers(): invalid ranges");
+                log.warn("WS searchForUsers(): invalid ranges");
                 return "<exception/>";
             }
 
@@ -2551,7 +2550,7 @@ public class SakaiScript extends AbstractWebService {
 
                 } catch (Exception e) {
                     //log this error and continue to the next user, otherwise we get nothing
-                    LOG.warn("WS searchForUsers(): " + e.getClass().getName() + " : " + e.getMessage());
+                    log.warn("WS searchForUsers(): " + e.getClass().getName() + " : " + e.getMessage());
                 }
 
             }
@@ -2564,7 +2563,7 @@ public class SakaiScript extends AbstractWebService {
             return Xml.writeDocumentToString(dom);
 
         } catch (Exception e) {
-            LOG.error("WS searchForUsers(): " + e.getClass().getName() + " : " + e.getMessage());
+            log.error("WS searchForUsers(): " + e.getClass().getName() + " : " + e.getMessage());
             return "<exception/>";
 
         }
@@ -2599,7 +2598,7 @@ public class SakaiScript extends AbstractWebService {
                 return false;
             }
         } catch (Exception e) {
-            LOG.error("WS checkForAuthzGroup(): " + e.getClass().getName() + " : " + e.getMessage());
+            log.error("WS checkForAuthzGroup(): " + e.getClass().getName() + " : " + e.getMessage());
             return false;
         }
     }
@@ -2630,7 +2629,7 @@ public class SakaiScript extends AbstractWebService {
             site.removeMember(userid);
             siteService.saveSiteMembership(site);
         } catch (Exception e) {
-            LOG.error("WS removeMemberFromSite(): " + e.getClass().getName() + " : " + e.getMessage());
+            log.error("WS removeMemberFromSite(): " + e.getClass().getName() + " : " + e.getMessage());
             return e.getClass().getName() + " : " + e.getMessage();
         }
         return "success";
@@ -2658,7 +2657,7 @@ public class SakaiScript extends AbstractWebService {
         Session session = establishSession(sessionid);
 
         if (!securityService.isSuperUser(session.getUserId())) {
-            LOG.warn("NonSuperUser trying to removeMemberFromSiteBatch: " + session.getUserId());
+            log.warn("NonSuperUser trying to removeMemberFromSiteBatch: " + session.getUserId());
             throw new RuntimeException("NonSuperUser trying to removeMemberFromSiteBatch: " + session.getUserId());
         }
 
@@ -2671,7 +2670,7 @@ public class SakaiScript extends AbstractWebService {
             }
             siteService.save(site);
         } catch (Exception e) {
-            LOG.error("WS removeMemberFromSiteBatch(): " + e.getClass().getName() + " : " + e.getMessage());
+            log.error("WS removeMemberFromSiteBatch(): " + e.getClass().getName() + " : " + e.getMessage());
             return e.getClass().getName() + " : " + e.getMessage();
         }
         return "success";
@@ -2698,7 +2697,7 @@ public class SakaiScript extends AbstractWebService {
         Session s = establishSession(sessionid);
 
         if (ADMIN_SITE_REALM.equalsIgnoreCase(authzgroupid) && !securityService.isSuperUser(s.getUserId())) {
-            LOG.warn("WS checkForUserInAuthzGroup(): Permission denied. Restricted to super users.");
+            log.warn("WS checkForUserInAuthzGroup(): Permission denied. Restricted to super users.");
             throw new RuntimeException("WS checkForUserInAuthzGroup(): Permission denied. Restricted to super users.");
         }
 
@@ -2713,7 +2712,7 @@ public class SakaiScript extends AbstractWebService {
             }
             return false;
         } catch (Exception e) {
-            LOG.error("WS checkForUserInAuthzGroup(): " + e.getClass().getName() + " : " + e.getMessage());
+            log.error("WS checkForUserInAuthzGroup(): " + e.getClass().getName() + " : " + e.getMessage());
             return false;
         }
     }
@@ -2740,7 +2739,7 @@ public class SakaiScript extends AbstractWebService {
         Session s = establishSession(sessionid);
 
         if (ADMIN_SITE_REALM.equalsIgnoreCase(authzgroupid) && !securityService.isSuperUser(s.getUserId())) {
-            LOG.warn("WS getUsersInAuthzGroupWithRole(): Permission denied. Restricted to super users.");
+            log.warn("WS getUsersInAuthzGroupWithRole(): Permission denied. Restricted to super users.");
             throw new RuntimeException("WS getUsersInAuthzGroupWithRole(): Permission denied. Restricted to super users.");
         }
 
@@ -2781,13 +2780,13 @@ public class SakaiScript extends AbstractWebService {
 
                     } catch (Exception e) {
                         //Exception with this user, log the error, skip this user and continue to the next
-                        LOG.warn("WS getUsersInAuthzGroupWithRole(): error processing user " + id + " : " + e.getClass().getName() + " : " + e.getMessage());
+                        log.warn("WS getUsersInAuthzGroupWithRole(): error processing user " + id + " : " + e.getClass().getName() + " : " + e.getMessage());
                     }
                 }
             }
             return Xml.writeDocumentToString(dom);
         } catch (Exception e) {
-            LOG.error("WS getUsersInAuthzGroupWithRole(): " + e.getClass().getName() + " : " + e.getMessage());
+            log.error("WS getUsersInAuthzGroupWithRole(): " + e.getClass().getName() + " : " + e.getMessage());
             return "<exception/>";
 
         }
@@ -2813,7 +2812,7 @@ public class SakaiScript extends AbstractWebService {
         Session s = establishSession(sessionid);
 
         if (ADMIN_SITE_REALM.equalsIgnoreCase(authzgroupid) && !securityService.isSuperUser(s.getUserId())) {
-            LOG.warn("WS getUsersInAuthzGroup(): Permission denied. Restricted to super users.");
+            log.warn("WS getUsersInAuthzGroup(): Permission denied. Restricted to super users.");
             throw new RuntimeException("WS getUsersInAuthzGroup(): Permission denied. Restricted to super users.");
         }
 
@@ -2854,12 +2853,12 @@ public class SakaiScript extends AbstractWebService {
 
                 } catch (Exception e) {
                     //Exception with this user, log the error, skip this user and continue to the next
-                    LOG.warn("WS getUsersInAuthzGroup(): error processing user " + id + " : " + e.getClass().getName() + " : " + e.getMessage());
+                    log.warn("WS getUsersInAuthzGroup(): error processing user " + id + " : " + e.getClass().getName() + " : " + e.getMessage());
                 }
             }
             return Xml.writeDocumentToString(dom);
         } catch (Exception e) {
-            LOG.error("WS getUsersInAuthzGroup(): " + e.getClass().getName() + " : " + e.getMessage());
+            log.error("WS getUsersInAuthzGroup(): " + e.getClass().getName() + " : " + e.getMessage());
             return "<exception/>";
         }
     }
@@ -2930,7 +2929,7 @@ public class SakaiScript extends AbstractWebService {
 
     	} catch (Exception e) {
     		calendarService.cancelCalendar(calendar);
-    		LOG.error("WS addCalendarEvent(): error " + e.getClass().getName() + " : " + e.getMessage());
+    		log.error("WS addCalendarEvent(): error " + e.getClass().getName() + " : " + e.getMessage());
     		return e.getClass().getName() + " : " + e.getMessage();
     	}
     	return "success";
@@ -2981,14 +2980,14 @@ public class SakaiScript extends AbstractWebService {
                 cedit.setDescriptionFormatted(cEvent.getDescriptionFormatted());
                 cedit.setRecurrenceRule(cEvent.getRecurrenceRule());
                 calendar2.commitEvent(cedit);
-                //LOG.warn(cEvent.getDisplayName()); 
+                //log.warn(cEvent.getDisplayName()); 
             }
             //save calendar 2
             calendarService.commitCalendar(calendar2);
 
         } catch (Exception e) {
             calendarService.cancelCalendar(calendar2);
-            LOG.error("WS copyCalendarEvents(): error " + e.getClass().getName() + " : " + e.getMessage());
+            log.error("WS copyCalendarEvents(): error " + e.getClass().getName() + " : " + e.getMessage());
             return e.getClass().getName() + " : " + e.getMessage();
         }
         return "success";
@@ -3014,7 +3013,7 @@ public class SakaiScript extends AbstractWebService {
             User user = userDirectoryService.getUserByEid(userid);
             return user.getType();
         } catch (Exception e) {
-            LOG.warn("WS getUserType() failed for user: " + userid);
+            log.warn("WS getUserType() failed for user: " + userid);
             return "";
         }
 
@@ -3052,7 +3051,7 @@ public class SakaiScript extends AbstractWebService {
 
         //check that ONLY admin is accessing this	
         if (!securityService.isSuperUser(session.getUserId())) {
-            LOG.warn("WS addNewToolToAllWorkspaces() failed. Restricted to admin users.");
+            log.warn("WS addNewToolToAllWorkspaces() failed. Restricted to admin users.");
             throw new RuntimeException("WS failed. Restricted to admin users.");
         }
 
@@ -3078,7 +3077,7 @@ public class SakaiScript extends AbstractWebService {
             for (Iterator j = allUsers.iterator(); j.hasNext(); ) {
                 String userid = StringUtils.trim((String) j.next());
 
-                LOG.info("Processing user:" + userid);
+                log.info("Processing user:" + userid);
 
                 String myWorkspaceId = siteService.getUserSiteId(userid);
 
@@ -3088,7 +3087,7 @@ public class SakaiScript extends AbstractWebService {
                 try {
                     siteEdit = siteService.getSite(myWorkspaceId);
                 } catch (IdUnusedException e) {
-                    LOG.error("No workspace for user: " + myWorkspaceId + ", skipping...");
+                    log.error("No workspace for user: " + myWorkspaceId + ", skipping...");
                     continue;
                 }
 
@@ -3113,12 +3112,12 @@ public class SakaiScript extends AbstractWebService {
                 tool.setTitle(tooltitle);
 
                 siteService.save(siteEdit);
-                LOG.info("Page added for user:" + userid);
+                log.info("Page added for user:" + userid);
 
             }
             return "success";
         } catch (Exception e) {
-            LOG.error("WS addNewToolToAllWorkspaces(): " + e.getClass().getName() + " : " + e.getMessage());
+            log.error("WS addNewToolToAllWorkspaces(): " + e.getClass().getName() + " : " + e.getMessage());
             return e.getClass().getName() + " : " + e.getMessage();
         }
     }
@@ -3162,7 +3161,7 @@ public class SakaiScript extends AbstractWebService {
 
         //check that ONLY super user's are accessing this	
         if (!securityService.isSuperUser(session.getUserId())) {
-            LOG.warn("WS copyRole2(): Permission denied. Restricted to super users.");
+            log.warn("WS copyRole2(): Permission denied. Restricted to super users.");
             throw new RuntimeException("WS copyRole(): Permission denied. Restricted to super users.");
         }
 
@@ -3174,7 +3173,7 @@ public class SakaiScript extends AbstractWebService {
             //get functions that are in this role
             existingfunctions = role1.getAllowedFunctions();
 
-            LOG.warn("WS copyRole(): existing functions in role " + roleid + " in " + authzgroupid1 + ": " + new ArrayList(existingfunctions).toString());
+            log.warn("WS copyRole(): existing functions in role " + roleid + " in " + authzgroupid1 + ": " + new ArrayList(existingfunctions).toString());
 
             //open authzgroup2
             AuthzGroup authzgroup2 = authzGroupService.getAuthzGroup(authzgroupid2);
@@ -3188,14 +3187,14 @@ public class SakaiScript extends AbstractWebService {
                 Role existingrole = (Role) iRoles.next();
                 existingroleids.add(existingrole.getId());
             }
-            LOG.warn("WS copyRole2(): existing roles in " + authzgroupid2 + ": " + existingroleids.toString());
+            log.warn("WS copyRole2(): existing roles in " + authzgroupid2 + ": " + existingroleids.toString());
 
 
             //if this roleid exists in the authzgroup already...
             if (existingroleids.contains(roleid)) {
-                LOG.warn("WS copyRole2(): role " + roleid + " exists in " + authzgroupid2 + ". This role will updated.");
+                log.warn("WS copyRole2(): role " + roleid + " exists in " + authzgroupid2 + ". This role will updated.");
             } else {
-                LOG.warn("WS copyRole2(): role " + roleid + " does not exist in " + authzgroupid2 + ". This role will be created.");
+                log.warn("WS copyRole2(): role " + roleid + " does not exist in " + authzgroupid2 + ". This role will be created.");
 
                 //create this role in authzgroup2
                 role2 = authzgroup2.addRole(roleid);
@@ -3216,13 +3215,13 @@ public class SakaiScript extends AbstractWebService {
                     existingroleids.add(existingrole.getId());
                 }
 
-                LOG.warn("WS copyRole2(): existing roles in " + authzgroupid2 + " after addition: " + existingroleids.toString());
+                log.warn("WS copyRole2(): existing roles in " + authzgroupid2 + " after addition: " + existingroleids.toString());
 
                 //if role now exists, ok, else fault.
                 if (existingroleids.contains(roleid)) {
-                    LOG.warn("WS copyRole2(): role " + roleid + " was created in " + authzgroupid2 + ".");
+                    log.warn("WS copyRole2(): role " + roleid + " was created in " + authzgroupid2 + ".");
                 } else {
-                    LOG.warn("WS copyRole2(): role " + roleid + " could not be created in " + authzgroupid2 + ".");
+                    log.warn("WS copyRole2(): role " + roleid + " could not be created in " + authzgroupid2 + ".");
                     throw new RuntimeException("WS copyRole2(): role " + roleid + " could not be created in " + authzgroupid2 + ".");
                 }
 
@@ -3255,9 +3254,9 @@ public class SakaiScript extends AbstractWebService {
 
             //compare existingfunctions with newfunctions to see that they match
             if (newfunctions.containsAll(existingfunctions)) {
-                LOG.warn("WS copyRole2(): functions added successfully to role " + roleid + " in " + authzgroupid2 + ".");
+                log.warn("WS copyRole2(): functions added successfully to role " + roleid + " in " + authzgroupid2 + ".");
             } else {
-                LOG.warn("WS copyRole2(): functions in roles differ after addition.");
+                log.warn("WS copyRole2(): functions in roles differ after addition.");
                 throw new RuntimeException("WS copyRole(): functions in roles differ after addition.");
             }
 
@@ -3315,7 +3314,7 @@ public class SakaiScript extends AbstractWebService {
 
         //check that ONLY admin is accessing this	
         if (!securityService.isSuperUser(session.getUserId())) {
-            LOG.warn("WS getAllUsers() failed. Restricted to admin users.");
+            log.warn("WS getAllUsers() failed. Restricted to admin users.");
             throw new RuntimeException("WS failed. Restricted to admin users.");
         }
 
@@ -3365,7 +3364,7 @@ public class SakaiScript extends AbstractWebService {
             return Xml.writeDocumentToString(dom);
 
         } catch (Exception e) {
-            LOG.error("WS getAllUsers(): " + e.getClass().getName() + " : " + e.getMessage());
+            log.error("WS getAllUsers(): " + e.getClass().getName() + " : " + e.getMessage());
             return "<exception/>";
         }
 
@@ -3401,7 +3400,7 @@ public class SakaiScript extends AbstractWebService {
 
         //check that ONLY super user's are accessing this	
         if (!securityService.isSuperUser(session.getUserId())) {
-            LOG.warn("WS getSessionForUser(): Permission denied. Restricted to super users.");
+            log.warn("WS getSessionForUser(): Permission denied. Restricted to super users.");
             throw new RuntimeException("WS getSessionForUser(): Permission denied. Restricted to super users.");
         }
 
@@ -3409,7 +3408,7 @@ public class SakaiScript extends AbstractWebService {
 
             //check for empty userid
             if (StringUtils.isBlank(eid)) {
-                LOG.warn("WS getSessionForUser() failed. Param eid empty.");
+                log.warn("WS getSessionForUser() failed. Param eid empty.");
                 throw new RuntimeException("WS failed. Param eid empty.");
             }
 
@@ -3423,7 +3422,7 @@ public class SakaiScript extends AbstractWebService {
                         //check if the origin attribute, if set, is set for web services
                         String origin = (String) existingSession.getAttribute(SESSION_ATTR_NAME_ORIGIN);
                         if (StringUtils.equals(origin, SESSION_ATTR_VALUE_ORIGIN_WS)) {
-                            LOG.warn("WS getSessionForUser() reusing existing session for: " + eid + ", session=" + existingSession.getId());
+                            log.warn("WS getSessionForUser() reusing existing session for: " + eid + ", session=" + existingSession.getId());
                             return existingSession.getId();
                         }
                     }
@@ -3447,7 +3446,7 @@ public class SakaiScript extends AbstractWebService {
             //if wsonly, inject the origin attribute
             if (wsonly) {
                 newsession.setAttribute(SESSION_ATTR_NAME_ORIGIN, SESSION_ATTR_VALUE_ORIGIN_WS);
-                LOG.warn("WS getSessionForUser() set origin attribute on session: " + newsession.getId());
+                log.warn("WS getSessionForUser() set origin attribute on session: " + newsession.getId());
             }
 
             //register the session with presence
@@ -3460,10 +3459,10 @@ public class SakaiScript extends AbstractWebService {
             eventTrackingService.post(eventTrackingService.newEvent(UsageSessionService.EVENT_LOGIN_WS, null, true));
 
             if (newsession == null) {
-                LOG.warn("WS getSessionForUser() failed. Unable to establish session for userid=" + eid + ", ipAddress=" + ipAddress);
+                log.warn("WS getSessionForUser() failed. Unable to establish session for userid=" + eid + ", ipAddress=" + ipAddress);
                 throw new RuntimeException("WS failed. Unable to establish session");
             } else {
-                LOG.warn("WS getSessionForUser() OK. Established session for userid=" + eid + ", session=" + newsession.getId() + ", ipAddress=" + ipAddress);
+                log.warn("WS getSessionForUser() OK. Established session for userid=" + eid + ", session=" + newsession.getId() + ", ipAddress=" + ipAddress);
                 return newsession.getId();
             }
         } catch (Exception e) {
@@ -3562,14 +3561,14 @@ public class SakaiScript extends AbstractWebService {
 
         //if eids don't match and we aren't a super user, abort	
         if (!StringUtils.equals(eid, session.getUserEid()) && !securityService.isSuperUser(session.getUserId())) {
-            LOG.warn("WS getUserId(): Permission denied. Restricted to super users or own user.");
+            log.warn("WS getUserId(): Permission denied. Restricted to super users or own user.");
             throw new RuntimeException("WS getUserId(): Permission denied. Restricted to super users or own user.");
         }
 
         try {
             return userDirectoryService.getUserId(eid);
         } catch (Exception e) {
-            LOG.warn("WS getUserId() failed for user: " + eid);
+            log.warn("WS getUserId() failed for user: " + eid);
             return "";
         }
     }
@@ -3592,8 +3591,7 @@ public class SakaiScript extends AbstractWebService {
         try {
             return session.getUserId();
         } catch (Exception e) {
-            e.printStackTrace();
-            LOG.warn("WS getUserId() failed for session: " + sessionid);
+            log.warn("WS getUserId() failed for session: " + sessionid);
             return "";
         }
     }
@@ -3641,7 +3639,7 @@ public class SakaiScript extends AbstractWebService {
         try {
             site = siteService.getSite(siteid);
         } catch (Exception e) {
-            LOG.warn("WS getPagesAndToolsForSiteForCurrentUser(): Error looking up site: " + siteid + ":" + e.getClass().getName() + " : " + e.getMessage());
+            log.warn("WS getPagesAndToolsForSiteForCurrentUser(): Error looking up site: " + siteid + ":" + e.getClass().getName() + " : " + e.getMessage());
             throw new RuntimeException("WS getPagesAndToolsForSiteForCurrentUser(): Error looking up site: " + siteid + ":" + e.getClass().getName() + " : " + e.getMessage());
         }
 
@@ -3658,7 +3656,7 @@ public class SakaiScript extends AbstractWebService {
         if (!isSuperUser) {
             Member member = site.getMember(userId);
             if (member == null || !member.isActive()) {
-                LOG.warn("WS getPagesAndToolsForSiteForCurrentUser(): User: " + userId + " does not exist in site : " + siteid);
+                log.warn("WS getPagesAndToolsForSiteForCurrentUser(): User: " + userId + " does not exist in site : " + siteid);
                 throw new RuntimeException("WS getPagesAndToolsForSiteForCurrentUser(): User: " + userId + " does not exist in site : " + siteid);
             }
             role = member.getRole();
@@ -3813,7 +3811,7 @@ public class SakaiScript extends AbstractWebService {
             // If not admin, check maintainer membership in the source site
             if (!securityService.isSuperUser(session.getUserId()) &&
                     !securityService.unlock(SiteService.SECURE_UPDATE_SITE, site.getReference())) {
-                LOG.warn("WS copyResources(): Permission denied. Must be super user to copy a site in which you are not a maintainer.");
+                log.warn("WS copyResources(): Permission denied. Must be super user to copy a site in which you are not a maintainer.");
                 throw new RuntimeException("WS copyResources(): Permission denied. Must be super user to copy a site in which you are not a maintainer.");
             }
 
@@ -3824,7 +3822,7 @@ public class SakaiScript extends AbstractWebService {
                     contentHostingService.getSiteCollection(destinationsiteid));
 
         } catch (Exception e) {
-            LOG.error("WS copyResources(): " + e.getClass().getName() + " : " + e.getMessage());
+            log.error("WS copyResources(): " + e.getClass().getName() + " : " + e.getMessage());
             return e.getClass().getName() + " : " + e.getMessage();
         }
         return "success";
@@ -3867,7 +3865,7 @@ public class SakaiScript extends AbstractWebService {
             siteService.save(siteEdit);
 
         } catch (Exception e) {
-            LOG.error("WS changeSiteShortDescription(): " + e.getClass().getName() + " : " + e.getMessage());
+            log.error("WS changeSiteShortDescription(): " + e.getClass().getName() + " : " + e.getMessage());
             return e.getClass().getName() + " : " + e.getMessage();
         }
         return "success";
@@ -3947,7 +3945,7 @@ public class SakaiScript extends AbstractWebService {
                 }
 
                 if (!toolVisible) {
-                    LOG.warn("WS addToolAndPageToSite(): Permission denied. Must be super user to add a stealthed tool to a site.");
+                    log.warn("WS addToolAndPageToSite(): Permission denied. Must be super user to add a stealthed tool to a site.");
                     throw new RuntimeException("WS addToolAndPageToSite(): Permission denied. Must be super user to add a stealthed tool to a site.");
                 }
 
@@ -3962,7 +3960,7 @@ public class SakaiScript extends AbstractWebService {
                 }
 
                 if (!toolAvailable) {
-                    LOG.warn("WS addToolAndPageToSite(): Permission denied. Must be super user to add a tool which is not available for this site type.");
+                    log.warn("WS addToolAndPageToSite(): Permission denied. Must be super user to add a tool which is not available for this site type.");
                     throw new RuntimeException("WS addToolAndPageToSite(): Permission denied. Must be super user to add a tool which is not available for this site type.");
                 }
             }
@@ -3980,12 +3978,11 @@ public class SakaiScript extends AbstractWebService {
             }
 
             siteService.save(siteEdit);
-            LOG.info("Page and tool added for site:" + siteid);
+            log.info("Page and tool added for site:" + siteid);
 
             return "success";
         } catch (Exception e) {
-            LOG.error("WS addToolAndPageToSite(): " + e.getClass().getName() + " : " + e.getMessage());
-            e.printStackTrace();
+            log.error("WS addToolAndPageToSite(): " + e.getClass().getName() + " : " + e.getMessage());
             return e.getClass().getName() + " : " + e.getMessage();
         }
     }
@@ -4013,7 +4010,7 @@ public class SakaiScript extends AbstractWebService {
             User user = userDirectoryService.getUserByEid(eid);
             return user.getProperties().getProperty(propertyName);
         } catch (Exception e) {
-            LOG.error("WS getUserProperty() failed for user: " + eid + " : " + e.getClass().getName() + " : " + e.getMessage());
+            log.error("WS getUserProperty() failed for user: " + eid + " : " + e.getClass().getName() + " : " + e.getMessage());
             return "";
         }
     }
@@ -4044,7 +4041,7 @@ public class SakaiScript extends AbstractWebService {
         Session session = establishSession(sessionid);
 
         if (!securityService.isSuperUser(session.getUserId())) {
-            LOG.warn("WS setUserProperty(): Permission denied. Restricted to super users.");
+            log.warn("WS setUserProperty(): Permission denied. Restricted to super users.");
             throw new RuntimeException("WS setUserProperty(): Permission denied. Restricted to super users.");
         }
 
@@ -4055,7 +4052,7 @@ public class SakaiScript extends AbstractWebService {
             userDirectoryService.commitEdit(user);
         }
         catch (Exception e) {
-            LOG.warn("WS setUserProperty(): " + e.getClass().getName() + " : " + e.getMessage(), e);
+            log.warn("WS setUserProperty(): " + e.getClass().getName() + " : " + e.getMessage(), e);
             return "failure";
         }
         return "success";
@@ -4148,7 +4145,7 @@ public class SakaiScript extends AbstractWebService {
                 }
             }
         } catch (Throwable t) {
-            LOG.warn(this + ".findSite: Error encountered" + t.getMessage(), t);
+            log.warn(this + ".findSite: Error encountered" + t.getMessage(), t);
         }
 
         return Xml.writeDocumentToString(dom);
@@ -4176,7 +4173,7 @@ public class SakaiScript extends AbstractWebService {
         Session s = establishSession(sessionid);
         try {
             Site site = siteService.getSite(siteId);
-            // LOG.warn("found site" + siteId);
+            // log.warn("found site" + siteId);
             if (site != null) {
 
                 ToolConfiguration toolConfiguration = site.getToolForCommonId(toolId);
@@ -4186,7 +4183,7 @@ public class SakaiScript extends AbstractWebService {
 
             }
         } catch (Throwable t) {
-            LOG.warn(this + "getPlacementId(): Error encountered: " + t.getMessage(), t);
+            log.warn(this + "getPlacementId(): Error encountered: " + t.getMessage(), t);
         }
         return "";
     }
@@ -4225,7 +4222,7 @@ public class SakaiScript extends AbstractWebService {
 
             // If not admin, check maintainer membership in the source site
             if (!isSuperUser && !securityService.unlock(SiteService.SECURE_UPDATE_SITE, site.getReference())) {
-                LOG.warn("WS copySiteContent(): Permission denied. Must be super user to copy a site in which you are not a maintainer.");
+                log.warn("WS copySiteContent(): Permission denied. Must be super user to copy a site in which you are not a maintainer.");
                 throw new RuntimeException("WS copySiteContent(): Permission denied. Must be super user to copy a site in which you are not a maintainer.");
             }
 
@@ -4281,7 +4278,7 @@ public class SakaiScript extends AbstractWebService {
         		updateEntityReferences(toolId, sourcesiteid, transversalMap, site);
             }
         } catch (Exception e) {
-            LOG.error("WS copySiteContent(): " + e.getClass().getName() + " : " + e.getMessage(), e);
+            log.error("WS copySiteContent(): " + e.getClass().getName() + " : " + e.getMessage(), e);
             return e.getClass().getName() + " : " + e.getMessage();
         }
         return "success";
@@ -4319,7 +4316,7 @@ public class SakaiScript extends AbstractWebService {
     		// If not admin, check maintainer membership in the source site
     		if (!securityService.isSuperUser(session.getUserId()) && !securityService.unlock(SiteService.SECURE_UPDATE_SITE, site.getReference()))
     		{
-    			LOG.warn("WS copySiteContentForTool(): Permission denied. Must be super user to copy a site in which you are not a maintainer.");
+    			log.warn("WS copySiteContentForTool(): Permission denied. Must be super user to copy a site in which you are not a maintainer.");
     			throw new RuntimeException("WS copySiteContentForTool(): Permission denied. Must be super user to copy a site in which you are not a maintainer.");
     		}
 
@@ -4342,7 +4339,7 @@ public class SakaiScript extends AbstractWebService {
     	}
     	catch (Exception e)
     	{
-    		LOG.error("WS copySiteContentForTool(): " + e.getClass().getName() + " : " + e.getMessage(), e);
+    		log.error("WS copySiteContentForTool(): " + e.getClass().getName() + " : " + e.getMessage(), e);
     		return e.getClass().getName() + " : " + e.getMessage();
     	}
     	return "success";
@@ -4390,7 +4387,7 @@ public class SakaiScript extends AbstractWebService {
     			}
     			catch (Throwable t)
     			{
-    				LOG.warn("Error encountered while asking EntityTransfer to transferCopyEntities from: " + fromContext + " to: " + toContext, t);
+    				log.warn("Error encountered while asking EntityTransfer to transferCopyEntities from: " + fromContext + " to: " + toContext, t);
     			}
     		}
     	}
@@ -4414,7 +4411,7 @@ public class SakaiScript extends AbstractWebService {
 		}
 		catch (Exception e)
 		{
-			LOG.warn("transferCopyEntities: can't get site:" + e.getMessage());
+			log.warn("transferCopyEntities: can't get site:" + e.getMessage());
 		}
 
 		// getTools appears to return tools in order. So we should be able to match them
@@ -4479,7 +4476,7 @@ public class SakaiScript extends AbstractWebService {
 					}
 					catch (Throwable t)
 					{
-						LOG.error("Error encountered while asking EntityTransfer to updateEntityReferences at site: " + toContext, t);
+						log.error("Error encountered while asking EntityTransfer to updateEntityReferences at site: " + toContext, t);
 					}
 				}
 			}
@@ -4552,7 +4549,7 @@ public class SakaiScript extends AbstractWebService {
             String xml = getSiteListXml(subSites);
             return xml;
         } catch (Exception e) {
-            LOG.error("WS getSubSites(): " + e.getClass().getName() + " : " + e.getMessage());
+            log.error("WS getSubSites(): " + e.getClass().getName() + " : " + e.getMessage());
             return "<exception/>";
 
         }
@@ -4661,7 +4658,7 @@ public class SakaiScript extends AbstractWebService {
                 }
 
                 if (!toolVisible) {
-                    LOG.warn("WS addLTITool(): Permission denied. Must be super user to add a stealthed tool to a site.");
+                    log.warn("WS addLTITool(): Permission denied. Must be super user to add a stealthed tool to a site.");
                     throw new RuntimeException("WS addLTITool(): Permission denied. Must be super user to add a stealthed tool to a site.");
                 }
 
@@ -4676,7 +4673,7 @@ public class SakaiScript extends AbstractWebService {
                 }
 
                 if (!toolAvailable) {
-                    LOG.warn("WS addLTITool(): Permission denied. Must be super user to add a tool which is not available for this site type.");
+                    log.warn("WS addLTITool(): Permission denied. Must be super user to add a tool which is not available for this site type.");
                     throw new RuntimeException("WS addLTITool(): Permission denied. Must be super user to add a tool which is not available for this site type.");
                 }
             }
@@ -4696,12 +4693,11 @@ public class SakaiScript extends AbstractWebService {
             }
 
             siteService.save(siteEdit);
-            LOG.info("WS addLTITool(): LTI tool added for site:" + siteId);
+            log.info("WS addLTITool(): LTI tool added for site:" + siteId);
 
             return "success";
         } catch (Exception e) {
-            LOG.error("WS addLTITool(): " + e.getClass().getName() + " : " + e.getMessage());
-            e.printStackTrace();
+            log.error("WS addLTITool(): " + e.getClass().getName() + " : " + e.getMessage());
             return e.getClass().getName() + " : " + e.getMessage();
         }
     }
@@ -4721,8 +4717,7 @@ public class SakaiScript extends AbstractWebService {
                                 propsedit.setProperty(propName, propValue);
                             }
                         } catch(Exception e){
-                            LOG.error("SakaiScript: setToolProperties(): " + e.getClass().getName() + " : " + e.getMessage());
-                            e.printStackTrace();
+                            log.error("SakaiScript: setToolProperties(): " + e.getClass().getName() + " : " + e.getMessage());
                         }
                     }
                 }
@@ -4742,7 +4737,7 @@ public class SakaiScript extends AbstractWebService {
         Session s = establishSession(sessionid);
 
         if (!securityService.isSuperUser()) {
-            LOG.warn("NonSuperUser trying to get Session Count For Server: " + s.getUserId());
+            log.warn("NonSuperUser trying to get Session Count For Server: " + s.getUserId());
             throw new RuntimeException("NonSuperUser trying to get Session Count For Server: " + s.getUserId());
         }
         try {
@@ -4750,7 +4745,7 @@ public class SakaiScript extends AbstractWebService {
             List matchingServers = (List) getServersByServerId(servers).get(serverid);
 
             if (matchingServers.size() == 0) {
-                LOG.warn("can't find any sessions for server with id=" + serverid);
+                log.warn("can't find any sessions for server with id=" + serverid);
                 return new Integer(0);
             }
 
@@ -4760,7 +4755,7 @@ public class SakaiScript extends AbstractWebService {
 
             return getSessionCountForServer(servers, serverKey, millisBeforeExpire);
         } catch (Exception e) {
-            LOG.error("error in getSessionsForServer() ws call:" + e.getMessage(), e);
+            log.error("error in getSessionsForServer() ws call:" + e.getMessage(), e);
         }
         return new Integer(0);
     }
@@ -4776,7 +4771,7 @@ public class SakaiScript extends AbstractWebService {
         //register the session with presence
         Session s = establishSession(sessionid);
         if (!securityService.isSuperUser()) {
-            LOG.warn("NonSuperUser trying to get Total Session Count: " + s.getUserId());
+            log.warn("NonSuperUser trying to get Total Session Count: " + s.getUserId());
             throw new RuntimeException("NonSuperUser trying to get Total Session Count: " + s.getUserId());
         }
         int count = 0;
@@ -4794,7 +4789,7 @@ public class SakaiScript extends AbstractWebService {
                 count += getSessionCountForServer(servers, (String) matchingServers.get(matchingServers.size() - 1), millisBeforeExpire);
             }
         } catch (Exception e) {
-            LOG.error("error in getSessionsForServer() ws call:" + e.getMessage(), e);
+            log.error("error in getSessionsForServer() ws call:" + e.getMessage(), e);
         }
         return new Integer(count);
     }
@@ -4809,16 +4804,16 @@ public class SakaiScript extends AbstractWebService {
                 Long lastActivityTime = activityService.getLastEventTimeForUser(session.getUserId());
                 if (lastActivityTime != null &&
                         ((new Date().getTime() - lastActivityTime) < millisBeforeExpire)) {
-                    LOG.warn("adding count for " + serverKey);
+                    log.warn("adding count for " + serverKey);
                     count++;
                 } else {
-                    LOG.warn("not including user:" + session.getUserEid() +
+                    log.warn("not including user:" + session.getUserEid() +
                             " in active session count last activity was more than " +
                             millisBeforeExpire + " ago or no activity detected.");
                 }
             }
         } else {
-            LOG.warn("can't find any sessions for server with id=" + serverKey);
+            log.warn("can't find any sessions for server with id=" + serverKey);
         }
         return new Integer(count);
 
@@ -4839,7 +4834,7 @@ public class SakaiScript extends AbstractWebService {
                 matchingServers = (List) serverByServerId.get(serverKey);
             }
 
-            LOG.warn("adding " + key + " to " + serverKey + " list");
+            log.warn("adding " + key + " to " + serverKey + " list");
             matchingServers.add(key);
         }
         return serverByServerId;
@@ -4861,7 +4856,7 @@ public class SakaiScript extends AbstractWebService {
             @WebParam(name = "userid", partName = "userid") @QueryParam("userid") String userid) {
         Session s = establishSession(sessionid);
         if (!securityService.isSuperUser()) {
-            LOG.warn("NonSuperUser trying to checkForUserById: " + s.getUserId());
+            log.warn("NonSuperUser trying to checkForUserById: " + s.getUserId());
             throw new RuntimeException("NonSuperUser trying to checkForUserById: " + s.getUserId());
         }
 
@@ -4874,7 +4869,7 @@ public class SakaiScript extends AbstractWebService {
                 return false;
             }
         } catch (Exception e) {
-            LOG.error("WS checkForUserById(): " + e.getClass().getName() + " : " + e.getMessage());
+            log.error("WS checkForUserById(): " + e.getClass().getName() + " : " + e.getMessage());
             return false;
         }
     }
@@ -4901,7 +4896,7 @@ public class SakaiScript extends AbstractWebService {
         Session session = establishSession(sessionid);
         //check that ONLY super user's are accessing this
         if (!securityService.isSuperUser(session.getUserId())) {
-            LOG.warn("WS resetAllUserWorkspace(): Permission denied. Restricted to super users.");
+            log.warn("WS resetAllUserWorkspace(): Permission denied. Restricted to super users.");
             throw new RuntimeException("WS resetAllUserWorkspace(): Permission denied. Restricted to super users.");
         }
 
@@ -4917,7 +4912,7 @@ public class SakaiScript extends AbstractWebService {
                 }
             }
         } catch (Throwable t) {
-            LOG.warn(this + ".resetAllUserWorkspace: Error encountered" + t.getMessage(), t);
+            log.warn(this + ".resetAllUserWorkspace: Error encountered" + t.getMessage(), t);
             return false;
         }
 
@@ -4942,7 +4937,7 @@ public class SakaiScript extends AbstractWebService {
             siteService.save(siteEdit);
 
         } catch (Exception e) {
-            LOG.error("WS changeSitePublishStatus(): " + e.getClass().getName() + " : " + e.getMessage());
+            log.error("WS changeSitePublishStatus(): " + e.getClass().getName() + " : " + e.getMessage());
             return e.getClass().getName() + " : " + e.getMessage();
         }
         return "success";
@@ -4959,7 +4954,7 @@ public class SakaiScript extends AbstractWebService {
         Session session = establishSession(sessionid);
 
         if (!securityService.isSuperUser(session.getUserId())) {
-            LOG.warn("WS checkForMemberInSite(): Permission denied. Restricted to super users.");
+            log.warn("WS checkForMemberInSite(): Permission denied. Restricted to super users.");
             throw new RuntimeException("WS checkForMemberInSite(): Permission denied. Restricted to super users.");
         }
 
@@ -4987,7 +4982,7 @@ public class SakaiScript extends AbstractWebService {
         Session session = establishSession(sessionid);
 
         if (!securityService.isSuperUser(session.getUserId())) {
-            LOG.warn("WS getAvailableRoles(): Permission denied. Restricted to super users.");
+            log.warn("WS getAvailableRoles(): Permission denied. Restricted to super users.");
             throw new RuntimeException("WS getAvailableRoles(): Permission denied. Restricted to super users.");
         }
 
@@ -5012,7 +5007,7 @@ public class SakaiScript extends AbstractWebService {
                 list.appendChild(item);
             }
         } catch (Exception e) {
-            LOG.error("WS getAvailableRoles(): " + e.getClass().getName() + " : " + e.getMessage(), e);
+            log.error("WS getAvailableRoles(): " + e.getClass().getName() + " : " + e.getMessage(), e);
             return "";
         }
         return Xml.writeDocumentToString(dom);
@@ -5029,7 +5024,7 @@ public class SakaiScript extends AbstractWebService {
         Session session = establishSession(sessionId);
 
         if (!securityService.isSuperUser(session.getUserId())) {
-            LOG.warn("WS getAvailableRoles(): Permission denied. Restricted to super users.");
+            log.warn("WS getAvailableRoles(): Permission denied. Restricted to super users.");
             throw new RuntimeException("WS getAvailableRoles(): Permission denied. Restricted to super users.");
         }
 
@@ -5053,7 +5048,7 @@ public class SakaiScript extends AbstractWebService {
             }
             list.appendChild(item);
         } catch (Exception e) {
-            LOG.error("WS getAvailableRoles(): " + e.getClass().getName() + " : " + e.getMessage(), e);
+            log.error("WS getAvailableRoles(): " + e.getClass().getName() + " : " + e.getMessage(), e);
             return "";
         }
         return Xml.writeDocumentToString(dom);
@@ -5070,7 +5065,7 @@ public class SakaiScript extends AbstractWebService {
         Session session = establishSession(sessionid);
 
         if (!securityService.isSuperUser(session.getUserId())) {
-            LOG.warn("WS getSiteDefaultJoinerRole(): Permission denied. Restricted to super users.");
+            log.warn("WS getSiteDefaultJoinerRole(): Permission denied. Restricted to super users.");
             throw new RuntimeException("WS getSiteDefaultJoinerRole(): Permission denied. Restricted to super users.");
         }
 
@@ -5079,11 +5074,11 @@ public class SakaiScript extends AbstractWebService {
             if (site != null) {
                 return site.getJoinerRole();
             } else {
-                LOG.warn("WS getSiteDefaultJoinerRole() failed. Unable to find site:" + siteid);
+                log.warn("WS getSiteDefaultJoinerRole() failed. Unable to find site:" + siteid);
                 throw new RuntimeException("WS failed. Unable to find site:" + siteid);
             }
         } catch (Exception e) {
-            LOG.warn("WS getSiteDefaultJoinerRole():"+ e.getClass().getName() + " : " + e.getMessage(), e);
+            log.warn("WS getSiteDefaultJoinerRole():"+ e.getClass().getName() + " : " + e.getMessage(), e);
             return e.getClass().getName() + " : " + e.getMessage();
         }
     }
@@ -5113,7 +5108,7 @@ public class SakaiScript extends AbstractWebService {
         Session session = establishSession(sessionid);
 
         if (!securityService.isSuperUser(session.getUserId())) {
-            LOG.warn("WS setUserTimeZone(): Permission denied. Restricted to super users.");
+            log.warn("WS setUserTimeZone(): Permission denied. Restricted to super users.");
             throw new RuntimeException("WS setUserTimeZone(): Permission denied. Restricted to super users.");
         }
 
@@ -5123,7 +5118,6 @@ public class SakaiScript extends AbstractWebService {
             try {
                 prefs = preferencesService.edit(user.getId());
             } catch (Exception e1) {
-                e1.printStackTrace();
                 prefs = preferencesService.add(user.getId());
             }
 
@@ -5132,7 +5126,7 @@ public class SakaiScript extends AbstractWebService {
             preferencesService.commit(prefs);
 
         } catch (Exception e) {
-            LOG.error("WS setUserTimeZone(): " + e.getClass().getName() + " : " + e.getMessage(), e);
+            log.error("WS setUserTimeZone(): " + e.getClass().getName() + " : " + e.getMessage(), e);
             return e.getClass().getName() + " : " + e.getMessage();
         }
         return "success";
@@ -5166,20 +5160,20 @@ public class SakaiScript extends AbstractWebService {
             String realmId = siteService.siteReference(siteid);
             if (!authzGroupService.allowUpdate(realmId) || !siteService.allowUpdateSiteMembership(siteid)) {
                 String errorMessage = "WS changeSiteMemberStatus(): Site : " + siteid +" membership not updatable ";
-                LOG.warn(errorMessage);
+                log.warn(errorMessage);
                 return errorMessage;
             }
             AuthzGroup realmEdit = authzGroupService.getAuthzGroup(realmId);
             Member userMember = realmEdit.getMember(user.getId());
             if(userMember == null) {
                 String errorMessage = "WS changeSiteMemberStatus(): User: " + user.getId() + " does not exist in site : " + siteid ;
-                LOG.warn(errorMessage);
+                log.warn(errorMessage);
                 return errorMessage;
             }
             userMember.setActive(active);
             authzGroupService.save(realmEdit);
         } catch (Exception e) {
-            LOG.error("WS changeSiteMemberStatus(): " + e.getClass().getName() + " : " + e.getMessage(), e);
+            log.error("WS changeSiteMemberStatus(): " + e.getClass().getName() + " : " + e.getMessage(), e);
             return e.getClass().getName() + " : " + e.getMessage();
         }
         return "success";
