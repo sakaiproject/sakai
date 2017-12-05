@@ -26,8 +26,7 @@ import java.io.InputStream;
 import java.io.Reader;
 import java.io.StringReader;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.poifs.eventfilesystem.POIFSReader;
 import org.apache.poi.poifs.eventfilesystem.POIFSReaderEvent;
 import org.apache.poi.poifs.eventfilesystem.POIFSReaderListener;
@@ -39,9 +38,9 @@ import org.sakaiproject.search.api.SearchUtils;
 /**
  * @author ieb
  */
+@Slf4j
 public class PPTContentDigester extends BaseContentDigester
 {
-	private static Logger log = LoggerFactory.getLogger(PPTContentDigester.class);
 
 	static
 	{

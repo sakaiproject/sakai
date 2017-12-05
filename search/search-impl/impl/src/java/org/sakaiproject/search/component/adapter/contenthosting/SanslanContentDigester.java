@@ -20,14 +20,12 @@
  **********************************************************************************/
 package org.sakaiproject.search.component.adapter.contenthosting;
 
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
 import java.io.StringReader;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.sanselan.ImageReadException;
 import org.apache.sanselan.Sanselan;
 import org.apache.sanselan.common.IImageMetadata;
@@ -40,9 +38,9 @@ import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.exception.ServerOverloadException;
 
+@Slf4j
 public class SanslanContentDigester extends BaseContentDigester {
-	private static Logger log = LoggerFactory.getLogger(TikaContentDigester.class);
-	
+
 	public String getContent(ContentResource contentResource) {
 		log.debug("digesting: " + contentResource.getId());
 		
@@ -76,7 +74,7 @@ public class SanslanContentDigester extends BaseContentDigester {
 								sb.append("GPS Latitude: " + latitude + "\n");
 							}
 						} catch (ImageReadException e) {
-							e.printStackTrace();
+							log.error(e.getMessage(), e);
 						}
 
 					}	
@@ -84,15 +82,12 @@ public class SanslanContentDigester extends BaseContentDigester {
 				log.debug("got metadata: " + sb.toString());
 				return sb.toString();
 			} catch (ImageReadException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				log.error(e.getMessage(), e);
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				log.error(e.getMessage(), e);
 			}
 		} catch (ServerOverloadException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			log.error(e.getMessage(), e);
 		}
 		
 		
