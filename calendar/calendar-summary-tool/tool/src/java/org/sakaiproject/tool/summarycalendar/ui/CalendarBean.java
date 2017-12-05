@@ -272,6 +272,12 @@ public class CalendarBean {
 				lastDay.set(Calendar.MINUTE, 59);
 				lastDay.set(Calendar.SECOND, 59);
 				lastDay.set(Calendar.MILLISECOND, 999);
+				dayOfWeek = lastDay.get(Calendar.DAY_OF_WEEK);
+				// TODO Allow dynamic choice of first day of week
+				while(dayOfWeek != Calendar.SUNDAY){
+					lastDay.add(Calendar.DAY_OF_WEEK, 1);
+					dayOfWeek = lastDay.get(Calendar.DAY_OF_WEEK);
+				}
 			}else{
 				// MONTH VIEW
 				
@@ -304,7 +310,7 @@ public class CalendarBean {
 				lastDay.set(Calendar.MILLISECOND, 999);
 				dayOfWeek = lastDay.get(Calendar.DAY_OF_WEEK);
 				// TODO Allow dynamic choice of first day of week
-				while(dayOfWeek != Calendar.SATURDAY){
+				while(dayOfWeek != Calendar.SUNDAY){
 					lastDay.add(Calendar.DAY_OF_WEEK, 1);
 					dayOfWeek = lastDay.get(Calendar.DAY_OF_WEEK);
 				}
