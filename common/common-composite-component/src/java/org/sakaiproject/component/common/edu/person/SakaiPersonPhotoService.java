@@ -16,8 +16,6 @@
 
 package org.sakaiproject.component.common.edu.person;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sakaiproject.api.common.edu.person.PhotoService;
 import org.sakaiproject.api.common.edu.person.SakaiPersonManager;
 
@@ -26,8 +24,6 @@ import org.sakaiproject.api.common.edu.person.SakaiPersonManager;
  * By default, roster photos come from the Profile service.
  */
 public class SakaiPersonPhotoService implements PhotoService {
-	private static final Logger log = LoggerFactory.getLogger(SakaiPersonPhotoService.class);
-	
 	private SakaiPersonManager sakaiPersonManager;
 
 	/* (non-Javadoc)

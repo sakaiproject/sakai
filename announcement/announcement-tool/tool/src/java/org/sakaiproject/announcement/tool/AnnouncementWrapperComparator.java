@@ -15,25 +15,22 @@
  */
 package org.sakaiproject.announcement.tool;
 
-import org.sakaiproject.announcement.api.AnnouncementMessage;
-import org.sakaiproject.announcement.cover.AnnouncementService;
-import org.sakaiproject.entity.api.ResourceProperties;
-import org.sakaiproject.time.api.Time;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.text.Collator;
 import java.text.ParseException;
 import java.text.RuleBasedCollator;
 import java.util.Comparator;
+import lombok.extern.slf4j.Slf4j;
+
+import org.sakaiproject.announcement.api.AnnouncementMessage;
+import org.sakaiproject.announcement.cover.AnnouncementService;
+import org.sakaiproject.entity.api.ResourceProperties;
+import org.sakaiproject.time.api.Time;
 
 /**
  * Comparator for announcements.
  */
+@Slf4j
 class AnnouncementWrapperComparator implements Comparator<AnnouncementAction.AnnouncementWrapper> {
-
-    private Logger log = LoggerFactory.getLogger(AnnouncementWrapperComparator.class);
-
 
     private static RuleBasedCollator collator_ini = (RuleBasedCollator)Collator.getInstance();
     private Collator collator = Collator.getInstance();
@@ -45,7 +42,7 @@ class AnnouncementWrapperComparator implements Comparator<AnnouncementAction.Ann
         try {
             collator = new RuleBasedCollator(collator_ini.getRules().replaceAll("<'\u005f'", "<' '<'\u005f'"));
         } catch (ParseException e) {
-            log.error(this + " Cannot init RuleBasedCollator. Will use the default Collator instead.", e);
+            log.error("{} Cannot init RuleBasedCollator. Will use the default Collator instead.", this, e);
         }
     }
 

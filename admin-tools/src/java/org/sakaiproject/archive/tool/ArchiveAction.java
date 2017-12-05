@@ -24,8 +24,6 @@ package org.sakaiproject.archive.tool;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.SuffixFileFilter;
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sakaiproject.archive.api.ArchiveService;
 import org.sakaiproject.archive.tool.model.SparseFile;
 import org.sakaiproject.archive.tool.model.SparseSite;
@@ -65,9 +63,12 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
+import lombok.extern.slf4j.Slf4j;
+
 /**
 * <p>ArchiveAction is the Sakai archive tool.</p>
 */
+@Slf4j
 public class ArchiveAction
 	extends VelocityPortletPaneledAction
 {
@@ -92,8 +93,6 @@ public class ArchiveAction
 	private ArchiveService archiveService;
 	private SecurityService securityService;
 	private IdManager idManager;
-	
-	private static final Logger log = LoggerFactory.getLogger(ArchiveAction.class);
 	
 	// for batch archive
     private long batchArchiveStarted = 0;
@@ -603,7 +602,7 @@ public class ArchiveAction
         		try {
         			archiveService.archiveAndZip(s.getId());
 				} catch (IOException e) {
-					e.printStackTrace();
+					log.error("Failed to archive and compress it the site with id {}", s.getId(), e);
 				}
         		
         		archiveCount++;

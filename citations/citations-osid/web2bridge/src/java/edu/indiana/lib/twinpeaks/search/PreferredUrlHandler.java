@@ -18,7 +18,6 @@
 package edu.indiana.lib.twinpeaks.search;
 
 import edu.indiana.lib.twinpeaks.util.DomUtils;
-import edu.indiana.lib.twinpeaks.util.LogUtils;
 import edu.indiana.lib.twinpeaks.util.StringUtils;
 
 import java.util.ArrayList;

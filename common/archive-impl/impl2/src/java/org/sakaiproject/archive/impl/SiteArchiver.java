@@ -29,13 +29,16 @@ import java.util.Vector;
 import java.util.regex.Pattern;
 import java.util.regex.Matcher;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
+
 import org.sakaiproject.archive.api.ArchiveService;
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.GroupNotDefinedException;
 import org.sakaiproject.authz.api.Role;
-//import org.sakaiproject.authz.cover.AuthzGroupService;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.entity.api.EntityManager;
@@ -43,22 +46,15 @@ import org.sakaiproject.entity.api.EntityProducer;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
-//import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.time.api.Time;
-//import org.sakaiproject.time.cover.TimeService;
 import org.sakaiproject.time.api.TimeService;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.content.api.ContentHostingService;
-//import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.util.Xml;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.NodeList;
 
+@Slf4j
 public class SiteArchiver {
-	
-	private static Logger M_log = LoggerFactory.getLogger(SiteArchiver.class);
 	
 	/** Dependency: ServerConfigurationService. */
 	protected ServerConfigurationService m_serverConfigurationService = null;
@@ -105,7 +101,7 @@ public class SiteArchiver {
 	{
 		StringBuilder results = new StringBuilder();
 
-		M_log.debug("archive(): site: {}", siteId);
+		log.debug("archive(): site: {}", siteId);
 
 		Site theSite = null;
 		try
@@ -115,7 +111,7 @@ public class SiteArchiver {
 		catch (IdUnusedException e)
 		{
 			results.append("Site: " + siteId + " not found.\n");
-			M_log.warn("archive(): site not found: " + siteId);
+			log.warn("archive(): site not found: " + siteId);
 			return results.toString();
 		}
 
@@ -322,7 +318,7 @@ public class SiteArchiver {
 		}
 		catch(Exception any)
 		{
-			M_log.warn("archve: exception archiving site: {}: {}", site.getId(), any);
+			log.warn("archve: exception archiving site: {}: {}", site.getId(), any);
 		}
 	
 		stack.pop();
@@ -362,16 +358,16 @@ public class SiteArchiver {
 			}
 			catch (GroupNotDefinedException e)
 			{
-				M_log.warn(e.getMessage(), e);
+				log.warn(e.getMessage(), e);
 			}
 			catch (Exception any) {
-				M_log.warn(any.getMessage(), any);
+				log.warn(any.getMessage(), any);
 			}
 	
 		}
 		catch (Exception any)
 		{
-			M_log.warn(any.getMessage(), any);
+			log.warn(any.getMessage(), any);
 		}
 	
 		stack.pop();

@@ -26,9 +26,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.Vector;
 
+import lombok.extern.slf4j.Slf4j;
+
 import org.apache.commons.codec.binary.Base64;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+
 import org.sakaiproject.archive.api.ArchiveService;
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.AuthzGroupService;
@@ -46,14 +52,9 @@ import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.util.Xml;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 
+@Slf4j
 public class SiteMerger {
-	private static Logger M_log = LoggerFactory.getLogger(SiteMerger.class);
-	
 	protected static HashMap userIdTrans = new HashMap();
 	
 	/**********************************************/
@@ -116,7 +117,7 @@ public class SiteMerger {
 		if ((file == null) || (!file.exists()))
 		{
 			results.append("file: " + fileName + " not found.\n");
-			M_log.warn("merge(): file not found: " + file.getPath());
+			log.warn("merge(): file not found: " + file.getPath());
 			return results.toString();
 		} else {
 			try {
@@ -127,7 +128,7 @@ public class SiteMerger {
 		}
 			} catch (Exception ex) {
 				results.append("file: " + fileName + " not permitted.\n");
-				M_log.warn("merge(): file not permitted: " + file.getPath());
+				log.warn("merge(): file not permitted: " + file.getPath());
 				return results.toString();
 			}
 		}
@@ -204,8 +205,8 @@ public class SiteMerger {
 		// correct for windows backslashes
 		fileName = fileName.replace('\\', '/');
 
-		if (M_log.isDebugEnabled())
-			M_log.debug("merge(): processing file: " + fileName);
+		if (log.isDebugEnabled())
+			log.debug("merge(): processing file: " + fileName);
 
 		Site theSite = null;
 		try
@@ -213,7 +214,7 @@ public class SiteMerger {
 			theSite = m_siteService.getSite(siteId);
 		}
 		catch (IdUnusedException ignore) {
-			M_log.info("Site not found for id:"+siteId+". New site will be created.");
+			log.info("Site not found for id:"+siteId+". New site will be created.");
 		}
 
 		// read the whole file into a DOM
@@ -306,29 +307,29 @@ public class SiteMerger {
 						    if ((system.equalsIgnoreCase(ArchiveService.FROM_SAKAI) || system.equalsIgnoreCase(ArchiveService.FROM_SAKAI_2_8))) {
 						        if (checkSakaiService(filterSakaiService, filteredSakaiService, serviceName)) {
 						            // checks passed so now we attempt to do the merge
-		                            if (M_log.isDebugEnabled()) M_log.debug("Merging archive data for "+serviceName+" ("+fileName+") to site "+siteId);
+		                            if (log.isDebugEnabled()) log.debug("Merging archive data for "+serviceName+" ("+fileName+") to site "+siteId);
 		                            msg = service.merge(siteId, element, fileName, fromSite, attachmentNames, new HashMap() /* empty userIdTran map */, usersListAllowImport);
 						        } else {
-						            M_log.warn("Skipping merge archive data for "+serviceName+" ("+fileName+") to site "+siteId+", checked filter failed (filtersOn="+filterSakaiService+", filters="+Arrays.toString(filteredSakaiService)+")");
+						            log.warn("Skipping merge archive data for "+serviceName+" ("+fileName+") to site "+siteId+", checked filter failed (filtersOn="+filterSakaiService+", filters="+Arrays.toString(filteredSakaiService)+")");
 						        }
 						    } else {
-						        M_log.warn("Skipping archive data for for "+serviceName+" ("+fileName+") to site "+siteId+", this does not appear to be a sakai archive");
+						        log.warn("Skipping archive data for for "+serviceName+" ("+fileName+") to site "+siteId+", this does not appear to be a sakai archive");
 						    }
 						} else {
-                            M_log.warn("Skipping archive data for for "+serviceName+" ("+fileName+") to site "+siteId+", no service (EntityProducer) could be found to deal with this data");
+                            log.warn("Skipping archive data for for "+serviceName+" ("+fileName+") to site "+siteId+", no service (EntityProducer) could be found to deal with this data");
 						}
 						results.append(msg);
 					}
 					catch (Throwable t)
 					{
 						results.append("Error merging: " + serviceName + " in file: " + fileName + " : " + t.toString() + "\n");
-						M_log.warn("Error merging: " + serviceName + " in file: " + fileName + " : " + t.toString(),t);
+						log.warn("Error merging: " + serviceName + " in file: " + fileName + " : " + t.toString(),t);
 					}
 				}
 				catch (Throwable t)
 				{
 					results.append("Did not recognize the resource service: " + serviceName + " in file: " + fileName + "\n");
-					M_log.warn("Did not recognize the resource service: " + serviceName + " in file: " + fileName, t);
+					log.warn("Did not recognize the resource service: " + serviceName + " in file: " + fileName, t);
 				}
 			}
 		}
@@ -388,7 +389,7 @@ public class SiteMerger {
 			}
 			catch(Exception any)
 			{
-				M_log.warn(any.getMessage(), any);
+				log.warn(any.getMessage(), any);
 			}
 			
 			Site site = null;
@@ -398,7 +399,7 @@ public class SiteMerger {
 			}
 			catch (IdUnusedException e) 
 			{
-				M_log.warn(this + "The site with id " + siteId + " doesn't exit", e);
+				log.warn(this + "The site with id " + siteId + " doesn't exit", e);
 				return;
 			}
 		
@@ -417,7 +418,7 @@ public class SiteMerger {
 						mergeSiteRoles(element3, siteId, useIdTrans, filterSakaiRoles, filteredSakaiRoles);
 					} 
 					catch (PermissionException e1) {
-						M_log.warn(e1.getMessage(), e1);
+						log.warn(e1.getMessage(), e1);
 					}
 				}	
 			}
@@ -465,7 +466,7 @@ public class SiteMerger {
 		}
 		catch(Exception any)
 		{
-			M_log.warn("mergeSiteInfo(): exception caught", any);	
+			log.warn("mergeSiteInfo(): exception caught", any);	
 		}							
 		//edit.setTitle(title);
 		edit.setDescription(desc);
@@ -551,7 +552,7 @@ public class SiteMerger {
 		}
 		catch(Exception err)
 		{
-			M_log.warn("()mergeSiteRoles realm edit exception caught" + realmId,err);
+			log.warn("()mergeSiteRoles realm edit exception caught" + realmId,err);
 		}
 		return;
 	
