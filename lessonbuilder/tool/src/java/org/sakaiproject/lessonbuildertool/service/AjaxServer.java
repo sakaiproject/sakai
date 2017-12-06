@@ -619,7 +619,7 @@ public class AjaxServer extends HttpServlet
 	if (color != null) {
 	    if (color.equals(""))
 		color = null;
-	    else if (!color.matches("^[a-z]*$")) {
+	    else if (!color.matches("^[a-z0-9-]*$")) {
 		log.error("Ajax setColumnProperties passwd unreasonable color");
 		return null;
 	    }

@@ -1290,6 +1290,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 			        // break or a normal item
 				if (first || i.getType() == SimplePageItem.BREAK) {
 				    boolean sectionbreak = false;
+				    String color = i.getAttribute("colcolor");
 				    if (first || "section".equals(i.getFormat())) {
 					sectionWrapper = UIBranchContainer.make(container, "sectionWrapper:");
 					boolean collapsible = i.getAttribute("collapsible") != null && (!"0".equals(i.getAttribute("collapsible")));
@@ -1321,6 +1322,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 					}
 					if (!needIcon)
 					    collapsedIcon.decorate(new UIFreeAttributeDecorator("style", "display:none"));
+					sectionHeader.decorate(new UIStyleDecorator((color == null?"":"col"+color+"-header")));
 					cols = colCount(itemList, i.getId());
 					sectionbreak = true;
 					colnum = 0;
@@ -1331,8 +1333,6 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 				    Integer width = new Integer(i.getAttribute("colwidth") == null ? "1" : i.getAttribute("colwidth"));
 				    Integer split = new Integer(i.getAttribute("colsplit") == null ? "1" : i.getAttribute("colsplit"));
 				    colnum += width; // number after this column
-
-				    String color = i.getAttribute("colcolor");
 
 				    columnContainer.decorate(new UIStyleDecorator("cols" + cols + (colnum == cols?" lastcol":"") + (width > 1?" double":"") + (split > 1?" split":"") + (color == null?"":" col"+color)));
 				    UIOutput.make(columnContainer, "break-msg", messageLocator.getMessage(sectionbreak?"simplepage.break-here":"simplepage.break-column-here"));
@@ -5172,7 +5172,9 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		makeCsrf(form, "csrf28");
 
 		UIInput.make(form, "layout-section-title", "#{simplePageBean.layoutSectionTitle}");
-		//UIInput.make(form, "layout-section-styling", "#{simplePageBean.layoutSectionStyling}");
+
+		UISelect colorSchemes = UISelect.make(form, "layout-color-scheme", SimplePageBean.NewColors, SimplePageBean.NewColorLabels, "#{simplePageBean.layoutColorScheme}", SimplePageBean.NewColors[0]);
+
 		UIBoundBoolean.make(form, "layout-section-collapsible", "#{simplePageBean.layoutSectionCollapsible}", false);
 		UIBoundBoolean.make(form, "layout-section-start-collapsed", "#{simplePageBean.layoutSectionStartCollapsed}", false);
 		UIBoundBoolean.make(form, "layout-section-show-borders", "#{simplePageBean.layoutSectionShowBorders}", true);

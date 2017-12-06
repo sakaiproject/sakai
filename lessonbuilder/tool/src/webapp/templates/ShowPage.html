@@ -433,12 +433,17 @@
 			<h2 rsf:id="msg=simplepage.maincontent" class="offscreen" id="maintablelabel"></h2>
 <!-- WARNING: javascript for add-break-section adds section, ul, li, and sectionedit markup, so if you change here, keep it in sync -->
 			<div rsf:id="sectionWrapper:"><!-- start section wrapper -->
-			<h3 rsf:id="sectionHeader" id="sectionHeader" class="sectionHeader"><span rsf:id="sectionHeaderText" class="sectionHeaderText"></span><span rsf:id="sectionCollapsedIcon" class="sectionCollapsedIcon fa-bars" aria-hidden="true"></span><span class="toggleCollapse" rsf:id="msg=simplepage.clickToCollapse"></span><span aria-hidden="true" class="collapseIcon fa-toggle-up"></span></h3>
+			<h3 rsf:id="sectionHeader" id="sectionHeader" class="sectionHeader"><span rsf:id="sectionHeaderText" class="sectionHeaderText"></span><span class="toggleCollapse" rsf:id="msg=simplepage.clickToCollapse"></span><span aria-hidden="true" class="collapseIcon fa-caret-down"></span></h3>
 			<div rsf:id="section:" id="section" class="section">
 			<div rsf:id="column:" class="column">
 			  <div class="editsection">
-			  <span rsf:id="section-td" class="sectionedit"><h3 class="offscreen" rsf:id="break-msg"></h3><a role="button" rsf:id="section-del-link" href="#"  onclick="return false"><span aria-hidden="true" class="fa-compress fa-edit-icon"></span></a></span>
-			  <span rsf:id="section2" class="sectionedit sectionedit2"><a role="button" aria-haspopup="dialog" aria-controls="column-dialog" rsf:id="section3" href="#" class="columnopen"><span aria-hidden="true" class="fa-columns fa-edit-icon sectioneditfont"></span></a></span>
+			  <span rsf:id="section-td" class="sectionedit">
+                  <h3 class="offscreen" rsf:id="break-msg"></h3>
+                  <a role="button" rsf:id="section-del-link" href="#"  onclick="return false"><span aria-hidden="true" class="fa-compress fa-edit-icon"></span></a>
+              </span>
+			  <span rsf:id="section2" class="sectionedit sectionedit2">
+                  <a role="button" aria-haspopup="dialog" aria-controls="column-dialog" rsf:id="section3" href="#" class="columnopen" style="text-decoration: none;"><span aria-hidden="true" class="fa-cog fa-edit-icon sectioneditfont"></span></a>
+              </span>
 			  </div>
 			<span rsf:id="addbottom" class="sectionedit addbottom"><a role="button" aria-haspopup="dialog" aria-controls="addContentDiv" rsf:id="addbottom2" class="add-bottom" href="#" ><span aria-hidden="true" class="fa-plus fa-edit-icon plus-edit-icon"></span></a></span>
 
@@ -2191,19 +2196,14 @@
                         <div class="col-md-4">
                             <div class="form-group">
                                 <h4>Section Title</h4>
-                                <label class="sr-only" for="addSectionTitle">Section Title</label>
+                                <label class="sr-only" for="layout-section-title">Section Title</label>
                                 <input type="text" class="form-control" id="layout-section-title" rsf:id="layout-section-title" placeholder="Section Title" />
                             </div>
                             <div class="form-group">
-                                <h4>Styling</h4>
-                                <label class="sr-only" for="addStylingChoice">Styling</label>
-                                <select class="form-control" id="addStylingChoice">
-                                    <option value="none">Default</option>
-                                    <option value="gray">Gray</option>
-                                    <option value="red">Red</option>
-                                    <option value="blue">Blue</option>
-                                    <option value="green">Green</option>
-                                    <option value="yellow">Yellow</option>
+                                <h4>Color Scheme</h4>
+                                <label class="sr-only" for="layout-color-scheme">Color Scheme</label>
+                                <select rsf:id="layout-color-scheme" id="layout-color-scheme">
+                                    <option rsf:id="schemes:"><span rsf:id="schemeLabel"></span></option>
                                 </select>
                             </div>
                         </div>
@@ -2234,7 +2234,7 @@
                                         <span class="fa fa-caret-square-o-up pull-right collapsible-section" style="display:none;"></span>
                                         <span class="addSectionTitleText">Section Title</span>
                                     </div></div>
-                                    <div class="col-xs-12" style="padding-left:2px;padding-right:2px;"><div class="addSectionColumn"></div></div>
+                                    <div class="col-xs-12" style="padding-left:2px;padding-right:2px;"><div class="addSectionColumn">Here is some sample text.</div></div>
                                 </div>
                                 <div class="caption">
                                     <label><input rsf:id="layout-single" type="radio" name="layoutRadio" /> Single column section</label>
@@ -2248,8 +2248,8 @@
                                         <span class="fa fa-caret-square-o-up pull-right collapsible-section" style="display:none;"></span>
                                         <span class="addSectionTitleText">Section Title</span>
                                     </div></div>
-                                    <div class="col-xs-6" style="padding-left:2px;padding-right:0;"><div class="addSectionColumn"></div></div>
-                                    <div class="col-xs-6" style="padding-left:0;padding-right:2px;"><div class="addSectionColumn"></div></div>
+                                    <div class="col-xs-6" style="padding-left:2px;padding-right:0;"><div class="addSectionColumn">Here is some sample text.</div></div>
+                                    <div class="col-xs-6" style="padding-left:0;padding-right:2px;"><div class="addSectionColumn">Here is some sample text.</div></div>
                                 </div>
                                 <div class="caption">
                                     <label><input rsf:id="layout-two-equal" type="radio" name="layoutRadio" /> Two equal columns</label>
@@ -2263,8 +2263,8 @@
                                         <span class="fa fa-caret-square-o-up pull-right collapsible-section" style="display:none;"></span>
                                         <span class="addSectionTitleText">Section Title</span>
                                     </div></div>
-                                    <div class="col-xs-8" style="padding-left:2px;padding-right:0;"><div class="addSectionColumn"></div></div>
-                                    <div class="col-xs-4" style="padding-left:0;padding-right:2px;"><div class="addSectionColumn"></div></div>
+                                    <div class="col-xs-8" style="padding-left:2px;padding-right:0;"><div class="addSectionColumn">Here is some sample text.</div></div>
+                                    <div class="col-xs-4" style="padding-left:0;padding-right:2px;"><div class="addSectionColumn">Here is some sample text.</div></div>
                                 </div>
                                 <div class="caption">
                                     <label><input rsf:id="layout-left-double" type="radio" name="layoutRadio" /> Two columns - double width left</label>
@@ -2278,8 +2278,8 @@
                                         <span class="fa fa-caret-square-o-up pull-right collapsible-section" style="display:none;"></span>
                                         <span class="addSectionTitleText">Section Title</span>
                                     </div></div>
-                                    <div class="col-xs-4" style="padding-left:2px;padding-right:0;"><div class="addSectionColumn"></div></div>
-                                    <div class="col-xs-8" style="padding-left:0;padding-right:2px;"><div class="addSectionColumn"></div></div>
+                                    <div class="col-xs-4" style="padding-left:2px;padding-right:0;"><div class="addSectionColumn">Here is some sample text.</div></div>
+                                    <div class="col-xs-8" style="padding-left:0;padding-right:2px;"><div class="addSectionColumn">Here is some sample text.</div></div>
                                 </div>
                                 <div class="caption">
                                     <label><input rsf:id="layout-right-double" type="radio" name="layoutRadio" /> Two columns - double width right</label>
@@ -2293,9 +2293,9 @@
                                         <span class="fa fa-caret-square-o-up pull-right collapsible-section" style="display:none;"></span>
                                         <span class="addSectionTitleText">Section Title</span>
                                     </div></div>
-                                    <div class="col-xs-4" style="padding-left:2px;padding-right:0;"><div class="addSectionColumn"></div></div>
-                                    <div class="col-xs-4" style="padding-left:0;padding-right:0;"><div class="addSectionColumn"></div></div>
-                                    <div class="col-xs-4" style="padding-left:0;padding-right:2px;"><div class="addSectionColumn"></div></div>
+                                    <div class="col-xs-4" style="padding-left:2px;padding-right:0;"><div class="addSectionColumn">Here is some sample text.</div></div>
+                                    <div class="col-xs-4" style="padding-left:0;padding-right:0;"><div class="addSectionColumn">Here is some sample text.</div></div>
+                                    <div class="col-xs-4" style="padding-left:0;padding-right:2px;"><div class="addSectionColumn">Here is some sample text.</div></div>
                                 </div>
                                 <div class="caption">
                                     <label><input rsf:id="layout-three-equal" type="radio" name="layoutRadio" /> Three equal columns</label>
@@ -2317,7 +2317,17 @@
               <div class="">                  
                 <input type="hidden" name="columnitem" id="columnitem" />
 		<div>
-                  <span>
+            <h3>Section Settings</h3>
+            <label for="sectionTitle" rsf:id="msg=simplepage.sectionTitle"></label>
+            <input type="text" id="sectionTitle" /><br />
+
+            <input type="checkbox" id="collapsible" />
+            <label for="collapsible" rsf:id="msg=simplepage.collapsible"></label><br />
+
+            <span id="defaultClosedSpan"><input type="checkbox" id="defaultClosed" />
+                    <label for="defaultClosed" rsf:id="msg=simplepage.default.closed"></label></span>
+
+            <h3>Column Settings</h3>
                     <input type="checkbox" id="columndouble" />
                     <label for="columndouble"><span rsf:id="msg=simplepage.columndouble"></span></label><br />
 		    
@@ -2326,25 +2336,37 @@
 		    <select id="columnbackground">
 		      <option value="none" id="columnnone"><span rsf:id="msg=simplepage.columnnone">none</span></option>
 		      <option value="trans" id="columntrans"><span rsf:id="msg=simplepage.columntrans">transparent</span></option>
+		      <option value="ngray" id="columnnewgray"><span rsf:id="msg=simplepage.col.newgray"></span></option>
+		      <option value="ngray-trans" id="columnnewgray-trans"><span rsf:id="msg=simplepage.col.newgraytrans"></span></option>
+		      <option value="nblack" id="columnnewblack"><span rsf:id="msg=simplepage.col.newblack"></span></option>
+		      <option value="nblack-trans" id="columnnewblack-trans"><span rsf:id="msg=simplepage.col.newblacktrans"></span></option>
+		      <option value="nblue" id="columnnewblue"><span rsf:id="msg=simplepage.col.newblue"></span></option>
+		      <option value="nblue-trans" id="columnnewblue-trans"><span rsf:id="msg=simplepage.col.newbluetrans"></span></option>
+		      <option value="nblue2" id="columnnewblue2"><span rsf:id="msg=simplepage.col.newblue2"></span></option>
+		      <option value="nblue2-trans" id="columnnewblue2-trans"><span rsf:id="msg=simplepage.col.newblue2trans"></span></option>
+		      <option value="nred" id="columnnewred"><span rsf:id="msg=simplepage.col.newred"></span></option>
+		      <option value="nred-trans" id="columnnewred-trans"><span rsf:id="msg=simplepage.col.newredtrans"></span></option>
+		      <option value="nrudy" id="columnnewrudy"><span rsf:id="msg=simplepage.col.newrudy"></span></option>
+		      <option value="nrudy-trans" id="columnnewrudy-trans"><span rsf:id="msg=simplepage.col.newrudytrans"></span></option>
+		      <option value="nnavy" id="columnnewnavy"><span rsf:id="msg=simplepage.col.newnavy"></span></option>
+		      <option value="nnavy-trans" id="columnnewnavy-trans"><span rsf:id="msg=simplepage.col.newnavytrans"></span></option>
+		      <option value="nnavy2" id="columnnewnavy2"><span rsf:id="msg=simplepage.col.newnavy2"></span></option>
+		      <option value="nnavy2-trans" id="columnnewnavy2-trans"><span rsf:id="msg=simplepage.col.newnavy2trans"></span></option>
+		      <option value="ngreen" id="columnnewgreen"><span rsf:id="msg=simplepage.col.newgreen"></span></option>
+		      <option value="ngreen-trans" id="columnnewgreen-trans"><span rsf:id="msg=simplepage.col.newgreentrans"></span></option>
 		      <option value="gray" id="columngray"><span rsf:id="msg=simplepage.columngray">gray</span></option>
+		      <option value="gray-trans" id="columngray-trans"><span rsf:id="msg=simplepage.columngraytrans">gray</span></option>
 		      <option value="red" id="columnred"><span rsf:id="msg=simplepage.columnred">red</span></option>
+		      <option value="red-trans" id="columnred-trans"><span rsf:id="msg=simplepage.columnredtrans">red</span></option>
 		      <option value="blue" id="columnblue"><span rsf:id="msg=simplepage.columnblue">blue</span></option>
+		      <option value="blue-trans" id="columnblue-trans"><span rsf:id="msg=simplepage.columnbluetrans">blue</span></option>
 		      <option value="green" id="columngreen"><span rsf:id="msg=simplepage.columngreen">green</span></option>
+		      <option value="green-trans" id="columngreen-trans"><span rsf:id="msg=simplepage.columngreentrans">green</span></option>
 		      <option value="yellow" id="columnyellow"><span rsf:id="msg=simplepage.columnyellow">yellow</span></option>
+		      <option value="yellow-trans" id="columnyellow-trans"><span rsf:id="msg=simplepage.columnyellowtrans">yellow</span></option>
 		    </select>
                     <label for="columnbackground" rsf:id="msg=simplepage.columnbackground"></label><br />
 
-                    <br />
-                    <label for="sectionTitle" rsf:id="msg=simplepage.sectionTitle"></label>
-                    <input type="text" id="sectionTitle" /><br />
-
-                    <input type="checkbox" id="collapsible" />
-                    <label for="collapsible" rsf:id="msg=simplepage.collapsible"></label><br />
-
-                    <span id="defaultClosedSpan"><input type="checkbox" id="defaultClosed" />
-                    <label for="defaultClosed" rsf:id="msg=simplepage.default.closed"></label></span>
-
-                  </span>
 		</div>
 		<p class="act">
                   <input rsf:id="column-submit"  class="bold" type="submit" id="column-submit" />

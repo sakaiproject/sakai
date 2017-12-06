@@ -378,6 +378,32 @@ public class SimplePageBean {
 	private boolean layoutSectionStartCollapsed = false;
 	private boolean layoutSectionShowBorders = true;
 	private String layoutSelect;
+	private String layoutColorScheme;
+
+	public static final String NewColors[] = {
+			"none",
+			"ngray",
+			"nblack",
+			"nblue",
+			"nblue2",
+			"nred",
+			"nrudy",
+			"nnavy",
+			"nnavy2",
+			"ngreen"
+	};
+	public static final String NewColorLabels[] = {
+			"Default",
+			"Gray",
+			"Black",
+			"Blue",
+			"Blue Dark",
+			"Red",
+			"Rudy",
+			"Navy",
+			"Navy Dark",
+			"Green"
+	};
 
         // SAK-41846 - Counters to adjust item sequences when multiple files are added simultaneously
         private int totalMultimediaFilesToAdd = 0;
@@ -1107,6 +1133,14 @@ public class SimplePageBean {
 
 	public void setLayoutSelect(String layoutSelect) {
 		this.layoutSelect = layoutSelect;
+	}
+
+	public String getLayoutColorScheme() {
+		return layoutColorScheme;
+	}
+
+	public void setLayoutColorScheme(String layoutColorScheme) {
+		this.layoutColorScheme = layoutColorScheme;
 	}
 
     // hibernate interposes something between us and saveItem, and that proxy gets an
@@ -4592,6 +4626,22 @@ public class SimplePageBean {
 		if (StringUtils.equals(this.layoutSelect, "left-double")) {
 			newSection.setAttribute("colwidth", "2");
 		}
+
+		String colorScheme = "";
+		if (StringUtils.equals("none", this.layoutColorScheme)) {
+			if (!this.layoutSectionShowBorders) {
+				colorScheme = "trans";
+			}
+		} else {
+			if (this.layoutSectionShowBorders) {
+				colorScheme = this.layoutColorScheme;
+			} else {
+				colorScheme = this.layoutColorScheme + "-trans";
+			}
+		}
+
+		newSection.setAttribute("colcolor", colorScheme);
+
 		saveOrUpdate(newSection);
 
 		if (!StringUtils.equals(this.layoutSelect, "single-column")) {
@@ -4600,11 +4650,13 @@ public class SimplePageBean {
 			if (StringUtils.equals(this.layoutSelect, "right-double")) {
 				col1.setAttribute("colwidth", "2");
 			}
+			col1.setAttribute("colcolor", colorScheme);
 			saveOrUpdate(col1);
 
 			if (StringUtils.equals(this.layoutSelect, "three-equal")) {
 				SimplePageItem col2 = appendItem("-" + col1.getId(), "", SimplePageItem.BREAK);
 				col2.setFormat("column");
+				col2.setAttribute("colcolor", colorScheme);
 				saveOrUpdate(col2);
 			}
 		}
