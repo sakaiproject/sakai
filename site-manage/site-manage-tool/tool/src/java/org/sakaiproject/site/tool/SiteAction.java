@@ -37,7 +37,6 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Properties;
 import java.util.Set;
@@ -146,7 +145,6 @@ import org.sakaiproject.thread_local.cover.ThreadLocalManager;
 import org.sakaiproject.time.api.Time;
 import org.sakaiproject.time.api.TimeBreakdown;
 import org.sakaiproject.time.cover.TimeService;
-import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.tool.api.ToolException;
 import org.sakaiproject.tool.api.ToolSession;
@@ -9494,7 +9492,7 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 						//list of existing tools in the destination site
 						List<String> existingTools = originalToolIds((List<String>) state.getAttribute(STATE_TOOL_REGISTRATION_SELECTED_LIST), state);
 
-						boolean importTaskStarted = siteManageService.importToolsIntoSite(existingSite.getId(), existingTools, importTools, false);
+						boolean importTaskStarted = siteManageService.importToolsIntoSiteThread(existingSite, existingTools, importTools, false);
 						if (importTaskStarted) {
 							// ***** import tools here
 							state.setAttribute(IMPORT_QUEUED, rb.get("importQueued"));
@@ -9536,7 +9534,7 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 						List<String> existingTools = originalToolIds((List<String>) state.getAttribute(STATE_TOOL_REGISTRATION_SELECTED_LIST), state);
 
 
-						boolean importTaskStarted = siteManageService.importToolsIntoSite(existingSite.getId(), existingTools, importTools, true);
+						boolean importTaskStarted = siteManageService.importToolsIntoSiteThread(existingSite, existingTools, importTools, true);
 						if (importTaskStarted) {
 							// ***** import tools here
 							state.setAttribute(IMPORT_QUEUED, rb.get("importQueued"));
@@ -11331,7 +11329,7 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 		site = refreshSiteObject(site);
 
 		// import
-		siteManageService.importToolsIntoSite(site.getId(), chosenList, importTools, false);
+		siteManageService.importToolsIntoSite(site, chosenList, importTools, false);
 		
 		// SAK-22384 add LaTeX (MathJax) support
 		if (MathJaxEnabler.prepareMathJaxToolSettingsForSave(site, state))
