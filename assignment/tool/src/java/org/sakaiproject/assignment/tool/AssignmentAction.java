@@ -7924,13 +7924,14 @@ public class AssignmentAction extends PagedResourceActionII {
                 assignmentSupplementItemService.removeAllPurposeItem(nAllPurpose);
             }
         } else if (state.getAttribute(ALLPURPOSE_TITLE) != null) {
-            // edit/add private note
+            // edit/add allPurpose item
             AssignmentAllPurposeItem nAllPurpose = assignmentSupplementItemService.getAllPurposeItem(aId);
             if (nAllPurpose == null) {
                 nAllPurpose = assignmentSupplementItemService.newAllPurposeItem();
+                nAllPurpose.setAssignmentId(a.getId());
+                nAllPurpose.setHide(false);//SAK-33681
                 assignmentSupplementItemService.saveAllPurposeItem(nAllPurpose);
             }
-            nAllPurpose.setAssignmentId(a.getId());
             nAllPurpose.setTitle((String) state.getAttribute(ALLPURPOSE_TITLE));
             nAllPurpose.setText((String) state.getAttribute(ALLPURPOSE_TEXT));
 
@@ -9339,13 +9340,13 @@ public class AssignmentAction extends PagedResourceActionII {
         // default to assignment close time
         Instant retractTime = a.getCloseDate();
         if (aItem != null) {
-            Instant releaseDate = aItem.getReleaseDate().toInstant();
+            Instant releaseDate = aItem.getReleaseDate() != null ? aItem.getReleaseDate().toInstant() : null;
             if (releaseDate != null) {
                 // overwrite if there is a release date
                 releaseTime = releaseDate;
             }
 
-            Instant retractDate = aItem.getRetractDate().toInstant();
+            Instant retractDate = aItem.getRetractDate() != null ? aItem.getRetractDate().toInstant() : null;
             if (retractDate != null) {
                 // overwriteif there is a retract date
                 retractTime = retractDate;
