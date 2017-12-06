@@ -101,55 +101,44 @@ public class SiteManageServiceImpl implements SiteManageService {
     }
 
     @Override
-    public boolean importToolsIntoSite(String siteId, List<String> existingTools, Map<String, List<String>> importTools, boolean cleanup) {
+    public boolean importToolsIntoSiteThread(final Site site, final List<String> existingTools, final Map<String, List<String>> importTools, final boolean cleanup) {
         final User user = userDirectoryService.getCurrentUser();
         final Locale locale = preferencesService.getLocale(user.getId());
         final Session session = sessionManager.getCurrentSession();
         final ToolSession toolSession = sessionManager.getCurrentToolSession();
-        final List<String> existingToolIds = existingTools;
-        final Map<String, List<String>> importToolIds = importTools;
-        final boolean clean = cleanup;
-        final Site site;
-        try {
-            site = siteService.getSite(siteId);
-            final String id = site.getId();
+        final String id = site.getId();
 
-            Runnable siteImportTask = () -> {
-                try {
-                    transactionTemplate.execute(new TransactionCallbackWithoutResult() {
-                        @Override
-                        protected void doInTransactionWithoutResult(TransactionStatus status) {
-                            sessionManager.setCurrentSession(session);
-                            sessionManager.setCurrentToolSession(toolSession);
-                            eventTrackingService.post(eventTrackingService.newEvent(SiteService.EVENT_SITE_IMPORT_START, site.getReference(), false));
-                            importToolIntoSite(existingToolIds, importToolIds, site, clean);
-                            if (serverConfigurationService.getBoolean(SiteManageConstants.SAK_PROP_IMPORT_NOTIFICATION, true)) {
-                                userNotificationProvider.notifySiteImportCompleted(user.getEmail(), locale, id, site.getTitle());
-                            }
-                            eventTrackingService.post(eventTrackingService.newEvent(SiteService.EVENT_SITE_IMPORT_END, site.getReference(), false));
+        Runnable siteImportTask = () -> {
+            try {
+                transactionTemplate.execute(new TransactionCallbackWithoutResult() {
+                    @Override
+                    protected void doInTransactionWithoutResult(TransactionStatus status) {
+                        sessionManager.setCurrentSession(session);
+                        sessionManager.setCurrentToolSession(toolSession);
+                        eventTrackingService.post(eventTrackingService.newEvent(SiteService.EVENT_SITE_IMPORT_START, site.getReference(), false));
+                        importToolsIntoSite(site, existingTools, importTools, cleanup);
+                        if (serverConfigurationService.getBoolean(SiteManageConstants.SAK_PROP_IMPORT_NOTIFICATION, true)) {
+                            userNotificationProvider.notifySiteImportCompleted(user.getEmail(), locale, id, site.getTitle());
                         }
-                    });
-                } catch (Exception e) {
-                    log.warn("Site Import Task encountered an exception for site {}, {}", id, e.getMessage());
-                } finally {
-                    currentSiteImports.remove(id);
-                }
-            };
-
-            // only if the siteId was added to the list do we start the task
-            boolean status = currentSiteImports.add(id);
-            if (status) {
-                try {
-                    executorService.execute(siteImportTask);
-                } catch (RejectedExecutionException ree) {
-                    log.warn("Site Import Task was rejected by the executor, {}", ree.getMessage());
-                    currentSiteImports.remove(id);
-                    status = false;
-                }
+                        eventTrackingService.post(eventTrackingService.newEvent(SiteService.EVENT_SITE_IMPORT_END, site.getReference(), false));
+                    }
+                });
+            } catch (Exception e) {
+                log.warn("Site Import Task encountered an exception for site {}, {}", id, e.getMessage());
+            } finally {
+                currentSiteImports.remove(id);
             }
-            return status;
-        } catch (IdUnusedException iue) {
-            log.warn("Site with id {} not found skipping import, {}", siteId, iue.getMessage());
+        };
+
+        // only if the siteId was added to the list do we start the task
+        if (currentSiteImports.add(id)) {
+            try {
+                executorService.execute(siteImportTask);
+                return true;
+            } catch (RejectedExecutionException ree) {
+                log.warn("Site Import Task was rejected by the executor, {}", ree.getMessage());
+                currentSiteImports.remove(id);
+            }
         }
         return false;
     }
@@ -314,14 +303,8 @@ public class SiteManageServiceImpl implements SiteManageService {
         return toSite;
     }
 
-    /**
-     * Contains the actual workflow for tools to be imported and their references to be updated
-     * @param toolIds     the tool ids in the site to be imported into
-     * @param importTools the tools selected to be imported
-     * @param site        the site
-     * @param cleanup     true if content should be removed before the tool is copied
-     */
-    private void importToolIntoSite(List<String> toolIds, Map<String, List<String>> importTools, Site site, boolean cleanup) {
+    @Override
+    public void importToolsIntoSite(Site site, List<String> toolIds, Map<String, List<String>> importTools, boolean cleanup) {
         if (importTools != null && !importTools.isEmpty()) {
 
             //if add missing tools is enabled, add the tools ito the site before importing content
