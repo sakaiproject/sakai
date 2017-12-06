@@ -25,6 +25,7 @@ import java.util.Set;
 import javax.persistence.*;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 /**
@@ -38,6 +39,7 @@ import lombok.NoArgsConstructor;
             query = "from AssignmentAllPurposeItem m where m.assignmentId = :id")
 @Data
 @NoArgsConstructor
+@EqualsAndHashCode(of = "id")
 public class AssignmentAllPurposeItem extends AssignmentSupplementItemWithAttachment {
 
     @Column(name = "ASSIGNMENT_ID", nullable = false)
