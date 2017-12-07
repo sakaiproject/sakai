@@ -32,7 +32,7 @@ public final class AssignmentServiceConstants {
     /**
      * The type string for this application: should not change over time as it may be stored in various parts of persistent entities.
      */
-    public static final String APPLICATION_ID = "sakai:assignment";
+    public static final String SAKAI_ASSIGNMENT = "sakai:assignment";
     /**
      * This string starts the references to resources in this service.
      */
