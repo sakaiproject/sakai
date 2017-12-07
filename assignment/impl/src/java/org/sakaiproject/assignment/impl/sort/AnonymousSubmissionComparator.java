@@ -47,8 +47,8 @@ public class AnonymousSubmissionComparator implements Comparator<AssignmentSubmi
     @Override
     public int compare(AssignmentSubmission a1, AssignmentSubmission a2) {
         int result;
-        String name1 = a1.getAnonymousSubmissionId();
-        String name2 = a2.getAnonymousSubmissionId();
+        String name1 = a1.getId();
+        String name2 = a2.getId();
         result = collator.compare(name1, name2);
         return result;
     }

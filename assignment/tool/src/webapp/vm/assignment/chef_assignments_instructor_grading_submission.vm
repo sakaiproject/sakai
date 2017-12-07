@@ -124,7 +124,7 @@
                 </th>
                 <td>
 					#if ($value_CheckAnonymousGrading.equals("true"))
-                        $validator.escapeHtml($!submission.AnonymousSubmissionId)
+                        $validator.escapeHtml($!submission.Id) $tlang.getString("grading.anonymous.title")
                     #else
                         $!submitterNames
                     #end
