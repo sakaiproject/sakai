@@ -226,7 +226,7 @@ public class ReorderProducer implements ViewComponentProducer, NavigationCaseRep
 					} else if (StringUtils.length(text) > 50) {
 						text = StringUtils.substring(text, 0, 50) + "...";
 					}
-				    UIOutput.make(row, "text-snippet", text + " | ");
+				    UIOutput.make(row, "text-snippet2", text);
 					UIOutput previewLink = UIOutput.make(row, "previewlink");
 					previewLink.decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.preview.link")));
 					previewLink.decorate(new UIFreeAttributeDecorator("href", "#preview" + i.getId()));
@@ -234,7 +234,7 @@ public class ReorderProducer implements ViewComponentProducer, NavigationCaseRep
 					UIVerbatim.make(row, "previewcontent", i.getHtml());
 				} else if ("1".equals(subtype)) {
 				    // embed code, nothing useful to show
-				    UIOutput.make(row, "text-snippet", messageLocator.getMessage("simplepage.embedded-video") + " | ");
+				    UIOutput.make(row, "text-snippet2", messageLocator.getMessage("simplepage.embedded-video"));
 					UIOutput previewLink = UIOutput.make(row, "previewlink");
 					previewLink.decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.preview.link")));
 					previewLink.decorate(new UIFreeAttributeDecorator("href", "#preview" + i.getId()));

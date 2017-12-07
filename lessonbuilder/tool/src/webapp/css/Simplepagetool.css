@@ -797,7 +797,10 @@ div.layout-option > div {
 }
 .columnSetup2 {
     padding:5px;
-    float:none;height:100%;overflow:hidden;margin:1em 0
+    float:none;
+    height:100%;
+    overflow:visible;
+    margin:1em 0;
 }
 
 .layoutReorderer-module-content {
@@ -866,13 +869,15 @@ div.layout-option > div {
     right:5px;
     font-size: 1.35em;
 }
-#layoutReorderer a.preview-link {
-    text-decoration: none;
-}
 #reorderCol1 .import-indicator {
     margin-left: -36px;
     margin-right: 22px;
     font-size: 18px;
+}
+
+span.reorder-icon {
+    dispay: inline-block;
+    width: 22px;
 }
 /**
  * Interaction styling.
@@ -961,6 +966,12 @@ h3.section-label {
 
 .deleteAnswerLinkOptions:hover {
     cursor: pointer;
+}
+
+.deleteAnswerTrashLink > span {
+    font-size: 20px;
+    top: 6px;
+    position: relative;
 }
 
 #reorderCol2 {

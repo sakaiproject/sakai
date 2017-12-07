@@ -42,13 +42,22 @@ $(document).ready(function(){
         return true;
     });
 
-    $('.deleteAnswerLink').click(function(e){
+    $('.deleteAnswerTrashLink').click(function(e){
         e.preventDefault();
         $(this).closest('.layoutReorderer-module').addClass('highlightEl').hide().appendTo('#deleteListHead').fadeIn(200, function(){
             $(this).removeClass('highlightEl');
         });
 
         $(".reorderItemsContainer").sortable('refresh');
+
+        recalculate();
+    });
+
+    $('.deleteAnswerLink').click(function(e){
+        e.preventDefault();
+        $(this).closest('.layoutReorderer-module').addClass('highlightEl').hide().appendTo('#reorderCol2').fadeIn(200, function(){
+            $(this).removeClass('highlightEl');
+        });
 
         recalculate();
     });
