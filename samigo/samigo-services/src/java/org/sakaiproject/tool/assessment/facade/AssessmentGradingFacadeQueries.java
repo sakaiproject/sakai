@@ -83,6 +83,7 @@ import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData;
 import org.sakaiproject.tool.assessment.data.dao.grading.MediaData;
 import org.sakaiproject.tool.assessment.data.dao.grading.StudentGradingSummaryData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AnswerIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessControlIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAttachmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AttachmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.EvaluationModelIfc;
@@ -3026,18 +3027,20 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
                             adata.getPublishedAssessmentId());
                     Date dueDate = assessment.getAssessmentAccessControl().getDueDate();
                     Date retractDate = assessment.getAssessmentAccessControl().getRetractDate();
+                    Integer lateHandling = assessment.getAssessmentAccessControl().getLateHandling();
                     ExtendedTimeDeliveryService assessmentExtended = new ExtendedTimeDeliveryService(assessment,
                             adata.getAgentId());
 
                     //If it has extended time, just continue for now, no method to tell if the time is passed
                     if (assessmentExtended.hasExtendedTime()) {
                         //Continue on and try to submit it but it may be late, just change the due date
-                        dueDate = assessmentExtended.getDueDate();
-                        retractDate = assessmentExtended.getRetractDate();
+                        dueDate = assessmentExtended.getDueDate() != null ? assessmentExtended.getDueDate() : dueDate;
+                        retractDate = assessmentExtended.getRetractDate() != null ? assessmentExtended.getRetractDate() : retractDate;
                     }
 
                     //If the due date or retract date hasn't passed yet, go on to the next one, don't consider it yet
-                    if ((retractDate!=null && (currentTime.before(retractDate) || adata.getAttemptDate().after(retractDate))) || (dueDate != null && currentTime.before(dueDate))) {
+                    if ((AssessmentAccessControlIfc.ACCEPT_LATE_SUBMISSION.toString().equals(lateHandling) && retractDate!=null && (currentTime.before(retractDate) || adata.getAttemptDate().after(retractDate)))
+                            || (dueDate != null && currentTime.before(dueDate))) {
                         continue;
                     }
 
