@@ -215,7 +215,7 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
         String refA = AssignmentReferenceReckoner.reckoner().context(context).subtype("a").id(assignmentId).reckon().getReference();
         FakeReference reference = new FakeReference(assignmentService, refA);
         Assert.assertTrue(assignmentService.parseEntityReference(refA, reference));
-        Assert.assertEquals(AssignmentServiceConstants.APPLICATION_ID, reference.getType());
+        Assert.assertEquals(AssignmentServiceConstants.SAKAI_ASSIGNMENT, reference.getType());
         Assert.assertEquals("a", reference.getSubType());
         Assert.assertEquals(context, reference.getContext());
         Assert.assertEquals(assignmentId, reference.getId());

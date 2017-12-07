@@ -272,7 +272,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
     public boolean parseEntityReference(String stringReference, Reference reference) {
         if (StringUtils.startsWith(stringReference, REFERENCE_ROOT)) {
             AssignmentReferenceReckoner.AssignmentReference reckoner = AssignmentReferenceReckoner.reckoner().reference(stringReference).reckon();
-            reference.set(APPLICATION_ID, reckoner.getSubtype(), reckoner.getId(), reckoner.getContainer(), reckoner.getContext());
+            reference.set(SAKAI_ASSIGNMENT, reckoner.getSubtype(), reckoner.getId(), reckoner.getContainer(), reckoner.getContext());
             return true;
         }
         return false;
@@ -1154,7 +1154,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
     @Override
     public Assignment getAssignment(Reference reference) throws IdUnusedException, PermissionException {
         Assert.notNull(reference, "Reference cannot be null");
-        if (StringUtils.equals("assignment", reference.getType())) {
+        if (StringUtils.equals(SAKAI_ASSIGNMENT, reference.getType())) {
             return getAssignment(reference.getId());
         }
         return null;
@@ -1807,11 +1807,11 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
 
     @Override
     @Transactional
-    public Collection<Group> getSubmitterGroupList(String searchFilterOnly, String allOrOneGroup, String searchString, String aRef, String contextString) {
+    public Collection<Group> getSubmitterGroupList(String searchFilterOnly, String allOrOneGroup, String searchString, String assignmentId, String contextString) {
         Collection<Group> rv = new ArrayList<Group>();
         allOrOneGroup = StringUtils.trimToNull(allOrOneGroup);
         try {
-            Assignment a = getAssignment(aRef);
+            Assignment a = getAssignment(assignmentId);
             if (a != null) {
                 Site st = siteService.getSite(contextString);
                 if (StringUtils.equals(allOrOneGroup, AssignmentConstants.ALL) || StringUtils.isEmpty(allOrOneGroup)) {
@@ -1837,7 +1837,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                 }
 
                 for (Group g : rv) {
-                    AssignmentSubmission uSubmission = getSubmission(aRef, g.getId());
+                    AssignmentSubmission uSubmission = getSubmission(assignmentId, g.getId());
                     if (uSubmission == null) {
                         if (allowGradeSubmission(AssignmentReferenceReckoner.reckoner().assignment(a).reckon().getReference())) {
                             if (a.getIsGroup()) {
@@ -1879,9 +1879,9 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                 }
             }
         } catch (IdUnusedException aIdException) {
-            log.warn("Assignment id not used: {}, {}", aRef, aIdException.getMessage());
+            log.warn("Assignment id not used: {}, {}", assignmentId, aIdException.getMessage());
         } catch (PermissionException aPerException) {
-            log.warn("Not allowed to get assignment {}, {}", aRef, aPerException.getMessage());
+            log.warn("Not allowed to get assignment {}, {}", assignmentId, aPerException.getMessage());
         }
 
         return rv;
