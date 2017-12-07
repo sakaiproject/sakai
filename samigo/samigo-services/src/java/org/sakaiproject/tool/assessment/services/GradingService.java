@@ -66,6 +66,7 @@ import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData;
 import org.sakaiproject.tool.assessment.data.dao.grading.MediaData;
 import org.sakaiproject.tool.assessment.data.dao.grading.StudentGradingSummaryData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AnswerIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessControlIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.EvaluationModelIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
@@ -76,11 +77,13 @@ import org.sakaiproject.tool.assessment.data.ifc.grading.StudentGradingSummaryIf
 import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.GradebookFacade;
+import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
 import org.sakaiproject.tool.assessment.facade.TypeFacade;
 import org.sakaiproject.tool.assessment.facade.TypeFacadeQueriesAPI;
 import org.sakaiproject.tool.assessment.integration.context.IntegrationContextFactory;
 import org.sakaiproject.tool.assessment.integration.helper.ifc.GradebookServiceHelper;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
+import org.sakaiproject.tool.assessment.util.ExtendedTimeDeliveryService;
 import org.sakaiproject.tool.assessment.util.SamigoExpressionError;
 import org.sakaiproject.tool.assessment.util.SamigoExpressionParser;
 
@@ -2222,12 +2225,22 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
 		  data.setIsLate(false);
 	  }
 	  else {
-		  if (pub.getAssessmentAccessControl() != null
-				  && pub.getAssessmentAccessControl().getDueDate() != null &&
-				  pub.getAssessmentAccessControl().getDueDate().before(new Date()))
-			  data.setIsLate(Boolean.TRUE);
-		  else
-			  data.setIsLate(false);
+		  Boolean isLate = false;
+		  AssessmentAccessControlIfc a = pub.getAssessmentAccessControl();
+		  if (a.getDueDate() != null && a.getDueDate().before(new Date())) {
+			isLate = Boolean.TRUE;
+		  } else {
+			isLate = Boolean.FALSE;
+		  }
+
+		  if (isLate) {
+			ExtendedTimeDeliveryService assessmentExtended = new ExtendedTimeDeliveryService((PublishedAssessmentFacade) pub, data.getAgentId());
+			if (assessmentExtended.hasExtendedTime() && assessmentExtended.getDueDate() != null && assessmentExtended.getDueDate().after(new Date())) {
+				isLate = Boolean.FALSE;
+			}
+		  }
+
+		  data.setIsLate(isLate);
 	  }
 	  
     if (data.getForGrade())
