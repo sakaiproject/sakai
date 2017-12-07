@@ -3906,8 +3906,7 @@ public class AssignmentAction extends PagedResourceActionII {
 
             // access point url for zip file download
             String contextString = (String) state.getAttribute(STATE_CONTEXT_STRING);
-            String accessPointUrl = serverConfigurationService.getAccessUrl().concat(assignmentService.submissionsZipReference(
-                    contextString, (String) state.getAttribute(EXPORT_ASSIGNMENT_REF)));
+            String accessPointUrl = serverConfigurationService.getAccessUrl().concat((String) state.getAttribute(EXPORT_ASSIGNMENT_REF));
             if (view != null && !AssignmentConstants.ALL.equals(view)) {
                 // append the group info to the end
                 accessPointUrl = accessPointUrl.concat(view);
@@ -4673,33 +4672,31 @@ public class AssignmentAction extends PagedResourceActionII {
         context.put("sortedBy_grade", SORTED_GRADE_SUBMISSION_BY_GRADE);
         context.put("sortedBy_status", SORTED_GRADE_SUBMISSION_BY_STATUS);
         context.put("sortedBy_released", SORTED_GRADE_SUBMISSION_BY_RELEASED);
-        //context.put("sortedBy_assignment", SORTED_GRADE_SUBMISSION_BY_ASSIGNMENT);
-        //context.put("sortedBy_maxGrade", SORTED_GRADE_SUBMISSION_BY_MAX_GRADE);
 
         // get current site
         String contextString = (String) state.getAttribute(STATE_CONTEXT_STRING);
-        context.put("searchString", state.getAttribute(VIEW_SUBMISSION_SEARCH) != null ? state.getAttribute(VIEW_SUBMISSION_SEARCH) : "");
 
         context.put("view", MODE_INSTRUCTOR_REPORT_SUBMISSIONS);
-        context.put("viewString", state.getAttribute(VIEW_SUBMISSION_LIST_OPTION) != null ? state.getAttribute(VIEW_SUBMISSION_LIST_OPTION) : "");
-        context.put("searchString", state.getAttribute(VIEW_SUBMISSION_SEARCH) != null ? state.getAttribute(VIEW_SUBMISSION_SEARCH) : "");
+        String viewString = state.getAttribute(VIEW_SUBMISSION_LIST_OPTION) != null ? (String) state.getAttribute(VIEW_SUBMISSION_LIST_OPTION) : "";
+        context.put("viewString", viewString);
+        String searchString = state.getAttribute(VIEW_SUBMISSION_SEARCH) != null ? (String) state.getAttribute(VIEW_SUBMISSION_SEARCH) : "";
+        context.put("searchString", searchString);
 
-        context.put("showSubmissionByFilterSearchOnly", state.getAttribute(SUBMISSIONS_SEARCH_ONLY) != null && ((Boolean) state.getAttribute(SUBMISSIONS_SEARCH_ONLY)) ? Boolean.TRUE : Boolean.FALSE);
+        Boolean showSubmissionByFilterSearchOnly = state.getAttribute(SUBMISSIONS_SEARCH_ONLY) != null && ((Boolean) state.getAttribute(SUBMISSIONS_SEARCH_ONLY)) ? Boolean.TRUE : Boolean.FALSE;
+        context.put("showSubmissionByFilterSearchOnly", showSubmissionByFilterSearchOnly);
 
         Collection groups = getAllGroupsInSite(contextString);
         context.put("groups", new SortedIterator(groups.iterator(), new AssignmentComparator(state, SORTED_BY_GROUP_TITLE, Boolean.TRUE.toString())));
 
-
         add2ndToolbarFields(data, context);
 
-        String view = (String) state.getAttribute(VIEW_SUBMISSION_LIST_OPTION);
-        if (view != null && !AssignmentConstants.ALL.equals(view)) {
-            context.put("accessPointUrl", serverConfigurationService.getAccessUrl()
-                    + assignmentService.gradesSpreadsheetReference(view.substring(view.indexOf(Entity.SEPARATOR) + 1), null));
-        } else {
-            context.put("accessPointUrl", serverConfigurationService.getAccessUrl()
-                    + assignmentService.gradesSpreadsheetReference(contextString, null));
-        }
+        String accessPointUrl = serverConfigurationService.getAccessUrl() +
+                AssignmentReferenceReckoner.reckoner().context(contextString).reckon().getReference() +
+                "?contextString=" + contextString +
+                "&viewString=" + viewString +
+                "&searchString=" + searchString +
+                "&searchFilterOnly=" + showSubmissionByFilterSearchOnly.toString();
+        context.put("accessPointUrl", accessPointUrl);
 
         pagingInfoToContext(state, context);
 
@@ -4731,41 +4728,31 @@ public class AssignmentAction extends PagedResourceActionII {
      */
     private String build_instructor_download_upload_all(VelocityPortlet portlet, Context context, RunData data, SessionState state) {
         String view = (String) state.getAttribute(VIEW_SUBMISSION_LIST_OPTION);
-        boolean download = (((String) state.getAttribute(STATE_MODE)).equals(MODE_INSTRUCTOR_DOWNLOAD_ALL));
 
-        context.put("download", Boolean.valueOf(download));
+        context.put("download", MODE_INSTRUCTOR_DOWNLOAD_ALL.equals(state.getAttribute(STATE_MODE)));
         context.put("hasSubmissionText", state.getAttribute(UPLOAD_ALL_HAS_SUBMISSION_TEXT));
         context.put("hasSubmissionAttachment", state.getAttribute(UPLOAD_ALL_HAS_SUBMISSION_ATTACHMENT));
         context.put("hasGradeFile", state.getAttribute(UPLOAD_ALL_HAS_GRADEFILE));
-        String gradeFileFormat = (String) state.getAttribute(UPLOAD_ALL_GRADEFILE_FORMAT);
-        if (gradeFileFormat == null) gradeFileFormat = "csv";
-        context.put("gradeFileFormat", gradeFileFormat);
+        context.put("gradeFileFormat", StringUtils.defaultString((String) state.getAttribute(UPLOAD_ALL_GRADEFILE_FORMAT), "csv"));
         context.put("hasComments", state.getAttribute(UPLOAD_ALL_HAS_COMMENTS));
         context.put("hasFeedbackText", state.getAttribute(UPLOAD_ALL_HAS_FEEDBACK_TEXT));
         context.put("hasFeedbackAttachment", state.getAttribute(UPLOAD_ALL_HAS_FEEDBACK_ATTACHMENT));
         context.put("releaseGrades", state.getAttribute(UPLOAD_ALL_RELEASE_GRADES));
-        // SAK-19147
         context.put("withoutFolders", state.getAttribute(UPLOAD_ALL_WITHOUT_FOLDERS));
         context.put("enableFlatDownload", serverConfigurationService.getBoolean("assignment.download.flat", false));
-        String contextString = (String) state.getAttribute(STATE_CONTEXT_STRING);
-        context.put("contextString", contextString);
-        context.put("accessPointUrl", (serverConfigurationService.getAccessUrl()).concat(assignmentService.submissionsZipReference(
-                contextString, (String) state.getAttribute(EXPORT_ASSIGNMENT_REF))));
+        context.put("contextString", state.getAttribute(STATE_CONTEXT_STRING));
 
         String assignmentRef = (String) state.getAttribute(EXPORT_ASSIGNMENT_REF);
         Assignment a = getAssignment(assignmentRef, "build_instructor_download_upload_all", state);
         if (a != null) {
-
-            String accessPointUrl = serverConfigurationService.getAccessUrl().concat(assignmentService.submissionsZipReference(
-                    contextString, assignmentRef));
-            context.put("accessPointUrl", accessPointUrl);
+            context.put("accessPointUrl", serverConfigurationService.getAccessUrl().concat(assignmentRef));
 
             Assignment.SubmissionType submissionType = a.getTypeOfSubmission();
             // if the assignment is of text-only or allow both text and attachment, include option for uploading student submit text
-            context.put("includeSubmissionText", Boolean.valueOf(Assignment.SubmissionType.TEXT_ONLY_ASSIGNMENT_SUBMISSION == submissionType || Assignment.SubmissionType.TEXT_AND_ATTACHMENT_ASSIGNMENT_SUBMISSION == submissionType));
+            context.put("includeSubmissionText", Assignment.SubmissionType.TEXT_ONLY_ASSIGNMENT_SUBMISSION == submissionType || Assignment.SubmissionType.TEXT_AND_ATTACHMENT_ASSIGNMENT_SUBMISSION == submissionType);
 
             // if the assignment is of attachment-only or allow both text and attachment, include option for uploading student attachment
-            context.put("includeSubmissionAttachment", Boolean.valueOf(Assignment.SubmissionType.ATTACHMENT_ONLY_ASSIGNMENT_SUBMISSION == submissionType || Assignment.SubmissionType.TEXT_AND_ATTACHMENT_ASSIGNMENT_SUBMISSION == submissionType || Assignment.SubmissionType.SINGLE_ATTACHMENT_SUBMISSION == submissionType));
+            context.put("includeSubmissionAttachment", Assignment.SubmissionType.ATTACHMENT_ONLY_ASSIGNMENT_SUBMISSION == submissionType || Assignment.SubmissionType.TEXT_AND_ATTACHMENT_ASSIGNMENT_SUBMISSION == submissionType || Assignment.SubmissionType.SINGLE_ATTACHMENT_SUBMISSION == submissionType);
 
             context.put("viewString", state.getAttribute(VIEW_SUBMISSION_LIST_OPTION) != null ? state.getAttribute(VIEW_SUBMISSION_LIST_OPTION) : "");
 
@@ -4774,9 +4761,8 @@ public class AssignmentAction extends PagedResourceActionII {
             context.put("showSubmissionByFilterSearchOnly", state.getAttribute(SUBMISSIONS_SEARCH_ONLY) != null && ((Boolean) state.getAttribute(SUBMISSIONS_SEARCH_ONLY)) ? Boolean.TRUE : Boolean.FALSE);
         }
 
-        String template = (String) getContext(data).get("template");
+        String template = getContext(data).get("template");
         return template + TEMPLATE_INSTRUCTOR_UPLOAD_ALL;
-
     } // build_instructor_upload_all
 
     /**

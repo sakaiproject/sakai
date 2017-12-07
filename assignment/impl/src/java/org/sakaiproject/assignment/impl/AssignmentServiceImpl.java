@@ -49,8 +49,6 @@ import java.util.StringTokenizer;
 import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -77,7 +75,6 @@ import org.sakaiproject.assignment.api.model.AssignmentSubmission;
 import org.sakaiproject.assignment.api.model.AssignmentSubmissionSubmitter;
 import org.sakaiproject.assignment.api.model.AssignmentSupplementItemAttachment;
 import org.sakaiproject.assignment.api.model.AssignmentSupplementItemService;
-import org.sakaiproject.assignment.impl.sort.AnonymousSubmissionComparator;
 import org.sakaiproject.assignment.impl.sort.AssignmentSubmissionComparator;
 import org.sakaiproject.assignment.impl.sort.UserComparator;
 import org.sakaiproject.assignment.persistence.AssignmentRepository;
@@ -102,11 +99,7 @@ import org.sakaiproject.contentreview.service.ContentReviewService;
 import org.sakaiproject.email.api.DigestService;
 import org.sakaiproject.email.api.EmailService;
 import org.sakaiproject.entity.api.Entity;
-import org.sakaiproject.entity.api.EntityAccessOverloadException;
-import org.sakaiproject.entity.api.EntityCopyrightException;
 import org.sakaiproject.entity.api.EntityManager;
-import org.sakaiproject.entity.api.EntityNotDefinedException;
-import org.sakaiproject.entity.api.EntityPermissionException;
 import org.sakaiproject.entity.api.EntityTransferrer;
 import org.sakaiproject.entity.api.EntityTransferrerRefMigrator;
 import org.sakaiproject.entity.api.HttpAccess;
@@ -444,37 +437,43 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
 
     @Override
     public HttpAccess getHttpAccess() {
-        return new HttpAccess() {
-            @Override
-            public void handleAccess(HttpServletRequest req, HttpServletResponse res, Reference ref, Collection copyrightAcceptedRefs)
-                    throws EntityPermissionException, EntityNotDefinedException, EntityAccessOverloadException, EntityCopyrightException {
-                if (sessionManager.getCurrentSessionUserId() == null) {
-                    // fail the request, user not logged in yet.
-                } else {
-                    if (REF_TYPE_SUBMISSIONS.equals(ref.getSubType())) {
-                        String queryString = req.getQueryString();
-                        res.setContentType("application/zip");
-                        res.setHeader("Content-Disposition", "attachment; filename = bulk_download.zip");
+        return (req, res, ref, copyrightAcceptedRefs) -> {
+            if (sessionManager.getCurrentSessionUserId() == null) {
+                log.warn("Only logged in users can access assignment downloads");
+            } else {
+                // determine the type of download to create using the reference that was requested
+                AssignmentReferenceReckoner.AssignmentReference refReckoner = AssignmentReferenceReckoner.reckoner().reference(ref.getReference()).reckon();
+                if (REFERENCE_ROOT.equals("/" + refReckoner.getType())) {
+                    // don't process any references that are not of type assignment
+                    switch (refReckoner.getSubtype()) {
+                        case REF_TYPE_CONTENT:
+                        case REF_TYPE_ASSIGNMENT:
+                            String queryString = req.getQueryString();
+                            if (StringUtils.isNotBlank(refReckoner.getId())) {
+                                // if subtype is assignment then were downloading all submissions for an assignment
+                                res.setContentType("application/zip");
+                                res.setHeader("Content-Disposition", "attachment; filename = bulk_download.zip");
 
-                        try (OutputStream out = res.getOutputStream()) {
-                            // get the submissions zip blob
-                            getSubmissionsZip(out, ref.getReference(), queryString);
+                                try (OutputStream out = res.getOutputStream()) {
+                                    getSubmissionsZip(out, ref.getReference(), queryString);
+                                } catch (Exception ignore) {
+                                    log.warn("Could not stream the zip of submissions for reference: {}", ref.getReference());
+                                }
+                            } else {
+                                // if subtype is assignment and there is no assignmentId then were downloading grades
+                                res.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+                                res.setHeader("Content-Disposition", "attachment; filename = export_grades_file.xlsx");
 
-                        } catch (Exception ignore) {
-                            log.error("Could not stream the zip of submissions for ref = {}", ref.getReference());
-                        }
-                    } else if (REF_TYPE_GRADES.equals(ref.getSubType())) {
-                        res.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
-                        res.setHeader("Content-Disposition", "attachment; filename = export_grades_file.xlsx");
-
-                        try (OutputStream out = res.getOutputStream()) {
-                            gradeSheetExporter.getGradesSpreadsheet(out, ref.getReference());
-                        } catch (Exception ignore) {
-                            log.error("Could not stream the grades for ref = {}", ref.getReference());
-                        }
-                    } else {
-                        log.warn("Unhandled reference = {}", ref.getReference());
-                        throw new EntityNotDefinedException(ref.getReference());
+                                try (OutputStream out = res.getOutputStream()) {
+                                    gradeSheetExporter.getGradesSpreadsheet(out, ref.getReference(), queryString);
+                                } catch (Exception ignore) {
+                                    log.warn("Could not stream the grades for reference: {}", ref.getReference());
+                                }
+                            }
+                            break;
+                        case REF_TYPE_SUBMISSION:
+                        default:
+                            log.warn("Assignments download unhandled download type for reference: {}", ref.getReference());
                     }
                 }
             }
@@ -1583,20 +1582,20 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
         byte[] rv = null;
 
         try {
-            String aRef = AssignmentReferenceReckoner.reckoner().reference(reference).reckon().getId();
-            Assignment assignment = getAssignment(aRef);
+            String id = AssignmentReferenceReckoner.reckoner().reference(reference).reckon().getId();
+            Assignment assignment = getAssignment(id);
 
             if (assignment.getIsGroup()) {
                 Collection<Group> submitterGroups = getSubmitterGroupList(searchFilterOnly,
                         viewString.length() == 0 ? AssignmentConstants.ALL : viewString,
                         searchString,
-                        aRef,
+                        id,
                         contextString == null ? assignment.getContext() : contextString);
                 if (submitterGroups != null && !submitterGroups.isEmpty()) {
                     List<AssignmentSubmission> submissions = new ArrayList<>();
                     for (Group g : submitterGroups) {
                         log.debug("ZIP GROUP " + g.getTitle());
-                        AssignmentSubmission sub = getSubmission(aRef, g.getId());
+                        AssignmentSubmission sub = getSubmission(id, g.getId());
                         log.debug("ZIP GROUP " + g.getTitle() + " SUB " + (sub == null ? "null" : sub.getId()));
                         if (sub != null) {
                             submissions.add(sub);
@@ -1604,12 +1603,12 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                     }
                     StringBuilder exceptionMessage = new StringBuilder();
 
-                    if (allowGradeSubmission(aRef)) {
-                        zipGroupSubmissions(aRef,
+                    if (allowGradeSubmission(reference)) {
+                        zipGroupSubmissions(reference,
                                 assignment.getTitle(),
                                 assignment.getTypeOfGrade().toString(),
                                 assignment.getTypeOfSubmission(),
-                                new SortedIterator(submissions.iterator(), new AssignmentSubmissionComparator(siteService)),
+                                new SortedIterator(submissions.iterator(), new AssignmentSubmissionComparator(applicationContext.getBean(AssignmentService.class), siteService, userDirectoryService)),
                                 out,
                                 exceptionMessage,
                                 withStudentSubmissionText,
@@ -1633,7 +1632,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                 Map<User, AssignmentSubmission> submitters = getSubmitterMap(searchFilterOnly,
                         viewString.length() == 0 ? AssignmentConstants.ALL : viewString,
                         searchString,
-                        aRef,
+                        reference,
                         contextString == null ? assignment.getContext() : contextString);
 
                 if (!submitters.isEmpty()) {
@@ -1641,18 +1640,12 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
 
                     StringBuilder exceptionMessage = new StringBuilder();
 
-                    if (allowGradeSubmission(aRef)) {
-                        SortedIterator sortedIterator;
-                        if (assignmentUsesAnonymousGrading(assignment)) {
-                            sortedIterator = new SortedIterator(submissions.iterator(), new AnonymousSubmissionComparator());
-                        } else {
-                            sortedIterator = new SortedIterator(submissions.iterator(), new AssignmentSubmissionComparator(siteService));
-                        }
-                        zipSubmissions(aRef,
+                    if (allowGradeSubmission(reference)) {
+                        zipSubmissions(reference,
                                 assignment.getTitle(),
                                 assignment.getTypeOfGrade(),
                                 assignment.getTypeOfSubmission(),
-                                sortedIterator,
+                                new SortedIterator(submissions.iterator(), new AssignmentSubmissionComparator(applicationContext.getBean(AssignmentService.class), siteService, userDirectoryService)),
                                 out,
                                 exceptionMessage,
                                 withStudentSubmissionText,
@@ -1694,25 +1687,6 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
     @Override
     public String submissionReference(String context, String id, String assignmentId) {
         return AssignmentReferenceReckoner.reckoner().context(context).id(id).container(assignmentId).reckon().getReference();
-    }
-
-    @Override
-    public String gradesSpreadsheetReference(String context, String assignmentId) {
-        // TODO does ref get handled by ReferenceReckoner?
-        // based on all assignment in that context
-        String s = REFERENCE_ROOT + Entity.SEPARATOR + REF_TYPE_GRADES + Entity.SEPARATOR + context;
-        if (assignmentId != null) {
-            // based on the specified assignment only
-            s = s.concat(Entity.SEPARATOR + assignmentId);
-        }
-        return s;
-    }
-
-    @Override
-    public String submissionsZipReference(String context, String assignmentReference) {
-        // TODO does ref get handled by ReferenceReckoner?
-        // based on the specified assignment
-        return REFERENCE_ROOT + Entity.SEPARATOR + REF_TYPE_SUBMISSIONS + Entity.SEPARATOR + context + Entity.SEPARATOR + assignmentReference;
     }
 
     @Override
