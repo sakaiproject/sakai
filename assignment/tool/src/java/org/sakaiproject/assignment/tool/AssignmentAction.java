@@ -11799,17 +11799,16 @@ public class AssignmentAction extends PagedResourceActionII {
                 Collection<Assignment> assignments = assignmentService.getAssignmentsForContext(contextString);
                 Boolean has_multiple_groups_for_user = false;
                 List<SubmitterSubmission> submissions = new ArrayList<>();
-                Site site = null;
 
                 try {
-                    site = siteService.getSite(contextString);
+                    Site site = siteService.getSite(contextString);
 
                     for (Assignment a : assignments) {
                         String aRef = AssignmentReferenceReckoner.reckoner().assignment(a).reckon().getReference();
                         List<String> submitterIds = assignmentService.getSubmitterIdList(searchFilterOnly.toString(), allOrOneGroup, search, aRef, contextString);
-                        Collection<String> dupUsers = new ArrayList<String>();
+                        Collection<String> dupUsers = new ArrayList<>();
                         if (a.getIsGroup()) {
-                            Collection<Group> submitterGroups = assignmentService.getSubmitterGroupList(searchFilterOnly.toString(), allOrOneGroup, "", aRef, contextString);
+                            Collection<Group> submitterGroups = assignmentService.getSubmitterGroupList(searchFilterOnly.toString(), allOrOneGroup, "", a.getId(), contextString);
                             for (Group group : submitterGroups) {
                                 submitterIds.add(group.getId());
                             }
@@ -11824,44 +11823,53 @@ public class AssignmentAction extends PagedResourceActionII {
                             Set<AssignmentSubmission> ss = assignmentService.getSubmissions(a);
                             for (AssignmentSubmission s : ss) {
                                 if (s.getSubmitted() || (s.getReturned() && (s.getDateModified().isBefore(s.getDateReturned())))) {
-                                    //If the group search is null or if it contains the group
+                                    // if the group search is null or if it contains the group
                                     Set<AssignmentSubmissionSubmitter> submitters = s.getSubmitters();
-                                    AssignmentSubmissionSubmitter submittee = null;
                                     if (a.getIsGroup()) {
-                                        for (AssignmentSubmissionSubmitter submitter : submitters) {
-                                            if (submitter.getSubmittee()) {
-                                                submittee = submitter;
+                                        if (submitterIds.contains(s.getGroupId())) {
+                                            for (AssignmentSubmissionSubmitter submitter : submitters) {
+                                                if (submitterIds.contains(submitter.getSubmitter())) {
+                                                    Member member = site.getMember(submitter.getSubmitter());
+                                                    if (member != null && member.isActive()) {
+                                                        // only include the active student submission
+                                                        // conder TODO create temporary submissions
+                                                        try {
+                                                            User user = userDirectoryService.getUser(submitter.getSubmitter());
+                                                            SubmitterSubmission subsub = new SubmitterSubmission(user, s);
+                                                            subsub.setGroup(site.getGroup(s.getGroupId()));
+                                                            if (dupUsers.contains(submitter.getSubmitter())) {
+                                                                subsub.setMultiGroup(true);
+                                                                has_multiple_groups_for_user = true;
+                                                            }
+                                                            submissions.add(subsub);
+                                                        } catch (UserNotDefinedException e) {
+                                                            log.warn("Cannot find user id={}, {}", submitter.getSubmitter(), e.getMessage());
+                                                        }
+                                                    }
+                                                }
                                             }
                                         }
                                     } else {
-                                        submittee = submitters.toArray(new AssignmentSubmissionSubmitter[0])[0];
-                                    }
-
-                                    if (!allowGradeAssignmentUsers.contains(submittee.getSubmitter())) {
-                                        // find whether the submitter is still an active member of the site
-                                        Member member = site.getMember(submittee.getSubmitter());
-                                        if (member != null && member.isActive()) {
-                                            // only include the active student submission
-                                            try {
-                                                User user = userDirectoryService.getUser(submittee.getSubmitter());
-                                                SubmitterSubmission subsub = new SubmitterSubmission(user, s);
-                                                if (a.getIsGroup()) {
-                                                    subsub.setGroup(site.getGroup(submittee.getSubmitter()));
-                                                    if (!dupUsers.isEmpty() && dupUsers.contains(submittee.getSubmitter())) {
-                                                        subsub.setMultiGroup(true);
-                                                        has_multiple_groups_for_user = true;
+                                        submitters.stream().filter(submitter -> submitterIds.contains(submitter.getSubmitter())).forEach(submitter -> {
+                                            if (!allowGradeAssignmentUsers.contains(submitter.getSubmitter())) {
+                                                // find whether the submitter is still an active member of the site
+                                                Member member = site.getMember(submitter.getSubmitter());
+                                                if (member != null && member.isActive()) {
+                                                    // only include the active student submission
+                                                    try {
+                                                        User user = userDirectoryService.getUser(submitter.getSubmitter());
+                                                        SubmitterSubmission subsub = new SubmitterSubmission(user, s);
+                                                        submissions.add(subsub);
+                                                    } catch (UserNotDefinedException e) {
+                                                        log.warn("Cannot find user id={}, {}", submitter.getSubmitter(), e.getMessage());
                                                     }
                                                 }
-                                                submissions.add(subsub);
-                                            } catch (UserNotDefinedException e) {
-                                                log.warn("Cannot find user id={}, {}", submittee.getSubmitter(), e.getMessage());
                                             }
-                                        }
+                                        });
                                     }
                                 } // if-else
                             }
                         }
-                        returnResources = submissions;
                     }
                 } catch (IdUnusedException e) {
                     log.warn("Could not retrieve site: {}, {}", contextString, e.getMessage());
@@ -11870,6 +11878,8 @@ public class AssignmentAction extends PagedResourceActionII {
                 if (has_multiple_groups_for_user) {
                     addAlert(state, rb.getString("group.user.multiple.error"));
                 }
+
+                returnResources = submissions;
                 break;
             }
             case MODE_INSTRUCTOR_GRADE_ASSIGNMENT:
