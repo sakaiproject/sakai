@@ -287,7 +287,7 @@ public class GradeSheetExporter {
                                 Submitter submitter = submitterMap.get(submissionSubmitters[0].getSubmitter());
                                 // Get the user ID for this result
                                 if (assignmentService.assignmentUsesAnonymousGrading(a)) {
-                                    submitter = new Submitter(submission.getAnonymousSubmissionId(), submitter);
+                                    submitter = new Submitter(submission.getId() + " " + rb.getString("grading.anonymous.title"), submitter);
                                 }
 
                                 List<Object> objects = results.get(submitter);

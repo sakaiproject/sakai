@@ -12904,7 +12904,7 @@ public class AssignmentAction extends PagedResourceActionII {
                             List<Reference> feedbackAttachments = entityManager.newReferenceList();
                             feedbackAttachments.addAll(s.getFeedbackAttachments().stream().map(entityManager::newReference).collect(Collectors.toList()));
                             submissionTable.put(eid, new UploadGradeWrapper(s.getGrade(), s.getSubmittedText(), s.getFeedbackComment(), hasSubmissionAttachment ? new ArrayList() : attachments, hasFeedbackAttachment ? new ArrayList() : feedbackAttachments, (s.getSubmitted() && s.getDateSubmitted() != null) ? s.getDateSubmitted().toString() : "", s.getFeedbackText()));
-                            anonymousSubmissionAndEidTable.put(s.getAnonymousSubmissionId(), eid);
+                            anonymousSubmissionAndEidTable.put(s.getId(), eid);
                         }
                     }
 
@@ -14842,8 +14842,8 @@ public class AssignmentAction extends PagedResourceActionII {
                 if (u1 == null || u2 == null || (u1.getUser() == null && u1.getGroup() == null) || (u2.getUser() == null && u2.getGroup() == null)) {
                     result = 1;
                 } else if (m_anon) {
-                    String anon1 = u1.getSubmission().getAnonymousSubmissionId();
-                    String anon2 = u2.getSubmission().getAnonymousSubmissionId();
+                    String anon1 = u1.getSubmission().getId();
+                    String anon2 = u2.getSubmission().getId();
                     result = compareString(anon1, anon2);
                 } else {
                     String lName1 = u1.getUser() == null ? u1.getGroup().getTitle() : u1.getUser().getSortName();

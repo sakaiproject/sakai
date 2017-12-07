@@ -141,9 +141,6 @@ public class AssignmentSubmission {
     @Column(name = "HONOR_PLEDGE")
     private Boolean honorPledge = Boolean.FALSE;
 
-    @Column(name = "ANONYMOUS_SUBMISSION_ID")
-    private String anonymousSubmissionId;
-
     @Column(name = "HIDDEN_DUE_DATE")
     private Boolean hiddenDueDate = Boolean.FALSE;
 

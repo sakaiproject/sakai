@@ -19,7 +19,7 @@
                     $tlang.getString("gen.student")
                 </th>
                 <td>
-					#set($anonymousSubmissionId = $!submission.AnonymousSubmissionId)
+					#set($anonymousSubmissionId = $!submission.Id + ' ' + ($tlang.getString("grading.anonymous.title")))
 					#if ($value_CheckAnonymousGrading.equals("true"))
                     $anonymousSubmissionId
                 #else
