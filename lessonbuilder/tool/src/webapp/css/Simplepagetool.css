@@ -1727,7 +1727,7 @@ background: none !important;
 
 .sectionHeader .collapseIcon {
     font-family: FontAwesome;
-    margin-left: 1em;
+    margin-right: 4px;
 }
 
 .sectionCollapsedIcon {

@@ -2446,7 +2446,7 @@ $(document).ready(function() {
 		var tail_cols = addAboveLI.parent().parent().nextAll();
 		var section = addAboveLI.parent().parent().parent();
 		var sectionId = "sectionid" + (nextid++);
-		section.prev('.sectionHeader').parent().after('<div><h3 class="sectionHeader skip"><span class="sectionHeaderText"></span><span class="toggleCollapse">' + msg('simplepage.clickToCollapse') + '</span><span aria-hidden="true" class="collapseIcon fa-caret-down"></span></h3><div class="section"><div class="column"><div class="editsection"><span class="sectionedit"><h3 class="offscreen">' + msg('simplepage.break-here') + '</h3><a href="/' + newitem + '" title="' + msg('simplepage.join-items') + '" class="section-merge-link" onclick="return false"><span aria-hidden="true" class="fa-compress fa-edit-icon sectioneditfont"></span></a></span><span class="sectionedit sectionedit2"><a href="/lessonbuilder-tool/templates/#" title="' + msg('simplepage.columnopen') + '" class="columnopen"><span aria-hidden="true" class="fa-cog fa-edit-icon sectioneditfont"></span></a></span></div><span class="sectionedit addbottom"><a href="#" title="Add new item at bottom of this column" class="add-bottom"><span aria-hidden="true" class="fa-plus fa-edit-icon plus-edit-icon"></span></a></span><ul border="0" role="list" style="z-index: 1;" class="indent mainList"><li class="breaksection" role="listitem"><span style="display:none" class="itemid">' + newitem + '</span></li></ul></div></div></div>');
+		section.prev('.sectionHeader').parent().after('<div><h3 class="sectionHeader skip"><span aria-hidden="true" class="collapseIcon fa-caret-down"><span class="sectionHeaderText"></span><span class="toggleCollapse">' + msg('simplepage.clickToCollapse') + '</span></span></h3><div class="section"><div class="column"><div class="editsection"><span class="sectionedit"><h3 class="offscreen">' + msg('simplepage.break-here') + '</h3><a href="/' + newitem + '" title="' + msg('simplepage.join-items') + '" class="section-merge-link" onclick="return false"><span aria-hidden="true" class="fa-compress fa-edit-icon sectioneditfont"></span></a></span><span class="sectionedit sectionedit2"><a href="/lessonbuilder-tool/templates/#" title="' + msg('simplepage.columnopen') + '" class="columnopen"><span aria-hidden="true" class="fa-cog fa-edit-icon sectioneditfont"></span></a></span></div><span class="sectionedit addbottom"><a href="#" title="Add new item at bottom of this column" class="add-bottom"><span aria-hidden="true" class="fa-plus fa-edit-icon plus-edit-icon"></span></a></span><ul border="0" role="list" style="z-index: 1;" class="indent mainList"><li class="breaksection" role="listitem"><span style="display:none" class="itemid">' + newitem + '</span></li></ul></div></div></div>');
 		// now go to new section
 		section = section.prev('.sectionHeader').parent().next().children(".section");
 
@@ -2804,14 +2804,14 @@ function setCollapsedStatus(header, collapse) {
 	collapse = header.find('.collapseIcon').hasClass("fa-caret-down");
     }
     if (collapse) {
-	header.find('.collapseIcon').addClass("fa-caret-left");
+	header.find('.collapseIcon').addClass("fa-caret-right");
 	header.find('.collapseIcon').removeClass("fa-caret-down");
 	header.find('.toggleCollapse').text(msg('simplepage.clickToExpand'));
 	header.attr('aria-expanded', 'false');
 	header.addClass('closedSectionHeader');
 	header.removeClass('openSectionHeader');
     } else {
-	header.find('.collapseIcon').removeClass("fa-caret-left");
+	header.find('.collapseIcon').removeClass("fa-caret-right");
 	header.find('.collapseIcon').addClass("fa-caret-down");
 	header.find('.toggleCollapse').text(msg('simplepage.clickToCollapse'));
 	header.attr('aria-expanded', 'true');
