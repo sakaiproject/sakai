@@ -1467,7 +1467,7 @@ GbGradeTable.applyColumnFilter = function(data) {
 GbGradeTable.applyStudentFilter = function(data) {
   var query = $("#studentFilterInput").val();
 
-  if (query == "") {
+  if (typeof query == 'undefined' || query == "") {
     return data;
   } else {
     var queryStrings = query.split(" ");

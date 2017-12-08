@@ -52,15 +52,17 @@
 
     <div wicket:id="toolbar" id="gradebookGradesToolbar" class="btn-toolbar">
       <ul class="gb-toolbar-left">
-        <li>
-            <div class="gb-student-filter">
-                <label for="studentFilterInput" class="sr-only"><wicket:message key="filter.students"/></label>
-                <input type="text" id="studentFilterInput" class="form-control" aria-controls="gradeTable" wicket:message="placeholder:filter.students" accesskey="f">
-                <a class="gb-student-filter-clear-button" wicket:message="title:filter.studentsclear" href="javascript:void(0)">
-                    <i class="fa fa-times-circle" aria-hidden="true"></i>
-                </a>
-            </div>
-        </li>
+        <wicket:enclosure>
+            <li>
+                <div class="gb-student-filter">
+                    <label for="studentFilterInput" class="sr-only"><wicket:message key="filter.students"/></label>
+                    <input type="text" id="studentFilterInput" class="form-control" aria-controls="gradeTable" wicket:id="studentFilter" wicket:message="placeholder:filter.students" accesskey="f">
+                    <a class="gb-student-filter-clear-button" wicket:message="title:filter.studentsclear" href="javascript:void(0)">
+                        <i class="fa fa-times-circle" aria-hidden="true"></i>
+                    </a>
+                </div>
+            </li>
+        </wicket:enclosure>
         <wicket:enclosure>
             <li><span wicket:id="groupFilterOnlyOne" class="gb-group-title" role="status">Section 001</span></li>
         </wicket:enclosure>
