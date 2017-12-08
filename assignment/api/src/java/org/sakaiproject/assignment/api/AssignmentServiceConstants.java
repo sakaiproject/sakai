@@ -94,10 +94,6 @@ public final class AssignmentServiceConstants {
      */
     public static final String REF_TYPE_ASSIGNMENT = "a";
     /**
-     * The Reference type for an assignment where site groups are to be considered in security computation.
-     */
-    public static final String REF_TYPE_ASSIGNMENT_GROUPS = "a-groups";
-    /**
      * The Reference type for a submission.
      */
     public static final String REF_TYPE_SUBMISSION = "s";
@@ -105,14 +101,7 @@ public final class AssignmentServiceConstants {
      * The Reference type for a content.
      */
     public static final String REF_TYPE_CONTENT = "c";
-    /**
-     * The Reference type for a grade spreadsheet.
-     */
-    public static final String REF_TYPE_GRADES = "grades";
-    /**
-     * The Reference type for a submissions zip.
-     */
-    public static final String REF_TYPE_SUBMISSIONS = "submissions";
+
     // the three choices for Gradebook Integration
     public static final String GRADEBOOK_INTEGRATION_NO = "no";
     public static final String GRADEBOOK_INTEGRATION_ADD = "add";
