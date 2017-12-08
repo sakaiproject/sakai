@@ -2393,7 +2393,7 @@ public class AssignmentAction extends PagedResourceActionII {
 
         String gs = (String) state.getAttribute(NEW_ASSIGNMENT_GROUP_SUBMIT);
         if (gs != null && "1".equals(gs)) {
-            contextAdditionalOptions = "group";
+            contextAdditionalOptions = Assignment.Access.GROUP.toString();
         }
 
         // set the values
@@ -2587,7 +2587,7 @@ public class AssignmentAction extends PagedResourceActionII {
         context.put("contentTypeImageService", contentTypeImageService);
 
         String range = StringUtils.trimToNull((String) state.getAttribute(NEW_ASSIGNMENT_RANGE));
-        context.put("range", range != null ? range : "site");
+        context.put("range", range != null ? range : Assignment.Access.SITE.toString());
 
         String contextString = (String) state.getAttribute(STATE_CONTEXT_STRING);
         // put site object into context
@@ -2615,10 +2615,10 @@ public class AssignmentAction extends PagedResourceActionII {
         if (range == null) {
             if (assignmentService.allowAddSiteAssignment(contextString)) {
                 // default to make site selection
-                context.put("range", "site");
+                context.put("range", Assignment.Access.SITE.toString());
             } else if (groupsAllowAddAssignment.size() > 0) {
                 // to group otherwise
-                context.put("range", "groups");
+                context.put("range", Assignment.Access.GROUP.toString());
             }
         }
 
@@ -6533,7 +6533,7 @@ public class AssignmentAction extends PagedResourceActionII {
         String additionalOptions = params.getString(NEW_ASSIGNMENT_ADDITIONAL_OPTIONS);
 
         boolean groupAssignment = false;
-        if (StringUtils.equals("group", additionalOptions)) {
+        if (StringUtils.equals(Assignment.Access.GROUP.toString(), additionalOptions)) {
             state.setAttribute(NEW_ASSIGNMENT_GROUP_SUBMIT, "1");
             groupAssignment = true;
         } else {
@@ -6886,7 +6886,7 @@ public class AssignmentAction extends PagedResourceActionII {
         // assignment range?
         String range = data.getParameters().getString("range");
         state.setAttribute(NEW_ASSIGNMENT_RANGE, range);
-        if ("groups".equals(range)) {
+        if (Assignment.Access.GROUP.toString().equals(range)) {
             String[] groupChoice = data.getParameters().getStrings("selectedGroups");
             if (groupChoice != null && groupChoice.length != 0) {
                 state.setAttribute(NEW_ASSIGNMENT_GROUPS, new ArrayList<>(Arrays.asList(groupChoice)));
@@ -6900,15 +6900,14 @@ public class AssignmentAction extends PagedResourceActionII {
 
         // check groups for duplicate members here
         if (groupAssignment) {
-            Collection<String> _dupUsers = usersInMultipleGroups(state, "groups".equals(range), ("groups".equals(range) ? data.getParameters().getStrings("selectedGroups") : null), false, null);
-            if (_dupUsers.size() > 0) {
-                StringBuilder _sb = new StringBuilder(rb.getString("group.user.multiple.warning") + " ");
-                Iterator<String> _it = _dupUsers.iterator();
-                if (_it.hasNext()) _sb.append(_it.next());
-                while (_it.hasNext())
-                    _sb.append(", " + _it.next());
-                addAlert(state, _sb.toString());
-                log.warn(this + ":post_save_assignment at least one user in multiple groups.");
+            Collection<String> users = usersInMultipleGroups(state, Assignment.Access.GROUP.toString().equals(range), (Assignment.Access.GROUP.toString().equals(range) ? data.getParameters().getStrings("selectedGroups") : null), false, null);
+            if (!users.isEmpty()) {
+                StringBuilder sb = new StringBuilder(rb.getString("group.user.multiple.warning") + " ");
+                for (String user : users) {
+                    sb.append(", " + user);
+                }
+                log.warn("{}", sb.toString());
+                addAlert(state, sb.toString());
             }
         }
 
@@ -8102,49 +8101,33 @@ public class AssignmentAction extends PagedResourceActionII {
             String addUpdateRemoveAssignment = "remove";
             if (!addtoGradebook.equals(AssignmentServiceConstants.GRADEBOOK_INTEGRATION_NO)) {
                 // if integrate with Gradebook
-                if (("groups".equals(range))) {
-                    // if grouped assignment is not allowed to add into Gradebook
-                    addAlert(state, rb.getString("java.alert.noGroupedAssignmentIntoGB"));
+                if (addtoGradebook.equals(AssignmentServiceConstants.GRADEBOOK_INTEGRATION_ADD)) {
+                    addUpdateRemoveAssignment = AssignmentServiceConstants.GRADEBOOK_INTEGRATION_ADD;
+                } else if (addtoGradebook.equals(AssignmentServiceConstants.GRADEBOOK_INTEGRATION_ASSOCIATE)) {
+                    addUpdateRemoveAssignment = "update";
+                }
 
-                    if (a != null) {
-                        a.getProperties().remove(NEW_ASSIGNMENT_ADD_TO_GRADEBOOK);
-                        a.getProperties().remove(AssignmentServiceConstants.PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT);
-                        try {
-                            assignmentService.updateAssignment(a);
-                        } catch (PermissionException e) {
-                            log.warn("Can't update assignment, {}", e.getMessage());
+                if (!"remove".equals(addUpdateRemoveAssignment) && gradeType == SCORE_GRADE_TYPE) {
+                    try {
+                        integrateGradebook(state, assignmentReference, associateGradebookAssignment, addUpdateRemoveAssignment, aOldTitle, title, Integer.parseInt(gradePoints), dueTime, null, null, category);
+
+                        // add all existing grades, if any, into Gradebook
+                        integrateGradebook(state, assignmentReference, associateGradebookAssignment, null, null, null, -1, null, null, "update", category);
+
+                        // if the assignment has been assoicated with a different entry in gradebook before, remove those grades from the entry in Gradebook
+                        if (StringUtils.trimToNull(oAssociateGradebookAssignment) != null && !oAssociateGradebookAssignment.equals(associateGradebookAssignment)) {
+                            // remove all previously associated grades, if any, into Gradebook
+                            integrateGradebook(state, assignmentReference, oAssociateGradebookAssignment, null, null, null, -1, null, null, "remove", category);
+
+                            // if the old assoicated assignment entry in GB is an external one, but doesn't have anything assoicated with it in Assignment tool, remove it
+                            removeNonAssociatedExternalGradebookEntry(context, assignmentReference, oAssociateGradebookAssignment, gradebookUid);
                         }
+                    } catch (NumberFormatException nE) {
+                        alertInvalidPoint(state, gradePoints, a.getScaleFactor());
+                        log.warn(this + ":initIntegrateWithGradebook " + nE.getMessage());
                     }
-                    integrateGradebook(state, assignmentReference, associateGradebookAssignment, "remove", null, null, -1, null, null, null, category);
                 } else {
-                    if (addtoGradebook.equals(AssignmentServiceConstants.GRADEBOOK_INTEGRATION_ADD)) {
-                        addUpdateRemoveAssignment = AssignmentServiceConstants.GRADEBOOK_INTEGRATION_ADD;
-                    } else if (addtoGradebook.equals(AssignmentServiceConstants.GRADEBOOK_INTEGRATION_ASSOCIATE)) {
-                        addUpdateRemoveAssignment = "update";
-                    }
-
-                    if (!"remove".equals(addUpdateRemoveAssignment) && gradeType == SCORE_GRADE_TYPE) {
-                        try {
-                            integrateGradebook(state, assignmentReference, associateGradebookAssignment, addUpdateRemoveAssignment, aOldTitle, title, Integer.parseInt(gradePoints), dueTime, null, null, category);
-
-                            // add all existing grades, if any, into Gradebook
-                            integrateGradebook(state, assignmentReference, associateGradebookAssignment, null, null, null, -1, null, null, "update", category);
-
-                            // if the assignment has been assoicated with a different entry in gradebook before, remove those grades from the entry in Gradebook
-                            if (StringUtils.trimToNull(oAssociateGradebookAssignment) != null && !oAssociateGradebookAssignment.equals(associateGradebookAssignment)) {
-                                // remove all previously associated grades, if any, into Gradebook
-                                integrateGradebook(state, assignmentReference, oAssociateGradebookAssignment, null, null, null, -1, null, null, "remove", category);
-
-                                // if the old assoicated assignment entry in GB is an external one, but doesn't have anything assoicated with it in Assignment tool, remove it
-                                removeNonAssociatedExternalGradebookEntry(context, assignmentReference, oAssociateGradebookAssignment, gradebookUid);
-                            }
-                        } catch (NumberFormatException nE) {
-                            alertInvalidPoint(state, gradePoints, a.getScaleFactor());
-                            log.warn(this + ":initIntegrateWithGradebook " + nE.getMessage());
-                        }
-                    } else {
-                        integrateGradebook(state, assignmentReference, associateGradebookAssignment, "remove", null, null, -1, null, null, null, category);
-                    }
+                    integrateGradebook(state, assignmentReference, associateGradebookAssignment, "remove", null, null, -1, null, null, null, category);
                 }
             } else {
                 // remove all previously associated grades, if any, into Gradebook
@@ -8647,9 +8630,9 @@ public class AssignmentAction extends PagedResourceActionII {
         a.setPeerAssessmentInstructions(peerAssessmentInstructions);
 
         try {
-            if ("site".equals(range)) {
+            if (Assignment.Access.SITE.toString().equals(range)) {
                 a.setTypeOfAccess(Assignment.Access.SITE);
-            } else if ("groups".equals(range)) {
+            } else if (Assignment.Access.GROUP.toString().equals(range)) {
                 a.setTypeOfAccess(Assignment.Access.GROUP);
                 a.setGroups(groups.stream().map(Group::getReference).collect(Collectors.toSet()));
             }
@@ -9123,9 +9106,9 @@ public class AssignmentAction extends PagedResourceActionII {
 
                 // group setting
                 if (a.getTypeOfAccess().equals(Assignment.Access.SITE)) {
-                    state.setAttribute(NEW_ASSIGNMENT_RANGE, "site");
+                    state.setAttribute(NEW_ASSIGNMENT_RANGE, Assignment.Access.SITE.toString());
                 } else {
-                    state.setAttribute(NEW_ASSIGNMENT_RANGE, "groups");
+                    state.setAttribute(NEW_ASSIGNMENT_RANGE, Assignment.Access.GROUP.toString());
                 }
 
                 // SAK-17606
@@ -14578,16 +14561,15 @@ public class AssignmentAction extends PagedResourceActionII {
                 rv = rb.getString("range.allgroups");
             } else {
                 try {
-                    // get current site
-                    Site site = siteService.getSite(toolManager.getCurrentPlacement().getContext());
-                    for (Iterator k = a.getGroups().iterator(); k.hasNext(); ) {
+                    Site site = siteService.getSite(a.getContext());
+                    for (String s : a.getGroups()) {
                         // announcement by group
-                        Group _aGroup = site.getGroup((String) k.next());
-                        if (_aGroup != null)
-                            rv = rv.concat(_aGroup.getTitle());
+                        Group group = site.getGroup(s);
+                        if (group != null)
+                            rv = rv.concat(group.getTitle());
                     }
-                } catch (Exception ignore) {
-                    log.warn(this + ":getAssignmentRange" + ignore.getMessage());
+                } catch (IdUnusedException iue) {
+                    log.warn("Could not get site: {}, {}", a.getContext(), iue.getMessage());
                 }
             }
 
