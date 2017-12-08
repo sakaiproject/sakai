@@ -86,10 +86,6 @@ public final class AssignmentServiceConstants {
      */
     public static final String SECURE_SHARE_DRAFTS = "asn.share.drafts";
     /**
-     * The Reference type for a site where site groups are to be considered in security computation.
-     */
-    public static final String REF_TYPE_SITE_GROUPS = "site-groups";
-    /**
      * The Reference type for an assignment.
      */
     public static final String REF_TYPE_ASSIGNMENT = "a";
