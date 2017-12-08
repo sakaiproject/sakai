@@ -138,7 +138,7 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 	private ContentTypeImageService		M_ctis;
 	
 	/** Caching */
-	private Cache						cachePrefsData							= null;
+	private Cache<String, PrefsData>						cachePrefsData							= null;
 	
 	
 
@@ -335,7 +335,7 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 		
 		// Initialize cacheReportDef and event observer for preferences invalidation across cluster
 		M_ets.addPriorityObserver(this);
-		cachePrefsData = M_ms.newCache(PrefsData.class.getName());
+		cachePrefsData = M_ms.getCache(PrefsData.class.getName());
 		
 		logger.info("init(): - (Event.getContext()?, site visits enabled, charts background color, charts in 3D, charts transparency, item labels visible on bar charts) : " +
 							isEventContextSupported+','+enableSiteVisits+','+chartBackgroundColor+','+chartIn3D+','+chartTransparency+','+itemLabelsVisible);
