@@ -139,7 +139,7 @@ public class ReportManagerImpl extends HibernateDaoSupport implements ReportMana
 	private MemoryService			M_ms;
 	
 	/** Caching */
-	private Cache					cacheReportDef			= null;
+	private Cache<String, Object>					cacheReportDef			= null;
 	
 
 	// ################################################################
@@ -193,7 +193,7 @@ public class ReportManagerImpl extends HibernateDaoSupport implements ReportMana
 	public void init(){
 		// Initialize cacheReportDef and event observer for cacheReportDef invalidation across cluster
 		M_ets.addPriorityObserver(this);
-		cacheReportDef = M_ms.newCache(ReportDef.class.getName());
+		cacheReportDef = M_ms.getCache(ReportDef.class.getName());
 	}
 	
 	public void destroy(){

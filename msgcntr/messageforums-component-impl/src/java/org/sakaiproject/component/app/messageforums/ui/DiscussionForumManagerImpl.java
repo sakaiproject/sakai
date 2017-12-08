@@ -115,7 +115,7 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
   private UIPermissionsManager permissionsManager;
   private EntityBroker entityBroker;
   private MemoryService memoryService;
-  private Cache allowedFunctionsCache;
+  private Cache<String, Set<?>> allowedFunctionsCache;
   private EventTrackingService eventTrackingService;
   private ThreadLocalManager threadLocalManager;
   private ToolManager toolManager;
@@ -125,7 +125,7 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
   public void init()
   {
      LOG.info("init()");
-     allowedFunctionsCache = memoryService.newCache("org.sakaiproject.component.app.messageforums.ui.DiscussionForumManagerImpl.allowedFunctionsCache");
+     allowedFunctionsCache = memoryService.getCache("org.sakaiproject.component.app.messageforums.ui.DiscussionForumManagerImpl.allowedFunctionsCache");
   }
   
   public void setEntityBroker(EntityBroker entityBroker) {
