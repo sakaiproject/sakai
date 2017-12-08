@@ -622,7 +622,7 @@ ASN.toggleAddOptions = function(checked){
             section.style.display="block";
             ASN.resizeFrame('grow');
         //When Group Submission is checked
-        }else if (checked=="group"){
+        }else if (checked=="GROUP"){
             $("#site").prop("disabled", true);
             $("#groups").prop("checked", true).trigger("click");
         }

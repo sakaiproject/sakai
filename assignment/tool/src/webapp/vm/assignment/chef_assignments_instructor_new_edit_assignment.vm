@@ -466,7 +466,7 @@
                     #end
 
                     <div id="messages">
-                    #if( $!range == "groups" && $selectedGroupsNotFound )
+                    #if( $!range == "GROUP" && $selectedGroupsNotFound )
                         #if( $!groupsList.size() > 0 )
                             <div id="msgSelectedGroupsGoneOtherGroupsPresent" class="messageInformation indnt2" style="width: 80% !important;">$tlang.getString( "settings.access.selectedGroupsGoneOtherGroupsPresent" )</div>
                         #else
@@ -480,25 +480,25 @@
 		<div class="radio">
 			<label for="site">
 			#if( !$!allowGroupAssignmentsInGradebook )
-				<input type="radio" name="range" id="site" value="site" onclick="if (document.getElementById('addToGradebook') !=null){$('#addToGradebook').fadeOut('slow'); ASN.showOrHideAccessMessages( false ); ASN.resizeFrame()};$('#groupTable').fadeOut('slow'); ASN.showOrHideAccessMessages( false ); ASN.resizeFrame();"
-				#if( $!range == "site" || $selectedGroupsNotFound )
+				<input type="radio" name="range" id="site" value="SITE" onclick="if (document.getElementById('addToGradebook') !=null){$('#addToGradebook').fadeOut('slow'); ASN.showOrHideAccessMessages( false ); ASN.resizeFrame()};$('#groupTable').fadeOut('slow'); ASN.showOrHideAccessMessages( false ); ASN.resizeFrame();"
+				#if( $!range == "SITE" || $selectedGroupsNotFound )
 					checked="checked"
 				#end
-				#if($!assignment && !$assignment.draft && $!value_additionalOptions.equals("group"))
+				#if($!assignment && !$assignment.draft && $!value_additionalOptions.equals("GROUP"))
 					disabled="disabled"
 				#end
 				/>
 			#else
-				<input type="radio" name="range" id="site" value="site" onclick="$('#groupTable').fadeOut('slow'); ASN.showOrHideAccessMessages( false ); ASN.resizeFrame();"
-				#if( $!range == "site" || $selectedGroupsNotFound )
+				<input type="radio" name="range" id="site" value="SITE" onclick="$('#groupTable').fadeOut('slow'); ASN.showOrHideAccessMessages( false ); ASN.resizeFrame();"
+				#if( $!range == "SITE" || $selectedGroupsNotFound )
 					checked="checked"
-				#elseif (($!value_CheckIsGroupSubmission.equals("1") && $!groupsList) || ($!assignment && !$assignment.draft && $!value_additionalOptions.equals("group")))
+				#elseif (($!value_CheckIsGroupSubmission.equals("1") && $!groupsList) || ($!assignment && !$assignment.draft && $!value_additionalOptions.equals("GROUP")))
 					disabled="disabled"
 				#end
 				/>
 			#end
 				$tlang.getString("displayto.site")
-				#if($!assignment && !$assignment.draft && $!value_additionalOptions.equals("group"))
+				#if($!assignment && !$assignment.draft && $!value_additionalOptions.equals("GROUP"))
 					$tlang.getString("gen.cant.change.setting.after.draft")
 				#end
 			</label>
@@ -515,16 +515,16 @@
 		<div class="radio">
 			<label class="$class" for="groups">
 			#if( !$!allowGroupAssignmentsInGradebook )
-				<input type="radio" name="range" id="groups" value="groups" onclick="if (document.getElementById('addToGradebook') != null){document.getElementById('addToGradebook').style.display = 'none';document.getElementById('$!name_Addtogradebook').checked=false};$('#groupTable').fadeIn('slow'); ASN.showOrHideAccessMessages( true ); ASN.resizeFrame();"
-				#if( $!range == "groups" && !$selectedGroupsNotFound )
+				<input type="radio" name="range" id="groups" value="GROUP" onclick="if (document.getElementById('addToGradebook') != null){document.getElementById('addToGradebook').style.display = 'none';document.getElementById('$!name_Addtogradebook').checked=false};$('#groupTable').fadeIn('slow'); ASN.showOrHideAccessMessages( true ); ASN.resizeFrame();"
+				#if( $!range == "GROUP" && !$selectedGroupsNotFound )
 					checked="checked"
 				#elseif( !$!groupsList )
 					disabled="disabled"
 				#end
 				/>
 			#else
-    				<input type="radio" name="range" id="groups" value="groups" onclick="$('#groupTable').fadeIn('slow'); ASN.showOrHideAccessMessages( true ); ASN.resizeFrame();"
-				#if( $!range == "groups" && !$selectedGroupsNotFound )
+				<input type="radio" name="range" id="groups" value="GROUP" onclick="$('#groupTable').fadeIn('slow'); ASN.showOrHideAccessMessages( true ); ASN.resizeFrame();"
+				#if( $!range == "GROUP" && !$selectedGroupsNotFound )
 					checked="checked"
 				#elseif( !$!groupsList )
 					disabled="disabled"
@@ -536,10 +536,10 @@
                 </div>
 
                 #set( $selectGroupsDisplay = "block" )
-                #if( (($!range == "groups" || $!assignment.TypeOfAccess == $groupAccess) && !$selectedGroupsNotFound) || $selectedGroupsNotFound || $!range == "site" )
+                #if( (($!range == "GROUP" || $!assignment.TypeOfAccess == $groupAccess) && !$selectedGroupsNotFound) || $selectedGroupsNotFound || $!range == "SITE" )
                     #set( $selectGroupsDisplay = "none" )
                 #end
-                #if( ($!range == "groups" || $!assignment.TypeOfAccess == $groupAccess) && !$selectedGroupsNotFound )
+                #if( ($!range == "GROUP" || $!assignment.TypeOfAccess == $groupAccess) && !$selectedGroupsNotFound )
                     #set( $listDisplay = "block" )
 			#else
                     #set( $listDisplay = "none" )
@@ -1366,8 +1366,8 @@
 		#if ($group_submissions_enabled)
 			<div class="radio">
 				<label for="$name_CheckIsGroupSubmission" class="$class">
-					<input id="$name_CheckIsGroupSubmission" name="$name_additionalOptions" type="radio" value="group" onclick="ASN.toggleAddOptions('group');"
-					#if ($!value_additionalOptions.equals("group") && $!groupsList)
+					<input id="$name_CheckIsGroupSubmission" name="$name_additionalOptions" type="radio" value="GROUP" onclick="ASN.toggleAddOptions('group');"
+					#if ($!value_additionalOptions.equals("GROUP") && $!groupsList)
 						checked="checked"
 					#elseif( !$!groupsList || ($!assignment && !$assignment.draft))
 						disabled="disabled"
