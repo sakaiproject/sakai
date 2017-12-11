@@ -23,8 +23,10 @@ package org.sakaiproject.site.impl.test;
 import java.lang.reflect.Field;
 
 import org.slf4j.Logger;
+
 import org.jmock.Expectations;
 import org.jmock.integration.junit3.MockObjectTestCase;
+
 import org.sakaiproject.alias.api.AliasService;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.Notification;

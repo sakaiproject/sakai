@@ -22,16 +22,21 @@ package org.sakaiproject.conditions.impl;
 
 import java.util.List;
 
+import lombok.extern.slf4j.Slf4j;
+
 import org.apache.commons.collections.Predicate;
 import org.apache.commons.collections.PredicateUtils;
+
+import org.w3c.dom.Element;
+
 import org.sakaiproject.conditions.api.EvaluationAction;
 import org.sakaiproject.conditions.api.Rule;
 import org.sakaiproject.conditions.api.Condition;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.Notification;
 import org.sakaiproject.event.api.NotificationAction;
-import org.w3c.dom.Element;
 
+@Slf4j
 public class BaseRule implements Rule, NotificationAction {
 	
 	private String resourceId;
@@ -71,8 +76,7 @@ public class BaseRule implements Rule, NotificationAction {
 			try {
 				command.execute(event, this.evaluate(event));
 			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				log.error(e.getMessage(), e);
 			}
 	}
 

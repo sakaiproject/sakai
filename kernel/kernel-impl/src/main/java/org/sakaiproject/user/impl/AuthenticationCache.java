@@ -19,13 +19,6 @@
 
 package org.sakaiproject.user.impl;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.sakaiproject.memory.api.Cache;
-import org.sakaiproject.memory.api.MemoryService;
-import org.sakaiproject.user.api.Authentication;
-import org.sakaiproject.user.api.AuthenticationException;
-
 import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
@@ -33,6 +26,14 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
+
+import lombok.extern.slf4j.Slf4j;
+
+import org.sakaiproject.memory.api.Cache;
+import org.sakaiproject.memory.api.MemoryService;
+import org.sakaiproject.user.api.Authentication;
+import org.sakaiproject.user.api.AuthenticationException;
+
 
 /**
  * Because DAV clients do not understand the concept of secure sessions, a DAV
@@ -48,17 +49,16 @@ import java.util.Random;
  *
  * @author Aaron Zeckoski (aaron@caret.cam.ac.uk)
  */
+@Slf4j
 public class AuthenticationCache {
-	private static final Logger log = LoggerFactory.getLogger(AuthenticationCache.class);
-
     private MemoryService memoryService;
-	private Cache<String, AuthenticationRecord> authCache = null;
+    private Cache<String, AuthenticationRecord> authCache = null;
     /**
-	 * List of algorithms to attempt to use, best ones should come first.
-	 */
-	private List<String> algorithms = Arrays.asList(new String[]{"SHA2","SHA1"});
-	private Random saltGenerator = new Random();
-	private int saltLength = 8;
+     * List of algorithms to attempt to use, best ones should come first.
+     */
+    private List<String> algorithms = Arrays.asList(new String[]{"SHA2","SHA1"});
+    private Random saltGenerator = new Random();
+    private int saltLength = 8;
 	
     public void setMemoryService(MemoryService memoryService) {
         this.memoryService = memoryService;

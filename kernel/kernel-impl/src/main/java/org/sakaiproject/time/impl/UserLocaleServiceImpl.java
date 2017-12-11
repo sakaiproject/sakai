@@ -62,6 +62,4 @@ public class UserLocaleServiceImpl {
         userLocaleCache.remove(userId);
         return true;
     }
-
-
 }

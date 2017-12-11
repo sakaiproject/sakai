@@ -23,6 +23,9 @@ package org.sakaiproject.site.impl;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import org.w3c.dom.Element;
+
 import org.sakaiproject.alias.api.AliasService;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.Notification;
@@ -31,7 +34,6 @@ import org.sakaiproject.event.api.NotificationEdit;
 import org.sakaiproject.event.api.NotificationService;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.site.api.SiteService;
-import org.w3c.dom.Element;
 
 /**
  * Removes orphaned aliases when a site is deleted. Only deals with

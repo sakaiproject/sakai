@@ -30,8 +30,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.Vector;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.alias.api.Alias;
 import org.sakaiproject.alias.api.AliasEdit;
 import org.sakaiproject.db.api.SqlReader;
@@ -42,7 +42,6 @@ import org.sakaiproject.time.api.Time;
 import org.sakaiproject.util.BaseDbFlatStorage;
 import org.sakaiproject.util.BaseDbSingleStorage;
 import org.sakaiproject.util.SingleStorageUser;
-import org.sakaiproject.util.StorageUser;
 import org.sakaiproject.util.StringUtil;
 
 /**
@@ -51,11 +50,9 @@ import org.sakaiproject.util.StringUtil;
  * included.
  * </p>
  */
+@Slf4j
 public abstract class DbAliasService extends BaseAliasService
 {
-	/** Our logger. */
-	private static Logger M_log = LoggerFactory.getLogger(DbAliasService.class);
-
 	/** Table name for aliases. */
 	protected String m_tableName = "SAKAI_ALIAS";
 
@@ -156,7 +153,7 @@ public abstract class DbAliasService extends BaseAliasService
 
 			super.init();
 
-			M_log.info("init(): table: " + m_tableName + " external locks: " + m_useExternalLocks + " checkOld: " + m_checkOld);
+			log.info("init(): table: " + m_tableName + " external locks: " + m_useExternalLocks + " checkOld: " + m_checkOld);
 
 			// do a count which might find no old records so we can ignore old!
 			if (m_checkOld)
@@ -166,7 +163,7 @@ public abstract class DbAliasService extends BaseAliasService
 		}
 		catch (Exception t)
 		{
-			M_log.warn("init(): ", t);
+			log.warn("init(): ", t);
 		}
 	}
 
@@ -627,7 +624,7 @@ public abstract class DbAliasService extends BaseAliasService
 			if (rv == 0)
 			{
 				m_checkOld = false;
-				M_log.info(" ** starting to ignore old");
+				log.info(" ** starting to ignore old");
 			}
 			return rv;
 		}
@@ -764,9 +761,7 @@ public abstract class DbAliasService extends BaseAliasService
 		 */
 		public void readProperties(AliasEdit edit, ResourcePropertiesEdit props)
 		{
-			M_log.warn("readProperties: should not be called.");
+			log.warn("readProperties: should not be called.");
 		}
 	}
-
-
 }

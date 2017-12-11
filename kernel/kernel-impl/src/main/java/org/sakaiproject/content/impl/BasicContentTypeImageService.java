@@ -33,8 +33,8 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.Vector;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentTypeImageService;
 import org.sakaiproject.util.Resource;
@@ -45,12 +45,10 @@ import org.sakaiproject.util.ResourceLoader;
  * BasicContentTypeImage implements the ContentTypeImageService.
  * </p>
  */
+@Slf4j
 public class BasicContentTypeImageService implements ContentTypeImageService
 {
 	private ServerConfigurationService serverConfigurationService = null;
-	
-	/** Our logger. */
-	private static Logger M_log = LoggerFactory.getLogger(BasicContentTypeImageService.class);
 
 	/** Map content type to image file name. */
 	//protected Properties m_contentTypeImages = null;
@@ -227,11 +225,11 @@ public class BasicContentTypeImageService implements ContentTypeImageService
 				}
 				
 				// Debug
-				M_log.debug(entry.getKey() + " : " + entry.getValue());
+				log.debug(entry.getKey() + " : " + entry.getValue());
 			}
 		}
 		else {
-			M_log.warn("init(): Resource loader failed to load content type extensions bundle");
+			log.warn("init(): Resource loader failed to load content type extensions bundle");
 		}
 			
 	} // init
@@ -261,7 +259,7 @@ public class BasicContentTypeImageService implements ContentTypeImageService
 			m_mimetypes = null;
 		}
 
-		M_log.info("destroy()");
+		log.info("destroy()");
 
 	} // shutdown
 

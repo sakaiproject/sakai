@@ -21,8 +21,11 @@
 
 package org.sakaiproject.user.impl;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.util.Observable;
+import java.util.Observer;
+
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.entity.api.Reference;
@@ -33,8 +36,6 @@ import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
 
-import java.util.Observable;
-import java.util.Observer;
 
 /**
  * This observer watches for user.add and user.upd events to invalidate the Authn cache
@@ -42,9 +43,8 @@ import java.util.Observer;
  * @author dhorwitz
  *
  */
+@Slf4j
 public class AuthnCacheWatcher implements Observer {
-
-	private static final Logger log = LoggerFactory.getLogger(AuthnCacheWatcher.class);
 	//Copied from DbUserService as they are private
 	private static final String EIDCACHE = "eid:";
 	private static final String IDCACHE = "id:";
@@ -52,12 +52,12 @@ public class AuthnCacheWatcher implements Observer {
 	private UserDirectoryService userDirectoryService;
 	private EventTrackingService eventTrackingService;
 	private EntityManager entityManager;
-    private MemoryService memoryService;
+	private MemoryService memoryService;
 	private Cache userCache = null;
 	
-    public void setMemoryService(MemoryService memoryService) {
-        this.memoryService = memoryService;
-    }
+	public void setMemoryService(MemoryService memoryService) {
+		this.memoryService = memoryService;
+	}
 
 	public void setUserCache(Cache userCache) {
 		this.userCache = userCache;

@@ -15,32 +15,33 @@
  */
 package org.sakaiproject.authz.impl;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.test.SakaiKernelTestBase;
 
+@Slf4j
 public class DummyUserEncodingTest extends SakaiKernelTestBase {
-	private static Logger log = LoggerFactory.getLogger(DummyUserEncodingTest.class);
     protected AuthzGroupService _ags;
     protected String _secretPrefix;
 
-	@BeforeClass
-	public static void beforeClass() {
-		try {
+    @BeforeClass
+    public static void beforeClass() {
+        try {
             log.debug("starting oneTimeSetup");
-			oneTimeSetup();
+            oneTimeSetup();
             log.debug("finished oneTimeSetup");
-		} catch (Exception e) {
-			log.warn(e.getMessage(), e);
-		}
-	}
+        } catch (Exception e) {
+            log.warn(e.getMessage(), e);
+        }
+    }
 
-	@Before
+    @Before
     public void setUp() {
         _ags = (AuthzGroupService)getService(AuthzGroupService.class.getName());
         // this is different for each instance of AuthzGroupService

@@ -21,8 +21,13 @@
 
 package org.sakaiproject.site.impl;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.util.Collection;
+import java.util.Observable;
+import java.util.Observer;
+import java.util.Properties;
+
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.memory.api.*;
@@ -32,11 +37,6 @@ import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.api.ToolConfiguration;
 
-import java.util.Collection;
-import java.util.Observable;
-import java.util.Observer;
-import java.util.Properties;
-
 /**
  * A safe and modern version of the site cache which is compatible with distributed caches
  *
@@ -44,10 +44,9 @@ import java.util.Properties;
  *
  * @author Aaron Zeckoski (azeckoski @ unicon.net) (azeckoski @ gmail.com)
  */
+@Slf4j
 public class SiteCacheSafe extends BasicCache<String, Object> implements SiteCache, CacheEventListener<String, Object>
 {
-    private static Logger M_log = LoggerFactory.getLogger(SiteCacheSafe.class);
-
     private static final String CACHE_PREFIX = "org.sakaiproject.site.impl.SiteCacheImpl.";
     private static final String MAIN_CACHE_NAME = CACHE_PREFIX+"cache";
 
@@ -83,7 +82,7 @@ public class SiteCacheSafe extends BasicCache<String, Object> implements SiteCac
         m_cache.registerCacheEventListener(this);
         if (!m_cache.isDistributed()) {
             // KNL_1229 use an Observer for cache cleanup when the cache is not distributed
-            M_log.info("Creating SiteCacheImpl.cache observer for event based cache expiration (for local caches)");
+            log.info("Creating SiteCacheImpl.cache observer for event based cache expiration (for local caches)");
             m_cacheObserver = new CacheObserver();
             eventTrackingService.addObserver(m_cacheObserver);
         }

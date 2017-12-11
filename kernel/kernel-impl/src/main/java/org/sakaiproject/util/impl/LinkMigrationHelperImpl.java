@@ -20,16 +20,14 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.Map.Entry;
+
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.component.api.ServerConfigurationService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sakaiproject.util.api.LinkMigrationHelper;
 
-
-
+@Slf4j
 public class LinkMigrationHelperImpl implements LinkMigrationHelper {
-
-	private static final Logger LOG = LoggerFactory.getLogger(LinkMigrationHelperImpl.class);
 	private static final String ESCAPED_SPACE= "%"+"20";
 
 	private ServerConfigurationService serverConfigurationService;
@@ -103,7 +101,7 @@ public class LinkMigrationHelperImpl implements LinkMigrationHelper {
 		try {
 			msgBody = bracketAndNullifySelectedLinks(msgBody);
 		} catch (Exception e) {
-			LOG.debug ("Forums LinkMigrationHelper.editLinks failed" + e);
+			log.debug ("Forums LinkMigrationHelper.editLinks failed" + e);
 		}
 		return msgBody;
 	}
