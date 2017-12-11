@@ -3082,16 +3082,16 @@ public class AssignmentAction extends PagedResourceActionII {
             context.put("submission", s);
             context.put("submissionReference", AssignmentReferenceReckoner.reckoner().submission(s).reckon().getReference());
 
-            StringBuilder submitterNames = new StringBuilder();
-            s.getSubmitters().forEach(u -> {
+            String submitterNames = s.getSubmitters().stream().map(u -> {
                 try {
                     User user = userDirectoryService.getUser(u.getSubmitter());
-                    submitterNames.append(user.getDisplayName()).append(" (").append(user.getDisplayId()).append(")");
+                    return user.getDisplayName() + " (" + user.getDisplayName() + ")";
                 } catch (UserNotDefinedException e) {
                     log.warn("Could not find user = {}, who is a submitter on submission = {}, {}", u, s.getId(), e.getMessage());
                 }
-            });
-            context.put("submitterNames", formattedText.escapeHtml(submitterNames.toString()));
+                return "";
+            }).collect(Collectors.joining(", "));
+            context.put("submitterNames", formattedText.escapeHtml(submitterNames));
             context.put("submissionStatus", assignmentService.getSubmissionStatus(s.getId()));
 
             if (a != null) {
@@ -3791,16 +3791,16 @@ public class AssignmentAction extends PagedResourceActionII {
             assignment.getAttachments().forEach(r -> assignmentAttachmentReferences.put(r, entityManager.newReference(r)));
             context.put("assignmentAttachmentReferences", assignmentAttachmentReferences);
 
-            StringBuilder submitterNames = new StringBuilder();
-            submission.getSubmitters().forEach(s -> {
+            String submitterNames = submission.getSubmitters().stream().map(u -> {
                 try {
-                    User user = userDirectoryService.getUser(s.getSubmitter());
-                    submitterNames.append(user.getDisplayName()).append(" (").append(user.getDisplayId()).append(")");
+                    User user = userDirectoryService.getUser(u.getSubmitter());
+                    return user.getDisplayName() + " (" + user.getDisplayName() + ")";
                 } catch (UserNotDefinedException e) {
-                    log.warn("Could not find user = {}, who is a submitter on submission = {}, {}", s, submission.getId(), e.getMessage());
+                    log.warn("Could not find user = {}, who is a submitter on submission = {}, {}", u, submission.getId(), e.getMessage());
                 }
-            });
-            context.put("submitterNames", formattedText.escapeHtml(submitterNames.toString()));
+                return "";
+            }).collect(Collectors.joining(", "));
+            context.put("submitterNames", formattedText.escapeHtml(submitterNames));
 
             setScoringAgentProperties(context, assignment, submission, false);
 
