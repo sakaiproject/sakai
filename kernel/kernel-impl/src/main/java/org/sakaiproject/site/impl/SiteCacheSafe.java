@@ -212,9 +212,9 @@ public class SiteCacheSafe extends BasicCache<String, Object> implements SiteCac
         ToolConfiguration toolConfiguration = null;
         String siteRef = (String) m_cacheTools.get(toolId);
         if (siteRef != null) {
-            Site site = (Site) m_cache.get(siteRef);
-            if (site != null) {
-                toolConfiguration = site.getTool(toolId);
+            Object obj = m_cache.get(siteRef);
+            if (obj != null && obj instanceof Site) {
+                toolConfiguration = ((Site)obj).getTool(toolId);
             }
         }
         return toolConfiguration;
@@ -225,9 +225,9 @@ public class SiteCacheSafe extends BasicCache<String, Object> implements SiteCac
         SitePage sitePage = null;
         String siteRef = (String) m_cachePages.get(pageId);
         if (siteRef != null) {
-            Site site = (Site) m_cache.get(siteRef);
-            if (site != null) {
-                sitePage = site.getPage(pageId);
+            Object obj = m_cache.get(siteRef);
+            if (obj != null && obj instanceof Site) {
+                sitePage = ((Site)obj).getPage(pageId);
             }
         }
         return sitePage;
@@ -238,9 +238,9 @@ public class SiteCacheSafe extends BasicCache<String, Object> implements SiteCac
         Group group = null;
         String siteRef = (String) m_cacheGroups.get(groupId);
         if (siteRef != null) {
-            Site site = (Site) m_cache.get(siteRef);
-            if (site != null) {
-                group = site.getGroup(groupId);
+            Object obj = m_cache.get(siteRef);
+            if (obj != null && obj instanceof Site) {
+                group = ((Site)obj).getGroup(groupId);
             }
         }
         return group;
