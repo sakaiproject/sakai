@@ -28,8 +28,8 @@
         	</h:panelGrid>
         </t:div>
 
-		<div id="dialog-confirm" title="<h:outputText value="#{msgs.options_manually_manage}"/>" style="display:none">
-		  <p><span class="ui-icon ui-icon-alert" style="float:left; margin:12px 12px 20px 0;"></span><h:outputText value="#{msgs.options_confirmInternal}"/></p>
+		<div id="dialog-confirm" title="<h:outputText value="#{msgs.options_manually_manage}"/>" class="displayNone">
+		  <p><span class="ui-icon ui-icon-alert dialogConfirm"></span><h:outputText value="#{msgs.options_confirmInternal}"/></p>
 		</div>
 		
 		<t:selectOneRadio id="externallyManaged" layout="spread" value="#{optionsBean.management}"

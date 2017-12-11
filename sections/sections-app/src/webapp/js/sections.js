@@ -270,7 +270,7 @@ function initManuallyManageDialog() {
 	     {
 	         text: button_ok,             
 	         click: function() {
-	        	 document.getElementById('optionsForm:confirmExternallyManagedButton').click();
+	        	 $( "#optionsForm #confirmExternallyManagedButton" ).click();
 	         }
 	     },
 	     {
