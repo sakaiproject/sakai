@@ -132,7 +132,7 @@
 		<dependency>
 			<groupId>com.vericite</groupId>
 			<artifactId>vericite-lms-api</artifactId>
-			<version>1.2</version>
+			<version>1.4</version>
 		</dependency>
 	</dependencies>
 </project>
