@@ -4645,8 +4645,9 @@ public class SimplePageBean {
 		saveOrUpdate(newSection);
 
 		if (!StringUtils.equals(this.layoutSelect, "single-column")) {
-			SimplePageItem col1 = appendItem("-" + newSection.getId(), "", SimplePageItem.BREAK);
+			SimplePageItem col1 = appendItem("", "", SimplePageItem.BREAK);
 			col1.setFormat("column");
+			col1.setSequence(newSection.getSequence()+1);
 			if (StringUtils.equals(this.layoutSelect, "right-double")) {
 				col1.setAttribute("colwidth", "2");
 			}
@@ -4654,8 +4655,9 @@ public class SimplePageBean {
 			saveOrUpdate(col1);
 
 			if (StringUtils.equals(this.layoutSelect, "three-equal")) {
-				SimplePageItem col2 = appendItem("-" + col1.getId(), "", SimplePageItem.BREAK);
+				SimplePageItem col2 = appendItem("", "", SimplePageItem.BREAK);
 				col2.setFormat("column");
+				col2.setSequence(col1.getSequence()+1);
 				col2.setAttribute("colcolor", colorScheme);
 				saveOrUpdate(col2);
 			}
