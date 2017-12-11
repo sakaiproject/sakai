@@ -37,10 +37,13 @@
  *
  **********************************************************************************/
 
-
 package org.sakaiproject.lessonbuildertool.service;
 
+import java.io.InputStream;
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.Serializable;
+import java.lang.reflect.Method;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.InetAddress;
@@ -58,22 +61,28 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.Stack;
 import java.util.Vector;
-import java.io.InputStream;
-import java.io.FileInputStream;
-import java.io.File;
-import java.io.FileNotFoundException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.lang.reflect.Method;
 import java.util.regex.PatternSyntaxException;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.fileupload.disk.DiskFileItem;
+
+import org.springframework.context.MessageSource;
+
+import org.w3c.dom.Attr;
+import org.w3c.dom.DOMException;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+
+import uk.org.ponder.messageutil.MessageLocator;
+
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityService;
-import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
@@ -84,16 +93,14 @@ import org.sakaiproject.entity.api.EntityTransferrerRefMigrator;
 import org.sakaiproject.entity.api.HttpAccess;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
+import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.entity.cover.EntityManager;
 import org.sakaiproject.entitybroker.EntityReference;
-import org.sakaiproject.thread_local.cover.ThreadLocalManager;
 import org.sakaiproject.entitybroker.entityprovider.CoreEntityProvider;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.AutoRegisterEntityProvider;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.Statisticable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.InputTranslatable;
-import org.sakaiproject.entitybroker.entityprovider.capabilities.Inputable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.Createable;
-
 import org.sakaiproject.entitybroker.util.AbstractEntityProvider;
 import org.sakaiproject.lessonbuildertool.api.LessonBuilderEvents;
 import org.sakaiproject.lessonbuildertool.LessonBuilderAccessAPI;
@@ -101,9 +108,6 @@ import org.sakaiproject.lessonbuildertool.ToolApi;
 import org.sakaiproject.lessonbuildertool.SimplePage;
 import org.sakaiproject.lessonbuildertool.SimplePageGroup;
 import org.sakaiproject.lessonbuildertool.SimplePageItem;
-import org.sakaiproject.lessonbuildertool.SimplePageItemImpl;
-import org.sakaiproject.lessonbuildertool.SimplePageItemAttributeImpl;
-import org.sakaiproject.lessonbuildertool.SimplePageQuestionAnswer;
 import org.sakaiproject.lessonbuildertool.model.SimplePageToolDao;
 import org.sakaiproject.lessonbuildertool.cc.CartridgeLoader;
 import org.sakaiproject.lessonbuildertool.cc.Parser;
@@ -111,31 +115,21 @@ import org.sakaiproject.lessonbuildertool.cc.PrintHandler;
 import org.sakaiproject.lessonbuildertool.cc.ZipLoader;
 import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean;
 import org.sakaiproject.lessonbuildertool.tool.beans.OrphanPageFinder;
+import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.thread_local.cover.ThreadLocalManager;
 import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.ToolManager;
-import org.sakaiproject.entity.api.ResourceProperties;
-import org.sakaiproject.entity.api.ResourcePropertiesEdit;
-import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.Xml;
 import org.sakaiproject.util.RequestFilter;
-import uk.org.ponder.messageutil.MessageLocator;
-import org.w3c.dom.Attr;
-import org.w3c.dom.DOMException;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-import org.springframework.context.MessageSource;
-
 
 /**
  * @author hedrick
@@ -144,12 +138,10 @@ import org.springframework.context.MessageSource;
  * configuration property. That's handled separately in site.xml
  *
  */
+@Slf4j
 public class LessonBuilderEntityProducer extends AbstractEntityProvider
     implements EntityProducer, EntityTransferrer, EntityTransferrerRefMigrator, Serializable, 
 	       CoreEntityProvider, AutoRegisterEntityProvider, Statisticable, InputTranslatable, Createable, ToolApi  {
-
-   protected final Logger logger = LoggerFactory.getLogger(getClass());
-
    private static final String ARCHIVE_VERSION = "2.4"; // in case new features are added in future exports
    private static final String VERSION_ATTR = "version";
    private static final String NAME = "name";
@@ -170,16 +162,16 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
    public final static String REF_LB_FORUM = "lessonbuilder/fix/forum/";
 
 
-    // other tools don't copy group access restrictions, so I think we probably shouldn't. The data is
-    // there in the archive
-    public final boolean RESTORE_GROUPS = false;
+   // other tools don't copy group access restrictions, so I think we probably shouldn't. The data is
+   // there in the archive
+   public final boolean RESTORE_GROUPS = false;
 
-    private ToolManager toolManager;
-    private SecurityService securityService;
-    private SessionManager sessionManager;
-    private SiteService siteService;
-    private ContentHostingService contentHostingService;
-    private MemoryService memoryService;
+   private ToolManager toolManager;
+   private SecurityService securityService;
+   private SessionManager sessionManager;
+   private SiteService siteService;
+   private ContentHostingService contentHostingService;
+   private MemoryService memoryService;
    private SimplePageToolDao simplePageToolDao;
    private LessonEntity forumEntity;
    private LessonEntity quizEntity;
@@ -222,7 +214,7 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
      *   migrateEmbedded links - for all text items in site, call kernel linkMigrationHelper
      */     
 
- // The attributes in HTML that should have their values looked at and possibly re-written
+   // The attributes in HTML that should have their values looked at and possibly re-written
    private Collection<String> attributes = new HashSet<String>(
 				    Arrays.asList(new String[] { "href", "src", "background", "action",
 				    "pluginspage", "pluginurl", "classid", "code", "codebase",
@@ -240,13 +232,13 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 
 
    public void init() {
-      logger.info("init()");
+      log.info("init()");
       
       try {
          EntityManager.registerEntityProducer(this, REFERENCE_ROOT);
       }
       catch (Exception e) {
-         logger.warn("Error registering Link Tool Entity Producer", e);
+         log.warn("Error registering Link Tool Entity Producer", e);
       }
 
       lessonBuilderAccessAPI.setToolApi(this);
@@ -261,8 +253,8 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 	  if (linkMigrationHelper != null)
 	      migrateAllLinks = linkMigrationHelper.getMethod("migrateAllLinks", new Class[] { Set.class, String.class });
       } catch (Exception e) {
-	  logger.info("Exception in introspection " + e);
-	  logger.info("loader " + RequestFilter.class.getClassLoader());
+	  log.info("Exception in introspection " + e);
+	  log.info("loader " + RequestFilter.class.getClassLoader());
       }
 
       // Builds a Regexp selector.
@@ -302,7 +294,7 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
       servers.add("localhost");
       // if neither is defined we're in trouble;
       if (servers.size() == 0)
-	  logger.info("LessonBuilderEntityProducer ERROR: neither servername nor serverid defined in sakai.properties");
+	  log.info("LessonBuilderEntityProducer ERROR: neither servername nor serverid defined in sakai.properties");
 
       // this slightly odd code is for testing. It lets us test by reloading just lesson builder.
       // otherwise we have to restart sakai, since the entity stuff can't be restarted
@@ -336,7 +328,7 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 
 	  merge("0134937b-ce16-440c-80a6-fb088d79e5ad",  (Element)doc.getFirstChild().getFirstChild(), "/tmp/archive", "45d48248-ba23-4829-914a-7219c3ced2dd", null, null, null);
       } catch (Exception e) {
-	  logger.info(e.getMessage(), e);
+	  log.info(e.getMessage(), e);
       } finally {
 	  securityService.popAdvisor(mergeAdvisor);
       }
@@ -345,7 +337,7 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
       try {
 	  ComponentManager.loadComponent("org.sakaiproject.lessonbuildertool.service.LessonBuilderEntityProducer", this);
       } catch (Exception e) {
-	  logger.warn("Error registering Lesson Builder Entity Producer with Spring. Lessonbuilder will work, but Lesson Builder instances won't be imported from site archives. This normally happens only if you redeploy Lessonbuilder. Suggest restarting Sakai", e);
+	  log.warn("Error registering Lesson Builder Entity Producer with Spring. Lessonbuilder will work, but Lesson Builder instances won't be imported from site archives. This normally happens only if you redeploy Lessonbuilder. Suggest restarting Sakai", e);
       }
 
    }
@@ -355,7 +347,7 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
     */
    public void destroy()
    {
-      logger.info("destroy()");
+      log.info("destroy()");
    }
 
     // lessonbuilder allows new tools to be created that use lessonbuilder. They will have
@@ -577,7 +569,7 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 	     }
 	 }
 
-	 logger.info("Skipped over " + orphansSkipped + " orphaned pages while archiving site " + siteId);
+	 log.info("Skipped over " + orphansSkipped + " orphaned pages while archiving site " + siteId);
 
          Collection<ToolConfiguration> tools = site.getTools(myToolIds());
 	 int count = 0;
@@ -601,7 +593,7 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 		 if (simplePageToolDao.getTopLevelPageId(config.getPageId()) != null)
 		     addAttr(doc, element, "pageId", Long.toString(simplePageToolDao.getTopLevelPageId(config.getPageId())));
 		 else
-		     logger.warn("archive site " + siteId + " tool page " + config.getPageId() + " null lesson");
+		     log.warn("archive site " + siteId + " tool page " + config.getPageId() + " null lesson");
 		 // addPage(doc, element,  simplePageToolDao.getTopLevelPageId(config.getPageId()));
 		 
 		 lessonbuilder.appendChild(element);
@@ -623,8 +615,7 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
       }
       catch (Exception any)
       {
-	  any.printStackTrace();
-         logger.warn("archive: exception archiving service: " + any + " " +  serviceName());
+         log.warn("archive: exception archiving service: " + any + " " +  serviceName());
       }
 
       stack.pop();
@@ -748,7 +739,7 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 		       if (sakaiId.startsWith(prefix))
 			   sakaiId = "/group/" + siteId + "/" + sakaiId.substring(prefix.length());
 		       else
-			   logger.error("sakaiId not recognized " + sakaiId);
+			   log.error("sakaiId not recognized " + sakaiId);
 		   } else if (type == SimplePageItem.PAGE) {
 		       // sakaiId should be the new page ID
 		       Long newPageId = pageMap.get(Long.valueOf(sakaiId));
@@ -1158,7 +1149,7 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 
 			     String toolId = tool.getPageId();
 			     if (toolId == null) {
-				 logger.error("unable to find new toolid for copy of " + oldToolId);
+				 log.error("unable to find new toolid for copy of " + oldToolId);
 				 continue;
 			     }
 
@@ -1177,21 +1168,21 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 				 // normally just one
 				 Node pageNode = element.getFirstChild();
 				 if (pageNode == null || pageNode.getNodeType() != Node.ELEMENT_NODE) {
-				     logger.error("page node not element");
+				     log.error("page node not element");
 				     continue;
 				 }
 				 Element pageElement = (Element)pageNode;
 				 pageId = trimToNull(pageElement.getAttribute("pageid"));
 			     }
 			     if (pageId == null) {
-				 logger.error("page node without old pageid");
+				 log.error("page node without old pageid");
 				 continue;
 			     }
 
 			     // fix up the new copy of the page to be top level
 			     SimplePage simplePage = simplePageToolDao.getPage(pageMap.get(Long.valueOf(pageId)));
 			     if (simplePage == null) {
-				 logger.error("can't find new copy of top level page");
+				 log.error("can't find new copy of top level page");
 				 continue;
 			     }
 			     simplePage.setParent(null);
@@ -1211,13 +1202,13 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
          }
          catch (DOMException e)
          {
-            logger.error(e.getMessage(), e);
+            log.error(e.getMessage(), e);
             results.append("merging " + getLabel()
                   + " failed during xml parsing.\n");
          }
          catch (Exception e)
          {
-            logger.error(e.getMessage(), e);
+            log.error(e.getMessage(), e);
             results.append("merging " + getLabel() + " failed.\n");
          }
       }
@@ -1377,7 +1368,7 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 
 		}
 
-		logger.debug("lesson builder transferCopyEntities");
+		log.debug("lesson builder transferCopyEntities");
 		Document doc = Xml.createDocument();
 		Stack stack = new Stack();
 		Element root = doc.createElement("archive");
@@ -1410,13 +1401,13 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 		// site-manage will stomp on it. So we need a different way to say that group fixup is needed
 
 	    } catch (Exception e) {
-		logger.error(e.getMessage(), e);
+		log.error(e.getMessage(), e);
 	    }
 
 	    try {
 		Site toSite = siteService.getSite(toContext);
 	    } catch (Exception e) {
-		logger.error(e.getMessage(), e);
+		log.error(e.getMessage(), e);
 	    }		
 
 	    // set this flag for the group update, which we really do need in duplicate
@@ -1507,12 +1498,12 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 		    SimplePageItem i = simplePageToolDao.findItem(item.getId());
 		    if (item != null) {
 			i.setHtml(newBody);
-			logger.debug("html - (post mod):"+msgBody);
+			log.debug("html - (post mod):"+msgBody);
 			simplePageToolDao.quickUpdate(i);
 		    }
 		}
 	    } catch (Exception e) {
-		logger.warn("Problem migrating links in Lessonbuilder"+e);
+		log.warn("Problem migrating links in Lessonbuilder"+e);
 	    }
 	}		
     }
@@ -1562,7 +1553,7 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 	  try {
 	      site = siteService.getSite(toContext);
 	  } catch (Exception e) {
-	      logger.error("can't get site " + toContext + " " + e);
+	      log.error("can't get site " + toContext + " " + e);
 	      return;
 	  }
 
@@ -1587,13 +1578,13 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 	      try {
 	        site.deleteGroup(group);
 	      } catch (IllegalStateException e) {
-	        logger.error(".fixupGroupRefs: Group with id {} cannot be removed because is locked", group.getId());
+	        log.error(".fixupGroupRefs: Group with id {} cannot be removed because is locked", group.getId());
 	      }
 	  }
 	  try {
 	      siteService.save(site);
 	  } catch (Exception e) {
-	      logger.warn("unable to save set to upgrade groups", e);
+	      log.warn("unable to save set to upgrade groups", e);
 	  }
 
       }
@@ -1936,8 +1927,7 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 			// sorry, no can do
 			//addPath(context, link.getPath());
 		    } catch (URISyntaxException e) {
-			System.err.println("Supplied contentUrl isn't valid: "
-				 + contentUrl);
+			log.error("Supplied contentUrl isn't valid: {}", contentUrl);
 		    }
 		}
 	    }
@@ -1945,7 +1935,7 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 	} catch (URISyntaxException e) {
 	    // Logger this so we may get an idea of the things that are breaking
 	    // the parser.
-	    System.err.println("Failed to parse URL: " + value + " " + e.getMessage());
+	    log.error("Failed to parse URL: {} {}", value, e.getMessage());
 	}
 	return value;
     }
@@ -2057,7 +2047,7 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 		// don't set until we know the save worked
 		dummyPageId = page.getId();
 	    } catch (Exception e) {
-		logger.info("can't add dummy page to site " + e);
+		log.info("can't add dummy page to site " + e);
 	    }
 	    toolSession = ses.getToolSession(tool.getId());
 	    sessionManager.setCurrentToolSession(toolSession);
@@ -2103,8 +2093,7 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 		return ret;
 
 	    } catch (Exception e) {
-		logger.info("exception in createentity " + e);
-		e.printStackTrace();
+		log.info("exception in createentity " + e);
 		return "exception in createentity " + e;
 	    } finally {
 		try {

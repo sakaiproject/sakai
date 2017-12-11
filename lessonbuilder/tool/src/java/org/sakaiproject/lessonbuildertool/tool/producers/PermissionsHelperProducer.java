@@ -28,26 +28,13 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import org.sakaiproject.component.cover.ServerConfigurationService;
-import org.sakaiproject.content.api.ContentHostingService;
-import org.sakaiproject.content.api.FilePickerHelper;
-import org.sakaiproject.lessonbuildertool.SimplePage;
-import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean;
-import org.sakaiproject.lessonbuildertool.tool.view.FilePickerViewParameters;
-import org.sakaiproject.tool.api.SessionManager;
-import org.sakaiproject.tool.api.ToolManager;
-import org.sakaiproject.tool.api.ToolSession;
-import org.sakaiproject.site.api.Site;
-import org.sakaiproject.site.api.SiteService;
-import org.sakaiproject.authz.api.PermissionsHelper;
-import uk.org.ponder.messageutil.MessageLocator;
-import uk.org.ponder.localeutil.LocaleGetter;                                                                                          
+import lombok.extern.slf4j.Slf4j;
 
-import org.sakaiproject.rsf.helper.HelperViewParameters;
+import uk.org.ponder.localeutil.LocaleGetter;      
+import uk.org.ponder.messageutil.MessageLocator;                                                                                    
 import uk.org.ponder.rsf.components.UICommand;
 import uk.org.ponder.rsf.components.UIContainer;
 import uk.org.ponder.rsf.components.UIOutput;
-import uk.org.ponder.rsf.components.UIInput;
 import uk.org.ponder.rsf.components.decorators.UIFreeAttributeDecorator;                                                               
 import uk.org.ponder.rsf.flow.jsfnav.NavigationCase;
 import uk.org.ponder.rsf.flow.jsfnav.NavigationCaseReporter;
@@ -57,6 +44,16 @@ import uk.org.ponder.rsf.viewstate.SimpleViewParameters;
 import uk.org.ponder.rsf.viewstate.ViewParameters;
 import uk.org.ponder.rsf.viewstate.ViewParamsReporter;
 
+import org.sakaiproject.authz.api.PermissionsHelper;
+import org.sakaiproject.lessonbuildertool.SimplePage;
+import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean;
+import org.sakaiproject.rsf.helper.HelperViewParameters;
+import org.sakaiproject.site.api.Site;
+import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.tool.api.SessionManager;
+import org.sakaiproject.tool.api.ToolManager;
+import org.sakaiproject.tool.api.ToolSession;
+
 /**
  * Uses the ResourcePicker to permit adding resources to the page.
  * 
@@ -65,6 +62,7 @@ import uk.org.ponder.rsf.viewstate.ViewParamsReporter;
  * @author Eric Jeney <jeney@rutgers.edu>
  * 
  */
+@Slf4j
 public class PermissionsHelperProducer implements ViewComponentProducer, ViewParamsReporter, NavigationCaseReporter {
 	public static final String VIEW_ID = "PermissionsHelper";
 
@@ -129,7 +127,7 @@ public class PermissionsHelperProducer implements ViewComponentProducer, ViewPar
                 try {
 		    site = siteService.getSite(toolManager.getCurrentPlacement().getContext());
                 } catch (Exception impossible) {
-		    impossible.printStackTrace();
+		    log.error(impossible.getMessage(), impossible);
 		    return;
                 }
 

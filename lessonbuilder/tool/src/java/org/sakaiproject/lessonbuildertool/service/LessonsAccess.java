@@ -28,6 +28,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import lombok.extern.slf4j.Slf4j;
+
+import uk.org.ponder.messageutil.MessageLocator;
+
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.SecurityService;
@@ -42,22 +46,15 @@ import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.ToolManager;
-import org.sakaiproject.user.api.UserDirectoryService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import uk.org.ponder.messageutil.MessageLocator;
+import org.sakaiproject.user.cover.UserDirectoryService;
 
 // This class is used to check whether a page or item should be
 // accessible for the user. It checks all conditions. SimplePageBean
 // has individual checks for them, but this puts them all together,
 // for use in services where individual checks aren't needed.
 // In general this will be used by services such as /access or /direct
-
+@Slf4j
 public class LessonsAccess {
-
-    private Logger log = LoggerFactory.getLogger(LessonsAccess.class);
-
     // caching
     private static Cache<String, Set<?>> cache = null;
     // currently using 10 sec. The real goal is to prevent continual
@@ -648,4 +645,3 @@ public class LessonsAccess {
     }
 
 }
-

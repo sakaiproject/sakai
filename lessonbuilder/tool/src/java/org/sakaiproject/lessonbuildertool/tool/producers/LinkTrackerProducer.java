@@ -25,15 +25,12 @@ package org.sakaiproject.lessonbuildertool.tool.producers;
 
 import java.net.URLEncoder;
 
-import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean;
-import org.sakaiproject.lessonbuildertool.tool.view.TrackerViewParameters;
-import org.sakaiproject.lessonbuildertool.SimplePageItem;
-import org.sakaiproject.lessonbuildertool.SimplePage;
-import org.sakaiproject.lessonbuildertool.model.SimplePageToolDao;
-import org.sakaiproject.lessonbuildertool.service.LessonBuilderAccessService;
+import lombok.extern.slf4j.Slf4j;
 
-import uk.org.ponder.messageutil.MessageLocator;
-import uk.org.ponder.localeutil.LocaleGetter;                                                                                          
+import org.apache.commons.lang.StringEscapeUtils;
+
+import uk.org.ponder.localeutil.LocaleGetter;  
+import uk.org.ponder.messageutil.MessageLocator;                                                                                        
 import uk.org.ponder.rsf.components.UIContainer;
 import uk.org.ponder.rsf.components.UIInternalLink;
 import uk.org.ponder.rsf.components.UIVerbatim;
@@ -43,13 +40,16 @@ import uk.org.ponder.rsf.view.ComponentChecker;
 import uk.org.ponder.rsf.view.ViewComponentProducer;
 import uk.org.ponder.rsf.viewstate.ViewParameters;
 import uk.org.ponder.rsf.viewstate.ViewParamsReporter;
-import org.apache.commons.lang.StringEscapeUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
+import org.sakaiproject.lessonbuildertool.SimplePage;
+import org.sakaiproject.lessonbuildertool.SimplePageItem;
+import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean;
+import org.sakaiproject.lessonbuildertool.tool.view.TrackerViewParameters;
+import org.sakaiproject.lessonbuildertool.model.SimplePageToolDao;
+import org.sakaiproject.lessonbuildertool.service.LessonBuilderAccessService;
 
+@Slf4j
 public class LinkTrackerProducer implements ViewComponentProducer, ViewParamsReporter {
-	private static final Logger log = LoggerFactory.getLogger(LinkTrackerProducer.class);
 	public static final String VIEW_ID = "LinkTracker";
 
 	public String getViewID() {

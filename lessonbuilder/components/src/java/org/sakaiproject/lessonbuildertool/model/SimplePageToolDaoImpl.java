@@ -36,15 +36,26 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
+
 import org.hibernate.CacheMode;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.Restrictions;
+
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
+
+import org.springframework.dao.DataAccessException;
+import org.springframework.orm.hibernate4.HibernateTemplate;
+import org.springframework.orm.hibernate4.support.HibernateDaoSupport;
+import org.springframework.transaction.support.TransactionSynchronizationAdapter;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
+
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
@@ -86,15 +97,7 @@ import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.tool.api.ToolManager;
-import org.sakaiproject.user.api.UserDirectoryService;
-import org.springframework.dao.DataAccessException;
-import org.springframework.orm.hibernate4.HibernateTemplate;
-import org.springframework.orm.hibernate4.support.HibernateDaoSupport;
-import org.springframework.transaction.support.TransactionSynchronizationAdapter;
-import org.springframework.transaction.support.TransactionSynchronizationManager;
-
-import lombok.Setter;
-import lombok.extern.slf4j.Slf4j;
+import org.sakaiproject.user.cover.UserDirectoryService;
 
 @Setter @Slf4j
 public class SimplePageToolDaoImpl extends HibernateDaoSupport implements SimplePageToolDao {
@@ -780,7 +783,6 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 			Object id = getHibernateTemplate().save(o);
 			return true;
 		} catch (DataAccessException e) {
-			e.printStackTrace();
 			log.warn("Hibernate could not save: " + e.toString());
 			return false;
 		}
@@ -823,7 +825,6 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 				
 				return true;
 			}catch(DataAccessException ex) {
-				ex.printStackTrace();
 				log.warn("Hibernate could not delete: " + e.toString());
 				return false;
 			}
@@ -844,7 +845,6 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 				
 				return true;
 			}catch(DataAccessException ex) {
-				ex.printStackTrace();
 				log.warn("Hibernate could not delete: " + e.toString());
 				return false;
 			}
@@ -918,7 +918,7 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 			getHibernateTemplate().merge(o);
 			return true;
 		} catch (DataAccessException e) {
-			e.printStackTrace();
+			log.error(e.getMessage(), e);
 			return false;
 		}
 	}
