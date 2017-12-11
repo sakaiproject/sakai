@@ -6118,7 +6118,7 @@ public class AssignmentAction extends PagedResourceActionII {
                         }
 
                         // SAK-17606
-                        String logEntry = new Date().toString() + " ";
+                        /*String logEntry = new Date().toString() + " ";
                         boolean anonymousGrading = Boolean.parseBoolean(a.getProperties().get(NEW_ASSIGNMENT_CHECK_ANONYMOUS_GRADING));
                         if (!anonymousGrading) {
                             String subOrDraft = post ? "submitted" : "saved draft";
@@ -6129,7 +6129,7 @@ public class AssignmentAction extends PagedResourceActionII {
                             } else {
                                 logEntry += u.getDisplayName() + " (" + u.getEid() + ") " + subOrDraft;
                             }
-                        }
+                        }*/
 // TODO submissionLog
 //						submission.addSubmissionLogEntry( logEntry );
                         try {
@@ -6190,7 +6190,7 @@ public class AssignmentAction extends PagedResourceActionII {
                                 }
 
                                 // SAK-17606
-                                String logEntry = new Date().toString() + " ";
+                                /*String logEntry = new Date().toString() + " ";
                                 boolean anonymousGrading = Boolean.parseBoolean(a.getProperties().get(NEW_ASSIGNMENT_CHECK_ANONYMOUS_GRADING));
                                 if (!anonymousGrading) {
                                     String subOrDraft = post ? "submitted" : "saved draft";
@@ -6201,7 +6201,7 @@ public class AssignmentAction extends PagedResourceActionII {
                                     } else {
                                         logEntry += u.getDisplayName() + " (" + u.getEid() + ") " + subOrDraft;
                                     }
-                                }
+                                }*/
 //							TODO submission log entry
 //							submission.addSubmissionLogEntry( logEntry );
                                 assignmentService.updateSubmission(submission);

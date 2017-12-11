@@ -342,20 +342,21 @@ $(document).ready(function(){
 					</div>
 				</div>
 			#end
-			#if ($!submission && $!submission.getSubmissionLog().size() > 0)
-				<div class="row">
-					<div class="col-lg-4 col-sm-6 col-xs-12">
-						<div class="itemSummaryHeader">$tlang.getString("gen.history")</div>
-					</div>
-					<div class="col-lg-4 col-sm-6 col-xs-12">
-						<div class="itemSummaryValue">
-							#foreach ($entry in $submission.getSubmissionLog())
-								$entry<br>
-							#end
-						</div>
-					</div>
-				</div>
-			#end
+##			TODO Submission Log
+##			#if ($!submission && $!submission.getSubmissionLog().size() > 0)
+##				<div class="row">
+##					<div class="col-lg-4 col-sm-6 col-xs-12">
+##						<div class="itemSummaryHeader">$tlang.getString("gen.history")</div>
+##					</div>
+##					<div class="col-lg-4 col-sm-6 col-xs-12">
+##						<div class="itemSummaryValue">
+##							#foreach ($entry in $submission.getSubmissionLog())
+##								$entry<br>
+##							#end
+##						</div>
+##					</div>
+##				</div>
+##			#end
 		</div>
 		<div class="clearfix"></div>
 		<h4>
