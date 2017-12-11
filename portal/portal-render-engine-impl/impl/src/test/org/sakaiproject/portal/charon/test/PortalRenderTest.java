@@ -23,8 +23,8 @@ package org.sakaiproject.portal.charon.test;
 
 import java.io.File;
 
-import junit.framework.TestCase;
 import lombok.extern.slf4j.Slf4j;
+import junit.framework.TestCase;
 
 /**
  * A unit test that performs a template render test, checking for XMTML
@@ -77,7 +77,6 @@ public class PortalRenderTest extends TestCase
 		}
 		catch (Exception ex)
 		{
-			ex.printStackTrace();
 			log.info("========= FAILED Testing testErrorNoSession");
 			fail(ex.getMessage());
 		}
@@ -93,7 +92,6 @@ public class PortalRenderTest extends TestCase
 		}
 		catch (Exception ex)
 		{
-			ex.printStackTrace();
 			log.info("========= FAILED Testing testErrorWithSession");
 			fail(ex.getMessage());
 
@@ -110,7 +108,6 @@ public class PortalRenderTest extends TestCase
 		}
 		catch (Exception ex)
 		{
-			ex.printStackTrace();
 			log.info("========= FAILED Testing testErrorWithToolSession");
 			fail(ex.getMessage());
 
@@ -127,7 +124,6 @@ public class PortalRenderTest extends TestCase
 		}
 		catch (Exception ex)
 		{
-			ex.printStackTrace();
 			log.info("========= FAILED Testing testErrorWithAll");
 			fail(ex.getMessage());
 
@@ -144,7 +140,6 @@ public class PortalRenderTest extends TestCase
 		}
 		catch (Exception ex)
 		{
-			ex.printStackTrace();
 			log.info("========= FAILED Testing testPage");
 			fail(ex.getMessage());
 		}
@@ -160,7 +155,6 @@ public class PortalRenderTest extends TestCase
 		}
 		catch (Exception ex)
 		{
-			ex.printStackTrace();
 			log.info("========= FAILED Testing testSite");
 			fail(ex.getMessage());
 		}
@@ -175,7 +169,6 @@ public class PortalRenderTest extends TestCase
 		}
 		catch (Exception ex)
 		{
-			ex.printStackTrace();
 			log.info("========= FAILED Testing testWorksite");
 			fail(ex.getMessage());
 		}
