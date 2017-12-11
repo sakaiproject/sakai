@@ -28,8 +28,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.sakaiproject.poll.logic.ExternalLogic;
 import org.sakaiproject.poll.logic.PollListManager;
 import org.sakaiproject.poll.logic.PollVoteManager;
@@ -64,7 +63,7 @@ import uk.org.ponder.rsf.viewstate.SimpleViewParameters;
 import uk.org.ponder.rsf.viewstate.ViewParameters;
 import uk.org.ponder.rsf.viewstate.ViewParamsReporter;
 
-
+@Slf4j
 public class PollVoteProducer implements ViewComponentProducer,ViewParamsReporter, ActionResultInterceptor,NavigationCaseReporter {
 
 	public static final String VIEW_ID = "voteQuestion";
@@ -74,9 +73,6 @@ public class PollVoteProducer implements ViewComponentProducer,ViewParamsReporte
 	private LocaleGetter localeGetter;
 	private TargettedMessageList tml;
 	private PollVoteManager pollVoteManager;
-
-
-	private static final Logger LOG = LoggerFactory.getLogger(PollVoteProducer.class);
 
 	public String getViewID() {
 		// TODO Auto-generated method stub
@@ -120,22 +116,22 @@ public class PollVoteProducer implements ViewComponentProducer,ViewParamsReporte
 
 
 		String strId = ecvp.id;
-		LOG.debug("got id of " + strId);
+		log.debug("got id of " + strId);
 		Poll poll = pollListManager.getPollById(Long.valueOf(strId));
 
 		if (!pollVoteManager.pollIsVotable(poll)){
 			tml.addMessage(new TargettedMessage("vote_noperm.voteCollection"));
 			return;
 		} else {
-			LOG.info("user: " + externalLogic.getCurrentUserId() + " can vote on poll: " + poll.getPollId());
+			log.info("user: " + externalLogic.getCurrentUserId() + " can vote on poll: " + poll.getPollId());
 		}
 
-		LOG.debug("got poll " + poll.getText());
+		log.debug("got poll " + poll.getText());
 
 
 		//check if they can vote
 		if (poll.getLimitVoting() && pollVoteManager.userHasVoted(poll.getPollId())) {
-			LOG.warn("This user has already voted!");
+			log.warn("This user has already voted!");
 			UIOutput.make(tofill, "hasErrors",messageLocator.getMessage("vote_hasvoted.voteCollection"));
 			return;
 		}
@@ -153,7 +149,7 @@ public class PollVoteProducer implements ViewComponentProducer,ViewParamsReporte
 			UIVerbatim.make(tofill,"poll-description",poll.getDetails());
 		}
 
-		LOG.debug("this poll has " + poll.getPollOptions().size()+ " options");
+		log.debug("this poll has " + poll.getPollOptions().size()+ " options");
 
 		UIForm voteForm = UIForm.make(tofill,"options-form",""); 
 
@@ -173,7 +169,7 @@ public class PollVoteProducer implements ViewComponentProducer,ViewParamsReporte
 			if (po.getOptionText() != null ) {
 				labels[i]= po.getOptionText();
 			} else {
-				LOG.warn("Option text is null!");
+				log.warn("Option text is null!");
 				labels[i]="null option!";
 			}
 		}
@@ -195,7 +191,7 @@ public class PollVoteProducer implements ViewComponentProducer,ViewParamsReporte
 		String selectID = radio.getFullID();
 		for (int i = 0;i < pollOptions.size(); i++ ) {
 			Option po = (Option)pollOptions.get(i);
-			LOG.debug("got option " + po.getOptionText() + " with id of  " + po.getId());
+			log.debug("got option " + po.getOptionText() + " with id of  " + po.getId());
 			UIBranchContainer radioRow = UIBranchContainer.make(voteForm,
 					isMultiple ? "option:select"
 							: "option:radio"						 
@@ -242,10 +238,10 @@ public class PollVoteProducer implements ViewComponentProducer,ViewParamsReporte
 			VoteCollection votes = (VoteCollection) actionReturn;
 
 			if (votes.getId() != null) {
-				LOG.debug("got a voteCollection with id: " + votes.getId());
+				log.debug("got a voteCollection with id: " + votes.getId());
 				result.resultingView = new VoteCollectionViewParameters(ConfirmProducer.VIEW_ID, votes.getId());
 			} else {
-				LOG.warn("no id in vote collection!");
+				log.warn("no id in vote collection!");
 			}
 		}
 
