@@ -90,13 +90,18 @@ should be included in file importing DeliveryMessages
 
   <f:verbatim></div></f:verbatim>
   <f:verbatim><script>
-    $('div.mcscFixUp').each(function(index1,elBlockToFix){
+    $('div.mcscFixUp').each(function(index1,elBlockToFix) {
       $(elBlockToFix).find('div.mcscFixUpSource td').each(function(index,elLabelAndInputToMove) {
-        $(elBlockToFix).find('div.mcscFixUpTarget:first').replaceWith($(elLabelAndInputToMove).contents());
+        var contentsToMove = $(elLabelAndInputToMove).contents();
+        if (typeof contentsToMove !== 'undefined') {
+          $(elBlockToFix).find('div.mcscFixUpTarget:first').replaceWith(contentsToMove);
+        }
       });
       $(elBlockToFix).find('li.samigo-question-answer label').each(function(index2, answerLabel) {
         var properLabel = $(answerLabel).parent('li').children('span.mcAnswerText')[0];
-        answerLabel.append(properLabel);
+        if (typeof properLabel !== 'undefined') {
+          answerLabel.append(properLabel);
+        }
       });
       $(elBlockToFix).find('div.mcscFixUpSource').remove();
     });
