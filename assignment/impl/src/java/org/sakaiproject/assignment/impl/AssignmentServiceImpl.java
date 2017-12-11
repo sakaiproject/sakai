@@ -2671,7 +2671,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
         }
     }
 
-    // TODO this needs to be refactored
+    // TODO zipSubmissions and zipGroupSubmissions should be combined
     private void zipSubmissions(String assignmentReference, String assignmentTitle, Assignment.GradeType gradeType, Assignment.SubmissionType typeOfSubmission, Iterator submissions, OutputStream outputStream, StringBuilder exceptionMessage, boolean withStudentSubmissionText, boolean withStudentSubmissionAttachment, boolean withGradeFile, boolean withFeedbackText, boolean withFeedbackComment, boolean withFeedbackAttachment, boolean withoutFolders, String gradeFileFormat, boolean includeNotSubmitted, String siteId) {
         ZipOutputStream out = null;
 
@@ -2709,7 +2709,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
             }
 
             // allow add assignment members
-            List allowAddSubmissionUsers = allowAddSubmissionUsers(assignmentReference);
+            List<User> allowAddSubmissionUsers = allowAddSubmissionUsers(assignmentReference);
 
             // Create the ZIP file
             String submittersName = "";
@@ -2722,10 +2722,13 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                 boolean isAnon = assignmentUsesAnonymousGrading(s.getAssignment());
                 //SAK-29314 added a new value where it's by default submitted but is marked when the user submits
                 if ((s.getSubmitted() && s.getUserSubmission()) || includeNotSubmitted) {
-                    // get the submission user id and see if the user is still in site
-                    String userId = s.getSubmitters().stream().filter(AssignmentSubmissionSubmitter::getSubmittee).findFirst().orElse(null).getSubmitter();
+                    // get the submitter who submitted the submission see if the user is still in site
+                    Optional<AssignmentSubmissionSubmitter> assignmentSubmitter = s.getSubmitters().stream().findAny();
                     try {
-                        User u = userDirectoryService.getUser(userId);
+                        User u = null;
+                        if (assignmentSubmitter.isPresent()) {
+                            u = userDirectoryService.getUser(assignmentSubmitter.get().getSubmitter());
+                        }
                         if (allowAddSubmissionUsers.contains(u)) {
                             submittersName = root;
 
@@ -2733,9 +2736,9 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                                 try {
                                     return userDirectoryService.getUser(p.getSubmitter());
                                 } catch (UserNotDefinedException e) {
-                                    log.warn("User not found {}", p.getSubmitter());
-                                    return null;
+                                    log.warn("User not found {}, {}", p.getSubmitter(), e.getMessage());
                                 }
+                                return null;
                             }).filter(Objects::nonNull).toArray(User[]::new);
 
                             String submittersString = "";
@@ -2745,7 +2748,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                                 }
                                 String fullName = submitters[i].getSortName();
                                 // in case the user doesn't have first name or last name
-                                if (fullName.indexOf(",") == -1) {
+                                if (!fullName.contains(",")) {
                                     fullName = fullName.concat(",");
                                 }
                                 submittersString = submittersString.concat(fullName);
@@ -2916,8 +2919,9 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                                     submittersAdditionalNotesHtml += "<tr><td style='padding-right:10px;padding-left:10px'>" + submittersString + "</td><td style='padding-right:10px'>" + noteList + "</td></tr>";
                                 }
                             }
+                        } else {
+                            log.warn("Can't add submission: {} to zip, missing the submittee or they are no longer allowed to submit in the site", s.getId());
                         }
-
                     } catch (Exception e) {
                         caughtException = e.toString();
                         if (log.isDebugEnabled()) {
@@ -2982,7 +2986,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
         }
     }
 
-    // TODO refactor this
+    // TODO zipSubmissions and zipGroupSubmissions should be combined
     protected void zipGroupSubmissions(String assignmentReference, String assignmentTitle, String gradeTypeString, Assignment.SubmissionType typeOfSubmission, Iterator submissions, OutputStream outputStream, StringBuilder exceptionMessage, boolean withStudentSubmissionText, boolean withStudentSubmissionAttachment, boolean withGradeFile, boolean withFeedbackText, boolean withFeedbackComment, boolean withFeedbackAttachment, String gradeFileFormat, boolean includeNotSubmitted) {
         ZipOutputStream out = null;
         try {
