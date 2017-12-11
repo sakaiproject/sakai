@@ -690,9 +690,10 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
 
         log.debug("Created new assignment {}", assignment.getId());
 
-        String reference = AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getReference();
-        // event for tracking
-        eventTrackingService.post(eventTrackingService.newEvent(AssignmentConstants.EVENT_ADD_ASSIGNMENT, reference, true));
+        // String reference = AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getReference();
+        // AssignmentAction#post_save_assignment contains the logic for adding a new assignment
+        // the event should come at the end of that logic, eventually that logic should be moved here
+        // eventTrackingService.post(eventTrackingService.newEvent(AssignmentConstants.EVENT_ADD_ASSIGNMENT, reference, true));
 
         return assignment;
     }

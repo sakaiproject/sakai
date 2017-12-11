@@ -7465,11 +7465,13 @@ public class AssignmentAction extends PagedResourceActionII {
         }
 
         Assignment a;
+        boolean newAssignment = false;
         // if there is no assignmentId
         if (StringUtils.isBlank(assignmentId)) {
             //  create a new assignment
             try {
                 a = assignmentService.addAssignment(siteId);
+                newAssignment = true;
             } catch (PermissionException e) {
                 log.warn("Could not create new assignment for site: {}, {}", siteId, e.getMessage());
                 addAlert(state, rb.getFormattedMessage("youarenot_editAssignment", siteId));
@@ -7845,6 +7847,10 @@ public class AssignmentAction extends PagedResourceActionII {
                         }
                     }
                 }
+            }
+            if (newAssignment) {
+                // post new assignment event since it is fully initialized by now
+                eventTrackingService.post(eventTrackingService.newEvent(AssignmentConstants.EVENT_ADD_ASSIGNMENT, assignmentReference, true));
             }
         }
     }
