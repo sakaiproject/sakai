@@ -211,6 +211,7 @@ public class ReorderProducer implements ViewComponentProducer, NavigationCaseRep
 				}
 
 				UIContainer row = UIBranchContainer.make(columnContainer, "item:");
+				UIContainer modalContainer = UIBranchContainer.make(tofill, "modal:");
 
 				// * prefix indicates items are from the other page, and have to be copied.
 				UIOutput.make(row, "seq", (second ? "*" : "") +
@@ -230,16 +231,16 @@ public class ReorderProducer implements ViewComponentProducer, NavigationCaseRep
 					UIOutput previewLink = UIOutput.make(row, "previewlink");
 					previewLink.decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.preview.link")));
 					previewLink.decorate(new UIFreeAttributeDecorator("href", "#preview" + i.getId()));
-					UIOutput.make(row, "previewmodal").decorate(new UIFreeAttributeDecorator("id", "preview" + i.getId()));
-					UIVerbatim.make(row, "previewcontent", i.getHtml());
+					UIOutput.make(modalContainer, "previewmodal").decorate(new UIFreeAttributeDecorator("id", "preview" + i.getId()));
+					UIVerbatim.make(modalContainer, "previewcontent", i.getHtml());
 				} else if ("1".equals(subtype)) {
 				    // embed code, nothing useful to show
 				    UIOutput.make(row, "text-snippet2", messageLocator.getMessage("simplepage.embedded-video"));
 					UIOutput previewLink = UIOutput.make(row, "previewlink");
 					previewLink.decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.preview.link")));
 					previewLink.decorate(new UIFreeAttributeDecorator("href", "#preview" + i.getId()));
-					UIOutput.make(row, "previewmodal").decorate(new UIFreeAttributeDecorator("id", "preview" + i.getId()));
-					UIVerbatim.make(row, "previewcontent", i.getAttribute("multimediaEmbedCode"));
+					UIOutput.make(modalContainer, "previewmodal").decorate(new UIFreeAttributeDecorator("id", "preview" + i.getId()));
+					UIVerbatim.make(modalContainer, "previewcontent", i.getAttribute("multimediaEmbedCode"));
 				} else if ("3".equals(subtype)) {
 				    // oembed. use the URL
 				    UILink.make(row, "link", i.getAttribute("multimediaUrl"), i.getAttribute("multimediaUrl"));

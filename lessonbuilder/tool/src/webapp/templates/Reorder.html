@@ -47,18 +47,6 @@
                                             <span rsf:id="text-snippet2"></span>
                                         </a>
                                         <span rsf:id="dellink"></span>
-                                        <div rsf:id="previewmodal" class="modal fade" role="dialog">
-                                            <div class="modal-dialog">
-                                                <div class="modal-content">
-                                                    <div class="modal-header">
-                                                        <strong><span rsf:id="msg=simplepage.preview.header"></span></strong>
-                                                    </div>
-                                                    <div class="modal-body" style="overflow: auto;">
-                                                        <span rsf:id="previewcontent"></span>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
                                     </div>
                                     <div class="reordDeleteContainer">
                                         <a href="#" class="deleteAnswerTrashLink"><span rsf:id="dellink" class="fa fa-trash-o redLessonsIcon"></span></a>
@@ -93,6 +81,24 @@
                     <input type="submit" rsf:id="cancel" />
                 </p>
             </form>
+
+            <div rsf:id="modal:">
+                <div rsf:id="previewmodal" class="modal fade" role="dialog">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <strong><span rsf:id="msg=simplepage.preview.header"></span></strong>
+                            </div>
+                            <div class="modal-body" style="overflow: auto;">
+                                <span rsf:id="previewcontent"></span>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-default" data-dismiss="modal"><span rsf:id="msg=simplepage.reorder.close"></span></button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </body>
 </html>
