@@ -3704,7 +3704,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 				for (AssignmentGradeRecord gr : gradeRecords) {
 					if (gr.getPointsEarned() != null) {
 						final BigDecimal scoreAsPercentage = (new BigDecimal(gr.getPointsEarned())
-								.divide(new BigDecimal(originalPointsPossible)))
+								.divide(new BigDecimal(originalPointsPossible), GradebookService.MATH_CONTEXT))
 								.multiply(new BigDecimal(100));
 
 						final Double scaledScore = calculateEquivalentPointValueForPercent(
