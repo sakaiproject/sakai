@@ -24,22 +24,20 @@ package uk.ac.cam.caret.sakai.rwiki.utils;
 import java.nio.CharBuffer;
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang.StringUtils;
+
 import org.sakaiproject.alias.api.AliasEdit;
 import org.sakaiproject.alias.api.AliasService;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.site.cover.SiteService;
-import org.apache.commons.lang.StringUtils;
 
-
+@Slf4j
 public class NameHelper
 {
 
 	public static final char SPACE_SEPARATOR = '/';
-
-	private static final Logger log = LoggerFactory.getLogger(NameHelper.class);
 
 	public static final String DEFAULT_PAGE = "home";
 

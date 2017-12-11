@@ -21,8 +21,7 @@
 
 package uk.ac.cam.caret.sakai.rwiki.component.radeox.service.impl;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.radeox.api.engine.RenderEngine;
 import org.sakaiproject.component.api.ComponentManager;
 
@@ -34,9 +33,9 @@ import uk.ac.cam.caret.sakai.rwiki.service.api.radeox.RenderEngineFactory;
  * @author andrew
  */
 // FIXME: Component
+@Slf4j
 public class RenderEngineFactoryImpl implements RenderEngineFactory
 {
-	private static Logger log = LoggerFactory.getLogger(RenderEngineFactoryImpl.class);
 
 	private RWikiObjectService objectService;
 

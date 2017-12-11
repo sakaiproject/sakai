@@ -28,11 +28,10 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.component.api.ComponentManager;
 import org.sakaiproject.tool.cover.SessionManager;
-
 
 import uk.ac.cam.caret.sakai.rwiki.service.api.RWikiObjectService;
 import uk.ac.cam.caret.sakai.rwiki.service.api.model.RWikiPermissions;
@@ -52,9 +51,9 @@ import uk.ac.cam.caret.sakai.rwiki.tool.command.helper.ErrorBeanHelper;
 /**
  * @author andrew
  */
+@Slf4j
 public class UpdatePermissionsCommand implements HttpCommand
 {
-	private static Logger log = LoggerFactory.getLogger(UpdatePermissionsCommand.class);
 
 	private RWikiObjectService objectService;
 

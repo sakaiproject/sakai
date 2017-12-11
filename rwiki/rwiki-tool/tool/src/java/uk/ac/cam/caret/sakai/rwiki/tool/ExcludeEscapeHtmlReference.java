@@ -24,8 +24,7 @@ package uk.ac.cam.caret.sakai.rwiki.tool;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.velocity.app.event.ReferenceInsertionEventHandler;
 import org.sakaiproject.util.Web;
 
@@ -33,10 +32,9 @@ import org.sakaiproject.util.Web;
  * @author ieb
  *
  */
+@Slf4j
 public class ExcludeEscapeHtmlReference implements ReferenceInsertionEventHandler
 {
-
-	private static final Logger log = LoggerFactory.getLogger(ExcludeEscapeHtmlReference.class);
 	private static Map<String,String> ignore = new HashMap<String, String>();
 
 	static{

@@ -6,6 +6,8 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 
+import lombok.extern.slf4j.Slf4j;
+
 /**
  * Parses an RCS/CVS style version control archive into an Archive.
  * This class is NOT thread safe.
@@ -14,6 +16,7 @@ import java.io.InputStream;
  * @version $Revision$ $Date$
  * @see Archive
  */
+@Slf4j
 class ArchiveParser implements ArchiveParserConstants {
 
   static final String ident = "RCS ArchiveParser Parser $version$:";
@@ -22,28 +25,28 @@ class ArchiveParser implements ArchiveParserConstants {
     ArchiveParser parser;
     if (args.length == 0)
     {
-      System.out.println(ident + "  Reading from standard input . . .");
+      log.info(ident + "  Reading from standard input . . .");
       parser = new ArchiveParser(System.in);
     }
     else if (args.length == 1)
     {
-      System.out.println(ident + "  Reading from file " + args[0] + " . . .");
+      log.info(ident + "  Reading from file " + args[0] + " . . .");
       try
       {
         parser = new ArchiveParser(new FileInputStream(args[0]));
       }
       catch (java.io.FileNotFoundException e)
       {
-        System.out.println(ident + "  File " + args[0] + " not found.");
+        log.info(ident + "  File " + args[0] + " not found.");
         return;
       }
     }
     else
     {
-      System.out.println(ident+"  Usage is one of:");
-      System.out.println("         java ArchiveParser < inputfile");
-      System.out.println("OR");
-      System.out.println("         java ArchiveParser inputfile");
+      log.info(ident+"  Usage is one of:");
+      log.info("         java ArchiveParser < inputfile");
+      log.info("OR");
+      log.info("         java ArchiveParser inputfile");
       return;
     }
     parser.parse();
@@ -65,11 +68,11 @@ class ArchiveParser implements ArchiveParserConstants {
     try
     {
       archive(null);
-      System.out.println("RCS ArchiveParser Parser version 1.1:  RCS ArchiveParser parsed successfully.");
+      log.info("RCS ArchiveParser Parser version 1.1:  RCS ArchiveParser parsed successfully.");
     }
     catch (ParseException e)
     {
-      System.out.println("RCS ArchiveParser Parser version 1.1:  Encountered errors during parse.");
+      log.info("RCS ArchiveParser Parser version 1.1:  Encountered errors during parse.");
     }
   }
 

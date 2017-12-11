@@ -25,8 +25,8 @@ package uk.ac.cam.caret.sakai.rwiki.tool.bean;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.search.api.InvalidSearchQueryException;
 import org.sakaiproject.search.api.SearchList;
 import org.sakaiproject.search.api.SearchService;
@@ -39,10 +39,9 @@ import uk.ac.cam.caret.sakai.rwiki.tool.util.WikiPageAction;
  * 
  * @author andrew
  */
+@Slf4j
 public class FullSearchBean
 {
-	
-	private static Logger log = LoggerFactory.getLogger(FullSearchBean.class);
 
 	/** Tool restriction: see RWikiEntityContentProducer.getTool() **/
 	private static final String SEARCH_SUFFIX = " +tool:wiki";
@@ -205,10 +204,7 @@ public class FullSearchBean
 				nresults = searchResults.getFullSize();
 			} 
 			catch (InvalidSearchQueryException e) {
-				//TODO we need to handle the exception and return a message to the user
-				if (log.isDebugEnabled()) {
-					e.printStackTrace();
-				}
+				log.error(e.getMessage(), e);
 				return null;
 				 
 			}

@@ -23,17 +23,16 @@ package uk.ac.cam.caret.sakai.rwiki.tool.bean.helper;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import uk.ac.cam.caret.sakai.rwiki.service.api.model.RWikiObject;
 import uk.ac.cam.caret.sakai.rwiki.tool.RequestScopeSuperBean;
 import uk.ac.cam.caret.sakai.rwiki.tool.bean.MultiRealmEditBean;
 import uk.ac.cam.caret.sakai.rwiki.utils.NameHelper;
 
+@Slf4j
 public class MultiRealmEditBeanHelper
 {
-	private static Logger log = LoggerFactory.getLogger(MultiRealmEditBeanHelper.class);
 
 	public static MultiRealmEditBean createMultiRealmEditBean( 
 			RWikiObject currentRWikiObject,
