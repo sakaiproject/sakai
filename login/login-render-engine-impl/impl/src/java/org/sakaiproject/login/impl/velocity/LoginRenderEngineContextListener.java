@@ -23,8 +23,8 @@ package org.sakaiproject.login.impl.velocity;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.login.api.Login;
 import org.sakaiproject.login.cover.LoginService;
@@ -35,10 +35,8 @@ import org.sakaiproject.tool.cover.SessionManager;
  * 
  * @author jrenfro
  */
+@Slf4j
 public class LoginRenderEngineContextListener implements ServletContextListener {
-
-	private static final Logger log = LoggerFactory.getLogger(LoginRenderEngineContextListener.class);
-	
 	private VelocityLoginRenderEngine vengine;
 	
 	public void contextDestroyed(ServletContextEvent sce) {
