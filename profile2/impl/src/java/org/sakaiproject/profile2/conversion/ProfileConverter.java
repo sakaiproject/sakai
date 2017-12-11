@@ -28,13 +28,15 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import au.com.bytecode.opencsv.CSVReader;
+import au.com.bytecode.opencsv.bean.CsvToBean;
+import au.com.bytecode.opencsv.bean.HeaderColumnNameTranslateMappingStrategy;
 import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
-
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
 import org.sakaiproject.api.common.edu.person.SakaiPerson;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityService;
@@ -50,20 +52,15 @@ import org.sakaiproject.profile2.model.UserProfile;
 import org.sakaiproject.profile2.util.ProfileConstants;
 import org.sakaiproject.profile2.util.ProfileUtils;
 
-import au.com.bytecode.opencsv.CSVReader;
-import au.com.bytecode.opencsv.bean.CsvToBean;
-import au.com.bytecode.opencsv.bean.HeaderColumnNameTranslateMappingStrategy;
-
 /**
  * Handles the conversion and import of profiles and images. This is not part of the public API.
  * 
  * @author Steve Swinsburg (steve.swinsburg@gmail.com)
  *
  */
+@Slf4j
 public class ProfileConverter {
 
-	private static final Logger log = LoggerFactory.getLogger(ProfileConverter.class);
-	
 	@Setter
 	private SakaiProxy sakaiProxy;
 	

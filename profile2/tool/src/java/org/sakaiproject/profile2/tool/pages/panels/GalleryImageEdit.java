@@ -15,8 +15,7 @@
  */
 package org.sakaiproject.profile2.tool.pages.panels;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.form.AjaxFallbackButton;
@@ -27,6 +26,7 @@ import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
+
 import org.sakaiproject.profile2.logic.ProfileImageLogic;
 import org.sakaiproject.profile2.logic.ProfilePreferencesLogic;
 import org.sakaiproject.profile2.logic.ProfileWallLogic;
@@ -41,10 +41,10 @@ import org.sakaiproject.profile2.util.ProfileConstants;
  * Gallery component for viewing a gallery image alongside options, including
  * removing the image and setting the image as the new profile image.
  */
+@Slf4j
 public class GalleryImageEdit extends Panel {
 
 	private static final long serialVersionUID = 1L;
-	private static final Logger log = LoggerFactory.getLogger(GalleryImageEdit.class);
 
 	private final WebMarkupContainer imageOptionsContainer;
 	private final WebMarkupContainer removeConfirmContainer;

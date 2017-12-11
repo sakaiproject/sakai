@@ -15,21 +15,21 @@
  */
 package org.sakaiproject.profile2.tool.pages.panels;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.image.ContextImage;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
+
 import org.sakaiproject.profile2.logic.SakaiProxy;
 import org.sakaiproject.profile2.util.ProfileConstants;
 
+@Slf4j
 public class KudosPanel extends Panel {
 
 	private static final long serialVersionUID = 1L;
-	private static final Logger log = LoggerFactory.getLogger(KudosPanel.class);
 
 	
 	@SpringBean(name="org.sakaiproject.profile2.logic.SakaiProxy")
