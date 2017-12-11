@@ -27,21 +27,22 @@ package org.sakaiproject.pasystem.tool.handlers;
 import java.io.IOException;
 import java.util.Map;
 import java.util.Optional;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.pasystem.api.PASystem;
 import org.sakaiproject.pasystem.api.Popup;
 import org.sakaiproject.pasystem.api.TemplateStream;
 import org.sakaiproject.pasystem.tool.forms.PopupForm;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * A handler for creating and updating popups in the PA System administration tool.
  */
+@Slf4j
 public class PopupsHandler extends CrudHandler {
-
-    private static final Logger LOG = LoggerFactory.getLogger(PopupsHandler.class);
 
     private final PASystem paSystem;
 
@@ -87,7 +88,7 @@ public class PopupsHandler extends CrudHandler {
 
             response.getWriter().write(content);
         } catch (IOException e) {
-            LOG.warn("Write failed while previewing popup", e);
+            log.warn("Write failed while previewing popup", e);
         }
     }
 
