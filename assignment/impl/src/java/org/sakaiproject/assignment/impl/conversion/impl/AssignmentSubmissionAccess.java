@@ -108,8 +108,6 @@ public class AssignmentSubmissionAccess implements SerializableSubmissionAccess,
 	
 	protected List<String> feedbackattachments = new ArrayList<String>();
 
-        protected List<String> submissionLog = new ArrayList<String>();
-
 	protected List<String> grades = new ArrayList<String>();
 
 	protected String datesubmitted = null;
@@ -205,17 +203,6 @@ public class AssignmentSubmissionAccess implements SerializableSubmissionAccess,
 		{
 			attributeString = "submitter" + x;
 			itemString = (String) this.submitters.get(x);
-			if (itemString != null)
-			{
-				submission.setAttribute(attributeString, itemString);
-			}
-		}
-
-        // SAVE THE SUBMISSION LOGS
-		for (int x = 0; x < this.submissionLog.size(); x++)
-		{
-			attributeString = "log" + x;
-			itemString = (String) this.submissionLog.get(x);
 			if (itemString != null)
 			{
 				submission.setAttribute(attributeString, itemString);
@@ -486,7 +473,6 @@ public class AssignmentSubmissionAccess implements SerializableSubmissionAccess,
 					if (getSubmitterId() == null && submitters.size() > 0) {
 						setSubmitterId(submitters.get(0));
 					}
-					addElementsToList("log",submissionLog,attributes,false);
 					addElementsToList("grade",grades,attributes,false);
 				}
 			}
@@ -927,12 +913,6 @@ public class AssignmentSubmissionAccess implements SerializableSubmissionAccess,
 		return submitters;
 	}
 
-        public List<String>getSubmissionLog() {
-            return submissionLog;
-        }
-        public void setSubmissionLog(List<String> log) {
-            this.submissionLog = log;
-        }
         public List<String>getGrades() { return grades; }
         public void setGrades(List<String> gr) { this.grades = gr; }
 
