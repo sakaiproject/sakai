@@ -2765,7 +2765,8 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                                 submittersString = escapeInvalidCharsEntry(submittersString);
                                 // Work out if submission is late.
                                 String latenessStatus = whenSubmissionMade(s);
-
+                                log.debug("latenessStatus: " + latenessStatus);
+                                
                                 String anonTitle = resourceLoader.getString("grading.anonymous.title");
                                 String fullAnonId = s.getId() + " " + anonTitle;
 
@@ -2781,12 +2782,17 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
 
                                 // SAK-17606
                                 if (!isAnon) {
+                                	log.debug("Zip user: " + submitters[i].toString());
                                     params[0] = submitters[i].getDisplayId();
                                     params[1] = submitters[i].getEid();
                                     params[2] = submitters[i].getLastName();
                                     params[3] = submitters[i].getFirstName();
                                     params[4] = s.getGrade(); // TODO may need to look at this
-                                    params[5] = s.getDateSubmitted().toString(); // TODO may need to be formatted
+                                    if (s.getDateSubmitted() != null) {
+                                    	params[5] = s.getDateSubmitted().toString(); // TODO may need to be formatted
+                                    } else {
+                                    	params[5] = "";	
+                                    }
                                     params[6] = latenessStatus;
                                 } else {
                                     params[0] = fullAnonId;
@@ -2794,7 +2800,11 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                                     params[2] = anonTitle;
                                     params[3] = anonTitle;
                                     params[4] = s.getGrade();
-                                    params[5] = s.getDateSubmitted().toString(); // TODO same as above
+                                    if (s.getDateSubmitted() != null) {
+                                    	params[5] = s.getDateSubmitted().toString(); // TODO may need to be formatted
+                                    } else {
+                                    	params[5] = "";	
+                                    }
                                     params[6] = latenessStatus;
                                 }
                                 sheet.addRow(params);
@@ -2841,10 +2851,13 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                                         }
                                         ZipEntry textEntry = new ZipEntry(submittersNameString + "_submissionText" + AssignmentConstants.ZIP_SUBMITTED_TEXT_FILE_TYPE);
                                         out.putNextEntry(textEntry);
-                                        byte[] text = submittedText.getBytes();
-                                        out.write(text);
-                                        textEntry.setSize(text.length);
+                                        if (submittedText != null) {
+                                          byte[] text = submittedText.getBytes();
+                                          out.write(text);
+                                          textEntry.setSize(text.length);
+                                        }
                                         out.closeEntry();
+                                        
                                     }
 
                                     // include student submission feedback text
@@ -2852,9 +2865,11 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                                         // create a feedbackText file into zip
                                         ZipEntry fTextEntry = new ZipEntry(submittersName + "feedbackText.html");
                                         out.putNextEntry(fTextEntry);
-                                        byte[] fText = s.getFeedbackText().getBytes();
-                                        out.write(fText);
-                                        fTextEntry.setSize(fText.length);
+                                        if (s.getFeedbackText() != null) {
+                                           byte[] fText = s.getFeedbackText().getBytes();
+                                           out.write(fText);
+                                           fTextEntry.setSize(fText.length);
+                                        }
                                         out.closeEntry();
                                     }
                                 }
