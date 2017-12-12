@@ -107,7 +107,9 @@ public class SettingsGradeReleasePanel extends BasePanel {
 			@Override
 			protected void onUpdate(final AjaxRequestTarget target) {
 				// update preview
-				target.add(SettingsGradeReleasePanel.this.preview);
+				if (SettingsGradeReleasePanel.this.preview.isVisibleInHierarchy()) {
+					target.add(SettingsGradeReleasePanel.this.preview);
+				}
 
 				// toggle courseGradeType panel
 				target.add(SettingsGradeReleasePanel.this.courseGradeType);
@@ -265,15 +267,8 @@ public class SettingsGradeReleasePanel extends BasePanel {
 		};
 
 		// course grade type container
-		final WebMarkupContainer courseGradePreview = new WebMarkupContainer("courseGradePreview") {
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			public boolean isVisible() {
-				return displayCourseGrade.getModelObject();
-			}
-
-		};
+		final WebMarkupContainer courseGradePreview = new WebMarkupContainer("courseGradePreview");
+		courseGradePreview.setVisible(displayCourseGrade.getModelObject());
 		courseGradePreview.setOutputMarkupPlaceholderTag(true);
 		settingsGradeReleasePanel.add(courseGradePreview);
 
