@@ -40,5 +40,9 @@
             <groupId>org.sakaiproject.scheduler</groupId>
             <artifactId>scheduler-api</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.sakaiproject.contentreview</groupId>
+            <artifactId>contentreview-model-api</artifactId>
+        </dependency>
     </dependencies>
 </project>

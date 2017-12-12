@@ -1,6 +1,7 @@
 package org.sakaiproject.assignment.api;
 
 import org.sakaiproject.content.api.ContentResource;
+import org.sakaiproject.contentreview.model.ContentReviewItem;
 import org.sakaiproject.entity.api.ResourceProperties;
 
 /**
@@ -38,6 +39,8 @@ public class ContentReviewResult
 	 * An error string, if any, return from the review service
 	 */
 	private String reviewError;
+	
+	private ContentReviewItem contentReviewItem;
 
 
 	/**
@@ -143,5 +146,13 @@ public class ContentReviewResult
 	public void setReviewError(String reviewError)
 	{
 		this.reviewError = reviewError;
+	}
+
+	public ContentReviewItem getContentReviewItem() {
+		return contentReviewItem;
+	}
+
+	public void setContentReviewItem(ContentReviewItem contentReviewItem) {
+		this.contentReviewItem = contentReviewItem;
 	}
 }
