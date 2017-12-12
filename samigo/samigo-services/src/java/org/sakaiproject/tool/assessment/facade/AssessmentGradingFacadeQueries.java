@@ -1110,7 +1110,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
         if (retryCount >2)
           throw new Exception("uncategorized SQLException for SQL []; SQL state [61000]; error code [60]; ORA-00060: deadlock detected while waiting for resource");
 	*/
-                getHibernateTemplate().saveOrUpdate((AssessmentGradingData) assessment);
+                getHibernateTemplate().merge((AssessmentGradingData) assessment);
                 retryCount = 0;
             } catch (Exception e) {
                 log.warn("problem inserting/updating assessmentGrading: {}", e.getMessage());
@@ -1463,7 +1463,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
         while (retryCount > 0) {
             try {
                 for (ItemGradingData itemGradingData : c) {
-                    getHibernateTemplate().saveOrUpdate(itemGradingData);
+                    getHibernateTemplate().merge(itemGradingData);
                 }
                 retryCount = 0;
             } catch (Exception e) {
