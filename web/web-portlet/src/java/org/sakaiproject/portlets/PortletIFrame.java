@@ -287,7 +287,7 @@ public class PortletIFrame extends GenericPortlet {
 		throws PortletException, IOException {
 			response.setContentType("text/html");
 
-			// System.out.println("==== doView called ====");
+			// log.info("==== doView called ====");
 
 			// Grab that underlying request to get a GET parameter
 			ServletRequest req = (ServletRequest) ThreadLocalManager.get(CURRENT_HTTP_REQUEST);
@@ -349,7 +349,7 @@ public class PortletIFrame extends GenericPortlet {
             // Compute the URL
             String url = sourceUrl(special, source, placement.getContext(), macroExpansion, passPid, placement.getId(), sakaiPropertiesUrlKey);
 
-            //System.out.println("special="+special+" source="+source+" pgc="+placement.getContext()+" macroExpansion="+macroExpansion+" passPid="+passPid+" PGID="+placement.getId()+" sakaiPropertiesUrlKey="+sakaiPropertiesUrlKey+" url="+url);
+            //log.info("special="+special+" source="+source+" pgc="+placement.getContext()+" macroExpansion="+macroExpansion+" passPid="+passPid+" PGID="+placement.getId()+" sakaiPropertiesUrlKey="+sakaiPropertiesUrlKey+" url="+url);
 
 			if ( url != null && url.trim().length() > 0 ) {
 				url = sanitizeHrefURL(url);
@@ -398,7 +398,7 @@ public class PortletIFrame extends GenericPortlet {
             // TODO: state.setAttribute(EVENT_ACCESS_WEB_CONTENT, config.getProperty(EVENT_ACCESS_WEB_CONTENT));
             // TODO: state.setAttribute(EVENT_REVISE_WEB_CONTENT, config.getProperty(EVENT_REVISE_WEB_CONTENT));
 
-			// System.out.println("==== doView complete ====");
+			// log.info("==== doView complete ====");
 		}
 
     // Determine if we should pop up due to an X-Frame-Options : [SAMEORIGIN]
@@ -506,7 +506,7 @@ public class PortletIFrame extends GenericPortlet {
 	public void doEdit(RenderRequest request, RenderResponse response)
 		throws PortletException, IOException 
     {
-			// System.out.println("==== doEdit called ====");
+			// log.info("==== doEdit called ====");
 			response.setContentType("text/html");
 			PrintWriter out = response.getWriter();
 			String title = getTitleString(request);
@@ -667,7 +667,7 @@ public class PortletIFrame extends GenericPortlet {
             if (SPECIAL_SITE.equals(special)) template = "/vm/edit-site.vm";
             if (SPECIAL_WORKSITE.equals(special)) template = "/vm/edit-site.vm";
             if (SPECIAL_ANNOTATEDURL.equals(special)) template = "/vm/edit-annotatedurl.vm";
-            // System.out.println("EDIT TEMP="+template+" special="+special);
+            // log.info("EDIT TEMP="+template+" special="+special);
 
 			// capture the revise events
 			if (placement != null && placement.getContext() != null && placement.getId() != null) {
@@ -682,15 +682,15 @@ public class PortletIFrame extends GenericPortlet {
 
 			vHelper.doTemplate(vengine, template, context, out);
 
-			// System.out.println("==== doEdit done ====");
+			// log.info("==== doEdit done ====");
 		}
 
 	public void doHelp(RenderRequest request, RenderResponse response)
 		throws PortletException, IOException {
-			// System.out.println("==== doHelp called ====");
+			// log.info("==== doHelp called ====");
 			// sendToJSP(request, response, "/help.jsp");
 			JSPHelper.sendToJSP(pContext, request, response, "/help.jsp");
-			// System.out.println("==== doHelp done ====");
+			// log.info("==== doHelp done ====");
 		}
 
 	// Process action is called for action URLs / form posts, etc
@@ -700,7 +700,7 @@ public class PortletIFrame extends GenericPortlet {
 	public void processAction(ActionRequest request, ActionResponse response)
 		throws PortletException, IOException {
 
-			// System.out.println("==== processAction called ====");
+			// log.info("==== processAction called ====");
 
 			PortletSession pSession = request.getPortletSession(true);
 
@@ -723,11 +723,11 @@ public class PortletIFrame extends GenericPortlet {
 			} else if ( doUpdate != null ) {
 				processActionEdit(request, response);
 			} else {
-				// System.out.println("Unknown action");
+				// log.info("Unknown action");
 				response.setPortletMode(PortletMode.VIEW);
 			}
 
-			// System.out.println("==== End of ProcessAction  ====");
+			// log.info("==== End of ProcessAction  ====");
 		}
 
 	public void processActionEdit(ActionRequest request, ActionResponse response)
