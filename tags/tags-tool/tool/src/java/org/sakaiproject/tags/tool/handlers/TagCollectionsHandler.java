@@ -84,7 +84,7 @@ public class TagCollectionsHandler extends CrudHandler {
                 response.getWriter().write("     ");
             }
         } catch (IOException e) {
-            LOG.warn("Write failed while previewing tag", e);
+            log.warn("Write failed while previewing tag", e);
         }
     }
 
@@ -97,7 +97,7 @@ public class TagCollectionsHandler extends CrudHandler {
         if (tagCollection.isPresent()) {
             showEditForm(TagCollectionForm.fromTagCollection(tagCollection.get()), context, CrudMode.UPDATE);
         } else {
-            LOG.warn("No tag collection found for UUID: " + uuid);
+            log.warn("No tag collection found for UUID: " + uuid);
             sendRedirect("");
         }
     }
