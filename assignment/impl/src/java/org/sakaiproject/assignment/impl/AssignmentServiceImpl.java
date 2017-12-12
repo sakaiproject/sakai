@@ -75,6 +75,7 @@ import org.sakaiproject.assignment.api.model.AssignmentSubmission;
 import org.sakaiproject.assignment.api.model.AssignmentSubmissionSubmitter;
 import org.sakaiproject.assignment.api.model.AssignmentSupplementItemAttachment;
 import org.sakaiproject.assignment.api.model.AssignmentSupplementItemService;
+import org.sakaiproject.assignment.impl.sort.AnonymousSubmissionComparator;
 import org.sakaiproject.assignment.impl.sort.AssignmentSubmissionComparator;
 import org.sakaiproject.assignment.impl.sort.UserComparator;
 import org.sakaiproject.assignment.persistence.AssignmentRepository;
@@ -1640,13 +1641,18 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                     List<AssignmentSubmission> submissions = new ArrayList<AssignmentSubmission>(submitters.values());
 
                     StringBuilder exceptionMessage = new StringBuilder();
-
+                    SortedIterator sortedIterator;
+                    if (assignmentUsesAnonymousGrading(assignment)){
+                        sortedIterator = new SortedIterator(submissions.iterator(), new AnonymousSubmissionComparator());
+                    } else {
+                        sortedIterator = new SortedIterator(submissions.iterator(), new AssignmentSubmissionComparator(applicationContext.getBean(AssignmentService.class), siteService, userDirectoryService));
+                    }
                     if (allowGradeSubmission(reference)) {
                         zipSubmissions(reference,
                                 assignment.getTitle(),
                                 assignment.getTypeOfGrade(),
                                 assignment.getTypeOfSubmission(),
-                                new SortedIterator(submissions.iterator(), new AssignmentSubmissionComparator(applicationContext.getBean(AssignmentService.class), siteService, userDirectoryService)),
+                                sortedIterator,
                                 out,
                                 exceptionMessage,
                                 withStudentSubmissionText,
