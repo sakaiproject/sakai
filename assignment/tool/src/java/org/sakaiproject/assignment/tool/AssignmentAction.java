@@ -8635,6 +8635,12 @@ public class AssignmentAction extends PagedResourceActionII {
         a.setPeerAssessmentNumberReviews(peerAssessmentNumReviews);
         a.setPeerAssessmentInstructions(peerAssessmentInstructions);
 
+        if(!a.getDraft() && a.getAllowPeerAssessment()){
+            assignmentPeerAssessmentService.schedulePeerReview(a.getId());
+        }else{
+            assignmentPeerAssessmentService.removeScheduledPeerReview(a.getId());
+        }
+
         try {
             if (Assignment.Access.SITE.toString().equals(range)) {
                 a.setTypeOfAccess(Assignment.Access.SITE);
