@@ -21,6 +21,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.api.app.messageforums.DiscussionForum;
 import org.sakaiproject.api.app.messageforums.Topic;
 import org.sakaiproject.api.app.messageforums.entity.ForumMessageEntityProvider;
@@ -29,6 +31,7 @@ import org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.AutoRegisterEntityProvider;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.PropertyProvideable;
 
+@Slf4j
 public class ForumTopicEntityProviderImpl implements ForumTopicEntityProvider,
     AutoRegisterEntityProvider, PropertyProvideable {
 
@@ -44,7 +47,7 @@ public class ForumTopicEntityProviderImpl implements ForumTopicEntityProvider,
       topic = forumManager.getTopicById(Long.valueOf(id));
     }
     catch (Exception e) {
-      e.printStackTrace();
+      log.error(e.getMessage(), e);
     }
     return (topic != null);
   }

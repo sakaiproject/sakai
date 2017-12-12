@@ -23,6 +23,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.api.app.messageforums.DiscussionForum;
 import org.sakaiproject.api.app.messageforums.DiscussionTopic;
 import org.sakaiproject.api.app.messageforums.Message;
@@ -41,15 +43,11 @@ import org.sakaiproject.search.api.SearchIndexBuilder;
 import org.sakaiproject.search.api.SearchService;
 import org.sakaiproject.search.model.SearchBuilderItem;
 import org.sakaiproject.util.FormattedText;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
+@Slf4j
 public class MessageForumsEntityContentProducer implements
 		EntityContentProducer, PortalUrlEnabledProducer {
 
-	
-	private static Logger log = LoggerFactory.getLogger(MessageForumsEntityContentProducer.class);
-	
 	// runtime dependency
 	private List addEvents = null;
 

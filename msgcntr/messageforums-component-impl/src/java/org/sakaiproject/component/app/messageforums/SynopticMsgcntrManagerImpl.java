@@ -29,8 +29,12 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import lombok.extern.slf4j.Slf4j;
 import org.hibernate.Query;
 import org.hibernate.type.StringType;
+import org.springframework.orm.hibernate4.HibernateCallback;
+import org.springframework.orm.hibernate4.support.HibernateDaoSupport;
+
 import org.sakaiproject.api.app.messageforums.Area;
 import org.sakaiproject.api.app.messageforums.DiscussionForumService;
 import org.sakaiproject.api.app.messageforums.MessageForumsMessageManager;
@@ -47,14 +51,10 @@ import org.sakaiproject.db.api.SqlService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.orm.hibernate4.HibernateCallback;
-import org.springframework.orm.hibernate4.support.HibernateDaoSupport;
 
+@Slf4j
 public class SynopticMsgcntrManagerImpl extends HibernateDaoSupport implements SynopticMsgcntrManager {
-	
-	private static final Logger LOG = LoggerFactory.getLogger(SynopticMsgcntrManagerImpl.class);
+
 	private static final String QUERY_WORKSPACE_SYNOPTIC_ITEMS = "findWorkspaceSynopticMsgcntrItems";
 	private static final String QUERY_SITE_SYNOPTIC_ITEMS = "findSiteSynopticMsgcntrItems";
 	private static final String QUERY_UPDATE_ALL_SITE_TITLES = "updateSiteTitles";
@@ -91,7 +91,7 @@ public class SynopticMsgcntrManagerImpl extends HibernateDaoSupport implements S
 	public SynopticMsgcntrManagerImpl() {}
 	
 	public void init() {
-		LOG.info("init()");
+		log.info("init()");
 	}
 
 	public List<SynopticMsgcntrItem> getWorkspaceSynopticMsgcntrItems(final String userId) {
@@ -204,13 +204,13 @@ public class SynopticMsgcntrManagerImpl extends HibernateDaoSupport implements S
 						//in case autosubmit isn't true, commit this right away
 						clConnection.commit();
 					}catch(Exception e){
-						LOG.error(e.getMessage(), e);
+						log.error(e.getMessage(), e);
 					}finally{
 						if(updateStatement != null){
 							try {
 								updateStatement.close();
 							} catch (SQLException e) {
-								LOG.error(e.getMessage(), e);
+								log.error(e.getMessage(), e);
 							}
 						}
 						sqlService.returnConnection(clConnection);
@@ -422,8 +422,7 @@ public class SynopticMsgcntrManagerImpl extends HibernateDaoSupport implements S
 			resetAllUsersSynopticInfoInSite(siteId, users);
 			
 		} catch (IdUnusedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			log.error(e.getMessage(), e);
 		}
 	}
 	
@@ -469,35 +468,35 @@ public class SynopticMsgcntrManagerImpl extends HibernateDaoSupport implements S
 			}
 			createOrUpdateSynopticToolInfo(users, siteId, site.getTitle(), unreadCounts);		
 		} catch (IdUnusedException e) {
-			LOG.error(e.getMessage());
+			log.error(e.getMessage());
 		} catch (SQLException e) {
-			LOG.error(e.getMessage(), e);
+			log.error(e.getMessage(), e);
 		} finally{
 
 			try {
 				if(forumsAndTopicsRS != null)
 					forumsAndTopicsRS.close();
 			} catch (Exception e) {
-				LOG.warn(e.getMessage(), e);
+				log.warn(e.getMessage(), e);
 			}
 
 			try {
 				if(newMessagesCountRS != null)
 					newMessagesCountRS.close();
 			} catch (Exception e) {
-				LOG.warn(e.getMessage(), e);
+				log.warn(e.getMessage(), e);
 			}
 			try {
 				if(newMessageCountForAllUsers != null)
 					newMessageCountForAllUsers.close();
 			} catch (Exception e) {
-				LOG.warn(e.getMessage(), e);
+				log.warn(e.getMessage(), e);
 			}
 			try {
 				if(returnAllForumsAndTopics != null)
 					returnAllForumsAndTopics.close();
 			} catch (Exception e) {
-				LOG.warn(e.getMessage(), e);
+				log.warn(e.getMessage(), e);
 			}
 			sqlService.returnConnection(clConnection);
 		}
@@ -568,21 +567,21 @@ public class SynopticMsgcntrManagerImpl extends HibernateDaoSupport implements S
 			}
 						
 		} catch (IdUnusedException e) {
-			LOG.error(e.getMessage(), e);
+			log.error(e.getMessage(), e);
 		} catch (SQLException e) {
-			LOG.error(e.getMessage(), e);
+			log.error(e.getMessage(), e);
 		} finally{
 			try {
 				if(forumsAndTopicsRS != null)
 					forumsAndTopicsRS.close();
 			} catch (Exception e) {
-				LOG.warn(e.getMessage(), e);
+				log.warn(e.getMessage(), e);
 			}
 			try {
 				if(returnAllTopicsForForum != null)
 					returnAllTopicsForForum.close();
 			} catch (Exception e) {
-				LOG.warn(e.getMessage(), e);
+				log.warn(e.getMessage(), e);
 			}
 			
 			sqlService.returnConnection(clConnection);
@@ -810,20 +809,20 @@ public class SynopticMsgcntrManagerImpl extends HibernateDaoSupport implements S
 					newMessagesCountRS = newMessageCount.executeQuery();
 					unreadMessagesHM.putAll(getUnreadMessagesHM(newMessagesCountRS));
 				}catch(Exception e){
-					LOG.error(e.getMessage(), e);
+					log.error(e.getMessage(), e);
 				}finally{
 					if(newMessageCount != null){
 						try {
 							newMessageCount.close();
 						} catch (SQLException e) {
-							LOG.error(e.getMessage(), e);
+							log.error(e.getMessage(), e);
 						}
 					}
 					try {
 						if(newMessagesCountRS != null)
 							newMessagesCountRS.close();
 					} catch (Exception e) {
-						LOG.warn(e.getMessage(), e);
+						log.warn(e.getMessage(), e);
 					}
 					
 				}		
@@ -843,23 +842,23 @@ public class SynopticMsgcntrManagerImpl extends HibernateDaoSupport implements S
 			stats.putAll(getDMessageStats(userIds, siteId, site, dfHM, unreadMessagesHM));
 			
 		}catch(IdUnusedException e) {
-			LOG.error("IdUnusedException while trying to check if site has MF tool.");
+			log.error("IdUnusedException while trying to check if site has MF tool.");
 		} catch (SQLException e) {
-			LOG.error(e.getMessage(), e);
+			log.error(e.getMessage(), e);
 		} finally{
 			
 			try {
 				if(forumsAndTopicsRS != null)
 					forumsAndTopicsRS.close();
 			} catch (Exception e) {
-				LOG.warn(e.getMessage(), e);
+				log.warn(e.getMessage(), e);
 			}
 
 			try {
 				if(returnAllForumsAndTopics != null)
 					returnAllForumsAndTopics.close();
 			} catch (Exception e) {
-				LOG.warn(e.getMessage(), e);
+				log.warn(e.getMessage(), e);
 			}	
 			
 			sqlService.returnConnection(clConnection);
@@ -905,7 +904,7 @@ public class SynopticMsgcntrManagerImpl extends HibernateDaoSupport implements S
 				}												
 			}
 		} catch (SQLException e) {
-			LOG.error(e.getMessage(), e);
+			log.error(e.getMessage(), e);
 		}
 		
 		return returnHM;
@@ -925,7 +924,7 @@ public class SynopticMsgcntrManagerImpl extends HibernateDaoSupport implements S
 				returnHM.put(userId, messageCount);		
 			}
 			}catch(Exception e){
-				LOG.error(e.getMessage(), e);
+				log.error(e.getMessage(), e);
 			}
 		}
 		

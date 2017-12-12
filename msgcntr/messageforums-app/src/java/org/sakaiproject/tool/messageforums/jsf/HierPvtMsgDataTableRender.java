@@ -20,9 +20,10 @@
  **********************************************************************************/
 package org.sakaiproject.tool.messageforums.jsf;
 
-import com.sun.faces.util.Util;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 import javax.faces.component.UIColumn;
 import javax.faces.component.UIComponent;
@@ -32,16 +33,13 @@ import javax.faces.context.ResponseWriter;
 import javax.faces.el.ValueBinding;
 
 import com.sun.faces.renderkit.html_basic.HtmlBasicRenderer;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
+import com.sun.faces.util.Util;
+import lombok.extern.slf4j.Slf4j;
 
 import org.sakaiproject.api.app.messageforums.Message;
 import org.sakaiproject.api.app.messageforums.MessageForumsMessageManager;
-import org.sakaiproject.tool.messageforums.ui.PrivateMessageDecoratedBean;
 import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.tool.messageforums.ui.PrivateMessageDecoratedBean;
 
 /**
  * @author cwen
@@ -49,8 +47,8 @@ import org.sakaiproject.component.cover.ComponentManager;
  * TODO To change the template for this generated type comment go to Window -
  * Preferences - Java - Code Style - Code Templates
  */
+@Slf4j
 public class HierPvtMsgDataTableRender extends HtmlBasicRenderer {
-	protected static Logger log = LoggerFactory.getLogger(HierPvtMsgDataTableRender.class);
 
 	private static final String RESOURCE_PATH;
 
@@ -676,7 +674,7 @@ public class HierPvtMsgDataTableRender extends HtmlBasicRenderer {
 			writer.endElement("tr");
 			writer.writeText("\n", null);
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.error(e.getMessage(), e);
 		}
 
 		MessageForumsMessageManager messageManager = (MessageForumsMessageManager) ComponentManager

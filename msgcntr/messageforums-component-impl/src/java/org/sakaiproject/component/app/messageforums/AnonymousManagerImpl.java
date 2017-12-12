@@ -24,29 +24,29 @@ import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.hibernate.HibernateException;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.exception.ConstraintViolationException;
 import org.hibernate.type.StringType;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.orm.hibernate4.HibernateCallback;
+import org.springframework.orm.hibernate4.support.HibernateDaoSupport;
+
 import org.sakaiproject.api.app.messageforums.AnonymousManager;
 import org.sakaiproject.api.app.messageforums.AnonymousMapping;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.AnonymousMappingImpl;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.orm.hibernate4.HibernateCallback;
-import org.springframework.orm.hibernate4.support.HibernateDaoSupport;
 
 /**
  * @see org.sakaiproject.api.app.messageforums.AnonymousManager
  * @author bbailla2
  */
+@Slf4j
 public class AnonymousManagerImpl extends HibernateDaoSupport implements AnonymousManager
 {
-	private static final Logger LOG = LoggerFactory.getLogger(AnonymousManagerImpl.class);
 
 	// Padding used to enforce that anonIDs are always 6 characters
 	private final String ANON_ID_PADDING = "000000";
@@ -222,7 +222,7 @@ public class AnonymousManagerImpl extends HibernateDaoSupport implements Anonymo
 					if (e.getCause() instanceof ConstraintViolationException)
 					{
 						// Race condition!
-						LOG.info("getOrCreateUserIdAnonIdMap: constraint violation while creating anonId for the following siteId, userId pair: (" + siteId + ", "  + userId + ")");
+						log.info("getOrCreateUserIdAnonIdMap: constraint violation while creating anonId for the following siteId, userId pair: (" + siteId + ", "  + userId + ")");
 						// Note the user so we can get their anonId that was created in request 1
 						constraintViolationUsers.add(userId);
 					}
