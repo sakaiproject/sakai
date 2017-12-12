@@ -32,22 +32,21 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
+import lombok.extern.slf4j.Slf4j;
+
+import uk.org.ponder.messageutil.MessageLocator;
+
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean;
 import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean.UrlItem;
 import org.sakaiproject.lti.api.LTIService;
-// import org.sakaiproject.lti.impl.DBLTIService; // HACK
 import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.ToolManager;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import uk.org.ponder.messageutil.MessageLocator;
 
 /**
  * Interface to Assignment
@@ -65,11 +64,8 @@ import uk.org.ponder.messageutil.MessageLocator;
 // variables lessonEntity because the same module will probably have an
 // injected class to handle tests and quizes as well. That will eventually
 // be converted to be a LessonEntity.
-
+@Slf4j
 public class BltiEntity implements LessonEntity, BltiInterface {
-
-    private static Logger log = LoggerFactory.getLogger(BltiEntity.class);
-
     private static Cache bltiCache = null;
     protected static final int DEFAULT_EXPIRATION = 10 * 60;
     // 2.8 doesn't define this, so put it here

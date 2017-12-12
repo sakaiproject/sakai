@@ -19,9 +19,9 @@ package org.sakaiproject.contentreview.urkund.util;
 import java.io.IOException;
 import java.util.Base64;
 
+import lombok.extern.slf4j.Slf4j;
+
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.config.RequestConfig;
@@ -39,9 +39,8 @@ import org.sakaiproject.contentreview.urkund.UrkundSubmission;
  * This is a utility class for wrapping the Rest calls to the Urkund Service
  *
  */
+@Slf4j
 public class UrkundAPIUtil {
-	private static final Logger log = LoggerFactory.getLogger(UrkundAPIUtil.class);
-	
 	public static String postDocument(String baseUrl, String receiverAddress, String externalId, UrkundSubmission submission, String urkundUsername, String urkundPassword, int timeout){
 			String ret = null;
 			

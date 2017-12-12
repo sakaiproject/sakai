@@ -28,9 +28,11 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import lombok.extern.slf4j.Slf4j;
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
+
 import org.sakaiproject.api.app.messageforums.MessageForumsMessageManager;
 import org.sakaiproject.api.app.messageforums.MessageForumsTypeManager;
 import org.sakaiproject.api.app.messageforums.cover.SynopticMsgcntrManagerCover;
@@ -41,10 +43,8 @@ import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.db.api.SqlService;
 import org.sakaiproject.site.api.SiteService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-
+@Slf4j
 public class UpdateSynopticMessageCounts implements Job{
 
 	
@@ -56,10 +56,7 @@ public class UpdateSynopticMessageCounts implements Job{
 	private SiteService siteService;
 	private SecurityService securityService;
 	private SqlService sqlService;
-	
-	private static final Logger LOG = LoggerFactory.getLogger(UpdateSynopticMessageCounts.class);
-	
-	
+
 	private static final boolean runOracleSQL = false;
 	//this SQL is more generic but also slower
 	private static final String FIND_ALL_SYNOPTIC_SITES_QUERY_GENERIC = "select SITE_ID, TITLE from SAKAI_SITE where IS_USER = 0 and PUBLISHED = 1 and IS_SPECIAL = 0";
@@ -120,7 +117,7 @@ public class UpdateSynopticMessageCounts implements Job{
 		//loop through all sites and call updateSynopticToolInfoForAllUsers
 		int count = 0;
 
-		LOG.info("UpdateSynopticMessageCounts job launched: " + new Date());
+		log.info("UpdateSynopticMessageCounts job launched: " + new Date());
 
 		try {
 			clConnection = sqlService.borrowConnection();
@@ -197,53 +194,53 @@ public class UpdateSynopticMessageCounts implements Job{
 				
 				count++;
 				if(count % 1000 == 0){
-					LOG.info("UpdateSynopticMessageCounts Progress: " + count + " Sites updated");
+					log.info("UpdateSynopticMessageCounts Progress: " + count + " Sites updated");
 				}
 			}
 						
 		} catch (Exception e1) {
-			LOG.error(e1.getMessage(), e1);
+			log.error(e1.getMessage(), e1);
 		} finally {
 			try {
 				if(unreadMessageCountRS != null)
 					unreadMessageCountRS.close();
 			} catch (Exception e) {
-				LOG.warn(e.getMessage());
+				log.warn(e.getMessage());
 			}
 			try {
 				if(allTopicsAndForumsRS != null)
 					allTopicsAndForumsRS.close();
 			} catch (Exception e) {
-				LOG.warn(e.getMessage());
+				log.warn(e.getMessage());
 			}
 			try {
 				if(synotpicSitesRS != null)
 					synotpicSitesRS.close();
 			} catch (Exception e) {
-				LOG.warn(e.getMessage());
+				log.warn(e.getMessage());
 			}
 			try {
 				if(statement != null)
 					statement.close();
 			} catch (Exception e) {
-				LOG.warn(e.getMessage());
+				log.warn(e.getMessage());
 			}	
 			try{
 				if(unreadMessagesbySitePS != null)
 					unreadMessagesbySitePS.close();				
 			}catch(Exception e){
-				LOG.warn(e.getMessage());
+				log.warn(e.getMessage());
 			}
 			try{
 				if(findSitesbySitePS != null)
 					findSitesbySitePS.close();				
 			}catch(Exception e){
-				LOG.warn(e.getMessage());
+				log.warn(e.getMessage());
 			}
 			sqlService.returnConnection(clConnection);
 		}
 		
-		LOG.info("UpdateSynopticMessageCounts job finished: " + new Date());
+		log.info("UpdateSynopticMessageCounts job finished: " + new Date());
 	}
 	
 	
@@ -281,25 +278,25 @@ public class UpdateSynopticMessageCounts implements Job{
 					isForumsPageInSite = true;
 				}
 			}catch (Exception e){
-				LOG.warn(e.getMessage(), e);
+				log.warn(e.getMessage(), e);
 			}finally{
 				try{
 					if(rsMessagesForums != null)
 						rsMessagesForums.close();
 				}catch (Exception e){
-					LOG.warn(e.getMessage());
+					log.warn(e.getMessage());
 				}
 				try{
 					if(rsMessages != null)
 						rsMessages.close();
 				}catch (Exception e){
-					LOG.warn(e.getMessage());
+					log.warn(e.getMessage());
 				}
 				try{
 					if(rsForusm != null)
 						rsForusm.close();
 				}catch (Exception e){
-					LOG.warn(e.getMessage());
+					log.warn(e.getMessage());
 				}
 			}
 		}
@@ -416,38 +413,38 @@ public class UpdateSynopticMessageCounts implements Job{
 			}
 			SynopticMsgcntrManagerCover.createOrUpdateSynopticToolInfo(userIds, siteId, siteTitle, unreadCountMap);
 		}catch (Exception e){
-			LOG.warn(e.getMessage(), e);
+			log.warn(e.getMessage(), e);
 		}finally{
 
 			try{
 				if(usersMap != null)
 					usersMap.close();
 			}catch(Exception e){
-				LOG.warn(e.getMessage(), e);
+				log.warn(e.getMessage(), e);
 			}
 			try{
 				if(getAllUsersInSiteQuery != null)
 					getAllUsersInSiteQuery.close();
 			} catch (Exception e) {
-				LOG.warn(e.getMessage());
+				log.warn(e.getMessage());
 			}
 			try {
 				if (isForumsPageInSiteQuery != null)
 					isForumsPageInSiteQuery.close();
 			} catch (Exception e) {
-				LOG.warn(e.getMessage());
+				log.warn(e.getMessage());
 			}
 			try {
 				if (isMessagesPageInSiteQuery != null)
 					isMessagesPageInSiteQuery.close();
 			} catch (Exception e) {
-				LOG.warn(e.getMessage());
+				log.warn(e.getMessage());
 			}
 			try {
 				if (isMessageForumsPageInSiteQuery != null)
 					isMessageForumsPageInSiteQuery.close();
 			} catch (Exception e) {
-				LOG.warn(e.getMessage());
+				log.warn(e.getMessage());
 			}
 		}
 	}
@@ -505,7 +502,7 @@ public class UpdateSynopticMessageCounts implements Job{
 					}
 				}
 			}catch(Exception e){
-				LOG.error(e.getMessage(), e);
+				log.error(e.getMessage(), e);
 			}
 		}
 		
@@ -535,7 +532,7 @@ public class UpdateSynopticMessageCounts implements Job{
 				}				
 			}
 			}catch(Exception e){
-				LOG.error(e.getMessage(), e);
+				log.error(e.getMessage(), e);
 			}
 		}
 		

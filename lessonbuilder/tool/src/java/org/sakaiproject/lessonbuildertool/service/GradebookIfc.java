@@ -26,8 +26,8 @@ package org.sakaiproject.lessonbuildertool.service;
 import java.util.Date;
 import java.util.Map;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService;
 
 /**
@@ -36,9 +36,8 @@ import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentServ
  * @author Charles Hedrick <hedrick@rutgers.edu>
  * 
  */
+@Slf4j
 public class GradebookIfc {
-
-    private static final Logger log = LoggerFactory.getLogger(GradebookIfc.class);
     private static GradebookExternalAssessmentService gbExternalService = null;
 
     public void setGradebookExternalAssessmentService (GradebookExternalAssessmentService s) {

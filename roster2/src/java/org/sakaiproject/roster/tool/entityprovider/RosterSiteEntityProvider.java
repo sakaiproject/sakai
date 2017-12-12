@@ -40,8 +40,9 @@ import java.util.List;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.entitybroker.EntityView;
 import org.sakaiproject.entitybroker.entityprovider.annotations.EntityCustomAction;
@@ -59,8 +60,6 @@ import org.sakaiproject.roster.api.SakaiProxy;
 import org.sakaiproject.sitestats.api.SitePresenceTotal;
 import org.sakaiproject.user.api.User;
 
-import lombok.Setter;
-
 /**
  * <code>EntityProvider</code> to allow Roster to access site, membership, and
  * enrollment data for the current user. The provider respects Roster
@@ -69,12 +68,10 @@ import lombok.Setter;
  * 
  * @author d.b.robinson@lancaster.ac.uk
  */
+@Slf4j
 public class RosterSiteEntityProvider extends AbstractEntityProvider implements
 		AutoRegisterEntityProvider, ActionsExecutable, Outputable {
 
-	@SuppressWarnings("unused")
-	private static final Logger log = LoggerFactory.getLogger(RosterSiteEntityProvider.class);
-	
 	public final static String ENTITY_PREFIX		= "roster-membership";
 	public final static String DEFAULT_ID			= ":ID:";
 	

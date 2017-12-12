@@ -18,14 +18,7 @@ package org.sakaiproject.site.tool.helper.managegroup.rsf;
 import java.util.Iterator;
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.sakaiproject.authz.api.AuthzGroupService;
-import org.sakaiproject.authz.api.GroupNotDefinedException;
-import org.sakaiproject.site.api.Group;
-import org.sakaiproject.site.tool.helper.managegroup.impl.SiteManageGroupHandler;
-
-import org.sakaiproject.rsf.producers.FrameAdjustingProducer;
+import lombok.extern.slf4j.Slf4j;
 import uk.org.ponder.messageutil.MessageLocator;
 import uk.org.ponder.messageutil.TargettedMessageList;
 import uk.org.ponder.rsf.components.UIBranchContainer;
@@ -47,16 +40,20 @@ import uk.org.ponder.rsf.viewstate.SimpleViewParameters;
 import uk.org.ponder.rsf.viewstate.ViewParameters;
 import uk.org.ponder.stringutil.StringList;
 
+import org.sakaiproject.authz.api.AuthzGroupService;
+import org.sakaiproject.authz.api.GroupNotDefinedException;
+import org.sakaiproject.rsf.producers.FrameAdjustingProducer;
+import org.sakaiproject.site.api.Group;
+import org.sakaiproject.site.tool.helper.managegroup.impl.SiteManageGroupHandler;
+
 /**
  * 
  * @author Dr. WHO?
  *
  */
+@Slf4j
 public class GroupDelProducer implements ViewComponentProducer, ActionResultInterceptor {
-    
-	/** Our log (commons). */
-	private static Logger M_log = LoggerFactory.getLogger(GroupDelProducer.class);
-	
+
     public static final String VIEW_ID = "GroupDel";
     public MessageLocator messageLocator;
     public SiteManageGroupHandler handler;
@@ -93,7 +90,7 @@ public class GroupDelProducer implements ViewComponentProducer, ActionResultInte
 		List<Group> groups = handler.getSelectedGroups();
 		
 		StringList deletable = new StringList();
-		M_log.debug(this + "fillComponents: got a list of " + groups.size() + " groups");
+		log.debug(this + "fillComponents: got a list of " + groups.size() + " groups");
       
 		if (groups != null && groups.size() > 0)
         {
@@ -112,7 +109,7 @@ public class GroupDelProducer implements ViewComponentProducer, ActionResultInte
     			}
     			catch (GroupNotDefinedException e)
     			{
-    				M_log.debug(this + "fillComponent: cannot find group " + group.getReference());
+    				log.debug(this + "fillComponent: cannot find group " + group.getReference());
     			}
     			UIOutput.make(grouprow,"group-size",String.valueOf(size));
 
@@ -121,7 +118,7 @@ public class GroupDelProducer implements ViewComponentProducer, ActionResultInte
 				delete.decorators = new DecoratorList(new UITooltipDecorator(UIMessage.make("delete_group_tooltip", new String[] {group.getTitle()})));
 				UIMessage message = UIMessage.make(grouprow,"delete-label","delete_group_tooltip", new String[] {group.getTitle()});
 				UILabelTargetDecorator.targetLabel(message,delete);
-				M_log.debug(this + ".fillComponent: this group can be deleted");
+				log.debug(this + ".fillComponent: this group can be deleted");
 				renderDelete = true;
             }
 		}

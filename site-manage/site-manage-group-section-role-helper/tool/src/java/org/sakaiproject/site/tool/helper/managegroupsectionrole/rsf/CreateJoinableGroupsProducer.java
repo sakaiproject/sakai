@@ -18,14 +18,10 @@ package org.sakaiproject.site.tool.helper.managegroupsectionrole.rsf;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+
+
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.sakaiproject.site.api.Group;
-import org.sakaiproject.site.tool.helper.managegroupsectionrole.impl.SiteManageGroupSectionRoleHandler;
-import org.sakaiproject.user.api.User;
-
 import uk.org.ponder.messageutil.MessageLocator;
 import uk.org.ponder.messageutil.TargettedMessageList;
 import uk.org.ponder.rsf.components.UIBoundBoolean;
@@ -47,15 +43,19 @@ import uk.org.ponder.rsf.viewstate.SimpleViewParameters;
 import uk.org.ponder.rsf.viewstate.ViewParameters;
 import uk.org.ponder.rsf.viewstate.ViewParamsReporter;
 
+import org.sakaiproject.site.api.Group;
+import org.sakaiproject.site.tool.helper.managegroupsectionrole.impl.SiteManageGroupSectionRoleHandler;
+import org.sakaiproject.user.api.User;
+
 /**
  * Produces the new/edit joinable set UI.
  * 
  * @author Bryan Holiday, bjones86
  */
+@Slf4j
 public class CreateJoinableGroupsProducer implements ViewComponentProducer, ActionResultInterceptor, ViewParamsReporter{
 
 	public static final String VIEW_ID = "CreateJoinableGroups";
-	private static final Logger M_log = LoggerFactory.getLogger(CreateJoinableGroupsProducer.class);
 	public SiteManageGroupSectionRoleHandler handler;
 	public MessageLocator messageLocator;
 

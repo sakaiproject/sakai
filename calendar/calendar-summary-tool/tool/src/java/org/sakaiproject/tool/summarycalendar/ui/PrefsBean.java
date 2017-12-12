@@ -35,10 +35,10 @@ import javax.faces.application.FacesMessage.Severity;
 import javax.faces.context.FacesContext;
 import javax.faces.model.SelectItem;
 
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.util.CalendarEventType;
 import org.sakaiproject.util.CalendarUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.entity.api.ResourceProperties;
@@ -50,7 +50,7 @@ import org.sakaiproject.user.api.PreferencesEdit;
 import org.sakaiproject.user.api.PreferencesService;
 import org.sakaiproject.util.ResourceLoader;
 
-
+@Slf4j
 public class PrefsBean {
 	
 	/** Preferences properties */
@@ -66,9 +66,6 @@ public class PrefsBean {
 	
 	/** sakai.properties default values */
 	public static String						SAKPROP_BASE				= "calendarSummary.";
-
-	/** Our log (commons). */
-	private static Logger							LOG							= LoggerFactory.getLogger(PrefsBean.class);
 
 	/** Resource bundle */
 	private transient ResourceLoader			msgs						= new ResourceLoader("calendar");
@@ -165,7 +162,7 @@ public class PrefsBean {
 			// error occurred
 			message = msgs.getString("prefs_not_updated");
 			messageSeverity = FacesMessage.SEVERITY_FATAL;
-			LOG.error("Calendar Summary: "+message, e);
+			log.error("Calendar Summary: "+message, e);
 			return "prefs";
 		}
 

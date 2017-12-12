@@ -22,6 +22,9 @@ package org.sakaiproject.signup.tool.jsf.organizer.action;
 import java.util.Date;
 import java.util.List;
 
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.OptimisticLockingFailureException;
+
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.signup.logic.SignupEmailFacade;
 import org.sakaiproject.signup.logic.SignupEventTypes;
@@ -33,13 +36,13 @@ import org.sakaiproject.signup.model.SignupMeeting;
 import org.sakaiproject.signup.model.SignupTimeslot;
 import org.sakaiproject.signup.tool.util.Utilities;
 import org.sakaiproject.tool.cover.ToolManager;
-import org.springframework.dao.OptimisticLockingFailureException;
 
 /**
  * <p>
  * This class will provide business logic for 'add-attendee' action by user.
  * </P>
  */
+@Slf4j
 public class AddAttendee extends SignupAction {
 
 	/**
@@ -84,7 +87,7 @@ public class AddAttendee extends SignupAction {
 						+ " meetingId:" + meeting.getId()
 						+ this.signupEventTrackingInfo.getAllAttendeeTransferLogInfo());
 			}
-			logger.debug("Meeting Name:" + meeting.getTitle() + " - UserId:" + userId
+			log.debug("Meeting Name:" + meeting.getTitle() + " - UserId:" + userId
 					+ this.signupEventTrackingInfo.getAllAttendeeTransferLogInfo());
 		} catch (PermissionException pe) {
 			hasException = false;

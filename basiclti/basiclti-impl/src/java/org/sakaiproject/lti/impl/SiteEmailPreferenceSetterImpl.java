@@ -18,8 +18,7 @@ package org.sakaiproject.lti.impl;
 
 import java.util.Map;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.event.api.NotificationService;
@@ -33,9 +32,8 @@ import org.sakaiproject.user.api.User;
 /**
  *  @author Adrian Fish <a.fish@lancaster.ac.uk>
  */
+@Slf4j
 public class SiteEmailPreferenceSetterImpl implements SiteEmailPreferenceSetter {
-
-	private static Logger M_log = LoggerFactory.getLogger(SiteEmailPreferenceSetterImpl.class);
 
     private PreferencesService preferencesService = null;
     public void setPreferencesService(PreferencesService  preferencesService) {
@@ -78,7 +76,7 @@ public class SiteEmailPreferenceSetterImpl implements SiteEmailPreferenceSetter 
 
                 preferencesService.commit(pe);
             } catch (Exception e) {
-                M_log.error("Failed to setup launcher's locale and/or email preference.",e);
+                log.error("Failed to setup launcher's locale and/or email preference.",e);
             }
         }
     }

@@ -1,5 +1,7 @@
 package coza.opencollab.sakai.cloudcontent;
 
+import static org.junit.Assert.*;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -8,15 +10,20 @@ import java.io.InputStreamReader;
 import java.lang.reflect.Method;
 import java.util.Properties;
 import java.util.Random;
+
+import lombok.extern.slf4j.Slf4j;
+
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import static org.junit.Assert.*;
+
 import org.springframework.util.FileCopyUtils;
+
 /**
  *
  * @author OpenCollab
  */
+@Slf4j
 public class SwiftFileHandlerTest {
     private static final SwiftFileSystemHandler swift = new SwiftFileSystemHandler();
     private static final String BASE_CONTAINER = "unit-tests";
@@ -47,7 +54,7 @@ public class SwiftFileHandlerTest {
         try {
             props.load(SwiftFileHandlerTest.class.getResourceAsStream("/swift.properties"));
         } catch(IOException e) {
-            System.out.println("Cannot read Swift configuration (src/test/resources/swift.properties)... Bailing out.");
+            log.error("Cannot read Swift configuration (src/test/resources/swift.properties)... Bailing out.");
             throw e;
         }
 
@@ -154,7 +161,7 @@ public class SwiftFileHandlerTest {
     @Test
     public void testValid() throws IOException {
         long contentSize = swift.saveInputStream(ID2, ROOT1, PATH2, getInputStream());
-        System.out.println(contentSize + ":" + FileCopyUtils.copy(getInputStream(), new ByteArrayOutputStream()));
+        log.debug("{}:{}", contentSize, FileCopyUtils.copy(getInputStream(), new ByteArrayOutputStream()));
         assertEquals(11L, contentSize);
         String message = FileCopyUtils.copyToString(new InputStreamReader(swift.getInputStream(ID2, ROOT1, PATH2)));
         assertEquals(MESSAGE, message);
@@ -170,7 +177,7 @@ public class SwiftFileHandlerTest {
     @Test
     public void testValidText() throws IOException {
         long contentSize = swift.saveInputStream(ID3, ROOT1, PATH3, getInputStream());
-        System.out.println(contentSize);
+        log.debug("{}", contentSize);
         assertEquals(11L, contentSize);
         String message = FileCopyUtils.copyToString(new InputStreamReader(swift.getInputStream(ID3, ROOT1, PATH3)));
         assertEquals(MESSAGE, message);
@@ -180,7 +187,7 @@ public class SwiftFileHandlerTest {
     @Test
     public void testValidBinary() throws IOException {
         long contentSize = swift.saveInputStream(ID4, ROOT1, PATH4, getBinaryInputStream());
-        System.out.println("Binary size: " + contentSize + "(" + FileCopyUtils.copy(getBinaryInputStream(), new ByteArrayOutputStream()) + ")");
+        log.debug("Binary size: {}({})", contentSize, FileCopyUtils.copy(getBinaryInputStream(), new ByteArrayOutputStream()));
         assertEquals(136548L, contentSize);
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         assertEquals(contentSize, FileCopyUtils.copy(swift.getInputStream(ID4, ROOT1, PATH4), out));

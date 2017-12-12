@@ -29,8 +29,8 @@ import java.util.Vector;
 import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.exception.IdUnusedException;
@@ -43,6 +43,7 @@ import org.sakaiproject.user.api.PreferencesService;
  * AdminPrefsTool is a Sakai Admin tool to view and edit anyone's preferences.
  * </p>
  */
+@Slf4j
 public class AdminPrefsTool
 {
 	/**
@@ -161,9 +162,6 @@ public class AdminPrefsTool
 		}
 	}
 
-	/** Our log (commons). */
-	private static Logger M_log = LoggerFactory.getLogger(AdminPrefsTool.class);
-
 	/** The PreferencesEdit being worked on. */
 	protected PreferencesEdit m_edit = null;
 
@@ -184,7 +182,7 @@ public class AdminPrefsTool
 	 */
 	public AdminPrefsTool()
 	{
-		M_log.info("constructed");
+		log.info("constructed");
 	}
 
 	/**
@@ -230,7 +228,7 @@ public class AdminPrefsTool
 	 */
 	public String processActionAdd()
 	{
-		if (M_log.isDebugEnabled()) M_log.debug("save");
+		if (log.isDebugEnabled()) log.debug("save");
 
 		// save
 		m_stuff.add(new KeyNameValue("", "", "", false));
@@ -245,7 +243,7 @@ public class AdminPrefsTool
 	 */
 	public String processActionCancel()
 	{
-		if (M_log.isDebugEnabled()) M_log.debug("cancel");
+		if (log.isDebugEnabled()) log.debug("cancel");
 
 		// cancel
 		cancelEdit();
@@ -260,7 +258,7 @@ public class AdminPrefsTool
 	 */
 	public String processActionEdit()
 	{
-		if (M_log.isDebugEnabled()) M_log.debug("processActionEdit");
+		if (log.isDebugEnabled()) log.debug("processActionEdit");
 
 		if (getUserId() == null)
 		{
@@ -300,7 +298,7 @@ public class AdminPrefsTool
 	 */
 	public String processActionSave()
 	{
-		if (M_log.isDebugEnabled()) M_log.debug("save");
+		if (log.isDebugEnabled()) log.debug("save");
 
 		// save
 		saveEdit();

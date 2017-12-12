@@ -18,11 +18,12 @@ package org.sakaiproject.site.impl.test;
 import java.util.Set;
 import java.util.TreeSet;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
+
 import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.exception.IdInvalidException;
@@ -41,9 +42,8 @@ import org.sakaiproject.user.api.UserEdit;
 import org.sakaiproject.user.api.UserIdInvalidException;
 import org.sakaiproject.user.api.UserPermissionException;
 
+@Slf4j
 public class SiteServiceTest extends SakaiKernelTestBase {
-	private static final Logger log = LoggerFactory.getLogger(SiteServiceTest.class);
-
 	@BeforeClass
 	public static void beforeClass() {
 		try {
@@ -66,11 +66,9 @@ public class SiteServiceTest extends SakaiKernelTestBase {
 		} catch (IdInvalidException e) {
 			log.info("when passed a null id the test correctly responded with an IdInvalidException");
 		} catch (IdUsedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			log.error(e.getMessage(), e);
 		} catch (PermissionException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			log.error(e.getMessage(), e);
 		} 
 
 
@@ -104,7 +102,7 @@ public class SiteServiceTest extends SakaiKernelTestBase {
 			siteService.setUserSecurity("admin", siteSet, siteSet, siteSet);
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			log.error(e.getMessage(), e);
 			Assert.fail();
 		}
 	}
@@ -175,10 +173,10 @@ public class SiteServiceTest extends SakaiKernelTestBase {
 			Assert.fail("Should not be able to save a group without a title");
 		}
 		catch (IllegalArgumentException e) {
-			e.printStackTrace();
+			log.error(e.getMessage(), e);
 		}
 		catch (RuntimeException e) {
-			e.printStackTrace();
+			log.error(e.getMessage(), e);
 			Assert.fail();
 		}
 	}

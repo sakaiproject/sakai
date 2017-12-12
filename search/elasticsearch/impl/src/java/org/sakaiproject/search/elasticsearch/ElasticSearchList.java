@@ -15,16 +15,16 @@
  */
 package org.sakaiproject.search.elasticsearch;
 
+import java.util.*;
+
 import com.google.common.collect.ForwardingList;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.facet.terms.InternalTermsFacet;
+
 import org.sakaiproject.search.api.*;
 import org.sakaiproject.search.elasticsearch.filter.SearchItemFilter;
-
-import java.util.*;
 
 /**
  * Created by IntelliJ IDEA.
@@ -33,8 +33,8 @@ import java.util.*;
  * Time: 2:19 PM
  * To change this template use File | Settings | File Templates.
  */
+@Slf4j
 public class ElasticSearchList extends ForwardingList<SearchResult> implements SearchList {
-    private static final Logger log = LoggerFactory.getLogger(ElasticSearchList.class);
     private final List<SearchResult> results;
     private final SearchResponse response;
     private final SearchItemFilter filter;
@@ -49,7 +49,6 @@ public class ElasticSearchList extends ForwardingList<SearchResult> implements S
         }
 
         SearchResponse highlightedResponse = null;
-
 
         try {
             highlightedResponse = elasticSearchService.search(searchTerms, new ArrayList<String>(), 0, references.size(), references, searchIndexBuilder.getName());
@@ -69,7 +68,6 @@ public class ElasticSearchList extends ForwardingList<SearchResult> implements S
             results.add(filter.filter(result));
         }
     }
-
 
     @Override
     public Iterator<SearchResult> iterator(int startAt) {

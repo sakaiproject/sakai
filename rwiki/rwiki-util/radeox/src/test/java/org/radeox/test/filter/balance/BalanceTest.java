@@ -26,21 +26,18 @@ import java.io.InputStreamReader;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import lombok.extern.slf4j.Slf4j;
 import junit.framework.TestCase;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.radeox.filter.balance.Balancer;
 
 /**
  * @author ieb
  */
+@Slf4j
 public class BalanceTest extends TestCase
 {
 
 	public static final String matcherString = "(<([^ />]+)(?: [^>]*?[^/])?>)|(</([^ />]+)>)";
-
-	private static final Logger log = LoggerFactory.getLogger(BalanceTest.class);
 
 	/**
 	 * @param arg0

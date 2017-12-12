@@ -22,14 +22,13 @@ package org.sakaiproject.component.app.messageforums.dao.hibernate;
 
 import java.util.Date;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.api.app.messageforums.DateRestrictions;
 
+@Slf4j
 public class DateRestrictionsImpl implements DateRestrictions {
 
-    private static final Logger LOG = LoggerFactory.getLogger(DateRestrictionsImpl.class);
- 
     private Date visible;
     private Boolean visiblePostOnSchedule;
     private Date postingAllowed;

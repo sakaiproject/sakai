@@ -25,8 +25,7 @@ import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import uk.ac.cam.caret.sakai.rwiki.tool.bean.RecentlyVisitedBean;
 
@@ -35,10 +34,9 @@ import uk.ac.cam.caret.sakai.rwiki.tool.bean.RecentlyVisitedBean;
  * 
  * @author andrew
  */
+@Slf4j
 public class RecentlyVisitedHelperBean
 {
-
-	private static Logger log = LoggerFactory.getLogger(RecentlyVisitedHelperBean.class);
 
 	/**
 	 * Session attribute to save the recentlyVisitedBean

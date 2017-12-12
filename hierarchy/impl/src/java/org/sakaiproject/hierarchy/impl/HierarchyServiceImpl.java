@@ -44,8 +44,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+
+import org.sakaiproject.db.api.SqlService;
 import org.sakaiproject.genericdao.api.search.Order;
 import org.sakaiproject.genericdao.api.search.Restriction;
 import org.sakaiproject.genericdao.api.search.Search;
@@ -58,16 +59,14 @@ import org.sakaiproject.hierarchy.impl.utils.HierarchyImplUtils;
 import org.sakaiproject.hierarchy.model.HierarchyNode;
 import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.MemoryService;
-import org.sakaiproject.db.api.SqlService;
 
 /**
  * The default implementation of the Hierarchy interface
  * 
  * @author Aaron Zeckoski (aaronz@vt.edu)
  */
+@Slf4j
 public class HierarchyServiceImpl implements HierarchyService {
-
-    private static Logger log = LoggerFactory.getLogger(HierarchyServiceImpl.class);
 
     private static int ORACLE_IN_CLAUSE_SIZE_LIMIT = 1000;
     private boolean oracle = false;

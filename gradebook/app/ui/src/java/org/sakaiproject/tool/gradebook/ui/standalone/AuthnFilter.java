@@ -28,17 +28,16 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.tool.gradebook.facades.Authn;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 
 /**
  * An authentication filter for standalone use in demos and UI tests.
  */
+@Slf4j
 public class AuthnFilter implements Filter {
-	private static Logger logger = LoggerFactory.getLogger(AuthnFilter.class);
-
 	private String authnRedirect;
 	private String authnServiceBean;
 
@@ -53,7 +52,7 @@ public class AuthnFilter implements Filter {
 		Authn authnService = (Authn)WebApplicationContextUtils.getWebApplicationContext(session.getServletContext()).getBean(authnServiceBean);
 		authnService.setAuthnContext(request);
 		String userUid = authnService.getUserUid();
-		if (logger.isInfoEnabled()) logger.info("userUid=" + userUid);
+		if (log.isInfoEnabled()) log.info("userUid=" + userUid);
 		if (userUid == null) {
 			if (authnRedirect != null) {
 				if (authnRedirect.equals(((HttpServletRequest)request).getRequestURI())) {
@@ -74,6 +73,3 @@ public class AuthnFilter implements Filter {
 	public void destroy() {
 	}
 }
-
-
-

@@ -30,8 +30,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Vector;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.db.api.SqlReader;
 import org.sakaiproject.db.api.SqlService;
 import org.sakaiproject.entity.api.Edit;
@@ -71,12 +71,10 @@ import org.sakaiproject.time.cover.TimeService;
  * better in fields.
  * </p>
  */
+@Slf4j
 public class BaseDbDualSingleStorage  implements DbSingleStorage
 {
 	public static final String STORAGE_FIELDS = "XML, BINARY_ENTITY";
-
-	/** Our logger. */
-	private static Logger M_log = LoggerFactory.getLogger(BaseDbDualSingleStorage.class);
 
 	/** Table name for resource records. */
 	protected String m_resourceTableName = null;
@@ -234,7 +232,7 @@ public class BaseDbDualSingleStorage  implements DbSingleStorage
 	    m_storage = storage;
 	    if (m_storage == null && m_resourceTableName != null && m_resourceTableName.toUpperCase().contains("DELETE")) {
 	        // warn if the delete storage does not have the main storage set
-	        M_log.warn("resource storage is not set, delete table resource file paths will be invalid");
+	        log.warn("resource storage is not set, delete table resource file paths will be invalid");
 	    }
 
 	    setSingleStorageSql(m_sql.getVendor());
@@ -256,7 +254,7 @@ public class BaseDbDualSingleStorage  implements DbSingleStorage
 	{
 		if (!m_locks.isEmpty())
 		{
-			M_log.warn("close(): locks remain!");
+			log.warn("close(): locks remain!");
 			// %%%
 		}
 		m_locks.clear();
@@ -285,8 +283,8 @@ public class BaseDbDualSingleStorage  implements DbSingleStorage
 		}
 		catch (Exception e)
 		{
-			M_log.warn("readResource(): " + e.getMessage());
-			M_log.warn("readResource(): ", e);
+			log.warn("readResource(): " + e.getMessage());
+			log.warn("readResource(): ", e);
 			return null;
 		}
 		finally
@@ -311,7 +309,7 @@ public class BaseDbDualSingleStorage  implements DbSingleStorage
 			{
 				double a = (1.0 * rttotal) / (1.0 * rntime);
 				double m = (1.0 * rmtotal) / (1.0 * rntime);
-				M_log.debug("Average " + type + " Parse now " + (a) + "ms " + m
+				log.debug("Average " + type + " Parse now " + (a) + "ms " + m
 						+ " bytes");
 			}
 
@@ -671,7 +669,7 @@ public class BaseDbDualSingleStorage  implements DbSingleStorage
 		Edit edit = editResource(id);
 		if (edit == null)
 		{
-			M_log.warn("putResource(): didn't get a lock!");
+			log.warn("putResource(): didn't get a lock!");
 			return null;
 		}
 
@@ -742,7 +740,7 @@ public class BaseDbDualSingleStorage  implements DbSingleStorage
 		Edit edit = editResource(id);
 		if (edit == null)
 		{
-			M_log.warn("putResourceDelete(): didn't get a lock!");
+			log.warn("putResourceDelete(): didn't get a lock!");
 			return null;
 		}
 
@@ -808,7 +806,7 @@ public class BaseDbDualSingleStorage  implements DbSingleStorage
 			Connection lock = (Connection) m_locks.get(edit.getReference());
 			if (lock == null)
 			{
-				M_log.warn("commitResource(): edit not in locks");
+				log.warn("commitResource(): edit not in locks");
 				return;
 			}
 			// update, commit, release the lock's connection
@@ -832,7 +830,7 @@ public class BaseDbDualSingleStorage  implements DbSingleStorage
 			boolean ok = m_sql.dbWrite(statement, lockFields);
 			if (!ok)
 			{
-				M_log.warn("commit: missing lock for table: " + lockFields[0] + " key: "
+				log.warn("commit: missing lock for table: " + lockFields[0] + " key: "
 						+ lockFields[1]);
 			}
 		}
@@ -884,7 +882,7 @@ public class BaseDbDualSingleStorage  implements DbSingleStorage
 							}
 							catch (SQLException e)
 							{
-								M_log.warn("Failed to retrieve record ", e);
+								log.warn("Failed to retrieve record ", e);
 							}
 							return null;
 						}
@@ -911,7 +909,7 @@ public class BaseDbDualSingleStorage  implements DbSingleStorage
 							}
 							catch (SQLException e)
 							{
-								M_log.warn("Failed to retrieve record ", e);
+								log.warn("Failed to retrieve record ", e);
 							}
 							return null;
 						}
@@ -1037,7 +1035,7 @@ public class BaseDbDualSingleStorage  implements DbSingleStorage
 			Connection lock = (Connection) m_locks.get(edit.getReference());
 			if (lock == null)
 			{
-				M_log.warn("commitResource(): edit not in locks");
+				log.warn("commitResource(): edit not in locks");
 				return;
 			}
 
@@ -1063,7 +1061,7 @@ public class BaseDbDualSingleStorage  implements DbSingleStorage
 			boolean ok = m_sql.dbWrite(statement, lockFields);
 			if (!ok)
 			{
-				M_log.warn("commit: missing lock for table: " + lockFields[0] + " key: "
+				log.warn("commit: missing lock for table: " + lockFields[0] + " key: "
 						+ lockFields[1]);
 			}
 		}
@@ -1092,7 +1090,7 @@ public class BaseDbDualSingleStorage  implements DbSingleStorage
 			Connection lock = (Connection) m_locks.get(edit.getReference());
 			if (lock == null)
 			{
-				M_log.warn("cancelResource(): edit not in locks");
+				log.warn("cancelResource(): edit not in locks");
 				return;
 			}
 
@@ -1115,7 +1113,7 @@ public class BaseDbDualSingleStorage  implements DbSingleStorage
 			boolean ok = m_sql.dbWrite(statement, lockFields);
 			if (!ok)
 			{
-				M_log.warn("cancel: missing lock for table: " + lockFields[0] + " key: "
+				log.warn("cancel: missing lock for table: " + lockFields[0] + " key: "
 						+ lockFields[1]);
 			}
 		}
@@ -1148,7 +1146,7 @@ public class BaseDbDualSingleStorage  implements DbSingleStorage
 			Connection lock = (Connection) m_locks.get(edit.getReference());
 			if (lock == null)
 			{
-				M_log.warn("removeResource(): edit not in locks");
+				log.warn("removeResource(): edit not in locks");
 				return;
 			}
 
@@ -1175,7 +1173,7 @@ public class BaseDbDualSingleStorage  implements DbSingleStorage
 			boolean ok = m_sql.dbWrite(statement, lockFields);
 			if (!ok)
 			{
-				M_log.warn("remove: missing lock for table: " + lockFields[0] + " key: "
+				log.warn("remove: missing lock for table: " + lockFields[0] + " key: "
 						+ lockFields[1]);
 			}
 		}
@@ -1336,7 +1334,7 @@ public class BaseDbDualSingleStorage  implements DbSingleStorage
 			}
 			catch (EntityParseException ep)
 			{
-				M_log.warn("Unable to Serialize Entity, falling back to XML "
+				log.warn("Unable to Serialize Entity, falling back to XML "
 						+ entry.getId(), ep);
 			}
 			return null;
@@ -1363,7 +1361,7 @@ public class BaseDbDualSingleStorage  implements DbSingleStorage
 			{
 				double a = (1.0 * ttotal) / (1.0 * ntime);
 				double m = (1.0 * mtotal) / (1.0 * ntime);
-				M_log.debug("Average Serialization now " + (a) + "ms " + m + " bytes");
+				log.debug("Average Serialization now " + (a) + "ms " + m + " bytes");
 			}
 
 		}

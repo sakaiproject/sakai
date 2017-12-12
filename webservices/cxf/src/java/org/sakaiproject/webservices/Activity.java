@@ -15,10 +15,7 @@
  */
 package org.sakaiproject.webservices;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.sakaiproject.event.api.EventQueryService;
-import org.sakaiproject.tool.api.Session;
+import java.util.Date;
 
 import javax.jws.WebMethod;
 import javax.jws.WebParam;
@@ -28,9 +25,11 @@ import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
-import java.util.Date;
-import org.sakaiproject.event.api.EventQueryService;
 
+import lombok.extern.slf4j.Slf4j;
+
+import org.sakaiproject.event.api.EventQueryService;
+import org.sakaiproject.tool.api.Session;
 
 /**
  * Created by IntelliJ IDEA.
@@ -41,8 +40,8 @@ import org.sakaiproject.event.api.EventQueryService;
  */
 @WebService
 @SOAPBinding(style = SOAPBinding.Style.RPC, use = SOAPBinding.Use.LITERAL)
+@Slf4j
 public class Activity extends AbstractWebService {
-    private static final Logger LOG = LoggerFactory.getLogger(Activity.class);
 
     /**
      * Returns a list of events of a user between 2 dates. As this one requires 2 Date objects,
@@ -65,7 +64,7 @@ public class Activity extends AbstractWebService {
         Session session = establishSession(sessionid);
 
         if (!securityService.isSuperUser()) {
-            LOG.warn("WS getUserActivity(): Permission denied. Restricted to super users.");
+            log.warn("WS getUserActivity(): Permission denied. Restricted to super users.");
             throw new RuntimeException("WS getUserActivity(): Permission denied. Restricted to super users.");
         }
 
@@ -93,7 +92,7 @@ public class Activity extends AbstractWebService {
         Session session = establishSession(sessionid);
 
         if (!securityService.isSuperUser()) {
-            LOG.warn("WS getUserActivityStringDates(): Permission denied. Restricted to super users.");
+            log.warn("WS getUserActivityStringDates(): Permission denied. Restricted to super users.");
             throw new RuntimeException("WS getUserActivityStringDates(): Permission denied. Restricted to super users.");
         }
 
@@ -117,7 +116,7 @@ public class Activity extends AbstractWebService {
         Session session = establishSession(sessionid);
 
         if (!securityService.isSuperUser()) {
-            LOG.warn("WS getUserLogonActivity(): Permission denied. Restricted to super users.");
+            log.warn("WS getUserLogonActivity(): Permission denied. Restricted to super users.");
             throw new RuntimeException("WS getUserLogonActivity(): Permission denied. Restricted to super users.");
         }
 
@@ -145,7 +144,7 @@ public class Activity extends AbstractWebService {
         Session session = establishSession(sessionid);
 
         if (!securityService.isSuperUser()) {
-            LOG.warn("WS getUserActivityByType(): Permission denied. Restricted to super users.");
+            log.warn("WS getUserActivityByType(): Permission denied. Restricted to super users.");
             throw new RuntimeException("WS getUserActivityByType(): Permission denied. Restricted to super users.");
         }
 

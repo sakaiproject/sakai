@@ -16,9 +16,17 @@
 
 package org.sakaiproject.user.impl;
 
+import java.util.*;
+
+import lombok.extern.slf4j.Slf4j;
+
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+
 import org.sakaiproject.authz.api.*;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.component.cover.ComponentManager;
@@ -39,12 +47,6 @@ import org.sakaiproject.util.BaseResourcePropertiesEdit;
 import org.sakaiproject.util.StringUtil;
 import org.sakaiproject.util.Validator;
 import org.sakaiproject.util.api.FormattedText;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-
-import java.util.*;
 
 /**
  * <p>
@@ -57,11 +59,9 @@ import java.util.*;
  * Each User that ever goes through Sakai is allocated a Sakai unique UUID. Even if we don't keep the User record in Sakai, we keep a map of this id to the external eid.
  * </p>
  */
+@Slf4j
 public abstract class BaseUserDirectoryService implements UserDirectoryService, UserFactory
 {
-	/** Our log (commons). */
-	private static Logger M_log = LoggerFactory.getLogger(BaseUserDirectoryService.class);
-
 	/** Storage manager for this service. */
 	protected Storage m_storage = null;
 
@@ -533,17 +533,17 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 			// <= 0 indicates no caching desired
 			if (m_cacheSeconds > 0)
 			{
-				M_log.warn("cacheSeconds@org.sakaiproject.user.api.UserDirectoryService is no longer supported");
+				log.warn("cacheSeconds@org.sakaiproject.user.api.UserDirectoryService is no longer supported");
 			}
 			if (m_cacheCleanerSeconds > 0) {
-				M_log.warn("cacheCleanerSeconds@org.sakaiproject.user.api.UserDirectoryService is no longer supported");
+				log.warn("cacheCleanerSeconds@org.sakaiproject.user.api.UserDirectoryService is no longer supported");
 			}
 
             // caching for users
             m_callCache = memoryService().getCache("org.sakaiproject.user.api.UserDirectoryService.callCache");
             if (!m_callCache.isDistributed()) {
                 // KNL_1229 use an Observer for cache cleanup when the cache is not distributed
-                M_log.info("Creating user callCache observer for event based cache expiration (for local caches)");
+                log.info("Creating user callCache observer for event based cache expiration (for local caches)");
                 m_userCacheObserver = new UserCacheObserver();
                 eventTrackingService().addObserver(m_userCacheObserver);
             }
@@ -584,19 +584,19 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 			m_passwordPolicyProviderName = serverConfigurationService().getString(PasswordPolicyProvider.SAK_PROP_PROVIDER_NAME, PasswordPolicyProvider.class.getName());
 			if (StringUtils.isEmpty(m_passwordPolicyProviderName)) {
 			    m_passwordPolicyProviderName = PasswordPolicyProvider.class.getName();
-			    M_log.warn("init(): Empty name for passwordPolicyProvider: Using the default name instead: "+m_passwordPolicyProviderName);
+			    log.warn("init(): Empty name for passwordPolicyProvider: Using the default name instead: "+m_passwordPolicyProviderName);
 			}
 			if (m_passwordPolicyProvider == null) {
 				m_passwordPolicyProvider = getPasswordPolicy(); // this will load the PasswordPolicy provider bean or instantiate the default
 			}
-			M_log.info("init(): PasswordPolicyProvider ("+m_passwordPolicyProviderName+"): " + ((m_passwordPolicyProvider == null) ? "none" : m_passwordPolicyProvider.getClass().getName()));
+			log.info("init(): PasswordPolicyProvider ("+m_passwordPolicyProviderName+"): " + ((m_passwordPolicyProvider == null) ? "none" : m_passwordPolicyProvider.getClass().getName()));
 
-			M_log.info("init(): provider: " + ((m_provider == null) ? "none" : m_provider.getClass().getName())
+			log.info("init(): provider: " + ((m_provider == null) ? "none" : m_provider.getClass().getName())
 					+ " separateIdEid: " + m_separateIdEid);
 		}
 		catch (Exception t)
 		{
-			M_log.error("init(): ", t);
+			log.error("init(): ", t);
 		}
 	}
 
@@ -641,7 +641,7 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
         m_callCache.close();
         m_userCacheObserver = null;
 
-		M_log.info("destroy()");
+		log.info("destroy()");
 	}
 
 	/**********************************************************************************************************************************************************************************************************************************************************
@@ -743,7 +743,7 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 		//Check if another user has the same email
 		String email = StringUtils.trimToNull (user.getEmail());
 		
-		M_log.debug("commitEdit(): Check for mail " + email);
+		log.debug("commitEdit(): Check for mail " + email);
 		
 		if (email!=null)
 		{
@@ -896,7 +896,7 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 					else
 					{
 						// this user is not internally defined, and we can't find an eid for it, so we skip it
-						M_log.warn("getUsers: cannot find eid for user id: " + id);
+						log.warn("getUsers: cannot find eid for user id: " + id);
 					}
 				}
 			}
@@ -1208,7 +1208,7 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 		// check for closed edit
 		if (!user.isActiveEdit())
 		{
-			M_log.error("commitEdit(): closed UserEdit", new Exception());
+			log.error("commitEdit(): closed UserEdit", new Exception());
 			return;
 		}
 
@@ -1250,7 +1250,7 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 			}
 			catch (Exception e)
 			{
-				M_log.error("cancelEdit(): closed UserEdit", e);
+				log.error("cancelEdit(): closed UserEdit", e);
 			}
 			return;
 		}
@@ -1351,7 +1351,7 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 		if (m_provider instanceof ExternalUserSearchUDP) {
 			providedUserRecords =  ((ExternalUserSearchUDP) m_provider).searchExternalUsers(criteria, first, last, this);
 		} else {
-			M_log.debug("searchExternalUsers capability is not supported by your provider");
+			log.debug("searchExternalUsers capability is not supported by your provider");
 		}
 		
 		if (providedUserRecords != null){
@@ -1562,7 +1562,7 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 		// check for closed edit
 		if (!user.isActiveEdit())
 		{
-			M_log.error("removeUser(): closed UserEdit", new Exception());
+			log.error("removeUser(): closed UserEdit", new Exception());
 			return;
 		}
 
@@ -1585,7 +1585,7 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 		}
 		catch (AuthzPermissionException e)
 		{
-			M_log.warn("removeUser: removing realm for : " + ref + " : " + e);
+			log.warn("removeUser: removing realm for : " + ref + " : " + e);
 		}
 		catch (GroupNotDefinedException ignore)
 		{
@@ -1907,7 +1907,7 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 		}
 		catch (NullPointerException e)
 		{
-			M_log.warn("getEntityRealms(): " + e);
+			log.warn("getEntityRealms(): " + e);
 		}
 
 		return rv;
@@ -1975,7 +1975,7 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 			if(!locksSucceeded.isEmpty()) {
 				UserEdit user = m_storage.edit(id);
 				if (user == null) {
-					M_log.warn("Can't find user " + id + " when trying to update email address");
+					log.warn("Can't find user " + id + " when trying to update email address");
 					return false;
 				}
 				user.setEid(newEmail);
@@ -1984,14 +1984,14 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 				return true;
 			}
 			else {
-				M_log.warn("User with id: "+id+" failed permission checks" );
+				log.warn("User with id: "+id+" failed permission checks" );
 				return false;
 			}
 		} catch (UserPermissionException e) {
-			M_log.warn("You do not have sufficient permission to edit the user with Id: "+id, e);
+			log.warn("You do not have sufficient permission to edit the user with Id: "+id, e);
 			return false;
 		} catch (UserAlreadyDefinedException e) {
-			M_log.error("A users already exists with EID of: "+id +"having email :"+ newEmail, e);
+			log.error("A users already exists with EID of: "+id +"having email :"+ newEmail, e);
 			return false;
 		}
 	}
@@ -2911,7 +2911,7 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 		 */
 		public void valueUnbound(SessionBindingEvent event)
 		{
-			if (M_log.isDebugEnabled()) M_log.debug("valueUnbound()");
+			if (log.isDebugEnabled()) log.debug("valueUnbound()");
 
 			// catch the case where an edit was made but never resolved
 			if (m_active)

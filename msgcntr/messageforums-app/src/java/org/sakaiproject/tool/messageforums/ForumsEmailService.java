@@ -30,8 +30,8 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.api.app.messageforums.AnonymousManager;
 import org.sakaiproject.api.app.messageforums.Attachment;
 import org.sakaiproject.api.app.messageforums.BaseForum;
@@ -63,8 +63,8 @@ import org.sakaiproject.util.ResourceLoader;
  * This sends out emails to a list of users.
  * Really this should be part of the API, rather than the tool.
  */
+@Slf4j
 public class ForumsEmailService {
-	private static Logger log = LoggerFactory.getLogger(ForumsEmailService.class);
 
 	private List<String> toEmailAddress;
 

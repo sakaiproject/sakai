@@ -35,10 +35,11 @@ import java.util.Arrays;
 import java.util.Properties;
 import java.util.Random;
 
+import lombok.extern.slf4j.Slf4j;
+
 import org.apache.commons.dbcp.cpdsadapter.DriverAdapterCPDS;
 import org.apache.commons.dbcp.datasources.SharedPoolDataSource;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -47,11 +48,9 @@ import org.junit.Test;
 /**
  * @author ieb
  */
+@Slf4j
 public class CheckBlobSafety
 {
-
-	private static final Logger log = LoggerFactory.getLogger(CheckBlobSafety.class);
-
 	private SharedPoolDataSource tds;
 
 	private String config;

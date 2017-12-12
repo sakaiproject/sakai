@@ -15,12 +15,11 @@
  */
 package org.sakaiproject.profile2.cache;
 
+import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.MemoryService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import lombok.Setter;
 
 /**
  * Implementation of CacheManager for Profile2.
@@ -28,9 +27,8 @@ import lombok.Setter;
  * @author Steve Swinsburg (steve.swinsburg@gmail.com)
  *
  */
+@Slf4j
 public class CacheManagerImpl implements CacheManager {
-
-	private static final Logger log = LoggerFactory.getLogger(CacheManagerImpl.class);
 
 	@Override
 	public <K, V>Cache<K, V> createCache(String cacheName) {

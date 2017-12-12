@@ -32,10 +32,6 @@ import org.w3c.dom.*;
 @Slf4j
 public class Query extends HttpTransactionQueryBase
 {
-  /**
-   * DEBUG only: Display server response data?
-   */
-  public static final boolean DISPLAY_XML = false;
 	/**
 	 * Records displayed "per page"
 	 */
@@ -581,7 +577,7 @@ public class Query extends HttpTransactionQueryBase
 		{
 			errorText = action + ": Unexpected document format";
 
-			LogUtils.displayXml(log, errorText, document);
+			log.debug("{} {}", errorText, document);
 
 			StatusUtils.setGlobalError(getSessionContext(), errorText);
 			throw new SearchException(errorText);
@@ -594,7 +590,7 @@ public class Query extends HttpTransactionQueryBase
 		          + " error: "
 		          + (StringUtils.isNull(message) ? "*unknown*" : message);
 
-		LogUtils.displayXml(log, errorText, document);
+		log.debug("{} {}", errorText, document);
 		/*
 		 * Session timeout is a special case
 		 *
@@ -945,9 +941,6 @@ public class Query extends HttpTransactionQueryBase
 	 */
 	private void displayXml(String text, Object xmlObject)
 	{
-	  if (DISPLAY_XML)
-	  {
-	    LogUtils.displayXml(log, text, xmlObject);
-    }
-  }
+	    log.debug("{} {}", text, xmlObject);
+	}
 }

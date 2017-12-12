@@ -25,8 +25,8 @@ import java.io.StringWriter;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.email.api.EmailService;
@@ -53,9 +53,8 @@ import org.sakaiproject.tool.api.SessionManager;
  * 
  * @author Aaron Zeckoski (azeckoski @ gmail.com)
  */
+@Slf4j
 public class SakaiExternalIntegrationProvider implements ExternalIntegrationProvider {
-
-    private static final Logger log = LoggerFactory.getLogger(SakaiExternalIntegrationProvider.class);
 
     // SAKAI
     private EntityManager entityManager; // for find entity by reference
@@ -216,7 +215,6 @@ public class SakaiExternalIntegrationProvider implements ExternalIntegrationProv
         // get the stacktrace out
         StringWriter sw = new StringWriter();
         PrintWriter pw = new PrintWriter(sw);
-        error.printStackTrace(pw);
         String stacktrace = "Full stacktrace:\n" + error.getClass().getSimpleName() + ":" 
                 + error.getMessage() + ":\n" + sw.toString();
 

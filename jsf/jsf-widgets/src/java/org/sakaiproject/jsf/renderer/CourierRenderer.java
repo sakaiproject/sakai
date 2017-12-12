@@ -31,11 +31,13 @@ import javax.faces.context.ResponseWriter;
 import javax.faces.render.Renderer;
 import javax.servlet.http.HttpServletRequest;
 
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.jsf.util.RendererUtil;
 import org.sakaiproject.tool.api.SessionManager;
 
-
+@Slf4j
 public class CourierRenderer extends Renderer
 {
 	
@@ -79,7 +81,7 @@ public class CourierRenderer extends Renderer
 			try {
 				throw new Exception("Placement ID is null in request: sakai.tool.placement.id");
 			} catch (Exception e) {
-				e.printStackTrace();
+				log.error(e.getMessage(), e);
 			}
 		}
 		
@@ -90,7 +92,7 @@ public class CourierRenderer extends Renderer
 			try {
 				throw new Exception("User ID is null in session");
 			} catch (Exception e) {
-				e.printStackTrace();
+				log.error(e.getMessage(), e);
 			}
 		}
 		

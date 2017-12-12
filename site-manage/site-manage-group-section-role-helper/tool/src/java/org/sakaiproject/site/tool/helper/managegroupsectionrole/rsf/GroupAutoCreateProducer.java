@@ -17,17 +17,7 @@ package org.sakaiproject.site.tool.helper.managegroupsectionrole.rsf;
 
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.sakaiproject.authz.api.Role;
-import org.sakaiproject.site.api.Group;
-import org.sakaiproject.site.api.SiteService;
-import org.sakaiproject.site.tool.helper.managegroupsectionrole.impl.SiteManageGroupSectionRoleHandler;
-import org.sakaiproject.tool.cover.ToolManager;
-import org.sakaiproject.user.api.UserDirectoryService;
-
-import org.sakaiproject.rsf.copies.Web;
-import org.sakaiproject.rsf.producers.FrameAdjustingProducer;
+import lombok.extern.slf4j.Slf4j;
 import uk.org.ponder.messageutil.MessageLocator;
 import uk.org.ponder.messageutil.TargettedMessageList;
 import uk.org.ponder.rsf.components.UIBoundBoolean;
@@ -54,16 +44,23 @@ import uk.org.ponder.rsf.viewstate.SimpleViewParameters;
 import uk.org.ponder.rsf.viewstate.ViewParameters;
 import uk.org.ponder.rsf.viewstate.ViewParamsReporter;
 
+import org.sakaiproject.authz.api.Role;
+import org.sakaiproject.rsf.copies.Web;
+import org.sakaiproject.rsf.producers.FrameAdjustingProducer;
+import org.sakaiproject.site.api.Group;
+import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.site.tool.helper.managegroupsectionrole.impl.SiteManageGroupSectionRoleHandler;
+import org.sakaiproject.tool.cover.ToolManager;
+import org.sakaiproject.user.api.UserDirectoryService;
+
 /**
  * 
  * @author
  *
  */
+@Slf4j
 public class GroupAutoCreateProducer implements ViewComponentProducer, ActionResultInterceptor, ViewParamsReporter {
 
-	/** Our log (commons). */
-	private static final Logger M_log = LoggerFactory.getLogger(GroupAutoCreateProducer.class);
-	
     public SiteManageGroupSectionRoleHandler handler;
     public static final String VIEW_ID = "GroupAutoCreate";
     public MessageLocator messageLocator;
@@ -102,7 +99,7 @@ public class GroupAutoCreateProducer implements ViewComponentProducer, ActionRes
     		 }
     		 catch (Exception e)
     		 {
-    			 M_log.debug(this + "fillComponents: cannot get group id=" + id, e);
+    			 log.debug(this + "fillComponents: cannot get group id=" + id, e);
     		 }
     	 }
     	 else

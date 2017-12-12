@@ -48,7 +48,12 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.xml.bind.DatatypeConverter;
 
+import lombok.extern.slf4j.Slf4j;
+
 import org.apache.commons.io.IOUtils;
+
+import uk.org.ponder.messageutil.MessageLocator;
+
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityService;
@@ -89,22 +94,18 @@ import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.util.Validator;
 import org.sakaiproject.util.Web;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import uk.org.ponder.messageutil.MessageLocator;
 
 /**
  * <p>
  * LessonBuilderAccessService implements /access/lessonbuilder
  * </p>
  */
+@Slf4j
 public class LessonBuilderAccessService {
 
 	public static final int CACHE_MAX_ENTRIES = 5000;
 	public static final int CACHE_TIME_TO_LIVE_SECONDS = 600;
 	public static final int CACHE_TIME_TO_IDLE_SECONDS = 360;
-	private static Logger M_log = LoggerFactory.getLogger(LessonBuilderAccessService.class);
 
 	public static final String ATTR_SESSION = "sakai.session";
    
@@ -273,7 +274,7 @@ public class LessonBuilderAccessService {
 			prop = simplePageToolDao.makeProperty("accessCryptoKey", DatatypeConverter.printHexBinary(keyBytes));
 			simplePageToolDao.quickSaveItem(prop);
 		    } catch (Exception e) {
-			M_log.info("unable to init cipher for session " + e);
+			log.info("unable to init cipher for session " + e);
 			// in case of race condition, our save will fail, but we'll be able to get a value
 			// saved by someone else
 			simplePageToolDao.flush();
@@ -369,7 +370,7 @@ public class LessonBuilderAccessService {
 					}
 
 				    } catch (Exception e) {
-					M_log.info("unable to decode lb.session " + e);
+					log.info("unable to decode lb.session " + e);
 				    }
 				}
 
@@ -632,7 +633,7 @@ public class LessonBuilderAccessService {
 							Instant modTime = rp.getInstantProperty(ResourceProperties.PROP_MODIFIED_DATE);
 							lastModTime = modTime.getEpochSecond();
 						} catch (Exception e1) {
-							M_log.info("Could not retrieve modified time for: " + resource.getId());
+							log.info("Could not retrieve modified time for: " + resource.getId());
 						}
 
 						// KNL-1316 tell the browser when our file was last modified for caching reasons
@@ -782,8 +783,8 @@ public class LessonBuilderAccessService {
 						if (ServerConfigurationService.getBoolean("cloud.content.sendfile", false)) {
 							int hostLength = new String(directLinkUri.getScheme() + "://" + directLinkUri.getHost()).length();
 							String linkPath = "/sendfile" + directLinkUri.toString().substring(hostLength);
-							if (M_log.isDebugEnabled()) {
-								M_log.debug("X-Sendfile: " + linkPath);
+							if (log.isDebugEnabled()) {
+								log.debug("X-Sendfile: " + linkPath);
 							}
 
 							// Nginx uses X-Accel-Redirect and Apache and others use X-Sendfile
@@ -915,9 +916,9 @@ public class LessonBuilderAccessService {
 						catch (SocketException e)
 						{
 							//a socket exception usualy means the client aborted the connection or similar
-							if (M_log.isDebugEnabled())
+							if (log.isDebugEnabled())
 							{
-								M_log.debug("SocketExcetion", e);
+								log.debug("SocketExcetion", e);
 							}
 						}
 						catch (Exception ignore)
@@ -959,14 +960,14 @@ public class LessonBuilderAccessService {
 						catch (SocketException e)
 						{
 							//a socket exception usualy means the client aborted the connection or similar
-							if (M_log.isDebugEnabled())
+							if (log.isDebugEnabled())
 							{
-								M_log.debug("SocketExcetion", e);
+								log.debug("SocketExcetion", e);
 							}
 						}
 						catch (Exception ignore)
 						{
-							M_log.error("Swallowing exception", ignore);
+							log.error("Swallowing exception", ignore);
 						}
 						finally
 						{

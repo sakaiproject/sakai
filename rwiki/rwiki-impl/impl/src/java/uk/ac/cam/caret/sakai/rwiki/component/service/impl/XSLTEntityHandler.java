@@ -43,12 +43,12 @@ import javax.xml.transform.Transformer;
 import javax.xml.transform.sax.SAXResult;
 import javax.xml.transform.sax.TransformerHandler;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringEscapeUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.apache.xml.serializer.OutputPropertiesFactory;
 import org.apache.xml.serializer.Serializer;
 import org.apache.xml.serializer.SerializerFactory;
+
 import org.sakaiproject.component.api.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.entity.api.Entity;
@@ -82,9 +82,9 @@ import uk.ac.cam.caret.sakai.rwiki.utils.SimpleCoverage;
  * 
  * @author ieb
  */
+@Slf4j
 public class XSLTEntityHandler extends BaseEntityHandlerImpl
 {
-	private static Logger log = LoggerFactory.getLogger(XSLTEntityHandler.class);
 
 	private static ThreadLocal currentRequest = new ThreadLocal();
 
@@ -438,7 +438,6 @@ public class XSLTEntityHandler extends BaseEntityHandlerImpl
 		catch (Throwable ex)
 		{
 			log.info("Failed to serialize " + ex.getMessage()); //$NON-NLS-1$
-			ex.printStackTrace();
 			throw new RuntimeException(Messages.getString("XSLTEntityHandler.68") //$NON-NLS-1$
 					+ ex.getLocalizedMessage(), ex);
 		}
@@ -898,7 +897,7 @@ public class XSLTEntityHandler extends BaseEntityHandlerImpl
 			/*
 			 * String stackTrace = null; try { StringWriter exw = new
 			 * StringWriter(); PrintWriter pw = new PrintWriter(exw);
-			 * ex.printStackTrace(pw); stackTrace = exw.toString(); } catch
+			 * log.error(ex.getMessage(), ex); stackTrace = exw.toString(); } catch
 			 * (Exception ex2) { stackTrace =
 			 * MessageFormat.format(defaultStackTrace, new Object[] {
 			 * ex.getMessage() }); } out.write(MessageFormat.format(errorFormat,
@@ -966,7 +965,7 @@ public class XSLTEntityHandler extends BaseEntityHandlerImpl
 			/*
 			 * String stackTrace = null; try { StringWriter exw = new
 			 * StringWriter(); PrintWriter pw = new PrintWriter(exw);
-			 * ex.printStackTrace(pw); stackTrace = exw.toString(); } catch
+			 * log.error(ex.getMessage(), ex); stackTrace = exw.toString(); } catch
 			 * (Exception ex2) { stackTrace =
 			 * MessageFormat.format(defaultStackTrace, new Object[] {
 			 * ex.getMessage() }); } out.write(MessageFormat.format(errorFormat,

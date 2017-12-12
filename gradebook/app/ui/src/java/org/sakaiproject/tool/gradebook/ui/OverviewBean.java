@@ -30,25 +30,23 @@ import java.util.Map.Entry;
 
 import javax.faces.context.FacesContext;
 
-import org.sakaiproject.tool.gradebook.GradebookAssignment;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.component.cover.ServerConfigurationService;
-import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.tool.gradebook.Category;
 import org.sakaiproject.tool.gradebook.CourseGrade;
 import org.sakaiproject.tool.gradebook.GradableObject;
 import org.sakaiproject.tool.gradebook.Gradebook;
+import org.sakaiproject.tool.gradebook.GradebookAssignment;
 import org.sakaiproject.tool.gradebook.jsf.FacesUtil;
 
 /**
  * Backing bean for the visible list of assignments in the gradebook.
  */
+@Slf4j
 public class OverviewBean extends GradebookDependentBean implements Serializable  {
-	private static final Logger logger = LoggerFactory.getLogger(OverviewBean.class);
-
     private static final Map columnSortMap;
 
 	private List gradebookItemList;
@@ -377,8 +375,8 @@ public class OverviewBean extends GradebookDependentBean implements Serializable
 	@SuppressWarnings("unchecked")
     public void sortUp() {
 	    Long assignmentId = getAssignmentIdFromParam();
-	    if (logger.isDebugEnabled()) {
-	        logger.debug("Sort: sorting up: " + assignmentId);
+	    if (log.isDebugEnabled()) {
+	        log.debug("Sort: sorting up: " + assignmentId);
 	    }
         List<GradebookAssignment> assignments = getGradebookManager().getAssignments(getGradebookId());
         if (assignments.size() > 1) {
@@ -396,12 +394,12 @@ public class OverviewBean extends GradebookDependentBean implements Serializable
                             Integer holder = a1.getSortOrder();
                             a1.setSortOrder(a2.getSortOrder());
                             a2.setSortOrder(holder);
-                            logger.info("Sort: UP swapping: "+a1.getId()+" (to "+a1.getSortOrder()+" from "+holder+") with "+a2.getId());
+                            log.info("Sort: UP swapping: "+a1.getId()+" (to "+a1.getSortOrder()+" from "+holder+") with "+a2.getId());
                             // save the new orders
                             getGradebookManager().updateAssignment(a1);
                             getGradebookManager().updateAssignment(a2);
                         } else {
-                            logger.info("Sort: UP: unable to swap items ("+a1.getId()+","+a2.getId()+") in different categories");
+                            log.info("Sort: UP: unable to swap items ("+a1.getId()+","+a2.getId()+") in different categories");
                         }
 
                     }
@@ -414,8 +412,8 @@ public class OverviewBean extends GradebookDependentBean implements Serializable
     @SuppressWarnings("unchecked")
     public void sortDown() {
         Long assignmentId = getAssignmentIdFromParam();
-        if (logger.isDebugEnabled()) {
-            logger.debug("Sort: sorting down: " + assignmentId);
+        if (log.isDebugEnabled()) {
+            log.debug("Sort: sorting down: " + assignmentId);
         }
         List<GradebookAssignment> assignments = getGradebookManager().getAssignments(getGradebookId());
         if (assignments.size() > 1) {
@@ -433,12 +431,12 @@ public class OverviewBean extends GradebookDependentBean implements Serializable
                             Integer holder = a1.getSortOrder();
                             a1.setSortOrder(a2.getSortOrder());
                             a2.setSortOrder(holder);
-                            logger.info("Sort: DOWN swapping: "+a1.getId()+" (to "+a1.getSortOrder()+" from "+holder+") with "+a2.getId());
+                            log.info("Sort: DOWN swapping: "+a1.getId()+" (to "+a1.getSortOrder()+" from "+holder+") with "+a2.getId());
                             // save the new orders
                             getGradebookManager().updateAssignment(a1);
                             getGradebookManager().updateAssignment(a2);
                         } else {
-                            logger.info("Sort: DOWN: unable to swap items ("+a1.getId()+","+a2.getId()+") in different categories");
+                            log.info("Sort: DOWN: unable to swap items ("+a1.getId()+","+a2.getId()+") in different categories");
                         }
                     }
                     break;
@@ -454,19 +452,19 @@ public class OverviewBean extends GradebookDependentBean implements Serializable
             sortColumn = GradebookAssignment.DEFAULT_SORT;
         }
         boolean ascending = isAssignmentSortAscending();
-        if (logger.isDebugEnabled()) {
-            logger.debug("saveCurrentSort: saving current sort order ("+sortColumn+", "+ascending+") for gradebook: " + getGradebookId());
+        if (log.isDebugEnabled()) {
+            log.debug("saveCurrentSort: saving current sort order ("+sortColumn+", "+ascending+") for gradebook: " + getGradebookId());
         }
         List<GradebookAssignment> assignments = getGradebookManager().getAssignmentsAndCourseGradeWithStats(getGradebookId(), sortColumn, ascending); //getAssignmentsWithNoCategoryWithStats(getGradebookId(), sortColumn, ascending);
-        if (logger.isDebugEnabled()) {
-            logger.debug("saveCurrentSort: current order ("+assignments.size()+"): " + Arrays.toString(assignments.toArray()));
+        if (log.isDebugEnabled()) {
+            log.debug("saveCurrentSort: current order ("+assignments.size()+"): " + Arrays.toString(assignments.toArray()));
         }
         // now ensure the numbering is set and correct
         ensureAssignmentsSorted(assignments, new NoChangeMarkerComparator(), true);
-        if (logger.isDebugEnabled()) {
-            logger.debug("saveCurrentSort: final order ("+assignments.size()+"): " + Arrays.toString(assignments.toArray()));
+        if (log.isDebugEnabled()) {
+            log.debug("saveCurrentSort: final order ("+assignments.size()+"): " + Arrays.toString(assignments.toArray()));
         }
-        logger.info("Sort: Saved current sort order ("+sortColumn+") [asc="+ascending+"] for gradebook ("+assignments.size()+" items): " + getGradebookId());
+        log.info("Sort: Saved current sort order ("+sortColumn+") [asc="+ascending+"] for gradebook ("+assignments.size()+" items): " + getGradebookId());
         // force sorting back to defaults
         setAssignmentSortColumn(GradebookAssignment.DEFAULT_SORT);
         setAssignmentSortAscending(true);
@@ -507,8 +505,8 @@ public class OverviewBean extends GradebookDependentBean implements Serializable
 
 	@SuppressWarnings("unchecked")
     private void ensureAssignmentsSorted(List assignments, Comparator comparator, boolean save) {
-	    if (logger.isDebugEnabled()) {
-	        logger.debug("ensureAssignmentsSorted: comparator="+comparator+", save="+save+", assignments= "+Arrays.toString(assignments.toArray()));
+	    if (log.isDebugEnabled()) {
+	        log.debug("ensureAssignmentsSorted: comparator="+comparator+", save="+save+", assignments= "+Arrays.toString(assignments.toArray()));
 	    }
 	    // remove any non-assignments first
 	    List gradeables = new ArrayList();
@@ -524,19 +522,19 @@ public class OverviewBean extends GradebookDependentBean implements Serializable
         // put everything in the established sort order first (if needed)
         if (comparator == null) {
             comparator = GradableObject.dateComparator;
-            if (logger.isDebugEnabled()) {
-                logger.debug("ensureAssignmentsSorted: setting default comparator="+comparator);
+            if (log.isDebugEnabled()) {
+                log.debug("ensureAssignmentsSorted: setting default comparator="+comparator);
             }
         }
         if (! NoChangeMarkerComparator.class.isAssignableFrom(comparator.getClass())) {
             // only sort if this is not the no-sort marker
-            if (logger.isDebugEnabled()) {
-                logger.debug("ensureAssignmentsSorted: sorting with comparator="+comparator);
+            if (log.isDebugEnabled()) {
+                log.debug("ensureAssignmentsSorted: sorting with comparator="+comparator);
             }
             Collections.sort(assignments, comparator);
         } else {
-            if (logger.isDebugEnabled()) {
-                logger.debug("ensureAssignmentsSorted: no sort, using NoChangeMarkerComparator="+comparator);
+            if (log.isDebugEnabled()) {
+                log.debug("ensureAssignmentsSorted: no sort, using NoChangeMarkerComparator="+comparator);
             }
         }
         // always need to sort by category
@@ -547,21 +545,21 @@ public class OverviewBean extends GradebookDependentBean implements Serializable
         for (int i = 0; i < assignments.size(); i++) {
             GradebookAssignment assignment = (GradebookAssignment) assignments.get(i);
             Integer curOrder = assignment.getSortOrder();
-            if (logger.isDebugEnabled()) {
-                logger.debug("ensureAssignmentsSorted: checking if current order ("+curOrder+") matches correct order ("+i+") for assignment: "+assignment);
+            if (log.isDebugEnabled()) {
+                log.debug("ensureAssignmentsSorted: checking if current order ("+curOrder+") matches correct order ("+i+") for assignment: "+assignment);
             }
             if (curOrder == null || i != curOrder.intValue()) {
                 // no match so we need to update it (else it is already set correctly, only save if needed)
                 assignment.setSortOrder(i);
                 updateCount++;
-                if (logger.isDebugEnabled()) {
-                    logger.debug("ensureAssignmentsSorted: setting sort order ("+i+") for assignment: "+assignment);
+                if (log.isDebugEnabled()) {
+                    log.debug("ensureAssignmentsSorted: setting sort order ("+i+") for assignment: "+assignment);
                 }
                 if (save) {
                     getGradebookManager().updateAssignment(assignment);
                     saveCount++;
-                    if (logger.isDebugEnabled()) {
-                        logger.debug("ensureAssignmentsSorted: saving assignment: "+assignment);
+                    if (log.isDebugEnabled()) {
+                        log.debug("ensureAssignmentsSorted: saving assignment: "+assignment);
                     }
                 }
             }
@@ -586,8 +584,8 @@ public class OverviewBean extends GradebookDependentBean implements Serializable
                 GradebookAssignment assignment = l.get(i);
                 // assign the counter for ordering
                 assignment.assignSorting(l.size(), i);
-                if (logger.isDebugEnabled()) {
-                    logger.debug("ensureAssignmentsSorted: ordered: "+i+" : "+assignment);
+                if (log.isDebugEnabled()) {
+                    log.debug("ensureAssignmentsSorted: ordered: "+i+" : "+assignment);
                 }
             }
         }
@@ -595,8 +593,8 @@ public class OverviewBean extends GradebookDependentBean implements Serializable
         for (Object gradeable : gradeables) {
             assignments.add(gradeable);
         }
-        if (logger.isDebugEnabled()) {
-            logger.debug("ensureAssignmentsSorted: sorted assignments (updated="+updateCount+", saved="+saveCount+"): "+Arrays.toString(assignments.toArray()));
+        if (log.isDebugEnabled()) {
+            log.debug("ensureAssignmentsSorted: sorted assignments (updated="+updateCount+", saved="+saveCount+"): "+Arrays.toString(assignments.toArray()));
         }
     }
 
@@ -612,5 +610,4 @@ public class OverviewBean extends GradebookDependentBean implements Serializable
             return "NoChangeMarkerComparator";
         }
 	}
-
 }

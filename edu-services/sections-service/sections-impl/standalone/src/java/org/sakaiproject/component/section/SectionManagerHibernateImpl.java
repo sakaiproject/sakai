@@ -40,9 +40,15 @@ import java.util.UUID;
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 
+import lombok.extern.slf4j.Slf4j;
+
 import org.hibernate.HibernateException;
 import org.hibernate.Query;
 import org.hibernate.Session;
+
+import org.springframework.orm.hibernate4.HibernateCallback;
+import org.springframework.orm.hibernate4.support.HibernateDaoSupport;
+
 import org.sakaiproject.section.api.SectionManager;
 import org.sakaiproject.section.api.coursemanagement.Course;
 import org.sakaiproject.section.api.coursemanagement.CourseSection;
@@ -55,10 +61,6 @@ import org.sakaiproject.section.api.exception.MembershipException;
 import org.sakaiproject.section.api.facade.Role;
 import org.sakaiproject.section.api.facade.manager.Authn;
 import org.sakaiproject.section.api.facade.manager.Context;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.orm.hibernate4.HibernateCallback;
-import org.springframework.orm.hibernate4.support.HibernateDaoSupport;
 
 /**
  * A standalone implementation of the Section Management API.
@@ -66,17 +68,15 @@ import org.springframework.orm.hibernate4.support.HibernateDaoSupport;
  * @author <a href="mailto:jholtzman@berkeley.edu">Josh Holtzman</a>
  *
  */
+@Slf4j
 public class SectionManagerHibernateImpl extends HibernateDaoSupport implements
         SectionManager {
-
-	private static final Logger log = LoggerFactory.getLogger(SectionManagerHibernateImpl.class);
-
 	/** The resource bundle containing the category IDs and names */
 	static final String CATEGORY_BUNDLE = "org.sakaiproject.component.section.CourseSectionCategories";
 
 	// Fields configured via dep. injection
-    protected Authn authn;
-    protected Context context;
+	protected Authn authn;
+	protected Context context;
 
 	/**
 	 * {@inheritDoc}

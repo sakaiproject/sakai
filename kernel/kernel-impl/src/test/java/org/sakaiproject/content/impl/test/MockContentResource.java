@@ -26,24 +26,21 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.content.api.ContentResourceEdit;
 import org.sakaiproject.entity.api.ResourceProperties;
-import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.exception.ServerOverloadException;
 
 /**
  * MockContentResource
  *
  */
+@Slf4j
 public class MockContentResource extends MockContentEntity implements ContentResourceEdit
 {
 	public static final int STREAM_BUFFER_SIZE = 4096;
-	
-	private static final Logger logger = LoggerFactory.getLogger(MockContentResource.class);
-	
-	
+
 	protected String collectionId;
 	protected byte[] content;
 
@@ -52,18 +49,18 @@ public class MockContentResource extends MockContentEntity implements ContentRes
 	protected String resourceId;
 
 	/**
-     * @param collectionId
-     * @param resourceId
-     */
-    public MockContentResource(String collectionId, String resourceId)
-    {
+	 * @param collectionId
+	 * @param resourceId
+	 */
+	public MockContentResource(String collectionId, String resourceId)
+	{
 	    super();
 	    this.collectionId = collectionId;
 	    this.resourceId = resourceId;
 	    //Setup this property for sorting purposes
 	    this.getPropertiesEdit().addProperty(ResourceProperties.PROP_DISPLAY_NAME, resourceId); 
 	    this.getPropertiesEdit().addProperty(ResourceProperties.PROP_CONTENT_LENGTH, "0"); 
-    }
+	}
 
 	/* (non-Javadoc)
 	 * @see org.sakaiproject.content.api.ContentResource#getContent()
@@ -134,7 +131,7 @@ public class MockContentResource extends MockContentEntity implements ContentRes
        }
         catch (IOException e)
         {
-            logger.warn("IOException ", e);
+            log.warn("IOException ", e);
         }
         finally
         {
@@ -146,7 +143,7 @@ public class MockContentResource extends MockContentEntity implements ContentRes
                 }
                 catch (IOException e)
                 {
-                	logger.warn("IOException ", e);
+                	log.warn("IOException ", e);
                 }
         	}
         }

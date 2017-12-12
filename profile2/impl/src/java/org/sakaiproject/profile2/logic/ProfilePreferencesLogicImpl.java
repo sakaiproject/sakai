@@ -15,16 +15,15 @@
  */
 package org.sakaiproject.profile2.logic;
 
+import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.profile2.cache.CacheManager;
 import org.sakaiproject.profile2.dao.ProfileDao;
 import org.sakaiproject.profile2.model.ProfilePreferences;
 import org.sakaiproject.profile2.types.PreferenceType;
 import org.sakaiproject.profile2.util.ProfileConstants;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import lombok.Setter;
 
 /**
  * Implementation of ProfilePreferencesLogic API
@@ -32,9 +31,8 @@ import lombok.Setter;
  * @author Steve Swinsburg (steve.swinsburg@gmail.com)
  *
  */
+@Slf4j
 public class ProfilePreferencesLogicImpl implements ProfilePreferencesLogic {
-
-	private static final Logger log = LoggerFactory.getLogger(ProfilePreferencesLogicImpl.class);
 
 	private Cache cache;
 	private final String CACHE_NAME = "org.sakaiproject.profile2.cache.preferences";	

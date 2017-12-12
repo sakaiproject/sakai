@@ -17,25 +17,6 @@
 
 package org.sakaiproject.lti.impl;
 
-import org.apache.commons.configuration.PropertiesConfiguration;
-import org.apache.commons.lang.ArrayUtils;
-import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.sakaiproject.component.cover.ComponentManager;
-import org.sakaiproject.db.api.SqlService;
-import org.sakaiproject.lti.api.LTISearchData;
-import org.sakaiproject.lti.api.LTIService;
-import org.springframework.jdbc.core.ColumnMapRowMapper;
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.PreparedStatementCreator;
-import org.springframework.jdbc.support.GeneratedKeyHolder;
-import org.springframework.jdbc.support.KeyHolder;
-
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
-
 import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -45,6 +26,18 @@ import java.util.Properties;
 
 import javax.sql.DataSource;
 
+import lombok.extern.slf4j.Slf4j;
+
+import org.apache.commons.configuration.PropertiesConfiguration;
+import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang.StringUtils;
+
+import org.springframework.jdbc.core.JdbcTemplate;
+
+import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.db.api.SqlService;
+import org.sakaiproject.lti.api.LTISearchData;
+import org.sakaiproject.lti.api.LTIService;
 import org.sakaiproject.lti.impl.FoormMapRowMapper;
 
 /**
@@ -52,10 +45,8 @@ import org.sakaiproject.lti.impl.FoormMapRowMapper;
  * DBLTIService extends the BaseLTIService.
  * </p>
  */
+@Slf4j
 public class DBLTIService extends BaseLTIService implements LTIService {
-	/** Our log (commons). */
-	private static Logger M_log = LoggerFactory.getLogger(DBLTIService.class);
-
 	/**
 	 * 
 	 */
@@ -113,16 +104,16 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 
 		try {
 			boolean doReset = false;
-			if (doReset) M_log.error("DO NOT RUN IN PRODUCTION WITH doReset TRUE");
+			if (doReset) log.error("DO NOT RUN IN PRODUCTION WITH doReset TRUE");
 
-			foorm.autoDDL("lti_content", LTIService.CONTENT_MODEL, m_sql, m_autoDdl, doReset, M_log);
-			foorm.autoDDL("lti_tools", LTIService.TOOL_MODEL, m_sql, m_autoDdl, doReset, M_log);
-			foorm.autoDDL("lti_deploy", LTIService.DEPLOY_MODEL, m_sql, m_autoDdl, doReset, M_log);
-			foorm.autoDDL("lti_binding", LTIService.BINDING_MODEL, m_sql, m_autoDdl, doReset, M_log);
-			foorm.autoDDL("lti_memberships_jobs", LTIService.MEMBERSHIPS_JOBS_MODEL, m_sql, m_autoDdl, doReset, M_log);
+			foorm.autoDDL("lti_content", LTIService.CONTENT_MODEL, m_sql, m_autoDdl, doReset);
+			foorm.autoDDL("lti_tools", LTIService.TOOL_MODEL, m_sql, m_autoDdl, doReset);
+			foorm.autoDDL("lti_deploy", LTIService.DEPLOY_MODEL, m_sql, m_autoDdl, doReset);
+			foorm.autoDDL("lti_binding", LTIService.BINDING_MODEL, m_sql, m_autoDdl, doReset);
+			foorm.autoDDL("lti_memberships_jobs", LTIService.MEMBERSHIPS_JOBS_MODEL, m_sql, m_autoDdl, doReset);
 			super.init();
 		} catch (Exception t) {
-			M_log.warn("init(): ", t);
+			log.warn("init(): ", t);
 		}
 	}
 
@@ -131,8 +122,8 @@ public class DBLTIService extends BaseLTIService implements LTIService {
      */
     public Object insertMembershipsJobDao(String siteId, String membershipsId, String membershipsUrl, String consumerKey, String ltiVersion) {
 
-	if (M_log.isDebugEnabled()) {
-	    M_log.debug("insertMembershipsJobDao(" + siteId + "," + membershipsId + "," + membershipsUrl + "," + consumerKey + "," + ltiVersion + ")");
+	if (log.isDebugEnabled()) {
+	    log.debug("insertMembershipsJobDao({},{},{},{},{})", siteId, membershipsId, membershipsUrl, consumerKey, ltiVersion);
 	}
 
 	// First, check if there is already a job for this site.
@@ -151,15 +142,15 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 
 	public  List<Map<String, Object>> getMembershipsJobsDao() {
 
-	M_log.debug("getMembershipsJobDao()");
+	log.debug("getMembershipsJobDao()");
 
 	return getThingsDao("lti_memberships_jobs", LTIService.MEMBERSHIPS_JOBS_MODEL, null, null, null, null, null, 0, 0, null, true);
     }
 
 	public Map<String, Object> getMembershipsJobDao(String siteId) {
 
-	if (M_log.isDebugEnabled()) {
-	    M_log.debug("getMembershipsJobDao(" + siteId + ")");
+	if (log.isDebugEnabled()) {
+	    log.debug("getMembershipsJobDao({})", siteId);
 	}
 
 	List<Map<String, Object>> rows
@@ -170,7 +161,7 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 	if (size == 1) {
 	    return rows.get(0);
 	} else if (size > 1) {
-	    M_log.warn("Mutiple memberships jobs found for site '" + siteId + "'. Returning first ...");
+	    log.warn("Mutiple memberships jobs found for site '{}'. Returning first ...", siteId);
 	    return rows.get(0);
 	} else {
 	    return null;
@@ -592,12 +583,12 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 		fields[0] = siteId;
 		fields[1] = tool_id;
 
-		M_log.debug(statement);
+		log.debug(statement);
 		List rv = getResultSet(statement, fields, columns);
 
 		if ((rv != null) && (rv.size() > 0)) {
 			if ( rv.size() > 1 ) {
-				M_log.warn("Warning more than one row returned: "+statement);
+				log.warn("Warning more than one row returned: {}", statement);
 			}
 			return (Map<String, Object>) rv.get(0);
 		}
@@ -642,7 +633,7 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 
 		// TODO: Remove this as a parameter
 		if (!isMaintainRole) {
-	    M_log.debug("Not in maintain role. Nothing will be inserted. Returning null ...");
+	    log.debug("Not in maintain role. Nothing will be inserted. Returning null ...");
 	    return null;
 	}
 
@@ -685,12 +676,12 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 
 		final String sql = makeSql;
 
-		// System.out.println("Insert SQL="+sql);
+		log.debug("Insert SQL={}", sql);
 		final Object[] fields = foorm.getInsertObjects(newMapping);
 
 		Long retval = m_sql.dbInsert(null, sql, fields, LTI_ID);
 
-		M_log.debug("Count="+retval+" Insert="+sql);
+		log.debug("Count={} Insert={}", retval, sql);
 		return retval;
 	}
 
@@ -719,12 +710,12 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 			fields[0] = key;
 		}
 
-		M_log.debug(statement);
+		log.debug(statement);
 		List rv = getResultSet(statement, fields, columns);
 
 		if ((rv != null) && (rv.size() > 0)) {
 			if ( rv.size() > 1 ) {
-				M_log.warn("Warning more than one row returned: "+statement);
+				log.warn("Warning more than one row returned: {}", statement);
 			}
 			return (Map<String, Object>) rv.get(0);
 		}
@@ -801,7 +792,7 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 			if (pagedStatement != null)
 				statement = pagedStatement;
 		}
-		M_log.debug(statement);
+		log.debug(statement);
 		return getResultSet(statement, ((fields.size() > 0) ? fields.toArray() : null), columns);
 	}
 
@@ -859,7 +850,7 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 				statement += groupBy;
 			}
 		}
-		M_log.debug(statement);
+		log.debug(statement);
 		int ret = jdbcTemplate.queryForObject(statement, ((fields.size() > 0) ? fields.toArray() : null), Integer.class);
 		return ret;
 	}
@@ -901,7 +892,7 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 		}
 
 		int count = m_sql.dbWriteCount(statement, fields, null, null, false);
-		M_log.debug("Count="+count+" Delete="+statement);
+		log.debug("Count={} Delete={}", count, statement);
 		return count == 1;
 	}
 
@@ -973,13 +964,13 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 			foorm.setField(newMapping, LTI_SITE_ID, siteId);
 		}
 
-		// System.out.println("Upate="+sql);
+		log.debug("Upate={}", sql);
 		Object[] fields = foorm.getUpdateObjects(newMapping);
-		// System.out.println("Fields="+Arrays.toString(fields));
+		log.debug("Fields={}", Arrays.toString(fields));
 
 		int count = m_sql.dbWriteCount(sql, fields, null, null, false);
 
-		M_log.debug("Count="+count+" Update="+sql);
+		log.debug("Count={} Update={}", count, sql);
 		return count == 1;
 	}
 
@@ -999,12 +990,12 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 		Object [] fields = new Object[1];
 		fields[0] = resourceType;
 
-		M_log.debug(statement);
+		log.debug(statement);
 		List rv = getResultSet(statement, fields, columns);
 
 		if ((rv != null) && (rv.size() > 0)) {
 			if ( rv.size() > 1 ) {
-				M_log.warn("Warning more than one row returned: "+statement);
+				log.warn("Warning more than one row returned: {}", statement);
 			}
 			return (Map<String, Object>) rv.get(0);
 		}
@@ -1025,12 +1016,12 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 		Object [] fields = new Object[1];
 		fields[0] = consumerKey;
 
-		M_log.debug(statement);
+		log.debug(statement);
 		List rv = getResultSet(statement, fields, columns);
 
 		if ((rv != null) && (rv.size() > 0)) {
 			if ( rv.size() > 1 ) {
-				M_log.warn("Warning more than one row returned: "+statement);
+				log.warn("Warning more than one row returned: {}", statement);
 			}
 			return (Map<String, Object>) rv.get(0);
 		}
@@ -1041,9 +1032,9 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 	// Utility to return a resultset
 	public List<Map<String, Object>> getResultSet(String statement, Object[] fields,
 			final String[] columns) {
-		// System.out.println("getResultSet sql="+statement+" fields="+fields);
+		log.debug("getResultSet sql={} fields={}", statement, fields);
 		List rv = jdbcTemplate.query(statement, fields, new FoormMapRowMapper(columns));
-		// System.out.println("getResultSet size="+rv.size()+" sql="+statement);
+		log.debug("getResultSet size={} sql={}", rv.size(), statement);
 
 		return (List<Map<String, Object>>) rv;
 	}

@@ -20,6 +20,7 @@ package org.sakaiproject.sitestats.tool.wicket.components;
 
 import java.awt.image.BufferedImage;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.wicket.request.resource.IResource;
 import org.apache.wicket.markup.html.image.Image;
 import org.apache.wicket.request.resource.DynamicImageResource;
@@ -33,6 +34,7 @@ import org.apache.wicket.util.time.Duration;
  * @author Nuno Fernandes
  */
 @SuppressWarnings("serial")
+@Slf4j
 public class ChartImage extends Panel {
 	private static final long 		serialVersionUID = 1L;
 	private transient BufferedImage	bufferedImage = null;
@@ -52,7 +54,7 @@ public class ChartImage extends Panel {
 	}
 
 	public BufferedImage getBufferedImage() {
-		System.out.println("getBufferedImage()");
+		log.debug("getBufferedImage()");
 		return bufferedImage;
 	}
 

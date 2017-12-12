@@ -24,8 +24,9 @@ package org.sakaiproject.content.impl.test;
 import java.time.Instant;
 import java.util.*;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+
 import org.sakaiproject.content.api.ContentCollection;
 import org.sakaiproject.content.api.ContentEntity;
 import org.sakaiproject.content.api.ContentHostingHandler;
@@ -40,8 +41,6 @@ import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.time.api.Time;
 import org.sakaiproject.time.cover.TimeService;
 import org.sakaiproject.util.BaseResourcePropertiesEdit;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
 
 /**
  * MockContentEntity
@@ -49,8 +48,6 @@ import org.w3c.dom.Element;
  */
 public class MockContentEntity implements ContentEntity, GroupAwareEdit
 {
-	private static final Logger logger = LoggerFactory.getLogger(MockContentEntity.class);
-	
 	protected String entityId;
 	protected String containingCollectionId;
 	protected String reference;
@@ -508,6 +505,4 @@ public class MockContentEntity implements ContentEntity, GroupAwareEdit
 		this.retractDate = TimeService.newTime(time.toEpochMilli());
 		
 	}
-
-
 }

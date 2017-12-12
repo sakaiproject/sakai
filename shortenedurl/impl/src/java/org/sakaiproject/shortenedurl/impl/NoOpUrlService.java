@@ -15,8 +15,8 @@
  */
 package org.sakaiproject.shortenedurl.impl;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.shortenedurl.api.ShortenedUrlService;
 
 /**
@@ -25,10 +25,9 @@ import org.sakaiproject.shortenedurl.api.ShortenedUrlService;
  * @author Steve Swinsburg (steve.swinsburg@gmail.com)
  *
  */
+@Slf4j
 public class NoOpUrlService implements ShortenedUrlService {
 
-	private static Logger log = LoggerFactory.getLogger(NoOpUrlService.class);
-	
 	public String shorten(String url) {
 		log.info("NoOpUrlService returning original url");
 		return url;

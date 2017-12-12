@@ -20,10 +20,24 @@
  **********************************************************************************/
 package org.sakaiproject.conditions.impl;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
+import java.util.Vector;
+
+import lombok.extern.slf4j.Slf4j;
 
 import org.apache.commons.collections.Predicate;
 import org.apache.commons.collections.PredicateUtils;
+
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.GroupNotDefinedException;
 import org.sakaiproject.authz.api.Member;
@@ -50,14 +64,12 @@ import org.sakaiproject.exception.OverQuotaException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.ServerOverloadException;
 import org.sakaiproject.exception.TypeException;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 
 /**
  * @author zach
  *
  */
+@Slf4j
 public class ResourceReleaseRule implements Rule, Obsoletable {
 	private static final String SATISFIES_RULE = "resource.satisfies.rule";
 	private static final long LENGTH_OF_A_DAY = 86400000; // length of a day in milliseconds
@@ -70,10 +82,10 @@ public class ResourceReleaseRule implements Rule, Obsoletable {
 		this.chs = chs;
 	}
 
-  private ConditionService conditionService = (ConditionService) ComponentManager.get("org.sakaiproject.conditions.api.ConditionService");
-  public void setConditionService(ConditionService conditionService) {
-    this.conditionService = conditionService;
-  }
+	private ConditionService conditionService = (ConditionService) ComponentManager.get("org.sakaiproject.conditions.api.ConditionService");
+	public void setConditionService(ConditionService conditionService) {
+		this.conditionService = conditionService;
+	}
 		
 	private SecurityService securityService = (SecurityService)ComponentManager.get("org.sakaiproject.authz.api.SecurityService");
 	public void setSecurityService(SecurityService securityService) {
@@ -185,23 +197,17 @@ public class ResourceReleaseRule implements Rule, Obsoletable {
 					chs.commitResource((ContentResourceEdit)resource, NotificationService.NOTI_NONE);
 				}
 			} catch (PermissionException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				log.error(e.getMessage(), e);
 			} catch (IdUnusedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				log.error(e.getMessage(), e);
 			} catch (TypeException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				log.error(e.getMessage(), e);
 			} catch (InUseException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				log.error(e.getMessage(), e);
 			} catch (OverQuotaException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				log.error(e.getMessage(), e);
 			} catch (ServerOverloadException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				log.error(e.getMessage(), e);
 			} finally {
 				securityService.popAdvisor();
 			}
@@ -226,23 +232,17 @@ public class ResourceReleaseRule implements Rule, Obsoletable {
 					chs.commitResource((ContentResourceEdit)resource, NotificationService.NOTI_NONE);
 				}
 			} catch (PermissionException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				log.error(e.getMessage(), e);
 			} catch (IdUnusedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				log.error(e.getMessage(), e);
 			} catch (TypeException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				log.error(e.getMessage(), e);
 			} catch (InUseException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				log.error(e.getMessage(), e);
 			} catch (OverQuotaException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				log.error(e.getMessage(), e);
 			} catch (ServerOverloadException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				log.error(e.getMessage(), e);
 			} finally {
 				securityService.popAdvisor();
 			}
@@ -302,26 +302,19 @@ public class ResourceReleaseRule implements Rule, Obsoletable {
 				
 				
 			} catch (GroupNotDefinedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				log.error(e.getMessage(), e);
 			} catch (IdUnusedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				log.error(e.getMessage(), e);
 			} catch (TypeException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				log.error(e.getMessage(), e);
 			} catch (PermissionException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				log.error(e.getMessage(), e);
 			} catch (InUseException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				log.error(e.getMessage(), e);
 			} catch (OverQuotaException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				log.error(e.getMessage(), e);
 			} catch (ServerOverloadException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				log.error(e.getMessage(), e);
 			} finally {
 				securityService.popAdvisor();
 			}
@@ -448,14 +441,11 @@ public class ResourceReleaseRule implements Rule, Obsoletable {
 				}
 			}
 		} catch (InstantiationException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			log.error(e.getMessage(), e);
 		} catch (IllegalAccessException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			log.error(e.getMessage(), e);
 		} catch (ClassNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			log.error(e.getMessage(), e);
 		}
 		return rv;
 	}

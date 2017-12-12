@@ -21,10 +21,8 @@
 
 package edu.amc.sakai.user;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.novell.ldap.LDAPEntry;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Essentially a null impl, which always returns an empty
@@ -33,11 +31,9 @@ import com.novell.ldap.LDAPEntry;
  * @author Dan McCallum, Unicon
 
  */
+@Slf4j
 public class EmptyStringUserTypeMapper extends StringUserTypeMapper {
-	
-	/** Class-specific logger */
-	private static Logger M_log = LoggerFactory.getLogger(EmptyStringUserTypeMapper.class);
-	
+
 	/**
 	 * Initializes the cached user type <code>String</code> to an
 	 * empty <code>String</code>
@@ -57,8 +53,8 @@ public class EmptyStringUserTypeMapper extends StringUserTypeMapper {
 	 */
 	@Override
 	public void setUserType(String userType) {
-		if ( M_log.isWarnEnabled() ) {
-			M_log.warn("Ignoring setUserType() call. EmptyStringUserTypeMapper cannot be reconfigured. Proposed user type value [" + userType + "]");
+		if ( log.isWarnEnabled() ) {
+			log.warn("Ignoring setUserType() call. EmptyStringUserTypeMapper cannot be reconfigured. Proposed user type value [" + userType + "]");
 		}
 	}
 

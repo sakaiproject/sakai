@@ -20,21 +20,20 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.springframework.validation.Errors;
+import org.springframework.validation.Validator;
+
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.tool.api.Placement;
 import org.sakaiproject.tool.api.ToolManager;
-import org.springframework.validation.Errors;
-import org.springframework.validation.Validator;
 
+@Slf4j
 public class UserValidator implements Validator {
-
-	private static Logger m_log  = LoggerFactory.getLogger(UserValidator.class);
 
 	// prefix for error messages - indicates they are to be pulled from tool configuration rather than a resource bundle
 	private final String TOOL_CONFIG_PREFIX = "toolconfig_";
@@ -68,30 +67,30 @@ public class UserValidator implements Validator {
 	
 	public void validate(Object obj, Errors errors) {
 		RetUser retUser = (RetUser)obj;
-		m_log.debug("validating user " + retUser.getEmail());
+		log.debug("validating user " + retUser.getEmail());
 
 		if (retUser.getEmail() == null || "".equals(retUser.getEmail()))
 		{
-			m_log.debug("no email provided");
+			log.debug("no email provided");
 			errors.reject("noemailprovided", "no email provided");
 			return;
 		}
 		
 		Collection<User> c = this.userDirectoryService.findUsersByEmail(retUser.getEmail().trim());
 		if (c.size()>1) {
-			m_log.debug("more than one email!");
+			log.debug("more than one email!");
 			errors.reject("morethanone","more than one email");
 			return;
 		} else if (c.size()==0) {
-			m_log.debug("no such email");
+			log.debug("no such email");
 			errors.reject("nosuchuser","no such user");
 			return;
 		}
 		Iterator<User> i = c.iterator();
 		User user = (User)i.next();
-		m_log.debug("got user " + user.getId() + " of type " + user.getType());
+		log.debug("got user " + user.getId() + " of type " + user.getType());
 		if (securityService.isSuperUser(user.getId())) {
-			m_log.warn("tryng to change superuser password");
+			log.warn("tryng to change superuser password");
 			rejectWrongType(errors);
 			return;
 		}
@@ -102,7 +101,7 @@ public class UserValidator implements Validator {
 			String[] rolesOld = serverConfigurationService.getStrings("resetRoles");
 			if (rolesOld != null)
 			{
-				m_log.warn("Found the resetRoles property; it is deprecated in favour of accountValidator.accountTypes.accept");
+				log.warn("Found the resetRoles property; it is deprecated in favour of accountValidator.accountTypes.accept");
 				if (roles == null)
 				{
 					roles = rolesOld;
@@ -113,7 +112,7 @@ public class UserValidator implements Validator {
 		    }
 		    List<String> rolesL = Arrays.asList(roles);
 		    if (!rolesL.contains(user.getType())) {
-		        m_log.warn("this is a type don't change");
+		        log.warn("this is a type don't change");
 		        rejectWrongType(errors);
 		        return;
 		    }

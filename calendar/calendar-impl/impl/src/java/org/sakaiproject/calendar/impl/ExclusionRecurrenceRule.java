@@ -28,30 +28,30 @@ import java.util.Stack;
 import java.util.TimeZone;
 import java.util.Vector;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+
+import org.xml.sax.Attributes;
+import org.xml.sax.ContentHandler;
+import org.xml.sax.SAXException;
+
 import org.sakaiproject.calendar.api.RecurrenceRule;
 import org.sakaiproject.time.api.Time;
 import org.sakaiproject.time.api.TimeRange;
 import org.sakaiproject.time.cover.TimeService;
 import org.sakaiproject.util.DefaultEntityHandler;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-import org.xml.sax.Attributes;
-import org.xml.sax.ContentHandler;
-import org.xml.sax.SAXException;
 
 /**
 * <p>ExclusionRecurrenceRule is a rule which excludes specific time ranges from a list of instances.</p>
 */
+@Slf4j
 public class ExclusionRecurrenceRule
 	implements RecurrenceRule
 {
-	/** Our logger. */
-	private static Logger M_log = LoggerFactory.getLogger(ExclusionRecurrenceRule.class);
-
 	/** The list of TimeRange values to exclude. */
 	protected List m_ranges = null;
 
@@ -102,7 +102,7 @@ public class ExclusionRecurrenceRule
 				{
 					m_ranges.add(TimeService.newTimeRange(element.getAttribute("range")));
 				}
-				catch (Exception e) { M_log.warn("set: while reading time range: " + e); }
+				catch (Exception e) { log.warn("set: while reading time range: " + e); }
 			}
 		}
 
@@ -243,7 +243,7 @@ public class ExclusionRecurrenceRule
 					}
 					catch (Exception e)
 					{
-						M_log.warn("set: while reading time range: " + e);
+						log.warn("set: while reading time range: " + e);
 					}
 				}
 

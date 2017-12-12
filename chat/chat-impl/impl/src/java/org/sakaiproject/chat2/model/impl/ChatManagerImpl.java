@@ -21,13 +21,13 @@
 
 package org.sakaiproject.chat2.model.impl;
 
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
+
 import java.io.File;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.lang.management.ManagementFactory;
 import java.net.URL;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
@@ -46,36 +46,37 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
+import lombok.Getter;
+import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.DateUtils;
-import org.hibernate.Query;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
 import org.hibernate.Criteria;
+import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.criterion.Expression;
 import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Projections;
+
 import org.jgroups.Address;
-import org.jgroups.Channel;
 import org.jgroups.JChannel;
 import org.jgroups.Message;
 import org.jgroups.Receiver;
 import org.jgroups.View;
-import org.jgroups.jmx.JmxConfigurator;
+
 import org.sakaiproject.authz.api.FunctionManager;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.chat2.model.ChatChannel;
 import org.sakaiproject.chat2.model.ChatManager;
 import org.sakaiproject.chat2.model.SimpleUser;
 import org.sakaiproject.chat2.model.TransferableChatMessage;
-import org.sakaiproject.chat2.model.TransferableChatMessage.MessageType;
 import org.sakaiproject.chat2.model.ChatFunctions;
 import org.sakaiproject.chat2.model.ChatMessage;
 import org.sakaiproject.chat2.model.DeleteMessage;
 import org.sakaiproject.chat2.model.MessageDateString;
 import org.sakaiproject.component.api.ServerConfigurationService;
-import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.Summary;
 import org.sakaiproject.event.api.Event;
@@ -100,25 +101,15 @@ import org.springframework.orm.hibernate4.support.HibernateDaoSupport;
 import org.springframework.transaction.support.TransactionSynchronizationAdapter;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 
-import com.google.common.cache.Cache;
-import com.google.common.cache.CacheBuilder;
-import com.google.common.cache.CacheLoader;
-
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.Getter;
-import lombok.Setter;
-
 /**
  * 
  * @author andersjb
  *
  */
+@Slf4j
 public class ChatManagerImpl extends HibernateDaoSupport implements ChatManager, Receiver {
 
     private int messagesMax = 100;
-
-    protected final transient Logger logger = LoggerFactory.getLogger(getClass());
 
     @Getter @Setter private ChatChannel defaultChannelSettings;
 
@@ -170,7 +161,7 @@ public class ChatManagerImpl extends HibernateDaoSupport implements ChatManager,
     protected void initDao() throws Exception {
         super.initDao();
         getHibernateTemplate().setCacheQueries(true);
-        logger.info("initDao template " + getHibernateTemplate());
+        log.info("initDao template " + getHibernateTemplate());
     }
 
     /**
@@ -180,7 +171,7 @@ public class ChatManagerImpl extends HibernateDaoSupport implements ChatManager,
      */
     protected void init() throws Exception
     {
-        logger.info("init()");
+        log.info("init()");
 
         try {
 
@@ -219,17 +210,17 @@ public class ChatManagerImpl extends HibernateDaoSupport implements ChatManager,
                     // Pick up the config file from sakai home if it exists
                     File jgroupsConfig = new File(serverConfigurationService.getSakaiHomePath() + File.separator + "jgroups-chat-config.xml");
                     if (jgroupsConfig.exists()) {
-                        logger.debug("Using custom jgroups config file: {}", jgroupsConfig.getAbsolutePath());
+                        log.debug("Using custom jgroups config file: {}", jgroupsConfig.getAbsolutePath());
                         clusterChannel = new JChannel(jgroupsConfig);
                     } else if((jgroupsConfigURL = this.getClass().getClassLoader().getResource("jgroups-config.xml")) != null) { //pick up our default file
-                        logger.debug("Using default jgroups config file: {}", jgroupsConfigURL);
+                        log.debug("Using default jgroups config file: {}", jgroupsConfigURL);
                         clusterChannel = new JChannel(jgroupsConfigURL);
                     } else {
-                        logger.debug("No jgroups config file. Using jgroup defaults.");
+                        log.debug("No jgroups config file. Using jgroup defaults.");
                         clusterChannel = new JChannel();
                     }
 
-                    logger.debug("JGROUPS PROTOCOL: {}", clusterChannel.getProtocolStack().printProtocolSpecAsXML());
+                    log.debug("JGROUPS PROTOCOL: {}", clusterChannel.getProtocolStack().printProtocolSpecAsXML());
 
                     clusterChannel.setReceiver(this);
                     clusterChannel.connect(channelId);
@@ -238,12 +229,12 @@ public class ChatManagerImpl extends HibernateDaoSupport implements ChatManager,
                     //JmxConfigurator.registerChannel(clusterChannel, ManagementFactory.getPlatformMBeanServer(), "DefaultDomain:name=JGroups");
                     clustered = true;
 
-                    logger.info("Chat is connected on JGroups channel '" + channelId + "'"); 
+                    log.info("Chat is connected on JGroups channel '" + channelId + "'"); 
                 } else {
-                    logger.info("No 'chat.cluster.channel' specified in sakai.properties. JGroups will not be used and chat messages will not be replicated."); 
+                    log.info("No 'chat.cluster.channel' specified in sakai.properties. JGroups will not be used and chat messages will not be replicated."); 
                 }
             } catch (Exception e) {
-                logger.error("Error creating JGroups channel. Chat messages will now NOT BE KEPT IN SYNC", e);
+                log.error("Error creating JGroups channel. Chat messages will now NOT BE KEPT IN SYNC", e);
                 
                 if (clusterChannel != null && clusterChannel.isConnected()) {
                     // This calls disconnect() first
@@ -253,7 +244,7 @@ public class ChatManagerImpl extends HibernateDaoSupport implements ChatManager,
 
         }
         catch (Exception e) {
-            logger.warn("Error with ChatManager.init()", e);
+            log.warn("Error with ChatManager.init()", e);
         }
 
     }
@@ -268,7 +259,7 @@ public class ChatManagerImpl extends HibernateDaoSupport implements ChatManager,
             clusterChannel.close();
         }
 
-        logger.info("destroy()");
+        log.info("destroy()");
     }
 
     /**
@@ -524,14 +515,14 @@ public class ChatManagerImpl extends HibernateDaoSupport implements ChatManager,
             String body      = (String) values[4];
             String migratedId= (String) values[5];
 
-            logger.debug("migrate message: "+messageId+", "+channelId);
+            log.debug("migrate message: "+messageId+", "+channelId);
 
 
             ChatMessage message = getMigratedMessage(messageId);
 
 
             if (owner == null) {
-                logger.warn("can't migrate message, owner is null. messageId: ["+messageId
+                log.warn("can't migrate message, owner is null. messageId: ["+messageId
                         +"] channelId: ["+channelId+"]");
                 return;
             }
@@ -556,7 +547,7 @@ public class ChatManagerImpl extends HibernateDaoSupport implements ChatManager,
 
         } catch (Exception e) {
 
-            logger.error("migrateMessage: "+e);
+            log.error("migrateMessage: "+e);
 
         }
 
@@ -750,7 +741,7 @@ public class ChatManagerImpl extends HibernateDaoSupport implements ChatManager,
                 channels.add(channel);
             }
             catch (PermissionException e) {
-                logger.debug("Ignoring exception since it shouldn't be thrown here as we're not checking");
+                log.debug("Ignoring exception since it shouldn't be thrown here as we're not checking");
             }
 
         }
@@ -950,7 +941,7 @@ public class ChatManagerImpl extends HibernateDaoSupport implements ChatManager,
             query.setString("placement", placement);
             query.executeUpdate();
         } catch(Exception e) {
-            logger.warn(e.getMessage());
+            log.warn(e.getMessage());
         }
     }
 
@@ -969,7 +960,7 @@ public class ChatManagerImpl extends HibernateDaoSupport implements ChatManager,
                 updateChannel(channel, false);
             }
             catch (PermissionException e) {
-                logger.debug("Ignoring PermissionException since it is unchecked here.");
+                log.debug("Ignoring PermissionException since it is unchecked here.");
             }
         }
     }
@@ -1039,7 +1030,7 @@ public class ChatManagerImpl extends HibernateDaoSupport implements ChatManager,
                 }
             }
             catch (UserNotDefinedException e) {
-                logger.warn("Skipping the chat message for user: " + item.getOwner() + " since they cannot be found");
+                log.warn("Skipping the chat message for user: " + item.getOwner() + " since they cannot be found");
             }
         }
         if ( pubDate != null ) {
@@ -1125,13 +1116,13 @@ public class ChatManagerImpl extends HibernateDaoSupport implements ChatManager,
                             displayName += " (" + userDirectoryService.getUser(sessionUserId).getDisplayName() + ")";
                         }
                     }catch(Exception e){
-                        logger.error("Error getting user "+sessionUserId, e);
+                        log.error("Error getting user "+sessionUserId, e);
                     }
 
                     presentUsers.add(new SimpleUser(userId, formattedText.escapeHtml(displayName, true)));
                 }
                 else {
-                    logger.debug("Heartbeat not found for sessionId {}, so not adding to presentUsers", us.getId());
+                    log.debug("Heartbeat not found for sessionId {}, so not adding to presentUsers", us.getId());
                 }
             }
             
@@ -1183,7 +1174,7 @@ public class ChatManagerImpl extends HibernateDaoSupport implements ChatManager,
                             }
                         }
                     } catch(Exception e){
-                        logger.error("Error getting messages in channel "+channelId+" for session_key "+sessionKey, e);
+                        log.error("Error getting messages in channel "+channelId+" for session_key "+sessionKey, e);
     }
 
                     //clear all messages for this user
@@ -1224,7 +1215,7 @@ public class ChatManagerImpl extends HibernateDaoSupport implements ChatManager,
     
             return sessionId+":"+sessionUser;
         } catch(Exception e){
-            logger.error("Error getting current session key", e);
+            log.error("Error getting current session key", e);
         }
         return null;
     }
@@ -1299,22 +1290,22 @@ public class ChatManagerImpl extends HibernateDaoSupport implements ChatManager,
 
             switch(message.getType()){
             case CHAT : 
-                logger.debug("Received message {} from cluster ...", id);
+                log.debug("Received message {} from cluster ...", id);
                 addMessageToMap(message);
                 break;
             case HEARTBEAT :
-                logger.debug("Received heartbeat {} - {} from cluster ...", id, channelId);
+                log.debug("Received heartbeat {} - {} from cluster ...", id, channelId);
                 addHeartBeat(channelId, id);
                 break;
             case CLEAR :
-                logger.debug("Received clear message {} from cluster ...", id);
+                log.debug("Received clear message {} from cluster ...", id);
                 //as guava cache is synchronized, maybe this is not necessary
                 synchronized (messageMap){
                     messageMap.invalidate(id);
                 }
                 break;
             case REMOVE :
-                logger.debug("Received remove message {} from cluster ...", id);
+                log.debug("Received remove message {} from cluster ...", id);
                 addMessageToMap(message); 
                 break;
             }
@@ -1347,9 +1338,9 @@ public class ChatManagerImpl extends HibernateDaoSupport implements ChatManager,
                         }
                         channelMap.get(channelId).add(msg);
     
-                        logger.debug("Added chat message to channel={}, sessionKey={}", channelId, sessionKey);
+                        log.debug("Added chat message to channel={}, sessionKey={}", channelId, sessionKey);
                     } catch(Exception e){
-                        logger.warn("Failed to add chat message to channel={}, sessionKey={}", channelId, sessionKey);
+                        log.warn("Failed to add chat message to channel={}, sessionKey={}", channelId, sessionKey);
                     }
                 }
             }
@@ -1375,7 +1366,7 @@ public class ChatManagerImpl extends HibernateDaoSupport implements ChatManager,
                         .build();
             }).put(sessionId, ret);
         } catch(Exception e){
-            logger.error("Error adding heartbet in channel : "+channelId+" and session_key : "+sessionKey);
+            log.error("Error adding heartbet in channel : "+channelId+" and session_key : "+sessionKey);
         }
         return ret;
     }
@@ -1398,11 +1389,11 @@ public class ChatManagerImpl extends HibernateDaoSupport implements ChatManager,
     private void sendToCluster(TransferableChatMessage message){
         if (clustered) {
             try {
-                logger.debug("Sending message ({}) id:{}, channelId:{} to cluster ...", message.getType(), message.getId(), message.getChannelId());
+                log.debug("Sending message ({}) id:{}, channelId:{} to cluster ...", message.getType(), message.getId(), message.getChannelId());
                 Message msg = new Message(null, message);
                 clusterChannel.send(msg);
             } catch (Exception e) {
-                logger.error("Error sending JGroups message", e);
+                log.error("Error sending JGroups message", e);
             }
         }
     }

@@ -24,9 +24,13 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import lombok.extern.slf4j.Slf4j;
 import org.hibernate.Query;
 import org.hibernate.type.LongType;
 import org.hibernate.type.StringType;
+import org.springframework.orm.hibernate4.HibernateCallback;
+import org.springframework.orm.hibernate4.support.HibernateDaoSupport;
+
 import org.sakaiproject.api.app.messageforums.Rank;
 import org.sakaiproject.api.app.messageforums.RankImage;
 import org.sakaiproject.api.app.messageforums.RankManager;
@@ -47,13 +51,9 @@ import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.util.Validator;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.orm.hibernate4.HibernateCallback;
-import org.springframework.orm.hibernate4.support.HibernateDaoSupport;
 
+@Slf4j
 public class RankManagerImpl extends HibernateDaoSupport implements RankManager {
-    private static final Logger LOG = LoggerFactory.getLogger(RankManagerImpl.class);
     private static final String QUERY_BY_CONTEXT_ID_USERID = "findRanksByContextIdUserID";
     private static final String QUERY_BY_CONTEXT_ID_NUM_POSTS_BASED = "findRanksByContextIdBasedOnNumPost";
     private static final String QUERY_BY_CONTEXT_ID = "findRanksByContextId";
@@ -75,7 +75,7 @@ public class RankManagerImpl extends HibernateDaoSupport implements RankManager 
     private ToolManager toolManager;
     
     public void init() {
-        LOG.info("init()");
+        log.info("init()");
     }
 
     public EventTrackingService getEventTrackingService() {
@@ -119,7 +119,7 @@ public class RankManagerImpl extends HibernateDaoSupport implements RankManager 
     public void saveRank(Rank rank) {
         if (!isRanksEnabled())
         {
-            LOG.warn("saveRank invoked, but ranks are disabled");
+            log.warn("saveRank invoked, but ranks are disabled");
             return;
         }
         rank.setUuid(getNextUuid());
@@ -129,12 +129,12 @@ public class RankManagerImpl extends HibernateDaoSupport implements RankManager 
         rank.setModifiedBy(getCurrentUser());
         rank.setContextId(getContextId());
         getHibernateTemplate().saveOrUpdate(rank);
-        if (LOG.isDebugEnabled()) LOG.debug("saveRank executed for rank = " + rank.getTitle() + " contextid = " + rank.getContextId());
+        if (log.isDebugEnabled()) log.debug("saveRank executed for rank = " + rank.getTitle() + " contextid = " + rank.getContextId());
     }
 
     public List getRankList(final String contextId) {
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("getRank(contextId: " + contextId + ")");
+        if (log.isDebugEnabled()) {
+            log.debug("getRank(contextId: " + contextId + ")");
         }
         if (contextId == null) {
             throw new IllegalArgumentException("Null Argument");
@@ -153,8 +153,8 @@ public class RankManagerImpl extends HibernateDaoSupport implements RankManager 
     }
 
     public List findRanksByContextIdOrderByMinPostDesc(final String contextId) {
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("getRank(contextId: " + contextId + ")");
+        if (log.isDebugEnabled()) {
+            log.debug("getRank(contextId: " + contextId + ")");
         }
 
         if (contextId == null) {
@@ -210,15 +210,15 @@ public class RankManagerImpl extends HibernateDaoSupport implements RankManager 
         image.setModified(new Date());
         image.setModifiedBy(getCurrentUser());
 
-        LOG.info("createRankImage:  Rank Image  " + image.getUuid() + " created successfully");
+        log.info("createRankImage:  Rank Image  " + image.getUuid() + " created successfully");
         return image;
     }
 
     public void removeRank(Rank rank) {
-        LOG.info("removeRank(Rank rank)");
+        log.info("removeRank(Rank rank)");
         if (!isRanksEnabled())
         {
-            LOG.warn("removeRank invoked, but ranks are disabled");
+            log.warn("removeRank invoked, but ranks are disabled");
             return;
         }
         if (rank.getRankImage() != null) {
@@ -228,24 +228,24 @@ public class RankManagerImpl extends HibernateDaoSupport implements RankManager 
     }
 
     public void removeImageAttachmentObject(RankImage o) {
-        LOG.info("removeImageAttachmentObject(RankImage o)");
+        log.info("removeImageAttachmentObject(RankImage o)");
         if (!isRanksEnabled())
         {
-            LOG.warn("removeImageAttachmentObject invoked, but ranks are disabled");
+            log.warn("removeImageAttachmentObject invoked, but ranks are disabled");
             return;
         }
         getHibernateTemplate().delete(o);
     }
 
     public void removeImageAttachToRank(final Rank rank, final RankImage imageAttach) {
-        LOG.info("removeImageAttachToRank(final Rank rank, final RankImage imageAttach)");
+        log.info("removeImageAttachToRank(final Rank rank, final RankImage imageAttach)");
         if (rank == null || imageAttach == null) {
             throw new IllegalArgumentException("Null Argument");
         }
 
         if (!isRanksEnabled())
         {
-            LOG.warn("removeImageAttachToRank invoked, but ranks are disabled");
+            log.warn("removeImageAttachToRank invoked, but ranks are disabled");
             return;
         }
 
@@ -261,7 +261,7 @@ public class RankManagerImpl extends HibernateDaoSupport implements RankManager 
                         contentHostingService.removeResource(returnedAttach.getAttachmentId());
                         session.delete(returnedAttach);
                     } catch (PermissionException | IdUnusedException | TypeException | InUseException e) {
-                        e.printStackTrace();
+                        log.error(e.getMessage(), e);
                     }
             }
             return null;
@@ -270,8 +270,8 @@ public class RankManagerImpl extends HibernateDaoSupport implements RankManager 
     }
 
     public Rank getRankById(final Long rankId) {
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("getRankById: " + rankId + ")");
+        if (log.isDebugEnabled()) {
+            log.debug("getRankById: " + rankId + ")");
         }
 
         if (rankId == null) {
@@ -281,7 +281,7 @@ public class RankManagerImpl extends HibernateDaoSupport implements RankManager 
         if (!isRanksEnabled())
         {
             // This is 'warn' because it implies some code is aware of a rank, but ranks are disabled
-            LOG.warn("getRankById invoked, but ranks are disabled");
+            log.warn("getRankById invoked, but ranks are disabled");
             return null;
         }
 
@@ -298,7 +298,7 @@ public class RankManagerImpl extends HibernateDaoSupport implements RankManager 
     public RankImage createRankImageAttachmentObject(String attachId, String name) {
         if (!isRanksEnabled())
         {
-            LOG.warn("createRankImageAttachmentObject invoked, but ranks are disabled");
+            log.warn("createRankImageAttachmentObject invoked, but ranks are disabled");
             return null;
         }
         try {
@@ -324,7 +324,7 @@ public class RankManagerImpl extends HibernateDaoSupport implements RankManager 
 
             return attach;
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error(e.getMessage(), e);
             return null;
         }
     }
@@ -337,7 +337,7 @@ public class RankManagerImpl extends HibernateDaoSupport implements RankManager 
 
         if (!isRanksEnabled())
         {
-            LOG.warn("addImageAttachToRank invoked, but ranks are disabled");
+            log.warn("addImageAttachToRank invoked, but ranks are disabled");
             return;
         }
 
@@ -367,8 +367,8 @@ public class RankManagerImpl extends HibernateDaoSupport implements RankManager 
     }
 
     public List findRanksByContextIdUserId(final String contextId, final String userid) {
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("findRanksByContextIdBasedOnRoles(contextId: " + contextId + ")");
+        if (log.isDebugEnabled()) {
+            log.debug("findRanksByContextIdBasedOnRoles(contextId: " + contextId + ")");
         }
 
         if (contextId == null) {
@@ -391,8 +391,8 @@ public class RankManagerImpl extends HibernateDaoSupport implements RankManager 
     }
 
     public List findRanksByContextIdBasedOnNumPost(final String contextId) {
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("findRanksByContextIdBasedOnNumPost(contextId: " + contextId + ")");
+        if (log.isDebugEnabled()) {
+            log.debug("findRanksByContextIdBasedOnNumPost(contextId: " + contextId + ")");
         }
 
         if (contextId == null) {

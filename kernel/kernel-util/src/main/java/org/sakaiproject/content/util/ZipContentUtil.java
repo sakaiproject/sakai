@@ -36,9 +36,10 @@ import java.util.zip.ZipOutputStream;
 
 import javax.activation.MimetypesFileTypeMap;
 
+import lombok.extern.slf4j.Slf4j;
+
 import org.apache.commons.io.IOUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentCollection;
 import org.sakaiproject.content.api.ContentCollectionEdit;
@@ -60,9 +61,8 @@ import org.sakaiproject.util.Resource;
 import org.sakaiproject.util.ResourceLoader;
 
 @SuppressWarnings({ "deprecation", "restriction" })
+@Slf4j
 public class ZipContentUtil {
-	
-	protected static final Logger LOG = LoggerFactory.getLogger(ZipContentUtil.class);
 	private static final String ZIP_EXTENSION = ".zip";
 	private static final int BUFFER_SIZE = 32000;
 	private static final MimetypesFileTypeMap mime = new MimetypesFileTypeMap();
@@ -89,7 +89,7 @@ public class ZipContentUtil {
         }
         if (MAX_ZIP_EXTRACT_FILES <= 0) {
             MAX_ZIP_EXTRACT_FILES = MAX_ZIP_EXTRACT_FILES_DEFAULT; // any less than this is useless so probably a mistake
-            LOG.warn("content.zip.expand.maxfiles is set to a value less than or equal to 0, defaulting to "+MAX_ZIP_EXTRACT_FILES_DEFAULT);
+            log.warn("content.zip.expand.maxfiles is set to a value less than or equal to 0, defaulting to "+MAX_ZIP_EXTRACT_FILES_DEFAULT);
         }
         return MAX_ZIP_EXTRACT_FILES;
     }
@@ -182,11 +182,11 @@ public class ZipContentUtil {
 		}
 		catch (PermissionException pE){
 			addAlert(toolSession, rb.getString("permission_error_zip"));
-			LOG.warn(pE.getMessage(), pE);
+			log.warn(pE.getMessage(), pE);
 		}
 		catch (Exception e) {
 			addAlert(toolSession, rb.getString("generic_error_zip"));
-			LOG.error(e.getMessage(), e);
+			log.error(e.getMessage(), e);
 		} 
 		finally {
 			if (fis != null) {
@@ -197,7 +197,7 @@ public class ZipContentUtil {
 			}
 			if (temp != null && temp.exists()) { 
 				if (!temp.delete()) {
-					LOG.warn("failed to remove temp file");
+					log.warn("failed to remove temp file");
 				}
 			}
 		}
@@ -253,7 +253,7 @@ public class ZipContentUtil {
 				try {
 					charset = Charset.forName(charsetName);
 				} catch (IllegalCharsetNameException | UnsupportedCharsetException e) {
-					LOG.warn(String.format("%s is not a legal charset.", charsetName));
+					log.warn(String.format("%s is not a legal charset.", charsetName));
 					continue;
 				}
 				ZipFile zipFile = null;
@@ -276,8 +276,8 @@ public class ZipContentUtil {
 					extracted = true;
 					break;
 				} catch (Exception e) {
-					e.printStackTrace();
-					LOG.warn(String.format("Cannot extract archive %s with charset %s.", referenceId, charset));
+					log.error(e.getMessage(), e);
+					log.warn(String.format("Cannot extract archive %s with charset %s.", referenceId, charset));
 				} finally {
 					if (zipFile != null){
 						zipFile.close();
@@ -285,10 +285,10 @@ public class ZipContentUtil {
 				}
 			}
 			if (!extracted) {
-				LOG.warn(String.format("Cannot extract archives %s with any charset %s.", referenceId, getZipCharsets()));
+				log.warn(String.format("Cannot extract archives %s with any charset %s.", referenceId, getZipCharsets()));
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.error(e.getMessage(), e);
 		} finally {
 			temp.delete();	
 		}
@@ -337,7 +337,7 @@ public class ZipContentUtil {
 				try {
 					charset = Charset.forName(charsetName);
 				} catch (IllegalCharsetNameException | UnsupportedCharsetException e) {
-					LOG.warn(String.format("%s is not a legal charset.", charsetName));
+					log.warn(String.format("%s is not a legal charset.", charsetName));
 					continue;
 				}
 				ZipFile zipFile = null;
@@ -355,7 +355,7 @@ public class ZipContentUtil {
 					extracted = true;
 					break;
 				} catch (Exception e) {
-					LOG.warn(String.format("Cannot get menifest of %s with charset %s.", referenceId, charset));
+					log.warn(String.format("Cannot get menifest of %s with charset %s.", referenceId, charset));
 				} finally {
 					if (zipFile != null){
 						zipFile.close();
@@ -363,16 +363,16 @@ public class ZipContentUtil {
 				}
 			}
 			if (!extracted) {
-				LOG.warn(String.format("Cannot get menifest of %s with any charset %s.", referenceId, getZipCharsets()));
+				log.warn(String.format("Cannot get menifest of %s with any charset %s.", referenceId, getZipCharsets()));
 			}
 		} 
 		catch (Exception e) {
-			e.printStackTrace();
+			log.error(e.getMessage(), e);
 		} 
 		finally {
 			if (temp.exists()) {
 				if (!temp.delete()) {
-					LOG.warn("uanble to delete temp file!");	
+					log.warn("uanble to delete temp file!");	
 				}
 			}
 		}
@@ -398,7 +398,7 @@ public class ZipContentUtil {
 			resourceEdit = ContentHostingService.addResource(resourceId);
 		} catch (IdUsedException iue) {
 			// resource exists, update instead
-			LOG.debug("Content resource with ID " + resourceId + " exists. Editing instead.");
+			log.debug("Content resource with ID " + resourceId + " exists. Editing instead.");
 			resourceEdit = ContentHostingService.editResource(resourceId);
 		}
 		resourceEdit.setContent(zipFile.getInputStream(nextElement));
@@ -424,7 +424,7 @@ public class ZipContentUtil {
 			collection = ContentHostingService.addCollection(resourceId);
 		} catch (IdUsedException iue) {
 			// collection exists, update instead
-			LOG.debug("Content collection with ID " + resourceId + " exists. Editing instead.");
+			log.debug("Content collection with ID " + resourceId + " exists. Editing instead.");
 			collection = ContentHostingService.editCollection(resourceId);
 		}
 		ResourcePropertiesEdit props = collection.getPropertiesEdit();
@@ -452,9 +452,9 @@ public class ZipContentUtil {
 			out.flush();
 			
 		} catch (IOException e) {
-			e.printStackTrace();
+			log.error(e.getMessage(), e);
 		} catch (ServerOverloadException e) {
-			e.printStackTrace();
+			log.error(e.getMessage(), e);
 		}
 		finally {
 			if (out !=null) {
@@ -505,16 +505,16 @@ public class ZipContentUtil {
 			try {
 				filename = getContainingFolderDisplayName(rootId, filename);
 			} catch(TypeException e){
-				LOG.warn("Unexpected error occurred when trying to create Zip archive:" + extractName(rootId), e.getCause());
+				log.warn("Unexpected error occurred when trying to create Zip archive:" + extractName(rootId), e.getCause());
 				return;
 			} catch(IdUnusedException e ){
-				LOG.warn("Unexpected error occurred when trying to create Zip archive:" + extractName(rootId), e.getCause());
+				log.warn("Unexpected error occurred when trying to create Zip archive:" + extractName(rootId), e.getCause());
 				return;
 			} catch(PermissionException e){
-				LOG.warn("Unexpected error occurred when trying to create Zip archive:" + extractName(rootId), e.getCause());
+				log.warn("Unexpected error occurred when trying to create Zip archive:" + extractName(rootId), e.getCause());
 				return;
 			} catch (Exception e) {
-				LOG.warn("Unexpected error occurred when trying to create Zip archive:" + extractName(rootId), e.getCause());
+				log.warn("Unexpected error occurred when trying to create Zip archive:" + extractName(rootId), e.getCause());
 				return;
 			}
 		}

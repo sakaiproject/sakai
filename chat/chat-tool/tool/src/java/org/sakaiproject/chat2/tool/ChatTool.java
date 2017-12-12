@@ -28,7 +28,6 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -36,7 +35,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.concurrent.ConcurrentHashMap;
 
 import javax.faces.application.FacesMessage;
 import javax.faces.component.UIComponent;
@@ -46,9 +44,10 @@ import javax.faces.model.SelectItem;
 import javax.faces.validator.ValidatorException;
 import javax.servlet.http.HttpServletRequest;
 
+import lombok.extern.slf4j.Slf4j;
+
 import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
 import org.sakaiproject.authz.api.PermissionsHelper;
 import org.sakaiproject.chat2.model.ChatMessage;
 import org.sakaiproject.chat2.model.ChatChannel;
@@ -57,14 +56,11 @@ import org.sakaiproject.chat2.model.ChatFunctions;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.event.api.EventTrackingService;
-import org.sakaiproject.event.api.UsageSession;
-import org.sakaiproject.event.cover.UsageSessionService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.tool.api.Placement;
-import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.tool.api.ToolSession;
@@ -75,14 +71,9 @@ import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.util.DateFormatterUtil;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.Validator;
-import org.sakaiproject.util.Web;
 
-
+@Slf4j
 public class ChatTool {
-
-   /** Our logger. */
-   private static Logger logger = LoggerFactory.getLogger(ChatTool.class);
-   
    /*  */
    private static final String IFRAME_ROOM_USERS = "Presence";
    
@@ -255,7 +246,7 @@ public class ChatTool {
     	  validates = false;
       }      
       
-      if (logger.isDebugEnabled()) logger.debug("chat start ("+channel.getStartDate()+") and end ("+channel.getEndDate()+") dates");
+      if (log.isDebugEnabled()) log.debug("chat start ("+channel.getStartDate()+") and end ("+channel.getEndDate()+") dates");
       // validate the dates
       if (channel.getStartDate() != null && channel.getEndDate() != null) {
           // check the dates are valid
@@ -840,19 +831,19 @@ public class ChatTool {
          dso.setDays(Integer.parseInt(placement.getPlacementConfig().getProperty(PARAM_DAYS)));
       } catch (NumberFormatException e) {
          dso.setDays(DEFAULT_DAYS);
-         logger.debug("Can't get tool property for synoptic chat.  Using default option");
+         log.debug("Can't get tool property for synoptic chat.  Using default option");
       }
       try {
          dso.setItems(Integer.parseInt(placement.getPlacementConfig().getProperty(PARAM_ITEMS)));
       } catch (NumberFormatException e) {
          dso.setItems(DEFAULT_ITEMS);
-         logger.debug("Can't get tool property for synoptic chat.  Using default option");
+         log.debug("Can't get tool property for synoptic chat.  Using default option");
       }
       try {
          dso.setChars(Integer.parseInt(placement.getPlacementConfig().getProperty(PARAM_LENGTH)));
       } catch (NumberFormatException e) {
          dso.setChars(DEFAULT_LENGTH);
-         logger.debug("Can't get tool property for synoptic chat.  Using default option");
+         log.debug("Can't get tool property for synoptic chat.  Using default option");
       }
       return dso;
    }
@@ -1248,7 +1239,7 @@ public class ChatTool {
          sender = UserDirectoryService.getUser(message.getOwner());
       } catch(UserNotDefinedException e) {
           // Expected some users will get deleted.
-         logger.debug("Failed to find user for ID: "+ message.getOwner(), e);
+         log.debug("Failed to find user for ID: "+ message.getOwner(), e);
          return message.getOwner();
       }
       return sender.getDisplayName();
@@ -1295,7 +1286,7 @@ public class ChatTool {
    
    private void setErrorMessage(String field, String errorMsg, Object[] extras)
    {
-     logger.debug("setErrorMessage(String " + errorMsg + ")");
+     log.debug("setErrorMessage(String " + errorMsg + ")");
      FacesContext.getCurrentInstance().addMessage(field,
          new FacesMessage(getMessageFromBundle(errorMsg, extras)));
    }

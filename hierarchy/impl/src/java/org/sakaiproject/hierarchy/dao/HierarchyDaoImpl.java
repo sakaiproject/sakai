@@ -34,13 +34,11 @@
 
 package org.sakaiproject.hierarchy.dao;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import org.sakaiproject.genericdao.api.search.Restriction;
 import org.sakaiproject.genericdao.api.search.Search;
 import org.sakaiproject.genericdao.hibernate.HibernateGeneralGenericDao;
-
 import org.sakaiproject.hierarchy.dao.model.HierarchyNodeMetaData;
 
 /**
@@ -48,9 +46,8 @@ import org.sakaiproject.hierarchy.dao.model.HierarchyNodeMetaData;
  * 
  * @author Aaron Zeckoski (aaronz@vt.edu)
  */
+@Slf4j
 public class HierarchyDaoImpl extends HibernateGeneralGenericDao implements HierarchyDao {
-
-    private static Logger log = LoggerFactory.getLogger(HierarchyDaoImpl.class);
 
     public void fixupDatabase() {
         // fix up some of the null fields

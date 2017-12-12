@@ -24,20 +24,20 @@ package org.sakaiproject.shortenedurl.impl;
 import java.net.URI;
 import java.net.URL;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.RandomStringUtils;
 import org.apache.commons.lang.StringUtils;
 import org.hibernate.Query;
 import org.hibernate.type.StringType;
+import org.springframework.orm.hibernate4.HibernateCallback;
+import org.springframework.orm.hibernate4.support.HibernateDaoSupport;
+
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.shortenedurl.api.ShortenedUrlService;
 import org.sakaiproject.shortenedurl.model.RandomisedUrl;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.orm.hibernate4.HibernateCallback;
-import org.springframework.orm.hibernate4.support.HibernateDaoSupport;
 
 /**
  * An implementation of {@link org.sakaiproject.shortenedurl.api.ShortenedUrlService} to provide randomised URLs
@@ -50,10 +50,9 @@ import org.springframework.orm.hibernate4.support.HibernateDaoSupport;
  * @author Steve Swinsburg (steve.swinsburg@gmail.com)
  * 
  */
+@Slf4j
 public class RandomisedUrlService extends HibernateDaoSupport implements ShortenedUrlService {
 
-	private static Logger log = LoggerFactory.getLogger(RandomisedUrlService.class);
-	
 	//Hibernate stored queries
 	private static final String QUERY_GET_URL = "getUrl";
 	private static final String QUERY_GET_KEY = "getKey";
@@ -439,6 +438,5 @@ public class RandomisedUrlService extends HibernateDaoSupport implements Shorten
 	public void setMemoryService(MemoryService memoryService) {
 		this.memoryService = memoryService;
 	}
-
 
 }

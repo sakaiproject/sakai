@@ -24,8 +24,8 @@ package org.sakaiproject.authz.impl;
 import java.util.List;
 import java.util.Vector;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.authz.api.FunctionManager;
 
 /**
@@ -35,11 +35,9 @@ import org.sakaiproject.authz.api.FunctionManager;
  * 
  * @author Sakai Software Development Team
  */
+@Slf4j
 public class FunctionManagerComponent implements FunctionManager
 {
-	/** Our log (commons). */
-	private static Logger M_log = LoggerFactory.getLogger(FunctionManagerComponent.class);
-
 	/** List of security functions. */
 	protected List<String> m_registeredFunctions = new Vector<String>();
 
@@ -60,7 +58,7 @@ public class FunctionManagerComponent implements FunctionManager
 	 */
 	public void init()
 	{
-		M_log.info("init()");
+		log.info("init()");
 	}
 
 	/**
@@ -68,7 +66,7 @@ public class FunctionManagerComponent implements FunctionManager
 	 */
 	public void destroy()
 	{
-		M_log.info("destroy()");
+		log.info("destroy()");
 	}
 
 	/**********************************************************************************************************************************************************************************************************************************************************

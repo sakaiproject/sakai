@@ -19,8 +19,12 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
+
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.entitybroker.EntityView;
@@ -40,8 +44,6 @@ import org.sakaiproject.gradebookng.business.model.GbGradeCell;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.SessionManager;
 
-import lombok.Setter;
-
 /**
  * This entity provider is to support some of the Javascript front end pieces. It never was built to support third party access, and never
  * will support that use case.
@@ -51,6 +53,7 @@ import lombok.Setter;
  * @author Steve Swinsburg (steve.swinsburg@gmail.com)
  *
  */
+@Slf4j
 public class GradebookNgEntityProvider extends AbstractEntityProvider implements
 		AutoRegisterEntityProvider, ActionsExecutable,
 		Outputable, Describeable {
@@ -151,11 +154,9 @@ public class GradebookNgEntityProvider extends AbstractEntityProvider implements
 		try {
 			this.businessService.updateAssignmentCategorizedOrder(siteId, assignmentId, order);
 		} catch (final IdUnusedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			log.error(e.getMessage(), e);
 		} catch (final PermissionException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			log.error(e.getMessage(), e);
 		}
 	}
 

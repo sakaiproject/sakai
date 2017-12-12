@@ -25,22 +25,23 @@
 package org.sakaiproject.tags.tool.handlers;
 
 import java.util.Map;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.tags.api.TagService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * A handler for the index page in the PA System administration tool.
  */
+@Slf4j
 public class IndexHandler extends BaseHandler {
 
     private final TagService tagService;
     private final int defaultPaginationSize = 10;
     private final int countPerPageGroup = 10;
-
-    private static final Logger LOG = LoggerFactory.getLogger(IndexHandler.class);
 
     public IndexHandler(TagService tagservice) {
         this.tagService = tagservice;

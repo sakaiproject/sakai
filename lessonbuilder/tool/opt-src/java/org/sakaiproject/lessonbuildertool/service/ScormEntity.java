@@ -24,73 +24,62 @@
 package org.sakaiproject.lessonbuildertool.service;
 
 import java.io.IOException;
+import java.lang.reflect.Method;
+import java.sql.Connection;
+import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.List;
-import java.util.Set;
-import java.util.SortedSet;
-import java.util.HashSet;
-import java.util.TreeSet;
 import java.util.Comparator;
 import java.util.Date;
-import java.util.Map;
+import java.util.HashSet;
 import java.util.Iterator;
-import java.lang.reflect.Method;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import org.jdom.Element;
 import org.jdom.Namespace;
 
-import org.sakaiproject.content.api.ContentResource;
-import org.sakaiproject.entity.api.ResourceProperties;
-import org.sakaiproject.content.cover.ContentHostingService;
-import org.sakaiproject.util.Validator;
-import org.sakaiproject.lessonbuildertool.service.LessonSubmission;
-import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean;
-import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean.UrlItem;
-import org.sakaiproject.scorm.model.api.SessionBean;
-import org.sakaiproject.scorm.model.api.ContentPackage;
-import org.sakaiproject.scorm.dao.api.ContentPackageDao;
-import org.sakaiproject.scorm.service.api.ScormResourceService;
-import org.sakaiproject.scorm.service.api.ScormResultService;
-import org.sakaiproject.util.FormattedText;
+import uk.org.ponder.messageutil.MessageLocator;
 
+import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.content.api.ContentResource;
+import org.sakaiproject.content.cover.ContentHostingService;
+import org.sakaiproject.db.api.SqlReader;
+import org.sakaiproject.db.cover.SqlService;
+import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.InUseException;
 import org.sakaiproject.exception.PermissionException;
-
-import org.sakaiproject.site.api.Group;
-import org.sakaiproject.site.api.Site;
-import org.sakaiproject.site.cover.SiteService;
-import org.sakaiproject.tool.api.Session;
-import org.sakaiproject.db.cover.SqlService;
-import org.sakaiproject.db.api.SqlReader;
-import org.sakaiproject.tool.cover.ToolManager;
-import org.sakaiproject.site.api.ToolConfiguration;
-import org.sakaiproject.tool.api.SessionManager;
-import org.sakaiproject.user.api.User;
-import org.sakaiproject.user.cover.UserDirectoryService;
-import org.sakaiproject.component.cover.ServerConfigurationService;             
-import org.sakaiproject.component.cover.ComponentManager;
-
+import org.sakaiproject.lessonbuildertool.service.LessonSubmission;
+import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean;
+import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean.UrlItem;
 import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.CacheRefresher;
 import org.sakaiproject.memory.api.MemoryService;
-
-import uk.org.ponder.messageutil.MessageLocator;
-
-import org.sakaiproject.component.cover.ComponentManager;
-
+import org.sakaiproject.scorm.dao.api.ContentPackageDao;
+import org.sakaiproject.scorm.model.api.SessionBean;
+import org.sakaiproject.scorm.model.api.ContentPackage;
+import org.sakaiproject.scorm.service.api.ScormResourceService;
+import org.sakaiproject.scorm.service.api.ScormResultService;
+import org.sakaiproject.site.api.Group;
+import org.sakaiproject.site.api.Site;
+import org.sakaiproject.site.api.ToolConfiguration;
+import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.service.gradebook.shared.*;
-	
-import org.sakaiproject.db.cover.SqlService;
-import org.sakaiproject.db.api.SqlReader;
-import java.sql.Connection;
-import java.sql.ResultSet;
-
+import org.sakaiproject.util.FormattedText;
+import org.sakaiproject.util.Validator;
+import org.sakaiproject.tool.api.Session;
+import org.sakaiproject.tool.api.SessionManager;
+import org.sakaiproject.tool.cover.ToolManager;
+import org.sakaiproject.user.api.User;
+import org.sakaiproject.user.cover.UserDirectoryService;
 
 /**
  * Interface to Scorm
@@ -98,11 +87,8 @@ import java.sql.ResultSet;
  * @author Charles Hedrick <hedrick@rutgers.edu>
  * 
  */
-
+@Slf4j
 public class ScormEntity implements LessonEntity, AssignmentInterface {
-
-    private static Logger log = LoggerFactory.getLogger(ScormEntity.class);
-
     private SimplePageBean simplePageBean;
 
     public void setSimplePageBean(SimplePageBean simplePageBean) {

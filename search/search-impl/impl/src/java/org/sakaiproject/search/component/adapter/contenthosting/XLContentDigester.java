@@ -28,8 +28,7 @@ import java.io.Reader;
 import java.io.Writer;
 import java.util.Iterator;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.hssf.usermodel.HSSFCell;
 import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
@@ -37,14 +36,15 @@ import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.poifs.filesystem.POIFSFileSystem;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
+
 import org.sakaiproject.content.api.ContentResource;
 
 /**
  * @author ieb
  */
+@Slf4j
 public class XLContentDigester extends BaseContentDigester
 {
-	private static Logger log = LoggerFactory.getLogger(XLContentDigester.class);
 
 	static {
 		System.setProperty("org.apache.poi.util.POILogger", "org.apache.poi.util.NullLogger");

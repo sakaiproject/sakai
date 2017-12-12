@@ -20,17 +20,20 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+
+import lombok.extern.slf4j.Slf4j;
+
 import org.apache.commons.lang.StringEscapeUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.sakaiproject.component.cover.ComponentManager;
-import org.sakaiproject.lessonbuildertool.model.SimplePageToolDao;
-import org.sakaiproject.component.cover.ServerConfigurationService;
-import org.sakaiproject.lti.api.LTIService;
+
 import uk.org.ponder.messageutil.MessageLocator;
 
+import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.lessonbuildertool.model.SimplePageToolDao;
+import org.sakaiproject.lti.api.LTIService;
+
+@Slf4j
 public class BltiExport {
-    private static Logger log = LoggerFactory.getLogger(AssignmentExport.class);
     private static SimplePageToolDao simplePageToolDao;
     static MessageLocator messageLocator = null;
 

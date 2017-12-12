@@ -19,42 +19,41 @@ package org.sakaiproject.lessonbuildertool.service;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.Map;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
-import org.sakaiproject.lessonbuildertool.service.LessonSubmission;
-import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean;
-import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean.UrlItem;
-import org.etudes.mneme.api.AssessmentService;
 import org.etudes.mneme.api.Assessment;
 import org.etudes.mneme.api.AssessmentDates;
+import org.etudes.mneme.api.AssessmentService;
+import org.etudes.mneme.api.ImportQtiService;
 import org.etudes.mneme.api.SubmissionService;
-import org.sakaiproject.site.api.Group;
-import org.sakaiproject.site.api.Site;
-import org.sakaiproject.site.cover.SiteService;
-import org.sakaiproject.tool.api.Session;
-import org.sakaiproject.tool.cover.ToolManager;
-import org.sakaiproject.tool.cover.SessionManager;
-import org.sakaiproject.site.api.ToolConfiguration;
-import org.sakaiproject.component.cover.ComponentManager;
-import org.sakaiproject.component.cover.ServerConfigurationService;             
 
 import org.w3c.dom.Document;
 
+import uk.org.ponder.messageutil.MessageLocator;
+
+import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.component.cover.ServerConfigurationService;  
+import org.sakaiproject.lessonbuildertool.service.LessonSubmission;
+import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean;
+import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean.UrlItem;
 import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.CacheRefresher;
 import org.sakaiproject.memory.api.MemoryService;
-import org.etudes.mneme.api.ImportQtiService;
-import uk.org.ponder.messageutil.MessageLocator;
-
+import org.sakaiproject.site.api.Group;
+import org.sakaiproject.site.api.Site;
+import org.sakaiproject.site.api.ToolConfiguration;
+import org.sakaiproject.site.cover.SiteService;
+import org.sakaiproject.tool.api.Session;
+import org.sakaiproject.tool.cover.ToolManager;
+import org.sakaiproject.tool.cover.SessionManager;         
 
 /**
  * Interface to Mneme
@@ -62,11 +61,8 @@ import uk.org.ponder.messageutil.MessageLocator;
  * @author Charles Hedrick <hedrick@rutgers.edu>
  * 
  */
-
+@Slf4j
 public class MnemeEntity implements LessonEntity, QuizEntity {
-
-    private static Logger log = LoggerFactory.getLogger(MnemeEntity.class);
-
     private static Cache assessmentCache = null;
     protected static final int DEFAULT_EXPIRATION = 10 * 60;
 

@@ -27,8 +27,8 @@ import java.util.Enumeration;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.exception.IdInvalidException;
 
@@ -39,11 +39,9 @@ import org.sakaiproject.exception.IdInvalidException;
  * @deprecated use apache commons utils or {@link org.sakaiproject.util.api.FormattedText}, this will be removed after 2.9 - Dec 2011
  */
 @Deprecated 
+@Slf4j
 public class Validator
 {
-	/** Our logger. */
-	private static Logger M_log = LoggerFactory.getLogger(Validator.class);
-
 	/** These characters are not allowed in a resource id */
 	public static final String INVALID_CHARS_IN_RESOURCE_ID = "^/\\{}[]()%*?#&=\n\r\t\b\f";
 
@@ -182,7 +180,7 @@ public class Validator
         }
         catch (Exception e)
         {
-            M_log.warn("Validator.escapeJavascript: ", e);
+            log.warn("Validator.escapeJavascript: ", e);
             return "";
         }
 
@@ -241,7 +239,7 @@ public class Validator
 		}
 		catch (UnsupportedEncodingException e)
 		{
-			M_log.warn("Validator.escapeUrl: ", e);
+			log.warn("Validator.escapeUrl: ", e);
 			return "";
 		}
 
@@ -344,7 +342,7 @@ public class Validator
 		}
 		catch (Exception e)
 		{
-			M_log.warn("Validator.escapeResourceName: ", e);
+			log.warn("Validator.escapeResourceName: ", e);
 			return "";
 		}
 
@@ -381,7 +379,7 @@ public class Validator
 		}
 		catch (Exception e)
 		{
-			M_log.warn("Validator.escapeQuestionMark: ", e);
+			log.warn("Validator.escapeQuestionMark: ", e);
 			return "";
 		}
 
@@ -418,7 +416,7 @@ public class Validator
 		}
 		catch (Exception e)
 		{
-			M_log.warn("Validator.escapeZipEntry: ", e);
+			log.warn("Validator.escapeZipEntry: ", e);
 			return "";
 		}
 
@@ -920,7 +918,7 @@ public class Validator
 			}
 		}
 		} catch ( UnsupportedEncodingException ex) {
-			M_log.error("No UTF-8 Encoding on this JVM, !!!!");
+			log.error("No UTF-8 Encoding on this JVM, !!!!");
 		}
 		if ( sb.length() < 1 ) return null;
 		return sb.substring(0, sb.length()-1);

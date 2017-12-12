@@ -18,7 +18,6 @@
  */
 package org.sakaiproject.sitestats.test;
 
-
 import static org.easymock.EasyMock.anyObject;
 import static org.easymock.EasyMock.createMock;
 import static org.easymock.EasyMock.expect;
@@ -31,12 +30,17 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 
+import lombok.extern.slf4j.Slf4j;
 import org.easymock.IAnswer;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Mockito;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.AbstractTransactionalJUnit4SpringContextTests;
+
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.exception.IdUnusedException;
@@ -61,13 +65,11 @@ import org.sakaiproject.sitestats.test.mocks.FakeSite;
 import org.sakaiproject.sitestats.test.perf.mock.StubUtils;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.util.ResourceLoader;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.AbstractTransactionalJUnit4SpringContextTests;
 
 @ContextConfiguration(locations={
 		"/hbm-db.xml",
 		"/hibernate-test.xml"})
+@Slf4j
 public class ReportManagerTest extends AbstractTransactionalJUnit4SpringContextTests {
 
 	@Autowired
@@ -413,9 +415,9 @@ public class ReportManagerTest extends AbstractTransactionalJUnit4SpringContextT
 //		rp.setWhatEventIds(FakeData.EVENTIDS);
 //		rp.setWhen(ReportManager.WHEN_LAST365DAYS);
 //		r = M_rm.getReport(rd, false, null, false);
-//		System.out.println(r.getReportData());
-//		System.out.println("ReportParams: "+ rp);
-//		System.out.println("ReportData: "+ r.getReportData());
+//		log.info(r.getReportData());
+//		log.info("ReportParams: "+ rp);
+//		log.info("ReportData: "+ r.getReportData());
 //		Assert.assertEquals(1, r.getReportData().size());
 //		Assert.assertEquals(1, r.getReportData().get(0).getCount());
 		
@@ -816,9 +818,9 @@ public class ReportManagerTest extends AbstractTransactionalJUnit4SpringContextT
 //			out.write(excel);
 //			out.flush();
 //		}catch(FileNotFoundException e){
-//			e.printStackTrace();
+//			log.error(e.getMessage(), e);
 //		}catch(IOException e){
-//			e.printStackTrace();
+//			log.error(e.getMessage(), e);
 //		}finally{
 //			if(out != null) {
 //				try{ out.close(); }catch(IOException e){ /* IGNORE */}
@@ -844,7 +846,6 @@ public class ReportManagerTest extends AbstractTransactionalJUnit4SpringContextT
 			boolean expected = totalsBy == null || totalsBy.contains(c) 
 				|| (c.equals(StatsManager.T_TOTAL) && !ReportManager.WHAT_PRESENCES.equals(params.getWhat()))
 				|| (c.equals(StatsManager.T_DURATION) && ReportManager.WHAT_PRESENCES.equals(params.getWhat()));
-			//System.out.println("containsColumn("+c+"): "+containsColumn+" expected: "+expected);
 			Assert.assertEquals(expected, containsColumn);
 		}
 	}

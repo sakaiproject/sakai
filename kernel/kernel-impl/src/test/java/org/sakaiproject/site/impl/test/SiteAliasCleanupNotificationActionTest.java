@@ -22,9 +22,11 @@ package org.sakaiproject.site.impl.test;
 
 import java.lang.reflect.Field;
 
-import org.slf4j.Logger;
+import lombok.extern.slf4j.Slf4j;
+
 import org.jmock.Expectations;
 import org.jmock.integration.junit3.MockObjectTestCase;
+
 import org.sakaiproject.alias.api.AliasService;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.Notification;
@@ -40,6 +42,7 @@ import org.sakaiproject.site.impl.SiteAliasCleanupNotificationAction;
  * @author dmccallum
  *
  */
+@Slf4j
 public class SiteAliasCleanupNotificationActionTest extends MockObjectTestCase {
 	
 	private SiteAliasCleanupNotificationAction cleanupAction;
@@ -48,19 +51,16 @@ public class SiteAliasCleanupNotificationActionTest extends MockObjectTestCase {
 	private Event inboundEvent;
 	private AliasService aliasService;
 	private NotificationService notificationService;
-	private Logger log;
-	
+
 	protected void setUp() throws Exception {
 		aliasService = mock(AliasService.class);
 		notificationService = mock(NotificationService.class);
 		cleanupActionWrappingNotificationEdit = mock(NotificationEdit.class);
 		inboundNotification = mock(Notification.class);
 		inboundEvent = mock(Event.class);
-		log = mock(Logger.class);
 		cleanupAction = new SiteAliasCleanupNotificationAction();
 		cleanupAction.setAliasService(aliasService);
 		cleanupAction.setNotificationService(notificationService);
-		setField("log", SiteAliasCleanupNotificationAction.class, null, log);
 		super.setUp();
 	}
 
@@ -95,7 +95,7 @@ public class SiteAliasCleanupNotificationActionTest extends MockObjectTestCase {
 			RuntimeException failure = new RuntimeException("this is a simulated failure");
 			allowing(inboundEvent).getResource(); will(returnValue(resourceId));
 			one(aliasService).removeTargetAliases(resourceId); will(throwException(failure));
-			one(log).warn(with(any(String.class)), with(same(failure)));
+			log.warn(with(any(String.class)), with(same(failure)));
 		}});
 		
 		cleanupAction.init();
@@ -110,7 +110,7 @@ public class SiteAliasCleanupNotificationActionTest extends MockObjectTestCase {
 				new PermissionException("user-123", SiteService.SECURE_REMOVE_SITE, resourceId);
 			allowing(inboundEvent).getResource(); will(returnValue(resourceId));
 			one(aliasService).removeTargetAliases(resourceId); will(throwException(failure));
-			one(log).warn(with(any(String.class)), with(same(failure)));
+			log.warn(with(any(String.class)), with(same(failure)));
 		}});
 		
 		cleanupAction.init();

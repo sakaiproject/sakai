@@ -27,28 +27,28 @@ import java.util.Iterator;
 import java.util.Set;
 import java.util.Stack;
 
+import lombok.extern.slf4j.Slf4j;
+
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.sakaiproject.authz.api.AuthzGroup;
-import org.sakaiproject.authz.api.Role;
-import org.sakaiproject.authz.api.SimpleRole;
-import org.sakaiproject.util.Xml;
+
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+
+import org.sakaiproject.authz.api.AuthzGroup;
+import org.sakaiproject.authz.api.Role;
+import org.sakaiproject.authz.api.SimpleRole;
+import org.sakaiproject.util.Xml;
 
 /**
  * <p>
  * BaseRole is an implementation of the AuthzGroup API Role.
  * </p>
  */
+@Slf4j
 public class BaseRole implements Role
 {
-	/** Our log (commons). */
-	private static Logger M_log = LoggerFactory.getLogger(BaseRole.class);
-
 	/** A fixed class serian number. */
 	private static final long serialVersionUID = 1L;
 
@@ -148,7 +148,7 @@ public class BaseRole implements Role
 
 				if (roleId != null)
 				{
-					M_log.warn("(el): nested role: " + m_id + " " + roleId);
+					log.warn("(el): nested role: " + m_id + " " + roleId);
 				}
 
 				m_locks.add(lock);
