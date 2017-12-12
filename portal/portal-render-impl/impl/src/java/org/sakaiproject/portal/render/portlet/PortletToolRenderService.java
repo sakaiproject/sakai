@@ -308,7 +308,7 @@ public class PortletToolRenderService implements ToolRenderService
 			{
 				final Writer result = new StringWriter();
 				final PrintWriter printWriter = new PrintWriter(result);
-				bufferedException.printStackTrace(printWriter);
+				log.error(bufferedException.getMessage(), bufferedException);
 				String storedContent = "<div class=\"portlettraceback\">\n" +
 					FormattedText.escapeHtml(result.toString(),true) +
 					"\n</pre>\n";
