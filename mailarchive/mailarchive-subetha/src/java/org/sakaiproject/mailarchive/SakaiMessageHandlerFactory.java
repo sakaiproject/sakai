@@ -184,8 +184,13 @@ public class SakaiMessageHandlerFactory implements MessageHandlerFactory {
 
             @Override
             public void from(String from) throws RejectException {
-                SplitEmailAddress address = SplitEmailAddress.parse(from);
-                this.from = address.getLocal() + "@" + address.getDomain();
+                try {
+                    SplitEmailAddress address = SplitEmailAddress.parse(from);
+                    this.from = address.getLocal() + "@" + address.getDomain();
+                } catch (IllegalArgumentException iae) {
+                    log.debug("Not allowing return path of: {}", from);
+                    throw new RejectException("Not allowing return path of: "+ from);
+                }
             }
 
             @Override
