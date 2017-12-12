@@ -27,19 +27,18 @@ import java.util.Map;
 import java.util.TimeZone;
 import java.util.Vector;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.sakaiproject.calendar.api.RecurrenceRule;
-import org.sakaiproject.time.api.Time;
-import org.sakaiproject.time.api.TimeBreakdown;
-import org.sakaiproject.time.api.TimeRange;
-import org.sakaiproject.time.cover.TimeService;
 import org.w3c.dom.Element;
+
 import org.xml.sax.Attributes;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
+import org.sakaiproject.calendar.api.RecurrenceRule;
+import org.sakaiproject.time.api.Time;
+import org.sakaiproject.time.api.TimeBreakdown;
+import org.sakaiproject.time.api.TimeRange;
+import org.sakaiproject.time.cover.TimeService;
 import org.sakaiproject.util.ResourceLoader;
 
 /**
@@ -47,8 +46,6 @@ import org.sakaiproject.util.ResourceLoader;
  */
 public abstract class RecurrenceRuleBase implements RecurrenceRule
 {
-	protected static final Logger M_log = LoggerFactory.getLogger(RecurrenceRuleBase.class);
-
 	/** Every this many number of units: 1 would be daily/monthly/annually. */
 	private int interval = 1;
 
@@ -357,7 +354,6 @@ public abstract class RecurrenceRuleBase implements RecurrenceRule
 				try
 				{
 					setCount(Integer.parseInt(attributes.getValue("count")));
-//					M_log.debug("Set count to "+attributes.getValue("count"));
 				}
 				catch (Exception any)
 				{
@@ -367,7 +363,6 @@ public abstract class RecurrenceRuleBase implements RecurrenceRule
 				try
 				{
 					setUntil(((org.sakaiproject.time.api.TimeService)services.get("timeservice")).newTimeGmt(attributes.getValue("until")));
-//					M_log.debug("Set until to "+attributes.getValue("until"));
 				}
 				catch (Exception any)
 				{

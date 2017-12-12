@@ -43,11 +43,11 @@ import java.util.List;
 import java.util.Set;
 import java.util.StringTokenizer;
 
+import lombok.extern.slf4j.Slf4j;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.dao.OptimisticLockingFailureException;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.calendar.api.Calendar;
 import org.sakaiproject.calendar.api.CalendarEventEdit;
@@ -69,7 +69,6 @@ import org.sakaiproject.site.api.Site;
 import org.sakaiproject.time.api.Time;
 import org.sakaiproject.time.api.TimeRange;
 import org.sakaiproject.time.api.TimeService;
-import org.springframework.dao.OptimisticLockingFailureException;
 
 /**
  * <p>
@@ -81,9 +80,8 @@ import org.springframework.dao.OptimisticLockingFailureException;
  * 
  * </p>
  */
+@Slf4j
 public class SignupMeetingServiceImpl implements SignupMeetingService, Retry, MeetingTypes, SignupMessageTypes {
-
-	private static Logger log = LoggerFactory.getLogger(SignupMeetingServiceImpl.class);
 
 	@Getter @Setter
 	private SignupMeetingDao signupMeetingDao;

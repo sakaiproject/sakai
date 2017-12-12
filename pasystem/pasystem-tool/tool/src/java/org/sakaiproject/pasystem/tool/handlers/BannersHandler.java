@@ -28,21 +28,22 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
+
 import javax.servlet.http.HttpServletRequest;
+
+import lombok.extern.slf4j.Slf4j;
 
 import org.sakaiproject.cluster.api.ClusterService;
 import org.sakaiproject.pasystem.api.Banner;
 import org.sakaiproject.pasystem.api.PASystem;
 import org.sakaiproject.pasystem.tool.forms.BannerForm;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * A handler for creating and updating banners in the PA System administration tool.
  */
+@Slf4j
 public class BannersHandler extends CrudHandler {
 
-    private static final Logger LOG = LoggerFactory.getLogger(BannersHandler.class);
     private final PASystem paSystem;
     private  final ClusterService clusterService;
 
@@ -71,7 +72,7 @@ public class BannersHandler extends CrudHandler {
         if (banner.isPresent()) {
             showEditForm(BannerForm.fromBanner(banner.get()), context, CrudMode.UPDATE);
         } else {
-            LOG.warn("No banner found for UUID: " + uuid);
+            log.warn("No banner found for UUID: " + uuid);
             sendRedirect("");
         }
     }

@@ -21,13 +21,14 @@
 
 package org.sakaiproject.util;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.sakaiproject.entity.api.Entity;
+import lombok.extern.slf4j.Slf4j;
+
 import org.xml.sax.Attributes;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
+
+import org.sakaiproject.entity.api.Entity;
 
 /**
  * This class is required by the SAX parser to parse into. Rather than use the ContentHandler interface
@@ -39,11 +40,9 @@ import org.xml.sax.helpers.DefaultHandler;
  * 
  * @author ieb
  */
+@Slf4j
 public class DefaultEntityHandler extends DefaultHandler implements SAXEntityHandler
 {
-
-	private static final Logger log = LoggerFactory.getLogger(DefaultEntityHandler.class);
-
 	protected ContentHandler ch;
 
 	protected int remove = -1;
@@ -159,6 +158,4 @@ public class DefaultEntityHandler extends DefaultHandler implements SAXEntityHan
 	{
 		this.container = container;
 	}
-
-
 }

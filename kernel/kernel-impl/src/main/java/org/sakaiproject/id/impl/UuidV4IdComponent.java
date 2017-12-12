@@ -23,8 +23,8 @@ package org.sakaiproject.id.impl;
 
 import java.util.UUID;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.id.api.IdManager;
 
 /**
@@ -32,11 +32,9 @@ import org.sakaiproject.id.api.IdManager;
  * UuidV4IdComponent implements the IdManager with a version 4 UUID generator from apache commons.
  * </p>
  */
+@Slf4j
 public class UuidV4IdComponent implements IdManager
 {
-	/** Our log (commons). */
-	private static Logger M_log = LoggerFactory.getLogger(UuidV4IdComponent.class);
-
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * Dependencies and their setter methods
 	 *********************************************************************************************************************************************************************************************************************************************************/
@@ -50,7 +48,7 @@ public class UuidV4IdComponent implements IdManager
 	 */
 	public void init()
 	{
-		M_log.info("init()");
+		log.info("init()");
 	}
 
 	/**
@@ -58,7 +56,7 @@ public class UuidV4IdComponent implements IdManager
 	 */
 	public void destroy()
 	{
-		M_log.info("destroy()");
+		log.info("destroy()");
 	}
 
 	/**********************************************************************************************************************************************************************************************************************************************************

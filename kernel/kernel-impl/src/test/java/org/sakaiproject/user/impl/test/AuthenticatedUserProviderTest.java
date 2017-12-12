@@ -18,12 +18,13 @@ package org.sakaiproject.user.impl.test;
 
 import java.util.Collection;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.test.SakaiKernelTestBase;
@@ -40,10 +41,10 @@ import org.sakaiproject.user.impl.DbUserService;
 /**
  *
  */
+@Slf4j
 public class AuthenticatedUserProviderTest extends SakaiKernelTestBase {
 	protected static final String CONFIG = null;
 
-	private static Logger log = LoggerFactory.getLogger(AuthenticatedUserProviderTest.class);
 	private static TestProvider userDirectoryProvider;
 	private UserDirectoryService userDirectoryService;
 	// These services are only used to clear out various caches to make sure
@@ -54,10 +55,10 @@ public class AuthenticatedUserProviderTest extends SakaiKernelTestBase {
 	@BeforeClass
 	public static void beforeClass() {
 		try {
-            log.debug("starting oneTimeSetup");
+			log.debug("starting oneTimeSetup");
 			oneTimeSetup("disable_user_cache");
 			oneTimeSetupAfter();
-            log.debug("finished oneTimeSetup");
+			log.debug("finished oneTimeSetup");
 		} catch (Exception e) {
 			log.warn(e.getMessage(), e);
 		}

@@ -26,11 +26,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.sakaiproject.tool.api.Session;
-import org.sakaiproject.tool.api.SessionManager;
+import lombok.extern.slf4j.Slf4j;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sakaiproject.poll.logic.ExternalLogic;
 import org.sakaiproject.poll.logic.PollListManager;
 import org.sakaiproject.poll.logic.PollVoteManager;
@@ -40,6 +37,8 @@ import org.sakaiproject.poll.model.Vote;
 import org.sakaiproject.poll.tool.params.OptionViewParameters;
 import org.sakaiproject.poll.tool.params.PollViewParameters;
 import org.sakaiproject.poll.tool.params.VoteBean;
+import org.sakaiproject.tool.api.Session;
+import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.util.FormattedText;
 
 import uk.org.ponder.localeutil.LocaleGetter;
@@ -77,15 +76,13 @@ import uk.org.ponder.rsf.viewstate.SimpleViewParameters;
 import uk.org.ponder.rsf.viewstate.ViewParameters;
 import uk.org.ponder.rsf.viewstate.ViewParamsReporter;
 
+@Slf4j
 public class AddPollProducer implements ViewComponentProducer,NavigationCaseReporter, ViewParamsReporter, ActionResultInterceptor {
 	public static final String VIEW_ID = "voteAdd";
 
 	private PollListManager pollListManager;
 	private MessageLocator messageLocator;
 	private LocaleGetter localeGetter;
-
-
-	private static final Logger LOG = LoggerFactory.getLogger(AddPollProducer.class);
 
 	public String getViewID() {
 		return VIEW_ID;
@@ -174,17 +171,17 @@ public class AddPollProducer implements ViewComponentProducer,NavigationCaseRepo
 
 		
 		UIForm newPoll = UIForm.make(tofill, "add-poll-form");
-		LOG.debug("Poll of id: " + ecvp.id);
+		log.debug("Poll of id: " + ecvp.id);
 		if (ecvp.id == null || "New 0".equals(ecvp.id)) {
 			UIMessage.make(tofill,"new_poll_title","new_poll_title");
 			//build an empty poll
-			LOG.debug("this is a new poll");
+			log.debug("this is a new poll");
 			poll = new Poll();
 		} else {
 			UIMessage.make(tofill,"new_poll_title","new_poll_title_edit");
 
 			String strId = ecvp.id;
-			LOG.debug("got id of " + strId);
+			log.debug("got id of " + strId);
 			poll = pollListManager.getPollById(Long.valueOf(strId));
 			voteBean.setPoll(poll);
 			newPoll.parameters.add(new UIELBinding("#{poll.pollId}",
@@ -210,7 +207,7 @@ public class AddPollProducer implements ViewComponentProducer,NavigationCaseRepo
 
 			List<Vote> votes = pollVoteManager.getAllVotesForPoll(poll);
 			if (votes != null && votes.size() > 0 ) {
-				LOG.debug("Poll has " + votes.size() + " votes");
+				log.debug("Poll has " + votes.size() + " votes");
 				UIBranchContainer errorRow = UIBranchContainer.make(tofill,"error-row:", "0");
 				UIMessage.make(errorRow,"error", "warn_poll_has_votes");
 
@@ -335,7 +332,7 @@ public class AddPollProducer implements ViewComponentProducer,NavigationCaseRepo
 
 
 
-		LOG.debug("About to close the form");
+		log.debug("About to close the form");
 		newPoll.parameters.add(new UIELBinding("#{poll.owner}",
 				currentuserid));
 		String siteId = externalLogic.getCurrentLocationId();
@@ -351,7 +348,7 @@ public class AddPollProducer implements ViewComponentProducer,NavigationCaseRepo
 
 		UICommand cancel = UICommand.make(newPoll, "cancel",UIMessage.make("new_poll_cancel"),"#{pollToolBean.cancel}");
 		cancel.parameters.add(new UIELBinding("#{voteCollection.submissionStatus}", "cancel"));
-		LOG.debug("Finished generating view");
+		log.debug("Finished generating view");
 	}
 
 
@@ -372,8 +369,8 @@ public class AddPollProducer implements ViewComponentProducer,NavigationCaseRepo
 	public void interceptActionResult(ARIResult result, ViewParameters incoming, Object actionReturn) {
 		// OptionViewParameters outgoing = (OptionViewParameters) result.resultingView;
 		// SAK-14726 : Start BugFix
-		if (LOG.isDebugEnabled() && actionReturn != null) {
-			LOG.debug("actionReturn is of type " + actionReturn.getClass());
+		if (log.isDebugEnabled() && actionReturn != null) {
+			log.debug("actionReturn is of type " + actionReturn.getClass());
 		}
 
 		if (actionReturn == null) {
@@ -403,8 +400,8 @@ public class AddPollProducer implements ViewComponentProducer,NavigationCaseRepo
 			return;
 		}
 
-		LOG.debug("Action result got poll: " + poll.getPollId());
-		LOG.debug("resulting view is: " + result.resultingView);
+		log.debug("Action result got poll: " + poll.getPollId());
+		log.debug("resulting view is: " + result.resultingView);
 
 		if (poll.getPollOptions() == null || poll.getPollOptions().size() == 0) {
 			result.resultingView = new OptionViewParameters(PollOptionProducer.VIEW_ID, null, poll.getPollId().toString());

@@ -26,6 +26,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
 
+import lombok.extern.slf4j.Slf4j;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 
@@ -33,6 +34,7 @@ import org.radeox.macro.list.SimpleList;
 import org.radeox.util.Linkable;
 import org.radeox.util.Nameable;
 
+@Slf4j
 public class SimpleListTest extends ListFormatterSupport
 {
 	public SimpleListTest(String name)
@@ -66,7 +68,7 @@ public class SimpleListTest extends ListFormatterSupport
 		}
 		catch (IOException e)
 		{
-			e.printStackTrace();
+			log.error(e.getMessage(), e);
 		}
 
 		assertEquals(
@@ -90,7 +92,7 @@ public class SimpleListTest extends ListFormatterSupport
 		}
 		catch (IOException e)
 		{
-			e.printStackTrace();
+			log.error(e.getMessage(), e);
 		}
 
 		assertEquals(
@@ -108,7 +110,7 @@ public class SimpleListTest extends ListFormatterSupport
 		}
 		catch (IOException e)
 		{
-			e.printStackTrace();
+			log.error(e.getMessage(), e);
 		}
 		assertEquals(
 				"Single item is rendered",
@@ -125,7 +127,7 @@ public class SimpleListTest extends ListFormatterSupport
 		}
 		catch (IOException e)
 		{
-			e.printStackTrace();
+			log.error(e.getMessage(), e);
 		}
 		assertEquals(
 				"Size is rendered",
@@ -142,7 +144,7 @@ public class SimpleListTest extends ListFormatterSupport
 		}
 		catch (IOException e)
 		{
-			e.printStackTrace();
+			log.error(e.getMessage(), e);
 		}
 		assertEquals(
 				"Empty list is rendered",
@@ -159,7 +161,7 @@ public class SimpleListTest extends ListFormatterSupport
 		}
 		catch (IOException e)
 		{
-			e.printStackTrace();
+			log.error(e.getMessage(), e);
 		}
 		assertEquals(
 				"Two items are rendered",

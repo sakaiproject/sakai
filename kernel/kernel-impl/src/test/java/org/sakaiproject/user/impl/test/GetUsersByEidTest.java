@@ -16,11 +16,17 @@
 
 package org.sakaiproject.user.impl.test;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
+
+import lombok.extern.slf4j.Slf4j;
+
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
+
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.MemoryService;
@@ -32,20 +38,14 @@ import org.sakaiproject.user.api.UserDirectoryProvider;
 import org.sakaiproject.user.api.UserEdit;
 import org.sakaiproject.user.impl.DbUserService;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
-
 /**
  * This is a white-box-ish test which uses inner knowledge of the current
  * UserDirectoryService implementation.
  */
+@Slf4j
 public class GetUsersByEidTest extends SakaiKernelTestBase {
-	private static Logger log = LoggerFactory.getLogger(GetUsersByEidTest.class);
-	
-    // Oracle will throw a SQLException if we put more than this into a
-    // "WHERE tbl.col IN (:paramList)" query, and so we need to test for
+	// Oracle will throw a SQLException if we put more than this into a
+	// "WHERE tbl.col IN (:paramList)" query, and so we need to test for
 	// that condition.
 	private static int MAX_NUMBER_OF_SQL_PARAMETERS_IN_LIST = 1000;
 	

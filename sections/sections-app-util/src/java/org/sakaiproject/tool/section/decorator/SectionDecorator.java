@@ -26,17 +26,17 @@ import java.text.DateFormat;
 import java.text.DateFormatSymbols;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Arrays;
 import java.util.Set;
-import java.util.HashSet;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.section.api.coursemanagement.Course;
 import org.sakaiproject.section.api.coursemanagement.CourseSection;
 import org.sakaiproject.section.api.coursemanagement.Meeting;
@@ -52,9 +52,9 @@ import org.sakaiproject.component.cover.ComponentManager;
  * @author <a href="mailto:jholtzman@berkeley.edu">Josh Holtzman</a>
  *
  */
+@Slf4j
 public class SectionDecorator implements RowGroupable,Serializable, Comparable{
     private static final long serialVersionUID = 1L;
-    private static final Logger log = LoggerFactory.getLogger(SectionDecorator.class);
 
     public static final int NAME_TRUNCATION_LENGTH = 20;
     public static final int LOCATION_TRUNCATION_LENGTH = 15;

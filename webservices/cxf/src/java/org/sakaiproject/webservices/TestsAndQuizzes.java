@@ -15,8 +15,8 @@
  */
 package org.sakaiproject.webservices;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService.SelectionType;
@@ -62,9 +62,8 @@ import java.util.Map;
 
 @WebService
 @SOAPBinding(style = SOAPBinding.Style.RPC, use = SOAPBinding.Use.LITERAL)
+@Slf4j
 public class TestsAndQuizzes extends AbstractWebService {	
-
-	private static final Logger LOG = LoggerFactory.getLogger(TestsAndQuizzes.class);
 
 	/** 
 	 * createAssessmentFromText - WS Endpoint, exposing the SamLite createImportedAssessment()
@@ -150,7 +149,7 @@ public class TestsAndQuizzes extends AbstractWebService {
 			DocumentBuilder documentBuilder = builderFactory.newDocumentBuilder();
 			document = documentBuilder.parse(inputStream);
 		} catch(Exception e) {
-			LOG.error("WS TestsAndQuizzes.createAssessmentFromXml(): " + e.getMessage(), e);
+			log.error("WS TestsAndQuizzes.createAssessmentFromXml(): " + e.getMessage(), e);
 			throw new RuntimeException("WS TestsAndQuizzes.createAssessmentFromXml(): " + e.getMessage());
 		} finally {
 			try {
@@ -199,13 +198,13 @@ public class TestsAndQuizzes extends AbstractWebService {
 		try {
 			document = XmlUtil.readDocument(xmlfile, true);
 		} catch (ParserConfigurationException pce) {
-			LOG.error("WS TestsAndQuizzes.createAssessmentFromExportFile(): XmlUtil.createDocument() ParserConfigurationException: " + pce.getMessage(), pce);
+			log.error("WS TestsAndQuizzes.createAssessmentFromExportFile(): XmlUtil.createDocument() ParserConfigurationException: " + pce.getMessage(), pce);
 			throw new RuntimeException("WS TestsAndQuizzes.createAssessmentFromExportFile(): XmlUtil.createDocument() ParserConfigurationException: " + pce.getMessage());
 		} catch (SAXException saxe) {
-			LOG.error("WS TestsAndQuizzes.createAssessmentFromExportFile(): XmlUtil.createDocument() SaxException: " + saxe.getMessage(), saxe);
+			log.error("WS TestsAndQuizzes.createAssessmentFromExportFile(): XmlUtil.createDocument() SaxException: " + saxe.getMessage(), saxe);
 			throw new RuntimeException("WS TestsAndQuizzes.createAssessmentFromExportFile(): XmlUtil.createDocument() SaxException: " + saxe.getMessage());
 		} catch (IOException ioe) {
-			LOG.error("WS TestsAndQuizzes.createAssessmentFromExportFile(): XmlUtil.createDocument() IOException: " + ioe.getMessage(), ioe);
+			log.error("WS TestsAndQuizzes.createAssessmentFromExportFile(): XmlUtil.createDocument() IOException: " + ioe.getMessage(), ioe);
 			throw new RuntimeException("WS TestsAndQuizzes.createAssessmentFromExportFile(): XmlUtil.createDocument() IOException: " + ioe.getMessage());
 		}
 		if (document == null) {
@@ -250,7 +249,7 @@ public class TestsAndQuizzes extends AbstractWebService {
 		}
 
 		if (site == null) {
-			LOG.warn("WS TestsAndQuizzes.createAssessment(): Site not found - " + siteid);
+			log.warn("WS TestsAndQuizzes.createAssessment(): Site not found - " + siteid);
 			throw new RuntimeException("WS TestsAndQuizzes.createAssessment(): Site not found - "+ siteid);
 		}
 
@@ -264,7 +263,7 @@ public class TestsAndQuizzes extends AbstractWebService {
 			templateId = AssessmentTemplateFacade.DEFAULTTEMPLATE.toString();
 		}
 
-		LOG.debug("WS TestsAndQuizzes.createAssessment(): creating assessment - " + title + " in site " + site.getId());
+		log.debug("WS TestsAndQuizzes.createAssessment(): creating assessment - " + title + " in site " + site.getId());
 		
 		QTIService qtiService = new QTIService();
 		AssessmentFacade assessment = qtiService.createImportedAssessment(document, QTIVersion.VERSION_1_2, null, templateId, site.getId());
@@ -287,7 +286,7 @@ public class TestsAndQuizzes extends AbstractWebService {
 	 */
 
 	private Site findSite(String propertyName, String propertyValue) {
-		LOG.debug("WS TestsAndQuizzes.findSite(): propertyName - " + propertyName + ", propertyValue - " + propertyValue);
+		log.debug("WS TestsAndQuizzes.findSite(): propertyName - " + propertyName + ", propertyValue - " + propertyValue);
 		Map propertyCriteria = new HashMap();
 
 		// Replace search property
@@ -299,7 +298,7 @@ public class TestsAndQuizzes extends AbstractWebService {
 			if (list.size() == 1) {
 				return (Site) list.get(0);
 			} else if (list.size() > 1) {
-				LOG.warn("WS TestsAndQuizzes.findSite(): Too many sites found with property - " + propertyName + "=" + propertyValue);
+				log.warn("WS TestsAndQuizzes.findSite(): Too many sites found with property - " + propertyName + "=" + propertyValue);
 				throw new RuntimeException("WS TestsAndQuizzes.findSite(): Too many sites found with property - " + propertyName + "=" + propertyValue);
 			}
 
@@ -316,7 +315,7 @@ public class TestsAndQuizzes extends AbstractWebService {
 	 */
 
 	private String findAssessmentTemplateId(String title) {
-		LOG.debug("WS TestsAndQuizzes.findAssessmentTemplateId(): template title - " + title);
+		log.debug("WS TestsAndQuizzes.findAssessmentTemplateId(): template title - " + title);
 		
 		AssessmentService aService = new AssessmentService();
 
@@ -359,7 +358,7 @@ public class TestsAndQuizzes extends AbstractWebService {
 		ArrayList<Long> poolIds = new ArrayList<Long>();
 		StringBuilder resultado = new StringBuilder();
 		
-		LOG.debug("WS TestsAndQuizzes.poolAttachmentReport(): user - " + user);
+		log.debug("WS TestsAndQuizzes.poolAttachmentReport(): user - " + user);
 		
 		String userId=null;
 		try
@@ -368,7 +367,7 @@ public class TestsAndQuizzes extends AbstractWebService {
 		}
 		catch (Exception e)
 		{
-			LOG.warn("WS getUserId() failed for user: " + user);
+			log.warn("WS getUserId() failed for user: " + user);
 			return "";
 		}
 

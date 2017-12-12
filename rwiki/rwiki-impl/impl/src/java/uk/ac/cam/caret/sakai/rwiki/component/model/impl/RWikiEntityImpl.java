@@ -26,13 +26,8 @@ import java.net.URLEncoder;
 import java.util.Date;
 import java.util.Stack;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.xerces.impl.dv.util.Base64;
-import org.sakaiproject.component.cover.ServerConfigurationService;
-import org.sakaiproject.entity.api.Reference;
-import org.sakaiproject.entity.api.ResourceProperties;
-import org.sakaiproject.util.BaseResourceProperties;
 import org.w3c.dom.CDATASection;
 import org.w3c.dom.CharacterData;
 import org.w3c.dom.Document;
@@ -40,16 +35,20 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.entity.api.Reference;
+import org.sakaiproject.entity.api.ResourceProperties;
+import org.sakaiproject.util.BaseResourceProperties;
+
 import uk.ac.cam.caret.sakai.rwiki.service.api.RWikiObjectService;
 import uk.ac.cam.caret.sakai.rwiki.service.api.model.RWikiEntity;
 import uk.ac.cam.caret.sakai.rwiki.service.api.model.RWikiObject;
 import uk.ac.cam.caret.sakai.rwiki.utils.NameHelper;
 import uk.ac.cam.caret.sakai.rwiki.utils.SchemaNames;
 
+@Slf4j
 public class RWikiEntityImpl implements RWikiEntity
 {
-
-	private static Logger log = LoggerFactory.getLogger(RWikiEntityImpl.class);
 
 	public static final String RW_ID = "id";
 

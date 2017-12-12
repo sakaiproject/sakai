@@ -15,22 +15,17 @@
  */
 package org.sakaiproject.emailtemplateservice.tool.handler;
 
-import org.sakaiproject.event.api.UsageSessionService;
-import org.sakaiproject.tool.api.SessionManager;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.apache.commons.lang3.StringUtils;
-
-import org.sakaiproject.emailtemplateservice.tool.locators.EmailTemplateLocator;
 
 import uk.org.ponder.messageutil.TargettedMessage;
 import uk.org.ponder.messageutil.TargettedMessageList;
 
+import org.sakaiproject.emailtemplateservice.tool.locators.EmailTemplateLocator;
+import org.sakaiproject.event.api.UsageSessionService;
+import org.sakaiproject.tool.api.SessionManager;
+
 public class ModifyEmailHandler{
-	
-	private static Logger log = LoggerFactory.getLogger(ModifyEmailHandler.class);
-	
-	
+
 	private SessionManager sessionManager = null;
 	
 	public void setSessionManager (SessionManager sessionManager){

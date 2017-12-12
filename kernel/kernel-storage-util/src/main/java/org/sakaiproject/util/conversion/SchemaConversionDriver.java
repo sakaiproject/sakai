@@ -23,9 +23,12 @@ package org.sakaiproject.util.conversion;
 
 import java.util.Properties;
 
+import lombok.extern.slf4j.Slf4j;
+
 /**
  * @author ieb
  */
+@Slf4j
 public class SchemaConversionDriver {
 
 	private Properties p;
@@ -216,13 +219,13 @@ public class SchemaConversionDriver {
 	public String[] getNewColumnNames()
 	{
 		String nameStr = p.getProperty(base + ".new.columns.names");
-		//System.out.println(base + ".new.columns.names == " + nameStr);
+		log.debug("{}.new.columns.names == {}", base, nameStr);
 		String[] names = null;
 		if (nameStr != null && !nameStr.trim().equals(""))
 		{
 			names = nameStr.split(",");
 		}
-		//System.out.println(base + ".new.columns.names == " + names);
+		log.debug("{}.new.columns.names == {}", base, names);
 		return names;
 	}
 
@@ -239,13 +242,13 @@ public class SchemaConversionDriver {
 	public String[] getNewColumnTypes()
 	{
 		String typeStr = p.getProperty(base + ".new.columns.types");
-		//System.out.println(base + ".new.columns.types == " + typeStr);
+		log.debug("{}.new.columns.types == {}", base, typeStr);
 		String[] types = null;
 		if (typeStr != null && !typeStr.trim().equals(""))
 		{
 			types = typeStr.split(",");
 		}
-		//System.out.println(base + ".new.columns.types == " + types);
+		log.debug("{}.new.columns.types == {}", base, types);
 		return types;
 	}
 
@@ -265,13 +268,13 @@ public class SchemaConversionDriver {
 	public String[] getNewColumnQualifiers()
 	{
 		String qualifierStr = p.getProperty(base + ".new.columns.qualifiers");
-		//System.out.println(base + ".new.columns.qualifiers == " + qualifierStr);
+		log.debug("{}.new.columns.qualifiers == {}", base, qualifierStr);
 		String[] qualifiers = null;
 		if (qualifierStr != null && !qualifierStr.trim().equals(""))
 		{
 			qualifiers = qualifierStr.split(",");
 		}
-		//System.out.println(base + ".new.columns.qualifiers == " + qualifiers);
+		log.debug("{}.new.columns.qualifiers == {}", base, qualifiers);
 		return qualifiers;
 	}
 

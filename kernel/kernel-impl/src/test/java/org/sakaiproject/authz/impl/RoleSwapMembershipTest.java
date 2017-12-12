@@ -15,16 +15,17 @@
  */
 package org.sakaiproject.authz.impl;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.util.HashMap;
+
+import lombok.extern.slf4j.Slf4j;
+
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import java.util.HashMap;
+
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.Role;
-//import org.sakaiproject.authz.api.RoleProvider;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
@@ -34,15 +35,14 @@ import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserEdit;
 
+@Slf4j
 public class RoleSwapMembershipTest extends SakaiKernelTestBase {
-	private static Logger log = LoggerFactory.getLogger(RoleSwapMembershipTest.class);
-	
 	@BeforeClass
 	public static void beforeClass() {
 		try {
-            log.debug("starting oneTimeSetup");
+			log.debug("starting oneTimeSetup");
 			oneTimeSetup();
-            log.debug("finished oneTimeSetup");
+			log.debug("finished oneTimeSetup");
 		} catch (Exception e) {
 			log.warn(e.getMessage(), e);
 		}

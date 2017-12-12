@@ -26,8 +26,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.taggable.api.Link;
 import org.sakaiproject.taggable.api.LinkManager;
@@ -43,9 +43,8 @@ import org.sakaiproject.taggable.api.TaggingProvider;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.cover.UserDirectoryService;
 
+@Slf4j
 public class TaggingManagerImpl implements TaggingManager {
-
-	private static final Logger logger = LoggerFactory.getLogger(TaggingManagerImpl.class);
 
 	protected List<TaggableActivityProducer> taggableActivityProducers = new ArrayList<TaggableActivityProducer>();
 
@@ -54,7 +53,7 @@ public class TaggingManagerImpl implements TaggingManager {
 	private LinkManager linkManager;
 
 	public void init() {
-		logger.info("init()");
+		log.info("init()");
 	}
 
 	public TaggableActivityProducer findProducerByRef(String ref) {

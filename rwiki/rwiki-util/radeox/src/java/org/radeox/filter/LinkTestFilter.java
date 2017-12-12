@@ -28,8 +28,7 @@ import java.io.Writer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.radeox.Messages;
 import org.radeox.api.engine.RenderEngine;
 import org.radeox.api.engine.WikiRenderEngine;
@@ -48,11 +47,9 @@ import org.radeox.util.StringBufferWriter;
  * @version $Id: LinkTestFilter.java 7707 2006-04-12 17:30:19Z
  *          ian@caret.cam.ac.uk $
  */
-
+@Slf4j
 public class LinkTestFilter extends LocaleRegexTokenFilter
 {
-	private static Logger log = LoggerFactory.getLogger(LinkTestFilter.class);
-
 	/**
 	 * The regular expression for detecting WikiLinks. Overwrite in subclass to
 	 * support other link styles like OldAndUglyWikiLinking :-)

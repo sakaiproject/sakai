@@ -23,12 +23,11 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
+import lombok.extern.slf4j.Slf4j;
 import org.hibernate.type.BooleanType;
 import org.hibernate.type.DateType;
 import org.hibernate.type.LongType;
 import org.hibernate.type.StringType;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.hibernate.CacheMode;
 import org.hibernate.FetchMode;
 import org.hibernate.Hibernate;
@@ -37,6 +36,9 @@ import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.criterion.Restrictions;
 import org.hibernate.transform.Transformers;
+import org.springframework.orm.hibernate4.HibernateCallback;
+import org.springframework.orm.hibernate4.support.HibernateDaoSupport;
+
 import org.sakaiproject.profile2.dao.ProfileDao;
 import org.sakaiproject.profile2.hbm.model.ProfileFriend;
 import org.sakaiproject.profile2.hbm.model.ProfileImageExternal;
@@ -56,8 +58,6 @@ import org.sakaiproject.profile2.model.SocialNetworkingInfo;
 import org.sakaiproject.profile2.model.UserProfile;
 import org.sakaiproject.profile2.model.WallItem;
 import org.sakaiproject.profile2.model.WallItemComment;
-import org.springframework.orm.hibernate4.HibernateCallback;
-import org.springframework.orm.hibernate4.support.HibernateDaoSupport;
 
 /**
  * Internal DAO Interface for Profile2
@@ -65,11 +65,9 @@ import org.springframework.orm.hibernate4.support.HibernateDaoSupport;
  * @author Steve Swinsburg (steve.swinsburg@gmail.com)
  *
  */
+@Slf4j
 public class ProfileDaoImpl extends HibernateDaoSupport implements ProfileDao {
 
-	private static final Logger log = LoggerFactory.getLogger(ProfileDaoImpl.class);
-
-	
 	/**
  	 * {@inheritDoc}
  	 */

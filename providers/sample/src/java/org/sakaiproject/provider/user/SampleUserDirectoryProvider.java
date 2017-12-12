@@ -31,6 +31,8 @@ import java.util.Vector;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.user.api.DisplayAdvisorUDP;
 import org.sakaiproject.user.api.ExternalUserSearchUDP;
 import org.sakaiproject.user.api.User;
@@ -39,14 +41,13 @@ import org.sakaiproject.user.api.UserEdit;
 import org.sakaiproject.user.api.UserFactory;
 import org.sakaiproject.user.api.UsersShareEmailUDP;
 import org.sakaiproject.user.detail.ValueEncryptionUtilities;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * <p>
  * SampleUserDirectoryProvider is a samaple UserDirectoryProvider.
  * </p>
  */
+@Slf4j
 public class SampleUserDirectoryProvider implements UserDirectoryProvider, UsersShareEmailUDP, DisplayAdvisorUDP, ExternalUserSearchUDP
 {
 	private static final String USER_PROP_CANDIDATE_ID = "candidateID";
@@ -60,9 +61,6 @@ public class SampleUserDirectoryProvider implements UserDirectoryProvider, Users
 	
 	// Use the standard example domain name for examples.
 	public static final String EMAIL_DOMAIN = "@example.edu";
-
-	/** Our log. */
-	private final Logger log = LoggerFactory.getLogger(SampleUserDirectoryProvider.class);
 
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * Dependencies and their setter methods

@@ -28,33 +28,26 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-import org.sakaiproject.assignment.api.AssignmentService;
-import org.sakaiproject.component.cover.ComponentManager;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+
 import org.apache.commons.lang.StringEscapeUtils;
-import org.sakaiproject.util.Validator;
 
 import uk.org.ponder.messageutil.MessageLocator;
 
-import org.sakaiproject.lessonbuildertool.model.SimplePageToolDao;
+import org.sakaiproject.assignment.api.AssignmentService;
+import org.sakaiproject.assignment.api.model.Assignment;
+import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.content.cover.ContentHostingService;
+import org.sakaiproject.lessonbuildertool.model.SimplePageToolDao;
 import org.sakaiproject.lessonbuildertool.service.LessonEntity;
-
-import org.sakaiproject.assignment.api.model.Assignment;
-import org.sakaiproject.entity.api.Reference;
-import org.sakaiproject.entity.api.ResourceProperties;
-
+import org.sakaiproject.util.Validator;
 
 /*
  * set up as a singleton, but CCExport is not.
  */
-
+@Slf4j
 public class AssignmentExport {
-
-    private static Logger log = LoggerFactory.getLogger(AssignmentExport.class);
-
     private static SimplePageToolDao simplePageToolDao;
 
     private AssignmentService assignmentService;

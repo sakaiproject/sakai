@@ -18,8 +18,7 @@ package org.sakaiproject.lti.impl;
 
 import java.util.Map;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import org.tsugi.basiclti.BasicLTIConstants;
 
@@ -34,9 +33,8 @@ import org.sakaiproject.user.api.PreferencesService;
 /**
  *  @author Adrian Fish <a.fish@lancaster.ac.uk>
  */
+@Slf4j
 public class UserLocaleSetterImpl implements UserLocaleSetter {
-
-	private static Logger M_log = LoggerFactory.getLogger(UserFinderOrCreatorImpl.class);
 
     private PreferencesService preferencesService = null;
     public void setPreferencesService(PreferencesService  preferencesService) {
@@ -65,7 +63,7 @@ public class UserLocaleSetterImpl implements UserLocaleSetter {
                 propsEdit.addProperty(Preferences.FIELD_LOCALE,locale);
                 preferencesService.commit(pe);
             } catch(Exception e) {
-                M_log.error("Failed to setup launcher's locale",e);
+                log.error("Failed to setup launcher's locale",e);
             }
         }
     }

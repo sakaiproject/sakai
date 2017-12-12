@@ -46,9 +46,9 @@ import javax.faces.event.ActionEvent;
 import javax.faces.event.ValueChangeEvent;
 import javax.faces.model.SelectItem;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.db.api.SqlService;
 import org.sakaiproject.tool.api.ToolManager;
@@ -58,11 +58,10 @@ import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.util.ResourceLoader;
 
-
-
 /**
  * @author <a href="mailto:nuno@ufp.pt">Nuno Fernandes</a>
  */
+@Slf4j
 public class UserListBean {
 	private static final long				serialVersionUID	= 1L;
 	private static final String				USER_TYPE_ALL		= "All";
@@ -81,9 +80,6 @@ public class UserListBean {
 	private static final String				NO_NAME_USER		= "";
 	private static final String				CFG_USER_TYPE_LIMIT_TO_SELF		= "userType.limitToSelf";
 	private static final String				CFG_USER_TYPE_LIMIT_TO_LIST		= "userType.limitToList";
-
-	/** Our log (commons). */
-	private static Logger						LOG					= LoggerFactory.getLogger(UserListBean.class);
 
 	/** Resource bundle */
 	private transient ResourceLoader		msgs				= new ResourceLoader("org.sakaiproject.umem.tool.bundle.Messages");
@@ -272,7 +268,7 @@ public class UserListBean {
 							else return -res;
 						}
 					}catch(Exception e){
-						LOG.warn("Error occurred while sorting by: "+fieldName, e);
+						log.warn("Error occurred while sorting by: "+fieldName, e);
 					}
 				return 0;
 			}
@@ -303,24 +299,24 @@ public class UserListBean {
 	}
 
 	private void doSearch() {
-		LOG.debug("Refreshing query...");
+		log.debug("Refreshing query...");
 		selectedUserType = newUserType;
 		selectedAuthority = newAuthority;
 		searchKeyword = searchKeyword.trim();
 		userRows = new ArrayList<UserRow>();
 		
-		if(LOG.isDebugEnabled()){
-			LOG.debug("selectedUserType: " + selectedUserType);
-			LOG.debug("selectedAuthority: " + selectedAuthority);
-			LOG.debug("searchKeyword: " + searchKeyword);
+		if(log.isDebugEnabled()){
+			log.debug("selectedUserType: " + selectedUserType);
+			log.debug("selectedAuthority: " + selectedAuthority);
+			log.debug("searchKeyword: " + searchKeyword);
 		}
 		
 		
 		// 1. Search internal users (Sakai DB)
 		if(selectedAuthority.equalsIgnoreCase(USER_AUTH_ALL) || selectedAuthority.equalsIgnoreCase(USER_AUTH_INTERNAL)){
 			
-			if(LOG.isDebugEnabled()){
-				LOG.debug("Searching internal users...");
+			if(log.isDebugEnabled()){
+				log.debug("Searching internal users...");
 			}
 			
 			try{
@@ -348,12 +344,11 @@ public class UserListBean {
 						);
 					}
 				}
-				if(LOG.isDebugEnabled()){
-					LOG.debug("Internal search results: " + users.size());
+				if(log.isDebugEnabled()){
+					log.debug("Internal search results: " + users.size());
 				}
 			}catch(Exception e){
-				LOG.warn("Exception occurred while searching internal users: " + e.getMessage());
-				e.printStackTrace();
+				log.warn("Exception occurred while searching internal users: " + e.getMessage());
 			} 
 		}
 		
@@ -361,8 +356,8 @@ public class UserListBean {
 		// 2. Search users on external user providers
 		if(selectedAuthority.equalsIgnoreCase(USER_AUTH_ALL) || selectedAuthority.equalsIgnoreCase(USER_AUTH_EXTERNAL)){
 			
-			if(LOG.isDebugEnabled()){
-				LOG.debug("Searching external users...");
+			if(log.isDebugEnabled()){
+				log.debug("Searching external users...");
 			}
 			
 			try{
@@ -382,16 +377,16 @@ public class UserListBean {
 						);
 					}
 				}
-				if(LOG.isDebugEnabled()){
-					LOG.debug("External search results: " + users.size());
+				if(log.isDebugEnabled()){
+					log.debug("External search results: " + users.size());
 				}
 			}catch(RuntimeException e){
-				LOG.warn("Exception occurred while searching external users: " + e.getMessage(), e);
+				log.warn("Exception occurred while searching external users: " + e.getMessage(), e);
 			} 
 		}
 		
-		if(LOG.isDebugEnabled()){
-			LOG.debug("Total results: " + userRows.size());
+		if(log.isDebugEnabled()){
+			log.debug("Total results: " + userRows.size());
 		}
 
 		// 4. Update pager
@@ -583,7 +578,7 @@ public class UserListBean {
 						userTypes.add(new SelectItem(type));
 					}
 				}catch(SQLException e){
-					LOG.error("SQL error occurred while retrieving user types: " + e.getMessage(), e);
+					log.error("SQL error occurred while retrieving user types: " + e.getMessage(), e);
 				}finally{
 					try{
 						if(rs != null)

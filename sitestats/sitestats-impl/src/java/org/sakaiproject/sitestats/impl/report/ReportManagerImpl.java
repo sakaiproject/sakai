@@ -44,6 +44,7 @@ import javax.xml.transform.sax.SAXResult;
 import javax.xml.transform.sax.SAXSource;
 import javax.xml.transform.stream.StreamSource;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.fop.apps.FOPException;
 import org.apache.fop.apps.FOUserAgent;
 import org.apache.fop.apps.Fop;
@@ -56,6 +57,11 @@ import org.apache.poi.ss.util.WorkbookUtil;
 import org.apache.xpath.operations.Bool;
 import org.hibernate.Criteria;
 import org.hibernate.criterion.Expression;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.dao.DataAccessException;
+import org.springframework.orm.hibernate4.HibernateCallback;
+import org.springframework.orm.hibernate4.support.HibernateDaoSupport;
+
 import org.sakaiproject.content.api.ContentCollection;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentResource;
@@ -98,20 +104,13 @@ import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.util.ResourceLoader;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.core.io.ClassPathResource;
-import org.springframework.dao.DataAccessException;
-import org.springframework.orm.hibernate4.HibernateCallback;
-import org.springframework.orm.hibernate4.support.HibernateDaoSupport;
-
 
 /**
  * @author Nuno Fernandes
  *
  */
+@Slf4j
 public class ReportManagerImpl extends HibernateDaoSupport implements ReportManager, Observer {
-	private Logger						LOG				= LoggerFactory.getLogger(ReportManagerImpl.class);
 	private static ResourceLoader	msgs			= new ResourceLoader("Messages");
 	private ReportFormattedParams	formattedParams	= new ReportFormattedParamsImpl();
 
@@ -217,11 +216,11 @@ public class ReportManagerImpl extends HibernateDaoSupport implements ReportMana
 				String siteId = parts[2];
 				
 				// expire report with specified id
-				LOG.debug("Expiring report for id: "+siteId);
+				log.debug("Expiring report for id: "+siteId);
 				cacheReportDef.remove(id);
 				
 				// expire list of site reports
-				LOG.debug("Expiring report lists for site: "+siteId);
+				log.debug("Expiring report lists for site: "+siteId);
 				cacheReportDef.remove( new KeyReportDefList(siteId, true, true).toString() );
 				cacheReportDef.remove( new KeyReportDefList(siteId, true, false).toString() );
 				cacheReportDef.remove( new KeyReportDefList(siteId, false, true).toString() );
@@ -229,7 +228,7 @@ public class ReportManagerImpl extends HibernateDaoSupport implements ReportMana
 
 				// expire list of predefined reports
 				// required as event contains siteId and not null (which identifies predefined reports)
-				LOG.debug("Expiring predefined report lists");
+				log.debug("Expiring predefined report lists");
 				cacheReportDef.remove( new KeyReportDefList(null, true, true).toString() );
 				cacheReportDef.remove( new KeyReportDefList(null, true, false).toString() );
 				cacheReportDef.remove( new KeyReportDefList(null, false, true).toString() );
@@ -417,7 +416,7 @@ public class ReportManagerImpl extends HibernateDaoSupport implements ReportMana
 				Site site = M_ss.getSite(rpp.siteId);
 				rpp.userIds.addAll(site.getUsersHasRole(params.getWhoRoleId()));
 			}catch(IdUnusedException e){
-				LOG.error("No site with specified siteId.");
+				log.error("No site with specified siteId.");
 			}
 
 		}else if(params.getWho().equals(ReportManager.WHO_GROUPS) && rpp.siteId != null){
@@ -426,7 +425,7 @@ public class ReportManagerImpl extends HibernateDaoSupport implements ReportMana
 				Site site = M_ss.getSite(rpp.siteId);
 				rpp.userIds.addAll(site.getGroup(params.getWhoGroupId()).getUsers());
 			}catch(IdUnusedException e){
-				LOG.error("No site with specified siteId.");
+				log.error("No site with specified siteId.");
 			}
 
 		}else if(params.getWho().equals(ReportManager.WHO_CUSTOM)){
@@ -522,7 +521,7 @@ public class ReportManagerImpl extends HibernateDaoSupport implements ReportMana
 			return ReportManager.WHAT_PRESENCES.equals(params.getWhat());
 			
 		}else{
-			LOG.warn("isReportColumnAvailable(): invalid column: "+column);
+			log.warn("isReportColumnAvailable(): invalid column: "+column);
 			return false;
 		}
 	}
@@ -552,7 +551,7 @@ public class ReportManagerImpl extends HibernateDaoSupport implements ReportMana
 			if(reportDef != null)
 				reportDef.setReportParams(DigesterUtil.convertXmlToReportParams(reportDef.getReportDefinitionXml()));
 		}catch(Exception e){
-			LOG.warn("getReportDefinition(): unable to parse report parameters.");
+			log.warn("getReportDefinition(): unable to parse report parameters.");
 		}
 		return reportDef;
 	}
@@ -603,7 +602,7 @@ public class ReportManagerImpl extends HibernateDaoSupport implements ReportMana
 
 			reportDef.setReportDefinitionXml(DigesterUtil.convertReportParamsToXml(params));
 		}catch(Exception e) {
-			LOG.warn("saveReportDefinition(): unable to generate xml string from report parameters.", e);
+			log.warn("saveReportDefinition(): unable to generate xml string from report parameters.", e);
 			return false;
 		}
 		HibernateCallback<Void> hcb = session -> {
@@ -619,7 +618,7 @@ public class ReportManagerImpl extends HibernateDaoSupport implements ReportMana
 			M_sm.logEvent(reportDef, isNew ? StatsManager.LOG_ACTION_NEW : StatsManager.LOG_ACTION_EDIT, siteId, false);
 			return true;
 		} catch (DataAccessException dae) {
-			LOG.error("Could not save report definition: {}", dae.getMessage(), dae);
+			log.error("Could not save report definition: {}", dae.getMessage(), dae);
 		}
 		return false;
 	}
@@ -647,7 +646,7 @@ public class ReportManagerImpl extends HibernateDaoSupport implements ReportMana
 				return true;
 			}
 		} catch (DataAccessException dae) {
-			LOG.error("Could not remove report definition: {}", dae.getMessage(), dae);
+			log.error("Could not remove report definition: {}", dae.getMessage(), dae);
 		}
 		return false;
 	}
@@ -661,7 +660,7 @@ public class ReportManagerImpl extends HibernateDaoSupport implements ReportMana
 		Object cached = cacheReportDef.get(key.toString());
 		if(cached != null) {
 			reportDefs = (List<ReportDef>) cached;
-			LOG.debug("Getting report list from cache for site "+siteId);
+			log.debug("Getting report list from cache for site "+siteId);
 		}else{
 			HibernateCallback<List<ReportDef>> hcb = session -> {
                 Criteria c = session.createCriteria(ReportDef.class);
@@ -685,7 +684,7 @@ public class ReportManagerImpl extends HibernateDaoSupport implements ReportMana
 					try{
 						reportDef.setReportParams(DigesterUtil.convertXmlToReportParams(reportDef.getReportDefinitionXml()));
 					}catch(Exception e){
-						LOG.warn("getReportDefinition(): unable to parse report parameters.");
+						log.warn("getReportDefinition(): unable to parse report parameters.");
 						reportDef.setReportParams(null);
 					}
 				}
@@ -841,7 +840,7 @@ public class ReportManagerImpl extends HibernateDaoSupport implements ReportMana
 			baos = new ByteArrayOutputStream();
 			wb.write(baos);
 		}catch(IOException e){
-			LOG.error("Error writing Excel bytes from SiteStats report", e);
+			log.error("Error writing Excel bytes from SiteStats report", e);
 		}finally{
 			if(baos != null) {
 				try{ baos.close(); }catch(IOException e){ /* ignore */ }
@@ -1142,13 +1141,13 @@ public class ReportManagerImpl extends HibernateDaoSupport implements ReportMana
             transformer.transform(src, res);
     	    
 		}catch(TransformerConfigurationException e){
-			LOG.error("TransformerConfigurationException while writing SiteStats PDF report", e);
+			log.error("TransformerConfigurationException while writing SiteStats PDF report", e);
 		}catch(FOPException e){
-			LOG.error("FOPException while writing SiteStats PDF report", e);
+			log.error("FOPException while writing SiteStats PDF report", e);
 		}catch(TransformerException e){
-			LOG.error("TransformerException while writing SiteStats PDF report", e);
+			log.error("TransformerException while writing SiteStats PDF report", e);
 		}catch(Exception e){
-			LOG.error("Exception while generating SiteStats PDF report", e);
+			log.error("Exception while generating SiteStats PDF report", e);
 		}finally{
 			try{
 				if(out != null) {
@@ -1156,7 +1155,7 @@ public class ReportManagerImpl extends HibernateDaoSupport implements ReportMana
 					return out.toByteArray();
 				}
 			}catch(IOException e){
-				LOG.error("IOException while writing SiteStats PDF report", e);
+				log.error("IOException while writing SiteStats PDF report", e);
 			}
 		}
 		return null;
@@ -1215,7 +1214,7 @@ public class ReportManagerImpl extends HibernateDaoSupport implements ReportMana
 	private StringBuilder appendQuoted(StringBuilder sb, String toQuote) {
 		if((toQuote.indexOf(',') >= 0) || (toQuote.indexOf('"') >= 0)){
 			String out = toQuote.replaceAll("\"", "\"\"");
-			if(LOG.isDebugEnabled()) LOG.debug("Turning '" + toQuote + "' to '" + out + "'");
+			if(log.isDebugEnabled()) log.debug("Turning '" + toQuote + "' to '" + out + "'");
 			sb.append("\"").append(out).append("\"");
 		}else{
 			sb.append(toQuote);
@@ -1263,7 +1262,7 @@ public class ReportManagerImpl extends HibernateDaoSupport implements ReportMana
 			Site site = M_ss.getSite(placement.getContext());
 			return site.getGroup(groupId).getTitle();
 		}catch(IdUnusedException e){
-			LOG.warn("ReportManager: unable to get group title with id: " + groupId);
+			log.warn("ReportManager: unable to get group title with id: " + groupId);
 		}
 		return null;
 	}
@@ -1492,11 +1491,11 @@ public class ReportManagerImpl extends HibernateDaoSupport implements ReportMana
 							buff.append(", ");
 						}
 					}catch(PermissionException e){
-						e.printStackTrace();
+						log.error(e.getMessage(), e);
 					}catch(IdUnusedException e){
-						e.printStackTrace();
+						log.error(e.getMessage(), e);
 					}catch(TypeException e){
-						e.printStackTrace();
+						log.error(e.getMessage(), e);
 					}
 				}
 				return buff.toString();

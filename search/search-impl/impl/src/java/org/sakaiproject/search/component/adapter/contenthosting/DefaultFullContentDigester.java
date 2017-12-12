@@ -26,18 +26,17 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.search.api.SearchUtils;
 
 /**
  * @author ieb
  */
+@Slf4j
 public class DefaultFullContentDigester extends DefaultContentDigester
 {
-	private static final Logger log = LoggerFactory.getLogger(DefaultFullContentDigester.class);
-	
+
 	private int maxDigestSize = 1024 * 1024 * 5; // 5M
 
 	public String getContent(ContentResource contentResource)

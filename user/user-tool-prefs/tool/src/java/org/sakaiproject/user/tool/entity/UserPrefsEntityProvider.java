@@ -30,8 +30,8 @@ import java.util.HashMap;
 import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.entity.api.Entity;
@@ -57,10 +57,9 @@ import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.exception.InUseException;
 import org.sakaiproject.exception.PermissionException;
 
-
+@Slf4j
 public class UserPrefsEntityProvider extends AbstractEntityProvider implements CoreEntityProvider, RESTful, RequestStorable {
 
-	private static Logger log = LoggerFactory.getLogger(UserPrefsEntityProvider.class);
 	public static String PREFIX = "userPrefs";
 	private PreferencesService preferencesService;
 	private SessionManager sessionManager;

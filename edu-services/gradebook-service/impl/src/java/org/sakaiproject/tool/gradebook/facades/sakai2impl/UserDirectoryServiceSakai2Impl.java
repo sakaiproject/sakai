@@ -16,20 +16,14 @@
 
 package org.sakaiproject.tool.gradebook.facades.sakai2impl;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import org.sakaiproject.user.api.UserNotDefinedException;
-
 import org.sakaiproject.service.gradebook.shared.UnknownUserException;
 import org.sakaiproject.tool.gradebook.facades.UserDirectoryService;
+import org.sakaiproject.user.api.UserNotDefinedException;
 
 /**
  * Sakai2 implementation of the gradebook UserDirectoryService API.
  */
 public class UserDirectoryServiceSakai2Impl implements UserDirectoryService {
-    private static final Logger log = LoggerFactory.getLogger(UserDirectoryServiceSakai2Impl.class);
-
     public String getUserDisplayName(String userUid) throws UnknownUserException {
         try {
             org.sakaiproject.user.api.User sakaiUser =

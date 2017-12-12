@@ -31,20 +31,17 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
 
+import lombok.extern.slf4j.Slf4j;
+
 import org.apache.commons.dbcp.cpdsadapter.DriverAdapterCPDS;
 import org.apache.commons.dbcp.datasources.SharedPoolDataSource;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 
 /**
  * @author ieb
  */
+@Slf4j
 public class UpgradeSchema
 {
-
-	private static final Logger log = LoggerFactory.getLogger(UpgradeSchema.class);
-
 	private SharedPoolDataSource tds;
 
 	public static void main(String[] argv)

@@ -24,10 +24,6 @@
 
 package org.sakaiproject.pasystem.tool;
 
-import com.github.jknack.handlebars.Handlebars;
-import com.github.jknack.handlebars.Helper;
-import com.github.jknack.handlebars.Options;
-import com.github.jknack.handlebars.Template;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -37,11 +33,18 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.stream.Collectors;
+
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import lombok.extern.slf4j.Slf4j;
+import com.github.jknack.handlebars.Handlebars;
+import com.github.jknack.handlebars.Helper;
+import com.github.jknack.handlebars.Options;
+import com.github.jknack.handlebars.Template;
 
 import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.cluster.api.ClusterService;
@@ -60,18 +63,15 @@ import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.user.cover.PreferencesService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * The entry point for the PA System administration tool.  Takes a request,
  * routes it to a handler, renders a template in response.
  */
+@Slf4j
 public class PASystemServlet extends HttpServlet {
 
     private static final String FLASH_MESSAGE_KEY = "pasystem-tool.flash.errors";
-
-    private static final Logger LOG = LoggerFactory.getLogger(PASystemServlet.class);
 
     private PASystem paSystem;
     private ClusterService clusterService;
@@ -141,7 +141,7 @@ public class PASystemServlet extends HttpServlet {
                 }
             }
         } catch (IOException e) {
-            LOG.warn("Write failed", e);
+            log.warn("Write failed", e);
         }
     }
 
@@ -149,7 +149,7 @@ public class PASystemServlet extends HttpServlet {
         String siteId = ToolManager.getCurrentPlacement().getContext();
 
         if (!SecurityService.unlock("pasystem.manage", "/site/" + siteId)) {
-            LOG.error("Access denied to PA System management tool for user " + SessionManager.getCurrentSessionUserId());
+            log.error("Access denied to PA System management tool for user " + SessionManager.getCurrentSessionUserId());
             throw new PASystemException("Access denied");
         }
     }
@@ -194,7 +194,7 @@ public class PASystemServlet extends HttpServlet {
                     Template template = handlebars.compile("org/sakaiproject/pasystem/tool/views/" + subpage);
                     return template.apply(context);
                 } catch (IOException e) {
-                    LOG.warn("IOException while loading subpage", e);
+                    log.warn("IOException while loading subpage", e);
                     return "";
                 }
             }

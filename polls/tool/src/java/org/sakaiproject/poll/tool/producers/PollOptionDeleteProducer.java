@@ -25,8 +25,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.poll.logic.PollListManager;
 import org.sakaiproject.poll.logic.PollVoteManager;
 import org.sakaiproject.poll.model.Option;
@@ -56,11 +56,10 @@ import uk.org.ponder.rsf.view.ViewComponentProducer;
 import uk.org.ponder.rsf.viewstate.ViewParameters;
 import uk.org.ponder.rsf.viewstate.ViewParamsReporter;
 
-
+@Slf4j
 public class PollOptionDeleteProducer implements ViewComponentProducer, ActionResultInterceptor,ViewParamsReporter {
 	public static final String VIEW_ID = "pollOptionDelete";
-	private static final Logger LOG = LoggerFactory.getLogger(PollOptionDeleteProducer.class);
-	
+
 	private MessageLocator messageLocator;
 	private LocaleGetter localeGetter;
 	
@@ -91,20 +90,20 @@ public class PollOptionDeleteProducer implements ViewComponentProducer, ActionRe
 	@SuppressWarnings("unchecked")
 	public void fillComponents(UIContainer tofill, ViewParameters viewparams,
 			ComponentChecker arg2) {
-		LOG.debug("rendering view");
+		log.debug("rendering view");
 		
 		UIOutput.make(tofill,"confirm_delete",messageLocator.getMessage("delete_confirm"));
 		
 		Option option = null;
 		OptionViewParameters aivp = (OptionViewParameters) viewparams;
 		if(aivp.id != null) {
-			LOG.debug("got a paramater with id: " + Long.valueOf(aivp.id));
+			log.debug("got a paramater with id: " + Long.valueOf(aivp.id));
 			// passed in an id so we should be modifying an item if we can find it
 			option = pollListManager.getOptionById(Long.valueOf(aivp.id));
 		} 
 		
 		if (option == null) {
-			LOG.error("no such option found!");
+			log.error("no such option found!");
 			return;
 		}
 
@@ -189,12 +188,12 @@ public class PollOptionDeleteProducer implements ViewComponentProducer, ActionRe
 	  }
 	  public void interceptActionResult(ARIResult result,
 			  ViewParameters incoming, Object actionReturn) {
-		  LOG.debug("intercepting action results!");
+		  log.debug("intercepting action results!");
 		  Poll poll = null;
 
 		  if (actionReturn != null && actionReturn instanceof Poll) {
 			  poll = (Poll) actionReturn;
-			  LOG.debug("return is poll: " + poll.getPollId());
+			  log.debug("return is poll: " + poll.getPollId());
 			  result.resultingView = new PollViewParameters(AddPollProducer.VIEW_ID,poll.getPollId().toString());
 		  }
 		  
@@ -210,7 +209,7 @@ public class PollOptionDeleteProducer implements ViewComponentProducer, ActionRe
 					if (! "option".equals(retVal)) {
 						result.resultingView = new PollViewParameters(viewId, optvp.pollId);
 					} else {
-						LOG.debug("New option for poll: " + optvp.pollId);
+						log.debug("New option for poll: " + optvp.pollId);
 						result.resultingView = new OptionViewParameters(VIEW_ID, optvp.id , optvp.pollId);
 					}
 

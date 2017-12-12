@@ -17,6 +17,7 @@ package org.sakaiproject.sitedescription.ui;
 
 import javax.servlet.http.HttpServletRequest;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.wicket.markup.head.IHeaderResponse;
 import org.apache.wicket.markup.head.JavaScriptHeaderItem;
 import org.apache.wicket.markup.head.OnLoadHeaderItem;
@@ -26,13 +27,12 @@ import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.spring.injection.annot.SpringBean;
+
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.ToolManager;
-
-import lombok.extern.slf4j.Slf4j;
 
 /**
  * Main page for the Site Description widget
@@ -66,8 +66,7 @@ public class WidgetPage extends WebPage {
             Site site = siteService.getSite(currentSiteId);
             add(new Label("siteinfo", Model.of(site.getDescription())).setEscapeModelStrings(false));
         } catch (IdUnusedException e) {
-            //almost impossible since we just got the tool placement, but anyway...
-            e.printStackTrace();
+            log.error(e.getMessage(), e);
         }
     }
 

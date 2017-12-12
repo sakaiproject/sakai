@@ -26,8 +26,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+
+import org.springframework.web.multipart.MultipartFile;
+
+import uk.org.ponder.messageutil.MessageLocator;
+import uk.org.ponder.messageutil.TargettedMessage;
+import uk.org.ponder.messageutil.TargettedMessageList;
+
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.email.api.Attachment;
 import org.sakaiproject.exception.IdUnusedException;
@@ -42,12 +48,8 @@ import org.sakaiproject.user.api.User;
 import org.sakaiproject.util.StringUtil;
 import org.sakaiproject.util.Web;
 import org.sakaiproject.tool.cover.SessionManager;
-import org.springframework.web.multipart.MultipartFile;
 
-import uk.org.ponder.messageutil.MessageLocator;
-import uk.org.ponder.messageutil.TargettedMessage;
-import uk.org.ponder.messageutil.TargettedMessageList;
-
+@Slf4j
 public class EmailBean
 {
 	public static final String EMAIL_SENT = "emailSent";
@@ -55,14 +57,13 @@ public class EmailBean
 	public static final String EMAIL_CANCELLED = "emailCancelled";
 
 	private Map<String, MultipartFile> multipartMap;
-	private final Logger log = LoggerFactory.getLogger(EmailBean.class);
 	private ComposeLogic composeLogic;
 	private ConfigLogic configLogic;
 	private ExternalLogic externalLogic;
 	private EmailEntry emailEntry;
 	private TargettedMessageList messages;
-    private MessageLocator messageLocator;
-    private ServerConfigurationService configService;
+	private MessageLocator messageLocator;
+	private ServerConfigurationService configService;
 
 	public EmailBean() { }
 

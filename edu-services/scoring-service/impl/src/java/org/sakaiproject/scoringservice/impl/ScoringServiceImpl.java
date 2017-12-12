@@ -21,12 +21,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.core.OrderComparator;
+
 import org.sakaiproject.scoringservice.api.ScoringAgent;
 import org.sakaiproject.scoringservice.api.ScoringComponent;
 import org.sakaiproject.scoringservice.api.ScoringService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.core.OrderComparator;
 
 /**
  * Sakai's implementation of the ScoringService.  Keeps an in memory
@@ -36,8 +35,6 @@ public class ScoringServiceImpl implements ScoringService {
     private Map<String, ScoringAgent> scoringAgentMap = new HashMap<>();
     private List<ScoringAgent> sortedScoringAgents = new ArrayList<>();
     private ScoringAgent defaultScoringAgent;
-
-    private static final Logger log = LoggerFactory.getLogger(ScoringServiceImpl.class);
 
     public void init(){
     }

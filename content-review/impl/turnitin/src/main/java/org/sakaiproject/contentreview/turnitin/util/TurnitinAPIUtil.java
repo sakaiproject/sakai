@@ -49,16 +49,18 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
 import lombok.extern.slf4j.Slf4j;
+
 import org.apache.commons.io.IOUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
 import org.azeckoski.reflectutils.transcoders.XMLTranscoder;
+
+import org.w3c.dom.Document;
+
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.contentreview.exception.SubmissionException;
 import org.sakaiproject.contentreview.exception.TransientSubmissionException;
 import org.sakaiproject.exception.ServerOverloadException;
 import org.sakaiproject.util.Xml;
-import org.w3c.dom.Document;
 
 /**
  * This is a utility class for wrapping the physical https calls to the
@@ -69,8 +71,6 @@ import org.w3c.dom.Document;
  */
 @Slf4j
 public class TurnitinAPIUtil {
-	
-	private static final Logger apiTraceLog = LoggerFactory.getLogger("org.sakaiproject.turnitin.util.TurnitinAPIUtil.apicalltrace");
 
 	private static String encodeSakaiTitles(String assignTitle) {
 		String assignEnc = assignTitle;
@@ -84,7 +84,7 @@ public class TurnitinAPIUtil {
 
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			log.error(e.getMessage(), e);
 		}
 		return assignEnc;
 	}
@@ -184,7 +184,7 @@ public class TurnitinAPIUtil {
 
 		try (InputStream inputStream = callTurnitinReturnInputStream(apiURL, parameters, secretKey, timeout, proxy, false)) {
 			Map togo = xmlt.decode(IOUtils.toString(inputStream));
-			apiTraceLog.debug("Turnitin Result Payload: " + togo);
+			log.debug("Turnitin Result Payload: " + togo);
 			return togo;
 		} catch (Exception t) {
 			// Could be 'java.lang.IllegalArgumentException: xml cannot be null or empty' from IO errors
@@ -203,7 +203,7 @@ public class TurnitinAPIUtil {
 		}
 		
 		StringBuilder apiDebugSB = new StringBuilder();
-		if (apiTraceLog.isDebugEnabled()) {
+		if (log.isDebugEnabled()) {
 			apiDebugSB.append("Starting URL TII Construction:\n");
 		}
 		
@@ -216,7 +216,7 @@ public class TurnitinAPIUtil {
 		
 		StringBuilder sb = new StringBuilder();
 		sb.append(apiURL);
-		if (apiTraceLog.isDebugEnabled()) {
+		if (log.isDebugEnabled()) {
 			apiDebugSB.append("The TII Base URL is:\n");
 			apiDebugSB.append(apiURL);
 		}
@@ -224,7 +224,7 @@ public class TurnitinAPIUtil {
 		sb.append(sortedkeys.get(0));
 		sb.append("=");
 		sb.append(parameters.get(sortedkeys.get(0)));
-		if (apiTraceLog.isDebugEnabled()) {
+		if (log.isDebugEnabled()) {
 			apiDebugSB.append(sortedkeys.get(0));
 			apiDebugSB.append("=");
 			apiDebugSB.append(parameters.get(sortedkeys.get(0)));
@@ -236,7 +236,7 @@ public class TurnitinAPIUtil {
 			sb.append(sortedkeys.get(i));
 			sb.append("=");
 			sb.append(parameters.get(sortedkeys.get(i)));
-			if (apiTraceLog.isDebugEnabled()) {
+			if (log.isDebugEnabled()) {
 				apiDebugSB.append(sortedkeys.get(i));
 				apiDebugSB.append(" = ");
 				apiDebugSB.append(parameters.get(sortedkeys.get(i)));
@@ -247,11 +247,11 @@ public class TurnitinAPIUtil {
 		sb.append("&");
 		sb.append("md5=");
 		sb.append(md5);
-		if (apiTraceLog.isDebugEnabled()) {
+		if (log.isDebugEnabled()) {
 			apiDebugSB.append("md5 = ");
 			apiDebugSB.append(md5);
 			apiDebugSB.append("\n");
-			apiTraceLog.debug(apiDebugSB.toString());
+			log.debug(apiDebugSB.toString());
 		}
 		
 		return sb.toString();
@@ -276,8 +276,8 @@ public class TurnitinAPIUtil {
 			throw new TransientSubmissionException ("Cannot parse Turnitin response. Assuming call was unsuccessful", t);
 		}
 		
-		if (apiTraceLog.isDebugEnabled()) {
-			apiTraceLog.debug(" Result from call: " + Xml.writeDocumentToString(document));
+		if (log.isDebugEnabled()) {
+			log.debug(" Result from call: " + Xml.writeDocumentToString(document));
 		}
 
 		return document;
@@ -342,7 +342,7 @@ public class TurnitinAPIUtil {
 			OutputStream outStream = connection.getOutputStream();
 
 			if (isMultipart) {
-				if (apiTraceLog.isDebugEnabled()) {
+				if (log.isDebugEnabled()) {
 					apiDebugSB.append("Starting Multipart TII CALL:\n");
 				}
 				for (int i = 0; i < sortedkeys.size(); i++) {
@@ -361,7 +361,7 @@ public class TurnitinAPIUtil {
 						}
 						outStream.write(content);
 						outStream.write("\r\n".getBytes("UTF-8"));
-						if (apiTraceLog.isDebugEnabled()) {
+						if (log.isDebugEnabled()) {
 							apiDebugSB.append(sortedkeys.get(i));
 							apiDebugSB.append(" = ContentHostingResource: ");
 							apiDebugSB.append(resource.getId());
@@ -369,7 +369,7 @@ public class TurnitinAPIUtil {
 						}
 					}
 					else {
-						if (apiTraceLog.isDebugEnabled()) {
+						if (log.isDebugEnabled()) {
 							apiDebugSB.append(sortedkeys.get(i));
 							apiDebugSB.append(" = ");
 							apiDebugSB.append(parameters.get(sortedkeys.get(i)).toString());
@@ -381,17 +381,17 @@ public class TurnitinAPIUtil {
 				outStream.write(encodeParam("md5",md5, boundary).getBytes());
 				outStream.write(("--" + boundary + "--").getBytes());
 				
-				if (apiTraceLog.isDebugEnabled()) {
+				if (log.isDebugEnabled()) {
 					apiDebugSB.append("md5 = ");
 					apiDebugSB.append(md5);
 					apiDebugSB.append("\n");
-					apiTraceLog.debug(apiDebugSB.toString());
+					log.debug(apiDebugSB.toString());
 				}
 			}
 			else {
 				writeBytesToOutputStream(outStream, sortedkeys.get(0),"=",
 						parameters.get(sortedkeys.get(0)).toString());
-				if (apiTraceLog.isDebugEnabled()) {
+				if (log.isDebugEnabled()) {
 					apiDebugSB.append("Starting TII CALL:\n");
 					apiDebugSB.append(sortedkeys.get(0));
 					apiDebugSB.append(" = ");
@@ -402,7 +402,7 @@ public class TurnitinAPIUtil {
 				for (int i = 1; i < sortedkeys.size(); i++) {
 					writeBytesToOutputStream(outStream, "&", sortedkeys.get(i), "=", 
 							parameters.get(sortedkeys.get(i)).toString());
-					if (apiTraceLog.isDebugEnabled()) {
+					if (log.isDebugEnabled()) {
 						apiDebugSB.append(sortedkeys.get(i));
 						apiDebugSB.append(" = ");
 						apiDebugSB.append(parameters.get(sortedkeys.get(i)).toString());
@@ -411,10 +411,10 @@ public class TurnitinAPIUtil {
 				}
 
 				writeBytesToOutputStream(outStream, "&md5=", md5);
-				if (apiTraceLog.isDebugEnabled()) {
+				if (log.isDebugEnabled()) {
 					apiDebugSB.append("md5 = ");
 					apiDebugSB.append(md5);
-					apiTraceLog.debug(apiDebugSB.toString());
+					log.debug(apiDebugSB.toString());
 				}
 			}
 

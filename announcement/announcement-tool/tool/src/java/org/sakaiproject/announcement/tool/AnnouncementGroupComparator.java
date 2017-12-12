@@ -15,24 +15,21 @@
  */
 package org.sakaiproject.announcement.tool;
 
-import org.sakaiproject.site.api.Group;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.text.Collator;
 import java.text.ParseException;
 import java.text.RuleBasedCollator;
 import java.util.Comparator;
+import lombok.extern.slf4j.Slf4j;
+
+import org.sakaiproject.site.api.Group;
 
 /**
  * Comparator for announcements.
  */
+@Slf4j
 class AnnouncementGroupComparator implements Comparator<Group> {
 
     public enum Criteria {TITLE, DESCRIPTION};
-
-
-    private Logger log = LoggerFactory.getLogger(AnnouncementGroupComparator.class);
 
     private static RuleBasedCollator collator_ini = (RuleBasedCollator)Collator.getInstance();
     private Collator collator = Collator.getInstance();
@@ -44,7 +41,7 @@ class AnnouncementGroupComparator implements Comparator<Group> {
         try {
             collator = new RuleBasedCollator(collator_ini.getRules().replaceAll("<'\u005f'", "<' '<'\u005f'"));
         } catch (ParseException e) {
-            log.error(this + " Cannot init RuleBasedCollator. Will use the default Collator instead.", e);
+            log.error("{} Cannot init RuleBasedCollator. Will use the default Collator instead.", this, e);
         }
     }
 

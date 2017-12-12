@@ -31,21 +31,21 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.web.context.WebApplicationContext;
+import org.springframework.web.context.support.WebApplicationContextUtils;
+
 import org.sakaiproject.search.tool.api.SearchBeanFactory;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.tool.api.ToolSession;
-import org.springframework.web.context.WebApplicationContext;
-import org.springframework.web.context.support.WebApplicationContextUtils;
 
 /**
  * @author Ian Boston
  */
+@Slf4j
 public class ControllerServlet extends HttpServlet
 {
-	public static final Logger log = LoggerFactory.getLogger(ControllerServlet.class);
 
 	/**
 	 * Required for serialization... also to stop eclipse from giving me a

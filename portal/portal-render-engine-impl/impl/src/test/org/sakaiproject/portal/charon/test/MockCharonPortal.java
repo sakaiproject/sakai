@@ -36,10 +36,11 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServlet;
 
+import lombok.extern.slf4j.Slf4j;
+import org.w3c.tidy.Tidy;
+
 import org.sakaiproject.portal.api.PortalRenderContext;
 import org.sakaiproject.portal.charon.velocity.VelocityPortalRenderEngine;
-import org.w3c.tidy.Tidy;
-import lombok.extern.slf4j.Slf4j;
 
 /**
  * <p>
@@ -522,7 +523,6 @@ public class MockCharonPortal extends HttpServlet
 				} 
 			} 
 			catch (IOException ex) {
-				System.err.println("Error: " + ex);
 				log.info("File read error " + ex);
 				throw new RuntimeException("File read error "+ex);
 			}
@@ -549,7 +549,6 @@ public class MockCharonPortal extends HttpServlet
 		this.outputFile = outputFile;
 	}
 
-
 	/**
 	 * @return the resourceLoader
 	 */
@@ -557,7 +556,6 @@ public class MockCharonPortal extends HttpServlet
 	{
 		return resourceLoader;
 	}
-
 
 	/**
 	 * @param resourceLoader the resourceLoader to set

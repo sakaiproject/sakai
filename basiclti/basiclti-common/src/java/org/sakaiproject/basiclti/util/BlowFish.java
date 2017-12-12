@@ -18,20 +18,9 @@
 
 package org.sakaiproject.basiclti.util;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.FileInputStream;
-
-import org.sakaiproject.component.cover.ServerConfigurationService;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.security.*;
-import javax.crypto.*;
-import javax.crypto.spec.*;
+import javax.crypto.Cipher;
+import javax.crypto.SecretKey;
+import javax.crypto.spec.SecretKeySpec;
 
 import org.sakaiproject.basiclti.util.PortableShaUtil;
 

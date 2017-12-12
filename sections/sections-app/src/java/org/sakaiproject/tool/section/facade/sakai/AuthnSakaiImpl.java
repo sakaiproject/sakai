@@ -20,8 +20,8 @@
  **********************************************************************************/
 package org.sakaiproject.tool.section.facade.sakai;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.section.api.facade.manager.Authn;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.cover.SessionManager;
@@ -31,8 +31,8 @@ import org.sakaiproject.tool.cover.SessionManager;
  * 
  * @author <a href="jholtzman@berkeley.edu">Josh Holtzman</a>
  */
+@Slf4j
 public class AuthnSakaiImpl implements Authn {
-    private static final Logger log = LoggerFactory.getLogger(AuthnSakaiImpl.class);
 
     /**
      * @see org.sakaiproject.section.api.facade.managers.Authn#getUserUid()

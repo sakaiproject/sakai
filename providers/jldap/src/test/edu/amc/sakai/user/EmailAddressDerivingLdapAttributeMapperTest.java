@@ -21,12 +21,14 @@
 
 package edu.amc.sakai.user;
 
+import lombok.extern.slf4j.Slf4j;
 import org.jmock.Mock;
 import org.jmock.cglib.MockObjectTestCase;
 
 import com.novell.ldap.LDAPAttributeSet;
 import com.novell.ldap.LDAPEntry;
 
+@Slf4j
 public class EmailAddressDerivingLdapAttributeMapperTest extends MockObjectTestCase {
 
 	private EmailAddressDerivingLdapAttributeMapper attribMapper;
@@ -170,7 +172,7 @@ public class EmailAddressDerivingLdapAttributeMapperTest extends MockObjectTestC
 		try {
 		attribMapper.mapLdapEntryOntoUserData(entry, userData); // the code exercise
 		} catch ( Throwable t ) {
-			t.printStackTrace();
+			log.error(t.getMessage(), t);
 		}
 		// deriveEmailFromEid() behavior validated below
 		assertEquals(userData.getEmail(), attribMapper.deriveAddressFromEid(eid));

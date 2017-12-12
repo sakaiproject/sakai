@@ -28,8 +28,8 @@ import java.util.Set;
 import java.util.Collection;
 import java.util.HashSet;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.component.api.ServerConfigurationService;
@@ -55,7 +55,6 @@ import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.StringUtil;
 import org.sakaiproject.util.FormattedText;
 
-
 /**
  * <p>
  * DropboxNotification is the notification action that handles the act of message (email) based notify related to changes in an individual dropbox.
@@ -73,10 +72,9 @@ import org.sakaiproject.util.FormattedText;
  * getClone() should also be extended to clone the proper type of object.
  * </p>
  */
+@Slf4j
 public class DropboxNotification extends EmailNotification 
 {
-	static final Logger logger = LoggerFactory.getLogger(DropboxNotification.class);
-	
 	/* property bundles */
 	private static final String DEFAULT_RESOURCECLASS = "org.sakaiproject.localization.util.SiteemaconProperties";
 	private static final String DEFAULT_RESOURCEBUNDLE = "org.sakaiproject.localization.bundle.siteemacon.siteemacon";
@@ -229,7 +227,7 @@ public class DropboxNotification extends EmailNotification
 			site = siteService.getSite(siteId);
         }
         catch (IdUnusedException e) {
-			logger.warn("Could not getSite for " + siteId + " not returning any recipients.");
+			log.warn("Could not getSite for " + siteId + " not returning any recipients.");
             return recipients;
         }
 		
@@ -269,7 +267,7 @@ public class DropboxNotification extends EmailNotification
 					}
 					catch(UserNotDefinedException e1)
 					{
-						logger.warn("UserNotDefinedException trying to get user: " + dropboxOwnerId);
+						log.warn("UserNotDefinedException trying to get user: " + dropboxOwnerId);
 					}
 				}
 				
@@ -362,11 +360,11 @@ public class DropboxNotification extends EmailNotification
 		} 
 		catch (PermissionException e) 
 		{
-			logger.warn("PermissionException trying to get title for individual dropbox: " + dropboxId);
+			log.warn("PermissionException trying to get title for individual dropbox: " + dropboxId);
 		} 
 		catch (IdUnusedException e) 
 		{
-			logger.warn("IdUnusedException trying to get title for individual dropbox: " + dropboxId);
+			log.warn("IdUnusedException trying to get title for individual dropbox: " + dropboxId);
 		}
 
 		if ( doHtml ) 
@@ -499,11 +497,11 @@ public class DropboxNotification extends EmailNotification
 		} 
 		catch (PermissionException e) 
 		{
-			logger.warn("PermissionException trying to get title for individual dropbox: " + dropboxId);
+			log.warn("PermissionException trying to get title for individual dropbox: " + dropboxId);
 		} 
 		catch (IdUnusedException e) 
 		{
-			logger.warn("IdUnusedException trying to get title for individual dropbox: " + dropboxId);
+			log.warn("IdUnusedException trying to get title for individual dropbox: " + dropboxId);
 		}
 		
 		String[] args = {siteTitle, dropboxTitle, resourceName};

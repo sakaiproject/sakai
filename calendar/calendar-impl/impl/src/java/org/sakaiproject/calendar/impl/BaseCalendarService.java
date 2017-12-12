@@ -21,6 +21,21 @@
 
 package org.sakaiproject.calendar.impl;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.*;
+import java.util.Map.Entry;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+
+import lombok.extern.slf4j.Slf4j;
+
 import net.fortuna.ical4j.data.CalendarOutputter;
 import net.fortuna.ical4j.model.DateTime;
 import net.fortuna.ical4j.model.Property;
@@ -31,8 +46,16 @@ import net.fortuna.ical4j.model.parameter.Value;
 import net.fortuna.ical4j.model.property.*;
 
 import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+
+import org.xml.sax.Attributes;
+import org.xml.sax.ContentHandler;
+import org.xml.sax.SAXException;
+
 import org.sakaiproject.alias.api.Alias;
 import org.sakaiproject.alias.api.AliasService;
 import org.sakaiproject.authz.api.*;
@@ -57,7 +80,6 @@ import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.time.api.Time;
-import org.sakaiproject.time.api.TimeBreakdown;
 import org.sakaiproject.time.api.TimeRange;
 import org.sakaiproject.time.api.TimeService;
 import org.sakaiproject.tool.api.SessionBindingEvent;
@@ -68,41 +90,15 @@ import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.util.*;
 import org.sakaiproject.util.cover.LinkMigrationHelper;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-import org.xml.sax.Attributes;
-import org.xml.sax.ContentHandler;
-import org.xml.sax.SAXException;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.transform.*;
-import javax.xml.transform.stream.StreamSource;
-
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.text.DateFormat;
-import java.text.DecimalFormat;
-import java.util.*;
-import java.util.Map.Entry;
 /**
  * <p>
  * BaseCalendarService is an base implementation of the CalendarService. Extension classes implement object creation, access and storage.
  * </p>
  */
+@Slf4j
 public abstract class BaseCalendarService implements CalendarService, DoubleStorageUser, ContextObserver, EntityTransferrer, SAXEntityReader, EntityTransferrerRefMigrator, Observer
 {
-	/** Our logger. */
-	private static Logger M_log = LoggerFactory.getLogger(BaseCalendarService.class);
-
 	/** The initial portion of a relative access point URL. */
 	protected String m_relativeAccessPoint = null;
 
@@ -287,7 +283,7 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 		}
 		catch ( Exception e)
 		{
-			M_log.warn("setExportEnabled(): ", e);
+			log.warn("setExportEnabled(): ", e);
 		}
 	}
 	
@@ -670,11 +666,11 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 			// create DocumentBuilder object needed by printSchedule
 			docBuilder =  DocumentBuilderFactory.newInstance().newDocumentBuilder();
 			
-			M_log.info("init()");
+			log.info("init()");
 		}
 		catch (Throwable t)
 		{
-			M_log.warn("init(): "+t, t);
+			log.warn("init(): "+t, t);
 		}
 
 		// register as an entity producer
@@ -710,7 +706,7 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 		m_storage.close();
 		m_storage = null;
 
-		M_log.info("destroy()");
+		log.info("destroy()");
 	}
 
 	/**********************************************************************************************************************************************************************************************************************************************************
@@ -839,7 +835,7 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 			}
 			catch (Exception e)
 			{
-				M_log.warn("removeCalendar(): closed CalendarEdit", e);
+				log.warn("removeCalendar(): closed CalendarEdit", e);
 			}
 			return;
 		}
@@ -866,7 +862,7 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 		}
 		catch (AuthzPermissionException e)
 		{
-			M_log.warn("removeCalendar: removing realm for : " + calendar.getReference() + " : " + e);
+			log.warn("removeCalendar: removing realm for : " + calendar.getReference() + " : " + e);
 		}
 		catch (GroupNotDefinedException ignore)
 		{
@@ -974,7 +970,7 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 		// check for closed edit
 		if (!edit.isActiveEdit())
 		{
-			M_log.warn("commitCalendar(): closed CalendarEdit " + edit.getContext());
+			log.warn("commitCalendar(): closed CalendarEdit " + edit.getContext());
 			return;
 		}
 
@@ -1000,7 +996,7 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 		// check for closed edit
 		if (!edit.isActiveEdit())
 		{
-			M_log.warn("cancelCalendar(): closed CalendarEventEdit " + edit.getContext());
+			log.warn("cancelCalendar(): closed CalendarEventEdit " + edit.getContext());
 			return;
 		}
 
@@ -1117,7 +1113,7 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 	 */
 	public RecurrenceRule newRecurrence(String frequency, int interval, int count)
 	{	
-		M_log.debug("\n"+ frequency +"\nand Internval is \n "+ interval +"count is\n " + count);
+		log.debug("\n"+ frequency +"\nand Internval is \n "+ interval +"count is\n " + count);
 		if (frequency.equalsIgnoreCase(DailyRecurrenceRule.FREQ))
 		{
 			return new DailyRecurrenceRule(interval, count);
@@ -1317,7 +1313,7 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 					}
 				}
 				else
-					M_log.warn(".parseEntityReference(): unknown calendar subtype: " + subType + " in ref: " + reference);
+					log.warn(".parseEntityReference(): unknown calendar subtype: " + subType + " in ref: " + reference);
 			}
 
 			// Translate context alias into site id if necessary
@@ -1332,16 +1328,16 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 					}
 
 					catch (IdUnusedException ide) {
-							M_log.info(".parseEntityReference():"+ide.toString()); 
+							log.info(".parseEntityReference():"+ide.toString()); 
 							return false;
 					}
           catch (PermissionException pe) {
-              M_log.info(".parseEntityReference():"+pe.toString());
+              log.info(".parseEntityReference():"+pe.toString());
               return false;
           }
 					catch (Exception e)
 					{
-                  M_log.warn(".parseEntityReference(): ", e);
+                  log.warn(".parseEntityReference(): ", e);
                   return false;
 					}
 				}
@@ -1350,7 +1346,7 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
          // if context still isn't valid, then no valid alias or site was specified
 			if (!m_siteService.siteExists(context))
 			{
-            M_log.warn(".parseEntityReference() no valid site or alias: " + context);
+            log.warn(".parseEntityReference() no valid site or alias: " + context);
             return false;
 			}
 
@@ -1430,21 +1426,20 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 			}
 
 			else
-				M_log.warn(".getEntityResourceProperties(): unknown calendar ref subtype: " + ref.getSubType() + " in ref: "
+				log.warn(".getEntityResourceProperties(): unknown calendar ref subtype: " + ref.getSubType() + " in ref: "
 						+ ref.getReference());
 		}
 		catch (PermissionException e)
 		{
-			M_log.warn(".getEntityResourceProperties(): " + e);
+			log.warn(".getEntityResourceProperties(): " + e);
 		}
 		catch (IdUnusedException ignore)
 		{
 			// This just means that the resource once pointed to as an attachment or something has been deleted.
-			// m_logger(this + ".getProperties(): " + e);
 		}
 		catch (NullPointerException e)
 		{
-			M_log.warn(".getEntityResourceProperties(): " + e);
+			log.warn(".getEntityResourceProperties(): " + e);
 		}
 
 		return props;
@@ -1481,19 +1476,19 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 			}
 
 			else
-				M_log.warn("getEntity(): unknown calendar ref subtype: " + ref.getSubType() + " in ref: " + ref.getReference());
+				log.warn("getEntity(): unknown calendar ref subtype: " + ref.getSubType() + " in ref: " + ref.getReference());
 		}
 		catch (PermissionException e)
 		{
-			M_log.warn("getEntity(): " + e);
+			log.warn("getEntity(): " + e);
 		}
 		catch (IdUnusedException e)
 		{
-			M_log.warn("getEntity(): " + e);
+			log.warn("getEntity(): " + e);
 		}
 		catch (NullPointerException e)
 		{
-			M_log.warn(".getEntity(): " + e);
+			log.warn(".getEntity(): " + e);
 		}
 
 		return rv;
@@ -1574,7 +1569,7 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 		}
 		catch (Throwable e)
 		{
-			M_log.warn("getEntityAuthzGroups(): " + e);
+			log.warn("getEntityAuthzGroups(): " + e);
 		}
 
 		return rv;
@@ -1608,19 +1603,19 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 			}
 
 			else
-				M_log.warn("getEntityUrl(): unknown calendar ref subtype: " + ref.getSubType() + " in ref: " + ref.getReference());
+				log.warn("getEntityUrl(): unknown calendar ref subtype: " + ref.getSubType() + " in ref: " + ref.getReference());
 		}
 		catch (PermissionException e)
 		{
-			M_log.warn(".getEntityUrl(): " + e);
+			log.warn(".getEntityUrl(): " + e);
 		}
 		catch (IdUnusedException e)
 		{
-			M_log.warn(".getEntityUrl(): " + e);
+			log.warn(".getEntityUrl(): " + e);
 		}
 		catch (NullPointerException e)
 		{
-			M_log.warn(".getEntityUrl(): " + e);
+			log.warn(".getEntityUrl(): " + e);
 		}
 
 		return rv;
@@ -1675,7 +1670,7 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 		}
 		catch (Exception any)
 		{
-			M_log.warn(".archve: exception archiving messages for service: " + CalendarService.class.getName() + " channel: "
+			log.warn(".archve: exception archiving messages for service: " + CalendarService.class.getName() + " channel: "
 					+ calRef);
 		}
 
@@ -1772,7 +1767,7 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 														}
 														catch (Exception e)
 														{
-															M_log.warn(".merge() when editing calendar: exception: ", e);
+															log.warn(".merge() when editing calendar: exception: ", e);
 														}
 													}
 												}
@@ -1839,7 +1834,7 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 		}
 		catch (Exception any)
 		{
-			M_log.warn(".merge(): exception: ", any);
+			log.warn(".merge(): exception: ", any);
 		}
 
 		results.append("merging calendar " + calendarRef + " (" + count + ") messages.\n");
@@ -1981,18 +1976,18 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 											catch (Exception eeAny)
 											{
 												// if the new resource cannot be added
-												M_log.warn(" cannot add new attachment with id=" + nAttachmentId);
+												log.warn(" cannot add new attachment with id=" + nAttachmentId);
 											}
 										}
 										catch (Exception eAny)
 										{
 											// if cannot find the original attachment, do nothing.
-											M_log.warn(" cannot find the original attachment with id=" + oAttachmentId);
+											log.warn(" cannot find the original attachment with id=" + oAttachmentId);
 										}
 									}
 									catch (Exception any)
 									{
-										M_log.warn(this + any.getMessage());
+										log.warn(this + any.getMessage());
 									}
 
 								}
@@ -2073,21 +2068,21 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 					}
 					catch (IdUnusedException e)
 					{
-						M_log.debug(".IdUnusedException " + e);
+						log.debug(".IdUnusedException " + e);
 					}
 					catch (PermissionException e)
 					{
-						M_log.debug(".PermissionException " + e);
+						log.debug(".PermissionException " + e);
 					}
 					catch (InUseException e)
 					{
-						M_log.debug(".InUseException delete" + e);
+						log.debug(".InUseException delete" + e);
 					}
 				}
 			}
 			catch (Exception e)
 			{
-				M_log.info("importSiteClean: End removing Calendar data" + e);
+				log.info("importSiteClean: End removing Calendar data" + e);
 			}
 		}		  		  
 	}
@@ -2818,7 +2813,7 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 				}
 				catch (Exception e)
 				{
-					M_log.warn("removeEvent(): closed EventEdit", e);
+					log.warn("removeEvent(): closed EventEdit", e);
 				}
 				return;
 			}
@@ -2848,7 +2843,7 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 				}
 				catch (Exception ex)
 				{
-					M_log.warn("removeEvent: exception parsing eventId: " + bedit.m_id + " : " + ex);
+					log.warn("removeEvent: exception parsing eventId: " + bedit.m_id + " : " + ex);
 				}
 			}
 
@@ -2904,7 +2899,7 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 			}
 			catch (AuthzPermissionException e)
 			{
-				M_log.warn("removeEvent: removing realm for : " + edit.getReference() + " : " + e);
+				log.warn("removeEvent: removing realm for : " + edit.getReference() + " : " + e);
 			}
 			catch (GroupNotDefinedException ignore)
 			{
@@ -2971,7 +2966,7 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 				}
 				catch (Exception ex)
 				{
-					M_log.warn("getEditEvent: exception parsing eventId: " + eventId + " : " + ex);
+					log.warn("getEditEvent: exception parsing eventId: " + eventId + " : " + ex);
 				}
 			}
 
@@ -3036,7 +3031,7 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 			// check for closed edit
 			if (!edit.isActiveEdit())
 			{
-				M_log.warn("commitEvent(): closed CalendarEventEdit " + edit.getId());
+				log.warn("commitEvent(): closed CalendarEventEdit " + edit.getId());
 				return;
 			}
 
@@ -3065,7 +3060,7 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 				}
 				catch (Exception ex)
 				{
-					M_log.warn("commitEvent: exception parsing eventId: " + bedit.m_id + " : " + ex);
+					log.warn("commitEvent: exception parsing eventId: " + bedit.m_id + " : " + ex);
 				}
 			}
 
@@ -3164,7 +3159,7 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 			if (!edit.isActiveEdit())
 			{
 				Throwable e = new Throwable();
-				M_log.warn("cancelEvent(): closed CalendarEventEdit", e);
+				log.warn("cancelEvent(): closed CalendarEventEdit", e);
 				return;
 			}
 
@@ -3184,7 +3179,7 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 				}
 				catch (Exception ex)
 				{
-					M_log.warn("commitEvent: exception parsing eventId: " + bedit.m_id + " : " + ex);
+					log.warn("commitEvent: exception parsing eventId: " + bedit.m_id + " : " + ex);
 				}
 			}
 
@@ -3292,7 +3287,7 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 				}
 				catch (Exception ex)
 				{
-					M_log.warn("findEvent: exception parsing eventId: " + eventId + " : " + ex);
+					log.warn("findEvent: exception parsing eventId: " + eventId + " : " + ex);
 				}
 			}
 
@@ -3456,7 +3451,7 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 
 		public void valueUnbound(SessionBindingEvent event)
 		{
-			if (M_log.isDebugEnabled()) M_log.debug("valueUnbound()");
+			if (log.isDebugEnabled()) log.debug("valueUnbound()");
 
 			// catch the case where an edit was made but never resolved
 			if (m_active)
@@ -3486,7 +3481,7 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 							m_context = attributes.getValue("context");	
 							entity = thisEntity;
 						} else {
-							M_log.warn("Unexpected element "+qName);
+							log.warn("Unexpected element "+qName);
 						}
 					}
 				}
@@ -3703,7 +3698,7 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 										if ( ruleClassOld != null )
 											ruleName = ruleClassOld.substring(ruleClassOld.lastIndexOf('.') + 1);
 										if ( ruleName == null )
-											M_log.warn("trouble loading rule");
+											log.warn("trouble loading rule");
 									}
 
 									if (ruleName != null)
@@ -3727,7 +3722,7 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 										}
 										catch (Exception e)
 										{
-											M_log.warn("trouble loading rule: " + ruleClass + " : " + e);
+											log.warn("trouble loading rule: " + ruleClass + " : " + e);
 										}
 									}
 								}
@@ -4244,7 +4239,7 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 				}
 				catch (IdUnusedException e)
 				{
-					M_log.warn(".getSiteName(): " + e);
+					log.warn(".getSiteName(): " + e);
 				}
 			}
 			
@@ -4620,7 +4615,7 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 
 		public void valueUnbound(SessionBindingEvent event)
 		{
-			if (M_log.isDebugEnabled()) M_log.debug("valueUnbound()");
+			if (log.isDebugEnabled()) log.debug("valueUnbound()");
 
 			// catch the case where an edit was made but never resolved
 			if (m_active)
@@ -4736,7 +4731,7 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 								if ( ruleClassOld != null )
 									ruleName = ruleClassOld.substring(ruleClassOld.lastIndexOf('.') + 1);
 								if ( ruleName == null )
-									M_log.warn("trouble loading rule");
+									log.warn("trouble loading rule");
 							}
 
 							if (ruleName != null)
@@ -4760,13 +4755,13 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 								}
 								catch (Exception e)
 								{
-									M_log.warn("trouble loading rule: " + ruleClass + " : " + e);
+									log.warn("trouble loading rule: " + ruleClass + " : " + e);
 								}
 							}
 						}
 						else 
 						{
-							M_log.warn("Unexpected Element "+qName);
+							log.warn("Unexpected Element "+qName);
 						}
 					} 
 				}
@@ -5412,7 +5407,7 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 		}
 		catch (Exception e)
 		{
-           M_log.warn(".printICalSchedule(): ", e);
+           log.warn(".printICalSchedule(): ", e);
 		}
 	}
 	
@@ -5486,7 +5481,7 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 									qName, attributes);
 
 						} else {
-							M_log.warn("Unexpected Element in XML ["+qName+"]");
+							log.warn("Unexpected Element in XML ["+qName+"]");
 						}
 
 					}
@@ -5540,15 +5535,15 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 					}
 					catch (IdUnusedException e)
 					{
-						M_log.debug(".IdUnusedException " + e);
+						log.debug(".IdUnusedException " + e);
 					}
 					catch (PermissionException e)
 					{
-						M_log.debug(".PermissionException " + e);
+						log.debug(".PermissionException " + e);
 					}
 					catch (InUseException e)
 					{
-						M_log.debug(".InUseException delete" + e);
+						log.debug(".InUseException delete" + e);
 					}
 				}
 				
@@ -5557,7 +5552,7 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 		}
 		catch (Exception e)
 		{
-			M_log.info("importSiteClean: End removing Calendar data" + e);
+			log.info("importSiteClean: End removing Calendar data" + e);
 		}
 		
 		return transversalMap;
@@ -5711,7 +5706,7 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 		// that currently includes other calendars we only do the check in here.
 		if (getUserAgent().equals(req.getHeader("User-Agent"))) {
 			res.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-			M_log.warn("Reject internal request for: "+ calRef);
+			log.warn("Reject internal request for: "+ calRef);
 			return;
 		}
 		// update date/time reference
@@ -5848,19 +5843,19 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 				}
 				else
 				{
-					M_log.warn("Calendar access via opaque UUID failed: " + opaqueGuid);
+					log.warn("Calendar access via opaque UUID failed: " + opaqueGuid);
 					throw new EntityNotDefinedException(opaqueGuid);
 				}
 			}
 		} 
 		catch (UserNotDefinedException e) 
 		{
-			M_log.warn("User not found: " + userId);
+			log.warn("User not found: " + userId);
 			throw new EntityNotDefinedException(ref.getReference());
 		} 
 		catch (PermissionException e) 
 		{
-			M_log.warn("Calendar access via opaque UUID failed: " + opaqueGuid);
+			log.warn("Calendar access via opaque UUID failed: " + opaqueGuid);
 			throw new EntityNotDefinedException(opaqueGuid);
 		} 
 		catch (IOException e) 

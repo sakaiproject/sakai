@@ -27,8 +27,8 @@ import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
@@ -40,12 +40,11 @@ import org.sakaiproject.siteassociation.tool.util.Sort;
 import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.user.cover.UserDirectoryService;
 
+@Slf4j
 public class SiteAssociationBean extends BaseBean {
 
 	// Sort strings
 	static final String ID = "id", TITLE = "title";
-
-	private static final Logger logger = LoggerFactory.getLogger(SiteAssociationBean.class);
 
 	// Pager sitesPager; See GM-47
 
@@ -147,7 +146,7 @@ public class SiteAssociationBean extends BaseBean {
 		try {
 			site = getSiteService().getSite(getContext());
 		} catch (IdUnusedException iue) {
-			logger.error(iue.getMessage(), iue);
+			log.error(iue.getMessage(), iue);
 		}
 		return site;
 	}
@@ -161,7 +160,7 @@ public class SiteAssociationBean extends BaseBean {
 				Site site = getSiteService().getSite(fromContext);
 				l.add(site);
 			} catch (IdUnusedException iue) {
-				logger.error(iue.getMessage(), iue);
+				log.error(iue.getMessage(), iue);
 			}
 		}
 		return l;

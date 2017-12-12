@@ -21,21 +21,17 @@
 
 package edu.amc.sakai.user;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.novell.ldap.LDAPConnection;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * 
  * @author dmccallum
  *
  */
+@Slf4j
 public class MaxLifetimeLdapConnectionLivenessValidator implements LdapConnectionLivenessValidator {
 
-	/** Class-specific logger */
-	private static Logger log = LoggerFactory.getLogger(MaxLifetimeLdapConnectionLivenessValidator.class);
-	
 	public static final long DEFAULT_MAX_TTL = -1L;
 	
 	/**

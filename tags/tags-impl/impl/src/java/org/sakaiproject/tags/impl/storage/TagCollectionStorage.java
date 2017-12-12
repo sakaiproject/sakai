@@ -22,18 +22,6 @@
 
 package org.sakaiproject.tags.impl.storage;
 
-import org.sakaiproject.event.api.EventTrackingService;
-import org.sakaiproject.tags.api.TagCollection;
-import org.sakaiproject.tags.api.TagCollections;
-import org.sakaiproject.tags.impl.common.DB;
-import org.sakaiproject.tags.impl.common.DBAction;
-import org.sakaiproject.tags.impl.common.DBConnection;
-import org.sakaiproject.tags.impl.common.DBPreparedStatement;
-import org.sakaiproject.tags.impl.common.DBResults;
-import org.sakaiproject.tool.api.SessionManager;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -45,12 +33,23 @@ import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Supplier;
 
+import lombok.extern.slf4j.Slf4j;
+
+import org.sakaiproject.event.api.EventTrackingService;
+import org.sakaiproject.tags.api.TagCollection;
+import org.sakaiproject.tags.api.TagCollections;
+import org.sakaiproject.tags.impl.common.DB;
+import org.sakaiproject.tags.impl.common.DBAction;
+import org.sakaiproject.tags.impl.common.DBConnection;
+import org.sakaiproject.tags.impl.common.DBPreparedStatement;
+import org.sakaiproject.tags.impl.common.DBResults;
+import org.sakaiproject.tool.api.SessionManager;
+
 /**
  * Query and store Tag Collection objects in the database.
  */
+@Slf4j
 public class TagCollectionStorage implements TagCollections {
-
-    private static final Logger LOG = LoggerFactory.getLogger(TagCollectionStorage.class);
 
     private static final String QUERY_GET_ALL ="SELECT * from tagservice_collection ORDER BY name";
     private static final String QUERY_COLLECTIONS_PAGINATED_MYSQL = "SELECT * from tagservice_collection ORDER by name LIMIT ?,?";
@@ -347,7 +346,7 @@ public class TagCollectionStorage implements TagCollections {
                         }
 
                         if ( !(isDirtyingUpdate(tagCollection, previousState.get())) ) {
-                            LOG.debug("No changes to non-calculated fields. Skipping update to tag collection wih ID: " + tagcollectionid);
+                            log.debug("No changes to non-calculated fields. Skipping update to tag collection wih ID: " + tagcollectionid);
                             return null;
                         }
 

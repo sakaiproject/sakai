@@ -26,23 +26,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.sakaiproject.authz.api.Member;
-import org.sakaiproject.authz.api.Role;
-import org.sakaiproject.site.api.Group;
-import org.sakaiproject.site.api.SiteService;
-import org.sakaiproject.site.tool.helper.managegroupsectionrole.impl.SiteManageGroupSectionRoleHandler;
-import org.sakaiproject.site.util.Participant;
-import org.sakaiproject.site.util.SiteComparator;
-import org.sakaiproject.site.util.SiteConstants;
-import org.sakaiproject.util.SortedIterator;
-import org.sakaiproject.user.api.User;
-import org.sakaiproject.user.api.UserDirectoryService;
-
-import org.sakaiproject.rsf.producers.FrameAdjustingProducer;
 import uk.org.ponder.messageutil.MessageLocator;
 import uk.org.ponder.messageutil.TargettedMessage;
 import uk.org.ponder.messageutil.TargettedMessageList;
@@ -69,16 +54,27 @@ import uk.org.ponder.rsf.viewstate.SimpleViewParameters;
 import uk.org.ponder.rsf.viewstate.ViewParameters;
 import uk.org.ponder.rsf.viewstate.ViewParamsReporter;
 
+import org.sakaiproject.authz.api.Member;
+import org.sakaiproject.authz.api.Role;
+import org.sakaiproject.rsf.producers.FrameAdjustingProducer;
+import org.sakaiproject.site.api.Group;
+import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.site.tool.helper.managegroupsectionrole.impl.SiteManageGroupSectionRoleHandler;
+import org.sakaiproject.site.util.Participant;
+import org.sakaiproject.site.util.SiteComparator;
+import org.sakaiproject.site.util.SiteConstants;
+import org.sakaiproject.util.SortedIterator;
+import org.sakaiproject.user.api.User;
+import org.sakaiproject.user.api.UserDirectoryService;
+
 /**
  * 
  * @author
  *
  */
+@Slf4j
 public class GroupEditProducer implements ViewComponentProducer, ActionResultInterceptor, ViewParamsReporter{
 
-	/** Our log (commons). */
-	private static final Logger M_log = LoggerFactory.getLogger(GroupEditProducer.class);
-	
     public SiteManageGroupSectionRoleHandler handler;
     public static final String VIEW_ID = "GroupEdit";
     public MessageLocator messageLocator;
@@ -164,7 +160,7 @@ public class GroupEditProducer implements ViewComponentProducer, ActionResultInt
     		 }
     		 catch (Exception e)
     		 {
-    			 M_log.debug(this + "fillComponents: cannot get group id=" + id, e);
+    			 log.debug(this + "fillComponents: cannot get group id=" + id, e);
     		 }
     	 }
     	 else
@@ -309,7 +305,7 @@ public class GroupEditProducer implements ViewComponentProducer, ActionResultInt
         	}
         	catch (Exception e)
         	{
-        		M_log.debug(this + "fillInComponent: cannot find user with id " + userId, e);
+        		log.debug(this + "fillInComponent: cannot find user with id " + userId, e);
         		// need to remove the group member
         		groupMembers.remove(p);
         	}
@@ -352,7 +348,7 @@ public class GroupEditProducer implements ViewComponentProducer, ActionResultInt
 				 }
 				 catch (Exception e)
 				 {
-					 M_log.debug(this + ":fillComponents: cannot find user " + userId, e);
+					 log.debug(this + ":fillComponents: cannot find user " + userId, e);
 				 }
 			 }
 		 }

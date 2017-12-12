@@ -40,52 +40,52 @@ import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 import javax.faces.event.ActionEvent;
 
-import org.sakaiproject.tool.gradebook.GradebookAssignment;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+
 import org.apache.myfaces.component.html.ext.HtmlDataTable;
 import org.apache.myfaces.custom.sortheader.HtmlCommandSortHeader;
+
+import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.jsf.spreadsheet.SpreadsheetDataFileWriterCsv;
 import org.sakaiproject.jsf.spreadsheet.SpreadsheetDataFileWriterXls;
 import org.sakaiproject.jsf.spreadsheet.SpreadsheetDataFileWriterPdf;
 import org.sakaiproject.jsf.spreadsheet.SpreadsheetUtil;
 import org.sakaiproject.section.api.coursemanagement.EnrollmentRecord;
 import org.sakaiproject.section.api.coursemanagement.User;
+import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.tool.gradebook.AbstractGradeRecord;
 import org.sakaiproject.tool.gradebook.AssignmentGradeRecord;
 import org.sakaiproject.tool.gradebook.Category;
 import org.sakaiproject.tool.gradebook.CourseGrade;
 import org.sakaiproject.tool.gradebook.CourseGradeRecord;
 import org.sakaiproject.tool.gradebook.GradableObject;
+import org.sakaiproject.tool.gradebook.GradebookAssignment;
 import org.sakaiproject.tool.gradebook.jsf.AssignmentPointsConverter;
 import org.sakaiproject.tool.gradebook.jsf.CategoryPointsConverter;
 import org.sakaiproject.tool.gradebook.jsf.FacesUtil;
 import org.sakaiproject.util.ResourceLoader;
-import org.sakaiproject.service.gradebook.shared.GradebookService;
-import org.sakaiproject.component.cover.ServerConfigurationService;
 
 /**
  * Backing bean for the visible list of assignments in the gradebook.
  */
+@Slf4j
 public class RosterBean extends EnrollmentTableBean implements Serializable, Paging {
-	private static final Logger logger = LoggerFactory.getLogger(RosterBean.class);
-
 	// Used to generate IDs for the dynamically created assignment columns.
 	private static final String ASSIGNMENT_COLUMN_PREFIX = "asg_";
 	private static final String CATEGORY_COLUMN_PREFIX = "_categoryCol_";
 
 	// View maintenance fields - serializable.
 	private List gradableObjectColumns;	// Needed to build table columns
-    private List workingEnrollments;
-    private Map enrollmentMap;
+	private List workingEnrollments;
+	private Map enrollmentMap;
     
-    private CourseGrade avgCourseGrade;
+	private CourseGrade avgCourseGrade;
     
-    private HtmlDataTable originalRosterDataTable = null;
+	private HtmlDataTable originalRosterDataTable = null;
 
-    private boolean selectedCategoryDropsScores;
+	private boolean selectedCategoryDropsScores;
     
-    public class GradableObjectColumn implements Serializable {
+	public class GradableObjectColumn implements Serializable {
 		private Long id;
 		private String name;
 		private Boolean categoryColumn = false;
@@ -410,7 +410,7 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
         } else {
         	getGradebookManager().addToGradeRecordMap(gradeRecordMap, gradeRecords);
         }
-		if (logger.isDebugEnabled()) logger.debug("init - gradeRecordMap.keySet().size() = " + gradeRecordMap.keySet().size());
+		if (log.isDebugEnabled()) log.debug("init - gradeRecordMap.keySet().size() = " + gradeRecordMap.keySet().size());
 		
 		if (!isEnrollmentSort() && !isUserAbleToGradeAll() && isUserHasGraderPermissions()) {
 			// we need to re-sort these records b/c some may actually be null based upon permissions.
@@ -438,7 +438,7 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
         //do category results
         categoryResultMap = new HashMap();
         getGradebookManager().addToCategoryResultMap(categoryResultMap, categories, gradeRecordMap, studentIdEnrRecMap);
-        if (logger.isDebugEnabled()) logger.debug("init - categoryResultMap.keySet().size() = " + categoryResultMap.keySet().size());
+        if (log.isDebugEnabled()) log.debug("init - categoryResultMap.keySet().size() = " + categoryResultMap.keySet().size());
 
         if (!isEnrollmentSort()) {
         	// Need to sort and page based on a scores column.
@@ -550,15 +550,15 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
 	// It's not exactly intuitive, but the convention is for the bean to return
 	// null, so that JSF can create and manage the UIData component itself.
 	public HtmlDataTable getRosterDataTable() {
-		if (logger.isDebugEnabled()) logger.debug("getRosterDataTable");
+		if (log.isDebugEnabled()) log.debug("getRosterDataTable");
 		return null;
 	}
 
 	public void setRosterDataTable(HtmlDataTable rosterDataTable) {
-		if (logger.isDebugEnabled()) {
-			logger.debug("setRosterDataTable gradableObjectColumns=" + gradableObjectColumns + ", rosterDataTable=" + rosterDataTable);
+		if (log.isDebugEnabled()) {
+			log.debug("setRosterDataTable gradableObjectColumns=" + gradableObjectColumns + ", rosterDataTable=" + rosterDataTable);
 			if (rosterDataTable != null) {
-				logger.debug("  data children=" + rosterDataTable.getChildren());
+				log.debug("  data children=" + rosterDataTable.getChildren());
 			}
 		}
 		if (rosterDataTable == null)
@@ -814,7 +814,7 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
     }
 
     public void exportXlsNoCourseGrade(ActionEvent event){
-        if(logger.isInfoEnabled()) logger.info("exporting gradebook " + getGradebookUid() + " as Excel");
+        if(log.isInfoEnabled()) log.info("exporting gradebook " + getGradebookUid() + " as Excel");
         getGradebookBean().getEventTrackingService().postEvent("gradebook.downloadRoster","/gradebook/"+getGradebookId()+"/"+getAuthzLevel());
         SpreadsheetUtil.downloadSpreadsheetData(getSpreadsheetData(false, false), 
         		getDownloadFileName(getLocalizedString("export_gradebook_prefix")), 
@@ -822,7 +822,7 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
     }
 
     public void exportCsvNoCourseGrade(ActionEvent event){
-        if(logger.isInfoEnabled()) logger.info("exporting gradebook " + getGradebookUid() + " as CSV");
+        if(log.isInfoEnabled()) log.info("exporting gradebook " + getGradebookUid() + " as CSV");
         getGradebookBean().getEventTrackingService().postEvent("gradebook.downloadRoster","/gradebook/"+getGradebookId()+"/"+getAuthzLevel());
         SpreadsheetUtil.downloadSpreadsheetData(getSpreadsheetData(false, true), 
         		getDownloadFileName(getLocalizedString("export_gradebook_prefix")), 
@@ -830,7 +830,7 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
     }
 
     public void exportCsv(ActionEvent event){
-        if(logger.isInfoEnabled()) logger.info("exporting roster as CSV for gradebook " + getGradebookUid());
+        if(log.isInfoEnabled()) log.info("exporting roster as CSV for gradebook " + getGradebookUid());
         getGradebookBean().getEventTrackingService().postEvent("gradebook.downloadRoster","/gradebook/"+getGradebookId()+"/"+getAuthzLevel());
         if (isUserAbleToGradeAll()) {
         	SpreadsheetUtil.downloadSpreadsheetData(getSpreadsheetData(true, true), 
@@ -844,7 +844,7 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
     }
 
     public void exportExcel(ActionEvent event){
-        if(logger.isInfoEnabled()) logger.info("exporting roster as Excel for gradebook " + getGradebookUid());
+        if(log.isInfoEnabled()) log.info("exporting roster as Excel for gradebook " + getGradebookUid());
         String authzLevel = (getGradebookBean().getAuthzService().isUserAbleToGradeAll(getGradebookUid())) ?"instructor" : "TA";
         getGradebookBean().getEventTrackingService().postEvent("gradebook.downloadRoster","/gradebook/"+getGradebookId()+"/"+getAuthzLevel());
         if (isUserAbleToGradeAll()) {
@@ -859,7 +859,7 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
     }
     
     public void exportPdf(ActionEvent event){
-        if(logger.isInfoEnabled()) logger.info("exporting roster as Pdf for gradebook " + getGradebookUid());
+        if(log.isInfoEnabled()) log.info("exporting roster as Pdf for gradebook " + getGradebookUid());
         String authzLevel = (getGradebookBean().getAuthzService().isUserAbleToGradeAll(getGradebookUid())) ?"instructor" : "TA";
         getGradebookBean().getEventTrackingService().postEvent("gradebook.downloadRoster","/gradebook/"+getGradebookId()+"/"+getAuthzLevel());
         if (isUserAbleToGradeAll()) {

@@ -30,16 +30,17 @@ import java.util.List;
 import java.util.Stack;
 import java.util.Vector;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.sakaiproject.entity.api.Edit;
-import org.sakaiproject.entity.api.Entity;
-import org.sakaiproject.entity.api.ResourceProperties;
-import org.sakaiproject.time.api.Time;
+import lombok.extern.slf4j.Slf4j;
+
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+
+import org.sakaiproject.entity.api.Edit;
+import org.sakaiproject.entity.api.Entity;
+import org.sakaiproject.entity.api.ResourceProperties;
+import org.sakaiproject.time.api.Time;
 
 /**
  * <p>
@@ -50,11 +51,9 @@ import org.w3c.dom.NodeList;
  * </p>
  * @deprecated This was used in earlier versions of Sakai and isn't supported any longer.
  */
+@Slf4j
 public class BaseXmlFileStorage
 {
-	/** Our logger. */
-	private static Logger M_log = LoggerFactory.getLogger(BaseXmlFileStorage.class);
-
 	/**
 	 * Holds the container object, a table of the resources contained.
 	 */
@@ -155,7 +154,7 @@ public class BaseXmlFileStorage
 			Document doc = load();
 			if (doc == null)
 			{
-				M_log.warn("missing user xml file: " + m_fileStoragePath);
+				log.warn("missing user xml file: " + m_fileStoragePath);
 				return;
 			}
 
@@ -163,7 +162,7 @@ public class BaseXmlFileStorage
 			Element root = doc.getDocumentElement();
 			if (!root.getTagName().equals(m_rootTagName))
 			{
-				M_log.warn(".open(): root tag not: " + m_rootTagName + " found: " + root.getTagName());
+				log.warn(".open(): root tag not: " + m_rootTagName + " found: " + root.getTagName());
 				return;
 			}
 
@@ -218,7 +217,7 @@ public class BaseXmlFileStorage
 		}
 		catch (Exception e)
 		{
-			M_log.warn(".open(): ", e);
+			log.warn(".open(): ", e);
 		}
 	}
 

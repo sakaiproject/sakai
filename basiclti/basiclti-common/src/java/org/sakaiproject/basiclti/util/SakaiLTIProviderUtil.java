@@ -19,28 +19,24 @@
 
 package org.sakaiproject.basiclti.util;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import org.sakaiproject.basiclti.util.SakaiBLTIUtil;
-import org.tsugi.basiclti.BasicLTIUtil;
-
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
+import lombok.extern.slf4j.Slf4j;
+
+import org.tsugi.basiclti.BasicLTIUtil;
+
+import org.sakaiproject.basiclti.util.SakaiBLTIUtil;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.component.cover.ComponentManager;
-
 
 /**
  * Some Sakai Utility code for the Sakai LTI Provider
  */
 @SuppressWarnings("deprecation")
+@Slf4j
 public class SakaiLTIProviderUtil {
-
-	private static Logger M_log = LoggerFactory.getLogger(SakaiLTIProviderUtil.class);
-
 
 	public static String getProviderLaunchUrl(String toolRegistration) 
 	{
@@ -54,9 +50,9 @@ public class SakaiLTIProviderUtil {
 		String oauth_consumer_key = (String) payload.get("oauth_consumer_key");
 		boolean isHighlyTrustedConsumer = findTrustedConsumer(oauth_consumer_key, HIGHLY_TRUSTED_CONSUMER);
 
-		if (M_log.isDebugEnabled()) {
-			M_log.debug("Consumer=" + oauth_consumer_key);
-			M_log.debug("Trusted=" + isHighlyTrustedConsumer);
+		if (log.isDebugEnabled()) {
+			log.debug("Consumer={}", oauth_consumer_key);
+			log.debug("Trusted={}", isHighlyTrustedConsumer);
 		}
 		return isHighlyTrustedConsumer;
 	}
@@ -69,9 +65,9 @@ public class SakaiLTIProviderUtil {
 	public static boolean isEmailTrustedConsumer(String oauth_consumer_key) {
 		boolean isEmailTrustedConsumer = findTrustedConsumer(oauth_consumer_key, EMAIL_TRUSTED_CONSUMER);
 
-		if (M_log.isDebugEnabled()) {
-			M_log.debug("Consumer=" + oauth_consumer_key);
-			M_log.debug("EmailTrusted=" + isEmailTrustedConsumer);
+		if (log.isDebugEnabled()) {
+			log.debug("Consumer={}", oauth_consumer_key);
+			log.debug("EmailTrusted={}", isEmailTrustedConsumer);
 		}
 		return isEmailTrustedConsumer;
 	}

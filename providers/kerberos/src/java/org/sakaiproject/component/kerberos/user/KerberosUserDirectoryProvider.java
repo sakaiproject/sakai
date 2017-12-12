@@ -29,8 +29,8 @@ import javax.security.auth.callback.CallbackHandler;
 import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.user.api.UserDirectoryProvider;
 import org.sakaiproject.user.api.UserEdit;
@@ -44,10 +44,9 @@ import org.sakaiproject.util.StringUtil;
  * For more information on configuration, see the README.txt file
  * <p>
  */
+@Slf4j
 public class KerberosUserDirectoryProvider implements UserDirectoryProvider
 {
-	/** Our log (commons). */
-	private static Logger M_log = LoggerFactory.getLogger(KerberosUserDirectoryProvider.class);
 
 	// Should we attempt ticket verification?
 	private boolean m_verifyTicket;
@@ -148,7 +147,7 @@ public class KerberosUserDirectoryProvider implements UserDirectoryProvider
 	 */
 	public void setCachettl(int cachettl)
 	{
-		M_log.warn(this + ".init(): Internal caching DEPRECATED -  Using standard cache settings instead.");
+		log.warn(this + ".init(): Internal caching DEPRECATED -  Using standard cache settings instead.");
 	}
 
 	/**********************************************************************************************************************************************************************************************************************************************************
@@ -182,7 +181,7 @@ public class KerberosUserDirectoryProvider implements UserDirectoryProvider
 			}
 			else
 			{
-				M_log.warn(this + ".init(): Cannot find krb5.conf at specified location - Using default rules for krb5.conf location.");
+				log.warn(this + ".init(): Cannot find krb5.conf at specified location - Using default rules for krb5.conf location.");
 				kerberoskrb5conf = null;
 			}
 		}
@@ -200,7 +199,7 @@ public class KerberosUserDirectoryProvider implements UserDirectoryProvider
 			}
 			else
 			{
-				M_log.warn(this + ".init(): Cannot set kerberosauthloginconfig location");
+				log.warn(this + ".init(): Cannot set kerberosauthloginconfig location");
 				kerberosauthloginconfig = null;
 			}
 		}
@@ -208,14 +207,14 @@ public class KerberosUserDirectoryProvider implements UserDirectoryProvider
 		// Check if we're configured to verify service tickets.
 		m_verifyTicket = (m_serviceprincipal != null && m_servicelogincontext != null);
 
-		M_log.info(this + ".init()" + " Domain=" + m_domain + " LoginContext=" + m_logincontext + " RequireLocalAccount="
+		log.info(this + ".init()" + " Domain=" + m_domain + " LoginContext=" + m_logincontext + " RequireLocalAccount="
 				+ m_requirelocalaccount + " KnownUserMsg=" + m_knownusermsg + " VerifyServiceTicket="+ m_verifyTicket );
 
 		// show the whole config if set
 		// system locations will read NULL if not set (system defaults will be used)
 		if (kerberosshowconfig)
 		{
-			M_log.info(this + ".init()" + " SakaiHome=" + sakaihomepath + " SakaiPropertyKrb5Conf=" + kerberoskrb5conf
+			log.info(this + ".init()" + " SakaiHome=" + sakaihomepath + " SakaiPropertyKrb5Conf=" + kerberoskrb5conf
 					+ " SakaiPropertyAuthLoginConfig=" + kerberosauthloginconfig + " SystemPropertyKrb5Conf="
 					+ System.getProperty("java.security.krb5.conf") + " SystemPropertyAuthLoginConfig="
 					+ System.getProperty("java.security.auth.login.config")
@@ -237,7 +236,7 @@ public class KerberosUserDirectoryProvider implements UserDirectoryProvider
 	 */
 	public void destroy()
 	{
-		M_log.info(this + ".destroy()");
+		log.info(this + ".destroy()");
 
 	} // destroy
 
@@ -332,7 +331,7 @@ public class KerberosUserDirectoryProvider implements UserDirectoryProvider
 		}
 		catch (Exception e)
 		{
-			M_log.warn("authenticateUser(): exception: ", e);
+			log.warn("authenticateUser(): exception: ", e);
 			return false;
 		}
 	} // authenticateUser
@@ -365,12 +364,12 @@ public class KerberosUserDirectoryProvider implements UserDirectoryProvider
 		}
 		catch (LoginException le)
 		{
-			if (M_log.isDebugEnabled()) M_log.debug("useKnownToKerberos(): " + le.toString());
+			if (log.isDebugEnabled()) log.debug("useKnownToKerberos(): " + le.toString());
 			return false;
 		}
 		catch (SecurityException se)
 		{
-			if (M_log.isDebugEnabled()) M_log.debug("useKnownToKerberos(): " + se.toString());
+			if (log.isDebugEnabled()) log.debug("useKnownToKerberos(): " + se.toString());
 			return false;
 		}
 
@@ -380,7 +379,7 @@ public class KerberosUserDirectoryProvider implements UserDirectoryProvider
 			lc.login();
 			lc.logout();
 
-			if (M_log.isDebugEnabled()) M_log.debug("useKnownToKerberos(" + user + "): Kerberos auth success");
+			if (log.isDebugEnabled()) log.debug("useKnownToKerberos(" + user + "): Kerberos auth success");
 
 			return true;
 		}
@@ -391,13 +390,13 @@ public class KerberosUserDirectoryProvider implements UserDirectoryProvider
 			// if this is the message, the user was good, the password was bad
 			if (msg.startsWith(m_knownusermsg))
 			{
-				if (M_log.isDebugEnabled()) M_log.debug("userKnownToKerberos(" + user + "): Kerberos user known (bad pw)");
+				if (log.isDebugEnabled()) log.debug("userKnownToKerberos(" + user + "): Kerberos user known (bad pw)");
 
 				return true;
 			}
 
 			// the other message is when the user is bad:
-			if (M_log.isDebugEnabled()) M_log.debug("userKnownToKerberos(" + user + "): Kerberos user unknown or invalid");
+			if (log.isDebugEnabled()) log.debug("userKnownToKerberos(" + user + "): Kerberos user unknown or invalid");
 
 			return false;
 		}
