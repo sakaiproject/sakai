@@ -112,7 +112,7 @@ public class MnemeEntity implements LessonEntity, QuizEntity {
 
     public void init () {
 	assessmentCache = memoryService
-	    .newCache("org.sakaiproject.lessonbuildertool.service.MnemeEntity.cache");
+	    .getCache("org.sakaiproject.lessonbuildertool.service.MnemeEntity.cache");
 
 	log.info("init()");
 

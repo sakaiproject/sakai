@@ -155,7 +155,7 @@ public class ForumEntity extends HibernateDaoSupport implements LessonEntity, Fo
 
     public void init () {	
 	//	topicCache = memoryService
-	//	    .newCache("org.sakaiproject.lessonbuildertool.service.ForumEntity.cache");
+	//	    .getCache("org.sakaiproject.lessonbuildertool.service.ForumEntity.cache");
 	sessionFactory = getSessionFactory();
     }
 

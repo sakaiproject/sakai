@@ -87,7 +87,7 @@ public class SamigoEntity implements LessonEntity, QuizEntity {
 
     private static Logger log = LoggerFactory.getLogger(SamigoEntity.class);
 
-    private static Cache assessmentCache = null;
+    private static Cache<String, PublishedAssessmentData> assessmentCache = null;
     protected static final int DEFAULT_EXPIRATION = 10 * 60;
     private static boolean samigo_linked = false;
 
@@ -133,7 +133,7 @@ public class SamigoEntity implements LessonEntity, QuizEntity {
 
     public void init () {
 	assessmentCache = memoryService
-	    .newCache("org.sakaiproject.lessonbuildertool.service.SamigoEntity.cache");
+	    .getCache("org.sakaiproject.lessonbuildertool.service.SamigoEntity.cache");
 
 
 
