@@ -5200,6 +5200,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 	}
 
 	private void createColumnDialog(UIContainer tofill, SimplePage currentPage) {
+		UIOutput.make(tofill, "column-dialog").decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.update.settings")));
 		UIForm form = UIForm.make(tofill, "column-dialog-form");
 		UICommand.make(form, "column-submit", messageLocator.getMessage("simplepage.save"), null);
 		UICommand.make(form, "column-cancel", messageLocator.getMessage("simplepage.cancel"), null);

@@ -2552,6 +2552,19 @@ $(document).ready(function() {
 	$('.columnopen').click(columnOpenLink);
 	function columnOpenLink(e) {
 	    var itemid = $(this).closest('.editsection').find('.column-merge-link,.section-merge-link').attr('href').substring(1);
+	    var sectionSettings = $('#sectionSettings');
+	    var columnLabel = $('#columnColorLabel');
+	    var sectionLabel = $('#sectionColorLabel');
+	    if ($(this).closest('.editsection').find('.section-merge-link').length > 0) {
+            sectionSettings.show();
+            sectionLabel.show();
+            columnLabel.hide();
+            $('#isSection').val('true');
+		} else {
+            sectionSettings.hide();
+            sectionLabel.hide();
+            columnLabel.show();
+		}
 	    $('.currentlyediting').removeClass('currentlyediting');
 	    var col = $(this).closest('.column');
 	    col.addClass('currentlyediting');
@@ -2589,6 +2602,7 @@ $(document).ready(function() {
 
 	$('#column-submit').click(function(){
 		var itemid = $('#columnitem').val();
+		var isSection = $('#isSection').val() === 'true';
 		var width = $('#columndouble').prop('checked') ? 2 : 1;
 		var split = $('#columnsplit').prop('checked') ? 2 : 1;
 		var col =  $('.currentlyediting');
@@ -2616,12 +2630,16 @@ $(document).ready(function() {
 			' colgray-trans colred-trans colblue-trans colgreen-trans colyellow-trans');
 		if (color !== '')
 		    col.addClass('col' + color);
-        header.removeClass('coltrans-header colgray-header colred-header colblue-header colgreen-header colyellow-header colngray-header colngray-trans-header colnblack-header colnblack-trans-header colnblue-header colnblue-trans-header' +
-            ' colnblue2-header colnblue2-trans-header colnred-header colnred-trans-header colnrudy-header colnrudy-trans-header colnnavy-header colnnavy-trans-header colnnavy2-header colnnavy2-trans-header colngreen-header colngreen-trans-header' +
-            ' colgray-trans-header colred-trans-header colblue-trans-header colgreen-trans-header colyellow-trans-header');
-		if(color !== '')
-            header.addClass('col' + color + '-header');
-		fixupColAttrs();
+
+		if (isSection) {
+            header.removeClass('coltrans-header colgray-header colred-header colblue-header colgreen-header colyellow-header colngray-header colngray-trans-header colnblack-header colnblack-trans-header colnblue-header colnblue-trans-header' +
+                ' colnblue2-header colnblue2-trans-header colnred-header colnred-trans-header colnrudy-header colnrudy-trans-header colnnavy-header colnnavy-trans-header colnnavy2-header colnnavy2-trans-header colngreen-header colngreen-trans-header' +
+                ' colgray-trans-header colred-trans-header colblue-trans-header colgreen-trans-header colyellow-trans-header');
+            if(color !== '')
+                header.addClass('col' + color + '-header');
+        }
+
+        fixupColAttrs();
 		fixupHeights();
 		setSectionCollapsible(itemid, collapsible, sectionTitle, defaultClosed);
 		header.find('.sectionHeaderText').text(sectionTitle);

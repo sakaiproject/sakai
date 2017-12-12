@@ -2312,28 +2312,36 @@
                 </form>
             </div>
 
-	  <div id="column-dialog" class="controlsPanel lessonsDialog">
+	  <div id="column-dialog" rsf:id="column-dialog" class="controlsPanel lessonsDialog">
             <form rsf:id="column-dialog-form"  action="#" method="post" enctype="multipart/form-data">
-              <div class="">                  
+              <div class="">
                 <input type="hidden" name="columnitem" id="columnitem" />
+                <input type="hidden" name="isSection" id="isSection" />
 		<div>
-            <h3><span rsf:id="msg=simplepage.section.settings"></span></h3>
-            <label for="sectionTitle" rsf:id="msg=simplepage.sectionTitle"></label>
-            <input type="text" id="sectionTitle" /><br />
+            <div id="sectionSettings" style="display:none;">
+                <h3><span rsf:id="msg=simplepage.section.settings"></span></h3>
+                <label for="sectionTitle" rsf:id="msg=simplepage.sectionTitle"></label>
+                <input type="text" id="sectionTitle" /><br />
 
-            <input type="checkbox" id="collapsible" />
-            <label for="collapsible" rsf:id="msg=simplepage.collapsible"></label><br />
+                <input type="checkbox" id="collapsible" />
+                <label for="collapsible" rsf:id="msg=simplepage.collapsible"></label><br />
 
-            <span id="defaultClosedSpan"><input type="checkbox" id="defaultClosed" />
+                <span id="defaultClosedSpan"><input type="checkbox" id="defaultClosed" />
                     <label for="defaultClosed" rsf:id="msg=simplepage.default.closed"></label></span>
+            </div>
 
             <h3><span rsf:id="msg=simplepage.column.settings"></span></h3>
                     <input type="checkbox" id="columndouble" />
                     <label for="columndouble"><span rsf:id="msg=simplepage.columndouble"></span></label><br />
 		    
                     <input type="checkbox" id="columnsplit" />
-                    <label for="columnsplit" rsf:id="msg=simplepage.columnsplit"></label><br />
-		    <select id="columnbackground">
+                    <label for="columnsplit" rsf:id="msg=simplepage.columnsplit"></label>
+
+            <h3><span rsf:id="msg=simplepage.column.color.scheme"></span></h3>
+
+            <label for="columnbackground" rsf:id="msg=simplepage.columnbackground" id="columnColorLabel" style="display:none;"></label>
+            <label for="columnbackground" rsf:id="msg=simplepage.sectionbackground" id="sectionColorLabel"></label>
+            <select id="columnbackground">
 		      <option value="none" id="columnnone"><span rsf:id="msg=simplepage.columnnone">none</span></option>
 		      <option value="trans" id="columntrans"><span rsf:id="msg=simplepage.columntrans">transparent</span></option>
 		      <option value="ngray" id="columnnewgray"><span rsf:id="msg=simplepage.col.newgray"></span></option>
@@ -2365,8 +2373,6 @@
 		      <option value="yellow" id="columnyellow"><span rsf:id="msg=simplepage.columnyellow">yellow</span></option>
 		      <option value="yellow-trans" id="columnyellow-trans"><span rsf:id="msg=simplepage.columnyellowtrans">yellow</span></option>
 		    </select>
-                    <label for="columnbackground" rsf:id="msg=simplepage.columnbackground"></label><br />
-
 		</div>
 		<p class="act">
                   <input rsf:id="column-submit"  class="bold" type="submit" id="column-submit" />
