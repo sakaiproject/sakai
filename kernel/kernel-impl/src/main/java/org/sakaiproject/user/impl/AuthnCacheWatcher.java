@@ -26,7 +26,6 @@ import java.util.Observer;
 
 import lombok.extern.slf4j.Slf4j;
 
-import org.codehaus.plexus.util.StringUtils;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.entity.api.Reference;
