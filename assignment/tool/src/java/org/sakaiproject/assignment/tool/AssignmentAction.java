@@ -11913,6 +11913,8 @@ public class AssignmentAction extends PagedResourceActionII {
                             returnResources.add(us);
                         }
                     }
+                    // Have we found an anonymous assignment in the list.
+                    hasOneAnon = hasOneAnon || assignmentService.assignmentUsesAnonymousGrading(assignment);
                 }
                 break;
             }
@@ -11923,6 +11925,7 @@ public class AssignmentAction extends PagedResourceActionII {
         String sort = "";
         ascending = (String) state.getAttribute(SORTED_ASC);
         sort = (String) state.getAttribute(SORTED_BY);
+
         if (MODE_INSTRUCTOR_GRADE_ASSIGNMENT.equals(mode) || MODE_INSTRUCTOR_GRADE_SUBMISSION.equals(mode)
                 && (sort == null || !sort.startsWith("sorted_grade_submission_by"))) {
             ascending = (String) state.getAttribute(SORTED_GRADE_SUBMISSION_ASC);
@@ -11942,16 +11945,9 @@ public class AssignmentAction extends PagedResourceActionII {
             if (SORTED_GRADE_SUBMISSION_BY_LASTNAME.equals(sort) &&
                     (MODE_INSTRUCTOR_GRADE_ASSIGNMENT.equals(mode) || MODE_INSTRUCTOR_GRADE_SUBMISSION.equals(mode))) {
                 String aRef = (String) state.getAttribute(EXPORT_ASSIGNMENT_REF);
-                try {
-                    Assignment assignment = assignmentService.getAssignment(aRef);
-                    if (assignment != null) {
-                        Map<String, String> props = assignment.getProperties();
-                        if (props != null) {
-                            ac.setAnon(Boolean.valueOf(props.get(NEW_ASSIGNMENT_CHECK_ANONYMOUS_GRADING)));
-                        }
-                    }
-                } catch (IdUnusedException | PermissionException iue) {
-                    // ignore, continue with default sort
+                Assignment assignment = getAssignment(aRef, "sizeResources", state);
+                if (assignment != null) {
+                    ac.setAnon(assignmentService.assignmentUsesAnonymousGrading(assignment));
                 }
             } else if (hasOneAnon) {
                 ac.setAnon(true);
