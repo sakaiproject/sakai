@@ -27,7 +27,7 @@ import java.util.Properties;
 import java.util.ResourceBundle;
 import java.util.Set;
 
-import lombok.extern.slf4j.Slf4j;
+import java.util.logging.Logger;
 
 /**
  * An utility class to get a value from the resource bundles.
@@ -35,8 +35,12 @@ import lombok.extern.slf4j.Slf4j;
  * @author Yuki Yamada
  *
  */
-@Slf4j
 public final class SakaiLocaleServiceProviderUtil {
+
+	/**
+	 * A global logger.
+	 */
+	private static final Logger log = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
 
 	/**
 	 * A set of all locales for the resource bundles.
@@ -56,12 +60,12 @@ public final class SakaiLocaleServiceProviderUtil {
 			try {
 				props.load(inStream);
 			} catch (IOException e) {
-				log.warn(e.getMessage());
+				log.warning(e.getMessage());
 			} finally {
 				try {
 					inStream.close();
 				} catch (IOException e) {
-					log.warn(e.getMessage());
+					log.warning(e.getMessage());
 				}
 			}
 		}
@@ -189,7 +193,7 @@ public final class SakaiLocaleServiceProviderUtil {
 			try {
 				rb = ResourceBundle.getBundle("SakaiLocaleServiceProvider", locale, loader);
 			} catch (MissingResourceException e) {
-				log.warn(e.getMessage());
+				log.warning(e.getMessage());
 			}
 		}
 
