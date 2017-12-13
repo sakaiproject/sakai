@@ -2564,6 +2564,7 @@ $(document).ready(function() {
             sectionSettings.hide();
             sectionLabel.hide();
             columnLabel.show();
+            $('#isSection').val('false');
 		}
 	    $('.currentlyediting').removeClass('currentlyediting');
 	    var col = $(this).closest('.column');
@@ -2651,7 +2652,6 @@ $(document).ready(function() {
 		if (collapsible) {
 			section.addClass('collapsible');
 			header.addClass('collapsibleSectionHeader');
-			setCollapsedStatus(header, false);
 			var sectionId = section.attr('id');
 			if (typeof sectionId === 'undefined' || sectionId === null || sectionId === '') {
 			    sectionId = 'sectionid' + (nextid++);
@@ -2661,14 +2661,15 @@ $(document).ready(function() {
 		} else {
 			section.removeClass('collapsible');
 			header.removeClass('collapsibleSectionHeader');
-			setCollapsedStatus(header, false);
 			header.removeAttr('aria-controls');
 			header.removeAttr('aria-expanded');
 		}
 		if (defaultClosed) {
 			section.addClass('defaultClosed');
+			setCollapsedStatus(header, true);
 		} else {
 			section.removeClass('defaultClosed');
+			setCollapsedStatus(header, false);
 		}
 		if($('.collapsibleSectionHeader').length) {
 			$('#expandCollapseButtons').show();

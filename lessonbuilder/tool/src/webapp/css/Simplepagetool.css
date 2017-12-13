@@ -44,6 +44,18 @@
   padding-left: 4px;
 }
 
+#column-dialog input[type="checkbox"] {
+    margin-left: 1em;
+}
+
+#column-dialog label {
+    margin-left: 6px;
+}
+
+#column-dialog input[type="checkbox"] + label {
+    margin-left: 0;
+}
+
 /* end override */
 
 /* wrap unbreakable words */
