@@ -26,6 +26,7 @@ import java.util.Observer;
 
 import lombok.extern.slf4j.Slf4j;
 
+import org.codehaus.plexus.util.StringUtils;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.entity.api.Reference;
@@ -45,9 +46,6 @@ import org.sakaiproject.user.api.UserNotDefinedException;
  */
 @Slf4j
 public class AuthnCacheWatcher implements Observer {
-	//Copied from DbUserService as they are private
-	private static final String EIDCACHE = "eid:";
-	private static final String IDCACHE = "id:";
 	private AuthenticationCache authenticationCache;
 	private UserDirectoryService userDirectoryService;
 	private EventTrackingService eventTrackingService;
@@ -86,9 +84,9 @@ public class AuthnCacheWatcher implements Observer {
 
 	public void init() {
 		log.info("init()");
-        if (userCache == null) { // this is the user id->eid mapping cache
-            userCache = memoryService.getCache("org.sakaiproject.user.api.UserDirectoryService");
-        }
+		if (userCache == null) { // this is the user id->eid mapping cache
+			userCache = memoryService.getCache("org.sakaiproject.user.api.UserDirectoryService");
+		}
 		eventTrackingService.addObserver(this);
 	}
 	
@@ -103,11 +101,10 @@ public class AuthnCacheWatcher implements Observer {
 		if (!(arg instanceof Event))
 			return;
 		Event event = (Event) arg;
-		
-		
+
 		// check the event function against the functions we have notifications watching for
 		String function = event.getEvent();
-		
+
 		//we err on the side of caution here in checking all events that might invalidate the data in the cache -DH
 		if (UserDirectoryService.SECURE_ADD_USER.equals(function) || UserDirectoryService.SECURE_UPDATE_USER_OWN_PASSWORD.equals(function)
 				|| UserDirectoryService.SECURE_UPDATE_USER_ANY.equals(function) || UserDirectoryService.SECURE_UPDATE_USER_OWN.equals(function)) {
@@ -121,8 +118,8 @@ public class AuthnCacheWatcher implements Observer {
 				String eid = userDirectoryService.getUserEid(refId);
 				log.debug("removing " + eid + " from cache");
 				authenticationCache.removeAuthentification(eid);
-				userCache.remove(EIDCACHE + eid);
-				userCache.remove(IDCACHE + refId);
+				userCache.remove(UserDirectoryService.IDCACHE + eid);
+				userCache.remove(UserDirectoryService.EIDCACHE + refId);
 			} catch (UserNotDefinedException e) {
 				//not sure how we'd end up here
 				log.warn(e.getMessage(), e);
