@@ -231,7 +231,7 @@
 							<h:outputText styleClass="draftTitlePrefix" rendered="#{eachEntry.status == eachEntry.draftStatus}" value="#{msgs.draftTitlePrefix}" />
 							<h:outputText styleClass="" value="#{eachEntry.entry.title}" />
 							<f:subview id="dateStudent" rendered="#{!SyllabusTool.editAble && (eachEntry.entry.startDate != null || eachEntry.entry.endDate != null)}">
-								<f:verbatim><span style="font-weight: normal; color: grey; float: right"></f:verbatim>
+								<f:verbatim><span style="float: right; padding-right: 1em; padding-left: 1em"></f:verbatim>
 									<h:outputText value="#{eachEntry.entry.startDate}">
 										<f:convertDateTime type="date" pattern="EEE MMM dd, yyyy hh:mm a"/>
 									</h:outputText>
@@ -239,17 +239,17 @@
 									<h:outputText value="#{eachEntry.entry.endDate}" rendered="#{!eachEntry.startAndEndDatesSameDay}">
 								  		<f:convertDateTime type="date" pattern="EEE MMM dd, yyyy hh:mm a"/>
 									</h:outputText>
-									<h:outputText value="#{eachEntry.entry.endDate}" rendered="#{eachEntry.startAndEndDatesSameDay}">
+									&nbsp;|&nbsp;<h:outputText value="#{eachEntry.entry.endDate}" rendered="#{eachEntry.startAndEndDatesSameDay}">
 								  		<f:convertDateTime type="date" pattern="hh:mm a"/>
 									</h:outputText>
 								<f:verbatim></span></f:verbatim>
 							</f:subview>
 							<f:subview id="dateInstructor" rendered="#{SyllabusTool.editAble == 'true'}">
-								<f:verbatim><span style="font-weight: normal; color: grey; float: right"></f:verbatim>
+								<f:verbatim><span style="float: right; padding-right:1em; padding-left:1em"></f:verbatim>
 									<h:outputText styleClass="" value="#{eachEntry.entry.startDate}">
 										<f:convertDateTime type="date" pattern="yyyy/MM/dd h:mm a"/>
 									</h:outputText>
-									<h:outputText styleClass="" value="#{eachEntry.entry.endDate}">
+									&nbsp;|&nbsp;<h:outputText styleClass="" value="#{eachEntry.entry.endDate}">
 								  		<f:convertDateTime type="date" pattern="yyyy/MM/dd h:mm a"/>
 									</h:outputText>
 								<f:verbatim></span></f:verbatim>
