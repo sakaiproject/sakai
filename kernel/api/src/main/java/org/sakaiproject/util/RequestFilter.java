@@ -1351,15 +1351,20 @@ public class RequestFilter implements Filter
 		{
 			for (int i = 0; i < cookies.length; i++)
 			{
-				if (cookies[i].getName().equals(name))
+				Cookie cookie = cookies[i];
+
+				if (cookie.getName().equals(name))
 				{
-					// If this is NOT a terracotta cluster environment
-					// and the suffix passed in to this method is not null
-					// then only match the cookie if the end of the cookie
-					// value is equal to the suffix passed in.
-					if (isSessionClusteringEnabled() || ((suffix == null) || cookies[i].getValue().endsWith(suffix)))
-					{
-						return cookies[i];
+					// Assume valid cookie as name matches
+					Boolean validCookie = true;
+
+					// If cluster and suffix value, we need a match for a valid cookie
+					if (isSessionClusteringEnabled() && suffix != null) {
+						validCookie = cookie.getValue().endsWith(suffix);
+					}
+
+					if (validCookie) {
+						return cookie;
 					}
 				}
 			}
