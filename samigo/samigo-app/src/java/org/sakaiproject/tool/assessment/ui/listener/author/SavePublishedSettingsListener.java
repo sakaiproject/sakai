@@ -562,17 +562,21 @@ implements ActionListener
 		control.setStartDate(assessmentSettings.getStartDate());
 		control.setDueDate(assessmentSettings.getDueDate());
 
-		if (assessmentSettings.getLateHandling() != null) {
-			control.setLateHandling(new Integer(assessmentSettings.getLateHandling()));
+		Integer lateHandling = assessmentSettings.getLateHandling() != null ? new Integer(assessmentSettings.getLateHandling()) : -1;
+		if (lateHandling > 0) {
+			control.setLateHandling(lateHandling);
 		}
 
-		if (retractNow)
-		{
+		if (retractNow && lateHandling.equals(AssessmentAccessControl.ACCEPT_LATE_SUBMISSION)) {
 			control.setRetractDate(new Date());
+			if (assessmentSettings.getDueDate() != null && assessmentSettings.getDueDate().after(new Date())) {
+				control.setDueDate(new Date());
+			}
 		}
-		else if (assessmentSettings.getRetractDate() == null
-				 || "".equals(assessmentSettings.getRetractDateString()))
-		{
+		else if (retractNow) {
+			control.setDueDate(new Date());
+		}
+		else if (assessmentSettings.getRetractDate() == null || "".equals(assessmentSettings.getRetractDateString())) {
 			control.setLateHandling(AssessmentAccessControl.NOT_ACCEPT_LATE_SUBMISSION);
 			control.setRetractDate(null);
 		}
