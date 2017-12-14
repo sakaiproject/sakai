@@ -429,7 +429,31 @@ public class BaseGroup implements Group, Identifiable
 			throw new IllegalStateException("Error, cannot add " + userId + " with role " + roleId + " into a locked group");
 		}
 		m_azgChanged = true;
-		getAzg().addMember(userId, roleId, active, provided);
+		try
+		{
+			getAzg().addMember(userId, roleId, active, provided);
+		}
+		catch (IllegalArgumentException iae)
+		{
+			// In the same way that we copy across all roles when a group is created, when adding a member
+			// if the role isn't defined in the group, look in the site and copy it when adding.
+			Role siteRole = getContainingSite().getRole(roleId);
+			if (siteRole != null)
+			{
+				try
+				{
+					getAzg().addRole(roleId, siteRole);
+				}
+				catch (RoleAlreadyDefinedException ignore) // Possibly added by another thread.
+				{
+				}
+				getAzg().addMember(userId, roleId, active, provided);
+			}
+			else
+			{
+				throw iae;
+			}
+		}
 	}
 
 	public Role addRole(String id) throws RoleAlreadyDefinedException

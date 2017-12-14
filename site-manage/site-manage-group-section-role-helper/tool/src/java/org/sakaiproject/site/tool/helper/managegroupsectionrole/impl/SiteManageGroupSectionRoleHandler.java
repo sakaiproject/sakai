@@ -763,23 +763,27 @@ public class SiteManageGroupSectionRoleHandler {
                 else
                 {
                     // normal user id
-                    memberId = StringUtils.trimToNull(memberId);
-                    if (memberId != null && group.getUserRole(memberId) == null) {
-                        Role r = site.getUserRole(memberId);
-                        Member m = site.getMember(memberId);
-                        Role memberRole = m != null ? m.getRole() : null;
-                        // for every member added through the "Manage
-                        // Groups" interface, he should be defined as
-                        // non-provided
-                        // get role first from site definition.
-                        // However, if the user is inactive, getUserRole would return null; then use member role instead
-                        String roleString = r != null ? r.getId(): memberRole != null? memberRole.getId() : "";
-                        boolean active = m != null ? m.isActive() : true;
-                        try {
-                            group.insertMember(memberId, roleString, active,false);
-                            addedGroupMember.add("uid=" + memberId + ";role=" + roleString + ";active=" + active + ";provided=false;groupId=" + group.getId());
-                        } catch (IllegalStateException e) {
-                            log.error(".processAddGroup: User with id {} cannot be inserted in group with id {} because the group is locked", memberId, group.getId());
+                    String userId = StringUtils.trimToNull(memberId);
+                    if (userId != null && group.getUserRole(userId) == null) {
+                        Member m = site.getMember(userId);
+                        // User isn't a member of the site, refusing to add them to the group.
+                        if (m != null) {
+                            Role memberRole = m.getRole();
+                            try {
+                                group.addMember(userId, memberRole.getId(), m.isActive(), false);
+                                addedGroupMember.add("uid=" + userId + ";role=" + memberRole.getId() + ";active=" + m.isActive() + ";provided=false;groupId=" + group.getId());
+                            } catch (IllegalStateException e) {
+                                log.error(".processAddGroup: User with id {} cannot be inserted in group with id {} because the group is locked", memberId, group.getId());
+                                return null;
+                            }
+                        } else {
+                            String displayName;
+                            try {
+                                displayName = userDirectoryService.getUser(userId).getDisplayName();
+                            } catch (UserNotDefinedException e) {
+                                displayName = messageLocator.getMessage("user.unknown");
+                            }
+                            messages.addMessage(new TargettedMessage("user.not.member.alert", new String[]{displayName}, "groupMembers-selection"));
                             return null;
                         }
                     }
