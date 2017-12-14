@@ -3232,10 +3232,9 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
         InputStream content = null;
         Map<String, Integer> done = new HashMap<>();
         for (String r : attachments) {
-// TODO maybe be a reference
-//           Reference r = (Reference) attachments.get(j);
             try {
-                ContentResource resource = contentHostingService.getResource(r);
+                String attachId = removeReferencePrefix(r);
+                ContentResource resource = contentHostingService.getResource(attachId);
 
                 String contentType = resource.getContentType();
 
@@ -3534,7 +3533,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                         for (AssignmentSupplementItemAttachment oAttachment : oModelAnswerItemAttachments) {
                             AssignmentSupplementItemAttachment nAttachment = assignmentSupplementItemService.newAttachment();
                             // New attachment creation
-                            String nAttachmentId = transferAttachment(fromContext, toContext, oAttachment.getAttachmentId().replaceFirst("/content", ""));
+                            String nAttachmentId = transferAttachment(fromContext, toContext, removeReferencePrefix(oAttachment.getAttachmentId()));
                             if (StringUtils.isNotEmpty(nAttachmentId)) {
                                 nAttachment.setAssignmentSupplementItemWithAttachment(nModelAnswerItem);
                                 nAttachment.setAttachmentId(nAttachmentId);
@@ -3574,7 +3573,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                         for (AssignmentSupplementItemAttachment oAttachment : oAllPurposeItemAttachments) {
                             AssignmentSupplementItemAttachment nAttachment = assignmentSupplementItemService.newAttachment();
                             // New attachment creation
-                            String nAttachId = transferAttachment(fromContext, toContext, oAttachment.getAttachmentId().replaceFirst("/content", ""));
+                            String nAttachId = transferAttachment(fromContext, toContext, removeReferencePrefix(oAttachment.getAttachmentId()));
                             if (StringUtils.isNotEmpty(nAttachId)) {
                                 nAttachment.setAssignmentSupplementItemWithAttachment(nAllPurposeItem);
                                 nAttachment.setAttachmentId(nAttachId);
@@ -3822,5 +3821,12 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
     public String getUsersLocalDateTimeString(Instant date) {
         ZoneId zone = userTimeService.getLocalTimeZone().toZoneId();
         return DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM, FormatStyle.SHORT).withZone(zone).format(date);
+    }
+
+    private String removeReferencePrefix(String referenceId) {
+        if (referenceId.startsWith(REF_PREFIX)) {
+            referenceId = referenceId.replaceFirst(REF_PREFIX, "");
+        }
+        return referenceId;
     }
 }

@@ -97,6 +97,10 @@ public final class AssignmentServiceConstants {
      * The Reference type for a content.
      */
     public static final String REF_TYPE_CONTENT = "c";
+    /**
+     * The prefix for a Reference ID.
+     */
+    public static final String REF_PREFIX = "/content";
 
     // the three choices for Gradebook Integration
     public static final String GRADEBOOK_INTEGRATION_NO = "no";
