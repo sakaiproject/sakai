@@ -20,6 +20,11 @@ public class GradebookNgStringResourceLoader implements IStringResourceLoader {
 
     @Override
     public String loadStringResource(Component component, String key, Locale locale, String style, String variation) {
+        if (loader.containsKey(key)) {
+            return loadString(locale, key);
+        }
+        // May contain the component prefix that should be removed
+        key = key.replaceFirst(component.getId() + ".", "");
         return loadString(locale, key);
     }
 
