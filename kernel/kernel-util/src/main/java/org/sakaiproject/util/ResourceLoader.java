@@ -22,14 +22,7 @@
 package org.sakaiproject.util;
 
 import java.text.MessageFormat;
-import java.util.Collection;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.Locale;
-import java.util.Map;
-import java.util.MissingResourceException;
-import java.util.ResourceBundle;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 import lombok.extern.slf4j.Slf4j;
@@ -54,6 +47,8 @@ import org.sakaiproject.user.api.PreferencesService;
 @Slf4j
 public class ResourceLoader extends DummyMap implements InternationalizedMessages
 {
+    private BundleControl bundleControl = new BundleControl();
+
 	// name of ResourceBundle
 	protected String baseName = null;
     public String getBaseName() {
@@ -735,9 +730,9 @@ public class ResourceLoader extends DummyMap implements InternationalizedMessage
 		try
 		{
 			if (classLoader == null) {
-				newBundle = ResourceBundle.getBundle(baseName, loc);
+                newBundle = ResourceBundle.getBundle(baseName, loc, bundleControl);
 			} else {
-				newBundle = ResourceBundle.getBundle(baseName, loc, classLoader);
+                newBundle = ResourceBundle.getBundle(baseName, loc, classLoader, bundleControl);
 			}
 		} catch (NullPointerException e) {
 			// IGNORE FAILURE
@@ -779,6 +774,19 @@ public class ResourceLoader extends DummyMap implements InternationalizedMessage
                        '}';
     }
 
+
+	public static class BundleControl extends ResourceBundle.Control {
+		@Override
+		public List<Locale> getCandidateLocales(String baseName, Locale locale) {
+			List<Locale> candidateLocales = super.getCandidateLocales(baseName, locale);
+
+			if ("".equals(locale.getLanguage())) {
+				candidateLocales.add(0, new Locale("en"));
+			}
+
+			return candidateLocales;
+		}
+	}
 }
 
 @SuppressWarnings({ "rawtypes" })
