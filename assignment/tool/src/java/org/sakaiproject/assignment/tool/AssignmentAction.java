@@ -3085,7 +3085,7 @@ public class AssignmentAction extends PagedResourceActionII {
             String submitterNames = s.getSubmitters().stream().map(u -> {
                 try {
                     User user = userDirectoryService.getUser(u.getSubmitter());
-                    return user.getDisplayName() + " (" + user.getDisplayName() + ")";
+                    return user.getDisplayName() + " (" + user.getDisplayId() + ")";
                 } catch (UserNotDefinedException e) {
                     log.warn("Could not find user = {}, who is a submitter on submission = {}, {}", u, s.getId(), e.getMessage());
                 }
@@ -3794,7 +3794,7 @@ public class AssignmentAction extends PagedResourceActionII {
             String submitterNames = submission.getSubmitters().stream().map(u -> {
                 try {
                     User user = userDirectoryService.getUser(u.getSubmitter());
-                    return user.getDisplayName() + " (" + user.getDisplayName() + ")";
+                    return user.getDisplayName() + " (" + user.getDisplayId() + ")";
                 } catch (UserNotDefinedException e) {
                     log.warn("Could not find user = {}, who is a submitter on submission = {}, {}", u, submission.getId(), e.getMessage());
                 }
