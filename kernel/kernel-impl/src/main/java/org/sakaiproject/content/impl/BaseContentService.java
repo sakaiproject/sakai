@@ -3976,9 +3976,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 		}
 
 		// add this collection
-		ContentCollectionEdit edit = addCollection(collection);
-		edit.getPropertiesEdit().addProperty(ResourceProperties.PROP_DISPLAY_NAME, name);
-		commitCollection(edit);
+		addAndCommitAttachmentCollection(collection, name, null);
 
 		// and add the resource
 		return addResource(id, type, content, properties, new ArrayList(), NotificationService.NOTI_NONE);
@@ -4030,24 +4028,25 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 		}
 
 		String siteCollection = ATTACHMENTS_COLLECTION + siteId + Entity.SEPARATOR;
+
+		String siteTitle = site;
+		String siteCreator = null;
+
+		try {
+			Site m_site = m_siteService.getSite(site);
+			siteTitle = m_site.getTitle();
+			siteCreator = m_site.getCreatedBy().getId();
+		} catch (IdUnusedException e1) {
+			log.debug("Site {} was null, defaulting to regular title", site);
+		}
+
 		try
 		{
 			checkCollection(siteCollection);
 		}
 		catch (Exception e)
 		{
-			// add this collection
-			ContentCollectionEdit siteEdit = addCollection(siteCollection);
-			try
-			{
-				String siteTitle = m_siteService.getSite(site).getTitle();
-				siteEdit.getPropertiesEdit().addProperty(ResourceProperties.PROP_DISPLAY_NAME, siteTitle);
-			}
-			catch (Exception e1)
-			{
-				siteEdit.getPropertiesEdit().addProperty(ResourceProperties.PROP_DISPLAY_NAME, site);
-			}
-			commitCollection(siteEdit);
+			addAndCommitAttachmentCollection(siteCollection, siteTitle, siteCreator);
 		}
 
 		String toolCollection = siteCollection + toolId + Entity.SEPARATOR;
@@ -4057,10 +4056,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 		}
 		catch (Exception e)
 		{
-			// add this collection
-			ContentCollectionEdit toolEdit = addCollection(toolCollection);
-			toolEdit.getPropertiesEdit().addProperty(ResourceProperties.PROP_DISPLAY_NAME, tool);
-			commitCollection(toolEdit);
+			addAndCommitAttachmentCollection(toolCollection, tool, siteCreator);
 		}
 
 		// form a name based on the attachments collection, a unique folder id, and the given name
@@ -4072,10 +4068,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 			throw new RuntimeException(ID_LENGTH_EXCEPTION);
 		}
 
-		// add this collection
-		ContentCollectionEdit edit = addCollection(collection);
-		edit.getPropertiesEdit().addProperty(ResourceProperties.PROP_DISPLAY_NAME, name);
-		commitCollection(edit);
+		addAndCommitAttachmentCollection(collection, name, siteCreator);
 
 		// and add the resource
 		return addResource(id, type, content, properties, new ArrayList(), NotificationService.NOTI_NONE);
@@ -4113,15 +4106,37 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 		// form a name based on the attachments collection, a unique folder id, and the given name
 		String collection = ATTACHMENTS_COLLECTION + idManager.createUuid() + Entity.SEPARATOR;
 		String id = collection + name;
-
-		// add this collection
-		ContentCollectionEdit edit = addCollection(collection);
-		edit.getPropertiesEdit().addProperty(ResourceProperties.PROP_DISPLAY_NAME, name);
-		commitCollection(edit);
+		
+		addAndCommitAttachmentCollection(collection, name, null);
 
 		return addResource(id);
 
 	} // addAttachmentResource
+	
+	/**
+	 * addAndCommitAttachmentCollection - Helper to Add and Commit an Attachment Collection, used by many methods
+	 * @param collection - Value of collection to create
+	 * @param name - Name of collection
+	 * @param createdBy - Id of user creating or null to leave unchaned
+	 * 
+	 * @throws IdUsedException
+	 * @throws IdInvalidException
+	 * @throws PermissionException
+	 * @throws InconsistentException
+	 */
+
+	private void addAndCommitAttachmentCollection(String collection, String name, String createdBy) throws IdUsedException, IdInvalidException, PermissionException, InconsistentException {
+		// add this collection
+		ContentCollectionEdit edit = addCollection(collection);
+		edit.getPropertiesEdit().addProperty(ResourceProperties.PROP_DISPLAY_NAME, name);
+
+		//Set the created by to someone else unless null
+		if (createdBy != null) {
+			edit.getPropertiesEdit().addProperty(ResourceProperties.PROP_CREATOR, createdBy);
+		}
+		
+		commitCollection(edit);	
+	}
 
 	/**
 	 * check permissions for updateResource().
