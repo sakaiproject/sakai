@@ -8635,12 +8635,6 @@ public class AssignmentAction extends PagedResourceActionII {
         a.setPeerAssessmentNumberReviews(peerAssessmentNumReviews);
         a.setPeerAssessmentInstructions(peerAssessmentInstructions);
 
-        if(!a.getDraft() && a.getAllowPeerAssessment()){
-            assignmentPeerAssessmentService.schedulePeerReview(a.getId());
-        }else{
-            assignmentPeerAssessmentService.removeScheduledPeerReview(a.getId());
-        }
-
         try {
             if (Assignment.Access.SITE.toString().equals(range)) {
                 a.setTypeOfAccess(Assignment.Access.SITE);
@@ -8662,6 +8656,12 @@ public class AssignmentAction extends PagedResourceActionII {
                 addAlert(state, rb.getString("group.user.multiple.error"));
                 log.warn(":post_save_assignment at least one user in multiple groups.");
             }
+        }
+
+        if(!a.getDraft() && a.getAllowPeerAssessment()){
+            assignmentPeerAssessmentService.schedulePeerReview(a.getId());
+        }else{
+            assignmentPeerAssessmentService.removeScheduledPeerReview(a.getId());
         }
 
         // TODO content review
