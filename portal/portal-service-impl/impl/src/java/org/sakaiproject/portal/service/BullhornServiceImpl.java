@@ -168,7 +168,7 @@ public class BullhornServiceImpl implements BullhornService, Observer {
             log.debug("Failed to setup stubs for commons tool", e);
         }
 
-        if (serverConfigurationService.getBoolean("portal.bullhorns.enabled", true)) {
+        if (serverConfigurationService.getBoolean("portal.bullhorns.enabled", false)) {
             HANDLED_EVENTS.add(ProfileConstants.EVENT_STATUS_UPDATE);
             HANDLED_EVENTS.add(ProfileConstants.EVENT_FRIEND_REQUEST);
             HANDLED_EVENTS.add(ProfileConstants.EVENT_FRIEND_CONFIRM);
