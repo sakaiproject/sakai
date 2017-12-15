@@ -343,9 +343,8 @@ implements ActionListener
 					entry.setStartDate(new Date());
 				}
 				if(!isEntryRetractEarlierThanAvailable && (entryRetractDate != null && entryDueDate != null && entryRetractDate.before(entryDueDate))) {
-					String extendedTimeError4 = getExtendedTimeErrorString("extended_time_retract_earlier_than_due", entry, assessmentSettings);
-					context.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_WARN, extendedTimeError4, null));
-					error = true;
+					// Retract date should be pushed to the due date
+					entry.setRetractDate(entryDueDate);
 				}
 			}
 			if(entryDueDate != null && entryStartDate != null && entryDueDate.equals(entryStartDate)) {
