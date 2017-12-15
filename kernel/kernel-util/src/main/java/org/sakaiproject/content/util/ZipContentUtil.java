@@ -110,7 +110,7 @@ public class ZipContentUtil {
 			try {
 				temp = File.createTempFile("sakai_content-", ".tmp");
 				ContentCollection collection = ContentHostingService.getCollection(reference.getId());
-				out = new ZipOutputStream(new BufferedOutputStream(new FileOutputStream(temp),BUFFER_SIZE));
+				out = new ZipOutputStream(new BufferedOutputStream(new FileOutputStream(temp),BUFFER_SIZE),java.nio.charset.StandardCharsets.UTF_8);
 				storeContentCollection(reference.getId(),collection,out);
 			} finally {
 				if (out != null) {
@@ -478,16 +478,33 @@ public class ZipContentUtil {
 	 */
 	private void storeContentCollection(String rootId, ContentCollection collection, ZipOutputStream out) throws Exception {
 		List<String> members = collection.getMembers();
-		for (String memberId: members) {
-			if (memberId.endsWith(Entity.SEPARATOR)) {
-				ContentCollection memberCollection = ContentHostingService.getCollection(memberId);
-				storeContentCollection(rootId,memberCollection,out);
-			} 
-			else {
-				ContentResource resource = ContentHostingService.getResource(memberId);
-				storeContentResource(rootId, resource, out);
+		if (members.isEmpty()) storeEmptyFolder(rootId,collection,out);
+		else {
+			for (String memberId: members) {
+				if (memberId.endsWith(Entity.SEPARATOR)) {
+					ContentCollection memberCollection = ContentHostingService.getCollection(memberId);
+					storeContentCollection(rootId,memberCollection,out);
+				} 
+				else {
+					ContentResource resource = ContentHostingService.getResource(memberId);
+					storeContentResource(rootId, resource, out);
+				}
 			}
 		}
+	}
+	
+	/**
+	 * Add an empty folder to the zip
+	 * 
+	 * @param rootId
+	 * @param resource
+	 * @param out
+	 * @throws Exception
+	 */
+	private void storeEmptyFolder(String rootId, ContentCollection resource, ZipOutputStream out) throws Exception {		
+		String folderName = resource.getId().substring(rootId.length(),resource.getId().length());
+		ZipEntry zipEntry = new ZipEntry(folderName+Entity.SEPARATOR);
+		out.putNextEntry(zipEntry);
 	}
 
 	/**
