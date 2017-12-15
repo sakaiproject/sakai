@@ -217,9 +217,9 @@ public class Assignment {
     @Column(name = "ALLOW_PEER_ASSESSMENT")
     private Boolean allowPeerAssessment = Boolean.FALSE;
 
+    @Type(type = "org.sakaiproject.springframework.orm.hibernate.type.InstantType")
     @Column(name = "PEER_ASSESSMENT_PERIOD_DATE")
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date peerAssessmentPeriodDate;
+    private Instant peerAssessmentPeriodDate;
 
     @Column(name = "PEER_ASSESSMENT_ANON_EVAL")
     private Boolean peerAssessmentAnonEval;

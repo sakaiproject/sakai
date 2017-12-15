@@ -193,11 +193,11 @@
 										</td>
 										#if ($withGrade)
 											<td headers="grade">
-													#if ($assignment.getContent().TypeOfGrade == 1)
+													#if ($assignment.TypeOfGrade.ordinal() == 1)
 														$tlang.getString("gen.nograd")
 													#else
 														#if ($assignment.isGroup())
-															#if(($assignment.getProperties().getProperty("prop_new_assignment_add_to_gradebook").trim()) && ($assignment.getContent().TypeOfGrade == 3))
+															#if(($assignment.getProperties().getProperty("prop_new_assignment_add_to_gradebook").trim()) && ($assignment.TypeOfGrade == 3))
 																#if ($submission.getGradeForUserInGradeBook($!member.getId()))
 																	$!submission.getGradeForUserInGradeBook($!member.getId()) <abbr title="Group Grades">($!submission.gradeDisplay)</abbr>
 																#else
