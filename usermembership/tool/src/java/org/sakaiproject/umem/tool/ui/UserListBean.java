@@ -48,9 +48,9 @@ import javax.faces.model.SelectItem;
 import org.apache.commons.lang.StringUtils;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.db.api.SqlService;
+import org.sakaiproject.time.api.UserTimeService;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.umem.api.Authz;
-import org.sakaiproject.umem.api.SakaiFacade;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.util.ResourceLoader;
@@ -110,21 +110,12 @@ public class UserListBean {
 	private String							message				= "";
 	// system
 	/** Sakai services vars */
-	//TODO - SakaiFacade api
 	private transient UserDirectoryService	M_uds				= (UserDirectoryService) ComponentManager.get(UserDirectoryService.class.getName());
 	private transient ToolManager			M_tm				= (ToolManager) ComponentManager.get(ToolManager.class.getName());
 	private transient SqlService			M_sql				= (SqlService) ComponentManager.get(SqlService.class.getName());
 	private transient Authz					authz				= (Authz) ComponentManager.get(Authz.class.getName());
-
-	private SakaiFacade sakaiFacade;
-	public SakaiFacade getSakaiFacade() {
-		return sakaiFacade;
-	}
-
-	public void setSakaiFacade(SakaiFacade sakaiFacade) {
-		this.sakaiFacade = sakaiFacade;
-	}
-
+	private UserTimeService userTimeService = ComponentManager.get(UserTimeService.class);
+	
 	// ######################################################################################
 	// UserRow, UserSitesRow CLASS
 	// ######################################################################################
@@ -307,7 +298,7 @@ public class UserListBean {
 	}
 	
 	public TimeZone getUserTimeZone() {
-		return getSakaiFacade().getLocalTimeZone();
+		return userTimeService.getLocalTimeZone();
 	}
 
 	private void doSearch() {
