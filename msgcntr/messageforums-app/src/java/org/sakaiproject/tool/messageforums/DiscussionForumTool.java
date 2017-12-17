@@ -55,17 +55,16 @@ import javax.faces.model.SelectItem;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
+import lombok.extern.slf4j.Slf4j;
 import net.sf.json.JSON;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import net.sf.json.JSONSerializer;
 import net.sf.json.JsonConfig;
-
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.lang.StringUtils;
-import org.sakaiproject.content.api.ContentResourceEdit;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.springframework.orm.hibernate4.HibernateOptimisticLockingFailureException;
+
 import org.sakaiproject.api.app.messageforums.AnonymousManager;
 import org.sakaiproject.api.app.messageforums.Area;
 import org.sakaiproject.api.app.messageforums.AreaManager;
@@ -107,16 +106,17 @@ import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentResource;
+import org.sakaiproject.content.api.ContentResourceEdit;
 import org.sakaiproject.content.api.FilePickerHelper;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.entitybroker.DeveloperHelperService;
+import org.sakaiproject.entitybroker.util.SakaiToolData;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.LearningResourceStoreService;
 import org.sakaiproject.event.api.LearningResourceStoreService.LRS_Actor;
-import org.sakaiproject.event.api.LearningResourceStoreService.LRS_Context;
 import org.sakaiproject.event.api.LearningResourceStoreService.LRS_Object;
 import org.sakaiproject.event.api.LearningResourceStoreService.LRS_Result;
 import org.sakaiproject.event.api.LearningResourceStoreService.LRS_Statement;
@@ -149,15 +149,14 @@ import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.util.ResourceLoader;
-import org.springframework.orm.hibernate4.HibernateOptimisticLockingFailureException;
 
 /**
  * @author <a href="mailto:rshastri@iupui.edu">Rashmi Shastri</a>
  * @author Chen wen
  */
+@Slf4j
 public class DiscussionForumTool
 {
-  private static final Logger LOG = LoggerFactory.getLogger(DiscussionForumTool.class);
 
   /**
    * List individual forum details
@@ -456,7 +455,7 @@ private String editorRows;
    */
   public DiscussionForumTool()
   {
-    LOG.debug("DiscussionForumTool()");
+    log.debug("DiscussionForumTool()");
     if("true".equalsIgnoreCase(ServerConfigurationService.getString("mc.threadedview")))
     {
     	threaded = true;
@@ -482,7 +481,7 @@ private String editorRows;
 	  {
 		  Object og = ComponentManager.get("org.sakaiproject.service.gradebook.GradebookService");
 		  if (!(og instanceof GradebookService)) {
-			LOG.info("Error getting gradebook service from component manager. CM returns:" + og.getClass().getName());
+			log.info("Error getting gradebook service from component manager. CM returns:" + og.getClass().getName());
 			return false;
 		  }
 			
@@ -495,7 +494,7 @@ private String editorRows;
 	  }
 	  catch (Exception e)
 	  {
-		  LOG.info(this + "isGradebookDefined " + e.getMessage());
+		  log.info(this + "isGradebookDefined " + e.getMessage());
 	  }
 
 	  return rv;
@@ -514,9 +513,9 @@ private String editorRows;
    */
   public void setForumManager(DiscussionForumManager forumManager)
   {
-    if (LOG.isDebugEnabled())
+    if (log.isDebugEnabled())
     {
-      LOG.debug("setForumManager(DiscussionForumManager " + forumManager + ")");
+      log.debug("setForumManager(DiscussionForumManager " + forumManager + ")");
     }
     this.forumManager = forumManager;
   }
@@ -527,9 +526,9 @@ private String editorRows;
    */
   public void setUiPermissionsManager(UIPermissionsManager uiPermissionsManager)
   {
-    if (LOG.isDebugEnabled())
+    if (log.isDebugEnabled())
     {
-      LOG.debug("setUiPermissionsManager(UIPermissionsManager "
+      log.debug("setUiPermissionsManager(UIPermissionsManager "
           + uiPermissionsManager + ")");
     }
     this.uiPermissionsManager = uiPermissionsManager;
@@ -558,7 +557,7 @@ private String editorRows;
    */
   public String processActionHome()
   {
-    LOG.debug("processActionHome()");
+    log.debug("processActionHome()");
    	reset();
     return gotoMain();
   }
@@ -568,7 +567,7 @@ private String editorRows;
    */
   public boolean isInstructor()
   {
-    LOG.debug("isInstructor()");
+    log.debug("isInstructor()");
     if (instructor == null)
     {
     	instructor = forumManager.isInstructor();
@@ -581,7 +580,7 @@ private String editorRows;
    */
   public boolean isSectionTA()
   {
-    LOG.debug("isSectionTA()");
+    log.debug("isSectionTA()");
     if (sectionTA == null)
     {
     	sectionTA = forumManager.isSectionTA();
@@ -611,7 +610,7 @@ private String editorRows;
    */
   public List getForums()
   {
-	  LOG.debug("getForums()");
+	  log.debug("getForums()");
 	  
 	     if (forums != null && forums.size() > 0) {
 	       return forums;
@@ -730,17 +729,15 @@ private String editorRows;
 	    					 try {
 	    						 assignments.add(new SelectItem(Long.toString(thisAssign.getId()), thisAssign.getName()));
 	    					 } catch(Exception e) {
-	    						 LOG.error("DiscussionForumTool - processDfMsgGrd:" + e);
-	    						 e.printStackTrace();
+	    						 log.error("DiscussionForumTool - processDfMsgGrd:" + e);
 	    					 }
 	    				 }
 	    			 }
 	    		 }
 	    	 } catch(SecurityException se) {
-	    		 LOG.debug("SecurityException caught while getting assignments.", se);
+	    		 log.debug("SecurityException caught while getting assignments.", se);
 	    	 } catch(Exception e1) {
-	    		 LOG.error("DiscussionForumTool&processDfMsgGrad:" + e1);
-	    		 e1.printStackTrace();
+	    		 log.error("DiscussionForumTool&processDfMsgGrad:" + e1);
 	    	 }
 
 	    	 // now loop through the forums that we found earlier and turn them into forums ready to be displayed to the end user
@@ -806,18 +803,16 @@ private String editorRows;
 		  try {
 			  Thread.sleep(SynopticMsgcntrManager.OPT_LOCK_WAIT);
 		  } catch (InterruptedException e) {
-			  e.printStackTrace();
+			  log.error(e.getMessage(), e);
 		  }
 
 		  numOfAttempts--;
 
 		  if (numOfAttempts <= 0) {
-			  System.out
-			  .println("DiscussionForumTool: setForumSynopticInfoHelper: HibernateOptimisticLockingFailureException no more retries left");
-			  holfe.printStackTrace();
+			  log.info("DiscussionForumTool: setForumSynopticInfoHelper: HibernateOptimisticLockingFailureException no more retries left");
+			  log.error(holfe.getMessage(), holfe);
 		  } else {
-			  System.out
-			  .println("DiscussionForumTool: setForumSynopticInfoHelper: HibernateOptimisticLockingFailureException: attempts left: "
+			  log.info("DiscussionForumTool: setForumSynopticInfoHelper: HibernateOptimisticLockingFailureException: attempts left: "
 					  + numOfAttempts);
 			  setForumSynopticInfoHelper(userId, siteId, 
 					  unreadMessagesCount, numOfAttempts);
@@ -831,7 +826,7 @@ private String editorRows;
    */
   public DiscussionForumBean getSelectedForum()
   {
-    LOG.debug("getSelectedForum()");
+    log.debug("getSelectedForum()");
     return selectedForum;
   }
 
@@ -840,7 +835,7 @@ private String editorRows;
    */
   public String processActionOrganize()
   {
-    LOG.debug("processActionOrganize()");
+    log.debug("processActionOrganize()");
     return MAIN;
   }
 
@@ -849,7 +844,7 @@ private String editorRows;
    */
   public String processActionStatistics()
   {
-    LOG.debug("processActionStatistics()");
+    log.debug("processActionStatistics()");
     return FORUM_STATISTICS;
   }
   
@@ -858,7 +853,7 @@ private String editorRows;
    */
   public String processActionTemplateSettings()
   {
-    LOG.debug("processActionTemplateSettings()");
+    log.debug("processActionTemplateSettings()");
     
     setEditMode(true);
     setPermissionMode(PERMISSION_MODE_TEMPLATE);
@@ -877,7 +872,7 @@ private String editorRows;
    */
   public String processActionTemplateOrganize()
   {
-    LOG.debug("processActionTemplateOrganize()");
+    log.debug("processActionTemplateOrganize()");
     
     setEditMode(false);
     setPermissionMode(PERMISSION_MODE_TEMPLATE);
@@ -938,8 +933,8 @@ private String editorRows;
    */
   /*public String processActionReviseTemplateSettings()
   {
-  	if (LOG.isDebugEnabled()){
-      LOG.debug("processActionReviseTemplateSettings()");
+  	if (log.isDebugEnabled()){
+      log.debug("processActionReviseTemplateSettings()");
   	}
     
   	setEditMode(true); 
@@ -952,7 +947,7 @@ private String editorRows;
    */
   public String processActionSaveTemplateSettings()
   {
-    LOG.debug("processActionSaveTemplateSettings()");
+    log.debug("processActionSaveTemplateSettings()");
     if(!isInstructor())
     {
       setErrorMessage(getResourceBundleString(INSUFFICIENT_PRIVILEGES_TO_EDIT_TEMPLATE_SETTINGS));
@@ -976,7 +971,7 @@ private String editorRows;
 
   public String processActionCancelTemplateSettings()
   {
-    LOG.debug("processActionTemplateSettings()");
+    log.debug("processActionTemplateSettings()");
     // SAK-14073 -- Cleanout values after cancelling.
     FacesContext context = FacesContext.getCurrentInstance();
     UIInput component = (UIInput) context.getViewRoot().findComponent("revise:moderated");
@@ -991,7 +986,7 @@ private String editorRows;
    */
   public String processActionSaveTemplateOrganization()
   {
-    LOG.debug("processActionSaveTemplateOrganization()");
+    log.debug("processActionSaveTemplateOrganization()");
     if(!isInstructor())
     {
       setErrorMessage(getResourceBundleString(INSUFFICIENT_PRIVILEGES_TO_EDIT_TEMPLATE_ORGANIZE));
@@ -1020,7 +1015,7 @@ private String editorRows;
    */
   public String processActionRestoreDefaultTemplate()
   {
-    LOG.debug("processActionRestoreDefaultTemplate()");
+    log.debug("processActionRestoreDefaultTemplate()");
     if(!isInstructor())
     {
       setErrorMessage(getResourceBundleString(INSUFFICIENT_PRIVILEGES_TO_EDIT_TEMPLATE_SETTINGS));
@@ -1049,7 +1044,7 @@ private String editorRows;
    */
   public boolean getNewForum()
   {
-    LOG.debug("getNewForum()");
+    log.debug("getNewForum()");
     if (newForum == null){
     	newForum = uiPermissionsManager.isNewForum();
     }
@@ -1063,11 +1058,11 @@ private String editorRows;
    */
   public String processActionDisplayForum()
   {
-    LOG.debug("processDisplayForum()");
+    log.debug("processDisplayForum()");
     forumClickCount++;
     if (getDecoratedForum() == null)
     {
-      LOG.error("Forum not found");
+      log.error("Forum not found");
       return gotoMain();
     }
     return FORUM_DETAILS;
@@ -1082,7 +1077,7 @@ private String editorRows;
   public String processActionDeleteForumMainConfirm()
   {
 
-	  LOG.debug("processForumMainConfirm()");
+	  log.debug("processForumMainConfirm()");
 
 	  String forumId = getExternalParameterByKey(FORUM_ID);
 	  DiscussionForum forum = forumManager.getForumById(Long.valueOf(forumId));
@@ -1101,10 +1096,10 @@ private String editorRows;
    */
   public String processActionDeleteForumConfirm()
   {
-    LOG.debug("processActionDeleteForumConfirm()");
+    log.debug("processActionDeleteForumConfirm()");
     if (selectedForum == null)
     {
-      LOG.debug("There is no forum selected for deletion");
+      log.debug("There is no forum selected for deletion");
       return gotoMain();
     }
 //  TODO:
@@ -1163,18 +1158,16 @@ private String editorRows;
 		  try {
 			  Thread.sleep(SynopticMsgcntrManager.OPT_LOCK_WAIT);
 		  } catch (InterruptedException e) {
-			  e.printStackTrace();
+			  log.error(e.getMessage(), e);
 		  }
 
 		  numOfAttempts--;
 
 		  if (numOfAttempts <= 0) {
-			  System.out
-			  .println("DiscussionForumTool: updateSynopticMessagesForForumComparingOldMessagesCount: HibernateOptimisticLockingFailureException no more retries left");
-			  holfe.printStackTrace();
+			  log.info("DiscussionForumTool: updateSynopticMessagesForForumComparingOldMessagesCount: HibernateOptimisticLockingFailureException no more retries left");
+			  log.error(holfe.getMessage(), holfe);
 		  } else {
-			  System.out
-			  .println("DiscussionForumTool: updateSynopticMessagesForForumComparingOldMessagesCount: HibernateOptimisticLockingFailureException: attempts left: "
+			  log.info("DiscussionForumTool: updateSynopticMessagesForForumComparingOldMessagesCount: HibernateOptimisticLockingFailureException: attempts left: "
 					  + numOfAttempts);
 			  updateSynopticMessagesForForumComparingOldMessagesCount(siteId,
 					  forumId, topicId, beforeChangeHM, numOfAttempts);
@@ -1187,7 +1180,7 @@ private String editorRows;
    */
   public String processActionNewForum()
   {
-    LOG.debug("processActionNewForum()");
+    log.debug("processActionNewForum()");
     forumClickCount = 0;
     topicClickCount = 0;
     
@@ -1229,7 +1222,7 @@ private String editorRows;
    */
   public String processActionForumSettings()
   {
-    LOG.debug("processForumSettings()");
+    log.debug("processForumSettings()");
     forumClickCount = 0;
     topicClickCount = 0;
     setEditMode(true);
@@ -1281,7 +1274,7 @@ private String editorRows;
    */
   /*public String processActionReviseForumSettings()
   {
-    LOG.debug("processActionReviseForumSettings()");    
+    log.debug("processActionReviseForumSettings()");    
     setEditMode(true);
     setPermissionMode(PERMISSION_MODE_FORUM);
     if ((selectedForum) == null)
@@ -1313,7 +1306,7 @@ private String editorRows;
    */
   public String processActionSaveForumAndAddTopic()
   {
-    LOG.debug("processActionSaveForumAndAddTopic()");
+    log.debug("processActionSaveForumAndAddTopic()");
     if(forumClickCount != 0 || topicClickCount != 0) {
     	setErrorMessage(getResourceBundleString(MULTIPLE_WINDOWS , new Object[] {ServerConfigurationService.getString("ui.service","Sakai")}));
     	return FORUM_SETTING_REVISE;
@@ -1387,7 +1380,7 @@ private String editorRows;
    */
   public String processActionSaveForumSettings()
   {
-    LOG.debug("processActionSaveForumSettings()");
+    log.debug("processActionSaveForumSettings()");
     if(forumClickCount != 0 || topicClickCount != 0) {
     	setErrorMessage(getResourceBundleString(MULTIPLE_WINDOWS , new Object[] {ServerConfigurationService.getString("ui.service","Sakai")}));
     	return FORUM_SETTING_REVISE;
@@ -1439,7 +1432,7 @@ private String editorRows;
    */
   public String processActionSaveForumAsDraft()
   {
-    LOG.debug("processActionSaveForumAsDraft()");
+    log.debug("processActionSaveForumAsDraft()");
     if(forumClickCount != 0 || topicClickCount != 0) {
     	setErrorMessage(getResourceBundleString(MULTIPLE_WINDOWS , new Object[] {ServerConfigurationService.getString("ui.service","Sakai")}));
     	return FORUM_SETTING_REVISE;
@@ -1487,7 +1480,7 @@ private String editorRows;
 
   private DiscussionForum saveForumSettings(boolean draft)
   {
-    LOG.debug("saveForumSettings(boolean " + draft + ")");
+    log.debug("saveForumSettings(boolean " + draft + ")");
     
     if (selectedForum == null)
     {
@@ -1653,7 +1646,7 @@ private String editorRows;
   {
   	if(selectedTopic == null)
   	{
-			LOG.debug("no topic is selected in getSelectedTopic.");
+			log.debug("no topic is selected in getSelectedTopic.");
   		return null;
   	}
   	if (!selectedTopic.isSorted()) 
@@ -1682,7 +1675,7 @@ private String editorRows;
    */
   public String processActionNewTopic()
   {   
-    LOG.debug("processActionNewTopic()");
+    log.debug("processActionNewTopic()");
     topicClickCount = 0 ;
     forumClickCount = 0;
     setEditMode(true);
@@ -1716,7 +1709,7 @@ private String editorRows;
    */
   public String processActionReviseTopicSettings()
   {
-    LOG.debug("processActionReviseTopicSettings()");
+    log.debug("processActionReviseTopicSettings()");
     topicClickCount = 0;
     forumClickCount = 0;
     setPermissionMode(PERMISSION_MODE_TOPIC);
@@ -1724,7 +1717,7 @@ private String editorRows;
         
     if(selectedTopic == null)
     {
-			LOG.debug("no topic is selected in processActionReviseTopicSettings.");
+			log.debug("no topic is selected in processActionReviseTopicSettings.");
     	return gotoMain();
     }
     DiscussionTopic topic = selectedTopic.getTopic();
@@ -1776,7 +1769,7 @@ private String editorRows;
    */
   public String processActionSaveTopicAndAddTopic()
   {
-    LOG.debug("processActionSaveTopicAndAddTopic()");
+    log.debug("processActionSaveTopicAndAddTopic()");
     
     if(selectedTopic != null && selectedTopic.getTopic() != null
             && selectedTopic.getTopic().getOpenDate() != null && selectedTopic.getTopic().getCloseDate() != null
@@ -1849,7 +1842,7 @@ private String editorRows;
     	try{
     		statement = getStatementForUserPosted(selectedTopic.getTopic().getTitle(), SAKAI_VERB.interacted);
     	}catch(Exception e){
-    		LOG.error(e.getMessage(), e);
+    		log.error(e.getMessage(), e);
     	}
    		Event event = eventTrackingService.newEvent(DiscussionForumService.EVENT_FORUMS_TOPIC_ADD, getEventReference(selectedTopic.getTopic()), null, true, NotificationService.NOTI_OPTIONAL, statement);
    		eventTrackingService.post(event);
@@ -1863,7 +1856,7 @@ private String editorRows;
    */
   public String processActionSaveTopicSettings()
   {
-    LOG.debug("processActionSaveTopicSettings()");
+    log.debug("processActionSaveTopicSettings()");
     
     if(selectedTopic != null && selectedTopic.getTopic() != null 
             && selectedTopic.getTopic().getOpenDate() != null && selectedTopic.getTopic().getCloseDate() != null
@@ -1938,7 +1931,7 @@ private String editorRows;
     	try{
     		statement = getStatementForUserPosted(selectedTopic.getTopic().getTitle(), SAKAI_VERB.interacted);
     	}catch(Exception e){
-    		LOG.error(e.getMessage(), e);
+    		log.error(e.getMessage(), e);
     	}
    		Event event = eventTrackingService.newEvent(DiscussionForumService.EVENT_FORUMS_TOPIC_ADD, getEventReference(selectedTopic.getTopic()), null, true, NotificationService.NOTI_OPTIONAL, statement);
         eventTrackingService.post(event);
@@ -1953,7 +1946,7 @@ private String editorRows;
    */
   public String processActionSaveTopicAsDraft()
   {
-    LOG.debug("processActionSaveTopicAsDraft()");
+    log.debug("processActionSaveTopicAsDraft()");
     
     if(selectedTopic != null && selectedTopic.getTopic() != null
             && selectedTopic.getTopic().getOpenDate() != null && selectedTopic.getTopic().getCloseDate() != null
@@ -2010,7 +2003,7 @@ private String editorRows;
 
   private String saveTopicSettings(boolean draft)
   {
-  	LOG.debug("saveTopicSettings(" + draft + ")");
+  	log.debug("saveTopicSettings(" + draft + ")");
   	setPermissionMode(PERMISSION_MODE_TOPIC);
     if (selectedTopic != null)
     {
@@ -2086,7 +2079,7 @@ private String editorRows;
   public String processActionDeleteTopicMainConfirm()
   {
 	  {
-		  LOG.debug("processActionTopicSettings()");
+		  log.debug("processActionTopicSettings()");
 
 		  DiscussionTopic topic = null;
 		  String topicId = getExternalParameterByKey(TOPIC_ID);
@@ -2119,11 +2112,11 @@ private String editorRows;
    */
   public String processActionDeleteTopicConfirm()
   {
-    LOG.debug("processActionDeleteTopicConfirm()");
+    log.debug("processActionDeleteTopicConfirm()");
     
     if (selectedTopic == null)
     {
-      LOG.debug("There is no topic selected for deletion");
+      log.debug("There is no topic selected for deletion");
       return gotoMain();
     }
     if(!uiPermissionsManager.isChangeSettings(selectedTopic.getTopic(),selectedForum.getForum()))
@@ -2144,10 +2137,10 @@ private String editorRows;
    */
   public String processActionDeleteTopic()
   {   
-    LOG.debug("processActionDeleteTopic()");
+    log.debug("processActionDeleteTopic()");
     if (selectedTopic == null)
     {
-      LOG.debug("There is no topic selected for deletion");
+      log.debug("There is no topic selected for deletion");
       return gotoMain();
     }
     if(!uiPermissionsManager.isChangeSettings(selectedTopic.getTopic(),selectedForum.getForum()))
@@ -2176,7 +2169,7 @@ private String editorRows;
    */
   public String processActionTopicSettings()
   {
-    LOG.debug("processActionTopicSettings()");
+    log.debug("processActionTopicSettings()");
     
     topicClickCount = 0;
     forumClickCount = 0;
@@ -2231,7 +2224,7 @@ private String editorRows;
 
   public String processActionToggleDisplayForumExtendedDescription()
   {
-    LOG.debug("processActionToggleDisplayForumExtendedDescription()");
+    log.debug("processActionToggleDisplayForumExtendedDescription()");
     String redirectTo = getExternalParameterByKey(REDIRECT_PROCESS_ACTION);
     if (redirectTo == null)
     {
@@ -2263,7 +2256,7 @@ private String editorRows;
    */
   public String processActionToggleDisplayExtendedDescription()
   {
-    LOG.debug("processActionToggleDisplayExtendedDescription()");
+    log.debug("processActionToggleDisplayExtendedDescription()");
     String redirectTo = getExternalParameterByKey(REDIRECT_PROCESS_ACTION);
     if (redirectTo == null)
     {
@@ -2278,7 +2271,7 @@ private String editorRows;
     {
     	if(selectedTopic == null)
     	{
- 				LOG.debug("no topic is selected in processActionToggleDisplayExtendedDescription.");
+ 				log.debug("no topic is selected in processActionToggleDisplayExtendedDescription.");
     		return gotoMain();
     	}
       if (selectedTopic.isReadFullDesciption())
@@ -2295,7 +2288,7 @@ private String editorRows;
     {
     	if(selectedTopic == null)
     	{
- 				LOG.debug("no topic is selected in processActionToggleDisplayExtendedDescription.");
+ 				log.debug("no topic is selected in processActionToggleDisplayExtendedDescription.");
     		return gotoMain();
     	}
       if (selectedTopic.isReadFullDesciption())
@@ -2312,7 +2305,7 @@ private String editorRows;
     {
     	if(selectedTopic == null)
     	{
- 				LOG.debug("no topic is selected in processActionToggleDisplayExtendedDescription.");
+ 				log.debug("no topic is selected in processActionToggleDisplayExtendedDescription.");
     		return gotoMain();
     	}
       if (selectedTopic.isReadFullDesciption())
@@ -2335,7 +2328,7 @@ private String editorRows;
    */
   public String processActionDisplayTopic()
   {
-    LOG.debug("processActionDisplayTopic()");
+    log.debug("processActionDisplayTopic()");
     return displayTopicById(TOPIC_ID);
   }
 
@@ -2344,7 +2337,7 @@ private String editorRows;
    */
   public String processActionDisplayNextTopic()
   {
-    LOG.debug("processActionDisplayNextTopic()");
+    log.debug("processActionDisplayNextTopic()");
     return displayTopicById("nextTopicId");
   }
 
@@ -2353,7 +2346,7 @@ private String editorRows;
    */
   public String processActionDisplayPreviousTopic()
   {
-    LOG.debug("processActionDisplayNextTopic()");
+    log.debug("processActionDisplayNextTopic()");
     return displayTopicById("previousTopicId");
   }
 
@@ -2470,7 +2463,7 @@ private String editorRows;
 	  List<String> currentUser = new ArrayList<String>();
 	  currentUser.add(currentUserId);
 	  if (selectedTopic == null) {
-	      LOG.warn("selectedTopic null in getNeedToPostFirst");
+	      log.warn("selectedTopic null in getNeedToPostFirst");
 	      return true;
 	  } else {
 	      return getNeedToPostFirst(currentUser, selectedTopic.getTopic(), selectedTopic.getMessages()).contains(currentUserId);
@@ -2519,7 +2512,7 @@ private String editorRows;
   {
   		if(selectedTopic == null)
   		{
-  			LOG.debug("no topic is selected in processActionGetDisplayThread.");
+  			log.debug("no topic is selected in processActionGetDisplayThread.");
   			return gotoMain();
   		}
 	  	selectedTopic = getDecoratedTopic(selectedTopic.getTopic());
@@ -2623,7 +2616,7 @@ private String editorRows;
    */
   public String processActionDisplayThread()
   {
-	    LOG.debug("processActionDisplayThread()");
+	    log.debug("processActionDisplayThread()");
 	    
 	    selectedMessageCount ++;
 
@@ -2659,7 +2652,7 @@ private String editorRows;
 	        uiPermissionsManager, forumManager);
 	    if(topic == null || selectedTopic == null)
 	    {
-	    	LOG.debug("topic or selectedTopic is null in processActionDisplayThread.");
+	    	log.debug("topic or selectedTopic is null in processActionDisplayThread.");
 	    	return gotoMain();
 	    }
 	    if("true".equalsIgnoreCase(ServerConfigurationService.getString("mc.defaultLongDescription")))
@@ -2684,7 +2677,7 @@ private String editorRows;
         	try{
         		statement = getStatementForUserReadViewed(threadMessage.getTitle(), "thread"); 
         	}catch(Exception e){
-        		LOG.error(e.getMessage(), e);
+        		log.error(e.getMessage(), e);
         	}
        		Event event = eventTrackingService.newEvent(DiscussionForumService.EVENT_FORUMS_READ, getEventReference(threadMessage), null, true, NotificationService.NOTI_OPTIONAL, statement);
             eventTrackingService.post(event);
@@ -2707,7 +2700,7 @@ private String editorRows;
    */
   public String processActionDisplayMessage()
   {
-    LOG.debug("processActionDisplayMessage()");
+    log.debug("processActionDisplayMessage()");
     
    selectedMessageCount ++;
 
@@ -2742,7 +2735,7 @@ private String editorRows;
         uiPermissionsManager, forumManager);
     if(topic == null || selectedTopic == null)
     {
-    	LOG.debug("topic or selectedTopic is null in processActionDisplayMessage.");
+    	log.debug("topic or selectedTopic is null in processActionDisplayMessage.");
     	return gotoMain();
     }
     if("true".equalsIgnoreCase(ServerConfigurationService.getString("mc.defaultLongDescription")))
@@ -2772,7 +2765,7 @@ private String editorRows;
     	try{
 	        statement = getStatementForUserReadViewed(message.getTitle(), "thread");
     	}catch(Exception e){
-    		LOG.error(e.getMessage(), e);
+    		log.error(e.getMessage(), e);
     	}
    		Event event = eventTrackingService.newEvent(DiscussionForumService.EVENT_FORUMS_READ, getEventReference(message), null, true, NotificationService.NOTI_OPTIONAL, statement);
         eventTrackingService.post(event);
@@ -2793,7 +2786,7 @@ private String editorRows;
 	    
 	    if(selectedTopic == null)
 	    {
-	    	LOG.debug("selectedTopic is null in getThreadFromMessage.");
+	    	log.debug("selectedTopic is null in getThreadFromMessage.");
 	    	return;
 	    }
 	    
@@ -2832,7 +2825,7 @@ private String editorRows;
   {
     if(selectedTopic == null)
     {
-    	LOG.debug("selectedTopic is null in processDisplayPreviousMsg.");
+    	log.debug("selectedTopic is null in processDisplayPreviousMsg.");
     	return null;
     }
   	
@@ -2870,7 +2863,7 @@ private String editorRows;
     	try{
 	        statement = getStatementForUserReadViewed(selectedMessage.getMessage().getTitle(), "thread");
     	}catch(Exception e){
-    		LOG.error(e.getMessage(), e);
+    		log.error(e.getMessage(), e);
     	}
    		Event event = eventTrackingService.newEvent(DiscussionForumService.EVENT_FORUMS_READ, getEventReference(selectedMessage.getMessage()), null, true, NotificationService.NOTI_OPTIONAL, statement);
         eventTrackingService.post(event);
@@ -2882,7 +2875,7 @@ private String editorRows;
   {
     if(selectedTopic == null)
     {
-    	LOG.debug("selectedTopic is null in processDfDisplayNextMsg.");
+    	log.debug("selectedTopic is null in processDfDisplayNextMsg.");
     	return null;
     }
   	
@@ -2920,7 +2913,7 @@ private String editorRows;
     	try{
 	        statement = getStatementForUserReadViewed(selectedMessage.getMessage().getTitle(), "thread");
     	}catch(Exception e){
-    		LOG.error(e.getMessage(), e);
+    		log.error(e.getMessage(), e);
     	}
    		Event event = eventTrackingService.newEvent(DiscussionForumService.EVENT_FORUMS_READ, getEventReference(selectedMessage.getMessage()), null, true, NotificationService.NOTI_OPTIONAL, statement);
         eventTrackingService.post(event);
@@ -2946,9 +2939,9 @@ private String editorRows;
    */
   private DiscussionForumBean getDecoratedForum(DiscussionForum forum)
   {
-	  if (LOG.isDebugEnabled())
+	  if (log.isDebugEnabled())
 	  {
-		  LOG.debug("getDecoratedForum(DiscussionForum" + forum + ")");
+		  log.debug("getDecoratedForum(DiscussionForum" + forum + ")");
 	  }
 	  forum = forumManager.getForumByIdWithTopicsAttachmentsAndMessages(forum.getId());
 	  DiscussionForumBean decoForum = new DiscussionForumBean(forum,
@@ -3041,9 +3034,9 @@ private String editorRows;
 
   private DiscussionForumBean getDecoratedForumWithPersistentForumAndTopics(DiscussionForum forum, Map msgIdReadStatusMap)
   {
-    if (LOG.isDebugEnabled())
+    if (log.isDebugEnabled())
     {
-      LOG.debug("getDecoratedForum(DiscussionForum" + forum + ")");
+      log.debug("getDecoratedForum(DiscussionForum" + forum + ")");
     }
     DiscussionForumBean decoForum = new DiscussionForumBean(forum,
         uiPermissionsManager, forumManager);
@@ -3108,7 +3101,7 @@ private String editorRows;
    */
   private DiscussionForumBean getDecoratedForum()
   {
-    LOG.debug("decorateSelectedForum()");
+    log.debug("decorateSelectedForum()");
     String forumId = getExternalParameterByKey(FORUM_ID);
     if (StringUtils.isNotBlank(forumId) && !"null".equals(forumId))
     {
@@ -3129,7 +3122,7 @@ private String editorRows;
    */
   private String displayHomeWithExtendedForumDescription()
   {
-    LOG.debug("displayHomeWithExtendedForumDescription()");
+    log.debug("displayHomeWithExtendedForumDescription()");
     List tmpForums = getForums();
     if (tmpForums != null)
     {
@@ -3176,7 +3169,7 @@ private String editorRows;
    */
   private String displayHomeWithExtendedTopicDescription()
   {
-    LOG.debug("displayHomeWithExtendedTopicDescription()");
+    log.debug("displayHomeWithExtendedTopicDescription()");
     List tmpForums = getForums();
     if (tmpForums != null)
     {
@@ -3232,9 +3225,9 @@ private String editorRows;
    */
   private DiscussionTopicBean getDecoratedTopic(DiscussionTopic topic)
   {
-    if (LOG.isDebugEnabled())
+    if (log.isDebugEnabled())
     {
-      LOG.debug("getDecoratedTopic(DiscussionTopic " + topic + ")");
+      log.debug("getDecoratedTopic(DiscussionTopic " + topic + ")");
     }
     DiscussionTopicBean decoTopic = null;
     if(topic != null){
@@ -3269,12 +3262,12 @@ private String editorRows;
 		  if(uiPermissionsManager.isRead(topic, selectedForum.getForum())){
 			  moved_messages = messageManager.findMovedMessagesByTopicId(topic.getId());
 		  
-			  if (LOG.isDebugEnabled())
+			  if (log.isDebugEnabled())
 			  {
-				  LOG.debug("getDecoratedTopic(moved_messages size  " + moved_messages.size()  );
+				  log.debug("getDecoratedTopic(moved_messages size  " + moved_messages.size()  );
 				  for (Iterator msgIter = moved_messages.iterator(); msgIter.hasNext();) {
 					  Message msg = (Message) msgIter.next();
-					  LOG.debug("moved message ids = " +  msg.getId()  + "  title : " + msg.getTitle()  + " moved to topic : " +  msg.getTopic().getId() );
+					  log.debug("moved message ids = " +  msg.getId()  + "  title : " + msg.getTitle()  + " moved to topic : " +  msg.getTopic().getId() );
 				  }
 			  }
 		  }
@@ -3305,10 +3298,10 @@ private String editorRows;
     	// retrieve read status for all of the messages in this topic
     	Map messageReadStatusMap=null;
     	if(getUserId()!= null){
-				  if (LOG.isDebugEnabled()) LOG.debug("getting unread counts for " + getUserId());
+				  if (log.isDebugEnabled()) log.debug("getting unread counts for " + getUserId());
     		messageReadStatusMap = forumManager.getReadStatusForMessagesWithId(msgIdList, getUserId());
     	}else if(getUserId() == null && this.forumManager.getAnonRole()==true){
-				  if (LOG.isDebugEnabled()) LOG.debug("getting unread counts for anon user");
+				  if (log.isDebugEnabled()) log.debug("getting unread counts for anon user");
     		messageReadStatusMap = forumManager.getReadStatusForMessagesWithId(msgIdList, ".anon");
     	}
 
@@ -3377,12 +3370,12 @@ private String editorRows;
     				decoMsg.setRevise(decoTopicGetIsReviseAny 
     						|| (decoTopicGetIsReviseOwn && isOwn));
     				decoMsg.setUserCanDelete(decoTopicGetIsDeleteAny || (isOwn && decoTopicGetIsDeleteOwn));
-    				LOG.debug("decoMsg.setUserCanEmail()");
-    				LOG.debug("isSectionTA()" + isSectionTA());
+    				log.debug("decoMsg.setUserCanEmail()");
+    				log.debug("isSectionTA()" + isSectionTA());
     				decoMsg.setUserCanEmail(!useAnonymousId && (isInstructor() || isSectionTA()));
     				decoTopic.addMessage(decoMsg);
     			}
-				if (LOG.isDebugEnabled()) LOG.debug("SETRANK calling getSelectedMessage, we can set Rank here");
+				if (log.isDebugEnabled()) log.debug("SETRANK calling getSelectedMessage, we can set Rank here");
 				String userEid = decoMsg.getMessage().getCreatedBy();
 				Rank thisrank = this.getAuthorRank(userEid);
 				decoMsg.setAuthorRank(thisrank);
@@ -3400,8 +3393,8 @@ private String editorRows;
 				  Topic desttopic = message.getTopic();
 				  Topic fulltopic = forumManager.getTopicById(message.getTopic().getId());
 				  message.setTopic(fulltopic);
-				  if (LOG.isDebugEnabled()) LOG.debug("message.getTopic() id " + message.getTopic().getId());
-				  if (LOG.isDebugEnabled()) LOG.debug("message.getTopic() title" + message.getTopic().getTitle());
+				  if (log.isDebugEnabled()) log.debug("message.getTopic() id " + message.getTopic().getId());
+				  if (log.isDebugEnabled()) log.debug("message.getTopic() title" + message.getTopic().getTitle());
 
 				  DiscussionMessageBean decoMsg = new DiscussionMessageBean(message,
 						  messageManager);
@@ -3535,7 +3528,7 @@ private String editorRows;
 	        }
 	        catch (NumberFormatException e)
 	        {
-	          LOG.error(e.getMessage(), e);
+	          log.error(e.getMessage(), e);
 	          setErrorMessage(getResourceBundleString(UNABLE_RETRIEVE_TOPIC));
 	          return false;
 	        }
@@ -3545,14 +3538,14 @@ private String editorRows;
 	      }
 	      else
 	      {
-	        LOG.error("Topic with id '" + externalTopicId + "' not found");
+	        log.error("Topic with id '" + externalTopicId + "' not found");
 	        setErrorMessage(getResourceBundleString(TOPIC_WITH_ID) + externalTopicId + getResourceBundleString(NOT_FOUND_WITH_QUOTE));
 	        return false;
 	      }
 	    }
 	    catch (Exception e)
 	    {
-	      LOG.error(e.getMessage(), e);
+	      log.error(e.getMessage(), e);
 	      setErrorMessage(e.getMessage());
 	      return false;
 	    }
@@ -3565,9 +3558,9 @@ private String editorRows;
    */
   private String displayTopicById(String externalTopicId)
   {
-    if (LOG.isDebugEnabled())
+    if (log.isDebugEnabled())
     {
-      LOG.debug("processActionDisplayTopicById(String" + externalTopicId + ")");
+      log.debug("processActionDisplayTopicById(String" + externalTopicId + ")");
     }
     topicClickCount++;
     if(resetTopicById(externalTopicId)){
@@ -3576,7 +3569,7 @@ private String editorRows;
         	try{
 	            statement = getStatementForUserReadViewed(selectedTopic.getTopic().getTitle(), "topic");
         	}catch(Exception e){
-        		LOG.error(e.getMessage(), e);
+        		log.error(e.getMessage(), e);
         	}
        		Event event = eventTrackingService.newEvent(DiscussionForumService.EVENT_FORUMS_TOPIC_READ, getEventReference(selectedTopic.getTopic()), null, true, NotificationService.NOTI_OPTIONAL, statement);
             eventTrackingService.post(event);
@@ -3681,7 +3674,7 @@ private String editorRows;
 
   public String processAddAttachmentRedirect()
   {
-    LOG.debug("processAddAttachmentRedirect()");
+    log.debug("processAddAttachmentRedirect()");
     try
     {
       ExternalContext context = FacesContext.getCurrentInstance()
@@ -3774,7 +3767,7 @@ private String editorRows;
 
   public String processDeleteAttach()
   {
-    LOG.debug("processDeleteAttach()");
+    log.debug("processDeleteAttach()");
 
     ExternalContext context = FacesContext.getCurrentInstance()
         .getExternalContext();
@@ -3828,7 +3821,7 @@ private String editorRows;
 
   public String processDfMsgPost()
   {
-	LOG.debug("processDfMsgPost()");
+	log.debug("processDfMsgPost()");
     if(!checkPermissionsForUser("processDfReplyTopicSaveDraft", false, true, false, false)){
     	return gotoMain();
     }
@@ -3861,7 +3854,7 @@ private String editorRows;
     	selectedTopic = getDecoratedTopic(selectedTopic.getTopic());
     	sendEmailNotification(dMsg,new DiscussionMessageBean(dMsg, messageManager), dMsg.getTopic().getModerated());
     }catch(Exception e){
-    	LOG.error("DiscussionForumTool: processDfMsgPost", e);
+    	log.error("DiscussionForumTool: processDfMsgPost", e);
     	setErrorMessage(getResourceBundleString(ERROR_POSTING_THREAD));
     	gotoMain();
     }
@@ -3870,7 +3863,7 @@ private String editorRows;
     	try{
 	        statement = getStatementForUserPosted(dMsg.getTitle(), SAKAI_VERB.responded);
     	}catch(Exception e){
-    		LOG.error(e.getMessage(), e);
+    		log.error(e.getMessage(), e);
     	}
    		Event event = eventTrackingService.newEvent(DiscussionForumService.EVENT_FORUMS_RESPONSE, getEventReference(dMsg), null, true, NotificationService.NOTI_OPTIONAL, statement);
         eventTrackingService.post(event);
@@ -3914,16 +3907,16 @@ private String editorRows;
 			}
 			
 		} catch (InterruptedException e) {
-			e.printStackTrace();
+			log.error(e.getMessage(), e);
 		}
 
 		numOfAttempts--;
 
 		if (numOfAttempts <= 0) {
-			LOG.error("DiscussionForumTool: updateThreadLastUpdatedValue: HibernateOptimisticLockingFailureException no more retries left", holfe);
+			log.error("DiscussionForumTool: updateThreadLastUpdatedValue: HibernateOptimisticLockingFailureException no more retries left", holfe);
 			throw new Exception(holfe);
 		} else {
-			LOG.info("DiscussionForumTool: updateThreadLastUpdatedValue: HibernateOptimisticLockingFailureException: attempts left: "
+			log.info("DiscussionForumTool: updateThreadLastUpdatedValue: HibernateOptimisticLockingFailureException: attempts left: "
 							+ numOfAttempts);
 			updateThreadLastUpdatedValue(message, numOfAttempts);
 		}
@@ -3968,18 +3961,16 @@ private String editorRows;
 			try {
 				Thread.sleep(SynopticMsgcntrManager.OPT_LOCK_WAIT);
 			} catch (InterruptedException e) {
-				e.printStackTrace();
+				log.error(e.getMessage(), e);
 			}
 
 			numOfAttempts--;
 
 			if (numOfAttempts <= 0) {
-				System.out
-						.println("DiscussionForumTool: incrementForumSynopticToolInfo: HibernateOptimisticLockingFailureException no more retries left");
-				holfe.printStackTrace();
+				log.info("DiscussionForumTool: incrementForumSynopticToolInfo: HibernateOptimisticLockingFailureException no more retries left");
+				log.error(holfe.getMessage(), holfe);
 			} else {
-				System.out
-						.println("DiscussionForumTool: incrementForumSynopticToolInfo: HibernateOptimisticLockingFailureException: attempts left: "
+				log.info("DiscussionForumTool: incrementForumSynopticToolInfo: HibernateOptimisticLockingFailureException: attempts left: "
 								+ numOfAttempts);
 				incrementForumSynopticToolInfo(userIds, siteId, numOfAttempts);
 			}
@@ -4024,7 +4015,7 @@ private String editorRows;
 
     	this.attachments.clear();
     }catch(Exception e){
-    	LOG.error("DiscussionForumTool: processDfMsgSaveDraft", e);
+    	log.error("DiscussionForumTool: processDfMsgSaveDraft", e);
     	setErrorMessage(getResourceBundleString(ERROR_POSTING_THREAD));
     	gotoMain();
     }
@@ -4033,7 +4024,7 @@ private String editorRows;
 
   public Message constructMessage()
   {
-    	LOG.debug("....in constructMessage()");
+    	log.debug("....in constructMessage()");
     Message aMsg;
 
     aMsg = messageManager.createDiscussionMessage();
@@ -4061,7 +4052,7 @@ private String editorRows;
       
     if(selectedTopic == null)
     {
-    	LOG.debug("selectedTopic is null in constructMessage()");
+    	log.debug("selectedTopic is null in constructMessage()");
     	return null;
     }
 	  if (!selectedTopic.getTopicModerated() || selectedTopic.getIsModeratedAndHasPerm())
@@ -4089,7 +4080,7 @@ private String editorRows;
   {
     if(selectedTopic == null)
     {
-    	LOG.debug("selectedTopic is null in isDisplayTopicDeleteOption()");
+    	log.debug("selectedTopic is null in isDisplayTopicDeleteOption()");
     	return false;
     }
 	  DiscussionTopic topic = selectedTopic.getTopic();
@@ -4143,7 +4134,7 @@ private String editorRows;
 
     if (redirectTo == null || selectedTopic == null)
     {
-    	LOG.debug("redirectTo or selectedTopic is null in isDisplayForumDeleteOption");
+    	log.debug("redirectTo or selectedTopic is null in isDisplayForumDeleteOption");
       return gotoMain();
     }
     if ("dfCompose".equals(redirectTo))
@@ -4281,14 +4272,14 @@ private String editorRows;
 	    try{
 	    	messageId = Long.valueOf(messageIdStr);
 	    }catch (NumberFormatException e) {
-	    	LOG.error(e.getMessage());
+	    	log.error(e.getMessage());
 	    	setErrorMessage(getResourceBundleString(MESSAGE_REFERENCE_NOT_FOUND));
 	    	return gotoMain();
 		}
 	    try{
 	    	topicId = Long.valueOf(topicIdStr);
 	    }catch (NumberFormatException e) {
-	    	LOG.error(e.getMessage());
+	    	log.error(e.getMessage());
 	    	setErrorMessage(getResourceBundleString(TOPC_REFERENCE_NOT_FOUND));
 	    	return gotoMain();
 		}
@@ -4323,7 +4314,7 @@ private String editorRows;
 	  selectedMessageCount  = 0;
   	if(selectedTopic == null)
   	{
-  		LOG.debug("selectedTopic is null in processDfMsgReplyThread");
+  		log.debug("selectedTopic is null in processDfMsgReplyThread");
   		return gotoMain();
   	}
 	  // we have to get the first message that is not a response
@@ -4428,8 +4419,7 @@ private String editorRows;
 	  }
 	  catch(Exception e) 
 	  { 
-		  LOG.error("processDfMsgGrd in DiscussionFOrumTool - " + e); 
-		  e.printStackTrace(); 
+		  log.error("processDfMsgGrd in DiscussionFOrumTool - " + e); 
 		  return null; 
 	  } 
   }
@@ -4507,12 +4497,11 @@ private String editorRows;
 
 	  NumberFormat numberFormat = DecimalFormat.getInstance(new ResourceLoader().getLocale());
 	  if (!selGBItemRestricted) {
-		  Assignment assign = gradebookService.getAssignmentByNameOrId(gradebookUid, selAssignmentName);
-		  if (assign != null && assign.getPoints() != null) {
-			  gbItemPointsPossible = ((DecimalFormat) numberFormat).format(assign.getPoints());
+		  if (assignment != null && assignment.getPoints() != null) {
+			  gbItemPointsPossible = ((DecimalFormat) numberFormat).format(assignment.getPoints());
 		  }
 		  
-		  GradeDefinition gradeDef = gradebookService.getGradeDefinitionForStudentForItem(gradebookUid, assign.getId(), studentId);
+		  GradeDefinition gradeDef = gradebookService.getGradeDefinitionForStudentForItem(gradebookUid, assignment.getId(), studentId);
 
 		  if (gradeDef.getGrade() != null) {
 		      String decSeparator = FormattedText.getDecimalSeparator();
@@ -4699,13 +4688,13 @@ private String editorRows;
         	try{
 	            statement = getStatementForUserPosted(dMsg.getTitle(), SAKAI_VERB.responded);
         	}catch(Exception e){
-        		LOG.error(e.getMessage(), e);
+        		log.error(e.getMessage(), e);
         	}
        		Event event = eventTrackingService.newEvent(DiscussionForumService.EVENT_FORUMS_RESPONSE, getEventReference(dMsg), null, true, NotificationService.NOTI_OPTIONAL, statement);
             eventTrackingService.post(event);
         }
   	}catch(Exception e){
-  		LOG.error("DiscussionForumTool: processDfReplyMsgPost", e);
+  		log.error("DiscussionForumTool: processDfReplyMsgPost", e);
   		setErrorMessage(getResourceBundleString(ERROR_POSTING_THREAD));
   		gotoMain();
   	}
@@ -4764,7 +4753,7 @@ private String editorRows;
 
 		  this.attachments.clear();
 	  }catch(Exception e){
-		  LOG.error("DiscussionForumTool: processDfReplyMsgSaveDraft", e);
+		  log.error("DiscussionForumTool: processDfReplyMsgSaveDraft", e);
 		  setErrorMessage(getResourceBundleString(ERROR_POSTING_THREAD));
 		  gotoMain();
 	  }
@@ -4952,13 +4941,13 @@ private String editorRows;
 			}
 			catch (NumberFormatException e)
 			{
-				LOG.error(e.getMessage(), e);
+				log.error(e.getMessage(), e);
 			}
 
 		}
 		catch (Exception e)
 		{
-			LOG.error(e.getMessage(), e);
+			log.error(e.getMessage(), e);
 			setErrorMessage(e.getMessage());
 			return null;
 		}
@@ -4972,7 +4961,7 @@ private String editorRows;
 		getSelectedTopic();
 		getThreadFromMessage();
 	}catch(Exception e){
-    	LOG.error("DiscussionForumTool: processDfMsgRevisedPost", e);
+    	log.error("DiscussionForumTool: processDfMsgRevisedPost", e);
     	setErrorMessage(getResourceBundleString(ERROR_POSTING_THREAD));
     	gotoMain();
     }
@@ -4981,7 +4970,7 @@ private String editorRows;
     	try{
 	        statement = getStatementForUserPosted(selectedMessage.getMessage().getTitle(), SAKAI_VERB.responded);
     	}catch(Exception e){
-    		LOG.error(e.getMessage(), e);
+    		log.error(e.getMessage(), e);
     	}
     	
    		Event event = eventTrackingService.newEvent(DiscussionForumService.EVENT_FORUMS_RESPONSE, getEventReference(selectedMessage.getMessage()), null, true, NotificationService.NOTI_OPTIONAL, statement);
@@ -5086,13 +5075,13 @@ private String editorRows;
 			  }
 			  catch (NumberFormatException e)
 			  {
-				  LOG.error(e.getMessage(), e);
+				  log.error(e.getMessage(), e);
 			  }
 
 		  }
 		  catch (Exception e)
 		  {
-			  LOG.error(e.getMessage(), e);
+			  log.error(e.getMessage(), e);
 			  setErrorMessage(e.getMessage());
 			  return null;
 		  }
@@ -5103,7 +5092,7 @@ private String editorRows;
 		  composeTitle = null;
 		  attachments.clear();
 	  }catch(Exception e){
-		  LOG.error("DiscussionForumTool: processDfReplyMsgPost", e);
+		  log.error("DiscussionForumTool: processDfReplyMsgPost", e);
 		  setErrorMessage(getResourceBundleString(ERROR_POSTING_THREAD));
 		  gotoMain();
 	  }
@@ -5182,7 +5171,7 @@ private String editorRows;
 
 		  this.attachments.clear();
 	  }catch(Exception e){
-		  LOG.error("DiscussionForumTool: processDfReplyTopicPost", e);
+		  log.error("DiscussionForumTool: processDfReplyTopicPost", e);
 		  setErrorMessage(getResourceBundleString(ERROR_POSTING_THREAD));
 		  gotoMain();
 	  }
@@ -5216,7 +5205,7 @@ private String editorRows;
 
 		  this.attachments.clear();
 	  }catch(Exception e){
-		  LOG.error("DiscussionForumTool: processDfReplyTopicSaveDraft", e);
+		  log.error("DiscussionForumTool: processDfReplyTopicSaveDraft", e);
 		  setErrorMessage(getResourceBundleString(ERROR_POSTING_THREAD));
 		  gotoMain();
 	  }
@@ -5275,7 +5264,7 @@ private String editorRows;
 	
   	if(selectedTopic == null)
   	{ 
-  		LOG.debug("selectedTopic is null in processDfMsgDeleteConfirmYes");
+  		log.debug("selectedTopic is null in processDfMsgDeleteConfirmYes");
   		return gotoMain();
   	}
   	
@@ -5324,7 +5313,7 @@ private String editorRows;
 	  
 	  // TODO: document it was done for tracking purposes
 	  eventTrackingService.post(eventTrackingService.newEvent(DiscussionForumService.EVENT_FORUMS_REMOVE, getEventReference(message), true));
-	  LOG.info("Forum message " + message.getId() + " has been deleted by " + getUserId());
+	  log.info("Forum message " + message.getId() + " has been deleted by " + getUserId());
 
 	  // go to thread view or all messages depending on
 	  // where come from
@@ -5743,7 +5732,7 @@ private String editorRows;
   {
   	if(selectedTopic == null)
   	{ 
-  		LOG.debug("selectedTopic is null in processAddCommentToDeniedMsg");
+  		log.debug("selectedTopic is null in processAddCommentToDeniedMsg");
   		return gotoMain();
   	}
   	
@@ -5811,7 +5800,7 @@ private String editorRows;
   {
   	if(selectedTopic == null)
   	{ 
-  		LOG.debug("selectedTopic is null in isAllowedToApproveMsg");
+  		log.debug("selectedTopic is null in isAllowedToApproveMsg");
   		return false;
   	}
   	
@@ -5830,7 +5819,7 @@ private String editorRows;
   {
   	if(selectedTopic == null)
   	{ 
-  		LOG.debug("selectedTopic is null in isAllowedToDenyMsg");
+  		log.debug("selectedTopic is null in isAllowedToDenyMsg");
   		return false;
   	}
   	
@@ -5846,7 +5835,7 @@ private String editorRows;
   {
   	if(selectedTopic == null)
   	{ 
-  		LOG.debug("selectedTopic is null in setNewTopicBeanAssign");
+  		log.debug("selectedTopic is null in setNewTopicBeanAssign");
   		return;
   	}
   	
@@ -5886,7 +5875,7 @@ private String editorRows;
   {
   	if(selectedTopic == null)
   	{ 
-  		LOG.debug("selectedTopic is null in setTopicBeanAssign");
+  		log.debug("selectedTopic is null in setTopicBeanAssign");
   		return;
   	}
   	
@@ -5978,7 +5967,7 @@ private String editorRows;
   {
   	if(selectedTopic == null)
   	{ 
-  		LOG.debug("selectedTopic is null in saveTopicSelectedAssignment");
+  		log.debug("selectedTopic is null in saveTopicSelectedAssignment");
   		return;
   	}
   	
@@ -6036,7 +6025,7 @@ private String editorRows;
 
   public String processDeleteAttachSetting()
   {
-    LOG.debug("processDeleteAttach()");
+    log.debug("processDeleteAttach()");
 
     ExternalContext context = FacesContext.getCurrentInstance()
         .getExternalContext();
@@ -6357,7 +6346,6 @@ private String editorRows;
 
 			  if(!DEFAULT_GB_ITEM.equalsIgnoreCase(selectedAssign)) {
 				  String gradebookUid = ToolManager.getCurrentPlacement().getContext();
-				  String selAssignName = ((SelectItem)assignments.get((Integer.valueOf(selectedAssign)).intValue())).getLabel();	
 				  String studentId;
 				  if(selectedMessage == null && selectedGradedUserId != null && !"".equals(selectedGradedUserId)){
 					  studentId = selectedGradedUserId;
@@ -6365,7 +6353,7 @@ private String editorRows;
 					  studentId = UserDirectoryService.getUser(selectedMessage.getMessage().getCreatedBy()).getId();  
 				  }				   
 				  
-				  setUpGradeInformation(gradebookUid, selAssignName, studentId);
+				  setUpGradeInformation(gradebookUid, selectedAssign, studentId);
 			  } else {
 				  // this is the "Select a gradebook item" option
 				  allowedToGradeItem = false;
@@ -6376,8 +6364,7 @@ private String editorRows;
 		  } 
 		  catch(Exception e) 
 		  { 
-			  LOG.error("processGradeAssignChange in DiscussionFOrumTool - " + e); 
-			  e.printStackTrace(); 
+			  log.error("processGradeAssignChange in DiscussionFOrumTool - " + e); 
 			  return null; 
 		  } 
 	  } 
@@ -6496,7 +6483,7 @@ private String editorRows;
 	      gradeAsDouble = new Double (nf.parse(gradePoint).doubleValue());
 	  } catch(ParseException pe) {
 	      // we shouldn't get here if the validation above is working properly
-	      LOG.warn("Error converting grade " + gradePoint + " to Double");
+	      log.warn("Error converting grade " + gradePoint + " to Double");
 	      return null;
 	  }
 
@@ -6508,17 +6495,16 @@ private String editorRows;
 	              grade_too_large_make_sure = true;
 	              return null;
 	          } else {
-	              LOG.info("the user confirms he wants to give student higher grade");
+	              log.info("the user confirms he wants to give student higher grade");
 	          }	  
 	      } catch(ParseException e) {
-	          LOG.warn("Unable to parse points possible " + gbItemPointsPossible + 
+	          log.warn("Unable to parse points possible " + gbItemPointsPossible + 
 	                  " to determine if entered grade is greater than points possible");
 	      }	  
 	  }
     String studentUid = null;
     try 
     {   
-        String selectedAssignName = ((SelectItem)assignments.get((Integer.valueOf(selectedAssign)).intValue())).getLabel();
         String gradebookUuid = ToolManager.getCurrentPlacement().getContext();
         if(selectedMessage == null && selectedGradedUserId != null && !"".equals(selectedGradedUserId)){
         	studentUid = selectedGradedUserId;
@@ -6526,7 +6512,7 @@ private String editorRows;
         	studentUid = UserDirectoryService.getUser(selectedMessage.getMessage().getCreatedBy()).getId();
         }
         
-        Long gbItemId = gradebookService.getAssignmentByNameOrId(gradebookUuid, selectedAssignName).getId();
+        Long gbItemId = gradebookService.getAssignmentByNameOrId(gradebookUuid, selectedAssign).getId();
         gradebookService.saveGradeAndCommentForStudent(gradebookUuid, gbItemId, studentUid, gradePoint, gradeComment);
         
         if(selectedMessage != null){
@@ -6541,13 +6527,12 @@ private String editorRows;
         setSuccessMessage(getResourceBundleString(GRADE_SUCCESSFUL));
     } 
     catch(SecurityException se) {
-    	LOG.error("Security Exception - processDfGradeSubmit:" + se);
+    	log.error("Security Exception - processDfGradeSubmit:" + se);
     	setErrorMessage(getResourceBundleString("cdfm_no_gb_perm"));
     }
     catch(Exception e) 
     { 
-      LOG.error("DiscussionForumTool - processDfGradeSubmit:" + e); 
-      e.printStackTrace(); 
+      log.error("DiscussionForumTool - processDfGradeSubmit:" + e); 
     } 
         
     String eventRef = "";
@@ -6563,7 +6548,7 @@ private String editorRows;
     	try {
     		statement = getStatementForGrade(studentUid, selectedTopic.getTopic().getTitle(), gradeAsDouble);
     	} catch (Exception e) {
-            LOG.debug(e.getMessage());
+            log.debug(e.getMessage());
     	}
     }
     
@@ -6581,7 +6566,7 @@ private String editorRows;
   {
   	if(selectedTopic == null)
   	{ 
-  		LOG.debug("selectedTopic is null in processCheckAll");
+  		log.debug("selectedTopic is null in processCheckAll");
   		return null;
   	}
   	
@@ -6714,8 +6699,8 @@ private String editorRows;
    */
   public void processValueChangeForMessageView(ValueChangeEvent vce)
   {
-    if (LOG.isDebugEnabled())
-      LOG.debug("processValueChangeForMessageView(ValueChangeEvent " + vce
+    if (log.isDebugEnabled())
+      log.debug("processValueChangeForMessageView(ValueChangeEvent " + vce
           + ")");
     isDisplaySearchedMessages=false;
     searchText="";
@@ -6732,7 +6717,7 @@ private String editorRows;
     {
     	if(selectedTopic == null)
     	{ 
-    		LOG.debug("selectedTopic is null in processValueChangeForMessageView");
+    		log.debug("selectedTopic is null in processValueChangeForMessageView");
     		return;
     	}
       //threaded = false;
@@ -6791,8 +6776,8 @@ private String editorRows;
   }
   
   public void processValueChangedForMessageShow(ValueChangeEvent vce){
-	  if (LOG.isDebugEnabled())
-	      LOG.debug("processValueChangeForMessageView(ValueChangeEvent " + vce
+	  if (log.isDebugEnabled())
+	      log.debug("processValueChangeForMessageView(ValueChangeEvent " + vce
 	          + ")");
 	  isDisplaySearchedMessages=false;
 	  searchText="";
@@ -6818,12 +6803,12 @@ private String editorRows;
   public void processValueChangedForMessageOrganize(ValueChangeEvent vce){
   	if(selectedTopic == null)
   	{ 
-  		LOG.debug("selectedTopic is null in processValueChangedForMessageOrganize");
+  		log.debug("selectedTopic is null in processValueChangedForMessageOrganize");
   		return;
   	}
 
-  	if (LOG.isDebugEnabled())
-	      LOG.debug("processValueChangeForMessageView(ValueChangeEvent " + vce
+  	if (log.isDebugEnabled())
+	      log.debug("processValueChangeForMessageView(ValueChangeEvent " + vce
 	          + ")");
 	  isDisplaySearchedMessages=false;
 	  searchText="";
@@ -6877,7 +6862,7 @@ private String editorRows;
    */
   public String processActionSearch()
   {
-    LOG.debug("processActionSearch()");
+    log.debug("processActionSearch()");
 
 //    //TODO : should be fetched via a query in db
 //    //Subject, Authored By, Date,
@@ -7056,7 +7041,7 @@ private String editorRows;
 
   public List getSiteMembers(boolean includeGroup)
   {
-    LOG.debug("getSiteMembers()");
+    log.debug("getSiteMembers()");
         
     if(siteMembers!=null && siteMembers.size()>0)
     {
@@ -7166,10 +7151,9 @@ private String editorRows;
     }
     catch (IdUnusedException e)
     {
-      LOG.error(e.getMessage(), e);
+      log.error(e.getMessage(), e);
     } catch (GroupNotDefinedException e) {
-		// TODO Auto-generated catch block
-		e.printStackTrace();
+		log.error(e.getMessage(), e);
 	}   
 
     return siteMembers;
@@ -7227,7 +7211,7 @@ private String editorRows;
    */
   private String getContextSiteId()
   {
-    LOG.debug("getContextSiteId()");
+    log.debug("getContextSiteId()");
     return ("/site/" + ToolManager.getCurrentPlacement().getContext());
   }
 
@@ -7271,14 +7255,14 @@ private String editorRows;
    */
   private void setErrorMessage(String errorMsg)
   {
-    LOG.debug("setErrorMessage(String " + errorMsg + ")");
+    log.debug("setErrorMessage(String " + errorMsg + ")");
     FacesContext.getCurrentInstance().addMessage(null,
         new FacesMessage(FacesMessage.SEVERITY_ERROR, getResourceBundleString(ALERT) + errorMsg, null));
   }
   
   private void setSuccessMessage(String successMsg)
   {
-	  LOG.debug("setSuccessMessage(String " + successMsg + ")");
+	  log.debug("setSuccessMessage(String " + successMsg + ")");
 	  FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO, successMsg, null));
   }
  
@@ -7723,7 +7707,7 @@ private String editorRows;
 	  }
   	  catch(Exception e)
   	  {
-  		e.printStackTrace();
+  		log.error(e.getMessage(), e);
   	  }
   	  
   	  return getUserId();
@@ -7793,7 +7777,7 @@ private String editorRows;
 		
   	if(selectedTopic == null)
   	{ 
-  		LOG.debug("selectedTopic is null in getMessages");
+  		log.debug("selectedTopic is null in getMessages");
   		return messages;
   	}
   	
@@ -7879,7 +7863,7 @@ private String editorRows;
    
    public String processReturnToOriginatingPage()
    {
-	   LOG.debug("processReturnToOriginatingPage()");
+	   log.debug("processReturnToOriginatingPage()");
 	   if(fromPage != null)
 	   {
 		   String returnToPage = fromPage;
@@ -8022,7 +8006,7 @@ private String editorRows;
 	 private void refreshSelectedMessageSettings(Message message) {
 		 if(selectedTopic == null)
 		 { 
-			 LOG.debug("selectedTopic is null in refreshSelectedMessageSettings");
+			 log.debug("selectedTopic is null in refreshSelectedMessageSettings");
 			 return;
 		 }
 		 boolean isOwn = message.getCreatedBy().equals(getUserId());
@@ -8158,31 +8142,31 @@ private String editorRows;
 	}
 
 	public String processActionWatch() {
-		LOG.debug("processActionWatch()");
+		log.debug("processActionWatch()");
 		User curruser = UserDirectoryService.getCurrentUser();
-		LOG.debug("got user: " + curruser.getDisplayId());
+		log.debug("got user: " + curruser.getDisplayId());
 		EmailNotification userwatchoption = emailNotificationManager.getEmailNotification(curruser.getId());
-		LOG.debug("userwatchoption = " + userwatchoption.getNotificationLevel());
+		log.debug("userwatchoption = " + userwatchoption.getNotificationLevel());
 		if (watchSettingsBean == null){
-			LOG.debug("watchsettingbean = null");
+			log.debug("watchsettingbean = null");
 			watchSettingsBean = new EmailNotificationBean(userwatchoption);
 		}
 		watchSettingsBean.setEmailNotification(userwatchoption);
-		LOG.debug("watchsettingbean's user = " + watchSettingsBean.getEmailNotification().getUserId() + "  ,emailoption= " + 
+		log.debug("watchsettingbean's user = " + watchSettingsBean.getEmailNotification().getUserId() + "  ,emailoption= " + 
 				watchSettingsBean.getEmailNotification().getNotificationLevel());
 		return WATCH_SETTING;
 	}
 	
 	
 	public String processActionSaveEmailNotificationOption() {
-		LOG.debug("ForumTool.processActionSaveEmailNotificationOption()");
+		log.debug("ForumTool.processActionSaveEmailNotificationOption()");
 		if ((watchSettingsBean !=null) && (watchSettingsBean.getEmailNotification()!=null)){
-			LOG.debug("watchSettingsBean !=null) && (watchSettingsBean.getEmailNotification()!=null");
+			log.debug("watchSettingsBean !=null) && (watchSettingsBean.getEmailNotification()!=null");
 			EmailNotification newoption = watchSettingsBean.getEmailNotification();
 			emailNotificationManager.saveEmailNotification(newoption);
 		}
 		else {
-			LOG.debug("ForumTool.processActionSaveEmailNotificationOption(): Can not save because watchSettingsBean is null");
+			log.debug("ForumTool.processActionSaveEmailNotificationOption(): Can not save because watchSettingsBean is null");
 			// should come here
 		}
 		
@@ -8200,8 +8184,8 @@ private String editorRows;
 
 			String useremail = user.getEmail();
 			if (useremail != null && !"".equalsIgnoreCase(useremail)) {
-				if (LOG.isDebugEnabled()) {
-					LOG.debug("Username = " + user.getDisplayId()
+				if (log.isDebugEnabled()) {
+					log.debug("Username = " + user.getDisplayId()
 							+ " , useremail : " + useremail);
 				}
 				emaillist.add(useremail);
@@ -8215,21 +8199,21 @@ private String editorRows;
 	}
 	
 	public void sendEmailNotification(Message reply, DiscussionMessageBean currthread){
-		LOG.debug("ForumTool.sendEmailNotification(Message, DiscussionMessageBean)");
+		log.debug("ForumTool.sendEmailNotification(Message, DiscussionMessageBean)");
 		sendEmailNotification(reply, currthread, false);
 	}
 	
 	public void  sendEmailNotification(Message reply, DiscussionMessageBean currthread, boolean needsModeration){
-		LOG.debug("ForumTool.sendEmailNotification(Message, DiscussionMessageBean, boolean)");
+		log.debug("ForumTool.sendEmailNotification(Message, DiscussionMessageBean, boolean)");
 		
 		// get all users with notification level = 2
 		List<String> userlist = emailNotificationManager.getUsersToBeNotifiedByLevel( EmailNotification.EMAIL_REPLY_TO_ANY_MESSAGE);
 		
-		if (LOG.isDebugEnabled()){
-			LOG.debug("total count of Level 2 users = " + userlist.size());
+		if (log.isDebugEnabled()){
+			log.debug("total count of Level 2 users = " + userlist.size());
 			Iterator iter1 = userlist.iterator();
 			while (iter1.hasNext()){
-				LOG.debug("level 2 users notify all msg:  sendEmailNotification: sending to  " + (String) iter1.next());
+				log.debug("level 2 users notify all msg:  sendEmailNotification: sending to  " + (String) iter1.next());
 			}
 		}
 		
@@ -8243,8 +8227,8 @@ private String editorRows;
 			EmailNotification authorNotificationLevel = emailNotificationManager.getEmailNotification(threadauthor);
 			// only add level 1 users , since we've already got level2 users. 
 			if (EmailNotification.EMAIL_REPLY_TO_MY_MESSAGE.equalsIgnoreCase(authorNotificationLevel.getNotificationLevel())){
-				if (LOG.isDebugEnabled()){
-					LOG.debug("The author: " + threadauthor + " wants to be notified");
+				if (log.isDebugEnabled()){
+					log.debug("The author: " + threadauthor + " wants to be notified");
 				}
 				userlist.add(threadauthor);
 			}
@@ -8257,18 +8241,18 @@ private String editorRows;
 			DiscussionTopic topic = (DiscussionTopic)reply.getTopic();
 			DiscussionForum forum = (DiscussionForum)topic.getBaseForum();
 
-			LOG.debug("Filtering userlist to only return moderators. Had: " + userlist.size());
+			log.debug("Filtering userlist to only return moderators. Had: " + userlist.size());
 
 			List<String> nonModerators = new ArrayList<String>();
 			for(String userId: userlist) {
 				if(!uiPermissionsManager.isModeratePostings(topic, forum, userId)) {
-					LOG.debug("userId: " + userId + " is not a moderator");
+					log.debug("userId: " + userId + " is not a moderator");
 					nonModerators.add(userId);
 				}
 			}
 
 			userlist.removeAll(nonModerators);
-			LOG.debug("filtering complete. Now have: " + userlist.size());
+			log.debug("filtering complete. Now have: " + userlist.size());
 
 		}
 		
@@ -8277,8 +8261,8 @@ private String editorRows;
 		set.addAll(userlist);
 		
 //		avoid overhead :D
-			LOG.debug("set size " + set.size());
-			LOG.debug("userlist size " + userlist.size());
+			log.debug("set size " + set.size());
+			log.debug("userlist size " + userlist.size());
 		if(set.size() < userlist.size()) {
 			userlist.clear();
 			userlist.addAll(set);
@@ -8293,43 +8277,43 @@ private String editorRows;
 		
 		// now printing out all users = # of messages in the thread - level 2 users
 		
-		if (LOG.isDebugEnabled()){
-			LOG.debug("now printing out all users, including duplicates count = " + userlist.size());
+		if (log.isDebugEnabled()){
+			log.debug("now printing out all users, including duplicates count = " + userlist.size());
 			Iterator iter1 = userlist.iterator();
 			while (iter1.hasNext()){
-				LOG.debug("sendEmailNotification: should include both level 1 and level 2 sending to  " + (String) iter1.next());
+				log.debug("sendEmailNotification: should include both level 1 and level 2 sending to  " + (String) iter1.next());
 			}
 		}
 		
 		// now printing out all users again after removing duplicate
 		
-		if (LOG.isDebugEnabled()){
-			LOG.debug("now printing out all users again after removing duplicate count = " + userlist.size());
+		if (log.isDebugEnabled()){
+			log.debug("now printing out all users again after removing duplicate count = " + userlist.size());
 			Iterator iter1 = userlist.iterator();
 			while (iter1.hasNext()){
-				LOG.debug("" + (String) iter1.next());
+				log.debug("" + (String) iter1.next());
 			}
 		}
 		
 		//now we need to filer the list\
-		if (LOG.isDebugEnabled())
-			LOG.debug("About to filter list");
+		if (log.isDebugEnabled())
+			log.debug("About to filter list");
 		List<String> finalList = emailNotificationManager.filterUsers(userlist, currthread.getMessage().getTopic());
 		
 		List<String> useremaillist =  getUserEmailsToBeNotifiedByLevel(finalList);
 		
 		
 		
-		if (LOG.isDebugEnabled()){
-			LOG.debug("now printint unique emails , count = " + useremaillist.size());
+		if (log.isDebugEnabled()){
+			log.debug("now printint unique emails , count = " + useremaillist.size());
 			Iterator useremaillistiter = useremaillist.iterator();
 			while (useremaillistiter.hasNext()){
-				LOG.debug("sendEmailNotification: sending to  " + (String) useremaillistiter.next());
+				log.debug("sendEmailNotification: sending to  " + (String) useremaillistiter.next());
 			}
 		}
 		
 		if (userlist.isEmpty()) {
-			LOG.debug("No users need to notified.");
+			log.debug("No users need to notified.");
 			return;
 		}
 		
@@ -8353,7 +8337,6 @@ private String editorRows;
 		
 		String path = "/discussionForum/message/dfViewMessageDirect";
 		
-		Map<String, String> params = new HashMap<String, String>();
 		if (getSelectedMessage() == null || getSelectedMessage().getMessage() == null) {
 			return null;
 		}
@@ -8361,21 +8344,22 @@ private String editorRows;
 		String msgId = getSelectedMessage().getMessage().getId().toString();
 		String topicId = getSelectedTopic().getTopic().getId().toString();
 		String forumId = getSelectedTopic().getTopic().getOpenForum().getId().toString();
-		params.put("messageId", msgId);
-		params.put("topicId", topicId);
-		params.put("forumId", forumId);
-		LOG.debug("message: " + msgId + " topic: " + topicId + " forum: " + forumId);
+		log.debug("message: " + msgId + " topic: " + topicId + " forum: " + forumId);
 		
 		String context = SiteService.siteReference(ToolManager.getCurrentPlacement().getContext());
-		LOG.debug("context: " + context);
+		log.debug("context: " + context);
 		
 		developerHelperService = getDevelperHelperService();
 		String url = "";
 		try{
-			url = developerHelperService.getToolViewURL("sakai.forums", path, params, context);
-			LOG.debug("url: " + url);
+			SakaiToolData toolData = developerHelperService.getToolData("sakai.forums", context);
+			String toolId = toolData.getPlacementId();
+			String pageUrl = toolData.getToolURL();
+			String toolUrl = pageUrl.substring(0,pageUrl.indexOf("/page/")); 
+			url =  toolUrl + "/tool/" + toolId + path + "?forumId=" + forumId + "&topicId=" + topicId + "&messageId=" + msgId;
+			log.debug("url: " + url);
 		}catch (Exception e) {
-			LOG.warn(e.getMessage());
+			log.warn(e.getMessage());
 		}
 		return url;
 	}
@@ -8401,7 +8385,7 @@ private String editorRows;
 		try {
 			return SiteService.getSite(ToolManager.getCurrentPlacement().getContext()).getTitle();
 		} catch (IdUnusedException e) {
-			e.printStackTrace();
+			log.error(e.getMessage(), e);
 		}
 		return "";
 	}
@@ -8430,10 +8414,10 @@ private String editorRows;
    */
   public String processActionDuplicateForumConfirm()
   {
-    LOG.debug("processActionDuplicateForumConfirm()");
+    log.debug("processActionDuplicateForumConfirm()");
     if (selectedForum == null)
     {
-      LOG.debug("There is no forum selected for duplication");
+      log.debug("There is no forum selected for duplication");
       return gotoMain();
     }
 
@@ -8459,7 +8443,7 @@ private String editorRows;
   public String processActionDuplicateForumMainConfirm()
   {
 
-	  LOG.debug("processActionDuplicateForumMainConfirm()");
+	  log.debug("processActionDuplicateForumMainConfirm()");
 
 	  String forumId = getExternalParameterByKey(FORUM_ID);
 	  DiscussionForum forum = forumManager.getForumById(Long.valueOf(forumId));
@@ -8507,11 +8491,11 @@ private String editorRows;
    */
   public String processActionDuplicateTopicConfirm()
   {
-    LOG.debug("processActionDuplicateTopicConfirm()");
+    log.debug("processActionDuplicateTopicConfirm()");
 
     if (selectedTopic == null)
     {
-      LOG.debug("There is no topic selected for duplication");
+      log.debug("There is no topic selected for duplication");
       return gotoMain();
     }
     if(!uiPermissionsManager.isNewTopic(selectedForum.getForum()))
@@ -8533,7 +8517,7 @@ private String editorRows;
   public String processActionDuplicateTopicMainConfirm()
   {
 	  {
-		  LOG.debug("processActionDuplicateTopicMainConfirm()");
+		  log.debug("processActionDuplicateTopicMainConfirm()");
 
 		  DiscussionTopic topic = null;
 		  String topicId = getExternalParameterByKey(TOPIC_ID);
@@ -8562,10 +8546,10 @@ private String editorRows;
 
   public String processActionDuplicateTopic()
   {
-    LOG.debug("processActionDuplicateTopic()");
+    log.debug("processActionDuplicateTopic()");
     if (selectedTopic == null)
     {
-      LOG.debug("There is no topic selected for duplication");
+      log.debug("There is no topic selected for duplication");
       return gotoMain();
     }
     if(!uiPermissionsManager.isNewTopic(selectedForum.getForum()))
@@ -8591,7 +8575,7 @@ private String editorRows;
     	try{
     		statement = getStatementForUserPosted(selectedTopic.getTopic().getTitle(), SAKAI_VERB.interacted);
     	}catch(Exception e){
-    		LOG.error(e.getMessage(), e);
+    		log.error(e.getMessage(), e);
     	}
     }
     
@@ -8602,7 +8586,7 @@ private String editorRows;
   }
 
   private DiscussionTopicBean duplicateTopic(Long originalTopicId, DiscussionForum forum, boolean forumDuplicate) {
-	LOG.debug("duplicateTopic(" + originalTopicId + ")");
+	log.debug("duplicateTopic(" + originalTopicId + ")");
 
     if("true".equalsIgnoreCase(ServerConfigurationService.getString("mc.defaultLongDescription")))
     {
@@ -8624,7 +8608,7 @@ private String editorRows;
         newTitle = selectedTopic.getTopic().getTitle();
 	}
 	newTopic.setTitle(newTitle);
-	LOG.debug("New Topic Title = " + newTopic.getTitle());
+	log.debug("New Topic Title = " + newTopic.getTitle());
 	if (fromTopic.getShortDescription() != null && fromTopic.getShortDescription().length() > 0)
 		newTopic.setShortDescription(fromTopic.getShortDescription());
 	if (fromTopic.getExtendedDescription() != null && fromTopic.getExtendedDescription().length() > 0)
@@ -8642,12 +8626,12 @@ private String editorRows;
 	Set topicMembershipItemSet = uiPermissionsManager.getTopicItemsSet(fromTopic);
 
 	if (topicMembershipItemSet != null && !topicMembershipItemSet.isEmpty() ) { //&& allowedPermNames != null && !allowedPermNames.isEmpty()
-		LOG.debug("About to assign topicMembershipItemSet's iterator");
+		log.debug("About to assign topicMembershipItemSet's iterator");
 		Iterator membershipIter = topicMembershipItemSet.iterator();
 		while (membershipIter.hasNext()) {
-			LOG.debug("About to get a member of membershipIter");
+			log.debug("About to get a member of membershipIter");
 			DBMembershipItem oldItem = (DBMembershipItem)membershipIter.next();
-				LOG.debug("About to getMembershipItemCopy()");
+				log.debug("About to getMembershipItemCopy()");
 				DBMembershipItem newItem = getMembershipItemCopy(oldItem);
 				if (newItem != null) {
 					permissionLevelManager.saveDBMembershipItem(newItem);
@@ -8704,7 +8688,7 @@ private String editorRows;
   }
 
   	private DBMembershipItem getMembershipItemCopy(DBMembershipItem itemToCopy) {
-		LOG.debug("getMembershipItemCopy()");
+		log.debug("getMembershipItemCopy()");
 		DBMembershipItem newItem = permissionLevelManager.createDBMembershipItem(itemToCopy.getName(), itemToCopy.getPermissionLevelName(),
 				itemToCopy.getType());
 		PermissionLevel oldPermLevel = itemToCopy.getPermissionLevel();
@@ -8724,7 +8708,7 @@ private String editorRows;
 	}
 
 	private DiscussionForumBean duplicateForum(Long originalForumId) {
-		LOG.debug("DuplicateForum() FORUM-ID=" + originalForumId.toString());
+		log.debug("DuplicateForum() FORUM-ID=" + originalForumId.toString());
 	    forumClickCount = 0;
 	    topicClickCount = 0;
 
@@ -8843,7 +8827,7 @@ private String editorRows;
                     siteGroups.add(new SiteGroupBean(currentGroup, false));
                 }
             } catch (IdUnusedException e) {
-                LOG.error(e.getMessage(), e);
+                log.error(e.getMessage(), e);
             }
         }
         return siteGroups;
@@ -8870,8 +8854,7 @@ private String editorRows;
 				}
 			}
 		} catch (GroupNotDefinedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			log.error(e.getMessage(), e);
 		}
 		return siteRolesNames;
 	}
@@ -8897,7 +8880,7 @@ private String editorRows;
 	 * @return error status (no groups selected)
 	 */
     private boolean saveTopicsForGroups(boolean draft) {
-        LOG.debug("saveTopicsForGroup()");
+        log.debug("saveTopicsForGroup()");
         if (siteGroups == null || siteGroups.isEmpty()) {
             setErrorMessage(getResourceBundleString(NO_GROUP_SELECTED));
             return false;
@@ -9120,8 +9103,8 @@ private String editorRows;
 
 		JsonConfig config = new JsonConfig();
 		JSON json = JSONSerializer.toJSON(allItemsList);
-		if (LOG.isDebugEnabled())
-			LOG.debug("converted getTotalTopicsJSON to json : " + json.toString(4, 0));
+		if (log.isDebugEnabled())
+			log.debug("converted getTotalTopicsJSON to json : " + json.toString(4, 0));
 		return json.toString(4, 0);
 	}
 
@@ -9166,7 +9149,7 @@ private String editorRows;
 
 	public String processMoveThread() {
 		Long sourceTopicId = this.selectedTopic.getTopic().getId();
-		if (LOG.isDebugEnabled()) LOG.debug("Calling processMoveThread source topic is " + sourceTopicId);
+		if (log.isDebugEnabled()) log.debug("Calling processMoveThread source topic is " + sourceTopicId);
 		List checkedThreads = getRequestParamArray("moveCheckbox");
 		List destTopicList = getRequestParamArray("selectedTopicid");
 
@@ -9182,7 +9165,7 @@ private String editorRows;
 				return gotoMain();
 			}
 		}
-		if (LOG.isDebugEnabled()) LOG.debug("Calling processMoveThread dest topic is " + desttopicIdstr);
+		if (log.isDebugEnabled()) log.debug("Calling processMoveThread dest topic is " + desttopicIdstr);
 
 		List checkbox_reminder = getRequestParamArray("moveReminder");
 		boolean checkReminder = false;
@@ -9194,7 +9177,7 @@ private String editorRows;
 			// reminderVal = Boolean.parseBoolean(checkReminder);
 		}
 
-		if (LOG.isDebugEnabled()) LOG.debug("Calling processMoveThread checkReminder is " + checkReminder);
+		if (log.isDebugEnabled()) log.debug("Calling processMoveThread checkReminder is " + checkReminder);
 
 		Long desttopicId = Long.parseLong(desttopicIdstr);
 		DiscussionTopic desttopic = forumManager.getTopicById(desttopicId);
@@ -9203,12 +9186,12 @@ private String editorRows;
 
 		Message mes = null;
 		Iterator mesiter = checkedThreads.iterator();
-		if (LOG.isDebugEnabled()) LOG.debug("processMoveThread checkedThreads size = " + checkedThreads.size());
+		if (log.isDebugEnabled()) log.debug("processMoveThread checkedThreads size = " + checkedThreads.size());
 		while (mesiter.hasNext()) {
 			Long messageId = new Long((String) mesiter.next());
 			mes = messageManager.getMessageById(messageId);
-			if (LOG.isDebugEnabled()) LOG.debug("processMoveThread messageId = " + mes.getId());
-			if (LOG.isDebugEnabled()) LOG.debug("processMoveThread message title = " + mes.getTitle());
+			if (log.isDebugEnabled()) log.debug("processMoveThread messageId = " + mes.getId());
+			if (log.isDebugEnabled()) log.debug("processMoveThread message title = " + mes.getTitle());
 			mes.setTopic(desttopic);
 			messageManager.saveMessage(mes);
 
@@ -9221,14 +9204,14 @@ private String editorRows;
 
 			List childrenMsg = new ArrayList(); // will store a list of child messages
 			messageManager.getChildMsgs(messageId, childrenMsg);
-			if (LOG.isDebugEnabled()) LOG.debug("processMoveThread childrenMsg for  " + messageId + "   size = " + childrenMsg.size());
+			if (log.isDebugEnabled()) log.debug("processMoveThread childrenMsg for  " + messageId + "   size = " + childrenMsg.size());
 			Iterator childiter = childrenMsg.iterator();
 
 			// update topic id for each child msg.
 			while (childiter.hasNext()) {
 				Message childMsg = (Message) childiter.next();
-				if (LOG.isDebugEnabled()) LOG.debug("processMoveThread messageId = " + childMsg.getId());
-				if (LOG.isDebugEnabled()) LOG.debug("processMoveThread message title = " + childMsg.getTitle());
+				if (log.isDebugEnabled()) log.debug("processMoveThread messageId = " + childMsg.getId());
+				if (log.isDebugEnabled()) log.debug("processMoveThread message title = " + childMsg.getTitle());
 				childMsg.setTopic(desttopic);
 				messageManager.saveMessage(childMsg);
 				messageManager.saveMessageMoveHistory(childMsg.getId(), desttopicId, sourceTopicId, checkReminder);
@@ -9270,7 +9253,7 @@ private String editorRows;
 		List jsonList = transformItemList(members);
 		JsonConfig config = new JsonConfig();
 		JSON json = JSONSerializer.toJSON(jsonList);
-		if (LOG.isDebugEnabled()) LOG.debug(" finished getTotalAssignToListJSON");
+		if (log.isDebugEnabled()) log.debug(" finished getTotalAssignToListJSON");
 		return json.toString(4, 0);
 	}
 
@@ -9293,8 +9276,8 @@ private String editorRows;
 			} else if (MembershipItem.TYPE_USER.equals(item.getType())) {
 				continue;
 			} else {
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug("Could not determine type of MembershipItem" + item);
+                if (log.isDebugEnabled()) {
+                    log.debug("Could not determine type of MembershipItem" + item);
                 }
 			}
 		}
@@ -9304,12 +9287,12 @@ private String editorRows;
 			MembershipItem item = (MembershipItem) iterator.next();
 			if (MembershipItem.TYPE_USER.equals(item.getType())) {
 				parseUsers(item, groupsMap, rolesMap, usersMap);
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug("parseUsers....TYPE_USER  itemtype =  " + item.getType());
+                if (log.isDebugEnabled()) {
+                    log.debug("parseUsers....TYPE_USER  itemtype =  " + item.getType());
                 }
 			} else {
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug("parseUsers...Could not determine type of MembershipItem" + item.getType());
+                if (log.isDebugEnabled()) {
+                    log.debug("parseUsers...Could not determine type of MembershipItem" + item.getType());
                 }
 			}
 		}
@@ -9440,31 +9423,31 @@ private String editorRows;
 
 	public void saveRank(Rank newRank) {
 		if ((forumRankBean != null) && (newRank != null)) {
-			if (LOG.isDebugEnabled()) LOG.debug("saveRank:   forumRankBean !=null) && (newRank!=null");
+			if (log.isDebugEnabled()) log.debug("saveRank:   forumRankBean !=null) && (newRank!=null");
 
 			String selectedRankType = this.forumRankBean.getType();
-			if (LOG.isDebugEnabled()) LOG.debug("saveRank: selectedRankType () = " + selectedRankType);
+			if (log.isDebugEnabled()) log.debug("saveRank: selectedRankType () = " + selectedRankType);
 
 			if (Rank.RANK_TYPE_INDIVIDUAL.equalsIgnoreCase(selectedRankType)) {
-				if (LOG.isDebugEnabled()) LOG.debug("saveRank:   RANK_TYPE_INDIVIDUAL");
+				if (log.isDebugEnabled()) log.debug("saveRank:   RANK_TYPE_INDIVIDUAL");
 
 				newRank.setType(Rank.RANK_TYPE_INDIVIDUAL);
 				Set<String> assignToIds = constructAssignToIds();
-				if (LOG.isDebugEnabled()) LOG.debug("user_id = " + assignToIds);
+				if (log.isDebugEnabled()) log.debug("user_id = " + assignToIds);
 				newRank.setAssignToIds(assignToIds);
 				newRank.setMinPosts(0);
 				rankManager.saveRank(newRank);
 			} else if (Rank.RANK_TYPE_POST_COUNT.equalsIgnoreCase(selectedRankType)) { // by # of post
-				if (LOG.isDebugEnabled()) LOG.debug("saveRank:  RANK_TYPE_POST_COUNT ");
+				if (log.isDebugEnabled()) log.debug("saveRank:  RANK_TYPE_POST_COUNT ");
 
 				newRank.setType(Rank.RANK_TYPE_POST_COUNT);
 				rankManager.saveRank(newRank);
 			} else {
-				LOG.warn("ForumTool.saveRank(): should not come here.  The type is undefined.");
+				log.warn("ForumTool.saveRank(): should not come here.  The type is undefined.");
 			}
 			this.setSelectedIndividualMemberItemIds(null);
 		} else {
-			if (LOG.isDebugEnabled()) LOG.debug("ForumTool.saveRank(): Can not save because forumRankBean is null");
+			if (log.isDebugEnabled()) log.debug("ForumTool.saveRank(): Can not save because forumRankBean is null");
 			// should not come here
 		}
 	}
@@ -9480,7 +9463,7 @@ private String editorRows;
 
 	public String processDeleteRankImage() {
 		setImageDeletePending(true);
-		if (LOG.isDebugEnabled()) LOG.debug("ForumTool.processDeleteRankImage(): ranktype = " + this.forumRankBean.getType());
+		if (log.isDebugEnabled()) log.debug("ForumTool.processDeleteRankImage(): ranktype = " + this.forumRankBean.getType());
 		return EDIT_RANK;
 	}
 
@@ -9519,7 +9502,7 @@ private String editorRows;
 	}
 
 	public String processActionViewRanks() {
-		if (LOG.isDebugEnabled()) LOG.debug("processActionViewRanks()");
+		if (log.isDebugEnabled()) log.debug("processActionViewRanks()");
 		if (!isInstructor()) {
 			setErrorMessage(getResourceBundleString(INSUFFICIENT_PRIVILEGES_TO_EDIT_RANKS));
 			return gotoMain();
@@ -9532,7 +9515,7 @@ private String editorRows;
 	}
 
 	public String processActionAddRank() {
-		if (LOG.isDebugEnabled()) LOG.debug("processActionAddRank()");
+		if (log.isDebugEnabled()) log.debug("processActionAddRank()");
 		this.setForumRankBean(new ForumRankBean());
         this.courseMemberMap = membershipManager.getFilteredCourseMembers(true, null);
 		return ADD_RANK;
@@ -9541,7 +9524,7 @@ private String editorRows;
 	public static final String ASSIGNEDTO_DELIMITER = ";";
 
 	public String processActionEditRank() {
-		if (LOG.isDebugEnabled()) LOG.debug("processActionEditRank()");
+		if (log.isDebugEnabled()) log.debug("processActionEditRank()");
 		String rankId = getExternalParameterByKey("rankId");
 		Rank thisrank = rankManager.getRankById(new Long(rankId));
 		ForumRankBean rankBean = new ForumRankBean(thisrank);
@@ -9575,14 +9558,14 @@ private String editorRows;
 				}
 			}
 
-			if (LOG.isDebugEnabled()) LOG.debug("processActionEditRank() memberitemidlist.toString = " + memberitemidlist.toString());
+			if (log.isDebugEnabled()) log.debug("processActionEditRank() memberitemidlist.toString = " + memberitemidlist.toString());
 			this.setSelectedIndividualMemberItemIds(memberitemidlist.toString());
 		}
 		return EDIT_RANK;
 	}
 
 	public String processActionUpdateRank() {
-		if (LOG.isDebugEnabled()) LOG.debug("ForumTool.processActionUpdateRank()");
+		if (log.isDebugEnabled()) log.debug("ForumTool.processActionUpdateRank()");
 		if (this.isImageDeletePending()) {
 			finishDeleteRankImage();
 		}
@@ -9602,7 +9585,7 @@ private String editorRows;
 	}
 
 	public String processActionSaveRank() {
-		if (LOG.isDebugEnabled()) LOG.debug("ForumTool.processActionSaveRank()");
+		if (log.isDebugEnabled()) log.debug("ForumTool.processActionSaveRank()");
 
 		String filename = getExternalParameterByKey("addRank:add_attach.uploadId");
         // if processUpdate sets imageTooLarge, then stop
@@ -9620,7 +9603,7 @@ private String editorRows;
 	}
 
 	public String processActionDeleteRanks() {
-		if (LOG.isDebugEnabled()) LOG.debug("ForumTool.processActionDeleteRank()");
+		if (log.isDebugEnabled()) log.debug("ForumTool.processActionDeleteRank()");
 
 		List ranklist = this.getCheckedRanks();
 		Iterator iter = ranklist.iterator();
@@ -9637,7 +9620,7 @@ private String editorRows;
 	}
 
 	public String processActionConfirmDeleteRanks() {
-		if (LOG.isDebugEnabled()) LOG.debug("ForumTool.processActionConfirmDeleteRanks()");
+		if (log.isDebugEnabled()) log.debug("ForumTool.processActionConfirmDeleteRanks()");
 		Long rankId = null;
 		List selectedRanks = getRequestParamArrayValueLike("removeCheckbox");
 		List ranklist = new ArrayList();
@@ -9687,7 +9670,7 @@ private String editorRows;
 			// make an empty list so regular error handling will work with new hidden form field data
 			// aggregate_compose_to_item_ids
 			itemIdList = new ArrayList(0);
-			LOG.error("aggregatedAssignToItemIds is null or empty, check you post data param aggregate_compose_to_item_ids");
+			log.error("aggregatedAssignToItemIds is null or empty, check you post data param aggregate_compose_to_item_ids");
 		} else if (this.aggregatedAssignToItemIds.contains(AGGREGATE_DELIMITER)) {
 			StringTokenizer st = new StringTokenizer(this.aggregatedAssignToItemIds, AGGREGATE_DELIMITER, false);
 			itemIdSet = new HashSet(st.countTokens());
@@ -9751,7 +9734,7 @@ private String editorRows;
 		// check size
 		long maxsize = new Long(ServerConfigurationService.getString("msgcntr.forum.rankimage.maxsize", "102400"));
 		long imagesize = item.getSize();
-		if (LOG.isDebugEnabled()) LOG.debug("validateImageSize(item)  imagesize = " + imagesize);
+		if (log.isDebugEnabled()) log.debug("validateImageSize(item)  imagesize = " + imagesize);
 
 		if (imagesize > maxsize) {
 			this.getForumRankBean().setImageSizeErr(true);
@@ -9763,7 +9746,7 @@ private String editorRows;
 	}
 
 	public String processUpload(ValueChangeEvent event) {
-		if (LOG.isDebugEnabled()) LOG.debug("processUpload(ValueChangeEvent event) ");
+		if (log.isDebugEnabled()) log.debug("processUpload(ValueChangeEvent event) ");
 		if (attachCaneled == false) {
 			Object newValue = event.getNewValue();
             if (newValue instanceof String) {
@@ -9795,7 +9778,7 @@ private String editorRows;
                 attachment = attachObj;
 
             } catch (Exception e) {
-                LOG.error(this + ".processUpload() in DiscussionForumTool", e);
+                log.error(this + ".processUpload() in DiscussionForumTool", e);
             }
             just_created = true;
             return VIEW_RANK;
@@ -9826,8 +9809,8 @@ private String editorRows;
 			Rank currRank = (Rank) sortedranks.get(sortedranks.size() - 1);
 			for (int i = 0; i < sortedranks.size(); i++) {
 				currRank = (Rank) sortedranks.get(i);
-				if (LOG.isDebugEnabled()) LOG.debug("... findRankByMinPost authorCount = " + authorCount);
-				if (LOG.isDebugEnabled()) LOG.debug("... findRankByMinPost currRank.getMinPosts = " + currRank.getMinPosts());
+				if (log.isDebugEnabled()) log.debug("... findRankByMinPost authorCount = " + authorCount);
+				if (log.isDebugEnabled()) log.debug("... findRankByMinPost currRank.getMinPosts = " + currRank.getMinPosts());
 				if (authorCount >= currRank.getMinPosts()) {
 					returnRank = currRank;
 					break;
@@ -9892,9 +9875,7 @@ private String editorRows;
         User studentUser = UserDirectoryService.getUser(studentUid);
         LRS_Actor student = new LRS_Actor(studentUser.getEmail());
         student.setName(studentUser.getDisplayName());
-        LRS_Context context = new LRS_Context(instructor);
-        context.setActivity("other", "assignment");
-        LRS_Statement statement = new LRS_Statement(student, verb, lrsObject, getLRS_Result(score), context);
+        LRS_Statement statement = new LRS_Statement(student, verb, lrsObject, getLRS_Result(score), null);
         return statement;
     }
 
@@ -9956,7 +9937,7 @@ private String editorRows;
     				    }
     				}
     			}catch(Exception e){
-    				LOG.error(e.getMessage(), e);
+    				log.error(e.getMessage(), e);
     			}
     		}
     		//Check Forum input field
@@ -9971,7 +9952,7 @@ private String editorRows;
     				forumContextId = forumManager.getContextForForumById(forum.getId());
     			}
     		}catch(Exception e){
-    			LOG.error(e.getMessage(), e);
+    			log.error(e.getMessage(), e);
     		}
 
     		//Check Topic: input field
@@ -9987,7 +9968,7 @@ private String editorRows;
     				tmpSelectedTopic = getDecoratedTopic(topicWithMsgs);    			
     			}
     		}catch(Exception e){
-    			LOG.error(e.getMessage(), e);
+    			log.error(e.getMessage(), e);
     		}
     		//verify everything is set properly
     		//Obviously this could be done in one huge if statement, but it's not as easy to ready and understand the logic,
@@ -9995,52 +9976,52 @@ private String editorRows;
 
     		//is message set
     		if(checkCurrentMessageId && (tmpSelectedMessage == null || tmpSelectedMessage.getMessage() == null)){
-    			LOG.info(methodCalled + ": can not check permissions against a null message. user: " + getUserId());
+    			log.info(methodCalled + ": can not check permissions against a null message. user: " + getUserId());
     			return false;
     		}
     		//is forum set
     		if(tmpSelectedForum == null || tmpSelectedForum.getForum() == null){
-    			LOG.info(methodCalled + ": can not check permissions against a null forum. user: " + getUserId());
+    			log.info(methodCalled + ": can not check permissions against a null forum. user: " + getUserId());
     			return false;
     		}
     		//is topic set
     		if(tmpSelectedTopic == null || tmpSelectedTopic.getTopic() == null){
-    			LOG.info(methodCalled + ": can not check permissions against a null topic. user: " + getUserId());
+    			log.info(methodCalled + ": can not check permissions against a null topic. user: " + getUserId());
     			return false;
     		}
     		//check topic belongs to the forum
     		if(!tmpSelectedForum.getForum().getId().equals(tmpSelectedTopic.getTopic().getBaseForum().getId())){
-    			LOG.info(methodCalled + ": topic: " + tmpSelectedTopic.getTopic().getId() + " does not belong to the forum: " + tmpSelectedForum.getForum().getId() + ". user: " + getUserId());
+    			log.info(methodCalled + ": topic: " + tmpSelectedTopic.getTopic().getId() + " does not belong to the forum: " + tmpSelectedForum.getForum().getId() + ". user: " + getUserId());
     			return false;    				
     		}
     		//check message belongs to the topic
     		if(checkCurrentMessageId && !tmpSelectedMessage.getMessage().getTopic().getId().equals(tmpSelectedTopic.getTopic().getId())){
-    			LOG.info(methodCalled + ": message: " + tmpSelectedMessage.getMessage().getId() + " does not belong to the topic: " + tmpSelectedTopic.getTopic().getId() + ".  user: " + getUserId());
+    			log.info(methodCalled + ": message: " + tmpSelectedMessage.getMessage().getId() + " does not belong to the topic: " + tmpSelectedTopic.getTopic().getId() + ".  user: " + getUserId());
     			return false;
     		}
     		//is topic locked?
     		if(tmpSelectedTopic.getTopic().getLocked()){
     			setErrorMessage(getResourceBundleString(TOPIC_LOCKED, new Object[]{tmpSelectedTopic.getTopic().getTitle()}));
-    			LOG.info(methodCalled + ": Topic is locked: " + tmpSelectedTopic.getTopic().getTitle() + ".  user: " + getUserId());
+    			log.info(methodCalled + ": Topic is locked: " + tmpSelectedTopic.getTopic().getTitle() + ".  user: " + getUserId());
     			return false;
     		}
     		//is forum locked?
     		if(tmpSelectedForum != null && tmpSelectedForum.getForum().getLocked()){
     			setErrorMessage(getResourceBundleString(FORUM_LOCKED, new Object[]{tmpSelectedForum.getForum().getTitle()}));
-    			LOG.info(methodCalled + ": Forum is locked: " + tmpSelectedForum.getForum().getTitle() + ".  user: " + getUserId());
+    			log.info(methodCalled + ": Forum is locked: " + tmpSelectedForum.getForum().getTitle() + ".  user: " + getUserId());
     			return false;
     		}
     		
     		//can the user reply to only existing messages (Check this first)
     		if (tmpSelectedMessage != null && (canReply && !uiPermissionsManager.isNewResponseToResponse(tmpSelectedTopic.getTopic(), tmpSelectedForum.getForum(), getUserId(), forumContextId))) {
     			setErrorMessage(getResourceBundleString(INSUFFICIENT_PRIVILEAGES_TO_POST_THREAD, new Object[]{tmpSelectedTopic.getTopic().getTitle()}));
-    			LOG.info(methodCalled + ": user can not reply with new messages in this topic: " + tmpSelectedTopic.getTopic().getId() + ".  user: " + getUserId());
+    			log.info(methodCalled + ": user can not reply with new messages in this topic: " + tmpSelectedTopic.getTopic().getId() + ".  user: " + getUserId());
     			return false;
     		}
     		//can the user compose a new message
     		if(tmpSelectedMessage == null && (canCompose && !uiPermissionsManager.isNewResponse(tmpSelectedTopic.getTopic(), tmpSelectedForum.getForum(), getUserId(), forumContextId))){
     			setErrorMessage(getResourceBundleString(INSUFFICIENT_PRIVILEAGES_TO_POST_THREAD, new Object[]{tmpSelectedTopic.getTopic().getTitle()}));
-    			LOG.info(methodCalled + ": user can not create new messages in this topic: " + tmpSelectedTopic.getTopic().getId() + ".  user: " + getUserId());
+    			log.info(methodCalled + ": user can not create new messages in this topic: " + tmpSelectedTopic.getTopic().getId() + ".  user: " + getUserId());
     			return false;
     		}
 
@@ -10049,14 +10030,14 @@ private String editorRows;
     		if(canEdit && !((messageOwner && uiPermissionsManager.isReviseOwn(tmpSelectedTopic.getTopic(), tmpSelectedForum.getForum(), getUserId(), forumContextId)) 
     						|| uiPermissionsManager.isReviseAny(tmpSelectedTopic.getTopic(), tmpSelectedForum.getForum(), getUserId(), forumContextId))){
     			setErrorMessage(getResourceBundleString(INSUFFICIENT_PRIVILEAGES_TO_POST_THREAD, new Object[]{tmpSelectedTopic.getTopic().getTitle()}));
-    			LOG.info(methodCalled + ": Insufficient privileages for user to revise message in topic: " + tmpSelectedTopic.getTopic().getTitle() + ".  user: " + getUserId());
+    			log.info(methodCalled + ": Insufficient privileages for user to revise message in topic: " + tmpSelectedTopic.getTopic().getTitle() + ".  user: " + getUserId());
     			return false;
     		}
     		//can the user delete this message
     		if(canDelete && !((messageOwner && uiPermissionsManager.isDeleteOwn(tmpSelectedTopic.getTopic(), tmpSelectedForum.getForum(), getUserId(), forumContextId)) 
     							|| uiPermissionsManager.isDeleteAny(tmpSelectedTopic.getTopic(), tmpSelectedForum.getForum(), getUserId(), forumContextId))){
     			setErrorMessage(getResourceBundleString(INSUFFICIENT_PRIVILEGES_TO_DELETE, new Object[]{tmpSelectedTopic.getTopic().getTitle()}));
-    			LOG.info(methodCalled + ": Insufficient privileages for user to delete message: " + (tmpSelectedMessage == null ? "" : tmpSelectedMessage.getMessage().getId()) + ".  user: " + getUserId());
+    			log.info(methodCalled + ": Insufficient privileages for user to delete message: " + (tmpSelectedMessage == null ? "" : tmpSelectedMessage.getMessage().getId()) + ".  user: " + getUserId());
     			return false;
     		}
 
@@ -10068,7 +10049,7 @@ private String editorRows;
 
     		return true;
     	}catch(Exception e){
-    		LOG.error(methodCalled + ": " + e.getMessage(), e);
+    		log.error(methodCalled + ": " + e.getMessage(), e);
     	}
     	return false;
     }

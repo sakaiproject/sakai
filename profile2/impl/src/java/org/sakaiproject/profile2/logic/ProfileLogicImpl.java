@@ -20,7 +20,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
+
 import org.sakaiproject.api.common.edu.person.SakaiPerson;
 import org.sakaiproject.profile2.conversion.ProfileConverter;
 import org.sakaiproject.profile2.dao.ProfileDao;
@@ -33,10 +36,6 @@ import org.sakaiproject.profile2.types.PrivacyType;
 import org.sakaiproject.profile2.util.ProfileConstants;
 import org.sakaiproject.profile2.util.ProfileUtils;
 import org.sakaiproject.user.api.User;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import lombok.Setter;
 
 /**
  * Implementation of ProfileLogic for Profile2.
@@ -44,9 +43,8 @@ import lombok.Setter;
  * @author Steve Swinsburg (s.swinsburg@lancaster.ac.uk)
  *
  */
+@Slf4j
 public class ProfileLogicImpl implements ProfileLogic {
-
-	private static final Logger log = LoggerFactory.getLogger(ProfileLogicImpl.class);
 
 	/**
 	 * {@inheritDoc}

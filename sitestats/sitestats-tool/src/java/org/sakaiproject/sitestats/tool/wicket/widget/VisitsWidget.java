@@ -25,11 +25,11 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.wicket.extensions.markup.html.tabs.AbstractTab;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.ResourceModel;
+
 import org.sakaiproject.javax.PagingPosition;
 import org.sakaiproject.sitestats.api.SitePresence;
 import org.sakaiproject.sitestats.api.StatsManager;
@@ -40,9 +40,9 @@ import org.sakaiproject.sitestats.api.report.ReportManager;
 import org.sakaiproject.sitestats.api.report.ReportParams;
 import org.sakaiproject.sitestats.tool.facade.Locator;
 
+@Slf4j
 public class VisitsWidget extends Panel {
 	private static final long		serialVersionUID	= 1L;
-	private static Logger				LOG					= LoggerFactory.getLogger(VisitsWidget.class);
 
 	/** The site id. */
 	private String					siteId				= null;
@@ -105,9 +105,9 @@ public class VisitsWidget extends Panel {
 			@Override
 			public String getValue() {
 				long start = 0;
-				if(LOG.isDebugEnabled()) start = System.currentTimeMillis();
+				if(log.isDebugEnabled()) start = System.currentTimeMillis();
 				String val = Long.toString(Locator.getFacade().getStatsManager().getTotalSiteVisits(siteId));
-				if(LOG.isDebugEnabled()) LOG.debug("getMiniStatVisits() in " + (System.currentTimeMillis() - start) + " ms");
+				if(log.isDebugEnabled()) log.debug("getMiniStatVisits() in " + (System.currentTimeMillis() - start) + " ms");
 				return val;
 			}
 			@Override
@@ -164,9 +164,9 @@ public class VisitsWidget extends Panel {
 			@Override
 			public String getValue() {
 				long start = 0;
-				if(LOG.isDebugEnabled()) start = System.currentTimeMillis();
+				if(log.isDebugEnabled()) start = System.currentTimeMillis();
 				String val = Long.toString(Locator.getFacade().getStatsManager().getTotalSiteUniqueVisits(siteId));
-				if(LOG.isDebugEnabled()) LOG.debug("getMiniStatUniqueVisits() in " + (System.currentTimeMillis() - start) + " ms");
+				if(log.isDebugEnabled()) log.debug("getMiniStatUniqueVisits() in " + (System.currentTimeMillis() - start) + " ms");
 				return val;
 			}
 			@Override
@@ -223,9 +223,9 @@ public class VisitsWidget extends Panel {
 			@Override
 			public String getValue() {
 				long start = 0;
-				if(LOG.isDebugEnabled()) start = System.currentTimeMillis();
+				if(log.isDebugEnabled()) start = System.currentTimeMillis();
 				String val = Long.toString(Locator.getFacade().getStatsManager().getTotalSiteUsers(siteId));
-				if(LOG.isDebugEnabled()) LOG.debug("getMiniStatEnrolledUsers() in " + (System.currentTimeMillis() - start) + " ms");
+				if(log.isDebugEnabled()) log.debug("getMiniStatEnrolledUsers() in " + (System.currentTimeMillis() - start) + " ms");
 				return val;
 			}
 			@Override
@@ -259,7 +259,7 @@ public class VisitsWidget extends Panel {
 			@Override
 			public String getValue() {
 				long start = 0;
-				if(LOG.isDebugEnabled()) start = System.currentTimeMillis();
+				if(log.isDebugEnabled()) start = System.currentTimeMillis();
 				int enrUsersWithVisits = 0;
 				Set<String> enrUsers = getSiteUsers();
 				Set<String> usersWithVisits = getUsersWithVisits();
@@ -269,7 +269,7 @@ public class VisitsWidget extends Panel {
 					}
 				}
 				String val = String.valueOf(enrUsersWithVisits);
-				if(LOG.isDebugEnabled()) LOG.debug("getMiniStatEnrolledUsersWithVisits() in " + (System.currentTimeMillis() - start) + " ms");
+				if(log.isDebugEnabled()) log.debug("getMiniStatEnrolledUsersWithVisits() in " + (System.currentTimeMillis() - start) + " ms");
 				return val;
 			}
 			@Override
@@ -323,7 +323,7 @@ public class VisitsWidget extends Panel {
 			@Override
 			public String getValue() {
 				long start = 0;
-				if(LOG.isDebugEnabled()) start = System.currentTimeMillis();
+				if(log.isDebugEnabled()) start = System.currentTimeMillis();
 				int enrUsersWithoutVisits = 0;
 				Set<String> enrUsers = getSiteUsers();
 				Set<String> usersWithVisits = getUsersWithVisits();
@@ -333,7 +333,7 @@ public class VisitsWidget extends Panel {
 					}
 				}
 				String val = String.valueOf(enrUsersWithoutVisits);
-				if(LOG.isDebugEnabled()) LOG.debug("getMiniStatEnrolledUsersWithoutVisits() in " + (System.currentTimeMillis() - start) + " ms");
+				if(log.isDebugEnabled()) log.debug("getMiniStatEnrolledUsersWithoutVisits() in " + (System.currentTimeMillis() - start) + " ms");
 				return val;
 			}
 			@Override
@@ -385,7 +385,7 @@ public class VisitsWidget extends Panel {
 			@Override
 			public String getValue() {
 				long start = 0;
-				if(LOG.isDebugEnabled()) start = System.currentTimeMillis();
+				if(log.isDebugEnabled()) start = System.currentTimeMillis();
 				
 				// Total time in site
 				double durationInMs = getTotalTimeInSiteInMs();			
@@ -404,7 +404,7 @@ public class VisitsWidget extends Panel {
 				val.append(' ');
 				val.append(new ResourceModel("minutes_abbr").getObject());	
 				
-				if(LOG.isDebugEnabled()) LOG.debug("getMiniStatAveragePresenceTime() in " + (System.currentTimeMillis() - start) + " ms");
+				if(log.isDebugEnabled()) log.debug("getMiniStatAveragePresenceTime() in " + (System.currentTimeMillis() - start) + " ms");
 				return val.toString();
 			}
 			@Override

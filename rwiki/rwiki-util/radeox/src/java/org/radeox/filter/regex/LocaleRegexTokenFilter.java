@@ -26,8 +26,7 @@ package org.radeox.filter.regex;
 import java.util.Locale;
 import java.util.ResourceBundle;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.radeox.api.engine.context.InitialRenderContext;
 import org.radeox.api.engine.context.RenderContext;
 
@@ -38,11 +37,9 @@ import org.radeox.api.engine.context.RenderContext;
  * @version $Id: LocaleRegexTokenFilter.java 7707 2006-04-12 17:30:19Z
  *          ian@caret.cam.ac.uk $
  */
-
+@Slf4j
 public abstract class LocaleRegexTokenFilter extends RegexTokenFilter
 {
-	private static Logger log = LoggerFactory.getLogger(LocaleRegexTokenFilter.class);
-
 	protected ResourceBundle inputMessages;
 
 	protected ResourceBundle outputMessages;

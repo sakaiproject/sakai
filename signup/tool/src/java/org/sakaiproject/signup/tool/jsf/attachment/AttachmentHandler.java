@@ -30,8 +30,8 @@ import java.util.Set;
 import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.content.api.FilePickerHelper;
@@ -55,9 +55,8 @@ import org.sakaiproject.tool.cover.SessionManager;
  * <p> This class will provides add/remove attachment functionality for sign-up tool.
  * </P>
  */
+@Slf4j
 public class AttachmentHandler implements Serializable {
-
-	private static Logger log = LoggerFactory.getLogger(AttachmentHandler.class);
 
 	private List<SignupAttachment> attachments;
 

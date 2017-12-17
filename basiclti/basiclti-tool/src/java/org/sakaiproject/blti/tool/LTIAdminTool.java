@@ -33,9 +33,9 @@ import java.util.UUID;
 import java.net.URLEncoder;
 import java.net.HttpURLConnection;
 
+import lombok.extern.slf4j.Slf4j;
+
 import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.tsugi.basiclti.BasicLTIUtil;
 import org.tsugi.lti2.LTI2Config;
 import org.tsugi.lti2.LTI2Constants;
@@ -83,10 +83,9 @@ import org.sakaiproject.util.foorm.SakaiFoorm;
  * LTIAdminTool is a Simple Velocity-based Tool
  * </p>
  */
+@Slf4j
 public class LTIAdminTool extends VelocityPortletPaneledAction
 {
-	private static Logger M_log = LoggerFactory.getLogger(LTIAdminTool.class);
-
 	/** Resource bundle using current language locale */
 	protected static ResourceLoader rb = new ResourceLoader("ltitool");
 
@@ -131,7 +130,6 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 	private static String ATTR_SORT_PAGESIZE = "SORT_PAGESIZE";
 	private static String ATTR_SEARCH_LAST_FIELD = "SEARCH_LAST_FIELD";
 	private static String ATTR_SEARCH_MAP = "search_map";
-	private static String ATTR_ATTRIBUTION_VALUES = "attribution_values";
 
 	/** Service Implementations */
 	protected static ToolManager toolManager = null;
@@ -172,7 +170,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		if (portlet.getPortletConfig().getInitParameter("helper") != null) {
 			String helperSiteId = (String) state.getAttribute(HELPER_ID + ".siteId");
 			if (helperSiteId == null) {
-				M_log.warn("No site ID set when in helper mode.");
+				log.warn("No site ID set when in helper mode.");
 			} else {
 				siteId = helperSiteId;
 			}
@@ -366,7 +364,6 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		state.setAttribute(ATTR_SORT_INDEX, 0);
 		state.setAttribute(ATTR_LAST_SORTED_FIELD, null);
 		state.setAttribute(ATTR_ASCENDING_ORDER, true);
-		state.setAttribute(ATTR_ATTRIBUTION_VALUES, null);
 	}
 	
 	public String buildToolSitePanelContext(VelocityPortlet portlet, Context context,
@@ -450,7 +447,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 				catch (Exception e)
 				{
 					// log the error
-					M_log.error("error parsing tool id " + content.get(LTIService.LTI_TOOL_ID));
+					log.error("error parsing tool id {}", content.get(LTIService.LTI_TOOL_ID));
 				}
 				content.put("tool_id_long", tool_id_long);
 				String plstr = (String) content.get(LTIService.LTI_PLACEMENT);
@@ -471,7 +468,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 					content.put("site_url", url);
 				} catch(Exception e)
 				{
-					M_log.error("error getting url for site " + siteId);
+					log.error("error getting url for site {}", siteId);
 				}
 				
 				//get LTI url based on site id and tool id
@@ -498,33 +495,6 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 				attribution_name = aux;
 			}
 			context.put("attribution_name", attribution_name);
-			
-			//join all available attribution values in a single set
-			SortedSet<String> availableAttributionValues = (SortedSet<String>)state.getAttribute(ATTR_ATTRIBUTION_VALUES);
-			
-			//just the first time
-			if(availableAttributionValues == null) {
-				availableAttributionValues = new TreeSet<String>();
-				
-				//if we are not in !admin site, we don't want to look for other sites
-				if(ltiService.isAdmin(getSiteId(state))) {
-					String attribution_key = serverConfigurationService.getString(LTIService.LTI_SITE_ATTRIBUTION_PROPERTY_KEY, LTIService.LTI_SITE_ATTRIBUTION_PROPERTY_KEY_DEFAULT);
-					Map propertyCriteria = new HashMap();			
-					propertyCriteria.put(attribution_key, "");
-					
-					List<Site> list = SiteService.getSites(org.sakaiproject.site.api.SiteService.SelectionType.ANY, null, null, propertyCriteria, org.sakaiproject.site.api.SiteService.SortType.NONE, null);			
-					if(list != null && list.size() > 0) {
-						for(Site s : list) {
-							String prop = s.getProperties().getProperty(attribution_key);
-							if (StringUtils.isNotEmpty(prop)) {
-								availableAttributionValues.add(prop);
-							}
-						}
-					}
-				}
-			}
-			context.put(ATTR_ATTRIBUTION_VALUES, availableAttributionValues);
-			state.setAttribute(ATTR_ATTRIBUTION_VALUES, availableAttributionValues);
 		}
 		
 		// top navigation menu
@@ -751,7 +721,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		List<String> errors = ltiService.deleteToolAndContents(key, getSiteId(state));
 		String errorNote = "";
 		for(String errstr: errors ) {
-			M_log.error(errstr);
+			log.error(errstr);
 			errorNote += "<br/>"+errstr;
 		}
 
@@ -1146,17 +1116,17 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		boolean notified = true;
 		if ( ack != null && ack.length() > 0 ) {
 		    notified = false;
-		    M_log.info("Sending Re-Registration notification to "+ack);
+		    log.info("Sending Re-Registration notification to {}", ack);
 		    String oauth_consumer_key = (String) deploy.get(LTIService.LTI_CONSUMERKEY);
 		    String oauth_secret = old_secret;
 		    oauth_secret = SakaiBLTIUtil.decryptSecret(oauth_secret);
-		    // System.out.println("key="+oauth_consumer_key+" secret="+oauth_secret);
+		    log.debug("key={} secret={}", oauth_consumer_key, oauth_secret);
 
 		    HttpURLConnection connection = BasicLTIUtil.sendOAuthURL("PUT", ack, oauth_consumer_key, oauth_secret);
 		    int responseCode = BasicLTIUtil.getResponseCode(connection);
-		    M_log.info("Re-Registration notification response code "+responseCode);
+		    log.info("Re-Registration notification response code {}", responseCode);
 		    String return_data = BasicLTIUtil.readHttpResponse(connection);
-		    M_log.info("Re-Registration notification response data "+return_data);
+		    log.info("Re-Registration notification response data {}", return_data);
 		    if ( responseCode == HttpURLConnection.HTTP_OK ) {
 			notified = true;
 		    } else {
@@ -1181,7 +1151,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 
 		String prepare = prepareValidate(deploy, theTools, info, state);
 
-		M_log.info("Starting activation process for id="+key+" title="+info.get("title"));
+		log.info("Starting activation process for id={} title={}", key, info.get("title"));
 
 		String failures = "";
 		// Update reg_state to indicate we are activated...
@@ -1199,7 +1169,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 
 		if ( ! updated ) {
 			String oops = "Unable to update deployment key="+key;
-			M_log.error(oops);
+			log.error(oops);
 			failures += "\n" + oops;
 		}
 
@@ -1214,20 +1184,20 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 				retval = ltiService.insertTool(theTool, getSiteId(state));
 				if ( retval instanceof String ) {
 					String oops = "Unable to insert "+theTool.get(LTIService.LTI_RESOURCE_HANDLER)+" "+retval;
-					M_log.error(oops);
+					log.error(oops);
 					failures += "\n" + oops;
 				} else {
-					M_log.info("Inserted tool="+retval+" "+theTool.get(LTIService.LTI_RESOURCE_HANDLER));
+					log.info("Inserted tool={} {}", retval, theTool.get(LTIService.LTI_RESOURCE_HANDLER));
 					inserts++;
 				}
 			} else {
 				retval = ltiService.updateTool(toolId, theTool, getSiteId(state));
 				if ( retval instanceof String ) {
 					String oops = "Unable to update "+theTool.get(LTIService.LTI_RESOURCE_HANDLER)+" "+retval;
-					M_log.error(oops);
+					log.error(oops);
 					failures += "\n" + oops;
 				} else {
-					M_log.info("Updated tool="+toolId+" "+theTool.get(LTIService.LTI_RESOURCE_HANDLER));
+					log.info("Updated tool={} {}", toolId, theTool.get(LTIService.LTI_RESOURCE_HANDLER));
 					updates++;
 				}
 			}
@@ -1261,10 +1231,10 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		ToolProxy toolProxy = null;
 		try {
 			toolProxy = new ToolProxy(profileText);
-			M_log.debug("OBJ:"+toolProxy);
+			log.debug("OBJ:{}", toolProxy);
 		} catch (Throwable t ) {
-			t.printStackTrace();
-			M_log.error("error parsing tool profile " + profileText);
+			log.error(t.getMessage(), t);
+			log.error("error parsing tool profile {}", profileText);
 			addAlert(state,rb.getString("deploy.parse.error"));
 			return "lti_error";
 		}
@@ -1279,7 +1249,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		}
 		catch (Exception e ) {
 			addAlert(state,rb.getString("deploy.parse.exception")+" "+e.getLocalizedMessage());
-			e.printStackTrace();
+			log.error(e.getMessage(), e);
 			return "lti_error";
 		}
 
@@ -1408,7 +1378,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 			String fa_icon = toolProxyBinding.getIconPath("FontAwesome");
 			if ( fa_icon != null ) newTool.put("fa_icon", fa_icon);
 
-			M_log.info("newTool="+newTool);
+			log.info("newTool={}", newTool);
 			theTools.add(newTool);
 		}
 		return null; // Success
@@ -1439,10 +1409,10 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		LTI2Config cnf = new SakaiLTI2Config();
 		if ( cnf.getGuid() == null ) {
 			context.put("configMessage",rb.getString("error.deploy.not.config"));
-			M_log.error("*********************************************");
-			M_log.error("* LTI2 NOT CONFIGURED - Using Sample Data   *");
-			M_log.error("* Do not use this in production.  Test only *");
-			M_log.error("*********************************************");
+			log.error("*********************************************");
+			log.error("* LTI2 NOT CONFIGURED - Using Sample Data   *");
+			log.error("* Do not use this in production.  Test only *");
+			log.error("*********************************************");
 		}
 		
 		return "lti_deploy_system";
@@ -1524,7 +1494,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 			// Delete the tool and all associated content items and site links
 			List<String> errors = ltiService.deleteToolAndContents(tool_id, getSiteId(state));
 			for(String errstr: errors ) {
-				M_log.error(errstr);
+				log.error(errstr);
 				errmsg += "<br/>"+errstr;
 			}
 		}
@@ -1749,7 +1719,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 				}
 			} else {
 				// TODO: returns false, should it do anyhing else?
-				M_log.error("insertToolContent returned false for" + id);
+				log.error("insertToolContent returned false for {}", id);
 			}
 		}
 		else
@@ -1907,7 +1877,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 
 		// Example of how to pull back the data Properties we passed in above
 		// Properties dataProps = contentItem.getDataProperties();
-		// System.out.println("dataProps="+dataProps);
+		// log.debug("dataProps={}", dataProps);
 		// dataProps={remember=always bring a towel}
 
 		// Extract the content item data
@@ -1935,14 +1905,14 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		boolean complete = title != null && url != null;
 		if ( ! complete ) {
 
-			M_log.debug("Forwarding to ContentConfig toolKey="+toolKey);
+			log.debug("Forwarding to ContentConfig toolKey={}", toolKey);
 			state.setAttribute(STATE_POST,reqProps);
 			switchPanel(state, "ContentConfig");
 			return;
 		}
 
 		// Time to store our content item and redirect back to our helpee
-		M_log.debug("Content Item complete toolKey="+toolKey);
+		log.debug("Content Item complete toolKey={}", toolKey);
 		doContentPutInternal(data, context, reqProps);
 	}
 
@@ -2014,20 +1984,20 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 
 	                String url = reqProps.getProperty("launch");
 			if ( url == null ) {
-				M_log.error("LTILink Item missing launch url"+toolKey);
-				M_log.debug(item+"");
+				log.error("LTILink Item missing launch url {}", toolKey);
+				log.debug("{}", item);
                                 failures.add(rb.getString("error.contentitem.missing.url"));
 				continue;
 			}
 
 			// Time to store our content item
-			M_log.debug("Inserting LTILinkItem toolKey="+toolKey);
+			log.debug("Inserting LTILinkItem toolKey={}", toolKey);
 
 			// Does an insert when id is null and update when is is not null
 			Object retval = ltiService.insertContent(reqProps, getSiteId(state));
                         if ( retval instanceof String ) {
-                                M_log.error("Unable to insert LTILinkItem tool="+toolKey);
-				M_log.debug(item+"");
+                                log.error("Unable to insert LTILinkItem tool={}", toolKey);
+				log.debug("{}", item);
                                 failures.add(rb.getString("error.contentitem.content.insert"));
 				continue;
 			}
@@ -2039,8 +2009,8 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 				if ( contentUrl != null && contentUrl.startsWith("/") ) contentUrl = SakaiBLTIUtil.getOurServerUrl() + contentUrl;
 			}
                         if ( contentUrl == null ) {
-                                M_log.error("Unable to get launch url from contentitem content="+contentKey);
-				M_log.debug(item+"");
+                                log.error("Unable to get launch url from contentitem content={}", contentKey);
+				log.debug("{}", item);
                                 failures.add(rb.getString("error.contentitem.content.launch"));
 				continue;
 			}
@@ -2048,7 +2018,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 			new_content.add(item);
 			goodcount++;
 		}
-                M_log.debug("Forwarding to EditorDone");
+                log.debug("Forwarding to EditorDone");
                 state.setAttribute(STATE_CONTENT_ITEM,new_content);
                 state.setAttribute(STATE_CONTENT_ITEM_FAILURES,failures);
                 state.setAttribute(STATE_CONTENT_ITEM_SUCCESSES,new Integer(goodcount));
@@ -2155,7 +2125,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		String returnUrl = (String) state.getAttribute(STATE_REDIRECT_URL);
 		state.removeAttribute(STATE_REDIRECT_URL);
 		if ( returnUrl == null ) return "lti_content_redirect";
-		M_log.debug("Redirecting parent frame back to="+returnUrl);
+		log.debug("Redirecting parent frame back to={}", returnUrl);
 		if ( ! returnUrl.startsWith("about:blank") ) context.put("returnUrl",returnUrl);
 		return "lti_content_redirect";
 	}
@@ -2168,7 +2138,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		String returnUrl = (String) state.getAttribute(STATE_REDIRECT_URL);
 		state.removeAttribute(STATE_REDIRECT_URL);
 		if ( returnUrl == null ) return "lti_content_redirect";
-		M_log.debug("Forwarding frame to="+returnUrl);
+		log.debug("Forwarding frame to={}", returnUrl);
 		context.put("forwardUrl",returnUrl);
 		return "lti_content_redirect";
 	}
@@ -2409,7 +2379,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 
                 contentLaunch = ContentItem.buildLaunch(contentLaunch , contentReturn, contentData);
 
-		M_log.debug("Forwarding frame to="+contentLaunch);
+		log.debug("Forwarding frame to={}", contentLaunch);
 		context.put("forwardUrl",contentLaunch);
 		return "lti_content_redirect";
 	}
@@ -2436,7 +2406,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		}
 
 		if ( contentUrl == null ) {
-			M_log.error("Unable to get launch url from contentitem content="+contentKey);
+			log.error("Unable to get launch url from contentitem content={}", contentKey);
 			addAlert(state, rb.getString("error.contentitem.content.launch"));
 			return "lti_error";
 		}
@@ -2485,7 +2455,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		catch (Exception e)
 		{
 			// log the error
-			M_log.error("error parsing tool id " + content.get(LTIService.LTI_TOOL_ID));
+			log.error("error parsing tool id {}", content.get(LTIService.LTI_TOOL_ID));
 		}
 		context.put("tool_id_long", tool_id_long);
 		context.put("content",content);

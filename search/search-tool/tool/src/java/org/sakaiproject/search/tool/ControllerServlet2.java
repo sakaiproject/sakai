@@ -35,10 +35,12 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.sakaiproject.velocity.util.SLF4JLogChute;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.VelocityEngine;
+import org.springframework.web.context.WebApplicationContext;
+import org.springframework.web.context.support.WebApplicationContextUtils;
+
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.search.tool.api.SearchAdminBean;
@@ -48,16 +50,14 @@ import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.util.ResourceLoader;
-import org.springframework.web.context.WebApplicationContext;
-import org.springframework.web.context.support.WebApplicationContextUtils;
 import org.sakaiproject.portal.util.PortalUtils;
 
 /**
  * @author ieb
  */
+@Slf4j
 public class ControllerServlet2 extends HttpServlet
 {
-	private static final Logger log = LoggerFactory.getLogger(ControllerServlet2.class);
 
 	private static final String MACROS = "/WEB-INF/vm/macros.vm";
 

@@ -35,8 +35,8 @@ import javax.naming.directory.InitialDirContext;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.user.api.UserDirectoryProvider;
 import org.sakaiproject.user.api.UserEdit;
 
@@ -47,10 +47,9 @@ import org.sakaiproject.user.api.UserEdit;
  * 
  * @author ASIC - Udl
  */
+@Slf4j
 public class OpenLdapDirectoryProvider implements UserDirectoryProvider
 {
-	/** Our log (commons). */
-	private static Logger M_log = LoggerFactory.getLogger(OpenLdapDirectoryProvider.class);
 
 	private String ldapHost = ""; // address of ldap server
 
@@ -64,11 +63,11 @@ public class OpenLdapDirectoryProvider implements UserDirectoryProvider
 	{
 		try
 		{
-			M_log.info("init()");
+			log.info("init()");
 		}
 		catch (Throwable t)
 		{
-			M_log.warn("init(): ", t);
+			log.warn("init(): ", t);
 		}
 
 		env.put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory");
@@ -79,7 +78,7 @@ public class OpenLdapDirectoryProvider implements UserDirectoryProvider
 
 	public void destroy()
 	{
-		M_log.info("destroy()");
+		log.info("destroy()");
 	}
 
 	public boolean authenticateUser(String userLogin, UserEdit edit, String password)
@@ -137,15 +136,14 @@ public class OpenLdapDirectoryProvider implements UserDirectoryProvider
 						}
 						catch (AuthenticationException ae)
 						{
-							M_log.info("Access forbidden");
+							log.info("Access forbidden");
 						}
 
 					}
 					catch (NamingException namEx)
 					{
-						M_log.info("User doesn't exist");
+						log.info("User doesn't exist");
 						returnVal = false;
-						namEx.printStackTrace();
 					}
 				}
 				if (trobat.equals("false")) returnVal = false;
@@ -153,7 +151,7 @@ public class OpenLdapDirectoryProvider implements UserDirectoryProvider
 			}
 			catch (NamingException namEx)
 			{
-				namEx.printStackTrace();
+				log.error(namEx.getMessage(), namEx);
 				returnVal = false;
 			}
 		}
@@ -240,7 +238,7 @@ public class OpenLdapDirectoryProvider implements UserDirectoryProvider
 		}
 		catch (Exception e)
 		{
-			e.printStackTrace();
+			log.error(e.getMessage(), e);
 			return false;
 		}
 	}
@@ -285,7 +283,7 @@ public class OpenLdapDirectoryProvider implements UserDirectoryProvider
 		}
 		catch (Exception ex)
 		{
-			ex.printStackTrace();
+			log.error(ex.getMessage(), ex);
 			return false;
 		}
 

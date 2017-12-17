@@ -29,8 +29,7 @@ import java.util.List;
 
 import javax.servlet.http.HttpServletResponse;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import org.sakaiproject.component.cover.ServerConfigurationService;
 
@@ -39,9 +38,8 @@ import org.sakaiproject.component.cover.ServerConfigurationService;
  * Chinese) is not supported correctly, for example. Use Excel-formatted output if at all
  * possible.
  */
+@Slf4j
 public class SpreadsheetDataFileWriterCsv implements SpreadsheetDataFileWriter {
-	private static final Logger log = LoggerFactory.getLogger(SpreadsheetDataFileWriterCsv.class);
-
 	public void writeDataToResponse(List<List<Object>> spreadsheetData, String fileName, HttpServletResponse response) {
 		response.setContentType("text/comma-separated-values");
 		SpreadsheetUtil.setEscapedAttachmentHeader(response, fileName + ".csv");

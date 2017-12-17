@@ -27,8 +27,11 @@ package org.sakaiproject.tags.impl.rest;
 import java.util.Map;
 import java.util.Optional;
 import java.util.List;
+
+import lombok.extern.slf4j.Slf4j;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONArray;
+
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.entitybroker.DeveloperHelperService;
 import org.sakaiproject.entitybroker.EntityView;
@@ -44,15 +47,13 @@ import org.sakaiproject.tags.api.Tag;
 import org.sakaiproject.tags.api.TagCollection;
 import org.sakaiproject.tags.api.TagService;
 import org.sakaiproject.tool.api.SessionManager;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Web services supporting AJAX requests from the Tags System end user display.
  */
+@Slf4j
 public class TagServiceEntityProvider implements EntityProvider, AutoRegisterEntityProvider, ActionsExecutable, Outputable, Describeable {
 
-    private static final Logger LOG = LoggerFactory.getLogger(TagServiceEntityProvider.class);
     private static final String TAGSERVICE_PREFIX = "tagservice";
     private static final int TAGSERVICE_PAGE_LIMIT_DEFAULT = 30;
     private static final int TAGSERVICE_FIRST_PAGE_DEFAULT = 1;
@@ -75,7 +76,7 @@ public class TagServiceEntityProvider implements EntityProvider, AutoRegisterEnt
         Object sessionToken = sessionManager.getCurrentSession().getAttribute("sakai.csrf.token");
 
         if (sessionToken == null || !sessionToken.equals(params.get("sakai_csrf_token"))) {
-            LOG.warn("CSRF token validation failed");
+            log.warn("CSRF token validation failed");
             return false;
         }
 
@@ -94,7 +95,7 @@ public class TagServiceEntityProvider implements EntityProvider, AutoRegisterEnt
 
             return tag.get();
         } catch (Exception e) {
-            LOG.error("Error calling getTag:",e);
+            log.error("Error calling getTag:",e);
             return null;
         }
     }
@@ -133,7 +134,7 @@ public class TagServiceEntityProvider implements EntityProvider, AutoRegisterEnt
             return responseDetailsJson;
 
         } catch (Exception e) {
-            LOG.error("Error calling getTagCollections:",e);
+            log.error("Error calling getTagCollections:",e);
             return null;
         }
     }
@@ -172,7 +173,7 @@ public class TagServiceEntityProvider implements EntityProvider, AutoRegisterEnt
 
             return responseDetailsJson;
         } catch (Exception e) {
-            LOG.error("Error calling getTagsPaginatedInCollection:",e);
+            log.error("Error calling getTagsPaginatedInCollection:",e);
             return null;
         }
     }
@@ -209,7 +210,7 @@ public class TagServiceEntityProvider implements EntityProvider, AutoRegisterEnt
 
             return responseDetailsJson;
         } catch (Exception e) {
-            LOG.error("Error calling getTagsPaginatedByPrefixInLabel:",e);
+            log.error("Error calling getTagsPaginatedByPrefixInLabel:",e);
             return null;
         }
     }
@@ -256,7 +257,7 @@ public class TagServiceEntityProvider implements EntityProvider, AutoRegisterEnt
             try {
                 result = Integer.parseInt(params.get(name).toString());
             }catch (Exception e) {
-               LOG.debug("Param " + name + " is not a valid integer, so returning the default value");
+               log.debug("Param " + name + " is not a valid integer, so returning the default value");
             }
             return result;
 

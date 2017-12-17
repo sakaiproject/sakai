@@ -22,19 +22,6 @@
 
 package org.sakaiproject.tags.impl.storage;
 
-import org.sakaiproject.event.api.EventTrackingService;
-import org.sakaiproject.tags.api.MissingUuidException;
-import org.sakaiproject.tags.api.Tag;
-import org.sakaiproject.tags.api.Tags;
-import org.sakaiproject.tags.impl.common.DB;
-import org.sakaiproject.tags.impl.common.DBAction;
-import org.sakaiproject.tags.impl.common.DBConnection;
-import org.sakaiproject.tags.impl.common.DBPreparedStatement;
-import org.sakaiproject.tags.impl.common.DBResults;
-import org.sakaiproject.tool.api.SessionManager;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -47,13 +34,24 @@ import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Supplier;
 
+import lombok.extern.slf4j.Slf4j;
+
+import org.sakaiproject.event.api.EventTrackingService;
+import org.sakaiproject.tags.api.MissingUuidException;
+import org.sakaiproject.tags.api.Tag;
+import org.sakaiproject.tags.api.Tags;
+import org.sakaiproject.tags.impl.common.DB;
+import org.sakaiproject.tags.impl.common.DBAction;
+import org.sakaiproject.tags.impl.common.DBConnection;
+import org.sakaiproject.tags.impl.common.DBPreparedStatement;
+import org.sakaiproject.tags.impl.common.DBResults;
+import org.sakaiproject.tool.api.SessionManager;
 
 /**
  * Query and store Tag  objects in the database.
  */
+@Slf4j
 public class TagStorage implements Tags {
-
-    private static final Logger LOG = LoggerFactory.getLogger(TagStorage.class);
 
     private static final String QUERY_GET_ALL = "SELECT * from tagservice_tag ORDER by tagLabel,tagcollectionid";
     private static final String QUERY_GET_ALL_IN_COLLECTION = "SELECT * from tagservice_tag WHERE tagcollectionid = ? ORDER by tagLabel";
@@ -98,16 +96,11 @@ public class TagStorage implements Tags {
     private static final String QUERY_DELETE_TAG_FROM_EXTERNAL_COLLECTION = "DELETE FROM tagservice_tag WHERE tagCollectionid = ? AND externalid = ?";
     private static final String QUERY_GET_COLLECTION_NAME = "SELECT name from tagservice_collection WHERE tagcollectionid = ?";
 
-
-
-
-
     private SessionManager sessionManager;
     private EventTrackingService eventTrackingService;
     private DB db;
     private Supplier<Long> timestampProvider = () -> new Date().getTime();
     private Supplier<String> idProvider = () -> UUID.randomUUID().toString();
-
 
     @Override
     public List<Tag> getAll() {
@@ -667,7 +660,7 @@ public class TagStorage implements Tags {
                         }
 
                         if ( !(isDirtyingUpdate(tag, previousState.get())) ) {
-                            LOG.debug("No changes to non-calculated fields. No event launched and only updating lastmodificationdate and lastmodifiedby to tag wih ID: " + tagId);
+                            log.debug("No changes to non-calculated fields. No event launched and only updating lastmodificationdate and lastmodifiedby to tag wih ID: " + tagId);
 
                             try (DBPreparedStatement ps = db.run(QUERY_UPDATE_TAG_SIMPLE)) {
                                 ps.param(currentUserId) //Needs to be the actual user

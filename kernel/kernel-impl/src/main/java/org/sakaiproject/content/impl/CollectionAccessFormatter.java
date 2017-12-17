@@ -30,9 +30,10 @@ import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import lombok.extern.slf4j.Slf4j;
+
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentCollection;
 import org.sakaiproject.content.api.ContentEntity;
@@ -40,8 +41,6 @@ import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
-import org.sakaiproject.exception.IdUnusedException;
-import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.api.FormattedText;
@@ -51,10 +50,9 @@ import org.sakaiproject.util.api.FormattedText;
  * CollectionAccessFormatter is formatter for collection access.
  * </p>
  */
+@Slf4j
 public class CollectionAccessFormatter
 {
-	private static final Logger M_log = LoggerFactory.getLogger(CollectionAccessFormatter.class);
-
 	private FormattedText formattedText;
 	private ServerConfigurationService serverConfigurationService;
 	private SiteService siteService;
@@ -264,7 +262,7 @@ public class CollectionAccessFormatter
 				}
 				catch (Exception e)
 				{
-					M_log.info("Problem rendering item falling back to default rendering: "+ x.getId()+ ", "+ e.getMessage());
+					log.info("Problem rendering item falling back to default rendering: "+ x.getId()+ ", "+ e.getMessage());
 					out.println("<li class=\"file\"><a href=\"" + contentUrl + "\" target=_blank>" + formattedText.escapeHtml(xs)
 							+ "</a></li>");
 				}
@@ -273,7 +271,7 @@ public class CollectionAccessFormatter
 		}
 		catch (Exception e)
 		{
-			M_log.warn("Problem formatting HTML for collection: "+ x.getId(), e);
+			log.warn("Problem formatting HTML for collection: "+ x.getId(), e);
 		}
 
 		if (out != null && printedHeader)

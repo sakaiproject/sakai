@@ -26,20 +26,19 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import lombok.extern.slf4j.Slf4j;
 import org.hibernate.Query;
 import org.osid.shared.Type;
-import org.sakaiproject.tool.assessment.data.dao.shared.TypeD;
-import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
-import org.sakaiproject.tool.assessment.osid.shared.extension.TypeExtension;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.orm.hibernate4.HibernateCallback;
 import org.springframework.orm.hibernate4.support.HibernateDaoSupport;
 
+import org.sakaiproject.tool.assessment.data.dao.shared.TypeD;
+import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
+import org.sakaiproject.tool.assessment.osid.shared.extension.TypeExtension;
 
+@Slf4j
 public class TypeFacadeQueries extends HibernateDaoSupport implements TypeFacadeQueriesAPI{
 
-  private Logger log = LoggerFactory.getLogger(TypeFacadeQueries.class);
   private Map<Long, TypeFacade> typeFacadeMap;
   private List<TypeFacade> itemTypes;
 

@@ -18,9 +18,7 @@ import java.io.File;
 import java.util.List;
 import java.util.Map;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.w3c.dom.Document;
+import lombok.extern.slf4j.Slf4j;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
@@ -32,6 +30,7 @@ import org.sakaiproject.tool.assessment.qti.asi.Section;
 import org.sakaiproject.tool.assessment.qti.constants.QTIVersion;
 import org.sakaiproject.tool.assessment.qti.helper.ExtractionHelper;
 import org.sakaiproject.tool.assessment.qti.util.XmlUtil;
+import org.w3c.dom.Document;
 
 /**
  * <p> Test program</p>
@@ -41,8 +40,8 @@ import org.sakaiproject.tool.assessment.qti.util.XmlUtil;
  * @version $Id$
  */
 
-public class AuthoringHelperTest {
-  private static Logger log = LoggerFactory.getLogger(AuthoringHelperTest.class);
+ @Slf4j
+ public class AuthoringHelperTest {
 
   private final static String xslPath =
         "C:\\Documents and Settings\\Ed Smiley\\jbproject\\sam\\webapp.war\\xml\\xsl\\dataTransform\\import\\v1p2";
@@ -288,8 +287,7 @@ public class AuthoringHelperTest {
     }
     catch(Exception e)
     {
-//      log.error(e.getMessage(), e);
-      e.printStackTrace();
+      log.error(e.getMessage(), e);
     }
 
     return item;

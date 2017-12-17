@@ -16,6 +16,7 @@
 package org.sakaiproject.search.elasticsearch;
 
 import com.github.javafaker.Faker;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -59,6 +60,7 @@ import static org.mockito.Mockito.*;
  * To change this template use File | Settings | File Templates.
  */
 @RunWith(MockitoJUnitRunner.class)
+@Slf4j
 public class ElasticSearchTest {
     ElasticSearchService elasticSearchService;
 
@@ -335,7 +337,7 @@ public class ElasticSearchTest {
             try {
                 elasticSearchIndexBuilder.addResource(notification, event);
             } catch (Exception e) {
-                e.printStackTrace();
+                log.error(e.getMessage(), e);
                 assertFalse("problem adding event: " + event.getEvent(), true);
             }
         }
@@ -377,7 +379,7 @@ public class ElasticSearchTest {
             SearchList list = elasticSearchService.search("asdf", siteIds, 0, 10);
             assertFalse(list.size() > 0 );
         } catch (InvalidSearchQueryException e) {
-            e.printStackTrace();
+            log.error(e.getMessage(), e);
             fail();
         }
 
@@ -394,7 +396,7 @@ public class ElasticSearchTest {
             SearchList list = elasticSearchService.search("asdf", siteIds, 0, 10);
             assertFalse(list.size() > 0);
         } catch (InvalidSearchQueryException e) {
-            e.printStackTrace();
+            log.error(e.getMessage(), e);
             fail();
         }
         assertTrue(elasticSearchService.getPendingDocs() == 0);
@@ -404,7 +406,7 @@ public class ElasticSearchTest {
         try {
             Thread.sleep(millis);
         } catch (InterruptedException e) {
-            e.printStackTrace();
+            log.error(e.getMessage(), e);
         }
     }
 
@@ -421,7 +423,7 @@ public class ElasticSearchTest {
             SearchResult result = list.get(0);
             assertTrue(result.getSearchResult().toLowerCase().contains("<b>"));
         } catch (InvalidSearchQueryException e) {
-            e.printStackTrace();
+            log.error(e.getMessage(), e);
             fail();
         }
     }
@@ -440,7 +442,7 @@ public class ElasticSearchTest {
 
         elasticSearchIndexBuilder.refreshIndex();
 
-        System.out.println("testRebuildSiteIndex: " + elasticSearchService.getNDocs());
+        log.info("testRebuildSiteIndex: " + elasticSearchService.getNDocs());
         assertTrue(elasticSearchService.getNDocs() == 106);
     }
 

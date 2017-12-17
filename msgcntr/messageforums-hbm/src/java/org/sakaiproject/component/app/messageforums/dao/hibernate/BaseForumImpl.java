@@ -27,8 +27,8 @@ import java.util.Iterator;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.api.app.messageforums.Area;
 import org.sakaiproject.api.app.messageforums.Attachment;
 import org.sakaiproject.api.app.messageforums.BaseForum;
@@ -36,10 +36,9 @@ import org.sakaiproject.api.app.messageforums.DBMembershipItem;
 import org.sakaiproject.api.app.messageforums.Topic;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.util.comparator.AttachmentByCreatedDateDesc;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.util.comparator.TopicBySortIndexAscAndCreatedDateDesc;
- 
-public class BaseForumImpl extends MutableEntityImpl implements BaseForum {
 
-    private static final Logger LOG = LoggerFactory.getLogger(BaseForumImpl.class);
+@Slf4j
+public class BaseForumImpl extends MutableEntityImpl implements BaseForum {
 
     private String title;
     private String shortDescription;
@@ -194,8 +193,8 @@ public class BaseForumImpl extends MutableEntityImpl implements BaseForum {
     ////////////////////////////////////////////////////////////////////////
     
     public void addTopic(Topic topic) {
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("addTopic(topic " + topic + ")");
+        if (log.isDebugEnabled()) {
+            log.debug("addTopic(topic " + topic + ")");
         }
         
         if (topic == null) {
@@ -210,8 +209,8 @@ public class BaseForumImpl extends MutableEntityImpl implements BaseForum {
     }
 
     public void removeTopic(Topic topic) {
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("removeTopic(topic " + topic + ")");
+        if (log.isDebugEnabled()) {
+            log.debug("removeTopic(topic " + topic + ")");
         }
         
         if (topic == null) {
@@ -225,8 +224,8 @@ public class BaseForumImpl extends MutableEntityImpl implements BaseForum {
     }
        
     public void addAttachment(Attachment attachment) {
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("addAttachment(Attachment " + attachment + ")");
+        if (log.isDebugEnabled()) {
+            log.debug("addAttachment(Attachment " + attachment + ")");
         }
         
         if (attachment == null) {
@@ -241,8 +240,8 @@ public class BaseForumImpl extends MutableEntityImpl implements BaseForum {
     }
 
     public void removeAttachment(Attachment attachment) {
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("removeAttachment(Attachment " + attachment + ")");
+        if (log.isDebugEnabled()) {
+            log.debug("removeAttachment(Attachment " + attachment + ")");
         }
         
         if (attachment == null) {
@@ -254,8 +253,8 @@ public class BaseForumImpl extends MutableEntityImpl implements BaseForum {
     }
     
     public void addMembershipItem(DBMembershipItem item) {
-      if (LOG.isDebugEnabled()) {
-          LOG.debug("addMembershipItem(item " + item + ")");
+      if (log.isDebugEnabled()) {
+          log.debug("addMembershipItem(item " + item + ")");
       }
       
       if (item == null) {
@@ -269,8 +268,8 @@ public class BaseForumImpl extends MutableEntityImpl implements BaseForum {
   }
 
     public void removeMembershipItem(DBMembershipItem item) {
-      if (LOG.isDebugEnabled()) {
-          LOG.debug("removeMembershipItem(item " + item + ")");
+      if (log.isDebugEnabled()) {
+          log.debug("removeMembershipItem(item " + item + ")");
       }
       
       if (item == null) {

@@ -148,7 +148,7 @@
                     <td>
                         $gradeScale
                         #if ($!assignment.TypeOfGrade.ordinal() == 3)
-                            ($tlang.getString("grade.max") $!assignment.MaxGradePoint)
+                            ($tlang.getString("grade.max") $!service.getMaxPointGradeDisplay($!assignment.ScaleFactor, $!assignment.MaxGradePoint))
 
                             ## for grading via an external scoring service, if enabled for an associated gradebook item
                             #if($scoringComponentEnabled)
@@ -240,9 +240,7 @@
     #set ($attachments = $assignment.Attachments)
     #if ($attachments)
         #set ($size = $attachments.size())
-        #if ($size < 1)
-            $tlang.getString("gen.noatt")
-        #else
+        #if ($size > 0)
             <h4>
                 $tlang.getString("gen.addres2")
             </h4>
@@ -292,15 +290,7 @@
                         #set ($size = $size + 1)
                     #end
                 #end
-                #if ($size == 0)
-                    <<p class="instruction">
-                    #if ($!assignment.TypeOfSubmission.ordinal() == 5)
-                        $tlang.getString("gen.noatt.single")
-                    #else
-                        $tlang.getString("gen.noatt")
-                    #end
-                </p>
-                #else
+                #if ($size > 0)
                     #foreach ($attachment in $mAttachments)
                         #set ($props = false)
                         #set ($props = $attachment.Properties)
@@ -388,7 +378,7 @@
         ## show feedback text when submission is released or returned
         #if ($!submission.FeedbackText && ($submission.FeedbackText.length() > 0))
             <h5>$tlang.getString("gen.orisub2")</h5>
-            <div class="textPanel">$submission.FeedbackText</div>
+            <div class="textPanel">$cheffeedbackhelper.escapeAssignmentFeedback($submission.FeedbackText)</div>
         #else
             #set ($text = $submission.SubmittedText)
             #if ($!text && $text.length() > 0)

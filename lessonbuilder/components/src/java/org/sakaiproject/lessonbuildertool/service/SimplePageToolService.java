@@ -26,7 +26,7 @@ package org.sakaiproject.lessonbuildertool.service;
 import java.io.File;
 import java.util.List;
 
-import org.sakaiproject.authz.cover.FunctionManager;
+import org.sakaiproject.authz.api.FunctionManager;
 import org.sakaiproject.db.api.SqlService;
 import org.sakaiproject.entity.api.HttpAccess;
 import org.sakaiproject.lessonbuildertool.LessonBuilderAccessAPI;
@@ -36,6 +36,7 @@ import org.springframework.context.ResourceLoaderAware;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
 
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -57,6 +58,9 @@ public class SimplePageToolService implements ResourceLoaderAware, LessonBuilder
 	    this.resourceLoader = resourceLoader;
 	}
  
+	@Setter
+	private FunctionManager functionManager;
+	
 	public Resource getResource(String location){
 	    return resourceLoader.getResource(location);
 	}
@@ -100,13 +104,13 @@ public class SimplePageToolService implements ResourceLoaderAware, LessonBuilder
 		log.info("Initializing Lesson Builder Tool");
 
 		// for debugging I'd like to be able to reload, so avoid duplicates
-		List <String> registered = FunctionManager.getRegisteredFunctions(SimplePage.PERMISSION_LESSONBUILDER_PREFIX);
+		List <String> registered = functionManager.getRegisteredFunctions(SimplePage.PERMISSION_LESSONBUILDER_PREFIX);
 		if (registered == null || !registered.contains(SimplePage.PERMISSION_LESSONBUILDER_UPDATE))
-		    FunctionManager.registerFunction(SimplePage.PERMISSION_LESSONBUILDER_UPDATE);
+		    functionManager.registerFunction(SimplePage.PERMISSION_LESSONBUILDER_UPDATE);
 		if (registered == null || !registered.contains(SimplePage.PERMISSION_LESSONBUILDER_READ))
-		    FunctionManager.registerFunction(SimplePage.PERMISSION_LESSONBUILDER_READ);
+		    functionManager.registerFunction(SimplePage.PERMISSION_LESSONBUILDER_READ);
 		if (registered == null || !registered.contains(SimplePage.PERMISSION_LESSONBUILDER_SEE_ALL))
-		    FunctionManager.registerFunction(SimplePage.PERMISSION_LESSONBUILDER_SEE_ALL);
+		    functionManager.registerFunction(SimplePage.PERMISSION_LESSONBUILDER_SEE_ALL);
 
 		try {
 			// hibernate will do the tables, but we need this for the indices

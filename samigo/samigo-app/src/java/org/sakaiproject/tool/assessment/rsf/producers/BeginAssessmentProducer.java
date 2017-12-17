@@ -26,8 +26,7 @@ import java.io.IOException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentMetaDataIfc;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
 import org.sakaiproject.tool.assessment.rsf.params.BeginAssessmentViewParameters;
@@ -52,12 +51,11 @@ import uk.org.ponder.rsf.viewstate.ViewParameters;
  * @author Joshua Ryan  josh@asu.edu   alt^I
  * 
  */
-public class BeginAssessmentProducer implements ViewComponentProducer, DefaultView  {
+@Slf4j
+ public class BeginAssessmentProducer implements ViewComponentProducer, DefaultView  {
 
   public HttpServletRequest httpServletRequest;
   public HttpServletResponse httpServletResponse;
-  
-  private static Logger log = LoggerFactory.getLogger(BeginAssessmentProducer.class);
   
   public static final String VIEW_ID = "BeginTakingAssessment";
 
@@ -96,7 +94,7 @@ public class BeginAssessmentProducer implements ViewComponentProducer, DefaultVi
       httpServletResponse.sendRedirect(finalUrl);
     }
     catch (IOException e) {
-      e.printStackTrace();
+      log.error(e.getMessage(), e);
     }
 
   }

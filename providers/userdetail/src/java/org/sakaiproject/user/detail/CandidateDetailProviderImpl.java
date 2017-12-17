@@ -15,27 +15,28 @@
  */
 package org.sakaiproject.user.detail;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
+
+import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.user.api.CandidateDetailProvider;
 import org.sakaiproject.user.api.User;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import org.sakaiproject.authz.api.SecurityService;
 
 /**
  * This candidate details provider looks up information on the user object's properties, this assumes that the
  * user provider has loaded the additional data already. It also assumes that the data is encrytped on the
  * user object.
  */
+@Slf4j
 public class CandidateDetailProviderImpl implements CandidateDetailProvider {
 	
 	private static final String USER_PROP_CANDIDATE_ID = "candidateID";
@@ -52,8 +53,6 @@ public class CandidateDetailProviderImpl implements CandidateDetailProvider {
 	private final static String SYSTEM_PROP_USE_INSTITUTIONAL_NUMERIC_ID = "useInsitutionalNumericID";
 	private final static String SYSTEM_PROP_ENCRYPT_NUMERIC_ID = "encryptInstitutionalNumericID";
 
-	private static Logger log = LoggerFactory.getLogger(CandidateDetailProviderImpl.class);
-	
 	private ServerConfigurationService serverConfigurationService;
 	private SiteService siteService;
 	private SecurityService secServ;

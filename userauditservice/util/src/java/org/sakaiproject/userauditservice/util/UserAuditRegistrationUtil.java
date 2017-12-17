@@ -21,9 +21,6 @@
 
 package org.sakaiproject.userauditservice.util;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -33,6 +30,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.db.api.SqlService;
 import org.sakaiproject.userauditservice.api.UserAuditRegistration;
 import org.sakaiproject.userauditservice.api.UserAuditService;
@@ -41,11 +40,10 @@ import org.sakaiproject.util.ResourceLoader;
 /**
  * UserAuditUtil
  */
+@Slf4j
 public class UserAuditRegistrationUtil implements UserAuditRegistration
 {
-	/** Our log (commons). */
-	private static Logger M_log = LoggerFactory.getLogger(UserAuditRegistrationUtil.class);
-	
+
 	// Services needed
 	protected SqlService sqlService;
 	protected UserAuditService userAuditService;

@@ -22,8 +22,8 @@ import java.util.Properties;
 
 import javax.sql.DataSource;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.jdbc.BadSqlGrammarException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.transaction.annotation.Transactional;
@@ -32,8 +32,8 @@ import org.springframework.transaction.annotation.Transactional;
  *
  */
 @Transactional
+@Slf4j
 public class DbPropertiesDao {
-	private static Logger log = LoggerFactory.getLogger(DbPropertiesDao.class);
 	private JdbcTemplate jdbcTemplate;
 	private boolean autoDdl;
 	private Map<String, String> initialDbProperties;

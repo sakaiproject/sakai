@@ -28,21 +28,21 @@ import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
 import java.util.Iterator;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+import org.w3c.tidy.Tidy;
+
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.exception.ServerOverloadException;
 import org.sakaiproject.search.api.SearchUtils;
 import org.sakaiproject.search.component.adapter.util.DigestHtml;
 import org.sakaiproject.search.util.HTMLParser;
-import org.w3c.tidy.Tidy;
 
 /**
  * @author ieb
  */
+@Slf4j
 public class HtmlContentDigester extends BaseContentDigester
 {
-	private static Logger log = LoggerFactory.getLogger(HtmlContentDigester.class);
 
 	private boolean useDirectParser = true;
 

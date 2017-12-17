@@ -19,8 +19,6 @@
  *
  **********************************************************************************/
 
-
-
 package org.sakaiproject.tool.assessment.ui.bean.delivery;
 
 import java.io.Serializable;
@@ -37,9 +35,8 @@ import java.util.Set;
 
 import javax.faces.model.SelectItem;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.apache.commons.math3.util.Precision;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
@@ -56,11 +53,11 @@ import org.sakaiproject.util.ResourceLoader;
  * <p>This bean represents a Part in an assessment </p>
  */
 
+@Slf4j
 public class SectionContentsBean
   implements Serializable
 {
 	private static final long serialVersionUID = 5959692528847396966L;
-	private static Logger log = LoggerFactory.getLogger(SectionContentsBean.class);
 	private String text;
 	private String nonDefaultText;
   private List itemContents;
@@ -390,7 +387,7 @@ public class SectionContentsBean
     }
     catch (Exception e)
     {
-      e.printStackTrace();
+      log.error(e.getMessage(), e);
       throw new RuntimeException(e);
     }
   }

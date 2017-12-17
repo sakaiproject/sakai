@@ -24,10 +24,9 @@ package org.sakaiproject.assignment.impl.conversion.impl;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.util.conversion.SchemaConversionHandler;
 
 /**
@@ -35,11 +34,9 @@ import org.sakaiproject.util.conversion.SchemaConversionHandler;
  * 
  * @author ieb
  */
+@Slf4j
 public class SubmitterIdAssignmentsConversionHandler implements SchemaConversionHandler
 {
-
-	private static final Logger log = LoggerFactory.getLogger(SubmitterIdAssignmentsConversionHandler.class);
-
 	// db driver
 	private String m_dbDriver = null;
 	/**
@@ -88,7 +85,7 @@ public class SubmitterIdAssignmentsConversionHandler implements SchemaConversion
 		}
 		catch (Exception e1)
 		{
-			log.warn(this + ":convertSource Failed to parse " + id + "[" + xml + "]", e1);
+			log.warn("{}:convertSource Failed to parse {}[{}]{}", this, id, xml, e1);
 			return false;
 		}
 
@@ -112,7 +109,7 @@ public class SubmitterIdAssignmentsConversionHandler implements SchemaConversion
 		}
 		catch (Exception e)
 		{
-			log.warn(this + ":convertSource Failed to process record " + id, e);
+			log.warn("{}:convertSource Failed to process record {} {}", this, id, e);
 		}
 		return false;
 

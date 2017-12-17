@@ -19,16 +19,16 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.UUID;
 
+import lombok.extern.slf4j.Slf4j;
+
+import org.springframework.orm.hibernate4.support.HibernateDaoSupport;
+
 import org.sakaiproject.calendar.api.OpaqueUrl;
 import org.sakaiproject.calendar.api.OpaqueUrlDao;
 import org.sakaiproject.calendar.dao.hbm.OpaqueUrlHbm;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.orm.hibernate4.support.HibernateDaoSupport;
 
+@Slf4j
 public class OpaqueUrlDaoHbm extends HibernateDaoSupport implements OpaqueUrlDao {
-
-	private static Logger log = LoggerFactory.getLogger(OpaqueUrlDaoHbm.class);
 	
 	public OpaqueUrl newOpaqueUrl(String userUUID, String calendarRef) {
 		final OpaqueUrlHbm opaqueUrl = new OpaqueUrlHbm(userUUID, calendarRef, UUID.randomUUID().toString());

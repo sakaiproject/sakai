@@ -31,9 +31,9 @@ import java.util.*;
 
 import javax.sql.DataSource;
 
+import lombok.extern.slf4j.Slf4j;
+
 import org.quartz.spi.JobFactory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.quartz.CronScheduleBuilder;
 import org.quartz.Job;
 import org.quartz.JobBuilder;
@@ -49,6 +49,9 @@ import org.quartz.TriggerBuilder;
 import org.quartz.TriggerListener;
 import org.quartz.impl.StdSchedulerFactory;
 import org.quartz.impl.matchers.GroupMatcher;
+
+import org.springframework.context.Lifecycle;
+
 import org.sakaiproject.api.app.scheduler.ConfigurableJobProperty;
 import org.sakaiproject.api.app.scheduler.ConfigurableJobPropertyValidationException;
 import org.sakaiproject.api.app.scheduler.ConfigurableJobPropertyValidator;
@@ -60,12 +63,10 @@ import org.sakaiproject.component.app.scheduler.jobs.SpringConfigurableJobBeanWr
 import org.sakaiproject.component.app.scheduler.jobs.SpringInitialJobSchedule;
 import org.sakaiproject.component.app.scheduler.jobs.SpringJobBeanWrapper;
 import org.sakaiproject.db.api.SqlService;
-import org.springframework.context.Lifecycle;
 
+@Slf4j
 public class SchedulerManagerImpl implements SchedulerManager, SchedulerFactory, Lifecycle
 {
-
-  private static final Logger LOG = LoggerFactory.getLogger(SchedulerManagerImpl.class);
   public final static String
         SCHEDULER_LOADJOBS      = "scheduler.loadjobs";
   private DataSource dataSource;
@@ -129,7 +130,7 @@ public class SchedulerManagerImpl implements SchedulerManager, SchedulerFactory,
         }
         catch (ClassNotFoundException e)
         {
-          LOG.warn("Could not locate class: " + className + " on classpath");
+          log.warn("Could not locate class: " + className + " on classpath");
         }
         if (cl != null)
         {
@@ -140,7 +141,7 @@ public class SchedulerManagerImpl implements SchedulerManager, SchedulerFactory,
           }
           else
           {
-            LOG.warn("Class: " + className
+            log.warn("Class: " + className
                 + " does not implement quartz Job interface");
           }
         }
@@ -153,14 +154,14 @@ public class SchedulerManagerImpl implements SchedulerManager, SchedulerFactory,
         }
         catch (Throwable t)
         {
-          LOG.warn(this + ".init(): ", t);
+          log.warn(this + ".init(): ", t);
         }
       }
 
       boolean isInitialStartup = isInitialStartup(sqlService);
       if (isInitialStartup && autoDdl.booleanValue())
       {
-    	  LOG.info("Performing initial population of the Quartz tables.");
+    	  log.info("Performing initial population of the Quartz tables.");
     	  sqlService.ddl(this.getClass().getClassLoader(), "init_locks2");
       }
       /*
@@ -182,9 +183,9 @@ public class SchedulerManagerImpl implements SchedulerManager, SchedulerFactory,
                                  "true".equalsIgnoreCase(loadJobs));
 
       if (loadInitSchedules)
-          LOG.debug ("Preconfigured jobs will be loaded");
+          log.debug ("Preconfigured jobs will be loaded");
       else
-          LOG.debug ("Preconfigured jobs will not be loaded");
+          log.debug ("Preconfigured jobs will not be loaded");
       
       
 
@@ -219,20 +220,20 @@ public class SchedulerManagerImpl implements SchedulerManager, SchedulerFactory,
                             .withIdentity(key).build();
                     // Update the existing job by replacing it with the same identity.
                     scheduler.addJob(newJob, true);
-                    LOG.info("Migrated job of {} to {}", detail.getJobClass(), newClass);
+                    log.info("Migrated job of {} to {}", detail.getJobClass(), newClass);
                 } else {
-                    LOG.warn("scheduler cannot load class for persistent job:" + key);
+                    log.warn("scheduler cannot load class for persistent job:" + key);
                     scheduler.deleteJob(key);
-                    LOG.warn("deleted persistent job:" + key);
+                    log.warn("deleted persistent job:" + key);
                 }
             }
           }
         }
         catch (SchedulerException e)
         {
-          LOG.warn("scheduler cannot load class for persistent job:" + key);
+          log.warn("scheduler cannot load class for persistent job:" + key);
           scheduler.deleteJob(key);
-          LOG.warn("deleted persistent job:" + key);
+          log.warn("deleted persistent job:" + key);
         }
       }
 
@@ -248,7 +249,7 @@ public class SchedulerManagerImpl implements SchedulerManager, SchedulerFactory,
 
       if (loadInitSchedules)
       {
-          LOG.debug ("Loading preconfigured jobs");
+          log.debug ("Loading preconfigured jobs");
           loadInitialSchedules();
       }
 
@@ -257,7 +258,7 @@ public class SchedulerManagerImpl implements SchedulerManager, SchedulerFactory,
     }
     catch (Exception e)
     {
-      LOG.error("Failed to start scheduler.", e);
+      log.error("Failed to start scheduler.", e);
       throw new IllegalStateException("Scheduler cannot start!", e);
     }
   }
@@ -290,7 +291,7 @@ public class SchedulerManagerImpl implements SchedulerManager, SchedulerFactory,
         }
         catch (IOException e)
         {
-          LOG.debug("Failed to close stream.", e);
+          log.debug("Failed to close stream.", e);
         }
       }
     }
@@ -303,11 +304,11 @@ public class SchedulerManagerImpl implements SchedulerManager, SchedulerFactory,
       {
         propertiesInputStream = new FileInputStream(file);
         properties.load(propertiesInputStream);
-        LOG.info("Loaded extra configuration from: "+ file.getAbsolutePath());
+        log.info("Loaded extra configuration from: "+ file.getAbsolutePath());
       }
       catch (IOException e)
       {
-        LOG.warn("Failed to load file: "+ file, e);
+        log.warn("Failed to load file: "+ file, e);
       }
       finally
       {
@@ -319,7 +320,7 @@ public class SchedulerManagerImpl implements SchedulerManager, SchedulerFactory,
           }
           catch (IOException e)
           {
-            LOG.debug("Failed to close stream.", e);
+            log.debug("Failed to close stream.", e);
           }
         }
       }
@@ -376,7 +377,7 @@ public class SchedulerManagerImpl implements SchedulerManager, SchedulerFactory,
       }
       catch (Exception e)
       {
-          LOG.error("Could not read the file " + checkTablesScript + " to determine if this is a new installation. Preconfigured jobs will only be loaded if the server property scheduler.loadjobs is \"true\"", e);
+          log.error("Could not read the file " + checkTablesScript + " to determine if this is a new installation. Preconfigured jobs will only be loaded if the server property scheduler.loadjobs is \"true\"", e);
           return false;
       }
       finally
@@ -414,7 +415,7 @@ public class SchedulerManagerImpl implements SchedulerManager, SchedulerFactory,
           SpringJobBeanWrapper
               wrapper = sched.getJobBeanWrapper();
 
-          LOG.debug ("Loading schedule for preconfigured job \"" + wrapper.getJobType() + "\"");
+          log.debug ("Loading schedule for preconfigured job \"" + wrapper.getJobType() + "\"");
 
           JobDetail jd = JobBuilder.newJob(wrapper.getJobClass())
                   .withIdentity(sched.getJobName(), Scheduler.DEFAULT_GROUP)
@@ -444,7 +445,7 @@ public class SchedulerManagerImpl implements SchedulerManager, SchedulerFactory,
                       key = cProp.getLabelResourceKey(),
                       val = conf.get(key);
 
-                  LOG.debug ("job property '" + key + "' is set to '" + val + "'");
+                  log.debug ("job property '" + key + "' is set to '" + val + "'");
 
                   if (val == null && cProp.isRequired())
                   {
@@ -452,13 +453,13 @@ public class SchedulerManagerImpl implements SchedulerManager, SchedulerFactory,
 
                       if (val == null)
                       {
-                          LOG.error ("job property '" + key + "' is required but has no value; job '" + sched.getJobName() + "' of type '" + wrapper.getJobClass() + "' will not be configured");
+                          log.error ("job property '" + key + "' is required but has no value; job '" + sched.getJobName() + "' of type '" + wrapper.getJobClass() + "' will not be configured");
 
                           fail = true;
                           break;
                       }
 
-                      LOG.debug ("job property '" + key + "' set to default value '" + val + "'");
+                      log.debug ("job property '" + key + "' set to default value '" + val + "'");
                   }
 
                   if (val != null)
@@ -470,7 +471,7 @@ public class SchedulerManagerImpl implements SchedulerManager, SchedulerFactory,
                       }
                       catch (ConfigurableJobPropertyValidationException cjpve)
                       {
-                          LOG.error ("job property '" + key + "' was set to an invalid value '" + val + "'; job '" + sched.getJobName() + "' of type '" + wrapper.getJobClass() + "' will not be configured");
+                          log.error ("job property '" + key + "' was set to an invalid value '" + val + "'; job '" + sched.getJobName() + "' of type '" + wrapper.getJobClass() + "' will not be configured");
 
                           fail = true;
                           break;
@@ -489,7 +490,7 @@ public class SchedulerManagerImpl implements SchedulerManager, SchedulerFactory,
           }
           catch (SchedulerException e)
           {
-              LOG.error ("Failed to schedule job '" + sched.getJobName() + "' of type '" + wrapper.getJobClass() + "'");
+              log.error ("Failed to schedule job '" + sched.getJobName() + "' of type '" + wrapper.getJobClass() + "'");
               continue;
           }
 
@@ -506,7 +507,7 @@ public class SchedulerManagerImpl implements SchedulerManager, SchedulerFactory,
           }
           catch (SchedulerException e)
           {
-              LOG.error ("Trigger could not be scheduled. Failed to schedule job '" + sched.getJobName() + "' of type '" + wrapper.getJobClass() + "'");
+              log.error ("Trigger could not be scheduled. Failed to schedule job '" + sched.getJobName() + "' of type '" + wrapper.getJobClass() + "'");
           }
 
       }
@@ -766,10 +767,10 @@ public class SchedulerManagerImpl implements SchedulerManager, SchedulerFactory,
             try {
                 scheduler.start();
             } catch (SchedulerException e) {
-                LOG.error("Failed to start the scheduler.", e);
+                log.error("Failed to start the scheduler.", e);
             }
         } else {
-            LOG.info("Scheduler Not Started, startScheduler=false");
+            log.info("Scheduler Not Started, startScheduler=false");
         }
     }
 
@@ -781,7 +782,7 @@ public class SchedulerManagerImpl implements SchedulerManager, SchedulerFactory,
             }
         }
         catch (SchedulerException e){
-            LOG.error("Failed to stop the scheduler", e);
+            log.error("Failed to stop the scheduler", e);
         }
     }
 
@@ -790,7 +791,7 @@ public class SchedulerManagerImpl implements SchedulerManager, SchedulerFactory,
         try {
             return scheduler.isStarted();
         } catch (SchedulerException e) {
-            LOG.debug("Failed to find if the scheduler is running", e);
+            log.debug("Failed to find if the scheduler is running", e);
         }
         return false;
     }

@@ -39,11 +39,11 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
+
 import org.sakaiproject.email.api.EmailService;
 import org.sakaiproject.signup.dao.SignupMeetingDao;
 import org.sakaiproject.signup.logic.messages.AutoReminderEmail;
@@ -56,14 +56,12 @@ import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
 
-
 /**
  * 
  * @author Peter Liu
  */
+@Slf4j
 public class SignupNotifyJob implements Job {
-
-	private static final Logger LOGGER = LoggerFactory.getLogger(SignupNotifyJob.class);
 
 	private EmailService emailService;
 
@@ -102,7 +100,7 @@ public class SignupNotifyJob implements Job {
 	}
 
 	public void execute(JobExecutionContext arg0) throws JobExecutionException {
-		LOGGER.warn("Starting Signup Auto Reminder Notification job");
+		log.warn("Starting Signup Auto Reminder Notification job");
 
 		List<SignupMeeting> signupMeetings = null;
 		Calendar calendar = Calendar.getInstance();
@@ -129,12 +127,12 @@ public class SignupNotifyJob implements Job {
 					
 		int totalCounts = signupMeetingDao.getAutoReminderTotalEventCounts(searchStarDate, searchEndDate);
 		if(totalCounts ==0){
-			LOGGER.info("There is no upcoming event today for Signup Auto Reminder Notification");
+			log.info("There is no upcoming event today for Signup Auto Reminder Notification");
 			return;
 		}
 		/*safeguard for memory issue if there is some catastrophic failure with DB Query*/
 		if(totalCounts > MAX_EVENTS_LIMITS){
-			LOGGER.error("Notification will not be processed. The total upcoming events:" + totalCounts +" exceed the maximum process limits:" + MAX_EVENTS_LIMITS 
+			log.error("Notification will not be processed. The total upcoming events:" + totalCounts +" exceed the maximum process limits:" + MAX_EVENTS_LIMITS 
 					+". Please check the DB errors or increase the maximum limit for notifiction process.");
 			return;
 		}
@@ -160,7 +158,7 @@ public class SignupNotifyJob implements Job {
 										totalEmails++;
 										//eventTracking?
 									} catch (UserNotDefinedException e) {
-										LOGGER.warn("User is not found for userId: " + userId);
+										log.warn("User is not found for userId: " + userId);
 									}							
 								}//for-loop
 							}
@@ -170,7 +168,7 @@ public class SignupNotifyJob implements Job {
 			}//for-loop
 		}			
 
-		LOGGER.warn("Completed Signup Auto Reminder Notification job with total events:" + totalCounts + " and outgoing emails:" + totalEmails + ".");
+		log.warn("Completed Signup Auto Reminder Notification job with total events:" + totalCounts + " and outgoing emails:" + totalEmails + ".");
 	}
 
 	/* send email via Sakai email Service */

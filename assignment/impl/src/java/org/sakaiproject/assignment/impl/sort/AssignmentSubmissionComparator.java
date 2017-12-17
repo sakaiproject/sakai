@@ -15,6 +15,13 @@
  */
 package org.sakaiproject.assignment.impl.sort;
 
+import java.text.Collator;
+import java.text.ParseException;
+import java.text.RuleBasedCollator;
+import java.util.Comparator;
+
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.assignment.api.AssignmentService;
 import org.sakaiproject.assignment.api.model.AssignmentSubmission;
 import org.sakaiproject.assignment.api.model.AssignmentSubmissionSubmitter;
@@ -23,19 +30,6 @@ import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.text.Collator;
-import java.text.ParseException;
-import java.text.RuleBasedCollator;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
-
-import lombok.extern.slf4j.Slf4j;
 
 /**
  * Sorts assignment submissions by the submitter's sort name.
@@ -48,8 +42,14 @@ public class AssignmentSubmissionComparator implements Comparator<AssignmentSubm
     private AssignmentService assignmentService;
     private UserDirectoryService userDirectoryService;
 
-    public AssignmentSubmissionComparator(SiteService siteService) {
+    // private to prevent no arg instantiation
+    private AssignmentSubmissionComparator() {
+    }
+
+    public AssignmentSubmissionComparator(AssignmentService assignmentService, SiteService siteService, UserDirectoryService userDirectoryService) {
+        this.assignmentService = assignmentService;
         this.siteService = siteService;
+        this.userDirectoryService = userDirectoryService;
         try {
             collator = new RuleBasedCollator(((RuleBasedCollator) Collator.getInstance()).getRules().replaceAll("<'\u005f'", "<' '<'\u005f'"));
         } catch (ParseException e) {

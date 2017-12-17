@@ -17,11 +17,10 @@
 **********************************************************************************/
 package edu.indiana.lib.twinpeaks.util;
 
-import lombok.extern.slf4j.Slf4j;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
-import java.io.*;
-import java.util.*;
-import java.util.regex.*;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class StringUtils {
@@ -44,11 +43,9 @@ public class StringUtils {
    * @return Updated text
    */
 	public static String replace(String text, String targetText, String newText) {
-
-  	Pattern pattern = Pattern.compile(targetText, Pattern.CASE_INSENSITIVE);
-    Matcher matcher = pattern.matcher(text);
-
-    return matcher.replaceAll(newText);
+  	  	Pattern pattern = Pattern.compile(targetText, Pattern.CASE_INSENSITIVE);
+  	  	Matcher matcher = pattern.matcher(text);
+  	  	return matcher.replaceAll(newText);
 	}
 
 	/**
@@ -256,6 +253,6 @@ public class StringUtils {
 	 */
   public static void main(String[] args)
                          throws Exception {
-		System.out.println(StringUtils.replace(args[0], args[1], args[2]));
+		log.debug(StringUtils.replace(args[0], args[1], args[2]));
 	}
 }

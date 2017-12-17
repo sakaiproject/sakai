@@ -22,13 +22,14 @@
  */
 package org.radeox.test;
 
+import lombok.extern.slf4j.Slf4j;
 import junit.framework.TestCase;
-
 import org.radeox.EngineManager;
 import org.radeox.api.engine.RenderEngine;
 import org.radeox.api.engine.context.RenderContext;
 import org.radeox.engine.context.BaseRenderContext;
 
+@Slf4j
 public class RenderEnginePerformanceTest extends TestCase
 {
 	private RenderContext context;
@@ -47,7 +48,7 @@ public class RenderEnginePerformanceTest extends TestCase
 
 	public void testPerformance()
 	{
-		System.err.println("Test Size: " + wikiMarkup.length());
+		log.info("Test Size: " + wikiMarkup.length());
 		engine.render(wikiMarkup, context);
 	}
 }

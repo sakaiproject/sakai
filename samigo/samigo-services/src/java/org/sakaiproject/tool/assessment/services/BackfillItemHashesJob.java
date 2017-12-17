@@ -15,10 +15,11 @@
  */
 package org.sakaiproject.tool.assessment.services;
 
+import javax.mail.internet.AddressException;
+import javax.mail.internet.InternetAddress;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.quartz.JobExecutionException;
 import org.sakaiproject.api.app.scheduler.ConfigurableJobPropertyValidationException;
 import org.sakaiproject.api.app.scheduler.ConfigurableJobPropertyValidator;
@@ -29,12 +30,9 @@ import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.assessment.facade.BackfillItemHashResult;
 
-import javax.mail.internet.AddressException;
-import javax.mail.internet.InternetAddress;
-
+@Slf4j
 public class BackfillItemHashesJob extends AbstractConfigurableJob {
 
-    private static final Log LOG = LogFactory.getLog(BackfillItemHashesJob.class);
     private static final String BATCH_SIZE = "batch.size";
     private static final String BATCH_SIZE_NON_NUMERIC = "batch.size.non.numeric";
     private static final String BACKFILL_ITEMS = "backfill.items";
@@ -52,7 +50,7 @@ public class BackfillItemHashesJob extends AbstractConfigurableJob {
     @Override
     public void runJob() throws JobExecutionException {
         final long start = System.currentTimeMillis();
-        LOG.info("Backfill question hashing - Job start");
+        log.info("Backfill question hashing - Job start");
 
         BackfillItemHashResult itemBackfillResult = null;
         BackfillItemHashResult publishedItemBackfillResult = null;
@@ -76,21 +74,21 @@ public class BackfillItemHashesJob extends AbstractConfigurableJob {
         } finally {
             try {
                 if (error == null) {
-                    LOG.info("Backfill question hashing - Job exiting " + elapsedTimeMessage(start)
+                    log.info("Backfill question hashing - Job exiting " + elapsedTimeMessage(start)
                             + " " + jobResultMessage(itemBackfillResult, publishedItemBackfillResult, " "));
                 } else {
                     // we know Quartz will not log exceptions by default, so we do it here
-                    LOG.info("Backfill question hashing - Job exiting with error. " + elapsedTimeMessage(start)
+                    log.info("Backfill question hashing - Job exiting with error. " + elapsedTimeMessage(start)
                             + " " + jobResultMessage(itemBackfillResult, publishedItemBackfillResult, " "), error);
                 }
                 sentNotification(itemBackfillResult, publishedItemBackfillResult, error);
             } catch ( RuntimeException e ) {
-                LOG.warn("Failed to send job completion email notification", e);
+                log.warn("Failed to send job completion email notification", e);
             } finally {
                 try {
                     logOut();
                 } catch (Exception e) {
-                    LOG.warn("Backfill question hashing - Failed to cleanup Sakai session.", e);
+                    log.warn("Backfill question hashing - Failed to cleanup Sakai session.", e);
                 }
             }
             if ( error != null ) {

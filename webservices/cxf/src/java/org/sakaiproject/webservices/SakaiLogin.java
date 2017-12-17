@@ -30,8 +30,7 @@ import javax.ws.rs.QueryParam;
 
 import javax.ws.rs.core.MediaType;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpMethod;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.PhaseInterceptorChain;
@@ -45,9 +44,8 @@ import org.sakaiproject.util.IdPwEvidence;
 
 @WebService
 @SOAPBinding(style= SOAPBinding.Style.RPC, use= SOAPBinding.Use.LITERAL)
+@Slf4j
 public class SakaiLogin extends AbstractWebService {
-
-    private static final Logger LOG = LoggerFactory.getLogger(SakaiLogin.class);
 
     //I don't see a simpler way of doing this 
     //https://stackoverflow.com/a/13408147/3708872
@@ -113,7 +111,7 @@ public class SakaiLogin extends AbstractWebService {
 
         try {
             if ("GET".equals(request.getMethod())) {
-                LOG.info("This endpoint {} should use POST instead of GET, GET will be deprecated in a future release", request.getRequestURI());
+                log.info("This endpoint {} should use POST instead of GET, GET will be deprecated in a future release", request.getRequestURI());
             }
 
             Evidence e = new IdPwEvidence(id, pw, ipAddress);
@@ -123,7 +121,7 @@ public class SakaiLogin extends AbstractWebService {
             sessionManager.setCurrentSession(s);
 
             if (s == null) {
-                LOG.warn("Web Services Login failed to establish session for id=" + id + " ip=" + ipAddress);
+                log.warn("Web Services Login failed to establish session for id=" + id + " ip=" + ipAddress);
                 throw new RuntimeException("Unable to establish session");
             } else {
                 // We do not care too much on the off-chance that this fails - folks simply won't show up in presense
@@ -132,13 +130,13 @@ public class SakaiLogin extends AbstractWebService {
 
                 usageSessionService.login(a.getUid(), id, ipAddress, "SakaiLogin", UsageSessionService.EVENT_LOGIN_WS);
 
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug("Sakai Web Services Login id=" + id + " ip=" + ipAddress + " session=" + s.getId());
+                if (log.isDebugEnabled()) {
+                    log.debug("Sakai Web Services Login id=" + id + " ip=" + ipAddress + " session=" + s.getId());
                 }
                 return s.getId();
             }
 	} catch (AuthenticationException ex) {
-        	LOG.warn("Failed Web Services Login id=" + id + " ip=" + ipAddress + ": " + ex.getMessage());
+        	log.warn("Failed Web Services Login id=" + id + " ip=" + ipAddress + ": " + ex.getMessage());
 	}
 
         throw new RuntimeException("Unable to login");

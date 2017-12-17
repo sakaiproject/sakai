@@ -25,8 +25,6 @@ import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.tool.assessment.ui.bean.author.ItemAuthorBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.SearchQuestionBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
@@ -39,7 +37,6 @@ import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 
 public class CancelSearchQuestion implements ActionListener
 {
-    private static Log log = LogFactory.getLog(CancelSearchQuestion.class);
 
     /**
      * Simply cancel and return
@@ -54,8 +51,5 @@ public class CancelSearchQuestion implements ActionListener
             itemauthorbean.setItemTypeString("");
         }
         searchQuestionBean.setLastSearchType("");
-
-
     }
-
 }

@@ -30,11 +30,12 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
-import java.util.Vector;
+
+import lombok.extern.slf4j.Slf4j;
 
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.db.api.SqlReader;
 import org.sakaiproject.db.api.SqlService;
 import org.sakaiproject.entity.api.Edit;
@@ -42,12 +43,10 @@ import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.event.cover.UsageSessionService;
-import org.sakaiproject.time.cover.TimeService;
-import org.sakaiproject.component.cover.ServerConfigurationService;
-
 import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.memory.cover.MemoryServiceLocator;
+import org.sakaiproject.time.cover.TimeService;
 
 /**
  * <p>
@@ -70,12 +69,10 @@ import org.sakaiproject.memory.cover.MemoryServiceLocator;
  * rather, Unicode values should be inserted as fields in a PreparedStatement. Databases handle Unicode better in fields.
  * </p>
  */
+@Slf4j
 public class BaseDbFlatStorage
 {
 	private static final String CACHE_NAME_PREFIX = "org.sakaiproject.db.BaseDbFlatStorage.";
-
-   /** Our logger. */
-	private static Logger M_log = LoggerFactory.getLogger(BaseDbFlatStorage.class);
 
 	/** Table name for resource records. */
 	protected String m_resourceTableName = null;
@@ -284,7 +281,7 @@ public class BaseDbFlatStorage
 	{
 		if (!m_locks.isEmpty())
 		{
-			M_log.warn("close(): locks remain!");
+			log.warn("close(): locks remain!");
 			// %%%
 		}
 		m_locks.clear();
@@ -770,7 +767,7 @@ public class BaseDbFlatStorage
 		Edit edit = editResource(conn, id);
 		if (edit == null)
 		{
-			M_log.warn("putResource(): didn't get a lock!");
+			log.warn("putResource(): didn't get a lock!");
 			return null;
 		}
 
@@ -947,7 +944,7 @@ public class BaseDbFlatStorage
 				boolean ok = m_sql.dbWrite(statement, lockFields);
 				if (!ok)
 				{
-					M_log.warn("commit: missing lock for table: " + lockFields[0] + " key: " + lockFields[1]);
+					log.warn("commit: missing lock for table: " + lockFields[0] + " key: " + lockFields[1]);
 				}
 			}
 			else
@@ -980,7 +977,7 @@ public class BaseDbFlatStorage
 				boolean ok = m_sql.dbWrite(statement, lockFields);
 				if (!ok)
 				{
-					M_log.warn("cancel: missing lock for table: " + lockFields[0] + " key: " + lockFields[1]);
+					log.warn("cancel: missing lock for table: " + lockFields[0] + " key: " + lockFields[1]);
 				}
 			}
 			else
@@ -1052,7 +1049,7 @@ public class BaseDbFlatStorage
 				boolean ok = m_sql.dbWrite(statement, lockFields);
 				if (!ok)
 				{
-					M_log.warn("remove: missing lock for table: " + lockFields[0] + " key: " + lockFields[1]);
+					log.warn("remove: missing lock for table: " + lockFields[0] + " key: " + lockFields[1]);
 				}
 			}
 
@@ -1138,15 +1135,14 @@ public class BaseDbFlatStorage
 
 		if ( myCache != null )
 		{
-			// System.out.println("CHECKING CACHE cacheKey="+cacheKey);
+			log.debug("CHECKING CACHE cacheKey={}", cacheKey);
 			Object obj = myCache.get(cacheKey);
 			if ( obj != null && obj instanceof ResourcePropertiesEdit ) 
 			{
 				// Clone the properties - do not return the real value
 				ResourcePropertiesEdit re = (ResourcePropertiesEdit) obj;
 				props.addAll(re);
-				// System.out.println("CACHE HIT cacheKey="+cacheKey);
-				M_log.debug("CACHE HIT cacheKey="+cacheKey);
+				log.debug("CACHE HIT cacheKey={}", cacheKey);
 				return;
 			}
 		}
@@ -1177,7 +1173,7 @@ public class BaseDbFlatStorage
 				}
 				catch (SQLException e)
 				{
-					M_log.warn("readProperties: " + e);
+					log.warn("readProperties: " + e);
 					return null;
 				}
 			}
@@ -1237,7 +1233,7 @@ public class BaseDbFlatStorage
 				}
 				catch (SQLException e)
 				{
-					M_log.warn("readProperties: " + e);
+					log.warn("readProperties: " + e);
 					return null;
 				}
 			}
@@ -1306,7 +1302,7 @@ public class BaseDbFlatStorage
 		String cacheKey = table + ":" + idField + ":" + id;
 		if ( myCache != null )
 		{
-			// System.out.println("CACHE REMOVE cacheKey="+cacheKey+" cache="+myCache);
+			log.debug("CACHE REMOVE cacheKey={} cache={}", cacheKey, myCache);
 			myCache.remove(cacheKey);
 		}
 

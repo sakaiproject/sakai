@@ -20,8 +20,12 @@
  **********************************************************************************/
 package org.sakaiproject.component.app.messageforums;
 
+import lombok.extern.slf4j.Slf4j;
 import org.hibernate.Query;
 import org.hibernate.type.StringType;
+import org.springframework.orm.hibernate4.HibernateCallback;
+import org.springframework.orm.hibernate4.support.HibernateDaoSupport;
+
 import org.sakaiproject.api.app.messageforums.MessageForumsUser;
 import org.sakaiproject.api.app.messageforums.MessageForumsUserManager;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.MessageForumsUserImpl;
@@ -31,14 +35,10 @@ import org.sakaiproject.tool.api.Placement;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.orm.hibernate4.HibernateCallback;
-import org.springframework.orm.hibernate4.support.HibernateDaoSupport;
 
+@Slf4j
 public class MessageForumsUserManagerImpl extends HibernateDaoSupport implements MessageForumsUserManager {
 
-  private static final Logger LOG = LoggerFactory.getLogger(MessageForumsUserManagerImpl.class);
   private static final String QUERY_BY_USER_ID = "findUserByUserId";    
   
   /** sakai dependencies */
@@ -49,7 +49,7 @@ public class MessageForumsUserManagerImpl extends HibernateDaoSupport implements
   private ToolManager toolManager;
 
   public void init() {
-     LOG.info("init()");
+     log.info("init()");
   }
 
   public EventTrackingService getEventTrackingService() {
@@ -70,8 +70,8 @@ public class MessageForumsUserManagerImpl extends HibernateDaoSupport implements
    */
   public MessageForumsUser getForumUser(final String userId)
   {
-    if (LOG.isDebugEnabled()){
-      LOG.debug("getForumUser(userId: " + userId + ")");
+    if (log.isDebugEnabled()){
+      log.debug("getForumUser(userId: " + userId + ")");
     }
     
     if (userId == null){
@@ -100,7 +100,7 @@ public class MessageForumsUserManagerImpl extends HibernateDaoSupport implements
       try {
 		userDirectoryService.getUser(userId);
 	} catch (UserNotDefinedException e) {
-		e.printStackTrace();
+		log.error(e.getMessage(), e);
 	}
       MessageForumsUser newUser = new MessageForumsUserImpl();
       newUser.setUuid(getNextUuid());
@@ -122,7 +122,7 @@ public class MessageForumsUserManagerImpl extends HibernateDaoSupport implements
   public void saveForumUser(MessageForumsUser user)
   {    
     getHibernateTemplate().saveOrUpdate(user);
-    LOG.debug("saveDiscussionForumTopic executed with topicId: " + user.getUuid());    
+    log.debug("saveDiscussionForumTopic executed with topicId: " + user.getUuid());    
   }
 
   private String getNextUuid() {        

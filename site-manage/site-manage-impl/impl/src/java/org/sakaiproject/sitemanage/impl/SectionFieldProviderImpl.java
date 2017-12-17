@@ -23,15 +23,15 @@ package org.sakaiproject.sitemanage.impl;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+
+import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.sitemanage.api.SectionField;
 import org.sakaiproject.sitemanage.api.SectionFieldProvider;
 import org.sakaiproject.util.ResourceLoader;
-import org.sakaiproject.component.api.ServerConfigurationService;
 
+@Slf4j
 public class SectionFieldProviderImpl implements SectionFieldProvider {
-	private static final Logger log = LoggerFactory.getLogger(SectionFieldProviderImpl.class);
 	private static ServerConfigurationService serverConfigurationService;
 
 	public void setServerConfigurationService(ServerConfigurationService serverConfigurationService) {

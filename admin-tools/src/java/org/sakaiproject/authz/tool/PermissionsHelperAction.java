@@ -22,13 +22,22 @@
 package org.sakaiproject.authz.tool;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Hashtable;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.Vector;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.AuthzPermissionException;
 import org.sakaiproject.authz.api.GroupAlreadyDefinedException;
@@ -63,13 +72,11 @@ import org.sakaiproject.util.ResourceLoader;
 /**
  * This is a helper interface to the Permissions tool.
  */
+@Slf4j
 public class PermissionsHelperAction extends VelocityPortletPaneledAction
 {
 
 	private static final long serialVersionUID = 1L;
-
-	/** Our logger. */
-	private static Logger M_log = LoggerFactory.getLogger(PermissionsHelperAction.class);
 
 	private static ResourceLoader rb = new ResourceLoader("authz-tool");
 
@@ -161,7 +168,7 @@ public class PermissionsHelperAction extends VelocityPortletPaneledAction
 			}
 			catch (IOException e)
 			{
-			 	M_log.warn(e.getMessage());
+			 	log.warn(e.getMessage());
 			}
 			return;
 		}
@@ -273,19 +280,19 @@ public class PermissionsHelperAction extends VelocityPortletPaneledAction
 					}
 					catch (GroupIdInvalidException ee)
 					{
-						M_log.warn("PermissionsAction.buildHelperContext: addRealm: " + ee);
+						log.warn("PermissionsAction.buildHelperContext: addRealm: " + ee);
 						cleanupState(state);
 						return null;
 					}
 					catch (GroupAlreadyDefinedException ee)
 					{
-						M_log.warn("PermissionsAction.buildHelperContext: addRealm: " + ee);
+						log.warn("PermissionsAction.buildHelperContext: addRealm: " + ee);
 						cleanupState(state);
 						return null;
 					}
 					catch (AuthzPermissionException ee)
 					{
-						M_log.warn("PermissionsAction.buildHelperContext: addRealm: " + ee);
+						log.warn("PermissionsAction.buildHelperContext: addRealm: " + ee);
 						cleanupState(state);
 						return null;
 					}
@@ -295,7 +302,7 @@ public class PermissionsHelperAction extends VelocityPortletPaneledAction
 			// no permission
 			else
 			{
-				M_log.warn("PermissionsAction.buildHelperContext: no permission: " + realmId);
+				log.warn("PermissionsAction.buildHelperContext: no permission: {}", realmId);
 				cleanupState(state);
 				addAlert(state, rb.getFormattedMessage("alert_permission", new Object[]{realmId}));
 				return null;
@@ -334,7 +341,7 @@ public class PermissionsHelperAction extends VelocityPortletPaneledAction
 				}
 				catch (Exception siteException)
 				{
-					M_log.warn("PermissionsAction.buildHelperContext: getsite of realm id =  " + realmId + siteException);
+					log.warn("PermissionsAction.buildHelperContext: getsite of realm id = {} {}", realmId, siteException);
 				}
 			}
 			
@@ -354,7 +361,7 @@ public class PermissionsHelperAction extends VelocityPortletPaneledAction
 					}
 					catch (GroupNotDefinedException e)
 					{
-						M_log.warn("PermissionsAction.buildHelperContext: getRealm with id= " + realmRolesId + " : " + e);
+						log.warn("PermissionsAction.buildHelperContext: getRealm with id={} : {}", realmRolesId, e);
 						cleanupState(state);
 						return null;
 					}
@@ -363,7 +370,7 @@ public class PermissionsHelperAction extends VelocityPortletPaneledAction
 				// no permission
 				else
 				{
-					M_log.warn("PermissionsAction.buildHelperContext: no permission: " + realmId);
+					log.warn("PermissionsAction.buildHelperContext: no permission: {}", realmId);
 					cleanupState(state);
 					return null;
 				}
@@ -445,7 +452,7 @@ public class PermissionsHelperAction extends VelocityPortletPaneledAction
 					}
 					catch (Exception e)
 					{
-						M_log.warn("PermissionsHelperAction.buildHelperContext: getRolesRealm: " + realmRoleId + " : " + e);
+						log.warn("PermissionsHelperAction.buildHelperContext: getRolesRealm: {} : {}", realmRoleId, e);
 					}
 				}
 
@@ -584,7 +591,7 @@ public class PermissionsHelperAction extends VelocityPortletPaneledAction
 		SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
 
 		if (!"POST".equals(data.getRequest().getMethod())) {
-			M_log.warn("PermissionsAction.doSave: user did not submit with a POST! IP=" + data.getRequest().getRemoteAddr());
+			log.warn("PermissionsAction.doSave: user did not submit with a POST! IP={}", data.getRequest().getRemoteAddr());
 			return;
 		}
 
@@ -677,7 +684,7 @@ public class PermissionsHelperAction extends VelocityPortletPaneledAction
 				// Don't allow changes to some permissions.
 				if ( !(limiter.isEnabled(role.getId(), lock, role.isAllowed(lock))) )
 				{
-					M_log.debug("Can't change permission '"+ lock+ "' on role '"+role.getId()+ "'.");
+					log.debug("Can't change permission '{}' on role '{}'.", lock, role.getId());
 					continue;
 				}
 
@@ -693,7 +700,7 @@ public class PermissionsHelperAction extends VelocityPortletPaneledAction
 						}
 						catch (RoleAlreadyDefinedException e)
 						{
-							M_log.warn("PermissionsAction.readForm: addRole after getRole null: " + role.getId() + " : " + e);
+							log.warn("PermissionsAction.readForm: addRole after getRole null: {} : {}", role.getId(), e);
 						}
 					}
 					if (myRole != null) {

@@ -24,9 +24,8 @@ package org.sakaiproject.tool.assessment.integration.helper.integrated;
 import java.util.List;
 import java.util.Map;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringEscapeUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.apache.commons.math3.util.Precision;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService;
@@ -62,9 +61,9 @@ import org.sakaiproject.tool.cover.ToolManager;
  * <p> </p>
  * @author Ed Smiley <esmiley@stanford.edu>
  */
+@Slf4j
 public class GradebookServiceHelperImpl implements GradebookServiceHelper
 {
-  private Logger log = LoggerFactory.getLogger(GradebookServiceHelperImpl.class);
 
   /**
    * Does a gradebook exist?
@@ -127,7 +126,6 @@ public class GradebookServiceHelperImpl implements GradebookServiceHelper
 			site = SiteService.getSite(id);
 		} catch (IdUnusedException e) {
 			log.error(e.getMessage());
-			e.printStackTrace();
 		}
 		return site;
 	}
@@ -186,19 +184,13 @@ public void removeExternalAssessment(String gradebookUId,
 		  GradebookExternalAssessmentService g) throws
     Exception
   {
-    //log.info("total point(s) is/are =" +
-    //          publishedAssessment.getTotalScore().longValue());
-    //log.info("gradebookId =" + GradebookFacade.getGradebookUId());
     boolean added = false;
-    //log.info("GradebookService instance=" + g);
     String gradebookUId = GradebookFacade.getGradebookUId();
     if (gradebookUId == null)
     {
       return false;
     }
 
-    //log.info("inside addToGradebook, gradebook exists? " +
-    //          g.isGradebookDefined(gradebookUId));
     if (g.isGradebookDefined(gradebookUId))
     {
       String title = StringEscapeUtils.unescapeHtml(publishedAssessment.getTitle());
@@ -259,7 +251,6 @@ public void removeExternalAssessment(String gradebookUId,
     Exception
   {
     boolean testErrorHandling=false;
-    //log.info("GradebookService instance=" + g);
     PublishedAssessmentService pubService = new PublishedAssessmentService();
     GradingService gradingService = new GradingService();
 

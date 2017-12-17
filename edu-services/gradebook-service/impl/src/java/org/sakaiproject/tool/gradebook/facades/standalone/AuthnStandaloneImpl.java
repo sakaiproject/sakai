@@ -20,16 +20,15 @@ import javax.faces.context.FacesContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.tool.gradebook.facades.Authn;
 
 /**
  * An implementation of the Authn facade to support demos and UI tests.
  */
+@Slf4j
 public class AuthnStandaloneImpl implements Authn {
-	private static Logger log = LoggerFactory.getLogger(AuthnStandaloneImpl.class);
-
 	private static String USER_ID_PARAMETER = "userUid";
 
 	private ThreadLocal authnContext = new ThreadLocal();
@@ -72,5 +71,3 @@ public class AuthnStandaloneImpl implements Authn {
 	}
 
 }
-
-

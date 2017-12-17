@@ -30,16 +30,19 @@ import java.util.List;
 
 import javax.mail.internet.InternetAddress;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+
 import org.jmock.Expectations;
 import org.jmock.Mockery;
-import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+
+import org.subethamail.wiser.Wiser;
+import org.subethamail.wiser.WiserMessage;
+
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.email.api.AddressValidationException;
 import org.sakaiproject.email.api.Attachment;
@@ -48,13 +51,10 @@ import org.sakaiproject.email.api.EmailMessage;
 import org.sakaiproject.email.api.NoRecipientsException;
 import org.sakaiproject.email.api.EmailAddress.RecipientType;
 import org.sakaiproject.email.impl.BasicEmailService;
-import org.subethamail.wiser.Wiser;
-import org.subethamail.wiser.WiserMessage;
 
+@Slf4j
 public class EmailServiceTest
 {
-	private static Logger log = LoggerFactory.getLogger(EmailServiceTest.class);
-
 	private static final boolean ALLOW_TRANSPORT = false;
 	private static final boolean LOG_SENT_EMAIL = false;
 	private static final String HOST = "localhost";
@@ -117,16 +117,16 @@ public class EmailServiceTest
 			}
 		});
 
-		System.err.println("Initing EmailService...");
+		log.debug("Initing EmailService...");
 		emailService.init();
-		System.err.println("EmailService inited.");
+		log.debug("EmailService inited.");
 
 		if (ALLOW_TRANSPORT) {
-			System.err.println("Starting internal mail server...");
+			log.debug("Starting internal mail server...");
 			wiser = new Wiser();
 			wiser.setPort(PORT);
 			wiser.start();
-			System.err.println("Internal mail server started.");
+			log.debug("Internal mail server started.");
 		}
 	}
 

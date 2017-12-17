@@ -100,7 +100,7 @@ should be included in file importing DeliveryMessages
                  || delivery.actionString=='gradeAssessment'}" escape="false"/>
   </h:panelGroup>
 
-  <h:commandLink id="cmdclean" value="#{deliveryMessages.reset_selection}" action="#{delivery.cleanAndSaveRadioButton}" 
+  <h:commandLink id="cmdclean" value="#{deliveryMessages.reset_selection}" action="#{delivery.cleanAndSaveRadioButton}" onclick="saveTime(); serializeImagePoints();" 
 	rendered="#{(delivery.actionString=='previewAssessment' || delivery.actionString=='previewAssessmentPublished'
                 || delivery.actionString=='takeAssessment'
                 || delivery.actionString=='takeAssessmentViaUrl')}">

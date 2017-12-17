@@ -44,6 +44,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.common.usermodel.HyperlinkType;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
@@ -55,6 +56,7 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.signup.logic.SakaiFacade;
 import org.sakaiproject.signup.model.MeetingTypes;
@@ -70,8 +72,6 @@ import org.sakaiproject.site.api.Site;
 import org.sakaiproject.time.api.Time;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.util.ResourceLoader;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /*
  * <p> This class will provides formatting data to Excel style functionality.
@@ -79,12 +79,11 @@ import org.slf4j.LoggerFactory;
  * 
  * @author Peter Liu
  */
+@Slf4j
 public class EventWorksheet implements MeetingTypes, SignupBeanConstants {
 
 	private ResourceLoader rb = new ResourceLoader("messages");
 
-	private static Logger log = LoggerFactory.getLogger(EventWorksheet.class);
-	
 	private String[] tabTitles_Organizor;
 
 	private String[] tabTitles_Participant;

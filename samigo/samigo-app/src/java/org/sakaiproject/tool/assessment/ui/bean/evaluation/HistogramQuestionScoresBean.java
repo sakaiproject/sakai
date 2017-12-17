@@ -19,8 +19,6 @@
  *
  **********************************************************************************/
 
-
-
 package org.sakaiproject.tool.assessment.ui.bean.evaluation;
 
 import java.io.Serializable;
@@ -30,9 +28,7 @@ import java.util.Collection;
 import java.util.Set;
 import java.util.TreeSet;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import lombok.extern.slf4j.Slf4j;
 import org.sakaiproject.tool.assessment.ui.bean.util.Validator;
 
 /**
@@ -53,6 +49,7 @@ import org.sakaiproject.tool.assessment.ui.bean.util.Validator;
  * @author Huong Nguyen
  * @version 1.0
  */
+@Slf4j
 public class HistogramQuestionScoresBean
   implements Serializable
 {
@@ -103,8 +100,6 @@ public class HistogramQuestionScoresBean
 
   private boolean randomType;   // this part is a random draw part
 
-  private static Logger log = LoggerFactory.getLogger(HistogramQuestionScoresBean.class);
-  
   private Long subQuestionSequence;
   private boolean showIndividualAnswersInDetailedStatistics;
   

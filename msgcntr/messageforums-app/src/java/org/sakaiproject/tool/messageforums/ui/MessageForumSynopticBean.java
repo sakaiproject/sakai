@@ -31,8 +31,8 @@ import java.util.Map;
 import javax.faces.context.FacesContext;
 import javax.faces.event.ActionEvent;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.api.app.messageforums.Area;
 import org.sakaiproject.api.app.messageforums.AreaManager;
 import org.sakaiproject.api.app.messageforums.DiscussionForum;
@@ -61,6 +61,7 @@ import org.sakaiproject.tool.messageforums.PrivateMessagesTool;
 import org.sakaiproject.user.api.Preferences;
 import org.sakaiproject.user.api.PreferencesService;
 
+@Slf4j
 public class MessageForumSynopticBean {
 
 	/**
@@ -200,9 +201,6 @@ public class MessageForumSynopticBean {
 	/** Used to determine if there are sites to display on page */
 	private boolean sitesToView;
 	private boolean sitesToViewSet = false;
-	
-	/** to get accces to log file */
-	private static final Logger LOG = LoggerFactory.getLogger(MessageForumSynopticBean.class);
 
 	/** Needed if within a site so we only need stats for this site */
 	private MessageForumsMessageManager messageManager;
@@ -274,7 +272,7 @@ public class MessageForumSynopticBean {
 
 			myWorkspace = SiteService.isUserSite(siteId);
 
-			LOG.debug("Result of determining if My Workspace: " + myWorkspace);
+			log.debug("Result of determining if My Workspace: " + myWorkspace);
 		}
 		
 		return myWorkspace.booleanValue();
@@ -934,7 +932,7 @@ public class MessageForumSynopticBean {
 				catch (IdUnusedException e) {
 					// Wierdness has happened - pulled from SiteService but now can't
 					// find it. Logger and skip
-					LOG.error("IdUnusedException attempting to access site " + siteId);
+					log.error("IdUnusedException attempting to access site " + siteId);
 					continue;
 				}
 				
@@ -957,7 +955,7 @@ public class MessageForumSynopticBean {
 					dcms.setForums(isForumsPageInSite(getSite(siteId)));
 				}
 				catch (IdUnusedException e) {
-					LOG.error("IdUnusedException while trying to determine what tools are in site "
+					log.error("IdUnusedException while trying to determine what tools are in site "
 									+ siteId + "to set decorated synoptic messages & forums bean values.");
 				}
 
@@ -987,7 +985,7 @@ public class MessageForumSynopticBean {
 			catch (IdUnusedException e) {
 				// Wierdness has happened - pulled from SiteService but now can't
 				// find it. Logger and skip
-				LOG.error("IdUnusedException attempting to access site " + siteId);
+				log.error("IdUnusedException attempting to access site " + siteId);
 				continue;
 			}
 
@@ -1089,7 +1087,7 @@ public class MessageForumSynopticBean {
 					dcms.setForums(isForumsPageInSite(getSite(siteId)));
 				}
 				catch (IdUnusedException e) {
-					LOG.error("IdUnusedException while trying to determine what tools are in site "
+					log.error("IdUnusedException while trying to determine what tools are in site "
 									+ siteId + "to set decorated synoptic messages & forums bean values.");
 				}
 
@@ -1276,7 +1274,7 @@ public class MessageForumSynopticBean {
 			return getSite(getContext()).getTitle();
 		} 
 		catch (IdUnusedException e) {
-			LOG.error("IdUnusedException when trying to access site "
+			log.error("IdUnusedException when trying to access site "
 					+ e.getMessage());
 		}
 
@@ -1294,7 +1292,7 @@ public class MessageForumSynopticBean {
 			return getSite(getContext()).getId();
 		} 
 		catch (IdUnusedException e) {
-			LOG.error("IdUnusedException when trying to access site "
+			log.error("IdUnusedException when trying to access site "
 					+ e.getMessage());
 		}
 
@@ -1370,7 +1368,7 @@ public class MessageForumSynopticBean {
 			mfToolExists = isMessageForumsPageInSite(thisSite);
 
 		} catch (IdUnusedException e) {
-			LOG.error("IdUnusedException while trying to check if site has MF tool.");
+			log.error("IdUnusedException while trying to check if site has MF tool.");
 		}
 
 		return mfToolExists;
@@ -1407,7 +1405,7 @@ public class MessageForumSynopticBean {
 			mfToolExists = isForumsPageInSite(thisSite);
 
 		} catch (IdUnusedException e) {
-			LOG.error("IdUnusedException while trying to check if site has MF tool.");
+			log.error("IdUnusedException while trying to check if site has MF tool.");
 		}
 
 		return mfToolExists;
@@ -1434,7 +1432,7 @@ public class MessageForumSynopticBean {
 			mfToolExists = isMessagesPageInSite(thisSite);
 
 		} catch (IdUnusedException e) {
-			LOG.error("IdUnusedException while trying to check if site has MF tool.");
+			log.error("IdUnusedException while trying to check if site has MF tool.");
 		}
 
 		return mfToolExists;
@@ -1519,7 +1517,7 @@ public class MessageForumSynopticBean {
 		}
 		catch (IdUnusedException e) {
 			// Weirdness since site ids used gotten from SiteService
-			LOG.error("IdUnusedException while trying to check if site has MF tool.");
+			log.error("IdUnusedException while trying to check if site has MF tool.");
 
 		}
 
@@ -1548,7 +1546,7 @@ public class MessageForumSynopticBean {
 											.getMessagesByTypeByContext(typeUuid, contextId);
 
 			if (privateMessages == null) {
-				LOG.error("No messages found while attempting to mark all as read "
+				log.error("No messages found while attempting to mark all as read "
 								+ "from synoptic Message Center tool.");
 			} 
 			else {
@@ -1566,7 +1564,7 @@ public class MessageForumSynopticBean {
 											PrivateMessageManager.SORT_DESC);
 
 			if (privateMessages == null) {
-				LOG.error("No messages found while attempting to mark all as read "
+				log.error("No messages found while attempting to mark all as read "
 								+ "from synoptic Message Center tool.");
 			} 
 			else {
@@ -1636,7 +1634,7 @@ public class MessageForumSynopticBean {
 			Iterator lsi = mySites.iterator();
 
 			if (!lsi.hasNext()) {
-				LOG.debug("User " + SessionManager.getCurrentSessionUserId() + " does not belong to any sites.");
+				log.debug("User " + SessionManager.getCurrentSessionUserId() + " does not belong to any sites.");
 
 				return mySites;
 			}
@@ -1754,7 +1752,7 @@ public class MessageForumSynopticBean {
 	    		}
 	    	}
 	    	catch (IdUnusedException e) {
-	    		LOG.error("IdUnusedException attempting to move to Private Messages for a site. Site id used is: " + contextId);
+	    		log.error("IdUnusedException attempting to move to Private Messages for a site. Site id used is: " + contextId);
 	    	}
 	    }
 
@@ -1785,8 +1783,8 @@ public class MessageForumSynopticBean {
 	 * @return The index position in siteList of the site with site id = value, or -1 if not found.
 	 */
 	protected int indexOf(String value, List siteList) {
-		if (LOG.isDebugEnabled()) {
-			LOG.debug("indexOf(String " + value + ", List " + siteList + ")");
+		if (log.isDebugEnabled()) {
+			log.debug("indexOf(String " + value + ", List " + siteList + ")");
 		}
 
 		for (int i = 0; i < siteList.size(); i++) {

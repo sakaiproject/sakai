@@ -61,7 +61,7 @@ public class AssignmentEntity implements Entity {
             this.assignment = assignment;
             this.assignmentId = assignment.getId();
         }
-        reference = entityManager.newReference(AssignmentReferenceReckoner.reckoner().context(assignment.getContext()).id(assignment.getId()).subtype("a").reckon().getReference());
+        reference = entityManager.newReference(AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getReference());
     }
 
     public void initEntity(String assignmentId) {
@@ -76,7 +76,7 @@ public class AssignmentEntity implements Entity {
         if (assignment == null) {
             throw new RuntimeException("Cannot instantiate AssignmentEntity without an assignment...");
         }
-        reference = entityManager.newReference(AssignmentReferenceReckoner.reckoner().context(assignment.getContext()).id(assignment.getId()).subtype("a").reckon().getReference());
+        reference = entityManager.newReference(AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getReference());
     }
 
     @Override

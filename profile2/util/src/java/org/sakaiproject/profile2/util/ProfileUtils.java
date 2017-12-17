@@ -38,22 +38,19 @@ import java.util.UUID;
 
 import javax.imageio.ImageIO;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.WordUtils;
 import org.apache.commons.lang.time.DateUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.imgscalr.Scalr;
+
 import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.util.ResourceLoader;
 
-
+@Slf4j
 public class ProfileUtils {
-
-	private static final Logger log = LoggerFactory.getLogger(ProfileUtils.class);
-
 
 	/**
 	 * Check content type against allowed types. only JPEG,GIF and PNG are support at the moment
@@ -276,9 +273,9 @@ public class ProfileUtils {
 		
 		Locale locale = getUserPreferredLocale();
 		
-		//System.out.println("currentDate:" + currentTimeMillis);
-		//System.out.println("postingDate:" + postingTimeMillis);
-		//System.out.println("diff:" + diff);
+		//log.info("currentDate:" + currentTimeMillis);
+		//log.info("postingDate:" + postingTimeMillis);
+		//log.info("diff:" + diff);
 		
 		int MILLIS_IN_SECOND = 1000;
 		int MILLIS_IN_MINUTE = 1000 * 60;

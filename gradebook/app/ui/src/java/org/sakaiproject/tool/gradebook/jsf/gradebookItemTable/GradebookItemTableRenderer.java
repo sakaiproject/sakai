@@ -14,19 +14,18 @@ import javax.faces.context.ResponseWriter;
 import javax.faces.el.ValueBinding;
 import javax.faces.render.Renderer;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+
 import org.apache.myfaces.shared_impl.renderkit.html.HTML;
 
-import org.sakaiproject.tool.gradebook.jsf.FacesUtil;
+import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.tool.gradebook.Category;
 import org.sakaiproject.tool.gradebook.GradableObject;
+import org.sakaiproject.tool.gradebook.jsf.FacesUtil;
 import org.sakaiproject.tool.gradebook.ui.AssignmentGradeRow;
-import org.sakaiproject.tool.cover.ToolManager;
 
+@Slf4j
 public class GradebookItemTableRenderer extends Renderer {
-
-	protected static final Logger log = LoggerFactory.getLogger(GradebookItemTableRenderer.class);
 
 	private static final String CURSOR = "cursor:pointer";
 	private static final String EXPANDED_IMG = "/images/expand.gif";

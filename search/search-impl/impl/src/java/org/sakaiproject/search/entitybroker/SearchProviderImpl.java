@@ -26,8 +26,7 @@ import java.io.Reader;
 import java.util.Iterator;
 import java.util.Map;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.sakaiproject.entitybroker.entityprovider.extension.QuerySearch;
 import org.sakaiproject.entitybroker.entityprovider.extension.SearchContent;
 import org.sakaiproject.entitybroker.entityprovider.extension.SearchProvider;
@@ -52,9 +51,8 @@ import org.sakaiproject.search.api.SearchService;
  * 
  * @author Aaron Zeckoski (azeckoski @ gmail.com)
  */
+@Slf4j
 public class SearchProviderImpl implements SearchProvider, EntityContentProducer {
-
-    private static final Logger log = LoggerFactory.getLogger(SearchProviderImpl.class);
 
     private SearchService searchService;
     private SearchIndexBuilder searchIndexBuilder;

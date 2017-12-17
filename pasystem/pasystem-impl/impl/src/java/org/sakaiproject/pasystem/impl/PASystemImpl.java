@@ -24,10 +24,6 @@
 
 package org.sakaiproject.pasystem.impl;
 
-import com.github.jknack.handlebars.Handlebars;
-import com.github.jknack.handlebars.Helper;
-import com.github.jknack.handlebars.Options;
-import com.github.jknack.handlebars.Template;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.IOException;
@@ -37,9 +33,15 @@ import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.github.jknack.handlebars.Handlebars;
+import com.github.jknack.handlebars.Helper;
+import com.github.jknack.handlebars.Options;
+import com.github.jknack.handlebars.Template;
 import com.github.jknack.handlebars.cache.TemplateCache;
+import lombok.extern.slf4j.Slf4j;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
+
 import org.sakaiproject.authz.cover.FunctionManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.db.cover.SqlService;
@@ -61,16 +63,13 @@ import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.cover.UserDirectoryService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * The implementation of the PA System service.  Provides system initialization
  * and access to the PA System banner and popup sub-services.
  */
+@Slf4j
 class PASystemImpl implements PASystem {
-
-    private static final Logger LOG = LoggerFactory.getLogger(PASystemImpl.class);
 
     private static final String POPUP_SCREEN_SHOWN = "pasystem.popup.screen.shown";
 
@@ -111,7 +110,7 @@ class PASystemImpl implements PASystem {
 
             result.append(template.apply(context));
         } catch (IOException e) {
-            LOG.warn("IOException while getting footer", e);
+            log.warn("IOException while getting footer", e);
             return "";
         }
 
@@ -172,7 +171,7 @@ class PASystemImpl implements PASystem {
                         ps.execute();
                         ps.close();
                     } catch (SQLException e) {
-                        LOG.warn("runDBMigration: " + e + "(sql: " + sql + ")");
+                        log.warn("runDBMigration: " + e + "(sql: " + sql + ")");
                     }
                 }
             } catch (IOException e) {
@@ -209,7 +208,7 @@ class PASystemImpl implements PASystem {
 
             return template.apply(context);
         } catch (IOException e) {
-            LOG.warn("IOException while getting banners footer", e);
+            log.warn("IOException while getting banners footer", e);
             return "";
         }
     }
@@ -231,7 +230,7 @@ class PASystemImpl implements PASystem {
                     bannerData.put("type", banner.getType());
                     banners.add(bannerData);
                 } catch (Exception e) {
-                    LOG.warn("Error processing banner: " + banner, e);
+                    log.warn("Error processing banner: " + banner, e);
                 }
             }
         }
@@ -266,7 +265,7 @@ class PASystemImpl implements PASystem {
             Template template = handlebars.compile("templates/popup_footer");
             return template.apply(context);
         } catch (IOException | MissingUuidException e) {
-            LOG.warn("IOException while getting popups footer", e);
+            log.warn("IOException while getting popups footer", e);
             return "";
         }
     }
@@ -279,7 +278,7 @@ class PASystemImpl implements PASystem {
 
                 return template.apply(context);
             } catch (IOException e) {
-                LOG.warn("Timezone footer failed", e);
+                log.warn("Timezone footer failed", e);
                 return "";
             }
         } else {

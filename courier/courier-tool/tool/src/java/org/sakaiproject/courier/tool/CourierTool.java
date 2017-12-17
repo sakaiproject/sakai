@@ -34,8 +34,8 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.courier.api.Delivery;
@@ -51,11 +51,9 @@ import org.sakaiproject.tool.api.SessionManager;
  * CourierTool is a "tool" which handles courier requests and delivers courier deliveries.
  * </p>
  */
+@Slf4j
 public class CourierTool extends HttpServlet
 {
-	/** Our log (commons). */
-	private static Logger M_log = LoggerFactory.getLogger(CourierTool.class);
-
 	private SessionManager sessionManager = (SessionManager)
 			ComponentManager.get(SessionManager.class);
 	
@@ -64,7 +62,7 @@ public class CourierTool extends HttpServlet
 	 */
 	public void destroy()
 	{
-		M_log.info("destroy()");
+		log.info("destroy()");
 
 		super.destroy();
 	}
@@ -93,7 +91,7 @@ public class CourierTool extends HttpServlet
 			if (ThreadLocalManager.get(SessionManager.CURRENT_INVALID_SESSION) != null)
 			{
 				String loggedOutUrl = ServerConfigurationService.getLoggedOutUrl();
-				if (M_log.isDebugEnabled()) M_log.debug("sending top redirect: " + placementId + " : " + loggedOutUrl);
+				if (log.isDebugEnabled()) log.debug("sending top redirect: {} : {}", placementId, loggedOutUrl);
 				sendTopRedirect(res, loggedOutUrl);
 			}
 
@@ -133,19 +131,19 @@ public class CourierTool extends HttpServlet
 					sendDeliveries(res, deliveries);
 	
 					// refresh our presence at the location (placement)
-					if (M_log.isDebugEnabled()) M_log.debug("setting presence: " + placementId);
+					if (log.isDebugEnabled()) log.debug("setting presence: {}", placementId);
 					PresenceUpdater.setPresence(placementId);
 	
 					// register another presence if present
 					if (parts.length == 3)
 					{
 						String secondPlacementId = parts[2];
-						if (M_log.isDebugEnabled()) M_log.debug("setting second presence: " + secondPlacementId);
+						if (log.isDebugEnabled()) log.debug("setting second presence: {}", secondPlacementId);
 						PresenceUpdater.setPresence(secondPlacementId);
 					}
 				} else {
 					//This courier request was not meant for this user (i.e., session), so we won't honour it
-					M_log.debug("out-of-session courier request: requestUserId=" + requestUserId + " session user=" + session.getUserId());
+					log.debug("out-of-session courier request: requestUserId={} session user={}", requestUserId, session.getUserId());
 				}
 			}
 		}
@@ -153,7 +151,7 @@ public class CourierTool extends HttpServlet
 		// otherwise this is a bad request!
 		else
 		{
-			M_log.warn("bad courier request: " + req.getPathInfo());
+			log.warn("bad courier request: {}", req.getPathInfo());
 			sendDeliveries(res, new Vector());
 		}
 	}
@@ -179,7 +177,7 @@ public class CourierTool extends HttpServlet
 	{
 		super.init(config);
 
-		M_log.info("init()");
+		log.info("init()");
 	}
 
 	/**
@@ -205,7 +203,7 @@ public class CourierTool extends HttpServlet
 		{
 			Delivery d = (Delivery) i.next();
 			String s = d.compose();
-			if (M_log.isDebugEnabled()) M_log.debug("sending delivery: " + s);
+			if (log.isDebugEnabled()) log.debug("sending delivery: {}", s);
 			out.println(s);
 		}
 
@@ -213,7 +211,7 @@ public class CourierTool extends HttpServlet
 		if (deliveries.isEmpty())
 		{
 			String s = "//";
-			if (M_log.isDebugEnabled()) M_log.debug("sending delivery: " + s);
+			if (log.isDebugEnabled()) log.debug("sending delivery: {}", s);
 			out.println(s);
 		}
 	}

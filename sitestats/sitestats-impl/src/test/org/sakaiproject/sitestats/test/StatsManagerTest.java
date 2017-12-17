@@ -1071,8 +1071,8 @@ public class StatsManagerTest extends AbstractTransactionalJUnit4SpringContextTe
 				null, null, null, false, Arrays.asList(StatsManager.T_UNIQUEVISITS));
 		Assert.assertEquals(1, statsCount);
 		
-		//System.out.println("Stats: "+stats);
-		//System.out.println("Size: "+stats.size());
+		//log.debug("Stats: "+stats);
+		//log.debug("Size: "+stats.size());
 	}
 	
 	@Test

@@ -20,24 +20,23 @@
  **********************************************************************************/
 package org.sakaiproject.search.elasticsearch;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.sakaiproject.entitybroker.entityprovider.capabilities.AutoRegisterEntityProvider;
-import org.sakaiproject.entitybroker.util.spring.EntityProviderAutoRegistrar;
+import java.util.Map;
+
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 
-import java.util.Map;
+import org.sakaiproject.entitybroker.entityprovider.capabilities.AutoRegisterEntityProvider;
+import org.sakaiproject.entitybroker.util.spring.EntityProviderAutoRegistrar;
 
 /**
  * ElasticSearch equivalent of {@code EntityBroker}'s {@code EntityProviderAutoRegistrar}.
  * Unlike that class, though, this class does not require a marker interface other than
  * {@link ElasticSearchIndexBuilder}.
  */
+@Slf4j
 public class ElasticSearchIndexBuilderAutoRegistrar implements ApplicationContextAware {
-
-    private static final Logger log = LoggerFactory.getLogger(ElasticSearchIndexBuilderAutoRegistrar.class);
 
     private ElasticSearchService elasticSearchService;
     private ApplicationContext applicationContext;

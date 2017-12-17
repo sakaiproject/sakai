@@ -27,12 +27,10 @@ import javax.faces.context.FacesContext;
 
 import java.util.Map;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
-import org.sakaiproject.tool.gradebook.AbstractGradeRecord;
-import org.sakaiproject.tool.gradebook.GradableObject;
 import org.sakaiproject.tool.gradebook.Gradebook;
 import org.sakaiproject.tool.gradebook.Category;
 
@@ -43,9 +41,8 @@ import org.sakaiproject.tool.gradebook.Category;
  * assignment which doesn't count toward the final grade, they should be
  * displayed in a special way with a tooltip "title" attribute.
  */
+@Slf4j
 public class CategoryPointsConverter extends PointsConverter {
-	private static final Logger log = LoggerFactory.getLogger(CategoryPointsConverter.class);
-
 	public String getAsString(FacesContext context, UIComponent component, Object value) {
 		if (log.isDebugEnabled()) log.debug("getAsString(" + context + ", " + component + ", " + value + ")");
 

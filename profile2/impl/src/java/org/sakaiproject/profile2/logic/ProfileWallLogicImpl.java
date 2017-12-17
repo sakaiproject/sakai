@@ -22,7 +22,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
+
 import org.sakaiproject.profile2.dao.ProfileDao;
 import org.sakaiproject.profile2.model.Person;
 import org.sakaiproject.profile2.model.ProfilePrivacy;
@@ -31,10 +34,6 @@ import org.sakaiproject.profile2.model.WallItemComment;
 import org.sakaiproject.profile2.types.EmailType;
 import org.sakaiproject.profile2.types.PrivacyType;
 import org.sakaiproject.profile2.util.ProfileConstants;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import lombok.Setter;
 
 /**
  * Implementation of ProfileWallLogic API for Profile2 wall.
@@ -43,10 +42,9 @@ import lombok.Setter;
  * @deprecated The wall functionality will be removed from Sakai for the 13 release.
  */
 @Deprecated
+@Slf4j
 public class ProfileWallLogicImpl implements ProfileWallLogic {
-	
-	private static final Logger log = LoggerFactory.getLogger(ProfileWallLogic.class);
-		
+
 	/**
 	 * Creates a new instance of <code>ProfileWallLogicImpl</code>.
 	 */

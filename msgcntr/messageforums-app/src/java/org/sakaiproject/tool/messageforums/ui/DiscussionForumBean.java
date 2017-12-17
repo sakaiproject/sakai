@@ -30,25 +30,24 @@ import java.util.List;
 import javax.faces.context.FacesContext;
 import javax.faces.model.SelectItem;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
 import org.sakaiproject.api.app.messageforums.Attachment;
 import org.sakaiproject.api.app.messageforums.DiscussionForum;
+import org.sakaiproject.api.app.messageforums.UserPreferencesManager;
 import org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager;
 import org.sakaiproject.api.app.messageforums.ui.UIPermissionsManager;
-
 import org.sakaiproject.component.cover.ComponentManager;
-import org.sakaiproject.time.api.TimeService;
 import org.sakaiproject.util.ResourceLoader;
 
 /**
  * @author <a href="mailto:rshastri@iupui.edu">Rashmi Shastri</a>
  */
+@Slf4j
 public class DiscussionForumBean
 {
-  private static final Logger LOG = LoggerFactory.getLogger(DiscussionForumBean.class);
-  private static TimeService timeService = (TimeService)ComponentManager.get(TimeService.class);
+  private static UserPreferencesManager userPreferencesManager = ComponentManager.get(UserPreferencesManager.class);
   private DiscussionForum forum;
   private boolean markForDeletion;
   private boolean markForDuplication;
@@ -73,7 +72,7 @@ public class DiscussionForumBean
    
   private SimpleDateFormat ourDateFormat() {
       SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
-      df.setTimeZone(timeService.getLocalTimeZone());
+      df.setTimeZone(userPreferencesManager.getTimeZone());
       return df;
   }
 
@@ -86,9 +85,9 @@ public class DiscussionForumBean
 
   public DiscussionForumBean(DiscussionForum forum, UIPermissionsManager uiPermissionsManager, DiscussionForumManager forumManager)
   {
-    if(LOG.isDebugEnabled())
+    if(log.isDebugEnabled())
     {
-      LOG.debug("DiscussionForumBean(DiscussionForum "+forum+", UIPermissionsManager"  +uiPermissionsManager+ ")");
+      log.debug("DiscussionForumBean(DiscussionForum "+forum+", UIPermissionsManager"  +uiPermissionsManager+ ")");
     }
     this.forum = forum;
     this.uiPermissionsManager=uiPermissionsManager;
@@ -100,7 +99,7 @@ public class DiscussionForumBean
    */
   public DiscussionForum getForum()
   {
-    LOG.debug("getForum()");
+    log.debug("getForum()");
     return forum;
   }
 
@@ -109,7 +108,7 @@ public class DiscussionForumBean
    */
   public int getTopicCount()
   {
-    LOG.debug("getTopics()");
+    log.debug("getTopics()");
     return (topics == null) ? 0 : topics.size();
   }
 
@@ -135,15 +134,15 @@ public class DiscussionForumBean
    */
   public List getTopics()
   {
-    LOG.debug("getTopics()");
+    log.debug("getTopics()");
     return topics;
   }
 
   public void addTopic(DiscussionTopicBean decoTopic)
   {
-    if(LOG.isDebugEnabled())
+    if(log.isDebugEnabled())
     {
-      LOG.debug("addTopic(DiscussionTopicBean"+ decoTopic+")");
+      log.debug("addTopic(DiscussionTopicBean"+ decoTopic+")");
     }
     if (!topics.contains(decoTopic))
     {
@@ -156,7 +155,7 @@ public class DiscussionForumBean
    */
   public String getLocked()
   {
-    LOG.debug("getLocked()");
+    log.debug("getLocked()");
     if (locked == null || "".equals(locked)){
 	    if (forum == null || forum.getLocked() == null
 	        || forum.getLocked().booleanValue() == false)
@@ -177,7 +176,7 @@ public class DiscussionForumBean
    */
   public void setLocked(String locked)
   {
-    LOG.debug("setLocked(String"+ locked+")");
+    log.debug("setLocked(String"+ locked+")");
     if (locked.equals(Boolean.TRUE.toString()))
     {
       forum.setLocked(Boolean.valueOf(true));
@@ -193,7 +192,7 @@ public class DiscussionForumBean
    */
   public Boolean getForumLocked()
   {
-    LOG.debug("getForumLocked()");
+    log.debug("getForumLocked()");
     if (locked == null || "".equals(locked)){
 	    if (forum == null || forum.getLocked() == null
 	        || forum.getLocked().booleanValue() == false)
@@ -214,7 +213,7 @@ public class DiscussionForumBean
    */
   public void setForumLocked(Boolean locked)
   {
-    LOG.debug("setForumLocked(String"+ locked+")");
+    log.debug("setForumLocked(String"+ locked+")");
     forum.setLocked(locked);
   }
   
@@ -225,7 +224,7 @@ public class DiscussionForumBean
    */
   public String getModerated()
   {
-	  LOG.debug("getModerated()");
+	  log.debug("getModerated()");
 	  if (moderated == null){
 		  if (forum == null || forum.getModerated() == null || 
 			  forum.getModerated().booleanValue() == false)
@@ -246,7 +245,7 @@ public class DiscussionForumBean
    */
   public void setModerated(String moderated)
   {
-	  LOG.debug("setModerated()");
+	  log.debug("setModerated()");
 	  if (moderated.equals(Boolean.TRUE.toString()))
 	  {
 		  forum.setModerated(Boolean.valueOf(true));
@@ -263,7 +262,7 @@ public class DiscussionForumBean
    */
   public Boolean getForumModerated()
   {
-	  LOG.debug("getForumModerated()");
+	  log.debug("getForumModerated()");
 	  if (moderated == null){
 		  if (forum == null || forum.getModerated() == null || 
 			  forum.getModerated().booleanValue() == false)
@@ -284,7 +283,7 @@ public class DiscussionForumBean
    */
   public void setForumModerated(Boolean moderated)
   {
-	  LOG.debug("setForumModerated()");
+	  log.debug("setForumModerated()");
 	  forum.setModerated(moderated);
   }
   
@@ -294,7 +293,7 @@ public class DiscussionForumBean
    */
   public String getPostFirst()
   {
-	  LOG.debug("getPostFirst()");
+	  log.debug("getPostFirst()");
 	  if (postFirst == null){
 		  if (forum == null || forum.getPostFirst() == null || 
 			  forum.getPostFirst().booleanValue() == false)
@@ -315,7 +314,7 @@ public class DiscussionForumBean
    */
   public void setPostFirst(String postFirst)
   {
-	  LOG.debug("setPostFirst()");
+	  log.debug("setPostFirst()");
 	  if (postFirst.equals(Boolean.TRUE.toString()))
 	  {
 		  forum.setPostFirst(Boolean.valueOf(true));
@@ -332,7 +331,7 @@ public class DiscussionForumBean
    */
   public Boolean getForumPostFirst()
   {
-	  LOG.debug("getForumPostFirst()");
+	  log.debug("getForumPostFirst()");
 	  if (postFirst == null){
 		  if (forum == null || forum.getPostFirst() == null || 
 			  forum.getPostFirst().booleanValue() == false)
@@ -353,7 +352,7 @@ public class DiscussionForumBean
    */
   public void setForumPostFirst(Boolean postFirst)
   {
-	  LOG.debug("setForumPostFirst()");
+	  log.debug("setForumPostFirst()");
 	  forum.setPostFirst(postFirst);
   }
 
@@ -362,7 +361,7 @@ public class DiscussionForumBean
    */
   public String getAutoMarkThreadsRead()
   {
-	  LOG.debug("getAutoMarkThreadsRead()");
+	  log.debug("getAutoMarkThreadsRead()");
 	  return Boolean.toString(forum.getAutoMarkThreadsRead());
   }
   
@@ -371,7 +370,7 @@ public class DiscussionForumBean
    */
   public void setAutoMarkThreadsRead(String autoMarkThreadsRead)
   {
-	  LOG.debug("setAutoMarkThreadsRead()");
+	  log.debug("setAutoMarkThreadsRead()");
 	  forum.setAutoMarkThreadsRead(Boolean.parseBoolean(autoMarkThreadsRead));
   }
   
@@ -380,7 +379,7 @@ public class DiscussionForumBean
    */
   public Boolean getForumAutoMarkThreadsRead()
   {
-	  LOG.debug("getForumAutoMarkThreadsRead()");
+	  log.debug("getForumAutoMarkThreadsRead()");
 	  return forum.getAutoMarkThreadsRead();
   }
   
@@ -389,7 +388,7 @@ public class DiscussionForumBean
    */
   public void setForumAutoMarkThreadsRead(Boolean autoMarkThreadsRead)
   {
-	  LOG.debug("setForumAutoMarkThreadsRead()");
+	  log.debug("setForumAutoMarkThreadsRead()");
 	  forum.setAutoMarkThreadsRead(autoMarkThreadsRead);
   }
 
@@ -398,7 +397,7 @@ public class DiscussionForumBean
    */
   public boolean isMarkForDeletion()
   {
-    LOG.debug("isMarkForDeletion()");
+    log.debug("isMarkForDeletion()");
     return markForDeletion;
   }
 
@@ -408,9 +407,9 @@ public class DiscussionForumBean
    */
   public void setMarkForDeletion(boolean markForDeletion)
   {
-    if(LOG.isDebugEnabled())
+    if(log.isDebugEnabled())
     {
-      LOG.debug("setMarkForDeletion(boolean"+ markForDeletion+")");
+      log.debug("setMarkForDeletion(boolean"+ markForDeletion+")");
     }
     this.markForDeletion = markForDeletion;
   }
@@ -420,7 +419,7 @@ public class DiscussionForumBean
    */
   public boolean isMarkForDuplication()
   {
-    LOG.debug("isMarkForDuplication()");
+    log.debug("isMarkForDuplication()");
     return markForDuplication;
   }
 
@@ -430,9 +429,9 @@ public class DiscussionForumBean
    */
   public void setMarkForDuplication(boolean markForDuplication)
   {
-    if(LOG.isDebugEnabled())
+    if(log.isDebugEnabled())
     {
-      LOG.debug("setMarkForDuplication(boolean"+ markForDuplication+")");
+      log.debug("setMarkForDuplication(boolean"+ markForDuplication+")");
     }
     this.markForDuplication = markForDuplication;
   }
@@ -442,7 +441,7 @@ public class DiscussionForumBean
    */
   public boolean getChangeSettings()
   {
-    LOG.debug("getChangeSettings()");
+    log.debug("getChangeSettings()");
     if (changeSettings == null){
     	changeSettings = uiPermissionsManager.isChangeSettings(forum);
     }
@@ -454,7 +453,7 @@ public class DiscussionForumBean
    */
   public boolean isNewTopic()
   {
-    LOG.debug("isNewTopic()");
+    log.debug("isNewTopic()");
     if (newTopic == null){
     	newTopic = uiPermissionsManager.isNewTopic(forum);
     }
@@ -466,7 +465,7 @@ public class DiscussionForumBean
    */
   public boolean getHasExtendedDesciption()
   {
-    LOG.debug("getHasExtendedDesciption()");
+    log.debug("getHasExtendedDesciption()");
     if (hasExtendedDescription == null){
 	    if (forum.getExtendedDescription() != null
 	        && forum.getExtendedDescription().trim().length() > 0
@@ -484,7 +483,7 @@ public class DiscussionForumBean
    */
   public boolean isReadFullDesciption()
   {
-    LOG.debug("isReadFullDesciption()");
+    log.debug("isReadFullDesciption()");
     return readFullDesciption;
   }
 
@@ -493,9 +492,9 @@ public class DiscussionForumBean
    */
   public void setReadFullDesciption(boolean readFullDesciption)
   {
-    if(LOG.isDebugEnabled())
+    if(log.isDebugEnabled())
     {
-      LOG.debug("setReadFullDesciption(boolean" +readFullDesciption+")");
+      log.debug("setReadFullDesciption(boolean" +readFullDesciption+")");
     }
     this.readFullDesciption = readFullDesciption;
   }
@@ -505,7 +504,7 @@ public class DiscussionForumBean
    */
   public ArrayList getContributorsList()
   {
-    LOG.debug("getContributorsList()");
+    log.debug("getContributorsList()");
   
     Iterator iter= forumManager.getContributorsList(forum).iterator();
     while (iter.hasNext())
@@ -521,7 +520,7 @@ public class DiscussionForumBean
    */
   public ArrayList getAccessorList()
   {
-    LOG.debug("getAccessorList()");
+    log.debug("getAccessorList()");
     Iterator iter= forumManager.getAccessorsList(forum).iterator();
     while (iter.hasNext())
     { 
@@ -535,9 +534,9 @@ public class DiscussionForumBean
    */
   public void setAccessorList(ArrayList accessorList)
   {
-    if(LOG.isDebugEnabled())
+    if(log.isDebugEnabled())
      {
-        LOG.debug("setAccessorList(List"+ accessorList+")");
+        log.debug("setAccessorList(List"+ accessorList+")");
      }
      forum.getActorPermissions().setAccessors(forumManager.decodeAccessorsList(accessorList));
   }
@@ -547,9 +546,9 @@ public class DiscussionForumBean
    */
   public void setContributorsList(ArrayList contributorsList)
   {
-    if(LOG.isDebugEnabled())
+    if(log.isDebugEnabled())
     {
-       LOG.debug("setContributorsList(List"+ contributorsList+")");
+       log.debug("setContributorsList(List"+ contributorsList+")");
     }
     forum.getActorPermissions().setContributors(forumManager.decodeContributorsList(contributorsList));
   }
@@ -559,9 +558,9 @@ public class DiscussionForumBean
    */
   public void setForumManager(DiscussionForumManager forumManager)
   {
-    if(LOG.isDebugEnabled())
+    if(log.isDebugEnabled())
     {
-       LOG.debug("setForumManager(DiscussionForumManager"+ forumManager+")");
+       log.debug("setForumManager(DiscussionForumManager"+ forumManager+")");
     }
     this.forumManager = forumManager;
   }
@@ -626,7 +625,7 @@ public class DiscussionForumBean
 	
 	public String getAvailabilityRestricted()
 	  {
-		  LOG.debug("getAvailabilityRestricted()");
+		  log.debug("getAvailabilityRestricted()");
 		  if (forum == null || forum.getAvailabilityRestricted() == null || 
 				  forum.getAvailabilityRestricted().booleanValue() == false)
 		  {
@@ -642,7 +641,7 @@ public class DiscussionForumBean
 	   */
 	  public void setAvailabilityRestricted(String restricted)
 	  {
-		  LOG.debug("setAvailabilityRestricted()");
+		  log.debug("setAvailabilityRestricted()");
 		  if (restricted.equals(Boolean.TRUE.toString()))
 		  {
 			  forum.setAvailabilityRestricted(Boolean.valueOf(true));
@@ -655,7 +654,7 @@ public class DiscussionForumBean
 	
 	public String getAvailability()
 	{
-		LOG.debug("getAvailability()");
+		log.debug("getAvailability()");
 		if (forum == null || forum.getAvailability() == null || 
 				forum.getAvailability().booleanValue() == false)
 		{
@@ -671,7 +670,7 @@ public class DiscussionForumBean
 	 */
 	public void setAvailability(String restricted)
 	{
-		LOG.debug("setAvailability()");
+		log.debug("setAvailability()");
 		if (restricted.equals(Boolean.TRUE.toString()))
 		{
 			forum.setAvailability(Boolean.valueOf(true));
@@ -698,7 +697,7 @@ public class DiscussionForumBean
 				Date openDate = (Date) datetimeFormat.parse(hiddenOpenDate);
 				forum.setOpenDate(openDate);
 			}catch (ParseException e) {
-				LOG.error("Couldn't convert open date", e);
+				log.error("Couldn't convert open date", e);
 			}
 		}else{
 			forum.setOpenDate(null);
@@ -721,7 +720,7 @@ public class DiscussionForumBean
 				Date CloseDate = (Date) datetimeFormat.parse(hiddenCloseDate);
 				forum.setCloseDate(CloseDate);
 			}catch (ParseException e) {
-				LOG.error("Couldn't convert Close date", e);
+				log.error("Couldn't convert Close date", e);
 			}
 		}else{
 			forum.setCloseDate(null);
@@ -733,7 +732,7 @@ public class DiscussionForumBean
 			return "";
 		}else{
 			SimpleDateFormat formatter_date = new SimpleDateFormat(rb.getString("date_format"), new ResourceLoader().getLocale());
-			formatter_date.setTimeZone(timeService.getLocalTimeZone());
+			formatter_date.setTimeZone(userPreferencesManager.getTimeZone());
 			String formattedCloseDate = formatter_date.format(forum.getCloseDate());
 			return formattedCloseDate;
 		}
@@ -744,7 +743,7 @@ public class DiscussionForumBean
 			return "";
 		}else{
 			SimpleDateFormat formatter_date = new SimpleDateFormat(rb.getString("date_format"), new ResourceLoader().getLocale());
-			formatter_date.setTimeZone(timeService.getLocalTimeZone());
+			formatter_date.setTimeZone(userPreferencesManager.getTimeZone());
 			String formattedOpenDate = formatter_date.format(forum.getOpenDate());
 			return formattedOpenDate;
 		}

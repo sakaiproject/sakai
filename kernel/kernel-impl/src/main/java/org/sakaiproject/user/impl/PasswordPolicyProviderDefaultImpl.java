@@ -23,9 +23,10 @@ package org.sakaiproject.user.impl;
 
 import java.util.Arrays;
 
+import lombok.extern.slf4j.Slf4j;
+
 import org.apache.commons.lang.ArrayUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.user.api.PasswordPolicyProvider;
@@ -37,11 +38,8 @@ import org.sakaiproject.user.api.UserDirectoryService.PasswordRating;
  * 
  * https://jira.sakaiproject.org/browse/KNL-1123
  */
+@Slf4j
 public class PasswordPolicyProviderDefaultImpl implements PasswordPolicyProvider {
-
-    /** Our log (commons). */
-    private static Logger logger = LoggerFactory.getLogger(PasswordPolicyProviderDefaultImpl.class);
-
     /** value for minimum password entropy */
     private static final int DEFAULT_MIN_ENTROPY = 16;
     
@@ -136,7 +134,7 @@ public class PasswordPolicyProviderDefaultImpl implements PasswordPolicyProvider
             	highEntropy = DEFAULT_HIGH_ENTROPY;
             }
         }
-        logger.info("PasswordPolicyProviderDefaultImpl.init(): minEntropy="+minEntropy+", mediumEntropy="+mediumEntropy+
+        log.info("PasswordPolicyProviderDefaultImpl.init(): minEntropy="+minEntropy+", mediumEntropy="+mediumEntropy+
         		", highEntropy="+highEntropy+", maxSequenceLength="+maxSequenceLength);
     }
 
@@ -144,13 +142,13 @@ public class PasswordPolicyProviderDefaultImpl implements PasswordPolicyProvider
      * Destroy method (Spring)
      */
     public void destroy() {
-        if (logger.isDebugEnabled())
-            logger.debug("PasswordPolicyProviderDefaultImpl.destroy()");
+        if (log.isDebugEnabled())
+            log.debug("PasswordPolicyProviderDefaultImpl.destroy()");
     }
 
     public PasswordRating validatePassword(String password, User user) {
-        if (logger.isDebugEnabled())
-            logger.debug("PasswordPolicyProviderDefaultImpl.validatePassword( " + password + " )");
+        if (log.isDebugEnabled())
+            log.debug("PasswordPolicyProviderDefaultImpl.validatePassword( " + password + " )");
 
         // If the password is null, it's invalid
         if (password == null) {

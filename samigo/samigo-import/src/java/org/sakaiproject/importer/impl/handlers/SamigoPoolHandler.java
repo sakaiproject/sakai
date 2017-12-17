@@ -32,6 +32,8 @@ import java.util.Vector;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.importer.api.HandlesImportable;
 import org.sakaiproject.importer.api.Importable;
 import org.sakaiproject.importer.impl.importables.AssessmentAnswer;
@@ -49,12 +51,8 @@ import org.sakaiproject.tool.assessment.services.QuestionPoolService;
 import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.event.cover.EventTrackingService;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-
+@Slf4j
 public class SamigoPoolHandler implements HandlesImportable {
-	private static Logger log = LoggerFactory.getLogger(SamigoPoolHandler.class);
 
 	// Samigo identifies each question type with an int
 	public static final int TRUE_FALSE = 4;

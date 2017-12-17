@@ -29,7 +29,7 @@
    		</dependency>
 		<dependency>
 			<groupId>org.sakaiproject.common</groupId>
-			<artifactId>sakai-common-edu-person-api</artifactId>
+			<artifactId>sakai-common-api</artifactId>
 			<scope>provided</scope>
     	</dependency>
 	    <dependency>

@@ -32,7 +32,7 @@ public final class AssignmentServiceConstants {
     /**
      * The type string for this application: should not change over time as it may be stored in various parts of persistent entities.
      */
-    public static final String APPLICATION_ID = "sakai:assignment";
+    public static final String SAKAI_ASSIGNMENT = "sakai:assignment";
     /**
      * This string starts the references to resources in this service.
      */
@@ -86,17 +86,9 @@ public final class AssignmentServiceConstants {
      */
     public static final String SECURE_SHARE_DRAFTS = "asn.share.drafts";
     /**
-     * The Reference type for a site where site groups are to be considered in security computation.
-     */
-    public static final String REF_TYPE_SITE_GROUPS = "site-groups";
-    /**
      * The Reference type for an assignment.
      */
     public static final String REF_TYPE_ASSIGNMENT = "a";
-    /**
-     * The Reference type for an assignment where site groups are to be considered in security computation.
-     */
-    public static final String REF_TYPE_ASSIGNMENT_GROUPS = "a-groups";
     /**
      * The Reference type for a submission.
      */
@@ -106,13 +98,10 @@ public final class AssignmentServiceConstants {
      */
     public static final String REF_TYPE_CONTENT = "c";
     /**
-     * The Reference type for a grade spreadsheet.
+     * The prefix for a Reference ID.
      */
-    public static final String REF_TYPE_GRADES = "grades";
-    /**
-     * The Reference type for a submissions zip.
-     */
-    public static final String REF_TYPE_SUBMISSIONS = "submissions";
+    public static final String REF_PREFIX = "/content";
+
     // the three choices for Gradebook Integration
     public static final String GRADEBOOK_INTEGRATION_NO = "no";
     public static final String GRADEBOOK_INTEGRATION_ADD = "add";

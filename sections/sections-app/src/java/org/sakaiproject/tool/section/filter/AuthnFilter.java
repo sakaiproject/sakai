@@ -32,16 +32,16 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.sakaiproject.section.api.facade.manager.Authn;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.context.support.WebApplicationContextUtils;
+
+import org.sakaiproject.section.api.facade.manager.Authn;
 
 /**
  * An authentication filter for standalone use in demos and UI tests.
  */
+@Slf4j
 public class AuthnFilter implements Filter {
-	private static Logger log = LoggerFactory.getLogger(AuthnFilter.class);
 
 	private String authnRedirect;
 	private String authnBean;
@@ -81,6 +81,4 @@ public class AuthnFilter implements Filter {
 	public void destroy() {
 	}
 }
-
-
 

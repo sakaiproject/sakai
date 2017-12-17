@@ -50,8 +50,7 @@ import javax.faces.event.ValueChangeEvent;
 import javax.faces.model.SelectItem;
 import javax.servlet.ServletContext;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.authz.api.SecurityAdvisor;
@@ -97,17 +96,14 @@ import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.util.ResourceLoader;
 
-//import org.osid.shared.*;
-
-
 /**
  * Backing bean for Item Authoring, uses ItemBean for UI
  * $Id$
  */
+@Slf4j
 public class ItemAuthorBean
   implements Serializable
 {
-  private static Logger log = LoggerFactory.getLogger(ItemAuthorBean.class);
 
   /** Use serialVersionUID for interoperability. */
   private final static long serialVersionUID = 8266438770394956874L;
@@ -1543,8 +1539,7 @@ public class ItemAuthorBean
 	    ExternalContext external = context.getExternalContext();
 	    Long fileSize = (Long)((ServletContext)external.getContext()).getAttribute("TEMP_FILEUPLOAD_SIZE");
 	    Long maxSize = (Long)((ServletContext)external.getContext()).getAttribute("FILEUPLOAD_SIZE_MAX");
-	    //log.info("**** filesize is ="+fileSize);
-	    //log.info("**** maxsize is ="+maxSize);
+
 	    ((ServletContext)external.getContext()).removeAttribute("TEMP_FILEUPLOAD_SIZE");
 	    if (fileSize!=null){
 	      float fileSize_float = fileSize.floatValue()/1024;

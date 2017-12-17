@@ -21,13 +21,12 @@ import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.tool.gradebook.ui.InitializableBean;
 
+@Slf4j
 public class LoginAsBean extends InitializableBean {
-	private static final Logger logger = LoggerFactory.getLogger(LoginAsBean.class);
-
 	private List loginChoices;
 
 	public class WhoAndWhat {
@@ -67,7 +66,7 @@ public class LoginAsBean extends InitializableBean {
 		try {
 			gradebookUid = URLEncoder.encode(gradebookUid, "UTF-8");	// Since f:param won't do it
 		} catch (UnsupportedEncodingException ex) {
-			logger.error("Unlikely exception thrown", ex);
+			log.error("Unlikely exception thrown", ex);
 		}
 		loginChoices = new ArrayList(users.length);
 		for (int i = 0; i < users.length; i++) {

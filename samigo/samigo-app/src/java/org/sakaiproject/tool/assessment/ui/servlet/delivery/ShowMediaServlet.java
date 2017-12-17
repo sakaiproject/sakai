@@ -19,34 +19,33 @@
  *
  **********************************************************************************/
 
-
-
 package org.sakaiproject.tool.assessment.ui.servlet.delivery;
-import org.sakaiproject.authz.cover.SecurityService;
-import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
-import org.sakaiproject.tool.assessment.services.GradingService;
-import org.sakaiproject.tool.assessment.data.dao.grading.MediaData;
-import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentIfc;
-import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
-import org.sakaiproject.tool.assessment.facade.AgentFacade;
-import org.sakaiproject.tool.assessment.ui.bean.shared.PersonBean;
-import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
+
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javax.servlet.ServletException;
-import javax.servlet.ServletOutputStream;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang.StringUtils;
+
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.RequestDispatcher;
+import javax.servlet.ServletException;
+import javax.servlet.ServletOutputStream;
 
-import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.sakaiproject.authz.cover.SecurityService;
+import org.sakaiproject.tool.assessment.data.dao.grading.MediaData;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentIfc;
+import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
+import org.sakaiproject.tool.assessment.facade.AgentFacade;
+import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
+import org.sakaiproject.tool.assessment.services.GradingService;
+import org.sakaiproject.tool.assessment.ui.bean.shared.PersonBean;
+import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 
 /**
  * <p>Title: Samigo</p>
@@ -54,14 +53,13 @@ import org.slf4j.LoggerFactory;
  * @author Ed Smiley
  * @version $Id$
  */
-
+@Slf4j
 public class ShowMediaServlet extends HttpServlet
 {
   /**
 	 * 
 	 */
 	private static final long serialVersionUID = 2203681863823855810L;
-    private static Logger log = LoggerFactory.getLogger(ShowMediaServlet.class);
     private static final Pattern HTTP_RANGE_PATTERN = Pattern.compile("bytes=(?<start>\\d*)-(?<end>\\d*)");
 
   public ShowMediaServlet()
@@ -117,9 +115,6 @@ public class ShowMediaServlet extends HttpServlet
       currentSiteId = service.getPublishedAssessmentOwner(pub.getPublishedAssessmentId());
     }
 
-    // some log checking
-    //log.debug("agentIdString ="+agentIdString);
-    //log.debug("****current site Id ="+currentSiteId);
     
     boolean hasPrivilege = agentIdString !=null &&
     	(agentIdString.equals(mediaData.getCreatedBy()) // user is creator

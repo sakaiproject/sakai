@@ -19,8 +19,6 @@
  *
  **********************************************************************************/
 
-
-
 package org.sakaiproject.tool.assessment.ui.listener.author;
 
 import java.util.ArrayList;
@@ -32,8 +30,8 @@ import javax.faces.event.ActionListener;
 import javax.faces.event.ValueChangeEvent;
 import javax.faces.event.ValueChangeListener;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
@@ -54,11 +52,10 @@ import org.sakaiproject.tool.cover.SessionManager;
  * <p>Description: Sakai Assessment Manager</p>
  * <p>Organization: Sakai Project</p>
  */
-
+@Slf4j
 public class StartCreateItemListener implements ValueChangeListener, ActionListener
 {
 
-  private static Logger log = LoggerFactory.getLogger(StartCreateItemListener.class);
   //private static ContextUtil cu;
   //private String scalename;  // used for multiple choice Survey
 
@@ -293,7 +290,7 @@ log.debug("after getting item.getItemType() ");
    }
     catch(RuntimeException e)
     {
-      e.printStackTrace();
+      log.error(e.getMessage(), e);
       throw e;
     }
 

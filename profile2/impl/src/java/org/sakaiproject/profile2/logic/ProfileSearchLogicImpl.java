@@ -25,7 +25,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
+
 import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.profile2.cache.CacheManager;
@@ -37,10 +40,6 @@ import org.sakaiproject.profile2.util.ProfileConstants;
 import org.sakaiproject.profile2.util.ProfileUtils;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.user.api.User;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import lombok.Setter;
 
 /**
  * Implementation of ProfileSearchLogic API
@@ -48,10 +47,9 @@ import lombok.Setter;
  * @author Steve Swinsburg (steve.swinsburg@gmail.com)
  * @author Daniel Robinson (d.b.robinson@lancaster.ac.uk)
  */
+@Slf4j
 public class ProfileSearchLogicImpl implements ProfileSearchLogic {
 
-	private static final Logger log = LoggerFactory.getLogger(ProfileSearchLogicImpl.class);
-	
 	private Cache<String, Map<String, ProfileSearchTerm>> cache;
 	private final String CACHE_NAME = "org.sakaiproject.profile2.cache.search";
 	

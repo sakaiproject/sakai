@@ -20,15 +20,14 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Properties;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Handle any default sakai.properties values that need to be set dynamically.
  */
+@Slf4j
 public class DynamicDefaultSakaiProperties extends Properties {
 	private static final long serialVersionUID = 1L;
-	private static Logger log = LoggerFactory.getLogger(DynamicDefaultSakaiProperties.class);
 	
 	public void init() {
 		try {

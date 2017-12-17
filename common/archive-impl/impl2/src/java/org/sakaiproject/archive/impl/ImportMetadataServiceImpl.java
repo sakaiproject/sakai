@@ -24,25 +24,24 @@ package org.sakaiproject.archive.impl;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.sakaiproject.archive.api.ImportMetadata;
-import org.sakaiproject.archive.api.ImportMetadataService;
+import lombok.extern.slf4j.Slf4j;
+
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+
+import org.sakaiproject.archive.api.ImportMetadata;
+import org.sakaiproject.archive.api.ImportMetadataService;
 
 /**
  * @author rshastri <a href="mailto:rshastri@iupui.edu ">Rashmi Shastri </a>
  * @version $Id$
  *  
  */
-
+@Slf4j
 public class ImportMetadataServiceImpl implements ImportMetadataService
 {
-  private static final Logger LOG = LoggerFactory.getLogger(ImportMetadataImpl.class);
-
   private static final String ROOT = "importConfiguration";
   private static final String MAPPINGS = "mappings";
   private static final String MAP = "map";
@@ -71,9 +70,9 @@ public class ImportMetadataServiceImpl implements ImportMetadataService
    */
   public List getImportMetadataElements(Document doc)
   {
-    if (LOG.isDebugEnabled())
+    if (log.isDebugEnabled())
     {
-      LOG.debug("getImportMetadataElements(Document" + doc + ")");
+      log.debug("getImportMetadataElements(Document" + doc + ")");
     }
     if (doc == null)
     {
@@ -147,9 +146,9 @@ public class ImportMetadataServiceImpl implements ImportMetadataService
    */
   public ImportMetadata getImportMapById(String id)
   {
-    if (LOG.isDebugEnabled())
+    if (log.isDebugEnabled())
     {
-      LOG.debug("getImportMapById(String" + id + ")");
+      log.debug("getImportMapById(String" + id + ")");
     }
     if (id == null || id.length() < 1)
     {
@@ -157,7 +156,7 @@ public class ImportMetadataServiceImpl implements ImportMetadataService
     }
     if (this.document == null)
     {
-      LOG.error("No valid document found");
+      log.error("No valid document found");
       return null;
     }
     Element root = document.getDocumentElement();
@@ -221,9 +220,9 @@ public class ImportMetadataServiceImpl implements ImportMetadataService
    */
   public boolean hasMaintainRole(String username, Document siteDoc)
   {
-    if (LOG.isDebugEnabled())
+    if (log.isDebugEnabled())
     {
-      LOG.debug("hasMaintainRole(Document" + siteDoc + ")");
+      log.debug("hasMaintainRole(Document" + siteDoc + ")");
     }
     if (username == null || username.length() < 1)
     {

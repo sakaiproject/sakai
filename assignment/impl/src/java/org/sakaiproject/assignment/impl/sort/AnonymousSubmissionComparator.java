@@ -15,21 +15,19 @@
  */
 package org.sakaiproject.assignment.impl.sort;
 
-import org.sakaiproject.assignment.api.model.AssignmentSubmission;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.text.Collator;
 import java.text.ParseException;
 import java.text.RuleBasedCollator;
 import java.util.Comparator;
+import lombok.extern.slf4j.Slf4j;
+
+import org.sakaiproject.assignment.api.model.AssignmentSubmission;
 
 /**
  * Sorts assignment submissions by the submission's anonymous ID.
  */
+@Slf4j
 public class AnonymousSubmissionComparator implements Comparator<AssignmentSubmission> {
-
-    private static Logger M_log = LoggerFactory.getLogger(AnonymousSubmissionComparator.class);
 
     private Collator collator;
 
@@ -40,15 +38,15 @@ public class AnonymousSubmissionComparator implements Comparator<AssignmentSubmi
             // error with init RuleBasedCollator with rules
             // use the default Collator
             collator = Collator.getInstance();
-            M_log.warn(this + " AssignmentComparator cannot init RuleBasedCollator. Will use the default Collator instead. " + e);
+            log.warn("{} AssignmentComparator cannot init RuleBasedCollator. Will use the default Collator instead. {}", this, e);
         }
     }
 
     @Override
     public int compare(AssignmentSubmission a1, AssignmentSubmission a2) {
         int result;
-        String name1 = a1.getAnonymousSubmissionId();
-        String name2 = a2.getAnonymousSubmissionId();
+        String name1 = a1.getId();
+        String name2 = a2.getId();
         result = collator.compare(name1, name2);
         return result;
     }

@@ -59,7 +59,7 @@ package org.tsugi.basiclti;
  *   
  * You simply use the hash get method to pull out the information.
  * 
- *   System.out.println(xmlMap.get("/a/b"))
+ *   log.debug("{}", xmlMap.get("/a/b"))
  * 
  * Once it is parsed into the Map - everything is quick and simple.
  * 
@@ -76,11 +76,11 @@ package org.tsugi.basiclti;
  * 
  *  Map<String,String> subMap = XMLMap.selectSubMap(tm, "/a/c");
  *	Map<String,Object> joinedMap = new TreeMap<String,Object>();
- *	System.out.println("subMap="+subMap);
+ *	log.debug("subMap={}", subMap);
  *	joinedMap.put("/top/id", "1234");
  *	joinedMap.put("/top/fun", subMap); // Graft the map onto this node
  *	String joinedXml = XMLMap.getXML(joinedMap, true);
- *	System.out.println("joinedXML\n"+joinedXml);
+ *	log.debug("joinedXML\n{}", joinedXml);
  *
  * Produces this XML:
  * 
@@ -120,20 +120,20 @@ package org.tsugi.basiclti;
  * Here is a way to look up single elements in a Full Map <String,Object>:
  * 
  *   Map<String,Object> rssFullMap = XMLMap.getFullMap(rssText);
- *   System.out.println("Rss Version="+XMLMap.getString(rssFullMap,"/rss!version"));
- *   System.out.println("Chan-title="+XMLMap.getString(rssFullMap,"/rss/channel/title"));
+ *   log.debug("Rss Version={}", XMLMap.getString(rssFullMap,"/rss!version"));
+ *   log.debug("Chan-title={}", XMLMap.getString(rssFullMap,"/rss/channel/title"));
  *
  * Here is how you flatten the Map int a Map<String,String> and use get to lookup
  *     
  *   Map<String,String> rssStringMap = XMLMap.flattenMap(rssFullMap);
- *   System.out.println("Rss Version="+rssStringMap.get("/rss!version"));
- *   System.out.println("Chan-title="+rssStringMap.get("/rss/channel/title"));
+ *   log.debug("Rss Version={}", rssStringMap.get("/rss!version"));
+ *   log.debug("Chan-title={}", rssStringMap.get("/rss/channel/title"));
  *   
  * Iterating through a Full Map is pretty easy:
 
  *   for ( Map<String,Object> rssItem : XMLMap.getList(rssFullMap,"/rss/channel/item")) {
- *      System.out.println("=== Item ===");
- *      System.out.println(" Item-title="+XMLMap.getString(rssItem, "/title"));
+ *      log.debug("=== Item ===");
+ *      log.debug(" Item-title={}", XMLMap.getString(rssItem, "/title"));
  *   }
  *   
  * If you have nested sets of elements - you will get back a List<Map<String,Object>> that can 
@@ -145,12 +145,12 @@ package org.tsugi.basiclti;
  *   Map<String,Object> theMap = XMLMap.getFullMap(bob);
  *   List<Map<String,Object>> theList = XMLMap.getList(theMap, "/sites/site");
  *   for ( Map<String,Object> siteMap : theList) {
- *     System.out.println("Id="+XMLMap.getString(siteMap,"/id"));
+ *     log.debug("Id={}", XMLMap.getString(siteMap,"/id"));
  *     for ( Map<String,Object> toolMap : XMLMap.getList(siteMap,"/tools/tool")) {
- *        System.out.println("ToolId="+XMLMap.getString(toolMap,"/toolid"));
+ *        log.debug("ToolId={}", XMLMap.getString(toolMap,"/toolid"));
  *        for ( Map<String,Object> property : XMLMap.getList(toolMap, "/properties/property")) {
- *       	System.out.println("key="+XMLMap.getString(property, "/key"));
- *        	System.out.println("val="+XMLMap.getString(property, "/val"));
+ *       	log.debug("key={}", XMLMap.getString(property, "/key"));
+ *        	log.debug("val={}", XMLMap.getString(property, "/val"));
  *        }
  *      }
  *    }
@@ -162,7 +162,7 @@ package org.tsugi.basiclti;
  * the making of the map and retrieving of the list is you have no other use for the map:
  * 
  *   for ( Map<String,Object> siteMap : XMLMap.getList(bob,"/sites/site")) {
- *     System.out.println("Id="+XMLMap.getString(siteMap,"/id"));
+ *     log.debug("Id={}", XMLMap.getString(siteMap,"/id"));
  *     ...
  *    }
  *   
@@ -187,6 +187,8 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.transform.OutputKeys;
 
+import lombok.extern.slf4j.Slf4j;
+
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.Element;
@@ -198,10 +200,8 @@ import org.w3c.dom.NamedNodeMap;
  * a simple utility class for REST style XML
  * kind of lets us act like we are in PHP.
  */
-public class XMLMap {
-
-	private static boolean DF = false;
-	
+@Slf4j
+public class XMLMap {	
 	public static Map<String,String> getMap(String str)
 	{
 		if ( str == null ) return null;
@@ -283,7 +283,7 @@ public class XMLMap {
 	@SuppressWarnings({ "unused", "static-access" })
 	private static void recurse(Map<String, Object> tm, String path, Node parentNode, boolean doFull, int d) 
 	{
-		if ( DF ) doDebug(d,"> recurse path="+path+" parentNode="+ nodeToString(parentNode));
+		log.debug("> recurse path={} parentNode={}", path, nodeToString(parentNode));
 		d++;
 
 		NodeList nl = parentNode.getChildNodes();
@@ -300,7 +300,7 @@ public class XMLMap {
 				value = node.getNodeValue();
 				if ( value == null ) break;
 				if ( value.trim().length() < 1 ) break;
-				// doDebug(d,"Adding path="+path+" value="+node.getNodeValue());
+				log.debug("Adding path={} value={}", path, node.getNodeValue());
 				tm.put(path,node.getNodeValue());
 				break;  // Only the first one
 			}
@@ -312,7 +312,7 @@ public class XMLMap {
 			if (node.getNodeType() == node.ATTRIBUTE_NODE) {
 				String name = node.getNodeName();
 				value = node.getNodeValue();
-				// doDebug(d,"ATTR "+path+"("+name+") = "+node.getNodeValue());
+				log.debug("ATTR {}({}) = {}", path, name, node.getNodeValue());
 				if ( name == null || name.trim().length() < 1 || 
 						value == null || value.trim().length() < 1 ) continue;  
 
@@ -330,14 +330,14 @@ public class XMLMap {
 			if ( nl != null ) for (int i = 0; i< nl.getLength(); i++ ) {
 				Node node = nl.item(i);
 				if (node.getNodeType() == node.ELEMENT_NODE && ( ! done.contains(node.getNodeName())) ) {
-					if ( DF ) doDebug(d,"Going down the rabbit hole path="+path+" node="+node.getNodeName());
+					log.debug("Going down the rabbit hole path={} node={}", path, node.getNodeName());
 					recurse(tm, addSlash(path)+node.getNodeName(),node,doFull,d);
-					if ( DF ) doDebug(d,"Back from the rabbit hole path="+path+" node="+node.getNodeName());
+					log.debug("Back from the rabbit hole path={} node={}", path, node.getNodeName());
 					done.add(node.getNodeName());	
 				}
 			}
 			d--;
-			if ( DF ) doDebug(d,"< recurse path="+path+" parentNode="+ nodeToString(parentNode));
+			log.debug("< recurse path={} parentNode={}", path, nodeToString(parentNode));
 			return;
 		}
 
@@ -368,7 +368,7 @@ public class XMLMap {
 			Integer count = childMap.get(nextChild);
 			if ( count == null ) continue;
 			if ( count < 2 ) continue;
-			if ( DF ) doDebug(d,"Making a List for "+nextChild);
+			log.debug("Making a List for {}", nextChild);
 			List<Map<String,Object>> newList = new ArrayList<Map<String,Object>>();
 			nodeMap.put(nextChild,newList);
 		}
@@ -381,14 +381,14 @@ public class XMLMap {
 				if ( childName == null ) continue;
 				List<Map<String,Object>> mapList = nodeMap.get(childName);
 				if ( mapList == null ) {
-					if ( DF ) doDebug(d,"Going down the single rabbit hole path="+path+" node="+node.getNodeName());
+					log.debug("Going down the single rabbit hole path={} node={}", path, node.getNodeName());
 					recurse(tm, addSlash(path)+node.getNodeName(),node,doFull,d);
-					if ( DF ) doDebug(d,"Back from the single rabbit hole path="+path+" node="+node.getNodeName());
+					log.debug("Back from the single rabbit hole path={} node={}", path, node.getNodeName());
 				} else {
-					if ( DF ) doDebug(d,"Going down the multi rabbit hole path="+path+" node="+node.getNodeName());
+					log.debug("Going down the multi rabbit hole path={} node={}", path, node.getNodeName());
 					Map<String,Object> newMap = new TreeMap<String,Object>();
 					recurse(newMap,"/",node,doFull,d);
-					if ( DF ) doDebug(d,"Back from the multi rabbit hole path="+path+" node="+node.getNodeName()+" map="+newMap);
+					log.debug("Back from the multi rabbit hole path={} node={} map={}", path, node.getNodeName(), newMap);
 					if ( newMap.size() > 0 ) mapList.add(newMap);
 				}
 			}
@@ -402,11 +402,11 @@ public class XMLMap {
 			List<Map<String,Object>> newList = nodeMap.get(nextChild);
 			if ( newList == null ) continue;
 			if ( newList.size() < 1 ) continue;
-			if ( DF ) doDebug(d,"Adding sub-map name="+nextChild+" list="+newList);
+			log.debug("Adding sub-map name={} list={}", nextChild, newList);
 			tm.put(path+"/"+nextChild, newList);
 		}
 		d--;
-        if ( DF ) doDebug(d,"< recurse path="+path+" parentNode="+ nodeToString(parentNode));
+		log.debug("< recurse path={} parentNode={}", path, nodeToString(parentNode));
 	}
 
 	public static String getXML(Map<?, ?> tm)
@@ -525,7 +525,7 @@ public class XMLMap {
 	 */
 	private static void iterateMap(Document document, Node parentNode, Map<?, ?> tm, int d)
 	{
-		if ( DF ) doDebug(d,"> IterateMap parentNode= "+ nodeToString(parentNode));
+		log.debug("> IterateMap parentNode= {}", nodeToString(parentNode));
 		d++;
 		Iterator<?> iter = tm.keySet().iterator();
 		while( iter.hasNext() ) {
@@ -539,57 +539,57 @@ public class XMLMap {
 				storeInDom(document, parentNode, key, (String) obj, 0, d);
 			} else if ( obj instanceof String [] ) {
 				String [] strArray = (String []) obj;
-				if ( DF ) doDebug(d,"Looping through an array of length "+strArray.length);
+				log.debug("Looping through an array of length {}", strArray.length);
 				for(int i=0; i < strArray.length; i++ ) {
 					storeInDom(document, parentNode, key, strArray[i], i, d);
 				} 
 			} else if ( obj instanceof Map ) {
 				Map<?, ?> subMap = (Map<?, ?>) obj;
 				Node startNode = getNodeAtPath(document, parentNode, key, 0, d);
-				if ( DF ) doDebug(d,"descending into Map path="+key+" startNode="+ nodeToString(startNode));
+				log.debug("descending into Map path={} startNode={}", key, nodeToString(startNode));
 				iterateMap(document, startNode, subMap, d);
-				if ( DF ) doDebug(d,"back from descent Map path="+key+" startNode="+ nodeToString(startNode));
+				log.debug("back from descent Map path={} startNode={}", key, nodeToString(startNode));
 			} else if ( obj instanceof List ) {
 				List<?> lst = (List<?>) obj;
-				if ( DF ) doDebug(d,"Have a list that is this long "+lst.size());
+				log.debug("Have a list that is this long {}", lst.size());
 				Iterator<?> listIter = lst.iterator();
 				int newPos = 0;
 				while ( listIter.hasNext() ) {
 					Object listObj = listIter.next();
-					if ( DF ) doDebug(d,"Processing List element@"+newPos+" "+listObj.getClass().getName());
+					log.debug("Processing List element@{} {}", newPos, listObj.getClass().getName());
 					if ( listObj instanceof String ) {
 						storeInDom(document, parentNode, key, (String) listObj, newPos, d);
 						newPos++;
 					} if ( listObj instanceof Map ) {
 						Map<?, ?> subMap = (Map<?, ?>) listObj;
-						if ( DF ) doDebug(d,"Retrieving key from  List-Map path="+key+"@"+newPos);
+						log.debug("Retrieving key from  List-Map path={}@{}", key, newPos);
 						Node startNode = getNodeAtPath(document, parentNode, key, newPos, d);
-						if ( DF ) doDebug(d,"descending into List-Map path="+key+"@"+newPos+" startNode="+ nodeToString(startNode));
+						log.debug("descending into List-Map path={}@{} startNode={}", key, newPos, nodeToString(startNode));
 						iterateMap(document, startNode, subMap, d);
-						if ( DF ) doDebug(d,"back from descent List-Map path="+key+"@"+newPos+" startNode="+ nodeToString(startNode));
+						log.debug("back from descent List-Map path={}@{} startNode={}", key, newPos, nodeToString(startNode));
 						newPos++;
 					} else {
-						System.out.println("XMLMap Encountered an object of type "+obj.getClass().getName()+" in a List which should contain only Map objects");
+						log.info("XMLMap Encountered an object of type {} in a List which should contain only Map objects", obj.getClass().getName());
 					}
 				}
  			} else {
-				if ( DF ) doDebug(d,"Found a "+obj.getClass().getName()+" do not know how to iterate.");
+				log.debug("Found a {} do not know how to iterate.", obj.getClass().getName());
 			}
 		}
 		d--;
-		if ( DF ) doDebug(d,"< IterateMap parentNode = "+ nodeToString(parentNode));
+		log.debug("< IterateMap parentNode = {}", nodeToString(parentNode));
 	}
 
 	private static void storeInDom(Document document, Node parentNode, String key, String value, int nodePos, int d)
 	{
-		if ( DF ) doDebug(d,"> storeInDom"+key+"@"+ nodePos + " = " + value + " parent="+ nodeToString(parentNode));
+		log.debug("> storeInDom{}@{} = {} parent={}", key, nodePos, value, nodeToString(parentNode));
 		d++;
 		if ( document == null || key == null || value == null ) return;
 		if ( parentNode == null ) parentNode = document;
-		if ( DF ) doDebug(d,"parentNode I="+ nodeToString(parentNode));
+		log.debug("parentNode I={}", nodeToString(parentNode));
 
 		String [] newPath = key.split("/");
-		if ( DF ) doDebug(d,"newPath = "+outStringArray(newPath));
+		log.debug("newPath = {}", outStringArray(newPath));
 		String nodeAttr = null;
 		for ( int i=1; i< newPath.length; i++ )
 		{
@@ -634,7 +634,7 @@ public class XMLMap {
 	private static Node getNodeAtPath(Document document, Node parentNode, String path, int nodePos, int d)
 	{
 		if ( parentNode == null ) parentNode = document;
-		if ( DF ) doDebug(d,"> getNodeAtPath path@" + nodePos + "="+path+" parentNode="+ nodeToString(parentNode));
+		log.debug("> getNodeAtPath path@{}={} parentNode={}", nodePos, path, nodeToString(parentNode));
 		d++;
 
 		String [] newPath = path.split("/");
@@ -656,14 +656,14 @@ public class XMLMap {
 			}	
 		}
 		d--;
-		if ( DF ) doDebug(d,"< getNodeAtPath returning="+ nodeToString(parentNode));
+		log.debug("< getNodeAtPath returning={}", nodeToString(parentNode));
 		return parentNode;
 	}
 
 	@SuppressWarnings("static-access")
 	private static Node getOrAddChildNode(Document doc, Node parentNode, String nodeName,int whichNode, int d)
 	{
-		if ( DF ) doDebug(d,"> getOrAddChildNode name="+nodeName+"@"+whichNode+" parentNode="+ nodeToString(parentNode));
+		log.debug("> getOrAddChildNode name={}@{} parentNode={}", nodeName, whichNode, nodeToString(parentNode));
 		d++;
 		if ( nodeName == null || parentNode == null) return null;
 
@@ -673,11 +673,11 @@ public class XMLMap {
 		// doDebug(d,"Looking for bracket ipos="+begpos+" endpos="+endpos);
 		if ( begpos > 0 && endpos > begpos && endpos < nodeName.length() ) {
 			String indStr = nodeName.substring(begpos+1,endpos);
-			if ( DF ) doDebug(d,"Index String = "+ indStr);
+			log.debug("Index String = {}", indStr);
 			nodeName = nodeName.substring(0,begpos);
-			if ( DF ) doDebug(d,"New Nodename="+nodeName);
+			log.debug("New Nodename={}", nodeName);
 			Integer iVal = new Integer(indStr); 
-			if ( DF ) doDebug(d,"Integer = "+iVal);
+			log.debug("Integer = {}", iVal);
 			whichNode = iVal;
 		}
 		
@@ -691,8 +691,8 @@ public class XMLMap {
 				if ( nodeName.equals(node.getNodeName()) ) {
 					foundNodes++;
 					d--;
-					if ( DF ) doDebug(d,"< getOrAddChildNode found name="+ nodeToString(node));
-					if ( DF ) doDebug(d,"foundNodes = "+foundNodes+" looking for node="+whichNode);
+					log.debug("< getOrAddChildNode found name={}", nodeToString(node));
+					log.debug("foundNodes = {} looking for node={}", foundNodes, whichNode);
 					if ( foundNodes >= whichNode ) return node;
 				}
 			}
@@ -701,16 +701,16 @@ public class XMLMap {
 		Element newNode = null;
 		while ( foundNodes < whichNode ) {
 			foundNodes++;
-			if ( DF ) doDebug(d,"Adding node at position " + foundNodes + " moving toward " + whichNode);
+			log.debug("Adding node at position {} moving toward {}", foundNodes, whichNode);
 			if ( nodeName == null ) continue;
 			newNode = doc.createElement(nodeName);
-			if ( DF ) doDebug(d,"Adding "+nodeName+" at "+ nodeToString(parentNode)+" in "+doc);
+			log.debug("Adding {} at {} in {}", nodeName, nodeToString(parentNode), doc);
 			parentNode.appendChild(newNode);
-			if ( DF ) doDebug(d,"xml="+documentToString(doc,false));
-			if ( DF ) doDebug(d,"getOrAddChildNode added newnode="+ nodeToString(newNode));
+			log.debug("xml={}", documentToString(doc,false));
+			log.debug("getOrAddChildNode added newnode={}", nodeToString(newNode));
 		}
 		d--;
-		if ( DF ) doDebug(d,"< getOrAddChildNode added newnode="+ nodeToString(newNode));
+		log.debug("< getOrAddChildNode added newnode={}", nodeToString(newNode));
 		return newNode;
 	}
 
@@ -872,7 +872,7 @@ public class XMLMap {
 			String strKey = (String) key;
 			if ( strKey.equals(selection) || strKey.startsWith(childSel) || strKey.startsWith(attrSel)) {
 				delSet.add(strKey);
-				// System.out.println("Deleting key="+key);
+				log.debug("Deleting key={}", key);
 			}
 		}
 
@@ -882,12 +882,6 @@ public class XMLMap {
 			String key = setIter.next();
 			tm.remove(key);
 		}
-	}
-
-	private static void doDebug(int d, String str) {
-		if ( ! DF ) return;
- 		for(int i=0; i<d;i++) System.out.print(" ");
-		System.out.println(str);
 	}
 	
 	//  Assume the Object is a String - get it or return null if it is anything but a String
@@ -919,7 +913,7 @@ public class XMLMap {
 	 *  Always return a list even if it is just an empty list so this code works:
 	 *  
      *          for ( Map<String,Object> siteMap : XMLMap.getList(mnop,"/sites/site")) {
-     *          	System.out.println("Site="+siteMap);
+     *          	log.debug("Site={}", siteMap);
      *          }
      */
 	@SuppressWarnings("unchecked")
@@ -942,7 +936,7 @@ public class XMLMap {
 
 		// See if there is one sub map there...
 		Map<String, Object> oneMap = selectFullSubMap(theMap, key);
-		// System.out.println("One submap = "+oneMap);
+		log.debug("One submap = {}", oneMap);
 		if ( oneMap == null ) return al;
 		
 		// If the map is not empty - return am empty list 
@@ -986,21 +980,18 @@ public class XMLMap {
 	{
 
 		if ( xmlString == null ) return false;
-		DF = doDebug;
 		
 		// If Debug is turned on - let the chips fly, exceptions and
 		// All...
 		if ( doDebug ) {
-			DF = true;
 			String pretty1 = XMLMap.prettyPrint(xmlString);
 			String pretty2 = XMLMap.prettyPrint(pretty1);
 			if ( pretty1.equals(pretty2) ) return true;
-			System.out.println("XMLMap - unit test failed");
+			log.debug("XMLMap - unit test failed");
 			return false;
 		}
 		
 		// For Debug off - we first try it silently and in a try/catch block
-		DF = false;
 		try {
 			String pretty1 = XMLMap.prettyPrint(xmlString);
 			String pretty2 = XMLMap.prettyPrint(pretty1);
@@ -1012,14 +1003,12 @@ public class XMLMap {
 		}
 
 		// If we failed - re-do it with verbose mode on
-		System.out.println("XMLMap - unit test failed");
-		System.out.println(xmlString);
-		DF = true;
+		log.debug("XMLMap - unit test failed");
+		log.debug(xmlString);
 		String pretty1 = XMLMap.prettyPrint(xmlString);
-		System.out.println("Pretty Print Version pass 1\n"+pretty1);
+		log.debug("Pretty Print Version pass 1\n{}", pretty1);
 		String pretty2 = XMLMap.prettyPrint(pretty1);
-		System.out.println("Pretty Print Version pass 2\n"+pretty2);
-		DF = false;  // Always reset class-wide variable
+		log.debug("Pretty Print Version pass 2\n{}", pretty2);
 		return false;
 	}
 
@@ -1036,48 +1025,47 @@ public class XMLMap {
 	}
 	
 	public static void main(String[] args) {
-		System.out.println("Running XMLMap (www.mdom.org) unit tests..");
+		log.debug("Running XMLMap (www.mdom.org) unit tests..");
 		if ( !allUnitTests() ) return;
-		System.out.println("Unit tests passed...");
+		log.debug("Unit tests passed...");
 		runSamples();
 	}
 	
 	public static void runSamples() {
-		System.out.println("Running XMLMap (www.mdom.org) Samples...");
-		DF = false;
+		log.debug("Running XMLMap (www.mdom.org) Samples...");
 
 		// Test the parsing of a Basic string Map
 		Map<String, String> tm = XMLMap.getMap(simpleText);
-		// System.out.println("tm="+tm);
+		log.debug("tm={}", tm);
 		
 		// Test the production of a basic map
 		Map<String,String> simpleMap = new TreeMap<String,String>();
 		simpleMap.put("/a/b!x", "X");
 		simpleMap.put("/a/b", "B");
 		simpleMap.put("/a/c/d", "D");
-		System.out.println("simpleMap\n"+simpleMap);
+		log.debug("simpleMap\n{}", simpleMap);
 		String simpleXml = XMLMap.getXML(simpleMap, true);
-		System.out.println("simpleXml\n"+simpleXml);
+		log.debug("simpleXml\n{}", simpleXml);
 		unitTest(simpleXml,false);
 				
 		// Do a select of a subMap
 		Map<String,String> subMap = XMLMap.selectSubMap(tm, "/a/c");
 		Map<String,Object> joinedMap = new TreeMap<String,Object>();
-		System.out.println("subMap="+subMap);
+		log.debug("subMap={}", subMap);
 		joinedMap.put("/top/id", "1234");
 		joinedMap.put("/top/fun", subMap); // Graft the map onto this node
-		System.out.println("joinedMap\n"+joinedMap);
+		log.debug("joinedMap\n{}", joinedMap);
 		String joinedXml = XMLMap.getXML(joinedMap, true);
-		System.out.println("joinedXML\n"+joinedXml);
+		log.debug("joinedXML\n{}", joinedXml);
 		unitTest(joinedXml,false);
 		
 		// Do an Array
 		Map<String,Object> arrayMap = new TreeMap<String,Object>();
 		String [] arrayStr = { "first", "second", "third" };
         arrayMap.put("/root/stuff", arrayStr);
-		System.out.println("arrayMap\n"+arrayMap);
+		log.debug("arrayMap\n{}", arrayMap);
 		String arrayXml = XMLMap.getXML(arrayMap, true);
-		System.out.println("arrayXml\n"+arrayXml);
+		log.debug("arrayXml\n{}", arrayXml);
 		unitTest(arrayXml,false);
 
 		// Make a Map that is a combination of Maps, String, and Arrays
@@ -1172,7 +1160,6 @@ public class XMLMap {
         // same.  If anything goes wrong - we re-do it with lots of debug
         String complexXml = null;
         boolean success = false;
-    	DF = false;
         try {
             complexXml = XMLMap.getXML(newMap, true);
             success = true;
@@ -1184,12 +1171,10 @@ public class XMLMap {
         if ( success ) {
         	unitTest(complexXml,false);
         } else {
-        	DF = true;
-        	System.out.println("\n MISMATCH AND/OR SOME ERROR HAS OCCURED - REDO in VERBODE MODE");
-            System.out.println("Starting out newMap="+newMap); 
+        	log.debug("\n MISMATCH AND/OR SOME ERROR HAS OCCURED - REDO in VERBODE MODE");
+        	log.debug("Starting out newMap={}", newMap); 
             complexXml = XMLMap.getXML(newMap, true);
         	unitTest(complexXml,false);
-        	DF = false;
         }
     	
         // A different example - iterating through nested sets - demonstrating the short form
@@ -1200,41 +1185,39 @@ public class XMLMap {
         // for ( Map<String,Object> siteMap : theList) {
         
         // The short form using convenience method if you don't need the map for anything else
-        System.out.println("\nParsing Sites Structure");
+        log.debug("\nParsing Sites Structure");
         for ( Map<String,Object> siteMap : XMLMap.getList(sitesText,"/sites/site")) {
-        	System.out.println("Site="+siteMap);
-        	System.out.println("Id="+XMLMap.getString(siteMap,"/id"));
+        	log.debug("Site={}", siteMap);
+        	log.debug("Id={}", XMLMap.getString(siteMap,"/id"));
             for ( Map<String,Object> toolMap : XMLMap.getList(siteMap,"/tools/tool")) {
-        		System.out.println("Tool="+toolMap);
-        		System.out.println("ToolId="+XMLMap.getString(toolMap,"/toolid"));
+        		log.debug("Tool={}", toolMap);
+        		log.debug("ToolId={}", XMLMap.getString(toolMap,"/toolid"));
                 for ( Map<String,Object> property : XMLMap.getList(toolMap, "/properties/property")) {
-        			System.out.println("key="+XMLMap.getString(property, "/key"));
-        			System.out.println("val="+XMLMap.getString(property, "/val"));
+        			log.debug("key={}", XMLMap.getString(property, "/key"));
+        			log.debug("val={}", XMLMap.getString(property, "/val"));
         		}
         	}
 	    }
-        
-        // Lets parse some RSS as a final kind of easy but quite practical test
-        DF = false;
-        System.out.println("\nParsing RSS Feed");
-        // System.out.println(XMLMap.prettyPrint(rssText));
+
+        log.debug("\nParsing RSS Feed");
+        log.debug(XMLMap.prettyPrint(rssText));
         Map<String,Object> rssFullMap = XMLMap.getFullMap(rssText);
-        System.out.println("RSS Full Map\n"+rssFullMap);
-        System.out.println("Rss Version="+XMLMap.getString(rssFullMap,"/rss!version"));
-        System.out.println("Chan-desc="+XMLMap.getString(rssFullMap,"/rss/channel/description"));
-        System.out.println("Chan-title="+XMLMap.getString(rssFullMap,"/rss/channel/title"));
+        log.debug("RSS Full Map\n{}", rssFullMap);
+        log.debug("Rss Version={}", XMLMap.getString(rssFullMap,"/rss!version"));
+        log.debug("Chan-desc={}", XMLMap.getString(rssFullMap,"/rss/channel/description"));
+        log.debug("Chan-title={}", XMLMap.getString(rssFullMap,"/rss/channel/title"));
         
         Map<String,String> rssStringMap = XMLMap.flattenMap(rssFullMap);
-        System.out.println("RSS Flat String Only Map\n"+rssStringMap);
-        System.out.println("Rss Version="+rssStringMap.get("/rss!version"));
-        System.out.println("Chan-desc="+rssStringMap.get("/rss/channel/description"));
-        System.out.println("Chan-title="+rssStringMap.get("/rss/channel/title"));
+        log.debug("RSS Flat String Only Map\n{}", rssStringMap);
+        log.debug("Rss Version={}", rssStringMap.get("/rss!version"));
+        log.debug("Chan-desc={}", rssStringMap.get("/rss/channel/description"));
+        log.debug("Chan-title={}", rssStringMap.get("/rss/channel/title"));
 
         for ( Map<String,Object> rssItem : XMLMap.getList(rssFullMap,"/rss/channel/item")) {
-        	System.out.println("=== Item ===");
-        	System.out.println(" Item-title="+XMLMap.getString(rssItem, "/title"));
-        	System.out.println(" Item-description="+XMLMap.getString(rssItem, "/description"));
-        	System.out.println(" Item-link="+XMLMap.getString(rssItem, "/link"));
+        	log.debug("=== Item ===");
+        	log.debug(" Item-title={}", XMLMap.getString(rssItem, "/title"));
+        	log.debug(" Item-description={}", XMLMap.getString(rssItem, "/description"));
+        	log.debug(" Item-link={}", XMLMap.getString(rssItem, "/link"));
         }	
 	}
 }

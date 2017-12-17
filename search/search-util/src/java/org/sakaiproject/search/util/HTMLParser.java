@@ -27,15 +27,14 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * @author ieb
  */
+@Slf4j
 public class HTMLParser implements Iterator<String>
 {
-	private static Logger log = LoggerFactory.getLogger(HTMLParser.class);
 
 	private static final char[][] IGNORE_TAGS = new char[][] { "script".toCharArray(),
 			"head".toCharArray(), "style".toCharArray() };

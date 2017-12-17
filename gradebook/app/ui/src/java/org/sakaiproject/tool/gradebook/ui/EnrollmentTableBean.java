@@ -32,13 +32,13 @@ import java.util.Map;
 
 import javax.faces.context.FacesContext;
 import javax.faces.event.ActionEvent;
-import javax.faces.event.ValueChangeEvent;
 import javax.faces.model.SelectItem;
 import javax.faces.event.ValueChangeEvent;
 
+import lombok.extern.slf4j.Slf4j;
+
 import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
 import org.sakaiproject.section.api.coursemanagement.CourseSection;
 import org.sakaiproject.section.api.coursemanagement.EnrollmentRecord;
 import org.sakaiproject.service.gradebook.shared.UnknownUserException;
@@ -50,9 +50,9 @@ import org.sakaiproject.tool.gradebook.jsf.FacesUtil;
  * This is an abstract base class for gradebook dependent backing
  * beans that support searching, sorting, and paging student data.
  */
+@Slf4j
 public abstract class EnrollmentTableBean
     extends GradebookDependentBean implements Paging, Serializable {
-	private static final Logger log = LoggerFactory.getLogger(EnrollmentTableBean.class);
 
     /**
      * A comparator that sorts enrollments by student sortName

@@ -19,8 +19,6 @@
  *
  **********************************************************************************/
 
-
-
 package org.sakaiproject.tool.assessment.qti.helper.item;
 
 import java.util.ArrayList;
@@ -32,11 +30,11 @@ import java.util.Map;
 import java.util.Set;
 import java.util.StringTokenizer;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
+import org.sakaiproject.tool.assessment.data.ifc.assessment.AnswerFeedbackIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AnswerIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AttachmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextIfc;
@@ -46,7 +44,6 @@ import org.sakaiproject.tool.assessment.qti.constants.QTIVersion;
 import org.sakaiproject.tool.assessment.qti.helper.AuthoringXml;
 import org.sakaiproject.tool.assessment.qti.util.XmlUtil;
 import org.sakaiproject.tool.assessment.services.GradingService;
-import org.sakaiproject.tool.assessment.data.ifc.assessment.AnswerFeedbackIfc;
 
 /**
  * <p>Version for QTI 1.2 item XML, significant differences between 1.2 and 2.0</p>
@@ -56,11 +53,10 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.AnswerFeedbackIfc;
  * This might change if we want to add random variable, parameterized calculation....
  * 
  */
-
+@Slf4j
 public class ItemHelper12Impl extends ItemHelperBase
   implements ItemHelperIfc
 {
-  private static Logger log = LoggerFactory.getLogger(ItemHelper12Impl.class);
   private static final String MATCH_XPATH =
     "item/presentation/flow/response_grp/render_choice";
   private static final String NBSP = "&#160;";
@@ -1817,7 +1813,6 @@ public class ItemHelper12Impl extends ItemHelperBase
     {
       answerSet = ( (ItemTextIfc) iter.next()).getAnswerSet();
       log.debug("answersize=" + answerSet.size());
-      //System.out.println("answersize=" + answerSet.size());
       Iterator aiter = answerSet.iterator();
       while (aiter.hasNext())
       {
@@ -1828,7 +1823,6 @@ public class ItemHelper12Impl extends ItemHelperBase
         }
         String value = answer.getText();
         log.debug("\n\n***The answer is: " + value);
-        //System.out.println("\n\n***The answer is: " + value);
         // if and only if FIB we do special processing
         if (itemXml.isFIB())
         {
@@ -1890,11 +1884,8 @@ public class ItemHelper12Impl extends ItemHelperBase
 
   public void setFeedback(List<ItemTextIfc> itemTextList, Item itemXml)
   {
-    //log.info("setFeedback()");
 
     boolean hasAnswerLevelFeedback = itemXml.isMCMC() || itemXml.isMCSC()|| itemXml.isMCMCSS();
-    //log.info("itemXml.getItemType(): " + itemXml.getItemType());
-    //log.info("hasAnswerLevelFeedback: " + hasAnswerLevelFeedback);
 
     // for any answers that are now in the template, create a feedback
     String xpath =
@@ -1931,9 +1922,6 @@ public class ItemHelper12Impl extends ItemHelperBase
         while (aiter.hasNext())
         {
           AnswerIfc answer = (AnswerIfc) aiter.next();
-          //log.info("Setting answer feedback for: " + answer.getText());
-          //log.info("xpathIndex: " + xpathIndex);
-          //log.info("label: " + label);
 
           String value = answer.getGeneralAnswerFeedback();
           boolean isInsert = true;

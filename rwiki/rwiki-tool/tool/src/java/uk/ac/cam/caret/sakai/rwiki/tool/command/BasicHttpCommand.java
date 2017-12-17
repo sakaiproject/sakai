@@ -27,18 +27,16 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import uk.ac.cam.caret.sakai.rwiki.tool.api.HttpCommand;
 
 /**
  * @author andrew
  */
+@Slf4j
 public class BasicHttpCommand implements HttpCommand
 {
-	private static Logger log = LoggerFactory.getLogger(BasicHttpCommand.class);
-	
 	private String servletPath;
 
 	/*

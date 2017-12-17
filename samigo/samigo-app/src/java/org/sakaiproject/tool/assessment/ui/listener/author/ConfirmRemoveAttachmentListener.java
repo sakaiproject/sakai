@@ -19,7 +19,6 @@
  *
  **********************************************************************************/
 
-
 package org.sakaiproject.tool.assessment.ui.listener.author;
 
 import javax.faces.context.FacesContext;
@@ -39,7 +38,6 @@ import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 
 public class ConfirmRemoveAttachmentListener implements ActionListener
 {
-  //private static Logger log = LoggerFactory.getLogger(ConfirmRemoveAttachmentListener.class);
 
   public ConfirmRemoveAttachmentListener()
   {

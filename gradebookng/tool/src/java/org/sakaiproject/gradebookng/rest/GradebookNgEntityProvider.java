@@ -19,8 +19,12 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
+
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.entitybroker.EntityView;
@@ -37,10 +41,10 @@ import org.sakaiproject.gradebookng.business.GbRole;
 import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
 import org.sakaiproject.gradebookng.business.exception.GbAccessDeniedException;
 import org.sakaiproject.gradebookng.business.model.GbGradeCell;
+import org.sakaiproject.gradebookng.rest.model.CourseGradeSummary;
+import org.sakaiproject.service.gradebook.shared.CourseGrade;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.SessionManager;
-
-import lombok.Setter;
 
 /**
  * This entity provider is to support some of the Javascript front end pieces. It never was built to support third party access, and never
@@ -51,6 +55,7 @@ import lombok.Setter;
  * @author Steve Swinsburg (steve.swinsburg@gmail.com)
  *
  */
+@Slf4j
 public class GradebookNgEntityProvider extends AbstractEntityProvider implements
 		AutoRegisterEntityProvider, ActionsExecutable,
 		Outputable, Describeable {
@@ -151,11 +156,9 @@ public class GradebookNgEntityProvider extends AbstractEntityProvider implements
 		try {
 			this.businessService.updateAssignmentCategorizedOrder(siteId, assignmentId, order);
 		} catch (final IdUnusedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			log.error(e.getMessage(), e);
 		} catch (final PermissionException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			log.error(e.getMessage(), e);
 		}
 	}
 
@@ -181,6 +184,26 @@ public class GradebookNgEntityProvider extends AbstractEntityProvider implements
 		checkInstructorOrTA(siteId);
 
 		return this.businessService.getAssignmentGradeComment(siteId, assignmentId, studentUuid);
+	}
+	
+	@EntityCustomAction(action = "course-grades", viewKey = EntityView.VIEW_LIST)
+	public CourseGradeSummary getCourseGradeSummary(final EntityView view, final Map<String, Object> params) {
+		
+		// get params
+		final String siteId = (String) params.get("siteId");
+				
+		checkValidSite(siteId);
+		checkInstructor(siteId);
+		
+		CourseGradeSummary summary = new CourseGradeSummary();
+		
+		// get course grades and re-map
+		Map<String, CourseGrade> courseGrades = this.businessService.getCourseGrades(siteId);
+		courseGrades.forEach((k,v) -> {
+			summary.add(v.getDisplayGrade());
+		});
+		
+		return summary;
 	}
 
 	/**

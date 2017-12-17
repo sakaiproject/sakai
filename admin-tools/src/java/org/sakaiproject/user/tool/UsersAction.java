@@ -1419,7 +1419,7 @@ public class UsersAction extends PagedResourceActionII
 			//and any duplicate ones will override previous ones (currently)
 			properties.addProperty(optionalAttributeKey, optionalAttributeValue);
 			
-			//System.out.println("optionalAttributeKey: " + optionalAttributeKey + ", optionalAttributeValue: " + optionalAttributeValue);
+			log.debug("optionalAttributeKey: {}, optionalAttributeValue: {}", optionalAttributeKey, optionalAttributeValue);
 			
 			count++;
 		}

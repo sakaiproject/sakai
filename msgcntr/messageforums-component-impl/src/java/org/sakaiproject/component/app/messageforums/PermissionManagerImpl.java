@@ -20,9 +20,13 @@
  **********************************************************************************/
 package org.sakaiproject.component.app.messageforums;
 
+import lombok.extern.slf4j.Slf4j;
 import org.hibernate.Query;
 import org.hibernate.type.BooleanType;
 import org.hibernate.type.StringType;
+import org.springframework.orm.hibernate4.HibernateCallback;
+import org.springframework.orm.hibernate4.support.HibernateDaoSupport;
+
 import org.sakaiproject.api.app.messageforums.Area;
 import org.sakaiproject.api.app.messageforums.AreaControlPermission;
 import org.sakaiproject.api.app.messageforums.AreaManager;
@@ -46,14 +50,9 @@ import org.sakaiproject.id.api.IdManager;
 import org.sakaiproject.tool.api.Placement;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.ToolManager;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.orm.hibernate4.HibernateCallback;
-import org.springframework.orm.hibernate4.support.HibernateDaoSupport;
 
+@Slf4j
 public class PermissionManagerImpl extends HibernateDaoSupport implements PermissionManager {
-
-    private static final Logger LOG = LoggerFactory.getLogger(PermissionManagerImpl.class);
 
     private static final String QUERY_CP_BY_ROLE = "findAreaControlPermissionByRole";
     private static final String QUERY_CP_BY_FORUM = "findForumControlPermissionByRole";
@@ -77,7 +76,7 @@ public class PermissionManagerImpl extends HibernateDaoSupport implements Permis
     private ToolManager toolManager;
     
     public void init() {
-       LOG.info("init()");
+       log.info("init()");
        ;
     }
 
@@ -468,7 +467,7 @@ public class PermissionManagerImpl extends HibernateDaoSupport implements Permis
     }    
 
     public ControlPermissions getAreaControlPermissionByRoleAndType(final String roleId, final String typeId, final boolean defaultValue) {
-        LOG.debug("getAreaControlPermissionByRole executing for current user: " + getCurrentUser());
+        log.debug("getAreaControlPermissionByRole executing for current user: " + getCurrentUser());
         final Area area = areaManager.getAreaByContextIdAndTypeId(typeId);
         if (area == null) {
             return null;
@@ -484,7 +483,7 @@ public class PermissionManagerImpl extends HibernateDaoSupport implements Permis
     }
 
     private ControlPermissions getControlPermissionByKeyValue(final String roleId, final String key, final String value, final boolean defaultValue) {
-        LOG.debug("getAreaControlPermissionByRole executing for current user: " + getCurrentUser());
+        log.debug("getAreaControlPermissionByRole executing for current user: " + getCurrentUser());
         HibernateCallback<ControlPermissions> hcb = session -> {
             String queryString = "forumId".equals(key) ? QUERY_CP_BY_FORUM : QUERY_CP_BY_TOPIC;
             Query q = session.getNamedQuery(queryString);
@@ -497,7 +496,7 @@ public class PermissionManagerImpl extends HibernateDaoSupport implements Permis
     }
     
     private MessagePermissions getMessagePermissionByKeyValue(final String roleId, final String key, final String value, final boolean defaultValue) {
-        LOG.debug("getAreaMessagePermissionByRole executing for current user: " + getCurrentUser());
+        log.debug("getAreaMessagePermissionByRole executing for current user: " + getCurrentUser());
         HibernateCallback<MessagePermissions> hcb = session -> {
             String queryString = "forumId".equals(key) ? QUERY_MP_BY_FORUM : QUERY_MP_BY_TOPIC;
             Query q = session.getNamedQuery(queryString);
@@ -927,7 +926,7 @@ public class PermissionManagerImpl extends HibernateDaoSupport implements Permis
     }
     
     public MessagePermissions getAreaMessagePermissionByRoleAndType(final String roleId, final String typeId, final boolean defaultValue) {
-        LOG.debug("getAreaMessagePermissionByRole executing for current user: " + getCurrentUser());
+        log.debug("getAreaMessagePermissionByRole executing for current user: " + getCurrentUser());
         final Area area = areaManager.getAreaByContextIdAndTypeId(typeId);
         if (area == null) {
             return null;

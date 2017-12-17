@@ -23,8 +23,8 @@ package org.sakaiproject.email.impl;
 
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.db.api.SqlService;
 import org.sakaiproject.email.api.Digest;
 import org.sakaiproject.email.api.DigestEdit;
@@ -36,11 +36,9 @@ import org.sakaiproject.util.SingleStorageUser;
  * DbDigestService is an extension of the BaseDigestService with database storage.
  * </p>
  */
+@Slf4j
 public class DbDigestService extends BaseDigestService
 {
-	/** Our logger. */
-	private static Logger M_log = LoggerFactory.getLogger(DbDigestService.class);
-
 	/** Table name for realms. */
 	protected String m_tableName = "SAKAI_DIGEST";
 
@@ -120,11 +118,11 @@ public class DbDigestService extends BaseDigestService
 
 			super.init();
 
-			M_log.info("init(): table: " + m_tableName + " locks-in-db: " + m_locksInDb);
+			log.info("init(): table: " + m_tableName + " locks-in-db: " + m_locksInDb);
 		}
 		catch (Exception t)
 		{
-			M_log.warn("init(): ", t);
+			log.warn("init(): ", t);
 		}
 	}
 

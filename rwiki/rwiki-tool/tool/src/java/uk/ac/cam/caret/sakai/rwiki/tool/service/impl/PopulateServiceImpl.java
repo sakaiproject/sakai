@@ -28,8 +28,8 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.component.api.ComponentManager;
 import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.site.api.Site;
@@ -48,10 +48,9 @@ import uk.ac.cam.caret.sakai.rwiki.utils.NameHelper;
 /**
  * @author andrew
  */
-
+@Slf4j
 public class PopulateServiceImpl implements PopulateService
 {
-	private static Logger log = LoggerFactory.getLogger(PopulateServiceImpl.class);
 
 	private List seedPages;
 

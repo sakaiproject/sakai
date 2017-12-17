@@ -25,20 +25,19 @@ package org.sakaiproject.tool.gradebook.jsf;
 import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+
+import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.tool.gradebook.ui.AssignmentGradeRow;
 import org.sakaiproject.tool.gradebook.Gradebook;
-import org.sakaiproject.service.gradebook.shared.GradebookService;
 
 /**
  * This formatting-only converver consolidates the rather complex formatting
  * logic for the display of a student's score. The display
  * changes based upon the grade entry method.
  */
+@Slf4j
 public class ScoreConverter extends PointsConverter {
-	private static final Logger log = LoggerFactory.getLogger(ScoreConverter.class);
-
 	public String getAsString(FacesContext context, UIComponent component, Object value) {
 		if (log.isDebugEnabled()) log.debug("getAsString(" + context + ", " + component + ", " + value + ")");
 

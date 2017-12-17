@@ -110,7 +110,7 @@
     <sakai.simple-xml.version>2.6</sakai.simple-xml.version>
     <sakai.spring.groupId>org.springframework</sakai.spring.groupId>
     <sakai.spring.artifactId>spring-core</sakai.spring.artifactId>
-    <sakai.spring.version>4.3.10.RELEASE</sakai.spring.version>
+    <sakai.spring.version>4.3.13.RELEASE</sakai.spring.version>
     <sakai.spring.security.version>3.2.10.RELEASE</sakai.spring.security.version>
     <sakai.spring.hateoas.version>0.22.0.RELEASE</sakai.spring.hateoas.version>
     <sakai.spring.plugin.version>1.2.0.RELEASE</sakai.spring.plugin.version>
@@ -1329,19 +1329,7 @@
       </dependency>
       <dependency>
         <groupId>org.sakaiproject.common</groupId>
-        <artifactId>sakai-common-edu-person-api</artifactId>
-        <version>${sakai.version}</version>
-        <scope>provided</scope>
-      </dependency>
-      <dependency>
-        <groupId>org.sakaiproject.common</groupId>
-        <artifactId>sakai-common-manager-api</artifactId>
-        <version>${sakai.version}</version>
-        <scope>provided</scope>
-      </dependency>
-      <dependency>
-        <groupId>org.sakaiproject.common</groupId>
-        <artifactId>sakai-common-type-api</artifactId>
+        <artifactId>sakai-common-api</artifactId>
         <version>${sakai.version}</version>
         <scope>provided</scope>
       </dependency>

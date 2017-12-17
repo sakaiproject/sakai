@@ -28,11 +28,11 @@ import java.util.List;
 
 import org.junit.Assert;
 import org.junit.Test;
+
 import org.sakaiproject.content.impl.ContentHostingComparator;
 import org.sakaiproject.entity.api.ResourceProperties;
 
 public class SortTest {
-
 	@Test
 	public void testSorts() {
 		ContentHostingComparator c = new ContentHostingComparator(ResourceProperties.PROP_DISPLAY_NAME, true); 
@@ -100,9 +100,7 @@ public class SortTest {
 		Collections.sort(testResources,c);
 		for (int i=0;i<testResources.size();i++) {
 			Assert.assertEquals(testResources.get(i).resourceId,smartSortResources.get(i).resourceId); 
-//			System.out.printf("\"%s\" ",testResources.get(i).resourceId);
 		}
-		System.out.println();
 
 		//Switch to content length (which is 0 in mock) and regular sorting
 		c = new ContentHostingComparator(ResourceProperties.PROP_CONTENT_LENGTH, false, true); 
@@ -110,9 +108,7 @@ public class SortTest {
 		Collections.sort(testResources,c);
 		for (int i=0;i<testResources.size();i++) {
 			Assert.assertEquals(testResources.get(i).resourceId,regularSortResources.get(i).resourceId); 
-//			System.out.printf("\"%s\" ",testResources.get(i).resourceId);
 		}
-		System.out.println();
 	}
 	
 	@Test

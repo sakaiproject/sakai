@@ -39,8 +39,7 @@ import javax.xml.transform.stream.StreamSource;
 
 import junit.framework.TestCase;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.fop.apps.Fop;
 import org.apache.fop.apps.FopFactory;
 import org.apache.fop.apps.MimeConstants;
@@ -56,9 +55,9 @@ import uk.ac.cam.caret.sakai.rwiki.service.api.model.RWikiEntity;
 /**
  * @author ieb
  */
+@Slf4j
 public class XSLTEntityHandlerTest extends TestCase
 {
-	private static Logger logger = LoggerFactory.getLogger(XSLTEntityHandlerTest.class);
 
 	private XSLTEntityHandler eh = null;
 
@@ -506,28 +505,28 @@ public class XSLTEntityHandlerTest extends TestCase
 				Decoded result = results[j];
 				if (decoded != null)
 				{
-					logger.info("--Context = " + decoded.getContext());
-					logger.info("--getContainer = " + decoded.getContainer());
-					logger.info("--getPage = " + decoded.getPage());
-					logger.info("--getVersion = " + decoded.getVersion());
-					logger.info("--getId = " + decoded.getId());
+					log.info("--Context = " + decoded.getContext());
+					log.info("--getContainer = " + decoded.getContainer());
+					log.info("--getPage = " + decoded.getPage());
+					log.info("--getVersion = " + decoded.getVersion());
+					log.info("--getId = " + decoded.getId());
 
 				}
 				else
 				{
-					logger.info("--null");
+					log.info("--null");
 				}
 				if (result != null)
 				{
-					logger.info("++Context = " + result.getContext());
-					logger.info("++getContainer = " + result.getContainer());
-					logger.info("++getPage = " + result.getPage());
-					logger.info("++getVersion = " + result.getVersion());
-					logger.info("++getId = " + result.getId());
+					log.info("++Context = " + result.getContext());
+					log.info("++getContainer = " + result.getContainer());
+					log.info("++getPage = " + result.getPage());
+					log.info("++getVersion = " + result.getVersion());
+					log.info("++getId = " + result.getId());
 				}
 				else
 				{
-					logger.info("++null");
+					log.info("++null");
 				}
 
 				if (result != null && decoded == null)
@@ -565,7 +564,7 @@ public class XSLTEntityHandlerTest extends TestCase
 		}
 		float timet = (float) 1.0 * (System.currentTimeMillis() - start);
 		float tper = (float) (timet / (1.0 * iters));
-		logger.info("Decode call cost = " + tper + " ms");
+		log.info("Decode call cost = " + tper + " ms");
 
 	}
 
@@ -601,7 +600,7 @@ public class XSLTEntityHandlerTest extends TestCase
 			eh.setXslt(test[i]);
 			eh.init();
 			eh.outputContent(rwe, rwe, request, response);
-			logger.info(response.getContentAsString());
+			log.info(response.getContentAsString());
 		}
 		long start = System.currentTimeMillis();
 		int iters = 10;
@@ -615,7 +614,7 @@ public class XSLTEntityHandlerTest extends TestCase
 		}
 		float timet = (float) 1.0 * (System.currentTimeMillis() - start);
 		float tper = (float) (timet / (1.0 * iters));
-		logger.info("Transform and Serialize Call Cost = " + tper + " ms");
+		log.info("Transform and Serialize Call Cost = " + tper + " ms");
 
 	}
 
@@ -687,7 +686,7 @@ public class XSLTEntityHandlerTest extends TestCase
 		}
 		float timet = (float) 1.0 * (System.currentTimeMillis() - start);
 		float tper = (float) (timet / (1.0 * iters));
-		logger.info("Transform and Serialize Call Cost = " + tper + " ms");
+		log.info("Transform and Serialize Call Cost = " + tper + " ms");
 
 	}
 
@@ -759,7 +758,7 @@ public class XSLTEntityHandlerTest extends TestCase
 		}
 		float timet = (float) 1.0 * (System.currentTimeMillis() - start);
 		float tper = (float) (timet / (1.0 * iters));
-		logger.info("Transform and Serialize Call Cost = " + tper + " ms");
+		log.info("Transform and Serialize Call Cost = " + tper + " ms");
 
 	}
 
@@ -829,7 +828,7 @@ public class XSLTEntityHandlerTest extends TestCase
 		}
 		float timet = (float) 1.0 * (System.currentTimeMillis() - start);
 		float tper = (float) (timet / (1.0 * iters));
-		logger.info("Transform and Serialize Call Cost = " + tper + " ms");
+		log.info("Transform and Serialize Call Cost = " + tper + " ms");
 
 	}
 
@@ -899,7 +898,7 @@ public class XSLTEntityHandlerTest extends TestCase
 		}
 		float timet = (float) 1.0 * (System.currentTimeMillis() - start);
 		float tper = (float) (timet / (1.0 * iters));
-		logger.info("Transform and Serialize Call Cost = " + tper + " ms");
+		log.info("Transform and Serialize Call Cost = " + tper + " ms");
 
 	}
 	
@@ -944,11 +943,11 @@ public class XSLTEntityHandlerTest extends TestCase
 			 * pageSequences = foResults.getPageSequences(); for
 			 * (java.util.Iterator it = pageSequences.iterator(); it.hasNext();) {
 			 * PageSequenceResults pageSequenceResults =
-			 * (PageSequenceResults)it.next(); System.out.println("PageSequence " +
+			 * (PageSequenceResults)it.next(); log.info("PageSequence " +
 			 * (String.valueOf(pageSequenceResults.getID()).length() > 0 ?
 			 * pageSequenceResults.getID() : "<no id>") + " generated " +
 			 * pageSequenceResults.getPageCount() + " pages."); }
-			 * System.out.println("Generated " + foResults.getPageCount() + "
+			 * log.info("Generated " + foResults.getPageCount() + "
 			 * pages in total.");
 			 */
 

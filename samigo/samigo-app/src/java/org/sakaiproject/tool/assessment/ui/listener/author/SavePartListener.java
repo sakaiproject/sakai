@@ -19,8 +19,6 @@
  *
  **********************************************************************************/
 
-
-
 package org.sakaiproject.tool.assessment.ui.listener.author;
 
 import java.util.ArrayList;
@@ -36,10 +34,10 @@ import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
 
-import org.sakaiproject.samigo.util.SamigoConstants;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.event.cover.EventTrackingService;
+import org.sakaiproject.samigo.util.SamigoConstants;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AnswerIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
@@ -72,11 +70,10 @@ import org.sakaiproject.util.FormattedText;
  * @author Ed Smiley
  * @version $Id$
  */
-
+@Slf4j
 public class SavePartListener
     implements ActionListener
 {
-  private static Logger log = LoggerFactory.getLogger(SavePartListener.class);
   private boolean isEditPendingAssessmentFlow;
 
   public SavePartListener()
@@ -98,7 +95,7 @@ public class SavePartListener
     // create an assessment based on the title entered and the assessment
     // template selected
     // #1 - read from form editpart.jsp
-    String title = TextFormat.convertPlaintextToFormattedTextNoHighUnicode(log, sectionBean.getSectionTitle()).trim();
+    String title = TextFormat.convertPlaintextToFormattedTextNoHighUnicode(sectionBean.getSectionTitle()).trim();
     if(title == null || title.equals("")){
     	String err=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages", "empty_part_title_error");
     	context.addMessage(null, new FacesMessage(err));
@@ -194,13 +191,13 @@ public class SavePartListener
 
     if (isEditPendingAssessmentFlow) {
     	if (!("".equals(sectionBean.getKeyword())))
-    		section.addSectionMetaData(SectionMetaDataIfc.KEYWORDS, TextFormat.convertPlaintextToFormattedTextNoHighUnicode(log, sectionBean.getKeyword()));
+    		section.addSectionMetaData(SectionMetaDataIfc.KEYWORDS, TextFormat.convertPlaintextToFormattedTextNoHighUnicode(sectionBean.getKeyword()));
 
     	if (!("".equals(sectionBean.getObjective())))
-    		section.addSectionMetaData(SectionMetaDataIfc.OBJECTIVES, TextFormat.convertPlaintextToFormattedTextNoHighUnicode(log, sectionBean.getObjective()));
+    		section.addSectionMetaData(SectionMetaDataIfc.OBJECTIVES, TextFormat.convertPlaintextToFormattedTextNoHighUnicode(sectionBean.getObjective()));
 
     	if (!("".equals(sectionBean.getRubric())))
-    		section.addSectionMetaData(SectionMetaDataIfc.RUBRICS, TextFormat.convertPlaintextToFormattedTextNoHighUnicode(log, sectionBean.getRubric()));
+    		section.addSectionMetaData(SectionMetaDataIfc.RUBRICS, TextFormat.convertPlaintextToFormattedTextNoHighUnicode(sectionBean.getRubric()));
 
     	if (!("".equals(sectionBean.getType())))  {
     		section.addSectionMetaData(SectionDataIfc.AUTHOR_TYPE, sectionBean.getType());
