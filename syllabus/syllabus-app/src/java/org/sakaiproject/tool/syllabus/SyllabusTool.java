@@ -315,7 +315,9 @@ public class SyllabusTool
 		Map<String, String> params = FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap();
 		String startISODate = params.get((getEntry().getPosition() - 1) + HIDDEN_START_ISO_DATE);
 		if(DateFormatterUtil.isValidISODate(startISODate)){
-			 getEntry().setStartDate(DateFormatterUtil.parseISODate(startISODate));
+			getEntry().setStartDate(DateFormatterUtil.parseISODate(startISODate));
+		} else {
+			getEntry().setStartDate(null);
 		}
 		this.startDateString = DateFormatterUtil.format(getEntry().getStartDate(), DATEPICKER_DATETIME_FORMAT, rb.getLocale());
 	}
@@ -328,8 +330,11 @@ public class SyllabusTool
 		Map<String, String> params = FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap();
 		String endISODate = params.get((getEntry().getPosition() - 1) + HIDDEN_END_ISO_DATE);
 		if(DateFormatterUtil.isValidISODate(endISODate)){
-			 getEntry().setEndDate(DateFormatterUtil.parseISODate(endISODate));
+			getEntry().setEndDate(DateFormatterUtil.parseISODate(endISODate));
+		} else {
+			getEntry().setEndDate(null);
 		}
+		
 		this.endDateString = DateFormatterUtil.format(getEntry().getEndDate(), DATEPICKER_DATETIME_FORMAT, rb.getLocale());
 	}
   }
@@ -2731,8 +2736,11 @@ public class SyllabusTool
 					Map<String, String> params = FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap();
 					String startISODate = params.get(HIDDEN_START_ISO_DATE);
 					if(DateFormatterUtil.isValidISODate(startISODate)){
-					     syllabusData.setStartDate(DateFormatterUtil.parseISODate(startISODate));
+					    syllabusData.setStartDate(DateFormatterUtil.parseISODate(startISODate));
+					} else {
+						syllabusData.setStartDate(null);
 					}
+					
 			  }
 		  }
 	  }
@@ -2787,7 +2795,9 @@ public class SyllabusTool
 					Map<String, String> params = FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap();
 					String endISODate = params.get(HIDDEN_END_ISO_DATE);
 					if(DateFormatterUtil.isValidISODate(endISODate)){
-					     syllabusData.setEndDate(DateFormatterUtil.parseISODate(endISODate));
+					    syllabusData.setEndDate(DateFormatterUtil.parseISODate(endISODate));
+					} else {
+						syllabusData.setEndDate(null);
 					}
 			  }
 		  }
@@ -2992,7 +3002,9 @@ public class SyllabusTool
 			Map<String, String> params = FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap();
 			String startISODate = params.get(HIDDEN_START_ISO_DATE);
 			if(DateFormatterUtil.isValidISODate(startISODate)){
-					setStartDate(DateFormatterUtil.parseISODate(startISODate));
+				setStartDate(DateFormatterUtil.parseISODate(startISODate));
+			} else {
+				setStartDate(null);
 			}
 		}
 	}
@@ -3014,8 +3026,11 @@ public class SyllabusTool
 			Map<String, String> params = FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap();
 			String endISODate = params.get(HIDDEN_END_ISO_DATE);
 			if(DateFormatterUtil.isValidISODate(endISODate)){
-					setEndDate(DateFormatterUtil.parseISODate(endISODate));
+				setEndDate(DateFormatterUtil.parseISODate(endISODate));
+			} else {
+				setEndDate(null);
 			}
+			
 		}
 	}
 	
