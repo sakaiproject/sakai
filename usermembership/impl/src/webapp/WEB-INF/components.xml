@@ -9,9 +9,4 @@
 		init-method="init">
 		<property name="securityService" ref="org.sakaiproject.authz.api.SecurityService"/>
 	</bean>
-	
-	<bean id="org.sakaiproject.umem.api.SakaiFacade"
-		class="org.sakaiproject.umem.impl.SakaiFacadeImpl">
-		<property name="userTimeService" ref="org.sakaiproject.time.api.UserTimeService"/>
-	</bean>
 </beans>
