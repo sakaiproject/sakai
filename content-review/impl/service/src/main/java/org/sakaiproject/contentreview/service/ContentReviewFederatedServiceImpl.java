@@ -257,4 +257,9 @@ public class ContentReviewFederatedServiceImpl implements ContentReviewService {
 			throws QueueException, ReportException, Exception {
 		return getSelectedProvider().getReviewScore(contentId, assignmentRef, userId);
 	}
+
+	public ContentReviewItem getContentReviewItemByContentId(String arg0) {
+		return getSelectedProvider().getContentReviewItemByContentId(arg0);
+	}
+
 }

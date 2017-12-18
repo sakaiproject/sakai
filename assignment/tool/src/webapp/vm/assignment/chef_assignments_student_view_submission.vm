@@ -298,14 +298,15 @@ $(document).ready(function(){
 					</div>
 				</div>
 			#end
-			#if($!submitted && $!dateSubmitted && $allowReviewService && $assignment.AllowReviewService && $assignment.AllowStudentViewReport)
+			#set($allowStudentViewReport = $assignment.Properties.get("s_view_report")) 
+			#if($!submitted && $!dateSubmitted && $allowReviewService && $assignment.ContentReview && $!allowStudentViewReport.equals('true'))
 				<div class="row">
 					<div class="col-lg-4 col-sm-6 col-xs-12">
 						<div class="itemSummaryHeader">$reviewServiceName&nbsp;$tlang.getString("review.report")</div>
 					</div>
 					<div class="col-lg-4 col-sm-6 col-xs-12">
 						<div class="itemSummaryValue">
-							#set($reviewResults=$submission.ContentReviewResults)
+							#set($reviewResults=$!service.getContentReviewResults($!submission))
 							#if ($reviewResults.size() >= 3)
 								<div class="discTria">
 									<input class="disclosureTriangle" type="image" onclick="ASN.handleReportsTriangleDisclosure(this,this.parentNode.parentNode.children[1]); return false;" src="#imageLink("sakai/expand.gif")" alt="$tlang.getString('review.report.expand')"/>
@@ -318,7 +319,7 @@ $(document).ready(function(){
 									#set ($props = $reviewResult.getContentResource().Properties)
 									<span class="reportIcon">
 										#if (!$reviewResult.getReviewReport().equals("Error"))<a href="$reviewResult.getReviewReport()" target="_blank">#end
-										<span class="$reviewResult.getReviewIconCssClass()" title="#if($reviewResult.getReviewReport().equals("Error"))$reviewResult.getReviewError()#{else}$reviewResult.getReviewScore()#end"></span>
+										<span class="$reviewResult.getReviewIconCssClass()" title="#if($reviewResult.getReviewReport().equals("Error"))$reviewResult.getReviewError()#{else}$reviewResult.contentReviewItem.getReviewScore()#end"></span>
 										#if (!$reviewResult.getReviewReport().equals("Error"))</a>#end
 									</span>
 									#if ($reviewResult.isInline())
