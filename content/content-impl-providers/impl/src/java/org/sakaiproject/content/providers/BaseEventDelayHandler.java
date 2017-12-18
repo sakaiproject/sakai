@@ -238,7 +238,6 @@ public class BaseEventDelayHandler implements EventDelayHandler, ScheduledInvoca
 
 		// Schedule the new delayed invocation
 		LOG.info("Creating new delayed event [" + id + "]");
-		//SAK-33585 
 		Instant fireInstant = Instant.ofEpochMilli(fireTime.getTime());
 		schedInvocMgr.createDelayedInvocation(fireInstant, BaseEventDelayHandler.class.getName(), id);
 		return id;
