@@ -14,12 +14,17 @@
  * limitations under the License.
  */
 package org.sakaiproject.basiclti.util;
-import static org.junit.Assert.*;
+
+import static org.junit.Assert.assertEquals;
+
+import lombok.extern.slf4j.Slf4j;
 
 import org.junit.Before;
 import org.junit.Test;
+
 import org.sakaiproject.basiclti.util.SakaiBLTIUtil;
 
+@Slf4j
 public class SakaiBLTIUtilTest {
 
 	public static String [] shouldBeTheSame = {
@@ -72,7 +77,7 @@ public class SakaiBLTIUtilTest {
 			grade = SakaiBLTIUtil.getRoundedGrade(0.57,100.0);
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			log.error(e.getMessage(), e);
 		}
 			
 		assertEquals(grade,"57.0");
@@ -81,7 +86,7 @@ public class SakaiBLTIUtilTest {
 			grade = SakaiBLTIUtil.getRoundedGrade(0.5655,100.0);
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			log.error(e.getMessage(), e);
 		}
 
 		assertEquals(grade,"56.55");

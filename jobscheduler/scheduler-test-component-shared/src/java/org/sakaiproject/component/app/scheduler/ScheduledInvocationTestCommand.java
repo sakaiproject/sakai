@@ -15,19 +15,14 @@
  */
 package org.sakaiproject.component.app.scheduler;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.api.app.scheduler.ScheduledInvocationCommand;
 
+@Slf4j
 public class ScheduledInvocationTestCommand implements
 		ScheduledInvocationCommand {
-
-	private static final Logger LOG = LoggerFactory.getLogger(ScheduledInvocationTestCommand.class);
-	
 	public void execute(String opaqueContext) {
-		
-		LOG.info("Command executed!  Context: "+opaqueContext);
-
+		log.info("Command executed!  Context: "+opaqueContext);
 	}
-
 }

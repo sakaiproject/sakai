@@ -23,17 +23,16 @@ package org.sakaiproject.component.common.manager;
 
 import java.util.Date;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.api.common.manager.Persistable;
 
 /**
  * @author <a href="mailto:lance@indiana.edu">Lance Speelmon</a>
  */
+@Slf4j
 public abstract class PersistableImpl implements Persistable
 {
-	private static final Logger LOG = LoggerFactory.getLogger(PersistableImpl.class);
-
 	protected Long id;
 
 	protected Integer version;
@@ -53,7 +52,7 @@ public abstract class PersistableImpl implements Persistable
 	 */
 	public Long getId()
 	{
-		LOG.trace("getId()");
+		log.trace("getId()");
 
 		return id;
 	}
@@ -64,9 +63,9 @@ public abstract class PersistableImpl implements Persistable
 	 */
 	public void setId(Long id)
 	{
-		if (LOG.isDebugEnabled())
+		if (log.isDebugEnabled())
 		{
-			LOG.debug("setId(Long " + id + ")");
+			log.debug("setId(Long " + id + ")");
 		}
 		if (id == null) throw new IllegalArgumentException("Illegal id argument passed!");
 
@@ -78,7 +77,7 @@ public abstract class PersistableImpl implements Persistable
 	 */
 	public Integer getVersion()
 	{
-		LOG.trace("getVersion()");
+		log.trace("getVersion()");
 
 		return version;
 	}
@@ -89,9 +88,9 @@ public abstract class PersistableImpl implements Persistable
 	 */
 	public void setVersion(Integer version)
 	{
-		if (LOG.isDebugEnabled())
+		if (log.isDebugEnabled())
 		{
-			LOG.debug("setVersion(Integer " + version + ")");
+			log.debug("setVersion(Integer " + version + ")");
 		}; // validation removed to enable hibernate's reflection optimizer
 
 		this.version = version;
@@ -102,16 +101,16 @@ public abstract class PersistableImpl implements Persistable
 	 */
 	public String getUuid()
 	{
-		LOG.trace("getUuid()");
+		log.trace("getUuid()");
 
 		return uuid;
 	}
 
 	public void setUuid(String uuid)
 	{
-		if (LOG.isDebugEnabled())
+		if (log.isDebugEnabled())
 		{
-			LOG.debug("setUuid(String " + uuid + ")");
+			log.debug("setUuid(String " + uuid + ")");
 		}
 		if (uuid == null || uuid.length() < 1) throw new IllegalArgumentException("Illegal uuid argument passed!");
 
@@ -123,16 +122,16 @@ public abstract class PersistableImpl implements Persistable
 	 */
 	public String getLastModifiedBy()
 	{
-		LOG.trace("getLastModifiedBy()");
+		log.trace("getLastModifiedBy()");
 
 		return lastModifiedBy;
 	}
 
 	public void setLastModifiedBy(String lastModifiedBy)
 	{
-		if (LOG.isDebugEnabled())
+		if (log.isDebugEnabled())
 		{
-			LOG.debug("setLastModifiedBy(String " + lastModifiedBy + ")");
+			log.debug("setLastModifiedBy(String " + lastModifiedBy + ")");
 		}
 		// FIXME
 		// if (lastModifiedBy == null || lastModifiedBy.length() < 1)
@@ -147,16 +146,16 @@ public abstract class PersistableImpl implements Persistable
 	 */
 	public Date getLastModifiedDate()
 	{
-		LOG.trace("getLastModifiedDate()");
+		log.trace("getLastModifiedDate()");
 
 		return lastModifiedDate;
 	}
 
 	public void setLastModifiedDate(Date lastModifiedDate)
 	{
-		if (LOG.isDebugEnabled())
+		if (log.isDebugEnabled())
 		{
-			LOG.debug("setLastModifiedDate(Date " + lastModifiedDate + ")");
+			log.debug("setLastModifiedDate(Date " + lastModifiedDate + ")");
 		}
 		// FIXME
 		// if (lastModifiedDate == null)
@@ -171,16 +170,16 @@ public abstract class PersistableImpl implements Persistable
 	 */
 	public String getCreatedBy()
 	{
-		LOG.trace("getCreatedBy()");
+		log.trace("getCreatedBy()");
 
 		return createdBy;
 	}
 
 	public void setCreatedBy(String createdBy)
 	{
-		if (LOG.isDebugEnabled())
+		if (log.isDebugEnabled())
 		{
-			LOG.debug("setCreatedBy(String " + createdBy + ")");
+			log.debug("setCreatedBy(String " + createdBy + ")");
 		}
 		// FIXME
 		// if (createdBy == null || createdBy.length() < 1)
@@ -194,16 +193,16 @@ public abstract class PersistableImpl implements Persistable
 	 */
 	public Date getCreatedDate()
 	{
-		LOG.trace("getCreatedDate()");
+		log.trace("getCreatedDate()");
 
 		return createdDate;
 	}
 
 	public void setCreatedDate(Date createdDate)
 	{
-		if (LOG.isDebugEnabled())
+		if (log.isDebugEnabled())
 		{
-			LOG.debug("setCreatedDate(Date " + createdDate + ")");
+			log.debug("setCreatedDate(Date " + createdDate + ")");
 		}
 		// FIXME
 		// if (createdDate == null)
@@ -217,7 +216,7 @@ public abstract class PersistableImpl implements Persistable
 	 */
 	public String toString()
 	{
-		LOG.trace("toString()");
+		log.trace("toString()");
 
 		StringBuilder sb = new StringBuilder();
 		sb.append("{id=");

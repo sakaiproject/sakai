@@ -31,8 +31,7 @@ import javax.faces.component.UIComponent;
 import javax.faces.component.UIMessages;
 import javax.faces.context.FacesContext;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Work around JSF 1.1's inadequate Messages renderer, which has the following problems:
@@ -71,10 +70,8 @@ import org.slf4j.LoggerFactory;
  * faces context, and in the session-scoped messagesBean.
  *
  */
+@Slf4j
 public class DivMessagesRenderer extends DivMessageRendererBase {
-	private static final Logger logger = LoggerFactory.getLogger(DivMessagesRenderer.class);
-
-
 
 	public void encodeEnd(FacesContext context, UIComponent component) throws IOException {
         if (!component.isRendered()) {
@@ -161,9 +158,7 @@ public class DivMessagesRenderer extends DivMessageRendererBase {
         }
 
         allFacesMessagesList.removeAll(globalFacesMessagesList);
-        if(logger.isDebugEnabled())logger.debug(allFacesMessagesList.size() + " component bound messages");
+        if(log.isDebugEnabled())log.debug(allFacesMessagesList.size() + " component bound messages");
         return allFacesMessagesList;
 	}
 }
-
-

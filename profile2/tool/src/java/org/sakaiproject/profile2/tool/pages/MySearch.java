@@ -26,9 +26,8 @@ import java.util.List;
 
 import javax.servlet.http.Cookie;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -60,6 +59,7 @@ import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
 import org.apache.wicket.util.cookies.CookieUtils;
+
 import org.sakaiproject.profile2.model.Person;
 import org.sakaiproject.profile2.model.ProfileSearchTerm;
 import org.sakaiproject.profile2.tool.components.HashMapChoiceRenderer;
@@ -74,12 +74,11 @@ import org.sakaiproject.profile2.util.ProfileConstants;
 import org.sakaiproject.profile2.util.ProfileUtils;
 import org.sakaiproject.site.api.Site;
 
-
+@Slf4j
 public class MySearch extends BasePage {
 
 	private List<Person> results = new ArrayList<Person>();
-	private static final Logger log = LoggerFactory.getLogger(MySearch.class); 
-	
+
 	private WebMarkupContainer numSearchResultsContainer;
 	private Label numSearchResults;
 	private WebMarkupContainer resultsContainer;

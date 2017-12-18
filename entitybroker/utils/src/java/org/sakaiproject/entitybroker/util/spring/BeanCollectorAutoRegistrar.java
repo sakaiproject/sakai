@@ -30,12 +30,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.sakaiproject.entitybroker.collector.AutoRegister;
-import org.sakaiproject.entitybroker.collector.BeanCollector;
-import org.sakaiproject.entitybroker.collector.OrderedBean;
-import org.sakaiproject.entitybroker.collector.BeanMapCollector;
+import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
@@ -45,14 +41,18 @@ import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.ConfigurableApplicationContext;
 
+import org.sakaiproject.entitybroker.collector.AutoRegister;
+import org.sakaiproject.entitybroker.collector.BeanCollector;
+import org.sakaiproject.entitybroker.collector.OrderedBean;
+import org.sakaiproject.entitybroker.collector.BeanMapCollector;
+
 /**
  * This will collect the autoregistered beans and place them into all the locations which requested them
  * 
  * @author Aaron Zeckoski (aaron@caret.cam.ac.uk)
  */
+@Slf4j
 public class BeanCollectorAutoRegistrar implements ApplicationListener, ApplicationContextAware, InitializingBean {
-
-   private static Logger log = LoggerFactory.getLogger(BeanCollectorAutoRegistrar.class);
 
    private ApplicationContext applicationContext;
    public void setApplicationContext(ApplicationContext applicationContext) {

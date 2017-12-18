@@ -21,6 +21,7 @@
 
 package org.sakaiproject.site.util;
 
+import java.io.UnsupportedEncodingException;
 import java.util.Vector;
 import java.util.List;
 import java.util.HashMap;
@@ -29,16 +30,19 @@ import java.util.Arrays;
 import java.lang.reflect.Field;
 import java.util.Iterator;
 import java.util.Locale;
+
+import lombok.extern.slf4j.Slf4j;
+import junit.framework.TestCase;
+
 import org.sakaiproject.util.SortedIterator;
 import org.sakaiproject.site.util.SiteConstants;
 import org.sakaiproject.site.util.Participant;
-import junit.framework.TestCase;
-import java.io.UnsupportedEncodingException;
 
 /**
  * This test was created to verify fix for lastname sorting issue at https://jira.
  * sakaiproject.org/browse/SAK-21745
  */
+@Slf4j
 public class SiteComparatorTest extends TestCase {
 
         public SiteComparatorTest(String name) {
@@ -46,15 +50,14 @@ public class SiteComparatorTest extends TestCase {
         }
 
         public void testSiteComparatorByNameForUSLocale() {
-                System.out.println("-----------------ES");
+                log.info("-----------------ES");
                 executeTest(new java.util.Locale("es", "ES"));
         }
 
         public void testSiteComparatorByNameForESLocale() {
-                System.out.println("-----------------US");
+                log.info("-----------------US");
                 executeTest(java.util.Locale.US);
         }
-
 
         private void executeTest(Locale locale) {
         	List<String> words = Arrays.asList("Äbc", "äbc", "Àbc", "àbc", "Abc", "abc", "ABC");
@@ -116,7 +119,7 @@ public class SiteComparatorTest extends TestCase {
         }
 
         private void showParticipantOrder(String header, List participants) {
-                System.out.println(header);
+                log.info(header);
                 java.io.PrintStream out;
                 try {
                         for (Iterator itr = participants.iterator(); itr.hasNext();) {
@@ -132,8 +135,6 @@ public class SiteComparatorTest extends TestCase {
 
         }
 
-
-
         private void setNewEnvironmentHack(Map<String, String> newenv)  {
         	try {
                 Class<?> processEnvironmentClass = Class.forName("java.lang.ProcessEnvironment");
@@ -148,7 +149,7 @@ public class SiteComparatorTest extends TestCase {
                 cienv.clear();
                 cienv.putAll(newenv);
                 } catch (Exception e) {
-                	e.printStackTrace();
+                    log.error(e.getMessage(), e);
                 }
         }
 

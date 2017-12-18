@@ -82,35 +82,10 @@
       	 </h:panelGrid>
       </div>
       
-		<div id="timer-expired-warning" style="display:none;">
-			<h3><h:outputText value="#{deliveryMessages.time_expired1}" /></h3>
-      		<p><h:outputText value="#{deliveryMessages.time_expired3}" /></p>
-      		<div id="squaresWaveG">
-				<div id="squaresWaveG_1" class="squaresWaveG">
-				</div>
-				<div id="squaresWaveG_2" class="squaresWaveG">
-				</div>
-				<div id="squaresWaveG_3" class="squaresWaveG">
-				</div>
-				<div id="squaresWaveG_4" class="squaresWaveG">
-				</div>
-				<div id="squaresWaveG_5" class="squaresWaveG">
-				</div>
-				<div id="squaresWaveG_6" class="squaresWaveG">
-				</div>
-				<div id="squaresWaveG_7" class="squaresWaveG">
-				</div>
-				<div id="squaresWaveG_8" class="squaresWaveG">
-				</div>
-			</div>
-		</div>
 		
 		<div id="time-30-warning" style="display:none;text-align:center">
-		<h:outputFormat value="#{deliveryMessages.time_30_warning}" escape="false" rendered="#{delivery.useDueDate}">
+		<h:outputFormat value="#{deliveryMessages.time_30_warning}" escape="false">
                 <f:param value="#{delivery.dayDueDateString}"/>
-        </h:outputFormat>
-        <h:outputFormat value="#{deliveryMessages.time_30_warning}" escape="false" rendered="#{!delivery.useDueDate}">
-                <f:param value="#{delivery.dayRetractDateString}"/>
         </h:outputFormat>
         <br /><br /><br />
         <h:outputText value="#{deliveryMessages.time_30_warning_2}" escape="false"/>

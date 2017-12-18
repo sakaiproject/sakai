@@ -21,11 +21,6 @@
 
 package org.sakaiproject.user.impl;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import javax.crypto.SecretKeyFactory;
-import javax.crypto.spec.PBEKeySpec;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
@@ -35,6 +30,10 @@ import java.util.Arrays;
 import java.util.Base64;
 import java.util.Random;
 
+import javax.crypto.SecretKeyFactory;
+import javax.crypto.spec.PBEKeySpec;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Service to check that a password matches and to generate encrypted passwords from plaintext.
@@ -42,10 +41,8 @@ import java.util.Random;
  *
  * @author buckett
  */
+@Slf4j
 public class PasswordService {
-
-	private final static Logger log = LoggerFactory.getLogger(PasswordService.class);
-
 	private Random saltSource = new SecureRandom();
 
 	/**

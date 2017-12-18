@@ -45,9 +45,10 @@ import javax.faces.event.ValueChangeEvent;
 import javax.faces.model.SelectItem;
 import javax.servlet.http.HttpServletRequest;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.validator.EmailValidator;
+import org.springframework.orm.hibernate4.HibernateOptimisticLockingFailureException;
+
 import org.sakaiproject.api.app.messageforums.Area;
 import org.sakaiproject.api.app.messageforums.Attachment;
 import org.sakaiproject.api.app.messageforums.DBMembershipItem;
@@ -108,12 +109,10 @@ import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.Validator;
-import org.springframework.orm.hibernate4.HibernateOptimisticLockingFailureException;
 
+@Slf4j
 public class PrivateMessagesTool
 {
-  
-  private static final Logger LOG = LoggerFactory.getLogger(PrivateMessagesTool.class);
 
   private static final String MESSAGECENTER_PRIVACY_URL = "messagecenter.privacy.url";
   private static final String MESSAGECENTER_PRIVACY_TEXT = "messagecenter.privacy.text";
@@ -610,18 +609,16 @@ public class PrivateMessagesTool
 		  try {
 			  Thread.sleep(SynopticMsgcntrManager.OPT_LOCK_WAIT);
 		  } catch (InterruptedException e) {
-			  e.printStackTrace();
+			  log.error(e.getMessage(), e);
 		  }
 
 		  numOfAttempts--;
 
 		  if (numOfAttempts <= 0) {
-			  System.out
-			  .println("PrivateMessagesTool: setMessagesSynopticInfoHelper: HibernateOptimisticLockingFailureException no more retries left");
-			  holfe.printStackTrace();
+			  log.info("PrivateMessagesTool: setMessagesSynopticInfoHelper: HibernateOptimisticLockingFailureException no more retries left");
+			  log.error(holfe.getMessage(), holfe);
 		  } else {
-			  System.out
-			  .println("PrivateMessagesTool: setMessagesSynopticInfoHelper: HibernateOptimisticLockingFailureException: attempts left: "
+			  log.info("PrivateMessagesTool: setMessagesSynopticInfoHelper: HibernateOptimisticLockingFailureException: attempts left: "
 					  + numOfAttempts);
 			  setMessagesSynopticInfoHelper(userId, siteId, 
 					  unreadMessagesCount, numOfAttempts);
@@ -981,7 +978,7 @@ public class PrivateMessagesTool
 	  try {
 		return SiteService.getSite(ToolManager.getCurrentPlacement().getContext()).getTitle();
 	} catch (IdUnusedException e) {
-		e.printStackTrace();
+		log.error(e.getMessage(), e);
 	}
 	return "";
   }
@@ -1093,8 +1090,7 @@ public class PrivateMessagesTool
       }
     }
     catch (UserNotDefinedException e) {
-		// TODO Auto-generated catch block
-		e.printStackTrace();
+		log.error(e.getMessage(), e);
 	}
     return userName;
   }
@@ -1113,8 +1109,7 @@ public class PrivateMessagesTool
      }   
    }
    catch (UserNotDefinedException e) {
-	// TODO Auto-generated catch block
-	e.printStackTrace();
+       log.error(e.getMessage(), e);
 }
    return userName;
   }
@@ -1398,7 +1393,7 @@ public void processChangeSelectView(ValueChangeEvent eve)
   
   public String processActionHome()
   {
-    LOG.debug("processActionHome()");
+    log.debug("processActionHome()");
     msgNavMode = "privateMessages";
     multiDeleteSuccess = false;
     if (searchPvtMsgs != null)
@@ -1407,7 +1402,7 @@ public void processChangeSelectView(ValueChangeEvent eve)
   }  
   public String processActionPrivateMessages()
   {
-    LOG.debug("processActionPrivateMessages()");                    
+    log.debug("processActionPrivateMessages()");                    
     msgNavMode = "privateMessages";            
     multiDeleteSuccess = false;
     if (searchPvtMsgs != null) 
@@ -1416,7 +1411,7 @@ public void processChangeSelectView(ValueChangeEvent eve)
   }        
   public String processDisplayForum()
   {
-    LOG.debug("processDisplayForum()");
+    log.debug("processDisplayForum()");
     if (searchPvtMsgs != null)
     	searchPvtMsgs.clear();
     return DISPLAY_MESSAGES_PG;
@@ -1424,7 +1419,7 @@ public void processChangeSelectView(ValueChangeEvent eve)
 
   public String processDisplayMessages()
   {
-    LOG.debug("processDisplayMessages()");
+    log.debug("processDisplayMessages()");
     if (searchPvtMsgs != null)
     	searchPvtMsgs.clear();
     return SELECTED_MESSAGE_PG;
@@ -1491,7 +1486,7 @@ public void processChangeSelectView(ValueChangeEvent eve)
   
   public String processPvtMsgTopic()
   {
-    LOG.debug("processPvtMsgTopic()");
+    log.debug("processPvtMsgTopic()");
     
     /** reset sort type */
     sortType = SORT_DATE_DESC;    
@@ -1513,7 +1508,7 @@ public void processChangeSelectView(ValueChangeEvent eve)
    * @return - pvtMsg
    */  
   public String processPvtMsgCancel() {
-    LOG.debug("processPvtMsgCancel()");
+    log.debug("processPvtMsgCancel()");
     
     // Return to Messages & Forums page or Messages page
     if (isMessagesandForums()) {
@@ -1548,7 +1543,7 @@ public void processChangeSelectView(ValueChangeEvent eve)
 	  //go to compose page
 	  setFromMainOrHp();
 	  fromMain = ("".equals(msgNavMode)) || ("privateMessages".equals(msgNavMode));
-	  LOG.debug("processPvtMsgDraft()");
+	  log.debug("processPvtMsgDraft()");
 	  return PVTMSG_COMPOSE;
   }
 
@@ -1557,7 +1552,7 @@ public void processChangeSelectView(ValueChangeEvent eve)
    * @return - pvtMsgDetail
    */ 
   public String processPvtMsgDetail() {
-    LOG.debug("processPvtMsgDetail()");
+    log.debug("processPvtMsgDetail()");
     multiDeleteSuccess = false;
 
     String msgId=getExternalParameterByKey("current_msg_detail");
@@ -1628,7 +1623,7 @@ public void processChangeSelectView(ValueChangeEvent eve)
     	try{
     		statement = getStatementForUserReadPvtMsg(getDetailMsg().getMsg().getTitle());
     	}catch(Exception e){
-    		LOG.error(e.getMessage(), e);
+    		log.error(e.getMessage(), e);
     	}
     }
 	Event event = eventTrackingService.newEvent(DiscussionForumService.EVENT_MESSAGES_READ, getEventMessage(getDetailMsg().getMsg()), null, true, NotificationService.NOTI_OPTIONAL, statement);
@@ -1641,7 +1636,7 @@ public void processChangeSelectView(ValueChangeEvent eve)
    * @return - pvtMsgReply
    */ 
   public String processPvtMsgReply() {
-    LOG.debug("processPvtMsgReply()");
+    log.debug("processPvtMsgReply()");
     
     setDetailMsgCount = 0;
 
@@ -1716,7 +1711,7 @@ public void processChangeSelectView(ValueChangeEvent eve)
    * @return - pvtMsgForward
    */ 
   public String processPvtMsgForward() {
-	    LOG.debug("processPvtMsgForward()");
+	    log.debug("processPvtMsgForward()");
 	    
 	    setDetailMsgCount = 0;
 	    
@@ -1812,7 +1807,7 @@ private   int   getNum(char letter,   String   a)
    * @return - pvtMsgForward
    */ 
   public String processPvtMsgReplyAll() {
-	    LOG.debug("processPvtMsgReplyAll()");
+	    log.debug("processPvtMsgReplyAll()");
 	    
 	    setDetailMsgCount = 0;
 	    
@@ -1970,7 +1965,7 @@ private   int   getNum(char letter,   String   a)
    * @return - pvtMsgDetail
    */ 
   public String processPvtMsgDeleteConfirm() {
-    LOG.debug("processPvtMsgDeleteConfirm()");
+    log.debug("processPvtMsgDeleteConfirm()");
     
     this.setDeleteConfirm(true);
     setErrorMessage(getResourceBundleString(CONFIRM_MSG_DELETE));
@@ -1987,7 +1982,7 @@ private   int   getNum(char letter,   String   a)
    * @return - pvtMsg
    */ 
   public String processPvtMsgDeleteConfirmYes() {
-    LOG.debug("processPvtMsgDeleteConfirmYes()");
+    log.debug("processPvtMsgDeleteConfirmYes()");
     if(getDetailMsg() != null)
     {      
       prtMsgManager.deletePrivateMessage(getDetailMsg().getMsg(), getPrivateMessageTypeFromContext(msgNavMode));      
@@ -2016,14 +2011,14 @@ private   int   getNum(char letter,   String   a)
 	  oldAttachments.clear();
     setFromMainOrHp();
     fromMain = ("".equals(msgNavMode)) || ("privateMessages".equals(msgNavMode));
-    LOG.debug("processPvtMsgCompose()");
+    log.debug("processPvtMsgCompose()");
     return PVTMSG_COMPOSE;
   }
   
   
   public String processPvtMsgComposeCancel()
   {
-    LOG.debug("processPvtMsgComposeCancel()");
+    log.debug("processPvtMsgComposeCancel()");
     resetComposeContents();
     if(("privateMessages").equals(getMsgNavMode()))
     {
@@ -2094,7 +2089,7 @@ private   int   getNum(char letter,   String   a)
   //Modified to support internatioalization -by huxt
   public String processPvtMsgSend() {
           
-    LOG.debug("processPvtMsgSend()");
+    log.debug("processPvtMsgSend()");
     
     if(!hasValue(getComposeSubject()))
     {
@@ -2140,7 +2135,7 @@ private   int   getNum(char letter,   String   a)
     	try{
     		statement = getStatementForUserSentPvtMsg(pMsg.getTitle(), SAKAI_VERB.shared);
     	}catch(Exception e){
-    		LOG.error(e.getMessage(), e);
+    		log.error(e.getMessage(), e);
     	}
     }
 	Event event = eventTrackingService.newEvent(DiscussionForumService.EVENT_MESSAGES_ADD, getEventMessage(pMsg), null, true, NotificationService.NOTI_OPTIONAL, statement);
@@ -2192,18 +2187,16 @@ private   int   getNum(char letter,   String   a)
 			try {
 				Thread.sleep(SynopticMsgcntrManager.OPT_LOCK_WAIT);
 			} catch (InterruptedException e) {
-				e.printStackTrace();
+				log.error(e.getMessage(), e);
 			}
 
 			numOfAttempts--;
 
 			if (numOfAttempts <= 0) {
-				System.out
-						.println("PrivateMessagesTool: incrementMessagesSynopticToolInfo: HibernateOptimisticLockingFailureException no more retries left");
-				holfe.printStackTrace();
+				log.info("PrivateMessagesTool: incrementMessagesSynopticToolInfo: HibernateOptimisticLockingFailureException no more retries left");
+				log.error(holfe.getMessage(), holfe);
 			} else {
-				System.out
-						.println("PrivateMessagesTool: incrementMessagesSynopticToolInfo: HibernateOptimisticLockingFailureException: attempts left: "
+				log.info("PrivateMessagesTool: incrementMessagesSynopticToolInfo: HibernateOptimisticLockingFailureException: attempts left: "
 								+ numOfAttempts);
 				incrementMessagesSynopticToolInfo(userIds, siteId, numOfAttempts);
 			}
@@ -2217,7 +2210,7 @@ private   int   getNum(char letter,   String   a)
    * @return - pvtMsg
    */
   public String processPvtMsgSaveDraft() {
-    LOG.debug("processPvtMsgSaveDraft()");
+    log.debug("processPvtMsgSaveDraft()");
     if(!hasValue(getComposeSubject()))
     {
       setErrorMessage(getResourceBundleString(MISSING_SUBJECT_DRAFT));
@@ -2459,7 +2452,7 @@ private   int   getNum(char letter,   String   a)
     	try{
     		statement = getStatementForUserReadPvtMsg(getDetailMsg().getMsg().getTitle());
     	}catch(Exception e){
-    		LOG.error(e.getMessage(), e);
+    		log.error(e.getMessage(), e);
     	}
     }
     
@@ -2522,7 +2515,7 @@ private   int   getNum(char letter,   String   a)
     	try{
     		statement = getStatementForUserReadPvtMsg(getDetailMsg().getMsg().getTitle());
     	}catch(Exception e){
-    		LOG.error(e.getMessage(), e);
+    		log.error(e.getMessage(), e);
     	}
     }
 	Event event = eventTrackingService.newEvent(DiscussionForumService.EVENT_MESSAGES_READ, getEventMessage(getDetailMsg().getMsg()), null, true, NotificationService.NOTI_OPTIONAL, statement);
@@ -2706,7 +2699,7 @@ private   int   getNum(char letter,   String   a)
    */
   private String processDisplayMsgById(String externalMsgId)
   {
-    LOG.debug("processDisplayMsgById()");
+    log.debug("processDisplayMsgById()");
     String msgId=getExternalParameterByKey(externalMsgId);
     if(msgId!=null)
     {
@@ -2723,7 +2716,7 @@ private   int   getNum(char letter,   String   a)
     }
     else
     {
-      LOG.debug("processDisplayMsgById() - Error");
+      log.debug("processDisplayMsgById() - Error");
       return DISPLAY_MESSAGES_PG;
     }
     return SELECTED_MESSAGE_PG;
@@ -2754,7 +2747,7 @@ private   int   getNum(char letter,   String   a)
   }
   
  public String processPvtMsgReplySend() {
-    LOG.debug("processPvtMsgReplySend()");
+    log.debug("processPvtMsgReplySend()");
     
     return processPvtMsgReplySentAction(getPvtMsgReplyMessage(getDetailMsg().getMsg(), false));
  }
@@ -2777,7 +2770,7 @@ private   int   getNum(char letter,   String   a)
     	    	try{
     	    		statement = getStatementForUserSentPvtMsg(getDetailMsg().getMsg().getTitle(), SAKAI_VERB.responded);
     	    	}catch(Exception e){
-    	    		LOG.error(e.getMessage(), e);
+    	    		log.error(e.getMessage(), e);
     	    	}
     	    }
     	    
@@ -2965,7 +2958,7 @@ private   int   getNum(char letter,   String   a)
 	  return DISPLAY_MESSAGES_PG;
  }
  public String processPvtMsgForwardSend() {
-    LOG.debug("processPvtMsgForwardSend()");
+    log.debug("processPvtMsgForwardSend()");
     if (setDetailMsgCount != 1) {
     	setErrorMessage(getResourceBundleString(MULTIPLE_WINDOWS , new Object[] {ServerConfigurationService.getString("ui.service","Sakai")}));
     	return null;
@@ -2981,7 +2974,7 @@ private   int   getNum(char letter,   String   a)
  }
  
  public String processPvtMsgForwardSaveDraft(){
-	 LOG.debug("processPvtMsgForwardSaveDraft()");
+	 log.debug("processPvtMsgForwardSaveDraft()");
 	 if (setDetailMsgCount != 1) {
 	     setErrorMessage(getResourceBundleString(MULTIPLE_WINDOWS , new Object[] {ServerConfigurationService.getString("ui.service","Sakai")}));
 		 return null;
@@ -3130,7 +3123,7 @@ private   int   getNum(char letter,   String   a)
             	try{
             		statement = getStatementForUserSentPvtMsg(getDetailMsg().getMsg().getTitle(), SAKAI_VERB.responded);
             	}catch(Exception e){
-            		LOG.error(e.getMessage(), e);
+            		log.error(e.getMessage(), e);
             	}
             }
     		Event event = eventTrackingService.newEvent(DiscussionForumService.EVENT_MESSAGES_FORWARD, getEventMessage(rrepMsg), null, true, NotificationService.NOTI_OPTIONAL, statement);
@@ -3172,7 +3165,7 @@ private   int   getNum(char letter,   String   a)
  }
   
  public String processPvtMsgReplyAllSaveDraft(){
-	 LOG.debug("processPvtMsgReply All Send()");
+	 log.debug("processPvtMsgReply All Send()");
 	 if (setDetailMsgCount != 1) {
 	     setErrorMessage(getResourceBundleString(MULTIPLE_WINDOWS , new Object[] {ServerConfigurationService.getString("ui.service","Sakai")}));
 		 return null;
@@ -3187,7 +3180,7 @@ private   int   getNum(char letter,   String   a)
  }
  
   public String processPvtMsgReplyAllSend() {
-    LOG.debug("processPvtMsgReply All Send()");
+    log.debug("processPvtMsgReply All Send()");
     if (setDetailMsgCount != 1) {
     	setErrorMessage(getResourceBundleString(MULTIPLE_WINDOWS , new Object[] {ServerConfigurationService.getString("ui.service","Sakai")}));
     	return null;
@@ -3249,7 +3242,7 @@ private   int   getNum(char letter,   String   a)
 	  try {
 		  autheruser = UserDirectoryService.getUser(currentMessage.getCreatedBy());
 	  } catch (UserNotDefinedException e) {
-		  e.printStackTrace();
+		  log.error(e.getMessage(), e);
 	  }
 
 	  
@@ -3267,11 +3260,11 @@ private   int   getNum(char letter,   String   a)
 			  replyrecipientaddtmp = UserDirectoryService.getUser(tmpPMR.getUserId());
 		  } catch (UserNotDefinedException e) {
 			  // TODO Auto-generated catch block
-			  LOG.warn("Unable to find user : " + tmpPMR.getUserId(), e);
+			  log.warn("Unable to find user : " + tmpPMR.getUserId(), e);
 		  }
 
 		  if (replyrecipientaddtmp == null){
-			  LOG.warn("continuing passed user : "+tmpPMR.getUserId());
+			  log.warn("continuing passed user : "+tmpPMR.getUserId());
 			  //throw new IllegalStateException("User replyrecipientaddtmp == null!");
 		  }else{
 		  	if(!(replyrecipientaddtmp.getDisplayName()).equals(getUserName()) && !tmpPMR.getBcc())//&&(!(replyrecipientaddtmp.getDisplayName()).equals(msgauther)))
@@ -3397,7 +3390,7 @@ private   int   getNum(char letter,   String   a)
 	        	  try{
 	        		  statement = getStatementForUserSentPvtMsg(getDetailMsg().getMsg().getTitle(), SAKAI_VERB.responded);
 	        	  }catch(Exception e){
-	          		LOG.error(e.getMessage(), e);
+	          		log.error(e.getMessage(), e);
 	        	  }
 	          }
      		  Event event = eventTrackingService.newEvent(DiscussionForumService.EVENT_MESSAGES_FORWARD, getEventMessage(rrepMsg), null, true, NotificationService.NOTI_OPTIONAL, statement);
@@ -3430,8 +3423,7 @@ private   int   getNum(char letter,   String   a)
 				try {
 					replyrecipientaddtmp = UserDirectoryService.getUser(tmpPMR.getUserId());
 				} catch (UserNotDefinedException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+					log.error(e.getMessage(), e);
 				}
 		   
 		 
@@ -3468,7 +3460,7 @@ private   int   getNum(char letter,   String   a)
   
   ////////////////////////////////////////////////////////////////  
   public String processPvtMsgEmptyDelete() {
-    LOG.debug("processPvtMsgEmptyDelete()");
+    log.debug("processPvtMsgEmptyDelete()");
     
     List delSelLs=new ArrayList() ;
     //this.setDisplayPvtMsgs(getDisplayPvtMsgs());    
@@ -3494,7 +3486,7 @@ private   int   getNum(char letter,   String   a)
   //delete private message 
   public String processPvtMsgMultiDelete()
   { 
-    LOG.debug("processPvtMsgMultiDelete()");
+    log.debug("processPvtMsgMultiDelete()");
   
     boolean deleted = false;
     for (Iterator iter = getSelectedDeleteItems().iterator(); iter.hasNext();)
@@ -3530,7 +3522,7 @@ private   int   getNum(char letter,   String   a)
   
   public String processPvtMsgDispOtions() 
   {
-    LOG.debug("processPvtMsgDispOptions()");
+    log.debug("processPvtMsgDispOptions()");
     
     return "pvtMsgOrganize" ;
   }
@@ -3560,7 +3552,7 @@ private   int   getNum(char letter,   String   a)
    */
   public String processCheckAll()
   {
-    LOG.debug("processCheckAll()");
+    log.debug("processCheckAll()");
     selectAll= true;
     multiDeleteSuccess = false;
 
@@ -3674,7 +3666,7 @@ private   int   getNum(char letter,   String   a)
   //Redirect to File picker
   public String processAddAttachmentRedirect()
   {
-    LOG.debug("processAddAttachmentRedirect()");
+    log.debug("processAddAttachmentRedirect()");
     try
     {
       ExternalContext context = FacesContext.getCurrentInstance().getExternalContext();
@@ -3683,7 +3675,7 @@ private   int   getNum(char letter,   String   a)
     }
     catch(Exception e)
     {
-      LOG.debug("processAddAttachmentRedirect() - Exception");
+      log.debug("processAddAttachmentRedirect() - Exception");
       return null;
     }
   }
@@ -3691,7 +3683,7 @@ private   int   getNum(char letter,   String   a)
   //Process remove attachment 
   public String processDeleteAttach()
   {
-    LOG.debug("processDeleteAttach()");
+    log.debug("processDeleteAttach()");
     
     ExternalContext context = FacesContext.getCurrentInstance().getExternalContext();
     String attachId = null;
@@ -3735,7 +3727,7 @@ private   int   getNum(char letter,   String   a)
   //Process remove attachments from reply message  
   public String processDeleteReplyAttach()
   {
-    LOG.debug("processDeleteReplyAttach()");
+    log.debug("processDeleteReplyAttach()");
     
     ExternalContext context = FacesContext.getCurrentInstance().getExternalContext();
     String attachId = null;
@@ -3778,7 +3770,7 @@ private   int   getNum(char letter,   String   a)
   //process deleting confirm from separate screen
   public String processRemoveAttach()
   {
-    LOG.debug("processRemoveAttach()");
+    log.debug("processRemoveAttach()");
     
     try
     {
@@ -3801,7 +3793,7 @@ private   int   getNum(char letter,   String   a)
     }
     catch(Exception e)
     {
-      LOG.debug("processRemoveAttach() - Exception");
+      log.debug("processRemoveAttach() - Exception");
     }
     
     removeAttachId = null;
@@ -3812,7 +3804,7 @@ private   int   getNum(char letter,   String   a)
   
   public String processRemoveAttachCancel()
   {
-    LOG.debug("processRemoveAttachCancel()");
+    log.debug("processRemoveAttachCancel()");
     
     removeAttachId = null;
     prepareRemoveAttach.clear();
@@ -3876,14 +3868,14 @@ private   int   getNum(char letter,   String   a)
   
   public String processPvtMsgOrganize()
   {
-    LOG.debug("processPvtMsgOrganize()");
+    log.debug("processPvtMsgOrganize()");
     return null ;
     //return "pvtMsgOrganize";
   }
 
   public String processPvtMsgStatistics()
   {
-    LOG.debug("processPvtMsgStatistics()");
+    log.debug("processPvtMsgStatistics()");
     
     return null ;
     //return "pvtMsgStatistics";
@@ -3891,13 +3883,13 @@ private   int   getNum(char letter,   String   a)
   
   public String processPvtMsgSettings()
   {
-    LOG.debug("processPvtMsgSettings()");    
+    log.debug("processPvtMsgSettings()");    
     return MESSAGE_SETTING_PG;
   }
     
   public void processPvtMsgSettingsRevise(ValueChangeEvent event)
   {
-    LOG.debug("processPvtMsgSettingsRevise()");   
+    log.debug("processPvtMsgSettingsRevise()");   
     
     /** block executes when changing value to "no" */
     if (SET_AS_YES.equals(forwardPvtMsg)){
@@ -3910,7 +3902,7 @@ private   int   getNum(char letter,   String   a)
   
   public String processPvtMsgSettingsSave()
   {
-    LOG.debug("processPvtMsgSettingsSave()");
+    log.debug("processPvtMsgSettingsSave()");
     
  
     String email= getForwardPvtMsgEmail();
@@ -3935,7 +3927,7 @@ private   int   getNum(char letter,   String   a)
           area.setSendToEmail(formSendToEmail);
       } catch (NumberFormatException nfe) {
           // if this happens, there is likely something wrong in the UI that needs to be fixed
-          LOG.warn("Non-numeric option for sending email to recipient email address on Message screen. This may indicate a UI problem.");
+          log.warn("Non-numeric option for sending email to recipient email address on Message screen. This may indicate a UI problem.");
           setErrorMessage(getResourceBundleString("pvt_send_to_email_invalid"));
           return null;
       }
@@ -3996,7 +3988,7 @@ private   int   getNum(char letter,   String   a)
 
   //navigated from header pagecome from Header page 
   public String processPvtMsgFolderSettings() {
-    LOG.debug("processPvtMsgFolderSettings()");
+    log.debug("processPvtMsgFolderSettings()");
     //String topicTitle= getExternalParameterByKey("pvtMsgTopicTitle");
     String topicTitle = forumManager.getTopicByUuid(getExternalParameterByKey("pvtMsgTopicId")).getTitle();
     setSelectedTopicTitle(topicTitle) ;
@@ -4009,7 +4001,7 @@ private   int   getNum(char letter,   String   a)
   }
 
   public String processPvtMsgFolderSettingRevise() {
-    LOG.debug("processPvtMsgFolderSettingRevise()");
+    log.debug("processPvtMsgFolderSettingRevise()");
     
     if(this.ismutable)
     {
@@ -4022,7 +4014,7 @@ private   int   getNum(char letter,   String   a)
   }
   
   public String processPvtMsgFolderSettingAdd() {
-    LOG.debug("processPvtMsgFolderSettingAdd()");
+    log.debug("processPvtMsgFolderSettingAdd()");
     
     setFromMainOrHp();
     this.setAddFolder("");  // make sure the input box is empty
@@ -4030,7 +4022,7 @@ private   int   getNum(char letter,   String   a)
     return ADD_MESSAGE_FOLDER_PG ;
   }
   public String processPvtMsgFolderSettingDelete() {
-    LOG.debug("processPvtMsgFolderSettingDelete()");
+    log.debug("processPvtMsgFolderSettingDelete()");
     
     setFromMainOrHp();
     
@@ -4050,7 +4042,7 @@ private   int   getNum(char letter,   String   a)
   
   public String processPvtMsgReturnToMainOrHp()
   {
-	  LOG.debug("processPvtMsgReturnToMainOrHp()");
+	  log.debug("processPvtMsgReturnToMainOrHp()");
 	    if(fromMainOrHp != null && (fromMainOrHp.equals(MESSAGE_HOME_PG) || (fromMainOrHp.equals(MAIN_PG))))
 	    {
 	    	String returnToPage = fromMainOrHp;
@@ -4071,7 +4063,7 @@ private   int   getNum(char letter,   String   a)
   //Create a folder within a forum
   public String processPvtMsgFldCreate() 
   {
-    LOG.debug("processPvtMsgFldCreate()");
+    log.debug("processPvtMsgFldCreate()");
     
     String createFolder=getAddFolder() ;   
     StringBuilder alertMsg = new StringBuilder();
@@ -4117,7 +4109,7 @@ private   int   getNum(char letter,   String   a)
    **/
   public String processPvtMsgFldRevise() 
   {
-    LOG.debug("processPvtMsgFldRevise()");
+    log.debug("processPvtMsgFldRevise()");
     
     String newTopicTitle = this.getSelectedNewTopicTitle(); 
     
@@ -4170,7 +4162,7 @@ private   int   getNum(char letter,   String   a)
   //Delete
   public String processPvtMsgFldDelete() 
   {
-    LOG.debug("processPvtMsgFldDelete()");
+    log.debug("processPvtMsgFldDelete()");
     
     prtMsgManager.deleteTopicFolder(forum,getSelectedTopicId()) ;
     
@@ -4189,7 +4181,7 @@ private   int   getNum(char letter,   String   a)
   //create folder within folder
   public String processPvtMsgFolderInFolderAdd()
   {
-    LOG.debug("processPvtMsgFolderSettingAdd()");  
+    log.debug("processPvtMsgFolderSettingAdd()");  
     
     setFromMainOrHp();
     this.setAddFolder("");
@@ -4201,7 +4193,7 @@ private   int   getNum(char letter,   String   a)
   //TODO - add parent fodler id for this  
   public String processPvtMsgFldInFldCreate() 
   {
-    LOG.debug("processPvtMsgFldCreate()");
+    log.debug("processPvtMsgFldCreate()");
     
     PrivateTopic parentTopic=(PrivateTopic) prtMsgManager.getTopicByUuid(selectedTopicId);
     
@@ -4255,13 +4247,13 @@ private   int   getNum(char letter,   String   a)
    * @return - pvtMsgMove
    */ 
   public String processPvtMsgMove() {
-    LOG.debug("processPvtMsgMove()");
+    log.debug("processPvtMsgMove()");
     return MOVE_MESSAGE_PG;
   }
   
   public void processPvtMsgParentFolderMove(ValueChangeEvent event)
   {
-    LOG.debug("processPvtMsgSettingsRevise()"); 
+    log.debug("processPvtMsgSettingsRevise()"); 
     if ((String)event.getNewValue() != null)
     {
       moveToNewTopic= (String)event.getNewValue();
@@ -4270,7 +4262,7 @@ private   int   getNum(char letter,   String   a)
   
   public String processPvtMsgMoveMessage()
   {
-    LOG.debug("processPvtMsgMoveMessage()");
+    log.debug("processPvtMsgMoveMessage()");
     String moveTopicTitle=getMoveToTopic(); //this is uuid of new topic
     if( moveTopicTitle == null || moveTopicTitle.trim().length() == 0){
     	setErrorMessage(getResourceBundleString(MOVE_MSG_ERROR));
@@ -4324,7 +4316,7 @@ private   int   getNum(char letter,   String   a)
    */
   public String processPvtMsgCancelToDetailView()
   {
-    LOG.debug("processPvtMsgCancelToDetailView()");
+    log.debug("processPvtMsgCancelToDetailView()");
     this.deleteConfirm=false;
     
     // due to adding ability to move multiple messages
@@ -4365,7 +4357,7 @@ private   int   getNum(char letter,   String   a)
   }
   public String processSearch() 
   {
-    LOG.debug("processSearch()");
+    log.debug("processSearch()");
     multiDeleteSuccess = false;
 
     List newls = new ArrayList() ;
@@ -4667,7 +4659,7 @@ private   int   getNum(char letter,   String   a)
 		  /** lookup item in map */
 		  MembershipItem item = (MembershipItem) courseMemberMap.get(selectedItem);
 		  if (item == null){
-			  LOG.warn("getRecipients() could not resolve uuid: " + selectedItem);
+			  log.warn("getRecipients() could not resolve uuid: " + selectedItem);
 		  }
 		  else{                              
 			  if (MembershipItem.TYPE_ALL_PARTICIPANTS.equals(item.getType())){
@@ -4714,7 +4706,7 @@ private   int   getNum(char letter,   String   a)
 				  }
 			  }
 			  else{
-				  LOG.warn("getRecipients() could not resolve membership type: " + item.getType());
+				  log.warn("getRecipients() could not resolve membership type: " + item.getType());
 			  }
 		  }             
 	  }
@@ -4828,14 +4820,14 @@ private   int   getNum(char letter,   String   a)
    */
   private void setErrorMessage(String errorMsg)
   {
-    LOG.debug("setErrorMessage(String " + errorMsg + ")");
+    log.debug("setErrorMessage(String " + errorMsg + ")");
     FacesContext.getCurrentInstance().addMessage(null,
         new FacesMessage(getResourceBundleString(ALERT) + ' ' + errorMsg));
   }
 
   private void setInformationMessage(String infoMsg)
   {
-	    LOG.debug("setInformationMessage(String " + infoMsg + ")");
+	    log.debug("setInformationMessage(String " + infoMsg + ")");
 	    FacesContext.getCurrentInstance().addMessage(null,
 	        new FacesMessage(infoMsg));
   }
@@ -4923,7 +4915,7 @@ private   int   getNum(char letter,   String   a)
        }
        catch(Exception e)
        {
-         e.printStackTrace();
+         log.error(e.getMessage(), e);
        }
        
        return authorString;
@@ -4956,7 +4948,7 @@ private   int   getNum(char letter,   String   a)
 	}
 	
 	public String processActionDeleteChecked() {
-	    LOG.debug("processActionDeleteChecked()");
+	    log.debug("processActionDeleteChecked()");
 
 		List pvtMsgList = getPvtMsgListToProcess();
 		boolean msgSelected = false;
@@ -4983,7 +4975,7 @@ private   int   getNum(char letter,   String   a)
 	}
 	
 	public String processActionMoveCheckedToFolder() {
-	    LOG.debug("processActionMoveCheckedToFolder()");
+	    log.debug("processActionMoveCheckedToFolder()");
 
 	    List pvtMsgList = getPvtMsgListToProcess();
 	    boolean msgSelected = false;
@@ -5234,7 +5226,7 @@ private   int   getNum(char letter,   String   a)
 		try{
 			return SiteService.getSite(ToolManager.getCurrentPlacement().getContext());
 		} catch (IdUnusedException e) {
-			LOG.error(e.getMessage());
+			log.error(e.getMessage());
 		}
 		return null;
 	}

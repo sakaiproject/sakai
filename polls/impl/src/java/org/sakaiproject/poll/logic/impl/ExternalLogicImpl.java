@@ -31,6 +31,8 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TimeZone;
 
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.AuthzPermissionException;
@@ -69,13 +71,10 @@ import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
+@Slf4j
 public class ExternalLogicImpl implements ExternalLogic {
 
-	 private static Logger log = LoggerFactory.getLogger(ExternalLogicImpl.class);
-	
 	 private static final String
 	 	/* Email template constants */
 	 	EMAIL_TEMPLATE_NOTIFY_DELETED_OPTION = "polls.notifyDeletedOption",
@@ -300,8 +299,7 @@ public class ExternalLogicImpl implements ExternalLogic {
 			}
 			return ret;
 		} catch (GroupNotDefinedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			log.error(e.getMessage(), e);
 		}
 		
 
@@ -316,8 +314,7 @@ public class ExternalLogicImpl implements ExternalLogic {
 			Role role = group.getRole(roleId);
 			return  role.isAllowed(permission);
 		} catch (GroupNotDefinedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			log.error(e.getMessage(), e);
 		}
 		return false;
 	}
@@ -330,8 +327,7 @@ public class ExternalLogicImpl implements ExternalLogic {
 			site = siteService.getSite(siteId);
 			return site.getTitle();
 		} catch (IdUnusedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			log.error(e.getMessage(), e);
 		}
 	
 		return null;
@@ -375,7 +371,6 @@ public class ExternalLogicImpl implements ExternalLogic {
 			  catch(Exception e)
 			{
 			log.error(" ClassCast Ex PermKey: " + key);
-				e.printStackTrace();
 				return "error";
 			}*/
 		}
@@ -417,7 +412,7 @@ public class ExternalLogicImpl implements ExternalLogic {
 			}
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			log.error(e.getMessage(), e);
 		}
 		return perms;
 	}
@@ -437,8 +432,6 @@ public class ExternalLogicImpl implements ExternalLogic {
 	public String getSiteRefFromId(String siteId) {
 		return siteService.siteReference(siteId);
 	}
-
-
 
 	public boolean userIsViewingAsRole() {
 		String effectiveRole = securityService.getUserEffectiveRole(developerHelperService.getCurrentLocationReference());

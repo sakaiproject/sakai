@@ -15,30 +15,30 @@
  */
 package org.sakaiproject.component.app.scheduler.jobs;
 
+import java.time.Instant;
+import java.util.List;
+
+import javax.inject.Inject;
+
+import lombok.extern.slf4j.Slf4j;
+
 import org.quartz.*;
-import org.sakaiproject.api.app.scheduler.ScheduledInvocationManager;
+
+import org.springframework.transaction.annotation.Transactional;
+
 import org.sakaiproject.component.app.scheduler.DelayedInvocationDAO;
 import org.sakaiproject.component.app.scheduler.ScheduledInvocationManagerImpl;
 import org.sakaiproject.scheduler.events.hibernate.DelayedInvocation;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.transaction.annotation.Transactional;
-
-import javax.inject.Inject;
-import java.time.Instant;
-import java.util.Date;
-import java.util.List;
 
 /**
  * This attempts to migrate all the scheduled invocations that used a quartz job that ran every 5 minutes to
  * a use quartz directly to run the jobs.
  */
+@Slf4j
 public class SchedulerMigrationJob implements Job {
 
     public static final String SCHEDULED_JOB_NAME = "org.sakaiproject.component.app.scheduler.ScheduledInvocationManagerImpl.runner";
     public static final String SCHEDULED_JOB_GROUP = "org.sakaiproject.component.app.scheduler.ScheduledInvocationManagerImpl";
-
-    private Logger log = LoggerFactory.getLogger(SchedulerMigrationJob.class);
 
     @Inject
     private Scheduler scheduler;

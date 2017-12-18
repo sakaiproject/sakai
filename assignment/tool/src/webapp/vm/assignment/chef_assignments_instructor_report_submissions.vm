@@ -153,7 +153,7 @@
 						#set ($submissionType = $!assignment.TypeOfSubmission)
 						#set ($typeOfGrade = $!assignment.TypeOfGrade)
 						#set ($isAnon = $!service.assignmentUsesAnonymousGrading($assignment))
-						#set ($anonymousSubmissionId = $!assignmentSubmission.AnonymousSubmissionId)
+						#set ($anonymousSubmissionId = $!assignmentSubmission.Id + ' ' + ($tlang.getString("grading.anonymous.title")))
 						<tr>
 							<td headers="studentname">
 							#if ($submission.MultiGroup)

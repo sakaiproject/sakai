@@ -33,7 +33,7 @@
       #end
       #if ($!submission)## && $submission.submitted) 
         ## SAK-17606
-        #set($anonymousSubmissionId = $submission.getAnonymousSubmissionId())
+        #set($anonymousSubmissionId = $submission.getId() + ' ' + ($tlang.getString("grading.anonymous.title")))
         #set($notes = [])
         #set($notes = $notesMap.get($siteUser.id))
         #if($notes.size() > 0)

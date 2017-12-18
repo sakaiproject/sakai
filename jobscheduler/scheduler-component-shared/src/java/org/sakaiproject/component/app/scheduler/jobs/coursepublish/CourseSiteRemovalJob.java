@@ -15,11 +15,12 @@
  */
 package org.sakaiproject.component.app.scheduler.jobs.coursepublish;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.quartz.StatefulJob;
+
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.coursemanagement.api.CourseSiteRemovalService;
 import org.sakaiproject.tool.api.Session;
@@ -28,14 +29,11 @@ import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
 
-
 /**
  * quartz job to remove course sites after a specified period of time.
  */
+@Slf4j
 public class CourseSiteRemovalJob implements StatefulJob {
-   // logger
-   private final transient Logger logger = LoggerFactory.getLogger(getClass());
-
    // sakai.properties
    public final static String PROPERTY_COURSE_SITE_REMOVAL_ACTION                        = "course_site_removal_service.action";
    public final static String PROPERTY_COURSE_SITE_REMOVAL_USER                          = "course_site_removal_service.user";
@@ -72,7 +70,7 @@ public class CourseSiteRemovalJob implements StatefulJob {
     * called by the spring framework.
     */
    public void destroy() {
-      logger.info("destroy()");
+      log.info("destroy()");
 
       // no code necessary
    }
@@ -86,17 +84,17 @@ public class CourseSiteRemovalJob implements StatefulJob {
     * </ol>
     */
    public void init() {
-      logger.debug("init()");
+      log.debug("init()");
 
       // get the number of days after a term ends after which course sites that have expired will be removed
       try{
          numDaysAfterTermEnds= serverConfigurationService.getInt(PROPERTY_COURSE_SITE_REMOVAL_NUM_DAYS_AFTER_TERM_ENDS, DEFAULT_VALUE_COURSE_SITE_REMOVAL_NUM_DAYS_AFTER_TERM_ENDS);
       } catch (NumberFormatException ex) {
-         logger.error("The value specified for numDaysAfterTermEnds in sakai.properties, " + PROPERTY_COURSE_SITE_REMOVAL_NUM_DAYS_AFTER_TERM_ENDS + ", is not valid.  A default value of " + DEFAULT_VALUE_COURSE_SITE_REMOVAL_NUM_DAYS_AFTER_TERM_ENDS + " will be used instead.");
+         log.error("The value specified for numDaysAfterTermEnds in sakai.properties, " + PROPERTY_COURSE_SITE_REMOVAL_NUM_DAYS_AFTER_TERM_ENDS + ", is not valid.  A default value of " + DEFAULT_VALUE_COURSE_SITE_REMOVAL_NUM_DAYS_AFTER_TERM_ENDS + " will be used instead.");
          numDaysAfterTermEnds = DEFAULT_VALUE_COURSE_SITE_REMOVAL_NUM_DAYS_AFTER_TERM_ENDS;
       }
       if (numDaysAfterTermEnds < 0) {
-         logger.error("The value specified for numDaysAfterTermEnds in sakai.properties, " + PROPERTY_COURSE_SITE_REMOVAL_NUM_DAYS_AFTER_TERM_ENDS + ", is not valid.  A default value of " + DEFAULT_VALUE_COURSE_SITE_REMOVAL_NUM_DAYS_AFTER_TERM_ENDS + " will be used instead.");
+         log.error("The value specified for numDaysAfterTermEnds in sakai.properties, " + PROPERTY_COURSE_SITE_REMOVAL_NUM_DAYS_AFTER_TERM_ENDS + ", is not valid.  A default value of " + DEFAULT_VALUE_COURSE_SITE_REMOVAL_NUM_DAYS_AFTER_TERM_ENDS + " will be used instead.");
          numDaysAfterTermEnds = DEFAULT_VALUE_COURSE_SITE_REMOVAL_NUM_DAYS_AFTER_TERM_ENDS;
       }
 
@@ -106,7 +104,7 @@ public class CourseSiteRemovalJob implements StatefulJob {
          user = userDirectoryService.getUser(userId);
       } catch (UserNotDefinedException ex) {
          user = null;
-         logger.error("The user with eid " + userId + " was not found.  The course site publish job has been aborted.");
+         log.error("The user with eid " + userId + " was not found.  The course site publish job has been aborted.");
       }
 
 
@@ -114,14 +112,14 @@ public class CourseSiteRemovalJob implements StatefulJob {
       String actionString = serverConfigurationService.getString(PROPERTY_COURSE_SITE_REMOVAL_ACTION);
       if (actionString == null || actionString.trim().length() == 0)
       {
-         logger.warn("The property " + PROPERTY_COURSE_SITE_REMOVAL_ACTION + " was not specified in sakai.properties.  Using a default value of " + DEFAULT_VALUE_COURSE_SITE_REMOVAL_ACTION + ".");
+         log.warn("The property " + PROPERTY_COURSE_SITE_REMOVAL_ACTION + " was not specified in sakai.properties.  Using a default value of " + DEFAULT_VALUE_COURSE_SITE_REMOVAL_ACTION + ".");
          action = DEFAULT_VALUE_COURSE_SITE_REMOVAL_ACTION;
       }
       else
       {
          action = getAction(actionString);
          if (action == null) {
-            logger.error("The value specified for " + actionString + " in sakai.properties, " + PROPERTY_COURSE_SITE_REMOVAL_ACTION + ", is not valid.  A default value of " + DEFAULT_VALUE_COURSE_SITE_REMOVAL_ACTION + " will be used instead.");
+            log.error("The value specified for " + actionString + " in sakai.properties, " + PROPERTY_COURSE_SITE_REMOVAL_ACTION + ", is not valid.  A default value of " + DEFAULT_VALUE_COURSE_SITE_REMOVAL_ACTION + " will be used instead.");
             action = DEFAULT_VALUE_COURSE_SITE_REMOVAL_ACTION;
          }
       }
@@ -133,10 +131,10 @@ public class CourseSiteRemovalJob implements StatefulJob {
     */
    public void execute(JobExecutionContext context) throws JobExecutionException {
       synchronized (this) {
-         logger.info("execute()");
+         log.info("execute()");
 
          if (user == null) {
-            logger.error("The scheduled job to remove course sites can not be run with an invalid user.  No courses were removed.");
+            log.error("The scheduled job to remove course sites can not be run with an invalid user.  No courses were removed.");
          } else {
             try {
                // switch the current user to the one specified to run the quartz job
@@ -144,9 +142,9 @@ public class CourseSiteRemovalJob implements StatefulJob {
                sakaiSesson.setUserId(user.getId());
 
                int numSitesRemoved = courseSiteRemovalService.removeCourseSites(action, numDaysAfterTermEnds);
-               logger.info(numSitesRemoved + " course sites were removed.");
+               log.info(numSitesRemoved + " course sites were removed.");
             } catch (Exception ex) {
-               logger.error(ex.getMessage());
+               log.error(ex.getMessage());
             }
          }
       }

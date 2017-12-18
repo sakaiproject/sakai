@@ -39,8 +39,8 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.signup.logic.SakaiFacade;
 import org.sakaiproject.signup.logic.SignupEventTypes;
 import org.sakaiproject.signup.logic.SignupMeetingService;
@@ -67,6 +67,7 @@ import org.sakaiproject.tool.cover.ToolManager;
  * 
  * @author Peter Liu
  */
+@Slf4j
 public class EventProcessHandler implements SignupBeanConstants {
 	/* name of user request parameter for view range */
 	public static final String VIEW_SIGNUP_EVENTS_RANGE = "viewNextDays";
@@ -76,8 +77,6 @@ public class EventProcessHandler implements SignupBeanConstants {
 	protected SignupMeetingService signupMeetingService;
 
 	protected SignupRESTfulSessionManager signupRESTfulSessionManager;
-
-	protected Logger logger = LoggerFactory.getLogger(EventProcessHandler.class);
 
 	public SignupEvent getSignupEvent(Long eventId, String siteId, String userId, boolean mustAccessDB) {
 		SignupEvent event = null;
@@ -187,7 +186,7 @@ public class EventProcessHandler implements SignupBeanConstants {
 		else if (SignupEvent.USER_REMOVE_FROM_WAITLIST.equals(userAction))
 			updatedEvent = userRemoveFromWaitList(event);
 		else {
-			logger.warn("The userAction:" + userAction + " is not defined!");
+			log.warn("The userAction:" + userAction + " is not defined!");
 		}
 
 		/*update cache for one specific siteId: or userId: my-signed up info*/
@@ -215,7 +214,7 @@ public class EventProcessHandler implements SignupBeanConstants {
 		} catch (SignupUserActionException ue) {
 			userActionWarningMsg = ue.getMessage();
 		} catch (Exception e) {
-			logger.error(Utilities.rb.getString("error.occurred_try_again") + " - " + e.getMessage());
+			log.error(Utilities.rb.getString("error.occurred_try_again") + " - " + e.getMessage());
 			userActionWarningMsg = Utilities.rb.getString("error.occurred_try_again");
 		}
 
@@ -251,7 +250,7 @@ public class EventProcessHandler implements SignupBeanConstants {
 		} catch (SignupUserActionException ue) {
 			userActionWarningMsg = ue.getMessage();
 		} catch (Exception e) {
-			logger.error(Utilities.rb.getString("error.occurred_try_again") + " - " + e.getMessage());
+			log.error(Utilities.rb.getString("error.occurred_try_again") + " - " + e.getMessage());
 			userActionWarningMsg = Utilities.rb.getString("error.occurred_try_again");
 		}
 
@@ -281,7 +280,7 @@ public class EventProcessHandler implements SignupBeanConstants {
 				signup.getSignupEventTrackingInfo().getMeeting().setCurrentSiteId(event.getSiteId());
 				signupMeetingService.sendCancellationEmail(signup.getSignupEventTrackingInfo());
 			} catch (Exception e) {
-				logger.error(Utilities.rb.getString("email.exception") + " - " + e.getMessage(), e);
+				log.error(Utilities.rb.getString("email.exception") + " - " + e.getMessage(), e);
 				// Utilities.addErrorMessage(Utilities.rb.getString("email.exception"));
 			}
 
@@ -289,7 +288,7 @@ public class EventProcessHandler implements SignupBeanConstants {
 			// Utilities.addErrorMessage(ue.getMessage());
 			userActionWarningMsg = ue.getMessage();
 		} catch (Exception e) {
-			logger.error(Utilities.rb.getString("error.occurred_try_again") + " - " + e.getMessage());
+			log.error(Utilities.rb.getString("error.occurred_try_again") + " - " + e.getMessage());
 			userActionWarningMsg = Utilities.rb.getString("error.occurred_try_again");
 		}
 
@@ -320,14 +319,14 @@ public class EventProcessHandler implements SignupBeanConstants {
 					signup.getSignupEventTrackingInfo().getMeeting().setCurrentSiteId(event.getSiteId());
 					signupMeetingService.sendEmailToOrganizer(signup.getSignupEventTrackingInfo());
 				} catch (Exception e) {
-					logger.error(Utilities.rb.getString("email.exception") + " - " + e.getMessage(), e);
+					log.error(Utilities.rb.getString("email.exception") + " - " + e.getMessage(), e);
 					// Utilities.addErrorMessage(Utilities.rb.getString("email.exception"));
 				}
 			}
 		} catch (SignupUserActionException ue) {
 			userActionWarningMsg = ue.getMessage();
 		} catch (Exception e) {
-			logger.error(Utilities.rb.getString("error.occurred_try_again") + " - " + e.getMessage());
+			log.error(Utilities.rb.getString("error.occurred_try_again") + " - " + e.getMessage());
 			userActionWarningMsg = Utilities.rb.getString("error.occurred_try_again");
 		}
 

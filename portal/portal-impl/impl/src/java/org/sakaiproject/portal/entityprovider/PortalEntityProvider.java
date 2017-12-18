@@ -25,6 +25,10 @@ import java.util.HashMap;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.apache.velocity.Template;
 import org.apache.velocity.VelocityContext;
@@ -38,14 +42,12 @@ import org.sakaiproject.entitybroker.entityprovider.capabilities.Describeable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.Outputable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.ActionsExecutable;
 import org.sakaiproject.entitybroker.util.AbstractEntityProvider;
-
 import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.entitybroker.EntityView;
 import org.sakaiproject.entitybroker.entityprovider.annotations.EntityCustomAction;
 import org.sakaiproject.entitybroker.entityprovider.extension.ActionReturn;
 import org.sakaiproject.entitybroker.entityprovider.extension.Formats;
 import org.sakaiproject.entitybroker.exception.EntityException;
-
 import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.memory.api.SimpleConfiguration;
@@ -61,7 +63,6 @@ import org.sakaiproject.search.api.SearchResult;
 import org.sakaiproject.search.api.SearchService;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.api.SiteService.SelectionType;
-
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.user.api.User;
@@ -69,15 +70,9 @@ import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.util.Resource;
 import org.sakaiproject.util.ResourceLoader;
-
 import org.sakaiproject.portal.api.BullhornService;
 import org.sakaiproject.portal.beans.BullhornAlert;
 import org.sakaiproject.portal.beans.PortalNotifications;
-
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.extern.slf4j.Slf4j;
 import org.sakaiproject.velocity.util.SLF4JLogChute;
 
 /**
@@ -366,7 +361,7 @@ public class PortalEntityProvider extends AbstractEntityProvider implements Auto
 
 			return new ActionReturn(hits);
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.error(e.getMessage(), e);
 		}
 
 		return null;

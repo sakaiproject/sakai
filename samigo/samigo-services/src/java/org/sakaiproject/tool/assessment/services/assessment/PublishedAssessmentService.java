@@ -15,7 +15,6 @@
  *
  */
 
-
 package org.sakaiproject.tool.assessment.services.assessment;
 
 import java.util.ArrayList;
@@ -25,7 +24,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
+
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentAccessControl;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAssessmentData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAttachmentData;
@@ -52,16 +53,14 @@ import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacadeQueriesA
 import org.sakaiproject.tool.assessment.facade.PublishedSectionFacade;
 import org.sakaiproject.tool.assessment.facade.SectionFacade;
 import org.sakaiproject.tool.assessment.services.PersistenceService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * The QuestionPoolService calls the service locator to reach the
  * manager on the back end.
  * @author Rachel Gollub <rgollub@stanford.edu>
  */
+@Slf4j
 public class PublishedAssessmentService extends AssessmentService{
-  private Logger log = LoggerFactory.getLogger(PublishedAssessmentService.class);
 
   /**
    * Creates a new QuestionPoolService object.

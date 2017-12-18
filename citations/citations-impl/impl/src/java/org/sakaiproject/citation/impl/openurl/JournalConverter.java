@@ -15,14 +15,12 @@
  */
 package org.sakaiproject.citation.impl.openurl;
 
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.collections.BidiMap;
 import org.apache.commons.collections.bidimap.TreeBidiMap;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
 import org.sakaiproject.citation.api.Citation;
 import org.sakaiproject.citation.api.CitationService;
 
@@ -32,8 +30,6 @@ import org.sakaiproject.citation.api.CitationService;
  *
  */
 public class JournalConverter extends AbstractConverter {
-
-	private final static Logger log = LoggerFactory.getLogger(JournalConverter.class);
 	
 	public final static String ID = "info:ofi/fmt:kev:mtx:journal";
 	

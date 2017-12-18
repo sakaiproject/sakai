@@ -19,18 +19,19 @@
  *
  **********************************************************************************/
 
-
 package org.sakaiproject.tool.assessment.ui.web.action;
+
 import javax.servlet.http.HttpServlet;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.sakaiproject.component.cover.ComponentManager;
+import lombok.extern.slf4j.Slf4j;
 
+import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.tool.assessment.api.SamigoApiFactory;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacadeQueriesAPI;
 import org.sakaiproject.tool.assessment.facade.AssessmentGradingFacadeQueriesAPI;
 import org.sakaiproject.tool.assessment.facade.AuthzQueriesFacadeAPI;
 import org.sakaiproject.tool.assessment.facade.ItemFacadeQueriesAPI;
+import org.sakaiproject.tool.assessment.facade.FavoriteColChoicesFacadeQueriesAPI;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacadeQueriesAPI;
 import org.sakaiproject.tool.assessment.facade.PublishedItemFacadeQueriesAPI;
 import org.sakaiproject.tool.assessment.facade.PublishedSectionFacadeQueriesAPI;
@@ -39,6 +40,7 @@ import org.sakaiproject.tool.assessment.facade.SectionFacadeQueriesAPI;
 import org.sakaiproject.tool.assessment.facade.TypeFacadeQueriesAPI;
 import org.sakaiproject.tool.assessment.facade.authz.AuthorizationFacadeQueriesAPI;
 import org.sakaiproject.tool.assessment.facade.util.PagingUtilQueriesAPI;
+import org.sakaiproject.tool.assessment.services.assessment.AssessmentEntityProducer;
 import org.sakaiproject.tool.assessment.services.PersistenceService;
 import org.sakaiproject.tool.assessment.shared.api.assessment.AssessmentServiceAPI;
 import org.sakaiproject.tool.assessment.shared.api.assessment.ItemServiceAPI;
@@ -50,17 +52,14 @@ import org.sakaiproject.tool.assessment.shared.api.grading.GradebookServiceAPI;
 import org.sakaiproject.tool.assessment.shared.api.grading.GradingServiceAPI;
 import org.sakaiproject.tool.assessment.shared.api.qti.QTIServiceAPI;
 import org.sakaiproject.tool.assessment.shared.api.questionpool.QuestionPoolServiceAPI;
-import org.sakaiproject.tool.assessment.api.SamigoApiFactory;
-import org.sakaiproject.tool.assessment.services.assessment.AssessmentEntityProducer;
-import org.sakaiproject.tool.assessment.facade.FavoriteColChoicesFacadeQueriesAPI;
 
+@Slf4j
 public class InitAction extends HttpServlet{
 
   /**
 	 * 
 	 */
 	private static final long serialVersionUID = 8101462284850616249L;
-private static Logger log = LoggerFactory.getLogger(InitAction.class);
 
   public void init(){
     // store all types in memory

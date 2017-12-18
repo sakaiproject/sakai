@@ -25,8 +25,8 @@ import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.tool.assessment.services.GradingService;
 import org.sakaiproject.tool.assessment.ui.bean.evaluation.ExportResponsesBean;
 import org.sakaiproject.tool.assessment.ui.bean.evaluation.TotalScoresBean;
@@ -39,11 +39,10 @@ import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
  * <p>Description: Action Listener for Evaluation Total Score front door</p>
  * @version $Id$
  */
-
+@Slf4j
 public class ExportResponsesListener
   implements ActionListener
 {
-  private static Logger log = LoggerFactory.getLogger(ExportResponsesListener.class);
 
   /**
    * Standard process action method.

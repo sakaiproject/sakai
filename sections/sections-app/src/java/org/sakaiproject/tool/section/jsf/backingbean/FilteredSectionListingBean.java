@@ -30,17 +30,17 @@ import java.util.Map;
 
 import javax.faces.model.SelectItem;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
 import org.sakaiproject.section.api.coursemanagement.CourseSection;
 import org.sakaiproject.section.api.coursemanagement.ParticipationRecord;
 import org.sakaiproject.tool.section.decorator.SectionDecorator;
 import org.sakaiproject.tool.section.jsf.JsfUtil;
 
+@Slf4j
 public abstract class FilteredSectionListingBean extends CourseDependentBean implements Serializable {
 	private static final long serialVersionUID = 1L;
-	private static final Logger log = LoggerFactory.getLogger(FilteredSectionListingBean.class);
 
 	public enum FilterState {NONE, COMPACT, SPLIT, SINGLE};
 	

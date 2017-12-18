@@ -165,9 +165,7 @@
 									#set ($size = $size + 1)
 								#end
 							#end
-							#if ($size == 0)
-								<p class="instruction">$tlang.getString("gen.noatt")</p>
-							#else
+							#if ($size > 0)
 								#foreach ($attachment in $mAttachments)
 									#set ($props = false)
 									#set ($props = $attachment.Properties) 

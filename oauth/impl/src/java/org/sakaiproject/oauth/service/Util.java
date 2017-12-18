@@ -19,12 +19,12 @@
  */
 package org.sakaiproject.oauth.service;
 
+import lombok.extern.slf4j.Slf4j;
 import net.oauth.OAuth;
 import net.oauth.OAuthAccessor;
 import net.oauth.OAuthConsumer;
 import net.oauth.OAuthProblemException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
 import org.sakaiproject.oauth.dao.ConsumerDao;
 import org.sakaiproject.oauth.domain.Accessor;
 import org.sakaiproject.oauth.domain.Consumer;
@@ -32,8 +32,8 @@ import org.sakaiproject.oauth.domain.Consumer;
 /**
  * @author Colin Hebert
  */
+@Slf4j
 public final class Util {
-    private static final Logger logger = LoggerFactory.getLogger(Util.class);
 
     private Util() {
     }
@@ -70,9 +70,9 @@ public final class Util {
         for (Consumer consumer : source.getAll()) {
             try {
                 destination.create(consumer);
-                logger.info("New consumer imported '" + consumer.getId() + "'");
+                log.info("New consumer imported '" + consumer.getId() + "'");
             } catch (Exception e) {
-                logger.warn("Impossible to import '" + consumer.getId() + "' as a consumer.", e);
+                log.warn("Impossible to import '" + consumer.getId() + "' as a consumer.", e);
             }
         }
     }

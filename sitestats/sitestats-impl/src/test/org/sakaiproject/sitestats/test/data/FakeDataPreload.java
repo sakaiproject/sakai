@@ -18,13 +18,11 @@
  */
 package org.sakaiproject.sitestats.test.data;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.test.context.junit4.AbstractJUnit4SpringContextTests;
 
-
+@Slf4j
 public class FakeDataPreload extends AbstractJUnit4SpringContextTests {
-	private static Logger	log	= LoggerFactory.getLogger(FakeDataPreload.class);
 
 	public void init() {
 		log.info("FakeDataPreload.init()");

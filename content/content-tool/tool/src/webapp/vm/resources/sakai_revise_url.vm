@@ -48,9 +48,15 @@
 						$tlang.getString("gen.email1")
 					</label>	
 					<select name="notify" id="notify">
-						<option value="r">$tlang.getString("gen.email2")</option>
-						<option value="o">$tlang.getString("gen.email3")</option>
-						<option value="n" selected="selected">$tlang.getString("gen.email4")</option>
+						#if ($noti)
+							<option value="r" #if($noti=="r") selected="selected" #end>$tlang.getString("gen.email2")</option>
+							<option value="o" #if($noti=="o") selected="selected" #end>$tlang.getString("gen.email3")</option>
+							<option value="n" #if($noti=="n") selected="selected" #end>$tlang.getString("gen.email4")</option>
+						#else
+							<option value="r">$tlang.getString("gen.email2")</option>
+							<option value="o">$tlang.getString("gen.email3")</option>
+							<option value="n" selected="selected">$tlang.getString("gen.email4")</option>
+						#end							
 					</select>
 				</p>	
 			#end

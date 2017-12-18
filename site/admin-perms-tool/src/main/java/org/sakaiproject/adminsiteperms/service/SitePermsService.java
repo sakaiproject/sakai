@@ -21,8 +21,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.MessageSource;
+import org.springframework.context.NoSuchMessageException;
 
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.AuthzGroupService;
@@ -39,17 +40,14 @@ import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
-import org.springframework.context.MessageSource;
-import org.springframework.context.NoSuchMessageException;
 
 /**
  * Handles the processing related to the permissions handler
  * 
  * @author Aaron Zeckoski (azeckoski @ unicon.net) (azeckoski @ vt.edu)
  */
+@Slf4j
 public class SitePermsService {
-
-    final protected Logger log = LoggerFactory.getLogger(getClass());
 
     private static final String STATUS_COMPLETE = "COMPLETE";
 

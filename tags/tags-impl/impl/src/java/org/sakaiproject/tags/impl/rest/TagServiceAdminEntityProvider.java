@@ -29,7 +29,10 @@ import java.security.SecureRandom;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+
+import lombok.extern.slf4j.Slf4j;
 import org.json.simple.JSONObject;
+
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.entitybroker.DeveloperHelperService;
@@ -48,16 +51,13 @@ import org.sakaiproject.tags.api.Tag;
 import org.sakaiproject.tags.api.TagService;
 import org.sakaiproject.tags.api.TagServiceException;
 import org.sakaiproject.tool.api.SessionManager;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 
 /**
  * Web services for managing tags.  Intended for administrator use.
  */
+@Slf4j
 public class TagServiceAdminEntityProvider implements EntityProvider, AutoRegisterEntityProvider, ActionsExecutable, Outputable, Describeable {
 
-    private static final Logger LOG = LoggerFactory.getLogger(TagServiceAdminEntityProvider.class);
     private static final String ADMIN_SITE_REALM = "/site/!admin";
     private static final String SAKAI_SESSION_TOKEN_PROPERTY = "sakai.tagservice-admin.token";
     private static final String REQUEST_SESSION_PARAMETER = "session";
@@ -455,7 +455,7 @@ public class TagServiceAdminEntityProvider implements EntityProvider, AutoRegist
 
             return tags;
         } catch (Exception e) {
-            LOG.error("Error calling getTagsInCollection:",e);
+            log.error("Error calling getTagsInCollection:",e);
             return null;
         }
     }
@@ -465,7 +465,7 @@ public class TagServiceAdminEntityProvider implements EntityProvider, AutoRegist
         result.put("status", "ERROR");
         result.put("message", e.getMessage());
 
-        LOG.error("Caught an error while handling a request", e);
+        log.error("Caught an error while handling a request", e);
 
         return result.toJSONString();
     }
@@ -485,14 +485,14 @@ public class TagServiceAdminEntityProvider implements EntityProvider, AutoRegist
         String tokenFromSession = (String)sessionManager.getCurrentSession().getAttribute(SAKAI_SESSION_TOKEN_PROPERTY);
 
         if (tokenFromSession == null || tokenFromUser == null || !tokenFromSession.equals(tokenFromUser)) {
-            LOG.error("assertSession failed for user " + sessionManager.getCurrentSessionUserId());
+            log.error("assertSession failed for user " + sessionManager.getCurrentSessionUserId());
             throw new TagServiceException("Access denied");
         }
     }
 
     private void assertPermission() {
         if (!securityService.unlock("tagservice.manage", ADMIN_SITE_REALM)) {
-            LOG.error("assertPermission denied access to user " + sessionManager.getCurrentSessionUserId());
+            log.error("assertPermission denied access to user " + sessionManager.getCurrentSessionUserId());
             throw new TagServiceException("Access denied");
         }
     }

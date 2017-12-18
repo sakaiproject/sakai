@@ -24,16 +24,17 @@ package org.sakaiproject.sitemanage.impl;
 
 import java.util.List;
 
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataAccessException;
+import org.springframework.orm.hibernate4.support.HibernateDaoSupport;
+
 import org.sakaiproject.sitemanage.api.model.SiteSetupQuestion;
 import org.sakaiproject.sitemanage.api.model.SiteSetupQuestionAnswer;
 import org.sakaiproject.sitemanage.api.model.SiteSetupQuestionService;
 import org.sakaiproject.sitemanage.api.model.SiteSetupUserAnswer;
 import org.sakaiproject.sitemanage.api.model.SiteTypeQuestions;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.dao.DataAccessException;
-import org.springframework.orm.hibernate4.support.HibernateDaoSupport;
 
+@Slf4j
 public class SiteSetupQuestionServiceImpl extends HibernateDaoSupport implements SiteSetupQuestionService {
 	
 	private static final String QUERY_ANY_SITETYPE_QUESTIONS = "findAnySiteTypeQuestions";
@@ -43,15 +44,13 @@ public class SiteSetupQuestionServiceImpl extends HibernateDaoSupport implements
 	private static final String QUERY_QUESTIONS_BY_SITETYPE = "findQuestionsBySiteType";
 	
 	private static final String QUERY_ANSWER_BY_ID = "findAnswerById";
-	
-	private final static Logger Logger = LoggerFactory.getLogger(SiteSetupQuestionServiceImpl.class);
-	
+
 	/**
 	 * Init
 	 */
    public void init()
    {
-      Logger.info("init()");
+      log.info("init()");
    }
    
    /**
@@ -59,7 +58,7 @@ public class SiteSetupQuestionServiceImpl extends HibernateDaoSupport implements
     */
    public void destroy()
    {
-      Logger.info("destroy()");
+      log.info("destroy()");
    }
    
    /**
@@ -146,8 +145,7 @@ public class SiteSetupQuestionServiceImpl extends HibernateDaoSupport implements
 		}
 		catch (DataAccessException e)
 		{
-			e.printStackTrace();
-		 Logger.warn(this + ".saveSiteSetupQuestion() Hibernate could not save. question=" + q.getQuestion());
+			log.warn(this + ".saveSiteSetupQuestion() Hibernate could not save. question=" + q.getQuestion());
 			return false;
 		}
 	}
@@ -165,7 +163,7 @@ public class SiteSetupQuestionServiceImpl extends HibernateDaoSupport implements
 		}
 		catch (DataAccessException e)
 		{
-			Logger.error("Hibernate could not delete: question={}", question.getQuestion(), e);
+			log.error("Hibernate could not delete: question={}", question.getQuestion(), e);
 			return false;
 		}
 	}
@@ -194,7 +192,7 @@ public class SiteSetupQuestionServiceImpl extends HibernateDaoSupport implements
 		}
 		catch (DataAccessException e)
 		{
-		 	Logger.warn("Hibernate could not save. answer={}", answer.getAnswer(), e);
+		 	log.warn("Hibernate could not save. answer={}", answer.getAnswer(), e);
 			return false;
 		}
 	}
@@ -212,7 +210,7 @@ public class SiteSetupQuestionServiceImpl extends HibernateDaoSupport implements
 		}
 		catch (DataAccessException e)
 		{
-			Logger.error("Hibernate could not delete: answer={}", answer.getAnswer(), e);
+			log.error("Hibernate could not delete: answer={}", answer.getAnswer(), e);
 			return false;
 		}
 	}
@@ -241,7 +239,7 @@ public class SiteSetupQuestionServiceImpl extends HibernateDaoSupport implements
 		}
 		catch (DataAccessException e)
 		{
-		 	Logger.warn("Hibernate could not save. siteType={}", siteTypeQuestions.getSiteType());
+		 	log.warn("Hibernate could not save. siteType={}", siteTypeQuestions.getSiteType());
 			return false;
 		}
 	}
@@ -259,7 +257,7 @@ public class SiteSetupQuestionServiceImpl extends HibernateDaoSupport implements
 		}
 		catch (DataAccessException e)
 		{
-			Logger.error("Hibernate could not delete: siteType={}", siteTypeQuestions.getSiteType(), e);
+			log.error("Hibernate could not delete: siteType={}", siteTypeQuestions.getSiteType(), e);
 			return false;
 		}
 	}
@@ -288,7 +286,7 @@ public class SiteSetupQuestionServiceImpl extends HibernateDaoSupport implements
 		}
 		catch (DataAccessException e)
 		{
-		 	Logger.warn("Hibernate could not save. Site={} user={} question={}", siteSetupUserAnswer.getSiteId(), siteSetupUserAnswer.getUserId(), siteSetupUserAnswer.getQuestionId(), e);
+		 	log.warn("Hibernate could not save. Site={} user={} question={}", siteSetupUserAnswer.getSiteId(), siteSetupUserAnswer.getUserId(), siteSetupUserAnswer.getQuestionId(), e);
 			return false;
 		}
 	}
@@ -306,7 +304,7 @@ public class SiteSetupQuestionServiceImpl extends HibernateDaoSupport implements
 		}
 		catch (DataAccessException e)
 		{
-			Logger.error("Hibernate could not delete: Site={} user={} question={}", siteSetupUserAnswer.getSiteId(), siteSetupUserAnswer.getUserId(), siteSetupUserAnswer.getQuestionId());
+			log.error("Hibernate could not delete: Site={} user={} question={}", siteSetupUserAnswer.getSiteId(), siteSetupUserAnswer.getUserId(), siteSetupUserAnswer.getQuestionId());
 			return false;
 		}
 	}

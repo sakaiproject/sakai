@@ -42,8 +42,10 @@ import javax.faces.context.FacesContext;
 import javax.faces.event.ActionEvent;
 import javax.faces.model.SelectItem;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.apache.myfaces.custom.sortheader.HtmlCommandSortHeader;
+
 import org.sakaiproject.jsf.spreadsheet.SpreadsheetDataFileWriterXlsx;
 import org.sakaiproject.jsf.spreadsheet.SpreadsheetUtil;
 import org.sakaiproject.section.api.coursemanagement.CourseSection;
@@ -52,9 +54,6 @@ import org.sakaiproject.section.api.coursemanagement.ParticipationRecord;
 import org.sakaiproject.section.api.coursemanagement.SectionEnrollments;
 import org.sakaiproject.tool.section.decorator.EnrollmentDecorator;
 import org.sakaiproject.tool.section.jsf.JsfUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 
 /**
  * Controls the roster page.
@@ -62,10 +61,10 @@ import org.slf4j.LoggerFactory;
  * @author <a href="mailto:jholtzman@berkeley.edu">Josh Holtzman</a>
  *
  */
+@Slf4j
 public class RosterBean extends CourseDependentBean implements Serializable {
 
 	private static final long serialVersionUID = 1L;
-	private static final Logger log = LoggerFactory.getLogger(RosterBean.class);
 	private static final String CAT_COLUMN_PREFIX = "cat";
 
 	private String searchText;
@@ -388,7 +387,6 @@ public class RosterBean extends CourseDependentBean implements Serializable {
 
     	return sb.toString();
     }
-
 
     protected String getDownloadFileName(String rawString) {
         String dateString = DateFormat.getDateInstance(DateFormat.SHORT).format(new Date());

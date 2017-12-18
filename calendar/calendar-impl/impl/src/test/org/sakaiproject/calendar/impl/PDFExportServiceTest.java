@@ -41,12 +41,15 @@ import java.util.List;
 import java.util.Locale;
 import java.util.TimeZone;
 
+import lombok.extern.slf4j.Slf4j;
+
 import static java.nio.file.StandardOpenOption.CREATE;
 import static java.nio.file.StandardOpenOption.DELETE_ON_CLOSE;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+@Slf4j
 public class PDFExportServiceTest {
 
     @Rule
@@ -111,7 +114,7 @@ public class PDFExportServiceTest {
         pdfExportService.generatePDF(doc, xslFileNameForScheduleType, out);
         out.close();
         if (!deleteFiles) {
-            System.out.println("Created file: " + file.toString());
+            log.debug("Created file: {}", file.toString());
         }
     }
 
@@ -141,7 +144,7 @@ public class PDFExportServiceTest {
         pdfExportService.generatePDF(doc, xslFileNameForScheduleType, out);
         out.close();
         if (!deleteFiles) {
-            System.out.println("Created file: " + file.toString());
+            log.debug("Created file: {}", file.toString());
         }
     }
 
@@ -171,7 +174,7 @@ public class PDFExportServiceTest {
         pdfExportService.generatePDF(doc, xslFileNameForScheduleType, out);
         out.close();
         if (!deleteFiles) {
-            System.out.println("Created file: " + file.toString());
+            log.debug("Created file: {}", file.toString());
         }
     }
 
@@ -202,7 +205,7 @@ public class PDFExportServiceTest {
         pdfExportService.generatePDF(doc, xslFileNameForScheduleType, out);
         out.close();
         if (!deleteFiles) {
-            System.out.println("Created file: " + file.toString());
+            log.debug("Created file: {}", file.toString());
         }
     }
     private TimeRange newTimeRange(String start, String length) {
@@ -218,9 +221,9 @@ public class PDFExportServiceTest {
             Transformer transformer = TransformerFactory.newInstance().newTransformer();
             transformer.setOutputProperty(OutputKeys.INDENT, "yes");
             transformer.transform(new DOMSource(doc), new StreamResult(writer));
-            System.out.println(writer);
+            log.debug("{}", writer);
         } catch (Exception e) {
-            System.out.println("Error: "+e.getMessage());
+            log.error(e.getMessage(), e);
         }
 
     }

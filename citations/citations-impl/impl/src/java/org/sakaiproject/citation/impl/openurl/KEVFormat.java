@@ -15,24 +15,21 @@
  */
 package org.sakaiproject.citation.impl.openurl;
 
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.citation.impl.openurl.ContextObject.Entity;
 
 /**
  * Class to deal with Key Encoded Value format of OpenURLs.
  * @author buckett
  */
+@Slf4j
 public class KEVFormat implements Format {
-
-	private static final Logger log = LoggerFactory.getLogger(KEVFormat.class);
 	private static List<EntityFormatter> entityFormatters = new ArrayList<EntityFormatter>();
 	
 	public static String FORMAT_ID = "info:ofi/fmt:kev:mtx:ctx";

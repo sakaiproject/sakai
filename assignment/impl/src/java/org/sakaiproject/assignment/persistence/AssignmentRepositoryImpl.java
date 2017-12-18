@@ -42,7 +42,10 @@ public class AssignmentRepositoryImpl extends BasicSerializableRepository<Assign
     @Override
     @SuppressWarnings("unchecked")
     public List<Assignment> findAssignmentsBySite(String siteId) {
-        return startCriteriaQuery().add(Restrictions.eq("context", siteId)).list();
+        return startCriteriaQuery()
+                .add(Restrictions.eq("context", siteId))
+                .add(Restrictions.eq("deleted", Boolean.FALSE))
+                .list();
     }
 
     @Override
@@ -96,8 +99,10 @@ public class AssignmentRepositoryImpl extends BasicSerializableRepository<Assign
 
     @Override
     @Transactional
-    public void softDeleteAssignment(Assignment assignment) {
-        throw new NotImplementedException("Soft Delete is currently not implemented");
+    public void softDeleteAssignment(String assignmentId) {
+        Assignment assignment = findOne(assignmentId);
+        assignment.setDeleted(Boolean.TRUE);
+        updateAssignment(assignment);
     }
 
     @Override
@@ -149,6 +154,14 @@ public class AssignmentRepositoryImpl extends BasicSerializableRepository<Assign
     }
 
     @Override
+    public AssignmentSubmission findSubmissionForGroup(String assignmentId, String groupId) {
+        return (AssignmentSubmission) sessionFactory.getCurrentSession().createCriteria(AssignmentSubmission.class)
+                .add(Restrictions.eq("assignment.id", assignmentId))
+                .add(Restrictions.eq("groupId", groupId))
+                .uniqueResult();
+    }
+
+    @Override
     public void initializeAssignment(Assignment assignment) {
         sessionFactory.getCurrentSession().refresh(assignment);
     }
@@ -160,6 +173,7 @@ public class AssignmentRepositoryImpl extends BasicSerializableRepository<Assign
                 .add(Restrictions.eq("assignment.id", assignmentId))
                 .add(Restrictions.eq("submitted", Boolean.TRUE))
                 .add(Restrictions.eq("userSubmission", Boolean.TRUE))
+                .add(Restrictions.isNotNull("dateSubmitted"))
                 .uniqueResult();
         return number.longValue();
     }
@@ -170,7 +184,8 @@ public class AssignmentRepositoryImpl extends BasicSerializableRepository<Assign
                 .setProjection(Projections.rowCount())
                 .add(Restrictions.eq("assignment.id", assignmentId))
                 .add(Restrictions.eq("submitted", Boolean.TRUE))
-                .add(Restrictions.eq("graded", Boolean.TRUE))
+                .add(Restrictions.eq("graded", Boolean.FALSE))
+                .add(Restrictions.isNotNull("dateSubmitted"))
                 .uniqueResult();
         return number.longValue();
     }

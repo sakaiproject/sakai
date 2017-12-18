@@ -21,10 +21,10 @@
 
 package uk.ac.cam.caret.sakai.rwiki.component.radeox.service.impl;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.radeox.api.engine.RenderEngine;
 import org.radeox.api.engine.context.RenderContext;
+
 import org.sakaiproject.component.api.ComponentManager;
 import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.site.api.SiteService;
@@ -38,9 +38,9 @@ import uk.ac.cam.caret.sakai.rwiki.service.api.radeox.RenderContextFactory;
  * @author andrew
  */
 // FIXME: Component
+@Slf4j
 public class RenderContextFactoryImpl implements RenderContextFactory
 {
-	private static Logger log = LoggerFactory.getLogger(RenderContextFactoryImpl.class);
 
 	private RWikiObjectService objectService;
 

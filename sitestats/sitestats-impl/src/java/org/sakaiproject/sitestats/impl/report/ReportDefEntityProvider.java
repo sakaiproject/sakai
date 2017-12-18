@@ -23,8 +23,8 @@ import java.io.OutputStream;
 import java.util.List;
 import java.util.Map;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.entitybroker.DeveloperHelperService;
 import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.entitybroker.entityprovider.CoreEntityProvider;
@@ -35,9 +35,8 @@ import org.sakaiproject.sitestats.api.report.ReportDef;
 import org.sakaiproject.sitestats.api.report.ReportManager;
 import org.sakaiproject.sitestats.impl.parser.DigesterUtil;
 
-
+@Slf4j
 public class ReportDefEntityProvider implements AutoRegisterEntityProvider, CoreEntityProvider, Resolvable /*, Importable, Exportable*/ {
-	private Logger						LOG								= LoggerFactory.getLogger(ReportDefEntityProvider.class);
 	public static final String		PREFIX							= "sitestats-report";
 	public static final String		LABEL							= "SiteStatsReport";
 	public static final String 		REFERENCE_ROOT 					= "/" + PREFIX;
@@ -110,7 +109,7 @@ public class ReportDefEntityProvider implements AutoRegisterEntityProvider, Core
 	 * @see org.sakaiproject.entitybroker.entityprovider.capabilities.Importable#importData(java.lang.String, java.io.InputStream, java.lang.String, java.util.Map)
 	 */
 	public String[] importData(String reference, InputStream data, String encodingKey, Map<String, Object> params) {
-		LOG.info("importData(): reference="+reference+", encodingKey="+encodingKey+", params="+params);
+		log.info("importData(): reference="+reference+", encodingKey="+encodingKey+", params="+params);
 		String[] imported = new String[0];
 		if(M_dhs.entityExists(reference)) {
 			//String srcSiteId = M_dhs.getLocationIdFromRef(reference);
@@ -127,7 +126,7 @@ public class ReportDefEntityProvider implements AutoRegisterEntityProvider, Core
 					M_rm.saveReportDefinition(rf);
 				}
 			}catch(Exception e){
-				LOG.error("Unable to import SiteStats reports", e);
+				log.error("Unable to import SiteStats reports", e);
 			}
 		}
 		return imported;
@@ -137,7 +136,7 @@ public class ReportDefEntityProvider implements AutoRegisterEntityProvider, Core
 	 * @see org.sakaiproject.entitybroker.entityprovider.capabilities.Exportable#exportData(java.lang.String, org.sakaiproject.entitybroker.entityprovider.search.Search, java.io.OutputStream, boolean, java.util.Map)
 	 */
 	public String exportData(String reference, Search search, OutputStream data, boolean destructive, Map<String, Object> params) {
-		LOG.info("exportData(): reference="+reference+", destructive="+destructive);
+		log.info("exportData(): reference="+reference+", destructive="+destructive);
 		if(M_dhs.entityExists(reference)) {
 			//String destSiteId = M_dhs.getLocationIdFromRef(reference);
 			String exportInfo = IMPORTEXPORT_DEFAULT_ENCODING + "|" + IMPORTEXPORT_CURRENT_VERSION;
@@ -153,7 +152,7 @@ public class ReportDefEntityProvider implements AutoRegisterEntityProvider, Core
 					}
 					return exportInfo;
 				}catch(Exception e){
-					LOG.error("Unable to export SiteStats reports", e);
+					log.error("Unable to export SiteStats reports", e);
 				}
 			}
 		}		

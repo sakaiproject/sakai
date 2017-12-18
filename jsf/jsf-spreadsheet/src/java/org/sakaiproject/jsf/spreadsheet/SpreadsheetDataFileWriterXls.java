@@ -29,6 +29,8 @@ import java.util.List;
 
 import javax.servlet.http.HttpServletResponse;
 
+import lombok.extern.slf4j.Slf4j;
+
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.BorderStyle;
 import org.apache.poi.ss.usermodel.Cell;
@@ -38,17 +40,15 @@ import org.apache.poi.ss.usermodel.IndexedColors;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
+
 import org.sakaiproject.component.cover.ServerConfigurationService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * @deprecated use {@link org.sakaiproject.jsf.spreadsheet.SpreadsheetDateFileWriterXlsx} , this will be removed after 12 - Oct 2017
  */
 @Deprecated
+@Slf4j
 public class SpreadsheetDataFileWriterXls implements SpreadsheetDataFileWriter {
-	private static final Logger log = LoggerFactory.getLogger(SpreadsheetDataFileWriter.class);
-
 	public void writeDataToResponse(List<List<Object>> spreadsheetData, String fileName, HttpServletResponse response) {
 		response.setContentType("application/vnd.ms-excel");
 		SpreadsheetUtil.setEscapedAttachmentHeader(response, fileName + ".xls");

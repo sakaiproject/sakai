@@ -26,8 +26,8 @@ import java.util.Observable;
 import java.util.Observer;
 import java.util.Set;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.Member;
@@ -55,11 +55,10 @@ import org.sakaiproject.thread_local.api.ThreadLocalManager;
 * @author University of Michigan, Sakai Software Development Team
 * @version $Revision$
 */
+@Slf4j
 public class RoleGroupEventWatcher implements Observer
 {
-	
-	private static Logger log = LoggerFactory.getLogger(RoleGroupEventWatcher.class);
-	
+
 	/*******************************************************************************
 	* Dependencies and their setter methods
 	*******************************************************************************/
@@ -286,7 +285,6 @@ public class RoleGroupEventWatcher implements Observer
 				catch (Exception e)
 				{
 					log.warn(this + ".update:" + e + ": " + event.getResource());
-					e.printStackTrace();
 				}
 				
 				securityService.popAdvisor();
@@ -298,7 +296,3 @@ public class RoleGroupEventWatcher implements Observer
 	} // update
 	
 } // RoleGroupEventWatcher
-
-
-
-

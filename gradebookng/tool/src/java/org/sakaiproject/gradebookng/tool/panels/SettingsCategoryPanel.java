@@ -290,7 +290,9 @@ public class SettingsCategoryPanel extends BasePanel {
 				// if categories and weighting, disable course grade points
 				final AjaxCheckBox points = settingsPage.getSettingsGradeReleasePanel().getPointsCheckBox();
 				settingsPage.getSettingsGradeReleasePanel().updatePointsCheckboxState();
-				target.add(points);
+				if (points.isVisibleInHierarchy()) {
+					target.add(points);
+				}
 
 				// reinitialize any custom behaviour
 				target.appendJavaScript("sakai.gradebookng.settings.categories = new GradebookCategorySettings($('#settingsCategories'));");

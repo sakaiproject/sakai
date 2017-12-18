@@ -19,7 +19,6 @@
  *
  **********************************************************************************/
 
-
 package org.sakaiproject.tool.assessment.services;
 
 import java.math.BigDecimal;
@@ -48,25 +47,26 @@ import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.math3.complex.Complex;
 import org.apache.commons.math3.complex.ComplexFormat;
 import org.apache.commons.math3.exception.MathParseException;
 import org.apache.commons.math3.util.Precision;
-import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemData;
-import org.sakaiproject.tool.assessment.data.dao.grading.StudentGradingSummaryData;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
 import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.samigo.util.SamigoConstants;
 import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService;
 import org.sakaiproject.spring.SpringBeanLocator;
+import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemData;
 import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingAttachment;
 import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
 import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingAttachment;
 import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData;
 import org.sakaiproject.tool.assessment.data.dao.grading.MediaData;
+import org.sakaiproject.tool.assessment.data.dao.grading.StudentGradingSummaryData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AnswerIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessControlIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.EvaluationModelIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
@@ -77,26 +77,28 @@ import org.sakaiproject.tool.assessment.data.ifc.grading.StudentGradingSummaryIf
 import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.GradebookFacade;
+import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
 import org.sakaiproject.tool.assessment.facade.TypeFacade;
 import org.sakaiproject.tool.assessment.facade.TypeFacadeQueriesAPI;
 import org.sakaiproject.tool.assessment.integration.context.IntegrationContextFactory;
 import org.sakaiproject.tool.assessment.integration.helper.ifc.GradebookServiceHelper;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
+import org.sakaiproject.tool.assessment.util.ExtendedTimeDeliveryService;
 import org.sakaiproject.tool.assessment.util.SamigoExpressionError;
 import org.sakaiproject.tool.assessment.util.SamigoExpressionParser;
-
 
 /**
  * The GradingService calls the back end to get/store grading information. 
  * It also calculates scores for autograded types.
  */
+@Slf4j
 public class GradingService
 {
 	/**
 	 *	Key for a complext numeric answer e.g. 9+9i 
 	 */
   public static final String ANSWER_TYPE_COMPLEX = "COMPLEX";
-  
+
   /**
    * key for a real number representation e.g 1 or 10E5 
    */
@@ -124,8 +126,6 @@ public class GradingService
   final Pattern CALCQ_FORMULA_PATTERN = Pattern.compile(OPEN_BRACKET + OPEN_BRACKET + CALCQ_VAR_FORM_NAME_EXPRESSION + CLOSE_BRACKET + CLOSE_BRACKET);
   final Pattern CALCQ_FORMULA_SPLIT_PATTERN = Pattern.compile("(" + OPEN_BRACKET + OPEN_BRACKET + CALCQ_VAR_FORM_NAME + CLOSE_BRACKET + CLOSE_BRACKET + ")");
   final Pattern CALCQ_CALCULATION_PATTERN = Pattern.compile("\\[\\[([^\\[\\]]+?)\\]\\]?"); // non-greedy
-
-  private Logger log = LoggerFactory.getLogger(GradingService.class);
 
   /**
    * Get all scores for a published assessment from the back end.
@@ -252,7 +252,6 @@ public class GradingService
   
   public void saveTotalScores(List gdataList, PublishedAssessmentIfc pub)
   {
-      //log.debug("**** GradingService: saveTotalScores");
     try {
      AssessmentGradingData gdata;
       if (gdataList.size()>0)
@@ -1212,7 +1211,6 @@ public class GradingService
       double totalAutoScore = getTotalAutoScore(fullItemGradingSet);
       data.setTotalAutoScore(totalAutoScore);
      
-      //log.debug("**#1 total AutoScore"+totalAutoScore);
       if (Double.compare((totalAutoScore + data.getTotalOverrideScore()), new Double("0"))<0){
     	  data.setFinalScore( Double.valueOf("0"));
       }else{
@@ -1253,12 +1251,10 @@ public class GradingService
   }
 
   private double getTotalAutoScore(Set itemGradingSet){
-      //log.debug("*** no. of itemGrading="+itemGradingSet.size());
     double totalAutoScore =0;
     Iterator iter = itemGradingSet.iterator();
     while (iter.hasNext()){
       ItemGradingData i = (ItemGradingData)iter.next();
-      //log.debug(i.getItemGradingId()+"->"+i.getAutoScore());
       if (i.getAutoScore()!=null)
 	totalAutoScore += i.getAutoScore();
     }
@@ -1330,16 +1326,11 @@ public class GradingService
                 autoScore += itemGrading.getOverrideScore();
               if (!totalItems.containsKey(itemId)){
                 totalItems.put(itemId, autoScore);
-                //log.debug("****0. first answer score = "+autoScore);
               }
               else{
                 accumelateScore = ((Double)totalItems.get(itemId));
-                //log.debug("****1. before adding new score = "+accumelateScore);
-                //log.debug("****2. this answer score = "+autoScore);
                 accumelateScore += autoScore;
-                //log.debug("****3. add 1+2 score = "+accumelateScore);
                 totalItems.put(itemId, accumelateScore);
-                //log.debug("****4. what did we put in = "+((Double)totalItems.get(itemId)).doubleValue());
               }
               break;
 
@@ -2234,12 +2225,22 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
 		  data.setIsLate(false);
 	  }
 	  else {
-		  if (pub.getAssessmentAccessControl() != null
-				  && pub.getAssessmentAccessControl().getDueDate() != null &&
-				  pub.getAssessmentAccessControl().getDueDate().before(new Date()))
-			  data.setIsLate(Boolean.TRUE);
-		  else
-			  data.setIsLate(false);
+		  Boolean isLate = false;
+		  AssessmentAccessControlIfc a = pub.getAssessmentAccessControl();
+		  if (a.getDueDate() != null && a.getDueDate().before(new Date())) {
+			isLate = Boolean.TRUE;
+		  } else {
+			isLate = Boolean.FALSE;
+		  }
+
+		  if (isLate) {
+			ExtendedTimeDeliveryService assessmentExtended = new ExtendedTimeDeliveryService((PublishedAssessmentFacade) pub, data.getAgentId());
+			if (assessmentExtended.hasExtendedTime() && assessmentExtended.getDueDate() != null && assessmentExtended.getDueDate().after(new Date())) {
+				isLate = Boolean.FALSE;
+			}
+		  }
+
+		  data.setIsLate(isLate);
 	  }
 	  
     if (data.getForGrade())
@@ -2590,7 +2591,6 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
 	      PersistenceService.getInstance().
 	        getAssessmentGradingFacadeQueries().removeUnsubmittedAssessmentGradingData(data);
 	    } catch (Exception e) {
-	      //log.error(e.getMessage(), e);
 	      log.error("Exception thrown from removeUnsubmittedAssessmentGradingData" + e.getMessage());
 	    }
   }

@@ -38,6 +38,7 @@ import javax.faces.event.ActionListener;
 import javax.faces.event.ValueChangeEvent;
 import javax.faces.event.ValueChangeListener;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.math.NumberUtils;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentAccessControl;
@@ -67,8 +68,6 @@ import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.util.BeanSort;
 import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.util.ResourceLoader;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 // end testing
 
@@ -91,9 +90,9 @@ import org.slf4j.LoggerFactory;
  *          daisyf@stanford.edu $
  */
 
-public class QuestionScoreListener implements ActionListener,
+@Slf4j
+ public class QuestionScoreListener implements ActionListener,
 		ValueChangeListener {
-	private static Logger log = LoggerFactory.getLogger(QuestionScoreListener.class);
 
 	// private static EvaluationListenerUtil util;
 	private static BeanSort bs;
@@ -414,7 +413,6 @@ public class QuestionScoreListener implements ActionListener,
 								EvaluationModel.ANONYMOUS_GRADING) ? "true"
 										: "false");
 			} catch (RuntimeException e) {
-				// log.info("No evaluation model.");
 				bean.setAnonymous("false");
 			}
 			
@@ -424,7 +422,6 @@ public class QuestionScoreListener implements ActionListener,
 						.getAssessmentAccessControl().getLateHandling()
 						.toString());
 			} catch (Exception e) {
-				// log.info("No access control model.");
 				bean
 				.setLateHandling(AssessmentAccessControl.NOT_ACCEPT_LATE_SUBMISSION
 						.toString());
@@ -435,7 +432,6 @@ public class QuestionScoreListener implements ActionListener,
 				dueDate = publishedAssessment.getAssessmentAccessControl()
 				.getDueDate();
 			} catch (RuntimeException e) {
-				// log.info("No due date.");
 				bean.setDueDate(new Date().toString());
 			}
 			try {
@@ -817,7 +813,6 @@ public class QuestionScoreListener implements ActionListener,
 						results.setSubmittedDate(gdata.getSubmittedDate());
 
 						AgentFacade agent = new AgentFacade(gdata.getAgentId());
-						// log.info("Rachel: agentid = " + gdata.getAgentId());
 						results.setLastName(agent.getLastName());
 						results.setFirstName(agent.getFirstName());
 						results.setEmail(agent.getEmail());
@@ -850,7 +845,6 @@ public class QuestionScoreListener implements ActionListener,
 				}
 			}
 
-			// log.info("Sort type is " + bean.getSortType() + ".");
 			bs = new BeanSort(agents, bean.getSortType());
 			if ((bean.getSortType()).equals("assessmentGradingId")
 					|| (bean.getSortType()).equals("totalAutoScore")
@@ -869,7 +863,6 @@ public class QuestionScoreListener implements ActionListener,
 				agents = (List) bs.sortDesc();
 			}
 
-			// log.info("Listing agents.");
 			bean.setAgents(agents);
 			bean.setAllAgents(agents);
 			bean
@@ -879,7 +872,7 @@ public class QuestionScoreListener implements ActionListener,
 		}
 
 		catch (RuntimeException e) {
-			e.printStackTrace();
+			log.error(e.getMessage(), e);
 			return false;
 		}
 

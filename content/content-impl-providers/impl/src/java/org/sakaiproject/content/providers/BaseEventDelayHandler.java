@@ -22,9 +22,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.sakaiproject.api.app.scheduler.DelayedInvocation;
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.api.app.scheduler.ScheduledInvocationCommand;
 import org.sakaiproject.api.app.scheduler.ScheduledInvocationManager;
 import org.sakaiproject.authz.api.SecurityAdvisor;
@@ -41,11 +40,10 @@ import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
 
+@Slf4j
 public class BaseEventDelayHandler implements EventDelayHandler, ScheduledInvocationCommand
 {
 	private boolean autoDdl;
-
-	private static final Logger LOG = LoggerFactory.getLogger(BaseEventDelayHandler.class);
 
 	private SqlService sqlService;
 	private ScheduledInvocationManager schedInvocMgr;
@@ -141,7 +139,7 @@ public class BaseEventDelayHandler implements EventDelayHandler, ScheduledInvoca
 						}
 						catch (SQLException se)
 						{
-							LOG.error("Error trying to build event on read", se);
+							log.error("Error trying to build event on read", se);
 						}
 						return e;
 					}
@@ -237,7 +235,7 @@ public class BaseEventDelayHandler implements EventDelayHandler, ScheduledInvoca
 			id = (String) ids.get(0);
 
 		// Schedule the new delayed invocation
-		LOG.info("Creating new delayed event [" + id + "]");
+		log.info("Creating new delayed event [" + id + "]");
 		Instant fireInstant = Instant.ofEpochMilli(fireTime.getTime());
 		schedInvocMgr.createDelayedInvocation(fireInstant, BaseEventDelayHandler.class.getName(), id);
 		return id;
@@ -307,7 +305,7 @@ public class BaseEventDelayHandler implements EventDelayHandler, ScheduledInvoca
 		final Event event = popEventDelay(opaqueContext);
 
 		if (event != null) {
-			LOG.info("Refiring delayed event [" + opaqueContext + "]");
+			log.info("Refiring delayed event [" + opaqueContext + "]");
 
 			// Set up security advisor
 			try
@@ -334,7 +332,7 @@ public class BaseEventDelayHandler implements EventDelayHandler, ScheduledInvoca
 				securityService.popAdvisor();
 			}
 		} else {
-			LOG.warn("Delayed event not found [" + opaqueContext + "]");
+			log.warn("Delayed event not found [" + opaqueContext + "]");
 		}
 		
 	}

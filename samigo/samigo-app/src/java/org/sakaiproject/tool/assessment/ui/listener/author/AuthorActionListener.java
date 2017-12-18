@@ -35,12 +35,14 @@ import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.section.api.SectionAwareness;
 import org.sakaiproject.site.api.Group;
+import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentAccessControl;
@@ -60,8 +62,6 @@ import org.sakaiproject.tool.assessment.ui.bean.authz.AuthorizationBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.ui.listener.util.TimeUtil;
 import org.sakaiproject.util.FormattedText;
-import org.sakaiproject.site.api.Site;
-import org.sakaiproject.entity.api.ResourceProperties;
 
 /**
  * <p>Title: Samigo</p>2
@@ -69,11 +69,10 @@ import org.sakaiproject.entity.api.ResourceProperties;
  * @author Ed Smiley
  * @version $Id$
  */
-
+@Slf4j
 public class AuthorActionListener
     implements ActionListener
 {
-  private static final Logger log = LoggerFactory.getLogger(AuthorActionListener.class);
   private HashMap<String, ArrayList<String>> groupUsersIdMap = new HashMap<String, ArrayList<String>>();
   private ArrayList<String> siteUsersIdList = new ArrayList<String>();
   private final TimeUtil tu = new TimeUtil();

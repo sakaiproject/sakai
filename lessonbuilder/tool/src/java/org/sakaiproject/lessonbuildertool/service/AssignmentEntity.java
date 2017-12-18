@@ -29,41 +29,35 @@ import java.time.temporal.ChronoUnit;
 import java.util.*;
 
 import lombok.Setter;
-import org.sakaiproject.assignment.api.AssignmentService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import org.jdom.Element;
 import org.jdom.Namespace;
 
-import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean;
-import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean.UrlItem;
-import org.sakaiproject.memory.api.SimpleConfiguration;
-import org.sakaiproject.util.FormattedText;
+import uk.org.ponder.messageutil.MessageLocator;
 
+import org.sakaiproject.assignment.api.AssignmentService;
 import org.sakaiproject.assignment.api.model.Assignment;
-import org.sakaiproject.assignment.api.model.AssignmentSubmission;
 import org.sakaiproject.assignment.api.model.AssignmentNoteItem;
+import org.sakaiproject.assignment.api.model.AssignmentSubmission;
 import org.sakaiproject.assignment.api.model.AssignmentSupplementItemService;
-
+import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.entity.cover.EntityManager;  
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
-
-import org.sakaiproject.site.api.Group;
-import org.sakaiproject.site.api.Site;
-import org.sakaiproject.site.cover.SiteService;
-import org.sakaiproject.tool.cover.ToolManager;
-import org.sakaiproject.site.api.ToolConfiguration;
-import org.sakaiproject.user.api.User;
-import org.sakaiproject.user.cover.UserDirectoryService;
-import org.sakaiproject.component.cover.ServerConfigurationService;             
-import org.sakaiproject.entity.api.ResourceProperties;
-import org.sakaiproject.entity.cover.EntityManager;
-
+import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean;
+import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean.UrlItem;
 import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.MemoryService;
-
-import uk.org.ponder.messageutil.MessageLocator;
+import org.sakaiproject.memory.api.SimpleConfiguration;
+import org.sakaiproject.site.api.Group;
+import org.sakaiproject.site.api.Site;
+import org.sakaiproject.site.api.ToolConfiguration;
+import org.sakaiproject.site.cover.SiteService;
+import org.sakaiproject.tool.cover.ToolManager;
+import org.sakaiproject.user.api.User;
+import org.sakaiproject.user.cover.UserDirectoryService;
+import org.sakaiproject.util.FormattedText;
 
 /**
  * Interface to Assignment
@@ -81,13 +75,12 @@ import uk.org.ponder.messageutil.MessageLocator;
 // variables lessonEntity because the same module will probably have an
 // injected class to handle tests and quizes as well. That will eventually
 // be converted to be a LessonEntity.
-
+@Slf4j
 public class AssignmentEntity implements LessonEntity, AssignmentInterface {
 
-	public static final int CACHE_MAX_ENTRIES = 5000;
-	public static final int CACHE_TIME_TO_LIVE_SECONDS = 600;
-	public static final int CACHE_TIME_TO_IDLE_SECONDS = 360;
-	private static Logger log = LoggerFactory.getLogger(AssignmentEntity.class);
+    public static final int CACHE_MAX_ENTRIES = 5000;
+    public static final int CACHE_TIME_TO_LIVE_SECONDS = 600;
+    public static final int CACHE_TIME_TO_IDLE_SECONDS = 360;
 
     private static Cache assignmentCache = null;
 
@@ -221,9 +214,8 @@ public class AssignmentEntity implements LessonEntity, AssignmentInterface {
 	List<LessonEntity> ret = new ArrayList<LessonEntity>();
 	// security. assume this is only used in places where it's OK, so skip security checks
 	for (Assignment a : assignmentService.getAssignmentsForContext(ToolManager.getCurrentPlacement().getContext())) {
-	    String deleted = a.getProperties().get(ResourceProperties.PROP_ASSIGNMENT_DELETED);
 	    // this somewhat odd test for deleted is the one used in the Assignment code
-	    if ((deleted == null || "".equals(deleted)) && !a.getDraft()) {
+	    if (!a.getDraft()) {
 		AssignmentEntity entity = new AssignmentEntity(TYPE_ASSIGNMENT, a.getId(), 1);
 		entity.assignment = a;
 		entity.simplePageBean = bean;
@@ -565,9 +557,9 @@ public class AssignmentEntity implements LessonEntity, AssignmentInterface {
     public boolean notPublished() {
 	if (!objectExists())
 	    return true;
-	String deleted = assignment.getProperties().get(ResourceProperties.PROP_ASSIGNMENT_DELETED);
+
 	// this somewhat odd test for deleted is the one used in the Assignment code
-	if ((deleted == null || "".equals(deleted)) && !assignment.getDraft())
+	if (!assignment.getDeleted() && !assignment.getDraft())
 	    return false;
 	else
 	    return true;

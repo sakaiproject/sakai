@@ -21,6 +21,8 @@
 
 package org.sakaiproject.citation.impl;
 
+import com.thoughtworks.xstream.XStream;
+
 import java.io.InputStream;
 import java.io.StringWriter;
 import java.util.ArrayList;
@@ -46,8 +48,15 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+
+import edu.indiana.lib.twinpeaks.util.DomException;
+
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.citation.api.ConfigurationService;
@@ -73,23 +82,13 @@ import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.user.api.UserDirectoryService;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-
-import com.thoughtworks.xstream.XStream;
-
-import edu.indiana.lib.twinpeaks.util.DomException;
 
 /**
  *
  */
+@Slf4j
 public class BaseConfigurationService implements ConfigurationService, Observer
 {
-
-  private static Logger m_log = LoggerFactory.getLogger(BaseConfigurationService.class);
-
   /**
    * Locale that will be used if user's locale is not available. 
    */
@@ -213,7 +212,7 @@ public class BaseConfigurationService implements ConfigurationService, Observer
     }
     catch (OsidConfigurationException exception)
     {
-      m_log.warn("Unexpected exception: " + exception);
+      log.warn("Unexpected exception: " + exception);
     }
     return false;
   }
@@ -278,7 +277,7 @@ public class BaseConfigurationService implements ConfigurationService, Observer
     }
     catch (OsidConfigurationException exception)
     {
-      m_log.warn("Unexpected exception: " + exception);
+      log.warn("Unexpected exception: " + exception);
     }
     return false;
   }
@@ -428,8 +427,8 @@ public class BaseConfigurationService implements ConfigurationService, Observer
     }
     catch (NumberFormatException exception)
     {
-      if(m_log.isDebugEnabled()) {
-        m_log.debug("Maximum searchable database exception: "
+      if(log.isDebugEnabled()) {
+        log.debug("Maximum searchable database exception: "
               +   exception.toString());
       }
       searchableDbs = SEARCHABLE_DATABASES;
@@ -468,7 +467,7 @@ public class BaseConfigurationService implements ConfigurationService, Observer
           value.equals("related-link") ||
           value.equals("title-link")))
     {
-      m_log.debug("Invalid value for <provide-direct-url>: \""
+      log.debug("Invalid value for <provide-direct-url>: \""
                   + value
                   + "\", using \"false\"");
       value = "false";
@@ -507,10 +506,10 @@ public class BaseConfigurationService implements ConfigurationService, Observer
 
     if (state != null)
     {
-      m_log.debug("Citations enabled by default (1): " + state.equals("true"));
+      log.debug("Citations enabled by default (1): " + state.equals("true"));
       return state.equals("true");
     }
-    m_log.debug("Citations enabled by default (2): " + m_citationsEnabledByDefault);
+    log.debug("Citations enabled by default (2): " + m_citationsEnabledByDefault);
     return m_citationsEnabledByDefault;
   }
 
@@ -533,10 +532,10 @@ public class BaseConfigurationService implements ConfigurationService, Observer
 
     if (state != null)
     {
-      m_log.debug("Citations enabled site-by-site (1): " + state.equals("true"));
+      log.debug("Citations enabled site-by-site (1): " + state.equals("true"));
       return state.equals("true");
     }
-    m_log.debug("Citations enabled site-by-site (2): " + m_allowSiteBySiteOverride);
+    log.debug("Citations enabled site-by-site (2): " + m_allowSiteBySiteOverride);
     return m_allowSiteBySiteOverride;
   }
 
@@ -563,7 +562,7 @@ public class BaseConfigurationService implements ConfigurationService, Observer
     {
       state = getGoogleSearchEnabled();
     }
-    m_log.debug("Google enabled: " + state.equals("true"));
+    log.debug("Google enabled: " + state.equals("true"));
     return state.equals("true");
   }
 
@@ -590,7 +589,7 @@ public class BaseConfigurationService implements ConfigurationService, Observer
     {
       state = getLibrarySearchEnabled();
     }
-    m_log.debug("Library Search enabled: " + state.equals("true"));
+    log.debug("Library Search enabled: " + state.equals("true"));
     return state.equals("true");
   }
 
@@ -635,7 +634,7 @@ public class BaseConfigurationService implements ConfigurationService, Observer
     }
     catch (OsidConfigurationException exception)
     {
-      m_log.warn("Failed to get a dynamic XML value for "
+      log.warn("Failed to get a dynamic XML value for "
               +  parameter
               +  ": "
               +  exception);
@@ -662,7 +661,7 @@ public class BaseConfigurationService implements ConfigurationService, Observer
     }
     catch (Exception exception)
     {
-      m_log.warn("Failed to get " + m_osidConfig + ": " + exception);
+      log.warn("Failed to get " + m_osidConfig + ": " + exception);
       siteConfig = null;
     }
     return siteConfig;
@@ -788,7 +787,7 @@ public class BaseConfigurationService implements ConfigurationService, Observer
 //			  String str = serializer.writeToString(clientElement);
 			  this.saveciteClients = (Map<String, List<Map<String, String>>>) xstream.fromXML(str);
 		  } catch(Exception e) {
-			  m_log.warn("Exception trying to read saveciteClients from config XML", e);
+			  log.warn("Exception trying to read saveciteClients from config XML", e);
 		  }
 	  }
 	
@@ -833,7 +832,7 @@ public class BaseConfigurationService implements ConfigurationService, Observer
     }
     catch (Exception exception)
     {
-      m_log.warn("XML parse on \"" + stream + "\" failed: " + exception);
+      log.warn("XML parse on \"" + stream + "\" failed: " + exception);
     }
     return null;
   }
@@ -859,7 +858,7 @@ public class BaseConfigurationService implements ConfigurationService, Observer
     }
     catch (Exception exception)
     {
-      m_log.warn("Failed to get XML DocumentBuilder: " + exception);
+      log.warn("Failed to get XML DocumentBuilder: " + exception);
     }
     return null;
   }
@@ -938,27 +937,27 @@ public class BaseConfigurationService implements ConfigurationService, Observer
    */
   public void init()
   {
-    m_log.info("init()");
+    log.info("init()");
 
     EventTrackingService.addObserver(this);
 
     SiteService siteService = (SiteService) ComponentManager.get(SiteService.class);
     ContentHostingService contentService = (ContentHostingService) ComponentManager.get(ContentHostingService.class);
 
-    m_log.info("init() site m_adminSiteName == \"" + this.m_adminSiteName + "\"");
+    log.info("init() site m_adminSiteName == \"" + this.m_adminSiteName + "\"");
     if(isNull(this.m_adminSiteName))
     {
       // can't create
-        m_log.info("init() m_adminSiteName is null");
+        log.info("init() m_adminSiteName is null");
     }
     else if(siteService.siteExists(this.m_adminSiteName))
     {
       // no need to create
-        m_log.info("init() site " + this.m_adminSiteName + " already exists");
+        log.info("init() site " + this.m_adminSiteName + " already exists");
     }
     else if(!m_serverConfigurationService.getBoolean("citationsAdmin.autocreate", true)) {
      	//do not autocreate
-     	m_log.info("init() skipping autocreate of citationsAdmin site");
+     	log.info("init() skipping autocreate of citationsAdmin site");
     }
     else
     {
@@ -981,29 +980,29 @@ public class BaseConfigurationService implements ConfigurationService, Observer
 			page.addTool("sakai.resources");
 
 			siteService.save(adminSite);
-	        m_log.debug("init() site " + this.m_adminSiteName + " has been created");
+	        log.debug("init() site " + this.m_adminSiteName + " has been created");
 		}
 		catch (IdInvalidException e)
 		{
 		  // TODO Auto-generated catch block
-		  m_log.warn("IdInvalidException ", e);
+		  log.warn("IdInvalidException ", e);
 		}
 		catch (IdUsedException e)
 		{
 		  // we've already verified that the site doesn't exist but
 		  // this can occur if site was created by another server
 		  // in a cluster that is starting up at the same time.
-		  m_log.warn("IdUsedException ", e);
+		  log.warn("IdUsedException ", e);
 		}
 		catch (PermissionException e)
 		{
 		  // TODO Auto-generated catch block
-		  m_log.warn("PermissionException ", e);
+		  log.warn("PermissionException ", e);
 		}
 		catch (IdUnusedException e)
 		{
 		  // TODO Auto-generated catch block
-		  m_log.warn("IdUnusedException ", e);
+		  log.warn("IdUnusedException ", e);
 		}
 		finally {
 			if(pushed != null) {
@@ -1026,7 +1025,7 @@ public class BaseConfigurationService implements ConfigurationService, Observer
 
   public void destroy()
   {
-    m_log.info("destroy()");
+    log.info("destroy()");
   }
 
   /*
@@ -1276,7 +1275,7 @@ public class BaseConfigurationService implements ConfigurationService, Observer
       return;
     }
 
-    m_log.warn("Invalid Google support setting \""
+    log.warn("Invalid Google support setting \""
           +    googleSearchEnabled
           +    "\", disabling Google search");
 
@@ -1303,7 +1302,7 @@ public class BaseConfigurationService implements ConfigurationService, Observer
       return;
     }
 
-    m_log.warn("Invalid library support setting \""
+    log.warn("Invalid library support setting \""
           +    librarySearchEnabled
           +    "\", disabling library search");
 
@@ -1426,11 +1425,11 @@ public class BaseConfigurationService implements ConfigurationService, Observer
    * @param saveciteClients the saveciteClients to set
    */
   public void setSaveciteClients(Map<String, List<Map<String,String>>> saveciteClients) {
-	m_log.info("saveciteClients updated");
+	log.info("saveciteClients updated");
 	this.saveciteClients = saveciteClients;
-	if(m_log.isDebugEnabled()) {
+	if(log.isDebugEnabled()) {
 		if(this.saveciteClients == null) {
-			m_log.debug("setSaveciteClients() called but saveciteClients is null");
+			log.debug("setSaveciteClients() called but saveciteClients is null");
 			return;
 		}  
 		StringBuilder buf = new StringBuilder("setSaveciteClients()\n");
@@ -1439,7 +1438,7 @@ public class BaseConfigurationService implements ConfigurationService, Observer
 		addMapToStringBuilder(buf,this.saveciteClients,4,4);
 		buf.append('\n');
 		buf.append('\n');
-		m_log.debug(buf.toString());
+		log.debug(buf.toString());
 	}
   }
   
@@ -1541,7 +1540,7 @@ public Collection<String> getAllCategoryXml()
 
         if (this.m_updatableResources.contains(refstr))
         {
-          m_log.debug("Updating configuration from " + refstr);
+          log.debug("Updating configuration from " + refstr);
           updateConfig(refstr);
         }
       }
@@ -1575,21 +1574,21 @@ public Collection<String> getAllCategoryXml()
       }
       catch (PermissionException e)
       {
-        m_log.warn("Exception: " + e + ", continuing");
+        log.warn("Exception: " + e + ", continuing");
       }
       catch (IdUnusedException e)
       {
-        m_log.warn("Citations configuration XML is missing ("
+        log.warn("Citations configuration XML is missing ("
               +    configFileRef
               +    "); Citations ConfigurationService will watch for its creation");
       }
       catch (TypeException e)
       {
-        m_log.warn("Exception: " + e + ", continuing");
+        log.warn("Exception: " + e + ", continuing");
       }
       catch (ServerOverloadException e)
       {
-        m_log.warn("Exception: " + e + ", continuing");
+        log.warn("Exception: " + e + ", continuing");
       } finally {
     	  if(pushed != null) {
     		  boolean found = false;
@@ -1640,11 +1639,11 @@ public Collection<String> getAllCategoryXml()
     }
     catch (IdUnusedException exception)
     {
-      m_log.debug("exists() failed find resource: " + exception);
+      log.debug("exists() failed find resource: " + exception);
     }
     catch (Exception exception)
     {
-      m_log.warn("exists() failed find resource: ", exception);
+      log.warn("exists() failed find resource: ", exception);
     }
     finally {
     	  if(pushed != null) {
@@ -1711,7 +1710,7 @@ public Collection<String> getAllCategoryXml()
       enabled = "true".equals(state);
     }
    
-    m_log.debug("External Search enabled: " + enabled);
+    log.debug("External Search enabled: " + enabled);
     return enabled && getExternalSearchUrl() != null;
   }
 

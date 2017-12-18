@@ -21,8 +21,8 @@
 
 package uk.ac.cam.caret.sakai.rwiki.tool.service.impl;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.component.api.ComponentManager;
 
 import uk.ac.cam.caret.sakai.rwiki.service.api.RenderService;
@@ -33,9 +33,9 @@ import uk.ac.cam.caret.sakai.rwiki.utils.NameHelper;
 /**
  * @author andrew
  */
+@Slf4j
 public class ToolRenderServiceImpl implements ToolRenderService
 {
-	private static Logger log = LoggerFactory.getLogger(ToolRenderServiceImpl.class);
 
 	private RenderService renderService = null;
 

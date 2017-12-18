@@ -15,36 +15,18 @@
  */
 package org.sakaiproject.lessonbuildertool.tool.producers;
 
+import java.net.URLEncoder;
+import java.text.DateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
-import java.text.SimpleDateFormat;
-import java.text.DateFormat;
-import java.util.Calendar;
-import java.net.URLEncoder;
 
-import org.sakaiproject.lessonbuildertool.SimplePageComment;
-import org.sakaiproject.lessonbuildertool.SimplePageItem;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.sakaiproject.lessonbuildertool.SimplePage;
-import org.sakaiproject.lessonbuildertool.SimplePageLogEntry;
-import org.sakaiproject.lessonbuildertool.SimpleStudentPage;
-import org.sakaiproject.lessonbuildertool.model.SimplePageToolDao;
-import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean;
-import org.sakaiproject.lessonbuildertool.tool.view.CommentsViewParameters;
-import org.sakaiproject.lessonbuildertool.tool.view.GeneralViewParameters;
-import org.sakaiproject.site.api.Site;
-import org.sakaiproject.site.cover.SiteService;
-import org.sakaiproject.site.api.Group;
-import org.sakaiproject.user.api.User;
-import org.sakaiproject.user.cover.UserDirectoryService;
-import org.sakaiproject.time.cover.TimeService;
-import org.sakaiproject.util.ResourceLoader;
+import lombok.extern.slf4j.Slf4j;
 
 import uk.org.ponder.messageutil.MessageLocator;
 import uk.org.ponder.localeutil.LocaleGetter;
@@ -64,8 +46,24 @@ import uk.org.ponder.rsf.viewstate.SimpleViewParameters;
 import uk.org.ponder.rsf.viewstate.ViewParameters;
 import uk.org.ponder.rsf.viewstate.ViewParamsReporter;
 
+import org.sakaiproject.lessonbuildertool.SimplePage;
+import org.sakaiproject.lessonbuildertool.SimplePageComment;
+import org.sakaiproject.lessonbuildertool.SimplePageItem;
+import org.sakaiproject.lessonbuildertool.SimplePageLogEntry;
+import org.sakaiproject.lessonbuildertool.SimpleStudentPage;
+import org.sakaiproject.lessonbuildertool.model.SimplePageToolDao;
+import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean;
+import org.sakaiproject.lessonbuildertool.tool.view.CommentsViewParameters;
+import org.sakaiproject.lessonbuildertool.tool.view.GeneralViewParameters;
+import org.sakaiproject.site.api.Site;
+import org.sakaiproject.site.cover.SiteService;
+import org.sakaiproject.time.cover.TimeService;
+import org.sakaiproject.user.api.User;
+import org.sakaiproject.user.cover.UserDirectoryService;
+import org.sakaiproject.util.ResourceLoader;
+
+@Slf4j
 public class CommentsProducer implements ViewComponentProducer, ViewParamsReporter, NavigationCaseReporter {
-	private static final Logger log = LoggerFactory.getLogger(CommentsProducer.class);
 	public static final String VIEW_ID = "Comments";
 
 	private SimplePageBean simplePageBean;
@@ -344,7 +342,6 @@ public class CommentsProducer implements ViewComponentProducer, ViewParamsReport
 			
 
 		} catch (Exception e) {
-			e.printStackTrace();
 			log.info("comments error " + e);
 		};
 
@@ -384,7 +381,7 @@ public class CommentsProducer implements ViewComponentProducer, ViewParamsReport
 				author = user.getDisplayName();
 			}catch(Exception ex) {
 				author = messageLocator.getMessage("simplepage.comment-unknown-user");
-				ex.printStackTrace();
+				log.error(ex.getMessage(), ex);
 			}
 		}else {
 			author = anonymousLookup.get(comment.getAuthor());

@@ -35,7 +35,9 @@
     <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService" />
     <property name="siteService" ref="org.sakaiproject.site.api.SiteService" />
     <property name="sqlService" ref="org.sakaiproject.db.api.SqlService" />
-    <property name="authzGroupService"><ref bean="org.sakaiproject.authz.api.AuthzGroupService"/></property>
+    <property name="authzGroupService" ref="org.sakaiproject.authz.api.AuthzGroupService"/>
+    <property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService"/>
+    <property name="eventTrackingService" ref="org.sakaiproject.event.api.EventTrackingService"/>
   </bean>
 
 <!-- here's the version our code will access -->
@@ -64,6 +66,9 @@
         class="org.sakaiproject.lessonbuildertool.service.SimplePageToolService" init-method="init" lazy-init="false">
         <property name="sqlService" ref="org.sakaiproject.db.api.SqlService"/>
         <property name="autoDdl" value="${auto.ddl}"/>
+        <property name="functionManager" ref="org.sakaiproject.authz.api.FunctionManager"/>
   </bean>
+
+
 
 </beans>

@@ -17,27 +17,28 @@
 package org.sakaiproject.site.util;
 
 import java.text.Collator;
+import java.text.RuleBasedCollator;
 import java.util.Comparator;
+import java.util.Locale;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.authz.api.Member;
+import org.sakaiproject.entity.api.ResourceProperties;
+import org.sakaiproject.entity.api.EntityPropertyNotDefinedException;
+import org.sakaiproject.entity.api.EntityPropertyTypeException;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.SiteService.SortType;
 import org.sakaiproject.site.util.Participant;
 import org.sakaiproject.time.api.Time;
 import org.sakaiproject.user.cover.UserDirectoryService;
-import org.sakaiproject.entity.api.ResourceProperties;
-import org.sakaiproject.entity.api.EntityPropertyNotDefinedException;
-import org.sakaiproject.entity.api.EntityPropertyTypeException;
-import java.util.Locale;
-import java.text.RuleBasedCollator;
+
 /**
  * The comparator to be used in Worksite Setup/Site Info tool
  */
+@Slf4j
 public class SiteComparator implements Comparator {
-	private static Logger log = LoggerFactory.getLogger(SiteComparator.class);
 
 	Collator collator = Collator.getInstance();
 	Collator localeCollator = null;

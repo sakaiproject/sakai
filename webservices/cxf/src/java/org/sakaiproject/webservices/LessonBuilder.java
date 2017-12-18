@@ -15,15 +15,7 @@
  */
 package org.sakaiproject.webservices;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.sakaiproject.lessonbuildertool.LessonBuilderAccessAPI;
-import org.sakaiproject.site.api.Site;
-import org.sakaiproject.site.api.SiteService;
-import org.sakaiproject.site.api.ToolConfiguration;
-import org.sakaiproject.tool.api.Session;
-import org.sakaiproject.tool.api.ToolSession;
-
+import java.util.List;
 
 import javax.jws.WebMethod;
 import javax.jws.WebParam;
@@ -33,10 +25,18 @@ import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
-import java.util.List;
+
+import lombok.extern.slf4j.Slf4j;
+import org.sakaiproject.lessonbuildertool.LessonBuilderAccessAPI;
+import org.sakaiproject.site.api.Site;
+import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.site.api.ToolConfiguration;
+import org.sakaiproject.tool.api.Session;
+import org.sakaiproject.tool.api.ToolSession;
 
 @WebService
 @SOAPBinding(style = SOAPBinding.Style.RPC, use = SOAPBinding.Use.LITERAL)
+@Slf4j
 public class LessonBuilder extends AbstractWebService {
 
     /**
@@ -48,8 +48,6 @@ public class LessonBuilder extends AbstractWebService {
      * Key in the ThreadLocalManager for binding our current tool.
      */
     protected final static String CURRENT_TOOL = "sakai:ToolComponent:current.tool";
-
-    private static Logger LOG = LoggerFactory.getLogger(MessageForums.class);
 
     /**
      * deletes orphan pages for a site
@@ -74,7 +72,7 @@ public class LessonBuilder extends AbstractWebService {
             // If not admin, check maintainer membership in the source site
             if (!securityService.isSuperUser(session.getUserId()) &&
                     !securityService.unlock(SiteService.SECURE_UPDATE_SITE, site.getReference())) {
-                LOG.warn("WS copySite(): Permission denied. Must be super user to copy a site in which you are not a maintainer.");
+                log.warn("WS copySite(): Permission denied. Must be super user to copy a site in which you are not a maintainer.");
                 throw new RuntimeException("WS copySite(): Permission denied. Must be super user to copy a site in which you are not a maintainer.");
             }
 
@@ -90,7 +88,7 @@ public class LessonBuilder extends AbstractWebService {
             threadLocalManager.set(CURRENT_TOOL, tool.getTool());
             return lessonBuilderAccessAPI.deleteOrphanPages(site.getId());
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error(e.getMessage(), e);
         }
         return "Failure";
     }

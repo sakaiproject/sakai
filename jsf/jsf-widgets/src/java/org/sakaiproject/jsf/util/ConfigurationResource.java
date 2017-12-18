@@ -27,11 +27,14 @@ import java.util.ResourceBundle;
 import java.util.Enumeration;
 import java.util.Locale;
 
+import lombok.extern.slf4j.Slf4j;
+
 /**
  * Thin wrapper for lookup of configuration of resources.
  * @author Ed Smiley
  * @version $Id$
  */
+@Slf4j
 public class ConfigurationResource
 {
   private ResourceBundle configurationBundle;
@@ -97,14 +100,13 @@ public class ConfigurationResource
     {
       String key = (String) enumeration.nextElement();
       String value = cr.get(key);
-      System.out.println(key + "=" + value);
+      log.debug("{}={}", key, value);
     }
-    System.out.println("xxx exists" + "=" + cr.exists("xxx"));
-    System.out.println("xxx" + "=" + cr.get("xxx"));
-    System.out.println("inputRichText_none exists" + "=" + cr.exists("inputRichText_none"));
-    System.out.println("inputRichText_none" + "=" + cr.get("inputRichText_none"));
-    System.out.println("inputRichText_small exists" + "=" + cr.exists("inputRichText_small"));
-    System.out.println("inputRichText_small" + "=" + cr.get("inputRichText_small"));
+    log.debug("xxx exists={}", cr.exists("xxx"));
+    log.debug("xxx={}", cr.get("xxx"));
+    log.debug("inputRichText_none exists={}", cr.exists("inputRichText_none"));
+    log.debug("inputRichText_none={}", cr.get("inputRichText_none"));
+    log.debug("inputRichText_small exists={}", cr.exists("inputRichText_small"));
+    log.debug("inputRichText_small={}", cr.get("inputRichText_small"));
   }
-
 }

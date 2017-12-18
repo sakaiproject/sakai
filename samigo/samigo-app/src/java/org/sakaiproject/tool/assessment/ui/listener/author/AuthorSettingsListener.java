@@ -19,8 +19,6 @@
  *
  **********************************************************************************/
 
-
-
 package org.sakaiproject.tool.assessment.ui.listener.author;
 
 import javax.faces.application.FacesMessage;
@@ -29,10 +27,10 @@ import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentMetaDataIfc;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
@@ -50,10 +48,9 @@ import org.sakaiproject.util.FormattedText;
  * @author Ed Smiley
  * @version $Id$
  */
-
+@Slf4j
 public class AuthorSettingsListener implements ActionListener
 {
-  private static Logger log = LoggerFactory.getLogger(AuthorSettingsListener.class);
 
   public AuthorSettingsListener()
   {

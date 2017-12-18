@@ -26,9 +26,10 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
 import org.sakaiproject.cheftool.Context;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.component.cover.ComponentManager;
@@ -55,11 +56,10 @@ import org.sakaiproject.util.ResourceLoader;
  * 
  * @author bjones86, sfoster9, plukasew
  */
+@Slf4j
 public class JoinableSiteSettings
 {
-	// Logger
-	private static final Logger log = LoggerFactory.getLogger( JoinableSiteSettings.class );
-	
+
 	// API's
 	private static final UserDirectoryService 		userDirectoryService 	= (UserDirectoryService) 		ComponentManager.get( UserDirectoryService.class );
 	private static final SiteService 				siteService 			= (SiteService) 				ComponentManager.get( SiteService.class );

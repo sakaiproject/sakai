@@ -27,10 +27,10 @@ import java.util.Date;
 import java.util.List;
 import java.util.Vector;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
@@ -74,6 +74,7 @@ import uk.ac.cam.caret.sakai.rwiki.utils.NameHelper;
  * @author Sakai Software Development Team
  * @author ieb
  */
+@Slf4j
 public class SiteEmailNotificationRWiki extends SiteEmailNotification {
 	public class MessageContent {
 
@@ -86,8 +87,6 @@ public class SiteEmailNotificationRWiki extends SiteEmailNotification {
 		public String contentHTML;
 
 	}
-
-	private static Logger log = LoggerFactory.getLogger(SiteEmailNotificationRWiki.class);
 
 	private RenderService renderService = null;
 

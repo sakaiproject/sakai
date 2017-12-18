@@ -15,31 +15,35 @@
  */
 package org.sakaiproject.importer.impl.translators;
 
+import java.io.InputStream;
+import java.io.InputStreamReader;
+
+import javax.xml.XMLConstants;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.dom.DOMResult;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerConfigurationException;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+
+import lombok.extern.slf4j.Slf4j;
+
+import org.springframework.core.io.ClassPathResource;
+
+import org.xml.sax.InputSource;
+
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
+
 import org.sakaiproject.importer.api.IMSResourceTranslator;
 import org.sakaiproject.importer.api.Importable;
 import org.sakaiproject.importer.impl.Blackboard6FileParser;
 import org.sakaiproject.importer.impl.importables.Assessment;
 
-import javax.xml.XMLConstants;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerConfigurationException;
-import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMResult;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.DocumentBuilder;
-import org.springframework.core.io.ClassPathResource;
-import org.xml.sax.SAXException;
-import org.xml.sax.InputSource;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import javax.xml.parsers.ParserConfigurationException;
-
-import org.w3c.dom.Document;
-import org.w3c.dom.Node;
-
+@Slf4j
 public class Bb6QtiTranslator implements IMSResourceTranslator {
 
 	private static final String xsl = "org/sakaiproject/importer/xml/Bb2Qti.xsl";
@@ -76,7 +80,7 @@ public class Bb6QtiTranslator implements IMSResourceTranslator {
 			transformedDoc = documentBuilder.newDocument();
 		}
 		catch(ParserConfigurationException e) {
-			e.printStackTrace();
+			log.error(e.getMessage(), e);
 		}
 		DOMSource docSource = new DOMSource(document);
 		DOMResult docResult = new DOMResult(transformedDoc);
@@ -89,10 +93,10 @@ public class Bb6QtiTranslator implements IMSResourceTranslator {
 			transformer.transform(docSource, docResult);
 		}
 		catch(TransformerConfigurationException e) {
-			e.printStackTrace();
+			log.error(e.getMessage(), e);
 		}
 		catch(TransformerException e) {
-			e.printStackTrace();
+			log.error(e.getMessage(), e);
 		}
 		return transformedDoc;
 	}
@@ -144,7 +148,7 @@ public class Bb6QtiTranslator implements IMSResourceTranslator {
 		}
 		catch (Exception any)
 		{
-			any.printStackTrace();
+			log.error(any.getMessage(), any);
 			doc = null;
 		}
 

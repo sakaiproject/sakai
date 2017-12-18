@@ -21,6 +21,9 @@ package org.sakaiproject.signup.tool.jsf.organizer.action;
 
 import java.util.List;
 
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.OptimisticLockingFailureException;
+
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.signup.logic.SignupEmailFacade;
 import org.sakaiproject.signup.logic.SignupEventTypes;
@@ -33,13 +36,13 @@ import org.sakaiproject.signup.model.SignupTimeslot;
 import org.sakaiproject.signup.tool.jsf.organizer.OrganizerSignupMBean;
 import org.sakaiproject.signup.tool.util.Utilities;
 import org.sakaiproject.tool.cover.ToolManager;
-import org.springframework.dao.OptimisticLockingFailureException;
 
 /**
  * <p>
  * This class will provide business logic for 'Swap-attendee' action by user.
  * </P>
  */
+@Slf4j
 public class SwapAttendee extends SignupAction {
 
 	/**
@@ -81,7 +84,7 @@ public class SwapAttendee extends SignupAction {
 			handleVersion(meeting, currentTimeslot, selectedAttendeeUserId, swapTimeSlotId, swapAttendeeId);
 			Utilities.postEventTracking(SignupEventTypes.EVENT_SIGNUP_SWAP_ATTENDEE_L, ToolManager.getCurrentPlacement().getContext() + " meetingId:"
 					+ meeting.getId() + this.signupEventTrackingInfo.getAllAttendeeTransferLogInfo());
-			logger.debug("Meeting Name:" + meeting.getTitle() + " - UserId:" + userId
+			log.debug("Meeting Name:" + meeting.getTitle() + " - UserId:" + userId
 					+ this.signupEventTrackingInfo.getAllAttendeeTransferLogInfo());
 		} catch (PermissionException pe) {
 			throw new SignupUserActionException(Utilities.rb.getString("no.permissoin.do_it"));

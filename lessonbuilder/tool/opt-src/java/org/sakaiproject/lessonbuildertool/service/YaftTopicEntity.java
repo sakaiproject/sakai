@@ -26,39 +26,34 @@ package org.sakaiproject.lessonbuildertool.service;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
+import uk.org.ponder.messageutil.MessageLocator;
+
+import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.lessonbuildertool.service.LessonSubmission;
 import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean;
 import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean.UrlItem;
-
-import org.sakaiproject.component.cover.ComponentManager;
-import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.site.api.Site;
+import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.tool.cover.ToolManager;
-import org.sakaiproject.component.cover.ServerConfigurationService;             
-
 import org.sakaiproject.yaft.api.Discussion;
 import org.sakaiproject.yaft.api.Forum;
 import org.sakaiproject.yaft.api.YaftForumService;
-
-import uk.org.ponder.messageutil.MessageLocator;
 
 /**
  * Interface to YAFT topics.
  * 
  * @author Adrian Fish <a.fish@lancaster.ac.uk>
  */
+@Slf4j
 public class YaftTopicEntity implements LessonEntity, ForumInterface {
-
-	private static Logger log = LoggerFactory.getLogger(YaftTopicEntity.class);
-	
 	private static String TOOL_ID = "sakai.yaft";
 
 	static YaftForumService forumService = (YaftForumService) ComponentManager.get("org.sakaiproject.yaft.api.YaftForumService");
@@ -379,6 +374,4 @@ public class YaftTopicEntity implements LessonEntity, ForumInterface {
 
 	return null;
     }
-
-
 }

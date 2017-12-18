@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import lombok.extern.slf4j.Slf4j;
 import org.hibernate.Query;
 import org.sakaiproject.tool.assessment.data.dao.authz.AuthorizationData;
 import org.sakaiproject.tool.assessment.data.dao.authz.QualifierData;
@@ -34,8 +35,6 @@ import org.sakaiproject.tool.assessment.facade.DataFacadeException;
 import org.sakaiproject.tool.assessment.services.PersistenceService;
 import org.springframework.orm.hibernate4.HibernateCallback;
 import org.springframework.orm.hibernate4.support.HibernateDaoSupport;
-
-import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class AuthorizationFacadeQueries extends HibernateDaoSupport implements AuthorizationFacadeQueriesAPI{

@@ -20,14 +20,15 @@
 
 package org.sakaiproject.entitybroker.util.spring;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.sakaiproject.entitybroker.entityprovider.EntityProvider;
-import org.sakaiproject.entitybroker.entityprovider.EntityProviderManager;
-import org.sakaiproject.entitybroker.entityprovider.capabilities.AutoRegisterEntityProvider;
+import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
+
+import org.sakaiproject.entitybroker.entityprovider.EntityProvider;
+import org.sakaiproject.entitybroker.entityprovider.EntityProviderManager;
+import org.sakaiproject.entitybroker.entityprovider.capabilities.AutoRegisterEntityProvider;
 
 /**
  * Finds and registers any {@link EntityProvider} implementation which also implements
@@ -36,9 +37,8 @@ import org.springframework.context.ApplicationContextAware;
  * @author Antranig Basman (antranig@caret.cam.ac.uk)
  * @author Aaron Zeckoski (aaronz@vt.edu)
  */
+@Slf4j
 public class EntityProviderAutoRegistrar implements ApplicationContextAware {
-
-    private static Logger log = LoggerFactory.getLogger(EntityProviderAutoRegistrar.class);
 
     EntityProviderManager entityProviderManager;
     public void setEntityProviderManager(EntityProviderManager entityProviderManager) {

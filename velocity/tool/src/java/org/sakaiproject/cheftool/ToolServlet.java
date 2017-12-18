@@ -30,8 +30,8 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.cheftool.api.Alert;
 import org.sakaiproject.cheftool.api.Menu;
 import org.sakaiproject.cheftool.menu.MenuImpl;
@@ -58,12 +58,10 @@ import org.sakaiproject.vm.ActionURL;
  * </p>
  */
 @SuppressWarnings("deprecation")
+@Slf4j
 public abstract class ToolServlet extends VmServlet
 {
 	private static final long serialVersionUID = 1L;
-
-	/** Our logger. */
-	private static Logger M_log = LoggerFactory.getLogger(ToolServlet.class);
 
 	/** ToolSession attribute name holding the helper id, if we are in helper mode. NOTE: promote to Tool -ggolden */
 	protected static final String HELPER_ID = "sakai.tool.helper.id";
@@ -191,7 +189,7 @@ public abstract class ToolServlet extends VmServlet
 			}
 			catch (IOException e)
 			{
-				M_log.warn("redirecting after helper done detection  to: " + newUrl + " : " + e.toString());
+				log.warn("redirecting after helper done detection  to: " + newUrl + " : " + e.toString());
 			}
 			return;
 		}
@@ -212,7 +210,7 @@ public abstract class ToolServlet extends VmServlet
 			}
 			catch (IOException e)
 			{
-				M_log.warn("redirecting to helper to: " + newUrl + " : " + e.toString());
+				log.warn("redirecting to helper to: " + newUrl + " : " + e.toString());
 			}
 			return;
 		}
@@ -458,14 +456,14 @@ public abstract class ToolServlet extends VmServlet
 		if (key == null)
 		{
 			key = this.toString() + ".";
-			M_log.warn("getState(): using servlet key: " + key);
+			log.warn("getState(): using servlet key: " + key);
 		}
 
 		SessionState rv = UsageSessionService.getSessionState(key);
 
 		if (rv == null)
 		{
-			M_log.warn("getState(): no state found for key: " + key + " " + req.getPathInfo() + " " + req.getQueryString() + " "
+			log.warn("getState(): no state found for key: " + key + " " + req.getPathInfo() + " " + req.getQueryString() + " "
 					+ req.getRequestURI());
 		}
 

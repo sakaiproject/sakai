@@ -19,7 +19,6 @@
  *
  **********************************************************************************/
 
-
 package org.sakaiproject.tool.assessment.ui.listener.questionpool;
 
 import java.util.List;
@@ -28,24 +27,23 @@ import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
+
 import org.sakaiproject.tool.assessment.services.QuestionPoolService;
 import org.sakaiproject.tool.assessment.ui.bean.questionpool.QuestionPoolBean;
 import org.sakaiproject.tool.assessment.ui.bean.shared.PersonBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * <p>Title: Samigo</p>2
  * <p>Description: Sakai Assessment Manager</p>
  * @version $Id$
  */
-
+@Slf4j
 public class SortQuestionListListener
     implements ActionListener
 {
-  private static Logger log = LoggerFactory.getLogger(SortQuestionListListener.class);
 
   public void processAction(ActionEvent ae) throws AbortProcessingException
   {

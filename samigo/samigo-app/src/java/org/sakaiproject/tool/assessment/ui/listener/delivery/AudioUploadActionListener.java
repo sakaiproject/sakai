@@ -19,23 +19,20 @@
  *
  **********************************************************************************/
 
-
-
 package org.sakaiproject.tool.assessment.ui.listener.delivery;
 
 import java.util.List;
+
 import javax.faces.component.UIComponent;
+import javax.faces.component.UIOutput;
 import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
+import javax.faces.event.FacesEvent;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import lombok.extern.slf4j.Slf4j;
 import org.sakaiproject.tool.assessment.ui.bean.delivery.DeliveryBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
-import javax.faces.component.UIOutput;
-import javax.faces.event.FacesEvent;
 
 /**
  * <p>Title: Samigo</p>
@@ -52,9 +49,9 @@ import javax.faces.event.FacesEvent;
  * @version $Id$
  */
 
-public class AudioUploadActionListener implements ActionListener
+@Slf4j
+ public class AudioUploadActionListener implements ActionListener
 {
-  private static Logger log = LoggerFactory.getLogger(AudioUploadActionListener.class);
   private static ContextUtil cu;
 
   /**
@@ -81,7 +78,7 @@ public class AudioUploadActionListener implements ActionListener
 
 
     } catch (Exception e) {
-      e.printStackTrace();
+        log.error(e.getMessage(), e);
     }
   }
 

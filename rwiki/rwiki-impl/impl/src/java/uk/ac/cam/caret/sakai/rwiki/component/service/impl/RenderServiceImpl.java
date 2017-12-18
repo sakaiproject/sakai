@@ -21,8 +21,7 @@
 
 package uk.ac.cam.caret.sakai.rwiki.component.service.impl;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.radeox.api.engine.RenderEngine;
 import org.radeox.api.engine.context.RenderContext;
 import org.sakaiproject.component.api.ComponentManager;
@@ -39,10 +38,9 @@ import uk.ac.cam.caret.sakai.rwiki.utils.TimeLogger;
  * @author andrew
  */
 // FIXME: Component WITH FIXES, remove deps on page link render impl
+@Slf4j
 public class RenderServiceImpl implements RenderService
 {
-	private static Logger log = LoggerFactory.getLogger(RenderServiceImpl.class);
-
 	private RenderEngineFactory renderEngineFactory;
 
 	private RenderContextFactory renderContextFactory;

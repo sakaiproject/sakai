@@ -19,15 +19,18 @@
  */
 package org.sakaiproject.accountvalidator.tool.producers;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.util.Locale;
+
+import lombok.extern.slf4j.Slf4j;
 import org.joda.time.Period;
 import org.joda.time.format.PeriodFormat;
 import org.joda.time.format.PeriodFormatter;
+
 import org.sakaiproject.accountvalidator.model.ValidationAccount;
 import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserNotDefinedException;
+
 import uk.org.ponder.localeutil.LocaleGetter;
 import uk.org.ponder.messageutil.TargettedMessage;
 import uk.org.ponder.rsf.components.*;
@@ -36,15 +39,13 @@ import uk.org.ponder.rsf.view.ComponentChecker;
 import uk.org.ponder.rsf.view.ViewComponentProducer;
 import uk.org.ponder.rsf.viewstate.ViewParameters;
 
-import java.util.Locale;
-
 /**
  * Produces passwordReset.html - builds a form containing nothing more than the a password and confirm password field
  * @author bbailla2
  */
+@Slf4j
 public class PasswordResetProducer extends BaseValidationProducer implements ViewComponentProducer, ActionResultInterceptor {
-	
-	private static Logger log = LoggerFactory.getLogger(PasswordResetProducer.class);
+
 	public static final String VIEW_ID = "passwordReset";
 	private static final String MAX_PASSWORD_RESET_MINUTES = "accountValidator.maxPasswordResetMinutes";
 	private static LocaleGetter localeGetter;

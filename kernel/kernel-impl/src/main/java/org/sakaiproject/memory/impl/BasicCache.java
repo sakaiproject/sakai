@@ -21,24 +21,24 @@
 
 package org.sakaiproject.memory.impl;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.sakaiproject.memory.api.Cache;
-import org.sakaiproject.memory.api.CacheLoader;
-import org.sakaiproject.memory.api.CacheStatistics;
-
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+
+import lombok.extern.slf4j.Slf4j;
+
+import org.sakaiproject.memory.api.Cache;
+import org.sakaiproject.memory.api.CacheLoader;
+import org.sakaiproject.memory.api.CacheStatistics;
 
 /**
  * Contains general common implementation info related to a cache.
  *
  * @author Aaron Zeckoski (azeckoski @ unicon.net) (azeckoski @ gmail.com)
  */
+@Slf4j
 public abstract class BasicCache<K, V> implements Cache<K, V> {
-    final Logger log = LoggerFactory.getLogger(BasicCache.class);
     /**
      * the name for this cache
      */

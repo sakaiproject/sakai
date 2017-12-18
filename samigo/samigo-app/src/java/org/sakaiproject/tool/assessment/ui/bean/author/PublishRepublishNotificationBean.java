@@ -20,12 +20,11 @@ import java.util.ArrayList;
 
 import javax.faces.model.SelectItem;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.sakaiproject.util.ResourceLoader;
 
+@Slf4j
 public class PublishRepublishNotificationBean implements Serializable {
-	private static Logger log = LoggerFactory.getLogger(PublishRepublishNotificationBean.class);
 
 	public PublishRepublishNotificationBean() {
 	}

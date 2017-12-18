@@ -15,23 +15,14 @@
  */
 package org.sakaiproject.user.impl;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.sakaiproject.authz.api.FunctionManager;
-import org.sakaiproject.authz.api.SecurityService;
-import org.sakaiproject.component.api.ServerConfigurationService;
-import org.sakaiproject.entity.api.EntityManager;
-import org.sakaiproject.event.api.EventTrackingService;
-import org.sakaiproject.exception.IdUsedException;
-import org.sakaiproject.exception.InUseException;
-import org.sakaiproject.exception.PermissionException;
+
 import org.sakaiproject.exception.SakaiException;
-import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.test.SakaiKernelTestBase;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.SessionManager;
@@ -39,34 +30,32 @@ import org.sakaiproject.user.api.PreferencesEdit;
 import org.sakaiproject.user.api.PreferencesService;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserEdit;
-import org.mockito.Mockito;
 
 /**
  * For unit testing parts of the base preferences service
  * 
  * @author Matthew Jones (matthew @ longsight.com)
  */
+@Slf4j
 public class BasePreferencesServiceTest extends SakaiKernelTestBase  {
-    private static Logger log = LoggerFactory.getLogger(BasePreferencesServiceTest.class);
-
     private PreferencesService preferencesService;
 
     /**
      * @throws Exception
      */
-	@BeforeClass
-	public static void beforeClass() {
-		try {
+    @BeforeClass
+    public static void beforeClass() {
+        try {
             if (log.isDebugEnabled()) log.debug("starting setup");
             oneTimeSetup();
             UserDirectoryService userService = (UserDirectoryService) getService(UserDirectoryService.class);
             UserEdit prefUser = userService.addUser("prefuser", "prefuser");
             userService.commitEdit(prefUser);
             if (log.isDebugEnabled()) log.debug("finished setup");
-		} catch (Exception e) {
-			log.warn(e.getMessage(), e);
-		}
-	}
+        } catch (Exception e) {
+            log.warn(e.getMessage(), e);
+        }
+    }
 	
     @SuppressWarnings("unchecked")
     @Before
@@ -77,12 +66,12 @@ public class BasePreferencesServiceTest extends SakaiKernelTestBase  {
 
     }
 
-	private void workAsUser(String eid, String id) {
-		SessionManager sessionManager = getService(SessionManager.class);
-		Session session = sessionManager.getCurrentSession();
-		session.setUserEid(eid);
-		session.setUserId(id);
-	}
+    private void workAsUser(String eid, String id) {
+        SessionManager sessionManager = getService(SessionManager.class);
+        Session session = sessionManager.getCurrentSession();
+        session.setUserEid(eid);
+        session.setUserId(id);
+    }
 
     // TESTS BELOW HERE
     @Test

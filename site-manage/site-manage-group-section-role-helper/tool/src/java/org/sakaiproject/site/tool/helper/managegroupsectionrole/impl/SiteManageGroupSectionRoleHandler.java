@@ -18,6 +18,7 @@ package org.sakaiproject.site.tool.helper.managegroupsectionrole.impl;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -31,22 +32,28 @@ import java.util.StringJoiner;
 
 import javax.servlet.http.HttpServletRequest;
 
+import au.com.bytecode.opencsv.CSVReader;
+import lombok.extern.slf4j.Slf4j;
 import lombok.Getter;
 import lombok.Setter;
-
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
+import uk.org.ponder.messageutil.MessageLocator;
+import uk.org.ponder.messageutil.TargettedMessage;
+import uk.org.ponder.messageutil.TargettedMessageList;
+
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.GroupNotDefinedException;
 import org.sakaiproject.authz.api.GroupProvider;
 import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.authz.api.Role;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.coursemanagement.api.CourseManagementService;
+import org.sakaiproject.coursemanagement.api.Section;
+import org.sakaiproject.coursemanagement.api.exception.IdNotFoundException;
 import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
@@ -69,27 +76,16 @@ import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.util.RequestFilter;
 import org.sakaiproject.util.ResourceLoader;
 
-import uk.org.ponder.messageutil.TargettedMessage;
-import uk.org.ponder.messageutil.TargettedMessageList;
-import au.com.bytecode.opencsv.CSVReader;
-import java.util.Arrays;
-import org.sakaiproject.coursemanagement.api.CourseManagementService;
-import org.sakaiproject.coursemanagement.api.Section;
-import org.sakaiproject.coursemanagement.api.exception.IdNotFoundException;
-import uk.org.ponder.messageutil.MessageLocator;
-
 /**
  * 
  * @author 
  *
  */
+@Slf4j
 public class SiteManageGroupSectionRoleHandler {
-	
+
 	private static final String REQ_ATTR_GROUPFILE = "groupfile";
 
-    /** Our log (commons). */
-	private static final Logger M_log = LoggerFactory.getLogger(SiteManageGroupSectionRoleHandler.class);
-	
 	private List<Member> groupMembers;
     private final GroupComparator groupComparator = new GroupComparator();
 
@@ -364,7 +360,7 @@ public class SiteManageGroupSectionRoleHandler {
         }
         catch( IdNotFoundException ex )
         {
-            M_log.debug( this + ".getRosterLabel: no section found for " + rosterID, ex );
+            log.debug( this + ".getRosterLabel: no section found for " + rosterID, ex );
         }
 
         return label;
@@ -394,7 +390,7 @@ public class SiteManageGroupSectionRoleHandler {
             	}
             	catch (GroupNotDefinedException e)
             	{
-            		M_log.debug(this + ".getRoles: no authzgroup found for " + siteReference, e);
+            		log.debug(this + ".getRoles: no authzgroup found for " + siteReference, e);
             	}
             	
             	if (group != null)
@@ -498,7 +494,7 @@ public class SiteManageGroupSectionRoleHandler {
             }
             catch (NullPointerException npe) {
                 // Site ID wasn't set in the helper call!!
-                M_log.warn(npe.getMessage());
+                log.warn(npe.getMessage());
             }
             
             if (siteId == null) {
@@ -512,7 +508,7 @@ public class SiteManageGroupSectionRoleHandler {
             
             } catch (IdUnusedException e) {
                 // The siteId we were given was bogus
-                M_log.warn(e.getMessage());
+                log.warn(e.getMessage());
             }
         }
         title = "";
@@ -606,7 +602,7 @@ public class SiteManageGroupSectionRoleHandler {
 
         } 
         catch (IdUnusedException | PermissionException e) {
-            M_log.warn(e.getMessage());
+            log.warn(e.getMessage());
         }
 
         return "";
@@ -686,7 +682,7 @@ public class SiteManageGroupSectionRoleHandler {
 		
 		if (group != null)
 		{
-			M_log.debug("Check if the group is locked : {}", group.isLocked());
+			log.debug("Check if the group is locked : {}", group.isLocked());
 			if(group.isLocked()) {
 				messages.addMessage(new TargettedMessage("editgroup.group.locked",new Object[]{}, TargettedMessage.SEVERITY_ERROR));
 				return null;
@@ -727,7 +723,7 @@ public class SiteManageGroupSectionRoleHandler {
 						group.deleteMember(mId);
 						removedGroupMember.add("uid=" + mId + ";groupId=" + group.getId());
 					} catch (IllegalStateException e) {
-						M_log.error(".processAddGroup: User with id {} cannot be deleted from group with id {} because the group is locked", mId, group.getId());
+						log.error(".processAddGroup: User with id {} cannot be deleted from group with id {} because the group is locked", mId, group.getId());
 						return null;
 					}
 				}
@@ -758,7 +754,7 @@ public class SiteManageGroupSectionRoleHandler {
                             group.insertMember(roleUserId, memberId, member.isActive(), false);
                             addedGroupMember.add("uid=" + roleUserId + ";role=" + member.getRole().getId() + ";active=" + member.isActive() + ";provided=false;groupId=" + group.getId());
                         } catch (IllegalStateException e) {
-                            M_log.error(".processAddGroup: User with id {} cannot be inserted in group with id {} because the group is locked", roleUserId, group.getId());
+                            log.error(".processAddGroup: User with id {} cannot be inserted in group with id {} because the group is locked", roleUserId, group.getId());
                             return null;
                         }
                     }
@@ -783,7 +779,7 @@ public class SiteManageGroupSectionRoleHandler {
                             group.insertMember(memberId, roleString, active,false);
                             addedGroupMember.add("uid=" + memberId + ";role=" + roleString + ";active=" + active + ";provided=false;groupId=" + group.getId());
                         } catch (IllegalStateException e) {
-                            M_log.error(".processAddGroup: User with id {} cannot be inserted in group with id {} because the group is locked", memberId, group.getId());
+                            log.error(".processAddGroup: User with id {} cannot be inserted in group with id {} because the group is locked", memberId, group.getId());
                             return null;
                         }
                     }
@@ -843,7 +839,7 @@ public class SiteManageGroupSectionRoleHandler {
     			resetParams();
 	        } 
 	        catch (IdUnusedException | PermissionException e) {
-	        	M_log.error(this + ".processAddGroup: cannot find site " + site.getId(), e);
+	        	log.error(this + ".processAddGroup: cannot find site " + site.getId(), e);
 	            return null;
 	        }
     	}
@@ -860,7 +856,7 @@ public class SiteManageGroupSectionRoleHandler {
     	if (deleteGroupIds == null || deleteGroupIds.length == 0)
     	{
     		// no group chosen to be deleted
-    		M_log.debug(this + ".processConfirmGroupDelete: no group chosen to be deleted.");
+    		log.debug(this + ".processConfirmGroupDelete: no group chosen to be deleted.");
     		messages.addMessage(new TargettedMessage("delete_group_nogroup","no group chosen"));
     		return null;
     	}
@@ -877,7 +873,7 @@ public class SiteManageGroupSectionRoleHandler {
                 }
                 catch (Exception e)
                 {
-                    M_log.error(e.getMessage());
+                    log.error(e.getMessage());
                 }
             }
 	    	return "confirm";
@@ -904,7 +900,7 @@ public class SiteManageGroupSectionRoleHandler {
                         site.deleteGroup(g);
                     } catch (IllegalStateException e) {
                         notDeletedGroupsTitles.add(g.getTitle());
-                        M_log.error(".processDeleteGroups: Group with id {} cannot be removed because is locked", g.getId());
+                        log.error(".processDeleteGroups: Group with id {} cannot be removed because is locked", g.getId());
                     }
                 }
             }
@@ -919,10 +915,10 @@ public class SiteManageGroupSectionRoleHandler {
 				siteService.save(site);
 			} catch (IdUnusedException e) {
 				messages.addMessage(new TargettedMessage("editgroup.site.notfound.alert","cannot find site"));
-				M_log.error(this + ".processDeleteGroups: Problem of saving site after group removal: site id =" + site.getId(), e);
+				log.error(this + ".processDeleteGroups: Problem of saving site after group removal: site id =" + site.getId(), e);
 			} catch (PermissionException e) {
 				messages.addMessage(new TargettedMessage("editgroup.site.permission.alert","not allowed to find site"));
-				M_log.error(this + ".processDeleteGroups: Permission problem of saving site after group removal: site id=" + site.getId(), e);
+				log.error(this + ".processDeleteGroups: Permission problem of saving site after group removal: site id=" + site.getId(), e);
 			}
 	    	
 	    }
@@ -1116,14 +1112,14 @@ public class SiteManageGroupSectionRoleHandler {
                                     try {
                                         group.insertMember(userId, role, member.isActive(), false);
                                     } catch (IllegalStateException e) {
-                                        M_log.error(".processAutoCreateGroup: User with id {} cannot be inserted in group with id {} because the group is locked", userId, group.getId());
+                                        log.error(".processAutoCreateGroup: User with id {} cannot be inserted in group with id {} because the group is locked", userId, group.getId());
                                     }
                                 }
                             }
                         }
                         catch (GroupNotDefinedException e)
                         {
-                            M_log.debug(this + ".processAutoCreateGroup: no authzgroup found for " + siteReference, e);
+                            log.debug(this + ".processAutoCreateGroup: no authzgroup found for " + siteReference, e);
                         }
                     }
                 }else{
@@ -1139,7 +1135,7 @@ public class SiteManageGroupSectionRoleHandler {
                 resetParams();
             } 
             catch (IdUnusedException | PermissionException e) {
-                M_log.error(this + ".processAutoCreateGroup: cannot find site " + site.getId(), e);
+                log.error(this + ".processAutoCreateGroup: cannot find site " + site.getId(), e);
                 return null;
             }
         }
@@ -1231,7 +1227,7 @@ public class SiteManageGroupSectionRoleHandler {
                 try {
                     group.insertMember( userID, member.getRole().getId(), member.isActive(), false );
                 } catch (IllegalStateException e) {
-                    M_log.error(".createRandomGroups: User with id {} cannot be inserted in group with id {} because the group is locked", userID, group.getId());
+                    log.error(".createRandomGroups: User with id {} cannot be inserted in group with id {} because the group is locked", userID, group.getId());
                 }
                 userIDs.remove( index );
                 userCount++;
@@ -1257,7 +1253,7 @@ public class SiteManageGroupSectionRoleHandler {
             try {
                 group.insertMember( userID, member.getRole().getId(), member.isActive(), false );
             } catch (IllegalStateException e) {
-                M_log.error(".createRandomGroups: User with id {} cannot be inserted in group with id {} because the group is locked", userID, group.getId());
+                log.error(".createRandomGroups: User with id {} cannot be inserted in group with id {} because the group is locked", userID, group.getId());
             }
             userIDs.remove( userIndex );
         }
@@ -1294,7 +1290,7 @@ public class SiteManageGroupSectionRoleHandler {
             }
             catch( GroupNotDefinedException ex )
             {
-                M_log.debug( this + ".processAutoCreateGroup: no authzgroup found for " + siteReference, ex );
+                log.debug( this + ".processAutoCreateGroup: no authzgroup found for " + siteReference, ex );
             }
 
             createRandomGroups( groupSplit, usersList, groupTitle, unit );
@@ -1353,7 +1349,7 @@ public class SiteManageGroupSectionRoleHandler {
                 }
                 catch (Exception e)
                 {
-                    M_log.debug(this + ":getSelectedGroups: cannot get group with id " + groupId);
+                    log.debug(this + ":getSelectedGroups: cannot get group with id " + groupId);
                 }
             }
 		}
@@ -1456,7 +1452,7 @@ public class SiteManageGroupSectionRoleHandler {
                 }
                 catch( UserNotDefinedException ex )
                 {
-                    M_log.debug( this + ".getUsersNotInJoinableSet: can't find user for " + userID, ex );
+                    log.debug( this + ".getUsersNotInJoinableSet: can't find user for " + userID, ex );
                 }
             }
         }
@@ -1519,13 +1515,13 @@ public class SiteManageGroupSectionRoleHandler {
                             return "success"; // SHORT CIRCUIT
                         }
                     } else {
-                        M_log.error("Invalid file type: " + mimetype);
+                        log.error("Invalid file type: " + mimetype);
                         return "error"; // SHORT CIRCUIT
                     }
                 }
             }
             catch (Exception e){
-                M_log.error(e.getClass() + " : " + e.getMessage());
+                log.error(e.getClass() + " : " + e.getMessage());
                 return "error"; // SHORT CIRCUIT
             } finally {
                 // clear the groupfile attribute so the tool does not have to be reset
@@ -1544,7 +1540,7 @@ public class SiteManageGroupSectionRoleHandler {
 	 */
 	private boolean processCsvFile(FileItem fileItem){
 		
-		M_log.debug("CSV file uploaded");
+		log.debug("CSV file uploaded");
 		
 		importedGroups = new ArrayList<>();
 		
@@ -1580,7 +1576,7 @@ public class SiteManageGroupSectionRoleHandler {
             importedGroups.addAll(groupMap.values());
 			
 		} catch (IOException ioe) {
-			M_log.error(ioe.getClass() + " : " + ioe.getMessage());
+			log.error(ioe.getClass() + " : " + ioe.getMessage());
 			return false;
 		}
 
@@ -1661,7 +1657,7 @@ public class SiteManageGroupSectionRoleHandler {
     		try {
     			siteService.save(site);
     		} catch (IdUnusedException | PermissionException e) {
-            	M_log.error("processImportedGroups failed for site: " + site.getId(), e);
+            	log.error("processImportedGroups failed for site: " + site.getId(), e);
             	return "error";
     		}
 		}
@@ -1714,7 +1710,7 @@ public class SiteManageGroupSectionRoleHandler {
 		try {
 			g.insertMember(id, r != null ? r.getId() : memberRole != null? memberRole.getId() : "", m != null ? m.isActive() : true, false);
 		} catch (IllegalStateException e) {
-			M_log.error(".addUserToGroup: User with id {} cannot be inserted in group with id {} because the group is locked", id, g.getId());
+			log.error(".addUserToGroup: User with id {} cannot be inserted in group with id {} because the group is locked", id, g.getId());
 		}
 		
 	}
@@ -1853,7 +1849,7 @@ public class SiteManageGroupSectionRoleHandler {
         }
         catch( IdUnusedException | PermissionException ex )
         {
-            M_log.error(ex.getMessage());
+            log.error(ex.getMessage());
         }
     }
 

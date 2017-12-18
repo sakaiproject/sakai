@@ -24,7 +24,7 @@
   							input: $(this),
   							useTime: 1,
   							parseFormat: 'YYYY-MM-DD HH:mm:ss',
-  							allowEmptyDate: false,
+  							allowEmptyDate: true,
   							val: $(this).val(),
   							ashidden: {
   									iso8601: $(this).attr('id').replace(idPrefix,'').replace(':dataStartDate','dataStartDateISO8601')}
@@ -35,7 +35,7 @@
   							input: $(this),
   							useTime: 1,
   							parseFormat: 'YYYY-MM-DD HH:mm:ss',
-  							allowEmptyDate: false,
+  							allowEmptyDate: true,
   							val: $(this).val(),
   							ashidden: {
   									iso8601: $(this).attr('id').replace(idPrefix,'').replace(':dataEndDate','dataEndDateISO8601')}

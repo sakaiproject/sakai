@@ -22,7 +22,10 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
+
 import org.sakaiproject.profile2.dao.ProfileDao;
 import org.sakaiproject.profile2.model.Message;
 import org.sakaiproject.profile2.model.MessageParticipant;
@@ -30,10 +33,6 @@ import org.sakaiproject.profile2.model.MessageThread;
 import org.sakaiproject.profile2.types.EmailType;
 import org.sakaiproject.profile2.util.ProfileConstants;
 import org.sakaiproject.profile2.util.ProfileUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import lombok.Setter;
 
 /**
  * Implementation of ProfileMessagingLogic for Profile2.
@@ -41,9 +40,8 @@ import lombok.Setter;
  * @author Steve Swinsburg (s.swinsburg@gmail.com)
  *
  */
+@Slf4j
 public class ProfileMessagingLogicImpl implements ProfileMessagingLogic {
-
-	private static final Logger log = LoggerFactory.getLogger(ProfileMessagingLogicImpl.class);
 
 	/**
  	 * {@inheritDoc}

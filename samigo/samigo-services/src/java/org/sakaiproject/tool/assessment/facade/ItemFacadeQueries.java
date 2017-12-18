@@ -21,6 +21,7 @@
 
 package org.sakaiproject.tool.assessment.facade;
 
+import java.sql.SQLException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -29,6 +30,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import lombok.extern.slf4j.Slf4j;
 import org.hibernate.Query;
 import org.sakaiproject.tool.assessment.data.dao.assessment.Answer;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AnswerFeedback;
@@ -48,14 +50,11 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.orm.hibernate4.HibernateCallback;
 import org.springframework.orm.hibernate4.support.HibernateDaoSupport;
 
-import java.sql.SQLException;
 import static org.sakaiproject.tool.assessment.facade.ItemHashUtil.ALL_HASH_BACKFILLABLE_ITEM_IDS_HQL;
 import static org.sakaiproject.tool.assessment.facade.ItemHashUtil.ID_PARAMS_PLACEHOLDER;
 import static org.sakaiproject.tool.assessment.facade.ItemHashUtil.ITEMS_BY_ID_HQL;
 import static org.sakaiproject.tool.assessment.facade.ItemHashUtil.TOTAL_HASH_BACKFILLABLE_ITEM_COUNT_HQL;
 import static org.sakaiproject.tool.assessment.facade.ItemHashUtil.TOTAL_ITEM_COUNT_HQL;
-
-import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class ItemFacadeQueries extends HibernateDaoSupport implements ItemFacadeQueriesAPI {
@@ -343,8 +342,8 @@ public class ItemFacadeQueries extends HibernateDaoSupport implements ItemFacade
     return item;
     }
     catch(Exception e){
-	e.printStackTrace();
-	return null;
+        log.error(e.getMessage(), e);
+        return null;
     }
  }
 

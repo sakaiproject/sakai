@@ -15,17 +15,20 @@
  */
 package org.sakaiproject.component.app.scheduler.jobs;
 
-import org.apache.commons.lang.StringUtils;
-import org.quartz.*;
-import org.quartz.impl.matchers.GroupMatcher;
-import org.sakaiproject.component.app.scheduler.ContextMappingDAO;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import javax.inject.Inject;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
+
+import javax.inject.Inject;
+
+import lombok.extern.slf4j.Slf4j;
+
+import org.apache.commons.lang.StringUtils;
+
+import org.quartz.*;
+import org.quartz.impl.matchers.GroupMatcher;
+
+import org.sakaiproject.component.app.scheduler.ContextMappingDAO;
 
 import static org.sakaiproject.component.app.scheduler.ScheduledInvocationManagerImpl.CONTEXT_ID;
 import static org.sakaiproject.component.app.scheduler.ScheduledInvocationManagerImpl.GROUP_NAME;
@@ -33,9 +36,8 @@ import static org.sakaiproject.component.app.scheduler.ScheduledInvocationManage
 /**
  * This checks that the data stored in quartz and in the lookup tables is in sync.
  */
+@Slf4j
 public class ValidateScheduledInvocations implements Job {
-
-    private Logger log = LoggerFactory.getLogger(ValidateScheduledInvocations.class);
 
     @Inject
     private SchedulerFactory factory;

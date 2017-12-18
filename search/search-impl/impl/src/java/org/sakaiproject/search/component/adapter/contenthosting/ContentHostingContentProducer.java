@@ -29,8 +29,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentResource;
@@ -49,10 +49,9 @@ import org.sakaiproject.search.api.StoredDigestContentProducer;
 import org.sakaiproject.search.model.SearchBuilderItem;
 import org.sakaiproject.site.api.SiteService;
 
+@Slf4j
 public class ContentHostingContentProducer implements EntityContentProducer, StoredDigestContentProducer
 {
-
-	private static Logger log = LoggerFactory.getLogger(ContentHostingContentProducer.class);
 
 	/**
 	 * resolved dep
@@ -308,8 +307,8 @@ public class ContentHostingContentProducer implements EntityContentProducer, Sto
 		{
 			log.debug("Failed to digest "+ref+" with " + digester, ex);
 			log.warn("Failed to digest "+ref+" with " + digester + " cause: " + ex);
-			if (log.isDebugEnabled()) {
-				ex.printStackTrace();
+			if (debug) {
+				log.debug(ex.getMessage(), ex);
 			}
 			if (!digester.equals(defaultDigester))
 			{

@@ -33,12 +33,12 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 
 import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 
 import org.apache.commons.lang3.StringUtils;
-import org.sakaiproject.assignment.api.AssignmentConstants;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.apache.commons.validator.routines.EmailValidator;
+
+import org.sakaiproject.assignment.api.AssignmentConstants;
 import org.sakaiproject.api.common.edu.person.SakaiPerson;
 import org.sakaiproject.api.common.edu.person.SakaiPersonManager;
 import org.sakaiproject.component.api.ServerConfigurationService;
@@ -66,10 +66,8 @@ import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.util.ResourceLoader;
 
+@Slf4j
 public class UrkundReviewServiceImpl implements ContentReviewService {
-	
-	private static final Logger log = LoggerFactory.getLogger(UrkundReviewServiceImpl.class);
-	
 	private static final String STATE_SUBMITTED = "Submitted";
 	private static final String STATE_ACCEPTED = "Accepted";
 	private static final String STATE_REJECTED = "Rejected";

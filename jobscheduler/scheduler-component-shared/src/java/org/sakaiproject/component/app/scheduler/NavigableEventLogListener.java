@@ -15,8 +15,10 @@
  */
 package org.sakaiproject.component.app.scheduler;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.util.Date;
+
+import lombok.extern.slf4j.Slf4j;
+
 import org.quartz.JobDataMap;
 import org.quartz.JobDetail;
 import org.quartz.JobExecutionContext;
@@ -26,16 +28,12 @@ import org.quartz.Trigger;
 import org.quartz.Trigger.CompletedExecutionInstruction;
 import org.quartz.TriggerListener;
 
-import java.util.Date;
-
 /**
  * This just logs all the trigger and job events.
  */
+@Slf4j
 public class NavigableEventLogListener implements TriggerListener, JobListener
 {
-    private final static Logger
-        LOG = LoggerFactory.getLogger(NavigableEventLogListener.class.getName() + ".jobExecutions");
-
     private enum EVENTTYPE
     {
         JOB_EXECUTING, JOB_VETOED, JOB_EXECUTED, TRIGGER_FIRED, TRIGGER_MISFIRED, TRIGGER_COMPLETED
@@ -178,9 +176,9 @@ public class NavigableEventLogListener implements TriggerListener, JobListener
                 break;
             }
         }
-        if (LOG.isDebugEnabled())
+        if (log.isDebugEnabled())
         {
-        	LOG.debug(sb.toString());
+        	log.debug(sb.toString());
         }
     }
 }

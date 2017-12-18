@@ -529,7 +529,7 @@
 								<!-- status col -->
 								<td>
 									#if ($!submission)
-										#if($assignment.isPeerAssessmentPending())
+										#if($!service.isPeerAssessmentPending($!assignment))
 											<!-- peer review hasn't opened and user submitted -->
 											#if ($submission.Submitted)
 												$tlang.getString("peerassessment.notOpen")
@@ -605,7 +605,7 @@
 
 							<!-- end peer assessment overview row -->
 							<!-- peer assessment items rows->
-							#if ($!submission && $assignment.isPeerAssessmentOpen() && $!reviews)
+							#if ($!submission && $!service.isPeerAssessmentOpen($!assignment) && $!reviews)
 								<!-- peer assessment is open and user has submitted, show item details
 								#set ($reviewCount = 0)
 								#foreach ($review in $reviews)

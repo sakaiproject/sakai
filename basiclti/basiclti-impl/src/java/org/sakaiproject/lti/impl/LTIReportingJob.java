@@ -15,11 +15,19 @@
  */
 package org.sakaiproject.lti.impl;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.text.DateFormat;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+
+import lombok.extern.slf4j.Slf4j;
+
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
+
 import org.sakaiproject.email.api.EmailService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.lti.api.LTIService;
@@ -28,20 +36,12 @@ import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.util.ResourceLoader;
 
-import java.text.DateFormat;
-import java.time.Instant;
-import java.time.temporal.ChronoUnit;
-import java.time.temporal.TemporalUnit;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
 
 /**
  * This Reports on new instances of an LTI tool in a site.
  */
+@Slf4j
 public class LTIReportingJob implements Job {
-
-    private final Logger log = LoggerFactory.getLogger(LTIReportingJob.class);
 
     protected final ResourceLoader rb = new ResourceLoader("email");
 
@@ -64,7 +64,7 @@ public class LTIReportingJob implements Job {
 
         Map<String, Object> tool = ltiService.getToolDao(toolId, null);
         if (tool == null) {
-            log.warn("Failed to find LTI tool for "+ toolId);
+            log.warn("Failed to find LTI tool for {}", toolId);
             return;
         }
 
@@ -96,7 +96,7 @@ public class LTIReportingJob implements Job {
 
             } catch (IdUnusedException e) {
                 // Most likely the newly added LTI's site has been deleted
-                log.debug("Failed to find site with ID of: "+ siteId);
+                log.debug("Failed to find site with ID of: {}", siteId);
             }
         }
         email.append(rb.getString("new.tools.body.footer"));
@@ -111,7 +111,7 @@ public class LTIReportingJob implements Job {
         String body = email.toString();
 
         emailService.send(from,to,subject, body, null, null, null);
-        log.debug("Sent mail from "+ from+ " to "+ to+ " with details of "+ contents.size()+ " changes");
+        log.debug("Sent mail from {} to {} with details of {} changes", from, to, contents.size());
     }
 
     /**

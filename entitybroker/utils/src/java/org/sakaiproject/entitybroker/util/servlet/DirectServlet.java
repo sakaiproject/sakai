@@ -27,11 +27,11 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.entitybroker.entityprovider.extension.Formats;
 import org.sakaiproject.entitybroker.exception.EntityException;
 import org.sakaiproject.entitybroker.providers.EntityRequestHandler;
-
-import lombok.extern.slf4j.Slf4j;
 
 /**
  * This is the core abstract DirectServlet class which is meant to extended,
@@ -215,7 +215,7 @@ public abstract class DirectServlet extends HttpServlet {
         } catch (Exception e) {
             // all other cases
             String msg = entityRequestHandler.handleEntityError(req, e);
-            System.err.println("WARN " + msg + " :" + e);
+            log.warn("{} :{}", msg, e);
             sendError(res, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, msg);
         }
 
@@ -234,7 +234,7 @@ public abstract class DirectServlet extends HttpServlet {
             res.reset();
             res.sendError(code, message);
         } catch (Exception e) {
-            System.err.println("WARN Error sending http servlet error code ("+code+") and message ("+message+"): " + e);
+            log.warn("Error sending http servlet error code ({}) and message ({}): {}", code, message, e);
         }
     }
 

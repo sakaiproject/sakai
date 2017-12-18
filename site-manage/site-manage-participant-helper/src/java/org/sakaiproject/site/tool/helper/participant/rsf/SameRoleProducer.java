@@ -20,20 +20,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Vector;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.sakaiproject.authz.api.Role;
-import org.sakaiproject.site.api.SiteService;
-import org.sakaiproject.site.tool.helper.participant.impl.SiteAddParticipantHandler;
-import org.sakaiproject.site.tool.helper.participant.impl.UserRoleEntry;
-import org.sakaiproject.tool.api.SessionManager;
-import org.sakaiproject.tool.api.Tool;
-import org.sakaiproject.user.api.User;
-import org.sakaiproject.user.api.UserDirectoryService;
-
-import org.sakaiproject.rsf.producers.FrameAdjustingProducer;
-import org.sakaiproject.rsf.util.SakaiURLUtil;
 import uk.org.ponder.messageutil.MessageLocator;
 import uk.org.ponder.messageutil.TargettedMessage;
 import uk.org.ponder.messageutil.TargettedMessageList;
@@ -60,16 +48,25 @@ import uk.org.ponder.rsf.viewstate.SimpleViewParameters;
 import uk.org.ponder.rsf.viewstate.ViewParameters;
 import uk.org.ponder.stringutil.StringList;
 
+import org.sakaiproject.authz.api.Role;
+import org.sakaiproject.rsf.producers.FrameAdjustingProducer;
+import org.sakaiproject.rsf.util.SakaiURLUtil;
+import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.site.tool.helper.participant.impl.SiteAddParticipantHandler;
+import org.sakaiproject.site.tool.helper.participant.impl.UserRoleEntry;
+import org.sakaiproject.tool.api.SessionManager;
+import org.sakaiproject.tool.api.Tool;
+import org.sakaiproject.user.api.User;
+import org.sakaiproject.user.api.UserDirectoryService;
+
 /**
  * Assign same role while adding participant
  * @author
  *
  */
+@Slf4j
 public class SameRoleProducer implements ViewComponentProducer, NavigationCaseReporter, ActionResultInterceptor {
 
-	/** Our log (commons). */
-	private static Logger M_log = LoggerFactory.getLogger(SameRoleProducer.class);
-	
     public SiteAddParticipantHandler handler;
     public static final String VIEW_ID = "SameRole";
     public MessageLocator messageLocator;
@@ -156,7 +153,7 @@ public class SameRoleProducer implements ViewComponentProducer, NavigationCaseRe
         	}
         	catch (Exception e)
         	{
-        		M_log.debug(this + ":fillComponents: cannot find user with eid=" + userEId);
+        		log.debug(this + ":fillComponents: cannot find user with eid=" + userEId);
         	}
             UIBranchContainer userRow = UIBranchContainer.make(sameRoleForm, "user-row:", userEId);
             UIOutput.make(userRow, "user-label", displayId + " ( " + userName + " )");

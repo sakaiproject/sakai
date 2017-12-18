@@ -25,9 +25,14 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.util.List;
 
+import lombok.extern.slf4j.Slf4j;
+
 import org.apache.commons.codec.binary.Base64;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.commons.lang.StringUtils;
+
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+
 import org.sakaiproject.db.api.SqlReader;
 import org.sakaiproject.db.api.SqlService;
 import org.sakaiproject.javax.Filter;
@@ -39,10 +44,7 @@ import org.sakaiproject.message.api.MessageEdit;
 import org.sakaiproject.time.api.Time;
 import org.sakaiproject.util.BaseDbDoubleStorage;
 import org.sakaiproject.util.DoubleStorageUser;
-import org.apache.commons.lang.StringUtils;
 import org.sakaiproject.util.Xml;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
 
 /**
  * <p>
@@ -52,11 +54,9 @@ import org.w3c.dom.Element;
  * The sql scripts in src/sql/chef_mailarchive.sql must be run on the database.
  * </p>
  */
+@Slf4j
 public class DbMailArchiveService extends BaseMailArchiveService
 {
-	/** Our logger. */
-	private static Logger M_log = LoggerFactory.getLogger(DbMailArchiveService.class);
-
 	/** The name of the db table holding mail archive channels. */
 	protected String m_cTableName = "MAILARCHIVE_CHANNEL";
 
@@ -169,7 +169,7 @@ public class DbMailArchiveService extends BaseMailArchiveService
 
 			super.init();
 
-			M_log.info("init(): tables: " + m_cTableName + " " + m_rTableName + " locks-in-db: " + m_locksInDb);
+			log.info("init(): tables: " + m_cTableName + " " + m_rTableName + " locks-in-db: " + m_locksInDb);
 
 			// convert?
 			if (m_convertToDraft)
@@ -180,7 +180,7 @@ public class DbMailArchiveService extends BaseMailArchiveService
 		}
 		catch (Throwable t)
 		{
-			M_log.warn("init(): ", t);
+			log.warn("init(): ", t);
 		}
 	}
 
@@ -253,7 +253,7 @@ public class DbMailArchiveService extends BaseMailArchiveService
 			} 
 			catch (Exception e) 
 			{
-				M_log.warn("Exception decoding message body: " + e);
+				log.warn("Exception decoding message body: " + e);
 				return 0;
 			}
 
@@ -398,7 +398,7 @@ public class DbMailArchiveService extends BaseMailArchiveService
 	 */
 	protected void convertToDraft()
 	{
-		M_log.info("convertToDraft");
+		log.info("convertToDraft");
 
 		try
 		{
@@ -429,7 +429,7 @@ public class DbMailArchiveService extends BaseMailArchiveService
 						Element root = doc.getDocumentElement();
 						if (!root.getTagName().equals("message"))
 						{
-							M_log.warn("convertToDraft(): XML root element not message: " + root.getTagName());
+							log.warn("convertToDraft(): XML root element not message: " + root.getTagName());
 							return null;
 						}
 						Message m = new BaseMessageEdit(null, root);
@@ -449,13 +449,13 @@ public class DbMailArchiveService extends BaseMailArchiveService
 						boolean ok = m_sqlService.dbWrite(connection, update, fields);
 
 						if (!ok)
-							M_log.info("convertToDraft: channel: " + channelId + " message: " + messageId + " owner: "
+							log.info("convertToDraft: channel: " + channelId + " message: " + messageId + " owner: "
 									+ owner + " draft: " + draft + " ok: " + ok);
 
 						count++;
 						if (count % 100 == 0)
 						{
-							M_log.info("convertToDraft: " + count);
+							log.info("convertToDraft: " + count);
 						}
 						return null;
 					}
@@ -472,11 +472,10 @@ public class DbMailArchiveService extends BaseMailArchiveService
 		}
 		catch (Exception t)
 		{
-			M_log.warn("convertToDraft: failed: " + t);
+			log.warn("convertToDraft: failed: " + t);
 		}
 
-		M_log.info("convertToDraft: done");
+		log.info("convertToDraft: done");
 	}
 
 } // DbCachedMailArchiveService
-

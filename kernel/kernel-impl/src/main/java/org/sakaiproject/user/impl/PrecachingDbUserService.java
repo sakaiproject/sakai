@@ -21,8 +21,6 @@
 
 package org.sakaiproject.user.impl;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -30,6 +28,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
+
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.user.api.UserNotDefinedException;
 
 /**
@@ -52,10 +53,9 @@ import org.sakaiproject.user.api.UserNotDefinedException;
  *
  * @author Aaron Zeckoski (azeckoski @ gmail.com) (aaronz @ vt.edu)
  */
+@Slf4j
 public abstract class PrecachingDbUserService extends DbUserService
 {
-    private static Logger log = LoggerFactory.getLogger(PrecachingDbUserService.class);
-
     boolean logUsersRemoved = false; 
     boolean logUsersNotRemoved = false; 
     boolean logUsersAccessed = false;

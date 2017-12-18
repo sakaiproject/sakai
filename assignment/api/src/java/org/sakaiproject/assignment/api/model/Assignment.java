@@ -234,7 +234,7 @@ public class Assignment {
     private String peerAssessmentInstructions;
 
     @Column(name = "CONTENT_REVIEW")
-    private Boolean contentReview;
+    private Boolean contentReview = Boolean.FALSE;
 
     public enum Access {
         SITE,
