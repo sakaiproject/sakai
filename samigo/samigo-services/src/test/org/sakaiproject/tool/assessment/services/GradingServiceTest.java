@@ -368,6 +368,13 @@ public class GradingServiceTest {
         result = gradingService.processFormulaIntoValue("log(10.0)", 2);
         Assert.assertNotNull(result);
         Assert.assertEquals("2.3", result); 
+
+        result = gradingService.processFormulaIntoValue("log10(1000)", 3);
+        Assert.assertEquals("3", result);
+        result = gradingService.processFormulaIntoValue("6!", 2);
+        Assert.assertEquals("720", result);
+        result = gradingService.processFormulaIntoValue("SIGN(10.0)", 2);
+        Assert.assertEquals("1", result); 
         
         result = gradingService.processFormulaIntoValue("exp(1)", 2);
         Assert.assertNotNull(result);
