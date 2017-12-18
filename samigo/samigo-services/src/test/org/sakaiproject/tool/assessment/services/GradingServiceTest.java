@@ -28,8 +28,10 @@ import java.util.Map;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.mariuszgromada.math.mxparser.Expression;
 import org.sakaiproject.tool.assessment.services.GradingService;
 import org.sakaiproject.tool.assessment.util.SamigoExpressionError;
+import org.sakaiproject.tool.assessment.util.SamigoExpressionParser;
 
 public class GradingServiceTest {
     GradingService gradingService;
@@ -319,15 +321,15 @@ public class GradingServiceTest {
         result = gradingService.processFormulaIntoValue("tan(0)", 2);
         Assert.assertNotNull(result);
         Assert.assertEquals("0", result);
-        result = gradingService.processFormulaIntoValue("sin(PI)", 2);
+        result = gradingService.processFormulaIntoValue("sin(pi/3)", 2);
         Assert.assertNotNull(result);
-        Assert.assertEquals("1.23E-16", result);
+        Assert.assertEquals("0.87", result);
         result = gradingService.processFormulaIntoValue("cos(PI)", 2);
         Assert.assertNotNull(result);
         Assert.assertEquals("-1", result);
         result = gradingService.processFormulaIntoValue("tan(PI)", 2);
         Assert.assertNotNull(result);
-        Assert.assertEquals("-1.23E-16", result);
+        Assert.assertEquals("0", result);
         result = gradingService.processFormulaIntoValue("sin(1)", 2);
         Assert.assertNotNull(result);
         Assert.assertEquals("0.84", result);
@@ -357,10 +359,10 @@ public class GradingServiceTest {
         Assert.assertNotNull(result);
         Assert.assertEquals("0.79", result);
         
-        result = gradingService.processFormulaIntoValue("log(E)", 2);
+        result = gradingService.processFormulaIntoValue("ln(E)", 2);
         Assert.assertNotNull(result);
         Assert.assertEquals("1", result);
-        result = gradingService.processFormulaIntoValue("log(1)", 2);
+        result = gradingService.processFormulaIntoValue("ln(1)", 2);
         Assert.assertNotNull(result);
         Assert.assertEquals("0", result);
         result = gradingService.processFormulaIntoValue("log(10.0)", 2);
@@ -423,6 +425,13 @@ public class GradingServiceTest {
         result = gradingService.processFormulaIntoValue("1000000000000.00", 2);
         Assert.assertNotNull(result);
         Assert.assertEquals("1E12", result);                 
+    }
+
+    @Test
+    public void testInterestRateQuestion() throws Exception {
+        String formula = "(185.9*1000*3.8/1200)/(1-1/(1+3.8/1200)^360)";
+        String result = gradingService.processFormulaIntoValue(formula, 1);
+        Assert.assertEquals("866.2", result);
     }
 
     @Test

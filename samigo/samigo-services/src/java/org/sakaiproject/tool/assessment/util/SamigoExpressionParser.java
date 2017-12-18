@@ -17,8 +17,12 @@
 package org.sakaiproject.tool.assessment.util;
 
 import java.math.BigDecimal;
+import java.math.MathContext;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
+import org.mariuszgromada.math.mxparser.Expression;
 import org.sakaiproject.tool.assessment.services.GradingService;
 
 
@@ -27,6 +31,7 @@ public class SamigoExpressionParser
 
   public static String INFINITY = "Infinity";
   public static String NaN = "NaN";
+  public static Pattern oldLogPattern;
 
   /**
    * finalructor.
@@ -40,6 +45,8 @@ public class SamigoExpressionParser
 
     token = "";
     token_type = TOKENTYPE.NOTHING;
+
+    oldLogPattern = Pattern.compile("log\\([^,]*\\)");
   }
 
   /**
@@ -58,8 +65,14 @@ public class SamigoExpressionParser
   {
     try
     {
-      // initialize all variables
-      expr = new_expr;     // copy the given expression to expr
+      // mxParser wants "pi" not "PI"
+      expr = new_expr.toLowerCase();
+      // mxParser doesn't understand log(e) they do understand ln(e)
+      Matcher matcher = oldLogPattern.matcher(expr);
+      if (matcher.matches()) {
+          expr = expr.replaceAll("log", "ln");
+      }
+
       ans = BigDecimal.valueOf(0.0);
       this.decimals = decimals;
 
@@ -74,26 +87,15 @@ public class SamigoExpressionParser
           throw new SamigoExpressionError(row(), col(), 4);
       }
 
-      // infinity and NaN cannot be processed correctly
+      Expression e = null;
       try {
-    	  ans = parse_level1();
+          e = new Expression(expr);
+          double d = e.calculate();
+          ans = new BigDecimal(d, MathContext.DECIMAL64);
       }
-      catch (NumberFormatException e) {
-          throw new SamigoExpressionError(402, expr);
-      }
-
-      // check for garbage at the end of the expression
-      if (token_type != TOKENTYPE.DELIMETER || token.length() > 0)
-      {
-        if (token_type == TOKENTYPE.DELIMETER)
-        {
-          // user entered a not existing operator like "//"
-          throw new SamigoExpressionError(row(), col(), 101, token);
-        }
-        else
-        {
-          throw new SamigoExpressionError(row(), col(), 5, token);
-        }
+      catch (NumberFormatException nfe) {
+          String errorMessage = e != null ? e.getErrorMessage() : expr;
+          throw new SamigoExpressionError(401, errorMessage);
       }
 
       GradingService service = new GradingService();
