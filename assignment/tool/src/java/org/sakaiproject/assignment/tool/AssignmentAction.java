@@ -3876,6 +3876,7 @@ public class AssignmentAction extends PagedResourceActionII {
 
         if (assignment != null) {
             context.put("assignment", assignment);
+            context.put("isPeerAssessmentClosed", assignmentService.isPeerAssessmentClosed(assignment));
             context.put("assignmentReference", assignmentRef);
             state.setAttribute(EXPORT_ASSIGNMENT_ID, assignment.getId());
             context.put("value_SubmissionType", assignment.getTypeOfSubmission().ordinal());
