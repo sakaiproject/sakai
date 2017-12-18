@@ -583,6 +583,11 @@
             <artifactId>jmxremote_optional</artifactId>
             <scope>compile</scope>
         </dependency>
+        <dependency>
+            <groupId>org.mariuszgromada.math</groupId>
+            <artifactId>MathParser.org-mXparser</artifactId>
+            <scope>compile</scope>
+    </dependency>
     </dependencies>
 
 </project>
