@@ -614,7 +614,7 @@ $PBJQ(document).ready(function($){
   };
 
   var returnElementToOriginalPositionIfPossible = function (siteId) {
-    if (initialFavoritesList && initialFavoritesList.includes(siteId)) {
+    if (initialFavoritesList && initialFavoritesList.indexOf(siteId) > -1) {
       var idx = initialFavoritesList.indexOf(siteId);
 
       // We'll attempt to place our item to the right its original left
