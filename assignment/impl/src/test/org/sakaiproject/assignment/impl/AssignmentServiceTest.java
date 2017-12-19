@@ -30,7 +30,6 @@ import java.time.Duration;
 import java.time.Instant;
 import java.time.Period;
 import java.util.Collection;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -543,8 +542,7 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
         assignment.setAllowPeerAssessment(true);
         Instant now = Instant.now();
         assignment.setCloseDate(now);
-        Date dateYesterday = Date.from(now.minus(Duration.ofDays(1)));
-        assignment.setPeerAssessmentPeriodDate(dateYesterday);
+        assignment.setPeerAssessmentPeriodDate(now.minus(Duration.ofDays(1)));
 
         when(securityService.unlock(AssignmentServiceConstants.SECURE_UPDATE_ASSIGNMENT, AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getReference())).thenReturn(true);
         try {
@@ -558,8 +556,7 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
         Assert.assertTrue(assignmentService.isPeerAssessmentClosed(assignment));
 
         assignment.setCloseDate(now.plus(Duration.ofDays(3)));
-        Date dateTomorrow = Date.from(now.plus(Duration.ofDays(1)));
-        assignment.setPeerAssessmentPeriodDate(dateTomorrow);
+        assignment.setPeerAssessmentPeriodDate(now.plus(Duration.ofDays(1)));
         when(securityService.unlock(AssignmentServiceConstants.SECURE_UPDATE_ASSIGNMENT, AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getReference())).thenReturn(true);
         try {
             assignmentService.updateAssignment(assignment);

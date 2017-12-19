@@ -425,11 +425,11 @@ public class Assignments extends AbstractWebService {
     		Date shiftedDropDeadDate = cal.getTime();
     		assignment.setDropDeadDate(shiftedDropDeadDate.toInstant());
 
-    		cal.setTimeInMillis(assignment.getPeerAssessmentPeriodDate().getTime());
+    		cal.setTimeInMillis(assignment.getPeerAssessmentPeriodDate().toEpochMilli());
     		cal.add(java.util.Calendar.DAY_OF_YEAR, shiftDays);
     		cal.add(java.util.Calendar.HOUR, shiftHours);
     		Date shiftedPeerAssessmentDate = cal.getTime();
-    		assignment.setPeerAssessmentPeriodDate(shiftedPeerAssessmentDate);
+    		assignment.setPeerAssessmentPeriodDate(shiftedPeerAssessmentDate.toInstant());
 
     		Map<String, String> aProperties = assignment.getProperties();
 

@@ -612,7 +612,7 @@
                                                 value="$!group_value_grade"
                                                 id="grade"
                                                 onkeypress="return ASN.handleEnterKeyPress(event);"/>
-                                            <span>($tlang.getString("grade.max") $assignmentContent.getMaxGradePointDisplay())</span>
+                                            <span>($tlang.getString("grade.max") $!service.getMaxPointGradeDisplay($!assignment.ScaleFactor, $!assignment.MaxGradePoint))</span>
                                         </div>
                                     </div>
                                 #elseif ($gradeType == 4)
