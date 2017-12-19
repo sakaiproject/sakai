@@ -182,12 +182,6 @@ public class ContentEntityProvider extends AbstractEntityProvider implements Ent
 	@EntityCustomAction(action="resources", viewKey=EntityView.VIEW_LIST)
 	public List<EntityContent> getResources(EntityView view, Map<String, Object> params)
 			throws EntityPermissionException {
-		String userId = developerHelperService.getCurrentUserId();
-		if (userId == null) {
-			throw new SecurityException(
-					"This action is not accessible to anon and there is no current user.");
-		}
-
 		Map<String, Object> parameters = getQueryMap((String)params.get("queryString"));
 		Time timeStamp = getTime((String)parameters.get(PARAMETER_TIMESTAMP));
 
