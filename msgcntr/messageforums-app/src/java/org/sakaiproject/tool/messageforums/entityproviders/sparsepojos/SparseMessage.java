@@ -80,6 +80,9 @@ public class SparseMessage{
 	@Getter @Setter
 	private String modifiedBy;
 
+	@Getter @Setter
+	private String createdBy;
+
 	//this is used for displaying recent messages in the lessons
 	private Long forumId;
 	 
@@ -113,6 +116,7 @@ public class SparseMessage{
 			}
 		}
 		this.modifiedBy = fatMessage.getModifiedBy();
+		this.createdBy = fatMessage.getCreatedBy();
 	}
 	
 	public SparseMessage(SparseMessage that) {
