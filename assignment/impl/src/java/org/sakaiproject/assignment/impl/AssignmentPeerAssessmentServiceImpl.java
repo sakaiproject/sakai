@@ -35,6 +35,7 @@ import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.Restrictions;
 import org.sakaiproject.api.app.scheduler.ScheduledInvocationManager;
 import org.sakaiproject.assignment.api.AssignmentPeerAssessmentService;
+import org.sakaiproject.assignment.api.AssignmentReferenceReckoner;
 import org.sakaiproject.assignment.api.AssignmentService;
 import org.sakaiproject.assignment.api.AssignmentServiceConstants;
 import org.sakaiproject.assignment.api.model.AssessorSubmissionId;
@@ -124,7 +125,7 @@ public class AssignmentPeerAssessmentServiceImpl extends HibernateDaoSupport imp
                             && CollectionUtils.containsAny(submitterIdsList,submitteeIds)
                             && !s.getSubmitters().contains("admin")) {
                         //only deal with users in the submitter's list
-                        submissionIdMap.put(s.getId(), s);
+                        submissionIdMap.put(AssignmentReferenceReckoner.reckoner().submission(s).reckon().getReference(), s);
                         if (ass.isPresent()) {
                             assignedAssessmentsMap.put(ass.get().getSubmitter(), new HashMap<>());
                             studentAssessorsMap.put(ass.get().getSubmitter(), 0);

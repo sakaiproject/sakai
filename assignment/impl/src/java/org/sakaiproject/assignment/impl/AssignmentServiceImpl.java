@@ -2417,7 +2417,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
     public boolean isPeerAssessmentOpen(Assignment assignment) {
         if (assignment.getAllowPeerAssessment()) {
             Instant now = Instant.now();
-            return now.isBefore(assignment.getPeerAssessmentPeriodDate().toInstant()) && now.isAfter(assignment.getCloseDate());
+            return now.isBefore(assignment.getPeerAssessmentPeriodDate()) && now.isAfter(assignment.getCloseDate());
         }
         return false;
     }
@@ -2433,7 +2433,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
     @Override
     public boolean isPeerAssessmentClosed(Assignment assignment) {
         if (assignment.getAllowPeerAssessment()) {
-            return Instant.now().isAfter(assignment.getPeerAssessmentPeriodDate().toInstant());
+            return Instant.now().isAfter(assignment.getPeerAssessmentPeriodDate());
         }
         return false;
     }
@@ -3474,7 +3474,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                     if (nAssignment.getPeerAssessmentPeriodDate() == null && nAssignment.getCloseDate() != null) {
                         // set the peer period time to be 10 mins after accept until date
                         Instant tenMinutesAfterCloseDate = Instant.from(nAssignment.getCloseDate().plus(Duration.ofMinutes(10)));
-                        nAssignment.setPeerAssessmentPeriodDate(Date.from(tenMinutesAfterCloseDate));
+                        nAssignment.setPeerAssessmentPeriodDate(tenMinutesAfterCloseDate);
                     }
 
                     // properties
