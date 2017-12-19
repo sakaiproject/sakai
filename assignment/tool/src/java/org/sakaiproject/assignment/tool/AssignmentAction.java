@@ -5959,7 +5959,9 @@ public class AssignmentAction extends PagedResourceActionII {
                         submission.setHonorPledge(Boolean.valueOf(honorPledgeYes));
                         submission.setDateSubmitted(Instant.now());
                         submission.setSubmitted(post);
-                        submission.setUserSubmission(true);
+                        String currentUser = sessionManager.getCurrentSessionUserId();
+                        // identify who the submittee is using the session
+                        submission.getSubmitters().stream().filter(s -> s.getSubmitter().equals(currentUser)).findFirst().ifPresent(s -> s.setSubmittee(true));
 
                         // decrease the allow_resubmit_number, if this submission has been submitted.
                         if (submission.getSubmitted() && isPreviousSubmissionTime && properties.get(AssignmentConstants.ALLOW_RESUBMIT_NUMBER) != null) {
