@@ -91,7 +91,7 @@ public class GroupImportStep2Producer implements ViewComponentProducer, Navigati
             Group existingGroup = null;
             
             //add title
-            UIOutput.make(branch,"title","Group: " + importedGroup.getGroupTitle());
+            UIOutput.make(branch,"title", messageLocator.getMessage("import2.grouptitle") + importedGroup.getGroupTitle());
             
             //check if group already exists
             for(Group g : existingGroups) {
