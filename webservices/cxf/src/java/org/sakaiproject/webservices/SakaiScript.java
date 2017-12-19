@@ -289,6 +289,36 @@ public class SakaiScript extends AbstractWebService {
     }
 
     /**
+     * Edit a user's eid
+     * Commonly needed when a user changes legal name and username changes at institution
+     *
+     * @param sessionid the id of a valid session
+     * @param eid       the current username (ie jsmith26) of the user you want to edit
+     * @param mewEid    the new username
+     * @return success or exception message
+     * @throws RuntimeException
+     */
+    @WebMethod
+    @Path("/changeUserEid")
+    @Produces("text/plain")
+    @GET
+    public String changeUserEid(
+            @WebParam(name = "sessionid", partName = "sessionid") @QueryParam("sessionid") String sessionid,
+            @WebParam(name = "eid", partName = "eid") @QueryParam("eid") String eid,
+            @WebParam(name = "newEid", partName = "newEid") @QueryParam("newEid") String newEid) {
+        Session session = establishSession(sessionid);
+
+        try {
+            String userid = userDirectoryService.getUserByEid(eid).getId();
+            boolean success = userDirectoryService.updateUserEid(userid, newEid);
+            return success ? "success" : "failure";
+        } catch (Exception e) {
+            log.error("WS changeUserEid(): " + e.getClass().getName() + " : " + e.getMessage());
+            return e.getClass().getName() + " : " + e.getMessage();
+        }
+    }
+
+    /**
      * Edit a user's firstname/lastname
      *
      * @param sessionid the id of a valid session
