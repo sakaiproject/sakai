@@ -88,7 +88,7 @@
                 action="overview"
                 value="#{msgs.options_done}"
                 rendered="#{ ! optionsBean.sectionOptionsManagementEnabled}"/>
-			<h:commandButton
+            <h:commandButton
             	id="updateSectionsButton"
                 action="#{optionsBean.update}"
                 style="display:none" />
