@@ -270,7 +270,7 @@ function initManuallyManageDialog() {
 	     {
 	         text: button_ok,             
 	         click: function() {
-	        	 $( "#optionsForm #confirmExternallyManagedButton" ).click();
+	        	 $( "#optionsForm\\:confirmExternallyManagedButton" ).click();
 	         }
 	     },
 	     {
