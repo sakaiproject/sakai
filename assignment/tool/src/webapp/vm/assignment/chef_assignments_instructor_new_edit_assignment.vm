@@ -1326,7 +1326,7 @@
 						      });
 						</script>
 					##Anonymous Eval
-					#if ($!value_PeerAssessmentAnonEval.equals("true"))
+					#if ($!value_PeerAssessmentAnonEval)
 						<input id="$name_PeerAssessmentAnonEval" name="$name_PeerAssessmentAnonEval" type="checkbox" value="true" checked="checked"/>
 					#else
 						<input id="$name_PeerAssessmentAnonEval" name="$name_PeerAssessmentAnonEval" type="checkbox" value="true"/>
@@ -1336,7 +1336,7 @@
 					</label>
 					<br/>
 					##Students View Reviews
-					#if ($!value_PeerAssessmentStudentViewReviews.equals("true"))
+					#if ($!value_PeerAssessmentStudentViewReviews)
 						<input id="$name_PeerAssessmentStudentViewReviews" name="$name_PeerAssessmentStudentViewReviews" type="checkbox" value="true" checked="checked"/>
 					#else
 						<input id="$name_PeerAssessmentStudentViewReviews" name="$name_PeerAssessmentStudentViewReviews" type="checkbox" value="true"/>
