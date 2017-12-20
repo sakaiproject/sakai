@@ -1424,7 +1424,7 @@ public class AssignmentAction extends PagedResourceActionII {
                 submitter = user;
             }
             context.put("submitter", submitter);
-            s = getSubmission(assignment.getId(), submitter, "build_student_view_submission_context", state);
+            s = getSubmission(currentAssignmentReference, submitter, "build_student_view_submission_context", state);
             List<Reference> currentAttachments = (List<Reference>) state.getAttribute(ATTACHMENTS);
 
             if (s != null) {
@@ -1463,8 +1463,19 @@ public class AssignmentAction extends PagedResourceActionII {
                     context.put("prevFeedbackAttachments", getPrevFeedbackAttachments(p));
                 }
 
-                // figure out if attachments have been modified
+                String resubmitNumber = p.get(AssignmentConstants.ALLOW_RESUBMIT_NUMBER) != null ? p.get(AssignmentConstants.ALLOW_RESUBMIT_NUMBER) : "0";
+                context.put("allowResubmitNumber", resubmitNumber);
+                if (!"0".equals(resubmitNumber)) {
+                    Instant resubmitTime = null;
+                    if (p.get(AssignmentConstants.ALLOW_RESUBMIT_CLOSETIME) == null) {
+                        resubmitTime = assignment.getCloseDate();
+                    } else {
+                        resubmitTime = Instant.ofEpochSecond(Long.parseLong(p.get(AssignmentConstants.ALLOW_RESUBMIT_CLOSETIME)));
+                    }
+                    context.put("allowResubmitCloseTime", resubmitTime);
+                }
 
+                // figure out if attachments have been modified
                 // the attachments from the previous submission
                 Set<String> submittedAttachments = s.getAttachments();
                 newAttachments = areAttachmentsModified(submittedAttachments, currentAttachments);
