@@ -78,7 +78,7 @@ function printView(url) {
 			<input type="hidden" name="option" id="option" value="x" />
 			<input type="hidden" name="eventSubmit_doView_submission_list_option" value="x" />
 			## show the view by group choice when there is at least one group defined
-			#if ($assignment.IsGroup)
+			#if (!$assignment.IsGroup)
 				#if (!$value_CheckAnonymousGrading.equals("true") && $!groups.hasNext())
 					<div class="form-group spinnerBesideContainer">
 						<label class="col-md-2" for="view">
