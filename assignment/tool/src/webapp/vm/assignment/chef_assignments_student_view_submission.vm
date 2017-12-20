@@ -37,14 +37,7 @@ $(document).ready(function(){
 	#set($returned=$submission.Returned)
 	#set($closeDate = false)
 	#set($closeDate = $assignment.CloseDate)
-	#set($allowResubmitNumber="0")
-	#set($allowResubmitNumber = $submission.Properties.get("allow_resubmit_number"))
-	#if(!$!allowResubmitNumber.equals("0"))
-		#set($allowResubmitCloseTimeString=$submission.Properties.get("allow_resubmit_closeDate"))
-		#if($!allowResubmitCloseTimeString)
-			#set($allowResubmitCloseTime=$!TimeService.newTime($!LongObject.parseLong($!allowResubmitCloseTimeString)))
-		#end
-	#end
+
 	#if ($!submission && $!allowResubmitNumber.equals("0"))
 		##override the close time setting for assignment by submission's individual setting
 		#set($closeDate = $submission.CloseDate)
@@ -252,7 +245,7 @@ $(document).ready(function(){
 										#if ($!override)
 											$override
 										#else
-											$submission.Grade
+											$!service.getGradeDisplay($submission.Grade, $assignment.TypeOfGrade, $!assignment.ScaleFactor)
 										#end
 									#else
 										$tlang.getString("gen.nograd")
