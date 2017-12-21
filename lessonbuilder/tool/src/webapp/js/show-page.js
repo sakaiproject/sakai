@@ -2555,15 +2555,21 @@ $(document).ready(function() {
 	    var sectionSettings = $('#sectionSettings');
 	    var columnLabel = $('#columnColorLabel');
 	    var sectionLabel = $('#sectionColorLabel');
+	    var columnStyling = $('#column-styling-header');
+	    var sectionStyling = $('#section-styling-header');
 	    if ($(this).closest('.editsection').find('.section-merge-link').length > 0) {
             sectionSettings.show();
             sectionLabel.show();
+            sectionStyling.show();
             columnLabel.hide();
+            columnStyling.hide();
             $('#isSection').val('true');
 		} else {
             sectionSettings.hide();
             sectionLabel.hide();
+            sectionStyling.hide();
             columnLabel.show();
+            columnStyling.show();
             $('#isSection').val('false');
 		}
 	    $('.currentlyediting').removeClass('currentlyediting');
@@ -2574,7 +2580,22 @@ $(document).ready(function() {
 	    $('#columnitem').val(itemid);
 	    $('#columnbackground > option').each(function() {
 	    	var checkClass = 'col' + $(this).val();
-            $(this).prop('selected', col.hasClass(checkClass));
+            var hasColClass = col.hasClass(checkClass);
+            if (hasColClass) {
+                $(this).prop('selected', true);
+                $('#show-borders').prop('checked', true);
+            } else if (col.hasClass(checkClass + '-trans')) {
+                $(this).prop('selected', true);
+                $('#show-borders').prop('checked', false);
+            } else if (checkClass === 'colnone' && col.hasClass('coltrans')){
+                $(this).prop('selected', true);
+                $('#show-borders').prop('checked', false);
+            } else if (checkClass === 'colnone' && !col.hasClass('coltrans')) {
+                $(this).prop('selected', true);
+                $('#show-borders').prop('checked', true);
+            } else {
+                $(this).prop('selected', false);
+            }
 		});
 	    $('#collapsible').prop('checked', col.parent('.section').hasClass('collapsible'));
 	    $('#defaultClosed').prop('checked', col.parent('.section').hasClass('defaultClosed'));
@@ -2617,6 +2638,14 @@ $(document).ready(function() {
 		var collapsible = $('#collapsible').prop('checked') ? 1 : 0;
 		var defaultClosed = $('#defaultClosed').prop('checked') ? 1 : 0;
 		var sectionTitle = $('#sectionTitle').val();
+        var showBorders = $('#show-borders').prop('checked');
+        if (!showBorders) {
+            if (color === '') {
+                color = 'trans';
+            } else {
+                color = color + '-trans';
+            }
+        }
 		setColumnProperties(itemid, width, split, color);
 		if (width === 2)
 		    col.addClass('double');		    
