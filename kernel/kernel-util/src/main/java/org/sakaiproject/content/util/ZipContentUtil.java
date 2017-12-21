@@ -503,8 +503,9 @@ public class ZipContentUtil {
 	 */
 	private void storeEmptyFolder(String rootId, ContentCollection resource, ZipOutputStream out) throws Exception {		
 		String folderName = resource.getId().substring(rootId.length(),resource.getId().length());
-		ZipEntry zipEntry = new ZipEntry(folderName+Entity.SEPARATOR);
+		ZipEntry zipEntry = new ZipEntry(folderName);
 		out.putNextEntry(zipEntry);
+		out.closeEntry();
 	}
 
 	/**
