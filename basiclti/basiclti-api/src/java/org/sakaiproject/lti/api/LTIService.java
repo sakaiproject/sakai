@@ -80,6 +80,9 @@ public interface LTIService extends LTISubstitutionsFilter {
             "placement:text:hidden=true:maxlength=256",
             "placementsecret:text:hidden=true:maxlength=512",
             "oldplacementsecret:text:hidden=true:maxlength=512",
+            // LTI 1.3 expansion space (See SAK-33772)
+            "lti13:radio:label=bl_lti13:role=admin",
+            "lti13_settings:text:maxlength=1M:role=admin",
             "created_at:autodate",
             "updated_at:autodate"};
     String[] CONTENT_EXTRA_FIELDS = {
@@ -143,6 +146,9 @@ public interface LTIService extends LTISubstitutionsFilter {
             "parameter:textarea:label=bl_parameter:rows=5:cols=25:maxlength=16384:only=lti2",
             "tool_proxy_binding:textarea:label=bl_tool_proxy_binding:maxlength=2M:only=lti2:hide=insert:role=admin",
             "allowcustom:checkbox:label=bl_allowcustom",
+            // LTI 1.3 expansion space (See SAK-33772)
+            "lti13:radio:label=bl_lti13:choices=off,on,content:role=admin",
+            "lti13_settings:text:maxlength=1M:role=admin",
             "xmlimport:textarea:hidden=true:maxlength=1M",
             "splash:textarea:label=bl_splash:rows=5:cols=25:maxlength=16384",
             "created_at:autodate",
