@@ -112,4 +112,8 @@ public interface CrudRepository<T, ID extends Serializable> extends Repository<T
     void deleteAll();
 
     void refresh(T entity);
+
+    void merge(T entity);
+
+    void update(T entity);
 }

@@ -16,9 +16,11 @@
 package org.sakaiproject.assignment.persistence;
 
 import java.time.Instant;
-import java.util.*;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 
-import org.apache.commons.lang.NotImplementedException;
 import org.hibernate.Session;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
@@ -49,19 +51,19 @@ public class AssignmentRepositoryImpl extends BasicSerializableRepository<Assign
     }
 
     @Override
+    public List<String> findAllAssignmentIds() {
+        return startCriteriaQuery()
+                .setProjection(Projections.property("id"))
+                .list();
+    }
+
+    @Override
     @Transactional
     public void newAssignment(Assignment assignment) {
         if (!existsAssignment(assignment.getId())) {
             assignment.setDateCreated(Instant.now());
             sessionFactory.getCurrentSession().persist(assignment);
         }
-    }
-
-    @Override
-    @Transactional
-    public void updateAssignment(Assignment assignment) {
-        assignment.setDateModified(Instant.now());
-        sessionFactory.getCurrentSession().update(assignment);
     }
 
     @Override
@@ -102,7 +104,7 @@ public class AssignmentRepositoryImpl extends BasicSerializableRepository<Assign
     public void softDeleteAssignment(String assignmentId) {
         Assignment assignment = findOne(assignmentId);
         assignment.setDeleted(Boolean.TRUE);
-        updateAssignment(assignment);
+        update(assignment);
     }
 
     @Override
@@ -113,7 +115,6 @@ public class AssignmentRepositoryImpl extends BasicSerializableRepository<Assign
     @Override
     @Transactional
     public void updateSubmission(AssignmentSubmission submission) {
-        submission.setDateModified(Instant.now());
         sessionFactory.getCurrentSession().update(submission);
     }
 
