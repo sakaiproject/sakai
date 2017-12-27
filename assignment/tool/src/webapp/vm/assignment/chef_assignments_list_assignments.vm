@@ -285,7 +285,7 @@
 													## go to view submission page when (1) submission has been returned and allow for resubmit;(2)submission has not been posted yet.
 													<a name="asnActionLink" href="#toolLinkParam("AssignmentAction" "doView_submission" "assignmentReference=$validator.escapeUrl($assignmentReference)")" title="$validator.escapeHtml($!assignment.Title)">
 												#else
-													<a name="asnActionLink" href="#toolLinkParam("AssignmentAction" "doView_grade" "submissionId=$validator.escapeUrl($submission.Reference)")" title="$validator.escapeHtml($!assignment.Title)">
+													<a name="asnActionLink" href="#toolLinkParam("AssignmentAction" "doView_grade" "submissionId=$validator.escapeUrl($submissionReference)")" title="$validator.escapeHtml($!assignment.Title)">
 												#end
 												$validator.escapeHtml($validator.limit($assignment.Title, 40))</a>
 											#else
