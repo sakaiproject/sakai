@@ -835,10 +835,11 @@ public class TurnitinReviewServiceImpl implements ContentReviewService {
 
 				Entity ent = ep.getEntity(ref);
 				log.debug("got entity " + ent);
-				String title = scrubSpecialCharacters(ent.getClass().getMethod("getTitle").invoke(ent).toString());
-				log.debug("Got reflected assignemment title from entity " + title);
-				togo = URLDecoder.decode(title, "UTF-8");
-
+				if(ent != null){
+					String title = scrubSpecialCharacters(ent.getClass().getMethod("getTitle").invoke(ent).toString());
+					log.debug("Got reflected assignment title from entity " + title);
+					togo = URLDecoder.decode(title, "UTF-8");
+				}
 			} catch (Exception e) {
 				log.error(e.getMessage(), e);
 			}
@@ -2382,4 +2383,43 @@ public class TurnitinReviewServiceImpl implements ContentReviewService {
 		crqs.removeFromQueue(getProviderId(), contentId);
 	}
 
+	@Override
+	public ContentReviewItem getContentReviewItemByContentId(String contentId){
+		Optional<ContentReviewItem> cri = getItemByContentId(contentId);
+		if(cri.isPresent()){
+			ContentReviewItem item = cri.get();
+			
+			//TII specific work
+		
+			// Sync Grades
+			if (turnitinConn.getUseGradeMark()) {
+				try {				
+					String[] assignData = getAssignData(contentId);
+					String siteId = "", taskId = "", taskTitle = "";
+					Map<String, Object> data = new HashMap<String, Object>();
+					if (assignData != null) {
+						siteId = assignData[0];
+						taskId = assignData[1];
+						taskTitle = assignData[2];
+					} else {
+						siteId = item.getSiteId();
+						taskId = item.getTaskId();
+						taskTitle = getAssignmentTitle(taskId);
+						data.put("assignment1", "assignment1");
+					}
+					data.put("siteId", siteId);
+					data.put("taskId", taskId);
+					data.put("taskTitle", taskTitle);
+					syncGrades(data);
+				} catch (Exception e) {
+					log.error("Error syncing grades. " + e);
+				}
+			}
+
+			return item;
+		} else {
+			log.debug("Content " + contentId + " has not been queued previously");
+		}
+		return null;
+	}
 }

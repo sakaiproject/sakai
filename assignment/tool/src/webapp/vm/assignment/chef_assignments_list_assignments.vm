@@ -237,7 +237,7 @@
 											#end
 												$validator.escapeHtml($validator.limit($!assignment.title, 64))
 
-											#if ($assignment.getAllowReviewService())
+											#if ($assignment.getContentReview())
 												<img alt="$reviewIndicator" title="$reviewIndicator" src="/library/image/silk/rosette.png" />
 											#end
 											</a>

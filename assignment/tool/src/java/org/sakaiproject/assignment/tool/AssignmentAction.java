@@ -63,6 +63,7 @@ import org.sakaiproject.cheftool.*;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.content.api.*;
+import org.sakaiproject.contentreview.dao.ContentReviewConstants;
 import org.sakaiproject.contentreview.service.ContentReviewService;
 import org.sakaiproject.entity.api.*;
 import org.sakaiproject.event.api.*;
@@ -2113,6 +2114,7 @@ public class AssignmentAction extends PagedResourceActionII {
                     }
                 }
             }
+            context.put("NamePropContentReviewOptoutUrl", ContentReviewConstants.URKUND_OPTOUT_URL);
         }
 
         if (taggingManager.isTaggable() && submission != null) {
@@ -3187,6 +3189,7 @@ public class AssignmentAction extends PagedResourceActionII {
         context.put("name_feedback_attachment", GRADE_SUBMISSION_FEEDBACK_ATTACHMENT);
         context.put("name_grade", GRADE_SUBMISSION_GRADE);
         context.put("name_allowResubmitNumber", AssignmentConstants.ALLOW_RESUBMIT_NUMBER);
+        context.put("NamePropContentReviewOptoutUrl", ContentReviewConstants.URKUND_OPTOUT_URL);
 
         // values
         context.put("value_year_from", state.getAttribute(NEW_ASSIGNMENT_YEAR_RANGE_FROM));
@@ -6109,13 +6112,6 @@ public class AssignmentAction extends PagedResourceActionII {
                                 //inline only doesn't accept attachments
                                 submittedAttachments.clear();
                             } else {
-                                //Post the attachments before clearing so that we don't sumbit duplicate attachments
-                                //Check if we need to post the attachments
-                                if (a.getContentReview()) {
-                                    if (!attachments.isEmpty()) {
-                                        assignmentService.postReviewableSubmissonAttachments(submission.getId());
-                                    }
-                                }
 
                                 // clear the old attachments first
                                 submittedAttachments.clear();
@@ -6128,6 +6124,13 @@ public class AssignmentAction extends PagedResourceActionII {
                                     properties.remove(AssignmentConstants.SUBMITTER_USER_ID);
                                 }
                                 attachments.forEach(att -> submittedAttachments.add(att.getReference()));
+
+                                //Check if we need to post the attachments
+                                if (a.getContentReview()) {
+                                    if (!attachments.isEmpty()) {
+                                        assignmentService.postReviewableSubmissionAttachments(submission);
+                                    }
+                                }
                             }
                         }
 
@@ -6192,20 +6195,21 @@ public class AssignmentAction extends PagedResourceActionII {
                                 List<Reference> attachments = (List<Reference>) state.getAttribute(ATTACHMENTS);
                                 Set<String> submittedAttachments = submission.getAttachments();
 
+                                if (attachments != null) {
+                                    // add each attachment
+                                    attachments.forEach(att -> submittedAttachments.add(att.getReference()));
+									
+                                    //Check if we need to post the attachments
+                                    if ((!attachments.isEmpty()) && a.getContentReview()){
+                                        assignmentService.postReviewableSubmissionAttachments(submission);
+                                    }
+                                }
+
                                 // SAK-26322 - add inline as an attachment for the content review service
                                 if (a.getContentReview() && !isHtmlEmpty(text)) {
                                     prepareInlineForContentReview(text, submission, state, u);
                                 }
-
-                                if (attachments != null) {
-                                    // add each attachment
-                                    if ((!attachments.isEmpty()) && a.getContentReview())
-                                        assignmentService.postReviewableSubmissonAttachments(submission.getId());
-
-                                    // add each attachment
-                                    attachments.forEach(att -> submittedAttachments.add(att.getReference()));
-                                }
-
+								
                                 // set the resubmission properties
                                 setResubmissionProperties(a, submission);
                                 if (submitter != null) {
@@ -7686,9 +7690,6 @@ public class AssignmentAction extends PagedResourceActionII {
                 // old close time
                 oldCloseTime = a.getCloseDate();
 
-                //assume creating the assignment with the content review service will be successful
-                state.setAttribute("contentReviewSuccess", Boolean.TRUE);
-
                 // set the Assignment Properties object
                 Map<String, String> aProperties = a.getProperties();
                 oAssociateGradebookAssignment = aProperties.get(AssignmentServiceConstants.PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT);
@@ -8614,13 +8615,8 @@ public class AssignmentAction extends PagedResourceActionII {
             a.setCloseDate(null);
         }
 
-        if ((Boolean) (state.getAttribute("contentReviewSuccess"))) {
-            // post the assignment if appropriate
-            a.setDraft(!post);
-        } else {
-            // setup for content review failed, save as a draft
-            a.setDraft(true);
-        }
+        // post the assignment if appropriate
+        a.setDraft(!post);
 
         if (gradeType == SCORE_GRADE_TYPE) {
             a.setScaleFactor(assignmentService.getScaleFactor());
@@ -8671,6 +8667,14 @@ public class AssignmentAction extends PagedResourceActionII {
 
             // commit the changes
             assignmentService.updateAssignment(a);
+
+            // content review (after changes are stored)
+            if (a.getContentReview()) {
+                if (!createTIIAssignment(a, assignmentRef, openTime, dueTime, closeTime, state)) {
+                    a.setDraft(true);
+                    assignmentService.updateAssignment(a);
+                }
+            }
         } catch (PermissionException e) {
             log.warn("Can't update Assignment, {}", e.getMessage());
             addAlert(state, rb.getString("youarenot_addAssignmentContent"));
@@ -8690,12 +8694,6 @@ public class AssignmentAction extends PagedResourceActionII {
             assignmentPeerAssessmentService.removeScheduledPeerReview(a.getId());
         }
 
-        // TODO content review
-        if (a.getContentReview()) {
-            if (!createTIIAssignment(a, assignmentRef, openTime, dueTime, closeTime, state)) {
-                state.setAttribute("contentReviewSuccess", Boolean.FALSE);
-            }
-        }
     }
 
     public boolean createTIIAssignment(Assignment assignment, String assignmentRef, Instant openTime, Instant dueTime, Instant closeTime, SessionState state) {
