@@ -177,7 +177,7 @@
             #end
 
             ## Content Review
-            #if($allowReviewService && $assignment.AllowReviewService)
+            #if($allowReviewService && $assignment.ContentReview)
                 <tr>
                     <th>
                         $reviewServiceName&nbsp;$tlang.getString("review.report")
@@ -186,7 +186,7 @@
                         #if (!$submission)
                             $tlang.getString("review.notavail")
                         #else
-                            #set($reviewResults=$submission.ContentReviewResults)
+                            #set($reviewResults=$!service.getContentReviewResults($!submission))
                             #if ($reviewResults.size() >= 3)
                                 <div class="discTria">
                                     <input class="disclosureTriangle" type="image"
@@ -213,6 +213,11 @@
                                         $tlang.getString("submission.inline")
                                     #else
                                         $validator.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))
+                                    #end
+
+                                    #if (!$reviewResult.getReviewReport().equals("Error") &&
+                                        $reviewResult.contentReviewItem.Properties.get($NamePropContentReviewOptoutUrl))
+                                        (<a href="$!reviewResult.contentReviewItem.Properties.get($NamePropContentReviewOptoutUrl)" target="_blank">$tlang.getString("review.report.urkund.optoutlink")</a>)
                                     #end
                                 </div>
                             #end

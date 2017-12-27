@@ -104,6 +104,10 @@ public class AssignmentEntity implements Entity {
         return reference.getId();
     }
 
+    public String getTitle() {
+        return assignment.getTitle();
+    }
+
     @Override
     public ResourceProperties getProperties() {
         return reference.getProperties();

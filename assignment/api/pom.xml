@@ -53,5 +53,9 @@
             <groupId>org.sakaiproject.kernel</groupId>
             <artifactId>sakai-kernel-private</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.sakaiproject.contentreview</groupId>
+            <artifactId>content-review-api</artifactId>
+        </dependency>
     </dependencies>
 </project>

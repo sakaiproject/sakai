@@ -699,7 +699,7 @@ public interface AssignmentService extends EntityProducer {
     /**
      * @param submissionId
      */
-    public void postReviewableSubmissonAttachments(String submissionId);
+    public void postReviewableSubmissionAttachments(AssignmentSubmission submission);
 
     /**
     * This will return the internationalized title of the tool.
@@ -708,4 +708,6 @@ public interface AssignmentService extends EntityProducer {
     public String getToolTitle();
 
     String getUsersLocalDateTimeString(Instant date);
+
+    public List<ContentReviewResult> getContentReviewResults(AssignmentSubmission submission);
 }
