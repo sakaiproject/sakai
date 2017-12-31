@@ -31,6 +31,7 @@ import java.time.Instant;
 import java.time.Period;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.TimeZone;
@@ -101,6 +102,7 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
     public void setUp() {
         when(serverConfigurationService.getAccessUrl()).thenReturn("http://localhost:8080/access");
         resourceLoader = mock(ResourceLoader.class);
+        when(resourceLoader.getLocale()).thenReturn(Locale.ENGLISH);
         when(resourceLoader.getString("gen.inpro")).thenReturn("In progress");
         when(resourceLoader.getString("gen.dra2")).thenReturn("Draft -");
         when(resourceLoader.getString("gen.subm4")).thenReturn("Submitted");
