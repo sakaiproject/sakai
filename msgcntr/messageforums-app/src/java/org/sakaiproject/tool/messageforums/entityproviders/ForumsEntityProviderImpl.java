@@ -517,13 +517,13 @@ public class ForumsEntityProviderImpl extends AbstractEntityProvider implements 
 				String createdByDisplayName =  userDirectoryService.getUser(fm.getCreatedBy()).getDisplayName();
 				fm.setCreatedBy(createdByDisplayName);
 			} catch (UserNotDefinedException e) {
-				LOG.debug(" User not defined for id '" + fm.getCreatedBy() + "'.");
+				log.debug("User not defined for id '{}'.", fm.getCreatedBy());
 			}
 			try {
 				String modifiedByDisplayName =  userDirectoryService.getUser(fm.getModifiedBy()).getDisplayName();
 				fm.setModifiedBy(modifiedByDisplayName);
 			} catch (UserNotDefinedException e) {
-				log.debug(" User not defined for id '" + fm.getModifiedBy() + "'.");
+				log.debug("User not defined for id '{}'.", fm.getModifiedBy());
 			}
 			SparseMessage sm = new SparseMessage(fm,/* readStatus =*/ false,/* addAttachments =*/ true, developerHelperService.getServerURL());
 			Topic topic = fm.getTopic();
