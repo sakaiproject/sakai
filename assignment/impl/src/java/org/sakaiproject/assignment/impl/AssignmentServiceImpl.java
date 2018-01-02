@@ -3822,7 +3822,10 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
     @Override
     public String getUsersLocalDateTimeString(Instant date) {
         ZoneId zone = userTimeService.getLocalTimeZone().toZoneId();
-        return DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM, FormatStyle.SHORT).withZone(zone).format(date);
+        DateTimeFormatter df = DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM, FormatStyle.SHORT)
+                                                .withZone(zone)
+                                                .withLocale(resourceLoader.getLocale());
+        return df.format(date);
     }
 
     private String removeReferencePrefix(String referenceId) {
