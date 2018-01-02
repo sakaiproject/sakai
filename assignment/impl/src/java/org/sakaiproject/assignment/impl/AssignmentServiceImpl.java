@@ -3824,7 +3824,6 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
         ZoneId zone = userTimeService.getLocalTimeZone().toZoneId();
         DateTimeFormatter df = DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM, FormatStyle.SHORT)
                                                 .withZone(zone)
-                                                //SAK-33808 l18n
                                                 .withLocale(resourceLoader.getLocale());
         return df.format(date);
     }
