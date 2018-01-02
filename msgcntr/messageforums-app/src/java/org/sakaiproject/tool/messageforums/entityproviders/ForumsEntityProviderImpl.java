@@ -514,10 +514,16 @@ public class ForumsEntityProviderImpl extends AbstractEntityProvider implements 
 		for(Message fm : (List<Message>) forumManager.getRecentDiscussionForumThreadsByTopicIds(topicIds, numberOfMessages)) {
 			//message has user_Id set in the 'modifiedBy' field, setting it to 'displayId' for display purpose
 			try {
-				String displayName =  userDirectoryService.getUser(fm.getModifiedBy()).getDisplayName();
-				fm.setModifiedBy(displayName);
+				String createdByDisplayName =  userDirectoryService.getUser(fm.getCreatedBy()).getDisplayName();
+				fm.setCreatedBy(createdByDisplayName);
 			} catch (UserNotDefinedException e) {
-				log.debug(" User not defined for id '" + fm.getModifiedBy() + "'.");
+				log.debug("User not defined for id '{}'.", fm.getCreatedBy());
+			}
+			try {
+				String modifiedByDisplayName =  userDirectoryService.getUser(fm.getModifiedBy()).getDisplayName();
+				fm.setModifiedBy(modifiedByDisplayName);
+			} catch (UserNotDefinedException e) {
+				log.debug("User not defined for id '{}'.", fm.getModifiedBy());
 			}
 			SparseMessage sm = new SparseMessage(fm,/* readStatus =*/ false,/* addAttachments =*/ true, developerHelperService.getServerURL());
 			Topic topic = fm.getTopic();
