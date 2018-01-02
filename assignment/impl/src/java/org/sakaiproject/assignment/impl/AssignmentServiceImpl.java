@@ -3699,7 +3699,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
         String resubmissionNumber = StringUtils.defaultString(s.getProperties().get(AssignmentConstants.ALLOW_RESUBMIT_NUMBER), "0");
         descMap.put("en-US", "User received a grade for their assginment: " + a.getTitle() + "; Submission #: " + resubmissionNumber);
         lrsObject.setDescription(descMap);
-        LRS_Actor student = new LRS_Actor(studentUser.getEmail());
+        LRS_Actor student = learningResourceStoreService.getActor(studentUser.getId());
         student.setName(studentUser.getDisplayName());
         return new LRS_Statement(student, verb, lrsObject, getLRS_Result(a, s, true), null);
     }
@@ -3730,7 +3730,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
         Map<String, String> descMap = new HashMap<>();
         descMap.put("en-US", "User received a grade for an unsubmitted assginment: " + a.getTitle());
         lrsObject.setDescription(descMap);
-        LRS_Actor student = new LRS_Actor(studentUser.getEmail());
+        LRS_Actor student = learningResourceStoreService.getActor(studentUser.getId());
         student.setName(studentUser.getDisplayName());
         return new LRS_Statement(student, verb, lrsObject, getLRS_Result(a, s, false), null);
     }
