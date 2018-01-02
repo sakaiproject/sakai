@@ -3195,6 +3195,7 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
       } else {
           formula = StringUtils.trimToEmpty(formula).replaceAll("\\s+", " ");
       }
+
       return formula;
   }
 
