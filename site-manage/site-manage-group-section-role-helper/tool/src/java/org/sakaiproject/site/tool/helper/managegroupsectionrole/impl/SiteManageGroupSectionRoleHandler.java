@@ -203,6 +203,17 @@ public class SiteManageGroupSectionRoleHandler {
 	public void setDescription(String description) {
 		this.description = description;
 	}
+
+	// group upload textarea
+	private String groupUploadTextArea;
+
+	public String getGroupUploadTextArea() {
+		return groupUploadTextArea;
+	}
+
+	public void setGroupUploadTextArea(String groupUploadTextArea) {
+		this.groupUploadTextArea = groupUploadTextArea;
+	}
 	
 	// for those to be deleted groups
 	public String[] deleteGroupIds;
@@ -241,6 +252,7 @@ public class SiteManageGroupSectionRoleHandler {
             rosterGroupTitleGroup = "";
 
             importedGroups = null;
+			setGroupUploadTextArea("");
 
             joinableSetName = "";
             joinableSetNameOrig = "";
@@ -1493,21 +1505,31 @@ public class SiteManageGroupSectionRoleHandler {
     }
     
     /**
-     * Grabs the uploaded file from the groupfile request attribute and extracts the group details
-     * from it, adding them to the importedGroups list as it goes. Expects at least three columns,
-     * the first three being first name, last name and email respectively.
+     * Grabs the uploaded file from the groupfile request attribute, as well as any data in the HTML textarea,
+     * and extracts any group details from them, adding them to the importedGroups list as it goes.
+     * Expects at two columns, the groupname and the username/email address.
      * @return status
      */
     public String processUploadAndCheck() {
         String uploadsDone = (String) httpServletRequest.getAttribute(RequestFilter.ATTR_UPLOADS_DONE);
 
         FileItem usersFileItem;
+        String processingFlag = "success";
 
         if (uploadsDone != null && uploadsDone.equals(RequestFilter.ATTR_UPLOADS_DONE)) {
 
             try {
                 usersFileItem = (FileItem) httpServletRequest.getAttribute(REQ_ATTR_GROUPFILE);
+                // Check for nothing to upload.
+                if (getGroupUploadTextArea().length() == 0 && usersFileItem.getSize() == 0) {
+                    messages.addMessage(new TargettedMessage("import1.error.no.content", null, TargettedMessage.SEVERITY_ERROR));
+                    return null;
+                }
 
+                importedGroups = new ArrayList<>();
+                List<String[]> lines;
+
+                // Process any data in the uploaded file.
                 if(usersFileItem != null && usersFileItem.getSize() > 0) {
 
                     String mimetype = usersFileItem.getContentType();
@@ -1515,74 +1537,95 @@ public class SiteManageGroupSectionRoleHandler {
 
                     if (ArrayUtils.contains(CSV_MIME_TYPES, mimetype) 
                             || StringUtils.endsWith(filename, "csv")) {
-                        if (processCsvFile(usersFileItem)) {
-                            return "success"; // SHORT CIRCUIT
+                        log.debug("CSV file uploaded");
+
+                        CSVReader reader;
+                        lines = new ArrayList<>();
+
+                        try {
+                            reader = new CSVReader(new InputStreamReader(usersFileItem.getInputStream()));
+                            lines = reader.readAll();
+                        } catch (IOException ioe) {
+                            log.error(ioe.getClass() + " : " + ioe.getMessage());
+                            processingFlag = "error";
+                        }
+
+                        if (processUploadGroupLines(lines)) {
+                            processingFlag = "success"; // SHORT CIRCUIT
                         }
                     } else {
                         log.error("Invalid file type: " + mimetype);
-                        return "error"; // SHORT CIRCUIT
+                        messages.addMessage(new TargettedMessage("import1.error.file.type.invalid", null, TargettedMessage.SEVERITY_ERROR));
+                        processingFlag = null;
                     }
+                }
+
+                // Process any data in the HTML text area.
+                if (getGroupUploadTextArea().length() > 0) {
+                    String[] splitLines = getGroupUploadTextArea().split("\r\n");
+                    lines = new ArrayList<>();
+                    for (String s: splitLines) {
+                        lines.add(s.split(","));
+                    }
+                    
+                    if (processUploadGroupLines(lines)) {
+                        processingFlag = "success"; // SHORT CIRCUIT
+                    }
+
                 }
             }
             catch (Exception e){
                 log.error(e.getClass() + " : " + e.getMessage());
-                return "error"; // SHORT CIRCUIT
-            } finally {
-                // clear the groupfile attribute so the tool does not have to be reset
-                httpServletRequest.removeAttribute(REQ_ATTR_GROUPFILE);
+                processingFlag =  "error"; // SHORT CIRCUIT
             }
         }
 
-        return "error";
+        return processingFlag;
     }
 
 	/**
-	 * Helper to process the uploaded CSV file
+	 * Helper to process each line of group values.
 	 * 
-	 * @param fileItem
+	 * @param lines
 	 * @return
 	 */
-	private boolean processCsvFile(FileItem fileItem){
-		
-		log.debug("CSV file uploaded");
-		
-		importedGroups = new ArrayList<>();
-		
-		CSVReader reader;
-		try {
-			reader = new CSVReader(new InputStreamReader(fileItem.getInputStream()));
-			List<String[]> lines = reader.readAll();
-			
-			//maintain a map of the groups and their titles in case the CSV file is unordered
-			//this way we can still lookup the group and add members to it
-			Map<String, ImportedGroup> groupMap = new HashMap<>();
-			
-			for(String[] line: lines){
-			    if (line.length < 2) {
-			        continue;
-                }
-	            String groupTitle = StringUtils.trimToNull(line[0]);
-	            String userId = StringUtils.trimToNull(line[1]);
-	            if (groupTitle == null || userId == null) {
-	                continue;
-                }
-	            //if we already have an occurrence of this group, get the group and update the user list within it
-	            if(groupMap.containsKey(groupTitle)){
-	            	ImportedGroup group = groupMap.get(groupTitle);
-	            	group.addUser(userId);
-	            } else {
-	            	ImportedGroup group = new ImportedGroup(groupTitle, userId);
-	            	groupMap.put(groupTitle, group);
-	            }
-			}
-			
-			 //extract all of the imported groups from the map
-            importedGroups.addAll(groupMap.values());
-			
-		} catch (IOException ioe) {
-			log.error(ioe.getClass() + " : " + ioe.getMessage());
-			return false;
+    private boolean processUploadGroupLines(List<String[]> lines){
+
+		//maintain a map of the groups and their titles in case the group lines are unordered
+		//this way we can still lookup the group and add members to it if they are not already there.
+		Map<String, ImportedGroup> groupMap = new HashMap<>();
+		for (ImportedGroup g: importedGroups) {
+			groupMap.put(g.getGroupTitle(), g);
 		}
+
+		for(String[] line: lines){
+			if (line.length < 2) {
+				messages.addMessage(new TargettedMessage("import1.error.invalid.data.format", null, TargettedMessage.SEVERITY_ERROR));
+				return false;
+			}
+			String groupTitle = StringUtils.trimToNull(line[0]);
+			String userId = StringUtils.trimToNull(line[1]);
+			if (groupTitle == null || userId == null) {
+				messages.addMessage(new TargettedMessage("import1.error.invalid.data.format", null, TargettedMessage.SEVERITY_ERROR));
+				return false;
+			}
+			// if we already have an occurrence of this group, get the group, check whether the user is already there, if not add them.
+			if(groupMap.containsKey(groupTitle)){
+				ImportedGroup group = groupMap.get(groupTitle);
+				for (String s: group.getUserIds()) {
+					if (!s.equals(userId)) {
+						group.addUser(userId);
+					}
+				}
+			} else {
+				ImportedGroup group = new ImportedGroup(groupTitle, userId);
+				groupMap.put(groupTitle, group);
+			}
+		}
+
+		//extract all of the imported groups from the map, clear out current ones first to avoid dupes.
+		importedGroups.clear();
+		importedGroups.addAll(groupMap.values());
 
 		return true;
 	}
@@ -1666,6 +1709,7 @@ public class SiteManageGroupSectionRoleHandler {
     		}
 		}
 		
+		resetParams();
 		return "success";
 	}
 	
@@ -1684,7 +1728,7 @@ public class SiteManageGroupSectionRoleHandler {
 		
 		Set<Member> members= g.getMembers();
 		for(Member m: members) {
-			userIds.add(m.getUserId());
+			userIds.add(m.getUserEid());
 		}
 		return userIds;
 	}
@@ -1736,7 +1780,7 @@ public class SiteManageGroupSectionRoleHandler {
      * of the import sequence.
      */
     @Getter
-    private List<ImportedGroup> importedGroups;
+    private List<ImportedGroup> importedGroups = new ArrayList<>();
    
     public String processCreateJoinableSet() {
     	// reset the warning messages
