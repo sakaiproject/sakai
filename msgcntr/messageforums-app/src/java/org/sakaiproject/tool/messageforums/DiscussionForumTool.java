@@ -9873,7 +9873,7 @@ private String editorRows;
         descMap.put("en-US", "User received a grade for their forum post: " + forumTitle);
         lrsObject.setDescription(descMap);
         User studentUser = UserDirectoryService.getUser(studentUid);
-        LRS_Actor student = new LRS_Actor(studentUser.getEmail());
+        LRS_Actor student = learningResourceStoreService.getActor(studentUser.getId());
         student.setName(studentUser.getDisplayName());
         LRS_Statement statement = new LRS_Statement(student, verb, lrsObject, getLRS_Result(score), null);
         return statement;
