@@ -133,20 +133,6 @@
 
                                     #end ## END of IF (${tabsSites.prefsToolUrl})
 
-                                    #if (${tabsSites.worksiteToolUrl})
-
-                                        #if ($allowAddSite)
-
-                                            <li class="Mrphs-userNav__submenuitem Mrphs-userNav__submenuitem-indented">
-                                                <a id="addNewSiteLink" role="menuitem" href="${tabsSites.mrphs_worksiteToolUrl}?panel=Shortcut&amp;sakai_action=doNew_site" class="Mrphs-userNav__submenuitem--newsite">
-                                            <span>${rloader.sit_newsite}</span>
-                                                </a>
-                                            </li>
-
-                                        #end ## END of IF ($allowAddSite)
-
-                                    #end ## END of IF (${tabsSites.prefsToolUrl})
-
                                     #if (${tabsSites.tutorial})
 
                                         <li class="Mrphs-userNav__submenuitem Mrphs-userNav__submenuitem-indented">
