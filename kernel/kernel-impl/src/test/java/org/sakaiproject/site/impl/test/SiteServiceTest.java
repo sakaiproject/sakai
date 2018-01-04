@@ -193,9 +193,9 @@ public class SiteServiceTest extends SakaiKernelTestBase {
 
 		Site site = siteService.addSite("test", "test");
 		//Add 5 pages
-        SitePage page1 = site.addPage();
-        SitePage page2 = site.addPage();
-        SitePage page3 = site.addPage();
+		SitePage page1 = site.addPage();
+		SitePage page2 = site.addPage();
+		SitePage page3 = site.addPage();
 
 		// Just set some positions that should work fine title property set.
 		page1.setPosition(0);
