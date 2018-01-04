@@ -735,8 +735,9 @@ public class BaseSitePage implements SitePage, Identifiable
 		if (m_site == null) return;
 		List<SitePage> pageList = m_site.getPages();
 		//KNL-250 if the position is greater than the number of pages make it last to avoid an exception
-		if (pos > pageList.size()) {
-			pos = pageList.size() +1;
+		int pageSize = pageList.size();
+		if (pos >= pageSize) {
+			pos = pageSize - 1;
 		}
 		((ResourceVector) pageList).moveTo(this, pos);
 	}
