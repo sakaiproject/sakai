@@ -81,6 +81,8 @@ public class ImportGradesHelper {
 	public final static int USER_ID_POS = 0;
 	public final static int USER_NAME_POS = 1;
 
+    public final static int SECTION_POS = 2;
+
 	// patterns for detecting column headers and their types
 	final static Pattern ASSIGNMENT_PATTERN = Pattern.compile("([^\\[]+)(\\[(\\d+([\\.,]\\d+)?)\\])?");
 	final static Pattern COMMENT_PATTERN = Pattern.compile("\\* (.+)");
@@ -743,6 +745,9 @@ public class ImportGradesHelper {
 			} else if (i == USER_NAME_POS) {
 				column = new ImportedColumn();
 				column.setType(ImportedColumn.Type.USER_NAME);
+			} else if(i == SECTION_POS) {
+				column = new ImportedColumn();
+				column.setType(ImportedColumn.Type.IGNORE);
 			} else {
 				column = parseHeaderToColumn(StringUtils.trimToNull(line[i]), headingReport);
 			}

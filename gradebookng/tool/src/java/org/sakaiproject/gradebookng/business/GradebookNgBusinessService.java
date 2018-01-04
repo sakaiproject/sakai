@@ -2598,7 +2598,51 @@ public class GradebookNgBusinessService {
 
 		return rval;
 	}
-	
+
+	/**
+	 * Build map of a user's section membership
+	 *
+	 */
+	public Map<String, List<String>> getUserSections() {
+		final String siteId = getCurrentSiteId();
+
+		Site site;
+		try {
+			site = this.siteService.getSite(siteId);
+		} catch (final IdUnusedException e) {
+			log.error("Error looking up site: " + siteId, e);
+			return null;
+		}
+
+		// filtered for the user
+		final List<GbGroup> viewableGroups = getSiteSectionsAndGroups();
+
+		final Map<String, List<String>> rval = new HashMap<>();
+
+		for (final GbGroup gbGroup : viewableGroups) {
+			final String groupReference = gbGroup.getReference();
+			final Group group = site.getGroup(groupReference);
+
+			// Only want to add provider groups
+			if (group != null && group.getProviderGroupId() != null) {
+				final Set<Member> members = group.getMembers();
+
+				for (final Member m : members) {
+					String userId = m.getUserId();
+
+					List<String> groups = rval.get(userId);
+					if (groups == null) {
+						groups = new ArrayList<>();
+					}
+					groups.add(group.getTitle());
+					rval.put(userId, groups);
+				}
+			}
+		}
+
+		return rval;
+	}
+
 	/**
 	 * Have categories been enabled for the gradebook?
 	 *
