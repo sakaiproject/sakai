@@ -235,4 +235,10 @@ public final class AssignmentConstants {
         CLOSED,
         DUE
     }
+    
+    public static final String SUBMISSION_OPTION_RELEASE = "release";
+    public static final String SUBMISSION_OPTION_RETURN = "return";
+    public static final String SUBMISSION_OPTION_SAVE = "save";
+    public static final String SUBMISSION_OPTION_RETRACT = "retract";
+
 }
