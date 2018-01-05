@@ -12,9 +12,8 @@
 <head><%= request.getAttribute("html.head") %>
 <title><h:outputText value="#{questionPoolMessages.t_previewPool}"/></title>
 <!-- stylesheet and script widgets -->
-<link href="/samigo-app/css/imageQuestion.author.css" type="text/css" rel="stylesheet" media="all" />
-
-<script language='javascript' src='/samigo-app/js/selection.author.preview.js'></script>
+<samigo:stylesheet path="/css/imageQuestion.author.css"/>
+<samigo:script path="/js/selection.author.preview.js"/>
 <script type="text/JavaScript">	
 	jQuery(window).load(function(){
 			
