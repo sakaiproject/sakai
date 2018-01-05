@@ -21,8 +21,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.MessageSource;
+import org.springframework.context.NoSuchMessageException;
 
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.AuthzGroupService;
@@ -39,32 +40,30 @@ import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
-import org.springframework.context.MessageSource;
-import org.springframework.context.NoSuchMessageException;
 
 /**
  * Handles the processing related to the permissions handler
  * 
  * @author Aaron Zeckoski (azeckoski @ unicon.net) (azeckoski @ vt.edu)
  */
+@Slf4j
 public class SitePermsService {
-
-    final protected Logger log = LoggerFactory.getLogger(getClass());
 
     private static final String STATUS_COMPLETE = "COMPLETE";
 
-    private static int DEFAULT_PAUSE_TIME_MS = 1001; // just over 1 second
-    private static int DEFAULT_MAX_UPDATE_TIME_SECS = 60*60; // 1 hour
+    private static int DEFAULT_PAUSE_TIME_MS = 100; // 100ms
+    private static int DEFAULT_MAX_UPDATE_TIME_SECS = 60*60*24; // 1 day
     private static int DEFAULT_SITES_BEFORE_PAUSE = 10;
 
     private int pauseTimeMS = DEFAULT_PAUSE_TIME_MS;
-    private long maxUpdateTimeMS = DEFAULT_MAX_UPDATE_TIME_SECS * 1000l;
+    private long maxUpdateTimeMS = DEFAULT_MAX_UPDATE_TIME_SECS * 1000L;
     private int sitesUntilPause = DEFAULT_SITES_BEFORE_PAUSE;
 
-    public static String[] templates = {
-        "!site.template",
-        "!site.template.course",
-        "!site.template.portfolio",
+    public static final String SITE_TEMPLATE_PREFIX = "!site.template";
+
+    public static final String[] DEFAULT_SITE_TEMPLATES = {
+        SITE_TEMPLATE_PREFIX,
+        SITE_TEMPLATE_PREFIX+ "."+ "course",
         "!site.user"
     };
 
@@ -99,8 +98,7 @@ public class SitePermsService {
         }
         // get the configurable values
         pauseTimeMS = serverConfigurationService.getConfig("site.adminperms.pause.ms", pauseTimeMS);
-        int maxUpdateTimeS = serverConfigurationService.getConfig("site.adminperms.maxrun.secs", DEFAULT_MAX_UPDATE_TIME_SECS);
-        maxUpdateTimeMS = 1000l * maxUpdateTimeS; // covert to milliseconds
+        maxUpdateTimeMS = serverConfigurationService.getConfig("site.adminperms.maxrun.secs", DEFAULT_MAX_UPDATE_TIME_SECS) * 1000L;
         sitesUntilPause = serverConfigurationService.getConfig("site.adminperms.sitesuntilpause", sitesUntilPause);
         // get the current state
         final User currentUser = userDirectoryService.getCurrentUser();
@@ -113,7 +111,7 @@ public class SitePermsService {
                 } catch (IllegalStateException e) {
                     throw e; // rethrow this back out
                 } catch (Exception e) {
-                    log.error("SitePerms background perms runner thread died: "+e, e);
+                    log.error("SitePerms background perms runner thread died", e);
                 }
             }
         };
@@ -166,7 +164,8 @@ public class SitePermsService {
         // update the session with a status message
         String msg = getMessage("siterole.message.processing."+(add?"add":"remove"), 
                 new Object[] {permsString, typesString, rolesString, 0});
-        log.info("STARTED: "+msg+" :: pauseTimeMS="+pauseTimeMS+", sitesUntilPause="+sitesUntilPause+", maxUpdateTimeMS="+maxUpdateTimeMS);
+        log.info("STARTED: {} :: pauseTimeMS={}, sitesUntilPause={}, maxUpdateTimeMS={}",
+            msg, pauseTimeMS, sitesUntilPause, maxUpdateTimeMS);
         updateStatus = "RUNNING";
         updateMessage = msg;
         // set the current user in this thread so they can perform the operations
@@ -218,7 +217,8 @@ public class SitePermsService {
                             // only save if the group was updated
                             authzGroupService.save(ag);
                             updatesCount++;
-                            log.info("Added Permissions ("+permsString+") for roles ("+rolesString+") to group:" + siteRef);
+                            log.info("{} Permissions ({}) for roles ({}) to group: {}", (add)?"Added":"Removed",
+                                    siteRef, permsString, rolesString, siteRef);
                         }
                         successCount++;
                         if (updatesCount > 0 && updatesCount % sitesUntilPause == 0) {
@@ -230,12 +230,12 @@ public class SitePermsService {
                             currentSession.setActive();
                         }
                     } else {
-                        log.warn("Cannot update authz group: " + siteRef + ", unable to apply any perms change");
+                        log.warn("Cannot update authz group: {} unable to apply any perms change", siteRef);
                     }
                 } catch (GroupNotDefinedException e) {
-                    log.error("Could not find authz group: " + siteRef + ", unable to apply any perms change");
+                    log.error("Could not find authz group: {} unable to apply any perms change", siteRef);
                 } catch (AuthzPermissionException e) {
-                    log.error("Could not save authz group: " + siteRef + ", unable to apply any perms change");
+                    log.error("Could not save authz group: {} unable to apply any perms change", siteRef);
                 }
                 sitesCounter++;
                 if (!isLockedForUpdates()) {
@@ -306,12 +306,18 @@ public class SitePermsService {
         return perms;
     }
 
+    private List<String> getTemplateRoles() {
+        Set<String> templates = new HashSet<>(Arrays.asList(DEFAULT_SITE_TEMPLATES));
+        siteService.getSiteTypes().stream().map(s -> SITE_TEMPLATE_PREFIX + "."+ s).forEach(templates::add);
+        return new ArrayList<>(templates);
+    }
+
     /**
      * @return a list of all valid roles names
      */
     public List<String> getValidRoles() {
         HashSet<String> roleIds = new HashSet<String>();
-        for (String templateRef : templates) {
+        for (String templateRef : getTemplateRoles()) {
             AuthzGroup ag;
             try {
                 ag = authzGroupService.getAuthzGroup(templateRef);

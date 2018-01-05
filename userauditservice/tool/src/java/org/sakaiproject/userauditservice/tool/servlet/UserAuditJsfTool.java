@@ -31,8 +31,8 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.tool.api.SessionManager;
@@ -44,14 +44,10 @@ import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.jsf.util.JsfTool;
 import org.sakaiproject.util.Web;
 
+@Slf4j
 public class UserAuditJsfTool extends JsfTool {
 
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = -976719461956856669L;
-
-	private static final Logger logger = LoggerFactory.getLogger(UserAuditJsfTool.class);
 
 	private SessionManager sessionManager;
 
@@ -91,13 +87,13 @@ public class UserAuditJsfTool extends JsfTool {
 	@Override
 	protected void dispatch(HttpServletRequest req, HttpServletResponse res)
 			throws ServletException, IOException {
-		logger.debug("dispatch()");
+		log.debug("dispatch()");
 
 		String target = req.getPathInfo();
 
 		ToolSession session = sessionManager.getCurrentToolSession();
 
-		if (logger.isDebugEnabled()) {
+		if (log.isDebugEnabled()) {
 			Map<String, String[]> reqParms = req.getParameterMap();
 			for(Map.Entry<String, String[]> entry : reqParms.entrySet())
 			{
@@ -115,12 +111,12 @@ public class UserAuditJsfTool extends JsfTool {
 					}
 				}
 				sb.append(']');
-				logger.debug(sb.toString());
+				log.debug(sb.toString());
 			}
 			Enumeration<String> sessionParmNames = session.getAttributeNames();
 			while (sessionParmNames.hasMoreElements()) {
 				String sessionParmName = sessionParmNames.nextElement();
-				logger.debug("SESS_PARM: " + sessionParmName + " = "
+				log.debug("SESS_PARM: " + sessionParmName + " = "
 						+ session.getAttribute(sessionParmName));
 			}
 		}

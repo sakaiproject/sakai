@@ -57,6 +57,10 @@
             <artifactId>emailtemplateservice-api</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.sakaiproject.shortenedurl</groupId>
+            <artifactId>shortenedurl-api</artifactId>
+        </dependency>
+        <dependency>
             <groupId>commons-lang</groupId>
             <artifactId>commons-lang</artifactId>
         </dependency>

@@ -20,10 +20,10 @@
  **********************************************************************************/
 package org.sakaiproject.tool.section.facade.sakai;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.sakaiproject.section.api.facade.manager.Context;
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.section.api.facade.manager.Context;
 import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.tool.api.Placement;
 import org.sakaiproject.tool.cover.ToolManager;
@@ -34,8 +34,8 @@ import org.sakaiproject.tool.cover.ToolManager;
  * @author <a href="mailto:jholtzman@berkeley.edu">Josh Holtzman</a>
  *
  */
+@Slf4j
 public class ContextSakaiImpl implements Context {
-	private static final Logger log = LoggerFactory.getLogger(ContextSakaiImpl.class);
 
 	/**
 	 * @inheritDoc

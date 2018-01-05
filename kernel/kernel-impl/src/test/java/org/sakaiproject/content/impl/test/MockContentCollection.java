@@ -24,8 +24,6 @@ package org.sakaiproject.content.impl.test;
 import java.util.List;
 import java.util.Map;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sakaiproject.content.api.ContentCollectionEdit;
 
 /**
@@ -34,59 +32,56 @@ import org.sakaiproject.content.api.ContentCollectionEdit;
  */
 public class MockContentCollection extends MockContentEntity implements ContentCollectionEdit
 {
-	private static final Logger logger = LoggerFactory.getLogger(MockContentCollection.class);
-
 	/**
 	 * @param collectionId
 	 */
 	public MockContentCollection(String collectionId)
-    {
+	{
 	    this.containingCollectionId = collectionId;
-    }
+	}
 
 	/* (non-Javadoc)
 	 * @see org.sakaiproject.content.api.ContentCollection#getBodySizeK()
 	 */
 	public long getBodySizeK()
-    {
+	{
 	    // TODO Auto-generated method stub
 	    return 0;
-    }
+	}
 
 	/* (non-Javadoc)
 	 * @see org.sakaiproject.content.api.ContentCollection#getMemberCount()
 	 */
 	public int getMemberCount()
-    {
+	{
 	    // TODO Auto-generated method stub
 	    return 0;
-    }
+	}
 
 	/* (non-Javadoc)
 	 * @see org.sakaiproject.content.api.ContentCollection#getMemberResources()
 	 */
 	public List getMemberResources()
-    {
+	{
 	    // TODO Auto-generated method stub
 	    return null;
-    }
+	}
 
 	/* (non-Javadoc)
 	 * @see org.sakaiproject.content.api.ContentCollection#getMembers()
 	 */
 	public List getMembers()
-    {
+	{
 	    // TODO Auto-generated method stub
 	    return null;
-    }
+	}
 
 	/* (non-Javadoc)
 	 * @see org.sakaiproject.content.api.ContentCollectionEdit#setPriorityMap(java.util.Map)
 	 */
 	public void setPriorityMap(Map priorities)
-    {
+	{
 	    // TODO Auto-generated method stub
 	    
-    }
-
+	}
 }

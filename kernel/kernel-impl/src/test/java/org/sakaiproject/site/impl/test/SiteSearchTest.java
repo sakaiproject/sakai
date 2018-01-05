@@ -15,23 +15,25 @@
  */
 package org.sakaiproject.site.impl.test;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+
+import lombok.extern.slf4j.Slf4j;
+
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
+
+import org.springframework.test.annotation.DirtiesContext;
+
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.api.SiteService.SelectionType;
 import org.sakaiproject.test.SakaiKernelTestBase;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.SessionManager;
-import org.springframework.test.annotation.DirtiesContext;
-
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
 
 /**
  * Just a simple search to test the SQL is correct.
@@ -40,9 +42,8 @@ import java.util.UUID;
  *
  */
 @DirtiesContext
+@Slf4j
 public class SiteSearchTest extends SakaiKernelTestBase {
-	private static Logger log = LoggerFactory.getLogger(SiteSearchTest.class);
-	
 	@BeforeClass
 	public static void beforeClass() {
 		try {

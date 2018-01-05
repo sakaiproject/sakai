@@ -21,13 +21,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sakaiproject.chat2.model.ChatChannel;
 import org.sakaiproject.chat2.model.ChatManager;
 import org.sakaiproject.entitybroker.EntityReference;
-import org.sakaiproject.entitybroker.EntityView;
-import org.sakaiproject.entitybroker.entityprovider.annotations.EntityCustomAction;
 import org.sakaiproject.entitybroker.entityprovider.CoreEntityProvider;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.ActionsExecutable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.AutoRegisterEntityProvider;
@@ -38,8 +34,6 @@ import org.sakaiproject.entitybroker.entityprovider.extension.Formats;
 import org.sakaiproject.entitybroker.entityprovider.search.Restriction;
 import org.sakaiproject.entitybroker.entityprovider.search.Search;
 import org.sakaiproject.exception.PermissionException;
-import org.sakaiproject.tool.api.Session;
-import org.sakaiproject.tool.cover.SessionManager;
 
 @SuppressWarnings("deprecation")
 public class ChatChannelEntityProvider implements CoreEntityProvider, AutoRegisterEntityProvider, RESTful,
@@ -48,8 +42,6 @@ public class ChatChannelEntityProvider implements CoreEntityProvider, AutoRegist
 	private ChatManager chatManager;
 	  
 	public final static String ENTITY_PREFIX = "chat-channel";
-
-	protected final Logger LOG = LoggerFactory.getLogger(getClass());
 	
 	public class SimpleChatChannel {
 

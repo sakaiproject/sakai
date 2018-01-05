@@ -26,7 +26,6 @@ import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLDecoder;
-import java.text.Normalizer;
 import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -47,12 +46,8 @@ import java.util.regex.Pattern;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpServletRequestWrapper;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import org.apache.myfaces.webapp.filter.MultipartRequestWrapper;
+import lombok.extern.slf4j.Slf4j;
 
 import org.sakaiproject.antivirus.api.VirusFoundException;
 import org.sakaiproject.authz.api.SecurityAdvisor;
@@ -88,7 +83,6 @@ import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.event.api.SessionState;
-import org.sakaiproject.event.api.UsageSessionService;
 import org.sakaiproject.event.api.NotificationService;
 import org.sakaiproject.exception.IdInvalidException;
 import org.sakaiproject.exception.IdLengthException;
@@ -123,6 +117,7 @@ import org.sakaiproject.util.Validator;
  * This works with the ResourcesTool to show a file picker / attachment editor that can be used by any Sakai tools as a helper.<br />
  * If the user ends without a cancel, the original collection of attachments is replaced with the edited list - otherwise it is left unchanged.
  */
+@Slf4j
 public class FilePickerAction extends PagedResourceHelperAction
 {
 	/** Version */
@@ -159,8 +154,6 @@ public class FilePickerAction extends PagedResourceHelperAction
 	private String resourceClass = ServerConfigurationService.getString(RESOURCECLASS, DEFAULT_RESOURCECLASS);
 	private String resourceBundle = ServerConfigurationService.getString(RESOURCEBUNDLE, DEFAULT_RESOURCEBUNDLE);
 	private ResourceLoader srb = new Resource().getLoader(resourceClass, resourceBundle);
-
-    private static final Logger logger = LoggerFactory.getLogger(FilePickerAction.class);
 
 	protected static final String PREFIX = "filepicker.";
 
@@ -424,6 +417,10 @@ public class FilePickerAction extends PagedResourceHelperAction
 			context.put("INHERITED_ACCESS", AccessMode.INHERITED.toString());
 			context.put("PUBLIC_ACCESS", ResourcesAction.PUBLIC_ACCESS);
 		}
+		
+		// Get default notification ("r", "o" or "n")
+		context.put("noti", ServerConfigurationService.getString("content.default.notification", "n"));
+		
 		return template;
     }
 
@@ -611,9 +608,9 @@ public class FilePickerAction extends PagedResourceHelperAction
 			}
 			catch(IdUnusedException ex)
 			{
-				if(logger.isDebugEnabled())
+				if(log.isDebugEnabled())
 				{
-					logger.debug("ResourcesAction.buildSelectAttachment (static) : IdUnusedException: " + collectionId);
+					log.debug("ResourcesAction.buildSelectAttachment (static) : IdUnusedException: " + collectionId);
 				}
 				try
 				{
@@ -623,31 +620,31 @@ public class FilePickerAction extends PagedResourceHelperAction
 				catch(IdUsedException inner)
 				{
 					// how can this happen??
-					logger.warn("ResourcesAction.buildSelectAttachment (static) : IdUsedException: " + collectionId);
+					log.warn("ResourcesAction.buildSelectAttachment (static) : IdUsedException: " + collectionId);
 					throw ex;
 				}
 				catch(IdInvalidException inner)
 				{
-					logger.warn("ResourcesAction.buildSelectAttachment (static) : IdInvalidException: " + collectionId);
+					log.warn("ResourcesAction.buildSelectAttachment (static) : IdInvalidException: " + collectionId);
 					// what now?
 					throw ex;
 				}
 				catch(InconsistentException inner)
 				{
-					logger.warn("ResourcesAction.buildSelectAttachment (static) : InconsistentException: " + collectionId);
+					log.warn("ResourcesAction.buildSelectAttachment (static) : InconsistentException: " + collectionId);
 					// what now?
 					throw ex;
 				}
 			}
 			catch(TypeException ex)
 			{
-				logger.warn("ResourcesAction.buildSelectAttachment (static) : TypeException.");
+				log.warn("ResourcesAction.buildSelectAttachment (static) : TypeException.");
 				throw ex;
 			}
 			catch(PermissionException ex)
 			{
 				// May occurs when user attempts to access siteCollection which is hidden, with contents accessible
-				logger.info("ResourcesAction.buildSelectAttachment (static) : PermissionException.");
+				log.info("ResourcesAction.buildSelectAttachment (static) : PermissionException.");
 			}
 
 			Set<String> expandedCollections = getExpandedCollections(toolSession);
@@ -852,7 +849,6 @@ public class FilePickerAction extends PagedResourceHelperAction
 		}
 		catch(TypeException e)
 		{
-			// logger.warn(this + "TypeException.");
 			context.put ("collectionFlag", Boolean.FALSE.toString());
 		}
 		catch(PermissionException e)
@@ -872,7 +868,6 @@ public class FilePickerAction extends PagedResourceHelperAction
 		}
 		catch (IdUnusedException e)
 		{
-			// logger.warn(this + e.toString());
 		}
 
 		context.put("expandallflag", toolSession.getAttribute(STATE_EXPAND_ALL_FLAG));
@@ -1046,11 +1041,11 @@ public class FilePickerAction extends PagedResourceHelperAction
             }
             catch (PermissionException e)
             {
-                logger.info("PermissionException -- User has permission to revise item but lacks permission to view attachment: " + ref.getId());
+                log.info("PermissionException -- User has permission to revise item but lacks permission to view attachment: " + ref.getId());
             }
             catch (IdUnusedException e)
             {
-                logger.info("IdUnusedException -- An attachment has been deleted: " + ref.getId());
+                log.info("IdUnusedException -- An attachment has been deleted: " + ref.getId());
             }
 		}
 		toolSession.setAttribute(STATE_ADDED_ITEMS, new_items);
@@ -1170,7 +1165,7 @@ public class FilePickerAction extends PagedResourceHelperAction
 		    itemId = URLDecoder.decode(params.getString("itemId"), "UTF-8");
 		} catch (java.io.UnsupportedEncodingException e) {
 		    // should be impossible. use original, with warning
-		    logger.warn("UTF-8 unsupported???");
+		    log.warn("UTF-8 unsupported???");
 		    itemId = params.getString("itemId");
 		}
 
@@ -1365,7 +1360,7 @@ public class FilePickerAction extends PagedResourceHelperAction
 					}
 					else
 					{
-						logger.debug("ResourcesAction.doAttachupload ***** Unknown Exception ***** " + e.getMessage());
+						log.debug("ResourcesAction.doAttachupload ***** Unknown Exception ***** " + e.getMessage());
 						addAlert(state, crb.getString("failed"));
 					}
 				}
@@ -1490,7 +1485,7 @@ public class FilePickerAction extends PagedResourceHelperAction
 			}
 			else
 			{
-				logger.debug("ResourcesAction.doAttachupload ***** Unknown Exception ***** " + e.getMessage());
+				log.debug("ResourcesAction.doAttachupload ***** Unknown Exception ***** " + e.getMessage());
 				addAlert(state, crb.getString("failed"));
 			}
 		}
@@ -1618,7 +1613,7 @@ public class FilePickerAction extends PagedResourceHelperAction
 			}
 			catch(Exception e)
 			{
-				logger.warn("doAddattachments " + e);
+				log.warn("doAddattachments " + e);
 			}
 		}
 		
@@ -1698,7 +1693,7 @@ public class FilePickerAction extends PagedResourceHelperAction
 					// TODO: why would the copy action be null?
                     // This is often null when it's invoked with file picker helper
                     if (!MODE_HELPER.equals(state.getAttribute(STATE_MODE))) {
-					  logger.warn("copyAction null. typeId == " + typeId + " itemId == " + itemId);
+					  log.warn("copyAction null. typeId == " + typeId + " itemId == " + itemId);
                     }
 				}
 				else if(copyAction instanceof ServiceLevelAction)
@@ -1791,7 +1786,7 @@ public class FilePickerAction extends PagedResourceHelperAction
 			}
 			catch(RuntimeException e)
 			{
-				logger.debug("ResourcesAction.attachItem ***** Unknown Exception ***** " + e.getMessage());
+				log.debug("ResourcesAction.attachItem ***** Unknown Exception ***** " + e.getMessage());
 				addAlert(state, crb.getString("failed"));
 			}
 			finally
@@ -1912,7 +1907,7 @@ public class FilePickerAction extends PagedResourceHelperAction
 			}
 			catch(RuntimeException e)
 			{
-				logger.debug("ResourcesAction.attachItem ***** Unknown Exception ***** " + e.getMessage());
+				log.debug("ResourcesAction.attachItem ***** Unknown Exception ***** " + e.getMessage());
 				addAlert(state, crb.getString("failed"));
 			}
 		}
@@ -1983,7 +1978,7 @@ public class FilePickerAction extends PagedResourceHelperAction
 			}
 			catch (IOException e)
 			{
-				logger.warn("IOException: ", e);
+				log.warn("IOException: ", e);
 			}
 			return;
 		}
@@ -2096,7 +2091,7 @@ public class FilePickerAction extends PagedResourceHelperAction
 					InputStream stream = pipe.getRevisedContentStream();
 					if(stream == null)
 					{
-						logger.warn("pipe with null content and null stream: " + pipe.getFileName());
+						log.warn("pipe with null content and null stream: " + pipe.getFileName());
 					}
 					else
 					{
@@ -2171,15 +2166,15 @@ public class FilePickerAction extends PagedResourceHelperAction
 			} 
 			catch (IdUnusedException e) 
 			{
-				logger.warn("IdUnusedException", e);
+				log.warn("IdUnusedException", e);
 			} 
 			catch (PermissionException e) 
 			{
-				logger.warn("PermissionException", e);
+				log.warn("PermissionException", e);
 			} 
 			catch (IdInvalidException e) 
 			{
-				logger.warn("IdInvalidException", e);
+				log.warn("IdInvalidException", e);
 			} 
 			catch (ServerOverloadException e) 
 			{
@@ -2200,12 +2195,12 @@ public class FilePickerAction extends PagedResourceHelperAction
             catch (IdUniquenessException e)
             {
 	            // TODO Auto-generated catch block
-	            logger.warn("IdUniquenessException ", e);
+	            log.warn("IdUniquenessException ", e);
             }
             catch (IdLengthException e)
             {
 	            // TODO Auto-generated catch block
-	            logger.warn("IdLengthException ", e);
+	            log.warn("IdLengthException ", e);
             }
 			
 		}
@@ -2320,7 +2315,7 @@ public class FilePickerAction extends PagedResourceHelperAction
 				} 
 				catch (ServerOverloadException e) 
 				{
-					logger.warn(this + ".doDispatchAction ServerOverloadException", e);
+					log.warn(this + ".doDispatchAction ServerOverloadException", e);
 				}
 			}
 
@@ -3120,17 +3115,17 @@ public class FilePickerAction extends PagedResourceHelperAction
             catch (IdUnusedException e)
             {
 	            // TODO Auto-generated catch block
-	            logger.warn("IdUnusedException ", e);
+	            log.warn("IdUnusedException ", e);
             }
             catch (TypeException e)
             {
 	            // TODO Auto-generated catch block
-	            logger.warn("TypeException ", e);
+	            log.warn("TypeException ", e);
             }
             catch (PermissionException e)
             {
 	            // TODO Auto-generated catch block
-	            logger.warn("PermissionException ", e);
+	            log.warn("PermissionException ", e);
             }
 		}
 		
@@ -3167,16 +3162,16 @@ public class FilePickerAction extends PagedResourceHelperAction
                 catch (IdUnusedException e)
                 {
 	                // its expected that some collections eg the drop box collection may not exit
-	                logger.debug("IdUnusedException (FilePickerAction.readAllResources()) collId == " + collId + " --> " + e);
+	                log.debug("IdUnusedException (FilePickerAction.readAllResources()) collId == " + collId + " --> " + e);
                 }
                 catch (TypeException e)
                 {
-	                logger.warn("TypeException (FilePickerAction.readAllResources()) collId == " + collId + " --> " + e);
+	                log.warn("TypeException (FilePickerAction.readAllResources()) collId == " + collId + " --> " + e);
                 }
                 catch (PermissionException e)
                 {
                 	//SAK-18496 we don't show a user collections they don't have access to 
-                	logger.debug("PermissionException (FilePickerAction.readAllResources()) collId == " + collId + " --> " + e);
+                	log.debug("PermissionException (FilePickerAction.readAllResources()) collId == " + collId + " --> " + e);
                 }
 			}
           }
@@ -3309,7 +3304,7 @@ public class FilePickerAction extends PagedResourceHelperAction
      */
     public static List getCollectionPath(SessionState state)
     {
-        logger.debug("ResourcesAction.getCollectionPath()");
+        log.debug("ResourcesAction.getCollectionPath()");
         org.sakaiproject.content.api.ContentHostingService contentService = (org.sakaiproject.content.api.ContentHostingService) state.getAttribute (STATE_CONTENT_SERVICE);
         // make sure the channedId is set
         String currentCollectionId = (String) state.getAttribute (STATE_COLLECTION_ID);

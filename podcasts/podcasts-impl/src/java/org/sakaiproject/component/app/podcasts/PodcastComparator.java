@@ -24,16 +24,15 @@ package org.sakaiproject.component.app.podcasts;
 
 import java.util.Comparator;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.entity.api.EntityPropertyNotDefinedException;
 import org.sakaiproject.entity.api.EntityPropertyTypeException;
 import org.sakaiproject.time.api.Time;
 
+@Slf4j
 public class PodcastComparator implements Comparator {
-
-	private Logger LOG = LoggerFactory.getLogger(PodcastServiceImpl.class);
 
 	private String m_property = null;
 
@@ -75,11 +74,11 @@ public class PodcastComparator implements Comparator {
 			
 		} 
 		catch (EntityPropertyTypeException ignore) {
-			LOG.warn("EntityPropertyTypeException while comparing podcast dates. "
+			log.warn("EntityPropertyTypeException while comparing podcast dates. "
 							+ ignore.getMessage(), ignore);
 		}
 		catch (EntityPropertyNotDefinedException ignore) {
-			LOG.warn("EntityPropertyNotDefinedException while comparing podcast dates. "
+			log.warn("EntityPropertyNotDefinedException while comparing podcast dates. "
 							+ ignore.getMessage(), ignore);
 		}
 

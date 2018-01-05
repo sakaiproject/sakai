@@ -32,8 +32,8 @@ import javax.faces.context.FacesContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.Web;
@@ -45,6 +45,7 @@ import org.sakaiproject.util.Web;
  * @author University of Murcia
  * @version $Revision$
  */
+@Slf4j
 public class SakaiViewHandlerWrapper extends ViewHandlerWrapper
 {
 	// TODO: Note, these two values must match those in jsf-tool's JsfTool
@@ -54,9 +55,6 @@ public class SakaiViewHandlerWrapper extends ViewHandlerWrapper
 
 	/** Request attribute we set to help the return URL know what extension we (or jsf) add (does not need to be in the URL. */
 	public static final String URL_EXT = "sakai.jsf.tool.URL.ext";
-
-	/** Our log (commons). */
-	private static Logger M_log = LoggerFactory.getLogger(SakaiViewHandler.class);
 
 	/** The wrapped ViewHandler. */
 	private ViewHandler m_wrapped = null;
@@ -107,7 +105,7 @@ public class SakaiViewHandlerWrapper extends ViewHandlerWrapper
 		// restore (if needed)
 		req.setAttribute(Tool.NATIVE_URL, Tool.NATIVE_URL);
 	
-		M_log.debug("action url for view: " + viewId + " = " + rv);
+		log.debug("action url for view: " + viewId + " = " + rv);
 	
 		return rv;
 	}

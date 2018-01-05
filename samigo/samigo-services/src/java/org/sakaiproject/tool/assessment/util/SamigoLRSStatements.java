@@ -21,7 +21,6 @@ import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.event.api.LearningResourceStoreService.LRS_Actor;
-import org.sakaiproject.event.api.LearningResourceStoreService.LRS_Context;
 import org.sakaiproject.event.api.LearningResourceStoreService.LRS_Object;
 import org.sakaiproject.event.api.LearningResourceStoreService.LRS_Result;
 import org.sakaiproject.event.api.LearningResourceStoreService.LRS_Statement;
@@ -85,8 +84,7 @@ public class SamigoLRSStatements {
         		"; Release To: "+ AgentFacade.getCurrentSiteId() + 
         		"; Submitted: " + (gradingData.getIsLate() ? "late" : "on time"));
         lrsObject.setDescription(descMap);
-        LRS_Context context = new LRS_Context("other", "assessment");
-        LRS_Statement statement = new LRS_Statement(null, verb, lrsObject, getLRS_Result(gradingData, publishedAssessment), context);
+        LRS_Statement statement = new LRS_Statement(null, verb, lrsObject, getLRS_Result(gradingData, publishedAssessment), null);
         return statement;
 	}
 
@@ -111,8 +109,7 @@ public class SamigoLRSStatements {
         		"; Release To: "+ AgentFacade.getCurrentSiteId() + 
         		"; Submitted: "+ (gradingData.getIsLate() ? "late" : "on time"));
         lrsObject.setDescription(descMap);
-        LRS_Context context = new LRS_Context("other", "assessment");
-        LRS_Statement statement = new LRS_Statement(null, verb, lrsObject, getLRS_Result(gradingData, publishedAssessment), context);
+        LRS_Statement statement = new LRS_Statement(null, verb, lrsObject, getLRS_Result(gradingData, publishedAssessment), null);
         return statement;
     }
 
@@ -138,8 +135,7 @@ public class SamigoLRSStatements {
         		"; Release To: "+ AgentFacade.getCurrentSiteId() + 
         		"; Submitted: " + (gradingData.getIsLate() ? "late" : "on time"));
         lrsObject.setDescription(descMap);
-        LRS_Context context = new LRS_Context("other", "assessment");
-        LRS_Statement statement = new LRS_Statement(null, verb, lrsObject, getLRS_Result(gradingData, publishedAssessment), context);
+        LRS_Statement statement = new LRS_Statement(null, verb, lrsObject, getLRS_Result(gradingData, publishedAssessment), null);
         return statement;
     }
 
@@ -167,8 +163,7 @@ public class SamigoLRSStatements {
         		"; Old Auto Score: " + oldAutoScore +
         		"; New Auto Score: " + newAutoScore);
         lrsObject.setDescription(descMap);
-        LRS_Context context = new LRS_Context("other", "assessment");
-        LRS_Statement statement = new LRS_Statement(null, verb, lrsObject, getLRS_Result(gradingData, publishedAssessment), context);
+        LRS_Statement statement = new LRS_Statement(null, verb, lrsObject, getLRS_Result(gradingData, publishedAssessment), null);
         return statement;
     }
     

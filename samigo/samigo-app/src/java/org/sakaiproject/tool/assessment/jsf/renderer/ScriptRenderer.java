@@ -30,6 +30,7 @@ import javax.faces.component.UIOutput;
 import javax.faces.context.FacesContext;
 import javax.faces.context.ResponseWriter;
 import javax.faces.render.Renderer;
+import org.sakaiproject.portal.util.PortalUtils;
 
 /**
  * <p>Description: </p>
@@ -101,7 +102,7 @@ public class ScriptRenderer extends Renderer
     ResponseWriter writer = context.getResponseWriter();
     String contextPath = context.getExternalContext()
       .getRequestContextPath();
-    writer.write("<script src=\"" + contextPath + path + "\" type=\"" + type + "\">");
+    writer.write("<script src=\"" + contextPath + path + PortalUtils.getCDNQuery() + "\" type=\"" + type + "\">");
     // ie requires
     writer.write("</script>");
   }

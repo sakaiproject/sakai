@@ -32,12 +32,7 @@ import javax.faces.context.FacesContext;
 import javax.faces.context.ResponseWriter;
 import javax.faces.render.Renderer;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 public abstract class DivMessageRendererBase extends Renderer {
-	private static final Logger logger = LoggerFactory.getLogger(DivMessageRendererBase.class);
-
 	public static String INNER_TAG = "div";
 
 	public static Map severityToStyleAttr, severityToClassAttr;
@@ -96,5 +91,3 @@ public abstract class DivMessageRendererBase extends Renderer {
 		out.endElement(INNER_TAG);
 	}
 }
-
-

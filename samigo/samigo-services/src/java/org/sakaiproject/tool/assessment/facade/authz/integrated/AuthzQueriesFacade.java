@@ -28,6 +28,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.ResourceBundle;
 
+import lombok.extern.slf4j.Slf4j;
 import org.hibernate.Query;
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.AuthzGroupService;
@@ -40,8 +41,6 @@ import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.user.cover.UserDirectoryService;
 import org.springframework.orm.hibernate4.HibernateCallback;
 import org.springframework.orm.hibernate4.support.HibernateDaoSupport;
-
-import lombok.extern.slf4j.Slf4j;
 
 /**
  * <p>Description: Facade for AuthZ queries, standalone version.
@@ -98,7 +97,6 @@ public class AuthzQueriesFacade extends HibernateDaoSupport implements AuthzQuer
     if (currentSiteId == null)
       return false; // user don't login via any site if they are using published url
 
-    //System.out.println("**** currentSiteId"+currentSiteId);
     String currentAgentId = UserDirectoryService.getCurrentUser().getId();
     for (int i=0; i<authorizationList.size(); i++){
       AuthorizationData a = (AuthorizationData) authorizationList.get(i);
@@ -271,7 +269,6 @@ public class AuthzQueriesFacade extends HibernateDaoSupport implements AuthzQuer
 
   public List getAuthorizationByAgentAndFunction(String agentId, String functionId) {
     String query = "select a from AuthorizationData a where a.agentIdString = :agent and a.functionId = :fid";
-    //System.out.println("query="+query);
     return getHibernateTemplate().findByNamedParam(query, new String[] {"agent", "fid"}, new String[] {agentId, functionId});
   }
 
@@ -294,10 +291,9 @@ public class AuthzQueriesFacade extends HibernateDaoSupport implements AuthzQuer
     }
     catch(Exception e)
     {
-       e.printStackTrace();
+        log.error(e.getMessage(), e);
     }
     return isMember;
   }
 
-  
 }

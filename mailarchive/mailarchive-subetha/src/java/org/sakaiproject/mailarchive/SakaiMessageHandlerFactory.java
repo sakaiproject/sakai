@@ -15,10 +15,30 @@
  */
 package org.sakaiproject.mailarchive;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URLEncoder;
+import java.util.*;
+import java.util.stream.Collectors;
+
+import javax.mail.*;
+import javax.mail.Session;
+import javax.mail.internet.ContentType;
+import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeMessage;
+import javax.mail.internet.MimeUtility;
+import javax.mail.internet.ParseException;
+
+import lombok.extern.slf4j.Slf4j;
+
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import org.subethamail.smtp.MessageContext;
+import org.subethamail.smtp.*;
+import org.subethamail.smtp.server.SMTPServer;
+
 import org.sakaiproject.alias.api.AliasService;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentHostingService;
@@ -41,23 +61,6 @@ import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.util.Validator;
 import org.sakaiproject.util.Web;
-import org.subethamail.smtp.MessageContext;
-import org.subethamail.smtp.*;
-import org.subethamail.smtp.server.SMTPServer;
-
-import javax.mail.*;
-import javax.mail.Session;
-import javax.mail.internet.ContentType;
-import javax.mail.internet.InternetAddress;
-import javax.mail.internet.MimeMessage;
-import javax.mail.internet.MimeUtility;
-import javax.mail.internet.ParseException;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URLEncoder;
-import java.util.*;
-import java.util.stream.Collectors;
 
 import static org.sakaiproject.mailarchive.api.MailArchiveService.*;
 
@@ -65,10 +68,8 @@ import static org.sakaiproject.mailarchive.api.MailArchiveService.*;
  * This contains lots of the code from the original SakaiMailet.
  * It should do rejection at RCPT time rather than having to generate bounce messages itself.
  */
+@Slf4j
 public class SakaiMessageHandlerFactory implements MessageHandlerFactory {
-
-    private Logger log = LoggerFactory.getLogger(SakaiMessageHandlerFactory.class);
-
     /**
      * The user name of the postmaster user - the one who posts incoming mail.
      */
@@ -295,11 +296,9 @@ public class SakaiMessageHandlerFactory implements MessageHandlerFactory {
                                 }
                             } catch (MessagingException e) {
                                 // NOTE: if this happens it just means we don't get the extra header, not the end of the world
-                                //e.printStackTrace();
                                 log.warn("MessagingException: service(): msg.getContent() threw: " + e, e);
                             } catch (IOException e) {
                                 // NOTE: if this happens it just means we don't get the extra header, not the end of the world
-                                //e.printStackTrace();
                                 log.warn("IOException: service(): msg.getContent() threw: " + e, e);
                             }
 

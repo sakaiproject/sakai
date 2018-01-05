@@ -37,17 +37,16 @@ import javax.faces.component.UIParameter;
 import javax.faces.context.FacesContext;
 import javax.faces.event.FacesEvent;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.jsf.util.LocaleUtil;
 import org.sakaiproject.tool.gradebook.ui.MessagingBean;
 
 /**
  * A noninstantiable utility class, because every JSF project needs one.
  */
+@Slf4j
 public class FacesUtil {
-	private static final Logger logger = LoggerFactory.getLogger(FacesUtil.class);
-
 	/**
 	 * Before display, scores are rounded at this number of decimal
 	 * places and later truncated to (hopefully) a shorter number.
@@ -77,7 +76,7 @@ public class FacesUtil {
 				parameterMap.put(param.getName(), param.getValue());
 			}
 		}
-		if (logger.isDebugEnabled()) logger.debug("parameterMap=" + parameterMap);
+		if (log.isDebugEnabled()) log.debug("parameterMap=" + parameterMap);
 		return parameterMap;
 	}
 
@@ -192,9 +191,9 @@ public class FacesUtil {
      * </pre>
      */
      public static void clearAllInputs(UIComponent component) {
-     	if (logger.isDebugEnabled()) logger.debug("clearAllInputs " + component);
+     	if (log.isDebugEnabled()) log.debug("clearAllInputs " + component);
      	if (component instanceof UIInput) {
-			if (logger.isDebugEnabled()) logger.debug("  setValid, setValue, setLocalValueSet, setSubmittedValue");
+			if (log.isDebugEnabled()) log.debug("  setValid, setValue, setLocalValueSet, setSubmittedValue");
 			UIInput uiInput = (UIInput)component;
 			uiInput.setValid(true);
 			uiInput.setValue(null);
@@ -289,7 +288,7 @@ public class FacesUtil {
 				setScale(MAXIMUM_MEANINGFUL_DECIMAL_PLACES, BigDecimal.ROUND_HALF_DOWN).
 				setScale(maxDecimalPlaces, BigDecimal.ROUND_DOWN);
 
-			if (logger.isDebugEnabled()) logger.debug("getRoundDown: rawValue=" + rawValue + ", maxDecimalPlaces=" + maxDecimalPlaces + ", bigDecimal=" + (new BigDecimal(rawValue)) + ", returning=" + bd.doubleValue());
+			if (log.isDebugEnabled()) log.debug("getRoundDown: rawValue=" + rawValue + ", maxDecimalPlaces=" + maxDecimalPlaces + ", bigDecimal=" + (new BigDecimal(rawValue)) + ", returning=" + bd.doubleValue());
 
 			return bd.doubleValue();
 		} else {

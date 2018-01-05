@@ -21,8 +21,8 @@
 
 package org.sakaiproject.event.impl;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.event.api.Event;
 
 /**
@@ -33,11 +33,9 @@ import org.sakaiproject.event.api.Event;
  * Events are just logged, and observers notified.
  * </p>
  */
+@Slf4j
 public abstract class BasicEventTracking extends BaseEventTrackingService
 {
-	/** Our logger. */
-	private static Logger M_log = LoggerFactory.getLogger(BasicEventTracking.class);
-
 	/** String used to identify this service in the logs */
 	protected static final String m_logId = "EventTracking: ";
 
@@ -63,7 +61,7 @@ public abstract class BasicEventTracking extends BaseEventTrackingService
 			reportId = "~" + event.getUserId();
 		}
 
-		M_log.info(m_logId + reportId + "@" + event);
+		log.info(m_logId + reportId + "@" + event);
 
 		// notify observers, sending the event
 		notifyObservers(event, true);

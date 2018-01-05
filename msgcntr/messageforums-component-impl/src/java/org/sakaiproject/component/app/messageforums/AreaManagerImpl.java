@@ -23,11 +23,15 @@ package org.sakaiproject.component.app.messageforums;
 import java.util.Date;
 import java.util.Iterator;
 
+import lombok.extern.slf4j.Slf4j;
 import org.hibernate.HibernateException;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.collection.internal.PersistentSet;
 import org.hibernate.type.StringType;
+import org.springframework.orm.hibernate4.HibernateCallback;
+import org.springframework.orm.hibernate4.support.HibernateDaoSupport;
+
 import org.sakaiproject.api.app.messageforums.Area;
 import org.sakaiproject.api.app.messageforums.AreaManager;
 import org.sakaiproject.api.app.messageforums.BaseForum;
@@ -45,13 +49,9 @@ import org.sakaiproject.tool.api.Placement;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.util.ResourceLoader;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.orm.hibernate4.HibernateCallback;
-import org.springframework.orm.hibernate4.support.HibernateDaoSupport;
 
+@Slf4j
 public class AreaManagerImpl extends HibernateDaoSupport implements AreaManager {
-    private static final Logger LOG = LoggerFactory.getLogger(AreaManagerImpl.class);
 
     private static final String QUERY_AREA_BY_CONTEXT_AND_TYPE_ID = "findAreaByContextIdAndTypeId";
     private static final String QUERY_AREA_BY_TYPE = "findAreaByType";
@@ -96,7 +96,7 @@ public class AreaManagerImpl extends HibernateDaoSupport implements AreaManager 
 	}
 
 	public void init() {
-       LOG.info("init()");
+       log.info("init()");
        DEFAULT_AUTO_MARK_READ = serverConfigurationService.getBoolean("msgcntr.forums.default.auto.mark.threads.read", false);
     }
 
@@ -162,14 +162,14 @@ public class AreaManagerImpl extends HibernateDaoSupport implements AreaManager 
     }
     
     public Area getDiscussionArea(String contextId, boolean createDefaultForum) {
-    	LOG.debug("getDiscussionArea(" + contextId +")");
+    	log.debug("getDiscussionArea(" + contextId +")");
     	if (contextId == null) {
     		return getDiscusionArea();
     	}
     	Area area = this.getAreaByContextIdAndTypeId(contextId, typeManager.getDiscussionForumType());
     	
     	if (area == null) {
-    		LOG.info("setting up a new Discussion Area for " + contextId);
+    		log.info("setting up a new Discussion Area for " + contextId);
     		area = createArea(typeManager.getDiscussionForumType(), contextId);
     		area.setName(getResourceBundleString(FORUMS_TITLE));
             area.setEnabled(Boolean.TRUE);
@@ -192,7 +192,7 @@ public class AreaManagerImpl extends HibernateDaoSupport implements AreaManager 
     	return area;
 	}
     private void setAreaDefaultElements(Area area) {
-    	LOG.info("setAreaDefaultElements(" + area.getId() + ")");
+    	log.info("setAreaDefaultElements(" + area.getId() + ")");
     	DiscussionForum forum = forumManager.createDiscussionForum();
     	forum.setArea(area);
     	String siteTitle = null;
@@ -200,8 +200,7 @@ public class AreaManagerImpl extends HibernateDaoSupport implements AreaManager 
 			Site site = siteService.getSite(area.getContextId());
 			siteTitle = site.getTitle();
 		} catch (IdUnusedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			log.error(e.getMessage(), e);
 		}
 		//MSGCNTR-453
     	forum.setCreatedBy("admin");
@@ -224,9 +223,9 @@ public class AreaManagerImpl extends HibernateDaoSupport implements AreaManager 
 
     public Area createArea(String typeId, String contextParam) {
     	
-    	  if (LOG.isDebugEnabled())
+    	  if (log.isDebugEnabled())
         {
-          LOG.debug("createArea(" + typeId + "," + contextParam + ")");
+          log.debug("createArea(" + typeId + "," + contextParam + ")");
         }
     	      	      	  
         Area area = new AreaImpl();
@@ -247,7 +246,7 @@ public class AreaManagerImpl extends HibernateDaoSupport implements AreaManager 
         	area.setContextId(contextParam);
         }                      
                                                                          
-        LOG.debug("createArea executed with areaId: " + area.getUuid());
+        log.debug("createArea executed with areaId: " + area.getUuid());
         return area;
     }
 
@@ -298,12 +297,12 @@ public class AreaManagerImpl extends HibernateDaoSupport implements AreaManager 
         
         getHibernateTemplate().saveOrUpdate(area);
 
-        LOG.debug("saveArea executed with areaId: " + area.getId());
+        log.debug("saveArea executed with areaId: " + area.getId());
     }
 
     public void deleteArea(Area area) {
         getHibernateTemplate().delete(area);
-        LOG.debug("deleteArea executed with areaId: " + area.getId());
+        log.debug("deleteArea executed with areaId: " + area.getId());
     }
 
     /**
@@ -319,12 +318,12 @@ public class AreaManagerImpl extends HibernateDaoSupport implements AreaManager 
     }
 
     public Area getAreaByContextIdAndTypeId(final String typeId) {
-        LOG.debug("getAreaByContextIdAndTypeId executing for current user: " + getCurrentUser());
+        log.debug("getAreaByContextIdAndTypeId executing for current user: " + getCurrentUser());
         return this.getAreaByContextIdAndTypeId(getContextId(), typeId);
     }
     
     public Area getAreaByContextIdAndTypeId(final String contextId, final String typeId) {
-        LOG.debug("getAreaByContextIdAndTypeId executing for current user: " + getCurrentUser());
+        log.debug("getAreaByContextIdAndTypeId executing for current user: " + getCurrentUser());
         HibernateCallback hcb = new HibernateCallback() {
             public Object doInHibernate(Session session) throws HibernateException {
                 Query q = session.getNamedQuery(QUERY_AREA_BY_CONTEXT_AND_TYPE_ID);
@@ -341,7 +340,7 @@ public class AreaManagerImpl extends HibernateDaoSupport implements AreaManager 
 
     public Area getAreaByType(final String typeId) {
       final String currentUser = getCurrentUser();
-      LOG.debug("getAreaByType executing for current user: " + currentUser);
+      log.debug("getAreaByType executing for current user: " + currentUser);
       HibernateCallback hcb = new HibernateCallback() {
           public Object doInHibernate(Session session) throws HibernateException {
               Query q = session.getNamedQuery(QUERY_AREA_BY_TYPE);              

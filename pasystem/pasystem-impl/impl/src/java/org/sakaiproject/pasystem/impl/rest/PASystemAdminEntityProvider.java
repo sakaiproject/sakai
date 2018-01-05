@@ -31,7 +31,10 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+
+import lombok.extern.slf4j.Slf4j;
 import org.json.simple.JSONObject;
+
 import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.entitybroker.DeveloperHelperService;
@@ -53,16 +56,13 @@ import org.sakaiproject.pasystem.api.TemplateStream;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.user.api.User;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 
 /**
  * Web services for managing popups and banners.  Intended for administrator use.
  */
+@Slf4j
 public class PASystemAdminEntityProvider implements EntityProvider, AutoRegisterEntityProvider, ActionsExecutable, Outputable, Describeable {
 
-    private static final Logger LOG = LoggerFactory.getLogger(PASystemAdminEntityProvider.class);
     private static final String ADMIN_SITE_REALM = "/site/!admin";
     private static final String SAKAI_SESSION_TOKEN_PROPERTY = "sakai.pasystem-admin.token";
     private static final String REQUEST_SESSION_PARAMETER = "session";
@@ -209,7 +209,7 @@ public class PASystemAdminEntityProvider implements EntityProvider, AutoRegister
         result.put("status", "ERROR");
         result.put("message", e.getMessage());
 
-        LOG.error("Caught an error while handling a request", e);
+        log.error("Caught an error while handling a request", e);
 
         return result.toJSONString();
     }
@@ -229,14 +229,14 @@ public class PASystemAdminEntityProvider implements EntityProvider, AutoRegister
         String tokenFromSession = (String)SessionManager.getCurrentSession().getAttribute(SAKAI_SESSION_TOKEN_PROPERTY);
 
         if (tokenFromSession == null || tokenFromUser == null || !tokenFromSession.equals(tokenFromUser)) {
-            LOG.error("assertSession failed for user " + SessionManager.getCurrentSessionUserId());
+            log.error("assertSession failed for user " + SessionManager.getCurrentSessionUserId());
             throw new PASystemException("Access denied");
         }
     }
 
     private void assertPermission() {
         if (!SecurityService.unlock("pasystem.manage", ADMIN_SITE_REALM)) {
-            LOG.error("assertPermission denied access to user " + SessionManager.getCurrentSessionUserId());
+            log.error("assertPermission denied access to user " + SessionManager.getCurrentSessionUserId());
             throw new PASystemException("Access denied");
         }
     }

@@ -28,9 +28,14 @@ import java.util.Set;
 import java.util.Stack;
 import java.util.Vector;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.binary.Base64;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.w3c.dom.DOMException;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityTransferrer;
 import org.sakaiproject.entity.api.HttpAccess;
@@ -47,17 +52,11 @@ import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.web.api.WebService;
-import org.w3c.dom.DOMException;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 
+@Slf4j
 public class WebServiceImpl implements WebService, EntityTransferrer
 {
-	
-	private static Logger M_log = LoggerFactory.getLogger(WebServiceImpl.class);
-	
+
 	private static final String TOOL_ID = "sakai.iframe";
 	
 	private static final String WEB_CONTENT = "web_content";
@@ -77,7 +76,7 @@ public class WebServiceImpl implements WebService, EntityTransferrer
 	
 	public void init()
 	{
-		M_log.debug("init()");
+		log.debug("init()");
 
 		// register as an entity producer
 		EntityManager.registerEntityProducer(this, REFERENCE_ROOT);
@@ -137,7 +136,7 @@ public class WebServiceImpl implements WebService, EntityTransferrer
 									webContentData.setAttribute(WEB_CONTENT_URL, encoded);
 								}
 								catch(Exception e) {
-									M_log.warn("Encode Web Content URL - " + e);
+									log.warn("Encode Web Content URL - " + e);
 								}
 
 								try {
@@ -145,7 +144,7 @@ public class WebServiceImpl implements WebService, EntityTransferrer
 									webContentData.setAttribute(WEB_CONTENT_TITLE, encoded);
 								}
 								catch(Exception e) {
-									M_log.warn("Encode Web Content Tool Title - " + e);
+									log.warn("Encode Web Content Tool Title - " + e);
 								}
 
 								if (height != null) {
@@ -157,7 +156,7 @@ public class WebServiceImpl implements WebService, EntityTransferrer
 									webContentData.setAttribute(PAGE_TITLE, encoded);
 								}
 								catch(Exception e) {
-									M_log.warn("Encode Web Content Page Title - " + e);
+									log.warn("Encode Web Content Page Title - " + e);
 								}
 
 								if (height != null) {
@@ -185,15 +184,15 @@ public class WebServiceImpl implements WebService, EntityTransferrer
 		}
 		catch (DOMException e)
 		{
-			M_log.error(e.getMessage(), e);
+			log.error(e.getMessage(), e);
 		}
 		catch (IdUnusedException e)
 		{
-			M_log.error(e.getMessage(), e);
+			log.error(e.getMessage(), e);
 		}
 		catch (Exception e)
 		{
-			M_log.error(e.getMessage(), e);
+			log.error(e.getMessage(), e);
 		}
 		return results.toString();
 	}
@@ -241,7 +240,7 @@ public class WebServiceImpl implements WebService, EntityTransferrer
 
 	public String merge(String siteId, Element root, String archivePath, String fromSiteId, Map attachmentNames, Map userIdTrans, Set userListAllowImport)
 	{
-		M_log.info("merge starts for Web Content...");
+		log.info("merge starts for Web Content...");
 		Base64 codec = new Base64();
 		if (siteId != null && siteId.trim().length() > 0)
 		{
@@ -330,7 +329,7 @@ public class WebServiceImpl implements WebService, EntityTransferrer
 											}
 											// Page is already there, do not add again.
 											if(page != null) {
-												M_log.warn("Web content page '" + pageTitle + "' not added because it is already present in Site ");
+												log.warn("Web content page '" + pageTitle + "' not added because it is already present in Site ");
 												continue;
 											}
 											page = site.addPage(); 
@@ -351,7 +350,7 @@ public class WebServiceImpl implements WebService, EntityTransferrer
 										}
 										else
 										{
-											M_log.warn("Web content item not imported because page_title and title missing or url missing: " + "title: " + toolTitle + " page_title: " + pageTitle + " url: " + contentUrl);
+											log.warn("Web content item not imported because page_title and title missing or url missing: " + "title: " + toolTitle + " page_title: " + pageTitle + " url: " + contentUrl);
 										}
 									}
 								}
@@ -370,8 +369,7 @@ public class WebServiceImpl implements WebService, EntityTransferrer
 			}
 			catch(Exception e)
 			{
-				M_log.error("errors in merge for WebServiceImpl");
-				e.printStackTrace();
+				log.error("errors in merge for WebServiceImpl");
 			}
 		}
 
@@ -398,7 +396,7 @@ public class WebServiceImpl implements WebService, EntityTransferrer
 
 	public void transferCopyEntities(String fromContext, String toContext, List ids)
 	{
-		M_log.debug("web content transferCopyEntities");
+		log.debug("web content transferCopyEntities");
 		try
 		{				
 			// retrieve all of the web content tools to copy
@@ -487,7 +485,7 @@ public class WebServiceImpl implements WebService, EntityTransferrer
 
 		catch (Exception any)
 		{
-			M_log.warn("transferCopyEntities(): exception in handling webcontent data: ", any);
+			log.warn("transferCopyEntities(): exception in handling webcontent data: ", any);
 		}
 
 	}
@@ -559,7 +557,7 @@ public class WebServiceImpl implements WebService, EntityTransferrer
 		}
 		catch (Exception e)
 		{
-			M_log.info("WebContent transferCopyEntities Error" + e);
+			log.info("WebContent transferCopyEntities Error" + e);
 		}
 	}
 

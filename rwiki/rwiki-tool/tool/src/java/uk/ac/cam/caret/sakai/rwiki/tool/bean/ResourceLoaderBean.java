@@ -27,16 +27,16 @@ import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.util.ResourceLoader;
 
 /**
  * @author ieb
  */
+@Slf4j
 public class ResourceLoaderBean implements Map
 {
-	private static Logger log = LoggerFactory.getLogger(ResourceLoaderBean.class);
 
 	private static final String RESOURCE_BUNDLE = "uk.ac.cam.caret.sakai.rwiki.tool.bundle.Messages";
 

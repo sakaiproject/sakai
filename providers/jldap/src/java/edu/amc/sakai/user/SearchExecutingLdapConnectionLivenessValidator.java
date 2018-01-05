@@ -25,15 +25,14 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.text.MessageFormat;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.sakaiproject.component.api.ServerConfigurationService;
-
 import com.novell.ldap.LDAPConnection;
 import com.novell.ldap.LDAPEntry;
 import com.novell.ldap.LDAPException;
 import com.novell.ldap.LDAPSearchConstraints;
 import com.novell.ldap.LDAPSearchResults;
+import lombok.extern.slf4j.Slf4j;
+
+import org.sakaiproject.component.api.ServerConfigurationService;
 
 /**
  * Tests {@link LDAPConnection} liveness by executing a search filter
@@ -54,6 +53,7 @@ import com.novell.ldap.LDAPSearchResults;
  * 
  * @author dmccallum@unicon.net
  */
+@Slf4j
 public class SearchExecutingLdapConnectionLivenessValidator 
 implements LdapConnectionLivenessValidator {
 
@@ -72,10 +72,7 @@ implements LdapConnectionLivenessValidator {
 	}
 	
 	public static final String DEFAULT_HOST_NAME = "UNKNOWN_HOST";
-	
-	/** Class-specific logger */
-	private static Logger log = LoggerFactory.getLogger(SearchExecutingLdapConnectionLivenessValidator.class);
-	
+
 	/**
 	 * An ID for this instance
 	 */

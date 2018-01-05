@@ -19,18 +19,19 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.user.api.CandidateDetailProvider;
 import org.sakaiproject.user.api.User;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * This candidate details provider is designed to be a sensible fallback when using a chaining provider.
  */
+@Slf4j
 public class FallbackDetailProvider implements CandidateDetailProvider {
 	
 	private final static String SITE_PROP_USE_INSTITUTIONAL_ANONYMOUS_ID = "useInstitutionalAnonymousID";
@@ -41,8 +42,6 @@ public class FallbackDetailProvider implements CandidateDetailProvider {
 	private final static String SYSTEM_PROP_DISPLAY_ADDITIONAL_INFORMATION = "displayAdditionalInformation";
 	private final static String SYSTEM_PROP_USE_INSTITUTIONAL_NUMERIC_ID = "useInsitutionalNumericID";
 
-	private final Logger log = LoggerFactory.getLogger(FallbackDetailProvider.class);
-	
 	private ServerConfigurationService serverConfigurationService;
 	private SiteService siteService;
 	private ToolManager toolManager;

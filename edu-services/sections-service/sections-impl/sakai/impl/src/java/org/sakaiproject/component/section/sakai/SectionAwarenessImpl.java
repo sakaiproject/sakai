@@ -29,8 +29,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.section.api.SectionAwareness;
 import org.sakaiproject.section.api.coursemanagement.Course;
 import org.sakaiproject.section.api.coursemanagement.CourseSection;
@@ -44,7 +44,6 @@ import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.section.sakai.facade.SakaiUtil;
 import org.sakaiproject.coursemanagement.api.CourseManagementService;
-import org.sakaiproject.coursemanagement.api.SectionCategory;
 import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.exception.IdUnusedException;
@@ -61,19 +60,18 @@ import org.sakaiproject.user.api.UserNotDefinedException;
  * @author <a href="mailto:jholtzman@berkeley.edu">Josh Holtzman</a>
  *
  */
+@Slf4j
 public class SectionAwarenessImpl implements SectionAwareness {
-
-	private static final Logger log = LoggerFactory.getLogger(SectionAwarenessImpl.class);
 
 	// Sakai services
 	protected SiteService siteService;
-    protected SecurityService securityService;
+	protected SecurityService securityService;
 	protected EntityManager entityManager;
-    protected FunctionManager functionManager;
-    protected UserDirectoryService userDirectoryService;
-    protected CourseManagementService courseManagementService;
+	protected FunctionManager functionManager;
+	protected UserDirectoryService userDirectoryService;
+	protected CourseManagementService courseManagementService;
 
-    /**
+	/**
 	 * Bean initialization (called by spring) registers authorization functions
 	 * with the AuthzGroup system.
 	 */

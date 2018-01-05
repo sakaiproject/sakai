@@ -21,6 +21,9 @@ package org.sakaiproject.signup.tool.jsf.organizer.action;
 
 import java.util.List;
 
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.OptimisticLockingFailureException;
+
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.signup.logic.SignupEmailFacade;
 import org.sakaiproject.signup.logic.SignupEventTypes;
@@ -33,7 +36,6 @@ import org.sakaiproject.signup.model.SignupTimeslot;
 import org.sakaiproject.signup.tool.util.Utilities;
 import org.sakaiproject.signup.util.SignupDateFormat;
 import org.sakaiproject.tool.cover.ToolManager;
-import org.springframework.dao.OptimisticLockingFailureException;
 
 /**
  * <p>
@@ -41,6 +43,7 @@ import org.springframework.dao.OptimisticLockingFailureException;
  * action by user.
  * </P>
  */
+@Slf4j
 public class CancelRestoreTimeslot extends SignupAction {
 
 	private SignupMeeting meeting;
@@ -84,7 +87,7 @@ public class CancelRestoreTimeslot extends SignupAction {
 			Utilities.postEventTracking(signupEventType, ToolManager.getCurrentPlacement().getContext() + " meetingId:"
 					+ meeting.getId() + " on the TS:"
 						+ SignupDateFormat.format_date_h_mm_a(timeslot.getStartTime()));
-			logger.debug("Meeting Name:" + meeting.getTitle() + " - UserId:" + userId + " - has "
+			log.debug("Meeting Name:" + meeting.getTitle() + " - UserId:" + userId + " - has "
 					+ (cancelAction ? "canceled" : "restored") + " the timeslot started at:"
 					+ SignupDateFormat.format_date_h_mm_a(timeslot.getStartTime()));
 		} catch (PermissionException pe) {

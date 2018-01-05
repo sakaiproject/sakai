@@ -22,24 +22,21 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.ArrayUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.mvc.AbstractController;
 
 import org.sakaiproject.adminsiteperms.service.SitePermsService;
 import org.sakaiproject.util.api.FormattedText;
-
-import org.springframework.web.servlet.ModelAndView;
-import org.springframework.web.servlet.mvc.AbstractController;
 
 /**
  * Handles the processing related to the permissions handler
  * 
  * @author Aaron Zeckoski (azeckoski @ unicon.net) (azeckoski @ vt.edu)
  */
+@Slf4j
 public class SitePermsController extends AbstractController {
-
-    final protected Logger log = LoggerFactory.getLogger(getClass());
 
     public static String[] templates = {
         "!site.template",

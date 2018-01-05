@@ -38,6 +38,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.pluto.PortletContainer;
 import org.apache.pluto.PortletContainerException;
 import org.apache.pluto.PortletContainerFactory;
@@ -47,6 +48,8 @@ import org.apache.pluto.descriptors.portlet.PortletDD;
 import org.apache.pluto.descriptors.portlet.SupportsDD;
 import org.apache.pluto.spi.PortalCallbackService;
 import org.apache.pluto.spi.PortletURLProvider;
+import org.w3c.tidy.Tidy;
+
 import org.sakaiproject.util.Web;
 import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.portal.api.Portal;
@@ -67,10 +70,6 @@ import org.sakaiproject.portal.render.portlet.servlet.SakaiServletRequest;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.tool.api.Placement;
-
-import org.w3c.tidy.Tidy;
-
-import lombok.extern.slf4j.Slf4j;
 
 /**
  * @author ddwolf
@@ -309,7 +308,7 @@ public class PortletToolRenderService implements ToolRenderService
 			{
 				final Writer result = new StringWriter();
 				final PrintWriter printWriter = new PrintWriter(result);
-				bufferedException.printStackTrace(printWriter);
+				log.error(bufferedException.getMessage(), bufferedException);
 				String storedContent = "<div class=\"portlettraceback\">\n" +
 					FormattedText.escapeHtml(result.toString(),true) +
 					"\n</pre>\n";

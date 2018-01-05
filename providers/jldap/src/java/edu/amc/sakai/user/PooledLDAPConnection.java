@@ -24,13 +24,11 @@ package edu.amc.sakai.user;
 import java.util.Date;
 import java.util.Map;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.novell.ldap.LDAPConnection;
 import com.novell.ldap.LDAPConstraints;
 import com.novell.ldap.LDAPException;
 import com.novell.ldap.LDAPResponseQueue;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Extension of standard <code>LDAPConnection</code> that attempts to return
@@ -39,11 +37,9 @@ import com.novell.ldap.LDAPResponseQueue;
  * @see PooledLDAPConnectionFactory
  * @author John Lewis, Unicon Inc
  */
+@Slf4j
 public class PooledLDAPConnection extends LDAPConnection {
 
-	/** Class-specific logger */
-	private static Logger log = LoggerFactory.getLogger(PooledLDAPConnection.class);
-	
 	/** is this pooled connection currently active (i.e. used) */
 	private boolean active = false;
 

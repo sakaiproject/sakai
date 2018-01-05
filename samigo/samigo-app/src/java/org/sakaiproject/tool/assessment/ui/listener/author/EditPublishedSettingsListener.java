@@ -19,8 +19,6 @@
  *
  **********************************************************************************/
 
-
-
 package org.sakaiproject.tool.assessment.ui.listener.author;
 
 import java.util.Date;
@@ -31,9 +29,10 @@ import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentBaseIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentMetaDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentIfc;
@@ -46,7 +45,6 @@ import org.sakaiproject.tool.assessment.ui.bean.author.PublishedAssessmentSettin
 import org.sakaiproject.tool.assessment.ui.bean.authz.AuthorizationBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.util.FormattedText;
-import org.sakaiproject.component.cover.ServerConfigurationService;
 
 /**
  * <p>Title: Samigo</p>
@@ -54,11 +52,10 @@ import org.sakaiproject.component.cover.ServerConfigurationService;
  * @author Ed Smiley
  * @version $Id$
  */
-
+@Slf4j
 public class EditPublishedSettingsListener
     implements ActionListener
 {
-  private static Logger log = LoggerFactory.getLogger(EditPublishedSettingsListener.class);
 
   public EditPublishedSettingsListener()
   {
@@ -67,9 +64,6 @@ public class EditPublishedSettingsListener
   public void processAction(ActionEvent ae) throws AbortProcessingException
   {
     FacesContext context = FacesContext.getCurrentInstance();
-    //log.info("**debugging ActionEvent: " + ae);
-    //log.info("**debug requestParams: " + requestParams);
-    //log.info("**debug reqMap: " + reqMap);
 
     PublishedAssessmentSettingsBean assessmentSettings = (PublishedAssessmentSettingsBean) ContextUtil.lookupBean(
                                           "publishedSettings");

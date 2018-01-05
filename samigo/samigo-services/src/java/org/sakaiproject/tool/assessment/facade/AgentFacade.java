@@ -25,8 +25,8 @@ import java.io.Serializable;
 import java.util.Collection;
 import java.util.Map;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.tool.assessment.data.ifc.shared.AgentDataIfc;
 import org.sakaiproject.tool.assessment.integration.context.IntegrationContextFactory;
 import org.sakaiproject.tool.assessment.integration.helper.ifc.AgentHelper;
@@ -41,7 +41,7 @@ import org.sakaiproject.tool.assessment.osid.shared.impl.IdImpl;
  * @author Ed Smiley <esmiley@stanford.edu>
  *
  */
-
+@Slf4j
 public class AgentFacade implements Serializable, AgentDataIfc
 {
 
@@ -49,8 +49,6 @@ public class AgentFacade implements Serializable, AgentDataIfc
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-
-private Logger log = LoggerFactory.getLogger(AgentFacade.class);
 
   private static final AgentHelper helper =
     IntegrationContextFactory.getInstance().getAgentHelper();

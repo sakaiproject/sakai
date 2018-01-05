@@ -30,32 +30,30 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang.StringUtils;
 import org.osid.shared.SharedException;
 
-import org.sakaiproject.tool.assessment.data.ifc.questionpool.QuestionPoolDataIfc;
-import org.sakaiproject.tool.assessment.data.model.Tree;
-import org.sakaiproject.tool.assessment.facade.QuestionPoolFacade;
-import org.sakaiproject.tool.assessment.facade.QuestionPoolIteratorFacade;
-import org.sakaiproject.tool.assessment.services.QuestionPoolService;
-import org.sakaiproject.tool.assessment.shared.api.questionpool.QuestionPoolServiceAPI;
-import org.sakaiproject.tool.assessment.services.QuestionPoolServiceException;
-
 import org.sakaiproject.content.api.ContentResource;
-import org.apache.commons.lang.StringUtils;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.TypeException;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityAdvisor.SecurityAdvice;
 import org.sakaiproject.authz.cover.SecurityService;
-import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemAttachmentIfc;
+import org.sakaiproject.tool.assessment.data.ifc.questionpool.QuestionPoolDataIfc;
 import org.sakaiproject.tool.assessment.data.dao.assessment.Answer;
 import org.sakaiproject.tool.assessment.data.dao.assessment.ItemText;
-import org.sakaiproject.tool.assessment.services.ItemService;
+import org.sakaiproject.tool.assessment.data.model.Tree;
 import org.sakaiproject.tool.assessment.facade.ItemFacade;
+import org.sakaiproject.tool.assessment.facade.QuestionPoolFacade;
+import org.sakaiproject.tool.assessment.facade.QuestionPoolIteratorFacade;
+import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
+import org.sakaiproject.tool.assessment.services.ItemService;
+import org.sakaiproject.tool.assessment.services.QuestionPoolService;
+import org.sakaiproject.tool.assessment.services.QuestionPoolServiceException;
+import org.sakaiproject.tool.assessment.shared.api.questionpool.QuestionPoolServiceAPI;
 
 /**
  *
@@ -63,10 +61,10 @@ import org.sakaiproject.tool.assessment.facade.ItemFacade;
  * pool information.
  * @author Ed Smiley <esmiley@stanford.edu>
  */
+@Slf4j
 public class QuestionPoolServiceImpl
   implements QuestionPoolServiceAPI
 {
-  private Logger log = LoggerFactory.getLogger(QuestionPoolServiceImpl.class);
 
   /**
    * Creates a new QuestionPoolServiceImpl object.
@@ -501,11 +499,14 @@ public class QuestionPoolServiceImpl
 				  catch(Exception e2)
 				  {
 					  addToReport("\nCould NOT copy old attachment "+attachment+" to new attachment in site "+contextToReplace+" .\n\n");
-					  e2.printStackTrace();
+					  log.error(e2.getMessage(), e2);
+				  }
+				  finally
+				  {
+					  SecurityService.popAdvisor();
 				  }
 			  }
 
-			  SecurityService.popAdvisor();
 		  }
 		  return attachment;
 	  }

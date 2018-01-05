@@ -45,8 +45,8 @@ import javax.faces.context.FacesContext;
 import javax.faces.event.ActionEvent;
 import javax.faces.model.SelectItem;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.event.api.UsageSession;
 import org.sakaiproject.event.cover.EventTrackingService;
@@ -70,6 +70,7 @@ import org.sakaiproject.util.ResourceLoader;
  * 
  * </P>
  */
+@Slf4j
 public final class Utilities implements SignupBeanConstants, MeetingTypes {
 
 	/**
@@ -92,9 +93,6 @@ public final class Utilities implements SignupBeanConstants, MeetingTypes {
 	 */
 	private static final int TYPE_ERROR=1;
 	private static final int TYPE_INFO=2;
-	
-
-	protected static Logger logger = LoggerFactory.getLogger(Utilities.class);
 
 	/**
 	 * Add the error message to mssageUIBean for UI purpose.
@@ -124,7 +122,7 @@ public final class Utilities implements SignupBeanConstants, MeetingTypes {
 		switch(type) {
 			case 1: msgBean.setErrorMessage(msg); 	break;
 			case 2: msgBean.setInfoMessage(msg);	break;
-			default: logger.error("Invalid mesage type ("+type +"). No message will be set");	break;
+			default: log.error("Invalid mesage type ("+type +"). No message will be set");	break;
 		}
 		
 		sessionMap.put(key, msgBean);

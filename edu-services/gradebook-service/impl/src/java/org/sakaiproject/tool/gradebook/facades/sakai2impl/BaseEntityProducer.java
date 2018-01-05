@@ -16,7 +16,11 @@
 
 package org.sakaiproject.tool.gradebook.facades.sakai2impl;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.Stack;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -39,16 +43,14 @@ import org.sakaiproject.entity.api.ResourceProperties;
  */
 @Deprecated
 public class BaseEntityProducer implements EntityProducer {
-    //private static final Logger log = LoggerFactory.getLogger(BaseEntityProducer.class);
-
-    protected String label;	// This should always be set.
+	protected String label;	// This should always be set.
 	protected String referenceRoot = "/gradebook"; // stupid default but OK since it is not used
 	protected String serviceName = null;
 
 	protected EntityManager entityManager;
-    public void setEntityManager(EntityManager entityManager) {
-        this.entityManager = entityManager;
-    }
+	public void setEntityManager(EntityManager entityManager) {
+	    this.entityManager = entityManager;
+	}
 
 	/**
 	 * Register this class as an EntityProducer.

@@ -18,6 +18,8 @@
 
 package org.sakaiproject.assignment.api.model;
 
+import org.sakaiproject.assignment.api.AssignmentService;
+
 import java.util.List;
 
 /**
@@ -230,4 +232,5 @@ public interface AssignmentSupplementItemService {
      */
     public boolean canViewAllPurposeItem(Assignment a);
 
+    void setAssignmentService(AssignmentService assignmentService);
 }

@@ -25,8 +25,7 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.criterion.Expression;
@@ -41,10 +40,10 @@ import uk.ac.cam.caret.sakai.rwiki.utils.TimeLogger;
 /**
  * @author ieb
  */
+@Slf4j
 public class PreferenceDaoImpl extends HibernateDaoSupport implements
 		PreferenceDao
 {
-	private static Logger log = LoggerFactory.getLogger(PreferenceDaoImpl.class);
 
 	/**
 	 * {@inheritDoc}

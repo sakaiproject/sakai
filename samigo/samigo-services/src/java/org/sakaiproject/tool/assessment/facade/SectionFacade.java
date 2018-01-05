@@ -20,21 +20,21 @@
  **********************************************************************************/
 
 package org.sakaiproject.tool.assessment.facade;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.osid.assessment.AssessmentException;
 import org.osid.assessment.Section;
 import org.osid.shared.Type;
+
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.SectionData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.SectionMetaData;
@@ -49,8 +49,6 @@ import org.sakaiproject.tool.assessment.osid.assessment.impl.SectionImpl;
 import org.sakaiproject.tool.assessment.services.PersistenceService;
 
 public class SectionFacade implements Serializable, SectionDataIfc, Comparable {
-  private Logger log = LoggerFactory.getLogger(SectionFacade.class);
-
   private static final long serialVersionUID = 7526471155622776147L;
 
   protected org.osid.assessment.Section section;

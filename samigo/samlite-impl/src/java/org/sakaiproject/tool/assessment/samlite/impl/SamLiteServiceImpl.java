@@ -29,8 +29,7 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.xmlbeans.XmlOptions;
 import org.imsglobal.xsd.imsQtiasiv1P2.AssessfeedbackType;
 import org.imsglobal.xsd.imsQtiasiv1P2.AssessmentType;
@@ -78,8 +77,8 @@ import org.w3c.dom.Document;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.util.ResourceLoader;
 
+@Slf4j
 public class SamLiteServiceImpl implements SamLiteService {
-	private static Logger log = LoggerFactory.getLogger(SamLiteServiceImpl.class);
 	public static final String DEFAULT_CHARSET = "UTF-8";
 	private static ResourceLoader rb = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.SamLitePatternMessages");
 	
@@ -390,13 +389,7 @@ public class SamLiteServiceImpl implements SamLiteService {
 		Map prefixes = new HashMap();
 		prefixes.put("", "http://www.imsglobal.org/xsd/ims_qtiasiv1p2");
 		options.setSaveImplicitNamespaces(prefixes);
-		/*
-		try {
-			document.save(new File("/home/jrenfro/TestQuiz.xml"), options);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		*/
+
 		InputStream inputStream = null;
 		try {
 			inputStream = document.newInputStream(options);	

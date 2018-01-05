@@ -28,6 +28,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import lombok.extern.slf4j.Slf4j;
+
 import org.hibernate.Hibernate;
 import org.hibernate.HibernateException;
 import org.hibernate.Query;
@@ -35,6 +37,11 @@ import org.hibernate.Session;
 import org.hibernate.StaleObjectStateException;
 import org.hibernate.TransientObjectException;
 import org.hibernate.criterion.Restrictions;
+
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.orm.hibernate4.HibernateCallback;
+import org.springframework.orm.hibernate4.HibernateOptimisticLockingFailureException;
+
 import org.sakaiproject.component.gradebook.GradebookServiceHibernateImpl;
 import org.sakaiproject.hibernate.HibernateCriterionUtils;
 import org.sakaiproject.service.gradebook.shared.ConflictingAssignmentNameException;
@@ -58,24 +65,13 @@ import org.sakaiproject.tool.gradebook.LetterGradePercentMapping;
 import org.sakaiproject.tool.gradebook.Spreadsheet;
 import org.sakaiproject.tool.gradebook.business.GbSynchronizer;
 import org.sakaiproject.tool.gradebook.business.GradebookManager;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.orm.hibernate4.HibernateCallback;
-import org.springframework.orm.hibernate4.HibernateOptimisticLockingFailureException;
 
 /**
  * synchronize from external application
  */
-
-
+@Slf4j
 public abstract class GradebookManagerHibernateImpl extends GradebookServiceHibernateImpl
         implements GradebookManager {
-
-    private static final Logger log = LoggerFactory.getLogger(GradebookManagerHibernateImpl.class);
-
-    // Special logger for data contention analysis.
-    private static final Logger logData = LoggerFactory.getLogger(GradebookManagerHibernateImpl.class.getName() + ".GB_DATA");
 
     /** synchronize from external application*/
     GbSynchronizer synchronizer = null;
@@ -328,7 +324,7 @@ public abstract class GradebookManagerHibernateImpl extends GradebookServiceHibe
             return new HashSet();
         }
 
-        if (logData.isDebugEnabled()) logData.debug("BEGIN: Update " + gradeRecordsFromCall.size() + " scores for gradebook=" + assignment.getGradebook().getUid() + ", assignment=" + assignment.getName());
+        if (log.isDebugEnabled()) log.debug("BEGIN: Update " + gradeRecordsFromCall.size() + " scores for gradebook=" + assignment.getGradebook().getUid() + ", assignment=" + assignment.getName());
 
         HibernateCallback hc = new HibernateCallback() {
             @Override
@@ -470,14 +466,14 @@ public abstract class GradebookManagerHibernateImpl extends GradebookServiceHibe
                 		studentsWithUpdatedAssignmentGradeRecords.add(gradeRecordFromCall.getStudentId());
                 	}
                 }
-                if (logData.isDebugEnabled()) logData.debug("Updated " + studentsWithUpdatedAssignmentGradeRecords.size() + " assignment score records");
+                if (log.isDebugEnabled()) log.debug("Updated " + studentsWithUpdatedAssignmentGradeRecords.size() + " assignment score records");
 
                 return studentsWithExcessiveScores;
             }
         };
 
         Set studentsWithExcessiveScores = (Set)getHibernateTemplate().execute(hc);
-        if (logData.isDebugEnabled()) logData.debug("END: Update " + gradeRecordsFromCall.size() + " scores for gradebook=" + assignment.getGradebook().getUid() + ", assignment=" + assignment.getName());
+        if (log.isDebugEnabled()) log.debug("END: Update " + gradeRecordsFromCall.size() + " scores for gradebook=" + assignment.getGradebook().getUid() + ", assignment=" + assignment.getName());
         return studentsWithExcessiveScores;
     }
     
@@ -496,7 +492,7 @@ public abstract class GradebookManagerHibernateImpl extends GradebookServiceHibe
             return new HashSet();
         }
 
-        if (logData.isDebugEnabled()) logData.debug("BEGIN: Update " + gradeRecordsFromCall.size());
+        if (log.isDebugEnabled()) log.debug("BEGIN: Update " + gradeRecordsFromCall.size());
 
         HibernateCallback hc = new HibernateCallback() {
             @Override
@@ -643,14 +639,14 @@ public abstract class GradebookManagerHibernateImpl extends GradebookServiceHibe
 	                	studentsWithUpdatedAssignmentGradeRecords.add(gradeRecordFromCall.getStudentId());
 	                }
                 }
-				if (logData.isDebugEnabled()) logData.debug("Updated " + studentsWithUpdatedAssignmentGradeRecords.size() + " assignment score records");
+				if (log.isDebugEnabled()) log.debug("Updated " + studentsWithUpdatedAssignmentGradeRecords.size() + " assignment score records");
 
                 return assignmentsWithExcessiveScores;
             }
         };
 
         Set assignmentsWithExcessiveScores = (Set)getHibernateTemplate().execute(hc);
-        if (logData.isDebugEnabled()) logData.debug("END: Update " + gradeRecordsFromCall.size());
+        if (log.isDebugEnabled()) log.debug("END: Update " + gradeRecordsFromCall.size());
         return assignmentsWithExcessiveScores;
     }
 
@@ -712,7 +708,7 @@ public abstract class GradebookManagerHibernateImpl extends GradebookServiceHibe
             return;
         }
         
-        if (logData.isDebugEnabled()) logData.debug("BEGIN: Update " + gradeRecordsFromCall.size() + " course grades for gradebook=" + courseGrade.getGradebook().getUid());
+        if (log.isDebugEnabled()) log.debug("BEGIN: Update " + gradeRecordsFromCall.size() + " course grades for gradebook=" + courseGrade.getGradebook().getUid());
 
         HibernateCallback hc = new HibernateCallback() {
             @Override
@@ -743,13 +739,13 @@ public abstract class GradebookManagerHibernateImpl extends GradebookServiceHibe
                     
                     numberOfUpdatedGrades++;
                 }
-                if (logData.isDebugEnabled()) logData.debug("Changed " + numberOfUpdatedGrades + " course grades for gradebook=" + courseGrade.getGradebook().getUid());
+                if (log.isDebugEnabled()) log.debug("Changed " + numberOfUpdatedGrades + " course grades for gradebook=" + courseGrade.getGradebook().getUid());
                 return null;
             }
         };
         try {
 	        getHibernateTemplate().execute(hc);
-	        if (logData.isDebugEnabled()) logData.debug("END: Update " + gradeRecordsFromCall.size() + " course grades for gradebook=" + courseGrade.getGradebook().getUid());
+	        if (log.isDebugEnabled()) log.debug("END: Update " + gradeRecordsFromCall.size() + " course grades for gradebook=" + courseGrade.getGradebook().getUid());
 		} catch (DataIntegrityViolationException e) {
 			// It's possible that a previously ungraded student
 			// was graded behind the current user's back before

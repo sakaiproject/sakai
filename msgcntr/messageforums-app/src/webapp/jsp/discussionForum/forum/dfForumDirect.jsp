@@ -4,6 +4,8 @@
                  org.sakaiproject.site.cover.SiteService,
                  org.sakaiproject.tool.cover.ToolManager" %>
 <%@ page import="org.sakaiproject.component.cover.ServerConfigurationService" %>
+<%@ page import="org.slf4j.Logger,org.slf4j.LoggerFactory" %>
+<%! static final Logger log = LoggerFactory.getLogger("dfForumDirect.jsp"); %>
 <%
 
   FacesContext context = FacesContext.getCurrentInstance();
@@ -23,7 +25,7 @@
       return;
     }
     catch (Exception e) {
-      e.printStackTrace();
+      log.error(e.getMessage(), e);
     }
   }
 
@@ -37,7 +39,7 @@
     dispatcher.forward(request, response);
   }
   catch (ServletException e) {
-    e.printStackTrace();
+    log.error(e.getMessage(), e);
   }
 
 %>

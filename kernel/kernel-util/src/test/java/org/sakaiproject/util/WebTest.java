@@ -15,24 +15,19 @@
  */
 package org.sakaiproject.util;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.junit.After;
+import lombok.extern.slf4j.Slf4j;
+
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+@Slf4j
 public class WebTest {
-
-	private static Logger log = LoggerFactory.getLogger(WebTest.class);
-	
 	@BeforeClass
 	public static void beforeClass() {
 		try {
-            log.debug("starting oneTimeSetup");
-			//oneTimeSetup();
-            log.debug("finished oneTimeSetup");
+			log.debug("starting oneTimeSetup");
+			log.debug("finished oneTimeSetup");
 		} catch (Exception e) {
 			log.warn(e.getMessage(), e);
 		}

@@ -21,15 +21,15 @@
 
 package org.sakaiproject.content.impl.serialize.impl.test;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+
 import org.junit.Test;
+
 import org.sakaiproject.content.impl.serialize.impl.Type1BaseContentCollectionSerializer;
 
+@Slf4j
 public class ProfileSerializerTest
 {
-	private static final Logger log = LoggerFactory.getLogger(ProfileSerializerTest.class);
-
 	/**
 	 * Test method for
 	 * {@link org.sakaiproject.content.impl.serialize.impl.Type1BaseContentCollectionSerializer#parse(org.sakaiproject.entity.api.serialize.SerializableEntity, java.lang.String)}.

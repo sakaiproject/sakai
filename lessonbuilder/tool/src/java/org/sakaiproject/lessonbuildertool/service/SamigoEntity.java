@@ -23,8 +23,21 @@
 
 package org.sakaiproject.lessonbuildertool.service;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+
+import lombok.extern.slf4j.Slf4j;
+
+import org.w3c.dom.Document;
+
+import uk.org.ponder.messageutil.MessageLocator;
+
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.db.cover.SqlService;
 import org.sakaiproject.lessonbuildertool.SimplePageItem;
@@ -55,16 +68,9 @@ import org.sakaiproject.tool.assessment.services.PersistenceService;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 import org.sakaiproject.tool.assessment.services.qti.QTIService;
-import org.sakaiproject.util.FormattedText;                                     
-
 import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.tool.cover.ToolManager;
-import org.w3c.dom.Document;
-import uk.org.ponder.messageutil.MessageLocator;
-
-import java.io.IOException;
-import java.util.*;
-
+import org.sakaiproject.util.FormattedText;
 
 /**
  * Interface to Message Forums, the forum that comes with Sakai
@@ -82,12 +88,11 @@ import java.util.*;
 // variables lessonEntity because the same module will probably have an
 // injected class to handle tests and quizes as well. That will eventually
 // be converted to be a LessonEntity.
-
+@Slf4j
 public class SamigoEntity implements LessonEntity, QuizEntity {
 
-    private static Logger log = LoggerFactory.getLogger(SamigoEntity.class);
-
     private static Cache assessmentCache = null;
+
     protected static final int DEFAULT_EXPIRATION = 10 * 60;
     private static boolean samigo_linked = false;
 
@@ -133,7 +138,7 @@ public class SamigoEntity implements LessonEntity, QuizEntity {
 
     public void init () {
 	assessmentCache = memoryService
-	    .newCache("org.sakaiproject.lessonbuildertool.service.SamigoEntity.cache");
+	    .getCache("org.sakaiproject.lessonbuildertool.service.SamigoEntity.cache");
 
 
 
@@ -682,7 +687,6 @@ public class SamigoEntity implements LessonEntity, QuizEntity {
 
 	    } catch (Exception e) {
 		log.warn("can't publish assessment after import " + e);
-		e.printStackTrace();
 	    }
 	    if (publishedAssessment != null) {
 		return 	"/" + SAM_PUB + "/" + publishedAssessment.getPublishedAssessmentId();

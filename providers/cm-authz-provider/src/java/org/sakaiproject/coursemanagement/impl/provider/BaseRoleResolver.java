@@ -18,11 +18,10 @@ package org.sakaiproject.coursemanagement.impl.provider;
 
 import java.util.Map;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public abstract class BaseRoleResolver implements RoleResolver {
-	static final Logger log = LoggerFactory.getLogger(BaseRoleResolver.class);
 
 	/** Map of CM section roles to Sakai roles */
 	protected Map<String, String> roleMap;

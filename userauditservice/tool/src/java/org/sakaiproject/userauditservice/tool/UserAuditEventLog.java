@@ -39,8 +39,8 @@ import java.util.Map;
 
 import javax.faces.context.FacesContext;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.db.api.SqlService;
 import org.sakaiproject.jsf.util.LocaleUtil;
@@ -52,8 +52,8 @@ import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
 
+@Slf4j
 public class UserAuditEventLog {
-	private static final Logger log = LoggerFactory.getLogger(UserAuditEventLog.class);
 	protected List<EventLog> eventLog = new ArrayList<EventLog>();
 	// Static comparators
 	public static final Comparator<EventLog> displayNameComparatorEL;

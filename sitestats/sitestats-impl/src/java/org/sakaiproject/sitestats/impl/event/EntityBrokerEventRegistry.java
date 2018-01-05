@@ -18,8 +18,10 @@
  */
 package org.sakaiproject.sitestats.impl.event;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.util.*;
+
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entitybroker.entityprovider.EntityProviderManager;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.Statisticable;
@@ -35,11 +37,8 @@ import org.sakaiproject.user.api.Preferences;
 import org.sakaiproject.user.api.PreferencesService;
 import org.sakaiproject.util.ResourceLoader;
 
-import java.util.*;
-
-
+@Slf4j
 public class EntityBrokerEventRegistry extends Observable implements EventRegistry, EntityProviderListener<Statisticable> {
-	private static Logger				LOG						= LoggerFactory.getLogger(EntityBrokerEventRegistry.class);
 	private static final String		CACHENAME				= EntityBrokerEventRegistry.class.getName();
 
 	/** Event Registry members */
@@ -47,7 +46,7 @@ public class EntityBrokerEventRegistry extends Observable implements EventRegist
 	private Map<String, String>		eventIdToEPPrefix		= new HashMap<String, String>();
 
 	/** Caching */
-	private Cache					eventNamesCache			= null;
+	private Cache<String, String>					eventNamesCache			= null;
 
 	/** Sakai Services */
 	private SessionManager			M_sm;
@@ -76,10 +75,10 @@ public class EntityBrokerEventRegistry extends Observable implements EventRegist
 	}
 	
 	public void init() {
-		LOG.info("init()");
+		log.info("init()");
 		
 		// configure cache
-		eventNamesCache = M_ms.newCache(CACHENAME);
+		eventNamesCache = M_ms.getCache(CACHENAME);
 		
 		// register EntityBrokerListener
 		M_epm.registerListener(this, true);
@@ -93,7 +92,7 @@ public class EntityBrokerEventRegistry extends Observable implements EventRegist
 	 * @see org.sakaiproject.sitestats.api.event.EventRegistry#getEventRegistry()
 	 */
 	public List<ToolInfo> getEventRegistry() {
-		LOG.debug("getEventRegistry(): #tools implementing Statisticable = "+eventRegistry.size());
+		log.debug("getEventRegistry(): #tools implementing Statisticable = "+eventRegistry.size());
 		return eventRegistry;
 	}
 	
@@ -133,7 +132,7 @@ public class EntityBrokerEventRegistry extends Observable implements EventRegist
 						eventName = thisEventName;
 					}
 				}
-				LOG.debug("Cached event names for EB prefix '"+prefix+"', locale: "+currentUserLocale);
+				log.debug("Cached event names for EB prefix '"+prefix+"', locale: "+currentUserLocale);
 			}
 		}catch(Exception e) {
 			eventName = null;
@@ -154,7 +153,7 @@ public class EntityBrokerEventRegistry extends Observable implements EventRegist
 	}
 
 	public void run(Statisticable provider) {
-		LOG.info("Statisticable capability registered with prefix: " + provider.getEntityPrefix());
+		log.info("Statisticable capability registered with prefix: " + provider.getEntityPrefix());
 		processStatisticableProvider(provider);
 	}
 

@@ -19,9 +19,9 @@
  */
 package org.sakaiproject.oauth.advisor;
 
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.authz.api.SecurityAdvisor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sakaiproject.oauth.dao.ConsumerDao;
 import org.sakaiproject.oauth.domain.Consumer;
 
@@ -33,8 +33,8 @@ import org.sakaiproject.oauth.domain.Consumer;
  *
  * @author Colin Hebert
  */
+@Slf4j
 public class CollectingPermissionsAdvisor implements SecurityAdvisor {
-    private static final Logger logger = LoggerFactory.getLogger(CollectingPermissionsAdvisor.class);
     private ConsumerDao consumerDao;
     private Consumer consumer;
 
@@ -46,13 +46,13 @@ public class CollectingPermissionsAdvisor implements SecurityAdvisor {
     @Override
     public SecurityAdvice isAllowed(String userId, String function, String reference) {
         if (!consumer.getRights().contains(function)) {
-            logger.info("'" + consumer.getId() + "' requires '" + function + "' right in order to work, enable it.");
+            log.info("'" + consumer.getId() + "' requires '" + function + "' right in order to work, enable it.");
             try {
                 consumer.getRights().add(function);
                 consumerDao.update(consumer);
             } catch (Exception e) {
                 // If the update doesn't work, carry on
-                logger.warn("Activation of the '" + function + "' right on '" + consumer.getId() + "' failed.", e);
+                log.warn("Activation of the '" + function + "' right on '" + consumer.getId() + "' failed.", e);
             }
         }
         return SecurityAdvice.PASS;

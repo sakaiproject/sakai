@@ -19,11 +19,7 @@
  *
  **********************************************************************************/
 
-
 package org.sakaiproject.tool.assessment.integration.helper.integrated;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import org.sakaiproject.section.api.SectionAwareness;
 import org.sakaiproject.tool.assessment.services.PersistenceService;
@@ -34,7 +30,6 @@ import org.sakaiproject.tool.assessment.services.PersistenceService;
  */
 
 class AbstractSectionsImpl {
-    private static final Logger log = LoggerFactory.getLogger(AbstractSectionsImpl.class);
 
     private SectionAwareness sectionAwareness;
 
@@ -44,5 +39,4 @@ class AbstractSectionsImpl {
 	public void setSectionAwareness(SectionAwareness sectionAwareness) {
 		this.sectionAwareness = sectionAwareness;
 	}
-
 }

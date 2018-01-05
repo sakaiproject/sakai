@@ -28,6 +28,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -35,14 +36,21 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import lombok.extern.slf4j.Slf4j;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
+
 import org.hibernate.Hibernate;
 import org.hibernate.HibernateException;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.StaleObjectStateException;
 import org.hibernate.criterion.Restrictions;
+
+import org.springframework.orm.hibernate4.HibernateCallback;
+import org.springframework.orm.hibernate4.HibernateOptimisticLockingFailureException;
+
 import org.sakaiproject.hibernate.HibernateCriterionUtils;
 import org.sakaiproject.section.api.coursemanagement.CourseSection;
 import org.sakaiproject.section.api.coursemanagement.EnrollmentRecord;
@@ -81,17 +89,12 @@ import org.sakaiproject.tool.gradebook.GradingEvent;
 import org.sakaiproject.tool.gradebook.LetterGradePercentMapping;
 import org.sakaiproject.tool.gradebook.facades.Authz;
 import org.sakaiproject.util.ResourceLoader;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.orm.hibernate4.HibernateCallback;
-import org.springframework.orm.hibernate4.HibernateOptimisticLockingFailureException;
 
 /**
  * A Hibernate implementation of GradebookService.
  */
+@Slf4j
 public class GradebookServiceHibernateImpl extends BaseHibernateManager implements GradebookService {
-    private static final Logger log = LoggerFactory.getLogger(GradebookServiceHibernateImpl.class);
-
     private Authz authz;
     private GradebookPermissionService gradebookPermissionService;
     protected SiteService siteService;
@@ -398,7 +401,11 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 			rval.setSelectedGradeMappingId(Long.toString(selectedGradeMapping.getId()));
 			
 			//note that these are not the DEFAULT bottom percents but the configured ones per gradebook
-			rval.setSelectedGradingScaleBottomPercents(new HashMap<String,Double>(selectedGradeMapping.getGradeMap()));
+			Map<String,Double> gradeMap = selectedGradeMapping.getGradeMap().entrySet().stream()
+					.sorted(Map.Entry.comparingByValue(Comparator.reverseOrder()))
+					.collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue,
+					(oldValue, newValue) -> oldValue, LinkedHashMap::new));
+			rval.setSelectedGradingScaleBottomPercents(gradeMap);
 			rval.setGradeScale(selectedGradeMapping.getGradingScale().getName());
 		}
 		
@@ -2306,8 +2313,9 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 				  }
 			  } else {
 				  try {
-					  percentage = Double.parseDouble(grade);
-				  } catch (NumberFormatException nfe) {
+					  NumberFormat nbFormat = NumberFormat.getInstance(new ResourceLoader().getLocale());
+					  percentage = new Double (nbFormat.parse(grade).doubleValue());
+				  } catch (NumberFormatException | ParseException nfe) {
 					  throw new IllegalArgumentException("Invalid % grade passed to convertInputGradeToPoints");
 				  }
 			  }
@@ -3704,7 +3712,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 				for (AssignmentGradeRecord gr : gradeRecords) {
 					if (gr.getPointsEarned() != null) {
 						final BigDecimal scoreAsPercentage = (new BigDecimal(gr.getPointsEarned())
-								.divide(new BigDecimal(originalPointsPossible)))
+								.divide(new BigDecimal(originalPointsPossible), GradebookService.MATH_CONTEXT))
 								.multiply(new BigDecimal(100));
 
 						final Double scaledScore = calculateEquivalentPointValueForPercent(

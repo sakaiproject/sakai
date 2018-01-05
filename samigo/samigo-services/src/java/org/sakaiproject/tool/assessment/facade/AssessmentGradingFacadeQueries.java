@@ -39,6 +39,7 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
 
+import lombok.extern.slf4j.Slf4j;
 import org.hibernate.Criteria;
 import org.hibernate.HibernateException;
 import org.hibernate.Query;
@@ -102,8 +103,6 @@ import org.sakaiproject.tool.assessment.util.ExtendedTimeDeliveryService;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.springframework.orm.hibernate4.HibernateCallback;
 import org.springframework.orm.hibernate4.support.HibernateDaoSupport;
-
-import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implements AssessmentGradingFacadeQueriesAPI {
@@ -402,7 +401,6 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
             HashMap map = new HashMap();
             AssessmentGradingData gdata = load(new Long(assessmentGradingId), loadGradingAttachment);
             log.debug("****#6, gdata=" + gdata);
-            //log.debug("****#7, item size="+gdata.getItemGradingSet().size());
             for (ItemGradingData data : gdata.getItemGradingSet()) {
                 ArrayList thisone = (ArrayList)
                         map.get(data.getPublishedItemId());
@@ -513,32 +511,39 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
         return saveMedia(mediaData);
     }
 
-    protected void pushAdvisor() {
-        securityService.pushAdvisor(new SecurityAdvisor() {
+    protected SecurityAdvisor pushAdvisor() {
+        SecurityAdvisor samigoAdvisor = new SecurityAdvisor() {
             public SecurityAdvice isAllowed(String userId, String function, String reference) {
                 return SecurityAdvice.ALLOWED;
             }
-        });
+        };
+        securityService.pushAdvisor(samigoAdvisor);
+        return samigoAdvisor;
     }
 
-    protected void popAdvisor() {
-        securityService.popAdvisor();
+    protected void popAdvisor(SecurityAdvisor sa) {
+        if (sa != null) {
+            securityService.popAdvisor(sa);
+        }
+        else {
+            throw new IllegalArgumentException("popAdvisor was called with a null SecurityAdvisor");
+        }
     }
 
     protected boolean checkMediaCollection(String id) {
-        pushAdvisor();
+        SecurityAdvisor resourceAdvisor = pushAdvisor();
         try {
             contentHostingService.checkCollection(id);
         } catch (IdUnusedException | TypeException | PermissionException e) {
             return false;
         } finally {
-            popAdvisor();
+            popAdvisor(resourceAdvisor);
         }
         return true;
     }
 
     protected boolean ensureMediaCollection(String id) {
-        pushAdvisor();
+        SecurityAdvisor resourceAdvisor = pushAdvisor();
         try {
             ContentCollection coll = contentHostingService.getCollection(id);
         } catch (IdUnusedException ie) {
@@ -561,7 +566,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
         } catch (TypeException | PermissionException e) {
             log.warn("[Samigo Media Attachments] General exception while ensuring collection: " + e.toString());
         } finally {
-            popAdvisor();
+            popAdvisor(resourceAdvisor);
         }
         return true;
     }
@@ -600,7 +605,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
         String mediaPath = getMediaPath(mediaData);
         if (mediaData.getMedia() != null && ensureMediaPath(mediaPath)) {
             log.debug("=====> Saving media: " + mediaPath);
-            pushAdvisor();
+            SecurityAdvisor resourceAdvisor = pushAdvisor();
             boolean newResource = true;
 
             try {
@@ -632,7 +637,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
             } catch (PermissionException | IdUsedException | IdInvalidException | InconsistentException | ServerOverloadException | OverQuotaException | VirusFoundException | IdUnusedException | TypeException | InUseException e) {
                 log.warn("Exception while saving media to content: " + e.toString());
             } finally {
-                popAdvisor();
+                popAdvisor(resourceAdvisor);
             }
         }
         return null;
@@ -646,7 +651,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
         String id = getMediaPath(mediaData);
         log.debug("=====> Reading media: " + id);
         if (id != null) {
-            pushAdvisor();
+            SecurityAdvisor resourceAdvisor = pushAdvisor();
             try {
                 ContentResource res = contentHostingService.getResource(id);
                 return res;
@@ -655,7 +660,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
             } catch (PermissionException | TypeException e) {
                 log.debug("Exception while reading media from content (" + mediaData.getMediaId() + "):" + e.toString());
             } finally {
-                popAdvisor();
+                popAdvisor(resourceAdvisor);
             }
         }
         return null;
@@ -2179,37 +2184,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 
                             count++;
                         } else if (typeId.equals(TypeIfc.IMAGEMAP_QUESTION)) {
-                            log.debug("MATCHING");
-
-                            ItemTextIfc itemTextIfc = (ItemTextIfc) publishedItemTextHash.get(grade.getPublishedItemTextId());
-                            Long sequence = itemTextIfc.getSequence();
-                            String temptext = (grade.getIsCorrect()) ? "OK" : "No OK";
-
-                            String thistext = sequence + ": " + temptext;
-
-                            if (count == 0)
-                                maintext = thistext;
-                            else
-                                maintext = maintext + "|" + thistext;
-
-                            count++;
-                        } else if (typeId.equals(TypeIfc.IMAGEMAP_QUESTION)) {
-                            log.debug("MATCHING");
-
-                            ItemTextIfc itemTextIfc = (ItemTextIfc) publishedItemTextHash.get(grade.getPublishedItemTextId());
-                            Long sequence = itemTextIfc.getSequence();
-                            String temptext = (grade.getIsCorrect()) ? "OK" : "No OK";
-
-                            String thistext = sequence + ": " + temptext;
-
-                            if (count == 0)
-                                maintext = thistext;
-                            else
-                                maintext = maintext + "|" + thistext;
-
-                            count++;
-                        } else if (typeId.equals(TypeIfc.IMAGEMAP_QUESTION)) {
-                            log.debug("MATCHING");
+                            log.debug("IMAGEMAP_QUESTION");
 
                             ItemTextIfc itemTextIfc = (ItemTextIfc) publishedItemTextHash.get(grade.getPublishedItemTextId());
                             Long sequence = itemTextIfc.getSequence();
@@ -3058,8 +3033,8 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
                     //If it has extended time, just continue for now, no method to tell if the time is passed
                     if (assessmentExtended.hasExtendedTime()) {
                         //If the due date or retract date hasn't passed yet, go on to the next one, don't consider it yet
-                        if (currentTime.before(assessmentExtended.getRetractDate()) || currentTime.before(
-                                assessmentExtended.getDueDate())) {
+                        if ((assessmentExtended.getRetractDate()!=null && currentTime.before(assessmentExtended.getRetractDate())) || (assessmentExtended.getDueDate() != null && currentTime.before(
+                                assessmentExtended.getDueDate()))) {
                             continue;
                         }
                         //Continue on and try to submit it but it may be late, just change the due date

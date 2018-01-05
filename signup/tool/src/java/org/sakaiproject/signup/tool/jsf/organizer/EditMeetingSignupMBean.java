@@ -30,7 +30,9 @@ import javax.faces.context.FacesContext;
 import javax.faces.event.ActionEvent;
 import javax.faces.model.SelectItem;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
+
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.signup.logic.SignupEventTypes;
 import org.sakaiproject.signup.logic.SignupUser;
@@ -59,6 +61,7 @@ import org.sakaiproject.util.DateFormatterUtil;
  * 
  * </P>
  */
+@Slf4j
 public class EditMeetingSignupMBean extends SignupUIBaseBean {
 
 	private SignupMeeting signupMeeting;
@@ -479,7 +482,7 @@ public class EditMeetingSignupMBean extends SignupUIBaseBean {
 								.getSignupEventTrackingInfo());
 					}
 				} catch (Exception e) {
-					logger.error(Utilities.rb.getString("email.exception") + " - " + e.getMessage(), e);
+					log.error(Utilities.rb.getString("email.exception") + " - " + e.getMessage(), e);
 					Utilities.addErrorMessage(Utilities.rb.getString("email.exception"));
 				}
 			}
@@ -497,11 +500,11 @@ public class EditMeetingSignupMBean extends SignupUIBaseBean {
 					} catch (PermissionException pe) {
 						Utilities.addErrorMessage(Utilities.rb
 								.getString("error.calendarEvent.updated_failed_due_to_permission"));
-						logger.debug(Utilities.rb.getString("error.calendarEvent.updated_failed_due_to_permission")
+						log.debug(Utilities.rb.getString("error.calendarEvent.updated_failed_due_to_permission")
 								+ " - Meeting title:" + savedMeeting.getTitle());
 					} catch (Exception e) {
 						Utilities.addErrorMessage(Utilities.rb.getString("error.calendarEvent.updated_failed"));
-						logger.warn(Utilities.rb.getString("error.calendarEvent.updated_failed") + " - Meeting title:"
+						log.warn(Utilities.rb.getString("error.calendarEvent.updated_failed") + " - Meeting title:"
 								+ savedMeeting.getTitle());
 					}
 				}
@@ -519,7 +522,7 @@ public class EditMeetingSignupMBean extends SignupUIBaseBean {
 			Utilities.addErrorMessage(ue.getMessage());
 		} catch (Exception e) {
 			Utilities.addErrorMessage(Utilities.rb.getString("db.error_or_event.notExisted"));
-			logger.error(Utilities.rb.getString("db.error_or_event.notExisted") + " - " + e.getClass() + ":" + e.getMessage());
+			log.error(Utilities.rb.getString("db.error_or_event.notExisted") + " - " + e.getClass() + ":" + e.getMessage());
 			Utilities.resetMeetingList();
 			return MAIN_EVENTS_LIST_PAGE_URL;
 		}
@@ -610,7 +613,7 @@ public class EditMeetingSignupMBean extends SignupUIBaseBean {
 
 		//Set Title		
 		if (StringUtils.isNotBlank(title)){
-			logger.debug("title set: " + title);
+			log.debug("title set: " + title);
 			this.signupMeeting.setTitle(title);
 		}else{
 			validationError = true;

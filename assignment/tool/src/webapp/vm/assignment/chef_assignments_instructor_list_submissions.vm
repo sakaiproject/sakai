@@ -78,7 +78,7 @@ function printView(url) {
 			<input type="hidden" name="option" id="option" value="x" />
 			<input type="hidden" name="eventSubmit_doView_submission_list_option" value="x" />
 			## show the view by group choice when there is at least one group defined
-			#if ($assignment.IsGroup)
+			#if (!$assignment.IsGroup)
 				#if (!$value_CheckAnonymousGrading.equals("true") && $!groups.hasNext())
 					<div class="form-group spinnerBesideContainer">
 						<label class="col-md-2" for="view">
@@ -115,7 +115,7 @@ function printView(url) {
 				#end
 			#end
 			#set($disableGrade=false)
-			#if($assignment.AllowPeerAssessment && !$assignment.PeerAssessmentClosed)
+			#if($assignment.AllowPeerAssessment && !$isPeerAssessmentClosed)
 				#set($disableGrade=true)
 			#end
 			#set ($showMsg = false)
@@ -411,7 +411,7 @@ function printView(url) {
 			
 			
 			#if($disableGrade)
-				<div class="highlight">$tlang.getFormattedMessage("peerassessment.cantgradewithdate", $assignment.PeerAssessmentPeriod.toString())</div>
+				<div class="highlight">$tlang.getFormattedMessage("peerassessment.cantgradewithdate", $!service.getUsersLocalDateTimeString($assignment.PeerAssessmentPeriodDate))</div>
 			#end
 			## show all submission
 			<table class="listHier lines nolines" id ="submissionList" cellpadding="0" cellspacing="0" summary="$tlang.getString("gen.viewassliststudentsummary")">
@@ -542,7 +542,7 @@ function printView(url) {
 					#end
 					#if ($!submission)## && $submission.submitted)
 						## SAK-17606
-						#set($anonymousSubmissionId = $submission.getAnonymousSubmissionId())
+						#set($anonymousSubmissionId = $submission.getId() + ' ' + ($tlang.getString("grading.anonymous.title")))
 
 						<tr>
 							<td headers="allowResubmit" class="screenOnly smallCol">
@@ -551,14 +551,7 @@ function printView(url) {
 								<label for="check_$submitterDisplayId" class="skip">$tlang.getString("allowResubmission.select.student") #if($value_CheckAnonymousGrading.equals("true"))$anonymousSubmissionId#else$validator.escapeHtml($submitterName)#end</label>
 							</td>
 							<td headers="attachment" class="attach">
-							 #set($size=0)
-								#set ($props = false)
-								#foreach ($attachment in $submission.SubmittedAttachments) 
-									#set ($props = $attachment.Properties) 
-									#if ($!props)
-										#set ($size = $size + 1)
-									#end
-								#end
+								#set ($size = $submission.Attachments.size())
 								#if ($size > 0)
 									<img src="#imageLink("sakai/attachments.gif")" border="0" alt="$tlang.getString("gen.att")" width="15" height="15" class="attachmentsIcon" />
 								#end
@@ -653,14 +646,12 @@ function printView(url) {
 							</td>
 							#end
 							<td headers="submitted">
-									#if ($!submission)
+									#if ($!submission && $submission.DateSubmitted)
 										#set($submitTime = $submission.DateSubmitted)
 										#if ($!submitTime) $!service.getUsersLocalDateTimeString($submitTime) #end
 										#if ($!submitTime && $submitTime.isAfter($assignment.DueDate))
 											<span class="highlight">$tlang.getString("gen.late2")</span> 
 										#end
-									#else
-										$tlang.getString("listsub.nosub")
 									#end
 									#if ($!submittedBy) 
 									<br /> $tlang.getString("listsub.submitted.by") $!submittedBy.sortName ($tlang.getString("listsub.submitted.on.behalf") $validator.escapeHtml($submitterSortName))

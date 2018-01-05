@@ -20,8 +20,8 @@
  **********************************************************************************/
 package org.sakaiproject.coursemanagement.impl;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.db.api.SqlService;
 
@@ -32,9 +32,8 @@ import org.sakaiproject.db.api.SqlService;
  * @author <a href="mailto:jholtzman@berkeley.edu">jholtzman@berkeley.edu</a>
  *
  */
+@Slf4j
 public abstract class IndexGenerator {
-	private static final Logger log = LoggerFactory.getLogger(IndexGenerator.class);
-	
 	public abstract SqlService sqlService();
 	public abstract ServerConfigurationService scs();
 	

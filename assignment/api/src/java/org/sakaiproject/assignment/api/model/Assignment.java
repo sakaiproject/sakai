@@ -48,6 +48,8 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Type;
 
@@ -79,15 +81,15 @@ import org.hibernate.annotations.Type;
  *     - LocalDate implicitly @Temporal(TemporalType.Date)
  *     - LocalTime implicitly @Temporal(TemporalType.Time)
  *     - LocalDateTime implicitly @Temporal(TemporalType.Timestamp)
- *   - java 8 time is not supported in Hibernate < 5
- *     - So we use java.util.Date and specify the TemporalType to use
- *     - @Temporal(TemporalType.Date) maps to SQL (JDBC) DATE
- *     - @Temporal(TemporalType.Time) maps to SQL (JDBC) TIME
- *     - @Temporal(TemporalType.Timestamp) maps to SQL (JDBC) TIMESTAMP
+ *   - java 8 time Instant is not a supported Type in Hibernate < 5
+ *     - So we use a custom type called org.sakaiproject.springframework.orm.hibernate.type.InstantType,
+ *       which stores the time consistent with the use of Instant in UTC in a DATETIME field.
+ *       This can be removed after upgrading to Hibernate 5.
  * </pre>
  */
 
 @Entity
+@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 @Table(name = "ASN_ASSIGNMENT")
 @Data
 @NoArgsConstructor
@@ -215,9 +217,9 @@ public class Assignment {
     @Column(name = "ALLOW_PEER_ASSESSMENT")
     private Boolean allowPeerAssessment = Boolean.FALSE;
 
+    @Type(type = "org.sakaiproject.springframework.orm.hibernate.type.InstantType")
     @Column(name = "PEER_ASSESSMENT_PERIOD_DATE")
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date peerAssessmentPeriodDate;
+    private Instant peerAssessmentPeriodDate;
 
     @Column(name = "PEER_ASSESSMENT_ANON_EVAL")
     private Boolean peerAssessmentAnonEval;
@@ -232,11 +234,11 @@ public class Assignment {
     private String peerAssessmentInstructions;
 
     @Column(name = "CONTENT_REVIEW")
-    private Boolean contentReview;
+    private Boolean contentReview = Boolean.FALSE;
 
     public enum Access {
         SITE,
-        GROUPED
+        GROUP
     }
 
     public enum SubmissionType {

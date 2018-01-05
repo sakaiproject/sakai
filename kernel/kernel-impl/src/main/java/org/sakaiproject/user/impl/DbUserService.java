@@ -21,9 +21,14 @@
 
 package org.sakaiproject.user.impl;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.*;
+
+import lombok.extern.slf4j.Slf4j;
+
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
 import org.sakaiproject.db.api.SqlReader;
 import org.sakaiproject.db.api.SqlReaderFinishedException;
 import org.sakaiproject.db.api.SqlService;
@@ -34,21 +39,14 @@ import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserEdit;
 import org.sakaiproject.util.BaseDbFlatStorage;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.*;
-
-
 /**
  * <p>
  * DbCachedUserService is an extension of the BaseUserService with a database storage backed up by an in-memory cache.
  * </p>
  */
+@Slf4j
 public abstract class DbUserService extends BaseUserDirectoryService
 {
-	/** Our log (commons). */
-	private static Logger M_log = LoggerFactory.getLogger(DbUserService.class);
-
 	/** Table name for users. */
 	protected String m_tableName = "SAKAI_USER";
 
@@ -161,14 +159,14 @@ public abstract class DbUserService extends BaseUserDirectoryService
 			super.init();
 			setUserServiceSql(sqlService().getVendor());
 
-			M_log.info("init(): table: " + m_tableName + " external locks: " + m_useExternalLocks);
+			log.info("init(): table: " + m_tableName + " external locks: " + m_useExternalLocks);
 			cache = memoryService().getCache("org.sakaiproject.user.api.UserDirectoryService"); // user id/eid mapping cache
-			M_log.info("User ID/EID mapping Cache [" + cache.getName() +"]");
+			log.info("User ID/EID mapping Cache [" + cache.getName() +"]");
 
 		}
 		catch (Exception t)
 		{
-			M_log.warn("init(): ", t);
+			log.warn("init(): ", t);
 		}
 	}
 
@@ -454,7 +452,7 @@ public abstract class DbUserService extends BaseUserDirectoryService
 				String eid = checkMapForEid(id);
 				if (eid == null)
 				{
-					M_log.warn("readSqlResultRecord: null eid for id: " + id);
+					log.warn("readSqlResultRecord: null eid for id: " + id);
 				}
 
 				// create the Resource from these fields
@@ -462,7 +460,7 @@ public abstract class DbUserService extends BaseUserDirectoryService
 			}
 			catch (SQLException e)
 			{
-				M_log.warn("readSqlResultRecord: " + e);
+				log.warn("readSqlResultRecord: " + e);
 				return null;
 			}
 		}
@@ -870,7 +868,7 @@ public abstract class DbUserService extends BaseUserDirectoryService
 				}
 				catch (SQLException e)
 				{
-					M_log.warn("readSqlResultRecord: " + e, e);
+					log.warn("readSqlResultRecord: " + e, e);
 				}
 				return userEdit;
 			}

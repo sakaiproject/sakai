@@ -90,7 +90,7 @@ public class AssignmentComparatorTest {
 		Mockito.when(userDirectoryService.getUser("usernull")).thenReturn(null);
 
 		sortNameComparator = new UserIdComparator(userDirectoryService);
-		submitterNameComparator = new AssignmentSubmissionComparator(siteService);
+		submitterNameComparator = new AssignmentSubmissionComparator(assignmentService, siteService, userDirectoryService);
 	}
 
 	@Test

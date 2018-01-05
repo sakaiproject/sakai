@@ -25,9 +25,12 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Vector;
 
+import lombok.extern.slf4j.Slf4j;
+
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import org.w3c.dom.Element;
+
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.email.cover.DigestService;
@@ -49,7 +52,6 @@ import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.user.cover.PreferencesService;
 import org.sakaiproject.user.cover.UserDirectoryService;
-import org.w3c.dom.Element;
 
 /**
  * <p>
@@ -70,11 +72,9 @@ import org.w3c.dom.Element;
  * </p>
  */
 @SuppressWarnings({"deprecation","rawtypes","unchecked"})
+@Slf4j
 public class EmailNotification implements NotificationAction
 {
-    // Our logger
-    private static Logger M_log = LoggerFactory.getLogger(EmailNotification.class);
-
 	protected final String MULTIPART_BOUNDARY = "======sakai-multi-part-boundary======";
 	protected final String BOUNDARY_LINE = "\n\n--"+MULTIPART_BOUNDARY+"\n";
 	protected final String TERMINATION_LINE = "\n\n--"+MULTIPART_BOUNDARY+"--\n\n";
@@ -665,7 +665,7 @@ public class EmailNotification implements NotificationAction
 							int option = Integer.parseInt(props.getProperty(name));
 							if (option != NotificationService.PREF_NONE) return option;
 						} catch (NumberFormatException nfe) {
-							M_log.error("Property '" + name + "' is not a number. The site overrides check has failed");
+							log.error("Property '" + name + "' is not a number. The site overrides check has failed");
 						}
 					}
 				}

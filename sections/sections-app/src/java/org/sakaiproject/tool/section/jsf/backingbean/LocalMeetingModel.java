@@ -25,15 +25,15 @@ import java.sql.Time;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
 import org.sakaiproject.section.api.coursemanagement.Meeting;
 import org.sakaiproject.tool.section.jsf.JsfUtil;
 
+@Slf4j
 public class LocalMeetingModel implements Meeting, Serializable {
-	private static final Logger log = LoggerFactory.getLogger(LocalMeetingModel.class);
 	private static final long serialVersionUID = 1L;
 
 	public LocalMeetingModel() {

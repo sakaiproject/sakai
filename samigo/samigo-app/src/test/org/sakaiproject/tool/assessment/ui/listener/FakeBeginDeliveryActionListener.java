@@ -17,12 +17,13 @@
 package org.sakaiproject.tool.assessment.ui.listener;
 
 import java.util.Date;
+
 import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentFeedback;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessControlIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentFeedbackIfc;
@@ -40,10 +41,9 @@ import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
  * <p>Purpose:  this module fakes the link  of published assessment
  * <p>Description: Sakai Assessment Manager</p>
  */
-
+@Slf4j
 public class FakeBeginDeliveryActionListener implements ActionListener
 {
-  private static Logger log = LoggerFactory.getLogger(FakeBeginDeliveryActionListener.class);
   private static String ID_TO_TEST = "3";
 
   /**

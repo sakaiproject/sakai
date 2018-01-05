@@ -53,7 +53,6 @@ import org.sakaiproject.time.api.UserTimeService;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.user.api.UserDirectoryService;
-import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.api.FormattedText;
 import org.sakaiproject.util.api.LinkMigrationHelper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -107,6 +106,7 @@ public class AssignmentTestConfiguration {
                 setProperty(org.hibernate.cfg.Environment.DIALECT, environment.getProperty(org.hibernate.cfg.Environment.DIALECT, HSQLDialect.class.getName()));
                 setProperty(org.hibernate.cfg.Environment.HBM2DDL_AUTO, environment.getProperty(org.hibernate.cfg.Environment.HBM2DDL_AUTO));
                 setProperty(org.hibernate.cfg.Environment.ENABLE_LAZY_LOAD_NO_TRANS, environment.getProperty(org.hibernate.cfg.Environment.ENABLE_LAZY_LOAD_NO_TRANS, "true"));
+                setProperty(org.hibernate.cfg.Environment.CACHE_REGION_FACTORY, environment.getProperty(org.hibernate.cfg.Environment.CACHE_REGION_FACTORY));
             }
         };
     }
@@ -146,11 +146,6 @@ public class AssignmentTestConfiguration {
     @Bean(name = "org.sakaiproject.assignment.taggable.api.AssignmentActivityProducer")
     public AssignmentActivityProducer assignmentActivityProducer() {
         return mock(AssignmentActivityProducer.class);
-    }
-
-    @Bean(name = "org.sakaiproject.assignment.api.AssignmentPeerAssessmentService")
-    public AssignmentPeerAssessmentService assignmentPeerAssessmentService() {
-        return mock(AssignmentPeerAssessmentService.class);
     }
 
     @Bean(name = "org.sakaiproject.authz.api.AuthzGroupService")

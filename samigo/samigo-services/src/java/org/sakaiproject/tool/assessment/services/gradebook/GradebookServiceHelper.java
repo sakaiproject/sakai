@@ -19,10 +19,8 @@
  *
  **********************************************************************************/
 
-
 package org.sakaiproject.tool.assessment.services.gradebook;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAssessmentData;
 import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
 
@@ -33,7 +31,6 @@ import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
  */
 public class GradebookServiceHelper
 {
-    private Logger log = LoggerFactory.getLogger(GradebookServiceHelper.class);
 
     public static boolean addToGradebook(PublishedAssessmentData publishedAssessment) throws Exception {
       return false;
@@ -50,10 +47,9 @@ public class GradebookServiceHelper
     }
 
     public static boolean gradebookExists(String siteId) {
-	return false;
+        return false;
     }
 
     public static void updateExternalAssessmentScore(AssessmentGradingData ag) throws Exception {
     }
-
 }

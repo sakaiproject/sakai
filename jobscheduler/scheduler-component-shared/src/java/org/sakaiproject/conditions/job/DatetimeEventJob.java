@@ -20,19 +20,16 @@
  **********************************************************************************/
 package org.sakaiproject.conditions.job;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.util.Date;
+
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
-
-import java.util.Date;
 
 import org.sakaiproject.event.cover.EventTrackingService;
 
 public class DatetimeEventJob implements Job
 {
-
   /**
    * @see org.quartz.Job#execute(org.quartz.JobExecutionContext)
    */
@@ -41,5 +38,4 @@ public class DatetimeEventJob implements Job
 	Long now = Long.valueOf(new Date().getTime());
 	EventTrackingService.post(EventTrackingService.newEvent("datetime.update", now.toString(), true));
   }
-
 }

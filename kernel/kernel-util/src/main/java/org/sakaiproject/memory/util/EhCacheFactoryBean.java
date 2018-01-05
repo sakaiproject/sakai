@@ -60,6 +60,11 @@
 
 package org.sakaiproject.memory.util;
 
+import java.io.IOException;
+import java.util.Set;
+
+import lombok.extern.slf4j.Slf4j;
+
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.CacheManager;
@@ -68,17 +73,14 @@ import net.sf.ehcache.bootstrap.BootstrapCacheLoader;
 import net.sf.ehcache.constructs.blocking.*;
 import net.sf.ehcache.event.CacheEventListener;
 import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.sakaiproject.component.api.ServerConfigurationService;
-import org.sakaiproject.component.cover.ComponentManager;
+
 import org.springframework.beans.factory.BeanNameAware;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.util.Assert;
 
-import java.io.IOException;
-import java.util.Set;
+import org.sakaiproject.component.api.ServerConfigurationService;
+import org.sakaiproject.component.cover.ComponentManager;
 
 /**
  * {@link FactoryBean} that creates a named EHCache {@link net.sf.ehcache.Cache} instance
@@ -104,10 +106,8 @@ import java.util.Set;
  *
  * @deprecated since Sakai 2.9, do not use this anymore (use the sakai config settings instead), this will be removed in 11
  */
+@Slf4j
 public class EhCacheFactoryBean implements FactoryBean, BeanNameAware, InitializingBean {
-
-	protected final Logger logger = LoggerFactory.getLogger(getClass());
-
 	private ServerConfigurationService serverConfigurationService =
 		(ServerConfigurationService) ComponentManager.get(ServerConfigurationService.class);
 
@@ -350,8 +350,8 @@ public class EhCacheFactoryBean implements FactoryBean, BeanNameAware, Initializ
 	public void afterPropertiesSet() throws CacheException, IOException {
 		// If no CacheManager given, fetch the default.
 		if (this.cacheManager == null) {
-			if (logger.isDebugEnabled()) {
-				logger.debug("Using default EHCache CacheManager for cache region '" + this.cacheName + "'");
+			if (log.isDebugEnabled()) {
+				log.debug("Using default EHCache CacheManager for cache region '" + this.cacheName + "'");
 			}
 			this.cacheManager = CacheManager.getInstance();
 		}
@@ -365,24 +365,24 @@ public class EhCacheFactoryBean implements FactoryBean, BeanNameAware, Initializ
 		// create one on the fly.
 		Ehcache rawCache;
 		if (this.cacheManager.cacheExists(this.cacheName)) {
-			if (logger.isDebugEnabled()) {
-				logger.debug("Using existing EHCache cache region '" + this.cacheName + "'");
+			if (log.isDebugEnabled()) {
+				log.debug("Using existing EHCache cache region '" + this.cacheName + "'");
 			}
 			rawCache = this.cacheManager.getEhcache(this.cacheName);
 		}
 		else {
-			if (logger.isDebugEnabled()) {
-				logger.debug("Creating new EHCache cache region '" + this.cacheName + "'");
+			if (log.isDebugEnabled()) {
+				log.debug("Creating new EHCache cache region '" + this.cacheName + "'");
 			}
 			rawCache = createCache();
             // Not look for any custom configuration.
             // Check for old configuration properties.
             if(serverConfigurationService.getString(this.cacheName) == null) {
-                logger.warn("Old cache configuration "+ this.cacheName+ " must be changed to memory."+ this.cacheName);
+                log.warn("Old cache configuration "+ this.cacheName+ " must be changed to memory."+ this.cacheName);
             }
             String config = serverConfigurationService.getString("memory."+ this.cacheName);
             if (config != null && config.length() > 0) {
-                logger.debug("Found configuration for cache: "+ this.cacheName+ " of: "+ config);
+                log.debug("Found configuration for cache: "+ this.cacheName+ " of: "+ config);
                 new CacheInitializer().configure(config).initialize(
                         rawCache.getCacheConfiguration());
             }

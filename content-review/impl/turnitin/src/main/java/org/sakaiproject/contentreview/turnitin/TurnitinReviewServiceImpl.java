@@ -35,10 +35,13 @@ import java.util.Random;
 import java.util.Set;
 import java.util.SortedSet;
 
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.validator.routines.EmailValidator;
+
 import org.sakaiproject.api.common.edu.person.SakaiPerson;
 import org.sakaiproject.api.common.edu.person.SakaiPersonManager;
 import org.sakaiproject.authz.api.SecurityAdvisor;
@@ -83,8 +86,6 @@ import org.w3c.dom.CharacterData;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
-
-import lombok.Setter;
 
 @Slf4j
 public class TurnitinReviewServiceImpl implements ContentReviewService {
@@ -839,7 +840,7 @@ public class TurnitinReviewServiceImpl implements ContentReviewService {
 				togo = URLDecoder.decode(title, "UTF-8");
 
 			} catch (Exception e) {
-				e.printStackTrace();
+				log.error(e.getMessage(), e);
 			}
 		}
 
@@ -863,7 +864,7 @@ public class TurnitinReviewServiceImpl implements ContentReviewService {
 				title = title.replace("%", "percent");
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.error(e.getMessage(), e);
 		}
 
 		return title;
@@ -1933,8 +1934,7 @@ public class TurnitinReviewServiceImpl implements ContentReviewService {
 			try {
 				updateAssignment(item.getSiteId(), item.getTaskId());
 			} catch (SubmissionException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				log.error(e.getMessage(), e);
 			}
 		}
 	}
@@ -1995,7 +1995,7 @@ public class TurnitinReviewServiceImpl implements ContentReviewService {
 			log.debug("Assign title is " + assignEnc);
 
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.error(e.getMessage(), e);
 		}
 
 		Map params = TurnitinAPIUtil.packMap(turnitinConn.getBaseTIIOptions(), "assign", assignEnc, "assignid",

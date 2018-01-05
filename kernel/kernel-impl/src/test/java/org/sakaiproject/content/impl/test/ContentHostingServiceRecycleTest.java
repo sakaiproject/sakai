@@ -21,12 +21,12 @@ import java.util.List;
 import java.util.Properties;
 import java.util.UUID;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.junit.AfterClass;
+import lombok.extern.slf4j.Slf4j;
+
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
+
 import org.sakaiproject.content.api.ContentCollection;
 import org.sakaiproject.content.api.ContentCollectionEdit;
 import org.sakaiproject.content.api.ContentHostingService;
@@ -45,8 +45,8 @@ import org.sakaiproject.tool.api.SessionManager;
 /**
  * Test for deleting files.
  */
+@Slf4j
 public class ContentHostingServiceRecycleTest  extends SakaiKernelTestBase {
-	private static Logger log = LoggerFactory.getLogger(ContentHostingServiceRecycleTest.class);
 	private static final String SAMPLE_FOLDER = "/user/admin/";
 	
 	@BeforeClass

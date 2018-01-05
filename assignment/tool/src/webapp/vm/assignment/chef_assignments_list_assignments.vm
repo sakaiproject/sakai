@@ -216,18 +216,7 @@
 						#set ($assignmentCount = $assignmentCount + 1)
 						<tr>
 							<td headers="attachments" class="attach hidden-xs">
-								#set ($attachments = $assignment.getAttachments())
-								#set ($size = 0)
-								#set ($props = false)
-								#if (!$!attachments.isEmpty())
-									#foreach ($attachment in $attachments)
-										#set ($props = $attachment.Properties) 
-										#if ($!props)
-											#set ($size = $size + 1)
-										#end
-									#end
-								#end
-								#if ($size > 0)
+								#if (!$assignment.getAttachments().isEmpty())
 									<i class="icon-sakai--clip"></i>
 								#else
 									&nbsp;
@@ -397,43 +386,39 @@
 							</td>
 						#if ($!allowGradeSubmission)
 							<td headers="for" class="hidden-xs">
-								#set( $groupTitleList = [] )
-								#set( $siteRelease = $assignment.TypeOfAccess.toString() == "SITE")
-								#if( !$siteRelease )
-									#foreach( $groupID in $assignment.Groups )
-										#set( $group = $!site.getGroup( $groupID ) )
-										#if( $!group )
-											#set( $success = $groupTitleList.add( $validator.escapeHtml( $group.Title ) ) )
-											#set( $group = false )
+								#if($assignment.TypeOfAccess == "SITE")
+									$tlang.getString("gen.viewallgroupssections")
+								#elseif($assignment.TypeOfAccess == "GROUP")
+									#set($groupTitleList = [])
+									#foreach($groupID in $assignment.Groups)
+										#set($group = $!site.getGroup($groupID))
+										#if($!group)
+											#set($success = $groupTitleList.add($validator.escapeHtml($group.Title)))
+											#set($group = false)
 										#end
 									#end
-								#end
-
-								#if( $siteRelease )
-									$tlang.getString("gen.viewallgroupssections")
-								#elseif( $groupTitleList.size() > 0 )
-									<div class="groupsContainer">
-										<strong class="collapse" onclick="ASN.toggleGroups( this ); ASN.resizeFrame();">
+                                    <div class="groupsContainer">
+                                        <strong class="collapse" onclick="ASN.toggleGroups( this ); ASN.resizeFrame();">
 											$groupTitleList.size()
-											#if( $groupTitleList.size() == 1 )
+											#if($groupTitleList.size() == 1)
 												$tlang.getString( "selected.group" )
 											#else
 												$tlang.getString( "selected.groups" )
 											#end
-										</strong>
+                                        </strong>
 
-										<div id="groupsPanel" style="display: none;">
-											<ul>
+                                        <div id="groupsPanel" style="display: none;">
+                                            <ul>
 												#foreach( $title in $groupTitleList )
-													<li>$title</li>
-												 #end
-											</ul>
-										</div>
-									</div>
+                                                    <li>$title</li>
+												#end
+                                            </ul>
+                                        </div>
+                                    </div>
 								#else
-									<div class="alertMessage">
+                                    <div class="alertMessage">
 										$tlang.getString( "assignment.inaccessible" )
-									</div>
+                                    </div>
 								#end
 							</td>
 							#end
@@ -544,7 +529,7 @@
 								<!-- status col -->
 								<td>
 									#if ($!submission)
-										#if($assignment.isPeerAssessmentPending())
+										#if($!service.isPeerAssessmentPending($!assignment))
 											<!-- peer review hasn't opened and user submitted -->
 											#if ($submission.Submitted)
 												$tlang.getString("peerassessment.notOpen")
@@ -565,7 +550,7 @@
 												#set($anyDraftReviews = false)
 												#set($anyCompleteReviews = false)
 												#foreach ($review in $reviews)
-													#if(!$review.isSubmitted())
+													#if(!$review.getSubmitted())
 														#set($completedReviews = false)
 														#if($review.isDraft())
 															#set($anyDraftReviews = true)
@@ -597,7 +582,7 @@
 								</td>
 								<!-- due col -->
 								<td>
-									$!assignment.PeerAssessmentPeriodDate.toString()
+									$!service.getUsersLocalDateTimeString($!assignment.PeerAssessmentPeriodDate)
 								</td>
 								<!-- the following are empty columns as place holders -->
 								#if ($!allowGradeSubmission)
@@ -620,7 +605,7 @@
 
 							<!-- end peer assessment overview row -->
 							<!-- peer assessment items rows->
-							#if ($!submission && $assignment.isPeerAssessmentOpen() && $!reviews)
+							#if ($!submission && $!service.isPeerAssessmentOpen($!assignment) && $!reviews)
 								<!-- peer assessment is open and user has submitted, show item details
 								#set ($reviewCount = 0)
 								#foreach ($review in $reviews)
@@ -631,7 +616,7 @@
 										<!-- title col -->
 										<td>
 											<span class="indnt2">
-												#if($review.isSubmitted())
+												#if($review.getSubmitted())
 													$tlang.getFormattedMessage("peerassessment.student", $reviewCount)&nbsp;<img src="/library/image/silk/accept.png"/>
 												#else
 													<a name="asnActionLink" href="#toolLinkParam("$action" "doEdit_review" "assignmentId=$validator.escapeUrl($assignmentReference)&submissionId=$validator.escapeUrl($review.getSubmissionId())")">
@@ -646,7 +631,7 @@
 										#end
 										<!-- status col -->
 										<td>
-											#if($review.isSubmitted())
+											#if($review.getSubmitted())
 												$tlang.getString("peerassessment.submitted")
 											#elseif($review.isDraft())
 												$tlang.getString("peerassessment.draftInProgress")

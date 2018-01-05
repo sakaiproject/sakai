@@ -27,10 +27,10 @@ import java.io.InputStream;
 import java.io.Reader;
 import java.io.StringReader;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.text.PDFTextStripper;
+
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.exception.ServerOverloadException;
 import org.sakaiproject.search.api.SearchUtils;
@@ -38,9 +38,9 @@ import org.sakaiproject.search.api.SearchUtils;
 /**
  * @author ieb
  */
+@Slf4j
 public class PDFContentDigester extends BaseContentDigester
 {
-	private static Logger log = LoggerFactory.getLogger(PDFContentDigester.class);
 
 	public String getContent(ContentResource contentResource)
 	{

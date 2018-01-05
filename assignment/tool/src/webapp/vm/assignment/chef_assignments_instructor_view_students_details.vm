@@ -1,6 +1,4 @@
 <!-- start: chef_assignments_instructor_view_students_details.vm  -->
-#set ($submissionType = $assignmentContent.getTypeOfSubmission())
-
 <div class="portletBody container-fluid">
 
   #if ($!isAdditionalNotesEnabled && !$assignment.isGroup())
@@ -33,7 +31,7 @@
       #end
       #if ($!submission)## && $submission.submitted) 
         ## SAK-17606
-        #set($anonymousSubmissionId = $submission.getAnonymousSubmissionId())
+        #set($anonymousSubmissionId = $submission.getId() + ' ' + ($tlang.getString("grading.anonymous.title")))
         #set($notes = [])
         #set($notes = $notesMap.get($siteUser.id))
         #if($notes.size() > 0)

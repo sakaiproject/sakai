@@ -19,27 +19,27 @@
  *
  **********************************************************************************/
 
-
-
 package org.sakaiproject.tool.assessment.ui.servlet;
 
+import java.io.FileInputStream;
+import java.io.IOException;
+
+import javax.activation.MimetypesFileTypeMap;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import java.io.FileInputStream;
-import java.io.IOException;
-import javax.activation.MimetypesFileTypeMap;
+
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.tool.assessment.util.MimeTypesLocator;
 
+@Slf4j
 public class InitMimeTypes extends HttpServlet{
 
   /**
 	 * 
 	 */
 	private static final long serialVersionUID = 6032485774950035961L;
-    private static Logger log = LoggerFactory.getLogger(InitMimeTypes.class);
 
   public void init (ServletConfig config) throws ServletException {
     super.init(config);

@@ -21,8 +21,10 @@ import java.util.Map;
 import javax.portlet.PortletMode;
 import javax.portlet.WindowState;
 
+import lombok.extern.slf4j.Slf4j;
 import junit.framework.TestCase;
 
+@Slf4j
 public class EnhancedPortletStateEncoderTest extends TestCase
 {
 
@@ -51,7 +53,7 @@ public class EnhancedPortletStateEncoderTest extends TestCase
 
 		String uriSafe = encoder.encode(state);
 		
-		System.err.println("URI is "+uriSafe);
+		log.info("URI is "+uriSafe);
 		
 		assertNotNull(uriSafe);
 		assertEquals(-1, uriSafe.indexOf(" "));

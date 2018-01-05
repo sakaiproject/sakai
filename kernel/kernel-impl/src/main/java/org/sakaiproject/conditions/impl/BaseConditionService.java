@@ -27,8 +27,8 @@ import java.util.Observable;
 import java.util.Observer;
 import java.util.Set;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.conditions.api.Condition;
 import org.sakaiproject.conditions.api.ConditionProvider;
 import org.sakaiproject.conditions.api.ConditionService;
@@ -36,10 +36,8 @@ import org.sakaiproject.conditions.api.ConditionTemplateSet;
 import org.sakaiproject.conditions.api.Rule;
 import org.sakaiproject.conditions.api.Rule.Conjunction;
 
+@Slf4j
 public class BaseConditionService implements ConditionService, Observer {
-
-	private static Logger log = LoggerFactory.getLogger(BaseConditionService.class);
-	
 	private Map<String, String> eventLookup = new HashMap<String, String>();
 	private Map<String, ConditionProvider> registeredProviders = new HashMap<String, ConditionProvider>();
 	
@@ -86,9 +84,9 @@ public class BaseConditionService implements ConditionService, Observer {
 		this.registeredProviders.put(provider.getId(), provider);
 	}
 
-  public ConditionProvider getConditionProvider(String providerId) {
-    return this.registeredProviders.get(providerId);
-  }
+	public ConditionProvider getConditionProvider(String providerId) {
+		return this.registeredProviders.get(providerId);
+	}
 	
 	public Condition makeBooleanExpression(String eventDataClass, String missingTermQuery, String operatorValue, Object argument) {
 		return new BooleanExpression(eventDataClass, missingTermQuery, operatorValue, argument);

@@ -28,11 +28,10 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.osid.assessment.Assessment;
 import org.osid.assessment.AssessmentException;
 import org.osid.shared.Type;
+
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentBaseData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentMetaData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessControlIfc;
@@ -45,7 +44,6 @@ import org.sakaiproject.tool.assessment.services.PersistenceService;
 
 public class AssessmentBaseFacade
     implements java.io.Serializable, AssessmentBaseIfc{
-  private Logger log = LoggerFactory.getLogger(AssessmentBaseFacade.class);
 
   private AssessmentImpl assessmentImpl = new AssessmentImpl(); //<-- place holder
   protected org.osid.assessment.Assessment assessment =

@@ -19,8 +19,6 @@
  *
  **********************************************************************************/
 
-
-
 package org.sakaiproject.tool.assessment.ui.listener.author;
 
 import java.io.UnsupportedEncodingException;
@@ -42,18 +40,22 @@ import javax.faces.event.ActionListener;
 import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
 
+import lombok.extern.slf4j.Slf4j;
+
+import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.email.cover.EmailService;
+import org.sakaiproject.event.cover.EventTrackingService;
+import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.site.api.Site;
+import org.sakaiproject.site.cover.SiteService;
+import org.sakaiproject.spring.SpringBeanLocator;
 import org.sakaiproject.samigo.util.SamigoConstants;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.sakaiproject.service.gradebook.shared.AssignmentHasIllegalPointsException;
+import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedSectionData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 import org.sakaiproject.tool.assessment.facade.ExtendedTimeFacade;
 import org.sakaiproject.tool.assessment.integration.helper.ifc.CalendarServiceHelper;
-import org.sakaiproject.component.cover.ServerConfigurationService;
-import org.sakaiproject.event.cover.EventTrackingService;
-import org.sakaiproject.service.gradebook.shared.AssignmentHasIllegalPointsException;
-import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService;
-import org.sakaiproject.spring.SpringBeanLocator;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedMetaData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessControlIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentMetaDataIfc;
@@ -73,12 +75,8 @@ import org.sakaiproject.tool.assessment.ui.bean.author.PublishRepublishNotificat
 import org.sakaiproject.tool.assessment.ui.bean.evaluation.TotalScoresBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.util.TextFormat;
-import org.sakaiproject.util.ResourceLoader;
-import org.sakaiproject.email.cover.EmailService;
-import org.sakaiproject.site.api.Site;
 import org.sakaiproject.tool.cover.ToolManager;
-import org.sakaiproject.site.cover.SiteService;
-import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.util.ResourceLoader;
 
 /**
  * <p>Title: Samigo</p>2
@@ -86,12 +84,9 @@ import org.sakaiproject.exception.IdUnusedException;
  * @author Ed Smiley
  * @version $Id$
  */
-
+@Slf4j
 public class PublishAssessmentListener
     implements ActionListener {
-
-
-  private static Logger log = LoggerFactory.getLogger(PublishAssessmentListener.class);
 
   private static final GradebookServiceHelper gbsHelper =
       IntegrationContextFactory.getInstance().getGradebookServiceHelper();
@@ -271,7 +266,7 @@ public class PublishAssessmentListener
       error=true;
     }
     
-    if (!assessmentService.assessmentTitleIsUnique(assessmentId, TextFormat.convertPlaintextToFormattedTextNoHighUnicode(log, assessmentName), false)){
+    if (!assessmentService.assessmentTitleIsUnique(assessmentId, TextFormat.convertPlaintextToFormattedTextNoHighUnicode(assessmentName), false)){
       error=true;
       String nameUnique_err=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","assessmentName_error");
       FacesContext.getCurrentInstance().addMessage(null,new FacesMessage(nameUnique_err));
@@ -386,14 +381,14 @@ public class PublishAssessmentListener
 		  (!prePopulateText.trim().equals(rl.getString("pre_populate_text_publish")) && 
 		   !prePopulateText.trim().equals(rl.getString("pre_populate_text_republish")) && 
 		   !prePopulateText.trim().equals(rl.getString("pre_populate_text_regrade_republish")))) {
-		  message.append(TextFormat.convertPlaintextToFormattedTextNoHighUnicode(log, prePopulateText));
+		  message.append(TextFormat.convertPlaintextToFormattedTextNoHighUnicode(prePopulateText));
 		  message.append(newline);
 		  message.append(newline);
 	  }
 
 	  message.append("\"");
 	  message.append(bold_open);
-	  message.append(TextFormat.convertPlaintextToFormattedTextNoHighUnicode(log, title));
+	  message.append(TextFormat.convertPlaintextToFormattedTextNoHighUnicode(title));
 	  message.append(bold_close);
 	  message.append("\"");
 	  message.append(" ");

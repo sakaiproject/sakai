@@ -52,7 +52,6 @@ import edu.indiana.lib.twinpeaks.search.PreferredUrlHandler;
 import edu.indiana.lib.twinpeaks.search.QueryBase;
 import edu.indiana.lib.twinpeaks.search.SearchResultBase;
 import edu.indiana.lib.twinpeaks.util.DomUtils;
-import edu.indiana.lib.twinpeaks.util.LogUtils;
 import edu.indiana.lib.twinpeaks.util.SearchException;
 import edu.indiana.lib.twinpeaks.util.SessionContext;
 import edu.indiana.lib.twinpeaks.util.StatusUtils;
@@ -703,7 +702,7 @@ public class Web2Response extends SearchResultBase {
 	private static void displayXml(String errorText, Object xmlObject) {
 
 		try {
-			LogUtils.displayXml(log, errorText, xmlObject);
+			log.debug("{} {}", errorText, xmlObject);
 		} catch (Exception ignore) {
 		}
 	}
@@ -717,7 +716,7 @@ public class Web2Response extends SearchResultBase {
 	private void displayXml(Object xmlObject) {
 
 		try {
-			LogUtils.displayXml(log, xmlObject);
+			log.debug("{}", xmlObject);
 		} catch (Exception ignore) {
 		}
 	}

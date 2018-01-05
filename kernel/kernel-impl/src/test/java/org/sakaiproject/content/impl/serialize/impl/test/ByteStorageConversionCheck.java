@@ -23,21 +23,20 @@ package org.sakaiproject.content.impl.serialize.impl.test;
 
 import java.util.Random;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+
 import org.junit.Assert;
 import org.junit.Test;
+
 import org.sakaiproject.util.ByteStorageConversion;
 
 /**
  * @author ieb
  *
  */
+@Slf4j
 public class ByteStorageConversionCheck
 {
-
-	private static final Logger log = LoggerFactory.getLogger(ByteStorageConversionCheck.class);
-
 	@Test
 	public void test256Conversion() {
 		byte[] bin = new byte[256];

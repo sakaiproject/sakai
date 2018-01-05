@@ -29,6 +29,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.entitybroker.EntityBroker;
 import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.entitybroker.EntityView;
@@ -54,6 +56,7 @@ import org.sakaiproject.entitybroker.util.EntityResponse;
  * @author Aaron Zeckoski (aaron@caret.cam.ac.uk)
  * @author Antranig Basman (antranig@caret.cam.ac.uk)
  */
+@Slf4j
 public class EntityBrokerImpl implements EntityBroker, PropertiesProvider {
 
     public void init() {
@@ -220,12 +223,12 @@ public class EntityBrokerImpl implements EntityBroker, PropertiesProvider {
                 }
             } catch (Exception e) {
                 refName = reference;
-                System.err.println("WARN Invalid reference ("+reference+") for eventName ("+eventName+"), could not parse the reference correctly, continuing to create event with original reference");
+                log.warn("Invalid reference ({}) for eventName ({}), could not parse the reference correctly, continuing to create event with original reference", reference, eventName);
             }
             // had to take out the exists check because it makes firing events for removing entities very annoying -AZ
             entityBrokerManager.getExternalIntegrationProvider().fireEvent(eventName, refName);
         } else {
-            System.err.println("WARN No external system to handle events: event not fired: " + eventName + ":" + reference);
+            log.warn("No external system to handle events: event not fired: {}:{}", eventName, reference);
         }
     }
 
@@ -420,7 +423,7 @@ public class EntityBrokerImpl implements EntityBroker, PropertiesProvider {
         if (propertiesProvider != null) {
             return propertiesProvider.findEntityRefs(prefixes, name, searchValue, exactMatch);
         } else {
-            System.err.println("WARN No propertiesProvider defined");
+            log.warn("No propertiesProvider defined");
             return new ArrayList<String>();
         }
     }
@@ -429,7 +432,7 @@ public class EntityBrokerImpl implements EntityBroker, PropertiesProvider {
         if (propertiesProvider != null) {
             return propertiesProvider.getProperties(reference);
         } else {
-            System.err.println("WARN No propertiesProvider defined");
+            log.warn("No propertiesProvider defined");
             return new HashMap<String, String>(0);
         }
     }
@@ -438,7 +441,7 @@ public class EntityBrokerImpl implements EntityBroker, PropertiesProvider {
         if (propertiesProvider != null) {
             return propertiesProvider.getPropertyValue(reference, name);
         } else {
-            System.err.println("WARN No propertiesProvider defined");
+            log.warn("No propertiesProvider defined");
             return null;
         }
     }
@@ -447,7 +450,7 @@ public class EntityBrokerImpl implements EntityBroker, PropertiesProvider {
         if (propertiesProvider != null) {
             propertiesProvider.setPropertyValue(reference, name, value);
         } else {
-            System.err.println("WARN No propertiesProvider defined");
+            log.warn("No propertiesProvider defined");
         }
     }
 
@@ -462,7 +465,7 @@ public class EntityBrokerImpl implements EntityBroker, PropertiesProvider {
             requestStorage.reset();
             return results;
         } else {
-            System.err.println("WARN No tagSearchService defined");
+            log.warn("No tagSearchService defined");
             return new ArrayList<EntityData>();
         }
     }
@@ -471,7 +474,7 @@ public class EntityBrokerImpl implements EntityBroker, PropertiesProvider {
         if (tagSearchService != null) {
             return tagSearchService.getTagsForEntity(reference);
         } else {
-            System.err.println("WARN No tagSearchService defined");
+            log.warn("No tagSearchService defined");
             return new ArrayList<String>();
         }
     }
@@ -480,7 +483,7 @@ public class EntityBrokerImpl implements EntityBroker, PropertiesProvider {
         if (tagSearchService != null) {
             tagSearchService.removeTagsFromEntity(reference, tags);
         } else {
-            System.err.println("WARN No tagSearchService defined");
+            log.warn("No tagSearchService defined");
         }
     }
 
@@ -488,7 +491,7 @@ public class EntityBrokerImpl implements EntityBroker, PropertiesProvider {
         if (tagSearchService != null) {
             tagSearchService.addTagsToEntity(reference, tags);
         } else {
-            System.err.println("WARN No tagSearchService defined");
+            log.warn("No tagSearchService defined");
         }
     }
 
@@ -496,7 +499,7 @@ public class EntityBrokerImpl implements EntityBroker, PropertiesProvider {
         if (tagSearchService != null) {
             tagSearchService.setTagsForEntity(reference, tags);
         } else {
-            System.err.println("WARN No tagSearchService defined");
+            log.warn("No tagSearchService defined");
         }
     }
 
@@ -507,7 +510,7 @@ public class EntityBrokerImpl implements EntityBroker, PropertiesProvider {
         if (tagSearchService != null) {
             return new HashSet<String>( tagSearchService.getTagsForEntity(reference) );
         } else {
-            System.err.println("WARN No tagSearchService defined");
+            log.warn("No tagSearchService defined");
             return new HashSet<String>();
         }
     }
@@ -519,7 +522,7 @@ public class EntityBrokerImpl implements EntityBroker, PropertiesProvider {
         if (tagSearchService != null) {
             tagSearchService.setTagsForEntity(reference, tags);
         } else {
-            System.err.println("WARN No tagSearchService defined");
+            log.warn("No tagSearchService defined");
         }
     }
 
@@ -535,7 +538,7 @@ public class EntityBrokerImpl implements EntityBroker, PropertiesProvider {
             }
             return refs;
         } else {
-            System.err.println("WARN No tagSearchService defined");
+            log.warn("No tagSearchService defined");
             return new ArrayList<String>();
         }
     }
@@ -546,7 +549,7 @@ public class EntityBrokerImpl implements EntityBroker, PropertiesProvider {
         if (searchProvider != null) {
             return searchProvider.add(reference, content);
         }
-        System.err.println("WARN No searchProvider defined");
+        log.warn("No searchProvider defined");
         return false;
     }
 
@@ -554,7 +557,7 @@ public class EntityBrokerImpl implements EntityBroker, PropertiesProvider {
         if (searchProvider != null) {
             return searchProvider.remove(reference);
         }
-        System.err.println("WARN No searchProvider defined");
+        log.warn("No searchProvider defined");
         return false;
     }
 
@@ -562,7 +565,7 @@ public class EntityBrokerImpl implements EntityBroker, PropertiesProvider {
         if (searchProvider != null) {
             return searchProvider.search(query);
         }
-        System.err.println("WARN No searchProvider defined");
+        log.warn("No searchProvider defined");
         return null;
     }
 

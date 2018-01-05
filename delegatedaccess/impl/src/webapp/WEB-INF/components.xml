@@ -32,7 +32,6 @@
     	<property name="hierarchyService" ref="org.sakaiproject.hierarchy.HierarchyService" />	
     	<property name="dao" ref="org.sakaiproject.delegatedaccess.dao.DelegatedAccessDao" />
     	<property name="scheduledInvocationManager" ref="org.sakaiproject.api.app.scheduler.ScheduledInvocationManager" />
-    	<property name="timeService" ref="org.sakaiproject.time.api.TimeService" />
         <property name="memoryService" ref="org.sakaiproject.memory.api.MemoryService"/>
     </bean>
     

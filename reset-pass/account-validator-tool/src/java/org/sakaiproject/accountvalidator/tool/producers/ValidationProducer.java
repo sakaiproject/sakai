@@ -24,8 +24,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.accountvalidator.logic.ValidationLogic;
 import org.sakaiproject.accountvalidator.model.ValidationAccount;
 import org.sakaiproject.accountvalidator.tool.params.ValidationViewParams;
@@ -62,10 +62,10 @@ import uk.org.ponder.rsf.viewstate.ViewParameters;
 import uk.org.ponder.rsf.viewstate.ViewParamsReporter;
 import uk.org.ponder.springutil.SpringMessageLocator;
 
+@Slf4j
 public class ValidationProducer implements ViewComponentProducer,
 ViewParamsReporter, ActionResultInterceptor {
 
-	private static Logger log = LoggerFactory.getLogger(ValidationProducer.class);
 	public static final String VIEW_ID = "validate";
 
 	private static final String MAX_PASSWORD_RESET_MINUTES = "accountValidator.maxPasswordResetMinutes";
@@ -264,11 +264,7 @@ ViewParamsReporter, ActionResultInterceptor {
 				//merge form
 				UIMessage.make(tofill, "validate.alreadyhave",  "validate.alreadyhave.reset", args);
 			}
-			
-			
-			
-			
-			
+
 			//we need to know what sites their a member of:
 			Set<String> groups = authzGroupService.getAuthzGroupsIsAllowed(EntityReference.getIdFromRef(va.getUserId()), "site.visit", null);
 			Iterator<String> git = groups.iterator();
@@ -285,8 +281,7 @@ ViewParamsReporter, ActionResultInterceptor {
 						UIOutput.make(list, "siteName", s.getTitle());
 						existingSites.add(groupId);
 					} catch (IdUnusedException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
+						log.error(e.getMessage(), e);
 					}
 				}
 				
@@ -352,25 +347,14 @@ ViewParamsReporter, ActionResultInterceptor {
 			UIInput.make(claimForm, "password", "claimLocator.new_1.password1");
 			UICommand.make(claimForm, "submitClaim", UIMessage.make("submit.login"), "claimLocator.claimAccount");
 			claimForm.parameters.add(new UIELBinding("claimLocator.new_1.validationToken", va.getValidationToken()));
-
-
 		} catch (UserNotDefinedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-
+			log.error(e.getMessage(), e);
 		}
-
-
-
 	}
-
-
 
 	public ViewParameters getViewParameters() {
 		return new ValidationViewParams();
 	}
-
-
 
 	public void interceptActionResult(ARIResult result,
 			ViewParameters incoming, Object actionReturn) {
@@ -385,7 +369,4 @@ ViewParamsReporter, ActionResultInterceptor {
 		}
 		
 	}
-
-
-
 }

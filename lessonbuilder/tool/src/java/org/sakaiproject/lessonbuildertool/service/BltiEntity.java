@@ -24,36 +24,29 @@
 package org.sakaiproject.lessonbuildertool.service;
 
 import java.io.IOException;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
-import java.net.URLEncoder;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean;
-import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean.UrlItem;
-
-import org.sakaiproject.tool.cover.ToolManager;
-import org.sakaiproject.site.api.Site;
-import org.sakaiproject.site.cover.SiteService;
-import org.sakaiproject.site.api.ToolConfiguration;
-
-import org.sakaiproject.component.cover.ServerConfigurationService;
-import org.sakaiproject.component.cover.ComponentManager;
-
-import org.sakaiproject.memory.api.Cache;
-import org.sakaiproject.memory.api.MemoryService;
+import lombok.extern.slf4j.Slf4j;
 
 import uk.org.ponder.messageutil.MessageLocator;
 
+import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean;
+import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean.UrlItem;
 import org.sakaiproject.lti.api.LTIService;
-// import org.sakaiproject.lti.impl.DBLTIService; // HACK
+import org.sakaiproject.memory.api.Cache;
+import org.sakaiproject.memory.api.MemoryService;
+import org.sakaiproject.site.api.Site;
+import org.sakaiproject.site.api.ToolConfiguration;
+import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.tool.api.ToolManager;
 
 /**
  * Interface to Assignment
@@ -71,11 +64,8 @@ import org.sakaiproject.lti.api.LTIService;
 // variables lessonEntity because the same module will probably have an
 // injected class to handle tests and quizes as well. That will eventually
 // be converted to be a LessonEntity.
-
+@Slf4j
 public class BltiEntity implements LessonEntity, BltiInterface {
-
-    private static Logger log = LoggerFactory.getLogger(BltiEntity.class);
-
     private static Cache bltiCache = null;
     protected static final int DEFAULT_EXPIRATION = 10 * 60;
     // 2.8 doesn't define this, so put it here
@@ -102,7 +92,17 @@ public class BltiEntity implements LessonEntity, BltiInterface {
 	memoryService = m;
     }
 
-    static MessageLocator messageLocator = null;
+    private ToolManager toolManager;    
+    public void setToolManager(ToolManager toolManager) {
+		this.toolManager = toolManager;
+	}
+    
+    private SiteService siteService;    
+	public void setSiteService(SiteService siteService) {
+		siteService = siteService;
+	}
+
+	static MessageLocator messageLocator = null;
     public void setMessageLocator(MessageLocator m) {
 	messageLocator = m;
     }
@@ -115,7 +115,7 @@ public class BltiEntity implements LessonEntity, BltiInterface {
     public void init () {
 	log.info("init()");
 	bltiCache = memoryService
-	    .newCache("org.sakaiproject.lessonbuildertool.service.BltiEntity.cache");
+	    .getCache("org.sakaiproject.lessonbuildertool.service.BltiEntity.cache");
 
         /* Hack to avoid a restart to get a new version of DBLTIService 
 	if ( ltiService == null ) { 
@@ -271,10 +271,10 @@ public class BltiEntity implements LessonEntity, BltiInterface {
 	if ( id == null ) return; // Likely a failure
 	if ( ltiService == null) return;  // not basiclti or old
 	Long key = getLong(id);
-	content = ltiService.getContent(key, ToolManager.getCurrentPlacement().getContext());
+	content = ltiService.getContent(key, toolManager.getCurrentPlacement().getContext());
 	if ( content == null ) return;
 	Long toolKey = getLongNull(content.get("tool_id"));
-	if (toolKey != null ) tool = ltiService.getTool(toolKey, ToolManager.getCurrentPlacement().getContext());
+	if (toolKey != null ) tool = ltiService.getTool(toolKey, toolManager.getCurrentPlacement().getContext());
     }	
 
     // properties of entities
@@ -532,8 +532,8 @@ public class BltiEntity implements LessonEntity, BltiInterface {
 	// TODO: Could we get simplePageBean populated here and not build out own get
         public String getCurrentTool(String commonToolId) {
 		try {
-			String currentSiteId = ToolManager.getCurrentPlacement().getContext();
-			Site site = SiteService.getSite(currentSiteId);
+			String currentSiteId = toolManager.getCurrentPlacement().getContext();
+			Site site = siteService.getSite(currentSiteId);
 			ToolConfiguration toolConfig = site.getToolForCommonId(commonToolId);
 			if (toolConfig == null) return null;
 			return toolConfig.getId();

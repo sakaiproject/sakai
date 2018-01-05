@@ -27,6 +27,9 @@ package org.sakaiproject.pasystem.impl.popups;
 import java.sql.Clob;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.pasystem.api.Popup;
 import org.sakaiproject.pasystem.impl.common.DB;
@@ -34,15 +37,12 @@ import org.sakaiproject.pasystem.impl.common.DBAction;
 import org.sakaiproject.pasystem.impl.common.DBConnection;
 import org.sakaiproject.pasystem.impl.common.DBResults;
 import org.sakaiproject.user.api.User;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Determine which popup (if any) should be shown to a given user.
  */
+@Slf4j
 public class PopupForUser {
-
-    private static final Logger LOG = LoggerFactory.getLogger(PopupForUser.class);
 
     private User user;
     private String userId;
@@ -131,7 +131,7 @@ public class PopupForUser {
                             }
                     );
         } catch (Exception e) {
-            LOG.error("Error determining active popup", e);
+            log.error("Error determining active popup", e);
             return Popup.createNullPopup();
         }
     }

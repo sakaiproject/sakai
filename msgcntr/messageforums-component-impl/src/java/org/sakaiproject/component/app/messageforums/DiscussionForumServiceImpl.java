@@ -31,7 +31,14 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.Stack;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.binary.Base64;
+import org.w3c.dom.DOMException;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+
 import org.sakaiproject.api.app.messageforums.Area;
 import org.sakaiproject.api.app.messageforums.AreaManager;
 import org.sakaiproject.api.app.messageforums.Attachment;
@@ -69,14 +76,8 @@ import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.util.Validator;
 import org.sakaiproject.util.cover.LinkMigrationHelper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.w3c.dom.DOMException;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 
+@Slf4j
 public class DiscussionForumServiceImpl  implements DiscussionForumService, EntityTransferrer, EntityTransferrerRefMigrator
 {
 	private static final String MESSAGEFORUM = "messageforum";
@@ -143,11 +144,9 @@ public class DiscussionForumServiceImpl  implements DiscussionForumService, Enti
 		this.authzGroupService = authzGroupService;
 	}
 
-	private static final Logger LOG = LoggerFactory.getLogger(DiscussionForumService.class);
-
 	public void init() throws Exception
 	{
-      LOG.info("init()");
+      log.info("init()");
 		entityManager.registerEntityProducer(this, REFERENCE_ROOT);	
 	}
 
@@ -199,7 +198,7 @@ public class DiscussionForumServiceImpl  implements DiscussionForumService, Enti
 									df_data.setAttribute(DISCUSSION_FORUM_DESC, encoded);
 								}
 								catch(Exception e) {
-									//LOG.warn("Encode DF Extended Desc - " + e);
+									//log.warn("Encode DF Extended Desc - " + e);
 									df_data.setAttribute(DISCUSSION_FORUM_DESC, "");
 								}
 
@@ -208,7 +207,7 @@ public class DiscussionForumServiceImpl  implements DiscussionForumService, Enti
 									df_data.setAttribute(DISCUSSION_FORUM_SHORT_DESC, encoded);
 								}
 								catch(Exception e) {
-									//LOG.warn("Encode DF Short Desc - " + e);
+									//log.warn("Encode DF Short Desc - " + e);
 									df_data.setAttribute(DISCUSSION_FORUM_SHORT_DESC, "");
 								}
 
@@ -275,7 +274,7 @@ public class DiscussionForumServiceImpl  implements DiscussionForumService, Enti
 											topic_short_desc.setAttribute(ENCODE, BASE64);
 											topic_short_desc.setAttribute(VALUE, encoded);
 										} catch(Exception e) {
-											//LOG.warn("Encode Topic Short Desc - " + e);
+											//log.warn("Encode Topic Short Desc - " + e);
 											topic_short_desc.setAttribute(NAME, TOPIC_SHORT_DESC);
 											topic_short_desc.setAttribute(ENCODE, BASE64);
 											topic_short_desc.setAttribute(VALUE, "");
@@ -291,7 +290,7 @@ public class DiscussionForumServiceImpl  implements DiscussionForumService, Enti
 											topic_long_desc.setAttribute(ENCODE, BASE64);
 											topic_long_desc.setAttribute(VALUE, encoded);
 										} catch(Exception e) {
-											//LOG.warn("Encode Topic Ext Desc - " + e);
+											//log.warn("Encode Topic Ext Desc - " + e);
 											topic_long_desc.setAttribute(NAME, TOPIC_LONG_DESC);
 											topic_long_desc.setAttribute(ENCODE, BASE64);
 											topic_long_desc.setAttribute(VALUE, "");
@@ -367,7 +366,7 @@ public class DiscussionForumServiceImpl  implements DiscussionForumService, Enti
 		}
 		catch (DOMException e)
 		{
-			LOG.error(e.getMessage(), e);
+			log.error(e.getMessage(), e);
 		}
 		return results.toString();
 	}
@@ -431,7 +430,7 @@ public class DiscussionForumServiceImpl  implements DiscussionForumService, Enti
 		boolean importOpenCloseDates = ServerConfigurationService.getBoolean("msgcntr.forums.import.openCloseDates", true);
 		try 
 		{
-			LOG.debug("transfer copy mc items by transferCopyEntities");
+			log.debug("transfer copy mc items by transferCopyEntities");
 
 			//List fromDfList = dfManager.getDiscussionForumsByContextId(fromContext);
 			List fromDfList = dfManager.getDiscussionForumsWithTopicsMembershipNoAttachments(fromContext);
@@ -628,7 +627,7 @@ public class DiscussionForumServiceImpl  implements DiscussionForumService, Enti
 		}
 
 		catch (Exception e) {
-			LOG.error(e.getMessage(), e);
+			log.error(e.getMessage(), e);
 		}
 		
 		return transversalMap;
@@ -1098,12 +1097,12 @@ public class DiscussionForumServiceImpl  implements DiscussionForumService, Enti
 				attachment.getProperties().getProperty(ResourceProperties.PROP_DISPLAY_NAME));
 			return thisDFAttach;
 		} catch (IdUnusedException iue) {
-			LOG.error("Error with attachment id: " + attachmentId);
-			LOG.error(iue.getMessage(), iue);
+			log.error("Error with attachment id: " + attachmentId);
+			log.error(iue.getMessage(), iue);
 		}
 		catch (Exception e) {
-			LOG.error("Error with attachment id: " + attachmentId);
-			LOG.error(e.getMessage(), e);
+			log.error("Error with attachment id: " + attachmentId);
+			log.error(e.getMessage(), e);
 		}
 
 		return null;
@@ -1168,9 +1167,9 @@ public class DiscussionForumServiceImpl  implements DiscussionForumService, Enti
 						}
 
 					} catch (NumberFormatException nfe) {
-						LOG.error(nfe.getMessage());
+						log.error(nfe.getMessage());
 					} catch (Exception e) {
-						LOG.error(e.getMessage(), e);
+						log.error(e.getMessage(), e);
 					}
 				}
 			}
@@ -1210,9 +1209,9 @@ public class DiscussionForumServiceImpl  implements DiscussionForumService, Enti
 		      }
 		} catch (GroupNotDefinedException e) {
 			// TODO Auto-generated catch block
-			LOG.error("GroupNotDefinedException retrieving site's roles and groups", e);
+			log.error("GroupNotDefinedException retrieving site's roles and groups", e);
 		} catch (Exception e) {
-			LOG.error("Exception retrieving site's roles and groups", e);
+			log.error("Exception retrieving site's roles and groups", e);
 		}
 		
 		return rolesAndGroups;
@@ -1301,14 +1300,14 @@ public class DiscussionForumServiceImpl  implements DiscussionForumService, Enti
 				}
 				catch(Exception e)
 				{
-					LOG.debug ("Remove Forums from Site Import failed" + e);
+					log.debug ("Remove Forums from Site Import failed" + e);
 				}
 			}
 			transversalMap.putAll(transferCopyEntitiesRefMigrator(fromContext, toContext, ids));
 		}
 		catch(Exception e)
 		{
-			LOG.debug ("Forums transferCopyEntities failed" + e);
+			log.debug ("Forums transferCopyEntities failed" + e);
 		}
 		
 		return transversalMap;

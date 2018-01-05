@@ -56,6 +56,11 @@ public class CommonsSecurityManagerImpl implements CommonsSecurityManager {
 
         log.debug("canCurrentUserCommentOnPost()");
 
+        // This acts as an override
+        if (sakaiProxy.isAllowedFunction(CommonsFunctions.COMMENT_UPDATE_ANY, post.getSiteId())) {
+            return true;
+        }
+
         // An author can always comment on their own posts
         if (post.getCreatorId().equals(sakaiProxy.getCurrentUserId())) {
             return true;
@@ -98,7 +103,7 @@ public class CommonsSecurityManagerImpl implements CommonsSecurityManager {
 
         // If the current user is authenticated and the post author, yes.
         if (currentUser != null && currentUser.equals(post.getCreatorId())) {
-            if (StringUtils.isEmpty(post.getId())) {
+            if (StringUtils.isBlank(post.getId())) {
                 return sakaiProxy.isAllowedFunction(CommonsFunctions.POST_CREATE, post.getSiteId());
             } else {
                 return sakaiProxy.isAllowedFunction(CommonsFunctions.POST_UPDATE_OWN, post.getSiteId());

@@ -30,9 +30,10 @@ import java.util.Set;
 import javax.faces.event.ValueChangeEvent;
 import javax.faces.model.SelectItem;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.section.api.coursemanagement.CourseSection;
 import org.sakaiproject.section.api.coursemanagement.ParticipationRecord;
 import org.sakaiproject.section.api.coursemanagement.User;
@@ -41,20 +42,17 @@ import org.sakaiproject.section.api.facade.Role;
 import org.sakaiproject.tool.section.decorator.SectionDecorator;
 import org.sakaiproject.tool.section.jsf.JsfUtil;
 import org.sakaiproject.tool.section.jsf.backingbean.EditManagersBean;
-import org.sakaiproject.component.cover.ServerConfigurationService;	
 /**
  * Controls the edit students page (where students are assigned to sections).
  * 
  * @author <a href="mailto:jholtzman@berkeley.edu">Josh Holtzman</a>
  *
  */
+@Slf4j
 public class EditStudentsBean extends EditManagersBean implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
-	private static final Logger log = LoggerFactory.getLogger(EditStudentsBean.class);
-	
-	
 	// For the "View" selectbox
 	private String availableSectionUuid;
 	private String availableSectionTitle;

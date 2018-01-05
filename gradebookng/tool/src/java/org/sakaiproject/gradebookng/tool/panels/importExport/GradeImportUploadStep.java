@@ -44,6 +44,7 @@ import org.sakaiproject.gradebookng.tool.pages.ImportExportPage;
 import org.sakaiproject.gradebookng.tool.panels.BasePanel;
 import org.sakaiproject.service.gradebook.shared.Assignment;
 import org.sakaiproject.user.api.User;
+import org.sakaiproject.util.FormattedText;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -125,7 +126,7 @@ public class GradeImportUploadStep extends BasePanel {
 				ImportedSpreadsheetWrapper spreadsheetWrapper = null;
 				try {
 					spreadsheetWrapper = ImportGradesHelper.parseImportedGradeFile(upload.getInputStream(), upload.getContentType(),
-							upload.getClientFileName(), userMap);
+							upload.getClientFileName(), userMap, FormattedText.getDecimalSeparator());
 				} catch (final GbImportExportInvalidColumnException e) {
 					log.debug("incorrect format", e);
 					error(getString("importExport.error.incorrectformat") + " - " + e.getMessage());

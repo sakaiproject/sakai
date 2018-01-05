@@ -15,7 +15,22 @@
  */
 package org.sakaiproject.commons.impl;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.Observable;
+import java.util.Observer;
+import java.util.Set;
+import java.util.Stack;
+
+import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
+
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 import org.sakaiproject.commons.api.*;
 import org.sakaiproject.commons.api.datamodel.Comment;
@@ -30,14 +45,6 @@ import org.sakaiproject.profile2.logic.ProfileConnectionsLogic;
 import org.sakaiproject.profile2.model.BasicConnection;
 import org.sakaiproject.profile2.util.ProfileConstants;
 import org.sakaiproject.util.FormattedText;
-
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-
-import lombok.Setter;
-import lombok.extern.slf4j.Slf4j;
 
 /**
  * @author Adrian Fish (adrian.r.fish@gmail.com)
@@ -160,7 +167,7 @@ public class CommonsManagerImpl implements CommonsManager, Observer {
                 log.warn("Can't delete post '" + postId + "'");
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error(e.getMessage(), e);
         }
 
         return false;
@@ -169,17 +176,19 @@ public class CommonsManagerImpl implements CommonsManager, Observer {
     public Comment saveComment(String commonsId, Comment comment) {
 
         try {
-            Comment savedComment = persistenceManager.saveComment(comment);
-            if (savedComment != null) {
-                List<String> contextIds = new ArrayList();
-                if (persistenceManager.getCommons(commonsId).isSocial()) {
-                    Post post = persistenceManager.getPost(comment.getPostId(), false);
-                    contextIds = getConnectionUserIds(post.getCreatorId());
-                } else {
-                    contextIds.add(commonsId);
+            Post post = persistenceManager.getPost(comment.getPostId(), false);
+            if (commonsSecurityManager.canCurrentUserCommentOnPost(post)) {
+                Comment savedComment = persistenceManager.saveComment(comment);
+                if (savedComment != null) {
+                    List<String> contextIds = new ArrayList();
+                    if (persistenceManager.getCommons(commonsId).isSocial()) {
+                        contextIds = getConnectionUserIds(post.getCreatorId());
+                    } else {
+                        contextIds.add(commonsId);
+                    }
+                    removeContextIdsFromCache(contextIds);
+                    return savedComment;
                 }
-                removeContextIdsFromCache(contextIds);
-                return savedComment;
             }
         } catch (Exception e) {
             log.error("Caught exception whilst saving comment", e);

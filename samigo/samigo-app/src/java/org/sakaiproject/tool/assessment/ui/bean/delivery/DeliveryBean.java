@@ -15,10 +15,7 @@
  *
  */
 
-
-
 package org.sakaiproject.tool.assessment.ui.bean.delivery;
-
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -35,8 +32,8 @@ import javax.faces.context.FacesContext;
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang.StringUtils;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.event.cover.NotificationService;
@@ -92,7 +89,6 @@ import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.util.ResourceLoader;
 
-import org.apache.commons.lang.StringUtils;
 /**
  *
  * @author casong
@@ -101,10 +97,10 @@ import org.apache.commons.lang.StringUtils;
  *
  * Used to be org.navigoproject.ui.web.asi.delivery.XmlDeliveryForm.java
  */
+@Slf4j
 public class DeliveryBean
   implements Serializable
 {
-  private static final Logger log = LoggerFactory.getLogger(DeliveryBean.class);
 
   //SAM-2517
   private ServerConfigurationService serverConfigurationService;
@@ -279,7 +275,6 @@ public class DeliveryBean
   private boolean showTimeWarning;
   private boolean hasShowTimeWarning;
   private boolean turnIntoTimedAssessment;
-  private boolean useDueDate;
   private boolean submitFromTimeoutPopup;
   private boolean  skipFlag;
   private Date deadline;
@@ -2604,8 +2599,7 @@ public class DeliveryBean
     ExternalContext external = context.getExternalContext();
     Long fileSize = (Long)((ServletContext)external.getContext()).getAttribute("TEMP_FILEUPLOAD_SIZE");
     Long maxSize = (Long)((ServletContext)external.getContext()).getAttribute("FILEUPLOAD_SIZE_MAX");
-    //log.info("**** filesize is ="+fileSize);
-    //log.info("**** maxsize is ="+maxSize);
+
     ((ServletContext)external.getContext()).removeAttribute("TEMP_FILEUPLOAD_SIZE");
     if (fileSize!=null){
       float fileSize_float = fileSize.floatValue()/1024;
@@ -3237,7 +3231,6 @@ public class DeliveryBean
       assessmentGrading = service.load(adata.getAssessmentGradingId().toString(), false);
     }
     
-    // log.debug("check 0");
     if (isRemoved()){
         return "isRemoved";
     }
@@ -3429,7 +3422,7 @@ public class DeliveryBean
 	  //If using extended Time Delivery, the late submission setting is based on retracted
 	  if (extendedTimeDeliveryService.hasExtendedTime()) {
 		  //Accept it if it's not retracted on the extended time entry
-		  acceptLateSubmission = !isRetracted(false);
+		  acceptLateSubmission = (extendedTimeDeliveryService.getRetractDate() != null) ? !isRetracted(false) : false;
 	  }
 	  return acceptLateSubmission;
   }
@@ -3437,11 +3430,12 @@ public class DeliveryBean
   public boolean isRetracted(boolean isSubmitForGrade){
     boolean isRetracted = true;
     Date currentDate = new Date();
-    Date retractDate;
+    Date retractDate = null;
+    boolean acceptLateSubmission = AssessmentAccessControlIfc.ACCEPT_LATE_SUBMISSION.equals(publishedAssessment.getAssessmentAccessControl().getLateHandling());
     if (extendedTimeDeliveryService.hasExtendedTime()) {
     	retractDate = extendedTimeDeliveryService.getRetractDate();
     }
-    else {
+    else if (acceptLateSubmission) {
     	retractDate = publishedAssessment.getAssessmentAccessControl().getRetractDate();
     }
     if (retractDate == null || retractDate.after(currentDate)){
@@ -3699,7 +3693,6 @@ public class DeliveryBean
 				  else {
 					  if (retractDate != null) {
 						  finalTimeLimit = getTimeBeforeRetract(timeLimit);
-						  useDueDate = false;
 					  }
 				  }
 			  }
@@ -3707,7 +3700,6 @@ public class DeliveryBean
 		  else {
 			  if (retractDate != null) {
 				  finalTimeLimit = getTimeBeforeRetract(timeLimit);
-				  useDueDate = false;
 			  }
 		  }
 		 
@@ -4042,16 +4034,6 @@ public class DeliveryBean
 	  public void setTurnIntoTimedAssessment(boolean turnIntoTimedAssessment)
 	  {
 	    this.turnIntoTimedAssessment = turnIntoTimedAssessment;
-	  }
-	  
-	  public boolean getUseDueDate()
-	  {
-	    return useDueDate;
-	  }
-
-	  public void setUseDueDate(boolean useDueDate)
-	  {
-	    this.useDueDate = useDueDate;
 	  }
 
 	  public boolean getsubmitFromTimeoutPopup() {

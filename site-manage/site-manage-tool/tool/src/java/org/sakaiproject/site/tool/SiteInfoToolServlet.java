@@ -44,12 +44,11 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.sax.SAXResult;
 import javax.xml.transform.stream.StreamSource;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.DefaultConfigurationBuilder;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.apache.fop.apps.FOUserAgent;
 import org.apache.fop.apps.Fop;
 import org.apache.fop.apps.FopFactory;
@@ -57,6 +56,9 @@ import org.apache.fop.fonts.substitute.FontQualifier;
 import org.apache.fop.fonts.substitute.FontSubstitution;
 import org.apache.fop.fonts.substitute.FontSubstitutions;
 import org.apache.fop.apps.MimeConstants;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+
 import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.site.api.Site;
@@ -69,21 +71,18 @@ import org.sakaiproject.util.BasicAuth;
 import org.sakaiproject.util.RequestFilter;
 import org.sakaiproject.util.ResourceLoader;
 
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-
 /**
  * this is the servlet to return the status of site copy thread based on the SessionState variable 
  * @author zqian
  *
  */
+@Slf4j
 public class SiteInfoToolServlet extends HttpServlet
 {
 	private static final long serialVersionUID = 1L;
-	
+
     private transient BasicAuth basicAuth;
-    protected static final Logger log = LoggerFactory.getLogger(SiteInfoToolServlet.class);
-    
+
     // create transformerFactory object needed by generatePDF
     private TransformerFactory transformerFactory = null;
 
@@ -227,21 +226,6 @@ public class SiteInfoToolServlet extends HttpServlet
 			res.setBufferSize(outByteStream.size());
 		}
 
-		/*
-		// output xml for debugging purpose
-		try
-		{
-			TransformerFactory transformerFactory = TransformerFactory.newInstance();
-	        Transformer transformer = transformerFactory.newTransformer();
-	        DOMSource source = new DOMSource(document);
-	        StreamResult result =  new StreamResult(System.out);
-	        transformer.transform(source, result);
-		}
-		catch (Exception e)
-		{
-			
-		}*/
-        
 		OutputStream out = null;
 		try
 		{
@@ -434,7 +418,6 @@ public class SiteInfoToolServlet extends HttpServlet
 		}
 		catch (Exception e)
 		{
-			e.printStackTrace();
 			log.warn(this+".generatePDF(): " + e);
 			return;
 		}

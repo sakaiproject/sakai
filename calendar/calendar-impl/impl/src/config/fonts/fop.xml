@@ -1,0 +1,49 @@
+<?xml version="1.0"?>
+<!--
+Relative config url's will be resolved relative to
+the location of this file, but this doesn't work when the configuration is loaded off the classpath as an inputstream
+-->
+
+<!-- NOTE: This is the version of the configuration -->
+<fop version="1.0">
+
+
+  <strict-validation>false</strict-validation>
+
+  <!-- Information for specific renderers -->
+  <!-- Uses renderer mime type for renderers -->
+  <renderers>
+    <renderer mime="application/pdf">
+      <filterList>
+        <!-- provides compression using zlib flate (default is on) -->
+        <value>flate</value>
+      </filterList>
+
+      <fonts>
+        <!-- We don't really use the classpath prefix as all resources are assumed to be on the classpath.
+             The /// is so we can just call getPath() and extract the path in the classpath.
+             Because a jar: URI is opaque you can't resolve relative URIs to it so setting the base of FOP to be
+             a classpath resource means you can't have relative font URIs. Apache FOP should really blow up when
+             you attempt to use a opaque URI for the base as no relative references are going to resolve.
+          -->
+        <font
+              embed-url="classpath:///fonts/dejavu-fonts-ttf-2.25/ttf/DejaVuSans.ttf"
+              metrics-url="classpath:///fonts/DejaVuSans.xml"
+              kerning="yes">
+          <font-triplet name="DejaVuSans" style="normal" weight="normal"/>
+        </font>
+
+        <font
+              embed-url="classpath:///fonts/dejavu-fonts-ttf-2.25/ttf/DejaVuSans-Bold.ttf"
+              metrics-url="classpath:///fonts/DejaVuSans-Bold.xml"
+              kerning="yes">
+          <font-triplet name="DejaVuSans" style="normal" weight="bold"/>
+        </font>
+
+      </fonts>
+
+    </renderer>
+
+  </renderers>
+
+</fop>

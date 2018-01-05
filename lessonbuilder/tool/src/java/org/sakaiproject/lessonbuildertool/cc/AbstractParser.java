@@ -57,27 +57,24 @@ package org.sakaiproject.lessonbuildertool.cc;
  *
  **********************************************************************************/
 
-
 import java.io.IOException;
+import java.io.StringBufferInputStream;
 import java.util.Iterator;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+
 import org.jdom.Element;
 import org.jdom.JDOMException;
 import org.jdom.Namespace;
 import org.jdom.input.SAXBuilder;
-import org.jdom.xpath.XPath;
-
 import org.jdom.output.XMLOutputter;
+import org.jdom.xpath.XPath;
 
 import org.xml.sax.EntityResolver;
 import org.xml.sax.InputSource;
-import java.io.StringBufferInputStream;
 
+@Slf4j
 public abstract class AbstractParser {
-
-  private static final Logger log = LoggerFactory.getLogger(AbstractParser.class);
   private static final String RESOURCE_QUERY="ims:resource[@identifier='xxx']";
   private static final String MD_ROOT="lom";
   private static final String METADATA="metadata";
@@ -150,12 +147,6 @@ public abstract class AbstractParser {
     try {
 	result=builder.build(the_cartridge.getFile(the_file)).getRootElement();
       XMLOutputter outputter = new XMLOutputter();
-      //      try {
-	  //	  outputter.output(result, System.out);       
-      //}
-      //      catch (IOException e) {
-      //	  System.err.println("output problem " + e);
-      //      }
     } catch (Exception e) {
       throw new ParseException(e);
     }
@@ -173,7 +164,7 @@ public abstract class AbstractParser {
     processDependencies(handler, the_resource);
     handler.endResource();
       } catch (Exception e) {
-	  e.printStackTrace();
+	  log.error(e.getMessage(), e);
           if (the_resource == null)
               log.info("processresouce the item null");
           else

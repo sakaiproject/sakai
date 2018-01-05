@@ -20,15 +20,9 @@
  **********************************************************************************/
 package org.sakaiproject.tags.impl.job;
 
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.quartz.Job;
-import org.quartz.JobExecutionContext;
-import org.quartz.JobExecutionException;
-import org.sakaiproject.component.api.ServerConfigurationService;
-import org.sakaiproject.email.api.EmailService;
-
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStream;
 
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamConstants;
@@ -37,15 +31,20 @@ import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.stax.StAXSource;
 import javax.xml.transform.dom.DOMResult;
+
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.quartz.Job;
+import org.quartz.JobExecutionContext;
+import org.quartz.JobExecutionException;
 import org.w3c.dom.Node;
 import org.w3c.dom.Element;
 import org.w3c.dom.Document;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.InputStream;
-
-
+import org.sakaiproject.component.api.ServerConfigurationService;
+import org.sakaiproject.email.api.EmailService;
 
 /**
  * A quartz job to synchronize the TAGS with an
@@ -53,8 +52,8 @@ import java.io.InputStream;
  *
  *
  */
+@Slf4j
 public class TagsExportedXMLSyncJob extends TagSynchronizer implements Job {
-	private static final Log log = LogFactory.getLog(TagsExportedXMLSyncJob.class);
 
 	private static final int VALID_ID_LENGTH = 36;
 	private String tagsPathToXml;
@@ -79,7 +78,6 @@ public class TagsExportedXMLSyncJob extends TagSynchronizer implements Job {
 				targetStream=new FileInputStream(xmlFile);
 			} catch (Exception e){
 				log.warn("The Full Tags XML file can't be found in the specified route: " + tagsPathToXml);
-				e.printStackTrace();
 			}
 
 		return targetStream;

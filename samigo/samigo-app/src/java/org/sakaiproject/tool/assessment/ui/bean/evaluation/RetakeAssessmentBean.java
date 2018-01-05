@@ -24,14 +24,14 @@ package org.sakaiproject.tool.assessment.ui.bean.evaluation;
 import java.io.Serializable;
 import java.util.Map;
 
+import lombok.extern.slf4j.Slf4j;
 import org.sakaiproject.tool.assessment.data.dao.grading.StudentGradingSummaryData;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * <p>Description: class form for evaluating total scores</p>
  *
  */
+@Slf4j
 public class RetakeAssessmentBean implements Serializable {
 
 	private Long publishedAssessmentId;
@@ -40,8 +40,6 @@ public class RetakeAssessmentBean implements Serializable {
 	private StudentGradingSummaryData studentGradingSummaryData;
 	private String studentName;
 	private Map studentGradingSummaryDataMap;
-	
-	private static Logger log = LoggerFactory.getLogger(TotalScoresBean.class);
 
 	public RetakeAssessmentBean() {
 		log.debug("Creating a new RetakeAssessmentBean");

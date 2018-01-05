@@ -22,14 +22,14 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.tool.gradebook.Gradebook;
 import org.sakaiproject.tool.gradebook.facades.Authn;
 import org.sakaiproject.tool.gradebook.ui.InitializableBean;
 
+@Slf4j
 public class SelectGradebookBean extends InitializableBean {
-	private static final Logger logger = LoggerFactory.getLogger(SelectGradebookBean.class);
 	private Authn authnService;
 	private FrameworkManager frameworkManager;
 
@@ -61,7 +61,7 @@ public class SelectGradebookBean extends InitializableBean {
 			try {
 				this.uid = URLEncoder.encode(gradebook.getUid(), "UTF-8");
 			} catch (UnsupportedEncodingException ex) {
-				logger.error("Unlikely exception thrown", ex);
+				log.error("Unlikely exception thrown", ex);
 			}
 		}
 		public String getName() {

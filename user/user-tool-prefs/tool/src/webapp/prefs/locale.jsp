@@ -14,6 +14,7 @@
 		<h:form id="locale_form">
 <h:outputText value="#{Portal.latestJQuery}" escape="false"/>
 		<script type="text/javascript" src="/sakai-user-tool-prefs/js/prefs.js">// </script>
+		<script type="text/javascript" src="/library/js/spinner.js"></script>
 		<script type="text/javascript">
 			$(document).ready(function(){
 				setupPrefsGen();
@@ -46,10 +47,8 @@
 				    <f:selectItems value="#{UserPrefsTool.prefLocales}" />
 				 </h:selectOneListbox>
 			    <div class="act">
-				    <h:commandButton accesskey="s" id="submit" styleClass="active formButton" value="#{msgs.update_pref}" action="#{UserPrefsTool.processActionLocSave}"></h:commandButton>
-					<h:commandButton accesskey="x" id="cancel"  styleClass="formButton" value="#{msgs.cancel_pref}" action="#{UserPrefsTool.processActionLocCancel}"></h:commandButton>
-					<h:commandButton type="button"  styleClass="dummy blocked" value="#{msgs.update_pref}" style="display:none"></h:commandButton>
-					<h:commandButton type="button"  styleClass="dummy blocked" value="#{msgs.cancel_pref}" style="display:none"></h:commandButton>
+				    <h:commandButton accesskey="s" id="submit" styleClass="active formButton" value="#{msgs.update_pref}" action="#{UserPrefsTool.processActionLocSave}" onclick="SPNR.disableControlsAndSpin( this, null );" />
+				    <h:commandButton accesskey="x" id="cancel"  styleClass="formButton" value="#{msgs.cancel_pref}" action="#{UserPrefsTool.processActionLocCancel}" onclick="SPNR.disableControlsAndSpin( this, null );" />
 			    </div>
 		 </h:form>
 	</sakai:view_content>

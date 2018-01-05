@@ -27,8 +27,8 @@ import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.filter.DelegatingFilterProxy;
 
@@ -45,9 +45,8 @@ import org.springframework.web.filter.DelegatingFilterProxy;
  * Time: 11:01 PM
  * To change this template use File | Settings | File Templates.
  */
+@Slf4j
 public class SafeDelegatingFilterProxy extends DelegatingFilterProxy {
-    private static Logger log = LoggerFactory.getLogger(SafeDelegatingFilterProxy.class);
-
     private final Object delegateMonitor = new Object();
     private boolean enabled = false;
 

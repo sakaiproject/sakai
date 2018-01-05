@@ -151,13 +151,15 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
                             + view
                             + "): e.g. /assignment/a/{context}/{assignmentId}");
         }
+
+        SecurityAdvisor securityAdvisor = createSecurityAdvisor(
+            sessionManager.getCurrentSessionUserId(),
+            AssignmentServiceConstants.SECURE_ADD_ASSIGNMENT,
+            assignmentService.assignmentReference(null, context)
+        );
+
         try {
             // enable permission to view possible draft assignment
-            SecurityAdvisor securityAdvisor = createSecurityAdvisor(
-                    sessionManager.getCurrentSessionUserId(),
-                    AssignmentServiceConstants.SECURE_ADD_ASSIGNMENT,
-                    assignmentService.assignmentReference(null, context)
-            );
             securityService.pushAdvisor(securityAdvisor);
 
             Assignment a = assignmentService.getAssignment(assignmentService
@@ -262,7 +264,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
             assignData.remove("assignmentUrl");
             throw new SecurityException(e);
         } finally {
-            securityService.popAdvisor();
+            securityService.popAdvisor(securityAdvisor);
         }
         return assignData;
     }
@@ -609,11 +611,6 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
         private Assignment content;
 
         /**
-         * the reference of the AssignmentContent of this Assignment.
-         */
-        private String contentReference;
-
-        /**
          * the first time at which the assignment can be viewed; may be null.
          */
         private Instant openTime;
@@ -710,7 +707,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
         /**
          * Return string representation of assignment status
          */
-        private AssignmentConstants.Status status;
+        private String status;
 
         /**
          * the position order field for the assignment.
@@ -726,7 +723,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
          * the access mode for the assignment - how we compute who has access to
          * the assignment.
          */
-        private Assignment.Access access;
+        private String access;
 
         /**
          * the attachment list
@@ -736,7 +733,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
         /**
          * Grade scale description.
          */
-        private Assignment.GradeType gradeScale;
+        private String gradeScale;
 
         /**
          * Max points used when grade scale = "Points"
@@ -746,7 +743,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
         /**
          * Submission type description (e.g. inline only, inline and attachments)
          */
-        private Assignment.SubmissionType submissionType;
+        private String submissionType;
 
         /**
          * Allow re-submission flag
@@ -784,7 +781,6 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
                 return;
             }
             this.id = a.getId();
-            this.contentReference = AssignmentReferenceReckoner.reckoner().assignment(a).reckon().getReference();
             this.openTime = a.getOpenDate();
             this.openTimeString = a.getOpenDate().toString();
             this.dueTime = a.getDueDate();
@@ -802,13 +798,13 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
             this.authorLastModified = a.getModifier();
             this.title = a.getTitle();
             try {
-                this.status = assignmentService.getAssignmentCannonicalStatus(a.getId());
+                this.status = assignmentService.getAssignmentCannonicalStatus(a.getId()).toString();
             } catch (IdUnusedException | PermissionException e) {
                 log.warn("Couldn't get Assignment status, {}", e.getMessage());
             }
-            this.position = a.getPosition();
+            this.position = (a.getPosition() != null) ? a.getPosition() : 0;
             this.groups = a.getGroups();
-            this.access = a.getTypeOfAccess();
+            this.access = a.getTypeOfAccess().toString();
             this.instructions = a.getInstructions();
 
 
@@ -854,7 +850,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
                 }
             }
             // Translate grade scale from its numeric value to its description.
-            this.gradeScale = a.getTypeOfGrade();
+            this.gradeScale = a.getTypeOfGrade().toString();
 
             // If grade scale is "points" we also capture the maximum points allowed.
             if (a.getTypeOfGrade() == Assignment.GradeType.SCORE_GRADE_TYPE) {
@@ -866,7 +862,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
             if (a.getProperties().get(AssignmentConstants.ALLOW_RESUBMIT_NUMBER) != null && a.getTypeOfSubmission() != Assignment.SubmissionType.NON_ELECTRONIC_ASSIGNMENT_SUBMISSION) {
                 this.allowResubmission = true;
             }
-            this.submissionType = a.getTypeOfSubmission();
+            this.submissionType = a.getTypeOfSubmission().toString();
 
             // Supplement Items
             AssignmentModelAnswerItem assignmentModelAnswerItem = assignmentSupplementItemService.getModelAnswer(a.getId());

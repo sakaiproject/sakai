@@ -15,13 +15,6 @@
  */
 package org.sakaiproject.event.impl;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.sakaiproject.event.api.EventQueryService;
-import org.sakaiproject.util.Xml;
-import org.w3c.dom.Document;
-import org.w3c.dom.Node;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -30,16 +23,22 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import org.sakaiproject.db.api.SqlService;
 
+import lombok.extern.slf4j.Slf4j;
+
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
+
+import org.sakaiproject.event.api.EventQueryService;
+import org.sakaiproject.db.api.SqlService;
+import org.sakaiproject.util.Xml;
 
 /**
  * Implementation of EventQueryService
  * It returns xml event lists for a given user eid.
  */
+@Slf4j
 public class EventQueryServiceImpl implements EventQueryService {
-
-	private static Logger log = LoggerFactory.getLogger(EventQueryServiceImpl.class);
 	private DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
 

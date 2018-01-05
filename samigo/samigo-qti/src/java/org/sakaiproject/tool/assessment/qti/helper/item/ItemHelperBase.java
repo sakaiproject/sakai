@@ -19,19 +19,16 @@
  *
  **********************************************************************************/
 
-
-
 package org.sakaiproject.tool.assessment.qti.helper.item;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Iterator;
 import java.util.List;
+
 import javax.xml.parsers.ParserConfigurationException;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import lombok.extern.slf4j.Slf4j;
 import org.w3c.dom.CharacterData;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Node;
@@ -43,10 +40,10 @@ import org.sakaiproject.tool.assessment.qti.asi.Item;
 import org.sakaiproject.tool.assessment.qti.helper.AuthoringHelper;
 import org.sakaiproject.tool.assessment.qti.helper.AuthoringXml;
 
+@Slf4j
 public abstract class ItemHelperBase
   implements ItemHelperIfc
 {
-  private static Logger log = LoggerFactory.getLogger(ItemHelperBase.class);
 
   protected static final long ITEM_AUDIO = TypeIfc.AUDIO_RECORDING.longValue();
   protected static final long ITEM_ESSAY = TypeIfc.ESSAY_QUESTION.longValue();

@@ -22,8 +22,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.SortedSet;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.contentreview.service.ContentReviewService;
@@ -34,9 +34,8 @@ import org.sakaiproject.entity.api.ResourceProperties;
  * {@link ContentReviewService.isAcceptableContent}.
  *
  */
+@Slf4j
 public class UrkundContentValidator {
-	private static final Logger log = LoggerFactory.getLogger(UrkundContentValidator.class);
-	
 	private int max_file_size;
 	private static int DEFAULT_MAX_FILE_SIZE = 20971520; //20Mb
 	

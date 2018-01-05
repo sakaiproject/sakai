@@ -18,12 +18,13 @@ package org.sakaiproject.user.impl;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.FunctionManager;
 import org.sakaiproject.authz.api.SecurityService;
@@ -46,8 +47,8 @@ import org.sakaiproject.util.api.FormattedText;
  * 
  * @author Aaron Zeckoski (azeckoski @ unicon.net) (azeckoski @ vt.edu)
  */
+@Slf4j
 public class BaseUserDirectoryServiceTest extends SakaiKernelTestBase  {
-    private static Logger log = LoggerFactory.getLogger(BaseUserDirectoryServiceTest.class);
     private static String USER_SOURCE_PROPERTY = "user.source";
 
     private static Map<String, String> eidToId = new HashMap<String, String>();
@@ -64,17 +65,17 @@ public class BaseUserDirectoryServiceTest extends SakaiKernelTestBase  {
      * 
      * @throws Exception
      */
-	@BeforeClass
-	public static void beforeClass() {
-		try {
+    @BeforeClass
+    public static void beforeClass() {
+        try {
             if (log.isDebugEnabled()) log.debug("starting setup");
             oneTimeSetup();
             oneTimeSetupAfter();
             if (log.isDebugEnabled()) log.debug("finished setup");
-		} catch (Exception e) {
-			log.warn(e.getMessage(), e);
-		}
-	}
+        } catch (Exception e) {
+            log.warn(e.getMessage(), e);
+        }
+    }
 	
     private static void oneTimeSetupAfter() throws Exception {
         // This is a workaround until we can make it easier to load sakai.properties

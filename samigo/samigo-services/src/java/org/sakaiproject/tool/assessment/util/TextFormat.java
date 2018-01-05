@@ -19,7 +19,6 @@
  *
  **********************************************************************************/
 
-
 package org.sakaiproject.tool.assessment.util;
 
 import java.io.UnsupportedEncodingException;
@@ -28,8 +27,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Vector;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * <p>Copyright: Copyright (c) 2003-5</p>
@@ -38,9 +36,9 @@ import org.slf4j.LoggerFactory;
  * @author Ed Smiley esmiley@stanford.edu
  * @version $Id$
  */
+@Slf4j
 public class TextFormat
 {
-  private Logger log = LoggerFactory.getLogger(TextFormat.class);
   private static final String HTML;
   private static final String SMART;
   private static final String PLAIN;
@@ -317,7 +315,7 @@ public class TextFormat
     return min;
   }
 
-  public static String convertPlaintextToFormattedTextNoHighUnicode(Logger log, String value) {
+  public static String convertPlaintextToFormattedTextNoHighUnicode(String value) {
 	  if (value == null) return "";
 
 	  try

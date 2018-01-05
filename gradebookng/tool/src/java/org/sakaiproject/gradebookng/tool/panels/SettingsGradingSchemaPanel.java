@@ -27,6 +27,8 @@ import java.util.Map;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
 
+import lombok.extern.slf4j.Slf4j;
+
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
@@ -47,6 +49,7 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
+
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.AxisLocation;
@@ -57,6 +60,7 @@ import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.renderer.category.BarRenderer;
 import org.jfree.chart.renderer.category.StandardBarPainter;
 import org.jfree.data.category.DefaultCategoryDataset;
+
 import org.sakaiproject.gradebookng.business.DoubleComparator;
 import org.sakaiproject.gradebookng.business.FirstNameComparator;
 import org.sakaiproject.gradebookng.business.LetterGradeComparator;
@@ -66,16 +70,12 @@ import org.sakaiproject.gradebookng.tool.model.GbGradingSchemaEntry;
 import org.sakaiproject.gradebookng.tool.model.GbSettings;
 import org.sakaiproject.service.gradebook.shared.CourseGrade;
 import org.sakaiproject.service.gradebook.shared.GradeMappingDefinition;
-import org.sakaiproject.tool.gradebook.GradebookArchive;
 import org.sakaiproject.user.api.User;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
+@Slf4j
 public class SettingsGradingSchemaPanel extends BasePanel implements IFormModelUpdateListener {
 
 	private static final long serialVersionUID = 1L;
-
-	private static Logger logger = LoggerFactory.getLogger(SettingsGradingSchemaPanel.class);
 
 	IModel<GbSettings> model;
 
@@ -534,7 +534,7 @@ public class SettingsGradingSchemaPanel extends BasePanel implements IFormModelU
 				if (grade != null) {
 					averageGPA += grade;
 				} else {
-					logger.debug(
+					log.debug(
 							"Grade skipped when calculating course average GPA: " + mappedGrade + ". Calculated value will be incorrect.");
 				}
 			}

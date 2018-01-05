@@ -22,13 +22,31 @@
 package org.sakaiproject.assignment.api.model;
 
 import java.time.Instant;
-import java.util.*;
-import javax.persistence.*;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+
+import javax.persistence.CascadeType;
+import javax.persistence.CollectionTable;
+import javax.persistence.Column;
+import javax.persistence.ElementCollection;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.Lob;
+import javax.persistence.ManyToOne;
+import javax.persistence.MapKeyColumn;
+import javax.persistence.OneToMany;
+import javax.persistence.Table;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Type;
 
@@ -37,6 +55,7 @@ import org.hibernate.annotations.Type;
  */
 
 @Entity
+@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 @Table(name = "ASN_SUBMISSION")
 @Data
 @NoArgsConstructor
@@ -83,7 +102,7 @@ public class AssignmentSubmission {
     // TODO combine attachments and feedbackAttachements into a single table
     @ElementCollection
     @Column(name = "FEEDBACK_ATTACHMENT")
-    @CollectionTable(name = "ASN_SUBMISSION_FEEDBACK_ATTACHMENTS", joinColumns = @JoinColumn(name = "SUBMISSION_ID"))
+    @CollectionTable(name = "ASN_SUBMISSION_FEEDBACK_ATTACH", joinColumns = @JoinColumn(name = "SUBMISSION_ID"))
     private Set<String> feedbackAttachments = new HashSet<>();
 
     @Lob
@@ -121,9 +140,6 @@ public class AssignmentSubmission {
 
     @Column(name = "HONOR_PLEDGE")
     private Boolean honorPledge = Boolean.FALSE;
-
-    @Column(name = "ANONYMOUS_SUBMISSION_ID")
-    private String anonymousSubmissionId;
 
     @Column(name = "HIDDEN_DUE_DATE")
     private Boolean hiddenDueDate = Boolean.FALSE;

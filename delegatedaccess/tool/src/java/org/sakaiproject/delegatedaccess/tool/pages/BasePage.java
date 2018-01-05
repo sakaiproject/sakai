@@ -16,8 +16,8 @@
 
 package org.sakaiproject.delegatedaccess.tool.pages;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.Component;
 import org.apache.wicket.behavior.AttributeAppender;
@@ -35,13 +35,12 @@ import org.apache.wicket.markup.html.panel.FeedbackPanel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
+
 import org.sakaiproject.delegatedaccess.logic.ProjectLogic;
 import org.sakaiproject.delegatedaccess.logic.SakaiProxy;
 import org.sakaiproject.delegatedaccess.util.DelegatedAccessConstants;
 import org.sakaiproject.entitybroker.DeveloperHelperService;
 import org.sakaiproject.util.ResourceLoader;
-
-
 
 /**
  * This is our base page for Delegated Access. It sets up the containing markup and top navigation.
@@ -53,9 +52,9 @@ import org.sakaiproject.util.ResourceLoader;
  * @author Bryan Holladay (holladay@longsight.com)
  *
  */
+@Slf4j
 public class BasePage extends WebPage implements IHeaderContributor {
 
-	private static final Logger log = LoggerFactory.getLogger(BasePage.class); 
 	private static ResourceLoader rloader = new ResourceLoader();
 
 	@SpringBean(name="org.sakaiproject.delegatedaccess.logic.SakaiProxy")

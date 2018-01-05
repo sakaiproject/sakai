@@ -133,7 +133,7 @@ public class BullhornServiceImpl implements BullhornService, Observer {
 
     private boolean commonsInstalled = false;
 
-    private Cache countCache = null;
+    private Cache<String, Map> countCache = null;
 
     public void init() {
 
@@ -168,7 +168,7 @@ public class BullhornServiceImpl implements BullhornService, Observer {
             log.debug("Failed to setup stubs for commons tool", e);
         }
 
-        if (serverConfigurationService.getBoolean("portal.bullhorns.enabled", true)) {
+        if (serverConfigurationService.getBoolean("portal.bullhorns.enabled", false)) {
             HANDLED_EVENTS.add(ProfileConstants.EVENT_STATUS_UPDATE);
             HANDLED_EVENTS.add(ProfileConstants.EVENT_FRIEND_REQUEST);
             HANDLED_EVENTS.add(ProfileConstants.EVENT_FRIEND_CONFIRM);
@@ -186,7 +186,7 @@ public class BullhornServiceImpl implements BullhornService, Observer {
             sqlService.ddl(this.getClass().getClassLoader(), "bullhorn_tables");
         }
 
-        countCache = memoryService.newCache("bullhorn_alert_count_cache");
+        countCache = memoryService.getCache("bullhorn_alert_count_cache");
     }
 
     public void update(Observable o, final Object arg) {

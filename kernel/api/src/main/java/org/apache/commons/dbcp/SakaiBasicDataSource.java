@@ -29,8 +29,8 @@ import java.util.Properties;
 
 import javax.sql.DataSource;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+
 import org.apache.commons.pool.impl.GenericKeyedObjectPool;
 import org.apache.commons.pool.impl.GenericKeyedObjectPoolFactory;
 import org.apache.commons.pool.impl.GenericObjectPool;
@@ -40,11 +40,9 @@ import org.apache.commons.pool.impl.GenericObjectPool;
  * SakaiBasicDataSource extends apache common's BasicDataSource ...
  * </p>
  */
+@Slf4j
 public class SakaiBasicDataSource extends BasicDataSource
 {
-	/** Our logger. */
-	private static Logger M_log = LoggerFactory.getLogger(SakaiBasicDataSource.class);
-
 	/** Configuration: to rollback each connection when returned to the pool. */
 	protected boolean m_rollbackOnReturn = false;
 
@@ -82,7 +80,7 @@ public class SakaiBasicDataSource extends BasicDataSource
 		else
 		{
 			setDefaultTransactionIsolation(PoolableConnectionFactory.UNKNOWN_TRANSACTIONISOLATION);
-			M_log.warn("invalid transaction isolation level: " + defaultTransactionIsolation);
+			log.warn("invalid transaction isolation level: {}", defaultTransactionIsolation);
 		}
 	}
 
@@ -132,7 +130,7 @@ public class SakaiBasicDataSource extends BasicDataSource
 			{
 				String message = "Cannot load JDBC driver class '" + driverClassName + "'";
 				logWriter.println(message);
-				t.printStackTrace(logWriter);
+				log.error(t.getMessage(), t);
 				throw new SQLNestedException(message, t);
 			}
 		}
@@ -148,7 +146,7 @@ public class SakaiBasicDataSource extends BasicDataSource
 			String message = "Cannot create JDBC driver of class '" + (driverClassName != null ? driverClassName : "")
 					+ "' for connect URL '" + url + "'";
 			logWriter.println(message);
-			t.printStackTrace(logWriter);
+			log.error(t.getMessage(), t);
 			throw new SQLNestedException(message, t);
 		}
 

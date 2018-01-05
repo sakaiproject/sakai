@@ -22,22 +22,22 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.lessonbuildertool.SimplePage;
 import org.sakaiproject.lessonbuildertool.SimplePageItem;
 import org.sakaiproject.lessonbuildertool.model.SimplePageToolDao;
 import org.sakaiproject.lessonbuildertool.tool.producers.PagePickerProducer;
-import org.sakaiproject.lessonbuildertool.tool.producers.PagePickerProducer.PageEntry;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 // Code more or less extracted from SimplePageBean
+@Slf4j
 public class OrphanPageFinder {
 
 	private String siteId;
 	private Set<Long> orphanedPages;
 	private SimplePageToolDao simplePageToolDao;
 	private PagePickerProducer pagePickerProducer;
-	private static Logger log = LoggerFactory.getLogger(SimplePageBean.class);
 
 	public OrphanPageFinder(String siteId, SimplePageToolDao simplePageToolDao, PagePickerProducer pagePickerProducer) {
 		this.siteId = siteId;

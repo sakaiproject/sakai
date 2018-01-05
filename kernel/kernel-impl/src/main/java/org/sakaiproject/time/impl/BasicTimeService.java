@@ -29,24 +29,22 @@ import java.util.Objects;
 import java.util.StringTokenizer;
 import java.util.TimeZone;
 
-import org.sakaiproject.time.api.UserTimeService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.time.api.Time;
 import org.sakaiproject.time.api.TimeBreakdown;
 import org.sakaiproject.time.api.TimeRange;
 import org.sakaiproject.time.api.TimeService;
+import org.sakaiproject.time.api.UserTimeService;
 
 /**
  * <p>
  * BasicTimeService implements the Sakai TimeService
  * </p>
  */
+@Slf4j
 public class BasicTimeService implements TimeService
 {
-	/** Our log (commons). */
-	private static Logger M_log = LoggerFactory.getLogger(TimeService.class);
-
 	/** The time zone for our GMT times. */
 	protected TimeZone M_tz = null;
 
@@ -99,7 +97,7 @@ public class BasicTimeService implements TimeService
 		/** The time zone for our GMT times. */
 		M_tz = TimeZone.getTimeZone("GMT");
 
-		M_log.info("init()");
+		log.info("init()");
 
 		/**
 		 * a calendar to clone for GMT time construction
@@ -128,7 +126,7 @@ public class BasicTimeService implements TimeService
 	 */
 	public void destroy()
 	{
-		M_log.info("destroy()");
+		log.info("destroy()");
 	}
 
 	protected String[] getUserTimezoneLocale()
@@ -148,9 +146,9 @@ public class BasicTimeService implements TimeService
 		String tzLocaleString = stringAraytoKeyString(timeZoneLocale);
 
 		LocalTzFormat tzFormat = M_localeTzMap.get(tzLocaleString);
-		if (M_log.isDebugEnabled())
+		if (log.isDebugEnabled())
 		{
-			M_log.debug("M_localeTzMap contains: " + M_localeTzMap.size() + " members");
+			log.debug("M_localeTzMap contains: " + M_localeTzMap.size() + " members");
 		}
 		if (tzFormat == null)
 		{
@@ -172,9 +170,9 @@ public class BasicTimeService implements TimeService
 			sb.append(timeZoneLocale[i]);
 		}
 
-		if (M_log.isDebugEnabled())
+		if (log.isDebugEnabled())
 		{
-			M_log.debug("returing key: " + sb.toString());
+			log.debug("returing key: " + sb.toString());
 		}
 		return sb.toString();
 	}
@@ -904,7 +902,7 @@ public class BasicTimeService implements TimeService
 			}
 			catch (Exception e)
 			{
-				M_log.warn("parse: exception parsing: " + str + " : " + e.toString());
+				log.warn("parse: exception parsing: " + str + " : " + e.toString());
 
 				// set a now range, just to have something
 				m_startTime = newTime();

@@ -14,12 +14,14 @@ package org.sakaiproject.hierarchy.impl.test;
 import java.util.Map;
 import java.util.Set;
 
+import org.easymock.EasyMock;
 import org.sakaiproject.genericdao.api.search.Search;
 import org.sakaiproject.hierarchy.dao.HierarchyDao;
 import org.sakaiproject.hierarchy.dao.model.HierarchyNodeMetaData;
 import org.sakaiproject.hierarchy.impl.HierarchyServiceImpl;
 import org.sakaiproject.hierarchy.impl.test.data.TestDataPreload;
 import org.sakaiproject.hierarchy.model.HierarchyNode;
+import org.sakaiproject.memory.api.Cache;
 import org.springframework.test.AbstractTransactionalSpringContextTests;
 
 /**
@@ -33,6 +35,7 @@ public class HierarchyServiceImplTest extends AbstractTransactionalSpringContext
 
     private HierarchyDao dao;
     private TestDataPreload tdp;
+    private Cache cache;
 
     // private SessionManager sessionManager;
     // private MockControl sessionManagerControl;
@@ -209,6 +212,8 @@ public class HierarchyServiceImplTest extends AbstractTransactionalSpringContext
     public void testGetNodeById() {
         HierarchyNode node = null;
 
+        initializeMockCache();
+
         node = hierarchyService.getNodeById(tdp.node4.id);
         assertNotNull(node);
         assertEquals(tdp.node4, node);
@@ -233,6 +238,8 @@ public class HierarchyServiceImplTest extends AbstractTransactionalSpringContext
      */
     public void testGetChildNodes() {
         Set<HierarchyNode> nodes;
+
+        initializeMockCache();
 
         // check children for the root
         nodes = hierarchyService.getChildNodes(tdp.node1.id, true);
@@ -364,6 +371,8 @@ public class HierarchyServiceImplTest extends AbstractTransactionalSpringContext
         assertTrue(node.directChildNodeIds.isEmpty());
         assertNotNull(node.childNodeIds);
         assertTrue(node.childNodeIds.isEmpty());
+
+        initializeMockCache();
 
         // now check that the child links were updated correctly for the parent
         node = hierarchyService.getNodeById(tdp.node2.id);
@@ -512,6 +521,8 @@ public class HierarchyServiceImplTest extends AbstractTransactionalSpringContext
         assertEquals(2, node.directChildNodeIds.size());
         assertTrue(node.directChildNodeIds.contains(tdp.node6.id));
         assertTrue(node.directChildNodeIds.contains(tdp.node7.id));
+
+        initializeMockCache();
 
         // also check the root was updated correctly
         node = hierarchyService.getNodeById(tdp.node1.id);
@@ -1417,6 +1428,8 @@ public class HierarchyServiceImplTest extends AbstractTransactionalSpringContext
         nodes = hierarchyService.getNodesForUserPerm(TestDataPreload.MAINT_USER_ID, TestDataPreload.PERM_ONE);
         assertEquals(5, nodes.size());
 
+        initializeMockCache();
+
         // add existing one - should be no change
         hierarchyService.assignUserNodePerm(TestDataPreload.MAINT_USER_ID, tdp.node4.id, TestDataPreload.PERM_ONE, true);
         nodes = hierarchyService.getNodesForUserPerm(TestDataPreload.MAINT_USER_ID, TestDataPreload.PERM_ONE);
@@ -1479,6 +1492,8 @@ public class HierarchyServiceImplTest extends AbstractTransactionalSpringContext
         assertEquals(4, nodes.size());
         assertFalse( hierarchyService.checkUserNodePerm(TestDataPreload.MAINT_USER_ID, tdp.node2.id, TestDataPreload.PERM_ONE) );
 
+        initializeMockCache();
+
         hierarchyService.removeUserNodePerm(TestDataPreload.MAINT_USER_ID, tdp.node4.id, TestDataPreload.PERM_ONE, true);
         nodes = hierarchyService.getNodesForUserPerm(TestDataPreload.MAINT_USER_ID, TestDataPreload.PERM_ONE);
         assertEquals(0, nodes.size());
@@ -1509,7 +1524,14 @@ public class HierarchyServiceImplTest extends AbstractTransactionalSpringContext
         }
     }
 
-
+    private void initializeMockCache(){
+        Cache mock = EasyMock.createMock(Cache.class);
+        hierarchyService.setCache(mock);
+        EasyMock.expect(mock.containsKey(EasyMock.anyObject())).andReturn(false).anyTimes();
+        mock.put(EasyMock.anyObject(),EasyMock.anyObject());
+        EasyMock.expectLastCall().anyTimes();
+        EasyMock.replay(mock);
+    }
 
     /*
       HierarchyNode node = null;

@@ -25,6 +25,7 @@ import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
 
+import lombok.extern.slf4j.Slf4j;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.event.cover.EventTrackingService;
@@ -48,12 +49,9 @@ import org.sakaiproject.tool.assessment.ui.bean.questionpool.QuestionPoolBean;
 import org.sakaiproject.tool.assessment.ui.bean.questionpool.QuestionPoolDataBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
+@Slf4j
 public class ImportQuestionsToAuthoringFromSearch implements ActionListener
 {
-  private static Log log = LogFactory.getLog(ImportQuestionsToAuthoringFromSearch.class);
   private static final ServerConfigurationService serverConfigurationService= (ServerConfigurationService) ComponentManager.get( ServerConfigurationService.class );
 
 
@@ -272,7 +270,7 @@ public class ImportQuestionsToAuthoringFromSearch implements ActionListener
         searchQuestionBean.setOutcome("searchQuestion");
       }
     } catch (RuntimeException e) {
-      e.printStackTrace();
+      log.error(e.getMessage(), e);
       return false;
     }
     return true;
@@ -285,6 +283,4 @@ public class ImportQuestionsToAuthoringFromSearch implements ActionListener
       attach.setLocation(url);
     }
   }
-
-
 }
