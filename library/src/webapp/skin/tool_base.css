@@ -727,6 +727,10 @@ order to display them in the same cell they need to be wrapped in a h:panelGroup
 	display: inline-block;
 }
 
+.jsfFormTable td .shorttext label{
+	width: 17em;
+}
+
 .jsfFormTable td .required input {
 	margin-left: -.6em;
 }
