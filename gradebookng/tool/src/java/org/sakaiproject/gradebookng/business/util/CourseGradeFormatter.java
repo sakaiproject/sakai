@@ -141,10 +141,10 @@ public class CourseGradeFormatter {
 			if (mappedGrade == null) {
 				mappedGrade = new Double(0);
 			}
-			calculatedGrade = FormatHelper.formatGradeForDisplay(mappedGrade);
+			calculatedGrade = FormatHelper.formatDoubleAsPercentage(mappedGrade);
 
 		} else {
-			calculatedGrade = FormatHelper.formatGradeForDisplay(courseGrade.getCalculatedGrade());
+			calculatedGrade = FormatHelper.formatStringAsPercentage(courseGrade.getCalculatedGrade());
 		}
 
 		if (StringUtils.isNotBlank(calculatedGrade)
