@@ -1299,11 +1299,20 @@ public class FormattedTextImpl implements FormattedText
     public NumberFormat getNumberFormat() {
     	return getNumberFormat(null,null,null);
     }
+
+    /* (non-Javadoc)
+     * @see org.sakaiproject.util.api.FormattedText#getHTMLBody(java.lang.String)
+     */
+    public String getHtmlBody(String text) {
+        if (StringUtils.isBlank(text)) return text;
+        org.jsoup.nodes.Document document = org.jsoup.Jsoup.parse(text);
+        document.outputSettings().prettyPrint(false);
+        return document.body().html();
+    }
     
     public String getDecimalSeparator() {
 		return ((DecimalFormat)getNumberFormat()).getDecimalFormatSymbols().getDecimalSeparator()+"";
     }
-    
     
     /**
      * SAK-23567 Gets the shortened version of the title

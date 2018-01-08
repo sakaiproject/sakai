@@ -216,5 +216,11 @@ public class MockFormattedText implements FormattedText {
     public NumberFormat getNumberFormat() {
     	return getNumberFormat(null,null,null);
     }
+
+	@Override
+	public String getHtmlBody(String text) {
+		// TODO Auto-generated method stub
+		return getHtmlBody(null);
+	}
     
 }

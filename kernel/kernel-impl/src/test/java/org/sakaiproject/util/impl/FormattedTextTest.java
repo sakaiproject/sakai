@@ -1154,6 +1154,21 @@ public class FormattedTextTest {
         Assert.assertTrue( errorMessages.length() == 0 );
         Assert.assertEquals(result, expectedAnchor);
     }
+    
+    @Test
+    public void getHtmlBodyTest() {
+    	String result;
+        StringBuilder errorMessages = new StringBuilder();
+
+        result = formattedText.getHtmlBody("<html><body><div>Text</div></body></html>");
+        Assert.assertEquals("<div>Text</div>", result);
+        
+        result = formattedText.getHtmlBody("<div>Text</div>");
+        Assert.assertEquals("<div>Text</div>", result);
+
+        result = formattedText.getHtmlBody("");
+        Assert.assertEquals("", result);
+    }
 
 
 }
