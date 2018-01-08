@@ -226,4 +226,11 @@ public class FormattedText {
     	return getFormattedText().getNumberFormat();
     }
     
+    /**
+     * @see org.sakaiproject.util.api.FormattedText#getHtmlBody(String)
+     */
+    public static String getHtmlBody(String text) {
+    	return getFormattedText().getHtmlBody(text);
+    }
+
 }
