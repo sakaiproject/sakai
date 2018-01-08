@@ -2363,6 +2363,11 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 
 						boolean evalIndividual = (i.isGroupOwned() && "true".equals(i.getAttribute("group-eval-individual")));
 
+						//If groupMembers is empty this should be true (individual) even if this is set to being in a group
+						if (groupMembers == null || groupMembers.isEmpty()) {
+							evalIndividual = true;
+						}
+
 						// if we should show form. 
 						// individual owned
 						// group owned and eval group
