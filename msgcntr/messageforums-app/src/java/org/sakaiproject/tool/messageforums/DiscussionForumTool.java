@@ -55,16 +55,8 @@ import javax.faces.model.SelectItem;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
-import lombok.extern.slf4j.Slf4j;
-import net.sf.json.JSON;
-import net.sf.json.JSONArray;
-import net.sf.json.JSONObject;
-import net.sf.json.JSONSerializer;
-import net.sf.json.JsonConfig;
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.lang.StringUtils;
-import org.springframework.orm.hibernate4.HibernateOptimisticLockingFailureException;
-
 import org.sakaiproject.api.app.messageforums.AnonymousManager;
 import org.sakaiproject.api.app.messageforums.Area;
 import org.sakaiproject.api.app.messageforums.AreaManager;
@@ -95,17 +87,16 @@ import org.sakaiproject.api.app.messageforums.cover.SynopticMsgcntrManagerCover;
 import org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager;
 import org.sakaiproject.api.app.messageforums.ui.UIPermissionsManager;
 import org.sakaiproject.authz.api.AuthzGroup;
+import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.GroupNotDefinedException;
 import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.authz.api.Role;
-import org.sakaiproject.authz.api.AuthzGroupService;
-import org.sakaiproject.authz.cover.SecurityService;
+import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.app.messageforums.MembershipItem;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.util.comparator.ForumBySortIndexAscAndCreatedDateDesc;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentHostingService;
-import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.content.api.ContentResourceEdit;
 import org.sakaiproject.content.api.FilePickerHelper;
 import org.sakaiproject.entity.api.Entity;
@@ -115,6 +106,7 @@ import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.entitybroker.DeveloperHelperService;
 import org.sakaiproject.entitybroker.util.SakaiToolData;
 import org.sakaiproject.event.api.Event;
+import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.event.api.LearningResourceStoreService;
 import org.sakaiproject.event.api.LearningResourceStoreService.LRS_Actor;
 import org.sakaiproject.event.api.LearningResourceStoreService.LRS_Object;
@@ -123,18 +115,17 @@ import org.sakaiproject.event.api.LearningResourceStoreService.LRS_Statement;
 import org.sakaiproject.event.api.LearningResourceStoreService.LRS_Verb;
 import org.sakaiproject.event.api.LearningResourceStoreService.LRS_Verb.SAKAI_VERB;
 import org.sakaiproject.event.api.NotificationService;
-import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.service.gradebook.shared.Assignment;
 import org.sakaiproject.service.gradebook.shared.GradeDefinition;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
-import org.sakaiproject.site.cover.SiteService;
-import org.sakaiproject.thread_local.cover.ThreadLocalManager;
+import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.thread_local.api.ThreadLocalManager;
+import org.sakaiproject.tool.api.SessionManager;
+import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.tool.api.ToolSession;
-import org.sakaiproject.tool.cover.SessionManager;
-import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.tool.messageforums.ui.DecoratedAttachment;
 import org.sakaiproject.tool.messageforums.ui.DiscussionAreaBean;
 import org.sakaiproject.tool.messageforums.ui.DiscussionForumBean;
@@ -145,10 +136,18 @@ import org.sakaiproject.tool.messageforums.ui.ForumRankBean;
 import org.sakaiproject.tool.messageforums.ui.PermissionBean;
 import org.sakaiproject.tool.messageforums.ui.SiteGroupBean;
 import org.sakaiproject.user.api.User;
+import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
-import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.util.ResourceLoader;
+import org.springframework.orm.hibernate4.HibernateOptimisticLockingFailureException;
+
+import lombok.extern.slf4j.Slf4j;
+import net.sf.json.JSON;
+import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
+import net.sf.json.JSONSerializer;
+import net.sf.json.JsonConfig;
 
 /**
  * @author <a href="mailto:rshastri@iupui.edu">Rashmi Shastri</a>
@@ -379,7 +378,14 @@ public class DiscussionForumTool
   private AuthzGroupService authzGroupService;
   private LearningResourceStoreService learningResourceStoreService;
   private EventTrackingService eventTrackingService;
-  
+  private UserDirectoryService userDirectoryService;
+  private SiteService siteService;
+  private SecurityService securityService;
+  private SessionManager sessionManager;
+  private ToolManager toolManager;
+  private ThreadLocalManager threadLocalManager;
+
+
   private Boolean instructor = null;
   private Boolean sectionTA = null;
   private Boolean newForum = null;
@@ -438,7 +444,31 @@ public class DiscussionForumTool
 	  this.eventTrackingService = eventTrackingService;
   }
 
-private String editorRows;
+  public void setUserDirectoryService(UserDirectoryService userDirectoryService) {
+	this.userDirectoryService = userDirectoryService;
+  }
+
+  public void setSiteService(SiteService siteService) {
+	this.siteService = siteService;
+  }
+  
+  public void setSecurityService(SecurityService securityService) {
+	this.securityService = securityService;
+  }
+
+  public void setSessionManager(SessionManager sessionManager) {
+	this.sessionManager = sessionManager;
+  }
+
+  public void setToolManager(ToolManager toolManager) {
+	this.toolManager = toolManager;
+  }
+
+  public void setThreadLocalManager(ThreadLocalManager threadLocalManager) {
+	this.threadLocalManager = threadLocalManager;
+  }
+
+  private String editorRows;
   
   private boolean threadMoved;
 
@@ -486,7 +516,7 @@ private String editorRows;
 		  }
 			
 		  GradebookService g = (GradebookService) og;
-		  String gradebookUid = ToolManager.getInstance().getCurrentPlacement().getContext();
+		  String gradebookUid = toolManager.getCurrentPlacement().getContext();
 		  if (g.isGradebookDefined(gradebookUid) && (g.currentUserHasEditPerm(gradebookUid) || g.currentUserHasGradingPerm(gradebookUid)))
 		  {
 			  rv = true;
@@ -621,7 +651,7 @@ private String editorRows;
 	     userId = getUserId();
 	     
 	     boolean hasOverridingPermissions = false;
-	     if(SecurityService.isSuperUser()
+	     if(securityService.isSuperUser()
 	           || isInstructor()){
 	    	 hasOverridingPermissions = true;
 	     }
@@ -633,7 +663,7 @@ private String editorRows;
 	    	 // query the database for all of the forums that are associated with the current site
 	    	 List<DiscussionForum> tempForums = forumManager.getForumsForMainPage();
 	    	 if (tempForums == null || tempForums.size() < 1) {	    	 
-	    		 if(SecurityService.isSuperUser() && ServerConfigurationService.getBoolean("forums.setDefault.forum", true)){
+	    		 if(securityService.isSuperUser() && ServerConfigurationService.getBoolean("forums.setDefault.forum", true)){
 	    			 //initialize area:
 	    			 forumManager.getDiscussionForumArea();
 	    			 //try again:
@@ -722,7 +752,7 @@ private String editorRows;
 	    		 GradebookService gradebookService = getGradebookService();
 
 	    		 if(getGradebookExist()) {
-	    			 List gradeAssignmentsBeforeFilter = gradebookService.getAssignments(ToolManager.getCurrentPlacement().getContext());
+	    			 List gradeAssignmentsBeforeFilter = gradebookService.getAssignments(toolManager.getCurrentPlacement().getContext());
 	    			 for(int i=0; i<gradeAssignmentsBeforeFilter.size(); i++) {
 	    				 Assignment thisAssign = (Assignment) gradeAssignmentsBeforeFilter.get(i);
 	    				 if(!thisAssign.isExternallyMaintained()) {
@@ -2058,7 +2088,7 @@ private String editorRows;
         	if(beforeChangeHM != null){
         		if(permissionsUpdated){
         			//need to reset permissions cache to get the correct counts:
-        			ThreadLocalManager.set("message_center_permission_set", false);
+        			threadLocalManager.set("message_center_permission_set", false);
         		}
         		updateSynopticMessagesForForumComparingOldMessagesCount(getSiteId(), topic.getBaseForum().getId(), topic.getId(), beforeChangeHM, SynopticMsgcntrManager.NUM_OF_ATTEMPTS);
         	}
@@ -2988,7 +3018,7 @@ private String editorRows;
 //		  TODO: put this logic in database layer
 		  if (topic != null && (topic.getDraft().equals(Boolean.FALSE) && topic.getAvailability())
 				  ||isInstructor()
-				  ||SecurityService.isSuperUser()
+				  ||securityService.isSuperUser()
 				  ||forumManager.isTopicOwner(topic))
 		  { 
 
@@ -3056,7 +3086,7 @@ private String editorRows;
 //    TODO: put this logic in database layer
       if (topic != null && (topic.getDraft().equals(Boolean.FALSE)
               ||isInstructor()
-              ||SecurityService.isSuperUser()
+              ||securityService.isSuperUser()
               ||forumManager.isTopicOwner(topic)))
       { 
           DiscussionTopicBean decoTopic = new DiscussionTopicBean(topic, forum,
@@ -3498,7 +3528,7 @@ private String editorRows;
 			throw new IllegalArgumentException("getUserIdAnonIdMapForMessages: null argument");
 		}
 
-		String siteId = ToolManager.getCurrentPlacement().getContext();
+		String siteId = toolManager.getCurrentPlacement().getContext();
 		// Iterate over messages and construct a list of authors
 		List<String> userIds = new ArrayList<>();
 		for (Message message : messages)
@@ -3726,7 +3756,7 @@ private String editorRows;
   
   public ArrayList getAttachments()
   {
-    ToolSession session = SessionManager.getCurrentToolSession();
+    ToolSession session = sessionManager.getCurrentToolSession();
     if (session.getAttribute(FilePickerHelper.FILE_PICKER_CANCEL) == null
         && session.getAttribute(FilePickerHelper.FILE_PICKER_ATTACHMENTS) != null)
     {
@@ -4180,7 +4210,7 @@ private String editorRows;
   public String getUserId()
   {
 	  if (userId == null)
-    	userId = SessionManager.getCurrentSessionUserId();
+    	userId = sessionManager.getCurrentSessionUserId();
 	  
 	  return userId;
   }
@@ -4407,7 +4437,7 @@ private String editorRows;
   {
 	  try
 	  {
-		  String createdById = UserDirectoryService.getUser(selectedMessage.getMessage().getCreatedBy()).getId();
+		  String createdById = userDirectoryService.getUser(selectedMessage.getMessage().getCreatedBy()).getId();
 		  String msgAssignmentName = selectedMessage.getMessage().getGradeAssignmentName();
 
 		  String returnStr = processDfMsgGrdHelper(createdById, msgAssignmentName);
@@ -4432,7 +4462,7 @@ private String editorRows;
 	  selectedAssign = DEFAULT_GB_ITEM; 
 	  resetGradeInfo();
 
-	  String gradebookUid = ToolManager.getCurrentPlacement().getContext();
+	  String gradebookUid = toolManager.getCurrentPlacement().getContext();
 
 	  String topicDefaultAssignment = null;
 	  if(selectedTopic != null){
@@ -5240,7 +5270,7 @@ private String editorRows;
   private String getEventReference(Object obj) 
   {
 	  String eventMessagePrefix = "";
-	  final String toolId = ToolManager.getCurrentTool().getId();
+	  final String toolId = toolManager.getCurrentTool().getId();
   	
 	  if (toolId.equals(DiscussionForumService.MESSAGE_CENTER_ID))
 		  eventMessagePrefix = "/messagesAndForums";
@@ -5249,7 +5279,7 @@ private String editorRows;
   	  else
   		  eventMessagePrefix = "/forums";
   	
-	  return eventMessagePrefix + getContextSiteId() + "/" + obj.toString() + "/" + SessionManager.getCurrentSessionUserId();
+	  return eventMessagePrefix + getContextSiteId() + "/" + obj.toString() + "/" + sessionManager.getCurrentSessionUserId();
   }
   
   /**
@@ -5456,7 +5486,7 @@ private String editorRows;
 
 		  // For all message beans in anonymous contexts, populate their anonymousIDs now to reduce queries and improve performance
 		  // Get the anonId map for all releveant users.
-		  String siteId = ToolManager.getCurrentPlacement().getContext();
+		  String siteId = toolManager.getCurrentPlacement().getContext();
 		  // AnonymousManager requires lists (because it needs to sublist into groups of 1000 for Oracle)
 		  // Convert to userIdAnonMessagesMap's keySet into a list
 		  List<String> userIdList = new ArrayList<>();
@@ -5760,7 +5790,7 @@ private String editorRows;
 	  else
 	  {
 	  	sb.append(getResourceBundleString(MOD_COMMENT_TEXT)).append(" ");
-	  	sb.append(UserDirectoryService.getCurrentUser().getDisplayName());
+	  	sb.append(userDirectoryService.getCurrentUser().getDisplayName());
 	  }
 	  sb.append("</div>");
 	  sb.append("<div class=\"messageCommentBody\">");
@@ -6345,12 +6375,12 @@ private String editorRows;
 			  resetGradeInfo();
 
 			  if(!DEFAULT_GB_ITEM.equalsIgnoreCase(selectedAssign)) {
-				  String gradebookUid = ToolManager.getCurrentPlacement().getContext();
+				  String gradebookUid = toolManager.getCurrentPlacement().getContext();
 				  String studentId;
 				  if(selectedMessage == null && selectedGradedUserId != null && !"".equals(selectedGradedUserId)){
 					  studentId = selectedGradedUserId;
 				  }else{
-					  studentId = UserDirectoryService.getUser(selectedMessage.getMessage().getCreatedBy()).getId();  
+					  studentId = userDirectoryService.getUser(selectedMessage.getMessage().getCreatedBy()).getId();  
 				  }				   
 				  
 				  setUpGradeInformation(gradebookUid, selectedAssign, studentId);
@@ -6505,11 +6535,11 @@ private String editorRows;
     String studentUid = null;
     try 
     {   
-        String gradebookUuid = ToolManager.getCurrentPlacement().getContext();
+        String gradebookUuid = toolManager.getCurrentPlacement().getContext();
         if(selectedMessage == null && selectedGradedUserId != null && !"".equals(selectedGradedUserId)){
         	studentUid = selectedGradedUserId;
         }else{
-        	studentUid = UserDirectoryService.getUser(selectedMessage.getMessage().getCreatedBy()).getId();
+        	studentUid = userDirectoryService.getUser(selectedMessage.getMessage().getCreatedBy()).getId();
         }
         
         Long gbItemId = gradebookService.getAssignmentByNameOrId(gradebookUuid, selectedAssign).getId();
@@ -7133,7 +7163,7 @@ private String editorRows;
         
       if(includeGroup)
       {
-    	  currentSite = SiteService.getSite(ToolManager.getCurrentPlacement().getContext());   
+    	  currentSite = siteService.getSite(toolManager.getCurrentPlacement().getContext());   
       
     	  Collection groups = currentSite.getGroups();
 
@@ -7212,7 +7242,7 @@ private String editorRows;
   private String getContextSiteId()
   {
     log.debug("getContextSiteId()");
-    return ("/site/" + ToolManager.getCurrentPlacement().getContext());
+    return ("/site/" + toolManager.getCurrentPlacement().getContext());
   }
 
   /**
@@ -7657,7 +7687,7 @@ private String editorRows;
 				
 				GradebookService gradebookService = getGradebookService();
 				if (gradebookService == null) return false;
-		 	    	gradebookExist = gradebookService.isGradebookDefined(ToolManager.getCurrentPlacement().getContext());
+		 	    	gradebookExist = gradebookService.isGradebookDefined(toolManager.getCurrentPlacement().getContext());
 		 	    	gradebookExistChecked = true;
 		 	    	return gradebookExist;
 			    }
@@ -7687,9 +7717,9 @@ private String editorRows;
   	    
   	    
 		  String userString = "";
-		  userString = UserDirectoryService.getUser(currentUserId).getDisplayName();
+		  userString = userDirectoryService.getUser(currentUserId).getDisplayName();
 		  String userEidString = "";
-		  userEidString = UserDirectoryService.getUser(currentUserId).getDisplayId();
+		  userEidString = userDirectoryService.getUser(currentUserId).getDisplayId();
 		  
 		  if((userString != null && userString.length() > 0) && ServerConfigurationService.getBoolean("msg.displayEid", true))
 		  {
@@ -7941,7 +7971,7 @@ private String editorRows;
 	 public String getPrintFriendlyUrl()
 	  {
 		  return ServerConfigurationService.getToolUrl() + Entity.SEPARATOR
-						+ ToolManager.getCurrentPlacement().getId() + Entity.SEPARATOR + "discussionForum" 
+						+ toolManager.getCurrentPlacement().getId() + Entity.SEPARATOR + "discussionForum" 
 						+ Entity.SEPARATOR + "message" + Entity.SEPARATOR 
 						+ "printFriendly";
 	  }
@@ -7949,7 +7979,7 @@ private String editorRows;
 	 public String getPrintFriendlyUrlThread()
 	  {
 		  return ServerConfigurationService.getToolUrl() + Entity.SEPARATOR
-						+ ToolManager.getCurrentPlacement().getId() + Entity.SEPARATOR + "discussionForum" 
+						+ toolManager.getCurrentPlacement().getId() + Entity.SEPARATOR + "discussionForum" 
 						+ Entity.SEPARATOR + "message" + Entity.SEPARATOR 
 						+ "printFriendlyThread";
 	  }
@@ -7957,7 +7987,7 @@ private String editorRows;
 	 public String getPrintFriendlyAllAuthoredMsg()
 	  {
 		  return ServerConfigurationService.getToolUrl() + Entity.SEPARATOR
-						+ ToolManager.getCurrentPlacement().getId() + Entity.SEPARATOR + "discussionForum" 
+						+ toolManager.getCurrentPlacement().getId() + Entity.SEPARATOR + "discussionForum" 
 						+ Entity.SEPARATOR + "statistics" + Entity.SEPARATOR 
 						+ "printFriendlyAllAuthoredMsg";
 	  }
@@ -7965,7 +7995,7 @@ private String editorRows;
 	 public String getPrintFriendlyFullTextForOne()
 	  {
 		  return ServerConfigurationService.getToolUrl() + Entity.SEPARATOR
-						+ ToolManager.getCurrentPlacement().getId() + Entity.SEPARATOR + "discussionForum" 
+						+ toolManager.getCurrentPlacement().getId() + Entity.SEPARATOR + "discussionForum" 
 						+ Entity.SEPARATOR + "statistics" + Entity.SEPARATOR 
 						+ "printFriendlyFullTextForOne";
 	  }
@@ -7973,7 +8003,7 @@ private String editorRows;
 	 public String getPrintFriendlyDisplayInThread()
 	  {
 		  return ServerConfigurationService.getToolUrl() + Entity.SEPARATOR
-						+ ToolManager.getCurrentPlacement().getId() + Entity.SEPARATOR + "discussionForum" 
+						+ toolManager.getCurrentPlacement().getId() + Entity.SEPARATOR + "discussionForum" 
 						+ Entity.SEPARATOR + "statistics" + Entity.SEPARATOR 
 						+ "printFriendlyDisplayInThread";
 	  }
@@ -8143,7 +8173,7 @@ private String editorRows;
 
 	public String processActionWatch() {
 		log.debug("processActionWatch()");
-		User curruser = UserDirectoryService.getCurrentUser();
+		User curruser = userDirectoryService.getCurrentUser();
 		log.debug("got user: " + curruser.getDisplayId());
 		EmailNotification userwatchoption = emailNotificationManager.getEmailNotification(curruser.getId());
 		log.debug("userwatchoption = " + userwatchoption.getNotificationLevel());
@@ -8177,7 +8207,7 @@ private String editorRows;
 		List<String> emaillist = new ArrayList<String>();
 		
 		
-		List<User> userMailList  = UserDirectoryService.getUsers(userlist);
+		List<User> userMailList  = userDirectoryService.getUsers(userlist);
 		for (int i = 0; i < userMailList.size(); i++) {
 			User user = userMailList.get(i); 
 
@@ -8346,7 +8376,7 @@ private String editorRows;
 		String forumId = getSelectedTopic().getTopic().getOpenForum().getId().toString();
 		log.debug("message: " + msgId + " topic: " + topicId + " forum: " + forumId);
 		
-		String context = SiteService.siteReference(ToolManager.getCurrentPlacement().getContext());
+		String context = siteService.siteReference(toolManager.getCurrentPlacement().getContext());
 		log.debug("context: " + context);
 		
 		developerHelperService = getDevelperHelperService();
@@ -8383,7 +8413,7 @@ private String editorRows;
 	
 	private String getSiteTitle(){	  
 		try {
-			return SiteService.getSite(ToolManager.getCurrentPlacement().getContext()).getTitle();
+			return siteService.getSite(toolManager.getCurrentPlacement().getContext()).getTitle();
 		} catch (IdUnusedException e) {
 			log.error(e.getMessage(), e);
 		}
@@ -8391,7 +8421,7 @@ private String editorRows;
 	}
 
 	private String getSiteId() {
-		return ToolManager.getCurrentPlacement().getContext();
+		return toolManager.getCurrentPlacement().getContext();
 	}
 
 	public SynopticMsgcntrManager getSynopticMsgcntrManager() {
@@ -8819,7 +8849,7 @@ private String editorRows;
         if (siteGroups == null || siteGroups.isEmpty()) {
             siteGroups = new ArrayList();
             try {
-                Site currentSite = SiteService.getSite(ToolManager.getCurrentPlacement().getContext());
+                Site currentSite = siteService.getSite(toolManager.getCurrentPlacement().getContext());
                 Collection groups = currentSite.getGroups();
                 groups = sortGroups(groups);
                 for (Iterator groupIterator = groups.iterator(); groupIterator.hasNext();) {
@@ -9014,7 +9044,7 @@ private String editorRows;
             return false;
         }
         boolean hasOverridingPermissions = false;
-        if(SecurityService.isSuperUser()
+        if(securityService.isSuperUser()
                 || isInstructor()){
             return true;
         }
@@ -9833,7 +9863,7 @@ private String editorRows;
 	}
 
     private LRS_Statement getStatementForUserReadViewed(String subject, String target) {
-    	LRS_Actor student = learningResourceStoreService.getActor(SessionManager.getCurrentSessionUserId());
+    	LRS_Actor student = learningResourceStoreService.getActor(sessionManager.getCurrentSessionUserId());
         String url = ServerConfigurationService.getPortalUrl();
         LRS_Verb verb = new LRS_Verb(SAKAI_VERB.interacted);
         LRS_Object lrsObject = new LRS_Object(url + "/forums", "viewed-" + target);
@@ -9847,7 +9877,7 @@ private String editorRows;
     }
 
     private LRS_Statement getStatementForUserPosted(String subject, SAKAI_VERB sakaiVerb) {
-    	LRS_Actor student = learningResourceStoreService.getActor(SessionManager.getCurrentSessionUserId());
+    	LRS_Actor student = learningResourceStoreService.getActor(sessionManager.getCurrentSessionUserId());
         String url = ServerConfigurationService.getPortalUrl();
         LRS_Verb verb = new LRS_Verb(sakaiVerb);
         LRS_Object lrsObject = new LRS_Object(url + "/forums", sakaiVerb == SAKAI_VERB.responded ? "post-to-thread" : "created-topic");
@@ -9863,7 +9893,7 @@ private String editorRows;
     
     private LRS_Statement getStatementForGrade(String studentUid, String forumTitle, double score)
             throws UserNotDefinedException {
-    	LRS_Actor instructor = learningResourceStoreService.getActor(SessionManager.getCurrentSessionUserId());
+    	LRS_Actor instructor = learningResourceStoreService.getActor(sessionManager.getCurrentSessionUserId());
         LRS_Verb verb = new LRS_Verb(SAKAI_VERB.scored);
         LRS_Object lrsObject = new LRS_Object(ServerConfigurationService.getPortalUrl() + "/forums", "received-grade-forum");
         HashMap<String, String> nameMap = new HashMap<String, String>();
@@ -9872,7 +9902,7 @@ private String editorRows;
         HashMap<String, String> descMap = new HashMap<String, String>();
         descMap.put("en-US", "User received a grade for their forum post: " + forumTitle);
         lrsObject.setDescription(descMap);
-        User studentUser = UserDirectoryService.getUser(studentUid);
+        User studentUser = userDirectoryService.getUser(studentUid);
         LRS_Actor student = learningResourceStoreService.getActor(studentUser.getId());
         student.setName(studentUser.getDisplayName());
         LRS_Statement statement = new LRS_Statement(student, verb, lrsObject, getLRS_Result(score), null);
@@ -9893,7 +9923,7 @@ private String editorRows;
     }
     
     public String getCurrentToolId(){
-    	return ToolManager.getCurrentPlacement().getId();
+    	return toolManager.getCurrentPlacement().getId();
     }
     
     /**
