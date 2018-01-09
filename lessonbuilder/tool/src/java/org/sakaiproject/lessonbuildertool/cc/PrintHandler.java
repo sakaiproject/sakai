@@ -104,6 +104,8 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import org.sakaiproject.tool.assessment.services.qti.QTIService;
 import org.sakaiproject.tool.assessment.qti.constants.QTIVersion;
+import org.sakaiproject.util.FormattedText;
+import org.sakaiproject.util.Validator;
 
 /* PJN NOTE:
  * This class is an example of what an implementer might want to do as regards overloading DefaultHandler.
@@ -640,16 +642,8 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
 			  }
 		      }
 
-		      htmlString = html.toString();
-
-		      // remove stuff the exporter added
-		      int off = htmlString.indexOf("<body>");
-		      if (off > 0)
-			  htmlString = htmlString.substring(off + 7);
-		      off = htmlString.lastIndexOf("</body>");
-		      if (off > 0)
-			  htmlString = htmlString.substring(0, off);
-
+		      htmlString = FormattedText.getHtmlBody(html.toString());
+		      
 		      htmlString = fixupInlineReferences(htmlString);
 		      
 		  }
