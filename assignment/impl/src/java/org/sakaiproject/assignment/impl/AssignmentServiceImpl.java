@@ -3330,6 +3330,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
     }
 
     @Override
+    @Transactional
     public void postReviewableSubmissionAttachments(AssignmentSubmission submission) {
         try {
             Optional<AssignmentSubmissionSubmitter> submitter = submission.getSubmitters().stream().filter(AssignmentSubmissionSubmitter::getSubmittee).findFirst();
@@ -3836,6 +3837,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
     }
 
     @Override
+    @Transactional
     public List<ContentReviewResult> getContentReviewResults(AssignmentSubmission s){
         ArrayList<ContentReviewResult> reviewResults = new ArrayList<ContentReviewResult>();
         //get all the attachments for this submission and populate the reviewResults
