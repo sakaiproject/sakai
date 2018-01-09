@@ -457,7 +457,7 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 				&& (s.getId().equals(myWorkspaceSiteId) || effectiveSite
 						.equals(myWorkspaceSiteId))));
 		
-		String siteTitle = getUserSpecificSiteTitle(s, false, true, siteProviders);
+		String siteTitle = getUserSpecificSiteTitle(s, false, false, siteProviders);
 		String siteTitleTruncated = FormattedText.makeShortenedText(siteTitle, null, null, null);
 		m.put("siteTitle", siteTitle);
 		m.put("siteTitleTrunc", siteTitleTruncated);
@@ -503,7 +503,7 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 					Map<String, Object> pm = new HashMap<>();
 					List<String> providers = getProviderIDsForSite(site);
 
-					String parentSiteTitle = getUserSpecificSiteTitle(site, false, true, providers);
+					String parentSiteTitle = getUserSpecificSiteTitle(site, false, false, providers);
 					String parentSiteTitleTruncated = FormattedText.makeShortenedText(parentSiteTitle, null, null, null);
 					pm.put("siteTitle", parentSiteTitle);
 					pm.put("siteTitleTrunc", parentSiteTitleTruncated);
