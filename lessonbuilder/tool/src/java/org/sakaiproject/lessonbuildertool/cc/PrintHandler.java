@@ -100,6 +100,7 @@ import org.sakaiproject.lessonbuildertool.service.ForumInterface;
 import org.sakaiproject.lessonbuildertool.service.GroupPermissionsService;
 import org.sakaiproject.lessonbuildertool.service.LessonEntity;
 import org.sakaiproject.lessonbuildertool.service.QuizEntity;
+import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.util.Validator;
 
 /* PJN NOTE:
@@ -635,16 +636,8 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
 			  }
 		      }
 
-		      htmlString = html.toString();
-
-		      // remove stuff the exporter added
-		      int off = htmlString.indexOf("<body>");
-		      if (off > 0)
-			  htmlString = htmlString.substring(off + 7);
-		      off = htmlString.lastIndexOf("</body>");
-		      if (off > 0)
-			  htmlString = htmlString.substring(0, off);
-
+		      htmlString = FormattedText.getHtmlBody(html.toString());
+		      
 		      htmlString = fixupInlineReferences(htmlString);
 		      
 		  }
