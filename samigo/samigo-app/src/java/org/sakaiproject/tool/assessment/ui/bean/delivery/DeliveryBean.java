@@ -1567,7 +1567,7 @@ public class DeliveryBean
 	  if (!submitFromTimeoutPopup) {
 
 		  String nextAction = checkBeforeProceed(true, isFromTimer);
-		  log.debug("***** next Action="+nextAction);
+		  log.debug("***** next Action={}", nextAction);
 
 		  EventTrackingService.post(EventTrackingService.newEvent(SamigoConstants.EVENT_ASSESSMENT_SUBMITTED_CHECKED, "siteId=" + AgentFacade.getCurrentSiteId() + ", submissionId=" + adata.getAssessmentGradingId(), siteId, true, NotificationService.NOTI_REQUIRED));
 
@@ -1744,7 +1744,7 @@ public class DeliveryBean
 	  }
 	  
 	  String nextAction = checkBeforeProceed();
-	  log.debug("***** next Action="+nextAction);
+	  log.debug("***** next Action={}", nextAction);
 	  if (!("safeToProceed").equals(nextAction)){
 		  return nextAction;
 	  }
@@ -1787,7 +1787,7 @@ public class DeliveryBean
 	  }
 	  
 	  String nextAction = checkBeforeProceed();
-	  log.debug("***** next Action="+nextAction);
+	  log.debug("***** next Action={}", nextAction);
 	  if (!("safeToProceed").equals(nextAction)){
 		  return nextAction;
 	  }
@@ -1829,7 +1829,7 @@ public class DeliveryBean
   {
 	  if (needToCheck) {  
 		  String nextAction = checkBeforeProceed();
-		  log.debug("***** next Action="+nextAction);
+		  log.debug("***** next Action={}", nextAction);
 		  if (!("safeToProceed").equals(nextAction)){
 			  return nextAction;
 		  }
@@ -1837,7 +1837,7 @@ public class DeliveryBean
 
     FacesContext context = FacesContext.getCurrentInstance();
     SessionUtil.setSessionTimeout(context, this, false);
-    log.debug("***DeliverBean.saveAndEXit face context =" + context);
+    log.debug("***DeliverBean.saveAndEXit face context ={}", context);
 
     forGrade = false;
     if (this.actionMode == TAKE_ASSESSMENT
@@ -1899,7 +1899,7 @@ public class DeliveryBean
   private String next_helper(boolean isGoToQuestion)
   {
     String nextAction = checkBeforeProceed();
-    log.debug("***** next Action="+nextAction);
+    log.debug("***** next Action={}", nextAction);
     if (!("safeToProceed").equals(nextAction)){
       return nextAction;
     }
@@ -1963,7 +1963,7 @@ public class DeliveryBean
   public String same_page()
   {
     String nextAction = checkBeforeProceed();
-    log.debug("***** next Action="+nextAction);
+    log.debug("***** next Action={}", nextAction);
     if (!("safeToProceed").equals(nextAction)){
       return nextAction;
     }
@@ -2003,7 +2003,7 @@ public class DeliveryBean
   {
 
 	  String nextAction = checkBeforeProceed();
-	  log.debug("***** next Action="+nextAction);
+	  log.debug("***** next Action={}", nextAction);
 	  if (!("safeToProceed").equals(nextAction)){
 		  return nextAction;
 	  }
@@ -2035,7 +2035,7 @@ public class DeliveryBean
   public String previous()
   {
     String nextAction = checkBeforeProceed();
-    log.debug("***** next Action="+nextAction);
+    log.debug("***** next Action={}", nextAction);
     if (!("safeToProceed").equals(nextAction)){
       return nextAction;
     }
@@ -2077,7 +2077,7 @@ public class DeliveryBean
   public String confirmSubmitPrevious()
   {
     String nextAction = checkBeforeProceed();
-    log.debug("***** next Action="+nextAction);
+    log.debug("***** next Action={}", nextAction);
     if (!("safeToProceed").equals(nextAction)){
       return nextAction;
     }
@@ -2133,8 +2133,8 @@ public class DeliveryBean
 
   public String validatePassword()
   {
-    log.debug("**** password=" + password);
-    log.debug("**** setting password=" + getSettings().getPassword());
+    log.debug("**** password={}", password);
+    log.debug("**** setting password={}", getSettings().getPassword());
     
     if (StringUtils.isBlank(password))
     {
@@ -2194,7 +2194,7 @@ public class DeliveryBean
       if (!getSettings().getPassword().equals(""))
       {
         results = validatePassword();
-        log.debug("*** checked password="+results);
+        log.debug("*** checked password={}", results);
         
         if("passwordAccessError".equals(results)) {
         	updatEventLog("error_pw_access");   	
@@ -2207,7 +2207,7 @@ public class DeliveryBean
           !getSettings().getIpAddresses().isEmpty())
       {
          results = validateIP();
-         log.debug("*** checked password & IP="+results);
+         log.debug("*** checked password & IP={}", results);
          
          if(("ipAccessError").equals(results)) {
         	updatEventLog("error_ip_access");
@@ -2262,7 +2262,7 @@ public class DeliveryBean
       
       // check before proceed
       String nextAction = checkBeforeProceed();
-      log.debug("***** next Action="+nextAction);
+      log.debug("***** next Action={}", nextAction);
       if (!("safeToProceed").equals(nextAction)){
         return nextAction;
       }
@@ -2277,7 +2277,7 @@ public class DeliveryBean
       return results;
     } catch (Exception e)
     {
-    	log.error("accessError" + e.getMessage());
+    	log.error("accessError{}", e.getMessage());
       EventLogService eventService = new EventLogService();
 		 EventLogFacade eventLogFacade = new EventLogFacade();
 		 EventLogData eventLogData = null;
@@ -2399,11 +2399,11 @@ public class DeliveryBean
     }
     catch (FileNotFoundException ex)
     {
-      log.error("File not found in DeliveryBean.getMediaStream(): " + ex.getMessage());
+      log.error("File not found in DeliveryBean.getMediaStream(): {}", ex.getMessage());
     }
     catch (IOException ex)
     {
-      log.error("IO Exception in DeliveryBean.getMediaStream(): " + ex.getMessage());
+      log.error("IO Exception in DeliveryBean.getMediaStream(): {}", ex.getMessage());
     }
     return mediaByte;
   }
@@ -2424,7 +2424,7 @@ public class DeliveryBean
     String mediaLocation = (String) e.getNewValue();
     String action = addMediaToItemGrading(mediaLocation);
     syncTimeElapsedWithServer();
-    log.debug("****time passed after fileupload before loading of next question"+getTimeElapse());
+    log.debug("****time passed after fileupload before loading of next question{}", getTimeElapse());
     setTimeElapseAfterFileUpload(getTimeElapse());
     setOutcome(action);
   }
@@ -2438,7 +2438,7 @@ public class DeliveryBean
    */
   public String addMediaToItemGrading(String mediaLocation)
     {
-    log.debug("****"+mediaLocation+" "+(new Date()));
+    log.debug("****{} {}", mediaLocation, new Date());
     
     if (!mediaIsValid()) {
     	reload = true;
@@ -2464,19 +2464,18 @@ public class DeliveryBean
     }
     //String pubAssessmentId = mediaLocation.substring(assessmentIndex + 10, questionIndex - 1);
     String questionId = mediaLocation.substring(questionIndex + 8, agentIndex);
-    log.debug("***3a. addMediaToItemGrading, questionId =" + questionId);
-    log.debug("***3b. addMediaToItemGrading, assessmentId =" + assessmentId);
+    log.debug("***3a. addMediaToItemGrading, questionId ={}", questionId);
+    log.debug("***3b. addMediaToItemGrading, assessmentId ={}", assessmentId);
     if (agent == null){
       String agentId = mediaLocation.substring(agentIndex, myfileIndex -1);
-      log.debug("**** agentId="+agentId);
+      log.debug("**** agentId={}", agentId);
       agent = agentId;
     }
-    log.debug("***3c. addMediaToItemGrading, agent =" + agent);
+    log.debug("***3c. addMediaToItemGrading, agent ={}", agent);
 
     // 4. prepare itemGradingData and attach it to assessmentGarding
     PublishedItemData item = (PublishedItemData)itemHash.get(new Long(questionId));
-    log.debug("***4a. addMediaToItemGrading, itemText(0) =" +
-              item.getItemTextArray().get(0));
+    log.debug("***4a. addMediaToItemGrading, itemText(0) ={}", item.getItemTextArray().get(0));
     // there is only one text in audio question
     PublishedItemText itemText = (PublishedItemText) item.
       getItemTextArraySorted().get(0);
@@ -2524,10 +2523,9 @@ public class DeliveryBean
     File media = new File(mediaLocation);
     String mimeType = MimeTypesLocator.getInstance().getContentType(media);
     boolean SAVETODB = getSaveToDb();
-    log.debug("**** SAVETODB=" + SAVETODB);
+    log.debug("**** SAVETODB={}", SAVETODB);
     MediaData mediaData;
-    log.debug("***6a. addMediaToItemGrading, itemGradinDataId=" +
-              itemGradingData.getItemGradingId());
+    log.debug("***6a. addMediaToItemGrading, itemGradinDataId={}", itemGradingData.getItemGradingId());
     // 1b. get filename
     String fullname = media.getName().trim();
     int underscore_index = fullname.lastIndexOf("_"); 
@@ -2537,10 +2535,10 @@ public class DeliveryBean
     if (dot_index >= 0) {
     	filename = filename + fullname.substring(dot_index);
     }
-    log.debug("**** filename="+filename);
+    log.debug("**** filename={}", filename);
 
     String updatedFilename = gradingService.getFileName(itemGradingData.getItemGradingId(), agent, filename);
-    log.debug("**** updatedFilename="+updatedFilename);
+    log.debug("**** updatedFilename={}", updatedFilename);
 
     
     if (SAVETODB)
@@ -2564,14 +2562,12 @@ public class DeliveryBean
 
     }
     Long mediaId = gradingService.saveMedia(mediaData);
-    log.debug("mediaId=" + mediaId);
-    log.debug("***6c. addMediaToItemGrading, media.itemGradinDataId=" +
-              ( (ItemGradingData) mediaData.getItemGradingData()).
-              getItemGradingId());
-    log.debug("***6d. addMediaToItemGrading, mediaId=" + mediaData.getMediaId());
+    log.debug("mediaId={}", mediaId);
+    log.debug("***6c. addMediaToItemGrading, media.itemGradinDataId={}", ( (ItemGradingData) mediaData.getItemGradingData()).getItemGradingId());
+    log.debug("***6d. addMediaToItemGrading, mediaId={}", mediaData.getMediaId());
 
     // 2. store mediaId in itemGradingRecord.answerText
-    log.debug("***7. addMediaToItemGrading, adata=" + adata);
+    log.debug("***7. addMediaToItemGrading, adata={}", adata);
     itemGradingData.setAnswerText(mediaId + "");
     gradingService.saveItemGrading(itemGradingData);
     // 3. if saveToDB, remove file from file system
@@ -2579,7 +2575,7 @@ public class DeliveryBean
       	if (SAVETODB) {
 		boolean success = media.delete();
     		if (!success){
-      		log.warn("Error: media.delete() failed for mediaId =" + mediaId);
+      		log.warn("Error: media.delete() failed for mediaId ={}", mediaId);
 		}
   	}
 
@@ -2793,13 +2789,10 @@ public class DeliveryBean
             log.debug("*** addMediaToItemGrading, not the same");
           }
         }
-        log.debug("*** addMediaToItemGrading, publishedItemId =" +
-                  publishedItemId);
+        log.debug("*** addMediaToItemGrading, publishedItemId ={}", publishedItemId);
         if (selected != null)
         {
-          log.debug(
-            "*** addMediaToItemGrading, itemGradingData.publishedItemId =" +
-            selected.getPublishedItemId().toString());
+          log.debug("*** addMediaToItemGrading, itemGradingData.publishedItemId ={}", selected.getPublishedItemId());
         }
       }
     }
@@ -2899,7 +2892,7 @@ public class DeliveryBean
     List list = new ArrayList();
     list.add(itemGradingData);
     //find out sectionId from questionId
-    log.debug("**** attachToItemContentBean, questionId="+questionId);
+    log.debug("**** attachToItemContentBean, questionId={}", questionId);
     /*
     PublishedAssessmentService publishedService = new
   PublishedAssessmentService();
@@ -2915,8 +2908,8 @@ public class DeliveryBean
     List parts = getPageContents().getPartsContents();
     for (int i=0; i<parts.size(); i++){
       SectionContentsBean part = (SectionContentsBean)parts.get(i);
-      log.debug("**** question's sectionId"+sectionId);
-      log.debug("**** partId"+part.getSectionId());
+      log.debug("**** question's sectionId{}", sectionId);
+      log.debug("**** partId{}", part.getSectionId());
       if (sectionId.equals(part.getSectionId())){
         partSelected = part;
         break;
@@ -3041,7 +3034,7 @@ public class DeliveryBean
 	      TimedAssessmentGradingModel timedAG = queue.get(adata.getAssessmentGradingId());
 	      if (timedAG != null){
 	        int timeElapsed  = Math.round((new Date().getTime() - adata.getAttemptDate().getTime())/1000.0f);
-	        log.debug("***setTimeElapsed="+timeElapsed);
+	        log.debug("***setTimeElapsed={}", timeElapsed);
 		    adata.setTimeElapsed(timeElapsed);
 	        GradingService gradingService = new GradingService();
 	        gradingService.saveOrUpdateAssessmentGrading(adata);
@@ -3171,7 +3164,7 @@ public class DeliveryBean
 	   List partsContents = this.pageContents.getPartsContents();
 	   if (partsContents.size() == 1) {
 		   String size = ((SectionContentsBean) partsContents.get(0)).getItemContentsSize();
-		   log.debug("ItemContentsSize = " + size);
+		   log.debug("ItemContentsSize = {}", size);
 		   if ("1".equals(size)) {
 			   log.debug("isMoreThanOneQuestion set to false");
 			   isMoreThanOneQuestion = false;
@@ -3298,7 +3291,7 @@ public class DeliveryBean
     			log.debug("Accept Late Submission && totalSubmissions == 0");
     		}
     		else {
-    			log.debug("take from bean: actualNumberRetake =" + actualNumberRetake);
+    			log.debug("take from bean: actualNumberRetake ={}", actualNumberRetake);
     			// Not during a Retake
     			if (actualNumberRetake == numberRetake) {
     				return "noLateSubmission";
@@ -3314,7 +3307,7 @@ public class DeliveryBean
     		}
     	} else {
     		if(!isRetracted(isSubmitForGrade)){
-    			log.debug("take from bean: actualNumberRetake =" + actualNumberRetake);
+    			log.debug("take from bean: actualNumberRetake ={}", actualNumberRetake);
     			// Not during a Retake
     			if (actualNumberRetake == numberRetake) {
     				// When taking the assessment via URL (from LoginServlet), if pass due date, throw an error 
@@ -3490,9 +3483,9 @@ public class DeliveryBean
 	  log.warn(e.getMessage());
       }
       
-      log.debug("last modified date in DB="+DBdate);
-      log.debug("last modified date in browser="+browserDate);
-      log.debug("date is equal="+(DBdate==browserDate));
+      log.debug("last modified date in DB={}", DBdate);
+      log.debug("last modified date in browser={}", browserDate);
+      log.debug("date is equal={}", DBdate==browserDate);
       return (DBdate==browserDate);
     }
     else return true;
@@ -3604,9 +3597,9 @@ public class DeliveryBean
   	    if (numberRetake == -1 || actualNumberRetake == -1) {
 		    	GradingService gradingService = new GradingService();
 		    	numberRetake = gradingService.getNumberRetake(publishedAssessment.getPublishedAssessmentId(), AgentFacade.getAgentString());
-		    	log.debug("numberRetake = " + numberRetake);
+		    	log.debug("numberRetake = {}", numberRetake);
 		    	actualNumberRetake = gradingService.getActualNumberRetake(publishedAssessment.getPublishedAssessmentId(), AgentFacade.getAgentString());
-		    	log.debug("actualNumberRetake =" + actualNumberRetake);
+		    	log.debug("actualNumberRetake ={}", actualNumberRetake);
 		 }
 		
 		if (!("previewAssessment").equals(actionString) && actualNumberRetake >= numberRetake && beginTime != null) { 
@@ -3861,7 +3854,7 @@ public class DeliveryBean
   	    catch (NumberFormatException ex) {
   	    	s = "-1";
   	    }
-  	    log.debug("auto save every " + s + " milliseconds");
+  	    log.debug("auto save every {} milliseconds", s);
 	    return s;
 	  }
 	  
