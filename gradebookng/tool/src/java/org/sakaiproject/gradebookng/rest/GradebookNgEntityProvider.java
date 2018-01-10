@@ -15,7 +15,9 @@
  */
 package org.sakaiproject.gradebookng.rest;
 
+import java.lang.reflect.Type;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -41,6 +43,9 @@ import org.sakaiproject.gradebookng.rest.model.CourseGradeSummary;
 import org.sakaiproject.service.gradebook.shared.CourseGrade;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.SessionManager;
+
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
 import lombok.Setter;
 
@@ -193,16 +198,34 @@ public class GradebookNgEntityProvider extends AbstractEntityProvider implements
 				
 		checkValidSite(siteId);
 		checkInstructor(siteId);
-		
-		CourseGradeSummary summary = new CourseGradeSummary();
-		
+				
 		// get course grades and re-map
-		Map<String, CourseGrade> courseGrades = this.businessService.getCourseGrades(siteId);
-		courseGrades.forEach((k,v) -> {
-			summary.add(v.getDisplayGrade());
-		});
+		final Map<String, CourseGrade> courseGrades = this.businessService.getCourseGrades(siteId);
+		return reMap(courseGrades);
+	}
+	
+	@EntityCustomAction(action = "rebuild-course-grades", viewKey = EntityView.VIEW_NEW)
+	public CourseGradeSummary rebuildCourseGradeSummary(final EntityReference ref, final Map<String, Object> params) {
 		
-		return summary;
+		// get params
+		final String siteId = (String) params.get("siteId");
+		final String schema = (String) params.get("schema");
+		
+		checkValidSite(siteId);
+		checkInstructor(siteId);
+		
+		// get the passed in schema
+		final Gson gson = new Gson();
+		final Type mappingType = new TypeToken<HashMap<String, Double>>(){}.getType();
+		final Map<String, Double> gradeMap = gson.fromJson(schema, mappingType);
+				
+		if(gradeMap == null) {
+			throw new IllegalArgumentException("Grading schema data was missing / invalid");
+		}
+		
+		// get the course grades using the passed in schema
+		final Map<String, CourseGrade> courseGrades = this.businessService.getCourseGrades(siteId, gradeMap);
+		return reMap(courseGrades);
 	}
 
 	/**
@@ -288,6 +311,19 @@ public class GradebookNgEntityProvider extends AbstractEntityProvider implements
 			throw new SecurityException("Your role could not be checked properly. This may be a role configuration issue in this site.");
 		}
 		return role;
+	}
+	
+	/**
+	 * Re-map the course grades returned from the business service into our CourseGradeSummary object for returning on the REST API.
+	 * @param courseGrades map of student to course grade
+	 * @return
+	 */
+	private CourseGradeSummary reMap(final Map<String, CourseGrade> courseGrades) {
+		final CourseGradeSummary summary = new CourseGradeSummary();
+		courseGrades.forEach((k,v) -> {
+			summary.add(v.getDisplayGrade());
+		});
+		return summary;
 	}
 
 	@Setter

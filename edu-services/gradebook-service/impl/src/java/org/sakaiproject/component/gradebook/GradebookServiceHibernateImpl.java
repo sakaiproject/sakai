@@ -3328,6 +3328,23 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 
 		try {
 			final Gradebook gradebook = getGradebook(gradebookUid);
+			final GradeMapping gradeMap = gradebook.getSelectedGradeMapping();
+			
+			rval.putAll(this.getCourseGradeForStudents(gradebookUid, userUuids, gradeMap.getGradeMap()));
+		}
+		catch(final Exception e) {
+			log.error("Error in getCourseGradeForStudents", e);
+		}
+		return rval;
+	}
+
+	@Override
+	public Map<String, org.sakaiproject.service.gradebook.shared.CourseGrade> getCourseGradeForStudents(final String gradebookUid,
+			final List<String> userUuids, final Map<String, Double> gradeMap) {
+		final Map<String,org.sakaiproject.service.gradebook.shared.CourseGrade> rval = new HashMap<>();
+
+		try {
+			final Gradebook gradebook = getGradebook(gradebookUid);
 
 			//if not released, and not instructor or TA, don't do any work
 			//note that this will return a course grade for Instructor and TA even if not released, see SAK-30119
@@ -3336,7 +3353,6 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 			}
 
 			final List<GradebookAssignment> assignments = getAssignmentsCounted(gradebook.getId());
-			final GradeMapping gradeMap = gradebook.getSelectedGradeMapping();
 
 			//this takes care of drop/keep scores
 			final List<CourseGradeRecord> gradeRecords = getPointsEarnedCourseGradeRecords(getCourseGrade(gradebook.getId()), userUuids);
@@ -3365,7 +3381,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 
 					//mapped grade
 					//NOTE: any incorrect mappings here are likely caused by the comparator not catering for the characters in the gradeMap string
-					final String mappedGrade = gradeMap.getGrade(calculatedGrade);
+					final String mappedGrade = GradeMapping.getGrade(gradeMap, calculatedGrade);
 					cg.setMappedGrade(mappedGrade);
 
 					//points
@@ -3383,12 +3399,6 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 	}
 
 	@Override
-	public Map<String, org.sakaiproject.service.gradebook.shared.CourseGrade> getCourseGradeForStudents(final String gradebookUid,
-			final List<String> userUuids, final Map<String, Double> schema) {
-		return null;
-	}
-
-	@Override
 	public List<CourseSection> getViewableSections(final String gradebookUid) {
 		return getAuthz().getViewableSections(gradebookUid);
 	}
@@ -3397,7 +3407,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 	public void updateGradebookSettings(final String gradebookUid, final GradebookInformation gbInfo) {
 		if (gradebookUid == null ) {
 			throw new IllegalArgumentException("null gradebookUid " + gradebookUid) ;
-		}
+		} 
 
 		//must be instructor type person
 		if (!currentUserHasEditPerm(gradebookUid)) {
