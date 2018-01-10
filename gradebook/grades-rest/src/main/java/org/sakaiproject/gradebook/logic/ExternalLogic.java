@@ -442,7 +442,7 @@ public class ExternalLogic {
         for (CategoryDefinition categoryDefinition : gradebookService.getCategoryDefinitions(gbID)) {
         	List<SparseGradebookItem> assignmentsRest = getAssignmentsForCategories(categoryDefinition);
         	Category categoryRest=new Category(categoryDefinition.getName(), 
-        			categoryDefinition.getWeight(),categoryDefinition.getDrop_lowest(),
+        			categoryDefinition.getWeight(),categoryDefinition.getDropLowest(),
         			categoryDefinition.getDropHighest(),categoryDefinition.getKeepHighest(),assignmentsRest);
         	categories.add(categoryRest);
         }

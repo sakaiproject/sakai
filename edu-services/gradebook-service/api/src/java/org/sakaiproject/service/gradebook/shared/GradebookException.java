@@ -33,10 +33,14 @@ package org.sakaiproject.service.gradebook.shared;
  * <prop key="create*">PROPAGATION_REQUIRED,+org.sakaiproject.service.gradebook.shared.GradebookException</prop>
  */
 public class GradebookException extends RuntimeException {
-    protected GradebookException(String message) {
+
+	private static final long serialVersionUID = 1L;
+
+	public GradebookException(final String message) {
         super(message);
     }
-    protected GradebookException(Throwable t) {
+
+	public GradebookException(final Throwable t) {
         super(t);
     }
 }

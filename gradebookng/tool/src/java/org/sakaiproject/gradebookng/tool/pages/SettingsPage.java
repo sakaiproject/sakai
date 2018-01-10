@@ -117,7 +117,7 @@ public class SettingsPage extends BasePage {
 
 						// ensure we don't have drop highest and keep highest at the same time
 						if ((cat.getDropHighest().intValue() > 0 && cat.getKeepHighest().intValue() > 0)
-								|| (cat.getDrop_lowest().intValue() > 0 && cat.getKeepHighest().intValue() > 0)) {
+								|| (cat.getDropLowest().intValue() > 0 && cat.getKeepHighest().intValue() > 0)) {
 							error(getString("settingspage.update.failure.categorydropkeepenabled"));
 						}
 
