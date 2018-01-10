@@ -5644,22 +5644,16 @@ public class AssignmentAction extends PagedResourceActionII {
                 if (AssignmentConstants.SUBMISSION_OPTION_RETURN.equals(gradeOption) || AssignmentConstants.SUBMISSION_OPTION_RELEASE.equals(gradeOption)) {
                     submission.setGradeReleased(true);
                 }
-            } else if (grade == null) {
-                submission.setGrade("");
-                submission.setGraded(false);
-                if (gradeChanged) {
-                    submission.setGradedBy(null);
-                }
-                submission.setGradeReleased(false);
             } else {
-                submission.setGrade(grade);
-
-                if (grade.length() != 0) {
+            	//If the grade is not blank
+                if (StringUtils.isNotBlank(grade)) {
+                    submission.setGrade(grade);
                     submission.setGraded(true);
                     if (gradeChanged) {
                         submission.setGradedBy(userDirectoryService.getCurrentUser() == null ? null : userDirectoryService.getCurrentUser().getId());
                     }
                 } else {
+                    submission.setGrade("");
                     submission.setGraded(false);
                     if (gradeChanged) {
                         submission.setGradedBy(null);
