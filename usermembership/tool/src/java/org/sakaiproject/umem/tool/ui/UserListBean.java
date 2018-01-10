@@ -23,22 +23,21 @@ package org.sakaiproject.umem.tool.ui;
 
 import java.io.Serializable;
 import java.sql.Connection;
-import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.sql.Timestamp;
 import java.text.Collator;
 import java.text.ParseException;
 import java.text.RuleBasedCollator;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Properties;
+import java.util.TimeZone;
 
 import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
@@ -47,22 +46,21 @@ import javax.faces.event.ValueChangeEvent;
 import javax.faces.model.SelectItem;
 
 import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.db.api.SqlService;
+import org.sakaiproject.time.api.UserTimeService;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.umem.api.Authz;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
-import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.util.ResourceLoader;
 
-
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * @author <a href="mailto:nuno@ufp.pt">Nuno Fernandes</a>
  */
+@Slf4j
 public class UserListBean {
 	private static final long				serialVersionUID	= 1L;
 	private static final String				USER_TYPE_ALL		= "All";
@@ -81,9 +79,6 @@ public class UserListBean {
 	private static final String				NO_NAME_USER		= "";
 	private static final String				CFG_USER_TYPE_LIMIT_TO_SELF		= "userType.limitToSelf";
 	private static final String				CFG_USER_TYPE_LIMIT_TO_LIST		= "userType.limitToList";
-
-	/** Our log (commons). */
-	private static Logger						LOG					= LoggerFactory.getLogger(UserListBean.class);
 
 	/** Resource bundle */
 	private transient ResourceLoader		msgs				= new ResourceLoader("org.sakaiproject.umem.tool.bundle.Messages");
@@ -119,7 +114,7 @@ public class UserListBean {
 	private transient ToolManager			M_tm				= (ToolManager) ComponentManager.get(ToolManager.class.getName());
 	private transient SqlService			M_sql				= (SqlService) ComponentManager.get(SqlService.class.getName());
 	private transient Authz					authz				= (Authz) ComponentManager.get(Authz.class.getName());
-	
+	private UserTimeService userTimeService = ComponentManager.get(UserTimeService.class);
 	
 	// ######################################################################################
 	// UserRow, UserSitesRow CLASS
@@ -133,8 +128,8 @@ public class UserListBean {
 		private String				userEmail;
 		private String				userType;
 		private String				authority;
-		private String              createdOn;
-		private String              modifiedOn;
+		private Date              createdOn;
+		private Date              modifiedOn;
 
 		static {
 			try{
@@ -148,8 +143,8 @@ public class UserListBean {
 		}
 
 		public UserRow(String userID, String userEID, String userDisplayId, String userName, 
-				       String userEmail, String userType, String authority, String createdOn, 
-				       String modifiedOn) {
+				       String userEmail, String userType, String authority, Date createdOn, 
+				       Date modifiedOn) {
 			this.userID = userID;
 			this.userEID = userEID;
 			this.userDisplayId = userDisplayId;
@@ -190,11 +185,11 @@ public class UserListBean {
 			return this.authority;
 		}
 
-		public String getCreatedOn() {
+		public Date getCreatedOn() {
 			return createdOn;
 		}
 
-		public String getModifiedOn() {
+		public Date getModifiedOn() {
 			return modifiedOn;
 		}
 		
@@ -253,15 +248,15 @@ public class UserListBean {
 							if(sortAscending) return res;
 							else return -res;
 						}else if(fieldName.equals(SORT_USER_CREATED_ON)){
-							String s1 = r1.getCreatedOn();
-							String s2 = r2.getCreatedOn();
-							int res = collator.compare(s1!=null? s1.toLowerCase():"", s2!=null? s2.toLowerCase():"");
+							Date s1 = r1.getCreatedOn();
+							Date s2 = r2.getCreatedOn();
+							int res = collator.compare(s1!=null? s1.toString():"", s2!=null? s2.toString():"");
 							if(sortAscending) return res;
 							else return -res;
 						}else if(fieldName.equals(SORT_USER_MODIFIED_ON)){
-							String s1 = r1.getModifiedOn();
-							String s2 = r2.getModifiedOn();
-							int res = collator.compare(s1!=null? s1.toLowerCase():"", s2!=null? s2.toLowerCase():"");
+							Date s1 = r1.getModifiedOn();
+							Date s2 = r2.getModifiedOn();
+							int res = collator.compare(s1!=null? s1.toString():"", s2!=null? s2.toString():"");
 							if(sortAscending) return res;
 							else return -res;
 						}else if(fieldName.equals(SORT_INTERNAL_USER_ID)){
@@ -272,7 +267,7 @@ public class UserListBean {
 							else return -res;
 						}
 					}catch(Exception e){
-						LOG.warn("Error occurred while sorting by: "+fieldName, e);
+						log.warn("Error occurred while sorting by: "+fieldName, e);
 					}
 				return 0;
 			}
@@ -301,26 +296,30 @@ public class UserListBean {
 		
 		return "";
 	}
+	
+	public TimeZone getUserTimeZone() {
+		return userTimeService.getLocalTimeZone();
+	}
 
 	private void doSearch() {
-		LOG.debug("Refreshing query...");
+		log.debug("Refreshing query...");
 		selectedUserType = newUserType;
 		selectedAuthority = newAuthority;
 		searchKeyword = searchKeyword.trim();
 		userRows = new ArrayList<UserRow>();
 		
-		if(LOG.isDebugEnabled()){
-			LOG.debug("selectedUserType: " + selectedUserType);
-			LOG.debug("selectedAuthority: " + selectedAuthority);
-			LOG.debug("searchKeyword: " + searchKeyword);
+		if(log.isDebugEnabled()){
+			log.debug("selectedUserType: " + selectedUserType);
+			log.debug("selectedAuthority: " + selectedAuthority);
+			log.debug("searchKeyword: " + searchKeyword);
 		}
 		
 		
 		// 1. Search internal users (Sakai DB)
 		if(selectedAuthority.equalsIgnoreCase(USER_AUTH_ALL) || selectedAuthority.equalsIgnoreCase(USER_AUTH_INTERNAL)){
 			
-			if(LOG.isDebugEnabled()){
-				LOG.debug("Searching internal users...");
+			if(log.isDebugEnabled()){
+				log.debug("Searching internal users...");
 			}
 			
 			try{
@@ -342,18 +341,17 @@ public class UserListBean {
 								u.getEmail(), 
 								u.getType(), 
 								msgs.getString("user_auth_internal"), 
-								(u.getCreatedTime() == null) ? "" : u.getCreatedTime().toStringLocalDate(), 
-								(u.getModifiedTime() == null) ? "" : u.getModifiedTime().toStringLocalDate()
+								u.getCreatedDate(), 
+								u.getModifiedDate()
 								)
 						);
 					}
 				}
-				if(LOG.isDebugEnabled()){
-					LOG.debug("Internal search results: " + users.size());
+				if(log.isDebugEnabled()){
+					log.debug("Internal search results: " + users.size());
 				}
 			}catch(Exception e){
-				LOG.warn("Exception occurred while searching internal users: " + e.getMessage());
-				e.printStackTrace();
+				log.warn("Exception occurred while searching internal users: " + e.getMessage());
 			} 
 		}
 		
@@ -361,8 +359,8 @@ public class UserListBean {
 		// 2. Search users on external user providers
 		if(selectedAuthority.equalsIgnoreCase(USER_AUTH_ALL) || selectedAuthority.equalsIgnoreCase(USER_AUTH_EXTERNAL)){
 			
-			if(LOG.isDebugEnabled()){
-				LOG.debug("Searching external users...");
+			if(log.isDebugEnabled()){
+				log.debug("Searching external users...");
 			}
 			
 			try{
@@ -376,22 +374,22 @@ public class UserListBean {
 								u.getEmail(), 
 								u.getType(), 
 								msgs.getString("user_auth_external"), 
-								(u.getCreatedTime() == null) ? "" : u.getCreatedTime().toStringLocalDate(), 
-								(u.getModifiedTime() == null) ? "" : u.getModifiedTime().toStringLocalDate()
+								u.getCreatedDate(), 
+								u.getModifiedDate()
 								)
 						);
 					}
 				}
-				if(LOG.isDebugEnabled()){
-					LOG.debug("External search results: " + users.size());
+				if(log.isDebugEnabled()){
+					log.debug("External search results: " + users.size());
 				}
 			}catch(RuntimeException e){
-				LOG.warn("Exception occurred while searching external users: " + e.getMessage(), e);
+				log.warn("Exception occurred while searching external users: " + e.getMessage(), e);
 			} 
 		}
 		
-		if(LOG.isDebugEnabled()){
-			LOG.debug("Total results: " + userRows.size());
+		if(log.isDebugEnabled()){
+			log.debug("Total results: " + userRows.size());
 		}
 
 		// 4. Update pager
@@ -583,7 +581,7 @@ public class UserListBean {
 						userTypes.add(new SelectItem(type));
 					}
 				}catch(SQLException e){
-					LOG.error("SQL error occurred while retrieving user types: " + e.getMessage(), e);
+					log.error("SQL error occurred while retrieving user types: " + e.getMessage(), e);
 				}finally{
 					try{
 						if(rs != null)
@@ -694,4 +692,7 @@ public class UserListBean {
 		
 		return table;
 	}
+	
+	
+
 }

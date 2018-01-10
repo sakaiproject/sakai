@@ -437,7 +437,19 @@ public class ContentReviewServiceVeriCite implements ContentReviewService {
 					}
 					List<ReportURLLinkReponse> urls = null;
 					try {
-						urls = vericiteApi.reportsUrlsContextIDGet(context, assignmentId, consumer, consumerSecret,  userId, tokenUserRole, null, externalContentIDFilter);
+						String tokenUserFirstName = null, tokenUserLastName = null, tokenUserEmail = null;
+						User user = null;
+						try{
+							user = userDirectoryService.getUser(userId);
+							if(user != null){
+								tokenUserFirstName = user.getFirstName();
+								tokenUserLastName = user.getLastName();
+								tokenUserEmail = user.getEmail();
+							}
+						}catch(Exception e){
+							log.error(e.getMessage(), e);
+						}
+						urls = vericiteApi.reportsUrlsContextIDGet(context, assignmentId, consumer, consumerSecret,  userId, tokenUserRole, tokenUserFirstName, tokenUserLastName, tokenUserEmail, null, externalContentIDFilter);
 					} catch (ApiException e) {
 						log.error(e.getMessage(), e);
 					}
@@ -720,7 +732,7 @@ public class ContentReviewServiceVeriCite implements ContentReviewService {
 			List<ExternalContentUploadInfo> uploadInfo = null;
 			try {
 				String assignmentParam = getAssignmentId(item.getTaskId(), isA2(item.getContentId(), null));
-				uploadInfo = veriCiteApi.reportsSubmitRequestContextIDAssignmentIDUserIDPost(item.getSiteId(), assignmentParam, item.getUserId(), consumer, consumerSecret, reportMetaData);
+				uploadInfo = veriCiteApi.reportsSubmitRequestContextIDAssignmentIDUserIDPost(item.getSiteId(), assignmentParam, item.getUserId(), consumer, consumerSecret, "sakai", "assignment", reportMetaData);
 				
 				if(assignmentParam != null && assignmentLastCheckedCache.containsKey(assignmentParam)) {
 					assignmentLastCheckedCache.remove(assignmentParam);
@@ -954,5 +966,24 @@ public class ContentReviewServiceVeriCite implements ContentReviewService {
 
 	public void setMemoryService(MemoryService memoryService) {
 		this.memoryService = memoryService;
+	}
+
+	@Override
+	public ContentReviewItem getContentReviewItemByContentId(String contentId){
+		Optional<ContentReviewItem> cri = crqs.getQueuedItem(getProviderId(), contentId);
+		if(cri.isPresent()){
+			ContentReviewItem item = cri.get();
+			
+			//Vericite specific work			
+			try {
+				int score = getReviewScore(contentId, item.getTaskId(), null);
+				log.debug(" getReviewScore returned a score of: {} ", score);
+			} catch(Exception e) {
+				log.error("Vericite - getReviewScore error called from getContentReviewItemByContentId with content {} - {}", contentId, e.getMessage());
+			}
+			
+			return item;
+		}
+		return null;
 	}
 }

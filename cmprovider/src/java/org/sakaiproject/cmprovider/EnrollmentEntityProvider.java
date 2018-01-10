@@ -18,6 +18,8 @@ package org.sakaiproject.cmprovider;
 import java.util.List;
 import java.util.Set;
 
+import lombok.extern.slf4j.Slf4j;
+
 import org.apache.commons.lang3.NotImplementedException;
 
 import org.sakaiproject.authz.api.AuthzGroup;
@@ -35,6 +37,7 @@ import org.sakaiproject.entitybroker.entityprovider.search.Search;
  *
  * @author Christopher Schauer
  */
+@Slf4j
 public class EnrollmentEntityProvider extends AbstractCmEntityProvider {
   public String getEntityPrefix() {
     return "cm-enrollment";
@@ -128,11 +131,11 @@ public class EnrollmentEntityProvider extends AbstractCmEntityProvider {
         authzGroupService.save(group);
       } catch (GroupNotDefinedException ex) {
         // This should never happen since the id was given to us from getAuthzGroupIds.
-        ex.printStackTrace();
+        log.error(ex.getMessage(), ex);
         throw new RuntimeException("An error occured updating site " + id + " with provider id " + enrollmentSetEid);
       } catch (AuthzPermissionException ex) {
         // This should also never happen since a SecurityException would've been thrown earlier.
-        ex.printStackTrace();
+        log.error(ex.getMessage(), ex);
         throw new RuntimeException("An error occured updating site " + id + " with provider id " + enrollmentSetEid);
       }
     }

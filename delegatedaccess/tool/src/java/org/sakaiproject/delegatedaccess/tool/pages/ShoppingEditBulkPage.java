@@ -14,8 +14,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
@@ -45,6 +43,7 @@ import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
+
 import org.sakaiproject.delegatedaccess.model.ListOptionSerialized;
 import org.sakaiproject.delegatedaccess.model.NodeModel;
 import org.sakaiproject.delegatedaccess.model.SelectOption;
@@ -53,8 +52,7 @@ import org.sakaiproject.site.api.Site;
 import org.sakaiproject.util.DateFormatterUtil;
 
 public class ShoppingEditBulkPage extends BasePage{
-	
-	private static final Logger log = LoggerFactory.getLogger(ShoppingEditBulkPage.class);
+
 	private SelectOption role = null;
 	private List<DecoratedSiteModel> deleteSites = new ArrayList<DecoratedSiteModel>();
 	private List<DecoratedSiteModel> addSites = new ArrayList<DecoratedSiteModel>();

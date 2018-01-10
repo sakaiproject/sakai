@@ -31,15 +31,14 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.sakaiproject.section.api.facade.manager.Authn;
-import org.sakaiproject.section.api.facade.manager.Authz;
-import org.sakaiproject.section.api.facade.manager.Context;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationContext;
 import org.springframework.web.context.WebApplicationContext;
 
 import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.section.api.facade.manager.Authn;
+import org.sakaiproject.section.api.facade.manager.Authz;
+import org.sakaiproject.section.api.facade.manager.Context;
 
 /**
  * An authorization filter to keep users out of pages they are not authorized
@@ -48,8 +47,8 @@ import org.sakaiproject.component.cover.ServerConfigurationService;
  * @author <a href="mailto:jholtzman@berkeley.edu">Josh Holtzman</a>
  *
  */
+@Slf4j
 public class RoleFilter implements Filter {
-	private static Logger logger = LoggerFactory.getLogger(RoleFilter.class);
 
 	private String authnBeanName;
 	private String authzBeanName;
@@ -60,7 +59,7 @@ public class RoleFilter implements Filter {
     private ApplicationContext ac;
 
 	public void init(FilterConfig filterConfig) throws ServletException {
-        if(logger.isInfoEnabled()) logger.info("Initializing sections role filter");
+        if(log.isInfoEnabled()) log.info("Initializing sections role filter");
 
         ac = (ApplicationContext)filterConfig.getServletContext().getAttribute(WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE);
 
@@ -76,7 +75,7 @@ public class RoleFilter implements Filter {
 
 		HttpServletRequest request = (HttpServletRequest)servletRequest;
 		String servletPath = request.getServletPath();
-		if (logger.isDebugEnabled()) logger.debug("Filtering request for servletPath=" + servletPath);
+		if (log.isDebugEnabled()) log.debug("Filtering request for servletPath=" + servletPath);
 		servletPath = servletPath.replaceFirst("^/", "");
 		if (servletPath.indexOf("/") >= 0) {
 			// Only protect the top-level folder, to allow for login through
@@ -91,12 +90,12 @@ public class RoleFilter implements Filter {
 		AuthorizationFilterConfigurationBean authzFilterConfigBean = (AuthorizationFilterConfigurationBean)ac.getBean(authorizationFilterConfigurationBeanName);
 		String userUid = authn.getUserUid(request);
 
-        if (logger.isDebugEnabled()) logger.debug("Filtering request for user " + userUid + ", pathInfo=" + request.getPathInfo());
+        if (log.isDebugEnabled()) log.debug("Filtering request for user " + userUid + ", pathInfo=" + request.getPathInfo());
 
 		// Try to get the currently selected site context, if any
 		String siteContext = context.getContext(request);
 		
-        if(logger.isDebugEnabled()) logger.debug("context=" + siteContext);
+        if(log.isDebugEnabled()) log.debug("context=" + siteContext);
 
 		if (siteContext != null) {
 			// Get the name of the page from the servlet path.
@@ -130,7 +129,7 @@ public class RoleFilter implements Filter {
 			} else if ( !"websphere".equals(ServerConfigurationService.getString("servlet.container")) && isAuthorized ) {
 				chain.doFilter(request, response);
 			} else {
-				logger.error("AUTHORIZATION FAILURE: User " + userUid + " in site " +
+				log.error("AUTHORIZATION FAILURE: User " + userUid + " in site " +
 					siteContext + " attempted to reach URL " + request.getRequestURL());
 				((HttpServletResponse)response).sendError(HttpServletResponse.SC_UNAUTHORIZED);
 			}

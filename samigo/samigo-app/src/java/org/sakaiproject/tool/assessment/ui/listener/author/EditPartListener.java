@@ -20,6 +20,7 @@
  **********************************************************************************/
 
 package org.sakaiproject.tool.assessment.ui.listener.author;
+
 import java.util.Iterator;
 import java.util.Set;
 import java.util.List;
@@ -55,11 +56,9 @@ import org.sakaiproject.util.FormattedText;
  * @author Ed Smiley
  * @version $Id$
  */
-
 public class EditPartListener
     implements ActionListener
 {
-  //private static Logger log = LoggerFactory.getLogger(EditPartListener.class);
   private boolean isEditPendingAssessmentFlow = true;
   
   public EditPartListener()

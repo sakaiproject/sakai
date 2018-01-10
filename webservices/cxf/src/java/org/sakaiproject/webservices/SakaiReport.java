@@ -15,31 +15,6 @@
  */
 package org.sakaiproject.webservices;
 
-
-import org.apache.commons.codec.digest.DigestUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.apache.xml.serializer.utils.XMLChar;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-import org.jumpmind.symmetric.csv.CsvWriter;
-import org.sakaiproject.db.api.SqlService;
-import org.sakaiproject.tool.api.Session;
-import org.sakaiproject.util.Xml;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-
-import javax.jws.WebMethod;
-import javax.jws.WebParam;
-import javax.jws.WebService;
-import javax.jws.soap.SOAPBinding;
-import javax.ws.rs.*;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.StringWriter;
@@ -57,6 +32,31 @@ import java.sql.Types;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 
+import javax.jws.WebMethod;
+import javax.jws.WebParam;
+import javax.jws.WebService;
+import javax.jws.soap.SOAPBinding;
+import javax.ws.rs.*;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.xml.serializer.utils.XMLChar;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+import org.jumpmind.symmetric.csv.CsvWriter;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+
+import org.sakaiproject.db.api.SqlService;
+import org.sakaiproject.tool.api.Session;
+import org.sakaiproject.util.Xml;
+
 /**
  * Created by IntelliJ IDEA.
  * User: jbush
@@ -67,9 +67,8 @@ import java.text.SimpleDateFormat;
 
 @WebService
 @SOAPBinding(style = SOAPBinding.Style.RPC, use = SOAPBinding.Use.LITERAL)
-
+@Slf4j
 public class SakaiReport extends AbstractWebService {
-    private static final Logger LOG = LoggerFactory.getLogger(SakaiReport.class);
 
     private SqlService sqlService;
 
@@ -164,16 +163,16 @@ public class SakaiReport extends AbstractWebService {
 
         boolean isEnabled = serverConfigurationService.getBoolean("webservice.report.enabled", false);
         if (isEnabled == false) {
-            LOG.warn("Report service not enabled, use webservice.report.enabled=true to enable");
+            log.warn("Report service not enabled, use webservice.report.enabled=true to enable");
             throw new RuntimeException("Report service not enabled.");
         }
         if (session == null) {
-            LOG.warn("No session for: " + sessionid);
+            log.warn("No session for: " + sessionid);
             throw new RuntimeException("No session for " + sessionid);
         }
         
         if (!securityService.isSuperUser()) {
-            LOG.warn("Non super user attempted access to report service: " + session.getUserId());
+            log.warn("Non super user attempted access to report service: " + session.getUserId());
             throw new RuntimeException("Non super user attempted to access report service: " + session.getUserId());
         }
 
@@ -204,7 +203,7 @@ public class SakaiReport extends AbstractWebService {
 
         // TODO add in shared secret to make this safer
         String calculatedHash = DigestUtils.sha256Hex(sessionid + query);
-        LOG.info("received hash of: " + hash + " calculated hash value as: " + calculatedHash);
+        log.info("received hash of: " + hash + " calculated hash value as: " + calculatedHash);
         return hash.equals(calculatedHash);
 
     }
@@ -235,7 +234,7 @@ public class SakaiReport extends AbstractWebService {
 
                 String column_name = rsmd.getColumnName(i);
 
-                LOG.debug("Column Name=" + column_name + ",type=" + rsmd.getColumnType(i));
+                log.debug("Column Name=" + column_name + ",type=" + rsmd.getColumnType(i));
 
                 switch (rsmd.getColumnType(i)) {
                     case Types.BIGINT:
@@ -282,14 +281,14 @@ public class SakaiReport extends AbstractWebService {
                         break;
 
                 }
-                LOG.debug("value: " + row[i - 1]);
+                log.debug("value: " + row[i - 1]);
             }
             writer.writeRecord(row);
             //writer.endRecord();
 
         }
 
-        LOG.debug("csv output:" + stringWriter.toString());
+        log.debug("csv output:" + stringWriter.toString());
 
         return stringWriter.toString();
     }
@@ -301,7 +300,7 @@ public class SakaiReport extends AbstractWebService {
             if (XMLChar.isValid(c)) {
                 sb.append(c);
             } else {
-                LOG.debug(c + " is not a valid XML char, stripping it: ");
+                log.debug(c + " is not a valid XML char, stripping it: ");
             }
         }
 
@@ -320,7 +319,7 @@ public class SakaiReport extends AbstractWebService {
 
                 String column_label = rsmd.getColumnLabel(i);
 
-                LOG.debug("Column Name=" + column_label + ",type=" + rsmd.getColumnType(i));
+                log.debug("Column Name=" + column_label + ",type=" + rsmd.getColumnType(i));
 
                 switch (rsmd.getColumnType(i)) {
                     case Types.ARRAY:
@@ -399,8 +398,7 @@ public class SakaiReport extends AbstractWebService {
                     node.appendChild(doc.createTextNode(stripInvalidXmlCharacters(value.toString())));
                     row.appendChild(node);
                 } catch (IOException e) {
-                    // probably shouldn't just ignore an issue...
-                    e.printStackTrace();
+                    log.error(e.getMessage(), e);
                 }
 
 
@@ -563,7 +561,7 @@ public class SakaiReport extends AbstractWebService {
                     }
                 }
             }
-            LOG.info("preparing query: " + ps.toString());
+            log.info("preparing query: " + ps.toString());
 
             rs = ps.executeQuery();
             //return toJsonString(rs);
@@ -581,7 +579,7 @@ public class SakaiReport extends AbstractWebService {
             return Xml.writeDocumentToString(toDocument(rs));
 
         } catch (Exception e) {
-            LOG.error(e.getMessage(), e);
+            log.error(e.getMessage(), e);
             throw new RuntimeException(e.getMessage(), e);
         } finally {
             if (rs != null) {

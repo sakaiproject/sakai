@@ -32,8 +32,8 @@ import java.util.regex.Pattern;
 import javax.servlet.ServletConfig;
 import javax.servlet.http.HttpServletRequest;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.tool.api.SessionManager;
 
@@ -43,12 +43,10 @@ import org.sakaiproject.tool.api.SessionManager;
  * </p>
  * @deprecated use apache commons utils for {@link org.sakaiproject.util.api.FormattedText}, this will be removed after 2.9 - Dec 2011
  */
-@Deprecated 
+@Deprecated
+@Slf4j
 public class Web
 {
-	/** Our log (commons). */
-	private static Logger M_log = LoggerFactory.getLogger(Web.class);
-
 	// used to remove javascript from html
 	private static final String START_JAVASCRIPT = "<script";
 	private static final String END_JAVASCRIPT = "</script>";
@@ -203,7 +201,7 @@ public class Web
 		}
 		catch (Exception e)
 		{
-			M_log.warn("escapeJavascript: ", e);
+			log.warn("escapeJavascript: ", e);
 			return value;
 		}
 	}
@@ -562,7 +560,7 @@ public class Web
 		}
 		catch (java.io.UnsupportedEncodingException e)
 		{
-			M_log.error(e.getMessage(), e);
+			log.error(e.getMessage(), e);
 		}
 		
 		return fileName;		

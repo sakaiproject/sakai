@@ -16,9 +16,9 @@
 
 package org.sakaiproject.tool.gradebook.facades.standalone;
 
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.tool.gradebook.facades.EventTrackingService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Author:Louis Majanja <louis@media.berkeley.edu>
@@ -28,16 +28,14 @@ import org.slf4j.LoggerFactory;
  *
  * an implementation of the EventTrackingService facade for the standalalone gradebook
  */
+@Slf4j
 public class EventTrackingServiceStandaloneImpl implements EventTrackingService {
-
-    private static final Logger log = LoggerFactory.getLogger(EventTrackingServiceStandaloneImpl.class);
-
     /**
      *
      * @param message
      * @param referenceObject
      */
     public void postEvent(String message, String referenceObject) {
-        if(log.isDebugEnabled()) log.debug("action: "+message + "  object reference:"+referenceObject);
+        if(log.isDebugEnabled()) log.debug("action: {} object reference: {}", message, referenceObject);
     }
 }

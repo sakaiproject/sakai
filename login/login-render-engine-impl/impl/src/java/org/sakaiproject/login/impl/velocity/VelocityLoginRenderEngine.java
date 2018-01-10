@@ -28,24 +28,22 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import org.sakaiproject.velocity.util.SLF4JLogChute;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+
 import org.apache.velocity.app.VelocityEngine;
 import org.apache.velocity.context.Context;
 import org.apache.velocity.runtime.RuntimeConstants;
+
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.login.api.LoginRenderContext;
 import org.sakaiproject.login.api.LoginRenderEngine;
 import org.sakaiproject.login.api.LoginService;
 import org.sakaiproject.tool.api.Placement;
 import org.sakaiproject.tool.api.SessionManager;
+import org.sakaiproject.velocity.util.SLF4JLogChute;
 
+@Slf4j
 public class VelocityLoginRenderEngine implements LoginRenderEngine {
-
-	// Logging
-	private static final Logger log = LoggerFactory.getLogger(VelocityLoginRenderEngine.class);
-	
 	// Member variables
 	private List availableLoginSkins;
 	

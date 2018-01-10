@@ -30,21 +30,19 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Pattern;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.content.api.ContentHostingHandlerResolver;
 import org.sakaiproject.util.ResourceLoader;
-import org.sakaiproject.util.Validator;
 
 /**
  * The class represents metadata properties.
  */
+@Slf4j
 public class ResourcesMetadata
 {
 	/** Resource bundle using current language locale */
 	private ResourceLoader rb = new ResourceLoader("content");
-	
-	static final Logger logger = LoggerFactory.getLogger(ResourcesMetadata.class);
     
 	public static final String WIDGET_STRING = "string";
 	public static final String WIDGET_TEXTAREA = "textarea";
@@ -1398,7 +1396,7 @@ public class ResourcesMetadata
 		}
 		catch(Exception e)
 		{
-			logger.warn("ResourcesMetadata[" + this.m_id + "].setValue(" + index + "," + value + ") " + e);
+			log.warn("ResourcesMetadata[" + this.m_id + "].setValue(" + index + "," + value + ") " + e);
 		}
 	}
 	

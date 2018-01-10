@@ -20,10 +20,12 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.wicket.injection.Injector;
 import org.apache.wicket.markup.repeater.data.IDataProvider;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
+
 import org.sakaiproject.profile2.logic.ProfileConnectionsLogic;
 import org.sakaiproject.profile2.model.Person;
 import org.sakaiproject.profile2.tool.models.DetachablePersonModel;
@@ -46,8 +48,7 @@ import org.sakaiproject.profile2.tool.models.DetachablePersonModel;
  * 
  * 
  */
-
-
+@Slf4j
 public class ConfirmedFriendsDataProvider implements IDataProvider<Person>, Serializable {
 	
 	private static final long serialVersionUID = 1L;
@@ -76,7 +77,7 @@ public class ConfirmedFriendsDataProvider implements IDataProvider<Person>, Seri
 			return slice.iterator();
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			log.error(e.getMessage(), e);
 			return Collections.EMPTY_LIST.iterator();
 		}
 	}
@@ -91,9 +92,5 @@ public class ConfirmedFriendsDataProvider implements IDataProvider<Person>, Seri
     
     
     public void detach() {}
-	
-    
-	
+
 }
-
-

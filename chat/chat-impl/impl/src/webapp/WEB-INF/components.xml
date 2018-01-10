@@ -69,9 +69,6 @@
     	<property name="chatMigrationExecuteImmediate">
     		<value>true</value>
     	</property>
-    	<property name="debug">
-    		<value>false</value>
-    	</property>
    </bean>
 
     <bean id="org.sakaiproject.chat2.model.impl.ChatEntityProducer"

@@ -17,8 +17,8 @@ package org.sakaiproject.tool.assessment.data.dao.grading;
 
 import java.util.Comparator;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.user.cover.UserDirectoryService;
 
@@ -28,9 +28,9 @@ import org.sakaiproject.user.cover.UserDirectoryService;
  * @author Gopal Ramasammy-Cook
  * @version 1.0
  */
+@Slf4j
 public class AssessmentGradingComparatorByScoreAndUniqueIdentifier implements
 		Comparator {
-	private static Logger log = LoggerFactory.getLogger(AssessmentGradingComparatorByScoreAndUniqueIdentifier.class);
 
 	private boolean anonymous;
 	

@@ -23,32 +23,24 @@ package org.sakaiproject.tool.summarycalendar.ui;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Collection;
-import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.TimeZone;
 
-import javax.faces.convert.DateTimeConverter;
-import javax.print.attribute.standard.DateTimeAtCompleted;
+import lombok.extern.slf4j.Slf4j;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeComparator;
 import org.joda.time.DateTimeZone;
-import org.sakaiproject.component.cover.ComponentManager;
+
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.time.api.Time;
 import org.sakaiproject.time.api.TimeRange;
 import org.sakaiproject.time.cover.TimeService;
-import org.sakaiproject.user.api.Preferences;
-import org.sakaiproject.user.api.PreferencesService;
-import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.util.ResourceLoader;
 
-
+@Slf4j
 public class EventSummary implements Serializable {
 	private static final long	serialVersionUID	= 4943854683550852507L;
 
@@ -72,9 +64,6 @@ public class EventSummary implements Serializable {
 	private List		attachments		= new ArrayList();
 	private List		attachmentsWrp	= new ArrayList();
 	private boolean 	openDateError	= false;
-	
-	
-	private static Logger	 LOG = LoggerFactory.getLogger(EventSummary.class);
 
 	public String getDisplayName() {
 		return displayName;
@@ -282,7 +271,7 @@ public class EventSummary implements Serializable {
 	private TimeZone getCurrentUserTimezone() {
 		
 		TimeZone tz = TimeService.getLocalTimeZone();
-		LOG.debug("got tz " + tz.getDisplayName());
+		log.debug("got tz " + tz.getDisplayName());
 		return tz;
 	}
 	

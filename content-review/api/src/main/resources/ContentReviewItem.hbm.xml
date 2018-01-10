@@ -26,5 +26,11 @@
         <property     name="retryCount"         type="long"                 not-null="false" />
         <property     name="nextRetryTime"      type="java.util.Date"       not-null="true" />
         <property     name="errorCode"          type="integer"              not-null="false" />
+
+        <map name="properties" table="CONTENTREVIEW_ITEM_PROPERTIES" cascade="all">
+            <key column="CONTENTREVIEW_ITEM_ID"/>
+            <map-key column="PROPERTY" type="string"/>
+            <element column="VALUE" type="string"/>
+        </map>
     </class>
 </hibernate-mapping>

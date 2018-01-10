@@ -23,6 +23,9 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import javax.portlet.PortletRequest;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 public class SakaiPortletUtil
 {
 
@@ -63,7 +66,7 @@ public class SakaiPortletUtil
 
 			String sakaiHome = System.getProperty("sakai.home");
 			String filePath = sakaiHome + fileName;
-			// System.out.println("filePath="+filePath);
+			log.debug("filePath={}", filePath);
 
 			try
 			{

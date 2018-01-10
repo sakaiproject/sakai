@@ -15,9 +15,17 @@
  */
 package org.sakaiproject.elfinder.sakai.assignment;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
+
 import cn.bluejoe.elfinder.service.FsItem;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.assignment.api.model.Assignment;
 import org.sakaiproject.assignment.api.AssignmentService;
 import org.sakaiproject.component.api.ServerConfigurationService;
@@ -30,21 +38,12 @@ import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.time.api.Time;
 import org.sakaiproject.user.api.UserDirectoryService;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
-
-
 /**
  * Created by neelam on 11-Jan-16.
  */
+@Slf4j
 public class AssignmentSiteVolumeFactory implements SiteVolumeFactory {
 
-    private static final Logger LOG = LoggerFactory.getLogger(AssignmentSiteVolumeFactory.class);
     private AssignmentService assignmentService;
     private UserDirectoryService userDirectoryService;
     private ServerConfigurationService serverConfigurationService;
@@ -115,9 +114,9 @@ public class AssignmentSiteVolumeFactory implements SiteVolumeFactory {
                         Assignment assignment = assignmentService.getAssignment(parts[2]);
                         return new AssignmentFsItem(this, assignment.getId(), assignment.getTitle());
                     } catch (IdUnusedException e) {
-                        LOG.warn("Unexpected IdUnusedException for assignment in " + e.getClass().getName() + ": " + e.getMessage());
+                        log.warn("Unexpected IdUnusedException for assignment in " + e.getClass().getName() + ": " + e.getMessage());
                     } catch (PermissionException e) {
-                        LOG.warn("Unexpected Permission Exception for assignment in  " + e.getClass().getName() + ": " + e.getMessage());
+                        log.warn("Unexpected Permission Exception for assignment in  " + e.getClass().getName() + ": " + e.getMessage());
                     }
 
                 }

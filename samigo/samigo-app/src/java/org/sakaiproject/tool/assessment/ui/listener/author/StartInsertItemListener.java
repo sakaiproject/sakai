@@ -19,34 +19,31 @@
  *
  **********************************************************************************/
 
-
-
 package org.sakaiproject.tool.assessment.ui.listener.author;
 
+import java.util.List;
+
+import javax.faces.component.UIComponent;
+import javax.faces.component.UISelectItem;
+import javax.faces.component.UISelectItems;
+import javax.faces.component.UISelectOne;
 import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ValueChangeEvent;
 import javax.faces.event.ValueChangeListener;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.tool.assessment.ui.bean.author.ItemAuthorBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
-import javax.faces.component.UIComponent;
-import javax.faces.component.UISelectOne;
-import java.util.List;
-import javax.faces.component.UISelectItem;
-import javax.faces.component.UISelectItems;
 
 /**
  * <p>Title: Samigo</p>
  * <p>Description: Sakai Assessment Manager</p>
  * @version $Id$
  */
-
+@Slf4j
 public class StartInsertItemListener implements ValueChangeListener
 {
-    private static Logger log = LoggerFactory.getLogger(StartInsertItemListener.class);
-
 
   /**
    * Standard process action method.
@@ -55,7 +52,6 @@ public class StartInsertItemListener implements ValueChangeListener
    */
   public void processValueChange(ValueChangeEvent ae) throws AbortProcessingException
   {
-    //log.info("StartInsertItemListener valueChangeLISTENER.");
     ItemAuthorBean itemauthorbean = (ItemAuthorBean) ContextUtil.lookupBean("itemauthor");
 
     String olditemtype = (String) ae.getOldValue();

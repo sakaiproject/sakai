@@ -22,16 +22,16 @@ package org.sakaiproject.tool.messageforums.ui;
 
 import java.util.Set;
 
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.api.app.messageforums.Rank;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.RankImpl;
 
 /**
  * @author lydial@stanford.edu
  */
+@Slf4j
 public class ForumRankBean {
-    private static final Logger LOG = LoggerFactory.getLogger(ForumRankBean.class);
 
     private boolean assignErr;
     private Set<String> assignToIds;

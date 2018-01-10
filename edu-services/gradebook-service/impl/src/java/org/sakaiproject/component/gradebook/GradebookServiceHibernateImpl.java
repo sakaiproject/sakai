@@ -97,7 +97,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
     private Authz authz;
     private GradebookPermissionService gradebookPermissionService;
     protected SiteService siteService;
-    
+
     @Override
 	public boolean isAssignmentDefined(final String gradebookUid, final String assignmentName) {
 		if (!isUserAbleToViewAssignments(gradebookUid)) {
@@ -2601,8 +2601,8 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 			}
 		});
 
-		if (log.isInfoEnabled()) {
-			log.info("Score updated in gradebookUid=" + gradebookUid + ", assignmentId=" + assignmentId + " by userUid=" + getUserUid() + " from client=" + clientServiceDescription + ", new score=" + score);
+		if (log.isDebugEnabled()) {
+			log.debug("Score updated in gradebookUid=" + gradebookUid + ", assignmentId=" + assignmentId + " by userUid=" + getUserUid() + " from client=" + clientServiceDescription + ", new score=" + score);
 		}
 	}
 
@@ -3329,7 +3329,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 		try {
 			final Gradebook gradebook = getGradebook(gradebookUid);
 			final GradeMapping gradeMap = gradebook.getSelectedGradeMapping();
-			
+
 			rval.putAll(this.getCourseGradeForStudents(gradebookUid, userUuids, gradeMap.getGradeMap()));
 		}
 		catch(final Exception e) {
@@ -3407,7 +3407,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 	public void updateGradebookSettings(final String gradebookUid, final GradebookInformation gbInfo) {
 		if (gradebookUid == null ) {
 			throw new IllegalArgumentException("null gradebookUid " + gradebookUid) ;
-		} 
+		}
 
 		//must be instructor type person
 		if (!currentUserHasEditPerm(gradebookUid)) {
@@ -3799,7 +3799,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 				for (final AssignmentGradeRecord gr : gradeRecords) {
 					if (gr.getPointsEarned() != null) {
 						final BigDecimal scoreAsPercentage = (new BigDecimal(gr.getPointsEarned())
-								.divide(new BigDecimal(originalPointsPossible)))
+								.divide(new BigDecimal(originalPointsPossible), GradebookService.MATH_CONTEXT))
 								.multiply(new BigDecimal(100));
 
 						final Double scaledScore = calculateEquivalentPointValueForPercent(

@@ -22,8 +22,9 @@ package org.sakaiproject.signup.tool.jsf.organizer.action;
 import java.util.Iterator;
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.OptimisticLockingFailureException;
+
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.signup.logic.SignupEventTypes;
 import org.sakaiproject.signup.logic.SignupMeetingService;
@@ -35,13 +36,13 @@ import org.sakaiproject.signup.tool.util.SignupBeanConstants;
 import org.sakaiproject.signup.tool.util.Utilities;
 import org.sakaiproject.signup.util.SignupDateFormat;
 import org.sakaiproject.tool.cover.ToolManager;
-import org.springframework.dao.OptimisticLockingFailureException;
 
 /**
  * <p>
  * This class will provide business logic for 'Remove-attendee' action by user.
  * </P>
  */
+@Slf4j
 public class RemoveWaiter implements SignupBeanConstants {
 
 	private static final int MAX_NUMBER_OF_RETRY = 20;
@@ -51,8 +52,6 @@ public class RemoveWaiter implements SignupBeanConstants {
 	private final String currentUserId;
 
 	private final String currentSiteId;
-
-	private Logger logger = LoggerFactory.getLogger(getClass());
 
 	private final boolean isOrganizer;
 
@@ -107,7 +106,7 @@ public class RemoveWaiter implements SignupBeanConstants {
 						+ " meetingId:" + meeting.getId() + " -removed from wlist on TS:"
 						+ SignupDateFormat.format_date_h_mm_a(timeslot.getStartTime()));
 			}
-			logger.debug("Meeting Name:" + meeting.getTitle() + " - UserId:" + currentUserId
+			log.debug("Meeting Name:" + meeting.getTitle() + " - UserId:" + currentUserId
 					+ " - has removed attendee(userId):" + waiter.getAttendeeUserId() + " from waiting list"
 					+ " at timeslot started at:" + SignupDateFormat.format_date_h_mm_a(timeslot.getStartTime()));
 		} catch (PermissionException pe) {

@@ -20,10 +20,8 @@
  **********************************************************************************/
 
 package org.sakaiproject.tool.assessment.facade;
-import java.io.Serializable;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.io.Serializable;
 
 import org.sakaiproject.tool.assessment.integration.context.IntegrationContextFactory;
 import org.sakaiproject.tool.assessment.integration.helper.ifc.GradebookHelper;
@@ -42,7 +40,6 @@ public class GradebookFacade implements Serializable
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-private Logger log = LoggerFactory.getLogger(GradebookFacade.class);
   private static final GradebookHelper helper =
       IntegrationContextFactory.getInstance().getGradebookHelper();
   private static final boolean integrated =
@@ -70,6 +67,4 @@ private Logger log = LoggerFactory.getLogger(GradebookFacade.class);
   {
     return helper.getDefaultGradebookUId();
   }
-
-
- }
+}

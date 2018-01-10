@@ -32,17 +32,15 @@ import java.util.List;
 
 import javax.sql.DataSource;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * @author ieb
  */
+@Slf4j
 public class SchemaConversionController
 {
 	private boolean reportErrorsInTable = false;
-
-	private static final Logger log = LoggerFactory.getLogger(SchemaConversionController.class);
 
 	private long nrecords = 0;
 
@@ -123,7 +121,7 @@ public class SchemaConversionController
 			} 
 			catch (SQLException e) 
 			{
-				e.printStackTrace();
+				log.error(e.getMessage(), e);
 			}
 			finally {
 				if (rs != null)

@@ -29,14 +29,14 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Provide an iterator over a ResultSet.
  */
+@Slf4j
 public class DBResults implements Iterable<ResultSet>, Iterator<ResultSet>, AutoCloseable {
-    private static final Logger LOG = LoggerFactory.getLogger(DBResults.class);
     private final PreparedStatement originalStatement;
     private final ResultSet resultSet;
     private boolean hasRowReady;
@@ -61,7 +61,7 @@ public class DBResults implements Iterable<ResultSet>, Iterator<ResultSet>, Auto
 
             return hasRowReady;
         } catch (SQLException e) {
-            LOG.warn("SQLException while calling hasNext", e);
+            log.warn("SQLException while calling hasNext", e);
             return false;
         }
     }

@@ -27,8 +27,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.regex.Pattern;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.authz.api.GroupProvider;
 import org.sakaiproject.coursemanagement.api.CourseManagementService;
 import org.sakaiproject.coursemanagement.api.Section;
@@ -40,8 +40,8 @@ import org.sakaiproject.coursemanagement.api.exception.IdNotFoundException;
  * a list of RoleResolvers, which can be used to resolve a user's role in a section
  * based on memberships in parent objects such as CourseSets.
  */
+@Slf4j
 public class CourseManagementGroupProvider implements GroupProvider {
-	private static final Logger log = LoggerFactory.getLogger(CourseManagementGroupProvider.class);
 
 	// Configuration keys.
 	public static final String SITE_ROLE_RESOLUTION_ORDER = "siteRoleResolutionOrder";

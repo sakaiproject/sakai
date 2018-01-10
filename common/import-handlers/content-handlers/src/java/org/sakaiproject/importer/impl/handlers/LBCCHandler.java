@@ -21,62 +21,13 @@
 
 package org.sakaiproject.importer.impl.handlers;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.ByteArrayInputStream;
-
-import java.text.Format;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipInputStream;
-
-import org.sakaiproject.exception.IdInvalidException;
-import org.sakaiproject.exception.IdUsedException;
-import org.sakaiproject.exception.IdUnusedException;
-import org.sakaiproject.exception.InUseException;
-import org.sakaiproject.exception.InconsistentException;
-import org.sakaiproject.exception.OverQuotaException;
-import org.sakaiproject.exception.PermissionException;
-import org.sakaiproject.exception.ServerOverloadException;
-import org.sakaiproject.exception.TypeException;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.importer.api.HandlesImportable;
 import org.sakaiproject.importer.api.Importable;
-import org.sakaiproject.importer.impl.importables.FileResource;
 import org.sakaiproject.importer.impl.importables.LBCCResource;
-import org.sakaiproject.importer.impl.importables.Folder;
-import org.sakaiproject.importer.impl.importables.WebLink;
-import org.sakaiproject.importer.impl.importables.HtmlDocument;
-import org.sakaiproject.importer.impl.importables.TextDocument;
-import org.sakaiproject.tool.api.SessionManager;
-import org.sakaiproject.authz.api.SecurityAdvisor;
-import org.sakaiproject.authz.api.SecurityService;
-import org.sakaiproject.component.api.ServerConfigurationService;
-import org.sakaiproject.content.api.ContentHostingService;
-import org.sakaiproject.content.api.ContentResource;
-import org.sakaiproject.content.api.ContentResourceEdit;
-import org.sakaiproject.content.api.ResourceType;
-import org.sakaiproject.entity.api.ResourceProperties;
-import org.sakaiproject.entity.api.ResourcePropertiesEdit;
-import org.sakaiproject.event.api.NotificationService;
-import org.sakaiproject.util.Validator;
 import org.sakaiproject.lessonbuildertool.LessonBuilderAccessAPI;
 
-import javax.activation.MimetypesFileTypeMap;
-
-import org.slf4j.LoggerFactory;
-import org.slf4j.Logger;
-
 public class LBCCHandler implements HandlesImportable {
-	
-	private Logger m_log = LoggerFactory.getLogger(org.sakaiproject.importer.impl.handlers.LBCCHandler.class);
 
 	public boolean canHandleType(String typeName) {
 	    return "lessonbuilder-cc-file".equals(typeName);

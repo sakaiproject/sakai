@@ -15,6 +15,14 @@
  */
 package org.sakaiproject.gradebookng.tool.panels;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import javax.servlet.http.HttpServletRequest;
+
+import lombok.extern.slf4j.Slf4j;
+
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
@@ -25,16 +33,12 @@ import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.spring.injection.annot.SpringBean;
+
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
 
-import javax.servlet.http.HttpServletRequest;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
+@Slf4j
 public class SortGradeItemsPanel extends Panel {
 
 	private static final long serialVersionUID = 1L;
@@ -95,12 +99,10 @@ public class SortGradeItemsPanel extends Panel {
 						}
 					}
 				} catch (IdUnusedException e) {
-					System.err.println(e);
-					e.printStackTrace();
+					log.error(e.getMessage(), e);
 					error = true;
 				} catch (PermissionException e) {
-					System.err.println(e);
-					e.printStackTrace();
+					log.error(e.getMessage(), e);
 					error = true;
 				}
 

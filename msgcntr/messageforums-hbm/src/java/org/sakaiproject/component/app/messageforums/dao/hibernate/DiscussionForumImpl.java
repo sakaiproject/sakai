@@ -22,17 +22,16 @@ package org.sakaiproject.component.app.messageforums.dao.hibernate;
  
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.api.app.messageforums.ActorPermissions;
 import org.sakaiproject.api.app.messageforums.DateRestrictions;
 import org.sakaiproject.api.app.messageforums.DiscussionForum;
 import org.sakaiproject.api.app.messageforums.Label;
 import org.sakaiproject.api.app.messageforums.UniqueArrayList;
 
+@Slf4j
 public class DiscussionForumImpl extends OpenForumImpl implements DiscussionForum {
-
-    private static final Logger LOG = LoggerFactory.getLogger(DiscussionForumImpl.class);
 
     private List labels = new UniqueArrayList();
     private DateRestrictions dateRestrictions;
@@ -81,8 +80,8 @@ public class DiscussionForumImpl extends OpenForumImpl implements DiscussionForu
     ////////////////////////////////////////////////////////////////////////   
     
     public void addLabel(Label label) {
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("addLabel(label " + label + ")");
+        if (log.isDebugEnabled()) {
+            log.debug("addLabel(label " + label + ")");
         }
         
         if (label == null) {
@@ -94,8 +93,8 @@ public class DiscussionForumImpl extends OpenForumImpl implements DiscussionForu
     }
 
     public void removeLabel(Label label) {
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("removeLabel(label " + label + ")");
+        if (log.isDebugEnabled()) {
+            log.debug("removeLabel(label " + label + ")");
         }
         
         if (label == null) {

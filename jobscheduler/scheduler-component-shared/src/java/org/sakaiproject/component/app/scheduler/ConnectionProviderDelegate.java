@@ -26,23 +26,23 @@ import java.sql.SQLException;
 
 import javax.sql.DataSource;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+
 import org.quartz.utils.ConnectionProvider;
 import org.sakaiproject.component.cover.ComponentManager;
 
 /**
  * This looks up the DataSource from Spring so that it will use the main Sakai connection.
  */
+@Slf4j
 public class ConnectionProviderDelegate implements ConnectionProvider
 {
-  private final Logger LOG = LoggerFactory.getLogger(ConnectionProviderDelegate.class);
   private DataSource ds;
 
   @Override
   public Connection getConnection() throws SQLException {
-     if (LOG.isDebugEnabled()){
-       LOG.debug("quartz getConnection()");
+     if (log.isDebugEnabled()){
+       log.debug("quartz getConnection()");
      }
      return ds.getConnection();
   }

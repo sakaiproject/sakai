@@ -32,8 +32,8 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.event.api.UsageSession;
 import org.sakaiproject.event.cover.UsageSessionService;
 import org.sakaiproject.presence.cover.PresenceService;
@@ -55,12 +55,10 @@ import org.sakaiproject.util.Web;
  * Presence is an tool which presents an auto-updating user presence list.
  * </p>
  */
+@Slf4j
 public class PresenceTool extends HttpServlet
 {
 	private static final long serialVersionUID = 1L;
-
-	/** Our log (commons). */
-	private static Logger M_log = LoggerFactory.getLogger(PresenceTool.class);
 
 	/** Request parameter to generate a fragment only. */
 	protected static final String OUTPUT_FRAGMENT = "output_fragment";
@@ -85,7 +83,7 @@ public class PresenceTool extends HttpServlet
 	 */
 	public void destroy()
 	{
-		M_log.info("destroy()");
+		log.info("destroy()");
 
 		super.destroy();
 	}
@@ -209,7 +207,7 @@ public class PresenceTool extends HttpServlet
 	{
 		super.init(config);
 
-		M_log.info("init()");
+		log.info("init()");
 	}
 
 	/**

@@ -30,19 +30,16 @@ import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import javax.faces.context.ExternalContext;
+import javax.faces.context.FacesContext;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpServletRequest;
 
-import javax.faces.context.ExternalContext;
-import javax.faces.context.FacesContext;
+import lombok.extern.slf4j.Slf4j;
 
-import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 import org.sakaiproject.tool.assessment.data.dao.grading.MediaData;
@@ -51,10 +48,10 @@ import org.sakaiproject.tool.assessment.services.GradingService;
 import org.sakaiproject.tool.assessment.ui.bean.evaluation.DownloadFileSubmissionsBean;
 import org.sakaiproject.tool.assessment.ui.bean.evaluation.TotalScoresBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
+import org.sakaiproject.util.ResourceLoader;
 
-
+@Slf4j
 public class DownloadFileUtil {
-	private static Logger log = LoggerFactory.getLogger(DownloadFileUtil.class);
 
 	public void processWholeSiteOrOneSection(HttpServletRequest req, HttpServletResponse res, ArrayList<ItemDataIfc> idataList, ArrayList<String> userUidList) {
 		processWholeSiteOrOneSection(req, res, idataList, userUidList, null);

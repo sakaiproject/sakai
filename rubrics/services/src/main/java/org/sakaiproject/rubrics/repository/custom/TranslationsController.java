@@ -22,15 +22,6 @@
 
 package org.sakaiproject.rubrics.repository.custom;
 
-import lombok.NoArgsConstructor;
-import org.sakaiproject.rubrics.RubricsConfiguration;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.rest.webmvc.BasePathAwareController;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.RequestMethod;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -39,10 +30,21 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashMap;
 
+import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.rest.webmvc.BasePathAwareController;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RequestMethod;
+
+import org.sakaiproject.rubrics.RubricsConfiguration;
 
 @BasePathAwareController
 @RequestMapping(value="/translations")
 @NoArgsConstructor
+@Slf4j
 public class TranslationsController {
 
     @Autowired
@@ -57,7 +59,7 @@ public class TranslationsController {
             return translations;
 
         }catch(Exception ex){
-            ex.printStackTrace();
+            log.error(ex.getMessage(), ex);
             return null;
         }
     }
@@ -132,9 +134,6 @@ public class TranslationsController {
         public void setLabels(HashMap<String, String> labels) {
             this.labels = labels;
         }
-
-
-
 
     }
 

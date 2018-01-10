@@ -24,39 +24,29 @@
 package org.sakaiproject.lessonbuildertool.service;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.SortedSet;
-import java.util.TreeSet;
-import java.util.Comparator;
-import java.util.Date;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletContext;
-
-import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean;
-import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean.UrlItem;
-import org.sakaiproject.lessonbuildertool.SimplePageItem;
-import org.sakaiproject.site.api.Site;
-import org.sakaiproject.site.api.ToolConfiguration;
-import org.sakaiproject.tool.api.ActiveTool;
-import org.sakaiproject.tool.cover.ActiveToolManager;
-import org.sakaiproject.site.cover.SiteService;
-import org.sakaiproject.component.cover.ServerConfigurationService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.sakaiproject.component.cover.ComponentManager;
-
-import org.sakaiproject.lessonbuildertool.service.LessonSubmission;
-import org.sakaiproject.db.cover.SqlService;
-import org.sakaiproject.db.api.SqlReader;
-import org.sakaiproject.tool.api.ToolManager;
 import java.sql.Connection;
 import java.sql.ResultSet;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+
+import lombok.extern.slf4j.Slf4j;
 
 import uk.org.ponder.messageutil.MessageLocator;
+
+import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.db.api.SqlReader;
+import org.sakaiproject.db.cover.SqlService;
+import org.sakaiproject.lessonbuildertool.SimplePageItem;
+import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean;
+import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean.UrlItem;
+import org.sakaiproject.site.api.Site;
+import org.sakaiproject.site.api.ToolConfiguration;
+import org.sakaiproject.site.cover.SiteService;
+import org.sakaiproject.tool.api.ToolManager;
 
 /**
  * Interface to JForums, an optional forums system from Foothills
@@ -74,10 +64,8 @@ import uk.org.ponder.messageutil.MessageLocator;
 // variables lessonEntity because the same module will probably have an
 // injected class to handle tests and quizes as well. That will eventually
 // be converted to be a LessonEntity.
-
+@Slf4j
 public class JForumEntity implements LessonEntity, ForumInterface {
-
-    private static final Logger log = LoggerFactory.getLogger(JForumEntity.class);
     static boolean initdone = false;
     static boolean haveJforum = false;
 

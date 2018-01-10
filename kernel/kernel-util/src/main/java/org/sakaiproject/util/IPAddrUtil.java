@@ -22,22 +22,20 @@
 package org.sakaiproject.util;
 
 import java.util.Arrays;
-import java.util.List;
+
+import lombok.extern.slf4j.Slf4j;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.net.util.SubnetUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * <p>
  * IPAddrUtil contains utility methods for working with IP addresses.
  * </p>
  */
+@Slf4j
 public class IPAddrUtil
 {
-	private static final Logger log = LoggerFactory.getLogger(IPAddrUtil.class);
-
 	/**
 	 * Match an address against a list of IP CIDR addresses
 	 * 

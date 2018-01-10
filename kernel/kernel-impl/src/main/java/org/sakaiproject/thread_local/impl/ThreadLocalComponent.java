@@ -24,8 +24,8 @@ package org.sakaiproject.thread_local.impl;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.thread_local.api.ThreadBound;
 import org.sakaiproject.thread_local.api.ThreadLocalManager;
 
@@ -37,11 +37,9 @@ import org.sakaiproject.thread_local.api.ThreadLocalManager;
  * See the {@link org.sakaiproject.api.kernel.thread_local.ThreadLocalManager}interface for details.
  * </p>
  */
+@Slf4j
 public class ThreadLocalComponent implements ThreadLocalManager
 {
-	/** Our log (commons). */
-	private static Logger M_log = LoggerFactory.getLogger(ThreadLocalComponent.class);
-
 	/**
 	 * <p>
 	 * ThreadBindings is a thread local map of keys to objects, holding the things bound to each thread.
@@ -76,7 +74,7 @@ public class ThreadLocalComponent implements ThreadLocalManager
 	 */
 	public void init()
 	{
-		M_log.info("init()");
+		log.info("init()");
 	}
 
 	/**
@@ -84,7 +82,7 @@ public class ThreadLocalComponent implements ThreadLocalManager
 	 */
 	public void destroy()
 	{
-		M_log.info("destroy()");
+		log.info("destroy()");
 	}
 
 	/**********************************************************************************************************************************************************************************************************************************************************
@@ -100,7 +98,7 @@ public class ThreadLocalComponent implements ThreadLocalManager
 		Map bindings = m_bindings.getBindings();
 		if (bindings == null)
 		{
-			M_log.warn("setInThread: no bindings!");
+			log.warn("setInThread: no bindings!");
 			return;
 		}
 
@@ -134,11 +132,11 @@ public class ThreadLocalComponent implements ThreadLocalManager
 		try
 		{
 			bound.unbind();
-			M_log.debug("Unbound from ThreadLocal " + bound);
+			log.debug("Unbound from ThreadLocal " + bound);
 		}
 		catch (Exception t)
 		{
-			M_log.error("Failed to unbind Object " + bound, t);
+			log.error("Failed to unbind Object " + bound, t);
 		}
 
 	}
@@ -151,7 +149,7 @@ public class ThreadLocalComponent implements ThreadLocalManager
 		Map bindings = m_bindings.getBindings();
 		if (bindings == null)
 		{
-			M_log.warn("clear: no bindings!");
+			log.warn("clear: no bindings!");
 			return;
 		}
 		
@@ -175,7 +173,7 @@ public class ThreadLocalComponent implements ThreadLocalManager
 		Map bindings = m_bindings.getBindings();
 		if (bindings == null)
 		{
-			M_log.warn("get: no bindings!");
+			log.warn("get: no bindings!");
 			return null;
 		}
 

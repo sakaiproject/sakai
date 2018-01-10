@@ -29,7 +29,9 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
+
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.site.api.Site;
@@ -38,14 +40,13 @@ import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.CandidateDetailProvider;
 import org.sakaiproject.user.detail.ValueEncryptionUtilities;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * <p>
  * SampleCandidateDetailProvider is a sample CandidateDetailProvider.
  * </p>
  */
+@Slf4j
 public class SampleCandidateDetailProvider implements CandidateDetailProvider
 {
 	private static final String USER_PROP_CANDIDATE_ID = "candidateID";
@@ -60,9 +61,6 @@ public class SampleCandidateDetailProvider implements CandidateDetailProvider
 	private final static String SYSTEM_PROP_DISPLAY_ADDITIONAL_INFORMATION = "displayAdditionalInformation";
 	private final static String SYSTEM_PROP_USE_INSTITUTIONAL_NUMERIC_ID = "useInstitutionalNumericID";
 	private final static String SYSTEM_PROP_ENCRYPT_NUMERIC_ID = "encryptInstitutionalNumericID";
-
-	/** Our log (commons). */
-	private final Logger log = LoggerFactory.getLogger(SampleCandidateDetailProvider.class);
 
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * Dependencies and their setter methods

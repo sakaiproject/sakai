@@ -30,8 +30,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.osid.assessment.AssessmentException;
 import org.osid.assessment.Item;
 import org.osid.shared.Type;
@@ -56,8 +55,8 @@ import org.sakaiproject.tool.assessment.services.PersistenceService;
  * ItemFacade implements ItemDataIfc that encapsulates our out of bound (OOB)
  * agreement.
  */
+@Slf4j
 public class ItemFacade implements Serializable, ItemDataIfc, Comparable<ItemDataIfc> {
-  private Logger log = LoggerFactory.getLogger(ItemFacade.class);
 
   private static final long serialVersionUID = 7526471155622776147L;
   protected org.osid.assessment.Item item;
@@ -1033,7 +1032,7 @@ public class ItemFacade implements Serializable, ItemDataIfc, Comparable<ItemDat
 	    }
 	}
 	catch (Exception e) {
-	    e.printStackTrace();
+	    log.error(e.getMessage(), e);
 	}
     }
 

@@ -19,13 +19,13 @@
  *
  **********************************************************************************/
 
-
 package org.sakaiproject.tool.assessment.business.entity;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.Serializable;
 import java.util.StringTokenizer;
+
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -37,8 +37,7 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -69,6 +68,7 @@ import org.w3c.dom.Element;
  * @author Ed Smiley
  * @version $Id$
  */
+@Slf4j
 public class RecordingData
   implements Serializable
 {
@@ -388,7 +388,6 @@ public class RecordingData
  */
 public Document getXMLDataModel()
 {
-  Logger log = LoggerFactory.getLogger(RecordingData.class);
   Document document = null;
   DocumentBuilderFactory builderFactory =
     DocumentBuilderFactory.newInstance();
@@ -462,7 +461,6 @@ public Document getXMLDataModel()
    */
   public static void unitTest()
   {
-    Logger log = LoggerFactory.getLogger(RecordingData.class);
 
     RecordingData rd =
       new RecordingData(

@@ -19,8 +19,6 @@
  *
  **********************************************************************************/
 
-
-
 package org.sakaiproject.tool.assessment.ui.listener.author;
 
 import java.util.ArrayList;
@@ -37,7 +35,9 @@ import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
 import javax.faces.model.SelectItem;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
+
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService;
 import org.sakaiproject.spring.SpringBeanLocator;
@@ -59,8 +59,6 @@ import org.sakaiproject.tool.assessment.ui.bean.authz.AuthorizationBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.util.TextFormat;
 import org.sakaiproject.util.FormattedText;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * <p>Title: Samigo</p>2
@@ -68,11 +66,10 @@ import org.slf4j.LoggerFactory;
  * @author Ed Smiley
  * @version $Id$
  */
-
+@Slf4j
 public class ConfirmPublishAssessmentListener
     implements ActionListener {
 
-  private static Logger log = LoggerFactory.getLogger(ConfirmPublishAssessmentListener.class);
   //private static ContextUtil cu;
   private static final GradebookServiceHelper gbsHelper =
       IntegrationContextFactory.getInstance().getGradebookServiceHelper();
@@ -114,7 +111,7 @@ public class ConfirmPublishAssessmentListener
     //#2a - look for error: check if core assessment title is unique
     boolean error=false;
 
-    String assessmentName = TextFormat.convertPlaintextToFormattedTextNoHighUnicode(log, assessmentSettings.getTitle());
+    String assessmentName = TextFormat.convertPlaintextToFormattedTextNoHighUnicode(assessmentSettings.getTitle());
     if(assessmentName!=null &&(assessmentName.trim()).equals("")){
      	String nameEmpty_err=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","assessmentName_empty");
 	context.addMessage(null,new FacesMessage(nameEmpty_err));
@@ -217,9 +214,8 @@ public class ConfirmPublishAssessmentListener
 				  entry.setStartDate(new Date());
 			  }
 			  if(!isEntryRetractEarlierThanAvailable && (entryRetractDate != null && entryDueDate != null && entryRetractDate.before(entryDueDate))) {
-				  String extendedTimeError4 = getExtendedTimeErrorString("extended_time_retract_earlier_than_due", entry, assessmentSettings);
-				  context.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_WARN, extendedTimeError4, null));
-				  error = true;
+				  // Retract date should be pushed to the due date
+				  entry.setRetractDate(entryDueDate);
 			  }
 		  }
 		  if(entryDueDate != null && entryStartDate != null && entryDueDate.equals(entryStartDate)) {
@@ -342,7 +338,6 @@ public class ConfirmPublishAssessmentListener
     	boolean ipErr=false;
     	String ipString = assessmentSettings.getIpAddresses().trim(); 
     	String[]arraysIp=(ipString.split("\n"));
-    	//System.out.println("arraysIp.length: "+arraysIp.length);
     	for(int a=0;a<arraysIp.length;a++){
     		String currentString=arraysIp[a];
     		if(!currentString.trim().equals("")){
@@ -477,12 +472,12 @@ public class ConfirmPublishAssessmentListener
       // generate an alias to the pub assessment
       String alias = AgentFacade.getAgentString() + (new Date()).getTime();
       assessmentSettings.setAlias(alias);
-      //log.info("servletPath=" + extContext.getRequestServletPath());
+
       String server = ( (javax.servlet.http.HttpServletRequest) extContext.
 			      getRequest()).getRequestURL().toString();
       int index = server.indexOf(extContext.getRequestContextPath() + "/"); // "/samigo-app/"
       server = server.substring(0, index);
-      //log.info("servletPath=" + server);
+
       String url = server + extContext.getRequestContextPath();
       assessmentSettings.setPublishedUrl(url + "/servlet/Login?id=" + alias);
     }

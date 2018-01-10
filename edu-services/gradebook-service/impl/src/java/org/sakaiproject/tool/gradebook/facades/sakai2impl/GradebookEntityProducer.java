@@ -19,9 +19,7 @@ package org.sakaiproject.tool.gradebook.facades.sakai2impl;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import org.sakaiproject.entity.api.ContextObserver;
 import org.sakaiproject.entity.api.EntityTransferrer;
@@ -41,9 +39,8 @@ import org.sakaiproject.tool.gradebook.Gradebook;
  * @deprecated This is part of the import/export for gradebook1 which will be removed at some point
  */
 @Deprecated
+@Slf4j
 public class GradebookEntityProducer extends BaseEntityProducer implements ContextObserver, EntityTransferrer, HandlesImportable {
-    private static final Logger log = LoggerFactory.getLogger(GradebookEntityProducer.class);
-
     private String[] toolIdArray;
     private GradebookFrameworkService gradebookFrameworkService;
     private GradebookService gradebookService;

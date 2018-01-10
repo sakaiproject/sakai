@@ -19,19 +19,17 @@
  *
  **********************************************************************************/
 
-
-
 package org.sakaiproject.tool.assessment.ui.servlet.qti;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import org.sakaiproject.tool.assessment.ui.bean.qti.XMLDisplay;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
@@ -42,14 +40,13 @@ import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
  * @author Ed Smiley
  * @version $Id$
  */
-
+@Slf4j
 public class ShowQTIServlet extends HttpServlet
 {
   /**
 	 * 
 	 */
 	private static final long serialVersionUID = 3855448630209417469L;
-private static Logger log = LoggerFactory.getLogger(ShowQTIServlet.class);
   //private String xmlData;
 
   /**

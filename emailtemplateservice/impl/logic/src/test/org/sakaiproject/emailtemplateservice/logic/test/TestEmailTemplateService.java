@@ -18,21 +18,26 @@ package org.sakaiproject.emailtemplateservice.logic.test;
 import java.util.Date;
 import java.util.Locale;
 
+import lombok.extern.slf4j.Slf4j;
+
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.sakaiproject.emailtemplateservice.dao.impl.EmailTemplateServiceDao;
-import org.sakaiproject.emailtemplateservice.model.EmailTemplate;
-import org.sakaiproject.emailtemplateservice.service.impl.EmailTemplateServiceImpl;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.AbstractJUnit4SpringContextTests;
 
+import org.sakaiproject.emailtemplateservice.dao.impl.EmailTemplateServiceDao;
+import org.sakaiproject.emailtemplateservice.model.EmailTemplate;
+import org.sakaiproject.emailtemplateservice.service.impl.EmailTemplateServiceImpl;
+
 @ContextConfiguration(locations={ 
 		"/hibernate-test.xml",
 		"classpath:org/sakaiproject/emailtemplateservice/spring-hibernate.xml"
 	})
+@Slf4j
 public class TestEmailTemplateService extends AbstractJUnit4SpringContextTests {
 
 	private static final String KEY_1 = "key1";
@@ -131,7 +136,7 @@ public class TestEmailTemplateService extends AbstractJUnit4SpringContextTests {
 			Assert.fail();
 		}
 		catch (Exception e) {
-			//e.printStackTrace();
+			log.error(e.getMessage(), e);
 		}
 		
 	}
@@ -168,7 +173,7 @@ public class TestEmailTemplateService extends AbstractJUnit4SpringContextTests {
 			//we expect this
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			log.error(e.getMessage(), e);
 			Assert.fail();
 		}
 		
@@ -181,7 +186,7 @@ public class TestEmailTemplateService extends AbstractJUnit4SpringContextTests {
 			//we expect this
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			log.error(e.getMessage(), e);
 			Assert.fail();
 		}
 		
@@ -195,7 +200,7 @@ public class TestEmailTemplateService extends AbstractJUnit4SpringContextTests {
 			//we expect this
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			log.error(e.getMessage(), e);
 			Assert.fail();
 		}
 		
@@ -209,7 +214,7 @@ public class TestEmailTemplateService extends AbstractJUnit4SpringContextTests {
 			//we expect this
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			log.error(e.getMessage(), e);
 			Assert.fail();
 		}
 		
@@ -226,7 +231,7 @@ public class TestEmailTemplateService extends AbstractJUnit4SpringContextTests {
 			Assert.fail();
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			log.error(e.getMessage(), e);
 			Assert.fail();
 		}
 		
@@ -239,7 +244,7 @@ public class TestEmailTemplateService extends AbstractJUnit4SpringContextTests {
 			//we expect this
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			log.error(e.getMessage(), e);
 			Assert.fail();
 		}
 	}

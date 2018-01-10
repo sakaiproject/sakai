@@ -19,7 +19,6 @@
  *
  **********************************************************************************/
 
-
 package org.sakaiproject.tool.assessment.ui.listener.shared;
 
 import javax.faces.context.FacesContext;
@@ -39,7 +38,6 @@ import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 
 public class ConfirmRemoveMediaListener implements ActionListener
 {
-  //private static Logger log = LoggerFactory.getLogger(ConfirmRemoveMediaListener.class);
 
   public ConfirmRemoveMediaListener()
   {
@@ -64,5 +62,4 @@ public class ConfirmRemoveMediaListener implements ActionListener
     mediaBean.setItemGradingId(Long.valueOf(itemGradingId));
 
   }
-
 }

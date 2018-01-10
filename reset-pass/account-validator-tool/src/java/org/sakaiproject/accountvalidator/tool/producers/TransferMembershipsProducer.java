@@ -24,12 +24,11 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.accountvalidator.model.ValidationAccount;
 import org.sakaiproject.accountvalidator.tool.otp.AcountValidationLocator;
 import org.sakaiproject.accountvalidator.tool.params.ValidationViewParams;
-
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.exception.IdUnusedException;
@@ -62,9 +61,9 @@ import uk.org.ponder.springutil.SpringMessageLocator;
  * Produces transferMemberships.html - builds a form that allows the user to transfer their memberships to another account provided that they can authenticate with that account
  * @author bbailla2
  */
+@Slf4j
 public class TransferMembershipsProducer extends BaseValidationProducer implements ViewComponentProducer, ActionResultInterceptor {
-	
-	private static Logger log = LoggerFactory.getLogger(NewUserProducer.class);
+
 	public static final String VIEW_ID = "transferMemberships";
 
 	public String getViewID()
@@ -160,7 +159,7 @@ public class TransferMembershipsProducer extends BaseValidationProducer implemen
 				}
 				catch (IdUnusedException e)
 				{
-					e.printStackTrace();
+					log.error(e.getMessage(), e);
 				}
 			}
 		}

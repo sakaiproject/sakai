@@ -15,8 +15,8 @@
  */
 package org.sakaiproject.component.app.scheduler.jobs;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+
 import org.quartz.JobExecutionException;
 
 /**
@@ -26,11 +26,9 @@ import org.quartz.JobExecutionException;
  * Time: 4:02:31 PM
  * To change this template use File | Settings | File Templates.
  */
+@Slf4j
 public class TestConfigurableJob extends AbstractConfigurableJob
 {
-    private static final Logger
-        LOG = LoggerFactory.getLogger(TestConfigurableJob.class);
-
     public static final String
         INTEGER_PROPERTY            = "integer.property",
         STRING_PROPERTY             = "string.property",
@@ -41,7 +39,7 @@ public class TestConfigurableJob extends AbstractConfigurableJob
         throws JobExecutionException
     {
 
-        LOG.debug ("running TestConfigurableJob");
+        log.debug ("running TestConfigurableJob");
 
         readIntegerProperty();
         readStringProperty();
@@ -56,17 +54,17 @@ public class TestConfigurableJob extends AbstractConfigurableJob
 
         if (temp == null)
         {
-            LOG.debug ("integer property is null");
+            log.debug ("integer property is null");
         }
         else
         {
             try
             {
-                LOG.debug ("integer property is set to integer value: '" + Integer.parseInt(temp) + "'");
+                log.debug ("integer property is set to integer value: '" + Integer.parseInt(temp) + "'");
             }
             catch (NumberFormatException nfe)
             {
-                LOG.error ("integer property is set to a non-integer value: '" + temp + "'");
+                log.error ("integer property is set to a non-integer value: '" + temp + "'");
             }
         }
     }
@@ -78,15 +76,15 @@ public class TestConfigurableJob extends AbstractConfigurableJob
 
         if (temp == null)
         {
-            LOG.debug ("string property is null");
+            log.debug ("string property is null");
         }
         else if (temp.trim().length() == 0)
         {
-            LOG.debug ("string property is empty");
+            log.debug ("string property is empty");
         }
         else
         {
-            LOG.debug ("string property is set to: '" + temp + "'");
+            log.debug ("string property is set to: '" + temp + "'");
         }
     }
 
@@ -97,11 +95,11 @@ public class TestConfigurableJob extends AbstractConfigurableJob
 
         if (temp == null)
         {
-            LOG.debug ("boolean property is null");
+            log.debug ("boolean property is null");
         }
         else
         {
-            LOG.debug ("boolean property is set to boolean value: '" + Boolean.parseBoolean(temp) + "'");
+            log.debug ("boolean property is set to boolean value: '" + Boolean.parseBoolean(temp) + "'");
         }
     }
 }

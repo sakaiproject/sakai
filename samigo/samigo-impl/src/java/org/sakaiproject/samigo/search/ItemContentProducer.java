@@ -13,65 +13,42 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.sakaiproject.samigo.search;
 
+import java.io.Reader;
+import java.io.StringReader;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
-/**********************************************************************************
- * $URL$
- * $Id$
- ***********************************************************************************
- *
- * Copyright (c) 2007, 2008 The Sakai Foundation
- *
- * Licensed under the Educational Community License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *       http://www.opensource.org/licenses/ECL-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
- **********************************************************************************/
+import lombok.extern.slf4j.Slf4j;
+import net.htmlparser.jericho.Source;
 
-        import org.sakaiproject.component.cover.ComponentManager;
-        import org.sakaiproject.component.cover.ServerConfigurationService;
-        import org.sakaiproject.entity.api.EntityManager;
-        import org.sakaiproject.entity.api.Reference;
-        import org.sakaiproject.entitybroker.EntityReference;
-        import org.sakaiproject.entitybroker.entityprovider.EntityProviderManager;
-        import org.sakaiproject.event.api.Event;
-        import org.sakaiproject.search.api.EntityContentProducer;
-        import org.sakaiproject.search.api.EntityContentProducerEvents;
-        import org.sakaiproject.search.api.SearchIndexBuilder;
-        import org.sakaiproject.search.api.SearchService;
-        import org.sakaiproject.search.model.SearchBuilderItem;
-        import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentData;
-        import org.sakaiproject.tool.assessment.entity.impl.ItemEntityProviderImpl;
-        import org.sakaiproject.tool.assessment.facade.ItemFacade;
-        import org.slf4j.Logger;
-        import org.slf4j.LoggerFactory;
-        import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
+import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.entity.api.EntityManager;
+import org.sakaiproject.entity.api.Reference;
+import org.sakaiproject.entitybroker.EntityReference;
+import org.sakaiproject.entitybroker.entityprovider.EntityProviderManager;
+import org.sakaiproject.event.api.Event;
+import org.sakaiproject.search.api.EntityContentProducer;
+import org.sakaiproject.search.api.EntityContentProducerEvents;
+import org.sakaiproject.search.api.SearchIndexBuilder;
+import org.sakaiproject.search.api.SearchService;
+import org.sakaiproject.search.model.SearchBuilderItem;
+import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentData;
+import org.sakaiproject.tool.assessment.entity.impl.ItemEntityProviderImpl;
+import org.sakaiproject.tool.assessment.facade.ItemFacade;
+import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 
-        import net.htmlparser.jericho.Source;
-
-        import java.io.Reader;
-        import java.io.StringReader;
-        import java.util.ArrayList;
-        import java.util.Iterator;
-        import java.util.List;
-        import java.util.Map;
-        import java.util.HashMap;
-        import java.util.HashSet;
-        import java.util.Set;
-
-
+@Slf4j
 public class ItemContentProducer implements EntityContentProducer, EntityContentProducerEvents {
 
-    protected final Logger logger = LoggerFactory.getLogger(getClass());
     private SearchService searchService;
     private SearchIndexBuilder searchIndexBuilder;
     private EntityManager entityManager = null;
@@ -100,9 +77,8 @@ public class ItemContentProducer implements EntityContentProducer, EntityContent
      */
     protected void destroy()
     {
-        logger.info("destroy() ItemContentProducer");
+        log.info("destroy() ItemContentProducer");
     }
-
 
     private Reference getReference(String reference) {
         return null;
@@ -112,11 +88,10 @@ public class ItemContentProducer implements EntityContentProducer, EntityContent
         try {
             return new EntityReference("/sam_item/"+reference);
         } catch ( Exception ex ) {
-            logger.debug("Managed exception getting the item entity reference: " + ex.getClass().getName() + " : " + ex.getMessage());
+            log.debug("Managed exception getting the item entity reference: " + ex.getClass().getName() + " : " + ex.getMessage());
         }
         return null;
     }
-
 
     /**
      * {@inheritDoc}
@@ -131,7 +106,7 @@ public class ItemContentProducer implements EntityContentProducer, EntityContent
             qhp.entityExists(er.getId());
             return true;
         } catch (Exception ex) {
-            logger.debug("Managed exception getting the item canRead function" + ex.getClass().getName() + " : " + ex.getMessage());
+            log.debug("Managed exception getting the item canRead function" + ex.getClass().getName() + " : " + ex.getMessage());
             return false;
         }
     }
@@ -202,7 +177,7 @@ public class ItemContentProducer implements EntityContentProducer, EntityContent
             }
 
         }catch (Exception ex) {
-            logger.debug("Managed exception getting the question hash " + ex.getClass().getName() + " : " + ex.getMessage());
+            log.debug("Managed exception getting the question hash " + ex.getClass().getName() + " : " + ex.getMessage());
         }finally{
             return allInfo;
         }
@@ -253,7 +228,7 @@ public class ItemContentProducer implements EntityContentProducer, EntityContent
         try {
             return customProperties;
         }catch (Exception ex){
-            logger.debug("Managed exception getting the question custom Properties" + ex.getClass().getName() + " : " + ex.getMessage());
+            log.debug("Managed exception getting the question custom Properties" + ex.getClass().getName() + " : " + ex.getMessage());
             return null;
         }
 
@@ -269,7 +244,7 @@ public class ItemContentProducer implements EntityContentProducer, EntityContent
             ItemFacade item = (ItemFacade) qhp.getEntity(er);
             return qhp.questionPoolIds(item);
         }catch (Exception ex) {
-            logger.debug("Managed exception getting the question pool id" + ex.getClass().getName() + " : " + ex.getMessage());
+            log.debug("Managed exception getting the question pool id" + ex.getClass().getName() + " : " + ex.getMessage());
             return null;
         }
     }
@@ -284,7 +259,7 @@ public class ItemContentProducer implements EntityContentProducer, EntityContent
             ItemFacade item = (ItemFacade) qhp.getEntity(er);
             return qhp.tags(item);
         }catch (Exception ex) {
-            logger.debug("Managed exception getting the question tags" + ex.getClass().getName() + " : " + ex.getMessage());
+            log.debug("Managed exception getting the question tags" + ex.getClass().getName() + " : " + ex.getMessage());
             return null;
         }
     }
@@ -299,7 +274,7 @@ public class ItemContentProducer implements EntityContentProducer, EntityContent
             ItemFacade item = (ItemFacade) qhp.getEntity(er);
             return item.getHash();
         }catch (Exception ex) {
-            logger.debug("Managed exception getting the question hash " + ex.getClass().getName() + " : " + ex.getMessage());
+            log.debug("Managed exception getting the question hash " + ex.getClass().getName() + " : " + ex.getMessage());
             return null;
         }
     }
@@ -321,7 +296,6 @@ public class ItemContentProducer implements EntityContentProducer, EntityContent
             return "";
         }
     }
-
 
     /**
      * {@inheritDoc}
@@ -365,11 +339,10 @@ public class ItemContentProducer implements EntityContentProducer, EntityContent
             ItemFacade item = (ItemFacade) qhp.getEntity(er);
             return qhp.siteIds(item).get(0);
         }catch (Exception ex) {
-            logger.debug("Managed exception getting the question site id" + ex.getClass().getName() + " : " + ex.getMessage());
+            log.debug("Managed exception getting the question site id" + ex.getClass().getName() + " : " + ex.getMessage());
             return null;
         }
     }
-
 
     public String getAssessmentId(String resource){
         String reference = getReferenceFromEventResource(resource);
@@ -380,7 +353,7 @@ public class ItemContentProducer implements EntityContentProducer, EntityContent
             ItemFacade item = (ItemFacade) qhp.getEntity(er);
             return qhp.assessmentId(item);
         }catch (Exception ex) {
-            logger.debug("Managed exception getting the question origin" + ex.getClass().getName() + " : " + ex.getMessage());
+            log.debug("Managed exception getting the question origin" + ex.getClass().getName() + " : " + ex.getMessage());
             return null;
         }
     }
@@ -440,7 +413,7 @@ public class ItemContentProducer implements EntityContentProducer, EntityContent
         try {
             return qhp.entityExists(reference);
         } catch (Exception ex) {
-            logger.debug("Managed exception in isForIndex" + ex.getClass().getName() + " : " + ex.getMessage());
+            log.debug("Managed exception in isForIndex" + ex.getClass().getName() + " : " + ex.getMessage());
             return false;
         }
 
@@ -480,27 +453,21 @@ public class ItemContentProducer implements EntityContentProducer, EntityContent
         return reference;
     }
 
-
     public SearchService getSearchService() {
         return searchService;
     }
-
 
     public void setSearchService(SearchService searchService) {
         this.searchService = searchService;
     }
 
-
     public EntityManager getEntityManager() {
         return entityManager;
     }
 
-
     public void setEntityManager(EntityManager entityManager) {
         this.entityManager = entityManager;
     }
-
-
 
     public SearchIndexBuilder getSearchIndexBuilder() {
         return searchIndexBuilder;
@@ -509,5 +476,4 @@ public class ItemContentProducer implements EntityContentProducer, EntityContent
     public void setSearchIndexBuilder(SearchIndexBuilder searchIndexBuilder) {
         this.searchIndexBuilder = searchIndexBuilder;
     }
-
 }

@@ -19,8 +19,6 @@
  *
  **********************************************************************************/
 
-
-
 package org.sakaiproject.tool.assessment.qti.asi;
 
 import java.util.Collections;
@@ -28,12 +26,12 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
-import org.apache.commons.lang.StringEscapeUtils;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang.StringEscapeUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+
 import org.sakaiproject.tool.assessment.data.dao.assessment.Answer;
 import org.sakaiproject.tool.assessment.data.dao.assessment.ItemText;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AnswerIfc;
@@ -56,9 +54,9 @@ import org.sakaiproject.tool.assessment.qti.helper.item.ItemHelperIfc;
  * @author Ed Smiley esmiley@stanford.edu
  * @version $Id$
  */
+@Slf4j
 public class Item extends ASIBaseClass
 {
-  private static Logger log = LoggerFactory.getLogger(Item.class);
   private ItemHelperIfc helper;
 
 

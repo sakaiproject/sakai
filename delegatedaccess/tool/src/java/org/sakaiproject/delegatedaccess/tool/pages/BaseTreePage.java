@@ -17,42 +17,30 @@
 package org.sakaiproject.delegatedaccess.tool.pages;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 
 import javax.swing.tree.DefaultMutableTreeNode;
-import javax.swing.tree.TreeNode;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.apache.wicket.AttributeModifier;
-import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
-import org.apache.wicket.behavior.AttributeAppender;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.extensions.markup.html.tree.AbstractTree;
 import org.apache.wicket.model.AbstractReadOnlyModel;
-import org.apache.wicket.model.Model;
 import org.apache.wicket.model.StringResourceModel;
+
 import org.sakaiproject.delegatedaccess.model.ListOptionSerialized;
 import org.sakaiproject.delegatedaccess.model.NodeModel;
-import org.sakaiproject.delegatedaccess.util.DelegatedAccessMutableTreeNode;
 
 /**
  * BaseTreePage is a base page for all pages that want to use AbstractTree.  It extends BasePage as well.
  * 
  * @author Bryan Holladay (holladay@longsight.com)
  */
-
 public abstract class BaseTreePage extends BasePage
 {
-	private static final Logger log = LoggerFactory.getLogger(BaseTreePage.class);
-
 	/**
 	 * Returns the tree on this pages. This is used to collapse, expand, ect
 	 * 

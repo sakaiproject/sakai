@@ -24,8 +24,9 @@ import java.util.HashMap;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationContext;
+
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.entity.api.Entity;
@@ -36,7 +37,6 @@ import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.ToolManager;
-import org.springframework.context.ApplicationContext;
 
 import uk.ac.cam.caret.sakai.rwiki.service.api.RWikiObjectService;
 import uk.ac.cam.caret.sakai.rwiki.service.api.RWikiSecurityService;
@@ -89,9 +89,9 @@ import uk.ac.cam.caret.sakai.rwiki.tool.util.WikiPageAction;
  * 
  * @author andrew
  */
+@Slf4j
 public class RequestScopeSuperBean
 {
-	private static Logger log = LoggerFactory.getLogger(RequestScopeSuperBean.class);
 
 	public static final String REQUEST_ATTRIBUTE = "rsacMap";
 

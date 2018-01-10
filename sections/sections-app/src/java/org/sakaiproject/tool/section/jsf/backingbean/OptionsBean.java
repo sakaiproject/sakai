@@ -21,32 +21,32 @@
 package org.sakaiproject.tool.section.jsf.backingbean;
 
 import java.io.Serializable;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
 import org.sakaiproject.section.api.SectionManager;
 import org.sakaiproject.section.api.SectionManager.ExternalIntegrationConfig;
 import org.sakaiproject.tool.section.jsf.JsfUtil;
 import org.sakaiproject.time.cover.TimeService;
 import org.sakaiproject.util.ResourceLoader;
-import java.util.Calendar;
-import java.util.Date;
-import java.text.SimpleDateFormat;
+
 /**
  * Controls the options page.
  * 
  * @author <a href="mailto:jholtzman@berkeley.edu">Josh Holtzman</a>
  *
  */
+@Slf4j
 public class OptionsBean extends CourseDependentBean implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 	private static final String EXTERNAL = "external";
 	private static final String INTERNAL = "internal";
 
-	private static final Logger log = LoggerFactory.getLogger(OptionsBean.class);
-	
 	private boolean selfRegister;
 	private boolean selfSwitch;
 	private String management;

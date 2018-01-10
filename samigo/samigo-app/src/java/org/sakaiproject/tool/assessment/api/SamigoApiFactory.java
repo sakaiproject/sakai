@@ -22,8 +22,7 @@
 
 package org.sakaiproject.tool.assessment.api;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import org.sakaiproject.tool.assessment.api.spring.FactoryUtil;
 
@@ -47,9 +46,9 @@ import org.sakaiproject.tool.assessment.shared.api.questionpool.QuestionPoolServ
  * @author Ed Smiley <esmiley@stanford.edu>
  *
  */
+@Slf4j
 public abstract class SamigoApiFactory
 {
-  private static Logger log = LoggerFactory.getLogger(SamigoApiFactory.class);
   private static SamigoApiFactory instance = null;
 
   /**

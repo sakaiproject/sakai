@@ -26,12 +26,13 @@ import javax.faces.el.EvaluationException;
 import javax.faces.el.VariableResolver;
 import javax.servlet.ServletContext;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.sakaiproject.component.cover.ComponentManager;
+import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.support.WebApplicationContextUtils;
+
+import org.sakaiproject.component.cover.ComponentManager;
 
 /**
  * <p>
@@ -41,11 +42,9 @@ import org.springframework.web.context.support.WebApplicationContextUtils;
  * @author University of Michigan, Sakai Software Development Team
  * @version $Revision$
  */
+@Slf4j
 public class SakaiVariableResolver extends VariableResolver
 {
-	/** Our log (commons). */
-	private static Logger M_log = LoggerFactory.getLogger(SakaiVariableResolver.class);
-
 	/** The VariableResolver already in place that we add features to. */
 	protected VariableResolver m_resolver = null;
 
@@ -58,7 +57,7 @@ public class SakaiVariableResolver extends VariableResolver
 	public SakaiVariableResolver(VariableResolver other)
 	{
 		m_resolver = other;
-		if (M_log.isDebugEnabled()) M_log.debug("constructed around: " + m_resolver);
+		if (log.isDebugEnabled()) log.debug("constructed around: " + m_resolver);
 	}
 
 	/**
@@ -66,7 +65,7 @@ public class SakaiVariableResolver extends VariableResolver
 	 */
 	public Object resolveVariable(FacesContext context, String name) throws EvaluationException
 	{
-		if (M_log.isDebugEnabled()) M_log.debug("resolving: " + name);
+		if (log.isDebugEnabled()) log.debug("resolving: " + name);
 
 		Object rv = null;
 
@@ -76,7 +75,7 @@ public class SakaiVariableResolver extends VariableResolver
 			rv = m_resolver.resolveVariable(context, name);
 			if (rv != null)
 			{
-				if (M_log.isDebugEnabled()) M_log.debug("resolving: " + name + " with other to: " + rv);
+				if (log.isDebugEnabled()) log.debug("resolving: " + name + " with other to: " + rv);
 				return rv;
 			}
 		}
@@ -91,7 +90,7 @@ public class SakaiVariableResolver extends VariableResolver
 		}
 		catch (Exception e)
 		{
-			e.printStackTrace();
+			log.error(e.getMessage(), e);
 		}
 		
 		if (wac != null)
@@ -102,7 +101,7 @@ public class SakaiVariableResolver extends VariableResolver
 				rv = wac.getBean(name);
 				if (rv != null)
 				{
-					if (M_log.isDebugEnabled()) M_log.debug("resolving: " + name + " via spring to : " + rv);
+					if (log.isDebugEnabled()) log.debug("resolving: " + name + " via spring to : " + rv);
 					return rv;
 				}
 			}
@@ -121,7 +120,7 @@ public class SakaiVariableResolver extends VariableResolver
 	
 					if (rv != null)
 					{
-						if (M_log.isDebugEnabled()) M_log.debug("resolving: " + alternate + " via spring to : " + rv);
+						if (log.isDebugEnabled()) log.debug("resolving: " + alternate + " via spring to : " + rv);
 						return rv;
 					}
 				}
@@ -138,7 +137,7 @@ public class SakaiVariableResolver extends VariableResolver
 		{
 			if (rv != null)
 			{
-				if (M_log.isDebugEnabled()) M_log.debug("resolving: " + name + " via component manager to : " + rv);
+				if (log.isDebugEnabled()) log.debug("resolving: " + name + " via component manager to : " + rv);
 				return rv;
 			}
 
@@ -150,13 +149,13 @@ public class SakaiVariableResolver extends VariableResolver
 
 				if (rv != null)
 				{
-					if (M_log.isDebugEnabled()) M_log.debug("resolving: " + alternate + " via component manager to : " + rv);
+					if (log.isDebugEnabled()) log.debug("resolving: " + alternate + " via component manager to : " + rv);
 					return rv;
 				}
 			}
 		}
 
-		if (M_log.isDebugEnabled()) M_log.debug("resolving: " + name + " unresolved!");
+		if (log.isDebugEnabled()) log.debug("resolving: " + name + " unresolved!");
 		return null;
 	}
 }

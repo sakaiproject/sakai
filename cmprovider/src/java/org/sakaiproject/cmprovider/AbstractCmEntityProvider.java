@@ -15,8 +15,6 @@
  */
 package org.sakaiproject.cmprovider;
 
-import java.lang.Class;
-import java.lang.reflect.Field;
 import java.util.Map;
 import java.util.Set;
 
@@ -24,8 +22,7 @@ import javax.validation.ConstraintViolation;
 import javax.validation.Validator;
 import javax.validation.Validation;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.cmprovider.data.CmEntityData;
@@ -46,6 +43,7 @@ import org.sakaiproject.tool.api.Session;
  *
  * @author Christopher Schauer
  */
+@Slf4j
 public abstract class AbstractCmEntityProvider implements RESTful, CoreEntityProvider, AutoRegisterEntityProvider {
 
   /**
@@ -120,8 +118,6 @@ public abstract class AbstractCmEntityProvider implements RESTful, CoreEntityPro
   protected SessionManager sessionManager;
   public void setSessionManager(SessionManager manager) { sessionManager = manager; }
 
-  private static final Logger LOG = LoggerFactory.getLogger(AbstractCmEntityProvider.class);
-
   public String[] getHandledOutputFormats() {
     return new String[] { Formats.JSON };
   }
@@ -155,7 +151,7 @@ public abstract class AbstractCmEntityProvider implements RESTful, CoreEntityPro
     validateUser();
     String eid = getIdFromReference(ref);
 
-    LOG.info("Retrieving " + getEntityPrefix() + " with eid=" + eid + "...");
+    log.info("Retrieving " + getEntityPrefix() + " with eid=" + eid + "...");
     try {
       return get(eid);
     } catch (IdNotFoundException ex) {
@@ -186,7 +182,7 @@ public abstract class AbstractCmEntityProvider implements RESTful, CoreEntityPro
   public void deleteEntity(EntityReference ref, Map<String, Object> params) {
     validateRequest(params, null);
     String eid = getIdFromReference(ref);
-    LOG.info("Deleting " + getEntityPrefix() + " with eid=" + eid + "...");
+    log.info("Deleting " + getEntityPrefix() + " with eid=" + eid + "...");
     delete(eid);
   }
 
@@ -195,7 +191,7 @@ public abstract class AbstractCmEntityProvider implements RESTful, CoreEntityPro
     validateDataObject(entity);
     CmEntityData data = (CmEntityData)entity;
 
-    LOG.info("Inserting " + getEntityPrefix() + " with eid=" + data.getId() + "...");
+    log.info("Inserting " + getEntityPrefix() + " with eid=" + data.getId() + "...");
     if (!entityExists(data.getId())) {
       create(data);
     } else {

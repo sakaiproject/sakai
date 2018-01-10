@@ -23,6 +23,11 @@
 
 package examples;
 
+import java.util.Locale;
+import java.util.Enumeration;
+import java.util.ResourceBundle;
+
+import lombok.extern.slf4j.Slf4j;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
@@ -35,17 +40,13 @@ import org.radeox.engine.BaseRenderEngine;
 import org.radeox.engine.context.BaseRenderContext;
 import org.radeox.engine.context.BaseInitialRenderContext;
 
-import java.util.Locale;
-import java.util.Enumeration;
-import java.util.ResourceBundle;
-
 /**
  * Example which shows howto use Radeox with PicoContainer
  *
  * @author Stephan J. Schmidt
  * @version $Id$
  */
-
+@Slf4j
 public class PicoContainerExample extends RadeoxTestSupport {
   public PicoContainerExample(String name) {
     super(name);
@@ -69,7 +70,7 @@ public class PicoContainerExample extends RadeoxTestSupport {
           RenderEngine.class,
           BaseRenderEngine.class);
     } catch (Exception e) {
-      System.err.println("Could not register component.");
+      log.error("Could not register component.");
     }
 
     // now only work with container
@@ -99,7 +100,7 @@ public class PicoContainerExample extends RadeoxTestSupport {
       dc.registerComponentImplementation(RenderEngine.class,
                                          BaseRenderEngine.class);
     } catch (Exception e) {
-      System.err.println("Could not register component.");
+      log.error("Could not register component.");
     }
 // cut:end-2
     // now only work with container

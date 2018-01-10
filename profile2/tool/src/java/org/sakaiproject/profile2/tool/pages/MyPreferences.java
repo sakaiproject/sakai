@@ -16,8 +16,7 @@
 package org.sakaiproject.profile2.tool.pages;
 
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -38,6 +37,7 @@ import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
+
 import org.sakaiproject.profile2.exception.ProfilePreferencesNotDefinedException;
 import org.sakaiproject.profile2.model.ProfilePreferences;
 import org.sakaiproject.profile2.tool.components.EnablingCheckBox;
@@ -45,9 +45,9 @@ import org.sakaiproject.profile2.tool.components.IconWithClueTip;
 import org.sakaiproject.profile2.tool.pages.panels.TwitterPrefsPane;
 import org.sakaiproject.profile2.util.ProfileConstants;
 
+@Slf4j
 public class MyPreferences extends BasePage{
 
-	private static final Logger log = LoggerFactory.getLogger(MyPreferences.class);
 	private transient ProfilePreferences profilePreferences;
 
 	private CheckBox officialImage;

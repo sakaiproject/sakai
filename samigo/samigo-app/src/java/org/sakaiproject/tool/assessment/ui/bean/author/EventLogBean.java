@@ -22,18 +22,16 @@ import java.util.Map;
 
 import javax.faces.model.SelectItem;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.sakaiproject.tool.assessment.data.dao.assessment.EventLogData;
 
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.component.cover.ComponentManager;
 
+@Slf4j
 public class EventLogBean implements Serializable {
 
 	private static final long serialVersionUID = 1L;
-
-	private static Logger log = LoggerFactory.getLogger(EventLogBean.class);
 
 	public static final int DELETED_STATUS=2;
 	

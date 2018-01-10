@@ -15,24 +15,26 @@
  */
 package org.sakaiproject.component.app.scheduler.jobs.autoimport;
 
+import java.util.UUID;
+
+import javax.inject.Inject;
+
+import lombok.extern.slf4j.Slf4j;
+
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
+
 import org.sakaiproject.archive.api.ArchiveService;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.SessionManager;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import javax.inject.Inject;
-import java.util.UUID;
 
 /**
  * This imports a folder into Sakai. The folder is stored inside the archive folder.
  */
+@Slf4j
 public class ImportJob implements Job {
-
-    private final Logger log = LoggerFactory.getLogger(ImportJob.class);
 
     private ArchiveService archiveService;
 

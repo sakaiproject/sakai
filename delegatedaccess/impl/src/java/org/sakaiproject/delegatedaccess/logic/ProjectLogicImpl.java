@@ -37,6 +37,10 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeModel;
 
+import lombok.Getter;
+import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.api.app.scheduler.ScheduledInvocationManager;
 import org.sakaiproject.delegatedaccess.dao.DelegatedAccessDao;
 import org.sakaiproject.delegatedaccess.model.AccessNode;
@@ -60,12 +64,6 @@ import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.user.api.User;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import lombok.Getter;
-import lombok.Setter;
-
 
 /**
  * Implementation of {@link ProjectLogic}
@@ -73,9 +71,8 @@ import lombok.Setter;
  * @author Bryan Holladay (holladay@longsight.com)
  *
  */
+@Slf4j
 public class ProjectLogicImpl implements ProjectLogic {
-
-	private static final Logger log = LoggerFactory.getLogger(ProjectLogicImpl.class);
 	@Getter @Setter
 	private SakaiProxy sakaiProxy;
 	@Getter @Setter
@@ -2269,7 +2266,6 @@ public class ProjectLogicImpl implements ProjectLogic {
 				}catch(Exception e){
 					log.error(e.getMessage(), e);
 					StringWriter sw = new StringWriter();
-					e.printStackTrace(new PrintWriter(sw));
 					errors.put(nodeModel.getNode().title, sw.toString());
 				}
 			}

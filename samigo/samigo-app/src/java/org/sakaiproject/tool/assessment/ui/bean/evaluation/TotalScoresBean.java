@@ -19,8 +19,6 @@
  *
  **********************************************************************************/
 
-
-
 package org.sakaiproject.tool.assessment.ui.bean.evaluation;
 
 import java.io.Serializable;
@@ -36,10 +34,9 @@ import java.util.Set;
 import javax.faces.event.ActionEvent;
 import javax.faces.model.SelectItem;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
-import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
 import org.sakaiproject.jsf.model.PhaseAware;
 import org.sakaiproject.section.api.coursemanagement.CourseSection;
 import org.sakaiproject.section.api.coursemanagement.EnrollmentRecord;
@@ -48,6 +45,7 @@ import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentAccessCont
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAccessControl;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAssessmentData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedEvaluationModel;
+import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.EvaluationModelIfc;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
@@ -64,6 +62,7 @@ import org.sakaiproject.tool.assessment.util.AttachmentUtil;
  * <p>Description: class form for evaluating total scores</p>
  *
  */
+@Slf4j
 public class TotalScoresBean
   implements Serializable, PhaseAware
 {
@@ -144,8 +143,6 @@ public class TotalScoresBean
   
   private boolean isAutoScored = false;
   private boolean hasFileUpload = false;
-  
-  private static Logger log = LoggerFactory.getLogger(TotalScoresBean.class);
 
   /**
    * Creates a new TotalScoresBean object.

@@ -15,7 +15,7 @@
         )
                 $pan.hide();
         });
-        disableBackButton();
+        disableBackButton("$!tlang.getString("use_form_navigation")");
     });
 </script>
 <div class="portletBody">
@@ -124,7 +124,7 @@
                 </th>
                 <td>
 					#if ($value_CheckAnonymousGrading.equals("true"))
-                        $validator.escapeHtml($!submission.AnonymousSubmissionId)
+                        $validator.escapeHtml($!submission.Id) $tlang.getString("grading.anonymous.title")
                     #else
                         $!submitterNames
                     #end
@@ -177,7 +177,7 @@
             #end
 
             ## Content Review
-            #if($allowReviewService && $assignment.AllowReviewService)
+            #if($allowReviewService && $assignment.ContentReview)
                 <tr>
                     <th>
                         $reviewServiceName&nbsp;$tlang.getString("review.report")
@@ -186,7 +186,7 @@
                         #if (!$submission)
                             $tlang.getString("review.notavail")
                         #else
-                            #set($reviewResults=$submission.ContentReviewResults)
+                            #set($reviewResults=$!service.getContentReviewResults($!submission))
                             #if ($reviewResults.size() >= 3)
                                 <div class="discTria">
                                     <input class="disclosureTriangle" type="image"
@@ -213,6 +213,11 @@
                                         $tlang.getString("submission.inline")
                                     #else
                                         $validator.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))
+                                    #end
+
+                                    #if (!$reviewResult.getReviewReport().equals("Error") &&
+                                        $reviewResult.contentReviewItem.Properties.get($NamePropContentReviewOptoutUrl))
+                                        (<a href="$!reviewResult.contentReviewItem.Properties.get($NamePropContentReviewOptoutUrl)" target="_blank">$tlang.getString("review.report.urkund.optoutlink")</a>)
                                     #end
                                 </div>
                             #end
@@ -421,20 +426,22 @@
             #end
         #end
         #if ($submissionType == 4 && !$hasInline && $size == 0)
-        ## if this is non-electronic submission
+            ## if this is non-electronic submission
             <p class="text-warning">$tlang.getString("nonelec_instruction2")</p>
         #else
-            #if (($submission.Submitted || !$alertGradeDraft) && !$!value_feedback_text.isEmpty())
-                <p class="text-info">$tlang.getString("gradingsub.belisthe")</p>
-                <div class="textarea-holder">
-                    <textarea name="$name_feedback_text" id="$name_feedback_text" rows="30" wrap="virtual" cols="80">
-                        $validator.escapeHtmlFormattedTextarea($!value_feedback_text)
-                    </textarea>
-                    #chef_setupformattedtextarea($name_feedback_text)
-                </div>
-            #elseif($submissionType != 2 && $submissionType != 4)
-                ## This message only shows when the submission type allows submitted text and the submission doesn't contain submitted text
-                <p class="text-warning">$tlang.getString("gradingsub.nosubmittedtext")</p>
+            #if($submissionType == 1 || $submissionType == 3)
+                #if (($submission.Submitted || !$alertGradeDraft) && !$!value_feedback_text.isEmpty())
+                    <p class="text-info">$tlang.getString("gradingsub.belisthe")</p>
+                    <div class="textarea-holder">
+                        <textarea name="$name_feedback_text" id="$name_feedback_text" rows="30" wrap="virtual" cols="80">
+                            $validator.escapeHtmlFormattedTextarea($!value_feedback_text)
+                        </textarea>
+                        #chef_setupformattedtextarea($name_feedback_text)
+                    </div>
+                #else
+                    ## This message only shows when the submission type allows submitted text and the submission doesn't contain submitted text
+                    <p class="text-warning">$tlang.getString("gradingsub.nosubmittedtext")</p>
+                #end
             #end
             ## for returned submission, show the instructor comment as well
             #if ($!prevFeedbackText)
@@ -610,7 +617,7 @@
                                                 value="$!group_value_grade"
                                                 id="grade"
                                                 onkeypress="return ASN.handleEnterKeyPress(event);"/>
-                                            <span>($tlang.getString("grade.max") $assignmentContent.getMaxGradePointDisplay())</span>
+                                            <span>($tlang.getString("grade.max") $!service.getMaxPointGradeDisplay($!assignment.ScaleFactor, $!assignment.MaxGradePoint))</span>
                                         </div>
                                     </div>
                                 #elseif ($gradeType == 4)

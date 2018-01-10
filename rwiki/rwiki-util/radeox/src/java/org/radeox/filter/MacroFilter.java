@@ -25,8 +25,7 @@ package org.radeox.filter;
 
 import java.io.Writer;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.radeox.Messages;
 import org.radeox.api.engine.IncludeRenderEngine;
 import org.radeox.api.engine.RenderEngine;
@@ -48,10 +47,9 @@ import org.radeox.util.StringBufferWriter;
  * 
  * @version $Id$
  */
-
+@Slf4j
 public class MacroFilter extends RegexTokenFilter
 {
-	private static Logger log = LoggerFactory.getLogger(MacroFilter.class);
 
 	// private static MacroFilter instance;
 
@@ -90,9 +88,9 @@ public class MacroFilter extends RegexTokenFilter
 			if (!command.startsWith("$")) //$NON-NLS-1$
 			{
 				MacroParameter mParams = context.getMacroParameter();
-				// System.err.println("count="+result.groups());
-				// System.err.println("1: "+result.group(1));
-				// System.err.println("2: "+result.group(2));
+				// log.info("count="+result.groups());
+				// log.info("1: "+result.group(1));
+				// log.info("2: "+result.group(2));
 				switch (result.groups())
 				{
 					case 3:
@@ -102,8 +100,8 @@ public class MacroFilter extends RegexTokenFilter
 					case 2:
 						mParams.setParams(result.group(2));
 				// Still left from ORO
-				// case 2: System.out.println(result.group(1));
-				// case 1: System.out.println(result.group(0));
+				// case 2: log.info(result.group(1));
+				// case 1: log.info(result.group(0));
 				}
 				mParams.setStart(result.beginOffset(0));
 				mParams.setEnd(result.endOffset(0));

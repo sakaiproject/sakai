@@ -15,8 +15,6 @@
  *
  */
 
-
-
 package org.sakaiproject.tool.assessment.ui.listener.select;
 
 import java.util.ArrayList;
@@ -34,11 +32,11 @@ import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
 import javax.servlet.http.HttpServletRequest;
+
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.math.NumberUtils;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sakaiproject.tool.assessment.api.SamigoApiFactory;
 import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
 import org.sakaiproject.tool.assessment.data.dao.grading.StudentGradingSummaryData;
@@ -69,10 +67,9 @@ import org.sakaiproject.util.ResourceLoader;
  * @author Ed Smiley
  * @version $Id$
  */
-
+@Slf4j
 public class SelectActionListener
     implements ActionListener {
-  private static Logger log = LoggerFactory.getLogger(SelectActionListener.class);
   private static final String AVG_SCORE = EvaluationModelIfc.AVERAGE_SCORE.toString();
   private static final String HIGH_SCORE = EvaluationModelIfc.HIGHEST_SCORE.toString();
   private static final String LAST_SCORE = EvaluationModelIfc.LAST_SCORE.toString();
@@ -692,7 +689,6 @@ public class SelectActionListener
     Date currentDate = new Date();
     
     if (p==null) {// published assessment may have been deleted
-      //log.info("*** pub has been deleted ="+a.getPublishedAssessmentId());
       return hasFeedback;
     }
 
@@ -713,7 +709,6 @@ public class SelectActionListener
 
   private boolean isAssessmentRetractForEdit(PublishedAssessmentFacade p){
 	  if (p == null) {// published assessment may have been deleted
-	      //log.info("*** pub has been deleted ="+a.getPublishedAssessmentId());
 	      return false;
 	    }
 	  
@@ -731,7 +726,6 @@ public class SelectActionListener
 	hasStats = "true";
        }
     }
-    //log.debug("hasStats == " + hasStats);
     return hasStats;
   }
 

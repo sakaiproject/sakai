@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.sakaiproject.samigo.impl;
 
 import java.util.HashMap;
@@ -20,24 +21,24 @@ import java.util.Map;
 import java.util.Observable;
 import java.util.Observer;
 
+import lombok.extern.slf4j.Slf4j;
 import lombok.Setter;
 import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.samigo.util.SamigoConstants;
 
+@Slf4j
 public class SamigoObserver implements Observer {
-    private static final Logger LOG = LoggerFactory.getLogger(SamigoObserver.class);
 
     public void init() {
-        LOG.info("init()");
+        log.info("init()");
         eventTrackingService.addLocalObserver(this);
     }
 
     public void destroy(){
-        LOG.info("destroy");
+        log.info("destroy");
         eventTrackingService.deleteObserver(this);
     }
 
@@ -50,17 +51,17 @@ public class SamigoObserver implements Observer {
         String eventType = event.getEvent();
 
         if(SamigoConstants.EVENT_ASSESSMENT_SUBMITTED_NOTI.equals(eventType)) {
-            LOG.debug("Assessment Submitted Event");
+            log.debug("Assessment Submitted Event");
             String hashMapString = event.getResource();
             Map<String, Object> notiValues =  stringToHashMap(hashMapString);
             samigoETSProvider.notify(SamigoConstants.EVENT_ASSESSMENT_SUBMITTED, notiValues, event);
         } else if(SamigoConstants.EVENT_ASSESSMENT_SUBMITTED_AUTO.equals(eventType)){
-            LOG.debug("Assessment Auto Submitted Event");
+            log.debug("Assessment Auto Submitted Event");
             String hashMapString = event.getResource();
             Map<String, Object> notiValues =  stringToHashMap(hashMapString);
             samigoETSProvider.notify(SamigoConstants.EVENT_ASSESSMENT_SUBMITTED_AUTO, notiValues, event);
         } else if(SamigoConstants.EVENT_ASSESSMENT_SUBMITTED_TIMER_THREAD.equals(eventType)){
-            LOG.debug("Assessment Timed Submitted Event");
+            log.debug("Assessment Timed Submitted Event");
             String hashMapString = event.getResource();
             Map<String, Object> notiValues = stringToHashMap(hashMapString);
             samigoETSProvider.notify(SamigoConstants.EVENT_ASSESSMENT_SUBMITTED_TIMER_THREAD, notiValues, event);

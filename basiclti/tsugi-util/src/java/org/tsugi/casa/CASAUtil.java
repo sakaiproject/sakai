@@ -19,28 +19,7 @@
 
 package org.tsugi.casa;
 
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.Enumeration;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Properties;
-import java.util.HashMap;
-import java.util.logging.Logger;
-
-import javax.servlet.http.HttpServletRequest;
-
-import org.tsugi.basiclti.BasicLTIUtil;
-import org.tsugi.basiclti.BasicLTIConstants;
-import org.tsugi.lti2.objects.StandardServices;
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
-import org.json.simple.JSONValue;
-
 public class CASAUtil {
-
-	// We use the built-in Java logger because this code needs to be very generic
-	private static Logger M_log = Logger.getLogger(CASAUtil.class.toString());
 
 	/*
 	    $entry = new stdClass();

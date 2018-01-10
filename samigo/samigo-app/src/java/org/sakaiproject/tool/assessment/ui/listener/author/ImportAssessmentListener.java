@@ -19,8 +19,6 @@
  *
  **********************************************************************************/
 
-
-
 package org.sakaiproject.tool.assessment.ui.listener.author;
 
 import java.util.ArrayList;
@@ -30,8 +28,7 @@ import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.w3c.dom.Document;
 
 import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
@@ -39,24 +36,23 @@ import org.sakaiproject.tool.assessment.facade.AssessmentFacadeQueries;
 import org.sakaiproject.tool.assessment.facade.AssessmentTemplateFacade;
 import org.sakaiproject.tool.assessment.qti.constants.QTIVersion;
 import org.sakaiproject.tool.assessment.qti.helper.AuthoringHelper;
+import org.sakaiproject.tool.assessment.qti.util.XmlUtil;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import org.sakaiproject.tool.assessment.ui.bean.author.AssessmentBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.AuthorBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.ItemAuthorBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
-import org.sakaiproject.tool.assessment.qti.util.XmlUtil;
 
 /**
   * @author Ed Smiley
  * @version $Id$
   */
-
+@Slf4j
 public class ImportAssessmentListener implements ActionListener
 {
 	
 	// This listener doesn't seem to be used by any JSF pages, or called by any java code. 
 
-  private static Logger log = LoggerFactory.getLogger(ImportAssessmentListener.class);
   private static final String f = "sample12Assessment.xml";
 //  private static final String f = "sample12Assessment2.xml";
 //  private static final String f = "respondus_IMS_QTI_sample12Assessment.xml";

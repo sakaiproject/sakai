@@ -19,6 +19,9 @@ import java.time.Instant;
 import java.util.Date;
 import java.util.HashMap;
 
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.orm.hibernate4.HibernateOptimisticLockingFailureException;
+
 import org.sakaiproject.api.app.messageforums.Area;
 import org.sakaiproject.api.app.messageforums.AreaManager;
 import org.sakaiproject.api.app.messageforums.DiscussionForum;
@@ -29,13 +32,9 @@ import org.sakaiproject.api.app.messageforums.SynopticMsgcntrManager;
 import org.sakaiproject.api.app.messageforums.cover.SynopticMsgcntrManagerCover;
 import org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager;
 import org.sakaiproject.api.app.scheduler.ScheduledInvocationManager;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.orm.hibernate4.HibernateOptimisticLockingFailureException;
 
+@Slf4j
 public class ForumScheduleNotificationImpl implements ForumScheduleNotification {
-
-	private static final Logger LOG = LoggerFactory.getLogger(ForumScheduleNotificationImpl.class);
 
 	private static final String AREA_PREFIX = "area-";
 	private static final String FORUM_PREFIX = "forum-";
@@ -66,7 +65,7 @@ public class ForumScheduleNotificationImpl implements ForumScheduleNotification 
 	}
 
 	public void init() {
-		LOG.info("init()");
+		log.info("init()");
 	}
 
 	public void scheduleAvailability(Area area) {
@@ -109,7 +108,7 @@ public class ForumScheduleNotificationImpl implements ForumScheduleNotification 
 	}
 
 	public void execute(String opaqueContext) {
-		LOG.info("execute: {}", opaqueContext);
+		log.info("execute: {}", opaqueContext);
 		if (opaqueContext.startsWith(AREA_PREFIX)) {
 			String siteId = opaqueContext.substring(AREA_PREFIX.length());
 			Area area = areaManager.getAreaByContextIdAndTypeId(siteId, typeManager.getDiscussionForumType());
@@ -247,15 +246,15 @@ public class ForumScheduleNotificationImpl implements ForumScheduleNotification 
 			try {
 				Thread.sleep(SynopticMsgcntrManager.OPT_LOCK_WAIT);
 			} catch (InterruptedException e) {
-				LOG.warn("Thread intrrupted while updating synoptic info for forums", e);
+				log.warn("Thread intrrupted while updating synoptic info for forums", e);
 			}
 
 			numOfAttempts--;
 
 			if (numOfAttempts <= 0) {
-				LOG.warn("HibernateOptimisticLockingFailureException no more retries left", holfe);
+				log.warn("HibernateOptimisticLockingFailureException no more retries left", holfe);
 			} else {
-				LOG.warn("HibernateOptimisticLockingFailureException: attempts left: {}", numOfAttempts);
+				log.warn("HibernateOptimisticLockingFailureException: attempts left: {}", numOfAttempts);
 				updateSynopticMessagesForForumComparingOldMessagesCount(siteId, forumId, topicId, beforeChangeHM, numOfAttempts);
 			}
 		}

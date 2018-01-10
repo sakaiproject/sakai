@@ -1,22 +1,19 @@
 package edu.indiana.lib.osid.base.repository.http;
 
-import edu.indiana.lib.osid.base.repository.*;
-
-import edu.indiana.lib.twinpeaks.net.*;
-import edu.indiana.lib.twinpeaks.search.*;
-import edu.indiana.lib.twinpeaks.util.*;
-
-import java.io.*;
-import java.net.*;
-import java.lang.*;
-import java.util.*;
-
-import javax.xml.parsers.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 
 import lombok.extern.slf4j.Slf4j;
-import org.w3c.dom.*;
-import org.w3c.dom.html.*;
-import org.xml.sax.*;
+
+import edu.indiana.lib.twinpeaks.search.QueryBase;
+import edu.indiana.lib.twinpeaks.search.SearchResultBase;
+import edu.indiana.lib.twinpeaks.search.SearchSource;
+import edu.indiana.lib.twinpeaks.util.SearchException;
+import edu.indiana.lib.twinpeaks.util.SessionContext;
+import edu.indiana.lib.twinpeaks.util.StatusUtils;
+import edu.indiana.lib.twinpeaks.util.StringUtils;
 
 @Slf4j
 public class Repository extends edu.indiana.lib.osid.base.repository.Repository
@@ -279,8 +276,7 @@ public class Repository extends edu.indiana.lib.osid.base.repository.Repository
 		}
 		catch (Throwable throwable)
 		{
-			throwable.printStackTrace();
-			log.error(throwable.getMessage());
+			log.error(throwable.getMessage(), throwable);
 
 			throw new org.osid.repository.RepositoryException(org.osid.OsidException.OPERATION_FAILED);
 		}

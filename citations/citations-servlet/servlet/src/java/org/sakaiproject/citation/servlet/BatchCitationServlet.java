@@ -38,8 +38,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletRequestWrapper;
 import javax.servlet.http.HttpServletResponse;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.citation.api.Citation;
 import org.sakaiproject.citation.api.Schema;
 import org.sakaiproject.content.api.ContentResource;
@@ -53,11 +53,9 @@ import org.sakaiproject.util.Validator;
  * 
  *
  */
+@Slf4j
 public class BatchCitationServlet extends CitationServlet
 {
-
-	private static Logger log = LoggerFactory.getLogger(BatchCitationServlet.class);
-	
 	/**
 	 * respond to an HTTP GET request
 	 * 
@@ -88,8 +86,6 @@ public class BatchCitationServlet extends CitationServlet
 	 */
 	public void doPost(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException
 	{
-		//log.info("doPost() " + req.getMethod());
-		
 		// process any login that might be present
 		basicAuth.doLogin(req);
 		

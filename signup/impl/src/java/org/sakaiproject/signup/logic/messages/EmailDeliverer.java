@@ -36,20 +36,19 @@ package org.sakaiproject.signup.logic.messages;
 
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.email.api.EmailService;
 import org.sakaiproject.user.api.User;
 
 /*
  * @author  Peter Liu
  */
-
+@Slf4j
 public class EmailDeliverer implements Runnable {
 
 	private List<User> sakaiUsers;
 	private final EmailService emailService;
-	private Logger logger = LoggerFactory.getLogger(EmailDeliverer.class);
 	private final List<String> headers;
 	private final String message;
 
@@ -65,7 +64,7 @@ public class EmailDeliverer implements Runnable {
 		try {
 			emailService.sendToUsers(sakaiUsers, headers, message);
 		} catch (Exception e) {
-			logger.warn("The emails may not be sent away due to error: "
+			log.warn("The emails may not be sent away due to error: "
 					+ e.getMessage());
 		} finally {
 			if(this.sakaiUsers !=null)

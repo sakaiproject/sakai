@@ -15,21 +15,20 @@
  */
 package org.sakaiproject.assignment.impl.sort;
 
-import org.sakaiproject.user.api.User;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.text.Collator;
 import java.text.ParseException;
 import java.text.RuleBasedCollator;
 import java.util.Comparator;
 
+import lombok.extern.slf4j.Slf4j;
+
+import org.sakaiproject.user.api.User;
+
 /**
  * This sorts users.
  */
+@Slf4j
 public class UserComparator implements Comparator<User> {
-
-    private static Logger M_log = LoggerFactory.getLogger(UserComparator.class);
 
     private Collator collator;
 
@@ -41,7 +40,7 @@ public class UserComparator implements Comparator<User> {
             // error with init RuleBasedCollator with rules
             // use the default Collator
             collator = Collator.getInstance();
-            M_log.warn(this + " UserIdComparator cannot init RuleBasedCollator. Will use the default Collator instead. " + e);
+            log.warn("{} UserIdComparator cannot init RuleBasedCollator. Will use the default Collator instead. {}", this, e);
         }
         // This is to ignore case of the values
         collator.setStrength(Collator.SECONDARY);

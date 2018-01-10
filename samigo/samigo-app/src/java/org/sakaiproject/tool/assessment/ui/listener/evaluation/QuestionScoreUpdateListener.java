@@ -37,8 +37,7 @@ import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.math3.util.Precision;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
@@ -74,10 +73,10 @@ import org.sakaiproject.tool.assessment.util.TextFormat;
  * @version $Id$
  */
 
-public class QuestionScoreUpdateListener
+@Slf4j
+ public class QuestionScoreUpdateListener
   implements ActionListener
 {
-  private static Logger log = LoggerFactory.getLogger(QuestionScoreUpdateListener.class);
   private final EventTrackingService eventTrackingService= ComponentManager.get( EventTrackingService.class );
 
   //private static EvaluationListenerUtil util;
@@ -162,7 +161,6 @@ public class QuestionScoreUpdateListener
         Iterator iter2 = datas.iterator();
         while (iter2.hasNext()){
           Object obj = iter2.next();
-          //log.info("Data = " + obj);
           ItemGradingData data = (ItemGradingData) obj;
 
           // check if there is differnce in score, if so, update. Otherwise, do nothing
@@ -175,7 +173,7 @@ public class QuestionScoreUpdateListener
           else {
         	  newAutoScore = (Double.valueOf(ar.getTotalAutoScore())).doubleValue() / (double) datas.size();
           }
-          String newComments = TextFormat.convertPlaintextToFormattedTextNoHighUnicode(log, ar.getComments());
+          String newComments = TextFormat.convertPlaintextToFormattedTextNoHighUnicode(ar.getComments());
           ar.setComments(newComments);
           if (newComments!=null) {
         	  newComments = newComments.trim();
@@ -247,7 +245,7 @@ public class QuestionScoreUpdateListener
     }
     catch (Exception e)
     {
-      e.printStackTrace();
+      log.error(e.getMessage(), e);
       return false;
     }
     return true;

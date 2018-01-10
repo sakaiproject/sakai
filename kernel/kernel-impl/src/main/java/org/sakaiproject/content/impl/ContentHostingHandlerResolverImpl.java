@@ -22,8 +22,8 @@ import java.io.InputStream;
 import java.util.Collection;
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.content.api.ContentCollection;
 import org.sakaiproject.content.api.ContentCollectionEdit;
@@ -63,11 +63,9 @@ import org.sakaiproject.util.SingleStorageUser;
  * 
  * @author ieb (initial version), johnf (substantial edits)
  */
+@Slf4j
 public class ContentHostingHandlerResolverImpl implements ContentHostingHandlerResolver
 {
-
-	private static final Logger log = LoggerFactory.getLogger(ContentHostingHandlerResolverImpl.class);
-
 	protected SingleStorageUser resourceStorageUser;
 
 	protected SingleStorageUser collectionStorageUser;

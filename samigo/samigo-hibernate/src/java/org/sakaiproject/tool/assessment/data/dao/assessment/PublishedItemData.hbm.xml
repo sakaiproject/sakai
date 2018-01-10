@@ -95,7 +95,7 @@
   <class name="org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemTag" table="SAM_PUBLISHEDITEMTAG_T">
     <id name="id" column="ITEMTAGID" type="java.lang.Long" unsaved-value="0">
       <generator class="native">
-        <param name="sequence">SAM_ITEMTAG_ID_S</param>
+        <param name="sequence">SAM_PITEMTAG_ID_S</param>
       </generator>
     </id>
     <many-to-one name="item" class="org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemData"

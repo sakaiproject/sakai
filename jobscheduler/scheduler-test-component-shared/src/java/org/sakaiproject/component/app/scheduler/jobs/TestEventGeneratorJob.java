@@ -15,19 +15,19 @@
  */
 package org.sakaiproject.component.app.scheduler.jobs;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.quartz.JobExecutionException;
-import org.quartz.JobKey;
-import org.quartz.TriggerKey;
-import org.sakaiproject.api.app.scheduler.events.TriggerEvent;
-import org.sakaiproject.api.app.scheduler.events.TriggerEventManager;
-
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.List;
+
+import lombok.extern.slf4j.Slf4j;
+
+import org.quartz.JobExecutionException;
+import org.quartz.JobKey;
+import org.quartz.TriggerKey;
+
+import org.sakaiproject.api.app.scheduler.events.TriggerEvent;
+import org.sakaiproject.api.app.scheduler.events.TriggerEventManager;
 
 /**
  * Created by IntelliJ IDEA.
@@ -36,11 +36,9 @@ import java.util.List;
  * Time: 9:25:43 AM
  * To change this template use File | Settings | File Templates.
  */
+@Slf4j
 public class TestEventGeneratorJob extends AbstractConfigurableJob
 {
-    private static final Logger
-        LOG = LoggerFactory.getLogger(TestEventGeneratorJob.class);
-
     public static final String
         STARTDATE_PROPERTY          = "startDate.property",
         NUMEVENTS_PROPERTY          = "numEvents.property",
@@ -106,18 +104,18 @@ public class TestEventGeneratorJob extends AbstractConfigurableJob
         }
         catch (NumberFormatException nfe)
         {
-            LOG.error("configuration parameter is not an integer", nfe);
+            log.error("configuration parameter is not an integer", nfe);
             throw nfe;
         }
 
         if (numEvents < 1)
         {
-            LOG.error ("number of events cannot be less than 1");
+            log.error ("number of events cannot be less than 1");
             throw new Exception ("number of events cannot be less than 1");
         }
         if (minuteInterval < 1)
         {
-            LOG.error ("minute interval cannot be less than 1");
+            log.error ("minute interval cannot be less than 1");
             throw new Exception ("minute interval cannot be less than 1");
         }
 
@@ -130,7 +128,7 @@ public class TestEventGeneratorJob extends AbstractConfigurableJob
         }
         catch (ParseException e)
         {
-            LOG.error ("error parsing start date", e);
+            log.error ("error parsing start date", e);
             throw e;
         }
     }
@@ -146,7 +144,7 @@ public class TestEventGeneratorJob extends AbstractConfigurableJob
         }
         catch (Exception e)
         {
-            LOG.error ("configuration error - aborting job", e);
+            log.error ("configuration error - aborting job", e);
             throw new JobExecutionException (e);
         }
 
@@ -155,7 +153,7 @@ public class TestEventGeneratorJob extends AbstractConfigurableJob
 
         if (tem == null)
         {
-            LOG.error ("configuration error - no TriggerEventManager provided");
+            log.error ("configuration error - no TriggerEventManager provided");
             throw new JobExecutionException ("configuration error - no TriggerEventManager provided");
         }
 

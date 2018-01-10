@@ -18,12 +18,7 @@ package org.sakaiproject.mailsender.tool.producers.fragments;
 
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.sakaiproject.exception.IdUnusedException;
-import org.sakaiproject.mailsender.logic.ComposeLogic;
-import org.sakaiproject.mailsender.tool.params.UsersViewParameters;
-import org.sakaiproject.user.api.User;
+import lombok.extern.slf4j.Slf4j;
 
 import uk.org.ponder.beanutil.PathUtil;
 import uk.org.ponder.messageutil.TargettedMessage;
@@ -40,11 +35,16 @@ import uk.org.ponder.rsf.view.ViewComponentProducer;
 import uk.org.ponder.rsf.viewstate.ViewParameters;
 import uk.org.ponder.rsf.viewstate.ViewParamsReporter;
 
+import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.mailsender.logic.ComposeLogic;
+import org.sakaiproject.mailsender.tool.params.UsersViewParameters;
+import org.sakaiproject.user.api.User;
+
+@Slf4j
 public class UsersProducer implements ViewComponentProducer, ViewParamsReporter
 {
 	public static final String VIEW_ID = "users";
 
-	private final Logger log = LoggerFactory.getLogger(UsersProducer.class);
 	private ComposeLogic composeLogic;
 	private TargettedMessageList messages;
 

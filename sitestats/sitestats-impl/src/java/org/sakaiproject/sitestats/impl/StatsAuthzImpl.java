@@ -18,8 +18,8 @@
  */
 package org.sakaiproject.sitestats.impl;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.authz.cover.FunctionManager;
 import org.sakaiproject.site.cover.SiteService;
@@ -29,10 +29,8 @@ import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.user.api.UserDirectoryService;
 
-
+@Slf4j
 public class StatsAuthzImpl implements StatsAuthz {
-	private static Logger				LOG								= LoggerFactory.getLogger(StatsAuthzImpl.class);
-
 	/** Sakai services */
 	private UserDirectoryService	M_uds;
 	private SecurityService			M_secs;
@@ -59,7 +57,7 @@ public class StatsAuthzImpl implements StatsAuthz {
 	}
 
 	public void init() {
-		LOG.info("init()");		
+		log.info("init()");
 		// register functions
 		FunctionManager.registerFunction(PERMISSION_SITESTATS_VIEW);
 		FunctionManager.registerFunction(PERMISSION_SITESTATS_ADMIN_VIEW);

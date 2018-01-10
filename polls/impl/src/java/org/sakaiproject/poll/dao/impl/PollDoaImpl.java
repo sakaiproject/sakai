@@ -23,17 +23,16 @@ package org.sakaiproject.poll.dao.impl;
 
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.hibernate.Query;
 import org.hibernate.Session;
+
 import org.sakaiproject.genericdao.hibernate.HibernateGeneralGenericDao;
 import org.sakaiproject.poll.dao.PollDao;
 import org.sakaiproject.poll.model.Poll;
 
+@Slf4j
 public class PollDoaImpl extends HibernateGeneralGenericDao implements PollDao {
-
-    private static Logger log = LoggerFactory.getLogger(PollDoaImpl.class);
 
     public void init() {
         log.debug("init");

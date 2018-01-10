@@ -39,7 +39,7 @@ import org.springframework.test.context.junit4.AbstractJUnit4SpringContextTests;
 
 @ContextConfiguration(locations={"/spring-hibernate.xml"})
 public class AssessmentGradingFacadeQueriesTest extends AbstractJUnit4SpringContextTests {
-	
+
 	/** our query object */
 	@Autowired
 	@Qualifier("assessmentGradingFacadeQueries")
@@ -62,7 +62,7 @@ public class AssessmentGradingFacadeQueriesTest extends AbstractJUnit4SpringCont
 	public void testSaveAssesmentGradingData() {
 		//A AssemementGradingData to work with
 		AssessmentGradingData data = new AssessmentGradingData();
-		
+
 		//we expect a failure on this one
 		/*FIXME this test should fail with an exception
 		 * currently the exceptions are quietly swallowed
@@ -74,20 +74,18 @@ public class AssessmentGradingFacadeQueriesTest extends AbstractJUnit4SpringCont
 			//we expect this 
 		}
 		*/
-		
+
 		data.setPublishedAssessmentId(Long.valueOf(1));
 		data.setAgentId("agent");
 		data.setIsLate(false);
 		data.setForGrade(false);
 		data.setStatus(Integer.valueOf(0));
-		
+
 		queries.saveOrUpdateAssessmentGrading(data);
 		Assert.assertNotNull(data.getAssessmentGradingId());
-		
-		
+
 		//test saving an answer as part of the question.
-		
-		
+
 		ItemGradingData item1 = new ItemGradingData();
 		item1.setAgentId(data.getAgentId());
 		item1.setAssessmentGradingId(data.getAssessmentGradingId());
@@ -96,19 +94,15 @@ public class AssessmentGradingFacadeQueriesTest extends AbstractJUnit4SpringCont
 		//saving the item should add an ID
 		queries.saveItemGrading(item1);
 		Assert.assertNotNull(item1.getItemGradingId());
-		
-		
-		
+
 		ItemGradingData item2 = new ItemGradingData();
 		item2.setAgentId(data.getAgentId());
 		item2.setAssessmentGradingId(data.getAssessmentGradingId());
 		item2.setPublishedItemId(1L);
 		item2.setPublishedItemTextId(1L);
-		
-		
+
 		data.getItemGradingSet().add(item2);
-		
-		
+
 		/** saving the parent should save the children **/
 		queries.saveOrUpdateAssessmentGrading(data);
 		Assert.assertNotNull(item1.getItemGradingId());
@@ -118,7 +112,6 @@ public class AssessmentGradingFacadeQueriesTest extends AbstractJUnit4SpringCont
 		try {
 		queries.saveOrUpdateAll(set);
 		} catch (Exception e) {
-			e.printStackTrace();
 			Assert.fail();
 		}
 	}
@@ -126,17 +119,14 @@ public class AssessmentGradingFacadeQueriesTest extends AbstractJUnit4SpringCont
 	@Test
 	public void testLoad() {
 		loadData();
-		
+
 		AssessmentGradingData result = queries.load(savedId);
 		Assert.assertNotNull(result);
 		Assert.assertEquals(result.getItemGradingSet().size(), 2);
-		
-		
+
 		List<AssessmentGradingData> subs = queries.getAllSubmissions("1");
 		Assert.assertNotNull(subs);
 		Assert.assertEquals(2, subs.size());
-		
-		
 	}
 
 	/**
@@ -151,8 +141,7 @@ public class AssessmentGradingFacadeQueriesTest extends AbstractJUnit4SpringCont
 		data.setForGrade(false);
 		data.setStatus(Integer.valueOf(0));
 		queries.saveOrUpdateAssessmentGrading(data);
-		
-		
+
 		AssessmentGradingData data2 = new AssessmentGradingData();
 		data2.setPublishedAssessmentId(Long.valueOf(1));
 		data2.setAgentId("agent2");
@@ -160,9 +149,7 @@ public class AssessmentGradingFacadeQueriesTest extends AbstractJUnit4SpringCont
 		data2.setForGrade(true);
 		data2.setStatus(0);
 		queries.saveOrUpdateAssessmentGrading(data2);
-		
-		
-		
+
 		AssessmentGradingData data3 = new AssessmentGradingData();
 		data3.setPublishedAssessmentId(Long.valueOf(1));
 		data3.setAgentId("agent3");
@@ -170,29 +157,25 @@ public class AssessmentGradingFacadeQueriesTest extends AbstractJUnit4SpringCont
 		data3.setForGrade(true);
 		data3.setStatus(0);
 		queries.saveOrUpdateAssessmentGrading(data3);
-		
+
 		ItemGradingData item1 = new ItemGradingData();
 		item1.setAgentId(data.getAgentId());
 		item1.setAssessmentGradingId(data.getAssessmentGradingId());
 		item1.setPublishedItemId(1L);
 		item1.setPublishedItemTextId(1L);
-		
-		
-		
+
 		ItemGradingData item2 = new ItemGradingData();
 		item2.setAgentId(data.getAgentId());
 		item2.setAssessmentGradingId(data.getAssessmentGradingId());
 		item2.setPublishedItemId(2L);
 		item2.setPublishedItemTextId(2L);
-		
-		
+
 		data.getItemGradingSet().add(item2);
 		data.getItemGradingSet().add(item1);
-		
+
 		queries.saveOrUpdateAssessmentGrading(data);
-		
+
 		savedId = data.getAssessmentGradingId();
-		
 	}
 	
 	@Test
@@ -205,7 +188,7 @@ public class AssessmentGradingFacadeQueriesTest extends AbstractJUnit4SpringCont
 		} catch (Exception ex) {
 			Assert.fail();
 		}
-		
+
 		try {
 			queries.getAllItemGradingDataForItemInGrading(999l , null);
 			Assert.fail();
@@ -214,7 +197,7 @@ public class AssessmentGradingFacadeQueriesTest extends AbstractJUnit4SpringCont
 		} catch (Exception ex) {
 			Assert.fail();
 		}
-		
+
 		try {
 			queries.getAllItemGradingDataForItemInGrading(null , 999l);
 			Assert.fail();
@@ -223,13 +206,13 @@ public class AssessmentGradingFacadeQueriesTest extends AbstractJUnit4SpringCont
 		} catch (Exception ex) {
 			Assert.fail();
 		}
-		
+
 		List<ItemGradingData> vals = queries.getAllItemGradingDataForItemInGrading(999l , 999l);
 		Assert.assertNotNull(vals);
 		Assert.assertEquals(0, vals.size());
-		
+
 		loadData();
-		
+
 		vals = queries.getAllItemGradingDataForItemInGrading(savedId , 2L);
 		Assert.assertNotNull(vals);
 		Assert.assertEquals(1, vals.size());

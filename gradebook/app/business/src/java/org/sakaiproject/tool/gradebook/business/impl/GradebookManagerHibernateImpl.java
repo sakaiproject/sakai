@@ -58,24 +58,18 @@ import org.sakaiproject.tool.gradebook.LetterGradePercentMapping;
 import org.sakaiproject.tool.gradebook.Spreadsheet;
 import org.sakaiproject.tool.gradebook.business.GbSynchronizer;
 import org.sakaiproject.tool.gradebook.business.GradebookManager;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.orm.hibernate4.HibernateCallback;
 import org.springframework.orm.hibernate4.HibernateOptimisticLockingFailureException;
 
+import lombok.extern.slf4j.Slf4j;
+
 /**
  * synchronize from external application
  */
-
-
+@Slf4j
 public abstract class GradebookManagerHibernateImpl extends GradebookServiceHibernateImpl
         implements GradebookManager {
-
-    private static final Logger log = LoggerFactory.getLogger(GradebookManagerHibernateImpl.class);
-
-    // Special logger for data contention analysis.
-    private static final Logger logData = LoggerFactory.getLogger(GradebookManagerHibernateImpl.class.getName() + ".GB_DATA");
 
     /** synchronize from external application*/
     GbSynchronizer synchronizer = null;
@@ -320,7 +314,7 @@ public abstract class GradebookManagerHibernateImpl extends GradebookServiceHibe
     	{
     		return convertPointsToLetterGrade(gradebook, allAssignRecordsFromDB);
     	}
-    	return null;
+		return null;
     }
 
     /**
@@ -335,8 +329,8 @@ public abstract class GradebookManagerHibernateImpl extends GradebookServiceHibe
             return new HashSet();
         }
 
-        if (logData.isDebugEnabled()) {
-			logData.debug("BEGIN: Update " + gradeRecordsFromCall.size() + " scores for gradebook=" + assignment.getGradebook().getUid() + ", assignment=" + assignment.getName());
+        if (log.isDebugEnabled()) {
+			log.debug("BEGIN: Update " + gradeRecordsFromCall.size() + " scores for gradebook=" + assignment.getGradebook().getUid() + ", assignment=" + assignment.getName());
 		}
 
         final HibernateCallback hc = new HibernateCallback() {
@@ -484,8 +478,8 @@ public abstract class GradebookManagerHibernateImpl extends GradebookServiceHibe
                 		studentsWithUpdatedAssignmentGradeRecords.add(gradeRecordFromCall.getStudentId());
                 	}
                 }
-                if (logData.isDebugEnabled()) {
-					logData.debug("Updated " + studentsWithUpdatedAssignmentGradeRecords.size() + " assignment score records");
+                if (log.isDebugEnabled()) {
+					log.debug("Updated " + studentsWithUpdatedAssignmentGradeRecords.size() + " assignment score records");
 				}
 
                 return studentsWithExcessiveScores;
@@ -493,8 +487,8 @@ public abstract class GradebookManagerHibernateImpl extends GradebookServiceHibe
         };
 
         final Set studentsWithExcessiveScores = (Set)getHibernateTemplate().execute(hc);
-        if (logData.isDebugEnabled()) {
-			logData.debug("END: Update " + gradeRecordsFromCall.size() + " scores for gradebook=" + assignment.getGradebook().getUid() + ", assignment=" + assignment.getName());
+        if (log.isDebugEnabled()) {
+			log.debug("END: Update " + gradeRecordsFromCall.size() + " scores for gradebook=" + assignment.getGradebook().getUid() + ", assignment=" + assignment.getName());
 		}
         return studentsWithExcessiveScores;
     }
@@ -514,8 +508,8 @@ public abstract class GradebookManagerHibernateImpl extends GradebookServiceHibe
             return new HashSet();
         }
 
-        if (logData.isDebugEnabled()) {
-			logData.debug("BEGIN: Update " + gradeRecordsFromCall.size());
+        if (log.isDebugEnabled()) {
+			log.debug("BEGIN: Update " + gradeRecordsFromCall.size());
 		}
 
         final HibernateCallback hc = new HibernateCallback() {
@@ -668,8 +662,8 @@ public abstract class GradebookManagerHibernateImpl extends GradebookServiceHibe
 	                	studentsWithUpdatedAssignmentGradeRecords.add(gradeRecordFromCall.getStudentId());
 	                }
                 }
-				if (logData.isDebugEnabled()) {
-					logData.debug("Updated " + studentsWithUpdatedAssignmentGradeRecords.size() + " assignment score records");
+				if (log.isDebugEnabled()) {
+					log.debug("Updated " + studentsWithUpdatedAssignmentGradeRecords.size() + " assignment score records");
 				}
 
                 return assignmentsWithExcessiveScores;
@@ -677,8 +671,8 @@ public abstract class GradebookManagerHibernateImpl extends GradebookServiceHibe
         };
 
         final Set assignmentsWithExcessiveScores = (Set)getHibernateTemplate().execute(hc);
-        if (logData.isDebugEnabled()) {
-			logData.debug("END: Update " + gradeRecordsFromCall.size());
+        if (log.isDebugEnabled()) {
+			log.debug("END: Update " + gradeRecordsFromCall.size());
 		}
         return assignmentsWithExcessiveScores;
     }
@@ -743,8 +737,8 @@ public abstract class GradebookManagerHibernateImpl extends GradebookServiceHibe
             return;
         }
 
-        if (logData.isDebugEnabled()) {
-			logData.debug("BEGIN: Update " + gradeRecordsFromCall.size() + " course grades for gradebook=" + courseGrade.getGradebook().getUid());
+        if (log.isDebugEnabled()) {
+			log.debug("BEGIN: Update " + gradeRecordsFromCall.size() + " course grades for gradebook=" + courseGrade.getGradebook().getUid());
 		}
 
         final HibernateCallback hc = new HibernateCallback() {
@@ -778,16 +772,17 @@ public abstract class GradebookManagerHibernateImpl extends GradebookServiceHibe
 
                     numberOfUpdatedGrades++;
                 }
-                if (logData.isDebugEnabled()) {
-					logData.debug("Changed " + numberOfUpdatedGrades + " course grades for gradebook=" + courseGrade.getGradebook().getUid());
+                if (log.isDebugEnabled()) {
+					log.debug("Changed " + numberOfUpdatedGrades + " course grades for gradebook=" + courseGrade.getGradebook().getUid());
 				}
                 return null;
             }
         };
+
         try {
 	        getHibernateTemplate().execute(hc);
-	        if (logData.isDebugEnabled()) {
-				logData.debug("END: Update " + gradeRecordsFromCall.size() + " course grades for gradebook=" + courseGrade.getGradebook().getUid());
+	        if (log.isDebugEnabled()) {
+				log.debug("END: Update " + gradeRecordsFromCall.size() + " course grades for gradebook=" + courseGrade.getGradebook().getUid());
 			}
 		} catch (final DataIntegrityViolationException e) {
 			// It's possible that a previously ungraded student
@@ -841,25 +836,6 @@ public abstract class GradebookManagerHibernateImpl extends GradebookServiceHibe
     	}
 
     	return null;
-    }
-
-    private double getTotalPointsEarnedInternal(final Long gradebookId, final String studentId, final Session session) {
-        double totalPointsEarned = 0;
-        final Iterator scoresIter = session.createQuery(
-        		"select agr.pointsEarned from AssignmentGradeRecord agr, Assignment asn where agr.gradableObject=asn and agr.studentId=:student and asn.gradebook.id=:gbid and asn.removed=false and asn.notCounted=false and asn.ungraded=false and asn.pointsPossible > 0").
-        		setParameter("student", studentId).
-        		setParameter("gbid", gradebookId).
-        		list().iterator();
-       	while (scoresIter.hasNext()) {
-       		final Double pointsEarned = (Double)scoresIter.next();
-       		if (pointsEarned != null) {
-       			totalPointsEarned += pointsEarned.doubleValue();
-       		}
-       	}
-       	if (log.isDebugEnabled()) {
-			log.debug("getTotalPointsEarnedInternal for studentId=" + studentId + " returning " + totalPointsEarned);
-		}
-       	return totalPointsEarned;
     }
 
     /**
@@ -1328,19 +1304,6 @@ public abstract class GradebookManagerHibernateImpl extends GradebookServiceHibe
     		}
     	});
     	return totalPoints.doubleValue();
-    }
-
-    private double getTotalPointsInternal(final Long gradebookId, final Session session) {
-        double totalPointsPossible = 0;
-    	final Iterator assignmentPointsIter = session.createQuery(
-        		"select asn.pointsPossible from GradebookAssignment asn where asn.gradebook.id=:gbid and asn.removed=false and asn.notCounted=false and asn.ungraded=false").
-        		setParameter("gbid", gradebookId).
-        		list().iterator();
-        while (assignmentPointsIter.hasNext()) {
-        	final Double pointsPossible = (Double)assignmentPointsIter.next();
-        	totalPointsPossible += pointsPossible.doubleValue();
-        }
-        return totalPointsPossible;
     }
 
     //for testing

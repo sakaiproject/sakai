@@ -44,25 +44,22 @@ import org.sakaiproject.tool.gradebook.GradebookAssignment;
 import org.sakaiproject.tool.gradebook.LetterGradePercentMapping;
 import org.sakaiproject.tool.gradebook.Permission;
 import org.sakaiproject.tool.gradebook.jsf.FacesUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 public class GradebookSetupBean extends GradebookDependentBean implements Serializable
 {
-	private static final Logger logger = LoggerFactory.getLogger(GradebookSetupBean.class);
-
 	private String gradeEntryMethod;
 	private String categorySetting;
-    private boolean showDropHighestDisplayed;
-    private boolean showDropLowestDisplayed;
-    private boolean showKeepHighestDisplayed;
-    private boolean anyCategoriesWithDrops;
+	private boolean showDropHighestDisplayed;
+	private boolean showDropLowestDisplayed;
+	private boolean showKeepHighestDisplayed;
 	private List categories;
 	private Gradebook localGradebook;
 	private List categoriesToRemove;
 	private double regularTotal;
 	private double neededTotal;
-	private double adjustmentTotal;
 	private double grandTotal;
 	private String pageName;
 	private List letterGradeRows;
@@ -70,21 +67,19 @@ public class GradebookSetupBean extends GradebookDependentBean implements Serial
 	private LetterGradePercentMapping lgpm;
 	private LetterGradePercentMapping defaultLGPM;
 	private boolean enableLetterGrade = false;
-  private boolean isValidWithCourseGrade = true;
+	private boolean isValidWithCourseGrade = true;
 
 	private boolean isLetterGrade = false;
-    private boolean isPointGrade = false;
-    private boolean isPercentageGrade = false;
+	private boolean isPointGrade = false;
+	private boolean isPercentageGrade = false;
 
-    private static final int NUM_EXTRA_CAT_ENTRIES = 50;
+	private static final int NUM_EXTRA_CAT_ENTRIES = 50;
 	private static final String ENTRY_OPT_POINTS = "points";
 	private static final String ENTRY_OPT_PERCENT = "percent";
 	private static final String ENTRY_OPT_LETTER = "letterGrade";
 	private static final String CATEGORY_OPT_NONE = "noCategories";
 	private static final String CATEGORY_OPT_CAT_ONLY = "onlyCategories";
 	private static final String CATEGORY_OPT_CAT_AND_WEIGHT = "categoriesAndWeighting";
-    private static final String DROP_OPT_HIDE = "hideDrop";
-    private static final String DROP_OPT_SHOW = "showDrop";
 
 	private static final String GB_SETUP_PAGE = "gradebookSetup";
 	private static final String GB_OVERVIEW_PAGE = "overview";
@@ -350,8 +345,6 @@ public class GradebookSetupBean extends GradebookDependentBean implements Serial
 		this.isValidWithCourseGrade = true;
 	}
 
-		final int origialGradeType = this.localGradebook.getGrade_type();
-
 		if (this.gradeEntryMethod.equals(ENTRY_OPT_PERCENT))
 		{
 			this.localGradebook.setGrade_type(GradebookService.GRADE_TYPE_PERCENTAGE);
@@ -364,31 +357,6 @@ public class GradebookSetupBean extends GradebookDependentBean implements Serial
 		{
 			this.localGradebook.setGrade_type(GradebookService.GRADE_TYPE_POINTS);
 		}
-		// SAK-10879 - comment out ability to customize lgpm
-		/*
-		if (lgpm != null) {
-			if (!isMappingValid(lgpm)) {
-				return "failure";
-			}
-
-			LetterGradePercentMapping originalLgpm = getGradebookManager().getLetterGradePercentMapping(localGradebook);
-			boolean lgpmUpdate = false;
-			for (Iterator iter = letterGradesList.iterator(); iter.hasNext(); ) {
-				String grade = (String) iter.next();
-				Double originalPercent = null;
-				if (originalLgpm != null)
-					originalPercent = (Double) originalLgpm.getValue(grade);
-				Double currentPercent = (Double) lgpm.getValue(grade);
-				if (!originalPercent.equals(currentPercent)) {
-					lgpmUpdate = true;
-					break;
-				}
-			}
-
-			if (lgpmUpdate) {
-				getGradebookManager().saveOrUpdateLetterGradePercentMapping(lgpm.getGradeMap(), localGradebook);
-			}
-		}*/
 
 		if (this.categorySetting == null || (!this.categorySetting.equals(CATEGORY_OPT_CAT_ONLY) &&
 				!this.categorySetting.equals(CATEGORY_OPT_CAT_AND_WEIGHT) && !this.categorySetting.equals(CATEGORY_OPT_NONE)))
@@ -421,7 +389,7 @@ public class GradebookSetupBean extends GradebookDependentBean implements Serial
 					// if there is a specific category associated with this permission or if
 					// there are no sections defined in the site, we need to delete this permission
 					if (perm.getCategoryId() != null || sections == null || sections.size() == 0) {
-						logger.debug("Permission " + perm.getId() + " was deleted b/c gb changed to no categories");
+						log.debug("Permission " + perm.getId() + " was deleted b/c gb changed to no categories");
 						getGradebookManager().deletePermission(perm);
 					}
 				}
@@ -504,7 +472,6 @@ public class GradebookSetupBean extends GradebookDependentBean implements Serial
 
             final Category uiCategory = (Category) obj;
             final Long categoryId = uiCategory.getId();
-            final String categoryName = uiCategory.getName();
 
             // do cross validation
 			if ((uiCategory.getDropLowest() > 0 || uiCategory.getDropHighest() > 0) && uiCategory.getKeepHighest() > 0) {
@@ -641,7 +608,7 @@ public class GradebookSetupBean extends GradebookDependentBean implements Serial
 				return "failure";
 			}
 			catch (final StaleObjectModificationException e) {
-				logger.error(e.getMessage());
+				log.error(e.getMessage());
 				FacesUtil.addErrorMessage(getLocalizedString("cat_locking_failure"));
 				return "failure";
 			}
@@ -659,7 +626,7 @@ public class GradebookSetupBean extends GradebookDependentBean implements Serial
 			if (!permsToRemove.isEmpty()) {
 				for (final Iterator permIter = permsToRemove.iterator(); permIter.hasNext();) {
 					final Permission perm = (Permission) permIter.next();
-					logger.debug("Permission " + perm.getId() + " was deleted b/c category deleted");
+					log.debug("Permission " + perm.getId() + " was deleted b/c category deleted");
 					getGradebookManager().deletePermission(perm);
 				}
 			}
@@ -988,7 +955,6 @@ public class GradebookSetupBean extends GradebookDependentBean implements Serial
 
 		this.regularTotal = total.doubleValue(); // this will probably change later, but make it function to spec for now
 		this.grandTotal = (total.add(extraCredit)).doubleValue();
-		this.adjustmentTotal = extraCredit.doubleValue();
 		this.neededTotal = 100 - total.doubleValue();
 	}
 
@@ -1017,114 +983,86 @@ public class GradebookSetupBean extends GradebookDependentBean implements Serial
 		}
 	}
 
-	private boolean isMappingValid(final LetterGradePercentMapping lgpm) {
-		boolean valid = true;
-		Double previousPercentage = null;
-		for (final Iterator iter = this.letterGradesList.iterator(); iter.hasNext(); ) {
-			final String grade = (String)iter.next();
-			final Double percentage = lgpm.getValue(grade);
-			if (logger.isDebugEnabled()) {
-				logger.debug("checking percentage " + percentage + " for validity");
-			}
-
-			// Grades that are percentage-based need to remain percentage-based,
-			// be in descending order, and end with 0.
-			if (percentage == null) {
-				FacesUtil.addUniqueErrorMessage(getLocalizedString("gb_setup_require_all_values"));
-				valid = false;
-			} else if (percentage.doubleValue() < 0) {
-				FacesUtil.addUniqueErrorMessage(getLocalizedString("gb_setup_require_positive"));
-				valid = false;
-			} else if ((previousPercentage != null) && (previousPercentage.doubleValue() < percentage.doubleValue())) {
-				FacesUtil.addUniqueErrorMessage(getLocalizedString("gb_setup_require_descending_order"));
-				valid = false;
-			}
-			previousPercentage = percentage;
-		}
-		return valid;
-	}
-
 	/**
 	 * UI for the letter grade entry scale
 	 */
 	public class LetterGradeRow implements Serializable {
-    	private String grade;
-    	private boolean editable;
-    	private LetterGradePercentMapping lgpm;
+		private String grade;
+		private boolean editable;
+		private LetterGradePercentMapping mapping;
 
-    	public LetterGradeRow() {
-    	}
+		public LetterGradeRow() {
+		}
 
-    	public LetterGradeRow(final LetterGradePercentMapping lgpm, final String grade, final boolean editable) {
-    		this.lgpm = lgpm;
-    		this.grade = grade;
-    		this.editable = editable;
-    	}
+		public LetterGradeRow(final LetterGradePercentMapping mapping, final String grade, final boolean editable) {
+			this.mapping = mapping;
+			this.grade = grade;
+			this.editable = editable;
+		}
 
-    	public String getGrade() {
-    		return this.grade;
-    	}
+		public String getGrade() {
+			return this.grade;
+		}
 
-    	public Double getMappingValue() {
-    		return this.lgpm.getGradeMap().get(this.grade);
-    	}
-    	public void setMappingValue(final Double value) {
-    		this.lgpm.getGradeMap().put(this.grade, value);
-    	}
+		public Double getMappingValue() {
+			return this.mapping.getGradeMap().get(this.grade);
+		}
 
-    	public boolean isEditable() {
+		public void setMappingValue(final Double value) {
+			this.mapping.getGradeMap().put(this.grade, value);
+		}
+
+		public boolean isEditable() {
 			return this.editable;
 		}
 	}
 
-	public boolean getEnableLetterGrade()
-	{
+	public boolean getEnableLetterGrade() {
 		this.enableLetterGrade = ServerConfigurationService.getBoolean(GradebookService.enableLetterGradeString, false);
 		return this.enableLetterGrade;
 	}
 
-	public void setEnableLetterGrade(final boolean enableLetterGrade)
-	{
+	public void setEnableLetterGrade(final boolean enableLetterGrade) {
 		this.enableLetterGrade = enableLetterGrade;
 	}
 
-	public boolean getIsValidWithCourseGrade()
-	{
+	public boolean getIsValidWithCourseGrade() {
 		return this.isValidWithCourseGrade;
 	}
 
-	public void setIsValidWithCourseGrade(final boolean isValidWithCourseGrade)
-	{
+	public void setIsValidWithCourseGrade(final boolean isValidWithCourseGrade) {
 		this.isValidWithCourseGrade = isValidWithCourseGrade;
 	}
 
-	public boolean isConflictWithCourseGrade()
-	{
-		final Gradebook gb = getGradebookManager().getGradebookWithGradeMappings(getGradebookManager().getGradebook(this.localGradebook.getUid()).getId());
+	public boolean isConflictWithCourseGrade() {
+		final Gradebook gb = getGradebookManager()
+				.getGradebookWithGradeMappings(getGradebookManager().getGradebook(this.localGradebook.getUid()).getId());
 		if (this.gradeEntryMethod.equals(ENTRY_OPT_LETTER))
 		{
-			if((gb.getSelectedGradeMapping().getGradingScale() != null && gb.getSelectedGradeMapping().getGradingScale().getUid().equals("LetterGradeMapping"))
-					|| (gb.getSelectedGradeMapping().getGradingScale() == null && gb.getSelectedGradeMapping().getName().equals("Letter Grades")))
-			{
+			if ((gb.getSelectedGradeMapping().getGradingScale() != null
+					&& gb.getSelectedGradeMapping().getGradingScale().getUid().equals("LetterGradeMapping"))
+					|| (gb.getSelectedGradeMapping().getGradingScale() == null
+							&& gb.getSelectedGradeMapping().getName().equals("Letter Grades"))) {
 				return false;
 			}
 			final Set mappings = gb.getGradeMappings();
-			for(final Iterator iter = mappings.iterator(); iter.hasNext();)
+			for (final Iterator iter = mappings.iterator(); iter.hasNext();)
 			{
 				final GradeMapping gm = (GradeMapping) iter.next();
 
-				if(gm != null)
+				if (gm != null)
 				{
-					if((gm.getGradingScale() != null && (gm.getGradingScale().getUid().equals("LetterGradeMapping") || gm.getGradingScale().getUid().equals("LetterGradePlusMinusMapping")))
-							|| (gm.getGradingScale() == null && (gb.getSelectedGradeMapping().getName().equals("Letter Grades") || gb.getSelectedGradeMapping().getName().equals("Letter Grades with +/-"))))
+					if ((gm.getGradingScale() != null && (gm.getGradingScale().getUid().equals("LetterGradeMapping")
+							|| gm.getGradingScale().getUid().equals("LetterGradePlusMinusMapping")))
+							|| (gm.getGradingScale() == null && (gb.getSelectedGradeMapping().getName().equals("Letter Grades")
+									|| gb.getSelectedGradeMapping().getName().equals("Letter Grades with +/-"))))
 					{
 						final Map defaultMapping = gm.getDefaultBottomPercents();
 						for (final Object element : gm.getGrades()) {
-							final String grade = (String)element;
+							final String grade = (String) element;
 							final Double percentage = gm.getValue(grade);
-							final Double defautPercentage = (Double)defaultMapping.get(grade);
-							if (percentage != null && !percentage.equals(defautPercentage))
-							{
+							final Double defautPercentage = (Double) defaultMapping.get(grade);
+							if (percentage != null && !percentage.equals(defautPercentage)) {
 								return false;
 							}
 						}
@@ -1136,11 +1074,9 @@ public class GradebookSetupBean extends GradebookDependentBean implements Serial
 		return true;
 	}
 
-
 	public String navigateToDeleteAllGrades() {
 		return "delteAllGrades";
 	}
-
 
 	public boolean getIsLetterGrade() {
 		this.isLetterGrade = this.gradeEntryMethod.equals(ENTRY_OPT_LETTER);
@@ -1168,6 +1104,4 @@ public class GradebookSetupBean extends GradebookDependentBean implements Serial
 	public void setPercentageGrade(final boolean isPercentageGrade) {
 		this.isPercentageGrade = isPercentageGrade;
 	}
-
-
 }

@@ -16,18 +16,17 @@
 package org.sakaiproject.profile2.tool.pages;
 
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.wicket.markup.html.panel.Panel;
+
 import org.sakaiproject.profile2.exception.ProfileFriendsIllegalAccessException;
 import org.sakaiproject.profile2.tool.pages.panels.ConfirmedFriends;
 import org.sakaiproject.profile2.types.PrivacyType;
 import org.sakaiproject.profile2.util.ProfileConstants;
 
+@Slf4j
 public class ViewFriends extends BasePage {
 
-	private static final Logger log = LoggerFactory.getLogger(MyFriends.class);
-	
 	public ViewFriends(final String userUuid) {
 		
 		log.debug("ViewFriends()");

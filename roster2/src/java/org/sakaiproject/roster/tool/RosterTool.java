@@ -46,13 +46,12 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.sakaiproject.roster.api.SakaiProxy;
-import org.sakaiproject.util.ResourceLoader;
-
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationContext;
 import org.springframework.web.context.support.WebApplicationContextUtils;
+
+import org.sakaiproject.roster.api.SakaiProxy;
+import org.sakaiproject.util.ResourceLoader;
 
 /**
  * <code>RosterTool</code> performs basic checks and outputs a prebuilt startup
@@ -61,11 +60,10 @@ import org.springframework.web.context.support.WebApplicationContextUtils;
  * @author Daniel Robinson (d.b.robinson@lancaster.ac.uk)
  * @author Adrian Fish (a.fish@lancaster.ac.uk)
  */
+@Slf4j
 public class RosterTool extends HttpServlet {
 	
 	private static final long serialVersionUID = 1L;
-
-	private static final Logger log = LoggerFactory.getLogger(RosterTool.class);
 
 	private SakaiProxy sakaiProxy;
 

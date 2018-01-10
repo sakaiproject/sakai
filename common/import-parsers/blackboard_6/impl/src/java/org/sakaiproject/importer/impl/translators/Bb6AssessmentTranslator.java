@@ -32,6 +32,8 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.importer.api.IMSResourceTranslator;
 import org.sakaiproject.importer.api.Importable;
 import org.sakaiproject.importer.impl.Blackboard6FileParser;
@@ -45,7 +47,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.jsoup.Jsoup;
 
-
+@Slf4j
 public class Bb6AssessmentTranslator implements IMSResourceTranslator{
 
 	private static final String IMG_PATTERN = "(.*/)*.+\\.(png|jpg|gif|bmp|jpeg|PNG|JPG|GIF|BMP|JPEG)$";
@@ -298,11 +300,11 @@ public class Bb6AssessmentTranslator implements IMSResourceTranslator{
 		
 		// run the filename only (not the directories) through the resource escaper
 		String[] subPath = uri.split(Pattern.quote("/"));
-		System.out.println("s:" + Arrays.toString(subPath));
+		log.debug("s: {}", Arrays.toString(subPath));
 		String fileName = subPath[subPath.length-1];
 		String cleanedFileName = Validator.escapeResourceName(fileName);
 		uri = uri.replaceAll(fileName, cleanedFileName);
-		System.out.println("replacing: " + fileName + "::" + cleanedFileName + "::" + uri);
+		log.debug("replacing: {}::{}::{}", fileName, cleanedFileName, uri);
 		
 		Matcher matcher = imgPattern.matcher(uri);
 		if (matcher.matches()) {

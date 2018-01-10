@@ -21,10 +21,19 @@
 
 package org.sakaiproject.tool.assessment.ui.bean.author;
 
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
+
+import javax.faces.application.FacesMessage;
+import javax.faces.context.FacesContext;
 
 import net.htmlparser.jericho.Source;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
@@ -45,20 +54,10 @@ import org.sakaiproject.tool.assessment.services.QuestionPoolService;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 
-import javax.faces.application.FacesMessage;
-import javax.faces.context.FacesContext;
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
-
+@Slf4j
 public class SearchQuestionBean   implements Serializable {
 
     private String selectedSection;
-
 
     private String selectedQuestionPool;
     private boolean comesFromPool;
@@ -82,7 +81,6 @@ public class SearchQuestionBean   implements Serializable {
     private QuestionPoolService questionPoolService = new QuestionPoolService();
     private String tagToSearchLabel;
     private String lastSearchType;
-    private static Log log = LogFactory.getLog(SearchQuestionBean.class);
 
     //This cache will avoid calling multiple times the services to know the name of sites, and assessments.
     //It will live during the Bean live... so it will be useful for preview too.

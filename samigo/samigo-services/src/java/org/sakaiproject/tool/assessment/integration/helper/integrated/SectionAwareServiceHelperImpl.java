@@ -19,7 +19,6 @@
  *
  **********************************************************************************/
 
-
 package org.sakaiproject.tool.assessment.integration.helper.integrated;
 
 import java.util.ArrayList;
@@ -31,8 +30,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.section.api.SectionAwareness;
 import org.sakaiproject.section.api.coursemanagement.CourseSection;
@@ -49,8 +48,8 @@ import org.sakaiproject.tool.assessment.services.PersistenceService;
  * An implementation of Samigo-specific authorization (based on Gradebook's) needs based
  * on the shared Section Awareness API.
  */
+@Slf4j
 public class SectionAwareServiceHelperImpl extends AbstractSectionsImpl implements SectionAwareServiceHelper {
-    private static final Logger log = LoggerFactory.getLogger(SectionAwareServiceHelperImpl.class);
 
 	public boolean isUserAbleToGrade(String siteid, String userUid) {
 		return (getSectionAwareness().isSiteMemberInRole(siteid, userUid, Role.INSTRUCTOR) || getSectionAwareness().isSiteMemberInRole(siteid, userUid, Role.TA));

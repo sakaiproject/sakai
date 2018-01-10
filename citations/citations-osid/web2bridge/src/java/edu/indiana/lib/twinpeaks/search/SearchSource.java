@@ -17,13 +17,21 @@
 **********************************************************************************/
 package edu.indiana.lib.twinpeaks.search;
 
-import edu.indiana.lib.twinpeaks.util.*;
-
-import java.io.*;
-import java.util.*;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
 
 import lombok.extern.slf4j.Slf4j;
-import org.w3c.dom.*;
+
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
+
+import edu.indiana.lib.twinpeaks.util.DomException;
+import edu.indiana.lib.twinpeaks.util.DomUtils;
+import edu.indiana.lib.twinpeaks.util.SearchException;
+import edu.indiana.lib.twinpeaks.util.StringUtils;
 
 @Slf4j
 public class SearchSource {
@@ -389,8 +397,7 @@ public class SearchSource {
 			}
 			catch (Exception exception)
 			{
-				log.error("DOM parse exception");
-				exception.printStackTrace();
+				log.error("DOM parse exception", exception);
 				throw new RuntimeException("DOM error");
 			}
 			/*

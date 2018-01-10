@@ -26,8 +26,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.poll.logic.ExternalLogic;
 import org.sakaiproject.poll.logic.PollListManager;
 import org.sakaiproject.poll.model.Option;
@@ -60,11 +60,10 @@ import uk.org.ponder.rsf.view.ViewComponentProducer;
 import uk.org.ponder.rsf.viewstate.ViewParameters;
 import uk.org.ponder.rsf.viewstate.ViewParamsReporter;
 
-
+@Slf4j
 public class PollOptionProducer implements ViewComponentProducer,ViewParamsReporter,NavigationCaseReporter, ActionResultInterceptor {
 
 	public static final String VIEW_ID = "pollOption";
-	private static final Logger LOG = LoggerFactory.getLogger(PollOptionProducer.class);
 	private VoteBean voteBean;
 
 
@@ -146,7 +145,7 @@ public class PollOptionProducer implements ViewComponentProducer,ViewParamsRepor
 		OptionViewParameters aivp = (OptionViewParameters) viewparams;
 		boolean newOption = false;
 		if(aivp.id != null) {
-			LOG.debug("got a paramater with id: " + Long.valueOf(aivp.id));
+			log.debug("got a paramater with id: " + Long.valueOf(aivp.id));
 			// passed in an id so we should be modifying an item if we can find it
 			option = pollListManager.getOptionById(Long.valueOf(aivp.id));
 			// SAK-14702 : Bugfix
@@ -166,7 +165,7 @@ public class PollOptionProducer implements ViewComponentProducer,ViewParamsRepor
 		}
 
 		if (poll == null) {
-			LOG.warn("no poll found");
+			log.warn("no poll found");
 			return;
 		}
 		
@@ -226,14 +225,14 @@ public class PollOptionProducer implements ViewComponentProducer,ViewParamsRepor
 
 
 	public void interceptActionResult(ARIResult result, ViewParameters incoming, Object actionReturn) {
-		LOG.debug("checking IntercetpActionResult(");
+		log.debug("checking IntercetpActionResult(");
 
 		
 		if (result.resultingView instanceof OptionViewParameters) {
 			OptionViewParameters optvp = (OptionViewParameters) result.resultingView;
-			LOG.debug("OptionViewParams: "  + optvp.id + " : " + optvp.pollId);
+			log.debug("OptionViewParams: "  + optvp.id + " : " + optvp.pollId);
 			String retVal = (String) actionReturn;
-			LOG.debug("retval is " + retVal);
+			log.debug("retval is " + retVal);
 			if (retVal == null) {
 				return;
 			}
@@ -243,7 +242,7 @@ public class PollOptionProducer implements ViewComponentProducer,ViewParamsRepor
 				if (! "option".equals(retVal)) {
 					result.resultingView = new PollViewParameters(viewId, optvp.pollId);
 				} else {
-					LOG.debug("New option for poll: " + optvp.pollId);
+					log.debug("New option for poll: " + optvp.pollId);
 					result.resultingView = new OptionViewParameters(VIEW_ID, optvp.id , optvp.pollId);
 				}
 

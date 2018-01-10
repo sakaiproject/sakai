@@ -148,7 +148,9 @@
 		                <h:outputText value="#{msgs.user_created_on}"/>
 		            </t:commandSortHeader>
 		        </f:facet>
-				<h:outputText value="#{row.createdOn}"/>
+				<h:outputText value="#{row.createdOn}">
+					<f:convertDateTime dateStyle="medium" timeZone="#{UserListBean.userTimeZone}"/>
+				</h:outputText>
 			</h:column>
 			<h:column id="modifiedOn">
 				<f:facet name="header">
@@ -156,7 +158,9 @@
 		                <h:outputText value="#{msgs.user_modified_on}"/>
 		            </t:commandSortHeader>
 		        </f:facet>
-				<h:outputText value="#{row.modifiedOn}"/>
+				<h:outputText value="#{row.modifiedOn}">
+					<f:convertDateTime dateStyle="medium" timeZone="#{UserListBean.userTimeZone}"/>
+				</h:outputText>
 			</h:column>
 		</t:dataTable>
 	

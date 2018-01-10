@@ -22,8 +22,8 @@ import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.Date;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.chat2.model.ChatManager;
 import org.sakaiproject.db.api.SqlService;
 import org.sakaiproject.util.ResourceLoader;
@@ -37,11 +37,8 @@ import org.w3c.dom.Element;
  * @author chrismaurer
  *
  */
+@Slf4j
 public class ChatDataMigration { 
-   protected final transient Logger logger = LoggerFactory.getLogger(getClass());
-   
-   private boolean debug = false;
-   
    private SqlService sqlService = null;
    private ChatManager chatManager = null;
    
@@ -72,7 +69,7 @@ public class ChatDataMigration {
          try {
             load();
          } catch (Exception e) {
-            logger.warn("Error with ChatDataMigrationThread.run()", e);
+            log.warn("Error with ChatDataMigrationThread.run()", e);
          }
       }
    }
@@ -84,7 +81,7 @@ public class ChatDataMigration {
     */
    protected void init() throws Exception
    {
-      logger.info("init()");
+      log.info("init()");
       
       try {         
          if (performChatMigration) {
@@ -93,7 +90,7 @@ public class ChatDataMigration {
          }         
       }
       catch (Exception e) {
-         logger.warn("Error with ChatDataMigration.init()", e);
+         log.warn("Error with ChatDataMigration.init()", e);
       }
       
    }
@@ -103,25 +100,25 @@ public class ChatDataMigration {
     */
    public void destroy()
    {
-      logger.info("destroy()");
+      log.info("destroy()");
    }
    
    public void load() throws Exception {
-      logger.info("Running Chat Migration; immediate: " + chatMigrationExecuteImmediate);
+      log.info("Running Chat Migration; immediate: {}", chatMigrationExecuteImmediate);
       Connection connection = null;
       
       try {
          
          connection = sqlService.borrowConnection();
-         printDebug("*******BORROWED A CONNECTION");
+         log.debug("*******BORROWED A CONNECTION");
          runChannelMigration(connection);
          
          runMessageMigration(connection);
          
       }
       catch (Exception e) {
-         printDebug(e.toString());
-         logger.error(e.getMessage());
+         log.debug(e.toString());
+         log.error(e.getMessage());
          throw new Exception(e);         
       }
       finally {
@@ -134,12 +131,12 @@ public class ChatDataMigration {
             }
          }
       }
-      logger.info("Chat migration complete");
+      log.info("Chat migration complete");
    }
    
    protected void runChannelMigration(Connection con) {
-      logger.debug("runChannelMigration()");
-      printDebug("*******GETTING CHANNELS");
+      log.debug("runChannelMigration()");
+      log.debug("*******GETTING CHANNELS");
       
       String sql = getMessageFromBundle("select.oldchannels");
       
@@ -155,7 +152,7 @@ public class ChatDataMigration {
             	   	oldChannelsFound++;
             	   	
             	   	if ((oldChannelsFound % 5000) == 0) {
-            	   			logger.info("Processed channels: "+oldChannelsFound);
+            	   			log.info("Processed channels: {}", oldChannelsFound);
             	   	}
                   /* 
                    * CHANNEL_ID
@@ -164,8 +161,8 @@ public class ChatDataMigration {
                   String oldId = rs.getString("CHANNEL_ID");
                   Object xml = rs.getObject("XML");
                   
-                  printDebug("*******FOUND CHANNEL: " + oldId);
-                  printDebug("*******FOUND CHANNEL: " + xml);
+                  log.debug("*******FOUND CHANNEL: {}", oldId);
+                  log.debug("*******FOUND CHANNEL: {}", xml);
                   
                   Document doc = null;
                   try {
@@ -177,7 +174,7 @@ public class ChatDataMigration {
                   }
                   
                   if (doc == null) {
-                	  logger.error("error converting chat channel. skipping CHANNEL_ID: ["+oldId+"] XML: ["+xml+"]");
+                	  log.error("error converting chat channel. skipping CHANNEL_ID: [{}] XML: [{}]", oldId, xml);
                 	  continue;
                   }
 
@@ -215,23 +212,22 @@ public class ChatDataMigration {
                rs.close();
            }
         } catch (Exception e) {
-            logger.error("error selecting data with this sql: " + sql);
-            logger.error("", e);
+            log.error("error selecting data with this sql: {}", sql);
+            log.error(e.getMessage(), e);
         } finally {
             try {
                 stmt.close();
             } catch (Exception e) {
-            	logger.error("Unexpected error in chat channel conversion:"+e);
+            	log.error("Unexpected error in chat channel conversion: {}", e);
             }
         }
-        logger.debug("Migration task fininshed: runChannelMigration()");
-        logger.info("chat channel conversion done.  Old channels found: "
-        			+oldChannelsFound+" New channels written: "+newChannelsWritten);
+        log.debug("Migration task fininshed: runChannelMigration()");
+        log.info("chat channel conversion done.  Old channels found: {} New channels written: {}", oldChannelsFound, newChannelsWritten);
    }
    
    protected void runMessageMigration(Connection con) {
-      logger.debug("runMessageMigration()");
-      printDebug("*******GETTING MESSAGES");
+      log.debug("runMessageMigration()");
+      log.debug("*******GETTING MESSAGES");
       
       String sql = getMessageFromBundle("select.oldmessages");
       
@@ -247,7 +243,7 @@ public class ChatDataMigration {
             	   oldMessagesFound++;
             	   
               	   	if ((oldMessagesFound % 5000) == 0) {
-        	   			logger.info("Processed messages: "+oldMessagesFound);
+        	   			log.info("Processed messages: {}", oldMessagesFound);
         	   	}
                   /*
                    * MESSAGE_ID
@@ -262,8 +258,8 @@ public class ChatDataMigration {
                   String owner = rs.getString("OWNER");
                   Date messageDate = rs.getTimestamp("MESSAGE_DATE");
                   
-                  printDebug("*******FOUND MESSAGE: " + oldMessageId);
-                  printDebug("*******FOUND MESSAGE: " + xml);
+                  log.debug("*******FOUND MESSAGE: {}", oldMessageId);
+                  log.debug("*******FOUND MESSAGE: {}", xml);
                   
                   Document doc = null;
                   try {
@@ -275,9 +271,7 @@ public class ChatDataMigration {
                   }
 
                   if (doc == null) {
-                	  logger.error("error converting chat message. "
-                			  +"skipping CHANNEL_ID: ["+oldChannelId+"] MESSAGE_ID: ["+oldMessageId+"]"
-                			  + " xml: "+xml);
+                	  log.error("error converting chat message. skipping CHANNEL_ID: [{}] MESSAGE_ID: [{}] xml: {}", oldChannelId, oldMessageId, xml);
                 	  continue;
                   }
                   
@@ -307,18 +301,17 @@ public class ChatDataMigration {
                rs.close();
            }
         } catch (Exception e) {
-            logger.error("error selecting data with this sql: " + sql);
-            logger.error("", e);
+            log.error("error selecting data with this sql: {}", sql);
+            log.error(e.getMessage(), e);
         } finally {
             try {
                 stmt.close();
             } catch (Exception e) {
-              	logger.error("Unexpected error in chat message conversion:"+e);
+              	log.error("Unexpected error in chat message conversion: {}", e);
             }
         }
-        logger.debug("Migration task fininshed: runMessageMigration()");
-        logger.info("chat message conversion done.  Old messages found: "
-    			+oldMessagesFound+" New messages written: "+newMessagesWritten);
+        log.debug("Migration task fininshed: runMessageMigration()");
+        log.info("chat message conversion done.  Old messages found: {} New messages written: {}", oldMessagesFound, newMessagesWritten);
    }
 
    /**
@@ -330,15 +323,6 @@ public class ChatDataMigration {
    protected String escapeSpecialCharsForId(String input) {
       String output = input.replaceAll("/", "_");
       return output;
-   }
-   
-   
-   protected void printDebug(String message) {
-      if (debug) {
-         //System.out.println(message);
-         //logger.debug(message);
-         logger.info("DEBUG: " + message);
-      }
    }
    
    
@@ -369,14 +353,6 @@ public class ChatDataMigration {
 
    public void setPerformChatMigration(boolean performChatMigration) {
       this.performChatMigration = performChatMigration;
-   }
-
-   public boolean isDebug() {
-      return debug;
-   }
-
-   public void setDebug(boolean debug) {
-      this.debug = debug;
    }
 
    public SqlService getSqlService() {

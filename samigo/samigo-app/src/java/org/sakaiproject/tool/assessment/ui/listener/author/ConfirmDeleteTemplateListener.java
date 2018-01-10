@@ -52,7 +52,6 @@ public class ConfirmDeleteTemplateListener
     FacesContext context = FacesContext.getCurrentInstance();
     //Map reqMap = context.getExternalContext().getRequestMap();
     //Map requestParams = context.getExternalContext().getRequestParameterMap();
-    //log.info("CONFIRM DELETE TEMPLATE LISTENER.");
 
     String templateId = (String) FacesContext.getCurrentInstance().
         getExternalContext().getRequestParameterMap().get("templateId");

@@ -24,6 +24,7 @@ package org.sakaiproject.assignment.api.model;
 import javax.persistence.*;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 /**
@@ -38,6 +39,7 @@ import lombok.NoArgsConstructor;
             query = "select access from AssignmentAllPurposeItemAccess a where a.assignmentAllPurposeItem = :item")
 @Data
 @NoArgsConstructor
+@EqualsAndHashCode(of = "id")
 public class AssignmentAllPurposeItemAccess {
 
     @Id
