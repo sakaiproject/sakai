@@ -484,7 +484,7 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
             ca.setGradebook(gb);
             ca.setName(name);
             ca.setWeight(weight);
-            ca.setDrop_lowest(drop_lowest);
+            ca.setDropLowest(drop_lowest);
             ca.setDropHighest(dropHighest);
             ca.setKeepHighest(keepHighest);
             //ca.setItemValue(itemValue);

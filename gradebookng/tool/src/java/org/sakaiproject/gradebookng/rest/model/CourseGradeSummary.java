@@ -3,6 +3,8 @@ package org.sakaiproject.gradebookng.rest.model;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import org.apache.commons.lang3.builder.ToStringBuilder;
+
 import lombok.Getter;
 import lombok.Setter;
 
@@ -26,6 +28,11 @@ public class CourseGradeSummary {
 	public void add(String label) {
 		dataset.computeIfPresent(label, (k,v) -> v+1);
 		dataset.computeIfAbsent(label, value -> 1);
+	}
+	
+	@Override
+	public String toString() {
+		return ToStringBuilder.reflectionToString(this);
 	}
 
 }
