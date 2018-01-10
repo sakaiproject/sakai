@@ -29,15 +29,15 @@ import java.util.Vector;
 public class Category {
 	public String name;
 	public Double weight;
-	public Integer drop_lowest;
+	public Integer dropLowest;
 	public Integer dropHighest;
 	public Integer keepHighest;
 	public List<SparseGradebookItem> assignmentsInCategory=new Vector<SparseGradebookItem>();
 	
-	public Category(String name, Double weight,Integer drop_lowest, Integer dropHighest,Integer keepHighest, List<SparseGradebookItem> assignmentsInCategory) {
+	public Category(String name, Double weight,Integer dropLowest, Integer dropHighest,Integer keepHighest, List<SparseGradebookItem> assignmentsInCategory) {
 		this.name=name;
 		this.weight=weight;
-		this.drop_lowest=drop_lowest;
+		this.dropLowest=dropLowest;
 		this.dropHighest=dropHighest;
 		this.keepHighest=keepHighest;
 		this.assignmentsInCategory=assignmentsInCategory;
@@ -59,12 +59,12 @@ public class Category {
 		this.weight = weight;
 	}
 
-	public Integer getDrop_lowest() {
-		return drop_lowest;
+	public Integer getDropLowest() {
+		return dropLowest;
 	}
 
-	public void setDrop_lowest(Integer drop_lowest) {
-		this.drop_lowest = drop_lowest;
+	public void setDropLowest(Integer dropLowest) {
+		this.dropLowest = dropLowest;
 	}
 
 	public Integer getDropHighest() {

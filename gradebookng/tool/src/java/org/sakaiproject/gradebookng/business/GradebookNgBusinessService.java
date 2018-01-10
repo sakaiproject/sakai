@@ -448,39 +448,58 @@ public class GradebookNgBusinessService {
 	}
 	
 	/**
-	 * Get a map of course grades for all students in the given site. key = studentUuid, value = course grade
+	 * Get a map of course grades for all students in the given site.
 	 *
 	 * @param siteId siteId to get course grades for
-	 * @return the map of course grades for students, or an empty map
+	 * @return the map of course grades for students, key = studentUuid, value = course grade, or an empty map
 	 */
 	public Map<String, CourseGrade> getCourseGrades(final String siteId) {
 		final Gradebook gradebook = this.getGradebook(siteId);
 		final List<String> studentUuids = this.getGradeableUsers(siteId);
-		return this.getCourseGrades(gradebook, studentUuids);
-	}
-
-
-	/**
-	 * Get a map of course grades for the given users. key = studentUuid, value = course grade
-	 *
-	 * @param studentUuids uuids for the students
-	 * @return the map of course grades for students, or an empty map
-	 */
-	public Map<String, CourseGrade> getCourseGrades(final List<String> studentUuids) {
-		final Gradebook gradebook = this.getGradebook();
-		return this.getCourseGrades(gradebook, studentUuids);
+		return this.getCourseGrades(gradebook, studentUuids, null);
 	}
 	
 	/**
-	 * Get a map of course grades for the given gradebook and users. key = studentUuid, value = course grade
+	 * Get a map of course grades for all students in the given site using the specified grading schema mapping. 
+	 *
+	 * @param siteId siteId to get course grades for
+	 * @param schema grading schema mapping
+	 * @return the map of course grades for students, key = studentUuid, value = course grade, or an empty map
+	 */
+	public Map<String, CourseGrade> getCourseGrades(final String siteId, Map<String,Double> schema) {
+		final Gradebook gradebook = this.getGradebook(siteId);
+		final List<String> studentUuids = this.getGradeableUsers(siteId);
+		return this.getCourseGrades(gradebook, studentUuids, schema);
+	}
+
+
+	/**
+	 * Get a map of course grades for the given users.
 	 *
 	 * @param studentUuids uuids for the students
-	 * @return the map of course grades for students, or an empty map
+	 * @return the map of course grades for students, key = studentUuid, value = course grade, or an empty map
 	 */
-	private Map<String, CourseGrade> getCourseGrades(final Gradebook gradebook, final List<String> studentUuids) {
+	public Map<String, CourseGrade> getCourseGrades(final List<String> studentUuids) {
+		final Gradebook gradebook = this.getGradebook();
+		return this.getCourseGrades(gradebook, studentUuids, null);
+	}
+	
+	/**
+	 * Get a map of course grades for the given gradebook, users and optionally the grademap you want to use.
+	 *
+	 * @param gradebook the gradebook
+	 * @param studentUuids uuids for the students
+	 * @param gradeMap the grade mapping to use. This should be left blank if you are displaying grades to students so that the currently persisted value is used.
+	 * @return the map of course grades for students, key = studentUuid, value = course grade, or an empty map
+	 */
+	private Map<String, CourseGrade> getCourseGrades(final Gradebook gradebook, final List<String> studentUuids, Map<String, Double> gradeMap) {
 		Map<String, CourseGrade> rval = new HashMap<>();
 		if (gradebook != null) {
-			rval = this.gradebookService.getCourseGradeForStudents(gradebook.getUid(), studentUuids);
+			if(gradeMap != null) {
+				rval = this.gradebookService.getCourseGradeForStudents(gradebook.getUid(), studentUuids, gradeMap);
+			} else {
+				rval = this.gradebookService.getCourseGradeForStudents(gradebook.getUid(), studentUuids);
+			}
 		}
 		return rval;
 	}

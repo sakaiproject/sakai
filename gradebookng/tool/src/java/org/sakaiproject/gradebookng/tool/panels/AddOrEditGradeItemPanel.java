@@ -111,8 +111,8 @@ public class AddOrEditGradeItemPanel extends BasePanel {
 				final Assignment assignment = (Assignment) form.getModelObject();
 
 				setISODates();
-				if (dueDate != null) {
-					assignment.setDueDate(dueDate);
+				if (AddOrEditGradeItemPanel.this.dueDate != null) {
+					assignment.setDueDate(AddOrEditGradeItemPanel.this.dueDate);
 				}
 
 				boolean validated = true;
@@ -125,7 +125,7 @@ public class AddOrEditGradeItemPanel extends BasePanel {
 					final CategoryDefinition category = categories
 							.stream()
 							.filter(c -> (c.getId().equals(assignment.getCategoryId()))
-									&& (c.getDropHighest() > 0 || c.getKeepHighest() > 0 || c.getDrop_lowest() > 0))
+									&& (c.getDropHighest() > 0 || c.getKeepHighest() > 0 || c.getDropLowest() > 0))
 							.findFirst()
 							.orElse(null);
 
@@ -147,7 +147,7 @@ public class AddOrEditGradeItemPanel extends BasePanel {
 				if (validated) {
 					try {
 						GradebookHelper.validateGradeItemName(assignment.getName());
-					} catch (InvalidGradeItemNameException e) {
+					} catch (final InvalidGradeItemNameException e) {
 						validated = false;
 						error(getString("error.addeditgradeitem.titlecharacters"));
 						target.addChildren(form, FeedbackPanel.class);
@@ -246,9 +246,9 @@ public class AddOrEditGradeItemPanel extends BasePanel {
 	}
 
 	private void setISODates() {
-		String dueDateString = getRequest().getRequestParameters().getParameterValue(HIDDEN_DUEDATE_ISO8601).toString("");
+		final String dueDateString = getRequest().getRequestParameters().getParameterValue(HIDDEN_DUEDATE_ISO8601).toString("");
 		if (DateFormatterUtil.isValidISODate(dueDateString)) {
-			dueDate = DateFormatterUtil.parseISODate(dueDateString);
+			this.dueDate = DateFormatterUtil.parseISODate(dueDateString);
 		}
 	}
 }
