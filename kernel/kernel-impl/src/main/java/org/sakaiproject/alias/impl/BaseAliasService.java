@@ -21,9 +21,24 @@
 
 package org.sakaiproject.alias.impl;
 
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.Stack;
+
+import lombok.extern.slf4j.Slf4j;
+
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+
 import org.sakaiproject.alias.api.Alias;
 import org.sakaiproject.alias.api.AliasEdit;
 import org.sakaiproject.alias.api.AliasService;
@@ -33,7 +48,6 @@ import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.entity.api.*;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.exception.*;
-import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.time.api.Time;
@@ -44,23 +58,15 @@ import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.util.*;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-
-import java.util.*;
 
 /**
  * <p>
  * BaseAliasService is ...
  * </p>
  */
+@Slf4j
 public abstract class BaseAliasService implements AliasService, SingleStorageUser
 {
-	/** Our logger. */
-	private static Logger M_log = LoggerFactory.getLogger(BaseAliasService.class);
-
 	/** Storage manager for this service. */
 	protected Storage m_storage = null;
 
@@ -188,17 +194,17 @@ public abstract class BaseAliasService implements AliasService, SingleStorageUse
 		else if (ref.getType().equals("sakai:mailarchive"))
 		{
 			// base this on site update, too
-			M_log.debug("checing allow update on " + ref.getContext());
+			log.debug("checing allow update on " + ref.getContext());
 			//due to a bug in the mailarchive entity manager the context may be the strign null
 			if (ref.getContext() != null && !ref.getContext().equals("null"))
 			{
-				M_log.debug("Checking allow update on " + ref.getContext() + " with lenght: " + ref.getContext().length());
+				log.debug("Checking allow update on " + ref.getContext() + " with lenght: " + ref.getContext().length());
 				return siteService().allowUpdateSite(ref.getContext());
 			}
 			else
 			{
 				boolean ret = siteService().allowAddSite(null);
-				M_log.debug("Cheking site.add permission returning: " + ret);
+				log.debug("Cheking site.add permission returning: " + ret);
 				return ret;
 			}
 		}
@@ -360,7 +366,7 @@ public abstract class BaseAliasService implements AliasService, SingleStorageUse
 		}
 		catch (Exception t)
 		{
-			M_log.warn("init(): ", t);
+			log.warn("init(): ", t);
 		}
 
 	} // init
@@ -373,7 +379,7 @@ public abstract class BaseAliasService implements AliasService, SingleStorageUse
 		m_storage.close();
 		m_storage = null;
 
-		M_log.info("destroy()");
+		log.info("destroy()");
 	}
 
 	/**********************************************************************************************************************************************************************************************************************************************************
@@ -415,7 +421,7 @@ public abstract class BaseAliasService implements AliasService, SingleStorageUse
 	public void setAlias(String alias, String target) throws IdUsedException, IdInvalidException, PermissionException
 	{
 		if (alias!=null && alias.length()>99){ //KNL-454
-			M_log.warn("The length of the alias: \""+alias+"\" cannot be greater than 99 characters");
+			log.warn("The length of the alias: \""+alias+"\" cannot be greater than 99 characters");
 			throw new IdInvalidException(alias);
 		} 
 		// check for a valid alias name
@@ -653,7 +659,7 @@ public abstract class BaseAliasService implements AliasService, SingleStorageUse
 	public AliasEdit add(String id) throws IdInvalidException, IdUsedException, PermissionException
 	{
 		if (id!=null && id.length()>99){ //KNL-454
-			M_log.warn("The length of the alias: \""+id+"\" cannot be greater than 99 characters");
+			log.warn("The length of the alias: \""+id+"\" cannot be greater than 99 characters");
 			throw new IdInvalidException(id);
 		} 
 		// check for a valid user name
@@ -741,7 +747,7 @@ public abstract class BaseAliasService implements AliasService, SingleStorageUse
 			}
 			catch (Exception e)
 			{
-				M_log.warn("commit(): closed AliasEdit", e);
+				log.warn("commit(): closed AliasEdit", e);
 			}
 			return;
 		}
@@ -784,7 +790,7 @@ public abstract class BaseAliasService implements AliasService, SingleStorageUse
 			}
 			catch (Exception e)
 			{
-				M_log.warn("cancel(): closed AliasEdit", e);
+				log.warn("cancel(): closed AliasEdit", e);
 			}
 			return;
 		}
@@ -816,7 +822,7 @@ public abstract class BaseAliasService implements AliasService, SingleStorageUse
 			}
 			catch (Exception e)
 			{
-				M_log.warn("remove(): closed AliasEdit", e);
+				log.warn("remove(): closed AliasEdit", e);
 			}
 			return;
 		}
@@ -1749,7 +1755,7 @@ public abstract class BaseAliasService implements AliasService, SingleStorageUse
 
 		public void valueUnbound(SessionBindingEvent event)
 		{
-			if (M_log.isDebugEnabled()) M_log.debug("valueUnbound()");
+			if (log.isDebugEnabled()) log.debug("valueUnbound()");
 
 			// catch the case where an edit was made but never resolved
 			if (m_active)
@@ -1762,4 +1768,3 @@ public abstract class BaseAliasService implements AliasService, SingleStorageUse
 
 	} // BaseAliasEdit
 } // BaseAliasService
-

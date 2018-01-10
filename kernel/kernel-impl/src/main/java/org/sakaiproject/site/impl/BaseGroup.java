@@ -28,9 +28,13 @@ import java.util.Stack;
 import java.util.Iterator;
 import java.util.stream.Collectors;
 
+import lombok.extern.slf4j.Slf4j;
+
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.GroupNotDefinedException;
 import org.sakaiproject.authz.api.Member;
@@ -39,26 +43,21 @@ import org.sakaiproject.authz.api.RoleAlreadyDefinedException;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
-import org.sakaiproject.exception.IdUsedException;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.time.api.Time;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.util.BaseResourceProperties;
 import org.sakaiproject.util.BaseResourcePropertiesEdit;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
 
 /**
  * <p>
  * BaseGroup is an implementation of the Site API Group.
  * </p>
  */
+@Slf4j
 public class BaseGroup implements Group, Identifiable
 {
-	/** Our log (commons). */
-	private static Logger M_log = LoggerFactory.getLogger(BaseGroup.class);
-
 	/** A fixed class serian number. */
 	private static final long serialVersionUID = 1L;
 
@@ -95,7 +94,7 @@ public class BaseGroup implements Group, Identifiable
 	{
 		this.siteService = siteService;
 
-		if (site == null) M_log.warn("BaseGroup(site) created with null site");
+		if (site == null) log.warn("BaseGroup(site) created with null site");
 
 		m_site = site;
 		m_id = siteService.idManager().createUuid();
@@ -105,7 +104,7 @@ public class BaseGroup implements Group, Identifiable
 	protected BaseGroup(BaseSiteService siteService, String id, String title, String description, Site site)
 	{
 		this.siteService = siteService;
-		if (site == null) M_log.warn("BaseGroup(..., site) created with null site");
+		if (site == null) log.warn("BaseGroup(..., site) created with null site");
 
 		m_id = id;
 		m_title = title;
@@ -127,7 +126,7 @@ public class BaseGroup implements Group, Identifiable
 	protected BaseGroup(BaseSiteService siteService, Group other, Site site, boolean exact)
 	{
 		this.siteService = siteService;
-		if (site == null) M_log.warn("BaseGroup(other, site...) created with null site");
+		if (site == null) log.warn("BaseGroup(other, site...) created with null site");
 
 		BaseGroup bOther = (BaseGroup) other;
 
@@ -392,21 +391,21 @@ public class BaseGroup implements Group, Identifiable
 								}
 								catch (RoleAlreadyDefinedException rException)
 								{
-									M_log.warn("getAzg: role id " + roleId + " already used in group " + m_azg.getReference() + rException.getMessage());
+									log.warn("getAzg: role id " + roleId + " already used in group " + m_azg.getReference() + rException.getMessage());
 								}
 							}
 						}
 						}
 						catch (Exception e1)
 						{
-							M_log.warn("getAzg: cannot access realm of " + m_site.getReference() + e1.getMessage());
+							log.warn("getAzg: cannot access realm of " + m_site.getReference() + e1.getMessage());
 							
 						}
 					}
 				}
 				catch (Exception t)
 				{
-					M_log.warn("getAzg: " + t);
+					log.warn("getAzg: " + t);
 				}
 			}
 		}
@@ -417,7 +416,7 @@ public class BaseGroup implements Group, Identifiable
 	public void addMember(String userId, String roleId, boolean active, boolean provided)
 	{
 		if(this.isLocked()) {
-			M_log.error("Error, cannot add {} with role {} into a locked group", userId, roleId);
+			log.error("Error, cannot add {} with role {} into a locked group", userId, roleId);
 			return;
 		}
 		m_azgChanged = true;
@@ -430,7 +429,31 @@ public class BaseGroup implements Group, Identifiable
 			throw new IllegalStateException("Error, cannot add " + userId + " with role " + roleId + " into a locked group");
 		}
 		m_azgChanged = true;
-		getAzg().addMember(userId, roleId, active, provided);
+		try
+		{
+			getAzg().addMember(userId, roleId, active, provided);
+		}
+		catch (IllegalArgumentException iae)
+		{
+			// In the same way that we copy across all roles when a group is created, when adding a member
+			// if the role isn't defined in the group, look in the site and copy it when adding.
+			Role siteRole = getContainingSite().getRole(roleId);
+			if (siteRole != null)
+			{
+				try
+				{
+					getAzg().addRole(roleId, siteRole);
+				}
+				catch (RoleAlreadyDefinedException ignore) // Possibly added by another thread.
+				{
+				}
+				getAzg().addMember(userId, roleId, active, provided);
+			}
+			else
+			{
+				throw iae;
+			}
+		}
 	}
 
 	public Role addRole(String id) throws RoleAlreadyDefinedException
@@ -549,7 +572,7 @@ public class BaseGroup implements Group, Identifiable
 	public void removeMember(String userId)
 	{
 		if(this.isLocked()) {
-			M_log.error("Error, can not remove a member from a locked group");
+			log.error("Error, can not remove a member from a locked group");
 			return;
 		}
 		m_azgChanged = true;
@@ -568,7 +591,7 @@ public class BaseGroup implements Group, Identifiable
 	public void removeMembers()
 	{
 		if(this.isLocked()) {
-			M_log.error("Error, can not remove members from a locked group");
+			log.error("Error, can not remove members from a locked group");
 			return;
 		}
 		m_azgChanged = true;
@@ -621,7 +644,7 @@ public class BaseGroup implements Group, Identifiable
 
 	public void lockGroup(String lock) {
 		if(StringUtils.isBlank(lock)) {
-			M_log.warn("lockGroup: null or empty lock");
+			log.warn("lockGroup: null or empty lock");
 			return;
 		}
 		//TODO : this should be changed by addPropertyToList (When implemented in Kernel)
@@ -640,7 +663,7 @@ public class BaseGroup implements Group, Identifiable
 
 	public void unlockGroup(String lock) {
 		if(StringUtils.isBlank(lock)) {
-			M_log.warn("unlockGroup: null or empty lock");
+			log.warn("unlockGroup: null or empty lock");
 			return;
 		}
 		//TODO : this should be changed by addPropertyToList (When implemented in Kernel)

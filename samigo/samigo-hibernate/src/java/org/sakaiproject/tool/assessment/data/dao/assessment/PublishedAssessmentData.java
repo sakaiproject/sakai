@@ -30,8 +30,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessControlIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAttachmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentFeedbackIfc;
@@ -42,7 +40,6 @@ import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 public class PublishedAssessmentData
     implements java.io.Serializable,
     org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentIfc {
-  static Logger errorLogger = LoggerFactory.getLogger("errorLogger");
 
   private static final long serialVersionUID = 7526471155622776147L;
 

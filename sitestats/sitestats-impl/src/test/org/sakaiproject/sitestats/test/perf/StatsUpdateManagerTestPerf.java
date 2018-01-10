@@ -15,10 +15,19 @@
  */
 package org.sakaiproject.sitestats.test.perf;
 
+import javax.sql.DataSource;
+import java.sql.*;
+import java.sql.Date;
+import java.util.*;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
+
+import lombok.extern.slf4j.Slf4j;
 import org.hibernate.SessionFactory;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.event.api.UsageSessionService;
@@ -33,13 +42,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-
-import javax.sql.DataSource;
-import java.sql.*;
-import java.sql.Date;
-import java.util.*;
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.BlockingQueue;
 
 /**
  * <p>
@@ -77,9 +79,9 @@ import java.util.concurrent.BlockingQueue;
 @Sql("/update-manager-perf.sql")
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration( locations = { "classpath:/hibernate-beans.xml", "classpath:/hbm-db.xml"})
+@Slf4j
 public class StatsUpdateManagerTestPerf {
-	
-	
+
 	@Autowired
 	private SessionFactory sessionFactory;
 	
@@ -122,7 +124,7 @@ public class StatsUpdateManagerTestPerf {
 			default:
 				isolation = "Unknown";
 		}
-		System.out.println("Transation isolation is: "+ isolation);
+		log.debug("Transation isolation is: "+ isolation);
 		// As we can't haven mutlple @RunWith annotations.
 
 		// We're not going to do live look ups
@@ -239,9 +241,9 @@ public class StatsUpdateManagerTestPerf {
 			processor.halt();
 			processor.interrupt();
 			processor.join();
-			System.out.println(processor.getName()+ " Stopped");
+			log.debug(processor.getName()+ " Stopped");
 		}
-		System.out.println("Events dropped: "+ droppedEvents);
+		log.debug("Events dropped: "+ droppedEvents);
 	}
 
 	protected Date calcNextDate(Timestamp date) {
@@ -281,7 +283,7 @@ public class StatsUpdateManagerTestPerf {
 					long start = System.currentTimeMillis();
 					updateManager.collectEvents(events);
 					long end = System.currentTimeMillis();
-//					System.out.println(Thread.currentThread().getName()+ " took "+ (end - start)+ "ms for "+ events.size());
+//					log.debug(Thread.currentThread().getName()+ " took "+ (end - start)+ "ms for "+ events.size());
 				} while (run);
 			} catch (InterruptedException e) {
 				

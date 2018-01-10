@@ -21,48 +21,25 @@
 
 package org.sakaiproject.importer.impl;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
 
-import javax.xml.XMLConstants;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.sakaiproject.archive.api.ImportMetadata;
-import org.sakaiproject.importer.api.ImportFileParser;
-import org.sakaiproject.importer.api.ImportDataSource;
-import org.sakaiproject.importer.api.Importable;
-import org.sakaiproject.importer.impl.importables.FileResource;
-import org.sakaiproject.importer.impl.importables.LBCCResource;
-import org.sakaiproject.importer.impl.importables.Folder;
-import org.sakaiproject.importer.impl.translators.CCAssessmentTranslator;
-import org.sakaiproject.importer.impl.translators.CCDiscussionTopicTranslator;
-import org.sakaiproject.importer.impl.translators.CCLearningApplicationResourceTranslator;
-import org.sakaiproject.importer.impl.translators.CCWebContentTranslator;
-import org.sakaiproject.importer.impl.translators.CCWebLinkTranslator;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-import org.xml.sax.SAXException;
+
+import org.sakaiproject.archive.api.ImportMetadata;
+import org.sakaiproject.importer.api.ImportFileParser;
+import org.sakaiproject.importer.api.Importable;
+import org.sakaiproject.importer.impl.importables.LBCCResource;
+import org.sakaiproject.importer.impl.importables.Folder;
 
 public class LBCommonCartridgeFileParser extends IMSFileParser {
     private static final String CC_NAMESPACE_URIS[] = {"http://www.imsglobal.org/xsd/imscc/imscp_v1p1",
 						       "http://www.imsglobal.org/xsd/imsccv1p1/imscp_v1p1",
 						       "http://www.imsglobal.org/xsd/imsccv1p2/imscp_v1p1",
 						       "http://www.imsglobal.org/xsd/imsccv1p3/imscp_v1p1"};
-	
-	/** Our logger. */
-	private static Logger M_log = LoggerFactory.getLogger(LBCommonCartridgeFileParser.class);
 	
 	public LBCommonCartridgeFileParser() {
 	}

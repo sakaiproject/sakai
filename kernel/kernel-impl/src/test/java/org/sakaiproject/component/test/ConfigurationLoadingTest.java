@@ -19,24 +19,22 @@ package org.sakaiproject.component.test;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.regex.Pattern;
-import java.util.regex.PatternSyntaxException;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.test.SakaiKernelTestBase;
 
 /**
  *
  */
+@Slf4j
 public class ConfigurationLoadingTest extends SakaiKernelTestBase {
-	private static Logger log = LoggerFactory.getLogger(ConfigurationLoadingTest.class);
-	
 	private ServerConfigurationService serverConfigurationService;
 
 	protected static final String CONFIG = "src/test/webapp/WEB-INF/components.xml";

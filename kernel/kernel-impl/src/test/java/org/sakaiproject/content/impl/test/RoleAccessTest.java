@@ -15,11 +15,13 @@
  */
 package org.sakaiproject.content.impl.test;
 
-import junit.extensions.TestSetup;
-import junit.framework.TestSuite;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.util.Collections;
+import java.util.List;
+
+import lombok.extern.slf4j.Slf4j;
+
 import org.junit.*;
+
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.AuthzPermissionException;
 import org.sakaiproject.content.api.ContentCollection;
@@ -33,16 +35,10 @@ import org.sakaiproject.test.SakaiKernelTestBase;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.SessionManager;
 
-import java.io.IOException;
-import java.util.Collections;
-import java.util.List;
-
 import static org.junit.Assert.*;
 
+@Slf4j
 public class RoleAccessTest extends SakaiKernelTestBase {
-
-    private static final Logger log = LoggerFactory.getLogger(RoleAccessTest.class);
-
     protected static final String SITE_ID           = "site-id";
     protected static final String IMAGES_COLLECTION = String.format("/group/%s/images/", SITE_ID);
     protected static final String PHOTOS_COLLECTION = String.format("/group/%s/images/photos/", SITE_ID);
@@ -212,4 +208,3 @@ public class RoleAccessTest extends SakaiKernelTestBase {
     }
 
 }
-

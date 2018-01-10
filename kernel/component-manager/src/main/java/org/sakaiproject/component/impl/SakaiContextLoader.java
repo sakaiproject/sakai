@@ -25,11 +25,10 @@ import java.io.File;
 
 import javax.servlet.ServletContext;
 
+import lombok.extern.slf4j.Slf4j;
+
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.sakaiproject.component.cover.ComponentManager;
-import org.sakaiproject.component.cover.ServerConfigurationService;
+
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanCreationException;
 import org.springframework.beans.factory.BeanDefinitionStoreException;
@@ -43,14 +42,17 @@ import org.springframework.web.context.ConfigurableWebApplicationContext;
 import org.springframework.web.context.ContextLoader;
 import org.springframework.web.context.WebApplicationContext;
 
+import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.component.cover.ServerConfigurationService;
+
 /**
  * <p>
  * Sakai's extension to Spring's ContextLoader - adds the location of the ComponentManager shared AC, linking the local AC to it as parent, and loading localy hosted components into shared.
  * </p>
  */
+@Slf4j
 public class SakaiContextLoader extends ContextLoader
 {
-	private static final Logger log = LoggerFactory.getLogger(SakaiContextLoader.class);
 	public static final String SPRING_CONTEXT_SUFFIX = "-context.xml";
 
 	/**

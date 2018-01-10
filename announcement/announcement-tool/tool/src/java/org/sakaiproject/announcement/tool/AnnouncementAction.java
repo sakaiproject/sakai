@@ -35,9 +35,13 @@ import java.util.Properties;
 import java.util.Stack;
 import java.util.Vector;
 
+import lombok.extern.slf4j.Slf4j;
+
 import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+
 import org.sakaiproject.announcement.api.AnnouncementChannel;
 import org.sakaiproject.announcement.api.AnnouncementChannelEdit;
 import org.sakaiproject.announcement.api.AnnouncementMessage;
@@ -109,17 +113,13 @@ import org.sakaiproject.util.ParameterParser;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.SortedIterator;
 import org.sakaiproject.util.StringUtil;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
 
 /**
  * AnnouncementAction is an implementation of Announcement service, which provides the complete function of announcements. User could check the announcements, create own new and manage all the announcement items, under certain permission check.
  */
+@Slf4j
 public class AnnouncementAction extends PagedResourceActionII
 {
-	/** Our logger. */
-	private static Logger M_log = LoggerFactory.getLogger(AnnouncementAction.class);
-	
 	/** Resource bundle using current language locale */
 	private static ResourceLoader rb = new ResourceLoader("announcement");
 
@@ -313,7 +313,7 @@ public class AnnouncementAction extends PagedResourceActionII
 			}
 			catch (PermissionException e)
 			{
-				M_log.warn(String.format("Permission denied for '%s' on '%s'", SessionManager.getCurrentSessionUserId(), channelReference));
+				log.warn("Permission denied for '{}' on '{}'", SessionManager.getCurrentSessionUserId(), channelReference);
 				return null;
 			} finally {
 				m_securityService.popAdvisor(advisor);
@@ -974,11 +974,11 @@ public class AnnouncementAction extends PagedResourceActionII
 		catch (IdUnusedException e)
 		{
 			// No site available.
-			M_log.debug(this+".buildMainPanelContext ", e);
+			log.debug(this+".buildMainPanelContext ", e);
 		}
 		catch (NullPointerException e)
 		{
-			M_log.error(this+".buildMainPanelContext ", e);
+			log.error(this+".buildMainPanelContext ", e);
 		}
 
 		// get the current channel ID from state object or prolet initial parameter
@@ -1115,7 +1115,7 @@ public class AnnouncementAction extends PagedResourceActionII
 		}
 		catch (PermissionException error)
 		{
-			M_log.error(this+".buildMainPanelContext ", error);
+			log.error(this+".buildMainPanelContext ", error);
 		}
 		catch (IdUnusedException error)
 		{
@@ -1129,7 +1129,7 @@ public class AnnouncementAction extends PagedResourceActionII
 				}
 				catch (IdUsedException err)
 				{
-					M_log.debug(this+".buildMainPanelContext ", err);
+					log.debug(this+".buildMainPanelContext ", err);
 				}
 				catch (IdInvalidException err)
 				{
@@ -1164,7 +1164,7 @@ public class AnnouncementAction extends PagedResourceActionII
 				menu_delete = channel.allowRemoveMessage(message);
 				menu_revise = channel.allowEditMessage(message.getId());
 			} catch (IdUnusedException | PermissionException e) {
-				M_log.error(e.getMessage());
+				log.error(e.getMessage());
 			}
 
 		}
@@ -1514,7 +1514,7 @@ public class AnnouncementAction extends PagedResourceActionII
 									channelIdStrArray.add(channeIDD);
 								}
 							} catch(Exception e) {
-								M_log.warn(e.getMessage());
+								log.warn(e.getMessage());
 							}
 						}
 						if (channelIdStrArray.size()>0) {
@@ -1607,11 +1607,11 @@ public class AnnouncementAction extends PagedResourceActionII
 			}
 			catch (IdUnusedException e)
 			{
-				M_log.debug(this + ".getMessages()", e);
+				log.debug("{}.getMessages()", this, e);
 			}
 			catch (PermissionException e)
 			{
-				M_log.debug(this + ".getMessages()", e);
+				log.debug("{}.getMessages()", this, e);
 			} finally {
 				m_securityService.popAdvisor(advisor);
 			}
@@ -1891,7 +1891,7 @@ public class AnnouncementAction extends PagedResourceActionII
 			context.put("annToGroups", allGroupString);
 			
 		} catch (IdUnusedException e1) {
-			M_log.error(e1.getMessage());
+			log.error(e1.getMessage());
 		}
 		}
 		
@@ -2074,7 +2074,7 @@ public class AnnouncementAction extends PagedResourceActionII
 		}
 		catch (Exception ignore)
 		{
-			M_log.debug(ignore.getMessage());
+			log.debug(ignore.getMessage());
 		}
 
 		List attachments = state.getAttachments();
@@ -2327,8 +2327,8 @@ public class AnnouncementAction extends PagedResourceActionII
 			} 
 			catch (Exception e) {
 				// no release date, ignore
-				if (M_log.isDebugEnabled()) {
-					M_log.debug("buildShowMetadataContext releaseDate is empty for message id " + message.getId());
+				if (log.isDebugEnabled()) {
+					log.debug("buildShowMetadataContext releaseDate is empty for message id {}", message.getId());
 				}
 			}
 			
@@ -2338,8 +2338,8 @@ public class AnnouncementAction extends PagedResourceActionII
 			} 
 			catch (Exception e) {
 				// no retract date, ignore
-				if (M_log.isDebugEnabled()) {
-					M_log.debug("buildShowMetadataContext retractDate is empty for message id " + message.getId());
+				if (log.isDebugEnabled()) {
+					log.debug("buildShowMetadataContext retractDate is empty for message id {}", message.getId());
 				}
 			}
 
@@ -2402,12 +2402,12 @@ public class AnnouncementAction extends PagedResourceActionII
                             } 
                             catch (EntityNotFoundException e) {
                                 ret = null;
-						        M_log.info("Assignment " + assignmentReference + " not found" + e.getMessage());
+						        log.info("Assignment {} not found {}", assignmentReference, e.getMessage());
                             }
 							catch (SecurityException e) {
 								ret = null;
-								if (M_log.isDebugEnabled()) {
-									M_log.debug("Assignment " + assignmentReference + " not found" + e.getMessage());
+								if (log.isDebugEnabled()) {
+									log.debug("Assignment {} not found {}", assignmentReference, e.getMessage());
 								}
 							}
                             if (ret != null && ret.getEntityData() != null) {
@@ -2460,11 +2460,11 @@ public class AnnouncementAction extends PagedResourceActionII
 		}
 		catch (IdUnusedException e)
 		{
-			if (M_log.isDebugEnabled()) M_log.debug(this + ".buildShowMetadataContext()" + e);
+			if (log.isDebugEnabled()) log.debug("{}.buildShowMetadataContext()", this, e);
 		}
 		catch (PermissionException e)
 		{
-			if (M_log.isDebugEnabled()) M_log.debug(this + ".buildShowMetadataContext()" + e);
+			if (log.isDebugEnabled()) log.debug("{}.buildShowMetadataContext()", this, e);
 			addAlert(sstate, rb.getFormattedMessage("java.youmess.pes", e.toString()));
 		}
 		finally {
@@ -3181,11 +3181,11 @@ public class AnnouncementAction extends PagedResourceActionII
 			}
 			catch (IdUnusedException e)
 			{
-				if (M_log.isDebugEnabled()) M_log.debug(this + "doPost()", e);
+				if (log.isDebugEnabled()) log.debug("{}doPost()", this, e);
 			}
 			catch (PermissionException e)
 			{
-				if (M_log.isDebugEnabled()) M_log.debug(this + "doPost()", e);
+				if (log.isDebugEnabled()) log.debug("{}doPost()", this, e);
 				addAlert(sstate, rb.getFormattedMessage("java.alert.youpermi.subject", subject));
 			}
 
@@ -3297,15 +3297,15 @@ public class AnnouncementAction extends PagedResourceActionII
 			}
 			catch (IdUnusedException e)
 			{
-				if (M_log.isDebugEnabled()) M_log.debug(this + ".doDeleteannouncement()", e);
+				if (log.isDebugEnabled()) log.debug("{}.doDeleteannouncement()", this, e);
 			}
 			catch (PermissionException e)
 			{
-				if (M_log.isDebugEnabled()) M_log.debug(this + ".doDeleteannouncement()", e);
+				if (log.isDebugEnabled()) log.debug("{}.doDeleteannouncement()", this, e);
 			}
 			catch (NoSuchElementException e)
 			{
-				if (M_log.isDebugEnabled()) M_log.debug(this + ".doDeleteannouncement()", e);
+				if (log.isDebugEnabled()) log.debug("{}.doDeleteannouncement()", this, e);
 			}
 		}
 
@@ -3352,12 +3352,12 @@ public class AnnouncementAction extends PagedResourceActionII
 					}
 					catch (IdUnusedException e)
 					{
-						if (M_log.isDebugEnabled()) M_log.debug(this + ".doDeleteannouncement()", e);
+						if (log.isDebugEnabled()) log.debug("{}.doDeleteannouncement()", this, e);
 						// addAlert(sstate, e.toString());
 					}
 					catch (PermissionException e)
 					{
-						if (M_log.isDebugEnabled()) M_log.debug(this + ".doDeleteannouncement()", e);
+						if (log.isDebugEnabled()) log.debug("{}.doDeleteannouncement()", this, e);
 						addAlert(sstate, rb.getFormattedMessage("java.alert.youdelann.ref", messageReferences[i]));
 					}
 				}
@@ -3399,12 +3399,12 @@ public class AnnouncementAction extends PagedResourceActionII
 			}
 			catch (IdUnusedException e)
 			{
-				if (M_log.isDebugEnabled()) M_log.debug(this + "doDeleteannouncement()", e);
+				if (log.isDebugEnabled()) log.debug("{}doDeleteannouncement()", this, e);
 				// addAlert(sstate, e.toString());
 			}
 			catch (PermissionException e)
 			{
-				if (M_log.isDebugEnabled()) M_log.debug(this + "doDeleteannouncement()", e);
+				if (log.isDebugEnabled()) log.debug("{}doDeleteannouncement()", this, e);
 				addAlert(sstate, rb.getString("java.alert.youdelann2"));
 			}
 
@@ -3454,11 +3454,11 @@ public class AnnouncementAction extends PagedResourceActionII
 		}
 		catch (IdUnusedException e)
 		{
-			if (M_log.isDebugEnabled()) M_log.debug(this + "doDeleteannouncement()", e);
+			if (log.isDebugEnabled()) log.debug("{}doDeleteannouncement()", this, e);
 		}
 		catch (PermissionException e)
 		{
-			if (M_log.isDebugEnabled()) M_log.debug(this + "doDeleteannouncement()", e);
+			if (log.isDebugEnabled()) log.debug("{}doDeleteannouncement()", this, e);
 			addAlert(sstate, rb.getString("java.alert.youdelann2"));
 		}
 
@@ -3509,17 +3509,17 @@ public class AnnouncementAction extends PagedResourceActionII
 		}
 		catch (IdUnusedException e)
 		{
-			if (M_log.isDebugEnabled()) M_log.debug(this + "announcementRevise", e);
+			if (log.isDebugEnabled()) log.debug("{}announcementRevise", this, e);
 			// addAlert(sstate, e.toString());
 		}
 		catch (PermissionException e)
 		{
-			if (M_log.isDebugEnabled()) M_log.debug(this + "announcementRevise", e);
+			if (log.isDebugEnabled()) log.debug("{}announcementRevise", this, e);
 			state.setStatus("showMetadata");
 		}
 		catch (InUseException err)
 		{
-			if (M_log.isDebugEnabled()) M_log.debug(this + ".doReviseannouncementfrommenu", err);
+			if (log.isDebugEnabled()) log.debug("{}.doReviseannouncementfrommenu", this, err);
 			addAlert(sstate, rb.getString("java.alert.thisitem"));
 			// "This item is being edited by another user. Please try again later.");
 			state.setStatus("showMetadata");
@@ -3592,18 +3592,18 @@ public class AnnouncementAction extends PagedResourceActionII
 					}
 					catch (IdUnusedException e)
 					{
-						if (M_log.isDebugEnabled()) M_log.debug(this + "announcementReviseFromMenu", e);
+						if (log.isDebugEnabled()) log.debug("{}announcementReviseFromMenu", this, e);
 					}
 					catch (PermissionException e)
 					{
-						if (M_log.isDebugEnabled()) M_log.debug(this + "announcementReviseFromMenu", e);
+						if (log.isDebugEnabled()) log.debug("{}announcementReviseFromMenu", this, e);
 						addAlert(sstate, rb.getFormattedMessage("java.alert.youacc.pes", e.toString()));
 					}
 					// %%% -ggolden catch(InUseException err)
 					catch (InUseException err)
 					{
-						if (M_log.isDebugEnabled())
-							M_log.debug(this + ".doReviseannouncementfrommenu", err);
+						if (log.isDebugEnabled())
+							log.debug("{}.doReviseannouncementfrommenu", this, err);
 						addAlert(sstate, rb.getString("java.alert.thisis"));
 						state.setIsListVM(false);
 						state.setStatus("showMetadata");
@@ -3653,17 +3653,17 @@ public class AnnouncementAction extends PagedResourceActionII
 			}
 			catch (IdUnusedException e)
 			{
-				if (M_log.isDebugEnabled()) M_log.debug(this + "announcementReviseFromMenu", e);
+				if (log.isDebugEnabled()) log.debug("{}announcementReviseFromMenu", this, e);
 				// addAlert(sstate, e.toString());
 			}
 			catch (PermissionException e)
 			{
-				if (M_log.isDebugEnabled()) M_log.debug(this + "announcementReviseFromMenu", e);
+				if (log.isDebugEnabled()) log.debug("{}announcementReviseFromMenu", this, e);
 				addAlert(sstate, rb.getFormattedMessage("java.alert.youacc.pes", e.toString()));
 			}
 			catch (InUseException err)
 			{
-				if (M_log.isDebugEnabled()) M_log.debug(this + ".doReviseannouncementfrommenu", err);
+				if (log.isDebugEnabled()) log.debug("{}.doReviseannouncementfrommenu", this, err);
 				addAlert(sstate, rb.getString("java.alert.thisis"));
 				state.setIsListVM(false);
 				state.setStatus("showMetadata");
@@ -3776,11 +3776,11 @@ public class AnnouncementAction extends PagedResourceActionII
 		}
 		catch (IdUnusedException e)
 		{
-			if (M_log.isDebugEnabled()) M_log.debug(this + "doCancel()", e);
+			if (log.isDebugEnabled()) log.debug("{}doCancel()", this, e);
 		}
 		catch (PermissionException e)
 		{
-			if (M_log.isDebugEnabled()) M_log.debug(this + "doCancel()", e);
+			if (log.isDebugEnabled()) log.debug("{}doCancel()", this, e);
 		}
 
 		// make sure auto-updates are enabled
@@ -4354,7 +4354,7 @@ public class AnnouncementAction extends PagedResourceActionII
 		
 		if (!SiteService.allowUpdateSite(ToolManager.getCurrentPlacement().getContext()))  // SAK-18202
 		{	
-			M_log.debug(this + ".doUpdate - Do not have permission to update");
+			log.debug("{}.doUpdate - Do not have permission to update", this);
 			state.setStatus(CANCEL_STATUS); 
 			return;
 		}
@@ -4373,7 +4373,7 @@ public class AnnouncementAction extends PagedResourceActionII
 		}
 		else
 		{
-			M_log.debug(this + ".doUpdate - Unexpected status");
+			log.debug("{}.doUpdate - Unexpected status", this);
 		}
 	}
 
@@ -4397,9 +4397,9 @@ public class AnnouncementAction extends PagedResourceActionII
 		}
 		else
 		{
-			if (M_log.isDebugEnabled())
+			if (log.isDebugEnabled())
 			{
-				M_log.debug(this + ".doUpdate mergedChannelList == null");
+				log.debug("{}.doUpdate mergedChannelList == null", this);
 			}
 		}
 
@@ -4491,12 +4491,12 @@ public class AnnouncementAction extends PagedResourceActionII
 					}
 					catch (IdUnusedException e)
 					{
-						if (M_log.isDebugEnabled()) M_log.debug(this + ".doDeleteannouncement()", e);
+						if (log.isDebugEnabled()) log.debug("{}.doDeleteannouncement()", this, e);
 						// addAlert(sstate, e.toString());
 					}
 					catch (PermissionException e)
 					{
-						if (M_log.isDebugEnabled()) M_log.debug(this + ".doDeleteannouncement()", e);
+						if (log.isDebugEnabled()) log.debug("{}.doDeleteannouncement()", this, e);
 						addAlert(sstate, rb.getFormattedMessage("java.alert.youdelann.ref", messageReferences2[i]));
 					}
 				}
@@ -4526,7 +4526,7 @@ public class AnnouncementAction extends PagedResourceActionII
 					}
 				}
 				} catch (PermissionException | IdUnusedException e1) {
-					M_log.error(e1.getMessage());
+					log.error(e1.getMessage());
 				}
 			}
 		}
@@ -4600,7 +4600,7 @@ public class AnnouncementAction extends PagedResourceActionII
 		catch (Exception e)
 		{
 			addAlert(sstate, rb.getString("java.alert.unknown"));
-			M_log.error(this+".doOptionsUpdate", e);
+			log.error("{}.doOptionsUpdate", this, e);
 		}
 		
 		// We're omitting processing of the "showAnnouncementBody" since these
@@ -4703,7 +4703,7 @@ public class AnnouncementAction extends PagedResourceActionII
 		}
 		catch (Exception e)
 		{
-			M_log.error( this + ".processFormattedTextFromBrowser ", e);
+			log.error("{}.processFormattedTextFromBrowser ", this, e);
 			return strFromBrowser;
 		}
 	}
@@ -4828,7 +4828,7 @@ public class AnnouncementAction extends PagedResourceActionII
 	{
 		if (portlet == null)
 		{
-			M_log.warn(this + ".getState(): portlet null");
+			log.warn("{}.getState(): portlet null", this);
 			return null;
 		}
 
@@ -4851,7 +4851,7 @@ public class AnnouncementAction extends PagedResourceActionII
 	{
 		if (peid == null)
 		{
-			M_log.warn(this + ".getState(): peid null");
+			log.warn("{}.getState(): peid null", this);
 			return null;
 		}
 
@@ -4876,7 +4876,7 @@ public class AnnouncementAction extends PagedResourceActionII
 		}
 		catch (Exception e)
 		{
-			M_log.error(this+ ".getState", e);
+			log.error("{}.getState", this, e);
 		}
 
 		return null;
@@ -4940,7 +4940,7 @@ public class AnnouncementAction extends PagedResourceActionII
 		}
 		catch (Exception e)
 		{
-			M_log.error("", e);
+			log.error("", e);
 		}
 
 	} // releaseState

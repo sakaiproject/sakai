@@ -23,9 +23,10 @@ import java.util.Map;
 import java.util.Observable;
 import java.util.Observer;
 
+import lombok.extern.slf4j.Slf4j;
+
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
 import org.sakaiproject.event.api.ActivityService;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.EventTrackingService;
@@ -38,10 +39,8 @@ import org.sakaiproject.memory.api.MemoryService;
  * Implementation of ActivityService
  *
  */
+@Slf4j
 public class ActivityServiceImpl implements ActivityService, Observer {
-
-	private static Logger log = LoggerFactory.getLogger(ActivityServiceImpl.class);
-	
 	private Cache<String, Long> userActivityCache = null;
 	private final String USER_ACTIVITY_CACHE_NAME = "org.sakaiproject.event.api.ActivityService.userActivityCache";
 		
@@ -156,6 +155,4 @@ public class ActivityServiceImpl implements ActivityService, Observer {
 	public void setUsageSessionService(UsageSessionService usageSessionService) {
 		this.usageSessionService = usageSessionService;
 	}
-
-
 }

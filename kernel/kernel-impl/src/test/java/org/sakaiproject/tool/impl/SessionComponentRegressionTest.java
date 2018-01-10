@@ -20,14 +20,17 @@
  **********************************************************************************/
 package org.sakaiproject.tool.impl;
 
-import org.apache.commons.lang.mutable.MutableLong;
-import org.jmock.Expectations;
-import org.sakaiproject.tool.api.Session;
-import org.sakaiproject.tool.api.ToolSession;
-
 import java.lang.reflect.Field;
 import java.util.concurrent.*;
 
+import lombok.extern.slf4j.Slf4j;
+
+import org.apache.commons.lang.mutable.MutableLong;
+
+import org.jmock.Expectations;
+
+import org.sakaiproject.tool.api.Session;
+import org.sakaiproject.tool.api.ToolSession;
 
 /**
  * Mostly black-box {@link SessionComponent} unit tests intended to guard against
@@ -38,6 +41,7 @@ import java.util.concurrent.*;
  * 
  * @author dmccallum@unicon.net
  */
+@Slf4j
 public class SessionComponentRegressionTest extends BaseSessionComponentTest {
 
 	public void testGetSessionReturnsNullIfNoSuchSession() {
@@ -646,7 +650,7 @@ public class SessionComponentRegressionTest extends BaseSessionComponentTest {
 				execBlockableSessionOp(opStarted, opBlocker, opCompleted, callback);
 			}
 			private boolean superInvalidate() {
-				System.out.println("**cris** invalidate");
+				log.debug("**cris** invalidate");
 				super.invalidate();
 				return true;
 			}
@@ -725,7 +729,7 @@ public class SessionComponentRegressionTest extends BaseSessionComponentTest {
 			opCompleted.countDown();
 			return result;
 		} catch ( Throwable e ) {
-			e.printStackTrace();
+			log.error(e.getMessage(), e);
 			throw new RuntimeException(e); // typically ends up in logs, at best 
 		}
 	}

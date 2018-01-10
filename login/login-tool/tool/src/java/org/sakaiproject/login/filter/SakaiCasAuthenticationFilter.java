@@ -21,6 +21,21 @@
 
 package org.sakaiproject.login.filter;
 
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+
+import javax.servlet.FilterChain;
+import javax.servlet.FilterConfig;
+import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+
+import lombok.extern.slf4j.Slf4j;
+
 import org.jasig.cas.client.Protocol;
 import org.jasig.cas.client.authentication.AuthenticationRedirectStrategy;
 import org.jasig.cas.client.authentication.ContainsPatternUrlPatternMatcherStrategy;
@@ -35,21 +50,9 @@ import org.jasig.cas.client.util.AbstractCasFilter;
 import org.jasig.cas.client.util.CommonUtils;
 import org.jasig.cas.client.util.ReflectUtils;
 import org.jasig.cas.client.validation.Assertion;
+
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.cover.SessionManager;
-
-import javax.servlet.FilterChain;
-import javax.servlet.FilterConfig;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
-
 
 /**
  * Created with IntelliJ IDEA.
@@ -58,6 +61,7 @@ import java.util.Map;
  * Time: 4:28 PM
  * To change this template use File | Settings | File Templates.
  */
+@Slf4j
 public class SakaiCasAuthenticationFilter extends AbstractCasFilter {
 
     /**
@@ -115,10 +119,10 @@ public class SakaiCasAuthenticationFilter extends AbstractCasFilter {
                     this.ignoreUrlPatternMatcherStrategyClass = ReflectUtils.newInstance(ignoreUrlMatcherClass.getName());
                 } else {
                     try {
-                        logger.trace("Assuming {} is a qualified class name...", ignoreUrlPatternType);
+                        log.trace("Assuming {} is a qualified class name...", ignoreUrlPatternType);
                         this.ignoreUrlPatternMatcherStrategyClass = ReflectUtils.newInstance(ignoreUrlPatternType);
                     } catch (final IllegalArgumentException e) {
-                        logger.error("Could not instantiate class [{}]", ignoreUrlPatternType, e);
+                        log.error("Could not instantiate class [{}]", ignoreUrlPatternType, e);
                     }
                 }
                 if (this.ignoreUrlPatternMatcherStrategyClass != null) {
@@ -150,7 +154,7 @@ public class SakaiCasAuthenticationFilter extends AbstractCasFilter {
         final HttpServletResponse response = (HttpServletResponse) servletResponse;
         
         if (isRequestUrlExcluded(request)) {
-            logger.debug("Request is ignored.");
+            log.debug("Request is ignored.");
             filterChain.doFilter(request, response);
             return;
         }
@@ -159,7 +163,7 @@ public class SakaiCasAuthenticationFilter extends AbstractCasFilter {
         final Assertion assertion = session != null ? (Assertion) session.getAttribute(CONST_CAS_ASSERTION) : null;
 
         if (assertion != null && loggedOutOfSakai()) {
-            logger.debug("found a CAS assertion and we are logged out of Sakai. Invalidating the session so we don't get logged back on by an old assertion.");
+            log.debug("found a CAS assertion and we are logged out of Sakai. Invalidating the session so we don't get logged back on by an old assertion.");
             session.invalidate();
         }  else if (assertion != null) {
             filterChain.doFilter(request, response);
@@ -177,22 +181,22 @@ public class SakaiCasAuthenticationFilter extends AbstractCasFilter {
 
         final String modifiedServiceUrl;
 
-        logger.debug("no ticket and no assertion found");
+        log.debug("no ticket and no assertion found");
         if (this.gateway) {
-            logger.debug("setting gateway attribute in session");
+            log.debug("setting gateway attribute in session");
             modifiedServiceUrl = this.gatewayStorage.storeGatewayInformation(request, serviceUrl);
         } else {
             modifiedServiceUrl = serviceUrl;
         }
 
-        if (logger.isDebugEnabled()) {
-        	logger.debug("Constructed service url: {}", modifiedServiceUrl);
+        if (log.isDebugEnabled()) {
+        	log.debug("Constructed service url: {}", modifiedServiceUrl);
         }
 
         final String urlToRedirectTo = CommonUtils.constructRedirectUrl(this.casServerLoginUrl, getProtocol().getServiceParameterName(), modifiedServiceUrl, this.renew, this.gateway);
 
-        if (logger.isDebugEnabled()) {
-        	logger.debug("redirecting to \"{}\"", urlToRedirectTo);
+        if (log.isDebugEnabled()) {
+        	log.debug("redirecting to \"{}\"", urlToRedirectTo);
         }
         this.authenticationRedirectStrategy.redirect(request, response, urlToRedirectTo);
     }
@@ -200,10 +204,10 @@ public class SakaiCasAuthenticationFilter extends AbstractCasFilter {
     private boolean loggedOutOfSakai() {
         Session session = SessionManager.getCurrentSession();
         if (session != null && session.getUserEid() != null) {
-            logger.debug("currently logged into Sakai");
+            log.debug("currently logged into Sakai");
             return false;
         }
-        logger.debug("currently not logged into Sakai");
+        log.debug("currently not logged into Sakai");
         return true;
     }
 

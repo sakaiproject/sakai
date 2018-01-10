@@ -28,10 +28,10 @@ import java.util.Iterator;
 import java.util.Locale;
 import java.util.Properties;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.apache.commons.validator.UrlValidator;
+
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.GroupNotDefinedException;
 import org.sakaiproject.authz.api.Role;
@@ -78,10 +78,10 @@ import org.sakaiproject.util.ResourceLoader;
  * <li>"annotatedurl" - to show a link to a configured target url, with a description following the link. Aid in redirection.</li>
  * </ul>
  */
+@Slf4j
 public class IFrameAction extends VelocityPortletPaneledAction
 {
-	private static Logger M_log = LoggerFactory.getLogger(IFrameAction.class);
-	
+
 	/** Event for accessing the web-content tool */
 	protected final static String EVENT_ACCESS_WEB_CONTENT = "webcontent.read";
 	
@@ -1134,7 +1134,7 @@ public class IFrameAction extends VelocityPortletPaneledAction
 		}
 		catch (Exception ignore)
 		{
-			M_log.warn("doConfigure_update: " + ignore);
+			log.warn("doConfigure_update: " + ignore);
 		}
 
 		// read source if we are not special
@@ -1182,7 +1182,7 @@ public class IFrameAction extends VelocityPortletPaneledAction
 			}
 			catch (Throwable e)
 			{
-				M_log.warn("doConfigure_update: " + e);
+				log.warn("doConfigure_update: " + e);
 			}
 		}
 

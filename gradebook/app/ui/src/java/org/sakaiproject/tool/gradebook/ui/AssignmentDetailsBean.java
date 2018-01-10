@@ -27,10 +27,10 @@ import java.util.Set;
 
 import javax.faces.event.ActionEvent;
 
+import lombok.extern.slf4j.Slf4j;
+
 import org.apache.commons.lang.StringUtils;
-import org.sakaiproject.tool.gradebook.GradebookAssignment;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
 import org.sakaiproject.section.api.coursemanagement.EnrollmentRecord;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.service.gradebook.shared.StaleObjectModificationException;
@@ -40,13 +40,13 @@ import org.sakaiproject.tool.gradebook.AbstractGradeRecord;
 import org.sakaiproject.tool.gradebook.AssignmentGradeRecord;
 import org.sakaiproject.tool.gradebook.Category;
 import org.sakaiproject.tool.gradebook.Comment;
+import org.sakaiproject.tool.gradebook.GradebookAssignment;
 import org.sakaiproject.tool.gradebook.GradingEvent;
 import org.sakaiproject.tool.gradebook.GradingEvents;
 import org.sakaiproject.tool.gradebook.jsf.FacesUtil;
 
+@Slf4j
 public class AssignmentDetailsBean extends EnrollmentTableBean {
-	private static final Logger logger = LoggerFactory.getLogger(AssignmentDetailsBean.class);
-
 	/**
 	 * The following variable keeps bean initialization from overwriting
 	 * input fields from the database.
@@ -231,9 +231,9 @@ public class AssignmentDetailsBean extends EnrollmentTableBean {
 
     
 	protected void init() {
-		if (logger.isDebugEnabled()) logger.debug("loadData assignment=" + assignment + ", previousAssignment=" + previousAssignment + ", nextAssignment=" + nextAssignment);
-		if (logger.isDebugEnabled()) logger.debug("isNotValidated()=" + isNotValidated());
-		if (logger.isDebugEnabled()) logger.debug("workInProgress=" + workInProgress);
+		if (log.isDebugEnabled()) log.debug("loadData assignment=" + assignment + ", previousAssignment=" + previousAssignment + ", nextAssignment=" + nextAssignment);
+		if (log.isDebugEnabled()) log.debug("isNotValidated()=" + isNotValidated());
+		if (log.isDebugEnabled()) log.debug("workInProgress=" + workInProgress);
 		if (workInProgress) {			
 			// Keeping the current form values in memory is a one-shot deal at
 			// present. The next time the user does anything, the form will be
@@ -495,7 +495,7 @@ public class AssignmentDetailsBean extends EnrollmentTableBean {
 
 			} else {
 				// The assignment might have been removed since this link was set up.
-				if (logger.isWarnEnabled()) logger.warn("No assignmentId=" + assignmentId + " in gradebookUid " + getGradebookUid());
+				if (log.isWarnEnabled()) log.warn("No assignmentId=" + assignmentId + " in gradebookUid " + getGradebookUid());
                 FacesUtil.addErrorMessage(getLocalizedString("assignment_details_assignment_removed"));
 			}
 		}
@@ -544,7 +544,7 @@ public class AssignmentDetailsBean extends EnrollmentTableBean {
 	 */
 	public void processAssignmentIdChange(ActionEvent event) {
 		Map params = FacesUtil.getEventParameterMap(event);
-		if (logger.isDebugEnabled()) logger.debug("processAssignmentIdAction params=" + params + ", current assignmentId=" + assignmentId);
+		if (log.isDebugEnabled()) log.debug("processAssignmentIdAction params=" + params + ", current assignmentId=" + assignmentId);
 		Long idParam = (Long)params.get("assignmentId");
 		if (idParam != null) {
 			setAssignmentId(idParam);
@@ -553,11 +553,11 @@ public class AssignmentDetailsBean extends EnrollmentTableBean {
 	}
 	
 	private void saveScoresFromPreviousOrNextButtons() throws StaleObjectModificationException {
-        if (logger.isDebugEnabled()) logger.debug("saveScores " + assignmentId);
+        if (log.isDebugEnabled()) log.debug("saveScores " + assignmentId);
 		
         Set excessiveScores = getGradebookManager().updateAssignmentGradesAndComments(assignment, updatedGradeRecords, updatedComments);
 
-        if (logger.isDebugEnabled()) logger.debug("About to save " + updatedComments.size() + " updated comments");
+        if (log.isDebugEnabled()) log.debug("About to save " + updatedComments.size() + " updated comments");
         if(updatedGradeRecords.size() > 0){
             getGradebookBean().getEventTrackingService().postEvent("gradebook.updateItemScores","/gradebook/"+getGradebookId()+"/"+updatedGradeRecords.size()+"/"+getAuthzLevel());
         }
@@ -581,11 +581,11 @@ public class AssignmentDetailsBean extends EnrollmentTableBean {
 	}
 
 	private void saveScores() throws StaleObjectModificationException {
-        if (logger.isDebugEnabled()) logger.debug("saveScores " + assignmentId);
+        if (log.isDebugEnabled()) log.debug("saveScores " + assignmentId);
 		
         Set excessiveScores = getGradebookManager().updateAssignmentGradesAndComments(assignment, updatedGradeRecords, updatedComments);
 
-        if (logger.isDebugEnabled()) logger.debug("About to save " + updatedComments.size() + " updated comments");
+        if (log.isDebugEnabled()) log.debug("About to save " + updatedComments.size() + " updated comments");
         if(updatedGradeRecords.size() > 0){
             getGradebookBean().getEventTrackingService().postEvent("gradebook.updateItemScores","/gradebook/"+getGradebookId()+"/"+updatedGradeRecords.size()+"/"+getAuthzLevel());
         }
@@ -626,11 +626,11 @@ public class AssignmentDetailsBean extends EnrollmentTableBean {
      * View maintenance methods.
      */
     public Long getAssignmentId() {
-        if (logger.isDebugEnabled()) logger.debug("getAssignmentId " + assignmentId);
+        if (log.isDebugEnabled()) log.debug("getAssignmentId " + assignmentId);
         return assignmentId;
     }
     public void setAssignmentId(Long assignmentId) {
-        if (logger.isDebugEnabled()) logger.debug("setAssignmentId " + assignmentId);
+        if (log.isDebugEnabled()) log.debug("setAssignmentId " + assignmentId);
 		this.assignmentId = assignmentId;
 	}
 
@@ -643,13 +643,13 @@ public class AssignmentDetailsBean extends EnrollmentTableBean {
 	 * bean to a static page.
 	 */
 	public void setAssignmentIdParam(String assignmentIdParam) {
-		if (logger.isDebugEnabled()) logger.debug("setAssignmentIdParam String " + assignmentIdParam);
+		if (log.isDebugEnabled()) log.debug("setAssignmentIdParam String " + assignmentIdParam);
 		if ((assignmentIdParam != null) && (assignmentIdParam.length() > 0) &&
 			!assignmentIdParam.equals("null")) {
 			try {
 				setAssignmentId(Long.valueOf(assignmentIdParam));
 			} catch(NumberFormatException e) {
-				if (logger.isWarnEnabled()) logger.warn("AssignmentId param set to non-number '" + assignmentIdParam + "'");
+				if (log.isWarnEnabled()) log.warn("AssignmentId param set to non-number '" + assignmentIdParam + "'");
 			}
 		}
 	}

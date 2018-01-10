@@ -54,7 +54,6 @@ public class MapUtil
             while (iSet.hasNext()) {
                 Object item  = iSet.next();
 		destMap.put(item,sourceMap.get(item));
-		// System.out.println("Copying "+item+" ="+sourceMap.get(item));
 		retval = true;
 	    }
 	    return retval;
@@ -81,7 +80,6 @@ public class MapUtil
 	    Object o = sourceMap.get(sourceKey);
 	    if ( o == null ) return false;
 	    destMap.put(destKey,o);
-	    // System.out.println("dest["+destKey+"]=source["+sourceKey+"] = "+ o);
 	    return true;
 	}
 

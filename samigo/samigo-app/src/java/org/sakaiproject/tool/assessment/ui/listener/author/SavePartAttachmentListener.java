@@ -19,8 +19,6 @@
  *
  **********************************************************************************/
 
-
-
 package org.sakaiproject.tool.assessment.ui.listener.author;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -34,8 +32,11 @@ import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+
+import org.sakaiproject.content.api.FilePickerHelper;
+import org.sakaiproject.entity.api.Reference;
+import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionAttachmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
@@ -45,22 +46,17 @@ import org.sakaiproject.tool.assessment.ui.bean.author.AssessmentSettingsBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.PublishedAssessmentSettingsBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.SectionBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
-
-import org.sakaiproject.content.api.FilePickerHelper;
 import org.sakaiproject.tool.cover.SessionManager;
-import org.sakaiproject.tool.api.ToolSession;
-import org.sakaiproject.entity.api.Reference;
 
 /**
  * <p>Title: Samigo</p>
  * <p>Description: Sakai Assessment Manager</p>
  * @version $Id$
  */
-
+@Slf4j
 public class SavePartAttachmentListener
     implements ActionListener
 {
-  private static Logger log = LoggerFactory.getLogger(SavePartAttachmentListener.class);
   //this is to indicate which flow
   // if it is true, that means we save the section attachment in setting page of a pending assessment (authorSettings.jsp)
   // if it is false, that means we save the section attachment in setting page of a published assessment (publishedSettings.jsp)

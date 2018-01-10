@@ -17,19 +17,19 @@
  **********************************************************************************/
 package org.sakaiproject.contentreview.urkund;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.contentreview.urkund.util.UrkundAPIUtil;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
  * This class contains the properties and utility methods so it can be used to
@@ -44,9 +44,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  *
  *
  */
+@Slf4j
 public class UrkundAccountConnection {
-	private static final Logger log = LoggerFactory.getLogger(UrkundAccountConnection.class);
-	
 	private final static String DEFAULT_API_URL = "https://secure.urkund.com/api/";
 	private final static int DEFAULT_TIMEOUT = 180000;
 

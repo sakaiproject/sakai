@@ -18,8 +18,7 @@ package org.sakaiproject.site.tool.helper.participant.rsf;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.entitybroker.DeveloperHelperService;
@@ -59,11 +58,9 @@ import uk.org.ponder.rsf.viewstate.ViewParameters;
  * @author
  *
  */
+@Slf4j
 public class ConfirmProducer implements ViewComponentProducer, NavigationCaseReporter, ActionResultInterceptor {
 
-	/** Our log (commons). */
-	private static Logger M_log = LoggerFactory.getLogger(ConfirmProducer.class);
-	
     public SiteAddParticipantHandler handler;
     public static final String VIEW_ID = "Confirm";
     public MessageLocator messageLocator;
@@ -106,8 +103,7 @@ public class ConfirmProducer implements ViewComponentProducer, NavigationCaseRep
 			Site s = siteService.getSite(locationId);
 			siteTitle = s.getTitle();
 		} catch (IdUnusedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			log.error(e.getMessage(), e);
 		}
     	UIMessage.make(tofill, "addconf.confirming", "addconf.confirming", new Object[]{siteTitle});
     	
@@ -148,7 +144,7 @@ public class ConfirmProducer implements ViewComponentProducer, NavigationCaseRep
         	}
         	catch (Exception e)
         	{
-        		M_log.debug(this + ":fillComponents: cannot find user with eid=" + userEId);
+        		log.debug(this + ":fillComponents: cannot find user with eid=" + userEId);
         	}
             UIBranchContainer userRow = UIBranchContainer.make(confirmForm, "user-row:", userEId);
             UIOutput.make(userRow, "user-name", userName);

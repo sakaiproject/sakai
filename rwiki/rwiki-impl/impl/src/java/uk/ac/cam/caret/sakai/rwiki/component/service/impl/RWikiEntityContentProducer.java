@@ -26,8 +26,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.component.api.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.entity.api.Entity;
@@ -48,10 +48,9 @@ import uk.ac.cam.caret.sakai.rwiki.service.api.model.RWikiEntity;
 import uk.ac.cam.caret.sakai.rwiki.service.api.model.RWikiObject;
 import uk.ac.cam.caret.sakai.rwiki.utils.NameHelper;
 
+@Slf4j
 public class RWikiEntityContentProducer implements EntityContentProducer
 {
-
-	private static Logger log = LoggerFactory.getLogger(RWikiEntityContentProducer.class);
 
 	private RenderService renderService = null;
 

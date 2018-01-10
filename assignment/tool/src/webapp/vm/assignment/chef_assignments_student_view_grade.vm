@@ -162,54 +162,60 @@
 
         ## Display content-review results when appropriate. If the assignment is non-electronic, we show content-review results if they exist
         ## (happens when accepted submission type switched from something else)
-##      TODO Content Review Service
-##        #if($allowReviewService && $assignment.getContent().AllowReviewService && $assignment.getContent().AllowStudentViewReport && ($assignment.getContent().getTypeOfSubmission() != 4 || $submission.getContentReviewResults().size() > 0))
-##            <tr>
-##                <th>
-##                    $reviewServiceName&nbsp;$tlang.getString("review.report")
-##                </th>
-##                <td>
-##                    #if (!$submission)
-##                        $tlang.getString("review.notavail")
-##                    #else
-##                        #set($reviewResults=$submission.ContentReviewResults)
-##                        #if ($reviewResults.size() >= 3)
-##                            <div class="discTria">
-##                                <input class="disclosureTriangle" type="image"
-##                                       onclick="ASN.handleReportsTriangleDisclosure(this,this.parentNode.parentNode.children[1]); return false;"
-##                                       src="/library/image/sakai/expand.gif"
-##                                       alt="$tlang.getString('review.report.expand')"/>
-##                                ## TODO: reconsider for i18n
-##                                $reviewResults.size() $tlang.getString("review.reports")
-##                            </div>
-##                        <div id="reportsDiv" style="display:none;">
-##                        #end
-##                        #foreach ($reviewResult in $reviewResults)
-##                            <div>
-##                                #set ($props = $reviewResult.getContentResource().Properties)
-##                                <span class="reportIcon">
-##											#if (!$reviewResult.getReviewReport().equals("Error"))<a
-##                                                    href="$reviewResult.getReviewReport()" target="_blank">#end
-##                                    <span class="$reviewResult.getReviewIconCssClass()"
-##                                          title="#if($reviewResult.getReviewReport().equals(
-##                                              "Error"))$reviewResult.getReviewError()#{else}$reviewResult.getReviewScore()#end"></span>
-##                                    #if (!$reviewResult.getReviewReport().equals("Error"))</a>#end
-##										</span>
-##                                #if ($reviewResult.isInline())
-##                                    $tlang.getString("submission.inline")
-##                                #else
-##                                    $validator.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))
-##                                #end
-##                            </div>
-##                        #end
-##                        #if ($reviewResults.size() >= 3)
-##                        </div>
-##                        #end
-##                    #end
-##                </td>
-##
-##            </tr>
-##        #end
+        ## Content Review Service
+        #set($allowStudentViewReport = $assignment.Properties.get("s_view_report"))
+        #if($allowReviewService && $assignment.ContentReview && $!allowStudentViewReport.equals('true') && ($assignment.TypeOfSubmission() != 4 || $!service.getContentReviewResults($!submission).size() > 0))
+            <tr>
+                <th>
+                    $reviewServiceName&nbsp;$tlang.getString("review.report")
+                </th>
+                <td>
+                    #if (!$submission)
+                        $tlang.getString("review.notavail")
+                    #else
+                        #set($reviewResults=$!service.getContentReviewResults($!submission))
+                        #if ($reviewResults.size() >= 3)
+                            <div class="discTria">
+                                <input class="disclosureTriangle" type="image"
+                                       onclick="ASN.handleReportsTriangleDisclosure(this,this.parentNode.parentNode.children[1]); return false;"
+                                       src="/library/image/sakai/expand.gif"
+                                       alt="$tlang.getString('review.report.expand')"/>
+                                ## TODO: reconsider for i18n
+                                $reviewResults.size() $tlang.getString("review.reports")
+                            </div>
+                        <div id="reportsDiv" style="display:none;">
+                        #end
+                        #foreach ($reviewResult in $reviewResults)
+                            <div>
+                                #set ($props = $reviewResult.getContentResource().Properties)
+                                <span class="reportIcon">
+											#if (!$reviewResult.getReviewReport().equals("Error"))<a
+                                                    href="$reviewResult.getReviewReport()" target="_blank">#end
+                                    <span class="$reviewResult.getReviewIconCssClass()"
+                                          title="#if($reviewResult.getReviewReport().equals(
+                                              "Error"))$reviewResult.getReviewError()#{else}$reviewResult.getReviewScore()#end"></span>
+                                    #if (!$reviewResult.getReviewReport().equals("Error"))</a>#end
+										</span>
+                                #if ($reviewResult.isInline())
+                                    $tlang.getString("submission.inline")
+                                #else
+                                    $validator.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))
+                                #end
+
+                                #if (!$reviewResult.getReviewReport().equals("Error") &&
+                                    $reviewResult.contentReviewItem.Properties.get($NamePropContentReviewOptoutUrl))
+                                    (<a href="$!reviewResult.contentReviewItem.Properties.get($NamePropContentReviewOptoutUrl)" target="_blank">$tlang.getString("review.report.urkund.optoutlink")</a>)
+                                #end								
+                            </div>
+                        #end
+                        #if ($reviewResults.size() >= 3)
+                        </div>
+                        #end
+                    #end
+                </td>
+
+            </tr>
+        #end
 
 ##        TODO Submission Log
 ##        #if ($!submission && $!submission.getSubmissionLog().size() > 0)
@@ -290,15 +296,7 @@
                         #set ($size = $size + 1)
                     #end
                 #end
-                #if ($size == 0)
-                    <<p class="instruction">
-                    #if ($!assignment.TypeOfSubmission.ordinal() == 5)
-                        $tlang.getString("gen.noatt.single")
-                    #else
-                        $tlang.getString("gen.noatt")
-                    #end
-                </p>
-                #else
+                #if ($size > 0)
                     #foreach ($attachment in $mAttachments)
                         #set ($props = false)
                         #set ($props = $attachment.Properties)

@@ -19,8 +19,6 @@
  *
  **********************************************************************************/
 
-
-
 package org.sakaiproject.tool.assessment.ui.listener.author;
 
 import javax.faces.event.AbortProcessingException;
@@ -36,7 +34,6 @@ import javax.faces.event.ActionListener;
 
 public class RemoveQuestionListener implements ActionListener
 {
-  //private static Logger log = LoggerFactory.getLogger(RemoveQuestionListener.class);
   public RemoveQuestionListener()
   {
   }
@@ -44,5 +41,4 @@ public class RemoveQuestionListener implements ActionListener
   public void processAction(ActionEvent ae) throws AbortProcessingException
   {
   }
-
 }

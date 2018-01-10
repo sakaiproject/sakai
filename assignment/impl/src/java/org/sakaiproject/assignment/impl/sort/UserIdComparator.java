@@ -15,22 +15,21 @@
  */
 package org.sakaiproject.assignment.impl.sort;
 
-import org.sakaiproject.user.api.User;
-import org.sakaiproject.user.api.UserDirectoryService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.text.Collator;
 import java.text.ParseException;
 import java.text.RuleBasedCollator;
 import java.util.Comparator;
 
+import lombok.extern.slf4j.Slf4j;
+
+import org.sakaiproject.user.api.User;
+import org.sakaiproject.user.api.UserDirectoryService;
+
 /**
  * Sorts a collection of User IDs by their sortnames.
  */
+@Slf4j
 public class UserIdComparator implements Comparator<String> {
-
-    private static Logger M_log = LoggerFactory.getLogger(UserIdComparator.class);
 
     private Collator collator;
     private UserDirectoryService userDirectoryService;
@@ -44,7 +43,7 @@ public class UserIdComparator implements Comparator<String> {
             // error with init RuleBasedCollator with rules
             // use the default Collator
             collator = Collator.getInstance();
-            M_log.warn(this + " UserIdComparator cannot init RuleBasedCollator. Will use the default Collator instead. " + e);
+            log.warn("{} UserIdComparator cannot init RuleBasedCollator. Will use the default Collator instead. {}", this, e);
         }
         // This is to ignore case of the values
         collator.setStrength(Collator.SECONDARY);
@@ -59,7 +58,7 @@ public class UserIdComparator implements Comparator<String> {
                 User u1 = userDirectoryService.getUser(id1);
                 s1 = u1 != null ? u1.getSortName() : null;
             } catch (Exception e) {
-                M_log.warn(" AssignmentComparator.compare " + e.getMessage() + " id=" + id1);
+                log.warn(" AssignmentComparator.compare {} id={}", e.getMessage(), id1);
             }
         }
 
@@ -69,7 +68,7 @@ public class UserIdComparator implements Comparator<String> {
                 User u2 = userDirectoryService.getUser(id2);
                 s2 = u2 != null ? u2.getSortName() : null;
             } catch (Exception e) {
-                M_log.warn(" AssignmentComparator.compare " + e.getMessage() + " id=" + id2);
+                log.warn(" AssignmentComparator.compare {} id={}", e.getMessage(), id2);
             }
         }
 

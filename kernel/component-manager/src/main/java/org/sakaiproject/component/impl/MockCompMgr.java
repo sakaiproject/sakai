@@ -26,8 +26,8 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.component.api.ComponentManager;
 
 /**
@@ -35,20 +35,18 @@ import org.sakaiproject.component.api.ComponentManager;
  * maybe later this could try to use the sakai mock stuff but for now it is just here to stop the CM from firing up during unit tests
  */
 @SuppressWarnings("rawtypes")
+@Slf4j
 public class MockCompMgr implements ComponentManager {
-
-    private static Logger M_log = LoggerFactory.getLogger(MockCompMgr.class);
-
     /**
      * Startup the CM as a mock system for unit tests
      */
     public MockCompMgr(boolean loadMocks) {
-        M_log.warn("LOADING CM in testing mode... this should only ever happen during unit tests");
+        log.warn("LOADING CM in testing mode... this should only ever happen during unit tests");
         if (loadMocks) {
             // TODO load up mocks of the common services
-            M_log.info("Created a populated CM mock with "+components.size()+" services loaded");
+            log.info("Created a populated CM mock with "+components.size()+" services loaded");
         } else {
-            M_log.info("Created an empty CM mock (no services loaded)");
+            log.info("Created an empty CM mock (no services loaded)");
         }
     }
 
@@ -121,6 +119,4 @@ public class MockCompMgr implements ComponentManager {
     public void waitTillConfigured() {
         // whatever
     }
-
-
 }

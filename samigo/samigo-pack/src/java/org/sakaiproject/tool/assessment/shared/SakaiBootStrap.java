@@ -19,15 +19,14 @@
  *
  **********************************************************************************/
 
-
 package org.sakaiproject.tool.assessment.shared;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.io.File;
+
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.db.api.SqlService;
-
-import java.io.File;
 
 /**
  * This class will be used to initialize the state of the application.
@@ -35,6 +34,7 @@ import java.io.File;
  * @author <a href="mailto:lance@indiana.edu">Lance Speelmon</a>
  * @version $Id$
  */
+@Slf4j
 public class SakaiBootStrap
 {
   private static final String SAKAI_SAMIGO_DDL_NAME = "sakai_samigo";
@@ -42,8 +42,6 @@ public class SakaiBootStrap
   private static final String SQL_UPDATE_SCRIPT_NAME = "sakai_samigo_post_schema_update";
   
   private static final String SAKAI_AUTO_DDL_PROPERTY = "auto.ddl";
-
-  private static final Logger LOG = LoggerFactory.getLogger(SakaiBootStrap.class);
 
   /** Dependency: SqlService. */
   private SqlService sqlService;
@@ -53,28 +51,27 @@ public class SakaiBootStrap
 
   public SakaiBootStrap()
   {
-    LOG.debug("new SakaiBootStrap()");
+    log.debug("new SakaiBootStrap()");
 
     ; // no behavior
   }
 
   public void init()
   {
-    //LOG.debug("**** init() SakaiBootStrap for samigo");
-    
+
     autoDdl = ServerConfigurationService.getBoolean(SAKAI_AUTO_DDL_PROPERTY, autoDdl);
 
     sqlService = org.sakaiproject.db.cover.SqlService
         .getInstance();
     if (sqlService == null)
     {
-      LOG.error("SakaiBootStrap.init(): SqlService cannot be found!");
+      log.error("SakaiBootStrap.init(): SqlService cannot be found!");
       throw new IllegalStateException("SqlService cannot be found!");
     }
 
     if (autoDdl)
     {
-      LOG.info("SakaiBootStrap.init(): autoDdl enabled; running DDL...");
+      log.info("SakaiBootStrap.init(): autoDdl enabled; running DDL...");
 
       // Don't take down the entire instance if this update script fails!
       // This update script makes sure the Oracle MEDIA column uses a blob 
@@ -84,7 +81,7 @@ public class SakaiBootStrap
         sqlService.ddl(this.getClass().getClassLoader(), SQL_UPDATE_SCRIPT_NAME);
       }
       catch (Throwable t) {
-        LOG.warn("SakaiBootStrap.init(): ", t);
+        log.warn("SakaiBootStrap.init(): ", t);
       }
 
       // Don't take down the entire instance if this series of inserts fails!
@@ -92,11 +89,11 @@ public class SakaiBootStrap
         sqlService.ddl(this.getClass().getClassLoader(), SAKAI_SAMIGO_DDL_NAME);
       }
       catch (Throwable t) {
-        LOG.warn("SakaiBootStrap.init(): ", t);
+        log.warn("SakaiBootStrap.init(): ", t);
       }
 
     } else {
-      LOG.debug("****autoDdl disabled.");
+      log.debug("****autoDdl disabled.");
     }
 
     String uploadPath = ServerConfigurationService.getString("samigo.answerUploadRepositoryPath", "${sakai.home}/samigo/answerUploadRepositoryPath/");
@@ -107,27 +104,25 @@ public class SakaiBootStrap
 
         if(!samigoDir.exists())
         {
-            LOG.info(samigoDir + " doesn't exist. Creating it now ...");
+            log.info(samigoDir + " doesn't exist. Creating it now ...");
             if(samigoDir.mkdirs())
             {
-                LOG.info(samigoDir + " created.");
+                log.info(samigoDir + " created.");
             }
             else
             {
-                LOG.error("samigo.answerUploadRepositoryPath was not set. No Samigo upload folder has been created.");
+                log.error("samigo.answerUploadRepositoryPath was not set. No Samigo upload folder has been created.");
             }
         }
         else
         {
-            LOG.info(samigoDir + " exists. It will not be recreated.");
+            log.info(samigoDir + " exists. It will not be recreated.");
         }
     }
     else
     {
-        LOG.error("samigo.answerUploadRepositoryPath was not set. No Samigo upload folder has been created.");
+        log.error("samigo.answerUploadRepositoryPath was not set. No Samigo upload folder has been created.");
     }
-
-    //LOG.debug("***** init() completed successfully");
   }
 
   /**
@@ -138,9 +133,9 @@ public class SakaiBootStrap
    */
   public void setAutoDdl(String value)
   {
-    if (LOG.isDebugEnabled())
+    if (log.isDebugEnabled())
     {
-      LOG.debug("setAutoDdl(String " + value + ")");
+      log.debug("setAutoDdl(String " + value + ")");
     }
 
     //autoDdl = new Boolean(value).booleanValue();
@@ -150,6 +145,3 @@ public class SakaiBootStrap
   }
 
 }
-
-
-

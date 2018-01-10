@@ -26,16 +26,16 @@ package org.sakaiproject.pasystem.impl.common;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.db.cover.SqlService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Logic for borrowing and returning DB connections.
  */
+@Slf4j
 public class DB {
-
-    private static final Logger LOG = LoggerFactory.getLogger(DB.class);
 
     private DB() {
         // No public constructor for this utility class
@@ -64,8 +64,7 @@ public class DB {
             } finally {
 
                 if (!dbc.wasResolved()) {
-                    LOG.warn("**************\nDB Transaction was neither committed nor rolled back.  Committing for you.");
-                    new Throwable().printStackTrace();
+                    log.warn("**************\nDB Transaction was neither committed nor rolled back.  Committing for you.");
                     dbc.commit();
                 }
 

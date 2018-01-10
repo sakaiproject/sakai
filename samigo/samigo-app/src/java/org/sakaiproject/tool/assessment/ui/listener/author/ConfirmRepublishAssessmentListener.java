@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.sakaiproject.tool.assessment.ui.listener.author;
 
 import java.util.ArrayList;
@@ -23,10 +24,10 @@ import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
 
-import org.sakaiproject.samigo.util.SamigoConstants;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.event.cover.EventTrackingService;
+import org.sakaiproject.samigo.util.SamigoConstants;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
 import org.sakaiproject.tool.assessment.services.GradingService;
@@ -38,11 +39,10 @@ import org.sakaiproject.tool.assessment.ui.bean.author.PublishedAssessmentSettin
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.util.FormattedText;
 
+@Slf4j
 public class ConfirmRepublishAssessmentListener implements ActionListener {
 	// To Do: I think this can be combined with SavePublishedSettingsListener.
-	
-	private static Logger log = LoggerFactory.getLogger(ConfirmRepublishAssessmentListener.class);
-	
+
 	public void processAction(ActionEvent ae) throws AbortProcessingException {
 		AuthorBean author = (AuthorBean) ContextUtil.lookupBean("author");
 		// in case we're in published assessment pool edit view, disable that mode

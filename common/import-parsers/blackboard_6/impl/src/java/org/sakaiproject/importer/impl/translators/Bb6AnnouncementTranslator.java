@@ -19,26 +19,24 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
-import org.sakaiproject.importer.impl.importables.Announcement;
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
 
 import org.sakaiproject.importer.api.Importable;
 import org.sakaiproject.importer.api.IMSResourceTranslator;
 import org.sakaiproject.importer.impl.Blackboard6FileParser;
 import org.sakaiproject.importer.impl.XPathHelper;
-import org.w3c.dom.Document;
-import org.w3c.dom.Node;
+import org.sakaiproject.importer.impl.importables.Announcement;
 
 /**
  * This class takes the announcement data from the BB6 import file and
  * places it into a generic announcement object
  * @author Aaron Zeckoski (aaronz@vt.edu)
  */
+@Slf4j
 public class Bb6AnnouncementTranslator implements IMSResourceTranslator {
-
-	private static Logger log = LoggerFactory.getLogger(Bb6AnnouncementTranslator.class);
 
 	public String getTypeName() {
 		return "resource/x-bb-announcement";

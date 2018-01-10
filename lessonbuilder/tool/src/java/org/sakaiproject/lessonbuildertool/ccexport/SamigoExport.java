@@ -23,100 +23,44 @@
 
 package org.sakaiproject.lessonbuildertool.ccexport;
 
-import java.io.IOException;
-import java.io.OutputStream;
 import java.io.PrintStream;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.HashSet;
-import java.util.HashMap;
-import java.util.Collections;
-import java.util.SortedSet;
-import java.util.SortedMap;
-import java.util.TreeSet;
-import java.util.TreeMap;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.Map;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+
 import org.apache.commons.lang.StringEscapeUtils;
-import org.sakaiproject.component.cover.ServerConfigurationService;
 
-import org.sakaiproject.lessonbuildertool.service.LessonSubmission;
-import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean.UrlItem;
+import uk.org.ponder.messageutil.MessageLocator;
+
+import org.sakaiproject.lessonbuildertool.model.SimplePageToolDao;
 import org.sakaiproject.lessonbuildertool.service.LessonEntity;
-
-import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentAccessControl;
-import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentData;
-import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAssessmentData;
-import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedMetaData;
-import org.sakaiproject.tool.assessment.data.dao.authz.AuthorizationData;
-import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
-
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AnswerIfc;
-import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessControlIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentIfc;
-import org.sakaiproject.tool.assessment.data.ifc.assessment.EvaluationModelIfc;
-import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemAttachmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.questionpool.QuestionPoolDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
-
-
-import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
-import org.sakaiproject.tool.assessment.facade.AssessmentFacadeQueries;
 import org.sakaiproject.tool.assessment.facade.QuestionPoolFacadeQueriesAPI;
-import org.sakaiproject.tool.assessment.facade.AuthzQueriesFacadeAPI;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacadeQueriesAPI;
 import org.sakaiproject.tool.assessment.facade.QuestionPoolFacade;
-
-import org.sakaiproject.tool.assessment.shared.api.grading.GradingServiceAPI;
-
-import org.sakaiproject.tool.assessment.services.GradingService;
-import org.sakaiproject.tool.assessment.services.ItemService;
-import org.sakaiproject.tool.assessment.services.QuestionPoolService;
-import org.sakaiproject.tool.assessment.services.PersistenceService;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 import org.sakaiproject.util.FormattedText;                                     
-
-import org.w3c.dom.Document;
-
 import org.sakaiproject.user.cover.UserDirectoryService;
-import org.sakaiproject.site.api.Group;
-import org.sakaiproject.site.api.Site;
-import org.sakaiproject.site.cover.SiteService;
-import org.sakaiproject.tool.api.Session;
-import org.sakaiproject.tool.cover.ToolManager;
-import org.sakaiproject.tool.cover.SessionManager;
-
-import uk.org.ponder.messageutil.MessageLocator;
-
-import org.sakaiproject.lessonbuildertool.SimplePageItem;
-import org.sakaiproject.lessonbuildertool.model.SimplePageToolDao;
-import org.sakaiproject.db.cover.SqlService;
-import org.sakaiproject.db.api.SqlReader;
-import java.sql.Connection;
-import java.sql.ResultSet;
-import org.sakaiproject.lessonbuildertool.ccexport.ZipPrintStream;
 
 /*
  * set up as a singleton. But CCexport is not.
  */
-
+@Slf4j
 public class SamigoExport {
-
-    private static Logger log = LoggerFactory.getLogger(SamigoExport.class);
-
     PublishedAssessmentService pubService = new PublishedAssessmentService();
     AssessmentService assessmentService = new AssessmentService();
 
@@ -768,6 +712,4 @@ public class SamigoExport {
 
 	return ret;
     }
-
-
 }

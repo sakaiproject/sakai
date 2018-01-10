@@ -19,22 +19,17 @@
  *
  **********************************************************************************/
 
-
 package org.sakaiproject.tool.assessment.integration.helper.integrated;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.tool.assessment.integration.helper.ifc.ServerConfigurationServiceHelper;
 /**
  * An implementation of Samigo-specific authorization (based on Gradebook's) needs based
  * on the shared Section Awareness API.
  */
-public class ServerConfigurationServiceHelperImpl implements ServerConfigurationServiceHelper {
-    private static final Logger log = LoggerFactory.getLogger(ServerConfigurationServiceHelperImpl.class);
+ public class ServerConfigurationServiceHelperImpl implements ServerConfigurationServiceHelper {
 
     public String getString(String key, String defaultValue){
 	return (ServerConfigurationService.getString(key, defaultValue));
     }
-
 }

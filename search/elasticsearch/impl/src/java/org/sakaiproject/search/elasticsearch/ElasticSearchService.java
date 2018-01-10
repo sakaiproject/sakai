@@ -17,9 +17,8 @@ package org.sakaiproject.search.elasticsearch;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringEscapeUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.elasticsearch.action.admin.cluster.node.info.NodeInfo;
 import org.elasticsearch.action.admin.cluster.node.info.NodesInfoRequest;
 import org.elasticsearch.action.admin.cluster.node.info.NodesInfoResponse;
@@ -101,8 +100,8 @@ import static org.elasticsearch.node.NodeBuilder.nodeBuilder;
  * <p/>
  * </p>
  */
-public class ElasticSearchService implements SearchService {
-    private static final Logger log = LoggerFactory.getLogger(ElasticSearchService.class);
+@Slf4j
+ public class ElasticSearchService implements SearchService {
 
     /* constant config */
     private static final String PENDING_INDEX_BUILDER_REGISTRATION = ElasticSearchService.class.getName() + ".pendingIndexBuilderRegistration";
@@ -523,7 +522,7 @@ public class ElasticSearchService implements SearchService {
             try {
                 StringWriter sw = new StringWriter();
                 PrintWriter pw = new PrintWriter(sw);
-                ex.printStackTrace(pw);
+                log.error("Search Service XML response failed ", pw);
                 pw.flush();
                 sb.append(sw.toString());
                 pw.close();

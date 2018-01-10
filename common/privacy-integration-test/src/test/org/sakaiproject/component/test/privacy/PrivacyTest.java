@@ -26,15 +26,14 @@ import junit.framework.Test;
 import junit.framework.TestSuite;
 import java.util.*;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import org.sakaiproject.api.privacy.PrivacyManager;
 import org.sakaiproject.test.SakaiTestBase;
 
+@Slf4j
 public class PrivacyTest extends SakaiTestBase
-{	
-	private static Logger log = LoggerFactory.getLogger(PrivacyTest.class);
+{
 	private PrivacyManager privacyManager;
 	
 	public static Test suite() 

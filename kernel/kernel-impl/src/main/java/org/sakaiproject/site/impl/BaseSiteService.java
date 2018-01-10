@@ -21,11 +21,23 @@
 
 package org.sakaiproject.site.impl;
 
+import java.io.PrintWriter;
+import java.util.*;
+import java.util.concurrent.CopyOnWriteArraySet;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import lombok.extern.slf4j.Slf4j;
+
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+
 import org.sakaiproject.authz.api.*;
 import org.sakaiproject.component.api.ServerConfigurationService;
+import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.entity.api.*;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.EventTrackingService;
@@ -50,29 +62,15 @@ import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.util.*;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import java.io.PrintWriter;
-import java.util.*;
-import java.util.concurrent.CopyOnWriteArraySet;
-
-import org.sakaiproject.component.cover.ComponentManager;
 
 /**
  * <p>
  * BaseSiteService is a base implementation of the SiteService.
  * </p>
  */
+@Slf4j
 public abstract class BaseSiteService implements SiteService, Observer
 {
-	/** Our logger. */
-	private static Logger M_log = LoggerFactory.getLogger(BaseSiteService.class);
-
-
 	/**
 	 * Security advisor when updating sites. We only have one so we can check we pop the same one off the stack
 	 * that we put on.
@@ -299,11 +297,11 @@ public abstract class BaseSiteService implements SiteService, Observer
 				edit.regenerateIds();
 				storage().save(edit);
 
-				M_log.info("regenerateAllSiteIds: site: " + site.getId());
+				log.info("regenerateAllSiteIds: site: " + site.getId());
 			}
 			else
 			{
-				M_log.warn("regenerateAllSiteIds: null site in list");
+				log.warn("regenerateAllSiteIds: null site in list");
 			}
 		}
 	}
@@ -509,7 +507,7 @@ public abstract class BaseSiteService implements SiteService, Observer
 		}
 		catch (Exception t)
 		{
-			M_log.error(".init(): ", t);
+			log.error(".init(): ", t);
 		}
 	}
 
@@ -524,7 +522,7 @@ public abstract class BaseSiteService implements SiteService, Observer
 		// Stop listening for site update events
 		eventTrackingService().deleteObserver(this);
 
-		M_log.info("destroy()");
+		log.info("destroy()");
 	}
 
 	/**********************************************************************************************************************************************************************************************************************************************************
@@ -976,7 +974,7 @@ public abstract class BaseSiteService implements SiteService, Observer
 			}
 			catch (Exception e)
 			{
-				M_log.error("Advisor error in doSave()", e);
+				log.error("Advisor error in doSave()", e);
 			}
 		}
 
@@ -1036,11 +1034,11 @@ public abstract class BaseSiteService implements SiteService, Observer
 		if (!ALLOW_ADVISOR.equals(popped)) {
 			if (popped == null)
 			{
-				M_log.warn("Someone has removed our advisor.");
+				log.warn("Someone has removed our advisor.");
 			}
 			else
 			{
-				M_log.warn("Removed someone elses advisor, adding it back.");
+				log.warn("Removed someone elses advisor, adding it back.");
 				securityService().pushAdvisor(popped);
 			}
 		}
@@ -1062,7 +1060,7 @@ public abstract class BaseSiteService implements SiteService, Observer
 			}
 			catch (Exception t)
 			{
-				M_log.warn(".saveAzgs - site: " + t);
+				log.warn(".saveAzgs - site: " + t);
 			}
 			((BaseSite) site).m_azgChanged = false;
 		}
@@ -1087,7 +1085,7 @@ public abstract class BaseSiteService implements SiteService, Observer
 				}
 				catch (Exception t)
 				{
-					M_log.warn(".saveAzgs - group: " + group.getTitle() + " : " + t);
+					log.warn(".saveAzgs - group: " + group.getTitle() + " : " + t);
 				}
 				group.m_azgChanged = false;
 			}
@@ -1152,7 +1150,7 @@ public abstract class BaseSiteService implements SiteService, Observer
 				return true;
 				
 		} catch (IdUnusedException e) {
-			M_log.warn("isCourseSite(): no site with id: " + siteId);
+			log.warn("isCourseSite(): no site with id: " + siteId);
 		}
 		
 		return rv;
@@ -1167,7 +1165,7 @@ public abstract class BaseSiteService implements SiteService, Observer
 				return true;
 				
 		} catch (IdUnusedException e) {
-			M_log.warn("isPortfolioSite(): no site with id: " + siteId);
+			log.warn("isPortfolioSite(): no site with id: " + siteId);
 		}
 		
 		return rv;
@@ -1182,7 +1180,7 @@ public abstract class BaseSiteService implements SiteService, Observer
 				return true;
 				
 		} catch (IdUnusedException e) {
-			M_log.warn("isProjectSite(): no site with id: " + siteId);
+			log.warn("isProjectSite(): no site with id: " + siteId);
 		}
 		
 		return rv;
@@ -1322,7 +1320,7 @@ public abstract class BaseSiteService implements SiteService, Observer
 		}
 		catch (Exception e)
 		{
-			M_log.error(".addSite(): error copying realm", e);
+			log.error(".addSite(): error copying realm", e);
 		}
 
 		// clear the site's notification id in properties
@@ -1373,16 +1371,16 @@ public abstract class BaseSiteService implements SiteService, Observer
 		// if soft site deletes are active
 		if(serverConfigurationService().getBoolean("site.soft.deletion", true)) {
 			
-			M_log.debug("Soft site deletes are enabled.");
+			log.debug("Soft site deletes are enabled.");
 			
 			//KNL-983 only soft delete if not user site
 			//made it verbose for logging purposes
 			if(isUserSite(site.getId())) {
-				M_log.debug("Site: " + site.getId() + " is user site and will be hard deleted.");
+				log.debug("Site: " + site.getId() + " is user site and will be hard deleted.");
 			} else if (isSpecialSite(site.getId())) {
-				M_log.debug("Site: " + site.getId() + " is special site and will be hard deleted.");
+				log.debug("Site: " + site.getId() + " is special site and will be hard deleted.");
 			} else {
-				M_log.debug("Site: " + site.getId() + " is not user or special site and will be soft deleted.");
+				log.debug("Site: " + site.getId() + " is not user or special site and will be soft deleted.");
 			
 				// if site is not already softly deleted, softly delete it
 				// if already marked for deletion, check permission to hard delete, if ok, let continue.
@@ -1706,7 +1704,7 @@ public abstract class BaseSiteService implements SiteService, Observer
 		String roleId = site.getJoinerRole();
 		if (roleId == null)
 		{
-			M_log.warn(".join(): null site joiner role for site: " + id);
+			log.warn(".join(): null site joiner role for site: " + id);
 			throw new PermissionException(user, AuthzGroupService.SECURE_UPDATE_OWN_AUTHZ_GROUP, siteReference(id));
 		}
 
@@ -1728,7 +1726,7 @@ public abstract class BaseSiteService implements SiteService, Observer
 		}
 		catch(Exception e)
 		{
-			M_log.error(String.format("Unexpected exception joining user %s to site %s: ", user, id), e);
+			log.error(String.format("Unexpected exception joining user %s to site %s: ", user, id), e);
 			return;
 	}
 		
@@ -1739,7 +1737,7 @@ public abstract class BaseSiteService implements SiteService, Observer
 		}
 		catch(Exception e)
 		{
-			M_log.error(String.format("Unexpected exception joining user %s to group in site %s: ", user, id), e);
+			log.error(String.format("Unexpected exception joining user %s to group in site %s: ", user, id), e);
 		}
 	}
         
@@ -1756,7 +1754,7 @@ public abstract class BaseSiteService implements SiteService, Observer
         }
         catch (IdUnusedException iue)
         {
-            M_log.error("Site could not be determined for allowed to join method: " + iue.getMessage(), iue);
+            log.error("Site could not be determined for allowed to join method: " + iue.getMessage(), iue);
             return false;
         }
         
@@ -1778,7 +1776,7 @@ public abstract class BaseSiteService implements SiteService, Observer
         }
         catch (IdUnusedException iue)
         {
-            M_log.error("Site could not be determined for getting the join group: " + iue.getMessage(), iue);
+            log.error("Site could not be determined for getting the join group: " + iue.getMessage(), iue);
         }
         
         // pass to the JoinDelegate method to handle the logic
@@ -1809,7 +1807,7 @@ public abstract class BaseSiteService implements SiteService, Observer
 		}
 		catch( IdUnusedException ex ) 
         { 
-            M_log.debug( "isAlreadyMember()", ex ); 
+            log.debug( "isAlreadyMember()", ex ); 
         }
 		
 		// Otherwise they're not already a member, return false
@@ -2244,7 +2242,7 @@ public abstract class BaseSiteService implements SiteService, Observer
 			{
 				if (!this.siteExists(id)) 
 				{
-					M_log.warn("setUserSecurity passed a non existent site Id it will be discarded: " + id);
+					log.warn("setUserSecurity passed a non existent site Id it will be discarded: " + id);
 					nonExistentIds.add(id);
 				}
 			}
@@ -2259,7 +2257,7 @@ public abstract class BaseSiteService implements SiteService, Observer
 			{
 				if (!this.siteExists(id)) 
 				{
-					M_log.warn("setUserSecurity passed a non existent site Id it will be discarded: " + id);
+					log.warn("setUserSecurity passed a non existent site Id it will be discarded: " + id);
 					nonExistentIds.add(id);
 				}
 			}
@@ -2275,7 +2273,7 @@ public abstract class BaseSiteService implements SiteService, Observer
 			{
 				if (!this.siteExists(id)) 
 				{
-					M_log.warn("setUserSecurity passed a non existent site Id it will be discarded: " + id);
+					log.warn("setUserSecurity passed a non existent site Id it will be discarded: " + id);
 					nonExistentIds.add(id);
 				}
 			}
@@ -2461,11 +2459,11 @@ public abstract class BaseSiteService implements SiteService, Observer
 		}
 		catch (IdUnusedException e)
 		{
-			M_log.warn("getEntity(): " + e);
+			log.warn("getEntity(): " + e);
 		}
 		catch (NullPointerException e)
 		{
-			M_log.warn("getEntity(): " + e);
+			log.warn("getEntity(): " + e);
 		}
 
 		return rv;
@@ -2501,7 +2499,7 @@ public abstract class BaseSiteService implements SiteService, Observer
 		}
 		catch (Exception e)
 		{
-			M_log.warn("getEntityRealms(): " + e);
+			log.warn("getEntityRealms(): " + e);
 		}
 
 		return rv;
@@ -2518,10 +2516,10 @@ public abstract class BaseSiteService implements SiteService, Observer
 		        url = site.getUrl();
 		    } catch (IdUnusedException e) {
 		        // this could happen if the site reference is invalid
-		        if (M_log.isDebugEnabled()) M_log.debug("getEntityUrl(): " + e);
+		        if (log.isDebugEnabled()) log.debug("getEntityUrl(): " + e);
 		    } catch (Exception e) {
 		        // this is a real failure
-		        M_log.error("getEntityUrl(): "+e.getClass().getName()+": " + e, e);
+		        log.error("getEntityUrl(): "+e.getClass().getName()+": " + e, e);
 		    }
 		}
 		return url;
@@ -2597,7 +2595,7 @@ public abstract class BaseSiteService implements SiteService, Observer
 				}
 				catch (Exception t)
 				{
-					M_log.error("Error encountered while notifying ContextObserver of Site Change", t);
+					log.error("Error encountered while notifying ContextObserver of Site Change", t);
 				}
 			}
 		}
@@ -2633,7 +2631,7 @@ public abstract class BaseSiteService implements SiteService, Observer
 				}
 				catch (Exception t)
 				{
-					M_log.error("Error encountered while notifying ContextObserver of Site Change", t);
+					log.error("Error encountered while notifying ContextObserver of Site Change", t);
 				}
 			}
 		}
@@ -2831,7 +2829,7 @@ public abstract class BaseSiteService implements SiteService, Observer
 			}
 			catch (Exception e)
 			{
-				M_log.warn(".enableRealm: AuthzGroup exception: " + e);
+				log.warn(".enableRealm: AuthzGroup exception: " + e);
 			}
 		}
 	}
@@ -2850,7 +2848,7 @@ public abstract class BaseSiteService implements SiteService, Observer
 		}
 		catch (Exception e)
 		{
-			M_log.warn(".removeSite: AuthzGroup exception: " + e);
+			log.warn(".removeSite: AuthzGroup exception: " + e);
 		}
 	}
 
@@ -3374,7 +3372,7 @@ public abstract class BaseSiteService implements SiteService, Observer
 					}
 					catch (Exception t)
 					{
-						M_log.warn(".merge: " + t);
+						log.warn(".merge: " + t);
 					}
 				}
 			}
@@ -3472,7 +3470,7 @@ public abstract class BaseSiteService implements SiteService, Observer
 		// just being paranoid, but lets make sure we don't get stuck in a loop here -ggolden
 		if (threadLocalManager().get("enforceGroupSubMembership") != null)
 		{
-			M_log.warn(".enforceGroupSubMembership: recursion avoided!: " + siteId);
+			log.warn(".enforceGroupSubMembership: recursion avoided!: " + siteId);
 			return;
 		}
 		threadLocalManager().set("enforceGroupSubMembership", siteId);
@@ -3600,9 +3598,9 @@ public abstract class BaseSiteService implements SiteService, Observer
 				Site site = getSite(event.getResource());
 				clearUserCacheForSite(site);
 			} catch (IdUnusedException e) {
-				if (M_log.isDebugEnabled())
+				if (log.isDebugEnabled())
 				{
-					M_log.debug("Site not found when handling an event (" + eventType + "), ID/REF: " + event.getResource());
+					log.debug("Site not found when handling an event (" + eventType + "), ID/REF: " + event.getResource());
 				}
 			}
 		}
@@ -3651,7 +3649,7 @@ public abstract class BaseSiteService implements SiteService, Observer
 			ResourceProperties rp = s.getProperties();
 			parentId = rp.getProperty(PROP_PARENT_ID);
 		} catch (IdUnusedException e) {
-			M_log.error("getParentSite failed for " + siteId + ": " + e.getClass() + " : " + e.getMessage());
+			log.error("getParentSite failed for " + siteId + ": " + e.getClass() + " : " + e.getMessage());
 			return null;
 		}
 		return parentId;

@@ -76,13 +76,13 @@
                             #end
 							
                             <div class="fav-title #if (${site.isMyWorkspace}) fav-title-myworkspace #end">
-                            	<a href="${site.siteUrl}" title="${site.siteUrl}">
+                            	<a href="${site.siteUrl}" title="${site.siteTitle}">
                                     #if (${site.isMyWorkspace})
                                         <i class="fa fa-home" aria-hidden="true"></i><span class="fullTitle">${rloader.sit_mywor}</span>
                                     #elseif ( ( ${tabDisplayLabel} == 2 ) && ( ${site.shortDescription} ) )
                                         <span class="fullTitle">${site.shortDescription}</span>
                                     #else
-                                        <span class="fullTitle">${site.siteTitle}</span>
+                                        <span class="fullTitle">${site.siteTitleTrunc}</span>
                                     #end
                                 </a>
                             </div>

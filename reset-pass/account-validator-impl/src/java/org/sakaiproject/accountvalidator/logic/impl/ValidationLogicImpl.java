@@ -30,9 +30,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+
 import org.sakaiproject.accountvalidator.logic.ValidationException;
 import org.sakaiproject.accountvalidator.logic.ValidationLogic;
 import org.sakaiproject.accountvalidator.logic.dao.ValidationDao;
@@ -65,6 +65,7 @@ import org.sakaiproject.user.api.UserLockedException;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.user.api.UserPermissionException;
 
+@Slf4j
 public class ValidationLogicImpl implements ValidationLogic {
 
 	private static final String TEMPLATE_KEY_EXISTINGUSER = "validate.existinguser";
@@ -77,12 +78,11 @@ public class ValidationLogicImpl implements ValidationLogic {
 	private static final String TEMPLATE_KEY_ACKNOWLEDGE_PASSWORD_RESET = "acknowledge.passwordReset";
 	
 	private static final int VALIDATION_PERIOD_MONTHS = -36;
-	private static final Logger LOG = LoggerFactory.getLogger(ValidationLogicImpl.class);
-	
+
 	private static final String MAX_PASSWORD_RESET_MINUTES = "accountValidator.maxPasswordResetMinutes";
 	
 	public void init(){
-		LOG.info("init()");
+		log.info("init()");
 
 		//need to populate the templates
 		ClassLoader loader = ValidationLogicImpl.class.getClassLoader();
@@ -184,7 +184,7 @@ public class ValidationLogicImpl implements ValidationLogic {
 
 	public boolean isAccountValidated(String userId) {
 		//this is a basic rule need to account for validations expiring
-		LOG.debug("validating" + userId);
+		log.debug("validating" + userId);
 		
 		ValidationAccount va = this.getVaLidationAcountByUserId(userId);
 		Calendar cal = new GregorianCalendar();
@@ -192,27 +192,27 @@ public class ValidationLogicImpl implements ValidationLogic {
 		//a time validation time in the past
 		Date validationDeadline = cal.getTime();
 		if (va == null) {
-			LOG.debug("no account found!");
+			log.debug("no account found!");
 			return false;
 		} else {
 			if(isTokenExpired(va)) {
 				return true;
 			}else if (va.getValidationReceived() == null && va.getValidationSent().after(validationDeadline)) {
-				LOG.debug("validation sent still awaiting reply");
+				log.debug("validation sent still awaiting reply");
 				return true;
 			} else if (va.getValidationReceived() == null && va.getValidationSent().before(validationDeadline)) {
-				LOG.debug("validation sent but no reply received");
+				log.debug("validation sent but no reply received");
 				//what should we do in this case?
 				return true;
 			}
-			LOG.debug("got an item of staus " + va.getStatus());
+			log.debug("got an item of staus " + va.getStatus());
 			if (ValidationAccount.STATUS_CONFIRMED.equals(va.getStatus())) {
-				LOG.info("account is validated");
+				log.info("account is validated");
 				return true;
 			}
 		}
 		
-		LOG.debug("no conditions met assuming account is not validated");
+		log.debug("no conditions met assuming account is not validated");
 		return false;
 	}
 	
@@ -251,7 +251,7 @@ public class ValidationLogicImpl implements ValidationLogic {
 				}
 				catch (NumberFormatException nfe)
 				{
-					LOG.warn("accountValidator.maxPasswordResetMinutes must be an integer", nfe);
+					log.warn("accountValidator.maxPasswordResetMinutes must be an integer", nfe);
 				}
 			}
 		}
@@ -319,7 +319,7 @@ public class ValidationLogicImpl implements ValidationLogic {
 
 	public ValidationAccount createValidationAccount(String userRef,
 			Integer accountStatus) {
-		LOG.debug("createValidationAccount(" + userRef + ", " + accountStatus);
+		log.debug("createValidationAccount(" + userRef + ", " + accountStatus);
 		
 		
 		//TODO creating a new Validation should clear old ones for the user
@@ -357,7 +357,7 @@ public class ValidationLogicImpl implements ValidationLogic {
 			}
 		}
 		catch(UserNotDefinedException e){
-			LOG.error("No User found for the id " + e.getMessage());
+			log.error("No User found for the id " + e.getMessage());
 		}
 		dao.save(account);
 		return account;
@@ -372,7 +372,7 @@ public class ValidationLogicImpl implements ValidationLogic {
 	{
 		if (accountStatus == null)
 		{
-			LOG.warn("can't determine which account validation page to use - accountStatus is null. Returning the legacy 'validate'");
+			log.warn("can't determine which account validation page to use - accountStatus is null. Returning the legacy 'validate'");
 			return "validate";
 		}
 
@@ -396,7 +396,7 @@ public class ValidationLogicImpl implements ValidationLogic {
 	}
 
 	private String getTemplateKey(Integer accountStatus) {
-		LOG.info("getTemplateKey( " + accountStatus);
+		log.info("getTemplateKey( " + accountStatus);
 		
 		String templateKey = TEMPLATE_KEY_NEW_USER;
 		
@@ -416,7 +416,7 @@ public class ValidationLogicImpl implements ValidationLogic {
 
 	
 	public void mergeAccounts(String oldUserReference, String newUserReference) throws ValidationException {
-		LOG.debug("merge account: " +  oldUserReference + ", " + newUserReference + ")");
+		log.debug("merge account: " +  oldUserReference + ", " + newUserReference + ")");
 		UserEdit olduser = null;
 		try {
 			String oldUserId = EntityReference.getIdFromRef(oldUserReference);
@@ -425,20 +425,20 @@ public class ValidationLogicImpl implements ValidationLogic {
 			//we need a security advisor
 			SecurityAdvisor secAdvice = (String userId, String function, String reference) ->
 			{
-				LOG.debug("isAllowed( " + userId + ", " + function + ", " + reference);
+				log.debug("isAllowed( " + userId + ", " + function + ", " + reference);
 				if (UserDirectoryService.SECURE_UPDATE_USER_ANY.equals(function)) {
 					return SecurityAdvice.ALLOWED;
 				} else if (AuthzGroupService.SECURE_UPDATE_AUTHZ_GROUP.equals(function)){
 					return SecurityAdvice.ALLOWED;
 				} else if (UserDirectoryService.SECURE_REMOVE_USER.equals(function)) {
-					LOG.debug("advising user can delete users");
+					log.debug("advising user can delete users");
 					return SecurityAdvice.ALLOWED;
 				} else {
 					return SecurityAdvice.NOT_ALLOWED;
 				}
 			};
 			securityService.pushAdvisor(secAdvice);
-			LOG.debug("pushed security avisor: "  + secAdvice);
+			log.debug("pushed security avisor: "  + secAdvice);
 			olduser = userDirectoryService.editUser(oldUserId);
 			
 			//get the old users realm memberships
@@ -469,23 +469,23 @@ public class ValidationLogicImpl implements ValidationLogic {
 			userDirectoryService.removeUser(olduser);
 			
 		} catch (UserNotDefinedException e) {
-			LOG.warn( "User not defined" , e );
+			log.warn( "User not defined" , e );
 		} catch (UserPermissionException e) {
-			LOG.warn( "User permission error", e );
+			log.warn( "User permission error", e );
 			if (olduser != null) {
 				userDirectoryService.cancelEdit(olduser);
 			}
 		} catch (UserLockedException e) {
-			LOG.warn( "User locked", e );
+			log.warn( "User locked", e );
 		} catch (GroupNotDefinedException e) {
-			LOG.warn( "AuthzGroup doesn't exist", e );
+			log.warn( "AuthzGroup doesn't exist", e );
 		} catch (AuthzPermissionException e) {
-			LOG.warn( "No permission to save group", e );
+			log.warn( "No permission to save group", e );
 		}
 		finally {
 			SecurityAdvisor sa = securityService.popAdvisor();
 			if (sa == null) {
-				LOG.warn("Something cleared our advisor!");
+				log.warn("Something cleared our advisor!");
 			}
 			
 		}
@@ -560,12 +560,12 @@ public class ValidationLogicImpl implements ValidationLogic {
 			replacementValues.put("institution", serverConfigurationService.getString("ui.institution"));
 			
 		} catch (UserNotDefinedException e) {
-			LOG.error( "No user with ID = " + userId, e );
+			log.error( "No user with ID = " + userId, e );
 		}
 		
 		//information about the site(s) they have been added to
 		Set<String> groups = authzGroupService.getAuthzGroupsIsAllowed(userId, SiteService.SITE_VISIT, null);
-		LOG.debug("got a list of: " + groups.size());
+		log.debug("got a list of: " + groups.size());
 		Iterator<String> itg = groups.iterator();
 		StringBuilder sb = new StringBuilder();
 		int siteCount = 0;
@@ -577,11 +577,11 @@ public class ValidationLogicImpl implements ValidationLogic {
 				if (siteCount > 0) {
 					sb.append(", ");
 				}
-				LOG.debug("adding site: " + s.getTitle());
+				log.debug("adding site: " + s.getTitle());
 				sb.append(s.getTitle());
 				siteCount++;
 			} catch (IdUnusedException e) {
-				LOG.error( "No site with id = " + siteId, e );
+				log.error( "No site with id = " + siteId, e );
 			}
 			
 		}

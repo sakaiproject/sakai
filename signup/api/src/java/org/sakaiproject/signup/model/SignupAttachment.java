@@ -38,12 +38,10 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.Date;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class SignupAttachment {
-
-	private static Logger log = LoggerFactory.getLogger(SignupAttachment.class);
 
 	private String resourceId;
 	private String filename;

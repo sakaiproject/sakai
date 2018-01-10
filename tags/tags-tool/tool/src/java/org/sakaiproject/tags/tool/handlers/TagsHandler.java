@@ -27,22 +27,22 @@ package org.sakaiproject.tags.tool.handlers;
 import java.io.IOException;
 import java.util.Map;
 import java.util.Optional;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import lombok.extern.slf4j.Slf4j;
 
 import org.sakaiproject.tags.api.TagCollection;
 import org.sakaiproject.tags.api.TagService;
 import org.sakaiproject.tags.api.Tag;
 import org.sakaiproject.tags.tool.forms.TagForm;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * A handler for creating and updating tags in the Tags Service administration tool.
  */
+@Slf4j
 public class TagsHandler extends CrudHandler {
-
-    private static final Logger LOG = LoggerFactory.getLogger(TagsHandler.class);
 
     private static final int TAGSERVICE_URL_TAGSINTAGCOLLECTION_PREFIX_LENGTH = 20;
     private final TagService tagService;
@@ -98,7 +98,7 @@ public class TagsHandler extends CrudHandler {
                 response.getWriter().write("     ");
             }
         } catch (IOException e) {
-            LOG.warn("Write failed while previewing tag", e);
+            log.warn("Write failed while previewing tag", e);
         }
     }
 
@@ -175,6 +175,5 @@ public class TagsHandler extends CrudHandler {
         }
 
     }
-
 
 }

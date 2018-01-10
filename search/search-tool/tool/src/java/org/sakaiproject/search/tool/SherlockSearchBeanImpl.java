@@ -28,6 +28,8 @@ import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.search.api.SearchService;
@@ -40,6 +42,7 @@ import org.sakaiproject.util.FormattedText;
 /**
  * @author ieb
  */
+@Slf4j
 public class SherlockSearchBeanImpl implements SherlockSearchBean
 {
 
@@ -135,8 +138,7 @@ public class SherlockSearchBeanImpl implements SherlockSearchBean
 		}
 		catch (IOException e)
 		{
-
-			e.printStackTrace();
+			log.error(e.getMessage(), e);
 		}
 		finally
 		{
@@ -146,8 +148,7 @@ public class SherlockSearchBeanImpl implements SherlockSearchBean
 			}
 			catch (Exception ex)
 			{
-				ex.printStackTrace();
-
+				log.error(ex.getMessage(), ex);
 			}
 		}
 
@@ -156,7 +157,4 @@ public class SherlockSearchBeanImpl implements SherlockSearchBean
 	{
 		return FormattedText.escapeHtml(ServerConfigurationService.getString("ui.service","Sakai"),false);
 	}
-
-
-
 }

@@ -30,8 +30,8 @@ import java.util.Map;
 import java.util.Vector;
 import java.util.Map.Entry;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.entity.api.serialize.DataStreamEntitySerializer;
 import org.sakaiproject.entity.api.serialize.EntityParseException;
 import org.sakaiproject.entity.api.serialize.SerializableEntity;
@@ -40,6 +40,7 @@ import org.sakaiproject.entity.api.serialize.SerializablePropertiesAccess;
 /**
  * @author ieb
  */
+@Slf4j
 public class Type1BaseResourcePropertiesSerializer implements DataStreamEntitySerializer
 {
 
@@ -50,8 +51,6 @@ public class Type1BaseResourcePropertiesSerializer implements DataStreamEntitySe
 	private static final int BLOCK2 = 101;
 
 	private static final int BLOCK3 = 102;
-
-	private static final Logger log = LoggerFactory.getLogger(Type1BaseResourcePropertiesSerializer.class);
 
 	/**
 	 * @see org.sakaiproject.entity.api.serialize.DataStreamEntitySerializer#parse(org.sakaiproject.entity.api.serialize.SerializableEntity,

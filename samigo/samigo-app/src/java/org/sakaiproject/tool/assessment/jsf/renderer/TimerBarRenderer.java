@@ -117,9 +117,8 @@ public class TimerBarRenderer extends Renderer
          writer.write("\n");
          writer.write("\n  var action = function()");
          writer.write("\n {");
-         writer.write ("\n showTimerExpiredWarning (function (){");
          writer.write("\n   " + attrMap.get("expireScript") + "clickSubmitForGrade();");
-         writer.write("\n });}");
+         writer.write("\n }");
          writer.write("\n");
          writer.write("\n  var action2 = function()");
          writer.write("\n {");

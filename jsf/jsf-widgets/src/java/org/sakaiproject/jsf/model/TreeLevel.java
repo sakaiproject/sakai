@@ -25,6 +25,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.*;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 public class TreeLevel
 {
   private TreeLevel parent = null;
@@ -129,7 +132,7 @@ public class TreeLevel
    * @param args String[]
    */
   public static void main(String[] args) {
-    System.out.println("testing flat");
+    log.debug("testing flat");
     ArrayList treeList = new ArrayList();
     for (int i = 0; i < 10; i++)
     {
@@ -137,9 +140,9 @@ public class TreeLevel
     }
     for (Iterator iter = treeList.iterator(); iter.hasNext(); ) {
       Object item = (Object)iter.next();
-      System.out.println("LEVEL: " + item);
+      log.debug("LEVEL: {}", item);
     }
-      System.out.println("testing hierarchy");
+      log.debug("testing hierarchy");
       treeList = new ArrayList();
       TreeLevel t0 = new TreeLevel(0);
       treeList.add(t0);
@@ -157,7 +160,7 @@ public class TreeLevel
       for (Iterator iter = treeList.iterator(); iter.hasNext(); )
       {
         Object item = (Object) iter.next();
-        System.out.println("LEVEL: " + item);
+        log.debug("LEVEL: {}", item);
       }
     }
 

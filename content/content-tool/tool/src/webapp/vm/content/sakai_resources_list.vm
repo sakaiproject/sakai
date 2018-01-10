@@ -195,31 +195,31 @@
 
     <div class="container-fluid">
       <div class="row">
-    		#if($listActions || $showHotDropboxWidget)
-    				<div class="col-lg-6 col-md-8 col-sm-8 col-xs-12 btn-group btn-group-sm" role="group" style="padding-left:0;">
-    					#if($listActions)
-    							#set ($itemsOnLine = 0)
-    							#foreach($key in $listActions.keySet())
-    								#set($action = $listActions.get("$key"))
-    								<button style="margin:0" class="btn btn-default" id="${action.id}-button"
-    									onclick="document.getElementById('sakai_action').value='doMultiItemDispatch';document.getElementById('rt_action').value='$action.id';document.getElementById('showForm').submit();"
-    									disabled="disabled" >$!action.label
-                                    </button>
-    							#end
+            #if($listActions || $showHotDropboxWidget)
+                    <div class="col-lg-6 col-md-8 col-sm-8 col-xs-12 btn-group btn-group-sm" role="group" style="padding-left:0;">
+                        #if($listActions)
+                                #set ($itemsOnLine = 0)
+                                #foreach($key in $listActions.keySet())
+                                    #set($action = $listActions.get("$key"))
+                                        <button style="margin:0" title="$!action.label ($tlang.getString("sakai_resources_list.messageActivateActions"))" class="btn btn-default" id="${action.id}-button"
+                                        onclick="document.getElementById('sakai_action').value='doMultiItemDispatch';document.getElementById('rt_action').value='$action.id';document.getElementById('showForm').submit();"
+                                        disabled="disabled" >$!action.label
+                                        </button>
+                                #end
 
                                 ####### begin SAK-23304, add Show and Hide
                                 ####### Show/Hide can not be part of listActions because it was not a multipleItemAction for an item.
                                 ####### listActions are a list of multipleItemAction that you can do on individual resource/collection items.
                                 #if (!$dropboxMode)
                                     #if($canShowHide)
-                                            <button  style="margin:0" class="btn btn-default" id="show-button" type="button"
-                                                onclick="document.getElementById('sakai_action').value='doMultiItemDispatch';document.getElementById('rt_action').value='show';document.getElementById('showForm').submit();"
-                                                disabled="disabled">$tlang.getString('avail.show')
-                                            </button>
-                                            <button  style="margin:0" class="btn btn-default" id="hide-button" type="button"
-                                                onclick="document.getElementById('sakai_action').value='doMultiItemDispatch';document.getElementById('rt_action').value='hide';document.getElementById('showForm').submit();"
-                                                disabled="disabled">$tlang.getString('avail.hide')
-                                            </button>
+                                        <button style="margin:0" title="$tlang.getString('avail.show') ($tlang.getString("sakai_resources_list.messageActivateActions"))" class="btn btn-default" id="show-button" type="button"
+                                            onclick="document.getElementById('sakai_action').value='doMultiItemDispatch';document.getElementById('rt_action').value='show';document.getElementById('showForm').submit();"
+                                            disabled="disabled">$tlang.getString('avail.show')
+                                        </button>
+                                        <button style="margin:0" title="$tlang.getString('avail.hide') ($tlang.getString("sakai_resources_list.messageActivateActions"))" class="btn btn-default" id="hide-button" type="button"
+                                            onclick="document.getElementById('sakai_action').value='doMultiItemDispatch';document.getElementById('rt_action').value='hide';document.getElementById('showForm').submit();"
+                                            disabled="disabled">$tlang.getString('avail.hide')
+                                        </button>
                                     #end
                                  #end
                                  ####### end SAK-23304, add Show and Hide

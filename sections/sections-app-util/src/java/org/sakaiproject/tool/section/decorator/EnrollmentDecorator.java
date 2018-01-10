@@ -24,8 +24,8 @@ import java.io.Serializable;
 import java.util.Comparator;
 import java.util.Map;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.section.api.coursemanagement.CourseSection;
 import org.sakaiproject.section.api.coursemanagement.EnrollmentRecord;
 import org.sakaiproject.section.api.coursemanagement.User;
@@ -36,9 +36,9 @@ import org.sakaiproject.section.api.coursemanagement.User;
  * @author <a href="mailto:jholtzman@berkeley.edu">Josh Holtzman</a>
  *
  */
+@Slf4j
 public class EnrollmentDecorator implements Serializable {
     private static final long serialVersionUID = 1L;
-    private static final Logger log = LoggerFactory.getLogger(EnrollmentDecorator.class);
 
     protected EnrollmentRecord enrollment;
 

@@ -25,8 +25,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import uk.ac.cam.caret.sakai.rwiki.service.message.api.TriggerHandler;
 import uk.ac.cam.caret.sakai.rwiki.service.message.api.TriggerService;
@@ -36,10 +35,9 @@ import uk.ac.cam.caret.sakai.rwiki.service.message.api.model.Trigger;
 /**
  * @author ieb
  */
+@Slf4j
 public class TriggerServiceImpl implements TriggerService
 {
-	private static Logger log = LoggerFactory.getLogger(TriggerServiceImpl.class);
-
 	private TriggerDao triggerDao;
 
 	private Map triggerHandlers;

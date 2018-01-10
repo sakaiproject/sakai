@@ -19,8 +19,7 @@ package org.sakaiproject.lti.impl;
 import java.util.Collection;
 import java.util.Map;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import org.tsugi.basiclti.BasicLTIConstants;
 import org.tsugi.basiclti.BasicLTIUtil;
@@ -35,9 +34,8 @@ import org.sakaiproject.user.api.UserDirectoryService;
 /**
  *  @author Adrian Fish <a.fish@lancaster.ac.uk>
  */
+@Slf4j
 public class UserFinderOrCreatorImpl implements UserFinderOrCreator {
-
-	private static Logger M_log = LoggerFactory.getLogger(UserFinderOrCreatorImpl.class);
 
     private UserDirectoryService userDirectoryService = null;
     public void setUserDirectoryService(UserDirectoryService userDirectoryService) {
@@ -96,12 +94,12 @@ public class UserFinderOrCreatorImpl implements UserFinderOrCreator {
         	Collection<User> findUsersByEmail = userDirectoryService.findUsersByEmail((String) email);
         	if (!findUsersByEmail.isEmpty()) {
         		if (findUsersByEmail.size() > 1) {
-        			M_log.warn("multiple user id's exist for emailaddress= " + email);
+        			log.warn("multiple user id's exist for emailaddress= {}", email);
         			throw new LTIException("launch.user.multiple.emailaddress", "email=" + email,null);
         		}
         		user = (User) findUsersByEmail.toArray()[0];
         	} else {
-        		M_log.warn("Invalid user for emailaddress= " + email);
+        		log.warn("Invalid user for emailaddress= {}", email);
         		throw new LTIException("launch.user.invalid", "email=" + email,null);
         	}
         	return user;
@@ -110,8 +108,8 @@ public class UserFinderOrCreatorImpl implements UserFinderOrCreator {
         try {
         	user = userDirectoryService.getUserByEid(eid);
         } catch (Exception e) {
-        	if (M_log.isDebugEnabled()) {
-        		M_log.debug(e.getLocalizedMessage(), e);
+        	if (log.isDebugEnabled()) {
+        		log.debug(e.getLocalizedMessage(), e);
         	}
         	user = null;
         }
@@ -120,7 +118,7 @@ public class UserFinderOrCreatorImpl implements UserFinderOrCreator {
         	try {
         		String hiddenPW = IdManager.createUuid();
         		userDirectoryService.addUser(null, eid, fname, lname, email, hiddenPW, "registered", null);
-        		M_log.info("Created user=" + eid);
+        		log.info("Created user={}", eid);
         		user = userDirectoryService.getUserByEid(eid);
         	} catch (Exception e) {
         		throw new LTIException("launch.create.user", "user_id=" + user_id, e);
@@ -148,14 +146,14 @@ public class UserFinderOrCreatorImpl implements UserFinderOrCreator {
 				try {
 					eid = userDirectoryService.getUserEid(user_id);
 				} catch (Exception e) {
-					M_log.error(e.getLocalizedMessage(), e);
+					log.error(e.getLocalizedMessage(), e);
 					throw new LTIException( "launch.user.invalid", "user_id="+user_id, e);
 				}
 			} else {
 				eid = oauth_consumer_key + ":" + user_id;
 			}
-			if (M_log.isDebugEnabled()) {
-				M_log.debug("eid=" + eid);
+			if (log.isDebugEnabled()) {
+				log.debug("eid={}", eid);
 			}
 		}
         return eid;

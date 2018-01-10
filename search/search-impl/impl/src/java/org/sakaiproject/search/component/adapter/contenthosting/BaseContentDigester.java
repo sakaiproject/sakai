@@ -22,16 +22,14 @@ package org.sakaiproject.search.component.adapter.contenthosting;
 
 import java.util.Map;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * @author ieb
  */
+@Slf4j
 public abstract class BaseContentDigester implements ContentDigester
 {
-
-	private static Logger log = LoggerFactory.getLogger(BaseContentDigester.class);
 
 	private ContentHostingContentProducer contentProducer = null;
 	

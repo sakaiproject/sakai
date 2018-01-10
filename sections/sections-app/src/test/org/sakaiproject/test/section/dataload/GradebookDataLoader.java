@@ -24,17 +24,17 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+
+import org.sakaiproject.component.section.support.UserManager;
 import org.sakaiproject.section.api.CourseManager;
 import org.sakaiproject.section.api.SectionManager;
 import org.sakaiproject.section.api.coursemanagement.Course;
 import org.sakaiproject.section.api.coursemanagement.User;
-import org.sakaiproject.component.section.support.UserManager;
 import org.sakaiproject.test.section.SectionsTestBase;
 
+@Slf4j
 public class GradebookDataLoader extends SectionsTestBase {
-	private static Logger log = LoggerFactory.getLogger(GradebookDataLoader.class);
 
     public static final String[] SITE_UIDS = {
 		"QA_1",

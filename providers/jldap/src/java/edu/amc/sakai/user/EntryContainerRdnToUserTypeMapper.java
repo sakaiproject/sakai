@@ -26,12 +26,10 @@ import java.util.Map;
 import java.util.Vector;
 import java.util.Iterator;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.novell.ldap.LDAPEntry;
 import com.novell.ldap.util.DN;
 import com.novell.ldap.util.RDN;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Maps from a user entry's container's most-local RDN to a Sakai user type.
@@ -39,10 +37,8 @@ import com.novell.ldap.util.RDN;
  * @author Dan McCallum, Unicon Inc
  *
  */
+@Slf4j
 public class EntryContainerRdnToUserTypeMapper implements UserTypeMapper {
-	
-	/** Class-specific logger */
-	private static Logger M_log = LoggerFactory.getLogger(EntryContainerRdnToUserTypeMapper.class);
 
 	/** map of container RDN values to Sakai user types */
 	private Map<String,String> rdnToSakaiUserTypeMap = new HashMap<String,String>();
@@ -75,8 +71,8 @@ public class EntryContainerRdnToUserTypeMapper implements UserTypeMapper {
 	public String mapLdapEntryToSakaiUserType(LDAPEntry ldapEntry,
 			LdapAttributeMapper mapper) {
 		
-		if ( M_log.isDebugEnabled() ) {
-			M_log.debug("mapLdapEntryToSakaiUserType(): [entry DN = " + 
+		if ( log.isDebugEnabled() ) {
+			log.debug("mapLdapEntryToSakaiUserType(): [entry DN = " + 
 					ldapEntry.getDN() + "]");
 		}
 		
@@ -115,8 +111,8 @@ public class EntryContainerRdnToUserTypeMapper implements UserTypeMapper {
 	 */
 	protected String mapRdn(String rdnType, String rdnValue) {
 		
-		if ( M_log.isDebugEnabled() ) {
-			M_log.debug("mapRdn(): mapping [rdn type = " + 
+		if ( log.isDebugEnabled() ) {
+			log.debug("mapRdn(): mapping [rdn type = " + 
 					rdnType + "][rdn value = " +
 					rdnValue + "]");
 		}
@@ -124,8 +120,8 @@ public class EntryContainerRdnToUserTypeMapper implements UserTypeMapper {
 		if ( rdnToSakaiUserTypeMap == null || rdnToSakaiUserTypeMap.isEmpty() ) {
 			
 			String mappedValue = returnLiteralRdnValueIfNoMapping ? rdnValue : null;
-			if ( M_log.isDebugEnabled() ) {
-				M_log.debug("mapRdn(): no mappings assigned [rdn type = " + 
+			if ( log.isDebugEnabled() ) {
+				log.debug("mapRdn(): no mappings assigned [rdn type = " + 
 					rdnType + "][rdn value = " + rdnValue + 
 					"][returning = " + mappedValue + "]");
 			}
@@ -136,8 +132,8 @@ public class EntryContainerRdnToUserTypeMapper implements UserTypeMapper {
 		String mappedValue = rdnToSakaiUserTypeMap.get(rdnValue);
 		if ( mappedValue == null ) {
 			mappedValue = returnLiteralRdnValueIfNoMapping ? rdnValue : null;
-			if ( M_log.isDebugEnabled() ) {
-				M_log.debug("mapRdn(): no valid mapping [rdn type = " + 
+			if ( log.isDebugEnabled() ) {
+				log.debug("mapRdn(): no valid mapping [rdn type = " + 
 					rdnType + "][rdn value = " + rdnValue + 
 					"][returning = " + mappedValue + "]");
 			}

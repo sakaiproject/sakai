@@ -9,6 +9,20 @@
 			}
 		}
 	}
+
+	#example {
+		width: 340px;
+	}
+
+	#groupfile, #groupuploadtextarea {
+		display: inline-block;
+	}
+	#groupuploadtextarea {
+		padding-right: 30px;
+	}
+	#groupfile {
+		vertical-align: top;
+	}
 }
 
 #toolSelectionList{

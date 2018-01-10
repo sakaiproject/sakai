@@ -16,7 +16,6 @@
 package org.sakaiproject.calendar.impl.readers;
 
 import java.text.ParseException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
@@ -24,13 +23,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import lombok.extern.slf4j.Slf4j;
+
 import net.fortuna.ical4j.model.Recur;
 import net.fortuna.ical4j.model.WeekDayList;
-import net.fortuna.ical4j.model.property.DateProperty;
 import net.fortuna.ical4j.model.property.RRule;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sakaiproject.calendar.impl.DailyRecurrenceRule;
 import org.sakaiproject.calendar.impl.MWFRecurrenceRule;
 import org.sakaiproject.calendar.impl.MonthlyRecurrenceRule;
@@ -38,11 +36,10 @@ import org.sakaiproject.calendar.impl.TThRecurrenceRule;
 import org.sakaiproject.calendar.impl.WeeklyRecurrenceRule;
 import org.sakaiproject.calendar.impl.YearlyRecurrenceRule;
 import org.sakaiproject.exception.ImportException;
-import org.sakaiproject.time.api.Time;
 
+@Slf4j
 public class ICalRecurrence  
 {
-	private static Logger M_log = LoggerFactory.getLogger(ICalRecurrence.class);
 	private String rrule_text = "";
 	private RRule rrule = null;
 	private Recur recur = null;
@@ -82,7 +79,7 @@ public class ICalRecurrence
 			this.rrule_text = rrule_text;
 			this.rrule = new RRule(rrule_text);
 		} catch (ParseException e) {
-			M_log.warn("Parse exception for iCal recurrence rule: "+rrule_text);
+			log.warn("Parse exception for iCal recurrence rule: "+rrule_text);
 			throw new ImportException(e);
 		}
 		
@@ -197,7 +194,7 @@ public class ICalRecurrence
 		}
 		
 		if (!valid) {
-			M_log.warn("iCal recurrence was not valid: "+reason+" ["+rrule_text+"]");
+			log.warn("iCal recurrence was not valid: "+reason+" ["+rrule_text+"]");
 		}
 		
 		return valid;

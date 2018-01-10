@@ -24,8 +24,8 @@ package org.sakaiproject.poll.tool.producers;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.poll.tool.params.VoteCollectionViewParameters;
 
 import uk.org.ponder.localeutil.LocaleGetter;
@@ -41,27 +41,19 @@ import uk.org.ponder.rsf.viewstate.SimpleViewParameters;
 import uk.org.ponder.rsf.viewstate.ViewParameters;
 import uk.org.ponder.rsf.viewstate.ViewParamsReporter;
 
-
+@Slf4j
 public class ConfirmProducer implements ViewComponentProducer, ViewParamsReporter {
 
 	public static final String VIEW_ID = "voteThanks";
 
-	private static Logger log = LoggerFactory.getLogger(PollVoteProducer.class);
-
-	
-	
 	private MessageLocator messageLocator;
 	private LocaleGetter localeGetter;
-	
-	
+
 	public String getViewID() {
 		// TODO Auto-generated method stub
 		return VIEW_ID;
 	}
-	
 
-
-		
 	  public void setMessageLocator(MessageLocator messageLocator) {
 			  
 		  this.messageLocator = messageLocator;

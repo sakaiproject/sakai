@@ -46,8 +46,7 @@ import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.exception.IdUnusedException;
@@ -59,13 +58,12 @@ import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import org.sakaiproject.tool.assessment.ui.bean.util.EmailBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 
-
 /**
  * The ItemService calls persistent service locator to reach the
  * manager on the back end.
  */
+@Slf4j
 public class SamigoEmailService {
-	private static Logger log = LoggerFactory.getLogger(SamigoEmailService.class);
 
 	private String fromName;
 	private String fromEmailAddress;
@@ -319,7 +317,6 @@ public class SamigoEmailService {
 
 		} catch (UnsupportedEncodingException ue) {
 			log.warn("UnsupportedEncodingException:" + ue);
-			ue.printStackTrace();
 
 		} catch (MessagingException me) {
 			log.warn("3rd MessagingException:" + me);

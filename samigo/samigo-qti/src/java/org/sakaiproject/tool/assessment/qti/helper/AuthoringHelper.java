@@ -19,8 +19,6 @@
  *
  **********************************************************************************/
 
-
-
 package org.sakaiproject.tool.assessment.qti.helper;
 
 import java.io.IOException;
@@ -42,15 +40,16 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.*;
 
-import org.sakaiproject.samigo.util.SamigoConstants;
-import org.sakaiproject.site.cover.SiteService;
-import org.sakaiproject.tool.cover.ToolManager;
-import org.sakaiproject.event.cover.EventTrackingService;
+import lombok.extern.slf4j.Slf4j;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.sakaiproject.event.cover.EventTrackingService;
+import org.sakaiproject.samigo.util.SamigoConstants;
+import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.tool.assessment.shared.api.assessment.SecureDeliveryServiceAPI;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentAccessControl;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentFeedback;
@@ -87,11 +86,7 @@ import org.sakaiproject.tool.assessment.services.ItemService;
 import org.sakaiproject.tool.assessment.services.QuestionPoolService;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import org.sakaiproject.tool.assessment.util.TextFormat;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-import org.xml.sax.SAXException;
+import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.util.FormattedText;
 
 /**
@@ -101,9 +96,9 @@ import org.sakaiproject.util.FormattedText;
  * @author Shastri, Rashmi <rshastri@iupui.edu>
  * @version $Id$
  */
+@Slf4j
 public class AuthoringHelper
 {
-  private static Logger log = LoggerFactory.getLogger(AuthoringHelper.class);
 //  private static final AuthoringXml ax = new AuthoringXml(QTIVersion.VERSION_1_2);
   private AuthoringXml ax;
 
@@ -585,7 +580,7 @@ public class AuthoringHelper
       Assessment assessmentXml = new Assessment(flatNamespaceXml);
       Map assessmentMap = exHelper.mapAssessment(assessmentXml, isRespondus);
       String description = (String) assessmentMap.get("description");
-      String title = TextFormat.convertPlaintextToFormattedTextNoHighUnicode(log, (String) assessmentMap.get("title"));
+      String title = TextFormat.convertPlaintextToFormattedTextNoHighUnicode((String) assessmentMap.get("title"));
       assessment = assessmentService.createAssessmentWithoutDefaultSection(
         title, exHelper.makeFCKAttachment(description), null, templateId, siteId);
 
@@ -717,11 +712,9 @@ public class AuthoringHelper
 
       // and add ip address restriction, if any
       String allowIp = assessment.getAssessmentMetaDataByLabel("ALLOW_IP");
-      //log.info("allowIp: " + allowIp);
 
       if (allowIp !=null && !allowIp.trim().equalsIgnoreCase("null"))
       {
-        //log.info("NOT NULL: " + allowIp);
         exHelper.makeSecuredIPAddressSet(assessment, allowIp);
 		//Clean unnecesary ip metadata that fail when an assessment  
 		//with more than 256 charts in the field ALLOWED IPS is imported

@@ -24,23 +24,43 @@
 
 package org.sakaiproject.lessonbuildertool.tool.beans;
 
-import java.text.SimpleDateFormat;
+import au.com.bytecode.opencsv.CSVParser;
+
+import java.io.*;
+import java.lang.reflect.Method;
 import java.math.BigDecimal;
-
-import org.apache.commons.lang.StringUtils;
+import java.net.URI;
+import java.net.URL;
+import java.net.URLConnection;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.Locale;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import javax.servlet.http.HttpServletResponse;
+
+import lombok.extern.slf4j.Slf4j;
 
 import org.apache.commons.lang.StringUtils;
+
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
+
+import org.springframework.web.multipart.MultipartFile;
+
+import uk.org.ponder.messageutil.MessageLocator;
+import uk.org.ponder.rsf.components.UIContainer;
+import uk.org.ponder.rsf.components.UIInternalLink;
+
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.authz.api.AuthzGroupService;
+import org.sakaiproject.basiclti.util.SakaiBLTIUtil;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.content.api.*;
 import org.sakaiproject.content.api.GroupAwareEntity.AccessMode;
@@ -55,8 +75,9 @@ import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.TypeException;
 import org.sakaiproject.id.cover.IdManager;
-import org.sakaiproject.lessonbuildertool.api.LessonBuilderEvents;
 import org.sakaiproject.lessonbuildertool.*;
+import org.sakaiproject.lessonbuildertool.api.LessonBuilderEvents;
+import org.sakaiproject.lessonbuildertool.tool.beans.helpers.ResourceHelper;
 import org.sakaiproject.lessonbuildertool.cc.CartridgeLoader;
 import org.sakaiproject.lessonbuildertool.cc.Parser;
 import org.sakaiproject.lessonbuildertool.cc.PrintHandler;
@@ -67,8 +88,10 @@ import org.sakaiproject.lessonbuildertool.tool.producers.ShowItemProducer;
 import org.sakaiproject.lessonbuildertool.tool.producers.ShowPageProducer;
 import org.sakaiproject.lessonbuildertool.tool.producers.PagePickerProducer;
 import org.sakaiproject.lessonbuildertool.tool.view.GeneralViewParameters;
+import org.sakaiproject.lti.api.LTIService;
 import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.MemoryService;
+import org.sakaiproject.portal.util.ToolUtils;
 import org.sakaiproject.site.api.*;
 import org.sakaiproject.time.cover.TimeService;
 import org.sakaiproject.tool.api.Placement;
@@ -81,27 +104,7 @@ import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.Validator;
-import org.springframework.web.multipart.MultipartFile;
-import uk.org.ponder.messageutil.MessageLocator;
-import uk.org.ponder.rsf.components.UIContainer;
-import uk.org.ponder.rsf.components.UIInternalLink;
 
-import javax.servlet.http.HttpServletResponse;
-import java.io.*;
-import java.lang.reflect.Method;
-import java.net.URL;
-import java.net.URI;
-import java.net.URLConnection;
-import java.text.DateFormat;
-import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import org.sakaiproject.lessonbuildertool.tool.beans.helpers.ResourceHelper;
-import au.com.bytecode.opencsv.CSVParser;
-
-import org.sakaiproject.portal.util.ToolUtils;
-import org.sakaiproject.lti.api.LTIService;
-import org.sakaiproject.basiclti.util.SakaiBLTIUtil;
 import org.tsugi.lti2.ContentItem;
 
 /**
@@ -127,18 +130,17 @@ import org.tsugi.lti2.ContentItem;
 // That's because it is used a lot more often than the others. ShowPageProducer should do all data access through
 // the methods here that cache. There is also caching by hibernate. However this code is cheaper, partly because
 // it doesn't have to do synchronization (since it applies just to processing one transaction).
-
+@Slf4j
 public class SimplePageBean {
 	public static final int CACHE_MAX_ENTRIES = 5000;
 	public static final int CACHE_TIME_TO_LIVE_SECONDS = 600;
 	public static final int CACHE_TIME_TO_IDLE_SECONDS = 360;
-	private static Logger log = LoggerFactory.getLogger(SimplePageBean.class);
 
 	public enum Status {
 	    NOT_REQUIRED, REQUIRED, DISABLED, COMPLETED, FAILED, NEEDSGRADING
 	}
 	
-    // from ResourceProperites. This isn't in 2.7.1, so define it here. Let's hope it doesn't change...
+        // from ResourceProperites. This isn't in 2.7.1, so define it here. Let's hope it doesn't change...
         public static final String PROP_ALLOW_INLINE = "SAKAI:allow_inline";
 
 	public final Integer FILTER_DEFAULT=0;
@@ -433,8 +435,8 @@ public class SimplePageBean {
 	private Map<Long, Boolean> visibleCache = new HashMap<Long, Boolean>();
 	// this one needs to be global
 	static MemoryService memoryService = (MemoryService)org.sakaiproject.component.cover.ComponentManager.get("org.sakaiproject.memory.api.MemoryService");
-	private static Cache groupCache = memoryService.newCache("org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean.groupCache");  // itemId => grouplist
-	private static Cache resourceCache = memoryService.newCache("org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean.resourceCache");
+	private static Cache<String, Object> groupCache = memoryService.getCache("org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean.groupCache");  // itemId => grouplist
+	private static Cache<String, List> resourceCache = memoryService.getCache("org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean.resourceCache");
 	protected static final int DEFAULT_EXPIRATION = 10 * 60;
 
 	public static class PathEntry {
@@ -2014,7 +2016,7 @@ public class SimplePageBean {
 		try {
 		    currentSite = siteService.getSite(getCurrentSiteId());
 		} catch (Exception impossible) {
-			impossible.printStackTrace();
+			log.error(impossible.getMessage(), impossible);
 		}
 		
 		return currentSite;
@@ -2378,7 +2380,6 @@ public class SimplePageBean {
 				if (i != null && i != 0)
 					updatePageItem(i);
 			} catch (PermissionException e) {
-			    e.printStackTrace();
 				log.warn("getCurrentPageId Permission failed setting to item in toolsession");
 				return 0;
 			}
@@ -3129,7 +3130,7 @@ public class SimplePageBean {
 			    }
 			}
 		} catch (Exception ex) {
-		    ex.printStackTrace();
+		    log.error(ex.getMessage(), ex);
 		}
 	}
 
@@ -3264,7 +3265,7 @@ public class SimplePageBean {
 			    }
 			    return "success";
 			} catch (Exception ex) {
-			    ex.printStackTrace();
+			    log.error(ex.getMessage(), ex);
 			    return "failure";
 			} finally {
 			    selectedEntity = null;
@@ -3341,7 +3342,7 @@ public class SimplePageBean {
 			    }
 			    return "success";
 			} catch (Exception ex) {
-			    ex.printStackTrace();
+			    log.error(ex.getMessage(), ex);
 			    return "failure";
 			} finally {
 			    selectedAssignment = null;
@@ -3418,7 +3419,7 @@ public class SimplePageBean {
 			    }
 			    return "success";
 			} catch (Exception ex) {
-			    ex.printStackTrace();
+			    log.error(ex.getMessage(), ex);
 			    return "failure";
 			} finally {
 			    selectedBlti = null;
@@ -4068,7 +4069,7 @@ public class SimplePageBean {
 			    }
 			    return "success";
 			} catch (Exception ex) {
-			    ex.printStackTrace();
+			    log.error(ex.getMessage(), ex);
 			    return "failure";
 			} finally {
 			    selectedQuiz = null;
@@ -4323,7 +4324,7 @@ public class SimplePageBean {
 				update(pageItem, !isOwner);
 
 			} catch (Exception e) {
-				e.printStackTrace();
+				log.error(e.getMessage(), e);
 			} finally {
 				securityService.popAdvisor(siteUpdAdvisor);
 			}
@@ -5217,7 +5218,7 @@ public class SimplePageBean {
 					return false;
 				}
 			} catch (Exception e) {
-				e.printStackTrace();
+				log.error(e.getMessage(), e);
 				completeCache.put(itemId, false);
 				return false;
 			}
@@ -5240,7 +5241,7 @@ public class SimplePageBean {
 					return false;
 				}
 			} catch (Exception e) {
-			    e.printStackTrace();
+			    log.error(e.getMessage(), e);
 			    completeCache.put(itemId, false);
 			    return false;
 			}
@@ -5752,7 +5753,7 @@ public class SimplePageBean {
 			return getYoutubeKeyFromUrl(URL);
 			
 		}catch(Exception ex) {
-			ex.printStackTrace();
+			log.error(ex.getMessage(), ex);
 		}finally {
 		    if(advisor != null) securityService.popAdvisor(advisor);
 		}
@@ -5837,7 +5838,7 @@ public class SimplePageBean {
 			    success = GroupPermissionsService.removeUser(getCurrentPage().getSiteId(), getCurrentUserId(), groupId);
 			}
 		} catch (Exception ex) {
-			ex.printStackTrace();
+			log.error(ex.getMessage(), ex);
 			return;
 		}
 
@@ -6233,7 +6234,7 @@ public class SimplePageBean {
 				}
 			}
 		} catch (Exception exception) {
-			exception.printStackTrace();
+			log.error(exception.getMessage(), exception);
 		} finally {
 			popAdvisor(advisor);
 		}
@@ -6461,7 +6462,7 @@ public class SimplePageBean {
 				// 	saveItem and update produce the errors
 			}
 		}catch(Exception ex) {
-			ex.printStackTrace();
+			log.error(ex.getMessage(), ex);
 		}
 	}
 
@@ -6516,7 +6517,7 @@ public class SimplePageBean {
                         contentItem = SakaiBLTIUtil.getContentItemFromRequest(tool);
                 } catch(Exception e) {
 			setErrKey("simplepage.lti-import-bad-content-item", e.getMessage());
-			e.printStackTrace();
+			log.error(e.getMessage(), e);
                         return;
                 }
 		// log.info("contentItem="+contentItem);
@@ -6539,7 +6540,7 @@ public class SimplePageBean {
 				fis = yc.getInputStream();
 			} catch ( Exception e ) {
 				setErrKey("simplepage.lti-import-error-reading-url", localUrl);
-				e.printStackTrace();
+				log.error(e.getMessage(), e);
 				return;
 			}
 
@@ -6578,7 +6579,7 @@ public class SimplePageBean {
 		    fis = file.getInputStream();
 		} catch(IOException e) {
 		    setErrKey("simplepage.cc-error", "");
-		    e.printStackTrace();
+		    log.error(e.getMessage(), e);
 		    return;
 		}
 		long length = importCcFromStream(fis);
@@ -6644,7 +6645,7 @@ public class SimplePageBean {
 		} catch (Exception e) {
 		    setErrKey("simplepage.cc-error", "");
 		  
-		    e.printStackTrace();
+		    log.error(e.getMessage(), e);
 		    length = -1;
 		} finally {
 		    if (cc != null)
@@ -8143,7 +8144,7 @@ public class SimplePageBean {
 				contentHostingService.commitResource(res, NotificationService.NOTI_NONE);
 			}
 		} catch (Exception pe) {
-			pe.printStackTrace();
+			log.error(pe.getMessage(), pe);
 		}
 	}
 	

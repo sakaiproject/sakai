@@ -32,9 +32,6 @@ import javax.faces.context.FacesContext;
 import javax.faces.validator.Validator;
 import javax.faces.validator.ValidatorException;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 /**
  * Validates assignment grades entered into the gradebook.  Since we display a
  * maximum of two decimal places in the UI, we use this validator to ensure that
@@ -45,9 +42,7 @@ import org.slf4j.LoggerFactory;
  * @author <a href="mailto:jholtzman@berkeley.edu">Josh Holtzman </a>
  */
 public class AssignmentGradeValidator implements Validator, Serializable {
-	private static Logger logger = LoggerFactory.getLogger(AssignmentGradeValidator.class);
-
-    /**
+	/**
 	 * @see javax.faces.validator.Validator#validate(javax.faces.context.FacesContext,
 	 *      javax.faces.component.UIComponent, java.lang.Object)
 	 */
@@ -58,16 +53,14 @@ public class AssignmentGradeValidator implements Validator, Serializable {
 				throw new IllegalArgumentException("The assignment grade must be a number");
 			}
 			double grade = ((Number)value).doubleValue();
-            BigDecimal bd = new BigDecimal(grade);
-            bd = bd.setScale(2, BigDecimal.ROUND_HALF_UP); // Two decimal places
-            double roundedVal = bd.doubleValue();
-            double diff = grade - roundedVal;
-            if(diff != 0) {
-                throw new ValidatorException(new FacesMessage(
-                	FacesUtil.getLocalizedString(context, "org.sakaiproject.gradebook.tool.jsf.AssignmentGradeValidator.PRECISION")));
-            }
+			BigDecimal bd = new BigDecimal(grade);
+			bd = bd.setScale(2, BigDecimal.ROUND_HALF_UP); // Two decimal places
+			double roundedVal = bd.doubleValue();
+			double diff = grade - roundedVal;
+			if(diff != 0) {
+				throw new ValidatorException(new FacesMessage(
+		                	FacesUtil.getLocalizedString(context, "org.sakaiproject.gradebook.tool.jsf.AssignmentGradeValidator.PRECISION")));
+			}
 		}
 	}
 }
-
-

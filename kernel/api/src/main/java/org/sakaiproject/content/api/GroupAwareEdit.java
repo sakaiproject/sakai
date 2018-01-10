@@ -21,9 +21,9 @@
 
 package org.sakaiproject.content.api;
 
+import java.time.Instant;
 import java.util.Collection;
 import java.util.Date;
-import java.util.Set;
 
 import org.sakaiproject.entity.api.Edit;
 import org.sakaiproject.exception.InconsistentException;
@@ -97,7 +97,7 @@ public interface GroupAwareEdit extends GroupAwareEntity, Edit
 	 * Set the release date before which this entity should not be available to users 
 	 * except those with adequate permission (what defines "adequate permission" is TBD).
 	 * @param time The date/time at which the entity may be accessed by all users.
-	 * @deprecated see {{@link #setReleaseTime(Date)
+	 * @deprecated see {@link #setReleaseTime(Instant)}
 	 */
 	public void setReleaseDate(Time time);
 	
@@ -105,14 +105,23 @@ public interface GroupAwareEdit extends GroupAwareEntity, Edit
 	 * Set the release date before which this entity should not be available to users 
 	 * except those with adequate permission (what defines "adequate permission" is TBD).
 	 * @param time The date/time at which the entity may be accessed by all users.
+	 * @deprecated see {@link #setReleaseTime(Instant)}
 	 */
 	public void setReleaseTime(Date date);
+	
+	
+	/**
+	 * Set the release date before which this entity should not be available to users 
+	 * except those with adequate permission (what defines "adequate permission" is TBD).
+	 * @param time The Instant at which the entity may be accessed by all users.
+	 */
+	public void setReleaseInstant(Instant date);
 	
 	/**
 	 * Set the retract date after which this entity should not be available to users 
 	 * except those with adequate permission (what defines "adequate permission" is TBD).
 	 * @param time The date/time at which access to the entity should be restricted.
-	 * @deprecated see {@link #setRetractTime(Date)}
+	 * @deprecated see {@link #setRetractTime(Instant)}
 	 */
 	public void setRetractDate(Time time);
 	
@@ -120,8 +129,16 @@ public interface GroupAwareEdit extends GroupAwareEntity, Edit
 	 * Set the retract date after which this entity should not be available to users 
 	 * except those with adequate permission (what defines "adequate permission" is TBD).
 	 * @param time The date/time at which access to the entity should be restricted.
+	 * @deprecated see {@link #setRetractTime(Instant)}
 	 */
 	public void setRetractTime(Date time);
+	
+	/**
+	 * Set the retract date after which this entity should not be available to users 
+	 * except those with adequate permission (what defines "adequate permission" is TBD).
+	 * @param time The Instant at which access to the entity should be restricted.
+	 */
+	public void setRetractInstant(Instant time);
 	
 	/**
 	 * Make this entity hidden. Any values previously set for releaseDate and/or retractDate 
@@ -140,8 +157,23 @@ public interface GroupAwareEdit extends GroupAwareEntity, Edit
 	 * @param hidden
 	 * @param releaseDate
 	 * @param retractDate
+	 * @deprecated see {@link #setAvailabilityInstant(boolean, Instant, Instant)}
 	 */
 	public void setAvailability(boolean hidden, Time releaseDate, Time retractDate);
+	
+	/**
+	 * Set all of the attributes that determine availability.  If hidden is true, releaseInstant 
+	 * and retractInstant are ignored, and those attributes are set to null.  If hidden is false, 
+	 * releaseInstant and/or retractInstant may null, indicating that releaseInstant and/or retractInstant
+	 * should not be considered in calculating availability.  If hidden is false and a value
+	 * is given for releaseInstant, that should be saved to represent the time at which the item
+	 * becomes available. If hidden is false and a value is given for retractInstant, that should 
+	 * be saved to represent the time at which the item is no longer available.
+	 * @param hidden
+	 * @param releaseDate
+	 * @param retractDate
+	 */
+	public void setAvailabilityInstant(boolean hidden, Instant releaseDate, Instant retractDate);
 
 	/**
 	 * Set the "type" of this ContentEntity as determined by the ResourceType registration

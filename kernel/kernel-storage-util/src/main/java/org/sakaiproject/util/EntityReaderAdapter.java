@@ -23,14 +23,16 @@ package org.sakaiproject.util;
 
 import java.io.IOException;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+
+import org.xml.sax.SAXException;
+
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.serialize.EntityParseException;
 import org.sakaiproject.entity.api.serialize.EntityReaderHandler;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.xml.sax.SAXException;
 
 /**
  * This class provides a bridge between the XML serializers and the non XML serializers, so that whatever
@@ -40,11 +42,9 @@ import org.xml.sax.SAXException;
  * formats can still be read.
  * @author ieb
  */
+@Slf4j
 public class EntityReaderAdapter implements EntityReaderHandler
 {
-
-	private static final Logger log = LoggerFactory.getLogger(EntityReaderAdapter.class);
-
 	private SingleStorageUser storageUser = null;
 
 	private String containerEntryTagName;
@@ -271,7 +271,4 @@ public class EntityReaderAdapter implements EntityReaderHandler
 	{
 		this.target = target;
 	}
-
-
-
 }

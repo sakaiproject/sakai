@@ -29,8 +29,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.sakaiproject.component.api.ComponentManager;
 import org.sakaiproject.search.api.SearchService;
 
@@ -39,10 +38,10 @@ import org.sakaiproject.search.api.SearchService;
  * 
  * @author ieb
  */
+@Slf4j
 public class RestSearchServlet extends HttpServlet
 {
 
-    private static final Logger log = LoggerFactory.getLogger(RestSearchServlet.class);
     public static final String REQUEST_PARAM_CTX = "ctx";
     public static final String REQUEST_PARAM_SCOPE = "scope";
     public static final String REQUEST_PARAMETER_Q = "q";

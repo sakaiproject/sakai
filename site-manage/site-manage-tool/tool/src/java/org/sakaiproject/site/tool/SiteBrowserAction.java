@@ -35,6 +35,10 @@ import java.util.Vector;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang.StringUtils;
+import org.apache.velocity.tools.generic.SortTool;
+
 import org.sakaiproject.announcement.cover.AnnouncementService;
 import org.sakaiproject.cheftool.Context;
 import org.sakaiproject.cheftool.JetspeedRunData;
@@ -64,16 +68,12 @@ import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.util.ResourceLoader;
 
-import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.apache.velocity.tools.generic.SortTool;
-
 /**
  * <p>
  * SiteBrowserAction is the Sakai site browser, showing a searchable list of the defined sites, and details including public resources of each when selected.
  * </p>
  */
+@Slf4j
 public class SiteBrowserAction extends PagedResourceActionII implements SiteHelper
 {
 	private static final String INTER_SIZE = "inter_size";
@@ -82,8 +82,6 @@ public class SiteBrowserAction extends PagedResourceActionII implements SiteHelp
 	.get(org.sakaiproject.coursemanagement.api.CourseManagementService.class);
 
 	private ContentHostingService contentHostingService;
-	
-	private static Logger log = LoggerFactory.getLogger(SiteBrowserAction.class); 
 
 	private static ResourceLoader rb = new ResourceLoader("sitebrowser");
 	
@@ -592,8 +590,7 @@ public class SiteBrowserAction extends PagedResourceActionII implements SiteHelp
 			}
 			catch (Exception reflectionEx)
 			{
-			 	log.error("Reflection exceptions in SiteBrowserAction for getting public syllabus {}", reflectionEx);
-				reflectionEx.printStackTrace();
+				log.error("Reflection exceptions in SiteBrowserAction for getting public syllabus {}", reflectionEx);
 			}
 
 			// get the public resources

@@ -24,7 +24,7 @@ import java.util.List;
  */
 public interface ExternalUserSearchUDP {
 
-	/** 
+    /**
      * Search for externally provided users that match this criteria in eid, email, first or last name. 
      * 
      * <p>Returns a List of User objects. This list will be <b>empty</b> if no results are returned or <b>null</b>
@@ -36,9 +36,11 @@ public interface ExternalUserSearchUDP {
      * 		The search criteria. 
      * @param first 
      * 		The first record position to return. If the provider does not support paging, this value is unused.
+     * 		If no paging is requested <code>-1</code> will be passed.
      * @param last 
      * 		The last record position to return. If the provider does not support paging, this value is unused.
-     * @param factory 
+     * 		If no paging is requested <code>-1</code> will be passed.
+     * @param factory
      * 		Use this factory's newUser() method to create the UserEdit objects you populate and return in the List.
      * @return 
      * 		A List (UserEdit) of all the users matching the criteria or null if an error occurred.

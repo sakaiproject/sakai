@@ -37,7 +37,7 @@ public class ParserListener implements ActionListener {
 		FacesContext context = FacesContext.getCurrentInstance();
 		AssessmentService assessmentService = new AssessmentService();
 			    
-		String assessmentTitle = TextFormat.convertPlaintextToFormattedTextNoHighUnicode(log, samLiteBean.getName());
+		String assessmentTitle = TextFormat.convertPlaintextToFormattedTextNoHighUnicode(samLiteBean.getName());
 		
 		samLiteBean.setOutcome("samLiteValidation");
 		//check assessmentTitle and see if it is duplicated, if is not then proceed, else throw error

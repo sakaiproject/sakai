@@ -19,8 +19,6 @@
  *
  **********************************************************************************/
 
-
-
 package org.sakaiproject.tool.assessment.qti.helper;
 
 import java.io.IOException;
@@ -33,16 +31,16 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import org.springframework.core.io.ClassPathResource;
+
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.jaxen.JaxenException;
 import org.jaxen.XPath;
 import org.jaxen.dom.DOMXPath;
+import org.springframework.core.io.ClassPathResource;
 import org.w3c.dom.Attr;
 import org.w3c.dom.CharacterData;
 import org.w3c.dom.DOMException;
@@ -55,7 +53,6 @@ import org.xml.sax.SAXException;
 
 import org.sakaiproject.tool.assessment.qti.constants.QTIVersion;
 
-
 /**
  * <p>Utility to load XML templates from Sprint context or local file system.</p>
  * <p> </p>
@@ -64,10 +61,9 @@ import org.sakaiproject.tool.assessment.qti.constants.QTIVersion;
  * @author Ed Smiley esmiley@stanford.edu
  * @version $Id$
  */
-
+@Slf4j
 public class AuthoringXml
 {
-  private static Logger log = LoggerFactory.getLogger(AuthoringXml.class);
 
   public static final String SETTINGS_FILE = "SAM.properties";
   // paths

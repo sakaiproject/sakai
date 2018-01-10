@@ -33,13 +33,12 @@ import java.math.BigDecimal;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ValueChangeEvent;
 
-import org.sakaiproject.tool.gradebook.GradebookAssignment;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import org.sakaiproject.tool.gradebook.Category;
 import org.sakaiproject.tool.gradebook.GradeMapping;
 import org.sakaiproject.tool.gradebook.Gradebook;
+import org.sakaiproject.tool.gradebook.GradebookAssignment;
 import org.sakaiproject.tool.gradebook.LetterGradePercentMapping;
 import org.sakaiproject.tool.gradebook.Permission;
 import org.sakaiproject.tool.gradebook.jsf.FacesUtil;
@@ -48,16 +47,15 @@ import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.service.gradebook.shared.StaleObjectModificationException;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 
+@Slf4j
 public class GradebookSetupBean extends GradebookDependentBean implements Serializable
 {
-	private static final Logger logger = LoggerFactory.getLogger(GradebookSetupBean.class);
-
 	private String gradeEntryMethod;
 	private String categorySetting;
-    private boolean showDropHighestDisplayed;
-    private boolean showDropLowestDisplayed;
-    private boolean showKeepHighestDisplayed;
-    private boolean anyCategoriesWithDrops;
+	private boolean showDropHighestDisplayed;
+	private boolean showDropLowestDisplayed;
+	private boolean showKeepHighestDisplayed;
+	private boolean anyCategoriesWithDrops;
 	private List categories;
 	private Gradebook localGradebook;
 	private List categoriesToRemove;
@@ -71,21 +69,21 @@ public class GradebookSetupBean extends GradebookDependentBean implements Serial
 	private LetterGradePercentMapping lgpm;
 	private LetterGradePercentMapping defaultLGPM;
 	private boolean enableLetterGrade = false;
-  private boolean isValidWithCourseGrade = true;
+	private boolean isValidWithCourseGrade = true;
 	
 	private boolean isLetterGrade = false;
-    private boolean isPointGrade = false;
-    private boolean isPercentageGrade = false;
+	private boolean isPointGrade = false;
+	private boolean isPercentageGrade = false;
 
-    private static final int NUM_EXTRA_CAT_ENTRIES = 50;
+	private static final int NUM_EXTRA_CAT_ENTRIES = 50;
 	private static final String ENTRY_OPT_POINTS = "points";
 	private static final String ENTRY_OPT_PERCENT = "percent";
 	private static final String ENTRY_OPT_LETTER = "letterGrade";
 	private static final String CATEGORY_OPT_NONE = "noCategories";
 	private static final String CATEGORY_OPT_CAT_ONLY = "onlyCategories";
 	private static final String CATEGORY_OPT_CAT_AND_WEIGHT = "categoriesAndWeighting";
-    private static final String DROP_OPT_HIDE = "hideDrop";
-    private static final String DROP_OPT_SHOW = "showDrop";
+	private static final String DROP_OPT_HIDE = "hideDrop";
+	private static final String DROP_OPT_SHOW = "showDrop";
 
 	private static final String GB_SETUP_PAGE = "gradebookSetup";
 	private static final String GB_OVERVIEW_PAGE = "overview";
@@ -459,7 +457,7 @@ public class GradebookSetupBean extends GradebookDependentBean implements Serial
 					// if there is a specific category associated with this permission or if
 					// there are no sections defined in the site, we need to delete this permission
 					if (perm.getCategoryId() != null || sections == null || sections.size() == 0) {
-						logger.debug("Permission " + perm.getId() + " was deleted b/c gb changed to no categories");
+						log.debug("Permission " + perm.getId() + " was deleted b/c gb changed to no categories");
 						getGradebookManager().deletePermission(perm);
 					}
 				}
@@ -679,7 +677,7 @@ public class GradebookSetupBean extends GradebookDependentBean implements Serial
 				return "failure";
 			}
 			catch (StaleObjectModificationException e) {
-				logger.error(e.getMessage());
+				log.error(e.getMessage());
 				FacesUtil.addErrorMessage(getLocalizedString("cat_locking_failure"));
 				return "failure";
 			}
@@ -697,7 +695,7 @@ public class GradebookSetupBean extends GradebookDependentBean implements Serial
 			if (!permsToRemove.isEmpty()) {
 				for (Iterator permIter = permsToRemove.iterator(); permIter.hasNext();) {
 					Permission perm = (Permission) permIter.next();
-					logger.debug("Permission " + perm.getId() + " was deleted b/c category deleted");
+					log.debug("Permission " + perm.getId() + " was deleted b/c category deleted");
 					getGradebookManager().deletePermission(perm);
 				}
 			}
@@ -1054,7 +1052,7 @@ public class GradebookSetupBean extends GradebookDependentBean implements Serial
 		for (Iterator iter = letterGradesList.iterator(); iter.hasNext(); ) {
 			String grade = (String)iter.next();
 			Double percentage = (Double)lgpm.getValue(grade);
-			if (logger.isDebugEnabled()) logger.debug("checking percentage " + percentage + " for validity");
+			if (log.isDebugEnabled()) log.debug("checking percentage " + percentage + " for validity");
 
 			// Grades that are percentage-based need to remain percentage-based,
 			// be in descending order, and end with 0.
@@ -1198,6 +1196,4 @@ public class GradebookSetupBean extends GradebookDependentBean implements Serial
 	public void setPercentageGrade(boolean isPercentageGrade) {
 		this.isPercentageGrade = isPercentageGrade;
 	}
-	
-
 }

@@ -15,22 +15,21 @@
  */
 package org.sakaiproject.component.app.scheduler.jobs;
 
+import javax.inject.Inject;
+
+import lombok.extern.slf4j.Slf4j;
+
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
-import org.sakaiproject.id.api.IdManager;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import javax.inject.Inject;
-import javax.inject.Named;
+import org.sakaiproject.id.api.IdManager;
 
 /**
  * This is to test autowiring of Jobs.
  */
+@Slf4j
 public class AutowiredTestJob implements Job {
-
-    private final Logger logger = LoggerFactory.getLogger(AutowiredTestJob.class);
 
     @Inject
     public void setIdManager(IdManager idManager) {
@@ -42,9 +41,9 @@ public class AutowiredTestJob implements Job {
     @Override
     public void execute(JobExecutionContext context) throws JobExecutionException {
         if (idManager != null) {
-            logger.info("Autowiring worked, generated ID {}", idManager.createUuid());
+            log.info("Autowiring worked, generated ID {}", idManager.createUuid());
         } else {
-            logger.info("IdManager was not autowired :-(");
+            log.info("IdManager was not autowired :-(");
         }
     }
 }

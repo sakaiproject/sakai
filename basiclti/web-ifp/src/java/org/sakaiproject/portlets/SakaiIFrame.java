@@ -28,9 +28,6 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Enumeration;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import javax.portlet.GenericPortlet;
 import javax.portlet.RenderRequest;
 import javax.portlet.ActionRequest;
@@ -42,6 +39,8 @@ import javax.portlet.PortletContext;
 import javax.portlet.PortletConfig;
 import javax.portlet.PortletMode;
 import javax.portlet.PortletSession;
+
+import lombok.extern.slf4j.Slf4j;
 
 import org.sakaiproject.portlet.util.VelocityHelper;
 import org.sakaiproject.portlet.util.JSPHelper;
@@ -71,9 +70,8 @@ import org.sakaiproject.lti.api.LTIService;
 /**
  * a simple SakaiIFrame Portlet
  */
+@Slf4j
 public class SakaiIFrame extends GenericPortlet {
-
-	private static final Logger M_log = LoggerFactory.getLogger(SakaiIFrame.class);
 	
 	private LTIService m_ltiService = (LTIService) ComponentManager.get("org.sakaiproject.lti.api.LTIService");
 
@@ -139,7 +137,7 @@ public class SakaiIFrame extends GenericPortlet {
 		{
 			throw new PortletException("Cannot initialize Velocity ", e);
 		}
-		M_log.info("iFrame Portlet vengine="+vengine+" rb="+rb);
+		log.info("iFrame Portlet vengine={} rb={}", vengine, rb);
 
 	}
 
@@ -163,7 +161,7 @@ public class SakaiIFrame extends GenericPortlet {
 		throws PortletException, IOException {
 			response.setContentType("text/html");
 
-			// System.out.println("==== doView called ====");
+			log.debug("==== doView called ====");
 
 			// Grab that underlying request to get a GET parameter
 			ServletRequest req = (ServletRequest) ThreadLocalManager.get(CURRENT_HTTP_REQUEST);
@@ -187,7 +185,7 @@ public class SakaiIFrame extends GenericPortlet {
 			Long key = getContentIdFromSource(source);
 			if ( key == null ) {
 				out.println(rb.getString("get.info.notconfig"));
-				M_log.warn("Cannot find content id placement="+placement.getId()+" source="+source);
+				log.warn("Cannot find content id placement={} source={}", placement.getId(), source);
 				return;
 			}
 			try {
@@ -223,7 +221,7 @@ public class SakaiIFrame extends GenericPortlet {
 				}
 			} catch (Exception e) {
 				out.println(rb.getString("get.info.notconfig"));
-				e.printStackTrace();
+				log.error(e.getMessage(), e);
 				return;
 			}
 
@@ -283,7 +281,7 @@ public class SakaiIFrame extends GenericPortlet {
 
 		Object retval = m_ltiService.insertContent(props, placement.getContext());
 		if ( retval instanceof String ) {
-			M_log.error("Unable to insert LTILinkItem tool={} placement={}",tool_id,placement.getId());
+			log.error("Unable to insert LTILinkItem tool={} placement={}",tool_id,placement.getId());
 			placement.getPlacementConfig().setProperty(SOURCE,"");
 			placement.save();
 			return null;
@@ -293,7 +291,7 @@ public class SakaiIFrame extends GenericPortlet {
 		Map<String,Object> newContent = m_ltiService.getContent(contentKey, placement.getContext());
 		String contentUrl = m_ltiService.getContentLaunch(newContent);
 		if ( newContent == null || contentUrl == null ) {
-			M_log.error("Unable to set contentUrl tool={} placement={}",tool_id,placement.getId());
+			log.error("Unable to set contentUrl tool={} placement={}",tool_id,placement.getId());
 			placement.getPlacementConfig().setProperty(SOURCE,"");
 			placement.save();
 			return null;
@@ -301,7 +299,7 @@ public class SakaiIFrame extends GenericPortlet {
 		placement.getPlacementConfig().setProperty(SOURCE,contentUrl);
 		placement.save();
 
-		M_log.debug("Patched contentUrl tool={} placement={} url={}",tool_id,placement.getId(),contentUrl);
+		log.debug("Patched contentUrl tool={} placement={} url={}",tool_id,placement.getId(),contentUrl);
 
 		return newContent;
 	}
@@ -333,14 +331,14 @@ public class SakaiIFrame extends GenericPortlet {
 			Long key = getContentIdFromSource(source);
 			if ( key == null ) {
 				out.println(rb.getString("get.info.notconfig"));
-				M_log.warn("Cannot find content id placement="+placement.getId()+" source="+source);
+				log.warn("Cannot find content id placement={} source={}", placement.getId(), source);
 				return;
 			}
 
 			Map<String, Object> content = m_ltiService.getContent(key, placement.getContext());
 			if ( content == null ) {
 				out.println(rb.getString("get.info.notconfig"));
-				M_log.warn("Cannot find content item placement="+placement.getId()+" key="+key);
+				log.warn("Cannot find content item placement={} key={}", placement.getId(), key);
 				return;
 			}
 
@@ -349,7 +347,7 @@ public class SakaiIFrame extends GenericPortlet {
 			Map<String, Object> tool = m_ltiService.getTool(Long.valueOf(foundLtiToolId), placement.getContext());
 			if ( tool == null ) {
 				out.println(rb.getString("get.info.notconfig"));
-				M_log.warn("Cannot find tool placement="+placement.getId()+" key="+foundLtiToolId);
+				log.warn("Cannot find tool placement={} key={}", placement.getId(), foundLtiToolId);
 				return;
 			}
 
@@ -362,10 +360,10 @@ public class SakaiIFrame extends GenericPortlet {
 
 	public void doHelp(RenderRequest request, RenderResponse response)
 		throws PortletException, IOException {
-			// System.out.println("==== doHelp called ====");
+			log.debug("==== doHelp called ====");
 			// sendToJSP(request, response, "/help.jsp");
 			JSPHelper.sendToJSP(pContext, request, response, "/help.jsp");
-			// System.out.println("==== doHelp done ====");
+			log.debug("==== doHelp done ====");
 		}
 
 	// Process action is called for action URLs / form posts, etc
@@ -375,7 +373,7 @@ public class SakaiIFrame extends GenericPortlet {
 	public void processAction(ActionRequest request, ActionResponse response)
 		throws PortletException, IOException {
 
-			// System.out.println("==== processAction called ====");
+			log.debug("==== processAction called ====");
 
 			PortletSession pSession = request.getPortletSession(true);
 
@@ -398,11 +396,11 @@ public class SakaiIFrame extends GenericPortlet {
 			} else if ( doUpdate != null ) {
 				processActionEdit(request, response);
 			} else {
-				// System.out.println("Unknown action");
+				log.debug("Unknown action");
 				response.setPortletMode(PortletMode.VIEW);
 			}
 
-			// System.out.println("==== End of ProcessAction  ====");
+			log.debug("==== End of ProcessAction  ====");
 		}
 
 	public void processActionEdit(ActionRequest request, ActionResponse response)

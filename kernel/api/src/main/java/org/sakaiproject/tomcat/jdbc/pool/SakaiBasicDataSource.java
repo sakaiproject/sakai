@@ -23,10 +23,7 @@ package org.sakaiproject.tomcat.jdbc.pool;
 
 import java.lang.management.ManagementFactory;
 import java.sql.Connection;
-import java.sql.Driver;
-import java.sql.DriverManager;
 import java.sql.SQLException;
-import java.util.Properties;
 
 import javax.management.InstanceAlreadyExistsException;
 import javax.management.MBeanRegistrationException;
@@ -35,8 +32,7 @@ import javax.management.MalformedObjectNameException;
 import javax.management.NotCompliantMBeanException;
 import javax.management.ObjectName;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import org.apache.tomcat.jdbc.pool.DataSource;
 import org.apache.tomcat.jdbc.pool.DataSourceFactory;
@@ -47,11 +43,9 @@ import org.apache.tomcat.jdbc.pool.PoolProperties;
  * SakaiBasicDataSource extends apache tomcat's DataSource ...
  * </p>
  */
+@Slf4j
 public class SakaiBasicDataSource extends DataSource
 {
-	/** Our logger. */
-	private static Logger M_log = LoggerFactory.getLogger(SakaiBasicDataSource.class);
-
 	private MBeanServer mBeanServer = ManagementFactory.getPlatformMBeanServer();
 
 	/** Configuration: to rollback each connection when returned to the pool. */
@@ -66,12 +60,12 @@ public class SakaiBasicDataSource extends DataSource
 	}
 
 	public void setMaxOpenPreparedStatements(int maxOpenPreparedStatements) {
-		M_log.info("MaxOpenPreparedStatments not used");
+		log.info("MaxOpenPreparedStatments not used");
 		this.maxOpenPreparedStatements = maxOpenPreparedStatements;
 	}
 
 	public void setPoolPreparedStatements(boolean poolPreparedStatements) {
-		M_log.info("PoolPreparedStatements not used");
+		log.info("PoolPreparedStatements not used");
 		this.poolPreparedStatements = poolPreparedStatements;
 	}
 
@@ -109,7 +103,7 @@ public class SakaiBasicDataSource extends DataSource
 		else
 		{
 			setDefaultTransactionIsolation(DataSourceFactory.UNKNOWN_TRANSACTIONISOLATION);
-			M_log.warn("invalid transaction isolation level: " + defaultTransactionIsolation);
+			log.warn("invalid transaction isolation level: " + defaultTransactionIsolation);
 		}
 	}
 
@@ -130,7 +124,7 @@ public class SakaiBasicDataSource extends DataSource
 	 */
 	protected void init() throws MalformedObjectNameException, MBeanRegistrationException, NotCompliantMBeanException, SQLException, InstanceAlreadyExistsException
 	{
-		M_log.info("init()");
+		log.info("init()");
 		// Load the JDBC driver class
 		PoolProperties connectionPool = (PoolProperties) createPool().getPoolProperties();
 		String driverClassName = getDriverClassName();
@@ -144,7 +138,7 @@ public class SakaiBasicDataSource extends DataSource
 			catch (Throwable t)
 			{
 				String message = "Cannot load JDBC driver class '" + driverClassName + "'";
-				M_log.error(message, t);
+				log.error(message, t);
 				throw new SQLException(message,t);
 			}
 		}
@@ -171,13 +165,13 @@ public class SakaiBasicDataSource extends DataSource
 		*/
 		// Set up the driver connection factory we will use
 		if (getUsername() == null) {
-			M_log.warn("Tomcat DataSource configured without a 'username'");
+			log.warn("Tomcat DataSource configured without a 'username'");
 		}
 		
 		String password = createPool().getPoolProperties().getUsername();
 
 		if (password == null) {
-			M_log.warn("Tomcat DataSource configured without a 'password'");
+			log.warn("Tomcat DataSource configured without a 'password'");
 		}
 		
 		setPoolProperties(connectionPool);
@@ -185,7 +179,7 @@ public class SakaiBasicDataSource extends DataSource
 		// Register an MBean so that we can view statistics on the pool via JMX
 		ObjectName on = new ObjectName("TomcatJDBC:type=statistics,application=TomcatJDBCSakaiPool");
 		if (!mBeanServer.isRegistered(on)) {
-			M_log.info("Registering Tomcat JDBC pool with JMX " + mBeanServer);
+			log.info("Registering Tomcat JDBC pool with JMX " + mBeanServer);
 			mBeanServer.registerMBean(getPool().getJmxPool(), on);
 		}
 		

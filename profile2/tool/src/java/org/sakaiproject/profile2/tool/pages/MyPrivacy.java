@@ -19,8 +19,7 @@ package org.sakaiproject.profile2.tool.pages;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
@@ -36,16 +35,16 @@ import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
+
 import org.sakaiproject.profile2.exception.ProfilePrivacyNotDefinedException;
 import org.sakaiproject.profile2.model.ProfilePrivacy;
 import org.sakaiproject.profile2.tool.components.HashMapChoiceRenderer;
 import org.sakaiproject.profile2.tool.components.IconWithClueTip;
 import org.sakaiproject.profile2.util.ProfileConstants;
 
-
+@Slf4j
 public class MyPrivacy extends BasePage {
 
-	private static final Logger log = LoggerFactory.getLogger(MyPrivacy.class);
 	private transient ProfilePrivacy profilePrivacy;
 		
 	public MyPrivacy() {

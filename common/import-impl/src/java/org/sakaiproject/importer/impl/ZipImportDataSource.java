@@ -21,19 +21,13 @@
 
 package org.sakaiproject.importer.impl;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
 import java.io.File;
 
-import org.sakaiproject.archive.api.ImportMetadata;
-import org.sakaiproject.importer.api.ImportDataSource;
-import org.sakaiproject.importer.api.Importable;
+import lombok.extern.slf4j.Slf4j;
+
 import org.apache.commons.io.FileUtils;
 
+@Slf4j
 public class ZipImportDataSource extends BasicImportDataSource {
 	
 	private String archiveDir;
@@ -48,7 +42,7 @@ public class ZipImportDataSource extends BasicImportDataSource {
 	    try {
 		FileUtils.deleteDirectory(new File(archiveDir));
 	    } catch (Exception e) {
-		System.out.println("failed to delete " + archiveDir);
+		log.error("failed to delete {}", archiveDir);
 	    }
 		//items.iterator().next().get
 		

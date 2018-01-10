@@ -21,10 +21,20 @@
 
 package org.sakaiproject.search.elasticsearch;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.TimerTask;
+import java.util.stream.Collectors;
+
 import com.google.common.collect.Maps;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.elasticsearch.action.bulk.BulkRequestBuilder;
 import org.elasticsearch.action.delete.DeleteRequestBuilder;
 import org.elasticsearch.action.deletebyquery.DeleteByQueryResponse;
@@ -39,6 +49,8 @@ import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.OrFilterBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.search.SearchHit;
+import org.slf4j.Logger;
+
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.search.api.EntityContentProducer;
@@ -51,26 +63,14 @@ import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.TimerTask;
-import java.util.stream.Collectors;
-
 import static org.elasticsearch.index.query.FilterBuilders.orFilter;
 import static org.elasticsearch.index.query.FilterBuilders.termsFilter;
 import static org.elasticsearch.index.query.QueryBuilders.termQuery;
 import static org.elasticsearch.index.query.QueryBuilders.termsQuery;
 
+@Slf4j
 public class SiteElasticSearchIndexBuilder extends BaseElasticSearchIndexBuilder
         implements SiteSearchIndexBuilder {
-
-    private static final Logger log = LoggerFactory.getLogger(SiteElasticSearchIndexBuilder.class);
 
     protected static final String SEARCH_TOOL_ID = "sakai.search";
     protected static final String SAKAI_DOC_TYPE = "sakai_doc";

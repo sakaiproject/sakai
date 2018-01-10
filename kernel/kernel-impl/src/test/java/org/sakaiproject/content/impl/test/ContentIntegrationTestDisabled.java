@@ -17,21 +17,21 @@ package org.sakaiproject.content.impl.test;
 
 import java.nio.ByteBuffer;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
+
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ResourceTypeRegistry;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.test.SakaiKernelTestBase;
 
+@Slf4j
 public class ContentIntegrationTestDisabled extends SakaiKernelTestBase
 {
-	private static final Logger log = LoggerFactory.getLogger(ContentIntegrationTestDisabled.class);
-	
 	private AuthzGroupService authzGroupService;
 	private SiteService siteService;
 	protected ContentHostingService contentService;

@@ -21,29 +21,27 @@
 
 package org.sakaiproject.memory.impl;
 
-import net.sf.ehcache.CacheManager;
-import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.sakaiproject.authz.api.SecurityService;
-import org.sakaiproject.component.api.ServerConfigurationService;
-import org.sakaiproject.component.cover.ComponentManager;
-import org.sakaiproject.event.api.EventTrackingService;
-import org.sakaiproject.memory.api.*;
-
 import java.util.Properties;
+
+import lombok.extern.slf4j.Slf4j;
+
+import net.sf.ehcache.CacheManager;
+
+import org.apache.commons.lang3.StringUtils;
+
+import org.sakaiproject.component.api.ServerConfigurationService;
+import org.sakaiproject.memory.api.*;
 
 /**
  * Allows us to configure which MemoryService implementation is used using config settings
  *
  * @author Aaron Zeckoski (azeckoski @ unicon.net) (azeckoski @ gmail.com)
  */
+@Slf4j
 public class BaseMemoryService implements MemoryService {
 
     public static final String TYPE_EHCACHE = "ehcache";
     public static final String TYPE_HAZELCAST = "hazelcast";
-
-    final Logger log = LoggerFactory.getLogger(BaseMemoryService.class);
 
     ServerConfigurationService serverConfigurationService;
     CacheManager cacheManager;

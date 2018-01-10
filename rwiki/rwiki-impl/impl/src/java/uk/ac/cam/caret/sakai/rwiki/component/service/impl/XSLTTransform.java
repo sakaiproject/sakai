@@ -31,7 +31,6 @@ import javax.xml.transform.sax.TransformerHandler;
 import org.xml.sax.InputSource;
 import org.xml.sax.XMLReader;
 
-
 /**
  * Manages a TraxTransform using templates to make it fast to get hold of. This
  * class is NOT thread safe and should be cached in the Thread Local
@@ -41,7 +40,6 @@ import org.xml.sax.XMLReader;
 public class XSLTTransform
 {
 
-	
 	private Templates templates = null;
 
 	private SAXTransformerFactory factory = (SAXTransformerFactory) SAXTransformerFactory
@@ -95,7 +93,7 @@ public class XSLTTransform
 			{
 				String name = (String) i.next();
 				String value = (String) outputProperties.get(name);
-				System.err.println("Setting Property "+name+"=["+value+"]");
+				log.info("Setting Property "+name+"=["+value+"]");
 				trans.setOutputProperty(name, value);
 
 			}
@@ -120,7 +118,7 @@ public class XSLTTransform
 			{
 				String name = (String) i.next();
 				String value = (String) outputProperties.get(name);
-				System.err.println("Setting Property "+name+"=["+value+"]");
+				log.info("Setting Property "+name+"=["+value+"]");
 				trans.setOutputProperty(name, value);
 
 			}

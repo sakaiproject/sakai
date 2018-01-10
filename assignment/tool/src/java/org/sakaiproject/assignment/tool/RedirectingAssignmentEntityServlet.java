@@ -23,6 +23,8 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.assignment.entityproviders.AssignmentEntityProvider;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.component.cover.ComponentManager;
@@ -32,8 +34,6 @@ import org.sakaiproject.entitybroker.access.EntityViewAccessProvider;
 import org.sakaiproject.entitybroker.access.EntityViewAccessProviderManager;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.SessionManager;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Does a redirect to allow basic DirectServlet access to old assignment
@@ -42,11 +42,9 @@ import org.slf4j.LoggerFactory;
  * @author Joshua Ryan josh@asu.edu alt^I
  * 
  */
-
+@Slf4j
 public class RedirectingAssignmentEntityServlet extends HttpServlet implements
 		EntityViewAccessProvider {
-
-	private static Logger M_log = LoggerFactory.getLogger(RedirectingAssignmentEntityServlet.class);
 
 	private static final long serialVersionUID = 0L;
 	private EntityBroker entityBroker;
@@ -61,7 +59,7 @@ public class RedirectingAssignmentEntityServlet extends HttpServlet implements
 	 * @throws ServletException
 	 */
 	public void init(ServletConfig config) throws ServletException {
-		M_log.info("init()");
+		log.info("init()");
 		super.init(config);
 		entityBroker = (EntityBroker) ComponentManager
 				.get("org.sakaiproject.entitybroker.EntityBroker");
@@ -77,11 +75,11 @@ public class RedirectingAssignmentEntityServlet extends HttpServlet implements
 
 	public void handleAccess(EntityView view, HttpServletRequest req,
 			HttpServletResponse res) {
-		M_log.debug("handleAccess()");
+		log.debug("handleAccess()");
 		Map<String, String> props = entityBroker.getProperties(req
 				.getPathInfo());
 		String target = props.get("url");
-		M_log.debug("handleAccess() -> " + target);
+		log.debug("handleAccess() -> {}", target);
 		String user = props.get("security.user");
 		String site_function = props.get("security.site.function");
 		String site_secref = props.get("security.site.ref");
@@ -145,7 +143,7 @@ public class RedirectingAssignmentEntityServlet extends HttpServlet implements
 			setNoCacheHeaders(res);
 			res.sendRedirect(target);
 		} catch (IOException e) {
-			e.printStackTrace();
+			log.error("Cannot send redirect target: {}", target, e);
 		}
 		return;
 	}

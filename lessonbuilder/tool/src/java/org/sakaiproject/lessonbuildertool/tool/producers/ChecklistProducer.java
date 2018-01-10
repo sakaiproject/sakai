@@ -22,14 +22,13 @@
 
 package org.sakaiproject.lessonbuildertool.tool.producers;
 
-import org.sakaiproject.authz.cover.SecurityService;
-import org.sakaiproject.exception.IdUnusedException;
-import org.sakaiproject.lessonbuildertool.SimplePage;
-import org.sakaiproject.lessonbuildertool.SimplePageItem;
-import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean;
-import org.sakaiproject.lessonbuildertool.tool.view.GeneralViewParameters;
-import org.sakaiproject.lessonbuildertool.util.SimplePageItemUtilities;
-import org.sakaiproject.tool.cover.SessionManager;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Arrays;
+import java.util.Collection;
+
+import lombok.extern.slf4j.Slf4j;
+
 import uk.org.ponder.localeutil.LocaleGetter;
 import uk.org.ponder.messageutil.MessageLocator;
 import uk.org.ponder.rsf.components.*;
@@ -43,11 +42,15 @@ import uk.org.ponder.rsf.viewstate.SimpleViewParameters;
 import uk.org.ponder.rsf.viewstate.ViewParameters;
 import uk.org.ponder.rsf.viewstate.ViewParamsReporter;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Arrays;
-import java.util.Collection;
+import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.lessonbuildertool.SimplePage;
+import org.sakaiproject.lessonbuildertool.SimplePageItem;
+import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean;
+import org.sakaiproject.lessonbuildertool.tool.view.GeneralViewParameters;
+import org.sakaiproject.lessonbuildertool.util.SimplePageItemUtilities;
+import org.sakaiproject.tool.cover.SessionManager;
 
+@Slf4j
 public class ChecklistProducer implements ViewComponentProducer, NavigationCaseReporter, ViewParamsReporter {
 
     private SimplePageBean simplePageBean;
@@ -76,7 +79,7 @@ public class ChecklistProducer implements ViewComponentProducer, NavigationCaseR
             try {
                 simplePageBean.updatePageObject(gparams.getSendingPage());
             } catch (Exception e) {
-                System.out.println("Checklist permission exception " + e);
+                log.error("Checklist permission exception {} {}", e.getMessage(), e);
                 return;
             }
         }
@@ -96,7 +99,7 @@ public class ChecklistProducer implements ViewComponentProducer, NavigationCaseR
         if (itemId != null && itemId != -1) {
 	    i = simplePageBean.findItem(itemId);
             if (i.getPageId() != page.getPageId()) {
-                System.out.println("Checklist asked to edit item not in current page");
+                log.debug("Checklist asked to edit item not in current page");
                 return;
             }
             try {

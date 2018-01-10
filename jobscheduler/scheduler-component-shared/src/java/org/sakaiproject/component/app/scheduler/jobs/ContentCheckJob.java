@@ -15,22 +15,6 @@
  */
 package org.sakaiproject.component.app.scheduler.jobs;
 
-import org.apache.commons.collections.iterators.IteratorChain;
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.io.input.CountingInputStream;
-import org.apache.commons.io.output.NullOutputStream;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.quartz.Job;
-import org.quartz.JobExecutionContext;
-import org.quartz.JobExecutionException;
-import org.sakaiproject.content.api.ContentEntity;
-import org.sakaiproject.content.api.ContentHostingService;
-import org.sakaiproject.content.api.ContentResource;
-import org.sakaiproject.content.api.ResourceType;
-import org.sakaiproject.exception.ServerOverloadException;
-
-import javax.xml.bind.DatatypeConverter;
 import java.io.IOException;
 import java.security.DigestOutputStream;
 import java.security.MessageDigest;
@@ -38,6 +22,25 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
+
+import javax.xml.bind.DatatypeConverter;
+
+import lombok.extern.slf4j.Slf4j;
+
+import org.apache.commons.collections.iterators.IteratorChain;
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.io.input.CountingInputStream;
+import org.apache.commons.io.output.NullOutputStream;
+
+import org.quartz.Job;
+import org.quartz.JobExecutionContext;
+import org.quartz.JobExecutionException;
+
+import org.sakaiproject.content.api.ContentEntity;
+import org.sakaiproject.content.api.ContentHostingService;
+import org.sakaiproject.content.api.ContentResource;
+import org.sakaiproject.content.api.ResourceType;
+import org.sakaiproject.exception.ServerOverloadException;
 
 /**
  * <p>
@@ -57,9 +60,9 @@ import java.util.NoSuchElementException;
  *
  * @author Matthew Buckett
  */
+@Slf4j
 public class ContentCheckJob implements Job {
 
-	private final static Logger log = LoggerFactory.getLogger(ContentCheckJob.class);
 	public static final String ALGORITHM = "MD5";
 
 	private ContentHostingService chs;

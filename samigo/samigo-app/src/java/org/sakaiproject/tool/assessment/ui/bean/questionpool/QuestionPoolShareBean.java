@@ -19,8 +19,6 @@
  *
  **********************************************************************************/
 
-
-
 package org.sakaiproject.tool.assessment.ui.bean.questionpool;
 
 import java.io.Serializable;
@@ -31,8 +29,7 @@ import java.util.List;
 
 import javax.faces.context.FacesContext;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.sakaiproject.tool.assessment.data.dao.questionpool.QuestionPoolData;
 import org.sakaiproject.tool.assessment.data.model.Tree;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
@@ -43,9 +40,6 @@ import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.util.BeanSort;
 import org.sakaiproject.tool.assessment.business.questionpool.QuestionPoolTreeImpl;
 
-// from navigo
-
-
 /**
  * This holds question pool information.
  *
@@ -55,6 +49,7 @@ import org.sakaiproject.tool.assessment.business.questionpool.QuestionPoolTreeIm
  * @author Lydia Li<lydial@stanford.edu>
  * $Id$
  */
+@Slf4j
 public class QuestionPoolShareBean implements Serializable
 {
 	/**
@@ -62,8 +57,6 @@ public class QuestionPoolShareBean implements Serializable
 	 */
 	private static final long serialVersionUID = -1154189308380595101L;
 
-	private static Logger log = LoggerFactory.getLogger(QuestionPoolShareBean.class);
-	
 	// QuestionPool
 	private Long questionPoolId;
 	private String questionPoolOwnerId;
@@ -125,7 +118,7 @@ public class QuestionPoolShareBean implements Serializable
   			tree= new QuestionPoolTreeImpl((QuestionPoolIteratorFacade) delegate.getAllPoolsWithAccess(AgentFacade.getAgentString()));
   		}
   		catch(Exception e) {
-  			e.printStackTrace();
+  			log.error(e.getMessage(), e);
   			throw new RuntimeException(e);
   		}
   		
@@ -139,7 +132,7 @@ public class QuestionPoolShareBean implements Serializable
   				delegate.removeQuestionPoolAccess(tree, agentId, getQuestionPoolId(), QuestionPoolData.READ_COPY);
   			}
   			catch(Exception e) {
-  				e.printStackTrace();
+  				log.error(e.getMessage(), e);
   				throw new RuntimeException(e);
   			}
   		}
@@ -154,7 +147,7 @@ public class QuestionPoolShareBean implements Serializable
   				delegate.addQuestionPoolAccess(tree, agentId, this.getQuestionPoolId(), QuestionPoolData.READ_COPY);
   			}
   			catch(Exception e) {
-  				e.printStackTrace();
+  				log.error(e.getMessage(), e);
   				throw new RuntimeException(e);
   			}
   		}

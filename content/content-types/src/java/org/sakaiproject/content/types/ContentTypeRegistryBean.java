@@ -15,13 +15,12 @@
  */
 package org.sakaiproject.content.types;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.content.api.ResourceTypeRegistry;
 
+@Slf4j
 public class ContentTypeRegistryBean {
-
-	private static Logger log = LoggerFactory.getLogger(ContentTypeRegistryBean.class);
 	
 	private boolean useContentTypeRegistry;
 	private ResourceTypeRegistry resourceTypeRegistry;

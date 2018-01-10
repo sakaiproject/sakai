@@ -13,8 +13,11 @@ import javax.faces.event.PhaseListener;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
 
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.tool.messageforums.DiscussionForumTool;
 
+@Slf4j
 public class AjaxPhaseListener implements PhaseListener {
 
 	public void afterPhase(PhaseEvent event) {
@@ -58,7 +61,7 @@ public class AjaxPhaseListener implements PhaseListener {
 				}
 				out.flush();
 			} catch (Exception ee) {
-				ee.printStackTrace();
+				log.error(ee.getMessage(), ee);
 			}
 			context.responseComplete();
 		}

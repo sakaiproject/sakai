@@ -17,18 +17,17 @@ package org.sakaiproject.tool.assessment.ui.bean.author;
 
 import java.io.Serializable;
 import java.util.List;
-import javax.faces.model.SelectItem;
-import org.sakaiproject.tool.assessment.ui.listener.author.SectionActivityListener.SectionActivityData;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import javax.faces.model.SelectItem;
+
+import lombok.extern.slf4j.Slf4j;
+import org.sakaiproject.tool.assessment.ui.listener.author.SectionActivityListener.SectionActivityData;
 import org.sakaiproject.user.cover.UserDirectoryService;
 
+@Slf4j
 public class SectionActivityBean implements Serializable {
 
     private static final long serialVersionUID = 1L;
-
-    private static final Logger LOG = LoggerFactory.getLogger(SectionActivityBean.class);
 
     private List<SelectItem> displayNamesList;
     private String selectedUser;
@@ -66,7 +65,7 @@ public class SectionActivityBean implements Serializable {
         try {      
             displayName = UserDirectoryService.getUser(selectedUser).getDisplayName();
         } catch (Exception e) {
-            LOG.debug("Can't find user", e);
+            log.debug("Can't find user", e);
         }
         return displayName ;
     }

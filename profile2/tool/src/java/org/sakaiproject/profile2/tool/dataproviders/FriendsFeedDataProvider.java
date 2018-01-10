@@ -20,10 +20,12 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.wicket.injection.Injector;
 import org.apache.wicket.markup.repeater.data.IDataProvider;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
+
 import org.sakaiproject.profile2.logic.ProfileConnectionsLogic;
 import org.sakaiproject.profile2.model.Person;
 import org.sakaiproject.profile2.tool.models.DetachablePersonModel;
@@ -37,8 +39,7 @@ import org.sakaiproject.profile2.util.ProfileConstants;
  * 
  * This implementation of Wicket's IDataProvider gets a list of friends of userX as Person objects
  */
-
-
+@Slf4j
 public class FriendsFeedDataProvider implements IDataProvider<Person>, Serializable {
 	
 	private static final long serialVersionUID = 1L;
@@ -68,7 +69,7 @@ public class FriendsFeedDataProvider implements IDataProvider<Person>, Serializa
 		//deference for backwards compatibility
 		//should really check bounds here 
 		int f = (int) first;
-		int c = (int) count;		
+		int c = (int) count;
 		
 		try {
 			List<Person> connections = connectionsLogic.getConnectionsForUser(userUuid).subList(f, f + c);
@@ -77,7 +78,7 @@ public class FriendsFeedDataProvider implements IDataProvider<Person>, Serializa
 			return slice.iterator();
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			log.error(e.getMessage(), e);
 			return Collections.EMPTY_LIST.iterator();
 		}
 	}
@@ -93,5 +94,3 @@ public class FriendsFeedDataProvider implements IDataProvider<Person>, Serializa
     public void detach() {}
     
 }
-
-

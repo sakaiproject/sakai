@@ -21,23 +21,20 @@
 
 package org.sakaiproject.component.app.scheduler.jobs;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 
+@Slf4j
 public class TestJob implements Job
 {
-
-  private static final Logger LOG = LoggerFactory.getLogger(TestJob.class);
-
   /**
    * @see org.quartz.Job#execute(org.quartz.JobExecutionContext)
    */
   public void execute(JobExecutionContext arg0) throws JobExecutionException
   {
-    System.out.println("execute");
+    log.debug("execute");
   }
-
 }

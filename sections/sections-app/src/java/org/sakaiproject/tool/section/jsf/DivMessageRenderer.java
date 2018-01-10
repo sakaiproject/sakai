@@ -28,16 +28,15 @@ import javax.faces.component.UIComponent;
 import javax.faces.component.UIMessage;
 import javax.faces.context.FacesContext;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Put the message in a "div" instead of a "span", allowing for much more
  * positioning control.
  */
 
+@Slf4j
 public class DivMessageRenderer extends DivMessageRendererBase {
-	private static final Logger logger = LoggerFactory.getLogger(DivMessageRenderer.class);
 
     public void encodeEnd(FacesContext context, UIComponent component) throws IOException {
 		// Note our complete disregard for class cast and null exceptions....

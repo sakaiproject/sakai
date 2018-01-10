@@ -20,8 +20,8 @@
  **********************************************************************************/
 package org.sakaiproject.tool.section.jsf.backingbean;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.section.api.SectionManager;
 import org.sakaiproject.section.api.SectionManager.ExternalIntegrationConfig;
 
@@ -32,8 +32,8 @@ import org.sakaiproject.section.api.SectionManager.ExternalIntegrationConfig;
  * @author <a href="mailto:jholtzman@berkeley.edu">Josh Holtzman</a>
  *
  */
+@Slf4j
 public class NavMenuBean extends CourseDependentBean {
-	private static final Logger log = LoggerFactory.getLogger(NavMenuBean.class);
 	private static final long serialVersionUID = 1L;
 	
 	private boolean sectionTaManagementEnabled;

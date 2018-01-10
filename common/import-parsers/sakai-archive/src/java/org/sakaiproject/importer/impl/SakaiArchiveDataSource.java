@@ -26,14 +26,17 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
+
+import lombok.extern.slf4j.Slf4j;
 
 import org.sakaiproject.archive.api.ImportMetadata;
 import org.sakaiproject.importer.api.SakaiArchive;
 
+@Slf4j
 public class SakaiArchiveDataSource extends BasicImportDataSource implements SakaiArchive {
 	private String sourceFolder;
 	private String localArchiveFolder;
@@ -89,11 +92,9 @@ public class SakaiArchiveDataSource extends BasicImportDataSource implements Sak
                                     ofile.write(buffer, 0, bytesRead);
                                 }
                             } catch (FileNotFoundException e) {
-                                // TODO Auto-generated catch block (is this ok?)
-                                e.printStackTrace();
+                                log.error(e.getMessage(), e);
                             } catch (IOException e) {
-                                // TODO Auto-generated catch block (is this ok?)
-                                e.printStackTrace();
+                                log.error(e.getMessage(), e);
                             } finally {
                                 if (ofile != null) {
             	                    try {
@@ -161,11 +162,9 @@ public class SakaiArchiveDataSource extends BasicImportDataSource implements Sak
                                 ofile.write(buffer, 0, bytesRead);
                             }
                         } catch (FileNotFoundException e) {
-                            // TODO Auto-generated catch block (is this ok?)
-                            e.printStackTrace();
+                            log.error(e.getMessage(), e);
                         } catch (IOException e) {
-                            // TODO Auto-generated catch block (is this ok?)
-                            e.printStackTrace();
+                            log.error(e.getMessage(), e);
                         } finally {
                             if (ofile != null) {
                                 try {
