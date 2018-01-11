@@ -184,11 +184,11 @@ public class SettingsGradingSchemaPanel extends BasePanel implements IFormModelU
 				final GbGradingSchemaEntry entry = item.getModelObject();
 
 				// grade
-				final Label grade = new Label("grade", new PropertyModel<String>(entry, "grade"));
+				final TextField<Double> grade = new TextField<>("grade", new PropertyModel<Double>(entry, "grade"));
 				item.add(grade);
 
 				// minpercent
-				final TextField<Double> minPercent = new TextField<Double>("minPercent", new PropertyModel<Double>(entry, "minPercent"));
+				final TextField<Double> minPercent = new TextField<>("minPercent", new PropertyModel<Double>(entry, "minPercent"));
 				item.add(minPercent);
 			}
 		};
@@ -285,7 +285,7 @@ public class SettingsGradingSchemaPanel extends BasePanel implements IFormModelU
 
 		// we only ever order by bottom percents now
 		final DoubleComparator doubleComparator = new DoubleComparator(percents);
-		rval = new TreeMap<String, Double>(doubleComparator);
+		rval = new TreeMap<>(doubleComparator);
 		rval.putAll(percents);
 
 		return rval;
@@ -318,7 +318,7 @@ public class SettingsGradingSchemaPanel extends BasePanel implements IFormModelU
 
 		// get configured values or defaults
 		// need to retain insertion order
-		Map<String, Double> bottomPercents = new LinkedHashMap<>();
+		Map<String, Double> bottomPercents = null;
 
 		// note that we sort based on name so we need to pull the right name out of the list of mappings, for both cases
 		this.gradingSchemaName = this.gradeMappings.stream()
