@@ -4,6 +4,7 @@
 <%@ taglib uri="http://java.sun.com/jsf/core" prefix="f" %>
 <%-- Sakai JSF tag library --%>
 <%@ taglib uri="http://sakaiproject.org/jsf/sakai" prefix="sakai" %>
+<%@ taglib uri="http://myfaces.apache.org/tomahawk" prefix="t"%>
 <%-- Core JSTL tag library --%>
 <%@ taglib uri = "http://java.sun.com/jsp/jstl/core" prefix = "c" %>
 
@@ -26,14 +27,13 @@
 				<%@ include file="toolbar.jspf"%>
 				
 				<sakai:messages rendered="#{!empty facesContext.maximumSeverity}" />
-				<h3>
+				<t:div rendered="#{UserPrefsTool.tzUpdated}">
+					<jsp:include page="prefUpdatedMsg.jsp"/>
+				</t:div>
+				<h3 style="display: inline-block;">
 					<h:outputText value="#{msgs.prefs_timezone_title}" />
-					<h:panelGroup rendered="#{UserPrefsTool.tzUpdated}"   style="margin:0 3em;font-weight:normal">
-						<jsp:include page="prefUpdatedMsg.jsp"/>	
-					</h:panelGroup>
 				</h3>
 
-				
 				<p class="instruction">
 				<h:outputFormat value="#{msgs.time_inst}">
 					<f:param value="#{UserPrefsTool.serviceName}"/>
