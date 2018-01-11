@@ -190,8 +190,25 @@ public class SettingsGradingSchemaPanel extends BasePanel implements IFormModelU
 				// minpercent
 				final TextField<Double> minPercent = new TextField<Double>("minPercent", new PropertyModel<Double>(entry, "minPercent"));
 				item.add(minPercent);
+
+				// when minpercent is updated, reorder the listview
+				minPercent.add(new AjaxFormComponentUpdatingBehavior("onchange") {
+					private static final long serialVersionUID = 1L;
+
+					@Override
+					protected void onUpdate(final AjaxRequestTarget target) {
+
+						// fetch current data from model, sort and refresh
+						final List<GbGradingSchemaEntry> data = SettingsGradingSchemaPanel.this.model.getObject().getGradingSchemaEntries();
+						data.sort(Collections.reverseOrder());
+						SettingsGradingSchemaPanel.this.model.getObject().setGradingSchemaEntries(data);
+						target.add(SettingsGradingSchemaPanel.this.schemaWrap);
+
+					}
+				});
 			}
 		};
+		this.schemaView.setOutputMarkupId(true);
 		this.schemaWrap.add(this.schemaView);
 		this.schemaWrap.setOutputMarkupId(true);
 		settingsGradingSchemaPanel.add(this.schemaWrap);
@@ -340,13 +357,7 @@ public class SettingsGradingSchemaPanel extends BasePanel implements IFormModelU
 							.getDefaultBottomPercents());
 		}
 
-		// convert map into list of objects which is easier to work with in the views
-		final List<GbGradingSchemaEntry> rval = new ArrayList<>();
-		for (final Map.Entry<String, Double> entry : bottomPercents.entrySet()) {
-			rval.add(new GbGradingSchemaEntry(entry.getKey(), entry.getValue()));
-		}
-
-		return rval;
+		return asList(bottomPercents);
 	}
 
 	public boolean isExpanded() {
@@ -591,4 +602,19 @@ public class SettingsGradingSchemaPanel extends BasePanel implements IFormModelU
 
 		return gpaScoresMap;
 	}
+
+	/**
+	 * Convert map into list of objects which is easier to work with in the views
+	 *
+	 * @param bottomPercents map
+	 * @return list of {@link GbGradingSchemaEntry}
+	 */
+	private List<GbGradingSchemaEntry> asList(final Map<String, Double> bottomPercents) {
+		final List<GbGradingSchemaEntry> rval = new ArrayList<>();
+		for (final Map.Entry<String, Double> entry : bottomPercents.entrySet()) {
+			rval.add(new GbGradingSchemaEntry(entry.getKey(), entry.getValue()));
+		}
+		return rval;
+	}
+
 }
