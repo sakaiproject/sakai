@@ -40,7 +40,6 @@ import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.gradebookng.business.GbRole;
 import org.sakaiproject.gradebookng.business.model.GbGroup;
 import org.sakaiproject.gradebookng.business.util.GbStopWatch;
-import org.sakaiproject.gradebookng.business.util.MessageHelper;
 import org.sakaiproject.gradebookng.tool.actions.DeleteAssignmentAction;
 import org.sakaiproject.gradebookng.tool.actions.EditAssignmentAction;
 import org.sakaiproject.gradebookng.tool.actions.EditCommentAction;
@@ -483,7 +482,7 @@ public class GradebookPage extends BasePage {
 			settings = new GradebookUiSettings();
 			settings.setCategoriesEnabled(this.businessService.categoriesAreEnabled());
 			settings.initializeCategoryColors(this.businessService.getGradebookCategories());
-			settings.setCategoryColor(getString(GradebookPage.UNCATEGORISED), settings.generateRandomRGBColorString());
+			settings.setCategoryColor(getString(GradebookPage.UNCATEGORISED), GradebookUiSettings.generateRandomRGBColorString(null));
 			setUiSettings(settings);
 		}
 

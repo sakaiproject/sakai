@@ -495,7 +495,7 @@ public class GbGradebookData {
 
 					nullable(a1.getCategoryId()),
 					a1.getCategoryName(),
-					userSettings.getCategoryColor(a1.getCategoryName()),
+					userSettings.getCategoryColor(a1.getCategoryName(), a1.getCategoryId()),
 					nullable(categoryWeight),
 					a1.isCategoryExtraCredit(),
 
@@ -512,7 +512,7 @@ public class GbGradebookData {
 								.getString(),
 						nullable(categoryWeight),
 						a1.isCategoryExtraCredit(),
-						userSettings.getCategoryColor(a1.getCategoryName()),
+						userSettings.getCategoryColor(a1.getCategoryName(), a1.getCategoryId()),
 						!uiSettings.isCategoryScoreVisible(a1.getCategoryName())));
 			}
 		}
@@ -533,7 +533,7 @@ public class GbGradebookData {
 									.getString(),
 							nullable(categoryWeight),
 							category.isExtraCredit(),
-							userSettings.getCategoryColor(category.getName()),
+							userSettings.getCategoryColor(category.getName(), category.getId()),
 							!uiSettings.isCategoryScoreVisible(category.getName())));
 				}
 			}
