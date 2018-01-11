@@ -46,6 +46,7 @@ import org.sakaiproject.tool.assessment.facade.EventLogFacade;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
 import org.sakaiproject.tool.assessment.services.assessment.EventLogService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
+import org.sakaiproject.tool.assessment.services.GradebookServiceException;
 import org.sakaiproject.tool.assessment.services.GradingService;
 import org.sakaiproject.tool.assessment.ui.model.delivery.TimedAssessmentGradingModel;
 import org.sakaiproject.tool.cover.SessionManager;
@@ -125,24 +126,48 @@ public class TimedAssessmentRunnable implements Runnable {
             service.completeItemGradingData(ag);
             service.saveOrUpdateAssessmentGrading(ag);
 
+            PublishedAssessmentService publishedAssessmentService = new PublishedAssessmentService();
+            String siteId = publishedAssessmentService.getPublishedAssessmentOwner(ag.getPublishedAssessmentId());
+
             EventLogService eventService = new EventLogService();
             EventLogFacade eventLogFacade = new EventLogFacade();
+            EventLogData eventLogData = new EventLogData();
             List eventLogDataList = eventService.getEventLogData(ag.getAssessmentGradingId());
-            EventLogData eventLogData= (EventLogData) eventLogDataList.get(0);
-            eventLogData.setErrorMsg(eventLogMessages.getString("timer_submit"));
-            eventLogData.setEndDate(submitDate);
-            if(eventLogData.getStartDate() != null) {
-              double minute= 1000*60;
-              int eclipseTime = (int)Math.ceil(((submitDate.getTime() - eventLogData.getStartDate().getTime())/minute));
-              eventLogData.setEclipseTime(eclipseTime); 
-            } else {
-              eventLogData.setEclipseTime(null); 
-              eventLogData.setErrorMsg(eventLogMessages.getString("error_take"));
+            if(!eventLogDataList.isEmpty()) {
+                eventLogData= (EventLogData) eventLogDataList.get(0);
+                eventLogData.setErrorMsg(eventLogMessages.getString("timer_submit"));
+                eventLogData.setEndDate(submitDate);
+                if(eventLogData.getStartDate() != null) {
+                  double minute= 1000*60;
+                  int eclipseTime = (int)Math.ceil(((submitDate.getTime() - eventLogData.getStartDate().getTime())/minute));
+                  eventLogData.setEclipseTime(Integer.valueOf(eclipseTime));
+                } else {
+                  eventLogData.setEclipseTime(null);
+                  eventLogData.setErrorMsg(eventLogMessages.getString("error_take"));
+                }
+            }
+            else {
+              log.info("Couldn't find the grade event for assessmentId=" + ag.getPublishedAssessmentId() + " for userId=" + ag.getAgentId() + " siteId=" + siteId + ", submissionId=" + ag.getAssessmentGradingId());
+              log.info("Creating event log for assessmentId=" + ag.getPublishedAssessmentId() + " for userId=" + ag.getAgentId() + " siteId=" + siteId + ", submissionId=" + ag.getAssessmentGradingId());
+              eventLogData.setAssessmentId(ag.getPublishedAssessmentId());
+              eventLogData.setProcessId(ag.getAssessmentGradingId());
+              eventLogData.setStartDate(ag.getAttemptDate());
+              eventLogData.setTitle(timedAG.getPublishedAssessment().getTitle());
+              eventLogData.setUserEid(AgentFacade.getEid());
+              eventLogData.setSiteId(siteId);
+              eventLogData.setErrorMsg(eventLogMessages.getString("timer_submit"));
+              eventLogData.setEndDate(submitDate);
+              if(submitDate != null && eventLogData.getStartDate() != null) {
+                double minute= 1000*60;
+                int eclipseTime = (int)Math.ceil(((submitDate.getTime() - eventLogData.getStartDate().getTime())/minute));
+                eventLogData.setEclipseTime(Integer.valueOf(eclipseTime));
+              } else {
+                eventLogData.setEclipseTime(null);
+                eventLogData.setErrorMsg(eventLogMessages.getString("error_take"));
+              }
             }
             eventLogFacade.setData(eventLogData);
             eventService.saveOrUpdateEventLog(eventLogFacade);
-            PublishedAssessmentService publishedAssessmentService = new PublishedAssessmentService();
-            String siteId = publishedAssessmentService.getPublishedAssessmentOwner(ag.getPublishedAssessmentId());
 
             EventTrackingService.post(EventTrackingService.newEvent(SamigoConstants.EVENT_ASSESSMENT_SUBMITTED_THREAD,
                "siteId=" + siteId + ", submissionId=" + ag.getAssessmentGradingId(),
@@ -171,7 +196,13 @@ public class TimedAssessmentRunnable implements Runnable {
                true,
                SamigoConstants.NOTI_EVENT_ASSESSMENT_TIMED_SUBMITTED));
 
-            notifyGradebookByScoringType(ag, timedAG.getPublishedAssessment());
+            try {
+               notifyGradebookByScoringType(ag, timedAG.getPublishedAssessment());
+            } catch (GradebookServiceException e) {
+               e.printStackTrace();
+            } catch (Exception e) {
+               e.printStackTrace();
+            }
 
             log.info("SAMIGO_TIMED_ASSESSMENT:SUBMIT:FORGRADE assessmentId:" + eventLogData.getAssessmentId() + 
                " userEid:" + eventLogData.getUserEid() + 
