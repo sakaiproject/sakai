@@ -118,14 +118,14 @@ public class GradebookUiSettings implements Serializable {
 		// defaults. Note there is no default for assignmentSortOrder as that
 		// requires an assignmentId which will differ between gradebooks
 		this.categoriesEnabled = false;
-		this.assignmentVisibility = new HashMap<Long, Boolean>();
-		this.categoryScoreVisibility = new HashMap<String, Boolean>();
+		this.assignmentVisibility = new HashMap<>();
+		this.categoryScoreVisibility = new HashMap<>();
 
 		// default sort order to student
 		this.nameSortOrder = GbStudentNameSortOrder.LAST_NAME;
 		this.studentSortOrder = SortDirection.ASCENDING;
 
-		this.categoryColors = new HashMap<String, String>();
+		this.categoryColors = new HashMap<>();
 		this.showPoints = false;
 		this.gradeSummaryGroupedByCategory = false;
 	}

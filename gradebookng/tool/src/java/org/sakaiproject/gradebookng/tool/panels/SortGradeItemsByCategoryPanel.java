@@ -33,6 +33,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 public class SortGradeItemsByCategoryPanel extends Panel {
@@ -73,15 +74,15 @@ public class SortGradeItemsByCategoryPanel extends Panel {
 					protected void populateItem(final ListItem<Assignment> assignmentItem) {
 						final Assignment assignment = assignmentItem.getModelObject();
 						assignmentItem.add(new Label("name", assignment.getName()));
-						assignmentItem.add(new HiddenField<Long>("id",
+						assignmentItem.add(new HiddenField<>("id",
 								Model.of(assignment.getId())).add(
 										new AttributeModifier("name",
 												String.format("id", assignment.getId()))));
-						assignmentItem.add(new HiddenField<Integer>("order",
+						assignmentItem.add(new HiddenField<>("order",
 								Model.of(assignment.getCategorizedSortOrder())).add(
 										new AttributeModifier("name",
 												String.format("item_%s[order]", assignment.getId()))));
-						assignmentItem.add(new HiddenField<Integer>("current_order",
+						assignmentItem.add(new HiddenField<>("current_order",
 								Model.of(assignment.getCategorizedSortOrder())).add(
 										new AttributeModifier("name",
 												String.format("item_%s[current_order]", assignment.getId()))));
@@ -96,7 +97,7 @@ class CategorizedAssignmentComparator implements Comparator<Assignment> {
 	@Override
 	public int compare(final Assignment a1, final Assignment a2) {
 		// if in the same category, sort by their categorized sort order
-		if (a1.getCategoryId() == a2.getCategoryId()) {
+		if (Objects.equals(a1.getCategoryId(), a2.getCategoryId())) {
 			// handles null orders by putting them at the end of the list
 			if (a1.getCategorizedSortOrder() == null) {
 				return 1;

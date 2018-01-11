@@ -140,7 +140,7 @@ public class GradebookPage extends BasePage {
 		stopwatch.start();
 		stopwatch.time("GradebookPage init", stopwatch.getTime());
 
-		this.form = new Form<Void>("form");
+		this.form = new Form<>("form");
 		add(this.form);
 
 		form.add(new AttributeModifier("data-siteid", businessService.getCurrentSiteId()));
@@ -193,10 +193,7 @@ public class GradebookPage extends BasePage {
 
 			@Override
 			public boolean isVisible() {
-				if (GradebookPage.this.role != GbRole.INSTRUCTOR) {
-					return false;
-				}
-				return true;
+				return GradebookPage.this.role == GbRole.INSTRUCTOR;
 			}
 		};
 		addGradeItem.setDefaultFormProcessing(false);
