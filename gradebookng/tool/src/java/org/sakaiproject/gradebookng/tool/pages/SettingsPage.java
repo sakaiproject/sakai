@@ -91,7 +91,7 @@ public class SettingsPage extends BasePage {
 
 		// setup page model
 		final GbSettings gbSettings = new GbSettings(settings);
-		final CompoundPropertyModel<GbSettings> formModel = new CompoundPropertyModel<GbSettings>(gbSettings);
+		final CompoundPropertyModel<GbSettings> formModel = new CompoundPropertyModel<>(gbSettings);
 
 		this.gradeEntryPanel = new SettingsGradeEntryPanel("gradeEntryPanel", formModel, this.gradeEntryExpanded);
 		this.gradeReleasePanel = new SettingsGradeReleasePanel("gradeReleasePanel", formModel, this.gradeReleaseExpanded);
@@ -131,8 +131,8 @@ public class SettingsPage extends BasePage {
 						}
 
 						// ensure we don't have drop highest and keep highest at the same time
-						if ((cat.getDropHighest().intValue() > 0 && cat.getKeepHighest().intValue() > 0)
-								|| (cat.getDropLowest().intValue() > 0 && cat.getKeepHighest().intValue() > 0)) {
+						if ((cat.getDropHighest() > 0 && cat.getKeepHighest() > 0)
+								|| (cat.getDropLowest() > 0 && cat.getKeepHighest() > 0)) {
 							error(getString("settingspage.update.failure.categorydropkeepenabled"));
 						}
 
