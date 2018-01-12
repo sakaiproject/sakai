@@ -2,7 +2,7 @@
 <registration>
 	<tool id="sakai.gradebookng" 
 		title="Gradebook" 
-		description="The next generation gradebook tool for the Sakai CLE">
+		description="For storing, calculating, distributing, and submitting grades">
 
 		<!--  This tool will be made available to the following site types via Site Info > Edit Tools -->
 		<category name="course" />
