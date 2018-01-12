@@ -67,11 +67,11 @@ public class EditGradeCommentPanel extends BasePanel {
 		// form model
 		final GradeComment gradeComment = new GradeComment();
 		gradeComment.setGradeComment(this.comment);
-		final CompoundPropertyModel<GradeComment> formModel = new CompoundPropertyModel<GradeComment>(gradeComment);
+		final CompoundPropertyModel<GradeComment> formModel = new CompoundPropertyModel<>(gradeComment);
 
 		// build form
 		// modal window forms must be submitted via AJAX so we do not specify an onSubmit here
-		final Form<GradeComment> form = new Form<GradeComment>("form", formModel);
+		final Form<GradeComment> form = new Form<>("form", formModel);
 
 		final GbAjaxButton submit = new GbAjaxButton("submit") {
 			private static final long serialVersionUID = 1L;
@@ -119,7 +119,7 @@ public class EditGradeCommentPanel extends BasePanel {
 						new Object[] { user.getDisplayName(), user.getDisplayId(), assignment.getName() })).getString());
 
 		// textarea
-		form.add(new TextArea<String>("comment", new PropertyModel<String>(formModel, "gradeComment")));
+		form.add(new TextArea<>("comment", new PropertyModel<>(formModel, "gradeComment")));
 
 		// instant validation
 		// AjaxFormValidatingBehavior.addToAllFormComponents(form, "onkeyup", Duration.ONE_SECOND);
