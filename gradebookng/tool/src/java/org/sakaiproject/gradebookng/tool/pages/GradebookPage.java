@@ -15,6 +15,11 @@
  */
 package org.sakaiproject.gradebookng.tool.pages;
 
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import org.apache.commons.lang.StringUtils;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.Component;
@@ -71,8 +76,6 @@ import org.sakaiproject.service.gradebook.shared.GradingType;
 import org.sakaiproject.service.gradebook.shared.PermissionDefinition;
 import org.sakaiproject.service.gradebook.shared.SortType;
 import org.sakaiproject.tool.gradebook.Gradebook;
-
-import java.util.*;
 
 /**
  * Grades page. Instructors and TAs see this one. Students see the {@link StudentPage}.
