@@ -646,14 +646,6 @@ public class GradebookNgBusinessService {
 			log.debug("newGradeAdjusted: " + newGradeAdjusted);
 		}
 
-		// if comment longer than 500 chars, error.
-		// the field is a CLOB, probably by mistake. Loading this field up may cause performance issues
-		// see SAK-29595
-		if (StringUtils.length(comment) > 500) {
-			log.error("Comment too long. Maximum 500 characters.");
-			return GradeSaveResponse.ERROR;
-		}
-
 		// no change
 		if (StringUtils.equals(storedGradeAdjusted, newGradeAdjusted)) {
 			final Double storedGradePoints = FormatHelper.validateDouble(storedGradeAdjusted);
