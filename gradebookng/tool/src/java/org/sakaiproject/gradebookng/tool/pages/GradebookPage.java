@@ -101,6 +101,7 @@ public class GradebookPage extends BasePage {
 
 	Label liveGradingFeedback;
 	boolean hasAssignmentsAndGrades;
+	private static final AttributeModifier DISPLAY_NONE = new AttributeModifier("style", "display: none");
 
 	Form<Void> form;
 
@@ -549,6 +550,7 @@ public class GradebookPage extends BasePage {
 		this.liveGradingFeedback = new Label("liveGradingFeedback", getString("feedback.saved"));
 		this.liveGradingFeedback.setVisible(this.hasAssignmentsAndGrades);
 		this.liveGradingFeedback.setOutputMarkupId(true);
+		liveGradingFeedback.add(DISPLAY_NONE);
 
 		// add the 'saving...' message to the DOM as the JavaScript will
 		// need to be the one that displays this message (Wicket will handle
@@ -559,7 +561,9 @@ public class GradebookPage extends BasePage {
 
 	public Component updateLiveGradingMessage(final String message) {
 		this.liveGradingFeedback.setDefaultModel(Model.of(message));
-
+		if (liveGradingFeedback.getBehaviors().contains(DISPLAY_NONE)) {
+			liveGradingFeedback.remove(DISPLAY_NONE);
+		}
 		return this.liveGradingFeedback;
 	}
 }
