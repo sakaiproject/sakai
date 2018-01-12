@@ -54,6 +54,10 @@ public class SettingsPage extends BasePage {
 	private boolean categoryExpanded = false;
 	private boolean gradingSchemaExpanded = false;
 
+	private boolean hideGradeEntryFromNonAdmins;
+	private static final String SAK_PROP_HIDE_GRADE_ENTRY_FROM_NON_ADMINS = "gradebook.settings.gradeEntry.hideFromNonAdmins";
+	private static final boolean SAK_PROP_HIDE_GRADE_ENTRY_FROM_NON_ADMINS_DEFAULT = false;
+
 	SettingsGradeEntryPanel gradeEntryPanel;
 	SettingsGradeReleasePanel gradeReleasePanel;
 	SettingsCategoryPanel categoryPanel;
@@ -61,6 +65,7 @@ public class SettingsPage extends BasePage {
 
 	public SettingsPage() {
 		disableLink(this.settingsPageLink);
+		setHideGradeEntryFromNonAdmins();
 	}
 
 	public SettingsPage(final boolean gradeEntryExpanded, final boolean gradeReleaseExpanded,
@@ -70,6 +75,11 @@ public class SettingsPage extends BasePage {
 		this.gradeReleaseExpanded = gradeReleaseExpanded;
 		this.categoryExpanded = categoryExpanded;
 		this.gradingSchemaExpanded = gradingSchemaExpanded;
+		setHideGradeEntryFromNonAdmins();
+	}
+
+	private void setHideGradeEntryFromNonAdmins() {
+		hideGradeEntryFromNonAdmins = ServerConfigurationService.getBoolean(SAK_PROP_HIDE_GRADE_ENTRY_FROM_NON_ADMINS, SAK_PROP_HIDE_GRADE_ENTRY_FROM_NON_ADMINS_DEFAULT);
 	}
 
 	@Override
@@ -87,6 +97,11 @@ public class SettingsPage extends BasePage {
 		this.gradeReleasePanel = new SettingsGradeReleasePanel("gradeReleasePanel", formModel, this.gradeReleaseExpanded);
 		this.categoryPanel = new SettingsCategoryPanel("categoryPanel", formModel, this.categoryExpanded);
 		this.gradingSchemaPanel = new SettingsGradingSchemaPanel("gradingSchemaPanel", formModel, this.gradingSchemaExpanded);
+
+		// Hide the panel if sakai.property is true and user is not admin
+		if (hideGradeEntryFromNonAdmins && !businessService.isSuperUser()) {
+			gradeEntryPanel.setVisible(false);
+		}
 
 		// form
 		final Form<GbSettings> form = new Form<GbSettings>("form", formModel) {

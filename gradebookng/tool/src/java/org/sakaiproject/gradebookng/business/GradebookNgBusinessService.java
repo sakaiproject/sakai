@@ -1252,6 +1252,15 @@ public class GradebookNgBusinessService {
 	}
 
 	/**
+	 * Determine if the current user is an admin user.
+	 *
+	 * @return true if the current user is admin, false otherwise.
+	 */
+	public boolean isSuperUser() {
+		return securityService.isSuperUser();
+	}
+
+	/**
 	 * Add a new assignment definition to the gradebook
 	 *
 	 * @param assignment
