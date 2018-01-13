@@ -22,9 +22,8 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FilenameUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxButton;
@@ -47,6 +46,7 @@ import org.apache.wicket.model.StringResourceModel;
 import org.apache.wicket.util.file.Files;
 import org.apache.wicket.util.file.Folder;
 import org.apache.wicket.util.lang.Bytes;
+
 import org.sakaiproject.profile2.model.GalleryImage;
 import org.sakaiproject.profile2.tool.components.GalleryImageRenderer;
 import org.sakaiproject.profile2.tool.components.IconWithClueTip;
@@ -59,9 +59,8 @@ import org.sakaiproject.profile2.util.ProfileUtils;
  * 
  * @author d.b.robinson@lancaster.ac.uk
  */
+@Slf4j
 public class MyPictures extends BasePage {
-
-	private static final Logger log = LoggerFactory.getLogger(MyPictures.class);
 
 	private List<File> addPictureFiles = new ArrayList<File>();
 	private FileListView addPictureListView;

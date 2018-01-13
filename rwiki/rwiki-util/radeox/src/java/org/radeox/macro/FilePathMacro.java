@@ -26,8 +26,7 @@ package org.radeox.macro;
 import java.io.IOException;
 import java.io.Writer;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.radeox.Messages;
 import org.radeox.api.macro.MacroParameter;
 
@@ -40,11 +39,9 @@ import org.radeox.api.macro.MacroParameter;
  * @version $Id: FilePathMacro.java 7707 2006-04-12 17:30:19Z
  *          ian@caret.cam.ac.uk $
  */
-
+@Slf4j
 public class FilePathMacro extends LocalePreserved
 {
-	private static Logger log = LoggerFactory.getLogger(FilePathMacro.class);
-
 	private String[] paramDescription = { Messages.getString("FilePathMacro.0") }; //$NON-NLS-1$
 
 	public String getLocaleKey()

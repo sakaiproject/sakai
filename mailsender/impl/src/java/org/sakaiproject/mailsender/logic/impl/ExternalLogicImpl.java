@@ -24,9 +24,10 @@ import java.util.Map.Entry;
 
 import javax.mail.MessagingException;
 
+import lombok.extern.slf4j.Slf4j;
+
 import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
 import org.sakaiproject.authz.api.FunctionManager;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
@@ -69,10 +70,9 @@ import org.sakaiproject.util.Validator;
 /**
  * This is the implementation for logic which is external to our app logic
  */
+@Slf4j
 public class ExternalLogicImpl implements ExternalLogic
 {
-	private static Logger log = LoggerFactory.getLogger(ExternalLogicImpl.class);
-
 	// external service references
 	private FunctionManager functionManager;
 	private ToolManager toolManager;
@@ -81,12 +81,12 @@ public class ExternalLogicImpl implements ExternalLogic
 	private SiteService siteService;
 	private MailArchiveService mailArchiveService;
 	private UserDirectoryService userDirectoryService;
-    private TimeService timeService;
-    private EmailService emailService;
-    private ServerConfigurationService configService;
-    private EventTrackingService eventService;
-    private ContentHostingService contentHostingService;
-    private EntityManager entityManager;
+	private TimeService timeService;
+	private EmailService emailService;
+	private ServerConfigurationService configService;
+	private EventTrackingService eventService;
+	private ContentHostingService contentHostingService;
+	private EntityManager entityManager;
 
 	/**
 	 * Place any code that should run when this class is initialized by spring here

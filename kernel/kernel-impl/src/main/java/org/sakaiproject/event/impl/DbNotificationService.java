@@ -25,8 +25,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Vector;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.db.api.SqlService;
 import org.sakaiproject.event.api.Notification;
 import org.sakaiproject.event.api.NotificationEdit;
@@ -38,11 +38,9 @@ import org.sakaiproject.util.SingleStorageUser;
  * DbNotificationService is ... %%%.
  * </p>
  */
+@Slf4j
 public abstract class DbNotificationService extends BaseNotificationService
 {
-	/** Our logger. */
-	private static Logger M_log = LoggerFactory.getLogger(DbNotificationService.class);
-
 	/** Table name for users. */
 	protected String m_tableName = "SAKAI_NOTIFICATION";
 
@@ -117,11 +115,11 @@ public abstract class DbNotificationService extends BaseNotificationService
 
 			super.init();
 
-			M_log.info(".init(): table: " + m_tableName + " locks-in-db: " + m_locksInDb);
+			log.info(".init(): table: " + m_tableName + " locks-in-db: " + m_locksInDb);
 		}
 		catch (Exception t)
 		{
-			M_log.warn("init(): ", t);
+			log.warn("init(): ", t);
 		}
 	}
 

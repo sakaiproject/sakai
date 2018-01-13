@@ -60,8 +60,6 @@ import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.PrintWriter;
-import java.io.FileOutputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -69,9 +67,7 @@ import java.io.InputStream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
-import org.apache.commons.io.FilenameUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import org.apache.commons.io.FilenameUtils;
 
@@ -91,9 +87,8 @@ import org.apache.commons.io.FilenameUtils;
  * @version 1.0
  *
  */
-
+@Slf4j
 public class ZipLoader implements CartridgeLoader {
-  private static final Logger log = LoggerFactory.getLogger(ZipLoader.class);
   private File root;
   private String rootPath;
   private File cc;

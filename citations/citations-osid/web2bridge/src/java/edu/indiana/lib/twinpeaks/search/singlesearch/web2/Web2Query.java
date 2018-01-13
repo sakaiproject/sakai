@@ -17,14 +17,29 @@
 **********************************************************************************/
 package edu.indiana.lib.twinpeaks.search.singlesearch.web2;
 
-import edu.indiana.lib.twinpeaks.search.*;
-import edu.indiana.lib.twinpeaks.search.singlesearch.CqlParser;
-import edu.indiana.lib.twinpeaks.util.*;
-
-import java.util.*;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.StringTokenizer;
 
 import lombok.extern.slf4j.Slf4j;
-import org.w3c.dom.*;
+
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
+
+import edu.indiana.lib.twinpeaks.search.HttpTransactionQueryBase;
+import edu.indiana.lib.twinpeaks.search.SearchSource;
+import edu.indiana.lib.twinpeaks.search.singlesearch.CqlParser;
+import edu.indiana.lib.twinpeaks.util.DomException;
+import edu.indiana.lib.twinpeaks.util.DomUtils;
+import edu.indiana.lib.twinpeaks.util.SearchException;
+import edu.indiana.lib.twinpeaks.util.SessionContext;
+import edu.indiana.lib.twinpeaks.util.SessionTimeoutException;
+import edu.indiana.lib.twinpeaks.util.StatusUtils;
+import edu.indiana.lib.twinpeaks.util.StringUtils;
 
 /**
  * Send a query to the Muse Web2 interface
@@ -203,32 +218,8 @@ public class Web2Query extends HttpTransactionQueryBase {
 			}
 			catch (Exception ignore) { }
 
-/*
-			doSearchCommand();
-	    submit();
-			validateResponse("SEARCH");
-			setSearchStatus();
-
-			try
-			{
-				System.out.println();
-				System.out.println(DomUtils.serialize(getResponseDocument()));
-				System.out.println();
-			} catch (Exception ignore) { }
-*/
 			return;
 		}
-		/*
-		 * Request additional SEARCH results
-		 */
-/*
-		System.out.println("Result request starts");
-		clearParameters();
-
-		doResultsCommand(getTransactionResultSetName());
-		submit();
-		validateResponse("RESULTS");
-*/
 		/*
 		 * Request FIND results
 		 */
@@ -237,40 +228,6 @@ public class Web2Query extends HttpTransactionQueryBase {
 		doResultsCommand(getFindResultSetId());
 		submit();
 		validateResponse("RESULTS");
-		/*
-		 * Combine results
-		 */
-/*
-		System.out.println("Combine request starts");
-		clearParameters();
-
-		doCombineCommand();
-		submit();
-		validateResponse("COMBINE");
-
-		try
-		{
-			System.out.println();
-			System.out.println(DomUtils.serialize(getResponseDocument()));
-			System.out.println();
-		}
-		catch (Exception ignore) { }
-
-		System.out.println("Result request starts");
-		clearParameters();
-
-		doResultsCommand(getTransactionResultSetName());
-		submit();
-		validateResponse("RESULTS");
-
-		try
-		{
-			System.out.println();
-			System.out.println(DomUtils.serialize(getResponseDocument()));
-			System.out.println();
-		}
-		catch (Exception ignore) { }
-*/
 	}
 
 	/**
@@ -842,7 +799,7 @@ public class Web2Query extends HttpTransactionQueryBase {
 										+ ", for activity "
 										+ action;
 
-			LogUtils.displayXml(log, text, document);
+			log.debug("{} {}", text, document);
 
 			if (status.equals(NO_SESSION)) {
 				/*
@@ -879,7 +836,7 @@ public class Web2Query extends HttpTransactionQueryBase {
 									+ ", found "
 									+	id;
 
-			LogUtils.displayXml(log, text, document);
+			log.debug("{} {}", text, document);
 			StatusUtils.setGlobalError(getSessionContext(), "<internal>", text);
 
 			throw new SearchException(text);

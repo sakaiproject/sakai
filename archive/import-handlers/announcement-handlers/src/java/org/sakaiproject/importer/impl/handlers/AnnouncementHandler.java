@@ -17,8 +17,7 @@
 
 package org.sakaiproject.importer.impl.handlers;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import org.sakaiproject.announcement.api.AnnouncementChannel;
 import org.sakaiproject.announcement.api.AnnouncementService;
@@ -36,9 +35,8 @@ import org.sakaiproject.site.api.SiteService;
  * (created by the current user)
  * @author Aaron Zeckoski (aaronz@vt.edu)
  */
+@Slf4j
 public class AnnouncementHandler implements HandlesImportable {
-
-	private static Logger log = LoggerFactory.getLogger(AnnouncementHandler.class);
 
 	protected AnnouncementService announcementService = null;
 	
@@ -67,11 +65,9 @@ public class AnnouncementHandler implements HandlesImportable {
 				ac = announcementService.getAnnouncementChannel(channelId);
 			} catch (IdUnusedException e) {
 				log.error("Failed to get announcement channel: " + e);
-				e.printStackTrace();
 				return;
 			} catch (PermissionException e) {
 				log.error("Failed to get announcement channel: " + e);
-				e.printStackTrace();
 				return;
 			}
 
@@ -79,7 +75,6 @@ public class AnnouncementHandler implements HandlesImportable {
 				ac.addAnnouncementMessage(item.getTitle(), true, null, item.getDescription());
 			} catch (PermissionException e) {
 				log.error("Failed to create announcement message: " + e);
-				e.printStackTrace();
 				return;
 			}
 			
@@ -96,7 +91,7 @@ public class AnnouncementHandler implements HandlesImportable {
 				ac.commitMessage(ame);
 			} catch (PermissionException e) {
 				// TODO Auto-generated catch block
-				e.printStackTrace();
+				log.error("Permission Exception: {}", e.getMessage(), e);
 			}
 ***/		
 

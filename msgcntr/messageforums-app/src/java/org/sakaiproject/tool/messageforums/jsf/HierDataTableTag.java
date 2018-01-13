@@ -20,8 +20,8 @@
  **********************************************************************************/
 package org.sakaiproject.tool.messageforums.jsf;
 
-import com.sun.faces.util.Util;
 import java.io.IOException;
+
 import javax.faces.component.UIComponent;
 import javax.faces.component.UIData;
 import javax.faces.context.FacesContext;
@@ -33,8 +33,9 @@ import javax.faces.el.MethodBinding;
 import javax.faces.webapp.UIComponentTag;
 import javax.faces.webapp.UIComponentBodyTag;
 import javax.servlet.jsp.JspException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import com.sun.faces.util.Util;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * @author cwen
@@ -42,10 +43,10 @@ import org.slf4j.LoggerFactory;
  * TODO To change the template for this generated type comment go to
  * Window - Preferences - Java - Code Style - Code Templates
  */
+@Slf4j
 public class HierDataTableTag extends UIComponentTag 
 {
-	public static Logger log = LoggerFactory.getLogger(HierDataTableTag.class);
-	
+
 	//
 	// Instance Variables
 	//

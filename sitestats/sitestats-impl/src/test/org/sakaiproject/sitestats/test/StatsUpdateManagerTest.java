@@ -421,7 +421,7 @@ public class StatsUpdateManagerTest extends AbstractTransactionalJUnit4SpringCon
 	@SuppressWarnings("unchecked")
 	@Test
 	public void testSitePresences() {
-		//System.out.println("--- testSitePresences() :: START ---");
+		//log.debug("--- testSitePresences() :: START ---");
 		long minPresenceTime = 100;
 
 		// #1 Test : 2 site visit (different users)
@@ -481,7 +481,7 @@ public class StatsUpdateManagerTest extends AbstractTransactionalJUnit4SpringCon
 		
 		// #2 Test: 2 site visit (same users)
 		db.deleteAll();
-		//System.out.println("--- testSitePresences() :: START II ---");
+		//log.debug("--- testSitePresences() :: START II ---");
 		
 		// BEGIN SITE PRESENCE
 		now = new Date();
@@ -528,9 +528,9 @@ public class StatsUpdateManagerTest extends AbstractTransactionalJUnit4SpringCon
 		Assert.assertEquals(eSV1.getUserId(), es1.getUserId());
 		Assert.assertNull(es1.getLastVisitStartTime());
 		totalDuration = es1.getDuration();
-		//System.out.println("1. totalDuration: "+totalDuration);
-		//System.out.println("1.   firstDuration: "+firstDuration);
-		//System.out.println("1.   secondDuration: "+secondDuration);
+		//log.debug("1. totalDuration: "+totalDuration);
+		//log.debug("1.   firstDuration: "+firstDuration);
+		//log.debug("1.   secondDuration: "+secondDuration);
 		Assert.assertTrue(totalDuration == firstDuration + secondDuration);
 		
 		
@@ -565,11 +565,11 @@ public class StatsUpdateManagerTest extends AbstractTransactionalJUnit4SpringCon
 		Assert.assertEquals(eSV1.getUserId(), es1.getUserId());
 		Assert.assertNull(es1.getLastVisitStartTime());
 		totalDuration = es1.getDuration();
-		//System.out.println("2. totalDuration: "+totalDuration);
-		//System.out.println("2.   firstDuration: "+firstDuration);
-		//System.out.println("2.   secondDuration: "+secondDuration);
+		//log.debug("2. totalDuration: "+totalDuration);
+		//log.debug("2.   firstDuration: "+firstDuration);
+		//log.debug("2.   secondDuration: "+secondDuration);
 		Assert.assertTrue(totalDuration == firstDuration + secondDuration);
-		//System.out.println("--- testSitePresences() :: END ---");
+		//log.debug("--- testSitePresences() :: END ---");
 		
 		
 		// #4 Test: one pres.end (with one pres.begin already on db, with duration = 0)
@@ -602,11 +602,11 @@ public class StatsUpdateManagerTest extends AbstractTransactionalJUnit4SpringCon
 		Assert.assertEquals(eSV1.getUserId(), es1.getUserId());
 		Assert.assertNull(es1.getLastVisitStartTime());
 		totalDuration = es1.getDuration();
-		//System.out.println("3. totalDuration: "+totalDuration);
-		//System.out.println("3.   firstDuration: "+firstDuration);
-		//System.out.println("3.   secondDuration: "+secondDuration);
+		//log.debug("3. totalDuration: "+totalDuration);
+		//log.debug("3.   firstDuration: "+firstDuration);
+		//log.debug("3.   secondDuration: "+secondDuration);
 		Assert.assertTrue(totalDuration == firstDuration + secondDuration);
-		//System.out.println("--- testSitePresences() :: END ---");
+		//log.debug("--- testSitePresences() :: END ---");
 	}
 	
 	// Test (remaining) CustomEventImpl fields

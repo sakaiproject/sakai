@@ -23,6 +23,7 @@ package org.sakaiproject.portal.charon.test;
 
 import java.io.InputStream;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.velocity.exception.ResourceNotFoundException;
 import org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader;
 
@@ -30,6 +31,7 @@ import org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader;
  * @author ieb
  *
  */
+@Slf4j
 public class TestClasspathResourceLoader extends ClasspathResourceLoader
 {
 
@@ -51,8 +53,7 @@ public class TestClasspathResourceLoader extends ClasspathResourceLoader
 			in =  this.getClass().getResourceAsStream(arg0);
 		}
 		if ( in == null ) {
-			System.err.println("Failed to load "+arg0);
-			
+			log.error("Failed to load "+arg0);
 		}
 		return in;
 	}

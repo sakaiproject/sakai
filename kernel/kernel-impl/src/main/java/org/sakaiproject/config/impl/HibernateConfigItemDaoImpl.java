@@ -21,19 +21,21 @@
 
 package org.sakaiproject.config.impl;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.hibernate.Criteria;
-import org.hibernate.criterion.Projections;
-import org.hibernate.criterion.Restrictions;
-import org.sakaiproject.config.api.HibernateConfigItem;
-import org.sakaiproject.config.api.HibernateConfigItemDao;
-import org.sakaiproject.db.api.SqlService;
-import org.springframework.orm.hibernate4.support.HibernateDaoSupport;
-
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+
+import lombok.extern.slf4j.Slf4j;
+
+import org.hibernate.Criteria;
+import org.hibernate.criterion.Projections;
+import org.hibernate.criterion.Restrictions;
+
+import org.springframework.orm.hibernate4.support.HibernateDaoSupport;
+
+import org.sakaiproject.config.api.HibernateConfigItem;
+import org.sakaiproject.config.api.HibernateConfigItemDao;
+import org.sakaiproject.db.api.SqlService;
 
 /**
  * KNL-1063
@@ -43,9 +45,8 @@ import java.util.List;
  * @author Earle Nietzel
  *         Created on Mar 8, 2013
  */
+@Slf4j
 public class HibernateConfigItemDaoImpl extends HibernateDaoSupport implements HibernateConfigItemDao {
-    private final Logger log = LoggerFactory.getLogger(HibernateConfigItemDaoImpl.class);
-
     private static String SAKAI_CONFIG_ITEM_SQL = "sakai_config_item";
     private SqlService sqlService;
 
@@ -222,4 +223,3 @@ public class HibernateConfigItemDaoImpl extends HibernateDaoSupport implements H
         return criteria.list();
     }
 }
-

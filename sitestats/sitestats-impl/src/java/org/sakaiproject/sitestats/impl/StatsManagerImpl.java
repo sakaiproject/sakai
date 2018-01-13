@@ -34,11 +34,16 @@ import java.util.Observable;
 import java.util.Observer;
 import java.util.Set;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.digester.Digester;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.hibernate.Criteria;
 import org.hibernate.Query;
 import org.hibernate.criterion.Expression;
+import org.springframework.dao.DataAccessException;
+import org.springframework.orm.hibernate4.HibernateCallback;
+import org.springframework.orm.hibernate4.support.HibernateDaoSupport;
+
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentTypeImageService;
@@ -87,20 +92,14 @@ import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.util.ResourceLoader;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.dao.DataAccessException;
-import org.springframework.orm.hibernate4.HibernateCallback;
-import org.springframework.orm.hibernate4.support.HibernateDaoSupport;
-
 
 /**
  * @author Nuno Fernandes
  *
  */
+@Slf4j
 public class StatsManagerImpl extends HibernateDaoSupport implements StatsManager, Observer {
-	private Logger							LOG										= LoggerFactory.getLogger(StatsManagerImpl.class);
-	
+
 	/** Spring bean members */
 	private Boolean						enableSiteVisits						= null;
 	private Boolean						enableSiteActivity						= null;
@@ -138,7 +137,7 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 	private ContentTypeImageService		M_ctis;
 	
 	/** Caching */
-	private Cache						cachePrefsData							= null;
+	private Cache<String, PrefsData>						cachePrefsData							= null;
 	
 	
 
@@ -335,7 +334,7 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 		
 		// Initialize cacheReportDef and event observer for preferences invalidation across cluster
 		M_ets.addPriorityObserver(this);
-		cachePrefsData = M_ms.newCache(PrefsData.class.getName());
+		cachePrefsData = M_ms.getCache(PrefsData.class.getName());
 		
 		logger.info("init(): - (Event.getContext()?, site visits enabled, charts background color, charts in 3D, charts transparency, item labels visible on bar charts) : " +
 							isEventContextSupported+','+enableSiteVisits+','+chartBackgroundColor+','+chartIn3D+','+chartTransparency+','+itemLabelsVisible);
@@ -367,7 +366,7 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 				enableSitePresences = M_scs.getBoolean("display.users.present", false);
 			}else if(M_scs.getBoolean("presence.events.log", false)) {
 				enableSitePresences = false;
-				LOG.warn("Disabled SiteStats presence tracking: doesn't work properly with 'presence.events.log' => only plays nicely with 'display.users.present'");
+				log.warn("Disabled SiteStats presence tracking: doesn't work properly with 'presence.events.log' => only plays nicely with 'display.users.present'");
 			}
 		}
 	}
@@ -384,7 +383,7 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 			if(e.getEvent() != null && e.getEvent().equals(event)) {
 				String siteId = e.getResource().split("/")[2];
 				cachePrefsData.remove(siteId);
-				LOG.debug("Expiring preferences cache for site: "+siteId);
+				log.debug("Expiring preferences cache for site: "+siteId);
 			}
 		}
 	}
@@ -409,7 +408,7 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 			Object cached = cachePrefsData.get(siteId);
 			if(cached != null){
 				prefsdata = (PrefsData) cached;
-				LOG.debug("Getting preferences for site "+siteId+" from cache");
+				log.debug("Getting preferences for site "+siteId+" from cache");
 			}else{
 				HibernateCallback<Prefs> hcb = session -> {
                     Criteria c = session.createCriteria(PrefsImpl.class)
@@ -418,7 +417,7 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
                         Prefs prefs = (Prefs) c.uniqueResult();
                         return prefs;
                     }catch(Exception e){
-                        LOG.warn("Exception in getPreferences() ",e);
+                        log.warn("Exception in getPreferences() ",e);
                         return null;
                     }
                 };
@@ -436,7 +435,7 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 						prefsdata = parseSitePrefs(new ByteArrayInputStream(prefs.getPrefs().getBytes()));
 					}catch(Exception e){
 						// something failed, use default
-						LOG.warn("Exception in parseSitePrefs() ",e);
+						log.warn("Exception in parseSitePrefs() ",e);
 						prefsdata = new PrefsData();
 						prefsdata.setToolEventsDef(M_ers.getEventRegistry());
 					}
@@ -497,7 +496,7 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 				logEvent(prefsdata, LOG_ACTION_EDIT, siteId, false);
 				return true;
 			} catch (DataAccessException dae) {
-				LOG.warn("Exception while saving preferences: {}", dae.getMessage(), dae);
+				log.warn("Exception while saving preferences: {}", dae.getMessage(), dae);
 			}
 		}
 		return false;
@@ -513,7 +512,7 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 			}
 			return M_ss.getSite(siteId).getUsers();
 		}catch(IdUnusedException e){
-			LOG.warn("Inexistent site for site id: "+siteId);
+			log.warn("Inexistent site for site id: "+siteId);
 		}
 		return null;
 	}
@@ -1162,7 +1161,7 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 			initialDate = c.getTime();
 			siteVisits = getSiteVisitsByMonth(siteId, initialDate, finalDate);
 		}
-		//LOG.info("siteVisits of [siteId:"+siteId+"] from ["+initialDate.toGMTString()+"] to ["+finalDate.toGMTString()+"]: "+siteVisits.toString());
+		//log.info("siteVisits of [siteId:"+siteId+"] from ["+initialDate.toGMTString()+"] to ["+finalDate.toGMTString()+"]: "+siteVisits.toString());
 		svc.setSiteVisits(siteVisits);
 		return (siteVisits != null && siteVisits.size() > 0)? svc : null;
 	}
@@ -1206,7 +1205,7 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 				initialDate = c.getTime();
 				siteActivity = getSiteActivityByMonth(siteId, prefsdata.getToolEventsStringList(), initialDate, finalDate);
 			}
-			//LOG.info("siteActivity of [siteId:"+siteId+"] from ["+initialDate.toGMTString()+"] to ["+finalDate.toGMTString()+"]: "+siteActivity.toString());
+			//log.info("siteActivity of [siteId:"+siteId+"] from ["+initialDate.toGMTString()+"] to ["+finalDate.toGMTString()+"]: "+siteActivity.toString());
 			sac.setSiteActivity(siteActivity);
 			return (siteActivity != null && siteActivity.size() > 0)? sac : null;
 		}else{
@@ -1222,7 +1221,7 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 				initialDate = c.getTime();
 			}
 			siteActivityByTool = getSiteActivityByTool(siteId, prefsdata.getToolEventsStringList(), initialDate, finalDate);
-			//LOG.info("siteActivityByTool of [siteId:"+siteId+"] from ["+initialDate.toGMTString()+"] to ["+finalDate.toGMTString()+"]: "+siteActivityByTool.toString());
+			//log.info("siteActivityByTool of [siteId:"+siteId+"] from ["+initialDate.toGMTString()+"] to ["+finalDate.toGMTString()+"]: "+siteActivityByTool.toString());
 			sac.setSiteActivityByTool(siteActivityByTool);
 			return siteActivityByTool.size() > 0? sac : null;
 		}
@@ -1346,7 +1345,7 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
             if(maxResults > 0) {
                 q.setMaxResults(maxResults);
             }
-            LOG.debug("getEventStats(): " + q.getQueryString());
+            log.debug("getEventStats(): " + q.getQueryString());
             List<Object[]> records = q.list();
             List<Stat> results = new ArrayList<>();
             Set<String> siteUserIds = null;
@@ -1559,7 +1558,7 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
             if(columnMap.containsKey(StatsSqlBuilder.C_USER) && anonymousEvents != null && anonymousEvents.size() > 0){
                 q.setParameterList("anonymousEvents", anonymousEvents);
             }
-            LOG.debug("getEventStatsRowCount(): " + q.getQueryString());
+            log.debug("getEventStatsRowCount(): " + q.getQueryString());
             Integer rowCount = q.list().size();
             if(!inverseUserSelection){
                 return rowCount;
@@ -1630,7 +1629,7 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
             if(maxResults > 0) {
                 q.setMaxResults(maxResults);
             }
-            LOG.debug("getPresenceStats(): " + q.getQueryString());
+            log.debug("getPresenceStats(): " + q.getQueryString());
             List<Object[]> records = q.list();
             List<Stat> results = new ArrayList<Stat>();
             Set<String> siteUserIds = null;
@@ -1756,7 +1755,7 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
                 Date fDate2 = c.getTime();
                 q.setDate("fdate", fDate2);
             }
-            LOG.debug("getPresenceStatsRowCount(): " + q.getQueryString());
+            log.debug("getPresenceStatsRowCount(): " + q.getQueryString());
             Integer rowCount = q.list().size();
             if(!inverseUserSelection){
                 return rowCount;
@@ -1773,7 +1772,7 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
             String hql = "FROM SitePresenceTotalImpl st WHERE st.siteId = :siteId";
             Query q = session.createQuery(hql);
             q.setString("siteId", siteId);
-            LOG.debug("getPresenceTotalsForSite(): " + q.getQueryString());
+            log.debug("getPresenceTotalsForSite(): " + q.getQueryString());
             return q.list();
         };
 
@@ -1911,7 +1910,7 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
             if(maxResults > 0) {
                 q.setMaxResults(maxResults);
             }
-            LOG.debug("getResourceStats(): " + q.getQueryString());
+            log.debug("getResourceStats(): " + q.getQueryString());
             List<Object[]> records = q.list();
             List<Stat> results = new ArrayList<>();
             Set<String> siteUserIds = null;
@@ -2084,8 +2083,8 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
                 q.setMaxResults(maxResults);
             }
 
-if (LOG.isDebugEnabled()) {
-                LOG.debug("getLessonBuilderStats(): " + q.getQueryString());
+if (log.isDebugEnabled()) {
+                log.debug("getLessonBuilderStats(): " + q.getQueryString());
 }
 
             List<Object[]> records = q.list();
@@ -2238,7 +2237,7 @@ if (LOG.isDebugEnabled()) {
                 Date fDate2 = c.getTime();
                 q.setDate("fdate", fDate2);
             }
-            LOG.debug("getEventStatsRowCount(): " + q.getQueryString());
+            log.debug("getEventStatsRowCount(): " + q.getQueryString());
             Integer rowCount = q.list().size();
             if(!inverseUserSelection){
                 return rowCount;
@@ -2291,7 +2290,7 @@ if (LOG.isDebugEnabled()) {
             if(maxResults > 0) {
                 q.setMaxResults(maxResults);
             }
-            LOG.debug("getVisitsTotalsStats(): " + q.getQueryString());
+            log.debug("getVisitsTotalsStats(): " + q.getQueryString());
             List<Object[]> records = q.list();
             List<Stat> results = new ArrayList<>();
             if(records.size() > 0){
@@ -2407,7 +2406,7 @@ if (LOG.isDebugEnabled()) {
             if(maxResults > 0) {
                 q.setMaxResults(maxResults);
             }
-            LOG.debug("getActivityTotalsStats(): " + q.getQueryString());
+            log.debug("getActivityTotalsStats(): " + q.getQueryString());
             List<Object[]> records = q.list();
             List<EventStat> results = new ArrayList<>();
             if(records.size() > 0){
@@ -3320,7 +3319,7 @@ if (LOG.isDebugEnabled()) {
 			try{
 				return M_ss.getSite(siteId).getMembers().size();
 			}catch(IdUnusedException e){
-				LOG.warn("Unable to get total site users for site id: "+siteId, e);
+				log.warn("Unable to get total site users for site id: "+siteId, e);
 				return 0;
 			}
 		}

@@ -20,12 +20,16 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.*;
 
+import lombok.extern.slf4j.Slf4j;
+
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.sakaiproject.component.impl.SpringCompMgr;
+
 import org.springframework.context.ConfigurableApplicationContext;
+
+import org.sakaiproject.component.impl.SpringCompMgr;
 
 /**
  * Verifies behaviors of {@link ComponentsLoader}.
@@ -33,6 +37,7 @@ import org.springframework.context.ConfigurableApplicationContext;
  * @author dmccallum@unicon.net
  *
  */
+@Slf4j
 public class ComponentsLoaderTest {
 
 	/** the primary SUT */
@@ -336,6 +341,6 @@ public class ComponentsLoaderTest {
 
 	
 	private void sayUnusableBuilder(String invokingMethod) {
-		System.out.println("Unable to execute " + invokingMethod +", probably b/c necessary code generation tools are not available. Please see http://maven.apache.org/general.html#tools-jar-dependency for information on making tools.jar visible in the Maven classpaths.");
+		log.debug("Unable to execute {}, probably b/c necessary code generation tools are not available. Please see http://maven.apache.org/general.html#tools-jar-dependency for information on making tools.jar visible in the Maven classpaths.", invokingMethod);
 	}
 }

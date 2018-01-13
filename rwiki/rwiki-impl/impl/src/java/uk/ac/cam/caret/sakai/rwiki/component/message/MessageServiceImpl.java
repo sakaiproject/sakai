@@ -24,8 +24,7 @@ package uk.ac.cam.caret.sakai.rwiki.component.message;
 import java.util.Date;
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import uk.ac.cam.caret.sakai.rwiki.service.message.api.MessageService;
 import uk.ac.cam.caret.sakai.rwiki.service.message.api.dao.MessageDao;
@@ -36,9 +35,9 @@ import uk.ac.cam.caret.sakai.rwiki.service.message.api.model.PagePresence;
 /**
  * @author ieb
  */
+@Slf4j
 public class MessageServiceImpl implements MessageService
 {
-	private static Logger log = LoggerFactory.getLogger(MessageServiceImpl.class);
 
 	private MessageDao messageDao;
 

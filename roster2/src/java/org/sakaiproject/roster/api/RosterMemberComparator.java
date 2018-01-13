@@ -37,10 +37,8 @@ package org.sakaiproject.roster.api;
 import java.util.Comparator;
 import java.text.Collator;
 
+import lombok.extern.slf4j.Slf4j;
 import lombok.RequiredArgsConstructor;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * <code>Comparator</code> for <code>RosterMember</code>s.
@@ -48,10 +46,8 @@ import org.slf4j.LoggerFactory;
  * @author d.b.robinson@lancaster.ac.uk
  */
 @RequiredArgsConstructor
+@Slf4j
 public class RosterMemberComparator implements Comparator<RosterMember> {
-
-	private static final Logger log = LoggerFactory.getLogger(RosterMemberComparator.class);
-	
 	private final boolean firstNameLastName;
 	private final Collator collator = Collator.getInstance();
 	

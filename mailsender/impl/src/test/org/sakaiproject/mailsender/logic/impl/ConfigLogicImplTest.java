@@ -27,13 +27,18 @@ import static org.mockito.Mockito.when;
 import java.io.File;
 import java.util.Properties;
 
+import lombok.extern.slf4j.Slf4j;
+
 import org.apache.commons.lang.StringUtils;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
 import org.mockito.Answers;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.mailsender.logic.ConfigLogic;
 import org.sakaiproject.mailsender.logic.ExternalLogic;
@@ -43,6 +48,7 @@ import org.sakaiproject.mailsender.model.ConfigEntry.SubjectPrefixType;
 import org.sakaiproject.tool.api.ToolManager;
 
 @RunWith(value = MockitoJUnitRunner.class)
+@Slf4j
 public class ConfigLogicImplTest {
 
 	@Mock
@@ -108,7 +114,7 @@ public class ConfigLogicImplTest {
 			if (f.mkdir()) {
 				f.deleteOnExit();
 			} else {
-				System.err.println("Unable to create test directory.");
+				log.error("Unable to create test directory.");
 			}
 		}
 

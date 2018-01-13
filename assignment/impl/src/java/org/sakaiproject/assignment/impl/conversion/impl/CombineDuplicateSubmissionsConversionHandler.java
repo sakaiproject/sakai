@@ -33,18 +33,16 @@ import java.util.Map;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
-import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.sakaiproject.util.conversion.SchemaConversionHandler;
+import lombok.extern.slf4j.Slf4j;
 
 import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.lang.StringUtils;
 
+import org.sakaiproject.util.conversion.SchemaConversionHandler;
 
+@Slf4j
 public class CombineDuplicateSubmissionsConversionHandler implements SchemaConversionHandler 
 {
-	private static final Logger log = LoggerFactory.getLogger(CombineDuplicateSubmissionsConversionHandler.class);
-	
 	// db driver
 	private String m_dbDriver = null;
 	/**
@@ -80,7 +78,7 @@ public class CombineDuplicateSubmissionsConversionHandler implements SchemaConve
 			}
 			catch (Exception e1)
 			{
-				log.warn("Failed to parse " + id + "[" + xml + "]", e1);
+				log.warn("Failed to parse {}[{}]{}", id, xml, e1);
 				// return false;
 			}
 		}
@@ -99,7 +97,7 @@ public class CombineDuplicateSubmissionsConversionHandler implements SchemaConve
 			String graded0 = result.getGraded();
 			String id0 = result.getId();
 			
-			log.info("updating \"" + id0 + " revising XML");
+			log.info("updating \"{} revising XML", id0);
 			
 			if (getDbDriver().indexOf("mysql") != -1)
 			{
@@ -113,7 +111,7 @@ public class CombineDuplicateSubmissionsConversionHandler implements SchemaConve
 				}
 				catch (UnsupportedEncodingException e)
 				{
-					log.info(e.getMessage() + xml0);
+					log.info("{}{}", e.getMessage(), xml0);
 				}
 			}
 			else
@@ -269,7 +267,7 @@ public class CombineDuplicateSubmissionsConversionHandler implements SchemaConve
 		// in case we need to update the previous gradeing info inside properties
 		if (usePreviousRecords)
 		{
-			log.info("need to update previous grading information keepItem id=" + keepItem.getId() + " removeItem id=" + removeItem.getId());
+			log.info("need to update previous grading information keepItem id={} removeItem id={}", keepItem.getId(), removeItem.getId());
 			
 			Map<String, Object> propertiesMap = keepItem.saxSerializableProperties.getSerializableProperties();
 			
@@ -491,7 +489,7 @@ public class CombineDuplicateSubmissionsConversionHandler implements SchemaConve
 				{
 					// ignore
 					decodedRText = rText;
-					log.warn(this + ":combine " + ignore.getMessage());
+					log.warn("{}:combine {}", this, ignore.getMessage());
 				}
 			}
 			
@@ -514,7 +512,7 @@ public class CombineDuplicateSubmissionsConversionHandler implements SchemaConve
 						catch (UnsupportedEncodingException e)
 						{
 							decodedText = text;
-							log.warn(this + ":combine " + e.getMessage());
+							log.warn("{}:combine {}", this, e.getMessage());
 						}
 					}
 					
@@ -531,7 +529,7 @@ public class CombineDuplicateSubmissionsConversionHandler implements SchemaConve
 							catch (java.io.UnsupportedEncodingException e)
 							{
 								// ignore
-								log.warn(this + ":combine 2 " + e.getMessage());
+								log.warn("{}:combine 2 {}", this, e.getMessage());
 							}
 						}
 						else
@@ -543,7 +541,7 @@ public class CombineDuplicateSubmissionsConversionHandler implements SchemaConve
 				}catch (Exception ee)
 				{
 					// ignore
-					log.warn(" Combine: " + ee.getMessage());
+					log.warn(" Combine: {}", ee.getMessage());
 				}
 			}
 		}
@@ -626,7 +624,7 @@ public class CombineDuplicateSubmissionsConversionHandler implements SchemaConve
 		catch (Exception e)
 		{
 			// ignore
-			log.warn(this + ":getIntegerObject " + e.getMessage());
+			log.warn("{}:getIntegerObject {}", this, e.getMessage());
 		}
 		return rv;
 	}

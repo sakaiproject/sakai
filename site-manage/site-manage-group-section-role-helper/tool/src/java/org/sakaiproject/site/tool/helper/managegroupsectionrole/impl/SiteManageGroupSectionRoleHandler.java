@@ -18,6 +18,7 @@ package org.sakaiproject.site.tool.helper.managegroupsectionrole.impl;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -31,22 +32,28 @@ import java.util.StringJoiner;
 
 import javax.servlet.http.HttpServletRequest;
 
+import au.com.bytecode.opencsv.CSVReader;
+import lombok.extern.slf4j.Slf4j;
 import lombok.Getter;
 import lombok.Setter;
-
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
+import uk.org.ponder.messageutil.MessageLocator;
+import uk.org.ponder.messageutil.TargettedMessage;
+import uk.org.ponder.messageutil.TargettedMessageList;
+
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.GroupNotDefinedException;
 import org.sakaiproject.authz.api.GroupProvider;
 import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.authz.api.Role;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.coursemanagement.api.CourseManagementService;
+import org.sakaiproject.coursemanagement.api.Section;
+import org.sakaiproject.coursemanagement.api.exception.IdNotFoundException;
 import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
@@ -69,27 +76,16 @@ import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.util.RequestFilter;
 import org.sakaiproject.util.ResourceLoader;
 
-import uk.org.ponder.messageutil.TargettedMessage;
-import uk.org.ponder.messageutil.TargettedMessageList;
-import au.com.bytecode.opencsv.CSVReader;
-import java.util.Arrays;
-import org.sakaiproject.coursemanagement.api.CourseManagementService;
-import org.sakaiproject.coursemanagement.api.Section;
-import org.sakaiproject.coursemanagement.api.exception.IdNotFoundException;
-import uk.org.ponder.messageutil.MessageLocator;
-
 /**
  * 
  * @author 
  *
  */
+@Slf4j
 public class SiteManageGroupSectionRoleHandler {
-	
+
 	private static final String REQ_ATTR_GROUPFILE = "groupfile";
 
-    /** Our log (commons). */
-	private static final Logger M_log = LoggerFactory.getLogger(SiteManageGroupSectionRoleHandler.class);
-	
 	private List<Member> groupMembers;
     private final GroupComparator groupComparator = new GroupComparator();
 
@@ -207,6 +203,17 @@ public class SiteManageGroupSectionRoleHandler {
 	public void setDescription(String description) {
 		this.description = description;
 	}
+
+	// group upload textarea
+	private String groupUploadTextArea;
+
+	public String getGroupUploadTextArea() {
+		return groupUploadTextArea;
+	}
+
+	public void setGroupUploadTextArea(String groupUploadTextArea) {
+		this.groupUploadTextArea = groupUploadTextArea;
+	}
 	
 	// for those to be deleted groups
 	public String[] deleteGroupIds;
@@ -245,6 +252,7 @@ public class SiteManageGroupSectionRoleHandler {
             rosterGroupTitleGroup = "";
 
             importedGroups = null;
+			setGroupUploadTextArea("");
 
             joinableSetName = "";
             joinableSetNameOrig = "";
@@ -364,7 +372,7 @@ public class SiteManageGroupSectionRoleHandler {
         }
         catch( IdNotFoundException ex )
         {
-            M_log.debug( this + ".getRosterLabel: no section found for " + rosterID, ex );
+            log.debug( this + ".getRosterLabel: no section found for " + rosterID, ex );
         }
 
         return label;
@@ -394,7 +402,7 @@ public class SiteManageGroupSectionRoleHandler {
             	}
             	catch (GroupNotDefinedException e)
             	{
-            		M_log.debug(this + ".getRoles: no authzgroup found for " + siteReference, e);
+            		log.debug(this + ".getRoles: no authzgroup found for " + siteReference, e);
             	}
             	
             	if (group != null)
@@ -498,7 +506,7 @@ public class SiteManageGroupSectionRoleHandler {
             }
             catch (NullPointerException npe) {
                 // Site ID wasn't set in the helper call!!
-                M_log.warn(npe.getMessage());
+                log.warn(npe.getMessage());
             }
             
             if (siteId == null) {
@@ -512,7 +520,7 @@ public class SiteManageGroupSectionRoleHandler {
             
             } catch (IdUnusedException e) {
                 // The siteId we were given was bogus
-                M_log.warn(e.getMessage());
+                log.warn(e.getMessage());
             }
         }
         title = "";
@@ -606,7 +614,7 @@ public class SiteManageGroupSectionRoleHandler {
 
         } 
         catch (IdUnusedException | PermissionException e) {
-            M_log.warn(e.getMessage());
+            log.warn(e.getMessage());
         }
 
         return "";
@@ -686,7 +694,7 @@ public class SiteManageGroupSectionRoleHandler {
 		
 		if (group != null)
 		{
-			M_log.debug("Check if the group is locked : {}", group.isLocked());
+			log.debug("Check if the group is locked : {}", group.isLocked());
 			if(group.isLocked()) {
 				messages.addMessage(new TargettedMessage("editgroup.group.locked",new Object[]{}, TargettedMessage.SEVERITY_ERROR));
 				return null;
@@ -727,7 +735,7 @@ public class SiteManageGroupSectionRoleHandler {
 						group.deleteMember(mId);
 						removedGroupMember.add("uid=" + mId + ";groupId=" + group.getId());
 					} catch (IllegalStateException e) {
-						M_log.error(".processAddGroup: User with id {} cannot be deleted from group with id {} because the group is locked", mId, group.getId());
+						log.error(".processAddGroup: User with id {} cannot be deleted from group with id {} because the group is locked", mId, group.getId());
 						return null;
 					}
 				}
@@ -758,7 +766,7 @@ public class SiteManageGroupSectionRoleHandler {
                             group.insertMember(roleUserId, memberId, member.isActive(), false);
                             addedGroupMember.add("uid=" + roleUserId + ";role=" + member.getRole().getId() + ";active=" + member.isActive() + ";provided=false;groupId=" + group.getId());
                         } catch (IllegalStateException e) {
-                            M_log.error(".processAddGroup: User with id {} cannot be inserted in group with id {} because the group is locked", roleUserId, group.getId());
+                            log.error(".processAddGroup: User with id {} cannot be inserted in group with id {} because the group is locked", roleUserId, group.getId());
                             return null;
                         }
                     }
@@ -767,23 +775,27 @@ public class SiteManageGroupSectionRoleHandler {
                 else
                 {
                     // normal user id
-                    memberId = StringUtils.trimToNull(memberId);
-                    if (memberId != null && group.getUserRole(memberId) == null) {
-                        Role r = site.getUserRole(memberId);
-                        Member m = site.getMember(memberId);
-                        Role memberRole = m != null ? m.getRole() : null;
-                        // for every member added through the "Manage
-                        // Groups" interface, he should be defined as
-                        // non-provided
-                        // get role first from site definition.
-                        // However, if the user is inactive, getUserRole would return null; then use member role instead
-                        String roleString = r != null ? r.getId(): memberRole != null? memberRole.getId() : "";
-                        boolean active = m != null ? m.isActive() : true;
-                        try {
-                            group.insertMember(memberId, roleString, active,false);
-                            addedGroupMember.add("uid=" + memberId + ";role=" + roleString + ";active=" + active + ";provided=false;groupId=" + group.getId());
-                        } catch (IllegalStateException e) {
-                            M_log.error(".processAddGroup: User with id {} cannot be inserted in group with id {} because the group is locked", memberId, group.getId());
+                    String userId = StringUtils.trimToNull(memberId);
+                    if (userId != null && group.getUserRole(userId) == null) {
+                        Member m = site.getMember(userId);
+                        // User isn't a member of the site, refusing to add them to the group.
+                        if (m != null) {
+                            Role memberRole = m.getRole();
+                            try {
+                                group.addMember(userId, memberRole.getId(), m.isActive(), false);
+                                addedGroupMember.add("uid=" + userId + ";role=" + memberRole.getId() + ";active=" + m.isActive() + ";provided=false;groupId=" + group.getId());
+                            } catch (IllegalStateException e) {
+                                log.error(".processAddGroup: User with id {} cannot be inserted in group with id {} because the group is locked", memberId, group.getId());
+                                return null;
+                            }
+                        } else {
+                            String displayName;
+                            try {
+                                displayName = userDirectoryService.getUser(userId).getDisplayName();
+                            } catch (UserNotDefinedException e) {
+                                displayName = messageLocator.getMessage("user.unknown");
+                            }
+                            messages.addMessage(new TargettedMessage("user.not.member.alert", new String[]{displayName}, "groupMembers-selection"));
                             return null;
                         }
                     }
@@ -843,7 +855,7 @@ public class SiteManageGroupSectionRoleHandler {
     			resetParams();
 	        } 
 	        catch (IdUnusedException | PermissionException e) {
-	        	M_log.error(this + ".processAddGroup: cannot find site " + site.getId(), e);
+	        	log.error(this + ".processAddGroup: cannot find site " + site.getId(), e);
 	            return null;
 	        }
     	}
@@ -860,7 +872,7 @@ public class SiteManageGroupSectionRoleHandler {
     	if (deleteGroupIds == null || deleteGroupIds.length == 0)
     	{
     		// no group chosen to be deleted
-    		M_log.debug(this + ".processConfirmGroupDelete: no group chosen to be deleted.");
+    		log.debug(this + ".processConfirmGroupDelete: no group chosen to be deleted.");
     		messages.addMessage(new TargettedMessage("delete_group_nogroup","no group chosen"));
     		return null;
     	}
@@ -877,7 +889,7 @@ public class SiteManageGroupSectionRoleHandler {
                 }
                 catch (Exception e)
                 {
-                    M_log.error(e.getMessage());
+                    log.error(e.getMessage());
                 }
             }
 	    	return "confirm";
@@ -904,7 +916,7 @@ public class SiteManageGroupSectionRoleHandler {
                         site.deleteGroup(g);
                     } catch (IllegalStateException e) {
                         notDeletedGroupsTitles.add(g.getTitle());
-                        M_log.error(".processDeleteGroups: Group with id {} cannot be removed because is locked", g.getId());
+                        log.error(".processDeleteGroups: Group with id {} cannot be removed because is locked", g.getId());
                     }
                 }
             }
@@ -919,10 +931,10 @@ public class SiteManageGroupSectionRoleHandler {
 				siteService.save(site);
 			} catch (IdUnusedException e) {
 				messages.addMessage(new TargettedMessage("editgroup.site.notfound.alert","cannot find site"));
-				M_log.error(this + ".processDeleteGroups: Problem of saving site after group removal: site id =" + site.getId(), e);
+				log.error(this + ".processDeleteGroups: Problem of saving site after group removal: site id =" + site.getId(), e);
 			} catch (PermissionException e) {
 				messages.addMessage(new TargettedMessage("editgroup.site.permission.alert","not allowed to find site"));
-				M_log.error(this + ".processDeleteGroups: Permission problem of saving site after group removal: site id=" + site.getId(), e);
+				log.error(this + ".processDeleteGroups: Permission problem of saving site after group removal: site id=" + site.getId(), e);
 			}
 	    	
 	    }
@@ -1116,14 +1128,14 @@ public class SiteManageGroupSectionRoleHandler {
                                     try {
                                         group.insertMember(userId, role, member.isActive(), false);
                                     } catch (IllegalStateException e) {
-                                        M_log.error(".processAutoCreateGroup: User with id {} cannot be inserted in group with id {} because the group is locked", userId, group.getId());
+                                        log.error(".processAutoCreateGroup: User with id {} cannot be inserted in group with id {} because the group is locked", userId, group.getId());
                                     }
                                 }
                             }
                         }
                         catch (GroupNotDefinedException e)
                         {
-                            M_log.debug(this + ".processAutoCreateGroup: no authzgroup found for " + siteReference, e);
+                            log.debug(this + ".processAutoCreateGroup: no authzgroup found for " + siteReference, e);
                         }
                     }
                 }else{
@@ -1139,7 +1151,7 @@ public class SiteManageGroupSectionRoleHandler {
                 resetParams();
             } 
             catch (IdUnusedException | PermissionException e) {
-                M_log.error(this + ".processAutoCreateGroup: cannot find site " + site.getId(), e);
+                log.error(this + ".processAutoCreateGroup: cannot find site " + site.getId(), e);
                 return null;
             }
         }
@@ -1231,7 +1243,7 @@ public class SiteManageGroupSectionRoleHandler {
                 try {
                     group.insertMember( userID, member.getRole().getId(), member.isActive(), false );
                 } catch (IllegalStateException e) {
-                    M_log.error(".createRandomGroups: User with id {} cannot be inserted in group with id {} because the group is locked", userID, group.getId());
+                    log.error(".createRandomGroups: User with id {} cannot be inserted in group with id {} because the group is locked", userID, group.getId());
                 }
                 userIDs.remove( index );
                 userCount++;
@@ -1257,7 +1269,7 @@ public class SiteManageGroupSectionRoleHandler {
             try {
                 group.insertMember( userID, member.getRole().getId(), member.isActive(), false );
             } catch (IllegalStateException e) {
-                M_log.error(".createRandomGroups: User with id {} cannot be inserted in group with id {} because the group is locked", userID, group.getId());
+                log.error(".createRandomGroups: User with id {} cannot be inserted in group with id {} because the group is locked", userID, group.getId());
             }
             userIDs.remove( userIndex );
         }
@@ -1294,7 +1306,7 @@ public class SiteManageGroupSectionRoleHandler {
             }
             catch( GroupNotDefinedException ex )
             {
-                M_log.debug( this + ".processAutoCreateGroup: no authzgroup found for " + siteReference, ex );
+                log.debug( this + ".processAutoCreateGroup: no authzgroup found for " + siteReference, ex );
             }
 
             createRandomGroups( groupSplit, usersList, groupTitle, unit );
@@ -1353,7 +1365,7 @@ public class SiteManageGroupSectionRoleHandler {
                 }
                 catch (Exception e)
                 {
-                    M_log.debug(this + ":getSelectedGroups: cannot get group with id " + groupId);
+                    log.debug(this + ":getSelectedGroups: cannot get group with id " + groupId);
                 }
             }
 		}
@@ -1456,7 +1468,7 @@ public class SiteManageGroupSectionRoleHandler {
                 }
                 catch( UserNotDefinedException ex )
                 {
-                    M_log.debug( this + ".getUsersNotInJoinableSet: can't find user for " + userID, ex );
+                    log.debug( this + ".getUsersNotInJoinableSet: can't find user for " + userID, ex );
                 }
             }
         }
@@ -1493,21 +1505,31 @@ public class SiteManageGroupSectionRoleHandler {
     }
     
     /**
-     * Grabs the uploaded file from the groupfile request attribute and extracts the group details
-     * from it, adding them to the importedGroups list as it goes. Expects at least three columns,
-     * the first three being first name, last name and email respectively.
+     * Grabs the uploaded file from the groupfile request attribute, as well as any data in the HTML textarea,
+     * and extracts any group details from them, adding them to the importedGroups list as it goes.
+     * Expects at two columns, the groupname and the username/email address.
      * @return status
      */
     public String processUploadAndCheck() {
         String uploadsDone = (String) httpServletRequest.getAttribute(RequestFilter.ATTR_UPLOADS_DONE);
 
         FileItem usersFileItem;
+        String processingFlag = "success";
 
         if (uploadsDone != null && uploadsDone.equals(RequestFilter.ATTR_UPLOADS_DONE)) {
 
             try {
                 usersFileItem = (FileItem) httpServletRequest.getAttribute(REQ_ATTR_GROUPFILE);
+                // Check for nothing to upload.
+                if (getGroupUploadTextArea().length() == 0 && usersFileItem.getSize() == 0) {
+                    messages.addMessage(new TargettedMessage("import1.error.no.content", null, TargettedMessage.SEVERITY_ERROR));
+                    return null;
+                }
 
+                importedGroups = new ArrayList<>();
+                List<String[]> lines;
+
+                // Process any data in the uploaded file.
                 if(usersFileItem != null && usersFileItem.getSize() > 0) {
 
                     String mimetype = usersFileItem.getContentType();
@@ -1515,74 +1537,95 @@ public class SiteManageGroupSectionRoleHandler {
 
                     if (ArrayUtils.contains(CSV_MIME_TYPES, mimetype) 
                             || StringUtils.endsWith(filename, "csv")) {
-                        if (processCsvFile(usersFileItem)) {
-                            return "success"; // SHORT CIRCUIT
+                        log.debug("CSV file uploaded");
+
+                        CSVReader reader;
+                        lines = new ArrayList<>();
+
+                        try {
+                            reader = new CSVReader(new InputStreamReader(usersFileItem.getInputStream()));
+                            lines = reader.readAll();
+                        } catch (IOException ioe) {
+                            log.error(ioe.getClass() + " : " + ioe.getMessage());
+                            processingFlag = "error";
+                        }
+
+                        if (processUploadGroupLines(lines)) {
+                            processingFlag = "success"; // SHORT CIRCUIT
                         }
                     } else {
-                        M_log.error("Invalid file type: " + mimetype);
-                        return "error"; // SHORT CIRCUIT
+                        log.error("Invalid file type: " + mimetype);
+                        messages.addMessage(new TargettedMessage("import1.error.file.type.invalid", null, TargettedMessage.SEVERITY_ERROR));
+                        processingFlag = null;
                     }
+                }
+
+                // Process any data in the HTML text area.
+                if (getGroupUploadTextArea().length() > 0) {
+                    String[] splitLines = getGroupUploadTextArea().split("\r\n");
+                    lines = new ArrayList<>();
+                    for (String s: splitLines) {
+                        lines.add(s.split(","));
+                    }
+                    
+                    if (processUploadGroupLines(lines)) {
+                        processingFlag = "success"; // SHORT CIRCUIT
+                    }
+
                 }
             }
             catch (Exception e){
-                M_log.error(e.getClass() + " : " + e.getMessage());
-                return "error"; // SHORT CIRCUIT
-            } finally {
-                // clear the groupfile attribute so the tool does not have to be reset
-                httpServletRequest.removeAttribute(REQ_ATTR_GROUPFILE);
+                log.error(e.getClass() + " : " + e.getMessage());
+                processingFlag =  "error"; // SHORT CIRCUIT
             }
         }
 
-        return "error";
+        return processingFlag;
     }
 
 	/**
-	 * Helper to process the uploaded CSV file
+	 * Helper to process each line of group values.
 	 * 
-	 * @param fileItem
+	 * @param lines
 	 * @return
 	 */
-	private boolean processCsvFile(FileItem fileItem){
-		
-		M_log.debug("CSV file uploaded");
-		
-		importedGroups = new ArrayList<>();
-		
-		CSVReader reader;
-		try {
-			reader = new CSVReader(new InputStreamReader(fileItem.getInputStream()));
-			List<String[]> lines = reader.readAll();
-			
-			//maintain a map of the groups and their titles in case the CSV file is unordered
-			//this way we can still lookup the group and add members to it
-			Map<String, ImportedGroup> groupMap = new HashMap<>();
-			
-			for(String[] line: lines){
-			    if (line.length < 2) {
-			        continue;
-                }
-	            String groupTitle = StringUtils.trimToNull(line[0]);
-	            String userId = StringUtils.trimToNull(line[1]);
-	            if (groupTitle == null || userId == null) {
-	                continue;
-                }
-	            //if we already have an occurrence of this group, get the group and update the user list within it
-	            if(groupMap.containsKey(groupTitle)){
-	            	ImportedGroup group = groupMap.get(groupTitle);
-	            	group.addUser(userId);
-	            } else {
-	            	ImportedGroup group = new ImportedGroup(groupTitle, userId);
-	            	groupMap.put(groupTitle, group);
-	            }
-			}
-			
-			 //extract all of the imported groups from the map
-            importedGroups.addAll(groupMap.values());
-			
-		} catch (IOException ioe) {
-			M_log.error(ioe.getClass() + " : " + ioe.getMessage());
-			return false;
+    private boolean processUploadGroupLines(List<String[]> lines){
+
+		//maintain a map of the groups and their titles in case the group lines are unordered
+		//this way we can still lookup the group and add members to it if they are not already there.
+		Map<String, ImportedGroup> groupMap = new HashMap<>();
+		for (ImportedGroup g: importedGroups) {
+			groupMap.put(g.getGroupTitle(), g);
 		}
+
+		for(String[] line: lines){
+			if (line.length < 2) {
+				messages.addMessage(new TargettedMessage("import1.error.invalid.data.format", null, TargettedMessage.SEVERITY_ERROR));
+				return false;
+			}
+			String groupTitle = StringUtils.trimToNull(line[0]);
+			String userId = StringUtils.trimToNull(line[1]);
+			if (groupTitle == null || userId == null) {
+				messages.addMessage(new TargettedMessage("import1.error.invalid.data.format", null, TargettedMessage.SEVERITY_ERROR));
+				return false;
+			}
+			// if we already have an occurrence of this group, get the group, check whether the user is already there, if not add them.
+			if(groupMap.containsKey(groupTitle)){
+				ImportedGroup group = groupMap.get(groupTitle);
+				for (String s: group.getUserIds()) {
+					if (!s.equals(userId)) {
+						group.addUser(userId);
+					}
+				}
+			} else {
+				ImportedGroup group = new ImportedGroup(groupTitle, userId);
+				groupMap.put(groupTitle, group);
+			}
+		}
+
+		//extract all of the imported groups from the map, clear out current ones first to avoid dupes.
+		importedGroups.clear();
+		importedGroups.addAll(groupMap.values());
 
 		return true;
 	}
@@ -1661,11 +1704,12 @@ public class SiteManageGroupSectionRoleHandler {
     		try {
     			siteService.save(site);
     		} catch (IdUnusedException | PermissionException e) {
-            	M_log.error("processImportedGroups failed for site: " + site.getId(), e);
+            	log.error("processImportedGroups failed for site: " + site.getId(), e);
             	return "error";
     		}
 		}
 		
+		resetParams();
 		return "success";
 	}
 	
@@ -1684,7 +1728,7 @@ public class SiteManageGroupSectionRoleHandler {
 		
 		Set<Member> members= g.getMembers();
 		for(Member m: members) {
-			userIds.add(m.getUserId());
+			userIds.add(m.getUserEid());
 		}
 		return userIds;
 	}
@@ -1714,7 +1758,7 @@ public class SiteManageGroupSectionRoleHandler {
 		try {
 			g.insertMember(id, r != null ? r.getId() : memberRole != null? memberRole.getId() : "", m != null ? m.isActive() : true, false);
 		} catch (IllegalStateException e) {
-			M_log.error(".addUserToGroup: User with id {} cannot be inserted in group with id {} because the group is locked", id, g.getId());
+			log.error(".addUserToGroup: User with id {} cannot be inserted in group with id {} because the group is locked", id, g.getId());
 		}
 		
 	}
@@ -1736,7 +1780,7 @@ public class SiteManageGroupSectionRoleHandler {
      * of the import sequence.
      */
     @Getter
-    private List<ImportedGroup> importedGroups;
+    private List<ImportedGroup> importedGroups = new ArrayList<>();
    
     public String processCreateJoinableSet() {
     	// reset the warning messages
@@ -1853,7 +1897,7 @@ public class SiteManageGroupSectionRoleHandler {
         }
         catch( IdUnusedException | PermissionException ex )
         {
-            M_log.error(ex.getMessage());
+            log.error(ex.getMessage());
         }
     }
 

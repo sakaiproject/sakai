@@ -22,6 +22,8 @@ import java.util.List;
 
 import javax.faces.context.FacesContext;
 
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.signup.logic.SignupUser;
 import org.sakaiproject.signup.logic.SignupUserActionException;
@@ -45,6 +47,7 @@ import org.sakaiproject.util.ResourceLoader;
  * edit comment page:<b>editComment.jsp</b> and backbone system.
  * </P>
  */
+@Slf4j
 public class EditCommentSignupMBean extends SignupUIBaseBean {
 
 	private AttendeeWrapper attendeeWrapper;
@@ -176,7 +179,7 @@ public class EditCommentSignupMBean extends SignupUIBaseBean {
 					trackingInfo.setAttendeeComment(new AttendeeComment(comment, attendeeId, sakaiFacade.getCurrentUserId()));
 					signupMeetingService.sendUpdateCommentEmail(trackingInfo);
 				} catch (Exception e) {
-					logger.error(Utilities.rb.getString("email.exception") + " - " + e.getMessage(), e);
+					log.error(Utilities.rb.getString("email.exception") + " - " + e.getMessage(), e);
 					Utilities.addErrorMessage(Utilities.rb.getString("email.exception"));
 				}
 			}
@@ -188,7 +191,7 @@ public class EditCommentSignupMBean extends SignupUIBaseBean {
 				Utilities.addErrorMessage(ue.getMessage());
 			} catch (Exception e) {
 				Utilities.addErrorMessage(Utilities.rb.getString("db.error_or_event.notExisted"));
-				logger.error(Utilities.rb.getString("db.error_or_event.notExisted") + " - " + e.getClass() + ":" + e.getMessage());
+				log.error(Utilities.rb.getString("db.error_or_event.notExisted") + " - " + e.getClass() + ":" + e.getMessage());
 				Utilities.resetMeetingList();
 				return MAIN_EVENTS_LIST_PAGE_URL;
 			}

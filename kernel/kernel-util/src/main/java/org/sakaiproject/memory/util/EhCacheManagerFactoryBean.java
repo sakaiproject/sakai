@@ -21,20 +21,22 @@
 
 package org.sakaiproject.memory.util;
 
+import lombok.extern.slf4j.Slf4j;
+
 import net.sf.ehcache.Cache;
-import net.sf.ehcache.CacheException;
 import net.sf.ehcache.CacheManager;
+
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.component.cover.ComponentManager;
-
-import java.io.IOException;
 
 /**
  * @deprecated since Sakai 2.9, do not use this anymore (use the sakai config settings instead), this will be removed in 11
  */
+@Slf4j
 public class EhCacheManagerFactoryBean extends org.springframework.cache.ehcache.EhCacheManagerFactoryBean {
 	private ServerConfigurationService serverConfigurationService = (ServerConfigurationService) ComponentManager.get(ServerConfigurationService.class);
-    @Override
+
+	@Override
 	public void afterPropertiesSet() {
         super.afterPropertiesSet();
 		//Now look for any custom configuration.
@@ -45,11 +47,11 @@ public class EhCacheManagerFactoryBean extends org.springframework.cache.ehcache
     		//Check for old configuration properties.
     		for (String cacheName:cacheNames) {
     			if(serverConfigurationService.getString(cacheName) == null) {
-    				logger.warn("Old cache configuration "+ cacheName+ " must be changed to memory."+ cacheName);
+    				log.warn("Old cache configuration "+ cacheName+ " must be changed to memory."+ cacheName);
     			}
     			String config = serverConfigurationService.getString("memory."+ cacheName);
     			if (config != null && config.length() > 0) {
-    				logger.info("Found configuration override for cache: "+ cacheName+ " of: "+ config);
+    				log.info("Found configuration override for cache: "+ cacheName+ " of: "+ config);
     				Cache cache = cm.getCache(cacheName);
     				if (cache != null) {
     					new CacheInitializer().configure(config).initialize(cache.getCacheConfiguration());

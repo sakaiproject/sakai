@@ -23,19 +23,17 @@ package org.sakaiproject.util;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * 
  * A utility class to generate a SHA1 hash based on a full path to a resource/entity.
  * @deprecated unused as of 12 Dec 2011, planned for removal after 2.9
  */
+@Slf4j
 public class PathHashUtil 
 {
-	private static final Logger log = LoggerFactory.getLogger(PathHashUtil.class);
-
-	
     private static char[] encode = { '0', '1', '2', '3', '4', '5', '6', '7',
                     '8', '9', 'A', 'B', 'C', 'D', 'E', 'F' };
 
@@ -62,8 +60,6 @@ public class PathHashUtil
     		catch (NoSuchAlgorithmException e)
     		{
     		    throw new RuntimeException("Failed to find SHA1 message digest: " + e, e);
-    		    // this is unrecoverable -AZ
-//    			log.error("Cant find Hash Algorithm ",e);
     		}
     	}
     	byte[] b = mdigest.digest(nodePath.getBytes());
@@ -77,5 +73,4 @@ public class PathHashUtil
     	log.debug("Encoded "+nodePath+" as "+encoded);
     	return encoded;
     }
-
 }

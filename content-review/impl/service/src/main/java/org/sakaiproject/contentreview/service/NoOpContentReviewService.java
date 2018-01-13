@@ -234,4 +234,11 @@ public class NoOpContentReviewService implements ContentReviewService {
 			throws SubmissionException, TransientSubmissionException {
 		log.debug("void createAssignment {} {} {}", siteId, taskId, extraAsnnOpts);
 	}
+
+	@Override
+	public ContentReviewItem getContentReviewItemByContentId(String contentId) {
+		ContentReviewItem ret = null;
+		log.debug("{} getContentReviewItemByContentId {}", ret, contentId);
+		return ret;
+	}
 }

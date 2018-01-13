@@ -35,7 +35,7 @@ public class GradingServiceTest {
 		} catch (Exception e) {
 			Assert.fail();
 		}
-		
+
 		/* FIX me this should work
 		try {
 			gradingService.validate("2,1");
@@ -50,22 +50,18 @@ public class GradingServiceTest {
 		} catch (Exception e) {
 			
 		}
-		
-		
+
 		try {
 			Map map = gradingService.validate("6.022E23");
 			Assert.assertTrue(map.containsKey(GradingService.ANSWER_TYPE_REAL));
 		} catch (Exception e) {
-			e.printStackTrace();
 			Assert.fail();
 		}
-		
-		
+
 		try {
 			Map map = gradingService.validate("1+9i");
 			Assert.assertTrue(map.containsKey(GradingService.ANSWER_TYPE_COMPLEX));
 		} catch (Exception e) {
-			e.printStackTrace();
 			Assert.fail();
 		}
 	}

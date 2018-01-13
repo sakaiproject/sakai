@@ -35,13 +35,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Collection;
 
-import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean;
-import org.sakaiproject.lessonbuildertool.tool.view.GeneralViewParameters;
-import org.sakaiproject.lessonbuildertool.tool.producers.ShowPageProducer;
-
-import org.sakaiproject.lessonbuildertool.SimplePage;
-import org.sakaiproject.lessonbuildertool.SimplePageItem;
-import org.sakaiproject.tool.cover.SessionManager;
+import lombok.extern.slf4j.Slf4j;
 
 import uk.org.ponder.messageutil.MessageLocator;
 import uk.org.ponder.localeutil.LocaleGetter;                                                                                          
@@ -53,7 +47,6 @@ import uk.org.ponder.rsf.components.UIELBinding;
 import uk.org.ponder.rsf.components.UIForm;
 import uk.org.ponder.rsf.components.UIInput;
 import uk.org.ponder.rsf.components.UIOutput;
-import uk.org.ponder.rsf.components.UIVerbatim;
 import uk.org.ponder.rsf.components.decorators.UIFreeAttributeDecorator;
 import uk.org.ponder.rsf.components.decorators.UITooltipDecorator;
 import uk.org.ponder.rsf.evolvers.TextInputEvolver;
@@ -65,12 +58,12 @@ import uk.org.ponder.rsf.viewstate.SimpleViewParameters;
 import uk.org.ponder.rsf.viewstate.ViewParameters;
 import uk.org.ponder.rsf.viewstate.ViewParamsReporter;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.sakaiproject.component.cover.ServerConfigurationService;
-import org.sakaiproject.content.cover.ContentHostingService;
 import org.sakaiproject.exception.IdUnusedException;
-
+import org.sakaiproject.lessonbuildertool.SimplePage;
+import org.sakaiproject.lessonbuildertool.SimplePageItem;
+import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean;
+import org.sakaiproject.lessonbuildertool.tool.view.GeneralViewParameters;
+import org.sakaiproject.tool.cover.SessionManager;
 
 /**
  * Uses an FCK editor to edit blocks of text.
@@ -78,9 +71,8 @@ import org.sakaiproject.exception.IdUnusedException;
  * @author Joshua Ryan josh@asu.edu alt^I
  * @author Eric Jeney <jeney@rutgers.edu>
  */
+@Slf4j
 public class EditPageProducer implements ViewComponentProducer, NavigationCaseReporter, ViewParamsReporter {
-
-	private static final Logger log = LoggerFactory.getLogger(EditPageProducer.class);
 	private TextInputEvolver richTextEvolver;
 	private SimplePageBean simplePageBean;
 	private ShowPageProducer showPageProducer;

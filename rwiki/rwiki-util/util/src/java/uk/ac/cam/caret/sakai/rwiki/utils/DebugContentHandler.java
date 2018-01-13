@@ -24,6 +24,7 @@ package uk.ac.cam.caret.sakai.rwiki.utils;
 
 import java.text.MessageFormat;
 
+import lombok.extern.slf4j.Slf4j;
 import org.xml.sax.Attributes;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.Locator;
@@ -35,6 +36,7 @@ import org.xml.sax.SAXException;
  * 
  * @author ieb
  */
+@Slf4j
 public class DebugContentHandler implements ContentHandler
 {
 
@@ -74,7 +76,7 @@ public class DebugContentHandler implements ContentHandler
 	public void startElement(String arg0, String arg1, String arg2,
 			Attributes arg3) throws SAXException
 	{
-		System.out.println(MessageFormat.format("<{0} {1} {2} >", new Object[] {
+		log.info(MessageFormat.format("<{0} {1} {2} >", new Object[] {
 				arg0, arg1, arg2 }));
 		ch.startElement(arg0, arg1, arg2, arg3);
 	}
@@ -82,28 +84,28 @@ public class DebugContentHandler implements ContentHandler
 	public void endElement(String arg0, String arg1, String arg2)
 			throws SAXException
 	{
-		System.out.println(MessageFormat.format("</{0} {1} {2} >",
+		log.info(MessageFormat.format("</{0} {1} {2} >",
 				new Object[] { arg0, arg1, arg2 }));
 		ch.endElement(arg0, arg1, arg2);
 	}
 
 	public void characters(char[] arg0, int arg1, int arg2) throws SAXException
 	{
-		System.out.print(String.valueOf(arg0, arg1, arg2));
+		log.info(String.valueOf(arg0, arg1, arg2));
 		ch.characters(arg0, arg1, arg2);
 	}
 
 	public void ignorableWhitespace(char[] arg0, int arg1, int arg2)
 			throws SAXException
 	{
-		System.out.print(String.valueOf(arg0, arg1, arg2));
+		log.info(String.valueOf(arg0, arg1, arg2));
 		ch.ignorableWhitespace(arg0, arg1, arg2);
 	}
 
 	public void processingInstruction(String arg0, String arg1)
 			throws SAXException
 	{
-		System.out.println(MessageFormat.format("<? {0} {1} ?>", new Object[] {
+		log.info(MessageFormat.format("<? {0} {1} ?>", new Object[] {
 				arg0, arg1 }));
 		ch.processingInstruction(arg0, arg1);
 	}

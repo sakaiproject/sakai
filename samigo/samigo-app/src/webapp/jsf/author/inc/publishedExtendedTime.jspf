@@ -20,17 +20,15 @@
         </h:panelGroup>
         <h:panelGroup styleClass="form-group row" layout="block">
                 <h:outputLabel styleClass="col-md-2" for="newEntry-due_date" value="#{assessmentSettingsMessages.assessment_available}"/>
-                <h:panelGroup styleClass="col-md-3" layout="block">
+                <h:panelGroup styleClass="col-md-4" layout="block">
                     <h:inputText id="newEntry-start_date" size="25" value="#{publishedSettings.extendedTimeStartString}"/>
                 </h:panelGroup>
         </h:panelGroup>
         <h:panelGroup styleClass="form-group row" layout="block">
                 <h:outputLabel styleClass="col-md-2" for="newEntry-due_date" value="#{assessmentSettingsMessages.assessment_due}"/>
-                <h:panelGroup styleClass="col-md-3" layout="block">
-                 <h:inputText id="newEntry-due_date" size="25" value="#{publishedSettings.extendedTimeDueString}"/>
-                </h:panelGroup>
-                <h:panelGroup styleClass="col-md-6" layout="block">
-        <h:outputText value="#{assessmentSettingsMessages.has_time_limit} " />
+                <h:panelGroup styleClass="col-md-8" layout="block">
+                    <h:inputText id="newEntry-due_date" size="25" value="#{publishedSettings.extendedTimeDueString}"/>
+                    <h:outputText value=" #{assessmentSettingsMessages.has_time_limit} " />
                     <h:selectOneMenu id="newEntry-hours" value="#{publishedSettings.extendedTime.timeHours}" >
                         <f:selectItems value="#{publishedSettings.hours}" />
                     </h:selectOneMenu>
@@ -41,7 +39,7 @@
         </h:panelGroup>
         <h:panelGroup styleClass="form-group row" layout="block" rendered="#{publishedSettings.valueMap.lateHandling_isInstructorEditable==true}">
                 <h:outputLabel styleClass="col-md-2" for="newEntry-retract_date" value="#{assessmentSettingsMessages.late_accept_until}"/>
-                <h:panelGroup styleClass="col-md-3" layout="block">
+                <h:panelGroup styleClass="col-md-4" layout="block">
                     <h:inputText id="newEntry-retract_date" size="25" value="#{publishedSettings.extendedTimeRetractString}"/>
                 </h:panelGroup>
         </h:panelGroup>

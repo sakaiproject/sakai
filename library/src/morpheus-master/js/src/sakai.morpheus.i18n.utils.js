@@ -21,6 +21,7 @@
         $.ajax({
             url: '/sakai-ws/rest/i18n/getI18nProperties',
             cache: false,
+            dataType: "text",
             data: {locale: portal.locale,
                     resourceclass: options.resourceClass,
                     resourcebundle: options.resourceBundle},

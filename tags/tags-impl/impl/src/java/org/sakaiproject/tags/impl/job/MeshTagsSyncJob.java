@@ -20,14 +20,6 @@
  **********************************************************************************/
 package org.sakaiproject.tags.impl.job;
 
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.quartz.Job;
-import org.quartz.JobExecutionContext;
-import org.quartz.JobExecutionException;
-import org.sakaiproject.component.api.ServerConfigurationService;
-
 import java.io.File;
 import java.io.InputStream;
 import java.io.FileInputStream;
@@ -40,16 +32,19 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.stax.StAXSource;
 import javax.xml.transform.dom.DOMResult;
 import javax.xml.stream.XMLStreamException;
+
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
+import org.quartz.Job;
+import org.quartz.JobExecutionContext;
+import org.quartz.JobExecutionException;
 import org.w3c.dom.Node;
 import org.w3c.dom.Element;
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
 
-
-
-
+import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.email.api.EmailService;
-
 
 /**
  * A quartz job to synchronize the TAGS with an
@@ -57,8 +52,8 @@ import org.sakaiproject.email.api.EmailService;
  *
  *
  */
+@Slf4j
 public class MeshTagsSyncJob extends TagSynchronizer implements Job {
-	private static final Log log = LogFactory.getLog(MeshTagsSyncJob.class);
 
 	private String pathToXml;
 	private ServerConfigurationService serverConfigurationService;
@@ -66,7 +61,6 @@ public class MeshTagsSyncJob extends TagSynchronizer implements Job {
 	private int counterSuccess=0;
 	private int counterTotal=0;
 	private String lastSuccessfulLabel = "";
-
 
 	/**
 	 * {@inheritDoc}
@@ -80,20 +74,15 @@ public class MeshTagsSyncJob extends TagSynchronizer implements Job {
 					targetStream=new FileInputStream(xmlFile);
 				} catch (Exception e){
 					log.warn("The Mesh file can't be found in the specified route: " + pathToXml);
-					e.printStackTrace();
 				}
-
 		return targetStream;
-
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	public void execute(JobExecutionContext arg0) throws JobExecutionException {
-
 		syncAllTags();
-
 	}
 
 	public synchronized void syncAllTags() {

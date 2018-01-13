@@ -24,8 +24,8 @@ package org.sakaiproject.authz.impl;
 import java.util.List;
 import java.util.Vector;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.user.api.User;
@@ -36,11 +36,9 @@ import org.sakaiproject.user.api.UserDirectoryService;
  * NoSecurity is an example implementation of the Sakai SecurityService.
  * </p>
  */
+@Slf4j
 public abstract class NoSecurity implements SecurityService
 {
-	/** Our logger. */
-	private static Logger M_log = LoggerFactory.getLogger(NoSecurity.class);
-
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * Dependencies
 	 *********************************************************************************************************************************************************************************************************************************************************/
@@ -59,7 +57,7 @@ public abstract class NoSecurity implements SecurityService
 	 */
 	public void init()
 	{
-		M_log.info("init()");
+		log.info("init()");
 	}
 
 	/**
@@ -67,7 +65,7 @@ public abstract class NoSecurity implements SecurityService
 	 */
 	public void destroy()
 	{
-		M_log.info("destroy()");
+		log.info("destroy()");
 	}
 
 	/**********************************************************************************************************************************************************************************************************************************************************
@@ -95,7 +93,7 @@ public abstract class NoSecurity implements SecurityService
 	 */
 	public boolean isSuperUser()
 	{
-		if (M_log.isDebugEnabled()) M_log.debug("isSuperUser() true user: " + getUserId(null));
+		if (log.isDebugEnabled()) log.debug("isSuperUser() true user: " + getUserId(null));
 		return true;
 	}
 
@@ -104,7 +102,7 @@ public abstract class NoSecurity implements SecurityService
 	 */
 	public boolean isSuperUser(String userId)
 	{
-		if (M_log.isDebugEnabled()) M_log.debug("isSuperUser(userId) true user: " + userId);
+		if (log.isDebugEnabled()) log.debug("isSuperUser(userId) true user: " + userId);
 		return true;
 	}
 
@@ -119,8 +117,8 @@ public abstract class NoSecurity implements SecurityService
 	 */
 	public boolean unlock(String lock, String resource)
 	{
-		if (M_log.isDebugEnabled())
-			M_log.debug("unlock() true user: " + getUserId(null) + " lock: " + lock + " resource: " + resource);
+		if (log.isDebugEnabled())
+			log.debug("unlock() true user: " + getUserId(null) + " lock: " + lock + " resource: " + resource);
 		return true;
 	}
 
@@ -135,8 +133,8 @@ public abstract class NoSecurity implements SecurityService
 	 */
 	public boolean unlock(User user, String lock, String resource)
 	{
-		if (M_log.isDebugEnabled())
-			M_log.debug("unlock() true user: " + getUserId(user) + " lock: " + lock + " resource: " + resource);
+		if (log.isDebugEnabled())
+			log.debug("unlock() true user: " + getUserId(user) + " lock: " + lock + " resource: " + resource);
 		return true;
 	}
 
@@ -145,8 +143,8 @@ public abstract class NoSecurity implements SecurityService
 	 */
 	public boolean unlock(String userId, String lock, String resource)
 	{
-		if (M_log.isDebugEnabled())
-			M_log.debug("unlock() true user: " + userId+ " lock: " + lock + " resource: " + resource);
+		if (log.isDebugEnabled())
+			log.debug("unlock() true user: " + userId+ " lock: " + lock + " resource: " + resource);
 		return true;
 	}
 

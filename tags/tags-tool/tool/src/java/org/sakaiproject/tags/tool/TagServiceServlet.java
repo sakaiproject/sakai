@@ -24,20 +24,24 @@
 
 package org.sakaiproject.tags.tool;
 
-import com.github.jknack.handlebars.Handlebars;
-import com.github.jknack.handlebars.Helper;
-import com.github.jknack.handlebars.Options;
-import com.github.jknack.handlebars.Template;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.*;
 import java.util.stream.Collectors;
+
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import com.github.jknack.handlebars.Handlebars;
+import com.github.jknack.handlebars.Helper;
+import com.github.jknack.handlebars.Options;
+import com.github.jknack.handlebars.Template;
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.api.ServerConfigurationService;
@@ -51,18 +55,15 @@ import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.tool.api.ToolManager;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * The entry point for the Tags Service administration tool.  Takes a request,
  * routes it to a handler, renders a template in response.
  */
+@Slf4j
 public class TagServiceServlet extends HttpServlet {
 
     private static final String FLASH_MESSAGE_KEY = "tags-tool.flash.errors";
-
-    private static final Logger LOG = LoggerFactory.getLogger(TagServiceServlet.class);
 
     private TagService tagService;
     private ServerConfigurationService serverConfigurationService = null;
@@ -143,14 +144,14 @@ public class TagServiceServlet extends HttpServlet {
                 }
             }
         } catch (IOException e) {
-            LOG.warn("Write failed", e);
+            log.warn("Write failed", e);
         }
     }
 
     private void checkAccessControl() {
         String siteId = toolManager.getCurrentPlacement().getContext();
         if (!securityService.unlock("tagservice.manage", "/site/" + siteId)) {
-            LOG.error("Access denied to Tags management tool for user " + sessionManager.getCurrentSessionUserId());
+            log.error("Access denied to Tags management tool for user " + sessionManager.getCurrentSessionUserId());
             throw new TagServiceException("Access denied");
         }
     }
@@ -195,7 +196,7 @@ public class TagServiceServlet extends HttpServlet {
                     Template template = handlebars.compile("org/sakaiproject/tags/tool/views/" + subpage);
                     return template.apply(context);
                 } catch (IOException e) {
-                    LOG.warn("IOException while loading subpage", e);
+                    log.warn("IOException while loading subpage", e);
                     return "";
                 }
             }
@@ -316,7 +317,7 @@ public class TagServiceServlet extends HttpServlet {
                             nextIdx);
 
                 } catch (Exception e) {
-                    LOG.warn(e.getMessage());
+                    log.warn(e.getMessage());
                     paginationInfoMap = new HashMap<>();
                 }
 

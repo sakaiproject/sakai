@@ -109,9 +109,9 @@ public class NestedCitationValidator implements CitationValidator {
 					|| citationCollectionOrder.getSectiontype().equals(CitationCollectionOrder.SectionType.DESCRIPTION)) && citationCollectionOrder.getCitationid()!=null){
 				return "Invalid nested list: SECTION_TYPE is a 'HEADING' or a 'DESCRIPTION' and CITATION_ID is null for collection with id: " + collection.getId();
 			}
-			// 3. Check that if VALUE column is not null then section type column is not null and CITATION_ID is null
-			if (citationCollectionOrder.getValue()!=null && (citationCollectionOrder.getSectiontype()==null || citationCollectionOrder.getCitationid()!=null)){
-				return "Invalid nested list: VALUE is not null but either SECTION_TYPE is null or CITATION_ID is not null for collection with id: " + collection.getId();
+			// 3. Check that if VALUE column is not null then section type column is not null
+			if (citationCollectionOrder.getValue()!=null && citationCollectionOrder.getSectiontype()==null){
+				return "Invalid nested list: VALUE is not null but either SECTION_TYPE is null for collection with id: " + collection.getId();
 			}
 
 		}

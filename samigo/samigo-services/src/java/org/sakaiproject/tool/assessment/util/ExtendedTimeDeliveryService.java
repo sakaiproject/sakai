@@ -19,8 +19,6 @@ package org.sakaiproject.tool.assessment.util;
 
 import java.util.*;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.component.cover.ComponentManager;
@@ -39,7 +37,6 @@ import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentS
  *
  */
 public class ExtendedTimeDeliveryService {
-	private static final Logger log = LoggerFactory.getLogger(ExtendedTimeDeliveryService.class);
 	private static int MINS_IN_HOUR = 60;
 	private static int SECONDS_IN_MIN = 60;
 
@@ -58,7 +55,6 @@ public class ExtendedTimeDeliveryService {
 	 */
 	public ExtendedTimeDeliveryService(PublishedAssessmentFacade publishedAssessment) {
 		this(publishedAssessment, AgentFacade.getAgentString());
-
 	}
 
 	/**

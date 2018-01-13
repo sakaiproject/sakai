@@ -20,6 +20,7 @@
  **********************************************************************************/
 package org.sakaiproject.importer.impl.handlers;
 
+import lombok.extern.slf4j.Slf4j;
 import org.sakaiproject.importer.api.HandlesImportable;
 import org.sakaiproject.importer.api.Importable;
 import org.sakaiproject.importer.impl.importables.QuestionPool;
@@ -36,6 +37,8 @@ import org.sakaiproject.tool.cover.SessionManager;
 * @author Joshua Ryan joshua.ryan@asu.edu
 *
 */
+
+@Slf4j
 public class SamigoHandler implements HandlesImportable {
 
 	//won't be needed if we can get a createImportedQuestionPool(Document, int)
@@ -65,7 +68,7 @@ public class SamigoHandler implements HandlesImportable {
 				qtiService.createImportedAssessment(assessment.getQti(), version);
 			}
 			catch (Exception e) {
-				e.printStackTrace();
+				log.error(e.getMessage(), e);
 			}
 		}
 		else if ("sakai-question-pool".equals(thing.getTypeName())){

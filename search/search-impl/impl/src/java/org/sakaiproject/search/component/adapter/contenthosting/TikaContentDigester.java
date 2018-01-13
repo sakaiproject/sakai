@@ -25,9 +25,7 @@ import java.io.InputStream;
 import java.io.Reader;
 import java.io.StringReader;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.sakaiproject.content.api.ContentResource;
+import lombok.extern.slf4j.Slf4j;
 import org.xml.sax.ContentHandler;
 import org.apache.tika.metadata.Metadata;
 import org.apache.tika.parser.AutoDetectParser;
@@ -35,12 +33,14 @@ import org.apache.tika.parser.ParseContext;
 import org.apache.tika.parser.Parser;
 import org.apache.tika.sax.BodyContentHandler;
 
+import org.sakaiproject.content.api.ContentResource;
+
 /**
  * @author stephen.marquard@uct.ac.za
  */
+@Slf4j
 public class TikaContentDigester extends BaseContentDigester
 {
-	private static Logger log = LoggerFactory.getLogger(TikaContentDigester.class);
 
 	/*
 	 * (non-Javadoc)

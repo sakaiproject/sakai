@@ -19,13 +19,10 @@ import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 class TerracottaClassLoader extends URLClassLoader {
-	/** Our logger */
-	private static Logger log = LoggerFactory.getLogger(ComponentsLoader.class);
-	
 	private String classLoaderName;
 
 	public TerracottaClassLoader(URL[] urls, ClassLoader parent, String classLoaderName) {

@@ -38,10 +38,10 @@ import java.util.*;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.ArrayUtils;
-import org.sakaiproject.entity.api.ResourceProperties;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
 import org.sakaiproject.api.privacy.PrivacyManager;
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.FunctionManager;
@@ -55,6 +55,7 @@ import org.sakaiproject.coursemanagement.api.Enrollment;
 import org.sakaiproject.coursemanagement.api.EnrollmentSet;
 import org.sakaiproject.coursemanagement.api.Section;
 import org.sakaiproject.coursemanagement.api.exception.IdNotFoundException;
+import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.EventTrackingService;
@@ -82,8 +83,6 @@ import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.util.ResourceLoader;
 
-import lombok.Setter;
-
 /**
  * <code>SakaiProxy</code> acts as a proxy between Roster and Sakai components.
  * 
@@ -91,10 +90,9 @@ import lombok.Setter;
  * @author Adrian Fish (a.fish@lancaster.ac.uk)
  */
 @Setter
+@Slf4j
 public class SakaiProxyImpl implements SakaiProxy, Observer {
 
-	private static final Logger log = LoggerFactory.getLogger(SakaiProxyImpl.class);
-		
 	private CourseManagementService courseManagementService;
 	private EventTrackingService eventTrackingService;
 	private FunctionManager functionManager;

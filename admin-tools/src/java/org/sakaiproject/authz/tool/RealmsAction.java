@@ -28,10 +28,22 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Vector;
 
+import lombok.extern.slf4j.Slf4j;
+
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.sakaiproject.authz.api.*;
+
+import org.sakaiproject.authz.api.AuthzGroup;
+import org.sakaiproject.authz.api.AuthzGroupService;
+import org.sakaiproject.authz.api.AuthzPermissionException;
+import org.sakaiproject.authz.api.FunctionManager;
+import org.sakaiproject.authz.api.GroupAlreadyDefinedException;
+import org.sakaiproject.authz.api.GroupIdInvalidException;
+import org.sakaiproject.authz.api.GroupNotDefinedException;
+import org.sakaiproject.authz.api.GroupProvider;
+import org.sakaiproject.authz.api.Member;
+import org.sakaiproject.authz.api.Role;
+import org.sakaiproject.authz.api.RoleAlreadyDefinedException;
+import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.cheftool.Context;
 import org.sakaiproject.cheftool.JetspeedRunData;
 import org.sakaiproject.cheftool.PagedResourceActionII;
@@ -60,6 +72,7 @@ import org.sakaiproject.util.ResourceLoader;
  * RealmsAction is the Sakai Admin realms editor.
  * </p>
  */
+@Slf4j
 public class RealmsAction extends PagedResourceActionII
 {
 
@@ -67,8 +80,6 @@ public class RealmsAction extends PagedResourceActionII
 
 	/** Resource bundle using current language locale */
 	private static ResourceLoader rb = new ResourceLoader("authz-tool");
-
-	private static Logger logger = LoggerFactory.getLogger(RealmsAction.class);
 
 	private AuthzGroupService authzGroupService;
 	private FunctionManager functionManager;
@@ -209,7 +220,7 @@ public class RealmsAction extends PagedResourceActionII
 
 		else
 		{
-		 	logger.warn("mode: {}", mode);
+		 	log.warn("mode: {}", mode);
 			template = buildListContext(state, context);
 		}
 
@@ -663,7 +674,7 @@ public class RealmsAction extends PagedResourceActionII
 		}
 		catch (GroupNotDefinedException e)
 		{
-		 	logger.warn("realm not found: {}", id);
+		 	log.warn("realm not found: {}", id);
 
 			addAlert(state, rb.getFormattedMessage("realm.notfound", new Object[]{id}));
 			state.removeAttribute("mode");
@@ -736,7 +747,7 @@ public class RealmsAction extends PagedResourceActionII
 			}
 			catch (Exception e)
 			{
-			 	logger.warn("realmId = {} {}", realm.getId(), e.getMessage());
+			 	log.warn("realmId = {} {}", realm.getId(), e.getMessage());
 			}
 		}
 
@@ -888,7 +899,7 @@ public class RealmsAction extends PagedResourceActionII
 		}
 		catch (GroupNotDefinedException e)
 		{
-		 	logger.warn("realm not found: {}", id);
+		 	log.warn("realm not found: {}", id);
 
 			addAlert(state, rb.getFormattedMessage("realm.notfound", new Object[]{id}));
 			state.removeAttribute("mode");
@@ -1303,7 +1314,7 @@ public class RealmsAction extends PagedResourceActionII
 		}
 		catch (UserNotDefinedException e)
 		{
-		 	logger.warn("user not found: {}", id);
+		 	log.warn("user not found: {}", id);
 			addAlert(state, rb.getString("realm.user.notfound"));
 		}
 
@@ -1488,7 +1499,7 @@ public class RealmsAction extends PagedResourceActionII
 		String userId = sessionManager.getCurrentSessionUserId();
 		
 		if(securityService.unlock(userId, AuthzGroupService.SECURE_VIEW_ALL_AUTHZ_GROUPS, siteRef)) {
-			logger.debug("Granting view access to Realms tool for userId: " + userId);
+			log.debug("Granting view access to Realms tool for userId: {}", userId);
 			return true;
 		}
 		

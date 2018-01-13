@@ -19,7 +19,6 @@
  *
  **********************************************************************************/
 
-
 package org.sakaiproject.tool.assessment.ui.bean.qti;
 
 import java.io.File;
@@ -38,8 +37,7 @@ import javax.faces.context.FacesContext;
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService;
 import org.sakaiproject.spring.SpringBeanLocator;
@@ -65,17 +63,15 @@ import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.util.ResourceLoader;
 import org.w3c.dom.Document;
 
- 
 /**
  * <p>Bean for QTI Import Data</p>
  */
-
+@Slf4j
 public class XMLImportBean implements Serializable
 {
 	
 	  /** Use serialVersionUID for interoperability. */
 	  private final static long serialVersionUID = 418920360211039758L;
-	  private static Logger log = LoggerFactory.getLogger(XMLImportBean.class);
 	  
   private int qtiVersion;
   private String uploadFileName;
@@ -485,14 +481,14 @@ public class XMLImportBean implements Serializable
 
     // remove uploaded file
     try{
-      //System.out.println("****filename="+fileName);
+      log.debug("****filename="+fileName);
       File upload = new File(fileName);
       boolean success = upload.delete();
       if (!success)
 	log.error ("Failed to delete file " + fileName);
     }
     catch(Exception e){
-	e.printStackTrace();
+	log.error(e.getMessage(), e);
     }
   }
   

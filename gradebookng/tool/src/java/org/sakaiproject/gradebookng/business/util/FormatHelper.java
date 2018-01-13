@@ -173,6 +173,7 @@ public class FormatHelper {
 
 			final DecimalFormat dfFormat = (DecimalFormat) NumberFormat.getInstance(rl.getLocale());
 			dfFormat.setMinimumFractionDigits(0);
+			dfFormat.setMaximumFractionDigits(2);
 			dfFormat.setGroupingUsed(true);
 			s = dfFormat.format(d);
 		} catch (final NumberFormatException e) {

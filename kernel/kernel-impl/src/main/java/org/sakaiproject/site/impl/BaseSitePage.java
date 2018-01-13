@@ -23,9 +23,15 @@ package org.sakaiproject.site.impl;
 
 import java.util.*;
 
+import lombok.extern.slf4j.Slf4j;
+
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.site.api.Site;
@@ -34,21 +40,15 @@ import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.util.BaseResourceProperties;
 import org.sakaiproject.util.BaseResourcePropertiesEdit;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 
 /**
  * <p>
  * BaseSitePage is an implementation of the Site API SitePage.
  * </p>
  */
+@Slf4j
 public class BaseSitePage implements SitePage, Identifiable
 {
-	/** Our log (commons). */
-	private static Logger M_log = LoggerFactory.getLogger(BaseSitePage.class);
-
 	/** A fixed class serian number. */
 	private static final long serialVersionUID = 1L;
 
@@ -389,7 +389,7 @@ public class BaseSitePage implements SitePage, Identifiable
 		}
 
         //If all this fails, return something
-        if (M_log.isDebugEnabled()) M_log.debug("Returning default m_title:" + m_title + " for toolId:" + toolId);
+        if (log.isDebugEnabled()) log.debug("Returning default m_title:" + m_title + " for toolId:" + toolId);
 
         return m_title;
 	}
@@ -646,7 +646,7 @@ public class BaseSitePage implements SitePage, Identifiable
 			m_layout = layout;
 		}
 		else
-			M_log.warn("setLayout(): set to invalid value: " + layout);
+			log.warn("setLayout(): set to invalid value: " + layout);
 	}
 
 	/**
@@ -735,8 +735,9 @@ public class BaseSitePage implements SitePage, Identifiable
 		if (m_site == null) return;
 		List<SitePage> pageList = m_site.getPages();
 		//KNL-250 if the position is greater than the number of pages make it last to avoid an exception
-		if (pos > pageList.size()) {
-			pos = pageList.size() +1;
+		int pageSize = pageList.size();
+		if (pos >= pageSize) {
+			pos = pageSize - 1;
 		}
 		((ResourceVector) pageList).moveTo(this, pos);
 	}

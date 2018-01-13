@@ -19,8 +19,6 @@
  *
  **********************************************************************************/
 
-
-
 package org.sakaiproject.tool.assessment.ui.bean.author;
 
 import java.io.Serializable;
@@ -41,8 +39,7 @@ import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 import javax.faces.model.SelectItem;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.tool.assessment.facade.*;
 import org.sakaiproject.site.api.Group;
@@ -86,9 +83,9 @@ import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.FormattedText;
 
+@Slf4j
 public class PublishedAssessmentSettingsBean
   implements Serializable {
-  private static final Logger log = LoggerFactory.getLogger(PublishedAssessmentSettingsBean.class);
   
   private static final IntegrationContextFactory integrationContextFactory =
     IntegrationContextFactory.getInstance();
@@ -1586,7 +1583,7 @@ public void setFeedbackComponentOption(String feedbackComponentOption) {
 			// list.
 			int listSize = 1 + studentTargets.size();
 			usersInSite = new SelectItem[listSize];
-			usersInSite[0] = new SelectItem("1", "Select User/Group");
+			usersInSite[0] = new SelectItem("", assessmentSettingMessages.getString("extendedTime_select_User"));
 			int selectCount = 1;
 
 			// Add in students to select item list
@@ -1652,20 +1649,19 @@ public void setFeedbackComponentOption(String feedbackComponentOption) {
 
   //Internal to be able to supress error easier
   public void addExtendedTime(boolean errorToContext) {
-  	ExtendedTime entry = this.extendedTime;
-	if(StringUtils.isBlank(entry.getUser()) && StringUtils.isBlank(entry.getGroup())) {
-		if (errorToContext) {
-			  FacesContext context = FacesContext.getCurrentInstance();
-			  String errorString = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages", "extended_time_user_and_group_set");
-			  errorString = errorString.replace("{0}", entry.getUser()).replace("{1}", entry.getGroup());
-			  context.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_WARN, errorString, null));
-		}
-  	}
-  	else {
-		this.extendedTime.syncDates();
-  		this.extendedTimes.add(this.extendedTime);
-  		resetExtendedTime();
-  	}
+      ExtendedTime entry = this.extendedTime;
+      if (StringUtils.isBlank(entry.getUser()) && StringUtils.isBlank(entry.getGroup())) {
+          if (errorToContext) {
+              FacesContext context = FacesContext.getCurrentInstance();
+              String errorString = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages", "extended_time_user_and_group_set");
+              context.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_WARN, errorString, null));
+          }
+      }
+      else {
+          this.extendedTime.syncDates();
+          this.extendedTimes.add(this.extendedTime);
+          resetExtendedTime();
+      }
   }
 
   public void deleteExtendedTime() {
@@ -1697,6 +1693,8 @@ public void setFeedbackComponentOption(String feedbackComponentOption) {
 
   private void resetExtendedTime() {
     this.extendedTime = new ExtendedTime(this.getAssessment().getData());
+    this.transitoryExtendedTime = null;
+    this.editingExtendedTime = false;
   }
 
         public String getDisplayScoreDuringAssessments(){

@@ -22,7 +22,6 @@
 package org.sakaiproject.tool.help;
 
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
 
 import org.sakaiproject.api.app.help.HelpManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;

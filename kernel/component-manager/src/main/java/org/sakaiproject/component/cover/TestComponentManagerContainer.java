@@ -21,16 +21,6 @@
 
 package org.sakaiproject.component.cover;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.sakaiproject.component.impl.SpringCompMgr;
-import org.springframework.beans.factory.config.PropertyOverrideConfigurer;
-import org.springframework.beans.factory.support.BeanDefinitionRegistry;
-import org.springframework.beans.factory.xml.XmlBeanDefinitionReader;
-import org.springframework.context.ConfigurableApplicationContext;
-import org.springframework.core.io.FileSystemResource;
-import org.springframework.core.io.Resource;
-
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationHandler;
@@ -39,17 +29,23 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
+import lombok.extern.slf4j.Slf4j;
+
+import org.springframework.beans.factory.config.PropertyOverrideConfigurer;
+import org.springframework.beans.factory.support.BeanDefinitionRegistry;
+import org.springframework.beans.factory.xml.XmlBeanDefinitionReader;
+import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.core.io.Resource;
+
+import org.sakaiproject.component.impl.SpringCompMgr;
+
 /**
  * A container for a Test Component Manager that can be configured with one of more components.
  *
  */
+@Slf4j
 public class TestComponentManagerContainer {
-
-	/**
-	 * The logger
-	 */
-	private static final Logger log = LoggerFactory.getLogger(TestComponentManagerContainer.class);
-	
 	/**
 	 * The current component manager
 	 */

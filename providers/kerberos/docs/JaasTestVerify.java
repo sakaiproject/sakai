@@ -25,14 +25,14 @@ import javax.security.auth.*;
 import javax.security.auth.callback.*;
 import javax.security.auth.login.*;
 
+import com.sun.security.auth.callback.TextCallbackHandler;
+import lombok.extern.slf4j.Slf4j;
 import org.ietf.jgss.GSSContext;
 import org.ietf.jgss.GSSCredential;
 import org.ietf.jgss.GSSException;
 import org.ietf.jgss.GSSManager;
 import org.ietf.jgss.GSSName;
 import org.ietf.jgss.Oid;
-
-import com.sun.security.auth.callback.TextCallbackHandler;
 
 /*
  * JaasTestVerify -- attempts to authenticate a user and reports success or an error message
@@ -44,8 +44,8 @@ import com.sun.security.auth.callback.TextCallbackHandler;
  *  (based on code from various contributors)
  *
  */
+@Slf4j
 public class JaasTestVerify {
-
 
 	private static byte[] tokens;
 	private GSSContext clientContext;
@@ -89,7 +89,7 @@ public class JaasTestVerify {
 			userContext.login();
 
 		} catch (LoginException le) {
-			le.printStackTrace();
+			log.error(le.getMessage(), le);
 		}
 		LoginContext serverLoginContext = null;
 		try {
@@ -98,8 +98,8 @@ public class JaasTestVerify {
 			serverLoginContext.login();
 
 		} catch (LoginException le) {
-			le.printStackTrace();
-		}		
+			log.error(le.getMessage(), le);
+		}
 		
 		GSSManager manager = GSSManager.getInstance();
 		Oid kerberos = new Oid("1.2.840.113554.1.2.2");
@@ -120,7 +120,7 @@ public class JaasTestVerify {
 		while (!clientContext.isEstablished() && !serverContext.isEstablished() && !(tokens == null && serviceTickets == null)) {
 			Subject.doAs(userContext.getSubject(), new UserAction());
 			Subject.doAs(serverLoginContext.getSubject(), new ServerAction());
-			System.out.println("Ticket exchanged.");
+			log.info("Ticket exchanged.");
 			if (++exchanges > 50) {
 				throw new RuntimeException("Too many tickets exchanged.");
 			}
@@ -131,7 +131,7 @@ public class JaasTestVerify {
 		userContext.logout();
 		serverLoginContext.logout();
 
-		System.out.println("Completed.");
+		log.info("Completed.");
 
 	}
 }

@@ -30,6 +30,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import lombok.extern.slf4j.Slf4j;
 import org.hibernate.Hibernate;
 import org.hibernate.Query;
 import org.sakaiproject.component.cover.ServerConfigurationService;
@@ -98,8 +99,6 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.orm.hibernate4.HibernateCallback;
 import org.springframework.orm.hibernate4.HibernateQueryException;
 import org.springframework.orm.hibernate4.support.HibernateDaoSupport;
-
-import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class AssessmentFacadeQueries extends HibernateDaoSupport implements AssessmentFacadeQueriesAPI {
@@ -396,8 +395,6 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements Asse
 
 	/* this assessment comes with a default section */
 	public AssessmentData cloneAssessmentFromTemplate(AssessmentTemplateData t) {
-		// log.debug("**** DEFAULT templateId inside clone" +
-		// t.getAssessmentTemplateId());
 		AssessmentData assessment = new AssessmentData(t.getParentId(),
 				"Assessment created with" + t.getTitle(), t.getDescription(), t
 						.getComments(), t.getAssessmentTemplateId(),
@@ -466,7 +463,7 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements Asse
 			sh.add(section);
 			assessment.setSectionSet(sh);
 		} catch (CloneNotSupportedException ex) {
-			ex.printStackTrace();
+			log.error(ex.getMessage(), ex);
 		}
 		return assessment;
 	}
@@ -1084,7 +1081,6 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements Asse
 		Set itemSet = section.getItemSet();
 		// HashSet newItemSet = new HashSet();
 		Iterator iter = itemSet.iterator();
-		// log.debug("***itemSet before=" + itemSet.size());
 		while (iter.hasNext()) {
 			ItemData item = (ItemData) iter.next();
 			// item belongs to a pool, set section=null so
@@ -1153,7 +1149,6 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements Asse
 		Set itemSet = section.getItemSet();
 		Set newItemSet = new HashSet();
 		Iterator iter = itemSet.iterator();
-		// log.debug("***itemSet before=" + itemSet.size());
 		while (iter.hasNext()) {
 			ItemData item = (ItemData) iter.next();
 			if (qpItemHash.get(item.getItemId().toString()) != null) {
@@ -1175,7 +1170,6 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements Asse
 				newItemSet.add(item);
 			}
 		}
-		// log.debug("***itemSet after=" + newItemSet.size());
 		section.setItemSet(newItemSet);
 		int retryCount = PersistenceService.getInstance().getPersistenceHelper().getRetryCount();
 		while (retryCount > 0) {

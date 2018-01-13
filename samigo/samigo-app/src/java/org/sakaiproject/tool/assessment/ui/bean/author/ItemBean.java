@@ -19,10 +19,7 @@
  *
  **********************************************************************************/
 
-
-
 package org.sakaiproject.tool.assessment.ui.bean.author;
-
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -55,10 +52,10 @@ import org.sakaiproject.util.ResourceLoader;
  * UI bean for authoring an Item
  * $Id$
  */
+
 public class ItemBean
   implements Serializable
 {
-  //private static Logger log = LoggerFactory.getLogger(ItemBean.class);
 
   // internal use
   private static final String answerNumbers =

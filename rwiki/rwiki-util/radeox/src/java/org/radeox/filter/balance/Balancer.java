@@ -8,16 +8,14 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.regex.Matcher;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * @author andrew
  */
+@Slf4j
 public class Balancer
 {
-	private static final Logger log = LoggerFactory.getLogger(Balancer.class);
-
 	StringBuffer sb;
 
 	TagStack tagStack;

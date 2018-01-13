@@ -38,16 +38,21 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
-import org.sakaiproject.importer.api.Importable;
-import org.sakaiproject.importer.api.IMSResourceTranslator;
-import org.sakaiproject.importer.impl.importables.FileResource;
-import org.sakaiproject.importer.impl.importables.Folder;
+import lombok.extern.slf4j.Slf4j;
+
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+
 import org.xml.sax.SAXException;
 
+import org.sakaiproject.importer.api.Importable;
+import org.sakaiproject.importer.api.IMSResourceTranslator;
+import org.sakaiproject.importer.impl.importables.FileResource;
+import org.sakaiproject.importer.impl.importables.Folder;
+
+@Slf4j
 public abstract class IMSFileParser extends ZipFileParser {
 	protected Map<String, Node> resourceMap = new HashMap<String, Node>();
 	protected Map<String, IMSResourceTranslator> translatorMap = new HashMap<String, IMSResourceTranslator>();
@@ -72,23 +77,19 @@ public abstract class IMSFileParser extends ZipFileParser {
             DocumentBuilder docBuilder = builderFactory.newDocumentBuilder();
             this.archiveManifest = (Document) docBuilder.parse(fis);
         } catch (FileNotFoundException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            log.error(e.getMessage(), e);
         } catch (ParserConfigurationException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            log.error(e.getMessage(), e);
         } catch (SAXException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            log.error(e.getMessage(), e);
         } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            log.error(e.getMessage(), e);
         } finally {
             if (fis != null) {
                 try {
                     fis.close();
                 } catch (IOException e) {
-                    // we tried
+                    log.error(e.getMessage(), e);
                 }
             }
         }

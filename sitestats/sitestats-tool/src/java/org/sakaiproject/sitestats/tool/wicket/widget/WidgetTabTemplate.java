@@ -24,9 +24,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
@@ -40,6 +39,7 @@ import org.apache.wicket.markup.html.link.StatelessLink;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.ResourceModel;
+
 import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.site.api.Site;
@@ -59,10 +59,9 @@ import org.sakaiproject.sitestats.tool.wicket.pages.OverviewPage;
 import org.sakaiproject.sitestats.tool.wicket.pages.ReportDataPage;
 import org.sakaiproject.sitestats.tool.wicket.providers.ReportsDataProvider;
 
-
+@Slf4j
 public abstract class WidgetTabTemplate extends Panel {
 	private static final long		serialVersionUID			= 1L;
-	private static Logger				LOG							= LoggerFactory.getLogger(WidgetTabTemplate.class);
 	public final static int			MAX_TABLE_ROWS				= 5;
 	public final static Integer		FILTER_DATE					= Integer.valueOf(0);
 	public final static Integer		FILTER_ROLE					= Integer.valueOf(1);
@@ -301,7 +300,7 @@ public abstract class WidgetTabTemplate extends Panel {
 				roleFilterOptions.add(r.getId());
 			}
 		}catch(IdUnusedException e){
-			LOG.warn("Site does not exist: " + siteId);
+			log.warn("Site does not exist: " + siteId);
 		}
 		IChoiceRenderer roleFilterRenderer = new IChoiceRenderer() {
 			private static final long	serialVersionUID	= 1L;

@@ -1,5 +1,8 @@
 package org.sakaiproject.time.impl;
 
+import java.util.TimeZone;
+import java.util.concurrent.ConcurrentHashMap;
+
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.MemoryService;
@@ -8,19 +11,11 @@ import org.sakaiproject.time.api.UserTimeService;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.user.api.Preferences;
 import org.sakaiproject.user.api.PreferencesService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.util.TimeZone;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * This just deals with the user specific part of what timezone they are in.
  */
 public class UserTimeServiceImpl implements UserTimeService {
-
-    private final Logger log = LoggerFactory.getLogger(UserTimeServiceImpl.class);
-
     // Cache of userIds to Timezone
     private Cache<String, String> M_userTzCache;
 

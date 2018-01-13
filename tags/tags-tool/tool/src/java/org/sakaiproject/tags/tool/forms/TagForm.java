@@ -25,21 +25,21 @@
 package org.sakaiproject.tags.tool.forms;
 
 import javax.servlet.http.HttpServletRequest;
+
 import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.tags.api.Errors;
 import org.sakaiproject.tags.api.MissingUuidException;
 import org.sakaiproject.tags.api.Tag;
 import org.sakaiproject.tags.tool.handlers.CrudHandler;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Maps to and from the tag HTML form and a tag data object.
  */
 @Data
+@Slf4j
 public class TagForm extends BaseForm {
-
-    private static final Logger LOG = LoggerFactory.getLogger(TagForm.class);
 
     private final String tagCollectionId;
     private final String tagLabel;

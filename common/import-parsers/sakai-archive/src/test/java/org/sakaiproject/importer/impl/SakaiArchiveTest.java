@@ -21,6 +21,12 @@
 
 package org.sakaiproject.importer.impl;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+
+import lombok.extern.slf4j.Slf4j;
+
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -28,10 +34,7 @@ import org.junit.Test;
 import org.sakaiproject.importer.api.ImportDataSource;
 import org.sakaiproject.importer.api.ImportFileParser;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-
+@Slf4j
 public class SakaiArchiveTest {
 	private static ImportFileParser parser = null;
 	private FileInputStream archiveStream = null;
@@ -47,7 +50,7 @@ public class SakaiArchiveTest {
 	public void testCanGetDataSource() {
 		ImportDataSource dataSource = (ImportDataSource) parser.parse(archiveStream, "Desktop");
 		Assert.assertNotNull(dataSource);
-		System.out.println("There are " + dataSource.getItemCategories().size() + " categories in this archive.");
+		log.debug("There are {} categories in this archive.", dataSource.getItemCategories().size());
 		((SakaiArchiveDataSource)dataSource).buildSourceFolder(dataSource.getItemCategories());
 	}
 

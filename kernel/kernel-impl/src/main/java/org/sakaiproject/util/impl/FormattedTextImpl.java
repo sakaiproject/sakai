@@ -30,11 +30,13 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.text.NumberFormat;
 import java.text.DecimalFormat;
+
+import lombok.extern.slf4j.Slf4j;
+
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.apache.commons.validator.routines.UrlValidator;
+
 import org.w3c.dom.Element;
 
 import org.owasp.validator.html.AntiSamy;
@@ -42,6 +44,7 @@ import org.owasp.validator.html.CleanResults;
 import org.owasp.validator.html.Policy;
 import org.owasp.validator.html.PolicyException;
 import org.owasp.validator.html.ScanException;
+
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.SessionManager;
@@ -50,15 +53,12 @@ import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.Xml;
 import org.sakaiproject.util.api.FormattedText;
 
-
 /**
  * FormattedText provides support for user entry of formatted text; the formatted text is HTML. This includes text formatting in user input such as bold, underline, and fonts.
  */
+@Slf4j
 public class FormattedTextImpl implements FormattedText
 {
-    /** Our log (commons). */
-    private static final Logger M_log = LoggerFactory.getLogger(FormattedTextImpl.class);
-
     private ServerConfigurationService serverConfigurationService = null;
     public void setServerConfigurationService(ServerConfigurationService serverConfigurationService) {
         this.serverConfigurationService = serverConfigurationService;
@@ -131,12 +131,12 @@ public class FormattedTextImpl implements FormattedText
             } else {
                 // probably the none case, but maybe also a case of invalid config....
                 if (!"none".equalsIgnoreCase(errorsHandling)) {
-                    M_log.warn("FormattedText error handling option invalid: "+errorsHandling+", defaulting to 'none'");
+                    log.warn("FormattedText error handling option invalid: "+errorsHandling+", defaulting to 'none'");
                 }
             }
             // allow one extra option to control logging if desired
             logErrors = serverConfigurationService.getBoolean("content.cleaner.errors.logged", logErrors);
-            M_log.info("FormattedText error handling: "+errorsHandling+
+            log.info("FormattedText error handling: "+errorsHandling+
                     "; log errors=" + logErrors + 
                     "; return to tool=" + returnErrorToTool + 
                     "; notify user=" + showErrorToUser + 
@@ -145,7 +145,7 @@ public class FormattedTextImpl implements FormattedText
             referrerPolicy = serverConfigurationService.getString(SAK_PROP_REFERRER_POLICY, SAKAI_REFERRER_POLICY_DEFAULT);
         }
         if (useLegacy) {
-            M_log.error(
+            log.error(
                      "**************************************************\n"
                     +"* -----------<<<   WARNING   >>>---------------- *\n"
                     +"* The LEGACY Sakai content scanner is no longer  *\n"
@@ -169,19 +169,19 @@ public class FormattedTextImpl implements FormattedText
             File lowFile = new File(sakaiHomePath, "antisamy"+File.separator+"low-security-policy.xml");
             if (lowFile.canRead()) {
                 lowPolicyURL = lowFile.toURI().toURL();
-                M_log.info("AntiSamy found override for low policy file at: "+lowPolicyURL);
+                log.info("AntiSamy found override for low policy file at: "+lowPolicyURL);
             }
             File highFile = new File(sakaiHomePath, "antisamy"+File.separator+"high-security-policy.xml");
             if (highFile.canRead()) {
                 highPolicyURL = highFile.toURI().toURL();
-                M_log.info("AntiSamy found override for high policy file at: "+highPolicyURL);
+                log.info("AntiSamy found override for high policy file at: "+highPolicyURL);
             }
             Policy policyHigh = Policy.getInstance(highPolicyURL);
             antiSamyHigh = new AntiSamy(policyHigh);
             Policy policyLow = Policy.getInstance(lowPolicyURL);
             antiSamyLow = new AntiSamy(policyLow);
             // TODO should we attempt to fallback to internal files if the parsing/init fails of external ones?
-            M_log.info("AntiSamy INIT default security level ("+(defaultLowSecurity()?"LOW":"high")+"), policy files: high="+highPolicyURL+", low="+lowPolicyURL);
+            log.info("AntiSamy INIT default security level ("+(defaultLowSecurity()?"LOW":"high")+"), policy files: high="+highPolicyURL+", low="+lowPolicyURL);
         } catch (Exception e) {
             throw new IllegalStateException("Unable to startup the antisamy html code cleanup handler (cannot complete startup): " + e, e);
         }
@@ -276,9 +276,9 @@ public class FormattedTextImpl implements FormattedText
     /** Matches all anchor tags that have target="_blank" not accompanied by a rel attribute. */
     public final Pattern M_patternAnchorTagWithTargetBlankAndWithOutRel = Pattern.compile("([<]a\\s[^<>]*?)(?![^>]*rel[^<>\\s]*=)(target[^<>\\s]*=[^<>\\s]*_blank)([^<>]*?)[>]",
             Pattern.CASE_INSENSITIVE | Pattern.DOTALL);
-    /** Matches all anchor tags that do not have a target attribute. */
-    public final Pattern M_patternAnchorTagWithOutTarget = 
-            Pattern.compile("([<]a\\s)(?![^>]*target=)([^>]*?)[>]",
+    /** Matches all anchor tags that do not have a target attribute AND href not starting with # AND href exists */
+    public final Pattern M_patternAnchorTagWithOutTargetAndWithHrefAndHrefNotStartingWithHash =
+            Pattern.compile("([<]a\\s)(?=[^>]*href=)(?![^>]*href=\"#)(?![^>]*target=)([^>]*?)[>]",
                     Pattern.CASE_INSENSITIVE | Pattern.DOTALL);
 
     /** Matches href attribute */
@@ -403,7 +403,7 @@ public class FormattedTextImpl implements FormattedText
 
                     // now replace all the A tags WITHOUT a target with _blank (to match the old functionality)
                     if (addBlankTargetToLinks() && StringUtils.isNotBlank(val)) {
-                        Matcher m = M_patternAnchorTagWithOutTarget.matcher(val);
+                        Matcher m = M_patternAnchorTagWithOutTargetAndWithHrefAndHrefNotStartingWithHash.matcher(val);
                         if (m.find()) {
                             if (StringUtils.isNotBlank(referrerPolicy)) {
                                 val = m.replaceAll("$1$2 target=\"_blank\" rel=\"" + referrerPolicy + "\">"); // adds a target and rel to A tags without one
@@ -424,7 +424,7 @@ public class FormattedTextImpl implements FormattedText
                 } catch (ScanException e) {
                     // this will match the legacy behavior
                     val = "";
-                    M_log.error("processFormattedText: Failure during scan of input html: " + e, e);
+                    log.error("processFormattedText: Failure during scan of input html: " + e, e);
                 } catch (PolicyException e) {
                     // this is an unrecoverable failure
                     throw new RuntimeException("Unable to access the antiSamy policy file: "+e, e);
@@ -440,7 +440,7 @@ public class FormattedTextImpl implements FormattedText
             // We catch all exceptions here because doing so will usually give the user the
             // opportunity to work around the issue, rather than causing a tool stack trace
 
-            M_log.error("Unexpected error processing text", e);
+            log.error("Unexpected error processing text", e);
             formattedTextErrors.append(getResourceLoader().getString("unknown_error_markup") + "\n");
             val = null;
         }
@@ -457,7 +457,7 @@ public class FormattedTextImpl implements FormattedText
                     session.setAttribute("userWarning", getResourceLoader().getString("content_has_been_cleaned"));
                 }
             }
-            if (logErrors && M_log.isInfoEnabled()) {
+            if (logErrors && log.isInfoEnabled()) {
                 // KNL-1075 - Logger errors if desired so they can be easily found
                 String user = "UNKNOWN";
                 try {
@@ -469,7 +469,7 @@ public class FormattedTextImpl implements FormattedText
                         // nothing to do in this case
                     }
                 }
-                M_log.info("FormattedText Error: user=" + user + " : " + formattedTextErrors.toString()
+                log.info("FormattedText Error: user=" + user + " : " + formattedTextErrors.toString()
                         +"\n  -- processing input:\n"+strFromBrowser
                         +"\n  -- resulting output:\n"+val
                         );
@@ -536,7 +536,7 @@ public class FormattedTextImpl implements FormattedText
         // added for KNL-526
 
         if (addBlankTargetToLinks()) {
-            Matcher m = M_patternAnchorTagWithOutTarget.matcher(value);
+            Matcher m = M_patternAnchorTagWithOutTargetAndWithHrefAndHrefNotStartingWithHash.matcher(value);
             if (m.find()) {
                 if (StringUtils.isNotBlank(referrerPolicy)) {
                     value = m.replaceAll("$1$2 target=\"_blank\" rel=\"" + referrerPolicy + "\">"); // adds a target and rel to A tags without one
@@ -650,7 +650,7 @@ public class FormattedTextImpl implements FormattedText
         }
         catch (Exception e)
         {
-            M_log.error("Validator.escapeHtml: ", e);
+            log.error("Validator.escapeHtml: ", e);
             return "";
         }
     }
@@ -700,7 +700,7 @@ public class FormattedTextImpl implements FormattedText
                 hrefRel = matcher.group();
             }
         } catch (Exception e) {
-            M_log.error("FormattedText.processAnchor ", e);
+            log.error("FormattedText.processAnchor ", e);
         }
 
         if (hrefTarget != null) {
@@ -712,7 +712,9 @@ public class FormattedTextImpl implements FormattedText
             hrefTarget = " target=\"" + hrefTarget + "\"";
         } else {
             // default to _blank if not set and configured to force
-            if (addBlankTargetToLinks()) {
+            // do not add if anchor link to same page (editor page)
+            if (addBlankTargetToLinks() &&
+                    !(href != null && href.startsWith("#"))) {
                 hrefTarget = " target=\"_blank\"";
             }
         }
@@ -753,7 +755,7 @@ public class FormattedTextImpl implements FormattedText
             }
             newAnchor += ">";
         } else {
-            M_log.debug("FormattedText.processAnchor href == null");
+            log.debug("FormattedText.processAnchor href == null");
             newAnchor = anchor; // default to the original one so we don't lose the anchor
         }
         return newAnchor;
@@ -773,13 +775,13 @@ public class FormattedTextImpl implements FormattedText
             // TODO call encodeUnicode in other process routine
             html = encodeUnicode(source);
         } catch (Exception e) {
-            M_log.error("FormattedText.processEscapedHtml encodeUnicode(source):"+e, e);
+            log.error("FormattedText.processEscapedHtml encodeUnicode(source):"+e, e);
         }
         try {
             // to use the FormattedText functions
             html = unEscapeHtml(html);
         } catch (Exception e) {
-            M_log.error("FormattedText.processEscapedHtml unEscapeHtml(Html):"+e, e);
+            log.error("FormattedText.processEscapedHtml unEscapeHtml(Html):"+e, e);
         }
 
         return processFormattedText(html, new StringBuilder());
@@ -838,7 +840,6 @@ public class FormattedTextImpl implements FormattedText
             if (value.indexOf(ref) >= 0)
             {
                 val = M_htmlCharacterEntityReferencesUnicode[i];
-                // System.out.println("REPLACING "+ref+" WITH UNICODE CHARACTER #"+val+" WHICH IN JAVA IS "+Character.toString(val));
                 value = value.replaceAll(ref, Character.toString(val));
             }
         }
@@ -1086,7 +1087,7 @@ public class FormattedTextImpl implements FormattedText
         }
         catch (Exception e)
         {
-            M_log.error("escapeJavascript: ", e);
+            log.error("escapeJavascript: ", e);
             return value;
         }
     }
@@ -1146,7 +1147,7 @@ public class FormattedTextImpl implements FormattedText
         }
         catch (UnsupportedEncodingException e)
         {
-            M_log.error("Validator.escapeUrl: ", e);
+            log.error("Validator.escapeUrl: ", e);
             return "";
         }
     }
@@ -1243,10 +1244,10 @@ public class FormattedTextImpl implements FormattedText
             retval = retval.replace("%25","%");
             return retval;
         } catch ( java.net.URISyntaxException e ) {
-            M_log.info("Failure during encode of href url: " + e);
+            log.info("Failure during encode of href url: " + e);
             return null;
         } catch ( java.net.MalformedURLException e ) {
-            M_log.info("Failure during encode of href url: " + e);
+            log.info("Failure during encode of href url: " + e);
             return null;
         }
     }
@@ -1288,7 +1289,7 @@ public class FormattedTextImpl implements FormattedText
 		try {
 			nbFormat = NumberFormat.getNumberInstance(new ResourceLoader().getLocale());
 		} catch (Exception e) {
-			M_log.error("Error while retrieving local number format, using default ", e);
+			log.error("Error while retrieving local number format, using default ", e);
 		}
 		if (maxFractionDigits!=null) nbFormat.setMaximumFractionDigits(maxFractionDigits);
 		if (minFractionDigits!=null) nbFormat.setMinimumFractionDigits(minFractionDigits);
@@ -1299,11 +1300,20 @@ public class FormattedTextImpl implements FormattedText
     public NumberFormat getNumberFormat() {
     	return getNumberFormat(null,null,null);
     }
+
+    /* (non-Javadoc)
+     * @see org.sakaiproject.util.api.FormattedText#getHTMLBody(java.lang.String)
+     */
+    public String getHtmlBody(String text) {
+        if (StringUtils.isBlank(text)) return text;
+        org.jsoup.nodes.Document document = org.jsoup.Jsoup.parse(text);
+        document.outputSettings().prettyPrint(false);
+        return document.body().html();
+    }
     
     public String getDecimalSeparator() {
 		return ((DecimalFormat)getNumberFormat()).getDecimalFormatSymbols().getDecimalSeparator()+"";
     }
-    
     
     /**
      * SAK-23567 Gets the shortened version of the title

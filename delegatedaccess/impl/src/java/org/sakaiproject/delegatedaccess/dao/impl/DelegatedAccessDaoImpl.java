@@ -29,21 +29,22 @@ import java.util.Map.Entry;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
+import lombok.extern.slf4j.Slf4j;
+
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.commons.configuration.reloading.InvariantReloadingStrategy;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.sakaiproject.component.cover.ServerConfigurationService;
-import org.sakaiproject.delegatedaccess.dao.DelegatedAccessDao;
-import org.sakaiproject.delegatedaccess.util.DelegatedAccessConstants;
+
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.support.JdbcDaoSupport;
 
-public class DelegatedAccessDaoImpl extends JdbcDaoSupport implements DelegatedAccessDao {
+import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.delegatedaccess.dao.DelegatedAccessDao;
+import org.sakaiproject.delegatedaccess.util.DelegatedAccessConstants;
 
-	private static final Logger log = LoggerFactory.getLogger(DelegatedAccessDaoImpl.class);
+@Slf4j
+public class DelegatedAccessDaoImpl extends JdbcDaoSupport implements DelegatedAccessDao {
 	private PropertiesConfiguration statements;
 	private static int ORACLE_IN_CLAUSE_SIZE_LIMIT = 1000;
 	private boolean oracle = false;

@@ -31,8 +31,7 @@ import java.util.List;
 
 import javax.faces.context.FacesContext;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import org.sakaiproject.tool.assessment.facade.AssessmentTemplateFacade;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
@@ -44,6 +43,7 @@ import org.sakaiproject.tool.assessment.util.BeanSort;
  * @author $author$
  * @version $Id$
  */
+@Slf4j
 public class IndexBean implements Serializable
 {
   private static BeanSort bs;
@@ -60,8 +60,6 @@ public class IndexBean implements Serializable
   private String templateOrderBy= "templateName";
   private boolean templateAscending= true;
   private boolean automaticSubmissionEnabled = false;
-  
-  private static Logger log = LoggerFactory.getLogger(IndexBean.class);
 
   /**
    * Creates a new IndexBean object.
@@ -101,7 +99,7 @@ public class IndexBean implements Serializable
       }
      this.templateList = templates;
     } catch (Exception e) {
-      e.printStackTrace();
+      log.error(e.getMessage(), e);
       templateList = new ArrayList();
       }
 

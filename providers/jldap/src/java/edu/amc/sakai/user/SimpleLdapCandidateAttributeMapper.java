@@ -32,29 +32,26 @@ import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Set;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
+
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.user.api.UserEdit;
 import org.sakaiproject.user.detail.ValueEncryptionUtilities;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 
 /**
  * Extension for {@link SimpleLdapAttributeMapper}.
  * Adds logic to include encrypted CandidateId and additional info into the sakai user object.
  *
  */
+@Slf4j
 public class SimpleLdapCandidateAttributeMapper extends SimpleLdapAttributeMapper {
 	
 	private static final String USER_PROP_CANDIDATE_ID = "candidateID";
 	private static final String USER_PROP_ADDITIONAL_INFO = "additionalInfo";
 	private static final String USER_PROP_STUDENT_NUMBER = "studentNumber";
 	private static final String EMPTY = "";
-
-	/** Class-specific logger */
-	private final Logger log = LoggerFactory.getLogger(SimpleLdapCandidateAttributeMapper.class);
 
 	private ValueEncryptionUtilities encryption;
 	private int candidateIdLength;

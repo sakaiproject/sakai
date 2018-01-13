@@ -27,8 +27,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.genericdao.api.search.Restriction;
 import org.sakaiproject.genericdao.api.search.Search;
 import org.sakaiproject.poll.dao.PollDao;
@@ -39,12 +39,8 @@ import org.sakaiproject.poll.model.Option;
 import org.sakaiproject.poll.model.Poll;
 import org.sakaiproject.poll.model.Vote;
 
-
-
+@Slf4j
 public class PollVoteManagerImpl implements PollVoteManager {
-
-	//  use commons logger
-	private static Logger log = LoggerFactory.getLogger(PollListManagerImpl.class);
 
 	private ExternalLogic externalLogic;    
 	public void setExternalLogic(ExternalLogic externalLogic) {

@@ -15,6 +15,8 @@
  */
 package org.sakaiproject.component.app.scheduler.jobs;
 
+import lombok.extern.slf4j.Slf4j;
+
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
@@ -26,12 +28,13 @@ import org.quartz.JobExecutionException;
  * Time: 5:16:00 PM
  * To change this template use File | Settings | File Templates.
  */
+@Slf4j
 public class TestBeanJob implements Job {
 
    private String configMessage;
 
    public void execute(JobExecutionContext jobExecutionContext) throws JobExecutionException {
-      System.out.println("Test bean job trigger with message: " + getConfigMessage());   
+      log.debug("Test bean job trigger with message: {}", getConfigMessage());   
    }
 
    public String getConfigMessage() {

@@ -26,11 +26,13 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
 
+import lombok.extern.slf4j.Slf4j;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 
 import org.radeox.macro.list.ExampleListFormatter;
 
+@Slf4j
 public class ExampleListFormatterTest extends ListFormatterSupport
 {
 	public ExampleListFormatterTest(String name)
@@ -58,7 +60,7 @@ public class ExampleListFormatterTest extends ListFormatterSupport
 		}
 		catch (IOException e)
 		{
-			e.printStackTrace();
+			log.error(e.getMessage(), e);
 		}
 		assertEquals(
 				"Size is rendered",
@@ -75,7 +77,7 @@ public class ExampleListFormatterTest extends ListFormatterSupport
 		}
 		catch (IOException e)
 		{
-			e.printStackTrace();
+			log.error(e.getMessage(), e);
 		}
 		assertEquals(
 				"Single item is rendered",

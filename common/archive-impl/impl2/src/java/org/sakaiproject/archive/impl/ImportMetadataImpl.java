@@ -21,8 +21,8 @@
 
 package org.sakaiproject.archive.impl;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.archive.api.ImportMetadata;
 
 /**
@@ -30,10 +30,9 @@ import org.sakaiproject.archive.api.ImportMetadata;
  * @version $Id$
  *  
  */
+@Slf4j
 public class ImportMetadataImpl implements ImportMetadata
 {
-  private static final Logger LOG = LoggerFactory.getLogger(ImportMetadataImpl.class);
-
   private String id;
   private String legacyTool;
   private String sakaiTool;
@@ -46,7 +45,7 @@ public class ImportMetadataImpl implements ImportMetadata
    */
   ImportMetadataImpl()
   {
-    LOG.debug("new ImportMetadata()");
+    log.debug("new ImportMetadata()");
   }
 
   /**

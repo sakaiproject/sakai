@@ -29,8 +29,8 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.AuthzPermissionException;
@@ -52,9 +52,9 @@ import uk.ac.cam.caret.sakai.rwiki.tool.bean.helper.ViewParamsHelperBean;
 /**
  * @author andrew
  */
+@Slf4j
 public class EditManyAuthZGroupCommand implements HttpCommand
 {
-	private static Logger log = LoggerFactory.getLogger(EditManyAuthZGroupCommand.class);
 
 	private String editRealmPath;
 

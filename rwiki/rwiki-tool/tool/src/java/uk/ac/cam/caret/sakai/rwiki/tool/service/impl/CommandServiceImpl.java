@@ -31,8 +31,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.jsp.PageContext;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import uk.ac.cam.caret.sakai.rwiki.service.exception.PermissionException;
 import uk.ac.cam.caret.sakai.rwiki.service.api.RWikiObjectService;
@@ -40,6 +39,7 @@ import uk.ac.cam.caret.sakai.rwiki.tool.api.CommandService;
 import uk.ac.cam.caret.sakai.rwiki.tool.api.HttpCommand;
 import uk.ac.cam.caret.sakai.rwiki.tool.command.Dispatcher;
 import uk.ac.cam.caret.sakai.rwiki.tool.RequestScopeSuperBean;
+
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.event.api.NotificationService;
@@ -51,9 +51,9 @@ import org.sakaiproject.event.api.NotificationService;
  * 
  * @author andrew
  */
+@Slf4j
 public class CommandServiceImpl implements CommandService
 {
-	private static Logger log = LoggerFactory.getLogger(CommandServiceImpl.class);
 
 	private Map commandMap;
 

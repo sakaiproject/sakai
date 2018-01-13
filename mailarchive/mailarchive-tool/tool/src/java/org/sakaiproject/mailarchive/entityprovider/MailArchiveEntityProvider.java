@@ -22,7 +22,6 @@
 package org.sakaiproject.mailarchive.entityprovider;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
@@ -34,43 +33,36 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import lombok.extern.slf4j.Slf4j;
+
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.math.NumberUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.sakaiproject.mailarchive.api.MailArchiveChannel;
-import org.sakaiproject.mailarchive.api.MailArchiveMessage;
-import org.sakaiproject.mailarchive.api.MailArchiveMessageHeader;
-import org.sakaiproject.mailarchive.api.MailArchiveService;
+
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.entity.api.EntityPermissionException;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.entitybroker.EntityView;
-import org.sakaiproject.entitybroker.entityprovider.CoreEntityProvider;
 import org.sakaiproject.entitybroker.entityprovider.EntityProvider;
 import org.sakaiproject.entitybroker.entityprovider.annotations.EntityCustomAction;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.ActionsExecutable;
-import org.sakaiproject.entitybroker.entityprovider.capabilities.AutoRegisterEntityProvider;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.Describeable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.Inputable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.Outputable;
-import org.sakaiproject.entitybroker.entityprovider.capabilities.PropertyProvideable;
-import org.sakaiproject.entitybroker.entityprovider.capabilities.Resolvable;
-import org.sakaiproject.entitybroker.entityprovider.capabilities.Sampleable;
 import org.sakaiproject.entitybroker.entityprovider.extension.Formats;
 import org.sakaiproject.entitybroker.exception.EntityException;
 import org.sakaiproject.entitybroker.exception.EntityNotFoundException;
 import org.sakaiproject.entitybroker.util.AbstractEntityProvider;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
+import org.sakaiproject.mailarchive.api.MailArchiveChannel;
+import org.sakaiproject.mailarchive.api.MailArchiveMessage;
+import org.sakaiproject.mailarchive.api.MailArchiveMessageHeader;
 import org.sakaiproject.mailarchive.api.MailArchiveService;
 import org.sakaiproject.message.api.Message;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.api.ToolConfiguration;
-import org.sakaiproject.time.api.Time;
 import org.sakaiproject.time.api.TimeService;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.ToolManager;
@@ -87,12 +79,12 @@ import org.sakaiproject.util.Validator;
  * {siteId}:{channelId}:{mailArchiveMessageId} into the ID.
  *
  */
+@Slf4j
 public class MailArchiveEntityProvider extends AbstractEntityProvider implements
 		EntityProvider, Outputable, Inputable, Describeable, ActionsExecutable {
 
 	public final static String ENTITY_PREFIX = "mailarchive";
 
-	private static final Logger log = LoggerFactory.getLogger(MailArchiveEntityProvider.class);
 	private static ResourceLoader rb = new ResourceLoader("email");
 	public static int DEFAULT_NUM_MAILMESSAGES = 3;
 	public static int DEFAULT_DAYS_IN_PAST = 10;

@@ -37,14 +37,7 @@ $(document).ready(function(){
 	#set($returned=$submission.Returned)
 	#set($closeDate = false)
 	#set($closeDate = $assignment.CloseDate)
-	#set($allowResubmitNumber="0")
-	#set($allowResubmitNumber = $submission.Properties.get("allow_resubmit_number"))
-	#if(!$!allowResubmitNumber.equals("0"))
-		#set($allowResubmitCloseTimeString=$submission.Properties.get("allow_resubmit_closeDate"))
-		#if($!allowResubmitCloseTimeString)
-			#set($allowResubmitCloseTime=$!TimeService.newTime($!LongObject.parseLong($!allowResubmitCloseTimeString)))
-		#end
-	#end
+
 	#if ($!submission && $!allowResubmitNumber.equals("0"))
 		##override the close time setting for assignment by submission's individual setting
 		#set($closeDate = $submission.CloseDate)
@@ -252,7 +245,7 @@ $(document).ready(function(){
 										#if ($!override)
 											$override
 										#else
-											$submission.Grade
+											$!service.getGradeDisplay($submission.Grade, $assignment.TypeOfGrade, $!assignment.ScaleFactor)
 										#end
 									#else
 										$tlang.getString("gen.nograd")
@@ -305,14 +298,15 @@ $(document).ready(function(){
 					</div>
 				</div>
 			#end
-			#if($!submitted && $!dateSubmitted && $allowReviewService && $assignment.AllowReviewService && $assignment.AllowStudentViewReport)
+			#set($allowStudentViewReport = $assignment.Properties.get("s_view_report")) 
+			#if($!submitted && $!dateSubmitted && $allowReviewService && $assignment.ContentReview && $!allowStudentViewReport.equals('true'))
 				<div class="row">
 					<div class="col-lg-4 col-sm-6 col-xs-12">
 						<div class="itemSummaryHeader">$reviewServiceName&nbsp;$tlang.getString("review.report")</div>
 					</div>
 					<div class="col-lg-4 col-sm-6 col-xs-12">
 						<div class="itemSummaryValue">
-							#set($reviewResults=$submission.ContentReviewResults)
+							#set($reviewResults=$!service.getContentReviewResults($!submission))
 							#if ($reviewResults.size() >= 3)
 								<div class="discTria">
 									<input class="disclosureTriangle" type="image" onclick="ASN.handleReportsTriangleDisclosure(this,this.parentNode.parentNode.children[1]); return false;" src="#imageLink("sakai/expand.gif")" alt="$tlang.getString('review.report.expand')"/>
@@ -325,7 +319,7 @@ $(document).ready(function(){
 									#set ($props = $reviewResult.getContentResource().Properties)
 									<span class="reportIcon">
 										#if (!$reviewResult.getReviewReport().equals("Error"))<a href="$reviewResult.getReviewReport()" target="_blank">#end
-										<span class="$reviewResult.getReviewIconCssClass()" title="#if($reviewResult.getReviewReport().equals("Error"))$reviewResult.getReviewError()#{else}$reviewResult.getReviewScore()#end"></span>
+										<span class="$reviewResult.getReviewIconCssClass()" title="#if($reviewResult.getReviewReport().equals("Error"))$reviewResult.getReviewError()#{else}$reviewResult.contentReviewItem.getReviewScore()#end"></span>
 										#if (!$reviewResult.getReviewReport().equals("Error"))</a>#end
 									</span>
 									#if ($reviewResult.isInline())
@@ -342,20 +336,21 @@ $(document).ready(function(){
 					</div>
 				</div>
 			#end
-			#if ($!submission && $!submission.getSubmissionLog().size() > 0)
-				<div class="row">
-					<div class="col-lg-4 col-sm-6 col-xs-12">
-						<div class="itemSummaryHeader">$tlang.getString("gen.history")</div>
-					</div>
-					<div class="col-lg-4 col-sm-6 col-xs-12">
-						<div class="itemSummaryValue">
-							#foreach ($entry in $submission.getSubmissionLog())
-								$entry<br>
-							#end
-						</div>
-					</div>
-				</div>
-			#end
+##			TODO Submission Log
+##			#if ($!submission && $!submission.getSubmissionLog().size() > 0)
+##				<div class="row">
+##					<div class="col-lg-4 col-sm-6 col-xs-12">
+##						<div class="itemSummaryHeader">$tlang.getString("gen.history")</div>
+##					</div>
+##					<div class="col-lg-4 col-sm-6 col-xs-12">
+##						<div class="itemSummaryValue">
+##							#foreach ($entry in $submission.getSubmissionLog())
+##								$entry<br>
+##							#end
+##						</div>
+##					</div>
+##				</div>
+##			#end
 		</div>
 		<div class="clearfix"></div>
 		<h4>
@@ -412,15 +407,7 @@ $(document).ready(function(){
 									#set ($size = $size + 1)
 								#end
 							#end
-							#if ($size == 0)
-								<p class="instruction">
-                                                                    #if ($submissionType == 5)
-                                                                        $tlang.getString("gen.noatt.single")
-                                                                    #else
-                                                                        $tlang.getString("gen.noatt")
-                                                                    #end
-                                                                </p>
-							#else
+							#if ($size > 0)
 								#foreach ($attachment in $mAttachments)
 									#set ($props = false)
 									#set ($props = $attachment.Properties) 
@@ -776,7 +763,7 @@ $(document).ready(function(){
 				#end
 			#end
 			#if (($submissionType==2) || ($submissionType==3) || ($submissionType==5 && $size < 2))
-				<div class="highlightPanel" style="background:#ffe">
+				<div id="attachmentspanel" class="highlightPanel" style="background:#ffe">
 					<h3 style="margin-top:0;margin-bottom:.5em">
 						#if ($submissionType == 5)
 							$tlang.getString("gen.att.single")
@@ -812,7 +799,7 @@ $(document).ready(function(){
 										</td>
 										<td class="itemAction">
 											<div class="spinnerBesideContainer">
-												<a href="javascript:void(0)" onclick="SPNR.insertSpinnerAfter( this, null, null ); ASN.doStudentViewSubmissionAction( 'addSubmissionForm', 'removeAttachment', '$attachment.id' ); return false;">
+												<a href="javascript:void(0)" onclick="SPNR.insertSpinnerAfter( this, null, null ); ASN.doStudentViewSubmissionAction( 'addSubmissionForm', 'removeAttachment', '$attachment.id', 'attachmentspanel' ); return false;">
 													$tlang.getString("stuviewsubm.removeatt")<span class="skip"> $validator.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))</span>
 												</a>
 											</div>
@@ -844,7 +831,7 @@ $(document).ready(function(){
 											</td>
 											<td>
 												<div id="clonableUploadW spinnerBesideContainer"> 
-													<input type="file" name="upload" class="upload" id="clonableUpload" #if($content_review_acceptedMimeTypes) accept="$content_review_acceptedMimeTypes" #end onchange="SPNR.insertSpinnerAfter( this, null, null ); document.getElementById('addSubmissionForm').action='#toolLinkParam("AssignmentAction" "doAttachUpload" "sakai_csrf_token=$validator.escapeUrl($sakai_csrf_token)")';ASN.submitForm( 'addSubmissionForm', null, null, null );"/> 
+													<input type="file" name="upload" class="upload" id="clonableUpload" #if($content_review_acceptedMimeTypes) accept="$content_review_acceptedMimeTypes" #end onchange="SPNR.insertSpinnerAfter( this, null, null ); document.getElementById('addSubmissionForm').action='#toolLinkParam("AssignmentAction" "doAttachUpload" "sakai_csrf_token=$validator.escapeUrl($sakai_csrf_token)")';ASN.submitForm( 'addSubmissionForm', null, null, null, 'attachmentspanel' );"/> 
 												</div>
 												</td>
 												##Only show for inline and attachments
@@ -852,7 +839,7 @@ $(document).ready(function(){
 												<td>
 													<span class="navIntraToolLink">
 														<input class="disableme enabled" type="button" value="$howManySubAttsLinks" name="attach" id="attach" accesskey="a" #if(!$allowSubmit) disabled="disabled"#end
-															onclick="SPNR.disableControlsAndSpin( this, null ); ASN.submitForm( 'addSubmissionForm', 'attach', null, null ); return false;" />
+															onclick="SPNR.disableControlsAndSpin( this, null ); ASN.submitForm( 'addSubmissionForm', 'attach', null, null, 'attachmentspanel' ); return false;" />
 													</span>
 												</td>
 												#end
@@ -880,7 +867,7 @@ $(document).ready(function(){
 										</td>
 										<td>
 											<div class="spinnerBesideContainer">
-												<input type="file" name="upload" class="upload" id="clonableUpload" #if($content_review_acceptedMimeTypes) accept="$content_review_acceptedMimeTypes" #end onchange="SPNR.insertSpinnerAfter( this, null, null ); document.getElementById('addSubmissionForm').action='#toolLinkParam("AssignmentAction" "doAttachUploadSingle" "sakai_csrf_token=$validator.escapeUrl($sakai_csrf_token)")';ASN.submitForm( 'addSubmissionForm', null, null, null );"/>
+												<input type="file" name="upload" class="upload" id="clonableUpload" #if($content_review_acceptedMimeTypes) accept="$content_review_acceptedMimeTypes" #end onchange="SPNR.insertSpinnerAfter( this, null, null ); document.getElementById('addSubmissionForm').action='#toolLinkParam("AssignmentAction" "doAttachUploadSingle" "sakai_csrf_token=$validator.escapeUrl($sakai_csrf_token)")';ASN.submitForm( 'addSubmissionForm', null, null, null, 'attachmentspanel' );"/>
 											</div>
 											<input type="hidden" name="submissionFileCount" id="submissionFileCount" value="1"/>
 										</td>
@@ -927,13 +914,13 @@ $(document).ready(function(){
 							#set($props = $attachment.Properties)
 							#if ($props)
 								#attachmentDetails()
-								<a href="javascript:void(0)" onclick="SPNR.insertSpinnerAfter( this, null, null ); ASN.submitForm( 'addSubmissionForm', 'removeNewSingleUploadedFile', null, null ); return false;">
+								<a href="javascript:void(0)" onclick="SPNR.insertSpinnerAfter( this, null, null ); ASN.submitForm( 'addSubmissionForm', 'removeNewSingleUploadedFile', null, null, 'attachmentspanel' ); return false;">
 									$tlang.getString("stuviewsubm.removeatt")<span class="skip"> $validator.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))</span>
 								</a>
 								<br>
 							#else
 								$tlang.getString("stuviewsubm.uploadnew")
-								<input type="file" name="upload" class="upload" id="clonableUpload" #if($content_review_acceptedMimeTypes) accept="$content_review_acceptedMimeTypes" #end onchange="SPNR.insertSpinnerAfter( this, null, null ); document.getElementById('addSubmissionForm').action='#toolLinkParam("AssignmentAction" "doAttachUploadSingle" "sakai_csrf_token=$validator.escapeUrl($sakai_csrf_token)")';ASN.submitForm( 'addSubmissionForm', null, null, null );"/>
+								<input type="file" name="upload" class="upload" id="clonableUpload" #if($content_review_acceptedMimeTypes) accept="$content_review_acceptedMimeTypes" #end onchange="SPNR.insertSpinnerAfter( this, null, null ); document.getElementById('addSubmissionForm').action='#toolLinkParam("AssignmentAction" "doAttachUploadSingle" "sakai_csrf_token=$validator.escapeUrl($sakai_csrf_token)")';ASN.submitForm( 'addSubmissionForm', null, null, null, 'attachmentspanel' );"/>
 							#end
 						</span>
 					</div>
@@ -1265,7 +1252,7 @@ $(document).ready(function(){
 						#if ($!previousGrades.length() == 0 )
 							#set ($previousGrades =  $!submission.Properties.get($NamePropSubmissionScaledPreviousGrades))
 						#end
-						#if ($!previousGrades.length() > 0 )
+						#if ($!previousGrades && $!previousGrades.length() > 0 )
 							<h4 id="toggleGrade" class="toggleAnchor"><img alt="expand" class="expand" src="/library/image/sakai/expand.gif" /><img alt="collapse" class="collapse" src="/library/image/sakai/collapse.gif" />
 								$tlang.getString("gradingsub.pregra")
 							</h4>

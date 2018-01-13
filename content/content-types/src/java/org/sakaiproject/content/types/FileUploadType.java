@@ -31,8 +31,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.TreeSet;
-import java.util.Arrays;
+
+import lombok.extern.slf4j.Slf4j;
 
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
@@ -55,15 +55,11 @@ import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.util.Resource;
 import org.sakaiproject.util.ResourceLoader;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+@Slf4j
 public class FileUploadType extends BaseResourceType 
 {
 	protected String typeId = ResourceType.TYPE_UPLOAD;
 	protected String helperId = "sakai.resource.type.helper";
-
-	private static final Logger LOG = LoggerFactory.getLogger(FileUploadType.class);
 
 	
 	/** localized tool properties **/
@@ -203,7 +199,7 @@ public class FileUploadType extends BaseResourceType
 			try {
 					contentHostingService.expandZippedResource(reference.getId());
 			} catch (Exception e) {
-				LOG.error("Exception extracting zip content", e);
+				log.error("Exception extracting zip content", e);
 			}
 		}
 		

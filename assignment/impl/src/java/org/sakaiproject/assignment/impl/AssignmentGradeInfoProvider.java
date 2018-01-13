@@ -75,12 +75,10 @@ public class AssignmentGradeInfoProvider implements ExternalAssignmentProvider, 
     //NOTE: This is pretty hackish because the AssignmentService
     //      does strenuous checking of current user and group access,
     //      while we want to be able to check for any user.
-    private Assignment getAssignment(String id) {
+    private Assignment getAssignment(String assignmentReference) {
         Assignment assignment = null;
-        String assignmentReference = assignmentService.assignmentReference(id);
-        Reference aref = null;
         if (assignmentReference != null) {
-            aref = entityManager.newReference(assignmentReference);
+            Reference aref = entityManager.newReference(assignmentReference);
             SecurityAdvisor accessAssignmentAdvisor = new MySecurityAdvisor(sessionManager.getCurrentSessionUserId(),
                 AssignmentServiceConstants.SECURE_ACCESS_ASSIGNMENT, assignmentReference);
             SecurityAdvisor accessGroupsAdvisor = new MySecurityAdvisor(sessionManager.getCurrentSessionUserId(),
@@ -88,19 +86,19 @@ public class AssignmentGradeInfoProvider implements ExternalAssignmentProvider, 
             try {
                 securityService.pushAdvisor(accessAssignmentAdvisor);
                 securityService.pushAdvisor(accessGroupsAdvisor);
-                assignment = assignmentService.getAssignment(assignmentReference);
+                assignment = assignmentService.getAssignment(aref);
             } catch (IdUnusedException e) {
-                log.info("Unexpected IdUnusedException after finding assignment with ID: " + id);
+                log.info("Unexpected IdUnusedException after finding assignment with ID: " + assignmentReference);
             } catch (PermissionException e) {
                 log.info("Unexpected Permission Exception while using security advisor "
-                        + "for assignment with ID: " + id);
+                        + "for assignment with ID: " + assignmentReference);
             } finally {
                 securityService.popAdvisor(accessAssignmentAdvisor);
                 securityService.popAdvisor(accessGroupsAdvisor);
             }
         } else {
             if (log.isDebugEnabled()) {
-                log.debug("Assignment not found with ID: " + id);
+                log.debug("Assignment not found with ID: " + assignmentReference);
             }
         }
         return assignment;

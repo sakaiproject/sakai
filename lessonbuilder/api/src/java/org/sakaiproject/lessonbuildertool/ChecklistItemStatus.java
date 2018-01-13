@@ -26,13 +26,10 @@ package org.sakaiproject.lessonbuildertool;
 public interface ChecklistItemStatus {
 
     long getChecklistId();
-    void setChecklistId(long checklistId);
 
     long getChecklistItemId();
-    void setChecklistItemId(long checklistItemId);
 
     String getOwner();
-    void setOwner(String owner);
 
     boolean isDone();
     void setDone(boolean done);

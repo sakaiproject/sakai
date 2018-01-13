@@ -287,6 +287,22 @@ public class SakaiMessageHandlerTest {
         writeData(client, "/no-permission.txt");
     }
 
+    @Test(expected = SMTPException.class)
+    public void testNoReturnPath() throws Exception {
+        // Here there isn't a good email in the from address to make a return path
+        String reference = "/mailarchive/no-good-mail/main";
+        SmartClient client = createClient();
+        client.from("");
+    }
+
+    @Test(expected = SMTPException.class)
+    public void testEmptyReturnPath() throws Exception {
+        // Here there isn't a good email in the from address to make a return path
+        String reference = "/mailarchive/empty-return-path/main";
+        SmartClient client = createClient();
+        client.from("");
+    }
+
     @Test
     public void testPostmaster() throws Exception {
         // Here there is no postmaster which may happen and should be dealt with

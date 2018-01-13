@@ -40,18 +40,23 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import lombok.extern.slf4j.Slf4j;
+
 import org.apache.commons.lang3.LocaleUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
+
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
+
+import org.simpleframework.xml.core.Persister;
+import org.springframework.dao.DataIntegrityViolationException;
+
 import org.sakaiproject.authz.api.SecurityAdvisor;
-import org.sakaiproject.authz.api.SecurityAdvisor.SecurityAdvice;
 import org.sakaiproject.authz.api.SecurityService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.sakaiproject.authz.api.SecurityAdvisor.SecurityAdvice;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.email.api.EmailService;
 import org.sakaiproject.emailtemplateservice.dao.impl.EmailTemplateServiceDao;
@@ -68,12 +73,9 @@ import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.user.api.PreferencesService;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
-import org.simpleframework.xml.core.Persister;
-import org.springframework.dao.DataIntegrityViolationException;
 
+@Slf4j
 public class EmailTemplateServiceImpl implements EmailTemplateService {
-
-   private static final Logger LOG = LoggerFactory.getLogger(EmailTemplateServiceImpl.class);
 
    private EmailTemplateServiceDao dao;
    public void setDao(EmailTemplateServiceDao d) {
@@ -126,7 +128,7 @@ public class EmailTemplateServiceImpl implements EmailTemplateService {
    }
 
    private EmailTemplate getEmailTemplateNoDefault(String key, Locale locale) {
-	   LOG.debug("getEmailTemplateNoDefault( " + key +"," + locale);
+	   log.debug("getEmailTemplateNoDefault( " + key +"," + locale);
 	   if (key == null || "".equals(key)) {
 		   throw new IllegalArgumentException("key cannot be null or empty");
 	   }
@@ -149,8 +151,8 @@ public class EmailTemplateServiceImpl implements EmailTemplateService {
          throw new IllegalArgumentException("key cannot be null or empty");
       }
       
-      if(LOG.isDebugEnabled()) {
-      	LOG.debug("getEmailTemplate(key=" + key + ", locale=" + locale + ")");
+      if(log.isDebugEnabled()) {
+      	log.debug("getEmailTemplate(key=" + key + ", locale=" + locale + ")");
       }
       EmailTemplate et = null;
       // TODO make this more efficient
@@ -170,7 +172,7 @@ public class EmailTemplateServiceImpl implements EmailTemplateService {
           et = dao.findOneBySearch(EmailTemplate.class, search);
       }
       if (et == null) {
-         LOG.warn("no template found for: " + key + " in locale " + locale );
+         log.warn("no template found for: " + key + " in locale " + locale );
       }
       return et;
    }
@@ -202,11 +204,11 @@ public class EmailTemplateServiceImpl implements EmailTemplateService {
       RenderedTemplate ret = new RenderedTemplate(temp);
 
       //get the default current user fields
-      LOG.debug("getting default values");
+      log.debug("getting default values");
 
       Map<String, String> userVals = getCurrentUserFields();
       replacementValues.putAll(userVals);
-      LOG.debug("got replacement values");
+      log.debug("got replacement values");
 
       ret.setRenderedSubject(this.processText(ret.getSubject(), replacementValues, key));
       ret.setRenderedMessage(this.processText(ret.getMessage(), replacementValues, key));
@@ -217,7 +219,7 @@ public class EmailTemplateServiceImpl implements EmailTemplateService {
    }
 
    public RenderedTemplate getRenderedTemplateForUser(String key, String userReference, Map<String, String> replacementValues) {
-      LOG.debug("getRenderedTemplateForUser(" + key + ", " +userReference);
+      log.debug("getRenderedTemplateForUser(" + key + ", " +userReference);
 	  String userId = developerHelperService.getUserIdFromRef(userReference);
       Locale loc = getUserLocale(userId);
       return getRenderedTemplate(key,loc,replacementValues);
@@ -259,7 +261,7 @@ public class EmailTemplateServiceImpl implements EmailTemplateService {
       catch (DataIntegrityViolationException die) {
     	  throw new IllegalArgumentException("Key: " + template.getKey() + " and locale: " + template.getLocale() + " in use already", die);
       }
-      LOG.info("saved template: " + template.getId());
+      log.info("saved template: " + template.getId());
    }
    
    public void updateTemplate(EmailTemplate template) {
@@ -269,7 +271,7 @@ public class EmailTemplateServiceImpl implements EmailTemplateService {
 		   template.setLocale(EmailTemplate.DEFAULT_LOCALE);
 	   }
 	   dao.update(template);
-	   LOG.info("updated template: " + template.getId());
+	   log.info("updated template: " + template.getId());
 	}
 
    protected Locale getUserLocale(String userId) {
@@ -312,7 +314,7 @@ public class EmailTemplateServiceImpl implements EmailTemplateService {
             rv.put("currentUserDispalyId", user.getDisplayId());
             
          } catch (Exception e) {
-            LOG.warn("Failed to get current user replacements: " + userRef, e);
+            log.warn("Failed to get current user replacements: " + userRef, e);
          }
       }
       /*NoN user fields */
@@ -339,14 +341,14 @@ public Map<EmailTemplateLocaleUsers, RenderedTemplate> getRenderedTemplates(
         if (! foundLocales.contains(loc)) {
         	//create a new EmailTemplateLocalUser
         	EmailTemplateLocaleUsers etlu = new EmailTemplateLocaleUsers();
-        	LOG.debug("adding users " + userReference + " to new object");
+        	log.debug("adding users " + userReference + " to new object");
         	etlu.setLocale(loc);
         	etlu.addUser(userReference);
         	mapStore.put(loc, etlu);
         	foundLocales.add(loc);
         } else {
         	EmailTemplateLocaleUsers etlu = mapStore.get(loc);
-        	LOG.debug("adding users " + userReference + " to existing object");
+        	log.debug("adding users " + userReference + " to existing object");
         	etlu.addUser(userReference);
         	mapStore.remove(loc);
         	mapStore.put(loc, etlu);
@@ -365,7 +367,7 @@ public Map<EmailTemplateLocaleUsers, RenderedTemplate> getRenderedTemplates(
 		if (rt != null) {
 			ret.put(entry.getValue(), rt);
 		} else {
-			LOG.error("No template found for key: " + key + " in locale: " + loc);
+			log.error("No template found for key: " + key + " in locale: " + loc);
 		}
 		
 	}
@@ -392,7 +394,7 @@ public void sendRenderedMessages(String key, List<String> userReferences,
 		RenderedTemplate rt = entry.getValue();
 		EmailTemplateLocaleUsers etlu = entry.getKey();
 		List<User> toAddress = getUsersEmail(etlu.getUserIds());
-		LOG.info("sending template " + key + " for locale " + etlu.getLocale().toString() + " to " + toAddress.size() + " users");
+		log.info("sending template " + key + " for locale " + etlu.getLocale().toString() + " to " + toAddress.size() + " users");
 		sendEmailToUsers(toAddress, rt, fromEmail, fromName);
 	}
 }
@@ -448,7 +450,7 @@ public void sendRenderedMessages(String key, List<String> userReferences,
 		headers.add("Precedence: bulk");
 
 		String body = message.toString();
-		LOG.debug("message body " + body);
+		log.debug("message body " + body);
 		emailService.sendToUsers(toAddress, headers, body);
 }
 
@@ -470,12 +472,12 @@ private List<User> getUsersEmail(List<String> userIds) {
 		Persister persister = new Persister();
 		for(String templatePath : templatePaths) {
 			
-			LOG.debug("Processing template: " + templatePath);
+			log.debug("Processing template: " + templatePath);
 			
 			InputStream in = getClass().getClassLoader().getResourceAsStream(templatePath);
 
 			if(in == null) {
-				LOG.warn("Could not load resource from '" + templatePath + "'. Skipping ...");
+				log.warn("Could not load resource from '" + templatePath + "'. Skipping ...");
 				continue;
 			}
 
@@ -484,7 +486,7 @@ private List<User> getUsersEmail(List<String> userIds) {
 				template = persister.read(EmailTemplate.class,in);
 			}
 			catch(Exception e) {
-				LOG.warn("Error processing template: '" + templatePath + "', " + e.getClass() + ":" + e.getMessage() + ". Skipping ...");
+				log.warn("Error processing template: '" + templatePath + "', " + e.getClass() + ":" + e.getMessage() + ". Skipping ...");
 				continue;
 			}
 
@@ -505,7 +507,7 @@ private List<User> getUsersEmail(List<String> userIds) {
 				saveTemplate(template);
 				sakaiSession.setUserId(null);
 				sakaiSession.setUserId(null);
-				LOG.info("Saved email template: " + template.getKey() + " with locale: " + template.getLocale());
+				log.info("Saved email template: " + template.getKey() + " with locale: " + template.getLocale());
 				continue; //skip to next
 			} 
 		
@@ -526,7 +528,7 @@ private List<User> getUsersEmail(List<String> userIds) {
 				updateTemplate(existingTemplate);
 				sakaiSession.setUserId(null);
 				sakaiSession.setUserId(null);
-				LOG.info("Updated email template: " + template.getKey() + " with locale: " + template.getLocale());
+				log.info("Updated email template: " + template.getKey() + " with locale: " + template.getLocale());
 			}
 		}
 	}
@@ -543,12 +545,12 @@ private List<User> getUsersEmail(List<String> userIds) {
 			//read the data
 			ret = readFile(file.getAbsolutePath());
 		} catch (Exception e) {
-			LOG.warn( "Error creating or writing to file", e );
+			log.warn( "Error creating or writing to file", e );
 		}
 		finally {
 			if (file != null) {
 				if (!file.delete()) {
-					LOG.warn("error deleting tmp file");
+					log.warn("error deleting tmp file");
 				}
 			}
 			
@@ -575,11 +577,11 @@ private List<User> getUsersEmail(List<String> userIds) {
 	 * TODO rewrite for efficiency 
 	 */
 	public void deleteAllTemplates() {
-		LOG.debug("deleteAllTemplates");
+		log.debug("deleteAllTemplates");
 		List<EmailTemplate> templates = dao.findAll(EmailTemplate.class);
 		for (int i =0; i < templates.size(); i++) {
 			EmailTemplate template = templates.get(i);
-			LOG.debug("deleting template: " + template.getId());
+			log.debug("deleting template: " + template.getId());
 			dao.delete(template);
 		}
 	}
@@ -608,7 +610,7 @@ private List<User> getUsersEmail(List<String> userIds) {
 		
 		if (templateResourceStream == null)
 		{
-			LOG.error(String.format("Unable to register template under key '%s': Could not load resource, input stream is null.", templateRegistrationKey));
+			log.error(String.format("Unable to register template under key '%s': Could not load resource, input stream is null.", templateRegistrationKey));
 			return false;
 		}
 		
@@ -627,7 +629,7 @@ private List<User> getUsersEmail(List<String> userIds) {
 		}
 		catch (JDOMException | IOException e)
 		{
-			LOG.error(String.format("Error registering template under key '%s': ", templateRegistrationKey), e);
+			log.error(String.format("Error registering template under key '%s': ", templateRegistrationKey), e);
 			return false;
 		}
 		finally
@@ -691,7 +693,7 @@ private List<User> getUsersEmail(List<String> userIds) {
 			catch (UnsupportedEncodingException e)
 			{
 				template.setHtmlMessage(bodyHtml);
-				LOG.warn(String.format("Unable to decode body HTML for template %s, reverting to original value.", key), e);
+				log.warn(String.format("Unable to decode body HTML for template %s, reverting to original value.", key), e);
 			}
 
 			// Update or save the template
@@ -706,11 +708,11 @@ private List<User> getUsersEmail(List<String> userIds) {
 					saveTemplate( template );
 				}
 
-				LOG.info((update ? "Updated " : "Added ") + key + (update ? " in" : " to") + " the email template service.");
+				log.info((update ? "Updated " : "Added ") + key + (update ? " in" : " to") + " the email template service.");
 			}
 			catch (Exception e)
 			{
-				LOG.error("Error "+ (update ? "updating" : "saving") + " template: " + key, e);
+				log.error("Error "+ (update ? "updating" : "saving") + " template: " + key, e);
 			}
 		}
 	}

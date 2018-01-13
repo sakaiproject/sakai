@@ -32,6 +32,8 @@ import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
 
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
@@ -49,19 +51,16 @@ import org.sakaiproject.tool.assessment.ui.bean.author.AnswerBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.AuthorBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.ItemAuthorBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * <p>Title: Samigo</p>
  * <p>Description: Sakai Assessment Manager</p>
  * @version $Id$
  */
-
+@Slf4j
 public class ResetItemAttachmentListener
     implements ActionListener
 {
-  private static Logger log = LoggerFactory.getLogger(ResetItemAttachmentListener.class);
 
   public ResetItemAttachmentListener()
   {
@@ -99,7 +98,6 @@ public class ResetItemAttachmentListener
 	    if (itemId !=null && !("").equals(itemId)){
             ItemFacade item = itemService.getItem(itemId);
 	      ItemTextIfc itemText = item.getItemTextBySequence(sequence);
-	      //log.debug("*** item attachment="+item.getItemAttachmentList());
 	      resetItemTextAttachment(answerBean.getResourceHash(), itemText.getItemTextAttachmentSet(), assessmentService, itemText, item, itemService);
 	    }
 		

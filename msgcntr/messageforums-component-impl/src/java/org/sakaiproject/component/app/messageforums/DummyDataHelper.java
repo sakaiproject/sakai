@@ -25,6 +25,8 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.api.app.messageforums.ActorPermissions;
 import org.sakaiproject.api.app.messageforums.Area;
 import org.sakaiproject.api.app.messageforums.Attachment;
@@ -51,24 +53,20 @@ import org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.MessagePermissionsImpl;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.PrivateForumImpl;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.PrivateMessageImpl;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /*
  * This helper provides dummy data for use by interface developers It uses model objects. Models are
  * hibernate object wrappers, which are used so that hibernate does not play dirty and try to save
  * objects on the interface. They also uses List rather than Set, which play nice in JSF tags.
  */
-
+@Slf4j
 public class DummyDataHelper implements DummyDataHelperApi
 {
   private MessageForumsTypeManager typeMgr;
-  
-  private static final Logger LOG = LoggerFactory.getLogger(DummyDataHelper.class);
 
   public void init()
   {
-     LOG.info("init()");
+     log.info("init()");
     ;
   }
 

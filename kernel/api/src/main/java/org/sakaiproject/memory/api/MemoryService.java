@@ -232,7 +232,7 @@ public interface MemoryService // CacheManager
      * @param cacheName Load a defined bean from the application context with this name or create a default cache with this name
      * @return a cache which can be used to store objects
      * @see #getCache(String)
-     * @deprecated since 10 - use getCache instead
+     * @deprecated since 10 - use getCache instead see {@link #getCache(String)}
      */
     public Cache newCache(String cacheName);
 
@@ -252,7 +252,7 @@ public interface MemoryService // CacheManager
      *        The "startsWith()" string for all resources that may be in this cache - if null, don't watch events for updates.
      *        If this is set then it enables automatic removal of the matching cache entry key (to the event reference value)
      *        when the event reference starts with this pattern string.
-     * @deprecated since Sakai 2.9, pattern matching no longer needed or supported, 07/Oct/2007 -AZ
+     * @deprecated since Sakai 2.9, pattern matching no longer needed or supported, 07/Oct/2007 -AZ see {@link #createCache(String, Configuration)}
      */
     @SuppressWarnings("deprecation") // TODO remove this
     Cache newCache(String cacheName, CacheRefresher refresher, String pattern); // used in NotificationCache, AssignmentService(3), BaseContentService, BaseMessage(3)
@@ -267,7 +267,7 @@ public interface MemoryService // CacheManager
      *        The "startsWith()" string for all resources that may be in this cache - if null, don't watch events for updates.
      *        If this is set then it enables automatic removal of the matching cache entry key (to the event reference value)
      *        when the event reference starts with this pattern string.
-     * @deprecated since Sakai 2.9, pattern matching no longer needed or supported, 07/Oct/2007 -AZ
+     * @deprecated since Sakai 2.9, pattern matching no longer needed or supported, 07/Oct/2007 -AZ see {@link #createCache(String, Configuration)}
      */
     Cache newCache(String cacheName, String pattern); // used in BaseAliasService, SiteCacheImpl, BaseUserDirectoryService (2), BaseCalendarService(3), ShareUserCacheImpl
 

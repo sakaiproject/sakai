@@ -13,6 +13,8 @@ import javax.servlet.ServletInputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import lombok.extern.slf4j.Slf4j;
+
 import net.oauth.OAuthAccessor;
 import net.oauth.OAuthConsumer;
 import net.oauth.OAuthMessage;
@@ -21,14 +23,11 @@ import net.oauth.SimpleOAuthValidator;
 import net.oauth.server.OAuthServlet;
 import net.oauth.signature.OAuthSignatureMethod;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.tsugi.basiclti.Base64;
 import org.json.simple.JSONValue;
 
+@Slf4j
 public class IMSJSONRequest {
-
-	private final static Logger logger = LoggerFactory.getLogger(IMSJSONRequest.class);
 
 	public final static String STATUS = "status";
 	public final static String STATUS_CODE = "code";
@@ -85,7 +84,7 @@ public class IMSJSONRequest {
 	public void loadFromRequest(HttpServletRequest request) 
 	{
 		header = request.getHeader("Authorization");
-		// System.out.println("Header: "+header);
+		log.debug("Header: {}", header);
 		oauth_body_hash = null;
 		oauth_signature_method = null;
 		if ( header != null ) {
@@ -110,11 +109,11 @@ public class IMSJSONRequest {
 
 		if ( oauth_body_hash == null ) {
 			errorMessage = "Did not find oauth_body_hash";
-		 logger.info(errorMessage+"\n"+header);
+			log.info("{}\n{}", errorMessage, header);
 			return;
 		}
 
-		// System.out.println("OBH="+oauth_body_hash);
+		log.debug("OBH={}", oauth_body_hash);
 		byte[] buf = new byte[1024];
 		ByteArrayOutputStream bos = new ByteArrayOutputStream();
 		int chars = 0;
@@ -151,11 +150,11 @@ public class IMSJSONRequest {
 			md.update(bytes); 
 			byte[] output = Base64.encode(md.digest());
 			String hash = new String(output);
-			// System.out.println("HASH="+hash+" bytes="+bytes.length);
+			log.debug("HASH={} bytes={}", hash, bytes.length);
 			if ( ! hash.equals(oauth_body_hash) ) {
 				errorMessage = "Body hash does not match. bytes="+bytes.length;
 				if ( oauth_signature_method != null ) errorMessage += " oauth_signature_method="+oauth_signature_method;
-				// System.out.println(postBody);
+				log.debug(postBody);
 				return;
 			}
 		} catch (Exception e) {
@@ -259,7 +258,7 @@ public class IMSJSONRequest {
 			try {
 				StringWriter sw = new StringWriter();
 				PrintWriter pw = new PrintWriter(sw, true);
-				e.printStackTrace(pw);
+				log.error("{}", pw);
 				pw.flush();
 				sw.flush();
 				jsonResponse.put("traceback", sw.toString() );
@@ -301,30 +300,30 @@ public class IMSJSONRequest {
 
 	public static void runTest() {
 /*
-		System.out.println("Runnig test.");
+		log.debug("Runnig test.");
 		IMSJSONRequest pox = new IMSJSONRequest(inputTestData);
-		System.out.println("Version = "+pox.getHeaderVersion());
-		System.out.println("Operation = "+pox.getOperation());
+		log.debug("Version = {}", pox.getHeaderVersion());
+		log.debug("Operation = {}", pox.getOperation());
 		Map<String,String> bodyMap = pox.getBodyMap();
 		String guid = bodyMap.get("/resultRecord/sourcedGUID/sourcedId");
-		System.out.println("guid="+guid);
+		log.debug("guid={}", guid);
 		String grade = bodyMap.get("/resultRecord/result/resultScore/textString");
-		System.out.println("grade="+grade);
+		log.debug("grade={}", grade);
 
 		String desc = "Message received and validated operation="+pox.getOperation()+
 			" guid="+guid+" grade="+grade;
 
 		String output = pox.getResponseUnsupported(desc);
-		System.out.println("---- Unsupported ----");
-		System.out.println(output);
+		log.debug("---- Unsupported ----");
+		log.debug(output);
 
 		Properties props = new Properties();
 		props.setProperty("fred","zap");
 		props.setProperty("sam",IMSPOXRequest.MINOR_IDALLOC);
-		System.out.println("---- Generate logger Error ----");
+		log.debug("---- Generate logger Error ----");
 		output = pox.getResponseFailure(desc,props);
-		System.out.println("---- Failure ----");
-		System.out.println(output);
+		log.debug("---- Failure ----");
+		log.debug(output);
 
 
 
@@ -344,10 +343,10 @@ public class IMSJSONRequest {
 		theMap.put("/readMembershipResponse/membershipRecord/membership/member", lm);
 
 		String theXml = XMLMap.getXMLFragment(theMap, true);
-		// System.out.println("th="+theXml);
+		log.debug("th={}", theXml);
 		output = pox.getResponseSuccess(desc,theXml);
-		System.out.println("---- Success String ----");
-		System.out.println(output);
+		log.debug("---- Success String ----");
+		log.debug(output);
 */
 	}
 

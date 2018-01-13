@@ -23,14 +23,12 @@ package org.sakaiproject.assignment.taggable.impl;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.List;
 
-import org.sakaiproject.assignment.api.AssignmentEntity;
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.assignment.api.AssignmentServiceConstants;
 import org.sakaiproject.assignment.api.model.AssignmentSubmissionSubmitter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sakaiproject.assignment.api.model.Assignment;
 import org.sakaiproject.assignment.api.AssignmentService;
 import org.sakaiproject.assignment.api.model.AssignmentSubmission;
@@ -46,13 +44,11 @@ import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.user.api.UserDirectoryService;
-import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.util.ResourceLoader;
 
+@Slf4j
 public class AssignmentActivityProducerImpl implements
 		AssignmentActivityProducer {
-
-	private static final Logger logger = LoggerFactory.getLogger(AssignmentActivityProducerImpl.class);
 
 	private static ResourceLoader rb = new ResourceLoader("assignment");
 
@@ -123,7 +119,7 @@ public class AssignmentActivityProducerImpl implements
 				if (assignment != null)
 					activity = new AssignmentActivityImpl(assignment, assignmentService.createAssignmentEntity(assignment.getId()), this);
 			} catch (IdUnusedException | PermissionException iue) {
-				logger.error(iue.getMessage(), iue);
+				log.error(iue.getMessage(), iue);
 			}
 		}
 		return activity;
@@ -151,7 +147,7 @@ public class AssignmentActivityProducerImpl implements
 				Assignment assignment = submission.getAssignment();
 				item = new AssignmentItemImpl(this, submission, parseAuthor(itemRef), new AssignmentActivityImpl(assignment, assignmentService.createAssignmentEntity(assignment.getId()),this));
 			} catch (IdUnusedException | PermissionException iue) {
-				logger.error(iue.getMessage(), iue);
+				log.error(iue.getMessage(), iue);
 			}
 		}
 		return item;
@@ -169,7 +165,7 @@ public class AssignmentActivityProducerImpl implements
 				returned.add(item);
 			}
 		} catch (Exception unde) {
-			logger.error(unde.getMessage(), unde);
+			log.error(unde.getMessage(), unde);
 		}
 		return returned;
 	}
@@ -205,7 +201,7 @@ public class AssignmentActivityProducerImpl implements
 	}
 
 	public void init() {
-		logger.info("init()");
+		log.info("init()");
 
 		taggingManager.registerProducer(this);
 	}

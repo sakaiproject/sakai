@@ -15,8 +15,7 @@
  */
 package org.sakaiproject.profile2.tool.pages.panels;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.link.Link;
 import org.apache.wicket.markup.html.panel.Panel;
@@ -26,6 +25,7 @@ import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
+
 import org.sakaiproject.profile2.logic.ProfileConnectionsLogic;
 import org.sakaiproject.profile2.logic.ProfilePreferencesLogic;
 import org.sakaiproject.profile2.logic.ProfilePrivacyLogic;
@@ -40,7 +40,6 @@ import org.sakaiproject.profile2.tool.pages.ViewFriends;
 import org.sakaiproject.profile2.tool.pages.ViewProfile;
 import org.sakaiproject.profile2.util.ProfileConstants;
 
-
 /*
  * id = markup id
  * ownerUserId = userId of the page that this friends feed panel is on
@@ -48,12 +47,11 @@ import org.sakaiproject.profile2.util.ProfileConstants;
  * 	(this might be the same or might be different if viewing someone else's profile and is passed to the DataProvider to decide)
  * 
  */
-
+@Slf4j
 public class FriendsFeed extends Panel {
-	
+
 	private static final long serialVersionUID = 1L;
-	private static final Logger log = LoggerFactory.getLogger(FriendsFeed.class);
-    
+
 	@SpringBean(name="org.sakaiproject.profile2.logic.SakaiProxy")
 	private SakaiProxy sakaiProxy;
 	

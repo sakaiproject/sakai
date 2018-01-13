@@ -1025,4 +1025,17 @@ public class CompilatioReviewServiceImpl implements ContentReviewService {
 		
 		return true;
 	}
+
+	@Override
+	public ContentReviewItem getContentReviewItemByContentId(String contentId){
+		Optional<ContentReviewItem> cri = crqs.getQueuedItem(getProviderId(), contentId);
+		if(cri.isPresent()){
+			ContentReviewItem item = cri.get();
+
+			//Compilatio specific work would be here
+
+			return item;
+		}
+		return null;
+	}
 }

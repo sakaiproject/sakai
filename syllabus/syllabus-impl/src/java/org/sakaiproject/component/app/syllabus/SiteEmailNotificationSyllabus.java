@@ -27,6 +27,8 @@ import java.util.Set;
 import org.sakaiproject.util.ResourceLoader;
 import java.util.Vector;
 
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.api.app.syllabus.SyllabusAttachment;
 import org.sakaiproject.api.app.syllabus.SyllabusData;
 import org.sakaiproject.api.app.syllabus.SyllabusItem;
@@ -44,6 +46,7 @@ import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.util.SiteEmailNotification;
 
+@Slf4j
 public class SiteEmailNotificationSyllabus extends SiteEmailNotification
 {
 	// //private static ResourceBundle rb = ResourceBundle.getBundle("siteemaanc");
@@ -264,7 +267,7 @@ public class SiteEmailNotificationSyllabus extends SiteEmailNotification
 		}
 		catch(Exception e)
 		{
-			System.out.println(e); // TODO need a logger
+			log.error(e.getMessage(), e);
 		}
 	}
 

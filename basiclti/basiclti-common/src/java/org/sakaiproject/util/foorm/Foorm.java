@@ -30,11 +30,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.SortedMap;
 import java.util.Properties;
-import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.lang.Number;
 import java.sql.ResultSetMetaData;
+
+import lombok.extern.slf4j.Slf4j;
 
 import org.apache.commons.lang.StringUtils;
 import org.sakaiproject.lti.api.LTISearchData;
@@ -44,9 +45,8 @@ import org.sakaiproject.util.ResourceLoader;
 /**
  * 
  */
+@Slf4j
 public class Foorm {
-
-	private static Logger logger = Logger.getLogger("org.sakaiproject.util.foorm.Foorm");
 	
 	/** Resource bundle using current language locale */
 	protected static ResourceLoader rb = new ResourceLoader("ltiservice");
@@ -1056,7 +1056,7 @@ public class Foorm {
 			}
 			if ( "header".equals(type) ) continue;
 			String label = info.getProperty("label", field);
-			logger.fine("field="+field+" type="+type);
+			log.debug("field={} type={}", field, type);
 
 			// Check the automatically populate empty date fields
 			if ("autodate".equals(type) && dataMap != null && (!isFieldSet(parms, field)) ) {
@@ -1877,8 +1877,8 @@ public class Foorm {
 				// ignore
 			}
 
-			logger.fine( field + " (" + maxlength + ") type="+type);
-			logger.fine( field + " (" + sqlLength + ") auto=" + autoIncrement+" type="+sqlType+" null="+isNullable);
+			log.debug("{} ({}) type={}", field, maxlength, type);
+			log.debug("{} ({}) auto={} type={} null={}", field, sqlLength, autoIncrement, sqlType, isNullable);
 
 			//  If the field is not there...
 			if ( sqlType == null ) {
@@ -1897,12 +1897,12 @@ public class Foorm {
 			// BLTI-220, BLTI-238 - Required will be enforced in software - not the DB
 			boolean shouldAlter = false;
 			if ("key".equals(type)) {
-				if ( ! NUMBER_TYPE.equals(sqlType) ) logger.severe(field+" must be Integer and Auto Increment");
+				if ( ! NUMBER_TYPE.equals(sqlType) ) log.warn("{} must be Integer and Auto Increment", field);
 			} else if ("autodate".equals(type)) {
 			} else if ("url".equals(type) || "text".equals(type) || "textarea".equals(type)) {
 				if ( "oracle.sql.CLOB".equals(sqlType) || "oracle.jdbc.OracleClob".equals(sqlType) ) continue;  // CLOBS large enough :)
 				if ( ! STRING_TYPE.equals(sqlType)) {
-					logger.severe(field+" must be String field");
+					log.warn("{} must be String field", field);
 					continue;
 				}
 				if ( sqlLength < maxlength ) shouldAlter = true;
@@ -1912,7 +1912,7 @@ public class Foorm {
 
 			} else if ("radio".equals(type) || "checkbox".equals(type) || "integer".equals(type) ) {
 				if ( NUMBER_TYPE.equals(sqlType)) continue;
-				logger.severe(field+" must be Integer field");
+				log.warn("{} must be Integer field", field);
 			}
 
 			if ( shouldAlter ) {
@@ -1992,7 +1992,7 @@ public class Foorm {
 				c = c.getSuperclass();
 			}
 		} catch(Exception e) {
-			e.printStackTrace();
+			log.error(e.getMessage(), e);
 		}
 		return className;
 	}

@@ -34,8 +34,7 @@ import java.util.Stack;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.sakaiproject.alias.api.AliasService;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ComponentManager;
@@ -100,10 +99,9 @@ import uk.ac.cam.caret.sakai.rwiki.utils.TimeLogger;
  */
 
 // FIXME: Component
+@Slf4j
 public class RWikiObjectServiceImpl implements RWikiObjectService
 {
-
-	private static Logger log = LoggerFactory.getLogger(RWikiObjectServiceImpl.class);
 
 	private RWikiCurrentObjectDao cdao;
 
@@ -996,7 +994,7 @@ public class RWikiObjectServiceImpl implements RWikiObjectService
 			}
 			catch (Exception any)
 			{
-				any.printStackTrace();
+				log.error(any.getMessage(), any);
 				results.append(Messages.getString("RWikiObjectServiceImpl.31") + siteId //$NON-NLS-1$
 						+ " " + any.toString() + "\n"); //$NON-NLS-1$ //$NON-NLS-2$
 			}

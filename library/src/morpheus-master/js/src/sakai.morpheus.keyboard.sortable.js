@@ -48,6 +48,10 @@ $PBJQ(document).ready(function() {
       if ($.inArray(event.which, [ 27, 38, 40, 68, 85 ]) === -1) {
         return;
       }
+      // If user is inside input box, don't prevent them from using U or D
+      if ($(event.target).is(':input')) {
+        return;
+      }
       event.preventDefault();
       var $target = $(event.target);
       var $sortableNode = this._closestSortableNode($target);

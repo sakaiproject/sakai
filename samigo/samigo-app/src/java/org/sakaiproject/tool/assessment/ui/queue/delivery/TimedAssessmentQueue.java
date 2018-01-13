@@ -22,35 +22,34 @@
 package org.sakaiproject.tool.assessment.ui.queue.delivery;
 
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.ResourceBundle;
+
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.event.cover.NotificationService;
 import org.sakaiproject.samigo.util.SamigoConstants;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.assessment.ui.model.delivery.TimedAssessmentGradingModel;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 
 /**
  * <p>Title: TimedAssessmentQueue</p>
  * <p>Description: A queue of assessment timers executed in a pool of threads</p>
  */
-
+@Slf4j
 public class TimedAssessmentQueue { 
 
   private ConcurrentHashMap queue;
   private HashMap<Long, ScheduledFuture<?>> tasks;
   private ScheduledThreadPoolExecutor threadPool;
-  private static Logger log = LoggerFactory.getLogger(TimedAssessmentQueue.class);
 
   private static class Loader {
     static final TimedAssessmentQueue INSTANCE = new TimedAssessmentQueue();

@@ -21,20 +21,18 @@
 
 package org.sakaiproject.poll.tool.validators;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringEscapeUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.sakaiproject.poll.model.Option;
-import org.sakaiproject.poll.util.PollUtils;
-import org.sakaiproject.util.FormattedText;
 import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
 
+import org.sakaiproject.poll.model.Option;
+import org.sakaiproject.poll.util.PollUtils;
+import org.sakaiproject.util.FormattedText;
 
+@Slf4j
 public class OptionValidator implements Validator {
 
-	/** Logger for this class and subclasses */
-	protected final Logger logger = LoggerFactory.getLogger(getClass());
 	public String submissionStatus;
 	
 	public boolean supports(Class clazz) {
@@ -54,14 +52,14 @@ public class OptionValidator implements Validator {
 			stripText = FormattedText.convertFormattedTextToPlaintext(option.getOptionText()).trim();
 		}
 		
-		logger.debug("validating Option with id:" + option.getOptionId());
+		log.debug("validating Option with id:" + option.getOptionId());
 		if (option.getStatus()!=null && (option.getStatus().equals("cancel") || option.getStatus().equals("delete")))
 			return;
 
 
 		if (option.getOptionText() == null || option.getOptionText().trim().length()==0 ||
 				stripText == null || stripText.length()==0) {
-			logger.debug("OptionText is empty!");
+			log.debug("OptionText is empty!");
 			errors.reject("option_empty","option empty");
 			return;
 		}
@@ -73,9 +71,9 @@ public class OptionValidator implements Validator {
 		text = PollUtils.cleanupHtmlPtags(text);
 		text = text.replace("&nbsp;", "");
 		text = StringEscapeUtils.unescapeHtml3(text).trim();
-		logger.debug("text to validate is: " + text);
+		log.debug("text to validate is: " + text);
 		if (text.trim().length()==0) {
-			logger.debug("OptionText is empty! (after excaping html)");
+			log.debug("OptionText is empty! (after excaping html)");
 			errors.reject("option_empty","option empty");
 			return;
 		}

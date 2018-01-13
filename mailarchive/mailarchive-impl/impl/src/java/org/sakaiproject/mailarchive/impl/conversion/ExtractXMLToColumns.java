@@ -29,18 +29,18 @@ import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Types;
 
+import lombok.extern.slf4j.Slf4j;
+
 import org.apache.commons.codec.binary.Base64;
+
 import org.sakaiproject.util.conversion.SchemaConversionHandler;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * @author ieb
  */
+@Slf4j
 public class ExtractXMLToColumns implements SchemaConversionHandler
 {
-	private static final Logger log = LoggerFactory.getLogger(ExtractXMLToColumns.class);
-
 	/*
 	 * (non-Javadoc)
 	 *
@@ -80,7 +80,6 @@ public class ExtractXMLToColumns implements SchemaConversionHandler
 			}
 			break;
 		}
-		// System.out.println("getSource(" + id + ") \n" + rv + "\n");
 		return rv;
 	}
 
@@ -93,7 +92,7 @@ public class ExtractXMLToColumns implements SchemaConversionHandler
 	public boolean convertSource(String id, Object source, PreparedStatement updateRecord)
 			throws SQLException
 	{
-		// System.out.println("convertSource id="+id+" prep="+updateRecord+" source="+source);
+		log.debug("convertSource id={} prep={} source={}", id, updateRecord, source);
 		String xml = (String) source;
 
 		if (!xml.startsWith("<?xml version=\"1.0\" encoding=\"UTF-8\"?>"))
@@ -151,7 +150,7 @@ public class ExtractXMLToColumns implements SchemaConversionHandler
 	 */
 	public void validate(String id, Object source, Object result) throws Exception
 	{
-		// System.out.println("validate id="+id+" source="+source+" result="+result);
+		log.debug("validate id={} source={} result={}", id, source, result);
 	}
 
 	/* (non-Javadoc)
@@ -192,10 +191,6 @@ public class ExtractXMLToColumns implements SchemaConversionHandler
 			rv = rs.getBytes(1);
 			break;
 		}
-		// System.out.println("getValidateSource(" + id + ") \n" + rv + "\n");
 		return rv;
 	}
-
-
-
 }

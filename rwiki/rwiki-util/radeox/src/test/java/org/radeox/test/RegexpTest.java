@@ -28,16 +28,18 @@ import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.io.UnsupportedEncodingException;
 
+import lombok.extern.slf4j.Slf4j;
 import org.radeox.EngineManager;
 import org.radeox.api.engine.RenderEngine;
 import org.radeox.api.engine.context.RenderContext;
 import org.radeox.engine.context.BaseRenderContext;
 
+@Slf4j
 public class RegexpTest
 {
 	public static void main(String[] args)
 	{
-		// System.out.print("Press enter ...");
+		// log.info("Press enter ...");
 		// try {
 		// new BufferedReader(new InputStreamReader(System.in)).readLine();
 		// } catch (IOException e) {
@@ -68,16 +70,16 @@ public class RegexpTest
 		}
 		catch (Exception e)
 		{
-			System.err.println("File not found: " + e.getMessage());
+			log.error("File not found: " + e.getMessage());
 		}
 
 		String content = tmp.toString();
 
-		System.out.println(content);
+		log.info(content);
 
 		RenderContext context = new BaseRenderContext();
 		RenderEngine engine = EngineManager.getInstance();
 
-		System.out.println(engine.render(content, context));
+		log.info(engine.render(content, context));
 	}
 }

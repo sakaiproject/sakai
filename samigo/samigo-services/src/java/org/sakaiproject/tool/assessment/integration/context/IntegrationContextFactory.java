@@ -21,8 +21,7 @@
 
 package org.sakaiproject.tool.assessment.integration.context;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import org.sakaiproject.tool.assessment.integration.context.spring.FactoryUtil;
 import org.sakaiproject.tool.assessment.integration.helper.ifc.AgentHelper;
@@ -39,6 +38,7 @@ import org.sakaiproject.tool.assessment.integration.helper.ifc.CalendarServiceHe
  *
  * @author Ed Smiley
  */
+@Slf4j
 public abstract class IntegrationContextFactory
 {
   private static IntegrationContextFactory instance=null;
@@ -49,7 +49,6 @@ public abstract class IntegrationContextFactory
    */
   public static IntegrationContextFactory getInstance()
   {
-    Logger log = LoggerFactory.getLogger(IntegrationContextFactory.class);
     log.debug("IntegrationContextFactory.getInstance()");
     if (instance==null)
     {
@@ -69,7 +68,6 @@ public abstract class IntegrationContextFactory
   
   public static IntegrationContextFactory getTestInstance()
   {
-	    Logger log = LoggerFactory.getLogger(IntegrationContextFactory.class);
 	    log.debug("IntegrationContextFactory.getTestInstance()");
 	    if (instance==null)
 	    {

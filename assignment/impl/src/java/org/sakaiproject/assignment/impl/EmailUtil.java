@@ -169,7 +169,7 @@ public class EmailUtil {
                     submitterNames = submitterNames.concat("; ");
                     submitterIds = submitterIds.concat("; ");
                 }
-                submitterNames = submitterNames.concat((isAnon ? submission.getAnonymousSubmissionId() : user.getDisplayName()));
+                submitterNames = submitterNames.concat((isAnon ? submission.getId() + " " + resourceLoader.getString("grading.anonymous.title") : user.getDisplayName()));
                 submitterIds = submitterIds.concat(user.getDisplayId());
             } catch (UserNotDefinedException e) {
                 log.warn("User not found with id = {}, {}", submitter.getSubmitter());
