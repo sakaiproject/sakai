@@ -15,14 +15,11 @@
  */
 package org.sakaiproject.gradebookng.tool.panels;
 
-import java.awt.Color;
-import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.ListIterator;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
@@ -43,23 +40,11 @@ import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.model.IModel;
-import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
-import org.jfree.chart.ChartFactory;
-import org.jfree.chart.JFreeChart;
-import org.jfree.chart.axis.AxisLocation;
-import org.jfree.chart.axis.NumberTickUnitSource;
-import org.jfree.chart.labels.StandardCategoryToolTipGenerator;
-import org.jfree.chart.plot.CategoryPlot;
-import org.jfree.chart.plot.PlotOrientation;
-import org.jfree.chart.renderer.category.BarRenderer;
-import org.jfree.chart.renderer.category.StandardBarPainter;
-import org.jfree.data.category.DefaultCategoryDataset;
 import org.sakaiproject.gradebookng.business.DoubleComparator;
 import org.sakaiproject.gradebookng.business.FirstNameComparator;
 import org.sakaiproject.gradebookng.business.model.GbUser;
-import org.sakaiproject.gradebookng.tool.component.JFreeChartImageWithToolTip;
 import org.sakaiproject.gradebookng.tool.model.GbGradingSchemaEntry;
 import org.sakaiproject.gradebookng.tool.model.GbSettings;
 import org.sakaiproject.service.gradebook.shared.CourseGrade;
@@ -234,14 +219,6 @@ public class SettingsGradingSchemaPanel extends BasePanel implements IFormModelU
 		// get the course grade map as we are about to use it a lot
 		this.courseGradeMap = getCourseGrades();
 
-		// chart
-		final JFreeChart chartData = getChartData();
-		final JFreeChartImageWithToolTip chart = new JFreeChartImageWithToolTip("chart", Model.of(chartData), "tooltip", 700, 400);
-
-		// chart is only visible if there are grades
-		chart.setVisible(this.total > 0);
-		settingsGradingSchemaPanel.add(chart);
-
 		// if there are no grades, display message instead of chart
 		settingsGradingSchemaPanel
 				.add(new Label("noStudentsWithGradesMessage", new ResourceModel("settingspage.gradingschema.emptychart")) {
@@ -362,90 +339,6 @@ public class SettingsGradingSchemaPanel extends BasePanel implements IFormModelU
 
 	public boolean isExpanded() {
 		return this.expanded;
-	}
-
-	/**
-	 * Build the data for the chart
-	 *
-	 * @return
-	 */
-	private JFreeChart getChartData() {
-
-		// just need the list
-		final List<CourseGrade> courseGrades = this.courseGradeMap.values().stream().collect(Collectors.toList());
-
-		// get current grading schema (from model so that it reflects current state)
-		final List<GbGradingSchemaEntry> gradingSchemaEntries = this.model.getObject().getGradingSchemaEntries();
-
-		final DefaultCategoryDataset data = new DefaultCategoryDataset();
-		final Map<String, Integer> counts = new LinkedHashMap<>(); // must retain order so graph can be printed correctly
-
-		// add all schema entries (these will be sorted according to {@link LetterGradeComparator})
-		gradingSchemaEntries.forEach(e -> {
-			counts.put(e.getGrade(), 0);
-		});
-
-		// now add the count of each course grade for those schema entries
-		this.total = 0;
-		for (final CourseGrade g : courseGrades) {
-
-			// course grade may not be released so we have to skip it
-			if (StringUtils.isBlank(g.getMappedGrade())) {
-				continue;
-			}
-
-			counts.put(g.getMappedGrade(), counts.get(g.getMappedGrade()) + 1);
-			this.total++;
-		}
-
-		// build the data
-		final ListIterator<String> iter = new ArrayList<>(counts.keySet()).listIterator(0);
-		while (iter.hasNext()) {
-			final String c = iter.next();
-			data.addValue(counts.get(c), "count", c);
-		}
-
-		final JFreeChart chart = ChartFactory.createBarChart(
-				null, // the chart title
-				getString("settingspage.gradingschema.chart.xaxis"), // the label for the category (x) axis
-				getString("label.statistics.chart.yaxis"), // the label for the value (y) axis
-				data, // the dataset for the chart
-				PlotOrientation.HORIZONTAL, // the plot orientation
-				false, // show legend
-				true, // show tooltips
-				false); // show urls
-
-		chart.getCategoryPlot().setRangeAxisLocation(AxisLocation.BOTTOM_OR_RIGHT);
-		chart.setBorderVisible(false);
-		chart.setAntiAlias(false);
-
-		final CategoryPlot plot = chart.getCategoryPlot();
-		final BarRenderer br = (BarRenderer) plot.getRenderer();
-
-		br.setItemMargin(0);
-		br.setMinimumBarLength(0.05);
-		br.setMaximumBarWidth(0.1);
-		br.setSeriesPaint(0, new Color(51, 122, 183));
-		br.setBarPainter(new StandardBarPainter());
-		br.setShadowPaint(new Color(220, 220, 220));
-		BarRenderer.setDefaultShadowsVisible(true);
-
-		br.setBaseToolTipGenerator(
-				new StandardCategoryToolTipGenerator(getString("label.statistics.chart.tooltip"), NumberFormat.getInstance()));
-
-		plot.setRenderer(br);
-
-		// show only integers in the count axis
-		plot.getRangeAxis().setStandardTickUnits(new NumberTickUnitSource(true));
-
-		// make x-axis wide enough so we don't get ... suffix
-		plot.getDomainAxis().setMaximumCategoryLabelWidthRatio(2.0f);
-
-		plot.setBackgroundPaint(Color.white);
-
-		chart.setTitle(getString("settingspage.gradingschema.chart.heading"));
-
-		return chart;
 	}
 
 	/**

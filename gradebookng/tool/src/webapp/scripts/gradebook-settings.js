@@ -77,6 +77,64 @@ GradebookCategorySettings.prototype.updateCategoryOrders = function() {
   });
 };
 
+function renderGraph() {
+	$.get("/direct/gbng/course-grades.json?siteId=a470fed6-2a9d-48d3-8cb9-dde5fb900603", function(data, status){
+		renderChart(data.dataset);
+	});
+
+	function renderChart(dataset) {
+
+		var data = $.map(dataset, function(value, index) {
+			return value;
+		});
+		var labels = $.map(dataset, function(value, index) {
+			return index;
+		});
+
+		var ctx = document.getElementById("gradingSchemaChart");
+		var myChart = new Chart(ctx, {
+			type: 'horizontalBar',
+			data: {
+				labels: labels,
+				datasets: [{
+					data: data,
+					backgroundColor: 'rgb(64, 120, 209)',
+					borderWidth: 0,
+				}]
+			},
+			options: {
+				title: {
+					display: true,
+					text: 'Course Grade Distribution'
+				},
+				legend: {
+					display: false
+				},
+				scales: {
+					xAxes: [{
+						ticks: {
+							beginAtZero:true,
+							stepSize: 1
+						},
+						scaleLabel: {
+							display: true,
+							labelString: 'Number of Students'
+						}
+					}],
+					yAxes: [{
+						scaleLabel: {
+							display: true,
+							labelString: 'Course Grade'
+						}
+					}]
+				},
+			}
+		});
+
+	}
+}
+
+
 /**************************************************************************************
  * Let's initialize our GradebookSettings 
  */
@@ -84,4 +142,7 @@ $(function() {
   sakai.gradebookng = {
     settings: new GradebookSettings($("#gradebookSettings"))
   };
+  
+  renderGraph();
+  
 });
