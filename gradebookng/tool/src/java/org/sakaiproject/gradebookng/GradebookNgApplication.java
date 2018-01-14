@@ -17,8 +17,6 @@ package org.sakaiproject.gradebookng;
 
 import org.apache.wicket.core.request.handler.PageProvider;
 import org.apache.wicket.core.request.handler.RenderPageRequestHandler;
-import org.apache.wicket.RuntimeConfigurationType;
-import org.apache.wicket.Application;
 import org.apache.wicket.protocol.http.WebApplication;
 import org.apache.wicket.session.ISessionStore;
 import org.apache.wicket.request.IRequestHandler;
@@ -34,6 +32,7 @@ import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
 import org.sakaiproject.gradebookng.tool.pages.ImportExportPage;
 import org.sakaiproject.gradebookng.tool.pages.PermissionsPage;
 import org.sakaiproject.gradebookng.tool.pages.SettingsPage;
+import org.sakaiproject.gradebookng.tool.pages.StudentPage;
 
 /**
  * Main application class
@@ -52,6 +51,7 @@ public class GradebookNgApplication extends WebApplication {
 		mountPage("/settings", SettingsPage.class);
 		mountPage("/importexport", ImportExportPage.class);
 		mountPage("/permissions", PermissionsPage.class);
+		mountPage("/gradebook", StudentPage.class);
 
 		// remove the version number from the URL so that browser refreshes re-render the page
 		getRequestCycleSettings().setRenderStrategy(RenderStrategy.ONE_PASS_RENDER);
