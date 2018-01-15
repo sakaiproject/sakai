@@ -77,11 +77,80 @@ GradebookCategorySettings.prototype.updateCategoryOrders = function() {
   });
 };
 
+function renderGraph(siteId) {
+		
+	$.ajax({
+		url : "/direct/gbng/course-grades.json?siteId="+siteId,
+      	dataType : "json",
+       	async : true,
+		cache: false,
+	   	success : function(data) {
+	   		renderChart(data.dataset);
+		}
+	});
+
+	function renderChart(dataset) {
+
+		var data = $.map(dataset, function(value, index) {
+			return value;
+		});
+		var labels = $.map(dataset, function(value, index) {
+			return index;
+		});
+		
+		//clear data. If ChartJS implements a better way, change this.
+		$("#gradingSchemaChart").replaceWith('<canvas id="gradingSchemaChart"></canvas>');
+
+		var ctx = $("#gradingSchemaChart");
+		var myChart = new Chart(ctx, {
+			type: 'horizontalBar',
+			data: {
+				labels: labels,
+				datasets: [{
+					data: data,
+					backgroundColor: 'rgb(64, 120, 209)',
+					borderWidth: 0,
+				}]
+			},
+			options: {
+				title: {
+					display: true,
+					text: 'Course Grade Distribution'
+				},
+				legend: {
+					display: false
+				},
+				scales: {
+					xAxes: [{
+						ticks: {
+							beginAtZero:true,
+							stepSize: 1
+						},
+						scaleLabel: {
+							display: true,
+							labelString: 'Number of Students'
+						}
+					}],
+					yAxes: [{
+						scaleLabel: {
+							display: true,
+							labelString: 'Course Grade'
+						}
+					}]
+				},
+			}
+		});
+
+	}
+}
+
+
 /**************************************************************************************
- * Let's initialize our GradebookSettings 
+ * Initialise
  */
 $(function() {
   sakai.gradebookng = {
     settings: new GradebookSettings($("#gradebookSettings"))
   };
+      
 });
