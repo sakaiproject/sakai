@@ -261,9 +261,9 @@ nav#subSites{
 		margin: 3.4em 0 0 7px;
 		transform: translateY(-100%);
 		@media #{$phone}{
-            left: -0.7rem !important;
-            top: 0 !important;
-            margin-top: 0.3rem !important;
+			left: -0.7rem !important;
+			top: 0 !important;
+			margin-top: 0.3rem !important;
 		}
 		&.ontop{
 			ul{
