@@ -1017,7 +1017,7 @@ extends VelocityPortletStateAction
 		SessionState sstate)
 		{
 			// Go back to whatever state we were in beforehand.
-			state.setReturnState(state.getPrevState());
+			state.setReturnState(CalendarAction.STATE_INITED);
 			
 			// cancel the options, release the site lock, cleanup
 			cancelOptions();
@@ -1121,7 +1121,7 @@ extends VelocityPortletStateAction
 			enableObserver(sstate, true);
 			
 			// Go back to whatever state we were in beforehand.
-			state.setReturnState(state.getPrevState());
+			state.setReturnState(CalendarAction.STATE_INITED);
 			
 			// Clear the previous state so that we don't get confused elsewhere.
 			state.setPrevState("");
@@ -1267,7 +1267,7 @@ extends VelocityPortletStateAction
 				addFieldsCalendarList = fieldStringToArray(addFields,ADDFIELDS_DELIMITER);
 			
 			// Go back to whatever state we were in beforehand.
-			state.setReturnState(state.getPrevState());
+			state.setReturnState(CalendarAction.STATE_INITED);
 			
 			enableObserver(sstate, true);
 			
@@ -1335,7 +1335,7 @@ extends VelocityPortletStateAction
 		SessionState sstate)
 		{
 			// Go back to whatever state we were in beforehand.
-			state.setReturnState(state.getPrevState());
+			state.setReturnState(CalendarAction.STATE_INITED);
 			
 			sstate.setAttribute(CalendarAction.SSTATE_ATTRIBUTE_ADDFIELDS_CALENDARS, sstate.getAttribute(CalendarAction.SSTATE_ATTRIBUTE_ADDFIELDS_CALENDARS_INIT));
 			sstate.setAttribute(CalendarAction.SSTATE_ATTRIBUTE_ADDFIELDS_PAGE, CalendarAction.PAGE_MAIN);
@@ -1418,7 +1418,7 @@ extends VelocityPortletStateAction
 			}
 			
 			// Go back to whatever state we were in beforehand.
-			state.setReturnState(state.getPrevState());
+			state.setReturnState(CalendarAction.STATE_INITED);
 			
 			enableObserver(sstate, true);
 
@@ -1495,7 +1495,7 @@ extends VelocityPortletStateAction
 			}
 			
 			// Go back to whatever state we were in beforehand.
-			state.setReturnState(state.getPrevState());
+			state.setReturnState(CalendarAction.STATE_INITED);
 			enableObserver(sstate, true);
 			
 		} // doUpdate
@@ -1658,7 +1658,7 @@ extends VelocityPortletStateAction
 				SessionState sstate)
 		{
 			// Go back to whatever state we were in beforehand.
-			state.setReturnState(state.getPrevState());
+			state.setReturnState(CalendarAction.STATE_INITED);
 
 			// cancel the options, release the site lock, cleanup
 			cancelOptions();
@@ -1683,7 +1683,7 @@ extends VelocityPortletStateAction
 					.getAttribute(CalendarAction.SSTATE_ATTRIBUTE_ADDSUBSCRIPTIONS);
 
 			// Go back to whatever state we were in beforehand.
-			state.setReturnState(state.getPrevState());
+			state.setReturnState(CalendarAction.STATE_INITED);
 
 			enableObserver(sstate, true);
 
@@ -1825,7 +1825,7 @@ extends VelocityPortletStateAction
 			enableObserver(sstate, true);
 
 			// Go back to whatever state we were in beforehand.
-			state.setReturnState(state.getPrevState());
+			state.setReturnState(CalendarAction.STATE_INITED);
 
 			// Clear the previous state so that we don't get confused elsewhere.
 			state.setPrevState("");
@@ -2254,6 +2254,8 @@ extends VelocityPortletStateAction
 	private CustomizeCalendarPage customizeCalendarPage =	new CustomizeCalendarPage();
 	
 	private CalendarSubscriptionsPage calendarSubscriptionsPage =	new CalendarSubscriptionsPage();
+	
+	private String defaultStateView;
 	
 	/**
 	 * See if the current tab is the workspace tab (i.e. user site)
@@ -4272,6 +4274,7 @@ extends VelocityPortletStateAction
 		CalendarActionState state = (CalendarActionState)getState(context, data, CalendarActionState.class);
 		
 		state.setState("month");
+		this.defaultStateView = "month";
 		
 	} // doMonth
 	
@@ -4346,8 +4349,8 @@ extends VelocityPortletStateAction
 		
 		// store the state coming from, like day view, week view, month view or list view
 		String returnState = state.getState();
-		state.setPrevState(returnState);
-		state.setReturnState(returnState);
+		state.setPrevState(CalendarAction.STATE_INITED);
+		state.setReturnState(CalendarAction.STATE_INITED);
 		state.setState("description");
 		state.setAttachments(null);
 		state.setCalendarEventId(calId, eventId);
@@ -4462,6 +4465,9 @@ extends VelocityPortletStateAction
 		
 		// return to the state coming from
 		String returnState = state.getReturnState();
+		if( "".equals(returnState) || CalendarAction.STATE_INITED.equals(returnState) ) {
+			returnState = this.defaultStateView;
+		}
 		state.setState(returnState);
 	}
 	
@@ -4898,7 +4904,7 @@ extends VelocityPortletStateAction
 		state.setImportWizardState(null);
 		
 		// Return to the previous state.
-		state.setState(state.getPrevState());
+		state.setState(this.defaultStateView);
 	}
 	
 	/**
@@ -4912,7 +4918,7 @@ extends VelocityPortletStateAction
 		
 		Calendar calendarObj = null;
 		String currentState = state.getState();
-		String returnState = state.getReturnState();
+		String returnState = this.defaultStateView;
 		
 		if (currentState.equals(STATE_NEW))
 		{
@@ -4930,6 +4936,8 @@ extends VelocityPortletStateAction
 				{
 					state.setReturnState(returnState.substring(0, returnState.indexOf("!!!fromDescription")));
 					returnState = "description";
+				} else {
+					returnState = this.defaultStateView;
 				}
 			}
 			else
@@ -4943,6 +4951,8 @@ extends VelocityPortletStateAction
 					{
 						state.setReturnState(returnState.substring(0, returnState.indexOf("!!!fromDescription")));
 						returnState = "description";
+					} else {
+						returnState = this.defaultStateView;
 					}
 				}
 				else
@@ -4955,6 +4965,8 @@ extends VelocityPortletStateAction
 					{
 						state.setReturnState(returnState.substring(0, returnState.indexOf("!!!fromDescription")));
 						returnState = "description";
+					} else {
+						returnState = this.defaultStateView;
 					}
 				}
 				else	// in revise view, state name varies
@@ -5190,6 +5202,7 @@ extends VelocityPortletStateAction
 		CalendarActionState state = (CalendarActionState)getState(context, data, CalendarActionState.class);
 		
 		state.setState("year");
+		this.defaultStateView = "year";
 	}	 // doYear
 	
 	/**
@@ -5201,6 +5214,7 @@ extends VelocityPortletStateAction
 		CalendarActionState state = (CalendarActionState)getState(context, data, CalendarActionState.class);
 		
 		state.setState("week");
+		this.defaultStateView = "week";
 	}	 // doWeek
 	
 	
@@ -5321,6 +5335,7 @@ extends VelocityPortletStateAction
 		CalendarActionState state = (CalendarActionState)getState(context, data, CalendarActionState.class);
 		
 		state.setState("day");
+		this.defaultStateView = "day";
 	}	 // doMenueday
 	
 	
@@ -5690,7 +5705,7 @@ extends VelocityPortletStateAction
 		else if ( enable == null && oldExportEnabled )
 			CalendarService.setExportEnabled( calId, false );
 			
-		String returnState = state.getReturnState();
+		String returnState = "icalEx";
 		state.setState(returnState);
 		
 	}	 // doIcalExport
@@ -6094,6 +6109,9 @@ extends VelocityPortletStateAction
 			
 			// ReturnState was set up above.	 Switch states now.
 			String returnState = state.getReturnState();
+			if(returnState.equals(CalendarAction.STATE_INITED)) {
+				returnState = STATE_MERGE_CALENDARS;
+			}
 			if (returnState.endsWith("!!!fromDescription"))
 			{
 				state.setReturnState(returnState.substring(0, returnState.indexOf("!!!fromDescription")));
@@ -6101,7 +6119,7 @@ extends VelocityPortletStateAction
 			}
 			else
 			{
-				state.setReturnState("");
+				state.setReturnState(STATE_MERGE_CALENDARS);
 				state.setState(returnState);
 			}
 			
@@ -6113,6 +6131,9 @@ extends VelocityPortletStateAction
 				
 				// ReturnState was set up above.  Switch states now.
 				String returnState = state.getReturnState();
+				if(returnState.compareTo(CalendarAction.STATE_INITED) == 0) {
+					returnState = this.defaultStateView;
+				}
 				if (returnState.endsWith("!!!fromDescription"))
 				{
 					state.setReturnState(returnState.substring(0, returnState.indexOf("!!!fromDescription")));
@@ -6120,7 +6141,7 @@ extends VelocityPortletStateAction
 				}
 				else
 				{
-					state.setReturnState("");
+					state.setReturnState(this.defaultStateView);
 					state.setState(returnState);
 				}
 				
@@ -6146,8 +6167,8 @@ extends VelocityPortletStateAction
 					}
 					else
 					{
-						state.setReturnState("");
-						state.setState(returnState);
+						state.setReturnState(CalendarAction.STATE_CUSTOMIZE_CALENDAR);
+						state.setState(CalendarAction.STATE_CUSTOMIZE_CALENDAR);
 					}
 				} // if (!state.getDelfieldAlertOff())
 			}
@@ -6856,6 +6877,7 @@ extends VelocityPortletStateAction
 		}
 		
 		state.setState("list");
+		this.defaultStateView = "list";
 	}	 // doList
 	
 	/**
