@@ -97,6 +97,9 @@ function renderGraph(siteId) {
 		var labels = $.map(dataset, function(value, index) {
 			return index;
 		});
+		
+		//clear data. If ChartJS implements a better way, change this.
+		$("#gradingSchemaChart").replaceWith('<canvas id="gradingSchemaChart"></canvas>');
 
 		var ctx = $("#gradingSchemaChart");
 		var myChart = new Chart(ctx, {
