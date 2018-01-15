@@ -31,6 +31,9 @@ import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.ajax.AjaxEventBehavior;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
+import org.apache.wicket.behavior.AttributeAppender;
+import org.apache.wicket.markup.head.IHeaderResponse;
+import org.apache.wicket.markup.head.OnLoadHeaderItem;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.ChoiceRenderer;
@@ -183,12 +186,15 @@ public class SettingsGradingSchemaPanel extends BasePanel implements IFormModelU
 					@Override
 					protected void onUpdate(final AjaxRequestTarget target) {
 
-						// fetch current data from model, sort and refresh
+						// fetch current data from model, sort and refresh the table
 						final List<GbGradingSchemaEntry> data = SettingsGradingSchemaPanel.this.model.getObject().getGradingSchemaEntries();
 						data.sort(Collections.reverseOrder());
 						SettingsGradingSchemaPanel.this.model.getObject().setGradingSchemaEntries(data);
 						target.add(SettingsGradingSchemaPanel.this.schemaWrap);
 
+						// refresh chart
+						final String siteId = SettingsGradingSchemaPanel.this.businessService.getCurrentSiteId();
+						target.appendJavaScript("renderGraph('" + siteId + "')");
 					}
 				});
 			}
@@ -265,6 +271,17 @@ public class SettingsGradingSchemaPanel extends BasePanel implements IFormModelU
 			}
 		});
 
+		final WebMarkupContainer chart = new WebMarkupContainer("gradingSchemaChart");
+		chart.setOutputMarkupId(true);
+		chart.add(new AttributeAppender("data-siteId", SettingsGradingSchemaPanel.this.businessService.getCurrentSiteId()));
+
+	}
+
+	@Override
+	public void renderHead(final IHeaderResponse response) {
+		super.renderHead(response);
+		final String siteId = SettingsGradingSchemaPanel.this.businessService.getCurrentSiteId();
+		response.render(OnLoadHeaderItem.forScript("renderGraph('" + siteId + "');"));
 	}
 
 	/**

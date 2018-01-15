@@ -77,9 +77,16 @@ GradebookCategorySettings.prototype.updateCategoryOrders = function() {
   });
 };
 
-function renderGraph() {
-	$.get("/direct/gbng/course-grades.json?siteId=a470fed6-2a9d-48d3-8cb9-dde5fb900603", function(data, status){
-		renderChart(data.dataset);
+function renderGraph(siteId) {
+		
+	$.ajax({
+		url : "/direct/gbng/course-grades.json?siteId="+siteId,
+      	dataType : "json",
+       	async : true,
+		cache: false,
+	   	success : function(data) {
+	   		renderChart(data.dataset);
+		}
 	});
 
 	function renderChart(dataset) {
@@ -91,7 +98,7 @@ function renderGraph() {
 			return index;
 		});
 
-		var ctx = document.getElementById("gradingSchemaChart");
+		var ctx = $("#gradingSchemaChart");
 		var myChart = new Chart(ctx, {
 			type: 'horizontalBar',
 			data: {
@@ -136,13 +143,11 @@ function renderGraph() {
 
 
 /**************************************************************************************
- * Let's initialize our GradebookSettings 
+ * Initialise
  */
 $(function() {
   sakai.gradebookng = {
     settings: new GradebookSettings($("#gradebookSettings"))
   };
-  
-  renderGraph();
-  
+      
 });
