@@ -117,8 +117,8 @@
 			<version>1.0.19</version>
 		</dependency>
 		<dependency>
-   			<groupId>org.apache.commons</groupId>
-    		<artifactId>commons-math3</artifactId>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-math3</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>com.fasterxml.jackson.core</groupId>
@@ -131,10 +131,10 @@
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
-  			<groupId>com.google.code.gson</groupId>
-  			<artifactId>gson</artifactId>
-  			<version>2.8.2</version>
-  		</dependency>
+			<groupId>com.google.code.gson</groupId>
+			<artifactId>gson</artifactId>
+			<version>2.8.2</version>
+		</dependency>
 
 		<!-- Webjars -->
 		<dependency>
@@ -146,6 +146,11 @@
 			<groupId>org.webjars</groupId>
 			<artifactId>webjars-servlet-2.x</artifactId>
 			<version>1.1</version>
+		</dependency>
+		<dependency>
+			<groupId>org.webjars</groupId>
+			<artifactId>chartjs</artifactId>
+			<version>2.7.0</version>
 		</dependency>
 	</dependencies>
 	<build>
