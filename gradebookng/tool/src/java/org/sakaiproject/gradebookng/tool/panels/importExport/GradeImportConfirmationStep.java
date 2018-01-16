@@ -141,18 +141,18 @@ public class GradeImportConfirmationStep extends BasePanel {
 				// add/update the data
 				if (!GradeImportConfirmationStep.this.errors) {
 
-					final List<ProcessedGradeItem> itemsToSave = new ArrayList<ProcessedGradeItem>();
+					final List<ProcessedGradeItem> itemsToSave = new ArrayList<>();
 					itemsToSave.addAll(itemsToUpdate);
 					itemsToSave.addAll(itemsToCreate);
 					itemsToSave.addAll(itemsToModify);
 
 					itemsToSave.forEach(processedGradeItem -> {
-						log.debug("Processing item: " + processedGradeItem);
+						log.debug("Processing item: {}", processedGradeItem);
 
 						final List<ProcessedGradeItemDetail> processedGradeItemDetails = processedGradeItem.getProcessedGradeItemDetails();
 
 						processedGradeItemDetails.forEach(processedGradeItemDetail -> {
-							log.debug("Processing detail: " + processedGradeItemDetail);
+							log.debug("Processing detail: {}", processedGradeItemDetail);
 
 							// get data
 							// if its an update/modify, this will get the id
@@ -199,9 +199,7 @@ public class GradeImportConfirmationStep extends BasePanel {
 									default:
 										break;
 								}
-								log.info("Saved grade for assignment id: " + assignmentId + ", student: "
-										+ processedGradeItemDetail.getUser().getDisplayId() + ", grade: " + processedGradeItemDetail.getGrade()
-										+ ", comment: " + processedGradeItemDetail.getComment() + ", status: " + response);
+								log.info("Saved grade for assignment id: {}, student: {}, grade: {}, comment: {}, status: {}", assignmentId, processedGradeItemDetail.getUser().getDisplayId(), processedGradeItemDetail.getGrade(), processedGradeItemDetail.getComment(), response);
 							}
 
 						});
@@ -228,7 +226,7 @@ public class GradeImportConfirmationStep extends BasePanel {
 				final ImportExportPage page = (ImportExportPage) getPage();
 				page.clearFeedback();
 
-				Component newPanel = null;
+				Component newPanel;
 				if (assignmentsToCreate.size() > 0) {
 					newPanel = new CreateGradeItemStep(GradeImportConfirmationStep.this.panelId, Model.of(importWizardModel));
 				} else {
@@ -356,8 +354,7 @@ public class GradeImportConfirmationStep extends BasePanel {
 		if (!StringUtils.equals(currentComment, newComment)) {
 			final boolean success = GradeImportConfirmationStep.this.businessService.updateAssignmentGradeComment(assignmentId,
 					processedGradeItemDetail.getUser().getUserUuid(), newComment);
-			log.info("Saving comment: " + success + ", " + assignmentId + ", " + processedGradeItemDetail.getUser().getDisplayId() + ", "
-					+ processedGradeItemDetail.getComment());
+			log.info("Saving comment: {}, {}, {}, {}", success, assignmentId, processedGradeItemDetail.getUser().getDisplayId(), processedGradeItemDetail.getComment());
 			if (!success) {
 				getSession().error(new ResourceModel("importExport.error.comment").getObject());
 				this.errors = true;

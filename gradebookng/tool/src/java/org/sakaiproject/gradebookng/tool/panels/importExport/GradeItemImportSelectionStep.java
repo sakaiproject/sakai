@@ -154,11 +154,11 @@ public class GradeItemImportSelectionStep extends BasePanel {
 				final List<ProcessedGradeItem> selectedCommentItems = filterListByType(
 						allItems.stream().filter(item -> item.isSelected()).collect(Collectors.toList()), Type.COMMENT);
 
-				log.debug("Selected grade items: " + selectedGradeItems.size());
-				log.debug("Selected grade items: " + selectedGradeItems);
+				log.debug("Selected grade items: {}", selectedGradeItems.size());
+				log.debug("Selected grade items: {}", selectedGradeItems);
 
-				log.debug("Selected comment items: " + selectedCommentItems.size());
-				log.debug("Selected comment items: " + selectedCommentItems);
+				log.debug("Selected comment items: {}", selectedCommentItems.size());
+				log.debug("Selected comment items: {}", selectedCommentItems);
 
 				// combine the two lists. since comments can be toggled independently, the selectedGradeItems may not contain the item we
 				// need to update
@@ -168,7 +168,7 @@ public class GradeItemImportSelectionStep extends BasePanel {
 				itemsToProcess.addAll(selectedCommentItems);
 
 				// this has an odd model so we need to have the validation in the onSubmit.
-				if (itemsToProcess.size() == 0) {
+				if (itemsToProcess.isEmpty()) {
 					validated = false;
 					error(getString("importExport.selection.noneselected"));
 				}
@@ -187,9 +187,9 @@ public class GradeItemImportSelectionStep extends BasePanel {
 					final List<ProcessedGradeItem> itemsToModify = filterListByType(filterListByStatus(itemsToProcess, Status.MODIFIED),
 							Type.GB_ITEM);
 
-					log.debug("Items to create: " + itemsToCreate.size());
-					log.debug("Items to update: " + itemsToUpdate.size());
-					log.debug("Items to modify: " + itemsToModify.size());
+					log.debug("Items to create: {}", itemsToCreate.size());
+					log.debug("Items to update: {}", itemsToUpdate.size());
+					log.debug("Items to modify: {}", itemsToModify.size());
 
 					// set data for next page
 					importWizardModel.setItemsToCreate(itemsToCreate);
@@ -197,7 +197,7 @@ public class GradeItemImportSelectionStep extends BasePanel {
 					importWizardModel.setItemsToModify(itemsToModify);
 
 					// repaint panel
-					Component newPanel = null;
+					Component newPanel;
 
 					// create those that need to be created. When finished all, continue.
 					if (itemsToCreate.size() > 0) {
@@ -264,8 +264,8 @@ public class GradeItemImportSelectionStep extends BasePanel {
 				final ProcessedGradeItem gradeItem = gradeItemMap.get(key);
 				final ProcessedGradeItem commentItem = (commentMap.get(key) != null) ? commentMap.get(key) : setupBlankCommentItem();
 
-				log.debug("grade item: " + gradeItem);
-				log.debug("matching comment: " + commentItem);
+				log.debug("grade item: {}", gradeItem);
+				log.debug("matching comment: {}", commentItem);
 
 				// setup our wrappers
 				final GbStyleableWebMarkupContainer gbItemWrap = new GbStyleableWebMarkupContainer("gb_item");

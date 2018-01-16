@@ -49,7 +49,7 @@ public class ImportedRow implements Serializable {
 	private Map<String, ImportedCell> cellMap;
 
 	public ImportedRow() {
-		this.cellMap = new HashMap<String, ImportedCell>();
+		this.cellMap = new HashMap<>();
 	}
 
 	public void setUser(GbUser gbUser) {

@@ -87,6 +87,7 @@ public class ImportGradesHelper {
 	 *
 	 * @param is
 	 * @param mimetype
+	 * @param filename
 	 * @param businessService
 	 * @return
 	 * @throws GbImportExportInvalidColumnException
@@ -106,6 +107,7 @@ public class ImportGradesHelper {
 	 *
 	 * @param is
 	 * @param mimetype
+	 * @param filename
 	 * @param businessService
 	 * @param userCSVSeparator
 	 * @return
@@ -145,7 +147,7 @@ public class ImportGradesHelper {
 			throws GbImportExportInvalidColumnException, IOException, GbImportExportDuplicateColumnException {
 
 		// manually parse method so we can support arbitrary columns
-		CSVReader reader = null;
+		CSVReader reader;
 		if(StringUtils.isEmpty(userCSVSeparator)){
 			reader = new CSVReader(new InputStreamReader(is));
 		}else{
@@ -153,7 +155,7 @@ public class ImportGradesHelper {
 		}
 		String[] nextLine;
 		int lineCount = 0;
-		final List<ImportedRow> list = new ArrayList<ImportedRow>();
+		final List<ImportedRow> list = new ArrayList<>();
 		Map<Integer, ImportedColumn> mapping = new LinkedHashMap<>();
 		Map<String, GbUser> userEidMap = businessService.getUserEidMap();
 
@@ -363,7 +365,7 @@ public class ImportGradesHelper {
 			processedGradeItem.setStatus(status);
 			processedGradeItem.setItemTitle(columnTitle);
 
-			log.debug("Column name: " + columnTitle + ", type: " + column.getType() + ", status: " + status);
+			log.debug("Column name: {}, type: {}, status: {}", columnTitle, column.getType(), status);
 
 			// process the header as applicable
 			switch (column.getType()) {
@@ -388,15 +390,15 @@ public class ImportGradesHelper {
 					// never hit
 					break;
 				default:
-					log.warn("Bad column. Type: " + column.getType() + ", header: " + columnTitle + ".  Skipping.");
+					log.warn("Bad column. Type: {}, header: {}.  Skipping.", column.getType(), columnTitle);
 					break;
 			}
 
 			// process the data
 			final List<ProcessedGradeItemDetail> processedGradeItemDetails = new ArrayList<>();
 			for (final ImportedRow row : spreadsheetWrapper.getRows()) {
-				log.debug("row: " + row.getStudentEid());
-				log.debug("columnTitle: " + columnTitle);
+				log.debug("row: {}", row.getStudentEid());
+				log.debug("columnTitle: {}", columnTitle);
 
 				final ImportedCell cell = row.getCellMap().get(columnTitle);
 
@@ -447,7 +449,7 @@ public class ImportGradesHelper {
 		// default
 		Status status = null;
 
-		log.debug("Determining status for column: " + column.getColumnTitle() + ", type: " + column.getType());
+		log.debug("Determining status for column: {}, type: {}", column.getColumnTitle(), column.getType());
 
 		if (column.isGradeItem()) {
 			if (assignment == null) {
@@ -477,7 +479,7 @@ public class ImportGradesHelper {
 				// imported data setup
 				final ImportedCell importedCell = row.getCellMap().get(column.getColumnTitle());
 
-				log.debug("Checking cell data: " + importedCell);
+				log.debug("Checking cell data: {}", importedCell);
 
 				String importedScore = null;
 				String importedComment = null;
@@ -508,7 +510,7 @@ public class ImportGradesHelper {
 					importedScore = StringUtils.removeEnd(importedScore, ".0");
 					existingScore = StringUtils.removeEnd(existingScore, ".0");
 
-					log.debug("Comparing data, importedScore: " + importedScore + ", existingScore: " + existingScore);
+					log.debug("Comparing data, importedScore: {}, existingScore: {}", importedScore, existingScore);
 
 					if (StringUtils.isNotBlank(importedScore) && !StringUtils.equals(importedScore, existingScore)) {
 						status = Status.UPDATE;
@@ -519,7 +521,7 @@ public class ImportGradesHelper {
 				// handle comments
 				if (column.isComment()) {
 
-					log.debug("Comparing data, importedComment: " + importedComment + ", existingComment: " + existingComment);
+					log.debug("Comparing data, importedComment: {}, existingComment: {}", importedComment, existingComment);
 
 					if (StringUtils.isBlank(importedComment)) {
 						status = Status.SKIP;
@@ -540,7 +542,7 @@ public class ImportGradesHelper {
 			status = Status.SKIP;
 		}
 
-		log.debug("Status: " + status);
+		log.debug("Status: {}", status);
 
 		return status;
 	}
@@ -581,14 +583,14 @@ public class ImportGradesHelper {
 			throws GbImportExportInvalidColumnException, GbImportExportDuplicateColumnException {
 
 		// retain order
-		final Map<Integer, ImportedColumn> mapping = new LinkedHashMap<Integer, ImportedColumn>();
+		final Map<Integer, ImportedColumn> mapping = new LinkedHashMap<>();
 
 		for (int i = 0; i < line.length; i++) {
 
-			ImportedColumn column = null;
+			ImportedColumn column;
 
-			log.debug("i: " + i);
-			log.debug("line[i]: " + line[i]);
+			log.debug("i: {}", i);
+			log.debug("line[i]: {}", line[i]);
 
 			if (i == USER_ID_POS) {
 				column = new ImportedColumn();
@@ -624,12 +626,12 @@ public class ImportGradesHelper {
 			throw new GbImportExportInvalidColumnException("Invalid column header: " + headerValue);
 		}
 
-		log.debug("headerValue: " + headerValue);
+		log.debug("headerValue: {}", headerValue);
 
 		final ImportedColumn column = new ImportedColumn();
 
 		if (headerValue.startsWith("#")) {
-			log.info("Found header: " + headerValue + " but ignoring it as it is prefixed with a #.");
+			log.info("Found header: {} but ignoring it as it is prefixed with a #.", headerValue);
 			column.setType(ImportedColumn.Type.IGNORE);
 			return column;
 		}
@@ -712,5 +714,4 @@ public class ImportGradesHelper {
 	private static String trim(final String s) {
 		return StringUtils.trimToNull(s);
 	}
-
 }

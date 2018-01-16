@@ -117,7 +117,7 @@ public class GradeImportUploadStep extends BasePanel {
 
 				// turn file into list
 				// TODO would be nice to capture the values from these exceptions
-				ImportedSpreadsheetWrapper spreadsheetWrapper = null;
+				ImportedSpreadsheetWrapper spreadsheetWrapper;
 				try {
 					spreadsheetWrapper = ImportGradesHelper.parseImportedGradeFile(upload.getInputStream(), upload.getContentType(),
 							upload.getClientFileName(), businessService, FormattedText.getDecimalSeparator());
@@ -149,7 +149,7 @@ public class GradeImportUploadStep extends BasePanel {
 				final List<GbStudentGradeInfo> grades = GradeImportUploadStep.this.businessService.buildGradeMatrix(assignments);
 
 				// process file
-				List<ProcessedGradeItem> processedGradeItems = null;
+				List<ProcessedGradeItem> processedGradeItems;
 				try {
 					processedGradeItems = ImportGradesHelper.processImportedGrades(spreadsheetWrapper, assignments, grades);
 				} catch (final GbImportCommentMissingItemException e) {

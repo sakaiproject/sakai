@@ -42,5 +42,4 @@ public class ProcessedGradeItemDetail implements Serializable {
 	@Getter
 	@Setter
 	private String comment;
-
 }
