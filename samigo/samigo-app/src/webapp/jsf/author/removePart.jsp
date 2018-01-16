@@ -31,7 +31,7 @@
     <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
       <head><%= request.getAttribute("html.head") %>
       <title><h:outputText value="#{authorMessages.remove_p_conf}" /></title>
-      <script src="/library/js/spinner.js" type="text/javascript"></script>
+      <samigo:script path="/../library/js/spinner.js" type="text/javascript"/>
       </head>
       <body onload="<%= request.getAttribute("html.body.onload") %>">
 
