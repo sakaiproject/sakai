@@ -2974,12 +2974,12 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 						" a.finalScore, a.comments, a.status, a.gradedBy, a.gradedDate, a.attemptDate, a.timeElapsed) " +
 						" from AssessmentGradingData a, PublishedAccessControl c " +
 						" where a.publishedAssessmentId = c.assessment.publishedAssessmentId " +
-						" and c.retractDate <= :retractDate" +
+						" and ((c.lateHandling = 1 and c.retractDate <= :currentTime) or (c.lateHandling = 2 and c.dueDate <= :currentTime))" +
 						" and a.status not in (5) and (a.hasAutoSubmissionRun = 0 or a.hasAutoSubmissionRun is null) and c.autoSubmit = 1 " +
 						" and a.attemptDate is not null " +
 						" order by a.publishedAssessmentId, a.agentId, a.forGrade desc, a.assessmentGradingId");
 	    
-		query.setTimestamp("retractDate",currentTime);
+		query.setTimestamp("currentTime",currentTime);
 		
 		List<AssessmentGradingData> list = query.list();
 
