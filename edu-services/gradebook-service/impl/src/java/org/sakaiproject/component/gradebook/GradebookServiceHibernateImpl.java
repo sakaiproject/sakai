@@ -3444,7 +3444,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 		});
 
 		//set grade type, but only if sakai.property is false OR sakai.property is true and user is admin
-		boolean onlyAdminsSetGradeType = ServerConfigurationService.getBoolean("gradebook.settings.gradeEntry.hideFromNonAdmins", false);
+		boolean onlyAdminsSetGradeType = ServerConfigurationService.getBoolean("gradebook.settings.gradeEntry.showToNonAdmins", true);
 		if(!onlyAdminsSetGradeType || (onlyAdminsSetGradeType && SecurityService.isSuperUser())) {
 			gradebook.setGrade_type(gbInfo.getGradeType());
 		}

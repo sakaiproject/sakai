@@ -55,8 +55,8 @@ public class SettingsPage extends BasePage {
 	private boolean gradingSchemaExpanded = false;
 
 	private boolean hideGradeEntryFromNonAdmins;
-	private static final String SAK_PROP_HIDE_GRADE_ENTRY_FROM_NON_ADMINS = "gradebook.settings.gradeEntry.hideFromNonAdmins";
-	private static final boolean SAK_PROP_HIDE_GRADE_ENTRY_FROM_NON_ADMINS_DEFAULT = false;
+	private static final String SAK_PROP_SHOW_GRADE_ENTRY_TO_NON_ADMINS = "gradebook.settings.gradeEntry.showToNonAdmins";
+	private static final boolean SAK_PROP_SHOW_GRADE_ENTRY_TO_NON_ADMINS_DEFAULT = true;
 
 	SettingsGradeEntryPanel gradeEntryPanel;
 	SettingsGradeReleasePanel gradeReleasePanel;
@@ -79,7 +79,7 @@ public class SettingsPage extends BasePage {
 	}
 
 	private void setHideGradeEntryFromNonAdmins() {
-		hideGradeEntryFromNonAdmins = ServerConfigurationService.getBoolean(SAK_PROP_HIDE_GRADE_ENTRY_FROM_NON_ADMINS, SAK_PROP_HIDE_GRADE_ENTRY_FROM_NON_ADMINS_DEFAULT);
+		hideGradeEntryFromNonAdmins = ServerConfigurationService.getBoolean(SAK_PROP_SHOW_GRADE_ENTRY_TO_NON_ADMINS, SAK_PROP_SHOW_GRADE_ENTRY_TO_NON_ADMINS_DEFAULT);
 	}
 
 	@Override
