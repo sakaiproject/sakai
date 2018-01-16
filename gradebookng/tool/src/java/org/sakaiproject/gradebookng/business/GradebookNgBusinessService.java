@@ -137,6 +137,8 @@ public class GradebookNgBusinessService {
 
 	public static final String ASSIGNMENT_ORDER_PROP = "gbng_assignment_order";
 	public static final String ICON_SAKAI = "icon-sakai--";
+	
+	public static final ResourceLoader externalAppLoader = new ResourceLoader("org.sakaiproject.localization.bundle.tool.tools");
 
 	/**
 	 * Get a list of all users in the current site that can have grades
@@ -2110,12 +2112,13 @@ public class GradebookNgBusinessService {
 	 */
 	public String getIconClass(final Assignment assignment) {
 		final String externalAppName = assignment.getExternalAppName();
+		
 		String iconClass = getDefaultIconClass();
-		if (StringUtils.equals(externalAppName, "Assignments")) {
+		if (StringUtils.equals(externalAppName, externalAppLoader.getString("sakai.assignment.title"))) {
 			iconClass = getAssignmentsIconClass();
-		} else if (StringUtils.equals(externalAppName, "Tests & Quizzes")) {
+		} else if (StringUtils.equals(externalAppName, externalAppLoader.getString("sakai.samigo.title"))) {
 			iconClass = getSamigoIconClass();
-		} else if (StringUtils.equals(externalAppName, "Lesson Builder")) {
+		} else if (StringUtils.equals(externalAppName, externalAppLoader.getString("sakai.lessonbuildertool.title"))) {
 			iconClass = getLessonBuilderIconClass();
 		}
 		return iconClass;
