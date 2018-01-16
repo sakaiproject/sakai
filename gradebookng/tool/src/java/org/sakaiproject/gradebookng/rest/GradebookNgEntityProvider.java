@@ -39,6 +39,7 @@ import org.sakaiproject.gradebookng.business.GbRole;
 import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
 import org.sakaiproject.gradebookng.business.exception.GbAccessDeniedException;
 import org.sakaiproject.gradebookng.business.model.GbGradeCell;
+import org.sakaiproject.gradebookng.business.util.FormatHelper;
 import org.sakaiproject.gradebookng.rest.model.CourseGradeSummary;
 import org.sakaiproject.service.gradebook.shared.CourseGrade;
 import org.sakaiproject.site.api.SiteService;
@@ -210,12 +211,15 @@ public class GradebookNgEntityProvider extends AbstractEntityProvider implements
 	}
 
 	@SuppressWarnings("unused")
-	@EntityCustomAction(action = "rebuild-course-grades", viewKey = EntityView.VIEW_NEW)
-	public CourseGradeSummary rebuildCourseGradeSummary(final EntityReference ref, final Map<String, Object> params) {
+	@EntityCustomAction(action = "rebuild-course-grades", viewKey = EntityView.VIEW_LIST)
+	public CourseGradeSummary rebuildCourseGradeSummary(final EntityView view, final Map<String, Object> params) {
 
 		// get params
 		final String siteId = (String) params.get("siteId");
 		final String schema = (String) params.get("schema");
+
+		System.out.println("schema:" + schema);
+		System.out.println("schema 2:" + FormatHelper.decode(schema));
 
 		checkValidSite(siteId);
 		checkInstructor(siteId);

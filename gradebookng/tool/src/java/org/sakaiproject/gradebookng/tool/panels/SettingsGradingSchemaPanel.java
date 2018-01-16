@@ -48,11 +48,15 @@ import org.apache.wicket.model.ResourceModel;
 import org.sakaiproject.gradebookng.business.DoubleComparator;
 import org.sakaiproject.gradebookng.business.FirstNameComparator;
 import org.sakaiproject.gradebookng.business.model.GbUser;
+import org.sakaiproject.gradebookng.business.util.FormatHelper;
 import org.sakaiproject.gradebookng.tool.model.GbGradingSchemaEntry;
 import org.sakaiproject.gradebookng.tool.model.GbSettings;
 import org.sakaiproject.service.gradebook.shared.CourseGrade;
 import org.sakaiproject.service.gradebook.shared.GradeMappingDefinition;
 import org.sakaiproject.user.api.User;
+
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -187,14 +191,20 @@ public class SettingsGradingSchemaPanel extends BasePanel implements IFormModelU
 					protected void onUpdate(final AjaxRequestTarget target) {
 
 						// fetch current data from model, sort and refresh the table
-						final List<GbGradingSchemaEntry> data = SettingsGradingSchemaPanel.this.model.getObject().getGradingSchemaEntries();
-						data.sort(Collections.reverseOrder());
-						SettingsGradingSchemaPanel.this.model.getObject().setGradingSchemaEntries(data);
+						final List<GbGradingSchemaEntry> schemaList = SettingsGradingSchemaPanel.this.model.getObject()
+								.getGradingSchemaEntries();
+						schemaList.sort(Collections.reverseOrder());
+						SettingsGradingSchemaPanel.this.model.getObject().setGradingSchemaEntries(schemaList);
 						target.add(SettingsGradingSchemaPanel.this.schemaWrap);
 
 						// refresh chart
+						// we need the current data from model but in JSON form
+						final Map<String, Double> schemaMap = asMap(schemaList);
+						final Gson gson = new GsonBuilder().create();
+						final String schemaJson = gson.toJson(schemaMap);
+
 						final String siteId = SettingsGradingSchemaPanel.this.businessService.getCurrentSiteId();
-						target.appendJavaScript("renderGraph('" + siteId + "')");
+						target.appendJavaScript("refreshChart('" + siteId + "', '" + FormatHelper.encode(schemaJson) + "')");
 					}
 				});
 			}
@@ -281,7 +291,7 @@ public class SettingsGradingSchemaPanel extends BasePanel implements IFormModelU
 	public void renderHead(final IHeaderResponse response) {
 		super.renderHead(response);
 		final String siteId = SettingsGradingSchemaPanel.this.businessService.getCurrentSiteId();
-		response.render(OnLoadHeaderItem.forScript("renderGraph('" + siteId + "');"));
+		response.render(OnLoadHeaderItem.forScript("renderChart('" + siteId + "');"));
 	}
 
 	/**
@@ -296,7 +306,7 @@ public class SettingsGradingSchemaPanel extends BasePanel implements IFormModelU
 
 		// we only ever order by bottom percents now
 		final DoubleComparator doubleComparator = new DoubleComparator(percents);
-		rval = new TreeMap<String, Double>(doubleComparator);
+		rval = new TreeMap<>(doubleComparator);
 		rval.putAll(percents);
 
 		return rval;
@@ -521,10 +531,16 @@ public class SettingsGradingSchemaPanel extends BasePanel implements IFormModelU
 	 */
 	private List<GbGradingSchemaEntry> asList(final Map<String, Double> bottomPercents) {
 		final List<GbGradingSchemaEntry> rval = new ArrayList<>();
-		for (final Map.Entry<String, Double> entry : bottomPercents.entrySet()) {
-			rval.add(new GbGradingSchemaEntry(entry.getKey(), entry.getValue()));
-		}
+		bottomPercents.forEach((k, v) -> rval.add(new GbGradingSchemaEntry(k, v)));
 		return rval;
+	}
+
+	/**
+	 * Convert list of {@link GbGradingSchemaEntry} into a map
+	 */
+	private Map<String, Double> asMap(final List<GbGradingSchemaEntry> gbGradingSchemaEntries) {
+		return gbGradingSchemaEntries.stream()
+				.collect(Collectors.toMap(GbGradingSchemaEntry::getGrade, GbGradingSchemaEntry::getMinPercent));
 	}
 
 }
