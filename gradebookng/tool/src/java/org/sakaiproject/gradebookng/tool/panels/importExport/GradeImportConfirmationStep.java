@@ -200,7 +200,7 @@ public class GradeImportConfirmationStep extends BasePanel {
 										break;
 								}
 								log.info("Saved grade for assignment id: " + assignmentId + ", student: "
-										+ processedGradeItemDetail.getStudentEid() + ", grade: " + processedGradeItemDetail.getGrade()
+										+ processedGradeItemDetail.getUser().getDisplayId() + ", grade: " + processedGradeItemDetail.getGrade()
 										+ ", comment: " + processedGradeItemDetail.getComment() + ", status: " + response);
 							}
 
@@ -350,13 +350,13 @@ public class GradeImportConfirmationStep extends BasePanel {
 
 	private void saveComment(final Long assignmentId, final ProcessedGradeItemDetail processedGradeItemDetail) {
 		final String currentComment = StringUtils.trimToNull(GradeImportConfirmationStep.this.businessService
-				.getAssignmentGradeComment(assignmentId, processedGradeItemDetail.getStudentUuid()));
+				.getAssignmentGradeComment(assignmentId, processedGradeItemDetail.getUser().getUserUuid()));
 		final String newComment = StringUtils.trimToNull(processedGradeItemDetail.getComment());
 
 		if (!StringUtils.equals(currentComment, newComment)) {
 			final boolean success = GradeImportConfirmationStep.this.businessService.updateAssignmentGradeComment(assignmentId,
-					processedGradeItemDetail.getStudentUuid(), newComment);
-			log.info("Saving comment: " + success + ", " + assignmentId + ", " + processedGradeItemDetail.getStudentEid() + ", "
+					processedGradeItemDetail.getUser().getUserUuid(), newComment);
+			log.info("Saving comment: " + success + ", " + assignmentId + ", " + processedGradeItemDetail.getUser().getDisplayId() + ", "
 					+ processedGradeItemDetail.getComment());
 			if (!success) {
 				getSession().error(new ResourceModel("importExport.error.comment").getObject());
@@ -367,7 +367,7 @@ public class GradeImportConfirmationStep extends BasePanel {
 
 	private GradeSaveResponse saveGrade(final Long assignmentId, final ProcessedGradeItemDetail processedGradeItemDetail) {
 		return GradeImportConfirmationStep.this.businessService.saveGrade(assignmentId,
-				processedGradeItemDetail.getStudentUuid(),
+				processedGradeItemDetail.getUser().getUserUuid(),
 				FormatHelper.formatGradeForDisplay(processedGradeItemDetail.getGrade()), processedGradeItemDetail.getComment());
 	}
 }

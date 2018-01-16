@@ -45,6 +45,8 @@ public class CreateGradeItemStep extends BasePanel {
 	private final String panelId;
 	private final IModel<ImportWizardModel> model;
 
+	PreviewImportedGradesPanel previewGradesPanel;
+
 	public CreateGradeItemStep(final String id, final IModel<ImportWizardModel> importWizardModel) {
 		super(id);
 		this.panelId = id;
@@ -169,6 +171,8 @@ public class CreateGradeItemStep extends BasePanel {
 				new StringResourceModel("importExport.createItem.heading", this, null, step, importWizardModel.getTotalSteps())));
 		form.add(new AddOrEditGradeItemPanelContent("subComponents", assignmentModel));
 
+		previewGradesPanel = new PreviewImportedGradesPanel("previewGradesPanel", model);
+		form.add(previewGradesPanel);
 	}
 
 	/**

@@ -2,6 +2,11 @@
 
     <h2><wicket:message key="importExport.selection.heading" /></h2>
     <p><wicket:message key="importExport.selection.description" /></p>
+
+    <div class="panel-group" id="omissionsAccordion" role="tablist" aria-multiselectable="true">
+        <wicket:container wicket:id="omissionsPanel" />
+    </div>
+
     <p><wicket:message key="importExport.selection.note" /></p>
 
 	<button wicket:id="hideNoChanges" id="hideNoChanges" class="button" aria-controls="grade_import_selection"><wicket:message key="importExport.selection.hideitems" /></button>

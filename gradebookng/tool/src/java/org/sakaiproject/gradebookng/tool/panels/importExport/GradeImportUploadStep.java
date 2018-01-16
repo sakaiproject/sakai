@@ -17,8 +17,6 @@ package org.sakaiproject.gradebookng.tool.panels.importExport;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.wicket.Component;
@@ -43,7 +41,6 @@ import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
 import org.sakaiproject.gradebookng.tool.pages.ImportExportPage;
 import org.sakaiproject.gradebookng.tool.panels.BasePanel;
 import org.sakaiproject.service.gradebook.shared.Assignment;
-import org.sakaiproject.user.api.User;
 import org.sakaiproject.util.FormattedText;
 
 import lombok.extern.slf4j.Slf4j;
@@ -118,15 +115,12 @@ public class GradeImportUploadStep extends BasePanel {
 
 				log.debug("file upload success");
 
-				// get all users
-				final Map<String, String> userMap = getUserMap();
-
 				// turn file into list
 				// TODO would be nice to capture the values from these exceptions
 				ImportedSpreadsheetWrapper spreadsheetWrapper = null;
 				try {
 					spreadsheetWrapper = ImportGradesHelper.parseImportedGradeFile(upload.getInputStream(), upload.getContentType(),
-							upload.getClientFileName(), userMap, FormattedText.getDecimalSeparator());
+							upload.getClientFileName(), businessService, FormattedText.getDecimalSeparator());
 				} catch (final GbImportExportInvalidColumnException e) {
 					log.debug("incorrect format", e);
 					error(getString("importExport.error.incorrectformat") + " - " + e.getMessage());
@@ -179,6 +173,7 @@ public class GradeImportUploadStep extends BasePanel {
 				// repaint panel
 				final ImportWizardModel importWizardModel = new ImportWizardModel();
 				importWizardModel.setProcessedGradeItems(processedGradeItems);
+				importWizardModel.setReport(spreadsheetWrapper.getUserIdentifier().getReport());
 				final Component newPanel = new GradeItemImportSelectionStep(GradeImportUploadStep.this.panelId,
 						Model.of(importWizardModel));
 				newPanel.setOutputMarkupId(true);
@@ -188,21 +183,4 @@ public class GradeImportUploadStep extends BasePanel {
 
 		}
 	}
-
-	/**
-	 * Create a map so that we can use the user's eid (from the imported file) to lookup their uuid (used to store the grade by the backend
-	 * service)
-	 *
-	 * @return Map where the user's eid is the key and the uuid is the value
-	 */
-	private Map<String, String> getUserMap() {
-
-		final List<User> users = this.businessService.getUsers(this.businessService.getGradeableUsers());
-
-		final Map<String, String> rval = users.stream().collect(
-				Collectors.toMap(User::getEid, User::getId));
-
-		return rval;
-	}
-
 }

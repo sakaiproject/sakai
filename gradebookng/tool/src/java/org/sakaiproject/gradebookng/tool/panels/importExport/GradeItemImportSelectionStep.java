@@ -66,6 +66,8 @@ public class GradeItemImportSelectionStep extends BasePanel {
 	// flag indicating if the 'N/A / no changes' items are hidden
 	private boolean naHidden = false;
 
+	GradeItemImportOmissionsPanel omissionsPanel;
+
 	public GradeItemImportSelectionStep(final String id, final IModel<ImportWizardModel> importWizardModel) {
 		super(id);
 		this.panelId = id;
@@ -82,6 +84,9 @@ public class GradeItemImportSelectionStep extends BasePanel {
 		// get the count of items that are selectable
 		GradeItemImportSelectionStep.this.selectableItems = importWizardModel.getProcessedGradeItems().stream()
 				.filter(item -> item.getStatus() != Status.SKIP).collect(Collectors.toList()).size();
+
+		omissionsPanel = new GradeItemImportOmissionsPanel("omissionsPanel", model);
+		add(omissionsPanel);
 
 		// label to show if all items are actually hidden
 		final Label allHiddenLabel = new Label("allHiddenLabel", new ResourceModel("importExport.selection.hideitemsallhidden")) {
