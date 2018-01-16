@@ -2130,11 +2130,9 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 		protected String m_lastModifiedUserId = null;
 
 		/** The time created. */
-		//protected Time m_createdTime = null;
 		protected Instant m_createdInstant = null;
 
 		/** The time last modified. */
-		//protected Time m_lastModifiedTime = null;
 		protected Instant m_lastModifiedInstant = null;
 
 		/** If editing the first name is restricted **/
