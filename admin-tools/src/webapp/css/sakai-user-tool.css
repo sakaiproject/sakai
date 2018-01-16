@@ -5,22 +5,14 @@
     color: rgb(85, 85, 85);
 }
 
-#user-create_edit .shorttext label
-{
-    display: inline-block;
-    float: none;
-    text-align: right;
-    width: 14em;
-    margin: 0 1em 0 0;
-    vertical-align: middle;
-}
-
-#useredit .shorttext label
+#user-create_edit .shorttext label, #useredit .shorttext label
 {
     display: inline-block;
     float: none;
     text-align: left;
-    min-width: 17em;
+    width: 14em;
+    margin: 0 1em 0 0;
+    vertical-align: middle;
 }
 
 #user-create_edit .reqStar, #useredit .reqStar
