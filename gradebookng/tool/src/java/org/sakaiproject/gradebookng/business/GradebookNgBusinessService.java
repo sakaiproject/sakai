@@ -138,7 +138,7 @@ public class GradebookNgBusinessService {
 	public static final String ASSIGNMENT_ORDER_PROP = "gbng_assignment_order";
 	public static final String ICON_SAKAI = "icon-sakai--";
 	
-	public static final ResourceLoader externalAppLoader=new ResourceLoader("org.sakaiproject.localization.bundle.tool.tools");
+	public static final ResourceLoader externalAppLoader = new ResourceLoader("org.sakaiproject.localization.bundle.tool.tools");
 
 	/**
 	 * Get a list of all users in the current site that can have grades
