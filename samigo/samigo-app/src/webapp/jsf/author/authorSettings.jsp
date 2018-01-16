@@ -44,7 +44,7 @@
       <title><h:outputText value="#{assessmentSettingsMessages.sakai_assessment_manager} #{assessmentSettingsMessages.dash} #{assessmentSettingsMessages.settings}" /></title>
       <samigo:script path="/jsf/widget/hideDivision/hideDivision.js"/>
       <samigo:script path="/jsf/widget/colorpicker/colorpicker.js"/>
-      <script type="text/javascript" src="/library/js/lang-datepicker/lang-datepicker.js"></script>
+      <samigo:script path="/../library/js/lang-datepicker/lang-datepicker.js"/>
       <samigo:script path="/js/authoring.js"/>
       
       <script type="text/javascript">
