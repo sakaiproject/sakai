@@ -48,15 +48,15 @@ $PBJQ(document).ready(function () {
             var position = subsitesLink.position();
             var _top = ( -1 * ( $PBJQ('#toolMenu').height() - position.top ) );
             var subsitesPosition = ( MorpheusViewportHelper.isPhone() ) ? {
-                'display': 'block',
-                'left': '-0.7rem',
-                'top': 0,
-                'margin-top' : '0.3rem',
-                'overflow' : 'hidden'
+            	'display': 'block',
+            	'left': '-0.7rem',
+            	'top': 0,
+            	'margin-top' : '0.3rem',
+            	'overflow' : 'hidden'
             }:{
-                'display': 'block',
-                'left': position.left + subsitesLink.width() + 6 + 'px',
-                'top': _top + 'px'
+            	'display': 'block',
+            	'left': position.left + subsitesLink.width() + 6 + 'px',
+            	'top': _top + 'px'
             }
             $PBJQ('#subSites').css(subsitesPosition);
             $PBJQ('#subSites').addClass('floating');
