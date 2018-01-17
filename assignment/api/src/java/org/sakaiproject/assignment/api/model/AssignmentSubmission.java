@@ -95,29 +95,28 @@ public class AssignmentSubmission {
     private Instant dateModified;
 
     @ElementCollection
-    @Column(name = "ATTACHMENT")
+    @Column(name = "ATTACHMENT", length = 1024)
     @CollectionTable(name = "ASN_SUBMISSION_ATTACHMENTS", joinColumns = @JoinColumn(name = "SUBMISSION_ID"))
     private Set<String> attachments = new HashSet<>();
 
-    // TODO combine attachments and feedbackAttachements into a single table
     @ElementCollection
-    @Column(name = "FEEDBACK_ATTACHMENT")
+    @Column(name = "FEEDBACK_ATTACHMENT", length = 1024)
     @CollectionTable(name = "ASN_SUBMISSION_FEEDBACK_ATTACH", joinColumns = @JoinColumn(name = "SUBMISSION_ID"))
     private Set<String> feedbackAttachments = new HashSet<>();
 
     @Lob
-    @Column(name = "TEXT")
+    @Column(name = "TEXT", length = 65535)
     private String submittedText;
 
     @Lob
-    @Column(name = "FEEDBACK_COMMENT")
+    @Column(name = "FEEDBACK_COMMENT", length = 65535)
     private String feedbackComment;
 
     @Lob
-    @Column(name = "FEEDBACK_TEXT")
+    @Column(name = "FEEDBACK_TEXT", length = 65535)
     private String feedbackText;
 
-    @Column(name = "GRADE")
+    @Column(name = "GRADE", length = 32)
     private String grade;
 
     @Column(name = "FACTOR")
@@ -132,7 +131,7 @@ public class AssignmentSubmission {
     @Column(name = "GRADED")
     private Boolean graded = Boolean.FALSE;
 
-    @Column(name = "GRADED_BY")
+    @Column(name = "GRADED_BY",length = 36)
     private String gradedBy;
 
     @Column(name = "GRADE_RELEASED")
@@ -147,20 +146,13 @@ public class AssignmentSubmission {
     @Column(name = "USER_SUBMISSION")
     private Boolean userSubmission = Boolean.FALSE;
 
-    @Column(name = "GROUP_ID")
+    @Column(name = "GROUP_ID", length = 36)
     private String groupId;
 
     @ElementCollection
     @MapKeyColumn(name = "NAME")
-    @Column(name = "VALUE")
+    @Lob
+    @Column(name = "VALUE", length = 65535)
     @CollectionTable(name = "ASN_SUBMISSION_PROPERTIES", joinColumns = @JoinColumn(name = "SUBMISSION_ID"))
     private Map<String, String> properties = new HashMap<>();
-
-    // TODO this data should come from a ReviewableSubmissionEntity and not be part of the Submission (SOLID)
-    // for this data will be stored in the submissions properties
-    // private Integer reviewScore;
-    // private String reviewReport;
-    // private String reviewStatus;
-    // private String reviewIconUrl;
-    // private String reviewError;
 }

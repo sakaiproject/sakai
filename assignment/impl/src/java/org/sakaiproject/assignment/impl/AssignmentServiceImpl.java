@@ -1067,7 +1067,8 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
         }
         eventTrackingService.post(eventTrackingService.newEvent(AssignmentConstants.EVENT_UPDATE_ASSIGNMENT, reference, true));
 
-        assignmentRepository.updateAssignment(assignment);
+        assignment.setDateModified(Instant.now());
+        assignmentRepository.update(assignment);
 
     }
 
@@ -1083,6 +1084,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
         }
         eventTrackingService.post(eventTrackingService.newEvent(AssignmentConstants.EVENT_UPDATE_ASSIGNMENT_SUBMISSION, reference, true));
 
+        submission.setDateModified(Instant.now());
         assignmentRepository.updateSubmission(submission);
 
         // Assignment Submission Notifications
@@ -1836,6 +1838,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                                     AssignmentSubmission s = addSubmission(a.getId(), g.getId());
                                     s.setSubmitted(true);
                                     s.setUserSubmission(false);
+                                    s.setDateModified(Instant.now());
 
                                     // set the resubmission properties
                                     // get the assignment setting for resubmitting
@@ -1994,6 +1997,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
 									 * the user did not in fact submit anything.
 									 */
                                     s.setUserSubmission(false);
+                                    s.setDateModified(Instant.now());
 
                                     // set the resubmission properties
                                     // get the assignment setting for resubmitting

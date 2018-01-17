@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<assignment access="site"
+            allowpeerassessment="true"
+            assignmentcontent="/assignment/c/BVCC_942A_9301/eb1ea4f1-1a4a-46b9-aaea-928db68b005f"
+            closedate="20180116220000000"
+            context="BVCC_942A_9301"
+            draft="false"
+            dropdeaddate="20180109220000000"
+            duedate="20180109220000000"
+            group="false"
+            hideduedate="false"
+            id="447711b7-4148-4be5-912c-3aea3f4dd4b5"
+            numberofauthors="0"
+            opendate="20180102170000000"
+            peerassessmentanoneval="true"
+            peerassessmentinstructions=""
+            peerassessmentnumreviews="2"
+            peerassessmentperiodtime="20180123221000000"
+            peerassessmentstudentviewreviews="true"
+            position_order="0"
+            section=""
+            title="Complex Assignment"
+            visibledate="">
+    <properties>
+        <property enc="BASE64"
+                  name="CHEF:creator"
+                  value="Y2I0ZmZhYmQtNmQ5YS00ZTVhLTk5NjktZGUxYmRhMmVmYmZi"/>
+        <property enc="BASE64"
+                  name="CHEF:modifiedby"
+                  value="Y2I0ZmZhYmQtNmQ5YS00ZTVhLTk5NjktZGUxYmRhMmVmYmZi"/>
+        <property enc="BASE64"
+                  name="new_assignment_add_to_gradebook"
+                  value="YXNzb2NpYXRl"/>
+        <property enc="BASE64"
+                  name="allow_resubmit_closeTime"
+                  value="MTUxNjc0NDgwMDAwMA=="/>
+        <property enc="BASE64"
+                  name="assignment_releasereturn_notification_value"
+                  value="YXNzaWdubWVudF9yZWxlYXNlcmV0dXJuX25vdGlmaWNhdGlvbl9lYWNo"/>
+        <property enc="BASE64"
+                  name="DAV:getlastmodified"
+                  value="MjAxODAxMDIyMDI0MzYzNDg="/>
+        <property enc="BASE64"
+                  name="prop_new_assignment_add_to_gradebook"
+                  value="L2Fzc2lnbm1lbnQvYS9CVkNDXzk0MkFfOTMwMS80NDc3MTFiNy00MTQ4LTRiZTUtOTEyYy0zYWVhM2Y0ZGQ0YjU="/>
+        <property enc="BASE64"
+                  name="allow_resubmit_number"
+                  value="NQ=="/>
+        <property enc="BASE64"
+                  name="DAV:creationdate"
+                  value="MjAxODAxMDIyMDI0MzYzNDQ="/>
+        <property enc="BASE64"
+                  name="new_assignment_check_auto_announce"
+                  value="ZmFsc2U="/>
+        <property enc="BASE64"
+                  name="newAssignment"
+                  value="dHJ1ZQ=="/>
+        <property enc="BASE64"
+                  name="assignment_releasegrade_notification_value"
+                  value="YXNzaWdubWVudF9yZWxlYXNlZ3JhZGVfbm90aWZpY2F0aW9uX2VhY2g="/>
+        <property enc="BASE64"
+                  name="assignment_instructor_notifications_value"
+                  value="YXNzaWdubWVudF9pbnN0cnVjdG9yX25vdGlmaWNhdGlvbnNfZGlnZXN0"/>
+        <property enc="BASE64"
+                  name="new_assignment_check_anonymous_grading"
+                  value=""/>
+    </properties>
+</assignment>
