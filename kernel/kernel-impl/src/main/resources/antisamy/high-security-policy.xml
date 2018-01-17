@@ -22,7 +22,7 @@
     <!-- FORMATTING -->
     <directive name="formatOutput" value="false" /><!-- default: true -->
     <directive name="preserveComments" value="false" /><!-- default: false -->
-    <directive name="preserveSpace" value="false" /><!-- default: false -->
+    <directive name="preserveSpace" value="true" /><!-- default: false -->
     <directive name="allowDynamicAttributes" value="true" /><!-- default: false -->
   </directives>
 
