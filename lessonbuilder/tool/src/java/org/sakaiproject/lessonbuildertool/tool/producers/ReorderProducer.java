@@ -181,7 +181,7 @@ public class ReorderProducer implements ViewComponentProducer, NavigationCaseRep
 					                   String.valueOf(i.getSequence()));
 
 				if (i.getType() == 5) {
-				    if (i.getAttribute("isFolder")!=null && i.getAttribute("isFolder").equals("true")){
+					if (i.getAttribute("isFolder")!=null && i.getAttribute("isFolder").equals("true")){
 					    UIOutput.make(row, "text-snippet", messageLocator.getMessage("simplepage.resources-snippet"));
 				    }
 				    else {
@@ -196,6 +196,8 @@ public class ReorderProducer implements ViewComponentProducer, NavigationCaseRep
 					UIOutput.make(row, "text-snippet", messageLocator.getMessage("simplepage.forums-snippet"));
 				} else if (SimplePageItem.TWITTER == i.getType()) {
 					UIOutput.make(row, "text-snippet", messageLocator.getMessage("simplepage.twitter-snippet"));
+				} else if (SimplePageItem.RESOURCE_FOLDER == i.getType()) {
+					UIOutput.make(row, "text-snippet", messageLocator.getMessage("simplepage.resources-snippet"));
 				} else if (SimplePageItem.CALENDAR == i.getType()) {
 					UIOutput.make(row, "text-snippet", messageLocator.getMessage("simplepage.calendar-snippet"));
 				} else if ("1".equals(subtype)) {
