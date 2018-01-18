@@ -35,7 +35,14 @@ public class DoubleComparator implements Comparator<String>, Serializable {
 	@Override
 	public int compare(final String a, final String b) {
 
-		if (this.base.get(a) >= this.base.get(b)) {
+		final Double first = this.base.get(a);
+		final Double second = this.base.get(b);
+
+		if (first == null || second == null) {
+			return 0; // ignore this comparison
+		}
+
+		if (first.compareTo(second) >= 0) {
 			return -1;
 		} else {
 			return 1;
