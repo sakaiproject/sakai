@@ -154,6 +154,11 @@
             <groupId>org.sakaiproject.jsf</groupId>
             <artifactId>jsf-app</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.mariuszgromada.math</groupId>
+            <artifactId>MathParser.org-mXparser</artifactId>
+        </dependency>
+
         <!-- Unit test dependencies -->
         <dependency>
         	<groupId>org.springframework</groupId>

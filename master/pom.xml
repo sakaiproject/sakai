@@ -1817,6 +1817,12 @@
         <artifactId>xmlgraphics-commons</artifactId>
         <version>1.5</version>
       </dependency>
+      <dependency>
+        <groupId>org.mariuszgromada.math</groupId>
+        <artifactId>MathParser.org-mXparser</artifactId>
+        <version>4.1.1</version>
+        <scope>provided</scope>
+      </dependency>
     </dependencies>
   </dependencyManagement>
 

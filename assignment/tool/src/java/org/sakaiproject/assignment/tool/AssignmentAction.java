@@ -3614,7 +3614,7 @@ public class AssignmentAction extends PagedResourceActionII {
         // save the instructor input
         boolean hasChange = readGradeForm(rundata, state, "save");
         if (state.getAttribute(STATE_MESSAGE) == null && hasChange) {
-            grade_submission_option(rundata, "save");
+            grade_submission_option(rundata, AssignmentConstants.SUBMISSION_OPTION_SAVE);
         }
 
         if (state.getAttribute(STATE_MESSAGE) == null) {
@@ -5472,7 +5472,7 @@ public class AssignmentAction extends PagedResourceActionII {
         SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
         readGradeForm(data, state, "save");
         if (state.getAttribute(STATE_MESSAGE) == null) {
-            grade_submission_option(data, "save");
+            grade_submission_option(data, AssignmentConstants.SUBMISSION_OPTION_RETRACT);
         }
 
     } // doSave_grade_submission
@@ -5556,7 +5556,7 @@ public class AssignmentAction extends PagedResourceActionII {
         SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
         readGradeForm(data, state, "release");
         if (state.getAttribute(STATE_MESSAGE) == null) {
-            grade_submission_option(data, "release");
+            grade_submission_option(data, AssignmentConstants.SUBMISSION_OPTION_RELEASE);
         }
 
     } // doRelease_grade_submission
@@ -5572,7 +5572,7 @@ public class AssignmentAction extends PagedResourceActionII {
         SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
         readGradeForm(data, state, "return");
         if (state.getAttribute(STATE_MESSAGE) == null) {
-            grade_submission_option(data, "return");
+            grade_submission_option(data, AssignmentConstants.SUBMISSION_OPTION_RETURN);
         }
 
     } // doReturn_grade_submission
@@ -5585,7 +5585,7 @@ public class AssignmentAction extends PagedResourceActionII {
             return;
         }
 
-        grade_submission_option(data, "return");
+        grade_submission_option(data, AssignmentConstants.SUBMISSION_OPTION_RETURN);
 
     } // doReturn_grade_preview_submission
 
@@ -5597,7 +5597,7 @@ public class AssignmentAction extends PagedResourceActionII {
             return;
         }
 
-        grade_submission_option(data, "save");
+        grade_submission_option(data, AssignmentConstants.SUBMISSION_OPTION_SAVE);
 
     } // doSave_grade_preview_submission
 
@@ -5638,25 +5638,19 @@ public class AssignmentAction extends PagedResourceActionII {
                 if (gradeChanged) {
                     submission.setGradedBy(userDirectoryService.getCurrentUser() == null ? null : userDirectoryService.getCurrentUser().getId());
                 }
-                if ("return".equals(gradeOption) || "release".equals(gradeOption)) {
+                if (AssignmentConstants.SUBMISSION_OPTION_RETURN.equals(gradeOption) || AssignmentConstants.SUBMISSION_OPTION_RELEASE.equals(gradeOption)) {
                     submission.setGradeReleased(true);
                 }
-            } else if (grade == null) {
-                submission.setGrade("");
-                submission.setGraded(false);
-                if (gradeChanged) {
-                    submission.setGradedBy(null);
-                }
-                submission.setGradeReleased(false);
             } else {
-                submission.setGrade(grade);
-
-                if (grade.length() != 0) {
+            	//If the grade is not blank
+                if (StringUtils.isNotBlank(grade)) {
+                    submission.setGrade(grade);
                     submission.setGraded(true);
                     if (gradeChanged) {
                         submission.setGradedBy(userDirectoryService.getCurrentUser() == null ? null : userDirectoryService.getCurrentUser().getId());
                     }
                 } else {
+                    submission.setGrade("");
                     submission.setGraded(false);
                     if (gradeChanged) {
                         submission.setGradedBy(null);
@@ -5672,7 +5666,7 @@ public class AssignmentAction extends PagedResourceActionII {
                 }
             }
 
-            if ("release".equals(gradeOption)) {
+            if (AssignmentConstants.SUBMISSION_OPTION_RELEASE.equals(gradeOption)) {
                 submission.setGradeReleased(true);
                 submission.setGraded(true);
                 if (gradeChanged) {
@@ -5681,7 +5675,7 @@ public class AssignmentAction extends PagedResourceActionII {
                 // clear the returned flag
                 submission.setReturned(false);
                 submission.setDateReturned(null);
-            } else if ("return".equals(gradeOption)) {
+            } else if (AssignmentConstants.SUBMISSION_OPTION_RETURN.equals(gradeOption)) {
                 submission.setGradeReleased(true);
                 submission.setGraded(true);
                 if (gradeChanged) {
@@ -5690,11 +5684,15 @@ public class AssignmentAction extends PagedResourceActionII {
                 submission.setReturned(true);
                 submission.setDateReturned(Instant.now());
                 submission.setHonorPledge(false);
-            } else if ("save".equals(gradeOption)) {
+            } else if (AssignmentConstants.SUBMISSION_OPTION_RETRACT.equals(gradeOption)) {
                 submission.setGradeReleased(false);
                 submission.setReturned(false);
                 submission.setDateReturned(null);
+            } else if (AssignmentConstants.SUBMISSION_OPTION_SAVE.equals(gradeOption)) {
+            	//Currently nothing special for AssignmentConstants.SUBMISSION_OPTION_SAVE case
+
             }
+        
 
             Map<String, String> properties = submission.getProperties();
             if (state.getAttribute(AssignmentConstants.ALLOW_RESUBMIT_NUMBER) != null) {
