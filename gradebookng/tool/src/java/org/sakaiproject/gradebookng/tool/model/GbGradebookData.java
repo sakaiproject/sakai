@@ -50,7 +50,7 @@ import java.util.stream.Collectors;
 
 public class GbGradebookData {
 
-	private int NULL_SENTINEL = 127;
+	private final int NULL_SENTINEL = 127;
 
 	@Data
 	private class StudentDefinition {
@@ -358,7 +358,7 @@ public class GbGradebookData {
 	};
 
 	private List<String[]> courseGrades() {
-		final List<String[]> result = new ArrayList<String[]>();
+		final List<String[]> result = new ArrayList<>();
 
 		final Map<String, Double> gradeMap = settings.getSelectedGradingScaleBottomPercents();
 		final List<String> ascendingGrades = new ArrayList<>(gradeMap.keySet());
@@ -409,7 +409,7 @@ public class GbGradebookData {
 	}
 
 	private List<Score> gradeList() {
-		final List<Score> result = new ArrayList<Score>();
+		final List<Score> result = new ArrayList<>();
 
 		for (GbStudentGradeInfo studentGradeInfo : GbGradebookData.this.studentGradeInfoList) {
 			for (ColumnDefinition column : GbGradebookData.this.columns) {
@@ -427,7 +427,7 @@ public class GbGradebookData {
 	}
 
 	private List<StudentDefinition> loadStudents(final List<GbStudentGradeInfo> studentInfo) {
-		final List<StudentDefinition> result = new ArrayList<StudentDefinition>();
+		final List<StudentDefinition> result = new ArrayList<>();
 
 		for (GbStudentGradeInfo student : studentInfo) {
 			final StudentDefinition studentDefinition = new StudentDefinition();
@@ -458,7 +458,7 @@ public class GbGradebookData {
 	private List<ColumnDefinition> loadColumns(final List<Assignment> assignments) {
 		final GradebookUiSettings userSettings = ((GradebookPage) parent.getPage()).getUiSettings();
 
-		final List<ColumnDefinition> result = new ArrayList<ColumnDefinition>();
+		final List<ColumnDefinition> result = new ArrayList<>();
 
 		if (assignments.isEmpty()) {
 			return result;
@@ -495,7 +495,7 @@ public class GbGradebookData {
 
 					nullable(a1.getCategoryId()),
 					a1.getCategoryName(),
-					userSettings.getCategoryColor(a1.getCategoryName()),
+					userSettings.getCategoryColor(a1.getCategoryName(), a1.getCategoryId()),
 					nullable(categoryWeight),
 					a1.isCategoryExtraCredit(),
 
@@ -512,7 +512,7 @@ public class GbGradebookData {
 								.getString(),
 						nullable(categoryWeight),
 						a1.isCategoryExtraCredit(),
-						userSettings.getCategoryColor(a1.getCategoryName()),
+						userSettings.getCategoryColor(a1.getCategoryName(), a1.getCategoryId()),
 						!uiSettings.isCategoryScoreVisible(a1.getCategoryName())));
 			}
 		}
@@ -533,7 +533,7 @@ public class GbGradebookData {
 									.getString(),
 							nullable(categoryWeight),
 							category.isExtraCredit(),
-							userSettings.getCategoryColor(category.getName()),
+							userSettings.getCategoryColor(category.getName(), category.getId()),
 							!uiSettings.isCategoryScoreVisible(category.getName())));
 				}
 			}
