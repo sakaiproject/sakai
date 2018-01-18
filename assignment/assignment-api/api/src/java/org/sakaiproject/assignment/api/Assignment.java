@@ -120,7 +120,8 @@ public interface Assignment extends Entity, Comparable
 	public static final String ASSIGNMENT_RELEASERESUBMISSION_NOTIFICATION_VALUE = "assignment_releasereturn_notification_value";
 	public static final String ASSIGNMENT_RELEASERESUBMISSION_NOTIFICATION_NONE = "assignment_releasereturn_notification_none";
 	public static final String ASSIGNMENT_RELEASERESUBMISSION_NOTIFICATION_EACH = "assignment_releasereturn_notification_each";
-	
+	public static final String ASSIGNMENT_INSTRUCTOR_NOTIFICATIONS_NAME = "assignment_instructor_notifications_name";
+
 	// the option of open date notification to students
 	public static final String ASSIGNMENT_OPENDATE_NOTIFICATION = "assignment_opendate_notification";
 	public static final String ASSIGNMENT_OPENDATE_NOTIFICATION_NONE = "assignment_opendate_notification_none";

@@ -2613,9 +2613,10 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			String context = s.getContext();
 			
 			// compare the list of users with the receive.notifications and list of users who can actually grade this assignment
-			List receivers = allowReceiveSubmissionNotificationUsers(context);
+			List allowedReceivers = allowReceiveSubmissionNotificationUsers(context);
 			List allowGradeAssignmentUsers = allowGradeAssignmentUsers(a.getReference());
-			receivers.retainAll(allowGradeAssignmentUsers);
+            allowedReceivers.retainAll(allowGradeAssignmentUsers);
+            List receivers = retainSelectedReceiver(a, allowedReceivers);
 			
 			String messageBody = getNotificationMessage(s, "submission");
 			
@@ -7404,6 +7405,35 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		
 		return (int)Math.pow(10.0, decimals);
 	}
+
+
+	// Selectable notifications
+    private List<User> retainSelectedReceiver(Assignment a, List<User> receivers)
+    {
+        String selectedReceiver = a.getProperties().getProperty(Assignment.ASSIGNMENT_INSTRUCTOR_NOTIFICATIONS_NAME);
+        if (selectedReceiver != null) {
+            for (User user: receivers) {
+                if (selectedReceiver.equals(user.getDisplayName()))
+                {
+                    List<User> selectedUser = new ArrayList<User>();
+                    selectedUser.add(user);
+                    return selectedUser;
+                }
+            }
+        }
+        return receivers;
+    }
+
+    private String getAssignmentName(String ref) {
+        String aRef = assignmentReferenceFromSubmissionsZipReference(ref);
+        try {
+            Assignment a = getAssignment(aRef);
+            return a.getTitle();
+        } catch (Exception ex) {
+            M_log.error("Unable to get assignment from submission ref: " + ref, ex);
+            return "Unknown Assignment Title";
+        }
+    }
 
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * Assignment Implementation

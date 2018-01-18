@@ -1227,22 +1227,43 @@
 			</h4>
 			<div class="radio">
     				<label for="notsendnotif">
-				<input type="radio" name="$!name_assignment_instructor_notifications" id="notsendnotif" value="$!value_assignment_instructor_notifications_none" #if($!value_assignment_instructor_notifications.equals($!value_assignment_instructor_notifications_none))checked="checked" #end />
+                    <input type="radio" name="$!name_assignment_instructor_notifications" id="notsendnotif" value="$!value_assignment_instructor_notifications_none" #if($!value_assignment_instructor_notifications.equals($!value_assignment_instructor_notifications_none))checked="checked" #end
+                           onclick="if(checked){jQuery('.visibleNotifReceiver').hide();}else{jQuery('.visibleNotifReceiver').show();}"/>
 					$tlang.getString('receive.confirm.submission.email.none')
 				</label>
     			</div>
 			<div class="radio">
     				<label for="sendnotif">
-    				<input type="radio" name="$!name_assignment_instructor_notifications" id="sendnotif" value="$!value_assignment_instructor_notifications_each" #if($!value_assignment_instructor_notifications.equals($!value_assignment_instructor_notifications_each))checked="checked" #end />
+                     <input type="radio" name="$!name_assignment_instructor_notifications" id="sendnotif" value="$!value_assignment_instructor_notifications_each" #if($!value_assignment_instructor_notifications.equals($!value_assignment_instructor_notifications_each))checked="checked" #end
+                            onclick="if(checked){jQuery('.visibleNotifReceiver').show();}else{jQuery('.visibleNotifReceiver').hide();}"/>
 					$tlang.getString('receive.confirm.submission.email.each')
 				</label>
     			</div>
 			<div class="radio">
     				<label for="sendnotifsummary">
-    				<input type="radio" name="$!name_assignment_instructor_notifications" id="sendnotifsummary" value="$!value_assignment_instructor_notifications_digest" #if($!value_assignment_instructor_notifications.equals($!value_assignment_instructor_notifications_digest))checked="checked" #end />
+                    <input type="radio" name="$!name_assignment_instructor_notifications" id="sendnotifsummary" value="$!value_assignment_instructor_notifications_digest" #if($!value_assignment_instructor_notifications.equals($!value_assignment_instructor_notifications_digest))checked="checked" #end
+                           onclick="if(checked){jQuery('.visibleNotifReceiver').show();}else{jQuery('.visibleNotifReceiver').hide();}"/>
 					$tlang.getString('receive.confirm.submission.email.digest')
 				</label>
     			</div>
+
+			<div class="visibleNotifReceiver radio" #if($!value_assignment_instructor_notifications.equals($!value_assignment_instructor_notifications_none)) style="display:none;"#end>
+				<label for="assignment_instructor_notifications_select">
+					$tlang.getString("assignment_instructor_notifications_select_label")
+				</label>
+				<select
+						name="$name_assignment_instructor_notifications_receiver"
+						id="assignment_instructor_notifications_receiver"
+						title="$tlang.getString("assignment_instructor_notifications_select_label")">
+					#foreach ($i in [1..$!submissionNotificationReceiversLength])
+						#if ($submissionNotificationReceivers.get($i) == $value_SubmissionNotificationReceiver)
+							<option value="$i" selected="selected">$submissionNotificationReceivers.get($i)</option>
+						#else
+							<option value="$i">$submissionNotificationReceivers.get($i)</option>
+						#end
+					#end
+				</select>
+			</div>
 		</fieldset>
 		#end
 
