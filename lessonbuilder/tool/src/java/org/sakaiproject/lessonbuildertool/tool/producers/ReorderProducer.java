@@ -181,7 +181,7 @@ public class ReorderProducer implements ViewComponentProducer, NavigationCaseRep
 					                   String.valueOf(i.getSequence()));
 
 				if (i.getType() == 5) {
-					if (i.getAttribute("isFolder")!=null && i.getAttribute("isFolder").equals("true")){
+				    if (i.getAttribute("isFolder")!=null && i.getAttribute("isFolder").equals("true")){
 					    UIOutput.make(row, "text-snippet", messageLocator.getMessage("simplepage.resources-snippet"));
 				    }
 				    else {
