@@ -21,7 +21,6 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.TreeMap;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang.StringUtils;
@@ -45,7 +44,6 @@ import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
-import org.sakaiproject.gradebookng.business.DoubleComparator;
 import org.sakaiproject.gradebookng.business.FirstNameComparator;
 import org.sakaiproject.gradebookng.business.model.GbUser;
 import org.sakaiproject.gradebookng.business.util.FormatHelper;
@@ -53,6 +51,7 @@ import org.sakaiproject.gradebookng.tool.model.GbGradingSchemaEntry;
 import org.sakaiproject.gradebookng.tool.model.GbSettings;
 import org.sakaiproject.service.gradebook.shared.CourseGrade;
 import org.sakaiproject.service.gradebook.shared.GradeMappingDefinition;
+import org.sakaiproject.tool.gradebook.GradeMapping;
 import org.sakaiproject.user.api.User;
 
 import com.google.gson.Gson;
@@ -206,8 +205,9 @@ public class SettingsGradingSchemaPanel extends BasePanel implements IFormModelU
 						target.add(SettingsGradingSchemaPanel.this.schemaWrap);
 
 						// refresh chart
-						// we need the current data from model but in JSON form
-						final Map<String, Double> schemaMap = asMap(schemaList);
+						// we need the current data from model (sorted) but in JSON form
+						Map<String, Double> schemaMap = asMap(schemaList);
+						schemaMap = GradeMapping.sortGradeMapping(schemaMap);
 						final Gson gson = new GsonBuilder().create();
 						final String schemaJson = gson.toJson(schemaMap);
 
@@ -304,24 +304,6 @@ public class SettingsGradingSchemaPanel extends BasePanel implements IFormModelU
 	}
 
 	/**
-	 * Helper to sort the bottom percents maps.
-	 *
-	 * @param percents
-	 * @return
-	 */
-	private Map<String, Double> sortBottomPercents(final Map<String, Double> percents) {
-
-		Map<String, Double> rval = null;
-
-		// we only ever order by bottom percents now
-		final DoubleComparator doubleComparator = new DoubleComparator(percents);
-		rval = new TreeMap<>(doubleComparator);
-		rval.putAll(percents);
-
-		return rval;
-	}
-
-	/**
 	 * Sync up the custom list we are using for the list view, back into the GradebookInformation object
 	 */
 	@Override
@@ -358,11 +340,11 @@ public class SettingsGradingSchemaPanel extends BasePanel implements IFormModelU
 				.getName();
 
 		if (StringUtils.equals(this.currentGradeMappingId, this.configuredGradeMappingId)) {
-			// get the values from the configured grading scale in this gradebook and sort them
-			bottomPercents = sortBottomPercents(this.model.getObject().getGradebookInformation().getSelectedGradingScaleBottomPercents());
+			// get the values from the configured grading scale (sorted by the service)
+			bottomPercents = this.model.getObject().getGradebookInformation().getSelectedGradingScaleBottomPercents();
 		} else {
 			// get the default values for the chosen grading scale and sort them
-			bottomPercents = sortBottomPercents(
+			bottomPercents = GradeMapping.sortGradeMapping(
 					this.gradeMappings.stream()
 							.filter(gradeMapping -> StringUtils.equals(gradeMapping.getId(), this.currentGradeMappingId))
 							.findFirst()

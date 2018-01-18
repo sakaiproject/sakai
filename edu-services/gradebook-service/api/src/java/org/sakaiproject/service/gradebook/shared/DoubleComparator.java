@@ -13,26 +13,29 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.sakaiproject.gradebookng.business;
+package org.sakaiproject.service.gradebook.shared;
 
 import java.io.Serializable;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Comparator to ensure correct ordering of percents
+ * Comparator to ensure correct ordering of letter grade / percent mappings
  */
 public class DoubleComparator implements Comparator<String>, Serializable {
 	private static final long serialVersionUID = 1L;
 
-	Map<String, Double> base;
+	private final Map<String, Double> base = new HashMap<>();
 
-	public DoubleComparator(Map<String, Double> base) {
-		this.base = base;
+	public DoubleComparator(final Map<String, Double> base) {
+		this.base.putAll(base);
 	}
 
-	public int compare(String a, String b) {
-		if (base.get(a) >= base.get(b)) {
+	@Override
+	public int compare(final String a, final String b) {
+
+		if (this.base.get(a) >= this.base.get(b)) {
 			return -1;
 		} else {
 			return 1;
