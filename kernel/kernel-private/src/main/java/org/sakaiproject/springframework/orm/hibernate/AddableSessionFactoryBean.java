@@ -30,6 +30,8 @@ import org.hibernate.cfg.Configuration;
 import org.hibernate.dialect.function.ClassicAvgFunction;
 import org.hibernate.dialect.function.ClassicCountFunction;
 import org.hibernate.dialect.function.ClassicSumFunction;
+import org.sakaiproject.component.api.ServerConfigurationService;
+import org.sakaiproject.hibernate.AssignableUUIDGenerator;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.orm.hibernate4.LocalSessionFactoryBean;
@@ -47,6 +49,7 @@ import lombok.extern.slf4j.Slf4j;
 public class AddableSessionFactoryBean extends LocalSessionFactoryBean implements ApplicationContextAware
 {
 	@Setter private ApplicationContext applicationContext;
+	@Setter private ServerConfigurationService serverConfigurationService;
 
 	/**
 	 * This method is called after the LocalSessionFactory is instantiated
@@ -78,6 +81,9 @@ public class AddableSessionFactoryBean extends LocalSessionFactoryBean implement
 			log.error(e.getMessage(), e);
 			throw new RuntimeException(e);
 		}
+
+		AssignableUUIDGenerator.setServerConfigurationService(serverConfigurationService);
+		sfb.getIdentifierGeneratorFactory().register("uuid2", AssignableUUIDGenerator.class);
 
 		return sfb.buildSessionFactory();
 	}

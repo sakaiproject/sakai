@@ -68,10 +68,12 @@ public class SettingsGradingSchemaPanel extends BasePanel implements IFormModelU
 	IModel<GbSettings> model;
 
 	WebMarkupContainer schemaWrap;
+	WebMarkupContainer statsWrap;
 	ListView<GbGradingSchemaEntry> schemaView;
 	List<GradeMappingDefinition> gradeMappings;
 	private boolean expanded;
 	String gradingSchemaName;
+	DescriptiveStatistics statistics;
 
 	/**
 	 * This is the currently PERSISTED grade mapping id that is persisted for this gradebook
@@ -114,6 +116,12 @@ public class SettingsGradingSchemaPanel extends BasePanel implements IFormModelU
 
 		// setup the grading scale schema entries
 		this.model.getObject().setGradingSchemaEntries(getGradingSchemaEntries());
+
+		// get the course grade map
+		this.courseGradeMap = getCourseGrades();
+
+		// get the total number of course grades
+		this.total = getTotalCourseGrades(this.courseGradeMap);
 
 		// create map of grading scales to use for the dropdown
 		final Map<String, String> gradeMappingMap = new LinkedHashMap<>();
@@ -232,9 +240,6 @@ public class SettingsGradingSchemaPanel extends BasePanel implements IFormModelU
 			}
 		});
 
-		// get the course grade map as we are about to use it a lot
-		this.courseGradeMap = getCourseGrades();
-
 		// if there are no grades, display message instead of chart
 		settingsGradingSchemaPanel
 				.add(new Label("noStudentsWithGradesMessage", new ResourceModel("settingspage.gradingschema.emptychart")) {
@@ -248,9 +253,13 @@ public class SettingsGradingSchemaPanel extends BasePanel implements IFormModelU
 
 		// other stats
 		// TODO this could be in a panel/fragment of its own
-		final DescriptiveStatistics stats = calculateStatistics();
+		this.statsWrap = new WebMarkupContainer("statsWrap");
+		this.statsWrap.setOutputMarkupId(true);
+		settingsGradingSchemaPanel.add(this.statsWrap);
 
-		settingsGradingSchemaPanel.add(new Label("averagegpa", getAverageGPA()) {
+		this.statistics = calculateStatistics();
+
+		this.statsWrap.add(new Label("averagegpa", getAverageGPA()) {
 			private static final long serialVersionUID = 1L;
 
 			@Override
@@ -258,12 +267,12 @@ public class SettingsGradingSchemaPanel extends BasePanel implements IFormModelU
 				return StringUtils.equals(SettingsGradingSchemaPanel.this.gradingSchemaName, "Grade Points");
 			}
 		});
-		settingsGradingSchemaPanel.add(new Label("average", getMean(stats)));
-		settingsGradingSchemaPanel.add(new Label("median", getMedian(stats)));
-		settingsGradingSchemaPanel.add(new Label("lowest", getMin(stats)));
-		settingsGradingSchemaPanel.add(new Label("highest", getMax(stats)));
-		settingsGradingSchemaPanel.add(new Label("deviation", getStandardDeviation(stats)));
-		settingsGradingSchemaPanel.add(new Label("graded", String.valueOf(this.total)));
+		this.statsWrap.add(new Label("average", getMean(this.statistics)));
+		this.statsWrap.add(new Label("median", getMedian(this.statistics)));
+		this.statsWrap.add(new Label("lowest", getMin(this.statistics)));
+		this.statsWrap.add(new Label("highest", getMax(this.statistics)));
+		this.statsWrap.add(new Label("deviation", getStandardDeviation(this.statistics)));
+		this.statsWrap.add(new Label("graded", String.valueOf(this.total)));
 
 		// if there are course grade overrides, add the list of students
 		final List<GbUser> usersWithOverrides = getStudentsWithCourseGradeOverrides();
@@ -405,13 +414,14 @@ public class SettingsGradingSchemaPanel extends BasePanel implements IFormModelU
 	}
 
 	/**
-	 * Calculates stats based on the calculated course grade values
+	 * Calculates stats based on the calculated course grade values, excluding any empty grades
 	 *
-	 * @return
+	 * @return {@link DescriptiveStatistics}
 	 */
 	private DescriptiveStatistics calculateStatistics() {
 
-		final List<Double> grades = this.courseGradeMap.values().stream().map(c -> NumberUtils.toDouble(c.getCalculatedGrade()))
+		final List<Double> grades = this.courseGradeMap.values().stream().filter(c -> StringUtils.isNotBlank(c.getMappedGrade()))
+				.map(c -> NumberUtils.toDouble(c.getCalculatedGrade()))
 				.collect(Collectors.toList());
 
 		final DescriptiveStatistics stats = new DescriptiveStatistics();
@@ -540,7 +550,17 @@ public class SettingsGradingSchemaPanel extends BasePanel implements IFormModelU
 	 */
 	private Map<String, Double> asMap(final List<GbGradingSchemaEntry> gbGradingSchemaEntries) {
 		return gbGradingSchemaEntries.stream()
-				.collect(Collectors.toMap(GbGradingSchemaEntry::getGrade, GbGradingSchemaEntry::getMinPercent));
+			 .collect(Collectors.toMap(GbGradingSchemaEntry::getGrade, GbGradingSchemaEntry::getMinPercent));
 	}
 
+	/**
+	 * Get the total number of course grades, excluding empty grades
+	 *
+	 * @param map
+	 * @return
+	 */
+	private int getTotalCourseGrades(final Map<String, CourseGrade> map) {
+		return map.values().stream().filter(c -> StringUtils.isNotBlank(c.getMappedGrade()))
+				.collect(Collectors.toList()).size();
+	}
 }

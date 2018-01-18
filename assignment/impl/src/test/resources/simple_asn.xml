@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<assignment access="site"
+            allowpeerassessment="false"
+            assignmentcontent="/assignment/c/CDOR_789U_0626/7854df94-61ca-45e0-9348-a4a3a738292d"
+            closedate="20171222220000000"
+            context="CDOR_789U_0626"
+            draft="false"
+            dropdeaddate="20171222220000000"
+            duedate="20171222220000000"
+            group="false"
+            hideduedate="false"
+            id="cac11b82-64ec-4cc3-87b9-cd0385aebd71"
+            numberofauthors="0"
+            opendate="20171215170000000"
+            peerassessmentanoneval="true"
+            peerassessmentinstructions=""
+            peerassessmentnumreviews="1"
+            peerassessmentperiodtime="20171222221000000"
+            peerassessmentstudentviewreviews="true"
+            position_order="0"
+            section=""
+            title="Assignment Everyone"
+            visibledate="">
+    <properties>
+        <property enc="BASE64"
+                  name="CHEF:creator"
+                  value="ZTJjNzk1ZTYtY2RmYS00OGZmLTgxZGEtNWE0ZTg0YzI5YWVh"/>
+        <property enc="BASE64"
+                  name="CHEF:modifiedby"
+                  value="ZTJjNzk1ZTYtY2RmYS00OGZmLTgxZGEtNWE0ZTg0YzI5YWVh"/>
+        <property enc="BASE64"
+                  name="new_assignment_add_to_gradebook"
+                  value="YXNzb2NpYXRl"/>
+        <property enc="BASE64"
+                  name="CHEF:assignment_opendate_announcement_message_id"
+                  value="NThmZGZkN2MtNzA3Ny00NDkyLWE3ZmQtZmI1NTQzYjFjYmMw"/>
+        <property enc="BASE64"
+                  name="allow_resubmit_closeTime"
+                  value="MTUxMzk4MDAwMDAwMA=="/>
+        <property enc="BASE64"
+                  name="assignment_releasereturn_notification_value"
+                  value="YXNzaWdubWVudF9yZWxlYXNlcmV0dXJuX25vdGlmaWNhdGlvbl9lYWNo"/>
+        <property enc="BASE64"
+                  name="DAV:getlastmodified"
+                  value="MjAxNzEyMTUyMTE2MzQ1ODg="/>
+        <property enc="BASE64"
+                  name="prop_new_assignment_add_to_gradebook"
+                  value="L2Fzc2lnbm1lbnQvYS9DRE9SXzc4OVVfMDYyNi9jYWMxMWI4Mi02NGVjLTRjYzMtODdiOS1jZDAzODVhZWJkNzE="/>
+        <property enc="BASE64"
+                  name="allow_resubmit_number"
+                  value="Mg=="/>
+        <property enc="BASE64"
+                  name="new_assignment_open_date_announced"
+                  value="dHJ1ZQ=="/>
+        <property enc="BASE64"
+                  name="DAV:creationdate"
+                  value="MjAxNzEyMTUyMTE2MzQ0NjA="/>
+        <property enc="BASE64"
+                  name="new_assignment_check_auto_announce"
+                  value="dHJ1ZQ=="/>
+        <property enc="BASE64"
+                  name="newAssignment"
+                  value="dHJ1ZQ=="/>
+        <property enc="BASE64"
+                  name="assignment_releasegrade_notification_value"
+                  value="YXNzaWdubWVudF9yZWxlYXNlZ3JhZGVfbm90aWZpY2F0aW9uX2VhY2g="/>
+        <property enc="BASE64"
+                  name="assignment_instructor_notifications_value"
+                  value="YXNzaWdubWVudF9pbnN0cnVjdG9yX25vdGlmaWNhdGlvbnNfZWFjaA=="/>
+        <property enc="BASE64"
+                  name="new_assignment_check_anonymous_grading"
+                  value=""/>
+    </properties>
+</assignment>

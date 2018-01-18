@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<submission anonymousSubmissionId="3d4fdb6df (anonymous)"
+            assignment="447711b7-4148-4be5-912c-3aea3f4dd4b5"
+            context="BVCC_942A_9301"
+            datereturned=""
+            datesubmitted="20180102202902860"
+            feedbackcomment=""
+            feedbackcomment-html=""
+            feedbacktext=""
+            feedbacktext-html=""
+            graded="false"
+            gradedBy=""
+            gradereleased="false"
+            hideduedate="false"
+            id="8a5b98ea-cb9c-4bb5-a496-6043d4fdb6df"
+            isUserSubmission="true"
+            lastmod="20180102202902860"
+            log0="Tue Jan 02 15:29:02 EST 2018 Marshall Anderson (200241226) saved draft"
+            pledgeflag="true"
+            returned="false"
+            scaled_factor="0"
+            scaled_grade=""
+            submitted="false"
+            submittedattachment0="/content/attachment/BVCC_942A_9301/Assignments/c918122b-068f-42fe-bb45-3b1abab0c287/Screen Shot 2017-10-18 at 10.24.43 AM.png"
+            submittedtext="MjAwMjQxMjI2IGE7ZGFsO2Zsc2tmamxzZGtmamxkc2ZubHNkbmZsc2RuZmxza2RuZm1sc2Rma21sc2ttZGZsc2ttZGZsa3NtZmRm"
+            submittedtext-html="PHA+MjAwMjQxMjI2IGE7ZGFsO2Zsc2tmamxzZGtmamxkc2ZubHNkbmZsc2RuZmxza2RuZm1sc2Rma21sc2ttZGZsc2ttZGZsa3NtZmRmPC9wPg=="
+            submitter0="77597bf2-80b1-41ee-a298-d4e0944dc9dc"
+            submitterid="77597bf2-80b1-41ee-a298-d4e0944dc9dc">
+    <properties>
+        <property enc="BASE64"
+                  name="CHEF:creator"
+                  value="Nzc1OTdiZjItODBiMS00MWVlLWEyOTgtZDRlMDk0NGRjOWRj"/>
+        <property enc="BASE64"
+                  name="allow_resubmit_closeTime"
+                  value="MTUxNjc0NDgwMDAwMA=="/>
+        <property enc="BASE64"
+                  name="allow_resubmit_number"
+                  value="NQ=="/>
+        <property enc="BASE64"
+                  name="CHEF:modifiedby"
+                  value="Nzc1OTdiZjItODBiMS00MWVlLWEyOTgtZDRlMDk0NGRjOWRj"/>
+        <property enc="BASE64"
+                  name="DAV:getlastmodified"
+                  value="MjAxODAxMDIyMDI5MDI4NjA="/>
+        <property enc="BASE64"
+                  name="DAV:creationdate"
+                  value="MjAxODAxMDIyMDI5MDI4NTM="/>
+    </properties>
+</submission>
