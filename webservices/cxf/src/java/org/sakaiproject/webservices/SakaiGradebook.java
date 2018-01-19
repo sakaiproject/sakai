@@ -15,10 +15,13 @@
  */
 package org.sakaiproject.webservices;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.sakaiproject.service.gradebook.shared.GradingScaleDefinition;
-import org.sakaiproject.tool.api.Session;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.Map;
+import java.util.Set;
 
 import javax.jws.WebMethod;
 import javax.jws.WebParam;
@@ -28,18 +31,12 @@ import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Arrays;
-import java.util.ArrayList;
-import java.util.Map;
-import java.util.Set;
 
-
+import lombok.extern.slf4j.Slf4j;
 
 import org.sakaiproject.service.gradebook.shared.GradebookFrameworkService;
-
+import org.sakaiproject.service.gradebook.shared.GradingScaleDefinition;
+import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.gradebook.GradingScale;
 import org.sakaiproject.tool.gradebook.GradeMapping;
 import org.sakaiproject.tool.gradebook.Gradebook;
@@ -52,8 +49,8 @@ import org.sakaiproject.site.api.SiteService.SortType;
  */
 @WebService
 @SOAPBinding(style = SOAPBinding.Style.RPC, use = SOAPBinding.Use.LITERAL)
+@Slf4j
 public class SakaiGradebook extends AbstractWebService {
-    private static final Logger LOG = LoggerFactory.getLogger(SakaiGradebook.class);
 
     protected GradebookFrameworkService gradebookFrameworkService;
 
@@ -80,7 +77,7 @@ public class SakaiGradebook extends AbstractWebService {
         Map defaultBottomPercentsOld = new HashMap(); //stores the old default values, to check if a gradeSet is customized or not.
 
         if (!securityService.isSuperUser()) {
-            LOG.warn("NonSuperUser trying to change Gradebook Scales: " + session.getUserId());
+            log.warn("NonSuperUser trying to change Gradebook Scales: " + session.getUserId());
             throw new RuntimeException("NonSuperUser trying to change Gradebook Scales: " + session.getUserId());
         }
 
@@ -152,7 +149,7 @@ public class SakaiGradebook extends AbstractWebService {
 
                     if (!isUpdate) { //If it is new then we need to add the scale to every actual gradebook in the list
                             gradebookFrameworkService.saveGradeMappingToGradebook(scaleUuid, gradebookUid);
-                            LOG.debug("SakaiGradebook: Adding the new scale " + scaleUuid + " in gradebook: " + gradebook.getUid());
+                            log.debug("SakaiGradebook: Adding the new scale " + scaleUuid + " in gradebook: " + gradebook.getUid());
 
                     }else{ //If it is not new, then update the actual gradebooks with the new values ONLY if updateOld is true
                         if (updateOld)  {
@@ -162,15 +159,15 @@ public class SakaiGradebook extends AbstractWebService {
                                     if (gradeMapping.getGradingScale().getUid().equals(scaleUuid)){
                                         if (updateOnlyNotCustomized){ //We will only update the ones that teachers have not customized
                                             if (mapsAreEqual(defaultBottomPercentsOld, gradeMapping.getGradeMap())){
-                                                LOG.debug("SakaiGradebook:They are equals " + gradebook.getUid());
+                                                log.debug("SakaiGradebook:They are equals " + gradebook.getUid());
                                                 gradeMapping.setDefaultValues();
                                             }else{
-                                                LOG.debug("SakaiGradebook:They are NOT equals " + gradebook.getUid());
+                                                log.debug("SakaiGradebook:They are NOT equals " + gradebook.getUid());
                                             }
                                         }else{
                                             gradeMapping.setDefaultValues();
                                         }
-                                        LOG.debug("SakaiGradebook: updating gradeMapping" + gradeMapping.getName());
+                                        log.debug("SakaiGradebook: updating gradeMapping" + gradeMapping.getName());
                                         gradebookFrameworkService.updateGradeMapping(gradeMapping.getId(),gradeMapping.getGradeMap());
                                     }
                                 }
@@ -181,8 +178,7 @@ public class SakaiGradebook extends AbstractWebService {
                 }
             }
         } catch (Exception e) {
-            LOG.error("SakaiGradebook: createOrUpdateGradeScale: Error attempting to manage a gradescale " + e.getClass().getName() + " : " + e.getMessage());
-            e.printStackTrace();
+            log.error("SakaiGradebook: createOrUpdateGradeScale: Error attempting to manage a gradescale " + e.getClass().getName() + " : " + e.getMessage());
             return e.getClass().getName() + " : " + e.getMessage();
         }
         return "success";
@@ -193,7 +189,7 @@ public class SakaiGradebook extends AbstractWebService {
         try{
             for (String k : mapB.keySet())
             {
-                LOG.debug("SakaiGradebook:Comparing the default old value:" + mapA.get(k) + " with actual value:" + mapB.get(k));
+                log.debug("SakaiGradebook:Comparing the default old value:" + mapA.get(k) + " with actual value:" + mapB.get(k));
                 if (!(mapA.get(k).compareTo(mapB.get(k))==0)) {
                     return false;
                 }
@@ -201,7 +197,7 @@ public class SakaiGradebook extends AbstractWebService {
             for (String y : mapA.keySet())
             {
                 if (!mapB.containsKey(y)) {
-                    LOG.debug("SakaiGradebook:Key not found comparing, so they are different:" + !mapB.containsKey(y));
+                    log.debug("SakaiGradebook:Key not found comparing, so they are different:" + !mapB.containsKey(y));
                     return false;
                 }
             }

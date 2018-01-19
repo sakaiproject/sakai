@@ -15,14 +15,14 @@
  */
 package org.sakaiproject.profile2.tool.components;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.spring.injection.annot.SpringBean;
+
 import org.sakaiproject.profile2.logic.ProfilePrivacyLogic;
 import org.sakaiproject.profile2.logic.ProfileStatusLogic;
 import org.sakaiproject.profile2.model.Person;
@@ -35,11 +35,11 @@ import org.sakaiproject.profile2.model.ProfileStatus;
  * @author Steve Swinsburg (steve.swinsburg@gmail.com)
  *
  */
+@Slf4j
 public class ProfileStatusRenderer extends Panel {
-	
+
 	private static final long serialVersionUID = 1L;
-	private static final Logger log = LoggerFactory.getLogger(ProfileStatusRenderer.class);
-	
+
 	private String userUuid;
 	private ProfilePrivacy privacy;
 	private String msgClass;

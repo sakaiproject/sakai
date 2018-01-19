@@ -25,6 +25,8 @@ import java.util.TimeZone;
 import java.util.Vector;
 import java.util.List;
 
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.time.api.Time;
 import org.sakaiproject.time.api.TimeRange;
 import org.sakaiproject.time.cover.TimeService;
@@ -38,6 +40,7 @@ import org.w3c.dom.Element;
 /**
 * Monday and Wednesday recurrence rule
 */
+@Slf4j
 public class MWRecurrenceRule extends RecurrenceRuleBase
 {
 	
@@ -172,7 +175,6 @@ public class MWRecurrenceRule extends RecurrenceRuleBase
 				}
 				
 				// use this one
-				String eventHR=eventTimeRange.toStringHR();
 				rv.add(new RecurrenceInstance(eventTimeRange, currentCount));
 			}
 			
@@ -184,14 +186,14 @@ public class MWRecurrenceRule extends RecurrenceRuleBase
 			// Examine every day in the calendar, if next date is not Monday or Wednesday
 			do{				
 				int weekDay=nextCalendarDate.get(GregorianCalendar.DAY_OF_WEEK);
-				//System.out.println("Processing day of week:" + weekDay);
+				log.debug("Processing day of week: {}", weekDay);
 				
 				//if we have past all applicable days for this week, skip the (interval weeks-1) + 1 day, then continue processing.
 				//for example if this is a thursday and interval is two weeks, we skip to friday of next week then continue.
 				if((getInterval()>1&&(weekDay==5)))
 				{	
 					int increment = (((getInterval()-1)*7)+1);
-					//System.out.println("weekday is 5, adding: " + increment);
+					log.debug("weekday is 5, adding: {}", increment);
 					
 					nextCalendarDate.add(java.util.Calendar.DAY_OF_MONTH, increment);
 					currentCount+=increment;

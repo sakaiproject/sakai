@@ -21,99 +21,26 @@
 
 package org.sakaiproject.citation.tool;
 
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-
-import java.util.Arrays;
-import java.util.Enumeration;
-import java.util.Hashtable;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.Stack;
-import java.util.Vector;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.sakaiproject.authz.api.SecurityAdvisor;
-import org.sakaiproject.authz.cover.SecurityService;
-import org.sakaiproject.cheftool.Context;
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.cheftool.JetspeedRunData;
 import org.sakaiproject.cheftool.RunData;
-import org.sakaiproject.cheftool.VelocityPortlet;
-import org.sakaiproject.cheftool.VelocityPortletPaneledAction;
-import org.sakaiproject.citation.api.ActiveSearch;
-import org.sakaiproject.citation.api.Citation;
-import org.sakaiproject.citation.api.CitationCollection;
-import org.sakaiproject.citation.api.CitationHelper;
-import org.sakaiproject.citation.api.CitationIterator;
-import org.sakaiproject.citation.api.Schema;
-import org.sakaiproject.citation.api.SearchCategory;
-import org.sakaiproject.citation.api.SearchDatabaseHierarchy;
-import org.sakaiproject.citation.api.Schema.Field;
-import org.sakaiproject.tool.api.Placement;
-import org.sakaiproject.tool.api.Session;
-import org.sakaiproject.site.api.Site;
-import org.sakaiproject.tool.api.Tool;
-import org.sakaiproject.tool.api.ToolException;
-import org.sakaiproject.tool.api.ToolSession;
-import org.sakaiproject.tool.cover.SessionManager;
-import org.sakaiproject.tool.cover.ToolManager;
-import org.sakaiproject.site.cover.SiteService;
-import org.sakaiproject.citation.cover.CitationService;
-import org.sakaiproject.citation.cover.ConfigurationService;
-import org.sakaiproject.citation.cover.SearchManager;
-import org.sakaiproject.citation.util.api.SearchException;
-import org.sakaiproject.citation.util.api.SearchQuery;
-import org.sakaiproject.component.cover.ComponentManager;
-import org.sakaiproject.component.cover.ServerConfigurationService;
-import org.sakaiproject.content.api.ContentHostingService;
-import org.sakaiproject.content.api.ContentResource;
-import org.sakaiproject.content.api.ContentResourceEdit;
-import org.sakaiproject.content.api.ResourceToolAction;
-import org.sakaiproject.content.api.ResourceToolActionPipe;
-import org.sakaiproject.content.api.ResourceType;
-import org.sakaiproject.entity.api.Reference;
-import org.sakaiproject.entity.api.ResourceProperties;
-import org.sakaiproject.entity.api.ResourcePropertiesEdit;
-import org.sakaiproject.entity.cover.EntityManager;
-import org.sakaiproject.event.api.NotificationService;
 import org.sakaiproject.event.api.SessionState;
-import org.sakaiproject.exception.IdInvalidException;
-import org.sakaiproject.exception.IdLengthException;
-import org.sakaiproject.exception.IdUniquenessException;
-import org.sakaiproject.exception.IdUnusedException;
-import org.sakaiproject.exception.InUseException;
-import org.sakaiproject.exception.OverQuotaException;
-import org.sakaiproject.exception.PermissionException;
-import org.sakaiproject.exception.ServerOverloadException;
-import org.sakaiproject.exception.TypeException;
-import org.sakaiproject.tool.api.Tool;
-import org.sakaiproject.tool.api.ToolException;
-import org.sakaiproject.tool.api.ToolSession;
-import org.sakaiproject.tool.cover.SessionManager;
+import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.site.api.Site;
+import org.sakaiproject.site.cover.SiteService;
+import org.sakaiproject.tool.api.Placement;
 import org.sakaiproject.tool.cover.ToolManager;
-import org.sakaiproject.util.FileItem;
-import org.sakaiproject.util.ParameterParser;
-import org.sakaiproject.util.ResourceLoader;
-import org.sakaiproject.util.Validator;
 
 /**
  * Provide support for the Citations editor integration functionality
  */
+@Slf4j
 public class EditorIntegrationHelperAction extends CitationHelperAction
 {
-	protected final static Logger m_log = LoggerFactory.getLogger(EditorIntegrationHelperAction.class);
-
   /**
    * Editor Integration Library Resources Search
    */
@@ -121,7 +48,7 @@ public class EditorIntegrationHelperAction extends CitationHelperAction
   {
 		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid());
 
-    m_log.debug("doIntegrationSearch()");
+    log.debug("doIntegrationSearch()");
 
     setCaller(state, Caller.EDITOR_INTEGRATION);
 		doSearchCommon(state, Mode.ERROR);
@@ -146,7 +73,7 @@ public class EditorIntegrationHelperAction extends CitationHelperAction
 		if (key == null)
 		{
 			key = this.toString() + ".";
-			m_log.warn("getState(): using servlet key: " + key);
+			log.warn("getState(): using servlet key: " + key);
 		}
 		/*
 		 * Append our full name to form a unique session state key for this helper
@@ -157,7 +84,7 @@ public class EditorIntegrationHelperAction extends CitationHelperAction
 
 		if (rv == null)
 		{
-		  m_log.warn("getState(): no state found for key: "
+		  log.warn("getState(): no state found for key: "
 			        +   key
 			        +   " "
 			        +   req.getPathInfo()

@@ -19,11 +19,10 @@
  *
  **********************************************************************************/
 
-
 package org.sakaiproject.tool.assessment.services;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.section.api.SectionAwareness;
 import org.sakaiproject.tool.assessment.facade.*;
@@ -37,9 +36,9 @@ import org.sakaiproject.tool.assessment.facade.util.autosubmit.AutoSubmitQueries
  * To change the template for this generated type comment go to
  * Window&gt;Preferences&gt;Java&gt;Code Generation&gt;Code and Comments
  */
+@Slf4j
 public class PersistenceService{
 
-	private Logger log = LoggerFactory.getLogger(PersistenceService.class);
 	private QuestionPoolFacadeQueriesAPI questionPoolFacadeQueries;
 	private TypeFacadeQueriesAPI typeFacadeQueries;
 	private SectionFacadeQueriesAPI sectionFacadeQueries;

@@ -18,15 +18,12 @@ package org.sakaiproject.tool.gradebook.facades.sakai2impl;
 
 import java.util.Collection;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import org.sakaiproject.authz.cover.FunctionManager;
 import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.site.cover.SiteService;
-
 import org.sakaiproject.section.api.facade.Role;
-
 import org.sakaiproject.tool.gradebook.facades.Authz;
 import org.sakaiproject.tool.gradebook.facades.sections.AuthzSectionsImpl;
 import org.sakaiproject.user.api.User;
@@ -40,9 +37,8 @@ import org.sakaiproject.user.cover.UserDirectoryService;
  * coarse-grained site-and-role-based authz and our hoped-for fine-grained
  * role-determined group-scoped authz.
  */
+@Slf4j
 public class AuthzSakai2Impl extends AuthzSectionsImpl implements Authz {
-    private static final Logger log = LoggerFactory.getLogger(AuthzSakai2Impl.class);
-
     public static final String
     	PERMISSION_GRADE_ALL = "gradebook.gradeAll",
     	PERMISSION_GRADE_SECTION = "gradebook.gradeSection",

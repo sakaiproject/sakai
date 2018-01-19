@@ -19,8 +19,6 @@
  *
  **********************************************************************************/
 
-
-
 package org.sakaiproject.tool.assessment.ui.listener.delivery;
 
 import java.util.List;
@@ -34,9 +32,8 @@ import javax.faces.event.ActionListener;
 import javax.faces.context.ExternalContext;
 import javax.servlet.ServletContext;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentAccessControl;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedFeedback;
@@ -67,6 +64,7 @@ import org.sakaiproject.tool.assessment.ui.queue.delivery.TimedAssessmentQueue;
 import org.sakaiproject.tool.assessment.util.ExtendedTimeDeliveryService;
 import org.sakaiproject.tool.assessment.ui.listener.author.RemovePublishedAssessmentThread;
 import org.sakaiproject.util.ResourceLoader;
+
 /**
  * <p>Title: Samigo</p>
  * <p>Purpose:  this module handles the beginning of the assessment
@@ -74,10 +72,9 @@ import org.sakaiproject.util.ResourceLoader;
  * @author Ed Smiley
  * @version $Id$
  */
-
+@Slf4j
 public class BeginDeliveryActionListener implements ActionListener
 {
-  private static Logger log = LoggerFactory.getLogger(BeginDeliveryActionListener.class);
 
   /**
    * ACTION.
@@ -514,8 +511,6 @@ public class BeginDeliveryActionListener implements ActionListener
     				List resourceIdList = assessmentService.getAssessmentResourceIdList(pub);
     				PersonBean personBean = (PersonBean) ContextUtil.lookupBean("person");
     				personBean.setResourceIdListInPreview(resourceIdList);
-    				//log.info("****publishedId="+publishedId);
-    				//log.info("****clone publishedId="+pub.getPublishedAssessmentId());
     				RemovePublishedAssessmentThread thread = new RemovePublishedAssessmentThread(publishedId, "preview");
     				thread.start();
     			} 
@@ -524,7 +519,7 @@ public class BeginDeliveryActionListener implements ActionListener
     			}
     		}else{
     			FacesContext context = FacesContext.getCurrentInstance();
-    			if(success == AssessmentService.UPDATE_ERROR_DRAW_SIZE_TOO_LARGE){  		    		
+    			if(success == AssessmentService.UPDATE_ERROR_DRAW_SIZE_TOO_LARGE){
     				String err=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","update_pool_error_size_too_large");
     				context.addMessage(null,new FacesMessage(err));
     			}else{

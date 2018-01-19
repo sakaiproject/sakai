@@ -26,11 +26,12 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.Date;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AttachmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 
+@Slf4j
 public class PublishedAttachmentData
     implements Serializable, AttachmentIfc
 {
@@ -39,7 +40,6 @@ public class PublishedAttachmentData
 	 * 
 	 */
 	private static final long serialVersionUID = -7673339618446778553L;
-	private static Logger log = LoggerFactory.getLogger(PublishedAttachmentData.class);
 private Long attachmentId;
   private ItemDataIfc item;
   private String resourceId;

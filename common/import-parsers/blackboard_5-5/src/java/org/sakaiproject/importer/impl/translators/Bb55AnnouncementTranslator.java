@@ -20,19 +20,19 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
+
 import org.sakaiproject.importer.api.Importable;
 import org.sakaiproject.importer.api.IMSResourceTranslator;
 import org.sakaiproject.importer.impl.Blackboard55FileParser;
 import org.sakaiproject.importer.impl.XPathHelper;
 import org.sakaiproject.importer.impl.importables.Announcement;
-import org.w3c.dom.Document;
-import org.w3c.dom.Node;
 
+@Slf4j
 public class Bb55AnnouncementTranslator implements IMSResourceTranslator {
-	
-	private static Logger log = LoggerFactory.getLogger(Bb55AnnouncementTranslator.class);
 
 	public String getTypeName() {
 		// TODO Auto-generated method stub

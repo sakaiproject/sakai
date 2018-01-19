@@ -35,9 +35,9 @@ public interface AssignmentRepository extends SerializableRepository<Assignment,
 
     List<Assignment> findAssignmentsBySite(String siteId);
 
-    void newAssignment(Assignment assignment);
+    List<String> findAllAssignmentIds();
 
-    void updateAssignment(Assignment assignment);
+    void newAssignment(Assignment assignment);
 
     boolean existsAssignment(String assignmentId);
 
@@ -45,7 +45,7 @@ public interface AssignmentRepository extends SerializableRepository<Assignment,
 
     void deleteSubmission(String submissionId);
 
-    void softDeleteAssignment(Assignment assignment);
+    void softDeleteAssignment(String assignmentId);
 
     AssignmentSubmission findSubmission(String submissionId);
 
@@ -60,8 +60,9 @@ public interface AssignmentRepository extends SerializableRepository<Assignment,
                        Optional<Set<String>> submittedAttachments,
                        Optional<Map<String, String>> properties);
 
-    AssignmentSubmission findSubmissionForUser(String assignmentId,
-                                               String userId);
+    AssignmentSubmission findSubmissionForUser(String assignmentId, String userId);
+
+    AssignmentSubmission findSubmissionForGroup(String assignmentId, String groupId);
 
     void initializeAssignment(Assignment assignment);
 

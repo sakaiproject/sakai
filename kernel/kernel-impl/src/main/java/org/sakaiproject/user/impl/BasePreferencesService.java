@@ -21,8 +21,15 @@
 
 package org.sakaiproject.user.impl;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.util.*;
+
+import lombok.extern.slf4j.Slf4j;
+
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+
 import org.sakaiproject.authz.api.FunctionManager;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
@@ -47,28 +54,19 @@ import org.sakaiproject.util.BaseResourceProperties;
 import org.sakaiproject.util.BaseResourcePropertiesEdit;
 import org.sakaiproject.util.SingleStorageUser;
 import org.sakaiproject.util.StringUtil;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-
-import java.util.*;
 
 /**
  * <p>
  * BasePreferencesService is a Sakai Preferences implementation.
  * </p>
  */
+@Slf4j
 public abstract class BasePreferencesService implements PreferencesService, SingleStorageUser
 {
-	
-
 	/**
 	 * Key used to store the locale preferences
 	 */
 	private static final String LOCALE_PREFERENCE_KEY = "sakai:resourceloader";
-	/** Our log (commons). */
-	private static Logger M_log = LoggerFactory.getLogger(BasePreferencesService.class);
 	/** Storage manager for this service. */
 	protected Storage m_storage = null;
 	/** The initial portion of a relative access point URL. */
@@ -230,11 +228,11 @@ public abstract class BasePreferencesService implements PreferencesService, Sing
 			//register a cache
 			m_cache = memoryService().getCache(BasePreferencesService.class.getName() +".preferences");
 			
-			M_log.info("init()");
+			log.info("init()");
 		}
 		catch (Exception t)
 		{
-			M_log.warn("init(): ", t);
+			log.warn("init(): ", t);
 		}
 	}
 
@@ -246,7 +244,7 @@ public abstract class BasePreferencesService implements PreferencesService, Sing
 		m_storage.close();
 		m_storage = null;
 
-		M_log.info("destroy()");
+		log.info("destroy()");
 	}
 
 	/**********************************************************************************************************************************************************************************************************************************************************
@@ -287,7 +285,7 @@ public abstract class BasePreferencesService implements PreferencesService, Sing
 			}
 			catch (IdUsedException e) {
 				//This should never happen
-				M_log.warn("Could not add "+id+" even after checking that it didn't exist in storage. Throwing IdUnusedException but this shouldn't be possible.",e);
+				log.warn("Could not add "+id+" even after checking that it didn't exist in storage. Throwing IdUnusedException but this shouldn't be possible.",e);
 				throw new IdUnusedException(id);
 			
 			}
@@ -318,7 +316,7 @@ public abstract class BasePreferencesService implements PreferencesService, Sing
 				}
 				catch (Exception e)
 				{
-					M_log.warn("commit(): closed PreferencesEdit", e);
+					log.warn("commit(): closed PreferencesEdit", e);
 				}
 				return;
 			}
@@ -367,7 +365,7 @@ public abstract class BasePreferencesService implements PreferencesService, Sing
 					}
 					catch (Exception e)
 					{
-						M_log.warn("cancel(): closed PreferencesEdit", e);
+						log.warn("cancel(): closed PreferencesEdit", e);
 					}
 					return;
 				}
@@ -395,7 +393,7 @@ public abstract class BasePreferencesService implements PreferencesService, Sing
 			}
 			catch (Exception e)
 			{
-				M_log.warn("remove(): closed PreferencesEdit", e);
+				log.warn("remove(): closed PreferencesEdit", e);
 			}
 			return;
 		}
@@ -596,7 +594,7 @@ public abstract class BasePreferencesService implements PreferencesService, Sing
 		}
 		catch (NullPointerException e)
 		{
-			M_log.warn("getEntityAuthzGroups(): " + e);
+			log.warn("getEntityAuthzGroups(): " + e);
 		}
 
 		return rv;
@@ -1207,7 +1205,7 @@ public abstract class BasePreferencesService implements PreferencesService, Sing
 		 */
 		public void valueUnbound(SessionBindingEvent event)
 		{
-			if (M_log.isDebugEnabled()) M_log.debug("valueUnbound()");
+			if (log.isDebugEnabled()) log.debug("valueUnbound()");
 
 			// catch the case where an edit was made but never resolved
 			if (m_active)

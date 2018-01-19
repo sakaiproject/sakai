@@ -27,8 +27,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.calendar.api.CalendarEventEdit;
 import org.sakaiproject.cheftool.ControllerState;
 import org.sakaiproject.entity.cover.EntityManager;
@@ -41,13 +41,11 @@ import org.sakaiproject.util.FormattedText;
 /**
  * Maintains user interface state for the MyCalendar action class.
  */
+@Slf4j
 public class CalendarActionState
 	extends ControllerState
 	implements SessionBindingListener
 {
-	/** Our logger. */
-	private static Logger M_log = LoggerFactory.getLogger(CalendarActionState.class);
-
 	private List wizardImportedEvents;
 
 	private String importWizardType;
@@ -671,8 +669,8 @@ public class CalendarActionState
 
 	public void valueUnbound(SessionBindingEvent event)
 	{
-		if (M_log.isDebugEnabled())
-			M_log.debug("valueUnbound()");
+		if (log.isDebugEnabled())
+			log.debug("valueUnbound()");
 
 		// pass it on to my edits
 		if ((m_editSite != null) && (m_editSite instanceof SessionBindingListener))

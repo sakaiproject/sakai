@@ -18,9 +18,11 @@ package org.sakaiproject.contentreview.turnitin;
 import java.io.IOException;
 
 import lombok.extern.slf4j.Slf4j;
+
 import org.apache.poi.hpsf.SummaryInformation;
 import org.apache.poi.hwpf.HWPFDocument;
 import org.apache.poi.poifs.filesystem.POIFSFileSystem;
+
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.contentreview.service.ContentReviewService;
@@ -95,11 +97,9 @@ public class TurnitinContentValidator {
 				return 100;
 			return count;
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			log.error(e.getMessage(), e);
 		} catch (ServerOverloadException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			log.error(e.getMessage(), e);
 		}
 		//in case we can't read this lets err on the side of caution
 		return 100;

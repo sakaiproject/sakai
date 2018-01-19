@@ -25,8 +25,11 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.component.api.ServerConfigurationService;
 
+@Slf4j
 public abstract class FakeServerConfigurationService implements ServerConfigurationService {
 	private Map<String,String> m = new HashMap<String,String>();
 	
@@ -36,11 +39,11 @@ public abstract class FakeServerConfigurationService implements ServerConfigurat
 	}
 	
 	public void printAll() {
-		System.out.println("-- Start ----------------------------");
+		log.debug("-- Start ----------------------------");
 		for(Object key : m.keySet()) {
-			System.out.println("["+key+"] : "+m.get((String) key));
+			log.debug("["+key+"] : "+m.get((String) key));
 		}	
-		System.out.println("-- End ------------------------------");
+		log.debug("-- End ------------------------------");
 	}
 	
 	public void setProperty(String key, String value) {

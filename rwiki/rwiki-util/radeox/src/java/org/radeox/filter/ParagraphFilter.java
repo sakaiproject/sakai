@@ -27,8 +27,7 @@ import java.util.Locale;
 import java.util.ResourceBundle;
 import java.util.regex.Pattern;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.radeox.api.engine.context.InitialRenderContext;
 import org.radeox.api.engine.context.RenderContext;
 import org.radeox.filter.context.FilterContext;
@@ -41,11 +40,9 @@ import org.radeox.filter.context.FilterContext;
  *          ian@caret.cam.ac.uk $
  */
 
+@Slf4j
 public class ParagraphFilter implements Filter, CacheFilter
 {
-
-	private static Logger log = LoggerFactory.getLogger(ParagraphFilter.class);
-
 	private InitialRenderContext initialContext;
 
 	private String breaksRE;
@@ -259,32 +256,3 @@ public class ParagraphFilter implements Filter, CacheFilter
 	}
 
 }
-/*
- * private static Logger log = LoggerFactory.getLogger(ParagraphFilter.class); private
- * String printFirst; private String printNext; private Pattern matchPattern;
- * protected String getLocaleKey() { return "filter.paragraph"; } protected
- * boolean isSingleLine() { return false; } public String filter(String input,
- * FilterContext context) { String result = input; System.err.println("Using
- * "+matchPattern.getRegex()+" replacing with "+printFirst+" then "+printNext);
- * try { Matcher matcher = Matcher.create(result, matchPattern); Substitution s =
- * new Substitution() { boolean firstMatch = true; public void
- * handleMatch(StringBuffer buffer, MatchResult result) { if ( firstMatch ) {
- * buffer.append(printFirst); firstMatch = false; } else {
- * buffer.append(printNext); } } }; result = matcher.substitute(s); //
- * Util.substitute(matcher, p, new Perl5Substitution(s, interps), result,
- * limit); } catch (Exception e) { //log.warn("<span class=\"error\">Exception</span>: " +
- * this + ": " + e); log.warn("Exception for: " + this+" "+e); } catch (Error
- * err) { //log.warn("<span class=\"error\">Error</span>: " + this + ": " +
- * err); log.warn("Error for: " + this); err.printStackTrace(); } return result; }
- * public void setInitialContext(InitialRenderContext context) {
- * super.setInitialContext(context); clearRegex(); ResourceBundle outputMessages =
- * getOutputBundle(); ResourceBundle inputMessages = getInputBundle(); String
- * match = inputMessages.getString(getLocaleKey()+".match"); printFirst =
- * outputMessages.getString(getLocaleKey()+".print.1"); printNext =
- * outputMessages.getString(getLocaleKey()+".print.2"); try {
- * org.radeox.regex.Compiler compiler = org.radeox.regex.Compiler.create();
- * compiler.setMultiline(isSingleLine() ? RegexReplaceFilter.SINGLELINE :
- * RegexReplaceFilter.MULTILINE); matchPattern = compiler.compile(match); }
- * catch (Exception e) { log.warn("bad pattern: " + match + " -> " +
- * printFirst+" "+e); } } }
- */

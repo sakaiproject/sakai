@@ -21,19 +21,20 @@
 
 package org.sakaiproject.util.api;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.w3c.dom.Element;
 import java.text.NumberFormat;
+
+import lombok.extern.slf4j.Slf4j;
+
+import org.w3c.dom.Element;
+
 /**
  * This is a special Mock which will allow unit testing using FormattedText to generally still work,
  * This is necessary because of all the places where it is used
  * 
  * @author Aaron Zeckoski (azeckoski @ vt.edu)
  */
+@Slf4j
 public class MockFormattedText implements FormattedText {
-
-    private static final Logger log = LoggerFactory.getLogger(FormattedText.class);
     private static final String WARNING = "Using MOCK FormattedText: all values just pass through and are not processed: FOR TESTING ONLY (if this is live there is a big problem)";
 
     public String processFormattedText(String strFromBrowser, StringBuffer errorMessages) {
@@ -216,5 +217,11 @@ public class MockFormattedText implements FormattedText {
     public NumberFormat getNumberFormat() {
     	return getNumberFormat(null,null,null);
     }
+
+	@Override
+	public String getHtmlBody(String text) {
+		// TODO Auto-generated method stub
+		return getHtmlBody(null);
+	}
     
 }

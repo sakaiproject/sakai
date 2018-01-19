@@ -25,12 +25,14 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+
 import lombok.Getter;
 import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
+
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
@@ -49,10 +51,10 @@ import org.sakaiproject.user.api.UserNotDefinedException;
  * 
  * @author bjones86
  */
+@Slf4j
 public class SiteTitleAdvisorCMS implements SiteTitleAdvisor
 {
     // Services
-    private final transient Logger log = LoggerFactory.getLogger( getClass() );
     @Getter @Setter private static UserDirectoryService uds;
     @Getter @Setter private static SecurityService ss;
     @Getter @Setter private static CourseManagementService cms;

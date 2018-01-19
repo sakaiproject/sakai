@@ -33,11 +33,10 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.ReferenceMap;
 import org.jdom.JDOMException;
 import org.jdom.output.DOMOutputter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.w3c.dom.Attr;
 import org.w3c.dom.CharacterData;
 import org.w3c.dom.DOMException;
@@ -60,10 +59,10 @@ import org.sakaiproject.importer.impl.XPathHelper;
  * @author Ed Smiley esmiley@stanford.edu
  * @version $Id$
  */
-public class XmlStringBuffer
+ @Slf4j
+ public class XmlStringBuffer
   implements java.io.Serializable
 {
-  private static Logger log = LoggerFactory.getLogger(XmlStringBuffer.class);
 
   /**
    * Explicitly setting serialVersionUID insures future versions can be
@@ -613,7 +612,6 @@ public class XmlStringBuffer
       }
     } catch(ParserConfigurationException pce) {
     	log.error("Exception thrown from insertElement() : " + pce.getMessage());
-		pce.printStackTrace();
     }
   }
 
@@ -661,7 +659,6 @@ public class XmlStringBuffer
       }
     } catch(ParserConfigurationException pce) {
     	log.error("Exception thrown from createChildElement(): " + pce.getMessage());
-		pce.printStackTrace();
     }
     
     return element;
@@ -757,5 +754,4 @@ public class XmlStringBuffer
     out.defaultWriteObject();
   }
 }
-
 

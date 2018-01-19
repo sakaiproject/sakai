@@ -37,17 +37,17 @@ package org.sakaiproject.signup.dao;
 import java.util.Date;
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.hibernate.Criteria;
 import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
+import org.springframework.dao.DataAccessException;
+
 import org.sakaiproject.genericdao.hibernate.HibernateGeneralGenericDao;
 import org.sakaiproject.signup.model.SignupMeeting;
 import org.sakaiproject.signup.model.SignupTimeslot;
-import org.springframework.dao.DataAccessException;
 
 /**
  * <p>
@@ -59,10 +59,9 @@ import org.springframework.dao.DataAccessException;
  * 
  * </p>
  */
+@Slf4j
 public class SignupMeetingDaoImpl extends HibernateGeneralGenericDao  implements
 		SignupMeetingDao {
-
-	private static Logger log = LoggerFactory.getLogger(SignupMeetingDaoImpl.class);
 
 	public void init() {
 		log.debug("init");

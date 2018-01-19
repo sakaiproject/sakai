@@ -21,14 +21,12 @@
 
 package org.sakaiproject.component.common.type;
 
-import java.sql.SQLException;
+import lombok.extern.slf4j.Slf4j;
 
 import org.hibernate.HibernateException;
 import org.hibernate.Query;
 import org.hibernate.Session;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sakaiproject.api.common.type.Type;
 import org.sakaiproject.api.common.type.TypeManager;
 import org.sakaiproject.component.common.manager.PersistableHelper;
@@ -39,10 +37,9 @@ import org.springframework.orm.hibernate4.support.HibernateDaoSupport;
 /**
  * @author <a href="mailto:lance@indiana.edu">Lance Speelmon </a>
  */
+@Slf4j
 public class TypeManagerImpl extends HibernateDaoSupport implements TypeManager
 {
-	private static final Logger LOG = LoggerFactory.getLogger(TypeManagerImpl.class);
-
 	private static final String ID = "id";
 
 	private static final String FINDTYPEBYID = "findTypeById";
@@ -67,37 +64,14 @@ public class TypeManagerImpl extends HibernateDaoSupport implements TypeManager
 
 	private PersistableHelper persistableHelper; // dep inj
 
-	// public Type getType(final Long id)
-	// {
-	// if (LOG.isDebugEnabled())
-	// {
-	// LOG.debug("getType(Long " + id + ")");
-	// }
-	// if (id == null) throw new IllegalArgumentException();
-	//
-	// final HibernateCallback hcb = new HibernateCallback()
-	// {
-	// public Object doInHibernate(Session session) throws HibernateException,
-	// SQLException
-	// {
-	// Query q = session.getNamedQuery(FINDTYPEBYID);
-	// q.setLong(ID, id.longValue());
-	// q.setCacheable(cacheFindTypeById);
-	// return q.uniqueResult();
-	// }
-	// };
-	// Type type = (Type) getHibernateTemplate().execute(hcb);
-	// return type;
-	// }
-
 	/**
 	 * @see org.sakaiproject.api.type.TypeManager#createType(java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String)
 	 */
 	public Type createType(String authority, String domain, String keyword, String displayName, String description)
 	{
-		if (LOG.isDebugEnabled())
+		if (log.isDebugEnabled())
 		{
-			LOG.debug("createType(String " + authority + ", String " + domain + ", String " + keyword + ", String " + displayName
+			log.debug("createType(String " + authority + ", String " + domain + ", String " + keyword + ", String " + displayName
 					+ ", String " + description + ")");
 		}
 		// validation
@@ -120,9 +94,9 @@ public class TypeManagerImpl extends HibernateDaoSupport implements TypeManager
 
 	public void saveType(Type type)
 	{
-		if (LOG.isDebugEnabled())
+		if (log.isDebugEnabled())
 		{
-			LOG.debug("saveType(Type " + type + ")");
+			log.debug("saveType(Type " + type + ")");
 		}
 		if (type == null) throw new IllegalArgumentException("type");
 
@@ -143,9 +117,9 @@ public class TypeManagerImpl extends HibernateDaoSupport implements TypeManager
 	 */
 	public Type getType(final String uuid)
 	{
-		if (LOG.isDebugEnabled())
+		if (log.isDebugEnabled())
 		{
-			LOG.debug("getType(String " + uuid + ")");
+			log.debug("getType(String " + uuid + ")");
 		}
 		if (uuid == null || uuid.length() < 1)
 		{
@@ -172,9 +146,9 @@ public class TypeManagerImpl extends HibernateDaoSupport implements TypeManager
 	 */
 	public Type getType(final String authority, final String domain, final String keyword)
 	{
-		if (LOG.isDebugEnabled())
+		if (log.isDebugEnabled())
 		{
-			LOG.debug("getType(String " + authority + ", String " + domain + ", String " + keyword + ")");
+			log.debug("getType(String " + authority + ", String " + domain + ", String " + keyword + ")");
 		}
 		// validation
 		if (authority == null || authority.length() < 1) throw new IllegalArgumentException("authority");
@@ -204,9 +178,9 @@ public class TypeManagerImpl extends HibernateDaoSupport implements TypeManager
 	 */
 	public void setCacheFindTypeByTuple(boolean cacheFindTypeByTuple)
 	{
-		if (LOG.isInfoEnabled())
+		if (log.isInfoEnabled())
 		{
-			LOG.info("setCacheFindTypeByTuple(boolean " + cacheFindTypeByTuple + ")");
+			log.info("setCacheFindTypeByTuple(boolean " + cacheFindTypeByTuple + ")");
 		}
 
 		this.cacheFindTypeByTuple = cacheFindTypeByTuple;
@@ -218,9 +192,9 @@ public class TypeManagerImpl extends HibernateDaoSupport implements TypeManager
 	 */
 	public void setCacheFindTypeByUuid(boolean cacheFindTypeByUuid)
 	{
-		if (LOG.isInfoEnabled())
+		if (log.isInfoEnabled())
 		{
-			LOG.info("setCacheFindTypeByUuid(boolean " + cacheFindTypeByUuid + ")");
+			log.info("setCacheFindTypeByUuid(boolean " + cacheFindTypeByUuid + ")");
 		}
 
 		this.cacheFindTypeByUuid = cacheFindTypeByUuid;
@@ -232,9 +206,9 @@ public class TypeManagerImpl extends HibernateDaoSupport implements TypeManager
 	 */
 	public void setCacheFindTypeById(boolean cacheFindTypeById)
 	{
-		if (LOG.isInfoEnabled())
+		if (log.isInfoEnabled())
 		{
-			LOG.info("setCacheFindTypeById(boolean " + cacheFindTypeById + ")");
+			log.info("setCacheFindTypeById(boolean " + cacheFindTypeById + ")");
 		}
 
 		this.cacheFindTypeById = cacheFindTypeById;
@@ -242,9 +216,9 @@ public class TypeManagerImpl extends HibernateDaoSupport implements TypeManager
 
 	public void deleteType(Type type)
 	{
-		if (LOG.isDebugEnabled())
+		if (log.isDebugEnabled())
 		{
-			LOG.debug("deleteType(Type " + type + ")");
+			log.debug("deleteType(Type " + type + ")");
 		}
 
 		throw new UnsupportedOperationException("Types should never be deleted!");

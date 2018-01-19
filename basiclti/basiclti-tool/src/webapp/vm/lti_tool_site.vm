@@ -170,16 +170,7 @@ ${includeLatestJQuery}
 					<td><input class="tablesorter-filter" id="input_SITE_CONTACT_NAME" #if($search_map && $search_map.get('SITE_CONTACT_NAME')) value="$search_map.get('SITE_CONTACT_NAME')" #end /></td>
 					<td><input class="tablesorter-filter" id="input_SITE_CONTACT_EMAIL" #if($search_map && $search_map.get('SITE_CONTACT_EMAIL')) value="$search_map.get('SITE_CONTACT_EMAIL')" #end /></td>
 					#if ($attribution_name)
-					<td>
-						#if ($attribution_values && $attribution_values.size() > 0)
-						<select class="tablesorter-filter" id="input_ATTRIBUTION">
-							<option #if($search_map && $search_map.get('ATTRIBUTION') && $search_map.get('ATTRIBUTION') == '') selected="selected" #end value="">$tlang.getString('select.showall')</option>
-							#foreach ($attribution_value in $attribution_values)
-								<option #if($search_map && $search_map.get('ATTRIBUTION') && $search_map.get('ATTRIBUTION') == $attribution_value) selected="selected" #end value="$attribution_value">$attribution_value</option>
-							#end
-						</select>
-						#end
-					</td>
+					<td><input class="tablesorter-filter" id="input_ATTRIBUTION" #if($search_map && $search_map.get('ATTRIBUTION')) value="$search_map.get('ATTRIBUTION')" #end /></td>
 					#end
 				#end
 				<td></td>

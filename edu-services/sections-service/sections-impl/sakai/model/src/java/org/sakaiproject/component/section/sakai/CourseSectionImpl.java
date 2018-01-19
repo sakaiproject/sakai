@@ -30,12 +30,13 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.TimeZone;
 
+import lombok.extern.slf4j.Slf4j;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
 import org.sakaiproject.section.api.coursemanagement.Course;
 import org.sakaiproject.section.api.coursemanagement.CourseSection;
 import org.sakaiproject.section.api.coursemanagement.Meeting;
@@ -44,34 +45,33 @@ import org.sakaiproject.site.api.Group;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.time.api.TimeService;
 
+@Slf4j
 public class CourseSectionImpl implements CourseSection, Comparable<CourseSection>, Serializable {
+    private static final long serialVersionUID = 1L;
+    private static final String TIME_FORMAT_LONG = "h:mm a";
+    private static final String TIME_FORMAT_DATE_TZ = "dd/MM/yyyy HH:mm zzzz";
+    public static final String SEP_CHARACTER = ",";
+    public static final String CATEGORY = "sections_category";
+    public static final String END_TIME = "sections_end_time";
+    public static final String START_TIME = "sections_start_time";
+    public static final String LOCATION = "sections_location";
+    public static final String MAX_ENROLLMENTS = "sections_max_enrollments";
+    public static final String MONDAY = "sections_monday";
+    public static final String TUESDAY = "sections_tuesday";
+    public static final String WEDNESDAY = "sections_wednesday";
+    public static final String THURSDAY = "sections_thursday";
+    public static final String FRIDAY = "sections_friday";
+    public static final String SATURDAY = "sections_saturday";
+    public static final String SUNDAY = "sections_sunday";
+    public static final String EID = "sections_eid";
 
-	private static final long serialVersionUID = 1L;
-	private static final String TIME_FORMAT_LONG = "h:mm a";
-	private static final String TIME_FORMAT_DATE_TZ = "dd/MM/yyyy HH:mm zzzz";
-	private static final Logger log = LoggerFactory.getLogger(CourseSectionImpl.class);
-	public static final String SEP_CHARACTER = ",";
-	public static final String CATEGORY = "sections_category";
-	public static final String END_TIME = "sections_end_time";
-	public static final String START_TIME = "sections_start_time";
-	public static final String LOCATION = "sections_location";
-	public static final String MAX_ENROLLMENTS = "sections_max_enrollments";
-	public static final String MONDAY = "sections_monday";
-	public static final String TUESDAY = "sections_tuesday";
-	public static final String WEDNESDAY = "sections_wednesday";
-	public static final String THURSDAY = "sections_thursday";
-	public static final String FRIDAY = "sections_friday";
-	public static final String SATURDAY = "sections_saturday";
-	public static final String SUNDAY = "sections_sunday";
-	public static final String EID = "sections_eid";
+    // Fields from Site Group
+    protected String description;
 
-	// Fields from Site Group
-	protected String description;
-
-	// Fields from CourseSection
+    // Fields from CourseSection
     protected String uuid;
-	protected Course course;
-	protected String category;
+    protected Course course;
+    protected String category;
     protected Integer maxEnrollments;
     protected List<Meeting> meetings;
     protected String title;

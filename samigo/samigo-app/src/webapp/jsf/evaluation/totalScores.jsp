@@ -38,7 +38,7 @@
 				background-color: #f1f1f1;
 			}
 		</style>
-        <script src="/library/js/spinner.js" type="text/javascript"></script>
+        <samigo:script path="/../library/js/spinner.js"/>
 <%@ include file="/js/delivery.js" %>
 
 <script type="text/javascript">

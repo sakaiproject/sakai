@@ -19,14 +19,12 @@
  *
  **********************************************************************************/
 
-
-
 package org.sakaiproject.tool.assessment.ui.listener.evaluation.util;
 
 import java.util.StringTokenizer;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 
 
@@ -39,10 +37,9 @@ import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
  * @author Ed Smiley
  * @version $Id$
  */
-
+@Slf4j
 public class EvaluationListenerUtil
 {
-  private static Logger log = LoggerFactory.getLogger(EvaluationListenerUtil.class);
   private static ContextUtil cu;
 
   /**
@@ -56,7 +53,6 @@ public class EvaluationListenerUtil
     String capitalizedField = sortCommandId.substring(6);
     String field = (capitalizedField.substring(0,1).toLowerCase() +
                    capitalizedField.substring(1)).trim();
-    //log.info("Rachel: return field " + field);
     return field;
   }
 

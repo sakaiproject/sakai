@@ -15,19 +15,42 @@
  */
 package org.sakaiproject.assignment.api.model;
 
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.Lob;
+import javax.persistence.ManyToOne;
+import javax.persistence.SequenceGenerator;
+import javax.persistence.Table;
+import javax.persistence.UniqueConstraint;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 
+/**
+ * Defines a relation between a submission and the submission's submitters.
+ * <br/> - A submitter can have its own grade separate from the grade of the submission,
+ * useful in providing user with different grades in group submissions.
+ * <br/> - A submitter can have its own feedback separate from the feedback of the submission,
+ * useful when different feedback is needed in group submissions
+ * <p>
+ * <b>Constraints</b>
+ * <br/>- submission and submitter are unique,
+ * meaning a user can't be a submitter more than once on a submission.
+ * Notice that equals and hashcode also reflect this relationship.
+ */
 @Entity
-@Table(name = "ASN_SUBMISSION_SUBMITTER")
+@Table(name = "ASN_SUBMISSION_SUBMITTER",
+        uniqueConstraints = @UniqueConstraint(columnNames = {"SUBMISSION_ID", "SUBMITTER"}))
 @Data
 @NoArgsConstructor
 @ToString(exclude = {"submission"})
-@EqualsAndHashCode(of = "id")
+@EqualsAndHashCode(of = {"submission", "submitter"})
 public class AssignmentSubmissionSubmitter {
 
     @Id
@@ -40,7 +63,7 @@ public class AssignmentSubmissionSubmitter {
     @JoinColumn(name = "SUBMISSION_ID", nullable = false)
     private AssignmentSubmission submission;
 
-    @Column(name = "SUBMITTER", nullable = false)
+    @Column(name = "SUBMITTER", length = 36, nullable = false)
     private String submitter;
 
     @Column(name = "SUBMITTEE", nullable = false)
@@ -50,6 +73,6 @@ public class AssignmentSubmissionSubmitter {
     private String grade;
 
     @Lob
-    @Column(name = "FEEDBACK")
+    @Column(name = "FEEDBACK", length = 65535)
     private String feedback;
 }

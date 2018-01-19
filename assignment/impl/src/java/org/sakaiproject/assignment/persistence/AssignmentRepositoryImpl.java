@@ -16,9 +16,11 @@
 package org.sakaiproject.assignment.persistence;
 
 import java.time.Instant;
-import java.util.*;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 
-import org.apache.commons.lang.NotImplementedException;
 import org.hibernate.Session;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
@@ -42,23 +44,26 @@ public class AssignmentRepositoryImpl extends BasicSerializableRepository<Assign
     @Override
     @SuppressWarnings("unchecked")
     public List<Assignment> findAssignmentsBySite(String siteId) {
-        return startCriteriaQuery().add(Restrictions.eq("context", siteId)).list();
+        return startCriteriaQuery()
+                .add(Restrictions.eq("context", siteId))
+                .add(Restrictions.eq("deleted", Boolean.FALSE))
+                .list();
+    }
+
+    @Override
+    public List<String> findAllAssignmentIds() {
+        return startCriteriaQuery()
+                .setProjection(Projections.property("id"))
+                .list();
     }
 
     @Override
     @Transactional
     public void newAssignment(Assignment assignment) {
         if (!existsAssignment(assignment.getId())) {
-            assignment.setDateCreated(Date.from(Instant.now()));
+            assignment.setDateCreated(Instant.now());
             sessionFactory.getCurrentSession().persist(assignment);
         }
-    }
-
-    @Override
-    @Transactional
-    public void updateAssignment(Assignment assignment) {
-        assignment.setDateModified(Date.from(Instant.now()));
-        sessionFactory.getCurrentSession().update(assignment);
     }
 
     @Override
@@ -96,8 +101,10 @@ public class AssignmentRepositoryImpl extends BasicSerializableRepository<Assign
 
     @Override
     @Transactional
-    public void softDeleteAssignment(Assignment assignment) {
-        throw new NotImplementedException("Soft Delete is currently not implemented");
+    public void softDeleteAssignment(String assignmentId) {
+        Assignment assignment = findOne(assignmentId);
+        assignment.setDeleted(Boolean.TRUE);
+        update(assignment);
     }
 
     @Override
@@ -108,7 +115,6 @@ public class AssignmentRepositoryImpl extends BasicSerializableRepository<Assign
     @Override
     @Transactional
     public void updateSubmission(AssignmentSubmission submission) {
-        submission.setDateModified(Date.from(Instant.now()));
         sessionFactory.getCurrentSession().update(submission);
     }
 
@@ -125,7 +131,7 @@ public class AssignmentRepositoryImpl extends BasicSerializableRepository<Assign
     @Transactional
     public void newSubmission(Assignment assignment, AssignmentSubmission submission, Optional<Set<AssignmentSubmissionSubmitter>> submitters, Optional<Set<String>> feedbackAttachments, Optional<Set<String>> submittedAttachments, Optional<Map<String, String>> properties) {
         if (!existsSubmission(submission.getId()) && exists(assignment.getId())) {
-            submission.setDateCreated(Date.from(Instant.now()));
+            submission.setDateCreated(Instant.now());
             submitters.ifPresent(submission::setSubmitters);
             submitters.ifPresent(s -> s.forEach(submitter -> submitter.setSubmission(submission)));
             feedbackAttachments.ifPresent(submission::setFeedbackAttachments);
@@ -149,6 +155,14 @@ public class AssignmentRepositoryImpl extends BasicSerializableRepository<Assign
     }
 
     @Override
+    public AssignmentSubmission findSubmissionForGroup(String assignmentId, String groupId) {
+        return (AssignmentSubmission) sessionFactory.getCurrentSession().createCriteria(AssignmentSubmission.class)
+                .add(Restrictions.eq("assignment.id", assignmentId))
+                .add(Restrictions.eq("groupId", groupId))
+                .uniqueResult();
+    }
+
+    @Override
     public void initializeAssignment(Assignment assignment) {
         sessionFactory.getCurrentSession().refresh(assignment);
     }
@@ -160,6 +174,7 @@ public class AssignmentRepositoryImpl extends BasicSerializableRepository<Assign
                 .add(Restrictions.eq("assignment.id", assignmentId))
                 .add(Restrictions.eq("submitted", Boolean.TRUE))
                 .add(Restrictions.eq("userSubmission", Boolean.TRUE))
+                .add(Restrictions.isNotNull("dateSubmitted"))
                 .uniqueResult();
         return number.longValue();
     }
@@ -170,7 +185,8 @@ public class AssignmentRepositoryImpl extends BasicSerializableRepository<Assign
                 .setProjection(Projections.rowCount())
                 .add(Restrictions.eq("assignment.id", assignmentId))
                 .add(Restrictions.eq("submitted", Boolean.TRUE))
-                .add(Restrictions.eq("graded", Boolean.TRUE))
+                .add(Restrictions.eq("graded", Boolean.FALSE))
+                .add(Restrictions.isNotNull("dateSubmitted"))
                 .uniqueResult();
         return number.longValue();
     }

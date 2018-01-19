@@ -25,14 +25,12 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.*;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.apache.commons.pool.PoolableObjectFactory;
-
 import com.novell.ldap.LDAPConnection;
 import com.novell.ldap.LDAPConstraints;
 import com.novell.ldap.LDAPException;
 import com.novell.ldap.LDAPTLSSocketFactory;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.pool.PoolableObjectFactory;
 
 /**
  * An object factory for managing <code>PooledLDAPConnection<code>s
@@ -43,11 +41,9 @@ import com.novell.ldap.LDAPTLSSocketFactory;
  * @see LdapConnectionManagerConfig
  * @author John Lewis, Unicon Inc
  */
+@Slf4j
 public class PooledLDAPConnectionFactory implements PoolableObjectFactory {
 
-	/** Class-specific logger */
-	private static Logger log = LoggerFactory.getLogger(PooledLDAPConnectionFactory.class);
-	
 	/** the controlling connection manager */
 	private LdapConnectionManager connectionManager;
 	

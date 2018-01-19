@@ -43,9 +43,15 @@ import javax.servlet.http.HttpServletRequestWrapper;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpServletResponseWrapper;
 
+import lombok.extern.slf4j.Slf4j;
+
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+
 import org.sakaiproject.authz.api.FunctionManager;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.tool.api.ActiveTool;
@@ -56,21 +62,15 @@ import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.tool.api.ToolException;
 import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.util.Xml;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 
 /**
  * <p>
  * ActiveToolComponent is the standard implementation of the Sakai ActiveTool API.
  * </p>
  */
+@Slf4j
 public abstract class ActiveToolComponent extends ToolComponent implements ActiveToolManager
 {
-	/** Our log (commons). */
-	private static Logger M_log = LoggerFactory.getLogger(ActiveToolComponent.class);
-
 	public static final String TOOL_PORTLET_CONTEXT_PATH = "portlet-context";
 	static final String TOOL_CATEGORIES_PREFIX = "tool.categories.";
 	static final String TOOL_CATEGORIES_APPEND_PREFIX = TOOL_CATEGORIES_PREFIX+"append.";
@@ -154,7 +154,7 @@ public abstract class ActiveToolComponent extends ToolComponent implements Activ
 			RequestDispatcher dispatcher = context.getNamedDispatcher(at.getId());
 			if (dispatcher == null)
 			{
-				M_log.warn("missing dispatcher for tool: " + at.getId());
+				log.warn("missing dispatcher for tool: " + at.getId());
 			}
 		}
 
@@ -167,14 +167,14 @@ public abstract class ActiveToolComponent extends ToolComponent implements Activ
 	public void register(Document toolXml, ServletContext context)
 	{
 		if (toolXml == null) {
-			M_log.info("register: invalid or empty tool registration document");
+			log.info("register: invalid or empty tool registration document");
 			return;
 		}
 		
 		Element root = toolXml.getDocumentElement();
 		if (!root.getTagName().equals("registration"))
 		{
-			M_log.info("register: invalid root element (expecting \"registration\"): " + root.getTagName());
+			log.info("register: invalid root element (expecting \"registration\"): " + root.getTagName());
 			return;
 		}
 
@@ -213,11 +213,11 @@ public abstract class ActiveToolComponent extends ToolComponent implements Activ
                 String path = toolXmlFile.getAbsolutePath();
                 if (!path.endsWith(".xml"))
                 {
-                        M_log.info("register: skiping non .xml file: " + path);
+                        log.info("register: skiping non .xml file: " + path);
                         return null;
                 }
 
-                M_log.info("parse-file: " + path);
+                log.info("parse-file: " + path);
 
                 Document doc = Xml.readDocument(path);
 		if ( doc == null ) return null;
@@ -252,7 +252,7 @@ public abstract class ActiveToolComponent extends ToolComponent implements Activ
 		Element root = toolXml.getDocumentElement();
 		if (!root.getTagName().equals("registration"))
 		{
-			M_log.info("register: invalid root element (expecting \"registration\"): " + root.getTagName());
+			log.info("register: invalid root element (expecting \"registration\"): " + root.getTagName());
 			return null;
 		}
 
@@ -409,11 +409,11 @@ public abstract class ActiveToolComponent extends ToolComponent implements Activ
 		String path = toolXmlFile.getAbsolutePath();
 		if (!path.endsWith(".xml"))
 		{
-			M_log.info("register: skiping non .xml file: " + path);
+			log.info("register: skiping non .xml file: " + path);
 			return;
 		}
 
-		M_log.info("register: file: " + path);
+		log.info("register: file: " + path);
 
 		Document doc = Xml.readDocument(path);
 		register(doc, context);

@@ -21,12 +21,16 @@
 
 package org.sakaiproject.assignment.impl;
 
+import java.time.Instant;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
 import org.hibernate.Query;
+
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.assignment.api.AssignmentConstants;
 import org.sakaiproject.assignment.api.AssignmentService;
 import org.sakaiproject.assignment.api.model.Assignment;
@@ -40,29 +44,15 @@ import org.sakaiproject.assignment.api.model.AssignmentSupplementItemService;
 import org.sakaiproject.assignment.api.model.AssignmentSupplementItemWithAttachment;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.site.api.SiteService;
-import org.sakaiproject.time.api.Time;
-import org.sakaiproject.time.api.TimeService;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.springframework.dao.DataAccessException;
 import org.springframework.orm.hibernate4.HibernateCallback;
 import org.springframework.orm.hibernate4.support.HibernateDaoSupport;
 
-import lombok.extern.slf4j.Slf4j;
-
 @Slf4j
 public class AssignmentSupplementItemServiceImpl extends HibernateDaoSupport implements AssignmentSupplementItemService {
 
-   public void init()
-   {
-      log.info("init()");
-   }
-   
-   public void destroy()
-   {
-      log.info("destroy()");
-   }
-   
    /** Dependency: UserDirectoryService */
 	protected UserDirectoryService m_userDirectoryService = null;
 
@@ -119,11 +109,6 @@ public class AssignmentSupplementItemServiceImpl extends HibernateDaoSupport imp
 		m_siteService = siteService;
 	}
 
-	protected TimeService timeService;
-
-	public void setTimeService(TimeService timeService) {
-		this.timeService = timeService;
-	}
 	/********************** attachment   ************************/
 	/**
 	 * {@inheritDoc}
@@ -142,8 +127,7 @@ public class AssignmentSupplementItemServiceImpl extends HibernateDaoSupport imp
 		}
 		catch (DataAccessException e)
 		{
-			e.printStackTrace();
-		 log.warn(this + ".saveModelAnswerQuestion() Hibernate could not save attachment " + attachment.getId());
+			log.warn("{}.saveModelAnswerQuestion() Hibernate could not save attachment {}", this, attachment.getId(), e);
 			return false;
 		}
 	}
@@ -192,8 +176,7 @@ public class AssignmentSupplementItemServiceImpl extends HibernateDaoSupport imp
 		}
 		catch (DataAccessException e)
 		{
-			e.printStackTrace();
-		 log.warn(this + ".removeAttachment() Hibernate could not delete attachment " + attachment.getId());
+			log.warn("{}.removeAttachment() Hibernate could not delete attachment {}", this, attachment.getId(), e);
 			return false;
 		}
 	}
@@ -219,8 +202,7 @@ public class AssignmentSupplementItemServiceImpl extends HibernateDaoSupport imp
 		}
 		catch (DataAccessException e)
 		{
-			e.printStackTrace();
-		 log.warn(this + ".saveModelAnswerQuestion() Hibernate could not save model answer for assignment " + mItem.getAssignmentId());
+			log.warn("{}.saveModelAnswerQuestion() Hibernate could not save model answer for assignment {}", this, mItem.getAssignmentId(), e);
 			return false;
 		}
 	}
@@ -238,8 +220,7 @@ public class AssignmentSupplementItemServiceImpl extends HibernateDaoSupport imp
 		}
 		catch (DataAccessException e)
 		{
-			e.printStackTrace();
-		 log.warn(this + ".removeModelAnswer() Hibernate could not delete ModelAnswer for assignment " + mItem.getAssignmentId());
+			log.warn("{}.removeModelAnswer() Hibernate could not delete ModelAnswer for assignment {}", this, mItem.getAssignmentId(), e);
 			return false;
 		}
 		
@@ -279,8 +260,7 @@ public class AssignmentSupplementItemServiceImpl extends HibernateDaoSupport imp
 		}
 		catch (DataAccessException e)
 		{
-			e.printStackTrace();
-		 log.warn(this + ".saveNoteItem() Hibernate could not save private note for assignment " + nItem.getAssignmentId());
+			log.warn("{}.saveNoteItem() Hibernate could not save private note for assignment {}", this, nItem.getAssignmentId(), e);
 			return false;
 		}
 	}
@@ -298,8 +278,7 @@ public class AssignmentSupplementItemServiceImpl extends HibernateDaoSupport imp
 		}
 		catch (DataAccessException e)
 		{
-			e.printStackTrace();
-		 log.warn(this + ".removeNoteItem() Hibernate could not delete NoteItem for assignment " + mItem.getAssignmentId());
+			log.warn("{}.removeNoteItem() Hibernate could not delete NoteItem for assignment {}", this, mItem.getAssignmentId(), e);
 			return false;
 		}
 		
@@ -340,8 +319,7 @@ public class AssignmentSupplementItemServiceImpl extends HibernateDaoSupport imp
 		}
 		catch (DataAccessException e)
 		{
-			e.printStackTrace();
-		 log.warn(this + ".saveAllPurposeItem() Hibernate could not save private AllPurpose for assignment " + nItem.getAssignmentId());
+			log.warn("{}.saveAllPurposeItem() Hibernate could not save private AllPurpose for assignment {}", this, nItem.getAssignmentId(), e);
 			return false;
 		}
 	}
@@ -359,8 +337,7 @@ public class AssignmentSupplementItemServiceImpl extends HibernateDaoSupport imp
 		}
 		catch (DataAccessException e)
 		{
-			e.printStackTrace();
-		 log.warn(this + ".removeAllPurposeItem() Hibernate could not delete AllPurposeItem for assignment " + mItem.getAssignmentId());
+			log.warn("{}.removeAllPurposeItem() Hibernate could not delete AllPurposeItem for assignment {}", this, mItem.getAssignmentId(), e);
 			return false;
 		}
 		
@@ -417,8 +394,7 @@ public class AssignmentSupplementItemServiceImpl extends HibernateDaoSupport imp
 		}
 		catch (DataAccessException e)
 		{
-			e.printStackTrace();
-		 log.warn(this + ".saveAllPurposeItemAccess() Hibernate could not save access " + access.getAccess() + " for " + access.getAssignmentAllPurposeItem().getTitle());
+			log.warn("{}.saveAllPurposeItemAccess() Hibernate could not save access {} for {}", this, access.getAccess(), access.getAssignmentAllPurposeItem().getTitle(), e);
 			return false;
 		}
 	}
@@ -436,8 +412,7 @@ public class AssignmentSupplementItemServiceImpl extends HibernateDaoSupport imp
 		}
 		catch (DataAccessException e)
 		{
-			e.printStackTrace();
-		 log.warn(this + ".removeAllPurposeItemAccess() Hibernate could not delete access for all purpose item " + access.getAssignmentAllPurposeItem().getId() + " for access" + access.getAccess());
+			log.warn("{}.removeAllPurposeItemAccess() Hibernate could not delete access for all purpose item {} for access {}", this, access.getAssignmentAllPurposeItem().getId(), access.getAccess(), e);
 			return false;
 		}
 	}
@@ -486,7 +461,7 @@ public class AssignmentSupplementItemServiceImpl extends HibernateDaoSupport imp
 					{
 						return true;
 					}
-					else if (show == AssignmentConstants.MODEL_ANSWER_SHOW_TO_STUDENT_AFTER_ACCEPT_UTIL && (a.getCloseDate().before(new Date())))
+					else if (show == AssignmentConstants.MODEL_ANSWER_SHOW_TO_STUDENT_AFTER_ACCEPT_UTIL && (a.getCloseDate().isBefore(Instant.now())))
 					{
 						return true;
 					}
@@ -588,7 +563,7 @@ public class AssignmentSupplementItemServiceImpl extends HibernateDaoSupport imp
 			{
 				if (!aItem.getHide())
 				{
-					Time now = timeService.newTime();
+					Instant now = Instant.now();
 					Date releaseDate = aItem.getReleaseDate();
 					Date retractDate = aItem.getRetractDate();
 					
@@ -600,18 +575,18 @@ public class AssignmentSupplementItemServiceImpl extends HibernateDaoSupport imp
 					else if (releaseDate != null && retractDate == null)
 					{
 						// has relase date but not retract date
-						rv = now.getTime() > releaseDate.getTime();
+						rv = now.toEpochMilli() > releaseDate.getTime();
 					}
 					else if (releaseDate == null && retractDate != null)
 					{
 						// has retract date but not release date
-						rv = now.getTime() < retractDate.getTime();
+						rv = now.toEpochMilli() < retractDate.getTime();
 					}
 					else if (now != null)
 					{
 						// both releaseDate and retract date are not null
 						// has both release and retract dates
-						rv = now.getTime() > releaseDate.getTime() && now.getTime() < retractDate.getTime();
+						rv = now.toEpochMilli() > releaseDate.getTime() && now.toEpochMilli() < retractDate.getTime();
 					}
 				}
 				else

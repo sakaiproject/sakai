@@ -21,18 +21,23 @@
 
 package org.sakaiproject.util;
 
-import org.sakaiproject.component.api.ServerConfigurationService;
-import org.sakaiproject.component.cover.ComponentManager;
-import org.sakaiproject.tool.api.ActiveToolManager;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.io.File;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
-import java.io.File;
-import java.util.*;
-import java.util.stream.Collectors;
+
+import lombok.extern.slf4j.Slf4j;
+
+import org.sakaiproject.component.api.ServerConfigurationService;
+import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.tool.api.ActiveToolManager;
 
 /**
  * <p>
@@ -66,10 +71,9 @@ import java.util.stream.Collectors;
  * </code>
  * </p>
  */
+@Slf4j
 public class ToolListener implements ServletContextListener
 {
-	private static final Logger M_log = LoggerFactory.getLogger(ToolListener.class);
-
 	/**
 	 * The content parameter in your web.xml specifying the webapp root relative
 	 * path to look in for the tool registration files.
@@ -114,9 +118,9 @@ public class ToolListener implements ServletContextListener
 				final File f = new File(sakaiHomePath + "/tools/" + file);
 				if (f.exists()) {
 					activeToolManager.register(f, context);
-					M_log.info("overriding tools configuration: registering tools from resource: " + sakaiHomePath + path);
+					log.info("overriding tools configuration: registering tools from resource: " + sakaiHomePath + path);
 				} else {
-					M_log.info("registering tools from resource: " + path);
+					log.info("registering tools from resource: " + path);
 					activeToolManager.register(context.getResourceAsStream(path), context);
 				}
 				registered++;
@@ -126,7 +130,7 @@ public class ToolListener implements ServletContextListener
 		if (registered == 0)
 		{
 			// Probably misconfigured as we should have at least one registered.
-			M_log.warn("No tools found to be registered.");
+			log.warn("No tools found to be registered.");
 		}
 
 		//	Second pass, search for message bundles.  Two passes are necessary to make sure the tool is registered first.
@@ -147,7 +151,7 @@ public class ToolListener implements ServletContextListener
 
 				String msg = context.getRealPath(path.substring(0, path.lastIndexOf('.')) + ".properties");
 				activeToolManager.setResourceBundle(tid, msg);
-				M_log.info("Added localization " + tn + "resources for " + tid);
+				log.info("Added localization " + tn + "resources for " + tid);
 			}
 		}
 	}
@@ -164,7 +168,7 @@ public class ToolListener implements ServletContextListener
 		if (paths.isEmpty())
 		{
 			// Warn if the listener is setup but no tools found.
-			M_log.warn("No tools folder found: "+
+			log.warn("No tools folder found: "+
 				toolFolders.stream().map(context::getRealPath).collect(Collectors.joining(", ")));
 			return null;
 		}

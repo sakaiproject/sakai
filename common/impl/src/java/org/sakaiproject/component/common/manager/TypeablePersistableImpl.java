@@ -21,18 +21,17 @@
 
 package org.sakaiproject.component.common.manager;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.api.common.type.Type;
 import org.sakaiproject.api.common.type.Typeable;
 
 /**
  * @author <a href="mailto:lance@indiana.edu">Lance Speelmon</a>
  */
+@Slf4j
 public abstract class TypeablePersistableImpl extends PersistableImpl implements Typeable
 {
-	private static final Logger LOG = LoggerFactory.getLogger(TypeablePersistableImpl.class);
-
 	private static final String NULL = "null";
 
 	private static final String DOT = ".";
@@ -44,7 +43,7 @@ public abstract class TypeablePersistableImpl extends PersistableImpl implements
 	 */
 	public Type getType()
 	{
-		LOG.trace("getType()");
+		log.trace("getType()");
 
 		return type;
 	}
@@ -54,9 +53,9 @@ public abstract class TypeablePersistableImpl extends PersistableImpl implements
 	 */
 	public void setType(Type type)
 	{
-		if (LOG.isDebugEnabled())
+		if (log.isDebugEnabled())
 		{
-			LOG.debug("setType(Type " + type + ")");
+			log.debug("setType(Type " + type + ")");
 		}
 		if (type == null) throw new IllegalArgumentException("Illegal type argument passed!");
 
@@ -68,7 +67,7 @@ public abstract class TypeablePersistableImpl extends PersistableImpl implements
 	 */
 	public String toString()
 	{
-		LOG.trace("toString()");
+		log.trace("toString()");
 
 		StringBuilder sb = new StringBuilder();
 		sb.append(super.toString());

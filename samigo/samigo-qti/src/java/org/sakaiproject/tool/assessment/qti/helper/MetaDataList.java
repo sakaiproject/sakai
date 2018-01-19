@@ -19,12 +19,13 @@
  *
  **********************************************************************************/
 
-
-
 package org.sakaiproject.tool.assessment.qti.helper;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.StringTokenizer;
+
+import lombok.extern.slf4j.Slf4j;
 
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.tags.api.*;
@@ -32,19 +33,15 @@ import org.sakaiproject.tool.assessment.qti.constants.AuthoringConstantStrings;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentMetaDataIfc;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
 import org.sakaiproject.tool.assessment.facade.ItemFacade;
-import org.slf4j.LoggerFactory;
-import org.slf4j.Logger;
-import java.util.Optional;
 
 /**
  * Contract: use List of special "|" delimited "KEY|VALUE" Strings!
  * @author Ed Smiley esmiley@stanford.edu
  */
-public class MetaDataList
+@Slf4j
+ public class MetaDataList
 {
-  private static Logger log = LoggerFactory.getLogger(ExtractionHelper.class);
   private static final TagService tagService= (TagService) ComponentManager.get( TagService.class );
-
 
     /**
    * list of editable settings
@@ -253,7 +250,6 @@ public class MetaDataList
     for (int i = 0; i < metadataList.size(); i++)
     {
       String meta = (String) metadataList.get(i);
-      //log.debug( "meta = "+ meta);
       StringTokenizer st = new StringTokenizer(meta, "|");
       String key = "";
       String value = "";
@@ -261,7 +257,7 @@ public class MetaDataList
       {
         key = st.nextToken().trim();
       }
-      //log.debug( "key  = "+ key );
+
       // translate XML metadata strings to assessment metadata strings here
       // key to patch up the difference between Daisy's and earlier labels
       // that are compatible with the earlier beta version of Samigo
@@ -318,7 +314,6 @@ public class MetaDataList
       }
        
       else if ("SUBMISSION_MESSAGE".equalsIgnoreCase(key)){
-    	  //log.debug("key is submsg " + key);
     	  // skip
       }
 

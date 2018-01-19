@@ -46,10 +46,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
-import org.sakaiproject.util.api.FormattedText;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.FunctionManager;
 import org.sakaiproject.authz.api.Member;
@@ -80,6 +79,7 @@ import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
+import org.sakaiproject.util.api.FormattedText;
 import org.sakaiproject.util.ResourceLoader;
 
 /**
@@ -92,9 +92,8 @@ import org.sakaiproject.util.ResourceLoader;
  * @author gl256
  * 
  */
+@Slf4j
 public class SakaiFacadeImpl implements SakaiFacade {
-
-	private static Logger log = LoggerFactory.getLogger(SakaiFacadeImpl.class);
 
 	private FunctionManager functionManager;
 	

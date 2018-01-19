@@ -31,8 +31,7 @@ import java.util.Set;
 import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.sakaiproject.content.api.FilePickerHelper;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.tool.api.ToolSession;
@@ -45,12 +44,12 @@ import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.util.AttachmentUtil;
 import org.sakaiproject.tool.cover.SessionManager;
 
-
 /**
  * A set of information for an agent.  This contains both totalScores
  * and questionScores information.
 */
 
+@Slf4j
 public class AgentResults
     implements Serializable
 {
@@ -58,7 +57,6 @@ public class AgentResults
 	 * 
 	 */
 	private static final long serialVersionUID = 2820488402465439395L;
-	private static final Logger LOG = LoggerFactory.getLogger(AgentResults.class);
 	
   private Long assessmentGradingId;
   private Long itemGradingId;
@@ -459,7 +457,7 @@ public class AgentResults
 			  context.redirect("sakai.filepicker.helper/tool");
 		  }
 		  catch(Exception e){
-			  LOG.error("fail to redirect to attachment page: " + e.getMessage());
+			  log.error("fail to redirect to attachment page: " + e.getMessage());
 		  }
 		  return "sakai.filepicker.helper";
 	  }
@@ -503,7 +501,7 @@ public class AgentResults
 			  context.redirect("sakai.filepicker.helper/tool");
 		  }
 		  catch(Exception e){
-			  LOG.error("fail to redirect to attachment page: " + e.getMessage());
+			  log.error("fail to redirect to attachment page: " + e.getMessage());
 		  }
 		  return "sakai.filepicker.helper";
 	  }

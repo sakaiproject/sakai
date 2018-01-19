@@ -15,7 +15,7 @@
             <script language="javascript" type="text/JavaScript">
                 <%@ include file="/js/samigotree.js" %>
             </script>
-            <script src="/library/js/spinner.js" type="text/javascript"></script>
+            <samigo:script path="/../library/js/spinner.js"/>
 
             <samigo:stylesheet path="/css/tool_sam.css" />
         </head>

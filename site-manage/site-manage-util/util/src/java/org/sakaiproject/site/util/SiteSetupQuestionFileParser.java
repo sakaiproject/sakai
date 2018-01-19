@@ -27,6 +27,14 @@ import java.util.Map;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang.StringUtils;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NamedNodeMap;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.component.cover.ComponentManager;
@@ -40,17 +48,6 @@ import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.ServerOverloadException;
 import org.sakaiproject.exception.TypeException;
-
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.NamedNodeMap;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-
-import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import org.sakaiproject.sitemanage.api.model.*;
 
 /**
@@ -58,10 +55,10 @@ import org.sakaiproject.sitemanage.api.model.*;
  * @author zqian
  *
  */
+@Slf4j
 public class SiteSetupQuestionFileParser
 {
-	private static Logger m_log = LoggerFactory.getLogger(SiteSetupQuestionFileParser.class);
-	
+
 	private static org.sakaiproject.sitemanage.api.model.SiteSetupQuestionService questionService = (org.sakaiproject.sitemanage.api.model.SiteSetupQuestionService) ComponentManager
 	.get(org.sakaiproject.sitemanage.api.model.SiteSetupQuestionService.class);
 	
@@ -160,7 +157,7 @@ public class SiteSetupQuestionFileParser
 	    }
 		catch (Exception exception)
 		{
-			m_log.warn("Unexpected exception: " + exception);
+			log.warn("Unexpected exception: " + exception);
 		}
 		return false;
 	}
@@ -189,7 +186,7 @@ public class SiteSetupQuestionFileParser
     		{
     			resource = contentHostingService.getResource(reference.getId());
     			// as a remind for newly added configuration file
-    			m_log.info("exists(): find new resource " + reference.getId());
+    			log.info("exists(): find new resource " + reference.getId());
     		}
     		catch (Exception ee)
     		{
@@ -286,7 +283,7 @@ public class SiteSetupQuestionFileParser
 	        		}
 	        		catch (Exception ee)
 	        		{
-	        			m_log.warn("SiteSetupQuestionMap.updateConfig: Problem of adding backup collection " + configBackupolderReference.getId() + ee.getMessage());
+	        			log.warn("SiteSetupQuestionMap.updateConfig: Problem of adding backup collection " + configBackupolderReference.getId() + ee.getMessage());
 	        		}
 	        	}
 	          
@@ -298,7 +295,7 @@ public class SiteSetupQuestionFileParser
 	        		}
 	        		catch (Exception ee)
 	        		{
-	        			m_log.warn("SiteSetupQuestionMap.updateConfig: Problem of backing up question.xml file " + ee.getMessage());
+	        			log.warn("SiteSetupQuestionMap.updateConfig: Problem of backing up question.xml file " + ee.getMessage());
 	        		}
 	        	}
 	          
@@ -310,7 +307,7 @@ public class SiteSetupQuestionFileParser
 	        	}
 	        	catch (Exception ee)
 	        	{
-	        		m_log.warn("SiteSetupQuestionMap.updateConfig: Problem of removing resource " + ref.getId() + ee.getMessage());
+	        		log.warn("SiteSetupQuestionMap.updateConfig: Problem of removing resource " + ref.getId() + ee.getMessage());
 	        	} 
 	        }
 	        // remove recent the security advisor
@@ -318,21 +315,21 @@ public class SiteSetupQuestionFileParser
 	      }
 	      catch (PermissionException e)
 	      {
-	        m_log.warn("Exception: " + e + ", continuing");
+	        log.warn("Exception: " + e + ", continuing");
 	      }
 	      catch (IdUnusedException e)
 	      {
-	        m_log.info("configuration XML is missing ("
+	        log.info("configuration XML is missing ("
 	              +    m_configXml
 	              +    "); Citations ConfigurationService will watch for its creation");
 	      }
 	      catch (TypeException e)
 	      {
-	        m_log.warn("Exception: " + e + ", continuing");
+	        log.warn("Exception: " + e + ", continuing");
 	      }
 	      catch (ServerOverloadException e)
 	      {
-	        m_log.warn("Exception: " + e + ", continuing");
+	        log.warn("Exception: " + e + ", continuing");
 	      }
 	    }
 	    
@@ -366,7 +363,7 @@ public class SiteSetupQuestionFileParser
 	    // root element should be "SiteSetupQuestions"
 	    if (childList == null || childList.getLength() == 0)
 		{
-			m_log.warn("Cannot find elements in SiteSetupQuestions");
+			log.warn("Cannot find elements in SiteSetupQuestions");
 		}
 		else
 		{
@@ -565,7 +562,7 @@ public class SiteSetupQuestionFileParser
 	    }
 	    catch (Exception exception)
 	    {
-	      m_log.warn("XML parse on \"" + stream + "\" failed: " + exception);
+	      log.warn("XML parse on \"" + stream + "\" failed: " + exception);
 	    }
 	    return null;
 	  }
@@ -587,7 +584,7 @@ public class SiteSetupQuestionFileParser
 	    }
 	    catch (Exception exception)
 	    {
-	      m_log.warn("Failed to get XML DocumentBuilder: " + exception);
+	      log.warn("Failed to get XML DocumentBuilder: " + exception);
 	    }
 	    return null;
 	  }

@@ -19,9 +19,6 @@
  *
  **********************************************************************************/
 
-
-
-
 package org.sakaiproject.tool.assessment.ui.listener.author;
 
 import java.util.List;
@@ -32,10 +29,10 @@ import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
 
-import org.sakaiproject.samigo.util.SamigoConstants;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.event.cover.EventTrackingService;
+import org.sakaiproject.samigo.util.SamigoConstants;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacadeQueries;
@@ -56,11 +53,10 @@ import org.sakaiproject.tool.assessment.util.TextFormat;
  * @author Ed Smiley
  * @version $Id$
  */
-
+@Slf4j
 public class AuthorAssessmentListener
     implements ActionListener
 {
-  private static Logger log = LoggerFactory.getLogger(AuthorAssessmentListener.class);
 
   public AuthorAssessmentListener()
   {
@@ -103,7 +99,7 @@ public class AuthorAssessmentListener
     // create an assessment based on the title entered and the assessment
     // template selected
     // #1 - read from form authorIndex_content.jsp
-    String assessmentTitle = TextFormat.convertPlaintextToFormattedTextNoHighUnicode(log, author.getAssessTitle());
+    String assessmentTitle = TextFormat.convertPlaintextToFormattedTextNoHighUnicode(author.getAssessTitle());
 
     //HUONG's EDIT
     //check assessmentTitle and see if it is duplicated, if is not then proceed, else throw error

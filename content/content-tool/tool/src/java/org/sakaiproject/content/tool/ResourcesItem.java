@@ -29,6 +29,8 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.Vector;
 
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.content.api.ContentCollection;
 import org.sakaiproject.content.api.ContentEntity;
 import org.sakaiproject.content.api.ContentResource;
@@ -40,6 +42,7 @@ import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.exception.ServerOverloadException;
 import org.sakaiproject.time.api.Time;
 
+@Slf4j
 public class ResourcesItem
 {
 	protected byte[] content;
@@ -112,12 +115,12 @@ public class ResourcesItem
 		catch (EntityPropertyNotDefinedException e1)
 		{
 			// TODO Auto-generated catch block
-			ResourcesAction.logger.warn("EntityPropertyNotDefinedException for createdTime or modifiedTime of " + this.entityId);
+			log.warn("EntityPropertyNotDefinedException for createdTime or modifiedTime of " + this.entityId);
 		}
 		catch (EntityPropertyTypeException e1)
 		{
 			// TODO Auto-generated catch block
-			ResourcesAction.logger.warn("EntityPropertyTypeException for createdTime or modifiedTime of " + this.entityId);
+			log.warn("EntityPropertyTypeException for createdTime or modifiedTime of " + this.entityId);
 		}
 		this.displayName = props.getProperty(ResourceProperties.PROP_DISPLAY_NAME);
 		this.description = props.getProperty(ResourceProperties.PROP_DESCRIPTION);
@@ -154,7 +157,7 @@ public class ResourcesItem
 			catch (ServerOverloadException e)
 			{
 				// TODO Auto-generated catch block
-				ResourcesAction.logger.warn("ServerOverloadException ", e);
+				log.warn("ServerOverloadException ", e);
 			}
 			this.copyrightStatus = props.getProperty(ResourceProperties.PROP_COPYRIGHT_CHOICE);
 			this.copyrightInfo = props.getProperty(ResourceProperties.PROP_COPYRIGHT);

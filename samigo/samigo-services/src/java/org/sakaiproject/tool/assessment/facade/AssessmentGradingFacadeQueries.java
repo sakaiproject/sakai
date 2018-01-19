@@ -39,6 +39,7 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
 
+import lombok.extern.slf4j.Slf4j;
 import org.hibernate.Criteria;
 import org.hibernate.HibernateException;
 import org.hibernate.Query;
@@ -82,6 +83,7 @@ import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData;
 import org.sakaiproject.tool.assessment.data.dao.grading.MediaData;
 import org.sakaiproject.tool.assessment.data.dao.grading.StudentGradingSummaryData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AnswerIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessControlIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAttachmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AttachmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.EvaluationModelIfc;
@@ -102,8 +104,6 @@ import org.sakaiproject.tool.assessment.util.ExtendedTimeDeliveryService;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.springframework.orm.hibernate4.HibernateCallback;
 import org.springframework.orm.hibernate4.support.HibernateDaoSupport;
-
-import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implements AssessmentGradingFacadeQueriesAPI {
@@ -402,7 +402,6 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
             HashMap map = new HashMap();
             AssessmentGradingData gdata = load(new Long(assessmentGradingId), loadGradingAttachment);
             log.debug("****#6, gdata=" + gdata);
-            //log.debug("****#7, item size="+gdata.getItemGradingSet().size());
             for (ItemGradingData data : gdata.getItemGradingSet()) {
                 ArrayList thisone = (ArrayList)
                         map.get(data.getPublishedItemId());
@@ -1107,11 +1106,12 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
         int retryCount = persistenceHelper.getRetryCount();
         while (retryCount > 0) {
             try {
-        /* for testing the catch block - daisyf
-        if (retryCount >2)
-          throw new Exception("uncategorized SQLException for SQL []; SQL state [61000]; error code [60]; ORA-00060: deadlock detected while waiting for resource");
-	*/
-                getHibernateTemplate().saveOrUpdate((AssessmentGradingData) assessment);
+                if (assessment.getAssessmentGradingId() != null) {
+                    getHibernateTemplate().merge((AssessmentGradingData) assessment);
+                }
+                else {
+                    getHibernateTemplate().save((AssessmentGradingData) assessment);
+                }
                 retryCount = 0;
             } catch (Exception e) {
                 log.warn("problem inserting/updating assessmentGrading: {}", e.getMessage());
@@ -1464,7 +1464,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
         while (retryCount > 0) {
             try {
                 for (ItemGradingData itemGradingData : c) {
-                    getHibernateTemplate().saveOrUpdate(itemGradingData);
+                    getHibernateTemplate().merge(itemGradingData);
                 }
                 retryCount = 0;
             } catch (Exception e) {
@@ -2186,37 +2186,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 
                             count++;
                         } else if (typeId.equals(TypeIfc.IMAGEMAP_QUESTION)) {
-                            log.debug("MATCHING");
-
-                            ItemTextIfc itemTextIfc = (ItemTextIfc) publishedItemTextHash.get(grade.getPublishedItemTextId());
-                            Long sequence = itemTextIfc.getSequence();
-                            String temptext = (grade.getIsCorrect()) ? "OK" : "No OK";
-
-                            String thistext = sequence + ": " + temptext;
-
-                            if (count == 0)
-                                maintext = thistext;
-                            else
-                                maintext = maintext + "|" + thistext;
-
-                            count++;
-                        } else if (typeId.equals(TypeIfc.IMAGEMAP_QUESTION)) {
-                            log.debug("MATCHING");
-
-                            ItemTextIfc itemTextIfc = (ItemTextIfc) publishedItemTextHash.get(grade.getPublishedItemTextId());
-                            Long sequence = itemTextIfc.getSequence();
-                            String temptext = (grade.getIsCorrect()) ? "OK" : "No OK";
-
-                            String thistext = sequence + ": " + temptext;
-
-                            if (count == 0)
-                                maintext = thistext;
-                            else
-                                maintext = maintext + "|" + thistext;
-
-                            count++;
-                        } else if (typeId.equals(TypeIfc.IMAGEMAP_QUESTION)) {
-                            log.debug("MATCHING");
+                            log.debug("IMAGEMAP_QUESTION");
 
                             ItemTextIfc itemTextIfc = (ItemTextIfc) publishedItemTextHash.get(grade.getPublishedItemTextId());
                             Long sequence = itemTextIfc.getSequence();
@@ -3004,16 +2974,12 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 						" a.finalScore, a.comments, a.status, a.gradedBy, a.gradedDate, a.attemptDate, a.timeElapsed) " +
 						" from AssessmentGradingData a, PublishedAccessControl c " +
 						" where a.publishedAssessmentId = c.assessment.publishedAssessmentId " +
-						" and c.retractDate <= :retractDate" +
+						" and ((c.lateHandling = 1 and c.retractDate <= :currentTime) or (c.lateHandling = 2 and c.dueDate <= :currentTime))" +
 						" and a.status not in (5) and (a.hasAutoSubmissionRun = 0 or a.hasAutoSubmissionRun is null) and c.autoSubmit = 1 " +
 						" and a.attemptDate is not null " +
-						" and (a.attemptDate <= c.retractDate " +
-							" or (c.dueDate <= :dueDate and c.lateHandling = 2) " +
-						"     ) " +
 						" order by a.publishedAssessmentId, a.agentId, a.forGrade desc, a.assessmentGradingId");
 	    
-		query.setTimestamp("dueDate",currentTime);
-		query.setTimestamp("retractDate",currentTime);
+		query.setTimestamp("currentTime",currentTime);
 		
 		List<AssessmentGradingData> list = query.list();
 
@@ -3060,17 +3026,22 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
                     PublishedAssessmentFacade assessment = (PublishedAssessmentFacade) publishedAssessmentService.getAssessment(
                             adata.getPublishedAssessmentId());
                     Date dueDate = assessment.getAssessmentAccessControl().getDueDate();
+                    Date retractDate = assessment.getAssessmentAccessControl().getRetractDate();
+                    Integer lateHandling = assessment.getAssessmentAccessControl().getLateHandling();
                     ExtendedTimeDeliveryService assessmentExtended = new ExtendedTimeDeliveryService(assessment,
                             adata.getAgentId());
+
                     //If it has extended time, just continue for now, no method to tell if the time is passed
                     if (assessmentExtended.hasExtendedTime()) {
-                        //If the due date or retract date hasn't passed yet, go on to the next one, don't consider it yet
-                        if (currentTime.before(assessmentExtended.getRetractDate()) || currentTime.before(
-                                assessmentExtended.getDueDate())) {
-                            continue;
-                        }
                         //Continue on and try to submit it but it may be late, just change the due date
-                        dueDate = assessmentExtended.getDueDate();
+                        dueDate = assessmentExtended.getDueDate() != null ? assessmentExtended.getDueDate() : dueDate;
+                        retractDate = assessmentExtended.getRetractDate() != null ? assessmentExtended.getRetractDate() : retractDate;
+                    }
+
+                    //If the due date or retract date hasn't passed yet, go on to the next one, don't consider it yet
+                    if ((AssessmentAccessControlIfc.ACCEPT_LATE_SUBMISSION.toString().equals(lateHandling) && retractDate!=null && (currentTime.before(retractDate) || adata.getAttemptDate().after(retractDate)))
+                            || (dueDate != null && currentTime.before(dueDate))) {
+                        continue;
                     }
 
                     adata.setForGrade(Boolean.TRUE);

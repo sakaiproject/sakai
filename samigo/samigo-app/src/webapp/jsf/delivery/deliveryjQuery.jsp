@@ -20,7 +20,7 @@
 --%>
 -->
 
-<script type="text/javascript" src="/library/webjars/jquery-blockui/2.65/jquery.blockUI.js"></script>
+<samigo:script path="/../library/webjars/jquery-blockui/2.65/jquery.blockUI.js"/>
 
 <script type="text/javascript">
      var honorPledgeIsChecked = true;
@@ -51,7 +51,12 @@
 
 			$.blockUI({ message: '<h3>' + please_wait + ' <img src="/library/image/sakai/spinner.gif" /></h3>', overlayCSS: { backgroundColor: '#ccc', opacity: 0.25} });
 		}); 
+		//Disable the back button
+		disableBackButton("<h:outputText value="#{deliveryMessages.use_form_navigation}"/>");
 
+		if($('#submittedForm\\:renderTimeoutMessage').length > 0){
+			showTimerExpiredWarning(function() { ($('#timer-expired-warning').parent()).css('display', 'none');});
+		}
 	});
 
 	function checkIfHonorPledgeIsChecked() {

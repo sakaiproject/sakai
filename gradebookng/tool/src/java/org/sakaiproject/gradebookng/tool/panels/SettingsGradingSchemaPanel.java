@@ -15,19 +15,14 @@
  */
 package org.sakaiproject.gradebookng.tool.panels;
 
-import java.awt.Color;
-import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.ListIterator;
 import java.util.Map;
-import java.util.TreeMap;
 import java.util.stream.Collectors;
 
-import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
@@ -35,6 +30,9 @@ import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.ajax.AjaxEventBehavior;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
+import org.apache.wicket.behavior.AttributeAppender;
+import org.apache.wicket.markup.head.IHeaderResponse;
+import org.apache.wicket.markup.head.OnLoadHeaderItem;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.ChoiceRenderer;
@@ -44,46 +42,37 @@ import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.model.IModel;
-import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
-import org.jfree.chart.ChartFactory;
-import org.jfree.chart.JFreeChart;
-import org.jfree.chart.axis.AxisLocation;
-import org.jfree.chart.axis.NumberTickUnitSource;
-import org.jfree.chart.labels.StandardCategoryToolTipGenerator;
-import org.jfree.chart.plot.CategoryPlot;
-import org.jfree.chart.plot.PlotOrientation;
-import org.jfree.chart.renderer.category.BarRenderer;
-import org.jfree.chart.renderer.category.StandardBarPainter;
-import org.jfree.data.category.DefaultCategoryDataset;
-import org.sakaiproject.gradebookng.business.DoubleComparator;
 import org.sakaiproject.gradebookng.business.FirstNameComparator;
-import org.sakaiproject.gradebookng.business.LetterGradeComparator;
 import org.sakaiproject.gradebookng.business.model.GbUser;
-import org.sakaiproject.gradebookng.tool.component.JFreeChartImageWithToolTip;
+import org.sakaiproject.gradebookng.business.util.FormatHelper;
 import org.sakaiproject.gradebookng.tool.model.GbGradingSchemaEntry;
 import org.sakaiproject.gradebookng.tool.model.GbSettings;
 import org.sakaiproject.service.gradebook.shared.CourseGrade;
 import org.sakaiproject.service.gradebook.shared.GradeMappingDefinition;
-import org.sakaiproject.tool.gradebook.GradebookArchive;
+import org.sakaiproject.tool.gradebook.GradeMapping;
 import org.sakaiproject.user.api.User;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 public class SettingsGradingSchemaPanel extends BasePanel implements IFormModelUpdateListener {
 
 	private static final long serialVersionUID = 1L;
 
-	private static Logger logger = LoggerFactory.getLogger(SettingsGradingSchemaPanel.class);
-
 	IModel<GbSettings> model;
 
 	WebMarkupContainer schemaWrap;
+	WebMarkupContainer statsWrap;
 	ListView<GbGradingSchemaEntry> schemaView;
 	List<GradeMappingDefinition> gradeMappings;
 	private boolean expanded;
 	String gradingSchemaName;
+	DescriptiveStatistics statistics;
 
 	/**
 	 * This is the currently PERSISTED grade mapping id that is persisted for this gradebook
@@ -126,6 +115,12 @@ public class SettingsGradingSchemaPanel extends BasePanel implements IFormModelU
 
 		// setup the grading scale schema entries
 		this.model.getObject().setGradingSchemaEntries(getGradingSchemaEntries());
+
+		// get the course grade map
+		this.courseGradeMap = getCourseGrades();
+
+		// get the total number of course grades
+		this.total = getTotalCourseGrades(this.courseGradeMap);
 
 		// create map of grading scales to use for the dropdown
 		final Map<String, String> gradeMappingMap = new LinkedHashMap<>();
@@ -193,15 +188,36 @@ public class SettingsGradingSchemaPanel extends BasePanel implements IFormModelU
 
 				// minpercent
 				final TextField<Double> minPercent = new TextField<Double>("minPercent", new PropertyModel<Double>(entry, "minPercent"));
-
-				// if grade is F or NP, set disabled
-				if (ArrayUtils.contains(new String[] { "F", "NP", "F (0)" }, entry.getGrade())) {
-					minPercent.setEnabled(false);
-				}
-
 				item.add(minPercent);
+
+				// when minpercent is updated, reorder the listview
+				minPercent.add(new AjaxFormComponentUpdatingBehavior("onchange") {
+					private static final long serialVersionUID = 1L;
+
+					@Override
+					protected void onUpdate(final AjaxRequestTarget target) {
+
+						// fetch current data from model, sort and refresh the table
+						final List<GbGradingSchemaEntry> schemaList = SettingsGradingSchemaPanel.this.model.getObject()
+								.getGradingSchemaEntries();
+						schemaList.sort(Collections.reverseOrder());
+						SettingsGradingSchemaPanel.this.model.getObject().setGradingSchemaEntries(schemaList);
+						target.add(SettingsGradingSchemaPanel.this.schemaWrap);
+
+						// refresh chart
+						// we need the current data from model (sorted) but in JSON form
+						Map<String, Double> schemaMap = asMap(schemaList);
+						schemaMap = GradeMapping.sortGradeMapping(schemaMap);
+						final Gson gson = new GsonBuilder().create();
+						final String schemaJson = gson.toJson(schemaMap);
+
+						final String siteId = SettingsGradingSchemaPanel.this.businessService.getCurrentSiteId();
+						target.appendJavaScript("refreshChart('" + siteId + "', '" + FormatHelper.encode(schemaJson) + "')");
+					}
+				});
 			}
 		};
+		this.schemaView.setOutputMarkupId(true);
 		this.schemaWrap.add(this.schemaView);
 		this.schemaWrap.setOutputMarkupId(true);
 		settingsGradingSchemaPanel.add(this.schemaWrap);
@@ -224,17 +240,6 @@ public class SettingsGradingSchemaPanel extends BasePanel implements IFormModelU
 			}
 		});
 
-		// get the course grade map as we are about to use it a lot
-		this.courseGradeMap = getCourseGrades();
-
-		// chart
-		final JFreeChart chartData = getChartData();
-		final JFreeChartImageWithToolTip chart = new JFreeChartImageWithToolTip("chart", Model.of(chartData), "tooltip", 700, 400);
-
-		// chart is only visible if there are grades
-		chart.setVisible(this.total > 0);
-		settingsGradingSchemaPanel.add(chart);
-
 		// if there are no grades, display message instead of chart
 		settingsGradingSchemaPanel
 				.add(new Label("noStudentsWithGradesMessage", new ResourceModel("settingspage.gradingschema.emptychart")) {
@@ -248,22 +253,26 @@ public class SettingsGradingSchemaPanel extends BasePanel implements IFormModelU
 
 		// other stats
 		// TODO this could be in a panel/fragment of its own
-		final DescriptiveStatistics stats = calculateStatistics();
+		this.statsWrap = new WebMarkupContainer("statsWrap");
+		this.statsWrap.setOutputMarkupId(true);
+		settingsGradingSchemaPanel.add(this.statsWrap);
 
-		settingsGradingSchemaPanel.add(new Label("averagegpa", getAverageGPA()) {
+		this.statistics = calculateStatistics();
+
+		this.statsWrap.add(new Label("averagegpa", getAverageGPA()) {
 			private static final long serialVersionUID = 1L;
 
 			@Override
 			public boolean isVisible() {
-				return StringUtils.equals(gradingSchemaName, "Grade Points");
+				return StringUtils.equals(SettingsGradingSchemaPanel.this.gradingSchemaName, "Grade Points");
 			}
 		});
-		settingsGradingSchemaPanel.add(new Label("average", getMean(stats)));
-		settingsGradingSchemaPanel.add(new Label("median", getMedian(stats)));
-		settingsGradingSchemaPanel.add(new Label("lowest", getMin(stats)));
-		settingsGradingSchemaPanel.add(new Label("highest", getMax(stats)));
-		settingsGradingSchemaPanel.add(new Label("deviation", getStandardDeviation(stats)));
-		settingsGradingSchemaPanel.add(new Label("graded", String.valueOf(this.total)));
+		this.statsWrap.add(new Label("average", getMean(this.statistics)));
+		this.statsWrap.add(new Label("median", getMedian(this.statistics)));
+		this.statsWrap.add(new Label("lowest", getMin(this.statistics)));
+		this.statsWrap.add(new Label("highest", getMax(this.statistics)));
+		this.statsWrap.add(new Label("deviation", getStandardDeviation(this.statistics)));
+		this.statsWrap.add(new Label("graded", String.valueOf(this.total)));
 
 		// if there are course grade overrides, add the list of students
 		final List<GbUser> usersWithOverrides = getStudentsWithCourseGradeOverrides();
@@ -281,31 +290,17 @@ public class SettingsGradingSchemaPanel extends BasePanel implements IFormModelU
 			}
 		});
 
+		final WebMarkupContainer chart = new WebMarkupContainer("gradingSchemaChart");
+		chart.setOutputMarkupId(true);
+		chart.add(new AttributeAppender("data-siteId", SettingsGradingSchemaPanel.this.businessService.getCurrentSiteId()));
+
 	}
 
-	/**
-	 * Helper to sort the bottom percents maps. Caters for both letter grade and P/NP types
-	 *
-	 * @param gradingScaleName name of the grading schema so we know how to sort.
-	 * @param percents
-	 * @return
-	 */
-	private Map<String, Double> sortBottomPercents(final String gradingScaleName, final Map<String, Double> percents) {
-
-		Map<String, Double> rval = null;
-
-		if (StringUtils.equals(gradingScaleName, "Pass / Not Pass")) {
-			rval = new TreeMap<>(Collections.reverseOrder()); // P before NP.
-		} else if (StringUtils.contains(gradingScaleName, "Letter Grades") || StringUtils.contains(gradingScaleName, "Grade Points")) {
-			rval = new TreeMap<>(new LetterGradeComparator()); // letter grade mappings
-		} else {
-			// Order by percent.
-			DoubleComparator doubleComparator = new DoubleComparator(percents);
-			rval = new TreeMap<String, Double>(doubleComparator);
-		}
-		rval.putAll(percents);
-
-		return rval;
+	@Override
+	public void renderHead(final IHeaderResponse response) {
+		super.renderHead(response);
+		final String siteId = SettingsGradingSchemaPanel.this.businessService.getCurrentSiteId();
+		response.render(OnLoadHeaderItem.forScript("renderChart('" + siteId + "');"));
 	}
 
 	/**
@@ -345,12 +340,11 @@ public class SettingsGradingSchemaPanel extends BasePanel implements IFormModelU
 				.getName();
 
 		if (StringUtils.equals(this.currentGradeMappingId, this.configuredGradeMappingId)) {
-			// get the values from the configured grading scale in this gradebook and sort accordingly
-			bottomPercents = sortBottomPercents(gradingSchemaName,
-					this.model.getObject().getGradebookInformation().getSelectedGradingScaleBottomPercents());
+			// get the values from the configured grading scale (sorted by the service)
+			bottomPercents = this.model.getObject().getGradebookInformation().getSelectedGradingScaleBottomPercents();
 		} else {
-			// get the default values for the chosen grading scale and sort accordingly
-			bottomPercents = sortBottomPercents(gradingSchemaName,
+			// get the default values for the chosen grading scale and sort them
+			bottomPercents = GradeMapping.sortGradeMapping(
 					this.gradeMappings.stream()
 							.filter(gradeMapping -> StringUtils.equals(gradeMapping.getId(), this.currentGradeMappingId))
 							.findFirst()
@@ -358,101 +352,11 @@ public class SettingsGradingSchemaPanel extends BasePanel implements IFormModelU
 							.getDefaultBottomPercents());
 		}
 
-		// convert map into list of objects which is easier to work with in the views
-		final List<GbGradingSchemaEntry> rval = new ArrayList<>();
-		for (final Map.Entry<String, Double> entry : bottomPercents.entrySet()) {
-			rval.add(new GbGradingSchemaEntry(entry.getKey(), entry.getValue()));
-		}
-
-		return rval;
+		return asList(bottomPercents);
 	}
 
 	public boolean isExpanded() {
 		return this.expanded;
-	}
-
-	/**
-	 * Build the data for the chart
-	 * 
-	 * @return
-	 */
-	private JFreeChart getChartData() {
-
-		// just need the list
-		final List<CourseGrade> courseGrades = this.courseGradeMap.values().stream().collect(Collectors.toList());
-
-		// get current grading schema (from model so that it reflects current state)
-		final List<GbGradingSchemaEntry> gradingSchemaEntries = this.model.getObject().getGradingSchemaEntries();
-
-		final DefaultCategoryDataset data = new DefaultCategoryDataset();
-		final Map<String, Integer> counts = new LinkedHashMap<>(); // must retain order so graph can be printed correctly
-
-		// add all schema entries (these will be sorted according to {@link LetterGradeComparator})
-		gradingSchemaEntries.forEach(e -> {
-			counts.put(e.getGrade(), 0);
-		});
-
-		// now add the count of each course grade for those schema entries
-		this.total = 0;
-		for (final CourseGrade g : courseGrades) {
-
-			// course grade may not be released so we have to skip it
-			if (StringUtils.isBlank(g.getMappedGrade())) {
-				continue;
-			}
-
-			counts.put(g.getMappedGrade(), counts.get(g.getMappedGrade()) + 1);
-			this.total++;
-		}
-
-		// build the data
-		final ListIterator<String> iter = new ArrayList<>(counts.keySet()).listIterator(0);
-		while (iter.hasNext()) {
-			final String c = iter.next();
-			data.addValue(counts.get(c), "count", c);
-		}
-
-		final JFreeChart chart = ChartFactory.createBarChart(
-				null, // the chart title
-				getString("settingspage.gradingschema.chart.xaxis"), // the label for the category (x) axis
-				getString("label.statistics.chart.yaxis"), // the label for the value (y) axis
-				data, // the dataset for the chart
-				PlotOrientation.HORIZONTAL, // the plot orientation
-				false, // show legend
-				true, // show tooltips
-				false); // show urls
-
-		chart.getCategoryPlot().setRangeAxisLocation(AxisLocation.BOTTOM_OR_RIGHT);
-		chart.setBorderVisible(false);
-		chart.setAntiAlias(false);
-
-		final CategoryPlot plot = chart.getCategoryPlot();
-		final BarRenderer br = (BarRenderer) plot.getRenderer();
-
-		br.setItemMargin(0);
-		br.setMinimumBarLength(0.05);
-		br.setMaximumBarWidth(0.1);
-		br.setSeriesPaint(0, new Color(51, 122, 183));
-		br.setBarPainter(new StandardBarPainter());
-		br.setShadowPaint(new Color(220, 220, 220));
-		BarRenderer.setDefaultShadowsVisible(true);
-
-		br.setBaseToolTipGenerator(
-				new StandardCategoryToolTipGenerator(getString("label.statistics.chart.tooltip"), NumberFormat.getInstance()));
-
-		plot.setRenderer(br);
-
-		// show only integers in the count axis
-		plot.getRangeAxis().setStandardTickUnits(new NumberTickUnitSource(true));
-
-		// make x-axis wide enough so we don't get ... suffix
-		plot.getDomainAxis().setMaximumCategoryLabelWidthRatio(2.0f);
-
-		plot.setBackgroundPaint(Color.white);
-
-		chart.setTitle(getString("settingspage.gradingschema.chart.heading"));
-
-		return chart;
 	}
 
 	/**
@@ -481,7 +385,7 @@ public class SettingsGradingSchemaPanel extends BasePanel implements IFormModelU
 
 	/**
 	 * Get the map of userId to {@link CourseGrade} for the students in this gradebook
-	 * 
+	 *
 	 * @return
 	 */
 	private Map<String, CourseGrade> getCourseGrades() {
@@ -492,13 +396,14 @@ public class SettingsGradingSchemaPanel extends BasePanel implements IFormModelU
 	}
 
 	/**
-	 * Calculates stats based on the calculated course grade values
-	 * 
-	 * @return
+	 * Calculates stats based on the calculated course grade values, excluding any empty grades
+	 *
+	 * @return {@link DescriptiveStatistics}
 	 */
 	private DescriptiveStatistics calculateStatistics() {
 
-		final List<Double> grades = this.courseGradeMap.values().stream().map(c -> NumberUtils.toDouble(c.getCalculatedGrade()))
+		final List<Double> grades = this.courseGradeMap.values().stream().filter(c -> StringUtils.isNotBlank(c.getMappedGrade()))
+				.map(c -> NumberUtils.toDouble(c.getCalculatedGrade()))
 				.collect(Collectors.toList());
 
 		final DescriptiveStatistics stats = new DescriptiveStatistics();
@@ -512,7 +417,7 @@ public class SettingsGradingSchemaPanel extends BasePanel implements IFormModelU
 
 	/**
 	 * Calculates the average GPA for the course
-	 * 
+	 *
 	 * @return String average GPA
 	 */
 	private String getAverageGPA() {
@@ -520,21 +425,21 @@ public class SettingsGradingSchemaPanel extends BasePanel implements IFormModelU
 		if (this.total < 1 && StringUtils.equals(this.gradingSchemaName, "Grade Points")) {
 			return "-";
 		} else if (StringUtils.equals(this.gradingSchemaName, "Grade Points")) {
-			Map<String, Double> gpaScoresMap = getGPAScoresMap();
+			final Map<String, Double> gpaScoresMap = getGPAScoresMap();
 
 			// get all of the non null mapped grades
 			// mapped grades will be null if the student doesn't have a course grade yet.
 			final List<String> mappedGrades = this.courseGradeMap.values().stream().filter(c -> c.getMappedGrade() != null)
 					.map(c -> (c.getMappedGrade())).collect(Collectors.toList());
 			Double averageGPA = 0.0;
-			for (String mappedGrade : mappedGrades) {
+			for (final String mappedGrade : mappedGrades) {
 				// Note to developers. If you changed GradePointsMapping without changing gpaScoresMap, the average will be incorrect.
 				// As per GradePointsMapping, both must be kept in sync
-				Double grade = gpaScoresMap.get(mappedGrade);
+				final Double grade = gpaScoresMap.get(mappedGrade);
 				if (grade != null) {
 					averageGPA += grade;
 				} else {
-					logger.debug(
+					log.debug(
 							"Grade skipped when calculating course average GPA: " + mappedGrade + ". Calculated value will be incorrect.");
 				}
 			}
@@ -548,54 +453,54 @@ public class SettingsGradingSchemaPanel extends BasePanel implements IFormModelU
 
 	/**
 	 * Calculates the mean grade for the course
-	 * 
+	 *
 	 * @return String mean grade
 	 */
-	private String getMean(DescriptiveStatistics stats) {
+	private String getMean(final DescriptiveStatistics stats) {
 		return this.total > 0 ? String.format("%.2f", stats.getMean()) : "-";
 	}
 
 	/**
 	 * Calculates the median grade for the course
-	 * 
+	 *
 	 * @return String median grade
 	 */
-	private String getMedian(DescriptiveStatistics stats) {
+	private String getMedian(final DescriptiveStatistics stats) {
 		return this.total > 0 ? String.format("%.2f", stats.getPercentile(50)) : "-";
 	}
 
 	/**
 	 * Calculates the min grade for the course
-	 * 
+	 *
 	 * @return String min grade
 	 */
-	private String getMin(DescriptiveStatistics stats) {
+	private String getMin(final DescriptiveStatistics stats) {
 		return this.total > 0 ? String.format("%.2f", stats.getMin()) : "-";
 	}
 
 	/**
 	 * Calculates the max grade for the course
-	 * 
+	 *
 	 * @return String max grade
 	 */
-	private String getMax(DescriptiveStatistics stats) {
+	private String getMax(final DescriptiveStatistics stats) {
 		return this.total > 0 ? String.format("%.2f", stats.getMax()) : "-";
 	}
 
 	/**
 	 * Calculates the standard deviation for the course
-	 * 
+	 *
 	 * @return String standard deviation
 	 */
-	private String getStandardDeviation(DescriptiveStatistics stats) {
+	private String getStandardDeviation(final DescriptiveStatistics stats) {
 		return this.total > 0 ? String.format("%.2f", stats.getStandardDeviation()) : "-";
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	private Map<String, Double> getGPAScoresMap() {
-		Map<String, Double> gpaScoresMap = new HashMap<>();
+		final Map<String, Double> gpaScoresMap = new HashMap<>();
 		gpaScoresMap.put("A (4.0)", Double.valueOf("4.0"));
 		gpaScoresMap.put("A- (3.67)", Double.valueOf("3.67"));
 		gpaScoresMap.put("B+ (3.33)", Double.valueOf("3.33"));
@@ -608,5 +513,36 @@ public class SettingsGradingSchemaPanel extends BasePanel implements IFormModelU
 		gpaScoresMap.put("F (0)", Double.valueOf("0"));
 
 		return gpaScoresMap;
+	}
+
+	/**
+	 * Convert map into list of objects which is easier to work with in the views
+	 *
+	 * @param bottomPercents map
+	 * @return list of {@link GbGradingSchemaEntry}
+	 */
+	private List<GbGradingSchemaEntry> asList(final Map<String, Double> bottomPercents) {
+		final List<GbGradingSchemaEntry> rval = new ArrayList<>();
+		bottomPercents.forEach((k, v) -> rval.add(new GbGradingSchemaEntry(k, v)));
+		return rval;
+	}
+
+	/**
+	 * Convert list of {@link GbGradingSchemaEntry} into a map
+	 */
+	private Map<String, Double> asMap(final List<GbGradingSchemaEntry> gbGradingSchemaEntries) {
+		return gbGradingSchemaEntries.stream()
+			 .collect(Collectors.toMap(GbGradingSchemaEntry::getGrade, GbGradingSchemaEntry::getMinPercent));
+	}
+
+	/**
+	 * Get the total number of course grades, excluding empty grades
+	 *
+	 * @param map
+	 * @return
+	 */
+	private int getTotalCourseGrades(final Map<String, CourseGrade> map) {
+		return map.values().stream().filter(c -> StringUtils.isNotBlank(c.getMappedGrade()))
+				.collect(Collectors.toList()).size();
 	}
 }

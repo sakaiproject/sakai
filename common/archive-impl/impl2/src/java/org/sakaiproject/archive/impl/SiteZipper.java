@@ -31,20 +31,18 @@ import java.util.Enumeration;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
+import lombok.extern.slf4j.Slf4j;
+
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
 import org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
 import org.sakaiproject.component.api.ServerConfigurationService;
 
-
+@Slf4j
 public class SiteZipper {
-	
-	private static Logger log = LoggerFactory.getLogger(SiteZipper.class);
 	
 	protected ServerConfigurationService serverConfigurationService = null;
 	public void setServerConfigurationService(ServerConfigurationService service) {

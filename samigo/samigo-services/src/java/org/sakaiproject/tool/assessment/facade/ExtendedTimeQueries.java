@@ -17,6 +17,8 @@
 
 package org.sakaiproject.tool.assessment.facade;
 
+import java.util.List;
+
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.Query;
 import org.hibernate.Session;
@@ -28,8 +30,6 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentI
 import org.springframework.dao.DataAccessException;
 import org.springframework.orm.hibernate4.HibernateCallback;
 import org.springframework.orm.hibernate4.support.HibernateDaoSupport;
-
-import java.util.List;
 
 /**
  * @author Leonardo Canessa [lcanessa1 (at) udayton (dot) edu]

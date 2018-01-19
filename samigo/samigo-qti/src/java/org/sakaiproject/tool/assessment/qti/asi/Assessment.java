@@ -34,8 +34,7 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -48,9 +47,9 @@ import org.sakaiproject.tool.assessment.qti.constants.QTIConstantStrings;
  * @author Ed Smiley esmiley@stanford.edu
  * @version $Id$
  */
+@Slf4j
 public class Assessment  extends ASIBaseClass
 {
-  private static Logger log = LoggerFactory.getLogger(Assessment.class);
   private String basePath;
   private Map sections;
   private Map items;
@@ -169,7 +168,6 @@ public class Assessment  extends ASIBaseClass
     	this.addElement(xpath, element);
     } catch(ParserConfigurationException pce) {
     	log.error("Exception thrown from addSectionRef() : " + pce.getMessage());
-		pce.printStackTrace();
     }
   }
 

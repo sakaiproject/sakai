@@ -19,9 +19,10 @@
  *
  **********************************************************************************/
 
-
-
 package org.sakaiproject.tool.assessment.ui.listener.author;
+
+import java.util.Iterator;
+import java.util.Set;
 
 import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
@@ -38,9 +39,6 @@ import org.sakaiproject.tool.assessment.ui.bean.author.AssessmentBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.SectionBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 
-import java.util.Iterator;
-import java.util.Set;
-
 /**
  * <p>Title: Samigo</p>
  * <p>Description: Sakai Assessment Manager</p>
@@ -50,7 +48,6 @@ import java.util.Set;
 
 public class RemovePartListener implements ActionListener
 {
-  //private static Logger log = LoggerFactory.getLogger(RemovePartListener.class);
 
   public RemovePartListener()
   {
@@ -73,7 +70,7 @@ public class RemovePartListener implements ActionListener
     AssessmentService assessmentService = new AssessmentService();
     SectionFacade sectionFacade = assessmentService.getSection(sectionId);
     Set<ItemFacade> itemList = sectionFacade.getItemFacadeSet();
-    //log.info("** removeAll Question="+removeAllQuestions);
+
     if (!("1").equals(removeAllQuestions)){
       // move questions to destinated Section when removing a section
       if (destSectionId == null || ("").equals(destSectionId)){
@@ -91,7 +88,6 @@ public class RemovePartListener implements ActionListener
       }
     }
     // #2 - goto editAssessment.jsp, so reset assessmentBean
-    //log.info("** assessmentId in RemovePartListener ="+assessmentBean.getAssessmentId());
     AssessmentFacade assessment = assessmentService.getAssessment(
         assessmentBean.getAssessmentId());
     assessmentBean.setAssessment(assessment);

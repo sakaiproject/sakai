@@ -21,8 +21,10 @@
 
 package org.sakaiproject.site.impl;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+
+import org.w3c.dom.Element;
+
 import org.sakaiproject.alias.api.AliasService;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.Notification;
@@ -31,7 +33,6 @@ import org.sakaiproject.event.api.NotificationEdit;
 import org.sakaiproject.event.api.NotificationService;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.site.api.SiteService;
-import org.w3c.dom.Element;
 
 /**
  * Removes orphaned aliases when a site is deleted. Only deals with
@@ -40,9 +41,9 @@ import org.w3c.dom.Element;
  * @author dmccallum
  *
  */
+@Slf4j
 public class SiteAliasCleanupNotificationAction implements NotificationAction {
 
-	private static Logger log = LoggerFactory.getLogger(SiteAliasCleanupNotificationAction.class);
 	private AliasService aliasService;
 	private NotificationService notificationService;
 	private boolean enabled = true;

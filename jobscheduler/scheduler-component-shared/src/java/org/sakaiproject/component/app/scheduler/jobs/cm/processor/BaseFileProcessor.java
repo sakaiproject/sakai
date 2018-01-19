@@ -15,16 +15,18 @@
  */
 package org.sakaiproject.component.app.scheduler.jobs.cm.processor;
 
-import lombok.Getter;
-import lombok.Setter;
-import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang.StringUtils;
-import org.sakaiproject.component.app.scheduler.jobs.cm.util.FileArchiveUtil;
-
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.util.Map;
+
+import lombok.Getter;
+import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
+
+import org.apache.commons.lang.StringUtils;
+
+import org.sakaiproject.component.app.scheduler.jobs.cm.util.FileArchiveUtil;
 
 @Slf4j
 public abstract class BaseFileProcessor extends BaseProcessor implements FileProcessor {

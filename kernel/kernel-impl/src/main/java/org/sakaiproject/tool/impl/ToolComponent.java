@@ -36,9 +36,15 @@ import java.util.Set;
 import java.util.Vector;
 import java.util.concurrent.ConcurrentHashMap;
 
+import lombok.extern.slf4j.Slf4j;
+
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.ToolConfiguration;
@@ -51,21 +57,15 @@ import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.StringUtil;
 import org.sakaiproject.util.Xml;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 
 /**
  * <p>
  * ToolComponent is the standard implementation of the Sakai Tool API.
  * </p>
  */
+@Slf4j
 public abstract class ToolComponent implements ToolManager
 {
-	/** Our log (commons). */
-	private static Logger M_log = LoggerFactory.getLogger(ToolComponent.class);
-
 	/** Key in the ThreadLocalManager for binding our current placement. */
 	protected final static String CURRENT_PLACEMENT = "sakai:ToolComponent:current.placement";
 
@@ -245,7 +245,7 @@ public abstract class ToolComponent implements ToolManager
 			Arrays.sort(m_toolIdsToHide);
 		}
 
-		M_log.info("init(): hidden tools: " + hidden.toString());
+		log.info("init(): hidden tools: " + hidden.toString());
 	}
 
 	/**
@@ -253,7 +253,7 @@ public abstract class ToolComponent implements ToolManager
 	 */
 	public void destroy()
 	{
-		M_log.info("destroy()");
+		log.info("destroy()");
 	}
 
 	/**********************************************************************************************************************************************************************************************************************************************************
@@ -339,7 +339,7 @@ public abstract class ToolComponent implements ToolManager
 		Element root = toolXml.getDocumentElement();
 		if (!root.getTagName().equals("registration"))
 		{
-			M_log.info("register: invalid root element (expecting \"registration\"): " + root.getTagName());
+			log.info("register: invalid root element (expecting \"registration\"): " + root.getTagName());
 			return;
 		}
 
@@ -443,11 +443,11 @@ public abstract class ToolComponent implements ToolManager
 		String path = toolXmlFile.getAbsolutePath();
 		if (!path.endsWith(".xml"))
 		{
-			M_log.info("register: skipping non .xml file: " + path);
+			log.info("register: skipping non .xml file: " + path);
 			return;
 		}
 
-		M_log.info("register: file: " + path);
+		log.info("register: file: " + path);
 
 		Document doc = Xml.readDocument(path);
 		register(doc);
@@ -535,7 +535,7 @@ public abstract class ToolComponent implements ToolManager
 			props.load(in);
 		}
 		catch (IOException ex) {
-			M_log.warn ("Unable to load "+filename+" as a tool localizaton resource in tool "+tool.getId());
+			log.warn ("Unable to load "+filename+" as a tool localizaton resource in tool "+tool.getId());
 			props = null;
 		}
 		finally {
@@ -580,8 +580,8 @@ public abstract class ToolComponent implements ToolManager
 	public boolean isVisible(Site site, ToolConfiguration config) {
 		
 		String toolPermissionsStr = config.getConfig().getProperty(TOOLCONFIG_REQUIRED_PERMISSIONS);
-		if (M_log.isDebugEnabled()) {
-			M_log.debug("tool: " + config.getToolId() + ", permissions: " + toolPermissionsStr);
+		if (log.isDebugEnabled()) {
+			log.debug("tool: " + config.getToolId() + ", permissions: " + toolPermissionsStr);
 		}
 
 		//no special permissions required, it's visible
@@ -702,7 +702,7 @@ public abstract class ToolComponent implements ToolManager
 		if (placement == null || site == null) return true;
 
 		String requiredPermissionsString = placement.getConfig().getProperty(TOOLCONFIG_REQUIRED_PERMISSIONS);
-		if (M_log.isDebugEnabled()) M_log.debug("requiredPermissionsString=" + requiredPermissionsString + " for " + placement.getToolId());
+		if (log.isDebugEnabled()) log.debug("requiredPermissionsString=" + requiredPermissionsString + " for " + placement.getToolId());
 		if (requiredPermissionsString == null)
 			return true;
 		requiredPermissionsString = requiredPermissionsString.trim();
@@ -713,7 +713,7 @@ public abstract class ToolComponent implements ToolManager
 		for (int i = 0; i < allowedPermissionSets.length; i++)
 		{
 			String[] requiredPermissions = allowedPermissionSets[i].split(",");
-			if (M_log.isDebugEnabled()) M_log.debug("requiredPermissions=" + Arrays.asList(requiredPermissions));
+			if (log.isDebugEnabled()) log.debug("requiredPermissions=" + Arrays.asList(requiredPermissions));
 			boolean gotAllInList = true;
 			for (int j = 0; j < requiredPermissions.length; j++)
 			{

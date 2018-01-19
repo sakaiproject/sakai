@@ -35,10 +35,13 @@ import java.util.Random;
 import java.util.Set;
 import java.util.SortedSet;
 
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.validator.routines.EmailValidator;
+
 import org.sakaiproject.api.common.edu.person.SakaiPerson;
 import org.sakaiproject.api.common.edu.person.SakaiPersonManager;
 import org.sakaiproject.authz.api.SecurityAdvisor;
@@ -83,8 +86,6 @@ import org.w3c.dom.CharacterData;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
-
-import lombok.Setter;
 
 @Slf4j
 public class TurnitinReviewServiceImpl implements ContentReviewService {
@@ -834,12 +835,13 @@ public class TurnitinReviewServiceImpl implements ContentReviewService {
 
 				Entity ent = ep.getEntity(ref);
 				log.debug("got entity " + ent);
-				String title = scrubSpecialCharacters(ent.getClass().getMethod("getTitle").invoke(ent).toString());
-				log.debug("Got reflected assignemment title from entity " + title);
-				togo = URLDecoder.decode(title, "UTF-8");
-
+				if(ent != null){
+					String title = scrubSpecialCharacters(ent.getClass().getMethod("getTitle").invoke(ent).toString());
+					log.debug("Got reflected assignment title from entity " + title);
+					togo = URLDecoder.decode(title, "UTF-8");
+				}
 			} catch (Exception e) {
-				e.printStackTrace();
+				log.error(e.getMessage(), e);
 			}
 		}
 
@@ -863,7 +865,7 @@ public class TurnitinReviewServiceImpl implements ContentReviewService {
 				title = title.replace("%", "percent");
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.error(e.getMessage(), e);
 		}
 
 		return title;
@@ -1933,8 +1935,7 @@ public class TurnitinReviewServiceImpl implements ContentReviewService {
 			try {
 				updateAssignment(item.getSiteId(), item.getTaskId());
 			} catch (SubmissionException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				log.error(e.getMessage(), e);
 			}
 		}
 	}
@@ -1995,7 +1996,7 @@ public class TurnitinReviewServiceImpl implements ContentReviewService {
 			log.debug("Assign title is " + assignEnc);
 
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.error(e.getMessage(), e);
 		}
 
 		Map params = TurnitinAPIUtil.packMap(turnitinConn.getBaseTIIOptions(), "assign", assignEnc, "assignid",
@@ -2382,4 +2383,43 @@ public class TurnitinReviewServiceImpl implements ContentReviewService {
 		crqs.removeFromQueue(getProviderId(), contentId);
 	}
 
+	@Override
+	public ContentReviewItem getContentReviewItemByContentId(String contentId){
+		Optional<ContentReviewItem> cri = getItemByContentId(contentId);
+		if(cri.isPresent()){
+			ContentReviewItem item = cri.get();
+			
+			//TII specific work
+		
+			// Sync Grades
+			if (turnitinConn.getUseGradeMark()) {
+				try {				
+					String[] assignData = getAssignData(contentId);
+					String siteId = "", taskId = "", taskTitle = "";
+					Map<String, Object> data = new HashMap<String, Object>();
+					if (assignData != null) {
+						siteId = assignData[0];
+						taskId = assignData[1];
+						taskTitle = assignData[2];
+					} else {
+						siteId = item.getSiteId();
+						taskId = item.getTaskId();
+						taskTitle = getAssignmentTitle(taskId);
+						data.put("assignment1", "assignment1");
+					}
+					data.put("siteId", siteId);
+					data.put("taskId", taskId);
+					data.put("taskTitle", taskTitle);
+					syncGrades(data);
+				} catch (Exception e) {
+					log.error("Error syncing grades. " + e);
+				}
+			}
+
+			return item;
+		} else {
+			log.debug("Content " + contentId + " has not been queued previously");
+		}
+		return null;
+	}
 }

@@ -23,15 +23,14 @@ package org.sakaiproject.component.app.messageforums.dao.hibernate;
 import java.util.Comparator;
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.api.app.messageforums.MessageForumsUser;
 import org.sakaiproject.api.app.messageforums.PrivateMessage;
 
+@Slf4j
 public class PrivateMessageImpl extends MessageImpl implements PrivateMessage {
 
-    private static final Logger LOG = LoggerFactory.getLogger(PrivateMessageImpl.class);
-    
     private List recipients = null;//new UniqueArrayList();  addRecipient(MessageForumsUser user)
     private Boolean externalEmail;
     private String externalEmailAddress;
@@ -101,8 +100,8 @@ public class PrivateMessageImpl extends MessageImpl implements PrivateMessage {
     ////////////////////////////////////////////////////////////////////////
     
     public void addRecipient(MessageForumsUser user) {
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("addRecipient(MessageForumsUser " + user + ")");
+        if (log.isDebugEnabled()) {
+            log.debug("addRecipient(MessageForumsUser " + user + ")");
         }
         
         if (user == null) {
@@ -114,8 +113,8 @@ public class PrivateMessageImpl extends MessageImpl implements PrivateMessage {
     }
 
     public void removeRecipient(MessageForumsUser user) {
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("removeRecipient(MessageForumsUser " + user + ")");
+        if (log.isDebugEnabled()) {
+            log.debug("removeRecipient(MessageForumsUser " + user + ")");
         }
         
         if (user == null) {

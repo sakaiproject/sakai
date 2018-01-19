@@ -29,19 +29,18 @@ import java.security.GeneralSecurityException;
 import java.util.Random;
 
 import junit.framework.TestCase;
+import lombok.extern.slf4j.Slf4j;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sakaiproject.search.util.FileUtils;
 
 /**
  * @author ieb
  *
  */
+@Slf4j
 public class FileUtilsTest extends TestCase
 {
 
-	private static final Logger log = LoggerFactory.getLogger(FileUtilsTest.class);
 	private File testSpace;
 
 	/**

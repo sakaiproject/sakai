@@ -46,12 +46,6 @@ public class MyTime implements Time
 
 	private transient BasicTimeService timeService;
 
-	public void resolveTransientFields()
-	{
-		org.sakaiproject.component.api.ComponentManager compMgr =
-			org.sakaiproject.component.cover.ComponentManager.getInstance();
-		timeService = (BasicTimeService)compMgr.get("org.sakaiproject.time.api.TimeService");
-	}
 
 	/**
 	 * construct from a string, in our format, GMT values
@@ -78,7 +72,7 @@ public class MyTime implements Time
 	public MyTime(BasicTimeService timeService)
 	{
 		this.timeService = timeService;
-		m_millisecondsSince = System.currentTimeMillis();
+		m_millisecondsSince = timeService.getClock().millis();
 	}
 
 	/**
@@ -106,7 +100,7 @@ public class MyTime implements Time
 	 *        day in month (1..31)
 	 * @param hour
 	 *        hour in day (0..23)
-	 * @param minuet
+	 * @param minute
 	 *        minute in hour (0..59)
 	 * @param second
 	 *        second in minute (0..59)
@@ -116,7 +110,7 @@ public class MyTime implements Time
 	public MyTime(BasicTimeService timeService, TimeZone zone, int year, int month, int day, int hour, int minute, int second, int millisecond)
 	{
 		this.timeService = timeService;
-		GregorianCalendar cal = timeService.getCalendar(zone, year, month - 1, day, hour,
+		GregorianCalendar cal = BasicTimeService.newCalendar(zone, year, month - 1, day, hour,
 				minute, second, millisecond);
 		m_millisecondsSince = cal.getTimeInMillis();
 	}
@@ -132,7 +126,7 @@ public class MyTime implements Time
 	public MyTime(BasicTimeService timeService, TimeZone zone, TimeBreakdown tb)
 	{
 		this.timeService = timeService;
-		GregorianCalendar cal = timeService.getCalendar(zone, tb.getYear(), tb.getMonth() - 1,
+		GregorianCalendar cal = BasicTimeService.newCalendar(zone, tb.getYear(), tb.getMonth() - 1,
 				tb.getDay(), tb.getHour(), tb.getMin(), tb.getSec(), tb.getMs());
 		m_millisecondsSince = cal.getTimeInMillis();
 	}

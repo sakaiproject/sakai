@@ -29,10 +29,10 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Properties;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.sakaiproject.authz.api.GroupProvider;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
+
+import org.sakaiproject.authz.api.GroupProvider;
 
 /**
  * <p>
@@ -56,10 +56,9 @@ import org.apache.commons.lang.StringUtils;
  * The SampleUserDirectoryProvider does this.
  * </p>
  */
+@Slf4j
 public class SampleGroupProvider implements GroupProvider
 {
-	/** Our log (commons). */
-	private static Logger M_log = LoggerFactory.getLogger(SampleGroupProvider.class);
 
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * Dependencies and their setter methods
@@ -140,11 +139,11 @@ public class SampleGroupProvider implements GroupProvider
 				}
 			}
 
-			M_log.info("init()");
+			log.info("init()");
 		}
 		catch (Exception t)
 		{
-			M_log.warn("init(): ", t);
+			log.warn("init(): ", t);
 		}
 	}
 
@@ -153,7 +152,7 @@ public class SampleGroupProvider implements GroupProvider
 	 */
 	public void destroy()
 	{
-		M_log.info("destroy()");
+		log.info("destroy()");
 	}
 
 	/**********************************************************************************************************************************************************************************************************************************************************
@@ -441,7 +440,7 @@ public class SampleGroupProvider implements GroupProvider
 			}
 			catch (Exception e)
 			{
-				M_log.warn("update: reading users.properties file: " + m_xFile + " : " + e);
+				log.warn("update: reading users.properties file: " + m_xFile + " : " + e);
 			}
 			finally
 			{
@@ -450,8 +449,7 @@ public class SampleGroupProvider implements GroupProvider
 					try {
 						fis.close();
 					} catch (IOException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
+						log.error(e.getMessage(), e);
 					}
 				}
 			}

@@ -19,8 +19,6 @@
  *
  **********************************************************************************/
 
-
-
 package org.sakaiproject.tool.assessment.ui.listener.author;
 
 import java.util.ArrayList;
@@ -52,8 +50,7 @@ import org.sakaiproject.tool.cover.SessionManager;
 
 public class RemoveAssessmentListener implements ActionListener
 {
-  //private static Logger log = LoggerFactory.getLogger(RemoveAssessmentListener.class);
-	
+
   public RemoveAssessmentListener()
   {
   }

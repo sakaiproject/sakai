@@ -26,8 +26,7 @@ package org.radeox.macro;
 import java.io.IOException;
 import java.io.Writer;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.radeox.api.macro.MacroParameter;
 import org.radeox.macro.api.ApiDoc;
 
@@ -37,10 +36,9 @@ import org.radeox.macro.api.ApiDoc;
  * 
  * @version $Id$
  */
-
+@Slf4j
 public class ApiDocMacro extends BaseLocaleMacro
 {
-	private static Logger log = LoggerFactory.getLogger(ApiDocMacro.class);
 
 	private String[] paramDescription = {};
 

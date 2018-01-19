@@ -15,11 +15,10 @@
  */
 package org.sakaiproject.assignment.impl.sort;
 
-import org.sakaiproject.assignment.api.model.Assignment;
-import org.sakaiproject.time.api.Time;
-
+import java.time.Instant;
 import java.util.Comparator;
-import java.util.Date;
+
+import org.sakaiproject.assignment.api.model.Assignment;
 
 /**
  * The AssignmentComparator class that sorts by the due date of the assignment.
@@ -36,14 +35,14 @@ public class AssignmentComparator implements Comparator<Assignment> {
         int result = -1;
 
         // sorted by the assignment due date
-        Date t1 = o1.getDueDate();
-        Date t2 = o2.getDueDate();
+        Instant t1 = o1.getDueDate();
+        Instant t2 = o2.getDueDate();
 
         if (t1 == null) {
             result = -1;
         } else if (t2 == null) {
             result = 1;
-        } else if (t1.before(t2)) {
+        } else if (t1.isBefore(t2)) {
             result = -1;
         } else {
             result = 1;

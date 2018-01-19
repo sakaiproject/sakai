@@ -19,8 +19,6 @@
  *
  **********************************************************************************/
 
-
-
 package org.sakaiproject.tool.assessment.ui.listener.author;
 
 import java.util.Map;
@@ -39,7 +37,6 @@ import javax.faces.event.ActionListener;
 
 public class AuthorQuestionListener implements ActionListener
 {
-  //private static Logger log = LoggerFactory.getLogger(AuthorQuestionListener.class);
 
   public AuthorQuestionListener()
   {

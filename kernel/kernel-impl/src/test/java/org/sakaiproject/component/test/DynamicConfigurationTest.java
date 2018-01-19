@@ -16,21 +16,21 @@
 
 package org.sakaiproject.component.test;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.test.SakaiKernelTestBase;
 
 /**
  *
  */
+@Slf4j
 public class DynamicConfigurationTest extends SakaiKernelTestBase {
-	private static Logger log = LoggerFactory.getLogger(DynamicConfigurationTest.class);
-
 	private ServerConfigurationService serverConfigurationService;
 
 	protected static final String CONFIG = "src/test/webapp/WEB-INF/components.xml";
@@ -38,9 +38,9 @@ public class DynamicConfigurationTest extends SakaiKernelTestBase {
 	@BeforeClass
 	public static void beforeClass() {
 		try {
-            log.debug("starting oneTimeSetup");
+			log.debug("starting oneTimeSetup");
 			oneTimeSetup("dynamic", CONFIG);
-            log.debug("finished oneTimeSetup");
+			log.debug("finished oneTimeSetup");
 		} catch (Exception e) {
 			log.warn(e.getMessage(), e);
 		}

@@ -35,7 +35,7 @@ public class CategoryDefinition implements Serializable {
     private Long id;
     private String name;
     private Double weight;
-    private Integer drop_lowest;
+    private Integer dropLowest;
     private Integer dropHighest;
     private Integer keepHighest;
     private Boolean extraCredit;
@@ -126,12 +126,12 @@ public class CategoryDefinition implements Serializable {
 		this.assignmentList = assignmentList;
 	}
 
-	public Integer getDrop_lowest() {
-		return drop_lowest;
+	public Integer getDropLowest() {
+		return dropLowest;
 	}
 
-	public void setDrop_lowest(Integer drop_lowest) {
-		this.drop_lowest = drop_lowest;
+	public void setDropLowest(Integer dropLowest) {
+		this.dropLowest = dropLowest;
 	}
 
 	public Integer getDropHighest() {

@@ -29,10 +29,13 @@ import java.time.ZoneId;
 import java.util.Date;
 import java.util.Locale;
 
+import lombok.extern.slf4j.Slf4j;
+
 /**
  * Performs date validation respecting i18n.<br>
  * <b>Note:</b> This class does not support "hi_IN", "ja_JP_JP" and "th_TH" locales.
  */
+@Slf4j
 public final class DateFormatterUtil {
 
 	private static DateTimeFormatter isoFormatter = DateTimeFormatter.ISO_ZONED_DATE_TIME;
@@ -73,7 +76,7 @@ public final class DateFormatterUtil {
 			LocalDateTime ldt = LocalDateTime.parse(inputDate, isoFormatter);
 			convertedDate = Date.from(ldt.atZone(ZoneId.systemDefault()).toInstant());
 		} catch (Exception  e) {
-			e.printStackTrace();
+			log.error(e.getMessage(), e);
 		}
 
 		return convertedDate;

@@ -31,7 +31,10 @@ import java.util.List;
 import java.util.Set;
 import java.util.Vector;
 
+import lombok.extern.slf4j.Slf4j;
+
 import org.apache.commons.lang3.StringUtils;
+
 import org.sakaiproject.alias.api.Alias;
 import org.sakaiproject.alias.api.AliasService;
 import org.sakaiproject.authz.api.AuthzGroup;
@@ -77,21 +80,19 @@ import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.Validator;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * <p>
  * SitesAction is the Sakai admin sites editor.
  * </p>
  */
+@Slf4j
 public class AdminSitesAction extends PagedResourceActionII
 {
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	private static Logger M_log = LoggerFactory.getLogger(AdminSitesAction.class);
 	/** State holding the site id for site id search. */
 	protected static final String STATE_SEARCH_SITE_ID = "search_site";
 
@@ -268,7 +269,7 @@ public class AdminSitesAction extends PagedResourceActionII
             User user = UserDirectoryService.getUser(userPk);
             return user;
         } catch ( UserNotDefinedException e ) {
-			M_log.debug("Failed to find a user record by PK [pk = {}]", userPk, e);
+			log.debug("Failed to find a user record by PK [pk = {}]", userPk, e);
             return null;
         }
         
@@ -289,7 +290,7 @@ public class AdminSitesAction extends PagedResourceActionII
             User user = UserDirectoryService.getUserByEid(eid);
             return user;
         } catch ( UserNotDefinedException e ) {
-			M_log.debug("Failed to find a user record by EID [eid = {}]", eid, e);
+			log.debug("Failed to find a user record by EID [eid = {}]", eid, e);
             return null;
         }
         
@@ -310,7 +311,7 @@ public class AdminSitesAction extends PagedResourceActionII
             Site userSite = SiteService.getSite(userMyWorkspaceSiteDbId); // exceptional if no results
             return userSite;
         } catch ( IdUnusedException e ) {
-			M_log.debug("Failed to locate a workspace for user [user id = {}][user eid = {}][site id = {}]", userDbId, userEid, userMyWorkspaceSiteDbId, e);
+			log.debug("Failed to locate a workspace for user [user id = {}][user eid = {}][site id = {}]", userDbId, userEid, userMyWorkspaceSiteDbId, e);
             return null;
         }
     }    
@@ -443,7 +444,7 @@ public class AdminSitesAction extends PagedResourceActionII
 		// }
 		else
 		{
-		 	M_log.warn("SitesAction: mode: {}", mode);
+		 	log.warn("SitesAction: mode: {}", mode);
 			template = buildListContext(state, context);
 		}
 
@@ -969,7 +970,7 @@ public class AdminSitesAction extends PagedResourceActionII
 			}
 			catch (IdUnusedException e)
 			{
-				 M_log.warn("site not found: {}", id);
+				 log.warn("site not found: {}", id);
 
 				addAlert(state, rb.getFormattedMessage("siteact.site", new Object[]{id}));
 				state.removeAttribute("mode");
@@ -1131,7 +1132,7 @@ public class AdminSitesAction extends PagedResourceActionII
 			}
 			catch (PermissionException | IdUnusedException e)
 			{
-			 	M_log.warn(e.getMessage());
+			 	log.warn(e.getMessage());
 			}
 
 			// save the realm, too
@@ -1836,7 +1837,7 @@ public class AdminSitesAction extends PagedResourceActionII
 			try {
 				site.deleteGroup(group);
 			} catch (IllegalStateException e) {
-				M_log.error(".doCancel_group: Group with id {} cannot be removed because is locked", group.getId());
+				log.error(".doCancel_group: Group with id {} cannot be removed because is locked", group.getId());
 			}
 		}
 
@@ -1864,7 +1865,7 @@ public class AdminSitesAction extends PagedResourceActionII
 		try {
 			site.deleteGroup(group);
 		} catch (IllegalStateException e) {
-			M_log.error(".doRemove_group: Group with id {} cannot be removed because is locked", group.getId());
+			log.error(".doRemove_group: Group with id {} cannot be removed because is locked", group.getId());
 		}
 
 		// done with the page
@@ -1972,7 +1973,7 @@ public class AdminSitesAction extends PagedResourceActionII
 		}
 		catch (Exception e)
 		{
-		 	M_log.warn("reading layout: {}" + e.getMessage());
+		 	log.warn("reading layout: {}" + e.getMessage());
 		}
 
 		boolean popup = data.getParameters().getBoolean("popup");
@@ -2663,7 +2664,7 @@ public class AdminSitesAction extends PagedResourceActionII
 		boolean isSimpleUrl = alias.equals(Validator.escapeUrl(alias));
 		if ( !(isSimpleResourceName) || !(isSimpleUrl) ) {
 			addAlert(state, rb.getFormattedMessage("sitedipag.alias.isinval", new Object[]{alias}));
-			M_log.warn(this + ".updateSiteInfo: " + rb.getFormattedMessage("sitedipag.alias.isinval", new Object[]{alias}));
+			log.warn("{}.updateSiteInfo: {}", this, rb.getFormattedMessage("sitedipag.alias.isinval", new Object[]{alias}));
 		} 
 		else if (StringUtils.trimToNull(alias) != null && StringUtils.trimToNull(siteReference) != null) 
 		{
@@ -2675,13 +2676,13 @@ public class AdminSitesAction extends PagedResourceActionII
 					aliasService.setAlias(alias, siteReference);
 				} catch (IdUsedException ee) {
 					addAlert(state, rb.getFormattedMessage("sitedipag.alias.exists", new Object[]{alias}));
-					M_log.warn(this + ".setSiteAlias: " + rb.getFormattedMessage("sitedipag.alias.exists", new Object[]{alias}));
+					log.warn("{}.setSiteAlias: {}", this, rb.getFormattedMessage("sitedipag.alias.exists", new Object[]{alias}));
 				} catch (IdInvalidException ee) {
 					addAlert(state, rb.getFormattedMessage("sitedipag.alias.isinval", new Object[]{alias}));
-					M_log.warn(this + ".setSiteAlias: " + rb.getFormattedMessage("sitedipag.alias.isinval", new Object[]{alias}));
+					log.warn("{}.setSiteAlias: {}", this, rb.getFormattedMessage("sitedipag.alias.isinval", new Object[]{alias}));
 				} catch (PermissionException ee) {
 					addAlert(state, rb.getFormattedMessage("sitedipag.alias.nopermission", new Object[]{SessionManager.getCurrentSessionUserId()}));
-					M_log.warn(this + ".setSiteAlias: " + rb.getFormattedMessage("sitedipag.alias.nopermission", new Object[]{SessionManager.getCurrentSessionUserId()}));
+					log.warn("{}.setSiteAlias: {}", this, rb.getFormattedMessage("sitedipag.alias.nopermission", new Object[]{SessionManager.getCurrentSessionUserId()}));
 				}
 			}
 		}

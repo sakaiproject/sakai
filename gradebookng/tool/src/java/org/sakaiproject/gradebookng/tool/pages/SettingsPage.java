@@ -117,7 +117,7 @@ public class SettingsPage extends BasePage {
 
 						// ensure we don't have drop highest and keep highest at the same time
 						if ((cat.getDropHighest().intValue() > 0 && cat.getKeepHighest().intValue() > 0)
-								|| (cat.getDrop_lowest().intValue() > 0 && cat.getKeepHighest().intValue() > 0)) {
+								|| (cat.getDropLowest().intValue() > 0 && cat.getKeepHighest().intValue() > 0)) {
 							error(getString("settingspage.update.failure.categorydropkeepenabled"));
 						}
 
@@ -234,12 +234,15 @@ public class SettingsPage extends BasePage {
 		final String version = ServerConfigurationService.getString("portal.cdn.version", "");
 
 		// Drag and Drop (requires jQueryUI)
-		response.render(JavaScriptHeaderItem
-				.forUrl(String.format("/library/webjars/jquery-ui/1.12.1/jquery-ui.min.js?version=%s", version)));
+		response.render(
+				JavaScriptHeaderItem.forUrl(String.format("/library/webjars/jquery-ui/1.12.1/jquery-ui.min.js?version=%s", version)));
+
+		// chart requires ChartJS
+		response.render(
+				JavaScriptHeaderItem.forUrl(String.format("/gradebookng-tool/webjars/chartjs/2.7.0/Chart.min.js?version=%s", version)));
 
 		response.render(CssHeaderItem.forUrl(String.format("/gradebookng-tool/styles/gradebook-settings.css?version=%s", version)));
-		response.render(
-				JavaScriptHeaderItem.forUrl(String.format("/gradebookng-tool/scripts/gradebook-settings.js?version=%s", version)));
+		response.render(JavaScriptHeaderItem.forUrl(String.format("/gradebookng-tool/scripts/gradebook-settings.js?version=%s", version)));
 
 	}
 

@@ -21,8 +21,22 @@
 
 package org.sakaiproject.message.util;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.io.ByteArrayOutputStream;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.time.Instant;
+import java.util.*;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import lombok.extern.slf4j.Slf4j;
+
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+
 import org.sakaiproject.api.app.scheduler.ScheduledInvocationManager;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.AuthzPermissionException;
@@ -52,27 +66,13 @@ import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.util.*;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.ByteArrayOutputStream;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.util.*;
-
 
 /**
  * BaseMessage is...
  */
+@Slf4j
 public abstract class BaseMessage implements MessageService, DoubleStorageUser
 {
-	/** Our logger. */
-	private static Logger M_log = LoggerFactory.getLogger(BaseMessage.class);
-
 	/** A Storage object for persistent storage. */
 	protected Storage m_storage = null;
 
@@ -86,7 +86,7 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser
 	
 	/** added to allow for scheduled notifications */
 	private static final String SCHED_INV_UUID = "schInvUuid";
-//	private static final String SCHINV_DELETE_EVENT = "schInv.delete";
+	//private static final String SCHINV_DELETE_EVENT = "schInv.delete";
 	
 
 	/**
@@ -293,11 +293,11 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser
 			m_storage = newStorage();
 			m_storage.open();
 
-			M_log.info("init()");
+			log.info("init()");
 		}
 		catch (Throwable t)
 		{
-			M_log.warn("init(): "+t, t);
+			log.warn("init(): "+t, t);
 		}
 
 		// entity producer registration in the extension services
@@ -314,7 +314,7 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser
 		m_storage.close();
 		m_storage = null;
 
-		M_log.info("destroy()");
+		log.info("destroy()");
 	}
 
 	/**********************************************************************************************************************************************************************************************************************************************************
@@ -732,7 +732,7 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser
 		if (channel != null) 
 			channel_reference = channel.getReference();
 		else
-			M_log.info("addChannel: null channel returned from putChannel("+ref+")");
+			log.info("addChannel: null channel returned from putChannel("+ref+")");
 		
 		Event event = m_eventTrackingService.newEvent(eventId(SECURE_CREATE), channel_reference, true);
 		m_eventTrackingService.post(event);
@@ -808,7 +808,7 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser
 			}
 			catch (Exception e)
 			{
-				M_log.warn("commitEdit(): closed ChannelEdit", e);
+				log.warn("commitEdit(): closed ChannelEdit", e);
 			}
 			return;
 		}
@@ -839,7 +839,7 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser
 			}
 			catch (Exception e)
 			{
-				M_log.warn("cancelChannelEdit(): closed MessageChannelEdit", e);
+				log.warn("cancelChannelEdit(): closed MessageChannelEdit", e);
 			}
 			return;
 		}
@@ -887,7 +887,7 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser
 			}
 			catch (Exception e)
 			{
-				M_log.warn("removeChannel(): closed ChannelEdit", e);
+				log.warn("removeChannel(): closed ChannelEdit", e);
 			}
 			return;
 		}
@@ -914,7 +914,7 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser
 		}
 		catch (AuthzPermissionException e)
 		{
-			M_log.warn("removeChannel: removing realm for : " + channel.getReference() + " : " + e);
+			log.warn("removeChannel: removing realm for : " + channel.getReference() + " : " + e);
 		}
 		catch (GroupNotDefinedException ignore)
 		{
@@ -1095,7 +1095,7 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser
 
 					} catch (UserNotDefinedException e1) {
 						// TODO Auto-generated catch block
-						M_log.info("User Not Defined: " + e1.getMessage());
+						log.info("User Not Defined: " + e1.getMessage());
 					}
 					
 //					boolean isViewingAs = (m_securityService.getUserEffectiveRole(context) != null);
@@ -1113,7 +1113,7 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser
 						site = m_siteService.getSite(context);
 					} catch (IdUnusedException e) {
 						// TODO Auto-generated catch block
-						M_log.debug("Site not found for " + context + " " + e.getMessage());
+						log.debug("Site not found for " + context + " " + e.getMessage());
 					}
 
 					if (!canSeeAllGroups(userId, site)){
@@ -1415,20 +1415,20 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser
 			}
 
 			else
-				M_log.warn("getProperties(): unknown message ref subtype: " + ref.getSubType() + " in ref: " + ref.getReference());
+				log.warn("getProperties(): unknown message ref subtype: " + ref.getSubType() + " in ref: " + ref.getReference());
 		}
 		catch (PermissionException e)
 		{
-			M_log.warn("getProperties(): " + e);
+			log.warn("getProperties(): " + e);
 		}
 		catch (IdUnusedException e)
 		{
 			// This just means that the resource once pointed to as an attachment or something has been deleted.
-			// M_log.warn("getProperties(): " + e);
+			// log.warn("getProperties(): " + e);
 		}
 		catch (NullPointerException e)
 		{
-			M_log.warn("getProperties(): " + e);
+			log.warn("getProperties(): " + e);
 		}
 
 		return rv;
@@ -1457,21 +1457,21 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser
 				rv = getMessage(ref);
 			}
 
-			// else try {throw new Exception();} catch (Exception e) {M_log.warn("getResource(): unknown message ref subtype: " + m_subType + " in ref: " + m_reference, e);}
+			// else try {throw new Exception();} catch (Exception e) {log.warn("getResource(): unknown message ref subtype: " + m_subType + " in ref: " + m_reference, e);}
 			else
-				M_log.warn("getResource(): unknown message ref subtype: " + ref.getSubType() + " in ref: " + ref.getReference());
+				log.warn("getResource(): unknown message ref subtype: " + ref.getSubType() + " in ref: " + ref.getReference());
 		}
 		catch (PermissionException e)
 		{
-			M_log.warn("getResource(): " + e);
+			log.warn("getResource(): " + e);
 		}
 		catch (IdUnusedException e)
 		{
-			M_log.warn("getResource(): " + e);
+			log.warn("getResource(): " + e);
 		}
 		catch (NullPointerException e)
 		{
-			M_log.warn("getResource(): " + e);
+			log.warn("getResource(): " + e);
 		}
 
 		return rv;
@@ -1551,7 +1551,7 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser
 		}
 		catch (Throwable e)
 		{
-			M_log.warn("getEntityAuthzGroups(): " + e);
+			log.warn("getEntityAuthzGroups(): " + e);
 		}
 
 		return rv;
@@ -1583,19 +1583,19 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser
 			}
 
 			else
-				M_log.warn("getUrl(): unknown message ref subtype: " + ref.getSubType() + " in ref: " + ref.getReference());
+				log.warn("getUrl(): unknown message ref subtype: " + ref.getSubType() + " in ref: " + ref.getReference());
 		}
 		catch (PermissionException e)
 		{
-			M_log.warn("getUrl(): " + e);
+			log.warn("getUrl(): " + e);
 		}
 		catch (IdUnusedException e)
 		{
-			M_log.warn("getUrl(): " + e);
+			log.warn("getUrl(): " + e);
 		}
 		catch (NullPointerException e)
 		{
-			M_log.warn("getUrl(): " + e);
+			log.warn("getUrl(): " + e);
 		}
 
 		return url;
@@ -1654,7 +1654,7 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser
 		}
 		catch (Exception any)
 		{
-			M_log.warn("archve: exception archiving messages for service: " + serviceName() + " channel: " + channelRef);
+			log.warn("archve: exception archiving messages for service: " + serviceName() + " channel: " + channelRef);
 		}
 
 		stack.pop();
@@ -1697,7 +1697,7 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser
 		}
 		catch (Exception e)
 		{
-			M_log.warn("archive: exception archiving synoptic options for service: " + serviceName());
+			log.warn("archive: exception archiving synoptic options for service: " + serviceName());
 		}
 	}
 
@@ -1891,7 +1891,7 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser
 															catch (IdUnusedException e)	
 															{
 																// do not add channel b/c it does not exist in tool
-																M_log.warn("Synoptic Tool Channel option not added- " + synChannelRef + ":" + e);
+																log.warn("Synoptic Tool Channel option not added- " + synChannelRef + ":" + e);
 															}
 														}			
 													}
@@ -2013,7 +2013,7 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser
 		}
 		catch (Exception any)
 		{
-			M_log.warn("mergeMessages(): exception in handling " + serviceName() + " : ", any);
+			log.warn("mergeMessages(): exception in handling " + serviceName() + " : ", any);
 		}
 
 		results.append("merging " + getLabel() + " channel " + channelRef + " (" + count + ") messages.\n");
@@ -2083,15 +2083,15 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser
 		}
 		catch (PermissionException pe)
 		{
-			M_log.warn("PermissionException transferring synoptic options for " + serviceName() + ':', pe);
+			log.warn("PermissionException transferring synoptic options for " + serviceName() + ':', pe);
 		}
 		catch (IdUnusedException e)
 		{
-			M_log.warn("Channel " + fromContext + " cannot be found. ");
+			log.warn("Channel " + fromContext + " cannot be found. ");
 		}
 		catch (Exception e)
 		{
-			M_log.warn("transferSynopticOptions(): exception in handling " + serviceName() + " : ", e);
+			log.warn("transferSynopticOptions(): exception in handling " + serviceName() + " : ", e);
 		}
 	}
 
@@ -2599,7 +2599,7 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser
 				}
 				catch (Exception e)
 				{
-					M_log.warn("commitEdit(): closed MessageEdit", e);
+					log.warn("commitEdit(): closed MessageEdit", e);
 				}
 				return;
 			}
@@ -2690,7 +2690,7 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser
 				}
 				catch (Exception e)
 				{
-					M_log.warn("commitEdit(): closed MessageEdit", e);
+					log.warn("commitEdit(): closed MessageEdit", e);
 				}
 				return;
 			}
@@ -2715,12 +2715,12 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser
 				// if an immediate notification is needed or a scheduled one
 				// Put here since need to store uuid for notification just in case need to
 				// delete/modify
-				Time now = m_timeService.newTime();
-				
+				Instant now = Instant.now();
+				Instant date = Instant.ofEpochMilli(edit.getHeader().getDate().getTime());
 
-				if (now.before(edit.getHeader().getDate()) && priority != NotificationService.NOTI_NONE)
+				if (now.isBefore(date) && priority != NotificationService.NOTI_NONE)
 				{
-					final String uuid = scheduledInvocationManager.createDelayedInvocation(edit.getHeader().getDate(), 
+					final String uuid = scheduledInvocationManager.createDelayedInvocation(date, 
 							invokee, edit.getReference());
 
 					final ResourcePropertiesEdit editProps = edit.getPropertiesEdit();
@@ -2804,7 +2804,7 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser
 				}
 				catch (Exception e)
 				{
-					M_log.warn("commitEdit(): closed MessageEdit", e);
+					log.warn("commitEdit(): closed MessageEdit", e);
 				}
 				return;
 			}
@@ -2995,7 +2995,7 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser
 				}
 				catch (Exception e)
 				{
-					M_log.warn("removeMessage(String): null edit ", e);
+					log.warn("removeMessage(String): null edit ", e);
 				}
 				return;
 			}
@@ -3017,7 +3017,7 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser
 			// check for closed edit
 			if (!message.isActiveEdit())
 			{
-				M_log.warn("removeMessage(): message is not in active edit, unable to remove");
+				log.warn("removeMessage(): message is not in active edit, unable to remove");
 				return;
 			}
 
@@ -3049,7 +3049,7 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser
 			}
 			catch (AuthzPermissionException e)
 			{
-				M_log.warn("removeMessage: removing realm for : " + message.getReference() + " : " + e);
+				log.warn("removeMessage: removing realm for : " + message.getReference() + " : " + e);
 			}
 
 		} // removeMessage
@@ -3298,7 +3298,7 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser
 
 		public void valueUnbound(SessionBindingEvent event)
 		{
-			if (M_log.isDebugEnabled()) M_log.debug("valueUnbound()");
+			if (log.isDebugEnabled()) log.debug("valueUnbound()");
 
 			// catch the case where an edit was made but never resolved
 			if (m_active)
@@ -3730,7 +3730,7 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser
 
 		public void valueUnbound(SessionBindingEvent event)
 		{
-			if (M_log.isDebugEnabled()) M_log.debug("valueUnbound()");
+			if (log.isDebugEnabled()) log.debug("valueUnbound()");
 
 			// catch the case where an edit was made but never resolved
 			if ((m_active) && (m_channel != null))
@@ -4017,7 +4017,7 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser
 			// there should not be a case where there's no message or a message with no channel... -ggolden
 			if ((m_message == null) || ((BaseMessageEdit) m_message).m_channel == null)
 			{
-				M_log.warn("setGroupAccess() called with null message: " + ((m_message == null) ? "null" : ((BaseMessageEdit) m_message).toString()) + " or channel: " + ((m_message == null) ? "" : ((BaseMessageEdit) m_message).m_channel.toString()));
+				log.warn("setGroupAccess() called with null message: " + ((m_message == null) ? "null" : ((BaseMessageEdit) m_message).toString()) + " or channel: " + ((m_message == null) ? "" : ((BaseMessageEdit) m_message).m_channel.toString()));
 				throw new PermissionException(m_sessionManager.getCurrentSessionUserId(), "access:channel", ((m_message == null) ? "" : ((BaseMessageEdit) m_message).getReference()));
 			}
 
@@ -4081,7 +4081,7 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser
 			// there should not be a case where there's no message or a message with no channel... -ggolden
 			if ((m_message == null) || ((BaseMessageEdit) m_message).m_channel == null)
 			{
-				M_log.warn("clearGroupAccess() called with null message: " + ((m_message == null) ? "null" : ((BaseMessageEdit) m_message).toString()) + " or channel: " + ((m_message == null) ? "" : ((BaseMessageEdit) m_message).m_channel.toString()));
+				log.warn("clearGroupAccess() called with null message: " + ((m_message == null) ? "null" : ((BaseMessageEdit) m_message).toString()) + " or channel: " + ((m_message == null) ? "" : ((BaseMessageEdit) m_message).m_channel.toString()));
 				throw new PermissionException(m_sessionManager.getCurrentSessionUserId(), "access:channel", ((m_message == null) ? "" : ((BaseMessageEdit) m_message).getReference()));
 			}
 

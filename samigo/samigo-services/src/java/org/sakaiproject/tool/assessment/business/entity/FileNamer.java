@@ -19,13 +19,11 @@
  *
  **********************************************************************************/
 
-
 package org.sakaiproject.tool.assessment.business.entity;
 
 import java.util.Date;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import org.sakaiproject.tool.assessment.util.StringParseUtils;
 
@@ -54,7 +52,8 @@ import org.sakaiproject.tool.assessment.util.StringParseUtils;
  * @author Ed Smiley
  * @version $Id $
  */
-public class FileNamer
+@Slf4j
+ public class FileNamer
 {
   // internals
   private static final int maxAgentName = 20;
@@ -116,7 +115,6 @@ public class FileNamer
    */
   public static void unitTest()
   {
-    Logger log = LoggerFactory.getLogger(RecordingData.class);
 
     String s;
     s = make("Ed Smiley", "esmiley", "Intro to Wombats 101");
@@ -149,5 +147,3 @@ public class FileNamer
     unitTest();
   }
 }
-
-

@@ -21,14 +21,34 @@
 
 package org.sakaiproject.assignment.api.model;
 
-import java.util.*;
-import javax.persistence.*;
+import java.time.Instant;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+import javax.persistence.CascadeType;
+import javax.persistence.CollectionTable;
+import javax.persistence.Column;
+import javax.persistence.ElementCollection;
+import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.Lob;
+import javax.persistence.MapKeyColumn;
+import javax.persistence.OneToMany;
+import javax.persistence.Table;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.GenericGenerator;
+import org.hibernate.annotations.Type;
 
 /**
  * Assignment represents a specific assignment for a specific section or class.
@@ -58,15 +78,15 @@ import org.hibernate.annotations.GenericGenerator;
  *     - LocalDate implicitly @Temporal(TemporalType.Date)
  *     - LocalTime implicitly @Temporal(TemporalType.Time)
  *     - LocalDateTime implicitly @Temporal(TemporalType.Timestamp)
- *   - java 8 time is not supported in Hibernate < 5
- *     - So we use java.util.Date and specify the TemporalType to use
- *     - @Temporal(TemporalType.Date) maps to SQL (JDBC) DATE
- *     - @Temporal(TemporalType.Time) maps to SQL (JDBC) TIME
- *     - @Temporal(TemporalType.Timestamp) maps to SQL (JDBC) TIMESTAMP
+ *   - java 8 time Instant is not a supported Type in Hibernate < 5
+ *     - So we use a custom type called org.sakaiproject.springframework.orm.hibernate.type.InstantType,
+ *       which stores the time consistent with the use of Instant in UTC in a DATETIME field.
+ *       This can be removed after upgrading to Hibernate 5.
  * </pre>
  */
 
 @Entity
+@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 @Table(name = "ASN_ASSIGNMENT")
 @Data
 @NoArgsConstructor
@@ -84,47 +104,47 @@ public class Assignment {
     private String title;
 
     @Lob
-    @Column(name = "INSTRUCTIONS")
+    @Column(name = "INSTRUCTIONS", length = 65535)
     private String instructions;
 
-    @Column(name = "CONTEXT", nullable = false)
+    @Column(name = "CONTEXT", length = 36, nullable = false)
     private String context;
 
     @Column(name = "SECTION")
     private String section;
 
+    @Type(type = "org.sakaiproject.springframework.orm.hibernate.type.InstantType")
     @Column(name = "CREATED_DATE", nullable = false)
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date dateCreated;
+    private Instant dateCreated;
 
+    @Type(type = "org.sakaiproject.springframework.orm.hibernate.type.InstantType")
     @Column(name = "MODIFIED_DATE")
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date dateModified;
+    private Instant dateModified;
 
+    @Type(type = "org.sakaiproject.springframework.orm.hibernate.type.InstantType")
     @Column(name = "VISIBLE_DATE")
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date visibleDate;
+    private Instant visibleDate;
 
+    @Type(type = "org.sakaiproject.springframework.orm.hibernate.type.InstantType")
     @Column(name = "OPEN_DATE")
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date openDate;
+    private Instant openDate;
 
+    @Type(type = "org.sakaiproject.springframework.orm.hibernate.type.InstantType")
     @Column(name = "DUE_DATE")
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date dueDate;
+    private Instant dueDate;
 
+    @Type(type = "org.sakaiproject.springframework.orm.hibernate.type.InstantType")
     @Column(name = "CLOSE_DATE")
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date closeDate;
+    private Instant closeDate;
 
+    @Type(type = "org.sakaiproject.springframework.orm.hibernate.type.InstantType")
     @Column(name = "DROP_DEAD_DATE")
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date dropDeadDate;
+    private Instant dropDeadDate;
 
-    @Column(name = "MODIFIER")
+    @Column(name = "MODIFIER", length = 36)
     private String modifier;
 
-    @Column(name = "AUTHOR")
+    @Column(name = "AUTHOR", length = 36)
     private String author;
 
     @Column(name = "DRAFT", nullable = false)
@@ -142,28 +162,33 @@ public class Assignment {
     @Column(name = "POSITION")
     private Integer position;
 
+    @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     @OneToMany(mappedBy = "assignment", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<AssignmentSubmission> submissions = new HashSet<>();
 
+    @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
     @ElementCollection
     @MapKeyColumn(name = "NAME")
-    @Column(name = "VALUE")
+    @Lob
+    @Column(name = "VALUE", length = 65535)
     @CollectionTable(name = "ASN_ASSIGNMENT_PROPERTIES", joinColumns = @JoinColumn(name = "ASSIGNMENT_ID"))
     private Map<String, String> properties = new HashMap<>();
 
+    @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
     @ElementCollection
     @CollectionTable(name = "ASN_ASSIGNMENT_GROUPS", joinColumns = @JoinColumn(name = "ASSIGNMENT_ID"))
     @Column(name = "GROUP_ID")
     private Set<String> groups = new HashSet<>();
 
+    @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
     @ElementCollection
     @CollectionTable(name = "ASN_ASSIGNMENT_ATTACHMENTS", joinColumns = @JoinColumn(name = "ASSIGNMENT_ID"))
-    @Column(name = "ATTACHMENT")
+    @Column(name = "ATTACHMENT", length = 1024)
     private Set<String> attachments = new HashSet<>();
 
     @Enumerated(value = EnumType.STRING)
-    @Column(name = "ACCESS", nullable = false)
-    private Access access = Access.SITE;
+    @Column(name = "ACCESS_TYPE", nullable = false)
+    private Access typeOfAccess = Access.SITE;
 
     @Column(name = "HONOR_PLEDGE")
     private Boolean honorPledge = Boolean.FALSE;
@@ -194,28 +219,28 @@ public class Assignment {
     @Column(name = "ALLOW_PEER_ASSESSMENT")
     private Boolean allowPeerAssessment = Boolean.FALSE;
 
+    @Type(type = "org.sakaiproject.springframework.orm.hibernate.type.InstantType")
     @Column(name = "PEER_ASSESSMENT_PERIOD_DATE")
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date peerAssessmentPeriodDate;
+    private Instant peerAssessmentPeriodDate;
 
     @Column(name = "PEER_ASSESSMENT_ANON_EVAL")
     private Boolean peerAssessmentAnonEval;
 
-    @Column(name = "PEER_ASSESSMENT_STUDENT_VIEW_REVIEW")
-    private Boolean peerAssessmentStudentViewReview = Boolean.FALSE;
+    @Column(name = "PEER_ASSESSMENT_STUDENT_REVIEW")
+    private Boolean peerAssessmentStudentReview = Boolean.FALSE;
 
     @Column(name = "PEER_ASSESSMENT_NUMBER_REVIEW")
     private Integer peerAssessmentNumberReviews;
 
-    @Column(name = "PEER_ASSESSMENT_INSTRUCTIONS")
+    @Column(name = "PEER_ASSESSMENT_INSTRUCTIONS", length = 8000)
     private String peerAssessmentInstructions;
 
     @Column(name = "CONTENT_REVIEW")
-    private Boolean contentReview;
+    private Boolean contentReview = Boolean.FALSE;
 
     public enum Access {
         SITE,
-        GROUPED
+        GROUP
     }
 
     public enum SubmissionType {
@@ -235,21 +260,5 @@ public class Assignment {
         PASS_FAIL_GRADE_TYPE, // 4
         CHECK_GRADE_TYPE      // 5
     }
-
-    // TODO this data should come from a ReviewableAssignmentEntity and not be part of the Assignment (SOLID)
-    // for now this is stored in the assignments properties
-    // private String generateOriginalityReport;
-    // private Boolean allowStudentViewReport;
-    // private String submitReviewRepo;
-    // private boolean checkTurnitin = true;
-    // private boolean checkInternet = true;
-    // private boolean checkPublications = true;
-    // private boolean checkInstitution = true;
-    // private boolean excludeBibliographic = true;
-    // private boolean excludeQuoted = true;
-    // private boolean excludeSelfPlag = true;
-    // private boolean storeInstIndex = true;
-    // private int excludeType = 0;
-    // private int excludeValue = 1;
 }
 

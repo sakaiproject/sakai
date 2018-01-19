@@ -22,6 +22,7 @@
 package org.sakaiproject.assignment.api;
 
 import java.io.OutputStream;
+import java.time.Instant;
 import java.util.*;
 
 import org.sakaiproject.assignment.api.model.Assignment;
@@ -125,11 +126,9 @@ public interface AssignmentService extends EntityProducer {
     /**
      * Get the collection of Groups defined for the context of this site that the end user has grade assignment permissions in.
      *
-     * @param context -
-     *                Describes the portlet context - generated with DefaultId.getChannel().
      * @return The Collection (Group) of groups defined for the context of this site that the end user has grade assignment permissions in, empty if none.
      */
-    public Collection<Group> getGroupsAllowGradeAssignment(String context, String assignmentReference);
+    public Collection<Group> getGroupsAllowGradeAssignment(String assignmentReference);
 
     /**
      * Check permissions for updating an Assignment.
@@ -159,11 +158,10 @@ public interface AssignmentService extends EntityProducer {
     public boolean allowAddSubmission(String context);
 
     /**
-     * @param context
      * @param assignment - An Assignment object. Needed for the groups to be checked.
      * @return
      */
-    public boolean allowAddSubmissionCheckGroups(String context, Assignment assignment);
+    public boolean allowAddSubmissionCheckGroups(Assignment assignment);
 
     /**
      * Get the List of Users who can addSubmission() for this assignment.
@@ -271,23 +269,28 @@ public interface AssignmentService extends EntityProducer {
     public Assignment addDuplicateAssignment(String context, String assignmentId) throws IdInvalidException, PermissionException, IdUsedException, IdUnusedException;
 
     /**
-     * Removes this Assignment
+     * Delete this Assignment
      *
-     * @param assignment -
-     *                   The Assignment to remove.
+     * @param assignment - The Assignment to delete.
      * @throws PermissionException if current User does not have permission to do this.
      */
-    public void removeAssignment(Assignment assignment) throws PermissionException;
-
+    public void deleteAssignment(Assignment assignment) throws PermissionException;
 
     /**
-     * Removes this Assignment and all references to it.
+     * Softly delete this Assignment
      *
-     * @param assignment -
-     *                   The Assignment to remove.
+     * @param assignment - The Assignment to softly delete.
      * @throws PermissionException if current User does not have permission to do this.
      */
-    public void removeAssignmentAndAllReferences(Assignment assignment) throws PermissionException;
+    public void softDeleteAssignment(Assignment assignment) throws PermissionException;
+
+    /**
+     * Softly delete this Assignment and remove all references to it.
+     *
+     * @param assignment - The Assignment to softly delete.
+     * @throws PermissionException if current User does not have permission to do this.
+     */
+    public void deleteAssignmentAndAllReferences(Assignment assignment) throws PermissionException;
 
     /**
      * Adds an AssignmentSubmission
@@ -517,22 +520,6 @@ public interface AssignmentService extends EntityProducer {
     public String submissionReference(String context, String id, String assignmentId);
 
     /**
-     * Get the String to form an assignment grade spreadsheet
-     *
-     * @param context      The assignment context String
-     * @param assignmentId The id for the assignment object; when null, indicates all assignment in that context
-     */
-    public String gradesSpreadsheetReference(String context, String assignmentId);
-
-    /**
-     * Get the string to form an assignment submissions zip file
-     *
-     * @param context      The assignment context String
-     * @param assignmentId The id for the assignment object;
-     */
-    public String submissionsZipReference(String context, String assignmentId);
-
-    /**
      * Whether a specific user can submit
      * @param context
      * @param a
@@ -608,13 +595,6 @@ public interface AssignmentService extends EntityProducer {
      * @return
      */
     public Integer getScaleFactor();
-
-    /**
-     * This method allows you to know if there are submissions submitted
-     *
-     * Params: AssignmentSubmission s
-     */
-    public boolean hasBeenSubmitted(AssignmentSubmission s);
 
     /**
      * Get a link directly into an assignment itself, supplying the permissions to use when
@@ -719,11 +699,15 @@ public interface AssignmentService extends EntityProducer {
     /**
      * @param submissionId
      */
-    public void postReviewableSubmissonAttachments(String submissionId);
+    public void postReviewableSubmissionAttachments(AssignmentSubmission submission);
 
     /**
     * This will return the internationalized title of the tool.
     * This is used when creating a new gradebook item.
     */
     public String getToolTitle();
+
+    String getUsersLocalDateTimeString(Instant date);
+
+    public List<ContentReviewResult> getContentReviewResults(AssignmentSubmission submission);
 }

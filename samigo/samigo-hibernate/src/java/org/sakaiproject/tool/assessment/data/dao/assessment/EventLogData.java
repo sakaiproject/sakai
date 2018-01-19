@@ -17,14 +17,10 @@ package org.sakaiproject.tool.assessment.data.dao.assessment;
 
 import java.util.Date;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 public class EventLogData
 implements java.io.Serializable{
 
 	private static final long serialVersionUID = 1L;
-	static Logger errorLogger = LoggerFactory.getLogger("errorLogger");
 
 	private Long eventLogId;
 	private Long assessmentId;
@@ -186,6 +182,4 @@ implements java.io.Serializable{
        public void setIpAddress(String ipAddress) {
                this.ipAddress = ipAddress;
        }
-
 }
-

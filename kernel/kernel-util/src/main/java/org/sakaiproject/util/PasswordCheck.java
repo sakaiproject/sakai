@@ -24,10 +24,10 @@ package org.sakaiproject.util;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import lombok.extern.slf4j.Slf4j;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang.math.IntRange;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * <p>
@@ -38,9 +38,8 @@ import org.slf4j.LoggerFactory;
  * </p>
  * @deprecated unused as of 12 Dec 2011, planned for removal after 2.9
  */
+@Slf4j
 public class PasswordCheck {
-	
-	
 	//return values
 	public static final int VERY_STRONG = 5;
 	public static final int STRONG = 4;
@@ -48,9 +47,7 @@ public class PasswordCheck {
 	public static final int WEAK = 2;
 	public static final int VERY_WEAK = 1;
 	public static final int NONE = 0;
-	
-	private static Logger log = LoggerFactory.getLogger(Resource.class);
-	
+
 	/**
 	 * Compute the strength of the given password and return it as one of the constant values.
 	 * 

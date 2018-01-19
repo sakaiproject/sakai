@@ -36,7 +36,12 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import javax.servlet.http.HttpServletRequest;
 
+import lombok.extern.slf4j.Slf4j;
+
 import org.apache.commons.lang.mutable.MutableLong;
+
+import org.springframework.util.StringUtils;
+
 import org.sakaiproject.cluster.api.ClusterService;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.id.api.IdManager;
@@ -51,15 +56,13 @@ import org.sakaiproject.tool.api.SessionStore;
 import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.tool.api.ToolSession;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.util.StringUtils;
 
 /**
  * <p>
  * Standard implementation of the Sakai SessionManager.
  * </p>
  */
+@Slf4j
 public abstract class SessionComponent implements SessionManager, SessionStore
 {
 	/** Key in the ThreadLocalManager for binding our current session. */
@@ -68,8 +71,6 @@ public abstract class SessionComponent implements SessionManager, SessionStore
 	protected final static String CURRENT_TOOL_SESSION = "org.sakaiproject.api.kernel.session.current.tool";
 	/** Key in the ThreadLocalManager for access to the current servlet context (from tool-util/servlet/RequestFilter). */
 	protected final static String CURRENT_SERVLET_CONTEXT = "org.sakaiproject.util.RequestFilter.servlet_context";
-	/** Our log (commons). */
-	private static Logger M_log = LoggerFactory.getLogger(SessionComponent.class);
 	/** The sessions - keyed by session id. */
 	protected Map<String, Session> m_sessions = new ConcurrentHashMap<String, Session>();
 	/**
@@ -144,7 +145,7 @@ public abstract class SessionComponent implements SessionManager, SessionStore
 		}
 		catch (Exception t)
 		{
-			M_log.warn(t.getMessage(), t);
+			log.warn(t.getMessage(), t);
 		}
 	}
 
@@ -187,7 +188,7 @@ public abstract class SessionComponent implements SessionManager, SessionStore
 		}
 		catch (Exception t)
 		{
-			M_log.warn(t.getMessage(), t);
+			log.warn(t.getMessage(), t);
 		}
 	}
 
@@ -211,11 +212,11 @@ public abstract class SessionComponent implements SessionManager, SessionStore
 			random = SecureRandom.getInstance("SHA1PRNG");
 	        random.nextBytes(salt);
 		} catch (NoSuchAlgorithmException e) {
-			M_log.warn("Random number generator not available - using time randomness");
+			log.warn("Random number generator not available - using time randomness");
 			salt = String.valueOf(System.currentTimeMillis()).getBytes();
 		}
 
-		M_log.info("init(): interval: " + m_defaultInactiveInterval + " refresh: " + m_checkEvery);
+		log.info("init(): interval: " + m_defaultInactiveInterval + " refresh: " + m_checkEvery);
 	}
 
 	/**********************************************************************************************************************************************************************************************************************************************************
@@ -233,7 +234,7 @@ public abstract class SessionComponent implements SessionManager, SessionStore
 			m_maintenance = null;
 		}
 
-		M_log.info("destroy()");
+		log.info("destroy()");
 	}
 	
 	/**
@@ -268,12 +269,12 @@ public abstract class SessionComponent implements SessionManager, SessionStore
 			// Fallback to new uuid rather than a non-hashed id
 			sessionId = idManager().createUuid();
             //This may need to be changed to a debug
-			M_log.warn("makeSessionId fallback to Uuid!",e);
+			log.warn("makeSessionId fallback to Uuid!",e);
 
 		} catch (UnsupportedEncodingException e) {
 			sessionId = idManager().createUuid();
             //This may need to be changed to a debug
-			M_log.warn("makeSessionId fallback to Uuid!",e);
+			log.warn("makeSessionId fallback to Uuid!",e);
 		}
 
 		return sessionId;
@@ -308,11 +309,11 @@ public abstract class SessionComponent implements SessionManager, SessionStore
 				if (toolId != null) {
 					return clusterableTools.contains(toolId);
 				} else {
-					M_log.error("SessionComponent.isCurrentToolClusterable(): toolId was null.");
+					log.error("SessionComponent.isCurrentToolClusterable(): toolId was null.");
 				}
 			}
 		} else {
-			M_log.error("SessionComponent.isCurrentToolClusterable(): toolManager was null.");
+			log.error("SessionComponent.isCurrentToolClusterable(): toolManager was null.");
 		}
 		return false;
 	}
@@ -380,7 +381,7 @@ public abstract class SessionComponent implements SessionManager, SessionStore
 		// check for id conflict
 		if (old != null)
 		{
-			M_log.warn("startSession: duplication id: " + s.getId());
+			log.warn("startSession: duplication id: " + s.getId());
 		}
 
 		return s;
@@ -463,7 +464,7 @@ public abstract class SessionComponent implements SessionManager, SessionStore
 			if (o instanceof java.lang.String) {
 				this.clusterableTools.add((String)o);
 			} else {
-				M_log.error("SessionManager.setClusterableTools(String) unable to set value: "+o);
+				log.error("SessionManager.setClusterableTools(String) unable to set value: "+o);
 			}
 		}
 	}
@@ -577,10 +578,10 @@ public abstract class SessionComponent implements SessionManager, SessionStore
 					for (Map.Entry<String, MutableLong> entry: expirationTimeSuggestionMap.entrySet()) {
 						if (entry.getValue().longValue() < System.currentTimeMillis()) {
 							MySession s = (MySession)m_sessions.get(entry.getKey());
-							if (M_log.isDebugEnabled()) M_log.debug("checking session " + s.getId());
+							if (log.isDebugEnabled()) log.debug("checking session " + s.getId());
 							if (s.isInactive())
 							{
-								if (M_log.isDebugEnabled()) M_log.debug("invalidating session " + s.getId());
+								if (log.isDebugEnabled()) log.debug("invalidating session " + s.getId());
 								synchronized(s) {
 									s.invalidate();
 								}
@@ -590,7 +591,7 @@ public abstract class SessionComponent implements SessionManager, SessionStore
 				}
 				catch (Exception e)
 				{
-					M_log.warn("run(): exception: " + e);
+					log.warn("run(): exception: " + e);
 				}
 
 				// cycle every REFRESH seconds

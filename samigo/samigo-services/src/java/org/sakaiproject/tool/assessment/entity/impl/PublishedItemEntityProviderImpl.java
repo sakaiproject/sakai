@@ -13,38 +13,39 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.sakaiproject.tool.assessment.entity.impl;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
-import org.sakaiproject.site.api.SiteService;
-import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemTag;
-import org.sakaiproject.tool.assessment.data.ifc.assessment.AnswerIfc;
-import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextIfc;
-import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
-import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacadeQueriesAPI;
-import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
 import org.sakaiproject.entitybroker.DeveloperHelperService;
 import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.entitybroker.entityprovider.CoreEntityProvider;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.AutoRegisterEntityProvider;
 import org.sakaiproject.entitybroker.entityprovider.extension.Formats;
+import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemTag;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.AnswerIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextIfc;
+import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 import org.sakaiproject.tool.assessment.entity.api.PublishedItemEntityProvider;
-import org.sakaiproject.tool.assessment.facade.PublishedItemFacadeQueriesAPI;
+import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacadeQueriesAPI;
 import org.sakaiproject.tool.assessment.facade.PublishedItemFacade;
-
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.HashMap;
-import java.util.Set;
-
+import org.sakaiproject.tool.assessment.facade.PublishedItemFacadeQueriesAPI;
+import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 
 /**
  * Entity Provider impl for samigo published questions.
  */
-
+@Slf4j
 public class PublishedItemEntityProviderImpl implements PublishedItemEntityProvider,CoreEntityProvider,AutoRegisterEntityProvider {
 
     private PublishedItemFacadeQueriesAPI publishedItemFacadeQueries;
@@ -53,7 +54,6 @@ public class PublishedItemEntityProviderImpl implements PublishedItemEntityProvi
     private SiteService siteService;
     private AssessmentService assessmentService= new AssessmentService();
 
-    private static Logger log = LoggerFactory.getLogger(ItemEntityProviderImpl.class);
     public final static String ENTITY_PREFIX = PublishedItemEntityProvider.ENTITY_PREFIX;
 
     public String getEntityPrefix() {
@@ -259,7 +259,6 @@ public class PublishedItemEntityProviderImpl implements PublishedItemEntityProvi
 
     }
 
-
     public void setDeveloperHelperService(DeveloperHelperService developerHelperService) {
         this.developerHelperService = developerHelperService;
     }
@@ -288,6 +287,4 @@ public class PublishedItemEntityProviderImpl implements PublishedItemEntityProvi
     public void setSiteService(SiteService siteService) {
         this.siteService = siteService;
     }
-
-
 }

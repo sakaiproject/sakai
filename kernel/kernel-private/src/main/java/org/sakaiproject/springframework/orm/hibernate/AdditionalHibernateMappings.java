@@ -22,10 +22,7 @@
 package org.sakaiproject.springframework.orm.hibernate;
 
 import java.io.IOException;
-import java.util.Comparator;
 
-import org.hibernate.MappingException;
-import org.hibernate.cfg.Configuration;
 import org.springframework.core.io.Resource;
 import org.springframework.orm.hibernate4.LocalSessionFactoryBuilder;
 

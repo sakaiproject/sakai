@@ -64,9 +64,9 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.jrcs.diff.Diff;
 import org.apache.commons.jrcs.diff.Revision;
-
 
 /**
  * A program to compare two files.
@@ -76,6 +76,7 @@ import org.apache.commons.jrcs.diff.Revision;
  * <p>The program was written as a simple test of the
  * {@linkplain org.apache.commons.jrcs.diff diff} package.
  */
+@Slf4j
 public class JDiff
 {
 
@@ -93,7 +94,7 @@ public class JDiff
 
     static final void usage(String name)
     {
-        System.err.println("Usage: " + name + " file1 file2");
+        log.error("Usage: " + name + " file1 file2");
     }
 
     public static void main(String[] argv) throws Exception
@@ -110,9 +111,9 @@ public class JDiff
             Diff df = new Diff(orig);
             Revision r = df.diff(rev);
 
-            System.err.println("------");
-            System.out.print(r.toString());
-            System.err.println("------" + new Date());
+            log.info("------");
+            log.info(r.toString());
+            log.info("------" + new Date());
 
             try
             {
@@ -120,13 +121,13 @@ public class JDiff
                 //String recos = Diff.arrayToString(reco);
                 if (!Diff.compare(rev, reco))
                 {
-                    System.err.println("INTERNAL ERROR:"
+                    log.error("INTERNAL ERROR:"
                                         + "files differ after patching!");
                 }
             }
             catch (Throwable o)
             {
-                System.out.println("Patch failed");
+                log.info("Patch failed");
             }
         }
     }

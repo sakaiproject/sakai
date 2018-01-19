@@ -29,9 +29,10 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.component.api.ComponentManager;
+import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.content.api.FilePickerHelper;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.Tool;
@@ -51,16 +52,13 @@ import uk.ac.cam.caret.sakai.rwiki.tool.bean.helper.ResourceLoaderHelperBean;
 import uk.ac.cam.caret.sakai.rwiki.tool.bean.helper.ViewParamsHelperBean;
 import uk.ac.cam.caret.sakai.rwiki.tool.command.helper.ErrorBeanHelper;
 import uk.ac.cam.caret.sakai.rwiki.tool.util.WikiPageAction;
-import org.sakaiproject.component.cover.ServerConfigurationService;
-
 
 /**
  * @author andrew
  */
+@Slf4j
 public class SaveCommand implements HttpCommand
 {
-	private static Logger log = LoggerFactory.getLogger(SaveCommand.class);
-
 	private static final String ATTACHMENT_HELPER = "sakai.filepicker";
 
 	protected RWikiObjectService objectService;

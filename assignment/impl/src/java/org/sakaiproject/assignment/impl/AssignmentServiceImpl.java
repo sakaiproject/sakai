@@ -18,23 +18,37 @@ package org.sakaiproject.assignment.impl;
 import static org.sakaiproject.assignment.api.AssignmentServiceConstants.*;
 
 import java.io.BufferedInputStream;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.text.DecimalFormat;
 import java.text.Normalizer;
 import java.text.NumberFormat;
+import java.time.Duration;
 import java.time.Instant;
-import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.*;
+import java.time.format.FormatStyle;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+import java.util.Stack;
+import java.util.StringTokenizer;
 import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -47,34 +61,72 @@ import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.sakaiproject.announcement.api.AnnouncementChannel;
 import org.sakaiproject.announcement.api.AnnouncementService;
-import org.sakaiproject.assignment.api.*;
+import org.sakaiproject.assignment.api.AssignmentConstants;
+import org.sakaiproject.assignment.api.AssignmentEntity;
+import org.sakaiproject.assignment.api.AssignmentReferenceReckoner;
+import org.sakaiproject.assignment.api.AssignmentService;
+import org.sakaiproject.assignment.api.AssignmentServiceConstants;
+import org.sakaiproject.assignment.api.ContentReviewResult;
 import org.sakaiproject.assignment.api.model.Assignment;
+import org.sakaiproject.assignment.api.model.AssignmentAllPurposeItem;
+import org.sakaiproject.assignment.api.model.AssignmentAllPurposeItemAccess;
+import org.sakaiproject.assignment.api.model.AssignmentModelAnswerItem;
+import org.sakaiproject.assignment.api.model.AssignmentNoteItem;
 import org.sakaiproject.assignment.api.model.AssignmentSubmission;
 import org.sakaiproject.assignment.api.model.AssignmentSubmissionSubmitter;
+import org.sakaiproject.assignment.api.model.AssignmentSupplementItemAttachment;
+import org.sakaiproject.assignment.api.model.AssignmentSupplementItemService;
 import org.sakaiproject.assignment.impl.sort.AnonymousSubmissionComparator;
 import org.sakaiproject.assignment.impl.sort.AssignmentSubmissionComparator;
 import org.sakaiproject.assignment.impl.sort.UserComparator;
 import org.sakaiproject.assignment.persistence.AssignmentRepository;
 import org.sakaiproject.assignment.taggable.api.AssignmentActivityProducer;
-import org.sakaiproject.authz.api.*;
+import org.sakaiproject.authz.api.AuthzGroup;
+import org.sakaiproject.authz.api.AuthzGroupService;
+import org.sakaiproject.authz.api.AuthzPermissionException;
+import org.sakaiproject.authz.api.FunctionManager;
+import org.sakaiproject.authz.api.GroupNotDefinedException;
+import org.sakaiproject.authz.api.Member;
+import org.sakaiproject.authz.api.SecurityAdvisor;
+import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.calendar.api.Calendar;
 import org.sakaiproject.calendar.api.CalendarEvent;
 import org.sakaiproject.calendar.api.CalendarService;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentResource;
+import org.sakaiproject.content.api.ContentResourceEdit;
+import org.sakaiproject.contentreview.dao.ContentReviewConstants;
+import org.sakaiproject.contentreview.dao.ContentReviewItem;
 import org.sakaiproject.contentreview.exception.QueueException;
 import org.sakaiproject.contentreview.service.ContentReviewService;
 import org.sakaiproject.email.api.DigestService;
 import org.sakaiproject.email.api.EmailService;
-import org.sakaiproject.entity.api.*;
-import org.sakaiproject.entitybroker.DeveloperHelperService;
+import org.sakaiproject.entity.api.Entity;
+import org.sakaiproject.entity.api.EntityManager;
+import org.sakaiproject.entity.api.EntityTransferrer;
+import org.sakaiproject.entity.api.EntityTransferrerRefMigrator;
+import org.sakaiproject.entity.api.HttpAccess;
+import org.sakaiproject.entity.api.Reference;
+import org.sakaiproject.entity.api.ResourceProperties;
+import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.event.api.LearningResourceStoreService;
-import org.sakaiproject.event.api.LearningResourceStoreService.*;
+import org.sakaiproject.event.api.LearningResourceStoreService.LRS_Actor;
+import org.sakaiproject.event.api.LearningResourceStoreService.LRS_Object;
+import org.sakaiproject.event.api.LearningResourceStoreService.LRS_Result;
+import org.sakaiproject.event.api.LearningResourceStoreService.LRS_Statement;
+import org.sakaiproject.event.api.LearningResourceStoreService.LRS_Verb;
 import org.sakaiproject.event.api.LearningResourceStoreService.LRS_Verb.SAKAI_VERB;
-import org.sakaiproject.exception.*;
+import org.sakaiproject.event.api.NotificationService;
+import org.sakaiproject.exception.IdInvalidException;
+import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.exception.IdUsedException;
+import org.sakaiproject.exception.InUseException;
+import org.sakaiproject.exception.PermissionException;
+import org.sakaiproject.exception.ServerOverloadException;
+import org.sakaiproject.exception.TypeException;
 import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.service.gradebook.shared.GradeDefinition;
 import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService;
@@ -85,7 +137,7 @@ import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.taggable.api.TaggingManager;
 import org.sakaiproject.taggable.api.TaggingProvider;
-import org.sakaiproject.time.api.TimeService;
+import org.sakaiproject.time.api.UserTimeService;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.tool.api.ToolManager;
@@ -98,7 +150,10 @@ import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.SortedIterator;
 import org.sakaiproject.util.Validator;
 import org.sakaiproject.util.api.FormattedText;
+import org.sakaiproject.util.api.LinkMigrationHelper;
 import org.springframework.beans.factory.ObjectFactory;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 import org.w3c.dom.Document;
@@ -109,19 +164,19 @@ import org.w3c.dom.Element;
  */
 @Slf4j
 @Transactional(readOnly = true)
-public class AssignmentServiceImpl implements AssignmentService {
+public class AssignmentServiceImpl implements AssignmentService, EntityTransferrer, EntityTransferrerRefMigrator, ApplicationContextAware {
 
     @Setter private AnnouncementService announcementService;
+    @Setter private ApplicationContext applicationContext;
     @Setter private AssignmentActivityProducer assignmentActivityProducer;
     @Setter private ObjectFactory<AssignmentEntity> assignmentEntityFactory;
-    @Setter private AssignmentPeerAssessmentService assignmentPeerAssessmentService;
     @Setter private AssignmentRepository assignmentRepository;
+    @Setter private AssignmentSupplementItemService assignmentSupplementItemService;
     @Setter private AuthzGroupService authzGroupService;
     @Setter private CalendarService calendarService;
     @Setter private CandidateDetailProvider candidateDetailProvider;
     @Setter private ContentHostingService contentHostingService;
     @Setter private ContentReviewService contentReviewService;
-    @Setter private DeveloperHelperService developerHelperService;
     @Setter private DigestService digestService;
     @Setter private EmailService emailService;
     @Setter private EmailUtil emailUtil;
@@ -133,6 +188,7 @@ public class AssignmentServiceImpl implements AssignmentService {
     @Setter private GradebookService gradebookService;
     @Setter private GradeSheetExporter gradeSheetExporter;
     @Setter private LearningResourceStoreService learningResourceStoreService;
+    @Setter private LinkMigrationHelper linkMigrationHelper;
     @Setter private MemoryService memoryService;
     @Setter private ResourceLoader resourceLoader;
     @Setter private SecurityService securityService;
@@ -140,9 +196,9 @@ public class AssignmentServiceImpl implements AssignmentService {
     @Setter private ServerConfigurationService serverConfigurationService;
     @Setter private SiteService siteService;
     @Setter private TaggingManager taggingManager;
-    @Setter private TimeService timeService;
     @Setter private ToolManager toolManager;
     @Setter private UserDirectoryService userDirectoryService;
+    @Setter private UserTimeService userTimeService;
 
     private DateTimeFormatter dateTimeFormatter;
     private boolean allowSubmitByInstructor;
@@ -171,6 +227,9 @@ public class AssignmentServiceImpl implements AssignmentService {
         functionManager.registerFunction(SECURE_GRADE_ASSIGNMENT_SUBMISSION);
         functionManager.registerFunction(SECURE_ASSIGNMENT_RECEIVE_NOTIFICATIONS);
         functionManager.registerFunction(SECURE_SHARE_DRAFTS);
+
+        // this is needed to avoid a circular dependency, notice we set the AssignmentService proxy and not this
+        assignmentSupplementItemService.setAssignmentService(applicationContext.getBean(AssignmentService.class));
     }
 
     @Override
@@ -210,7 +269,7 @@ public class AssignmentServiceImpl implements AssignmentService {
     public boolean parseEntityReference(String stringReference, Reference reference) {
         if (StringUtils.startsWith(stringReference, REFERENCE_ROOT)) {
             AssignmentReferenceReckoner.AssignmentReference reckoner = AssignmentReferenceReckoner.reckoner().reference(stringReference).reckon();
-            reference.set(APPLICATION_ID, reckoner.getSubtype(), reckoner.getId(), reckoner.getContainer(), reckoner.getContext());
+            reference.set(SAKAI_ASSIGNMENT, reckoner.getSubtype(), reckoner.getId(), reckoner.getContainer(), reckoner.getContext());
             return true;
         }
         return false;
@@ -331,8 +390,8 @@ public class AssignmentServiceImpl implements AssignmentService {
 
         // for AssignmentService assignments:
         // if access set to SITE, use the assignment and site authzGroups.
-        // if access set to GROUPED, use the assignment, and the groups, but not the site authzGroups.
-        // if the user has SECURE_ALL_GROUPS in the context, ignore GROUPED access and treat as if SITE
+        // if access set to GROUP, use the assignment, and the groups, but not the site authzGroups.
+        // if the user has SECURE_ALL_GROUPS in the context, ignore GROUP access and treat as if SITE
 
         try {
             switch (reference.getSubType()) {
@@ -351,7 +410,7 @@ public class AssignmentServiceImpl implements AssignmentService {
                         if (reference.getId() != null) {
                             Assignment a = getAssignment(reference);
                             if (a != null) {
-                                grouped = Assignment.Access.GROUPED == a.getAccess();
+                                grouped = Assignment.Access.GROUP == a.getTypeOfAccess();
                                 groups = a.getGroups();
                             }
                         }
@@ -382,37 +441,43 @@ public class AssignmentServiceImpl implements AssignmentService {
 
     @Override
     public HttpAccess getHttpAccess() {
-        return new HttpAccess() {
-            @Override
-            public void handleAccess(HttpServletRequest req, HttpServletResponse res, Reference ref, Collection copyrightAcceptedRefs)
-                    throws EntityPermissionException, EntityNotDefinedException, EntityAccessOverloadException, EntityCopyrightException {
-                if (sessionManager.getCurrentSessionUserId() == null) {
-                    // fail the request, user not logged in yet.
-                } else {
-                    if (REF_TYPE_SUBMISSIONS.equals(ref.getSubType())) {
-                        String queryString = req.getQueryString();
-                        res.setContentType("application/zip");
-                        res.setHeader("Content-Disposition", "attachment; filename = bulk_download.zip");
+        return (req, res, ref, copyrightAcceptedRefs) -> {
+            if (sessionManager.getCurrentSessionUserId() == null) {
+                log.warn("Only logged in users can access assignment downloads");
+            } else {
+                // determine the type of download to create using the reference that was requested
+                AssignmentReferenceReckoner.AssignmentReference refReckoner = AssignmentReferenceReckoner.reckoner().reference(ref.getReference()).reckon();
+                if (REFERENCE_ROOT.equals("/" + refReckoner.getType())) {
+                    // don't process any references that are not of type assignment
+                    switch (refReckoner.getSubtype()) {
+                        case REF_TYPE_CONTENT:
+                        case REF_TYPE_ASSIGNMENT:
+                            String queryString = req.getQueryString();
+                            if (StringUtils.isNotBlank(refReckoner.getId())) {
+                                // if subtype is assignment then were downloading all submissions for an assignment
+                                res.setContentType("application/zip");
+                                res.setHeader("Content-Disposition", "attachment; filename = bulk_download.zip");
 
-                        try (OutputStream out = res.getOutputStream()) {
-                            // get the submissions zip blob
-                            getSubmissionsZip(out, ref.getReference(), queryString);
+                                try (OutputStream out = res.getOutputStream()) {
+                                    getSubmissionsZip(out, ref.getReference(), queryString);
+                                } catch (Exception ignore) {
+                                    log.warn("Could not stream the zip of submissions for reference: {}", ref.getReference());
+                                }
+                            } else {
+                                // if subtype is assignment and there is no assignmentId then were downloading grades
+                                res.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+                                res.setHeader("Content-Disposition", "attachment; filename = export_grades_file.xlsx");
 
-                        } catch (Exception ignore) {
-                            log.error("Could not stream the zip of submissions for ref = {}", ref.getReference());
-                        }
-                    } else if (REF_TYPE_GRADES.equals(ref.getSubType())) {
-                        res.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
-                        res.setHeader("Content-Disposition", "attachment; filename = export_grades_file.xlsx");
-
-                        try (OutputStream out = res.getOutputStream()) {
-                            gradeSheetExporter.getGradesSpreadsheet(out, ref.getReference());
-                        } catch (Exception ignore) {
-                            log.error("Could not stream the grades for ref = {}", ref.getReference());
-                        }
-                    } else {
-                        log.warn("Unhandled reference = {}", ref.getReference());
-                        throw new EntityNotDefinedException(ref.getReference());
+                                try (OutputStream out = res.getOutputStream()) {
+                                    gradeSheetExporter.getGradesSpreadsheet(out, ref.getReference(), queryString);
+                                } catch (Exception ignore) {
+                                    log.warn("Could not stream the grades for reference: {}", ref.getReference());
+                                }
+                            }
+                            break;
+                        case REF_TYPE_SUBMISSION:
+                        default:
+                            log.warn("Assignments download unhandled download type for reference: {}", ref.getReference());
                     }
                 }
             }
@@ -453,12 +518,26 @@ public class AssignmentServiceImpl implements AssignmentService {
 
     @Override
     public Collection<Group> getGroupsAllowAddAssignment(String context) {
-        return getGroupsAllowFunction(SECURE_ACCESS_ASSIGNMENT, context, null);
+        return getGroupsAllowFunction(SECURE_ADD_ASSIGNMENT, context, null);
     }
 
     @Override
-    public Collection<Group> getGroupsAllowGradeAssignment(String context, String assignmentReference) {
-        return getGroupsAllowFunction(SECURE_ADD_ASSIGNMENT, context, null);
+    public Collection<Group> getGroupsAllowGradeAssignment(String assignmentReference) {
+        AssignmentReferenceReckoner.AssignmentReference referenceReckoner = AssignmentReferenceReckoner.reckoner().reference(assignmentReference).reckon();
+        if (allowGradeSubmission(assignmentReference)) {
+            Collection<Group> groupsAllowed = getGroupsAllowFunction(SECURE_GRADE_ASSIGNMENT_SUBMISSION, referenceReckoner.getContext(), null);
+            Assignment assignment = assignmentRepository.findAssignment(referenceReckoner.getId());
+            if (assignment != null) {
+                switch (assignment.getTypeOfAccess()) {
+                    case SITE: // return all groups for site access
+                        return groupsAllowed;
+                    case GROUP: // return only matching groups for group access
+                        Set<String> assignmentGroups = assignment.getGroups();
+                        return groupsAllowed.stream().filter(g -> assignmentGroups.contains(g.getId())).collect(Collectors.toSet());
+                }
+            }
+        }
+        return Collections.emptySet();
     }
 
     @Override
@@ -479,7 +558,7 @@ public class AssignmentServiceImpl implements AssignmentService {
     @Override
     public boolean allowAddAssignment(String context) {
         String resourceString = AssignmentReferenceReckoner.reckoner().context(context).reckon().getReference();
-        if (permissionCheck(SECURE_ADD_ASSIGNMENT_CONTENT, resourceString, null)) return true;
+        if (permissionCheck(SECURE_ADD_ASSIGNMENT, resourceString, null)) return true;
         // if not, see if the user has any groups to which adds are allowed
         return (!getGroupsAllowAddAssignment(context).isEmpty());
     }
@@ -491,9 +570,8 @@ public class AssignmentServiceImpl implements AssignmentService {
     }
 
     @Override
-    public boolean allowAddSubmissionCheckGroups(String context, Assignment assignment) {
-        String resourceString = AssignmentReferenceReckoner.reckoner().context(context).subtype("s").reckon().getReference();
-        return permissionCheckWithGroups(SECURE_ADD_ASSIGNMENT_SUBMISSION, resourceString, assignment);
+    public boolean allowAddSubmissionCheckGroups(Assignment assignment) {
+        return permissionCheckWithGroups(SECURE_ADD_ASSIGNMENT_SUBMISSION, assignment);
     }
 
     @Override
@@ -504,10 +582,10 @@ public class AssignmentServiceImpl implements AssignmentService {
     @Override
     public List<User> allowGradeAssignmentUsers(String assignmentReference) {
         List<User> users = securityService.unlockUsers(SECURE_GRADE_ASSIGNMENT_SUBMISSION, assignmentReference);
-String assignmentId = AssignmentReferenceReckoner.reckoner().reference(assignmentReference).reckon().getId();
+        String assignmentId = AssignmentReferenceReckoner.reckoner().reference(assignmentReference).reckon().getId();
         try {
             Assignment a = getAssignment(assignmentId);
-            if (a.getAccess() == Assignment.Access.GROUPED) {
+            if (a.getTypeOfAccess() == Assignment.Access.GROUP) {
                 // for grouped assignment, need to include those users that with "all.groups" and "grade assignment" permissions on the site level
                 try {
                     AuthzGroup group = authzGroupService.getAuthzGroup(siteService.siteReference(a.getContext()));
@@ -611,13 +689,15 @@ String assignmentId = AssignmentReferenceReckoner.reckoner().reference(assignmen
         Assignment assignment = new Assignment();
         assignment.setContext(context);
         assignment.setAuthor(sessionManager.getCurrentSessionUserId());
+        assignment.setPosition(0);
         assignmentRepository.newAssignment(assignment);
 
         log.debug("Created new assignment {}", assignment.getId());
 
-        String reference = AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getReference();
-        // event for tracking
-        eventTrackingService.post(eventTrackingService.newEvent(AssignmentConstants.EVENT_ADD_ASSIGNMENT, reference, true));
+        // String reference = AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getReference();
+        // AssignmentAction#post_save_assignment contains the logic for adding a new assignment
+        // the event should come at the end of that logic, eventually that logic should be moved here
+        // eventTrackingService.post(eventTrackingService.newEvent(AssignmentConstants.EVENT_ADD_ASSIGNMENT, reference, true));
 
         return assignment;
     }
@@ -653,14 +733,63 @@ String assignmentId = AssignmentReferenceReckoner.reckoner().reference(assignmen
                 assignment.setContext(context);
                 assignment.setAuthor(sessionManager.getCurrentSessionUserId());
                 assignment.setTitle(existingAssignment.getTitle() + " - " + resourceLoader.getString("assignment.copy"));
+                assignment.setInstructions(existingAssignment.getInstructions());
+                assignment.setHonorPledge(existingAssignment.getHonorPledge());
                 assignment.setSection(existingAssignment.getSection());
                 assignment.setOpenDate(existingAssignment.getOpenDate());
                 assignment.setDueDate(existingAssignment.getDueDate());
                 assignment.setDropDeadDate(existingAssignment.getDropDeadDate());
                 assignment.setCloseDate(existingAssignment.getCloseDate());
+                assignment.setHideDueDate(existingAssignment.getHideDueDate());
                 assignment.setDraft(true);
                 assignment.setPosition(existingAssignment.getPosition());
                 assignment.setIsGroup(existingAssignment.getIsGroup());
+                assignment.setAllowPeerAssessment(existingAssignment.getAllowPeerAssessment());
+
+                // peer properties
+                assignment.setPeerAssessmentInstructions(existingAssignment.getPeerAssessmentInstructions());
+                assignment.setPeerAssessmentAnonEval(existingAssignment.getPeerAssessmentAnonEval());
+                assignment.setPeerAssessmentNumberReviews(existingAssignment.getPeerAssessmentNumberReviews());
+                assignment.setPeerAssessmentPeriodDate(existingAssignment.getPeerAssessmentPeriodDate());
+                assignment.setPeerAssessmentStudentReview(existingAssignment.getPeerAssessmentStudentReview());
+
+                assignment.setTypeOfSubmission(existingAssignment.getTypeOfSubmission());
+                assignment.setTypeOfGrade(existingAssignment.getTypeOfGrade());
+                assignment.setMaxGradePoint(existingAssignment.getMaxGradePoint());
+                assignment.setScaleFactor(existingAssignment.getScaleFactor());
+                assignment.setIndividuallyGraded(existingAssignment.getIndividuallyGraded());
+                assignment.setReleaseGrades(existingAssignment.getReleaseGrades());
+                assignment.setAllowAttachments(existingAssignment.getAllowAttachments());
+                // for ContentReview service
+                assignment.setContentReview(existingAssignment.getContentReview());
+
+                //duplicating attachments
+                Set<String> tempAttach = existingAssignment.getAttachments();
+                if (tempAttach != null && !tempAttach.isEmpty()){
+                    for (String attachId : tempAttach){
+                        Reference tempRef = entityManager.newReference(attachId);
+                        if (tempRef != null){
+                            String tempRefId = tempRef.getId();
+                            String tempRefCollectionId = contentHostingService.getContainingCollectionId(tempRefId);
+                            try {
+                                // get the original attachment display name
+                                ResourceProperties p = contentHostingService.getProperties(tempRefId);
+                                String displayName = p.getProperty(ResourceProperties.PROP_DISPLAY_NAME);
+                                // add another attachment instance
+                                String newItemId = contentHostingService.copyIntoFolder(tempRefId, tempRefCollectionId);
+                                ContentResourceEdit copy = contentHostingService.editResource(newItemId);
+                                // with the same display name
+                                ResourcePropertiesEdit pedit = copy.getPropertiesEdit();
+                                pedit.addProperty(ResourceProperties.PROP_DISPLAY_NAME, displayName);
+                                contentHostingService.commitResource(copy, NotificationService.NOTI_NONE);
+                                Reference newRef = entityManager.newReference(copy.getReference());
+                                assignment.getAttachments().add(newRef.getReference());
+                            } catch (Exception e){
+                                log.warn("ERROR DUPLICATING ATTACHMENTS : " + e.toString());
+                            }
+                        }
+                    }
+                }
 
                 Map<String, String> properties = assignment.getProperties();
                 existingAssignment.getProperties().entrySet().stream()
@@ -680,9 +809,8 @@ String assignmentId = AssignmentReferenceReckoner.reckoner().reference(assignmen
 
     @Override
     @Transactional
-    public void removeAssignment(Assignment assignment) throws PermissionException {
+    public void deleteAssignment(Assignment assignment) throws PermissionException {
         Objects.requireNonNull(assignment, "Assignment cannot be null");
-        // TODO we don't actually want to delete assignments just mark them as deleted "soft delete feature"
         log.debug("Attempting to delete assignment with id = {}", assignment.getId());
         String reference = AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getReference();
 
@@ -703,18 +831,34 @@ String assignmentId = AssignmentReferenceReckoner.reckoner().reference(assignmen
         }
     }
 
+    @Override
+    @Transactional
+    public void softDeleteAssignment(Assignment assignment) throws PermissionException {
+        Objects.requireNonNull(assignment, "Assignment cannot be null");
+        // we don't actually want to delete assignments just mark them as deleted "soft delete feature"
+        log.debug("Attempting to soft delete assignment with id = {}", assignment.getId());
+        String reference = AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getReference();
+
+        if (!allowRemoveAssignment(reference)) {
+            throw new PermissionException(sessionManager.getCurrentSessionUserId(), SECURE_REMOVE_ASSIGNMENT, null);
+        }
+
+        assignmentRepository.softDeleteAssignment(assignment.getId());
+
+        // we post the same event as remove assignment
+        eventTrackingService.post(eventTrackingService.newEvent(AssignmentConstants.EVENT_REMOVE_ASSIGNMENT, reference, true));
+    }
+
     // TODO removing related content from other tools shouldn't be the concern for assignments service
     // it should post an event and let those tools take action.
     // * Unless a transaction is required
     @Override
     @Transactional
-    public void removeAssignmentAndAllReferences(Assignment assignment) throws PermissionException {
+    public void deleteAssignmentAndAllReferences(Assignment assignment) throws PermissionException {
         Objects.requireNonNull(assignment, "Assignment cannot be null");
-        // TODO we don't actually want to delete assignments just mark them as deleted "soft delete feature"
-        log.debug("attempting to delete assignment with id = {}", assignment.getId());
-        Entity entity = createAssignmentEntity(assignment.getId());
+        log.debug("Removing all associated reference to assignment with id = {}", assignment.getId());
 
-        log.debug(this + " removeAssignmentAndAllReferences with id : " + assignment.getId());
+        Entity entity = createAssignmentEntity(assignment.getId());
 
         // CHECK PERMISSION
         permissionCheck(SECURE_REMOVE_ASSIGNMENT, entity.getReference(), null);
@@ -757,17 +901,17 @@ String assignmentId = AssignmentReferenceReckoner.reckoner().reference(assignmen
 //            try {
 //                removeAssignmentContent(editAssignmentContent(assignment.getContent().getReference()));
 //            } catch (AssignmentContentNotEmptyException e) {
-//                M_log.warn(" removeAssignmentAndAllReferences(): cannot remove non-empty AssignmentContent object for assignment = " + assignment.getId() + ". " + e.getMessage());
+//                M_log.warn(" deleteAssignmentAndAllReferences(): cannot remove non-empty AssignmentContent object for assignment = " + assignment.getId() + ". " + e.getMessage());
 //            } catch (PermissionException e) {
-//                M_log.warn(" removeAssignmentAndAllReferences(): not allowed to remove AssignmentContent object for assignment = " + assignment.getId() + ". " + e.getMessage());
+//                M_log.warn(" deleteAssignmentAndAllReferences(): not allowed to remove AssignmentContent object for assignment = " + assignment.getId() + ". " + e.getMessage());
 //            } catch (InUseException e) {
-//                M_log.warn(" removeAssignmentAndAllReferences(): AssignmentContent object for assignment = " + assignment.getId() + " is in used. " + e.getMessage());
+//                M_log.warn(" deleteAssignmentAndAllReferences(): AssignmentContent object for assignment = " + assignment.getId() + " is in used. " + e.getMessage());
 //            } catch (IdUnusedException e) {
-//                M_log.warn(" removeAssignmentAndAllReferences(): cannot find AssignmentContent object for assignment = " + assignment.getId() + ". " + e.getMessage());
+//                M_log.warn(" deleteAssignmentAndAllReferences(): cannot find AssignmentContent object for assignment = " + assignment.getId() + ". " + e.getMessage());
 //            }
 
         // 7. remove assignment
-        removeAssignment(assignment);
+        softDeleteAssignment(assignment);
 
         // close the edit object
 //            ((BaseAssignmentEdit) assignment).closeEdit();
@@ -776,7 +920,7 @@ String assignmentId = AssignmentReferenceReckoner.reckoner().reference(assignmen
 //            try {
 //                authzGroupService.removeAuthzGroup(assignment.getReference());
 //            } catch (AuthzPermissionException e) {
-//                M_log.warn(" removeAssignment: removing realm for assignment reference=" + assignment.getReference() + " : " + e.getMessage());
+//                M_log.warn(" deleteAssignment: removing realm for assignment reference=" + assignment.getReference() + " : " + e.getMessage());
 //            }
 //
 //            // track event
@@ -786,44 +930,70 @@ String assignmentId = AssignmentReferenceReckoner.reckoner().reference(assignmen
     @Override
     @Transactional
     public AssignmentSubmission addSubmission(String assignmentId, String submitter) throws PermissionException {
-        AssignmentSubmission submission = null;
         try {
             Assignment assignment = getAssignment(assignmentId);
 
             String assignmentReference = AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getReference();
-            if (!permissionCheckWithGroups(SECURE_ADD_ASSIGNMENT_SUBMISSION, assignmentReference, assignment)) {
-                throw new PermissionException(sessionManager.getCurrentSessionUserId(), SECURE_ADD_ASSIGNMENT_SUBMISSION, assignmentReference);
-            }
-
-            User user = null;
-            try {
-                user = userDirectoryService.getUser(submitter);
-            } catch (UserNotDefinedException e) {
-                try {
-                    user = userDirectoryService.getUser(sessionManager.getCurrentSessionUserId());
-                } catch (UserNotDefinedException e1) {
-                    log.error("Unknown submitter while adding a submission to assignment: {}", assignmentId);
-                    return null;
+            if (assignment.getTypeOfAccess() == Assignment.Access.GROUP) {
+                if (!permissionCheckWithGroups(SECURE_ADD_ASSIGNMENT_SUBMISSION, assignment)) {
+                    throw new PermissionException(sessionManager.getCurrentSessionUserId(), SECURE_ADD_ASSIGNMENT_SUBMISSION, assignmentReference);
+                }
+            } else {
+                if (!permissionCheck(SECURE_ADD_ASSIGNMENT_SUBMISSION, assignmentReference, null)) {
+                    throw new PermissionException(sessionManager.getCurrentSessionUserId(), SECURE_ADD_ASSIGNMENT_SUBMISSION, assignmentReference);
                 }
             }
 
-            AssignmentSubmissionSubmitter submissionSubmitter = new AssignmentSubmissionSubmitter();
-            submissionSubmitter.setSubmitter(user.getId());
-            submissionSubmitter.setSubmittee(true);
+            AssignmentSubmission submission = new AssignmentSubmission();
             Set<AssignmentSubmissionSubmitter> submissionSubmitters = new HashSet<>();
-            submissionSubmitters.add(submissionSubmitter);
 
-            submission = new AssignmentSubmission();
-            submission.setDateCreated(Date.from(Instant.now()));
-            assignmentRepository.newSubmission(assignment, submission, Optional.of(submissionSubmitters), Optional.empty(), Optional.empty(), Optional.empty());
+            try {
+                Site site = siteService.getSite(assignment.getContext());
 
-            String submissionReference = AssignmentReferenceReckoner.reckoner().submission(submission).reckon().getReference();
-            eventTrackingService.post(eventTrackingService.newEvent(AssignmentConstants.EVENT_ADD_ASSIGNMENT_SUBMISSION, submissionReference, true));
+                if (assignment.getIsGroup()) {
+                    Group group = site.getGroup(submitter);
+                    if (group != null && assignment.getGroups().contains(group.getReference())) {
+                        for (Member member : group.getMembers()) {
+                            AssignmentSubmissionSubmitter ass = new AssignmentSubmissionSubmitter();
+                            ass.setSubmitter(member.getUserId());
+                            submissionSubmitters.add(ass);
+                        }
+                        submission.setGroupId(submitter);
+                    } else {
+                        log.warn("A submission cannot be added to assignment: {}, for group: {}", assignmentId, submitter);
+                    }
+                } else {
+                    if (site.getMember(submitter) != null) {
+                        AssignmentSubmissionSubmitter submissionSubmitter = new AssignmentSubmissionSubmitter();
+                        submissionSubmitter.setSubmitter(submitter);
+                        submissionSubmitters.add(submissionSubmitter);
+                    } else {
+                        log.warn("Unknown submitter while adding a submission to assignment: {}", assignmentId);
+                    }
+                }
+            } catch (IdUnusedException iue) {
+                log.warn("Site not found while attempting to add a submission to assignment: {}, site: {}", assignmentId, assignment.getContext());
+                return null;
+            }
+
+            if (!submissionSubmitters.isEmpty()) {
+                String currentUser = sessionManager.getCurrentSessionUserId();
+                // identify who the submittee is using the session
+                submissionSubmitters.stream().filter(s -> s.getSubmitter().equals(currentUser)).findFirst().ifPresent(s -> s.setSubmittee(true));
+
+                assignmentRepository.newSubmission(assignment, submission, Optional.of(submissionSubmitters), Optional.empty(), Optional.empty(), Optional.empty());
+
+                String submissionReference = AssignmentReferenceReckoner.reckoner().submission(submission).reckon().getReference();
+                eventTrackingService.post(eventTrackingService.newEvent(AssignmentConstants.EVENT_ADD_ASSIGNMENT_SUBMISSION, submissionReference, true));
+
+                log.debug("New submission: {} added to assignment: {}", submission.getId(), assignmentId);
+                return submission;
+            }
         } catch (IdUnusedException iue) {
-            log.error("A submission cannot be added to an unknown assignement: {}", assignmentId);
+            log.warn("A submission cannot be added to an unknown assignment: {}", assignmentId);
         }
 
-        return submission;
+        return null;
     }
 
     @Override
@@ -897,7 +1067,8 @@ String assignmentId = AssignmentReferenceReckoner.reckoner().reference(assignmen
         }
         eventTrackingService.post(eventTrackingService.newEvent(AssignmentConstants.EVENT_UPDATE_ASSIGNMENT, reference, true));
 
-        assignmentRepository.updateAssignment(assignment);
+        assignment.setDateModified(Instant.now());
+        assignmentRepository.update(assignment);
 
     }
 
@@ -913,40 +1084,43 @@ String assignmentId = AssignmentReferenceReckoner.reckoner().reference(assignmen
         }
         eventTrackingService.post(eventTrackingService.newEvent(AssignmentConstants.EVENT_UPDATE_ASSIGNMENT_SUBMISSION, reference, true));
 
+        submission.setDateModified(Instant.now());
         assignmentRepository.updateSubmission(submission);
 
         // Assignment Submission Notifications
-        Date dateReturned = submission.getDateReturned();
-        Date dateSubmitted = submission.getDateSubmitted();
+        Instant dateReturned = submission.getDateReturned();
+        Instant dateSubmitted = submission.getDateSubmitted();
         if (!submission.getSubmitted()) {
             // if the submission is not submitted then saving a submission event
             eventTrackingService.post(eventTrackingService.newEvent(AssignmentConstants.EVENT_SAVE_ASSIGNMENT_SUBMISSION, reference, true));
-        } else if (dateReturned == null && !submission.getReturned() && (dateSubmitted == null || submission.getDateModified().getTime() - dateSubmitted.getTime() > 1000 * 60)) {
+        } else if (dateReturned == null && !submission.getReturned() && (dateSubmitted == null || submission.getDateModified().toEpochMilli() - dateSubmitted.toEpochMilli() > 1000 * 60)) {
             // make sure the last modified time is at least one minute after the submit time
             if (!(StringUtils.trimToNull(submission.getSubmittedText()) == null && submission.getAttachments().isEmpty() && StringUtils.trimToNull(submission.getGrade()) == null && StringUtils.trimToNull(submission.getFeedbackText()) == null && StringUtils.trimToNull(submission.getFeedbackComment()) == null && submission.getFeedbackAttachments().isEmpty())) {
-                // graded and saved before releasing it
-                Event event = eventTrackingService.newEvent(AssignmentConstants.EVENT_GRADE_ASSIGNMENT_SUBMISSION, reference, true);
-                eventTrackingService.post(event);
                 if (submission.getGraded()) {
+                	//TODO: This should use an LRS_Group when that exists rather than firing off individual events for each LRS_Actor KNL-1560
                     for (AssignmentSubmissionSubmitter submitter : submission.getSubmitters()) {
                         try {
                             User user = userDirectoryService.getUser(submitter.getSubmitter());
-                            learningResourceStoreService.registerStatement(getStatementForAssignmentGraded(learningResourceStoreService.getEventActor(event), event, submission.getAssignment(), submission, user), "assignment");
+                            LRS_Statement statement = getStatementForAssignmentGraded(reference, submission.getAssignment(), submission, user);
+                            // graded and saved before releasing it
+                            Event event = eventTrackingService.newEvent(AssignmentConstants.EVENT_GRADE_ASSIGNMENT_SUBMISSION, reference, null, true, NotificationService.NOTI_OPTIONAL, statement);
+                            eventTrackingService.post(event);
                         } catch (UserNotDefinedException e) {
                             log.warn("Assignments could not find user ({}) while registering Event for LRSS", submitter.getSubmitter());
                         }
                     }
                 }
             }
-        } else if (dateReturned != null && submission.getGraded() && (dateSubmitted == null || dateReturned.after(dateSubmitted) || dateSubmitted.after(dateReturned) && submission.getDateModified().after(dateSubmitted))) {
-            // releasing a submitted assignment or releasing grade to an unsubmitted assignment
-            Event event = eventTrackingService.newEvent(AssignmentConstants.EVENT_GRADE_ASSIGNMENT_SUBMISSION, reference, true);
-            eventTrackingService.post(event);
+        } else if (dateReturned != null && submission.getGraded() && (dateSubmitted == null || dateReturned.isAfter(dateSubmitted) || dateSubmitted.isAfter(dateReturned) && submission.getDateModified().isAfter(dateSubmitted))) {
             if (submission.getGraded()) {
+            	//TODO: This should use an LRS_Group when that exists rather than firing off individual events for each LRS_Actor KNL-1560
                 for (AssignmentSubmissionSubmitter submitter : submission.getSubmitters()) {
                     try {
                         User user = userDirectoryService.getUser(submitter.getSubmitter());
-                        learningResourceStoreService.registerStatement(getStatementForAssignmentGraded(learningResourceStoreService.getEventActor(event), event, submission.getAssignment(), submission, user), "assignment");
+                    	LRS_Statement statement = getStatementForAssignmentGraded(reference, submission.getAssignment(), submission, user);
+                    	// releasing a submitted assignment or releasing grade to an unsubmitted assignment
+                    	Event event = eventTrackingService.newEvent(AssignmentConstants.EVENT_GRADE_ASSIGNMENT_SUBMISSION, reference, null, true, NotificationService.NOTI_OPTIONAL, statement);
+                    	eventTrackingService.post(event);
                     } catch (UserNotDefinedException e) {
                         log.warn("Assignments could not find user ({}) while registering Event for LRSS", submitter.getSubmitter());
                     }
@@ -956,13 +1130,14 @@ String assignmentId = AssignmentReferenceReckoner.reckoner().reference(assignmen
             // if this is releasing grade, depending on the release grade notification setting, send email notification to student
             sendGradeReleaseNotification(submission);
         } else if (dateSubmitted == null) {
-            // releasing a submitted assignment or releasing grade to an unsubmitted assignment
-            Event event = eventTrackingService.newEvent(AssignmentConstants.EVENT_GRADE_ASSIGNMENT_SUBMISSION, reference, true);
-            eventTrackingService.post(event);
+           	//TODO: This should use an LRS_Group when that exists rather than firing off individual events for each LRS_Actor KNL-1560
             for (AssignmentSubmissionSubmitter submitter : submission.getSubmitters()) {
                 try {
                     User user = userDirectoryService.getUser(submitter.getSubmitter());
-                    learningResourceStoreService.registerStatement(getStatementForUnsubmittedAssignmentGraded(learningResourceStoreService.getEventActor(event), event, submission.getAssignment(), submission, user), "sakai.assignment");
+                    LRS_Statement statement = getStatementForUnsubmittedAssignmentGraded(reference, submission.getAssignment(), submission, user);
+                    // releasing a submitted assignment or releasing grade to an unsubmitted assignment
+                    Event event = eventTrackingService.newEvent(AssignmentConstants.EVENT_GRADE_ASSIGNMENT_SUBMISSION, reference, null, true, NotificationService.NOTI_OPTIONAL, statement);
+                    eventTrackingService.post(event);
                 } catch (UserNotDefinedException e) {
                     log.warn("Assignments could not find user ({}) while registering Event for LRSS", submitter.getSubmitter());
                 }
@@ -985,7 +1160,7 @@ String assignmentId = AssignmentReferenceReckoner.reckoner().reference(assignmen
     @Override
     public Assignment getAssignment(Reference reference) throws IdUnusedException, PermissionException {
         Assert.notNull(reference, "Reference cannot be null");
-        if (StringUtils.equals("assignment", reference.getType())) {
+        if (StringUtils.equals(SAKAI_ASSIGNMENT, reference.getType())) {
             return getAssignment(reference.getId());
         }
         return null;
@@ -1012,11 +1187,11 @@ String assignmentId = AssignmentReferenceReckoner.reckoner().reference(assignmen
         // TODO these status's should be an enum and translation should occur in tool
         if (assignment.getDraft()) {
             return AssignmentConstants.Status.DRAFT;
-        } else if (assignment.getOpenDate().toInstant().isAfter(currentTime.toInstant())) {
+        } else if (assignment.getOpenDate().isAfter(currentTime.toInstant())) {
             return AssignmentConstants.Status.NOT_OPEN;
-        } else if (assignment.getDueDate().toInstant().isAfter(currentTime.toInstant())) {
+        } else if (assignment.getDueDate().isAfter(currentTime.toInstant())) {
             return AssignmentConstants.Status.OPEN;
-        } else if ((assignment.getCloseDate() != null) && (assignment.getCloseDate().toInstant().isBefore(currentTime.toInstant()))) {
+        } else if ((assignment.getCloseDate() != null) && (assignment.getCloseDate().isBefore(currentTime.toInstant()))) {
             return AssignmentConstants.Status.CLOSED;
         } else {
             return AssignmentConstants.Status.DUE;
@@ -1029,18 +1204,22 @@ String assignmentId = AssignmentReferenceReckoner.reckoner().reference(assignmen
         List<Assignment> assignments = new ArrayList<>();
         if (StringUtils.isBlank(context)) return assignments;
 
+        // access is checked for each assignment:
+        //   - drafts accessible by owner or if user has share drafts permission
+        //   - if assignment is restricted to groups only those in the group
+        //   - minimally user needs read permission
         for (Assignment assignment : assignmentRepository.findAssignmentsBySite(context)) {
-            String deleted = assignment.getProperties().get(ResourceProperties.PROP_ASSIGNMENT_DELETED);
-            if (StringUtils.isBlank(deleted)) {
-                // not deleted, show it
-                if (assignment.getDraft()) {
-                    if (isDraftAssignmentVisible(assignment)) {
-                        // only those who can see a draft assignment
-                        assignments.add(assignment);
-                    }
-                } else {
+            if (assignment.getDraft()) {
+                if (isDraftAssignmentVisible(assignment)) {
+                    // only those who can see a draft assignment
                     assignments.add(assignment);
                 }
+            } else if (assignment.getTypeOfAccess() == Assignment.Access.GROUP) {
+                if (permissionCheckWithGroups(AssignmentServiceConstants.SECURE_ACCESS_ASSIGNMENT, assignment)) {
+                    assignments.add(assignment);
+                }
+            } else if (allowGetAssignment(context)) {
+                assignments.add(assignment);
             }
         }
 
@@ -1075,7 +1254,7 @@ String assignmentId = AssignmentReferenceReckoner.reckoner().reference(assignmen
             Collection<Assignment> assignments = getAssignmentsForContext(context);
             for (Assignment assignment : assignments) {
                 Set<String> userIds = new HashSet<>();
-                if (assignment.getAccess() == Assignment.Access.GROUPED) {
+                if (assignment.getTypeOfAccess() == Assignment.Access.GROUP) {
                     for (String groupRef : assignment.getGroups()) {
                         if (groupIdUserIds.containsKey(groupRef)) {
                             userIds.addAll(groupIdUserIds.get(groupRef));
@@ -1105,36 +1284,28 @@ String assignmentId = AssignmentReferenceReckoner.reckoner().reference(assignmen
 
     @Override
     public AssignmentSubmission getSubmission(String assignmentId, String submitterId) throws PermissionException {
-        AssignmentSubmission submission = null;
 
         if (!StringUtils.isAnyBlank(assignmentId, submitterId)) {
-            // First check their personal submission
-            submission = assignmentRepository.findSubmissionForUser(assignmentId, submitterId);
-            if (submission != null && allowGetSubmission(AssignmentReferenceReckoner.reckoner().submission(submission).reckon().getReference())) {
-                return submission;
+            // normal submission lookup where submitterId is for a user
+            AssignmentSubmission submission = assignmentRepository.findSubmissionForUser(assignmentId, submitterId);
+            if (submission == null) {
+                // if not found submitterId could be a group id
+                submission = assignmentRepository.findSubmissionForGroup(assignmentId, submitterId);
             }
-            try {
-                Assignment a = getAssignment(assignmentId);
-                if (a.getIsGroup()) {
-                    log.debug("Checking assignment {}, for group submission", assignmentId);
-                    // TODO check for group submission
-                    // return getUserGroupSubmissionMap(a, Collections.singletonList(person)).get(person);
+
+            if (submission != null) {
+                String reference = AssignmentReferenceReckoner.reckoner().submission(submission).reckon().getReference();
+                if (allowGetSubmission(reference)) {
+                    return submission;
+                } else {
+                    throw new PermissionException(sessionManager.getCurrentSessionUserId(), SECURE_ACCESS_ASSIGNMENT_SUBMISSION, reference);
                 }
-            } catch (IdUnusedException | PermissionException e) {
-                log.debug("Could not get assignment with id = {}", assignmentId);
+            } else {
+                // submission not found looked for a user submission and group submission
+                log.debug("No submission found for user {} in assignment {}", submitterId, assignmentId);
             }
         }
-
-        log.debug("No submission found for user {} in assignment {}", submitterId, assignmentId);
-
-        if (submission != null) {
-            String reference = AssignmentReferenceReckoner.reckoner().submission(submission).reckon().getReference();
-            if (!allowGetSubmission(reference)) {
-                throw new PermissionException(sessionManager.getCurrentSessionUserId(), SECURE_ACCESS_ASSIGNMENT_SUBMISSION, reference);
-            }
-        }
-
-        return submission;
+        return null;
     }
 
     private Map<User, AssignmentSubmission> getUserSubmissionMap(Assignment assignment) {
@@ -1178,46 +1349,13 @@ String assignmentId = AssignmentReferenceReckoner.reckoner().reference(assignmen
                         User user = userDirectoryService.getUser(submitter.getSubmitter());
                         userSubmissionMap.put(user, submission);
                     } catch (UserNotDefinedException e) {
-                        log.warn("Could not find user: {}, that is a submitter for submission: {}", submitter.getId(), submission.getId());
+                        log.warn("Could not find user: {}, that is a submitter for submission: {}", submitter.getSubmitter(), submission.getId());
                     }
                 }
             }
         }
         return userSubmissionMap;
     }
-
-//    private Map<User, AssignmentSubmission> getUserGroupSubmissionMap(Assignment assignment, List<User> users) {
-//        Map<User, AssignmentSubmission> userSubmissionMap = new HashMap<>();
-//        if (assignment == null || !assignment.getIsGroup()) {
-//            throw new IllegalArgumentException("Assignment must be a group assignment");
-//        }
-//
-//        try {
-//            Site site = siteService.getSite(assignment.getContext());
-//            for (User user : users) {
-//                AssignmentSubmission submission = null;
-//                Collection<Group> groups = site.getGroupsWithMember(user.getId());
-//                if (groups != null) {
-//                    for (Group g : groups) {
-//                        log.debug("Checking submission for group: {}" + g.getTitle());
-//                        submission = getSubmission(assignment.getId(), g.getId());
-//                        if (submission != null && allowGetSubmission(AssignmentReferenceReckoner.reckoner().submission(submission).reckon().getReference())) {
-//                            userSubmissionMap.put(user, submission);
-//                            break;
-//                        }
-//                    }
-//                } else {
-//                    log.info("Assignment {} is grouped but {} is not in any of the site groups", assignment.getId(), user.getId());
-//                }
-//            }
-//        } catch (IdUnusedException e) {
-//            log.warn("invoked with an argument whose 'context' value doesn't match any siteId in the system");
-//        } catch (PermissionException e) {
-//            log.warn("Cannot access submission");
-//        }
-//
-//        return userSubmissionMap;
-//    }
 
     @Override
     public AssignmentSubmission getSubmission(List<AssignmentSubmission> submissions, User person) {
@@ -1239,11 +1377,11 @@ String assignmentId = AssignmentReferenceReckoner.reckoner().reference(assignmen
             Instant now = Instant.now();
             if (assignment.getDraft()) {
                 return resourceLoader.getString("gen.dra1");
-            } else if (assignment.getOpenDate().toInstant().isAfter(now)) {
+            } else if (assignment.getOpenDate().isAfter(now)) {
                 return resourceLoader.getString("gen.notope");
-            } else if (assignment.getDueDate().toInstant().isAfter(now)) {
+            } else if (assignment.getDueDate().isAfter(now)) {
                 return resourceLoader.getString("gen.open");
-            } else if ((assignment.getCloseDate() != null) && (assignment.getCloseDate().toInstant().isBefore(now))) {
+            } else if ((assignment.getCloseDate() != null) && (assignment.getCloseDate().isBefore(now))) {
                 return resourceLoader.getString("gen.closed");
             } else {
                 return resourceLoader.getString("gen.due");
@@ -1268,17 +1406,17 @@ String assignmentId = AssignmentReferenceReckoner.reckoner().reference(assignmen
         String assignmentReference = AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getReference();
         boolean allowGrade = assignment != null && allowGradeSubmission(assignmentReference);
 
-        Date submitTime = submission.getDateSubmitted();
-        Date returnTime = submission.getDateReturned();
-        Date lastModTime = submission.getDateModified();
+        Instant submitTime = submission.getDateSubmitted();
+        Instant returnTime = submission.getDateReturned();
+        Instant lastModTime = submission.getDateModified();
 
         if (submission.getSubmitted() || (!submission.getSubmitted() && allowGrade)) {
             if (submitTime != null) {
                 if (submission.getReturned()) {
-                    if (returnTime != null && returnTime.before(submitTime)) {
+                    if (returnTime != null && returnTime.isBefore(submitTime)) {
                         if (!submission.getGraded()) {
-                            status = resourceLoader.getString("gen.resub") + " " + submitTime.toString();
-                            if (submitTime.after(assignment.getDueDate())) {
+                            status = resourceLoader.getString("gen.resub") + " " + getUsersLocalDateTimeString(submitTime);
+                            if (submitTime.isAfter(assignment.getDueDate())) {
                                 status = status + resourceLoader.getString("gen.late2");
                             }
                         } else
@@ -1292,7 +1430,7 @@ String assignmentId = AssignmentReferenceReckoner.reckoner().reference(assignmen
                         // ungraded submission
                         status = resourceLoader.getString("ungra");
                     } else {
-                        status = resourceLoader.getString("gen.subm4") + " " + submitTime.toString();
+                        status = resourceLoader.getString("gen.subm4") + " " + getUsersLocalDateTimeString(submitTime);
                     }
                 }
             } else {
@@ -1316,7 +1454,7 @@ String assignmentId = AssignmentReferenceReckoner.reckoner().reference(assignmen
             if (submission.getGraded()) {
                 if (submission.getReturned()) {
                     // modified time is after returned time + 10 seconds
-                    if (lastModTime != null && returnTime != null && lastModTime.toInstant().isAfter(returnTime.toInstant().plusSeconds(10)) && !allowGrade) {
+                    if (lastModTime != null && returnTime != null && lastModTime.isAfter(returnTime.plusSeconds(10)) && !allowGrade) {
                         // working on a returned submission now
                         status = resourceLoader.getString("gen.dra2") + " " + resourceLoader.getString("gen.inpro");
                     } else {
@@ -1451,20 +1589,20 @@ String assignmentId = AssignmentReferenceReckoner.reckoner().reference(assignmen
         byte[] rv = null;
 
         try {
-            String aRef = AssignmentReferenceReckoner.reckoner().reference(reference).reckon().getId();
-            Assignment assignment = getAssignment(aRef);
+            String id = AssignmentReferenceReckoner.reckoner().reference(reference).reckon().getId();
+            Assignment assignment = getAssignment(id);
 
             if (assignment.getIsGroup()) {
                 Collection<Group> submitterGroups = getSubmitterGroupList(searchFilterOnly,
                         viewString.length() == 0 ? AssignmentConstants.ALL : viewString,
                         searchString,
-                        aRef,
+                        id,
                         contextString == null ? assignment.getContext() : contextString);
                 if (submitterGroups != null && !submitterGroups.isEmpty()) {
                     List<AssignmentSubmission> submissions = new ArrayList<>();
                     for (Group g : submitterGroups) {
                         log.debug("ZIP GROUP " + g.getTitle());
-                        AssignmentSubmission sub = getSubmission(aRef, g.getId());
+                        AssignmentSubmission sub = getSubmission(id, g.getId());
                         log.debug("ZIP GROUP " + g.getTitle() + " SUB " + (sub == null ? "null" : sub.getId()));
                         if (sub != null) {
                             submissions.add(sub);
@@ -1472,12 +1610,12 @@ String assignmentId = AssignmentReferenceReckoner.reckoner().reference(assignmen
                     }
                     StringBuilder exceptionMessage = new StringBuilder();
 
-                    if (allowGradeSubmission(aRef)) {
-                        zipGroupSubmissions(aRef,
+                    if (allowGradeSubmission(reference)) {
+                        zipGroupSubmissions(reference,
                                 assignment.getTitle(),
                                 assignment.getTypeOfGrade().toString(),
                                 assignment.getTypeOfSubmission(),
-                                new SortedIterator(submissions.iterator(), new AssignmentSubmissionComparator(siteService)),
+                                new SortedIterator(submissions.iterator(), new AssignmentSubmissionComparator(applicationContext.getBean(AssignmentService.class), siteService, userDirectoryService)),
                                 out,
                                 exceptionMessage,
                                 withStudentSubmissionText,
@@ -1501,22 +1639,21 @@ String assignmentId = AssignmentReferenceReckoner.reckoner().reference(assignmen
                 Map<User, AssignmentSubmission> submitters = getSubmitterMap(searchFilterOnly,
                         viewString.length() == 0 ? AssignmentConstants.ALL : viewString,
                         searchString,
-                        aRef,
+                        reference,
                         contextString == null ? assignment.getContext() : contextString);
 
                 if (!submitters.isEmpty()) {
                     List<AssignmentSubmission> submissions = new ArrayList<AssignmentSubmission>(submitters.values());
 
                     StringBuilder exceptionMessage = new StringBuilder();
-
-                    if (allowGradeSubmission(aRef)) {
-                        SortedIterator sortedIterator;
-                        if (assignmentUsesAnonymousGrading(assignment)) {
-                            sortedIterator = new SortedIterator(submissions.iterator(), new AnonymousSubmissionComparator());
-                        } else {
-                            sortedIterator = new SortedIterator(submissions.iterator(), new AssignmentSubmissionComparator(siteService));
-                        }
-                        zipSubmissions(aRef,
+                    SortedIterator sortedIterator;
+                    if (assignmentUsesAnonymousGrading(assignment)){
+                        sortedIterator = new SortedIterator(submissions.iterator(), new AnonymousSubmissionComparator());
+                    } else {
+                        sortedIterator = new SortedIterator(submissions.iterator(), new AssignmentSubmissionComparator(applicationContext.getBean(AssignmentService.class), siteService, userDirectoryService));
+                    }
+                    if (allowGradeSubmission(reference)) {
+                        zipSubmissions(reference,
                                 assignment.getTitle(),
                                 assignment.getTypeOfGrade(),
                                 assignment.getTypeOfSubmission(),
@@ -1565,25 +1702,6 @@ String assignmentId = AssignmentReferenceReckoner.reckoner().reference(assignmen
     }
 
     @Override
-    public String gradesSpreadsheetReference(String context, String assignmentId) {
-        // TODO does ref get handled by ReferenceReckoner?
-        // based on all assignment in that context
-        String s = REFERENCE_ROOT + Entity.SEPARATOR + REF_TYPE_GRADES + Entity.SEPARATOR + context;
-        if (assignmentId != null) {
-            // based on the specified assignment only
-            s = s.concat(Entity.SEPARATOR + assignmentId);
-        }
-        return s;
-    }
-
-    @Override
-    public String submissionsZipReference(String context, String assignmentReference) {
-        // TODO does ref get handled by ReferenceReckoner?
-        // based on the specified assignment
-        return REFERENCE_ROOT + Entity.SEPARATOR + REF_TYPE_SUBMISSIONS + Entity.SEPARATOR + context + Entity.SEPARATOR + assignmentReference;
-    }
-
-    @Override
     public boolean canSubmit(String context, Assignment a, String userId) {
         // submissions are never allowed to non-electronic assignments
         if (a.getTypeOfSubmission() == Assignment.SubmissionType.NON_ELECTRONIC_ASSIGNMENT_SUBMISSION) {
@@ -1591,7 +1709,7 @@ String assignmentId = AssignmentReferenceReckoner.reckoner().reference(assignmen
         }
 
         // return false if not allowed to submit at all
-        if (!allowAddSubmissionCheckGroups(context, a) && !allowAddAssignment(context)) return false;
+        if (!allowAddSubmissionCheckGroups(a) && !allowAddAssignment(context)) return false;
 
         //If userId is not defined look it up
         if (userId == null) {
@@ -1606,16 +1724,16 @@ String assignmentId = AssignmentReferenceReckoner.reckoner().reference(assignmen
             // get user
             User u = userDirectoryService.getUser(userId);
 
-            LocalDateTime currentTime = LocalDateTime.now();
+            Instant currentTime = Instant.now();
 
             // return false if the assignment is draft or is not open yet
-            LocalDateTime openTime = LocalDateTime.ofInstant(a.getOpenDate().toInstant(), ZoneId.systemDefault());
+            Instant openTime = a.getOpenDate();
             if (a.getDraft() || openTime.isAfter(currentTime)) {
                 return false;
             }
 
             // return false if the current time has passed the assignment close time
-            LocalDateTime closeTime = LocalDateTime.ofInstant(a.getCloseDate().toInstant(), ZoneId.systemDefault());
+            Instant closeTime = a.getCloseDate();
 
             // get user's submission
             AssignmentSubmission submission = null;
@@ -1626,18 +1744,18 @@ String assignmentId = AssignmentReferenceReckoner.reckoner().reference(assignmen
             // return true if resubmission is allowed and current time is before resubmission close time
             // get the resubmit settings from submission object first
             String allowResubmitNumString = submission != null ? submission.getProperties().get(AssignmentConstants.ALLOW_RESUBMIT_NUMBER) : null;
-            if (allowResubmitNumString != null && submission.getDateSubmitted() != null && this.hasBeenSubmitted(submission)) {
+            if (allowResubmitNumString != null && submission.getDateSubmitted() != null && submission.getSubmitted()) {
                 try {
                     int allowResubmitNumber = Integer.parseInt(allowResubmitNumString);
                     String allowResubmitCloseTime = submission.getProperties().get(AssignmentConstants.ALLOW_RESUBMIT_CLOSETIME);
-                    LocalDateTime resubmitCloseTime = null;
+                    Instant resubmitCloseTime = null;
 
                     if (allowResubmitCloseTime != null) {
                         // see if a resubmission close time is set on submission level
-                        resubmitCloseTime = LocalDateTime.ofInstant(Instant.ofEpochMilli(Long.parseLong(allowResubmitCloseTime)), ZoneId.systemDefault());
+                        resubmitCloseTime = Instant.ofEpochMilli(Long.parseLong(allowResubmitCloseTime));
                     } else {
                         // otherwise, use assignment close time as the resubmission close time
-                        resubmitCloseTime = LocalDateTime.ofInstant(a.getCloseDate().toInstant(), ZoneId.systemDefault());
+                        resubmitCloseTime = a.getCloseDate();
                     }
                     return (allowResubmitNumber > 0 || allowResubmitNumber == -1) && currentTime.isBefore(resubmitCloseTime);
                 } catch (NumberFormatException e) {
@@ -1675,15 +1793,15 @@ String assignmentId = AssignmentReferenceReckoner.reckoner().reference(assignmen
 
     @Override
     @Transactional
-    public Collection<Group> getSubmitterGroupList(String searchFilterOnly, String allOrOneGroup, String searchString, String aRef, String contextString) {
+    public Collection<Group> getSubmitterGroupList(String searchFilterOnly, String allOrOneGroup, String searchString, String assignmentId, String contextString) {
         Collection<Group> rv = new ArrayList<Group>();
         allOrOneGroup = StringUtils.trimToNull(allOrOneGroup);
         try {
-            Assignment a = getAssignment(aRef);
+            Assignment a = getAssignment(assignmentId);
             if (a != null) {
                 Site st = siteService.getSite(contextString);
                 if (StringUtils.equals(allOrOneGroup, AssignmentConstants.ALL) || StringUtils.isEmpty(allOrOneGroup)) {
-                    if (a.getAccess().equals(Assignment.Access.SITE)) {
+                    if (a.getTypeOfAccess().equals(Assignment.Access.SITE)) {
                         for (Group group : st.getGroups()) {
                             //if (_gg.getProperties().get(GROUP_SECTION_PROPERTY) == null) {		// NO SECTIONS (this might not be valid test for manually created sections)
                             rv.add(group);
@@ -1705,7 +1823,7 @@ String assignmentId = AssignmentReferenceReckoner.reckoner().reference(assignmen
                 }
 
                 for (Group g : rv) {
-                    AssignmentSubmission uSubmission = getSubmission(aRef, g.getId());
+                    AssignmentSubmission uSubmission = getSubmission(assignmentId, g.getId());
                     if (uSubmission == null) {
                         if (allowGradeSubmission(AssignmentReferenceReckoner.reckoner().assignment(a).reckon().getReference())) {
                             if (a.getIsGroup()) {
@@ -1720,6 +1838,7 @@ String assignmentId = AssignmentReferenceReckoner.reckoner().reference(assignmen
                                     AssignmentSubmission s = addSubmission(a.getId(), g.getId());
                                     s.setSubmitted(true);
                                     s.setUserSubmission(false);
+                                    s.setDateModified(Instant.now());
 
                                     // set the resubmission properties
                                     // get the assignment setting for resubmitting
@@ -1731,7 +1850,7 @@ String assignmentId = AssignmentReferenceReckoner.reckoner().reference(assignmen
                                         String assignmentAllowResubmitCloseDate = assignmentProperties.get(AssignmentConstants.ALLOW_RESUBMIT_CLOSETIME);
                                         // if assignment's setting of resubmit close time is null, use assignment close time as the close time for resubmit
                                         s.getProperties().put(AssignmentConstants.ALLOW_RESUBMIT_CLOSETIME,
-                                                assignmentAllowResubmitCloseDate != null ? assignmentAllowResubmitCloseDate : String.valueOf(a.getCloseDate().getTime()));
+                                                assignmentAllowResubmitCloseDate != null ? assignmentAllowResubmitCloseDate : String.valueOf(a.getCloseDate().toEpochMilli()));
                                     }
 
                                     assignmentRepository.updateSubmission(s);
@@ -1747,9 +1866,9 @@ String assignmentId = AssignmentReferenceReckoner.reckoner().reference(assignmen
                 }
             }
         } catch (IdUnusedException aIdException) {
-            log.warn("Assignment id not used: {}, {}", aRef, aIdException.getMessage());
+            log.warn("Assignment id not used: {}, {}", assignmentId, aIdException.getMessage());
         } catch (PermissionException aPerException) {
-            log.warn("Not allowed to get assignment {}, {}", aRef, aPerException.getMessage());
+            log.warn("Not allowed to get assignment {}, {}", assignmentId, aPerException.getMessage());
         }
 
         return rv;
@@ -1847,12 +1966,12 @@ String assignmentId = AssignmentReferenceReckoner.reckoner().reference(assignmen
                         // add those users who haven't made any submissions and with submission rights
                         //only initiate the group list once
                         if (groupRefs.isEmpty()) {
-                            if (a.getAccess() == Assignment.Access.SITE) {
+                            if (a.getTypeOfAccess() == Assignment.Access.SITE) {
                                 // for site range assignment, add the site reference first
                                 groupRefs.add(siteService.siteReference(contextString));
                             }
                             // add all groups inside the site
-                            Collection<Group> groups = getGroupsAllowGradeAssignment(contextString, AssignmentReferenceReckoner.reckoner().assignment(a).reckon().getReference());
+                            Collection<Group> groups = getGroupsAllowGradeAssignment(AssignmentReferenceReckoner.reckoner().assignment(a).reckon().getReference());
                             for (Group g : groups) {
                                 groupRefs.add(g.getReference());
                             }
@@ -1878,6 +1997,7 @@ String assignmentId = AssignmentReferenceReckoner.reckoner().reference(assignmen
 									 * the user did not in fact submit anything.
 									 */
                                     s.setUserSubmission(false);
+                                    s.setDateModified(Instant.now());
 
                                     // set the resubmission properties
                                     // get the assignment setting for resubmitting
@@ -1889,7 +2009,7 @@ String assignmentId = AssignmentReferenceReckoner.reckoner().reference(assignmen
                                         String assignmentAllowResubmitCloseDate = assignmentProperties.get(AssignmentConstants.ALLOW_RESUBMIT_CLOSETIME);
                                         // if assignment's setting of resubmit close time is null, use assignment close time as the close time for resubmit
                                         s.getProperties().put(AssignmentConstants.ALLOW_RESUBMIT_CLOSETIME,
-                                                assignmentAllowResubmitCloseDate != null ? assignmentAllowResubmitCloseDate : String.valueOf(a.getCloseDate().getTime()));
+                                                assignmentAllowResubmitCloseDate != null ? assignmentAllowResubmitCloseDate : String.valueOf(a.getCloseDate().toEpochMilli()));
                                     }
 
                                     assignmentRepository.updateSubmission(s);
@@ -1931,7 +2051,7 @@ String assignmentId = AssignmentReferenceReckoner.reckoner().reference(assignmen
                     }
                 } else {
                     // get all those groups that user is allowed to grade
-                    Collection<Group> groups = getGroupsAllowGradeAssignment(contextString, AssignmentReferenceReckoner.reckoner().assignment(a).reckon().getReference());
+                    Collection<Group> groups = getGroupsAllowGradeAssignment(AssignmentReferenceReckoner.reckoner().assignment(a).reckon().getReference());
                     groups.forEach(g -> authzRefs.add(g.getReference()));
                 }
             } else {
@@ -2008,31 +2128,11 @@ String assignmentId = AssignmentReferenceReckoner.reckoner().reference(assignmen
     }
 
     @Override
-    public boolean hasBeenSubmitted(AssignmentSubmission submission) {
-        try {
-            List<String> submissionLog = new ArrayList<>(); // TODO - submission.getSubmissionLog();
-
-            //Special case for old submissions prior to Sakai 10 where the submission log did not exist. Just return true for backward compatibility.
-            if (submissionLog == null || submissionLog.size() == 0) {
-                return true;
-            }
-            for (String itemString : submissionLog) {
-                if (itemString.contains("submitted")) {
-                    return true;
-                }
-            }
-        } catch (Exception e) {
-            log.warn("Could not get submission log, {}", e.getMessage());
-        }
-        return false;
-    }
-
-    @Override
     public String getDeepLinkWithPermissions(String context, String assignmentId, boolean allowReadAssignment, boolean allowAddAssignment, boolean allowSubmitAssignment) throws Exception {
         Assignment a = getAssignment(assignmentId);
 
         String assignmentContext = a.getContext(); // assignment context
-        if (allowReadAssignment && a.getOpenDate().toInstant().isBefore(ZonedDateTime.now().toInstant())) {
+        if (allowReadAssignment && a.getOpenDate().isBefore(ZonedDateTime.now().toInstant())) {
             // this checks if we want to display an assignment link
             try {
                 Site site = siteService.getSite(assignmentContext);
@@ -2323,8 +2423,8 @@ String assignmentId = AssignmentReferenceReckoner.reckoner().reference(assignmen
     @Override
     public boolean isPeerAssessmentOpen(Assignment assignment) {
         if (assignment.getAllowPeerAssessment()) {
-            Date now = new Date();
-            return now.before(assignment.getPeerAssessmentPeriodDate()) && now.after(assignment.getCloseDate());
+            Instant now = Instant.now();
+            return now.isBefore(assignment.getPeerAssessmentPeriodDate()) && now.isAfter(assignment.getCloseDate());
         }
         return false;
     }
@@ -2332,8 +2432,7 @@ String assignmentId = AssignmentReferenceReckoner.reckoner().reference(assignmen
     @Override
     public boolean isPeerAssessmentPending(Assignment assignment) {
         if (assignment.getAllowPeerAssessment()) {
-            Date now = new Date();
-            return now.before(assignment.getCloseDate());
+            return Instant.now().isBefore(assignment.getCloseDate());
         }
         return false;
     }
@@ -2341,8 +2440,7 @@ String assignmentId = AssignmentReferenceReckoner.reckoner().reference(assignmen
     @Override
     public boolean isPeerAssessmentClosed(Assignment assignment) {
         if (assignment.getAllowPeerAssessment()) {
-            Date now = new Date();
-            return now.after(assignment.getPeerAssessmentPeriodDate());
+            return Instant.now().isAfter(assignment.getPeerAssessmentPeriodDate());
         }
         return false;
     }
@@ -2381,13 +2479,13 @@ String assignmentId = AssignmentReferenceReckoner.reckoner().reference(assignmen
 
     private Assignment checkAssignmentAccessibleForUser(Assignment assignment, String currentUserId) throws PermissionException {
 
-        if (assignment.getAccess() == Assignment.Access.GROUPED) {
+        if (assignment.getTypeOfAccess() == Assignment.Access.GROUP) {
             String context = assignment.getContext();
             Collection<String> asgGroups = assignment.getGroups();
             Collection<Group> allowedGroups = getGroupsAllowFunction(SECURE_ACCESS_ASSIGNMENT, context, currentUserId);
             // reject and throw PermissionException if there is no intersection
             if (!allowAllGroups(context)
-                    && StringUtils.equals(assignment.getAuthor(), currentUserId)
+                    && !StringUtils.equals(assignment.getAuthor(), currentUserId)
                     && !CollectionUtils.containsAny(asgGroups, allowedGroups.stream().map(Group::getReference).collect(Collectors.toSet()))) {
                 throw new PermissionException(currentUserId, SECURE_ACCESS_ASSIGNMENT, assignment.getId());
             }
@@ -2403,22 +2501,21 @@ String assignmentId = AssignmentReferenceReckoner.reckoner().reference(assignmen
     }
 
     private boolean isAvailableOrSubmitted(Assignment assignment, String userId) {
-        String deleted = assignment.getProperties().get(ResourceProperties.PROP_ASSIGNMENT_DELETED);
-        if (StringUtils.isBlank(deleted)) {
+        if (!assignment.getDeleted()) {
             // show not deleted, not draft, opened assignments
             // TODO do we need to use time zone
-            Date openTime = assignment.getOpenDate();
-            Date visibleTime = assignment.getVisibleDate();
-            if ((openTime != null && LocalDateTime.now().isAfter(LocalDateTime.ofInstant(openTime.toInstant(), ZoneId.systemDefault()))
-                    || (visibleTime != null && LocalDateTime.now().isAfter(LocalDateTime.ofInstant(visibleTime.toInstant(), ZoneId.systemDefault()))))
+            Instant openTime = assignment.getOpenDate();
+            Instant visibleTime = assignment.getVisibleDate();
+            if ((openTime != null && Instant.now().isAfter(openTime))
+                    || (visibleTime != null && Instant.now().isAfter(visibleTime))
                     && !assignment.getDraft()) {
                 return true;
             }
         } else {
             try {
-                if (StringUtils.equalsIgnoreCase(deleted, Boolean.TRUE.toString())
-                        && (assignment.getTypeOfSubmission() != Assignment.SubmissionType.NON_ELECTRONIC_ASSIGNMENT_SUBMISSION)
-                        && getSubmission(assignment.getId(), userId) != null) {
+                if (assignment.getDeleted() &&
+                        assignment.getTypeOfSubmission() != Assignment.SubmissionType.NON_ELECTRONIC_ASSIGNMENT_SUBMISSION &&
+                        getSubmission(assignment.getId(), userId) != null) {
                     // and those deleted but not non-electronic assignments but the user has made submissions to them
                     return true;
                 }
@@ -2448,30 +2545,23 @@ String assignmentId = AssignmentReferenceReckoner.reckoner().reference(assignmen
         return access;
     }
 
-    private boolean permissionCheckWithGroups(String permission, String resource, Assignment assignment) {
-        boolean access = securityService.unlock(permission, siteService.siteReference(assignment.getContext()));
-        // doesn't have permission for site or not in all.groups
-        if (!access || !allowAllGroups(assignment.getContext())) {
-            Collection<String> groupIds = assignment.getGroups();
-            // if there are no groups then return access
-            if (!groupIds.isEmpty()) {
-                // if there are groups then lets check
-                for (String groupId : groupIds) {
-                    if (securityService.unlock(permission, groupId)) {
-                        access = true;
-                        // no need to check other groups
-                        break;
-                    }
-                }
-
-                // TODO write a unit test to test SAK-23081
-                // if user is in group and permission is to submit a submission and the assignment is a group submission then check
-                if (!access && SECURE_ADD_ASSIGNMENT_SUBMISSION.equals(permission) && assignment.getIsGroup()) {
-                    access = securityService.unlock(permission, resource);
+    private boolean permissionCheckWithGroups(String permission, Assignment assignment) {
+        Collection<String> groupIds = assignment.getGroups();
+        if (groupIds.isEmpty()) {
+            return securityService.unlock(permission, siteService.siteReference(assignment.getContext()));
+        } else {
+            // check the permission in the groups
+            for (String groupId : groupIds) {
+                if (securityService.unlock(permission, groupId)) {
+                    return true;
                 }
             }
+            // lastly if the user has permission asn.all.groups and has permission for the site
+            if (allowAllGroups(assignment.getContext()) && securityService.unlock(permission, siteService.siteReference(assignment.getContext()))) {
+                return true;
+            }
         }
-        return access;
+        return false;
     }
 
     // /////////////////////////////////////////////////////////////
@@ -2595,7 +2685,7 @@ String assignmentId = AssignmentReferenceReckoner.reckoner().reference(assignmen
         }
     }
 
-    // TODO this needs to be refactored
+    // TODO zipSubmissions and zipGroupSubmissions should be combined
     private void zipSubmissions(String assignmentReference, String assignmentTitle, Assignment.GradeType gradeType, Assignment.SubmissionType typeOfSubmission, Iterator submissions, OutputStream outputStream, StringBuilder exceptionMessage, boolean withStudentSubmissionText, boolean withStudentSubmissionAttachment, boolean withGradeFile, boolean withFeedbackText, boolean withFeedbackComment, boolean withFeedbackAttachment, boolean withoutFolders, String gradeFileFormat, boolean includeNotSubmitted, String siteId) {
         ZipOutputStream out = null;
 
@@ -2633,7 +2723,7 @@ String assignmentId = AssignmentReferenceReckoner.reckoner().reference(assignmen
             }
 
             // allow add assignment members
-            List allowAddSubmissionUsers = allowAddSubmissionUsers(assignmentReference);
+            List<User> allowAddSubmissionUsers = allowAddSubmissionUsers(assignmentReference);
 
             // Create the ZIP file
             String submittersName = "";
@@ -2646,10 +2736,13 @@ String assignmentId = AssignmentReferenceReckoner.reckoner().reference(assignmen
                 boolean isAnon = assignmentUsesAnonymousGrading(s.getAssignment());
                 //SAK-29314 added a new value where it's by default submitted but is marked when the user submits
                 if ((s.getSubmitted() && s.getUserSubmission()) || includeNotSubmitted) {
-                    // get the submission user id and see if the user is still in site
-                    String userId = s.getSubmitters().stream().filter(AssignmentSubmissionSubmitter::getSubmittee).findFirst().orElse(null).getSubmitter();
+                    // get the submitter who submitted the submission see if the user is still in site
+                    Optional<AssignmentSubmissionSubmitter> assignmentSubmitter = s.getSubmitters().stream().findAny();
                     try {
-                        User u = userDirectoryService.getUser(userId);
+                        User u = null;
+                        if (assignmentSubmitter.isPresent()) {
+                            u = userDirectoryService.getUser(assignmentSubmitter.get().getSubmitter());
+                        }
                         if (allowAddSubmissionUsers.contains(u)) {
                             submittersName = root;
 
@@ -2657,9 +2750,9 @@ String assignmentId = AssignmentReferenceReckoner.reckoner().reference(assignmen
                                 try {
                                     return userDirectoryService.getUser(p.getSubmitter());
                                 } catch (UserNotDefinedException e) {
-                                    log.warn("User not found {}", p.getSubmitter());
-                                    return null;
+                                    log.warn("User not found {}, {}", p.getSubmitter(), e.getMessage());
                                 }
+                                return null;
                             }).filter(Objects::nonNull).toArray(User[]::new);
 
                             String submittersString = "";
@@ -2669,7 +2762,7 @@ String assignmentId = AssignmentReferenceReckoner.reckoner().reference(assignmen
                                 }
                                 String fullName = submitters[i].getSortName();
                                 // in case the user doesn't have first name or last name
-                                if (fullName.indexOf(",") == -1) {
+                                if (!fullName.contains(",")) {
                                     fullName = fullName.concat(",");
                                 }
                                 submittersString = submittersString.concat(fullName);
@@ -2685,9 +2778,10 @@ String assignmentId = AssignmentReferenceReckoner.reckoner().reference(assignmen
                                 submittersString = escapeInvalidCharsEntry(submittersString);
                                 // Work out if submission is late.
                                 String latenessStatus = whenSubmissionMade(s);
-
-                                String fullAnonId = s.getAnonymousSubmissionId();
+                                log.debug("latenessStatus: " + latenessStatus);
+                                
                                 String anonTitle = resourceLoader.getString("grading.anonymous.title");
+                                String fullAnonId = s.getId() + " " + anonTitle;
 
                                 String[] params = new String[7];
                                 if (isAdditionalNotesEnabled && candidateDetailProvider != null) {
@@ -2701,12 +2795,17 @@ String assignmentId = AssignmentReferenceReckoner.reckoner().reference(assignmen
 
                                 // SAK-17606
                                 if (!isAnon) {
+                                	log.debug("Zip user: " + submitters[i].toString());
                                     params[0] = submitters[i].getDisplayId();
                                     params[1] = submitters[i].getEid();
                                     params[2] = submitters[i].getLastName();
                                     params[3] = submitters[i].getFirstName();
                                     params[4] = s.getGrade(); // TODO may need to look at this
-                                    params[5] = s.getDateSubmitted().toString(); // TODO may need to be formatted
+                                    if (s.getDateSubmitted() != null) {
+                                    	params[5] = s.getDateSubmitted().toString(); // TODO may need to be formatted
+                                    } else {
+                                    	params[5] = "";	
+                                    }
                                     params[6] = latenessStatus;
                                 } else {
                                     params[0] = fullAnonId;
@@ -2714,7 +2813,11 @@ String assignmentId = AssignmentReferenceReckoner.reckoner().reference(assignmen
                                     params[2] = anonTitle;
                                     params[3] = anonTitle;
                                     params[4] = s.getGrade();
-                                    params[5] = s.getDateSubmitted().toString(); // TODO same as above
+                                    if (s.getDateSubmitted() != null) {
+                                    	params[5] = s.getDateSubmitted().toString(); // TODO may need to be formatted
+                                    } else {
+                                    	params[5] = "";	
+                                    }
                                     params[6] = latenessStatus;
                                 }
                                 sheet.addRow(params);
@@ -2726,8 +2829,8 @@ String assignmentId = AssignmentReferenceReckoner.reckoner().reference(assignmen
 
                                 // SAK-17606
                                 if (isAnon) {
-                                    submittersName = root + s.getAnonymousSubmissionId();
-                                    submittersString = s.getAnonymousSubmissionId();
+                                    submittersString = s.getId() + " " + resourceLoader.getString("grading.anonymous.title");
+                                    submittersName = root + submittersString;
                                 }
 
                                 if (!withoutFolders) {
@@ -2761,10 +2864,13 @@ String assignmentId = AssignmentReferenceReckoner.reckoner().reference(assignmen
                                         }
                                         ZipEntry textEntry = new ZipEntry(submittersNameString + "_submissionText" + AssignmentConstants.ZIP_SUBMITTED_TEXT_FILE_TYPE);
                                         out.putNextEntry(textEntry);
-                                        byte[] text = submittedText.getBytes();
-                                        out.write(text);
-                                        textEntry.setSize(text.length);
+                                        if (submittedText != null) {
+                                          byte[] text = submittedText.getBytes();
+                                          out.write(text);
+                                          textEntry.setSize(text.length);
+                                        }
                                         out.closeEntry();
+                                        
                                     }
 
                                     // include student submission feedback text
@@ -2772,9 +2878,11 @@ String assignmentId = AssignmentReferenceReckoner.reckoner().reference(assignmen
                                         // create a feedbackText file into zip
                                         ZipEntry fTextEntry = new ZipEntry(submittersName + "feedbackText.html");
                                         out.putNextEntry(fTextEntry);
-                                        byte[] fText = s.getFeedbackText().getBytes();
-                                        out.write(fText);
-                                        fTextEntry.setSize(fText.length);
+                                        if (s.getFeedbackText() != null) {
+                                           byte[] fText = s.getFeedbackText().getBytes();
+                                           out.write(fText);
+                                           fTextEntry.setSize(fText.length);
+                                        }
                                         out.closeEntry();
                                     }
                                 }
@@ -2840,8 +2948,9 @@ String assignmentId = AssignmentReferenceReckoner.reckoner().reference(assignmen
                                     submittersAdditionalNotesHtml += "<tr><td style='padding-right:10px;padding-left:10px'>" + submittersString + "</td><td style='padding-right:10px'>" + noteList + "</td></tr>";
                                 }
                             }
+                        } else {
+                            log.warn("Can't add submission: {} to zip, missing the submittee or they are no longer allowed to submit in the site", s.getId());
                         }
-
                     } catch (Exception e) {
                         caughtException = e.toString();
                         if (log.isDebugEnabled()) {
@@ -2906,7 +3015,7 @@ String assignmentId = AssignmentReferenceReckoner.reckoner().reference(assignmen
         }
     }
 
-    // TODO refactor this
+    // TODO zipSubmissions and zipGroupSubmissions should be combined
     protected void zipGroupSubmissions(String assignmentReference, String assignmentTitle, String gradeTypeString, Assignment.SubmissionType typeOfSubmission, Iterator submissions, OutputStream outputStream, StringBuilder exceptionMessage, boolean withStudentSubmissionText, boolean withStudentSubmissionAttachment, boolean withGradeFile, boolean withFeedbackText, boolean withFeedbackComment, boolean withFeedbackAttachment, String gradeFileFormat, boolean includeNotSubmitted) {
         ZipOutputStream out = null;
         try {
@@ -3111,12 +3220,12 @@ String assignmentId = AssignmentReferenceReckoner.reckoner().reference(assignmen
 
     // TODO refactor this
     private String whenSubmissionMade(AssignmentSubmission s) {
-        Date dueTime = s.getAssignment().getDueDate();
-        Date submittedTime = s.getDateSubmitted();
+        Instant dueTime = s.getAssignment().getDueDate();
+        Instant submittedTime = s.getDateSubmitted();
         String latenessStatus;
         if (submittedTime == null) {
             latenessStatus = resourceLoader.getString("grades.lateness.unknown");
-        } else if (dueTime != null && submittedTime.after(dueTime)) {
+        } else if (dueTime != null && submittedTime.isAfter(dueTime)) {
             latenessStatus = resourceLoader.getString("grades.lateness.late");
         } else {
             latenessStatus = resourceLoader.getString("grades.lateness.ontime");
@@ -3130,10 +3239,9 @@ String assignmentId = AssignmentReferenceReckoner.reckoner().reference(assignmen
         InputStream content = null;
         Map<String, Integer> done = new HashMap<>();
         for (String r : attachments) {
-// TODO maybe be a reference
-//           Reference r = (Reference) attachments.get(j);
             try {
-                ContentResource resource = contentHostingService.getResource(r);
+                String attachId = removeReferencePrefix(r);
+                ContentResource resource = contentHostingService.getResource(attachId);
 
                 String contentType = resource.getContentType();
 
@@ -3226,9 +3334,9 @@ String assignmentId = AssignmentReferenceReckoner.reckoner().reference(assignmen
     }
 
     @Override
-    public void postReviewableSubmissonAttachments(String submissionId) {
+    @Transactional
+    public void postReviewableSubmissionAttachments(AssignmentSubmission submission) {
         try {
-            AssignmentSubmission submission = getSubmission(submissionId);
             Optional<AssignmentSubmissionSubmitter> submitter = submission.getSubmitters().stream().filter(AssignmentSubmissionSubmitter::getSubmittee).findFirst();
             if (submitter.isPresent()) {
                 Assignment assignment = submission.getAssignment();
@@ -3248,17 +3356,347 @@ String assignmentId = AssignmentReferenceReckoner.reckoner().reference(assignmen
                 try {
                     contentReviewService.queueContent(submitter.get().getSubmitter(), assignment.getContext(), assignmentRef, resources);
                 } catch (QueueException e) {
-                    log.warn("Could not queue submission: {} for review, {}", submissionId, e.getMessage());
+                    log.warn("Could not queue submission: {} for review, {}", submission.getId(), e.getMessage());
                 }
             }
         } catch (IdUnusedException | PermissionException e) {
-            log.warn("Could not locate submission: {}, {}", submissionId, e.getMessage());
+            log.warn("Could not locate submission: {}, {}", submission.getId(), e.getMessage());
         }
     }
 
-    private LRS_Statement getStatementForAssignmentGraded(LRS_Actor instructor, Event event, Assignment a, AssignmentSubmission s, User studentUser) {
+    @Override
+    @Transactional
+    public void transferCopyEntities(String fromContext, String toContext, List<String> ids) {
+        transferCopyEntitiesRefMigrator(fromContext, toContext, ids);
+    }
+
+    @Override
+    public String[] myToolIds() {
+        return new String[] { "sakai.assignment", "sakai.assignment.grades" };
+    }
+
+    @Override
+    @Transactional
+    public void transferCopyEntities(String fromContext, String toContext, List<String> ids, boolean cleanup) {
+        transferCopyEntitiesRefMigrator(fromContext, toContext, ids, cleanup);
+    }
+
+    @Override
+    @Transactional
+    public void updateEntityReferences(String toContext, Map<String, String> transversalMap) {
+        if (transversalMap != null && !transversalMap.isEmpty()) {
+            Collection<Assignment> assignments = getAssignmentsForContext(toContext);
+            for (Assignment assignment : assignments) {
+                try {
+                    String msgBody = assignment.getInstructions();
+                    StringBuffer msgBodyPreMigrate = new StringBuffer(msgBody);
+                    msgBody = linkMigrationHelper.migrateAllLinks(transversalMap.entrySet(), msgBody);
+//                    SecurityAdvisor securityAdvisor = new MySecurityAdvisor(sessionManager.getCurrentSessionUserId(),
+//                            new ArrayList<String>(Arrays.asList(SECURE_UPDATE_ASSIGNMENT_CONTENT)),
+//                            AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getReference());
+                    try {
+                        if (!msgBody.equals(msgBodyPreMigrate.toString())) {
+                            // add permission to update assignment content
+//                            securityService.pushAdvisor(securityAdvisor);
+                            assignment.setInstructions(msgBody);
+                            updateAssignment(assignment);
+                        }
+                    } catch (Exception e) {
+                        // exception
+                        log.warn("UpdateEntityReference: cannot get assignment content for {}, {}", assignment.getId(), e.getMessage());
+                    } finally {
+                        // remove advisor
+//                        securityService.popAdvisor(securityAdvisor);
+                    }
+                } catch (Exception ee) {
+                    log.warn("UpdateEntityReference: remove Assignment and all references for {}, {}", assignment.getId(), ee.getMessage());
+                }
+            }
+        }
+    }
+
+    @Override
+    @Transactional
+    public Map<String, String> transferCopyEntitiesRefMigrator(String fromContext, String toContext, List<String> ids) {
+        Map<String, String> transversalMap = new HashMap<>();
+        Collection<Assignment> assignments = getAssignmentsForContext(fromContext);
+
+        for (Assignment oAssignment : assignments) {
+            String oAssignmentId = oAssignment.getId();
+            String nAssignmentId = null;
+
+            if (ids == null || ids.isEmpty() || ids.contains(oAssignmentId)) {
+                try {
+                    Assignment nAssignment = addAssignment(toContext);
+                    nAssignmentId = nAssignment.getId();
+
+                    nAssignment.setTitle(oAssignment.getTitle());
+                    // replace all occurrence of old context with new context inside instruction text
+                    nAssignment.setInstructions(oAssignment.getInstructions().replaceAll(fromContext, toContext));
+                    nAssignment.setTypeOfGrade(oAssignment.getTypeOfGrade());
+                    nAssignment.setTypeOfSubmission(oAssignment.getTypeOfSubmission());
+                    // when importing, refer to property to determine draft status
+                    if (serverConfigurationService.getBoolean("import.importAsDraft", false)) {
+                        nAssignment.setDraft(true);
+                    } else {
+                        nAssignment.setDraft(oAssignment.getDraft());
+                    }
+
+                    nAssignment.setCloseDate(oAssignment.getCloseDate());
+                    nAssignment.setDropDeadDate(oAssignment.getDropDeadDate());
+                    nAssignment.setDueDate(oAssignment.getDueDate());
+                    nAssignment.setOpenDate(oAssignment.getOpenDate());
+                    nAssignment.setHideDueDate(oAssignment.getHideDueDate());
+
+                    nAssignment.setSection(oAssignment.getSection());
+                    nAssignment.setPosition(oAssignment.getPosition());
+                    nAssignment.setIsGroup(oAssignment.getIsGroup());
+                    nAssignment.setAllowAttachments(oAssignment.getAllowAttachments());
+                    nAssignment.setHonorPledge(oAssignment.getHonorPledge());
+                    nAssignment.setIndividuallyGraded(oAssignment.getIndividuallyGraded());
+                    nAssignment.setMaxGradePoint(oAssignment.getMaxGradePoint());
+                    nAssignment.setScaleFactor(oAssignment.getScaleFactor());
+                    nAssignment.setReleaseGrades(oAssignment.getReleaseGrades());
+                    // review service
+                    nAssignment.setContentReview(oAssignment.getContentReview());
+
+                    // attachments
+                    Set<String> oAttachments = oAssignment.getAttachments();
+                    List<Reference> nAttachments = entityManager.newReferenceList();
+                    for (String oAttachment : oAttachments) {
+                        Reference oReference = entityManager.newReference(oAttachment);
+                        String oAttachmentId = oReference.getId();
+                        // transfer attachment, replace the context string if necessary and add new attachment
+                        String nReference = transferAttachment(fromContext, toContext, oAttachmentId);
+                        nAssignment.getAttachments().add(nReference);
+                    }
+
+                    // peer review
+                    nAssignment.setAllowPeerAssessment(oAssignment.getAllowPeerAssessment());
+                    nAssignment.setPeerAssessmentAnonEval(oAssignment.getPeerAssessmentAnonEval());
+                    nAssignment.setPeerAssessmentInstructions(oAssignment.getPeerAssessmentInstructions());
+                    nAssignment.setPeerAssessmentNumberReviews(oAssignment.getPeerAssessmentNumberReviews());
+                    nAssignment.setPeerAssessmentStudentReview(oAssignment.getPeerAssessmentStudentReview());
+                    nAssignment.setPeerAssessmentPeriodDate(oAssignment.getPeerAssessmentPeriodDate());
+                    if (nAssignment.getPeerAssessmentPeriodDate() == null && nAssignment.getCloseDate() != null) {
+                        // set the peer period time to be 10 mins after accept until date
+                        Instant tenMinutesAfterCloseDate = Instant.from(nAssignment.getCloseDate().plus(Duration.ofMinutes(10)));
+                        nAssignment.setPeerAssessmentPeriodDate(tenMinutesAfterCloseDate);
+                    }
+
+                    // properties
+                    Map<String, String> nProperties = nAssignment.getProperties();
+                    nProperties.putAll(oAssignment.getProperties());
+                    // remove the link btw assignment and announcement item. One can announce the open date afterwards
+                    nProperties.remove(ResourceProperties.NEW_ASSIGNMENT_CHECK_AUTO_ANNOUNCE);
+                    nProperties.remove(AssignmentConstants.NEW_ASSIGNMENT_OPEN_DATE_ANNOUNCED);
+                    nProperties.remove(ResourceProperties.PROP_ASSIGNMENT_OPENDATE_ANNOUNCEMENT_MESSAGE_ID);
+
+                    // remove the link btw assignment and calendar item. One can add the due date to calendar afterwards
+                    nProperties.remove(ResourceProperties.NEW_ASSIGNMENT_CHECK_ADD_DUE_DATE);
+                    nProperties.remove(AssignmentConstants.NEW_ASSIGNMENT_DUE_DATE_SCHEDULED);
+                    nProperties.remove(ResourceProperties.PROP_ASSIGNMENT_DUEDATE_CALENDAR_EVENT_ID);
+
+                    // gradebook-integration link
+                    String associatedGradebookAssignment = StringUtils.trimToNull(nProperties.get(PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT));
+                    if (associatedGradebookAssignment != null) {
+                        // see if the old assignment's associated gradebook item is an internal gradebook entry or externally defined
+                        boolean isExternalAssignmentDefined = gradebookExternalAssessmentService.isExternalAssignmentDefined(oAssignment.getContext(), associatedGradebookAssignment);
+                        if (isExternalAssignmentDefined) {
+                            // if this is an external defined (came from assignment)
+                            // mark the link as "add to gradebook" for the new imported assignment, since the assignment is still of draft state
+                            //later when user posts the assignment, the corresponding assignment will be created in gradebook.
+                            nProperties.remove(PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT);
+                            nProperties.put(NEW_ASSIGNMENT_ADD_TO_GRADEBOOK, GRADEBOOK_INTEGRATION_ADD);
+                        }
+                    }
+
+                    updateAssignment(nAssignment);
+
+                    transversalMap.put("assignment/" + oAssignmentId, "assignment/" + nAssignmentId);
+                    log.info("Old assignment id: {} - new assignment id: {}", oAssignmentId, nAssignmentId);
+
+                    try {
+                        if (taggingManager.isTaggable()) {
+                            for (TaggingProvider provider : taggingManager.getProviders()) {
+                                provider.transferCopyTags(assignmentActivityProducer.getActivity(oAssignment), assignmentActivityProducer.getActivity(nAssignment));
+                            }
+                        }
+                    } catch (PermissionException pe) {
+                        log.error("{} oAssignmentId={} nAssignmentId={}", pe.toString(), oAssignmentId, nAssignmentId);
+                    }
+
+                    // Import supplementary items if they are present in the assignment to be imported
+                    // Model Answer
+                    AssignmentModelAnswerItem oModelAnswerItem = assignmentSupplementItemService.getModelAnswer(oAssignmentId);
+                    if (oModelAnswerItem != null) {
+                        AssignmentModelAnswerItem nModelAnswerItem = assignmentSupplementItemService.newModelAnswer();
+                        assignmentSupplementItemService.saveModelAnswer(nModelAnswerItem);
+                        nModelAnswerItem.setAssignmentId(nAssignmentId);
+                        nModelAnswerItem.setText(oModelAnswerItem.getText());
+                        nModelAnswerItem.setShowTo(oModelAnswerItem.getShowTo());
+                        Set<AssignmentSupplementItemAttachment> oModelAnswerItemAttachments = oModelAnswerItem.getAttachmentSet();
+                        Set<AssignmentSupplementItemAttachment> nModelAnswerItemAttachments = new HashSet<>();
+                        for (AssignmentSupplementItemAttachment oAttachment : oModelAnswerItemAttachments) {
+                            AssignmentSupplementItemAttachment nAttachment = assignmentSupplementItemService.newAttachment();
+                            // New attachment creation
+                            String nAttachmentId = transferAttachment(fromContext, toContext, removeReferencePrefix(oAttachment.getAttachmentId()));
+                            if (StringUtils.isNotEmpty(nAttachmentId)) {
+                                nAttachment.setAssignmentSupplementItemWithAttachment(nModelAnswerItem);
+                                nAttachment.setAttachmentId(nAttachmentId);
+                                assignmentSupplementItemService.saveAttachment(nAttachment);
+                                nModelAnswerItemAttachments.add(nAttachment);
+                            }
+                        }
+                        nModelAnswerItem.setAttachmentSet(nModelAnswerItemAttachments);
+                        assignmentSupplementItemService.saveModelAnswer(nModelAnswerItem);
+                    }
+
+                    // Private Note
+                    AssignmentNoteItem oNoteItem = assignmentSupplementItemService.getNoteItem(oAssignmentId);
+                    if (oNoteItem != null) {
+                        AssignmentNoteItem nNoteItem = assignmentSupplementItemService.newNoteItem();
+                        //assignmentSupplementItemService.saveNoteItem(nNoteItem);
+                        nNoteItem.setAssignmentId(nAssignment.getId());
+                        nNoteItem.setNote(oNoteItem.getNote());
+                        nNoteItem.setShareWith(oNoteItem.getShareWith());
+                        nNoteItem.setCreatorId(userDirectoryService.getCurrentUser().getId());
+                        assignmentSupplementItemService.saveNoteItem(nNoteItem);
+                    }
+
+                    // All Purpose
+                    AssignmentAllPurposeItem oAllPurposeItem = assignmentSupplementItemService.getAllPurposeItem(oAssignmentId);
+                    if (oAllPurposeItem != null) {
+                        AssignmentAllPurposeItem nAllPurposeItem = assignmentSupplementItemService.newAllPurposeItem();
+                        assignmentSupplementItemService.saveAllPurposeItem(nAllPurposeItem);
+                        nAllPurposeItem.setAssignmentId(nAssignment.getId());
+                        nAllPurposeItem.setTitle(oAllPurposeItem.getTitle());
+                        nAllPurposeItem.setText(oAllPurposeItem.getText());
+                        nAllPurposeItem.setHide(oAllPurposeItem.getHide());
+                        nAllPurposeItem.setReleaseDate(null);
+                        nAllPurposeItem.setRetractDate(null);
+                        Set<AssignmentSupplementItemAttachment> oAllPurposeItemAttachments = oAllPurposeItem.getAttachmentSet();
+                        Set<AssignmentSupplementItemAttachment> nAllPurposeItemAttachments = new HashSet<>();
+                        for (AssignmentSupplementItemAttachment oAttachment : oAllPurposeItemAttachments) {
+                            AssignmentSupplementItemAttachment nAttachment = assignmentSupplementItemService.newAttachment();
+                            // New attachment creation
+                            String nAttachId = transferAttachment(fromContext, toContext, removeReferencePrefix(oAttachment.getAttachmentId()));
+                            if (StringUtils.isNotEmpty(nAttachId)) {
+                                nAttachment.setAssignmentSupplementItemWithAttachment(nAllPurposeItem);
+                                nAttachment.setAttachmentId(nAttachId);
+                                assignmentSupplementItemService.saveAttachment(nAttachment);
+                                nAllPurposeItemAttachments.add(nAttachment);
+                            }
+                        }
+                        nAllPurposeItem.setAttachmentSet(nAllPurposeItemAttachments);
+                        assignmentSupplementItemService.cleanAllPurposeItemAccess(nAllPurposeItem);
+                        Set<AssignmentAllPurposeItemAccess> accessSet = new HashSet<>();
+                        AssignmentAllPurposeItemAccess access = assignmentSupplementItemService.newAllPurposeItemAccess();
+                        access.setAccess(userDirectoryService.getCurrentUser().getId());
+                        access.setAssignmentAllPurposeItem(nAllPurposeItem);
+                        assignmentSupplementItemService.saveAllPurposeItemAccess(access);
+                        accessSet.add(access);
+                        nAllPurposeItem.setAccessSet(accessSet);
+                        assignmentSupplementItemService.saveAllPurposeItem(nAllPurposeItem);
+                    }
+                } catch (Exception e) {
+                    log.error("{} oAssignmentId={} nAssignmentId={}", e.toString(), oAssignmentId, nAssignmentId);
+                }
+            }
+        }
+        return transversalMap;
+    }
+
+    @Override
+    @Transactional
+    public Map<String, String> transferCopyEntitiesRefMigrator(String fromContext, String toContext, List<String> ids, boolean cleanup) {
+        Map<String, String> transversalMap = new HashMap<>();
+
+        try {
+            if (cleanup) {
+                Collection<Assignment> assignments = getAssignmentsForContext(toContext);
+                for (Assignment assignment : assignments) {
+                    String assignmentId = assignment.getId();
+
+//                    SecurityAdvisor securityAdvisor = new MySecurityAdvisor(sessionManager.getCurrentSessionUserId(),
+//                            new ArrayList<>(Arrays.asList(SECURE_UPDATE_ASSIGNMENT, SECURE_REMOVE_ASSIGNMENT)),
+//                            assignmentId);
+                    try {
+                        // advisor to allow edit and remove assignment
+//                        securityService.pushAdvisor(securityAdvisor);
+
+                        // remove this assignment with all its associated items
+                        deleteAssignmentAndAllReferences(assignment);
+                    } catch (Exception e) {
+                        log.warn("Remove assignment and all references for {}, {}", assignmentId, e.getMessage());
+                    } finally {
+                        // remove SecurityAdvisor
+//                        securityService.popAdvisor(securityAdvisor);
+                    }
+                }
+            }
+            transversalMap.putAll(transferCopyEntitiesRefMigrator(fromContext, toContext, ids));
+        } catch (Exception e) {
+            log.info("End removing Assignmentt data {}", e.getMessage());
+        }
+
+        return transversalMap;
+    }
+
+    private String transferAttachment(String fromContext, String toContext, String oAttachmentId) {
+        String reference = "";
+        String nAttachmentId = oAttachmentId.replaceAll(fromContext, toContext);
+        try {
+            ContentResource attachment = contentHostingService.getResource(nAttachmentId);
+            reference = attachment.getReference();
+        } catch (IdUnusedException iue) {
+            try {
+                ContentResource oAttachment = contentHostingService.getResource(oAttachmentId);
+                try (InputStream content = new ByteArrayInputStream(oAttachment.getContent())) {
+                    if (contentHostingService.isAttachmentResource(nAttachmentId)) {
+                        // add the new resource into attachment collection area
+                        ContentResource attachment = contentHostingService.addAttachmentResource(
+                                Validator.escapeResourceName(oAttachment.getProperties().getProperty(ResourceProperties.PROP_DISPLAY_NAME)),
+                                toContext,
+                                toolManager.getTool("sakai.assignment.grades").getTitle(),
+                                oAttachment.getContentType(),
+                                content,
+                                oAttachment.getProperties());
+                        reference = attachment.getReference();
+                    } else {
+                        // add the new resource into resource area
+                        ContentResource attachment = contentHostingService.addResource(
+                                Validator.escapeResourceName(oAttachment.getProperties().getProperty(ResourceProperties.PROP_DISPLAY_NAME)),
+                                toContext,
+                                1,
+                                oAttachment.getContentType(),
+                                content,
+                                oAttachment.getProperties(),
+                                Collections.emptyList(),
+                                false,
+                                null,
+                                null,
+                                NotificationService.NOTI_NONE);
+                        reference = attachment.getReference();
+                    }
+                } catch (Exception e) {
+                    // if the new resource cannot be added
+                    log.warn("Cannot add new attachment with id = {}, {}", nAttachmentId, e.getMessage());
+                }
+            } catch (Exception e) {
+                // if cannot find the original attachment, do nothing.
+                log.warn("Cannot get the original attachment with id = {}, {}", oAttachmentId, e.getMessage());
+            }
+        } catch (Exception e) {
+            log.warn("Could not get the new attachment with id = {}, {}", nAttachmentId, e.getMessage());
+        }
+        return reference;
+    }
+
+    private LRS_Statement getStatementForAssignmentGraded(String reference, Assignment a, AssignmentSubmission s, User studentUser) {
+    	LRS_Actor instructor = learningResourceStoreService.getActor(sessionManager.getCurrentSessionUserId());
         LRS_Verb verb = new LRS_Verb(SAKAI_VERB.scored);
-        LRS_Object lrsObject = new LRS_Object(serverConfigurationService.getPortalUrl() + event.getResource(), "received-grade-assignment");
+        LRS_Object lrsObject = new LRS_Object(serverConfigurationService.getPortalUrl() + reference, "received-grade-assignment");
         Map<String, String> nameMap = new HashMap<>();
         nameMap.put("en-US", "User received a grade");
         lrsObject.setActivityName(nameMap);
@@ -3266,11 +3704,9 @@ String assignmentId = AssignmentReferenceReckoner.reckoner().reference(assignmen
         String resubmissionNumber = StringUtils.defaultString(s.getProperties().get(AssignmentConstants.ALLOW_RESUBMIT_NUMBER), "0");
         descMap.put("en-US", "User received a grade for their assginment: " + a.getTitle() + "; Submission #: " + resubmissionNumber);
         lrsObject.setDescription(descMap);
-        LRS_Actor student = new LRS_Actor(studentUser.getEmail());
+        LRS_Actor student = learningResourceStoreService.getActor(studentUser.getId());
         student.setName(studentUser.getDisplayName());
-        LRS_Context context = new LRS_Context(instructor);
-        context.setActivity("other", "assignment");
-        return new LRS_Statement(student, verb, lrsObject, getLRS_Result(a, s, true), context);
+        return new LRS_Statement(student, verb, lrsObject, getLRS_Result(a, s, true), null);
     }
 
     private LRS_Result getLRS_Result(Assignment a, AssignmentSubmission s, boolean completed) {
@@ -3289,20 +3725,19 @@ String assignmentId = AssignmentReferenceReckoner.reckoner().reference(assignmen
         return result;
     }
 
-    private LRS_Statement getStatementForUnsubmittedAssignmentGraded(LRS_Actor instructor, Event event, Assignment a, AssignmentSubmission s, User studentUser) {
+    private LRS_Statement getStatementForUnsubmittedAssignmentGraded(String reference, Assignment a, AssignmentSubmission s, User studentUser) {
+    	LRS_Actor instructor = learningResourceStoreService.getActor(sessionManager.getCurrentSessionUserId());
         LRS_Verb verb = new LRS_Verb(SAKAI_VERB.scored);
-        LRS_Object lrsObject = new LRS_Object(serverConfigurationService.getAccessUrl() + event.getResource(), "received-grade-unsubmitted-assignment");
+        LRS_Object lrsObject = new LRS_Object(serverConfigurationService.getAccessUrl() + reference, "received-grade-unsubmitted-assignment");
         Map<String, String> nameMap = new HashMap<>();
         nameMap.put("en-US", "User received a grade");
         lrsObject.setActivityName(nameMap);
         Map<String, String> descMap = new HashMap<>();
         descMap.put("en-US", "User received a grade for an unsubmitted assginment: " + a.getTitle());
         lrsObject.setDescription(descMap);
-        LRS_Actor student = new LRS_Actor(studentUser.getEmail());
+        LRS_Actor student = learningResourceStoreService.getActor(studentUser.getId());
         student.setName(studentUser.getDisplayName());
-        LRS_Context context = new LRS_Context(instructor);
-        context.setActivity("other", "assignment");
-        return new LRS_Statement(student, verb, lrsObject, getLRS_Result(a, s, false), context);
+        return new LRS_Statement(student, verb, lrsObject, getLRS_Result(a, s, false), null);
     }
 
     private void sendGradeReleaseNotification(AssignmentSubmission submission) {
@@ -3387,5 +3822,140 @@ String assignmentId = AssignmentReferenceReckoner.reckoner().reference(assignmen
             }).filter(Objects::nonNull).collect(Collectors.toSet());
             emailService.sendToUsers(users, emailUtil.getHeaders(null, "submission"), emailUtil.getNotificationMessage(submission, "submission"));
         }
+    }
+
+    @Override
+    public String getUsersLocalDateTimeString(Instant date) {
+        ZoneId zone = userTimeService.getLocalTimeZone().toZoneId();
+        DateTimeFormatter df = DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM, FormatStyle.SHORT)
+                                                .withZone(zone)
+                                                .withLocale(resourceLoader.getLocale());
+        return df.format(date);
+    }
+
+    private String removeReferencePrefix(String referenceId) {
+        if (referenceId.startsWith(REF_PREFIX)) {
+            referenceId = referenceId.replaceFirst(REF_PREFIX, "");
+        }
+        return referenceId;
+    }
+
+    @Override
+    @Transactional
+    public List<ContentReviewResult> getContentReviewResults(AssignmentSubmission s){
+        ArrayList<ContentReviewResult> reviewResults = new ArrayList<ContentReviewResult>();
+        //get all the attachments for this submission and populate the reviewResults
+        List<ContentResource> contentResources = getAllAcceptableAttachments(s);
+        for(ContentResource cr : contentResources){
+            ContentReviewResult reviewResult = new ContentReviewResult();
+            reviewResult.setContentResource(cr);
+            ContentReviewItem cri = contentReviewService.getContentReviewItemByContentId(cr.getId());
+            if(cri == null){
+                log.warn("Retrieved null ContentReviewItem for content " + cr.getId());
+                continue;
+            }
+            reviewResult.setContentReviewItem(cri);
+
+            AssignmentReferenceReckoner.AssignmentReference referenceReckoner = AssignmentReferenceReckoner.reckoner().reference(s.getAssignment().getId()).reckon();
+            reviewResult.setReviewReport(getReviewReport(cr, referenceReckoner.getReference()));
+            String iconUrl = getReviewIconCssClass(reviewResult);
+            reviewResult.setReviewIconCssClass(iconUrl);
+            reviewResult.setReviewError(getReviewError(reviewResult.getStatus()));
+
+            if ("true".equals(reviewResult.isInline())) {
+                reviewResults.add(0, reviewResult);
+            } else {
+                reviewResults.add(reviewResult);
+            }
+        }
+        return reviewResults;
+    }
+
+    /**
+     * Gets all attachments in the submission that are acceptable to the content review service
+     */
+    private List<ContentResource> getAllAcceptableAttachments(AssignmentSubmission s) {
+        List<ContentResource> attachments = new ArrayList<>();
+        for (String attachment : s.getAttachments()) {
+            Reference attachmentRef = entityManager.newReference(attachment);
+            try {
+                ContentResource resource = contentHostingService.getResource(attachmentRef.getId());
+                if (contentReviewService.isAcceptableContent(resource)) {
+                    attachments.add(resource);
+                }
+            } catch (Exception e) {
+                log.warn(":getAllAcceptableAttachments() {} ", e.getMessage());
+            }
+        }
+        return attachments;
+    }
+
+    private String getReviewIconCssClass(ContentReviewResult reviewResult) {
+        if (reviewResult == null) {
+            log.debug("{} getReviewIconCssClass(ContentResource, int) called with reviewResult == null", reviewResult.getContentResource().getId());
+            return null;
+        }
+
+        Long status = reviewResult.getStatus();
+        String reviewReport = reviewResult.getReviewReport();
+        String iconCssClass = null;
+
+        if (!"Error".equals(reviewReport)) {
+            iconCssClass = contentReviewService.getIconCssClassforScore(reviewResult.getReviewScore(), reviewResult.getContentResource().getId());
+        } else if (ContentReviewConstants.CONTENT_REVIEW_SUBMITTED_AWAITING_REPORT_CODE.equals(status) || ContentReviewConstants.CONTENT_REVIEW_NOT_SUBMITTED_CODE.equals(status)) {
+            iconCssClass = "contentReviewIconPending";
+        } else {
+            iconCssClass = "contentReviewIconWarn";
+        }
+
+        return iconCssClass;
+    }
+
+    private String getReviewReport(ContentResource cr, String assignmentReference) {
+        if (cr == null) {
+            log.debug("getReviewReport(ContentResource) called with cr == null"/*, this.getId()*/);
+            return "Error";
+        }
+        try {
+            String contentId = cr.getId();
+            if (allowGradeSubmission(assignmentReference)) {
+                return contentReviewService.getReviewReportInstructor(contentId, assignmentReference, userDirectoryService.getCurrentUser().getId());
+            } else {
+                return contentReviewService.getReviewReportStudent(contentId, assignmentReference, userDirectoryService.getCurrentUser().getId());
+            }
+        } catch (Exception e) {
+            log.warn(":getReviewReport(ContentResource) {}", e.getMessage());
+            return "Error";
+        }
+    }
+
+    private String getReviewError(Long status){
+        if (status == null){
+            log.debug("getReviewReport(ContentResource) called with status == null");
+            return null;
+        }
+        //This should use getLocalizedReviewErrorMesage(contentId) to get a i18n message of the error
+        String errorMessage = null;
+        if (status.equals(ContentReviewConstants.CONTENT_REVIEW_REPORT_ERROR_NO_RETRY_CODE)){
+            errorMessage = resourceLoader.getString("content_review.error.REPORT_ERROR_NO_RETRY_CODE");
+        } else if (status.equals(ContentReviewConstants.CONTENT_REVIEW_REPORT_ERROR_RETRY_CODE)) {
+            errorMessage = resourceLoader.getString("content_review.error.REPORT_ERROR_RETRY_CODE");
+        } else if (status.equals(ContentReviewConstants.CONTENT_REVIEW_SUBMISSION_ERROR_NO_RETRY_CODE)) {
+            errorMessage = resourceLoader.getString("content_review.error.SUBMISSION_ERROR_NO_RETRY_CODE");
+        } else if (status.equals(ContentReviewConstants.CONTENT_REVIEW_SUBMISSION_ERROR_RETRY_CODE)) {
+            errorMessage = resourceLoader.getString("content_review.error.SUBMISSION_ERROR_RETRY_CODE");
+        } else if (status.equals(ContentReviewConstants.CONTENT_REVIEW_SUBMISSION_ERROR_RETRY_EXCEEDED_CODE)) {
+            errorMessage = resourceLoader.getString("content_review.error.SUBMISSION_ERROR_RETRY_EXCEEDED_CODE");
+        } else if (status.equals(ContentReviewConstants.CONTENT_REVIEW_SUBMISSION_ERROR_USER_DETAILS_CODE)) {
+            errorMessage = resourceLoader.getString("content_review.error.SUBMISSION_ERROR_USER_DETAILS_CODE");
+        } else if (ContentReviewConstants.CONTENT_REVIEW_SUBMITTED_AWAITING_REPORT_CODE.equals(status) || ContentReviewConstants.CONTENT_REVIEW_NOT_SUBMITTED_CODE.equals(status)) {
+            errorMessage = resourceLoader.getString("content_review.pending.info");
+        }
+
+        if (errorMessage == null) {
+            errorMessage = resourceLoader.getString("content_review.error");
+        }
+
+        return errorMessage;
     }
 }

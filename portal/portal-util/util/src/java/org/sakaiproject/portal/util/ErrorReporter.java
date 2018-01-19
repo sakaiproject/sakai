@@ -36,6 +36,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.email.cover.EmailService;
@@ -52,7 +54,6 @@ import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.util.ResourceLoader;
-import lombok.extern.slf4j.Slf4j;
 
 /**
  * <p>
@@ -104,8 +105,7 @@ public class ErrorReporter
 		}
 		catch (Exception ex)
 		{
-			System.err.println("Unable to create SHA hash of content");
-			ex.printStackTrace();
+			log.error("Unable to create SHA hash of content");
 		}
 		return digest;
 	}

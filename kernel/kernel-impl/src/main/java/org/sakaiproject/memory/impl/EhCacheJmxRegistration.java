@@ -21,23 +21,22 @@
 
 package org.sakaiproject.memory.impl;
 
-import net.sf.ehcache.CacheManager;
-import net.sf.ehcache.management.ManagementService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.lang.management.ManagementFactory;
 
 import javax.management.MBeanServer;
-import java.lang.management.ManagementFactory;
+
+import lombok.extern.slf4j.Slf4j;
+
+import net.sf.ehcache.CacheManager;
+import net.sf.ehcache.management.ManagementService;
 
 /**
  * This class just registers a EhCache with a JMX MBean server.
  * By default it will use the platform MBean server.
  */
+@Slf4j
 public class EhCacheJmxRegistration
 {
-
-	private static final Logger log = LoggerFactory.getLogger(EhCacheJmxRegistration.class);
-
 	private MBeanServer mBeanServer = ManagementFactory.getPlatformMBeanServer();
 
 	private boolean registerCacheManager = true;

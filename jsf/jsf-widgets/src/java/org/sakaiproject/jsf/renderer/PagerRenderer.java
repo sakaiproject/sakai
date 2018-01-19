@@ -32,14 +32,14 @@ import javax.faces.context.FacesContext;
 import javax.faces.context.ResponseWriter;
 import javax.faces.render.Renderer;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.jsf.util.LocaleUtil;
 import org.sakaiproject.jsf.util.RendererUtil;
 
+@Slf4j
 public class PagerRenderer extends Renderer
-{	
-	private static final Logger log = LoggerFactory.getLogger(PagerRenderer.class);
+{
 	private static final String BUNDLE_NAME = "org.sakaiproject.jsf.bundle.pager";
 	
 	public void encodeBegin(FacesContext context, UIComponent component) throws IOException

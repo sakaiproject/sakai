@@ -20,16 +20,15 @@
  **********************************************************************************/
 package org.sakaiproject.component.app.messageforums.dao.hibernate;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.api.app.messageforums.DiscussionForum;
 import org.sakaiproject.api.app.messageforums.DiscussionTopic;
 import org.sakaiproject.api.app.messageforums.Label;
 
+@Slf4j
 public class LabelImpl extends MutableEntityImpl implements Label {
 
-    private static final Logger LOG = LoggerFactory.getLogger(LabelImpl.class);
-    
     private String key;
     private String value;
     

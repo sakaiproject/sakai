@@ -19,9 +19,6 @@
  *
  **********************************************************************************/
 
-
-
-
 package org.sakaiproject.tool.assessment.contentpackaging;
 
 import java.util.ArrayList;
@@ -34,8 +31,7 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.sakaiproject.tool.assessment.qti.asi.ASIBaseClass;
 import org.sakaiproject.tool.assessment.qti.constants.QTIConstantStrings;
 import org.w3c.dom.Document;
@@ -48,9 +44,9 @@ import org.w3c.dom.Element;
  * @author Ed Smiley esmiley@stanford.edu
  * @version $Id$
  */
-public class Manifest extends ASIBaseClass
+ @Slf4j
+ public class Manifest extends ASIBaseClass
 {
-  private static Logger log = LoggerFactory.getLogger(Manifest.class);
   private String basePath;
   private Map sections;
   private Map items;
@@ -120,7 +116,6 @@ public class Manifest extends ASIBaseClass
     	this.addElement(xpath, element);
     } catch(ParserConfigurationException pce) {
     	log.error("Exception thrown from addSectionRef() : " + pce.getMessage());
-		pce.printStackTrace();
     }
   }
 

@@ -18,12 +18,13 @@ package org.sakaiproject.user.impl.test;
 
 import java.util.Collection;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
@@ -43,9 +44,8 @@ import org.sakaiproject.user.impl.DbUserService;
  * Test that the User Directory Service is correctly enabling context-specific display IDs
  * and display names.
  */
+@Slf4j
 public class ContextualDisplayServiceTest extends SakaiKernelTestBase {
-	private static Logger log = LoggerFactory.getLogger(ContextualDisplayServiceTest.class);
-
 	private static final String FIRST_NAME = "Alice";
 	// Also use EIDs as last names.
 	private static final String NOT_IN_SITE_USER_EID = "not_in_site_user";

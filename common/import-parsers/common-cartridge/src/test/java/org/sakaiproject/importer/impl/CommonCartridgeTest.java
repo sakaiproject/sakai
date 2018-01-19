@@ -28,15 +28,19 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.Iterator;
 
+import lombok.extern.slf4j.Slf4j;
+
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
+
 import org.sakaiproject.importer.api.ImportDataSource;
 import org.sakaiproject.importer.api.ImportFileParser;
 import org.sakaiproject.importer.impl.importables.Assessment;
 import org.sakaiproject.importer.impl.importables.HtmlDocument;
 
+@Slf4j
 public class CommonCartridgeTest {
 	private static ImportFileParser parser = null;
 	private InputStream archiveStream = null;
@@ -47,7 +51,7 @@ public class CommonCartridgeTest {
 			parser = new CommonCartridgeFileParser();
 			FileInputStream archiveStream = new FileInputStream(new File("psychology.zip"));
 		} catch (IOException e) {
-			e.printStackTrace();
+			log.error(e.getMessage(), e);
 		}
 	}
 
@@ -72,10 +76,10 @@ public class CommonCartridgeTest {
 				numberOfWebContent++;
 			}
 		}
-		System.out.println(ids.getItemCategories().size() + " top-level items");
-		System.out.println(importables.size() + " importables");
-		System.out.println(numberOfAssessments + " assessments");
-		System.out.println(numberOfWebContent + " webcontent");
+		log.debug("{} top-level items", ids.getItemCategories().size());
+		log.debug("{} importables", importables.size());
+		log.debug("{} assessments", numberOfAssessments);
+		log.debug("{} webcontent", numberOfWebContent);
 		Assert.assertTrue("Why no assessments?", numberOfAssessments > 0);
 	}
 

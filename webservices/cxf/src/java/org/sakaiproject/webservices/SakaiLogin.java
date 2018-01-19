@@ -20,14 +20,17 @@ import javax.jws.WebParam;
 import javax.jws.WebService;
 import javax.jws.soap.SOAPBinding;
 import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import javax.ws.rs.core.MediaType;
+
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpMethod;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.PhaseInterceptorChain;
@@ -41,9 +44,8 @@ import org.sakaiproject.util.IdPwEvidence;
 
 @WebService
 @SOAPBinding(style= SOAPBinding.Style.RPC, use= SOAPBinding.Use.LITERAL)
+@Slf4j
 public class SakaiLogin extends AbstractWebService {
-
-    private static final Logger LOG = LoggerFactory.getLogger(SakaiLogin.class);
 
     //I don't see a simpler way of doing this 
     //https://stackoverflow.com/a/13408147/3708872
@@ -57,7 +59,7 @@ public class SakaiLogin extends AbstractWebService {
      */
     @WebMethod
     @Path("/login")
-    @Produces("text/plain")
+    @Produces(MediaType.TEXT_PLAIN)
     @GET
     public java.lang.String loginGET(
             @WebParam(partName = "id", name = "id")
@@ -78,14 +80,14 @@ public class SakaiLogin extends AbstractWebService {
      */
     @WebMethod
     @Path("/login")
-    @Produces("text/plain")
+    @Produces(MediaType.TEXT_PLAIN)
+    //Can't get MediaType.MULTIPART_FORM_DATA to work
+    @Consumes({MediaType.APPLICATION_FORM_URLENCODED})
     @POST
     public java.lang.String loginPOST(
-            @WebParam(partName = "id", name = "id")
-            @QueryParam("id")
+            @FormParam("id")
             java.lang.String id,
-            @WebParam(partName = "pw", name = "pw")
-            @QueryParam("pw")
+            @FormParam("pw")
             java.lang.String pw) {
     	return login (id,pw);
     }
@@ -109,7 +111,7 @@ public class SakaiLogin extends AbstractWebService {
 
         try {
             if ("GET".equals(request.getMethod())) {
-                LOG.info("This endpoint {} should use POST instead of GET, GET will be deprecated in a future release", request.getRequestURI());
+                log.info("This endpoint {} should use POST instead of GET, GET will be deprecated in a future release", request.getRequestURI());
             }
 
             Evidence e = new IdPwEvidence(id, pw, ipAddress);
@@ -119,7 +121,7 @@ public class SakaiLogin extends AbstractWebService {
             sessionManager.setCurrentSession(s);
 
             if (s == null) {
-                LOG.warn("Web Services Login failed to establish session for id=" + id + " ip=" + ipAddress);
+                log.warn("Web Services Login failed to establish session for id=" + id + " ip=" + ipAddress);
                 throw new RuntimeException("Unable to establish session");
             } else {
                 // We do not care too much on the off-chance that this fails - folks simply won't show up in presense
@@ -128,13 +130,13 @@ public class SakaiLogin extends AbstractWebService {
 
                 usageSessionService.login(a.getUid(), id, ipAddress, "SakaiLogin", UsageSessionService.EVENT_LOGIN_WS);
 
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug("Sakai Web Services Login id=" + id + " ip=" + ipAddress + " session=" + s.getId());
+                if (log.isDebugEnabled()) {
+                    log.debug("Sakai Web Services Login id=" + id + " ip=" + ipAddress + " session=" + s.getId());
                 }
                 return s.getId();
             }
 	} catch (AuthenticationException ex) {
-        	LOG.warn("Failed Web Services Login id=" + id + " ip=" + ipAddress + ": " + ex.getMessage());
+        	log.warn("Failed Web Services Login id=" + id + " ip=" + ipAddress + ": " + ex.getMessage());
 	}
 
         throw new RuntimeException("Unable to login");
@@ -148,7 +150,7 @@ public class SakaiLogin extends AbstractWebService {
      * @throws InterruptedException
      */
     @WebMethod
-    @Produces("text/plain")
+    @Produces(MediaType.TEXT_PLAIN)
     @GET
     @Path("/logout")
     public boolean logoutGET(
@@ -166,12 +168,13 @@ public class SakaiLogin extends AbstractWebService {
      * @throws InterruptedException
      */
     @WebMethod
-    @Produces("text/plain")
+    @Produces(MediaType.TEXT_PLAIN)
+    //Can't get MediaType.MULTIPART_FORM_DATA to work
+    @Consumes({MediaType.APPLICATION_FORM_URLENCODED})
     @POST
     @Path("/logout")
     public boolean logoutPOST(
-            @QueryParam("sessionid")
-            @WebParam(partName = "sessionid", name = "sessionid")
+            @FormParam("sessionid")
             java.lang.String sessionid) {
     	return logout (sessionid);
     }
@@ -197,7 +200,7 @@ public class SakaiLogin extends AbstractWebService {
     }
 
     @WebMethod
-    @Produces("text/plain")
+    @Produces(MediaType.TEXT_PLAIN)
     @GET
     @Path("/loginToServer")
     public java.lang.String loginToServerGET(
@@ -212,15 +215,15 @@ public class SakaiLogin extends AbstractWebService {
 
 
     @WebMethod
-    @Produces("text/plain")
+    @Produces(MediaType.TEXT_PLAIN)
+    //Can't get MediaType.MULTIPART_FORM_DATA to work
+    @Consumes({MediaType.APPLICATION_FORM_URLENCODED})
     @POST
     @Path("/loginToServer")
     public java.lang.String loginToServerPOST(
-            @WebParam(partName = "id", name = "id")
-            @QueryParam("id")
+            @FormParam("id")
             java.lang.String id,
-            @WebParam(partName = "pw", name = "pw")
-            @QueryParam("pw")
+            @FormParam("pw")
             java.lang.String pw) {
         return login(id, pw) + "," + serverConfigurationService.getString("webservices.directurl", serverConfigurationService.getString("serverUrl"));
     }

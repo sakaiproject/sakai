@@ -33,8 +33,7 @@ import java.util.Set;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.Locale;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -66,6 +65,7 @@ import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
 import org.apache.wicket.util.convert.IConverter;
 import org.apache.wicket.util.convert.converter.IntegerConverter;
+
 import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.site.api.Group;
@@ -98,9 +98,9 @@ import org.sakaiproject.util.Web;
 /**
  * @author Nuno Fernandes
  */
+@Slf4j
 public class ReportsEditPage extends BasePage {
 	private static final long		serialVersionUID	= 1L;
-	private static Logger				LOG					= LoggerFactory.getLogger(ReportsEditPage.class);
 	private static final String		REPORT_THISSITE		= "this";
 	private static final String		REPORT_ALLSITES		= "all";
 
@@ -125,8 +125,7 @@ public class ReportsEditPage extends BasePage {
 	/** Ajax update lock */
 	private final ReentrantLock		ajaxUpdateLock	= new ReentrantLock();
 	private boolean					usersLoaded		= false;
-	private static Logger log = LoggerFactory.getLogger(ReportsEditPage.class);
-	
+
 	private transient Collator		collator		= Collator.getInstance();
 	
 	private static String 			HIDDEN_WHENFROM_ISO8601 = "whenFromISO8601";
@@ -1015,7 +1014,7 @@ public class ReportsEditPage extends BasePage {
 			try{
 				siteUsers = Locator.getFacade().getSiteService().getSite(siteId).getUsers();
 			}catch(IdUnusedException e){
-				LOG.warn("Site does not exist: " + siteId);
+				log.warn("Site does not exist: " + siteId);
 				siteUsers = new HashSet<String>();
 			}
 			Iterator<String> i = siteUsers.iterator();
@@ -1147,7 +1146,7 @@ public class ReportsEditPage extends BasePage {
 				groups.add(g.getId());
 			}
 		}catch(IdUnusedException e){
-			LOG.warn("Site does not exist: " + siteId);
+			log.warn("Site does not exist: " + siteId);
 			
 		}
 		return groups;
@@ -1163,7 +1162,7 @@ public class ReportsEditPage extends BasePage {
 				roles.add(r.getId());
 			}
 		}catch(IdUnusedException e){
-			LOG.warn("Site does not exist: " + siteId);
+			log.warn("Site does not exist: " + siteId);
 			
 		}
 		return roles;
@@ -1240,7 +1239,7 @@ public class ReportsEditPage extends BasePage {
 		try{
 			site = Locator.getFacade().getSiteService().getSite(siteId);
 		}catch(IdUnusedException e){
-			LOG.error("No site with id: "+siteId);
+			log.error("No site with id: "+siteId);
 		}
 		
 		// check WHAT

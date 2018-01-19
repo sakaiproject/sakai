@@ -21,6 +21,7 @@
 
 package org.sakaiproject.content.api;
 
+import java.time.Instant;
 import java.util.Collection;
 import java.util.Set;
 
@@ -93,15 +94,33 @@ public interface GroupAwareEntity extends Entity
 	 * Access the release date before which this entity should not be available to users 
 	 * except those with adequate permission (what defines "adequate permission" is TBD).
 	 * @return The date/time at which the entity may be accessed by all users.
+	 * @deprecated see {@link #getReleaseInstant()}
 	 */
+	@Deprecated
 	public Time getReleaseDate();
+	
+	/**
+	 * Access the release date before which this entity should not be available to users 
+	 * except those with adequate permission (what defines "adequate permission" is TBD).
+	 * @return The Instant at which the entity may be accessed by all users.
+	 */
+	public Instant getReleaseInstant();
 	
 	/**
 	 * Access the retract date after which this entity should not be available to users 
 	 * except those with adequate permission (what defines "adequate permission" is TBD).
 	 * @return The date/time at which access to the entity should be restricted.
+	 * @deprecated see {@link #getRetractInstant()}
 	 */
+	@Deprecated
 	public Time getRetractDate();
+	
+	/**
+	 * Access the retract date after which this entity should not be available to users 
+	 * except those with adequate permission (what defines "adequate permission" is TBD).
+	 * @return The Instant at which access to the entity should be restricted.
+	 */
+	public Instant getRetractInstant();
 	
 	/** 
 	 * Access the raw availability setting for this entity: is it set to "hide" or "show".

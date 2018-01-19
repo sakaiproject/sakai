@@ -26,8 +26,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.Component;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
@@ -50,6 +49,7 @@ import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
 import org.apache.wicket.request.http.WebResponse;
 import org.apache.wicket.request.handler.EmptyRequestHandler;
+
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.sitestats.api.EventStat;
@@ -78,9 +78,9 @@ import org.sakaiproject.user.api.UserNotDefinedException;
 /**
  * @author Nuno Fernandes
  */
+@Slf4j
 public class ReportDataPage extends BasePage {
 	private static final long			serialVersionUID	= 1L;
-	private static Logger					LOG					= LoggerFactory.getLogger(ReportDataPage.class);
 
 	private String						realSiteId;
 	private String						siteId;
@@ -600,12 +600,12 @@ public class ReportDataPage extends BasePage {
 			out.write(hssfWorkbookBytes);
 			out.flush();
 		}catch(IOException e){
-			LOG.error(e.getMessage());
+			log.error(e.getMessage());
 		}finally{
 			try{
 				if(out != null) out.close();
 			}catch(IOException e){
-				LOG.error(e.getMessage());
+				log.error(e.getMessage());
 			}
 		}
 	}
@@ -626,12 +626,12 @@ public class ReportDataPage extends BasePage {
 			out.write(csvString.getBytes());
 			out.flush();
 		}catch(IOException e){
-			LOG.error(e.getMessage());
+			log.error(e.getMessage());
 		}finally{
 			try{
 				if(out != null) out.close();
 			}catch(IOException e){
-				LOG.error(e.getMessage());
+				log.error(e.getMessage());
 			}
 		}
 	}
@@ -652,12 +652,12 @@ public class ReportDataPage extends BasePage {
 			out.write(pdf);
 			out.flush();
 		}catch(IOException e){
-			LOG.error(e.getMessage());
+			log.error(e.getMessage());
 		}finally{
 			try{
 				if(out != null) out.close();
 			}catch(IOException e){
-				LOG.error(e.getMessage());
+				log.error(e.getMessage());
 			}
 		}
 	}

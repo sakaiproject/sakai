@@ -20,21 +20,22 @@
  **********************************************************************************/
 package org.sakaiproject.component.section.support;
 
+import lombok.extern.slf4j.Slf4j;
+
 import org.hibernate.Query;
-import org.sakaiproject.component.section.UserImpl;
-import org.sakaiproject.section.api.coursemanagement.User;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
 import org.springframework.orm.hibernate4.HibernateCallback;
 import org.springframework.orm.hibernate4.support.HibernateDaoSupport;
 
+import org.sakaiproject.component.section.UserImpl;
+import org.sakaiproject.section.api.coursemanagement.User;
+
+@Slf4j
 public class UserManagerHibernateImpl extends HibernateDaoSupport implements UserManager {
-	private static Logger log = LoggerFactory.getLogger(UserManagerHibernateImpl.class);
-	
 	public User createUser(final String userUid, final String displayName,
 			final String sortName, final String displayId) {
 		
-		if(log.isDebugEnabled()) log.debug("Creating a user named " + displayName + " with uid=" + userUid);
+		if(log.isDebugEnabled()) log.debug("Creating a user named {} with uid={}", displayName, userUid);
 
 		HibernateCallback<UserImpl> hc = session -> {
             UserImpl user = new UserImpl(displayName, displayId, sortName, userUid);

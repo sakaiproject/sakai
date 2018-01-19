@@ -19,10 +19,17 @@
  *
  **********************************************************************************/
 
-
-
 package org.sakaiproject.tool.assessment.ui.bean.authz;
 
+import java.io.Serializable;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.Map;
+import java.util.List;
+
+import javax.servlet.http.HttpServletRequest;
+
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang.StringUtils;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.services.PersistenceService;
 import org.sakaiproject.tool.assessment.ui.listener.author.AuthorActionListener;
@@ -30,23 +37,13 @@ import org.sakaiproject.tool.assessment.ui.listener.select.SelectActionListener;
 import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.tool.assessment.data.dao.authz.AuthorizationData;
 import org.sakaiproject.tool.cover.ToolManager;
-import java.io.Serializable;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.Map;
-import java.util.List;
-import javax.servlet.http.HttpServletRequest;
 
-import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+@Slf4j
 public class AuthorizationBean implements Serializable {
   /**
 	 * 
 	 */
 	private static final long serialVersionUID = -2782949557257727817L;
-
-private static Logger log = LoggerFactory.getLogger(AuthorizationBean.class);
 
   private Map<String, Boolean> map = new ConcurrentHashMap<String, Boolean>();
   private boolean adminPrivilege = false;

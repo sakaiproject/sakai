@@ -451,5 +451,12 @@ public interface FormattedText {
       * @return the number format
       */
      public NumberFormat getNumberFormat();
+     
+     /**
+      * Method that will return only the body content, removing all of the tags outside of the body element of an HTML document
+      *
+      * @return the all contents within the HTML body
+      */
+     public String getHtmlBody(String text);
 
 }

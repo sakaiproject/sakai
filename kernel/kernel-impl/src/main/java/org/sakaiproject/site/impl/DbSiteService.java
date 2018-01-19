@@ -35,8 +35,8 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.db.api.SqlReader;
 import org.sakaiproject.db.api.SqlReaderFinishedException;
 import org.sakaiproject.db.api.SqlService;
@@ -56,11 +56,9 @@ import org.sakaiproject.util.StringUtil;
  * DbSiteService is an extension of the BaseSiteService with a database storage.
  * </p>
  */
+@Slf4j
 public abstract class DbSiteService extends BaseSiteService
 {
-	/** Our logger. */
-	private static Logger M_log = LoggerFactory.getLogger(DbSiteService.class);
-
 	/** Table name for sites. */
 	protected String m_siteTableName = "SAKAI_SITE";
 
@@ -169,11 +167,11 @@ public abstract class DbSiteService extends BaseSiteService
 			super.init();
 			setSiteServiceSql(sqlService().getVendor());
 
-			M_log.info("init(): site table: " + m_siteTableName + " external locks: " + m_useExternalLocks);
+			log.info("init(): site table: " + m_siteTableName + " external locks: " + m_useExternalLocks);
 		}
 		catch (Exception t)
 		{
-			M_log.warn("init(): ", t);
+			log.warn("init(): ", t);
 		}
 	}
 
@@ -960,7 +958,7 @@ public abstract class DbSiteService extends BaseSiteService
 			if (numParams == 0)
 			{
 				String msg = "Attempting to build a zero-length IN() clause for " + fieldName;
-				M_log.warn(msg);
+				log.warn(msg);
 				throw new IllegalArgumentException(msg);
 			}
 			StringBuilder params = new StringBuilder(fieldName + " IN (");
@@ -1225,7 +1223,7 @@ public abstract class DbSiteService extends BaseSiteService
 					}
 					catch (SQLException e)
 					{
-						M_log.warn("getSiteSkin: " + siteId + " : " + e);
+						log.warn("getSiteSkin: " + siteId + " : " + e);
 						return null;
 					}
 				}
@@ -1481,7 +1479,7 @@ public abstract class DbSiteService extends BaseSiteService
 					}
 					catch (SQLException e)
 					{
-						M_log.warn("findTool: " + id + " : " + e);
+						log.warn("findTool: " + id + " : " + e);
 						return null;
 					}
 				}
@@ -1489,7 +1487,7 @@ public abstract class DbSiteService extends BaseSiteService
 
 			if (found.size() > 1)
 			{
-				M_log.warn("findTool: multiple results for tool id: " + id);
+				log.warn("findTool: multiple results for tool id: " + id);
 			}
 
 			ToolConfiguration rv = null;
@@ -1536,7 +1534,7 @@ public abstract class DbSiteService extends BaseSiteService
 					}
 					catch (SQLException e)
 					{
-						M_log.warn("findPage: " + id + " : " + e);
+						log.warn("findPage: " + id + " : " + e);
 						return null;
 					}
 				}
@@ -1544,7 +1542,7 @@ public abstract class DbSiteService extends BaseSiteService
 
 			if (found.size() > 1)
 			{
-				M_log.warn("findPage: multiple results for page id: " + id);
+				log.warn("findPage: multiple results for page id: " + id);
 			}
 
 			SitePage rv = null;
@@ -1573,7 +1571,7 @@ public abstract class DbSiteService extends BaseSiteService
 
 			if (found.size() > 1)
 			{
-				M_log.warn("findPageSiteId: multiple results for page id: " + id);
+				log.warn("findPageSiteId: multiple results for page id: " + id);
 			}
 
 			String rv = null;
@@ -1598,7 +1596,7 @@ public abstract class DbSiteService extends BaseSiteService
 
 			if (found.size() > 1)
 			{
-				M_log.warn("findGroupSiteId: multiple results for page id: " + id);
+				log.warn("findGroupSiteId: multiple results for page id: " + id);
 			}
 
 			String rv = null;
@@ -1627,7 +1625,7 @@ public abstract class DbSiteService extends BaseSiteService
 
 			if (found.size() > 1)
 			{
-				M_log.warn("findToolSiteId: multiple results for page id: " + id);
+				log.warn("findToolSiteId: multiple results for page id: " + id);
 			}
 
 			String rv = null;
@@ -1701,7 +1699,7 @@ public abstract class DbSiteService extends BaseSiteService
 						}
 						else
 						{
-							M_log.warn("setSiteSecurity: invalid permission " + permission + " site: " + siteId + " user: " + userId);
+							log.warn("setSiteSecurity: invalid permission " + permission + " site: " + siteId + " user: " + userId);
 						}
 					}
 					catch (Exception ignore)
@@ -1834,17 +1832,17 @@ public abstract class DbSiteService extends BaseSiteService
 			// normalize the input parameters - remove any user in more than one set
 
 			// adjust visitSites to remove any that are in visitUnpSites or updateSites
-			Set<String> targetVisit = new HashSet<>();
+			Set targetVisit = new HashSet();
 			targetVisit.addAll(visitSites);
 			targetVisit.removeAll(visitUnpSites);
 			targetVisit.removeAll(updateSites);
 
 			// adjust visitUnpSites to remove any that are in updateSites
-			Set<String> targetUnp = new HashSet<>();
+			Set targetUnp = new HashSet();
 			targetUnp.addAll(visitUnpSites);
 			targetUnp.removeAll(updateSites);
 
-			Set<String> targetUpdate = updateSites;
+			Set targetUpdate = updateSites;
 
 			// read existing
 			String statement = siteServiceSql.getSiteId4Sql();
@@ -1852,9 +1850,9 @@ public abstract class DbSiteService extends BaseSiteService
 			fields[0] = userId;
 
 			// collect the current data in three sets, update, unp, visit
-			final Set<String> existingUpdate = new HashSet();
-			final Set<String> existingUnp = new HashSet();
-			final Set<String> existingVisit = new HashSet();
+			final Set existingUpdate = new HashSet();
+			final Set existingUnp = new HashSet();
+			final Set existingVisit = new HashSet();
 
 			m_sql.dbRead(statement, fields, new SqlReader()
 			{
@@ -1878,7 +1876,7 @@ public abstract class DbSiteService extends BaseSiteService
 						}
 						else
 						{
-							M_log.warn("setUserSecurity: invalid permission " + permission + " site: " + siteId + " user: " + userId);
+							log.warn("setUserSecurity: invalid permission " + permission + " site: " + siteId + " user: " + userId);
 						}
 					}
 					catch (Exception ignore)
@@ -1892,24 +1890,24 @@ public abstract class DbSiteService extends BaseSiteService
 			// compute the delete and insert sets for each of the three permissions
 
 			// delete if the site is in targetUpdate, but it is already in one of the other categories
-			Set<String> updDeletes = new HashSet<>();
+			Set updDeletes = new HashSet();
 			updDeletes.addAll(existingUnp);
 			updDeletes.addAll(existingVisit);
 			updDeletes.retainAll(targetUpdate);
 
 			// also delete if the user is in the existing and not in the target
-			Set<String> obsolete = new HashSet<>();
+			Set obsolete = new HashSet();
 			obsolete.addAll(existingUpdate);
 			obsolete.removeAll(targetUpdate);
 			updDeletes.addAll(obsolete);
 
 			// insert if the site is in targetUpdate, but is not already in update
-			Set<String> updInserts = new HashSet<>();
+			Set updInserts = new HashSet();
 			updInserts.addAll(targetUpdate);
 			updInserts.removeAll(existingUpdate);
 
 			// delete if the site is in targetUnp, but it is already in one of the other categories
-			Set<String> unpDeletes = new HashSet<>();
+			Set unpDeletes = new HashSet();
 			unpDeletes.addAll(existingUpdate);
 			unpDeletes.addAll(existingVisit);
 			unpDeletes.retainAll(targetUnp);
@@ -1921,12 +1919,12 @@ public abstract class DbSiteService extends BaseSiteService
 			unpDeletes.addAll(obsolete);
 
 			// insert if the site is in targetUnp, but is not already in unp
-			Set<String> unpInserts = new HashSet<>();
+			Set unpInserts = new HashSet();
 			unpInserts.addAll(targetUnp);
 			unpInserts.removeAll(existingUnp);
 
 			// delete if the site is in targetVisit, but it is already in one of the other categories
-			Set<String> visitDeletes = new HashSet<>();
+			Set visitDeletes = new HashSet();
 			visitDeletes.addAll(existingUpdate);
 			visitDeletes.addAll(existingUnp);
 			visitDeletes.retainAll(targetVisit);
@@ -1938,7 +1936,7 @@ public abstract class DbSiteService extends BaseSiteService
 			visitDeletes.addAll(obsolete);
 
 			// insert if the site is in targetVisit, but is not already in visit
-			Set<String> visitInserts = new HashSet<>();
+			Set visitInserts = new HashSet();
 			visitInserts.addAll(targetVisit);
 			visitInserts.removeAll(existingVisit);
 
@@ -1974,33 +1972,32 @@ public abstract class DbSiteService extends BaseSiteService
 
 				// insert
 				statement = siteServiceSql.getInsertUserSql();
+				fields = new Object[3];
+				fields[1] = userId;
 
-				List<Object[]> batchList = new ArrayList<>();
-				for (String siteId : updInserts)
+				fields[2] = Integer.valueOf(-1);
+				for (Iterator i = updInserts.iterator(); i.hasNext();)
 				{
-					fields = new Object[3];
+					String siteId = (String) i.next();
 					fields[0] = caseId(siteId);
-					fields[1] = userId;
-					fields[2] = Integer.valueOf(-1);
-					batchList.add(fields);
+					m_sql.dbWrite(statement, fields);
 				}
-				for (String siteId : unpInserts)
+
+				fields[2] = Integer.valueOf(0);
+				for (Iterator i = unpInserts.iterator(); i.hasNext();)
 				{
-					fields = new Object[3];
+					String siteId = (String) i.next();
 					fields[0] = caseId(siteId);
-					fields[1] = userId;
-					fields[2] = Integer.valueOf(0);
-					batchList.add(fields);
+					m_sql.dbWrite(statement, fields);
 				}
-				for (String siteId : visitInserts)
+
+				fields[2] = Integer.valueOf(1);
+				for (Iterator i = visitInserts.iterator(); i.hasNext();)
 				{
-					fields = new Object[3];
+					String siteId = (String) i.next();
 					fields[0] = caseId(siteId);
-					fields[1] = userId;
-					fields[2] = Integer.valueOf(1);
-					batchList.add(fields);
+					m_sql.dbWrite(statement, fields);
 				}
-				m_sql.dbWriteBatch(statement, batchList);
 			}
 		}
 
@@ -2098,7 +2095,7 @@ public abstract class DbSiteService extends BaseSiteService
 						String name = result.getString(2);
 						String value = result.getString(3);
 						if (pageId == null) {
-							M_log.warn("query returned a null pageid for site: " + site.getId() + " probably a orphaned DB record");
+							log.warn("query returned a null pageid for site: " + site.getId() + " probably a orphaned DB record");
 							return null;
 						}
 						
@@ -2114,7 +2111,7 @@ public abstract class DbSiteService extends BaseSiteService
 					}
 					catch (SQLException e)
 					{
-						M_log.warn("readSitePageProperties: " + e);
+						log.warn("readSitePageProperties: " + e);
 						return null;
 					}
 				}
@@ -2157,7 +2154,7 @@ public abstract class DbSiteService extends BaseSiteService
 					}
 					catch (SQLException e)
 					{
-						M_log.warn("readSitePageProperties: " + e);
+						log.warn("readSitePageProperties: " + e);
 						return null;
 					}
 				}
@@ -2200,7 +2197,7 @@ public abstract class DbSiteService extends BaseSiteService
 					}
 					catch (SQLException e)
 					{
-						M_log.warn("readSiteGroupProperties: " + e);
+						log.warn("readSiteGroupProperties: " + e);
 						return null;
 					}
 				}
@@ -2410,7 +2407,7 @@ public abstract class DbSiteService extends BaseSiteService
 					}
 					catch (SQLException e)
 					{
-						M_log.warn("readSiteGroups: " + site.getId() + " : " + e);
+						log.warn("readSiteGroups: " + site.getId() + " : " + e);
 						return null;
 					}
 				}
@@ -2523,7 +2520,7 @@ public abstract class DbSiteService extends BaseSiteService
 			}
 			catch (SQLException e)
 			{
-				M_log.warn("getSites, ID retrieval: " + e);
+				log.warn("getSites, ID retrieval: " + e);
 				return null;
 			}
 		}
@@ -2603,7 +2600,7 @@ public abstract class DbSiteService extends BaseSiteService
 			}
 			catch (SQLException e)
 			{
-				M_log.warn("readSqlResultRecord: " + e);
+				log.warn("readSqlResultRecord: " + e);
 				return null;
 			}
 		}

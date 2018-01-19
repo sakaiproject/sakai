@@ -27,12 +27,12 @@ import javax.swing.tree.TreeModel;
 
 import lombok.Getter;
 import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.quartz.StatefulJob;
+
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.delegatedaccess.logic.ProjectLogic;
 import org.sakaiproject.delegatedaccess.logic.SakaiProxy;
@@ -48,8 +48,8 @@ import org.sakaiproject.api.app.scheduler.ScheduledInvocationCommand;
  * @author Bryan Holladay
  *
  */
+@Slf4j
 public class DelegatedAccessShoppingPeriodJob implements StatefulJob, ScheduledInvocationCommand {
-	private static final Logger log = LoggerFactory.getLogger(DelegatedAccessShoppingPeriodJob.class);
 	@Getter @Setter
 	private ProjectLogic projectLogic;
 	@Getter @Setter	
@@ -99,7 +99,6 @@ public class DelegatedAccessShoppingPeriodJob implements StatefulJob, ScheduledI
 		}catch (Exception e) {
 			log.error(e.getMessage(), e);
 			StringWriter sw = new StringWriter();
-			e.printStackTrace(new PrintWriter(sw));
 			sakaiProxy.sendEmail("DelegatedAccessShoppingPeriodJob error", sw.toString());
 		}
 	}

@@ -44,7 +44,7 @@ import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.api.ToolConfiguration;
-import org.sakaiproject.time.api.TimeService;
+import org.sakaiproject.time.api.UserTimeService;
 import org.sakaiproject.tool.api.Placement;
 import org.sakaiproject.tool.api.Tool;
 
@@ -83,7 +83,7 @@ public class SakaiRequestParser {
 
 	private BaseURLProvider bup;
 
-	private TimeService timeservice;
+	private UserTimeService userTimeService;
 
 	private String urlEntityReference;
 
@@ -95,8 +95,8 @@ public class SakaiRequestParser {
 		this.siteservice = siteservice;
 	}
 
-	public void setTimeService(TimeService timeservice) {
-		this.timeservice = timeservice;
+	public void setUserTimeService(UserTimeService userTimeservice) {
+		this.userTimeService = userTimeservice;
 	}
 
 	public void setBaseURLProvider(BaseURLProvider bup) {
@@ -185,7 +185,7 @@ public class SakaiRequestParser {
 	}
 
 	public TimeZone getTimeZone() {
-		return timeservice.getLocalTimeZone();
+		return userTimeService.getLocalTimeZone();
 	}
 
 	public Placement getPlacement() {

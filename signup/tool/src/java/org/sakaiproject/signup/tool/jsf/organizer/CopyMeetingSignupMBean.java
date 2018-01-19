@@ -32,7 +32,9 @@ import javax.faces.event.ActionEvent;
 import javax.faces.event.ValueChangeEvent;
 import javax.faces.model.SelectItem;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
+
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.signup.logic.SignupUser;
 import org.sakaiproject.signup.logic.SignupUserActionException;
@@ -48,7 +50,6 @@ import org.sakaiproject.signup.tool.jsf.organizer.action.CreateMeetings;
 import org.sakaiproject.signup.tool.jsf.organizer.action.CreateSitesGroups;
 import org.sakaiproject.signup.tool.util.Utilities;
 import org.sakaiproject.util.DateFormatterUtil;
-//import com.sun.corba.se.spi.legacy.connection.GetEndPointInfoAgainException;
 
 /**
  * <p>
@@ -59,6 +60,7 @@ import org.sakaiproject.util.DateFormatterUtil;
  * 
  * </P>
  */
+@Slf4j
 public class CopyMeetingSignupMBean extends SignupUIBaseBean {
 
 	private SignupMeeting signupMeeting;
@@ -322,14 +324,14 @@ public class CopyMeetingSignupMBean extends SignupUIBaseBean {
 			this.signupMeeting.getSignupAttachments().clear();
 
 		} catch (PermissionException e) {
-			logger.info(Utilities.rb.getString("no.permission_create_event") + " - " + e.getMessage());
+			log.info(Utilities.rb.getString("no.permission_create_event") + " - " + e.getMessage());
 			Utilities.addErrorMessage(Utilities.rb.getString("no.permission_create_event"));
 			return ORGANIZER_MEETING_PAGE_URL;
 		} catch (SignupUserActionException ue) {
 			Utilities.addErrorMessage(ue.getMessage());
 			return COPTY_MEETING_PAGE_URL;
 		} catch (Exception e) {
-			logger.error(Utilities.rb.getString("error.occurred_try_again") + " - " + e.getMessage());
+			log.error(Utilities.rb.getString("error.occurred_try_again") + " - " + e.getMessage());
 			Utilities.addErrorMessage(Utilities.rb.getString("error.occurred_try_again"));
 			return ORGANIZER_MEETING_PAGE_URL;
 		}
@@ -371,7 +373,7 @@ public class CopyMeetingSignupMBean extends SignupUIBaseBean {
 		
 		//Set Title		
 		if (StringUtils.isNotBlank(title)){
-			logger.debug("title set: " + title);
+			log.debug("title set: " + title);
 			this.signupMeeting.setTitle(title);
 		}else{
 			validationError = true;

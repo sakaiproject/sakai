@@ -54,8 +54,8 @@ public class ToggleGradeItemsToolbarPanel extends BasePanel {
 		super.onInitialize();
 
 		// setup
-		final List<String> categoryNames = new ArrayList<String>();
-		final Map<String, List<Assignment>> categoryNamesToAssignments = new HashMap<String, List<Assignment>>();
+		final Map<String, Long> categoryNameToIdMap = new HashMap<>();
+		final Map<String, List<Assignment>> categoryNamesToAssignments = new HashMap<>();
 
 		final Map<String, Object> model = (Map<String, Object>) getDefaultModelObject();
 		final List<Assignment> assignments = (List<Assignment>) model.get("assignments");
@@ -66,21 +66,25 @@ public class ToggleGradeItemsToolbarPanel extends BasePanel {
 		for (final Assignment assignment : assignments) {
 
 			final String categoryName = getCategoryName(assignment, categoriesEnabled);
+			final Long categoryID = assignment.getCategoryId();
 
 			if (!categoryNamesToAssignments.containsKey(categoryName)) {
-				categoryNames.add(categoryName);
-				categoryNamesToAssignments.put(categoryName, new ArrayList<Assignment>());
+				categoryNameToIdMap.put(categoryName, categoryID);
+				categoryNamesToAssignments.put(categoryName, new ArrayList<>());
 			}
 
 			categoryNamesToAssignments.get(categoryName).add(assignment);
 		}
 
+		List<String> categoryNames = new ArrayList<>(categoryNameToIdMap.keySet());
 		add(new ListView<String>("categoriesList", categoryNames) {
 			private static final long serialVersionUID = 1L;
 
 			@Override
 			protected void populateItem(final ListItem<String> categoryItem) {
 				final String categoryName = categoryItem.getModelObject();
+				final Long categoryID = categoryNameToIdMap.get(categoryName);
+				final String categoryColor = settings.getCategoryColor(categoryName, categoryID);
 
 				WebMarkupContainer categoryFilter = new WebMarkupContainer("categoryFilter");
 				if (!categoriesEnabled) {
@@ -92,13 +96,11 @@ public class ToggleGradeItemsToolbarPanel extends BasePanel {
 				final GradebookPage gradebookPage = (GradebookPage) getPage();
 
 				final Label categoryLabel = new Label("category", categoryName);
-				categoryLabel.add(new AttributeModifier("data-category-color", settings.getCategoryColor(categoryName)));
+				categoryLabel.add(new AttributeModifier("data-category-color", categoryColor));
 				categoryFilter.add(categoryLabel);
 
 				categoryFilter.add(new WebMarkupContainer("categorySignal").add(new AttributeModifier("style",
-						String.format("background-color: %s; border-color: %s",
-								settings.getCategoryColor(categoryName),
-								settings.getCategoryColor(categoryName)))));
+						String.format("background-color: %s; border-color: %s", categoryColor, categoryColor))));
 
 				final CheckBox categoryCheckbox = new CheckBox("categoryCheckbox");
 				categoryCheckbox.add(new AttributeModifier("value", categoryName));
@@ -119,14 +121,12 @@ public class ToggleGradeItemsToolbarPanel extends BasePanel {
 						final WebMarkupContainer assignmentSignal = new WebMarkupContainer("assignmentSignal");
 						if (settings.isCategoriesEnabled()) {
 							assignmentSignal.add(new AttributeModifier("style",
-									String.format("background-color: %s; border-color: %s",
-											settings.getCategoryColor(getCategoryName(assignment, categoriesEnabled)),
-											settings.getCategoryColor(getCategoryName(assignment, categoriesEnabled)))));
+									String.format("background-color: %s; border-color: %s", categoryColor, categoryColor)));
 						}
 						assignmentItem.add(assignmentSignal);
 
 						final CheckBox assignmentCheckbox = new AjaxCheckBox("assignmentCheckbox",
-								Model.of(Boolean.valueOf(settings.isAssignmentVisible(assignment.getId())))) {
+								Model.of(settings.isAssignmentVisible(assignment.getId()))) {
 							@Override
 							protected void onUpdate(final AjaxRequestTarget target) {
 								GradebookUiSettings settings = gradebookPage.getUiSettings();
@@ -144,14 +144,12 @@ public class ToggleGradeItemsToolbarPanel extends BasePanel {
 				});
 
 				final WebMarkupContainer categoryScoreFilter = new WebMarkupContainer("categoryScore");
-				categoryScoreFilter.setVisible(categoryName != getString(GradebookPage.UNCATEGORISED));
+				categoryScoreFilter.setVisible(!StringUtils.equals(categoryName, getString(GradebookPage.UNCATEGORISED)));
 				categoryScoreFilter.add(new Label("categoryScoreLabel",
 						new StringResourceModel("label.toolbar.categoryscorelabel", null, new Object[] { categoryName })));
 
 				categoryScoreFilter.add(new WebMarkupContainer("categoryScoreSignal").add(new AttributeModifier("style",
-						String.format("background-color: %s; border-color: %s",
-								settings.getCategoryColor(categoryName),
-								settings.getCategoryColor(categoryName)))));
+						String.format("background-color: %s; border-color: %s", categoryColor, categoryColor))));
 
 				final CheckBox categoryScoreCheckbox = new AjaxCheckBox("categoryScoreCheckbox",
 						new Model<Boolean>(settings.isCategoryScoreVisible(categoryName))) {// Model.of(Boolean.valueOf(settings.isCategoryScoreVisible(category))))

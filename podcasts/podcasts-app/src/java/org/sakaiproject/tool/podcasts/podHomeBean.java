@@ -46,9 +46,9 @@ import javax.faces.event.ValueChangeEvent;
 import javax.faces.model.SelectItem;
 import javax.servlet.http.HttpServletRequest;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.fileupload.FileItem;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
 import org.sakaiproject.api.app.podcasts.PodcastPermissionsService;
 import org.sakaiproject.api.app.podcasts.PodcastService;
 import org.sakaiproject.api.app.podcasts.exception.PodcastException;
@@ -80,6 +80,7 @@ import org.sakaiproject.util.DateFormatterUtil;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.Validator;
 
+@Slf4j
 public class podHomeBean {
 	// Message Bundle handles
 	private static final String QUOTA_ALERT = "quota_alert";
@@ -257,13 +258,13 @@ public class podHomeBean {
 				return podcastService.getPodcastFileURL(resourceId);
 			} 
 			catch (PermissionException e) {
-				LOG.info("PermissionException getting file URL for "
+				log.info("PermissionException getting file URL for "
 						+ resourceId + "while displaying podcast file for site " + podcastService.getSiteId(), e);
 				setErrorMessage(PERMISSION_ALERT);
 
 			} 
 			catch (IdUnusedException e) {
-				LOG.info("IdUnusedException getting file URL for " + resourceId
+				log.info("IdUnusedException getting file URL for " + resourceId
 						+ " while displaying podcast file for site " + podcastService.getSiteId(), e);
 				setErrorMessage(ID_UNUSED_ALERT);
 
@@ -364,8 +365,6 @@ public class podHomeBean {
 	private PodcastService podcastService;
 	private PodcastPermissionsService podcastPermissionsService;
 
-	private Logger LOG = LoggerFactory.getLogger(podHomeBean.class);
-
 	// variables to hold miscellanous information
 	private List contents;
 	private String URL;
@@ -401,7 +400,7 @@ public class podHomeBean {
 		try {
 			//
 			// Get a list of tool ids and see if RESOURCE_TOOL_ID is in the returned Collection			
-			LOG.debug("Checking for presence of Sakai Resources tool using RESOURCE_TOOL_ID = " + RESOURCE_TOOL_ID);
+			log.debug("Checking for presence of Sakai Resources tool using RESOURCE_TOOL_ID = " + RESOURCE_TOOL_ID);
 			Site thisSite = SiteService.getSite(ToolManager.getCurrentPlacement().getContext());
 
 			Collection toolsInSite = thisSite.getTools(RESOURCE_TOOL_ID);
@@ -411,7 +410,7 @@ public class podHomeBean {
 			}
 		} 
 		catch (IdUnusedException e) {
-			LOG.error("No Site found while trying to check if site has Resources tool.", e);
+			log.error("No Site found while trying to check if site has Resources tool.", e);
 			
 			// Only want to display this message if they are instructors or administrators
 			// so if student say it exists		
@@ -463,13 +462,13 @@ public class podHomeBean {
 
 			}
 			catch (InUseException e) {
-				LOG.info("InUseException while attempting to determine if podcast folder exists."
+				log.info("InUseException while attempting to determine if podcast folder exists."
 								+ " for site " + podcastService.getSiteId(), e);
 				setErrorMessage(INTERNAL_ERROR_ALERT);
 
 			}
 			catch (PermissionException e) {
-				LOG.warn("PermissionException while attempting to determine if podcast folder exists."
+				log.warn("PermissionException while attempting to determine if podcast folder exists."
 							+ " for site " + podcastService.getSiteId(), e);
 				setErrorMessage(PERMISSION_ALERT);
 
@@ -660,11 +659,11 @@ public class podHomeBean {
 				filename = url.substring(url.lastIndexOf("/")+1);
 			}
 			catch (PermissionException e) {
-				LOG.warn("PermissionException getting podcast with id " + podcastResource.getId() + " while constructing DecoratedPodcastBean for site "
+				log.warn("PermissionException getting podcast with id " + podcastResource.getId() + " while constructing DecoratedPodcastBean for site "
 						+ podcastService.getSiteId() + ". " + e.getMessage(), e);
 			}
 			catch (IdUnusedException e) {
-				LOG.warn("IdUnusedException getting podcast with id " + podcastResource.getId() + " while constructing DecoratedPodcastBean for site "
+				log.warn("IdUnusedException getting podcast with id " + podcastResource.getId() + " while constructing DecoratedPodcastBean for site "
 						+ podcastService.getSiteId() + ". " + e.getMessage(), e);
 			}
 			
@@ -753,25 +752,25 @@ public class podHomeBean {
 
 		} 
 		catch (PermissionException e) {
-			LOG.warn("PermissionException getting podcasts for display in site "
+			log.warn("PermissionException getting podcasts for display in site "
 						+ podcastService.getSiteId() + ". " + e.getMessage(), e);
 			setErrorMessage(PERMISSION_ALERT);
 
 		} 
 		catch (InUseException e) {
-			LOG.warn("InUseException while getting podcasts for display"
+			log.warn("InUseException while getting podcasts for display"
 						+ podcastService.getSiteId() + ". " + e.getMessage(), e);
 			setErrorMessage(INTERNAL_ERROR_ALERT);
 
 		} 
 		catch (IdInvalidException e) {
-			LOG.error("IdInvalidException while getting podcasts for display "
+			log.error("IdInvalidException while getting podcasts for display "
 						+ podcastService.getSiteId() + ". " + e.getMessage(), e);
 			setErrorMessage(ID_INVALID_ALERT);
 
 		} 
 		catch (InconsistentException e) {
-			LOG.error("InconsistentException while getting podcasts for display "
+			log.error("InconsistentException while getting podcasts for display "
 						+ podcastService.getSiteId() + ". " + e.getMessage(), e);
 			setErrorMessage(INTERNAL_ERROR_ALERT);
 			
@@ -779,13 +778,13 @@ public class podHomeBean {
 
 		} 
 		catch (IdUsedException e) {
-			LOG.warn("IdUsedException while gettting podcasts for display "
+			log.warn("IdUsedException while gettting podcasts for display "
 						+ podcastService.getSiteId() + ". " + e.getMessage(), e);
 			setErrorMessage(ID_UNUSED_ALERT);
 
 		}
 		catch (IdUnusedException e) {
-			LOG.warn("IdUnusedException while determining if Podcasts folder has HIDDEN permission set" 
+			log.warn("IdUnusedException while determining if Podcasts folder has HIDDEN permission set" 
 						+ " for site " + podcastService.getSiteId() + ". " + e.getMessage(), e);
 		}
 
@@ -811,11 +810,11 @@ public class podHomeBean {
 
 				} 
 				catch (EntityPropertyNotDefinedException e) {
-					LOG.error("EntityPropertyNotDefinedException while creating DecoratedPodcastBean "
+					log.error("EntityPropertyNotDefinedException while creating DecoratedPodcastBean "
 									+ " for site "+ podcastService.getSiteId() + ". SKIPPING..." + e.getMessage(), e);
 				}
 				catch (EntityPropertyTypeException e) {
-					LOG.error("EntityPropertyTypeException while creating DecoratedPodcastBean "
+					log.error("EntityPropertyTypeException while creating DecoratedPodcastBean "
 									+ " for site "+ podcastService.getSiteId() + ". SKIPPING..." + e.getMessage(), e);
 				}
 			}
@@ -851,7 +850,7 @@ public class podHomeBean {
 				
 			} 
 			catch (PermissionException e) {
-				LOG.warn("PermissionException while determining if there are files in the podcast folder "
+				log.warn("PermissionException while determining if there are files in the podcast folder "
 								+ " for site " + podcastService.getSiteId() + ". " + e.getMessage(), e);
 				setErrorMessage(PERMISSION_ALERT);
 			}
@@ -900,23 +899,23 @@ public class podHomeBean {
 
 			} 
 			catch (EntityPropertyNotDefinedException e) {
-				LOG.error("EntityPropertyNotDefinedException while attempting to fill selectedPodcast property "
+				log.error("EntityPropertyNotDefinedException while attempting to fill selectedPodcast property "
 								+ " for site " + podcastService.getSiteId() + ". SKIPPING..." + e.getMessage(), e);
 				throw new PodcastException(e);
 
 			} 
 			catch (EntityPropertyTypeException e) {
-				LOG.error("EntityPropertyTypeException while attempting to fill selectedPodcast property "
+				log.error("EntityPropertyTypeException while attempting to fill selectedPodcast property "
 								+ " for site " + podcastService.getSiteId() + ". SKIPPING..." + e.getMessage(), e);
 				throw new PodcastException(e);
 
 			}
 			catch (IdUnusedException e) {
-				LOG.error("IdUnusedException while attempting to determine if Podcasts folder is hidden for site " 
+				log.error("IdUnusedException while attempting to determine if Podcasts folder is hidden for site " 
 							+ podcastService.getSiteId() + ". SKIPPING..." + e.getMessage(), e);
 			}
 			catch (PermissionException e) {
-				LOG.error("PermissionException while attempting to determine if Podcasts folder is hidden for site " 
+				log.error("PermissionException while attempting to determine if Podcasts folder is hidden for site " 
 						+ podcastService.getSiteId() + ". SKIPPING..." + e.getMessage(),e );
 			}
 		}
@@ -1151,7 +1150,7 @@ public class podHomeBean {
 		Object oldValue = event.getOldValue();
 		PhaseId phaseId = event.getPhaseId();
 		Object source = event.getSource();
-//		System.out.println("processFileUpload() event: " + event
+//		log.info("processFileUpload() event: " + event
 //				+ " component: " + component + " newValue: " + newValue
 //				+ " oldValue: " + oldValue + " phaseId: " + phaseId
 //				+ " source: " + source);
@@ -1166,7 +1165,7 @@ public class podHomeBean {
 		filename = Validator.getFileName(item.getName());
 		fileSize = item.getSize();
 		fileContentType = item.getContentType();
-//		System.out.println("processFileUpload(): item: " + item
+//		log.info("processFileUpload(): item: " + item
 //				+ " fieldname: " + fieldName + " filename: " + filename
 //				+ " length: " + fileSize);
 
@@ -1176,7 +1175,7 @@ public class podHomeBean {
 			
 		} 
 		catch (IOException e) {
-			LOG.warn("IOException while attempting to set BufferedInputStream to upload "
+			log.warn("IOException while attempting to set BufferedInputStream to upload "
 							+ filename + " from site " + podcastService.getSiteId() + ". "
 									 + e.getMessage(), e);
 			setErrorMessage(INTERNAL_ERROR_ALERT);
@@ -1206,7 +1205,7 @@ public class podHomeBean {
 				
 			} 
 			catch (IOException e) {
-				LOG.error("IOException while attempting the actual upload file " + filename + " during processAdd "
+				log.error("IOException while attempting the actual upload file " + filename + " during processAdd "
 								+ " for site " + podcastService.getSiteId() + ". " + e.getMessage(), e);
 				setErrorMessage(IO_ALERT);
 				
@@ -1219,7 +1218,7 @@ public class podHomeBean {
 					if (fileAsStream != null)
 						fileAsStream.close();
 				} catch (IOException ioe) {
-					LOG.warn("IOException error while closing the stream:" + ioe);
+					log.warn("IOException error while closing the stream:" + ioe);
 				}
 			}
 			try {
@@ -1230,7 +1229,7 @@ public class podHomeBean {
 				} 
 				catch (DateTimeParseException e1) {
 					// Now it's invalid, so set error message and stay on page
-					LOG.warn("DateTimeParseException attempting to convert " + date
+					log.warn("DateTimeParseException attempting to convert " + date
 							+ " both valid ways. " + e1.getMessage(), e1);
 
 					displayInvalidDateErrMsg = true;
@@ -1254,14 +1253,14 @@ public class podHomeBean {
 				try {
 					fileAsStream = null;	
 				} catch (Exception e){
-					LOG.warn("Exception error while setting the stream to null: " + e);
+					log.warn("Exception error while setting the stream to null: " + e);
 				}
 				finally {
 					try {
 						if (fileAsStream != null)
 							fileAsStream.close();
 					} catch (IOException ioe) {
-						LOG.warn("IOException error while closing the stream:" + ioe);
+						log.warn("IOException error while closing the stream:" + ioe);
 					}
 				}
 				
@@ -1270,43 +1269,43 @@ public class podHomeBean {
 
 			} 
 			catch (OverQuotaException e) {
-				LOG.warn("OverQuotaException while attempting to actually add the new podcast "
+				log.warn("OverQuotaException while attempting to actually add the new podcast "
 								+ " for site " + podcastService.getSiteId() + ". " + e.getMessage(), e);
 				setErrorMessage(QUOTA_ALERT);
 
 			} 
 			catch (ServerOverloadException e) {
-				LOG.info("ServerOverloadException while attempting to actually add the new podcast "
+				log.info("ServerOverloadException while attempting to actually add the new podcast "
 								+ " for site " + podcastService.getSiteId() + ". " + e.getMessage(), e);
 				setErrorMessage(INTERNAL_ERROR_ALERT);
 
 			} 
 			catch (InconsistentException e) {
-				LOG.error("InconsistentException while attempting to actually add the new podcast "
+				log.error("InconsistentException while attempting to actually add the new podcast "
 								+ " for site " + podcastService.getSiteId() + ". " + e.getMessage(), e);
 				throw new PodcastException(e);
 
 			} 
 			catch (IdInvalidException e) {
-				LOG.error("IdInvalidException while attempting to actually add the new podcast "
+				log.error("IdInvalidException while attempting to actually add the new podcast "
 								+ " for site " + podcastService.getSiteId() + ". " + e.getMessage(), e);
 				setErrorMessage(ID_INVALID_ALERT);
 
 			} 
 			catch (IdLengthException e) {
-				LOG.warn("IdLengthException while attempting to actually add the new podcast "
+				log.warn("IdLengthException while attempting to actually add the new podcast "
 								+ " for site " + podcastService.getSiteId() + ". " + e.getMessage(), e);
 				setErrorMessage(LENGTH_ALERT);
 
 			} 
 			catch (PermissionException e) {
-				LOG.warn("PermissionException while attempting to actually add the new podcast "
+				log.warn("PermissionException while attempting to actually add the new podcast "
 								+ " for site " + podcastService.getSiteId() + ". " + e.getMessage(), e);
 				setErrorMessage(PERMISSION_ALERT);
 
 			} 
 			catch (IdUniquenessException e) {
-				LOG.error("IdUniquenessException while attempting to actually add the new podcast "
+				log.error("IdUniquenessException while attempting to actually add the new podcast "
 								+ " for site " + podcastService.getSiteId() + ". " + e.getMessage(), e);
 				setErrorMessage(ID_USED_ALERT);
 
@@ -1339,14 +1338,14 @@ public class podHomeBean {
 		try {
 			fileAsStream = null;	
 		} catch (Exception e){
-			LOG.warn("Exception error while setting the stream to null: " + e);
+			log.warn("Exception error while setting the stream to null: " + e);
 		}
 		finally {
 			try {
 				if (fileAsStream != null)
 					fileAsStream.close();
 			} catch (IOException ioe) {
-				LOG.warn("IOException error while closing the stream:" + ioe);
+				log.warn("IOException error while closing the stream:" + ioe);
 			}
 		}
 		filename = "";
@@ -1406,7 +1405,7 @@ public class podHomeBean {
 					}
 				} 
 				catch (IOException e) {
-					LOG.error("IOException while attempting to get file contents when revising podcast for "
+					log.error("IOException while attempting to get file contents when revising podcast for "
 									+ filename + " in site " + podcastService.getSiteId() + ". " + e.getMessage(), e);
 					setErrorMessage(IO_ALERT);
 					return "podcastRevise";
@@ -1417,7 +1416,7 @@ public class podHomeBean {
 						if (fileAsStream != null)
 							fileAsStream.close();
 					} catch (IOException ioe) {
-						LOG.warn("IOException error while closing the stream:" + ioe);
+						log.warn("IOException error while closing the stream:" + ioe);
 					}
 				}
 			}
@@ -1475,38 +1474,38 @@ public class podHomeBean {
 */			
 		} 
 		catch (DateTimeParseException e1) {
-			LOG.error("DateTimeParseException attempting to convert date for " + selectedPodcast.title
+			log.error("DateTimeParseException attempting to convert date for " + selectedPodcast.title
 							+ " for site " + podcastService.getSiteId() + ". " + e1.getMessage(), e1);
 			date = "";
 			displayInvalidDateErrMsg = true;
 			return "podcastRevise";
 		}
 		catch (PermissionException e) {
-			LOG.error("PermissionException while revising podcast "
+			log.error("PermissionException while revising podcast "
 					+ selectedPodcast.title + " for site " + podcastService.getSiteId() + ". " + e.getMessage(), e);
 			setErrorMessage(PERMISSION_ALERT);
 			
 		} 
 		catch (InUseException e) {
-			LOG.warn("InUseException while revising podcast "
+			log.warn("InUseException while revising podcast "
 					+ selectedPodcast.title + " for site " + podcastService.getSiteId() + ". " + e.getMessage(), e);
 			setErrorMessage(INTERNAL_ERROR_ALERT);
 
 		} 
 		catch (OverQuotaException e) {
-			LOG.warn("OverQuotaException while revising podcast "
+			log.warn("OverQuotaException while revising podcast "
 					+ selectedPodcast.title + " for site " + podcastService.getSiteId() + ". " + e.getMessage(), e);
 			setErrorMessage(QUOTA_ALERT);
 
 		} 
 		catch (ServerOverloadException e) {
-			LOG.warn("ServerOverloadException while revising podcast "
+			log.warn("ServerOverloadException while revising podcast "
 					+ selectedPodcast.title + " for site " + podcastService.getSiteId() + ". " + e.getMessage(), e);
 			setErrorMessage(INTERNAL_ERROR_ALERT);
 
 		} 
 		catch (IdLengthException e) {
-			LOG.warn("IdLengthException while revising podcast with filename changed from "
+			log.warn("IdLengthException while revising podcast with filename changed from "
 							+ selectedPodcast.filename + " to " + filename
 							+ " for site " + podcastService.getSiteId() + ". " + e.getMessage(), e);
 			setErrorMessage(LENGTH_ALERT);
@@ -1517,7 +1516,7 @@ public class podHomeBean {
 			// catches	IdUnusedException	TypeException
 			//			IdInvalidException	InconsistentException
 			//			IdUniquenessException
-			LOG.error(e.getMessage() + " while revising podcast with filename changed from "
+			log.error(e.getMessage() + " while revising podcast with filename changed from "
 							+ selectedPodcast.filename + " to " + filename
 							+ " for site " + podcastService.getSiteId() + ". " + e.getMessage(), e);
 			setErrorMessage(INTERNAL_ERROR_ALERT);
@@ -1531,14 +1530,14 @@ public class podHomeBean {
 		try {
 			fileAsStream = null;	
 		} catch (Exception e){
-			LOG.warn("Exception error while setting the stream to null: " + e);
+			log.warn("Exception error while setting the stream to null: " + e);
 		}
 		finally {
 			try {
 				if (fileAsStream != null)
 					fileAsStream.close();
 			} catch (IOException ioe) {
-				LOG.warn("IOException error while closing the stream:" + ioe);
+				log.warn("IOException error while closing the stream:" + ioe);
 			}
 		}
 		filename = "";
@@ -1558,14 +1557,14 @@ public class podHomeBean {
 		try {
 			fileAsStream = null;	
 		} catch (Exception e){
-			LOG.warn("Exception error while setting the stream to null: " + e);
+			log.warn("Exception error while setting the stream to null: " + e);
 		}
 		finally {
 			try {
 				if (fileAsStream != null)
 					fileAsStream.close();
 			} catch (IOException ioe) {
-				LOG.warn("IOException error while closing the stream:" + ioe);
+				log.warn("IOException error while closing the stream:" + ioe);
 			}
 		}
 		filename = "";
@@ -1586,14 +1585,14 @@ public class podHomeBean {
 			
 		} 
 		catch (PermissionException e) {
-			LOG.error("PermissionException while deleting podcast "
+			log.error("PermissionException while deleting podcast "
 							+ selectedPodcast.title + " from site " + podcastService.getSiteId() 
 							+ ". " + e.getMessage(), e);
 			setErrorMessage(PERMISSION_ALERT);
 
 		} 
 		catch (InUseException e) {
-			LOG.warn("InUseException while deleting podcast "
+			log.warn("InUseException while deleting podcast "
 					+ selectedPodcast.title + " from site " + podcastService.getSiteId() 
 					+ ". " + e.getMessage(), e);
 			setErrorMessage(INTERNAL_ERROR_ALERT);
@@ -1601,7 +1600,7 @@ public class podHomeBean {
 		} 
 		catch (Exception e) {
 			// For IdUnusedException and TypeException
-			LOG.error(e.getMessage() + " while deleting podcast "
+			log.error(e.getMessage() + " while deleting podcast "
 					+ selectedPodcast.title + " from site " + podcastService.getSiteId() 
 					+ ". " + e.getMessage(), e);
 			setErrorMessage(INTERNAL_ERROR_ALERT);
@@ -1766,7 +1765,7 @@ public class podHomeBean {
 	 * Returns whether a file too large tried to be uploaded. (SAK-9822) 
 	 */
 	public boolean getUploadStatus() {
-		LOG.debug("getUploadStatus()");
+		log.debug("getUploadStatus()");
 		FacesContext context = FacesContext.getCurrentInstance();
 		String status = (String) ((HttpServletRequest) context.getExternalContext().getRequest()).getAttribute("upload.status");
 

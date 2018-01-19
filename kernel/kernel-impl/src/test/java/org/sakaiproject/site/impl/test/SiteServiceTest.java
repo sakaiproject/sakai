@@ -15,14 +15,17 @@
  */
 package org.sakaiproject.site.impl.test;
 
+import static org.junit.Assert.assertEquals;
+
 import java.util.Set;
 import java.util.TreeSet;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
+
 import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.exception.IdInvalidException;
@@ -31,7 +34,10 @@ import org.sakaiproject.exception.IdUsedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
+import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.site.impl.BaseSitePage;
+import org.sakaiproject.site.impl.BaseSiteService;
 import org.sakaiproject.test.SakaiKernelTestBase;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.SessionManager;
@@ -41,9 +47,8 @@ import org.sakaiproject.user.api.UserEdit;
 import org.sakaiproject.user.api.UserIdInvalidException;
 import org.sakaiproject.user.api.UserPermissionException;
 
+@Slf4j
 public class SiteServiceTest extends SakaiKernelTestBase {
-	private static final Logger log = LoggerFactory.getLogger(SiteServiceTest.class);
-
 	@BeforeClass
 	public static void beforeClass() {
 		try {
@@ -66,11 +71,9 @@ public class SiteServiceTest extends SakaiKernelTestBase {
 		} catch (IdInvalidException e) {
 			log.info("when passed a null id the test correctly responded with an IdInvalidException");
 		} catch (IdUsedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			log.error(e.getMessage(), e);
 		} catch (PermissionException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			log.error(e.getMessage(), e);
 		} 
 
 
@@ -104,7 +107,7 @@ public class SiteServiceTest extends SakaiKernelTestBase {
 			siteService.setUserSecurity("admin", siteSet, siteSet, siteSet);
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			log.error(e.getMessage(), e);
 			Assert.fail();
 		}
 	}
@@ -175,11 +178,40 @@ public class SiteServiceTest extends SakaiKernelTestBase {
 			Assert.fail("Should not be able to save a group without a title");
 		}
 		catch (IllegalArgumentException e) {
-			e.printStackTrace();
+			log.error(e.getMessage(), e);
 		}
 		catch (RuntimeException e) {
-			e.printStackTrace();
+			log.error(e.getMessage(), e);
 			Assert.fail();
 		}
+	}
+	
+	@Test
+	public void testPagePosition() throws Exception{
+		BaseSiteService siteService = (BaseSiteService) getService(SiteService.class);
+		workAsUser("admin", "admin");
+
+		Site site = siteService.addSite("test", "test");
+		//Add 5 pages
+		SitePage page1 = site.addPage();
+		SitePage page2 = site.addPage();
+		SitePage page3 = site.addPage();
+
+		// Just set some positions that should work fine title property set.
+		page1.setPosition(0);
+		page2.setPosition(1);
+		page3.setPosition(10);
+		//Assert it goes at the end and other pages are still in position
+		assertEquals(0, page1.getPosition());
+		assertEquals(1, page2.getPosition());
+		assertEquals(2, page3.getPosition());
+		//Now put page 1 at the end
+		page1.setPosition(10);
+
+		//Assert page one is at the end now
+		assertEquals(2, page1.getPosition());
+		assertEquals(0, page2.getPosition());
+		assertEquals(1, page3.getPosition());
+
 	}
 }

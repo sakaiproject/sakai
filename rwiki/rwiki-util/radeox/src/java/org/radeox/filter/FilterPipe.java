@@ -28,8 +28,8 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+
 import org.radeox.api.engine.context.InitialRenderContext;
 import org.radeox.api.engine.context.RenderContext;
 import org.radeox.engine.context.BaseInitialRenderContext;
@@ -41,10 +41,9 @@ import org.radeox.filter.context.FilterContext;
  * 
  * @version $Id$
  */
-
+@Slf4j
 public class FilterPipe
 {
-	private static Logger log = LoggerFactory.getLogger(FilterPipe.class);
 
 	public final static String FIRST_IN_PIPE = "all";
 

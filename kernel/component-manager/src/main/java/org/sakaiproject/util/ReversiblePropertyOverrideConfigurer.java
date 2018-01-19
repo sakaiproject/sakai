@@ -26,8 +26,6 @@ import org.springframework.beans.factory.config.PropertyOverrideConfigurer;
  * (For example "myBean@the.property" instead of "the.property@myBean".)
  */
 public class ReversiblePropertyOverrideConfigurer extends PropertyOverrideConfigurer {
-    //private static Logger log = LoggerFactory.getLogger(ReversiblePropertyOverrideConfigurer.class);
-
     private boolean beanNameAtEnd = true;
 	private String beanNameSeparator;	// Private in the superclass, so we need to stash our own copy.
 

@@ -14,6 +14,9 @@
 
 <body>
 <div class="portletBody">
+    <div rsf:id="error-row:">
+        <div class="alertMessage" rsf:id="error">We Have Errors!</div>
+    </div>
     <div rsf:id="content:">
         <h3 rsf:id="msg=import1.title">import1.title</h3>
         <b><p rsf:id="msg=import1.instr.req.header">import1.instr.req.header</p></b>
@@ -22,10 +25,21 @@
 			<li rsf:id="import1.instr.req.2">import1.instr.req.2</li>
 			<li rsf:id="import1.instr.req.3">import1.instr.req.1</li>
 		</ul>
+        <h3>For example:</h3>
+        <div id="example">
+            <pre><code>group1, username1<br/>group2, username1<br/>group2, user name2</code></pre>
+        </div>
         <p class="alertMessage" rsf:id="import1.error">import1.error</p>
         <br />
         <form rsf:id="uploadform" method="post" enctype="multipart/form-data">
-        <input type="file" name="groupfile"/>
+        <div id="groupuploadtextarea">
+             <p rsf:id="msg=import1.textarea.header">import1.textarea.header</p>
+             <textarea rsf:id="groupuploadtextarea" name="groupuploadtextarea" cols="45" rows="10" wrap="virtual"></textarea>
+        </div>
+        <div id="groupfile">
+            <p rsf:id="msg=import1.textarea.header.file">import1.textarea.header.file</p>
+            <input type="file" name="groupfile"/>
+        </div>
         <br />
         <p class="act">
             <input accesskey ="s" rsf:id="continue" id="continue" class="active" value="Upload and Check" type="submit" onclick="SPNR.disableControlsAndSpin( this, null );" />

@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<content allowattach="true"
+         allowreview="false"
+         allowstudentview="false"
+         attachment0="/content/attachment/BVCC_942A_9301/Assignments/ea1201e5-cae4-4c93-bda8-85a2218d2560/AssignmentGraph.png"
+         attachment1="/content/attachment/BVCC_942A_9301/Assignments/4d99b0ae-26c0-45ac-8386-3f1b19e9179f/SakaiDB.png"
+         attachment2="/content/attachment/BVCC_942A_9301/Assignments/9ab07af7-d387-48b8-bfb2-61a77d406150/db_asn.jpg"
+         attachment3="/content/attachment/BVCC_942A_9301/Assignments/4b9bd4d7-2053-4d95-b6a2-90d45b8498ca/accusamus-velit-facere-dolorem_3778.txt"
+         checkInstitution="false"
+         checkInternet="false"
+         checkPublications="false"
+         checkTurnitin="false"
+         context="BVCC_942A_9301"
+         datecreated="20180102202436339"
+         excludeBibliographic="false"
+         excludeQuoted="false"
+         excludeType="0"
+         excludeValue="1"
+         generateOriginalityReport="0"
+         groupproject="true"
+         hideduedate="true"
+         honorpledge="2"
+         id="eb1ea4f1-1a4a-46b9-aaea-928db68b005f"
+         indivgraded="false"
+         instructions="Q29tcGxleCBBc3NpZ25tZW50IGZvciBub24gZ3JvdXBz"
+         instructions-html="PHA+Q29tcGxleCBBc3NpZ25tZW50IGZvciBub24gZ3JvdXBzPC9wPg=="
+         lastmod="20180102202436339"
+         numberofattachments="4"
+         numberofauthors="0"
+         releasegrades="false"
+         scaled_factor="100"
+         scaled_maxgradepoint="2500"
+         submissiontype="3"
+         submitReviewRepo="0"
+         title="Complex Assignment"
+         typeofgrade="3">
+    <properties>
+        <property enc="BASE64"
+                  name="CHEF:creator"
+                  value="Y2I0ZmZhYmQtNmQ5YS00ZTVhLTk5NjktZGUxYmRhMmVmYmZi"/>
+        <property enc="BASE64"
+                  name="CHEF:modifiedby"
+                  value="Y2I0ZmZhYmQtNmQ5YS00ZTVhLTk5NjktZGUxYmRhMmVmYmZi"/>
+        <property enc="BASE64"
+                  name="DAV:getlastmodified"
+                  value="MjAxODAxMDIyMDI0MzYzNDY="/>
+        <property enc="BASE64"
+                  name="DAV:creationdate"
+                  value="MjAxODAxMDIyMDI0MzYzMzk="/>
+    </properties>
+</content>

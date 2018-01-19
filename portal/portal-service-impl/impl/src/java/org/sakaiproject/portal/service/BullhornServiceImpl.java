@@ -16,12 +16,15 @@
 package org.sakaiproject.portal.service;
 
 import java.lang.reflect.Method;
+import java.time.Instant;
 import java.util.*;
 import java.sql.ResultSet;
 
 import org.apache.commons.lang.StringUtils;
 
+import org.hibernate.HibernateException;
 import org.hibernate.SessionFactory;
+
 import org.sakaiproject.announcement.api.AnnouncementMessage;
 import org.sakaiproject.announcement.api.AnnouncementMessageHeader;
 import org.sakaiproject.announcement.api.AnnouncementService;
@@ -130,7 +133,7 @@ public class BullhornServiceImpl implements BullhornService, Observer {
 
     private boolean commonsInstalled = false;
 
-    private Cache countCache = null;
+    private Cache<String, Map> countCache = null;
 
     public void init() {
 
@@ -183,7 +186,7 @@ public class BullhornServiceImpl implements BullhornService, Observer {
             sqlService.ddl(this.getClass().getClassLoader(), "bullhorn_tables");
         }
 
-        countCache = memoryService.newCache("bullhorn_alert_count_cache");
+        countCache = memoryService.getCache("bullhorn_alert_count_cache");
     }
 
     public void update(Observable o, final Object arg) {
@@ -194,7 +197,12 @@ public class BullhornServiceImpl implements BullhornService, Observer {
             if (HANDLED_EVENTS.contains(event)) {
                 // About to start a new thread that expects the changes in this hibernate session
                 // to have been persisted, so we flush.
-                sessionFactory.getCurrentSession().flush();
+                try {
+                    sessionFactory.getCurrentSession().flush();
+                } catch (HibernateException he) {
+                    // This will be thrown if there is no current Hibernate session. Nothing to do.
+                }
+
                 new Thread(() -> {
                     String ref = e.getResource();
                     String context = e.getContext();
@@ -296,8 +304,8 @@ public class BullhornServiceImpl implements BullhornService, Observer {
                             try {
                                 Assignment assignment = assignmentService.getAssignment(assignmentId);
                                 switchToNull();
-                                Date openTime = assignment.getOpenDate();
-                                if (openTime == null || openTime.getTime() < (new Date().getTime())) {
+                                Instant openTime = assignment.getOpenDate();
+                                if (openTime == null || openTime.isBefore(Instant.now())) {
                                     Site site = siteService.getSite(siteId);
                                     String title = assignment.getTitle();
                                     String url = assignmentService.getDeepLink(siteId, assignmentId);

@@ -40,7 +40,6 @@ import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.gradebookng.business.GbRole;
 import org.sakaiproject.gradebookng.business.model.GbGroup;
 import org.sakaiproject.gradebookng.business.util.GbStopWatch;
-import org.sakaiproject.gradebookng.business.util.MessageHelper;
 import org.sakaiproject.gradebookng.tool.actions.DeleteAssignmentAction;
 import org.sakaiproject.gradebookng.tool.actions.EditAssignmentAction;
 import org.sakaiproject.gradebookng.tool.actions.EditCommentAction;
@@ -143,7 +142,7 @@ public class GradebookPage extends BasePage {
 		stopwatch.start();
 		stopwatch.time("GradebookPage init", stopwatch.getTime());
 
-		this.form = new Form<Void>("form");
+		this.form = new Form<>("form");
 		add(this.form);
 
 		form.add(new AttributeModifier("data-siteid", businessService.getCurrentSiteId()));
@@ -196,10 +195,7 @@ public class GradebookPage extends BasePage {
 
 			@Override
 			public boolean isVisible() {
-				if (GradebookPage.this.role != GbRole.INSTRUCTOR) {
-					return false;
-				}
-				return true;
+				return GradebookPage.this.role == GbRole.INSTRUCTOR;
 			}
 		};
 		addGradeItem.setDefaultFormProcessing(false);
@@ -404,6 +400,10 @@ public class GradebookPage extends BasePage {
 			groupFilter.setVisible(false);
 		}
 
+		WebMarkupContainer studentFilter = new WebMarkupContainer("studentFilter");
+		studentFilter.setVisible(this.hasAssignmentsAndGrades);
+		toolbar.add(studentFilter);
+
 		this.form.add(groupFilter);
 
 		final Map<String, Object> togglePanelModel = new HashMap<>();
@@ -411,9 +411,8 @@ public class GradebookPage extends BasePage {
 		togglePanelModel.put("settings", settings);
 		togglePanelModel.put("categoriesEnabled", categoriesEnabled);
 
-		final ToggleGradeItemsToolbarPanel gradeItemsTogglePanel = new ToggleGradeItemsToolbarPanel("gradeItemsTogglePanel",
-				Model.ofMap(togglePanelModel));
-		// gradeItemsTogglePanel.setVisible(false);
+		final ToggleGradeItemsToolbarPanel gradeItemsTogglePanel =
+			new ToggleGradeItemsToolbarPanel("gradeItemsTogglePanel", Model.ofMap(togglePanelModel));
 		add(gradeItemsTogglePanel);
 
 		this.form.add(new WebMarkupContainer("captionToggle").setVisible(this.hasAssignmentsAndGrades));
@@ -421,8 +420,12 @@ public class GradebookPage extends BasePage {
 		//
 		// hide/show components
 		//
-		toolbar.setVisible(this.hasAssignmentsAndGrades);
-		gradeTable.setVisible(this.hasAssignmentsAndGrades);
+
+		// Only show the toolbar if there are students and grade items
+		toolbar.setVisible(!assignments.isEmpty());
+
+		// Show the table if there are grade items
+		gradeTable.setVisible(!assignments.isEmpty());
 
 		stopwatch.time("Gradebook page done", stopwatch.getTime());
 	}
@@ -480,7 +483,7 @@ public class GradebookPage extends BasePage {
 			settings = new GradebookUiSettings();
 			settings.setCategoriesEnabled(this.businessService.categoriesAreEnabled());
 			settings.initializeCategoryColors(this.businessService.getGradebookCategories());
-			settings.setCategoryColor(getString(GradebookPage.UNCATEGORISED), settings.generateRandomRGBColorString());
+			settings.setCategoryColor(getString(GradebookPage.UNCATEGORISED), GradebookUiSettings.generateRandomRGBColorString(null));
 			setUiSettings(settings);
 		}
 

@@ -19,22 +19,21 @@
  *
  **********************************************************************************/
 
-
 package org.sakaiproject.tool.assessment.ui.listener.author;
 
-import javax.faces.FacesException;
-import javax.faces.FactoryFinder;
 import javax.faces.application.Application;
 import javax.faces.application.ApplicationFactory;
 import javax.faces.context.FacesContext;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
+import javax.faces.FacesException;
+import javax.faces.FactoryFinder;
+
+import lombok.extern.slf4j.Slf4j;
 
 import org.sakaiproject.tool.assessment.facade.AssessmentTemplateFacade;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import org.sakaiproject.tool.assessment.ui.bean.author.TemplateBean;
-
-
 
 /**
  * <p>Title: Sakai Project</p>
@@ -43,12 +42,12 @@ import org.sakaiproject.tool.assessment.ui.bean.author.TemplateBean;
  * @author <a href="mailto:esmiley@stanford.edu">Ed Smiley</a>
  * @version $Id$
  */
-
+@Slf4j
 public abstract class TemplateBaseListener implements ActionListener
 {
+
   // forces you to implement your own processAction
   abstract public void processAction(ActionEvent parm1) throws javax.faces.event.AbortProcessingException;
-  //private static Logger log = LoggerFactory.getLogger(TemplateBaseListener.class);
 
   /**
    * Get a template from the template id
@@ -68,7 +67,7 @@ public abstract class TemplateBaseListener implements ActionListener
     }
     catch (Exception ex)
     {
-      ex.printStackTrace();
+      log.error(ex.getMessage(), ex);
       return null;
     }
   }

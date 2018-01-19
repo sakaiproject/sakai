@@ -23,12 +23,20 @@ package org.sakaiproject.config.impl;
 
 import com.ibm.icu.text.SimpleDateFormat;
 import com.ibm.icu.util.Calendar;
+
+import java.util.*;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+
+import lombok.extern.slf4j.Slf4j;
+
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang.IllegalClassException;
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
 import org.jasypt.encryption.pbe.PBEStringEncryptor;
+
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.component.api.ServerConfigurationService.ConfigData;
 import org.sakaiproject.component.api.ServerConfigurationService.ConfigItem;
@@ -37,11 +45,6 @@ import org.sakaiproject.component.api.ServerConfigurationService.ConfigurationPr
 import org.sakaiproject.component.impl.ConfigItemImpl;
 import org.sakaiproject.config.api.HibernateConfigItem;
 import org.sakaiproject.config.api.HibernateConfigItemDao;
-
-import java.util.*;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 
 /**
  * KNL-1063
@@ -57,6 +60,7 @@ import java.util.concurrent.TimeUnit;
  * @author Earle Nietzel
  *         Created on Mar 8, 2013
  */
+@Slf4j
 public class StoredConfigService implements ConfigurationListener, ConfigurationProvider {
     // enables persistence of ConfigItems that SCS knows about
     public static final String SAKAI_CONFIG_STORE_ENABLE = "sakai.config.store.enable";
@@ -72,7 +76,6 @@ public class StoredConfigService implements ConfigurationListener, Configuration
     // config that should never be persisted
     public static final String SAKAI_CONFIG_NEVER_PERSIST = "sakai.config.never.persist";
 
-    private final Logger log = LoggerFactory.getLogger(StoredConfigService.class);
     private ScheduledExecutorService scheduler;
 
     private ServerConfigurationService serverConfigurationService;
@@ -702,4 +705,3 @@ public class StoredConfigService implements ConfigurationListener, Configuration
     }
 
 }
-

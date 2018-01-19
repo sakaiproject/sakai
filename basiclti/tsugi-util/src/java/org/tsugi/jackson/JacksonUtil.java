@@ -4,10 +4,13 @@ package org.tsugi.jackson;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 
+import lombok.extern.slf4j.Slf4j;
+
 /**
  * Some Tsugi Utility code for to make using Jackson easier to use.
  */
 @SuppressWarnings("deprecation")
+@Slf4j
 public class JacksonUtil {
 
 	// http://stackoverflow.com/questions/6176881/how-do-i-make-jackson-pretty-print-the-json-content-it-generates
@@ -29,7 +32,7 @@ public class JacksonUtil {
 		try {
 			return prettyPrint(obj);
 		} catch (com.fasterxml.jackson.core.JsonProcessingException e) {
-			e.printStackTrace();
+			log.error(e.getMessage(), e);
 			return null;
 		}
 	}

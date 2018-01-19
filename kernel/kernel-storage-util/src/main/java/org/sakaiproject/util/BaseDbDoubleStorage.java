@@ -31,9 +31,13 @@ import java.util.Map;
 import java.util.Stack;
 import java.util.Vector;
 
+import lombok.extern.slf4j.Slf4j;
+
 import org.apache.commons.lang.ArrayUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+
 import org.sakaiproject.db.api.SqlReader;
 import org.sakaiproject.db.api.SqlReaderFinishedException;
 import org.sakaiproject.db.api.SqlService;
@@ -48,8 +52,6 @@ import org.sakaiproject.javax.Search;
 import org.sakaiproject.javax.SearchFilter;
 import org.sakaiproject.time.api.Time;
 import org.sakaiproject.time.cover.TimeService;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
 
 /**
  * <p>
@@ -73,11 +75,9 @@ import org.w3c.dom.Element;
  * rather, Unicode values should be inserted as fields in a PreparedStatement. Databases handle Unicode better in fields.
  * </p>
  */
+@Slf4j
 public class BaseDbDoubleStorage
 {
-	/** Our logger. */
-	private static Logger M_log = LoggerFactory.getLogger(BaseDbDoubleStorage.class);
-
 	/** Table name for container records. */
 	protected String m_containerTableName = null;
 
@@ -271,7 +271,7 @@ public class BaseDbDoubleStorage
 	{
 		if (!m_locks.isEmpty())
 		{
-			M_log.warn("close(): locks remain!");
+			log.warn("close(): locks remain!");
 			// %%%
 		}
 		m_locks.clear();
@@ -302,7 +302,7 @@ public class BaseDbDoubleStorage
 				Element root = doc.getDocumentElement();
 				if (!root.getTagName().equals(m_containerEntryTagName))
 				{
-					M_log.warn("readContainer(): not = " + m_containerEntryTagName + " : " + root.getTagName());
+					log.warn("readContainer(): not = " + m_containerEntryTagName + " : " + root.getTagName());
 					return null;
 				}
 	
@@ -316,8 +316,8 @@ public class BaseDbDoubleStorage
 		}
 		catch (Exception e)
 		{
-			M_log.warn("readContainer(): "+e.getMessage());
-			M_log.info("readContainer(): ", e);
+			log.warn("readContainer(): "+e.getMessage());
+			log.info("readContainer(): ", e);
 			return null;
 		}
 	}
@@ -425,7 +425,7 @@ public class BaseDbDoubleStorage
 		Edit edit = editContainer(ref);
 		if (edit == null)
 		{
-			M_log.warn("putContainer(): didn't get a lock!");
+			log.warn("putContainer(): didn't get a lock!");
 			return null;
 		}
 
@@ -548,7 +548,7 @@ public class BaseDbDoubleStorage
 			Connection lock = (Connection) m_locks.get(edit.getReference());
 			if (lock == null)
 			{
-				M_log.warn("commitContainer(): edit not in locks");
+				log.warn("commitContainer(): edit not in locks");
 				return;
 			}
 
@@ -574,7 +574,7 @@ public class BaseDbDoubleStorage
 			boolean ok = m_sql.dbWrite(statement, lockFields);
 			if (!ok)
 			{
-				M_log.warn("commitContainer: missing lock for table: " + lockFields[0] + " key: " + lockFields[1]);
+				log.warn("commitContainer: missing lock for table: " + lockFields[0] + " key: " + lockFields[1]);
 			}
 		}
 
@@ -602,7 +602,7 @@ public class BaseDbDoubleStorage
 			Connection lock = (Connection) m_locks.get(edit.getReference());
 			if (lock == null)
 			{
-				M_log.warn("cancelContainer(): edit not in locks");
+				log.warn("cancelContainer(): edit not in locks");
 				return;
 			}
 
@@ -625,7 +625,7 @@ public class BaseDbDoubleStorage
 			boolean ok = m_sql.dbWrite(statement, lockFields);
 			if (!ok)
 			{
-				M_log.warn("cancelContainer: missing lock for table: " + lockFields[0] + " key: " + lockFields[1]);
+				log.warn("cancelContainer: missing lock for table: " + lockFields[0] + " key: " + lockFields[1]);
 			}
 		}
 
@@ -655,7 +655,7 @@ public class BaseDbDoubleStorage
 			Connection lock = (Connection) m_locks.get(edit.getReference());
 			if (lock == null)
 			{
-				M_log.warn("removeContainer(): edit not in locks");
+				log.warn("removeContainer(): edit not in locks");
 				return;
 			}
 
@@ -681,7 +681,7 @@ public class BaseDbDoubleStorage
 			boolean ok = m_sql.dbWrite(statement, lockFields);
 			if (!ok)
 			{
-				M_log.warn("remove: missing lock for table: " + lockFields[0] + " key: " + lockFields[1]);
+				log.warn("remove: missing lock for table: " + lockFields[0] + " key: " + lockFields[1]);
 			}
 		}
 
@@ -720,14 +720,14 @@ public class BaseDbDoubleStorage
 			
 			//The resulting doc could be null
 			if (doc == null) {
-				M_log.warn("null xml document passed to readResource for container" + container.getId());
+				log.warn("null xml document passed to readResource for container" + container.getId());
 				return null;
 			}
 			// verify the root element
 			Element root = doc.getDocumentElement();
 			if (!root.getTagName().equals(m_resourceEntryTagName))
 			{
-				M_log.warn("readResource(): not = " + m_resourceEntryTagName + " : " + root.getTagName());
+				log.warn("readResource(): not = " + m_resourceEntryTagName + " : " + root.getTagName());
 				return null;
 			}
 
@@ -739,8 +739,8 @@ public class BaseDbDoubleStorage
 		}
 		catch (Exception e)
 		{
-			M_log.warn("readResource(): "+e.getMessage());
-			M_log.info("readResource(): ", e);
+			log.warn("readResource(): "+e.getMessage());
+			log.info("readResource(): ", e);
 			return null;
 		}
 	}
@@ -828,8 +828,6 @@ public class BaseDbDoubleStorage
 	public int getCount(Entity container, Filter filter)
 	{
 		if ( filter == null ) return getCount(container);
-
-		// System.out.println("getCount e="+container+" sf="+filter);
 
 		// If we have search fields - do a quick select count with a where clause
 		if  ( m_resourceTableSearchFields != null && filter instanceof SearchFilter ) 
@@ -920,7 +918,7 @@ public class BaseDbDoubleStorage
 		if ( filter == null ) return pos;
 		if ( pos != null )
 		{
-			M_log.warn("The use of methods with PagingPosition should switch to using Search (SAK-13584) - Chuck");
+			log.warn("The use of methods with PagingPosition should switch to using Search (SAK-13584) - Chuck");
 			return pos;
 		}
 		if ( filter instanceof Search )
@@ -975,7 +973,6 @@ public class BaseDbDoubleStorage
 	{
 		
 		pager = fixPagingPosition(softFilter, pager);
-		// System.out.println("getAllResources e="+container+" sf="+softFilter+" sqlf="+sqlFilter+" asc="+asc+" pag="+pager);
         
 		// Get the orders and get the ORDER BY clause
 		Order[] orders = null;
@@ -1041,8 +1038,6 @@ public class BaseDbDoubleStorage
 			// Add the bind variables to the fields to substitute in the prepared statement
 			fields = ArrayUtils.addAll(fields, bindVariables.toArray(new Object[fields.length]));
 		}
-
-		// System.out.println("getAllResources="+sql);
 
 		// If we are paged in SQL - then do not pass in the pager
 		List all = m_sql.dbRead(sql, fields, new SearchFilterReader(container, softFilter,  pagedInSql ? null : pager, false));
@@ -1182,7 +1177,7 @@ public class BaseDbDoubleStorage
 		Edit edit = editResource(container, id);
 		if (edit == null)
 		{
-			M_log.warn("putResource(): didn't get a lock!");
+			log.warn("putResource(): didn't get a lock!");
 			return null;
 		}
 
@@ -1318,7 +1313,7 @@ public class BaseDbDoubleStorage
 			Connection lock = (Connection) m_locks.get(edit.getReference());
 			if (lock == null)
 			{
-				M_log.warn("commitResource(): edit not in locks");
+				log.warn("commitResource(): edit not in locks");
 				return;
 			}
 
@@ -1344,7 +1339,7 @@ public class BaseDbDoubleStorage
 			boolean ok = m_sql.dbWrite(statement, lockFields);
 			if (!ok)
 			{
-				M_log.warn("commitResource: missing lock for table: " + lockFields[0] + " key: " + lockFields[1]);
+				log.warn("commitResource: missing lock for table: " + lockFields[0] + " key: " + lockFields[1]);
 			}
 		}
 
@@ -1374,7 +1369,7 @@ public class BaseDbDoubleStorage
 			Connection lock = (Connection) m_locks.get(edit.getReference());
 			if (lock == null)
 			{
-				M_log.warn("cancelResource(): edit not in locks");
+				log.warn("cancelResource(): edit not in locks");
 				return;
 			}
 
@@ -1397,7 +1392,7 @@ public class BaseDbDoubleStorage
 			boolean ok = m_sql.dbWrite(statement, lockFields);
 			if (!ok)
 			{
-				M_log.warn("cancelResource: missing lock for table: " + lockFields[0] + " key: " + lockFields[1]);
+				log.warn("cancelResource: missing lock for table: " + lockFields[0] + " key: " + lockFields[1]);
 			}
 		}
 
@@ -1430,7 +1425,7 @@ public class BaseDbDoubleStorage
 			Connection lock = (Connection) m_locks.get(edit.getReference());
 			if (lock == null)
 			{
-				M_log.warn("removeResource(): edit not in locks");
+				log.warn("removeResource(): edit not in locks");
 				return;
 			}
 
@@ -1456,7 +1451,7 @@ public class BaseDbDoubleStorage
 			boolean ok = m_sql.dbWrite(statement, lockFields);
 			if (!ok)
 			{
-				M_log.warn("removeResource: missing lock for table: " + lockFields[0] + " key: " + lockFields[1]);
+				log.warn("removeResource: missing lock for table: " + lockFields[0] + " key: " + lockFields[1]);
 			}
 		}
 		else

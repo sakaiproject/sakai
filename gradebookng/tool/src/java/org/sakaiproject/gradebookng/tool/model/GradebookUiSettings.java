@@ -118,14 +118,14 @@ public class GradebookUiSettings implements Serializable {
 		// defaults. Note there is no default for assignmentSortOrder as that
 		// requires an assignmentId which will differ between gradebooks
 		this.categoriesEnabled = false;
-		this.assignmentVisibility = new HashMap<Long, Boolean>();
-		this.categoryScoreVisibility = new HashMap<String, Boolean>();
+		this.assignmentVisibility = new HashMap<>();
+		this.categoryScoreVisibility = new HashMap<>();
 
 		// default sort order to student
 		this.nameSortOrder = GbStudentNameSortOrder.LAST_NAME;
 		this.studentSortOrder = SortDirection.ASCENDING;
 
-		this.categoryColors = new HashMap<String, String>();
+		this.categoryColors = new HashMap<>();
 		this.showPoints = false;
 		this.gradeSummaryGroupedByCategory = false;
 	}
@@ -151,16 +151,16 @@ public class GradebookUiSettings implements Serializable {
 		this.categoryColors.put(categoryName, rgbColorString);
 	}
 
-	public String getCategoryColor(final String categoryName) {
+	public String getCategoryColor(final String categoryName, final Long categoryID) {
 		if (!this.categoryColors.containsKey(categoryName)) {
-			setCategoryColor(categoryName, generateRandomRGBColorString());
+			setCategoryColor(categoryName, generateRandomRGBColorString(categoryID));
 		}
 		return this.categoryColors.get(categoryName);
 	}
 
 	public void initializeCategoryColors(final List<CategoryDefinition> categories) {
 		for (CategoryDefinition category : categories) {
-			setCategoryColor(category.getName(), generateRandomRGBColorString());
+			setCategoryColor(category.getName(), generateRandomRGBColorString(category.getId()));
 		}
 	}
 
@@ -178,8 +178,11 @@ public class GradebookUiSettings implements Serializable {
 	/**
 	 * Helper to generate a RGB CSS color string with values between 180-250 to ensure a lighter color e.g. rgb(181,222,199)
 	 */
-	public static String generateRandomRGBColorString() {
-		final Random rand = new Random();
+	public static String generateRandomRGBColorString(Long categoryID) {
+		if (categoryID == null) {
+			categoryID = -1L;
+		}
+		final Random rand = new Random(categoryID);
 		final int min = 180;
 		final int max = 250;
 

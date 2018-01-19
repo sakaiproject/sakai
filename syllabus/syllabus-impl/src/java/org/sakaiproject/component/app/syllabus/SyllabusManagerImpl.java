@@ -27,12 +27,16 @@ import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
+import lombok.extern.slf4j.Slf4j;
 import org.hibernate.Criteria;
 import org.hibernate.FetchMode;
 import org.hibernate.Query;
 import org.hibernate.criterion.Expression;
 import org.hibernate.type.LongType;
 import org.hibernate.type.StringType;
+import org.springframework.orm.hibernate4.HibernateCallback;
+import org.springframework.orm.hibernate4.support.HibernateDaoSupport;
+
 import org.sakaiproject.api.app.syllabus.SyllabusAttachment;
 import org.sakaiproject.api.app.syllabus.SyllabusData;
 import org.sakaiproject.api.app.syllabus.SyllabusItem;
@@ -57,8 +61,6 @@ import org.sakaiproject.time.api.TimeService;
 import org.sakaiproject.user.api.PreferencesService;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.cover.UserDirectoryService;
-import org.springframework.orm.hibernate4.HibernateCallback;
-import org.springframework.orm.hibernate4.support.HibernateDaoSupport;
 
 /**
  * SyllabusManagerImpl provides convenience functions to query the database
@@ -66,6 +68,7 @@ import org.springframework.orm.hibernate4.support.HibernateDaoSupport;
  * @author <a href="mailto:jlannan@iupui.edu">Jarrod Lannan </a>
  * @version $Id:
  */
+@Slf4j
 public class SyllabusManagerImpl extends HibernateDaoSupport implements SyllabusManager
 {
   private ContentHostingService contentHostingService;
@@ -570,7 +573,7 @@ public class SyllabusManagerImpl extends HibernateDaoSupport implements Syllabus
     }
     catch(Exception e)
     {
-      e.printStackTrace();
+      log.error(e.getMessage(), e);
       return null;
     }
   }
@@ -982,6 +985,3 @@ public class SyllabusManagerImpl extends HibernateDaoSupport implements Syllabus
 		this.entityManager = entityManager;
 	}
 }
-
-
-

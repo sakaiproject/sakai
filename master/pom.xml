@@ -93,12 +93,13 @@
     <sakai.httpclient.version>4.5.3</sakai.httpclient.version>
     <sakai.httpcore.version>4.4.7</sakai.httpcore.version>
     <sakai.httpmime.version>4.5.3</sakai.httpmime.version>
-    <sakai.jackson.version>2.8.6</sakai.jackson.version>
+    <sakai.jackson.version>2.8.11</sakai.jackson.version>
+    <sakai.woodstox.version>5.0.3</sakai.woodstox.version>
+    <sakai.stax2.version>3.1.4</sakai.stax2.version>
     <sakai.java.jwt.version>3.1.0</sakai.java.jwt.version>
     <sakai.jcr.version>1.0</sakai.jcr.version>
     <sakai.jstl.version>1.1.2</sakai.jstl.version>
     <sakai.lombok.version>1.16.16</sakai.lombok.version>
-    <sakai.jackson.version>2.8.6</sakai.jackson.version>
     <sakai.lucene.version>4.10.4</sakai.lucene.version>
     <sakai.mail.version>1.6.0</sakai.mail.version>
     <sakai.org.json.version>20160810</sakai.org.json.version>
@@ -110,13 +111,13 @@
     <sakai.simple-xml.version>2.6</sakai.simple-xml.version>
     <sakai.spring.groupId>org.springframework</sakai.spring.groupId>
     <sakai.spring.artifactId>spring-core</sakai.spring.artifactId>
-    <sakai.spring.version>4.3.10.RELEASE</sakai.spring.version>
+    <sakai.spring.version>4.3.13.RELEASE</sakai.spring.version>
     <sakai.spring.security.version>3.2.10.RELEASE</sakai.spring.security.version>
     <sakai.spring.hateoas.version>0.22.0.RELEASE</sakai.spring.hateoas.version>
     <sakai.spring.plugin.version>1.2.0.RELEASE</sakai.spring.plugin.version>
     <sakai.spring.test.artifactId>spring-test</sakai.spring.test.artifactId>
     <sakai.spring.test.version>4.3.6.RELEASE</sakai.spring.test.version>
-    <sakai.tika.version>1.14</sakai.tika.version>
+    <sakai.tika.version>1.16</sakai.tika.version>
     <sakai.tomcat.version>8.5.20</sakai.tomcat.version>
     <sakai.velocity.version>1.6.4</sakai.velocity.version>
     <sakai.xerces.impl.version>2.11.0</sakai.xerces.impl.version>
@@ -521,6 +522,36 @@
 		<version>${sakai.jackson.version}</version>
 		<scope>provided</scope>
 	  </dependency>
+	  <dependency>
+		<groupId>com.fasterxml.jackson.dataformat</groupId>
+		<artifactId>jackson-dataformat-xml</artifactId>
+		<version>${sakai.jackson.version}</version>
+		<scope>provided</scope>
+	  </dependency>
+	  <dependency>
+		<groupId>com.fasterxml.jackson.datatype</groupId>
+		<artifactId>jackson-datatype-jdk8</artifactId>
+		<version>${sakai.jackson.version}</version>
+		<scope>provided</scope>
+	  </dependency>
+      <dependency>
+        <groupId>com.fasterxml.jackson.module</groupId>
+        <artifactId>jackson-module-jaxb-annotations</artifactId>
+        <version>${sakai.jackson.version}</version>
+        <scope>provided</scope>
+      </dependency>
+      <dependency>
+        <groupId>com.fasterxml.woodstox</groupId>
+        <artifactId>woodstox-core</artifactId>
+        <version>${sakai.woodstox.version}</version>
+        <scope>provided</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.codehaus.woodstox</groupId>
+        <artifactId>stax2-api</artifactId>
+        <version>${sakai.stax2.version}</version>
+        <scope>provided</scope>
+      </dependency>
       <dependency>
         <groupId>aopalliance</groupId>
         <artifactId>aopalliance</artifactId>
@@ -1329,19 +1360,7 @@
       </dependency>
       <dependency>
         <groupId>org.sakaiproject.common</groupId>
-        <artifactId>sakai-common-edu-person-api</artifactId>
-        <version>${sakai.version}</version>
-        <scope>provided</scope>
-      </dependency>
-      <dependency>
-        <groupId>org.sakaiproject.common</groupId>
-        <artifactId>sakai-common-manager-api</artifactId>
-        <version>${sakai.version}</version>
-        <scope>provided</scope>
-      </dependency>
-      <dependency>
-        <groupId>org.sakaiproject.common</groupId>
-        <artifactId>sakai-common-type-api</artifactId>
+        <artifactId>sakai-common-api</artifactId>
         <version>${sakai.version}</version>
         <scope>provided</scope>
       </dependency>
@@ -1816,6 +1835,12 @@
         <groupId>org.apache.xmlgraphics</groupId>
         <artifactId>xmlgraphics-commons</artifactId>
         <version>1.5</version>
+      </dependency>
+      <dependency>
+        <groupId>org.mariuszgromada.math</groupId>
+        <artifactId>MathParser.org-mXparser</artifactId>
+        <version>4.1.1</version>
+        <scope>provided</scope>
       </dependency>
     </dependencies>
   </dependencyManagement>

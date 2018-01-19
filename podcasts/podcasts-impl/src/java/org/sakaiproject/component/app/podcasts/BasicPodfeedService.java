@@ -34,8 +34,8 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.api.app.podcasts.PodcastPermissionsService;
 import org.sakaiproject.api.app.podcasts.PodcastService;
 import org.sakaiproject.api.app.podcasts.PodfeedService;
@@ -66,6 +66,7 @@ import com.sun.syndication.feed.rss.Item;
 import com.sun.syndication.io.FeedException;
 import com.sun.syndication.io.WireFeedOutput;
 
+@Slf4j
 public class BasicPodfeedService implements PodfeedService {
 
 	/** MIME type for the global description of the feed **/
@@ -108,8 +109,6 @@ public class BasicPodfeedService implements PodfeedService {
 	/** Used to pull message bundle */
 	private final String PODFEED_MESSAGE_BUNDLE = "org.sakaiproject.api.podcasts.bundle.Messages";
 	private ResourceLoader resbud = new ResourceLoader(PODFEED_MESSAGE_BUNDLE);
-
-	private static final Logger LOG = LoggerFactory.getLogger(BasicPodfeedService.class);
 
 	private PodcastService podcastService;
 	private PodcastPermissionsService podcastPermissionsService;
@@ -173,7 +172,7 @@ public class BasicPodfeedService implements PodfeedService {
 		} 
 		catch (Exception e) {
 			// catches IdUnusedException, PermissionException
-			LOG.error(e.getMessage() + " attempting to get feed title (getting podcast folder) "
+			log.error(e.getMessage() + " attempting to get feed title (getting podcast folder) "
 							+ "for site: " + siteId + ". " + e.getMessage(), e);
 			throw new PodcastException(e);
 			
@@ -216,13 +215,13 @@ public class BasicPodfeedService implements PodfeedService {
 			 * and has not been revised/updated */
 			if (feedTitle == null) {
 				feedTitle = siteService.getSite(siteId).getTitle() + getMessageBundleString(FEED_TITLE_STRING);
-				LOG.info("No saved feed title found for site: " + siteId + ". Using " + feedTitle);
+				log.info("No saved feed title found for site: " + siteId + ". Using " + feedTitle);
 
 			}
 
 		}
 		catch (IdUnusedException e) {
-			LOG.error("IdUnusedException attempting to get feed title (getting podcast folder) "
+			log.error("IdUnusedException attempting to get feed title (getting podcast folder) "
 							+ "for site: " + siteId + ". " + e.getMessage(), e);
 			throw new PodcastException(e);
 
@@ -284,11 +283,11 @@ public class BasicPodfeedService implements PodfeedService {
 				feedDescription =  siteService.getSite(siteId).getTitle()
 									+ getMessageBundleString(FEED_DESC1_STRING)
 									+ getMessageBundleString(FEED_DESC2_STRING);
-				LOG.info("No feed description found for site: " + siteId + ". Using " + feedDescription);
+				log.info("No feed description found for site: " + siteId + ". Using " + feedDescription);
 			}
 		}
 		catch (IdUnusedException e) {
-			LOG.error("IdUnusedException attempting to get feed title (getting podcast folder) "
+			log.error("IdUnusedException attempting to get feed title (getting podcast folder) "
 					+ "for site: " + siteId + ". " + e.getMessage(), e);
 			throw new PodcastException(e);
 		}
@@ -471,7 +470,7 @@ public class BasicPodfeedService implements PodfeedService {
 		}
 		catch (Exception e) {
 			// catches IdUnusedException, PermissionException
-			LOG.error(e.getMessage() + " attempting to add property " + propName 
+			log.error(e.getMessage() + " attempting to add property " + propName 
 						+ " for site: " + siteId + ". " + e.getMessage(), e);
 			podcastService.cancelContentCollection(contentCollection);
 			
@@ -560,7 +559,7 @@ public class BasicPodfeedService implements PodfeedService {
 			return wireWriter.outputString(podcastFeed);
 
 		} catch (FeedException e) {
-			LOG.error(
+			log.error(
 					"Feed exception while attempting to write out the final xml file. "
 							+ "for site: " + siteId + ". " + e.getMessage(), e);
 			throw new PodcastException(e);
@@ -599,12 +598,12 @@ public class BasicPodfeedService implements PodfeedService {
 			}
 		} 
 		catch (PermissionException e) {
-			LOG.error("PermissionException getting podcasts in order to generate podfeed for site: "
+			log.error("PermissionException getting podcasts in order to generate podfeed for site: "
 					+ siteId + ". " + e.getMessage(), e);
 			throw new PodcastException(e);
 		} 
 		catch (Exception e) {
-			LOG.info(e.getMessage() + "for site: " + siteId, e);
+			log.info(e.getMessage() + "for site: " + siteId, e);
 			throw new PodcastException(e);
 		} 
 		finally {
@@ -639,7 +638,7 @@ public class BasicPodfeedService implements PodfeedService {
 				} 
 				catch (Exception e) {
 					// catches EntityPropertyNotDefinedException, EntityPropertyTypeException
-					LOG.warn(e.getMessage() + " generating podfeed getting DISPLAY_DATE for entry for site: "
+					log.warn(e.getMessage() + " generating podfeed getting DISPLAY_DATE for entry for site: "
 									+ siteId + "while building feed. SKIPPING... " + e.getMessage(), e);
 				}
 				
@@ -673,13 +672,13 @@ public class BasicPodfeedService implements PodfeedService {
 					}
 					catch (PermissionException e) {
 						// Problem with this podcast file - LOG and skip
-						LOG.error("PermissionException generating podfeed while adding entry for site: "
+						log.error("PermissionException generating podfeed while adding entry for site: "
 							+ siteId + ". SKIPPING... " + e.getMessage(), e);
 
 					} 
 					catch (IdUnusedException e) {
 						// Problem with this podcast file - LOG and skip
-						LOG.warn("IdUnusedException generating podfeed while adding entry for site: "
+						log.warn("IdUnusedException generating podfeed while adding entry for site: "
 							+ siteId + ".  SKIPPING... " + e.getMessage(), e);
 
 					}
@@ -868,7 +867,7 @@ public class BasicPodfeedService implements PodfeedService {
 		} 
 		catch (PermissionException e) {
 			// log and return null to indicate there was a problem generating
-			LOG.error("PermissionException while trying to retrieve Podcast folder Id string "
+			log.error("PermissionException while trying to retrieve Podcast folder Id string "
 							+ "while generating feed for site " + siteId + e.getMessage(), e);
 		}
 		finally {

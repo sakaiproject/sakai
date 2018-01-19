@@ -20,8 +20,8 @@
  **********************************************************************************/
 package org.sakaiproject.component.app.messageforums.dao.hibernate;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.api.app.messageforums.Attachment;
 import org.sakaiproject.api.app.messageforums.BaseForum;
 import org.sakaiproject.api.app.messageforums.Message;
@@ -29,9 +29,8 @@ import org.sakaiproject.api.app.messageforums.OpenForum;
 import org.sakaiproject.api.app.messageforums.PrivateForum;
 import org.sakaiproject.api.app.messageforums.Topic;
 
+@Slf4j
 public class AttachmentImpl extends MutableEntityImpl implements Attachment {
-
-    private static final Logger LOG = LoggerFactory.getLogger(AttachmentImpl.class);
 
     private String attachmentId;
 

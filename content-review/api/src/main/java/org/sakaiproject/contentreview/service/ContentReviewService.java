@@ -335,4 +335,13 @@ public interface ContentReviewService {
 	 */
 	public void createAssignment(String siteId, String taskId, Map extraAsnnOpts)
 	throws SubmissionException, TransientSubmissionException;
+
+	/**
+	 * This method returns all the information related with a ContentReviewItem encapsulated as a ContentReviewResult
+	 * Using this method will likely tie you to a particular Content Review implementation.
+	 * 
+	 * @param contentId
+	 * @return ContentReviewResult
+	 */	
+	public ContentReviewItem getContentReviewItemByContentId(String contentId);
 }

@@ -36,7 +36,6 @@ public class MultiColumnComponent extends UIData
   public MultiColumnComponent()
   {
       super();
-      //System.out.println("Instantiated MultiColumn.");
   }
 
   /**

@@ -32,7 +32,6 @@ import org.sakaiproject.tool.assessment.ui.bean.authz.AuthorizationBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.AssessmentBean;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 
-
 /**
  * <p>Title: Samigo</p>
  * <p>Description: Sakai Assessment Manager</p>
@@ -41,7 +40,6 @@ import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentS
  */
 
 public class ConfirmRetakeAssessmentListener implements ActionListener {
-	//private static Logger log = LoggerFactory.getLogger(ConfirmRemovePartListener.class);
 
 	public ConfirmRetakeAssessmentListener() {
 	}

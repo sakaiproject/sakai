@@ -16,8 +16,6 @@
 
 package org.sakaiproject.tool.gradebook.facades.sections;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sakaiproject.section.api.coursemanagement.User;
 import org.sakaiproject.component.section.support.UserManager;
 import org.sakaiproject.service.gradebook.shared.UnknownUserException;
@@ -25,8 +23,7 @@ import org.sakaiproject.tool.gradebook.facades.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
 
 public class UserDirectoryServiceStandaloneSectionsImpl implements UserDirectoryService {
-    private static final Logger log = LoggerFactory.getLogger(UserDirectoryServiceStandaloneSectionsImpl.class);
-	private UserManager userManager;
+    private UserManager userManager;
 
     public String getUserDisplayName(final String userUid) throws UnknownUserException {
     	User user = userManager.findUser(userUid);
@@ -47,10 +44,10 @@ public class UserDirectoryServiceStandaloneSectionsImpl implements UserDirectory
         }
     }
 
-	public UserManager getUserManager() {
-		return userManager;
-	}
-	public void setUserManager(UserManager userManager) {
-		this.userManager = userManager;
-	}
+    public UserManager getUserManager() {
+    	return userManager;
+    }
+    public void setUserManager(UserManager userManager) {
+    	this.userManager = userManager;
+    }
 }

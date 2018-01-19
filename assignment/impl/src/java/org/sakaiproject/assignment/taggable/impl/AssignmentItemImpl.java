@@ -157,7 +157,7 @@ public class AssignmentItemImpl implements TaggableItem {
 	}
 	
 	public Date getLastModifiedDate() {
-		return new Date(((AssignmentSubmission)getObject()).getDateModified().getTime());
+		return new Date(((AssignmentSubmission)getObject()).getDateModified().toEpochMilli());
 	}
 	
 	public String getTypeName() {
