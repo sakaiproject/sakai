@@ -312,7 +312,7 @@ public class ExportPanel extends BasePanel {
 			}
 
 			// get the grade matrix
-			final List<GbStudentGradeInfo> grades = this.businessService.buildGradeMatrix(assignments, settings);
+			final List<GbStudentGradeInfo> grades = this.businessService.buildGradeMatrixForImportExport(assignments, group);
 
 			// add grades
 			grades.forEach(studentGradeInfo -> {

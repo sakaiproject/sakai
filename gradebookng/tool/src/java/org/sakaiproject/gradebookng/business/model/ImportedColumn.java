@@ -116,8 +116,8 @@ public class ImportedColumn implements Serializable {
 	public int hashCode() {
 		return new HashCodeBuilder()
 				.append(this.columnTitle)
+				.append(this.points)
 				.append(this.type)
 				.toHashCode();
 	}
-
 }

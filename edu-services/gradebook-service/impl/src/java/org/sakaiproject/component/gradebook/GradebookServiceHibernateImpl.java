@@ -2000,6 +2000,40 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 	  return isGradeValid(grade, gradeEntryType, mapping);
   }
 
+	@Override
+	public boolean isValidNumericGrade(String grade)
+	{
+		boolean gradeIsValid = false;
+
+		try
+		{
+			NumberFormat nbFormat = NumberFormat.getInstance(new ResourceLoader().getLocale());
+			Double gradeAsDouble = nbFormat.parse(grade).doubleValue();
+			String decSeparator =((DecimalFormat)nbFormat).getDecimalFormatSymbols().getDecimalSeparator() + "";
+
+			// grade must be greater than or equal to 0
+			if (gradeAsDouble >= 0) {
+				String[] splitOnDecimal = grade.split("\\" + decSeparator);
+				// check that there are no more than 2 decimal places
+				if (splitOnDecimal == null) {
+					gradeIsValid = true;
+
+				// check for a valid score matching ##########.##
+				// where integer is maximum of 10 integers in length
+				// and maximum of 2 decimal places
+				} else if (grade.matches("[0-9]{0,10}(\\"+decSeparator+"[0-9]{0,2})?")) {
+					gradeIsValid = true;
+				}
+			}
+		}
+		catch (NumberFormatException | ParseException nfe)
+		{
+			log.debug("Passed grade is not a numeric value");
+		}
+
+		return gradeIsValid;
+	}
+
   private boolean isGradeValid(final String grade, final int gradeEntryType, final LetterGradePercentMapping gradeMapping) {
 
 	  boolean gradeIsValid = false;

@@ -22,6 +22,7 @@ import java.util.Map;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.sakaiproject.gradebookng.business.importExport.HeadingValidationReport;
 import org.sakaiproject.gradebookng.business.importExport.UsernameIdentifier;
 
 /**
@@ -32,7 +33,6 @@ public class ImportedSpreadsheetWrapper implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	@Getter
-	@Setter
 	private List<ImportedRow> rows;
 
 	@Getter
@@ -40,13 +40,16 @@ public class ImportedSpreadsheetWrapper implements Serializable {
 	private List<ImportedColumn> columns;
 
 	@Getter
-	@Setter
 	private UsernameIdentifier userIdentifier;
+
+	@Getter
+	private final HeadingValidationReport headingReport;
 
 	public ImportedSpreadsheetWrapper() {
 		rows = new ArrayList<>();
 		columns = new ArrayList<>();
 		userIdentifier = null;
+		headingReport = new HeadingValidationReport();
 	}
 
 	public void setRows(List<ImportedRow> rows, Map<String, GbUser> rosterMap) {

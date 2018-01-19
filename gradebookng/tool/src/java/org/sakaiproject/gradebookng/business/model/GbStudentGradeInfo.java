@@ -64,10 +64,22 @@ public class GbStudentGradeInfo implements Serializable {
 	public GbStudentGradeInfo() {
 	}
 
-	public GbStudentGradeInfo(final User u)
-	{
+	public GbStudentGradeInfo(final User u) {
 		this(u, "");
 	}
+
+	public GbStudentGradeInfo(final GbUser u) {
+		studentUuid = u.getUserUuid();
+		studentEid = u.getDisplayId();
+		studentDisplayName = u.getDisplayName();
+
+		studentFirstName = "";
+		studentLastName = "";
+		studentNumber = "";
+		grades = new HashMap<>();
+		categoryAverages = new HashMap<>();
+	}
+
 	public GbStudentGradeInfo(final User u, final String studentNumber) {
 		this.studentUuid = u.getId();
 		this.studentEid = u.getEid();

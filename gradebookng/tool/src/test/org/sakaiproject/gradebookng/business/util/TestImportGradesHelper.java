@@ -29,7 +29,6 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
-import org.sakaiproject.gradebookng.business.exception.GbImportExportDuplicateColumnException;
 import org.sakaiproject.gradebookng.business.exception.GbImportExportInvalidFileTypeException;
 import org.sakaiproject.gradebookng.business.model.GbGradeInfo;
 import org.sakaiproject.gradebookng.business.model.GbStudentGradeInfo;
@@ -62,19 +61,19 @@ public class TestImportGradesHelper {
 	@Test
 	public void when_pointsHasDecimal_thenImportSucceeds() throws Exception {
 		String headerValue = "Week #1: Intro to A-B-C [55.4]";
-		Matcher m1 = ImportGradesHelper.ASSIGNMENT_WITH_POINTS_PATTERN.matcher(headerValue);
+		Matcher m1 = ImportGradesHelper.ASSIGNMENT_PATTERN.matcher(headerValue);
 		Assert.assertTrue(m1.matches());
 		Assert.assertEquals("Week #1: Intro to A-B-C", StringUtils.trimToNull(m1.group(1)));
-		Assert.assertEquals("55.4", m1.group(2));
+		Assert.assertEquals("55.4", m1.group(3));
 	}
 
 	@Test
 	public void when_pointsHasDecimalWithComma_thenImportSucceeds() throws Exception {
 		String headerValue = "Week #1: Intro to A-B-C [55,4]";
-		Matcher m1 = ImportGradesHelper.ASSIGNMENT_WITH_POINTS_PATTERN.matcher(headerValue);
+		Matcher m1 = ImportGradesHelper.ASSIGNMENT_PATTERN.matcher(headerValue);
 		Assert.assertTrue(m1.matches());
 		Assert.assertEquals("Week #1: Intro to A-B-C", StringUtils.trimToNull(m1.group(1)));
-		Assert.assertEquals("55,4", m1.group(2));
+		Assert.assertEquals("55,4", m1.group(3));
 	}
 
 	@Test
@@ -82,16 +81,16 @@ public class TestImportGradesHelper {
 		String headerValueA = "Week #1 [55.1]";
 		String headerValueB = "Week #2 [55.2]";
 
-		Matcher m1 = ImportGradesHelper.ASSIGNMENT_WITH_POINTS_PATTERN.matcher(headerValueA);
+		Matcher m1 = ImportGradesHelper.ASSIGNMENT_PATTERN.matcher(headerValueA);
 		Assert.assertTrue(m1.matches());
 
-		Matcher m2 = ImportGradesHelper.ASSIGNMENT_WITH_POINTS_PATTERN.matcher(headerValueB);
+		Matcher m2 = ImportGradesHelper.ASSIGNMENT_PATTERN.matcher(headerValueB);
 		Assert.assertTrue(m2.matches());
 
 		Assert.assertEquals("Week #1", StringUtils.trimToNull(m1.group(1)));
 		Assert.assertEquals("Week #2", StringUtils.trimToNull(m2.group(1)));
-		Assert.assertEquals("55.1", m1.group(2));
-		Assert.assertEquals("55.2", m2.group(2));
+		Assert.assertEquals("55.1", m1.group(3));
+		Assert.assertEquals("55.2", m2.group(3));
 	}
 
 	@Test
@@ -99,25 +98,25 @@ public class TestImportGradesHelper {
 		String headerValueA = "Week #1 [55,1]";
 		String headerValueB = "Week #2 [55,2]";
 
-		Matcher m1 = ImportGradesHelper.ASSIGNMENT_WITH_POINTS_PATTERN.matcher(headerValueA);
+		Matcher m1 = ImportGradesHelper.ASSIGNMENT_PATTERN.matcher(headerValueA);
 		Assert.assertTrue(m1.matches());
 
-		Matcher m2 = ImportGradesHelper.ASSIGNMENT_WITH_POINTS_PATTERN.matcher(headerValueB);
+		Matcher m2 = ImportGradesHelper.ASSIGNMENT_PATTERN.matcher(headerValueB);
 		Assert.assertTrue(m2.matches());
 
 		Assert.assertEquals("Week #1", StringUtils.trimToNull(m1.group(1)));
 		Assert.assertEquals("Week #2", StringUtils.trimToNull(m2.group(1)));
-		Assert.assertEquals("55,1", m1.group(2));
-		Assert.assertEquals("55,2", m2.group(2));
+		Assert.assertEquals("55,1", m1.group(3));
+		Assert.assertEquals("55,2", m2.group(3));
 	}
 
 	@Test
 	public void when_headerHasPoundSign_thenImportSucceeds() throws Exception {
 		String headerValue = "Week #2 [5]";
-		Matcher m1 = ImportGradesHelper.ASSIGNMENT_WITH_POINTS_PATTERN.matcher(headerValue);
+		Matcher m1 = ImportGradesHelper.ASSIGNMENT_PATTERN.matcher(headerValue);
 		Assert.assertTrue(m1.matches());
 		Assert.assertEquals("Week #2", StringUtils.trimToNull(m1.group(1)));
-		Assert.assertEquals("5", m1.group(2));
+		Assert.assertEquals("5", m1.group(3));
 	}
 
 	@Test
@@ -212,13 +211,13 @@ public class TestImportGradesHelper {
 		testImport(importedSpreadsheetWrapper);
 	}
 
-	@Test(expected=GbImportExportDuplicateColumnException.class)
 	public void when_exactDupes_thenImportFails() throws Exception {
 		final ImportedSpreadsheetWrapper importedSpreadsheetWrapper;
 		try (InputStream is = this.getClass().getClassLoader().getResourceAsStream("grades_import_with_exact_dupes.csv")) {
 			importedSpreadsheetWrapper = ImportGradesHelper.parseImportedGradeFile(is, "application/csv", "grades_import_with_exact_dupes.csv", service);
 		}
 		testImport(importedSpreadsheetWrapper);
+		Assert.assertEquals("unexpected duplicate column count", 2, importedSpreadsheetWrapper.getHeadingReport().getDuplicateHeadings().size());
 	}
 
 	private void testImport(final ImportedSpreadsheetWrapper importedSpreadsheetWrapper) {
@@ -430,7 +429,7 @@ public class TestImportGradesHelper {
 		row3.setCellMap(cellMap3);
 		rows.add(row3);
 
-		importedSpreadsheetWrapper.setRows(rows);
+		importedSpreadsheetWrapper.setRows(rows, service.getUserEidMap());
 
 		return importedSpreadsheetWrapper;
 	}

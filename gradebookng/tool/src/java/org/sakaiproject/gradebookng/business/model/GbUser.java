@@ -71,4 +71,9 @@ public class GbUser implements Serializable, Comparable<GbUser> {
 
 		return comp;
 	}
+
+	@Override
+	public String toString() {
+		return displayId;
+	}
 }
