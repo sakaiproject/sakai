@@ -129,7 +129,7 @@ public class HelpManagerImpl extends HibernateDaoSupport implements HelpManager
 	private static final String WELCOME_PAGE = "welcomePage";
 	private static final String NAME = "name";
 
-	private static final String LUCENE_INDEX_PATH = System
+	private static final String DEFAULT_LUCENE_INDEX_PATH = System
 	.getProperty("java.io.tmpdir")
 	+ File.separator + "sakai.help";
 
@@ -395,6 +395,9 @@ public class HelpManagerImpl extends HibernateDaoSupport implements HelpManager
 		return getGlossary().find(keyword);
 	}
 
+	private String getHelpIndexPath() {
+  		return serverConfigurationService.getString("help.indexpath", DEFAULT_LUCENE_INDEX_PATH);
+	}
 	/**
 	 * Search Resources
 	 * @param query
@@ -409,7 +412,7 @@ public class HelpManagerImpl extends HibernateDaoSupport implements HelpManager
 			locale = DEFAULT_LOCALE;
 		}
 
-		String luceneFolder = LUCENE_INDEX_PATH + File.separator + locale;
+		String luceneFolder = getHelpIndexPath() + File.separator + locale;
 
         IndexReader reader = null;
 		FSDirectory dir = null;
@@ -1015,7 +1018,7 @@ public class HelpManagerImpl extends HibernateDaoSupport implements HelpManager
 		// Create lucene indexes for each toc (which key is either a locale or 'default')
 		for (String key : toc.keySet())
 		{
-			String luceneIndexPath = LUCENE_INDEX_PATH + File.separator + key;
+			String luceneIndexPath = getHelpIndexPath() + File.separator + key;
 			TableOfContentsBean currentToc = toc.get(key);
 
 			// create index in lucene

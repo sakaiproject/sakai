@@ -137,6 +137,8 @@ public class GradebookNgBusinessService {
 
 	public static final String ASSIGNMENT_ORDER_PROP = "gbng_assignment_order";
 	public static final String ICON_SAKAI = "icon-sakai--";
+	
+	public static final ResourceLoader externalAppLoader = new ResourceLoader("org.sakaiproject.localization.bundle.tool.tools");
 
 	/**
 	 * Get a list of all users in the current site that can have grades
@@ -174,18 +176,19 @@ public class GradebookNgBusinessService {
 	 *
 	 * @return a list of users as uuids or null if none
 	 */
-	public List<String> getGradeableUsers(String siteId, final GbGroup groupFilter) {
+	public List<String> getGradeableUsers(final String siteId, final GbGroup groupFilter) {
 
 		try {
-			
-			if(StringUtils.isBlank(siteId)) {
-				siteId = getCurrentSiteId();
+
+			String givenSiteId = siteId;
+			if (StringUtils.isBlank(givenSiteId)) {
+				givenSiteId = getCurrentSiteId();
 			}
 
 			// note that this list MUST exclude TAs as it is checked in the
 			// GradebookService and will throw a SecurityException if invalid
 			// users are provided
-			final Set<String> userUuids = this.siteService.getSite(siteId).getUsersIsAllowed(GbRole.STUDENT.getValue());
+			final Set<String> userUuids = this.siteService.getSite(givenSiteId).getUsersIsAllowed(GbRole.STUDENT.getValue());
 
 			// filter the allowed list based on membership
 			if (groupFilter != null && groupFilter.getType() != GbGroup.Type.ALL) {
@@ -193,7 +196,7 @@ public class GradebookNgBusinessService {
 				final Set<String> groupMembers = new HashSet<>();
 
 				if (groupFilter.getType() == GbGroup.Type.GROUP) {
-					final Set<Member> members = this.siteService.getSite(siteId).getGroup(groupFilter.getId())
+					final Set<Member> members = this.siteService.getSite(givenSiteId).getGroup(groupFilter.getId())
 							.getMembers();
 					for (final Member m : members) {
 						if (userUuids.contains(m.getUserId())) {
@@ -206,7 +209,7 @@ public class GradebookNgBusinessService {
 				userUuids.retainAll(groupMembers);
 			}
 
-			final GbRole role = this.getUserRole(siteId);
+			final GbRole role = this.getUserRole(givenSiteId);
 
 			// if TA, pass it through the gradebook permissions (only if there
 			// are permissions)
@@ -218,7 +221,7 @@ public class GradebookNgBusinessService {
 				final List<PermissionDefinition> perms = getPermissionsForUser(user.getId());
 				if (!perms.isEmpty()) {
 
-					final Gradebook gradebook = this.getGradebook(siteId);
+					final Gradebook gradebook = this.getGradebook(givenSiteId);
 
 					// get list of sections and groups this TA has access to
 					final List courseSections = this.gradebookService.getViewableSections(gradebook.getUid());
@@ -446,7 +449,7 @@ public class GradebookNgBusinessService {
 
 		return rval;
 	}
-	
+
 	/**
 	 * Get a map of course grades for all students in the given site.
 	 *
@@ -458,15 +461,15 @@ public class GradebookNgBusinessService {
 		final List<String> studentUuids = this.getGradeableUsers(siteId);
 		return this.getCourseGrades(gradebook, studentUuids, null);
 	}
-	
+
 	/**
-	 * Get a map of course grades for all students in the given site using the specified grading schema mapping. 
+	 * Get a map of course grades for all students in the given site using the specified grading schema mapping.
 	 *
 	 * @param siteId siteId to get course grades for
 	 * @param schema grading schema mapping
 	 * @return the map of course grades for students, key = studentUuid, value = course grade, or an empty map
 	 */
-	public Map<String, CourseGrade> getCourseGrades(final String siteId, Map<String,Double> schema) {
+	public Map<String, CourseGrade> getCourseGrades(final String siteId, final Map<String,Double> schema) {
 		final Gradebook gradebook = this.getGradebook(siteId);
 		final List<String> studentUuids = this.getGradeableUsers(siteId);
 		return this.getCourseGrades(gradebook, studentUuids, schema);
@@ -483,7 +486,7 @@ public class GradebookNgBusinessService {
 		final Gradebook gradebook = this.getGradebook();
 		return this.getCourseGrades(gradebook, studentUuids, null);
 	}
-	
+
 	/**
 	 * Get a map of course grades for the given gradebook, users and optionally the grademap you want to use.
 	 *
@@ -492,7 +495,7 @@ public class GradebookNgBusinessService {
 	 * @param gradeMap the grade mapping to use. This should be left blank if you are displaying grades to students so that the currently persisted value is used.
 	 * @return the map of course grades for students, key = studentUuid, value = course grade, or an empty map
 	 */
-	private Map<String, CourseGrade> getCourseGrades(final Gradebook gradebook, final List<String> studentUuids, Map<String, Double> gradeMap) {
+	private Map<String, CourseGrade> getCourseGrades(final Gradebook gradebook, final List<String> studentUuids, final Map<String, Double> gradeMap) {
 		Map<String, CourseGrade> rval = new HashMap<>();
 		if (gradebook != null) {
 			if(gradeMap != null) {
@@ -2110,12 +2113,13 @@ public class GradebookNgBusinessService {
 	 */
 	public String getIconClass(final Assignment assignment) {
 		final String externalAppName = assignment.getExternalAppName();
+
 		String iconClass = getDefaultIconClass();
-		if (StringUtils.equals(externalAppName, "Assignments")) {
+		if (StringUtils.equals(externalAppName, externalAppLoader.getString("sakai.assignment.title"))) {
 			iconClass = getAssignmentsIconClass();
-		} else if (StringUtils.equals(externalAppName, "Tests & Quizzes")) {
+		} else if (StringUtils.equals(externalAppName, externalAppLoader.getString("sakai.samigo.title"))) {
 			iconClass = getSamigoIconClass();
-		} else if (StringUtils.equals(externalAppName, "Lesson Builder")) {
+		} else if (StringUtils.equals(externalAppName, externalAppLoader.getString("sakai.lessonbuildertool.title"))) {
 			iconClass = getLessonBuilderIconClass();
 		}
 		return iconClass;
@@ -2159,7 +2163,7 @@ public class GradebookNgBusinessService {
 	private String getLessonBuilderIconClass() {
 		return ICON_SAKAI + "sakai-lessonbuildertool";
 	}
-	
+
 	// Return a CandidateDetailProvider or null if it's not enabled
 	private CandidateDetailProvider getCandidateDetailProvider() {
 		return (CandidateDetailProvider)ComponentManager.get("org.sakaiproject.user.api.CandidateDetailProvider");
