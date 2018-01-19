@@ -1611,14 +1611,10 @@ public class SiteManageGroupSectionRoleHandler {
 				messages.addMessage(new TargettedMessage("import1.error.invalid.data.format", null, TargettedMessage.SEVERITY_ERROR));
 				return false;
 			}
-			// if we already have an occurrence of this group, get the group, check whether the user is already there, if not add them.
+			// if we already have an occurrence of this group add the user, otherwise create a new group.
 			if(groupMap.containsKey(groupTitle)){
 				ImportedGroup group = groupMap.get(groupTitle);
-				for (String s: group.getUserIds()) {
-					if (!s.equals(userId)) {
-						group.addUser(userId);
-					}
-				}
+				group.addUser(userId);
 			} else {
 				ImportedGroup group = new ImportedGroup(groupTitle, userId);
 				groupMap.put(groupTitle, group);
@@ -1734,8 +1730,24 @@ public class SiteManageGroupSectionRoleHandler {
 		}
 		return userIds;
 	}
-	
-	
+	/**
+	 * Helper to get a user's name in the format surname, first name.
+	 * @param userId	EID of the user
+	 * @return
+	 */
+	public String getUserSortName(String userId) {
+		// Return the userId if the user does not exist.
+		String sortName = userId;
+		try
+		{
+			sortName = userDirectoryService.getUserByEid(userId).getSortName();
+		}
+		catch( UserNotDefinedException ex )
+		{
+			M_log.debug( this + ".getUserSortName: can't find user for " + userId, ex );
+		}
+		return sortName;
+	}
 	/**
 	 * Helper to add a user to a group. Takes care of the role selection.
 	 * @param id	eid of the user eg jsmith26

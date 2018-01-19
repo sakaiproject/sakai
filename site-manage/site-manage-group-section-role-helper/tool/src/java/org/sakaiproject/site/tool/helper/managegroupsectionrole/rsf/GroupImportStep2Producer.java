@@ -91,7 +91,7 @@ public class GroupImportStep2Producer implements ViewComponentProducer, Navigati
             Group existingGroup = null;
             
             //add title
-            UIOutput.make(branch,"title", messageLocator.getMessage("import2.grouptitle") + importedGroup.getGroupTitle());
+            UIOutput.make(branch,"title", messageLocator.getMessage("import2.grouptitle") + " " + importedGroup.getGroupTitle());
             
             //check if group already exists
             for(Group g : existingGroups) {
@@ -119,22 +119,22 @@ public class GroupImportStep2Producer implements ViewComponentProducer, Navigati
                 //check user is valid
                 String foundUserId = handler.lookupUser(userId);
                 if(foundUserId != null && handler.isValidSiteUser(foundUserId)){
-            		//is user existing?
-            		if(existingUserIds.contains(userId)) {
+                    String userSortName = handler.getUserSortName(userId) + " ( " + userId + " )";
+                    //is user existing?
+                    if(existingUserIds.contains(userId)) {
                         existingFlag = true;
-                        UIOutput outputExisting = UIOutput.make(branch,"existmember:", userId);
-            		} else {
+                        UIOutput outputExisting = UIOutput.make(branch,"existmember:", userSortName);
+                    } else {
                         if (foundUserIds.isEmpty()) {
                             UIOutput.make(branch, "newmemberheading:", messageLocator.getMessage("import2.newmemberheading"));
                         }
                         foundUserIds.add(foundUserId);
-                        UIOutput outputNew = UIOutput.make(branch, "newmember:", userId);
+                        UIOutput outputNew = UIOutput.make(branch, "newmember:", userSortName);
                     }
-            		
-            	} else {
-            		badData = true;
+                } else {
+                    badData = true;
                     UIOutput outputInvalid = UIOutput.make(branch,"invalidmember:", userId);
-            	}
+                }
             }
 
             if (existingFlag) {
