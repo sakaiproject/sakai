@@ -92,14 +92,14 @@ public class BltiEntity implements LessonEntity, BltiInterface {
 	memoryService = m;
     }
 
-    private ToolManager toolManager;    
-    public void setToolManager(ToolManager toolManager) {
-		this.toolManager = toolManager;
+    private static ToolManager toolManager;
+    public void setToolManager(ToolManager tm) {
+		toolManager = tm;
 	}
     
-    private SiteService siteService;    
-	public void setSiteService(SiteService siteService) {
-		siteService = siteService;
+    private static SiteService siteService;
+	public void setSiteService(SiteService sm) {
+		siteService = sm;
 	}
 
 	static MessageLocator messageLocator = null;
