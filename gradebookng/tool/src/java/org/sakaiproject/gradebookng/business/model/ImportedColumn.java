@@ -17,13 +17,13 @@ package org.sakaiproject.gradebookng.business.model;
 
 import java.io.Serializable;
 
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.builder.HashCodeBuilder;
-
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.builder.HashCodeBuilder;
 
 /**
  * Describes the type of column imported
@@ -61,10 +61,7 @@ public class ImportedColumn implements Serializable {
 	 * @return
 	 */
 	public boolean isIgnorable() {
-		if (this.type == Type.USER_ID || this.type == Type.USER_NAME || this.type == Type.IGNORE) {
-			return true;
-		}
-		return false;
+		return this.type == Type.USER_ID || this.type == Type.USER_NAME || this.type == Type.IGNORE;
 	}
 
 	/**
@@ -73,10 +70,7 @@ public class ImportedColumn implements Serializable {
 	 * @return
 	 */
 	public boolean isGradeItem() {
-		if (this.type == Type.GB_ITEM_WITH_POINTS || this.type == Type.GB_ITEM_WITHOUT_POINTS) {
-			return true;
-		}
-		return false;
+		return this.type == Type.GB_ITEM_WITH_POINTS || this.type == Type.GB_ITEM_WITHOUT_POINTS;
 	}
 
 	/**
@@ -85,10 +79,7 @@ public class ImportedColumn implements Serializable {
 	 * @return
 	 */
 	public boolean isComment() {
-		if (this.type == Type.COMMENTS) {
-			return true;
-		}
-		return false;
+		return this.type == Type.COMMENTS;
 	}
 
 	/**
@@ -106,10 +97,7 @@ public class ImportedColumn implements Serializable {
 		}
 
 		// we allow columns names to be the same but of different cases (eg "Assignment 1" and "assignment 1" are both valid and unique)
-		if (StringUtils.equals(this.columnTitle, other.getColumnTitle()) && this.type == other.getType()) {
-			return true;
-		}
-		return false;
+		return StringUtils.equals(this.columnTitle, other.getColumnTitle()) && this.type == other.getType();
 	}
 
 	@Override

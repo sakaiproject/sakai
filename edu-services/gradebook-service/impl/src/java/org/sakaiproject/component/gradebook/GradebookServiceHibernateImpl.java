@@ -35,14 +35,20 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import lombok.extern.slf4j.Slf4j;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
+
 import org.hibernate.Hibernate;
 import org.hibernate.HibernateException;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.StaleObjectStateException;
 import org.hibernate.criterion.Restrictions;
+
+import org.sakaiproject.authz.cover.SecurityService;
+import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.hibernate.HibernateCriterionUtils;
 import org.sakaiproject.section.api.coursemanagement.CourseSection;
 import org.sakaiproject.section.api.coursemanagement.EnrollmentRecord;
@@ -82,12 +88,9 @@ import org.sakaiproject.tool.gradebook.GradingEvent;
 import org.sakaiproject.tool.gradebook.LetterGradePercentMapping;
 import org.sakaiproject.tool.gradebook.facades.Authz;
 import org.sakaiproject.util.ResourceLoader;
+
 import org.springframework.orm.hibernate4.HibernateCallback;
 import org.springframework.orm.hibernate4.HibernateOptimisticLockingFailureException;
-
-import lombok.extern.slf4j.Slf4j;
-import org.sakaiproject.authz.cover.SecurityService;
-import org.sakaiproject.component.cover.ServerConfigurationService;
 
 /**
  * A Hibernate implementation of GradebookService.

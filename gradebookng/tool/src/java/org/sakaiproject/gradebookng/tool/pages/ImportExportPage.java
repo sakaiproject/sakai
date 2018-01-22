@@ -25,6 +25,7 @@ import org.apache.wicket.markup.head.IHeaderResponse;
 import org.apache.wicket.markup.head.JavaScriptHeaderItem;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
+
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.gradebookng.business.GbRole;
 import org.sakaiproject.gradebookng.tool.component.GbFeedbackPanel;
@@ -45,11 +46,9 @@ public class ImportExportPage extends BasePage {
 	// Confirmation page displays both SUCCESS and ERROR messages.
 	// GbFeedbackPanels are styled with a single uniform background colour to represent a single 'error level' state.
 	// Since multiple 'error level' states are present, it looks best separated as two different panels
-	public final GbFeedbackPanel nonErrorFeedbackPanel = (GbFeedbackPanel) new GbFeedbackPanel("nonErrorFeedbackPanel").setFilter(new IFeedbackMessageFilter()
-	{
+	public final GbFeedbackPanel nonErrorFeedbackPanel = (GbFeedbackPanel) new GbFeedbackPanel("nonErrorFeedbackPanel").setFilter(new IFeedbackMessageFilter() {
 		@Override
-		public boolean accept(FeedbackMessage message)
-		{
+		public boolean accept(FeedbackMessage message) {
 			return FeedbackMessage.ERROR != message.getLevel();
 		}
 	});
@@ -96,15 +95,13 @@ public class ImportExportPage extends BasePage {
 	}
 
 	@Override
-	public void clearFeedback()
-	{
+	public void clearFeedback() {
 		feedbackPanel.clear();
 		nonErrorFeedbackPanel.clear();
 		errorFeedbackPanel.clear();
 	}
 
-	public void updateFeedback(AjaxRequestTarget target)
-	{
+	public void updateFeedback(AjaxRequestTarget target) {
 		target.add(nonErrorFeedbackPanel);
 		target.add(errorFeedbackPanel);
 	}

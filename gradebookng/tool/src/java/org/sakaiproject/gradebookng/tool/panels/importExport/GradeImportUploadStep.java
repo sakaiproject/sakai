@@ -17,22 +17,23 @@ package org.sakaiproject.gradebookng.tool.panels.importExport;
 
 import java.io.IOException;
 
-<<<<<<< HEAD
-=======
 import lombok.extern.slf4j.Slf4j;
+
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
-
->>>>>>> b44aea1482... refactor
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.ajax.form.AjaxFormSubmitBehavior;
+import org.apache.wicket.ajax.markup.html.form.AjaxButton;
+import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.form.Button;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.upload.FileUpload;
 import org.apache.wicket.markup.html.form.upload.FileUploadField;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.util.lang.Bytes;
+
 import org.sakaiproject.gradebookng.business.exception.GbImportExportInvalidFileTypeException;
 import org.sakaiproject.gradebookng.business.model.ImportedSpreadsheetWrapper;
 import org.sakaiproject.gradebookng.business.util.ImportGradesHelper;
@@ -40,11 +41,6 @@ import org.sakaiproject.gradebookng.tool.model.ImportWizardModel;
 import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
 import org.sakaiproject.gradebookng.tool.pages.ImportExportPage;
 import org.sakaiproject.gradebookng.tool.panels.BasePanel;
-
-import lombok.extern.slf4j.Slf4j;
-import org.apache.wicket.ajax.form.AjaxFormSubmitBehavior;
-import org.apache.wicket.ajax.markup.html.form.AjaxButton;
-import org.apache.wicket.markup.html.WebMarkupContainer;
 
 /**
  * Upload/Download page

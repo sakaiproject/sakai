@@ -19,13 +19,13 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.sakaiproject.gradebookng.business.importExport.UserIdentificationReport;
-import org.sakaiproject.gradebookng.business.model.ProcessedGradeItem;
-import org.sakaiproject.service.gradebook.shared.Assignment;
-
 import lombok.Getter;
 import lombok.Setter;
+
+import org.sakaiproject.gradebookng.business.importExport.UserIdentificationReport;
 import org.sakaiproject.gradebookng.business.model.ImportedSpreadsheetWrapper;
+import org.sakaiproject.gradebookng.business.model.ProcessedGradeItem;
+import org.sakaiproject.service.gradebook.shared.Assignment;
 
 /**
  * Model object used for the import wizard panels

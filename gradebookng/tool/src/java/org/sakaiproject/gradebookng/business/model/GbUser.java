@@ -17,10 +17,11 @@ package org.sakaiproject.gradebookng.business.model;
 
 import java.io.Serializable;
 
-import org.sakaiproject.user.api.User;
-
 import lombok.Getter;
+
 import org.apache.commons.lang.StringUtils;
+
+import org.sakaiproject.user.api.User;
 
 /**
  * DTO for a user. Enhance as required.
@@ -64,8 +65,7 @@ public class GbUser implements Serializable, Comparable<GbUser> {
 	public int compareTo(GbUser user)
 	{
 		int comp = displayId.compareToIgnoreCase(user.displayId);
-		if (comp == 0)
-		{
+		if (comp == 0) {
 			comp = displayName.compareToIgnoreCase(user.displayName);
 		}
 

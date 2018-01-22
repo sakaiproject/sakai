@@ -17,6 +17,7 @@ package org.sakaiproject.gradebookng.business.util;
 
 import au.com.bytecode.opencsv.CSVParser;
 import au.com.bytecode.opencsv.CSVReader;
+
 import java.io.IOException;
 import java.io.InputStream; 
 import java.io.InputStreamReader;
@@ -32,7 +33,9 @@ import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+
 import lombok.extern.slf4j.Slf4j;
+
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
@@ -44,6 +47,7 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.html.panel.Panel;
+
 import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
 import org.sakaiproject.gradebookng.business.exception.GbImportExportInvalidFileTypeException;
 import org.sakaiproject.gradebookng.business.importExport.GradeValidationReport;
@@ -712,7 +716,7 @@ public class ImportGradesHelper {
 	}
 
 	private static Map<Long, AssignmentStudentGradeInfo> transformCurrentGrades(final List<GbStudentGradeInfo> currentGrades) {
-		final Map<Long, AssignmentStudentGradeInfo> assignmentMap = new HashMap<Long, AssignmentStudentGradeInfo>();
+		final Map<Long, AssignmentStudentGradeInfo> assignmentMap = new HashMap<>();
 
 		for (final GbStudentGradeInfo studentGradeInfo : currentGrades) {
 			for (final Map.Entry<Long, GbGradeInfo> entry : studentGradeInfo.getGrades().entrySet()) {

@@ -32,7 +32,11 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
 
+import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
+
 import org.apache.commons.lang.StringUtils;
+
 import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
@@ -42,6 +46,7 @@ import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.gradebookng.business.exception.GbAccessDeniedException;
 import org.sakaiproject.gradebookng.business.exception.GbException;
+import org.sakaiproject.gradebookng.business.model.GbCourseGrade;
 import org.sakaiproject.gradebookng.business.model.GbGradeCell;
 import org.sakaiproject.gradebookng.business.model.GbGradeInfo;
 import org.sakaiproject.gradebookng.business.model.GbGradeLog;
@@ -49,6 +54,7 @@ import org.sakaiproject.gradebookng.business.model.GbGroup;
 import org.sakaiproject.gradebookng.business.model.GbStudentGradeInfo;
 import org.sakaiproject.gradebookng.business.model.GbStudentNameSortOrder;
 import org.sakaiproject.gradebookng.business.model.GbUser;
+import org.sakaiproject.gradebookng.business.util.CourseGradeFormatter;
 import org.sakaiproject.gradebookng.business.util.FormatHelper;
 import org.sakaiproject.gradebookng.business.util.GbStopWatch;
 import org.sakaiproject.gradebookng.tool.model.GradebookUiSettings;
@@ -82,11 +88,6 @@ import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.util.ResourceLoader;
-
-import lombok.Setter;
-import lombok.extern.slf4j.Slf4j;
-import org.sakaiproject.gradebookng.business.model.GbCourseGrade;
-import org.sakaiproject.gradebookng.business.util.CourseGradeFormatter;
 
 /**
  * Business service for GradebookNG
@@ -1204,6 +1205,7 @@ public class GradebookNgBusinessService {
 	 * Builds up the matrix (a map<userUid, GbStudentGradeInfo>) for the specified students / assignments.a
 	 * @param matrix output parameter; a map of studentUuids to GbStudentGradeInfo objects which will contain grade data for the specified assignments
 	 * @param gbStudents list of GbUsers for whom to retrieve grading data
+	 * @param studentUuids list of student UUIDs so we don't have to extract from GbUsers
 	 * @param assignments the list of assignments for which to retrieve grading data. Computes category scores associated with these assignments as appropriate
 	 * @param gradebook the gradebook containing the assignments, etc.
 	 * @param currentUserUuid

@@ -19,10 +19,10 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.sakaiproject.user.api.User;
-
 import lombok.Getter;
 import lombok.Setter;
+
+import org.sakaiproject.user.api.User;
 
 /**
  * Model for storing the grade info for a student
@@ -87,8 +87,8 @@ public class GbStudentGradeInfo implements Serializable {
 		this.studentLastName = u.getLastName();
 		this.studentDisplayName = u.getDisplayName();
 		this.studentNumber = studentNumber;
-		this.grades = new HashMap<Long, GbGradeInfo>();
-		this.categoryAverages = new HashMap<Long, Double>();
+		this.grades = new HashMap<>();
+		this.categoryAverages = new HashMap<>();
 	}
 
 	/**
@@ -110,5 +110,4 @@ public class GbStudentGradeInfo implements Serializable {
 	public void addCategoryAverage(final Long categoryId, final Double score) {
 		this.categoryAverages.put(categoryId, score);
 	}
-
 }
