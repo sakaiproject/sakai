@@ -65,16 +65,3 @@
 	path = groupmanager
 	url = https://github.com/cilt-uct/group-manager.git
 	branch = 12.x
-
-# modules not included
-#alias https://github.com/sakaiproject/sakai/branches/11.x/alias
-#authz https://github.com/sakaiproject/sakai/branches/11.x/authz
-#memory https://github.com/sakaiproject/sakai/branches/11.x/memory
-#rights https://github.com/sakaiproject/sakai/branches/11.x/rights
-
-#login 			https://github.com/cilt-uct/sakai/branches/11.x/login
-#portal 			https://github.com/cilt-uct/sakai/branches/11.x/portal
-# =reference 		https://github.com/cilt-uct/sakai/branches/11.x/reference
-#lessonbuilder 		https://github.com/cilt-uct/sakai/branches/11.x/lessonbuilder
-#providers https://github.com/cilt-uct/uct-providers/branches/vula-11.x
-#providers/cm-authz-provider https://github.com/sakaiproject/sakai/branches/11.x/providers/cm-authz-provider/
