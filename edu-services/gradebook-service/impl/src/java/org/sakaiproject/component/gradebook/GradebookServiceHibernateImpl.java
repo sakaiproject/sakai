@@ -86,6 +86,8 @@ import org.springframework.orm.hibernate4.HibernateCallback;
 import org.springframework.orm.hibernate4.HibernateOptimisticLockingFailureException;
 
 import lombok.extern.slf4j.Slf4j;
+import org.sakaiproject.authz.cover.SecurityService;
+import org.sakaiproject.component.cover.ServerConfigurationService;
 
 /**
  * A Hibernate implementation of GradebookService.
@@ -3428,8 +3430,11 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 			}
 		});
 
-		//set grade type
-		gradebook.setGrade_type(gbInfo.getGradeType());
+		//set grade type, but only if sakai.property is false OR sakai.property is true and user is admin
+		boolean onlyAdminsSetGradeType = ServerConfigurationService.getBoolean("gradebook.settings.gradeEntry.showToNonAdmins", true);
+		if(!onlyAdminsSetGradeType || (onlyAdminsSetGradeType && SecurityService.isSuperUser())) {
+			gradebook.setGrade_type(gbInfo.getGradeType());
+		}
 
 		//set category type
 		gradebook.setCategory_type(gbInfo.getCategoryType());
