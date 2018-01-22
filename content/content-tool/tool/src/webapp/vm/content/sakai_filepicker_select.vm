@@ -581,6 +581,15 @@ $(document).ready(function() {
 
 			</table>
 		
+			<p class="act">
+				<input type="button" name="attachButton" id="attachButton"  accesskey="s"
+					onclick="SPNR.disableControlsAndSpin( this, null ); document.getElementById('attachForm').action='#toolLink("FilePickerAction" "doAddattachments")'; submitform('attachForm');" 
+					value="$tlang.getString("att.finish")" #if($list_has_changed) class="active" #else disabled="disabled" #end />
+				<input type="button" name="cancelButton" id="cancelButton"  accesskey="x" class="cancelButton"
+					onclick=" document.getElementById('attachForm').action='#toolLink("FilePickerAction" "doCancel")'; submitform('attachForm');" 
+					value="$tlang.getString("att.cancel")"  />
+			</p>
+		
 			<div id="paddingfromhell" style="height:10em">
 		<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 	</form>						
