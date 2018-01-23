@@ -3026,7 +3026,7 @@ public class AssignmentAction extends PagedResourceActionII {
             Assignment a = getAssignment(assignmentId, "build_instructor_delete_assignment_context", state);
             if (a != null) {
                 int submittedCount = 0;
-                Set<AssignmentSubmission> submissions = a.getSubmissions();
+                Set<AssignmentSubmission> submissions = assignmentService.getSubmissions(a);
                 for (AssignmentSubmission submission : submissions) {
                     if (submission.getSubmitted() && submission.getDateSubmitted() != null) {
                         submittedCount++;
