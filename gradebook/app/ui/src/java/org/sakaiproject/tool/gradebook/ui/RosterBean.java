@@ -271,7 +271,7 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
 					String name = cat.getName();
 					if(getWeightingEnabled()){
 						//if weighting is enabled, then add "(weight)" to column
-						final Double value = (Double) (cat.getWeight());
+						final Double value = (cat.getWeight());
 						name = name + " (" +  nf.format(value * 100.0) + "%)";
 						//name = name + " (" + Integer.toString(cat.getWeight() * 100) + "%)";
 					}
@@ -352,7 +352,7 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
         final List viewableAssignmentList = new ArrayList();
         //Map viewableAssignmentMap = new HashMap();
         if (!allAssignments.isEmpty()) {
-        	for (Object obj : allAssignments) {
+        	for (final Object obj : allAssignments) {
         		if (obj instanceof GradebookAssignment){
 	        		final GradebookAssignment assignment = (GradebookAssignment) obj;
 	        		if (assignment != null) {
@@ -387,7 +387,7 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
         		final String studentId = (String)studentIter.next();
         		if (studentId != null) {
         			final Map itemIdFunctionMap = (Map)studentIdItemIdFunctionMap.get(studentId);
-        			for (Object obj : allAssignments) {
+        			for (final Object obj : allAssignments) {
         				if (obj instanceof GradebookAssignment){
         					final GradebookAssignment assignment = (GradebookAssignment) obj;
         					if (assignment != null) {
@@ -830,7 +830,7 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
         if(log.isInfoEnabled()) {
 			log.info("exporting gradebook " + getGradebookUid() + " as Excel");
 		}
-        getGradebookBean().getEventTrackingService().postEvent("gradebook.downloadRoster","/gradebook/"+getGradebookId()+"/"+getAuthzLevel());
+		getGradebookBean().postEvent("gradebook.downloadRoster", "/gradebook/" + getGradebookId() + "/" + getAuthzLevel(), false);
         SpreadsheetUtil.downloadSpreadsheetData(getSpreadsheetData(false, false),
         		getDownloadFileName(getLocalizedString("export_gradebook_prefix")),
         		new SpreadsheetDataFileWriterXls());
@@ -840,7 +840,7 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
         if(log.isInfoEnabled()) {
 			log.info("exporting gradebook " + getGradebookUid() + " as CSV");
 		}
-        getGradebookBean().getEventTrackingService().postEvent("gradebook.downloadRoster","/gradebook/"+getGradebookId()+"/"+getAuthzLevel());
+		getGradebookBean().postEvent("gradebook.downloadRoster", "/gradebook/" + getGradebookId() + "/" + getAuthzLevel(), false);
         SpreadsheetUtil.downloadSpreadsheetData(getSpreadsheetData(false, true),
         		getDownloadFileName(getLocalizedString("export_gradebook_prefix")),
         		new SpreadsheetDataFileWriterCsv());
@@ -850,7 +850,7 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
         if(log.isInfoEnabled()) {
 			log.info("exporting roster as CSV for gradebook " + getGradebookUid());
 		}
-        getGradebookBean().getEventTrackingService().postEvent("gradebook.downloadRoster","/gradebook/"+getGradebookId()+"/"+getAuthzLevel());
+		getGradebookBean().postEvent("gradebook.downloadRoster", "/gradebook/" + getGradebookId() + "/" + getAuthzLevel(), false);
         if (isUserAbleToGradeAll()) {
         	SpreadsheetUtil.downloadSpreadsheetData(getSpreadsheetData(true, true),
         		getDownloadFileName(getLocalizedString("export_gradebook_prefix")),
@@ -866,14 +866,13 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
         if(log.isInfoEnabled()) {
 			log.info("exporting roster as Excel for gradebook " + getGradebookUid());
 		}
-        final String authzLevel = (getGradebookBean().getAuthzService().isUserAbleToGradeAll(getGradebookUid())) ?"instructor" : "TA";
-        getGradebookBean().getEventTrackingService().postEvent("gradebook.downloadRoster","/gradebook/"+getGradebookId()+"/"+getAuthzLevel());
+		getGradebookBean().postEvent("gradebook.downloadRoster", "/gradebook/" + getGradebookId() + "/" + getAuthzLevel(), false);
         if (isUserAbleToGradeAll()) {
-        	SpreadsheetUtil.downloadSpreadsheetData(getSpreadsheetData(true, false),
-        		getDownloadFileName(getLocalizedString("export_gradebook_prefix")),
-        		new SpreadsheetDataFileWriterXls());
+			SpreadsheetUtil.downloadSpreadsheetData(getSpreadsheetData(true, false),
+					getDownloadFileName(getLocalizedString("export_gradebook_prefix")),
+					new SpreadsheetDataFileWriterXls());
         } else {
-        	SpreadsheetUtil.downloadSpreadsheetData(getSpreadsheetData(false, false),
+			SpreadsheetUtil.downloadSpreadsheetData(getSpreadsheetData(false, false),
             		getDownloadFileName(getLocalizedString("export_gradebook_prefix")),
             		new SpreadsheetDataFileWriterXls());
         }
@@ -883,14 +882,13 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
         if(log.isInfoEnabled()) {
 			log.info("exporting roster as Pdf for gradebook " + getGradebookUid());
 		}
-        final String authzLevel = (getGradebookBean().getAuthzService().isUserAbleToGradeAll(getGradebookUid())) ?"instructor" : "TA";
-        getGradebookBean().getEventTrackingService().postEvent("gradebook.downloadRoster","/gradebook/"+getGradebookId()+"/"+getAuthzLevel());
+		getGradebookBean().postEvent("gradebook.downloadRoster", "/gradebook/" + getGradebookId() + "/" + getAuthzLevel(), false);
         if (isUserAbleToGradeAll()) {
-        	SpreadsheetUtil.downloadSpreadsheetData(getSpreadsheetData(true, true),
-        		getDownloadFileName(getLocalizedString("export_gradebook_prefix")),
-        		new SpreadsheetDataFileWriterPdf());
+			SpreadsheetUtil.downloadSpreadsheetData(getSpreadsheetData(true, true),
+					getDownloadFileName(getLocalizedString("export_gradebook_prefix")),
+					new SpreadsheetDataFileWriterPdf());
         } else {
-        	SpreadsheetUtil.downloadSpreadsheetData(getSpreadsheetData(false, true),
+			SpreadsheetUtil.downloadSpreadsheetData(getSpreadsheetData(false, true),
             		getDownloadFileName(getLocalizedString("export_gradebook_prefix")),
             		new SpreadsheetDataFileWriterPdf());
         }

@@ -506,8 +506,8 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 		// Carry over the old gradebook's selected grading scheme if possible.
 		final String fromGradingScaleUid = gradebookInformation.getSelectedGradingScaleUid();
 
-		MERGE_GRADE_MAPPING: if (!StringUtils.isEmpty(fromGradingScaleUid)) {
-		for (final GradeMapping gradeMapping : gradebook.getGradeMappings()) {
+		if (!StringUtils.isEmpty(fromGradingScaleUid)) {
+			for (final GradeMapping gradeMapping : gradebook.getGradeMappings()) {
 				if (gradeMapping.getGradingScale().getUid().equals(fromGradingScaleUid)) {
 					// We have a match. Now make sure that the grades are as expected.
 					final Map<String, Double> inputGradePercents = gradebookInformation.getSelectedGradingScaleBottomPercents();
@@ -523,84 +523,14 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 					} else {
 						log.info("Merge to gradebook {} skipped grade mapping change because the {} grade codes did not match", toGradebookUid, fromGradingScaleUid);
 					}
-					break MERGE_GRADE_MAPPING;
+					break;
 				}
 			}
 			// Did not find a matching grading scale.
 			log.info("Merge to gradebook {} skipped grade mapping change because grading scale {} is not defined", toGradebookUid, fromGradingScaleUid);
 		}
-
-
 	}
 
-	@Override
-	public void mergeGradebookDefinitionXml(final String toGradebookUid, final String fromGradebookXml) {
-		final Gradebook gradebook = getGradebook(toGradebookUid);
-		final GradebookDefinition gradebookDefinition = (GradebookDefinition)VersionedExternalizable.fromXml(fromGradebookXml);
-
-		final List<String> assignmentNames = getHibernateTemplate().execute(session -> session
-				.createQuery("select asn.name from GradebookAssignment as asn where asn.gradebook.id = :gradebookid and asn.removed is false")
-				.setLong("gradebookid", gradebook.getId())
-				.list());
-
-		// Add any non-externally-managed assignments with non-duplicate names.
-		int assignmentsAddedCount = 0;
-		for (final org.sakaiproject.service.gradebook.shared.Assignment obj : gradebookDefinition.getAssignments()) {
-			final org.sakaiproject.service.gradebook.shared.Assignment assignmentDef = obj;
-
-			// Externally managed assessments should not be included.
-			if (assignmentDef.isExternallyMaintained()) {
-				continue;
-			}
-
-			// Skip any input assignments with duplicate names.
-			if (assignmentNames.contains(assignmentDef.getName())) {
-				if (log.isInfoEnabled()) {
-					log.info("Merge to gradebook " + toGradebookUid + " skipped duplicate assignment named " + assignmentDef.getName());
-				}
-				continue;
-			}
-
-			// All assignments should be unreleased even if they were released in the original.
-			createAssignment(gradebook.getId(), assignmentDef.getName(), assignmentDef.getPoints(), assignmentDef.getDueDate(), true, false, assignmentDef.isExtraCredit());
-			assignmentsAddedCount++;
-		}
-		if (log.isInfoEnabled()) {
-			log.info("Merge to gradebook " + toGradebookUid + " added " + assignmentsAddedCount + " assignments");
-		}
-
-		// Carry over the old gradebook's selected grading scheme if possible.
-		final String fromGradingScaleUid = gradebookDefinition.getSelectedGradingScaleUid();
-		MERGE_GRADE_MAPPING: if (!StringUtils.isEmpty(fromGradingScaleUid)) {
-			for (final GradeMapping gradeMapping : gradebook.getGradeMappings()) {
-				if (gradeMapping.getGradingScale().getUid().equals(fromGradingScaleUid)) {
-					// We have a match. Now make sure that the grades are as expected.
-					final Map<String, Double> inputGradePercents = gradebookDefinition.getSelectedGradingScaleBottomPercents();
-					final Set<String> gradeCodes = inputGradePercents.keySet();
-					if (gradeCodes.containsAll(gradeMapping.getGradeMap().keySet())) {
-						// Modify the existing grade-to-percentage map.
-						for (final String gradeCode : gradeCodes) {
-							gradeMapping.getGradeMap().put(gradeCode, inputGradePercents.get(gradeCode));
-						}
-						gradebook.setSelectedGradeMapping(gradeMapping);
-						updateGradebook(gradebook);
-						if (log.isInfoEnabled()) {
-							log.info("Merge to gradebook " + toGradebookUid + " updated grade mapping");
-						}
-					} else {
-						if (log.isInfoEnabled()) {
-							log.info("Merge to gradebook " + toGradebookUid + " skipped grade mapping change because the " + fromGradingScaleUid + " grade codes did not match");
-						}
-					}
-					break MERGE_GRADE_MAPPING;
-				}
-			}
-			// Did not find a matching grading scale.
-			if (log.isInfoEnabled()) {
-				log.info("Merge to gradebook " + toGradebookUid + " skipped grade mapping change because grading scale " + fromGradingScaleUid + " is not defined");
-			}
-		}
-	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Override
@@ -2813,9 +2743,8 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 	 * @return
 	 */
 	private void postUpdateGradeEvent(final String gradebookUid, final String assignmentName, final String studentUid, final Double pointsEarned) {
-	    if (this.eventTrackingService != null) {
-            this.eventTrackingService.postEvent("gradebook.updateItemScore","/gradebook/"+gradebookUid+"/"+assignmentName+"/"+studentUid+"/"+pointsEarned+"/student");
-        }
+		postEvent("gradebook.updateItemScore",
+				"/gradebook/" + gradebookUid + "/" + assignmentName + "/" + studentUid + "/" + pointsEarned + "/student");
     }
 
 	/**

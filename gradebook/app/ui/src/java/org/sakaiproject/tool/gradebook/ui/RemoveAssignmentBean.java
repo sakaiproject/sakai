@@ -18,11 +18,11 @@ package org.sakaiproject.tool.gradebook.ui;
 
 import java.io.Serializable;
 
-import lombok.extern.slf4j.Slf4j;
-
 import org.sakaiproject.service.gradebook.shared.StaleObjectModificationException;
 import org.sakaiproject.tool.gradebook.GradebookAssignment;
 import org.sakaiproject.tool.gradebook.jsf.FacesUtil;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Backing Bean for removing assignments from a gradebook.
@@ -36,12 +36,15 @@ public class RemoveAssignmentBean extends GradebookDependentBean implements Seri
     private boolean removeConfirmed;
     private GradebookAssignment assignment;
 
-    protected void init() {
-        if (assignmentId != null) {
-            assignment = getGradebookManager().getAssignment(assignmentId);
-            if (assignment == null) {
+	@Override
+	protected void init() {
+        if (this.assignmentId != null) {
+            this.assignment = getGradebookManager().getAssignment(this.assignmentId);
+            if (this.assignment == null) {
                 // The assignment might have been removed since this link was set up.
-                if (log.isWarnEnabled()) log.warn("No assignmentId=" + assignmentId + " in gradebookUid " + getGradebookUid());
+                if (log.isWarnEnabled()) {
+					log.warn("No assignmentId=" + this.assignmentId + " in gradebookUid " + getGradebookUid());
+				}
 
                 // TODO Deliver an appropriate message.
             }
@@ -49,16 +52,17 @@ public class RemoveAssignmentBean extends GradebookDependentBean implements Seri
     }
 
     public String removeAssignment() {
-        if(removeConfirmed) {
+        if(this.removeConfirmed) {
             try {
-                getGradebookManager().removeAssignment(assignmentId);
-            } catch (StaleObjectModificationException e) {
+                getGradebookManager().removeAssignment(this.assignmentId);
+            } catch (final StaleObjectModificationException e) {
                 FacesUtil.addErrorMessage(getLocalizedString("remove_assignment_locking_failure"));
                 return null;
             }
-            String authzLevel = (getGradebookBean().getAuthzService().isUserAbleToGradeAll(getGradebookUid())) ?"instructor" : "TA";
-            getGradebookBean().getEventTrackingService().postEvent("gradebook.deleteItem","/gradebook/"+getGradebookId()+"/"+assignment.getName()+"/"+authzLevel);
-            FacesUtil.addRedirectSafeMessage(getLocalizedString("remove_assignment_success", new String[] {assignment.getName()}));
+            final String authzLevel = (getGradebookBean().getAuthzService().isUserAbleToGradeAll(getGradebookUid())) ?"instructor" : "TA";
+			getGradebookBean().postEvent("gradebook.deleteItem",
+					"/gradebook/" + getGradebookId() + "/" + this.assignment.getName() + "/" + authzLevel);
+            FacesUtil.addRedirectSafeMessage(getLocalizedString("remove_assignment_success", new String[] {this.assignment.getName()}));
             return "overview";
         } else {
             FacesUtil.addErrorMessage(getLocalizedString("remove_assignment_confirmation_required"));
@@ -68,15 +72,15 @@ public class RemoveAssignmentBean extends GradebookDependentBean implements Seri
 
     public String cancel() {
         // Go back to the GradebookAssignment Details page for this assignment.
-        AssignmentDetailsBean assignmentDetailsBean = (AssignmentDetailsBean)FacesUtil.resolveVariable("assignmentDetailsBean");
-        assignmentDetailsBean.setAssignmentId(assignmentId);
+        final AssignmentDetailsBean assignmentDetailsBean = (AssignmentDetailsBean)FacesUtil.resolveVariable("assignmentDetailsBean");
+        assignmentDetailsBean.setAssignmentId(this.assignmentId);
         return "assignmentDetails";
     }
 
     public GradebookAssignment getAssignment() {
-        return assignment;
+        return this.assignment;
     }
-    public void setAssignment(GradebookAssignment assignment) {
+    public void setAssignment(final GradebookAssignment assignment) {
         this.assignment = assignment;
     }
 
@@ -84,24 +88,24 @@ public class RemoveAssignmentBean extends GradebookDependentBean implements Seri
 	 * @return Returns the assignmentId.
 	 */
 	public Long getAssignmentId() {
-		return assignmentId;
+		return this.assignmentId;
 	}
 	/**
 	 * @param assignmentId The assignmentId to set.
 	 */
-	public void setAssignmentId(Long assignmentId) {
+	public void setAssignmentId(final Long assignmentId) {
 		this.assignmentId = assignmentId;
 	}
 	/**
 	 * @return Returns the removeConfirmed.
 	 */
 	public boolean isRemoveConfirmed() {
-		return removeConfirmed;
+		return this.removeConfirmed;
 	}
 	/**
 	 * @param removeConfirmed The removeConfirmed to set.
 	 */
-	public void setRemoveConfirmed(boolean removeConfirmed) {
+	public void setRemoveConfirmed(final boolean removeConfirmed) {
 		this.removeConfirmed = removeConfirmed;
 	}
 }

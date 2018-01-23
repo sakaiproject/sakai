@@ -307,23 +307,6 @@ public interface GradebookService {
 	public GradebookInformation getGradebookInformation(String gradebookUid);
 
 	/**
-	 * Attempt to merge archived gradebook data (notably the assignnments) into a new gradebook.
-	 *
-	 * Assignment definitions whose names match assignments that are already in the targeted gradebook will be skipped.
-	 *
-	 * Imported assignments will not automatically be released to students, even if they were released in the original gradebook.
-	 *
-	 * Externally managed assessments will not be imported, since such imports should be handled by the external assessment engine.
-	 *
-	 * If possible, the targeted gradebook's selected grading scale will be set to match the archived grading scale. If there are any
-	 * mismatches that make this impossible, the existing grading scale will be left alone, but assignment imports will still happen.
-	 *
-	 * @param toGradebookUid
-	 * @param fromGradebookXml
-	 */
-	public void mergeGradebookDefinitionXml(String toGradebookUid, String fromGradebookXml);
-
-	/**
 	 * Removes an assignment from a gradebook. The assignment should not be deleted, but the assignment and all grade records associated
 	 * with the assignment should be ignored by the application. A removed assignment should not count toward the total number of points in
 	 * the gradebook.

@@ -36,7 +36,7 @@
 					<ref bean="org_sakaiproject_tool_gradebook_facades_Authn" />
 				</property>
                 <property name="eventTrackingService">
-                    <ref bean="org_sakaiproject_tool_gradebook_facades_EventTrackingService"/>
+                    <ref bean="org.sakaiproject.event.api.EventTrackingService"/>
                 </property>
                 <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
 

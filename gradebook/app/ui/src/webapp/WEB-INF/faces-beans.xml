@@ -24,7 +24,7 @@
 		<managed-property>
 			<description>User Directory Service</description>
 			<property-name>userDirectoryService</property-name>
-			<value>#{org_sakaiproject_tool_gradebook_facades_UserDirectoryService}</value>
+			<value>#{org.sakaiproject.user.api.UserDirectoryService}</value>
 		</managed-property>
 		<managed-property>
 			<description>Authn Service</description>
@@ -36,15 +36,10 @@
 			<property-name>authzService</property-name>
 			<value>#{org_sakaiproject_tool_gradebook_facades_Authz}</value>
 		</managed-property>
-		<managed-property>
-			<description>ContextManagement Service</description>
-			<property-name>contextManagementService</property-name>
-			<value>#{org_sakaiproject_tool_gradebook_facades_ContextManagement}</value>
-		</managed-property>
         <managed-property>
 			<description>Event Tracking Service</description>
 			<property-name>eventTrackingService</property-name>
-			<value>#{org_sakaiproject_tool_gradebook_facades_EventTrackingService}</value>
+			<value>#{org.sakaiproject.event.api.EventTrackingService}</value>
 		</managed-property>
 		<managed-property>
 			<description>Gradebook Permission Service</description>
