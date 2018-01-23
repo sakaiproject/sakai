@@ -51,7 +51,6 @@ import org.sakaiproject.gradebookng.tool.model.GbGradingSchemaEntry;
 import org.sakaiproject.gradebookng.tool.model.GbSettings;
 import org.sakaiproject.service.gradebook.shared.CourseGrade;
 import org.sakaiproject.service.gradebook.shared.GradeMappingDefinition;
-import org.sakaiproject.tool.gradebook.GradeMapping;
 import org.sakaiproject.user.api.User;
 
 import com.google.gson.Gson;
@@ -69,10 +68,12 @@ public class SettingsGradingSchemaPanel extends BasePanel implements IFormModelU
 	WebMarkupContainer schemaWrap;
 	WebMarkupContainer statsWrap;
 	ListView<GbGradingSchemaEntry> schemaView;
-	List<GradeMappingDefinition> gradeMappings;
-	private boolean expanded;
+	private List<GradeMappingDefinition> gradeMappings;
+	boolean expanded;
 	String gradingSchemaName;
 	DescriptiveStatistics statistics;
+	Label modifiedSchema;
+	Label unsavedSchema;
 
 	/**
 	 * This is the currently PERSISTED grade mapping id that is persisted for this gradebook
@@ -87,12 +88,22 @@ public class SettingsGradingSchemaPanel extends BasePanel implements IFormModelU
 	/**
 	 * List of {@link CourseGrade} cached here as it is used by a few components
 	 */
-	Map<String, CourseGrade> courseGradeMap;
+	private Map<String, CourseGrade> courseGradeMap;
 
 	/**
 	 * Count of grades for the chart
 	 */
 	int total;
+
+	/**
+	 * Has the schema been modified from the default percentages?
+	 */
+	boolean schemaModifiedFromDefault;
+
+	/**
+	 * Are there unsaved changes?
+	 */
+	boolean dirty;
 
 	public SettingsGradingSchemaPanel(final String id, final IModel<GbSettings> model, final boolean expanded) {
 		super(id, model);
@@ -122,6 +133,9 @@ public class SettingsGradingSchemaPanel extends BasePanel implements IFormModelU
 		// get the total number of course grades
 		this.total = getTotalCourseGrades(this.courseGradeMap);
 
+		// is the schema modified from the defaults?
+		this.schemaModifiedFromDefault = isModified();
+
 		// create map of grading scales to use for the dropdown
 		final Map<String, String> gradeMappingMap = new LinkedHashMap<>();
 		for (final GradeMappingDefinition gradeMapping : this.gradeMappings) {
@@ -131,6 +145,8 @@ public class SettingsGradingSchemaPanel extends BasePanel implements IFormModelU
 		final WebMarkupContainer settingsGradingSchemaPanel = new WebMarkupContainer("settingsGradingSchemaPanel");
 		// Preserve the expand/collapse state of the panel
 		settingsGradingSchemaPanel.add(new AjaxEventBehavior("shown.bs.collapse") {
+			private static final long serialVersionUID = 1L;
+
 			@Override
 			protected void onEvent(final AjaxRequestTarget ajaxRequestTarget) {
 				settingsGradingSchemaPanel.add(new AttributeModifier("class", "panel-collapse collapse in"));
@@ -138,6 +154,8 @@ public class SettingsGradingSchemaPanel extends BasePanel implements IFormModelU
 			}
 		});
 		settingsGradingSchemaPanel.add(new AjaxEventBehavior("hidden.bs.collapse") {
+			private static final long serialVersionUID = 1L;
+
 			@Override
 			protected void onEvent(final AjaxRequestTarget ajaxRequestTarget) {
 				settingsGradingSchemaPanel.add(new AttributeModifier("class", "panel-collapse collapse"));
@@ -169,6 +187,18 @@ public class SettingsGradingSchemaPanel extends BasePanel implements IFormModelU
 		typeChooser.setNullValid(false);
 		typeChooser.setModelObject(this.currentGradeMappingId);
 		settingsGradingSchemaPanel.add(typeChooser);
+
+		//add warning if the schema has been modified
+		this.modifiedSchema = new Label("modifiedSchema", new ResourceModel("settingspage.gradingschema.modified.note"));
+		this.modifiedSchema.setVisible(SettingsGradingSchemaPanel.this.schemaModifiedFromDefault);
+		this.modifiedSchema.setOutputMarkupPlaceholderTag(true);
+		settingsGradingSchemaPanel.add(this.modifiedSchema);
+
+		// add warning if the schema is dirty. hidden by default
+		this.unsavedSchema = new Label("unsavedSchema", new ResourceModel("settingspage.gradingschema.modified.warning"));
+		this.unsavedSchema.setVisible(false);
+		this.unsavedSchema.setOutputMarkupPlaceholderTag(true);
+		settingsGradingSchemaPanel.add(this.unsavedSchema);
 
 		// render the grading schema table
 		this.schemaWrap = new WebMarkupContainer("schemaWrap");
@@ -207,22 +237,29 @@ public class SettingsGradingSchemaPanel extends BasePanel implements IFormModelU
 						// refresh chart
 						// we need the current data from model (sorted) but in JSON form
 						Map<String, Double> schemaMap = asMap(schemaList);
-						schemaMap = GradeMapping.sortGradeMapping(schemaMap);
+						schemaMap = GradeMappingDefinition.sortGradeMapping(schemaMap);
 						final Gson gson = new GsonBuilder().create();
 						final String schemaJson = gson.toJson(schemaMap);
 
 						final String siteId = SettingsGradingSchemaPanel.this.businessService.getCurrentSiteId();
+
+						// TODO this could be a wicket component instead of Javascript
 						target.appendJavaScript("refreshChart('" + siteId + "', '" + FormatHelper.encode(schemaJson) + "')");
+
+						// check if schema has changed from the persistent values and show the warning
+						SettingsGradingSchemaPanel.this.unsavedSchema.setVisible(isDirty());
+						target.add(SettingsGradingSchemaPanel.this.unsavedSchema);
+
 					}
 				});
 			}
 		};
 		this.schemaView.setOutputMarkupId(true);
-		this.schemaWrap.add(this.schemaView);
 		this.schemaWrap.setOutputMarkupId(true);
+		this.schemaWrap.add(this.schemaView);
 		settingsGradingSchemaPanel.add(this.schemaWrap);
 
-		// handle updates on the schema type chooser, to repaint the table
+		// handle updates on the schema type chooser
 		typeChooser.add(new AjaxFormComponentUpdatingBehavior("onchange") {
 			private static final long serialVersionUID = 1L;
 
@@ -235,8 +272,13 @@ public class SettingsGradingSchemaPanel extends BasePanel implements IFormModelU
 				// refresh data
 				SettingsGradingSchemaPanel.this.model.getObject().setGradingSchemaEntries(getGradingSchemaEntries());
 
-				// repaint
+				// repaint table
 				target.add(SettingsGradingSchemaPanel.this.schemaWrap);
+
+				// set the warning if required
+				SettingsGradingSchemaPanel.this.schemaModifiedFromDefault = isModified();
+				SettingsGradingSchemaPanel.this.modifiedSchema.setVisible(SettingsGradingSchemaPanel.this.schemaModifiedFromDefault);
+				target.add(SettingsGradingSchemaPanel.this.modifiedSchema);
 			}
 		});
 
@@ -330,26 +372,18 @@ public class SettingsGradingSchemaPanel extends BasePanel implements IFormModelU
 
 		// get configured values or defaults
 		// need to retain insertion order
-		Map<String, Double> bottomPercents = new LinkedHashMap<>();
+		Map<String, Double> bottomPercents;
 
 		// note that we sort based on name so we need to pull the right name out of the list of mappings, for both cases
-		this.gradingSchemaName = this.gradeMappings.stream()
-				.filter(gradeMapping -> StringUtils.equals(gradeMapping.getId(), this.currentGradeMappingId))
-				.findFirst()
-				.get()
-				.getName();
+		this.gradingSchemaName = getGradingSchema(this.currentGradeMappingId).getName();
 
 		if (StringUtils.equals(this.currentGradeMappingId, this.configuredGradeMappingId)) {
 			// get the values from the configured grading scale (sorted by the service)
 			bottomPercents = this.model.getObject().getGradebookInformation().getSelectedGradingScaleBottomPercents();
 		} else {
 			// get the default values for the chosen grading scale and sort them
-			bottomPercents = GradeMapping.sortGradeMapping(
-					this.gradeMappings.stream()
-							.filter(gradeMapping -> StringUtils.equals(gradeMapping.getId(), this.currentGradeMappingId))
-							.findFirst()
-							.get()
-							.getDefaultBottomPercents());
+			bottomPercents = GradeMappingDefinition.sortGradeMapping(
+					getGradingSchema(this.currentGradeMappingId).getDefaultBottomPercents());
 		}
 
 		return asList(bottomPercents);
@@ -391,8 +425,7 @@ public class SettingsGradingSchemaPanel extends BasePanel implements IFormModelU
 	private Map<String, CourseGrade> getCourseGrades() {
 
 		final List<String> studentUuids = this.businessService.getGradeableUsers();
-		final Map<String, CourseGrade> rval = this.businessService.getCourseGrades(studentUuids);
-		return rval;
+		return this.businessService.getCourseGrades(studentUuids);
 	}
 
 	/**
@@ -544,5 +577,49 @@ public class SettingsGradingSchemaPanel extends BasePanel implements IFormModelU
 	private int getTotalCourseGrades(final Map<String, CourseGrade> map) {
 		return map.values().stream().filter(c -> StringUtils.isNotBlank(c.getMappedGrade()))
 				.collect(Collectors.toList()).size();
+	}
+
+	/**
+	 * Find a {@link GradeMappingDefinition} in the list of {@link GradeMappingDefinition} based on the id
+	 *
+	 * @param mappingId the id of the schema we want to pick out
+	 * @return {@ link GradeMappingDefinition} or null
+	 */
+	private GradeMappingDefinition getGradingSchema(final String mappingId) {
+		return this.gradeMappings
+				.stream()
+				.filter(gradeMapping -> StringUtils.equals(gradeMapping.getId(), mappingId))
+				.findFirst()
+				.get();
+	}
+
+	/**
+	 * Has the stored grade mapping been modified from the defaults?
+	 *
+	 * @return
+	 */
+	private boolean isModified() {
+		final GradeMappingDefinition gradeMapping = getGradingSchema(this.currentGradeMappingId);
+		return gradeMapping.isModified();
+	}
+
+	/**
+	 * Has the page model's grade mapping been changed from the stored one?
+	 *
+	 * @return
+	 */
+	private boolean isDirty() {
+
+		// Note that the maps must be HashMaps for the comparison to work properly due to TreeMap.equals() != HashMap.equals().
+
+		//get current values
+		final List<GbGradingSchemaEntry> currentValues = SettingsGradingSchemaPanel.this.model.getObject().getGradingSchemaEntries();
+		final Map<String, Double> currentGradeMapping = new HashMap<>(asMap(currentValues));
+
+		// get stored values
+		final GradeMappingDefinition storedValues = getGradingSchema(this.currentGradeMappingId);
+		final Map<String, Double> storedGradeMapping = new HashMap<>(storedValues.getGradeMap());
+
+		return !currentGradeMapping.equals(storedGradeMapping);
 	}
 }
