@@ -270,6 +270,42 @@ public class GradebookNgBusinessService {
 	}
 
 	/**
+	* Create a map so that we can use the user's EID (from the imported file) to lookup their UUID (used to store the grade by the backend service).
+	*
+	* @return Map where the user's EID is the key and the {@link GbUser} object is the value
+	*/
+	public Map<String, GbUser> getUserEidMap() {
+		final List<GbUser> users = getGbUsers(getGradeableUsers());
+		final Map<String, GbUser> userEidMap = new HashMap<>();
+		for (GbUser user : users) {
+			String eid = user.getDisplayId();
+			if (StringUtils.isNotBlank(eid)) {
+				userEidMap.put(eid, user);
+			}
+		}
+
+		return userEidMap;
+	}
+
+	/**
+	 * Gets a List of GbUsers for the specified userUuids without any filtering.
+	 * Appropriate only for back end business like grade exports, statistics, etc.
+	 * @param userUuids
+	 * @return
+	 */
+	public List<GbUser> getGbUsers(final List<String> userUuids)
+	{
+		List<GbUser> gbUsers = new ArrayList<>(userUuids.size());
+		List<User> users = getUsers(userUuids);
+
+		for (User u : users) {
+			gbUsers.add(new GbUser(u));
+		}
+
+		return gbUsers;
+	}
+
+	/**
 	 * Helper to get a reference to the gradebook for the current site
 	 *
 	 * @return the gradebook for the site
