@@ -32,6 +32,7 @@ import javax.persistence.CollectionTable;
 import javax.persistence.Column;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
@@ -73,7 +74,8 @@ public class AssignmentSubmission {
     @JoinColumn(name = "ASSIGNMENT_ID")
     private Assignment assignment;
 
-    @OneToMany(mappedBy = "submission", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
+    @OneToMany(mappedBy = "submission", fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<AssignmentSubmissionSubmitter> submitters = new HashSet<>();
 
     //private List submissionLog;
@@ -94,11 +96,13 @@ public class AssignmentSubmission {
     @Column(name = "MODIFIED_DATE")
     private Instant dateModified;
 
+    @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
     @ElementCollection
     @Column(name = "ATTACHMENT", length = 1024)
     @CollectionTable(name = "ASN_SUBMISSION_ATTACHMENTS", joinColumns = @JoinColumn(name = "SUBMISSION_ID"))
     private Set<String> attachments = new HashSet<>();
 
+    @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
     @ElementCollection
     @Column(name = "FEEDBACK_ATTACHMENT", length = 1024)
     @CollectionTable(name = "ASN_SUBMISSION_FEEDBACK_ATTACH", joinColumns = @JoinColumn(name = "SUBMISSION_ID"))
@@ -149,6 +153,7 @@ public class AssignmentSubmission {
     @Column(name = "GROUP_ID", length = 36)
     private String groupId;
 
+    @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
     @ElementCollection
     @MapKeyColumn(name = "NAME")
     @Lob

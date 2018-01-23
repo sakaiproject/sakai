@@ -68,8 +68,8 @@ public class SettingsGradingSchemaPanel extends BasePanel implements IFormModelU
 	WebMarkupContainer schemaWrap;
 	WebMarkupContainer statsWrap;
 	ListView<GbGradingSchemaEntry> schemaView;
-	List<GradeMappingDefinition> gradeMappings;
-	private boolean expanded;
+	private List<GradeMappingDefinition> gradeMappings;
+	boolean expanded;
 	String gradingSchemaName;
 	DescriptiveStatistics statistics;
 	Label modifiedSchema;
@@ -88,7 +88,7 @@ public class SettingsGradingSchemaPanel extends BasePanel implements IFormModelU
 	/**
 	 * List of {@link CourseGrade} cached here as it is used by a few components
 	 */
-	Map<String, CourseGrade> courseGradeMap;
+	private Map<String, CourseGrade> courseGradeMap;
 
 	/**
 	 * Count of grades for the chart
@@ -145,6 +145,8 @@ public class SettingsGradingSchemaPanel extends BasePanel implements IFormModelU
 		final WebMarkupContainer settingsGradingSchemaPanel = new WebMarkupContainer("settingsGradingSchemaPanel");
 		// Preserve the expand/collapse state of the panel
 		settingsGradingSchemaPanel.add(new AjaxEventBehavior("shown.bs.collapse") {
+			private static final long serialVersionUID = 1L;
+
 			@Override
 			protected void onEvent(final AjaxRequestTarget ajaxRequestTarget) {
 				settingsGradingSchemaPanel.add(new AttributeModifier("class", "panel-collapse collapse in"));
@@ -152,6 +154,8 @@ public class SettingsGradingSchemaPanel extends BasePanel implements IFormModelU
 			}
 		});
 		settingsGradingSchemaPanel.add(new AjaxEventBehavior("hidden.bs.collapse") {
+			private static final long serialVersionUID = 1L;
+
 			@Override
 			protected void onEvent(final AjaxRequestTarget ajaxRequestTarget) {
 				settingsGradingSchemaPanel.add(new AttributeModifier("class", "panel-collapse collapse"));
@@ -421,8 +425,7 @@ public class SettingsGradingSchemaPanel extends BasePanel implements IFormModelU
 	private Map<String, CourseGrade> getCourseGrades() {
 
 		final List<String> studentUuids = this.businessService.getGradeableUsers();
-		final Map<String, CourseGrade> rval = this.businessService.getCourseGrades(studentUuids);
-		return rval;
+		return this.businessService.getCourseGrades(studentUuids);
 	}
 
 	/**

@@ -87,7 +87,7 @@ public interface SiteService extends EntityProducer
 	/** Name for the event of creating a site from a sakai archive (KNL-1210) */
 	static final String SECURE_IMPORT_ARCHIVE = "site.import.archive";
 	
-	/** Name for the event of adding a user's My Workspace site. */
+	/** Name for the event of adding a user's Home site. */
 	static final String SECURE_ADD_USER_SITE = "site.add.usersite";
 
 	/** Name for the event of removing a site. */
