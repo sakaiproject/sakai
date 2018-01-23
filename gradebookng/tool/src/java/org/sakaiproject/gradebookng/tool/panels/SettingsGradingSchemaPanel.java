@@ -73,6 +73,7 @@ public class SettingsGradingSchemaPanel extends BasePanel implements IFormModelU
 	String gradingSchemaName;
 	DescriptiveStatistics statistics;
 	Label modifiedSchema;
+	Label unsavedSchema;
 
 	/**
 	 * This is the currently PERSISTED grade mapping id that is persisted for this gradebook
@@ -133,7 +134,7 @@ public class SettingsGradingSchemaPanel extends BasePanel implements IFormModelU
 		this.total = getTotalCourseGrades(this.courseGradeMap);
 
 		// is the schema modified from the defaults?
-		this.schemaModifiedFromDefault = isModified(this.currentGradeMappingId);
+		this.schemaModifiedFromDefault = isModified();
 
 		// create map of grading scales to use for the dropdown
 		final Map<String, String> gradeMappingMap = new LinkedHashMap<>();
@@ -186,8 +187,14 @@ public class SettingsGradingSchemaPanel extends BasePanel implements IFormModelU
 		//add warning if the schema has been modified
 		this.modifiedSchema = new Label("modifiedSchema", new ResourceModel("settingspage.gradingschema.modified.note"));
 		this.modifiedSchema.setVisible(SettingsGradingSchemaPanel.this.schemaModifiedFromDefault);
-		this.modifiedSchema.setOutputMarkupId(true);
+		this.modifiedSchema.setOutputMarkupPlaceholderTag(true);
 		settingsGradingSchemaPanel.add(this.modifiedSchema);
+
+		// add warning if the schema is dirty. hidden by default
+		this.unsavedSchema = new Label("unsavedSchema", new ResourceModel("settingspage.gradingschema.modified.warning"));
+		this.unsavedSchema.setVisible(false);
+		this.unsavedSchema.setOutputMarkupPlaceholderTag(true);
+		settingsGradingSchemaPanel.add(this.unsavedSchema);
 
 		// render the grading schema table
 		this.schemaWrap = new WebMarkupContainer("schemaWrap");
@@ -231,7 +238,14 @@ public class SettingsGradingSchemaPanel extends BasePanel implements IFormModelU
 						final String schemaJson = gson.toJson(schemaMap);
 
 						final String siteId = SettingsGradingSchemaPanel.this.businessService.getCurrentSiteId();
+
+						// TODO this could be a wicket component instead of Javascript
 						target.appendJavaScript("refreshChart('" + siteId + "', '" + FormatHelper.encode(schemaJson) + "')");
+
+						// check if schema has changed from the persistent values and show the warning
+						SettingsGradingSchemaPanel.this.unsavedSchema.setVisible(isDirty());
+						target.add(SettingsGradingSchemaPanel.this.unsavedSchema);
+
 					}
 				});
 			}
@@ -258,8 +272,7 @@ public class SettingsGradingSchemaPanel extends BasePanel implements IFormModelU
 				target.add(SettingsGradingSchemaPanel.this.schemaWrap);
 
 				// set the warning if required
-				SettingsGradingSchemaPanel.this.schemaModifiedFromDefault = isModified(
-						SettingsGradingSchemaPanel.this.currentGradeMappingId);
+				SettingsGradingSchemaPanel.this.schemaModifiedFromDefault = isModified();
 				SettingsGradingSchemaPanel.this.modifiedSchema.setVisible(SettingsGradingSchemaPanel.this.schemaModifiedFromDefault);
 				target.add(SettingsGradingSchemaPanel.this.modifiedSchema);
 			}
@@ -578,17 +591,32 @@ public class SettingsGradingSchemaPanel extends BasePanel implements IFormModelU
 	}
 
 	/**
-	 * Has this grademapping been modified from the defaults?
+	 * Has the stored grade mapping been modified from the defaults?
 	 *
 	 * @return
 	 */
-	private boolean isModified(final String mappingId) {
-
-		final GradeMappingDefinition gradeMapping = getGradingSchema(mappingId);
+	private boolean isModified() {
+		final GradeMappingDefinition gradeMapping = getGradingSchema(this.currentGradeMappingId);
 		return gradeMapping.isModified();
 	}
 
+	/**
+	 * Has the page model's grade mapping been changed from the stored one?
+	 *
+	 * @return
+	 */
+	private boolean isDirty() {
 
+		// Note that the maps must be HashMaps for the comparison to work properly due to TreeMap.equals() != HashMap.equals().
 
+		//get current values
+		final List<GbGradingSchemaEntry> currentValues = SettingsGradingSchemaPanel.this.model.getObject().getGradingSchemaEntries();
+		final Map<String, Double> currentGradeMapping = new HashMap<>(asMap(currentValues));
 
+		// get stored values
+		final GradeMappingDefinition storedValues = getGradingSchema(this.currentGradeMappingId);
+		final Map<String, Double> storedGradeMapping = new HashMap<>(storedValues.getGradeMap());
+
+		return !currentGradeMapping.equals(storedGradeMapping);
+	}
 }
