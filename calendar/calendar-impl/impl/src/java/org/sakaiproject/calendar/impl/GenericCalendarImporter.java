@@ -185,6 +185,8 @@ public class GenericCalendarImporter implements CalendarImporterService
 		private TimeRange timeRange;
 
 		private int lineNumber;
+		
+		private String creator;
 
 		/**
 		 * Default constructor
@@ -440,7 +442,7 @@ public class GenericCalendarImporter implements CalendarImporterService
 		}
 
 		/**
-		* Returns true if current user is thhe event's owner/creator
+		* Returns true if current user is the event's owner/creator
 		* @return boolean true or false
 		*/
 		public boolean isUserOwner()
@@ -469,6 +471,11 @@ public class GenericCalendarImporter implements CalendarImporterService
 			// Stub routine only
 
 		} // setCreator
+		
+		public void setCreator(String creator)
+		{
+			this.creator = creator;
+		}
 
 		/**
 		* Gets the event modifier (userid), if any (cover for PROP_MODIFIED_BY).
@@ -702,6 +709,13 @@ public class GenericCalendarImporter implements CalendarImporterService
 	public List doImport(String importType, InputStream importStream, Map columnMapping, String[] customFieldPropertyNames)
 			throws ImportException
 	{
+		return doImport(importType, importStream, columnMapping, customFieldPropertyNames, null);
+	}
+	
+
+	public List doImport(String importType, InputStream importStream, Map columnMapping, String[] customFieldPropertyNames, String userTzid)
+			throws ImportException
+	{
 		final List rowList = new ArrayList();
 		final Reader scheduleImport;
 
@@ -740,7 +754,7 @@ public class GenericCalendarImporter implements CalendarImporterService
 		columnMap = scheduleImport.getDefaultColumnMap();
 		
 		// Read in the file.
-		scheduleImport.importStreamFromDelimitedFile(importStream, new Reader.ReaderImportRowHandler()
+		String calendarTzid = scheduleImport.importStreamFromDelimitedFile(importStream, new Reader.ReaderImportRowHandler()
 		{
 			String frequencyColumn = columnMap.get(FREQUENCY_DEFAULT_COLUMN_HEADER);
 			String startTimeColumn = columnMap.get(START_TIME_DEFAULT_COLUMN_HEADER);
@@ -934,7 +948,10 @@ public class GenericCalendarImporter implements CalendarImporterService
 			}
 		});
 
-		return getPrototypeEvents(scheduleImport.filterEvents(rowList, customFieldPropertyNames), customFieldPropertyNames);
+		// Calendar time zone remains over user time zone
+		String tzid = calendarTzid==null ? userTzid:calendarTzid;
+		
+		return getPrototypeEvents(scheduleImport.filterEvents(rowList, customFieldPropertyNames, tzid), customFieldPropertyNames);
 	}
 
 	/**
