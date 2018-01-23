@@ -22,11 +22,13 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 
 import org.apache.commons.lang3.builder.CompareToBuilder;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.sakaiproject.service.gradebook.shared.DoubleComparator;
 
 /**
  * A GradeMapping provides a means to convert between an arbitrary set of grades
@@ -49,7 +51,7 @@ public class GradeMapping implements Serializable, Comparable<Object> {
 
 	public GradeMapping(final GradingScale gradingScale) {
 		setGradingScale(gradingScale);
-		this.gradeMap = new HashMap<String, Double>(gradingScale.getDefaultBottomPercents());
+		this.gradeMap = new HashMap<>(gradingScale.getDefaultBottomPercents());
 	}
 
 	public String getName() {
@@ -60,7 +62,7 @@ public class GradeMapping implements Serializable, Comparable<Object> {
 	 * Sets the percentage values for this GradeMapping to their default values.
 	 */
 	public void setDefaultValues() {
-		this.gradeMap = new HashMap<String, Double>(getDefaultBottomPercents());
+		this.gradeMap = new HashMap<>(getDefaultBottomPercents());
 	}
 
 	/**
@@ -111,21 +113,19 @@ public class GradeMapping implements Serializable, Comparable<Object> {
 	}
 
 	/**
-	 * This algorithm is slow, since it checks each grade option, starting from
-	 * the "top" (in this case an 'A'). We can make it faster by starting in the
-	 * middle (as in a bubble sort), but since there are so few grade options, I
-	 * think I'll leave it for now.
+	 * Get the mapped grade based on the persistent grade mappings
 	 *
-	 * @see org.sakaiproject.tool.gradebook.GradeMapping#getGrade(Double)
 	 */
-	public String getGrade(final Double value) {
-		return getGrade(getGradeMap(), value);
+	public String getMappedGrade(final Double value) {
+		return getMappedGrade(getGradeMap(), value);
 	}
 
 	/**
-	 * Alternative form of getGrade to allow a gradeMap and a value to be passed in and evaluated
+	 * Get the mapped grade based on the passed in grade mappings.
+	 *
+	 * NOTE: The gradeMap MUST be sorted!
 	 */
-	public static String getGrade(final Map<String, Double> gradeMap, final Double value) {
+	public static String getMappedGrade(final Map<String, Double> gradeMap, final Double value) {
 		if(value == null) {
             return null;
         }
@@ -142,6 +142,22 @@ public class GradeMapping implements Serializable, Comparable<Object> {
 		}
 		// As long as 'F' is zero, this should never happen.
 		return null;
+	}
+
+	/**
+	 * Handles the sorting of the grade mapping.
+	 *
+	 * @param gradeMap
+	 * @return
+	 */
+	public static Map<String, Double> sortGradeMapping(final Map<String, Double> gradeMap) {
+
+		// we only ever order by bottom percents now
+		final DoubleComparator doubleComparator = new DoubleComparator(gradeMap);
+		final Map<String, Double> rval = new TreeMap<>(doubleComparator);
+		rval.putAll(gradeMap);
+
+		return rval;
 	}
 
 	public Long getId() {

@@ -174,4 +174,30 @@
         <property name="securityService" ref="org.sakaiproject.authz.api.SecurityService"/>
         <property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager"/>
     </bean>
+
+    <bean id="org.sakaiproject.assignment.impl.conversion.api.AssignmentConversionService"
+          class="org.sakaiproject.assignment.impl.conversion.impl.AssignmentConversionServiceImpl"
+          init-method="init">
+        <property name="assignmentRepository" ref="org.sakaiproject.assignment.persistence.AssignmentRepository"/>
+        <property name="dataProvider" ref="org.sakaiproject.assignment.api.conversion.AssignmentDataProvider"/>
+        <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
+    </bean>
+
+    <bean id="org.sakaiproject.assignment.api.conversion.AssignmentDataProvider"
+          class="org.sakaiproject.assignment.impl.conversion.impl.AssignmentDataProvider11">
+        <property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
+    </bean>
+
+    <bean id="org.sakaiproject.assignment.impl.conversion.impl.Assignment12ConversionJob"
+          class="org.sakaiproject.assignment.impl.conversion.impl.Assignment12ConversionJob">
+        <property name="assignmentConversionService" ref="org.sakaiproject.assignment.impl.conversion.api.AssignmentConversionService"/>
+    </bean>
+
+    <bean id="org.sakaiproject.assignment.impl.conversion.impl.Assignment12ConversionJob.jobWrapper"
+          class="org.sakaiproject.component.app.scheduler.jobs.SpringJobBeanWrapper"
+          init-method="init">
+        <property name="beanId" value="org.sakaiproject.assignment.impl.conversion.impl.Assignment12ConversionJob"/>
+        <property name="jobName" value="Assignment 12 Conversion"/>
+        <property name="schedulerManager" ref="org.sakaiproject.api.app.scheduler.SchedulerManager"/>
+    </bean>
 </beans>

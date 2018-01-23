@@ -1971,7 +1971,7 @@ public interface ContentHostingService extends EntityProducer
 				IdLengthException, IdInvalidException, TypeException, IdUniquenessException;
 
    /**
-    * gets the quota for a site collection or for a user's my workspace collection
+    * gets the quota for a site collection or for a user's Home collection
     *
     * @param collection the collection on which to test for a quota.  this can be the collection for a site
     * or a user's workspace collection

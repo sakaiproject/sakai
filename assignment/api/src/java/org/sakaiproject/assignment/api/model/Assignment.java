@@ -22,7 +22,6 @@
 package org.sakaiproject.assignment.api.model;
 
 import java.time.Instant;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -41,8 +40,6 @@ import javax.persistence.Lob;
 import javax.persistence.MapKeyColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -107,10 +104,10 @@ public class Assignment {
     private String title;
 
     @Lob
-    @Column(name = "INSTRUCTIONS")
+    @Column(name = "INSTRUCTIONS", length = 65535)
     private String instructions;
 
-    @Column(name = "CONTEXT", nullable = false)
+    @Column(name = "CONTEXT", length = 36, nullable = false)
     private String context;
 
     @Column(name = "SECTION")
@@ -144,10 +141,10 @@ public class Assignment {
     @Column(name = "DROP_DEAD_DATE")
     private Instant dropDeadDate;
 
-    @Column(name = "MODIFIER")
+    @Column(name = "MODIFIER", length = 36)
     private String modifier;
 
-    @Column(name = "AUTHOR")
+    @Column(name = "AUTHOR", length = 36)
     private String author;
 
     @Column(name = "DRAFT", nullable = false)
@@ -165,23 +162,28 @@ public class Assignment {
     @Column(name = "POSITION")
     private Integer position;
 
+    @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     @OneToMany(mappedBy = "assignment", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<AssignmentSubmission> submissions = new HashSet<>();
 
+    @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
     @ElementCollection
     @MapKeyColumn(name = "NAME")
-    @Column(name = "VALUE")
+    @Lob
+    @Column(name = "VALUE", length = 65535)
     @CollectionTable(name = "ASN_ASSIGNMENT_PROPERTIES", joinColumns = @JoinColumn(name = "ASSIGNMENT_ID"))
     private Map<String, String> properties = new HashMap<>();
 
+    @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
     @ElementCollection
     @CollectionTable(name = "ASN_ASSIGNMENT_GROUPS", joinColumns = @JoinColumn(name = "ASSIGNMENT_ID"))
     @Column(name = "GROUP_ID")
     private Set<String> groups = new HashSet<>();
 
+    @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
     @ElementCollection
     @CollectionTable(name = "ASN_ASSIGNMENT_ATTACHMENTS", joinColumns = @JoinColumn(name = "ASSIGNMENT_ID"))
-    @Column(name = "ATTACHMENT")
+    @Column(name = "ATTACHMENT", length = 1024)
     private Set<String> attachments = new HashSet<>();
 
     @Enumerated(value = EnumType.STRING)
@@ -230,7 +232,7 @@ public class Assignment {
     @Column(name = "PEER_ASSESSMENT_NUMBER_REVIEW")
     private Integer peerAssessmentNumberReviews;
 
-    @Column(name = "PEER_ASSESSMENT_INSTRUCTIONS")
+    @Column(name = "PEER_ASSESSMENT_INSTRUCTIONS", length = 8000)
     private String peerAssessmentInstructions;
 
     @Column(name = "CONTENT_REVIEW")
@@ -258,21 +260,5 @@ public class Assignment {
         PASS_FAIL_GRADE_TYPE, // 4
         CHECK_GRADE_TYPE      // 5
     }
-
-    // TODO this data should come from a ReviewableAssignmentEntity and not be part of the Assignment (SOLID)
-    // for now this is stored in the assignments properties
-    // private String generateOriginalityReport;
-    // private Boolean allowStudentViewReport;
-    // private String submitReviewRepo;
-    // private boolean checkTurnitin = true;
-    // private boolean checkInternet = true;
-    // private boolean checkPublications = true;
-    // private boolean checkInstitution = true;
-    // private boolean excludeBibliographic = true;
-    // private boolean excludeQuoted = true;
-    // private boolean excludeSelfPlag = true;
-    // private boolean storeInstIndex = true;
-    // private int excludeType = 0;
-    // private int excludeValue = 1;
 }
 

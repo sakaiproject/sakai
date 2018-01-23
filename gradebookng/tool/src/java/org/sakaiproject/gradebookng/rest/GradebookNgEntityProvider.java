@@ -17,7 +17,7 @@ package org.sakaiproject.gradebookng.rest;
 
 import java.lang.reflect.Type;
 import java.util.Date;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -41,6 +41,7 @@ import org.sakaiproject.gradebookng.business.exception.GbAccessDeniedException;
 import org.sakaiproject.gradebookng.business.model.GbGradeCell;
 import org.sakaiproject.gradebookng.rest.model.CourseGradeSummary;
 import org.sakaiproject.service.gradebook.shared.CourseGrade;
+import org.sakaiproject.service.gradebook.shared.GradeMappingDefinition;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.SessionManager;
 
@@ -210,27 +211,34 @@ public class GradebookNgEntityProvider extends AbstractEntityProvider implements
 	}
 
 	@SuppressWarnings("unused")
-	@EntityCustomAction(action = "rebuild-course-grades", viewKey = EntityView.VIEW_NEW)
-	public CourseGradeSummary rebuildCourseGradeSummary(final EntityReference ref, final Map<String, Object> params) {
+	@EntityCustomAction(action = "rebuild-course-grades", viewKey = EntityView.VIEW_LIST)
+	public CourseGradeSummary rebuildCourseGradeSummary(final EntityView view, final Map<String, Object> params) {
 
 		// get params
 		final String siteId = (String) params.get("siteId");
 		final String schema = (String) params.get("schema");
+
+		log.debug("Schema json:" + schema);
 
 		checkValidSite(siteId);
 		checkInstructor(siteId);
 
 		// get the passed in schema
 		final Gson gson = new Gson();
-		final Type mappingType = new TypeToken<HashMap<String, Double>>(){}.getType();
-		final Map<String, Double> gradeMap = gson.fromJson(schema, mappingType);
+		final Type mappingType = new TypeToken<LinkedHashMap<String, Double>>(){}.getType();
+		Map<String, Double> gradingSchema = gson.fromJson(schema, mappingType);
 
-		if(gradeMap == null) {
+		log.debug("gradeMap:" + gradingSchema);
+
+		if (gradingSchema == null) {
 			throw new IllegalArgumentException("Grading schema data was missing / invalid");
 		}
 
+		// ensure it is sorted so the grade mapping works correctly
+		gradingSchema = GradeMappingDefinition.sortGradeMapping(gradingSchema);
+
 		// get the course grades using the passed in schema
-		final Map<String, CourseGrade> courseGrades = this.businessService.getCourseGrades(siteId, gradeMap);
+		final Map<String, CourseGrade> courseGrades = this.businessService.getCourseGrades(siteId, gradingSchema);
 		return reMap(courseGrades);
 	}
 

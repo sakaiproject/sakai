@@ -12899,7 +12899,7 @@ public class AssignmentAction extends PagedResourceActionII {
                             attachments.addAll(s.getAttachments().stream().map(entityManager::newReference).collect(Collectors.toList()));
                             List<Reference> feedbackAttachments = entityManager.newReferenceList();
                             feedbackAttachments.addAll(s.getFeedbackAttachments().stream().map(entityManager::newReference).collect(Collectors.toList()));
-                            submissionTable.put(eid, new UploadGradeWrapper(s.getGrade(), s.getSubmittedText(), s.getFeedbackComment(), hasSubmissionAttachment ? new ArrayList() : attachments, hasFeedbackAttachment ? new ArrayList() : feedbackAttachments, (s.getSubmitted() && s.getDateSubmitted() != null) ? s.getDateSubmitted().toString() : "", s.getFeedbackText()));
+                            submissionTable.put(eid, new UploadGradeWrapper(s.getGrade(), s.getSubmittedText(), s.getFeedbackComment(), hasSubmissionAttachment ? new ArrayList() : attachments, hasFeedbackAttachment ? new ArrayList() : feedbackAttachments, (s.getSubmitted() && s.getDateSubmitted() != null) ? Long.toString(s.getDateSubmitted().toEpochMilli()) : "", s.getFeedbackText()));
                             anonymousSubmissionAndEidTable.put(s.getId(), eid);
                         }
                     }
@@ -13380,7 +13380,7 @@ public class AssignmentAction extends PagedResourceActionII {
 
                     // if the current submission lacks timestamp while the timestamp exists inside the zip file
                     if (StringUtils.trimToNull(w.getSubmissionTimeStamp()) != null && submission.getDateSubmitted() == null) {
-                        submission.setDateSubmitted(Instant.ofEpochMilli(timeService.newTimeGmt(w.getSubmissionTimeStamp()).getTime()));
+                        submission.setDateSubmitted(Instant.ofEpochMilli(Long.parseLong(w.getSubmissionTimeStamp())));
                         submission.setSubmitted(true);
                     }
 

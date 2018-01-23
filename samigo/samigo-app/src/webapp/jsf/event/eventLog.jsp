@@ -7,7 +7,7 @@
     <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
       <head><%= request.getAttribute("html.head") %>
       <title><h:outputText value="EventLog"/></title>
-      <script type="text/javascript" language="JavaScript" src="/samigo-app/js/eventInfo.js"></script>
+      <samigo:script path="/js/eventInfo.js"/>
       </head>
     <body onload="<%= request.getAttribute("html.body.onload") %>;initHelpValue('<h:outputText value="#{eventLogMessages.search_hint}"/>', 'eventLogId:filteredUser');">
 

@@ -24,7 +24,6 @@ package org.sakaiproject.content.cover;
 import java.util.Collection;
 import java.util.Set;
 
-import org.sakaiproject.antivirus.api.VirusFoundException;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.exception.IdInvalidException;
@@ -33,7 +32,6 @@ import org.sakaiproject.exception.IdUsedException;
 import org.sakaiproject.exception.InUseException;
 import org.sakaiproject.exception.InconsistentException;
 import org.sakaiproject.exception.OverQuotaException;
-import org.sakaiproject.content.api.ContentResourceFilter;
 import org.sakaiproject.content.api.GroupAwareEdit;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.exception.PermissionException;
@@ -1088,7 +1086,7 @@ public class ContentHostingService
 	}
 
    /**
-    * gets the quota for a site collection or for a user's my workspace collection
+    * gets the quota for a site collection or for a user's Home collection
     *
     * @param collection the collection on which to test for a quota.  this can be the collection for a site
     * or a user's workspace collection

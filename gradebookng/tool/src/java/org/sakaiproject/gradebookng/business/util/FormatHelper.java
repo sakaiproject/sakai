@@ -15,20 +15,23 @@
  */
 package org.sakaiproject.gradebookng.business.util;
 
+import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
-import java.util.List;
 
-import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.validator.routines.DoubleValidator;
 import org.sakaiproject.util.ResourceLoader;
+
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class FormatHelper {
@@ -276,8 +279,8 @@ public class FormatHelper {
 	 * @param value - The value validation is being performed on.
 	 * @return true if the value is valid
 	 */
-	public static boolean isValidDouble(String value) {
-		DoubleValidator dv = new DoubleValidator();
+	public static boolean isValidDouble(final String value) {
+		final DoubleValidator dv = new DoubleValidator();
 		return dv.isValid(value, rl.getLocale());
 	}
 
@@ -287,8 +290,42 @@ public class FormatHelper {
 	 * @param value - The value validation is being performed on.
 	 * @return The parsed Double if valid or null if invalid.
 	 */
-	public static Double validateDouble(String value) {
-		DoubleValidator dv = new DoubleValidator();
+	public static Double validateDouble(final String value) {
+		final DoubleValidator dv = new DoubleValidator();
 		return dv.validate(value, rl.getLocale());
+	}
+
+	/**
+	 * Helper to encode a string and avoid the ridiculous exception that is never thrown
+	 *
+	 * @param s
+	 * @return encoded s
+	 */
+	public static String encode(final String s) {
+		if (StringUtils.isBlank(s)) {
+			return s;
+		}
+		try {
+			return URLEncoder.encode(s, "UTF-8");
+		} catch (final UnsupportedEncodingException e) {
+			throw new AssertionError("UTF-8 not supported");
+		}
+	}
+
+	/**
+	 * Helper to decode a string and avoid the ridiculous exception that is never thrown
+	 *
+	 * @param s
+	 * @return decoded s
+	 */
+	public static String decode(final String s) {
+		if (StringUtils.isBlank(s)) {
+			return s;
+		}
+		try {
+			return URLDecoder.decode(s, "UTF-8");
+		} catch (final UnsupportedEncodingException e) {
+			throw new AssertionError("UTF-8 not supported");
+		}
 	}
 }

@@ -448,6 +448,7 @@
 				<prop key="net.sf.ehcache.configurationResourceName">/org/sakaiproject/memory/api/ehcache.xml</prop>
 			</props>
 		</property>
+		<property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
 	</bean>
 
 	<!--  The "Global" Transaction Manager -->

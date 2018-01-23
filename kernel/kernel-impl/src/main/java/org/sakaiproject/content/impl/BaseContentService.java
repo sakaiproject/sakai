@@ -7600,7 +7600,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 		{
 			boolean isDropbox = false;
 			boolean attachmentOverride = false;
-			// special check for group-user : the grant's in the user's My Workspace site
+			// special check for group-user : the grant's in the user's Home site
 			String parts[] = StringUtil.split(ref.getId(), Entity.SEPARATOR);
 			if ((parts.length > 3) && (parts[1].equals("group-user")))
 			{
@@ -9483,7 +9483,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 	} // bytes2k
 
 	/**
-	 * gets the quota for a site collection or for a user's my workspace collection
+	 * gets the quota for a site collection or for a user's Home collection
 	 *
 	 * @param collection the collection on which to test for a quota.  this can be the collection for a site
 	 * or a user's workspace collection

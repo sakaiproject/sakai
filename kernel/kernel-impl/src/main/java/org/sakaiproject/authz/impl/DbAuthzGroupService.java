@@ -2050,7 +2050,7 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 					&& userId != null && userId.equals(sessionManager().getCurrentSessionUserId())
 			) {
 
-				// First check in the user's own my workspace site realm if it's in the list
+				// First check in the user's own Home site realm if it's in the list
 				// We don't want to change the user's role in their own site, so call the regular function.
 				// This catches permission checks for entity references such as user dropboxes.
 

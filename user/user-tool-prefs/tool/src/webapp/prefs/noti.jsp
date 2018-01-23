@@ -46,15 +46,14 @@
 			<c:set var="cTemplate" value = "noti" scope = "session" />
 
 			<%@ include file="toolbar.jspf"%>
-				
-				<h3>
+
+				<t:div rendered="#{UserPrefsTool.notiUpdated}">
+					<jsp:include page="prefUpdatedMsg.jsp"/>
+				</t:div>
+				<h3 style="display: inline-block;">
 					<h:outputText value="#{msgs.prefs_noti_title}" />
-					<h:panelGroup rendered="#{UserPrefsTool.notiUpdated}"  style="margin:0 3em;font-weight:normal">
-						<jsp:include page="prefUpdatedMsg.jsp"/>	
-					</h:panelGroup>
 				</h3>
 
-	
 				<sakai:messages rendered="#{!empty facesContext.maximumSeverity}" />
 				
 
