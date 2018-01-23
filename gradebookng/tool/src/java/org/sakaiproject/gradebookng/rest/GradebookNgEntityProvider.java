@@ -41,9 +41,9 @@ import org.sakaiproject.gradebookng.business.exception.GbAccessDeniedException;
 import org.sakaiproject.gradebookng.business.model.GbGradeCell;
 import org.sakaiproject.gradebookng.rest.model.CourseGradeSummary;
 import org.sakaiproject.service.gradebook.shared.CourseGrade;
+import org.sakaiproject.service.gradebook.shared.GradeMappingDefinition;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.SessionManager;
-import org.sakaiproject.tool.gradebook.GradeMapping;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -235,7 +235,7 @@ public class GradebookNgEntityProvider extends AbstractEntityProvider implements
 		}
 
 		// ensure it is sorted so the grade mapping works correctly
-		gradingSchema = GradeMapping.sortGradeMapping(gradingSchema);
+		gradingSchema = GradeMappingDefinition.sortGradeMapping(gradingSchema);
 
 		// get the course grades using the passed in schema
 		final Map<String, CourseGrade> courseGrades = this.businessService.getCourseGrades(siteId, gradingSchema);
