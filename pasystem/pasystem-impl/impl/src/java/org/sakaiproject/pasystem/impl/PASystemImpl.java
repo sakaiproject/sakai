@@ -103,7 +103,7 @@ class PASystemImpl implements PASystem {
         Map<String, Object> context = new HashMap<String, Object>();
 
         try {
-            Template template = handlebars.compile("templates/shared_footer");
+            Template template = handlebars.compile("org/sakaiproject/pasystem/templates/shared_footer");
 
             context.put("portalCDNQuery", PortalUtils.getCDNQuery());
             context.put("sakai_csrf_token", session.getAttribute("sakai.csrf.token"));
@@ -202,7 +202,7 @@ class PASystemImpl implements PASystem {
 
     private String getBannersFooter(Handlebars handlebars, Map<String, Object> context) {
         try {
-            Template template = handlebars.compile("templates/banner_footer");
+            Template template = handlebars.compile("org/sakaiproject/pasystem/templates/banner_footer");
 
             context.put("bannerJSON", getActiveBannersJSON());
 
@@ -262,7 +262,7 @@ class PASystemImpl implements PASystem {
             }
 
 
-            Template template = handlebars.compile("templates/popup_footer");
+            Template template = handlebars.compile("org/sakaiproject/pasystem/templates/popup_footer");
             return template.apply(context);
         } catch (IOException | MissingUuidException e) {
             log.warn("IOException while getting popups footer", e);
@@ -274,7 +274,7 @@ class PASystemImpl implements PASystem {
         if (ServerConfigurationService.getBoolean("pasystem.timezone-check", true)) {
 
             try {
-                Template template = handlebars.compile("templates/timezone_footer");
+                Template template = handlebars.compile("org/sakaiproject/pasystem/templates/timezone_footer");
 
                 return template.apply(context);
             } catch (IOException e) {
