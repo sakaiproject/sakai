@@ -173,7 +173,7 @@ public class CourseGradeRecord extends AbstractGradeRecord {
 		if (this.enteredGrade != null) {
 			return this.enteredGrade;
 		} else {
-			return getCourseGrade().getGradebook().getSelectedGradeMapping().getGrade(this.autoCalculatedGrade);
+			return getCourseGrade().getGradebook().getSelectedGradeMapping().getMappedGrade(this.autoCalculatedGrade);
 		}
 	}
 

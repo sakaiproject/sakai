@@ -53,8 +53,8 @@ import org.sakaiproject.gradebookng.business.model.ProcessedGradeItemDetail;
 import org.sakaiproject.gradebookng.tool.model.AssignmentStudentGradeInfo;
 import org.sakaiproject.service.gradebook.shared.Assignment;
 
-import au.com.bytecode.opencsv.CSVReader;
 import au.com.bytecode.opencsv.CSVParser;
+import au.com.bytecode.opencsv.CSVReader;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -82,7 +82,7 @@ public class ImportGradesHelper {
 
 	/**
 	 * Helper to parse the imported file into an {@link ImportedSpreadsheetWrapper} depending on its type
-	 * 
+	 *
 	 * @param is
 	 * @param mimetype
 	 * @param userMap
@@ -101,7 +101,7 @@ public class ImportGradesHelper {
 
 	/**
 	 * Helper to parse the imported file into an {@link ImportedSpreadsheetWrapper} depending on its type
-	 * 
+	 *
 	 * @param is
 	 * @param mimetype
 	 * @param userMap
@@ -114,7 +114,7 @@ public class ImportGradesHelper {
 	 * @throws InvalidFormatException
 	 */
 	public static ImportedSpreadsheetWrapper parseImportedGradeFile(final InputStream is, final String mimetype, final String filename,
-			final Map<String, String> userMap, String userCSVSeparator) throws GbImportExportInvalidColumnException, GbImportExportInvalidFileTypeException,
+			final Map<String, String> userMap, final String userCSVSeparator) throws GbImportExportInvalidColumnException, GbImportExportInvalidFileTypeException,
 			GbImportExportDuplicateColumnException, IOException, InvalidFormatException {
 
 		ImportedSpreadsheetWrapper rval = null;
@@ -139,7 +139,7 @@ public class ImportGradesHelper {
 	 * @throws GbImportExportInvalidColumnException
 	 * @throws GbImportExportDuplicateColumnException
 	 */
-	private static ImportedSpreadsheetWrapper parseCsv(final InputStream is, final Map<String, String> userMap, String userCSVSeparator)
+	private static ImportedSpreadsheetWrapper parseCsv(final InputStream is, final Map<String, String> userMap, final String userCSVSeparator)
 			throws GbImportExportInvalidColumnException, IOException, GbImportExportDuplicateColumnException {
 
 		// manually parse method so we can support arbitrary columns
@@ -196,7 +196,7 @@ public class ImportGradesHelper {
 	 * @throws GbImportExportInvalidColumnException
 	 * @Throws GbImportExportDuplicateColumnException
 	 */
-	private static ImportedSpreadsheetWrapper parseXls(final InputStream is, final Map<String, String> userMap, String userCSVSeparator)
+	private static ImportedSpreadsheetWrapper parseXls(final InputStream is, final Map<String, String> userMap, final String userCSVSeparator)
 			throws GbImportExportInvalidColumnException, InvalidFormatException, IOException, GbImportExportDuplicateColumnException {
 
 		int lineCount = 0;
@@ -236,7 +236,7 @@ public class ImportGradesHelper {
 	 * @param mapping
 	 * @return
 	 */
-	private static ImportedRow mapLine(final String[] line, final Map<Integer, ImportedColumn> mapping, final Map<String, String> userMap, String userCSVSeparator) {
+	private static ImportedRow mapLine(final String[] line, final Map<Integer, ImportedColumn> mapping, final Map<String, String> userMap, final String userCSVSeparator) {
 
 		final ImportedRow row = new ImportedRow();
 
@@ -430,7 +430,7 @@ public class ImportGradesHelper {
 
 	/**
 	 * Determine the status of a column
-	 * 
+	 *
 	 * @param column
 	 * @param assignment
 	 * @param importedGradeWrapper
@@ -610,7 +610,7 @@ public class ImportGradesHelper {
 
 	/**
 	 * Helper to parse the header row into an {@link ImportedColumn}
-	 * 
+	 *
 	 * @param headerValue
 	 * @return the mapped column or null if ignoring.
 	 * @throws GbImportExportInvalidColumnException if columns didn't match any known pattern
@@ -663,18 +663,19 @@ public class ImportGradesHelper {
 
 	/**
 	 * Helper to set a column title or raise an exception if empty
-	 * 
+	 *
 	 * @param headerValue
 	 * @param title
 	 * @param column
 	 */
-	private static void columnSetColumnTitle(String headerValue, String title, ImportedColumn column) {
-		title = trim(title);
-		if (title == null) {
+	private static void columnSetColumnTitle(final String headerValue, final String title, final ImportedColumn column) {
+
+		final String columnTitle = trim(title);
+		if (columnTitle == null) {
 			// Empty column title is invalid
 			throw new GbImportExportInvalidColumnException("Invalid column header: " + headerValue);
 		}
-		column.setColumnTitle(title);
+		column.setColumnTitle(columnTitle);
 	}
 
 	/**

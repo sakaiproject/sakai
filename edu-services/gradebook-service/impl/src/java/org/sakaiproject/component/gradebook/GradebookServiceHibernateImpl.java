@@ -28,7 +28,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -87,6 +86,8 @@ import org.springframework.orm.hibernate4.HibernateCallback;
 import org.springframework.orm.hibernate4.HibernateOptimisticLockingFailureException;
 
 import lombok.extern.slf4j.Slf4j;
+import org.sakaiproject.authz.cover.SecurityService;
+import org.sakaiproject.component.cover.ServerConfigurationService;
 
 /**
  * A Hibernate implementation of GradebookService.
@@ -406,10 +407,8 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 			rval.setSelectedGradeMappingId(Long.toString(selectedGradeMapping.getId()));
 
 			//note that these are not the DEFAULT bottom percents but the configured ones per gradebook
-			final Map<String,Double> gradeMap = selectedGradeMapping.getGradeMap().entrySet().stream()
-					.sorted(Map.Entry.comparingByValue(Comparator.reverseOrder()))
-					.collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue,
-					(oldValue, newValue) -> oldValue, LinkedHashMap::new));
+			Map<String, Double> gradeMap = selectedGradeMapping.getGradeMap();
+			gradeMap = GradeMapping.sortGradeMapping(gradeMap);
 			rval.setSelectedGradingScaleBottomPercents(gradeMap);
 			rval.setGradeScale(selectedGradeMapping.getGradingScale().getName());
 		}
@@ -962,7 +961,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 
 							if(mapTheGrades)
 							{
-								returnMap.put(enr.getUser().getDisplayId(), gradeMap.getGrade(grade));
+								returnMap.put(enr.getUser().getDisplayId(), gradeMap.getMappedGrade(grade));
 							}
 							else
 							{
@@ -3017,7 +3016,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 		    	// Calculate the course mean grade whether the student grade was manually entered or auto-calculated.
 		    	courseGrade.calculateStatistics(courseGradeRecs, studentUids.size());
 			    if (courseGrade.getMean() != null) {
-			        courseGradeLetter = gradebook.getSelectedGradeMapping().getGrade(courseGrade.getMean());
+			        courseGradeLetter = gradebook.getSelectedGradeMapping().getMappedGrade(courseGrade.getMean());
 			    }
 		    }
 
@@ -3344,6 +3343,9 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 			//this takes care of drop/keep scores
 			final List<CourseGradeRecord> gradeRecords = getPointsEarnedCourseGradeRecords(getCourseGrade(gradebook.getId()), userUuids);
 
+			// gradeMap MUST be sorted for the grade mapping to apply correctly
+			final Map<String, Double> sortedGradeMap = GradeMapping.sortGradeMapping(gradeMap);
+
 			gradeRecords.forEach(gr -> {
 
 				final org.sakaiproject.service.gradebook.shared.CourseGrade cg = new org.sakaiproject.service.gradebook.shared.CourseGrade();
@@ -3367,8 +3369,8 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 					}
 
 					//mapped grade
-					//NOTE: any incorrect mappings here are likely caused by the comparator not catering for the characters in the gradeMap string
-					final String mappedGrade = GradeMapping.getGrade(gradeMap, calculatedGrade);
+					final String mappedGrade = GradeMapping.getMappedGrade(sortedGradeMap, calculatedGrade);
+					log.debug("calculatedGrade: {} -> mappedGrade: {}", calculatedGrade, mappedGrade);
 					cg.setMappedGrade(mappedGrade);
 
 					//points
@@ -3428,8 +3430,11 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 			}
 		});
 
-		//set grade type
-		gradebook.setGrade_type(gbInfo.getGradeType());
+		//set grade type, but only if sakai.property is false OR sakai.property is true and user is admin
+		boolean onlyAdminsSetGradeType = ServerConfigurationService.getBoolean("gradebook.settings.gradeEntry.showToNonAdmins", true);
+		if(!onlyAdminsSetGradeType || (onlyAdminsSetGradeType && SecurityService.isSuperUser())) {
+			gradebook.setGrade_type(gbInfo.getGradeType());
+		}
 
 		//set category type
 		gradebook.setCategory_type(gbInfo.getCategoryType());
@@ -3475,7 +3480,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 		//Any categories remaining in currentCategoryMap are to be removed.
 		//Sort by category order as we resequence the order values to avoid gaps
 		Collections.sort(newCategoryDefinitions, CategoryDefinition.orderComparator);
-		Map<CategoryDefinition, Integer> newCategories = new HashMap<>();
+		final Map<CategoryDefinition, Integer> newCategories = new HashMap<>();
 		int categoryIndex = 0;
 		for(final CategoryDefinition newDef: newCategoryDefinitions) {
 
@@ -3521,8 +3526,8 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 		}
 
 		// Handle the additions
-		for(Entry<CategoryDefinition, Integer> entry : newCategories.entrySet()) {
-			CategoryDefinition newCat = entry.getKey();
+		for(final Entry<CategoryDefinition, Integer> entry : newCategories.entrySet()) {
+			final CategoryDefinition newCat = entry.getKey();
 			this.createCategory(gradebook.getId(), newCat.getName(), newCat.getWeight(), newCat.getDropLowest(),
 						newCat.getDropHighest(), newCat.getKeepHighest(), newCat.isExtraCredit(), entry.getValue());
 		}
@@ -3644,7 +3649,8 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 		final List<GradeMappingDefinition> rval = new ArrayList<>();
 
 		for(final GradeMapping mapping: gradeMappings) {
-			rval.add(new GradeMappingDefinition(mapping.getId(), mapping.getName(), mapping.getGradeMap(), mapping.getDefaultBottomPercents()));
+			rval.add(new GradeMappingDefinition(mapping.getId(), mapping.getName(), mapping.getGradeMap(),
+					GradeMapping.sortGradeMapping(mapping.getDefaultBottomPercents())));
 		}
 		return rval;
 
