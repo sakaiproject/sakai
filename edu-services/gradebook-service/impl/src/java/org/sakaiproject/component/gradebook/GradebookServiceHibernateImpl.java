@@ -43,6 +43,8 @@ import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.StaleObjectStateException;
 import org.hibernate.criterion.Restrictions;
+import org.sakaiproject.authz.cover.SecurityService;
+import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.hibernate.HibernateCriterionUtils;
 import org.sakaiproject.section.api.coursemanagement.CourseSection;
 import org.sakaiproject.section.api.coursemanagement.EnrollmentRecord;
@@ -86,8 +88,6 @@ import org.springframework.orm.hibernate4.HibernateCallback;
 import org.springframework.orm.hibernate4.HibernateOptimisticLockingFailureException;
 
 import lombok.extern.slf4j.Slf4j;
-import org.sakaiproject.authz.cover.SecurityService;
-import org.sakaiproject.component.cover.ServerConfigurationService;
 
 /**
  * A Hibernate implementation of GradebookService.
@@ -360,24 +360,6 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 	}
 
 	@Override
-	public String getGradebookDefinitionXml(final String gradebookUid) {
-		final Long gradebookId = getGradebook(gradebookUid).getId();
-		final Gradebook gradebook = getGradebook(gradebookUid);
-
-		final GradebookDefinition gradebookDefinition = new GradebookDefinition();
-		final GradeMapping selectedGradeMapping = gradebook.getSelectedGradeMapping();
-		gradebookDefinition.setSelectedGradingScaleUid(selectedGradeMapping.getGradingScale().getUid());
-		gradebookDefinition.setSelectedGradingScaleBottomPercents(new HashMap<>(selectedGradeMapping.getGradeMap()));
-		gradebookDefinition.setAssignments(getAssignments(gradebookUid));
-
-		gradebookDefinition.setGradeType(gradebook.getGrade_type());
-		gradebookDefinition.setCategoryType(gradebook.getCategory_type());
-		gradebookDefinition.setCategory(getCategories(gradebookId));
-
-		return VersionedExternalizable.toXml(gradebookDefinition);
-	}
-
-	@Override
 	public GradebookInformation getGradebookInformation(final String gradebookUid) {
 
 		if (gradebookUid == null ) {
@@ -429,157 +411,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 		return rval;
 	}
 
-	@SuppressWarnings("rawtypes")
-	@Override
-	@Deprecated
-	public void transferGradebookDefinitionXml(final String fromGradebookUid, final String toGradebookUid, final String fromGradebookXml) {
-		final Gradebook gradebook = getGradebook(toGradebookUid);
-		final Gradebook fromGradebook = getGradebook(fromGradebookUid);
 
-		final GradebookDefinition gradebookDefinition = (GradebookDefinition)VersionedExternalizable.fromXml(fromGradebookXml);
-
-		gradebook.setCategory_type(gradebookDefinition.getCategoryType());
-		gradebook.setGrade_type(gradebookDefinition.getGradeType());
-
-		updateGradebook(gradebook);
-
-		final List category = getCategories(fromGradebook.getId());
-
-		int assignmentsAddedCount = 0;
-		Long catId = null;
-		int undefined_nb = 0;
-
-		final List catList = gradebookDefinition.getCategory();
-		final List<Category> catList_tempt = new ArrayList<>();
-
-		if(!category.isEmpty()) {
-			//deal with category with assignments
-			for(final Iterator iter = category.iterator(); iter.hasNext();) {
-
-				int categoryCount = 0;
-				final String catName = ((Category)iter.next()).getName();
-
-				for (final org.sakaiproject.service.gradebook.shared.Assignment obj : gradebookDefinition.getAssignments()) {
-					final org.sakaiproject.service.gradebook.shared.Assignment assignmentDef = obj;
-
-					boolean newCategory = false;
-					// Externally managed assessments should not be included.
-					if (assignmentDef.isExternallyMaintained()) {
-						continue;
-					}
-
-					if(catName.equals(assignmentDef.getCategoryName())) {
-						newCategory = true;
-						categoryCount++;
-					}
-
-					if (assignmentDef.getCategoryName() != null) {
-						if(!newCategory) {}
-						else if(newCategory && categoryCount == 1) {
-							catId = createCategory(gradebook.getId(), assignmentDef.getCategoryName(), assignmentDef.getWeight(), 0, 0, 0, assignmentDef.isCategoryExtraCredit());
-							final Category catTempt = getCategory(catId);
-
-							catList_tempt.add(catTempt);
-							createAssignmentForCategory(gradebook.getId(), catId, assignmentDef.getName(), assignmentDef.getPoints(), assignmentDef.getDueDate(), true, false, assignmentDef.isExtraCredit());
-							assignmentsAddedCount++;
-						}
-						else{
-							createAssignmentForCategory(gradebook.getId(), catId, assignmentDef.getName(), assignmentDef.getPoints(), assignmentDef.getDueDate(), true, false, assignmentDef.isExtraCredit());
-							assignmentsAddedCount++;
-						}
-
-					}
-					//deal with assignments in undefined.
-					else {
-						if (undefined_nb == 0) {
-							createAssignment(gradebook.getId(), assignmentDef.getName(), assignmentDef.getPoints(), assignmentDef.getDueDate(), true, false, assignmentDef.isExtraCredit());
-							assignmentsAddedCount++;
-
-						}
-					}
-				}
-				undefined_nb++;
-			}
-
-			//deal with Category without assignments inside
-			final Iterator it_tempt = catList_tempt.iterator();
-			Iterator it = catList.iterator();
-
-			Category cat_cat ;
-			Category cat_tempt;
-
-			while(it_tempt.hasNext()) {
-				cat_tempt = (Category) it_tempt.next();
-				while(it.hasNext()) {
-					cat_cat = (Category) it.next();
-					if(cat_tempt.getName().equals(cat_cat.getName())) {
-						it.remove();
-						it = catList.iterator();
-					}
-				}
-				it = catList.iterator();
-			}
-
-			final Iterator itUpdate = catList.iterator();
-			while(itUpdate.hasNext()){
-				final Category catObj = (Category)itUpdate.next();
-				createCategory(gradebook.getId(), catObj.getName(), catObj.getWeight(), catObj.getDropLowest(), catObj.getDropHighest(), catObj.getKeepHighest(), catObj.isExtraCredit());
-			}
-		}
-		//deal with no categories
-		else {
-			for (final org.sakaiproject.service.gradebook.shared.Assignment obj : gradebookDefinition.getAssignments()) {
-				final org.sakaiproject.service.gradebook.shared.Assignment assignmentDef = obj;
-
-				// Externally managed assessments should not be included.
-				if (assignmentDef.isExternallyMaintained()) {
-					continue;
-				}
-
-				// All assignments should be unreleased even if they were released in the original.
-
-				createAssignment(gradebook.getId(), assignmentDef.getName(), assignmentDef.getPoints(), assignmentDef.getDueDate(), true, false, assignmentDef.isExtraCredit());
-				assignmentsAddedCount++;
-			}
-
-		}
-
-		if (log.isInfoEnabled()) {
-			log.info("Merge to gradebook " + toGradebookUid + " added " + assignmentsAddedCount + " assignments");
-		}
-
-			// Carry over the old gradebook's selected grading scheme if possible.
-		final String fromGradingScaleUid = gradebookDefinition.getSelectedGradingScaleUid();
-		MERGE_GRADE_MAPPING: if (!StringUtils.isEmpty(fromGradingScaleUid)) {
-		for (final GradeMapping gradeMapping : gradebook.getGradeMappings()) {
-				if (gradeMapping.getGradingScale().getUid().equals(fromGradingScaleUid)) {
-					// We have a match. Now make sure that the grades are as expected.
-					final Map<String, Double> inputGradePercents = gradebookDefinition.getSelectedGradingScaleBottomPercents();
-					final Set<String> gradeCodes = inputGradePercents.keySet();
-					if (gradeCodes.containsAll(gradeMapping.getGradeMap().keySet())) {
-						// Modify the existing grade-to-percentage map.
-						for (final String gradeCode : gradeCodes) {
-							gradeMapping.getGradeMap().put(gradeCode, inputGradePercents.get(gradeCode));
-						}
-						gradebook.setSelectedGradeMapping(gradeMapping);
-						updateGradebook(gradebook);
-						if (log.isInfoEnabled()) {
-							log.info("Merge to gradebook " + toGradebookUid + " updated grade mapping");
-						}
-					} else {
-						if (log.isInfoEnabled()) {
-							log.info("Merge to gradebook " + toGradebookUid + " skipped grade mapping change because the " + fromGradingScaleUid + " grade codes did not match");
-						}
-					}
-					break MERGE_GRADE_MAPPING;
-				}
-			}
-			// Did not find a matching grading scale.
-			if (log.isInfoEnabled()) {
-				log.info("Merge to gradebook " + toGradebookUid + " skipped grade mapping change because grading scale " + fromGradingScaleUid + " is not defined");
-			}
-		}
-	}
 
 	@Override
 	public void transferGradebook(final GradebookInformation gradebookInformation, final List<org.sakaiproject.service.gradebook.shared.Assignment> assignments, final String toGradebookUid) {
@@ -3431,7 +3263,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 		});
 
 		//set grade type, but only if sakai.property is false OR sakai.property is true and user is admin
-		boolean onlyAdminsSetGradeType = ServerConfigurationService.getBoolean("gradebook.settings.gradeEntry.showToNonAdmins", true);
+		final boolean onlyAdminsSetGradeType = ServerConfigurationService.getBoolean("gradebook.settings.gradeEntry.showToNonAdmins", true);
 		if(!onlyAdminsSetGradeType || (onlyAdminsSetGradeType && SecurityService.isSuperUser())) {
 			gradebook.setGrade_type(gbInfo.getGradeType());
 		}

@@ -288,31 +288,6 @@ public interface GradebookService {
 			throws GradebookNotFoundException;
 
 	/**
-	 * Get an archivable definition of gradebook data suitable for migration between sites. Assignment definitions and the currently
-	 * selected grading scale are included. Student view options and all information related to specific students or instructors (such as
-	 * scores) are not.
-	 *
-	 * @param gradebookUid
-	 * @return a versioned XML string
-	 *
-	 * @deprecated This is used by the old gradebook1 entityproducer and will soon be redundant
-	 */
-	@Deprecated
-	public String getGradebookDefinitionXml(String gradebookUid);
-
-	/**
-	 * Attempt to transfer gradebook data with Category and weight and settings
-	 *
-	 * @param fromGradebookUid
-	 * @param toGradebookUid
-	 * @param fromGradebookXml
-	 *
-	 * @deprecated This is used by the old gradebook1 entityproducer and will soon be redundant
-	 */
-	@Deprecated
-	public void transferGradebookDefinitionXml(String fromGradebookUid, String toGradebookUid, String fromGradebookXml);
-
-	/**
 	 * Transfer the gradebook information and assignments from one gradebook to another
 	 *
 	 * @param gradebookInformation GradebookInformation to copy
