@@ -19,6 +19,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.sakaiproject.gradebookng.business.importExport.UserIdentificationReport;
 import org.sakaiproject.gradebookng.business.model.ProcessedGradeItem;
 import org.sakaiproject.service.gradebook.shared.Assignment;
 
@@ -81,4 +82,10 @@ public class ImportWizardModel implements Serializable {
 	@Setter
 	private List<Assignment> assignmentsToCreate = new ArrayList<Assignment>();
 
+	/**
+	 * The {@link UserIdentificationReport} generated during parsing of the raw import file
+	 */
+	@Getter
+	@Setter
+	private UserIdentificationReport report;
 }

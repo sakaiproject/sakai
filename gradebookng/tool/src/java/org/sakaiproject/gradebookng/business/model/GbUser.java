@@ -20,6 +20,7 @@ import java.io.Serializable;
 import org.sakaiproject.user.api.User;
 
 import lombok.Getter;
+import org.apache.commons.lang.StringUtils;
 
 /**
  * DTO for a user. Enhance as required.
@@ -27,7 +28,7 @@ import lombok.Getter;
  * @author Steve Swinsburg (steve.swinsburg@gmail.com)
  *
  */
-public class GbUser implements Serializable {
+public class GbUser implements Serializable, Comparable<GbUser> {
 
 	private static final long serialVersionUID = 1L;
 
@@ -49,4 +50,25 @@ public class GbUser implements Serializable {
 		this.displayName = u.getDisplayName();
 	}
 
+	public GbUser(final String displayID, final String displayName) {
+		this.userUuid = "";
+		this.displayId = displayID;
+		this.displayName = displayName;
+	}
+
+	public boolean isValid() {
+		return StringUtils.isNotBlank(userUuid);
+	}
+
+	@Override
+	public int compareTo(GbUser user)
+	{
+		int comp = displayId.compareToIgnoreCase(user.displayId);
+		if (comp == 0)
+		{
+			comp = displayName.compareToIgnoreCase(user.displayName);
+		}
+
+		return comp;
+	}
 }
