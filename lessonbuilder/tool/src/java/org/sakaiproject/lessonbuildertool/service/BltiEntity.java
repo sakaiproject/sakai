@@ -94,12 +94,12 @@ public class BltiEntity implements LessonEntity, BltiInterface {
 
     private static ToolManager toolManager;
     public void setToolManager(ToolManager tm) {
-		toolManager = tm;
+		if (toolManager == null ) toolManager = tm;
 	}
     
     private static SiteService siteService;
 	public void setSiteService(SiteService sm) {
-		siteService = sm;
+		if (siteService == null ) siteService = sm;
 	}
 
 	static MessageLocator messageLocator = null;

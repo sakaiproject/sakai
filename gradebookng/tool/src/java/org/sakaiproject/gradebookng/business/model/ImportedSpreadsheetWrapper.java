@@ -18,9 +18,11 @@ package org.sakaiproject.gradebookng.business.model;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.sakaiproject.gradebookng.business.importExport.UsernameIdentifier;
 
 /**
  * Wraps an imported file
@@ -37,8 +39,18 @@ public class ImportedSpreadsheetWrapper implements Serializable {
 	@Setter
 	private List<ImportedColumn> columns;
 
+	@Getter
+	@Setter
+	private UsernameIdentifier userIdentifier;
+
 	public ImportedSpreadsheetWrapper() {
-		this.rows = new ArrayList<>();
-		this.columns = new ArrayList<>();
+		rows = new ArrayList<>();
+		columns = new ArrayList<>();
+		userIdentifier = null;
+	}
+
+	public void setRows(List<ImportedRow> rows, Map<String, GbUser> rosterMap) {
+		this.rows = rows;
+		userIdentifier = new UsernameIdentifier(rows, rosterMap);
 	}
 }

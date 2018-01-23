@@ -6,6 +6,10 @@
 
         <div wicket:id="subComponents" class="form-horizontal"></div>
 
+        <div class="panel-group" id="previewGradesAccordion" role="tablist" aria-multiselectable="true">
+            <wicket:container wicket:id="previewGradesPanel" />
+        </div>
+
         <div class="act">
             <input type="submit" wicket:id="backbutton" wicket:message="value:importExport.button.back"/>
             <input type="submit" class="active" wicket:message="value:importExport.button.next"/>
