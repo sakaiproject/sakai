@@ -259,8 +259,7 @@ public class ExportPanel extends BasePanel {
 					header.add(String.join(" ", IGNORE_COLUMN_PREFIX, getString("importExport.export.csv.headers.studentNumber")));
 				}
 
-				// get list of assignments. this allows us to build the columns and then fetch the grades for each student for each assignment
-				// from the map
+				// get list of assignments. this allows us to build the columns and then fetch the grades for each student for each assignment from the map
 				final List<Assignment> assignments = this.businessService.getGradebookAssignments();
 				
 				// no assignments, give a template
@@ -272,8 +271,7 @@ public class ExportPanel extends BasePanel {
 					header.add(getString("importExport.export.csv.headers.example.nopoints"));
 					
 					// points and comments
-					header.add(String.join(" ", COMMENTS_COLUMN_PREFIX, getString("importExport.export.csv.headers.example.pointscomments"),
-																	"[50]"));
+					header.add(String.join(" ", COMMENTS_COLUMN_PREFIX, getString("importExport.export.csv.headers.example.pointscomments"), "[50]"));
 					
 					// ignore
 					header.add(String.join(" ", IGNORE_COLUMN_PREFIX, getString("importExport.export.csv.headers.example.ignore")));
@@ -333,7 +331,7 @@ public class ExportPanel extends BasePanel {
 							if (gradeInfo != null) {
 								if (!isCustomExport || this.includeGradeItemScores) {
 									String grade = FormatHelper.formatGradeForDisplay(gradeInfo.getGrade());
-									line.add(StringUtils.removeEnd(grade, FormattedText.getDecimalSeparator()+"0"));
+									line.add(StringUtils.removeEnd(grade, FormattedText.getDecimalSeparator() + "0"));
 								}
 								if (!isCustomExport || this.includeGradeItemComments) {
 									line.add(gradeInfo.getGradeComment());

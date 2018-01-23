@@ -336,15 +336,6 @@ public class ImportGradesHelper {
 			return false;
 		}
 
-		// Track selections if coming back from the item creation steps
-//		List<ProcessedGradeItem> oldSelections = importWizardModel.getSelectedGradeItems();
-//		final Set<String> selectedItemTitles;
-//		if (oldSelections != null) {
-//			selectedItemTitles = oldSelections.stream().map(ProcessedGradeItem::getItemTitle).collect(Collectors.toSet());
-//		} else {
-//			selectedItemTitles = Collections.emptySet();
-//		}
-
 		// If there are duplicate headings, tell the user now
 		boolean hasValidationErrors = false;
 		HeadingValidationReport headingReport = spreadsheetWrapper.getHeadingReport();
@@ -447,32 +438,6 @@ public class ImportGradesHelper {
 		// No validation errors were encountered; clear out previous errors and continue to the next step in the wizard
 		sourcePage.clearFeedback();
 		sourcePage.updateFeedback(target);
-
-		// If returning from the creation pages, the ProcessedGradeItems in importWizardModel are now stale. Update them matching on getItemTitle()
-//		if (!CollectionUtils.isEmpty(selectedItemTitles)) {
-//			Map<String, Assignment> titlesToAssignments = new HashMap<>();
-//			Map<ProcessedGradeItem, Assignment> staleAssignmentsToCreate = importWizardModel.getAssignmentsToCreate();
-//			for (Map.Entry<ProcessedGradeItem, Assignment> entry : staleAssignmentsToCreate.entrySet()) {
-//				titlesToAssignments.put(entry.getKey().getItemTitle(), entry.getValue());
-//			}
-//
-//			List<ProcessedGradeItem> selectedGradeItems = new ArrayList<>();
-//			Map<ProcessedGradeItem, Assignment> assignmentsToCreate = new LinkedHashMap<>();
-//			for (ProcessedGradeItem item : processedGradeItems) {
-//				String title = item.getItemTitle();
-//				if (selectedItemTitles.contains(title)) {
-//					selectedGradeItems.add(item);
-//				}
-//
-//				Assignment toCreate = titlesToAssignments.get(title);
-//				if (toCreate != null) {
-//					assignmentsToCreate.put(item, toCreate);
-//				}
-//			}
-//
-//			importWizardModel.setSelectedGradeItems(selectedGradeItems);
-//			importWizardModel.setAssignmentsToCreate(assignmentsToCreate);
-//		}
 
 		// Setup and return the model
 		importWizardModel.setProcessedGradeItems(processedGradeItems);

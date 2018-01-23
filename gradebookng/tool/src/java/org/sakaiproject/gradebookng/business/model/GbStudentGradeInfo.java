@@ -72,9 +72,8 @@ public class GbStudentGradeInfo implements Serializable {
 		studentUuid = u.getUserUuid();
 		studentEid = u.getDisplayId();
 		studentDisplayName = u.getDisplayName();
-
-		studentFirstName = "";
-		studentLastName = "";
+		this.studentFirstName = u.getFirstName();
+		this.studentLastName = u.getLastName();
 		studentNumber = "";
 		grades = new HashMap<>();
 		categoryAverages = new HashMap<>();
