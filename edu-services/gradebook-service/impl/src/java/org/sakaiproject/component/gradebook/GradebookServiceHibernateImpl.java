@@ -406,7 +406,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 
 			//note that these are not the DEFAULT bottom percents but the configured ones per gradebook
 			Map<String, Double> gradeMap = selectedGradeMapping.getGradeMap();
-			gradeMap = GradeMapping.sortGradeMapping(gradeMap);
+			gradeMap = GradeMappingDefinition.sortGradeMapping(gradeMap);
 			rval.setSelectedGradingScaleBottomPercents(gradeMap);
 			rval.setGradeScale(selectedGradeMapping.getGradingScale().getName());
 		}
@@ -3342,7 +3342,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 			final List<CourseGradeRecord> gradeRecords = getPointsEarnedCourseGradeRecords(getCourseGrade(gradebook.getId()), userUuids);
 
 			// gradeMap MUST be sorted for the grade mapping to apply correctly
-			final Map<String, Double> sortedGradeMap = GradeMapping.sortGradeMapping(gradeMap);
+			final Map<String, Double> sortedGradeMap = GradeMappingDefinition.sortGradeMapping(gradeMap);
 
 			gradeRecords.forEach(gr -> {
 
@@ -3644,8 +3644,9 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 		final List<GradeMappingDefinition> rval = new ArrayList<>();
 
 		for(final GradeMapping mapping: gradeMappings) {
-			rval.add(new GradeMappingDefinition(mapping.getId(), mapping.getName(), mapping.getGradeMap(),
-					GradeMapping.sortGradeMapping(mapping.getDefaultBottomPercents())));
+			rval.add(new GradeMappingDefinition(mapping.getId(), mapping.getName(),
+					GradeMappingDefinition.sortGradeMapping(mapping.getGradeMap()),
+					GradeMappingDefinition.sortGradeMapping(mapping.getDefaultBottomPercents())));
 		}
 		return rval;
 
