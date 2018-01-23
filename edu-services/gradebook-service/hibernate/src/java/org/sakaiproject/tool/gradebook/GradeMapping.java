@@ -51,7 +51,7 @@ public class GradeMapping implements Serializable, Comparable<Object> {
 
 	public GradeMapping(final GradingScale gradingScale) {
 		setGradingScale(gradingScale);
-		this.gradeMap = new HashMap<String, Double>(gradingScale.getDefaultBottomPercents());
+		this.gradeMap = new HashMap<>(gradingScale.getDefaultBottomPercents());
 	}
 
 	public String getName() {
@@ -62,7 +62,7 @@ public class GradeMapping implements Serializable, Comparable<Object> {
 	 * Sets the percentage values for this GradeMapping to their default values.
 	 */
 	public void setDefaultValues() {
-		this.gradeMap = new HashMap<String, Double>(getDefaultBottomPercents());
+		this.gradeMap = new HashMap<>(getDefaultBottomPercents());
 	}
 
 	/**
