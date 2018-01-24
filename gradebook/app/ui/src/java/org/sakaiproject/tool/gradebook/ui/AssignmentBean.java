@@ -21,29 +21,28 @@ import java.math.BigDecimal;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.HashMap;
 
 import javax.faces.event.ValueChangeEvent;
 import javax.faces.model.SelectItem;
 
-import lombok.extern.slf4j.Slf4j;
-
 import org.apache.commons.lang.StringUtils;
-
 import org.sakaiproject.section.api.coursemanagement.EnrollmentRecord;
 import org.sakaiproject.section.api.facade.Role;
 import org.sakaiproject.service.gradebook.shared.ConflictingAssignmentNameException;
 import org.sakaiproject.service.gradebook.shared.MultipleAssignmentSavingException;
 import org.sakaiproject.service.gradebook.shared.StaleObjectModificationException;
 import org.sakaiproject.tool.cover.SessionManager;
-import org.sakaiproject.tool.gradebook.GradebookAssignment;
 import org.sakaiproject.tool.gradebook.Category;
 import org.sakaiproject.tool.gradebook.Gradebook;
+import org.sakaiproject.tool.gradebook.GradebookAssignment;
 import org.sakaiproject.tool.gradebook.jsf.FacesUtil;
 import org.sakaiproject.util.ResourceLoader;
+
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class AssignmentBean extends GradebookDependentBean implements Serializable {
@@ -60,142 +59,146 @@ public class AssignmentBean extends GradebookDependentBean implements Serializab
     private boolean selectedCategoryDropsScores;
     private boolean selectedAssignmentIsOnlyOne;
     private List<Category> categories;
-    
+
     private ScoringAgentData scoringAgentData;
 
     // added to support bulk gradebook item creation
-    public List newBulkItems; 
+    public List newBulkItems;
     public int numTotalItems = 1;
     public List addItemSelectList;
-    
+
     public String gradeEntryType;
     public static final String UNASSIGNED_CATEGORY = "unassigned";
     public static final String GB_ADJUSTMENT_ENTRY = "Adjustment";
-    
+
     private static final String GB_EDIT_ASSIGNMENT_PAGE = "editAssignment";
-    
-    /** 
-     * To add the proper number of blank gradebook item objects for bulk creation 
+
+    /**
+     * To add the proper number of blank gradebook item objects for bulk creation
      */
     private static final int NUM_EXTRA_ASSIGNMENT_ENTRIES = 50;
-    
-	protected void init() {
-		if (log.isDebugEnabled()) log.debug("init assignment=" + assignment);
 
-		if (assignment == null) {
-			if (assignmentId != null) {
-				assignment = getGradebookManager().getAssignment(assignmentId);
+	@Override
+	protected void init() {
+		if (log.isDebugEnabled()) {
+			log.debug("init assignment=" + this.assignment);
+		}
+
+		if (this.assignment == null) {
+			if (this.assignmentId != null) {
+				this.assignment = getGradebookManager().getAssignment(this.assignmentId);
 			}
-			if (assignment == null) {
+			if (this.assignment == null) {
 				// it is a new assignment
-				assignment = new GradebookAssignment();
-				assignment.setReleased(true);
+				this.assignment = new GradebookAssignment();
+				this.assignment.setReleased(true);
 			}
 		}
 
         // initialization; shouldn't enter here after category drop down changes
-		if(selectedCategory == null && !UNASSIGNED_CATEGORY.equals(assignmentCategory)) {
-			Category assignCategory = assignment.getCategory();
+		if(this.selectedCategory == null && !UNASSIGNED_CATEGORY.equals(this.assignmentCategory)) {
+			final Category assignCategory = this.assignment.getCategory();
 			if (assignCategory != null) {
-				assignmentCategory = assignCategory.getId().toString();
-				selectedCategoryDropsScores = assignCategory.isDropScores();
+				this.assignmentCategory = assignCategory.getId().toString();
+				this.selectedCategoryDropsScores = assignCategory.isDropScores();
 				assignCategory.setAssignmentList(retrieveCategoryAssignmentList(assignCategory));
-				selectedAssignmentIsOnlyOne = isAssignmentTheOnlyOne(assignment, assignCategory);
-				selectedCategory = assignCategory;
+				this.selectedAssignmentIsOnlyOne = isAssignmentTheOnlyOne(this.assignment, assignCategory);
+				this.selectedCategory = assignCategory;
 			}
 			else {
-				assignmentCategory = getLocalizedString("cat_unassigned");
+				this.assignmentCategory = getLocalizedString("cat_unassigned");
 			}
         }
-		
-		categoriesSelectList = new ArrayList();
+
+		this.categoriesSelectList = new ArrayList();
 		//create comma seperate string representation of the list of EC categories
-		List<String> extraCreditCategoriesList = new ArrayList<String>();
+		final List<String> extraCreditCategoriesList = new ArrayList<String>();
 		// The first choice is always "Unassigned"
-		categoriesSelectList.add(new SelectItem(UNASSIGNED_CATEGORY, FacesUtil.getLocalizedString("cat_unassigned")));
-		List gbCategories = getGradebookManager().getCategories(getGradebookId());
+		this.categoriesSelectList.add(new SelectItem(UNASSIGNED_CATEGORY, FacesUtil.getLocalizedString("cat_unassigned")));
+		final List gbCategories = getGradebookManager().getCategories(getGradebookId());
 		if (gbCategories != null && gbCategories.size() > 0)
 		{
-			Iterator catIter = gbCategories.iterator();
+			final Iterator catIter = gbCategories.iterator();
 			while (catIter.hasNext()) {
-				Category cat = (Category) catIter.next();
-				categoriesSelectList.add(new SelectItem(cat.getId().toString(), cat.getName()));
+				final Category cat = (Category) catIter.next();
+				this.categoriesSelectList.add(new SelectItem(cat.getId().toString(), cat.getName()));
 				if(cat.isExtraCredit()){
 					extraCreditCategoriesList.add(cat.getId().toString());
 				}
 			}
 		}
-		extraCreditCategories = StringUtils.join(extraCreditCategoriesList, ",");
+		this.extraCreditCategories = StringUtils.join(extraCreditCategoriesList, ",");
 
 		// To support bulk creation of assignments
-		if (newBulkItems == null) {
-			newBulkItems = new ArrayList();
+		if (this.newBulkItems == null) {
+			this.newBulkItems = new ArrayList();
 		}
 
 		// initialize the number of items to add dropdown
-		addItemSelectList = new ArrayList();
-		addItemSelectList.add(new SelectItem("0", ""));
+		this.addItemSelectList = new ArrayList();
+		this.addItemSelectList.add(new SelectItem("0", ""));
 		for (int i = 1; i < NUM_EXTRA_ASSIGNMENT_ENTRIES; i++) {
-			addItemSelectList.add(new SelectItem(new Integer(i).toString(), new Integer(i).toString()));
+			this.addItemSelectList.add(new SelectItem(new Integer(i).toString(), new Integer(i).toString()));
 		}
 
-        
-        if(newBulkItems.size() == NUM_EXTRA_ASSIGNMENT_ENTRIES) {
-            applyPointsPossibleForDropScoreCategories(newBulkItems);
+
+        if(this.newBulkItems.size() == NUM_EXTRA_ASSIGNMENT_ENTRIES) {
+            applyPointsPossibleForDropScoreCategories(this.newBulkItems);
         } else {
-            for (int i = newBulkItems.size(); i < NUM_EXTRA_ASSIGNMENT_ENTRIES; i++) {			
-			BulkAssignmentDecoratedBean item = getNewAssignment();
-			
+            for (int i = this.newBulkItems.size(); i < NUM_EXTRA_ASSIGNMENT_ENTRIES; i++) {
+			final BulkAssignmentDecoratedBean item = getNewAssignment();
+
 			if (i == 0) {
 				item.setSaveThisItem("true");
 			}
-			
-			newBulkItems.add(item);
+
+			this.newBulkItems.add(item);
 		}
         }
-        
+
         if (isScoringAgentEnabled()) {
-        	scoringAgentData = initializeScoringAgentData(getGradebookUid(), assignment.getId(), null);
+        	this.scoringAgentData = initializeScoringAgentData(getGradebookUid(), this.assignment.getId(), null);
         }
 }
 
-	private boolean isAssignmentTheOnlyOne(GradebookAssignment assignment, Category category){
+	private boolean isAssignmentTheOnlyOne(final GradebookAssignment assignment, final Category category){
 		if(assignment != null && category != null && category.getAssignmentList() != null){
-			if(category.getAssignmentList().size() == 1)
+			if(category.getAssignmentList().size() == 1) {
 				return ((GradebookAssignment)category.getAssignmentList().get(0)).getId().equals(assignment.getId());
-			else if(category.getAssignmentList().size() == 0)
+			} else if(category.getAssignmentList().size() == 0) {
 				return true;
-			else
+			} else {
 				return false;
+			}
 		}else{
 			return false;
-		}		
+		}
 	}
-	
-    /* 
+
+    /*
      * sets pointsPossible for items in categories that drop scores
      * and sets the assignment's category, so that the ui can read item.assignment.category.dropScores
      */
-    private void applyPointsPossibleForDropScoreCategories(List items) {
-        categories = getCategories();
-        
-        Map<String, Category> categoryCache = new HashMap<String, Category>();
-        
+    private void applyPointsPossibleForDropScoreCategories(final List items) {
+        this.categories = getCategories();
+
+        final Map<String, Category> categoryCache = new HashMap<String, Category>();
+
         for(int i=0; i<items.size(); i++) {
-            BulkAssignmentDecoratedBean bulkAssignment = (BulkAssignmentDecoratedBean)items.get(i);
-            
-            String assignmentCategory = bulkAssignment.getCategory();
+            final BulkAssignmentDecoratedBean bulkAssignment = (BulkAssignmentDecoratedBean)items.get(i);
+
+            final String assignmentCategory = bulkAssignment.getCategory();
             if(getLocalizedString("cat_unassigned").equalsIgnoreCase(assignmentCategory)) {
-                Category unassigned = new Category();
+                final Category unassigned = new Category();
                 bulkAssignment.getAssignment().setCategory(unassigned); // set this unassigned category, so that in the ui, item.assignment.category.dropScores will return false
-                if(categoryChanged || gradeEntryTypeChanged) {
+                if(this.categoryChanged || this.gradeEntryTypeChanged) {
                 	//bulkAssignment.setPointsPossible(null);
                     bulkAssignment.getAssignment().setPointsPossible(null);
                 }
             } else {
-                for(int j=0; j<categories.size(); j++) {
-                    Category category = (Category)categories.get(j);
-                    
+                for(int j=0; j<this.categories.size(); j++) {
+                    Category category = this.categories.get(j);
+
                     if(assignmentCategory.equals(category.getId().toString())) {
                         if(categoryCache.containsKey(category.getId().toString())){
                         	category = categoryCache.get(category.getId().toString());
@@ -203,13 +206,13 @@ public class AssignmentBean extends GradebookDependentBean implements Serializab
                         	category = retrieveSelectedCategory(category.getId().toString(), true);
                         	categoryCache.put(category.getId().toString(), category);
                         }
-                    	
+
                         bulkAssignment.getAssignment().setCategory(category); // set here, because need to read item.assignment.category.dropScores in the ui
-                        if(category.getAssignmentList() != null && category.getAssignmentList().size() > 0 
+                        if(category.getAssignmentList() != null && category.getAssignmentList().size() > 0
                         		&& category.isDropScores() && !GB_ADJUSTMENT_ENTRY.equals(bulkAssignment.getSelectedGradeEntryValue())) {
                             bulkAssignment.setPointsPossible(category.getItemValue().toString());
                             bulkAssignment.getAssignment().setPointsPossible(category.getItemValue());
-                        } else if(categoryChanged || gradeEntryTypeChanged) {
+                        } else if(this.categoryChanged || this.gradeEntryTypeChanged) {
                         	if (category.isDropScores()) {
                         		bulkAssignment.setPointsPossible(null);
                         	}
@@ -219,49 +222,33 @@ public class AssignmentBean extends GradebookDependentBean implements Serializab
                     }
                 }
             }
-        }            
-    }
-    
-    private Category getCategoryById(String categoryId) {
-        if(categoryId == null) {
-            return null;
         }
-        Category category = null;
-        for(int i=0; i<categories.size(); i++) {
-            category = (Category)categories.get(i);
-            String id = category.getId().toString();
-            
-            if(id != null && categoryId.trim().equals(id)) {
-                break;
-            }
-        }
-        return category;
     }
-    
+
 	private BulkAssignmentDecoratedBean getNewAssignment() {
-		GradebookAssignment assignment = new GradebookAssignment();
+		final GradebookAssignment assignment = new GradebookAssignment();
 		assignment.setReleased(true);
-		if(selectedCategory != null && selectedCategory.isDropScores()) {
-		    assignment.setPointsPossible(selectedCategory.getItemValue());
+		if(this.selectedCategory != null && this.selectedCategory.isDropScores()) {
+		    assignment.setPointsPossible(this.selectedCategory.getItemValue());
 		}
-		BulkAssignmentDecoratedBean bulkAssignmentDecoBean = new BulkAssignmentDecoratedBean(assignment, getItemCategoryString(assignment));
+		final BulkAssignmentDecoratedBean bulkAssignmentDecoBean = new BulkAssignmentDecoratedBean(assignment, getItemCategoryString(assignment));
 
 		return bulkAssignmentDecoBean;
 	}
 
-	private String getItemCategoryString(GradebookAssignment assignment) {
+	private String getItemCategoryString(final GradebookAssignment assignment) {
 		String assignmentCategory;
-		Category assignCategory = assignment.getCategory();
+		final Category assignCategory = assignment.getCategory();
 		if (assignCategory != null) {
 			assignmentCategory = assignCategory.getId().toString();
 		}
 		else {
 			assignmentCategory = getLocalizedString("cat_unassigned");
 		}
-		
+
 		return assignmentCategory;
 	}
-	
+
 	/**
 	 * Used to check if all gradebook items are valid before saving. Due to the way JSF works, had to turn off
 	 * validators for bulk assignments so had to perform checks here.
@@ -274,21 +261,21 @@ public class AssignmentBean extends GradebookDependentBean implements Serializab
 
 		// keep list of new assignment names just in case
 		// duplicates entered on screen
-		List newAssignmentNameList = new ArrayList();
-		
-		// used to hold assignments that are OK since we 
-		// need to determine if all are correct before saving
-		List itemsToSave = new ArrayList();
+		final List newAssignmentNameList = new ArrayList();
 
-		Iterator assignIter = newBulkItems.iterator();
+		// used to hold assignments that are OK since we
+		// need to determine if all are correct before saving
+		final List itemsToSave = new ArrayList();
+
+		final Iterator assignIter = this.newBulkItems.iterator();
 		int i = 0;
-		Map<String, Category> categoryCache = new HashMap<String, Category>();
-		while (i < numTotalItems && assignIter.hasNext()) {
-			BulkAssignmentDecoratedBean bulkAssignDecoBean = (BulkAssignmentDecoratedBean) assignIter.next();
-			
+		final Map<String, Category> categoryCache = new HashMap<String, Category>();
+		while (i < this.numTotalItems && assignIter.hasNext()) {
+			final BulkAssignmentDecoratedBean bulkAssignDecoBean = (BulkAssignmentDecoratedBean) assignIter.next();
+
 			if (bulkAssignDecoBean.getBlnSaveThisItem()) {
-				GradebookAssignment bulkAssignment = bulkAssignDecoBean.getAssignment();
-			
+				final GradebookAssignment bulkAssignment = bulkAssignDecoBean.getAssignment();
+
 				// Check for blank entry else check if duplicate within items to be
 				// added or with item currently in gradebook.
 				if ("".equals(bulkAssignment.getName().toString().trim())) {
@@ -306,7 +293,7 @@ public class AssignmentBean extends GradebookDependentBean implements Serializab
 					bulkAssignDecoBean.setBulkNoTitleError("OK");
 					newAssignmentNameList.add(bulkAssignment.getName().trim());
 				}
-				
+
                 Category selectedCategory;
                 if(categoryCache.containsKey(bulkAssignDecoBean.getCategory())){
                 	selectedCategory = categoryCache.get(bulkAssignDecoBean.getCategory());
@@ -314,10 +301,8 @@ public class AssignmentBean extends GradebookDependentBean implements Serializab
                 	selectedCategory = retrieveSelectedCategory(bulkAssignDecoBean.getCategory(), true);
                 	categoryCache.put(bulkAssignDecoBean.getCategory(), selectedCategory);
                 }
-				boolean categoryDropsScores = false;
 				if(selectedCategory != null && selectedCategory.isDropScores()
 						&& selectedCategory.getAssignmentList() != null && selectedCategory.getAssignmentList().size() > 0 ) {
-				    categoryDropsScores = true;
                     if(!GB_ADJUSTMENT_ENTRY.equals(bulkAssignDecoBean.getSelectedGradeEntryValue())) {
                         bulkAssignDecoBean.setPointsPossible(selectedCategory.getItemValue().toString()); // if category drops scores and is not adjustment, point value will come from the category level
                     }
@@ -332,18 +317,18 @@ public class AssignmentBean extends GradebookDependentBean implements Serializab
 				else {
 				    try {
 				        // Check if PointsPossible uses local number format
-				        String strPointsPossible = bulkAssignDecoBean.getPointsPossible();
-				        NumberFormat nf = NumberFormat.getInstance(new ResourceLoader().getLocale()); 
+				        final String strPointsPossible = bulkAssignDecoBean.getPointsPossible();
+				        final NumberFormat nf = NumberFormat.getInstance(new ResourceLoader().getLocale());
 
-				        double dblPointsPossible = new Double (nf.parse(strPointsPossible).doubleValue());
+				        final double dblPointsPossible = new Double (nf.parse(strPointsPossible).doubleValue());
 
 						// Added per SAK-13459: did not validate if point value was valid (> zero)
 						if (dblPointsPossible > 0) {
 							// No more than 2 decimal places can be entered.
 							BigDecimal bd = new BigDecimal(dblPointsPossible);
 							bd = bd.setScale(2, BigDecimal.ROUND_HALF_UP); // Two decimal places
-							double roundedVal = bd.doubleValue();
-							double diff = dblPointsPossible - roundedVal;
+							final double roundedVal = bd.doubleValue();
+							final double diff = dblPointsPossible - roundedVal;
 							if(diff != 0) {
 								saveAll = false;
 								resultString = "failure";
@@ -360,18 +345,19 @@ public class AssignmentBean extends GradebookDependentBean implements Serializab
 							bulkAssignDecoBean.setBulkNoPointsError("invalid");
 						}
 					}
-					catch (Exception e) {
+					catch (final Exception e) {
 						bulkAssignDecoBean.setBulkNoPointsError("NaN");
 						saveAll = false;
 						resultString = "failure";
 					}
 				}
-			
+
 				if (saveAll) {
 					bulkAssignDecoBean.getAssignment().setCategory(retrieveSelectedCategory(bulkAssignDecoBean.getCategory(), false));
 					// if points possible is still 0 at this point, set it to null to avoid Division By Zero exceptions.  These should never be allowed in the database.
-					if (null != bulkAssignDecoBean.getAssignment().getPointsPossible() && bulkAssignDecoBean.getAssignment().getPointsPossible()==0)
+					if (null != bulkAssignDecoBean.getAssignment().getPointsPossible() && bulkAssignDecoBean.getAssignment().getPointsPossible()==0) {
 						bulkAssignDecoBean.getAssignment().setPointsPossible(null);
+					}
 			    	itemsToSave.add(bulkAssignDecoBean.getAssignment());
 				}
 
@@ -384,16 +370,17 @@ public class AssignmentBean extends GradebookDependentBean implements Serializab
 		if (saveAll) {
 			try {
 				getGradebookManager().createAssignments(getGradebookId(), itemsToSave);
-				
-				String authzLevel = (getGradebookBean().getAuthzService().isUserAbleToGradeAll(getGradebookUid())) ?"instructor" : "TA";
-	            for (Iterator gbItemIter = itemsToSave.iterator(); gbItemIter.hasNext();) {
-	            	String itemName = ((GradebookAssignment) gbItemIter.next()).getName();
-					FacesUtil.addRedirectSafeMessage(getLocalizedString("add_assignment_save", 
+
+				final String authzLevel = (getGradebookBean().getAuthzService().isUserAbleToGradeAll(getGradebookUid())) ?"instructor" : "TA";
+	            for (final Iterator gbItemIter = itemsToSave.iterator(); gbItemIter.hasNext();) {
+	            	final String itemName = ((GradebookAssignment) gbItemIter.next()).getName();
+					FacesUtil.addRedirectSafeMessage(getLocalizedString("add_assignment_save",
 									new String[] {itemName}));
-					getGradebookBean().getEventTrackingService().postEvent("gradebook.newItem","/gradebook/"+getGradebookId()+"/"+itemName+"/"+authzLevel);
+					getGradebookBean().postEvent("gradebook.newItem", "/gradebook/" + getGradebookId() + "/" + itemName + "/" + authzLevel,
+							true);
 				}
 			}
-			catch (MultipleAssignmentSavingException e) {
+			catch (final MultipleAssignmentSavingException e) {
 				FacesUtil.addErrorMessage(FacesUtil.getLocalizedString("validation_messages_present"));
 				resultString = "failure";
 			}
@@ -402,66 +389,73 @@ public class AssignmentBean extends GradebookDependentBean implements Serializab
 			// There are errors so need to put an error message at top
 			FacesUtil.addErrorMessage(FacesUtil.getLocalizedString("validation_messages_present"));
 		}
-		
+
 		return resultString;
 	}
-	
+
 	public String updateAssignment() {
 		try {
-			Category category = retrieveSelectedCategory();
-			assignment.setCategory(category);
+			final Category category = retrieveSelectedCategory();
+			this.assignment.setCategory(category);
 
-            if(!GB_ADJUSTMENT_ENTRY.equals(assignment.getSelectedGradeEntryValue()) && category != null && category.isDropScores() && !isAssignmentTheOnlyOne(assignment, category)) {
-                assignment.setPointsPossible(category.getItemValue()); // if category drops scores, point value will come from the category level
+            if(!GB_ADJUSTMENT_ENTRY.equals(this.assignment.getSelectedGradeEntryValue()) && category != null && category.isDropScores() && !isAssignmentTheOnlyOne(this.assignment, category)) {
+                this.assignment.setPointsPossible(category.getItemValue()); // if category drops scores, point value will come from the category level
             }
-			
-			GradebookAssignment originalAssignment = getGradebookManager().getAssignment(assignmentId);
-			Double origPointsPossible = originalAssignment.getPointsPossible();
-			Double newPointsPossible = assignment.getPointsPossible();
-			boolean scoresEnteredForAssignment = getGradebookManager().isEnteredAssignmentScores(assignmentId);
-			
+
+			final GradebookAssignment originalAssignment = getGradebookManager().getAssignment(this.assignmentId);
+			final Double origPointsPossible = originalAssignment.getPointsPossible();
+			final Double newPointsPossible = this.assignment.getPointsPossible();
+			final boolean scoresEnteredForAssignment = getGradebookManager().isEnteredAssignmentScores(this.assignmentId);
+
 			/* If grade entry by percentage or letter and the points possible has changed for this assignment,
 			 * we need to convert all of the stored point values to retain the same value
 			 */
 			if ((getGradeEntryByPercent() || getGradeEntryByLetter()) && scoresEnteredForAssignment) {
 				if (!newPointsPossible.equals(origPointsPossible)) {
-					List enrollments = getSectionAwareness().getSiteMembersInRole(getGradebookUid(), Role.STUDENT);
-			        List studentUids = new ArrayList();
-			        for(Iterator iter = enrollments.iterator(); iter.hasNext();) {
+					final List enrollments = getSectionAwareness().getSiteMembersInRole(getGradebookUid(), Role.STUDENT);
+			        final List studentUids = new ArrayList();
+			        for(final Iterator iter = enrollments.iterator(); iter.hasNext();) {
 			            studentUids.add(((EnrollmentRecord)iter.next()).getUser().getUserUid());
 			        }
-					getGradebookManager().convertGradePointsForUpdatedTotalPoints(getGradebook(), originalAssignment, assignment.getPointsPossible(), studentUids);
+					getGradebookManager().convertGradePointsForUpdatedTotalPoints(getGradebook(), originalAssignment, this.assignment.getPointsPossible(), studentUids);
 				}
 			}
-			
-			getGradebookManager().updateAssignment(assignment);
+
+			getGradebookManager().updateAssignment(this.assignment);
 			long dueDateMillis = -1;
-			Date dueDate = assignment.getDueDate();
-			if (dueDate != null) dueDateMillis = dueDate.getTime();
-			getGradebookBean().getEventTrackingService().postEvent("gradebook.updateAssignment","/gradebook/"+getGradebookUid()+"/"+assignment.getName()+"/"+assignment.getPointsPossible()+"/"+dueDateMillis+"/"+assignment.isReleased()+"/"+assignment.isCounted()+"/"+getAuthzLevel());
-			
+			final Date dueDate = this.assignment.getDueDate();
+			if (dueDate != null) {
+				dueDateMillis = dueDate.getTime();
+			}
+			getGradebookBean().postEvent("gradebook.updateAssignment",
+					"/gradebook/" + getGradebookUid() + "/" + this.assignment.getName() + "/" + this.assignment.getPointsPossible() + "/"
+							+ dueDateMillis + "/" + this.assignment.isReleased() + "/" + this.assignment.isCounted() + "/"
+							+ getAuthzLevel(),
+					true);
+
 			if ((!origPointsPossible.equals(newPointsPossible)) && scoresEnteredForAssignment) {
-				if (getGradeEntryByPercent())
-					FacesUtil.addRedirectSafeMessage(getLocalizedString("edit_assignment_save_percentage", new String[] {assignment.getName()}));
-				else if (getGradeEntryByLetter())
-					FacesUtil.addRedirectSafeMessage(getLocalizedString("edit_assignment_save_converted", new String[] {assignment.getName()}));
-				else
-					FacesUtil.addRedirectSafeMessage(getLocalizedString("edit_assignment_save_scored", new String[] {assignment.getName()}));
+				if (getGradeEntryByPercent()) {
+					FacesUtil.addRedirectSafeMessage(getLocalizedString("edit_assignment_save_percentage", new String[] {this.assignment.getName()}));
+				} else if (getGradeEntryByLetter()) {
+					FacesUtil.addRedirectSafeMessage(getLocalizedString("edit_assignment_save_converted", new String[] {this.assignment.getName()}));
+				} else {
+					FacesUtil.addRedirectSafeMessage(getLocalizedString("edit_assignment_save_scored", new String[] {this.assignment.getName()}));
+				}
 
 			} else {
-				FacesUtil.addRedirectSafeMessage(getLocalizedString("edit_assignment_save", new String[] {assignment.getName()}));
+				FacesUtil.addRedirectSafeMessage(getLocalizedString("edit_assignment_save", new String[] {this.assignment.getName()}));
 			}
 
-		} catch (ConflictingAssignmentNameException e) {
+		} catch (final ConflictingAssignmentNameException e) {
 			log.error(e.getMessage());
             FacesUtil.addErrorMessage(getLocalizedString("edit_assignment_name_conflict_failure"));
             return "failure";
-		} catch (StaleObjectModificationException e) {
+		} catch (final StaleObjectModificationException e) {
             log.error(e.getMessage());
             FacesUtil.addErrorMessage(getLocalizedString("edit_assignment_locking_failure"));
             return "failure";
 		}
-		
+
 		return navigateBack();
 	}
 
@@ -477,19 +471,19 @@ public class AssignmentBean extends GradebookDependentBean implements Serializab
 	public String navigateBack() {
 		String breadcrumbPage = getBreadcrumbPage();
 		final Boolean middle = new Boolean((String) SessionManager.getCurrentToolSession().getAttribute("middle"));
-		
+
 		if (breadcrumbPage == null || middle) {
-			AssignmentDetailsBean assignmentDetailsBean = (AssignmentDetailsBean)FacesUtil.resolveVariable("assignmentDetailsBean");
-			assignmentDetailsBean.setAssignmentId(assignmentId);
+			final AssignmentDetailsBean assignmentDetailsBean = (AssignmentDetailsBean)FacesUtil.resolveVariable("assignmentDetailsBean");
+			assignmentDetailsBean.setAssignmentId(this.assignmentId);
 			assignmentDetailsBean.setBreadcrumbPage(breadcrumbPage);
-			
+
 			breadcrumbPage = "assignmentDetails";
 		}
 
 		// wherever we go, we're not editing, and middle section
 		// does not need to be shown.
 		setNav(null, "false", null, "false", null);
-		
+
 		return breadcrumbPage;
 	}
 
@@ -497,87 +491,93 @@ public class AssignmentBean extends GradebookDependentBean implements Serializab
 	 * View maintenance methods.
 	 */
 	public Long getAssignmentId() {
-		if (log.isDebugEnabled()) log.debug("getAssignmentId " + assignmentId);
-		return assignmentId;
+		if (log.isDebugEnabled()) {
+			log.debug("getAssignmentId " + this.assignmentId);
+		}
+		return this.assignmentId;
 	}
-	public void setAssignmentId(Long assignmentId) {
-		if (log.isDebugEnabled()) log.debug("setAssignmentId " + assignmentId);
+	public void setAssignmentId(final Long assignmentId) {
+		if (log.isDebugEnabled()) {
+			log.debug("setAssignmentId " + assignmentId);
+		}
 		if (assignmentId != null) {
 			this.assignmentId = assignmentId;
 		}
 	}
 
     public GradebookAssignment getAssignment() {
-        if (log.isDebugEnabled()) log.debug("getAssignment " + assignment);
-		if (assignment == null) {
-			if (assignmentId != null) {
-				assignment = getGradebookManager().getAssignment(assignmentId);
+        if (log.isDebugEnabled()) {
+			log.debug("getAssignment " + this.assignment);
+		}
+		if (this.assignment == null) {
+			if (this.assignmentId != null) {
+				this.assignment = getGradebookManager().getAssignment(this.assignmentId);
 			}
-			if (assignment == null) {
+			if (this.assignment == null) {
 				// it is a new assignment
-				assignment = new GradebookAssignment();
-				assignment.setReleased(true);
+				this.assignment = new GradebookAssignment();
+				this.assignment.setReleased(true);
 			}
 		}
 
-        return assignment;
+        return this.assignment;
     }
-    
+
     public List getCategoriesSelectList() {
-    	return categoriesSelectList;
+    	return this.categoriesSelectList;
     }
-    
+
     public String getExtraCreditCategories(){
-    	return extraCreditCategories;
+    	return this.extraCreditCategories;
     }
-    
+
     public List getAddItemSelectList() {
-		return addItemSelectList;
+		return this.addItemSelectList;
 	}
 
 	public String getAssignmentCategory() {
-    	return assignmentCategory;
+    	return this.assignmentCategory;
     }
-    
-    public void setAssignmentCategory(String assignmentCategory) {
+
+    public void setAssignmentCategory(final String assignmentCategory) {
     	this.assignmentCategory = assignmentCategory;
     }
-	
+
     /**
      * getNewBulkItems
-     * 
+     *
      * Generates and returns a List of blank GradebookAssignment objects.
      * Used to support bulk gradebook item creation.
      */
 	public List getNewBulkItems() {
-		if (newBulkItems == null) {
-			newBulkItems = new ArrayList();
+		if (this.newBulkItems == null) {
+			this.newBulkItems = new ArrayList();
 		}
 
-		for (int i = newBulkItems.size(); i < NUM_EXTRA_ASSIGNMENT_ENTRIES; i++) {
-			newBulkItems.add(getNewAssignment());
+		for (int i = this.newBulkItems.size(); i < NUM_EXTRA_ASSIGNMENT_ENTRIES; i++) {
+			this.newBulkItems.add(getNewAssignment());
 		}
-		
-		return newBulkItems;
+
+		return this.newBulkItems;
 	}
 
-	public void setNewBulkItems(List newBulkItems) {
+	public void setNewBulkItems(final List newBulkItems) {
 		this.newBulkItems = newBulkItems;
 	}
-    
+
     public List getCategories() {
-        if(categories == null) {
-            categories = getGradebookManager().getCategories(getGradebookId());
+        if(this.categories == null) {
+            this.categories = getGradebookManager().getCategories(getGradebookId());
         }
 
-        return categories;
+        return this.categories;
     }
 
 	public int getNumTotalItems() {
-		return numTotalItems;
+		return this.numTotalItems;
 	}
 
-	public void setNumTotalItems(int numTotalItems) {
+	public void setNumTotalItems(final int numTotalItems) {
 		this.numTotalItems = numTotalItems;
 	}
 
@@ -585,31 +585,31 @@ public class AssignmentBean extends GradebookDependentBean implements Serializab
 	{
 		return getGradebook();
 	}
-    
+
     /**
      * Returns the Category associated with assignmentCategory
      * If unassigned or not found, returns null
-     * 
+     *
      * added parameterized version to support bulk gradebook item creation
      */
-    private Category retrieveSelectedCategory() 
+    private Category retrieveSelectedCategory()
     {
-    	return retrieveSelectedCategory(assignmentCategory, true);
+    	return retrieveSelectedCategory(this.assignmentCategory, true);
     }
-    
-    private Category retrieveSelectedCategory(String assignmentCategory, boolean includeAssignments) 
+
+    private Category retrieveSelectedCategory(final String assignmentCategory, final boolean includeAssignments)
     {
     	Long catId = null;
     	Category category = null;
-    	
+
 		if (assignmentCategory != null && !assignmentCategory.equals(UNASSIGNED_CATEGORY)) {
 			try {
 				catId = new Long(assignmentCategory);
 			}
-			catch (Exception e) {
+			catch (final Exception e) {
 				catId = null;
 			}
-			
+
 			if (catId != null)
 			{
 				// check to make sure there is a corresponding category
@@ -620,21 +620,21 @@ public class AssignmentBean extends GradebookDependentBean implements Serializab
 				}
 			}
 		}
-		
+
 		return category;
-    }    
-    
-    private List retrieveCategoryAssignmentList(Category cat){
-    	List assignmentsToUpdate = new ArrayList();
+    }
+
+    private List retrieveCategoryAssignmentList(final Category cat){
+    	final List assignmentsToUpdate = new ArrayList();
     	if(cat != null){
     		List assignments = cat.getAssignmentList();
     		if(cat.isDropScores() && (assignments == null || assignments.size() == 0)) { // don't populate, if assignments are already in category (to improve performance)
     			assignments = getGradebookManager().getAssignmentsForCategory(cat.getId());
 
     			// only include assignments which are not adjustments must not update adjustment item pointsPossible
-    			for(Object o : assignments) { 
+    			for(final Object o : assignments) {
     				if(o instanceof GradebookAssignment) {
-    					GradebookAssignment assignment = (GradebookAssignment)o;
+    					final GradebookAssignment assignment = (GradebookAssignment)o;
     					if(!GradebookAssignment.item_type_adjustment.equals(assignment.getItemType())) {
     						assignmentsToUpdate.add(assignment);
     					}
@@ -646,43 +646,43 @@ public class AssignmentBean extends GradebookDependentBean implements Serializab
     }
 
     public boolean isSelectedCategoryDropsScores() {
-        return selectedCategoryDropsScores;
+        return this.selectedCategoryDropsScores;
     }
 
-    public void setSelectedCategoryDropsScores(boolean selectedCategoryDropsScores) {
+    public void setSelectedCategoryDropsScores(final boolean selectedCategoryDropsScores) {
         this.selectedCategoryDropsScores = selectedCategoryDropsScores;
     }
 
     public Category getSelectedCategory() {
-        return selectedCategory;
+        return this.selectedCategory;
     }
 
-    public void setSelectedCategory(Category selectedCategory) {
+    public void setSelectedCategory(final Category selectedCategory) {
         this.selectedCategory = selectedCategory;
     }
 
-    public String processCategoryChangeInEditAssignment(ValueChangeEvent vce)
+    public String processCategoryChangeInEditAssignment(final ValueChangeEvent vce)
     {
-        String changeCategory = (String) vce.getNewValue();
-        assignmentCategory = changeCategory;
-        if(vce.getOldValue() != null && vce.getNewValue() != null && !vce.getOldValue().equals(vce.getNewValue()))  
+        final String changeCategory = (String) vce.getNewValue();
+        this.assignmentCategory = changeCategory;
+        if(vce.getOldValue() != null && vce.getNewValue() != null && !vce.getOldValue().equals(vce.getNewValue()))
         {
             if(changeCategory.equals(UNASSIGNED_CATEGORY)) {
-                selectedCategoryDropsScores = false;
-                selectedAssignmentIsOnlyOne = false;
-                selectedCategory = null;
-                assignmentCategory = getLocalizedString("cat_unassigned");
+                this.selectedCategoryDropsScores = false;
+                this.selectedAssignmentIsOnlyOne = false;
+                this.selectedCategory = null;
+                this.assignmentCategory = getLocalizedString("cat_unassigned");
             } else {
-                List<Category> categories = getGradebookManager().getCategories(getGradebookId());
+                final List<Category> categories = getGradebookManager().getCategories(getGradebookId());
                 if (categories != null && categories.size() > 0)
                 {
-                    for (Category category : categories) {
+                    for (final Category category : categories) {
                         if(changeCategory.equals(category.getId().toString())) {
-                            selectedCategoryDropsScores = category.isDropScores();
+                            this.selectedCategoryDropsScores = category.isDropScores();
                             category.setAssignmentList(retrieveCategoryAssignmentList(category));
-                            selectedCategory = category;
-                            selectedAssignmentIsOnlyOne = isAssignmentTheOnlyOne(assignment, selectedCategory);
-                            assignmentCategory = category.getId().toString();
+                            this.selectedCategory = category;
+                            this.selectedAssignmentIsOnlyOne = isAssignmentTheOnlyOne(this.assignment, this.selectedCategory);
+                            this.assignmentCategory = category.getId().toString();
                             break;
                         }
                     }
@@ -697,40 +697,42 @@ public class AssignmentBean extends GradebookDependentBean implements Serializab
      */
 	public String getRowClasses()
 	{
-		StringBuffer rowClasses = new StringBuffer();
-		
-		if (newBulkItems == null) {
-			newBulkItems = getNewBulkItems();
+		final StringBuffer rowClasses = new StringBuffer();
+
+		if (this.newBulkItems == null) {
+			this.newBulkItems = getNewBulkItems();
 		}
 
 		//if shown in UI, set class to 'bogus show' otherwise 'bogus hide'
-		for (int i=0; i< newBulkItems.size(); i++){
-			Object obj = newBulkItems.get(i);
+		for (int i=0; i< this.newBulkItems.size(); i++){
+			final Object obj = this.newBulkItems.get(i);
 			if(obj instanceof BulkAssignmentDecoratedBean){
-				BulkAssignmentDecoratedBean assignment = (BulkAssignmentDecoratedBean) newBulkItems.get(i);
-			
-				if (i != 0) rowClasses.append(",");
+				final BulkAssignmentDecoratedBean assignment = (BulkAssignmentDecoratedBean) this.newBulkItems.get(i);
+
+				if (i != 0) {
+					rowClasses.append(",");
+				}
 
 				if (assignment.getBlnSaveThisItem() || i == 0) {
 					rowClasses.append("show bogus");
 				}
 				else {
-					rowClasses.append("hide bogus");					
+					rowClasses.append("hide bogus");
 				}
-			}		
+			}
 		}
-		
+
 		return rowClasses.toString();
 	}
 
 	public boolean isSelectedAssignmentIsOnlyOne() {
-		return selectedAssignmentIsOnlyOne;
+		return this.selectedAssignmentIsOnlyOne;
 	}
 
-	public void setSelectedAssignmentIsOnlyOne(boolean selectedAssignmentIsOnlyOne) {
+	public void setSelectedAssignmentIsOnlyOne(final boolean selectedAssignmentIsOnlyOne) {
 		this.selectedAssignmentIsOnlyOne = selectedAssignmentIsOnlyOne;
 	}
-	
+
 	public ScoringAgentData getScoringAgentData() {
 		return this.scoringAgentData;
 	}

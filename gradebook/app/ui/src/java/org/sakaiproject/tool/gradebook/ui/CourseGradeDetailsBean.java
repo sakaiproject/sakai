@@ -383,7 +383,8 @@ public class CourseGradeDetailsBean extends EnrollmentTableBean {
 
 	private void saveGrades() throws StaleObjectModificationException {
 		getGradebookManager().updateCourseGradeRecords(this.courseGrade, this.updatedGradeRecords);
-        getGradebookBean().getEventTrackingService().postEvent("gradebook.updateCourseGrades","/gradebook/"+getGradebookId()+"/"+this.updatedGradeRecords.size()+"/"+getAuthzLevel());
+		getGradebookBean().postEvent("gradebook.updateCourseGrades",
+				"/gradebook/" + getGradebookId() + "/" + this.updatedGradeRecords.size() + "/" + getAuthzLevel(), true);
         // Let the user know.
 		FacesUtil.addMessage(getLocalizedString("course_grade_details_grades_saved"));
 	}
@@ -448,7 +449,7 @@ public class CourseGradeDetailsBean extends EnrollmentTableBean {
 			fields.add("coursegrade");
 		}
 
-        getGradebookBean().getEventTrackingService().postEvent("gradebook.downloadCourseGrade","/gradebook/"+getGradebookId()+"/"+getAuthzLevel());
+		getGradebookBean().postEvent("gradebook.downloadCourseGrade", "/gradebook/" + getGradebookId() + "/" + getAuthzLevel(), false);
         if(this.exportType.equalsIgnoreCase("CSV")){
         	 if(log.isInfoEnabled()) {
 				log.info("exporting course grade as CSV for gradebook " + getGradebookUid());
@@ -480,7 +481,7 @@ public class CourseGradeDetailsBean extends EnrollmentTableBean {
         if(log.isInfoEnabled()) {
 			log.info("exporting course grade as Institutional CSV for gradebook " + getGradebookUid());
 		}
-		getGradebookBean().getEventTrackingService().postEvent("gradebook.downloadCourseGrade","/gradebook/"+getGradebookId()+"/"+getAuthzLevel());
+		getGradebookBean().postEvent("gradebook.downloadCourseGrade", "/gradebook/" + getGradebookId() + "/" + getAuthzLevel(), false);
 
 		final String defaultFields = "userEid,sortName,courseGrade";
 		final String stringFields = ServerConfigurationService.getString("gradebook.institutional.export.fields",defaultFields);

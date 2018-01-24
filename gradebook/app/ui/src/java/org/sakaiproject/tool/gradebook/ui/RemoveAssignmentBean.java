@@ -61,7 +61,7 @@ public class RemoveAssignmentBean extends GradebookDependentBean implements Seri
             }
             final String authzLevel = (getGradebookBean().getAuthzService().isUserAbleToGradeAll(getGradebookUid())) ?"instructor" : "TA";
 			getGradebookBean().postEvent("gradebook.deleteItem",
-					"/gradebook/" + getGradebookId() + "/" + this.assignment.getName() + "/" + authzLevel);
+					"/gradebook/" + getGradebookId() + "/" + this.assignment.getName() + "/" + authzLevel, true);
             FacesUtil.addRedirectSafeMessage(getLocalizedString("remove_assignment_success", new String[] {this.assignment.getName()}));
             return "overview";
         } else {

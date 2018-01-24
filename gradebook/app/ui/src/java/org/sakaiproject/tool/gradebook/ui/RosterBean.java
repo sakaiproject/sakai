@@ -80,8 +80,6 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
 
 	private CourseGrade avgCourseGrade;
 
-	private final HtmlDataTable originalRosterDataTable = null;
-
 	private boolean selectedCategoryDropsScores;
 
 	public class GradableObjectColumn implements Serializable {
@@ -258,8 +256,6 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
 				}
 				categories = tmpCatList;
 			}
-
-			final int categoryCount = categories.size();
 
 			for (final Object element : categories) {
 				final Category cat = (Category) element;
