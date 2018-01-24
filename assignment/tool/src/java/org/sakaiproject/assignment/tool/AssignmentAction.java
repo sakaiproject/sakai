@@ -63,6 +63,7 @@ import org.sakaiproject.cheftool.*;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.content.api.*;
+import org.sakaiproject.contentreview.dao.ContentReviewConstants;
 import org.sakaiproject.contentreview.service.ContentReviewService;
 import org.sakaiproject.entity.api.*;
 import org.sakaiproject.event.api.*;
@@ -2113,6 +2114,7 @@ public class AssignmentAction extends PagedResourceActionII {
                     }
                 }
             }
+            context.put("NamePropContentReviewOptoutUrl", ContentReviewConstants.URKUND_OPTOUT_URL);
         }
 
         if (taggingManager.isTaggable() && submission != null) {
@@ -3187,6 +3189,7 @@ public class AssignmentAction extends PagedResourceActionII {
         context.put("name_feedback_attachment", GRADE_SUBMISSION_FEEDBACK_ATTACHMENT);
         context.put("name_grade", GRADE_SUBMISSION_GRADE);
         context.put("name_allowResubmitNumber", AssignmentConstants.ALLOW_RESUBMIT_NUMBER);
+        context.put("NamePropContentReviewOptoutUrl", ContentReviewConstants.URKUND_OPTOUT_URL);
 
         // values
         context.put("value_year_from", state.getAttribute(NEW_ASSIGNMENT_YEAR_RANGE_FROM));
@@ -5875,365 +5878,364 @@ public class AssignmentAction extends PagedResourceActionII {
 
             String instructor = null;
             instructor = (String) state.getAttribute(VIEW_SUBMISSION_ASSIGNMENT_INSTRUCTOR);
-            if (instructor == null) {
+            if (instructor != null) { log.warn("Instructor using student view"); }
 
-                String group_id = null;
-                String original_group_id = null;
+            String group_id = null;
+            String original_group_id = null;
 
-                if (a.getIsGroup()) {
-                    original_group_id =
-                            (params.getString("originalGroup") == null || params.getString("originalGroup").trim().length() == 0) ? null : params.getString("originalGroup");
-                    ;
-                    if (original_group_id != null) {
-                        state.setAttribute(VIEW_SUBMISSION_ORIGINAL_GROUP, original_group_id);
+            if (a.getIsGroup()) {
+                original_group_id =
+                        (params.getString("originalGroup") == null || params.getString("originalGroup").trim().length() == 0) ? null : params.getString("originalGroup");
+
+                if (original_group_id != null) {
+                    state.setAttribute(VIEW_SUBMISSION_ORIGINAL_GROUP, original_group_id);
+                } else {
+                    if (state.getAttribute(VIEW_SUBMISSION_ORIGINAL_GROUP) != null) {
+                        original_group_id = (String) state.getAttribute(VIEW_SUBMISSION_ORIGINAL_GROUP);
                     } else {
-                        if (state.getAttribute(VIEW_SUBMISSION_ORIGINAL_GROUP) != null)
-                            original_group_id = (String) state.getAttribute(VIEW_SUBMISSION_ORIGINAL_GROUP);
-                        else
-                            state.setAttribute(VIEW_SUBMISSION_ORIGINAL_GROUP, null);
-                    }
-
-                    String[] groupChoice = params.getStrings("selectedGroups");
-
-                    if (groupChoice != null && groupChoice.length != 0) {
-                        if (groupChoice.length > 1) {
-                            state.setAttribute(VIEW_SUBMISSION_GROUP, null);
-                            addAlert(state, rb.getString("java.alert.youchoosegroup"));
-                        } else {
-                            group_id = groupChoice[0];
-                            state.setAttribute(VIEW_SUBMISSION_GROUP, groupChoice[0]);
-                        }
-                    } else {
-                        // get the submitted group id
-                        if (state.getAttribute(VIEW_SUBMISSION_GROUP) != null) {
-                            group_id = (String) state.getAttribute(VIEW_SUBMISSION_GROUP);
-                        } else {
-                            state.setAttribute(VIEW_SUBMISSION_GROUP, null);
-                            addAlert(state, rb.getString("java.alert.youchoosegroup"));
-                        }
-                    }
+                        state.setAttribute(VIEW_SUBMISSION_ORIGINAL_GROUP, null);
+					}
                 }
 
+                String[] groupChoice = params.getStrings("selectedGroups");
 
-                if (state.getAttribute(STATE_MESSAGE) == null) {
-                    if (a.getHonorPledge()) {
-                        if (!Boolean.valueOf(honorPledgeYes)) {
-                            addAlert(state, rb.getString("youarenot18"));
-                        }
-                        state.setAttribute(VIEW_SUBMISSION_HONOR_PLEDGE_YES, honorPledgeYes);
+                if (groupChoice != null && groupChoice.length != 0) {
+                    if (groupChoice.length > 1) {
+                        state.setAttribute(VIEW_SUBMISSION_GROUP, null);
+                        addAlert(state, rb.getString("java.alert.youchoosegroup"));
+                    } else {
+                        group_id = groupChoice[0];
+                        state.setAttribute(VIEW_SUBMISSION_GROUP, groupChoice[0]);
                     }
+                } else {
+                    // get the submitted group id
+                    if (state.getAttribute(VIEW_SUBMISSION_GROUP) != null) {
+                        group_id = (String) state.getAttribute(VIEW_SUBMISSION_GROUP);
+                    } else {
+                        state.setAttribute(VIEW_SUBMISSION_GROUP, null);
+                        addAlert(state, rb.getString("java.alert.youchoosegroup"));
+                    }
+                }
+            }
+
+
+            if (state.getAttribute(STATE_MESSAGE) == null) {
+                if (a.getHonorPledge()) {
+                    if (!Boolean.valueOf(honorPledgeYes)) {
+                        addAlert(state, rb.getString("youarenot18"));
+                    }
+                    state.setAttribute(VIEW_SUBMISSION_HONOR_PLEDGE_YES, honorPledgeYes);
+                }
+
+                // SAK-26322
+                List nonInlineAttachments = getNonInlineAttachments(state, a);
+                Assignment.SubmissionType typeOfSubmission = a.getTypeOfSubmission();
+                if (typeOfSubmission == Assignment.SubmissionType.SINGLE_ATTACHMENT_SUBMISSION && nonInlineAttachments.size() > 1) {
+                    //Single uploaded file and there are multiple attachments
+                    adjustAttachmentsToSingleUpload(data, state, a, nonInlineAttachments);
+                }
+
+                // clear text if submission type does not allow it
+                if (typeOfSubmission == Assignment.SubmissionType.SINGLE_ATTACHMENT_SUBMISSION || typeOfSubmission == Assignment.SubmissionType.ATTACHMENT_ONLY_ASSIGNMENT_SUBMISSION) {
+                    text = null;
+                }
+                // get attachment input and generate alert message according to assignment submission type
+                checkSubmissionTextAttachmentInput(data, state, a, text);
+            }
+            if ((state.getAttribute(STATE_MESSAGE) == null) && (a != null)) {
+                AssignmentSubmission submission = null;
+                if (a.getIsGroup()) {
+                    submission = getSubmission(aReference,
+                            (original_group_id == null ? group_id : original_group_id),
+                            "post_save_submission",
+                            state);
+                } else {
+                    submission = getSubmission(aReference, u, "post_save_submission", state);
+                }
+
+                if (submission != null) {
+                    // the submission already exists, change the text and honor pledge value, post it
+                    Map<String, String> properties = submission.getProperties();
+                    /**
+                     * SAK-22150 We will need to know later if there was a previous submission time. DH
+                     */
+                    boolean isPreviousSubmissionTime = true;
+                    if (submission.getDateSubmitted() == null || "".equals(submission.getDateSubmitted()) || !submission.getSubmitted()) {
+                        isPreviousSubmissionTime = false;
+                    }
+
+                    if (a.getIsGroup()) {
+                        if (original_group_id != null && !original_group_id.equals(group_id)) {
+                            // changing group id so we need to check if a submission has already been made for that group
+                            AssignmentSubmission submissioncheck = getSubmission(aReference, group_id, "post_save_submission", state);
+                            if (submissioncheck != null) {
+                                addAlert(state, rb.getString("group.already.submitted"));
+                                log.warn(this + ":post_save_submission " + group_id + " has already submitted " + submissioncheck.getId() + "!");
+                            }
+                        }
+                        // TODO sets the submitter id as the group....
+                        submission.setGroupId(group_id);
+                    }
+
+                    submission.setUserSubmission(true);
+                    submission.setSubmittedText(text);
+                    submission.setHonorPledge(Boolean.valueOf(honorPledgeYes));
+                    submission.setDateSubmitted(Instant.now());
+                    submission.setSubmitted(post);
+                    String currentUser = sessionManager.getCurrentSessionUserId();
+                    // identify who the submittee is using the session
+                    submission.getSubmitters().stream().filter(s -> s.getSubmitter().equals(currentUser)).findFirst().ifPresent(s -> s.setSubmittee(true));
+
+                    // decrease the allow_resubmit_number, if this submission has been submitted.
+                    if (submission.getSubmitted() && isPreviousSubmissionTime && properties.get(AssignmentConstants.ALLOW_RESUBMIT_NUMBER) != null) {
+                        int number = Integer.parseInt(properties.get(AssignmentConstants.ALLOW_RESUBMIT_NUMBER));
+                        // minus 1 from the submit number, if the number is not -1 (not unlimited)
+                        if (number >= 1) {
+                            properties.put(AssignmentConstants.ALLOW_RESUBMIT_NUMBER, String.valueOf(number - 1));
+                        }
+                    }
+
+                    // for resubmissions
+                    // when resubmit, keep the Returned flag on till the instructor grade again.
+                    Instant now = Instant.now();
+
+                    // need this to handle feedback and comments, which we have to do even if ungraded
+                    // get the previous graded date
+                    String prevGradedDate = properties.get(AssignmentConstants.PROP_LAST_GRADED_DATE);
+                    if (prevGradedDate == null && submission.getDateModified() != null) {
+                        // since this is a newly added property, if no value is set, get the default as the submission last modified date
+                        prevGradedDate = submission.getDateModified().toString();
+                        properties.put(AssignmentConstants.PROP_LAST_GRADED_DATE, prevGradedDate);
+                    }
+
+                    if (submission.getGraded() && submission.getReturned() && submission.getGradeReleased()) {
+
+                        // add the current grade into previous grade histroy
+                        String previousGrades = properties.get(ResourceProperties.PROP_SUBMISSION_SCALED_PREVIOUS_GRADES);
+                        if (previousGrades == null) {
+                            previousGrades = properties.get(ResourceProperties.PROP_SUBMISSION_PREVIOUS_GRADES);
+                            if (previousGrades != null) {
+                                Assignment.GradeType typeOfGrade = a.getTypeOfGrade();
+                                if (typeOfGrade == SCORE_GRADE_TYPE) {
+                                    // point grade assignment type
+                                    // some old unscaled grades, need to scale the number and remove the old property
+                                    String[] grades = StringUtils.split(previousGrades, " ");
+                                    String newGrades = "";
+
+                                    String decSeparator = formattedText.getDecimalSeparator();
+
+                                    for (int jj = 0; jj < grades.length; jj++) {
+                                        String grade = grades[jj];
+                                        if (!grade.contains(decSeparator)) {
+                                            // show the grade with decimal point
+                                            grade = grade.concat(decSeparator).concat("0");
+                                        }
+                                        newGrades = newGrades.concat(grade + " ");
+                                    }
+                                    previousGrades = newGrades;
+                                }
+                                properties.remove(ResourceProperties.PROP_SUBMISSION_PREVIOUS_GRADES);
+                            } else {
+                                previousGrades = "";
+                            }
+                        }
+
+                        String displayGrade = assignmentService.getGradeDisplay(submission.getGrade(), a.getTypeOfGrade(), a.getScaleFactor());
+                        if (StringUtils.isNotBlank(displayGrade)) {
+                            previousGrades = "<h4>" + prevGradedDate + "</h4>" + "<div style=\"margin:0;padding:0\">" + displayGrade + "</div>" + previousGrades;
+                            properties.put(ResourceProperties.PROP_SUBMISSION_SCALED_PREVIOUS_GRADES, previousGrades);
+                        }
+
+                        // clear the current grade and make the submission ungraded
+                        submission.setGraded(false);
+                        submission.setGradedBy(null);
+                        submission.setGrade("");
+                        submission.setGradeReleased(false);
+
+                    }
+
+                    // following involves content, not grading, so always do on resubmit, not just if graded
+
+                    // clean the ContentReview attributes
+                    properties.put(AssignmentConstants.REVIEW_SCORE, "-2"); // the default is -2 (e.g., for a new submission)
+                    properties.put(AssignmentConstants.REVIEW_STATUS, null);
+
+                    if (StringUtils.isNotBlank(submission.getFeedbackText())) {
+                        // keep the history of assignment feed back text
+                        String feedbackTextHistory = properties.get(ResourceProperties.PROP_SUBMISSION_PREVIOUS_FEEDBACK_TEXT) != null
+                                ? properties.get(ResourceProperties.PROP_SUBMISSION_PREVIOUS_FEEDBACK_TEXT)
+                                : "";
+                        feedbackTextHistory = "<h4>" + prevGradedDate + "</h4>" + "<div style=\"margin:0;padding:0\">" + submission.getFeedbackText() + "</div>" + feedbackTextHistory;
+                        properties.put(ResourceProperties.PROP_SUBMISSION_PREVIOUS_FEEDBACK_TEXT, feedbackTextHistory);
+                    }
+
+                    if (StringUtils.trimToNull(submission.getFeedbackComment()) != null) {
+                        // keep the history of assignment feed back comment
+                        String feedbackCommentHistory = properties.get(ResourceProperties.PROP_SUBMISSION_PREVIOUS_FEEDBACK_COMMENT) != null
+                                ? properties.get(ResourceProperties.PROP_SUBMISSION_PREVIOUS_FEEDBACK_COMMENT)
+                                : "";
+                        feedbackCommentHistory = "<h4>" + prevGradedDate + "</h4>" + "<div style=\"margin:0;padding:0\">" + submission.getFeedbackComment() + "</div>" + feedbackCommentHistory;
+                        properties.put(ResourceProperties.PROP_SUBMISSION_PREVIOUS_FEEDBACK_COMMENT, feedbackCommentHistory);
+                    }
+
+                    // keep the history of assignment feed back comment
+                    String feedbackAttachmentHistory = properties.get(PROP_SUBMISSION_PREVIOUS_FEEDBACK_ATTACHMENTS) != null
+                            ? properties.get(PROP_SUBMISSION_PREVIOUS_FEEDBACK_ATTACHMENTS)
+                            : "";
+                    Set<String> feedbackAttachments = submission.getFeedbackAttachments();
+                    // use comma as separator for attachments
+                    feedbackAttachmentHistory = StringUtils.join(feedbackAttachments, ",") + feedbackAttachmentHistory;
+
+                    properties.put(PROP_SUBMISSION_PREVIOUS_FEEDBACK_ATTACHMENTS, feedbackAttachmentHistory);
+
+                    // reset the previous grading context
+                    submission.setFeedbackText("");
+                    submission.setFeedbackComment("");
+                    submission.getFeedbackAttachments().clear();
 
                     // SAK-26322
-                    List nonInlineAttachments = getNonInlineAttachments(state, a);
-                    Assignment.SubmissionType typeOfSubmission = a.getTypeOfSubmission();
-                    if (typeOfSubmission == Assignment.SubmissionType.SINGLE_ATTACHMENT_SUBMISSION && nonInlineAttachments.size() > 1) {
-                        //Single uploaded file and there are multiple attachments
-                        adjustAttachmentsToSingleUpload(data, state, a, nonInlineAttachments);
+                    if (a.getTypeOfSubmission() == Assignment.SubmissionType.SINGLE_ATTACHMENT_SUBMISSION) {
+                        List<Reference> nonInlineAttachments = getNonInlineAttachments(state, a);
+                        //clear out inline attachments for content-review
+                        //filter the attachments in the state to exclude inline attachments (nonInlineAttachments, is a subset of what's currently in the state)
+                        state.setAttribute(ATTACHMENTS, nonInlineAttachments);
                     }
 
-                    // clear text if submission type does not allow it
-                    if (typeOfSubmission == Assignment.SubmissionType.SINGLE_ATTACHMENT_SUBMISSION || typeOfSubmission == Assignment.SubmissionType.ATTACHMENT_ONLY_ASSIGNMENT_SUBMISSION) {
-                        text = null;
-                    }
-
-                    // get attachment input and generate alert message according to assignment submission type
-                    checkSubmissionTextAttachmentInput(data, state, a, text);
-                }
-                if ((state.getAttribute(STATE_MESSAGE) == null) && (a != null)) {
-                    AssignmentSubmission submission = null;
-                    if (a.getIsGroup()) {
-                        submission = getSubmission(aReference,
-                                (original_group_id == null ? group_id : original_group_id),
-                                "post_save_submission",
-                                state);
-                    } else {
-                        submission = getSubmission(aReference, u, "post_save_submission", state);
-                    }
-
-                    if (submission != null) {
-                        // the submission already exists, change the text and honor pledge value, post it
-                        Map<String, String> properties = submission.getProperties();
-
-                        /**
-                         * SAK-22150 We will need to know later if there was a previous submission time. DH
-                         */
-                        boolean isPreviousSubmissionTime = true;
-                        if (submission.getDateSubmitted() == null || "".equals(submission.getDateSubmitted()) || !submission.getSubmitted()) {
-                            isPreviousSubmissionTime = false;
-                        }
-
-                        if (a.getIsGroup()) {
-                            if (original_group_id != null && !original_group_id.equals(group_id)) {
-                                // changing group id so we need to check if a submission has already been made for that group
-                                AssignmentSubmission submissioncheck = getSubmission(aReference, group_id, "post_save_submission", state);
-                                if (submissioncheck != null) {
-                                    addAlert(state, rb.getString("group.already.submitted"));
-                                    log.warn(this + ":post_save_submission " + group_id + " has already submitted " + submissioncheck.getId() + "!");
-                                }
-                            }
-                            // TODO sets the submitter id as the group....
-                            submission.setGroupId(group_id);
-                        }
-
-                        submission.setUserSubmission(true);
-                        submission.setSubmittedText(text);
-                        submission.setHonorPledge(Boolean.valueOf(honorPledgeYes));
-                        submission.setDateSubmitted(Instant.now());
-                        submission.setSubmitted(post);
-                        String currentUser = sessionManager.getCurrentSessionUserId();
-                        // identify who the submittee is using the session
-                        submission.getSubmitters().stream().filter(s -> s.getSubmitter().equals(currentUser)).findFirst().ifPresent(s -> s.setSubmittee(true));
-
-                        // decrease the allow_resubmit_number, if this submission has been submitted.
-                        if (submission.getSubmitted() && isPreviousSubmissionTime && properties.get(AssignmentConstants.ALLOW_RESUBMIT_NUMBER) != null) {
-                            int number = Integer.parseInt(properties.get(AssignmentConstants.ALLOW_RESUBMIT_NUMBER));
-                            // minus 1 from the submit number, if the number is not -1 (not unlimited)
-                            if (number >= 1) {
-                                properties.put(AssignmentConstants.ALLOW_RESUBMIT_NUMBER, String.valueOf(number - 1));
-                            }
-                        }
-
-                        // for resubmissions
-                        // when resubmit, keep the Returned flag on till the instructor grade again.
-                        Instant now = Instant.now();
-
-                        // need this to handle feedback and comments, which we have to do even if ungraded
-                        // get the previous graded date
-                        String prevGradedDate = properties.get(AssignmentConstants.PROP_LAST_GRADED_DATE);
-                        if (prevGradedDate == null && submission.getDateModified() != null) {
-                            // since this is a newly added property, if no value is set, get the default as the submission last modified date
-                            prevGradedDate = submission.getDateModified().toString();
-                            properties.put(AssignmentConstants.PROP_LAST_GRADED_DATE, prevGradedDate);
-                        }
-
-                        if (submission.getGraded() && submission.getReturned() && submission.getGradeReleased()) {
-
-                            // add the current grade into previous grade histroy
-                            String previousGrades = properties.get(ResourceProperties.PROP_SUBMISSION_SCALED_PREVIOUS_GRADES);
-                            if (previousGrades == null) {
-                                previousGrades = properties.get(ResourceProperties.PROP_SUBMISSION_PREVIOUS_GRADES);
-                                if (previousGrades != null) {
-                                    Assignment.GradeType typeOfGrade = a.getTypeOfGrade();
-                                    if (typeOfGrade == SCORE_GRADE_TYPE) {
-                                        // point grade assignment type
-                                        // some old unscaled grades, need to scale the number and remove the old property
-                                        String[] grades = StringUtils.split(previousGrades, " ");
-                                        String newGrades = "";
-
-                                        String decSeparator = formattedText.getDecimalSeparator();
-
-                                        for (int jj = 0; jj < grades.length; jj++) {
-                                            String grade = grades[jj];
-                                            if (!grade.contains(decSeparator)) {
-                                                // show the grade with decimal point
-                                                grade = grade.concat(decSeparator).concat("0");
-                                            }
-                                            newGrades = newGrades.concat(grade + " ");
-                                        }
-                                        previousGrades = newGrades;
-                                    }
-                                    properties.remove(ResourceProperties.PROP_SUBMISSION_PREVIOUS_GRADES);
-                                } else {
-                                    previousGrades = "";
-                                }
-                            }
-
-                            String displayGrade = assignmentService.getGradeDisplay(submission.getGrade(), a.getTypeOfGrade(), a.getScaleFactor());
-                            if (StringUtils.isNotBlank(displayGrade)) {
-                                previousGrades = "<h4>" + prevGradedDate + "</h4>" + "<div style=\"margin:0;padding:0\">" + displayGrade + "</div>" + previousGrades;
-                                properties.put(ResourceProperties.PROP_SUBMISSION_SCALED_PREVIOUS_GRADES, previousGrades);
-                            }
-
-                            // clear the current grade and make the submission ungraded
-                            submission.setGraded(false);
-                            submission.setGradedBy(null);
-                            submission.setGrade("");
-                            submission.setGradeReleased(false);
-
-                        }
-
-                        // following involves content, not grading, so always do on resubmit, not just if graded
-
-                        // clean the ContentReview attributes
-                        properties.put(AssignmentConstants.REVIEW_SCORE, "-2"); // the default is -2 (e.g., for a new submission)
-                        properties.put(AssignmentConstants.REVIEW_STATUS, null);
-
-                        if (StringUtils.isNotBlank(submission.getFeedbackText())) {
-                            // keep the history of assignment feed back text
-                            String feedbackTextHistory = properties.get(ResourceProperties.PROP_SUBMISSION_PREVIOUS_FEEDBACK_TEXT) != null
-                                    ? properties.get(ResourceProperties.PROP_SUBMISSION_PREVIOUS_FEEDBACK_TEXT)
-                                    : "";
-                            feedbackTextHistory = "<h4>" + prevGradedDate + "</h4>" + "<div style=\"margin:0;padding:0\">" + submission.getFeedbackText() + "</div>" + feedbackTextHistory;
-                            properties.put(ResourceProperties.PROP_SUBMISSION_PREVIOUS_FEEDBACK_TEXT, feedbackTextHistory);
-                        }
-
-                        if (StringUtils.trimToNull(submission.getFeedbackComment()) != null) {
-                            // keep the history of assignment feed back comment
-                            String feedbackCommentHistory = properties.get(ResourceProperties.PROP_SUBMISSION_PREVIOUS_FEEDBACK_COMMENT) != null
-                                    ? properties.get(ResourceProperties.PROP_SUBMISSION_PREVIOUS_FEEDBACK_COMMENT)
-                                    : "";
-                            feedbackCommentHistory = "<h4>" + prevGradedDate + "</h4>" + "<div style=\"margin:0;padding:0\">" + submission.getFeedbackComment() + "</div>" + feedbackCommentHistory;
-                            properties.put(ResourceProperties.PROP_SUBMISSION_PREVIOUS_FEEDBACK_COMMENT, feedbackCommentHistory);
-                        }
-
-                        // keep the history of assignment feed back comment
-                        String feedbackAttachmentHistory = properties.get(PROP_SUBMISSION_PREVIOUS_FEEDBACK_ATTACHMENTS) != null
-                                ? properties.get(PROP_SUBMISSION_PREVIOUS_FEEDBACK_ATTACHMENTS)
-                                : "";
-                        Set<String> feedbackAttachments = submission.getFeedbackAttachments();
-                        // use comma as separator for attachments
-                        feedbackAttachmentHistory = StringUtils.join(feedbackAttachments, ",") + feedbackAttachmentHistory;
-
-                        properties.put(PROP_SUBMISSION_PREVIOUS_FEEDBACK_ATTACHMENTS, feedbackAttachmentHistory);
-
-                        // reset the previous grading context
-                        submission.setFeedbackText("");
-                        submission.setFeedbackComment("");
-                        submission.getFeedbackAttachments().clear();
-
-                        // SAK-26322
-                        if (a.getTypeOfSubmission() == Assignment.SubmissionType.SINGLE_ATTACHMENT_SUBMISSION) {
-                            List<Reference> nonInlineAttachments = getNonInlineAttachments(state, a);
-                            //clear out inline attachments for content-review
-                            //filter the attachments in the state to exclude inline attachments (nonInlineAttachments, is a subset of what's currently in the state)
-                            state.setAttribute(ATTACHMENTS, nonInlineAttachments);
-                        }
-
-                        // add attachments
-                        List<Reference> attachments = (List<Reference>) state.getAttribute(ATTACHMENTS);
-                        Set<String> submittedAttachments = submission.getAttachments();
-                        if (attachments != null) {
-                            if (a.getTypeOfSubmission() == Assignment.SubmissionType.TEXT_ONLY_ASSIGNMENT_SUBMISSION) {
-                                //inline only doesn't accept attachments
-                                submittedAttachments.clear();
-                            } else {
-                                //Post the attachments before clearing so that we don't sumbit duplicate attachments
-                                //Check if we need to post the attachments
-                                if (a.getContentReview()) {
-                                    if (!attachments.isEmpty()) {
-                                        assignmentService.postReviewableSubmissonAttachments(submission.getId());
-                                    }
-                                }
-
-                                // clear the old attachments first
-                                submittedAttachments.clear();
-
-                                // add each new attachment
-                                if (submitter != null) {
-                                    properties.put(AssignmentConstants.SUBMITTER_USER_ID, submitter.getId());
-                                    state.setAttribute(STATE_SUBMITTER, u.getId());
-                                } else {
-                                    properties.remove(AssignmentConstants.SUBMITTER_USER_ID);
-                                }
-                                attachments.forEach(att -> submittedAttachments.add(att.getReference()));
-                            }
-                        }
-
-                        // SAK-26322 - add inline as an attachment for the content review service
-                        if (a.getContentReview() && !isHtmlEmpty(text)) {
-                            prepareInlineForContentReview(text, submission, state, u);
-                        }
-
-                        if (submitter != null) {
-                            properties.put(AssignmentConstants.SUBMITTER_USER_ID, submitter.getId());
-                            state.setAttribute(STATE_SUBMITTER, u.getId());
+                    // add attachments
+                    List<Reference> attachments = (List<Reference>) state.getAttribute(ATTACHMENTS);
+                    Set<String> submittedAttachments = submission.getAttachments();
+                    if (attachments != null) {
+                        if (a.getTypeOfSubmission() == Assignment.SubmissionType.TEXT_ONLY_ASSIGNMENT_SUBMISSION) {
+                            //inline only doesn't accept attachments
+                            submittedAttachments.clear();
                         } else {
-                            properties.remove(AssignmentConstants.SUBMITTER_USER_ID);
-                        }
 
-                        // SAK-17606
-                        /*String logEntry = new Date().toString() + " ";
-                        boolean anonymousGrading = Boolean.parseBoolean(a.getProperties().get(NEW_ASSIGNMENT_CHECK_ANONYMOUS_GRADING));
-                        if (!anonymousGrading) {
-                            String subOrDraft = post ? "submitted" : "saved draft";
-                            if (submitter != null && !submitter.getEid().equals(u.getEid())) {
-                                logEntry += submitter.getDisplayName() + " (" + submitter.getEid() + ") " + subOrDraft + " " +
-                                        rb.getString("listsub.submitted.on.behalf") + " " + u.getDisplayName() + " (" +
-                                        u.getEid() + ")";
+                            // clear the old attachments first
+                            submittedAttachments.clear();
+
+                            // add each new attachment
+                            if (submitter != null) {
+                                properties.put(AssignmentConstants.SUBMITTER_USER_ID, submitter.getId());
+                                state.setAttribute(STATE_SUBMITTER, u.getId());
                             } else {
-                                logEntry += u.getDisplayName() + " (" + u.getEid() + ") " + subOrDraft;
+                                properties.remove(AssignmentConstants.SUBMITTER_USER_ID);
                             }
-                        }*/
+                            attachments.forEach(att -> submittedAttachments.add(att.getReference()));
+
+                            //Check if we need to post the attachments
+                            if (a.getContentReview()) {
+                                if (!attachments.isEmpty()) {
+                                    assignmentService.postReviewableSubmissionAttachments(submission);
+                                }
+                            }
+                        }
+                    }
+
+                    // SAK-26322 - add inline as an attachment for the content review service
+                    if (a.getContentReview() && !isHtmlEmpty(text)) {
+                        prepareInlineForContentReview(text, submission, state, u);
+                    }
+
+                    if (submitter != null) {
+                        properties.put(AssignmentConstants.SUBMITTER_USER_ID, submitter.getId());
+                        state.setAttribute(STATE_SUBMITTER, u.getId());
+                    } else {
+                        properties.remove(AssignmentConstants.SUBMITTER_USER_ID);
+                    }
+
+                    // SAK-17606
+                    /*String logEntry = new Date().toString() + " ";
+                    boolean anonymousGrading = Boolean.parseBoolean(a.getProperties().get(NEW_ASSIGNMENT_CHECK_ANONYMOUS_GRADING));
+                    if (!anonymousGrading) {
+                        String subOrDraft = post ? "submitted" : "saved draft";
+                        if (submitter != null && !submitter.getEid().equals(u.getEid())) {
+                            logEntry += submitter.getDisplayName() + " (" + submitter.getEid() + ") " + subOrDraft + " " +
+                                    rb.getString("listsub.submitted.on.behalf") + " " + u.getDisplayName() + " (" +
+                                    u.getEid() + ")";
+                        } else {
+                            logEntry += u.getDisplayName() + " (" + u.getEid() + ") " + subOrDraft;
+                        }
+                    }*/
 // TODO submissionLog
 //						submission.addSubmissionLogEntry( logEntry );
-                        try {
-                            assignmentService.updateSubmission(submission);
-                        } catch (PermissionException e) {
-                            log.warn("Could not update submission: {}, {}", submission.getId(), e.getMessage());
-                            return;
+                    try {
+                        assignmentService.updateSubmission(submission);
+                    } catch (PermissionException e) {
+                        log.warn("Could not update submission: {}, {}", submission.getId(), e.getMessage());
+                        return;
+                    }
+                } else {
+                    // new submission
+                    try {
+                        // if assignment is a group submission... send group id and not user id
+                        String submitterId = null;
+                        if (a.getIsGroup()) {
+                            submitterId = group_id;
+                        } else {
+                            submitterId = u.getId();
                         }
-                    } else {
-                        // new submission
-                        try {
-                            // if assignment is a group submission... send group id and not user id
-                            String submitterId = null;
+                        submission = assignmentService.addSubmission(a.getId(), submitterId);
+                        if (submission != null) {
+                            log.debug("NEW SUBMISSION:submitter: {}", submission.getSubmitters().toArray(new AssignmentSubmissionSubmitter[]{})[0].getSubmitter());
                             if (a.getIsGroup()) {
-                                submitterId = group_id;
-                            } else {
-                                submitterId = u.getId();
+                                submission.setGroupId(group_id);
+                                log.debug("NEW SUBMISSION: group: {}", group_id);
                             }
-                            submission = assignmentService.addSubmission(a.getId(), submitterId);
-                            if (submission != null) {
-                                log.debug("NEW SUBMISSION:submitter: {}", submission.getSubmitters().toArray(new AssignmentSubmissionSubmitter[]{})[0].getSubmitter());
-                                if (a.getIsGroup()) {
-                                    submission.setGroupId(group_id);
-                                    log.debug("NEW SUBMISSION: group: {}", group_id);
+                            submission.setUserSubmission(true);
+                            submission.setSubmittedText(text);
+                            submission.setHonorPledge(Boolean.valueOf(honorPledgeYes));
+                            submission.setDateSubmitted(Instant.now());
+                            submission.setSubmitted(post);
+                            Map<String, String> properties = submission.getProperties();
+
+                            // add attachments
+                            List<Reference> attachments = (List<Reference>) state.getAttribute(ATTACHMENTS);
+                            Set<String> submittedAttachments = submission.getAttachments();
+
+                            if (attachments != null) {
+                                // add each attachment
+                                attachments.forEach(att -> submittedAttachments.add(att.getReference()));
+
+                                //Check if we need to post the attachments
+                                if ((!attachments.isEmpty()) && a.getContentReview()){
+                                    assignmentService.postReviewableSubmissionAttachments(submission);
                                 }
-                                submission.setUserSubmission(true);
-                                submission.setSubmittedText(text);
-                                submission.setHonorPledge(Boolean.valueOf(honorPledgeYes));
-                                submission.setDateSubmitted(Instant.now());
-                                submission.setSubmitted(post);
-                                Map<String, String> properties = submission.getProperties();
+                            }
 
-                                // add attachments
-                                List<Reference> attachments = (List<Reference>) state.getAttribute(ATTACHMENTS);
-                                Set<String> submittedAttachments = submission.getAttachments();
+                            // SAK-26322 - add inline as an attachment for the content review service
+                            if (a.getContentReview() && !isHtmlEmpty(text)) {
+                                prepareInlineForContentReview(text, submission, state, u);
+                            }
 
-                                // SAK-26322 - add inline as an attachment for the content review service
-                                if (a.getContentReview() && !isHtmlEmpty(text)) {
-                                    prepareInlineForContentReview(text, submission, state, u);
-                                }
+                            // set the resubmission properties
+                            setResubmissionProperties(a, submission);
+                            if (submitter != null) {
+                                properties.put(AssignmentConstants.SUBMITTER_USER_ID, submitter.getId());
+                                state.setAttribute(STATE_SUBMITTER, u.getId());
+                            } else {
+                                properties.remove(AssignmentConstants.SUBMITTER_USER_ID);
+                            }
 
-                                if (attachments != null) {
-                                    // add each attachment
-                                    if ((!attachments.isEmpty()) && a.getContentReview())
-                                        assignmentService.postReviewableSubmissonAttachments(submission.getId());
-
-                                    // add each attachment
-                                    attachments.forEach(att -> submittedAttachments.add(att.getReference()));
-                                }
-
-                                // set the resubmission properties
-                                setResubmissionProperties(a, submission);
-                                if (submitter != null) {
-                                    properties.put(AssignmentConstants.SUBMITTER_USER_ID, submitter.getId());
-                                    state.setAttribute(STATE_SUBMITTER, u.getId());
+                            // SAK-17606
+                            /*String logEntry = new Date().toString() + " ";
+                            boolean anonymousGrading = Boolean.parseBoolean(a.getProperties().get(NEW_ASSIGNMENT_CHECK_ANONYMOUS_GRADING));
+                            if (!anonymousGrading) {
+                                String subOrDraft = post ? "submitted" : "saved draft";
+                                if (submitter != null && !submitter.getEid().equals(u.getEid())) {
+                                    logEntry += submitter.getDisplayName() + " (" + submitter.getEid() + ") " + subOrDraft + " " +
+                                            rb.getString("listsub.submitted.on.behalf") + " " + u.getDisplayName() + " (" +
+                                            u.getEid() + ")";
                                 } else {
-                                    properties.remove(AssignmentConstants.SUBMITTER_USER_ID);
+                                    logEntry += u.getDisplayName() + " (" + u.getEid() + ") " + subOrDraft;
                                 }
-
-                                // SAK-17606
-                                /*String logEntry = new Date().toString() + " ";
-                                boolean anonymousGrading = Boolean.parseBoolean(a.getProperties().get(NEW_ASSIGNMENT_CHECK_ANONYMOUS_GRADING));
-                                if (!anonymousGrading) {
-                                    String subOrDraft = post ? "submitted" : "saved draft";
-                                    if (submitter != null && !submitter.getEid().equals(u.getEid())) {
-                                        logEntry += submitter.getDisplayName() + " (" + submitter.getEid() + ") " + subOrDraft + " " +
-                                                rb.getString("listsub.submitted.on.behalf") + " " + u.getDisplayName() + " (" +
-                                                u.getEid() + ")";
-                                    } else {
-                                        logEntry += u.getDisplayName() + " (" + u.getEid() + ") " + subOrDraft;
-                                    }
-                                }*/
+                            }*/
 //							TODO submission log entry
 //							submission.addSubmissionLogEntry( logEntry );
-                                assignmentService.updateSubmission(submission);
-                            }
-                        } catch (PermissionException e) {
-                            addAlert(state, rb.getString("youarenot13"));
-                            log.warn(this + ":post_save_submission " + e.getMessage());
+                            assignmentService.updateSubmission(submission);
                         }
+                    } catch (PermissionException e) {
+                        addAlert(state, rb.getString("youarenot13"));
+                        log.warn(this + ":post_save_submission " + e.getMessage());
                     }
                 }
             }
@@ -7684,9 +7686,6 @@ public class AssignmentAction extends PagedResourceActionII {
                 // old close time
                 oldCloseTime = a.getCloseDate();
 
-                //assume creating the assignment with the content review service will be successful
-                state.setAttribute("contentReviewSuccess", Boolean.TRUE);
-
                 // set the Assignment Properties object
                 Map<String, String> aProperties = a.getProperties();
                 oAssociateGradebookAssignment = aProperties.get(AssignmentServiceConstants.PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT);
@@ -8612,13 +8611,8 @@ public class AssignmentAction extends PagedResourceActionII {
             a.setCloseDate(null);
         }
 
-        if ((Boolean) (state.getAttribute("contentReviewSuccess"))) {
-            // post the assignment if appropriate
-            a.setDraft(!post);
-        } else {
-            // setup for content review failed, save as a draft
-            a.setDraft(true);
-        }
+        // post the assignment if appropriate
+        a.setDraft(!post);
 
         if (gradeType == SCORE_GRADE_TYPE) {
             a.setScaleFactor(assignmentService.getScaleFactor());
@@ -8669,6 +8663,14 @@ public class AssignmentAction extends PagedResourceActionII {
 
             // commit the changes
             assignmentService.updateAssignment(a);
+
+            // content review (after changes are stored)
+            if (a.getContentReview()) {
+                if (!createTIIAssignment(a, assignmentRef, openTime, dueTime, closeTime, state)) {
+                    a.setDraft(true);
+                    assignmentService.updateAssignment(a);
+                }
+            }
         } catch (PermissionException e) {
             log.warn("Can't update Assignment, {}", e.getMessage());
             addAlert(state, rb.getString("youarenot_addAssignmentContent"));
@@ -8688,12 +8690,6 @@ public class AssignmentAction extends PagedResourceActionII {
             assignmentPeerAssessmentService.removeScheduledPeerReview(a.getId());
         }
 
-        // TODO content review
-        if (a.getContentReview()) {
-            if (!createTIIAssignment(a, assignmentRef, openTime, dueTime, closeTime, state)) {
-                state.setAttribute("contentReviewSuccess", Boolean.FALSE);
-            }
-        }
     }
 
     public boolean createTIIAssignment(Assignment assignment, String assignmentRef, Instant openTime, Instant dueTime, Instant closeTime, SessionState state) {

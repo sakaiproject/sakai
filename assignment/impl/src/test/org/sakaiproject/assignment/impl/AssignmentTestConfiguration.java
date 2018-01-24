@@ -25,9 +25,10 @@ import javax.sql.DataSource;
 import org.hibernate.SessionFactory;
 import org.hibernate.dialect.HSQLDialect;
 import org.hsqldb.jdbcDriver;
+import org.mockito.Mockito;
 import org.sakaiproject.announcement.api.AnnouncementService;
 import org.sakaiproject.api.app.scheduler.ScheduledInvocationManager;
-import org.sakaiproject.assignment.api.AssignmentPeerAssessmentService;
+import org.sakaiproject.api.app.scheduler.SchedulerManager;
 import org.sakaiproject.assignment.taggable.api.AssignmentActivityProducer;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.FunctionManager;
@@ -42,6 +43,7 @@ import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.entitybroker.DeveloperHelperService;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.event.api.LearningResourceStoreService;
+import org.sakaiproject.hibernate.AssignableUUIDGenerator;
 import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
@@ -86,6 +88,7 @@ public class AssignmentTestConfiguration {
         LocalSessionFactoryBuilder sfb = new LocalSessionFactoryBuilder(dataSource());
         hibernateMappings.processAdditionalMappings(sfb);
         sfb.addProperties(hibernateProperties());
+        sfb.getIdentifierGeneratorFactory().register("uuid2", AssignableUUIDGenerator.class);
         return sfb.buildSessionFactory();
     }
 
@@ -215,7 +218,10 @@ public class AssignmentTestConfiguration {
 
     @Bean(name = "org.sakaiproject.component.api.ServerConfigurationService")
     public ServerConfigurationService serverConfigurationService() {
-        return mock(ServerConfigurationService.class);
+        ServerConfigurationService scs = mock(ServerConfigurationService.class);
+        Mockito.when(scs.getBoolean("content.cleaner.filter.utf8", true)).thenReturn(Boolean.TRUE);
+        Mockito.when(scs.getString("content.cleaner.filter.utf8.replacement", "")).thenReturn("");
+        return scs;
     }
 
     @Bean(name = "org.sakaiproject.taggable.api.TaggingManager")
@@ -261,5 +267,10 @@ public class AssignmentTestConfiguration {
     @Bean(name = "org.sakaiproject.time.api.UserTimeService")
     public UserTimeService userTimeService() {
         return mock(UserTimeService.class);
+    }
+
+    @Bean(name = "org.sakaiproject.api.app.scheduler.SchedulerManager")
+    public SchedulerManager schedulerManager() {
+        return mock(SchedulerManager.class);
     }
 }

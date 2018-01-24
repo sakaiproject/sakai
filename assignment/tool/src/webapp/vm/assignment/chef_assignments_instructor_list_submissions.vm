@@ -490,7 +490,7 @@ function printView(url) {
 							</a>
 						</th>
 					#end	
-					#if ($allowReviewService && $assignment.AllowReviewService)
+					#if ($allowReviewService && $assignment.ContentReview)
 						<th id="reviewService">
 							<a href="javascript:void(0)" onclick="location='#toolLinkParam("AssignmentAction" "doSort_grade_submission" "criteria=$!sort_submitReview")'; return false;" onkeypress="location='#toolLinkParam("AssignmentAction" "doSort_grade_submission" "criteria=$!sort_submitReview")'; return false;" title="$tlang.getString("gen.sorbyreview")">
 								$reviewServiceName
@@ -711,10 +711,10 @@ function printView(url) {
 									$!service.getGradeDisplay($submission.Grade, $assignment.TypeOfGrade, $assignment.ScaleFactor)
 								</td>
 							#end	
-							#if ($allowReviewService && $assignment.AllowReviewService)
+							#if ($allowReviewService && $assignment.ContentReview)
 								<td headers="reviewService">
 
-									#set($reviewResults = $submission.ContentReviewResults)
+									#set($reviewResults=$!service.getContentReviewResults($!submission)) ##falta ContentReviewResults
 									#if ($reviewResults.size() >= 3)
 										<div>
 											<input class="disclosureTriangle" type="image" onclick="ASN.handleReportsTriangleDisclosure(this, this.parentNode.parentNode.children[1]); return false;" src="#imageLink("sakai/expand.gif")" alt="$tlang.getString('review.report.expand')"/>

@@ -967,4 +967,23 @@ public class ContentReviewServiceVeriCite implements ContentReviewService {
 	public void setMemoryService(MemoryService memoryService) {
 		this.memoryService = memoryService;
 	}
+
+	@Override
+	public ContentReviewItem getContentReviewItemByContentId(String contentId){
+		Optional<ContentReviewItem> cri = crqs.getQueuedItem(getProviderId(), contentId);
+		if(cri.isPresent()){
+			ContentReviewItem item = cri.get();
+			
+			//Vericite specific work			
+			try {
+				int score = getReviewScore(contentId, item.getTaskId(), null);
+				log.debug(" getReviewScore returned a score of: {} ", score);
+			} catch(Exception e) {
+				log.error("Vericite - getReviewScore error called from getContentReviewItemByContentId with content {} - {}", contentId, e.getMessage());
+			}
+			
+			return item;
+		}
+		return null;
+	}
 }

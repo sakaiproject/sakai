@@ -279,29 +279,43 @@ public class UrkundReviewServiceImpl implements ContentReviewService {
 			throw new QueueException("Content " + contentId + " has not been queued previously");
 		}
 
-		// check that the report is available
-		// TODO if the database record does not show report available check with
-		// urkund (maybe)
-
 		ContentReviewItem item = matchingItem.get();
 
+		// check that the report is available
 		if (item.getStatus().compareTo(ContentReviewConstants.CONTENT_REVIEW_SUBMITTED_REPORT_AVAILABLE_CODE) != 0) {
 			log.debug("Report not available: {}", item.getStatus());
 			throw new ReportException("Report not available: " + item.getStatus());
 		}
 
-		List<UrkundSubmissionData> submissionDataList = urkundConn.getReports(item.getExternalId());
-		
-		String reportURL = null;
-		for(UrkundSubmissionData submissionData : submissionDataList) {
-			if (submissionData != null) {
-				if(submissionData.getExternalId() != null && submissionData.getExternalId().equals(item.getExternalId())){
-					if(STATE_ANALYZED.equals(submissionData.getStatus().get("State"))) {
-						reportURL = (String)submissionData.getReport().get("ReportUrl");
+		// if the database record does not show report available check with urkund
+		String reportURL = item.getProperties().get(ContentReviewConstants.URKUND_REPORT_URL);
+		if(StringUtils.isBlank(reportURL)){
+
+			List<UrkundSubmissionData> submissionDataList = urkundConn.getReports(item.getExternalId());
+			
+			for(UrkundSubmissionData submissionData : submissionDataList) {
+				if (submissionData != null) {
+					if(submissionData.getExternalId() != null && submissionData.getExternalId().equals(item.getExternalId())){
+						if(STATE_ANALYZED.equals(submissionData.getStatus().get("State"))) {
+							try{
+								reportURL = (String)submissionData.getReport().get("ReportUrl");
+								
+								//store reportURL
+								item.getProperties().put(ContentReviewConstants.URKUND_REPORT_URL, reportURL);
+								
+								//store OptOutURL
+								Map<String, Object> optOutInfo = (Map)submissionData.getDocument().get("OptOutInfo");
+								item.getProperties().put(ContentReviewConstants.URKUND_OPTOUT_URL, (String)optOutInfo.get("Url"));
+	
+								crqs.update(item);
+							}catch(Exception e){
+								throw new ReportException("Error getting data from response");
+							}
+						}
 					}
+				} else {
+					log.error("Error retrieving Urkund report URL");
 				}
-			} else {
-				log.error("Error retrieving Urkund report URL");
 			}
 		}
 		
@@ -421,7 +435,7 @@ public class UrkundReviewServiceImpl implements ContentReviewService {
 		int errors = 0;
 		int success = 0;
 		int inprogress = 0;
-		ContentReviewItem currentItem;
+		ContentReviewItem currentItem = null;
 		while (listIterator.hasNext()) {
 			currentItem = (ContentReviewItem) listIterator.next();
 
@@ -467,10 +481,24 @@ public class UrkundReviewServiceImpl implements ContentReviewService {
 				if(STATE_ANALYZED.equals(submissionData.getStatus().get("State"))) {
 					currentItem.setReviewScore((int) Math.round(submissionData.getSignificance()));
 					currentItem.setStatus(ContentReviewConstants.CONTENT_REVIEW_SUBMITTED_REPORT_AVAILABLE_CODE);
+					
+					//store reportURL
+					currentItem.getProperties().put(ContentReviewConstants.URKUND_REPORT_URL, (String)submissionData.getReport().get("ReportUrl"));
+					
+					//store OptOutURL
+					Map<String, Object> optOutInfo = (Map)submissionData.getDocument().get("OptOutInfo");
+					currentItem.getProperties().put(ContentReviewConstants.URKUND_OPTOUT_URL, (String)optOutInfo.get("Url"));
+
 					crqs.update(currentItem);
 					success++;
 				} else if(STATE_ACCEPTED.equals(submissionData.getStatus().get("State"))) {
 					inprogress++;
+				} else if(STATE_ERROR.equals(submissionData.getStatus().get("State"))) {
+					processError(currentItem, ContentReviewConstants.CONTENT_REVIEW_REPORT_ERROR_RETRY_CODE, "Report Error : "+submissionData.getStatus().get("Message"), null);
+					errors++;
+				} else {
+					processError(currentItem, ContentReviewConstants.CONTENT_REVIEW_SUBMISSION_ERROR_RETRY_CODE, "Report Unknown State ("+submissionData.getStatus().get("State")+") : "+submissionData.getStatus().get("Message"), null);
+					errors++;
 				}
 			} else {
 				processError(currentItem, ContentReviewConstants.CONTENT_REVIEW_REPORT_ERROR_RETRY_CODE, null, null);
@@ -730,7 +758,7 @@ public class UrkundReviewServiceImpl implements ContentReviewService {
 		
 		if(submissionData != null){
 			if(STATE_SUBMITTED.equals(submissionData.getStatus().get("State"))) {
-				log.debug("Submission successful");
+				log.debug("Submission successful (addDocumentToUrkund)");
 				currentItem.setExternalId(externalId);
 				currentItem.setStatus(ContentReviewConstants.CONTENT_REVIEW_NOT_SUBMITTED_CODE);
 				currentItem.setRetryCount(Long.valueOf(0));
@@ -906,5 +934,16 @@ public class UrkundReviewServiceImpl implements ContentReviewService {
 		//use commons-validator
 		EmailValidator validator = EmailValidator.getInstance();
 		return validator.isValid(email);
+	}
+
+	@Override
+	public ContentReviewItem getContentReviewItemByContentId(String contentId){
+		Optional<ContentReviewItem> cri = crqs.getQueuedItem(getProviderId(), contentId);
+		if(cri.isPresent()){
+			ContentReviewItem item = cri.get();
+			//Urkund specific work
+			return item;
+		}
+		return null;
 	}
 }

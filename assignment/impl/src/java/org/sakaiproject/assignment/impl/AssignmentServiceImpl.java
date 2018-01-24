@@ -66,6 +66,7 @@ import org.sakaiproject.assignment.api.AssignmentEntity;
 import org.sakaiproject.assignment.api.AssignmentReferenceReckoner;
 import org.sakaiproject.assignment.api.AssignmentService;
 import org.sakaiproject.assignment.api.AssignmentServiceConstants;
+import org.sakaiproject.assignment.api.ContentReviewResult;
 import org.sakaiproject.assignment.api.model.Assignment;
 import org.sakaiproject.assignment.api.model.AssignmentAllPurposeItem;
 import org.sakaiproject.assignment.api.model.AssignmentAllPurposeItemAccess;
@@ -95,6 +96,8 @@ import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.content.api.ContentResourceEdit;
+import org.sakaiproject.contentreview.dao.ContentReviewConstants;
+import org.sakaiproject.contentreview.dao.ContentReviewItem;
 import org.sakaiproject.contentreview.exception.QueueException;
 import org.sakaiproject.contentreview.service.ContentReviewService;
 import org.sakaiproject.email.api.DigestService;
@@ -1064,7 +1067,8 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
         }
         eventTrackingService.post(eventTrackingService.newEvent(AssignmentConstants.EVENT_UPDATE_ASSIGNMENT, reference, true));
 
-        assignmentRepository.updateAssignment(assignment);
+        assignment.setDateModified(Instant.now());
+        assignmentRepository.update(assignment);
 
     }
 
@@ -1080,6 +1084,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
         }
         eventTrackingService.post(eventTrackingService.newEvent(AssignmentConstants.EVENT_UPDATE_ASSIGNMENT_SUBMISSION, reference, true));
 
+        submission.setDateModified(Instant.now());
         assignmentRepository.updateSubmission(submission);
 
         // Assignment Submission Notifications
@@ -1833,6 +1838,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                                     AssignmentSubmission s = addSubmission(a.getId(), g.getId());
                                     s.setSubmitted(true);
                                     s.setUserSubmission(false);
+                                    s.setDateModified(Instant.now());
 
                                     // set the resubmission properties
                                     // get the assignment setting for resubmitting
@@ -1991,6 +1997,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
 									 * the user did not in fact submit anything.
 									 */
                                     s.setUserSubmission(false);
+                                    s.setDateModified(Instant.now());
 
                                     // set the resubmission properties
                                     // get the assignment setting for resubmitting
@@ -3327,9 +3334,9 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
     }
 
     @Override
-    public void postReviewableSubmissonAttachments(String submissionId) {
+    @Transactional
+    public void postReviewableSubmissionAttachments(AssignmentSubmission submission) {
         try {
-            AssignmentSubmission submission = getSubmission(submissionId);
             Optional<AssignmentSubmissionSubmitter> submitter = submission.getSubmitters().stream().filter(AssignmentSubmissionSubmitter::getSubmittee).findFirst();
             if (submitter.isPresent()) {
                 Assignment assignment = submission.getAssignment();
@@ -3349,11 +3356,11 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                 try {
                     contentReviewService.queueContent(submitter.get().getSubmitter(), assignment.getContext(), assignmentRef, resources);
                 } catch (QueueException e) {
-                    log.warn("Could not queue submission: {} for review, {}", submissionId, e.getMessage());
+                    log.warn("Could not queue submission: {} for review, {}", submission.getId(), e.getMessage());
                 }
             }
         } catch (IdUnusedException | PermissionException e) {
-            log.warn("Could not locate submission: {}, {}", submissionId, e.getMessage());
+            log.warn("Could not locate submission: {}, {}", submission.getId(), e.getMessage());
         }
     }
 
@@ -3450,8 +3457,8 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                     nAssignment.setMaxGradePoint(oAssignment.getMaxGradePoint());
                     nAssignment.setScaleFactor(oAssignment.getScaleFactor());
                     nAssignment.setReleaseGrades(oAssignment.getReleaseGrades());
-                    // TODO review service
-                    // nAssignment.setAllowReviewService(oContent.getAllowReviewService());
+                    // review service
+                    nAssignment.setContentReview(oAssignment.getContentReview());
 
                     // attachments
                     Set<String> oAttachments = oAssignment.getAttachments();
@@ -3697,7 +3704,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
         String resubmissionNumber = StringUtils.defaultString(s.getProperties().get(AssignmentConstants.ALLOW_RESUBMIT_NUMBER), "0");
         descMap.put("en-US", "User received a grade for their assginment: " + a.getTitle() + "; Submission #: " + resubmissionNumber);
         lrsObject.setDescription(descMap);
-        LRS_Actor student = new LRS_Actor(studentUser.getEmail());
+        LRS_Actor student = learningResourceStoreService.getActor(studentUser.getId());
         student.setName(studentUser.getDisplayName());
         return new LRS_Statement(student, verb, lrsObject, getLRS_Result(a, s, true), null);
     }
@@ -3728,7 +3735,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
         Map<String, String> descMap = new HashMap<>();
         descMap.put("en-US", "User received a grade for an unsubmitted assginment: " + a.getTitle());
         lrsObject.setDescription(descMap);
-        LRS_Actor student = new LRS_Actor(studentUser.getEmail());
+        LRS_Actor student = learningResourceStoreService.getActor(studentUser.getId());
         student.setName(studentUser.getDisplayName());
         return new LRS_Statement(student, verb, lrsObject, getLRS_Result(a, s, false), null);
     }
@@ -3831,5 +3838,124 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
             referenceId = referenceId.replaceFirst(REF_PREFIX, "");
         }
         return referenceId;
+    }
+
+    @Override
+    @Transactional
+    public List<ContentReviewResult> getContentReviewResults(AssignmentSubmission s){
+        ArrayList<ContentReviewResult> reviewResults = new ArrayList<ContentReviewResult>();
+        //get all the attachments for this submission and populate the reviewResults
+        List<ContentResource> contentResources = getAllAcceptableAttachments(s);
+        for(ContentResource cr : contentResources){
+            ContentReviewResult reviewResult = new ContentReviewResult();
+            reviewResult.setContentResource(cr);
+            ContentReviewItem cri = contentReviewService.getContentReviewItemByContentId(cr.getId());
+            if(cri == null){
+                log.warn("Retrieved null ContentReviewItem for content " + cr.getId());
+                continue;
+            }
+            reviewResult.setContentReviewItem(cri);
+
+            AssignmentReferenceReckoner.AssignmentReference referenceReckoner = AssignmentReferenceReckoner.reckoner().reference(s.getAssignment().getId()).reckon();
+            reviewResult.setReviewReport(getReviewReport(cr, referenceReckoner.getReference()));
+            String iconUrl = getReviewIconCssClass(reviewResult);
+            reviewResult.setReviewIconCssClass(iconUrl);
+            reviewResult.setReviewError(getReviewError(reviewResult.getStatus()));
+
+            if ("true".equals(reviewResult.isInline())) {
+                reviewResults.add(0, reviewResult);
+            } else {
+                reviewResults.add(reviewResult);
+            }
+        }
+        return reviewResults;
+    }
+
+    /**
+     * Gets all attachments in the submission that are acceptable to the content review service
+     */
+    private List<ContentResource> getAllAcceptableAttachments(AssignmentSubmission s) {
+        List<ContentResource> attachments = new ArrayList<>();
+        for (String attachment : s.getAttachments()) {
+            Reference attachmentRef = entityManager.newReference(attachment);
+            try {
+                ContentResource resource = contentHostingService.getResource(attachmentRef.getId());
+                if (contentReviewService.isAcceptableContent(resource)) {
+                    attachments.add(resource);
+                }
+            } catch (Exception e) {
+                log.warn(":getAllAcceptableAttachments() {} ", e.getMessage());
+            }
+        }
+        return attachments;
+    }
+
+    private String getReviewIconCssClass(ContentReviewResult reviewResult) {
+        if (reviewResult == null) {
+            log.debug("{} getReviewIconCssClass(ContentResource, int) called with reviewResult == null", reviewResult.getContentResource().getId());
+            return null;
+        }
+
+        Long status = reviewResult.getStatus();
+        String reviewReport = reviewResult.getReviewReport();
+        String iconCssClass = null;
+
+        if (!"Error".equals(reviewReport)) {
+            iconCssClass = contentReviewService.getIconCssClassforScore(reviewResult.getReviewScore(), reviewResult.getContentResource().getId());
+        } else if (ContentReviewConstants.CONTENT_REVIEW_SUBMITTED_AWAITING_REPORT_CODE.equals(status) || ContentReviewConstants.CONTENT_REVIEW_NOT_SUBMITTED_CODE.equals(status)) {
+            iconCssClass = "contentReviewIconPending";
+        } else {
+            iconCssClass = "contentReviewIconWarn";
+        }
+
+        return iconCssClass;
+    }
+
+    private String getReviewReport(ContentResource cr, String assignmentReference) {
+        if (cr == null) {
+            log.debug("getReviewReport(ContentResource) called with cr == null"/*, this.getId()*/);
+            return "Error";
+        }
+        try {
+            String contentId = cr.getId();
+            if (allowGradeSubmission(assignmentReference)) {
+                return contentReviewService.getReviewReportInstructor(contentId, assignmentReference, userDirectoryService.getCurrentUser().getId());
+            } else {
+                return contentReviewService.getReviewReportStudent(contentId, assignmentReference, userDirectoryService.getCurrentUser().getId());
+            }
+        } catch (Exception e) {
+            log.warn(":getReviewReport(ContentResource) {}", e.getMessage());
+            return "Error";
+        }
+    }
+
+    private String getReviewError(Long status){
+        if (status == null){
+            log.debug("getReviewReport(ContentResource) called with status == null");
+            return null;
+        }
+        //This should use getLocalizedReviewErrorMesage(contentId) to get a i18n message of the error
+        String errorMessage = null;
+        if (status.equals(ContentReviewConstants.CONTENT_REVIEW_REPORT_ERROR_NO_RETRY_CODE)){
+            errorMessage = resourceLoader.getString("content_review.error.REPORT_ERROR_NO_RETRY_CODE");
+        } else if (status.equals(ContentReviewConstants.CONTENT_REVIEW_REPORT_ERROR_RETRY_CODE)) {
+            errorMessage = resourceLoader.getString("content_review.error.REPORT_ERROR_RETRY_CODE");
+        } else if (status.equals(ContentReviewConstants.CONTENT_REVIEW_SUBMISSION_ERROR_NO_RETRY_CODE)) {
+            errorMessage = resourceLoader.getString("content_review.error.SUBMISSION_ERROR_NO_RETRY_CODE");
+        } else if (status.equals(ContentReviewConstants.CONTENT_REVIEW_SUBMISSION_ERROR_RETRY_CODE)) {
+            errorMessage = resourceLoader.getString("content_review.error.SUBMISSION_ERROR_RETRY_CODE");
+        } else if (status.equals(ContentReviewConstants.CONTENT_REVIEW_SUBMISSION_ERROR_RETRY_EXCEEDED_CODE)) {
+            errorMessage = resourceLoader.getString("content_review.error.SUBMISSION_ERROR_RETRY_EXCEEDED_CODE");
+        } else if (status.equals(ContentReviewConstants.CONTENT_REVIEW_SUBMISSION_ERROR_USER_DETAILS_CODE)) {
+            errorMessage = resourceLoader.getString("content_review.error.SUBMISSION_ERROR_USER_DETAILS_CODE");
+        } else if (ContentReviewConstants.CONTENT_REVIEW_SUBMITTED_AWAITING_REPORT_CODE.equals(status) || ContentReviewConstants.CONTENT_REVIEW_NOT_SUBMITTED_CODE.equals(status)) {
+            errorMessage = resourceLoader.getString("content_review.pending.info");
+        }
+
+        if (errorMessage == null) {
+            errorMessage = resourceLoader.getString("content_review.error");
+        }
+
+        return errorMessage;
     }
 }

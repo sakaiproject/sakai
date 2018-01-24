@@ -16,133 +16,81 @@
 package org.sakaiproject.assignment.api;
 
 import org.sakaiproject.content.api.ContentResource;
+import org.sakaiproject.contentreview.dao.ContentReviewConstants;
+import org.sakaiproject.contentreview.dao.ContentReviewItem;
 import org.sakaiproject.entity.api.ResourceProperties;
+
+import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Introduced for SAK-26322
  * A ContentReviewResult represents the results of a content review item
  */
+@Slf4j
+@Data
 public class ContentReviewResult {
-    /**
-     * The ContentResource which was reviewed
-     */
-    private ContentResource resource;
+	/**
+	 * The ContentResource which was reviewed
+	 */
+	private ContentResource contentResource;
+	
+	/**
+	 * The ContentReviewItem obtained from the ContentResource
+	 */
+	private ContentReviewItem contentReviewItem;
 
-    /**
-     * The score from the content review service
-     */
-    private int reviewScore;
+	/**
+	 * The URL to the content review report
+	 */
+	private String reviewReport;
 
-    /**
-     * The URL to the content review report
-     */
-    private String reviewReport;
+	/**
+	 * The css class of the content review icon associated with this item
+	 */
+	private String reviewIconCssClass;
 
-    /**
-     * The status of the review
-     */
-    private String reviewStatus;
+	/**
+	 * An error string, if any, return from the review service
+	 */
+	private String reviewError;
 
-    /**
-     * The css class of the content review icon associated with this item
-     */
-    private String reviewIconCssClass;
+	
+	/**
+	 * Get status directly from ContentReviewItem
+	 */
+	public Long getStatus(){
+		return contentReviewItem.getStatus();
+	}
 
-    /**
-     * An error string, if any, return from the review service
-     */
-    private String reviewError;
+	public int getReviewScore() {
 
+		if (contentResource == null){
+			log.debug(this + " getReviewScore() called with contentResource == null");
+			return -2;
+		}
+		try {
+			//get the status from the ContentReviewItem, if it's in a valid status, get the score
+			Long status = getStatus();
+			if (status != null && (status.equals(ContentReviewConstants.CONTENT_REVIEW_NOT_SUBMITTED_CODE) || status.equals(ContentReviewConstants.CONTENT_REVIEW_SUBMITTED_AWAITING_REPORT_CODE)))	{
+				log.debug(this + " getReviewStatus returned a state of: " + status);
+				return -2;
+			}
 
-    /**
-     * Getter for the ContentResource which was reviewed
-     */
-    public ContentResource getContentResource() {
-        return resource;
-    }
-
-    /**
-     * Setter for the ContentResource which was reviewed
-     */
-    public void setContentResource(ContentResource resource) {
-        this.resource = resource;
-    }
-
-    /**
-     * Determines if this ContentReview result is from a student's inline text
-     */
-    public boolean isInline() {
-        ResourceProperties props = resource.getProperties();
-        return "true".equals(props.getProperty(AssignmentConstants.PROP_INLINE_SUBMISSION));
-    }
-
-    /**
-     * Getter for score from the content review service
-     */
-    public int getReviewScore() {
-        return reviewScore;
-    }
-
-    /**
-     * Setter for score form the content review service
-     */
-    public void setReviewScore(int reviewScore) {
-        this.reviewScore = reviewScore;
-    }
-
-    /**
-     * Getter for URL to the content review report
-     */
-    public String getReviewReport() {
-        return reviewReport;
-    }
-
-    /**
-     * Setter for URL to the content review report
-     */
-    public void setReviewReport(String reviewReport) {
-        this.reviewReport = reviewReport;
-    }
-
-    /**
-     * Getter for the status of the review
-     */
-    public String getReviewStatus() {
-        return reviewStatus;
-    }
-
-    /**
-     * Setter for the status of the review
-     */
-    public void setReviewStatus(String reviewStatus) {
-        this.reviewStatus = reviewStatus;
-    }
-
-    /**
-     * Getter for the css class of the content review icon associated with this item
-     */
-    public String getReviewIconCssClass() {
-        return reviewIconCssClass;
-    }
-
-    /**
-     * Setter for the css class of the content review icon associated with this item
-     */
-    public void setReviewIconCssClass(String reviewIconCssClass) {
-        this.reviewIconCssClass = reviewIconCssClass;
-    }
-
-    /**
-     * Getter for the error string, if any, returned from the review service
-     */
-    public String getReviewError() {
-        return reviewError;
-    }
-
-    /**
-     * Setter for the error string, if any, returned from the review service
-     */
-    public void setReviewError(String reviewError) {
-        this.reviewError = reviewError;
-    }
+			int score = contentReviewItem.getReviewScore();
+			log.debug(this + " getReviewScore(ContentResource) CR returned a score of: " + score);
+			return score;
+		} catch (Exception cie) {
+			log.error("No tiene scoreeee {} ", contentResource.getId());
+			return -2;
+		}
+	}
+	
+	/**
+	 * Determines if this ContentReview result is from a student's inline text
+	 */
+	public boolean isInline() {
+		ResourceProperties props = contentResource.getProperties();
+		return "true".equals(props.getProperty(AssignmentConstants.PROP_INLINE_SUBMISSION));
+	}
 }
