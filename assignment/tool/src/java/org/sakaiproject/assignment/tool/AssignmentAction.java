@@ -4313,10 +4313,12 @@ public class AssignmentAction extends PagedResourceActionII {
             return null;
         };
         AssignmentSubmission s = null;
+		String submissionReference = null;
         try {
             //surround with a try/catch/finally for the security advisor
             securityService.pushAdvisor(secAdv);
-            s = getSubmission((String) state.getAttribute(GRADE_SUBMISSION_SUBMISSION_ID), "build_student_review_edit_context", state);
+            submissionReference = assignmentService.submissionReference(assignment.getContext(), (String) state.getAttribute(GRADE_SUBMISSION_SUBMISSION_ID), assignment.getId());
+            s = getSubmission(submissionReference, "build_student_review_edit_context", state);
             securityService.popAdvisor(secAdv);
         } catch (Exception e) {
             log.error(e.getMessage(), e);
@@ -4326,9 +4328,9 @@ public class AssignmentAction extends PagedResourceActionII {
             }
         }
         if (s != null) {
-            submissionId = AssignmentReferenceReckoner.reckoner().submission(s).reckon().getReference();
+            submissionId = s.getId();
             context.put("submission", s);
-            context.put("submissionReference", AssignmentReferenceReckoner.reckoner().submission(s).reckon().getReference());
+            context.put("submissionReference", submissionReference);
 
             String submitterNames = s.getSubmitters().stream().map(u -> {
                 try {
@@ -5494,16 +5496,7 @@ public class AssignmentAction extends PagedResourceActionII {
         if (state.getAttribute(PEER_ASSESSMENT_ASSESSOR_ID) != null) {
             String peerAssessor = (String) state.getAttribute(PEER_ASSESSMENT_ASSESSOR_ID);
             ParameterParser params = data.getParameters();
-            String submissionRef = params.getString("submissionId");
-            String submissionId = null;
-            if (submissionRef != null) {
-                int i = submissionRef.lastIndexOf(Entity.SEPARATOR);
-                if (i == -1) {
-                    submissionId = submissionRef;
-                } else {
-                    submissionId = submissionRef.substring(i + 1);
-                }
-            }
+            String submissionId = params.getString("submissionId");
             if (submissionId != null) {
                 //call the DB to make sure this user can edit this assessment, otherwise it wouldn't exist
                 PeerAssessmentItem item = assignmentPeerAssessmentService.getPeerAssessmentItem(submissionId, peerAssessor);
@@ -8989,7 +8982,6 @@ public class AssignmentAction extends PagedResourceActionII {
                 //grab the first one:
                 submissionId = submissionIds.get(0);
             }
-
             if (submissionId != null) {
                 state.setAttribute(USER_SUBMISSIONS, submissionIds);
                 state.setAttribute(GRADE_SUBMISSION_SUBMISSION_ID, submissionId);
@@ -10372,6 +10364,10 @@ public class AssignmentAction extends PagedResourceActionII {
         ParameterParser params = data.getParameters();
         String submissionId = params.getString("submissionId");
         if (submissionId != null) {
+            AssignmentSubmission s = getSubmission(submissionId, "saveReviewGradeForm", state);
+            if (s != null) {
+                submissionId = s.getId();//using the id instead of the reference
+            }
 
             //call the DB to make sure this user can edit this assessment, otherwise it wouldn't exist
             PeerAssessmentItem item = assignmentPeerAssessmentService.getPeerAssessmentItem(submissionId, assessorUserId);
