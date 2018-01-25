@@ -232,7 +232,8 @@ public class Assignment {
     @Column(name = "PEER_ASSESSMENT_NUMBER_REVIEW")
     private Integer peerAssessmentNumberReviews;
 
-    @Column(name = "PEER_ASSESSMENT_INSTRUCTIONS", length = 8000)
+    @Lob
+    @Column(name = "PEER_ASSESSMENT_INSTRUCTIONS", length = 65535)
     private String peerAssessmentInstructions;
 
     @Column(name = "CONTENT_REVIEW")

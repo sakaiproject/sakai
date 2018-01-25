@@ -19,7 +19,7 @@
  *
  **********************************************************************************/
 
-package org.sakaiproject.assignment.impl.conversion.impl;
+package org.sakaiproject.assignment.impl.conversion;
 
 import java.io.Reader;
 import java.io.StringReader;
@@ -37,8 +37,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 
 import org.sakaiproject.assignment.api.AssignmentConstants;
-import org.sakaiproject.assignment.impl.conversion.api.SerializableSubmissionAccess;
-import org.sakaiproject.assignment.impl.conversion.impl.SAXSerializablePropertiesAccess;
 import org.sakaiproject.entity.api.serialize.EntityParseException;
 import org.sakaiproject.entity.api.serialize.SerializableEntity;
 import org.sakaiproject.util.Xml;
@@ -479,7 +477,7 @@ public class AssignmentSubmissionAccess implements SerializableSubmissionAccess,
 	}
 
 	/* (non-Javadoc)
-	 * @see org.sakaiproject.assignment.impl.conversion.impl.SerializableSubmissionAccess#getId()
+	 * @see SerializableSubmissionAccess#getId()
 	 */
 	public String getId() 
 	{
@@ -488,7 +486,7 @@ public class AssignmentSubmissionAccess implements SerializableSubmissionAccess,
 
 
 	/* (non-Javadoc)
-	 * @see org.sakaiproject.assignment.impl.conversion.impl.SerializableSubmissionAccess#setId(java.lang.String)
+	 * @see SerializableSubmissionAccess#setId(java.lang.String)
 	 */
 	public void setId(String id) 
 	{
@@ -497,7 +495,7 @@ public class AssignmentSubmissionAccess implements SerializableSubmissionAccess,
 
 
 	/* (non-Javadoc)
-	 * @see org.sakaiproject.assignment.impl.conversion.impl.SerializableSubmissionAccess#getGrade()
+	 * @see SerializableSubmissionAccess#getGrade()
 	 */
 	public String getGrade() 
 	{
@@ -506,7 +504,7 @@ public class AssignmentSubmissionAccess implements SerializableSubmissionAccess,
 
 
 	/* (non-Javadoc)
-	 * @see org.sakaiproject.assignment.impl.conversion.impl.SerializableSubmissionAccess#setGrade(java.lang.String)
+	 * @see SerializableSubmissionAccess#setGrade(java.lang.String)
 	 */
 	public void setGrade(String grade) 
 	{
@@ -515,7 +513,7 @@ public class AssignmentSubmissionAccess implements SerializableSubmissionAccess,
 
 
 	/* (non-Javadoc)
-	 * @see org.sakaiproject.assignment.impl.conversion.impl.SerializableSubmissionAccess#getAssignment()
+	 * @see SerializableSubmissionAccess#getAssignment()
 	 */
 	public String getAssignment() 
 	{
@@ -524,7 +522,7 @@ public class AssignmentSubmissionAccess implements SerializableSubmissionAccess,
 
 
 	/* (non-Javadoc)
-	 * @see org.sakaiproject.assignment.impl.conversion.impl.SerializableSubmissionAccess#setAssignment(java.lang.String)
+	 * @see SerializableSubmissionAccess#setAssignment(java.lang.String)
 	 */
 	public void setAssignment(String assignment) 
 	{
@@ -533,7 +531,7 @@ public class AssignmentSubmissionAccess implements SerializableSubmissionAccess,
 
 
 	/* (non-Javadoc)
-	 * @see org.sakaiproject.assignment.impl.conversion.impl.SerializableSubmissionAccess#getContext()
+	 * @see SerializableSubmissionAccess#getContext()
 	 */
 	public String getContext() 
 	{
@@ -542,7 +540,7 @@ public class AssignmentSubmissionAccess implements SerializableSubmissionAccess,
 
 
 	/* (non-Javadoc)
-	 * @see org.sakaiproject.assignment.impl.conversion.impl.SerializableSubmissionAccess#setContext(java.lang.String)
+	 * @see SerializableSubmissionAccess#setContext(java.lang.String)
 	 */
 	public void setContext(String context) 
 	{
@@ -551,7 +549,7 @@ public class AssignmentSubmissionAccess implements SerializableSubmissionAccess,
 
 
 	/* (non-Javadoc)
-	 * @see org.sakaiproject.assignment.impl.conversion.impl.SerializableSubmissionAccess#getDatereturned()
+	 * @see SerializableSubmissionAccess#getDatereturned()
 	 */
 	public String getDatereturned() 
 	{
@@ -560,7 +558,7 @@ public class AssignmentSubmissionAccess implements SerializableSubmissionAccess,
 
 
 	/* (non-Javadoc)
-	 * @see org.sakaiproject.assignment.impl.conversion.impl.SerializableSubmissionAccess#setDatereturned(java.lang.String)
+	 * @see SerializableSubmissionAccess#setDatereturned(java.lang.String)
 	 */
 	public void setDatereturned(String datereturned) 
 	{
@@ -569,7 +567,7 @@ public class AssignmentSubmissionAccess implements SerializableSubmissionAccess,
 
 
 	/* (non-Javadoc)
-	 * @see org.sakaiproject.assignment.impl.conversion.impl.SerializableSubmissionAccess#getFeedbackcomment()
+	 * @see SerializableSubmissionAccess#getFeedbackcomment()
 	 */
 	public String getFeedbackcomment() 
 	{
@@ -578,7 +576,7 @@ public class AssignmentSubmissionAccess implements SerializableSubmissionAccess,
 
 
 	/* (non-Javadoc)
-	 * @see org.sakaiproject.assignment.impl.conversion.impl.SerializableSubmissionAccess#setFeedbackcomment(java.lang.String)
+	 * @see SerializableSubmissionAccess#setFeedbackcomment(java.lang.String)
 	 */
 	public void setFeedbackcomment(String feedbackcomment) 
 	{
@@ -587,7 +585,7 @@ public class AssignmentSubmissionAccess implements SerializableSubmissionAccess,
 
 
 	/* (non-Javadoc)
-	 * @see org.sakaiproject.assignment.impl.conversion.impl.SerializableSubmissionAccess#getFeedbackcomment_html()
+	 * @see SerializableSubmissionAccess#getFeedbackcomment_html()
 	 */
 	public String getFeedbackcomment_html() 
 	{
@@ -596,7 +594,7 @@ public class AssignmentSubmissionAccess implements SerializableSubmissionAccess,
 
 
 	/* (non-Javadoc)
-	 * @see org.sakaiproject.assignment.impl.conversion.impl.SerializableSubmissionAccess#setFeedbackcomment_html(java.lang.String)
+	 * @see SerializableSubmissionAccess#setFeedbackcomment_html(java.lang.String)
 	 */
 	public void setFeedbackcomment_html(String feedbackcomment_html) 
 	{
@@ -605,7 +603,7 @@ public class AssignmentSubmissionAccess implements SerializableSubmissionAccess,
 
 
 	/* (non-Javadoc)
-	 * @see org.sakaiproject.assignment.impl.conversion.impl.SerializableSubmissionAccess#getFeedbacktext()
+	 * @see SerializableSubmissionAccess#getFeedbacktext()
 	 */
 	public String getFeedbacktext() 
 	{
@@ -614,7 +612,7 @@ public class AssignmentSubmissionAccess implements SerializableSubmissionAccess,
 
 
 	/* (non-Javadoc)
-	 * @see org.sakaiproject.assignment.impl.conversion.impl.SerializableSubmissionAccess#setFeedbacktext(java.lang.String)
+	 * @see SerializableSubmissionAccess#setFeedbacktext(java.lang.String)
 	 */
 	public void setFeedbacktext(String feedbacktext) 
 	{
@@ -623,7 +621,7 @@ public class AssignmentSubmissionAccess implements SerializableSubmissionAccess,
 
 
 	/* (non-Javadoc)
-	 * @see org.sakaiproject.assignment.impl.conversion.impl.SerializableSubmissionAccess#getFeedbacktext_html()
+	 * @see SerializableSubmissionAccess#getFeedbacktext_html()
 	 */
 	public String getFeedbacktext_html() 
 	{
@@ -632,7 +630,7 @@ public class AssignmentSubmissionAccess implements SerializableSubmissionAccess,
 
 
 	/* (non-Javadoc)
-	 * @see org.sakaiproject.assignment.impl.conversion.impl.SerializableSubmissionAccess#setFeedbacktext_html(java.lang.String)
+	 * @see SerializableSubmissionAccess#setFeedbacktext_html(java.lang.String)
 	 */
 	public void setFeedbacktext_html(String feedbacktext_html) 
 	{
@@ -641,7 +639,7 @@ public class AssignmentSubmissionAccess implements SerializableSubmissionAccess,
 
 
 	/* (non-Javadoc)
-	 * @see org.sakaiproject.assignment.impl.conversion.impl.SerializableSubmissionAccess#getGraded()
+	 * @see SerializableSubmissionAccess#getGraded()
 	 */
 	public String getGraded() 
 	{
@@ -653,7 +651,7 @@ public class AssignmentSubmissionAccess implements SerializableSubmissionAccess,
 	}
 
 	/* (non-Javadoc)
-	 * @see org.sakaiproject.assignment.impl.conversion.impl.SerializableSubmissionAccess#setGraded(java.lang.String)
+	 * @see SerializableSubmissionAccess#setGraded(java.lang.String)
 	 */
 	public void setGraded(String graded) 
 	{
@@ -665,7 +663,7 @@ public class AssignmentSubmissionAccess implements SerializableSubmissionAccess,
 	}
 
 	/* (non-Javadoc)
-	 * @see org.sakaiproject.assignment.impl.conversion.impl.SerializableSubmissionAccess#getGradereleased()
+	 * @see SerializableSubmissionAccess#getGradereleased()
 	 */
 	public String getGradereleased() 
 	{
@@ -674,7 +672,7 @@ public class AssignmentSubmissionAccess implements SerializableSubmissionAccess,
 
 
 	/* (non-Javadoc)
-	 * @see org.sakaiproject.assignment.impl.conversion.impl.SerializableSubmissionAccess#setGradereleased(java.lang.String)
+	 * @see SerializableSubmissionAccess#setGradereleased(java.lang.String)
 	 */
 	public void setGradereleased(String gradereleased) 
 	{
@@ -683,7 +681,7 @@ public class AssignmentSubmissionAccess implements SerializableSubmissionAccess,
 
 
 	/* (non-Javadoc)
-	 * @see org.sakaiproject.assignment.impl.conversion.impl.SerializableSubmissionAccess#getLastmod()
+	 * @see SerializableSubmissionAccess#getLastmod()
 	 */
 	public String getLastmod() 
 	{
@@ -692,7 +690,7 @@ public class AssignmentSubmissionAccess implements SerializableSubmissionAccess,
 
 
 	/* (non-Javadoc)
-	 * @see org.sakaiproject.assignment.impl.conversion.impl.SerializableSubmissionAccess#setLastmod(java.lang.String)
+	 * @see SerializableSubmissionAccess#setLastmod(java.lang.String)
 	 */
 	public void setLastmod(String lastmod) 
 	{
@@ -701,7 +699,7 @@ public class AssignmentSubmissionAccess implements SerializableSubmissionAccess,
 
 
 	/* (non-Javadoc)
-	 * @see org.sakaiproject.assignment.impl.conversion.impl.SerializableSubmissionAccess#getPledgeflag()
+	 * @see SerializableSubmissionAccess#getPledgeflag()
 	 */
 	public String getPledgeflag() 
 	{
@@ -710,7 +708,7 @@ public class AssignmentSubmissionAccess implements SerializableSubmissionAccess,
 
 
 	/* (non-Javadoc)
-	 * @see org.sakaiproject.assignment.impl.conversion.impl.SerializableSubmissionAccess#setPledgeflag(java.lang.String)
+	 * @see SerializableSubmissionAccess#setPledgeflag(java.lang.String)
 	 */
 	public void setPledgeflag(String pledgeflag) 
 	{
@@ -719,7 +717,7 @@ public class AssignmentSubmissionAccess implements SerializableSubmissionAccess,
 
 
 	/* (non-Javadoc)
-	 * @see org.sakaiproject.assignment.impl.conversion.impl.SerializableSubmissionAccess#getReturned()
+	 * @see SerializableSubmissionAccess#getReturned()
 	 */
 	public String getReturned() 
 	{
@@ -728,7 +726,7 @@ public class AssignmentSubmissionAccess implements SerializableSubmissionAccess,
 
 
 	/* (non-Javadoc)
-	 * @see org.sakaiproject.assignment.impl.conversion.impl.SerializableSubmissionAccess#setReturned(java.lang.String)
+	 * @see SerializableSubmissionAccess#setReturned(java.lang.String)
 	 */
 	public void setReturned(String returned) 
 	{
@@ -737,7 +735,7 @@ public class AssignmentSubmissionAccess implements SerializableSubmissionAccess,
 
 
 	/* (non-Javadoc)
-	 * @see org.sakaiproject.assignment.impl.conversion.impl.SerializableSubmissionAccess#getReviewReport()
+	 * @see SerializableSubmissionAccess#getReviewReport()
 	 */
 	public String getReviewReport() 
 	{
@@ -746,7 +744,7 @@ public class AssignmentSubmissionAccess implements SerializableSubmissionAccess,
 
 
 	/* (non-Javadoc)
-	 * @see org.sakaiproject.assignment.impl.conversion.impl.SerializableSubmissionAccess#setReviewReport(java.lang.String)
+	 * @see SerializableSubmissionAccess#setReviewReport(java.lang.String)
 	 */
 	public void setReviewReport(String reviewReport) 
 	{
@@ -755,7 +753,7 @@ public class AssignmentSubmissionAccess implements SerializableSubmissionAccess,
 
 
 	/* (non-Javadoc)
-	 * @see org.sakaiproject.assignment.impl.conversion.impl.SerializableSubmissionAccess#getReviewScore()
+	 * @see SerializableSubmissionAccess#getReviewScore()
 	 */
 	public String getReviewScore() 
 	{
@@ -764,7 +762,7 @@ public class AssignmentSubmissionAccess implements SerializableSubmissionAccess,
 
 
 	/* (non-Javadoc)
-	 * @see org.sakaiproject.assignment.impl.conversion.impl.SerializableSubmissionAccess#setReviewScore(java.lang.String)
+	 * @see SerializableSubmissionAccess#setReviewScore(java.lang.String)
 	 */
 	public void setReviewScore(String reviewScore) 
 	{
@@ -773,7 +771,7 @@ public class AssignmentSubmissionAccess implements SerializableSubmissionAccess,
 
 
 	/* (non-Javadoc)
-	 * @see org.sakaiproject.assignment.impl.conversion.impl.SerializableSubmissionAccess#getReviewStatus()
+	 * @see SerializableSubmissionAccess#getReviewStatus()
 	 */
 	public String getReviewStatus() 
 	{
@@ -782,7 +780,7 @@ public class AssignmentSubmissionAccess implements SerializableSubmissionAccess,
 
 
 	/* (non-Javadoc)
-	 * @see org.sakaiproject.assignment.impl.conversion.impl.SerializableSubmissionAccess#setReviewStatus(java.lang.String)
+	 * @see SerializableSubmissionAccess#setReviewStatus(java.lang.String)
 	 */
 	public void setReviewStatus(String reviewStatus) 
 	{
@@ -790,7 +788,7 @@ public class AssignmentSubmissionAccess implements SerializableSubmissionAccess,
 	}
 
 	/* (non-Javadoc)
-	 * @see org.sakaiproject.assignment.impl.conversion.impl.SerializableSubmissionAccess#getSubmitted()
+	 * @see SerializableSubmissionAccess#getSubmitted()
 	 */
 	public String getSubmitted() 
 	{
@@ -802,7 +800,7 @@ public class AssignmentSubmissionAccess implements SerializableSubmissionAccess,
         }
 
 	/* (non-Javadoc)
-	 * @see org.sakaiproject.assignment.impl.conversion.impl.SerializableSubmissionAccess#setSubmitted(java.lang.String)
+	 * @see SerializableSubmissionAccess#setSubmitted(java.lang.String)
 	 */
 	public void setSubmitted(String submitted) 
 	{
@@ -815,7 +813,7 @@ public class AssignmentSubmissionAccess implements SerializableSubmissionAccess,
         }
         
 	/* (non-Javadoc)
-	 * @see org.sakaiproject.assignment.impl.conversion.impl.SerializableSubmissionAccess#getSubmittedattachments()
+	 * @see SerializableSubmissionAccess#getSubmittedattachments()
 	 */
 	public List<String> getSubmittedattachments() 
 	{
@@ -824,7 +822,7 @@ public class AssignmentSubmissionAccess implements SerializableSubmissionAccess,
 
 
 	/* (non-Javadoc)
-	 * @see org.sakaiproject.assignment.impl.conversion.impl.SerializableSubmissionAccess#setSubmittedattachments(java.util.List)
+	 * @see SerializableSubmissionAccess#setSubmittedattachments(java.util.List)
 	 */
 	public void setSubmittedattachments(List<String> submittedattachments) 
 	{
@@ -833,7 +831,7 @@ public class AssignmentSubmissionAccess implements SerializableSubmissionAccess,
 
 
 	/* (non-Javadoc)
-	 * @see org.sakaiproject.assignment.impl.conversion.impl.SerializableSubmissionAccess#getFeedbackattachments()
+	 * @see SerializableSubmissionAccess#getFeedbackattachments()
 	 */
 	public List<String> getFeedbackattachments() 
 	{
@@ -842,7 +840,7 @@ public class AssignmentSubmissionAccess implements SerializableSubmissionAccess,
 
 
 	/* (non-Javadoc)
-	 * @see org.sakaiproject.assignment.impl.conversion.impl.SerializableSubmissionAccess#setFeedbackattachments(java.util.List)
+	 * @see SerializableSubmissionAccess#setFeedbackattachments(java.util.List)
 	 */
 	public void setFeedbackattachments(List<String> feedbackattachments) 
 	{
@@ -851,7 +849,7 @@ public class AssignmentSubmissionAccess implements SerializableSubmissionAccess,
 
 
 	/* (non-Javadoc)
-	 * @see org.sakaiproject.assignment.impl.conversion.impl.SerializableSubmissionAccess#getDatesubmitted()
+	 * @see SerializableSubmissionAccess#getDatesubmitted()
 	 */
 	public String getDatesubmitted() 
 	{
@@ -860,7 +858,7 @@ public class AssignmentSubmissionAccess implements SerializableSubmissionAccess,
 
 
 	/* (non-Javadoc)
-	 * @see org.sakaiproject.assignment.impl.conversion.impl.SerializableSubmissionAccess#setDatesubmitted(java.lang.String)
+	 * @see SerializableSubmissionAccess#setDatesubmitted(java.lang.String)
 	 */
 	public void setDatesubmitted(String datesubmitted) 
 	{
@@ -869,7 +867,7 @@ public class AssignmentSubmissionAccess implements SerializableSubmissionAccess,
 
 
 	/* (non-Javadoc)
-	 * @see org.sakaiproject.assignment.impl.conversion.impl.SerializableSubmissionAccess#getSubmittedtext()
+	 * @see SerializableSubmissionAccess#getSubmittedtext()
 	 */
 	public String getSubmittedtext() 
 	{
@@ -878,7 +876,7 @@ public class AssignmentSubmissionAccess implements SerializableSubmissionAccess,
 
 
 	/* (non-Javadoc)
-	 * @see org.sakaiproject.assignment.impl.conversion.impl.SerializableSubmissionAccess#setSubmittedtext(java.lang.String)
+	 * @see SerializableSubmissionAccess#setSubmittedtext(java.lang.String)
 	 */
 	public void setSubmittedtext(String submittedtext) 
 	{
@@ -887,7 +885,7 @@ public class AssignmentSubmissionAccess implements SerializableSubmissionAccess,
 
 
 	/* (non-Javadoc)
-	 * @see org.sakaiproject.assignment.impl.conversion.impl.SerializableSubmissionAccess#getSubmittedtext_html()
+	 * @see SerializableSubmissionAccess#getSubmittedtext_html()
 	 */
 	public String getSubmittedtext_html() 
 	{
@@ -896,7 +894,7 @@ public class AssignmentSubmissionAccess implements SerializableSubmissionAccess,
 
 
 	/* (non-Javadoc)
-	 * @see org.sakaiproject.assignment.impl.conversion.impl.SerializableSubmissionAccess#setSubmittedtext_html(java.lang.String)
+	 * @see SerializableSubmissionAccess#setSubmittedtext_html(java.lang.String)
 	 */
 	public void setSubmittedtext_html(String submittedtext_html) 
 	{
@@ -905,7 +903,7 @@ public class AssignmentSubmissionAccess implements SerializableSubmissionAccess,
 
 
 	/* (non-Javadoc)
-	 * @see org.sakaiproject.assignment.impl.conversion.impl.SerializableSubmissionAccess#getSubmitters()
+	 * @see SerializableSubmissionAccess#getSubmitters()
 	 */
 	public List<String> getSubmitters() 
 	{
@@ -917,7 +915,7 @@ public class AssignmentSubmissionAccess implements SerializableSubmissionAccess,
 
 
 	/* (non-Javadoc)
-	 * @see org.sakaiproject.assignment.impl.conversion.impl.SerializableSubmissionAccess#setSubmitters(java.util.List)
+	 * @see SerializableSubmissionAccess#setSubmitters(java.util.List)
 	 */
 	public void setSubmitters(List<String> submitters) 
 	{

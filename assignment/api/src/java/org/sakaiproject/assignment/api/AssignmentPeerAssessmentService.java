@@ -40,13 +40,7 @@ public interface AssignmentPeerAssessmentService extends ScheduledInvocationComm
 
     public List<PeerAssessmentItem> getPeerAssessmentItems(Collection<String> submissionsIds, Integer scaledFactor);
 
-    /**
-     * returns true if the score was updated and saved
-     *
-     * @param submissionId
-     * @return
-     */
-    public boolean updateScore(String submissionId);
+    public boolean updateScore(String submissionId, String assessorId);
 
     public List<PeerAssessmentAttachment> getPeerAssessmentAttachments(String submissionId, String assessorUserId);
 

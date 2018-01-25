@@ -20,7 +20,7 @@
  **********************************************************************************/
 
 
-package org.sakaiproject.assignment.impl.conversion.impl;
+package org.sakaiproject.assignment.impl.conversion;
 
 import java.io.StringReader;
 import java.io.UnsupportedEncodingException;

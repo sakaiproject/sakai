@@ -19,7 +19,7 @@
  *
  **********************************************************************************/
 
-package org.sakaiproject.assignment.impl.conversion.api;
+package org.sakaiproject.assignment.impl.conversion;
 
 import java.util.List;
 
