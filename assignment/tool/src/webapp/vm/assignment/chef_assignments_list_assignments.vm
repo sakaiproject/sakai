@@ -619,7 +619,7 @@
 												#if($review.getSubmitted())
 													$tlang.getFormattedMessage("peerassessment.student", $reviewCount)&nbsp;<img src="/library/image/silk/accept.png"/>
 												#else
-													<a name="asnActionLink" href="#toolLinkParam("$action" "doEdit_review" "assignmentId=$validator.escapeUrl($assignmentReference)&submissionId=$validator.escapeUrl($review.getSubmissionId())")">
+													<a name="asnActionLink" href="#toolLinkParam("$action" "doEdit_review" "assignmentId=$validator.escapeUrl($assignmentReference)&submissionId=$validator.escapeUrl($review.id.SubmissionId)")">
 														$tlang.getFormattedMessage("peerassessment.student", $reviewCount)
 													</a>
 												#end

@@ -125,7 +125,7 @@ public class AssignmentPeerAssessmentServiceImpl extends HibernateDaoSupport imp
                             && CollectionUtils.containsAny(submitterIdsList,submitteeIds)
                             && !s.getSubmitters().contains("admin")) {
                         //only deal with users in the submitter's list
-                        submissionIdMap.put(AssignmentReferenceReckoner.reckoner().submission(s).reckon().getReference(), s);
+                        submissionIdMap.put(s.getId(), s);
                         if (ass.isPresent()) {
                             assignedAssessmentsMap.put(ass.get().getSubmitter(), new HashMap<>());
                             studentAssessorsMap.put(ass.get().getSubmitter(), 0);
