@@ -245,8 +245,8 @@ public class ExportPanel extends BasePanel {
 
 			//CSV separator is comma unless the comma is the decimal separator, then is ;
 			try (FileWriter fw = new FileWriter(tempFile);
-					CSVWriter csvWriter = new CSVWriter(fw, ".".equals(FormattedText.getDecimalSeparator()) ? CSVWriter.DEFAULT_SEPARATOR : CSV_SEMICOLON_SEPARATOR))
-{
+					CSVWriter csvWriter = new CSVWriter(fw, ".".equals(FormattedText.getDecimalSeparator()) ? CSVWriter.DEFAULT_SEPARATOR : CSV_SEMICOLON_SEPARATOR)) {
+
 				// Create csv header
 				final List<String> header = new ArrayList<>();
 				if (!isCustomExport || this.includeStudentId) {
@@ -276,7 +276,7 @@ public class ExportPanel extends BasePanel {
 					// ignore
 					header.add(String.join(" ", IGNORE_COLUMN_PREFIX, getString("importExport.export.csv.headers.example.ignore")));
 				}
-				
+
 				// build column header
 				assignments.forEach(assignment -> {
 					final String assignmentPoints = assignment.getPoints().toString();
@@ -296,6 +296,9 @@ public class ExportPanel extends BasePanel {
 				}
 				if (isCustomExport && this.includeCourseGrade) {
 					header.add(String.join(" ", IGNORE_COLUMN_PREFIX, getString("importExport.export.csv.headers.courseGrade")));
+				}
+				if (isCustomExport && this.includeGradeOverride) {
+					header.add(String.join(" ", IGNORE_COLUMN_PREFIX, getString("importExport.export.csv.headers.gradeOverride")));
 				}
 				if (isCustomExport && this.includeLastLogDate) {
 					header.add(String.join(" ", IGNORE_COLUMN_PREFIX, getString("importExport.export.csv.headers.lastLogDate")));
@@ -372,9 +375,7 @@ public class ExportPanel extends BasePanel {
 					}
 
 					csvWriter.writeNext(line.toArray(new String[] {}));
-
 				});
-
 			}
 		} catch (final IOException e) {
 			throw new RuntimeException(e);

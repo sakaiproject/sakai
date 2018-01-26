@@ -134,4 +134,14 @@ public class ProcessedGradeItem implements Serializable, Comparable {
 				.toComparison();
 	}
 
+	/**
+	 * Collection of fields from the edited assignment. These may differ to the imported fields and need to be used on the confirmation screen.
+	 */
+	@Getter
+	@Setter
+	private String assignmentTitle;
+
+	@Getter
+	@Setter
+	private Double assignmentPoints;
 }

@@ -565,27 +565,6 @@ public class GradebookNgBusinessService {
 	}
 
 	/**
-	 * Save the grade and comment for a student's assignment. Ignores the concurrency check.
-	 *
-	 * @param assignmentId id of the gradebook assignment
-	 * @param studentUuid uuid of the user
-	 * @param grade grade for the assignment/user
-	 * @param comment optional comment for the grade. Can be null.
-	 *
-	 * @return
-	 */
-	public GradeSaveResponse saveGrade(final Long assignmentId, final String studentUuid, final String grade,
-			final String comment) {
-
-		final Gradebook gradebook = this.getGradebook();
-		if (gradebook == null) {
-			return GradeSaveResponse.ERROR;
-		}
-
-		return this.saveGrade(assignmentId, studentUuid, null, grade, comment);
-	}
-
-	/**
 	 * Save the grade and comment for a student's assignment and do concurrency checking
 	 *
 	 * @param assignmentId id of the gradebook assignment
@@ -738,6 +717,20 @@ public class GradebookNgBusinessService {
 			rval = GradeSaveResponse.ERROR;
 		}
 		return rval;
+	}
+
+	public GradeSaveResponse saveGradesAndCommentsForImport(final Gradebook gradebook, final Assignment assignment, final List<GradeDefinition> gradeDefList) {
+		if (gradebook == null) {
+			return GradeSaveResponse.ERROR;
+		}
+
+		try {
+			gradebookService.saveGradesAndComments(gradebook.getUid(), assignment.getId(), gradeDefList);
+			return GradeSaveResponse.OK;
+		} catch (InvalidGradeException | GradebookNotFoundException | AssessmentNotFoundException e) {
+			log.error("An error occurred saving the grade. {}: {}", e.getClass(), e.getMessage());
+			return GradeSaveResponse.ERROR;
+		}
 	}
 
 	/**

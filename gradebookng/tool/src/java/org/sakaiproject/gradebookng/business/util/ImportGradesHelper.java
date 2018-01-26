@@ -288,17 +288,13 @@ public class ImportGradesHelper {
 					row.setStudentName(lineVal);
 					break;
 				case GB_ITEM_WITH_POINTS:
-					//Fix the separator for the comparison with the current values
-					if(",".equals(userCSVSeparator) && StringUtils.isNotBlank(lineVal)){
-						lineVal = lineVal.replace(",",".");
-					}
-					cell.setScore(lineVal);
-					row.getCellMap().put(columnTitle, cell);
-					break;
+					// fall into next case (same impl)
 				case GB_ITEM_WITHOUT_POINTS:
-					//Fix the separator for the comparison with the current values
-					if(",".equals(userCSVSeparator) && StringUtils.isNotBlank(lineVal)){
-						lineVal = lineVal.replace(",",".");
+					// fix the separator for the comparison with the current values
+					if (StringUtils.isNotBlank(lineVal)) {
+						if (",".equals(userCSVSeparator)) {
+							lineVal = lineVal.replace(",",".");
+						}
 						cell.setScore(lineVal);
 					}
 					row.getCellMap().put(columnTitle, cell);

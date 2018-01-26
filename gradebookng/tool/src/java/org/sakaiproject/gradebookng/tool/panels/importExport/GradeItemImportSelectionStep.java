@@ -30,7 +30,6 @@ import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.ajax.markup.html.form.AjaxCheckBox;
 import org.apache.wicket.markup.html.basic.Label;
-import org.apache.wicket.markup.html.form.Button;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
@@ -48,6 +47,8 @@ import org.sakaiproject.gradebookng.tool.pages.ImportExportPage;
 import org.sakaiproject.gradebookng.tool.panels.BasePanel;
 
 import lombok.extern.slf4j.Slf4j;
+import org.apache.wicket.ajax.markup.html.form.AjaxButton;
+import org.apache.wicket.markup.html.WebMarkupContainer;
 
 /**
  * Page to allow the user to select which items in the imported file are to be imported
@@ -141,12 +142,38 @@ public class GradeItemImportSelectionStep extends BasePanel {
 		final Map<String, ProcessedGradeItem> commentMap = createCommentMap(allItems);
 		final Map<String, ProcessedGradeItem> gradeItemMap = createGradeItemMap(allItems);
 
-		final Form<?> form = new Form("form") {
+		final Form<?> form = new Form("form");
+		add(form);
+
+		final AjaxButton backButton = new AjaxButton("backbutton") {
 			private static final long serialVersionUID = 1L;
 
 			@Override
-			protected void onSubmit() {
-				boolean validated = true;
+			public void onSubmit(AjaxRequestTarget target, Form<?> form) {
+
+				// clear any previous errors
+				final ImportExportPage page = (ImportExportPage) getPage();
+				page.clearFeedback();
+				page.updateFeedback(target);
+
+				// Create the previous panel
+				final Component previousPanel = new GradeImportUploadStep(GradeItemImportSelectionStep.this.panelId);
+				previousPanel.setOutputMarkupId(true);
+
+				// AJAX the previous panel into place
+				WebMarkupContainer container = page.container;
+				container.addOrReplace(previousPanel);
+				target.add(container);
+			}
+		};
+		backButton.setDefaultFormProcessing(false);
+		form.add(backButton);
+
+		final AjaxButton nextButton = new AjaxButton("nextbutton") {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			protected void onSubmit(AjaxRequestTarget target, Form<?> form) {
 
 				// get the items that were selected
 				final List<ProcessedGradeItem> selectedGradeItems = filterListByType(
@@ -156,98 +183,77 @@ public class GradeItemImportSelectionStep extends BasePanel {
 
 				log.debug("Selected grade items: {}", selectedGradeItems.size());
 				log.debug("Selected grade items: {}", selectedGradeItems);
-
 				log.debug("Selected comment items: {}", selectedCommentItems.size());
 				log.debug("Selected comment items: {}", selectedCommentItems);
 
-				// combine the two lists. since comments can be toggled independently, the selectedGradeItems may not contain the item we
-				// need to update
+				// combine the two lists. since comments can be toggled independently, the selectedGradeItems may not contain the item we need to update
 				// this is combined with a 'type' and 'selected' check when adding the data to the gradebook, in the next step
 				final List<ProcessedGradeItem> itemsToProcess = new ArrayList<>();
 				itemsToProcess.addAll(selectedGradeItems);
 				itemsToProcess.addAll(selectedCommentItems);
 
 				// this has an odd model so we need to have the validation in the onSubmit.
+				final ImportExportPage page = (ImportExportPage) getPage();
 				if (itemsToProcess.isEmpty()) {
-					validated = false;
 					error(getString("importExport.selection.noneselected"));
+					page.updateFeedback(target);
+					return;
 				}
-
-				if (validated) {
-					// clear any previous errors
-					final ImportExportPage page = (ImportExportPage) getPage();
-					page.clearFeedback();
-
-					// Process the selected items into the create/update lists
-					// Note that create and modify can only be for gb items - even if comments are Status.NEW they are handled as part of
-					// the corresponding gb item data import
-					final List<ProcessedGradeItem> itemsToCreate = filterListByType(filterListByStatus(itemsToProcess, Status.NEW),
-							Type.GB_ITEM);
-					final List<ProcessedGradeItem> itemsToUpdate = filterListByStatus(itemsToProcess, Status.UPDATE);
-					final List<ProcessedGradeItem> itemsToModify = filterListByType(filterListByStatus(itemsToProcess, Status.MODIFIED),
-							Type.GB_ITEM);
-
-					log.debug("Items to create: {}", itemsToCreate.size());
-					log.debug("Items to update: {}", itemsToUpdate.size());
-					log.debug("Items to modify: {}", itemsToModify.size());
-
-					// set data for next page
-					importWizardModel.setItemsToCreate(itemsToCreate);
-					importWizardModel.setItemsToUpdate(itemsToUpdate);
-					importWizardModel.setItemsToModify(itemsToModify);
-
-					// repaint panel
-					Component newPanel;
-
-					// create those that need to be created. When finished all, continue.
-					if (itemsToCreate.size() > 0) {
-						importWizardModel.setStep(1);
-						importWizardModel.setTotalSteps(itemsToCreate.size());
-						newPanel = new CreateGradeItemStep(GradeItemImportSelectionStep.this.panelId, Model.of(importWizardModel));
-					} else {
-						newPanel = new GradeImportConfirmationStep(GradeItemImportSelectionStep.this.panelId, Model.of(importWizardModel));
-					}
-					newPanel.setOutputMarkupId(true);
-					GradeItemImportSelectionStep.this.replaceWith(newPanel);
-				}
-			}
-		};
-		add(form);
-
-		final Button backButton = new Button("backbutton") {
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			public void onSubmit() {
 
 				// clear any previous errors
-				final ImportExportPage page = (ImportExportPage) getPage();
 				page.clearFeedback();
+				page.updateFeedback(target);
 
-				final Component newPanel = new GradeImportUploadStep(GradeItemImportSelectionStep.this.panelId);
+				// Process the selected items into the create/update lists
+				// Note that create and modify can only be for gb items - even if comments are Status.NEW they are handled as part of
+				// the corresponding gb item data import
+				final List<ProcessedGradeItem> itemsToCreate = filterListByType(filterListByStatus(itemsToProcess, Status.NEW), Type.GB_ITEM);
+				final List<ProcessedGradeItem> itemsToUpdate = filterListByStatus(itemsToProcess, Status.UPDATE);
+				final List<ProcessedGradeItem> itemsToModify = filterListByType(filterListByStatus(itemsToProcess, Status.MODIFIED), Type.GB_ITEM);
+
+				log.debug("Items to create: {}", itemsToCreate.size());
+				log.debug("Items to update: {}", itemsToUpdate.size());
+				log.debug("Items to modify: {}", itemsToModify.size());
+
+				// set data for next page
+				importWizardModel.setItemsToCreate(itemsToCreate);
+				importWizardModel.setItemsToUpdate(itemsToUpdate);
+				importWizardModel.setItemsToModify(itemsToModify);
+				importWizardModel.getAssignmentsToCreate().keySet().retainAll(itemsToCreate);
+
+				// create those that need to be created. When finished all, continue.
+				Component newPanel;
+				if (itemsToCreate.size() > 0) {
+					importWizardModel.setStep(1);
+					importWizardModel.setTotalSteps(itemsToCreate.size());
+					newPanel = new CreateGradeItemStep(GradeItemImportSelectionStep.this.panelId, Model.of(importWizardModel));
+				} else {
+					newPanel = new GradeImportConfirmationStep(GradeItemImportSelectionStep.this.panelId, Model.of(importWizardModel));
+				}
+
+				// AJAX the new panel into place
 				newPanel.setOutputMarkupId(true);
-				GradeItemImportSelectionStep.this.replaceWith(newPanel);
+				WebMarkupContainer container = page.container;
+				container.addOrReplace(newPanel);
+				target.add(newPanel);
 			}
 		};
-		backButton.setDefaultFormProcessing(false);
-		form.add(backButton);
+		form.add(nextButton);
 
-		final Button cancelButton = new Button("cancelbutton") {
+		final AjaxButton cancelButton = new AjaxButton("cancelbutton") {
 			private static final long serialVersionUID = 1L;
 
 			@Override
-			public void onSubmit() {
+			public void onSubmit(AjaxRequestTarget target, Form<?> form) {
 				// clear any previous errors
 				final ImportExportPage page = (ImportExportPage) getPage();
 				page.clearFeedback();
-
+				page.updateFeedback(target);
 				setResponsePage(ImportExportPage.class);
 			}
 		};
 		cancelButton.setDefaultFormProcessing(false);
 		form.add(cancelButton);
-
-		form.add(new Button("nextbutton"));
 
 		// render the list - comments are nested
 		final ListView<ProcessedGradeItem> itemList = new ListView<ProcessedGradeItem>("items", gradeItems) {
@@ -323,8 +329,7 @@ public class GradeItemImportSelectionStep extends BasePanel {
 					}
 				};
 
-				final Label commentsStatus = new Label("status",
-						new ResourceModel("importExport.status." + commentItem.getStatus().name()));
+				final Label commentsStatus = new Label("status", new ResourceModel("importExport.status." + commentItem.getStatus().name()));
 				commentWrap.add(commentsCheckbox);
 				commentWrap.add(commentsStatus);
 				item.add(commentWrap);
@@ -351,12 +356,10 @@ public class GradeItemImportSelectionStep extends BasePanel {
 				gbItemWrap.style();
 				commentWrap.style();
 			}
-
 		};
 
 		itemList.setReuseItems(true);
 		form.add(itemList);
-
 	}
 
 	/**
@@ -434,5 +437,4 @@ public class GradeItemImportSelectionStep extends BasePanel {
 		rval.setStatus(Status.SKIP);
 		return rval;
 	}
-
 }
