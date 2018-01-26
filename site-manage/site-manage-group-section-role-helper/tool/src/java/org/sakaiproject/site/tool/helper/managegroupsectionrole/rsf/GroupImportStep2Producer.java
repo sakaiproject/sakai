@@ -119,7 +119,7 @@ public class GroupImportStep2Producer implements ViewComponentProducer, Navigati
                 //check user is valid
                 String foundUserId = handler.lookupUser(userId);
                 if(foundUserId != null && handler.isValidSiteUser(foundUserId)){
-                    String userSortName = handler.getUserSortName(userId) + " ( " + userId + " )";
+                    String userSortName = handler.getUserSortName(userId)+ " ( " + userId + " )";
                     //is user existing?
                     if(existingUserIds.contains(userId)) {
                         existingFlag = true;
@@ -151,18 +151,13 @@ public class GroupImportStep2Producer implements ViewComponentProducer, Navigati
         
         if(badData) {
             UIMessage.make(content, "import2.error", "import2.error");
-            handler.resetParams();
-            
-            UICommand cancel = UICommand.make(createForm, "cancel", messageLocator.getMessage("cancel"), "#{SiteManageGroupSectionRoleHandler.processCancel}");
-            cancel.parameters.add(new UIDeletionBinding("#{destroyScope.resultScope}"));
-            
         } else {
             UIMessage.make(content, "import2.okay", "import2.okay");
-
             UICommand.make(createForm, "continue", messageLocator.getMessage("import2.continue"), "#{SiteManageGroupSectionRoleHandler.processImportedGroups}");
-            UICommand cancel = UICommand.make(createForm, "cancel", messageLocator.getMessage("cancel"), "#{SiteManageGroupSectionRoleHandler.processCancel}");
-            cancel.parameters.add(new UIDeletionBinding("#{destroyScope.resultScope}"));
         }
+        UICommand.make(createForm, "back", messageLocator.getMessage("back"));
+        UICommand cancel = UICommand.make(createForm, "cancel", messageLocator.getMessage("cancel"), "#{SiteManageGroupSectionRoleHandler.processCancelGroups}");
+        cancel.parameters.add(new UIDeletionBinding("#{destroyScope.resultScope}"));
         
         if(StringUtils.equals(params.status, "error")){
         	UIMessage.make(content, "import2.couldntimportgroups", "import2.couldntimportgroups");
@@ -174,6 +169,7 @@ public class GroupImportStep2Producer implements ViewComponentProducer, Navigati
     public List<NavigationCase> reportNavigationCases() {
         List<NavigationCase> togo = new ArrayList<NavigationCase>();
         togo.add(new NavigationCase("success", new SimpleViewParameters(GroupListProducer.VIEW_ID)));
+        togo.add(new NavigationCase("returnToGroupList", new SimpleViewParameters(GroupListProducer.VIEW_ID)));
         togo.add(new NavigationCase("error", new GroupImportViewParameters(GroupImportStep2Producer.VIEW_ID, "error")));
         return togo;
     }
