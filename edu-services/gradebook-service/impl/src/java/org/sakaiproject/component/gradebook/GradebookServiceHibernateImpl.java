@@ -36,8 +36,8 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.collections.CollectionUtils;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 
@@ -2780,7 +2780,6 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
      * of the n highest and the n lowest scores of a
      * student based on the assignment's category
      * @param gradeRecords
-     * @return void
      *
      * NOTE: When the UI changes, this needs to be made private again
      */
@@ -2832,7 +2831,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
             }
         }
 
-        if(categories == null || categories.size() < 1) {
+        if(categories.size() < 1) {
             return;
         }
         for(final Category cat : categories) {
@@ -3876,7 +3875,5 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
         final List<GradebookAssignment> assignments = allAssignments.stream().filter(a -> a.getCategory() == null).collect(Collectors.toList());
         assignments.forEach(a -> a.setCounted(false));
         batchPersistEntities(assignments);
-
 	}
-
 }

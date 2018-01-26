@@ -19,11 +19,11 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.lang.builder.CompareToBuilder;
-
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+
+import org.apache.commons.lang.builder.CompareToBuilder;
 
 /**
  * Holds the data about a grade item that is imported from the spreadsheet as well as any edits that happen through the wizard
@@ -118,10 +118,7 @@ public class ProcessedGradeItem implements Serializable, Comparable {
 	 * @return
 	 */
 	public boolean isSelectable() {
-		if (this.status == Status.NEW || this.status == Status.UPDATE || this.status == Status.MODIFIED) {
-			return true;
-		}
-		return false;
+		return this.status == Status.NEW || this.status == Status.UPDATE || this.status == Status.MODIFIED;
 	}
 
 	@Override

@@ -23,12 +23,16 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import lombok.extern.slf4j.Slf4j;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
+import org.apache.wicket.ajax.markup.html.form.AjaxButton;
 import org.apache.wicket.ajax.markup.html.form.AjaxCheckBox;
+import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.list.ListItem;
@@ -37,6 +41,7 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
+
 import org.sakaiproject.gradebookng.business.model.ProcessedGradeItem;
 import org.sakaiproject.gradebookng.business.model.ProcessedGradeItem.Status;
 import org.sakaiproject.gradebookng.business.model.ProcessedGradeItem.Type;
@@ -45,10 +50,6 @@ import org.sakaiproject.gradebookng.tool.component.GbStyleableWebMarkupContainer
 import org.sakaiproject.gradebookng.tool.model.ImportWizardModel;
 import org.sakaiproject.gradebookng.tool.pages.ImportExportPage;
 import org.sakaiproject.gradebookng.tool.panels.BasePanel;
-
-import lombok.extern.slf4j.Slf4j;
-import org.apache.wicket.ajax.markup.html.form.AjaxButton;
-import org.apache.wicket.markup.html.WebMarkupContainer;
 
 /**
  * Page to allow the user to select which items in the imported file are to be imported
@@ -399,7 +400,6 @@ public class GradeItemImportSelectionStep extends BasePanel {
 
 		final List<ProcessedGradeItem> gbItems = filterListByType(items, Type.GB_ITEM);
 		final List<ProcessedGradeItem> commentItems = filterListByType(items, Type.COMMENT);
-
 		final Map<String, ProcessedGradeItem> rval = new HashMap<>();
 
 		// match up the gradebook items with the comment columns. comment columns have the same title.

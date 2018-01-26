@@ -18,25 +18,26 @@ package org.sakaiproject.gradebookng.tool.panels.importExport;
 import java.util.Collection;
 import java.util.List;
 
+import lombok.extern.slf4j.Slf4j;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.wicket.Component;
+import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.ajax.markup.html.form.AjaxButton;
+import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.StringResourceModel;
+
 import org.sakaiproject.gradebookng.business.model.ProcessedGradeItem;
+import org.sakaiproject.gradebookng.business.util.ImportGradesHelper;
 import org.sakaiproject.gradebookng.tool.model.ImportWizardModel;
 import org.sakaiproject.gradebookng.tool.pages.ImportExportPage;
 import org.sakaiproject.gradebookng.tool.panels.AddOrEditGradeItemPanelContent;
 import org.sakaiproject.gradebookng.tool.panels.BasePanel;
 import org.sakaiproject.service.gradebook.shared.Assignment;
-
-import lombok.extern.slf4j.Slf4j;
-import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.ajax.markup.html.form.AjaxButton;
-import org.apache.wicket.markup.html.WebMarkupContainer;
-import org.sakaiproject.gradebookng.business.util.ImportGradesHelper;
 
 /**
  * Importer has detected that items need to be created so extract the data and wrap the 'AddOrEditGradeItemPanelContent' panel
@@ -212,6 +213,12 @@ public class CreateGradeItemStep extends BasePanel {
 				.isPresent());
 	}
 
+	/**
+	 * Checks if a new assignment's name is unique amongst the list of assignments to be created.
+	 * @param newAssignment
+	 * @param assignmentsToCreate
+	 * @return
+	 */
 	private boolean assignmentNameIsUnique(final Assignment newAssignment, final Collection<Assignment> assignmentsToCreate) {
 		boolean retVal = true;
 

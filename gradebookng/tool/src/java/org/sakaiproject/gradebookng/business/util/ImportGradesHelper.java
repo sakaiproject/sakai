@@ -690,7 +690,6 @@ public class ImportGradesHelper {
 				}
 				assignmentStudentGradeInfo.addGrade(studentGradeInfo.getStudentEid(), entry.getValue());
 			}
-
 		}
 
 		return assignmentMap;
