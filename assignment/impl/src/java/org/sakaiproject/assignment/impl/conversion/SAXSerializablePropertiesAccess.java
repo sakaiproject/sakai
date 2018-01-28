@@ -19,15 +19,13 @@
  *
  **********************************************************************************/
 
-package org.sakaiproject.assignment.impl.conversion.impl;
+package org.sakaiproject.assignment.impl.conversion;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Stack;
 
 import org.sakaiproject.entity.api.serialize.SerializableEntity;
 import org.sakaiproject.entity.api.serialize.SerializablePropertiesAccess;
-import org.w3c.dom.Element;
 
 /**
  * @author ieb

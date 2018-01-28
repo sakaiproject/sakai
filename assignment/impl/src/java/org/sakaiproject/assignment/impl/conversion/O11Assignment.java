@@ -1,5 +1,6 @@
-package org.sakaiproject.assignment.impl.conversion.impl;
+package org.sakaiproject.assignment.impl.conversion;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -58,7 +59,7 @@ public class O11Assignment {
     private String visibledate;
     // List of authzGroups
     // <group authzGroup="/site/BVCC_942A_9301/group/b9ff34b8-1465-4ba8-b532-ed8e097b88fa"/>
-    private List<O11Group> groups;
+    private List<O11Group> groups = new ArrayList<>();
     // List of name=value where value is enc is the encoding used in value
     // <property enc="BASE64" name="XXX" value="YYY"/>
     // <property enc="BASE64" name="CHEF:creator" value="ZTJjNzk1ZTYtY2RmYS00OGZmLTgxZGEtNWE0ZTg0YzI5YWVh"/>
@@ -77,7 +78,7 @@ public class O11Assignment {
     // <property enc="BASE64" name="assignment_releasegrade_notification_value" value="YXNzaWdubWVudF9yZWxlYXNlZ3JhZGVfbm90aWZpY2F0aW9uX2VhY2g="/>
     // <property enc="BASE64" name="assignment_instructor_notifications_value" value="YXNzaWdubWVudF9pbnN0cnVjdG9yX25vdGlmaWNhdGlvbnNfZWFjaA=="/>
     // <property enc="BASE64" name="new_assignment_check_anonymous_grading" value=""/>
-    private List<O11Property> properties;
+    private List<O11Property> properties = new ArrayList<>();
 
     /**
      * Used to catch unmapped values<br/>
@@ -92,4 +93,17 @@ public class O11Assignment {
         any.put(key, value);
     }
 
+    // prevents nulling the member groups, this is not need in jackson 2.9
+    public void setGroups(List<O11Group> groups) {
+        if (groups != null) {
+            this.groups = groups;
+        }
+    }
+
+    // prevents nulling the member properties, this is not need in jackson 2.9
+    public void setProperties(List<O11Property> properties) {
+        if (properties != null) {
+            this.properties = properties;
+        }
+    }
 }

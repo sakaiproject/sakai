@@ -1,4 +1,4 @@
-package org.sakaiproject.assignment.impl.conversion.impl;
+package org.sakaiproject.assignment.impl.conversion;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -49,7 +49,7 @@ import org.sakaiproject.assignment.api.conversion.AssignmentDataProvider;
 import org.sakaiproject.assignment.api.model.Assignment;
 import org.sakaiproject.assignment.api.model.AssignmentSubmission;
 import org.sakaiproject.assignment.api.model.AssignmentSubmissionSubmitter;
-import org.sakaiproject.assignment.persistence.AssignmentRepository;
+import org.sakaiproject.assignment.api.persistence.AssignmentRepository;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.hibernate.AssignableUUIDGenerator;
@@ -69,8 +69,7 @@ public class AssignmentConversionServiceImpl implements AssignmentConversionServ
         // DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmssSSS");
         dateTimeFormatter = new DateTimeFormatterBuilder().appendPattern("yyyyMMddHHmmss").appendValue(ChronoField.MILLI_OF_SECOND, 3).toFormatter();
 
-        SimpleModule stringModule = new SimpleModule();
-        stringModule.addDeserializer(String.class, new StdDeserializer<String>(String.class) {
+        SimpleModule module = new SimpleModule().addDeserializer(String.class, new StdDeserializer<String>(String.class) {
             @Override
             public String deserialize(JsonParser p, DeserializationContext ctxt) throws IOException, JsonProcessingException {
                 String str = StringDeserializer.instance.deserialize(p, ctxt);
@@ -81,15 +80,15 @@ public class AssignmentConversionServiceImpl implements AssignmentConversionServ
 
         xmlMapper = new XmlMapper();
         xmlMapper.registerModule(new Jdk8Module());
-        xmlMapper.registerModule(stringModule);
+        xmlMapper.registerModule(module);
     }
 
     @Setter private AssignmentRepository assignmentRepository;
     @Setter private AssignmentDataProvider dataProvider;
     @Setter private ServerConfigurationService serverConfigurationService;
 
-    private int assignmentsMigrated;
-    private int submissionsMigrated;
+    private int assignmentsConverted;
+    private int submissionsConverted;
     private int submissionsFailed;
     private int assignmentsFailed;
     private int assignmentsTotal;
@@ -111,7 +110,7 @@ public class AssignmentConversionServiceImpl implements AssignmentConversionServ
             try {
                 return xmlMapper.readValue(xml, clazz);
             } catch (IOException ioe) {
-                log.warn("deserialization failed for xml: {}\n{}", xml, ioe.getMessage());
+                log.warn("deserialization failed for xml: {}\n{}", xml.substring(0, Math.min(xml.length(), 200)), ioe.getMessage());
             }
         }
         return null;
@@ -119,7 +118,7 @@ public class AssignmentConversionServiceImpl implements AssignmentConversionServ
 
     @Override
     public void runConversion() {
-        assignmentsMigrated = submissionsMigrated = submissionsFailed = assignmentsFailed = assignmentsTotal = progress = 0;
+        assignmentsConverted = submissionsConverted = submissionsFailed = assignmentsFailed = assignmentsTotal = progress = 0;
 
         String configValue = "org.sakaiproject.assignment.api.model.Assignment,org.sakaiproject.assignment.api.model.AssignmentSubmission";
         String currentValue = serverConfigurationService.getConfig(AssignableUUIDGenerator.HIBERNATE_ASSIGNABLE_ID_CLASSES, null);
@@ -139,14 +138,18 @@ public class AssignmentConversionServiceImpl implements AssignmentConversionServ
         convertAssignments.removeAll(postAssignments);
         assignmentsTotal = convertAssignments.size();
 
-        log.info("<===== Assignments pre 12 {} and post 12 {} to migrate {} =====>", preAssignments.size(), postAssignments.size(), assignmentsTotal);
+        log.info("<===== Assignments pre 12 [{}] and post 12 [{}] to convert {} =====>", preAssignments.size(), postAssignments.size(), assignmentsTotal);
 
-        for (String assignment : convertAssignments) {
-            convert(assignment);
-            int percent = new Double(((assignmentsMigrated + assignmentsFailed) / (double) assignmentsTotal) * 100).intValue();
+        for (String assignmentId : convertAssignments) {
+            try {
+                convert(assignmentId);
+            } catch (Exception e) {
+                log.warn("Assignment conversion exception for {}", assignmentId, e);
+            }
+            int percent = new Double(((assignmentsConverted + assignmentsFailed) / (double) assignmentsTotal) * 100).intValue();
             if (progress != percent) {
                 progress = percent;
-                log.info("<===== Assignments migration completed {}%", percent);
+                log.info("<===== Assignments conversion completed {}% =====>", percent);
             }
         }
 
@@ -156,10 +159,10 @@ public class AssignmentConversionServiceImpl implements AssignmentConversionServ
                 AssignmentConversionServiceImpl.class.getName());
         serverConfigurationService.registerConfigItem(configItem);
 
-        log.info("<===== Assignments migrated {} =====>", assignmentsMigrated);
-        log.info("<===== Submissions migrated {} =====>", submissionsMigrated);
-        log.info("<===== Assignments that failed to be migrated {} =====>", assignmentsFailed);
-        log.info("<===== Submissions that failed to be migrated {} =====>", submissionsFailed);
+        log.info("<===== Assignments converted {} =====>", assignmentsConverted);
+        log.info("<===== Submissions converted {} =====>", submissionsConverted);
+        log.info("<===== Assignments that failed to be converted {} =====>", assignmentsFailed);
+        log.info("<===== Submissions that failed to be converted {} =====>", submissionsFailed);
     }
 
     private String adjustXmlForGroups(String xml) {
@@ -240,8 +243,8 @@ public class AssignmentConversionServiceImpl implements AssignmentConversionServ
                             // so we just need to merge and flush so that every assignment is persisted
                             try {
                                 assignmentRepository.merge(assignment);
-                                assignmentsMigrated++;
-                                submissionsMigrated += assignment.getSubmissions().size();
+                                assignmentsConverted++;
+                                submissionsConverted += assignment.getSubmissions().size();
                             } catch (HibernateException he) {
                                 log.warn("could not persist assignment {}, {}", assignmentId, he.getMessage());
                                 assignmentsFailed++;
@@ -252,11 +255,11 @@ public class AssignmentConversionServiceImpl implements AssignmentConversionServ
                             assignmentsFailed++;
                         }
                     } else {
-                        log.warn("deserialization of content {} failed skipping assignment {}", contentId, assignmentId);
+                        log.warn("deserialization of assignment content {} failed skipping assignment {}", contentId, assignmentId);
                         assignmentsFailed++;
                     }
                 } else {
-                    log.warn("content {} xml is invalid skipping assignment {}", contentId, assignmentId);
+                    log.warn("assignment content {} xml is invalid skipping assignment {}", contentId, assignmentId);
                     assignmentsFailed++;
                 }
             } else {
@@ -275,6 +278,12 @@ public class AssignmentConversionServiceImpl implements AssignmentConversionServ
         String[] assignmentAnyKeys = assignmentAny.keySet().toArray(new String[assignmentAny.size()]);
         String[] contentAnyKeys = contentAny.keySet().toArray(new String[contentAny.size()]);
         Predicate<String> attachmentFilter = Pattern.compile("attachment\\d+").asPredicate();
+
+        // if an assignment context is missing we ignore the assignment
+        if (StringUtils.isBlank(assignment.getContext())) {
+            log.warn("Assignment {} does not have a CONTEXT", assignment.getId());
+            return null;
+        }
 
         Assignment a = new Assignment();
         a.setAllowAttachments(content.getAllowattach());
@@ -388,7 +397,12 @@ public class AssignmentConversionServiceImpl implements AssignmentConversionServ
         s.setFeedbackText(decodeBase64(submission.getFeedbacktextHtml()));
         s.setGrade(submission.getScaled_grade());
         s.setGraded(submission.getGraded());
-        s.setGradedBy(submission.getGradedBy());
+        if (StringUtils.contains(submission.getGradedBy(), "AssignmentPeerAssessmentService")) {
+            // set peer assessment back to null as the assessor id is not recorded
+            s.setGradedBy(null);
+        } else {
+            s.setGradedBy(submission.getGradedBy());
+        }
         s.setGradeReleased(submission.getGradereleased());
         s.setHiddenDueDate(submission.getHideduedate());
         s.setHonorPledge(submission.getPledgeflag());

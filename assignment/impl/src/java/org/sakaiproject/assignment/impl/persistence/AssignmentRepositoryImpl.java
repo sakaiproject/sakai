@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.sakaiproject.assignment.persistence;
+package org.sakaiproject.assignment.impl.persistence;
 
 import java.time.Instant;
 import java.util.List;
@@ -27,6 +27,7 @@ import org.hibernate.criterion.Restrictions;
 import org.sakaiproject.assignment.api.model.Assignment;
 import org.sakaiproject.assignment.api.model.AssignmentSubmission;
 import org.sakaiproject.assignment.api.model.AssignmentSubmissionSubmitter;
+import org.sakaiproject.assignment.api.persistence.AssignmentRepository;
 import org.sakaiproject.serialization.BasicSerializableRepository;
 import org.springframework.transaction.annotation.Transactional;
 

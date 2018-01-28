@@ -19,7 +19,7 @@
  *
  **********************************************************************************/
 
-package org.sakaiproject.assignment.taggable.api;
+package org.sakaiproject.assignment.api.taggable;
 
 import org.sakaiproject.assignment.api.model.Assignment;
 import org.sakaiproject.assignment.api.model.AssignmentSubmission;

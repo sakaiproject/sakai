@@ -29,7 +29,7 @@ import org.mockito.Mockito;
 import org.sakaiproject.announcement.api.AnnouncementService;
 import org.sakaiproject.api.app.scheduler.ScheduledInvocationManager;
 import org.sakaiproject.api.app.scheduler.SchedulerManager;
-import org.sakaiproject.assignment.taggable.api.AssignmentActivityProducer;
+import org.sakaiproject.assignment.api.taggable.AssignmentActivityProducer;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.FunctionManager;
 import org.sakaiproject.authz.api.SecurityService;
@@ -146,7 +146,7 @@ public class AssignmentTestConfiguration {
         return mock(AnnouncementService.class);
     }
 
-    @Bean(name = "org.sakaiproject.assignment.taggable.api.AssignmentActivityProducer")
+    @Bean(name = "org.sakaiproject.assignment.api.taggable.AssignmentActivityProducer")
     public AssignmentActivityProducer assignmentActivityProducer() {
         return mock(AssignmentActivityProducer.class);
     }

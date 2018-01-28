@@ -50,7 +50,7 @@ import org.sakaiproject.announcement.api.*;
 import org.sakaiproject.assignment.api.*;
 import org.sakaiproject.assignment.api.model.Assignment;
 import org.sakaiproject.assignment.api.model.*;
-import org.sakaiproject.assignment.taggable.api.AssignmentActivityProducer;
+import org.sakaiproject.assignment.api.taggable.AssignmentActivityProducer;
 import org.sakaiproject.assignment.taggable.tool.DecoratedTaggingProvider;
 import org.sakaiproject.assignment.taggable.tool.DecoratedTaggingProvider.Pager;
 import org.sakaiproject.assignment.taggable.tool.DecoratedTaggingProvider.Sort;
@@ -5505,7 +5505,7 @@ public class AssignmentAction extends PagedResourceActionII {
                     assignmentPeerAssessmentService.savePeerAssessmentItem(item);
                     if (item.getScore() != null) {
                         //item was part of the calculation, re-calculate
-                        boolean saved = assignmentPeerAssessmentService.updateScore(submissionId);
+                        boolean saved = assignmentPeerAssessmentService.updateScore(submissionId, peerAssessor);
                         if (saved) {
                             //we need to make sure the GB is updated correctly (or removed)
                             String assignmentId = item.getAssignmentId();
@@ -10500,7 +10500,7 @@ public class AssignmentAction extends PagedResourceActionII {
                             assignmentPeerAssessmentService.savePeerAssessmentItem(item);
                             if (scoreChanged) {
                                 //need to re-calcuate the overall score:
-                                boolean saved = assignmentPeerAssessmentService.updateScore(submissionId);
+                                boolean saved = assignmentPeerAssessmentService.updateScore(submissionId, assessorUserId);
                                 if (saved) {
                                     //we need to make sure the GB is updated correctly (or removed)
                                     String assignmentId = (String) state.getAttribute(VIEW_ASSIGNMENT_ID);

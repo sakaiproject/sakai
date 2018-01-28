@@ -411,7 +411,7 @@ public class AssignmentPeerAssessmentServiceImpl extends HibernateDaoSupport imp
         getHibernateTemplate().flush();
     }
 
-    public boolean updateScore(String submissionId) {
+    public boolean updateScore(String submissionId, String assessorId) {
         boolean saved = false;
         SecurityAdvisor sa = new SecurityAdvisor() {
             public SecurityAdvice isAllowed(String userId, String function, String reference) {
@@ -433,9 +433,10 @@ public class AssignmentPeerAssessmentServiceImpl extends HibernateDaoSupport imp
             AssignmentSubmission submission = assignmentService.getSubmission(submissionId);
             //only override grades that have never been graded or was last graded by this service
             //this prevents this service from overriding instructor set grades, which take precedent.
-            if (submission != null &&
-                    (submission.getGraded() == false || submission.getGradedBy() == null || "".equals(submission.getGradedBy().trim())
-                            || AssignmentPeerAssessmentService.class.getName().equals(submission.getGradedBy().trim()))) {
+            if (submission != null
+                    && (!submission.getGraded()
+                        || StringUtils.isBlank(submission.getGradedBy())
+                        || StringUtils.equals(assessorId, submission.getGradedBy()))) {
                 List<PeerAssessmentItem> items = getPeerAssessmentItems(submissionId, submission.getAssignment().getScaleFactor());
                 if (items != null) {
                     //scores are stored w/o decimal points, so a score of 3.4 is stored as 34 in the DB
@@ -472,7 +473,7 @@ public class AssignmentPeerAssessmentServiceImpl extends HibernateDaoSupport imp
                     if (changed) {
                         submission.setGrade(totleScoreStr);
                         submission.setGraded(true);
-                        submission.setGradedBy(AssignmentPeerAssessmentService.class.getName());
+                        submission.setGradedBy(assessorId);
                         submission.setGradeReleased(false);
                         assignmentService.updateSubmission(submission);
                         saved = true;
@@ -483,9 +484,7 @@ public class AssignmentPeerAssessmentServiceImpl extends HibernateDaoSupport imp
             log.error(e.getMessage(), e);
         } finally {
             // remove advisor
-            if (sa != null) {
-                securityService.popAdvisor(sa);
-            }
+            securityService.popAdvisor(sa);
         }
         return saved;
     }
