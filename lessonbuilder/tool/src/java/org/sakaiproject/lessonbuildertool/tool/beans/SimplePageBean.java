@@ -1628,7 +1628,7 @@ public class SimplePageBean {
 			// could still be valid
 			i.removeAttribute("captionfile");
 			
-			i.removeAttribute("multimediaUrl"); // LSNBLDR-880
+			i.removeAttribute("multimediaUrl");
 			
 		} else {  // adding new item
 			i = appendItem(id, (name != null ? name : split[split.length - 1]), type);
