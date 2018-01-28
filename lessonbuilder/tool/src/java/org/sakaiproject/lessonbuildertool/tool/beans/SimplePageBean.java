@@ -1644,6 +1644,9 @@ public class SimplePageBean {
 			// with a new underlying file, it's hard to see how an old caption file
 			// could still be valid
 			i.removeAttribute("captionfile");
+			
+			i.removeAttribute("multimediaUrl");
+			
 		} else {  // adding new item
 			i = appendItem(id, (name != null ? name : split[split.length - 1]), type);
 			if (mimeType != null) {
