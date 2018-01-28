@@ -1,5 +1,6 @@
-package org.sakaiproject.assignment.impl.conversion.impl;
+package org.sakaiproject.assignment.impl.conversion;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -67,7 +68,7 @@ public class O11Submission {
 
     // List of name=value where value is enc is the encoding used in value
     // <property enc="BASE64" name="XXX" value="YYY"/>
-    private List<O11Property> properties;
+    private List<O11Property> properties = new ArrayList<>();
 
     /**
      * Used to catch unmapped values<br/>
@@ -82,5 +83,12 @@ public class O11Submission {
     @JsonAnySetter
     public void setAny(String key, Object value) {
         any.put(key, value);
+    }
+
+    // prevents nulling the member properties, this is not need in jackson 2.9
+    public void setProperties(List<O11Property> properties) {
+        if (properties != null) {
+            this.properties = properties;
+        }
     }
 }

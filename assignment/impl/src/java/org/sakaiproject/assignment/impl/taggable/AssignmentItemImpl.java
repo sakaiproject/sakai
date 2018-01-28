@@ -19,12 +19,11 @@
  *
  **********************************************************************************/
 
-package org.sakaiproject.assignment.taggable.impl;
+package org.sakaiproject.assignment.impl.taggable;
 
 import java.util.Date;
 import java.util.Set;
 
-import org.sakaiproject.assignment.api.AssignmentEntity;
 import org.sakaiproject.assignment.api.AssignmentService;
 import org.sakaiproject.assignment.api.model.AssignmentSubmissionSubmitter;
 import org.sakaiproject.user.api.UserDirectoryService;

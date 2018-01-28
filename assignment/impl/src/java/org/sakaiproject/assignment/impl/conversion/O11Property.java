@@ -1,6 +1,4 @@
-package org.sakaiproject.assignment.impl.conversion.impl;
-
-import java.util.Base64;
+package org.sakaiproject.assignment.impl.conversion;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;

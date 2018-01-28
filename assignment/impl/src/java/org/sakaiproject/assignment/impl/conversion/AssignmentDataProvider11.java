@@ -1,4 +1,4 @@
-package org.sakaiproject.assignment.impl.conversion.impl;
+package org.sakaiproject.assignment.impl.conversion;
 
 import java.util.Collections;
 import java.util.List;
