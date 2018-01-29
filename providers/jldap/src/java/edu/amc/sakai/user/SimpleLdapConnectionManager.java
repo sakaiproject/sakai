@@ -3,8 +3,7 @@ package edu.amc.sakai.user;
 import java.io.UnsupportedEncodingException;
 
 import com.novell.ldap.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Allocates connected, constrained, and optionally
@@ -14,16 +13,14 @@ import org.slf4j.LoggerFactory;
  * @author Dan McCallum, Unicon Inc
  * @author John Lewis, Unicon Inc
  */
+@Slf4j
 public class SimpleLdapConnectionManager implements LdapConnectionManager {
 	
 	public static final String KEYSTORE_LOCATION_SYS_PROP_KEY = 
 		"javax.net.ssl.trustStore";
 	public static final String KEYSTORE_PASSWORD_SYS_PROP_KEY = 
 		"javax.net.ssl.trustStorePassword";
-	
-	/** Class-specific logger */
-	private static Logger M_log = LoggerFactory.getLogger(SimpleLdapConnectionManager.class);
-	
+
 	/** connection allocation configuration */
 	private LdapConnectionManagerConfig config;
 	
@@ -32,13 +29,13 @@ public class SimpleLdapConnectionManager implements LdapConnectionManager {
 	 */
 	public void init() {
 		
-		if ( M_log.isDebugEnabled() ) {
-			M_log.debug("init()");
+		if ( log.isDebugEnabled() ) {
+			log.debug("init()");
 		}
 		
 		if ( config.isSecureConnection() ) {
-			if ( M_log.isDebugEnabled() ) {
-				M_log.debug("init(): initializing keystore");
+			if ( log.isDebugEnabled() ) {
+				log.debug("init(): initializing keystore");
 			}
 			initKeystoreLocation();
 			initKeystorePassword();
@@ -50,20 +47,20 @@ public class SimpleLdapConnectionManager implements LdapConnectionManager {
 	 */
 	public LDAPConnection getConnection() throws LDAPException {
 		
-		if ( M_log.isDebugEnabled() ) {
-			M_log.debug("getConnection()");
+		if ( log.isDebugEnabled() ) {
+			log.debug("getConnection()");
 		}
 		LDAPConnection conn = newConnection();
 
 		if ( config.isAutoBind() ) {
-			if ( M_log.isDebugEnabled() ) {
-				M_log.debug("getConnection(): auto-binding");
+			if ( log.isDebugEnabled() ) {
+				log.debug("getConnection(): auto-binding");
 			}
 			try {
 				bind(conn, config.getLdapUser(), config.getLdapPassword());
 			} catch (LDAPException ldape) {
 				if (ldape.getResultCode() == LDAPException.INVALID_CREDENTIALS) {
-					M_log.warn("Failed to bind against: "+ conn.getHost()+ " with user: "+ config.getLdapUser()+ " password: "+ config.getLdapPassword().replaceAll(".", "*"));
+					log.warn("Failed to bind against: "+ conn.getHost()+ " with user: "+ config.getLdapUser()+ " password: "+ config.getLdapPassword().replaceAll(".", "*"));
 				}
 				throw ldape;
 			}
@@ -100,8 +97,8 @@ public class SimpleLdapConnectionManager implements LdapConnectionManager {
 	 */
 	public LDAPConnection getBoundConnection(String dn, String pw) throws LDAPException {
 		
-		if ( M_log.isDebugEnabled() ) {
-			M_log.debug("getBoundConnection(): [dn = " + dn + "]");
+		if ( log.isDebugEnabled() ) {
+			log.debug("getBoundConnection(): [dn = " + dn + "]");
 		}
 		
 		LDAPConnection conn = createConnectionWithSocketFactory();
@@ -114,8 +111,8 @@ public class SimpleLdapConnectionManager implements LdapConnectionManager {
 
 	protected LDAPConnection newConnection() throws LDAPException {
 
-		if (M_log.isDebugEnabled() ) {
-			M_log.debug("newConnection()");
+		if (log.isDebugEnabled() ) {
+			log.debug("newConnection()");
 		}
 		LDAPConnection connection = createConnectionWithSocketFactory();
 		applyConstraints(connection);
@@ -126,8 +123,8 @@ public class SimpleLdapConnectionManager implements LdapConnectionManager {
 	private void bind(LDAPConnection conn, String dn, String pw)
 	throws LDAPException {
 		
-		if ( M_log.isDebugEnabled() ) {
-			M_log.debug("bind(): binding [dn = " + dn + "]");
+		if ( log.isDebugEnabled() ) {
+			log.debug("bind(): binding [dn = " + dn + "]");
 		}
 		
 		try {
@@ -145,7 +142,7 @@ public class SimpleLdapConnectionManager implements LdapConnectionManager {
 			if (conn != null)
 				conn.disconnect();
 		} catch (LDAPException e) {
-			M_log.error("returnConnection(): failed on disconnect: ", e);
+			log.error("returnConnection(): failed on disconnect: ", e);
 		}
 	}
 
@@ -176,22 +173,22 @@ public class SimpleLdapConnectionManager implements LdapConnectionManager {
 	 *   cannot be resolved
 	 */
 	protected void initKeystorePassword() {
-		if ( M_log.isDebugEnabled() ) {
-			M_log.debug("initKeystorePassword()");
+		if ( log.isDebugEnabled() ) {
+			log.debug("initKeystorePassword()");
 		}
 		String sysKeystorePassword = 
 			System.getProperty(KEYSTORE_PASSWORD_SYS_PROP_KEY);
 		if ( sysKeystorePassword == null ) {
 			String configuredKeystorePassword = config.getKeystorePassword();
 			if ( configuredKeystorePassword != null){
-				if ( M_log.isDebugEnabled() ) {
-					M_log.debug("initKeystorePassword(): setting system property");
+				if ( log.isDebugEnabled() ) {
+					log.debug("initKeystorePassword(): setting system property");
 				}
 				System.setProperty(KEYSTORE_PASSWORD_SYS_PROP_KEY, configuredKeystorePassword);
 			}
 		} else {
-			if ( M_log.isDebugEnabled() ) {
-				M_log.debug("initKeystorePassword(): retained existing system property");
+			if ( log.isDebugEnabled() ) {
+				log.debug("initKeystorePassword(): retained existing system property");
 			}
 		}
 	}
@@ -209,23 +206,23 @@ public class SimpleLdapConnectionManager implements LdapConnectionManager {
 	 *   cannot be resolved
 	 */
 	protected void initKeystoreLocation() {
-		if ( M_log.isDebugEnabled() ) {
-			M_log.debug("initKeystoreLocation()");
+		if ( log.isDebugEnabled() ) {
+			log.debug("initKeystoreLocation()");
 		}
 		String sysKeystoreLocation = 
 			System.getProperty(KEYSTORE_LOCATION_SYS_PROP_KEY);
 		if ( sysKeystoreLocation == null ) {
 			String configuredKeystoreLocation = config.getKeystoreLocation();
 			if ( configuredKeystoreLocation != null){
-				if ( M_log.isDebugEnabled() ) {
-					M_log.debug("initKeystoreLocation(): setting system property [location = " + 
+				if ( log.isDebugEnabled() ) {
+					log.debug("initKeystoreLocation(): setting system property [location = " + 
 							configuredKeystoreLocation + "]");
 				}
 				System.setProperty(KEYSTORE_LOCATION_SYS_PROP_KEY, configuredKeystoreLocation);
 			}
 		} else {
-			if ( M_log.isDebugEnabled() ) {
-				M_log.debug("initKeystoreLocation(): retained existing system property [location = " + 
+			if ( log.isDebugEnabled() ) {
+				log.debug("initKeystoreLocation(): retained existing system property [location = " + 
 						sysKeystoreLocation + "]");
 			}
 		}
@@ -244,8 +241,8 @@ public class SimpleLdapConnectionManager implements LdapConnectionManager {
 	protected void applyConstraints(LDAPConnection conn) {
 		int timeout = config.getOperationTimeout();
 		boolean followReferrals = config.isFollowReferrals();
-		if ( M_log.isDebugEnabled() ) {
-			M_log.debug("applyConstraints(): values [timeout = " + 
+		if ( log.isDebugEnabled() ) {
+			log.debug("applyConstraints(): values [timeout = " + 
 					timeout + "][follow referrals = " + followReferrals + "]");
 		}
 		LDAPConstraints constraints = new LDAPConstraints();
@@ -262,8 +259,8 @@ public class SimpleLdapConnectionManager implements LdapConnectionManager {
 	 * @throws LDAPConnection if the connect attempt fails
 	 */
 	protected void connect(LDAPConnection conn) throws LDAPException {
-		if ( M_log.isDebugEnabled() ) {
-			M_log.debug("connect()");
+		if ( log.isDebugEnabled() ) {
+			log.debug("connect()");
 		}
 		
 		conn.connect(config.getLdapHost(), config.getLdapPort());
@@ -271,7 +268,7 @@ public class SimpleLdapConnectionManager implements LdapConnectionManager {
 		try {
 			postConnect(conn);
 		} catch ( LDAPException e ) {
-			M_log.error("Failed to completely initialize a connection [host = " + 
+			log.error("Failed to completely initialize a connection [host = " + 
 					config.getLdapHost() + "][port = " + 
 					config.getLdapPort() + "]", e);
 			try {
@@ -280,7 +277,7 @@ public class SimpleLdapConnectionManager implements LdapConnectionManager {
 			
 			throw e;
 		} catch ( Throwable e ) {
-			M_log.error("Failed to completely initialize a connection [host = " + 
+			log.error("Failed to completely initialize a connection [host = " + 
 					config.getLdapHost() + "][port = " + 
 					config.getLdapPort() + "]", e);
 			try {
@@ -301,13 +298,13 @@ public class SimpleLdapConnectionManager implements LdapConnectionManager {
 	
 	protected void postConnect(LDAPConnection conn) throws LDAPException {
 		
-		if ( M_log.isDebugEnabled() ) {
-			M_log.debug("postConnect()");
+		if ( log.isDebugEnabled() ) {
+			log.debug("postConnect()");
 		}
 		
 		if ( config.isSecureConnection() && isTlsSocketFactory() ) {
-			if ( M_log.isDebugEnabled() ) {
-				M_log.debug("postConnect(): starting TLS");
+			if ( log.isDebugEnabled() ) {
+				log.debug("postConnect(): starting TLS");
 			}
 			conn.startTLS();
 		}

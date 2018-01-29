@@ -22,11 +22,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.wicket.extensions.markup.html.tabs.AbstractTab;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.ResourceModel;
+
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.TypeException;
@@ -42,9 +42,9 @@ import org.sakaiproject.sitestats.api.report.ReportParams;
 import org.sakaiproject.sitestats.tool.facade.Locator;
 import org.sakaiproject.user.api.UserNotDefinedException;
 
+@Slf4j
 public class ResourcesWidget extends Panel {
 	private static final long		serialVersionUID	= 1L;
-	private static Logger				LOG					= LoggerFactory.getLogger(ResourcesWidget.class);
 
 	/** The site id. */
 	private String					siteId				= null;
@@ -110,9 +110,9 @@ public class ResourcesWidget extends Panel {
 			@Override
 			public String getValue() {
 				long start = 0;
-				if(LOG.isDebugEnabled()) start = System.currentTimeMillis();
+				if(log.isDebugEnabled()) start = System.currentTimeMillis();
 				String val = Integer.toString(getTotalFiles());
-				if(LOG.isDebugEnabled()) LOG.debug("getMiniStatFiles() in " + (System.currentTimeMillis() - start) + " ms");
+				if(log.isDebugEnabled()) log.debug("getMiniStatFiles() in " + (System.currentTimeMillis() - start) + " ms");
 				return val;
 			}
 			@Override
@@ -172,10 +172,10 @@ public class ResourcesWidget extends Panel {
 			@Override
 			public String getValue() {
 				long start = 0;
-				if(LOG.isDebugEnabled()) start = System.currentTimeMillis();
+				if(log.isDebugEnabled()) start = System.currentTimeMillis();
 				processData();
 				String val = Long.toString(totalDistinctFileReads);
-				if(LOG.isDebugEnabled()) LOG.debug("getMiniStatOpenedFiles() in " + (System.currentTimeMillis() - start) + " ms");
+				if(log.isDebugEnabled()) log.debug("getMiniStatOpenedFiles() in " + (System.currentTimeMillis() - start) + " ms");
 				return val;
 				
 			}
@@ -279,7 +279,7 @@ public class ResourcesWidget extends Panel {
 			@Override
 			public String getValue() {
 				long start = 0;
-				if(LOG.isDebugEnabled()) start = System.currentTimeMillis();
+				if(log.isDebugEnabled()) start = System.currentTimeMillis();
 				processData();
 				String val = null;
 				if(mostOpenedFile != null) {
@@ -287,7 +287,7 @@ public class ResourcesWidget extends Panel {
 				}else{
 					val = "-";
 				}
-				if(LOG.isDebugEnabled()) LOG.debug("getMiniStatMostOpenedFile() in " + (System.currentTimeMillis() - start) + " ms");
+				if(log.isDebugEnabled()) log.debug("getMiniStatMostOpenedFile() in " + (System.currentTimeMillis() - start) + " ms");
 				return val;
 			}
 			
@@ -379,7 +379,7 @@ public class ResourcesWidget extends Panel {
 			@Override
 			public String getValue() {
 				long start = 0;
-				if(LOG.isDebugEnabled()) start = System.currentTimeMillis();
+				if(log.isDebugEnabled()) start = System.currentTimeMillis();
 				processData();
 				String val = null;
 				if(user != null) {
@@ -397,7 +397,7 @@ public class ResourcesWidget extends Panel {
 				}else{
 					val = "-";
 				}
-				if(LOG.isDebugEnabled()) LOG.debug("getMiniStatUserThatOpenedMoreFiles() in " + (System.currentTimeMillis() - start) + " ms");
+				if(log.isDebugEnabled()) log.debug("getMiniStatUserThatOpenedMoreFiles() in " + (System.currentTimeMillis() - start) + " ms");
 				return val;
 			}
 			

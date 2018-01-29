@@ -18,6 +18,8 @@ package org.sakaiproject.component.kerberos.user;
 import java.lang.Thread.UncaughtExceptionHandler;
 import java.util.Random;
 
+import lombok.extern.slf4j.Slf4j;
+
 /**
  * This test currently fail at times. It only fails for good user/pass and it detects a replay attack.
  * We think it is because two auths happen with the same timestamp. I can't manage to get bad user/pass to come back as good.
@@ -26,6 +28,7 @@ import java.util.Random;
  * @author Matthew Buckett
  *
  */
+@Slf4j
 public class ThreadedJaasAuthenticateTest extends AbstractAuthenticateTest {
 
 	private int loopLimit = 1000;
@@ -46,7 +49,7 @@ public class ThreadedJaasAuthenticateTest extends AbstractAuthenticateTest {
 			}
 			threads[i].setUncaughtExceptionHandler(handler);
 			threads[i].start();
-			System.out.println("Started "+ name);
+			log.info("Started "+ name);
 		}
 		for (Thread thread: threads) {
 			thread.join();

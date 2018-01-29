@@ -26,9 +26,6 @@ import java.util.HashMap;
 
 import org.sakaiproject.content.api.*;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 /**
  * <p>
  * BasicContentService is an default implementation of the Sakai ContentPrintService.
@@ -36,9 +33,6 @@ import org.slf4j.LoggerFactory;
  */
 public class BasicContentPrintService implements ContentPrintService
 {
-	/** Our logger. */
-	private static Logger M_log = LoggerFactory.getLogger(BasicContentPrintService.class);
-
 	/**
 	 * {@inheritDoc}
 	*/
@@ -55,7 +49,4 @@ public class BasicContentPrintService implements ContentPrintService
 	{
 		return null;
 	}
-	
-
 } // BaseContentService
-

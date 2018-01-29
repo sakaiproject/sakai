@@ -32,8 +32,8 @@ import java.util.UUID;
 
 import javax.servlet.http.HttpServletResponse;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.entitybroker.EntityView;
 import org.sakaiproject.entitybroker.entityprovider.CoreEntityProvider;
@@ -59,16 +59,15 @@ import org.sakaiproject.poll.model.Poll;
 import org.sakaiproject.poll.model.Vote;
 import org.sakaiproject.user.api.UserDirectoryService;
 
-
 /**
  * Entity provider which represents poll votes
  * 
  * @author Aaron Zeckoski (azeckoski @ gmail.com)
  */
+ @Slf4j
 public class PollVoteEntityProvider extends AbstractEntityProvider implements CoreEntityProvider, 
     Createable, CollectionResolvable, Outputable, Inputable, Describeable, ActionsExecutable, Redirectable {
 
-	private static Logger log = LoggerFactory.getLogger(PollVoteEntityProvider.class);
     private PollListManager pollListManager;
     public void setPollListManager(final PollListManager pollListManager) {
         this.pollListManager = pollListManager;

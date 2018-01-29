@@ -24,23 +24,43 @@
 
 package org.sakaiproject.lessonbuildertool.tool.beans;
 
-import java.text.SimpleDateFormat;
+import au.com.bytecode.opencsv.CSVParser;
+
+import java.io.*;
+import java.lang.reflect.Method;
 import java.math.BigDecimal;
-
-import org.apache.commons.lang.StringUtils;
+import java.net.URI;
+import java.net.URL;
+import java.net.URLConnection;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.Locale;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import javax.servlet.http.HttpServletResponse;
+
+import lombok.extern.slf4j.Slf4j;
 
 import org.apache.commons.lang.StringUtils;
+
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
+
+import org.springframework.web.multipart.MultipartFile;
+
+import uk.org.ponder.messageutil.MessageLocator;
+import uk.org.ponder.rsf.components.UIContainer;
+import uk.org.ponder.rsf.components.UIInternalLink;
+
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.authz.api.AuthzGroupService;
+import org.sakaiproject.basiclti.util.SakaiBLTIUtil;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.content.api.*;
 import org.sakaiproject.content.api.GroupAwareEntity.AccessMode;
@@ -55,8 +75,9 @@ import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.TypeException;
 import org.sakaiproject.id.cover.IdManager;
-import org.sakaiproject.lessonbuildertool.api.LessonBuilderEvents;
 import org.sakaiproject.lessonbuildertool.*;
+import org.sakaiproject.lessonbuildertool.api.LessonBuilderEvents;
+import org.sakaiproject.lessonbuildertool.tool.beans.helpers.ResourceHelper;
 import org.sakaiproject.lessonbuildertool.cc.CartridgeLoader;
 import org.sakaiproject.lessonbuildertool.cc.Parser;
 import org.sakaiproject.lessonbuildertool.cc.PrintHandler;
@@ -67,8 +88,10 @@ import org.sakaiproject.lessonbuildertool.tool.producers.ShowItemProducer;
 import org.sakaiproject.lessonbuildertool.tool.producers.ShowPageProducer;
 import org.sakaiproject.lessonbuildertool.tool.producers.PagePickerProducer;
 import org.sakaiproject.lessonbuildertool.tool.view.GeneralViewParameters;
+import org.sakaiproject.lti.api.LTIService;
 import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.MemoryService;
+import org.sakaiproject.portal.util.ToolUtils;
 import org.sakaiproject.site.api.*;
 import org.sakaiproject.time.cover.TimeService;
 import org.sakaiproject.tool.api.Placement;
@@ -81,27 +104,7 @@ import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.Validator;
-import org.springframework.web.multipart.MultipartFile;
-import uk.org.ponder.messageutil.MessageLocator;
-import uk.org.ponder.rsf.components.UIContainer;
-import uk.org.ponder.rsf.components.UIInternalLink;
 
-import javax.servlet.http.HttpServletResponse;
-import java.io.*;
-import java.lang.reflect.Method;
-import java.net.URL;
-import java.net.URI;
-import java.net.URLConnection;
-import java.text.DateFormat;
-import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import org.sakaiproject.lessonbuildertool.tool.beans.helpers.ResourceHelper;
-import au.com.bytecode.opencsv.CSVParser;
-
-import org.sakaiproject.portal.util.ToolUtils;
-import org.sakaiproject.lti.api.LTIService;
-import org.sakaiproject.basiclti.util.SakaiBLTIUtil;
 import org.tsugi.lti2.ContentItem;
 
 /**
@@ -127,18 +130,17 @@ import org.tsugi.lti2.ContentItem;
 // That's because it is used a lot more often than the others. ShowPageProducer should do all data access through
 // the methods here that cache. There is also caching by hibernate. However this code is cheaper, partly because
 // it doesn't have to do synchronization (since it applies just to processing one transaction).
-
+@Slf4j
 public class SimplePageBean {
 	public static final int CACHE_MAX_ENTRIES = 5000;
 	public static final int CACHE_TIME_TO_LIVE_SECONDS = 600;
 	public static final int CACHE_TIME_TO_IDLE_SECONDS = 360;
-	private static Logger log = LoggerFactory.getLogger(SimplePageBean.class);
 
 	public enum Status {
 	    NOT_REQUIRED, REQUIRED, DISABLED, COMPLETED, FAILED, NEEDSGRADING
 	}
 	
-    // from ResourceProperites. This isn't in 2.7.1, so define it here. Let's hope it doesn't change...
+        // from ResourceProperites. This isn't in 2.7.1, so define it here. Let's hope it doesn't change...
         public static final String PROP_ALLOW_INLINE = "SAKAI:allow_inline";
 
 	public final Integer FILTER_DEFAULT=0;
@@ -433,8 +435,8 @@ public class SimplePageBean {
 	private Map<Long, Boolean> visibleCache = new HashMap<Long, Boolean>();
 	// this one needs to be global
 	static MemoryService memoryService = (MemoryService)org.sakaiproject.component.cover.ComponentManager.get("org.sakaiproject.memory.api.MemoryService");
-	private static Cache groupCache = memoryService.newCache("org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean.groupCache");  // itemId => grouplist
-	private static Cache resourceCache = memoryService.newCache("org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean.resourceCache");
+	private static Cache<String, Object> groupCache = memoryService.getCache("org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean.groupCache");  // itemId => grouplist
+	private static Cache<String, List> resourceCache = memoryService.getCache("org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean.resourceCache");
 	protected static final int DEFAULT_EXPIRATION = 10 * 60;
 
 	public static class PathEntry {
@@ -1522,9 +1524,9 @@ public class SimplePageBean {
 			mimeType = null; // use default rules if we can't find it
 			String url = null;
 			// part 1, fix up the type fields
-			boolean pushed = false;
+			SecurityAdvisor editUrlAdvisor = null;
 			try {
-				pushed = pushAdvisor();
+				editUrlAdvisor = pushAdvisor();
 				ContentResourceEdit res = contentHostingService.editResource(id);
 				res.setContentType("text/url");
 				res.setResourceType("org.sakaiproject.content.types.urlResource");
@@ -1533,7 +1535,7 @@ public class SimplePageBean {
 			} catch (Exception ignore) {
 				return "no-reference";
 			}finally {
-				if(pushed) popAdvisor();
+				popAdvisor(editUrlAdvisor);
 			}
 			// part 2, find the actual data type.
 			if (url != null)
@@ -1541,22 +1543,22 @@ public class SimplePageBean {
 		} else if (isCaption) {
 			// sakai probably sees it as a normal text file.
 			// some browsers require the mime type to be right
-			boolean pushed = false;
+			SecurityAdvisor editAdvisor = null;
 			try {
-				pushed = pushAdvisor();
+				editAdvisor = pushAdvisor();
 				ContentResourceEdit res = contentHostingService.editResource(id);
 				res.setContentType("text/vtt");
 				contentHostingService.commitResource(res, NotificationService.NOTI_NONE);
 			} catch (Exception ignore) {
 				return "no-reference";
 			}finally {
-				if(pushed) popAdvisor();
+				popAdvisor(editAdvisor);
 			}
-		}boolean pushed = false;
+		}
+
 		try {
 		    // I don't think we want the user adding anything he doesn't have access to
 		    // accessservice depends upon that
-		    //	pushed = pushAdvisor();
 			contentHostingService.checkResource(id);
 		} catch (PermissionException e) {
 			return "permission-exception";
@@ -1566,9 +1568,6 @@ public class SimplePageBean {
 		} catch (TypeException e) {
 			return "type-exception";
 		}
-		// }finally {
-		//   if(pushed) popAdvisor();
-		//}
 
 		String[] split = id.split("/");
 
@@ -1628,6 +1627,9 @@ public class SimplePageBean {
 			// with a new underlying file, it's hard to see how an old caption file
 			// could still be valid
 			i.removeAttribute("captionfile");
+			
+			i.removeAttribute("multimediaUrl");
+			
 		} else {  // adding new item
 			i = appendItem(id, (name != null ? name : split[split.length - 1]), type);
 			if (mimeType != null) {
@@ -1646,7 +1648,7 @@ public class SimplePageBean {
 	private ContentResource getContentResource(String id)
 	{
 		ContentResource res = null;
-		boolean pushed = false;
+		SecurityAdvisor pushed = null;
 		try
 		{
 			pushed = pushAdvisor();
@@ -1666,10 +1668,7 @@ public class SimplePageBean {
 		}
 		finally
 		{
-			if (pushed)
-			{
-				popAdvisor();
-			}
+			popAdvisor(pushed);
 		}
 		
 		return res;
@@ -2020,7 +2019,7 @@ public class SimplePageBean {
 		try {
 		    currentSite = siteService.getSite(getCurrentSiteId());
 		} catch (Exception impossible) {
-			impossible.printStackTrace();
+			log.error(impossible.getMessage(), impossible);
 		}
 		
 		return currentSite;
@@ -2384,7 +2383,6 @@ public class SimplePageBean {
 				if (i != null && i != 0)
 					updatePageItem(i);
 			} catch (PermissionException e) {
-			    e.printStackTrace();
 				log.warn("getCurrentPageId Permission failed setting to item in toolsession");
 				return 0;
 			}
@@ -3135,7 +3133,7 @@ public class SimplePageBean {
 			    }
 			}
 		} catch (Exception ex) {
-		    ex.printStackTrace();
+		    log.error(ex.getMessage(), ex);
 		}
 	}
 
@@ -3270,7 +3268,7 @@ public class SimplePageBean {
 			    }
 			    return "success";
 			} catch (Exception ex) {
-			    ex.printStackTrace();
+			    log.error(ex.getMessage(), ex);
 			    return "failure";
 			} finally {
 			    selectedEntity = null;
@@ -3347,7 +3345,7 @@ public class SimplePageBean {
 			    }
 			    return "success";
 			} catch (Exception ex) {
-			    ex.printStackTrace();
+			    log.error(ex.getMessage(), ex);
 			    return "failure";
 			} finally {
 			    selectedAssignment = null;
@@ -3424,7 +3422,7 @@ public class SimplePageBean {
 			    }
 			    return "success";
 			} catch (Exception ex) {
-			    ex.printStackTrace();
+			    log.error(ex.getMessage(), ex);
 			    return "failure";
 			} finally {
 			    selectedBlti = null;
@@ -3604,12 +3602,13 @@ public class SimplePageBean {
 
 	   // only here for object types with underlying entities
 	   boolean exists = false;
+	   SecurityAdvisor sa = null;
 	   try {
-	       pushAdvisorAlways();  // assignments won't let the student look
+	       sa = pushAdvisorAlways();  // assignments won't let the student look
 	       if (entity != null)
 		   exists = entity.objectExists();
 	   } finally {
-	       popAdvisor();
+	       popAdvisor(sa);
 	   }
 
 	   if (!exists) {
@@ -3641,11 +3640,12 @@ public class SimplePageBean {
 		   ;  // leave ret as an empty list
 	   } else {
 	       // not under our control, use list from tool
+	       SecurityAdvisor advisor = null;
 	       try {
-		   pushAdvisorAlways();
+		   advisor = pushAdvisorAlways();
 		   ret = entity.getGroups(nocache); // assignments won't let a student see
 	       } finally {
-		   popAdvisor();
+		   popAdvisor(advisor);
 	       }
 	   }
 
@@ -3721,15 +3721,7 @@ public class SimplePageBean {
 	       // so the advisor will cause the wrong answer
 	   	   boolean inheritingPubView =  contentHostingService.isInheritingPubView(i.getSakaiId());
 
-  	   	  // for isItemVisible to work, users need to be able to get this all the time
-                   //if(getCurrentPage().getOwner() != null) {
-    			   advisor = new SecurityAdvisor() {
-						public SecurityAdvice isAllowed(String userId, String function, String reference) {
-							return SecurityAdvice.ALLOWED;
-						}
-					};
-					securityService.pushAdvisor(advisor);
-		   //   }
+		   advisor = pushAdvisorAlways();
     	   
     		   Collection<String> ret = null;
 
@@ -3777,9 +3769,9 @@ public class SimplePageBean {
     		   
     		   return ret;
     	   }finally {
-	       if(advisor != null) securityService.popAdvisor();
+    		  popAdvisor(advisor);
     	   }
-       }
+   	}
 
     // no obvious need to cache
        public Collection<String>getLBItemGroups (SimplePageItem i) {
@@ -3887,9 +3879,9 @@ public class SimplePageBean {
 	   ContentResourceEdit resource = null;
 	   List<String>ret = null;
 
-	   boolean pushed = false;
+	   SecurityAdvisor pushedAdvisor = null;
 	   try {
-		   pushed = pushAdvisor();
+	       pushedAdvisor = pushAdvisor();
 	       resource = contentHostingService.editResource(i.getSakaiId());
 
 	       if (AccessMode.GROUPED.equals(resource.getInheritedAccess())) {
@@ -3930,7 +3922,7 @@ public class SimplePageBean {
 	       if (resource != null) {
 		   contentHostingService.cancelResource(resource);
 	       }
-	       if(pushed) popAdvisor();
+	       popAdvisor(pushedAdvisor);
 	   }
 
 	   return ret;
@@ -4080,7 +4072,7 @@ public class SimplePageBean {
 			    }
 			    return "success";
 			} catch (Exception ex) {
-			    ex.printStackTrace();
+			    log.error(ex.getMessage(), ex);
 			    return "failure";
 			} finally {
 			    selectedQuiz = null;
@@ -4285,11 +4277,10 @@ public class SimplePageBean {
 		}
 
 		if (pageTitle != null && pageItem.getPageId() == 0) {
-			try {
 				// we need a security advisor because we're allowing users to edit the page if they
 				// have
 				// simplepage.upd privileges, but site.save requires site.upd.
-				securityService.pushAdvisor(new SecurityAdvisor() {
+				SecurityAdvisor siteUpdAdvisor = new SecurityAdvisor() {
 					public SecurityAdvice isAllowed(String userId, String function, String reference) {
 						if (function.equals(SITE_UPD) && reference.equals("/site/" + getCurrentSiteId())) {
 							return SecurityAdvice.ALLOWED;
@@ -4297,7 +4288,10 @@ public class SimplePageBean {
 							return SecurityAdvice.PASS;
 						}
 					}
-				});
+				};
+
+			try {
+				securityService.pushAdvisor(siteUpdAdvisor);
 
 				SitePage sitePage = site.getPage(page.getToolId());
 					
@@ -4333,9 +4327,9 @@ public class SimplePageBean {
 				update(pageItem, !isOwner);
 
 			} catch (Exception e) {
-				e.printStackTrace();
+				log.error(e.getMessage(), e);
 			} finally {
-				securityService.popAdvisor();
+				securityService.popAdvisor(siteUpdAdvisor);
 			}
 		} else if (pageTitle != null) {
 			page.setTitle(pageTitle);
@@ -5089,10 +5083,9 @@ public class SimplePageBean {
 		}
 
 		Collection<String>itemGroups = null;
-		boolean pushed = false;
+		SecurityAdvisor advisor = null;
 		try {
-		    pushAdvisorAlways();
-		    pushed = true;
+		    advisor = pushAdvisorAlways();
 		    LessonEntity entity = null;
 		    if (!canSeeAll()) {
 			switch (item.getType()) {
@@ -5117,15 +5110,13 @@ public class SimplePageBean {
 				return false;
 			}
 		    }
-		    popAdvisor();
-		    pushed = false;
 		    // entity can be null. passing the actual entity just avoids a second lookup
 		    itemGroups = getItemGroups(item, entity, false);
 		} catch (IdUnusedException exc) {
 		    visibleCache.put(item.getId(), false);
 		    return false; // underlying entity missing, don't show it
 		} finally {
-		    if (pushed) popAdvisor();
+		    popAdvisor(advisor);
 		}
 		if (itemGroups == null || itemGroups.size() == 0) {
 		    // this includes items for which for which visibility doesn't apply
@@ -5230,7 +5221,7 @@ public class SimplePageBean {
 					return false;
 				}
 			} catch (Exception e) {
-				e.printStackTrace();
+				log.error(e.getMessage(), e);
 				completeCache.put(itemId, false);
 				return false;
 			}
@@ -5253,7 +5244,7 @@ public class SimplePageBean {
 					return false;
 				}
 			} catch (Exception e) {
-			    e.printStackTrace();
+			    log.error(e.getMessage(), e);
 			    completeCache.put(itemId, false);
 			    return false;
 			}
@@ -5765,9 +5756,9 @@ public class SimplePageBean {
 			return getYoutubeKeyFromUrl(URL);
 			
 		}catch(Exception ex) {
-			ex.printStackTrace();
+			log.error(ex.getMessage(), ex);
 		}finally {
-		    if(advisor != null) securityService.popAdvisor();
+		    if(advisor != null) securityService.popAdvisor(advisor);
 		}
 		
 		// 	no
@@ -5850,7 +5841,7 @@ public class SimplePageBean {
 			    success = GroupPermissionsService.removeUser(getCurrentPage().getSiteId(), getCurrentUserId(), groupId);
 			}
 		} catch (Exception ex) {
-			ex.printStackTrace();
+			log.error(ex.getMessage(), ex);
 			return;
 		}
 
@@ -6216,14 +6207,7 @@ public class SimplePageBean {
 
 		SecurityAdvisor advisor = null;
 		try {
-			if(isStudentPage(getCurrentPage())) {
-				advisor = new SecurityAdvisor() {
-					public SecurityAdvice isAllowed(String userId, String function, String reference) {
-							return SecurityAdvice.ALLOWED;
-					}
-				};
-				securityService.pushAdvisor(advisor);
-			}
+			advisor = pushAdvisor();
 			if (!itemOk(itemId))
 				return;
 			if (!canEditPage())
@@ -6253,9 +6237,9 @@ public class SimplePageBean {
 				}
 			}
 		} catch (Exception exception) {
-			exception.printStackTrace();
+			log.error(exception.getMessage(), exception);
 		} finally {
-			if(advisor != null) securityService.popAdvisor();
+			popAdvisor(advisor);
 		}
 		
 	}
@@ -6481,7 +6465,7 @@ public class SimplePageBean {
 				// 	saveItem and update produce the errors
 			}
 		}catch(Exception ex) {
-			ex.printStackTrace();
+			log.error(ex.getMessage(), ex);
 		}
 	}
 
@@ -6536,7 +6520,7 @@ public class SimplePageBean {
                         contentItem = SakaiBLTIUtil.getContentItemFromRequest(tool);
                 } catch(Exception e) {
 			setErrKey("simplepage.lti-import-bad-content-item", e.getMessage());
-			e.printStackTrace();
+			log.error(e.getMessage(), e);
                         return;
                 }
 		// log.info("contentItem="+contentItem);
@@ -6559,7 +6543,7 @@ public class SimplePageBean {
 				fis = yc.getInputStream();
 			} catch ( Exception e ) {
 				setErrKey("simplepage.lti-import-error-reading-url", localUrl);
-				e.printStackTrace();
+				log.error(e.getMessage(), e);
 				return;
 			}
 
@@ -6598,7 +6582,7 @@ public class SimplePageBean {
 		    fis = file.getInputStream();
 		} catch(IOException e) {
 		    setErrKey("simplepage.cc-error", "");
-		    e.printStackTrace();
+		    log.error(e.getMessage(), e);
 		    return;
 		}
 		long length = importCcFromStream(fis);
@@ -6664,7 +6648,7 @@ public class SimplePageBean {
 		} catch (Exception e) {
 		    setErrKey("simplepage.cc-error", "");
 		  
-		    e.printStackTrace();
+		    log.error(e.getMessage(), e);
 		    length = -1;
 		} finally {
 		    if (cc != null)
@@ -7243,29 +7227,35 @@ public class SimplePageBean {
 		return map;
 	}
 	
-	private void pushAdvisorAlways() {
-	    securityService.pushAdvisor(new SecurityAdvisor() {
+	private SecurityAdvisor pushAdvisorAlways() {
+	    SecurityAdvisor alwaysAdvisor = new SecurityAdvisor() {
 		    public SecurityAdvice isAllowed(String userId, String function, String reference) {
 			return SecurityAdvice.ALLOWED;
 		    }
-		});
+		};
+	    securityService.pushAdvisor(alwaysAdvisor);
+	    return alwaysAdvisor;
 	}
 
-	private boolean pushAdvisor() {
+	private SecurityAdvisor pushAdvisor() {
 		if(isStudentPage(getCurrentPage())) {
-			securityService.pushAdvisor(new SecurityAdvisor() {
+			SecurityAdvisor studentAdvisor = new SecurityAdvisor() {
 				public SecurityAdvice isAllowed(String userId, String function, String reference) {
 					return SecurityAdvice.ALLOWED;
 				}
-			});
-			return true;
+			};
+			securityService.pushAdvisor(studentAdvisor);
+			return studentAdvisor;
 		}else {
-			return false;
+			return null;
 		}
 	}
 	
-	private void popAdvisor() {
-		securityService.popAdvisor();
+	private void popAdvisor(SecurityAdvisor sa) {
+		// If pushAdvisor() was called on a non-student page, this SecurityAdvisor will be null
+		if (sa != null) {
+			securityService.popAdvisor(sa);
+		}
 	}
 	
 	public void setAddAnswerData(String data) {
@@ -8157,7 +8147,7 @@ public class SimplePageBean {
 				contentHostingService.commitResource(res, NotificationService.NOTI_NONE);
 			}
 		} catch (Exception pe) {
-			pe.printStackTrace();
+			log.error(pe.getMessage(), pe);
 		}
 	}
 	

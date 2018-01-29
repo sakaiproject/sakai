@@ -24,11 +24,13 @@
 
 package org.sakaiproject.springframework.transaction.interceptor;
 
+import java.util.Properties;
+
+import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.beans.BeanUtils;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.interceptor.TransactionProxyFactoryBean;
-
-import java.util.Properties;
 
 /**
  * Created by IntelliJ IDEA.
@@ -37,6 +39,7 @@ import java.util.Properties;
  * Time: 11:35:01 AM
  * To change this template use File | Settings | File Templates.
  */
+@Slf4j
 public class ConstructedTransactionProxyFactoryBean extends TransactionProxyFactoryBean {
 
    private DynamicTargetSource dynamicTargetSource;
@@ -51,7 +54,7 @@ public class ConstructedTransactionProxyFactoryBean extends TransactionProxyFact
             new DynamicTargetSource(loadTarget(targetPrototype.getClass()));
          super.setTarget(dynamicTargetSource);
       } catch (ClassNotFoundException e) {
-         e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+         log.error(e.getMessage(), e);  //To change body of catch statement use File | Settings | File Templates.
       }
       setTransactionAttributes(transactionAttributes);
       init();

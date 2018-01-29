@@ -20,21 +20,19 @@ package org.sakaiproject.archive.impl;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Paths;
+
+import lombok.extern.slf4j.Slf4j;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
 import org.sakaiproject.archive.api.ArchiveService;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.entity.api.EntityManager;
 
+@Slf4j
 public class ArchiveService2Impl implements ArchiveService
 {
-	/** Our logger. */
-	private static Logger M_log = LoggerFactory.getLogger(ArchiveService2Impl.class);
-
 	/*******************************************************************************
 	* Dependencies and their setter methods
 	*******************************************************************************/
@@ -130,18 +128,18 @@ public class ArchiveService2Impl implements ArchiveService
             m_filteredSakaiRoles = filteredRoles;
         }
 		
-		M_log.info("init(): storage path: " + m_storagePath + ", unzip path: " + m_unzipPath + ", merge filter{services="+m_filterSakaiServices+", roles="+m_filterSakaiRoles+"}");
+		log.info("init(): storage path: " + m_storagePath + ", unzip path: " + m_unzipPath + ", merge filter{services="+m_filterSakaiServices+", roles="+m_filterSakaiRoles+"}");
 		if (!new File(m_storagePath).isDirectory()) {
-			M_log.warn("Failed to find directory {} please create or configure {}.", m_storagePath, "archive.storage.path");
+			log.warn("Failed to find directory {} please create or configure {}.", m_storagePath, "archive.storage.path");
 		}
 		if (!new File(m_unzipPath).isDirectory()) {
-			M_log.warn("Failed to find directory {} please create or configure {}.", m_unzipPath, "archive.unzip.path");
+			log.warn("Failed to find directory {} please create or configure {}.", m_unzipPath, "archive.unzip.path");
 		}
 
 	}
 
 	public void destroy() {
-		M_log.info("destroy()");
+		log.info("destroy()");
 	}
 
 	
@@ -181,7 +179,7 @@ public class ArchiveService2Impl implements ArchiveService
 				FileUtils.deleteDirectory(new File(m_unzipPath,folderName));
 			}
 		} catch (IOException e) {
-			M_log.error("Error merging from zip: " + e.getClass() + ":" + e.getMessage());
+			log.error("Error merging from zip: " + e.getClass() + ":" + e.getMessage());
 			return "Error merging from zip: " + e.getClass() + ":" + e.getMessage();
 		}
 	}

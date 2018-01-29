@@ -40,8 +40,10 @@ import java.util.Date;
 import java.util.List;
 import java.util.Stack;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.cover.EntityManager;
@@ -55,13 +57,10 @@ import org.sakaiproject.signup.model.SignupMeeting;
 import org.sakaiproject.signup.model.SignupTimeslot;
 import org.sakaiproject.signup.tool.jsf.attachment.AttachmentHandler;
 import org.sakaiproject.signup.tool.jsf.attachment.RemoveAttachment;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
 
+@Slf4j
 public class CopyFileProcessor extends AttachmentHandler{
-	
-	private static Logger log = LoggerFactory.getLogger(CopyFileProcessor.class);
-	
+
 	public CopyFileProcessor(SakaiFacade sakaiFacade, SignupMeetingService signupMeetingService){
 		setSakaiFacade(sakaiFacade);
 		setSignupMeetingService(signupMeetingService);

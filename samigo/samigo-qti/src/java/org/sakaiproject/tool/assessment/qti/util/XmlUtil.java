@@ -20,18 +20,18 @@
  **********************************************************************************/
 
 package org.sakaiproject.tool.assessment.qti.util;
+
+import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
 import java.io.FileInputStream;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
 import javax.servlet.ServletContext;
-
-import org.sakaiproject.component.cover.ComponentManager;
-import org.sakaiproject.util.api.FormattedText;
-import org.springframework.core.io.ClassPathResource;
-
 import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -45,18 +45,17 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMResult;
 import javax.xml.transform.dom.DOMSource;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
-import java.io.FileReader;
-import java.io.BufferedReader;
-import java.io.ByteArrayInputStream;
 
+import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.util.api.FormattedText;
+import org.springframework.core.io.ClassPathResource;
 
 /**
  * <p>Copyright: Copyright (c) 2005</p>
@@ -67,10 +66,9 @@ import java.io.ByteArrayInputStream;
  * @author Ed Smiley esmiley@stanford.edu
  * @version $Id$
  */
-
+@Slf4j
 public final class XmlUtil
 {
-  private static Logger log = LoggerFactory.getLogger(XmlUtil.class);
   private static String[] M_goodTags = "a,abbr,acronym,address,b,big,blockquote,br,center,cite,code,dd,del,dir,div,dl,dt,em,font,hr,h1,h2,h3,h4,h5,h6,i,ins,kbd,li,marquee,menu,nobr,noembed,ol,p,pre,q,rt,ruby,rbc,rb,rtc,rp,s,samp,small,span,strike,strong,sub,sup,tt,u,ul,var,xmp,img,embed,object,table,tr,td,th,tbody,caption,thead,tfoot,colgroup,col,param".split(",");
   private static Pattern[] M_goodTagsPatterns;
   private static Pattern[] M_goodCloseTagsPatterns;
@@ -629,7 +627,7 @@ public final class XmlUtil
     return domString;
   }
   
-  public static String processFormattedText(Logger log, String value) {
+  public static String processFormattedText(String value) {
       if (StringUtils.isEmpty(value)) {
           return value;
       }

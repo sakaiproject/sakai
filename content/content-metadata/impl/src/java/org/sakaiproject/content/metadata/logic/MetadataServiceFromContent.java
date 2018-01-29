@@ -26,8 +26,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.content.api.ContentHostingService;
@@ -42,10 +42,9 @@ import org.sakaiproject.tool.api.ToolManager;
 /**
  * @author Colin Hebert
  */
+@Slf4j
 public class MetadataServiceFromContent implements MetadataService
 {
-
-	private static Logger logger = LoggerFactory.getLogger(MetadataServiceFromContent.class);
 
 	protected final ContentHostingService contentHostingService;
 	protected final SecurityService securityService;
@@ -83,18 +82,18 @@ public class MetadataServiceFromContent implements MetadataService
 		}
 		catch (IdUnusedException e)
 		{
-			logger.debug("The metadata configuration file doesn't exist", e);
+			log.debug("The metadata configuration file doesn't exist", e);
 			return Collections.emptyList();
 		}
 		catch (TypeException e)
 		{
-			logger.debug("The metadata configuration file doesn't exist", e);
+			log.debug("The metadata configuration file doesn't exist", e);
 			return Collections.emptyList();
 		}
 		catch (Exception e)
 		{
 			//No exception coming from the file loading shall get out of this API !
-			logger.error(e.getMessage(), e);
+			log.error(e.getMessage(), e);
 			return Collections.emptyList();
 		}
 	}
@@ -113,16 +112,16 @@ public class MetadataServiceFromContent implements MetadataService
 		}
 		catch (IdUnusedException e)
 		{
-			logger.debug("The metadata configuration file doesn't exist", e);
+			log.debug("The metadata configuration file doesn't exist", e);
 		}
 		catch (TypeException e)
 		{
-			logger.debug("The metadata configuration file doesn't exist", e);
+			log.debug("The metadata configuration file doesn't exist", e);
 		}
 		catch (Exception e)
 		{
 			//No exception coming from the file loading shall get out of this API !
-			logger.error(e.getMessage(), e);
+			log.error(e.getMessage(), e);
 		}
 
 		return metadataTypes;

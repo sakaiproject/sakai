@@ -57,7 +57,7 @@ public class SplitEmailAddress {
     public static SplitEmailAddress parse(String address) {
         int atPos = address.indexOf('@');
         if (atPos < 1 || atPos == address.length() -1) {
-            throw new IllegalArgumentException("Can't find @ or it's at the start or end.");
+            throw new IllegalArgumentException("Can't find @ or it's at the start or end of: "+ address);
         }
         String local = address.substring(0, atPos);
         Matcher rfcMatcher = BATV_RFC.matcher(local);

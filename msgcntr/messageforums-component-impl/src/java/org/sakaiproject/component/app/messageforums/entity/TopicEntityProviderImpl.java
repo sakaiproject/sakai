@@ -23,6 +23,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.api.app.messageforums.Area;
 import org.sakaiproject.api.app.messageforums.Attachment;
 import org.sakaiproject.api.app.messageforums.DiscussionForum;
@@ -66,9 +68,8 @@ import org.sakaiproject.service.gradebook.shared.GradebookNotFoundException;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.util.ResourceLoader;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
+@Slf4j
 public class TopicEntityProviderImpl implements TopicEntityProvider,
 AutoRegisterEntityProvider, PropertyProvideable, RESTful, RequestStorable, RequestAware, ActionsExecutable {
 
@@ -78,7 +79,6 @@ AutoRegisterEntityProvider, PropertyProvideable, RESTful, RequestStorable, Reque
 	private MessageForumsTypeManager typeManager;
 	private PrivateMessageManager privateMessageManager;
 	private static final ResourceLoader rb = new ResourceLoader("org.sakaiproject.api.app.messagecenter.bundle.Messages");
-	private static final Logger LOG = LoggerFactory.getLogger(TopicEntityProviderImpl.class);
 	public static final String PVTMSG_MODE_DRAFT = "Drafts";
 	
 	private UserDirectoryService userDirectoryService;	
@@ -117,7 +117,7 @@ AutoRegisterEntityProvider, PropertyProvideable, RESTful, RequestStorable, Reque
 			topic = forumManager.getTopicById(new Long(id));
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			log.error(e.getMessage(), e);
 		}
 		return (topic != null);
 	}
@@ -393,9 +393,9 @@ AutoRegisterEntityProvider, PropertyProvideable, RESTful, RequestStorable, Reque
 				        }
 				    }
 				} catch (GradebookNotFoundException gnfe) {
-				    LOG.debug("No gradebook exists for site " + siteId + ". No gb item ids will be included.", gnfe);
+				    log.debug("No gradebook exists for site " + siteId + ". No gb item ids will be included.", gnfe);
 				} catch (Exception e) {
-				    LOG.debug("Exception attempting to retrieve gradebook information for site " + siteId + ". ", e);
+				    log.debug("Exception attempting to retrieve gradebook information for site " + siteId + ". ", e);
 				}
 
 				for (DiscussionForum forum : forums) {

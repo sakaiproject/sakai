@@ -25,7 +25,13 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
+import lombok.extern.slf4j.Slf4j;
+
 import org.hibernate.Query;
+
+import org.springframework.orm.hibernate4.HibernateCallback;
+import org.springframework.orm.hibernate4.support.HibernateDaoSupport;
+
 import org.sakaiproject.component.section.EnrollmentRecordImpl;
 import org.sakaiproject.component.section.InstructorRecordImpl;
 import org.sakaiproject.component.section.TeachingAssistantRecordImpl;
@@ -37,17 +43,12 @@ import org.sakaiproject.section.api.coursemanagement.ParticipationRecord;
 import org.sakaiproject.section.api.coursemanagement.User;
 import org.sakaiproject.section.api.exception.RoleConfigurationException;
 import org.sakaiproject.section.api.facade.Role;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.orm.hibernate4.HibernateCallback;
-import org.springframework.orm.hibernate4.support.HibernateDaoSupport;
 
 /**
  * Provides integration support using the standalone hibernate implementation.
  */
+@Slf4j
 public class IntegrationSupportImpl extends HibernateDaoSupport implements IntegrationSupport {
-	private static final Logger log = LoggerFactory.getLogger(IntegrationSupportImpl.class);
-	
 	private CourseManager courseManager;
 	private SectionManager sectionManager;
 	private UserManager userManager;
@@ -158,4 +159,3 @@ public class IntegrationSupportImpl extends HibernateDaoSupport implements Integ
 		this.userManager = userManager;
 	}
 }
-

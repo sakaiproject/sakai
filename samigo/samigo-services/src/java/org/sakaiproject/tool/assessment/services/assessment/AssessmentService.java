@@ -21,7 +21,6 @@
 
 package org.sakaiproject.tool.assessment.services.assessment;
 
-
 import java.net.URLDecoder;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -33,12 +32,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
+
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentResource;
+import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.InUseException;
 import org.sakaiproject.exception.PermissionException;
@@ -76,9 +78,6 @@ import org.sakaiproject.tool.assessment.services.ItemService;
 import org.sakaiproject.tool.assessment.services.PersistenceService;
 import org.sakaiproject.tool.assessment.services.QuestionPoolService;
 import org.sakaiproject.tool.cover.ToolManager;
-import org.sakaiproject.event.cover.EventTrackingService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * The AssessmentService calls the service locator to reach the manager on the
@@ -86,12 +85,11 @@ import org.slf4j.LoggerFactory;
  * 
  * @author Rachel Gollub <rgollub@stanford.edu>
  */
+@Slf4j
 public class AssessmentService {
-	private Logger log = LoggerFactory.getLogger(AssessmentService.class);
 	public static final int UPDATE_SUCCESS = 0;
 	public static final int UPDATE_ERROR_DRAW_SIZE_TOO_LARGE = 1;
 	private SecurityService securityService = ComponentManager.get(SecurityService.class);
-
 
 	/**
 	 * Creates a new QuestionPoolService object.
@@ -449,12 +447,11 @@ public class AssessmentService {
 					List poolIds = qpService.getPoolIdsByItem(item.getItemId()
 							.toString());
 					if (poolIds.size() == 0) {
-						// System.out.println("not in pool " + item.getItemId());
 						Long deleteId = item.getItemId();
 						itemService.deleteItem(deleteId, agentId);
 						EventTrackingService.post(EventTrackingService.newEvent(SamigoConstants.EVENT_ASSESSMENT_ITEM_DELETE, "/sam/" +AgentFacade.getCurrentSiteId() + "/removed itemId=" + deleteId, true));
 						itemIter.remove();
-					} // else System.out.println("in pool " + item.getItemId());
+					}
 				}
 				// need to reload
 				section = getSection(section.getSectionId().toString());
@@ -868,7 +865,7 @@ public class AssessmentService {
 		} catch (Exception e) {
 			log.warn("Could not copy resource " + resourceId + ", " + e.getMessage());
 		} finally{
-			securityService.popAdvisor();
+			securityService.popAdvisor(securityAdvisor);
 		}
 		return cr_copy;
 	}
@@ -988,7 +985,6 @@ public class AssessmentService {
 		}
 		catch (Exception e)
 		{
-		 Logger log = LoggerFactory.getLogger(AssessmentService.class);
 			log.warn("escapeResourceName: ", e);
 			return id;
 		}
@@ -1125,7 +1121,7 @@ public class AssessmentService {
 						log.error(e.getMessage());
 					}
 					finally{
-						securityService.popAdvisor();
+						securityService.popAdvisor(securityAdvisor);
 					}
 				}
 			}

@@ -34,15 +34,12 @@
                 .commons-link-dialog-row {
                     display: table-row;
                     padding-bottom: 5px;
-                }
-                    .commons-link-dialog-row div {
+                    div {
                         display: table-cell;
                         white-space: nowrap;
                         padding-right: 10px;
                     }
-                    .commons-link-dialog-row input {
-                        display: table-cell;
-                    }
+                }
             .commons-dialog-container button {
                 border-radius: 0px;
                 font-weight: bold;
@@ -235,7 +232,7 @@
     }
 
     #commons-single-post-title {
-        font-size: bigger;
+        font-size: larger;
         padding-top: 10px;
         font-weight: bold;
     }
@@ -244,4 +241,10 @@
         padding-left: 3px;
         padding-right: 3px;
     }
+}
+
+#commons-imagefile-instruction {
+    font-weight: bold;
+    font-size: larger;
+    margin-bottom: 5px;
 }

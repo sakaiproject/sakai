@@ -21,6 +21,8 @@
 
 package org.sakaiproject.poll.model;
 
+import java.text.DateFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -28,15 +30,16 @@ import java.util.Date;
 import java.util.List;
 import java.util.Stack;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.ResourceProperties;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import java.text.DateFormat;
-import java.text.ParseException;
 
+@Slf4j
 public class Poll implements Entity  {
 
     private static final long serialVersionUID = 2L;
@@ -167,7 +170,7 @@ public class Poll implements Entity  {
                 voteOpen = parsedDate;
             }
         } catch (ParseException e) {
-            e.printStackTrace();
+            log.error(e.getMessage(), e);
         }
     }
 
@@ -190,7 +193,7 @@ public class Poll implements Entity  {
                 voteClose = parsedDate;
             }
         } catch (ParseException e) {
-            e.printStackTrace();
+            log.error(e.getMessage(), e);
         }
     }
 
@@ -297,8 +300,6 @@ public class Poll implements Entity  {
 
     }
 
-
-
     public void setDetails(String value){
         this.description = value;
     }
@@ -352,7 +353,6 @@ public class Poll implements Entity  {
         return entityID;
     }
 
-
     public void setId(String s) {
         entityID = s;
     }
@@ -370,7 +370,6 @@ public class Poll implements Entity  {
         return null;
     }
 
-
     /* Constants used for conversion to and from XML */
     private static final String ID = "id";
     private static final String POLL_ID = "pollid";
@@ -385,7 +384,6 @@ public class Poll implements Entity  {
     private static DateFormat getDateFormatForXML() {
         return DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT);
     }
-
 
     public Element toXml(Document doc, Stack stack) {
         Element poll = doc.createElement("poll");
@@ -416,7 +414,6 @@ public class Poll implements Entity  {
         // properties
         //getProperties().toXml(doc, stack);
         //apppend the options as chidren
-
 
         stack.pop();
 

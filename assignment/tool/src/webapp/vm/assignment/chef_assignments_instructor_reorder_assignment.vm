@@ -1,8 +1,4 @@
-<!-- $Id$ -->
 <!-- start: chef_assignments_instructor_reorder_assignment.vm  -->
-##<!-- $Header: Exp $ -->
-## Assignments - reorder view
-
 <div class="portletBody container-fluid">
 	#if ($allowAddAssignment || ($withGrade && $!allowGradeSubmission))
 		## for user who cannot create assignment nor grade submission, no need to show "Assignment List" link at all since there is really no other toolbar choices
@@ -94,17 +90,17 @@
 					<input type="text" size="3" value="$count" id="index$count"/>
 					<input type="hidden"  size="3" id="holder$count"  value="$count" tabindex="-2"/>
 				</span>
-				<span class="title col-md-6 col-sm-6 col-xs-12" title="$validator.escapeHtml($!assignment.getTitle())">
-					#if ($!assignment.draft)
+				<span class="title col-md-6 col-sm-6 col-xs-12" title="$validator.escapeHtml($!assignment.Title)">
+					#if ($!assignment.Draft)
 						<em class="highlight" style="font-style:normal">$tlang.getString("gen.dra2")</em>
 					#end
-					$validator.escapeHtml($validator.limit($!assignment.getTitle(), 45))
+					$validator.escapeHtml($validator.limit($!assignment.Title, 45))
 				</span>
 				<span class="col-md-3 col-sm-3 col-xs-12">
-					$!assignment.openTime.toStringLocalFull()
+					$!service.getUsersLocalDateTimeString($!assignment.OpenDate)
 				</span>
 				<span class="col-md-3 col-sm-3 col-xs-12">
-					$!assignment.dueTime.toStringLocalFull()
+					$!service.getUsersLocalDateTimeString($!assignment.DueDate)
 					<select name="position_$validator.escapeUrl("$assignment.id")" class="selectSet">
 						#foreach($i in [1..$assignmentsize])
 						<option value="$i"#if("$i" == "$count") selected="selected"#end>$i</option>

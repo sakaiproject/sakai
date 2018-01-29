@@ -24,9 +24,8 @@ package org.sakaiproject.tool.assessment.integration.helper.integrated;
 import java.util.List;
 import java.util.Map;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringEscapeUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.apache.commons.math3.util.Precision;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService;
@@ -62,9 +61,9 @@ import org.sakaiproject.tool.cover.ToolManager;
  * <p> </p>
  * @author Ed Smiley <esmiley@stanford.edu>
  */
+@Slf4j
 public class GradebookServiceHelperImpl implements GradebookServiceHelper
 {
-  private Logger log = LoggerFactory.getLogger(GradebookServiceHelperImpl.class);
 
   /**
    * Does a gradebook exist?
@@ -127,7 +126,6 @@ public class GradebookServiceHelperImpl implements GradebookServiceHelper
 			site = SiteService.getSite(id);
 		} catch (IdUnusedException e) {
 			log.error(e.getMessage());
-			e.printStackTrace();
 		}
 		return site;
 	}
@@ -154,34 +152,9 @@ public void removeExternalAssessment(String gradebookUId,
     String gradebookUId = GradebookFacade.getGradebookUId();
     return g.isAssignmentDefined(gradebookUId, assessmentTitle);
   }
-
-  /**
-   * Add a published assessment to gradebook.
-   * @param publishedAssessment the published assessment
-   * @param g  the Gradebook Service
-   * @return false: cannot add to gradebook
-   * @throws java.lang.Exception
-   */
-  public boolean addToGradebook(PublishedAssessmentData publishedAssessment, Long categoryId, 
-		  GradebookExternalAssessmentService g) throws
-    Exception
+  
+  public String getAppName()
   {
-    //log.info("total point(s) is/are =" +
-    //          publishedAssessment.getTotalScore().longValue());
-    //log.info("gradebookId =" + GradebookFacade.getGradebookUId());
-    boolean added = false;
-    //log.info("GradebookService instance=" + g);
-    String gradebookUId = GradebookFacade.getGradebookUId();
-    if (gradebookUId == null)
-    {
-      return false;
-    }
-
-    //log.info("inside addToGradebook, gradebook exists? " +
-    //          g.isGradebookDefined(gradebookUId));
-    if (g.isGradebookDefined(gradebookUId))
-    {
-
       // Tool name code added by Josh Holtzman
       Tool tool = ToolManager.getTool("sakai.samigo");
       String appName = null;
@@ -197,7 +170,29 @@ public void removeExternalAssessment(String gradebookUId,
       {
         appName = tool.getTitle();
       }
+      return appName;
+  }
 
+  /**
+   * Add a published assessment to gradebook.
+   * @param publishedAssessment the published assessment
+   * @param g  the Gradebook Service
+   * @return false: cannot add to gradebook
+   * @throws java.lang.Exception
+   */
+  public boolean addToGradebook(PublishedAssessmentData publishedAssessment, Long categoryId, 
+		  GradebookExternalAssessmentService g) throws
+    Exception
+  {
+    boolean added = false;
+    String gradebookUId = GradebookFacade.getGradebookUId();
+    if (gradebookUId == null)
+    {
+      return false;
+    }
+
+    if (g.isGradebookDefined(gradebookUId))
+    {
       String title = StringEscapeUtils.unescapeHtml(publishedAssessment.getTitle());
       if(!g.isAssignmentDefined(gradebookUId, title))
       {
@@ -208,7 +203,7 @@ public void removeExternalAssessment(String gradebookUId,
                               publishedAssessment.getTotalScore().doubleValue(),
                               publishedAssessment.getAssessmentAccessControl().
                               getDueDate(),
-                              appName,	// Use the app name from sakai
+                              getAppName(),	// Use the app name from sakai
                               false,
                               categoryId); 
         added = true;
@@ -256,7 +251,6 @@ public void removeExternalAssessment(String gradebookUId,
     Exception
   {
     boolean testErrorHandling=false;
-    //log.info("GradebookService instance=" + g);
     PublishedAssessmentService pubService = new PublishedAssessmentService();
     GradingService gradingService = new GradingService();
 

@@ -33,11 +33,7 @@ public class ProcessedGradeItemDetail implements Serializable {
 
 	@Getter
 	@Setter
-	private String studentEid;
-
-	@Getter
-	@Setter
-	private String studentUuid;
+	private GbUser user;
 
 	@Getter
 	@Setter
@@ -46,5 +42,4 @@ public class ProcessedGradeItemDetail implements Serializable {
 	@Getter
 	@Setter
 	private String comment;
-
 }

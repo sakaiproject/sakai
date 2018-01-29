@@ -23,51 +23,45 @@
 
 package org.sakaiproject.lessonbuildertool.service;
 
+import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.BufferedInputStream;
+import java.net.SocketException;
 import java.net.URI;
 import java.net.URLDecoder;
-import java.util.Collection;
-import java.util.List;
+import java.text.SimpleDateFormat;
+import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.Locale;
 import java.util.StringTokenizer;
-import java.util.Vector;
 import java.util.TimeZone;
-import java.text.SimpleDateFormat;
-
-import org.apache.commons.io.IOUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.net.SocketException;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import java.util.Vector;
 
 import javax.crypto.Cipher;
 import javax.crypto.KeyGenerator;
-import javax.crypto.Mac;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.xml.bind.DatatypeConverter;
 
-import org.sakaiproject.content.api.ContentFilterService;
-import org.sakaiproject.memory.api.SimpleConfiguration;
-import org.sakaiproject.time.api.Time;
-import org.sakaiproject.time.cover.TimeService;
+import lombok.extern.slf4j.Slf4j;
+
+import org.apache.commons.io.IOUtils;
+
+import uk.org.ponder.messageutil.MessageLocator;
+
+import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityService;
-import org.sakaiproject.authz.api.SecurityAdvisor.SecurityAdvice;
-import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.content.api.ContentEntity;
+import org.sakaiproject.content.api.ContentFilterService;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentResource;
-import org.sakaiproject.content.api.ContentEntity;
-import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.entity.api.EntityAccessOverloadException;
 import org.sakaiproject.entity.api.EntityCopyrightException;
 import org.sakaiproject.entity.api.EntityNotDefinedException;
@@ -77,44 +71,41 @@ import org.sakaiproject.entity.api.HttpAccess;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.event.api.EventTrackingService;
+import org.sakaiproject.event.api.UsageSession;
+import org.sakaiproject.event.cover.UsageSessionService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.ServerOverloadException;
 import org.sakaiproject.exception.TypeException;
-import org.sakaiproject.lessonbuildertool.api.LessonBuilderEvents;
 import org.sakaiproject.lessonbuildertool.LessonBuilderAccessAPI;
+import org.sakaiproject.lessonbuildertool.SimplePage;
 import org.sakaiproject.lessonbuildertool.SimplePageItem;
 import org.sakaiproject.lessonbuildertool.SimplePageLogEntry;
 import org.sakaiproject.lessonbuildertool.SimplePageProperty;
-import org.sakaiproject.lessonbuildertool.SimplePage;
+import org.sakaiproject.lessonbuildertool.api.LessonBuilderEvents;
 import org.sakaiproject.lessonbuildertool.model.SimplePageToolDao;
 import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean;
 import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.MemoryService;
+import org.sakaiproject.memory.api.SimpleConfiguration;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.SessionManager;
-import org.sakaiproject.event.api.UsageSession;
-import org.sakaiproject.event.cover.UsageSessionService;
 import org.sakaiproject.tool.api.ToolManager;
-import org.sakaiproject.tool.api.Placement;
+import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.util.Validator;
 import org.sakaiproject.util.Web;
-import org.sakaiproject.id.cover.IdManager;
-import org.sakaiproject.tool.api.Session;
-
-import uk.org.ponder.messageutil.MessageLocator;
 
 /**
  * <p>
  * LessonBuilderAccessService implements /access/lessonbuilder
  * </p>
  */
+@Slf4j
 public class LessonBuilderAccessService {
 
 	public static final int CACHE_MAX_ENTRIES = 5000;
 	public static final int CACHE_TIME_TO_LIVE_SECONDS = 600;
 	public static final int CACHE_TIME_TO_IDLE_SECONDS = 360;
-	private static Logger M_log = LoggerFactory.getLogger(LessonBuilderAccessService.class);
 
 	public static final String ATTR_SESSION = "sakai.session";
    
@@ -230,9 +221,17 @@ public class LessonBuilderAccessService {
 	public static final String INLINEHTML = "lessonbuilder.inlinehtml";
 	private boolean inlineHtml = ServerConfigurationService.getBoolean(INLINEHTML, true);
 	public static final String USECSP = "lessonbuilder.use-csp-headers";
-	// if using separate content domain we don't need this protection
-	private boolean useCsp = ServerConfigurationService.getBoolean(USECSP, 
-				   !ServerConfigurationService.getBoolean("content.separateDomains", false));
+	public static final String USECSPSTUDENT = "lessonbuilder.use-csp-headers-for-student-content";
+
+	public static final String CSPHeadersDefault = "sandbox allow-forms allow-scripts allow-top-navigation allow-popups allow-pointer-lock allow-popups-to-escape-sandbox";
+	
+	//This will either be true/false or a list of headers
+	private String CSPHeaders = ServerConfigurationService.getString(USECSP, CSPHeadersDefault);
+	//Use the regular property as the default
+	private String CSPHeadersStudent = ServerConfigurationService.getString(USECSPSTUDENT, CSPHeaders);
+	
+	private boolean useCsp = true;
+	private boolean useCspStudent = true;
         
         protected static final String MIME_SEPARATOR = "SAKAI_MIME_BOUNDARY";
 
@@ -283,7 +282,7 @@ public class LessonBuilderAccessService {
 			prop = simplePageToolDao.makeProperty("accessCryptoKey", DatatypeConverter.printHexBinary(keyBytes));
 			simplePageToolDao.quickSaveItem(prop);
 		    } catch (Exception e) {
-			M_log.info("unable to init cipher for session " + e);
+			log.info("unable to init cipher for session " + e);
 			// in case of race condition, our save will fail, but we'll be able to get a value
 			// saved by someone else
 			simplePageToolDao.flush();
@@ -296,6 +295,38 @@ public class LessonBuilderAccessService {
 		    byte[] keyBytes = DatatypeConverter.parseHexBinary(keyString);
 		    sessionKey = new SecretKeySpec(keyBytes, "Blowfish");
 		}
+		
+		//Explicit true/false
+		if ("true".equals(CSPHeaders)) {
+			useCsp = true;
+			CSPHeaders = CSPHeadersDefault;
+		}
+		else if ("false".equals(CSPHeaders)) {
+			useCsp = false;
+			//No headers needed
+			CSPHeaders = "";
+		}
+		else {
+			//Custom headers but if using separate content domain we don't need this protection
+			useCsp = !ServerConfigurationService.getBoolean("content.separateDomains", false);
+		}
+
+		//For student content pages
+		//Explicit true/false
+		if ("true".equals(CSPHeadersStudent)) {
+			useCspStudent = true;
+			CSPHeadersStudent = CSPHeadersDefault;
+		}
+		else if ("false".equals(CSPHeadersStudent)) {
+			useCspStudent = false;
+			//No headers needed
+			CSPHeadersStudent = "";
+		}
+		else {
+			//Custom headers but if using separate content domain we don't need this protection
+			useCspStudent = useCsp;
+		}
+
 
 	}
 
@@ -379,7 +410,7 @@ public class LessonBuilderAccessService {
 					}
 
 				    } catch (Exception e) {
-					M_log.info("unable to decode lb.session " + e);
+					log.info("unable to decode lb.session " + e);
 				    }
 				}
 
@@ -425,6 +456,10 @@ public class LessonBuilderAccessService {
 					SimplePage currentPage = simplePageToolDao.getPage(item.getPageId());
 					String owner = currentPage.getOwner();  // if student content
 					String group = currentPage.getGroup();  // if student content
+					
+					//If owner != null or group != null it's a student page, if both null/either null it isn't
+					boolean studentcontent = (owner != null || group != null);
+
 					if (group != null)
 					    group = "/site/" + currentPage.getSiteId() + "/group/" + group;
 					String currentSiteId = currentPage.getSiteId();
@@ -639,10 +674,10 @@ public class LessonBuilderAccessService {
 						long lastModTime = 0;
 
 						try {
-							Time modTime = rp.getTimeProperty(ResourceProperties.PROP_MODIFIED_DATE);
-							lastModTime = modTime.getTime();
+							Instant modTime = rp.getInstantProperty(ResourceProperties.PROP_MODIFIED_DATE);
+							lastModTime = modTime.getEpochSecond();
 						} catch (Exception e1) {
-							M_log.info("Could not retrieve modified time for: " + resource.getId());
+							log.info("Could not retrieve modified time for: " + resource.getId());
 						}
 
 						// KNL-1316 tell the browser when our file was last modified for caching reasons
@@ -746,9 +781,13 @@ public class LessonBuilderAccessService {
 							
 							// note that by default inline is always set. If we have inline and dangerous (i.e. HTML or
 							// potentially HTML, we set security headers to provide some protection.
-							if (inline && dangerous && useCsp) {
-							    res.addHeader("Content-Security-Policy", "sandbox allow-forms allow-scripts allow-top-navigation allow-popups allow-pointer-lock");
-							    res.addHeader("X-Content-Security-Policy", "sandbox allow-forms allow-scripts allow-top-navigation allow-popups allow-pointer-lock");
+
+							//This differens if it's a student page or non-student page
+							if (studentcontent && inline && dangerous && useCspStudent) {
+							    res.addHeader("Content-Security-Policy", CSPHeadersStudent);
+							}
+							else if (!studentcontent && inline && dangerous && useCsp) {
+							    res.addHeader("Content-Security-Policy", CSPHeaders);
 							}
 
 							// NOTE: Only set the encoding on the content we have to.
@@ -793,8 +832,8 @@ public class LessonBuilderAccessService {
 						if (ServerConfigurationService.getBoolean("cloud.content.sendfile", false)) {
 							int hostLength = new String(directLinkUri.getScheme() + "://" + directLinkUri.getHost()).length();
 							String linkPath = "/sendfile" + directLinkUri.toString().substring(hostLength);
-							if (M_log.isDebugEnabled()) {
-								M_log.debug("X-Sendfile: " + linkPath);
+							if (log.isDebugEnabled()) {
+								log.debug("X-Sendfile: " + linkPath);
 							}
 
 							// Nginx uses X-Accel-Redirect and Apache and others use X-Sendfile
@@ -926,9 +965,9 @@ public class LessonBuilderAccessService {
 						catch (SocketException e)
 						{
 							//a socket exception usualy means the client aborted the connection or similar
-							if (M_log.isDebugEnabled())
+							if (log.isDebugEnabled())
 							{
-								M_log.debug("SocketExcetion", e);
+								log.debug("SocketExcetion", e);
 							}
 						}
 						catch (Exception ignore)
@@ -970,14 +1009,14 @@ public class LessonBuilderAccessService {
 						catch (SocketException e)
 						{
 							//a socket exception usualy means the client aborted the connection or similar
-							if (M_log.isDebugEnabled())
+							if (log.isDebugEnabled())
 							{
-								M_log.debug("SocketExcetion", e);
+								log.debug("SocketExcetion", e);
 							}
 						}
 						catch (Exception ignore)
 						{
-							M_log.error("Swallowing exception", ignore);
+							log.error("Swallowing exception", ignore);
 						}
 						finally
 						{
@@ -1366,12 +1405,12 @@ public class LessonBuilderAccessService {
         // check release dates, both resource and collection. assumes it is called with advisor in place
         // NOTE: does not enforce hidden
         protected boolean isAvailable(ContentEntity entity) {
-	    Time now = TimeService.newTime();
-	    Time releaseDate = entity.getReleaseDate();
-	    if (releaseDate != null && ! releaseDate.before(now))
+        Instant now = Instant.now();
+        Instant releaseDate = entity.getReleaseInstant();
+	    if (releaseDate != null && ! releaseDate.isBefore(now))
 		return false;
-	    Time retractDate = entity.getRetractDate();
-	    if (retractDate != null && ! retractDate.after(now))
+	    Instant retractDate = entity.getRetractInstant();
+	    if (retractDate != null && ! retractDate.isAfter(now))
 		return false;
 	    ContentEntity parent = (ContentEntity)entity.getContainingCollection();
 	    if (parent != null)

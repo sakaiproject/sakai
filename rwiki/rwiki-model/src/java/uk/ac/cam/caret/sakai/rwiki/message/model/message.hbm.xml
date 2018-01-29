@@ -5,11 +5,10 @@
       This represents a sessions presence on a wiki page. One record per session, ideally removed when the 
       session disappears, updated when the user moves from page to page
        -->
-      <class name="uk.ac.cam.caret.sakai.rwiki.message.model.PagePresenceImpl"
-          table="rwikipagepresence" >
-          <id name="id" unsaved-value="null" >
+      <class name="uk.ac.cam.caret.sakai.rwiki.message.model.PagePresenceImpl" table="rwikipagepresence" >
+          <id name="id" type="string" unsaved-value="null" >
               <column name="id" length="36" not-null="true"/>
-              <generator class="uuid.hex" />
+              <generator class="uuid2" />
           </id>
           <property name="sessionid" column="sessionid" index="irwikipp_sessionid" />
           <property name="user" column="userid" not-null="true" index="irwikipp_user" type="string" length="64" />
@@ -20,11 +19,10 @@
       <!-- 
       Preferences as an XML blob. One record per user, updated when the user wants to update
        -->
-      <class name="uk.ac.cam.caret.sakai.rwiki.message.model.PreferenceImpl"
-          table="rwikipreference" >
-          <id name="id" unsaved-value="null" >
+      <class name="uk.ac.cam.caret.sakai.rwiki.message.model.PreferenceImpl" table="rwikipreference" >
+          <id name="id" type="string" unsaved-value="null" >
               <column name="id" length="36" not-null="true"/>
-              <generator class="uuid.hex" />
+              <generator class="uuid2" />
           </id>
           <property name="userid" column="userid" not-null="true" index="irwikipr_userid" type="string" length="64" />
           <property name="lastseen" column="lastseen" type="timestamp" />
@@ -37,11 +35,10 @@
       Added as a user submits chats.
       These are kept
        -->
-      <class name="uk.ac.cam.caret.sakai.rwiki.message.model.RwikiMessageImpl"
-          table="rwikipagemessage" >
-          <id name="id" unsaved-value="null" >
+      <class name="uk.ac.cam.caret.sakai.rwiki.message.model.RwikiMessageImpl" table="rwikipagemessage" >
+          <id name="id" type="string" unsaved-value="null" >
               <column name="id" length="36" not-null="true"/>
-              <generator class="uuid.hex" />
+              <generator class="uuid2" />
           </id>
           <property name="sessionid" column="sessionid"  index="irwikipm_sessionid" />
           <property name="user" column="userid" not-null="true" index="irwikipm_user" type="string" length="64" />
@@ -51,11 +48,10 @@
           <property name="message" type="materialized_clob" />
       </class>
       
-      <class name="uk.ac.cam.caret.sakai.rwiki.message.model.RwikiTriggerImpl"
-          table="rwikipagetrigger" >
-          <id name="id" unsaved-value="null" >
+      <class name="uk.ac.cam.caret.sakai.rwiki.message.model.RwikiTriggerImpl" table="rwikipagetrigger" >
+          <id name="id" type="string" unsaved-value="null" >
               <column name="id" length="36" not-null="true"/>
-              <generator class="uuid.hex" />
+              <generator class="uuid2" />
           </id>
           <property name="user" column="userid" not-null="true" index="irwikipt_user" type="string" length="64" />
           <property name="pagespace" column="pagespace" type="string" index="irwikipt_pagespace" length="255"/>
@@ -63,7 +59,5 @@
           <property name="lastseen" column="lastseen" type="timestamp" />
           <property name="triggerspec" type="materialized_clob" />
       </class>
-      
-      
   </hibernate-mapping>
   

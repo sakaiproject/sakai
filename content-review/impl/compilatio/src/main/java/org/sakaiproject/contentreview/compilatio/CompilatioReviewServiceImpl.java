@@ -56,6 +56,7 @@ import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.time.Instant;
 import java.util.*;
 
 public class CompilatioReviewServiceImpl implements ContentReviewService {
@@ -397,8 +398,8 @@ public class CompilatioReviewServiceImpl implements ContentReviewService {
 				Assignment a = assignmentService.getAssignment(assignmentId);
 
 				if(NEW_ASSIGNMENT_REVIEW_SERVICE_REPORT_DUE.equals(a.getProperties().get(NEW_ASSIGNMENT_REVIEW_SERVICE_REPORT_RADIO))) {
-					Date dueDate = a.getDueDate();
-					if(dueDate.after(new Date())) {
+					Instant dueDate = a.getDueDate();
+					if(dueDate.isAfter(Instant.now())) {
 						log.debug("assignment due time not yet reached for item: " + currentItem.getId());
 						currentItem.setNextRetryTime(this.getNextRetryTime(0));
 						crqs.update(currentItem);
@@ -1023,5 +1024,18 @@ public class CompilatioReviewServiceImpl implements ContentReviewService {
 		crqs.update(currentItem);
 		
 		return true;
+	}
+
+	@Override
+	public ContentReviewItem getContentReviewItemByContentId(String contentId){
+		Optional<ContentReviewItem> cri = crqs.getQueuedItem(getProviderId(), contentId);
+		if(cri.isPresent()){
+			ContentReviewItem item = cri.get();
+
+			//Compilatio specific work would be here
+
+			return item;
+		}
+		return null;
 	}
 }

@@ -1,4 +1,3 @@
-<!-- $Id$ -->
 <!-- start: chef_assignments_tags_list.vm  -->
 <script type="text/javascript">
 	iframeId = '$iframeId';

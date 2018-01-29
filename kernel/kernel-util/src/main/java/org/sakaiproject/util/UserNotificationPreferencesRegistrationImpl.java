@@ -26,8 +26,8 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.user.api.UserNotificationPreferencesRegistration;
 import org.sakaiproject.user.api.UserNotificationPreferencesRegistrationService;
 
@@ -65,11 +65,10 @@ import org.sakaiproject.user.api.UserNotificationPreferencesRegistrationService;
  * @author chrismaurer
  *
  */
+@Slf4j
 public abstract class UserNotificationPreferencesRegistrationImpl implements UserNotificationPreferencesRegistration {
 
 	private UserNotificationPreferencesRegistrationService userNotificationPreferencesRegistrationService;
-
-	protected final Logger logger = LoggerFactory.getLogger(getClass());
 
 	private String sectionTitle = "";
 	private String sectionDescription = "";
@@ -420,7 +419,7 @@ public abstract class UserNotificationPreferencesRegistrationImpl implements Use
 	 * Init method which will go through all the properties that had bundle keys and look up the actual texts, then register the object.
 	 */
 	public void init() {
-		logger.info("UserPreferencesRegistrationImpl.init()");
+		log.info("UserPreferencesRegistrationImpl.init()");
 
 		Map<String, String> processedOptions = processOptionsMap(getRawOptions());
 		ResourceLoader loader = getLocalResourceLoader();

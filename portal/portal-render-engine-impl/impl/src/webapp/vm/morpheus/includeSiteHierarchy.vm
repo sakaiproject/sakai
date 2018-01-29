@@ -22,8 +22,8 @@
 
                 #set ($tabCountBread = $tabCountBread + 1)
                 <span class="Mrphs-hierarchy-item Mrphs-hierarchy--portalPwd Mrphs-hierarchy--$tabCountBread">
-                    <a href="${pwd.siteUrl}" title="${pwd.fullTitle}" class="Mrphs-breadCrumbs--link"><span class="Mrphs-breadCrumbs--title">
-                        #if ( ( ${tabDisplayLabel} == 2 ) && ( ${pwd.shortDescription} ) )${pwd.shortDescription}#else${pwd.siteTitle}#end
+                    <a href="${pwd.siteUrl}" title="${pwd.siteTitle}" class="Mrphs-breadCrumbs--link"><span class="Mrphs-breadCrumbs--title">
+                        #if ( ( ${tabDisplayLabel} == 2 ) && ( ${pwd.shortDescription} ) )${pwd.shortDescription}#else${pwd.siteTitleTrunc}#end
                     </span></a>
                 </span>
                 <span class="Mrphs-hierarchy--separator-$tabCountBread Mrphs-hierarchy--separator"><i class="fa fa-lg fa-angle-right" aria-hidden="true"></i></span>
@@ -34,8 +34,8 @@
         #foreach ( $pwd in $portalBreadCrumbs )
 
             #set ($tabCountBread = $tabCountBread + 1)
-            <a href="${pwd.siteUrl}" title="${pwd.fullTitle}" class="Mrphs-breadCrumbs--link"><span class="Mrphs-breadCrumbs--title">
-                #if ( ( ${tabDisplayLabel} == 2 ) && ( ${pwd.shortDescription} ) )${pwd.shortDescription}#else${pwd.siteTitle}#end
+            <a href="${pwd.siteUrl}" title="${pwd.siteTitle}" class="Mrphs-breadCrumbs--link"><span class="Mrphs-breadCrumbs--title">
+                #if ( ( ${tabDisplayLabel} == 2 ) && ( ${pwd.shortDescription} ) )${pwd.shortDescription}#else${pwd.siteTitleTrunc}#end
             </span></a>
             <span class="Mrphs-hierarchy--separator-$tabCountBread Mrphs-hierarchy--separator"><i class="fa fa-lg fa-angle-right"></i></span>
 

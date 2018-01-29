@@ -21,70 +21,68 @@
 
 package edu.indiana.lib.osid.component.id;
 
+import lombok.extern.slf4j.Slf4j;
+
+import org.osid.OsidContext;
+import org.osid.id.IdException;
+import org.osid.shared.SharedException;
+
 /**
  *
  * @inheritDoc
  *
  */
+@Slf4j
 public class IdManager implements org.osid.id.IdManager
 {
-	org.osid.OsidContext context = null;
+	OsidContext context = null;
 
 	java.util.Properties configuration = null;
 
-	public org.osid.OsidContext getOsidContext() throws org.osid.id.IdException
+	public OsidContext getOsidContext() throws IdException
 	{
 		return null;
 	}
 
-	public void assignOsidContext(org.osid.OsidContext context) throws org.osid.id.IdException
+	public void assignOsidContext(OsidContext context) throws IdException
 	{
 		// Nothing to see here folks
 	}
 
-	public void assignConfiguration(java.util.Properties configuration) throws org.osid.id.IdException
+	public void assignConfiguration(java.util.Properties configuration) throws IdException
 	{
 		// Nothing to see here folks
 	}
 
-	private void log(String entry) throws org.osid.id.IdException
-	{
-		System.out.println(entry);
-	}
-
-	public org.osid.shared.Id createId() throws org.osid.id.IdException
+	public org.osid.shared.Id createId() throws IdException
 	{
 		try
 		{
 			return new Id();
 		}
-		catch (org.osid.shared.SharedException sex)
+		catch (SharedException sex)
 		{
-			throw new org.osid.id.IdException(sex.getMessage());
+			throw new IdException(sex.getMessage());
 		}
 	}
 
-	public org.osid.shared.Id getId(String idString) throws org.osid.id.IdException
+	public org.osid.shared.Id getId(String idString) throws IdException
 	{
 		if (idString == null)
 		{
-			throw new org.osid.id.IdException(org.osid.id.IdException.NULL_ARGUMENT);
+			throw new IdException(IdException.NULL_ARGUMENT);
 		}
 		try
 		{
 			return new Id(idString);
 		}
-		catch (org.osid.shared.SharedException sex)
+		catch (SharedException sex)
 		{
-			throw new org.osid.id.IdException(sex.getMessage());
+			throw new IdException(sex.getMessage());
 		}
 	}
 
-	public void osidVersion_2_0() throws org.osid.id.IdException
+	public void osidVersion_2_0() throws IdException
 	{
 	}
 }
-
-/**************************************************************************************************************************************************************************************************************************************************************
- * $Footer: $
- *************************************************************************************************************************************************************************************************************************************************************/

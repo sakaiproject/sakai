@@ -25,10 +25,11 @@ import javax.sql.DataSource;
 import org.hibernate.SessionFactory;
 import org.hibernate.dialect.HSQLDialect;
 import org.hsqldb.jdbcDriver;
+import org.mockito.Mockito;
 import org.sakaiproject.announcement.api.AnnouncementService;
 import org.sakaiproject.api.app.scheduler.ScheduledInvocationManager;
-import org.sakaiproject.assignment.api.AssignmentPeerAssessmentService;
-import org.sakaiproject.assignment.taggable.api.AssignmentActivityProducer;
+import org.sakaiproject.api.app.scheduler.SchedulerManager;
+import org.sakaiproject.assignment.api.taggable.AssignmentActivityProducer;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.FunctionManager;
 import org.sakaiproject.authz.api.SecurityService;
@@ -41,6 +42,8 @@ import org.sakaiproject.email.api.EmailService;
 import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.entitybroker.DeveloperHelperService;
 import org.sakaiproject.event.api.EventTrackingService;
+import org.sakaiproject.event.api.LearningResourceStoreService;
+import org.sakaiproject.hibernate.AssignableUUIDGenerator;
 import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
@@ -48,9 +51,12 @@ import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.springframework.orm.hibernate.AdditionalHibernateMappings;
 import org.sakaiproject.taggable.api.TaggingManager;
 import org.sakaiproject.time.api.TimeService;
+import org.sakaiproject.time.api.UserTimeService;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.user.api.UserDirectoryService;
+import org.sakaiproject.util.api.FormattedText;
+import org.sakaiproject.util.api.LinkMigrationHelper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -82,6 +88,7 @@ public class AssignmentTestConfiguration {
         LocalSessionFactoryBuilder sfb = new LocalSessionFactoryBuilder(dataSource());
         hibernateMappings.processAdditionalMappings(sfb);
         sfb.addProperties(hibernateProperties());
+        sfb.getIdentifierGeneratorFactory().register("uuid2", AssignableUUIDGenerator.class);
         return sfb.buildSessionFactory();
     }
 
@@ -101,6 +108,8 @@ public class AssignmentTestConfiguration {
             {
                 setProperty(org.hibernate.cfg.Environment.DIALECT, environment.getProperty(org.hibernate.cfg.Environment.DIALECT, HSQLDialect.class.getName()));
                 setProperty(org.hibernate.cfg.Environment.HBM2DDL_AUTO, environment.getProperty(org.hibernate.cfg.Environment.HBM2DDL_AUTO));
+                setProperty(org.hibernate.cfg.Environment.ENABLE_LAZY_LOAD_NO_TRANS, environment.getProperty(org.hibernate.cfg.Environment.ENABLE_LAZY_LOAD_NO_TRANS, "true"));
+                setProperty(org.hibernate.cfg.Environment.CACHE_REGION_FACTORY, environment.getProperty(org.hibernate.cfg.Environment.CACHE_REGION_FACTORY));
             }
         };
     }
@@ -137,14 +146,9 @@ public class AssignmentTestConfiguration {
         return mock(AnnouncementService.class);
     }
 
-    @Bean(name = "org.sakaiproject.assignment.taggable.api.AssignmentActivityProducer")
+    @Bean(name = "org.sakaiproject.assignment.api.taggable.AssignmentActivityProducer")
     public AssignmentActivityProducer assignmentActivityProducer() {
         return mock(AssignmentActivityProducer.class);
-    }
-
-    @Bean(name = "org.sakaiproject.assignment.api.AssignmentPeerAssessmentService")
-    public AssignmentPeerAssessmentService assignmentPeerAssessmentService() {
-        return mock(AssignmentPeerAssessmentService.class);
     }
 
     @Bean(name = "org.sakaiproject.authz.api.AuthzGroupService")
@@ -175,6 +179,11 @@ public class AssignmentTestConfiguration {
     @Bean(name = "org.sakaiproject.email.api.EmailService")
     public EmailService emailService() {
         return mock(EmailService.class);
+    }
+
+    @Bean(name = "org.sakaiproject.util.api.FormattedText")
+    public FormattedText formattedText() {
+        return mock(FormattedText.class);
     }
 
     @Bean(name = "org.sakaiproject.authz.api.FunctionManager")
@@ -209,7 +218,10 @@ public class AssignmentTestConfiguration {
 
     @Bean(name = "org.sakaiproject.component.api.ServerConfigurationService")
     public ServerConfigurationService serverConfigurationService() {
-        return mock(ServerConfigurationService.class);
+        ServerConfigurationService scs = mock(ServerConfigurationService.class);
+        Mockito.when(scs.getBoolean("content.cleaner.filter.utf8", true)).thenReturn(Boolean.TRUE);
+        Mockito.when(scs.getString("content.cleaner.filter.utf8.replacement", "")).thenReturn("");
+        return scs;
     }
 
     @Bean(name = "org.sakaiproject.taggable.api.TaggingManager")
@@ -240,5 +252,25 @@ public class AssignmentTestConfiguration {
     @Bean(name = "org.sakaiproject.contentreview.service.ContentReviewService")
     public ContentReviewService contentReviewService() {
         return mock(ContentReviewService.class);
+    }
+
+    @Bean(name = "org.sakaiproject.event.api.LearningResourceStoreService")
+    public LearningResourceStoreService learningResourceStoreService() {
+        return mock(LearningResourceStoreService.class);
+    }
+
+    @Bean(name = "org.sakaiproject.util.api.LinkMigrationHelper")
+    public LinkMigrationHelper linkMigrationHelper() {
+        return mock(LinkMigrationHelper.class);
+    }
+
+    @Bean(name = "org.sakaiproject.time.api.UserTimeService")
+    public UserTimeService userTimeService() {
+        return mock(UserTimeService.class);
+    }
+
+    @Bean(name = "org.sakaiproject.api.app.scheduler.SchedulerManager")
+    public SchedulerManager schedulerManager() {
+        return mock(SchedulerManager.class);
     }
 }

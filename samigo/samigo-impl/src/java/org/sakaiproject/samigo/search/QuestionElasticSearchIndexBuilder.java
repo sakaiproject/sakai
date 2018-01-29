@@ -21,10 +21,20 @@
 
 package org.sakaiproject.samigo.search;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TimerTask;
+
 import com.google.common.collect.Maps;
+import lombok.extern.slf4j.Slf4j;
+import net.htmlparser.jericho.Source;
 import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.elasticsearch.action.bulk.BulkRequestBuilder;
 import org.elasticsearch.action.delete.DeleteRequestBuilder;
 import org.elasticsearch.action.delete.DeleteResponse;
@@ -41,6 +51,11 @@ import org.elasticsearch.index.query.BoolQueryBuilder;
 import static org.elasticsearch.index.query.FilterBuilders.missingFilter;
 import static org.elasticsearch.index.query.FilterBuilders.orFilter;
 import static org.elasticsearch.index.query.FilterBuilders.termFilter;
+import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
+import static org.elasticsearch.index.query.QueryBuilders.matchQuery;
+import static org.elasticsearch.index.query.QueryBuilders.termQuery;
+import static org.elasticsearch.index.query.QueryBuilders.termsQuery;
+import static org.elasticsearch.search.facet.FacetBuilders.termsFacet;
 import org.elasticsearch.action.admin.indices.validate.query.ValidateQueryRequest;
 import org.elasticsearch.action.admin.indices.validate.query.ValidateQueryResponse;
 import org.elasticsearch.action.admin.indices.validate.query.QueryExplanation;
@@ -53,6 +68,9 @@ import org.elasticsearch.index.query.QueryStringQueryBuilder;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.action.ActionFuture;
+import org.osid.shared.SharedException;
+import org.slf4j.Logger;
+
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.NotificationService;
 import org.sakaiproject.search.api.EntityContentProducer;
@@ -67,29 +85,9 @@ import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.QuestionPoolIteratorFacade;
 import org.sakaiproject.tool.assessment.services.QuestionPoolService;
 
-import org.osid.shared.SharedException;
-
-import net.htmlparser.jericho.Source;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TimerTask;
-
-import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
-import static org.elasticsearch.index.query.QueryBuilders.matchQuery;
-import static org.elasticsearch.index.query.QueryBuilders.termQuery;
-import static org.elasticsearch.index.query.QueryBuilders.termsQuery;
-import static org.elasticsearch.search.facet.FacetBuilders.termsFacet;
-
+@Slf4j
 public class QuestionElasticSearchIndexBuilder extends BaseElasticSearchIndexBuilder {
 
-    private static Logger log = LoggerFactory.getLogger(QuestionElasticSearchIndexBuilder.class);
     QuestionPoolService questionPoolService  = new QuestionPoolService();
     private SiteService siteService;
     protected String[] searchResultFieldNames;
@@ -97,8 +95,6 @@ public class QuestionElasticSearchIndexBuilder extends BaseElasticSearchIndexBui
     protected static final String SAKAI_DOC_TYPE = "question_doc";
     protected static final String ADD_RESOURCE_VALIDATION_KEY_ITEM = "questionId";
     protected static final String DELETE_RESOURCE_KEY_ITEM = "questionId";
-
-
 
     /**
      * set to true to force an index rebuild at startup time, defaults to false.  This is probably something
@@ -145,8 +141,6 @@ public class QuestionElasticSearchIndexBuilder extends BaseElasticSearchIndexBui
         }
     }
 
-
-
     /**
      * Called after all ES config has been processed but before the background scheduler has been set up
      * and before any index startup ops have been invoked ({@link #initializeIndex()}. I.e. this is a
@@ -162,7 +156,6 @@ public class QuestionElasticSearchIndexBuilder extends BaseElasticSearchIndexBui
     protected SearchRequestBuilder completeFindContentQueueRequestBuilder(SearchRequestBuilder searchRequestBuilder){
         return searchRequestBuilder;
     }
-
 
     @Override
     protected DeleteRequestBuilder completeDeleteRequestBuilder(DeleteRequestBuilder deleteRequestBuilder,

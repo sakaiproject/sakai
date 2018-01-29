@@ -37,9 +37,6 @@ import java.util.LinkedHashMap;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
 
-import org.apache.commons.logging.LogFactory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.DateTimeFormatterBuilder;
@@ -48,10 +45,7 @@ import org.joda.time.format.DateTimeFormatterBuilder;
 * <p>CalendarUtil is a bunch of utility methods added to a java Calendar object.</p>
 */
 public class CalendarUtil
-{	
-	/** Our logger. */
-	private static Logger M_log = LoggerFactory.getLogger(CalendarUtil.class);
-
+{
 	private Clock clock = Clock.systemDefaultZone();
 	
 	/** The calendar object this is based upon. */
@@ -114,6 +108,22 @@ public class CalendarUtil
 		this.clock = clock;
 		this.rb = rb;
 		m_calendar = getCalendarInstance();
+		initDates();
+	}
+
+	/**
+	 * Constructor for testing.
+	 */
+	public CalendarUtil(Calendar calendar, ResourceLoader rb)
+	{
+		this.rb = rb;
+		m_calendar = calendar;
+		initDates();
+	}
+
+	public CalendarUtil(ResourceLoader rb) {
+		Locale locale = rb.getLocale();
+		m_calendar = Calendar.getInstance(locale);
 		initDates();
 	}
 

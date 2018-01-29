@@ -21,17 +21,15 @@
 
 package org.sakaiproject.tool.assessment.ui.listener.author;
 
-import net.htmlparser.jericho.Source;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.tool.assessment.ui.bean.author.SearchQuestionBean;
-import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
-
 import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
 import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
+
+import net.htmlparser.jericho.Source;
+import org.sakaiproject.tool.assessment.ui.bean.author.SearchQuestionBean;
+import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 
 /**
  * <p>Title: SearchQuestionByText</p>
@@ -41,7 +39,6 @@ import javax.faces.event.ActionListener;
 
 public class SearchQuestionByText implements ActionListener
 {
-    private static Log log = LogFactory.getLog(SearchQuestionByText.class);
 
     /**
      * Simply cancel and return
@@ -50,10 +47,6 @@ public class SearchQuestionByText implements ActionListener
      */
     public void processAction(ActionEvent ae) throws AbortProcessingException
     {
-
-
-
-
 
         SearchQuestionBean searchQuestionBean= (SearchQuestionBean) ContextUtil.lookupBean("searchQuestionBean");
         searchQuestionBean.setLastSearchType("text");

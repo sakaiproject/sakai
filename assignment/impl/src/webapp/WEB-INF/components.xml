@@ -16,8 +16,8 @@
         <property name="announcementService" ref="org.sakaiproject.announcement.api.AnnouncementService"/>
         <property name="assignmentActivityProducer" ref="org.sakaiproject.assignment.taggable.api.AssignmentActivityProducer"/>
         <property name="assignmentEntityFactory" ref="org.sakaiproject.assignment.api.AssignmentEntity.factory"/>
-        <property name="assignmentPeerAssessmentService" ref="org.sakaiproject.assignment.api.AssignmentPeerAssessmentService"/>
         <property name="assignmentRepository" ref="org.sakaiproject.assignment.persistence.AssignmentRepository"/>
+        <property name="assignmentSupplementItemService" ref="org.sakaiproject.assignment.api.model.AssignmentSupplementItemService"/>
         <property name="authzGroupService" ref="org.sakaiproject.authz.api.AuthzGroupService"/>
         <property name="calendarService" ref="org.sakaiproject.calendar.api.CalendarService"/>
         <property name="candidateDetailProvider">
@@ -25,24 +25,33 @@
         </property>
         <property name="contentHostingService" ref="org.sakaiproject.content.api.ContentHostingService"/>
         <property name="contentReviewService" ref="org.sakaiproject.contentreview.service.ContentReviewService"/>
-        <property name="developerHelperService" ref="org.sakaiproject.entitybroker.DeveloperHelperService"/>
         <property name="digestService" ref="org.sakaiproject.email.api.DigestService"/>
         <property name="emailService" ref="org.sakaiproject.email.api.EmailService"/>
+        <property name="emailUtil" ref="org.sakaiproject.assignment.impl.EmailUtil"/>
         <property name="entityManager" ref="org.sakaiproject.entity.api.EntityManager"/>
         <property name="eventTrackingService" ref="org.sakaiproject.event.api.EventTrackingService"/>
+        <property name="formattedText" ref="org.sakaiproject.util.api.FormattedText"/>
         <property name="functionManager" ref="org.sakaiproject.authz.api.FunctionManager"/>
         <property name="gradebookExternalAssessmentService" ref="org_sakaiproject_service_gradebook_GradebookExternalAssessmentService"/>
         <property name="gradebookService" ref="org.sakaiproject.service.gradebook.GradebookService"/>
         <property name="gradeSheetExporter" ref="org.sakaiproject.assignment.impl.GradeSheetExporter"/>
+        <property name="learningResourceStoreService" ref="org.sakaiproject.event.api.LearningResourceStoreService"/>
+        <property name="linkMigrationHelper" ref="org.sakaiproject.util.api.LinkMigrationHelper"/>
         <property name="memoryService" ref="org.sakaiproject.memory.api.MemoryService"/>
+        <property name="resourceLoader" ref="org.sakaiproject.util.ResourceLoader.assignment"/>
         <property name="securityService" ref="org.sakaiproject.authz.api.SecurityService"/>
         <property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager"/>
         <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
         <property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
         <property name="taggingManager" ref="org.sakaiproject.taggable.api.TaggingManager"/>
-        <property name="timeService" ref="org.sakaiproject.time.api.TimeService"/>
         <property name="toolManager" ref="org.sakaiproject.tool.api.ToolManager"/>
         <property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService"/>
+        <property name="userTimeService" ref="org.sakaiproject.time.api.UserTimeService"/>
+    </bean>
+
+    <bean id="org.sakaiproject.util.ResourceLoader.assignment"
+          class="org.sakaiproject.util.ResourceLoader">
+        <constructor-arg value="assignment"/>
     </bean>
 
     <bean id="org.sakaiproject.assignment.api.AssignmentEntity"
@@ -58,16 +67,26 @@
         <property name="targetBeanName" value="org.sakaiproject.assignment.api.AssignmentEntity"/>
     </bean>
 
+    <bean id="org.sakaiproject.assignment.impl.EmailUtil"
+          class="org.sakaiproject.assignment.impl.EmailUtil">
+        <property name="assignmentService" ref="org.sakaiproject.assignment.api.AssignmentService"/>
+        <property name="developerHelperService" ref="org.sakaiproject.entitybroker.DeveloperHelperService"/>
+        <property name="entityManager" ref="org.sakaiproject.entity.api.EntityManager"/>
+        <property name="formattedText" ref="org.sakaiproject.util.api.FormattedText"/>
+        <property name="resourceLoader" ref="org.sakaiproject.util.ResourceLoader.assignment"/>
+        <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
+        <property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
+        <property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService"/>
+    </bean>
     <bean id="org.sakaiproject.assignment.impl.GradeSheetExporter"
           class="org.sakaiproject.assignment.impl.GradeSheetExporter">
         <property name="assignmentService" ref="org.sakaiproject.assignment.api.AssignmentService"/>
         <property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
-        <property name="timeService" ref="org.sakaiproject.time.api.TimeService"/>
         <property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService"/>
     </bean>
 
     <bean id="org.sakaiproject.assignment.taggable.api.AssignmentActivityProducer"
-          class="org.sakaiproject.assignment.taggable.impl.AssignmentActivityProducerImpl"
+          class="org.sakaiproject.assignment.impl.taggable.AssignmentActivityProducerImpl"
           init-method="init">
         <property name="assignmentService" ref="org.sakaiproject.assignment.api.AssignmentService"/>
         <property name="entityManager" ref="org.sakaiproject.entity.api.EntityManager"/>
@@ -101,7 +120,7 @@
     </bean>
 
     <bean id="org.sakaiproject.assignment.persistence.AssignmentRepository"
-          class="org.sakaiproject.assignment.persistence.AssignmentRepositoryImpl">
+          class="org.sakaiproject.assignment.impl.persistence.AssignmentRepositoryImpl">
         <property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
     </bean>
 
@@ -117,14 +136,11 @@
     </bean>
 
     <bean id="org.sakaiproject.assignment.impl.AssignmentSupplementItemServiceImpl"
-          class="org.sakaiproject.assignment.impl.AssignmentSupplementItemServiceImpl"
-          init-method="init" destroy-method="destroy">
+          class="org.sakaiproject.assignment.impl.AssignmentSupplementItemServiceImpl">
         <property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
         <property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService"/>
-        <property name="assignmentService" ref="org.sakaiproject.assignment.api.AssignmentService"/>
         <property name="authzGroupService" ref="org.sakaiproject.authz.api.AuthzGroupService"/>
         <property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
-        <property name="timeService" ref="org.sakaiproject.time.api.TimeService"/>
     </bean>
 
     <bean id="org.sakaiproject.assignment.impl.AssignmentGradeInfoProvider"
@@ -157,5 +173,31 @@
         <property name="assignmentService" ref="org.sakaiproject.assignment.api.AssignmentService"/>
         <property name="securityService" ref="org.sakaiproject.authz.api.SecurityService"/>
         <property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager"/>
+    </bean>
+
+    <bean id="org.sakaiproject.assignment.impl.conversion.api.AssignmentConversionService"
+          class="org.sakaiproject.assignment.impl.conversion.AssignmentConversionServiceImpl"
+          init-method="init">
+        <property name="assignmentRepository" ref="org.sakaiproject.assignment.persistence.AssignmentRepository"/>
+        <property name="dataProvider" ref="org.sakaiproject.assignment.api.conversion.AssignmentDataProvider"/>
+        <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
+    </bean>
+
+    <bean id="org.sakaiproject.assignment.api.conversion.AssignmentDataProvider"
+          class="org.sakaiproject.assignment.impl.conversion.AssignmentDataProvider11">
+        <property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
+    </bean>
+
+    <bean id="org.sakaiproject.assignment.impl.conversion.impl.Assignment12ConversionJob"
+          class="org.sakaiproject.assignment.impl.conversion.Assignment12ConversionJob">
+        <property name="assignmentConversionService" ref="org.sakaiproject.assignment.impl.conversion.api.AssignmentConversionService"/>
+    </bean>
+
+    <bean id="org.sakaiproject.assignment.impl.conversion.impl.Assignment12ConversionJob.jobWrapper"
+          class="org.sakaiproject.component.app.scheduler.jobs.SpringJobBeanWrapper"
+          init-method="init">
+        <property name="beanId" value="org.sakaiproject.assignment.impl.conversion.Assignment12ConversionJob"/>
+        <property name="jobName" value="Assignment 12 Conversion"/>
+        <property name="schedulerManager" ref="org.sakaiproject.api.app.scheduler.SchedulerManager"/>
     </bean>
 </beans>

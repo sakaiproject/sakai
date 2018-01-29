@@ -1,10 +1,6 @@
 /* tool-base.css  - base values - focus on positioning, margins, paddings 
-- all skins in a given instalation then can participate in these definitions 
-- and still style things differently in tool.css*/
-/*first pass at a printable sheet - essentially omitting from the print all controls,
-and reformatting info for the print media.
-If your institution is somehow heavy in Internet Explorer Win 5.5 users this will merit
-testing as this browser in some configurations will sometimes apply these definitions to the screen */
+- all skins can participate in these shared definitions 
+- and still style things differently in their skin*/
 @media print  {
    body {
 	font-size: 9pt !important;
@@ -418,6 +414,55 @@ h3 .breadCrumb{
 	font-size: .8em;
 }
 
+/* SECTION 5 INDENTING CLASSES:use these classes with <div> blocks to structure layout hierarchically.*/
+.indnt0,.tier0{
+	margin-left: 0;
+}
+
+.indnt1,.tier1{
+	margin-left: 1em;
+}
+
+.indnt2,.tier2{
+	margin-left: 2em;
+}
+
+.indnt3,.tier3{
+	margin-left: 3em;
+}
+
+.indnt4,.tier4{
+	margin-left: 4em;
+}
+
+.indnt5,.tier5{
+	margin-left: 5em;
+}
+
+.indnt6,.tier6{
+	margin-left: 6em;
+}
+
+.indnt7,.tier7{
+	margin-left: 7em;
+}
+
+.indnt8,.tier8{
+	margin-left: 8em;
+}
+
+.indnt9,.tier9{
+	margin-left: 9em;
+}
+
+.indnt10,.tier10{
+	margin-left: 10em;
+}
+
+.pad0{
+	padding-left: 0;
+}
+
 /*SECTION 7 DATA PANELS*/
 /*panels of normal text can have a header (ie - title) and a footer element (ie - metadata such as author, date, etc)*/
 /*see synoptic view of announcements*/
@@ -682,6 +727,10 @@ order to display them in the same cell they need to be wrapped in a h:panelGroup
 	display: inline-block;
 }
 
+.jsfFormTable td .shorttext label{
+	width: 17em;
+}
+
 .jsfFormTable td .required input {
 	margin-left: -.6em;
 }
@@ -854,7 +903,7 @@ ul.calendarLegend li{
     right:5px;
 }
 #flashNotif {
-    position:absolute;
+    position:fixed;
     top:45px;
     left:30%;
     right:30%;

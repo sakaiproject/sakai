@@ -19,36 +19,32 @@
  *
  **********************************************************************************/
 
-
-
 package org.sakaiproject.tool.assessment.ui.listener.author;
 
 import java.util.HashMap;
 import java.util.Iterator;
 
+import javax.faces.application.FacesMessage;
+import javax.faces.context.FacesContext;
 import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
 
-import javax.faces.application.FacesMessage;
-import javax.faces.context.FacesContext;
+import lombok.extern.slf4j.Slf4j;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentMetaData;
+import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import org.sakaiproject.tool.assessment.ui.bean.author.IndexBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.TemplateBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
-import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 
 /**
  * <p>Description: Action Listener to edit a new or existing template</p>
  */
-
+@Slf4j
 public class EditTemplateListener
     extends TemplateBaseListener implements ActionListener
 {
-  private static Logger log = LoggerFactory.getLogger(EditTemplateListener.class);
   /**
    * Standard processAction.
    * @param ae
@@ -56,12 +52,10 @@ public class EditTemplateListener
    */
   public void processAction(ActionEvent ae) throws AbortProcessingException
   {
-    //log.info("EDIT TEMPLATE LISTENER.");
 
     TemplateBean templateBean = (TemplateBean)ContextUtil.lookupBean("template");
     templateBean.setOutcome("newTemplate");
 
-    //log.info("Editing new template.");
     String tempName=templateBean.getNewName();
     AssessmentService assessmentService = new AssessmentService();
     //IndexBean templateIndex = (IndexBean) ContextUtil.lookupBean(                       "templateIndex");

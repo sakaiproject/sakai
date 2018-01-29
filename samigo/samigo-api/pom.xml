@@ -39,6 +39,10 @@
         <groupId>org.sakaiproject.kernel</groupId>
         <artifactId>sakai-kernel-api</artifactId>
       </dependency>
+      <dependency>
+        <groupId>org.sakaiproject.edu-services.sections</groupId>
+        <artifactId>sections-api</artifactId>
+      </dependency>
     </dependencies>
     
 	<build>

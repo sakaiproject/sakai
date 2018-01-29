@@ -33,8 +33,7 @@ import javax.faces.context.FacesContext;
 import javax.faces.model.SelectItem;
 import org.apache.commons.lang.StringUtils;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
 import org.sakaiproject.tool.assessment.facade.AssessmentTemplateFacade;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
@@ -49,9 +48,9 @@ import org.sakaiproject.component.cover.ServerConfigurationService;
  *
  * @version $Id$
  */
+@Slf4j
 public class AuthorBean implements Serializable
 {
-  private static Logger log = LoggerFactory.getLogger(AuthorBean.class);
 
   /** Use serialVersionUID for interoperability. */
   private final static long serialVersionUID = 4216587136245498157L;

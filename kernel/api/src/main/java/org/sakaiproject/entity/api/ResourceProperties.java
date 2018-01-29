@@ -22,6 +22,7 @@
 package org.sakaiproject.entity.api;
 
 import java.io.Serializable;
+import java.time.Instant;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
@@ -281,6 +282,15 @@ public interface ResourceProperties extends Serializable
 	 */
 	Time getTimeProperty(String name) throws EntityPropertyNotDefinedException, EntityPropertyTypeException;
 
+	/**
+	 * Access a named property as a Instant
+	 * @param name The property name.
+	 * @return the property value
+	 * @throws EntityPropertyNotDefinedException if not found
+	 * @throws EntityPropertyTypeException if the property is not a date 
+	 */
+	Instant getInstantProperty(String name) throws EntityPropertyNotDefinedException, EntityPropertyTypeException;
+	
 	/**
 	 * Access a named property as a Date
 	 * @param name The property name.

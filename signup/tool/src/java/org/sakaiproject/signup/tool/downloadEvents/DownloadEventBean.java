@@ -45,14 +45,13 @@ import javax.faces.context.FacesContext;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import au.com.bytecode.opencsv.CSVWriter;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.ss.usermodel.Workbook;
+
 import org.sakaiproject.signup.tool.jsf.SignupMeetingWrapper;
 import org.sakaiproject.signup.tool.jsf.SignupMeetingsBean;
 import org.sakaiproject.signup.tool.util.Utilities;
-
-import au.com.bytecode.opencsv.CSVWriter;
 
 /**
  * <p>
@@ -62,9 +61,8 @@ import au.com.bytecode.opencsv.CSVWriter;
  * @author Peter Liu
  * @author Steve Swinsburg (CSV export)
  */
+@Slf4j
 public class DownloadEventBean extends SignupMeetingsBean {
-
-	private static Logger log = LoggerFactory.getLogger(DownloadEventBean.class);
 
 	private static final String DOWNLOAD_ACT_URL = "downloadEvents";
 
@@ -72,7 +70,7 @@ public class DownloadEventBean extends SignupMeetingsBean {
 
 	private static final String FROM_ORGANIZER_EVENT_PAGE = "orgSignupMeeting";
 
-	private static final String DOWNLOAD_EVENT_DETAILS_XLS_FILE_NAME = "EventsWorksheet.xls";
+	private static final String DOWNLOAD_EVENT_DETAILS_XLS_FILE_NAME = "EventsWorksheet.xlsx";
 	
 	private static final String DOWNLOAD_EVENT_DETAILS_CSV_FILE_NAME = "EventsWorksheet.csv";
 	

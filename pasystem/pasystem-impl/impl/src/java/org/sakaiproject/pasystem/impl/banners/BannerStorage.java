@@ -31,6 +31,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.pasystem.api.Acknowledger;
 import org.sakaiproject.pasystem.api.AcknowledgementType;
@@ -43,15 +46,12 @@ import org.sakaiproject.pasystem.impl.common.DB;
 import org.sakaiproject.pasystem.impl.common.DBAction;
 import org.sakaiproject.pasystem.impl.common.DBConnection;
 import org.sakaiproject.pasystem.impl.common.DBResults;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Query and store Banner objects in the database.
  */
+@Slf4j
 public class BannerStorage implements Banners, Acknowledger {
-
-    private static final Logger LOG = LoggerFactory.getLogger(BannerStorage.class);
 
     @Override
     public List<Banner> getAll() {

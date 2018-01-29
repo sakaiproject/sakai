@@ -1,6 +1,4 @@
-<!-- $Id$ -->
 <!-- start: chef_assignments_instructor_student_list_submissions.vm  -->
-##<!-- $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/assignment/chef_assignments_instructor_student_list_submissions.vm,v 1.8 2005/05/28 03:04:35 ggolden.umich.edu Exp $ -->
 <div class="portletBody container-fluid">
 	#navBarHREF( $allowAddAssignment $withGrade $allowGradeSubmission $allowAddAssignment $allowAllGroups $assignmentscheck $allowUpdateSite $enableViewOption $view "" )
 
@@ -137,13 +135,15 @@
 							#set($assignments=false)
 							#set($assignments=$!studentAssignmentsTable.get($member))
 							#foreach ($assignment in $!assignments)
+								#set ($assignmentReference = $!service.assignmentReference($assignment.Id))
 								#set ($isAnon = $assignmentService.assignmentUsesAnonymousGrading($assignment))
 								#set ($deleted = false)
 								#set ($deleted = $assignment.getProperties().getProperty($assignment.getProperties().getNamePropAssignmentDeleted()))
 								#if (!$assignment.Draft && !$deleted.equalsIgnoreCase("true"))
 									## not show the draft assignment
 									#set($submission = false)
-									#set($submission = $assignmentService.getSubmission($assignment.Reference, $member))
+									#set($submission=$service.getSubmission($assignment.Id, $member))
+									#set($submissionReference=$service.submissionReference($assignment.Context, $submission.Id, $assignment.Id))
 									<tr>
 										<td headers="studentname">
 											&nbsp;
@@ -152,11 +152,11 @@
 											## SAK-27824
 											#if (!$isAnon)
 											<h5>
-												<a href="#toolLinkParam("AssignmentAction" "doGrade_submission" "assignmentId=$validator.escapeUrl($assignment.Reference)&submissionId=$validator.escapeUrl($submission.Reference)&option=lisofass2")" title="$validator.escapeHtml($assignment.Title)">$validator.limit($validator.escapeHtml($assignment.Title), 40)</a>
+												<a href="#toolLinkParam("AssignmentAction" "doGrade_submission" "assignmentId=$validator.escapeUrl($assignmentReference)&submissionId=$validator.escapeUrl($submissionReference)&option=lisofass2")" title="$validator.escapeHtml($assignment.Title)">$validator.limit($validator.escapeHtml($assignment.Title), 40)</a>
 												#if ($allowAddAssignment && $allowSubmitByInstructor)
-												#set( $submitSpinnerID = "submitFor_" + $member.Id + "_" + $validator.escapeUrl($assignment.Reference) )
+												#set( $submitSpinnerID = "submitFor_" + $member.Id + "_" + $validator.escapeUrl($assignmentReference) )
 												<div class="itemAction spinnerBesideContainer">
-													<a onclick="SPNR.insertSpinnerInPreallocated( this, null, '$submitSpinnerID' );" href="#toolLinkParam("AssignmentAction" "doView_submission" "assignmentReference=$validator.escapeUrl($assignment.Reference)&submitterId=$validator.escapeUrl($member.id)")">
+													<a onclick="SPNR.insertSpinnerInPreallocated( this, null, '$submitSpinnerID' );" href="#toolLinkParam("AssignmentAction" "doView_submission" "assignmentReference=$validator.escapeUrl($assignmentReference)&submitterId=$validator.escapeUrl($member.id)")">
 														$tlang.getString("submitforstudent")
 													</a>
 													<div id="$submitSpinnerID" class="allocatedSpinPlaceholder"></div>
@@ -170,18 +170,20 @@
 										<td headers="submitted">
 											#if ($!submission.submitted)
 												#if (!$isAnon)
-													$!submission.TimeSubmitted.toStringLocalFull()
-													#if ($submission.getTimeSubmitted().after($assignment.DueTime))<span class="highlight">$tlang.getString("gen.late2")</span>
+													#if ($!submission.DateSubmitted)
+														$!service.getUsersLocalDateTimeString($!submission.DateSubmitted)
+														#if ($submission.DateSubmitted.isAfter($assignment.DueDate))<span class="highlight">$tlang.getString("gen.late2")</span>
+														#end
 													#end
 													#set ($submitterId = false)
-													#set ($submitterId = $!submission.getProperties().getProperty("submitted_user_id"))
+													#set ($submitterId = $!submission.Properties.get("submitted_user_id"))
 													#if ($!submitterId)
 														<br />$tlang.getString("listsub.submitted.by") $userService.getUser($submitterId).getDisplayName()
 														#if( $member.getDisplayId() != $submitterId )
 															($tlang.getString("listsub.submitted.on.behalf") $validator.escapeHtml($member.sortName))
 														#end
 													#end
-												#elseif ($!submission.TimeSubmitted.toStringLocalFull())
+												#elseif ($!submission.DateSubmitted)
 													$tlang.getString("gen.subm4") $tlang.getString("submitted.date.redacted")
 												#end
 											#end
@@ -189,17 +191,17 @@
 										</td>
 										<td headers="status">
 											#if ($!submission)
-												$submission.getStatus()
+												$!service.getSubmissionStatus($submission.Id)
 											#end
 											&nbsp;
 										</td>
 										#if ($withGrade)
 											<td headers="grade">
-													#if ($assignment.getContent().TypeOfGrade == 1)
+													#if ($assignment.TypeOfGrade.ordinal() == 1)
 														$tlang.getString("gen.nograd")
 													#else
 														#if ($assignment.isGroup())
-															#if(($assignment.getProperties().getProperty("prop_new_assignment_add_to_gradebook").trim()) && ($assignment.getContent().TypeOfGrade == 3))
+															#if(($assignment.getProperties().getProperty("prop_new_assignment_add_to_gradebook").trim()) && ($assignment.TypeOfGrade == 3))
 																#if ($submission.getGradeForUserInGradeBook($!member.getId()))
 																	$!submission.getGradeForUserInGradeBook($!member.getId()) <abbr title="Group Grades">($!submission.gradeDisplay)</abbr>
 																#else

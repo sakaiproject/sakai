@@ -28,8 +28,8 @@ import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.api.app.messageforums.AnonymousManager;
 import org.sakaiproject.api.app.messageforums.Attachment;
 import org.sakaiproject.api.app.messageforums.BaseForum;
@@ -43,10 +43,9 @@ import org.sakaiproject.component.app.messageforums.dao.hibernate.util.comparato
 import org.sakaiproject.component.app.messageforums.dao.hibernate.util.comparator.MessageByCreatedDateDesc;
 import org.sakaiproject.component.cover.ComponentManager;
 
+@Slf4j
 public abstract class TopicImpl extends MutableEntityImpl implements Topic {
 
-    private static final Logger LOG = LoggerFactory.getLogger(TopicImpl.class);
-    
     private String title;
     private String shortDescription;
     private String extendedDescription;
@@ -264,8 +263,8 @@ public abstract class TopicImpl extends MutableEntityImpl implements Topic {
     ////////////////////////////////////////////////////////////////////////
     
     public void addMessage(Message message) {
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("addForum(message " + message + ")");
+        if (log.isDebugEnabled()) {
+            log.debug("addForum(message " + message + ")");
         }
         
         if (message == null) {
@@ -280,8 +279,8 @@ public abstract class TopicImpl extends MutableEntityImpl implements Topic {
     }
 
     public void removeMessage(Message message) {
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("removeForum(message " + message + ")");
+        if (log.isDebugEnabled()) {
+            log.debug("removeForum(message " + message + ")");
         }
         
         if (message == null) {
@@ -294,8 +293,8 @@ public abstract class TopicImpl extends MutableEntityImpl implements Topic {
     }
    
     public void addAttachment(Attachment attachment) {
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("addAttachment(Attachment " + attachment + ")");
+        if (log.isDebugEnabled()) {
+            log.debug("addAttachment(Attachment " + attachment + ")");
         }
         
         if (attachment == null) {
@@ -310,8 +309,8 @@ public abstract class TopicImpl extends MutableEntityImpl implements Topic {
     }
 
     public void removeAttachment(Attachment attachment) {
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("removeAttachment(Attachment " + attachment + ")");
+        if (log.isDebugEnabled()) {
+            log.debug("removeAttachment(Attachment " + attachment + ")");
         }
         
         if (attachment == null) {
@@ -323,8 +322,8 @@ public abstract class TopicImpl extends MutableEntityImpl implements Topic {
     }
     
     public void addMembershipItem(DBMembershipItem item) {
-      if (LOG.isDebugEnabled()) {
-          LOG.debug("addMembershipItem(item " + item + ")");
+      if (log.isDebugEnabled()) {
+          log.debug("addMembershipItem(item " + item + ")");
       }
       
       if (item == null) {
@@ -338,8 +337,8 @@ public abstract class TopicImpl extends MutableEntityImpl implements Topic {
   }
 
     public void removeMembershipItem(DBMembershipItem item) {
-      if (LOG.isDebugEnabled()) {
-          LOG.debug("removeMembershipItem(item " + item + ")");
+      if (log.isDebugEnabled()) {
+          log.debug("removeMembershipItem(item " + item + ")");
       }
       
       if (item == null) {

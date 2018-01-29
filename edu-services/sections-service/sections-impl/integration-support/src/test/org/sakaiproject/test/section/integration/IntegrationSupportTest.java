@@ -25,17 +25,17 @@ import java.util.Set;
 
 import org.junit.Assert;
 import org.junit.Test;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.AbstractTransactionalJUnit4SpringContextTests;
+
 import org.sakaiproject.component.section.support.IntegrationSupport;
 import org.sakaiproject.section.api.coursemanagement.Course;
 import org.sakaiproject.section.api.coursemanagement.CourseSection;
 import org.sakaiproject.section.api.coursemanagement.ParticipationRecord;
 import org.sakaiproject.section.api.coursemanagement.User;
 import org.sakaiproject.section.api.facade.Role;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.AbstractTransactionalJUnit4SpringContextTests;
 
 @ContextConfiguration(locations = { 
 		"classpath:org/sakaiproject/component/section/spring-beans.xml",
@@ -45,16 +45,15 @@ import org.springframework.test.context.junit4.AbstractTransactionalJUnit4Spring
 		"classpath:org/sakaiproject/component/section/support/spring-integrationSupport.xml"
 	})
 public class IntegrationSupportTest extends AbstractTransactionalJUnit4SpringContextTests {
-	private static final Logger log = LoggerFactory.getLogger(IntegrationSupportTest.class);
 	private static String SITE_1 = "site_1";
 	private static String USER_1 = "integration_user_1";
 	private static String USER_2 = "integration_user_2";
 
 	@Autowired
-    private IntegrationSupport integrationSupport;
+	private IntegrationSupport integrationSupport;
 	
 	@Test
-    public void testIntegrationSupport() throws Exception {
+	public void testIntegrationSupport() throws Exception {
 	
 		User user1 = integrationSupport.createUser(USER_1, "User One", "One, User", "user1");
 		Assert.assertNotNull(user1);
@@ -74,32 +73,32 @@ public class IntegrationSupportTest extends AbstractTransactionalJUnit4SpringCon
 		ParticipationRecord membershipUser2 = integrationSupport.addSiteMembership(USER_2, SITE_1, Role.STUDENT);
 		Assert.assertNotNull(membershipUser2);
 
-    	ParticipationRecord sectionMembership1 = integrationSupport.addSectionMembership(USER_2, section1.getUuid(), Role.STUDENT);
+		ParticipationRecord sectionMembership1 = integrationSupport.addSectionMembership(USER_2, section1.getUuid(), Role.STUDENT);
 		
 		// user
-    	User foundUser1 = integrationSupport.findUser(USER_1);
-    	Assert.assertEquals(user1, foundUser1);
+		User foundUser1 = integrationSupport.findUser(USER_1);
+		Assert.assertEquals(user1, foundUser1);
 
-    	User foundUser2 = integrationSupport.findUser(USER_2);
-    	Assert.assertEquals(user2, foundUser2);
+		User foundUser2 = integrationSupport.findUser(USER_2);
+		Assert.assertEquals(user2, foundUser2);
     	
-    	// membership
-    	List siteMembershipUser1 = integrationSupport.getAllSiteMemberships(USER_1);
-    	Assert.assertTrue(siteMembershipUser1.contains(membershipUser1));
+		// membership
+		List siteMembershipUser1 = integrationSupport.getAllSiteMemberships(USER_1);
+		Assert.assertTrue(siteMembershipUser1.contains(membershipUser1));
     	
-    	List siteMembershipUser2 = integrationSupport.getAllSiteMemberships(USER_2);
-    	Assert.assertTrue(siteMembershipUser2.contains(membershipUser2));
+		List siteMembershipUser2 = integrationSupport.getAllSiteMemberships(USER_2);
+		Assert.assertTrue(siteMembershipUser2.contains(membershipUser2));
     	
-    	Set sectionMembershipUser2 = integrationSupport.getAllSectionMemberships(USER_2, SITE_1);
-    	Assert.assertTrue(sectionMembershipUser2.contains(sectionMembership1));
+		Set sectionMembershipUser2 = integrationSupport.getAllSectionMemberships(USER_2, SITE_1);
+		Assert.assertTrue(sectionMembershipUser2.contains(sectionMembership1));
     	
-    	// Remove the user from the section, and ensure that the query no longer returns the enrollment
-    	integrationSupport.removeSectionMembership(USER_2, section1.getUuid());
-    	sectionMembershipUser2 = integrationSupport.getAllSectionMemberships(USER_2, SITE_1);
-    	Assert.assertEquals(sectionMembershipUser2.size(), 0);
+		// Remove the user from the section, and ensure that the query no longer returns the enrollment
+		integrationSupport.removeSectionMembership(USER_2, section1.getUuid());
+		sectionMembershipUser2 = integrationSupport.getAllSectionMemberships(USER_2, SITE_1);
+		Assert.assertEquals(sectionMembershipUser2.size(), 0);
     	
-    	integrationSupport.removeSiteMembership(USER_2, SITE_1);
-    	siteMembershipUser2 = integrationSupport.getAllSiteMemberships(USER_2);
-    	Assert.assertEquals(siteMembershipUser2.size(), 0);
+		integrationSupport.removeSiteMembership(USER_2, SITE_1);
+		siteMembershipUser2 = integrationSupport.getAllSiteMemberships(USER_2);
+		Assert.assertEquals(siteMembershipUser2.size(), 0);
     }
 }

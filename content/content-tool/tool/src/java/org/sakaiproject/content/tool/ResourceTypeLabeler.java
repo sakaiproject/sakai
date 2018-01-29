@@ -21,11 +21,14 @@
 
 package org.sakaiproject.content.tool;
 
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.content.api.ResourceToolAction;
 import org.sakaiproject.content.api.ResourceType;
 import org.sakaiproject.content.api.ResourceTypeRegistry;
 
+@Slf4j
 public class ResourceTypeLabeler
 {
 	public String getLabel(ResourceToolAction action)
@@ -33,7 +36,7 @@ public class ResourceTypeLabeler
 		String label = null;
 		if(action == null)
 		{
-			ResourcesAction.logger.info("Null action passed to labeler ");
+			log.info("Null action passed to labeler ");
 			label = "";
 		}
 		else
@@ -51,7 +54,7 @@ public class ResourceTypeLabeler
 					label = ResourcesAction.trb.getString("create.folder");
 					break;
 				case NEW_URLS:
-					label = ResourcesAction.trb.getString("create.url");
+					label = ResourcesAction.trb.getString("create.urls");
 					break;
 				case CREATE:
 					ResourceTypeRegistry registry = (ResourceTypeRegistry) ComponentManager.get("org.sakaiproject.content.api.ResourceTypeRegistry");
@@ -99,7 +102,7 @@ public class ResourceTypeLabeler
 					label = ResourcesAction.trb.getString("action.makesitepage");
 					break;
 				default:
-					ResourcesAction.logger.info("No label provided for ResourceToolAction: " + action.getTypeId() + ResourceToolAction.ACTION_DELIMITER + action.getId());
+					log.info("No label provided for ResourceToolAction: " + action.getTypeId() + ResourceToolAction.ACTION_DELIMITER + action.getId());
 					label = action.getId();
 					break;
 			}

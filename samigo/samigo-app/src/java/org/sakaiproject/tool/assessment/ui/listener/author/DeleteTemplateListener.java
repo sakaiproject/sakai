@@ -19,23 +19,21 @@
  *
  **********************************************************************************/
 
-
-
 package org.sakaiproject.tool.assessment.ui.listener.author;
 
 import java.util.List;
-
-import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentTemplateData;
-import org.sakaiproject.tool.assessment.facade.AssessmentTemplateFacade;
-import org.sakaiproject.tool.assessment.ui.listener.author.TemplateListener;
 
 import javax.faces.context.FacesContext;
 import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
 
-import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
+import lombok.extern.slf4j.Slf4j;
 
+import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentTemplateData;
+import org.sakaiproject.tool.assessment.facade.AssessmentTemplateFacade;
+import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
+import org.sakaiproject.tool.assessment.ui.listener.author.TemplateListener;
 
 /**
  * <p>Description: Action Listener for deletion of template.</p>
@@ -44,20 +42,15 @@ import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
  * @author Ed Smiley
  * @version $Id$
  */
-
+@Slf4j
 public class DeleteTemplateListener extends TemplateBaseListener implements ActionListener
 {
   //boolean isTemplate = true;
-  //private static Logger log = LoggerFactory.getLogger(DeleteTemplateListener.class);
 
   public void processAction(ActionEvent ae) throws AbortProcessingException
   {
     FacesContext context = FacesContext.getCurrentInstance();
 
-    //log.info("DELETE TEMPLATE LISTENER.");
-//    log.info("debugging ActionEvent: " + ae);
-//    log.info("debug requestParams: " + requestParams);
-//    log.info("debug reqMap: " + reqMap);
     String deleteId = this.lookupTemplateBean(context).getIdString();
     if(!deleteTemplate(deleteId))
     {
@@ -78,7 +71,6 @@ public class DeleteTemplateListener extends TemplateBaseListener implements Acti
    */
   public boolean deleteTemplate(String deleteId)
   {
-    //log.info("deleteTemplate (" + deleteId + ")");
 
     try
     {
@@ -98,8 +90,7 @@ public class DeleteTemplateListener extends TemplateBaseListener implements Acti
     }
     catch(Exception e)
     {
-      e.printStackTrace();
-
+      log.error(e.getMessage(), e);
       return false;
     }
   }

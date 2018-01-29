@@ -32,65 +32,50 @@ package org.sakaiproject.lessonbuildertool.ccexport;
  * limitations under the License.
  */
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
 import java.io.OutputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.PrintWriter;
 import java.io.PrintStream;
-import java.io.FileOutputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Map;
-import java.util.HashMap;
-import java.util.List;
-import java.util.ArrayList;
-import java.util.Set;
-import java.util.HashSet;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipOutputStream;
-import java.util.regex.Pattern;
-import java.util.regex.Matcher;
 import java.net.URLDecoder;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.zip.ZipEntry;
+
 import javax.servlet.http.HttpServletResponse;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import lombok.extern.slf4j.Slf4j;
+
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringEscapeUtils;
+
+import uk.org.ponder.messageutil.MessageLocator;
+
+import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentCollection;
 import org.sakaiproject.content.api.ContentEntity;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.entity.api.ResourceProperties;
-import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.lessonbuildertool.SimplePageItem;
+import org.sakaiproject.lessonbuildertool.model.SimplePageToolDao;
+import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean;
+import org.sakaiproject.lessonbuildertool.tool.view.ExportCCViewParameters;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.cover.SiteService;
-
-import org.sakaiproject.lessonbuildertool.SimplePageItem;
-import org.sakaiproject.lessonbuildertool.ccexport.SamigoExport;
-import org.sakaiproject.lessonbuildertool.ccexport.AssignmentExport;
-import org.sakaiproject.lessonbuildertool.ccexport.ForumsExport;
-import org.sakaiproject.lessonbuildertool.ccexport.ZipPrintStream;
-import org.sakaiproject.lessonbuildertool.model.SimplePageToolDao;
-import org.sakaiproject.lessonbuildertool.tool.view.ExportCCViewParameters;
-import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean;
-
-import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.tool.api.ToolSession;
-import org.sakaiproject.tool.api.Placement;
 import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.tool.cover.ToolManager;
 
-import uk.org.ponder.messageutil.MessageLocator;
-import uk.org.ponder.rsf.viewstate.ViewParameters;
-
+@Slf4j
 public class CCExport {
-
-    private static Logger log = LoggerFactory.getLogger(CCExport.class);
-
     private File root;
     private String rootPath;
     long nextid = 1;
@@ -547,7 +532,6 @@ public class CCExport {
 	} catch (Exception e) {
 	    log.error("output sam " + e);
 	    setErrKey("simplepage.exportcc-fileerr", e.getMessage());
-	    e.printStackTrace();
 	    return false;
 	}
 

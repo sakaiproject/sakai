@@ -21,9 +21,17 @@
 
 package org.sakaiproject.event.impl;
 
+import java.util.*;
+
+import lombok.extern.slf4j.Slf4j;
+
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+
 import org.sakaiproject.component.api.ComponentManager;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.entity.api.Edit;
@@ -39,23 +47,15 @@ import org.sakaiproject.tool.api.SessionBindingEvent;
 import org.sakaiproject.tool.api.SessionBindingListener;
 import org.sakaiproject.util.BaseResourcePropertiesEdit;
 import org.sakaiproject.util.SingleStorageUser;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-
-import java.util.*;
 
 /**
  * <p>
  * BaseNotificationService ...
  * </p>
  */
+@Slf4j
 public abstract class BaseNotificationService implements NotificationService, Observer, SingleStorageUser, CacheRefresher
 {
-	/** Our logger. */
-	private static Logger M_log = LoggerFactory.getLogger(BaseNotificationService.class);
-
 	/** Storage manager for this service. */
 	protected Storage m_storage = null;
 
@@ -181,7 +181,7 @@ public abstract class BaseNotificationService implements NotificationService, Ob
 	 */
 	public void setEmailToReplyable(boolean value)
 	{
-        M_log.warn("Use of this setter (emailToReplyable) is deprecated: use notify.email.to.replyable instead");
+        log.warn("Use of this setter (emailToReplyable) is deprecated: use notify.email.to.replyable instead");
 		m_emailsToReplyable = value;
 	}
 
@@ -193,7 +193,7 @@ public abstract class BaseNotificationService implements NotificationService, Ob
 	 */
 	public void setEmailFromReplyable(boolean value)
 	{
-	    M_log.warn("Use of this setter (emailFromReplyable) is deprecated: use notify.email.from.replyable instead");
+	    log.warn("Use of this setter (emailFromReplyable) is deprecated: use notify.email.from.replyable instead");
 		m_emailsFromReplyable = value;
 	}
 
@@ -213,7 +213,7 @@ public abstract class BaseNotificationService implements NotificationService, Ob
 
 			m_relativeAccessPoint = REFERENCE_ROOT;
 
-			M_log.info(this + ".init() started");
+			log.info(this + ".init() started");
 
 			// construct storage and read
 			m_storage = newStorage();
@@ -226,11 +226,11 @@ public abstract class BaseNotificationService implements NotificationService, Ob
 			m_emailsFromReplyable = serverConfigurationService().getBoolean("notify.email.from.replyable", false);
             m_emailsToReplyable = serverConfigurationService().getBoolean("notify.email.to.replyable", false);
 
-			M_log.info(this + ".init() complete");
+			log.info(this + ".init() complete");
 		}
 		catch (Exception t)
 		{
-			M_log.warn(this + ".init(): ", t);
+			log.warn(this + ".init(): ", t);
 		}
 	}
 
@@ -253,7 +253,7 @@ public abstract class BaseNotificationService implements NotificationService, Ob
 		m_transients.clear();
 		m_transients = null;
 
-		M_log.info(this + ".destroy()");
+		log.info(this + ".destroy()");
 	}
 
 	/**********************************************************************************************************************************************************************************************************************************************************
@@ -358,7 +358,7 @@ public abstract class BaseNotificationService implements NotificationService, Ob
 			}
 			catch (Exception e)
 			{
-				M_log.warn(this + ".commitEdit(): closed NotificationEdit", e);
+				log.warn(this + ".commitEdit(): closed NotificationEdit", e);
 			}
 			return;
 		}
@@ -392,7 +392,7 @@ public abstract class BaseNotificationService implements NotificationService, Ob
 			}
 			catch (Exception e)
 			{
-				M_log.warn(this + ".cancelEdit(): closed NotificationEdit", e);
+				log.warn(this + ".cancelEdit(): closed NotificationEdit", e);
 			}
 			return;
 		}
@@ -418,7 +418,7 @@ public abstract class BaseNotificationService implements NotificationService, Ob
 			}
 			catch (Exception e)
 			{
-				M_log.warn(this + ".removeNotification(): closed NotificationEdit", e);
+				log.warn(this + ".removeNotification(): closed NotificationEdit", e);
 			}
 			return;
 		}
@@ -718,7 +718,7 @@ public abstract class BaseNotificationService implements NotificationService, Ob
 		// get this from storage
 		Notification notification = m_storage.get(id);
 
-		if (M_log.isDebugEnabled()) M_log.debug(this + ".refresh(): " + key + " : " + id);
+		if (log.isDebugEnabled()) log.debug(this + ".refresh(): " + key + " : " + id);
 
 		return notification;
 
@@ -937,7 +937,7 @@ public abstract class BaseNotificationService implements NotificationService, Ob
 						}
 						catch (Exception e)
 						{
-							M_log.warn(this + " exception creating action helper: " + e.toString());
+							log.warn(this + " exception creating action helper: " + e.toString());
 						}
 					}
 				}
@@ -1343,7 +1343,7 @@ public abstract class BaseNotificationService implements NotificationService, Ob
 
 		public void valueUnbound(SessionBindingEvent event)
 		{
-			if (M_log.isDebugEnabled()) M_log.debug(this + ".valueUnbound()");
+			if (log.isDebugEnabled()) log.debug(this + ".valueUnbound()");
 
 			// catch the case where an edit was made but never resolved
 			if (m_active)
@@ -1356,4 +1356,3 @@ public abstract class BaseNotificationService implements NotificationService, Ob
 	} // BaseNotificationEdit
 
 } // BaseNotificationService
-

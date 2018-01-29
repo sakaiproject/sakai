@@ -15,7 +15,9 @@
  */
 package org.sakaiproject.gradebookng.rest;
 
+import java.lang.reflect.Type;
 import java.util.Date;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -37,10 +39,18 @@ import org.sakaiproject.gradebookng.business.GbRole;
 import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
 import org.sakaiproject.gradebookng.business.exception.GbAccessDeniedException;
 import org.sakaiproject.gradebookng.business.model.GbGradeCell;
+import org.sakaiproject.gradebookng.rest.model.CourseGradeSummary;
+import org.sakaiproject.service.gradebook.shared.CourseGrade;
+import org.sakaiproject.service.gradebook.shared.GradeMappingDefinition;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.SessionManager;
 
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+
 import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
+
 
 /**
  * This entity provider is to support some of the Javascript front end pieces. It never was built to support third party access, and never
@@ -51,6 +61,7 @@ import lombok.Setter;
  * @author Steve Swinsburg (steve.swinsburg@gmail.com)
  *
  */
+@Slf4j
 public class GradebookNgEntityProvider extends AbstractEntityProvider implements
 		AutoRegisterEntityProvider, ActionsExecutable,
 		Outputable, Describeable {
@@ -73,6 +84,7 @@ public class GradebookNgEntityProvider extends AbstractEntityProvider implements
 	 *
 	 *            an assignmentorder object will be created and saved as a list in the XML property 'gbng_assignment_order'
 	 */
+	@SuppressWarnings("unused")
 	@EntityCustomAction(action = "assignment-order", viewKey = EntityView.VIEW_NEW)
 	public void updateAssignmentOrder(final EntityReference ref, final Map<String, Object> params) {
 
@@ -96,8 +108,7 @@ public class GradebookNgEntityProvider extends AbstractEntityProvider implements
 	}
 
 	/**
-	 * Endpoint for getting the list of cells that have been edited. TODO enhance to accept a timestamp so we can filter the list This is
-	 * designed to be polled on a regular basis so must be lightweight
+	 * Endpoint for getting the list of cells that have been edited. This is designed to be polled on a regular basis so must be lightweight
 	 *
 	 * @param view
 	 * @return
@@ -129,6 +140,7 @@ public class GradebookNgEntityProvider extends AbstractEntityProvider implements
 		return this.businessService.getEditingNotifications(siteId, since);
 	}
 
+	@SuppressWarnings("unused")
 	@EntityCustomAction(action = "categorized-assignment-order", viewKey = EntityView.VIEW_NEW)
 	public void updateCategorizedAssignmentOrder(final EntityReference ref, final Map<String, Object> params) {
 
@@ -151,19 +163,19 @@ public class GradebookNgEntityProvider extends AbstractEntityProvider implements
 		try {
 			this.businessService.updateAssignmentCategorizedOrder(siteId, assignmentId, order);
 		} catch (final IdUnusedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			log.error(e.getMessage(), e);
 		} catch (final PermissionException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			log.error(e.getMessage(), e);
 		}
 	}
 
+	@SuppressWarnings("unused")
 	@EntityCustomAction(action = "ping", viewKey = EntityView.VIEW_LIST)
 	public String ping(final EntityView view) {
 		return "pong";
 	}
 
+	@SuppressWarnings("unused")
 	@EntityCustomAction(action = "comments", viewKey = EntityView.VIEW_LIST)
 	public String getComments(final EntityView view, final Map<String, Object> params) {
 		// get params
@@ -181,6 +193,53 @@ public class GradebookNgEntityProvider extends AbstractEntityProvider implements
 		checkInstructorOrTA(siteId);
 
 		return this.businessService.getAssignmentGradeComment(siteId, assignmentId, studentUuid);
+	}
+
+	@SuppressWarnings("unused")
+	@EntityCustomAction(action = "course-grades", viewKey = EntityView.VIEW_LIST)
+	public CourseGradeSummary getCourseGradeSummary(final EntityView view, final Map<String, Object> params) {
+
+		// get params
+		final String siteId = (String) params.get("siteId");
+
+		checkValidSite(siteId);
+		checkInstructor(siteId);
+
+		// get course grades and re-map
+		final Map<String, CourseGrade> courseGrades = this.businessService.getCourseGrades(siteId);
+		return reMap(courseGrades);
+	}
+
+	@SuppressWarnings("unused")
+	@EntityCustomAction(action = "rebuild-course-grades", viewKey = EntityView.VIEW_LIST)
+	public CourseGradeSummary rebuildCourseGradeSummary(final EntityView view, final Map<String, Object> params) {
+
+		// get params
+		final String siteId = (String) params.get("siteId");
+		final String schema = (String) params.get("schema");
+
+		log.debug("Schema json:" + schema);
+
+		checkValidSite(siteId);
+		checkInstructor(siteId);
+
+		// get the passed in schema
+		final Gson gson = new Gson();
+		final Type mappingType = new TypeToken<LinkedHashMap<String, Double>>(){}.getType();
+		Map<String, Double> gradingSchema = gson.fromJson(schema, mappingType);
+
+		log.debug("gradeMap:" + gradingSchema);
+
+		if (gradingSchema == null) {
+			throw new IllegalArgumentException("Grading schema data was missing / invalid");
+		}
+
+		// ensure it is sorted so the grade mapping works correctly
+		gradingSchema = GradeMappingDefinition.sortGradeMapping(gradingSchema);
+
+		// get the course grades using the passed in schema
+		final Map<String, CourseGrade> courseGrades = this.businessService.getCourseGrades(siteId, gradingSchema);
+		return reMap(courseGrades);
 	}
 
 	/**
@@ -254,7 +313,7 @@ public class GradebookNgEntityProvider extends AbstractEntityProvider implements
 
 	/**
 	 * Get role for current user in given site
-	 * 
+	 *
 	 * @param siteId
 	 * @return
 	 */
@@ -266,6 +325,19 @@ public class GradebookNgEntityProvider extends AbstractEntityProvider implements
 			throw new SecurityException("Your role could not be checked properly. This may be a role configuration issue in this site.");
 		}
 		return role;
+	}
+
+	/**
+	 * Re-map the course grades returned from the business service into our CourseGradeSummary object for returning on the REST API.
+	 * @param courseGrades map of student to course grade
+	 * @return
+	 */
+	private CourseGradeSummary reMap(final Map<String, CourseGrade> courseGrades) {
+		final CourseGradeSummary summary = new CourseGradeSummary();
+		courseGrades.forEach((k,v) -> {
+			summary.add(v.getDisplayGrade());
+		});
+		return summary;
 	}
 
 	@Setter

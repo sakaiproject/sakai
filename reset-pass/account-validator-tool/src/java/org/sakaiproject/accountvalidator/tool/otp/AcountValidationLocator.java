@@ -19,11 +19,11 @@
  */
 package org.sakaiproject.accountvalidator.tool.otp;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.ISODateTimeFormat;
+
 import org.sakaiproject.accountvalidator.logic.ValidationLogic;
 import org.sakaiproject.accountvalidator.model.ValidationAccount;
 import org.sakaiproject.authz.api.SecurityAdvisor;
@@ -37,6 +37,7 @@ import org.sakaiproject.event.api.UsageSessionService;
 import org.sakaiproject.user.api.*;
 import org.sakaiproject.user.api.UserDirectoryService.PasswordRating;
 import org.sakaiproject.util.ExternalTrustedEvidence;
+
 import uk.org.ponder.beanutil.BeanLocator;
 import uk.org.ponder.messageutil.MessageLocator;
 import uk.org.ponder.messageutil.TargettedMessage;
@@ -50,9 +51,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+@Slf4j
 public class AcountValidationLocator implements BeanLocator  {
-	private static Logger log = LoggerFactory.getLogger(AcountValidationLocator.class);
-	
+
 	public static final String NEW_PREFIX = "new";
 	public static final String UNKOWN_PREFIX = "unkown";
 	
@@ -324,8 +325,7 @@ public class AcountValidationLocator implements BeanLocator  {
 				validationLogic.save(item);
 
 				userReferences.add(userDirectoryService.userReference(item.getUserId()));
-				
-				
+
 				//log the user in
 				Evidence e = new ExternalTrustedEvidence(u.getEid());
 				try {
@@ -335,23 +335,16 @@ public class AcountValidationLocator implements BeanLocator  {
 					log.debug("user agent: " + httpServletRequest.getHeader("user-agent"));
 					usageSessionService.login(a , httpServletRequest);
 				} catch (AuthenticationException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
+					log.error(e1.getMessage(), e1);
 				}
-				
-				
 			} catch (UserNotDefinedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				log.error(e.getMessage(), e);
 			} catch (UserPermissionException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				log.error(e.getMessage(), e);
 			} catch (UserLockedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				log.error(e.getMessage(), e);
 			} catch (UserAlreadyDefinedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				log.error(e.getMessage(), e);
 			} finally {
 				securityService.popAdvisor();
 			}
@@ -367,12 +360,8 @@ public class AcountValidationLocator implements BeanLocator  {
 				emailTemplateService.sendRenderedMessages(TEMPLATE_KEY_ACKNOWLEDGE_PASSWORD_RESET, userReferences, replacementValues, supportEmail, supportEmail);
 			}
 		}
-		
-
-
 		return "success";
 	}
-
 
 	/**
 	 * Determines whether account validator sends users to the old validation form or the new ones
@@ -383,7 +372,6 @@ public class AcountValidationLocator implements BeanLocator  {
 		return serverConfigurationService.getBoolean("accountValidator.sendLegacyLinks", false);
 	}
 
-
 	private boolean validateLogin(String userId, String password) {
 		try {
 			User u = userDirectoryService.authenticate(userDirectoryService.getUserEid(userId), password);
@@ -391,13 +379,10 @@ public class AcountValidationLocator implements BeanLocator  {
 				return true;
 			}
 		} catch (UserNotDefinedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			log.error(e.getMessage(), e);
 		}
 		return false;
 	}
 	
 
-	
-	
 }

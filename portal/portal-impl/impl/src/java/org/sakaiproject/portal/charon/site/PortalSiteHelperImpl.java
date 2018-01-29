@@ -457,8 +457,10 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 				&& (s.getId().equals(myWorkspaceSiteId) || effectiveSite
 						.equals(myWorkspaceSiteId))));
 		
-		String siteTitle = getUserSpecificSiteTitle(s, false, true, siteProviders);
+		String siteTitle = getUserSpecificSiteTitle(s, false, false, siteProviders);
+		String siteTitleTruncated = FormattedText.makeShortenedText(siteTitle, null, null, null);
 		m.put("siteTitle", siteTitle);
+		m.put("siteTitleTrunc", siteTitleTruncated);
 		m.put("fullTitle", siteTitle);
 		
 		m.put("siteDescription", s.getHtmlDescription());
@@ -500,7 +502,11 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 					log.debug("PWD[{}]={}{}", i, site.getId(), site.getTitle());
 					Map<String, Object> pm = new HashMap<>();
 					List<String> providers = getProviderIDsForSite(site);
-					pm.put("siteTitle", getUserSpecificSiteTitle(site, false, true, providers));
+
+					String parentSiteTitle = getUserSpecificSiteTitle(site, false, false, providers);
+					String parentSiteTitleTruncated = FormattedText.makeShortenedText(parentSiteTitle, null, null, null);
+					pm.put("siteTitle", parentSiteTitle);
+					pm.put("siteTitleTrunc", parentSiteTitleTruncated);
 					pm.put("siteUrl", siteUrl + Web.escapeUrl(getSiteEffectiveId(site)));
 
 					l.add(pm);
@@ -757,6 +763,7 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 				if (includeSummary) summarizePage(m, site, p);
 				if (firstTool != null)
 				{
+					m.put("wellKnownToolId", firstTool.getToolId());
 					String menuClass = firstTool.getToolId();
 					menuClass = ICON_SAKAI + menuClass.replace('.', '-');
 					m.put("menuClass", menuClass);
@@ -812,6 +819,7 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 					m.put("toolrefUrl", toolrefUrl);
 					m.put("toolpopup", Boolean.valueOf(source!=null));
 					m.put("toolpopupurl", source);
+					m.put("wellKnownToolId", placement.getToolId());
 					String menuClass = placement.getToolId();
 					menuClass = ICON_SAKAI + menuClass.replace('.', '-');
 					m.put("menuClass", menuClass);
@@ -843,7 +851,8 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 		theMap.put("pageNavTools", l);
 
 		if ("true".equals(site.getProperties().getProperty("lessons_submenu")) && !l.isEmpty()) {
-			theMap.put("additionalLessonsPages", getSimplePageToolDao().getLessonSubPageJSON(UserDirectoryService.getCurrentUser().getId(), siteUpdate, l));
+			theMap.put("additionalLessonsPages",
+					getSimplePageToolDao().getLessonSubPageJSON(UserDirectoryService.getCurrentUser().getId(), siteUpdate, site.getId(), l));
 		}
 
 		theMap.put("pageNavTools", l);

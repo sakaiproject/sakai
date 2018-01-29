@@ -21,9 +21,20 @@
 
 package org.sakaiproject.authz.impl;
 
+
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
+import java.util.Stack;
+
+import lombok.ToString;
+import lombok.extern.slf4j.Slf4j;
+
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
 import org.sakaiproject.authz.api.*;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
@@ -40,21 +51,15 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-import java.util.*;
-
-import lombok.ToString;
-
 /**
  * <p>
  * BaseAuthzGroup is an implementation of the AuthGroup API AuthzGroup.
  * </p>
  */
 @ToString(exclude = {"m_properties", "m_userGrants", "m_roles", "m_lastChangedRlFn", "baseAuthzGroupService", "userDirectoryService"})
+@Slf4j
 public class BaseAuthzGroup implements AuthzGroup
 {
-	/** Our log (commons). */
-	private static Logger M_log = LoggerFactory.getLogger(BaseAuthzGroup.class);
-
 	/** A fixed class serian number. */
 	private static final long serialVersionUID = 1L;
 
@@ -107,8 +112,8 @@ public class BaseAuthzGroup implements AuthzGroup
 
 	private UserDirectoryService userDirectoryService;
 
-    /** The most recently changed set of role/functions - ONLY valid during the save event processing on the same server */
-    public Set<DbAuthzGroupService.DbStorage.RoleAndFunction> m_lastChangedRlFn;
+	/** The most recently changed set of role/functions - ONLY valid during the save event processing on the same server */
+	public Set<DbAuthzGroupService.DbStorage.RoleAndFunction> m_lastChangedRlFn;
 
 	/**
 	 * Construct.
@@ -272,13 +277,13 @@ public class BaseAuthzGroup implements AuthzGroup
 					{
 						if (role.m_locks.size() > ((BaseRole) grant.role).m_locks.size())
 						{
-							M_log.warn("(el): additional lesser user grant ignored: " + m_id + " " + userId + " "
+							log.warn("(el): additional lesser user grant ignored: " + m_id + " " + userId + " "
 									+ grant.role.getId() + " keeping: " + roleId);
 							grant.role = role;
 						}
 						else
 						{
-							M_log.warn("(el): additional lesser user grant ignored: " + m_id + " " + userId + " " + roleId
+							log.warn("(el): additional lesser user grant ignored: " + m_id + " " + userId + " " + roleId
 									+ " keeping: " + grant.role.getId());
 						}
 					}
@@ -291,7 +296,7 @@ public class BaseAuthzGroup implements AuthzGroup
 				}
 				else
 				{
-					M_log.warn("(el): role null: " + roleId);
+					log.warn("(el): role null: " + roleId);
 				}
 			}
 
@@ -313,7 +318,7 @@ public class BaseAuthzGroup implements AuthzGroup
 						// the old pubview was done this way, we handle it so no need for warning
 						if (!("pubview".equals(roleId)))
 						{
-							M_log.warn("(el) role for anon: " + m_id + " " + roleId);
+							log.warn("(el) role for anon: " + m_id + " " + roleId);
 						}
 					}
 
@@ -338,7 +343,7 @@ public class BaseAuthzGroup implements AuthzGroup
 						// the old pubview was done this way, we handle it so no need for warning
 						if (!("pubview".equals(roleId)))
 						{
-							M_log.warn("(el) role for auth: " + m_id + " " + roleId);
+							log.warn("(el) role for auth: " + m_id + " " + roleId);
 						}
 					}
 
@@ -365,13 +370,13 @@ public class BaseAuthzGroup implements AuthzGroup
 						{
 							if (role.m_locks.size() > ((BaseRole) grant.role).m_locks.size())
 							{
-								M_log.warn("(el): additional lesser user grant ignored: " + m_id + " " + userId + " "
+								log.warn("(el): additional lesser user grant ignored: " + m_id + " " + userId + " "
 										+ grant.role.getId() + " keeping: " + roleId);
 								grant.role = role;
 							}
 							else
 							{
-								M_log.warn("(el): additional lesser user grant ignored: " + m_id + " " + userId + " " + roleId
+								log.warn("(el): additional lesser user grant ignored: " + m_id + " " + userId + " " + roleId
 										+ " keeping: " + grant.role.getId());
 							}
 						}
@@ -383,7 +388,7 @@ public class BaseAuthzGroup implements AuthzGroup
 					}
 					else
 					{
-						M_log.warn("(el): role null: " + roleId);
+						log.warn("(el): role null: " + roleId);
 					}
 				}
 			}
@@ -484,7 +489,7 @@ public class BaseAuthzGroup implements AuthzGroup
 
 		else if (getId().equals("!site.user"))
 		{
-			return "My Workspace AuthzGroup Template";
+			return "Home AuthzGroup Template";
 		}
 
 		else if (getId().startsWith("!user.template"))
@@ -1016,8 +1021,9 @@ public class BaseAuthzGroup implements AuthzGroup
 		Role role = (Role) m_roles.get(roleId);
 		if (role == null)
 		{
-			M_log.warn(".addUserRole: role undefined: " + roleId);
-			throw new IllegalArgumentException("addMember called with null role!");
+			log.warn(".addUserRole: role undefined: " + roleId);
+			throw new IllegalArgumentException("addMember user: "+ user+ "called with roleId: "+ roleId +
+					" that isn't found on authzGroupId: "+ m_id);
 		}
 
 		BaseMember grant = (BaseMember) m_userGrants.get(user);

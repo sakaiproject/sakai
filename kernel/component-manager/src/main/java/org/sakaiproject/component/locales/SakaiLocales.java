@@ -32,6 +32,6 @@ public class SakaiLocales {
      * This should be complete list of supported locales and should match the commented list in default.sakai.properties
      * It MUST be a comma separated list of locale keys (be careful with your formatting)
      */
-    public static final String SAKAI_LOCALES_DEFAULT = "en_US, en_GB, en_AU, en_NZ, en_ZA, ja_JP, ko_KR, nl_NL, zh_CN, zh_TW, es_ES, fr_CA, fr_FR, ca_ES, sv_SE, ar, ru_RU, pt_PT, pt_BR, eu, vi_VN, tr_TR, es_MX, mn, pl_PL, de_DE, hi_IN";
+    public static final String SAKAI_LOCALES_DEFAULT = "en_US, en_GB, en_AU, en_NZ, en_ZA, ja_JP, ko_KR, nl_NL, zh_CN, zh_TW, es_ES, fr_CA, fr_FR, ca_ES, sv_SE, ar, ru_RU, pt_PT, pt_BR, eu, vi_VN, tr_TR, es_MX, mn, pl_PL, de_DE, hi_IN, it_IT, fa_IR";
 
 }

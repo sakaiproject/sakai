@@ -26,15 +26,14 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Iterator;
- 
+
+import javax.faces.application.FacesMessage;
+import javax.faces.context.FacesContext;
 import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
-import javax.faces.application.FacesMessage;
 
-import javax.faces.context.FacesContext;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.QuestionPoolFacade;
 import org.sakaiproject.tool.assessment.services.QuestionPoolService;
@@ -51,12 +50,9 @@ import org.sakaiproject.tool.assessment.util.TextFormat;
  * @version $Id$
  */
 
-public class PoolSaveListener implements ActionListener
+@Slf4j
+ public class PoolSaveListener implements ActionListener
 {
-
-  private static Logger log = LoggerFactory.getLogger(PoolSaveListener.class);
-  //private static ContextUtil cu;
-
 
   /**
    * Standard process action method.
@@ -65,9 +61,8 @@ public class PoolSaveListener implements ActionListener
    */
   public void processAction(ActionEvent ae) throws AbortProcessingException
   {
-    //log.info("PoolSaveListener :");
     QuestionPoolBean  qpoolbean= (QuestionPoolBean) ContextUtil.lookupBean("questionpool");
-    String currentName= TextFormat.convertPlaintextToFormattedTextNoHighUnicode(log, qpoolbean.getCurrentPool().getDisplayName());
+    String currentName= TextFormat.convertPlaintextToFormattedTextNoHighUnicode(qpoolbean.getCurrentPool().getDisplayName());
    
     String addsource = (String)ae.getComponent().getAttributes().get("addsource");
     qpoolbean.setAddPoolSource(addsource);
@@ -152,11 +147,11 @@ public class PoolSaveListener implements ActionListener
 
       QuestionPoolFacade questionpool =
         new QuestionPoolFacade (beanid, parentid);
-      questionpool.updateDisplayName(TextFormat.convertPlaintextToFormattedTextNoHighUnicode(log, bean.getDisplayName()));
-      questionpool.updateDescription(TextFormat.convertPlaintextToFormattedTextNoHighUnicode(log, bean.getDescription()));
-      questionpool.setOrganizationName(TextFormat.convertPlaintextToFormattedTextNoHighUnicode(log, bean.getOrganizationName()));
-      questionpool.setObjectives(TextFormat.convertPlaintextToFormattedTextNoHighUnicode(log, bean.getObjectives()));
-      questionpool.setKeywords(TextFormat.convertPlaintextToFormattedTextNoHighUnicode(log, bean.getKeywords()));
+      questionpool.updateDisplayName(TextFormat.convertPlaintextToFormattedTextNoHighUnicode(bean.getDisplayName()));
+      questionpool.updateDescription(TextFormat.convertPlaintextToFormattedTextNoHighUnicode(bean.getDescription()));
+      questionpool.setOrganizationName(TextFormat.convertPlaintextToFormattedTextNoHighUnicode(bean.getOrganizationName()));
+      questionpool.setObjectives(TextFormat.convertPlaintextToFormattedTextNoHighUnicode(bean.getObjectives()));
+      questionpool.setKeywords(TextFormat.convertPlaintextToFormattedTextNoHighUnicode(bean.getKeywords()));
       // need to set owner and accesstype
       questionpool.setAccessTypeId(QuestionPoolFacade.ACCESS_DENIED); // set as default
 
@@ -172,13 +167,11 @@ public class PoolSaveListener implements ActionListener
     	  questionpool.setDateCreated(bean.getDateCreated());
       }
       QuestionPoolService delegate = new QuestionPoolService();
-      //log.info("Saving pool");
       delegate.savePool(questionpool);
 
       // Rebuild the tree with the new pool
       qpbean.buildTree();
 
-      //  System.out.println( "SAVE - POOLSOURCE= "+qpbean.getAddPoolSource());
       //where do you get value from addPoolSource?  It always return null though.
       if ("editpool".equals(qpbean.getAddPoolSource()) && !qpbean.ORIGIN_TOP.equals(qpbean.getOutcome()) && (qpbean.getOutcomePool() > 0) ) {
     // so reset subpools tree
@@ -188,11 +181,11 @@ public class PoolSaveListener implements ActionListener
       
       // Reset the properties for current pool to reflect the early changes (before click on "Add") in edit pool
       QuestionPoolDataBean currentPool = qpbean.getCurrentPool();
-      currentPool.setDisplayName(TextFormat.convertPlaintextToFormattedTextNoHighUnicode(log, qpbean.getParentPool().getDisplayName()));
-      currentPool.setOrganizationName(TextFormat.convertPlaintextToFormattedTextNoHighUnicode(log, qpbean.getParentPool().getOrganizationName()));
-      currentPool.setDescription(TextFormat.convertPlaintextToFormattedTextNoHighUnicode(log, qpbean.getParentPool().getDescription()));
-      currentPool.setObjectives(TextFormat.convertPlaintextToFormattedTextNoHighUnicode(log, qpbean.getParentPool().getObjectives()));
-      currentPool.setKeywords(TextFormat.convertPlaintextToFormattedTextNoHighUnicode(log, qpbean.getParentPool().getKeywords()));
+      currentPool.setDisplayName(TextFormat.convertPlaintextToFormattedTextNoHighUnicode(qpbean.getParentPool().getDisplayName()));
+      currentPool.setOrganizationName(TextFormat.convertPlaintextToFormattedTextNoHighUnicode(qpbean.getParentPool().getOrganizationName()));
+      currentPool.setDescription(TextFormat.convertPlaintextToFormattedTextNoHighUnicode(qpbean.getParentPool().getDescription()));
+      currentPool.setObjectives(TextFormat.convertPlaintextToFormattedTextNoHighUnicode(qpbean.getParentPool().getObjectives()));
+      currentPool.setKeywords(TextFormat.convertPlaintextToFormattedTextNoHighUnicode(qpbean.getParentPool().getKeywords()));
       List addedPools = qpbean.getAddedPools();
       if (addedPools == null) {
     	  addedPools = new ArrayList();
@@ -256,7 +249,7 @@ public class PoolSaveListener implements ActionListener
         }
     }
     catch (Exception e) {
-      e.printStackTrace();
+      log.error(e.getMessage(), e);
       return false;	
     }
     return true;

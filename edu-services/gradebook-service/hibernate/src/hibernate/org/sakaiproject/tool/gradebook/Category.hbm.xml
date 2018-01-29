@@ -20,7 +20,7 @@
 
 		<property name="weight" column="WEIGHT" type="double" not-null="false" />
 		
-		<property name="drop_lowest" column="DROP_LOWEST" type="integer" not-null="false" />
+		<property name="dropLowest" column="DROP_LOWEST" type="integer" not-null="false" />
 		
 		<property name="removed" column="REMOVED" type="boolean" />
 		

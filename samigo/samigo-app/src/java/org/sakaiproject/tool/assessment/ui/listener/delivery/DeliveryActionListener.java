@@ -19,8 +19,6 @@
  *
  **********************************************************************************/
 
-
-
 package org.sakaiproject.tool.assessment.ui.listener.delivery;
 
 import java.util.ArrayList;
@@ -43,10 +41,9 @@ import javax.faces.event.ActionListener;
 import javax.faces.model.SelectItem;
 import javax.servlet.http.HttpServletRequest;
 
-import org.sakaiproject.samigo.util.SamigoConstants;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.math3.util.Precision;
+
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.event.api.Event;
@@ -58,6 +55,7 @@ import org.sakaiproject.event.api.LearningResourceStoreService.LRS_Verb;
 import org.sakaiproject.event.api.LearningResourceStoreService.LRS_Verb.SAKAI_VERB;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.event.cover.NotificationService;
+import org.sakaiproject.samigo.util.SamigoConstants;
 import org.sakaiproject.tool.assessment.api.SamigoApiFactory;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentAccessControl;
 import org.sakaiproject.tool.assessment.data.dao.assessment.EventLogData;
@@ -107,7 +105,6 @@ import org.sakaiproject.tool.assessment.util.SamigoLRSStatements;
 import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.util.ResourceLoader;
 
-
 /**
  * <p>Title: Samigo</p>
  * <p>Purpose:  this module creates the lists of published assessments for the select index
@@ -115,13 +112,12 @@ import org.sakaiproject.util.ResourceLoader;
  * @author Ed Smiley
  * @version $Id$
  */
-
+@Slf4j
 public class DeliveryActionListener
   implements ActionListener
 {
 
   static String alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-  private static Logger log = LoggerFactory.getLogger(DeliveryActionListener.class);
   //private static ContextUtil cu;
   private boolean resetPageContents = true;
   private long previewGradingId = (long)(Math.random() * 1000);
@@ -158,6 +154,21 @@ public class DeliveryActionListener
       	// Bug 1547: If this is during review and the assessment is retracted for edit now, 
     	// there is no action needed (the outcome is set in BeginDeliveryActionListener).
       	return;
+      }
+
+      if (delivery.pastDueDate() && (DeliveryBean.TAKE_ASSESSMENT == action || DeliveryBean.TAKE_ASSESSMENT_VIA_URL == action)) {
+        if (delivery.isAcceptLateSubmission()) {
+          if(delivery.getTotalSubmissions() > 0) {
+            // Not during a Retake
+            if (delivery.getActualNumberRetake() == delivery.getNumberRetake()) {
+              return;
+            }
+          }
+        } else {
+          if(delivery.isRetracted(false)){
+              return;
+          }
+        }
       }
       // Clear elapsed time, set not timed out
       clearElapsedTime(delivery);
@@ -463,7 +474,7 @@ public class DeliveryActionListener
             		  }
             		  
                       event = eventTrackingService.newEvent(SamigoConstants.EVENT_ASSESSMENT_TAKE,
-                              "siteId=" + site_id + ", " + eventRef.toString(), "samigo",true,0,SamigoLRSStatements.getStatementForTakeAssessment(delivery.getAssessmentTitle(), delivery.getPastDue(), publishedAssessment.getReleaseTo(), false));
+                              "siteId=" + site_id + ", " + eventRef.toString(), site_id, true, 0, SamigoLRSStatements.getStatementForTakeAssessment(delivery.getAssessmentTitle(), delivery.getPastDue(), publishedAssessment.getReleaseTo(), false));
                       eventTrackingService.post(event);
             	  }
             	  else if (action == DeliveryBean.TAKE_ASSESSMENT_VIA_URL) {
@@ -620,7 +631,6 @@ public class DeliveryActionListener
       if (setNullOK) agrading=null;
     }
     return agrading;
-    //log.info("**** delivery grdaing"+delivery.getAssessmentGrading());
   }
 
   /**
@@ -1301,8 +1311,7 @@ public class DeliveryActionListener
     			}
     		}
     	}
-    	//log.debug("correctAnswers: " + correctAnswers);
-    	
+
     	//check if there's wrong answer in the answer list, matrix survey question won't affect it, since the answer is always right, 
     	//so don't need to check the matrix survey question
     	while (iterAnswer.hasNext())
@@ -2308,8 +2317,6 @@ public class DeliveryActionListener
       verbose = false;
     }
 
-    //log.debug("testExtractFIBTextArray result="+testExtractFIBTextArray(verbose));;
-
   }
 */
 
@@ -2486,7 +2493,6 @@ public class DeliveryActionListener
   public String getAgentString(){
     PersonBean person = (PersonBean) ContextUtil.lookupBean("person");
     String agentString = person.getId();
-    //log.info("***agentString="+agentString);
     return agentString;
   }
 
@@ -2705,7 +2711,7 @@ public class DeliveryActionListener
     delivery.setSkipFlag(false);  
     
     delivery.setTurnIntoTimedAssessment(delivery.getTurnIntoTimedAssessment());
-    if (delivery.getTurnIntoTimedAssessment() && !delivery.getHasShowTimeWarning()) {
+    if (delivery.getTurnIntoTimedAssessment() && !delivery.getHasShowTimeWarning() && (delivery.getDueDate() != null || delivery.getRetractDate() != null)) {
     	delivery.setShowTimeWarning(true);
     	delivery.setHasShowTimeWarning(true);
     }
@@ -2769,8 +2775,6 @@ public class DeliveryActionListener
 		  queue.add(timedAG);
 		  
 		  delivery.setTimeElapse("0");
-		  //log.debug("***0. queue="+queue);
-		  //log.debug("***1. put timedAG in queue, timedAG="+timedAG);
 	  }
 	  else{
 		  if (timedAG == null){

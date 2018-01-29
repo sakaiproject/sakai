@@ -35,8 +35,8 @@ import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Set;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
@@ -58,8 +58,8 @@ import org.springframework.util.PropertiesPersister;
  * SakaiProperties configuration supports most of the properties documented for 
  * PropertiesFactoryBean, PropertyPlaceholderConfigurer, and PropertyOverrideConfigurer.
  */
+@Slf4j
 public class SakaiProperties implements BeanFactoryPostProcessorCreator, InitializingBean {
-    private static Logger log = LoggerFactory.getLogger(SakaiProperties.class);
     private SakaiPropertiesFactoryBean propertiesFactoryBean = new SakaiPropertiesFactoryBean();
     //private PropertiesFactoryBean propertiesFactoryBean = new PropertiesFactoryBean();
     private ReversiblePropertyOverrideConfigurer propertyOverrideConfigurer = new ReversiblePropertyOverrideConfigurer();
@@ -260,7 +260,6 @@ public class SakaiProperties implements BeanFactoryPostProcessorCreator, Initial
      */
     public class SakaiPropertiesFactoryBean implements FactoryBean, InitializingBean {
         public static final String XML_FILE_EXTENSION = ".xml";
-        final Logger log = LoggerFactory.getLogger(SakaiPropertiesFactoryBean.class);
         
         private Map<String, Properties> loadedProperties = new LinkedHashMap<String, Properties>();
         /**
@@ -418,8 +417,5 @@ public class SakaiProperties implements BeanFactoryPostProcessorCreator, Initial
                 }
             }
         }
-
     }
-
 }
-

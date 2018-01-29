@@ -1,6 +1,4 @@
-<!-- $Id$ -->
-<!-- start: chef_assignments_instructory_report_submissions.vm  -->
-##<!-- $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/assignment/chef_assignments_instructor_report_submissions.vm,v 1.6 2005/06/03 15:38:27 gsilver.umich.edu Exp $ -->
+<!-- start: chef_assignments_instructor_report_submissions.vm  -->
 <div class="portletBody">
 	#navBarHREF( $allowAddAssignment $withGrade $allowGradeSubmission $allowAddAssignment $allowAllGroups $assignmentscheck $allowUpdateSite $enableViewOption $view "" )
 
@@ -150,26 +148,26 @@
 						</th>
 					</tr>
 					#foreach ($submission in $submissions)
-						#set ($assignment = $submission.getSubmission().getAssignment())
-						#set ($assignmentContent = $assignment.getContent())
-						#set ($submissionType = $assignmentContent.TypeOfSubmission)
-						#set ($typeOfGrade = $assignmentContent.getTypeOfGrade())
-						#set ($isAnon = $assignmentService.assignmentUsesAnonymousGrading($assignment))
-						#set ($anonymousSubmissionId = $submission.getSubmission().getAnonymousSubmissionId())
+						#set ($assignmentSubmission = $!submission.Submission)
+						#set ($assignment = $!assignmentSubmission.Assignment)
+						#set ($submissionType = $!assignment.TypeOfSubmission)
+						#set ($typeOfGrade = $!assignment.TypeOfGrade)
+						#set ($isAnon = $!service.assignmentUsesAnonymousGrading($assignment))
+						#set ($anonymousSubmissionId = $!assignmentSubmission.Id + ' ' + ($tlang.getString("grading.anonymous.title")))
 						<tr>
 							<td headers="studentname">
-							#if ($submission.getIsMultiGroup())
+							#if ($submission.MultiGroup)
 							<span class="error alertMessage">
 							#end
-							#if ($submission.user)
-								#set($submitterName = $submission.getUser().getSortName())
-								#set($submitterId=$submission.getUser().getDisplayId())
-								#if ($!submitterId)
-									#set($submitterName=$submitterName.concat(" (").concat($submitterId).concat(")"))
+							#if ($!submission.User)
+								#set($submitterName = $!submission.User.SortName)
+								#set($submitterId = $!submission.User.DisplayId)
+								#if ($submitterId)
+									#set($submitterName = $submitterName.concat(" (").concat($submitterId).concat(")"))
 								#end
-								#if ($assignment.isGroup())
-									#if ($submission.group)
-										#set($submitterName=$submitterName.concat(" [").concat($submission.getGroup().getTitle()).concat("]"))
+								#if ($!assignment.IsGroup)
+									#if ($!submission.Group)
+										#set($submitterName=$submitterName.concat(" [").concat($!submission.Group.Title).concat("]"))
 									#end
 								#end
 								#if( $isAnon )
@@ -178,18 +176,18 @@
 									$validator.escapeHtml($!submitterName)
 								#end
 							#end
-							#if ($submission.getIsMultiGroup())
+							#if ($!submission.MultiGroup)
 							</span>
 							#end
 							</td>
 							<td headers="assignment">
 								#assignmentTitleIcon($assignment)
-								$validator.escapeHtml($validator.limit($assignment.Title, 40))
+								$validator.escapeHtml($validator.limit($!assignment.Title, 40))
 							</td>
 							#if($!isAdditionalNotesEnabled)
 							<td headers="notes">
 								#set($notes = [])
-								#set($notes = $notesMap.get($submission.user.id))
+								#set($notes = $notesMap.get($!submission.User.Id))
 								<ul>
 								#foreach($note in $!notes)
 									#if($!note) <li>$!note</li> #end
@@ -198,27 +196,27 @@
 							</td>
 							#end
 							<td headers="grade">
-								#if ($submission.getSubmission())
-									#if ($submission.getSubmission().Graded)
-										#if ($typeOfGrade == 1)
+								#if ($assignmentSubmission)
+									#if ($assignmentSubmission.Graded)
+										#if ($typeOfGrade.ordinal() == 1)
 											$tlang.getString("gen.nograd")
 										#else
-											#if ($submission.group)
-												#if ($submission.getGradeForUser($submission.user.id))
-													$submission.getGradeForUser($submission.user.id) <abbr title="Group Grade">($submission.getSubmission().gradeDisplay)</abbr>
+											#if ($!assignment.IsGroup)
+												#if ($!submission.GradeForUser($!submission.User.Id))
+													$!submission.GradeForUser($!submission.User.Id)
+													<abbr title="Group Grade">($!service.getGradeDisplay($!assignmentSubmission.Grade, $typeOfGrade, $!assignment.ScaleFactor))</abbr>
 												#else
-													$submission.getSubmission().gradeDisplay
+													$!service.getGradeDisplay($!assignmentSubmission.Grade, $typeOfGrade, $!assignment.ScaleFactor)
 												#end
 											#else
-											$submission.getSubmission().gradeDisplay
+												$!service.getGradeDisplay($!assignmentSubmission.Grade, $typeOfGrade, $!assignment.ScaleFactor)
 											#end
 										#end
 									#end
 								#end
-								&nbsp;
 							</td>
 							<td headers="scale">
-								#set ($gradeScale = $typeOfGrade)
+								#set ($gradeScale = $typeOfGrade.ordinal())
 									#if ($gradeScale == -1)
 										## Grade type not set
 										$tlang.getString("gen.notset")
@@ -230,7 +228,7 @@
 										A-F
 									#elseif ($gradeScale == 3)
 										## Score based grade type
-										0-$assignmentContent.getMaxGradePointDisplay()
+										0-$!service.getMaxPointGradeDisplay($!assignment.ScaleFactor, $!assignment.MaxGradePoint)
 									#elseif ($gradeScale == 4)
 										## Pass/fail grade type
 										 $tlang.getString("gen.pf")
@@ -240,29 +238,28 @@
 									#end
 							</td>
 							<td headers="submitted">
-								#if ($!submissionType == 4)
+								#if ($!submissionType.ordinal() == 4)
 									$tlang.getString("nonelec")
 								#else
-									#if ($submission.getSubmission())
-										#if ($submission.getSubmission().submitted)
+									#if ($assignmentSubmission)
+										#if ($assignmentSubmission.Submitted)
 											#if (!$isAnon)
 												#set($timeSubmitted=false)
-												#set($timeSubmitted=$submission.getSubmission().TimeSubmitted)
-												#if($!timeSubmitted)
-													$!timeSubmitted.toStringLocalFull()
+												#set($timeSubmitted=$assignmentSubmission.DateSubmitted)
+												#if($timeSubmitted)
+													$!service.getUsersLocalDateTimeString($timeSubmitted)
 												#end
-												#if ($!timeSubmitted && $timeSubmitted.after($assignment.DueTime))
+												#if ($timeSubmitted && $timeSubmitted.isAfter($assignment.DueDate))
 													<span class="highlight">
 														$tlang.getString("gen.late2")
 													</span>
 												#end
-											#elseif ($!submission.getSubmission().TimeSubmitted.toStringLocalFull())
+											#elseif ($assignmentSubmission.DateSubmitted)
 												$tlang.getString("gen.subm4") $tlang.getString("submitted.date.redacted")
 											#end
 										#end
 									#end
 								#end
-								&nbsp;
 							</td>
 						</tr>
 					#end

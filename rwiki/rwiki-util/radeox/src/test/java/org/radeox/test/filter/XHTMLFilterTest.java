@@ -25,6 +25,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
+import lombok.extern.slf4j.Slf4j;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 
@@ -33,6 +34,7 @@ import org.radeox.filter.XHTMLFilter;
 /**
  * @author ieb
  */
+@Slf4j
 public class XHTMLFilterTest extends FilterTestSupport
 {
 
@@ -63,8 +65,8 @@ public class XHTMLFilterTest extends FilterTestSupport
 			String resultstring = getTestPattern("/testpatterns/xhtmltest" + i
 					+ "_out.xml");
 			String result = filter.filter(teststring, context);
-			System.err.println("IN:" + teststring + ":IN");
-			System.err.println("OUT:" + result + ":OUT");
+			log.info("IN:" + teststring + ":IN");
+			log.info("OUT:" + result + ":OUT");
 			if (resultstring != null)
 			{
 				assertEquals(resultstring, result);
@@ -97,8 +99,7 @@ public class XHTMLFilterTest extends FilterTestSupport
 				try {
 					bis.close();
 				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+					log.error(e.getMessage(), e);
 				}
 			}
 		}

@@ -22,11 +22,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.wicket.extensions.markup.html.tabs.AbstractTab;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.ResourceModel;
+
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.TypeException;
@@ -42,10 +42,10 @@ import org.sakaiproject.sitestats.api.report.ReportParams;
 import org.sakaiproject.sitestats.tool.facade.Locator;
 import org.sakaiproject.user.api.UserNotDefinedException;
 
+@Slf4j
 public class LessonsWidget extends Panel {
 
     private static final long       serialVersionUID    = 1L;
-    private static Logger              LOG                 = LoggerFactory.getLogger(LessonsWidget.class);
 
     /** The site id. */
     private String                  siteId              = null;
@@ -180,11 +180,11 @@ public class LessonsWidget extends Panel {
                     try {
                         totalDistinctPageReads = Locator.getFacade().getStatsManager().getTotalReadLessonPages(siteId);
                     } catch (Exception e) {
-                        LOG.error("Caught exception while getting the read pages total. Setting totalDistinctReadPages to 0 ...", e);
+                        log.error("Caught exception while getting the read pages total. Setting totalDistinctReadPages to 0 ...", e);
                         totalDistinctPageReads = 0;
                     }
                 } else {
-                    LOG.debug("totalDistinctReadPages has already been set and won't be updated.");
+                    log.debug("totalDistinctReadPages has already been set and won't be updated.");
                 }
                 return totalDistinctPageReads;
             }
@@ -210,11 +210,11 @@ public class LessonsWidget extends Panel {
                     try {
                         mostReadPage = Locator.getFacade().getStatsManager().getMostReadLessonPage(siteId);
                     } catch (Exception e) {
-                        LOG.error("Caught exception while getting the most read page. Setting mostReadPage to \"\" ...", e);
+                        log.error("Caught exception while getting the most read page. Setting mostReadPage to \"\" ...", e);
                         mostReadPage = "";
                     }
                 } else {
-                    LOG.debug("mostReadPage has already been set and won't be updated.");
+                    log.debug("mostReadPage has already been set and won't be updated.");
                 }
 
                 return mostReadPage;
@@ -581,11 +581,11 @@ public class LessonsWidget extends Panel {
             try {
                 totalPages = Locator.getFacade().getStatsManager().getTotalLessonPages(siteId);
             } catch (Exception e) {
-                LOG.error("Caught exception while getting the page total. Setting totalPages to 0 ...", e);
+                log.error("Caught exception while getting the page total. Setting totalPages to 0 ...", e);
                 totalPages = 0;
             }
         } else {
-            LOG.debug("totalPages has already been set and won't be updated.");
+            log.debug("totalPages has already been set and won't be updated.");
         }
         return totalPages;
     }

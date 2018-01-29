@@ -22,22 +22,19 @@ import java.util.List;
 
 import lombok.Getter;
 import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.sakaiproject.api.app.scheduler.ScheduledInvocationCommand;
 import org.sakaiproject.delegatedaccess.dao.DelegatedAccessDao;
 import org.sakaiproject.delegatedaccess.logic.ProjectLogic;
 import org.sakaiproject.delegatedaccess.logic.SakaiProxy;
 import org.sakaiproject.delegatedaccess.util.DelegatedAccessConstants;
-import org.sakaiproject.hierarchy.HierarchyService;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.api.ToolConfiguration;
-import org.sakaiproject.api.app.scheduler.ScheduledInvocationCommand;
 
+@Slf4j
 public class DelegatedAccessAddToolToMyWorkspacesJob implements ScheduledInvocationCommand{
-	
-	private static final Logger log = LoggerFactory.getLogger(DelegatedAccessAddToolToMyWorkspacesJob.class);
 	@Getter @Setter
 	private DelegatedAccessDao dao;
 	@Getter @Setter

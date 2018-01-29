@@ -26,14 +26,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.authz.api.PermissionsHelper;
 import org.sakaiproject.poll.logic.ExternalLogic;
+import org.sakaiproject.rsf.helper.HelperViewParameters;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.tool.api.ToolSession;
 
-import org.sakaiproject.rsf.helper.HelperViewParameters;
 import uk.org.ponder.localeutil.LocaleGetter;
 import uk.org.ponder.messageutil.MessageLocator;
 import uk.org.ponder.rsf.components.UICommand;
@@ -48,23 +48,17 @@ import uk.org.ponder.rsf.viewstate.SimpleViewParameters;
 import uk.org.ponder.rsf.viewstate.ViewParameters;
 import uk.org.ponder.rsf.viewstate.ViewParamsReporter;
 
+@Slf4j
 public class PermissionsProducer implements ViewComponentProducer,NavigationCaseReporter, ViewParamsReporter {
 
 	public static final String VIEW_ID = "votePermissions";
 
-
-
-	
 	private MessageLocator messageLocator;
 	private LocaleGetter localeGetter;
 
-
 	private static final String PERMISSION_PREFIX ="poll";
-	
-	public static final String HELPER = "sakai.permissions.helper";
 
-	
-	private static final Logger LOG = LoggerFactory.getLogger(PermissionsProducer.class);
+	public static final String HELPER = "sakai.permissions.helper";
 
 	public String getViewID() {
 		// TODO Auto-generated method stub

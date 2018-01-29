@@ -17,14 +17,14 @@ package org.sakaiproject.connector.fck;
 
 import java.lang.reflect.Method;
 import java.text.SimpleDateFormat;
+import java.time.Instant;
 import java.util.*;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.assignment.api.AssignmentService;
 import org.sakaiproject.assignment.api.model.Assignment;
 import org.sakaiproject.authz.api.AuthzGroupService;
-
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.entitybroker.EntityBroker;
@@ -34,8 +34,6 @@ import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.CollectionResolvable;
 import org.sakaiproject.entitybroker.entityprovider.extension.ActionReturn;
 import org.sakaiproject.entitybroker.entityprovider.extension.EntityData;
-
-
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.api.ToolConfiguration;
@@ -45,14 +43,13 @@ import org.sakaiproject.time.api.Time;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
 import org.sakaiproject.tool.cover.SessionManager;
 
-
+@Slf4j
 public class ConnectorHelper {
 	
 	private static String ASSIGNMENT_TOOL_ID = "sakai.assignment.grades";
 	private static String JFORUMS_TOOL_ID = "sakai.jforum.tool";
 	private static String FORUMS_TOOL_ID = "sakai.forums";
-	
-	private static Logger M_log = LoggerFactory.getLogger(ConnectorHelper.class);
+
 	private SiteService siteService = null;
 	private AssignmentService assignmentService = null;
     private SecurityService securityService = null;
@@ -60,7 +57,6 @@ public class ConnectorHelper {
 
 	private EntityBroker entityBroker = null;
 
-	
 	private List sites = null;
 	private String loggedInUserId = null;
 	private String loggedInUserEid = null;
@@ -73,7 +69,7 @@ public class ConnectorHelper {
 	
 	
 	public void init() {
-		M_log.info("init ConnectorHelper");
+		log.info("init ConnectorHelper");
 		siteService = (SiteService) ComponentManager.get("org.sakaiproject.site.api.SiteService");
 		assignmentService = (AssignmentService) ComponentManager.get("org.sakaiproject.assignment.api.AssignmentService");
 		authzGroupService = (AuthzGroupService) ComponentManager.get("org.sakaiproject.authz.api.AuthzGroupService");
@@ -108,18 +104,17 @@ public class ConnectorHelper {
 				}				
 			}
 			if(!securityService.unlock(loggedInUserId, "site.upd", "/site/" + thisSite.getId())){
-				System.out.println("Assignment - no show"+loggedInUserEid+" is not an instructor.");
+				log.info("Assignment - no show"+loggedInUserEid+" is not an instructor.");
 				return returnAssignmentList;
 			}		
 
 
 			java.util.Date now = new java.util.Date();
-			long nowMs = now.getTime();
 			for (Assignment thisAssignment : assignmentService.getAssignmentsForContext(thisSite.getId())) {
-				Date thisAssignmentCloseTime = thisAssignment.getCloseDate();
+				Instant thisAssignmentCloseTime = thisAssignment.getCloseDate();
 				boolean assignmentClosed = true;
 				if(thisAssignmentCloseTime!=null){
-					if(thisAssignmentCloseTime.getTime()<nowMs){
+					if(thisAssignmentCloseTime.isBefore(Instant.now())){
 						assignmentClosed=false;
 					}
 				}else{
@@ -140,7 +135,7 @@ public class ConnectorHelper {
 				String[] thisAssignmentDescriptor = new String[2];
 				thisAssignmentDescriptor[0] = "Assignment in site:"+thisSite.getTitle()+" - "+thisAssignment.getTitle();
 				thisAssignmentDescriptor[1] = assignmentUrlBuildBuffer.toString();
-				System.out.println("Adding assignment:"+assignmentUrlBuildBuffer.toString());
+				log.info("Adding assignment:"+assignmentUrlBuildBuffer.toString());
 				returnAssignmentList.add(thisAssignmentDescriptor);
 			}
 			
@@ -170,13 +165,13 @@ public class ConnectorHelper {
 		}		
 
 		if(!securityService.unlock(loggedInUserId, "site.upd", "/site/" + siteId)){
-			System.out.println("Assignment - no show"+loggedInUserEid+" is not an instructor.");
+			log.info("Assignment - no show"+loggedInUserEid+" is not an instructor.");
 			return returnAssignmentList;
 		}
 
 		java.util.Date now = new java.util.Date();
 		SimpleDateFormat df = new SimpleDateFormat();
-		System.out.println("now:"+df.format(now));
+		log.info("now:"+df.format(now));
 		long nowMs = now.getTime();
 		if(!assignmentToolNotFound){
 	        HashMap params = new HashMap();
@@ -238,7 +233,7 @@ public class ConnectorHelper {
 		}	
 
 		if(!securityService.unlock(loggedInUserId, "site.upd", "/site/" + siteId)){
-			System.out.println("Assignment - no show"+loggedInUserEid+" is not an instructor.");
+			log.info("Assignment - no show"+loggedInUserEid+" is not an instructor.");
 			return new Vector();
 		}
 		

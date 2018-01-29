@@ -24,15 +24,14 @@ package org.sakaiproject.util;
 import java.security.MessageDigest;
 import java.util.Random;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+
 import org.junit.Assert;
 import org.junit.Test;
 
+@Slf4j
 public class TrustedLoginTokenTest
 {
-	private static final Logger log = LoggerFactory.getLogger(TrustedLoginTokenTest.class);
-
 	@Test
 	public void testDecode() throws Exception
 	{

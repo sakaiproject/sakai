@@ -18,19 +18,20 @@ package org.sakaiproject.tool.assessment.ui.bean.author;
 import java.io.Serializable;
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import javax.faces.model.SelectItem;
+
+import lombok.extern.slf4j.Slf4j;
+import org.sakaiproject.tool.assessment.ui.listener.author.SectionActivityListener.SectionActivityData;
 import org.sakaiproject.user.cover.UserDirectoryService;
 
+@Slf4j
 public class SectionActivityBean implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    private static Logger log = LoggerFactory.getLogger(SectionActivityBean.class);
-
-    private List displayNamesList;
+    private List<SelectItem> displayNamesList;
     private String selectedUser;
-    private List sectionActivityDataList;
+    private List<SectionActivityData> sectionActivityDataList;
     private String sortType="assessmentName";
     private boolean sortAscending = true;
 
@@ -38,7 +39,7 @@ public class SectionActivityBean implements Serializable {
         return displayNamesList;
     }
 
-    public void setDisplayNamesList(List displayNamesList) {
+    public void setDisplayNamesList(List<SelectItem> displayNamesList) {
         this.displayNamesList = displayNamesList;
     }
 
@@ -55,7 +56,7 @@ public class SectionActivityBean implements Serializable {
     }
    
 
-    public void setSectionActivityDataList(List sectionActivityDataList) {
+    public void setSectionActivityDataList(List<SectionActivityData> sectionActivityDataList) {
         this.sectionActivityDataList = sectionActivityDataList;
     }
 
@@ -64,7 +65,7 @@ public class SectionActivityBean implements Serializable {
         try {      
             displayName = UserDirectoryService.getUser(selectedUser).getDisplayName();
         } catch (Exception e) {
-            e.printStackTrace();
+            log.debug("Can't find user", e);
         }
         return displayName ;
     }

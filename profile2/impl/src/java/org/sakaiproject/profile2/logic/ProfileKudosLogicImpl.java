@@ -18,14 +18,13 @@ package org.sakaiproject.profile2.logic;
 import java.math.BigDecimal;
 import java.util.Date;
 
+import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.profile2.cache.CacheManager;
 import org.sakaiproject.profile2.dao.ProfileDao;
 import org.sakaiproject.profile2.hbm.model.ProfileKudos;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import lombok.Setter;
 
 /**
  * Implementation of ProfileKudosLogic API
@@ -33,9 +32,8 @@ import lombok.Setter;
  * @author Steve Swinsburg (steve.swinsburg@gmail.com)
  *
  */
+@Slf4j
 public class ProfileKudosLogicImpl implements ProfileKudosLogic {
-
-	private static final Logger log = LoggerFactory.getLogger(ProfileKudosLogicImpl.class);
 
 	private Cache cache;
 	private final String CACHE_NAME = "org.sakaiproject.profile2.cache.kudos";

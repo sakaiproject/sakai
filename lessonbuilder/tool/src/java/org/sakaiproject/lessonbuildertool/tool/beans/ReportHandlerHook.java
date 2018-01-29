@@ -16,15 +16,15 @@ package org.sakaiproject.lessonbuildertool.tool.beans;
 
 import javax.servlet.http.HttpServletResponse;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.sakaiproject.lessonbuildertool.tool.view.ExportCCViewParameters;
-import org.sakaiproject.lessonbuildertool.ccexport.CCExport;
-import org.sakaiproject.tool.cover.ToolManager;
-import org.sakaiproject.authz.cover.SecurityService;
-import org.sakaiproject.lessonbuildertool.SimplePage;
+import lombok.extern.slf4j.Slf4j;
 
 import uk.org.ponder.rsf.viewstate.ViewParameters;
+
+import org.sakaiproject.authz.cover.SecurityService;
+import org.sakaiproject.lessonbuildertool.SimplePage;
+import org.sakaiproject.lessonbuildertool.ccexport.CCExport;
+import org.sakaiproject.lessonbuildertool.tool.view.ExportCCViewParameters;
+import org.sakaiproject.tool.cover.ToolManager;
 
 /**
  * Handles the generation of files for exporting results
@@ -32,10 +32,8 @@ import uk.org.ponder.rsf.viewstate.ViewParameters;
  * @author Steven Githens
  * @author Aaron Zeckoski (aaronz@vt.edu)
  */
+@Slf4j
 public class ReportHandlerHook {
-
-   private static Logger log = LoggerFactory.getLogger(ReportHandlerHook.class);
-
    private ViewParameters viewparams;
    public void setViewparams(ViewParameters viewparams) {
       this.viewparams = viewparams;

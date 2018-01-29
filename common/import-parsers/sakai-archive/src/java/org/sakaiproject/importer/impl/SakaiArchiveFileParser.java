@@ -34,16 +34,16 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
-import org.sakaiproject.archive.api.ImportMetadata;
+import lombok.extern.slf4j.Slf4j;
+
+import org.w3c.dom.Document;
+import org.xml.sax.SAXException;
+
 import org.sakaiproject.archive.cover.ImportMetadataService;
 import org.sakaiproject.importer.api.ImportDataSource;
 import org.sakaiproject.importer.api.ImportFileParser;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-import org.xml.sax.SAXException;
 
+@Slf4j
 public class SakaiArchiveFileParser extends ZipFileParser {
 	
 	private static final String LEGACY_TOOL = "legacyTool";
@@ -80,24 +80,19 @@ public class SakaiArchiveFileParser extends ZipFileParser {
             DocumentBuilder docBuilder = builderFactory.newDocumentBuilder();
             this.importMappings = (Document) docBuilder.parse(fis);
         } catch (FileNotFoundException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            log.error(e.getMessage(), e);
         } catch (ParserConfigurationException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            log.error(e.getMessage(), e);
         } catch (SAXException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            log.error(e.getMessage(), e);
         } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            log.error(e.getMessage(), e);
         } finally {
             if (fis != null) {
                 try {
                     fis.close();
                 } catch (IOException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
+                    log.error(e.getMessage(), e);
                 }
             }
         }

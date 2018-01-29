@@ -33,6 +33,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.pasystem.api.AcknowledgementType;
 import org.sakaiproject.pasystem.api.Acknowledger;
 import org.sakaiproject.pasystem.api.MissingUuidException;
@@ -46,15 +49,12 @@ import org.sakaiproject.pasystem.impl.common.DBConnection;
 import org.sakaiproject.pasystem.impl.common.DBResults;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.cover.UserDirectoryService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Query and store Popup objects in the database.
  */
+@Slf4j
 public class PopupStorage implements Popups, Acknowledger {
-
-    private static final Logger LOG = LoggerFactory.getLogger(PopupStorage.class);
 
     @Override
     public String createCampaign(Popup popup,
@@ -115,7 +115,7 @@ public class PopupStorage implements Popups, Acknowledger {
 
                                     db.commit();
 
-                                    LOG.info("Update of popup {} completed", uuid);
+                                    log.info("Update of popup {} completed", uuid);
 
                                     return null;
                                 }

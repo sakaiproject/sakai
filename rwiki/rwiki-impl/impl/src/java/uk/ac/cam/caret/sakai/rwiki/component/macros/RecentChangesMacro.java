@@ -32,6 +32,7 @@ import java.util.GregorianCalendar;
 import java.util.Iterator;
 import java.util.List;
 
+import lombok.extern.slf4j.Slf4j;
 import org.radeox.api.macro.MacroParameter;
 import org.radeox.macro.BaseMacro;
 
@@ -52,6 +53,7 @@ import org.sakaiproject.util.ResourceLoader;
  * @author andrew
  */
 // FIXME: Component
+@Slf4j
 public class RecentChangesMacro extends BaseMacro
 {
 
@@ -188,8 +190,7 @@ public class RecentChangesMacro extends BaseMacro
 		{
 			writer.write(Messages.getString("RecentChangesMacro.16")); //$NON-NLS-1$
 			writer.write(e.toString());
-			e.printStackTrace(new PrintWriter(writer));
-
+			log.error(e.getMessage(), e);
 		}
 
 		return;

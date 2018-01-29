@@ -44,4 +44,8 @@ public class ImportedGroup {
 	public void addUser(String userId) {
 		userIds.add(userId);
 	}
+	
+	public String getGroupTitle() { return groupTitle;}
+
+	public SortedSet<String> getUserIds() { return userIds;}
 }

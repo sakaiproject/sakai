@@ -15,9 +15,10 @@
  */
 package org.sakaiproject.content.impl.test;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+
 import org.junit.*;
+
 import org.sakaiproject.authz.api.*;
 import org.sakaiproject.content.api.ContentCollectionEdit;
 import org.sakaiproject.content.api.ContentHostingService;
@@ -30,10 +31,8 @@ import static org.junit.Assert.*;
 import static org.junit.runners.MethodSorters.NAME_ASCENDING;
 
 @FixMethodOrder(NAME_ASCENDING)
+@Slf4j
 public class RoleViewTest extends SakaiKernelTestBase {
-
-    private static final Logger log = LoggerFactory.getLogger(RoleViewTest.class);
-
     protected static final String PHOTOS_COLLECTION = "/private/images/photos/";
     protected static final String TEST_ROLE         = "com.roles.test";
 
@@ -138,4 +137,3 @@ public class RoleViewTest extends SakaiKernelTestBase {
     }
 
 }
-

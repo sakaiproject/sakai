@@ -13,27 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-/**********************************************************************************
-*
-* $Id: AssignmentBean.java  $
-*
-***********************************************************************************
-*
- * Copyright (c) 2005, 2006, 2007, 2008, 2009 The Sakai Foundation, The MIT Corporation
- *
- * Licensed under the Educational Community License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *       http://www.opensource.org/licenses/ECL-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
-*
-**********************************************************************************/
 
 package org.sakaiproject.tool.gradebook.ui;
 
@@ -50,12 +29,14 @@ import java.util.HashMap;
 import javax.faces.event.ValueChangeEvent;
 import javax.faces.model.SelectItem;
 
+import lombok.extern.slf4j.Slf4j;
+
 import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
 import org.sakaiproject.section.api.coursemanagement.EnrollmentRecord;
 import org.sakaiproject.section.api.facade.Role;
 import org.sakaiproject.service.gradebook.shared.ConflictingAssignmentNameException;
+import org.sakaiproject.service.gradebook.shared.MultipleAssignmentSavingException;
 import org.sakaiproject.service.gradebook.shared.StaleObjectModificationException;
 import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.tool.gradebook.GradebookAssignment;
@@ -63,12 +44,10 @@ import org.sakaiproject.tool.gradebook.Category;
 import org.sakaiproject.tool.gradebook.Gradebook;
 import org.sakaiproject.tool.gradebook.jsf.FacesUtil;
 import org.sakaiproject.util.ResourceLoader;
-import org.sakaiproject.service.gradebook.shared.MultipleAssignmentSavingException;
 
+@Slf4j
 public class AssignmentBean extends GradebookDependentBean implements Serializable {
-	private static final Logger logger = LoggerFactory.getLogger(AssignmentBean.class);
-
-	private Long assignmentId;
+    private Long assignmentId;
     private GradebookAssignment assignment;
     private List categoriesSelectList;
     private String extraCreditCategories;
@@ -101,7 +80,7 @@ public class AssignmentBean extends GradebookDependentBean implements Serializab
     private static final int NUM_EXTRA_ASSIGNMENT_ENTRIES = 50;
     
 	protected void init() {
-		if (logger.isDebugEnabled()) logger.debug("init assignment=" + assignment);
+		if (log.isDebugEnabled()) log.debug("init assignment=" + assignment);
 
 		if (assignment == null) {
 			if (assignmentId != null) {
@@ -474,11 +453,11 @@ public class AssignmentBean extends GradebookDependentBean implements Serializab
 			}
 
 		} catch (ConflictingAssignmentNameException e) {
-			logger.error(e.getMessage());
+			log.error(e.getMessage());
             FacesUtil.addErrorMessage(getLocalizedString("edit_assignment_name_conflict_failure"));
             return "failure";
 		} catch (StaleObjectModificationException e) {
-            logger.error(e.getMessage());
+            log.error(e.getMessage());
             FacesUtil.addErrorMessage(getLocalizedString("edit_assignment_locking_failure"));
             return "failure";
 		}
@@ -518,18 +497,18 @@ public class AssignmentBean extends GradebookDependentBean implements Serializab
 	 * View maintenance methods.
 	 */
 	public Long getAssignmentId() {
-		if (logger.isDebugEnabled()) logger.debug("getAssignmentId " + assignmentId);
+		if (log.isDebugEnabled()) log.debug("getAssignmentId " + assignmentId);
 		return assignmentId;
 	}
 	public void setAssignmentId(Long assignmentId) {
-		if (logger.isDebugEnabled()) logger.debug("setAssignmentId " + assignmentId);
+		if (log.isDebugEnabled()) log.debug("setAssignmentId " + assignmentId);
 		if (assignmentId != null) {
 			this.assignmentId = assignmentId;
 		}
 	}
 
     public GradebookAssignment getAssignment() {
-        if (logger.isDebugEnabled()) logger.debug("getAssignment " + assignment);
+        if (log.isDebugEnabled()) log.debug("getAssignment " + assignment);
 		if (assignment == null) {
 			if (assignmentId != null) {
 				assignment = getGradebookManager().getAssignment(assignmentId);

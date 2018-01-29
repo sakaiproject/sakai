@@ -20,21 +20,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.sakaiproject.site.api.Group;
-import org.sakaiproject.site.tool.helper.managegroup.impl.SiteManageGroupHandler;
-import org.sakaiproject.authz.api.AuthzGroup;
-import org.sakaiproject.authz.api.AuthzGroupService;
-import org.sakaiproject.authz.api.GroupNotDefinedException;
-import org.sakaiproject.authz.api.Member;
-import org.sakaiproject.tool.api.SessionManager;
-import org.sakaiproject.tool.api.Tool;
-import org.sakaiproject.user.api.UserDirectoryService;
-import org.sakaiproject.util.Validator;
-
-import org.sakaiproject.rsf.producers.FrameAdjustingProducer;
-import org.sakaiproject.rsf.util.SakaiURLUtil;
+import lombok.extern.slf4j.Slf4j;
 import uk.org.ponder.messageutil.MessageLocator;
 import uk.org.ponder.messageutil.TargettedMessageList;
 import uk.org.ponder.rsf.components.UIBranchContainer;
@@ -60,17 +46,28 @@ import uk.org.ponder.rsf.viewstate.SimpleViewParameters;
 import uk.org.ponder.rsf.viewstate.ViewParameters;
 import uk.org.ponder.stringutil.StringList;
 
+import org.sakaiproject.authz.api.AuthzGroup;
+import org.sakaiproject.authz.api.AuthzGroupService;
+import org.sakaiproject.authz.api.GroupNotDefinedException;
+import org.sakaiproject.authz.api.Member;
+import org.sakaiproject.rsf.producers.FrameAdjustingProducer;
+import org.sakaiproject.rsf.util.SakaiURLUtil;
+import org.sakaiproject.site.api.Group;
+import org.sakaiproject.site.tool.helper.managegroup.impl.SiteManageGroupHandler;
+import org.sakaiproject.tool.api.SessionManager;
+import org.sakaiproject.tool.api.Tool;
+import org.sakaiproject.user.api.UserDirectoryService;
+import org.sakaiproject.util.Validator;
+
 /**
  * 
  * @author Dr. WHO?
  *
  */
+@Slf4j
 public class GroupListProducer 
         implements ViewComponentProducer, ActionResultInterceptor, DefaultView {
-    
-	/** Our log (commons). */
-	private static final Logger M_log = LoggerFactory.getLogger(GroupListProducer.class);
-	
+
     public static final String VIEW_ID = "GroupList";
     public Map siteGroups;
     public SiteManageGroupHandler handler;
@@ -115,7 +112,7 @@ public class GroupListProducer
 		if (groups != null && groups.size() > 0)
         {
 			StringList deletable = new StringList();
-			M_log.debug(this + "fillComponents: got a list of " + groups.size() + " groups");
+			log.debug(this + "fillComponents: got a list of " + groups.size() + " groups");
 			
 			// Create a multiple selection control for the tasks to be deleted.
 			// We will fill in the options at the loop end once we have collected them.
@@ -159,7 +156,7 @@ public class GroupListProducer
 							}
 							catch (Exception e)
 							{
-								M_log.debug(this + "fillInComponent: cannot find user with id " + userId, e);
+								log.debug(this + "fillInComponent: cannot find user with id " + userId, e);
 								// need to remove the group member
 								size--;
 							}
@@ -168,7 +165,7 @@ public class GroupListProducer
 				}
 				catch (GroupNotDefinedException e)
 				{
-					M_log.debug(this + "fillComponent: cannot find group " + group.getReference(), e);
+					log.debug(this + "fillComponent: cannot find group " + group.getReference(), e);
 				}
 				UIOutput.make(grouprow,"group-size",String.valueOf(size));
 				

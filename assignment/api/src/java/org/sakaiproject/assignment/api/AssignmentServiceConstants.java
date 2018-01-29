@@ -15,16 +15,24 @@
  */
 package org.sakaiproject.assignment.api;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
+
+import org.sakaiproject.entity.api.ResourceProperties;
+
 /**
  * Created by enietzel on 2/20/17.
  */
 
 public final class AssignmentServiceConstants {
 
+    public static final String ASSIGNMENT_TOOL_ID = "sakai.assignment.grades";
     /**
      * The type string for this application: should not change over time as it may be stored in various parts of persistent entities.
      */
-    public static final String APPLICATION_ID = "sakai:assignment";
+    public static final String SAKAI_ASSIGNMENT = "sakai:assignment";
     /**
      * This string starts the references to resources in this service.
      */
@@ -38,10 +46,6 @@ public final class AssignmentServiceConstants {
      */
     public static final String SECURE_ADD_ASSIGNMENT = "asn.new";
     /**
-     * Security lock for adding an assignment.
-     */
-    public static final String SECURE_ADD_ASSIGNMENT_CONTENT = "asn.new";
-    /**
      * Security lock for adding an assignment submission.
      */
     public static final String SECURE_ADD_ASSIGNMENT_SUBMISSION = "asn.submit";
@@ -49,10 +53,6 @@ public final class AssignmentServiceConstants {
      * Security lock for removing an assignment.
      */
     public static final String SECURE_REMOVE_ASSIGNMENT = "asn.delete";
-    /**
-     * Security lock for removing an assignment content.
-     */
-    public static final String SECURE_REMOVE_ASSIGNMENT_CONTENT = "asn.delete";
     /**
      * Security lock for removing an assignment submission.
      */
@@ -62,10 +62,6 @@ public final class AssignmentServiceConstants {
      */
     public static final String SECURE_ACCESS_ASSIGNMENT = "asn.read";
     /**
-     * Security lock for accessing an assignment content.
-     */
-    public static final String SECURE_ACCESS_ASSIGNMENT_CONTENT = "asn.read";
-    /**
      * Security lock for accessing an assignment submission.
      */
     public static final String SECURE_ACCESS_ASSIGNMENT_SUBMISSION = "asn.submit";
@@ -73,10 +69,6 @@ public final class AssignmentServiceConstants {
      * Security lock for updating an assignment.
      */
     public static final String SECURE_UPDATE_ASSIGNMENT = "asn.revise";
-    /**
-     * Security lock for updating an assignment content.
-     */
-    public static final String SECURE_UPDATE_ASSIGNMENT_CONTENT = "asn.revise";
     /**
      * Security lock for updating an assignment submission.
      */
@@ -94,17 +86,9 @@ public final class AssignmentServiceConstants {
      */
     public static final String SECURE_SHARE_DRAFTS = "asn.share.drafts";
     /**
-     * The Reference type for a site where site groups are to be considered in security computation.
-     */
-    public static final String REF_TYPE_SITE_GROUPS = "site-groups";
-    /**
      * The Reference type for an assignment.
      */
     public static final String REF_TYPE_ASSIGNMENT = "a";
-    /**
-     * The Reference type for an assignment where site groups are to be considered in security computation.
-     */
-    public static final String REF_TYPE_ASSIGNMENT_GROUPS = "a-groups";
     /**
      * The Reference type for a submission.
      */
@@ -114,13 +98,10 @@ public final class AssignmentServiceConstants {
      */
     public static final String REF_TYPE_CONTENT = "c";
     /**
-     * The Reference type for a grade spreadsheet.
+     * The prefix for a Reference ID.
      */
-    public static final String REF_TYPE_GRADES = "grades";
-    /**
-     * The Reference type for a submissions zip.
-     */
-    public static final String REF_TYPE_SUBMISSIONS = "submissions";
+    public static final String REF_PREFIX = "/content";
+
     // the three choices for Gradebook Integration
     public static final String GRADEBOOK_INTEGRATION_NO = "no";
     public static final String GRADEBOOK_INTEGRATION_ADD = "add";
@@ -131,6 +112,16 @@ public final class AssignmentServiceConstants {
     // and the prop name
     public static final String PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT = "prop_new_assignment_add_to_gradebook";
     public static final String NEW_ASSIGNMENT_CHECK_ANONYMOUS_GRADING = "new_assignment_check_anonymous_grading";
+
+    public static final Set<String> PROPERTIES_EXCLUDED_FROM_DUPLICATE_ASSIGNMENTS =
+            Collections.unmodifiableSet(new HashSet<>(Arrays.asList(
+                    AssignmentConstants.NEW_ASSIGNMENT_DUE_DATE_SCHEDULED,
+                    AssignmentConstants.NEW_ASSIGNMENT_OPEN_DATE_ANNOUNCED,
+                    ResourceProperties.PROP_ASSIGNMENT_DUEDATE_CALENDAR_EVENT_ID,
+                    ResourceProperties.PROP_ASSIGNMENT_OPENDATE_ANNOUNCEMENT_MESSAGE_ID,
+                    ResourceProperties.PROP_ASSIGNMENT_DUEDATE_ADDITIONAL_CALENDAR_EVENT_ID,
+                    AssignmentServiceConstants.NEW_ASSIGNMENT_ADD_TO_GRADEBOOK,
+                    AssignmentServiceConstants.PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT)));
 
     private AssignmentServiceConstants() {
         throw new RuntimeException(this.getClass().getCanonicalName() + " is not to be instantiated");

@@ -30,6 +30,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.api.app.messageforums.MembershipManager;
 import org.sakaiproject.api.app.messageforums.ui.PrivateMessageManager;
 import org.sakaiproject.api.privacy.PrivacyManager;
@@ -49,13 +51,10 @@ import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.util.ResourceLoader;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
+@Slf4j
 public class MembershipManagerImpl implements MembershipManager{
 
-  private static final Logger LOG = LoggerFactory.getLogger(MembershipManagerImpl.class);
-          
   private SiteService siteService;
   private UserDirectoryService userDirectoryService;
   private AuthzGroupService authzGroupService;
@@ -69,7 +68,7 @@ public class MembershipManagerImpl implements MembershipManager{
   
 
   public void init() {
-     LOG.info("init()");
+     log.info("init()");
     ;
   }    
 
@@ -212,7 +211,7 @@ public class MembershipManagerImpl implements MembershipManager{
               }
           }
       } catch (IdUnusedException e) {
-          LOG.warn("Unable to retrieve site to determine current user's fellow section members.");
+          log.warn("Unable to retrieve site to determine current user's fellow section members.");
       }
       
       return fellowMembers;
@@ -248,11 +247,11 @@ public class MembershipManagerImpl implements MembershipManager{
     }
     catch (IdUnusedException e){
 		//FIXME Is this expected behavior?  If so it should be documented - LDS
-      LOG.debug(e.getMessage(), e);
+      log.debug(e.getMessage(), e);
       return returnMap;
     } catch (GroupNotDefinedException e) {
 		//FIXME Is this expected behavior?  If so it should be documented - LDS
-    	LOG.error(e.getMessage(), e);
+    	log.error(e.getMessage(), e);
 	}
 
 	boolean viewHiddenGroups = getPrtMsgManager().isAllowToViewHiddenGroups();
@@ -331,7 +330,7 @@ public class MembershipManagerImpl implements MembershipManager{
 					}
 				}
 			} catch (IdUnusedException e) {
-				LOG.warn("Unable to retrieve site to determine current user's groups.");
+				log.warn("Unable to retrieve site to determine current user's groups.");
 			}
 		}
 
@@ -350,7 +349,7 @@ public class MembershipManagerImpl implements MembershipManager{
 					}
 				}
 			} catch (IdUnusedException e) {
-				LOG.warn("Unable to retrieve site to determine current user's group members.");
+				log.warn("Unable to retrieve site to determine current user's group members.");
 			}
 		}
 		
@@ -381,7 +380,7 @@ public class MembershipManagerImpl implements MembershipManager{
 					}
 				}
 			} catch (IdUnusedException e) {
-				LOG.warn("Unable to retrieve site to determine current user's group member roles.");
+				log.warn("Unable to retrieve site to determine current user's group member roles.");
 			}
 		}
 
@@ -400,7 +399,7 @@ public class MembershipManagerImpl implements MembershipManager{
 					user = userDirectoryService.getUser(userId);
 				}
 			} catch (UserNotDefinedException e) {
-				LOG.warn(" User " + userId + " not defined");
+				log.warn(" User " + userId + " not defined");
 			}
 
 			// Don't want admin as part of the list
@@ -471,7 +470,7 @@ public class MembershipManagerImpl implements MembershipManager{
       realm = authzGroupService.getAuthzGroup(realmId);      
     } catch (GroupNotDefinedException e) {
 		//FIXME Is this expected behavior?  If so it should be documented - LDS
-    	LOG.error(e.getMessage(), e);
+    	log.error(e.getMessage(), e);
 	}
                 
     /** handle users */

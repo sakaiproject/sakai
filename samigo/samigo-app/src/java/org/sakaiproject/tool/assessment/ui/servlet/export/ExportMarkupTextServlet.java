@@ -32,9 +32,9 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.samigo.util.SamigoConstants;
@@ -48,10 +48,10 @@ import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 /**
  * Servlet to export assessments to Markup text language
  */
+@Slf4j
 public class ExportMarkupTextServlet extends HttpServlet {
 
 	private static final long serialVersionUID = 1L;
-	private static final Logger log = LoggerFactory.getLogger(ExportMarkupTextServlet.class);
 	private SecurityService securityService = ComponentManager.get(SecurityService.class);
 
 	/**

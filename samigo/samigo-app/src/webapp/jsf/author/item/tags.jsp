@@ -1,6 +1,6 @@
-<script src="/library/webjars/select2/4.0.3/dist/js/select2.full.min.js"></script>
-<link href="/library/webjars/select2/4.0.3/dist/css/select2.css" rel="stylesheet" type="text/css">
-<script src="/samigo-app/js/i18n/<h:outputText value="#{itemauthor.language}"/>.js"></script>
+<samigo:script path="/../library/webjars/select2/4.0.3/dist/js/select2.full.min.js"/>
+<samigo:stylesheet path="/../library/webjars/select2/4.0.3/dist/css/select2.css"/>
+<sakai:script path="/../library/webjars/select2/4.0.3/dist/js/i18n/#{itemauthor.language}.js"/>
 <f:subview id="delete" rendered="#{itemauthor.deleteTagsAllowed == true}">
     <script type="text/javascript">
 

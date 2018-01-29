@@ -28,8 +28,9 @@ import java.util.TimeZone;
  * <p>
  * TimeService ...
  * </p>
+ * @deprecated Please use {@link UserTimeService} or the new {@link java.time} package.
  */
-public interface TimeService
+public interface TimeService extends UserTimeService
 {
 	/** The type string for this "application": should not change over time as it may be stored in various parts of persistent entities. */
 	static final String APPLICATION_ID = "sakai:time";
@@ -218,19 +219,6 @@ public interface TimeService
 	 */
 	TimeRange newTimeRange(Time start, Time end);
 
-	/**
-	 * Access the users prefered local TimeZone.
-	 * 
-	 * @return The user's local TimeZone.
-	 */
-	TimeZone getLocalTimeZone();
-
-	/**
-	 * Clear local time zone for specified user
-	 * 
-	 * @return true if successful
-	 */
-	boolean clearLocalTimeZone(String userId);
 
 	/**
 	 * Get a Calendar, set to this zone and these values.

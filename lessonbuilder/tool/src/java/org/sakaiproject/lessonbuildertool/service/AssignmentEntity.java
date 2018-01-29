@@ -25,51 +25,39 @@ package org.sakaiproject.lessonbuildertool.service;
 
 import java.io.IOException;
 import java.time.Instant;
-import java.time.temporal.ChronoField;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 
 import lombok.Setter;
-import org.sakaiproject.assignment.api.AssignmentService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import org.jdom.Element;
 import org.jdom.Namespace;
 
+import uk.org.ponder.messageutil.MessageLocator;
+
+import org.sakaiproject.assignment.api.AssignmentService;
+import org.sakaiproject.assignment.api.model.Assignment;
+import org.sakaiproject.assignment.api.model.AssignmentNoteItem;
+import org.sakaiproject.assignment.api.model.AssignmentSubmission;
+import org.sakaiproject.assignment.api.model.AssignmentSupplementItemService;
+import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.entity.cover.EntityManager;  
+import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean;
 import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean.UrlItem;
-import org.sakaiproject.memory.api.SimpleConfiguration;
-import org.sakaiproject.util.FormattedText;
-
-import org.sakaiproject.assignment.api.model.Assignment;
-import org.sakaiproject.assignment.api.model.AssignmentSubmission;
-import org.sakaiproject.assignment.api.model.AssignmentNoteItem;
-import org.sakaiproject.assignment.api.model.AssignmentSupplementItemService;
-
-import org.sakaiproject.exception.IdUnusedException;
-import org.sakaiproject.exception.InUseException;
-import org.sakaiproject.exception.PermissionException;
-
-import org.sakaiproject.site.api.Group;
-import org.sakaiproject.site.api.Site;
-import org.sakaiproject.site.cover.SiteService;
-import org.sakaiproject.tool.cover.ToolManager;
-import org.sakaiproject.site.api.ToolConfiguration;
-import org.sakaiproject.user.api.User;
-import org.sakaiproject.user.cover.UserDirectoryService;
-import org.sakaiproject.component.cover.ServerConfigurationService;             
-import org.sakaiproject.entity.api.ResourceProperties;
-import org.sakaiproject.entity.cover.EntityManager;
-
-import org.sakaiproject.time.api.Time;
-import org.sakaiproject.time.api.TimeBreakdown;
-import org.sakaiproject.time.cover.TimeService;
-
 import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.MemoryService;
-
-import uk.org.ponder.messageutil.MessageLocator;
+import org.sakaiproject.memory.api.SimpleConfiguration;
+import org.sakaiproject.site.api.Group;
+import org.sakaiproject.site.api.Site;
+import org.sakaiproject.site.api.ToolConfiguration;
+import org.sakaiproject.site.cover.SiteService;
+import org.sakaiproject.tool.cover.ToolManager;
+import org.sakaiproject.user.api.User;
+import org.sakaiproject.user.cover.UserDirectoryService;
+import org.sakaiproject.util.FormattedText;
 
 /**
  * Interface to Assignment
@@ -87,18 +75,17 @@ import uk.org.ponder.messageutil.MessageLocator;
 // variables lessonEntity because the same module will probably have an
 // injected class to handle tests and quizes as well. That will eventually
 // be converted to be a LessonEntity.
-
+@Slf4j
 public class AssignmentEntity implements LessonEntity, AssignmentInterface {
 
-	public static final int CACHE_MAX_ENTRIES = 5000;
-	public static final int CACHE_TIME_TO_LIVE_SECONDS = 600;
-	public static final int CACHE_TIME_TO_IDLE_SECONDS = 360;
-	private static Logger log = LoggerFactory.getLogger(AssignmentEntity.class);
+    public static final int CACHE_MAX_ENTRIES = 5000;
+    public static final int CACHE_TIME_TO_LIVE_SECONDS = 600;
+    public static final int CACHE_TIME_TO_IDLE_SECONDS = 360;
 
     private static Cache assignmentCache = null;
 
     private SimplePageBean simplePageBean;
-    @Setter private AssignmentService assignmentService;
+    @Setter private static AssignmentService assignmentService;
 
     public void setSimplePageBean(SimplePageBean simplePageBean) {
 	this.simplePageBean = simplePageBean;
@@ -227,9 +214,8 @@ public class AssignmentEntity implements LessonEntity, AssignmentInterface {
 	List<LessonEntity> ret = new ArrayList<LessonEntity>();
 	// security. assume this is only used in places where it's OK, so skip security checks
 	for (Assignment a : assignmentService.getAssignmentsForContext(ToolManager.getCurrentPlacement().getContext())) {
-	    String deleted = a.getProperties().get(ResourceProperties.PROP_ASSIGNMENT_DELETED);
 	    // this somewhat odd test for deleted is the one used in the Assignment code
-	    if ((deleted == null || "".equals(deleted)) && !a.getDraft()) {
+	    if (!a.getDraft()) {
 		AssignmentEntity entity = new AssignmentEntity(TYPE_ASSIGNMENT, a.getId(), 1);
 		entity.assignment = a;
 		entity.simplePageBean = bean;
@@ -318,7 +304,7 @@ public class AssignmentEntity implements LessonEntity, AssignmentInterface {
 	    assignment = getAssignment(id);
 	if (assignment == null)
 	    return null;
-	return assignment.getDueDate();
+	return Date.from(assignment.getDueDate());
     }
 
     // the following methods all take references. So they're in effect static.
@@ -354,7 +340,7 @@ public class AssignmentEntity implements LessonEntity, AssignmentInterface {
 	try {
 	    // need this to make sure we always unlock
 	    
-	    if (edit.getAccess() == Assignment.Access.GROUPED) {
+	    if (edit.getTypeOfAccess() == Assignment.Access.GROUP) {
 		Collection<String> groups = edit.getGroups();
 		groupId = "/site/" + siteId + "/group/" + groupId;
 
@@ -387,7 +373,7 @@ public class AssignmentEntity implements LessonEntity, AssignmentInterface {
 
 			// this change mode to grouped
 			edit.setGroups(groups);
-			edit.setAccess(Assignment.Access.GROUPED);
+			edit.setTypeOfAccess(Assignment.Access.GROUP);
 
 			assignmentService.updateAssignment(edit);
 		doCancel = false;
@@ -427,7 +413,7 @@ public class AssignmentEntity implements LessonEntity, AssignmentInterface {
 	try {
 	    // need this to make sure we always unlock
 	    
-	    if (edit.getAccess() == Assignment.Access.GROUPED) {
+	    if (edit.getTypeOfAccess() == Assignment.Access.GROUP) {
 		Collection<String> groups = edit.getGroups();
 		groupId = "/site/" + siteId + "/group/" + groupId;
 		
@@ -452,7 +438,7 @@ public class AssignmentEntity implements LessonEntity, AssignmentInterface {
 				edit.setGroups(newGroups);
 		} else {
 		    // no groups left, put site access back
-		    edit.setAccess(Assignment.Access.SITE);
+		    edit.setTypeOfAccess(Assignment.Access.SITE);
 		    edit.setGroups(new HashSet<>());
 		}
 
@@ -571,9 +557,9 @@ public class AssignmentEntity implements LessonEntity, AssignmentInterface {
     public boolean notPublished() {
 	if (!objectExists())
 	    return true;
-	String deleted = assignment.getProperties().get(ResourceProperties.PROP_ASSIGNMENT_DELETED);
+
 	// this somewhat odd test for deleted is the one used in the Assignment code
-	if ((deleted == null || "".equals(deleted)) && !assignment.getDraft())
+	if (!assignment.getDeleted() && !assignment.getDraft())
 	    return false;
 	else
 	    return true;
@@ -589,7 +575,7 @@ public class AssignmentEntity implements LessonEntity, AssignmentInterface {
 	if (assignment == null)
 	    return null;
 	
-	if (assignment.getAccess() != Assignment.Access.GROUPED)
+	if (assignment.getTypeOfAccess() != Assignment.Access.GROUP)
 	    return null;
 	    
 	Collection<String> groupRefs = assignment.getGroups();
@@ -652,7 +638,7 @@ public class AssignmentEntity implements LessonEntity, AssignmentInterface {
 
 		edit.setGroups(groupObjs);
 	    } else {
-		edit.setAccess(Assignment.Access.SITE);
+		edit.setTypeOfAccess(Assignment.Access.SITE);
 		edit.setGroups(new HashSet<>());
 	    }
 
@@ -730,10 +716,10 @@ public class AssignmentEntity implements LessonEntity, AssignmentInterface {
 	    attachments.add(EntityManager.newReference("/content" + href).getReference());
 	    a.setAttachments(attachments);
 	    a.setContext(context);
-	    a.setOpenDate(Date.from(Instant.now()));
-	    a.setDueDate(Date.from(Instant.now().plus(1, ChronoUnit.YEARS)));
+	    a.setOpenDate(Instant.now());
+	    a.setDueDate(Instant.now().plus(1, ChronoUnit.YEARS));
 	    a.setDraft(hide);
-	    a.setAccess(Assignment.Access.SITE);
+	    a.setTypeOfAccess(Assignment.Access.SITE);
 	    a.setGroups(new HashSet<>());
 	    a.setSection("");
 	    a.setTitle(title);
@@ -846,11 +832,11 @@ public class AssignmentEntity implements LessonEntity, AssignmentInterface {
 		a.setAttachments(attachs);
 
 		a.setContext(context);
-	    a.setOpenDate(Date.from(Instant.now()));
-	    a.setDueDate(Date.from(Instant.now().plus(1, ChronoUnit.YEARS)));
+	    a.setOpenDate(Instant.now());
+	    a.setDueDate(Instant.now().plus(1, ChronoUnit.YEARS));
 
 	    a.setDraft(hide);
-	    a.setAccess(Assignment.Access.SITE);
+	    a.setTypeOfAccess(Assignment.Access.SITE);
 	    a.setGroups(new HashSet<>());
 	    a.setSection("");
 	    a.setTitle(title);

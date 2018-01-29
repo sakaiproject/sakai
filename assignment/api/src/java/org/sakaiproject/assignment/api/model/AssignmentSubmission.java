@@ -21,20 +21,42 @@
 
 package org.sakaiproject.assignment.api.model;
 
-import java.util.*;
-import javax.persistence.*;
+import java.time.Instant;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+
+import javax.persistence.CascadeType;
+import javax.persistence.CollectionTable;
+import javax.persistence.Column;
+import javax.persistence.ElementCollection;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.Lob;
+import javax.persistence.ManyToOne;
+import javax.persistence.MapKeyColumn;
+import javax.persistence.OneToMany;
+import javax.persistence.Table;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.GenericGenerator;
+import org.hibernate.annotations.Type;
 
 /**
  * AssignmentSubmission represents a student submission for an assignment.
  */
 
 @Entity
+@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 @Table(name = "ASN_SUBMISSION")
 @Data
 @NoArgsConstructor
@@ -52,97 +74,90 @@ public class AssignmentSubmission {
     @JoinColumn(name = "ASSIGNMENT_ID")
     private Assignment assignment;
 
-    @OneToMany(mappedBy = "submission", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
+    @OneToMany(mappedBy = "submission", fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<AssignmentSubmissionSubmitter> submitters = new HashSet<>();
 
     //private List submissionLog;
 
+    @Type(type = "org.sakaiproject.springframework.orm.hibernate.type.InstantType")
     @Column(name = "SUBMITTED_DATE")
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date dateSubmitted;
+    private Instant dateSubmitted;
 
+    @Type(type = "org.sakaiproject.springframework.orm.hibernate.type.InstantType")
     @Column(name = "RETURNED_DATE")
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date dateReturned;
+    private Instant dateReturned;
 
+    @Type(type = "org.sakaiproject.springframework.orm.hibernate.type.InstantType")
     @Column(name = "CREATED_DATE")
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date dateCreated;
+    private Instant dateCreated;
 
+    @Type(type = "org.sakaiproject.springframework.orm.hibernate.type.InstantType")
     @Column(name = "MODIFIED_DATE")
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date dateModified;
+    private Instant dateModified;
 
+    @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
     @ElementCollection
-    @Column(name = "ATTACHMENT")
+    @Column(name = "ATTACHMENT", length = 1024)
     @CollectionTable(name = "ASN_SUBMISSION_ATTACHMENTS", joinColumns = @JoinColumn(name = "SUBMISSION_ID"))
-    private Set<String> attachments;
+    private Set<String> attachments = new HashSet<>();
 
-    // TODO combine attachments and feedbackAttachements into a single table
+    @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
     @ElementCollection
-    @Column(name = "FEEDBACK_ATTACHMENT")
-    @CollectionTable(name = "ASN_SUBMISSION_FEEDBACK_ATTACHMENTS", joinColumns = @JoinColumn(name = "SUBMISSION_ID"))
-    private Set<String> feedbackAttachments;
+    @Column(name = "FEEDBACK_ATTACHMENT", length = 1024)
+    @CollectionTable(name = "ASN_SUBMISSION_FEEDBACK_ATTACH", joinColumns = @JoinColumn(name = "SUBMISSION_ID"))
+    private Set<String> feedbackAttachments = new HashSet<>();
 
     @Lob
-    @Column(name = "TEXT")
+    @Column(name = "TEXT", length = 65535)
     private String submittedText;
 
     @Lob
-    @Column(name = "FEEDBACK_COMMENT")
+    @Column(name = "FEEDBACK_COMMENT", length = 65535)
     private String feedbackComment;
 
     @Lob
-    @Column(name = "FEEDBACK_TEXT")
+    @Column(name = "FEEDBACK_TEXT", length = 65535)
     private String feedbackText;
 
-    @Column(name = "GRADE")
+    @Column(name = "GRADE", length = 32)
     private String grade;
 
     @Column(name = "FACTOR")
     private Integer factor;
 
     @Column(name = "SUBMITTED")
-    private Boolean submitted;
+    private Boolean submitted = Boolean.FALSE;
 
     @Column(name = "RETURNED")
-    private Boolean returned;
+    private Boolean returned = Boolean.FALSE;
 
     @Column(name = "GRADED")
-    private Boolean graded;
+    private Boolean graded = Boolean.FALSE;
 
-    @Column(name = "GRADED_BY")
+    @Column(name = "GRADED_BY",length = 36)
     private String gradedBy;
 
     @Column(name = "GRADE_RELEASED")
-    private Boolean gradeReleased;
+    private Boolean gradeReleased = Boolean.FALSE;
 
     @Column(name = "HONOR_PLEDGE")
-    private Boolean honorPledge;
-
-    @Column(name = "ANONYMOUS_SUBMISSION_ID")
-    private String anonymousSubmissionId;
+    private Boolean honorPledge = Boolean.FALSE;
 
     @Column(name = "HIDDEN_DUE_DATE")
-    private Boolean hiddenDueDate;
+    private Boolean hiddenDueDate = Boolean.FALSE;
 
     @Column(name = "USER_SUBMISSION")
-    private Boolean userSubmission;
+    private Boolean userSubmission = Boolean.FALSE;
 
-    @Column(name = "GROUP_ID")
+    @Column(name = "GROUP_ID", length = 36)
     private String groupId;
 
+    @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
     @ElementCollection
     @MapKeyColumn(name = "NAME")
-    @Column(name = "VALUE")
+    @Lob
+    @Column(name = "VALUE", length = 65535)
     @CollectionTable(name = "ASN_SUBMISSION_PROPERTIES", joinColumns = @JoinColumn(name = "SUBMISSION_ID"))
     private Map<String, String> properties = new HashMap<>();
-
-    // TODO this data should come from a ReviewableSubmissionEntity and not be part of the Submission (SOLID)
-    // for this data will be stored in the submissions properties
-    // private Integer reviewScore;
-    // private String reviewReport;
-    // private String reviewStatus;
-    // private String reviewIconUrl;
-    // private String reviewError;
 }

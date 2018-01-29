@@ -28,9 +28,9 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
 import org.sakaiproject.poll.logic.ExternalLogic;
 import org.sakaiproject.poll.logic.PollListManager;
 import org.sakaiproject.poll.logic.PollVoteManager;
@@ -64,6 +64,7 @@ import uk.org.ponder.rsf.components.decorators.DecoratorList;
 import uk.org.ponder.rsf.components.decorators.UIFreeAttributeDecorator;
 import uk.org.ponder.rsf.components.decorators.UITooltipDecorator;
 
+@Slf4j
 public class ResultsProducer implements ViewComponentProducer,NavigationCaseReporter,ViewParamsReporter {
 
 	public static final String VIEW_ID = "voteResults";
@@ -73,21 +74,11 @@ public class ResultsProducer implements ViewComponentProducer,NavigationCaseRepo
 	private PollVoteManager pollVoteManager;
 	private MessageLocator messageLocator;
 	private LocaleGetter localegetter;
-		  
-
-	private static final Logger LOG  = LoggerFactory.getLogger(ResultsProducer.class);
-
-
-
 
 	public String getViewID() {
 		// TODO Auto-generated method stub
 		return VIEW_ID;
 	}
-
-
-
-
 
 	public void setMessageLocator(MessageLocator messageLocator) {
 
@@ -125,7 +116,7 @@ public class ResultsProducer implements ViewComponentProducer,NavigationCaseRepo
 		PollViewParameters ecvp = (PollViewParameters) viewparams;
 
 		String strId = ecvp.id;
-		LOG.debug("got id of " + strId);
+		log.debug("got id of " + strId);
 		Poll poll = pollListManager.getPollById(Long.valueOf(strId));
 
 		if (!pollListManager.isAllowedViewResults(poll, externalLogic.getCurrentUserId())) {
@@ -149,13 +140,13 @@ public class ResultsProducer implements ViewComponentProducer,NavigationCaseRepo
 		if (poll.getMaxOptions()>1)
 			UIOutput.make(tofill,"poll-size",messageLocator.getMessage("results_poll_size",Integer.valueOf(voters).toString()));
 
-		LOG.debug(voters + " have voted on this poll");
+		log.debug(voters + " have voted on this poll");
 
 		UIOutput.make(tofill,"question",poll.getText());
-		LOG.debug("got poll " + poll.getText());
+		log.debug("got poll " + poll.getText());
 		List<Option> pollOptions = poll.getPollOptions();
 
-		LOG.debug("got a list of " + pollOptions.size() + " options");
+		log.debug("got a list of " + pollOptions.size() + " options");
 		//Append an option for no votes
 		if (poll.getMinOptions()==0) {
 			Option noVote = new Option(Long.valueOf(0));
@@ -166,20 +157,20 @@ public class ResultsProducer implements ViewComponentProducer,NavigationCaseRepo
 
 		List<Vote> votes = pollVoteManager.getAllVotesForPoll(poll);
 		int totalVotes= votes.size();
-		LOG.debug("got " + totalVotes + " votes");
+		log.debug("got " + totalVotes + " votes");
 		List<CollatedVote> collation = new ArrayList<CollatedVote>();
 
 		for (int i=0; i <pollOptions.size(); i++ ) {
 			CollatedVote collatedVote = new CollatedVote();
 			Option option = (Option) pollOptions.get(i);
-			LOG.debug("collating option " + option.getOptionId());
+			log.debug("collating option " + option.getOptionId());
 			collatedVote.setoptionId(option.getOptionId());
 			collatedVote.setOptionText(option.getOptionText());
 			collatedVote.setDeleted(option.getDeleted());
 			for (int q=0; q <votes.size(); q++ ) {
 				Vote vote = (Vote)votes.get(q);
 				if (vote.getPollOption().equals(option.getOptionId())){
-					LOG.debug("got a vote for option " + option.getOptionId());
+					log.debug("got a vote for option " + option.getOptionId());
 					collatedVote.incrementVotes();
 
 				}
@@ -219,7 +210,7 @@ public class ResultsProducer implements ViewComponentProducer,NavigationCaseRepo
 			UIOutput.make(resultRow,"answer-numVotes",Long.valueOf(cv.getVotes()).toString());
 			
 			
-			LOG.debug("about to do the calc: (" + cv.getVotes()+"/"+ totalVotes +")*100");
+			log.debug("about to do the calc: (" + cv.getVotes()+"/"+ totalVotes +")*100");
 			double percent = (double)0;
 			if (totalVotes>0  && poll.getMaxOptions() == 1)
 				percent = ((double)cv.getVotes()/(double)totalVotes); //*(double)100;
@@ -234,7 +225,7 @@ public class ResultsProducer implements ViewComponentProducer,NavigationCaseRepo
 			chartTextData.put(cv.getoptionId(), StringUtils.removeStart(optionText, "&nbsp;"));
 			chartValueData.put(cv.getoptionId(), StringUtils.removeEnd(nf.format(percent), "%"));
 
-			LOG.debug("result is "+ percent);
+			log.debug("result is "+ percent);
 			UIOutput.make(resultRow,"answer-percVotes", nf.format(percent));
 
 		}
@@ -264,7 +255,7 @@ public class ResultsProducer implements ViewComponentProducer,NavigationCaseRepo
 			sbBar.append("chco=FF0000,00FF00,0000FF,FFFF00,00FFFF,FF00FF,C0C0C0,800080,000080,808000,800000,FF00FF,008080,800000,008000");
 			
 			UILink barChart = UILink.make(tofill,"poll-chart-bar",sbBar.toString());
-			LOG.debug("bar chart URL:" + sbBar.toString());
+			log.debug("bar chart URL:" + sbBar.toString());
 		
 			//setup pie chart
 			//data separator is ,
@@ -277,7 +268,7 @@ public class ResultsProducer implements ViewComponentProducer,NavigationCaseRepo
 			sbPie.append("chco=FF0000,00FF00,0000FF,FFFF00,00FFFF,FF00FF,C0C0C0,800080,000080,808000,800000,FF00FF,008080,800000,008000");
 			
 			UILink pieChart = UILink.make(tofill,"poll-chart-pie",sbPie.toString());
-			LOG.debug("pie chart URL:" + sbPie.toString());
+			log.debug("pie chart URL:" + sbPie.toString());
 			
 			//refresh link
 			UIInternalLink resultsLink =  UIInternalLink.make(tofill, "results-refresh", messageLocator.getMessage("action_refresh_results"), new PollViewParameters(ResultsProducer.VIEW_ID, poll.getPollId().toString()));

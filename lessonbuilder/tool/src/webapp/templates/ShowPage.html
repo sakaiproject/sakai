@@ -230,7 +230,6 @@
 		<li rsf:id="remove-student" class="contentButton"><span><a role="menuitem button" href="#" rsf:id="remove-page-student" class="add-at-end remove-page"><span rsf:id="msg=simplepage.remove-page" role="menuitem"></span></a></span></li>
 
                 <li class="contentButton"><span><a role="menuitem button" class="add-at-end" href="#" rsf:id="reorder"><span aria-hidden="true" class="fa-button-text"></span></a></span></li>
-                <li  class="contentButton"><span><a role="menuitem button" href="#" rsf:id="help" target="_blank"></a></span></li>
                 <li  class="contentButton">
                     <span rsf:id="title-descrip">
                     <a role="menuitem button" aria-haspopup="dialog" aria-controls="edit-title-dialog" href="#" rsf:id="edit-title" id="edit-title"><span aria-hidden="true" class="fa-button-text fa-cog"></span><span class="offscreen" rsf:id="edit-title-text"></span></a>
@@ -284,6 +283,9 @@
 		  </li>
 		  <li>
 		    <a role="menuitem" href="#" rsf:id="add-folder" class="add-folder add-before-param"><span rsf:id="msg.simplepage.folder"></span></a>
+		  </li>
+		  <li rsf:id="blti-app-li">
+		    <a href="#" role="menuitem button" rsf:id="add-blti-app" class="add-before-param"><span rsf:id="msg.simplepage.blti.app"></span></a>
 		  </li>
 		  <hr class="addbreak" style="border:none" rsf:id="add-break1"/>
 		  <li rsf:id="add-break2" class="addbreak">
@@ -1328,7 +1330,7 @@
 			</div>
                         <p class="required">
                             <textarea id="mm-names" rsf:id="mm-names"style="display:none"></textarea>
-                            <label rsf:id="msg=simplepage.upload_label" for="mm-file">File</label>
+                            <label rsf:id="msg=simplepage.upload_label" for="mm-file" class="mm-file">File</label>
 			    <div class="add-file-div">
 			      <p class="add-another-file" style="margin-top:10px; display:none"  rsf:id="msg=simplepage.another-file">xxx</p>
                               <input type="file" name="mm-file" id="mm-file" style="width:95%" class="edit-multimedia-input mm-file-input" multiple="" />
@@ -1338,7 +1340,7 @@
 			      <label for="mm-file-replace"><span rsf:id="msg=simplepage.file-replace"></span></label>
 			    </span>
                         </p>
-                        <p class="required" style="">
+                        <p class="required mm-resources-section" style="">
                             <a role="button" href="#" id="mm-choose" rsf:id="mm-choose">...or choose exiting file</a>
                         </p>
 

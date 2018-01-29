@@ -23,12 +23,13 @@ import java.net.URLDecoder;
 import java.util.Arrays;
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
+
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentCollection;
 import org.sakaiproject.content.api.ContentCollectionEdit;
@@ -48,10 +49,10 @@ import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.util.BasicConfigItem;
 
 @FixMethodOrder(NAME_ASCENDING)
+@Slf4j
 public class ContentHostingServiceTest extends SakaiKernelTestBase {
 
 	private static final String SIMPLE_FOLDER1 = "/admin/folder1/";
-	private static final Logger log = LoggerFactory.getLogger(ContentHostingServiceTest.class);
 	
 	@BeforeClass
 	public static void beforeClass() {
@@ -113,16 +114,16 @@ public class ContentHostingServiceTest extends SakaiKernelTestBase {
 			ch.commitCollection(ce);
 			log.info("commited folder:" + ce.getId());
 		} catch (IdUsedException e) {
-			e.printStackTrace();
+			log.error(e.getMessage(), e);
 			Assert.fail("Got an id Used exception!");
 		} catch (IdInvalidException e) {
-			e.printStackTrace();
+			log.error(e.getMessage(), e);
 			Assert.fail("That id is invalid!");
 		} catch (PermissionException e) {
-			e.printStackTrace();
+			log.error(e.getMessage(), e);
 			Assert.fail();
 		} catch (InconsistentException e) {
-			e.printStackTrace();
+			log.error(e.getMessage(), e);
 			Assert.fail();
 		}
 		
@@ -143,7 +144,7 @@ public class ContentHostingServiceTest extends SakaiKernelTestBase {
 			ch.commitCollection(cce);
 			log.info("commited folder:" + cce.getId());
 		} catch (IdUsedException e) {
-			e.printStackTrace();
+			log.error(e.getMessage(), e);
 		} catch (Exception e) {
 			Assert.fail(e.getMessage());
 		}
@@ -249,7 +250,7 @@ public class ContentHostingServiceTest extends SakaiKernelTestBase {
 			String fileName = fileNames.get(i);
 			//Stored in CHS it needs a slash
 			String CHSfileName = "/"+fileName;
-			System.out.println("Loading up file:"+fileName);
+			log.debug("Loading up file: {}", fileName);
 			stream = this.getClass().getResourceAsStream("/test-documents"+CHSfileName);
 			Assert.assertNotNull(stream);
 			ResourcePropertiesEdit props = ch.newResourceProperties();
@@ -258,7 +259,7 @@ public class ContentHostingServiceTest extends SakaiKernelTestBase {
 			ch.addResource(CHSfileName, "", stream, props ,0);
 			//Now get it back and check the mime type
 			cr = ch.getResource(CHSfileName);
-			System.out.println("Expecting mime:" + expectedMimes.get(i)+" and got " + cr.getContentType());
+			log.debug("Expecting mime:{} and got {}", expectedMimes.get(i), cr.getContentType());
 			Assert.assertEquals(cr.getContentType(), expectedMimes.get(i));
 			stream.close();
 		}

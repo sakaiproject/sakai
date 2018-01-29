@@ -23,6 +23,7 @@ package org.sakaiproject.tool.assessment.ui.bean.delivery;
 
 import java.util.List;
 
+import lombok.extern.slf4j.Slf4j;
 import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AnswerIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextIfc;
@@ -31,7 +32,8 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextIfc;
  * @author kimhuang@rutgers.edu
  * $Id$
  */
-public class MatrixSurveyBean
+@Slf4j
+ public class MatrixSurveyBean
 {
 
 	private ItemContentsBean parent;
@@ -98,9 +100,6 @@ public class MatrixSurveyBean
   public void setResponseId(String newresp)
   {
 
-	//System.out.print("\nkim debug: MatrixSurveyBean:setResponse: newresp: " +newresp+"\n");
-	//System.out.print("\nkim debug: MatrixSurveyBean: setResponse: ItemText : " + itemText.getText());
-    //System.out.print("\nkim debug: MatrixSurveyBean:setResponse:setPublishedItemTextId:itemText.getId()\n"+itemText.getId()+"\n");
     responseId = newresp;
     if (newresp != null)
     {
@@ -113,18 +112,8 @@ public class MatrixSurveyBean
     			items.remove(i);
     		}
     	}
-/*
-    	//debugging purpose
-    	Iterator iter = parent.getItemGradingDataArray().iterator();
-    	while(iter.hasNext())
-    	{
-    		ItemGradingData gradingData = (ItemGradingData) iter.next();
-    		System.out.print("\n kim debug: MatrixSurveyBean.java- traversing gradingData.ItemId:"+ 
-    				gradingData.getPublishedItemId()+" ItemTextId:"+ 
-    				gradingData.getPublishedItemTextId() +" AnswerId: "+ gradingData.getPublishedAnswerId()+"\n");
-    	}
-    	*/
-    	// 2. add the new selection to the list
+
+		// 2. add the new selection to the list
     	if (data ==null)
             data = new ItemGradingData();
     	
@@ -132,24 +121,12 @@ public class MatrixSurveyBean
         data.setPublishedItemTextId(itemText.getId());
         data.setPublishedAnswerId(new Long(newresp));
         
-        //System.out.print("\n matrixSurveyBean.java: after setting the data>>ItemId>>itemTextId+newresp "+ data.getPublishedItemId()+data.getPublishedItemTextId()+data.getPublishedAnswerId()+"\n");
+        log.debug("After setting the data>>ItemId>>itemTextId+newresp "+ data.getPublishedItemId()+data.getPublishedItemTextId()+data.getPublishedAnswerId()+"\n");
     	items = parent.getItemGradingDataArray();
     	items.add(data);
     	parent.setItemGradingDataArray(items);
-    	
-//debugging purpose
-    	/*
-    	iter = parent.getItemGradingDataArray().iterator();
-    	while(iter.hasNext())
-    	{
-    		ItemGradingData gradingData = (ItemGradingData) iter.next();
-    		System.out.print("\n kim debug2: ItemGradingDataArray: gradingData.ItemId: " + gradingData.getPublishedItemId());
-    		System.out.print("\n kim debug2: ItemGradingDataArray: gradingData.ItemTextId: " + gradingData.getPublishedItemTextId());
-    		System.out.print("\n kim debug2: ItemGradingDataArray: gradingData.AnswerId: " + gradingData.getPublishedAnswerId());
-    	}
-    	*/
+
     }
-    	
     }
 
 public void setResponseFromCleanRadioButton() {

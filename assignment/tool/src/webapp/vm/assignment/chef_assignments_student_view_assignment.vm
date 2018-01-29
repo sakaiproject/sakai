@@ -1,13 +1,11 @@
-<!-- $Id$ -->
-<!-- start: check_assignments_student_view_assignment.vm -->
-##<!-- $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/assignment/chef_assignments_student_view_grade.vm,v 1.2 2005/05/19 19:39:49 gsilver.umich.edu Exp $ -->
+<!-- start: chef_assignments_student_view_assignment.vm -->
 <script type="text/javascript">
     $(document).ready(function(){
         ASN.setupToggleAreas('toggleAnchor', 'toggledContent', false, 'fast');
     });
 </script>
 
-#set ($submissionType = $assignment.getContent().getTypeOfSubmission())
+#set ($submissionType = $assignment.TypeOfSubmission)
 #set($allowUpdateAssignment=$!service.allowUpdateAssignment($assignmentReference))
 <div class="portletBody">
 		<h3>
@@ -32,7 +30,7 @@
 					$tlang.getString("gen.open")
 				</th>
 				<td>
-					$assignment.OpenTime.toStringLocalFull()
+					$!service.getUsersLocalDateTimeString($assignment.OpenDate)
 				</td>
 			</tr>
 			<tr>
@@ -40,7 +38,7 @@
 					$tlang.getString("viewassig.datcre")
 				</th>
 				<td>
-					$assignment.TimeCreated.toStringLocalFull()
+					$!service.getUsersLocalDateTimeString($assignment.DateCreated)
 				</td>
 			</tr>
 			<tr> 
@@ -48,8 +46,8 @@
 					$tlang.getString("gen.due")
 				</th>
 				<td>
-                    #if ($assignment.getContent().getHideDueDate() != "true" || $!allowUpdateAssignment)
-                        $!assignment.dueTime.toStringLocalFull()
+                    #if (!$assignment.HideDueDate || $!allowUpdateAssignment)
+                        $!service.getUsersLocalDateTimeString($!assignment.DueDate)
                     #end
 				</td>
 			</tr>
@@ -58,17 +56,17 @@
 					$tlang.getString("viewassig.datcre")
 				</th>
 				<td>
-					$assignment.TimeLastModified.toStringLocalFull()
+					$!service.getUsersLocalDateTimeString($assignment.DateModified)
 				</td>
 			</tr>
-			#set ($closeDate = $assignment.getCloseTime())
+			#set ($closeDate = $assignment.CloseDate)
 			#if ($!closeDate)
 				<tr> 
 					<th>
 						$tlang.getString("gen.acesubunt")
 					</th>
 					<td>
-						$assignment.CloseTime.toStringLocalFull()
+						$!service.getUsersLocalDateTimeString($closeDate)
 					</td>
 				</tr>
 			#end
@@ -101,7 +99,7 @@
                                         $tlang.getString("gen.groupassignment")
                                 </th>
                                 <td>
-                                        #if ($assignment.isGroup())
+                                        #if ($assignment.IsGroup)
                                         $tlang.getString("gen.yes")
                                         #else
                                         $tlang.getString("gen.no")
@@ -113,10 +111,10 @@
 					$tlang.getString("gen.gra")
 				</th>
 				<td>
-					#set ($gradeScale = $assignment.getContent().getTypeOfGradeString())
+					#set ($gradeScale = $assignment.TypeOfGrade)
 					$gradeScale
-					#if ($gradeTypeTable.get($assignment.getContent().getTypeOfGrade()) == $!tlang.getString("points"))
-						($tlang.getString("grade.max") $assignment.getContent().getMaxGradePointDisplay())
+					#if ($gradeTypeTable.get($assignment.TypeOfGrade) == $!tlang.getString("points"))
+						($tlang.getString("grade.max") $assignment.MaxGradePoint)
 					#end
 				</td>
 			</tr>
@@ -125,10 +123,10 @@
 					$tlang.getString("gen.honple")
 				</td>
 				<td> 
-					#if ($assignment.getContent().HonorPledge == 1)
-						$tlang.getString("gen.no")
-					#else
+					#if ($assignment.HonorPledge)
 						$tlang.getString("gen.yes")
+					#else
+						$tlang.getString("gen.no")
 					#end
 				</td>
 			</tr>
@@ -137,15 +135,15 @@
 			$tlang.getString("gen.assinf")
 		</h4>
 		<p>					
-			#if ($assignment.getContent().getInstructions().length()>0)
-				$validator.escapeHtmlFormattedText($assignment.getContent().getInstructions())
+			#if ($assignment.Instructions.length()>0)
+				$validator.escapeHtmlFormattedText($assignment.Instructions)
 			#end
 		</p>
 		## assignment attachment
 		#set ($size = 0)
 		#set ($props = false)
-		#foreach ($attachment in $assignment.getContent().getAttachments()) 
-			#set ($props = $attachment.Properties) 
+		#foreach ($attachment in $assignment.Attachments)
+			#set ($props = $attachment.Properties)
 			#if ($!props)
 				#set ($size = $size + 1)
 			#end
@@ -157,7 +155,7 @@
 				$tlang.getString("gen.addres2")
 			</h4>	
 			<ul class="attachList">
-				#foreach ($attachment in $assignment.getContent().getAttachments()) 
+				#foreach ($attachment in $assignment.Attachments)
 					#set ($props = false)
 					#set ($props = $attachment.Properties) 
 					#if ($!props)
@@ -189,15 +187,7 @@
 									#set ($size = $size + 1)
 								#end
 							#end
-							#if ($size == 0)
-								<p class="instruction">
-                                                                    #if ($submissionType == 5)
-                                                                        $tlang.getString("gen.noatt.single")
-                                                                    #else
-                                                                        $tlang.getString("gen.noatt")
-                                                                    #end
-                                                                </p>
-							#else
+							#if ($size > 0)
 								#foreach ($attachment in $mAttachments)
 									#set ($props = false)
 									#set ($props = $attachment.Properties) 
@@ -279,7 +269,6 @@
 		#end
 	<form name="viewAssignmentsForm" action="#toolForm("AssignmentAction")" method="post">
 		<input type="hidden" name="assignmentId" value="$assignment.Reference" />
-		<input type="hidden" name="assignmentContentId" value="$assignment.ContentReference" />
 			<div class="act">
 				<input type="submit" name="eventSubmit_doCancel_student_view_assignment" value="$tlang.getString("gen.don")" onclick="SPNR.disableControlsAndSpin( this, null );" />
 			</div>

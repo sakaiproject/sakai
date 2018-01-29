@@ -36,8 +36,8 @@ import java.util.TimeZone;
 
 import junit.framework.TestCase;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.calendar.impl.DbCalendarService.DbStorage;
 import org.sakaiproject.db.api.SqlReader;
 import org.sakaiproject.db.api.SqlService;
@@ -55,10 +55,9 @@ import org.sakaiproject.time.api.TimeService;
  * @author ieb
  *
  */
+@Slf4j
 public class DbCalendarServiceSerializationTest extends TestCase
 {
-
-	private static final Logger log = LoggerFactory.getLogger(DbCalendarServiceSerializationTest.class);
 	private SqlService sqlService;
 	private Entity container;
 	private EntityManager entityManager;
@@ -224,6 +223,12 @@ public class DbCalendarServiceSerializationTest extends TestCase
 			}
 
 			public boolean dbWrite(String sql, Object[] fields, String lastField)
+			{
+				// TODO Auto-generated method stub
+				return false;
+			}
+
+			public boolean dbWriteBatch(Connection connection, String sql, List<Object[]> fieldsList)
 			{
 				// TODO Auto-generated method stub
 				return false;

@@ -27,8 +27,10 @@ import java.util.Vector;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+
+import org.sakaiproject.authz.api.AuthzGroupService;
+import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.entitybroker.EntityView;
 import org.sakaiproject.entitybroker.entityprovider.CoreEntityProvider;
@@ -52,8 +54,6 @@ import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.event.api.UsageSessionService;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.SessionManager;
-import org.sakaiproject.authz.api.AuthzGroupService;
-import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.user.api.Authentication;
 import org.sakaiproject.user.api.AuthenticationException;
 import org.sakaiproject.user.api.AuthenticationManager;
@@ -68,13 +68,13 @@ import org.sakaiproject.util.IdPwEvidence;
  * 
  * @author Aaron Zeckoski (azeckoski @ gmail.com)
  */
+@Slf4j
 public class SessionEntityProvider extends AbstractEntityProvider implements CoreEntityProvider, CRUDable, CollectionResolvable, 
       Inputable, Outputable, RequestAware, Describeable, RedirectDefinable, ActionsExecutable {
 
    public static String AUTH_USERNAME = "_username";
    public static String AUTH_PASSWORD = "_password";
 
-   private static Logger log = LoggerFactory.getLogger(SessionEntityProvider.class);
    protected static final String SU_WS_BECOME_USER = "su.ws.become";
 
    public AuthenticationManager authenticationManager;

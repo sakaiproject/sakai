@@ -38,7 +38,7 @@ import org.sakaiproject.site.api.Site;
  * Location is a combination of site id, (optional) page id and (optional) tool id
  * </p>
  */
-public interface LTIService {
+public interface LTIService extends LTISubstitutionsFilter {
     /**
      * This string starts the references to resources in this service.
      */
@@ -62,6 +62,7 @@ public interface LTIService {
             "pagetitle:text:label=bl_pagetitle:required=true:allowed=true:maxlength=1024",
             "fa_icon:text:label=bl_fa_icon:allowed=true:maxlength=1024",
             "frameheight:integer:label=bl_frameheight:allowed=true",
+            "toolorder:integer:label=bl_toolorder:maxlength=2",
             "newpage:checkbox:label=bl_newpage",
             "debug:checkbox:label=bl_debug",
             "custom:textarea:label=bl_custom:rows=5:cols=25:allowed=true:maxlength=16384",
@@ -79,6 +80,9 @@ public interface LTIService {
             "placement:text:hidden=true:maxlength=256",
             "placementsecret:text:hidden=true:maxlength=512",
             "oldplacementsecret:text:hidden=true:maxlength=512",
+            // LTI 1.3 expansion space (See SAK-33772)
+            "lti13:radio:label=bl_lti13:role=admin",
+            "lti13_settings:text:maxlength=1M:role=admin",
             "created_at:autodate",
             "updated_at:autodate"};
     String[] CONTENT_EXTRA_FIELDS = {
@@ -114,6 +118,7 @@ public interface LTIService {
             "secret:text:label=bl_secret:maxlength=1024",
             "allowsecret:radio:label=bl_allowsecret:choices=disallow,allow:only=lti1",
             "frameheight:integer:label=bl_frameheight",
+            "toolorder:integer:label=bl_toolorder:maxlength=2",
             "allowframeheight:radio:label=bl_allowframeheight:choices=disallow,allow",
             "siteinfoconfig:radio:label=bl_siteinfoconfig:choices=bypass,config",
             "privacy:header:fields=sendname,sendemailaddr",
@@ -141,6 +146,9 @@ public interface LTIService {
             "parameter:textarea:label=bl_parameter:rows=5:cols=25:maxlength=16384:only=lti2",
             "tool_proxy_binding:textarea:label=bl_tool_proxy_binding:maxlength=2M:only=lti2:hide=insert:role=admin",
             "allowcustom:checkbox:label=bl_allowcustom",
+            // LTI 1.3 expansion space (See SAK-33772)
+            "lti13:radio:label=bl_lti13:choices=off,on,content:role=admin",
+            "lti13_settings:text:maxlength=1M:role=admin",
             "xmlimport:textarea:hidden=true:maxlength=1M",
             "splash:textarea:label=bl_splash:rows=5:cols=25:maxlength=16384",
             "created_at:autodate",
@@ -217,6 +225,7 @@ public interface LTIService {
     String LTI_SECRET_INCOMPLETE = "-----";
     String LTI_FRAMEHEIGHT = "frameheight";
     String LTI_ALLOWFRAMEHEIGHT = "allowframeheight";
+    String LTI_TOOLORDER = "toolorder";
     String LTI_SENDNAME = "sendname";
     String LTI_SENDEMAILADDR = "sendemailaddr";
     String LTI_ALLOWOUTCOMES = "allowoutcomes";
@@ -507,4 +516,16 @@ public interface LTIService {
     String formInput(Object row, String[] fieldInfo);
 
     boolean isAdmin(String siteId);
+
+    /**
+     * This adds a filter for the custom properties.
+     * @param filter The filter to add.
+     */
+    void registerPropertiesFilter(LTISubstitutionsFilter filter);
+
+    /**
+     * This removes a filter for custom properties.
+     * @param filter The filter to remove.
+     */
+    void removePropertiesFilter(LTISubstitutionsFilter filter);
 }

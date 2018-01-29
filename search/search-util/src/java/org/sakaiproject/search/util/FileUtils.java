@@ -35,12 +35,12 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * @author ieb
  */
+@Slf4j
 public class FileUtils
 {
 	/**
@@ -66,8 +66,6 @@ public class FileUtils
 		void doAfterFile(File f);
 
 	}
-
-	private static final Logger log = LoggerFactory.getLogger(FileUtils.class);
 
 	/**
 	 * delete all files under this file and including this file

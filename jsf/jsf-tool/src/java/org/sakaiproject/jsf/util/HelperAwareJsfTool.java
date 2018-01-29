@@ -20,8 +20,16 @@
 **********************************************************************************/
 package org.sakaiproject.jsf.util;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.io.IOException;
+import java.util.Enumeration;
+
+import javax.servlet.RequestDispatcher;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.jsf.util.JsfTool;
 import org.sakaiproject.tool.api.ActiveTool;
 import org.sakaiproject.tool.api.Tool;
@@ -31,13 +39,6 @@ import org.sakaiproject.tool.cover.ActiveToolManager;
 import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.util.Web;
 
-import javax.servlet.RequestDispatcher;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.util.Enumeration;
-
 /**
  * Created by IntelliJ IDEA.
  * User: John Ellis
@@ -45,9 +46,8 @@ import java.util.Enumeration;
  * Time: 4:17:18 PM
  * To change this template use File | Settings | File Templates.
  */
+@Slf4j
 public class HelperAwareJsfTool extends JsfTool {
-
-  private static Logger M_log = LoggerFactory.getLogger(HelperAwareJsfTool.class);
 
   private static final String HELPER_EXT = ".helper";
 
@@ -164,7 +164,7 @@ public class HelperAwareJsfTool extends JsfTool {
       res.addHeader("Pragma", "no-cache");
 
       // dispatch to the target
-      M_log.debug("dispatching path: " + req.getPathInfo() + " to: " + target + " context: "
+      log.debug("dispatching path: " + req.getPathInfo() + " to: " + target + " context: "
               + getServletContext().getServletContextName());
       RequestDispatcher dispatcher = getServletContext().getRequestDispatcher(target);
       dispatcher.forward(req, res);

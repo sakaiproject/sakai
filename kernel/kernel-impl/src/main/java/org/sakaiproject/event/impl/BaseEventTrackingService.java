@@ -21,8 +21,12 @@
 
 package org.sakaiproject.event.impl;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.util.Date;
+import java.util.Observable;
+import java.util.Observer;
+
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.entity.api.EntityManager;
@@ -41,20 +45,14 @@ import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.user.api.User;
 
-import java.util.Date;
-import java.util.Observable;
-import java.util.Observer;
-
 /**
  * <p>
  * BaseEventTrackingService is the base implmentation for the EventTracking service.
  * </p>
  */
+@Slf4j
 public abstract class BaseEventTrackingService implements EventTrackingService
 {
-	/** Our logger. */
-	private static Logger M_log = LoggerFactory.getLogger(BaseEventTrackingService.class);
-
 	/** An observable object helper. */
 	protected MyObservable m_observableHelper = new MyObservable();
 
@@ -94,7 +92,7 @@ public abstract class BaseEventTrackingService implements EventTrackingService
 	{
 		// %%% inline like this, or on a new thread?
 
-		if (M_log.isDebugEnabled()) M_log.debug(this + " Notification - Event: " + event);
+		if (log.isDebugEnabled()) log.debug(this + " Notification - Event: " + event);
 
 		// first, notify all priority observers
 		m_priorityObservableHelper.setChanged();
@@ -155,7 +153,7 @@ public abstract class BaseEventTrackingService implements EventTrackingService
 	 */
 	public void init()
 	{
-		M_log.info(this + ".init()");
+		log.info(this + ".init()");
 	}
 
 	/**********************************************************************************************************************************************************************************************************************************************************
@@ -167,7 +165,7 @@ public abstract class BaseEventTrackingService implements EventTrackingService
 	 */
 	public void destroy()
 	{
-		M_log.info(this + ".destroy()");
+		log.info(this + ".destroy()");
 	}
 
 	/**********************************************************************************************************************************************************************************************************************************************************
@@ -176,7 +174,7 @@ public abstract class BaseEventTrackingService implements EventTrackingService
 
 	public void setEventDelayHandler(EventDelayHandler handler)
 	{
-		M_log.info("Setting the event delay handler to " + handler + " [was: " + delayHandler + "]");
+		log.info("Setting the event delay handler to " + handler + " [was: " + delayHandler + "]");
 		this.delayHandler = handler;
 	}
 
@@ -366,7 +364,7 @@ public abstract class BaseEventTrackingService implements EventTrackingService
 			}
 			else
 			{
-				M_log.warn("Unable to create delayed event because delay handler is unset.  Firing now.");
+				log.warn("Unable to create delayed event because delay handler is unset.  Firing now.");
 				postEvent(event);
 			}
 		}
@@ -616,7 +614,10 @@ public abstract class BaseEventTrackingService implements EventTrackingService
 		public BaseEvent(String event, String resource, String context, boolean modify, int priority, LRS_Statement lrsStatement)
 		{
 			this(event, resource, modify, priority, lrsStatement);
-			m_context = context;
+			//Use the context parameter if it's not null, otherwise default to the detected context
+			if (context != null) {
+				m_context = context;
+			}
 		}
 		
 		/**

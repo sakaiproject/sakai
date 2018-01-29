@@ -6,7 +6,9 @@
   <class name="org.sakaiproject.tool.assessment.data.dao.assessment.FavoriteColChoices"
 	table="SAM_FAVORITECOLCHOICES_T">
     <id name="favoriteId" column="FAVORITEID" type="java.lang.Long" unsaved-value="0">
-      <generator class="native"/> 
+      <generator class="native">
+      	<param name="sequence">SAM_FAVORITECOLCHOICES_S</param>
+      </generator> 
     </id>
    
     <property name="favoriteName" type="string" length="255" column="FAVORITENAME" not-null="false" />
@@ -20,7 +22,9 @@
      <class name="org.sakaiproject.tool.assessment.data.dao.assessment.FavoriteColChoicesItem" 
 	table="SAM_FAVORITECOLCHOICESITEM_T">
     <id name="favoriteItemId" column="FAVORITEITEMID" type="java.lang.Long" unsaved-value="0">
-      <generator class="native"/> 
+      <generator class="native">
+      	<param name="sequence">SAM_FAVORITECOLCHOICESITEM_S</param>
+      </generator> 
     </id>
     <many-to-one name="favoriteChoice" class="org.sakaiproject.tool.assessment.data.dao.assessment.FavoriteColChoices">
      <column name="FAVORITEID" not-null="true"/>

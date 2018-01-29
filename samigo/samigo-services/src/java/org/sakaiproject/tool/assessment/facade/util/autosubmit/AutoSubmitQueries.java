@@ -20,6 +20,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import lombok.extern.slf4j.Slf4j;
 import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.samigo.util.SamigoConstants;
 import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService;
@@ -35,8 +36,6 @@ import org.sakaiproject.tool.assessment.services.PersistenceHelper;
 import org.sakaiproject.tool.assessment.services.assessment.EventLogService;
 import org.springframework.orm.hibernate4.support.HibernateDaoSupport;
 
-import lombok.extern.slf4j.Slf4j;
-
 /**
  * Queries for persisting a single attempt/submission and all related updates in a single transaction
  * @author plukasew
@@ -47,7 +46,7 @@ public class AutoSubmitQueries extends HibernateDaoSupport implements AutoSubmit
 	@Override
 	public boolean autoSubmitSingleAssessment(AssessmentGradingData adata, boolean autoSubmit, boolean updateCurrentGrade, PublishedAssessmentFacade publishedAssessment, 
 			PersistenceHelper persistenceHelper, boolean updateGrades, EventLogService eventService, EventLogFacade eventLogFacade,
-			Map toGradebookPublishedAssessmentSiteIdMap, GradebookServiceHelper gbsHelper, GradebookExternalAssessmentService g)
+			Map<Long, String> toGradebookPublishedAssessmentSiteIdMap, GradebookServiceHelper gbsHelper, GradebookExternalAssessmentService g)
 	{
 		long gradingId;
 		if (adata != null && adata.getAssessmentGradingId() != null)
@@ -66,7 +65,7 @@ public class AutoSubmitQueries extends HibernateDaoSupport implements AutoSubmit
 			
 			//update grades
 			if(updateGrades && autoSubmit && updateCurrentGrade && toGradebookPublishedAssessmentSiteIdMap != null && toGradebookPublishedAssessmentSiteIdMap.containsKey(adata.getPublishedAssessmentId())) {
-				String currentSiteId = (String) toGradebookPublishedAssessmentSiteIdMap.get(adata.getPublishedAssessmentId());
+				String currentSiteId = toGradebookPublishedAssessmentSiteIdMap.get(adata.getPublishedAssessmentId());
 				if (gbsHelper != null && gbsHelper.gradebookExists(GradebookFacade.getGradebookUId(currentSiteId), g)){
 					int retryCount = persistenceHelper.getRetryCount();
 					boolean success = false;

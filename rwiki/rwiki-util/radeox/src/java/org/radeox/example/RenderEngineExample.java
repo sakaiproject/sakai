@@ -25,6 +25,7 @@ package org.radeox.example;
 
 import java.util.Locale;
 
+import lombok.extern.slf4j.Slf4j;
 import org.radeox.api.engine.RenderEngine;
 import org.radeox.api.engine.context.InitialRenderContext;
 import org.radeox.api.engine.context.RenderContext;
@@ -38,7 +39,7 @@ import org.radeox.engine.context.BaseRenderContext;
  * @version $Id: RenderEngineExample.java 7707 2006-04-12 17:30:19Z
  *          ian@caret.cam.ac.uk $
  */
-
+@Slf4j
 public class RenderEngineExample
 {
 	public static void main(String[] args)
@@ -47,14 +48,14 @@ public class RenderEngineExample
 
 		RenderContext context = new BaseRenderContext();
 		RenderEngine engine = new BaseRenderEngine();
-		System.out.println("Rendering with default:");
-		System.out.println(engine.render(test, context));
+		log.info("Rendering with default:");
+		log.info(engine.render(test, context));
 
-		System.out.println("Rendering with alternative Wiki:");
+		log.info("Rendering with alternative Wiki:");
 		InitialRenderContext initialContext = new BaseInitialRenderContext();
 		initialContext.set(RenderContext.INPUT_LOCALE, new Locale("otherwiki",
 				""));
 		RenderEngine engineWithContext = new BaseRenderEngine(initialContext);
-		System.out.println(engineWithContext.render(test, context));
+		log.info(engineWithContext.render(test, context));
 	}
 }

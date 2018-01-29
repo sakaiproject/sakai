@@ -12,6 +12,7 @@
          class="org.sakaiproject.hierarchy.impl.HierarchyServiceImpl" init-method="init">
       <property name="dao" ref="org.sakaiproject.hierarchy.dao.HierarchyDao" />
       <property name="sqlService" ref="org.sakaiproject.db.api.SqlService" />
+      <property name="memoryService" ref="org.sakaiproject.memory.api.MemoryService" />
    </bean>
 
 </beans>

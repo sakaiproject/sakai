@@ -15,6 +15,7 @@
  */
 package org.sakaiproject.webservices;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang.StringUtils;
 import org.sakaiproject.assignment.api.AssignmentConstants;
@@ -27,8 +28,6 @@ import org.sakaiproject.service.gradebook.shared.AssignmentHasIllegalPointsExcep
 import org.sakaiproject.service.gradebook.shared.ConflictingAssignmentNameException;
 import org.sakaiproject.service.gradebook.shared.ConflictingExternalIdException;
 import org.sakaiproject.service.gradebook.shared.GradebookNotFoundException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sakaiproject.assignment.api.AssignmentService;
 import org.sakaiproject.calendar.api.Calendar;
 import org.sakaiproject.calendar.api.CalendarEventEdit;
@@ -63,9 +62,8 @@ import java.util.*;
 
 @WebService
 @SOAPBinding(style= SOAPBinding.Style.RPC, use= SOAPBinding.Use.LITERAL)
+@Slf4j
 public class Assignments extends AbstractWebService {
-
-	private static final Logger LOG = LoggerFactory.getLogger(Assignments.class);
 
     /** The maximum trial number to get an uniq assignment title in gradebook */
     private static final int MAXIMUM_ATTEMPTS_FOR_UNIQUENESS = 100;
@@ -84,20 +82,20 @@ public class Assignments extends AbstractWebService {
     		Session s = establishSession(sessionid);
     		
     		//ok will this give me a list of assignments for the course
-    		LOG.info("assignment list requested for " + context);
+    		log.info("assignment list requested for " + context);
     		
     		Document dom = Xml.createDocument();
     		Node all = dom.createElement("assignments");
     		dom.appendChild(all);
     		
     		for (Assignment thisA : assignmentService.getAssignmentsForContext(context)) {
-    			LOG.debug("got " + thisA.getTitle());
+    			log.debug("got " + thisA.getTitle());
     			if (!thisA.getDraft()) {
-    				LOG.debug("about to start building xml doc");
+    				log.debug("about to start building xml doc");
     				Element uElement = dom.createElement("assignment");
     				uElement.setAttribute("id", thisA.getId());
     				uElement.setAttribute("title", thisA.getTitle());
-    				LOG.debug("added title and id");
+    				log.debug("added title and id");
     				Integer temp = thisA.getTypeOfGrade().ordinal();
    					String gType = temp.toString();
 					uElement.setAttribute("gradeType", gType);
@@ -105,32 +103,32 @@ public class Assignments extends AbstractWebService {
     				/* these need to be converted to strings
     				 */
     				
-    				LOG.debug("About to get dates");
+    				log.debug("About to get dates");
     				
-    				Date dueTime = thisA.getDueDate();
-    				Date openTime = thisA.getOpenDate();
-    				Date closeTime = thisA.getCloseDate();
-    				LOG.debug("got dates");
+    				Instant dueTime = thisA.getDueDate();
+    				Instant openTime = thisA.getOpenDate();
+    				Instant closeTime = thisA.getCloseDate();
+    				log.debug("got dates");
     				DateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss z");
     				
     				if (openTime != null){
-    					LOG.debug("open time is " + openTime.toString());
-    					uElement.setAttribute("openTime", format.format(new Date(openTime.getTime())) );
+    					log.debug("open time is " + openTime.toString());
+    					uElement.setAttribute("openTime", format.format(Date.from(openTime)));
     				}
     				if (closeTime != null) {
-    					LOG.debug("close time is " + closeTime.toString());
-    					uElement.setAttribute("closeTime", format.format(new Date(closeTime.getTime())) );
+    					log.debug("close time is " + closeTime.toString());
+    					uElement.setAttribute("closeTime", format.format(Date.from(closeTime)));
     				}
     				
     				if (dueTime != null) {
-    					LOG.debug("due time is " + dueTime.toString());
-    					uElement.setAttribute("dueTime", format.format(new Date(dueTime.getTime())) );
+    					log.debug("due time is " + dueTime.toString());
+    					uElement.setAttribute("dueTime", format.format(Date.from(dueTime)));
     				}
     				
-    				LOG.debug("apending element to parent");
+    				log.debug("apending element to parent");
     				all.appendChild(uElement);
     			} else {
-    				LOG.debug("this is a draft assignment");
+    				log.debug("this is a draft assignment");
     			}
     			
     		}
@@ -138,7 +136,7 @@ public class Assignments extends AbstractWebService {
     		return retVal;
     	}
     	catch (Exception e) {
-    		LOG.error("WS getAssignmentsForContext(): " + e.getClass().getName() + " : " + e.getMessage());
+    		log.error("WS getAssignmentsForContext(): " + e.getClass().getName() + " : " + e.getMessage());
     	}
     	
     	return "<assignments/ >";
@@ -159,13 +157,13 @@ public class Assignments extends AbstractWebService {
     		Set<AssignmentSubmission> subs = assignmentService.getSubmissions(assign);
     		
     		//build the xml
-    		LOG.debug("about to start building xml doc");
+    		log.debug("about to start building xml doc");
     		Document dom = Xml.createDocument();
     		Node all = dom.createElement("submissions");
     		dom.appendChild(all);
     		
     		for (AssignmentSubmission thisSub : subs) {
-    			LOG.debug("got submission" + thisSub);
+    			log.debug("got submission" + thisSub);
     			Element uElement = dom.createElement("submission");
     			uElement.setAttribute("feedback-comment", thisSub.getFeedbackComment());
     			uElement.setAttribute("feedback-text", thisSub.getFeedbackText());
@@ -192,7 +190,7 @@ public class Assignments extends AbstractWebService {
     		return retVal;
     	}
     	catch (Exception e){
-    		LOG.error("WS getSubmissionsForAssignment(): " + e.getClass().getName() + " : " + e.getMessage());
+    		log.error("WS getSubmissionsForAssignment(): " + e.getClass().getName() + " : " + e.getMessage());
     	}	
     	
     	return "<submissions />";
@@ -215,7 +213,7 @@ public class Assignments extends AbstractWebService {
     	{		
     		Session s = establishSession(sessionId);
 
-    		LOG.info("User " + s.getUserEid() + " setting assignment grade/comment for " + userId + " on " + assignmentId + " to " + grade); 
+    		log.info("User " + s.getUserEid() + " setting assignment grade/comment for " + userId + " on " + assignmentId + " to " + grade); 
 
     		User user = userDirectoryService.getUserByEid(userId);
     		if (user == null) 
@@ -228,11 +226,11 @@ public class Assignments extends AbstractWebService {
     		
     		if (!securityService.unlock(AssignmentServiceConstants.SECURE_GRADE_ASSIGNMENT_SUBMISSION, aReference))
     		{
-    			LOG.warn("User " + s.getUserEid() + " does not have permission to set assignment grades");
+    			log.warn("User " + s.getUserEid() + " does not have permission to set assignment grades");
     			return "failure: no permission";
     		}
     		
-    		LOG.info("Setting assignment grade/comment for " + userId + " on " + assignmentId + " to " + grade); 
+    		log.info("Setting assignment grade/comment for " + userId + " on " + assignmentId + " to " + grade); 
     		
     		AssignmentSubmission sub = assignmentService.getSubmission(assignmentId, user);
     		String context = assign.getContext();
@@ -258,7 +256,7 @@ public class Assignments extends AbstractWebService {
     	}
     	catch (Exception e) 
     	{
-    		LOG.error("WS setAssignmentGradeCommentforUser(): Exception while setting assignment grade/comment for " + userId + " on " + assignmentId + " to " + grade, e); 
+    		log.error("WS setAssignmentGradeCommentforUser(): Exception while setting assignment grade/comment for " + userId + " on " + assignmentId + " to " + grade, e); 
             return e.getClass().getName() + " : " + e.getMessage();	
 
     	}
@@ -283,7 +281,7 @@ public class Assignments extends AbstractWebService {
             @WebParam(name = "subType", partName = "subType") @QueryParam("subType") int subType) {
 
     	
-    	LOG.info("creating assignment in " + context);
+    	log.info("creating assignment in " + context);
     	try {
     		Session s = establishSession(sessionId);
     		Assignment assign = assignmentService.addAssignment(context);
@@ -292,14 +290,14 @@ public class Assignments extends AbstractWebService {
     		Instant ot = Instant.ofEpochMilli(openTime);
     		Instant ct = Instant.ofEpochMilli(closeTime);
 
-    		LOG.debug("time is " + dt.toString());
+    		log.debug("time is " + dt.toString());
     		
     		//set the values for the assignemnt
     		assign.setTitle(title);
     		assign.setDraft(false);
-    		assign.setDueDate(Date.from(dt));
-    		assign.setOpenDate(Date.from(ot));
-    		assign.setCloseDate(Date.from(ct));
+    		assign.setDueDate(dt);
+    		assign.setOpenDate(ot);
+    		assign.setCloseDate(ct);
     		
     		/*
     		 *3 - points
@@ -307,7 +305,7 @@ public class Assignments extends AbstractWebService {
     		
     		//int gradeType = 3;
     		int maxGradePoints = maxPoints;
-    		LOG.debug("max points are" + maxGradePoints);
+    		log.debug("max points are" + maxGradePoints);
     		/*
     		 * 1 - text
     		 * 2 - attachment
@@ -350,13 +348,13 @@ public class Assignments extends AbstractWebService {
     			cee.setRange(timeService.newTimeRange(dt.toEpochMilli(), 0*60*1000));
     			c.commitEvent(cee);		
     		} else {
-    			LOG.warn("WS createAssignment(): no calendar found");
+    			log.warn("WS createAssignment(): no calendar found");
     		}
     		
     		return assign.getId();
     	}
     	catch (Exception e) {
-    		LOG.warn("WS createAssignment(): " + e.getClass().getName() + " : " + e.getMessage());
+    		log.warn("WS createAssignment(): " + e.getClass().getName() + " : " + e.getMessage());
             return e.getClass().getName() + " : " + e.getMessage();	
     	}
     	
@@ -369,18 +367,18 @@ public class Assignments extends AbstractWebService {
     public String setAssignmentAcceptUntil(
             @WebParam(name = "sessionId", partName = "sessionId") @QueryParam("sessionId") String sessionId,
             @WebParam(name = "assignmentId", partName = "assignmentId") @QueryParam("assignmentId") String assignmentId) {
-        LOG.info("setting accept until time for assignment: " + assignmentId);
+        log.info("setting accept until time for assignment: " + assignmentId);
         try {
     		Session s = establishSession(sessionId);
     		Assignment assignment = assignmentService.getAssignment(assignmentId);
-    		LOG.debug("got assignment: " + assignment.getTitle());
-    		LOG.debug("assignment closes: " + assignment.getDueDate());
+    		log.debug("got assignment: " + assignment.getTitle());
+    		log.debug("assignment closes: " + assignment.getDueDate());
     		assignment.setCloseDate(assignment.getDueDate());
     		assignmentService.updateAssignment(assignment);
-    		LOG.debug("edit committed");			
+    		log.debug("edit committed");			
     	}
     	catch (Exception e) {
-    		LOG.error("WS setAssignmentAcceptUntil(): " + e.getClass().getName() + " : " + e.getMessage()); 
+    		log.error("WS setAssignmentAcceptUntil(): " + e.getClass().getName() + " : " + e.getMessage()); 
             return e.getClass().getName() + " : " + e.getMessage();	
     	}
     	return "success";
@@ -399,39 +397,39 @@ public class Assignments extends AbstractWebService {
         try {
     		Session s = establishSession(sessionId);
     		Assignment assignment = assignmentService.getAssignment(assignmentId);
-    		LOG.debug("got assignment: " + assignment.getTitle());
+    		log.debug("got assignment: " + assignment.getTitle());
 
     		java.util.Calendar cal = java.util.Calendar.getInstance();
 
-    		cal.setTimeInMillis(assignment.getOpenDate().getTime());
+    		cal.setTimeInMillis(assignment.getOpenDate().toEpochMilli());
     		cal.add(java.util.Calendar.DAY_OF_YEAR, shiftDays);
     		cal.add(java.util.Calendar.HOUR, shiftHours);
     		Date shiftedOpenDate = cal.getTime();
-    		assignment.setOpenDate(shiftedOpenDate);
+    		assignment.setOpenDate(shiftedOpenDate.toInstant());
 
-    		cal.setTimeInMillis(assignment.getDueDate().getTime());
+    		cal.setTimeInMillis(assignment.getDueDate().toEpochMilli());
     		cal.add(java.util.Calendar.DAY_OF_YEAR, shiftDays);
     		cal.add(java.util.Calendar.HOUR, shiftHours);
     		Date shiftedDueDate = cal.getTime();
-    		assignment.setDueDate(shiftedDueDate);
+    		assignment.setDueDate(shiftedDueDate.toInstant());
 
-    		cal.setTimeInMillis(assignment.getCloseDate().getTime());
+    		cal.setTimeInMillis(assignment.getCloseDate().toEpochMilli());
     		cal.add(java.util.Calendar.DAY_OF_YEAR, shiftDays);
     		cal.add(java.util.Calendar.HOUR, shiftHours);
     		Date shiftedCloseDate = cal.getTime();
-    		assignment.setCloseDate(shiftedCloseDate);
+    		assignment.setCloseDate(shiftedCloseDate.toInstant());
 
-    		cal.setTimeInMillis(assignment.getDropDeadDate().getTime());
+    		cal.setTimeInMillis(assignment.getDropDeadDate().toEpochMilli());
     		cal.add(java.util.Calendar.DAY_OF_YEAR, shiftDays);
     		cal.add(java.util.Calendar.HOUR, shiftHours);
     		Date shiftedDropDeadDate = cal.getTime();
-    		assignment.setDropDeadDate(shiftedDropDeadDate);
+    		assignment.setDropDeadDate(shiftedDropDeadDate.toInstant());
 
-    		cal.setTimeInMillis(assignment.getPeerAssessmentPeriodDate().getTime());
+    		cal.setTimeInMillis(assignment.getPeerAssessmentPeriodDate().toEpochMilli());
     		cal.add(java.util.Calendar.DAY_OF_YEAR, shiftDays);
     		cal.add(java.util.Calendar.HOUR, shiftHours);
     		Date shiftedPeerAssessmentDate = cal.getTime();
-    		assignment.setPeerAssessmentPeriodDate(shiftedPeerAssessmentDate);
+    		assignment.setPeerAssessmentPeriodDate(shiftedPeerAssessmentDate.toInstant());
 
     		Map<String, String> aProperties = assignment.getProperties();
 
@@ -444,10 +442,10 @@ public class Assignments extends AbstractWebService {
     			aProperties.put(AssignmentConstants.ALLOW_RESUBMIT_CLOSETIME, String.valueOf(cal.getTimeInMillis()));
     		}
     		assignmentService.updateAssignment(assignment);
-    		LOG.debug("edit committed");
+    		log.debug("edit committed");
     	}
     	catch (Exception e) {
-    		LOG.error("WS shiftAssignmentDates(): " + e.getClass().getName() + " : " + e.getMessage());
+    		log.error("WS shiftAssignmentDates(): " + e.getClass().getName() + " : " + e.getMessage());
     	
     		return e.getClass().getName() + " : " + e.getMessage();
     	}
@@ -659,7 +657,7 @@ public class Assignments extends AbstractWebService {
     						}
     						catch (Exception e)
     						{
-    							LOG.warn("Cannot find submission " + submissionRef + ": " + e.getMessage());
+    							log.warn("Cannot find submission " + submissionRef + ": " + e.getMessage());
     						}
     					} // submissionref != null
 
@@ -700,14 +698,14 @@ public class Assignments extends AbstractWebService {
     						}
     						catch (Exception e)
     						{
-    							LOG.warn("Cannot find submission " + submissionRef + ": " + e.getMessage());
+    							log.warn("Cannot find submission " + submissionRef + ": " + e.getMessage());
     						}
     					}
     				}
     			}
     			catch (Exception e)
     			{
-    				LOG.warn("Cannot find assignment: " + assignmentRef + ": " + e.getMessage());
+    				log.warn("Cannot find assignment: " + assignmentRef + ": " + e.getMessage());
     			}
     		} // updateRemoveSubmission != null
 
@@ -728,7 +726,7 @@ public class Assignments extends AbstractWebService {
     	}
     	catch (Exception e)
     	{
-    		//LOG.debug("chef", this + rb.getString("addtogradebook.alertMessage") + "\n" + e.getMessage());
+    		//log.debug("chef", this + rb.getString("addtogradebook.alertMessage") + "\n" + e.getMessage());
     	}
     	
     	return false;
@@ -746,7 +744,7 @@ public class Assignments extends AbstractWebService {
             @WebParam(name = "assignmentId", partName = "assignmentId") @QueryParam("assignmentId") String assignmentId,
             @WebParam(name = "userId", partName = "userId") @QueryParam("userId") String userId,
             @WebParam(name = "time", partName = "time") @QueryParam("time") long time) {
-        LOG.info("createSubmission( " + sessionId + ", " + context + " , " + assignmentId + " , " + userId + "," + time + ")");
+        log.info("createSubmission( " + sessionId + ", " + context + " , " + assignmentId + " , " + userId + "," + time + ")");
         try {
     		//establish the session
     		Session s = establishSession(sessionId);
@@ -758,7 +756,7 @@ public class Assignments extends AbstractWebService {
     		{
     			return "user does not exit";
     		} else {
-    			LOG.info("Got user " + userId);
+    			log.info("Got user " + userId);
     		}
     		//s.setUserId(user.getId());
     		//s.setUserEid(userId);
@@ -770,14 +768,14 @@ public class Assignments extends AbstractWebService {
     		submitter.setSubmittee(true);
     		ase.setSubmitted(true);
     		
-    		Date subTime = Date.from(Instant.ofEpochMilli(time));
-    		LOG.info("Setting time to " + time);
+    		Instant subTime = Instant.ofEpochMilli(time);
+    		log.info("Setting time to " + time);
     		ase.setDateSubmitted(subTime);
     		assignmentService.updateSubmission(ase);
     		return ase.getId();
     	}
     	catch(Exception e) {
-    		LOG.error("WS createSubmission(): " + e.getClass().getName() + " : " + e.getMessage()); 
+    		log.error("WS createSubmission(): " + e.getClass().getName() + " : " + e.getMessage()); 
             return e.getClass().getName() + " : " + e.getMessage();
     	}
     }
@@ -806,7 +804,7 @@ public class Assignments extends AbstractWebService {
     		// byte[] photoData = null;
     		// photoData = decode.decodeToByteArray(attachmentData);
     		byte[] photoData = decode.decode(attachmentData);
-    		LOG.info("File of size: " + photoData + " found");
+    		log.info("File of size: " + photoData + " found");
     		
     		byte[] content = photoData;
     				
@@ -815,15 +813,15 @@ public class Assignments extends AbstractWebService {
     		
     		ContentResource file = contentHostingService.addAttachmentResource(attachmentName,
     				context, "Assignments", attachmentMimeType, content, rpe);
-    		LOG.info("attachment name is : " + attachmentName);
-    		LOG.info("file has lenght of: " + file.getContentLength());
+    		log.info("attachment name is : " + attachmentName);
+    		log.info("file has lenght of: " + file.getContentLength());
     		
     		Reference ref = entityManager.newReference(file.getReference());
     		sub.getAttachments().add(ref.getReference());
     		assignmentService.updateSubmission(sub);
     		return "Success!";
     	} catch (Exception e) {
-    		LOG.error("WS addSubmissionAttachment(): " + e.getClass().getName() + " : " + e.getMessage()); 
+    		log.error("WS addSubmissionAttachment(): " + e.getClass().getName() + " : " + e.getMessage()); 
             return e.getClass().getName() + " : " + e.getMessage();
     	}
     	
@@ -886,23 +884,22 @@ public class Assignments extends AbstractWebService {
     			Map<String, String> rp = ass.getProperties();
     			
     			try {
-                    String deleted = rp.get(ResourceProperties.PROP_ASSIGNMENT_DELETED);
+                    Boolean deleted = ass.getDeleted();
 
-                    LOG.info("Assignment " + ass.getTitle()+ " deleted status: " + deleted);
-    				if (deleted != null) {
-    					LOG.info("undeleting" + ass.getTitle() + " for site " + context);
-    					rp.remove(ResourceProperties.PROP_ASSIGNMENT_DELETED);
-    				
+                    log.info("Assignment {} deleted status: {}", ass.getTitle(), deleted);
+    				if (deleted) {
+    					log.info("undeleting" + ass.getTitle() + " for site " + context);
+    					ass.setDeleted(false);
     					assignmentService.updateAssignment(ass);
     				}
     			} catch (PermissionException e) {
     				// TODO Auto-generated catch block
-    				LOG.warn("Could not undelete assignment: {}, {}", ass.getId(), e.getMessage());
+    				log.warn("Could not undelete assignment: {}, {}", ass.getId(), e.getMessage());
     			}
 
 			}
     	} catch (Exception e) {
-    		LOG.error("WS undeleteAssignments(): " + e.getClass().getName() + " : " + e.getMessage()); 
+    		log.error("WS undeleteAssignments(): " + e.getClass().getName() + " : " + e.getMessage()); 
             return e.getClass().getName() + " : " + e.getMessage();
     	}
     	

@@ -321,6 +321,7 @@
         }
 
         if (options.replace) {
+            $('#roster-members').empty();
             roster.nextPage = 0;
 
             if (!roster.picturesMode) {
@@ -458,12 +459,12 @@
                         // We've just pulled the first page ...
                         if (roster.currentState === roster.STATE_OVERVIEW) {
                             // ... and are in OVERVIEW mode, so switch the link back on
-                            $('#navbar_overview_link > span > a').click(function (e) {
+                            $('#navbar_overview_link > span > a').off('click').on('click', function (e) {
                                 return roster.switchState(roster.STATE_OVERVIEW);
                             });
                         } else if (roster.currentState === roster.STATE_ENROLLMENT_STATUS) {
                             // ... and are in ENROLLMENT_STATUS mode, so switch the link back on
-                            $('#navbar_enrollment_status_link > span > a').click(function (e) {
+                            $('#navbar_enrollment_status_link > span > a').off('click').on('click', function (e) {
                                 return roster.switchState(roster.STATE_ENROLLMENT_STATUS);
                             });
                         }
@@ -752,7 +753,7 @@
             return roster.switchState(roster.STATE_OVERVIEW);
         });
 
-        $('#navbar_enrollment_status_link > span > a').click(function (e) {
+        $('#navbar_enrollment_status_link > span > a').on('click', function (e) {
             return roster.switchState(roster.STATE_ENROLLMENT_STATUS);
         });
 

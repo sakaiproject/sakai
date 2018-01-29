@@ -21,8 +21,9 @@
 
 package org.sakaiproject.user.impl;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+
+import org.sakaiproject.util.IPAddrUtil;
 import org.sakaiproject.user.api.Authentication;
 import org.sakaiproject.user.api.AuthenticationException;
 import org.sakaiproject.user.api.AuthenticationManager;
@@ -34,18 +35,15 @@ import org.sakaiproject.user.api.IdPwEvidence;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
-import org.sakaiproject.util.IPAddrUtil;
 
 /**
  * <p>
  * An Authentication component working with the UserDirectoryService.
  * </p>
  */
+@Slf4j
 public abstract class UserAuthnComponent implements AuthenticationManager
 {
-	/** Our log (commons). */
-	private static Logger M_log = LoggerFactory.getLogger(UserAuthnComponent.class);
-
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * Dependencies
 	 *********************************************************************************************************************************************************************************************************************************************************/
@@ -67,7 +65,7 @@ public abstract class UserAuthnComponent implements AuthenticationManager
 	 */
 	public void init()
 	{
-		M_log.info("init()");
+		log.info("init()");
 	}
 
 	/**
@@ -75,7 +73,7 @@ public abstract class UserAuthnComponent implements AuthenticationManager
 	 */
 	public void destroy()
 	{
-		M_log.info("destroy()");
+		log.info("destroy()");
 	}
 
 	/**********************************************************************************************************************************************************************************************************************************************************

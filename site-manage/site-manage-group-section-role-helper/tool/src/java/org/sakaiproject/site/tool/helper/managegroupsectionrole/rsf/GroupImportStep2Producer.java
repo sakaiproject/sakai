@@ -24,17 +24,8 @@ import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.sakaiproject.site.api.Group;
-import org.sakaiproject.site.tool.helper.managegroupsectionrole.impl.ImportedGroup;
-import org.sakaiproject.site.tool.helper.managegroupsectionrole.impl.SiteManageGroupSectionRoleHandler;
-import org.sakaiproject.tool.api.SessionManager;
-import org.sakaiproject.tool.api.Tool;
-
-import org.sakaiproject.rsf.producers.FrameAdjustingProducer;
-import org.sakaiproject.rsf.util.SakaiURLUtil;
 import uk.org.ponder.messageutil.MessageLocator;
 import uk.org.ponder.rsf.components.UIBranchContainer;
 import uk.org.ponder.rsf.components.UICommand;
@@ -55,12 +46,20 @@ import uk.org.ponder.rsf.viewstate.SimpleViewParameters;
 import uk.org.ponder.rsf.viewstate.ViewParameters;
 import uk.org.ponder.rsf.viewstate.ViewParamsReporter;
 
+import org.sakaiproject.rsf.producers.FrameAdjustingProducer;
+import org.sakaiproject.rsf.util.SakaiURLUtil;
+import org.sakaiproject.site.api.Group;
+import org.sakaiproject.site.tool.helper.managegroupsectionrole.impl.ImportedGroup;
+import org.sakaiproject.site.tool.helper.managegroupsectionrole.impl.SiteManageGroupSectionRoleHandler;
+import org.sakaiproject.tool.api.SessionManager;
+import org.sakaiproject.tool.api.Tool;
+
 /**
  * Producer for page 2 of the group import
  */
+@Slf4j
 public class GroupImportStep2Producer implements ViewComponentProducer, NavigationCaseReporter, ViewParamsReporter, ActionResultInterceptor {
 
-	private static Logger M_log = LoggerFactory.getLogger(GroupImportStep2Producer.class);
     public SiteManageGroupSectionRoleHandler handler;
     public static final String VIEW_ID = "GroupImportStep2";
     public MessageLocator messageLocator;
@@ -92,7 +91,7 @@ public class GroupImportStep2Producer implements ViewComponentProducer, Navigati
             Group existingGroup = null;
             
             //add title
-            UIOutput.make(branch,"title",importedGroup.getGroupTitle());
+            UIOutput.make(branch,"title", messageLocator.getMessage("import2.grouptitle") + importedGroup.getGroupTitle());
             
             //check if group already exists
             for(Group g : existingGroups) {
@@ -114,31 +113,37 @@ public class GroupImportStep2Producer implements ViewComponentProducer, Navigati
             
             //print each user
             SortedSet<String> foundUserIds = new TreeSet<>();
+
+            boolean existingFlag = false;
             for(String userId: importedGroup.getUserIds()) {
-            	
-            	UIOutput output = UIOutput.make(branch,"member:",userId);
-            	
                 //check user is valid
                 String foundUserId = handler.lookupUser(userId);
                 if(foundUserId != null && handler.isValidSiteUser(foundUserId)){
             		//is user existing?
             		if(existingUserIds.contains(userId)) {
-            			//highlight grey
-            			Map<String,String> cssMap = new HashMap<String,String>();
-                		cssMap.put("color","grey");
-                		output.decorate(new UICSSDecorator(cssMap));
+                        existingFlag = true;
+                        UIOutput outputExisting = UIOutput.make(branch,"existmember:", userId);
             		} else {
-            		    foundUserIds.add(foundUserId);
+                        if (foundUserIds.isEmpty()) {
+                            UIOutput.make(branch, "newmemberheading:", messageLocator.getMessage("import2.newmemberheading"));
+                        }
+                        foundUserIds.add(foundUserId);
+                        UIOutput outputNew = UIOutput.make(branch, "newmember:", userId);
                     }
             		
             	} else {
             		badData = true;
-            		//highlight red
-            		Map<String,String> cssMap = new HashMap<String,String>();
-            		cssMap.put("color","red");
-            		output.decorate(new UICSSDecorator(cssMap));
+                    UIOutput outputInvalid = UIOutput.make(branch,"invalidmember:", userId);
             	}
             }
+
+            if (existingFlag) {
+                UIOutput.make(branch, "existmemberheading:", messageLocator.getMessage("import2.existmemberheading"));
+            }
+            if (badData) {
+                UIOutput.make(branch, "invalidmemberheading:", messageLocator.getMessage("import2.invalidmemberheading"));
+            }
+
             importedGroup.setUserIds(foundUserIds);
         }
         

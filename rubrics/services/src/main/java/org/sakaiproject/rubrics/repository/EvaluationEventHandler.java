@@ -22,29 +22,28 @@
 
 package org.sakaiproject.rubrics.repository;
 
-import org.sakaiproject.rubrics.util.UnprocessableEntityException;
-import org.sakaiproject.rubrics.model.Criterion;
-import org.sakaiproject.rubrics.model.Evaluation;
-import org.sakaiproject.rubrics.model.Rubric;
-import org.sakaiproject.rubrics.model.ToolItemRubricAssociation;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.time.Instant;
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.rest.core.annotation.HandleBeforeCreate;
 import org.springframework.data.rest.core.annotation.HandleBeforeSave;
 import org.springframework.data.rest.core.annotation.RepositoryEventHandler;
 import org.springframework.stereotype.Component;
 
-import java.time.Instant;
-import java.util.Collections;
-import java.util.List;
-import java.util.stream.Collectors;
+import org.sakaiproject.rubrics.util.UnprocessableEntityException;
+import org.sakaiproject.rubrics.model.Criterion;
+import org.sakaiproject.rubrics.model.Evaluation;
+import org.sakaiproject.rubrics.model.Rubric;
+import org.sakaiproject.rubrics.model.ToolItemRubricAssociation;
 
 @Component
 @RepositoryEventHandler(Evaluation.class)
+@Slf4j
 public class EvaluationEventHandler {
-
-    private final Logger logger = LoggerFactory.getLogger(getClass());
 
     @Autowired
     private ToolItemRubricAssociationRepository toolItemRubricAssociationRepository;

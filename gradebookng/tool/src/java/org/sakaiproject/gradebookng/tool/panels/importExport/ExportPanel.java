@@ -23,7 +23,10 @@ import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.ajax.markup.html.form.AjaxCheckBox;
+import org.apache.wicket.markup.html.form.ChoiceRenderer;
+import org.apache.wicket.markup.html.form.DropDownChoice;
 import org.apache.wicket.markup.html.link.DownloadLink;
 import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.model.Model;
@@ -31,11 +34,14 @@ import org.apache.wicket.util.time.Duration;
 import org.sakaiproject.gradebookng.business.GbCategoryType;
 import org.sakaiproject.gradebookng.business.model.GbCourseGrade;
 import org.sakaiproject.gradebookng.business.model.GbGradeInfo;
+import org.sakaiproject.gradebookng.business.model.GbGroup;
 import org.sakaiproject.gradebookng.business.model.GbStudentGradeInfo;
 import org.sakaiproject.gradebookng.business.util.FormatHelper;
+import org.sakaiproject.gradebookng.tool.model.GradebookUiSettings;
 import org.sakaiproject.gradebookng.tool.panels.BasePanel;
 import org.sakaiproject.service.gradebook.shared.Assignment;
 import org.sakaiproject.service.gradebook.shared.CourseGrade;
+import org.sakaiproject.util.FormattedText;
 
 import au.com.bytecode.opencsv.CSVWriter;
 
@@ -45,6 +51,7 @@ public class ExportPanel extends BasePanel {
 
 	private static final String IGNORE_COLUMN_PREFIX = "#";
 	private static final String COMMENTS_COLUMN_PREFIX = "*";
+	private static final char CSV_SEMICOLON_SEPARATOR = ';';
 
 	enum ExportFormat {
 		CSV
@@ -62,6 +69,7 @@ public class ExportPanel extends BasePanel {
 	boolean includeLastLogDate = false;
 	boolean includeCalculatedGrade = false;
 	boolean includeGradeOverride = false;
+	GbGroup group;
 
 	public ExportPanel(final String id) {
 		super(id);
@@ -91,18 +99,22 @@ public class ExportPanel extends BasePanel {
 			}
 		});
 		
-		if (businessService.isStudentNumberVisible())
-		{
-			add(new AjaxCheckBox("includeStudentNumber", Model.of(this.includeStudentNumber)) {
-				private static final long serialVersionUID = 1L;
+		final boolean stuNumVisible = businessService.isStudentNumberVisible();
+		add(new AjaxCheckBox("includeStudentNumber", Model.of(this.includeStudentNumber)) {
+			private static final long serialVersionUID = 1L;
 
-				@Override
-				protected void onUpdate(final AjaxRequestTarget ajaxRequestTarget) {
-					ExportPanel.this.includeStudentNumber = !ExportPanel.this.includeStudentNumber;
-					setDefaultModelObject(ExportPanel.this.includeStudentNumber);
-				}
-			});
-		}
+			@Override
+			protected void onUpdate(final AjaxRequestTarget ajaxRequestTarget) {
+				ExportPanel.this.includeStudentNumber = !ExportPanel.this.includeStudentNumber;
+				setDefaultModelObject(ExportPanel.this.includeStudentNumber);
+			}
+
+			@Override
+			public boolean isVisible()
+			{
+				return stuNumVisible;
+			}
+		});
 
 		add(new AjaxCheckBox("includeGradeItemScores", Model.of(this.includeGradeItemScores)) {
 			private static final long serialVersionUID = 1L;
@@ -175,6 +187,34 @@ public class ExportPanel extends BasePanel {
 			}
 		});
 
+		this.group = new GbGroup(null, getString("groups.all"), null, GbGroup.Type.ALL);
+
+		final List<GbGroup> groups = this.businessService.getSiteSectionsAndGroups();
+		groups.add(0, this.group);
+		add(new DropDownChoice<GbGroup>("groupFilter", Model.of(this.group), groups, new ChoiceRenderer<GbGroup>() {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public Object getDisplayValue(final GbGroup g) {
+				return g.getTitle();
+			}
+
+			@Override
+			public String getIdValue(final GbGroup g, final int index) {
+				return g.getId();
+			}
+		}).add(new AjaxFormComponentUpdatingBehavior("onchange") {
+			@Override
+			protected void onUpdate(AjaxRequestTarget target) {
+				GbGroup value = (GbGroup) ((DropDownChoice) getComponent()).getDefaultModelObject();
+				if (value == null) {
+					ExportPanel.this.group = new GbGroup(null, getString("groups.all"), null, GbGroup.Type.ALL);
+				} else {
+					ExportPanel.this.group = (GbGroup) ((DropDownChoice) getComponent()).getDefaultModelObject();
+				}
+			}
+		}));
+
 		add(new DownloadLink("downloadFullGradebook", new LoadableDetachableModel<File>() {
 			private static final long serialVersionUID = 1L;
 
@@ -202,7 +242,8 @@ public class ExportPanel extends BasePanel {
 		try {
 			tempFile = File.createTempFile("gradebookTemplate", ".csv");
 			final FileWriter fw = new FileWriter(tempFile);
-			final CSVWriter csvWriter = new CSVWriter(fw);
+			//CSV separator is comma unless the comma is the decimal separator, then is ;
+			final CSVWriter csvWriter = new CSVWriter(fw, ".".equals(FormattedText.getDecimalSeparator()) ? CSVWriter.DEFAULT_SEPARATOR : CSV_SEMICOLON_SEPARATOR);
 
 			// Create csv header
 			final List<String> header = new ArrayList<String>();
@@ -264,8 +305,14 @@ public class ExportPanel extends BasePanel {
 
 			csvWriter.writeNext(header.toArray(new String[] {}));
 
+			// apply section/group filter
+			final GradebookUiSettings settings = new GradebookUiSettings();
+			if (isCustomExport && !GbGroup.Type.ALL.equals(this.group.getType())) {
+				settings.setGroupFilter(this.group);
+			}
+
 			// get the grade matrix
-			final List<GbStudentGradeInfo> grades = this.businessService.buildGradeMatrix(assignments);
+			final List<GbStudentGradeInfo> grades = this.businessService.buildGradeMatrix(assignments, settings);
 
 			// add grades
 			grades.forEach(studentGradeInfo -> {
@@ -285,7 +332,8 @@ public class ExportPanel extends BasePanel {
 						final GbGradeInfo gradeInfo = studentGradeInfo.getGrades().get(assignment.getId());
 						if (gradeInfo != null) {
 							if (!isCustomExport || this.includeGradeItemScores) {
-								line.add(StringUtils.removeEnd(gradeInfo.getGrade(), ".0"));
+								String grade = FormatHelper.formatGradeForDisplay(gradeInfo.getGrade());
+								line.add(StringUtils.removeEnd(grade, FormattedText.getDecimalSeparator()+"0"));
 							}
 							if (!isCustomExport || this.includeGradeItemComments) {
 								line.add(gradeInfo.getGradeComment());
@@ -306,16 +354,16 @@ public class ExportPanel extends BasePanel {
 				final CourseGrade courseGrade = gbCourseGrade.getCourseGrade();
 
 				if (isCustomExport && this.includePoints) {
-					line.add(FormatHelper.formatDoubleToDecimal(courseGrade.getPointsEarned()));
+					line.add(FormatHelper.formatGradeForDisplay(FormatHelper.formatDoubleToDecimal(courseGrade.getPointsEarned())));
 				}
 				if (isCustomExport && this.includeCalculatedGrade) {
-					line.add(courseGrade.getCalculatedGrade());
+					line.add(FormatHelper.formatGradeForDisplay(courseGrade.getCalculatedGrade()));
 				}
 				if (isCustomExport && this.includeCourseGrade) {
 					line.add(courseGrade.getMappedGrade());
 				}
 				if (isCustomExport && this.includeGradeOverride) {
-					line.add(courseGrade.getEnteredGrade());
+					line.add(FormatHelper.formatGradeForDisplay(courseGrade.getEnteredGrade()));
 				}
 				if (isCustomExport && this.includeLastLogDate) {
 					if (courseGrade.getDateRecorded() == null) {

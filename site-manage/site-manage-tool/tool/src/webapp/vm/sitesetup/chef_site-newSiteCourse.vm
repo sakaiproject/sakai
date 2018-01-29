@@ -144,7 +144,7 @@
 								</td>
 								<td style="white-space:nowrap">
 									<h5>
-									<label for="course$courseNumber" title="$sectionObject.eid">$validator.escapeHtml($sectionObject.title) $sectionObject.getCategoryDescription()</label>
+									<label for="course$courseNumber" title="$sectionObject.eid">$validator.escapeHtml($sectionObject.title) $!sectionObject.getCategoryDescription()</label>
 									#if ($!sectionObject.attached)
 										<span class="instruction">($tlang.getString("nscourse.site_exists") <a href="#" onclick="javascript:enableCheckBox($!courseNumber)">$tlang.getString("nscourse.select_anyways")</a>)</span>
 									#end
@@ -160,7 +160,7 @@
 												checked="checked"
 											#end 
 										/>
-                                        <label for="courseDesc$courseNumber" class="skip">$tlang.getString("useOfficialDescription"): $validator.escapeHtml($sectionObject.title) ($sectionObject.eid) $sectionObject.getCategoryDescription()</label>
+                                        <label for="courseDesc$courseNumber" class="skip">$tlang.getString("useOfficialDescription"): $validator.escapeHtml($sectionObject.title) ($sectionObject.eid) $!sectionObject.getCategoryDescription()</label>
 									#end
 								</td>
 								</tr>

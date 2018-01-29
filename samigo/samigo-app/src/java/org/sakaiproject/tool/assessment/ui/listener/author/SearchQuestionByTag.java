@@ -21,17 +21,14 @@
 
 package org.sakaiproject.tool.assessment.ui.listener.author;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.tool.assessment.ui.bean.author.SearchQuestionBean;
-import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
-
 import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
 import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
 
+import org.sakaiproject.tool.assessment.ui.bean.author.SearchQuestionBean;
+import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 
 /**
  * <p>Title: SearchQuestionByTag</p>
@@ -41,7 +38,6 @@ import javax.faces.event.ActionListener;
 
 public class SearchQuestionByTag implements ActionListener
 {
-    private static Log log = LogFactory.getLog(SearchQuestionByTag.class);
 
     /**
      * Simply cancel and return

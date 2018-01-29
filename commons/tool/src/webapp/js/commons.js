@@ -26,6 +26,8 @@ commons.getSelection = function () {
     return (window.getSelection) ? window.getSelection() : document.selection;
 };
 
+commons.imageFileExtensions = ['png','jpg','jpeg','gif'];
+
 commons.switchState = function (state, arg) {
 
     commons.currentState = state;
@@ -71,6 +73,9 @@ commons.switchState = function (state, arg) {
 					    loadThumbnail = false;
 						wrapped = text;
 					}
+
+                    if (!editor.is(":focus")) editor.focus();
+
                     if (!document.execCommand('insertHtml', false, wrapped)) {
                         var sel = commons.getSelection();
                         var range = sel.getRangeAt(0);
@@ -214,17 +219,20 @@ commons.switchState = function (state, arg) {
             fileInsertButton.click(function (e) {
 
                 var file = fileField[0].files[0];
+                var extension = file.name.substring(file.name.lastIndexOf('.') + 1);
 
-                var formData = new FormData();
-                formData.append('siteId', commons.siteId);
-                formData.append('imageFile', file);
-                var xhr = new XMLHttpRequest();
-                xhr.open('POST', '/direct/commons/uploadImage', true);
-                xhr.onload = function (e) {
-                    editor.append("<div><img src=\"" + xhr.responseText + "\" class=\"commons-image\" /></div>");
-                };
-                xhr.send(formData);
-                editorImageButton.qtip('api').hide();
+                if (commons.imageFileExtensions.indexOf(extension) != -1) {
+                    var formData = new FormData();
+                    formData.append('siteId', commons.siteId);
+                    formData.append('imageFile', file);
+                    var xhr = new XMLHttpRequest();
+                    xhr.open('POST', '/direct/commons/uploadImage', true);
+                    xhr.onload = function (e) {
+                        editor.append("<div><img src=\"" + xhr.responseText + "\" class=\"commons-image\" /></div>");
+                    };
+                    xhr.send(formData);
+                    editorImageButton.qtip('api').hide();
+                }
             });
 
             fileField.change(function (e) {

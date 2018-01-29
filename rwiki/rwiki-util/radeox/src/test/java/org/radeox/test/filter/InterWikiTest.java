@@ -25,6 +25,7 @@ package org.radeox.test.filter;
 import java.io.IOException;
 import java.io.StringWriter;
 
+import lombok.extern.slf4j.Slf4j;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 
@@ -34,6 +35,7 @@ import org.radeox.filter.LinkTestFilter;
 import org.radeox.filter.interwiki.InterWiki;
 import org.radeox.test.filter.mock.MockInterWikiRenderEngine;
 
+@Slf4j
 public class InterWikiTest extends FilterTestSupport
 {
 	public InterWikiTest(String name)
@@ -92,7 +94,7 @@ public class InterWikiTest extends FilterTestSupport
 		}
 		catch (IOException e)
 		{
-			e.printStackTrace();
+			log.error(e.getMessage(), e);
 		}
 		assertEquals(
 				"<a href=\"http://www.google.com/search?q=stephan\">StephanAlias</a>",

@@ -44,21 +44,22 @@
       <title><h:outputText value="#{assessmentSettingsMessages.sakai_assessment_manager} #{assessmentSettingsMessages.dash} #{assessmentSettingsMessages.settings}" /></title>
       <samigo:script path="/jsf/widget/hideDivision/hideDivision.js"/>
       <samigo:script path="/jsf/widget/colorpicker/colorpicker.js"/>
-      <script type="text/javascript" src="/library/js/lang-datepicker/lang-datepicker.js"></script>
+      <samigo:script path="/../library/js/lang-datepicker/lang-datepicker.js"/>
       <samigo:script path="/js/authoring.js"/>
       
       <script type="text/javascript">
         $(document).ready(function() {
           // set up the accordion for settings
           var accordionPanel = 1;
-          if (window.sessionStorage && window.sessionStorage.getItem('samigo_assessmentsettings')) {
-              accordionPanel = parseInt(window.sessionStorage.getItem('samigo_assessmentsettings'));
+          var itemName = "samigo_assessmentsettings_" + <h:outputText value="#{assessmentSettings.assessmentId}"/>;
+          if (window.sessionStorage && window.sessionStorage.getItem(itemName)) {
+              accordionPanel = parseInt(window.sessionStorage.getItem(itemName));
           }
           $("#jqueryui-accordion").accordion({
               heightStyle: "content",
               activate: function(event, ui) {
                   if (window.sessionStorage) {
-                      window.sessionStorage.setItem('samigo_assessmentsettings', $("#jqueryui-accordion").accordion("option", "active"));
+                      window.sessionStorage.setItem(itemName, $("#jqueryui-accordion").accordion("option", "active"));
                   }
               },
               active: accordionPanel,

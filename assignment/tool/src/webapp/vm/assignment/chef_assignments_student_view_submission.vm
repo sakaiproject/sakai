@@ -1,4 +1,3 @@
-<!-- $Id$ -->
 <!-- start: chef_assignments_student_view_submission.vm  -->
 <script type="text/javascript">
 $(document).ready(function(){
@@ -26,39 +25,31 @@ $(document).ready(function(){
 </script>
 ## Include other javascript specific to this page
 #javascript("/sakai-assignment-tool/js/studentViewSubmission.js")
-
 <div class="portletBody">
 ## submission times
-	#set($timeReturned=false)
-	#set($timeReturned=$submission.TimeReturned)
-	#set($timeSubmitted=false)
-	#set($timeSubmitted=$submission.TimeSubmitted)
+	#set($dateReturned=false)
+	#set($dateReturned=$submission.DateReturned)
+	#set($dateSubmitted=false)
+	#set($dateSubmitted=$submission.DateSubmitted)
 	#set($submitted=false)
-	#set($submitted=$submission.getSubmitted())
+	#set($submitted=$submission.Submitted)
 	#set($returned=false)
-	#set($returned=$submission.getReturned())
-	#set($closeTime = false)
-	#set($closeTime = $assignment.CloseTime)
-	#set($allowResubmitNumber="0")
-	#set($allowResubmitNumber = $submission.getProperties().getProperty("allow_resubmit_number"))
-	#if(!$!allowResubmitNumber.equals("0"))
-		#set($allowResubmitCloseTimeString=$submission.getProperties().getProperty("allow_resubmit_closeTime"))
-		#if($!allowResubmitCloseTimeString)
-			#set($allowResubmitCloseTime=$!TimeService.newTime($!LongObject.parseLong($!allowResubmitCloseTimeString)))
-		#end
-	#end
+	#set($returned=$submission.Returned)
+	#set($closeDate = false)
+	#set($closeDate = $assignment.CloseDate)
+
 	#if ($!submission && $!allowResubmitNumber.equals("0"))
 		##override the close time setting for assignment by submission's individual setting
-		#set($closeTime = $submission.CloseTime)
+		#set($closeDate = $submission.CloseDate)
 	#end
-	#set ($submissionType = $assignment.getContent().getTypeOfSubmission())
-	#if ($allowSubmit && !$submission && $!closeTime && $currentTime.after($closeTime) )
+	#set ($submissionType = $assignment.TypeOfSubmission.ordinal())
+	#if ($allowSubmit && !$submission && $closeDate && $currentTime.isAfter($closeDate) )
 		<div class="alertMessage">$tlang.getString("stuviewsubm.theclodat")</div><div class="clear"></div>
 	#end
 
 	#if ($!canSubmit)
 		#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $alertMessage</div><div class="clear"></div>#end
-		#if ($!submission && $timeSubmitted)
+		#if ($!submission && $dateSubmitted)
 			## if there is a submitted submission
 			## get the properies
 			#if ($!allowAddAssignment)
@@ -75,7 +66,7 @@ $(document).ready(function(){
 ##						</span>
 					#end
 				#end
-				#if ($!timeReturned && $!timeSubmitted && $!timeReturned.after($!timeSubmitted))
+				#if ($dateReturned && $dateSubmitted && $dateReturned.isAfter($dateSubmitted))
 				$validator.escapeHtml($assignment.getTitle())
 					<span class="highlight">
 						 - $tlang.getString("resubmit")
@@ -84,25 +75,25 @@ $(document).ready(function(){
 				</h3>
 			#end
 			#if ($returned)
-					#if ($!timeSubmitted && $!timeReturned && $!timeReturned.after($!timeSubmitted))
+					#if ($dateSubmitted && $dateReturned && $dateReturned.isAfter($dateSubmitted))
 					<p class="instruction">
-						$tlang.getString("stuviewsubm.asshasbee4") $submission.TimeReturned.toStringLocalFull(). $tlang.getString("stuviewsubm.plesub")
+						$tlang.getString("stuviewsubm.asshasbee4") $!service.getUsersLocalDateTimeString($submission.DateReturned) $tlang.getString("stuviewsubm.plesub")
 					</p>	
 					#else
 					<p class="instruction">
-						$tlang.getString("stuviewsubm.asshasbee3") $submission.TimeSubmitted.toStringLocalFull().
-						#if ($!timeSubmitted && $!timeSubmitted.after($assignment.DueTime))
+						$tlang.getString("stuviewsubm.asshasbee3") $!service.getUsersLocalDateTimeString($submission.DateSubmitted)
+						#if ($dateSubmitted && $dateSubmitted.isAfter($assignment.DueDate))
 							<span class="highlight"> $tlang.getString("gen.late")</span>
 						#end
 					</p>	
 					#end
-			#elseif ($submission.getGraded() && ($submission.getGradeReleased() || $returned))
+			#elseif ($submission.Graded && ($submission.GradeReleased || $returned))
 					$tlang.getString("stuviewsubm.asshasbee2")
-                        #elseif (!$submission.getSubmitted())
+                        #elseif (!$submission.Submitted)
                                         $submission.getStatus()
 			#else
-					<p class="instruction">$tlang.getString("gen.hasbee") $submission.TimeSubmitted.toStringLocalFull()</p>
-					#if ($!timeSubmitted && $!timeSubmitted.after($assignment.DueTime))
+					<p class="instruction">$tlang.getString("gen.hasbee") $!service.getUsersLocalDateTimeString($submission.DateSubmitted)</p>
+					#if ($!dateSubmitted && $!dateSubmitted.isAfter($assignment.DueDate))
 						<span class="highlight"> $tlang.getString("gen.late")</span>
 					#end
 			#end
@@ -130,9 +121,9 @@ $(document).ready(function(){
 				#elseif ($submissionType==2)
 				 	$tlang.getString("stuviewsubm.assattonly")
 				#end
-				#if($assignment.getAllowPeerAssessment())
+				#if($assignment.AllowPeerAssessment)
 					<div class="highlight">
-						#if($assignment.getPeerAssessmentAnonEval())
+						#if($assignment.PeerAssessmentAnonEval)
 				 			$tlang.getString("stuviewsubm.peerreviewanon")
 						#else
 				 			$tlang.getString("stuviewsubm.peerreview")
@@ -151,10 +142,10 @@ $(document).ready(function(){
 				<div class="col-lg-4 col-sm-6 col-xs-12">
 					<div class="itemSummaryValue">
 						#assignmentTitleIcon($assignment)
-                                                $validator.escapeHtml($assignment.getTitle())
+						$validator.escapeHtml($assignment.Title)
 						#set ($deleted = false)
-						#set ($deleted = $assignment.getProperties().getProperty($assignment.getProperties().getNamePropAssignmentDeleted()))
-						#if ($!deleted.equalsIgnoreCase("true"))
+						#set ($deleted = $assignment.Deleted)
+						#if ($deleted)
 							<span class="highlight">(Assignment has been deleted)</span>
 						#end
 					</div>
@@ -164,11 +155,11 @@ $(document).ready(function(){
 				<div class="col-lg-4 col-sm-6 col-xs-12">
 					<div class="itemSummaryHeader">$tlang.getString("gen.due")</div>
 				</div>
-				#set($allowUpdateAssignment=$!service.allowUpdateAssignment($assignment.Reference))
+				#set($allowUpdateAssignment=$!service.allowUpdateAssignment($assignmentReference))
 				<div class="col-lg-4 col-sm-6 col-xs-12">
 					<div class="itemSummaryValue">
-						#if ($assignment.getContent().getHideDueDate() != "true" || $!allowUpdateAssignment)
-							$!assignment.dueTime.toStringLocalFull()
+						#if (!$assignment.HideDueDate || $!allowUpdateAssignment)
+							$!service.getUsersLocalDateTimeString($!assignment.DueDate)
 						#end
 					</div>
 				</div>
@@ -208,13 +199,13 @@ $(document).ready(function(){
 					<div class="col-lg-4 col-sm-6 col-xs-12">
 						<div class="itemSummaryValue">
 							#if ($!submission)
-								#if ($submitted && $!timeSubmitted)
+								#if ($submitted && $dateSubmitted)
 									#if ($returned)
-										#if ($!timeReturned && $!timeSubmitted && $!timeReturned.after($!timeSubmitted))
-											$tlang.getString("gen.retu") $submission.TimeReturned.toStringLocalFull()
+										#if ($dateReturned && $dateSubmitted && $dateReturned.isAfter($dateSubmitted))
+											$tlang.getString("gen.retu") $!service.getUsersLocalDateTimeString($submission.dateReturned)
 										#else
-											$tlang.getString("gen.resub") $submission.TimeSubmitted.toStringLocalFull()
-											#if ($!timeSubmitted && $!timeSubmitted.after($assignment.DueTime))
+											$tlang.getString("gen.resub") $!service.getUsersLocalDateTimeString($submission.DateSubmitted)
+											#if ($dateSubmitted && $!dateSubmitted.isAfter($assignment.DueDate))
 												<span class="highlight"> $tlang.getString("gen.late")</span>
 											#end
 										#end
@@ -225,8 +216,8 @@ $(document).ready(function(){
 											$tlang.getString("gen.commented")
 										#end
 									#else
-										$tlang.getString("gen.subm4") $submission.timeSubmitted.toStringLocalFull()
-										#if ($!timeSubmitted && $!timeSubmitted.after($assignment.DueTime))
+										$tlang.getString("gen.subm4") $!service.getUsersLocalDateTimeString($submission.DateSubmitted)
+										#if ($dateSubmitted && $dateSubmitted.isAfter($assignment.DueDate))
 											<span class="highlight">$tlang.getString("gen.late2")</span>
 										#end
 									#end
@@ -241,8 +232,8 @@ $(document).ready(function(){
 				</div>
 			#end
 			#if ($withGrade)
-				#set ($gradeScale = $assignment.getContent().getTypeOfGradeString())
-				#if ($submission.getGraded() && $submission.getGradeReleased())
+				#set ($gradeScale = $assignment.TypeOfGrade.ordinal())
+				#if ($submission.Graded && $submission.GradeReleased)
 					<div class="row">
 						<div class="col-lg-4 col-sm-6 col-xs-12">
 							<div class="itemSummaryHeader">$tlang.getString("gen.gra")</div>
@@ -250,13 +241,17 @@ $(document).ready(function(){
 						<div class="col-lg-4 col-sm-6 col-xs-12">
 							<div class="itemSummaryValue highlight">
 								<strong>
-									#if ($assignment.getContent().TypeOfGrade != 1)
-										#if($!override)$override#else$submission.GradeDisplay#end
+									#if ($gradeScale != 1)
+										#if ($!override)
+											$override
+										#else
+											$!service.getGradeDisplay($submission.Grade, $assignment.TypeOfGrade, $!assignment.ScaleFactor)
+										#end
 									#else
 										$tlang.getString("gen.nograd")
 									#end
-									#if ($gradeTypeTable.get($assignment.getContent().getTypeOfGrade()) == $!tlang.getString("points"))
-										($tlang.getString("grade.max") $assignment.getContent().getMaxGradePointDisplay())
+									#if ($gradeTypeTable.get($gradeScale) == $!tlang.getString("points"))
+                                        ($tlang.getString("grade.max") $!service.getMaxPointGradeDisplay($!assignment.ScaleFactor, $!assignment.MaxGradePoint))
 									#end
 								</strong>
 									
@@ -274,9 +269,9 @@ $(document).ready(function(){
 						</div>
 						<div class="col-lg-4 col-sm-6 col-xs-12">
 							<div class="itemSummaryValue">
-								$gradeScale
-								#if ($gradeTypeTable.get($assignment.getContent().getTypeOfGrade()) == $!tlang.getString("points"))
-									($tlang.getString("grade.max") $assignment.getContent().getMaxGradePointDisplay())
+								$gradeTypeTable.get($gradeScale)
+								#if ($gradeTypeTable.get($gradeScale) == $!tlang.getString("points"))
+                                    ($tlang.getString("grade.max") $!service.getMaxPointGradeDisplay($!assignment.ScaleFactor, $!assignment.MaxGradePoint))
 								#end
 								
 								<!--for grading via an external scoring service, if enabled for an associated gradebook item -->
@@ -290,27 +285,28 @@ $(document).ready(function(){
 			#end
 			##show alert when assignment is modified and the modified date is after its open date	
 			#set($newAssignment="false")
-			#set($newAssignment=$assignment.getProperties().getProperty("newAssignment"))
-			#if ($assignment.getTimeLastModified().after($assignment.getOpenTime()) && !$!newAssignment.equalsIgnoreCase("true"))
+			#set($newAssignment=$assignment.Properties.get("newAssignment"))
+			#if ($assignment.DateModified.isAfter($assignment.OpenDate) && !$!newAssignment.equalsIgnoreCase("true"))
 				<div class="row">
 					<div class="col-lg-4 col-sm-6 col-xs-12">
 						<div class="itemSummaryHeader">$tlang.getString("gen.modbyins")</div>
 					</div>
 					<div class="col-lg-4 col-sm-6 col-xs-12">
 						<div class="itemSummaryValue">
-							$assignment.getTimeLastModified().toStringLocalFull()
+							$!service.getUsersLocalDateTimeString($assignment.DateModified)
 						</div>
 					</div>
 				</div>
 			#end
-			#if($!submitted && $!timeSubmitted && $allowReviewService && $assignment.getContent().AllowReviewService && $assignment.getContent().AllowStudentViewReport)
+			#set($allowStudentViewReport = $assignment.Properties.get("s_view_report")) 
+			#if($!submitted && $!dateSubmitted && $allowReviewService && $assignment.ContentReview && $!allowStudentViewReport.equals('true'))
 				<div class="row">
 					<div class="col-lg-4 col-sm-6 col-xs-12">
 						<div class="itemSummaryHeader">$reviewServiceName&nbsp;$tlang.getString("review.report")</div>
 					</div>
 					<div class="col-lg-4 col-sm-6 col-xs-12">
 						<div class="itemSummaryValue">
-							#set($reviewResults=$submission.ContentReviewResults)
+							#set($reviewResults=$!service.getContentReviewResults($!submission))
 							#if ($reviewResults.size() >= 3)
 								<div class="discTria">
 									<input class="disclosureTriangle" type="image" onclick="ASN.handleReportsTriangleDisclosure(this,this.parentNode.parentNode.children[1]); return false;" src="#imageLink("sakai/expand.gif")" alt="$tlang.getString('review.report.expand')"/>
@@ -323,7 +319,7 @@ $(document).ready(function(){
 									#set ($props = $reviewResult.getContentResource().Properties)
 									<span class="reportIcon">
 										#if (!$reviewResult.getReviewReport().equals("Error"))<a href="$reviewResult.getReviewReport()" target="_blank">#end
-										<span class="$reviewResult.getReviewIconCssClass()" title="#if($reviewResult.getReviewReport().equals("Error"))$reviewResult.getReviewError()#{else}$reviewResult.getReviewScore()#end"></span>
+										<span class="$reviewResult.getReviewIconCssClass()" title="#if($reviewResult.getReviewReport().equals("Error"))$reviewResult.getReviewError()#{else}$reviewResult.contentReviewItem.getReviewScore()#end"></span>
 										#if (!$reviewResult.getReviewReport().equals("Error"))</a>#end
 									</span>
 									#if ($reviewResult.isInline())
@@ -340,61 +336,62 @@ $(document).ready(function(){
 					</div>
 				</div>
 			#end
-			#if ($!submission && $!submission.getSubmissionLog().size() > 0)
-				<div class="row">
-					<div class="col-lg-4 col-sm-6 col-xs-12">
-						<div class="itemSummaryHeader">$tlang.getString("gen.history")</div>
-					</div>
-					<div class="col-lg-4 col-sm-6 col-xs-12">
-						<div class="itemSummaryValue">
-							#foreach ($entry in $submission.getSubmissionLog())
-								$entry<br>
-							#end
-						</div>
-					</div>
-				</div>
-			#end
+##			TODO Submission Log
+##			#if ($!submission && $!submission.getSubmissionLog().size() > 0)
+##				<div class="row">
+##					<div class="col-lg-4 col-sm-6 col-xs-12">
+##						<div class="itemSummaryHeader">$tlang.getString("gen.history")</div>
+##					</div>
+##					<div class="col-lg-4 col-sm-6 col-xs-12">
+##						<div class="itemSummaryValue">
+##							#foreach ($entry in $submission.getSubmissionLog())
+##								$entry<br>
+##							#end
+##						</div>
+##					</div>
+##				</div>
+##			#end
 		</div>
 		<div class="clearfix"></div>
 		<h4>
 			$tlang.getString("gen.instr")
 		</h4>
 		
-		#if ($!assignment.getContent().getInstructions().length()>0)
-			<div class="textPanel">$validator.escapeHtmlFormattedText($!assignment.getContent().getInstructions())</div>
+		#if (!$!assignment.Instructions.isEmpty())
+			<div class="textPanel">$validator.escapeHtmlFormattedText($!assignment.Instructions)</div>
 		#end
-		## assignment attachment
-		#set ($size = 0)
-		#set ($props = false)
-		#foreach ($attachment in $assignment.getContent().getAttachments()) 
-			#set ($props = $attachment.Properties) 
-			#if ($!props)
-				#set ($size = $size + 1)
-			#end
-		#end
-		#if ($size > 0)
-			<h4>
-				$tlang.getString("gen.addres2")
-			</h4>	
+
+		## Assignment Attachments
+		#set ($aAttachments = $assignment.Attachments)
+		#if ($aAttachments)
+			#set ($size = $aAttachments.size())
+			#if ($size > 0)
+				<h4>
+					$tlang.getString("gen.addres2")
+				</h4>
 				<ul class="attachList indnt1">
-					#foreach ($attachment in $assignment.getContent().getAttachments()) 
-						#set ($props = false)
-						#set ($props = $attachment.Properties) 
-						#if ($!props)
-							<li>
-								#if ($props.getBooleanProperty($props.NamePropIsCollection))
-									<img src = "#imageLink($contentTypeImageService.getContentTypeImage("folder"))" border="0" alt="$tlang.getString("gen.folatt")" />
-								#else
-									<img src = "#imageLink($contentTypeImageService.getContentTypeImage($props.getProperty($props.NamePropContentType)))" border="0" alt="$tlang.getString("gen.filatt")" />
-								#end
-									<a href="$attachment.Url" target="_blank">$validator.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))</a>						
-								#propertyDetails($props)
-							</li>
+					#foreach ($attachmentReference in $aAttachments)
+						#set ($reference = $assignmentAttachmentReferences.get($attachmentReference))
+						#if ($reference)
+							#set ($props = false)
+							#set ($props = $reference.Properties)
+							#if ($!props)
+								<li>
+									#if ($props.getBooleanProperty($props.NamePropIsCollection))
+										<img src = "#imageLink($contentTypeImageService.getContentTypeImage("folder"))" border="0" alt="$tlang.getString("gen.folatt")" />
+									#else
+										<img src = "#imageLink($contentTypeImageService.getContentTypeImage($props.getProperty($props.NamePropContentType)))" border="0" alt="$tlang.getString("gen.filatt")" />
+									#end
+									<a href="$reference.Url" target="_blank">$validator.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))</a>
+									#propertyDetails($props)
+								</li>
+							#end
 						#end
 					#end
 				</ul>
-				##end
+			#end
 		#end
+
 			## model answer
 			#if($allowViewModelAnswer)
 			<h4  id="toggleModel" class="toggleAnchor specialLink"><img alt="expand" class="expand" src="/library/image/sakai/expand.gif" /><img alt="collapse" class="collapse" src="/library/image/sakai/collapse.gif" />$tlang.getString('modelAnswer')</h4>
@@ -410,15 +407,7 @@ $(document).ready(function(){
 									#set ($size = $size + 1)
 								#end
 							#end
-							#if ($size == 0)
-								<p class="instruction">
-                                                                    #if ($submissionType == 5)
-                                                                        $tlang.getString("gen.noatt.single")
-                                                                    #else
-                                                                        $tlang.getString("gen.noatt")
-                                                                    #end
-                                                                </p>
-							#else
+							#if ($size > 0)
 								#foreach ($attachment in $mAttachments)
 									#set ($props = false)
 									#set ($props = $attachment.Properties) 
@@ -500,7 +489,7 @@ $(document).ready(function(){
 
 		#set($notes = [])
 		#set($notes = $notesMap.get($submitter.id))
-		#if ($!isAdditionalNotesEnabled && !$assignment.isGroup() && $notes.size() > 0)
+		#if ($!isAdditionalNotesEnabled && !$assignment.IsGroup && $notes.size() > 0)
 			#set($notesstr = "")
 			#foreach($note in $!notes)
 				#if($!note) #set($notesstr = "$notesstr<li>$note</li>") #end
@@ -521,7 +510,7 @@ $(document).ready(function(){
 				$tlang.getString("nonelec_instruction")
 			</p>
 			## show feedbacks if any
-			#if ($returned && $!timeReturned)
+			#if ($returned && $!dateReturned)
 					#if (($!submission.FeedbackComment) && ($submission.FeedbackComment.trim().length()>0))
 						#if ($submissionType==2)
 							<h3>$tlang.getString("gen.addinst2")</h3>
@@ -583,14 +572,14 @@ $(document).ready(function(){
 		<input type="hidden" name="eventSubmit_doRead_add_submission_form" value="x" />
 		<input type="hidden" name="option" id="option" value="cancel" />
 		<input type="hidden" name="currentAttachment" value="" />
-		<input type="hidden" name="assignmentId" value="$assignment.Reference" />
+		<input type="hidden" name="assignmentId" value="$assignmentReference" />
 
 		#if ($!canSubmit)
 			## if a draft submission or the submission has been returned and has not yet submitted
 			## 1- text only; 2-attachment only; 3-text and attachment
-			#set ( $submissionType = $assignment.getContent().getTypeOfSubmission())
+			#set ( $submissionType = $assignment.TypeOfSubmission.ordinal())
 			
-#if ($!assignment.isGroup())
+#if ($!assignment.IsGroup)
 <h4>$tlang.getString("group.select.represent")</h4>
 		#if ($!groups)
                     #set ($size = 0)
@@ -623,7 +612,7 @@ $(document).ready(function(){
 							</td>
                                                         <td headers="description" width="100%"> ##mozilla does not resize table children dynamically , so set here
 							<span style="font-size: smaller; color: blue;">	
-								#set($gusers = $assignmentService.getSortedGroupUsers($group))
+								#set($gusers = $!service.getSortedGroupUsers($group))
 								#foreach ($user in $gusers)
 									$user.getDisplayName()
 									##$!userDirectoryService.getUser($user).getDisplayName()
@@ -739,7 +728,7 @@ $(document).ready(function(){
 			#if (($submissionType==2) || ($submissionType==3) || ($submissionType==5)) 
 				#if ($submissionType==2 && !$unsubmittableInline)
 					<p class="instruction">
-						#if (($submitted && !$returned) || ($returned && $!timeReturned && $!timeSubmitted && $!timeReturned.before($!timeSubmitted)) || ($!closeTime && $currentTime.after($closeTime)))
+						#if (($submitted && !$returned) || ($returned && $dateReturned && $dateSubmitted && $dateReturned.isBefore($dateSubmitted)) || ($closeDate && $currentTime.isAfter($closeDate)))
 							## for submitted not yet returned submission; or returned by resubmitted submission; or after close date
 							$tlang.getString("stuviewsubm.youatt")
 						#else
@@ -774,7 +763,7 @@ $(document).ready(function(){
 				#end
 			#end
 			#if (($submissionType==2) || ($submissionType==3) || ($submissionType==5 && $size < 2))
-				<div class="highlightPanel" style="background:#ffe">
+				<div id="attachmentspanel" class="highlightPanel" style="background:#ffe">
 					<h3 style="margin-top:0;margin-bottom:.5em">
 						#if ($submissionType == 5)
 							$tlang.getString("gen.att.single")
@@ -810,7 +799,7 @@ $(document).ready(function(){
 										</td>
 										<td class="itemAction">
 											<div class="spinnerBesideContainer">
-												<a href="javascript:void(0)" onclick="SPNR.insertSpinnerAfter( this, null, null ); ASN.doStudentViewSubmissionAction( 'addSubmissionForm', 'removeAttachment', '$attachment.id' ); return false;">
+												<a href="javascript:void(0)" onclick="SPNR.insertSpinnerAfter( this, null, null ); ASN.doStudentViewSubmissionAction( 'addSubmissionForm', 'removeAttachment', '$attachment.id', 'attachmentspanel' ); return false;">
 													$tlang.getString("stuviewsubm.removeatt")<span class="skip"> $validator.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))</span>
 												</a>
 											</div>
@@ -842,15 +831,18 @@ $(document).ready(function(){
 											</td>
 											<td>
 												<div id="clonableUploadW spinnerBesideContainer"> 
-													<input type="file" name="upload" class="upload" id="clonableUpload" #if($content_review_acceptedMimeTypes) accept="$content_review_acceptedMimeTypes" #end onchange="SPNR.insertSpinnerAfter( this, null, null ); document.getElementById('addSubmissionForm').action='#toolLinkParam("AssignmentAction" "doAttachUpload" "sakai_csrf_token=$validator.escapeUrl($sakai_csrf_token)")';ASN.submitForm( 'addSubmissionForm', null, null, null );"/> 
+													<input type="file" name="upload" class="upload" id="clonableUpload" #if($content_review_acceptedMimeTypes) accept="$content_review_acceptedMimeTypes" #end onchange="SPNR.insertSpinnerAfter( this, null, null ); document.getElementById('addSubmissionForm').action='#toolLinkParam("AssignmentAction" "doAttachUpload" "sakai_csrf_token=$validator.escapeUrl($sakai_csrf_token)")';ASN.submitForm( 'addSubmissionForm', null, null, null, 'attachmentspanel' );"/> 
 												</div>
-											</td>
-											<td>
-												<span class="navIntraToolLink">
-													<input class="disableme enabled" type="button" value="$howManySubAttsLinks" name="attach" id="attach" accesskey="a" #if(!$allowSubmit) disabled="disabled"#end
-														onclick="SPNR.disableControlsAndSpin( this, null ); ASN.submitForm( 'addSubmissionForm', 'attach', null, null ); return false;" />
-												</span>
-											</td>
+												</td>
+												##Only show for inline and attachments
+												#if ($submissionType == 3)
+												<td>
+													<span class="navIntraToolLink">
+														<input class="disableme enabled" type="button" value="$howManySubAttsLinks" name="attach" id="attach" accesskey="a" #if(!$allowSubmit) disabled="disabled"#end
+															onclick="SPNR.disableControlsAndSpin( this, null ); ASN.submitForm( 'addSubmissionForm', 'attach', null, null, 'attachmentspanel' ); return false;" />
+													</span>
+												</td>
+												#end
 										</tr>	
 										<tr>
 											<td></td>
@@ -875,15 +867,9 @@ $(document).ready(function(){
 										</td>
 										<td>
 											<div class="spinnerBesideContainer">
-												<input type="file" name="upload" class="upload" id="clonableUpload" #if($content_review_acceptedMimeTypes) accept="$content_review_acceptedMimeTypes" #end onchange="SPNR.insertSpinnerAfter( this, null, null ); document.getElementById('addSubmissionForm').action='#toolLinkParam("AssignmentAction" "doAttachUploadSingle" "sakai_csrf_token=$validator.escapeUrl($sakai_csrf_token)")';ASN.submitForm( 'addSubmissionForm', null, null, null );"/>
+												<input type="file" name="upload" class="upload" id="clonableUpload" #if($content_review_acceptedMimeTypes) accept="$content_review_acceptedMimeTypes" #end onchange="SPNR.insertSpinnerAfter( this, null, null ); document.getElementById('addSubmissionForm').action='#toolLinkParam("AssignmentAction" "doAttachUploadSingle" "sakai_csrf_token=$validator.escapeUrl($sakai_csrf_token)")';ASN.submitForm( 'addSubmissionForm', null, null, null, 'attachmentspanel' );"/>
 											</div>
 											<input type="hidden" name="submissionFileCount" id="submissionFileCount" value="1"/>
-										</td>
-										<td>
-											## add browse resources button here
-											#set($howManySubAttsLinks=$tlang.getString("stuviewsubm.attfromserverlabel.singular"))
-											<input class="disableme enabled" type="button" value="$howManySubAttsLinks" name="attach" id="attach" accesskey="a" #if(!$allowSubmit) disabled="disabled"#end
-												onclick="SPNR.disableControlsAndSpin( this, null ); ASN.submitForm( 'addSubmissionForm', 'attach', null, null ); return false;" />
 										</td>
 									</tr>
 								</tbody>
@@ -928,17 +914,13 @@ $(document).ready(function(){
 							#set($props = $attachment.Properties)
 							#if ($props)
 								#attachmentDetails()
-								<a href="javascript:void(0)" onclick="SPNR.insertSpinnerAfter( this, null, null ); ASN.submitForm( 'addSubmissionForm', 'removeNewSingleUploadedFile', null, null ); return false;">
+								<a href="javascript:void(0)" onclick="SPNR.insertSpinnerAfter( this, null, null ); ASN.submitForm( 'addSubmissionForm', 'removeNewSingleUploadedFile', null, null, 'attachmentspanel' ); return false;">
 									$tlang.getString("stuviewsubm.removeatt")<span class="skip"> $validator.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))</span>
 								</a>
 								<br>
 							#else
 								$tlang.getString("stuviewsubm.uploadnew")
-								<input type="file" name="upload" class="upload" id="clonableUpload" #if($content_review_acceptedMimeTypes) accept="$content_review_acceptedMimeTypes" #end onchange="SPNR.insertSpinnerAfter( this, null, null ); document.getElementById('addSubmissionForm').action='#toolLinkParam("AssignmentAction" "doAttachUploadSingle" "sakai_csrf_token=$validator.escapeUrl($sakai_csrf_token)")';ASN.submitForm( 'addSubmissionForm', null, null, null );"/>
-								<span class="navIntraToolLink">
-									<input class="disableme enabled" type="button" value="$tlang.getString("stuviewsubm.attfromserverlabel")" name="attach" id="attach" accesskey="a" #if(!$allowSubmit) disabled="disabled"#end
-										onclick="SPNR.disableControlsAndSpin( this, null ); ASN.submitForm( 'addSubmissionForm', 'attach', null, null ); return false;" />
-								</span>
+								<input type="file" name="upload" class="upload" id="clonableUpload" #if($content_review_acceptedMimeTypes) accept="$content_review_acceptedMimeTypes" #end onchange="SPNR.insertSpinnerAfter( this, null, null ); document.getElementById('addSubmissionForm').action='#toolLinkParam("AssignmentAction" "doAttachUploadSingle" "sakai_csrf_token=$validator.escapeUrl($sakai_csrf_token)")';ASN.submitForm( 'addSubmissionForm', null, null, null, 'attachmentspanel' );"/>
 							#end
 						</span>
 					</div>
@@ -981,7 +963,7 @@ $(document).ready(function(){
 				#end
 			#end
 
-				#if ($returned && $!timeReturned && ($!timeSubmitted && $!timeReturned && $!timeReturned.after($!timeSubmitted) || !$!timeSubmitted))
+				#if ($returned && $dateReturned && ($dateSubmitted && $dateReturned && $dateReturned.isAfter($dateSubmitted) || !$dateSubmitted))
 					#if (($!submission.FeedbackComment) && ($submission.FeedbackComment.trim().length()>0))
 						#if ($submissionType==2)
 							<h3>$tlang.getString("gen.addinst2")</h3>
@@ -1078,11 +1060,8 @@ $(document).ready(function(){
 					#end
 				#end
 				#if ($withGrade)
-					#set ($previousGrades =  $!submission.Properties.getProperty($!submission.Properties.getNamePropSubmissionScaledPreviousGrades()))
-					#if ($!previousGrades.length() == 0 )
-						#set ($previousGrades =  $!submission.Properties.getProperty($!submission.Properties.getNamePropSubmissionPreviousGrades()))
-					#end
-					#if ($!previousGrades.length() > 0 )
+					#set ($previousGrades = $!submission.Properties.get($NamePropSubmissionScaledPreviousGrades))
+					#if ($previousGrades && $previousGrades.length() > 0 )
 						<h4 id="toggleGrade" class="toggleAnchor"><img alt="expand" class="expand" src="/library/image/sakai/expand.gif" /><img alt="collapse" class="collapse" src="/library/image/sakai/collapse.gif" />
 							$tlang.getString("gradingsub.pregra")
 						</h4>
@@ -1091,7 +1070,7 @@ $(document).ready(function(){
 						</div>
 					#end
 				#end
-				#if ($!assignment.getContent().HonorPledge!=1)
+				#if ($!assignment.HonorPledge)
 					<p class="checkbox highlightPanel">
 						<label for="$name_submission_honor_pledge_yes">
 							#if (!$!canSubmit)
@@ -1120,7 +1099,7 @@ $(document).ready(function(){
 						<input type="button" name="cancel" accesskey="x" id="cancel" value="$tlang.getString("gen.don")" onclick="ASN_SVS.confirmDiscardOrSubmit( '$name_submission_text', $!new_attachments ); return false;" />
 					#else
 					 class="act">
-								#if ($submitted && $!timeSubmitted)
+								#if ($submitted && $!dateSubmitted)
 									#set($name=$tlang.getString("resubmit"))
 								#else
 									#set($name=$tlang.getString("gen.subm3"))
@@ -1160,7 +1139,7 @@ $(document).ready(function(){
 				<input class="active" type="button" name="no" accesskey="n" id="no" value="$tlang.getString("gen.no")" onclick="ASN_SVS.undoCancel();" />
 			</div>
 		#else
-				#if ($submission.getGradeReleased() && $!submission.FeedbackText && ($submission.FeedbackText.length()>0))
+				#if ($submission.GradeReleased && $!submission.FeedbackText && ($submission.FeedbackText.length()>0))
 					#set ($text = $submission.FeedbackText)
 					#if ($!text)
 						<p class="instruction">
@@ -1269,11 +1248,11 @@ $(document).ready(function(){
 							#end
 					#end
 					#if ($withGrade)
-						#set ($previousGrades =  $!submission.Properties.getProperty($!submission.Properties.getNamePropSubmissionScaledPreviousGrades()))
+						#set ($previousGrades =  $!submission.Properties.get($NamePropSubmissionScaledPreviousGrades))
 						#if ($!previousGrades.length() == 0 )
-							#set ($previousGrades =  $!submission.Properties.getProperty($!submission.Properties.getNamePropSubmissionPreviousGrades()))
+							#set ($previousGrades =  $!submission.Properties.get($NamePropSubmissionScaledPreviousGrades))
 						#end
-						#if ($!previousGrades.length() > 0 )
+						#if ($!previousGrades && $!previousGrades.length() > 0 )
 							<h4 id="toggleGrade" class="toggleAnchor"><img alt="expand" class="expand" src="/library/image/sakai/expand.gif" /><img alt="collapse" class="collapse" src="/library/image/sakai/collapse.gif" />
 								$tlang.getString("gradingsub.pregra")
 							</h4>

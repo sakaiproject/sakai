@@ -81,4 +81,15 @@
 }
 
 
+#customExportModal #filterByGroup {
+  width: 100%;
+}
 
+div.previewGradesContainer, #missingUsersContent, #unknownUsersContent {
+  max-height: 20em;
+  overflow-y: scroll;
+}
+
+div.previewGradesContainer table {
+  width: 100%;
+ }

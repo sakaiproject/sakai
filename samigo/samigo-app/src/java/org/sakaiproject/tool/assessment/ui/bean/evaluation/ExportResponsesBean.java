@@ -37,9 +37,8 @@ import javax.faces.event.ActionEvent;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
@@ -59,12 +58,11 @@ import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.util.ResourceLoader;
 
-
-
 /**
  * <p>Description: class form for evaluating total scores</p>
  *
  */
+@Slf4j
 public class ExportResponsesBean implements Serializable, PhaseAware {
 	
 	/**
@@ -85,8 +83,6 @@ public class ExportResponsesBean implements Serializable, PhaseAware {
 	private String assessmentId;
 	private String assessmentName;
 	private boolean anonymous;
-
-	private static Logger log = LoggerFactory.getLogger(ExportResponsesBean.class);
 
 	/**
 	 * Creates a new TotalScoresBean object.
@@ -357,7 +353,7 @@ public class ExportResponsesBean implements Serializable, PhaseAware {
 
 		CellStyle boldStyle = wb.createCellStyle();
 		Font font = wb.createFont();
-		font.setBoldweight(Font.BOLDWEIGHT_BOLD);
+		font.setBold(true);
 		String fontName = ServerConfigurationService.getString("spreadsheet.font");
 		if (fontName != null) {
 			font.setFontName(fontName);

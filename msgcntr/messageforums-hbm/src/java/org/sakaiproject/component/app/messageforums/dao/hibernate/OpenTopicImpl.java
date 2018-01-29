@@ -20,14 +20,13 @@
  **********************************************************************************/
 package org.sakaiproject.component.app.messageforums.dao.hibernate;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.api.app.messageforums.OpenTopic;
 
+@Slf4j
 public class OpenTopicImpl extends TopicImpl implements OpenTopic {
 
-    private static final Logger LOG = LoggerFactory.getLogger(OpenTopicImpl.class);
-    
     private Boolean locked;
     private Boolean draft; 
     

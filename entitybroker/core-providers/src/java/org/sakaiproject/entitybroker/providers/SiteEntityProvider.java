@@ -30,9 +30,10 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+
 import org.azeckoski.reflectutils.ReflectUtils;
+
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.AuthzPermissionException;
@@ -68,7 +69,6 @@ import org.sakaiproject.entitybroker.providers.model.EntitySite;
 import org.sakaiproject.entitybroker.util.AbstractEntityProvider;
 import org.sakaiproject.entitybroker.util.TemplateParseUtil;
 import org.sakaiproject.event.api.EventTrackingService;
-import org.sakaiproject.event.api.Event;
 import org.sakaiproject.exception.IdInvalidException;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.IdUsedException;
@@ -90,6 +90,7 @@ import org.sakaiproject.util.FormattedText;
  * 
  * @author Aaron Zeckoski (azeckoski @ gmail.com)
  */
+@Slf4j
 public class SiteEntityProvider extends AbstractEntityProvider implements CoreEntityProvider,
 RESTful, ActionsExecutable, Redirectable, RequestStorable, DepthLimitable {
 
@@ -100,8 +101,6 @@ RESTful, ActionsExecutable, Redirectable, RequestStorable, DepthLimitable {
     public int getMaxDepth() {
         return maxDepth;
     }
-
-    private static Logger log = LoggerFactory.getLogger(SiteEntityProvider.class);
 
     private SiteService siteService;
     public void setSiteService(SiteService siteService) {

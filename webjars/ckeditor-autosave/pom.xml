@@ -20,7 +20,7 @@
     <!-- Either use a tag or a SHA so the version is predictable. -->
     <!-- Source at https://github.com/w8tcha/CKEditor-AutoSave-Plugin -->
 
-    <version>b88e3878f0c7442a52e542f67e76d97e2ce32f8</version>
+    <version>786318aefed553a62cebbe4cd10b67c3ab266437</version>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

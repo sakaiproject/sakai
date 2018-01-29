@@ -101,7 +101,6 @@ public class AssignmentReferenceReckoner {
     @Builder(builderMethodName = "reckoner", buildMethodName = "reckon")
     public static AssignmentReference newAssignmentReferenceReckoner(Assignment assignment, AssignmentSubmission submission, String container, String context, String id, String reference, String subtype) {
         if (StringUtils.startsWith(reference, REFERENCE_ROOT)) {
-            log.debug("constructing reference from reference");
             // we will get null, assignment, [a|c|s|grades|submissions], context, [auid], id
             String[] parts = StringUtils.splitPreserveAllTokens(reference, Entity.SEPARATOR);
             if (parts.length > 2) {
@@ -124,12 +123,10 @@ public class AssignmentReferenceReckoner {
                 }
             }
         } else if (assignment != null) {
-            log.debug("constructing reference from assignment");
             context = assignment.getContext();
             id = assignment.getId();
             subtype = "a";
         } else if (submission != null) {
-            log.debug("constructing reference from submission");
             Assignment submissionAssignment = submission.getAssignment();
             if (submissionAssignment != null) {
                 context = submission.getAssignment().getContext();

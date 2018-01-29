@@ -26,9 +26,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import lombok.extern.slf4j.Slf4j;
+
 import org.apache.commons.lang3.builder.ToStringBuilder;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
 import org.sakaiproject.section.api.coursemanagement.CourseSection;
 import org.sakaiproject.section.api.coursemanagement.EnrollmentRecord;
 import org.sakaiproject.section.api.coursemanagement.SectionEnrollments;
@@ -43,9 +44,8 @@ import org.sakaiproject.section.api.coursemanagement.SectionEnrollments;
  * @author <a href="mailto:jholtzman@berkeley.edu">Josh Holtzman</a>
  *
  */
+@Slf4j
 public class SectionEnrollmentsImpl implements SectionEnrollments {
-	private static Logger log = LoggerFactory.getLogger(SectionEnrollmentsImpl.class);
-	
 	protected Map studentToMap;
 
 	public SectionEnrollmentsImpl(List enrollmentRecords) {

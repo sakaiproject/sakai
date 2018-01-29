@@ -32,6 +32,7 @@ import org.sakaiproject.assignment.api.AssignmentServiceConstants;
 import org.sakaiproject.assignment.api.model.Assignment;
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.AuthzGroupService;
+import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.entity.api.Reference;
@@ -74,45 +75,44 @@ public class AssignmentGradeInfoProvider implements ExternalAssignmentProvider, 
     //NOTE: This is pretty hackish because the AssignmentService
     //      does strenuous checking of current user and group access,
     //      while we want to be able to check for any user.
-    private Assignment getAssignment(String id) {
+    private Assignment getAssignment(String assignmentReference) {
         Assignment assignment = null;
-        String assignmentReference = assignmentService.assignmentReference(id);
-        Reference aref = null;
         if (assignmentReference != null) {
-            aref = entityManager.newReference(assignmentReference);
+            Reference aref = entityManager.newReference(assignmentReference);
+            SecurityAdvisor accessAssignmentAdvisor = new MySecurityAdvisor(sessionManager.getCurrentSessionUserId(),
+                AssignmentServiceConstants.SECURE_ACCESS_ASSIGNMENT, assignmentReference);
+            SecurityAdvisor accessGroupsAdvisor = new MySecurityAdvisor(sessionManager.getCurrentSessionUserId(),
+                AssignmentServiceConstants.SECURE_ALL_GROUPS, siteService.siteReference(aref.getContext()));
             try {
-                securityService.pushAdvisor(
-                        new MySecurityAdvisor(sessionManager.getCurrentSessionUserId(),
-                                AssignmentServiceConstants.SECURE_ACCESS_ASSIGNMENT,
-                                assignmentReference));
-                securityService.pushAdvisor(
-                        new MySecurityAdvisor(sessionManager.getCurrentSessionUserId(),
-                                AssignmentServiceConstants.SECURE_ALL_GROUPS,
-                                siteService.siteReference(aref.getContext())));
-                assignment = assignmentService.getAssignment(assignmentReference);
+                securityService.pushAdvisor(accessAssignmentAdvisor);
+                securityService.pushAdvisor(accessGroupsAdvisor);
+                assignment = assignmentService.getAssignment(aref);
             } catch (IdUnusedException e) {
-                log.info("Unexpected IdUnusedException after finding assignment with ID: " + id);
+                log.info("Unexpected IdUnusedException after finding assignment with ID: " + assignmentReference);
             } catch (PermissionException e) {
                 log.info("Unexpected Permission Exception while using security advisor "
-                        + "for assignment with ID: " + id);
+                        + "for assignment with ID: " + assignmentReference);
             } finally {
-                securityService.popAdvisor();
-                securityService.popAdvisor();
+                securityService.popAdvisor(accessAssignmentAdvisor);
+                securityService.popAdvisor(accessGroupsAdvisor);
             }
         } else {
             if (log.isDebugEnabled()) {
-                log.debug("Assignment not found with ID: " + id);
+                log.debug("Assignment not found with ID: " + assignmentReference);
             }
         }
         return assignment;
     }
 
-    public boolean isAssignmentDefined(String id) {
+    public boolean isAssignmentDefined(String externalAppName, String id) {
+        if (!externalAppName.equals(getAppKey()) && !externalAppName.equals(assignmentService.getToolTitle())) {
+          return false;
+        }
         return getAssignment(id) != null;
     }
 
     public boolean isAssignmentGrouped(String id) {
-        return Assignment.Access.GROUPED.equals(getAssignment(id).getAccess());
+        return Assignment.Access.GROUP.equals(getAssignment(id).getTypeOfAccess());
     }
 
     public boolean isAssignmentVisible(String id, String userId) {
@@ -123,7 +123,7 @@ public class AssignmentGradeInfoProvider implements ExternalAssignmentProvider, 
         Assignment a = getAssignment(id);
         if (a == null) {
             visible = false;
-        } else if (Assignment.Access.GROUPED.equals(a.getAccess())) {
+        } else if (Assignment.Access.GROUP.equals(a.getTypeOfAccess())) {
             ArrayList<String> azgList = new ArrayList<String>((Collection<String>) a.getGroups());
             List<AuthzGroup> matched = authzGroupService.getAuthzUserGroupIds(azgList, userId);
             visible = (matched.size() > 0);

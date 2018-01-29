@@ -28,8 +28,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.tool.assessment.data.dao.questionpool.QuestionPoolItemData;
@@ -40,17 +39,14 @@ import org.sakaiproject.tool.assessment.facade.ItemFacade;
 import org.sakaiproject.tool.assessment.facade.QuestionPoolFacade;
 import org.sakaiproject.tool.assessment.facade.QuestionPoolIteratorFacade;
 
-//import osid.assessment.Item;
-
-
 /**
  * The QuestionPoolService calls the service locator to reach the
  * manager on the back end.
  * @author Rachel Gollub <rgollub@stanford.edu>
  */
-public class QuestionPoolService
+ @Slf4j
+ public class QuestionPoolService
 {
-    private Logger log = LoggerFactory.getLogger(QuestionPoolService.class);
 
   /**
    * Creates a new QuestionPoolService object.
@@ -271,7 +267,7 @@ public class QuestionPoolService
               new ArrayList(PersistenceService.getInstance().
                       getQuestionPoolFacadeQueries().getAllItemsIds(poolId));
     } catch (Exception e) {
-      e.printStackTrace();
+        log.error(e.getMessage(), e);
     }
     return results;
   }

@@ -16,30 +16,15 @@
 
 package org.sakaiproject.tool.gradebook.jsf.spreadsheetUI;
 
-
-import java.io.IOException;
-
+import javax.faces.application.Application;
 import javax.faces.component.UIComponent;
-import javax.faces.component.html.HtmlGraphicImage;
+import javax.faces.component.UIData;
 import javax.faces.context.FacesContext;
-import javax.faces.context.ResponseWriter;
 
-import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.apache.myfaces.component.UserRoleUtils;
 import org.apache.myfaces.taglib.html.HtmlDataTableTag;
 import org.apache.myfaces.component.html.ext.HtmlDataTable;
-import org.apache.myfaces.custom.sortheader.HtmlCommandSortHeader;
-import org.apache.myfaces.shared_impl.renderkit.html.HTML;
-import org.apache.myfaces.shared_impl.renderkit.html.HtmlLinkRendererBase;
-
-import javax.faces.application.Application;
-import javax.faces.component.UIData;
-import javax.faces.webapp.UIComponentTag;
 
 import org.sakaiproject.jsf.util.TagUtil;
-
 
 public class SpreadsheetUITag extends HtmlDataTableTag
 {

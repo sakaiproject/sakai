@@ -2014,7 +2014,8 @@ $(document).ready(function() {
 		$(".add-resource").click(function(){
 			oldloc = $(this);
 			closeDropdowns();
-			$("#mm-name-section").show();
+			$('#mm-name-section').addClass('fileTitles');
+			$("#mm-name-section").hide();
 			$("#mm-name").val('');
 			$("#mm-prerequisite").prop('checked',false);
 			if ($(this).hasClass("add-at-end"))
@@ -3094,89 +3095,43 @@ $(function() {
 	});
 
 	function mmFileInputDelete() {
-	    // embed dialog doesn't have an item name, so only do this if there is one
-	    var doingNames = ($('#mm-name-section').is(':visible') ||
-			      $('.mm-file-input-names').size() > 0);
-	    $(this).parent().remove();
-	    if (doingNames) {
-		// if no files left, need to put back the original name section
-		if ($('.mm-file-group').size() === 0) {
-		    $('.add-another-file').hide();
-		    $('.add-file-div').removeClass('add-another-file-div');
-		    $('#mm-name-section').show();
-		    // if there are files left but the first one was removed, put the label on
-		    // the new first
-		} else if ($('#mm-file-input-itemname').size() === 0) {
-		    var nameInput = $('.mm-file-input-names').first();
-		    nameInput.attr('id', 'mm-file-input-itemname');
-		    nameInput.before('<label></label>');
-		    nameInput.prev().text($('#mm-name').prev().text());
-		    nameInput.prev().attr('for','mm-file-input-itemname');
-		}
-	    }
+	    $(this).parent().parent().remove();
 	}
 	function mmFileInputChanged() {
 	    // user has probably selected a file. 
 	    var lastInput = $(".mm-file-input").last();
 	    if (lastInput[0].files.length !== 0) {
-		// embed dialog doesn't have names
-		var doingNames = ($('#mm-name-section').is(':visible') ||
-				  $('.mm-file-input-names').size() > 0);
+		// establish whether user has chosen the option to add file titles for the upload.
+		var doingNames = false;
+		if ($('.fileTitles')[0]) {
+			doingNames = true;
+		}
 		// user has chosen a file. 
 		// Add another button for user to pick more files
 		lastInput.parent().after(lastInput.parent().clone());
 		// find the new button and put this trigger on it
 		lastInput.parent().next().find('input').on("change", mmFileInputChanged);
-		// change this one to have name of file and remove button
-		var newStuff = '<span class="mm-file-input-name"></span> <span title="' + msg('simplepage.remove_from_uploads') + '"><span class="mm-file-input-delete fa fa-times"></span></span>';
-		// only do this if we're doing names
-		if (doingNames) {
-		    for (i = 0; i < lastInput[0].files.length; i++) {
-			newStuff = newStuff + '<input class="mm-file-input-names" type="text" size="30" maxlength="255"/>';
-		    }
-		}
 		// now need annotation on the next input, so remove the old
 		$('.add-another-file').hide();
 		$('.add-file-div').removeClass('add-another-file-div');
 		$('.add-another-file').last().show().parent().addClass('add-another-file-div');
-		lastInput.after(newStuff);
-		lastInput.parent().addClass('mm-file-group');
-		var names = "";
-		for (i = 0; i < lastInput[0].files.length; i++) {
-		    names = names + ", " + lastInput[0].files[i].name;
-		}
-		lastInput.next().text(names.substring(2));
-		// arm the delete
-		lastInput.next().next().on('click', mmFileInputDelete);
-		// and hide the actual button
+		// Loop through the new files in reverse order so that they can be added just after the lastInput element.
+		for (i = lastInput[0].files.length-1; i >= 0; i--) {
+			var newStuff = '<p><span class="mm-file-input-name">' + lastInput[0].files[i].name + '</span><span title="' + msg('simplepage.remove_from_uploads') + '"><span class="mm-file-input-delete fa fa-times"></span></span>';
+			if (doingNames) {
+					newStuff = newStuff + '<label for="link-title">Link title</label><input id="link-title" class="mm-file-input-names" type="text" size="30" maxlength="255"/></p>';
+			} else {
+				newStuff = newStuff + '</p>';
+			}
+			lastInput.after(newStuff);
+			lastInput.parent().addClass('mm-file-group');
+			$('.mm-file-input-delete').on('click', mmFileInputDelete);
+		}		
+		// hide the original button as a new one has been created with the annotation of the new number of files.  
 		lastInput.hide();
-		if (doingNames) {
-		    // put the item name after it
-		    // for first file, initialize to whatever is in the top field
-		    var itemName = '';
-		    var firsttime = false;
-		    if ($('#mm-name-section').is(':visible')) {
-			// first time
-			itemName = $('#mm-name').val();
-			firsttime = true;
-		    }
-		    $('#mm-name-section').hide();
-		    var nameInput = lastInput.parent().find('.mm-file-input-names');
-		    nameInput.addClass('mm-file-input-itemname');
-		    nameInput.attr('title', msg('simplepage.title_for_upload'));
-		    // rest is just for the first. nameInput can be more than one if user selected multiple files
-		    // only put the label on the first
-		    nameInput = nameInput.first();
-		    nameInput.val(itemName);
-		    if (firsttime) {
-			// add a label for the name field. I think it's too much to do it for all of them
-			nameInput.attr('id', 'mm-file-input-itemname');
-			nameInput.before('<label></label>');
-			nameInput.prev().text($('#mm-name').prev().text());
-			nameInput.prev().attr('for','mm-file-input-itemname');
-		    }
-		    nameInput.show();
-		}
+		// Hide the add from resources link and add URL section as one can't upload files and do these at the same time.
+		$('.mm-url-section').hide();
+		$('.mm-resources-section').hide();
 	    }
 	};
 
@@ -3231,6 +3186,8 @@ function openDropdown(dropDiv, button, title) {
 	dropDiv.find(".addContentMessage").show();
     else
 	dropDiv.find(".addContentMessage").hide();
+    //jquery-ui#position does not work properly with large scrolls : https://bugs.jqueryui.com/ticket/15253. (if the ticket is solved, remove the line below)
+    $("[aria-describedby='addContentDiv']").offset({top : button.offset().top + button.height()});
     return false;
 }
 

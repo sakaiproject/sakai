@@ -19,14 +19,20 @@
  */
 package org.sakaiproject.accountvalidator.tool.producers;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
+
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.accountvalidator.model.ValidationAccount;
 import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserNotDefinedException;
+
 import uk.org.ponder.messageutil.TargettedMessage;
 import uk.org.ponder.rsf.components.*;
 import uk.org.ponder.rsf.flow.ActionResultInterceptor;
@@ -34,18 +40,13 @@ import uk.org.ponder.rsf.view.ComponentChecker;
 import uk.org.ponder.rsf.view.ViewComponentProducer;
 import uk.org.ponder.rsf.viewstate.ViewParameters;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
-
 /**
  * Produces newUser.html - builds a form that allows the user to claim an account that has been created for them
  * @author bbailla2
  */
+@Slf4j
 public class NewUserProducer extends BaseValidationProducer implements ViewComponentProducer, ActionResultInterceptor {
-	
-	private static Logger log = LoggerFactory.getLogger(NewUserProducer.class);
+
 	public static final String VIEW_ID = "newUser";
 
 	public String getViewID() {
@@ -155,7 +156,7 @@ public class NewUserProducer extends BaseValidationProducer implements ViewCompo
 					}
 					catch (IdUnusedException e)
 					{
-						e.printStackTrace();
+						log.error(e.getMessage(), e);
 					}
 				}
 			}

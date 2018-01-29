@@ -13,36 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-/**********************************************************************************
-*
-* $Id$
-*
-***********************************************************************************
-*
- * Copyright (c) 2007, 2008 Sakai Foundation
- *
- * Licensed under the Educational Community License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *       http://www.opensource.org/licenses/ECL-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
-*
-**********************************************************************************/
 
 package org.sakaiproject.user.impl.test;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.util.Collection;
+import lombok.extern.slf4j.Slf4j;
+
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.test.SakaiKernelTestBase;
 import org.sakaiproject.thread_local.api.ThreadLocalManager;
@@ -51,8 +32,6 @@ import org.sakaiproject.user.api.UserDirectoryProvider;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserEdit;
 import org.sakaiproject.user.impl.DbUserService;
-
-import java.util.Collection;
 
 /**
  * Some institutions want to have an authentication-only service that authenticates
@@ -65,8 +44,8 @@ import java.util.Collection;
  * authenticateUser(loginId, userEdit, password) method instead.
  * 
  */
+@Slf4j
 public class RequireLocalAccountLegacyAuthenticationTest extends SakaiKernelTestBase {
-	private static Logger log = LoggerFactory.getLogger(RequireLocalAccountLegacyAuthenticationTest.class);
 	private static TestProvider userDirectoryProvider;
 	private static String LOCALLY_STORED_EID = "locallystoreduser";
 	private static String LOCALLY_STORED_PWD = "locallystoreduser-pwd";

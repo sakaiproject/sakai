@@ -26,6 +26,8 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.signup.logic.SakaiFacade;
 import org.sakaiproject.signup.logic.SignupEventTypes;
@@ -49,6 +51,7 @@ import org.sakaiproject.tool.cover.ToolManager;
  * single or recurrence events.
  * </p>
  */
+@Slf4j
 public class CreateMeetings extends SignupAction implements MeetingTypes, SignupMessageTypes, SignupBeanConstants {
 
 	private SignupMeeting signupMeeting;
@@ -357,7 +360,7 @@ public class CreateMeetings extends SignupAction implements MeetingTypes, Signup
 		//create the groups for the timeslots if enabled
 		//this also loads the groupId into the timeslot object to be saved afterwards
 		if(isCreateGroups()){
-			logger.info("Creating groups for each timeslot ...");
+			log.info("Creating groups for each timeslot ...");
 			
 			for(SignupMeeting s: signupMeetings) {
 				
@@ -371,7 +374,7 @@ public class CreateMeetings extends SignupAction implements MeetingTypes, Signup
 					
 					String groupId = sakaiFacade.createGroup(sakaiFacade.getCurrentLocationId(), title, description, attendees);
 
-					logger.debug("Created group for timeslot: " + groupId);
+					log.debug("Created group for timeslot: " + groupId);
 					
 					t.setGroupId(groupId);
 					
@@ -401,7 +404,7 @@ public class CreateMeetings extends SignupAction implements MeetingTypes, Signup
 				signupMeetingService.sendEmail(firstOne, SIGNUP_NEW_MEETING);
 
 			} catch (Exception e) {
-				logger.error(Utilities.rb.getString("email.exception") + " - " + e.getMessage(), e);
+				log.error(Utilities.rb.getString("email.exception") + " - " + e.getMessage(), e);
 				Utilities.addErrorMessage(Utilities.rb.getString("email.exception"));
 			}
 		}
@@ -415,11 +418,11 @@ public class CreateMeetings extends SignupAction implements MeetingTypes, Signup
 				} catch (PermissionException pe) {
 					Utilities
 							.addErrorMessage(Utilities.rb.getString("error.calendarEvent.posted_failed_due_to_permission"));
-					logger.info(Utilities.rb.getString("error.calendarEvent.posted_failed_due_to_permission")
+					log.info(Utilities.rb.getString("error.calendarEvent.posted_failed_due_to_permission")
 							+ " - Meeting title:" + signupMeetings.get(i).getTitle());
 				} catch (Exception e) {
 					Utilities.addErrorMessage(Utilities.rb.getString("error.calendarEvent.posted_failed"));
-					logger.info(Utilities.rb.getString("error.calendarEvent.posted_failed") + " - Meeting title:"
+					log.info(Utilities.rb.getString("error.calendarEvent.posted_failed") + " - Meeting title:"
 							+ signupMeetings.get(i).getTitle());
 				}
 			}
@@ -428,7 +431,7 @@ public class CreateMeetings extends SignupAction implements MeetingTypes, Signup
 		/* post eventTracking info */
 		String recurringInfo = firstOne.isRecurredMeeting() ? " recur_mtng" : "";
 		for (int i = 0; i < signupMeetings.size(); i++) {
-			logger.info(recurringInfo
+			log.info(recurringInfo
 					+ "title:"
 					+ signupMeetings.get(i).getTitle()
 					+ " - UserId:"

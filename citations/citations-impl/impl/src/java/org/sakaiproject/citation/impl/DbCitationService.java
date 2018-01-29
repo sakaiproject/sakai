@@ -28,8 +28,8 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.citation.api.*;
 import org.sakaiproject.citation.api.Schema.Field;
 import org.sakaiproject.db.api.SqlReader;
@@ -42,6 +42,7 @@ import org.sakaiproject.time.cover.TimeService;
 /**
  *
  */
+@Slf4j
 public class DbCitationService extends BaseCitationService
 {
 	/**
@@ -344,7 +345,7 @@ public class DbCitationService extends BaseCitationService
 				}
 				else
 				{
-					M_log.debug("DbCitationStorage.saveCitation value not List or String: " + value.getClass().getCanonicalName() + " " + value);
+					log.debug("DbCitationStorage.saveCitation value not List or String: " + value.getClass().getCanonicalName() + " " + value);
 					fields[1] = name;
 					fields[2] = value;
 
@@ -1813,7 +1814,7 @@ public class DbCitationService extends BaseCitationService
             }
             catch (SQLException e)
             {
-	            M_log.debug("TripleReader: problem reading triple from result: citationId(" + citationId + ") name(" + name + ") value(" + value + ")");
+	            log.debug("TripleReader: problem reading triple from result: citationId(" + citationId + ") name(" + name + ") value(" + value + ")");
 	            return null;
             }
 	        return triple;
@@ -1848,7 +1849,7 @@ public class DbCitationService extends BaseCitationService
 			}
 			catch (SQLException e)
 			{
-				M_log.warn("CitationCollectionOrderReader: problem reading CitationCollectionOrder from result: collectionId(" + collectionId + ") location(" + location
+				log.warn("CitationCollectionOrderReader: problem reading CitationCollectionOrder from result: collectionId(" + collectionId + ") location(" + location
 						+ ") sectionType(" + sectionType + ") value(" + value + ")");
 				return null;
 			}
@@ -1861,8 +1862,6 @@ public class DbCitationService extends BaseCitationService
 	private static final int AUTO_TRUE			= 2;
 	/* Connection management: Original auto-commit state (unknown, on, off) */
 	private static final int AUTO_UNKNOWN		= 1;
-	/** Our logger. */
-	private static Logger M_log = LoggerFactory.getLogger(DbCitationService.class);
 	protected static final Pattern MULTIVALUED_PATTERN = Pattern.compile("^(.*)\\t(\\d+)$");
 	
 	protected static final String PROP_SORT_ORDER = "sakai:sort_order";
@@ -1922,14 +1921,14 @@ public class DbCitationService extends BaseCitationService
 			if (m_autoDdl)
 			{
 				m_sqlService.ddl(this.getClass().getClassLoader(), "sakai_citation");
-				M_log.info("init(): tables: " + m_collectionTableName + ", " + m_citationTableName + ", " + m_schemaTableName + ", " + m_schemaFieldTableName);
+				log.info("init(): tables: " + m_collectionTableName + ", " + m_citationTableName + ", " + m_schemaTableName + ", " + m_schemaFieldTableName);
 			}
 
 			super.init();
 		}
 		catch (Throwable t)
 		{
-			M_log.warn("init(): ", t);
+			log.warn("init(): ", t);
 		}
 
 	}	// init
@@ -2000,7 +1999,7 @@ public class DbCitationService extends BaseCitationService
 		}
 		catch (SQLException exception)
 		{
-			M_log.warn("restoreAutoCommit: " + exception);
+			log.warn("restoreAutoCommit: " + exception);
 			return AUTO_UNKNOWN;
 		}
 	}
@@ -2029,13 +2028,13 @@ public class DbCitationService extends BaseCitationService
 					break;
 
 				default:
-					M_log.warn("restoreAutoCommit: unknown commit type: " + wasCommit);
+					log.warn("restoreAutoCommit: unknown commit type: " + wasCommit);
 					break;
 			}
 		}
 		catch (Throwable throwable)
 		{
-			M_log.warn("restoreAutoCommit: " + throwable);
+			log.warn("restoreAutoCommit: " + throwable);
 		}
 	}
 

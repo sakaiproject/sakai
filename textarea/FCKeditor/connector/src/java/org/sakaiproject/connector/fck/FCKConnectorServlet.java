@@ -49,17 +49,21 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.fileupload.DiskFileUpload;
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.apache.commons.codec.binary.Base64;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
 
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityService;
+import org.sakaiproject.api.app.messageforums.entity.DecoratedForumInfo;
+import org.sakaiproject.api.app.messageforums.entity.DecoratedTopicInfo;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentCollection;
@@ -79,14 +83,6 @@ import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.Validator;
 import org.sakaiproject.util.FormattedText;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-
-import org.sakaiproject.api.app.messageforums.entity.DecoratedForumInfo;
-import org.sakaiproject.api.app.messageforums.entity.DecoratedTopicInfo;
-
-
 
 /**
  * Conenctor Servlet to upload and browse files to a Sakai worksite for the FCK editor.<br>
@@ -109,10 +105,8 @@ import org.sakaiproject.api.app.messageforums.entity.DecoratedTopicInfo;
  * written by Simone Chiaretta (simo@users.sourceforge.net)
  * 
  */
-
+@Slf4j
 public class FCKConnectorServlet extends HttpServlet {
-
-	 private static Logger M_log = LoggerFactory.getLogger(FCKConnectorServlet.class);
 
      private static final long serialVersionUID = 1L;
 
@@ -264,7 +258,7 @@ public class FCKConnectorServlet extends HttpServlet {
                document = builder.newDocument();
           } 
           catch (ParserConfigurationException pce) {
-               pce.printStackTrace();
+               log.error(pce.getMessage(), pce);
           }
           
           Node root = createCommonXml(document, commandStr, type, currentFolder, 
@@ -360,7 +354,7 @@ public class FCKConnectorServlet extends HttpServlet {
 
           } 
           catch (Exception ex) {
-               ex.printStackTrace();
+               log.error(ex.getMessage(), ex);
           }
           finally { 
                if (out != null) {
@@ -372,6 +366,10 @@ public class FCKConnectorServlet extends HttpServlet {
 		  popPrivateAdvisor(currentFolder,collectionBase);
      }
      
+
+    // Set to be consistent with
+    // org.sakaiproject.content.api.ContentHostingService.MAXIMUM_ATTEMPTS_FOR_UNIQUENESS
+    private static final int MAX_SAVE_RETRIES = 100;
 
      /**
       * Manage the Post requests (FileUpload).<br>
@@ -478,8 +476,9 @@ public class FCKConnectorServlet extends HttpServlet {
 
                     int counter = 1;
                     boolean done = false;
+                    Throwable lastException = null;
 
-                    while(!done) {
+                    for (int retry = 0; !done && retry < MAX_SAVE_RETRIES; retry++) {
                          try {
                              ResourcePropertiesEdit resourceProperties = contentHostingService.newResourceProperties();
                              resourceProperties.addProperty (ResourceProperties.PROP_DISPLAY_NAME, fileName);
@@ -508,6 +507,7 @@ public class FCKConnectorServlet extends HttpServlet {
                          }
                          catch (IdUsedException iue) {
                               //the name is already used, so we do a slight rename to prevent the colision
+                              lastException = iue;
                               fileName = nameWithoutExt + "(" + counter + ")" + ext;
                               status = "201";
                               counter++;
@@ -516,13 +516,22 @@ public class FCKConnectorServlet extends HttpServlet {
                          catch (Exception ex) {
                               //this user can't write where they are trying to write.
                               done = true;
-                              ex.printStackTrace();
+                              lastException = ex;
+                              log.error(ex.getMessage(), ex);
                               status = "203";
                          }
                     }
+
+                    if (!done) {
+                        // Hit our limit on retries.  This shouldn't happen
+                        // unless the state of things is strange (see SAK-32346
+                        // for an example of that)
+                        throw new RuntimeException("Retry limit exceeded", lastException);
+                    }
+
                }
                catch (Exception ex) {
-                    ex.printStackTrace();
+                    log.error(ex.getMessage(), ex);
                     status = "203";
                }
           }
@@ -547,7 +556,7 @@ public class FCKConnectorServlet extends HttpServlet {
                }
           }
           catch (Exception e) {
-               e.printStackTrace();
+               log.error(e.getMessage(), e);
           }
           finally {         
                if (out != null) {
@@ -605,7 +614,7 @@ public class FCKConnectorServlet extends HttpServlet {
                }          
           }
           catch (Exception e) {    
-               e.printStackTrace();
+               log.error(e.getMessage(), e);
                //not a valid collection? file list will be empty and so will the doc
           }
           for (Iterator folderIterator : foldersIterator ) {
@@ -636,7 +645,7 @@ public class FCKConnectorServlet extends HttpServlet {
         			  }
         			  catch (Exception e) {    
         				  //do nothing, we either don't have access to the collction or it's a resource
-        				  M_log.debug("No access to display collection" + e.getMessage());
+        				  log.debug("No access to display collection" + e.getMessage());
         			  }
         		  }      
 
@@ -681,8 +690,8 @@ public class FCKConnectorServlet extends HttpServlet {
                    }
               }          
          }
-         catch (Exception e) {    
-              e.printStackTrace();
+         catch (Exception e) {
+              log.error(e.getMessage(), e);
               //not a valid collection? file list will be empty and so will the doc
          }
          if (foldersIterator != null) {
@@ -1151,11 +1160,11 @@ public class FCKConnectorServlet extends HttpServlet {
     				 function.equals(contentHostingService.AUTH_RESOURCE_WRITE_OWN) ||
     				 function.equals(contentHostingService.AUTH_RESOURCE_HIDDEN)
     				 ) {
-    			 return SecurityAdvisor.SecurityAdvice.ALLOWED;
+    			 return securityService.unlock(userId, contentHostingService.AUTH_RESOURCE_READ, reference) ? SecurityAdvisor.SecurityAdvice.ALLOWED : SecurityAdvisor.SecurityAdvice.NOT_ALLOWED;
     		 } else if (function.equals(contentHostingService.AUTH_RESOURCE_WRITE_ANY)) {
-    			 M_log.info(userId + " requested ability to write to any content on "+ reference+
+    			 log.info(userId + " requested ability to write to any content on "+ reference+
     					 " which we didn't expect, this should be investigated");
-    			 return SecurityAdvisor.SecurityAdvice.ALLOWED;
+    			 return securityService.unlock(userId, contentHostingService.AUTH_RESOURCE_READ, reference) ? SecurityAdvisor.SecurityAdvice.ALLOWED : SecurityAdvisor.SecurityAdvice.NOT_ALLOWED;
     		 }
     		 return SecurityAdvisor.SecurityAdvice.PASS;
     	 };

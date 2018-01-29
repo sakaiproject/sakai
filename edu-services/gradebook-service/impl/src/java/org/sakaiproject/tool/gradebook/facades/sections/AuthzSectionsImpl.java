@@ -13,27 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-/**********************************************************************************
-*
-* $Id$
-*
-***********************************************************************************
-*
- * Copyright (c) 2005, 2006, 2007, 2008 The Sakai Foundation, The MIT Corporation
- *
- * Licensed under the Educational Community License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *       http://www.opensource.org/licenses/ECL-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
-*
-**********************************************************************************/
 
 package org.sakaiproject.tool.gradebook.facades.sections;
 
@@ -44,9 +23,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import org.sakaiproject.tool.gradebook.GradebookAssignment;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.section.api.SectionAwareness;
 import org.sakaiproject.section.api.coursemanagement.CourseSection;
@@ -55,6 +33,7 @@ import org.sakaiproject.section.api.facade.Role;
 import org.sakaiproject.service.gradebook.shared.GradebookPermissionService;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.site.api.Group;
+import org.sakaiproject.tool.gradebook.GradebookAssignment;
 import org.sakaiproject.tool.gradebook.facades.Authn;
 import org.sakaiproject.tool.gradebook.facades.Authz;
 
@@ -62,12 +41,11 @@ import org.sakaiproject.tool.gradebook.facades.Authz;
  * An implementation of Gradebook-specific authorization needs based
  * on the shared Section Awareness API.
  */
+@Slf4j
 public class AuthzSectionsImpl implements Authz {
-    private static final Logger log = LoggerFactory.getLogger(AuthzSectionsImpl.class);
-
-    private Authn authn;
-    private SectionAwareness sectionAwareness;
-    private GradebookPermissionService gradebookPermissionService;
+	private Authn authn;
+	private SectionAwareness sectionAwareness;
+	private GradebookPermissionService gradebookPermissionService;
 
 	public boolean isUserAbleToGrade(String gradebookUid) {
 		String userUid = authn.getUserUid();
@@ -75,16 +53,16 @@ public class AuthzSectionsImpl implements Authz {
 	}
 	
 	public boolean isUserAbleToGrade(String gradebookUid, String userUid) {
-	    return (getSectionAwareness().isSiteMemberInRole(gradebookUid, userUid, Role.INSTRUCTOR) || getSectionAwareness().isSiteMemberInRole(gradebookUid, userUid, Role.TA));
-    }
+		return (getSectionAwareness().isSiteMemberInRole(gradebookUid, userUid, Role.INSTRUCTOR) || getSectionAwareness().isSiteMemberInRole(gradebookUid, userUid, Role.TA));
+	}
 
 	public boolean isUserAbleToGradeAll(String gradebookUid) {
 		return isUserAbleToGradeAll(gradebookUid, authn.getUserUid());
 	}
 	
 	public boolean isUserAbleToGradeAll(String gradebookUid, String userUid) {
-        return getSectionAwareness().isSiteMemberInRole(gradebookUid, userUid, Role.INSTRUCTOR);
-    }
+		return getSectionAwareness().isSiteMemberInRole(gradebookUid, userUid, Role.INSTRUCTOR);
+	}
 	
 	public boolean isUserHasGraderPermissions(String gradebookUid) {
 		String userUid = authn.getUserUid();

@@ -27,10 +27,11 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.junit.Assert;
 import org.junit.Test;
+
+import org.springframework.beans.factory.annotation.Autowired;
+
 import org.sakaiproject.coursemanagement.api.AcademicSession;
 import org.sakaiproject.coursemanagement.api.CanonicalCourse;
 import org.sakaiproject.coursemanagement.api.CourseManagementAdministration;
@@ -43,11 +44,8 @@ import org.sakaiproject.coursemanagement.api.Section;
 import org.sakaiproject.coursemanagement.api.exception.IdExistsException;
 import org.sakaiproject.coursemanagement.api.exception.IdNotFoundException;
 import org.sakaiproject.coursemanagement.impl.EnrollmentCmImpl;
-import org.springframework.beans.factory.annotation.Autowired;
 
 public class CourseManagementAdministrationTest extends CourseManagementTestBase {
-	private static final Logger log = LoggerFactory.getLogger(CourseManagementAdministrationTest.class);
-	
 	@Autowired
 	private CourseManagementService cm;
 	

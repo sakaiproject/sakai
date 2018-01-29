@@ -41,6 +41,7 @@
                 <configuration name="imsti.newpage" />
                 <configuration name="imsti.maximize" />
                 <configuration name="imsti.frameheight" />
+                <configuration name="imsti.toolorder" />
                 <configuration name="imsti.debug" />
                 <configuration name="imsti.releasename" />
                 <configuration name="imsti.releaseemail" />
@@ -65,6 +66,7 @@
                 <configuration name="final.newpage" value="false"/>
                 <configuration name="final.maximize" value="false"/>
                 <configuration name="final.frameheight" value="false"/>
+                <configuration name="final.toolorder" value="false"/>
                 <configuration name="final.debug" value="false"/>
                 <configuration name="final.releasename" value="false"/>
                 <configuration name="final.releaseemail" value="false"/>

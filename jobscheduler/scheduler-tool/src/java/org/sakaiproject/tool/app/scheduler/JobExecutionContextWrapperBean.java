@@ -18,10 +18,13 @@ package org.sakaiproject.tool.app.scheduler;
 import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
 
+import lombok.extern.slf4j.Slf4j;
+
 import org.quartz.InterruptableJob;
 import org.quartz.JobExecutionContext;
 import org.quartz.UnableToInterruptJobException;
 
+@Slf4j
 public class JobExecutionContextWrapperBean {
 
 	private JobExecutionContext jec;
@@ -70,8 +73,7 @@ public class JobExecutionContextWrapperBean {
 			try {
 				job.interrupt();
 			} catch (UnableToInterruptJobException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				log.error(e.getMessage(), e);
 			}
 			FacesContext.getCurrentInstance().addMessage(null, 
 					new FacesMessage(FacesMessage.SEVERITY_INFO, 
