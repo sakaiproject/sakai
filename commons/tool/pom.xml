@@ -86,7 +86,7 @@
             <plugin>
                 <groupId>com.github.jknack</groupId>
                 <artifactId>handlebars-maven-plugin</artifactId>
-                <version>4.0.5</version>
+                <version>${handlebars4.version}</version>
                 <executions>
                     <execution>
                         <id>templates</id>
