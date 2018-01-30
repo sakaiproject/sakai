@@ -20,10 +20,10 @@ import java.util.List;
 
 import org.apache.wicket.Page;
 import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.ajax.markup.html.form.AjaxButton;
 import org.apache.wicket.markup.head.CssHeaderItem;
 import org.apache.wicket.markup.head.IHeaderResponse;
 import org.apache.wicket.markup.head.JavaScriptHeaderItem;
-import org.apache.wicket.markup.html.form.Button;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.sakaiproject.component.cover.ServerConfigurationService;
@@ -54,7 +54,7 @@ public class SettingsPage extends BasePage {
 	private boolean categoryExpanded = false;
 	private boolean gradingSchemaExpanded = false;
 
-	private boolean hideGradeEntryFromNonAdmins;
+	private boolean showGradeEntryToNonAdmins;
 	private static final String SAK_PROP_SHOW_GRADE_ENTRY_TO_NON_ADMINS = "gradebook.settings.gradeEntry.showToNonAdmins";
 	private static final boolean SAK_PROP_SHOW_GRADE_ENTRY_TO_NON_ADMINS_DEFAULT = true;
 
@@ -65,7 +65,7 @@ public class SettingsPage extends BasePage {
 
 	public SettingsPage() {
 		disableLink(this.settingsPageLink);
-		setHideGradeEntryFromNonAdmins();
+		setShowGradeEntryToNonAdmins();
 	}
 
 	public SettingsPage(final boolean gradeEntryExpanded, final boolean gradeReleaseExpanded,
@@ -75,11 +75,11 @@ public class SettingsPage extends BasePage {
 		this.gradeReleaseExpanded = gradeReleaseExpanded;
 		this.categoryExpanded = categoryExpanded;
 		this.gradingSchemaExpanded = gradingSchemaExpanded;
-		setHideGradeEntryFromNonAdmins();
+		setShowGradeEntryToNonAdmins();
 	}
 
-	private void setHideGradeEntryFromNonAdmins() {
-		hideGradeEntryFromNonAdmins = ServerConfigurationService.getBoolean(SAK_PROP_SHOW_GRADE_ENTRY_TO_NON_ADMINS, SAK_PROP_SHOW_GRADE_ENTRY_TO_NON_ADMINS_DEFAULT);
+	private void setShowGradeEntryToNonAdmins() {
+		this.showGradeEntryToNonAdmins = ServerConfigurationService.getBoolean(SAK_PROP_SHOW_GRADE_ENTRY_TO_NON_ADMINS, SAK_PROP_SHOW_GRADE_ENTRY_TO_NON_ADMINS_DEFAULT);
 	}
 
 	@Override
@@ -98,9 +98,9 @@ public class SettingsPage extends BasePage {
 		this.categoryPanel = new SettingsCategoryPanel("categoryPanel", formModel, this.categoryExpanded);
 		this.gradingSchemaPanel = new SettingsGradingSchemaPanel("gradingSchemaPanel", formModel, this.gradingSchemaExpanded);
 
-		// Hide the panel if sakai.property is true and user is not admin
-		if (hideGradeEntryFromNonAdmins && !businessService.isSuperUser()) {
-			gradeEntryPanel.setVisible(false);
+		// Hide the panel if not showing to non admins and user is not admin
+		if (!this.showGradeEntryToNonAdmins && !this.businessService.isSuperUser()) {
+			this.gradeEntryPanel.setVisible(false);
 		}
 
 		// form
@@ -174,10 +174,18 @@ public class SettingsPage extends BasePage {
 
 			}
 
-			@Override
-			public void onSubmit() {
+		};
 
-				final GbSettings model = getModelObject();
+		// submit button
+		// required so that we can process the form only when clicked, not when enter is pressed in text field
+		// must be accompanied by a plain html button, not a submit button.
+		final AjaxButton submit = new AjaxButton("submit") {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public void onSubmit(final AjaxRequestTarget target, final Form f) {
+				super.onSubmit();
+				final GbSettings model = (GbSettings) f.getModelObject();
 
 				Page responsePage = new SettingsPage(SettingsPage.this.gradeEntryPanel.isExpanded(),
 						SettingsPage.this.gradeReleasePanel.isExpanded(), SettingsPage.this.categoryPanel.isExpanded(),
@@ -202,9 +210,10 @@ public class SettingsPage extends BasePage {
 				setResponsePage(responsePage);
 			}
 		};
+		form.add(submit);
 
 		// cancel button
-		final Button cancel = new Button("cancel") {
+		final AjaxButton cancel = new AjaxButton("cancel") {
 			private static final long serialVersionUID = 1L;
 
 			@Override
@@ -224,7 +233,7 @@ public class SettingsPage extends BasePage {
 		add(form);
 
 		// expand/collapse panel actions
-		add(new GbAjaxLink("expandAll") {
+		add(new GbAjaxLink<Void>("expandAll") {
 			private static final long serialVersionUID = 1L;
 
 			@Override
@@ -232,7 +241,7 @@ public class SettingsPage extends BasePage {
 				target.appendJavaScript("$('#settingsAccordion .panel-collapse').collapse('show');");
 			}
 		});
-		add(new GbAjaxLink("collapseAll") {
+		add(new GbAjaxLink<Void>("collapseAll") {
 			private static final long serialVersionUID = 1L;
 
 			@Override
