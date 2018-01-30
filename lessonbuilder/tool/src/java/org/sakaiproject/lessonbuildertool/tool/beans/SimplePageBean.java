@@ -1616,15 +1616,6 @@ public class SimplePageBean {
 			if (mimeType != null)
 				i.setHtml(mimeType);
 			
-//			if (!hasCustomName)
-//			{
-//				i.setName(name != null ? name : split[split.length - 1]);
-//			}
-//			if (!hasCustomDesc)
-//			{
-//				i.setDescription(description);
-//			}
-			
 			i.setName(null);
 			i.setDescription(null);
 			i.setAlt(null);
