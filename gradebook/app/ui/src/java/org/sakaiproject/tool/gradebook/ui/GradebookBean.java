@@ -21,6 +21,7 @@ import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
+import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.section.api.SectionAwareness;
 import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService;
@@ -67,6 +68,12 @@ public class GradebookBean extends InitializableBean {
     private GradebookExternalAssessmentService gradebookExternalAssessmentService;
     private GradebookScoringAgentManager scoringAgentManager;
     private GradebookFrameworkService gradebookFrameworkService;
+
+	@Override
+	public void init() {
+		this.eventTrackingService = ComponentManager.get(EventTrackingService.class);
+		this.userDirectoryService = ComponentManager.get(UserDirectoryService.class);
+	}
 
     /**
      * @return Returns the gradebookId.
