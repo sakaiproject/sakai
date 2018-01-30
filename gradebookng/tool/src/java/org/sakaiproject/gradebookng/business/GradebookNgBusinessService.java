@@ -137,7 +137,7 @@ public class GradebookNgBusinessService {
 
 	public static final String ASSIGNMENT_ORDER_PROP = "gbng_assignment_order";
 	public static final String ICON_SAKAI = "icon-sakai--";
-	
+
 	public static final ResourceLoader externalAppLoader = new ResourceLoader("org.sakaiproject.localization.bundle.tool.tools");
 
 	/**
@@ -148,7 +148,7 @@ public class GradebookNgBusinessService {
 	public List<String> getGradeableUsers() {
 		return this.getGradeableUsers(getCurrentSiteId());
 	}
-	
+
 	/**
 	 * Get a list of all users in the given site that can have grades
 	 *
@@ -162,7 +162,7 @@ public class GradebookNgBusinessService {
 	 * Get the list of gradeable users
 	 * @param groupFilter
 	 * @return
-	 * 
+	 *
 	 */
 	public List<String> getGradeableUsers(final GbGroup groupFilter) {
 		return this.getGradeableUsers(null, groupFilter);
@@ -277,8 +277,8 @@ public class GradebookNgBusinessService {
 	public Map<String, GbUser> getUserEidMap() {
 		final List<GbUser> users = getGbUsers(getGradeableUsers());
 		final Map<String, GbUser> userEidMap = new HashMap<>();
-		for (GbUser user : users) {
-			String eid = user.getDisplayId();
+		for (final GbUser user : users) {
+			final String eid = user.getDisplayId();
 			if (StringUtils.isNotBlank(eid)) {
 				userEidMap.put(eid, user);
 			}
@@ -295,10 +295,10 @@ public class GradebookNgBusinessService {
 	 */
 	public List<GbUser> getGbUsers(final List<String> userUuids)
 	{
-		List<GbUser> gbUsers = new ArrayList<>(userUuids.size());
-		List<User> users = getUsers(userUuids);
+		final List<GbUser> gbUsers = new ArrayList<>(userUuids.size());
+		final List<User> users = getUsers(userUuids);
 
-		for (User u : users) {
+		for (final User u : users) {
 			gbUsers.add(new GbUser(u));
 		}
 
@@ -1295,7 +1295,7 @@ public class GradebookNgBusinessService {
 	 * @return true if the current user is admin, false otherwise.
 	 */
 	public boolean isSuperUser() {
-		return securityService.isSuperUser();
+		return this.securityService.isSuperUser();
 	}
 
 	/**
@@ -1854,12 +1854,20 @@ public class GradebookNgBusinessService {
 	}
 
 	/**
-	 * Get the settings for this gradebook. Note that this CANNOT be called by a student.
+	 * Get the settings for this gradebook. Note that this CANNOT be called by a student nor by an entityprovider
 	 *
 	 * @return
 	 */
 	public GradebookInformation getGradebookSettings() {
-		final String siteId = getCurrentSiteId();
+		return getGradebookSettings(getCurrentSiteId());
+	}
+
+	/**
+	 * Get the settings for this gradebook. Note that this CANNOT be called by a student. Safe to use from an entityprovider.
+	 * 
+	 * @return
+	 */
+	public GradebookInformation getGradebookSettings(final String siteId) {
 		final Gradebook gradebook = getGradebook(siteId);
 
 		final GradebookInformation settings = this.gradebookService.getGradebookInformation(gradebook.getUid());
