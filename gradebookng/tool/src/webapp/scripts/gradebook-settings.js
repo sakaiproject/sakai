@@ -78,15 +78,22 @@ GradebookCategorySettings.prototype.updateCategoryOrders = function() {
 };
 
 /**
- * Render the course grade summary chart for the site.
- * This delegates to the REST service which calculates the course grades based on persistent data.
+ * Refresh the course grade summary chart for the site. 
+ * If the schema is provided it is sent and the course grades will be recalculated based on transient data.
+ * Otherwise it will use the persistent data.
  * @param siteId
+ * @param schemaJson the JSON of the grading schema
  * @returns
  */
-function renderChart(siteId) {
-		
+function renderChart(siteId, schemaJson) {
+	
+	var url = "/direct/gbng/course-grades.json?siteId="+siteId;
+	if(schemaJson) {
+		url += "&schema="+schemaJson;
+	}
+	
 	$.ajax({
-		url : "/direct/gbng/course-grades.json?siteId="+siteId,
+		url : url,
       	dataType : "json",
        	async : true,
 		cache: false,
@@ -106,7 +113,7 @@ function renderChart(siteId) {
 function refreshChart(siteId, schemaJson) {
 	
 	$.ajax({
-		url : "/direct/gbng/rebuild-course-grades.json?siteId="+siteId+"&schema="+schemaJson,
+		url : "/direct/gbng/course-grades.json?siteId="+siteId+"&schema="+schemaJson,
       	dataType : "json",
        	async : true,
 		cache: false,
