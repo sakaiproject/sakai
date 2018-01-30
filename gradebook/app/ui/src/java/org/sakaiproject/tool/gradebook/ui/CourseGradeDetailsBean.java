@@ -153,22 +153,25 @@ public class CourseGradeDetailsBean extends EnrollmentTableBean {
 	public class ScoreRow implements Serializable {
         private EnrollmentRecord enrollment;
         private CourseGradeRecord courseGradeRecord;
-        private List eventRows;
+		private List<GradingEventRow> eventRows;
         private boolean userCanGrade;
 
 
 		public ScoreRow() {
 		}
-		public ScoreRow(final EnrollmentRecord enrollment, final CourseGradeRecord courseGradeRecord, final List gradingEvents, final boolean userCanGrade) {
+
+		public ScoreRow(final EnrollmentRecord enrollment, final CourseGradeRecord courseGradeRecord,
+				final List<GradingEvent> gradingEvents, final boolean userCanGrade) {
             this.enrollment = enrollment;
 			this.courseGradeRecord = courseGradeRecord;
 			this.userCanGrade = userCanGrade;
 
-            this.eventRows = new ArrayList();
-            for (final Iterator iter = gradingEvents.iterator(); iter.hasNext();) {
-            	final GradingEvent gradingEvent = (GradingEvent)iter.next();
-            	this.eventRows.add(new GradingEventRow(gradingEvent));
-            }
+			this.eventRows = new ArrayList<>();
+			if (gradingEvents != null) {
+				gradingEvents.forEach(gradingEvent -> {
+					this.eventRows.add(new GradingEventRow(gradingEvent));
+				});
+			}
 		}
 
 		/**
