@@ -651,7 +651,7 @@ public class SettingsGradingSchemaPanel extends BasePanel implements IFormModelU
 			final String siteId = SettingsGradingSchemaPanel.this.businessService.getCurrentSiteId();
 
 			// TODO this could be a wicket component instead of Javascript
-			this.target.appendJavaScript("refreshChart('" + siteId + "', '" + FormatHelper.encode(schemaJson) + "')");
+			this.target.appendJavaScript("renderChart('" + siteId + "', '" + FormatHelper.encode(schemaJson) + "')");
 		}
 
 		/**
