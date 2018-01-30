@@ -334,6 +334,10 @@ $(document).ready(function(){
 									#else
 										$validator.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))
 									#end
+									#if (!$reviewResult.getReviewReport().equals("Error") &&
+										$reviewResult.contentReviewItem.optOutUrl)
+											(<a href="$!reviewResult.contentReviewItem.optOutUrl" target="_blank">$tlang.getString("review.report.urkund.optoutlink")</a>)
+									#end
 								</div>
 							#end
 							#if ($reviewResults.size() >= 3)
