@@ -9,7 +9,9 @@
       <!-- create the primary key id, using native is typically the best way -->
 
 	<id name="id" type="long">
-		<generator class="native"/>
+		<generator class="native">
+			<param name="sequence">LESSON_BUILDER_STPAGE_S</param>
+		</generator>
 	</id>
 
 	<timestamp name="lastUpdated" />

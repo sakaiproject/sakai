@@ -9,7 +9,9 @@
       <!-- create the primary key id, using native is typically the best way -->
 
       <id name="pageId" type="long">
-         <generator class="native"/>
+         <generator class="native">
+         	<param name="sequence">LESSON_BUILDER_PAGE_S</param>
+         </generator>
       </id>
 
 	<property name="toolId" type="string" length="99" not-null="true" />

@@ -200,6 +200,7 @@ public class SettingsGradingSchemaPanel extends BasePanel implements IFormModelU
 		this.unsavedSchema.setOutputMarkupPlaceholderTag(true);
 		settingsGradingSchemaPanel.add(this.unsavedSchema);
 
+
 		// render the grading schema table
 		this.schemaWrap = new WebMarkupContainer("schemaWrap");
 		this.schemaView = new ListView<GbGradingSchemaEntry>("schemaView",
@@ -213,45 +214,17 @@ public class SettingsGradingSchemaPanel extends BasePanel implements IFormModelU
 				final GbGradingSchemaEntry entry = item.getModelObject();
 
 				// grade
-				final Label grade = new Label("grade", new PropertyModel<String>(entry, "grade"));
+				final TextField<Double> grade = new TextField<>("grade", new PropertyModel<Double>(entry, "grade"));
 				item.add(grade);
 
 				// minpercent
-				final TextField<Double> minPercent = new TextField<Double>("minPercent", new PropertyModel<Double>(entry, "minPercent"));
+				final TextField<Double> minPercent = new TextField<>("minPercent", new PropertyModel<Double>(entry, "minPercent"));
 				item.add(minPercent);
 
-				// when minpercent is updated, reorder the listview
-				minPercent.add(new AjaxFormComponentUpdatingBehavior("onchange") {
-					private static final long serialVersionUID = 1L;
+				// attach the onchange behaviour
+				minPercent.add(new GradingSchemaChangeBehaviour(GradingSchemaChangeBehaviour.ONCHANGE));
+				grade.add(new GradingSchemaChangeBehaviour(GradingSchemaChangeBehaviour.ONCHANGE));
 
-					@Override
-					protected void onUpdate(final AjaxRequestTarget target) {
-
-						// fetch current data from model, sort and refresh the table
-						final List<GbGradingSchemaEntry> schemaList = SettingsGradingSchemaPanel.this.model.getObject()
-								.getGradingSchemaEntries();
-						schemaList.sort(Collections.reverseOrder());
-						SettingsGradingSchemaPanel.this.model.getObject().setGradingSchemaEntries(schemaList);
-						target.add(SettingsGradingSchemaPanel.this.schemaWrap);
-
-						// refresh chart
-						// we need the current data from model (sorted) but in JSON form
-						Map<String, Double> schemaMap = asMap(schemaList);
-						schemaMap = GradeMappingDefinition.sortGradeMapping(schemaMap);
-						final Gson gson = new GsonBuilder().create();
-						final String schemaJson = gson.toJson(schemaMap);
-
-						final String siteId = SettingsGradingSchemaPanel.this.businessService.getCurrentSiteId();
-
-						// TODO this could be a wicket component instead of Javascript
-						target.appendJavaScript("refreshChart('" + siteId + "', '" + FormatHelper.encode(schemaJson) + "')");
-
-						// check if schema has changed from the persistent values and show the warning
-						SettingsGradingSchemaPanel.this.unsavedSchema.setVisible(isDirty());
-						target.add(SettingsGradingSchemaPanel.this.unsavedSchema);
-
-					}
-				});
 			}
 		};
 		this.schemaView.setOutputMarkupId(true);
@@ -335,7 +308,6 @@ public class SettingsGradingSchemaPanel extends BasePanel implements IFormModelU
 		final WebMarkupContainer chart = new WebMarkupContainer("gradingSchemaChart");
 		chart.setOutputMarkupId(true);
 		chart.add(new AttributeAppender("data-siteId", SettingsGradingSchemaPanel.this.businessService.getCurrentSiteId()));
-
 	}
 
 	@Override
@@ -622,4 +594,89 @@ public class SettingsGradingSchemaPanel extends BasePanel implements IFormModelU
 
 		return !currentGradeMapping.equals(storedGradeMapping);
 	}
+
+
+
+
+	/**
+	 * Class to encapsulate the refresh of components when a change is made to the grading schema
+	 */
+	class GradingSchemaChangeBehaviour extends AjaxFormComponentUpdatingBehavior {
+
+		private static final long serialVersionUID = 1L;
+
+		private transient AjaxRequestTarget target;
+
+		public static final String ONCHANGE = "onchange";
+
+		public GradingSchemaChangeBehaviour(final String event) {
+			super(event);
+		}
+
+		@Override
+		protected void onUpdate(final AjaxRequestTarget t) {
+			this.target = t;
+			refreshGradingSchemaTable();
+			refreshCourseGradeChart();
+			refreshMessages();
+		}
+
+		/**
+		 * Refresh the grading schema table
+		 *
+		 * @param target
+		 */
+		private void refreshGradingSchemaTable() {
+			// fetch current data from model, sort and refresh the table
+			final List<GbGradingSchemaEntry> schemaList = getGradingSchemaList();
+
+			SettingsGradingSchemaPanel.this.model.getObject().setGradingSchemaEntries(schemaList);
+			this.target.add(SettingsGradingSchemaPanel.this.schemaWrap);
+		}
+
+		/**
+		 * Refresh the course grade chart
+		 *
+		 * @param target
+		 */
+		private void refreshCourseGradeChart() {
+			// we need the current data from model (sorted) but in JSON form
+			final List<GbGradingSchemaEntry> schemaList = getGradingSchemaList();
+
+			Map<String, Double> schemaMap = asMap(schemaList);
+			schemaMap = GradeMappingDefinition.sortGradeMapping(schemaMap);
+			final Gson gson = new GsonBuilder().create();
+			final String schemaJson = gson.toJson(schemaMap);
+
+			final String siteId = SettingsGradingSchemaPanel.this.businessService.getCurrentSiteId();
+
+			// TODO this could be a wicket component instead of Javascript
+			this.target.appendJavaScript("refreshChart('" + siteId + "', '" + FormatHelper.encode(schemaJson) + "')");
+		}
+
+		/**
+		 * Refresh messages
+		 *
+		 * @param target
+		 */
+		private void refreshMessages() {
+
+			// check if schema has changed from the persistent values and show the warning
+			SettingsGradingSchemaPanel.this.unsavedSchema.setVisible(isDirty());
+			this.target.add(SettingsGradingSchemaPanel.this.unsavedSchema);
+		}
+
+		/**
+		 * Helper to get the gradingschema list from the model
+		 *
+		 * @return
+		 */
+		private List<GbGradingSchemaEntry> getGradingSchemaList() {
+			final List<GbGradingSchemaEntry> schemaList = SettingsGradingSchemaPanel.this.model.getObject().getGradingSchemaEntries();
+			schemaList.sort(Collections.reverseOrder());
+			return schemaList;
+		}
+
+	}
+
 }
