@@ -5,7 +5,9 @@
 	<class name="org.sakaiproject.lessonbuildertool.SimplePageQuestionResponseImpl" table="lesson_builder_q_responses">
 	
 		<id name="id" type="long">
-			<generator class="native" />
+			<generator class="native">
+				<param name="sequence">LESSON_BUILDER_QRES_S</param>
+			</generator>
 		</id>
 		
 		<timestamp name="timeAnswered" />

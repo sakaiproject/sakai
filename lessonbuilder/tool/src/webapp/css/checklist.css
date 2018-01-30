@@ -181,3 +181,7 @@ legend.no-border {
 span.externally-linked, label input.checklist-checkbox:checked + span.externally-linked {
     display: none;
 }
+
+h3.ui-accordion-header span:last-child {
+	margin-left: 1.5em;
+}

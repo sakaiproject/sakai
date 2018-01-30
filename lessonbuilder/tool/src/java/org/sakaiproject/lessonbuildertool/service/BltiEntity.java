@@ -353,6 +353,10 @@ public class BltiEntity implements LessonEntity, BltiInterface {
     }
 
     public List<UrlItem> createNewUrls(SimplePageBean bean, Integer bltiToolId) {
+        return createNewUrls(bean, bltiToolId, false);
+    }
+
+    public List<UrlItem> createNewUrls(SimplePageBean bean, Integer bltiToolId, boolean appStoresOnly) {
 	ArrayList<UrlItem> list = new ArrayList<UrlItem>();
 	String toolId = bean.getCurrentTool("sakai.siteinfo");
 	if ( ltiService == null || toolId == null || returnUrl == null ) return list;
@@ -361,6 +365,11 @@ public class BltiEntity implements LessonEntity, BltiInterface {
 	String search = null;
 	if (bltiToolId != null)
 	    search = "lti_tools.id=" + bltiToolId;
+	else if (appStoresOnly) {
+		search = LTIService.LTI_PL_LINKSELECTION + "=1";
+	} else {
+		search = LTIService.LTI_PL_LINKSELECTION + "=0";
+	}
 	List<Map<String,Object>> tools = ltiService.getTools(search,null,0,0, bean.getCurrentSiteId());
 	for ( Map<String,Object> tool : tools ) {
 		String url = ServerConfigurationService.getToolUrl() + "/" + toolId + "/sakai.basiclti.admin.helper.helper?panel=ContentConfig&tool_id=" 
