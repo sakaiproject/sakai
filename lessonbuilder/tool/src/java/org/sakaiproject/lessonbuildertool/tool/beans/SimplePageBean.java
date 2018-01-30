@@ -1615,14 +1615,20 @@ public class SimplePageBean {
 			i.setSakaiId(id);
 			if (mimeType != null)
 				i.setHtml(mimeType);
-			if (!hasCustomName)
-			{
-				i.setName(name != null ? name : split[split.length - 1]);
-			}
-			if (!hasCustomDesc)
-			{
-				i.setDescription(description);
-			}
+			
+//			if (!hasCustomName)
+//			{
+//				i.setName(name != null ? name : split[split.length - 1]);
+//			}
+//			if (!hasCustomDesc)
+//			{
+//				i.setDescription(description);
+//			}
+			
+			i.setName(null);
+			i.setDescription(null);
+			i.setAlt(null);
+			
 			clearImageSize(i);
 			// with a new underlying file, it's hard to see how an old caption file
 			// could still be valid
