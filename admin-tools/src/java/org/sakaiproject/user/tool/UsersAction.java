@@ -577,6 +577,13 @@ public class UsersAction extends PagedResourceActionII
 		// include the password fields?
 		context.put("incPw", state.getAttribute("include-password"));
 
+		boolean providedUserType = false;
+		
+		if (isProvidedType(user.getType())) {
+			providedUserType = true;
+		}
+		context.put("providedUserType", providedUserType);
+		
 		// include type fields (not if single user)
 		boolean singleUser = ((Boolean) state.getAttribute("single-user")).booleanValue();
 		context.put("incType", Boolean.valueOf(!singleUser));
