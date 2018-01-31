@@ -27,11 +27,7 @@ import java.util.Map;
  * @author <a href="mailto:jholtzman@berkeley.edu">Josh Holtzman</a>
  */
 public class GradingEvents implements Serializable {
-    protected Map<String, List<GradingEvent>> studentsToEventsMap;
-
-    public GradingEvents() {
-        studentsToEventsMap = new HashMap<>();
-    }
+    private Map<String, List<GradingEvent>> studentsToEventsMap = new HashMap<>();
 
     /**
      * Returns a list of grading events, which may be empty if none exist.
@@ -40,7 +36,11 @@ public class GradingEvents implements Serializable {
      * @return
      */
     public List<GradingEvent> getEvents(String studentId) {
-        return studentsToEventsMap.get(studentId);
+        List<GradingEvent> list = studentsToEventsMap.get(studentId);
+        if (list == null) {
+            list = new ArrayList<>();
+        }
+        return list;
     }
 
     public void addEvent(GradingEvent event) {
