@@ -31,6 +31,8 @@ import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.events.XMLEvent;
 
+import com.ctc.wstx.api.ReaderConfig;
+import com.ctc.wstx.api.WstxInputProperties;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationContext;
@@ -60,41 +62,29 @@ public class AssignmentConversionServiceImpl implements AssignmentConversionServ
 
     @Setter private static boolean cleanUTF8 = true;
     @Setter private static String replacementUTF8 = "";
-    private static final DateTimeFormatter dateTimeFormatter;
-    private static final XmlMapper xmlMapper;
-
-    static {
-        // DateTimeParseException Text '20171222220000000' could not be parsed at index 0
-        // https://bugs.openjdk.java.net/browse/JDK-8031085
-        // DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmssSSS");
-        dateTimeFormatter = new DateTimeFormatterBuilder().appendPattern("yyyyMMddHHmmss").appendValue(ChronoField.MILLI_OF_SECOND, 3).toFormatter();
-
-        SimpleModule module = new SimpleModule().addDeserializer(String.class, new StdDeserializer<String>(String.class) {
-            @Override
-            public String deserialize(JsonParser p, DeserializationContext ctxt) throws IOException, JsonProcessingException {
-                String str = StringDeserializer.instance.deserialize(p, ctxt);
-                if (StringUtils.isBlank(str)) return null;
-                return str;
-            }
-        });
-
-        xmlMapper = new XmlMapper();
-        xmlMapper.registerModule(new Jdk8Module());
-        xmlMapper.registerModule(module);
-    }
 
     @Setter private AssignmentRepository assignmentRepository;
     @Setter private AssignmentDataProvider dataProvider;
     @Setter private ServerConfigurationService serverConfigurationService;
 
+    private Predicate<String> attachmentFilter = Pattern.compile("attachment\\d+").asPredicate();
+    private Predicate<String> submitterFilter = Pattern.compile("submitter\\d+").asPredicate();
+    private Predicate<String> feedbackAttachmentFilter = Pattern.compile("feedbackattachment\\d+").asPredicate();
+    private Predicate<String> submittedAttachmentFilter = Pattern.compile("submittedattachment\\d+").asPredicate();
+
+    private DateTimeFormatter dateTimeFormatter;
     private int assignmentsConverted;
     private int submissionsConverted;
     private int submissionsFailed;
     private int assignmentsFailed;
-    private int assignmentsTotal;
-    private int progress;
+    private XmlMapper xmlMapper;
 
     public void init() {
+        // DateTimeParseException Text '20171222220000000' could not be parsed at index 0
+        // https://bugs.openjdk.java.net/browse/JDK-8031085
+        // DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmssSSS");
+        dateTimeFormatter = new DateTimeFormatterBuilder().appendPattern("yyyyMMddHHmmss").appendValue(ChronoField.MILLI_OF_SECOND, 3).toFormatter();
+
         cleanUTF8 = serverConfigurationService.getBoolean("content.cleaner.filter.utf8", Boolean.TRUE);
         replacementUTF8 = serverConfigurationService.getString("content.cleaner.filter.utf8.replacement", "");
     }
@@ -117,8 +107,31 @@ public class AssignmentConversionServiceImpl implements AssignmentConversionServ
     }
 
     @Override
-    public void runConversion() {
-        assignmentsConverted = submissionsConverted = submissionsFailed = assignmentsFailed = assignmentsTotal = progress = 0;
+    public void runConversion(int numberOfAttributes, int lengthOfAttribute) {
+        int assignmentsTotal, progress = 0;
+        assignmentsConverted = submissionsConverted = submissionsFailed = assignmentsFailed = 0;
+
+        SimpleModule module = new SimpleModule().addDeserializer(String.class, new StdDeserializer<String>(String.class) {
+            @Override
+            public String deserialize(JsonParser p, DeserializationContext ctxt) throws IOException, JsonProcessingException {
+                String str = StringDeserializer.instance.deserialize(p, ctxt);
+                if (StringUtils.isBlank(str)) return null;
+                return str;
+            }
+        });
+
+        // woodstox xml parser defaults we don't allow values smaller than the default
+        if (numberOfAttributes < ReaderConfig.DEFAULT_MAX_ATTRIBUTES_PER_ELEMENT) numberOfAttributes = ReaderConfig.DEFAULT_MAX_ATTRIBUTES_PER_ELEMENT;
+        if (lengthOfAttribute < ReaderConfig.DEFAULT_MAX_ATTRIBUTE_LENGTH) lengthOfAttribute = ReaderConfig.DEFAULT_MAX_ATTRIBUTE_LENGTH;
+
+        log.info("<===== Assignments conversion xml parser limits: number of attributes={}, attribute size={} =====>", numberOfAttributes, lengthOfAttribute);
+
+        XMLInputFactory xmlInputFactory = XMLInputFactory.newFactory();
+        xmlInputFactory.setProperty(WstxInputProperties.P_MAX_ATTRIBUTES_PER_ELEMENT, numberOfAttributes);
+        xmlInputFactory.setProperty(WstxInputProperties.P_MAX_ATTRIBUTE_SIZE, lengthOfAttribute);
+        xmlMapper = new XmlMapper(xmlInputFactory);
+        xmlMapper.registerModule(new Jdk8Module());
+        xmlMapper.registerModule(module);
 
         String configValue = "org.sakaiproject.assignment.api.model.Assignment,org.sakaiproject.assignment.api.model.AssignmentSubmission";
         String currentValue = serverConfigurationService.getConfig(AssignableUUIDGenerator.HIBERNATE_ASSIGNABLE_ID_CLASSES, null);
@@ -277,7 +290,6 @@ public class AssignmentConversionServiceImpl implements AssignmentConversionServ
         Map<String, Object> contentAny = content.getAny();
         String[] assignmentAnyKeys = assignmentAny.keySet().toArray(new String[assignmentAny.size()]);
         String[] contentAnyKeys = contentAny.keySet().toArray(new String[contentAny.size()]);
-        Predicate<String> attachmentFilter = Pattern.compile("attachment\\d+").asPredicate();
 
         // if an assignment context is missing we ignore the assignment
         if (StringUtils.isBlank(assignment.getContext())) {
@@ -372,10 +384,6 @@ public class AssignmentConversionServiceImpl implements AssignmentConversionServ
     private AssignmentSubmission submissionReintegration(Assignment assignment, O11Submission submission) {
         Map<String, Object> submissionAny = submission.getAny();
         String[] submissionAnyKeys = submissionAny.keySet().toArray(new String[submissionAny.size()]);
-        Predicate<String> submitterFilter = Pattern.compile("submitter\\d+").asPredicate();
-        Predicate<String> feedbackAttachmentFilter = Pattern.compile("feedbackattachment\\d+").asPredicate();
-        Predicate<String> submittedAttachmentFilter = Pattern.compile("submittedattachment\\d+").asPredicate();
-
 
         AssignmentSubmission s = new AssignmentSubmission();
         Map<String, String> properties = s.getProperties();
