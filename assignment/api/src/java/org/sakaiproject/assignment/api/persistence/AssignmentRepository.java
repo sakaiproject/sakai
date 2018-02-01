@@ -66,9 +66,7 @@ public interface AssignmentRepository extends SerializableRepository<Assignment,
 
     void initializeAssignment(Assignment assignment);
 
-    long countSubmittedSubmissionsForAssignment(String assignmentId);
-
-    long countUngradedSubmittedSubmissionsForAssignment(String assignmentId);
+    long countSubmissionsForAssignment(String assignmentId, boolean countUngradedOnly, boolean includeUserSubmission, boolean includeSubmissionDate);
 
     void resetAssignment(Assignment assignment);
 }

@@ -169,26 +169,25 @@ public class AssignmentRepositoryImpl extends BasicSerializableRepository<Assign
     }
 
     @Override
-    public long countSubmittedSubmissionsForAssignment(String assignmentId) {
-        Number number = (Number) sessionFactory.getCurrentSession().createCriteria(AssignmentSubmission.class)
+    public long countSubmissionsForAssignment(String assignmentId, boolean countUngradedOnly, boolean includeSubmissionDate, boolean includeUserSubmission) {
+        Number number = null;
+        if(!countUngradedOnly){
+            number = (Number) sessionFactory.getCurrentSession().createCriteria(AssignmentSubmission.class)
                 .setProjection(Projections.rowCount())
                 .add(Restrictions.eq("assignment.id", assignmentId))
                 .add(Restrictions.eq("submitted", Boolean.TRUE))
-                .add(Restrictions.eq("userSubmission", Boolean.TRUE))
-                .add(Restrictions.isNotNull("dateSubmitted"))
+                .add(Restrictions.eq("userSubmission", Boolean.valueOf(includeUserSubmission)))
+                .add(includeSubmissionDate ? Restrictions.isNotNull("dateSubmitted") : Restrictions.isNull("dateSubmitted"))
                 .uniqueResult();
-        return number.longValue();
-    }
-
-    @Override
-    public long countUngradedSubmittedSubmissionsForAssignment(String assignmentId) {
-        Number number = (Number) sessionFactory.getCurrentSession().createCriteria(AssignmentSubmission.class)
+        } else{
+            number = (Number) sessionFactory.getCurrentSession().createCriteria(AssignmentSubmission.class)
                 .setProjection(Projections.rowCount())
                 .add(Restrictions.eq("assignment.id", assignmentId))
                 .add(Restrictions.eq("submitted", Boolean.TRUE))
                 .add(Restrictions.eq("graded", Boolean.FALSE))
-                .add(Restrictions.isNotNull("dateSubmitted"))
+                .add(includeSubmissionDate ? Restrictions.isNotNull("dateSubmitted") : Restrictions.isNull("dateSubmitted"))
                 .uniqueResult();
+        }
         return number.longValue();
     }
 
