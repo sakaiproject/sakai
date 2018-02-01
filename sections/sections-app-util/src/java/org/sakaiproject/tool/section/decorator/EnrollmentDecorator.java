@@ -53,14 +53,14 @@ public class EnrollmentDecorator implements Serializable {
 
     public static final Comparator<EnrollmentDecorator> getNameComparator(final boolean sortAscending) {
         return new Comparator<EnrollmentDecorator>() {
-			private String escapeAccents(String accentedString) {
-        		String decomposed = Normalizer.normalize(accentedString, Normalizer.Form.NFD);
-        		String cleanString = decomposed.replaceAll("\\p{InCombiningDiacriticalMarks}+", "");
-        		return cleanString;
+            private String escapeAccents(String accentedString) {
+                String decomposed = Normalizer.normalize(accentedString, Normalizer.Form.NFD);
+                String cleanString = decomposed.replaceAll("\\p{InCombiningDiacriticalMarks}+", "");
+                return cleanString;
         	};
             public int compare(EnrollmentDecorator enr1, EnrollmentDecorator enr2) {
                 String user1 = escapeAccents(enr1.getUser().getSortName());
-            	String user2 = escapeAccents(enr2.getUser().getSortName());
+                String user2 = escapeAccents(enr2.getUser().getSortName());
                 int comparison = user1.compareTo(user2);
                 return sortAscending ? comparison : (-1 * comparison);
             }
