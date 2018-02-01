@@ -158,7 +158,7 @@
                        checked="checked"
 					#end
 				/>
-				$tlang.getString("gen.addhonple")
+				$add_honor_pledge
 			</label>
 		</div>
 
