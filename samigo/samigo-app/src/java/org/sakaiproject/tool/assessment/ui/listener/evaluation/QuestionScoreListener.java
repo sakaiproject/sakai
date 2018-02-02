@@ -22,6 +22,7 @@
 package org.sakaiproject.tool.assessment.ui.listener.evaluation;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
@@ -31,6 +32,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 
 import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
@@ -101,6 +103,11 @@ import org.sakaiproject.util.ResourceLoader;
 			.getLocalizedString(
 					"org.sakaiproject.tool.assessment.bundle.EvaluationMessages",
 					"no_answer");
+
+	private static final String noneOfTheAbove = (String) ContextUtil
+			.getLocalizedString(
+					"org.sakaiproject.tool.assessment.bundle.EvaluationMessages",
+					"none_above");
 
 	/**
 	 * Standard process action method.
@@ -197,6 +204,7 @@ import org.sakaiproject.util.ResourceLoader;
 	public boolean questionScores(String publishedId, QuestionScoresBean bean,
 			boolean isValueChange) {
 		log.debug("questionScores()");
+		HashSet sortedAgentResults = new HashSet();
 		try {
 			PublishedAssessmentService pubService = new PublishedAssessmentService();
 			PublishedItemService pubItemService = new PublishedItemService();
@@ -220,6 +228,39 @@ import org.sakaiproject.util.ResourceLoader;
 					.preparePublishedItemTextHash(publishedAssessment);
 			log.debug("questionScores(): publishedItemTextHash.size = "
 					+ publishedItemTextHash.size());
+            Set publishedItemTextIds = publishedItemTextHash.keySet();
+			Iterator keyIterator = publishedItemTextIds.iterator();
+			GradingService delegate = new GradingService();
+			HashMap allItemsHash = new HashMap();
+			while(keyIterator.hasNext()){
+					Object thisKey =  keyIterator.next();
+					ItemTextIfc thisItemTextIfc = (ItemTextIfc) publishedItemTextHash.get(thisKey);
+					ItemDataIfc thisItemDataIfc = thisItemTextIfc.getItem();
+					Set answers = thisItemTextIfc.getAnswerSet();
+					Iterator answerIterator = answers.iterator();
+					while(answerIterator.hasNext()){
+							AnswerIfc thisAnswerIfc = (AnswerIfc) answerIterator.next();
+							log.debug(""+thisAnswerIfc.getId());
+					}
+					if(delegate.isDistractor(thisItemTextIfc)){
+							log.debug("item is a distractor");
+					}
+
+				TreeMap thisItemOptions = (TreeMap) allItemsHash.get(thisItemTextIfc.getItem().getItemId());
+				if(thisItemOptions == null){
+					thisItemOptions = new TreeMap();
+					thisItemOptions.put(thisItemTextIfc.getSequence(), thisItemTextIfc);
+					allItemsHash.put(thisItemTextIfc.getItem().getItemId(), thisItemOptions);
+				}else{
+					thisItemOptions.put(thisItemTextIfc.getSequence(), thisItemTextIfc);
+					allItemsHash.put(thisItemTextIfc.getItem().getItemId(), thisItemOptions);
+				}
+				log.debug("item = "+thisItemTextIfc.getSequence()+":"+thisItemTextIfc.getText()+"-"+thisItemTextIfc.getItem().getItemId());
+
+			}
+			log.debug("item -----------------------------------");
+//                     questionBean.setMarker("marker 1");
+			questionBean.setMarker("");
 			Map publishedAnswerHash = pubService
 					.preparePublishedAnswerHash(publishedAssessment);
 			// re-attach session and load all lazy loaded parent/child stuff
@@ -237,7 +278,7 @@ import org.sakaiproject.util.ResourceLoader;
 					+ publishedAnswerHash.size());
 			Map agentResultsByItemGradingIdMap = new HashMap();
 
-			GradingService delegate = new GradingService();
+			//GradingService delegate = new GradingService();
 
 			TotalScoresBean totalBean = (TotalScoresBean) ContextUtil
 					.lookupBean("totalScores");
@@ -692,6 +733,7 @@ import org.sakaiproject.util.ResourceLoader;
 						answerTextLength = 35;
 					}
 
+					log.debug("answerText="+answerText);
 					// Fix for SAK-6932: Strip out all HTML tags except image tags
  					if (answerText.length() > answerTextLength) {
 						String noHTMLAnswerText;
@@ -717,9 +759,9 @@ import org.sakaiproject.util.ResourceLoader;
 					 */
 
 					//SAM-755-"checkmark" indicates right, add "X" to indicate wrong
+					String checkmarkGif = "<img src='/samigo-app/images/delivery/checkmark.gif'>";
+					String crossmarkGif = "<img src='/samigo-app/images/crossmark.gif'>";
 					if (gdataAnswer != null) {
-						String checkmarkGif = "<img src='/samigo-app/images/delivery/checkmark.gif'>";
-						String crossmarkGif = "<img src='/samigo-app/images/crossmark.gif'>";
 						answerText = FormattedText.escapeHtml(answerText, true);
 						if (bean.getTypeId().equals("8") || bean.getTypeId().equals("11")) {
 							if (gdata.getIsCorrect() == null) {
@@ -770,12 +812,89 @@ import org.sakaiproject.util.ResourceLoader;
 								answerText = crossmarkGif + answerText;
 							}
 						}
+						}else if(bean.getTypeId().equals("9")){
+						log.debug("scoring a type 9 - matching");
+						boolean itemHasCorrectAnswers = hasCorrectAnswers(gdataPubItemText.getAnswerSet());
+						ItemGradingData thisItemGradingData = null;
+						Iterator allScoreIterator = allscores.iterator();
+						while(allScoreIterator.hasNext()){
+							thisItemGradingData = (ItemGradingData) allScoreIterator.next();
+							log.debug("thisItemGradingData.getItemGradingId().intValue()="+thisItemGradingData.getItemGradingId().intValue());
+							log.debug("gdata.getItemGradingId().intValue()="+gdata.getItemGradingId().intValue());
+							log.debug("thisItemGradingData.getAnswerText()="+thisItemGradingData.getAnswerText());
+							if(thisItemGradingData.getItemGradingId().intValue()==gdata.getItemGradingId().intValue())break;
+						}
+						if(thisItemGradingData!=null) log.debug("thisItemGradingData was found");
+						if(answerText.contains(noAnswer)&&fullAnswerText.contains(noAnswer)){
+							log.debug("check point A");
+							if(thisItemGradingData.getPublishedAnswerId()==null){
+									log.debug("null anwser id:thisItemGradingData.getAnswerText()="+thisItemGradingData.getAnswerText());
+                                    //                                    answerText = crossmarkGif+gdataPubItemText.getSequence() + ":" + noneOfTheAbove;
+									if(answerList.size()==1){
+										TreeMap thisItemOptions = (TreeMap) allItemsHash.get(item.getItemId());
+										Set itemKeys = thisItemOptions.keySet();
+										Iterator k = itemKeys.iterator();
+										StringBuffer optionsBuffer = new StringBuffer();
+										while(k.hasNext()){
+											Long thisItemKey = (Long) k.next();
+											ItemTextIfc thisItemOptionText = (ItemTextIfc) thisItemOptions.get(thisItemKey);
+											optionsBuffer.append(crossmarkGif+" "+thisItemOptionText.getSequence().toString()+":No Response <br/>");
+										}
+										answerText = optionsBuffer.toString();
+
+									}else{
+										answerText = crossmarkGif+gdataPubItemText.getSequence() + ":" + "No Response";
+									}
+                            }else if(itemHasCorrectAnswers && thisItemGradingData.getPublishedAnswerId().intValue()<0){
+								answerText = crossmarkGif+gdataPubItemText.getSequence() + ":" + noneOfTheAbove;
+							}else{
+								answerText = checkmarkGif+gdataPubItemText.getSequence() + ":" + noneOfTheAbove;
+							}
+							log.debug("answerText="+answerText);
+							String thisAgentId = gdata.getAgentId();
+							Iterator agentIterator = bean.getAgents().iterator();
+							boolean agentFound=false;
+							AgentResults thisAgentResult = null;
+							while(agentIterator.hasNext()){
+								thisAgentResult = (AgentResults) agentIterator.next();
+								if(thisAgentResult.getIdString().compareTo(thisAgentId)==0){
+									agentFound=true;
+									break;
+								}
+							}
+/*
+							if(agentFound){
+								String thisItemOptions[] = thisAgentResult.getAnswer().split("<br/>");
+								for(int s=0;s<thisItemOptions.length;s++){
+									int endOfCheckmark = thisItemOptions[s].indexOf(">");
+									int colonAt = thisItemOptions[s].indexOf(":");
+									String thisSequence = thisItemOptions[s].substring(endOfCheckmark, colonAt);
+									StringBuffer editItemBuffer = new StringBuffer();
+									editItemBuffer.append(thisSequence);
+									editItemBuffer.append("|");
+									editItemBuffer.append(thisItemOptions[s]);
+									thisItemOptions[s] = editItemBuffer.toString();
+								}
+								Arrays.sort(thisItemOptions);
+								StringBuffer optionBuffer = new StringBuffer();
+								for(int s=0;s<thisItemOptions.length;s++){
+									int dlmIndex = thisItemOptions[s].indexOf('|');
+									optionBuffer.append(thisItemOptions[s].substring(dlmIndex+1));
+									optionBuffer.append("<br/>");
+								}
+								log.debug("sortedOptions"+optionBuffer.toString());
+								thisAgentResult.setAnswer(optionBuffer.toString());
+							}
+*/
+						}
 					}
 
+					log.debug("check point B answerText="+answerText);
 					// -- Got the answer text --
 					if (!answerList.get(0).equals(gdata)) { // We already have
 						// an agentResults
 						// for this one
+						log.debug("check point C1");
 						results.setAnswer(results.getAnswer() + "<br/>"
 								+ answerText);
 						if (gdata.getAutoScore() != null) {
@@ -792,6 +911,7 @@ import org.sakaiproject.util.ResourceLoader;
 							results.setAnswerKey(results.getAnswerKey()+ " <br/>" + answerKey);
 						}
 					} else {
+						log.debug("check point C2");
 						results.setItemGradingId(gdata.getItemGradingId());
 						results.setAssessmentGradingId(gdata
 								.getAssessmentGradingId());
@@ -846,6 +966,7 @@ import org.sakaiproject.util.ResourceLoader;
 			}
 
 			bs = new BeanSort(agents, bean.getSortType());
+			log.debug("check point D");
 			if ((bean.getSortType()).equals("assessmentGradingId")
 					|| (bean.getSortType()).equals("totalAutoScore")
 					|| (bean.getSortType()).equals("totalOverrideScore")
@@ -863,6 +984,9 @@ import org.sakaiproject.util.ResourceLoader;
 				agents = (List) bs.sortDesc();
 			}
 
+			if(bean.getTypeId().equals("9")){
+				agents = sortMatching(agents);
+			}
 			bean.setAgents(agents);
 			bean.setAllAgents(agents);
 			bean
@@ -877,6 +1001,37 @@ import org.sakaiproject.util.ResourceLoader;
 		}
 
 		return true;
+	}
+
+	private ArrayList sortMatching(List a){
+
+		ArrayList returnValues = new ArrayList();
+		Iterator agentIterator = a.iterator();
+		while(agentIterator.hasNext()){
+			AgentResults thisAgentResult = (AgentResults) agentIterator.next();
+			String thisItemOptions[] = thisAgentResult.getAnswer().split("<br/>");
+			for(int s=0;s<thisItemOptions.length;s++){
+				int endOfCheckmark = thisItemOptions[s].indexOf(">");
+				int colonAt = thisItemOptions[s].indexOf(":");
+				String thisSequence = thisItemOptions[s].substring(endOfCheckmark, colonAt);
+				StringBuffer editItemBuffer = new StringBuffer();
+				editItemBuffer.append(thisSequence);
+				editItemBuffer.append("|");
+				editItemBuffer.append(thisItemOptions[s]);
+				thisItemOptions[s] = editItemBuffer.toString();
+			}
+			Arrays.sort(thisItemOptions);
+			StringBuffer optionBuffer = new StringBuffer();
+			for(int s=0;s<thisItemOptions.length;s++){
+				int dlmIndex = thisItemOptions[s].indexOf('|');
+				optionBuffer.append(thisItemOptions[s].substring(dlmIndex+1));
+				optionBuffer.append("<br/>");
+			}
+			log.debug("sortedOptions"+optionBuffer.toString());
+			thisAgentResult.setAnswer(optionBuffer.toString());
+			returnValues.add(thisAgentResult);
+		}
+		return returnValues;
 	}
 
 	/**
@@ -937,6 +1092,20 @@ import org.sakaiproject.util.ResourceLoader;
 					+ e.getMessage());
 		}
 	}
+
+	private boolean hasCorrectAnswers(Set answerSet){
+		    ArrayList list = new ArrayList();
+		    Iterator iter = answerSet.iterator();
+		    while (iter.hasNext()){
+		      list.add(iter.next());
+		    }
+	    	Iterator answerIterator = list.iterator();
+	    	while(answerIterator.hasNext()){
+	    		PublishedAnswer thisPublishedAnswer = (PublishedAnswer) answerIterator.next();
+	    		if(thisPublishedAnswer.getIsCorrect().booleanValue()) return true;
+	    	}
+	    	return false;
+	  }
 
 	private void populateSections(PublishedAssessmentIfc publishedAssessment,
 			QuestionScoresBean bean, TotalScoresBean totalBean,

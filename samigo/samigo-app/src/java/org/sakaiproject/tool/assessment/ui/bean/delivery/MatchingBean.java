@@ -212,7 +212,16 @@ public class AnswerLabelWithCorrectStatus {
       return true;
     return false;
       */
-    return isCorrect;
+    if(this.getIsDistractor()){
+		  if(this.response==null) return false;
+		  if(Integer.parseInt(this.response)<0){
+			  return true;
+		  }else{
+			  return false;
+		  }
+	}else{
+		return isCorrect;
+	}
   }
   
   public boolean getIsDistractor() {

@@ -35,15 +35,16 @@ should be included in file importing DeliveryMessages
    </h:column>
   </h:dataTable>
 
+  <h2>Matching Items</h2>
   <h:dataTable value="#{question.matchingArray}" var="matching">
     <h:column rendered="#{delivery.feedback eq 'true' &&
        delivery.feedbackComponent.showCorrectResponse && !delivery.noFeedback=='true'}">
       <h:panelGroup id="image"
-        rendered="#{matching.isCorrect || matching.isDistractor}"
+        rendered="#{matching.isCorrect}"
         styleClass="icon-sakai--check feedBackCheck" >
       </h:panelGroup>
       <h:panelGroup id="ximage"
-        rendered="#{!matching.isCorrect && !matching.isDistractor}"
+        rendered="#{!matching.isCorrect}"
         styleClass="icon-sakai--delete feedBackCross" >
       </h:panelGroup>
       <h:graphicImage id="image2"

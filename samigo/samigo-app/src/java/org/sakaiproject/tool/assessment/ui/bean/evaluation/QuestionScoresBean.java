@@ -91,6 +91,8 @@ public class QuestionScoresBean
   private String typeId;
   private Map scoresByItem;
 
+  private String marker;
+
   //private String selectedSectionFilterValue = TotalScoresBean.ALL_SECTIONS_SELECT_VALUE;
   private String selectedSectionFilterValue = null;
   
@@ -261,6 +263,15 @@ public class QuestionScoresBean
   public String getAssessmentId()
   {
     return Validator.check(assessmentId, "0");
+  }
+
+  public String getMarker()
+  {
+    return marker;
+  }
+
+  public void setMarker(String s){
+    marker = s;
   }
 
   /**
