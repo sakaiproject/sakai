@@ -26,11 +26,12 @@ should be included in file importing DeliveryMessages
   <!-- ATTACHMENTS -->
   <%@ include file="/jsf/author/preview_item/attachment.jsp" %>
 
+  <!-- <h2>preview_item=matching.jsp</h2> -->
   <h:outputText escape="false" value="#{question.instruction}" />
   <!-- 1. print out the matching choices -->
   <h:dataTable value="#{question.itemData.itemTextArraySorted}" var="itemText">
     <h:column>
-      <h:dataTable value="#{itemText.answerArraySorted}" var="answer"
+      <h:dataTable value="#{itemText.answerArrayWithDistractorSorted}" var="answer"
          rendered="#{itemText.sequence==1}">
         <h:column>
             <h:panelGrid columns="2">
