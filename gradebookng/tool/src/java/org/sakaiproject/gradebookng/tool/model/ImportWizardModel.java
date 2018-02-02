@@ -19,12 +19,13 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.sakaiproject.gradebookng.business.importExport.UserIdentificationReport;
-import org.sakaiproject.gradebookng.business.model.ProcessedGradeItem;
-import org.sakaiproject.service.gradebook.shared.Assignment;
-
 import lombok.Getter;
 import lombok.Setter;
+
+import org.sakaiproject.gradebookng.business.importExport.UserIdentificationReport;
+import org.sakaiproject.gradebookng.business.model.ImportedSpreadsheetWrapper;
+import org.sakaiproject.gradebookng.business.model.ProcessedGradeItem;
+import org.sakaiproject.service.gradebook.shared.Assignment;
 
 /**
  * Model object used for the import wizard panels
@@ -34,11 +35,25 @@ public class ImportWizardModel implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	/**
+	 * Representation of the spreadsheet
+	 */
+	@Getter
+	@Setter
+	private ImportedSpreadsheetWrapper spreadsheetWrapper;
+
+	/**
 	 * List of items that have been uploaded
 	 */
 	@Getter
 	@Setter
 	private List<ProcessedGradeItem> processedGradeItems;
+
+	/**
+	 * List of items that have been selected to import
+	 */
+	@Getter
+	@Setter
+	private List<ProcessedGradeItem> selectedGradeItems;
 
 	/**
 	 * Which step is the new gb item creation currently on
@@ -87,5 +102,5 @@ public class ImportWizardModel implements Serializable {
 	 */
 	@Getter
 	@Setter
-	private UserIdentificationReport report;
+	private UserIdentificationReport userReport;
 }

@@ -35,14 +35,20 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import lombok.extern.slf4j.Slf4j;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
+
 import org.hibernate.Hibernate;
 import org.hibernate.HibernateException;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.StaleObjectStateException;
 import org.hibernate.criterion.Restrictions;
+
+import org.sakaiproject.authz.cover.SecurityService;
+import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.hibernate.HibernateCriterionUtils;
 import org.sakaiproject.section.api.coursemanagement.CourseSection;
 import org.sakaiproject.section.api.coursemanagement.EnrollmentRecord;
@@ -82,12 +88,9 @@ import org.sakaiproject.tool.gradebook.GradingEvent;
 import org.sakaiproject.tool.gradebook.LetterGradePercentMapping;
 import org.sakaiproject.tool.gradebook.facades.Authz;
 import org.sakaiproject.util.ResourceLoader;
+
 import org.springframework.orm.hibernate4.HibernateCallback;
 import org.springframework.orm.hibernate4.HibernateOptimisticLockingFailureException;
-
-import lombok.extern.slf4j.Slf4j;
-import org.sakaiproject.authz.cover.SecurityService;
-import org.sakaiproject.component.cover.ServerConfigurationService;
 
 /**
  * A Hibernate implementation of GradebookService.
@@ -1999,6 +2002,40 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 
 	  return isGradeValid(grade, gradeEntryType, mapping);
   }
+
+	@Override
+	public boolean isValidNumericGrade(String grade)
+	{
+		boolean gradeIsValid = false;
+
+		try
+		{
+			NumberFormat nbFormat = NumberFormat.getInstance(new ResourceLoader().getLocale());
+			Double gradeAsDouble = nbFormat.parse(grade).doubleValue();
+			String decSeparator =((DecimalFormat)nbFormat).getDecimalFormatSymbols().getDecimalSeparator() + "";
+
+			// grade must be greater than or equal to 0
+			if (gradeAsDouble >= 0) {
+				String[] splitOnDecimal = grade.split("\\" + decSeparator);
+				// check that there are no more than 2 decimal places
+				if (splitOnDecimal == null) {
+					gradeIsValid = true;
+
+				// check for a valid score matching ##########.##
+				// where integer is maximum of 10 integers in length
+				// and maximum of 2 decimal places
+				} else if (grade.matches("[0-9]{0,10}(\\"+decSeparator+"[0-9]{0,2})?")) {
+					gradeIsValid = true;
+				}
+			}
+		}
+		catch (NumberFormatException | ParseException nfe)
+		{
+			log.debug("Passed grade is not a numeric value");
+		}
+
+		return gradeIsValid;
+	}
 
   private boolean isGradeValid(final String grade, final int gradeEntryType, final LetterGradePercentMapping gradeMapping) {
 

@@ -55,7 +55,7 @@ public class GradeItemImportOmissionsPanel extends Panel
     public void onInitialize()
     {
         super.onInitialize();
-        UserIdentificationReport report = model.getObject().getReport();
+        UserIdentificationReport report = model.getObject().getUserReport();
         final WebMarkupContainer omissionsContainer = new WebMarkupContainer( "omissionsContainer" );
 
         // Create the accordion headers and unknown users supplemental information message
