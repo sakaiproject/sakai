@@ -1609,6 +1609,49 @@ public class DeliveryActionListener
   	  key += " | ";
     }
 
+    if (item.getTypeId().equals(TypeIfc.MATCHING)){
+        Iterator itemTexts = itemBean.getItemData().getItemTextArray().iterator();
+        StringBuffer distractorKeys = new StringBuffer();
+        while(itemTexts.hasNext()){
+            ItemTextIfc thisItemText = (ItemTextIfc) itemTexts.next();
+            Iterator thisItemAnswersIterator = thisItemText.getAnswerArray().iterator();
+            boolean hasCorrectAnswer = false;
+            while(thisItemAnswersIterator.hasNext()){
+                AnswerIfc thisItemAnswer = (AnswerIfc) thisItemAnswersIterator.next();
+                if(thisItemAnswer.getIsCorrect())hasCorrectAnswer=true;
+            }
+            if(!hasCorrectAnswer){
+                distractorKeys.append(", ");
+                distractorKeys.append(thisItemText.getSequence());
+
+                String noneOfTheAboveOption = Character.toString(alphabet.charAt(myanswers.size()));
+    //				distractorKeys.append(":N/A ");
+                distractorKeys.append(":"+noneOfTheAboveOption);
+            }
+        }
+        if(distractorKeys.length()>0){
+            key = key+distractorKeys.toString();
+        }
+		String individualKeys[] = key.split(",");
+		for(int k = 0;k<individualKeys.length;k++){
+			String thisIndividualKey = individualKeys[k].trim();
+			individualKeys[k] = thisIndividualKey;
+		}
+		Arrays.sort(individualKeys);
+		StringBuffer sortedKeysBuffer = new StringBuffer();
+		for(int k = 0;k<individualKeys.length;k++){
+			if(k==(individualKeys.length-1)){
+				sortedKeysBuffer.append(" ");
+				sortedKeysBuffer.append(individualKeys[k]);
+			}else{
+				sortedKeysBuffer.append(" ");
+				sortedKeysBuffer.append(individualKeys[k]);
+				sortedKeysBuffer.append(",");
+			}
+		}
+		key = sortedKeysBuffer.toString();
+    }
+
     itemBean.setKey(key);
 
     // Delete this
@@ -1899,9 +1942,15 @@ public class DeliveryActionListener
       
       GradingService gs = new GradingService();
       if (gs.hasDistractors(item)) {
+          String noneOfTheAboveOption = Character.toString(alphabet.charAt(i++));
+    	  newAnswers.add(noneOfTheAboveOption + "." + " None of the Above");
+//    	  choices.add(new SelectItem(NONE_OF_THE_ABOVE.toString(),
+//    			  					"None of the Above",
+//    			  					""));
+
     	  choices.add(new SelectItem(NONE_OF_THE_ABOVE.toString(),
-    			  					"None of the Above",
-    			  					""));
+    			  					noneOfTheAboveOption,
+					""));
       }
 
       mbean.setChoices(choices); // Set the A/B/C... pulldown

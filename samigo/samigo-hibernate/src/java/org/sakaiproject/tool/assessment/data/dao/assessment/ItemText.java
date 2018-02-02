@@ -42,6 +42,7 @@ public class ItemText
     implements Serializable, ItemTextIfc, Comparable<ItemTextIfc> {
 
   private static final long serialVersionUID = 7526471155622776147L;
+  static String alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
   private Long id;
   private ItemDataIfc item;
@@ -124,9 +125,62 @@ public class ItemText
 
   public List<AnswerIfc> getAnswerArraySorted() {
     List<AnswerIfc> list = getAnswerArray();
+	List questionItems = getItem().getItemTextArray();
     Collections.sort(list);
     return list;
   }
+
+  public List getAnswerArrayWithDistractorSorted() {
+	    List<AnswerIfc> list = getAnswerArray();
+	    List questionItems = getItem().getItemTextArray();
+	    if(list.size()!=questionItems.size()){
+	    	ArrayList newAnswerList = new ArrayList();
+	    	Iterator answerIterator = list.iterator();
+	    	int answerSequence = 1;
+	    	while(answerIterator.hasNext()){
+	    		AnswerIfc thisAnswer = (AnswerIfc) answerIterator.next();
+	    		if(thisAnswer.getSequence().intValue()!=answerSequence){
+	    			Answer distractorAnswer = new Answer();
+		    		distractorAnswer.setId(new Long(0));
+		    		distractorAnswer.setLabel(Character.toString(alphabet.charAt(answerSequence-1)));
+		    		ItemText distractorItem = (ItemText) questionItems.get(answerSequence-1);
+		    		distractorAnswer.setText("None of the Above");
+		    		distractorAnswer.setIsCorrect(false);
+		    		distractorAnswer.setScore(this.getItem().getScore());
+		    		distractorAnswer.setSequence(new Long(answerSequence));
+		    		newAnswerList.add(distractorAnswer);
+		    		answerSequence++;
+		    		newAnswerList.add(thisAnswer);
+		    		answerSequence++;
+	    		}else{
+		    		newAnswerList.add(thisAnswer);
+		    		answerSequence++;
+	    		}
+	    	}
+	    	Iterator lastItemLookIterator = questionItems.iterator();
+	    	while(lastItemLookIterator.hasNext()){
+	    		ItemText thisItemText = (ItemText) lastItemLookIterator.next();
+	    		if(thisItemText.getSequence().intValue()==answerSequence){
+	    			Answer distractorAnswer = new Answer();
+		    		distractorAnswer.setId(new Long(0));
+		    		distractorAnswer.setLabel(Character.toString(alphabet.charAt(answerSequence-1)));
+		    		ItemText distractorItem = (ItemText) questionItems.get(answerSequence-1);
+		    		distractorAnswer.setText("None of the Above");
+		    		distractorAnswer.setIsCorrect(false);
+		    		distractorAnswer.setScore(this.getItem().getScore());
+		    		distractorAnswer.setSequence(new Long(answerSequence));
+		    		newAnswerList.add(distractorAnswer);
+	    		}
+	    	}
+
+
+		    Collections.sort(newAnswerList);
+		    return newAnswerList;
+	    }else{
+		    Collections.sort(list);
+		    return list;
+	    }
+	  }
   
 	public Set<ItemTextAttachmentIfc> getItemTextAttachmentSet() {
 		return itemTextAttachmentSet;

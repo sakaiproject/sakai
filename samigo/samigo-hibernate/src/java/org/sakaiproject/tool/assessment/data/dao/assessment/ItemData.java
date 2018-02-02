@@ -781,13 +781,12 @@ public ItemData() {}
    
    if (this.getTypeId().equals(TypeD.MATCHING))
    {
-	   for (int k=0; k<answerArray.size();k++)
+	   List answerArrayWithDistractor = itemTextArray.get(0).getAnswerArrayWithDistractorSorted();
+	   for (int k=0; k<answerArrayWithDistractor.size();k++)
 	   {
-		   AnswerIfc a = (AnswerIfc)answerArray.get(k);
-		   String pair = (String)h.get(a.getLabel());
-		   //if answer is not a match to any text, just print answer label
-		   if (pair == null)
-		       pair = a.getLabel()+": ";
+		   AnswerIfc a = (AnswerIfc)answerArrayWithDistractor.get(k);
+		   String pair = a.getSequence()+":"+a.getLabel();
+//		   String pair = a.getLabel()+":"+a.getSequence();
 
 		   if (k!=0)
 		       answerKey = answerKey+",  "+pair;
