@@ -259,3 +259,26 @@ function setSectionPageFocus() {
 		}
 	}
 }
+
+function initManuallyManageDialog() {
+	$( "#dialog-confirm" ).dialog({      
+	  resizable: false,
+	  height: "auto",
+	  width: 400,
+	  modal: true,      
+	  buttons: [
+	     {
+	         text: button_ok,             
+	         click: function() {
+	             $( "#optionsForm\\:confirmExternallyManagedButton" ).click();
+	         }
+	     },
+	     {
+	         text: button_cancel,             
+	         click: function() {
+	             $( this ).dialog( "close" );
+	         }
+	     }
+	  ]
+	});
+}

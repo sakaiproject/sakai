@@ -2,6 +2,11 @@
 <div class="portletBody">
 <h:form id="optionsForm">
 
+    <script type="text/javascript">
+        var button_ok = "<h:outputText value="#{msgs.confirm}"/>";
+        var button_cancel = "<h:outputText value="#{msgs.cancel}"/>";
+    </script>
+
     <sakai:flowState bean="#{optionsBean}"/>
 
     <t:aliasBean alias="#{viewName}" value="options">
@@ -23,6 +28,10 @@
         	</h:panelGrid>
         </t:div>
 
+		<div id="dialog-confirm" title="<h:outputText value="#{msgs.options_manually_manage}"/>" class="displayNone">
+			<p><span class="ui-icon ui-icon-alert dialogConfirm"></span><h:outputText value="#{msgs.options_confirmInternal}"/></p>
+		</div>
+		
 		<t:selectOneRadio id="externallyManaged" layout="spread" value="#{optionsBean.management}"
 			disabled="#{optionsBean.confirmMode}"
 			onclick="updateOptionBoxes(this);">
@@ -52,12 +61,24 @@
         </t:div>
     
         <t:div styleClass="act verticalPadding">
-            <h:commandButton
-                action="#{optionsBean.update}"
+            <h:commandButton                
                 value="#{msgs.update}"
                 styleClass="active"
                 rendered="#{optionsBean.sectionOptionsManagementEnabled}"
-                disabled="#{optionsBean.confirmMode}" />
+                disabled="#{optionsBean.confirmMode}" 
+                onclick="if(document.optionsForm[1].checked){
+                    if(#{optionsBean.management == 'external'}){
+                        initManuallyManageDialog(); 
+                        return false;
+                    }
+                    }else{
+                        if(#{optionsBean.management == 'internal'}){
+                            document.getElementById('optionsForm:updateSectionsButton').click();
+                            return false;
+                        }
+                    }
+                    document.getElementById('optionsForm:confirmExternallyManagedButton').click(); 
+                    return false;" />
             <h:commandButton
                 action="overview"
                 value="#{msgs.cancel}"
@@ -67,6 +88,14 @@
                 action="overview"
                 value="#{msgs.options_done}"
                 rendered="#{ ! optionsBean.sectionOptionsManagementEnabled}"/>
+            <h:commandButton
+                id="updateSectionsButton"
+                action="#{optionsBean.update}"
+                style="display:none" />
+            <h:commandButton
+                id="confirmExternallyManagedButton" 
+                action="#{optionsBean.confirmExternallyManaged}"
+                style="display:none" />
         </t:div>
 
 		<t:div style="height:340px">
