@@ -1599,12 +1599,6 @@
       </dependency>
       <dependency>
         <groupId>org.sakaiproject.sitemanage</groupId>
-        <artifactId>sakai-siteassociation-api</artifactId>
-        <version>${sakai.version}</version>
-        <scope>provided</scope>
-      </dependency>
-      <dependency>
-        <groupId>org.sakaiproject.sitemanage</groupId>
         <artifactId>sakai-site-manage-util</artifactId>
         <version>${sakai.version}</version>
       </dependency>
