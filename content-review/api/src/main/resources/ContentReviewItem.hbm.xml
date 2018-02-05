@@ -10,7 +10,7 @@
         </id>
         <version      name="version"            column="VERSION"            type="integer" />
         <properties   name="CONTENT_PROVIDER_CONSTRAINT" unique="true" insert="true">
-            <property name="providerId"         column="PROVIERID"          type="integer"              not-null="true"/>
+            <property name="providerId"         column="PROVIDERID"          type="integer"              not-null="true"/>
             <property name="contentId"          column="CONTENTID"          type="string" length="255"  not-null="true"/>
         </properties>
         <property     name="userId"             column="USERID"             type="string" length="255"  not-null="false" />
