@@ -131,7 +131,7 @@ public class AssignmentSubmission {
     @Column(name = "GRADED")
     private Boolean graded = Boolean.FALSE;
 
-    @Column(name = "GRADED_BY",length = 36)
+    @Column(name = "GRADED_BY", length = 99)
     private String gradedBy;
 
     @Column(name = "GRADE_RELEASED")

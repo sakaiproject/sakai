@@ -107,7 +107,7 @@ public class Assignment {
     @Column(name = "INSTRUCTIONS", length = 65535)
     private String instructions;
 
-    @Column(name = "CONTEXT", length = 36, nullable = false)
+    @Column(name = "CONTEXT", length = 99, nullable = false)
     private String context;
 
     @Column(name = "SECTION")
@@ -141,10 +141,10 @@ public class Assignment {
     @Column(name = "DROP_DEAD_DATE")
     private Instant dropDeadDate;
 
-    @Column(name = "MODIFIER", length = 36)
+    @Column(name = "MODIFIER", length = 99)
     private String modifier;
 
-    @Column(name = "AUTHOR", length = 36)
+    @Column(name = "AUTHOR", length = 99)
     private String author;
 
     @Column(name = "DRAFT", nullable = false)
