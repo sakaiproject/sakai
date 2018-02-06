@@ -27,7 +27,6 @@ import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormSubmitBehavior;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
 import org.apache.wicket.markup.html.WebMarkupContainer;
-import org.apache.wicket.markup.html.form.Button;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.upload.FileUpload;
 import org.apache.wicket.markup.html.form.upload.FileUploadField;
@@ -71,7 +70,7 @@ public class GradeImportUploadStep extends BasePanel {
 	private class UploadForm extends Form<Void> {
 
 		FileUploadField fileUploadField;
-		Button continueButton;
+		AjaxButton continueButton;
 
 		public UploadForm(final String id) {
 			super(id);
@@ -117,9 +116,9 @@ public class GradeImportUploadStep extends BasePanel {
 			this.continueButton.setEnabled(false);
 			add(this.continueButton);
 
-			final Button cancel = new Button("cancelbutton") {
+			final AjaxButton cancel = new AjaxButton("cancelbutton") {
 				@Override
-				public void onSubmit() {
+				public void onSubmit(AjaxRequestTarget target, Form<?> form) {
 					setResponsePage(GradebookPage.class);
 				}
 			};
