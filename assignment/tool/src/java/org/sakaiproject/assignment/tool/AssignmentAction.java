@@ -1562,6 +1562,7 @@ public class AssignmentAction extends PagedResourceActionII {
 
         context.put("contentTypeImageService", contentTypeImageService);
         context.put("currentTime", Instant.now());
+        context.put("NamePropContentReviewOptoutUrl", ContentReviewConstants.URKUND_OPTOUT_URL);
 
         // SAK-21525 - Groups were not being queried for authz
         boolean allowSubmit = assignmentService.allowAddSubmissionCheckGroups(assignment);

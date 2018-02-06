@@ -205,7 +205,7 @@
                                 #if (!$reviewResult.getReviewReport().equals("Error") &&
                                     $reviewResult.contentReviewItem.Properties.get($NamePropContentReviewOptoutUrl))
                                     (<a href="$!reviewResult.contentReviewItem.Properties.get($NamePropContentReviewOptoutUrl)" target="_blank">$tlang.getString("review.report.urkund.optoutlink")</a>)
-                                #end								
+                                #end
                             </div>
                         #end
                         #if ($reviewResults.size() >= 3)
