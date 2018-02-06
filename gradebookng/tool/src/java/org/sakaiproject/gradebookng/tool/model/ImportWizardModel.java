@@ -16,8 +16,9 @@
 package org.sakaiproject.gradebookng.tool.model;
 
 import java.io.Serializable;
-import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -91,11 +92,11 @@ public class ImportWizardModel implements Serializable {
 	private List<ProcessedGradeItem> itemsToModify;
 
 	/**
-	 * The list of assignments to be created once the form has been filled in
+	 * Maps items from the spreadsheet to the assignments that need to be created once the wizard has been completed
 	 */
 	@Getter
 	@Setter
-	private List<Assignment> assignmentsToCreate = new ArrayList<Assignment>();
+	private Map<ProcessedGradeItem, Assignment> assignmentsToCreate = new LinkedHashMap<>();
 
 	/**
 	 * The {@link UserIdentificationReport} generated during parsing of the raw import file

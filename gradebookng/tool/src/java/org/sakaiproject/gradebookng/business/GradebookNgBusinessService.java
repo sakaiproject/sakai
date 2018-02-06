@@ -153,6 +153,7 @@ public class GradebookNgBusinessService {
 	/**
 	 * Get a list of all users in the given site that can have grades
 	 *
+	 * @param siteId
 	 * @return a list of users as uuids or null if none
 	 */
 	public List<String> getGradeableUsers(final String siteId) {
@@ -349,6 +350,7 @@ public class GradebookNgBusinessService {
 	/**
 	 * Get a list of assignments in the gradebook in the current site that the current user is allowed to access
 	 *
+	 * @param siteId
 	 * @return a list of assignments or empty list if none/no gradebook
 	 */
 	public List<Assignment> getGradebookAssignments(final String siteId) {
@@ -359,6 +361,7 @@ public class GradebookNgBusinessService {
 	 * Get a list of assignments in the gradebook in the current site that the current user is allowed to access sorted by the provided
 	 * SortType
 	 *
+	 * @param sortBy
 	 * @return a list of assignments or empty list if none/no gradebook
 	 */
 	public List<Assignment> getGradebookAssignments(final SortType sortBy) {
@@ -372,6 +375,7 @@ public class GradebookNgBusinessService {
 	 * This should only be called if you are wanting to view the assignments that a student would see (ie if you ARE a student, or if you
 	 * are an instructor using the student review mode)
 	 *
+	 * @param studentUuid
 	 * @return a list of assignments or empty list if none/no gradebook
 	 */
 	public List<Assignment> getGradebookAssignmentsForStudent(final String studentUuid) {
@@ -402,6 +406,7 @@ public class GradebookNgBusinessService {
 	 * Get a list of assignments in the gradebook in the specified site that the current user is allowed to access, sorted by sort order
 	 *
 	 * @param siteId the siteId
+	 * @param sortBy
 	 * @return a list of assignments or empty list if none/no gradebook
 	 */
 	public List<Assignment> getGradebookAssignments(final String siteId, final SortType sortBy) {
@@ -565,27 +570,6 @@ public class GradebookNgBusinessService {
 	}
 
 	/**
-	 * Save the grade and comment for a student's assignment. Ignores the concurrency check.
-	 *
-	 * @param assignmentId id of the gradebook assignment
-	 * @param studentUuid uuid of the user
-	 * @param grade grade for the assignment/user
-	 * @param comment optional comment for the grade. Can be null.
-	 *
-	 * @return
-	 */
-	public GradeSaveResponse saveGrade(final Long assignmentId, final String studentUuid, final String grade,
-			final String comment) {
-
-		final Gradebook gradebook = this.getGradebook();
-		if (gradebook == null) {
-			return GradeSaveResponse.ERROR;
-		}
-
-		return this.saveGrade(assignmentId, studentUuid, null, grade, comment);
-	}
-
-	/**
 	 * Save the grade and comment for a student's assignment and do concurrency checking
 	 *
 	 * @param assignmentId id of the gradebook assignment
@@ -740,6 +724,20 @@ public class GradebookNgBusinessService {
 		return rval;
 	}
 
+	public GradeSaveResponse saveGradesAndCommentsForImport(final Gradebook gradebook, final Assignment assignment, final List<GradeDefinition> gradeDefList) {
+		if (gradebook == null) {
+			return GradeSaveResponse.ERROR;
+		}
+
+		try {
+			gradebookService.saveGradesAndComments(gradebook.getUid(), assignment.getId(), gradeDefList);
+			return GradeSaveResponse.OK;
+		} catch (InvalidGradeException | GradebookNotFoundException | AssessmentNotFoundException e) {
+			log.error("An error occurred saving the grade. {}: {}", e.getClass(), e.getMessage());
+			return GradeSaveResponse.ERROR;
+		}
+	}
+
 	/**
 	 * Build the matrix of assignments, students and grades for all students
 	 *
@@ -755,11 +753,10 @@ public class GradebookNgBusinessService {
 	 * student summary but could be more for paging etc
 	 *
 	 * @param assignments list of assignments
-	 * @param list of uuids
+	 * @param studentUuids of uuids
 	 * @return
 	 */
-	public List<GbStudentGradeInfo> buildGradeMatrix(final List<Assignment> assignments,
-			final List<String> studentUuids) throws GbException {
+	public List<GbStudentGradeInfo> buildGradeMatrix(final List<Assignment> assignments, final List<String> studentUuids) throws GbException {
 		return this.buildGradeMatrix(assignments, studentUuids, null);
 	}
 
@@ -1577,8 +1574,6 @@ public class GradebookNgBusinessService {
 	 * @param siteId the siteId
 	 * @param assignmentId the assignment we are reordering
 	 * @param order the new order
-	 * @throws IdUnusedException
-	 * @throws PermissionException
 	 */
 	public void updateAssignmentOrder(final String siteId, final long assignmentId, final int order) {
 
@@ -1695,7 +1690,6 @@ public class GradebookNgBusinessService {
 	/**
 	 * Get an GradebookAssignment in the current site given the assignment id
 	 *
-	 * @param siteId
 	 * @param assignmentId
 	 * @return
 	 */
