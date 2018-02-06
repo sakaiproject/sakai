@@ -1274,7 +1274,8 @@ div[role="dialog"] {
     display: none !important;
 }
 .neoPortletTitleWrap {
-    border-radius:0
+    border-radius:0;
+    top: 25px;
 }
 .portletTitle {
     width: 100%;
