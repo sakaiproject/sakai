@@ -2154,7 +2154,7 @@ public abstract class GradebookManagerHibernateImpl extends GradebookServiceHibe
     @Override
     public List<GradebookAssignment> getAssignmentsWithNoCategory(final Long gradebookId, String assignmentSort, boolean assignAscending)
     {
-	final HibernateCallback<List<GradebookAssignment>> hc = session -> session
+	HibernateCallback<List<GradebookAssignment>> hc = session -> session
 			.createQuery("from GradebookAssignment as asn where asn.gradebook.id = :id and asn.removed=false and asn.category is null")
 			.setLong("id", gradebookId)
 			.list();
