@@ -552,6 +552,12 @@ public class SakaiBLTIUtil {
 		String releasename = toNull(getCorrectProperty(config,"releasename", placement));
 		String releaseemail = toNull(getCorrectProperty(config,"releaseemail", placement));
 
+		// Use SHA256 if requested (SAK-33898)
+		String sha256 = toNull(getCorrectProperty(config,"sha256", placement));
+		if ( "on".equals(sha256) ) {
+			setProperty(props, OAuth.OAUTH_SIGNATURE_METHOD,"HMAC-SHA256");
+		}
+
 		User user = UserDirectoryService.getCurrentUser();
 
 		PrivacyManager pm = (PrivacyManager) 
@@ -1018,7 +1024,12 @@ public class SakaiBLTIUtil {
 		LTI2Util.addCustomToLaunch(ltiProps, custom, isLTI1);
 
 		// Check which kind of signing we are supposed to do
-		if ( toolProxyBinding != null ) {
+		Long toolSHA256 = getLong(tool.get(LTIService.LTI_SHA256));
+		Long contentSHA256 = getLong(content.get(LTIService.LTI_SHA256));
+		if ( toolSHA256.equals(1L) || (toolSHA256.equals(2L) && contentSHA256.equals(1L)) ) {
+			ltiProps.put(OAuth.OAUTH_SIGNATURE_METHOD,"HMAC-SHA256");
+			log.debug("Launching with SHA256 Signing");
+		} else if ( toolProxyBinding != null ) {
 			if ( toolProxyBinding.enabledCapability( LTI2Messages.BASIC_LTI_LAUNCH_REQUEST, 
 				LTI2Caps.OAUTH_HMAC256) ) {
 
