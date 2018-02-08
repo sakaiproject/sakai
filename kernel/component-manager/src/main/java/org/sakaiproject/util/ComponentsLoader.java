@@ -129,7 +129,7 @@ public class ComponentsLoader
 		ClassLoader current = Thread.currentThread().getContextClassLoader();
 		ClassLoader loader = newPackageClassLoader(dir);
 
-		log.info("loadComponentPackage: " + dir);
+		log.info(dir.toString());
 
 		Thread.currentThread().setContextClassLoader(loader);
 
@@ -181,7 +181,7 @@ public class ComponentsLoader
 		}
 		catch (Exception e)
 		{
-			log.error("loadComponentPackage: exception loading: " + xml + " : " + e, e);
+			log.error("exception loading: " + xml + " : " + e, e);
 		}
 		finally
 		{
