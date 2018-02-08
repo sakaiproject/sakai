@@ -410,6 +410,32 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
     }
 
     @Test
+    public void getDeletedAssignmentsForContext() {
+        String context = UUID.randomUUID().toString();
+        Assignment assignment = createNewAssignment(context);
+        String stringRef = AssignmentReferenceReckoner.reckoner().context(assignment.getContext()).subtype("a").id(assignment.getId()).reckon().getReference();
+        when(securityService.unlock(AssignmentServiceConstants.SECURE_REMOVE_ASSIGNMENT, stringRef)).thenReturn(true);
+        //The assignment list should contain the newly created element
+        Collection<Assignment> assignmentCollection = assignmentService.getAssignmentsForContext(context);
+        Assert.assertNotNull(assignmentCollection);
+        Assert.assertEquals(1, assignmentCollection.size());
+        //Soft delete the assignment
+        try{
+            assignmentService.softDeleteAssignment(assignment);
+        } catch (PermissionException e) {
+            Assert.fail("Get Deleted Assignments For context");
+        }
+        //The assignment list should not contain the assignment because it's deleted
+        assignmentCollection = assignmentService.getAssignmentsForContext(context);
+        Assert.assertNotNull(assignmentCollection);
+        Assert.assertEquals(0, assignmentCollection.size());
+        //The assignment list should contain the assignment because it's deleted
+        Collection<Assignment> deletedAssignmentCollection = assignmentService.getDeletedAssignmentsForContext(context);
+        Assert.assertNotNull(deletedAssignmentCollection);
+        Assert.assertEquals(1, deletedAssignmentCollection.size());
+    }
+
+    @Test
     public void duplicateAssignment() throws IdUnusedException {
         // Setup a new Assignment
         String context = UUID.randomUUID().toString();

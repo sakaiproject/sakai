@@ -588,6 +588,25 @@ ASN.checkEnableRemove = function()
     document.getElementById( "btnRemove" ).className = (selected ? "active" : "" );
 };
 
+ASN.checkEnableRestore = function()
+{
+    var selected = false;
+    var checkboxes = document.getElementsByName( "selectedAssignments" );
+    for( var i = 0; i < checkboxes.length; i++ )
+    {
+        if( checkboxes[i].checked )
+        {
+            selected = true;
+            break;
+        }
+    }
+
+    document.getElementById( "btnRestore" ).disabled = !selected;
+    document.getElementById( "btnRestore" ).className = (selected ? "active" : "" );
+    document.getElementById( "btnHardRemove" ).disabled = !selected;
+    document.getElementById( "btnHardRemove" ).className = (selected ? "active" : "" );
+};
+
 ASN.toggleResubmitTimePanel = function()
 {
     if( document.getElementById( "allowResubmitNumber" ).value !== 0 && document.getElementById( "allowResubmitTime" ) !== null )
