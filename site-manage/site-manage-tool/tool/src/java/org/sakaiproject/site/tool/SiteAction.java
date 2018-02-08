@@ -1202,6 +1202,8 @@ public class SiteAction extends PagedResourceActionII {
 
 		// SAK-24423 - remove joinable site settings from the state
 		JoinableSiteSettings.removeJoinableSiteSettingsFromState( state );
+		
+		state.removeAttribute(STATE_STATE_FROM_ARCHIVE);
 
 	} // cleanState
 
