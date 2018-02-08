@@ -1,5 +1,16 @@
 <?xml version="1.0"?>
 <project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+  <!-- Include Sakai OSS parent, includes information for release management and project information common to all projects --> 
+  <parent>
+      <groupId>org.sakaiproject</groupId>
+      <artifactId>oss-parent</artifactId>
+      <version>1</version>
+      <relativePath></relativePath>
+  </parent>
+
+  <!-- Sakai Master defines all property versions and dependencyManagement used in Sakai -->
+
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.sakaiproject</groupId>
   <artifactId>master</artifactId>
@@ -7,70 +18,6 @@
   <name>Sakai Master</name>
   <description>Corporate POM for the Sakai Open Source Collaborative Learning Environment/Learning Management System</description>
   <version>12-SNAPSHOT</version>
-  <url>http://sakaiproject.org</url>
-  <organization>
-    <name>Sakai Project</name>
-    <url>http://sakaiproject.org/</url>
-  </organization>
-  <inceptionYear>2003</inceptionYear>
-  <developers>
-      <developer>
-          <id>sakai-core-team</id>
-          <name>Sakai Core Team</name>
-          <email>sakai-core-team@sakaiproject.org</email>
-          <url>http://sakaiproject.org</url>
-          <organization>Apereo</organization>
-          <organizationUrl>http://apereo.org</organizationUrl>
-      </developer>
-  </developers>
-  <issueManagement>
-    <system>jira</system>
-    <url>http://jira.sakaiproject.org/browse/SAK</url>
-  </issueManagement>
-  <ciManagement>
-    <system>continuum</system>
-    <notifiers>
-      <notifier>
-        <type>mail</type>
-        <address>builds@collab.sakaiproject.org</address>
-      </notifier>
-    </notifiers>
-  </ciManagement>
-
-  <mailingLists>
-    <mailingList>
-      <name>Sakai Developer List</name>
-      <subscribe>http://collab.sakaiproject.org/mailman/listinfo/sakai-dev</subscribe>
-      <unsubscribe>sakai-dev-unsubscribe@collab.sakaiproject.org</unsubscribe>
-      <post>sakai-dev@collab.sakaiproject.org</post>
-      <archive>http://news.gmane.org/group/gmane.comp.cms.sakai.dev/last=/force_load=t</archive>
-    </mailingList>
-    <mailingList>
-      <name>Sakai User List</name>
-      <subscribe>http://collab.sakaiproject.org/mailman/listinfo/sakai-user</subscribe>
-      <unsubscribe>sakai-user-unsubscribe@collab.sakaiproject.org</unsubscribe>
-      <post>sakai-user@collab.sakaiproject.org</post>
-      <archive>http://news.gmane.org/group/gmane.comp.cms.sakai.user/last=/force_load=t</archive>
-    </mailingList>
-    <mailingList>
-      <name>Sakai SCM List</name>
-      <subscribe>http://collab.sakaiproject.org/mailman/listinfo/source</subscribe>
-      <unsubscribe>source-unsubscribe@collab.sakaiproject.org</unsubscribe>
-      <post>source@collab.sakaiproject.org</post>
-    </mailingList>
-  </mailingLists>
-  <licenses>
-    <license>
-      <name>Educational Community License, Version 2.0</name>
-      <url>http://www.opensource.org/licenses/ecl2.txt</url>
-      <distribution>repo</distribution>
-    </license>
-  </licenses>
-  <scm>
-    <url>https://github.com/sakaiproject/sakai</url>
-    <connection>scm:git:git://github.com/sakaiproject/sakai.git</connection>
-    <developerConnection>scm:git:ssh://git@github.com/sakaiproject/sakai.git</developerConnection>
-  </scm>
 
   <properties>
     <sakai.version>12-SNAPSHOT</sakai.version>
@@ -176,63 +123,6 @@
       </activation>
       <build>
         <plugins>
-          <plugin>
-            <!-- https://github.com/sonatype/nexus-maven-plugins/tree/master/staging/maven-plugin -->
-            <groupId>org.sonatype.plugins</groupId>
-            <artifactId>nexus-staging-maven-plugin</artifactId>
-            <version>1.6.2</version>
-            <extensions>true</extensions>
-            <configuration>
-              <serverId>ossrh</serverId>
-              <nexusUrl>https://oss.sonatype.org/</nexusUrl>
-              <autoReleaseAfterClose>false</autoReleaseAfterClose>
-              <keepStagingRepositoryOnCloseRuleFailure>true</keepStagingRepositoryOnCloseRuleFailure>
-              <skipStagingRepositoryClose>true</skipStagingRepositoryClose>
-            </configuration>
-          </plugin>
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-gpg-plugin</artifactId>
-            <version>1.5</version>
-            <executions>
-              <execution>
-                <id>sign-artifacts</id>
-                <phase>verify</phase>
-                <goals>
-                  <goal>sign</goal>
-                </goals>
-              </execution>
-            </executions>
-          </plugin>
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-source-plugin</artifactId>
-            <executions>
-              <execution>
-                <id>attach-sources</id>
-                <goals>
-                  <goal>jar-no-fork</goal>
-                </goals>
-              </execution>
-            </executions>
-          </plugin>
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-javadoc-plugin</artifactId>
-            <version>2.10.3</version>
-            <executions>
-              <execution>
-                <id>attach-javadocs</id>
-                <goals>
-                  <goal>jar</goal>
-                </goals>
-                <configuration>
-                  <additionalparam>-Xdoclint:none</additionalparam>
-                  <failOnError>false</failOnError>
-                </configuration>
-              </execution>
-            </executions>
-          </plugin>
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-compiler-plugin</artifactId>
@@ -1991,11 +1881,6 @@
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-release-plugin</artifactId>
-          <version>2.5.2</version>
-        </plugin>
-        <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-clean-plugin</artifactId>
           <version>2.6.1</version>
         </plugin>
@@ -2232,17 +2117,6 @@
         <artifactId>maven-war-plugin</artifactId>
         <configuration>
           <warSourceDirectory>${basedir}/src/webapp</warSourceDirectory>
-        </configuration>
-      </plugin>
-      <plugin>
-        <inherited>true</inherited>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-release-plugin</artifactId>
-        <configuration>
-          <!--tagbase>https://source.sakaiproject.org/svn-test/sakai/tags</tagbase-->
-          <preparationGoals>clean verify install</preparationGoals>
-          <autoVersionSubmodules>true</autoVersionSubmodules>
-          <useReleaseProfile>true</useReleaseProfile>
         </configuration>
       </plugin>
       <plugin>
