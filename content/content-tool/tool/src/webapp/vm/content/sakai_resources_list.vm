@@ -482,7 +482,7 @@
 								#end
 							#end 
 							#if ($item.description !="" && $item.description)
-								<a class="fa fa-info-circle" tabindex="0" data-placement="bottom" role="button" data-toggle="popover" data-trigger="focus" data-content="$validator.escapeHtmlTextarea($item.description)"></a>
+								<a class="fa fa-info-circle" tabindex="0" data-placement="bottom" role="button" data-toggle="popover" data-trigger="focus" data-html="true" data-content="$validator.convertNewLineToHtml($item.description)"></a>
 							#end
 					</td>
 					<td headers="actions1"  style="white-space:nowrap;vertical-align:middle"  class="attach">
