@@ -111,7 +111,9 @@ public class ItemText
 
   public List<AnswerIfc> getAnswerArray() {
     List<AnswerIfc> list = new ArrayList<AnswerIfc>();
-    list.addAll(answerSet);
+    if (answerSet != null) {
+      list.addAll(answerSet);
+    }
     return list;
   }
 
