@@ -30,6 +30,7 @@
           <modules>
               <module>ckeditor-autosave</module>
               <module>ckeditor-wordcount</module>
+              <module>ckeditor-image2</module>
           </modules>
       </profile>
       <profile>
