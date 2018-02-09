@@ -20,47 +20,52 @@
  *
  **********************************************************************************/
 
-package org.sakaiproject.rubrics.model;
+package org.sakaiproject.rubrics.logic.api.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import javax.persistence.CollectionTable;
+import javax.persistence.Column;
+import javax.persistence.ElementCollection;
 import javax.persistence.Embeddable;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
-import javax.persistence.PostLoad;
-import javax.persistence.PostUpdate;
+import javax.persistence.MapKeyColumn;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import java.io.Serializable;
+import java.util.Map;
 
 @Data
 @NoArgsConstructor
-@AllArgsConstructor
+@AllArgsConstructor(suppressConstructorProperties = true) // See https://jira.spring.io/browse/DATAREST-884
 @Entity
-@Table(name = "rbc_rating")
-@JsonPropertyOrder({"id", "title", "description", "points", "metadata"})
-public class Rating extends BaseResource<Rating.Metadata> implements Serializable, Cloneable {
+@Table(name = "rbc_tool_item_rbc_assoc")
+@JsonPropertyOrder({"id", "toolId", "itemId", "rubricId", "parameters", "metadata"})
+public class ToolItemRubricAssociation extends BaseResource<ToolItemRubricAssociation.Metadata>
+        implements Serializable, Cloneable  {
 
     @Id
-    @SequenceGenerator(name="rbc_rat_seq", sequenceName ="rbc_rat_seq")
-    @GeneratedValue(strategy = GenerationType.AUTO, generator = "rbc_rat_seq")
+    @SequenceGenerator(name="rbc_tool_item_rbc_seq", sequenceName = "rbc_tool_item_rbc_seq")
+    @GeneratedValue(strategy = GenerationType.AUTO, generator = "rbc_tool_item_rbc_seq")
     private Long id;
 
-    private String title;
-    private String description;
-    private Integer points;
+    private String toolId;
+    private String itemId;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JsonIgnore
-    private Criterion criterion;
+    @Column(name = "rubric_id")
+    private Long rubricId;
+
+    @ManyToOne
+    @JoinColumn(name = "rubric_id", referencedColumnName = "id", insertable = false, updatable = false)
+    private Rubric rubric;
 
     public Metadata getMetadata() {
         if (this.metadata == null) {
@@ -70,27 +75,19 @@ public class Rating extends BaseResource<Rating.Metadata> implements Serializabl
     }
 
     @Embeddable
-    public static class Metadata extends BaseMetadata {  }
+    public static class Metadata extends BaseMetadata { }
 
-    @PostLoad
-    @PostUpdate
-    public void determineSharedParentStatus() {
-        Criterion criterion = getCriterion();
-        if (criterion != null) {
-            Rubric rubric = criterion.getRubric();
-            if (rubric != null && rubric.getMetadata().isShared()) {
-                getMetadata().setShared(true);
-            }
-        }
+    @ElementCollection
+    @CollectionTable(name = "rbc_tool_item_rbc_assoc_conf", joinColumns = @JoinColumn(name = "association_id", referencedColumnName = "id"))
+    @MapKeyColumn(name = "parameter_label")
+    @Column(name="parameters")
+    private Map<String, Boolean> parameters;
+
+    public Map<String, Boolean> getParameters() {
+        return parameters;
     }
 
-    @Override
-    public Rating clone() throws CloneNotSupportedException {
-        Rating clonedRating = new Rating();
-        clonedRating.setId(null);
-        clonedRating.setTitle(this.title);
-        clonedRating.setDescription(this.description);
-        clonedRating.setPoints(this.points);
-        return clonedRating;
+    public Boolean getParameter(String param) {
+        return parameters.get(param);
     }
 }

@@ -20,22 +20,27 @@
  *
  **********************************************************************************/
 
-package org.sakaiproject.rubrics.model;
+package org.sakaiproject.rubrics.logic.api.model;
 
-import lombok.AllArgsConstructor;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
-import java.io.Serializable;
+import javax.persistence.MappedSuperclass;
 import java.time.Instant;
 
+/**
+ * Base type for representing the core metadata common to all resources.
+ */
+@MappedSuperclass
 @Data
-@NoArgsConstructor
-@AllArgsConstructor
-public class Rating implements Serializable {
+public class BaseMetadata {
 
-    private long id;
-	private String title;
-	private String description;
-	private int points;
+    protected Instant created;
+    protected Instant modified;
+    protected String ownerId;
+    protected String ownerType;
+    protected String creatorId;
+
+    @JsonIgnore
+    protected boolean shared;
 }

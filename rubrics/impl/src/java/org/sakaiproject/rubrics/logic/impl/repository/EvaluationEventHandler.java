@@ -20,7 +20,7 @@
  *
  **********************************************************************************/
 
-package org.sakaiproject.rubrics.repository;
+package org.sakaiproject.rubrics.logic.impl.repository;
 
 import java.time.Instant;
 import java.util.Collections;

@@ -41,8 +41,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -58,20 +56,16 @@ import com.auth0.jwt.algorithms.Algorithm;
 import lombok.Getter;
 import lombok.Setter;
 
-import net.sf.ehcache.Cache;
-
-import org.apache.log4j.Logger;
-
 import org.sakaiproject.authz.api.FunctionManager;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.event.api.EventTrackingService;
-import org.sakaiproject.rubrics.model.Criterion;
-import org.sakaiproject.rubrics.model.Evaluation;
-import org.sakaiproject.rubrics.model.Rating;
-import org.sakaiproject.rubrics.model.Rubric;
-import org.sakaiproject.rubrics.model.ToolItemRubricAssociation;
+import org.sakaiproject.rubrics.logic.api.model.Criterion;
+import org.sakaiproject.rubrics.logic.api.model.Evaluation;
+import org.sakaiproject.rubrics.logic.api.model.Rating;
+import org.sakaiproject.rubrics.logic.api.model.Rubric;
+import org.sakaiproject.rubrics.logic.api.model.ToolItemRubricAssociation;
 import org.sakaiproject.rubrics.logic.api.RubricsService;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.SessionManager;
@@ -146,10 +140,6 @@ public class RubricsServiceImpl implements RubricsService {
 
     @Getter @Setter
     private AuthzGroupService authzGroupService;
-
-    @Setter
-    private Cache cache;
-
 
     public void init() {
         if (StringUtils.isBlank(serverConfigurationService.getString(RUBRICS_TOKEN_SIGNING_SHARED_SECRET_PROPERTY))) {

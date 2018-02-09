@@ -23,9 +23,9 @@
 package org.sakaiproject.rubrics;
 
 import lombok.Data;
-import org.sakaiproject.rubrics.model.Criterion;
-import org.sakaiproject.rubrics.model.Rating;
-import org.sakaiproject.rubrics.model.Rubric;
+import org.sakaiproject.rubrics.logic.api.model.Criterion;
+import org.sakaiproject.rubrics.logic.api.model.Rating;
+import org.sakaiproject.rubrics.logic.api.model.Rubric;
 
 import javax.annotation.PostConstruct;
 import javax.validation.constraints.NotNull;
