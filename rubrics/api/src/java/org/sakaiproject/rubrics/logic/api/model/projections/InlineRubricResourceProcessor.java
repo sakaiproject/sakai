@@ -13,21 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.sakaiproject.rubrics.repository;
+package org.sakaiproject.rubrics.logic.api.model.projections;
 
-import org.sakaiproject.rubrics.model.Rubric;
 import org.springframework.hateoas.Resource;
 import org.springframework.hateoas.ResourceProcessor;
+import org.springframework.stereotype.Component;
 
 /**
- * <em>WARNING: Must keep {@link org.sakaiproject.rubrics.model.projections.InlineRubricResourceProcessor} in sync with
- * any changes to this class.
+ * This redundancy with {@link org.sakaiproject.rubrics.logic.impl.repository.RubricResourceProcessor} is an unfortunate necessity
+ * for what is considered an edge case by the Spring Data REST team to avoid other complications if they allowed the
+ * primary entity ResourceProcessor to be used to serialize a projection.
+ * See https://jira.spring.io/browse/DATAREST-713
  */
-public class RubricResourceProcessor implements ResourceProcessor<Resource<Rubric>> {
+public class InlineRubricResourceProcessor implements ResourceProcessor<Resource<InlineRubric>> {
 
     @Override
-    public Resource<Rubric> process(Resource<Rubric> rubricResource) {
-        Rubric rubric = rubricResource.getContent();
+    public Resource<InlineRubric> process(Resource<InlineRubric> rubricResource) {
+        InlineRubric rubric = rubricResource.getContent();
         if (rubric.getToolItemAssociations() != null && rubric.getToolItemAssociations().size() > 0) {
             rubric.getMetadata().setLocked(true);
         }

@@ -20,9 +20,9 @@
  *
  **********************************************************************************/
 
-package org.sakaiproject.rubrics.repository;
+package org.sakaiproject.rubrics.logic.impl.repository;
 
-import org.sakaiproject.rubrics.model.BaseResource;
+import org.sakaiproject.rubrics.logic.api.model.BaseResource;
 import org.springframework.data.repository.NoRepositoryBean;
 import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.data.repository.query.Param;

@@ -22,18 +22,18 @@
 
 package org.sakaiproject.rubrics.security;
 
-import org.sakaiproject.rubrics.model.BaseResource;
-import org.sakaiproject.rubrics.model.Criterion;
-import org.sakaiproject.rubrics.model.Evaluation;
-import org.sakaiproject.rubrics.model.Rating;
-import org.sakaiproject.rubrics.model.Rubric;
-import org.sakaiproject.rubrics.model.ToolItemRubricAssociation;
-import org.sakaiproject.rubrics.repository.BaseResourceRepository;
-import org.sakaiproject.rubrics.repository.CriterionRepository;
-import org.sakaiproject.rubrics.repository.EvaluationRepository;
-import org.sakaiproject.rubrics.repository.RatingRepository;
-import org.sakaiproject.rubrics.repository.RubricRepository;
-import org.sakaiproject.rubrics.repository.ToolItemRubricAssociationRepository;
+import org.sakaiproject.rubrics.logic.api.model.BaseResource;
+import org.sakaiproject.rubrics.logic.api.model.Criterion;
+import org.sakaiproject.rubrics.logic.api.model.Evaluation;
+import org.sakaiproject.rubrics.logic.api.model.Rating;
+import org.sakaiproject.rubrics.logic.api.model.Rubric;
+import org.sakaiproject.rubrics.logic.api.model.ToolItemRubricAssociation;
+import org.sakaiproject.rubrics.logic.impl.repository.BaseResourceRepository;
+import org.sakaiproject.rubrics.logic.impl.repository.CriterionRepository;
+import org.sakaiproject.rubrics.logic.impl.repository.EvaluationRepository;
+import org.sakaiproject.rubrics.logic.impl.repository.RatingRepository;
+import org.sakaiproject.rubrics.logic.impl.repository.RubricRepository;
+import org.sakaiproject.rubrics.logic.impl.repository.ToolItemRubricAssociationRepository;
 import org.sakaiproject.rubrics.security.model.AuthenticatedRequestContext;
 import org.sakaiproject.rubrics.security.model.Role;
 import org.springframework.security.access.expression.SecurityExpressionRoot;

@@ -22,17 +22,20 @@
 
 package org.sakaiproject.rubrics;
 
+import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.component.impl.SpringCompMgr;
 import org.springframework.boot.Banner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.web.support.SpringBootServletInitializer;
+import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
 @SpringBootApplication
-@ComponentScan("com.sakaiproject.rubrics")
-@EnableJpaRepositories("com.sakaiproject.rubrics.repository")
+@ComponentScan("org.sakaiproject.rubrics")
+//@EnableJpaRepositories("org.sakaiproject.rubrics.repository")
 public class App extends SpringBootServletInitializer {
 
     /**
@@ -43,13 +46,12 @@ public class App extends SpringBootServletInitializer {
      */
     @Override
     protected SpringApplicationBuilder configure(SpringApplicationBuilder application) {
-        SpringApplicationBuilder appBuilder = application.bannerMode(Banner.Mode.OFF).sources(App.class);
+        ConfigurableApplicationContext sakaiApplicationContext = ((SpringCompMgr) ComponentManager.getInstance()).getApplicationContext();
+        SpringApplicationBuilder appBuilder = application.parent(sakaiApplicationContext).bannerMode(Banner.Mode.OFF).sources(App.class);
         return appBuilder;
     }
 
     public static void main(String[] args) {
         SpringApplication.run(App.class, args);
     }
-
-
 }

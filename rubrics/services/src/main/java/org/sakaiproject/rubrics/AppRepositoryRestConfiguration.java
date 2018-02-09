@@ -22,11 +22,11 @@
 
 package org.sakaiproject.rubrics;
 
-import org.sakaiproject.rubrics.model.Criterion;
-import org.sakaiproject.rubrics.model.Evaluation;
-import org.sakaiproject.rubrics.model.Rating;
-import org.sakaiproject.rubrics.model.Rubric;
-import org.sakaiproject.rubrics.model.ToolItemRubricAssociation;
+import org.sakaiproject.rubrics.logic.api.model.Criterion;
+import org.sakaiproject.rubrics.logic.api.model.Evaluation;
+import org.sakaiproject.rubrics.logic.api.model.Rating;
+import org.sakaiproject.rubrics.logic.api.model.Rubric;
+import org.sakaiproject.rubrics.logic.api.model.ToolItemRubricAssociation;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.rest.core.config.RepositoryRestConfiguration;
 import org.springframework.data.rest.webmvc.config.RepositoryRestConfigurerAdapter;

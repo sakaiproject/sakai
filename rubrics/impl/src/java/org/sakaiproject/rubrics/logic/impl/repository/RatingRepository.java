@@ -20,9 +20,9 @@
  *
  **********************************************************************************/
 
-package org.sakaiproject.rubrics.repository;
+package org.sakaiproject.rubrics.logic.impl.repository;
 
-import org.sakaiproject.rubrics.model.Rating;
+import org.sakaiproject.rubrics.logic.api.model.Rating;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;

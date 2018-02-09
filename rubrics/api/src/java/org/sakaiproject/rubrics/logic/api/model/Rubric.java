@@ -20,7 +20,7 @@
  *
  **********************************************************************************/
 
-package org.sakaiproject.rubrics.model;
+package org.sakaiproject.rubrics.logic.api.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
