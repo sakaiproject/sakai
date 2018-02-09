@@ -20,7 +20,7 @@
  *
  **********************************************************************************/
 
-package org.sakaiproject.rubrics.repository.custom;
+package org.sakaiproject.rubrics.controller;
 
 import java.io.BufferedReader;
 import java.io.IOException;

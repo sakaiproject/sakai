@@ -17,8 +17,8 @@
     <modules>
         <module>api</module>
         <module>impl</module>
-        <module>tool</module>
-        <module>services</module>
+        <!--<module>tool</module>-->
+        <!--<module>services</module>-->
     </modules>
 
     <properties>

@@ -15,12 +15,12 @@
  */
 package org.sakaiproject.rubrics.security.model;
 
-import org.sakaiproject.rubrics.model.BaseResource;
-import org.sakaiproject.rubrics.model.Criterion;
-import org.sakaiproject.rubrics.model.Evaluation;
-import org.sakaiproject.rubrics.model.Rating;
-import org.sakaiproject.rubrics.model.Rubric;
-import org.sakaiproject.rubrics.model.ToolItemRubricAssociation;
+import org.sakaiproject.rubrics.logic.api.model.BaseResource;
+import org.sakaiproject.rubrics.logic.api.model.Criterion;
+import org.sakaiproject.rubrics.logic.api.model.Evaluation;
+import org.sakaiproject.rubrics.logic.api.model.Rating;
+import org.sakaiproject.rubrics.logic.api.model.Rubric;
+import org.sakaiproject.rubrics.logic.api.model.ToolItemRubricAssociation;
 
 import java.util.Arrays;
 import java.util.Collections;

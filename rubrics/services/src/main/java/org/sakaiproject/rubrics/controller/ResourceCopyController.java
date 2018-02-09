@@ -20,18 +20,18 @@
  *
  **********************************************************************************/
 
-package org.sakaiproject.rubrics.repository.custom;
+package org.sakaiproject.rubrics.controller;
 
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
+
 import org.sakaiproject.rubrics.RubricsConfiguration;
-import org.sakaiproject.rubrics.model.Criterion;
-import org.sakaiproject.rubrics.model.Rating;
-import org.sakaiproject.rubrics.model.Rubric;
-import org.sakaiproject.rubrics.repository.CriterionRepository;
-import org.sakaiproject.rubrics.repository.RatingRepository;
-import org.sakaiproject.rubrics.repository.RubricRepository;
+import org.sakaiproject.rubrics.logic.api.model.Criterion;
+import org.sakaiproject.rubrics.logic.api.model.Rating;
+import org.sakaiproject.rubrics.logic.api.model.Rubric;
+import org.sakaiproject.rubrics.logic.impl.repository.CriterionRepository;
+import org.sakaiproject.rubrics.logic.impl.repository.RatingRepository;
+import org.sakaiproject.rubrics.logic.impl.repository.RubricRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.repository.query.Param;
 import org.springframework.data.rest.webmvc.RepositoryRestController;

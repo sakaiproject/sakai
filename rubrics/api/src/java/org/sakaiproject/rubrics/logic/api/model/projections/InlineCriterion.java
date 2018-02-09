@@ -20,27 +20,26 @@
  *
  **********************************************************************************/
 
-package org.sakaiproject.rubrics.model;
+package org.sakaiproject.rubrics.logic.api.model.projections;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import lombok.Data;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import org.sakaiproject.rubrics.logic.api.model.Criterion;
+import org.sakaiproject.rubrics.logic.api.model.Rating;
+import org.springframework.data.rest.core.config.Projection;
 
-import javax.persistence.MappedSuperclass;
-import java.time.Instant;
+import java.util.List;
 
-/**
- * Base type for representing the core metadata common to all resources.
- */
-@MappedSuperclass
-@Data
-public class BaseMetadata {
+@Projection(name = "inlineCriterion", types = { Criterion.class })
+@JsonPropertyOrder({"id", "title", "description", "metadata", "ratings"})
+public interface InlineCriterion {
 
-    protected Instant created;
-    protected Instant modified;
-    protected String ownerId;
-    protected String ownerType;
-    protected String creatorId;
+    Long getId();
 
-    @JsonIgnore
-    protected boolean shared;
+    String getTitle();
+
+    String getDescription();
+
+    List<Rating> getRatings();
+
+    Criterion.Metadata getMetadata();
 }

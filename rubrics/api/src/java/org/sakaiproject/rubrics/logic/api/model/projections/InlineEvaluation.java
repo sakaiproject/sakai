@@ -20,11 +20,11 @@
  *
  **********************************************************************************/
 
-package org.sakaiproject.rubrics.model.projections;
+package org.sakaiproject.rubrics.logic.api.model.projections;
 
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import org.sakaiproject.rubrics.model.Evaluation;
-import org.sakaiproject.rubrics.model.ToolItemRubricAssociation;
+import org.sakaiproject.rubrics.logic.api.model.Evaluation;
+import org.sakaiproject.rubrics.logic.api.model.ToolItemRubricAssociation;
 import org.springframework.data.rest.core.config.Projection;
 
 import java.util.List;

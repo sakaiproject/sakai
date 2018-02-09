@@ -26,7 +26,7 @@ package org.sakaiproject.rubrics.logic.api;
 import java.util.HashMap;
 import java.util.Optional;
 
-import org.sakaiproject.rubrics.model.ToolItemRubricAssociation;
+import org.sakaiproject.rubrics.logic.api.model.ToolItemRubricAssociation;
 
 /**
  *

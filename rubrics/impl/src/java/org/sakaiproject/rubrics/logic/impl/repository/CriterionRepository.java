@@ -20,35 +20,27 @@
  *
  **********************************************************************************/
 
-package org.sakaiproject.rubrics.repository;
+package org.sakaiproject.rubrics.logic.impl.repository;
 
-import org.sakaiproject.rubrics.model.Rubric;
+import org.sakaiproject.rubrics.logic.api.model.Criterion;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
-import org.springframework.data.rest.core.annotation.RestResource;
 import org.springframework.security.access.prepost.PreAuthorize;
 
-import java.util.List;
-
-@RepositoryRestResource(collectionResourceRel = "rubrics", path = "rubrics")
-public interface RubricRepository extends BaseResourceRepository<Rubric, Long> {
+@RepositoryRestResource(collectionResourceRel = "criterions", path = "criterions")
+public interface CriterionRepository extends BaseResourceRepository<Criterion, Long> {
 
     @Override
-    @PreAuthorize("canRead(#id, 'Rubric')")
-    Rubric findOne(Long id);
+    @PreAuthorize("canRead(#id, 'Criterion')")
+    Criterion findOne(Long id);
 
     @Override
-    @Query("select resource from Rubric resource where " + QUERY_CONTEXT_CONSTRAINT)
-    Page<Rubric> findAll(Pageable pageable);
+    @Query("select resource from Criterion resource where " + QUERY_CONTEXT_CONSTRAINT)
+    Page<Criterion> findAll(Pageable pageable);
 
     @Override
-    @PreAuthorize("canWrite(#id, 'Rubric')")
+    @PreAuthorize("canWrite(#id, 'Criterion')")
     void delete(Long id);
-
-    @RestResource(path = "shared-only", rel = "shared-only")
-    @PreAuthorize("hasRole('ROLE_EDITOR')")
-    @Query("select r from Rubric r where r.metadata.shared = true order by r.title")
-    List<Rubric> getAllSharedRubrics();
 }
