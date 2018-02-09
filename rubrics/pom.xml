@@ -17,8 +17,7 @@
     <modules>
         <module>api</module>
         <module>impl</module>
-        <!--<module>tool</module>-->
-        <!--<module>services</module>-->
+        <module>tool</module>
     </modules>
 
     <properties>
@@ -29,8 +28,9 @@
         <dependencies>
             <dependency>
                 <groupId>${project.groupId}</groupId>
-                <artifactId>rubrics-service-client-impl</artifactId>
+                <artifactId>rubrics-service-api</artifactId>
                 <version>${project.version}</version>
+                <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>org.apache.wicket</groupId>
