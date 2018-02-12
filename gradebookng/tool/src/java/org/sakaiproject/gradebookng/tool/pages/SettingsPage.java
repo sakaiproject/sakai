@@ -215,6 +215,11 @@ public class SettingsPage extends BasePage {
 
 				setResponsePage(responsePage);
 			}
+
+			@Override
+			public void onError(final AjaxRequestTarget target, final Form<?> form) {
+				target.add(SettingsPage.this.feedbackPanel);
+			}
 		};
 		form.add(submit);
 
