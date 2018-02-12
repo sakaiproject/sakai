@@ -49,6 +49,7 @@ import org.apache.wicket.model.ResourceModel;
 import org.sakaiproject.gradebookng.business.FirstNameComparator;
 import org.sakaiproject.gradebookng.business.model.GbUser;
 import org.sakaiproject.gradebookng.business.util.FormatHelper;
+import org.sakaiproject.gradebookng.business.util.SettingsHelper;
 import org.sakaiproject.gradebookng.tool.component.GbAjaxButton;
 import org.sakaiproject.gradebookng.tool.model.GbGradingSchemaEntry;
 import org.sakaiproject.gradebookng.tool.model.GbSettings;
@@ -77,6 +78,7 @@ public class SettingsGradingSchemaPanel extends BasePanel implements IFormModelU
 	DescriptiveStatistics statistics;
 	Label modifiedSchema;
 	Label unsavedSchema;
+	Label duplicateEntries;
 
 	/**
 	 * This is the currently PERSISTED grade mapping id that is persisted for this gradebook
@@ -203,6 +205,11 @@ public class SettingsGradingSchemaPanel extends BasePanel implements IFormModelU
 		this.unsavedSchema.setOutputMarkupPlaceholderTag(true);
 		settingsGradingSchemaPanel.add(this.unsavedSchema);
 
+		// warning for duplicates
+		this.duplicateEntries = new Label("duplicateEntries", new ResourceModel("settingspage.gradingschema.duplicates.warning"));
+		this.duplicateEntries.setVisible(false);
+		this.duplicateEntries.setOutputMarkupPlaceholderTag(true);
+		settingsGradingSchemaPanel.add(this.duplicateEntries);
 
 		// render the grading schema table
 		this.schemaWrap = new WebMarkupContainer("schemaWrap");
@@ -404,7 +411,7 @@ public class SettingsGradingSchemaPanel extends BasePanel implements IFormModelU
 					getGradingSchema(this.currentGradeMappingId).getDefaultBottomPercents());
 		}
 
-		return asList(bottomPercents);
+		return SettingsHelper.asList(bottomPercents);
 	}
 
 	public boolean isExpanded() {
@@ -566,27 +573,6 @@ public class SettingsGradingSchemaPanel extends BasePanel implements IFormModelU
 		return gpaScoresMap;
 	}
 
-	/**
-	 * Convert map into list of objects which is easier to work with in the views
-	 *
-	 * @param bottomPercents map
-	 * @return list of {@link GbGradingSchemaEntry}
-	 */
-	private List<GbGradingSchemaEntry> asList(final Map<String, Double> bottomPercents) {
-		final List<GbGradingSchemaEntry> rval = new ArrayList<>();
-		bottomPercents.forEach((k, v) -> rval.add(new GbGradingSchemaEntry(k, v)));
-		return rval;
-	}
-
-	/**
-	 * Convert list of {@link GbGradingSchemaEntry} into a map. Note that new entries may be null so they need to be excluded
-	 */
-	private Map<String, Double> asMap(final List<GbGradingSchemaEntry> gbGradingSchemaEntries) {
-		return gbGradingSchemaEntries.stream()
-				.filter(e -> StringUtils.isNotBlank(e.getGrade()))
-				.filter(e -> e.getMinPercent() != null)
-				.collect(Collectors.toMap(GbGradingSchemaEntry::getGrade, GbGradingSchemaEntry::getMinPercent));
-	}
 
 	/**
 	 * Get the total number of course grades, excluding empty grades
@@ -634,7 +620,7 @@ public class SettingsGradingSchemaPanel extends BasePanel implements IFormModelU
 
 		//get current values
 		final List<GbGradingSchemaEntry> currentValues = SettingsGradingSchemaPanel.this.model.getObject().getGradingSchemaEntries();
-		final Map<String, Double> currentGradeMapping = new HashMap<>(asMap(currentValues));
+		final Map<String, Double> currentGradeMapping = new HashMap<>(SettingsHelper.asMap(currentValues));
 
 		// get stored values
 		final GradeMappingDefinition storedValues = getGradingSchema(this.currentGradeMappingId);
@@ -723,11 +709,15 @@ public class SettingsGradingSchemaPanel extends BasePanel implements IFormModelU
 	 *
 	 * @param target
 	 */
-	public void refreshCourseGradeChart(final AjaxRequestTarget target) {
+	private void refreshCourseGradeChart(final AjaxRequestTarget target) {
 		// we need the current data from model (sorted) but in JSON form
 		final List<GbGradingSchemaEntry> schemaList = getGradingSchemaList();
 
-		Map<String, Double> schemaMap = asMap(schemaList);
+		// add warning for duplicates
+		this.duplicateEntries.setVisible(SettingsHelper.hasDuplicates(schemaList));
+		target.add(this.duplicateEntries);
+
+		Map<String, Double> schemaMap = SettingsHelper.asMap(schemaList);
 		schemaMap = GradeMappingDefinition.sortGradeMapping(schemaMap);
 		final Gson gson = new GsonBuilder().create();
 		final String schemaJson = gson.toJson(schemaMap);
