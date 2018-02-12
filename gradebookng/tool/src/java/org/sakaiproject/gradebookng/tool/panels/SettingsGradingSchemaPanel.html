@@ -14,7 +14,6 @@
 		</div>
 		<div wicket:id="settingsGradingSchemaPanel" id="settingsGradingSchema" class="panel-collapse collapse" role="tabpanel" aria-labelledby="settingsGradingSchemaHeader">
 			<div class="panel-body">
-				
 
 				<div class="container-fluid">
 					<div class="row">
@@ -27,6 +26,9 @@
 									<option>Letter Grade</option>
 								</select>
 							</div>
+							
+							<!--  message about duplicates -->
+							<div class="messageError" wicket:id="duplicateEntries">Duplicates found.</div>
 						
 							<!--  schema table -->
 							<div wicket:id="schemaWrap">
