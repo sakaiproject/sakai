@@ -30,6 +30,7 @@ import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.ajax.AjaxEventBehavior;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
+import org.apache.wicket.ajax.markup.html.form.AjaxButton;
 import org.apache.wicket.behavior.AttributeAppender;
 import org.apache.wicket.markup.head.IHeaderResponse;
 import org.apache.wicket.markup.head.OnLoadHeaderItem;
@@ -227,6 +228,27 @@ public class SettingsGradingSchemaPanel extends BasePanel implements IFormModelU
 				minPercent.add(new GradingSchemaChangeBehaviour(GradingSchemaChangeBehaviour.ONCHANGE));
 				grade.add(new GradingSchemaChangeBehaviour(GradingSchemaChangeBehaviour.ONCHANGE));
 
+				// remove button
+				final AjaxButton remove = new AjaxButton("remove") {
+					private static final long serialVersionUID = 1L;
+
+					@Override
+					public void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
+
+						// remove this entry from the model data
+						final GbGradingSchemaEntry current = item.getModelObject();
+						SettingsGradingSchemaPanel.this.model.getObject().getGradingSchemaEntries().remove(current);
+
+						// repaint table
+						target.add(SettingsGradingSchemaPanel.this.schemaWrap);
+
+						// repaint chart
+						refreshCourseGradeChart(target);
+					}
+
+				};
+				remove.setDefaultFormProcessing(false);
+				item.add(remove);
 			}
 		};
 		this.schemaView.setOutputMarkupId(true);
@@ -643,7 +665,7 @@ public class SettingsGradingSchemaPanel extends BasePanel implements IFormModelU
 		protected void onUpdate(final AjaxRequestTarget t) {
 			this.target = t;
 			refreshGradingSchemaTable();
-			refreshCourseGradeChart();
+			refreshCourseGradeChart(this.target);
 			refreshMessages();
 		}
 
@@ -660,25 +682,6 @@ public class SettingsGradingSchemaPanel extends BasePanel implements IFormModelU
 			this.target.add(SettingsGradingSchemaPanel.this.schemaWrap);
 		}
 
-		/**
-		 * Refresh the course grade chart
-		 *
-		 * @param target
-		 */
-		private void refreshCourseGradeChart() {
-			// we need the current data from model (sorted) but in JSON form
-			final List<GbGradingSchemaEntry> schemaList = getGradingSchemaList();
-
-			Map<String, Double> schemaMap = asMap(schemaList);
-			schemaMap = GradeMappingDefinition.sortGradeMapping(schemaMap);
-			final Gson gson = new GsonBuilder().create();
-			final String schemaJson = gson.toJson(schemaMap);
-
-			final String siteId = SettingsGradingSchemaPanel.this.businessService.getCurrentSiteId();
-
-			// TODO this could be a wicket component instead of Javascript
-			this.target.appendJavaScript("renderChart('" + siteId + "', '" + FormatHelper.encode(schemaJson) + "')");
-		}
 
 		/**
 		 * Refresh messages
@@ -713,6 +716,26 @@ public class SettingsGradingSchemaPanel extends BasePanel implements IFormModelU
 	private GbGradingSchemaEntry stubGradingSchemaMapping() {
 		final GbGradingSchemaEntry entry = new GbGradingSchemaEntry(null, null);
 		return entry;
+	}
+
+	/**
+	 * Refresh the course grade chart
+	 *
+	 * @param target
+	 */
+	public void refreshCourseGradeChart(final AjaxRequestTarget target) {
+		// we need the current data from model (sorted) but in JSON form
+		final List<GbGradingSchemaEntry> schemaList = getGradingSchemaList();
+
+		Map<String, Double> schemaMap = asMap(schemaList);
+		schemaMap = GradeMappingDefinition.sortGradeMapping(schemaMap);
+		final Gson gson = new GsonBuilder().create();
+		final String schemaJson = gson.toJson(schemaMap);
+
+		final String siteId = SettingsGradingSchemaPanel.this.businessService.getCurrentSiteId();
+
+		// TODO this could be a wicket component instead of Javascript
+		target.appendJavaScript("renderChart('" + siteId + "', '" + FormatHelper.encode(schemaJson) + "')");
 	}
 
 }
