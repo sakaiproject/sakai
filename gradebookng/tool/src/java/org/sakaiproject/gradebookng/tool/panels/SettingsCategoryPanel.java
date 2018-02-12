@@ -651,7 +651,7 @@ public class SettingsCategoryPanel extends BasePanel {
 	private CategoryDefinition stubCategoryDefinition() {
 		final CategoryDefinition cd = new CategoryDefinition();
 		cd.setExtraCredit(false);
-		cd.setWeight(new Double(0));
+		cd.setWeight(Double.valueOf(0));
 		cd.setAssignmentList(Collections.<Assignment>emptyList());
 		cd.setDropHighest(0);
 		cd.setDropLowest(0);
