@@ -11026,7 +11026,11 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 
 		public Date getReleaseTime()
 		{
-			return new Date(m_releaseDate.getTime());
+			Date date = null;
+			if (m_releaseDate != null) {
+				date = new Date(m_releaseDate.getTime());
+			}
+			return date;
 		}
 		
 		public Time getRetractDate()
@@ -11036,18 +11040,29 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 		
 		public Date getRetractTime()
 		{
-			return new Date(m_retractDate.getTime());
+			Date date = null;
+			if (m_retractDate != null) {
+				date = new Date(m_retractDate.getTime());
+			}
+			return date;
 		}
 		
 		@Override
 		public Instant getReleaseInstant() {
-			// TODO Auto-generated method stub
-			return Instant.ofEpochMilli(m_releaseDate.getTime());
+			Instant instant = null;
+			if (m_releaseDate != null) {
+				instant =  Instant.ofEpochMilli(m_releaseDate.getTime());
+			}
+			return instant;
 		}
 
 		@Override
 		public Instant getRetractInstant() {
-			return Instant.ofEpochMilli(m_retractDate.getTime());
+			Instant instant = null;
+			if (m_retractDate != null) {
+				instant = instant.ofEpochMilli(m_retractDate.getTime());
+			}
+			return instant;
 		}
 
 		@Override

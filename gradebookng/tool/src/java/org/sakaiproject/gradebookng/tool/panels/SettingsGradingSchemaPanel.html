@@ -14,7 +14,6 @@
 		</div>
 		<div wicket:id="settingsGradingSchemaPanel" id="settingsGradingSchema" class="panel-collapse collapse" role="tabpanel" aria-labelledby="settingsGradingSchemaHeader">
 			<div class="panel-body">
-				
 
 				<div class="container-fluid">
 					<div class="row">
@@ -27,6 +26,9 @@
 									<option>Letter Grade</option>
 								</select>
 							</div>
+							
+							<!--  message about duplicates -->
+							<div class="messageError" wicket:id="duplicateEntries">Duplicates found.</div>
 						
 							<!--  schema table -->
 							<div wicket:id="schemaWrap">
@@ -35,15 +37,21 @@
 									<tr>
 										<th class=""><wicket:message key="settingspage.gradingschema.grade" /></th>
 										<th><wicket:message key="settingspage.gradingschema.minpercent" /></th>
+										<th><wicket:message key="settingspage.gradingschema.removecolhead" /></th>
 									</tr>
 									</thead>
 									<tbody>
 									<tr wicket:id="schemaView">
 										<td><input wicket:id="grade" type="text" size="10" class="form-control" /></td>
 										<td><input wicket:id="minPercent" type="text" size="10" class="form-control" /></td>
+										<td><button wicket:id="remove" class="btn btn-default"><wicket:message key="button.remove" /></button></td>
 									</tr>
 									</tbody>
 								</table>
+								
+								<div>
+									<button wicket:id="addMapping" type="submit" class="btn-add-category btn btn-default btn-sm"><wicket:message key="settingspage.gradingschema.add" /></button>
+								</div>
 							</div>
 														
 						</div>

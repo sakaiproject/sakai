@@ -1538,6 +1538,7 @@ public class AssignmentAction extends PagedResourceActionII {
 
         context.put("contentTypeImageService", contentTypeImageService);
         context.put("currentTime", Instant.now());
+        context.put("NamePropContentReviewOptoutUrl", ContentReviewConstants.URKUND_OPTOUT_URL);
 
         // SAK-21525 - Groups were not being queried for authz
         boolean allowSubmit = assignmentService.allowAddSubmissionCheckGroups(assignment);
@@ -4366,6 +4367,10 @@ public class AssignmentAction extends PagedResourceActionII {
             s.getFeedbackAttachments().forEach(f -> v.add(entityManager.newReference(f)));
             context.put("value_feedback_attachment", v);
             state.setAttribute(ATTACHMENTS, v);
+
+            Map<String, Reference> attachmentReferences = new HashMap<>();
+            s.getAttachments().forEach(r -> attachmentReferences.put(r, entityManager.newReference(r)));
+            context.put("submissionAttachmentReferences", attachmentReferences);
         }
         if (peerAssessmentItems != null && submissionId != null) {
             //find the peerAssessmentItem for this submission:
@@ -8960,6 +8965,7 @@ public class AssignmentAction extends PagedResourceActionII {
         ParameterParser params = data.getParameters();
 
         String assignmentId = StringUtils.trimToNull(params.getString("assignmentId"));
+        state.setAttribute(VIEW_SUBMISSION_ASSIGNMENT_REFERENCE, assignmentId);
         Assignment a = getAssignment(assignmentId, "doEdit_assignment", state);
         if (a != null && assignmentService.isPeerAssessmentOpen(a)) {
             //set the page to go to

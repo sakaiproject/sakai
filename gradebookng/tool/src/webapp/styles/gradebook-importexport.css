@@ -93,3 +93,7 @@ div.previewGradesContainer, #missingUsersContent, #unknownUsersContent {
 div.previewGradesContainer table {
   width: 100%;
  }
+
+div.modal-footer.act {
+	padding: 15px;
+}

@@ -18,3 +18,5 @@ velocity.log
 node_modules
 bower_components
 rebel.xml
+rsf/sakai-rsf-web/templates/overlays
+rsf/sakai-rsf-web/test/overlays

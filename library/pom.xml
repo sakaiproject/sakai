@@ -72,7 +72,12 @@
 			<version>${ckeditor.wordcount.version}</version>
 			<scope>runtime</scope>
 		</dependency>
-
+		<dependency>
+			<groupId>org.sakaiproject.webjars</groupId>
+			<artifactId>ckeditor-image2</artifactId>
+			<version>${ckeditor.image2.version}</version>
+			<scope>runtime</scope>
+		</dependency>
 		<dependency>
 			<groupId>org.webjars</groupId>
 			<artifactId>dropzone</artifactId>
@@ -82,7 +87,7 @@
 		<dependency>
 			<groupId>org.webjars</groupId>
 			<artifactId>handlebars</artifactId>
-			<version>4.0.5</version>
+			<version>${handlebars4.version}</version>
 			<scope>runtime</scope>
 		</dependency>
 		<dependency>
