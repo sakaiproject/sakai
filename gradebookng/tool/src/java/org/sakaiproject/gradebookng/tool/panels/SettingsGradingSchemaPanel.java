@@ -37,6 +37,7 @@ import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.ChoiceRenderer;
 import org.apache.wicket.markup.html.form.DropDownChoice;
+import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.IFormModelUpdateListener;
 import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.markup.html.list.ListItem;
@@ -47,6 +48,7 @@ import org.apache.wicket.model.ResourceModel;
 import org.sakaiproject.gradebookng.business.FirstNameComparator;
 import org.sakaiproject.gradebookng.business.model.GbUser;
 import org.sakaiproject.gradebookng.business.util.FormatHelper;
+import org.sakaiproject.gradebookng.tool.component.GbAjaxButton;
 import org.sakaiproject.gradebookng.tool.model.GbGradingSchemaEntry;
 import org.sakaiproject.gradebookng.tool.model.GbSettings;
 import org.sakaiproject.service.gradebook.shared.CourseGrade;
@@ -221,7 +223,7 @@ public class SettingsGradingSchemaPanel extends BasePanel implements IFormModelU
 				final TextField<Double> minPercent = new TextField<>("minPercent", new PropertyModel<Double>(entry, "minPercent"));
 				item.add(minPercent);
 
-				// attach the onchange behaviour
+				// attach the onchange behaviours
 				minPercent.add(new GradingSchemaChangeBehaviour(GradingSchemaChangeBehaviour.ONCHANGE));
 				grade.add(new GradingSchemaChangeBehaviour(GradingSchemaChangeBehaviour.ONCHANGE));
 
@@ -254,6 +256,28 @@ public class SettingsGradingSchemaPanel extends BasePanel implements IFormModelU
 				target.add(SettingsGradingSchemaPanel.this.modifiedSchema);
 			}
 		});
+
+		// button to add a mapping
+		final GbAjaxButton addMapping = new GbAjaxButton("addMapping") {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			protected void onSubmit(final AjaxRequestTarget target, final Form<?> f) {
+
+				// add a new empty mapping to the model data
+				final List<GbGradingSchemaEntry> entries = getGradingSchemaList();
+				entries.add(stubGradingSchemaMapping());
+				SettingsGradingSchemaPanel.this.model.getObject().setGradingSchemaEntries(entries);
+
+				// repaint table
+				target.add(SettingsGradingSchemaPanel.this.schemaWrap);
+
+				// Note that we don't need to worry about showing warnings about modifications here as the change notifications will handle
+				// that once a value has been added to the schema
+			}
+		};
+		addMapping.setDefaultFormProcessing(false);
+		this.schemaWrap.add(addMapping);
 
 		// if there are no grades, display message instead of chart
 		settingsGradingSchemaPanel
@@ -533,11 +557,13 @@ public class SettingsGradingSchemaPanel extends BasePanel implements IFormModelU
 	}
 
 	/**
-	 * Convert list of {@link GbGradingSchemaEntry} into a map
+	 * Convert list of {@link GbGradingSchemaEntry} into a map. Note that new entries may be null so they need to be excluded
 	 */
 	private Map<String, Double> asMap(final List<GbGradingSchemaEntry> gbGradingSchemaEntries) {
 		return gbGradingSchemaEntries.stream()
-			 .collect(Collectors.toMap(GbGradingSchemaEntry::getGrade, GbGradingSchemaEntry::getMinPercent));
+				.filter(e -> StringUtils.isNotBlank(e.getGrade()))
+				.filter(e -> e.getMinPercent() != null)
+				.collect(Collectors.toMap(GbGradingSchemaEntry::getGrade, GbGradingSchemaEntry::getMinPercent));
 	}
 
 	/**
@@ -666,17 +692,27 @@ public class SettingsGradingSchemaPanel extends BasePanel implements IFormModelU
 			this.target.add(SettingsGradingSchemaPanel.this.unsavedSchema);
 		}
 
-		/**
-		 * Helper to get the gradingschema list from the model
-		 *
-		 * @return
-		 */
-		private List<GbGradingSchemaEntry> getGradingSchemaList() {
-			final List<GbGradingSchemaEntry> schemaList = SettingsGradingSchemaPanel.this.model.getObject().getGradingSchemaEntries();
-			schemaList.sort(Collections.reverseOrder());
-			return schemaList;
-		}
+	}
 
+	/**
+	 * Helper to get the gradingschema list from the model
+	 *
+	 * @return
+	 */
+	private List<GbGradingSchemaEntry> getGradingSchemaList() {
+		final List<GbGradingSchemaEntry> schemaList = SettingsGradingSchemaPanel.this.model.getObject().getGradingSchemaEntries();
+		schemaList.sort(Collections.reverseOrder());
+		return schemaList;
+	}
+
+	/**
+	 * Create a new grading schema entry stub
+	 *
+	 * @return {@link GbGradingSchemaEntry}
+	 */
+	private GbGradingSchemaEntry stubGradingSchemaMapping() {
+		final GbGradingSchemaEntry entry = new GbGradingSchemaEntry(null, null);
+		return entry;
 	}
 
 }
