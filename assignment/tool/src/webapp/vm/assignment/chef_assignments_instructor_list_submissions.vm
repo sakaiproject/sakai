@@ -560,7 +560,7 @@ function printView(url) {
 								#if ($taggable)
 									#if (!$!submission.submitted)
 										#set($submittedText = $!submission.submittedText)
-										#set($submittedAttachments = $submission.submittedAttachments)
+										#set($submittedAttachments = $submission.Attachments)
 										#if ($!submittedText.length() > 0 || $!submittedAttachments.size() > 0 )
 										<span class="highlight">$tlang.getString("gen.dra2") </span>
 										#end
@@ -610,8 +610,8 @@ function printView(url) {
 										<a href="#toolLinkParam("AssignmentAction" "doGrade_submission" "assignmentId=$validator.escapeUrl($assignmentReference)&submissionId=$validator.escapeUrl($userSubmission.Reference)")" title="$tlang.getString("listsub.grasub")">
 											#if (!$!submission.submitted)
 												#set($submittedText = $!submission.submittedText)
-												#set($submittedAttachments = $submission.submittedAttachments)
-												#if ($submittedText && !$submittedText.isEmpty() || !$submittedAttachments.isEmpty())
+												#set($submittedAttachments = $submission.Attachments)
+												#if ($submittedText && !$submittedText.isEmpty() || $!submittedAttachments.size() > 0 )
 												<span class="highlight">$tlang.getString("gen.dra2") </span>
 												#end
 											#end
