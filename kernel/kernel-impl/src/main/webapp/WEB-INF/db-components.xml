@@ -418,7 +418,7 @@
     <!-- Proxy which will keep only get the connection if one is actually needed,
        this is especially helpful when using hibernate or wrapping transactions around requests
        because it keeps the connection from being opened and held if it is not needed -->
-    <bean id="javax.sql.LazyDataSource" class="org.springframework.jdbc.datasource.LazyConnectionDataSourceProxy">
+    <bean id="javax.sql.LazyDataSource" class="org.springframework.jdbc.datasource.LazyConnectionDataSourceProxy" primary="true">
        <property name="targetDataSource"><ref bean="javax.sql.DataSource" /></property>
     </bean>
 
@@ -439,7 +439,7 @@
 	</bean>
 
 	<!--  The "Global" JPA Entity Manager Factory -->
-	<bean id="org.sakaiproject.springframework.orm.jpa.EntityManagerFactory" class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean">
+	<bean id="entityManagerFactory" class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean">
 		<property name="jpaVendorAdapter">
 			<bean class="org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter"/>
 		</property>
@@ -467,18 +467,17 @@
 	<!--  The "Global" Session Factory -->
 	<bean id="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"
 		  class="org.springframework.orm.jpa.vendor.HibernateJpaSessionFactoryBean">
-		<property name="entityManagerFactory" ref="org.sakaiproject.springframework.orm.jpa.EntityManagerFactory"/>
+		<property name="entityManagerFactory" ref="entityManagerFactory"/>
 	</bean>
 
 	<!--  The "Global" Transaction Manager -->
 	<bean id="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager" class="org.springframework.orm.hibernate4.HibernateTransactionManager">
 		<property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
 	</bean>
-	<!-- This jpa tx manager currently does not work as it behaves differently than hibernate's tx manager
-	<bean id="org.sakaiproject.springframework.orm.jpa.GlobalTransactionManager" class="org.springframework.orm.jpa.JpaTransactionManager">
-		<property name="entityManagerFactory" ref="org.sakaiproject.springframework.orm.jpa.EntityManagerFactory"/>
+	<!-- JPA tx manager, it behaves differently than hibernate's tx manager -->
+	<bean id="transactionManager" class="org.springframework.orm.jpa.JpaTransactionManager">
+		<property name="entityManagerFactory" ref="entityManagerFactory"/>
 	</bean>
-	-->
 
 	<!-- enables JMX on hibernate -->
 	<bean id="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory.statistics"

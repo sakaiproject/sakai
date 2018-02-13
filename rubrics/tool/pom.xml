@@ -12,15 +12,14 @@
 
     <name>Sakai Rubrics - Manager Tool</name>
     <groupId>org.sakaiproject.rubrics</groupId>
-    <artifactId>rubrics-manager-tool</artifactId>
+    <artifactId>rubrics-service</artifactId>
     <packaging>war</packaging>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <start-class>org.sakaiproject.rubrics.App</start-class>
         <rest.assured.version>2.9.0</rest.assured.version>
-        <spring.security.version>4.2.1.RELEASE</spring.security.version>
-        <spring.boot.version>1.5.2.RELEASE</spring.boot.version>
+        <spring.boot.version>1.5.7.RELEASE</spring.boot.version>
     </properties>
 
     <dependencies>
@@ -40,6 +39,12 @@
         <dependency>
             <groupId>org.apache.wicket</groupId>
             <artifactId>wicket-spring</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>asm</groupId>
+                    <artifactId>asm</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>javax.servlet</groupId>
@@ -93,7 +98,7 @@
         <dependency>
             <groupId>org.springframework.security</groupId>
             <artifactId>spring-security-data</artifactId>
-            <version>${spring.security.version}</version>
+            <version>${sakai.spring.security.version}</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.data</groupId>
@@ -103,7 +108,7 @@
         <dependency>
             <groupId>org.springframework.security</groupId>
             <artifactId>spring-security-web</artifactId>
-            <version>${spring.security.version}</version>
+            <version>${sakai.spring.security.version}</version>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
@@ -166,9 +171,35 @@
             <artifactId>json</artifactId>
             <version>${sakai.org.json.version}</version>
         </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.datatype</groupId>
+            <artifactId>jackson-datatype-jsr310</artifactId>
+            <scope>provided</scope>
+        </dependency>
+		<dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <scope>provided</scope>
+        </dependency>
+
     </dependencies>
     <build>
         <sourceDirectory>src/main/java</sourceDirectory>
+        <resources>
+            <resource>
+                <directory>src/main/java</directory>
+                <includes>
+                    <include>**/*.properties</include>
+					<include>**/*.html</include>
+                </includes>
+            </resource>
+			<resource>
+                <directory>src/main/resources</directory>
+                <includes>
+                    <include>**/*.properties</include>
+                </includes>
+            </resource>
+        </resources>
         <plugins>
             <plugin>
                 <groupId>org.springframework.boot</groupId>

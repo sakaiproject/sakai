@@ -86,6 +86,7 @@
             <groupId>com.jayway.jsonpath</groupId>
             <artifactId>json-path</artifactId>
             <version>${jayway.jsonpath.version}</version>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>

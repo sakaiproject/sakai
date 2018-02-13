@@ -23,10 +23,14 @@
 package org.sakaiproject.rubrics.logic.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
+import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
 import lombok.Data;
 
 import javax.persistence.MappedSuperclass;
-import java.time.Instant;
+import java.time.LocalDateTime;
 
 /**
  * Base type for representing the core metadata common to all resources.
@@ -35,8 +39,13 @@ import java.time.Instant;
 @Data
 public class BaseMetadata {
 
-    protected Instant created;
-    protected Instant modified;
+    @JsonSerialize(using = LocalDateTimeSerializer.class)
+    @JsonDeserialize(using = LocalDateTimeDeserializer.class)
+    protected LocalDateTime created;
+
+    @JsonSerialize(using = LocalDateTimeSerializer.class)
+    @JsonDeserialize(using = LocalDateTimeDeserializer.class)
+    protected LocalDateTime modified;
     protected String ownerId;
     protected String ownerType;
     protected String creatorId;
