@@ -75,6 +75,7 @@ import org.sakaiproject.event.api.LearningResourceStoreService.LRS_Verb.SAKAI_VE
 import org.sakaiproject.exception.*;
 import org.sakaiproject.javax.PagingPosition;
 import org.sakaiproject.message.api.MessageHeader;
+import org.sakaiproject.rubrics.logic.RubricsService;
 import org.sakaiproject.scoringservice.api.ScoringAgent;
 import org.sakaiproject.scoringservice.api.ScoringComponent;
 import org.sakaiproject.scoringservice.api.ScoringService;
@@ -885,6 +886,8 @@ public class AssignmentAction extends PagedResourceActionII {
     private static final String CONTEXT_GO_NEXT_UNGRADED_ENABLED = "goNextUngradedEnabled";
     private static final String CONTEXT_GO_PREV_UNGRADED_ENABLED = "goPrevUngradedEnabled";
     private static final String PARAMS_VIEW_SUBS_ONLY_CHECKBOX = "chkSubsOnly1";
+    private static final String RUBRIC_STATE_DETAILS = "rbcs-state-details";
+    private static final String RUBRIC_TOKEN = "rbcs-token";
     private static ResourceLoader rb = new ResourceLoader("assignment");
     private final String NO_SUBMISSION = rb.getString("listsub.nosub");
     private boolean nextUngraded = false;
@@ -918,6 +921,7 @@ public class AssignmentAction extends PagedResourceActionII {
     private GradebookExternalAssessmentService gradebookExternalAssessmentService;
     private LearningResourceStoreService learningResourceStoreService;
     private NotificationService notificationService;
+    private RubricsService rubricsService;
     private SecurityService securityService;
     private ServerConfigurationService serverConfigurationService;
     private SessionManager sessionManager;
@@ -948,6 +952,7 @@ public class AssignmentAction extends PagedResourceActionII {
         gradebookService = (GradebookService) ComponentManager.get("org.sakaiproject.service.gradebook.GradebookService");
         learningResourceStoreService = ComponentManager.get(LearningResourceStoreService.class);
         notificationService = ComponentManager.get(NotificationService.class);
+        rubricsService  = ComponentManager.get(RubricsService.class);
         securityService = ComponentManager.get(SecurityService.class);
         serverConfigurationService = ComponentManager.get(ServerConfigurationService.class);
         sessionManager = ComponentManager.get(SessionManager.class);
@@ -1271,6 +1276,8 @@ public class AssignmentAction extends PagedResourceActionII {
         if (state.getAttribute(HAS_MULTIPLE_ASSIGNMENTS) != null) {
             context.put("assignmentscheck", state.getAttribute(HAS_MULTIPLE_ASSIGNMENTS));
         }
+
+        context.put(RUBRIC_TOKEN, rubricsService.generateJsonWebToken("sakai.assignment"));
 
         return template;
 
@@ -3380,16 +3387,21 @@ public class AssignmentAction extends PagedResourceActionII {
         if (state.getAttribute(GRADE_SUBMISSION_DONE) != null) {
             context.put("gradingDone", Boolean.TRUE);
             state.removeAttribute(GRADE_SUBMISSION_DONE);
+            state.removeAttribute(RUBRIC_STATE_DETAILS);
         }
 
         // put the grade confirmation message if applicable
         if (state.getAttribute(GRADE_SUBMISSION_SUBMIT) != null) {
             context.put("gradingSubmit", Boolean.TRUE);
             state.removeAttribute(GRADE_SUBMISSION_SUBMIT);
+            state.removeAttribute(RUBRIC_STATE_DETAILS);
         }
 
         // letter grading
         letterGradeOptionsIntoContext(context);
+
+        //Check if the assignment has a rubric associated or not
+        context.put("hasAssociatedRubric", rubricsService.hasAssociatedRubric("sakai.assignment", a.getId()));
 
         String template = (String) getContext(data).get("template");
         return template + TEMPLATE_INSTRUCTOR_GRADE_SUBMISSION;
@@ -3622,6 +3634,7 @@ public class AssignmentAction extends PagedResourceActionII {
         }
 
         if (state.getAttribute(STATE_MESSAGE) == null) {
+            state.removeAttribute(RUBRIC_STATE_DETAILS);
             if ("back".equals(option)) {
                 // SAK-29314 - calculate our position relative to the list so we can return to the correct page
                 state.setAttribute(STATE_GOTO_PAGE, calcPageFromSubmission(state));
@@ -5381,6 +5394,7 @@ public class AssignmentAction extends PagedResourceActionII {
         } else {
             state.setAttribute(STATE_MODE, MODE_INSTRUCTOR_GRADE_SUBMISSION);
         }
+        state.removeAttribute(RUBRIC_STATE_DETAILS);
     } // doCancel_grade_submission
 
     /**
@@ -5410,6 +5424,8 @@ public class AssignmentAction extends PagedResourceActionII {
 
         // SAK-29314
         state.removeAttribute(STATE_VIEW_SUBS_ONLY);
+
+        state.removeAttribute(RUBRIC_STATE_DETAILS);
 
         resetAllowResubmitParams(state);
     }
@@ -5454,6 +5470,7 @@ public class AssignmentAction extends PagedResourceActionII {
         state.setAttribute(STATE_MODE, MODE_LIST_ASSIGNMENTS);
         state.setAttribute(SORTED_BY, SORTED_BY_DEFAULT);
         state.setAttribute(SORTED_ASC, Boolean.TRUE.toString());
+        state.removeAttribute(RUBRIC_STATE_DETAILS);
 
     } // doList_assignments
 
@@ -5761,6 +5778,12 @@ public class AssignmentAction extends PagedResourceActionII {
             } else {
                 //remove grade from gradebook
                 integrateGradebook(state, aReference, associateGradebookAssignment, null, null, null, -1, null, sReference, "remove", -1);
+            }
+
+            // Persist the rubric evaluations
+            for (AssignmentSubmissionSubmitter submitter : submission.getSubmitters()) {
+                String submitterId = submitter.getSubmitter();
+                rubricsService.saveRubricEvaluation("sakai.assignment", submission.getAssignment().getId(), submission.getId(), submitterId, submission.getGradedBy(), getRubricConfigurationParameters(data.getParameters()));
             }
         }
 
@@ -6555,6 +6578,10 @@ public class AssignmentAction extends PagedResourceActionII {
         state.setAttribute(NEW_ASSIGNMENT_ORDER, order);
 
         String additionalOptions = params.getString(NEW_ASSIGNMENT_ADDITIONAL_OPTIONS);
+
+        //Returns the rubrics state in the case of validation problems in the form
+        String rubricStateDetails = params.getString(RUBRIC_STATE_DETAILS);
+        state.setAttribute(RUBRIC_STATE_DETAILS, rubricStateDetails);
 
         boolean groupAssignment = false;
         if (StringUtils.equals(Assignment.Access.GROUP.toString(), additionalOptions)) {
@@ -7714,6 +7741,9 @@ public class AssignmentAction extends PagedResourceActionII {
                         usePeerAssessment, peerPeriodTime, peerAssessmentAnonEval, peerAssessmentStudentViewReviews, peerAssessmentNumReviews, peerAssessmentInstructions,
                         submitReviewRepo, generateOriginalityReport, checkTurnitin, checkInternet, checkPublications, checkInstitution, excludeBibliographic, excludeQuoted, excludeSelfPlag, storeInstIndex, studentPreview, excludeType, excludeValue);
 
+                //RUBRICS, Save the binding between the assignment and the rubric
+                rubricsService.saveRubricAssociation("sakai.assignment", a.getId(), getRubricConfigurationParameters(params));
+
                 // Locking and unlocking groups
                 List<String> lockedGroupsReferences = new ArrayList<String>();
                 if (post && isGroupSubmit && !groups.isEmpty()) {
@@ -8030,6 +8060,25 @@ public class AssignmentAction extends PagedResourceActionII {
             }
         }
         return sAttachments;
+    }
+
+    /**
+     * Get the rubrics params and includes all them in a HashMap to pass them to the rubrics service.
+     * @param params
+     * @return
+     */
+    private HashMap<String,String> getRubricConfigurationParameters(ParameterParser params){
+
+        HashMap<String,String> parametersHash = new HashMap<>();
+        //Get the parameters
+        Iterator it2 = params.getNames();
+        while (it2.hasNext()) {
+            String name = it2.next().toString();
+            if (name.startsWith("rbcs")) {
+                parametersHash.put(name,params.getString(name));
+            }
+        }
+        return parametersHash;
     }
 
     /**
@@ -10756,6 +10805,14 @@ public class AssignmentAction extends PagedResourceActionII {
                     grade = (typeOfGrade == SCORE_GRADE_TYPE) ? scalePointGrade(state, grade, factor) : grade;
                     state.setAttribute(GRADE_SUBMISSION_GRADE, grade);
                 }
+
+                if (state.getAttribute(STATE_MESSAGE) != null) {
+                    String rubricStateDetails = params.getString(RUBRIC_STATE_DETAILS);
+                    state.setAttribute(RUBRIC_STATE_DETAILS, rubricStateDetails);
+                } else {
+                    state.removeAttribute(RUBRIC_STATE_DETAILS);
+                }
+
             }
         } else {
             // generate alert
@@ -11253,6 +11310,8 @@ public class AssignmentAction extends PagedResourceActionII {
         // SAK-17606
         state.removeAttribute(NEW_ASSIGNMENT_CHECK_ANONYMOUS_GRADING);
 
+        state.removeAttribute(RUBRIC_STATE_DETAILS);
+
     } // resetNewAssignment
 
     /**
@@ -11367,6 +11426,7 @@ public class AssignmentAction extends PagedResourceActionII {
 
         state.removeAttribute(AssignmentServiceConstants.PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT);
 
+        state.removeAttribute(RUBRIC_STATE_DETAILS);
 
     } // resetNewAssignment
 
