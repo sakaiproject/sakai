@@ -91,7 +91,7 @@
 #end
 
 ## Macro for the top nav bar HREF and #toolLink/#toolLinkParam
-#macro( navBarHREF $allowAddAssignment $withGrade $allowGradeSubmission $allowAddAssignment $allowAllGroups $assignmentscheck $allowUpdateSite $enableViewOption $view $current )
+#macro( navBarHREF $allowAddAssignment $withGrade $allowGradeSubmission $allowAddAssignment $allowRecoverAssignment $allowAllGroups $assignmentscheck $allowUpdateSite $enableViewOption $view $current )
     <ul class="navIntraTool actionToolBar">
         #set( $prevAction = false )
         #if( $allowAddAssignment )
@@ -164,11 +164,22 @@
                 </li>
             #end
         #end
+        #if( $allowRecoverAssignment )
+            <li #if( $prevAction == false ) class="firstToolBarItem" #set( $prevAction = true ) #end>
+                #if( !$!current.equals("Assignment.mode_list_removed_assignments"))
+                    <span>
+                        <a href="#toolLinkParam( "$action" "doView" "view=Assignment.mode_list_removed_assignments" )" title="$!tlang.getString( "removedAssignmentList" )">$!tlang.getString( "removedAssignmentList" )</a>
+                    </span>
+                #else
+                    <span class="current">$!tlang.getString( "removedAssignmentList" )</span>
+                #end
+            </li>
+        #end
     </ul>
 #end
 
 ## Macro for the top nav bar using onclick JavaScript
-#macro( navBarOnClick $allowAddAssignment $withGrade $allowGradeSubmission $allowAddAssignment $allowAllGroups $assignmentscheck $allowUpdateSite $enableViewOption $view $formID $current )
+#macro( navBarOnClick $allowAddAssignment $withGrade $allowGradeSubmission $allowAddAssignment $allowRecoverAssignment $allowAllGroups $assignmentscheck $allowUpdateSite $enableViewOption $view $formID $current )
     <ul class="navIntraTool actionToolBar">
         #set( $prevAction = false )
         #if( $allowAddAssignment )
@@ -261,6 +272,19 @@
                     </span>
                 </li>
             #end
+        #end
+        #if( $allowRecoverAssignment )
+            <li #if( $prevAction == false ) class="firstToolBarItem" #set( $prevAction = true ) #end>
+                #if( $current == "Assignment.mode_list_removed_assignments")
+                    <span class="current">$tlang.getString( "removedAssignmentList" )</span>
+                #else
+                    <span>
+                        <a href="javascript:void(0)" title="$tlang.getString( "removedAssignmentList" )" onclick="ASN.submitForm( '$formID', 'view', null, 'Assignment.mode_list_removed_assignments' ); return false;">
+                            $tlang.getString( "removedAssignmentList" )
+                        </a>
+                    </span>
+                #end
+            </li>
         #end
     </ul>
 #end

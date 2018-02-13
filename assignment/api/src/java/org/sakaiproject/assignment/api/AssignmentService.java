@@ -385,6 +385,15 @@ public interface AssignmentService extends EntityProducer {
     public Collection<Assignment> getAssignmentsForContext(String context);
 
     /**
+     * Access all the Assignments that are deleted
+     *
+     * @param context -
+     *                Describes the portlet context - generated with DefaultId.getChannel().
+     * @return List All the deleted assignments will be listed
+     */
+    public Collection<Assignment> getDeletedAssignmentsForContext(String context);
+
+    /**
      * Retrieve a map of Assignments to a list of User IDs of those who
      * may submit each assignment. This map is filtered to only those
      * assignments that can be viewed by the current user.

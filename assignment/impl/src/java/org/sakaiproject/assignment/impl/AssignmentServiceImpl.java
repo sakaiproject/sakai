@@ -1226,6 +1226,15 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
     }
 
     @Override
+    public Collection<Assignment> getDeletedAssignmentsForContext(String context) {
+        log.debug("GET DELETED ASSIGNMENTS : CONTEXT : {}", context);
+        List<Assignment> assignments = new ArrayList<>();
+        if (StringUtils.isBlank(context)) return assignments;
+
+        return assignmentRepository.findDeletedAssignmentsBySite(context);
+    }
+
+    @Override
     public Map<Assignment, List<String>> getSubmittableAssignmentsForContext(String context) {
         Map<Assignment, List<String>> submittable = new HashMap<>();
         if (!allowGetAssignment(context)) {

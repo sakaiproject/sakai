@@ -53,6 +53,15 @@ public class AssignmentRepositoryImpl extends BasicSerializableRepository<Assign
     }
 
     @Override
+    @SuppressWarnings("unchecked")
+    public List<Assignment> findDeletedAssignmentsBySite(String siteId) {
+        return startCriteriaQuery()
+                .add(Restrictions.eq("context", siteId))
+                .add(Restrictions.eq("deleted", Boolean.TRUE))
+                .list();
+    }
+
+    @Override
     public List<String> findAllAssignmentIds() {
         return startCriteriaQuery()
                 .setProjection(Projections.property("id"))
