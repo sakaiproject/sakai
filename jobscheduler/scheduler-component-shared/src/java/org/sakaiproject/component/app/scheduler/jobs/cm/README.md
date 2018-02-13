@@ -11,6 +11,9 @@ The user synchronization job reads a CSV file to create and update users.
 | emailNotification | false | Should an email be sent with the output of the job status |
 | recipients | who@somewhere.com | If emailNotification is true, what email address should receive notification | 
 
+You can customiz the jobs configuration using the name from the table above as a sakai property, i.e.
+`emailNotification@org.sakaiproject.component.app.scheduler.jobs.cm.SynchronizationJob.user=true`
+
 ###### Processor Configuration
 
 | Name | Default Value | Notes |
@@ -23,6 +26,9 @@ The user synchronization job reads a CSV file to create and update users.
 | generatePassword | false | If a password should be generated when creating new accounts or use the supplied password from the csv |
 | updateAllowed | true | If the user already exists, should their information be updated with that contained in the csv |
 | updatePassword | false | If the user already exists, should a their password be updated with that contained in the csv |
+
+You can customize the processor's configuration using the name from the table above as a sakai property, i.e.
+`filename@org.sakaiproject.component.app.scheduler.jobs.cm.processor.sis.UserProcessor=/home/sakai/sis/users.csv`
 
 ###### CSV File Layout
 
@@ -54,8 +60,10 @@ the Course Management API. There are 12 files in all we will list each file belo
 | :---: | :---: | :--- |
 | adminUser | admin | The admin user account the job should run under |
 | emailNotification | false | When this job runs if an email should be sent with the output of its status |
-| recipients | who@somewhere.com | If emailNotification is true this should be set with who the email should be sent to | 
+| recipients | who@somewhere.com | If emailNotification is true this should be set with who the emails should be sent to | 
 
+You can customize the jobs configuration using the name from the table above as a sakai property, i.e.
+`emailNotification@org.sakaiproject.component.app.scheduler.jobs.cm.SynchronizationJob.cm=true`
 
 #### AcademicSessionProcessor
 An institutional context for CourseOfferings, distinguishing one instance of a CanonicalCourse from another.
@@ -70,6 +78,9 @@ In higher educational institutions, it almost always includes a time range. Howe
 | dateFormat | MM/dd/yyyy |
 | filename | /tmp/academic_session.csv |
 | headerRowPresent | false | 
+
+You can customize the processor's configuration using the name from the table above as a sakai property, i.e.
+`dateFormat@org.sakaiproject.component.app.scheduler.jobs.cm.processor.sis.AcademicSessionProcessor=yyyyMMdd`
 
 ###### CSV File Layout
 
@@ -92,6 +103,9 @@ Models "School" and "Department" as well as more ad hoc groupings.
 | columns | 5 |
 | filename | /tmp/course_set.csv |
 | headerRowPresent | false | 
+
+You can customize the processor's configuration using the name from the table above as a sakai property, i.e.
+`filename@org.sakaiproject.component.app.scheduler.jobs.cm.processor.sis.CourseSetProcessor=/home/sakai/sis/course_set.csv`
 
 ###### CSV File Layout
 
@@ -135,6 +149,9 @@ Models "School" and "Department" as well as more ad hoc groupings.
 | filename | /tmp/course_offering.csv |
 | headerRowPresent | false | 
 
+You can customize the processor's configuration using the name from the table above as a sakai property, i.e.
+`filename@org.sakaiproject.component.app.scheduler.jobs.cm.processor.sis.CourseOfferingProcessor=/home/sakai/sis/course_offering.csv`
+
 ###### CSV File Layout
 
 | Column | Name | Data Type | Example | Notes |
@@ -166,6 +183,9 @@ both files they will not show up in the site.
 | filename | /tmp/course_offering_member.csv |
 | headerRowPresent | false | 
 
+You can customize the processor's configuration using the name from the table above as a sakai property, i.e.
+`filename@org.sakaiproject.component.app.scheduler.jobs.cm.processor.sis.CourseOfferingMemberProcessor=/home/sakai/sis/course_offering_member.csv`
+
 ###### CSV File Layout
 
 | Column | Name | Data Type | Example | Notes |
@@ -187,6 +207,8 @@ A section category. For example lecture, lab, discussion, etc.
 | filename | /tmp/section_category.csv |
 | headerRowPresent | false | 
 
+You can customize the processor's configuration using the name from the table above as a sakai property, i.e.
+`filename@org.sakaiproject.component.app.scheduler.jobs.cm.processor.sis.SectionCategoryProcessor=/home/sakai/sis/section_category.csv`
 
 ###### CSV File Layout
 
@@ -209,6 +231,8 @@ allowed to submit the final grade for this student via the associated record in 
 | filename | /tmp/enrollment_set.csv |
 | headerRowPresent | false | 
 
+You can customize the processor's configuration using the name from the table above as a sakai property, i.e.
+`filename@org.sakaiproject.component.app.scheduler.jobs.cm.processor.sis.EnrollmentSetProcessor=/home/sakai/sis/enrollment_set.csv`
 
 ###### CSV File Layout
 
@@ -233,6 +257,8 @@ Models a "cohort" (a stable group which enrolls in multiple courses as a unit) a
 | filename | /tmp/section.csv |
 | headerRowPresent | false | 
 
+You can customize the processor's configuration using the name from the table above as a sakai property, i.e.
+`filename@org.sakaiproject.component.app.scheduler.jobs.cm.processor.sis.SectionProcessor=/home/sakai/sis/section.csv`
 
 ###### CSV File Layout
 
@@ -258,6 +284,8 @@ A time and a place for a Section to meet. Meetings are completely controlled by 
 | filename | /tmp/section_meeting.csv |
 | headerRowPresent | false | 
 
+You can customize the processor's configuration using the name from the table above as a sakai property, i.e.
+`filename@org.sakaiproject.component.app.scheduler.jobs.cm.processor.sis.SectionMeetingProcessor=/home/sakai/sis/section_meeting.csv`
 
 ###### CSV File Layout
 
@@ -280,6 +308,8 @@ Instructors and students do not appear in this file.
 | filename | /tmp/section_member.csv |
 | headerRowPresent | false | 
 
+You can customize the processor's configuration using the name from the table above as a sakai property, i.e.
+`filename@org.sakaiproject.component.app.scheduler.jobs.cm.processor.sis.SectionMemberProcessor=/home/sakai/sis/section_member.csv`
 
 ###### CSV File Layout
 
@@ -305,6 +335,8 @@ list will Drop them from the section/course.
 | filename | /tmp/enrollment.csv |
 | headerRowPresent | false | 
 
+You can customize the processor's configuration using the name from the table above as a sakai property, i.e.
+`filename@org.sakaiproject.component.app.scheduler.jobs.cm.processor.sis.EnrollmentProcessor=/home/sakai/sis/enrollment.csv`
 
 ###### CSV File Layout
 
@@ -330,6 +362,8 @@ they will all show up in each site that was created with said Enrollment Set.
 | filename | /tmp/instructor.csv |
 | headerRowPresent | false | 
 
+You can customize the processor's configuration using the name from the table above as a sakai property, i.e.
+`filename@org.sakaiproject.component.app.scheduler.jobs.cm.processor.sis.InstructorProcesso=/home/sakai/sis/instructor.csv`
 
 ###### CSV File Layout
 
