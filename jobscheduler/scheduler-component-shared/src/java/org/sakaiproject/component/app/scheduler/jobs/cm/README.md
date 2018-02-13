@@ -1,15 +1,15 @@
 # User Synchronization
 
 ### Comma Separate Value (CSV) Import
-The user synchronization job uses CSV file which is read and the data is used to update.
+The user synchronization job reads a CSV file to create and update users.
 
 ###### Job Configuration
 
 | Name | Default Value | Notes |
 | :---: | :---: | :--- |
-| adminUser | admin | The admin user account for which just should run under |
-| emailNotification | false | When this job runs if an email should be sent with the output of its status |
-| recipients | who@somewhere.com | If emailNotification is true this should be set with who the email should be sent to | 
+| adminUser | admin | The admin user account the job should run under |
+| emailNotification | false | Should an email be sent with the output of the job status |
+| recipients | who@somewhere.com | If emailNotification is true, what email address should receive notification | 
 
 ###### Processor Configuration
 
@@ -21,8 +21,8 @@ The user synchronization job uses CSV file which is read and the data is used to
 | headerRowPresent | false | |
 | userEmailNotification | true | Whether to notify the user via email upon creating a new account |
 | generatePassword | false | If a password should be generated when creating new accounts or use the supplied password from the csv |
-| updateAllowed | true | If the user already exists should their information be updated with that contained in the csv |
-| updatePassword | false | If the user already exists should a their password be updated with that contained in the csv |
+| updateAllowed | true | If the user already exists, should their information be updated with that contained in the csv |
+| updatePassword | false | If the user already exists, should a their password be updated with that contained in the csv |
 
 ###### CSV File Layout
 
@@ -32,7 +32,7 @@ The user synchronization job uses CSV file which is read and the data is used to
 | 1 | last name | varchar(255) | Smith | |
 | 2 | first name | varchar(255) | John | |
 | 3 | email | varchar(255) | jsmith@somewhere.org | |
-| 4 | password | varchar(255) | xxxxxx | if generate password is true a random 9 character password is always generated regardless if a value has been supplied in the csv file. |
+| 4 | password | varchar(255) | xxxxxx | if generate password is true, a random 9 character password is always generated regardless if a value has been supplied in the csv file. |
 | 5 | user type | varchar(255) | maintain, registered | |
 | 6 | user id | varchar(255) | 0123456789 | This can left blank and it will be auto generated |
 | 7 | property 1 | varchar(255) | value 1 | Using the values from the configuration "user.sis.property" configure the value for index 1 |
@@ -52,7 +52,7 @@ the Course Management API. There are 12 files in all we will list each file belo
 ###### Job Configuration
 | Name | Default Value | Notes |
 | :---: | :---: | :--- |
-| adminUser | admin | The admin user account for which just should run under |
+| adminUser | admin | The admin user account the job should run under |
 | emailNotification | false | When this job runs if an email should be sent with the output of its status |
 | recipients | who@somewhere.com | If emailNotification is true this should be set with who the email should be sent to | 
 
@@ -97,7 +97,7 @@ Models "School" and "Department" as well as more ad hoc groupings.
 
 | Column | Name | Data Type | Example | Notes |
 | :---: | :---: | :---: | :---: | :--- |
-| 0 | eid | varchar(100) | BIO, BIOLOGY | This field is used to map the Canonical Course, Course Offering and Course Offering Members back to the Course Set. |
+| 0 | eid | varchar(100) | BIO, BIOLOGY | This field is used to map the Canonical Course, Course Offering, and Course Offering Members back to the Course Set. |
 | 1 | title | varchar(255) | Biology | |
 | 2 | description | varchar(255) | Biology Department | |
 | 3 | category | varchar(255) | dept, main | |
