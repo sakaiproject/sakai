@@ -101,6 +101,21 @@
 </script>
 #javascript("/library/js/lang-datepicker/lang-datepicker.js")
 
+<!-- RUBRICS JAVASCRIPT -->
+<script>
+  var imports = [
+    '/rubrics-service/imports/sakai-rubric-association.html'
+  ];
+  var Polymerdom = 'shady';
+  var rbcstoken = "$!rbcs-token";
+</script>
+
+<script src="/rubrics-service/js/sakai-rubrics.js"></script>
+<link rel="stylesheet" href="/rubrics-service/css/sakai-rubrics-associate.css">
+<!-- END RUBRICS JAVASCRIPT -->
+
+<script src="/rubrics-service/js/sakai-rubrics.js"></script>
+
 <div class="portletBody container-fluid">
 	#navBarOnClick( $allowAddAssignment $withGrade $allowGradeSubmission $allowAddAssignment $allowAllGroups $assignmentscheck $allowUpdateSite $enableViewOption $view "newAssignmentForm" "new" )
 
@@ -1224,6 +1239,25 @@
 			#end
 		#end
 
+		<sakai-rubric-association
+			dont-associate-label="$tlang.getString("dont.associate.label")"
+			dont-associate-value="0"
+			associate-label="$tlang.getString("associate.label")"
+			associate-value="1"
+
+			#if("$!assignment.Id" != "")
+			tool-id="sakai.assignment"
+			entity-id="$assignment.Id"
+			#end
+
+			#if($rbcs-state-details && "$!rbcs-state-details" != "")
+			state-details="$rbcs-state-details"
+			#end
+
+			config-fine-tune-points="$tlang.getString("option.pointsoverride")"
+			config-hide-student-preview="$tlang.getString("option.studentpreview")"
+		></sakai-rubric-association>
+
 		## SAK-17606 - Show the anonymous grading checkbox if enabled
 		#if( $enableAnonGrading || $value_CheckAnonymousGrading.equals("true") )
 			#set ($anonDisabled = !$enableAnonGrading || $forceAnonGrading)
@@ -1834,6 +1868,7 @@
 			#buttonBar()
 		</div>
 		<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+		<input type="hidden" name="rbcs-token" value="$!rbcs-token"/>
 	</form>
 </div>
 <!-- end: chef_assignments_instructor_new_edit_assignment.vm  -->

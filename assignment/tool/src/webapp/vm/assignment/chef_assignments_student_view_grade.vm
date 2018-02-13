@@ -16,6 +16,19 @@
         );
     });
 </script>
+
+<!-- RUBRICS JAVASCRIPT -->
+<script>
+  var imports = [
+    '/rubrics-service/imports/sakai-rubric-student.html'
+  ];
+  var Polymerdom = 'shady';
+  var rbcstoken = "$!rbcs-token";
+</script>
+
+<script src="/rubrics-service/js/sakai-rubrics.js"></script>
+<!-- END RUBRICS JAVASCRIPT -->
+
 <div class="portletBody">
     #if ($taggable)
         #if (!$itemHelpers.isEmpty())
@@ -440,6 +453,12 @@
             </ul>
         #end
     #end
+
+    <sakai-rubric-student
+        tool-id="sakai.assignment"
+        entity-id="$assignment.Id"
+        evaluated-item-id="$submission.Id"
+    ></sakai-rubric-student>
 
     ## show instructor comment if the submission is (1) graded and release or (2) returned
     #if (($submission.Graded && $submission.GradeReleased) || $submission.Returned)
