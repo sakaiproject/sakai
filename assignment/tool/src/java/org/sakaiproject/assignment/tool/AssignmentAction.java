@@ -628,6 +628,11 @@ public class AssignmentAction extends PagedResourceActionII {
      */
     private static final String TEMPLATE_LIST_ASSIGNMENTS = "_list_assignments";
 
+    /**
+     * The list view of softly deleted assignments
+     */
+    private static final String MODE_LIST_DELETED_ASSIGNMENTS = "Assignment.mode_list_removed_assignments";
+
     /* ************************* vm names ************************** */
     /**
      * The student view of assignment
@@ -705,6 +710,10 @@ public class AssignmentAction extends PagedResourceActionII {
      * The instructor view to list users details
      **/
     private static final String TEMPLATE_INSTRUCTOR_VIEW_STUDENTS_DETAILS = "_instructor_view_students_details";
+    /**
+     * The instructor view to list deleted assignment
+     */
+    private static final String TEMPLATE_INSTRUCTOR_LIST_DELETED_ASSIGNMENTS = "_instructor_list_deleted_assignments";
     /**
      * The options page
      */
@@ -1084,6 +1093,10 @@ public class AssignmentAction extends PagedResourceActionII {
         boolean allowAllGroups = assignmentService.allowAllGroups(contextString);
         context.put("allowAllGroups", Boolean.valueOf(allowAllGroups));
 
+        // allow recover assignment?
+        boolean allowRecoverAssignment = assignmentService.allowRemoveAssignment(AssignmentReferenceReckoner.reckoner().context(contextString).reckon().getReference());
+        context.put("allowRecoverAssignment", allowRecoverAssignment);
+
         //Is the review service allowed?
         Site s = null;
         try {
@@ -1259,6 +1272,10 @@ public class AssignmentAction extends PagedResourceActionII {
             }
         } else if (mode.equals(MODE_STUDENT_REVIEW_EDIT)) {
             template = build_student_review_edit_context(portlet, context, data, state);
+        } else if (MODE_LIST_DELETED_ASSIGNMENTS.equals(mode)) {
+            if (allowRecoverAssignment) {
+                template = build_list_deleted_assignments_context(portlet, context, data, state);
+            }
         }
 
         if (template == null) {
@@ -2274,6 +2291,34 @@ public class AssignmentAction extends PagedResourceActionII {
         }
         return rv;
     }
+
+    /**
+     * build the view of assignments list
+     */
+    private String build_list_deleted_assignments_context(VelocityPortlet portlet, Context context, RunData data, SessionState state) {
+        // cleaning from view attribute
+        state.removeAttribute(FROM_VIEW);
+
+        String contextString = (String) state.getAttribute(STATE_CONTEXT_STRING);
+        String sortedBy = (String) state.getAttribute(SORTED_BY);
+        String sortedAsc = (String) state.getAttribute(SORTED_ASC);
+        context.put("sortedBy", sortedBy);
+        context.put("sortedAsc", sortedAsc);
+
+        List<Assignment> assignments = prepPage(state);
+        context.put("assignments", assignments.iterator());
+
+        add2ndToolbarFields(data, context);
+
+        // inform the observing courier that we just updated the page...
+        // if there are pending requests to do so they can be cleared
+        justDelivered(state);
+
+        pagingInfoToContext(state, context);
+
+        String template = (String) getContext(data).get("template");
+        return template + TEMPLATE_INSTRUCTOR_LIST_DELETED_ASSIGNMENTS;
+    } // build_list_deleted_assignments_context
 
     /**
      * build the instructor view of creating a new assignment or editing an existing one
@@ -5456,6 +5501,18 @@ public class AssignmentAction extends PagedResourceActionII {
         state.setAttribute(SORTED_ASC, Boolean.TRUE.toString());
 
     } // doList_assignments
+
+    /**
+     * Action is to view the list of deleted assignments
+     */
+    public void doView_deletedAssignments(RunData data) {
+        SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
+
+        state.setAttribute(STATE_MODE, MODE_LIST_DELETED_ASSIGNMENTS);
+        state.setAttribute(SORTED_BY, SORTED_BY_TITLE);
+        state.setAttribute(SORTED_ASC, Boolean.TRUE.toString());
+
+    } // doView_deletedAssignments
 
     /**
      * Action is to cancel the student view grade process
@@ -9558,40 +9615,88 @@ public class AssignmentAction extends PagedResourceActionII {
     /**
      * Action is to delete the assignment and also the related AssignmentSubmission
      */
-    public void doDeep_delete_assignment(RunData data) {
+    public void doHardRemove_confirm_assignment(RunData data) {
         if (!"POST".equals(data.getRequest().getMethod())) {
             return;
         }
 
         SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
+        ParameterParser params = data.getParameters();
 
-        // get the delete assignment ids
-        List<String> ids = (List<String>) state.getAttribute(DELETE_ASSIGNMENT_IDS);
-        for (String id : ids) {
-            Assignment a = null;
-            try {
-                a = assignmentService.getAssignment(id);
+        // get the assignment ids
+        String[] assignmentIds = params.getStrings("selectedAssignments");
+        if (assignmentIds != null) {
+            for (String id : assignmentIds) {
+                Assignment a = null;
+                try {
+                    a = assignmentService.getAssignment(id);
 
-                if (a != null) {
-                    if (taggingManager.isTaggable()) {
-                        for (TaggingProvider provider : taggingManager.getProviders()) {
-                            provider.removeTags(assignmentActivityProducer.getActivity(a));
+                    if (a != null) {
+                        if (taggingManager.isTaggable()) {
+                            for (TaggingProvider provider : taggingManager.getProviders()) {
+                                provider.removeTags(assignmentActivityProducer.getActivity(a));
+                            }
                         }
+
+                        assignmentService.deleteAssignment(a);
                     }
 
-                    assignmentService.deleteAssignmentAndAllReferences(a);
+                } catch (IdUnusedException | PermissionException e) {
+                    addAlert(state, rb.getFormattedMessage("youarenot_editAssignment", id));
+                    log.warn(e.getMessage());
                 }
+            }
 
-            } catch (IdUnusedException | PermissionException e) {
-                addAlert(state, rb.getFormattedMessage("youarenot_editAssignment", id));
-                log.warn(e.getMessage());
-            }
             if (state.getAttribute(STATE_MESSAGE) == null) {
-                state.setAttribute(DELETE_ASSIGNMENT_IDS, new ArrayList());
+                state.setAttribute("selectedAssignments", new ArrayList());
                 state.setAttribute(STATE_MODE, MODE_LIST_ASSIGNMENTS);
+                state.setAttribute(STATE_SELECTED_VIEW, MODE_LIST_ASSIGNMENTS);
             }
+        } else {
+            addAlert(state, rb.getString("youmust6"));
         }
-    }
+    } // doHardRemove_confirm_assignment
+
+    /**
+     * Action is to show the restore assigment confirmation screen
+     */
+    public void doRestore_confirm_assignment(RunData data) {
+        if (!"POST".equals(data.getRequest().getMethod())) {
+            return;
+        }
+
+        SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
+        ParameterParser params = data.getParameters();
+
+        // get the assignment ids
+        String[] assignmentIds = params.getStrings("selectedAssignments");
+        if (assignmentIds != null) {
+            for (String id : assignmentIds) {
+                Assignment a = null;
+                try {
+                    a = assignmentService.getAssignment(id);
+
+                    if (a != null) {
+                        a.setDeleted(false);
+                        assignmentService.updateAssignment(a);
+                    }
+
+                } catch (IdUnusedException | PermissionException e) {
+                    addAlert(state, rb.getFormattedMessage("youarenot_editAssignment", id));
+                    log.warn(e.getMessage());
+                }
+            }
+
+            if (state.getAttribute(STATE_MESSAGE) == null) {
+                state.setAttribute("selectedAssignments", new ArrayList());
+                state.setAttribute(STATE_MODE, MODE_LIST_ASSIGNMENTS);
+                state.setAttribute(STATE_SELECTED_VIEW, MODE_LIST_ASSIGNMENTS);
+            }
+        } else {
+            addAlert(state, rb.getString("youmust6"));
+        }
+
+    } // doRestore_confirm_assignment
 
     /**
      * Action is to show the duplicate assignment screen
@@ -11929,6 +12034,9 @@ public class AssignmentAction extends PagedResourceActionII {
                 }
                 break;
             }
+            case MODE_LIST_DELETED_ASSIGNMENTS:
+                returnResources.addAll(assignmentService.getDeletedAssignmentsForContext((String) state.getAttribute(STATE_CONTEXT_STRING)));
+                break;
         }
 
         // sort them all
@@ -11997,6 +12105,8 @@ public class AssignmentAction extends PagedResourceActionII {
                 doReport_submissions(data);
             } else if (MODE_STUDENT_VIEW.equals(viewMode)) {
                 doView_student(data);
+            } if (MODE_LIST_DELETED_ASSIGNMENTS.equals(viewMode)) {
+                doView_deletedAssignments(data);
             }
 
             // reset the global navigaion alert flag

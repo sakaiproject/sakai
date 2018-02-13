@@ -46,7 +46,7 @@ function printView(url) {
 #set ($submissionType = $assignment.TypeOfSubmission.ordinal())
 
 <div class="portletBody container-fluid">
-    #navBarHREF( $allowAddAssignment $withGrade $allowGradeSubmission $allowAddAssignment $allowAllGroups $assignmentscheck $allowUpdateSite $enableViewOption $view "" )
+    #navBarHREF( $allowAddAssignment $withGrade $allowGradeSubmission $allowAddAssignment $allowRecoverAssignment $allowAllGroups $assignmentscheck $allowUpdateSite $enableViewOption $view "" )
 	<div class="page-header">
 		<h1>
 		$validator.escapeHtml($assignment.Title)

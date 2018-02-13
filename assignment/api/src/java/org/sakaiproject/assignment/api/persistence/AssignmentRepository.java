@@ -35,6 +35,8 @@ public interface AssignmentRepository extends SerializableRepository<Assignment,
 
     List<Assignment> findAssignmentsBySite(String siteId);
 
+    List<Assignment> findDeletedAssignmentsBySite(String siteId);
+
     List<String> findAllAssignmentIds();
 
     void newAssignment(Assignment assignment);
