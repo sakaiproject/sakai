@@ -92,6 +92,7 @@ public class IMSPOXRequest {
 	private String header = null;
 	private String oauth_body_hash = null;
 	private String oauth_consumer_key = null;
+	private String oauth_signature_method = null;
 
 	public boolean valid = false;
 	private String operation = null;
@@ -194,6 +195,10 @@ public class IMSPOXRequest {
 					String [] pieces = parm.split("\"");
 					oauth_consumer_key = URLDecoder.decode(pieces[1]);
 				}
+				if ( parm.startsWith("oauth_signature_method=") ) {
+					String [] pieces = parm.split("\"");
+					oauth_signature_method = URLDecoder.decode(pieces[1]);
+				}
 			}
 		}		
 
@@ -204,6 +209,7 @@ public class IMSPOXRequest {
 		}
 
 		log.debug("OBH={}", oauth_body_hash);
+		log.debug("OSM={}", oauth_signature_method);
 		final char[] buffer = new char[0x10000];
 		try {
 			StringBuilder out = new StringBuilder();
@@ -222,7 +228,10 @@ public class IMSPOXRequest {
 		}
 
 		try {
-			MessageDigest md = MessageDigest.getInstance("SHA1");
+			MessageDigest md = MessageDigest.getInstance("SHA-1");
+			if ( "HMAC-SHA256".equals(oauth_signature_method) ) {
+				md = MessageDigest.getInstance("SHA-256");
+			}
 			md.update(postBody.getBytes()); 
 			byte[] output = Base64.encode(md.digest());
 			String hash = new String(output);
@@ -296,6 +305,7 @@ public class IMSPOXRequest {
 
 		try {
 			base_string = OAuthSignatureMethod.getBaseString(oam);
+			log.debug("POX base_string={}",base_string);
 		} catch (Exception e) {
 			base_string = null;
 		}
