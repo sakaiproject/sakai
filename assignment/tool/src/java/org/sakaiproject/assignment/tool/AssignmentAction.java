@@ -2658,18 +2658,7 @@ public class AssignmentAction extends PagedResourceActionII {
             log.warn(this + ":setAssignmentFormContext " + ignore.getMessage());
         }
 
-        Collection groupsAllowAddAssignment = assignmentService.getGroupsAllowAddAssignment(contextString);
-        if (a != null && a.getIsGroup()) {
-            List _valid_groups = new ArrayList();
-            Iterator<Group> _it = groupsAllowAddAssignment.iterator();
-            while (_it.hasNext()) {
-                Group _group = _it.next();
-                //if (_group.getProperties().get(GROUP_SECTION_PROPERTY) == null) {
-                _valid_groups.add(_group);
-                //}
-            }
-            groupsAllowAddAssignment = _valid_groups;
-        }
+        Collection<Group> groupsAllowAddAssignment = assignmentService.getGroupsAllowAddAssignment(contextString);
 
         if (range == null) {
             if (assignmentService.allowAddSiteAssignment(contextString)) {
@@ -2695,10 +2684,11 @@ public class AssignmentAction extends PagedResourceActionII {
 
             // SAK-26349 - need to add the collection; the iterator added below is only usable once in the velocity template
             AssignmentComparator comp = new AssignmentComparator(state, sort, asc);
-            Collections.sort((List<Group>) groupsAllowAddAssignment, comp);
-            context.put("groupsList", groupsAllowAddAssignment);
+            List<Group> groupList = new ArrayList<>(groupsAllowAddAssignment);
+            Collections.sort(groupList, comp);
+            context.put("groupsList", groupList);
 
-            context.put("groups", new SortedIterator(groupsAllowAddAssignment.iterator(), comp));
+            context.put("groups", new SortedIterator(groupList.iterator(), comp));
             context.put("assignmentGroups", state.getAttribute(NEW_ASSIGNMENT_GROUPS));
         }
 
