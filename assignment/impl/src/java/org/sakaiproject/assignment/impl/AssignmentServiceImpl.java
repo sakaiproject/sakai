@@ -1494,19 +1494,19 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
     }
 
     @Override
-    public int getSubmittedSubmissionsCount(String assignmentReference) {
-        AssignmentReferenceReckoner.AssignmentReference reference = AssignmentReferenceReckoner.reckoner().reference(assignmentReference).reckon();
-        if (allowGetAssignment(reference.getContext())) {
-            return (int) assignmentRepository.countSubmittedSubmissionsForAssignment(reference.getId());
-        }
-        return 0;
-    }
+    public int countSubmissions(String assignmentReference, Boolean graded) {
+        String assignmentId = AssignmentReferenceReckoner.reckoner().reference(assignmentReference).reckon().getId();
+        try {
+            Assignment assignment = getAssignment(assignmentId);
 
-    @Override
-    public int getUngradedSubmissionsCount(String assignmentReference) {
-        AssignmentReferenceReckoner.AssignmentReference reference = AssignmentReferenceReckoner.reckoner().reference(assignmentReference).reckon();
-        if (allowGetAssignment(reference.getContext())) {
-            return (int) assignmentRepository.countUngradedSubmittedSubmissionsForAssignment(reference.getId());
+            boolean isNonElectronic = false;
+            if (assignment.getTypeOfSubmission() == Assignment.SubmissionType.NON_ELECTRONIC_ASSIGNMENT_SUBMISSION) {
+                isNonElectronic = true;
+            }
+            // if the assignment is non-electronic don't include submission date or is user submission
+            return (int) assignmentRepository.countAssignmentSubmissions(assignmentId, graded, !isNonElectronic, !isNonElectronic);
+        } catch (Exception e) {
+            log.warn("Couldn't count submissions for assignment reference {}, {}", assignmentReference, e.getMessage());
         }
         return 0;
     }

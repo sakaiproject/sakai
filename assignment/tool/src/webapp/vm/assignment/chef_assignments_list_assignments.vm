@@ -455,19 +455,8 @@
 								<td headers="num_submissions" class="specialLink hidden-xs">
 								## not show the link for draft assignment
 								#if (!$assignment.Draft && $!service.allowGradeSubmission($assignmentReference))
-									## 1- text only; 2-attachment only; 3-text and attachment; 4-Non-electronic
-									#set($ungradedNumber = $!service.getUngradedSubmissionsCount($assignmentReference))
-									#set($totalNumber = $!service.getSubmittedSubmissionsCount($assignmentReference))
-									#set ($submissionType = $assignment.TypeOfSubmission.ordinal())
-									#if ($!submissionType == 4)
-										## non-electronic assignment
-										#set ($allowSubmitUsers = $!service.allowAddSubmissionUsers($assignmentReference))
-										#if($totalNumber == 0)
-											## in case there is no submission object for any reason
-											#set($ungradedNumber = $allowSubmitUsers.size())
-											#set($totalNumber = $ungradedNumber)
-										#end
-									#end
+									#set($ungradedNumber = $!service.countSubmissions($assignmentReference, false))
+									#set($totalNumber = $!service.countSubmissions($assignmentReference, $null))
 									<div class="spinnerBesideContainer">
 										<a name="asnActionLink" href="javascript:void(0)" onclick="if(ASN.allowClick(this)){ SPNR.insertSpinnerAfter( this, null, null ); window.location='#toolLinkParam("$action" "doGrade_assignment" "assignmentId=$validator.escapeUrl($assignmentReference)")'; }" >
 											<span class="skip"> #if ($withGrade && $gradeScale != 1)$!tlang.getString("gen.assign.gra")#else$!tlang.getString("viewsubmissions")#end : $validator.escapeHtml($!assignment.Title). </span> <span class="skip">$!tlang.getString("gen.subm2"): </span>$!totalNumber/<span class="skip">$!tlang.getString("ungra"): </span>$!ungradedNumber
