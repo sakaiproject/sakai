@@ -18,6 +18,9 @@
   <name>Sakai Master</name>
   <description>Corporate POM for the Sakai Open Source Collaborative Learning Environment/Learning Management System</description>
   <version>12-SNAPSHOT</version>
+  <modules>
+    <module>dependency-check-support</module>
+  </modules>
 
   <properties>
     <sakai.version>12-SNAPSHOT</sakai.version>
@@ -2146,6 +2149,33 @@
         <inherited>true</inherited>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-site-plugin</artifactId>
+      </plugin>
+      <plugin>
+        <!-- Can be run as mvn org.owasp:dependency-check-maven:aggregate at the root -->
+        <groupId>org.owasp</groupId>
+        <artifactId>dependency-check-maven</artifactId>
+        <version>2.1.1</version>
+        <dependencies>
+          <dependency>
+            <groupId>org.sakaiproject</groupId>
+            <artifactId>dependency-check-support</artifactId>
+            <version>${project.version}</version>
+          </dependency>
+        </dependencies>
+        <configuration>
+          <suppressionFiles>
+            <!-- This is loaded off the classpath and is provided through the dependency-check-support artifact -->
+            <suppressionFile>sakai-suppression.xml</suppressionFile>
+          </suppressionFiles>
+        </configuration>
+        <executions>
+          <execution>
+            <goals>
+              <!-- We don't define any goals by default -->
+              <!--<goal>check</goal>-->
+            </goals>
+          </execution>
+        </executions>
       </plugin>
       <plugin>
           <groupId>org.apache.maven.plugins</groupId>
