@@ -21,6 +21,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
+import org.hibernate.Criteria;
 import org.hibernate.Session;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
@@ -178,27 +179,25 @@ public class AssignmentRepositoryImpl extends BasicSerializableRepository<Assign
     }
 
     @Override
-    public long countSubmittedSubmissionsForAssignment(String assignmentId) {
-        Number number = (Number) sessionFactory.getCurrentSession().createCriteria(AssignmentSubmission.class)
+    public long countAssignmentSubmissions(String assignmentId, Boolean graded, Boolean hasSubmissionDate, Boolean userSubmission) {
+        Criteria criteria = sessionFactory.getCurrentSession().createCriteria(AssignmentSubmission.class)
                 .setProjection(Projections.rowCount())
                 .add(Restrictions.eq("assignment.id", assignmentId))
-                .add(Restrictions.eq("submitted", Boolean.TRUE))
-                .add(Restrictions.eq("userSubmission", Boolean.TRUE))
-                .add(Restrictions.isNotNull("dateSubmitted"))
-                .uniqueResult();
-        return number.longValue();
-    }
+                .add(Restrictions.eq("submitted", Boolean.TRUE));
 
-    @Override
-    public long countUngradedSubmittedSubmissionsForAssignment(String assignmentId) {
-        Number number = (Number) sessionFactory.getCurrentSession().createCriteria(AssignmentSubmission.class)
-                .setProjection(Projections.rowCount())
-                .add(Restrictions.eq("assignment.id", assignmentId))
-                .add(Restrictions.eq("submitted", Boolean.TRUE))
-                .add(Restrictions.eq("graded", Boolean.FALSE))
-                .add(Restrictions.isNotNull("dateSubmitted"))
-                .uniqueResult();
-        return number.longValue();
+        if (graded != null) {
+            criteria.add(Restrictions.eq("graded", graded));
+        }
+
+        if (hasSubmissionDate != null) {
+            criteria.add(hasSubmissionDate ? Restrictions.isNotNull("dateSubmitted") : Restrictions.isNull("dateSubmitted"));
+        }
+
+        if (userSubmission != null) {
+            criteria.add(Restrictions.eq("userSubmission", userSubmission));
+        }
+
+        return ((Number) criteria.uniqueResult()).longValue();
     }
 
     @Override
