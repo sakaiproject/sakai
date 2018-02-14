@@ -1495,16 +1495,16 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
 
     @Override
     public int countSubmissions(String assignmentReference, Boolean graded) {
-        AssignmentReferenceReckoner.AssignmentReference reference = AssignmentReferenceReckoner.reckoner().reference(assignmentReference).reckon();
+        String assignmentId = AssignmentReferenceReckoner.reckoner().reference(assignmentReference).reckon().getId();
         try {
-            Assignment assignment = getAssignment(reference.getId());
+            Assignment assignment = getAssignment(assignmentId);
 
             boolean isNonElectronic = false;
             if (assignment.getTypeOfSubmission() == Assignment.SubmissionType.NON_ELECTRONIC_ASSIGNMENT_SUBMISSION) {
                 isNonElectronic = true;
             }
             // if the assignment is non-electronic don't include submission date or is user submission
-            return (int) assignmentRepository.countAssignmentSubmissions(reference.getId(), graded, !isNonElectronic, !isNonElectronic);
+            return (int) assignmentRepository.countAssignmentSubmissions(assignmentId, graded, !isNonElectronic, !isNonElectronic);
         } catch (Exception e) {
             log.warn("Couldn't count submissions for assignment reference {}, {}", assignmentReference, e.getMessage());
         }
