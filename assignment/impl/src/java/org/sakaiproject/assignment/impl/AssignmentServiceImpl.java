@@ -1494,14 +1494,19 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
     }
 
     @Override
-    public int getSubmissionsCount(String assignmentReference, boolean countUngradedOnly) {
+    public int countSubmissions(String assignmentReference, Boolean graded) {
         AssignmentReferenceReckoner.AssignmentReference reference = AssignmentReferenceReckoner.reckoner().reference(assignmentReference).reckon();
-        if (allowGetAssignment(reference.getContext())) {
-            boolean includeUserSubmission = true;
-            boolean includeSubmissionDate = true;
-            //Don't include the user submission and the submission date if the assignment is non-electronic
-            includeUserSubmission = includeSubmissionDate = !(getAssignmentType(reference.getId()) == Assignment.SubmissionType.NON_ELECTRONIC_ASSIGNMENT_SUBMISSION);
-            return (int) assignmentRepository.countSubmissionsForAssignment(reference.getId(), countUngradedOnly, includeSubmissionDate, includeUserSubmission);
+        try {
+            Assignment assignment = getAssignment(reference.getId());
+
+            boolean isNonElectronic = false;
+            if (assignment.getTypeOfSubmission() == Assignment.SubmissionType.NON_ELECTRONIC_ASSIGNMENT_SUBMISSION) {
+                isNonElectronic = true;
+            }
+            // if the assignment is non-electronic don't include submission date or is user submission
+            return (int) assignmentRepository.countAssignmentSubmissions(reference.getId(), graded, !isNonElectronic, !isNonElectronic);
+        } catch (Exception e) {
+            log.warn("Couldn't count submissions for assignment reference {}, {}", assignmentReference, e.getMessage());
         }
         return 0;
     }
@@ -2026,16 +2031,6 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
         }
 
         return rv;
-    }
-
-    private Assignment.SubmissionType getAssignmentType(String assignmentId){
-        try{
-            Assignment assignment = getAssignment(assignmentId);
-            return assignment.getTypeOfSubmission();
-        } catch (IdUnusedException | PermissionException e) {
-            log.warn("Could not get assignment with id = {}", assignmentId, e);
-            return null;
-        }
     }
 
     private List<User> getSelectedGroupUsers(String allOrOneGroup, String contextString, Assignment a, List allowAddSubmissionUsers) {

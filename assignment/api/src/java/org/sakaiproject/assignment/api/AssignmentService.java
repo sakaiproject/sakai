@@ -455,15 +455,14 @@ public interface AssignmentService extends EntityProducer {
     public List<User> getSortedGroupUsers(Group g);
 
     /**
-     * Get the number of submissions.
+     * Count the number of submissions for a given assignment.
      *
-     * @param assignmentRef -
-     *                      the reference of Assignment who's submission count you would like.
-     * @param countUngradedOnly
-                            false to count the number of submissions which has been submitted, true to count the number of submissions which has not been submitted and graded.
-     * @return int The total submissions for the specified assignment.
+     * @param assignmentRef the assignment reference of the submissions to count.
+     * @param graded count the number of submissions which have been submitted and are graded
+     *               respectively graded is true and ungraded is false or null for both.
+     * @return int count of submissions for the specified assignment.
      */
-    public int getSubmissionsCount(String assignmentRef, boolean countUngradedOnly);
+    public int countSubmissions(String assignmentRef, Boolean graded);
 
     /**
      * Access the grades spreadsheet for the reference, either for an assignment or all assignments in a context.
