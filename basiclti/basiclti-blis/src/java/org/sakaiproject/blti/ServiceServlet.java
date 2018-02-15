@@ -221,7 +221,7 @@ public class ServiceServlet extends HttpServlet {
 	protected void doPostForm(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		String ipAddress = request.getRemoteAddr();
 
-		log.debug("Basic LTI Service request from IP={}", ipAddress);
+		log.debug("Basic LTI Service Form request from IP={}", ipAddress);
 
 		String allowOutcomes = ServerConfigurationService.getString(
 				SakaiBLTIUtil.BASICLTI_OUTCOMES_ENABLED, SakaiBLTIUtil.BASICLTI_OUTCOMES_ENABLED_DEFAULT);
@@ -280,11 +280,13 @@ public class ServiceServlet extends HttpServlet {
 			return;
 		}
 
-		// Perform the Outcomee first because we use the SakaiBLTIUtil code for this
+		// This is for the pre-LTI 1.x "Sakai Basic Outcomes" and is probably never used
+		// Perform the Outcome here because we use SakaiBLTIUtil.handleGradebook()
 		if ( "basicoutcome".equals(message_type) ) {
 			processOutcome(request, response, lti_message_type, sourcedid, theMap);
 			return;
 		}
+
 
 		// No point continuing without a sourcedid
 		if(BasicLTIUtil.isBlank(sourcedid)) {
@@ -388,6 +390,7 @@ public class ServiceServlet extends HttpServlet {
 		String base_string = null;
 		try {
 			base_string = OAuthSignatureMethod.getBaseString(oam);
+			log.debug("base_string={}",base_string);
 		} catch (Exception e) {
 			log.error(e.getLocalizedMessage(), e);
 			base_string = null;
@@ -433,7 +436,7 @@ public class ServiceServlet extends HttpServlet {
 			return;
 		}
 
-		// Perform the message-specific handling
+		// These are the Sakai-post form extensions
 		if ( "toolsetting".equals(message_type) ) processSetting(request, response, lti_message_type, site, siteId, placement_id, pitch, user_id, theMap);
 
 		if ( "roster".equals(message_type) ) processRoster(request, response, lti_message_type, site, siteId, placement_id, pitch, user_id, theMap);
@@ -801,7 +804,8 @@ public class ServiceServlet extends HttpServlet {
 			return;
 		}
 
-		// Handle the outcomes here using the new SakaiBLTIUtil code
+		// Handle the LTI 1.x Outcomes
+		// Perform the Outcome here because we use SakaiBLTIUtil.handleGradebook()
 		if ( allowOutcomes != null && "basicoutcome".equals(message_type) ) {
 			processOutcomeXml(request, response, lti_message_type, sourcedid, pox);
 			return;

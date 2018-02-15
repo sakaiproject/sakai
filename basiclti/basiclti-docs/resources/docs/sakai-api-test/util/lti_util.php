@@ -876,7 +876,7 @@ function get_curl($url, $header) {
 
 function sendOAuthBody($method, $endpoint, $oauth_consumer_key, $oauth_consumer_secret, $content_type, $body, $more_headers=false, $signature=false)
 {
-    if ( $signature == "HMAC-256") {
+    if ( $signature == "HMAC-SHA256") {
         $hash = base64_encode(hash('sha256', $body, TRUE));
     } else {
         $hash = base64_encode(sha1($body, TRUE));
