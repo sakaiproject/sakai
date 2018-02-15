@@ -47,6 +47,9 @@ if ( $context->valid ) {
         print '&key='.urlencode($_POST['oauth_consumer_key']);
         print '&secret=secret';
         print '&url='.urlencode($_POST['lis_outcome_service_url']);
+        if ( isset($_POST['oauth_signature_method']) && $_POST['oauth_signature_method'] != 'HMAC-SHA1' ) {
+            print '&oauth_signature_method='.urlencode($_POST['oauth_signature_method']).'">';
+        }
         print '&accepted='.urlencode($_POST['ext_outcome_data_values_accepted']).'">';
         print 'Test LTI 1.1 Outcome Service</a>.</p>'."\n";
 		$found = true;
