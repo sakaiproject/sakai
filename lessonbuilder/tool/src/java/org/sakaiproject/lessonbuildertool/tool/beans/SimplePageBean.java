@@ -1802,7 +1802,10 @@ public class SimplePageBean {
 					}
 					if(item != null && item.getShowComments() != null && item.getShowComments()) {
 						//copy the attribute string from the top student section page  to each student page
-						items.add(0, simplePageToolDao.findItem(student.getCommentsSection()));
+						SimplePageItem commentsSection = simplePageToolDao.findItem(student.getCommentsSection());
+						if(commentsSection != null) {
+							items.add(0, commentsSection);
+						}
 					}
 				}
 			}
