@@ -33,6 +33,7 @@ import org.sakaiproject.service.gradebook.shared.Assignment;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.sakaiproject.gradebookng.business.importExport.CommentValidator;
 
 /**
  *
@@ -121,7 +122,7 @@ public class EditGradeCommentPanel extends BasePanel {
 
 		// textarea
 		form.add(new TextArea<String>("comment", new PropertyModel<String>(formModel, "gradeComment"))
-				.add(StringValidator.maximumLength(500)));
+				.add(StringValidator.maximumLength(CommentValidator.MAX_COMMENT_LENGTH)));
 
 		// instant validation
 		// AjaxFormValidatingBehavior.addToAllFormComponents(form, "onkeyup", Duration.ONE_SECOND);

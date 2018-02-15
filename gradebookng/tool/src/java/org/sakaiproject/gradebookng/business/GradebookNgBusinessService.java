@@ -46,6 +46,7 @@ import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.gradebookng.business.exception.GbAccessDeniedException;
 import org.sakaiproject.gradebookng.business.exception.GbException;
+import org.sakaiproject.gradebookng.business.importExport.CommentValidator;
 import org.sakaiproject.gradebookng.business.model.GbCourseGrade;
 import org.sakaiproject.gradebookng.business.model.GbGradeCell;
 import org.sakaiproject.gradebookng.business.model.GbGradeInfo;
@@ -670,11 +671,10 @@ public class GradebookNgBusinessService {
 			log.debug("newGradeAdjusted: " + newGradeAdjusted);
 		}
 
-		// if comment longer than 500 chars, error.
-		// the field is a CLOB, probably by mistake. Loading this field up may cause performance issues
-		// see SAK-29595
-		if (StringUtils.length(comment) > 500) {
-			log.error("Comment too long. Maximum 500 characters.");
+		// if comment longer than MAX_COMMENT_LENGTH chars, error.
+		// SAK-33836 - MAX_COMMENT_LENGTH controlled by sakai.property 'gradebookng.maxCommentLength'; defaults to 20,000
+		if (CommentValidator.isCommentInvalid(comment)) {
+			log.error("Comment too long. Maximum {} characters.", CommentValidator.MAX_COMMENT_LENGTH);
 			return GradeSaveResponse.ERROR;
 		}
 
