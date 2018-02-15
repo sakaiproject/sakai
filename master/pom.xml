@@ -18,9 +18,6 @@
   <name>Sakai Master</name>
   <description>Corporate POM for the Sakai Open Source Collaborative Learning Environment/Learning Management System</description>
   <version>12-SNAPSHOT</version>
-  <modules>
-    <module>dependency-check-support</module>
-  </modules>
 
   <properties>
     <sakai.version>12-SNAPSHOT</sakai.version>
@@ -2163,7 +2160,7 @@
         <artifactId>maven-site-plugin</artifactId>
       </plugin>
       <plugin>
-        <!-- Can be run as mvn org.owasp:dependency-check-maven:aggregate at the root -->
+        <!-- Can be run as mvn -Pdependency-check-support org.owasp:dependency-check-maven:aggregate at the root -->
         <groupId>org.owasp</groupId>
         <artifactId>dependency-check-maven</artifactId>
         <version>2.1.1</version>
