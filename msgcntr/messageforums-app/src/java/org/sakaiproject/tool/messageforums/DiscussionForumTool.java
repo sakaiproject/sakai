@@ -9014,8 +9014,7 @@ private String editorRows;
             return false;
         }
         boolean hasOverridingPermissions = false;
-        if(SecurityService.isSuperUser()
-                || isInstructor()){
+        if(SecurityService.isSuperUser()){
             return true;
         }
 
@@ -9023,22 +9022,24 @@ private String editorRows;
         if(topic == null){
             return false;
         }
-        if(userId.equals(topic.getCreatedBy())){
-            return true;
-        }
+        
         DiscussionForum forum = forumManager.getForumById(topic.getBaseForum().getId());
         if(forum == null){
             return false;
         }
-        Area area = forumManager.getDiscussionForumArea();
-        if(area == null){
+        
+        Area currentArea = forumManager.getDiscussionForumArea();
+        Area forumArea = forum.getArea();
+        if(forumArea == null || currentArea == null || !forumArea.getId().equals(currentArea.getId()) ){
             return false;
         }
 
-        return !topic.getDraft() && !forum.getDraft()
-                && topic.getAvailability() 
-                && forum.getAvailability() 
-                && area.getAvailability();
+        return isInstructor()
+        		|| userId.equals(topic.getCreatedBy())
+        		|| (!topic.getDraft() && !forum.getDraft()
+        				&& topic.getAvailability() 
+        				&& forum.getAvailability() 
+        				&& currentArea.getAvailability());
     }
     
 	public String getServerUrl() {
@@ -9873,7 +9874,7 @@ private String editorRows;
         descMap.put("en-US", "User received a grade for their forum post: " + forumTitle);
         lrsObject.setDescription(descMap);
         User studentUser = UserDirectoryService.getUser(studentUid);
-        LRS_Actor student = new LRS_Actor(studentUser.getEmail());
+        LRS_Actor student = learningResourceStoreService.getActor(studentUser.getId());
         student.setName(studentUser.getDisplayName());
         LRS_Statement statement = new LRS_Statement(student, verb, lrsObject, getLRS_Result(score), null);
         return statement;

@@ -5,7 +5,9 @@
 	<class name="org.sakaiproject.lessonbuildertool.SimplePageLogEntryImpl" table="lesson_builder_log">
 	
 		<id name="id" type="long">
-			<generator class="native" />
+			<generator class="native">
+				<param name="sequence">LESSON_BUILDER_LOG_S</param>
+			</generator>
 		</id>
 		
 		<timestamp name="lastViewed" />

@@ -7600,7 +7600,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 		{
 			boolean isDropbox = false;
 			boolean attachmentOverride = false;
-			// special check for group-user : the grant's in the user's My Workspace site
+			// special check for group-user : the grant's in the user's Home site
 			String parts[] = StringUtil.split(ref.getId(), Entity.SEPARATOR);
 			if ((parts.length > 3) && (parts[1].equals("group-user")))
 			{
@@ -9483,7 +9483,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 	} // bytes2k
 
 	/**
-	 * gets the quota for a site collection or for a user's my workspace collection
+	 * gets the quota for a site collection or for a user's Home collection
 	 *
 	 * @param collection the collection on which to test for a quota.  this can be the collection for a site
 	 * or a user's workspace collection
@@ -11026,7 +11026,11 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 
 		public Date getReleaseTime()
 		{
-			return new Date(m_releaseDate.getTime());
+			Date date = null;
+			if (m_releaseDate != null) {
+				date = new Date(m_releaseDate.getTime());
+			}
+			return date;
 		}
 		
 		public Time getRetractDate()
@@ -11036,18 +11040,29 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 		
 		public Date getRetractTime()
 		{
-			return new Date(m_retractDate.getTime());
+			Date date = null;
+			if (m_retractDate != null) {
+				date = new Date(m_retractDate.getTime());
+			}
+			return date;
 		}
 		
 		@Override
 		public Instant getReleaseInstant() {
-			// TODO Auto-generated method stub
-			return Instant.ofEpochMilli(m_releaseDate.getTime());
+			Instant instant = null;
+			if (m_releaseDate != null) {
+				instant =  Instant.ofEpochMilli(m_releaseDate.getTime());
+			}
+			return instant;
 		}
 
 		@Override
 		public Instant getRetractInstant() {
-			return Instant.ofEpochMilli(m_retractDate.getTime());
+			Instant instant = null;
+			if (m_retractDate != null) {
+				instant = instant.ofEpochMilli(m_retractDate.getTime());
+			}
+			return instant;
 		}
 
 		@Override

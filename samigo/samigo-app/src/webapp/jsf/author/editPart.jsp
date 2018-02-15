@@ -36,7 +36,7 @@
       <title><h:outputText value="#{authorMessages.create_modify_p}" /></title>
       <!-- AUTHORING -->
       <samigo:script path="/js/authoring.js"/>
-      <script src="/library/js/spinner.js" type="text/javascript"></script>
+      <samigo:script path="/../library/js/spinner.js" type="text/javascript"/>
       </head>
       <body onload="<%= request.getAttribute("html.body.onload") %>">
 

@@ -17,9 +17,11 @@ package org.sakaiproject.gradebookng.business.model;
 
 import java.io.Serializable;
 
-import org.sakaiproject.user.api.User;
-
 import lombok.Getter;
+
+import org.apache.commons.lang.StringUtils;
+
+import org.sakaiproject.user.api.User;
 
 /**
  * DTO for a user. Enhance as required.
@@ -27,7 +29,7 @@ import lombok.Getter;
  * @author Steve Swinsburg (steve.swinsburg@gmail.com)
  *
  */
-public class GbUser implements Serializable {
+public class GbUser implements Serializable, Comparable<GbUser> {
 
 	private static final long serialVersionUID = 1L;
 
@@ -43,10 +45,58 @@ public class GbUser implements Serializable {
 	@Getter
 	private final String displayName;
 
+	@Getter
+	private final String firstName;
+
+	@Getter
+	private final String lastName;
+
+	@Getter
+	private final String studentNumber;
+
 	public GbUser(final User u) {
+		this(u, "");
+	}
+
+	public GbUser(final User u, String studentNumber) {
 		this.userUuid = u.getId();
 		this.displayId = u.getDisplayId();
 		this.displayName = u.getDisplayName();
+		this.firstName = u.getFirstName();
+		this.lastName = u.getLastName();
+		this.studentNumber = studentNumber;
 	}
 
+	public GbUser(final String userUUID, final String displayID, final String displayName, final String firstName, final String lastName, final String studentNumber) {
+		this.userUuid = userUUID;
+		this.displayId = displayID;
+		this.displayName = displayName;
+		this.firstName = firstName;
+		this.lastName = lastName;
+		this.studentNumber = studentNumber;
+	}
+
+	public static GbUser forDisplayOnly(final String displayID, final String displayName) {
+		return new GbUser("", displayID, displayName, "", "", "");
+	}
+
+	public boolean isValid() {
+		return StringUtils.isNotBlank(userUuid);
+	}
+
+	@Override
+	public int compareTo(GbUser user)
+	{
+		int comp = displayId.compareToIgnoreCase(user.displayId);
+		if (comp == 0) {
+			comp = displayName.compareToIgnoreCase(user.displayName);
+		}
+
+		return comp;
+	}
+
+	@Override
+	public String toString() {
+		return displayId;
+	}
 }

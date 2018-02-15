@@ -61,6 +61,12 @@ public class ForeverTemplateCache implements TemplateCache {
     }
 
     @Override
+    public TemplateCache setReload(boolean reload) {
+        // Ignored: Forever means forever...
+        return this;
+    }
+
+    @Override
     public void clear() {
         cache.clear();
     }

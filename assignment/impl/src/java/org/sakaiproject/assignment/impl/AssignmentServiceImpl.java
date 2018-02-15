@@ -35,7 +35,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -79,8 +78,8 @@ import org.sakaiproject.assignment.api.model.AssignmentSupplementItemService;
 import org.sakaiproject.assignment.impl.sort.AnonymousSubmissionComparator;
 import org.sakaiproject.assignment.impl.sort.AssignmentSubmissionComparator;
 import org.sakaiproject.assignment.impl.sort.UserComparator;
-import org.sakaiproject.assignment.persistence.AssignmentRepository;
-import org.sakaiproject.assignment.taggable.api.AssignmentActivityProducer;
+import org.sakaiproject.assignment.api.persistence.AssignmentRepository;
+import org.sakaiproject.assignment.api.taggable.AssignmentActivityProducer;
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.AuthzPermissionException;
@@ -1067,7 +1066,8 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
         }
         eventTrackingService.post(eventTrackingService.newEvent(AssignmentConstants.EVENT_UPDATE_ASSIGNMENT, reference, true));
 
-        assignmentRepository.updateAssignment(assignment);
+        assignment.setDateModified(Instant.now());
+        assignmentRepository.update(assignment);
 
     }
 
@@ -1083,6 +1083,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
         }
         eventTrackingService.post(eventTrackingService.newEvent(AssignmentConstants.EVENT_UPDATE_ASSIGNMENT_SUBMISSION, reference, true));
 
+        submission.setDateModified(Instant.now());
         assignmentRepository.updateSubmission(submission);
 
         // Assignment Submission Notifications
@@ -1222,6 +1223,15 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
         }
 
         return assignments;
+    }
+
+    @Override
+    public Collection<Assignment> getDeletedAssignmentsForContext(String context) {
+        log.debug("GET DELETED ASSIGNMENTS : CONTEXT : {}", context);
+        List<Assignment> assignments = new ArrayList<>();
+        if (StringUtils.isBlank(context)) return assignments;
+
+        return assignmentRepository.findDeletedAssignmentsBySite(context);
     }
 
     @Override
@@ -1493,19 +1503,19 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
     }
 
     @Override
-    public int getSubmittedSubmissionsCount(String assignmentReference) {
-        AssignmentReferenceReckoner.AssignmentReference reference = AssignmentReferenceReckoner.reckoner().reference(assignmentReference).reckon();
-        if (allowGetAssignment(reference.getContext())) {
-            return (int) assignmentRepository.countSubmittedSubmissionsForAssignment(reference.getId());
-        }
-        return 0;
-    }
+    public int countSubmissions(String assignmentReference, Boolean graded) {
+        String assignmentId = AssignmentReferenceReckoner.reckoner().reference(assignmentReference).reckon().getId();
+        try {
+            Assignment assignment = getAssignment(assignmentId);
 
-    @Override
-    public int getUngradedSubmissionsCount(String assignmentReference) {
-        AssignmentReferenceReckoner.AssignmentReference reference = AssignmentReferenceReckoner.reckoner().reference(assignmentReference).reckon();
-        if (allowGetAssignment(reference.getContext())) {
-            return (int) assignmentRepository.countUngradedSubmittedSubmissionsForAssignment(reference.getId());
+            boolean isNonElectronic = false;
+            if (assignment.getTypeOfSubmission() == Assignment.SubmissionType.NON_ELECTRONIC_ASSIGNMENT_SUBMISSION) {
+                isNonElectronic = true;
+            }
+            // if the assignment is non-electronic don't include submission date or is user submission
+            return (int) assignmentRepository.countAssignmentSubmissions(assignmentId, graded, !isNonElectronic, !isNonElectronic);
+        } catch (Exception e) {
+            log.warn("Couldn't count submissions for assignment reference {}, {}", assignmentReference, e.getMessage());
         }
         return 0;
     }
@@ -1836,6 +1846,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                                     AssignmentSubmission s = addSubmission(a.getId(), g.getId());
                                     s.setSubmitted(true);
                                     s.setUserSubmission(false);
+                                    s.setDateModified(Instant.now());
 
                                     // set the resubmission properties
                                     // get the assignment setting for resubmitting
@@ -1994,6 +2005,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
 									 * the user did not in fact submit anything.
 									 */
                                     s.setUserSubmission(false);
+                                    s.setDateModified(Instant.now());
 
                                     // set the resubmission properties
                                     // get the assignment setting for resubmitting
@@ -3330,6 +3342,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
     }
 
     @Override
+    @Transactional
     public void postReviewableSubmissionAttachments(AssignmentSubmission submission) {
         try {
             Optional<AssignmentSubmissionSubmitter> submitter = submission.getSubmitters().stream().filter(AssignmentSubmissionSubmitter::getSubmittee).findFirst();
@@ -3699,7 +3712,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
         String resubmissionNumber = StringUtils.defaultString(s.getProperties().get(AssignmentConstants.ALLOW_RESUBMIT_NUMBER), "0");
         descMap.put("en-US", "User received a grade for their assginment: " + a.getTitle() + "; Submission #: " + resubmissionNumber);
         lrsObject.setDescription(descMap);
-        LRS_Actor student = new LRS_Actor(studentUser.getEmail());
+        LRS_Actor student = learningResourceStoreService.getActor(studentUser.getId());
         student.setName(studentUser.getDisplayName());
         return new LRS_Statement(student, verb, lrsObject, getLRS_Result(a, s, true), null);
     }
@@ -3730,7 +3743,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
         Map<String, String> descMap = new HashMap<>();
         descMap.put("en-US", "User received a grade for an unsubmitted assginment: " + a.getTitle());
         lrsObject.setDescription(descMap);
-        LRS_Actor student = new LRS_Actor(studentUser.getEmail());
+        LRS_Actor student = learningResourceStoreService.getActor(studentUser.getId());
         student.setName(studentUser.getDisplayName());
         return new LRS_Statement(student, verb, lrsObject, getLRS_Result(a, s, false), null);
     }
@@ -3836,6 +3849,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
     }
 
     @Override
+    @Transactional
     public List<ContentReviewResult> getContentReviewResults(AssignmentSubmission s){
         ArrayList<ContentReviewResult> reviewResults = new ArrayList<ContentReviewResult>();
         //get all the attachments for this submission and populate the reviewResults

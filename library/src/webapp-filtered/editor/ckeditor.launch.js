@@ -247,15 +247,17 @@ sakai.editor.editors.ckeditor.launch = function(targetId, config, w, h) {
         CKEDITOR.plugins.addExternal('movieplayer',basePath+'movieplayer/', 'plugin.js');
         CKEDITOR.plugins.addExternal('audiorecorder',basePath+'audiorecorder/', 'plugin.js');
         CKEDITOR.plugins.addExternal('contentitem',basePath+'contentitem/', 'plugin.js');
-        CKEDITOR.plugins.addExternal('image2',basePath+'image2/', 'plugin.js');
         CKEDITOR.plugins.addExternal('sakaipreview',basePath+'sakaipreview/', 'plugin.js');
+        
+        CKEDITOR.plugins.addExternal('image2',webJars+'image2/${ckeditor.image2.version}/', 'plugin.js');
+
         //Autosave has a dependency on notification
         CKEDITOR.plugins.addExternal('autosave',webJars+'autosave/${ckeditor.autosave.version}/', 'plugin.js');
         CKEDITOR.plugins.addExternal('wordcount',webJars+'wordcount/${ckeditor.wordcount.version}/', 'plugin.js');
         CKEDITOR.plugins.addExternal('notification',basePath+'notification/', 'plugin.js');
         // Accessibility checker has a dependency on balloonpanel
-        CKEDITOR.plugins.addExternal('balloonpanel',webJars+'balloonpanel/4.6.2/', 'plugin.js');
-        CKEDITOR.plugins.addExternal('a11ychecker',webJars+'a11ychecker/1.1.0/', 'plugin.js');
+        CKEDITOR.plugins.addExternal('balloonpanel',webJars+'balloonpanel/${ckeditor.balloonpanel.version}/', 'plugin.js');
+        CKEDITOR.plugins.addExternal('a11ychecker',webJars+'a11ychecker/${ckeditor.a11ychecker.version}/', 'plugin.js');
         /*
            To enable after the deadline uncomment these two lines and add atd-ckeditor to toolbar
            and to extraPlugins. This also needs extra stylesheets.

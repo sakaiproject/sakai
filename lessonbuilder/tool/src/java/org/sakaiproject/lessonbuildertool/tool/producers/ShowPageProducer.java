@@ -2363,6 +2363,11 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 
 						boolean evalIndividual = (i.isGroupOwned() && "true".equals(i.getAttribute("group-eval-individual")));
 
+						//If groupMembers is empty this should be true (individual) even if this is set to being in a group
+						if (groupMembers == null || groupMembers.isEmpty()) {
+							evalIndividual = true;
+						}
+
 						// if we should show form. 
 						// individual owned
 						// group owned and eval group
@@ -4199,6 +4204,11 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 			UIOutput.make(tofill, "blti-li");
 			createToolBarLink(BltiPickerProducer.VIEW_ID, tofill, "add-blti", "simplepage.blti", currentPage, "simplepage.blti.tooltip");
 		    }
+			// App Store Only BLTI Link
+			if (bltiEntity != null && ((BltiInterface)bltiEntity).servicePresent()) {
+				UIOutput.make(tofill, "blti-app-li");
+				createAppStoreToolBarLink(BltiPickerProducer.VIEW_ID, tofill, "add-blti-app", "simplepage.blti.app", currentPage, "simplepage.blti.app.tooltip");
+			}
 			
 		}
 	}
@@ -4206,6 +4216,14 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 	private GeneralViewParameters createToolBarLink(String viewID, UIContainer tofill, String ID, String message, SimplePage currentPage, String tooltip) {
 		GeneralViewParameters params = new GeneralViewParameters();
 		params.setSendingPage(currentPage.getPageId());
+		createStandardToolBarLink(viewID, tofill, ID, message, params, tooltip);
+		return params;
+	}
+
+	private GeneralViewParameters createAppStoreToolBarLink(String viewID, UIContainer tofill, String ID, String message, SimplePage currentPage, String tooltip) {
+		GeneralViewParameters params = new GeneralViewParameters();
+		params.setSendingPage(currentPage.getPageId());
+		params.bltiAppStores = true;
 		createStandardToolBarLink(viewID, tofill, ID, message, params, tooltip);
 		return params;
 	}

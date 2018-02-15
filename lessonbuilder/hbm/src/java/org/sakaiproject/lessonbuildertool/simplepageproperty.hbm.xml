@@ -7,7 +7,9 @@
      <cache usage="nonstrict-read-write" />
 
      <id name="id" type="long">
-         <generator class="native"/>
+         <generator class="native">
+         	<param name="sequence">LESSON_BUILDER_PROP_S</param>
+         </generator>
      </id>
 
      <property name="attribute" type="string" length="255" not-null="true" unique="true"/>

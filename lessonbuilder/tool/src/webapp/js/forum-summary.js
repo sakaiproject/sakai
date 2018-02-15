@@ -24,10 +24,10 @@ function showForums(forumsUrl, toolHref, itemsToShow, forumSummaryDiv  ){
 			success: function(data) {
 				$(data["forums_collection"]).each(function(fc_index, fc_value){
 					var author;
-					if(fc_value['modifiedBy'].indexOf('(') > -1){
-						author = fc_value['modifiedBy'].split('(')[0];
+					if(fc_value['createdBy'].indexOf('(') > -1){
+						author = fc_value['createdBy'].split('(')[0];
 					}else{
-						author = fc_value['modifiedBy'];
+						author = fc_value['createdBy'];
 					}
 					//escape markup
 					var entityTitle = fc_value['entityTitle'].replace(/&/g, '&amp;').replace(/>/g, '&gt;').replace(/</g, '&lt;').replace(/"/g, '&quot;');

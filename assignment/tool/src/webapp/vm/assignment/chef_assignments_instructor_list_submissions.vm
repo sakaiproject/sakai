@@ -46,7 +46,7 @@ function printView(url) {
 #set ($submissionType = $assignment.TypeOfSubmission.ordinal())
 
 <div class="portletBody container-fluid">
-    #navBarHREF( $allowAddAssignment $withGrade $allowGradeSubmission $allowAddAssignment $allowAllGroups $assignmentscheck $allowUpdateSite $enableViewOption $view "" )
+    #navBarHREF( $allowAddAssignment $withGrade $allowGradeSubmission $allowAddAssignment $allowRecoverAssignment $allowAllGroups $assignmentscheck $allowUpdateSite $enableViewOption $view "" )
 	<div class="page-header">
 		<h1>
 		$validator.escapeHtml($assignment.Title)
@@ -560,7 +560,7 @@ function printView(url) {
 								#if ($taggable)
 									#if (!$!submission.submitted)
 										#set($submittedText = $!submission.submittedText)
-										#set($submittedAttachments = $submission.submittedAttachments)
+										#set($submittedAttachments = $submission.Attachments)
 										#if ($!submittedText.length() > 0 || $!submittedAttachments.size() > 0 )
 										<span class="highlight">$tlang.getString("gen.dra2") </span>
 										#end
@@ -610,8 +610,8 @@ function printView(url) {
 										<a href="#toolLinkParam("AssignmentAction" "doGrade_submission" "assignmentId=$validator.escapeUrl($assignmentReference)&submissionId=$validator.escapeUrl($userSubmission.Reference)")" title="$tlang.getString("listsub.grasub")">
 											#if (!$!submission.submitted)
 												#set($submittedText = $!submission.submittedText)
-												#set($submittedAttachments = $submission.submittedAttachments)
-												#if ($submittedText && !$submittedText.isEmpty() || !$submittedAttachments.isEmpty())
+												#set($submittedAttachments = $submission.Attachments)
+												#if ($submittedText && !$submittedText.isEmpty() || $!submittedAttachments.size() > 0 )
 												<span class="highlight">$tlang.getString("gen.dra2") </span>
 												#end
 											#end
@@ -665,21 +665,21 @@ function printView(url) {
 							#if ($assignment.AllowPeerAssessment)
 								<td>
 									#if($!submission)
-										#foreach($item in $peerAssessmentItems.get($submission.getId()))
-											<a href='#toolLinkParam("$action" "doView_submissionReviews" "submissionId=${userSubmission.Reference}&assessorId=$item.getAssessorUserId()&assignmentId=$validator.escapeUrl($!assignmentReference)")'>
+										#foreach($item in $peerAssessmentItems.get($userSubmission.Submission.Id))
+											<a href='#toolLinkParam("$action" "doView_submissionReviews" "submissionId=${userSubmission.Submission.Id}&assessorId=$item.getId().getAssessorUserId()&assignmentId=$validator.escapeUrl($!assignmentReference)")'>
 											#if($item.isRemoved())
 												<span style="text-decoration: line-through">
 											#else
 												<span>
 											#end
-											#if($reviewersMap.containsKey($item.getAssessorUserId()))
-												$!reviewersMap.get($item.getAssessorUserId()).sortName
+											#if($reviewersMap.containsKey($item.getId().getAssessorUserId()))
+												$!reviewersMap.get($item.getId().getAssessorUserId()).sortName
 											#else
-												$!item.getAssessorUserId()
+												$!item.getId().getAssessorUserId()
 											#end
 											</span>
 											</a>
-											#if($!item.getScoreDisplay().length() > 0 || $!item.getComment().trim().length() > 0)
+											#if($!item.getScoreDisplay().length() > 0 || ($!item.getComment() && $!item.getComment().trim().length() > 0))
 												<span class="highlight" #if($item.isRemoved()) style="text-decoration: line-through" #end>
 													#if($item.isDraft())
 														-&nbsp;$tlang.getString("gen.dra1")
@@ -694,7 +694,7 @@ function printView(url) {
 								</td>
 								<td>
 									#if($!submission)
-										#foreach($item in $peerAssessmentItems.get($submission.getId()))
+										#foreach($item in $peerAssessmentItems.get($userSubmission.Submission.Id))
 											#if($item.isRemoved())
 												<span style="text-decoration: line-through">
 											#else

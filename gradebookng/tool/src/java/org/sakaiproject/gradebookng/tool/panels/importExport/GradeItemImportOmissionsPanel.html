@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html xmlns:wicket="http://wicket.apache.org/dtds.data/wicket-xhtml1.4-strict.dtd">
+    <body>
+        <wicket:panel>
+            <div wicket:id="omissionsContainer">
+                <div wicket:id="missingUsersContainer">
+                    <div class="panel panel-default">
+                        <div class="panel-heading" role="tab" id="missingUsersHeader">
+                            <h3 class="panel-title">
+                                <a role="button" data-toggle="collapse" href="#missingUsers" aria-expanded="false" aria-controls="missingUsers">
+                                    <wicket:message wicket:id="missingUsersHeader">{0} students were found in the Gradebook who are missing from the import file</wicket:message>
+                                </a>
+                            </h3>
+                        </div>
+                        <div id="missingUsers" class="panel-collapse collapse" role="tabpanel" aria-labelledby="missingUsersHeader">
+                            <div class="panel-body">
+                                <ul id="missingUsersContent">
+                                    <li wicket:id="missingUsers">
+                                        <span wicket:id="missingUser">student0001 (firstName lastName)</span>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div wicket:id="unknownUsersContainer">
+                    <div class="panel panel-default">
+                        <div class="panel-heading" role="tab" id="unknownUsersHeader">
+                            <h3 class="panel-title">
+                                <a role="button" data-toggle="collapse" href="#unknownUsers" aria-expanded="false" aria-controls="unknownUsers">
+                                    <wicket:message wicket:id="unknownUsersHeader">{0} students in the import file could not be found in the Gradebook</wicket:message>
+                                </a>
+                            </h3>
+                        </div>
+                        <div id="unknownUsers" class="panel-collapse collapse" role="tabpanel" aria-labelledby="unknownUsersHeader">
+                            <div class="panel-body">
+                                <p class="messageInformation">
+                                    <wicket:message wicket:id="unknownUsersInfo">Grade entries for these students will not be imported.</wicket:message>
+                                </p>
+                                <ul id="unknownUsersContent">
+                                    <li wicket:id="unknownUsers">
+                                        <span wicket:id="unknownUser">student0001</span>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </wicket:panel>
+    </body>
+</html>

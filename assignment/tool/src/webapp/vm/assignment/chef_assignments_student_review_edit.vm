@@ -7,7 +7,7 @@
      });
 </script>
 <div class="portletBody">
-	#navBarOnClick( $allowAddAssignment $withGrade $allowGradeSubmission $allowAddAssignment $allowAllGroups $assignmentscheck $allowUpdateSite $enableViewOption $view "gradeForm" "" )
+	#navBarOnClick( $allowAddAssignment $withGrade $allowGradeSubmission $allowAddAssignment $allowRecoverAssignment $allowAllGroups $assignmentscheck $allowUpdateSite $enableViewOption $view "gradeForm" "" )
 	## confirmation
 	#if ($!gradingDone)
 		<div class="success">
@@ -238,34 +238,33 @@
 				
 			 #if ($submissionType!=1 && $submissionType!=4) ## do not show attach messages if no attach are allowed...
 					<h3>$tlang.getString("gen.stuatt")</h3>
-					#set ($size = 0)
-					#set ($props = false)
-					#foreach ($attachment in $submission.SubmittedAttachments) 
-						#set ($props = $attachment.Properties) 
-						#if ($!props)
-							#set ($size = $size + 1)
-						#end
-					#end
-					#if ($size == 0)
-						<p class="instruction">$tlang.getString("gen.noattsubmitted")</p>
-					#else
-						<ul class="attachList indnt1">
-							#foreach ($attachment in $submission.SubmittedAttachments) 
-								#set ($props = false)
-								#set ($props = $attachment.Properties) 
-								#if ($!props)
-									<li>
-										#if ($props.getBooleanProperty($props.NamePropIsCollection))
-											<img src = "#imageLink($contentTypeImageService.getContentTypeImage("folder"))" border="0" alt="$tlang.getString("gen.folatt")" />
-										#else
-											<img src = "#imageLink($contentTypeImageService.getContentTypeImage($props.getProperty($props.NamePropContentType)))" border="0" alt="$tlang.getString("gen.filatt")" />
+					#set ($attachments = $submission.Attachments)
+					#if ($attachments)
+						#set ($size = $attachments.size())
+						#if ($size == 0)
+							<p class="instruction">$tlang.getString("gen.noattsubmitted")</p>
+						#else
+							<ul class="attachList indnt1">
+								#foreach ($attachmentReference in $attachments)
+									#set ($reference = $submissionAttachmentReferences.get($attachmentReference))
+									#if ($reference)
+										#set ($props = false)
+										#set ($props = $reference.Properties)
+										#if ($!props)
+											<li>
+												#if ($props.getBooleanProperty($props.NamePropIsCollection))
+													<img src = "#imageLink($contentTypeImageService.getContentTypeImage("folder"))" border="0" alt="$tlang.getString("gen.folatt")" />
+												#else
+													<img src = "#imageLink($contentTypeImageService.getContentTypeImage($props.getProperty($props.NamePropContentType)))" border="0" alt="$tlang.getString("gen.filatt")" />
+												#end
+												<a href="$reference.Url" target="_blank">$validator.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))</a>
+												#propertyDetails($props)
+											</li>
 										#end
-										<a href="$attachment.Url" target="_blank">$validator.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))</a>						
-										#propertyDetails($props)
-									</li>
+									#end
 								#end
-							#end
-						</ul>
+							</ul>
+						#end
 					#end
 				#end
 

@@ -424,6 +424,7 @@ public interface LearningResourceStoreService {
         }
         /**
          * Construct an actor using an email address
+         * This should not be used directly. Instead LearningResourceStoreService.getActor() should be used to fill in all account details
          * @param email the user email address
          */
         public LRS_Actor(String email) {

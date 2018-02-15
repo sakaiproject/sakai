@@ -140,9 +140,6 @@ LOG-LOG-LOG-LOG-LOG
 	id="editLink"  
 	title="${resourceLoaderBean.getString("jsp_edit")}" >${resourceLoaderBean.getString("jsp_edit")}</a> 
 </span></li>
-#else
-<li><span
-	id="editLink" class="pageLinkInactive" >${resourceLoaderBean.getString("jsp_edit")}</span> </li>
 #end
 #end	
 #if ($useInfoLink) 

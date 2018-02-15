@@ -102,7 +102,7 @@
 #javascript("/library/js/lang-datepicker/lang-datepicker.js")
 
 <div class="portletBody container-fluid">
-	#navBarOnClick( $allowAddAssignment $withGrade $allowGradeSubmission $allowAddAssignment $allowAllGroups $assignmentscheck $allowUpdateSite $enableViewOption $view "newAssignmentForm" "new" )
+	#navBarOnClick( $allowAddAssignment $withGrade $allowGradeSubmission $allowAddAssignment $allowRecoverAssignment $allowAllGroups $assignmentscheck $allowUpdateSite $enableViewOption $view "newAssignmentForm" "new" )
 
 	<div class="page-header">
 		<h1>
@@ -731,7 +731,7 @@
 					<div id="review.switch.ne.1" class="information" style="display:none;">$reviewSwitchNe1</div>
 					<div class="checkbox">
 						<label id="lblReviewService" for="$name_UseReviewService">
-						#if($!value_UseReviewService)
+						#if($!value_UseReviewService == true)
 							<input id="$name_UseReviewService" name="$name_UseReviewService" type="checkbox" value="true" checked="checked" onclick="ASN.toggleReviewServiceOptions(this.checked)"/>
 						#else
 							<input id="$name_UseReviewService" name="$name_UseReviewService" type="checkbox" value="true" onclick="ASN.toggleReviewServiceOptions(this.checked)"/>
