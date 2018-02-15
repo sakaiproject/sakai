@@ -2147,7 +2147,7 @@
         <artifactId>maven-site-plugin</artifactId>
       </plugin>
       <plugin>
-        <!-- Can be run as mvn org.owasp:dependency-check-maven:aggregate at the root -->
+        <!-- Can be run as mvn -Pdependency-check-support org.owasp:dependency-check-maven:aggregate at the root -->
         <groupId>org.owasp</groupId>
         <artifactId>dependency-check-maven</artifactId>
         <version>2.1.1</version>
