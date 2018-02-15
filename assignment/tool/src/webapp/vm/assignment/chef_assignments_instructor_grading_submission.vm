@@ -577,15 +577,15 @@
                         <div id="gradeOverridePanel" style="#if(!$value_grades || $value_grades.size()<1)display:none;#end">
                             ## replace it with submitter sort names
                             #foreach ($submitter in $submission.submitters)
-                                #set($submitterName = $submitter.getDisplayName())
-                                #set($submitterId = $submitter.getDisplayId())
+                                #set($submitterName = $users.get($submitter.getSubmitter()).getDisplayName())
+                                #set($submitterId = $users.get($submitter.getSubmitter()).getDisplayId())
                                 #if ($!submitterId)
                                 ##attach the displayId
                                     #set($submitterName=$submitterName.concat(" (").concat($submitterId).concat(")"))
                                 #end
-                                #set ($group_name_grade = $name_grade.concat("_").concat($submitter.getId()))
+                                #set ($group_name_grade = $name_grade.concat("_").concat($submitter.getSubmitter()))
                                 #set ($group_value_grade = "")
-                                #set ($group_value_grade = $value_grades.get($submitter.getId()))
+                                #set ($group_value_grade = $value_grades.get($submitter.getSubmitter()))
                                 #if ($gradeType == 2)
                                     <div class="row-override">
                                         <label>$!submitterName</label>
