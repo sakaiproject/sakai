@@ -39,9 +39,7 @@ import org.apache.commons.lang.StringUtils;
 
 import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.authz.api.SecurityService;
-import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.component.cover.ComponentManager;
-import org.sakaiproject.coursemanagement.api.CourseManagementService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.gradebookng.business.exception.GbAccessDeniedException;
@@ -129,13 +127,7 @@ public class GradebookNgBusinessService {
 	private GradebookExternalAssessmentService gradebookExternalAssessmentService;
 
 	@Setter
-	private CourseManagementService courseManagementService;
-
-	@Setter
 	private SecurityService securityService;
-
-	@Setter
-	private ServerConfigurationService serverConfigurationService;
 
 	public static final String ASSIGNMENT_ORDER_PROP = "gbng_assignment_order";
 	public static final String ICON_SAKAI = "icon-sakai--";
