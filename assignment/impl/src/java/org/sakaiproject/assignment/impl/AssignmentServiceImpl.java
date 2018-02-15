@@ -2467,17 +2467,17 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
             // if the user has SECURE_ALL_GROUPS in the context (site), select all site groups
             if (securityService.unlock(userId, SECURE_ALL_GROUPS, siteService.siteReference(context))
                     && permissionCheck(function, siteService.siteReference(context), null)) {
-                return groups;
+                rv.addAll(groups);
+            } else {
+                // get a list of the group refs, which are authzGroup ids
+                Set<String> groupRefs = groups.stream().map(Group::getReference).collect(Collectors.toSet());
+
+                // ask the authzGroup service to filter them down based on function
+                Set<String> allowedGroupRefs = authzGroupService.getAuthzGroupsIsAllowed(userId, function, groupRefs);
+
+                // pick the Group objects from the site's groups to return, those that are in the allowedGroupRefs list
+                rv = groups.stream().filter(g -> allowedGroupRefs.contains(g.getReference())).collect(Collectors.toSet());
             }
-
-            // get a list of the group refs, which are authzGroup ids
-            Set<String> groupRefs = groups.stream().map(Group::getReference).collect(Collectors.toSet());
-
-            // ask the authzGroup service to filter them down based on function
-            Set<String> allowedGroupRefs = authzGroupService.getAuthzGroupsIsAllowed(userId, function, groupRefs);
-
-            // pick the Group objects from the site's groups to return, those that are in the allowedGroupRefs list
-            rv = groups.stream().filter(g -> allowedGroupRefs.contains(g.getReference())).collect(Collectors.toSet());
         } catch (IdUnusedException e) {
             log.debug("site {} not found, {}", context, e.getMessage());
         }
