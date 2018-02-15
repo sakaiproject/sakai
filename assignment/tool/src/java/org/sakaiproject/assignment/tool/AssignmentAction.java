@@ -31,6 +31,7 @@ import java.time.temporal.ChronoField;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.concurrent.ConcurrentSkipListSet;
+import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -3130,15 +3131,17 @@ public class AssignmentAction extends PagedResourceActionII {
             context.put("submission", s);
             context.put("submissionReference", AssignmentReferenceReckoner.reckoner().submission(s).reckon().getReference());
 
-            String submitterNames = s.getSubmitters().stream().map(u -> {
+            Map<String, User> users = s.getSubmitters().stream().map(u -> {
                 try {
-                    User user = userDirectoryService.getUser(u.getSubmitter());
-                    return user.getDisplayName() + " (" + user.getDisplayId() + ")";
+                    return userDirectoryService.getUser(u.getSubmitter());
                 } catch (UserNotDefinedException e) {
-                    log.warn("Could not find user = {}, who is a submitter on submission = {}, {}", u, s.getId(), e.getMessage());
+                    log.warn("User not found, {}", u.getSubmitter());
+                    return null;
                 }
-                return "";
-            }).collect(Collectors.joining(", "));
+            }).filter(Objects::nonNull).collect(Collectors.toMap(User::getId, Function.identity()));
+            context.put("users", users);
+
+            String submitterNames = users.values().stream().map(u -> u.getDisplayName() + " (" + u.getDisplayId() + ")").collect(Collectors.joining(", "));
             context.put("submitterNames", formattedText.escapeHtml(submitterNames));
             context.put("submissionStatus", assignmentService.getSubmissionStatus(s.getId()));
 
@@ -3187,17 +3190,8 @@ public class AssignmentAction extends PagedResourceActionII {
                 context.put("isAdditionalNotesEnabled", isAdditionalNotesEnabled);
 
                 if (isAdditionalNotesEnabled && candidateDetailProvider != null && a != null && !a.getIsGroup()) {
-                    User[] users = s.getSubmitters().stream().map(u -> {
-                        try {
-                            return userDirectoryService.getUser(u.getSubmitter());
-                        } catch (UserNotDefinedException e) {
-                            log.warn("User not found, {}", u.getSubmitter());
-                            return null;
-                        }
-                    }).filter(Objects::nonNull).toArray(User[]::new);
-
-                    if (users != null && users.length == 1) {
-                        context.put("notes", candidateDetailProvider.getAdditionalNotes(users[0], st).orElse(new ArrayList<>()));
+                    if (users.size() == 1) {
+                        context.put("notes", candidateDetailProvider.getAdditionalNotes(users.values().toArray(new User[]{})[0], st).orElse(new ArrayList<>()));
                     } else {
                         log.warn(":build_instructor_grade_submission_context: Incorrect number of submitters detected");
                     }
@@ -3210,6 +3204,22 @@ public class AssignmentAction extends PagedResourceActionII {
             Map<String, Reference> attachmentReferences = new HashMap<>();
             s.getAttachments().forEach(r -> attachmentReferences.put(r, entityManager.newReference(r)));
             context.put("submissionAttachmentReferences", attachmentReferences);
+
+            // try to put in grade overrides
+            if (a.getIsGroup()) {
+                Map<String, Object> grades = new HashMap<>();
+                for (  String userId : users.keySet()) {
+                    if (state.getAttribute(GRADE_SUBMISSION_GRADE + "_" + userId) != null) {
+                        grades.put(
+                                userId,
+                                gradeType == SCORE_GRADE_TYPE
+                                        ? displayGrade(state, (String) state.getAttribute(GRADE_SUBMISSION_GRADE + "_" + userId), a.getScaleFactor())
+                                        : state.getAttribute(GRADE_SUBMISSION_GRADE + "_" + userId)
+                        );
+                    }
+                }
+                context.put("value_grades", grades);
+            }
         }
 
         context.put("user", state.getAttribute(STATE_USER));
@@ -3240,30 +3250,6 @@ public class AssignmentAction extends PagedResourceActionII {
         // format to show one decimal place in grade
         context.put("value_grade", (gradeType == SCORE_GRADE_TYPE) ? displayGrade(state, (String) state.getAttribute(GRADE_SUBMISSION_GRADE), a.getScaleFactor())
                 : state.getAttribute(GRADE_SUBMISSION_GRADE));
-
-        // try to put in grade overrides
-        if (a.getIsGroup()) {
-            Map<String, Object> ugrades = new HashMap<>();
-            User[] users = s.getSubmitters().stream().map(u -> {
-                try {
-                    return userDirectoryService.getUser(u.getSubmitter());
-                } catch (UserNotDefinedException e) {
-                    log.warn("User not found, {}", u.getSubmitter());
-                    return null;
-                }
-            }).filter(Objects::nonNull).toArray(User[]::new);
-            for (int i = 0; users != null && i < users.length; i++) {
-                if (state.getAttribute(GRADE_SUBMISSION_GRADE + "_" + users[i].getId()) != null) {
-                    ugrades.put(
-                            users[i].getId(),
-                            gradeType == SCORE_GRADE_TYPE ?
-                                    displayGrade(state, (String) state.getAttribute(GRADE_SUBMISSION_GRADE + "_" + users[i].getId()), a.getScaleFactor()) :
-                                    state.getAttribute(GRADE_SUBMISSION_GRADE + "_" + users[i].getId())
-                    );
-                }
-            }
-            context.put("value_grades", ugrades);
-        }
 
         context.put("assignment_expand_flag", state.getAttribute(GRADE_SUBMISSION_ASSIGNMENT_EXPAND_FLAG));
 
@@ -5665,16 +5651,9 @@ public class AssignmentAction extends PagedResourceActionII {
         AssignmentSubmission submission = getSubmission(sId, "grade_submission_option", state);
 
         if (submission != null) {
-            //This logic could be done in one line, but would be harder to read, so break it out to make it easier to follow
             boolean gradeChanged = false;
-            if ((submission.getGrade() == null || "".equals(submission.getGrade().trim()))
-                    && (grade == null || "".equals(grade.trim()))) {
-                //both are null, keep grade changed = false
-            } else if ((submission.getGrade() == null || "".equals(submission.getGrade().trim())
-                    || (grade == null || "".equals(grade.trim())))) {
+            if (!StringUtils.equals(submission.getGrade().trim(), grade.trim())) {
                 //one is null the other isn't
-                gradeChanged = true;
-            } else if (!grade.trim().equals(submission.getGrade().trim())) {
                 gradeChanged = true;
             }
             Assignment a = submission.getAssignment();
@@ -9795,16 +9774,20 @@ public class AssignmentAction extends PagedResourceActionII {
                     Set<AssignmentSubmissionSubmitter> submitters = s.getSubmitters();
                     Map<String, String> p = a.getProperties();
                     for (AssignmentSubmissionSubmitter submitter : submitters) {
-                        String grade_override = (StringUtils.isNotBlank(p.get(AssignmentServiceConstants.PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT)) && a.getTypeOfGrade() == SCORE_GRADE_TYPE)
-                                ? (assignmentService.getGradeForUserInGradeBook(a.getId(), submitter.getSubmitter()) != null)
+                        String grade_override = "";
+                        if (a.getTypeOfGrade() == SCORE_GRADE_TYPE
+                                && StringUtils.isNotBlank(p.get(AssignmentServiceConstants.PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT))
+                                && assignmentService.getGradeForUserInGradeBook(a.getId(), submitter.getSubmitter()) != null
                                 && !(assignmentService.getGradeForUserInGradeBook(assignmentId, submitter.getSubmitter()).equals(displayGrade(state, (String) state.getAttribute(GRADE_SUBMISSION_GRADE), a.getScaleFactor())))
-                                && state.getAttribute(GRADE_SUBMISSION_GRADE) != null
-                                ? assignmentService.getGradeForUserInGradeBook(a.getId(), submitter.getSubmitter())
-                                : submitter.getGrade() : submitter.getGrade();
-                        if (grade_override != null) {
-                            state.setAttribute(GRADE_SUBMISSION_GRADE + "_" + submitter.getSubmitter(), grade_override);
+                                && state.getAttribute(GRADE_SUBMISSION_GRADE) != null) {
+                            // grade from gradebook
+                            grade_override = assignmentService.getGradeForUserInGradeBook(a.getId(), submitter.getSubmitter());
+                        } else {
+                            if (submitter.getGrade() != null) {
+                                grade_override = submitter.getGrade();
+                            }
                         }
-
+                        state.setAttribute(GRADE_SUBMISSION_GRADE + "_" + submitter.getSubmitter(), grade_override);
                     }
                 }
 
