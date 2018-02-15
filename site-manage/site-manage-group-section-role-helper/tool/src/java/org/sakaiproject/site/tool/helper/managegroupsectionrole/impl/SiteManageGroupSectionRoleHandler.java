@@ -1752,7 +1752,7 @@ public class SiteManageGroupSectionRoleHandler {
 		}
 		catch( UserNotDefinedException ex )
 		{
-			M_log.debug( this + ".getUserSortName: can't find user for " + userId, ex );
+			log.debug( this + ".getUserSortName: can't find user for " + userId, ex );
 		}
 		return sortName;
 	}
