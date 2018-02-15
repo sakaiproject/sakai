@@ -121,7 +121,7 @@ public class EditGradeCommentPanel extends BasePanel {
 
 		// textarea
 		form.add(new TextArea<String>("comment", new PropertyModel<String>(formModel, "gradeComment"))
-				.add(StringValidator.maximumLength(500)));
+				.add(StringValidator.maximumLength(4000)));
 
 		// instant validation
 		// AjaxFormValidatingBehavior.addToAllFormComponents(form, "onkeyup", Duration.ONE_SECOND);
