@@ -121,6 +121,18 @@
   </distributionManagement>
   <profiles>
     <profile>
+      <id>dependency-check-support</id>
+      <activation>
+        <activeByDefault>false</activeByDefault>
+        <property>
+          <name>dependency-check-support</name>
+        </property>
+      </activation>
+      <modules>
+        <module>dependency-check-support</module>
+      </modules>
+    </profile>
+    <profile>
       <id>sakai-release</id>
       <activation>
         <activeByDefault>false</activeByDefault>
