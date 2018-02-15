@@ -1030,7 +1030,7 @@ public class SakaiBLTIUtil {
 			ltiProps.put(OAuth.OAUTH_SIGNATURE_METHOD,"HMAC-SHA256");
 			log.debug("Launching with SHA256 Signing");
 		} else if ( toolProxyBinding != null ) {
-			if ( toolProxyBinding.enabledCapability( LTI2Messages.BASIC_LTI_LAUNCH_REQUEST, 
+			if ( toolProxyBinding.enabledCapability( LTI2Messages.BASIC_LTI_LAUNCH_REQUEST,
 				LTI2Caps.OAUTH_HMAC256) ) {
 
 				ltiProps.put(OAuth.OAUTH_SIGNATURE_METHOD,"HMAC-SHA256");
@@ -1152,7 +1152,7 @@ public class SakaiBLTIUtil {
 
 		int debug = getInt(deploy.get(LTIService.LTI_DEBUG));
 
-		// Handle any subsisution variables from the message
+		// Handle any substution variables from the message
 		Properties lti2subst = new Properties();
 		addGlobalData(null, ltiProps, lti2subst, rb);
 		if ( deploy != null ) {
@@ -1347,6 +1347,36 @@ public class SakaiBLTIUtil {
                 if( LTI2Messages.CONTENT_ITEM_SELECTION_REQUEST.equals(ltiProps.getProperty(BasicLTIConstants.LTI_MESSAGE_TYPE)) ) {
 
 			ltiProps.remove(BasicLTIConstants.LAUNCH_PRESENTATION_RETURN_URL);
+		}
+
+		Long toolVersion = getLongNull(tool.get(LTIService.LTI_VERSION));
+		boolean isLTI1 = toolVersion == null || (!toolVersion.equals(LTIService.LTI_VERSION_2));
+		boolean isLTI2 = ! isLTI1;  // In case there is an LTI 3
+		log.debug("toolVersion={} isLTI1={}", toolVersion, isLTI1);
+
+		// If we are doing LTI2, We will need a ToolProxyBinding
+		ToolProxyBinding toolProxyBinding = null;
+		JSONArray enabledCapabilities = null;
+		if ( isLTI2 ) {
+			String tool_proxy_binding = (String) tool.get(LTI2Constants.TOOL_PROXY_BINDING);
+			if ( tool_proxy_binding != null && tool_proxy_binding.trim().length() > 0 ) {
+				toolProxyBinding = new ToolProxyBinding(tool_proxy_binding);
+				enabledCapabilities = toolProxyBinding.enabledCapabilities(LTI2Messages.CONTENT_ITEM_SELECTION_REQUEST);
+			}
+		}
+
+		// Check which kind of signing we are supposed to do
+		Long toolSHA256 = getLong(tool.get(LTIService.LTI_SHA256));
+		if ( toolSHA256.equals(1L) ) {
+			ltiProps.put(OAuth.OAUTH_SIGNATURE_METHOD,"HMAC-SHA256");
+			log.debug("Launching with SHA256 Signing");
+		} else if ( toolProxyBinding != null ) {
+			if ( toolProxyBinding.enabledCapability( LTI2Messages.BASIC_LTI_LAUNCH_REQUEST,
+				LTI2Caps.OAUTH_HMAC256) ) {
+
+				ltiProps.put(OAuth.OAUTH_SIGNATURE_METHOD,"HMAC-SHA256");
+				log.debug("Launching with SHA256 Signing");
+			}
 		}
 
 		String customstr = toNull((String) tool.get(LTIService.LTI_CUSTOM) );
