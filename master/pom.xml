@@ -17,9 +17,6 @@
   <packaging>pom</packaging>
   <name>Sakai Master</name>
   <description>Corporate POM for the Sakai Open Source Collaborative Learning Environment/Learning Management System</description>
-  <modules>
-    <module>dependency-check-support</module>
-  </modules>
   <version>13-SNAPSHOT</version>
 
   <properties>
@@ -120,6 +117,18 @@
     </repository>
   </distributionManagement>
   <profiles>
+    <profile>
+      <id>dependency-check-support</id>
+      <activation>
+        <activeByDefault>false</activeByDefault>
+        <property>
+          <name>dependency-check-support</name>
+        </property>
+      </activation>
+      <modules>
+        <module>dependency-check-support</module>
+      </modules>
+    </profile>
     <profile>
       <id>sakai-release</id>
       <activation>
