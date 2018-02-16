@@ -129,6 +129,7 @@ import org.sakaiproject.exception.TypeException;
 import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.service.gradebook.shared.GradeDefinition;
 import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService;
+import org.sakaiproject.service.gradebook.shared.GradebookNotFoundException;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
@@ -2594,9 +2595,14 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
     private void removeAssociatedGradebookItem(Assignment assignment, String context) {
         String associatedGradebookAssignment = assignment.getProperties().get(AssignmentServiceConstants.PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT);
         if (associatedGradebookAssignment != null) {
-            boolean isExternalAssignmentDefined = gradebookExternalAssessmentService.isExternalAssignmentDefined(context, associatedGradebookAssignment);
-            if (isExternalAssignmentDefined) {
-                gradebookExternalAssessmentService.removeExternalAssessment(context, associatedGradebookAssignment);
+            try {
+                boolean isExternalAssignmentDefined = gradebookExternalAssessmentService.isExternalAssignmentDefined(context, associatedGradebookAssignment);
+                if (isExternalAssignmentDefined) {
+                    gradebookExternalAssessmentService.removeExternalAssessment(context, associatedGradebookAssignment);
+                }
+            } catch (GradebookNotFoundException gnfe) {
+                // this may occur if no gradebook tool exists in the site
+                log.debug("Attempted to remove associated gradebook item, {}", gnfe.getMessage());
             }
         }
     }
@@ -3444,7 +3450,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                     nAssignment.setTypeOfGrade(oAssignment.getTypeOfGrade());
                     nAssignment.setTypeOfSubmission(oAssignment.getTypeOfSubmission());
                     // when importing, refer to property to determine draft status
-                    if (serverConfigurationService.getBoolean("import.importAsDraft", false)) {
+                    if (serverConfigurationService.getBoolean("import.importAsDraft", true)) {
                         nAssignment.setDraft(true);
                     } else {
                         nAssignment.setDraft(oAssignment.getDraft());
@@ -3456,15 +3462,43 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                     nAssignment.setOpenDate(oAssignment.getOpenDate());
                     nAssignment.setHideDueDate(oAssignment.getHideDueDate());
 
-                    nAssignment.setSection(oAssignment.getSection());
                     nAssignment.setPosition(oAssignment.getPosition());
-                    nAssignment.setIsGroup(oAssignment.getIsGroup());
                     nAssignment.setAllowAttachments(oAssignment.getAllowAttachments());
                     nAssignment.setHonorPledge(oAssignment.getHonorPledge());
                     nAssignment.setIndividuallyGraded(oAssignment.getIndividuallyGraded());
                     nAssignment.setMaxGradePoint(oAssignment.getMaxGradePoint());
                     nAssignment.setScaleFactor(oAssignment.getScaleFactor());
                     nAssignment.setReleaseGrades(oAssignment.getReleaseGrades());
+
+                    // group assignment
+                    if (oAssignment.getTypeOfAccess() == Assignment.Access.GROUP) {
+                        nAssignment.setTypeOfAccess(Assignment.Access.GROUP);
+                        Site oSite = siteService.getSite(oAssignment.getContext());
+                        Site nSite = siteService.getSite(nAssignment.getContext());
+
+                        boolean siteChanged = false;
+                        Collection<Group> nGroups = nSite.getGroups();
+                        for (String groupId : oAssignment.getGroups()) {
+                            Group oGroup = oSite.getGroup(groupId);
+                            Optional<Group> existingGroup = nGroups.stream().filter(g -> StringUtils.equals(g.getTitle(), oGroup.getTitle())).findAny();
+                            Group nGroup;
+                            if (existingGroup.isPresent()) {
+                                // found a matching group
+                                nGroup = existingGroup.get();
+                            } else {
+                                // create group
+                                nGroup = nSite.addGroup();
+                                nGroup.setTitle(oGroup.getTitle());
+                                nGroup.setDescription(oGroup.getDescription());
+                                nGroup.getProperties().addProperty("group_prop_wsetup_created", Boolean.TRUE.toString());
+                                siteChanged = true;
+                            }
+                            nAssignment.getGroups().add(nGroup.getReference());
+                        }
+                        if (siteChanged) siteService.save(nSite);
+                        nAssignment.setIsGroup(oAssignment.getIsGroup());
+                    }
+
                     // review service
                     nAssignment.setContentReview(oAssignment.getContentReview());
 
@@ -3513,7 +3547,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                         if (isExternalAssignmentDefined) {
                             // if this is an external defined (came from assignment)
                             // mark the link as "add to gradebook" for the new imported assignment, since the assignment is still of draft state
-                            //later when user posts the assignment, the corresponding assignment will be created in gradebook.
+                            // later when user posts the assignment, the corresponding assignment will be created in gradebook.
                             nProperties.remove(PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT);
                             nProperties.put(NEW_ASSIGNMENT_ADD_TO_GRADEBOOK, GRADEBOOK_INTEGRATION_ADD);
                         }
