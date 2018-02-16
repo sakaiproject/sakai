@@ -22,6 +22,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.StringReader;
 import java.text.DecimalFormat;
 import java.text.Normalizer;
 import java.text.NumberFormat;
@@ -48,6 +49,8 @@ import java.util.StringTokenizer;
 import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
+
+import javax.xml.parsers.DocumentBuilderFactory;
 
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -157,6 +160,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.xml.sax.InputSource;
 
 /**
  * Created by enietzel on 3/3/17.
@@ -256,7 +261,32 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
 
     @Override
     public String archive(String siteId, Document doc, Stack<Element> stack, String archivePath, List<Reference> attachments) {
-        return null;
+        String message = "archiving " + getLabel() + " context " + Entity.SEPARATOR + siteId + Entity.SEPARATOR + SiteService.MAIN_CONTAINER + ".\n";
+        log.debug(message);
+
+        // start with an element with our very own (service) name
+        Element element = doc.createElement(AssignmentService.class.getName());
+        stack.peek().appendChild(element);
+        stack.push(element);
+
+        Collection<Assignment> assignments = getAssignmentsForContext(siteId);
+        for (Assignment assignment : assignments) {
+            String xml = assignmentRepository.toXML(assignment);
+
+            try {
+                InputSource in = new InputSource(new StringReader(xml));
+                Document assignmentDocument = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(in);
+                Element assignmentElement = assignmentDocument.getDocumentElement();
+                Node assignmentNode = doc.importNode(assignmentElement, true);
+                element.appendChild(assignmentNode);
+            } catch (Exception e) {
+                log.warn("could not append assignment {} to archive, {}", assignment.getId(), e.getMessage());
+            }
+        }
+
+        stack.pop();
+
+        return message;
     }
 
     @Override
