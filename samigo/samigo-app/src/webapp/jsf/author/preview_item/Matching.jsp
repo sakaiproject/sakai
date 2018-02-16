@@ -26,7 +26,6 @@ should be included in file importing DeliveryMessages
   <!-- ATTACHMENTS -->
   <%@ include file="/jsf/author/preview_item/attachment.jsp" %>
 
-  <!-- <h2>preview_item=matching.jsp</h2> -->
   <h:outputText escape="false" value="#{question.instruction}" />
   <!-- 1. print out the matching choices -->
   <h:dataTable value="#{question.itemData.itemTextArraySorted}" var="itemText">

@@ -1354,22 +1354,12 @@ public class GradingService
               }
               break;
 
-      case 9: // Matching     
-              //              initScore = getAnswerScore(itemGrading, publishedAnswerHash);
-              if(!isThisItemDistractor(item, itemGrading)){
-            	  initScore = getAnswerScore(itemGrading, publishedAnswerHash);
-                  if (initScore > 0) {
-              	  		int numberOfChoices = 0;
-            	    	Iterator<ItemTextIfc> itemIter = item.getItemTextArraySorted().iterator();
-            	    	while (itemIter.hasNext()) {
-            	    		ItemTextIfc curItem = itemIter.next();
-            	    		numberOfChoices++;
-            	    	}
-                      autoScore = initScore / numberOfChoices;
-                	}
-              }else{
-            	  initScore = getScoreDistractor(item, itemGrading);
-            	  autoScore = initScore;
+      case 9: // Matching
+              initScore = isThisItemDistractor(item, itemGrading) ? getScoreDistractor(item, itemGrading) : getAnswerScore(itemGrading, publishedAnswerHash);
+              if (initScore > 0) {
+                autoScore = initScore / item.getItemTextArraySorted().size();
+              } else {
+                autoScore = initScore;
               }
               //overridescore?
               if (itemGrading.getOverrideScore() != null)
@@ -1490,33 +1480,23 @@ public class GradingService
     return autoScore;
   }
 
-  private boolean isThisItemDistractor(ItemDataIfc item, ItemGradingData thisItemGradingData){
-   	Iterator<ItemTextIfc> itemIter = item.getItemTextArraySorted().iterator();
-  	while (itemIter.hasNext()) {
-  		ItemTextIfc curItem = itemIter.next();
-  		if (isDistractor(curItem)) {
-  			if(curItem.getId().doubleValue()==thisItemGradingData.getPublishedItemTextId().doubleValue()) return true;
-  		}
-  	}
-	return false;
+  private boolean isThisItemDistractor(ItemDataIfc item, ItemGradingData thisItemGradingData) {
+    for (ItemTextIfc curItem : item.getItemTextArraySorted()) {
+      if (isDistractor(curItem) && curItem.getId().equals(thisItemGradingData.getPublishedItemTextId())) {
+        return true;
+      }
+    }
+    return false;
   }
 
-  private double getScoreDistractor(ItemDataIfc item, ItemGradingData thisItemGradingData){
-	  double numItems = 0;
-	   	Iterator<ItemTextIfc> itemIter = item.getItemTextArraySorted().iterator();
-	  	while (itemIter.hasNext()) {
-	  		ItemTextIfc curItem = itemIter.next();
-	  		numItems++;
-	  	}
-		if(thisItemGradingData.getPublishedAnswerId()==null){
-			return 0;
-		}else{
-		  	if(thisItemGradingData.getPublishedAnswerId() <0){
-		  		return item.getScore().doubleValue()/numItems;
-	  		}else{
-	  			return 0;
-	  		}
-		}
+  private double getScoreDistractor(ItemDataIfc item, ItemGradingData thisItemGradingData) {
+    if (thisItemGradingData.getPublishedAnswerId() == null) {
+      return 0;
+    } else if (thisItemGradingData.getPublishedAnswerId() < 0) {
+      return item.getScore();
+    } else {
+      return 0;
+    }
   }
 
 /**

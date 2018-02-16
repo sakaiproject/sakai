@@ -26,7 +26,6 @@ include file for displaying matching questions
 <h:outputText value="#{question.text}"  escape="false"/>
 <h:dataTable value="#{question.itemTextArraySorted}" var="itemText">
  <h:column>
-   <!--    <h2>displayMatching.jsp</h2> -->
    <h:outputText value="#{itemText.sequence}#{evaluationMessages.dot} #{itemText.text}" escape="false" />
    <h:dataTable value="#{itemText.answerArrayWithDistractorSorted}" var="answer">
      <h:column>

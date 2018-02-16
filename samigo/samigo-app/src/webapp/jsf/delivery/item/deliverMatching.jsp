@@ -35,7 +35,6 @@ should be included in file importing DeliveryMessages
    </h:column>
   </h:dataTable>
 
-  <h2>Matching Items</h2>
   <h:dataTable value="#{question.matchingArray}" var="matching">
     <h:column rendered="#{delivery.feedback eq 'true' &&
        delivery.feedbackComponent.showCorrectResponse && !delivery.noFeedback=='true'}">
