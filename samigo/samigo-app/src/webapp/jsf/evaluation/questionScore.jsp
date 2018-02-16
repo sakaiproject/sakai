@@ -207,8 +207,6 @@ function hiddenLinkOnClick(){
     </h:column>
   </h:dataTable>
 
-  <h:outputText value="#{questionScores.marker} " />
-
   <t:dataList value="#{questionScores.deliveryItem}" var="question">
     <div class="page-header">
       <h2>
@@ -519,7 +517,6 @@ function hiddenLinkOnClick(){
 
 </div>
 
-<h2>Point 1</h2>
   <!-- STUDENT RESPONSES AND GRADING -->
   <!-- note that we will have to hook up with the back end to get N at a time -->
 <div class="table-responsive">

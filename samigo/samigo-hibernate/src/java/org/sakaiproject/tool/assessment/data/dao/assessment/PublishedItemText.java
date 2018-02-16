@@ -108,61 +108,50 @@ public class PublishedItemText
     while (iter.hasNext()){
       list.add(iter.next());
     }
-	boolean itemHasDistractors = hasDistractors();
-    boolean itemHasCorrectAnswers = hasCorrectAnswers();
     return list;
   }
 
   private boolean hasDistractors(){
-	  List thisItemElements = getItem().getItemTextArray();
-	  if(thisItemElements.size()!=answerSet.size()){
-		  return true;
-	  }else{
-		  return false;
-	  }
+    List thisItemElements = getItem().getItemTextArray();
+    return thisItemElements.size() != answerSet.size();
   }
 
   private boolean hasCorrectAnswers(){
-	    ArrayList list = new ArrayList();
-	    Iterator iter = answerSet.iterator();
-	    while (iter.hasNext()){
-	      list.add(iter.next());
-	    }
-    	Iterator answerIterator = list.iterator();
-    	while(answerIterator.hasNext()){
-    		PublishedAnswer thisPublishedAnswer = (PublishedAnswer) answerIterator.next();
-    		if(thisPublishedAnswer.getIsCorrect()) return true;
-    	}
-    	return false;
+    for (Object thisAnswer : answerSet) {
+      if (((PublishedAnswer) thisAnswer).getIsCorrect()) {
+        return true;
+      }
+    }
+    return false;
   }
 
   public ArrayList getAnswerArraySorted() {
-	  ArrayList list = getAnswerArray();
-	    Collections.sort(list);
-	    return list;
-	  }
+    ArrayList list = getAnswerArray();
+    Collections.sort(list);
+    return list;
+  }
 
   public ArrayList getAnswerArrayWithDistractorSorted() {
     ArrayList list = getAnswerArray();
     Collections.sort(list);
-	if(this.getItem().getTypeId().intValue()==9){
-	    if(hasDistractors()){
-	    	if(hasCorrectAnswers()){
-	    		PublishedAnswer distractorAnswer = new PublishedAnswer();
-	    		distractorAnswer.setId(new Long(0));
-	    		distractorAnswer.setText("None of the above");
-	    		distractorAnswer.setIsCorrect(false);
-	    		distractorAnswer.setScore(this.getItem().getScore());
-	    		list.add(distractorAnswer);
-	    	}else{
-	    		PublishedAnswer distractorAnswer = new PublishedAnswer();
-	    		distractorAnswer.setText("None of the above");
-	    		distractorAnswer.setIsCorrect(true);
-	    		distractorAnswer.setScore(this.getItem().getScore());
-	    		distractorAnswer.setId(new Long(0));
-	    		list.add(distractorAnswer);
-	    	}
-	    }
+    if (this.getItem().getTypeId() == 9) {
+      if (hasDistractors()) {
+        if (hasCorrectAnswers()) {
+          PublishedAnswer distractorAnswer = new PublishedAnswer();
+          distractorAnswer.setId(new Long(0));
+          distractorAnswer.setText(NONE_OF_THE_ABOVE);
+          distractorAnswer.setIsCorrect(false);
+          distractorAnswer.setScore(this.getItem().getScore());
+          list.add(distractorAnswer);
+        }else{
+          PublishedAnswer distractorAnswer = new PublishedAnswer();
+          distractorAnswer.setText(NONE_OF_THE_ABOVE);
+          distractorAnswer.setIsCorrect(true);
+          distractorAnswer.setScore(this.getItem().getScore());
+          distractorAnswer.setId(new Long(0));
+          list.add(distractorAnswer);
+        }
+      }
     }
     return list;
   }

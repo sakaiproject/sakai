@@ -31,6 +31,7 @@ import java.util.Set;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.HashSet;
+import org.sakaiproject.samigo.util.SamigoConstants;
 
 import org.sakaiproject.tool.assessment.data.dao.shared.TypeD;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AnswerIfc;
@@ -42,7 +43,6 @@ public class ItemText
     implements Serializable, ItemTextIfc, Comparable<ItemTextIfc> {
 
   private static final long serialVersionUID = 7526471155622776147L;
-  static String alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
   private Long id;
   private ItemDataIfc item;
@@ -125,62 +125,52 @@ public class ItemText
 
   public List<AnswerIfc> getAnswerArraySorted() {
     List<AnswerIfc> list = getAnswerArray();
-	List questionItems = getItem().getItemTextArray();
     Collections.sort(list);
     return list;
   }
 
-  public List getAnswerArrayWithDistractorSorted() {
-	    List<AnswerIfc> list = getAnswerArray();
-	    List questionItems = getItem().getItemTextArray();
-	    if(list.size()!=questionItems.size()){
-	    	ArrayList newAnswerList = new ArrayList();
-	    	Iterator answerIterator = list.iterator();
-	    	int answerSequence = 1;
-	    	while(answerIterator.hasNext()){
-	    		AnswerIfc thisAnswer = (AnswerIfc) answerIterator.next();
-	    		if(thisAnswer.getSequence().intValue()!=answerSequence){
-	    			Answer distractorAnswer = new Answer();
-		    		distractorAnswer.setId(new Long(0));
-		    		distractorAnswer.setLabel(Character.toString(alphabet.charAt(answerSequence-1)));
-		    		ItemText distractorItem = (ItemText) questionItems.get(answerSequence-1);
-		    		distractorAnswer.setText("None of the Above");
-		    		distractorAnswer.setIsCorrect(false);
-		    		distractorAnswer.setScore(this.getItem().getScore());
-		    		distractorAnswer.setSequence(new Long(answerSequence));
-		    		newAnswerList.add(distractorAnswer);
-		    		answerSequence++;
-		    		newAnswerList.add(thisAnswer);
-		    		answerSequence++;
-	    		}else{
-		    		newAnswerList.add(thisAnswer);
-		    		answerSequence++;
-	    		}
-	    	}
-	    	Iterator lastItemLookIterator = questionItems.iterator();
-	    	while(lastItemLookIterator.hasNext()){
-	    		ItemText thisItemText = (ItemText) lastItemLookIterator.next();
-	    		if(thisItemText.getSequence().intValue()==answerSequence){
-	    			Answer distractorAnswer = new Answer();
-		    		distractorAnswer.setId(new Long(0));
-		    		distractorAnswer.setLabel(Character.toString(alphabet.charAt(answerSequence-1)));
-		    		ItemText distractorItem = (ItemText) questionItems.get(answerSequence-1);
-		    		distractorAnswer.setText("None of the Above");
-		    		distractorAnswer.setIsCorrect(false);
-		    		distractorAnswer.setScore(this.getItem().getScore());
-		    		distractorAnswer.setSequence(new Long(answerSequence));
-		    		newAnswerList.add(distractorAnswer);
-	    		}
-	    	}
+  /**
+   * This is used for displaying the enumerated answers, with a distractor option if necessary.
+   * If the question has a distractor, it should be presented once and only once, at the end of the list of choices. Ex:
+   * A. Option 1
+   * B. Option 2
+   * C. None of the above
+   * @return
+   */
+  public List<AnswerIfc> getAnswerArrayWithDistractorSorted() {
+    List<AnswerIfc> answers = getAnswerArraySorted();
+    List<ItemTextIfc> questions = item.getItemTextArray();
 
+    // If the number of questions differs from the number of answers, there's either distractors or questions with the same answer
+    if (questions.size() != answers.size()) {
+      for (ItemTextIfc question : questions) {
 
-		    Collections.sort(newAnswerList);
-		    return newAnswerList;
-	    }else{
-		    Collections.sort(list);
-		    return list;
-	    }
-	  }
+        boolean isDistractor = true;
+        List<AnswerIfc> answersSorted = question.getAnswerArraySorted();
+        for (AnswerIfc answer : answersSorted) {
+          if (answer.getIsCorrect()) {
+            isDistractor = false;
+            break;
+          }
+        }
+
+        // There's at least one distractor; add the distractor answer to the end of the list for presentation purposes
+        if (isDistractor) {
+          Answer distractor = new Answer();
+          distractor.setId(new Long(0));
+          distractor.setLabel(Character.toString(SamigoConstants.ALPHABET.charAt(answers.size())));
+          distractor.setText(NONE_OF_THE_ABOVE);
+          distractor.setIsCorrect(false);
+          distractor.setScore(this.getItem().getScore());
+          distractor.setSequence(new Long(answers.size()));
+          answers.add(distractor);
+          break;
+        }
+      }
+    }
+
+    return answers;
+  }
   
 	public Set<ItemTextAttachmentIfc> getItemTextAttachmentSet() {
 		return itemTextAttachmentSet;
