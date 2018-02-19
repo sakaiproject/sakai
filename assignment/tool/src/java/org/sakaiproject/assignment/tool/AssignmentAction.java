@@ -5653,7 +5653,7 @@ public class AssignmentAction extends PagedResourceActionII {
 
         if (submission != null) {
             boolean gradeChanged = false;
-            if (!StringUtils.equals(submission.getGrade().trim(), grade.trim())) {
+            if (!StringUtils.equals(StringUtils.trimToNull(submission.getGrade()), StringUtils.trimToNull(grade))) {
                 //one is null the other isn't
                 gradeChanged = true;
             }
@@ -5677,7 +5677,7 @@ public class AssignmentAction extends PagedResourceActionII {
                         submission.setGradedBy(userDirectoryService.getCurrentUser() == null ? null : userDirectoryService.getCurrentUser().getId());
                     }
                 } else {
-                    submission.setGrade("");
+                    submission.setGrade(null);
                     submission.setGraded(false);
                     if (gradeChanged) {
                         submission.setGradedBy(null);
@@ -5689,7 +5689,7 @@ public class AssignmentAction extends PagedResourceActionII {
             if (withGrade && a.getIsGroup()) {
                 for (AssignmentSubmissionSubmitter submitter : submission.getSubmitters()) {
                     String g = (String) state.getAttribute(GRADE_SUBMISSION_GRADE + "_" + submitter.getSubmitter());
-                    submitter.setGrade(g);
+                    if (StringUtils.isNotBlank(g)) submitter.setGrade(g);
                 }
             }
 
@@ -5717,9 +5717,7 @@ public class AssignmentAction extends PagedResourceActionII {
                 submission.setDateReturned(null);
             } else if (AssignmentConstants.SUBMISSION_OPTION_SAVE.equals(gradeOption)) {
             	//Currently nothing special for AssignmentConstants.SUBMISSION_OPTION_SAVE case
-
             }
-        
 
             Map<String, String> properties = submission.getProperties();
             if (state.getAttribute(AssignmentConstants.ALLOW_RESUBMIT_NUMBER) != null) {
