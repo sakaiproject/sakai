@@ -95,7 +95,7 @@ public class TimerBarTag
     TagUtil.setInteger(component, "wait", wait);
     TagUtil.setInteger(component, "elapsed", elapsed);
     TagUtil.setString(component, "expireScript", expireScript);
-	TagUtil.setString(component, "timeUpMessage", timeUpMessage);
+    TagUtil.setString(component, "timeUpMessage", timeUpMessage);
   }
   public String getWidth()
   {
