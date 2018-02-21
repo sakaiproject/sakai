@@ -13908,7 +13908,7 @@ public class AssignmentAction extends PagedResourceActionII {
                                 newFeedbackComment = comment + "<br/>";
                                 state.setAttribute(OW_FEEDBACK, Boolean.TRUE);
                             } else {
-                                newFeedbackComment = submission.getFeedbackComment() + comment + "<br/>";
+                                newFeedbackComment = ( submission.getFeedbackComment() == null ? "" : submission.getFeedbackComment() ) + comment + "<br/>";
                             }
                             submission.setFeedbackComment(newFeedbackComment);
                             if (returnToStudents != null) {
