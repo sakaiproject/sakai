@@ -1,0 +1,33 @@
+#set ($feedbackAttachments = $submission.feedbackAttachments)
+#if ($feedbackAttachments)
+	#set ($size = $feedbackAttachments.size())
+	#if ($size > 0)
+		<h4>
+			$tlang.getString("gen.addinstatts")
+		</h4>
+		<ul class="attachList indnt1">
+			#foreach ($attachmentReference in $feedbackAttachments)
+				#set ($reference = $submissionFeedbackAttachmentReferences.get($attachmentReference))
+				#if ($reference)
+					#set ($props = false)
+					#set ($props = $reference.Properties)
+					#if ($!props)
+						<li>
+							#if ($props.getBooleanProperty($props.NamePropIsCollection))
+								<img src = "#imageLink($contentTypeImageService.getContentTypeImage("folder"))" border="0" alt="$tlang.getString("gen.folatt")" />
+							#else
+								<img src = "#imageLink($contentTypeImageService.getContentTypeImage($props.getProperty($props.NamePropContentType)))" border="0" alt="$tlang.getString("gen.filatt")" />
+							#end
+							#if ($decoratedUrlMap)
+								<a href="$decoratedUrlMap.get($reference.Url)" target="_blank">$validator.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))</a>
+							#else
+								<a href="$reference.Url" target="_blank">$validator.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))</a>
+							#end
+							#propertyDetails($props)
+						</li>
+					#end
+				#end
+			#end
+		</ul>
+	#end
+#end
