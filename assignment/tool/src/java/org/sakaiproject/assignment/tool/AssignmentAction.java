@@ -1469,6 +1469,10 @@ public class AssignmentAction extends PagedResourceActionII {
 
                 setScoringAgentProperties(context, assignment, s, false);
 
+                Map<String, Reference> submissionFeedbackAttachmentReferences = new HashMap<>();
+                s.getFeedbackAttachments().forEach(r -> submissionFeedbackAttachmentReferences.put(r, entityManager.newReference(r)));
+                context.put("submissionFeedbackAttachmentReferences", submissionFeedbackAttachmentReferences);
+
                 Map<String, String> p = s.getProperties();
                 if (p.get(ResourceProperties.PROP_SUBMISSION_PREVIOUS_FEEDBACK_TEXT) != null) {
                     context.put("prevFeedbackText", p.get(ResourceProperties.PROP_SUBMISSION_PREVIOUS_FEEDBACK_TEXT));
@@ -1913,7 +1917,7 @@ public class AssignmentAction extends PagedResourceActionII {
         String template = (String) getContext(data).get("template");
         return template + TEMPLATE_STUDENT_VIEW_ASSIGNMENT;
 
-    } // build_student_view_submission_context
+    } // build_student_view_assignment_context
 
     /**
      * build the student preview of showing an assignment submission
