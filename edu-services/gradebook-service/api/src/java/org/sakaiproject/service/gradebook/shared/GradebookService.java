@@ -97,7 +97,7 @@ public interface GradebookService {
 	/**
 	 * Array of chars that are not allowed in a gb item title
 	 */
-	public static final char[] INVALID_CHARS_IN_GB_ITEM_NAME = { '*', '[', ']' };
+	public static final char[] INVALID_CHARS_IN_GB_ITEM_NAME = { '*', '[', ']','%' };
 	public static final String[] INVALID_CHARS_AT_START_OF_GB_ITEM_NAME = { "#" };
 
 	/**
