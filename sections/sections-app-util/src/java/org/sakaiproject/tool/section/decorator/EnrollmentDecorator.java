@@ -41,7 +41,7 @@ import org.sakaiproject.section.api.coursemanagement.User;
  */
 public class EnrollmentDecorator implements Serializable {
     private static final long serialVersionUID = 1L;
-	private static final Logger log = LoggerFactory.getLogger(EnrollmentDecorator.class);
+    private static final Logger log = LoggerFactory.getLogger(EnrollmentDecorator.class);
 
     protected EnrollmentRecord enrollment;
 
