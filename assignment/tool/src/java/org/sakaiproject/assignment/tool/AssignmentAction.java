@@ -4956,7 +4956,7 @@ public class AssignmentAction extends PagedResourceActionII {
                                 Set<AssignmentSubmissionSubmitter> submitters = aSubmission.getSubmitters();
                                 String gradeString = displayGrade(state, StringUtils.trimToNull(aSubmission.getGrade()), factor);
                                 for (AssignmentSubmissionSubmitter submitter : submitters) {
-                                    String gradeStringToUse = (a.getIsGroup() && submitter.getGrade() != null) ? submitter.getGrade() : gradeString;
+                                    String gradeStringToUse = (a.getIsGroup() && submitter.getGrade() != null) ? displayGrade(state, StringUtils.trimToNull(submitter.getGrade()), factor) : gradeString;
                                     //Gradebook only supports plaintext strings
                                     String commentString = formattedText.convertFormattedTextToPlaintext(aSubmission.getFeedbackComment());
                                     if (associateGradebookAssignment != null) {
