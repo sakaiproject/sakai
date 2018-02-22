@@ -27,6 +27,8 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.text.*;
 import java.time.*;
+import java.time.format.DateTimeFormatter;
+import java.time.format.FormatStyle;
 import java.time.temporal.ChronoField;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
@@ -3096,8 +3098,8 @@ public class AssignmentAction extends PagedResourceActionII {
         boolean addGradeDraftAlert = false;
 
         // assignment
-        String assignmentId = (String) state.getAttribute(GRADE_SUBMISSION_ASSIGNMENT_ID);
-        Assignment a = getAssignment(assignmentId, "build_instructor_grade_submission_context", state);
+        String assignmentRef = (String) state.getAttribute(GRADE_SUBMISSION_ASSIGNMENT_ID);
+        Assignment a = getAssignment(assignmentRef, "build_instructor_grade_submission_context", state);
         if (a != null) {
             context.put("assignment", a);
             context.put("assignmentReference", AssignmentReferenceReckoner.reckoner().assignment(a).reckon().getReference());
@@ -3124,13 +3126,12 @@ public class AssignmentAction extends PagedResourceActionII {
             context.put("assignmentAttachmentReferences", attachmentReferences);
         }
 
-        String submissionId = "";
+        String submissionRef = (String) state.getAttribute(GRADE_SUBMISSION_SUBMISSION_ID);
         // assignment submission
-        AssignmentSubmission s = getSubmission((String) state.getAttribute(GRADE_SUBMISSION_SUBMISSION_ID), "build_instructor_grade_submission_context", state);
+        AssignmentSubmission s = getSubmission(submissionRef, "build_instructor_grade_submission_context", state);
         if (s != null) {
-            submissionId = s.getId();
             context.put("submission", s);
-            context.put("submissionReference", AssignmentReferenceReckoner.reckoner().submission(s).reckon().getReference());
+            context.put("submissionReference", submissionRef);
 
             Map<String, User> users = s.getSubmitters().stream().map(u -> {
                 try {
@@ -3165,18 +3166,18 @@ public class AssignmentAction extends PagedResourceActionII {
             }
 
             Map<String, String> p = s.getProperties();
-            if (p.get(ResourceProperties.PROP_SUBMISSION_PREVIOUS_FEEDBACK_TEXT) != null) {
+            if (StringUtils.isNotBlank(p.get(ResourceProperties.PROP_SUBMISSION_PREVIOUS_FEEDBACK_TEXT))) {
                 context.put("prevFeedbackText", p.get(ResourceProperties.PROP_SUBMISSION_PREVIOUS_FEEDBACK_TEXT));
             }
-
-            if (p.get(ResourceProperties.PROP_SUBMISSION_PREVIOUS_FEEDBACK_COMMENT) != null) {
+            if (StringUtils.isNotBlank(p.get(ResourceProperties.PROP_SUBMISSION_PREVIOUS_FEEDBACK_COMMENT))) {
                 context.put("prevFeedbackComment", p.get(ResourceProperties.PROP_SUBMISSION_PREVIOUS_FEEDBACK_COMMENT));
             }
-
-            if (p.get(PROP_SUBMISSION_PREVIOUS_FEEDBACK_ATTACHMENTS) != null) {
+            if (StringUtils.isNotBlank(p.get(PROP_SUBMISSION_PREVIOUS_FEEDBACK_ATTACHMENTS))) {
                 context.put("prevFeedbackAttachments", getPrevFeedbackAttachments(p));
             }
-
+            if (StringUtils.isNotBlank(p.get(ResourceProperties.PROP_SUBMISSION_SCALED_PREVIOUS_GRADES))) {
+                context.put("NamePropSubmissionScaledPreviousGrades", ResourceProperties.PROP_SUBMISSION_SCALED_PREVIOUS_GRADES);
+            }
 
             // put the re-submission info into context
             putTimePropertiesInContext(context, state, "Resubmit", ALLOW_RESUBMIT_CLOSEMONTH, ALLOW_RESUBMIT_CLOSEDAY, ALLOW_RESUBMIT_CLOSEYEAR, ALLOW_RESUBMIT_CLOSEHOUR, ALLOW_RESUBMIT_CLOSEMIN);
@@ -3287,7 +3288,7 @@ public class AssignmentAction extends PagedResourceActionII {
         resetNavOptions();
         if (userSubmissions != null) {
             for (int index = 0; index < userSubmissions.size(); index++) {
-                if (((SubmitterSubmission) userSubmissions.get(index)).getSubmission().getId().equals(submissionId)) {
+                if (((SubmitterSubmission) userSubmissions.get(index)).getSubmission().getId().equals(s.getId())) {
                     // Determine next/previous
                     boolean goPT = false;
                     boolean goNT = false;
@@ -5766,7 +5767,7 @@ public class AssignmentAction extends PagedResourceActionII {
             String sReference = AssignmentReferenceReckoner.reckoner().submission(submission).reckon().getReference();
 
             // save a timestamp for this grading process
-            properties.put(AssignmentConstants.PROP_LAST_GRADED_DATE, Instant.now().toString());
+            properties.put(AssignmentConstants.PROP_LAST_GRADED_DATE, DateTimeFormatter.ofLocalizedDateTime(FormatStyle.LONG).withZone(ZoneId.systemDefault()).format(Instant.now()));
 
             try {
                 assignmentService.updateSubmission(submission);
@@ -5965,12 +5966,11 @@ public class AssignmentAction extends PagedResourceActionII {
                 checkSubmissionTextAttachmentInput(data, state, a, text);
             }
             if ((state.getAttribute(STATE_MESSAGE) == null) && (a != null)) {
-                AssignmentSubmission submission = null;
+                AssignmentSubmission submission;
+
                 if (a.getIsGroup()) {
-                    submission = getSubmission(aReference,
-                            (original_group_id == null ? group_id : original_group_id),
-                            "post_save_submission",
-                            state);
+                    String g = StringUtils.isNotBlank(original_group_id) ? original_group_id : group_id;
+                    submission = getSubmission(aReference, g, "post_save_submission", state);
                 } else {
                     submission = getSubmission(aReference, u, "post_save_submission", state);
                 }
@@ -5978,24 +5978,21 @@ public class AssignmentAction extends PagedResourceActionII {
                 if (submission != null) {
                     // the submission already exists, change the text and honor pledge value, post it
                     Map<String, String> properties = submission.getProperties();
-                    /**
-                     * SAK-22150 We will need to know later if there was a previous submission time. DH
-                     */
+
                     boolean isPreviousSubmissionTime = true;
-                    if (submission.getDateSubmitted() == null || "".equals(submission.getDateSubmitted()) || !submission.getSubmitted()) {
+                    if (submission.getDateSubmitted() == null || !submission.getSubmitted()) {
                         isPreviousSubmissionTime = false;
                     }
 
                     if (a.getIsGroup()) {
-                        if (original_group_id != null && !original_group_id.equals(group_id)) {
+                        if (StringUtils.isNotBlank(original_group_id) && !StringUtils.equals(original_group_id, group_id)) {
                             // changing group id so we need to check if a submission has already been made for that group
                             AssignmentSubmission submissioncheck = getSubmission(aReference, group_id, "post_save_submission", state);
                             if (submissioncheck != null) {
                                 addAlert(state, rb.getString("group.already.submitted"));
-                                log.warn(this + ":post_save_submission " + group_id + " has already submitted " + submissioncheck.getId() + "!");
+                                log.warn("The group {} has already submitted {}!", group_id, submissioncheck.getId());
                             }
                         }
-                        // TODO sets the submitter id as the group....
                         submission.setGroupId(group_id);
                     }
 
@@ -6019,14 +6016,13 @@ public class AssignmentAction extends PagedResourceActionII {
 
                     // for resubmissions
                     // when resubmit, keep the Returned flag on till the instructor grade again.
-                    Instant now = Instant.now();
-
                     // need this to handle feedback and comments, which we have to do even if ungraded
                     // get the previous graded date
                     String prevGradedDate = properties.get(AssignmentConstants.PROP_LAST_GRADED_DATE);
-                    if (prevGradedDate == null && submission.getDateModified() != null) {
+                    if (StringUtils.isBlank(prevGradedDate) && submission.getDateModified() != null) {
                         // since this is a newly added property, if no value is set, get the default as the submission last modified date
-                        prevGradedDate = submission.getDateModified().toString();
+                        // this date is shown in the UI so we format the date and time using the system zone vs the users for consistency
+                        prevGradedDate = DateTimeFormatter.ofLocalizedDateTime(FormatStyle.LONG).withZone(ZoneId.systemDefault()).format(submission.getDateModified());
                         properties.put(AssignmentConstants.PROP_LAST_GRADED_DATE, prevGradedDate);
                     }
 
@@ -6034,11 +6030,10 @@ public class AssignmentAction extends PagedResourceActionII {
 
                         // add the current grade into previous grade histroy
                         String previousGrades = properties.get(ResourceProperties.PROP_SUBMISSION_SCALED_PREVIOUS_GRADES);
-                        if (previousGrades == null) {
+                        if (StringUtils.isBlank(previousGrades)) {
                             previousGrades = properties.get(ResourceProperties.PROP_SUBMISSION_PREVIOUS_GRADES);
-                            if (previousGrades != null) {
-                                Assignment.GradeType typeOfGrade = a.getTypeOfGrade();
-                                if (typeOfGrade == SCORE_GRADE_TYPE) {
+                            if (StringUtils.isNotBlank(previousGrades)) {
+                                if (a.getTypeOfGrade() == SCORE_GRADE_TYPE) {
                                     // point grade assignment type
                                     // some old unscaled grades, need to scale the number and remove the old property
                                     String[] grades = StringUtils.split(previousGrades, " ");
@@ -6046,8 +6041,7 @@ public class AssignmentAction extends PagedResourceActionII {
 
                                     String decSeparator = formattedText.getDecimalSeparator();
 
-                                    for (int jj = 0; jj < grades.length; jj++) {
-                                        String grade = grades[jj];
+                                    for (String grade : grades) {
                                         if (!grade.contains(decSeparator)) {
                                             // show the grade with decimal point
                                             grade = grade.concat(decSeparator).concat("0");
@@ -6071,7 +6065,7 @@ public class AssignmentAction extends PagedResourceActionII {
                         // clear the current grade and make the submission ungraded
                         submission.setGraded(false);
                         submission.setGradedBy(null);
-                        submission.setGrade("");
+                        submission.setGrade(null);
                         submission.setGradeReleased(false);
 
                     }
@@ -6084,26 +6078,20 @@ public class AssignmentAction extends PagedResourceActionII {
 
                     if (StringUtils.isNotBlank(submission.getFeedbackText())) {
                         // keep the history of assignment feed back text
-                        String feedbackTextHistory = properties.get(ResourceProperties.PROP_SUBMISSION_PREVIOUS_FEEDBACK_TEXT) != null
-                                ? properties.get(ResourceProperties.PROP_SUBMISSION_PREVIOUS_FEEDBACK_TEXT)
-                                : "";
+                        String feedbackTextHistory = StringUtils.trimToEmpty(properties.get(ResourceProperties.PROP_SUBMISSION_PREVIOUS_FEEDBACK_TEXT));
                         feedbackTextHistory = "<h4>" + prevGradedDate + "</h4>" + "<div style=\"margin:0;padding:0\">" + submission.getFeedbackText() + "</div>" + feedbackTextHistory;
                         properties.put(ResourceProperties.PROP_SUBMISSION_PREVIOUS_FEEDBACK_TEXT, feedbackTextHistory);
                     }
 
-                    if (StringUtils.trimToNull(submission.getFeedbackComment()) != null) {
+                    if (StringUtils.isNotBlank(submission.getFeedbackComment())) {
                         // keep the history of assignment feed back comment
-                        String feedbackCommentHistory = properties.get(ResourceProperties.PROP_SUBMISSION_PREVIOUS_FEEDBACK_COMMENT) != null
-                                ? properties.get(ResourceProperties.PROP_SUBMISSION_PREVIOUS_FEEDBACK_COMMENT)
-                                : "";
+                        String feedbackCommentHistory = StringUtils.trimToEmpty(properties.get(ResourceProperties.PROP_SUBMISSION_PREVIOUS_FEEDBACK_COMMENT));
                         feedbackCommentHistory = "<h4>" + prevGradedDate + "</h4>" + "<div style=\"margin:0;padding:0\">" + submission.getFeedbackComment() + "</div>" + feedbackCommentHistory;
                         properties.put(ResourceProperties.PROP_SUBMISSION_PREVIOUS_FEEDBACK_COMMENT, feedbackCommentHistory);
                     }
 
                     // keep the history of assignment feed back comment
-                    String feedbackAttachmentHistory = properties.get(PROP_SUBMISSION_PREVIOUS_FEEDBACK_ATTACHMENTS) != null
-                            ? properties.get(PROP_SUBMISSION_PREVIOUS_FEEDBACK_ATTACHMENTS)
-                            : "";
+                    String feedbackAttachmentHistory = StringUtils.trimToEmpty(properties.get(PROP_SUBMISSION_PREVIOUS_FEEDBACK_ATTACHMENTS));
                     Set<String> feedbackAttachments = submission.getFeedbackAttachments();
                     // use comma as separator for attachments
                     feedbackAttachmentHistory = StringUtils.join(feedbackAttachments, ",") + feedbackAttachmentHistory;
@@ -6111,8 +6099,8 @@ public class AssignmentAction extends PagedResourceActionII {
                     properties.put(PROP_SUBMISSION_PREVIOUS_FEEDBACK_ATTACHMENTS, feedbackAttachmentHistory);
 
                     // reset the previous grading context
-                    submission.setFeedbackText("");
-                    submission.setFeedbackComment("");
+                    submission.setFeedbackText(null);
+                    submission.setFeedbackComment(null);
                     submission.getFeedbackAttachments().clear();
 
                     // SAK-26322
@@ -6125,17 +6113,11 @@ public class AssignmentAction extends PagedResourceActionII {
 
                     // add attachments
                     List<Reference> attachments = (List<Reference>) state.getAttribute(ATTACHMENTS);
-                    Set<String> submittedAttachments = submission.getAttachments();
                     if (attachments != null) {
-                        if (a.getTypeOfSubmission() == Assignment.SubmissionType.TEXT_ONLY_ASSIGNMENT_SUBMISSION) {
-                            //inline only doesn't accept attachments
-                            submittedAttachments.clear();
-                        } else {
+                        Set<String> submittedAttachments = submission.getAttachments();
+                        submittedAttachments.clear();
+                        if (a.getTypeOfSubmission() != Assignment.SubmissionType.TEXT_ONLY_ASSIGNMENT_SUBMISSION) {
 
-                            // clear the old attachments first
-                            submittedAttachments.clear();
-
-                            // add each new attachment
                             if (submitter != null) {
                                 properties.put(AssignmentConstants.SUBMITTER_USER_ID, submitter.getId());
                                 state.setAttribute(STATE_SUBMITTER, u.getId());
@@ -6178,8 +6160,8 @@ public class AssignmentAction extends PagedResourceActionII {
                             logEntry += u.getDisplayName() + " (" + u.getEid() + ") " + subOrDraft;
                         }
                     }*/
-// TODO submissionLog
-//						submission.addSubmissionLogEntry( logEntry );
+                    // TODO submissionLog
+                    // submission.addSubmissionLogEntry( logEntry );
                     try {
                         assignmentService.updateSubmission(submission);
                     } catch (PermissionException e) {
@@ -6190,7 +6172,7 @@ public class AssignmentAction extends PagedResourceActionII {
                     // new submission
                     try {
                         // if assignment is a group submission... send group id and not user id
-                        String submitterId = null;
+                        String submitterId;
                         if (a.getIsGroup()) {
                             submitterId = group_id;
                         } else {
@@ -6198,10 +6180,30 @@ public class AssignmentAction extends PagedResourceActionII {
                         }
                         submission = assignmentService.addSubmission(a.getId(), submitterId);
                         if (submission != null) {
-                            log.debug("NEW SUBMISSION:submitter: {}", submission.getSubmitters().toArray(new AssignmentSubmissionSubmitter[]{})[0].getSubmitter());
+                            log.debug("NEW SUBMISSION:submitter: {}", submission.getSubmitters());
+                            Set<AssignmentSubmissionSubmitter> submitters = submission.getSubmitters();
                             if (a.getIsGroup()) {
-                                submission.setGroupId(group_id);
                                 log.debug("NEW SUBMISSION: group: {}", group_id);
+                                try {
+                                    Site site = siteService.getSite(a.getContext());
+                                    Group group = site.getGroup(group_id);
+                                    submission.setGroupId(group.getId());
+                                    for (Member member : group.getMembers()) {
+                                        AssignmentSubmissionSubmitter ass = new AssignmentSubmissionSubmitter();
+                                        String userId = member.getUserId();
+                                        ass.setSubmitter(userId);
+                                        if (StringUtils.equals(submitter.getId(), userId)) ass.setSubmittee(true);
+                                        submitters.add(ass);
+                                    }
+                                } catch (IdUnusedException e) {
+                                    log.warn("could not access the site {}, {}", a.getContext(), e.getMessage());
+                                }
+                            } else {
+                                AssignmentSubmissionSubmitter ass = new AssignmentSubmissionSubmitter();
+                                String userId = u.getId();
+                                ass.setSubmitter(userId);
+                                if (StringUtils.equals(submitter.getId(), userId)) ass.setSubmittee(true);
+                                submitters.add(ass);
                             }
                             submission.setUserSubmission(true);
                             submission.setSubmittedText(text);
