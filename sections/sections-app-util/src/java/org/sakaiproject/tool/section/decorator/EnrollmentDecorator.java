@@ -62,7 +62,7 @@ public class EnrollmentDecorator implements Serializable {
         				.toComparison();
         	}
             public int compare(EnrollmentDecorator enr1, EnrollmentDecorator enr2) {
-            	int comparison = compareUsers(enr1.getUser(), enr2.getUser());
+            	int comparison = compareUsers(enr1.getUser(), enr2.getUser());            
                 return sortAscending ? comparison : (-1 * comparison);
             }
         };
