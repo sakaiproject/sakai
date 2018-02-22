@@ -11843,7 +11843,9 @@ public class AssignmentAction extends PagedResourceActionII {
                             // show not deleted assignments
                             Instant openTime = a.getOpenDate();
                             Instant visibleTime = a.getVisibleDate();
-                            if ((currentTime.isAfter(openTime) || currentTime.isAfter(visibleTime)) && !a.getDraft()) {
+                            if (!a.getDraft()
+                                    && ((openTime != null && currentTime.isAfter(openTime))
+                                        || (visibleTime != null && currentTime.isAfter(visibleTime)))) {
                                 returnResources.add(a);
                             }
                         } else if (a.getDeleted() &&
