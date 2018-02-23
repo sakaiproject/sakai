@@ -64,21 +64,15 @@
             <h:commandButton                
                 value="#{msgs.update}"
                 styleClass="active"
-                rendered="#{optionsBean.sectionOptionsManagementEnabled}"
-                disabled="#{optionsBean.confirmMode}" 
-                onclick="if(document.optionsForm[1].checked){
-                    if(#{optionsBean.management == 'external'}){
-                        initManuallyManageDialog(); 
-                        return false;
-                    }
-                    }else{
-                        if(#{optionsBean.management == 'internal'}){
-                            document.getElementById('optionsForm:updateSectionsButton').click();
-                            return false;
-                        }
-                    }
-                    document.getElementById('optionsForm:confirmExternallyManagedButton').click(); 
-                    return false;" />
+                rendered="#{optionsBean.sectionOptionsManagementEnabled and optionsBean.management == 'internal'}"
+                disabled="#{optionsBean.confirmMode}"
+                onclick="return update('internal');" />
+            <h:commandButton                
+                value="#{msgs.update}"
+                styleClass="active"
+                rendered="#{optionsBean.sectionOptionsManagementEnabled and optionsBean.management == 'external'}"
+                disabled="#{optionsBean.confirmMode}"
+                onclick="return update('external');" />
             <h:commandButton
                 action="overview"
                 value="#{msgs.cancel}"

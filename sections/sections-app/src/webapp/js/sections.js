@@ -282,3 +282,19 @@ function initManuallyManageDialog() {
 	  ]
 	});
 }
+
+function update(management) {	
+	if(document.optionsForm[1].checked){		
+		if(management == 'external'){			
+			initManuallyManageDialog(); 
+			return false;
+		}
+	}else{		
+		if(management == 'internal'){						
+			document.getElementById('optionsForm:updateSectionsButton').click();			
+			return false;
+		}
+	}
+	document.getElementById('optionsForm:confirmExternallyManagedButton').click(); 
+	return false;
+}
