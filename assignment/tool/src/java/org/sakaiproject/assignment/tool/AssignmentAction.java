@@ -1097,7 +1097,7 @@ public class AssignmentAction extends PagedResourceActionII {
         context.put("allowAllGroups", Boolean.valueOf(allowAllGroups));
 
         // allow recover assignment?
-        boolean allowRecoverAssignment = assignmentService.allowRemoveAssignment(AssignmentReferenceReckoner.reckoner().context(contextString).reckon().getReference());
+        boolean allowRecoverAssignment = assignmentService.allowRemoveAssignmentInContext(contextString);
         context.put("allowRecoverAssignment", allowRecoverAssignment);
 
         //Is the review service allowed?
