@@ -1269,9 +1269,16 @@ public void processChangeSelectView(ValueChangeEvent eve)
 	  if(msgsList != null)
 	  {
 		  List tempMsgsList = new ArrayList();
+		  // Using this HashMap to ensure that each message is only processed once
+		  // preventing a logic loop that can cause a memory leak. 
+		  HashMap messageIds = new HashMap<Long,Boolean>();
 		  for(int i=0; i<msgsList.size(); i++)
 		  {
-			  tempMsgsList.add((PrivateMessageDecoratedBean)msgsList.get(i));
+			  long msgId = ((PrivateMessageDecoratedBean)msgsList.get(i)).getMsg().getId();
+			  if (messageIds.get(msgId) == null) {
+				  messageIds.put(msgId, true);
+				  tempMsgsList.add((PrivateMessageDecoratedBean)msgsList.get(i));
+			  }
 		  }
 		  Iterator iter = tempMsgsList.iterator();
 		  while(iter.hasNext())
