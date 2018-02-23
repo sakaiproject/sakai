@@ -58,6 +58,7 @@ import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.samigo.util.SamigoConstants;
 import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService;
 import org.sakaiproject.spring.SpringBeanLocator;
+import org.sakaiproject.tool.assessment.data.dao.assessment.EventLogData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemData;
 import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingAttachment;
 import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
@@ -76,12 +77,14 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentI
 import org.sakaiproject.tool.assessment.data.ifc.grading.StudentGradingSummaryIfc;
 import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
+import org.sakaiproject.tool.assessment.facade.EventLogFacade;
 import org.sakaiproject.tool.assessment.facade.GradebookFacade;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
 import org.sakaiproject.tool.assessment.facade.TypeFacade;
 import org.sakaiproject.tool.assessment.facade.TypeFacadeQueriesAPI;
 import org.sakaiproject.tool.assessment.integration.context.IntegrationContextFactory;
 import org.sakaiproject.tool.assessment.integration.helper.ifc.GradebookServiceHelper;
+import org.sakaiproject.tool.assessment.services.assessment.EventLogService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 import org.sakaiproject.tool.assessment.util.ExtendedTimeDeliveryService;
 import org.sakaiproject.tool.assessment.util.SamigoExpressionError;
@@ -1507,6 +1510,48 @@ public class GradingService
     return answer.getScore();
   }
 
+  public void updateAutosubmitEventLog(AssessmentGradingData adata) {
+	  EventLogService eventService = new EventLogService();
+	  EventLogFacade eventLogFacade = new EventLogFacade();
+	  Long gradingId = adata.getAssessmentGradingId();
+
+	  List<EventLogData> eventLogDataList = eventService.getEventLogData(gradingId);
+	  if (!eventLogDataList.isEmpty()) {
+		  EventLogData eventLogData= (EventLogData) eventLogDataList.get(0);
+		  //will do the i18n issue later.
+		  eventLogData.setErrorMsg("No Errors (Auto submit)");
+		  Date endDate = new Date();
+		  eventLogData.setEndDate(endDate);
+		  if(eventLogData.getStartDate() != null) {
+			  double minute= 1000*60;
+			  int eclipseTime = (int)Math.ceil(((endDate.getTime() - eventLogData.getStartDate().getTime())/minute));
+			  eventLogData.setEclipseTime(eclipseTime); 
+		  } else {
+			  eventLogData.setEclipseTime(null); 
+			  eventLogData.setErrorMsg("Error during auto submit");
+		  }
+		  eventLogFacade.setData(eventLogData);
+		  eventService.saveOrUpdateEventLog(eventLogFacade);
+	  }
+
+	  EventTrackingService.post(EventTrackingService.newEvent(SamigoConstants.EVENT_AUTO_SUBMIT_JOB,
+			  AutoSubmitAssessmentsJob.safeEventLength("publishedAssessmentId=" + adata.getPublishedAssessmentId() + 
+					  ", assessmentGradingId=" + gradingId), true));
+
+	  Map<String, Object> notiValues = new HashMap<>();
+	  notiValues.put("publishedAssessmentID", adata.getPublishedAssessmentId());
+	  notiValues.put("assessmentGradingID", gradingId);
+	  notiValues.put("userID", adata.getAgentId());
+	  notiValues.put("submissionDate", adata.getSubmittedDate());
+
+	  String confirmationNumber = adata.getAssessmentGradingId() + "-" + adata.getPublishedAssessmentId() + "-"
+
+			  + adata.getAgentId() + "-" + adata.getSubmittedDate().toString();
+	  notiValues.put( "confirmationNumber", confirmationNumber );
+
+	  EventTrackingService.post(EventTrackingService.newEvent(SamigoConstants.EVENT_ASSESSMENT_SUBMITTED_AUTO, notiValues.toString(), AgentFacade.getCurrentSiteId(), false, SamigoConstants.NOTI_EVENT_ASSESSMENT_SUBMITTED));
+  }
+  
   public void notifyGradebook(AssessmentGradingData data, PublishedAssessmentIfc pub) throws GradebookServiceException {
     // If the assessment is published to the gradebook, make sure to update the scores in the gradebook
     String toGradebook = pub.getEvaluationModel().getToGradeBook();
