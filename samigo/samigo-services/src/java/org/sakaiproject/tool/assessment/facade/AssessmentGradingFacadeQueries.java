@@ -3009,11 +3009,14 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
         }
         boolean autoSubmitCurrent;
         boolean updateCurrentGrade;
+        Integer scoringType;
         int failures = 0;
+        
         while (iter.hasNext()) {
 
             autoSubmitCurrent = false;
             updateCurrentGrade = false;
+            scoringType = -1;
 
             try {
                 adata = (AssessmentGradingData) iter.next();
@@ -3025,6 +3028,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
                     // SAM-1088 getting the assessment so we can check to see if last user attempt was after due date
                     PublishedAssessmentFacade assessment = (PublishedAssessmentFacade) publishedAssessmentService.getAssessment(
                             adata.getPublishedAssessmentId());
+                    scoringType = assessment.getEvaluationModel().getScoringType();
                     Date dueDate = assessment.getAssessmentAccessControl().getDueDate();
                     Date retractDate = assessment.getAssessmentAccessControl().getRetractDate();
                     Integer lateHandling = assessment.getAssessmentAccessControl().getLateHandling();
@@ -3067,28 +3071,14 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
                     }
 
                     autoSubmitCurrent = true;
-                    updateCurrentGrade = true;
                     adata.setIsAutoSubmitted(Boolean.TRUE);
                     if (lastPublishedAssessmentId.equals(adata.getPublishedAssessmentId())
                             && lastAgentId.equals(adata.getAgentId())) {
                         adata.setStatus(AssessmentGradingData.AUTOSUBMIT_UPDATED);
-
-                        // Check: needed updating gradebook
-                        // If the assessment is configured with highest score and exists a previous submission with higher score
-                        // this submission doesn't have to be sent to gradebook
-
-                        if (assessment.getEvaluationModel().getScoringType().equals(EvaluationModel.HIGHEST_SCORE)) {
-                            AssessmentGradingData assessmentGrading =
-                                    getHighestSubmittedAssessmentGrading(adata.getPublishedAssessmentId(),
-                                            adata.getAgentId(),
-                                            null);
-                            if (assessmentGrading.getTotalAutoScore() > adata.getTotalAutoScore()) {
-                                updateCurrentGrade = false;
-                            }
-                        }
                     } else {
                         adata.setStatus(AssessmentGradingData.SUBMITTED);
                     }
+                   
                     completeItemGradingData(adata, sectionSetMap);
                 }
 
@@ -3102,19 +3092,53 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
                         .getAutoSubmitQueries()
                         .autoSubmitSingleAssessment(adata,
                                 autoSubmitCurrent,
-                                updateCurrentGrade,
                                 publishedAssessment,
                                 persistenceHelper,
-                                updateGrades,
                                 eventService,
-                                eventLogFacade,
-                                toGradebookPublishedAssessmentSiteIdMap,
-                                gbsHelper,
-                                g);
-                if (!success) {
+                                eventLogFacade);
+
+                if (success && updateGrades == true) {
+                	// Check: needed updating gradebook
+                	// If the assessment is configured with highest score and exists a previous submission with higher score
+                	// this submission doesn't have to be sent to gradebook
+                	Double assessmentGrade = adata.getTotalAutoScore();
+                	if (EvaluationModel.HIGHEST_SCORE.equals(scoringType)) {
+                		AssessmentGradingData assessmentGrading =
+                				getHighestSubmittedAssessmentGrading(adata.getPublishedAssessmentId(),
+                						adata.getAgentId(),
+                						null);
+                		//If existing score higher than current, don't bother updating the grade
+                		if (assessmentGrading.getTotalAutoScore() > assessmentGrade) {
+                			updateCurrentGrade = false;
+                		}
+                	}
+                	else if (EvaluationModel.AVERAGE_SCORE.equals(scoringType)) {
+                		assessmentGrade =
+                				getAverageSubmittedAssessmentGrading(adata.getPublishedAssessmentId(),
+                						adata.getAgentId());
+                		//Just always update
+                		updateCurrentGrade = true;
+                	}
+                	else if (EvaluationModel.LAST_SCORE.equals(scoringType)) {
+                		//Just always update for last
+                		updateCurrentGrade = true;
+                	}
+                	
+                	if (updateCurrentGrade == true) {
+                		success = PersistenceService.getInstance()
+                				.getAutoSubmitQueries()
+                				.autoSubmitUpdateSingleGrade(adata, 
+                						assessmentGrade,
+                						toGradebookPublishedAssessmentSiteIdMap,
+                						persistenceHelper, 
+                						gbsHelper, 
+                						g);
+                	}
+                }
+                else {
                     ++failures;
                 }
-
+                
                 adata = null;
             } catch (Exception e) {
                 ++failures;

@@ -44,9 +44,9 @@ import org.springframework.orm.hibernate4.support.HibernateDaoSupport;
 public class AutoSubmitQueries extends HibernateDaoSupport implements AutoSubmitQueriesAPI
 {
 	@Override
-	public boolean autoSubmitSingleAssessment(AssessmentGradingData adata, boolean autoSubmit, boolean updateCurrentGrade, PublishedAssessmentFacade publishedAssessment, 
-			PersistenceHelper persistenceHelper, boolean updateGrades, EventLogService eventService, EventLogFacade eventLogFacade,
-			Map<Long, String> toGradebookPublishedAssessmentSiteIdMap, GradebookServiceHelper gbsHelper, GradebookExternalAssessmentService g)
+	public boolean autoSubmitSingleAssessment(AssessmentGradingData adata, boolean autoSubmit, PublishedAssessmentFacade publishedAssessment,
+			PersistenceHelper persistenceHelper, EventLogService eventService, EventLogFacade eventLogFacade)
+			 
 	{
 		long gradingId;
 		if (adata != null && adata.getAssessmentGradingId() != null)
@@ -63,36 +63,10 @@ public class AutoSubmitQueries extends HibernateDaoSupport implements AutoSubmit
 		{	
 			getHibernateTemplate().saveOrUpdate(adata);
 			
-			//update grades
-			if(updateGrades && autoSubmit && updateCurrentGrade && toGradebookPublishedAssessmentSiteIdMap != null && toGradebookPublishedAssessmentSiteIdMap.containsKey(adata.getPublishedAssessmentId())) {
-				String currentSiteId = toGradebookPublishedAssessmentSiteIdMap.get(adata.getPublishedAssessmentId());
-				if (gbsHelper != null && gbsHelper.gradebookExists(GradebookFacade.getGradebookUId(currentSiteId), g)){
-					int retryCount = persistenceHelper.getRetryCount();
-					boolean success = false;
-					while (retryCount > 0){
-						try {
-							Map<String, Double> studentScore = new HashMap<>();
-							studentScore.put(adata.getAgentId(), adata.getFinalScore());
-							gbsHelper.updateExternalAssessmentScores(adata.getPublishedAssessmentId(), studentScore, g);
-							retryCount = 0;
-							success = true;
-						}
-						catch (Exception e) {
-							log.error("Error while updating external assessment score during auto submitting assessment grade data id: " + gradingId, e);
-							retryCount = persistenceHelper.retryDeadlock(e, retryCount);
-						}
-					}
-					
-					if (!success)
-					{
-						return false;
-					}
-				}
-			}
-			
+
 			if (autoSubmit) // if we get this far and have autosubmitted, log and notify
 			{
-				List eventLogDataList = eventService.getEventLogData(gradingId);
+				List<EventLogData> eventLogDataList = eventService.getEventLogData(gradingId);
 				if (!eventLogDataList.isEmpty()) {
 					EventLogData eventLogData= (EventLogData) eventLogDataList.get(0);
 					//will do the i18n issue later.
@@ -136,5 +110,49 @@ public class AutoSubmitQueries extends HibernateDaoSupport implements AutoSubmit
 		
 		return true;
 
+	}
+
+	@Override
+	public boolean autoSubmitUpdateSingleGrade(AssessmentGradingData adata, Double assessmentGrade, Map<Long, String> toGradebookPublishedAssessmentSiteIdMap,
+			PersistenceHelper persistenceHelper, GradebookServiceHelper gbsHelper, GradebookExternalAssessmentService g) 
+	{
+
+		long gradingId;
+		if (adata != null && adata.getAssessmentGradingId() != null)
+		{
+			gradingId = adata.getAssessmentGradingId();
+		}
+		else
+		{
+			log.error("AssessmentGradingData object/id cannot be null");
+			return false;
+		}
+		//update grades
+		if(toGradebookPublishedAssessmentSiteIdMap != null && toGradebookPublishedAssessmentSiteIdMap.containsKey(adata.getPublishedAssessmentId())) {
+			String currentSiteId = toGradebookPublishedAssessmentSiteIdMap.get(adata.getPublishedAssessmentId());
+			if (gbsHelper != null && gbsHelper.gradebookExists(GradebookFacade.getGradebookUId(currentSiteId), g)){
+				int retryCount = persistenceHelper.getRetryCount();
+				boolean success = false;
+				while (retryCount > 0){
+					try {
+						Map<String, Double> studentScore = new HashMap<>();
+						studentScore.put(adata.getAgentId(), assessmentGrade);
+						gbsHelper.updateExternalAssessmentScores(adata.getPublishedAssessmentId(), studentScore, g);
+						retryCount = 0;
+						success = true;
+					}
+					catch (Exception e) {
+						log.error("Error while updating external assessment score during auto submitting assessment grade data id: " + gradingId, e);
+						retryCount = persistenceHelper.retryDeadlock(e, retryCount);
+					}
+				}
+				
+				if (!success)
+				{
+					return false;
+				}
+			}
+		}
+		return true;
 	}
 }
