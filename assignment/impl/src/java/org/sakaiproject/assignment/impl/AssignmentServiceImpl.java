@@ -552,6 +552,11 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
     }
 
     @Override
+    public Collection<Group> getGroupsAllowUpdateAssignment(String context) {
+        return getGroupsAllowFunction(SECURE_UPDATE_ASSIGNMENT, context, null);
+    }
+
+    @Override
     public Collection<Group> getGroupsAllowGradeAssignment(String assignmentReference) {
         AssignmentReferenceReckoner.AssignmentReference referenceReckoner = AssignmentReferenceReckoner.reckoner().reference(assignmentReference).reckon();
         if (allowGradeSubmission(assignmentReference)) {
@@ -571,8 +576,17 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
     }
 
     @Override
+    public boolean allowUpdateAssignmentInContext(String context) {
+        String resourceString = AssignmentReferenceReckoner.reckoner().context(context).reckon().getReference();
+        if (permissionCheck(SECURE_UPDATE_ASSIGNMENT, resourceString, null)) return true;
+        // if not, see if the user has any groups to which updates are allowed
+        return (!getGroupsAllowUpdateAssignment(context).isEmpty());
+    }
+
+    @Override
     public boolean allowUpdateAssignment(String assignmentReference) {
-        return permissionCheck(SECURE_UPDATE_ASSIGNMENT, assignmentReference, null);
+        AssignmentReferenceReckoner.AssignmentReference referenceReckoner = AssignmentReferenceReckoner.reckoner().reference(assignmentReference).reckon();
+        return allowUpdateAssignmentInContext(referenceReckoner.getContext());
     }
 
     @Override

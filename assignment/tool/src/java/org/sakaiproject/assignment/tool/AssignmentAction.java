@@ -6519,7 +6519,9 @@ public class AssignmentAction extends PagedResourceActionII {
         SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
 
         if (!alertGlobalNavigation(state, data)) {
-            if (assignmentService.allowAddAssignment((String) state.getAttribute(STATE_CONTEXT_STRING))) {
+			boolean allowAddAssignment = assignmentService.allowAddAssignment((String) state.getAttribute(STATE_CONTEXT_STRING));
+			boolean allowUpdateAssignment = assignmentService.allowUpdateAssignmentInContext((String) state.getAttribute(STATE_CONTEXT_STRING));
+            if (allowAddAssignment && allowUpdateAssignment) {
                 initializeAssignment(state);
 
                 state.setAttribute(ATTACHMENTS, entityManager.newReferenceList());
