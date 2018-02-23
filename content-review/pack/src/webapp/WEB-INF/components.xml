@@ -2,14 +2,15 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
-    
+
 	<import resource="hibernate-hbms.xml" />
 	<import resource="spring-hibernate.xml" />
 	<import resource="turnitin.xml" />
+  	<import resource="turnitin-oc.xml" />
 	<import resource="vericite.xml" />
 	<import resource="compilatio.xml" />
 	<import resource="urkund.xml" />
-	
+
 	<bean id="org.sakaiproject.contentreview.service.ContentReviewQueueService" class="org.sakaiproject.contentreview.service.ContentReviewQueueServiceImpl">
 	   <property name="itemDao" ref="org.sakaiproject.contentreview.dao.ContentReviewItemDao" />
 	</bean>
@@ -21,6 +22,7 @@
 				<ref bean="org.sakaiproject.contentreview.turnitin.ContentReviewServiceTurnitin" />
 				<ref bean="org.sakaiproject.contentreview.compilatio.ContentReviewServiceCompilatio" />
 				<ref bean="org.sakaiproject.contentreview.urkund.ContentReviewServiceUrkund" />
+        			<ref bean="org.sakaiproject.contentreview.turnitin.oc.ContentReviewServiceTurnitinOC" />
 			</list>
 		</property>
 

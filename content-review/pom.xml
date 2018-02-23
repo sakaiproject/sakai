@@ -48,6 +48,11 @@
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>
+				<groupId>org.sakaiproject.contentreview.turnitin.oc</groupId>
+				<artifactId>content-review-turnitin-oc-impl</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
 				<groupId>org.sakaiproject.contentreview.compilatio</groupId>
 				<artifactId>content-review-compilatio-impl</artifactId>
 				<version>${project.version}</version>
