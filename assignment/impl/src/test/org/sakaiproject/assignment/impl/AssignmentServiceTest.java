@@ -198,6 +198,7 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
         Assignment assignment = createNewAssignment(context);
         String assignmentId = assignment.getId();
         assignment.setDraft(Boolean.TRUE);
+        when(securityService.unlock(AssignmentServiceConstants.SECURE_UPDATE_ASSIGNMENT, AssignmentReferenceReckoner.reckoner().context(context).reckon().getReference())).thenReturn(true);
         when(securityService.unlock(AssignmentServiceConstants.SECURE_UPDATE_ASSIGNMENT, AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getReference())).thenReturn(true);
         try {
             assignmentService.updateAssignment(assignment);
@@ -302,6 +303,7 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
         Assignment assignment = createNewAssignment(context);
         assignment.setTitle(title);
         Assignment updatedAssignment = null;
+        when(securityService.unlock(AssignmentServiceConstants.SECURE_UPDATE_ASSIGNMENT, AssignmentReferenceReckoner.reckoner().context(context).reckon().getReference())).thenReturn(true);
         when(securityService.unlock(AssignmentServiceConstants.SECURE_UPDATE_ASSIGNMENT, AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getReference())).thenReturn(true);
         try {
             assignmentService.updateAssignment(assignment);
@@ -454,6 +456,7 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
         AssignmentServiceConstants.PROPERTIES_EXCLUDED_FROM_DUPLICATE_ASSIGNMENTS.forEach(p -> properties.put(p, p + "_VALUE"));
         assignment.setProperties(properties);
 
+        when(securityService.unlock(AssignmentServiceConstants.SECURE_UPDATE_ASSIGNMENT, AssignmentReferenceReckoner.reckoner().context(context).reckon().getReference())).thenReturn(true);
         when(securityService.unlock(AssignmentServiceConstants.SECURE_UPDATE_ASSIGNMENT, AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getReference())).thenReturn(true);
         try {
             assignmentService.updateAssignment(assignment);
@@ -572,6 +575,7 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
         assignment.setCloseDate(now);
         assignment.setPeerAssessmentPeriodDate(now.minus(Duration.ofDays(1)));
 
+        when(securityService.unlock(AssignmentServiceConstants.SECURE_UPDATE_ASSIGNMENT, AssignmentReferenceReckoner.reckoner().context(context).reckon().getReference())).thenReturn(true);
         when(securityService.unlock(AssignmentServiceConstants.SECURE_UPDATE_ASSIGNMENT, AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getReference())).thenReturn(true);
         try {
             assignmentService.updateAssignment(assignment);
@@ -673,6 +677,7 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
         assignment.getGroups().add(groupRef);
         String assignmentReference = AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getReference();
         when(securityService.unlock(AssignmentServiceConstants.SECURE_UPDATE_ASSIGNMENT, assignmentReference)).thenReturn(true);
+        when(securityService.unlock(AssignmentServiceConstants.SECURE_UPDATE_ASSIGNMENT, AssignmentReferenceReckoner.reckoner().context(context).reckon().getReference())).thenReturn(true);
         assignmentService.updateAssignment(assignment);
 
         // configure mock group objects
