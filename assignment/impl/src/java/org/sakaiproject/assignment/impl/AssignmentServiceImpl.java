@@ -594,6 +594,14 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
     }
 
     @Override
+    public boolean allowRemoveAssignmentInContext(String context) {
+        String resourceString = AssignmentReferenceReckoner.reckoner().context(context).reckon().getReference();
+        if (permissionCheck(SECURE_REMOVE_ASSIGNMENT, resourceString, null)) return true;
+        // if not, see if the user has any groups to which remove is allowed
+        return (!getGroupsAllowRemoveAssignment(context).isEmpty());
+    }
+
+    @Override
     public boolean allowAddSubmission(String context) {
         String resourceString = AssignmentReferenceReckoner.reckoner().context(context).subtype("s").reckon().getReference();
         return permissionCheck(SECURE_ADD_ASSIGNMENT_SUBMISSION, resourceString, null);

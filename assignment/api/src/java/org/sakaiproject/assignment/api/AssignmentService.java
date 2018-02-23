@@ -97,6 +97,15 @@ public interface AssignmentService extends EntityProducer {
     boolean allowAddSiteAssignment(String context);
 
     /**
+     * Check permissions for removing an Assignment.
+     *
+     * @param context -
+     *                Describes the portlet context - generated with DefaultId.getChannel().
+     * @return True if the current User is allowed to remove an Assignment, false if not.
+     */
+    public boolean allowRemoveAssignmentInContext(String context);
+
+    /**
      * Check permissions for all.groups.
      *
      * @param context -
