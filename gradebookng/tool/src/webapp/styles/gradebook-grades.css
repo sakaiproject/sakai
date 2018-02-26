@@ -25,14 +25,14 @@
 }
 #gradebookGrades {
   position: relative;
-  overflow: hidden;
+  overflow: auto;
+  height: 60vh;
   width: 100%;
   font-size: 0.9em;
 }
 #gradebookHorizontalOverflowWrapper {
   width: 100%;
   padding-bottom: 160px;
-  overflow: auto;
   position: relative;
   -webkit-overflow-scrolling: touch;
 }
@@ -414,7 +414,7 @@
 }
 #gradebookGrades .gb-fixed-columns-table,
 #gradebookGrades .gb-fixed-column-headers-table {
-  position: fixed;
+  position: absolute;
 }
 #gradebookGrades .gb-fixed-header-table {
   position: absolute;
@@ -1192,4 +1192,19 @@ and (max-device-width : 736px) {
 #gbConnectionTimeoutFeedback:before {
   font-family: "gradebook-icons";
   content: "\f071";
+}
+
+.wtHolder::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+.wtHolder::-webkit-scrollbar-track {
+  background-color: #EEE;
+}
+.wtHolder::-webkit-scrollbar-thumb {
+  border-radius: 10px;
+  background-color: rgba(170,170,170,0.5);
+}
+.wtHolder::-webkit-scrollbar-thumb:hover {
+  background-color: #AAA;
 }

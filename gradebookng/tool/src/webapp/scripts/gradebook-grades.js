@@ -8,7 +8,7 @@
 function GradebookSpreadsheet($spreadsheet) {
   this.$spreadsheet = $spreadsheet;
   this.$table = $("#gradebookGradesTable");
-  this.$horizontalOverflow = $("#gradebookHorizontalOverflowWrapper");
+  this.$horizontalOverflow = $("#gradebookGrades");
 
   // no students or grade items, nothing to do
   if (this.$table.length == 0) {
@@ -308,6 +308,9 @@ GradebookSpreadsheet.prototype.ensureCellIsVisible = function($cell) {
   if  ($cell[0].offsetLeft - self.$horizontalOverflow[0].scrollLeft < fixedColWidth) {
     self.$horizontalOverflow[0].scrollLeft = $cell[0].offsetLeft - fixedColWidth;
   }
+  if ($cell.parent().find("td:last-child").attr("id") == $cell.attr("id")) {
+    $("#gradebookGrades").scrollLeft($("#gradebookGrades").width()*2);
+  }
 
   // check input is visible on y-scroll
   if ($cell.parent().parent().prop("tagName") == "TBODY") {
@@ -584,7 +587,7 @@ GradebookSpreadsheet.prototype.setupFixedColumns = function() {
 GradebookSpreadsheet.prototype.setupScrollHandling = function() {
   var self = this;
 
-  $(document).on("scroll", $.proxy(self.handleScrollEvent, self));
+  $("#gradebookGrades").on("scroll", $.proxy(self.handleScrollEvent, self));
   self.$horizontalOverflow.on("scroll", $.proxy(self.handleScrollEvent, self));
 
   self.handleScrollEvent();
@@ -595,12 +598,15 @@ GradebookSpreadsheet.prototype._fixedThingsAreReady = 0;
 GradebookSpreadsheet.prototype.handleScrollEvent = function() {
   var self = this;
 
+  var leftOffset = $("#gradebookGrades").scrollLeft();
+  var topOffset = $("#gradebookGrades").scrollTop();
+
   function positionFixedColumn() {
     if (self.$horizontalOverflow[0].scrollLeft > 0) {
       self.$fixedColumns.
           show().
-          css("left", self.$horizontalOverflow.offset().left).
-          css("top", self.$table.find("tbody").offset().top - $(window).scrollTop());
+          css("left", leftOffset).
+          css("top", ($(".gb-fixed-header-table").height() - 1) + "px");
     } else {
       self.$fixedColumns.hide();
     }
@@ -608,49 +614,48 @@ GradebookSpreadsheet.prototype.handleScrollEvent = function() {
 
   function positionFixedColumnHeader() {
     var showFixedHeader = false;
-    var leftOffset = self.$horizontalOverflow.offset().left;
-    var topOffset = Math.max(0, self.$table.offset().top - $(window).scrollTop());
 
-    self.$fixedColumnsHeader.css("position", "fixed");
+    self.$fixedColumnsHeader.css("position", "absolute");
 
-    if (self.$horizontalOverflow[0].scrollLeft > 0 || self.$table.offset().top < $(window).scrollTop()) {
+    if (self.$horizontalOverflow[0].scrollLeft > 0 || self.$table.offset().top < $("#gradebookGrades").scrollTop()) {
       if (self.$horizontalOverflow[0].scrollLeft > 0) {
         showFixedHeader = true;
       }
 
-      if ($(window).scrollTop() + self.$fixedColumnsHeader.height() + 80 > self.$table.offset().top + self.$table.height()) {
+      if ($("#gradebookGrades").scrollTop() + self.$fixedColumnsHeader.height() + 80 > self.$table.offset().top + self.$table.height()) {
         // hard position the fixed column header just above the bottom of the
         // table
-        topOffset = self.$table.height() - self.$fixedColumnsHeader.height() - 80;
-        leftOffset = 0;
         self.$fixedColumnsHeader.css("position", "absolute");
         // except check for the horizontal scroll
-        if (self.$horizontalOverflow[0].scrollLeft == 0) {
+        if (leftOffset > 0) {
           showFixedHeader = true;
         }
-      } else if (self.$table.offset().top < $(window).scrollTop()) {
+      } else if (self.$table.offset().top < $("#gradebookGrades").scrollTop()) {
         showFixedHeader = true
       }
     }
 
     if (showFixedHeader) {
       self.$fixedColumnsHeader.show().css("top", topOffset).css("left", leftOffset);
+      if (topOffset < $("#gradebookGradesTable .gb-headers.headers").height()) {
+        self.$fixedColumnsHeader.css("top", 0);
+      }
     } else {
       self.$fixedColumnsHeader.hide();
     }
   }
 
   function positionFixedHeader() {
-    if ($(window).scrollTop() + self.$fixedHeader.height() + 80 > self.$table.offset().top + self.$table.height()) {
+    if ($("#gradebookGrades").scrollTop() + self.$fixedHeader.height() + 80 > self.$table.offset().top + self.$table.height()) {
       // freeze the header just above the bottom of the table
-      self.$fixedHeader.css("top", self.$table.height() - self.$fixedHeader.height() - 80);
-    } else if (self.$table.offset().top < $(window).scrollTop()) {
+      self.$fixedHeader.css("top", $("#gradebookGrades").scrollTop());
+    } else if (self.$table.offset().top < $("#gradebookGrades").scrollTop()) {
       var forceCategoryLabelRefresh = self.$fixedHeader.is(":not(:visible)");
 
       self.$fixedHeader.
           show().
-          css("top", $(window).scrollTop() - self.$spreadsheet.offset().top + "px").
-          css("left", -self.$horizontalOverflow.scrollLeft() + "px");
+          css("top", $("#gradebookGrades").scrollTop()).
+          css("left", 0);
 
       if (forceCategoryLabelRefresh) {
         self.$horizontalOverflow.trigger("refreshcategorylabels.aspace");
@@ -1597,6 +1602,9 @@ var GradebookAbstractCell = {
     $cell.on("focus", function(event) {
       self.gradebookSpreadsheet.ensureCellIsVisible($(event.target));
       self.gradebookSpreadsheet.highlightRow(self.getRow());
+      if (($(".gb-fixed-header-table").offset().top + $(".gb-fixed-header-table").height()) > $cell.offset().top) {
+        $("#gradebookGrades").scrollTop($("#gradebookGrades").scrollTop() - $(".gb-fixed-header-table").height());
+      }
     });
   },
   getRow: function() {
