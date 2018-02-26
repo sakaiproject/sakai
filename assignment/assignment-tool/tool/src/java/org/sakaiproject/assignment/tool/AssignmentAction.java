@@ -8794,7 +8794,7 @@ public class AssignmentAction extends PagedResourceActionII
 	private boolean change_from_non_point(SessionState state, String assignmentId, String assignmentContentId, AssignmentContentEdit ac) 
 	{
 		// whether this is an editing which changes non point_grade type to point grade type?
-		if (StringUtils.trimToNull(assignmentId) != null && StringUtils.trimToNull(assignmentContentId) != null)
+		if (StringUtils.isNotEmpty(assignmentId) && StringUtils.isNotEmpty(assignmentContentId) && ac != null)
 		{
 			// editing
 			if (ac.getTypeOfGrade() != Assignment.SCORE_GRADE_TYPE
