@@ -6195,7 +6195,8 @@ public class AssignmentAction extends PagedResourceActionII {
                                         AssignmentSubmissionSubmitter ass = new AssignmentSubmissionSubmitter();
                                         String userId = member.getUserId();
                                         ass.setSubmitter(userId);
-                                        if (StringUtils.equals(submitter.getId(), userId)) ass.setSubmittee(true);
+                                        ass.setSubmittee(false);
+                                        if (u != null && StringUtils.equals(u.getId(), userId)) ass.setSubmittee(true);
                                         submitters.add(ass);
                                     }
                                 } catch (IdUnusedException e) {
@@ -6205,7 +6206,7 @@ public class AssignmentAction extends PagedResourceActionII {
                                 AssignmentSubmissionSubmitter ass = new AssignmentSubmissionSubmitter();
                                 String userId = u.getId();
                                 ass.setSubmitter(userId);
-                                if (StringUtils.equals(submitter.getId(), userId)) ass.setSubmittee(true);
+                                ass.setSubmittee(true);
                                 submitters.add(ass);
                             }
                             submission.setUserSubmission(true);
