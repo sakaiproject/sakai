@@ -5,11 +5,12 @@
 <wicket:extend>
 	
 	<h2><wicket:message key="errorpage.heading" /></h2>
-	
+
 	<p wicket:id="error">Error code: C123K4F</p>
-	
-	<pre><wicket:container wicket:id="stacktrace" /></pre>
-			
+
+	<wicket:enclosure>
+		<pre><wicket:container wicket:id="stacktrace" /></pre>
+	</wicket:enclosure>
 </wicket:extend>
 </body>
 </html>
