@@ -15,12 +15,14 @@
  */
 package org.sakaiproject.gradebookng.tool.pages;
 
+import lombok.extern.slf4j.Slf4j;
+
 import org.apache.commons.lang.RandomStringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.model.StringResourceModel;
 
-import lombok.extern.slf4j.Slf4j;
+import org.sakaiproject.component.cover.ServerConfigurationService;
 
 /**
  * Page displayed when an internal error occurred.
@@ -30,6 +32,9 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 public class ErrorPage extends BasePage {
+
+	private static final String SAK_PROP_PORTAL_SHOW_ERROR = "portal.error.showdetail";
+	private static final boolean SAK_PROP_PORTAL_SHOW_ERROR_DEFAULT = true;
 
 	private static final long serialVersionUID = 1L;
 
@@ -43,14 +48,18 @@ public class ErrorPage extends BasePage {
 		// generate an error code so we can log the exception with it without giving the user the stacktrace
 		// note that wicket will already have logged the stacktrace so we aren't going to bother logging it again
 		final String code = RandomStringUtils.randomAlphanumeric(10);
-		log.error("User supplied error code for the above stacktrace: " + code);
+		log.error("User supplied error code for the above stacktrace: {}", code);
 
 		final Label error = new Label("error", new StringResourceModel("errorpage.text", null, new Object[] { code }));
 		error.setEscapeModelStrings(false);
 		add(error);
 
-		// show the stacktrace. This should be configurable at some point
-		add(new Label("stacktrace", stacktrace));
-
+		// Display the stack trace only if the application is configured to do so
+		boolean showStackTraces = ServerConfigurationService.getBoolean(SAK_PROP_PORTAL_SHOW_ERROR, SAK_PROP_PORTAL_SHOW_ERROR_DEFAULT);
+		Label trace = new Label("stacktrace", stacktrace);
+		if (!showStackTraces && !businessService.isSuperUser()) {
+			trace.setVisible(false);
+		}
+		add(trace);
 	}
 }

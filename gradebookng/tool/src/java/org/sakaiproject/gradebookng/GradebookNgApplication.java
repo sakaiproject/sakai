@@ -22,9 +22,9 @@ import org.apache.wicket.request.IRequestHandler;
 import org.apache.wicket.request.cycle.AbstractRequestCycleListener;
 import org.apache.wicket.request.cycle.RequestCycle;
 import org.apache.wicket.request.resource.PackageResourceReference;
-import org.apache.wicket.settings.IExceptionSettings;
 import org.apache.wicket.settings.IRequestCycleSettings.RenderStrategy;
 import org.apache.wicket.spring.injection.annot.SpringComponentInjector;
+
 import org.sakaiproject.gradebookng.framework.GradebookNgStringResourceLoader;
 import org.sakaiproject.gradebookng.tool.pages.ErrorPage;
 import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
@@ -74,10 +74,6 @@ public class GradebookNgApplication extends WebApplication {
 		// On Wicket session timeout, redirect to main page
 		// getApplicationSettings().setPageExpiredErrorPage(getHomePage());
 
-		// show internal error page rather than default developer page
-		// for production, set to SHOW_NO_EXCEPTION_PAGE
-		getExceptionSettings().setUnexpectedExceptionDisplay(IExceptionSettings.SHOW_EXCEPTION_PAGE);
-
 		// Intercept any unexpected error stacktrace and take to our page
 		getRequestCycleListeners().add(new AbstractRequestCycleListener() {
 			@Override
@@ -93,12 +89,12 @@ public class GradebookNgApplication extends WebApplication {
 		getMarkupSettings().setStripWicketTags(true);
 		getMarkupSettings().setStripComments(true);
 		getMarkupSettings().setCompressWhitespace(true);
-
 	}
 
 	/**
 	 * The main page for our app
 	 *
+	 * @return
 	 * @see org.apache.wicket.Application#getHomePage()
 	 */
 	@Override
@@ -109,7 +105,5 @@ public class GradebookNgApplication extends WebApplication {
 	/**
 	 * Constructor
 	 */
-	public GradebookNgApplication() {
-	}
-
+	public GradebookNgApplication() {}
 }
