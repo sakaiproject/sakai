@@ -2065,8 +2065,8 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
 			  ComplexFormat complexFormat = new ComplexFormat(df);
 			  studentAnswerComplex = complexFormat.parse(trimmedValue);
 
-			  // This is because there is a bug parsing complex number. 9i is parsed as 9
-			  if (studentAnswerComplex.getImaginary() == 0 && trimmedValue.contains("i")) {
+			  // Only checks for complex numbers, not real numbers
+			  if (studentAnswerComplex.getImaginary() == 0) {
 				  isComplex = false;
 			  }
 		  } catch (Exception e) {
