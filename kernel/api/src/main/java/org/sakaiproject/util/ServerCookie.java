@@ -168,7 +168,8 @@ public class ServerCookie {
                                           String comment,
                                           int maxAge,
                                           boolean isSecure,
-                                          boolean isHttpOnly)
+                                          boolean isHttpOnly,
+                                          String sameSite)
     {
         StringBuffer buf = new StringBuffer();
         // Servlet implementation checks name
@@ -238,6 +239,12 @@ public class ServerCookie {
         if (isHttpOnly) {
             buf.append("; HttpOnly");
         }
+
+        // SameSite
+        if (sameSite != null) {
+            buf.append("; SameSite=").append(sameSite);
+        }
+
         headerBuf.append(buf);
     }
 
