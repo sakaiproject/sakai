@@ -483,7 +483,7 @@ public class ContentReviewServiceTurnitinOC implements ContentReviewService {
 			HashMap<String, String> uploadHeaders = new HashMap<String, String>();
 			uploadHeaders.putAll(baseHeaders);
 			uploadHeaders.put(HEADER_DISP, "inline; filename=\"" + fileName + "\"");
-			uploadHeaders.put(HEADER_CONTENT, CONTENT_TYPE_FORM);
+			uploadHeaders.put(HEADER_CONTENT, CONTENT_TYPE_BINARY);
 			
 			log.info("HEADERS 1:   " + getIdHeaders.toString());
 			log.info("HEADERS 2:   " + uploadHeaders.toString());
