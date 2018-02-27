@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
@@ -30,6 +31,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.SortedSet;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
@@ -52,8 +54,15 @@ import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.user.api.UserDirectoryService;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+import net.sf.json.JSONObject;
 
 @Slf4j
 public class ContentReviewServiceTurnitinOC implements ContentReviewService {
@@ -82,6 +91,17 @@ public class ContentReviewServiceTurnitinOC implements ContentReviewService {
 	private static final String TURNITIN_OC_API_VERSION = "v1";
 	private static final int TURNITIN_OC_RETRY_TIME_MINS = 30;
 	private static final int TURNITIN_MAX_RETRY = 30;
+	private static final String INTEGRATION_VERSION = "1.0";
+	private static final String INTEGRATION_FAMILY =  "sakai";
+	// API key
+	private static final String CONTENT_TYPE_JSON = "application/json";
+	private static final String CONTENT_TYPE_BINARY = "binary/octet-stream";
+	private static final String HEADER_NAME = "X-Turnitin-Integration-Name:";
+	private static final String HEADER_VERSION = "X-Turnitin-Integration-Version:";
+	private static final String HEADER_AUTH = "Authorization:";
+	private static final String HEADER_CONTENT = "Content-Type";
+	private static final String HEADER_DISP = "Content-Disposition:";
+	private static final String FAKE_URL = "https://test.turnitin.com/api/v1/";
 
 	private String serviceUrl;
 	private String apiKey;
@@ -324,6 +344,61 @@ public class ContentReviewServiceTurnitinOC implements ContentReviewService {
 	public boolean isSiteAcceptable(Site arg0) {
 		return true;
 	}
+	
+	private String getSubmissionId(String baseURL, HashMap<String, String> headers, String userID, String fileName) 
+			throws MalformedURLException, IOException {
+		String url = baseURL + "submissions";
+		HttpURLConnection connection = ( HttpURLConnection ) new URL(url).openConnection( );
+		connection.setRequestMethod( "POST" );
+		
+		String headerString = Objects.toString(headers, "");
+		log.debug("Headers: " + headerString);
+		//{x-amz-server-side-encryption=AES256}
+		headerString = headerString.replace("{", "").replace("}", "");
+		String[] headerPairs = headerString.split(",");
+		for (String headerPair : headerPairs) {
+			headerPair = headerPair.trim();
+			String[] pairKeyValue = headerPair.split("=");
+			if (pairKeyValue.length == 2) {
+				connection.setRequestProperty(pairKeyValue[0].trim(), pairKeyValue[1].trim());
+			}
+		}
+//		 connection.setRequestProperty( HEADER_NAME, INTEGRATION_FAMILY );
+//		 connection.setRequestProperty( HEADER_VERSION, INTEGRATION_VERSION );
+//		 connection.setRequestProperty( "Authorization: ", "bearer " + apiKey  );
+//		 connection.setRequestProperty( "Content-Type:", CONTENT_TYPE_JSON  );
+		
+		JSONObject body = new JSONObject();
+		body.put("owner", userID);
+		body.put("title", fileName);
+		
+		
+		ObjectMapper objectMapper = new ObjectMapper();
+		connection.setDoOutput(true);
+		DataOutputStream wr = new DataOutputStream(connection.getOutputStream());
+		wr.writeChars(body.toString());
+		
+		log.info(body.toString());
+		
+		wr.flush();
+		wr.close();
+		//Send request:
+		String responseBody;
+		String submissionId = null;
+		responseBody = IOUtils.toString(connection.getInputStream(), StandardCharsets.UTF_8);
+		ObjectMapper mapper = new ObjectMapper();
+		JsonNode jsonObj = mapper.readTree(responseBody);
+		if(jsonObj.has("id")) {
+			submissionId = jsonObj.get("id").asText();
+		} else {
+			throw new Error("No submission id found in JsonObj");
+		}
+		
+		log.info("responseBody: " + responseBody);
+			
+		return submissionId;
+		
+	}
 
 	public void processQueue() {
 		log.info("Processing Turnitin OC submission queue");
@@ -377,27 +452,56 @@ public class ContentReviewServiceTurnitinOC implements ContentReviewService {
 				continue;
 			}
 			String fileName = resource.getProperties().getProperty(ResourceProperties.PROP_DISPLAY_NAME);
+			log.info("Filename: " + fileName);
 			if(StringUtils.isEmpty(fileName)){
 				//set default file name:
 				//TODO
-			}		
+				fileName = "submission_" + item.getUserId() + "_" + item.getSiteId(); 
+				log.info("Using Default Filename " + fileName);
+			}			
 			
 			//TODO:
 			//Call "Create a Submission" with title and userid (item.getUserId()) and get the report ID
-			//Store report ID and status in content review service
-			String reportId = "";
+			//Store report ID and status in content review service			
+			// Call TCA and get a report id, replace placeholder id
+			// Create private function called getSubmissionRequest, calling TCA to get reportID
+			// Need and http request, get data in json and read data. 
 			
-			//Upload original paper to submission
+			String userId = item.getUserId();
+			
+			HashMap<String, String> baseHeaders = new HashMap<String, String>();
+			baseHeaders.put(HEADER_NAME, INTEGRATION_FAMILY);
+			baseHeaders.put(HEADER_VERSION, INTEGRATION_VERSION);
+			baseHeaders.put(HEADER_AUTH, "Bearer " + apiKey);
+
+			
+			HashMap<String, String> getIdHeaders = new HashMap<String, String>();
+			getIdHeaders.putAll(baseHeaders);
+			getIdHeaders.put(HEADER_CONTENT, CONTENT_TYPE_JSON);
+			
+			HashMap<String, String> uploadHeaders = new HashMap<String, String>();
+			uploadHeaders.putAll(baseHeaders);
+			uploadHeaders.put(HEADER_DISP, "inline; filename=\"" + fileName + "\"");
+			uploadHeaders.put(HEADER_CONTENT, CONTENT_TYPE_BINARY);
+										
 			try {
-				uploadExternalContent(reportId, resource.getContent(), null);
+				String reportId = getSubmissionId(getNormalizedServiceUrl(), getIdHeaders, userId, fileName);
+				log.info(reportId);				
+				item.setExternalId(reportId);						
+				uploadExternalContent(reportId, resource.getContent(), uploadHeaders);
+			
 			} catch (Exception e) {
+				log.error(e.getMessage());
 				log.warn("ServerOverloadException: " + item.getContentId(), e);
 				item.setLastError(e.getMessage());
 				item.setStatus(ContentReviewConstants.CONTENT_REVIEW_SUBMISSION_ERROR_RETRY_CODE);
 				crqs.update(item);
-				errors++;
-				continue;
+//				continue;
 			}
+			
+//			String reportId = "";
+			
+			//Upload original paper to submission
 			
 			//TODO: update content review item status
 			
@@ -411,7 +515,6 @@ public class ContentReviewServiceTurnitinOC implements ContentReviewService {
 			
 			//Success
 			log.debug("Submission successful");
-			item.setExternalId(reportId);
 			item.setStatus(ContentReviewConstants.CONTENT_REVIEW_SUBMITTED_REPORT_AVAILABLE_CODE);
 			item.setRetryCount(Long.valueOf(0));
 			item.setLastError(null);
@@ -437,7 +540,6 @@ public class ContentReviewServiceTurnitinOC implements ContentReviewService {
 
 	}
 
-
 	public String getReviewError(String contentId){
 		return null;
 	}
@@ -457,20 +559,23 @@ public class ContentReviewServiceTurnitinOC implements ContentReviewService {
 	private String getNormalizedServiceUrl() {
 		return serviceUrl + ((StringUtils.isNotEmpty(serviceUrl) && serviceUrl.endsWith("/")) ? "" : "/") + TURNITIN_OC_API_VERSION + "/";
 	}
+	
 
 	private void uploadExternalContent(String reportId, byte[] data, Object headers){
 		URL url = null;
 		HttpURLConnection connection = null;
 		DataOutputStream out = null;
 		try {
-			url = new URL(getNormalizedServiceUrl() + "submissions/" + reportId  + "/original");
+			url = new URL(getNormalizedServiceUrl()  + "submissions/" + reportId  + "/original");
+			log.info(headers.toString());
+			log.info(url.toString());
 
 			connection=(HttpURLConnection) url.openConnection();
 			connection.setDoOutput(true);
 			connection.setRequestMethod("PUT");
 
 			String headerString = Objects.toString(headers, "");
-			log.debug("Headers: " + headerString);
+			log.info("Headers: " + headerString);
 			//{x-amz-server-side-encryption=AES256}
 			headerString = headerString.replace("{", "").replace("}", "");
 			String[] headerPairs = headerString.split(",");
