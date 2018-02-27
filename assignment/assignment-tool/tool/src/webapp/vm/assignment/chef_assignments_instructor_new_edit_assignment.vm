@@ -1135,7 +1135,7 @@
 			</label>
 		</div>
 		#elseif( $allowAddAssignment )
-			#if ($!groups.size() >1)
+			#if ($!groupsList.size() >1)
                         <label class="$class" for="groups">$tlang.getString("groups")</label>
 			#else
                         <label class="$class" for="groups">$tlang.getString("group")</label>
@@ -1147,7 +1147,7 @@
 			<label class="$class" for="groups">
 			#if( !$!allowGroupAssignmentsInGradebook )
 				<input type="radio" name="range" id="groups" value="groups" onclick="if (document.getElementById('addToGradebook') != null){document.getElementById('addToGradebook').style.display = 'none';document.getElementById('$!name_Addtogradebook').checked=false};$('#groupTable').fadeIn('slow'); ASN.showOrHideAccessMessages( true ); ASN.resizeFrame();"
-				#if( $!range == "groups" && !$selectedGroupsNotFound )
+				#if( ($!range == "groups" && !$selectedGroupsNotFound) || !$allowAddSiteAssignment )
 					checked="checked"
 				#elseif( !$!groupsList )
 					disabled="disabled"
@@ -1155,7 +1155,7 @@
 				/>
 			#else
     				<input type="radio" name="range" id="groups" value="groups" onclick="$('#groupTable').fadeIn('slow'); ASN.showOrHideAccessMessages( true ); ASN.resizeFrame();"
-				#if( $!range == "groups" && !$selectedGroupsNotFound )
+				#if( ($!range == "groups" && !$selectedGroupsNotFound) || !$allowAddSiteAssignment )
 					checked="checked"
 				#elseif( !$!groupsList )
 					disabled="disabled"
@@ -1170,7 +1170,7 @@
                 #if( (($!range == "groups" || $!assignment.Access == $groupAccess) && !$selectedGroupsNotFound) || $selectedGroupsNotFound || $!range == "site" )
                     #set( $selectGroupsDisplay = "none" )
                 #end
-                #if( ($!range == "groups" || $!assignment.Access == $groupAccess) && !$selectedGroupsNotFound )
+                #if( (($!range == "groups" || $!assignment.Access == $groupAccess) && !$selectedGroupsNotFound) || !$allowAddSiteAssignment )
                     #set( $listDisplay = "block" )
 			#else
                     #set( $listDisplay = "none" )
