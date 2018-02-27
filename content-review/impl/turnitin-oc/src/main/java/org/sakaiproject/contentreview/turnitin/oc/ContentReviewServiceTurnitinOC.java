@@ -96,11 +96,12 @@ public class ContentReviewServiceTurnitinOC implements ContentReviewService {
 	// API key
 	private static final String CONTENT_TYPE_JSON = "application/json";
 	private static final String CONTENT_TYPE_BINARY = "binary/octet-stream";
-	private static final String HEADER_NAME = "X-Turnitin-Integration-Name:";
-	private static final String HEADER_VERSION = "X-Turnitin-Integration-Version:";
-	private static final String HEADER_AUTH = "Authorization:";
+	private static final String CONTENT_TYPE_FORM = "application/x-www-form-urlencoded";
+	private static final String HEADER_NAME = "X-Turnitin-Integration-Name";
+	private static final String HEADER_VERSION = "X-Turnitin-Integration-Version";
+	private static final String HEADER_AUTH = "Authorization";
 	private static final String HEADER_CONTENT = "Content-Type";
-	private static final String HEADER_DISP = "Content-Disposition:";
+	private static final String HEADER_DISP = "Content-Disposition";
 	private static final String FAKE_URL = "https://test.turnitin.com/api/v1/";
 
 	private String serviceUrl;
@@ -351,8 +352,7 @@ public class ContentReviewServiceTurnitinOC implements ContentReviewService {
 		HttpURLConnection connection = ( HttpURLConnection ) new URL(url).openConnection( );
 		connection.setRequestMethod( "POST" );
 		
-		String headerString = Objects.toString(headers, "");
-		log.debug("Headers: " + headerString);
+		String headerString = headers.toString();
 		//{x-amz-server-side-encryption=AES256}
 		headerString = headerString.replace("{", "").replace("}", "");
 		String[] headerPairs = headerString.split(",");
@@ -428,6 +428,7 @@ public class ContentReviewServiceTurnitinOC implements ContentReviewService {
 			
 			ContentResource resource = null;
 			try {
+				log.info("ITEM CONTENT ID: " + item.getContentId());
 				resource = contentHostingService.getResource(item.getContentId());
 			} catch (IdUnusedException e4) {
 				log.error("IdUnusedException: no resource with id " + item.getContentId());
@@ -482,7 +483,10 @@ public class ContentReviewServiceTurnitinOC implements ContentReviewService {
 			HashMap<String, String> uploadHeaders = new HashMap<String, String>();
 			uploadHeaders.putAll(baseHeaders);
 			uploadHeaders.put(HEADER_DISP, "inline; filename=\"" + fileName + "\"");
-			uploadHeaders.put(HEADER_CONTENT, CONTENT_TYPE_BINARY);
+			uploadHeaders.put(HEADER_CONTENT, CONTENT_TYPE_FORM);
+			
+			log.info("HEADERS 1:   " + getIdHeaders.toString());
+			log.info("HEADERS 2:   " + uploadHeaders.toString());
 										
 			try {
 				String reportId = getSubmissionId(getNormalizedServiceUrl(), getIdHeaders, userId, fileName);
@@ -567,7 +571,6 @@ public class ContentReviewServiceTurnitinOC implements ContentReviewService {
 		DataOutputStream out = null;
 		try {
 			url = new URL(getNormalizedServiceUrl()  + "submissions/" + reportId  + "/original");
-			log.info(headers.toString());
 			log.info(url.toString());
 
 			connection=(HttpURLConnection) url.openConnection();
@@ -589,6 +592,7 @@ public class ContentReviewServiceTurnitinOC implements ContentReviewService {
 
 			out = new DataOutputStream(connection.getOutputStream());
 			out.write(data);
+			log.info(data.toString());
 			out.close();
 			int responseCode = connection.getResponseCode();
 			if(responseCode < 200 || responseCode >= 300){
