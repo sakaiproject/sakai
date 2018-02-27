@@ -113,6 +113,7 @@ public class TimerBarRenderer extends Renderer
          writer.write("\n  var barwidth = " + attrMap.get("width") + "; // WIDTH OF THE BAR IN PIXELS");
          writer.write("\n  var waitTime = " + attrMap.get("wait") + "; // NUMBER OF SECONDS FOR PROGRESSBAR");
          writer.write("\n  var loaded = " + attrMap.get("elapsed") + "*10; // TENTHS OF A SECOND ELAPSED");
+         writer.write("\n  var timeUpMessage = \"" + attrMap.get("timeUpMessage") + "\"; // I18N message for time's up");
          writer.write("\n// THE FUNCTION BELOW CONTAINS THE ACTION(S) TAKEN ONCE BAR REACHES 100.");
          writer.write("\n");
          writer.write("\n  var action = function()");
