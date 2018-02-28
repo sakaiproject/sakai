@@ -70,6 +70,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
 @Slf4j
@@ -364,6 +365,114 @@ public class ContentReviewServiceTurnitinOC implements ContentReviewService {
 	public boolean isSiteAcceptable(Site arg0) {
 		return true;
 	}
+	
+	private void getSimilarityReport(HashMap<String, String> headersMap, String reportId)
+			throws MalformedURLException, IOException {
+		JSONObject body = new JSONObject();
+		JSONObject genSettings = new JSONObject();
+		JSONObject viewSettings = new JSONObject();
+		JSONArray searchList = new JSONArray();
+		
+		searchList.add("INTERNET");
+		searchList.add("PRIVATE");
+		
+		genSettings.put("search_repositories", searchList);
+		
+		viewSettings.put("exclude_quotes", true);
+		viewSettings.put("exclude_bibliography", true);
+		
+		body.put("generation_settings", genSettings);
+		body.put("view_settings", viewSettings);
+
+		OkHttpClient client = new OkHttpClient();
+		Headers.Builder builder = new Headers.Builder();
+
+		String headerString = Objects.toString(headersMap, "");
+		// {x-amz-server-side-encryption=AES256}
+		headerString = headerString.replace("{", "").replace("}", "");
+		String[] headerPairs = headerString.split(",");
+
+		for (String headerPair : headerPairs) {
+			headerPair = headerPair.trim();
+			String[] pairKeyValue = headerPair.split("=", 2);
+			if (pairKeyValue.length == 2) {
+				builder.add(pairKeyValue[0].trim(), pairKeyValue[1].trim());
+			}
+		}
+
+		Headers headers = builder.build();
+		Request request = new Request.Builder()
+				.url(getNormalizedServiceUrl() + "submissions/" + reportId + "/similarity")
+				.put(RequestBody.create(com.squareup.okhttp.MediaType.parse(MediaType.APPLICATION_JSON), body.toString()))
+				.headers(headers)				
+				.build();
+
+		com.squareup.okhttp.Response response = client.newCall(request).execute();
+		ResponseBody responseBody = response.body();
+
+		try {
+			if ((response.code() >= 200) && (response.code() < 300)) {
+				log.info("Successfully initiated Similarity Report generation!!!!!" );
+
+			} else if ((response.code() == 409)){
+				log.info("A Similarity Report is already generating for this submission");
+			}
+			
+			else {
+				throw new Error("Submission failed to initiate (2)");
+			}
+		} finally {
+			responseBody.close();
+		}
+	}
+
+	private void getSubmissionStatus(HashMap<String, String> idHeadersMap, HashMap<String, String> statusHeadersMap, String reportId)
+			throws MalformedURLException, IOException {		
+
+		OkHttpClient client = new OkHttpClient();
+		Headers.Builder builder = new Headers.Builder();
+
+		String headerString = Objects.toString(idHeadersMap, "");
+		// {x-amz-server-side-encryption=AES256}
+		headerString = headerString.replace("{", "").replace("}", "");
+		String[] headerPairs = headerString.split(",");
+
+		for (String headerPair : headerPairs) {
+			headerPair = headerPair.trim();
+			String[] pairKeyValue = headerPair.split("=", 2);
+			if (pairKeyValue.length == 2) {
+				builder.add(pairKeyValue[0].trim(), pairKeyValue[1].trim());
+			}
+		}
+
+		Headers headers = builder.build();
+		Request request = new Request.Builder()
+				.url(getNormalizedServiceUrl() + "submissions/" + reportId).headers(headers)				
+				.build();
+
+		com.squareup.okhttp.Response response = client.newCall(request).execute();
+		ResponseBody responseBody = response.body();
+
+		try {
+			if ((response.code() >= 200) && (response.code() < 300)) {
+				JSONObject responseJSON = JSONObject.fromObject(responseBody.string());
+				log.info("STATUS " + responseJSON.getString("status"));
+				// TODO add error catches for too little text, etc
+				if (responseJSON.containsKey("status") && responseJSON.getString("status").equals("COMPLETE")) {					
+					getSimilarityReport(statusHeadersMap, reportId);				
+				} else if (responseJSON.containsKey("status") && responseJSON.getString("status").equals("PENDING")) {
+					log.error("failed to initiate report request (1)");
+				} else {
+					throw new Error("failed to initiate report request (2)");
+				}
+			} else {
+				throw new Error("failed to initiate report request (3)");
+			}
+		} finally {
+			responseBody.close();
+		}
+	}
+	
 
 	private String getSubmissionId(HashMap<String, String> headersMap, String userID, String fileName)
 			throws MalformedURLException, IOException {
@@ -417,8 +526,39 @@ public class ContentReviewServiceTurnitinOC implements ContentReviewService {
 	public void processQueue() {
 		log.info("Processing Turnitin OC submission queue");
 		int errors = 0;
-		int success = 0;
+		int success = 0;		
 		Optional<ContentReviewItem> nextItem = null;
+		
+		HashMap<String, String> baseHeaders = new HashMap<String, String>();
+		baseHeaders.put(HEADER_NAME, INTEGRATION_FAMILY);
+		baseHeaders.put(HEADER_VERSION, INTEGRATION_VERSION);
+		baseHeaders.put(HEADER_AUTH, "Bearer " + apiKey);
+
+		HashMap<String, String> getIdHeaders = new HashMap<String, String>();
+		getIdHeaders.putAll(baseHeaders);
+		getIdHeaders.put(HEADER_CONTENT, CONTENT_TYPE_JSON);
+		
+		// UPLOADED CONTENTS, AWAITING REPORT
+		for(ContentReviewItem item : crqs.getAwaitingReports(getProviderId())) {
+			String external_id = item.getExternalId();
+			log.info("ID AWAITING REPORT " + external_id);			
+			// TODO: Get submission details - is it complete or pending?
+			
+			HashMap<String, String> submissionInfoHeaders = new HashMap<String, String>();
+			submissionInfoHeaders.putAll(baseHeaders);
+			
+			try {
+				getSubmissionStatus(submissionInfoHeaders, getIdHeaders, external_id);
+			} catch (Exception e) {
+				log.error(e.getMessage());
+			}
+			// Pending -> skip
+			
+			
+			// Complete -> Request a report			
+		}				
+		
+		// NOT SUBMITTED, CREATE SUBMISSION AND UPLOAD CONTENTS
 		while ((nextItem = crqs.getNextItemInQueueToSubmit(getProviderId())).isPresent()) {
 			ContentReviewItem item = nextItem.get();
 			Long status = item.getStatus();
@@ -486,31 +626,20 @@ public class ContentReviewServiceTurnitinOC implements ContentReviewService {
 
 			String userId = item.getUserId();
 
-			HashMap<String, String> baseHeaders = new HashMap<String, String>();
-			baseHeaders.put(HEADER_NAME, INTEGRATION_FAMILY);
-			baseHeaders.put(HEADER_VERSION, INTEGRATION_VERSION);
-			baseHeaders.put(HEADER_AUTH, "Bearer " + apiKey);
-
-			HashMap<String, String> getIdHeaders = new HashMap<String, String>();
-			getIdHeaders.putAll(baseHeaders);
-			getIdHeaders.put(HEADER_CONTENT, CONTENT_TYPE_JSON);
-
-			HashMap<String, String> uploadHeaders = new HashMap<String, String>();
-			uploadHeaders.putAll(baseHeaders);
-			uploadHeaders.put(HEADER_DISP, "inline; filename=\"" + fileName + "\"");
-			uploadHeaders.put(HEADER_CONTENT, CONTENT_TYPE_BINARY);
+			
 			
 			log.info("ABOUT TO PROCESS ITEM");
 			log.info("Status: " + status);
 
 			try {
-				if (status == ContentReviewConstants.CONTENT_REVIEW_SUBMITTED_AWAITING_REPORT_CODE) {
-					log.info("ITEM AWAITING REPORT!!!!");
-					// TODO: Get submission details - is it complete or pending?
-					// Pending -> skip
-					// Complete -> Request a report
-				} else if (status == ContentReviewConstants.CONTENT_REVIEW_NOT_SUBMITTED_CODE) {
+				if (status.longValue() == ContentReviewConstants.CONTENT_REVIEW_NOT_SUBMITTED_CODE.longValue()) {
 					log.info("Submission starting...");
+					
+					HashMap<String, String> uploadHeaders = new HashMap<String, String>();
+					uploadHeaders.putAll(baseHeaders);
+					uploadHeaders.put(HEADER_DISP, "inline; filename=\"" + fileName + "\"");
+					uploadHeaders.put(HEADER_CONTENT, CONTENT_TYPE_BINARY);
+					
 					String reportId = getSubmissionId(getIdHeaders, userId, fileName);
 					item.setExternalId(reportId);
 					uploadExternalContent(reportId, resource.getContent(), uploadHeaders);
