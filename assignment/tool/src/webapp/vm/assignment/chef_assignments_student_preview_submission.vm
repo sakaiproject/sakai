@@ -59,7 +59,7 @@
                 </th>
                 <td>
                     #if ($!submission)
-						$!service.getSubmissionStatus($!submission)
+						$!service.getSubmissionStatus($!submission.Id)
 					#else
                         $tlang.getString("gen.notsta")
                     #end

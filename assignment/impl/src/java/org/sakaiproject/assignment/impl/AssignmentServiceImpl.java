@@ -1028,19 +1028,17 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                 return null;
             }
 
-            if (!submissionSubmitters.isEmpty()) {
-                String currentUser = sessionManager.getCurrentSessionUserId();
-                // identify who the submittee is using the session
-                submissionSubmitters.stream().filter(s -> s.getSubmitter().equals(currentUser)).findFirst().ifPresent(s -> s.setSubmittee(true));
+            String currentUser = sessionManager.getCurrentSessionUserId();
+            // identify who the submittee is using the session
+            submissionSubmitters.stream().filter(s -> s.getSubmitter().equals(currentUser)).findFirst().ifPresent(s -> s.setSubmittee(true));
 
-                assignmentRepository.newSubmission(assignment, submission, Optional.of(submissionSubmitters), Optional.empty(), Optional.empty(), Optional.empty());
+            assignmentRepository.newSubmission(assignment, submission, Optional.of(submissionSubmitters), Optional.empty(), Optional.empty(), Optional.empty());
 
-                String submissionReference = AssignmentReferenceReckoner.reckoner().submission(submission).reckon().getReference();
-                eventTrackingService.post(eventTrackingService.newEvent(AssignmentConstants.EVENT_ADD_ASSIGNMENT_SUBMISSION, submissionReference, true));
+            String submissionReference = AssignmentReferenceReckoner.reckoner().submission(submission).reckon().getReference();
+            eventTrackingService.post(eventTrackingService.newEvent(AssignmentConstants.EVENT_ADD_ASSIGNMENT_SUBMISSION, submissionReference, true));
 
-                log.debug("New submission: {} added to assignment: {}", submission.getId(), assignmentId);
-                return submission;
-            }
+            log.debug("New submission: {} added to assignment: {}", submission.getId(), assignmentId);
+            return submission;
         } catch (IdUnusedException iue) {
             log.warn("A submission cannot be added to an unknown assignment: {}", assignmentId);
         }
