@@ -395,7 +395,6 @@ public class AssignmentConversionServiceImpl implements AssignmentConversionServ
                 .filter(feedbackAttachmentFilter.negate())
                 .filter(submittedAttachmentFilter.negate())
                 .collect(Collectors.toSet());
-        extraKeys.forEach(k -> properties.put(k, (String) submissionAny.get(k)));
 
         s.setDateModified(convertStringToTime(submission.getLastmod()));
         s.setDateReturned(convertStringToTime(submission.getDatereturned()));
@@ -439,7 +438,14 @@ public class AssignmentConversionServiceImpl implements AssignmentConversionServ
                     submitter.setSubmitter(submitterId);
 
                     String gradeKey = submitterKey.replace("submitter", "grade");
-                    submitter.setGrade((String) submissionAny.get(gradeKey));
+                    extraKeys.remove(gradeKey);
+
+                    String gradeValue = (String) submissionAny.get(gradeKey);
+                    if (gradeValue != null && gradeValue.contains("::")) {
+                        String values[] = gradeValue.split("::", 2);
+                        gradeValue = values[1];
+                    }
+                    submitter.setGrade(gradeValue);
 
                     submitter.setSubmission(s);
                     submitters.add(submitter);
@@ -490,6 +496,9 @@ public class AssignmentConversionServiceImpl implements AssignmentConversionServ
         // support for list of submittedattachment0
         Set<String> submittedAttachmentKeys = Arrays.stream(submissionAnyKeys).filter(submittedAttachmentFilter).collect(Collectors.toSet());
         submittedAttachmentKeys.forEach(k -> s.getAttachments().add((String) submissionAny.get(k)));
+
+        // Add any remaining undefined keys as properties
+        extraKeys.forEach(k -> properties.put(k, (String) submissionAny.get(k)));
 
         return s;
     }

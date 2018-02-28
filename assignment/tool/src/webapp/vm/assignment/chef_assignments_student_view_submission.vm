@@ -522,49 +522,16 @@ $(document).ready(function(){
 							<h3>$tlang.getString("gen.addinst")</h3>
 						#end	
 							<div class="textPanel">$validator.escapeHtmlFormattedText($submission.FeedbackComment)</div>
-						#else
 					#end
 					## for returned (not resubmitted ) submission, show the instructor feedback
 					#if ($!prevFeedbackComment && $!prevFeedbackComment.trim().length() > 0)
 							<h4  id="toggleGen" class="toggleAnchor"><img alt="expand" class="expand" src="/library/image/sakai/expand.gif" /><img alt="collapse" class="collapse" src="/library/image/sakai/collapse.gif" />
 								$tlang.getString("gradingsub.prefee2")
-								</h4>
+							</h4>
 					<div class="toggledContent gencoms">					
 						$cheffeedbackhelper.showPrevFeedback($cheffeedbackhelper.escapeAssignmentFeedback($!prevFeedbackComment))</div>
-					#end					
-					#set ($size = 0)
-					#set ($props = false)
-					#set ($feedbackAttachments = $submission.FeedbackAttachments)	
-					#set ($size = 0)
-					#set ($props = false)
-					#foreach ($attachment in $feedbackAttachments) 
-						#set ($props = $attachment.Properties) 
-						#if ($!props)
-							#set ($size = $size + 1)
-						#end
 					#end
-					#if ($size == 0)
-						##$tlang.getString("gen.noatt")
-					#else
-						<h4>$tlang.getString("gen.addinstatts")</h4>
-						<ul class="attachList indnt1">
-							#foreach ($attachment in $feedbackAttachments) 
-								#set ($props = false)
-								#set ($props = $attachment.Properties) 
-								#if ($!props)
-									<li>
-										#if ($props.getBooleanProperty($props.NamePropIsCollection))
-											<img src = "#imageLink($contentTypeImageService.getContentTypeImage("folder"))" border="0" alt="$tlang.getString("gen.folatt")" />
-										#else
-											<img src = "#imageLink($contentTypeImageService.getContentTypeImage($props.getProperty($props.NamePropContentType)))" border="0" alt="$tlang.getString("gen.filatt")" />
-										#end
-										<a href="$attachment.Url" target="_blank">$validator.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))</a>						
-										#propertyDetails($props)
-									</li>
-								#end
-							#end
-						</ul>
-					#end
+					#parse ("/vm/assignment/chef_assignments_student_view_feedback_attachments.vm")
 			#end
 			##just show a simple done button for non-electronic submission type
 			<form name="dummyForm" action="#toolForm("AssignmentAction")" method="post" onsubmit="return true;">
@@ -975,49 +942,16 @@ $(document).ready(function(){
 							<h3>$tlang.getString("gen.addinst")</h3>
 						#end	
 							<div class="textPanel">$validator.escapeHtmlFormattedText($submission.FeedbackComment)</div>
-						#else
 					#end
 					## for returned (not resubmitted ) submission, show the instructor feedback
 					#if ($!prevFeedbackComment && $!prevFeedbackComment.trim().length() > 0)
 							<h4  id="toggleGen" class="toggleAnchor"><img alt="expand" class="expand" src="/library/image/sakai/expand.gif" /><img alt="collapse" class="collapse" src="/library/image/sakai/collapse.gif" />
 								$tlang.getString("gradingsub.prefee2")
-								</h4>
+							</h4>
 					<div class="toggledContent gencoms">					
 						$cheffeedbackhelper.showPrevFeedback($cheffeedbackhelper.escapeAssignmentFeedback($!prevFeedbackComment))</div>
 					#end					
-					#set ($size = 0)
-					#set ($props = false)
-					#set ($feedbackAttachments = $submission.FeedbackAttachments)	
-					#set ($size = 0)
-					#set ($props = false)
-					#foreach ($attachment in $feedbackAttachments) 
-						#set ($props = $attachment.Properties) 
-						#if ($!props)
-							#set ($size = $size + 1)
-						#end
-					#end
-					#if ($size == 0)
-						##$tlang.getString("gen.noatt")
-					#else
-						<h4>$tlang.getString("gen.addinstatts")</h4>
-						<ul class="attachList indnt1">
-							#foreach ($attachment in $feedbackAttachments) 
-								#set ($props = false)
-								#set ($props = $attachment.Properties) 
-								#if ($!props)
-									<li>
-										#if ($props.getBooleanProperty($props.NamePropIsCollection))
-											<img src = "#imageLink($contentTypeImageService.getContentTypeImage("folder"))" border="0" alt="$tlang.getString("gen.folatt")" />
-										#else
-											<img src = "#imageLink($contentTypeImageService.getContentTypeImage($props.getProperty($props.NamePropContentType)))" border="0" alt="$tlang.getString("gen.filatt")" />
-										#end
-										<a href="$attachment.Url" target="_blank">$validator.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))</a>						
-										#propertyDetails($props)
-									</li>
-								#end
-							#end
-						</ul>
-					#end
+					#parse ("/vm/assignment/chef_assignments_student_view_feedback_attachments.vm")
 					## show previous grading/feedback attachments if any
 					#if ($!prevFeedbackAttachments && $prevFeedbackAttachments.size()>0)
 						## show previous grading/feedback attachments if any
@@ -1210,47 +1144,14 @@ $(document).ready(function(){
 					#if ($submission.getGradeReleased() &&($!submission.FeedbackComment) && ($submission.FeedbackComment.trim().length()>0))
 						<h5>$tlang.getString("gen.addinst")</h5>
 						<div>$validator.escapeHtmlFormattedText($submission.FeedbackComment)</div>
-					#else
 					#end
 					## for returned submission, show the instructor feedback
 					#if ($!prevFeedbackComment && $!prevFeedbackComment.trim().length() > 0)
 						<h5>$tlang.getString("gradingsub.prefee")</h5>
 						<div class="textPanel">$cheffeedbackhelper.showPrevFeedback($cheffeedbackhelper.escapeAssignmentFeedback($!prevFeedbackComment))</div>
-					#end	
-					#set ($size = 0)
-					#set ($props = false)
-					#set ($feedbackAttachments = $submission.FeedbackAttachments)
-					#set ($size = 0)
-					#set ($props = false)
-					#foreach ($attachment in $feedbackAttachments) 
-						#set ($props = $attachment.Properties) 
-						#if ($!props)
-							#set ($size = $size + 1)
-						#end
 					#end
-					#if ($size == 0)
-						##$tlang.getString("gen.noatt")
-					#else
-						<h5>$tlang.getString("gen.addinst")</h5>
-						<ul class="attachList indnt1">
-									#foreach ($attachment in $feedbackAttachments) 
-										#set ($props = false)
-										#set ($props = $attachment.Properties) 
-										#if ($!props)
-											<li>
-												#if ($props.getBooleanProperty($props.NamePropIsCollection))
-													<img src = "#imageLink($contentTypeImageService.getContentTypeImage("folder"))" border="0" alt="$tlang.getString("gen.folatt")" />
-												#else
-													<img src = "#imageLink($contentTypeImageService.getContentTypeImage($props.getProperty($props.NamePropContentType)))" border="0" alt="$tlang.getString("gen.filatt")" />
-												#end
-												<a href="$attachment.Url" target="_blank">$validator.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))</a>						
-												#propertyDetails($props)
-											</li>
-										#end
-									#end
-							</ul>
-							#end
-					#end
+					#parse ("/vm/assignment/chef_assignments_student_view_feedback_attachments.vm")
+				#end
 					#if ($withGrade)
 						#set ($previousGrades =  $!submission.Properties.get($NamePropSubmissionScaledPreviousGrades))
 						#if ($!previousGrades.length() == 0 )
@@ -1265,7 +1166,6 @@ $(document).ready(function(){
 							</div>
 						#end
 					#end
-					
 		#if ($!linkInvoked)
 			<input type="submit" accesskey="x" onClick="SPNR.disableControlsAndSpin( this, null ); window.close();" name="eventSubmit_doConfirm_assignment_submission" value="$tlang.getString("gen.closeexit")" class="disableme"/>
 		#else

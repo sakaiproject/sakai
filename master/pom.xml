@@ -65,7 +65,7 @@
     <sakai.spring.test.artifactId>spring-test</sakai.spring.test.artifactId>
     <sakai.spring.test.version>4.3.14.RELEASE</sakai.spring.test.version>
     <sakai.tika.version>1.17</sakai.tika.version>
-    <sakai.tomcat.version>8.5.20</sakai.tomcat.version>
+    <sakai.tomcat.version>8.5.28</sakai.tomcat.version>
     <sakai.velocity.version>1.6.4</sakai.velocity.version>
     <sakai.xerces.impl.version>2.11.0</sakai.xerces.impl.version>
     <sakai.xerces.api.version>2.6.2</sakai.xerces.api.version>
@@ -117,6 +117,18 @@
     </repository>
   </distributionManagement>
   <profiles>
+    <profile>
+      <id>dependency-check-support</id>
+      <activation>
+        <activeByDefault>false</activeByDefault>
+        <property>
+          <name>dependency-check-support</name>
+        </property>
+      </activation>
+      <modules>
+        <module>dependency-check-support</module>
+      </modules>
+    </profile>
     <profile>
       <id>sakai-release</id>
       <activation>
@@ -2133,6 +2145,33 @@
         <inherited>true</inherited>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-site-plugin</artifactId>
+      </plugin>
+      <plugin>
+        <!-- Can be run as mvn -Pdependency-check-support org.owasp:dependency-check-maven:aggregate at the root -->
+        <groupId>org.owasp</groupId>
+        <artifactId>dependency-check-maven</artifactId>
+        <version>2.1.1</version>
+        <dependencies>
+          <dependency>
+            <groupId>org.sakaiproject</groupId>
+            <artifactId>dependency-check-support</artifactId>
+            <version>${project.version}</version>
+          </dependency>
+        </dependencies>
+        <configuration>
+          <suppressionFiles>
+            <!-- This is loaded off the classpath and is provided through the dependency-check-support artifact -->
+            <suppressionFile>sakai-suppression.xml</suppressionFile>
+          </suppressionFiles>
+        </configuration>
+        <executions>
+          <execution>
+            <goals>
+              <!-- We don't define any goals by default -->
+              <!--<goal>check</goal>-->
+            </goals>
+          </execution>
+        </executions>
       </plugin>
       <plugin>
           <groupId>org.apache.maven.plugins</groupId>
