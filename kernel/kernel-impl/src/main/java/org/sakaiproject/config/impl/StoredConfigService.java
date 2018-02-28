@@ -21,9 +21,7 @@
 
 package org.sakaiproject.config.impl;
 
-import com.ibm.icu.text.SimpleDateFormat;
-import com.ibm.icu.util.Calendar;
-
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
