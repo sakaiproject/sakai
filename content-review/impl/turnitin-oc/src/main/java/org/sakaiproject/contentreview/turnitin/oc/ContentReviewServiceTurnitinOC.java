@@ -31,6 +31,9 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.SortedSet;
 
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.sakaiproject.authz.api.SecurityService;
@@ -56,6 +59,11 @@ import org.sakaiproject.user.api.UserDirectoryService;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.squareup.okhttp.Headers;
+import com.squareup.okhttp.OkHttpClient;
+import com.squareup.okhttp.Request;
+import com.squareup.okhttp.RequestBody;
+import com.squareup.okhttp.ResponseBody;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -95,8 +103,7 @@ public class ContentReviewServiceTurnitinOC implements ContentReviewService {
 	private static final String INTEGRATION_FAMILY =  "sakai";
 	// API key
 	private static final String CONTENT_TYPE_JSON = "application/json";
-	private static final String CONTENT_TYPE_BINARY = "binary/octet-stream";
-	private static final String CONTENT_TYPE_FORM = "application/x-www-form-urlencoded";
+	private static final String CONTENT_TYPE_BINARY = "application/octet-stream";
 	private static final String HEADER_NAME = "X-Turnitin-Integration-Name";
 	private static final String HEADER_VERSION = "X-Turnitin-Integration-Version";
 	private static final String HEADER_AUTH = "Authorization";
@@ -346,58 +353,48 @@ public class ContentReviewServiceTurnitinOC implements ContentReviewService {
 		return true;
 	}
 	
-	private String getSubmissionId(String baseURL, HashMap<String, String> headers, String userID, String fileName) 
+	private String getSubmissionId(HashMap<String, String> headersMap, String userID, String fileName) 
 			throws MalformedURLException, IOException {
-		String url = baseURL + "submissions";
-		HttpURLConnection connection = ( HttpURLConnection ) new URL(url).openConnection( );
-		connection.setRequestMethod( "POST" );
-		
-		String headerString = headers.toString();
-		//{x-amz-server-side-encryption=AES256}
-		headerString = headerString.replace("{", "").replace("}", "");
-		String[] headerPairs = headerString.split(",");
-		for (String headerPair : headerPairs) {
-			headerPair = headerPair.trim();
-			String[] pairKeyValue = headerPair.split("=");
-			if (pairKeyValue.length == 2) {
-				connection.setRequestProperty(pairKeyValue[0].trim(), pairKeyValue[1].trim());
-			}
-		}
-//		 connection.setRequestProperty( HEADER_NAME, INTEGRATION_FAMILY );
-//		 connection.setRequestProperty( HEADER_VERSION, INTEGRATION_VERSION );
-//		 connection.setRequestProperty( "Authorization: ", "bearer " + apiKey  );
-//		 connection.setRequestProperty( "Content-Type:", CONTENT_TYPE_JSON  );
-		
 		JSONObject body = new JSONObject();
 		body.put("owner", userID);
 		body.put("title", fileName);
 		
+		OkHttpClient client = new OkHttpClient();
+		Headers.Builder builder = new Headers.Builder();
 		
-		ObjectMapper objectMapper = new ObjectMapper();
-		connection.setDoOutput(true);
-		DataOutputStream wr = new DataOutputStream(connection.getOutputStream());
-		wr.writeChars(body.toString());
+		String headerString = Objects.toString(headersMap, "");
+		//{x-amz-server-side-encryption=AES256}
+		headerString = headerString.replace("{", "").replace("}", "");
+		String[] headerPairs = headerString.split(",");
 		
-		log.info(body.toString());
-		
-		wr.flush();
-		wr.close();
-		//Send request:
-		String responseBody;
-		String submissionId = null;
-		responseBody = IOUtils.toString(connection.getInputStream(), StandardCharsets.UTF_8);
-		ObjectMapper mapper = new ObjectMapper();
-		JsonNode jsonObj = mapper.readTree(responseBody);
-		if(jsonObj.has("id")) {
-			submissionId = jsonObj.get("id").asText();
-		} else {
-			throw new Error("No submission id found in JsonObj");
+		for (String headerPair : headerPairs) {
+			headerPair = headerPair.trim();
+			String[] pairKeyValue = headerPair.split("=", 2);
+			if (pairKeyValue.length == 2) {
+				builder.add(pairKeyValue[0].trim(), pairKeyValue[1].trim());
+			}
 		}
 		
-		log.info("responseBody: " + responseBody);
+		Headers headers = builder.build();
+		Request request = new Request.Builder()
+		  .url(getNormalizedServiceUrl() + "submissions")
+		  .headers(headers)
+		  .post(RequestBody.create(com.squareup.okhttp.MediaType.parse(MediaType.APPLICATION_JSON), body.toString()))
+		  .build();
+
+		com.squareup.okhttp.Response response = client.newCall(request).execute();
+		ResponseBody responseBody = response.body();
+		if ((response.code() >= 200) && (response.code() < 300)) {
+			JSONObject responseJSON = JSONObject.fromObject(responseBody.string());
+			if (responseJSON.containsKey("status") && responseJSON.getString("status").equals("CREATED") && responseJSON.containsKey("id")) {
+				return responseJSON.getString("id");
+			} else {
+				throw new Error("Submission failed to initiate (1)");
+			}
 			
-		return submissionId;
-		
+		} else {
+			throw new Error("Submission failed to initiate (2)");
+		}
 	}
 
 	public void processQueue() {
@@ -428,7 +425,6 @@ public class ContentReviewServiceTurnitinOC implements ContentReviewService {
 			
 			ContentResource resource = null;
 			try {
-				log.info("ITEM CONTENT ID: " + item.getContentId());
 				resource = contentHostingService.getResource(item.getContentId());
 			} catch (IdUnusedException e4) {
 				log.error("IdUnusedException: no resource with id " + item.getContentId());
@@ -453,7 +449,6 @@ public class ContentReviewServiceTurnitinOC implements ContentReviewService {
 				continue;
 			}
 			String fileName = resource.getProperties().getProperty(ResourceProperties.PROP_DISPLAY_NAME);
-			log.info("Filename: " + fileName);
 			if(StringUtils.isEmpty(fileName)){
 				//set default file name:
 				//TODO
@@ -484,13 +479,9 @@ public class ContentReviewServiceTurnitinOC implements ContentReviewService {
 			uploadHeaders.putAll(baseHeaders);
 			uploadHeaders.put(HEADER_DISP, "inline; filename=\"" + fileName + "\"");
 			uploadHeaders.put(HEADER_CONTENT, CONTENT_TYPE_BINARY);
-			
-			log.info("HEADERS 1:   " + getIdHeaders.toString());
-			log.info("HEADERS 2:   " + uploadHeaders.toString());
 										
 			try {
-				String reportId = getSubmissionId(getNormalizedServiceUrl(), getIdHeaders, userId, fileName);
-				log.info(reportId);				
+				String reportId = getSubmissionId(getIdHeaders, userId, fileName);
 				item.setExternalId(reportId);						
 				uploadExternalContent(reportId, resource.getContent(), uploadHeaders);
 			
@@ -503,10 +494,6 @@ public class ContentReviewServiceTurnitinOC implements ContentReviewService {
 //				continue;
 			}
 			
-//			String reportId = "";
-			
-			//Upload original paper to submission
-			
 			//TODO: update content review item status
 			
 			//TODO: call "Generate Similarity Report"
@@ -514,8 +501,6 @@ public class ContentReviewServiceTurnitinOC implements ContentReviewService {
 			//TODO: update content review item status
 			
 			//TODO: reschedule queue to check for score
-			
-			
 			
 			//Success
 			log.debug("Submission successful");
@@ -528,7 +513,7 @@ public class ContentReviewServiceTurnitinOC implements ContentReviewService {
 			success++;
 			crqs.update(item);
 		}
-		log.info("Submission VeriCite queue run completed: " + success + " items submitted, " + errors + " errors.");
+		log.info("Submission Turnitin queue run completed: " + success + " items submitted, " + errors + " errors.");
 	}
 
 	public void queueContent(String userId, String siteId, String assignmentReference, List<ContentResource> content) throws QueueException{
@@ -565,54 +550,46 @@ public class ContentReviewServiceTurnitinOC implements ContentReviewService {
 	}
 	
 
-	private void uploadExternalContent(String reportId, byte[] data, Object headers){
-		URL url = null;
-		HttpURLConnection connection = null;
-		DataOutputStream out = null;
-		try {
-			url = new URL(getNormalizedServiceUrl()  + "submissions/" + reportId  + "/original");
-			log.info(url.toString());
-
-			connection=(HttpURLConnection) url.openConnection();
-			connection.setDoOutput(true);
-			connection.setRequestMethod("PUT");
-
-			String headerString = Objects.toString(headers, "");
-			log.info("Headers: " + headerString);
+	private void uploadExternalContent(String reportId, byte[] data, Object headersMap){
+		try {			
+			OkHttpClient client = new OkHttpClient();
+			
+			Headers.Builder builder = new Headers.Builder();
+			
+			String headerString = Objects.toString(headersMap, "");
 			//{x-amz-server-side-encryption=AES256}
 			headerString = headerString.replace("{", "").replace("}", "");
 			String[] headerPairs = headerString.split(",");
+			
 			for (String headerPair : headerPairs) {
 				headerPair = headerPair.trim();
-				String[] pairKeyValue = headerPair.split("=");
+				String[] pairKeyValue = headerPair.split("=", 2);
 				if (pairKeyValue.length == 2) {
-					connection.setRequestProperty(pairKeyValue[0].trim(), pairKeyValue[1].trim());
+					builder.add(pairKeyValue[0].trim(), pairKeyValue[1].trim());
 				}
 			}
+			
+			Headers headers = builder.build();
+			Request request = new Request.Builder()
+			  .url(getNormalizedServiceUrl() + "submissions/" + reportId + "/original/")
+			  .headers(headers)
+			  .put(RequestBody.create(com.squareup.okhttp.MediaType.parse(MediaType.APPLICATION_OCTET_STREAM), data))
+			  .build();
 
-			out = new DataOutputStream(connection.getOutputStream());
-			out.write(data);
-			log.info(data.toString());
-			out.close();
-			int responseCode = connection.getResponseCode();
+			com.squareup.okhttp.Response response = client.newCall(request).execute();
+
+			int responseCode = response.code();
 			if(responseCode < 200 || responseCode >= 300){
 				//TODO: do not silently fail (including the catch exceptions
-				log.error("VeriCite upload content failed with code: " + responseCode);
+				log.error("Turnitin upload content failed with code: " + responseCode);
+			} else {
+				log.info("SUCCESS!!!");
 			}
 		} catch (MalformedURLException e) {
 			log.error(e.getMessage(), e);
 		} catch (IOException e) {
 			log.error(e.getMessage(), e);
-		}finally {
-			if(out != null){
-				try{
-					out.close();
-				}catch(Exception e){
-					log.error(e.getMessage(), e);
-				}
-			}
 		}
-
 	}
 
 	@Override
@@ -621,12 +598,12 @@ public class ContentReviewServiceTurnitinOC implements ContentReviewService {
 		if(cri.isPresent()){
 			ContentReviewItem item = cri.get();
 
-			//Vericite specific work
+			// Turnitin specific work
 			try {
 				int score = getReviewScore(contentId, item.getTaskId(), null);
 				log.debug(" getReviewScore returned a score of: {} ", score);
 			} catch(Exception e) {
-				log.error("Vericite - getReviewScore error called from getContentReviewItemByContentId with content {} - {}", contentId, e.getMessage());
+				log.error("Turnitin - getReviewScore error called from getContentReviewItemByContentId with content {} - {}", contentId, e.getMessage());
 			}
 
 			return item;
