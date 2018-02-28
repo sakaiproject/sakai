@@ -153,7 +153,7 @@ public class CourseGradeDetailsBean extends EnrollmentTableBean {
 	public class ScoreRow implements Serializable {
         private EnrollmentRecord enrollment;
         private CourseGradeRecord courseGradeRecord;
-		private List<GradingEventRow> eventRows;
+		private List eventRows;
         private boolean userCanGrade;
 
 
@@ -161,17 +161,16 @@ public class CourseGradeDetailsBean extends EnrollmentTableBean {
 		}
 
 		public ScoreRow(final EnrollmentRecord enrollment, final CourseGradeRecord courseGradeRecord,
-				final List<GradingEvent> gradingEvents, final boolean userCanGrade) {
+				final List<GradingEvent> gradingEvents,
+				final boolean userCanGrade) {
             this.enrollment = enrollment;
 			this.courseGradeRecord = courseGradeRecord;
 			this.userCanGrade = userCanGrade;
 
 			this.eventRows = new ArrayList<>();
-			if (gradingEvents != null) {
-				gradingEvents.forEach(gradingEvent -> {
-					this.eventRows.add(new GradingEventRow(gradingEvent));
-				});
-			}
+			gradingEvents.forEach(gradingEvent -> {
+				this.eventRows.add(new GradingEventRow(gradingEvent));
+			});
 		}
 
 		/**
@@ -215,25 +214,26 @@ public class CourseGradeDetailsBean extends EnrollmentTableBean {
             return this.courseGradeRecord.getEnteredGrade();
         }
         public void setEnteredGrade(final String enteredGrade) {
-        	final String originalEnteredGrade = this.courseGradeRecord.getEnteredGrade();
-        	if (!StringUtils.equals(enteredGrade, originalEnteredGrade)) {
-        		this.courseGradeRecord.setEnteredGrade(enteredGrade);
-        		CourseGradeDetailsBean.this.updatedGradeRecords.add(this.courseGradeRecord);
-        	}
+			final String originalEnteredGrade = this.courseGradeRecord.getEnteredGrade();
+			if (!StringUtils.equals(enteredGrade, originalEnteredGrade)) {
+				this.courseGradeRecord.setEnteredGrade(enteredGrade);
+				CourseGradeDetailsBean.this.updatedGradeRecords.add(this.courseGradeRecord);
+			}
         }
 
         public EnrollmentRecord getEnrollment() {
             return this.enrollment;
         }
 
-        public List getEventRows() {
-        	return this.eventRows;
+		public List<GradingEventRow> getEventRows() {
+			return this.eventRows;
         }
         public String getEventsLogTitle() {
-        	return FacesUtil.getLocalizedString("course_grade_details_log_title", new String[] {this.enrollment.getUser().getDisplayName()});
+			return FacesUtil.getLocalizedString("course_grade_details_log_title",
+					new String[] { this.enrollment.getUser().getDisplayName() });
         }
         public boolean isUserCanGrade() {
-        	return this.userCanGrade;
+			return this.userCanGrade;
         }
 	}
 
@@ -452,7 +452,8 @@ public class CourseGradeDetailsBean extends EnrollmentTableBean {
 			fields.add("coursegrade");
 		}
 
-		getGradebookBean().postEvent("gradebook.downloadCourseGrade", "/gradebook/" + getGradebookId() + "/" + getAuthzLevel(), false);
+		getGradebookBean().postEvent("gradebook.downloadCourseGrade",
+				"/gradebook/" + getGradebookId() + "/" + getAuthzLevel(), false);
         if(this.exportType.equalsIgnoreCase("CSV")){
         	 if(log.isInfoEnabled()) {
 				log.info("exporting course grade as CSV for gradebook " + getGradebookUid());
@@ -484,7 +485,8 @@ public class CourseGradeDetailsBean extends EnrollmentTableBean {
         if(log.isInfoEnabled()) {
 			log.info("exporting course grade as Institutional CSV for gradebook " + getGradebookUid());
 		}
-		getGradebookBean().postEvent("gradebook.downloadCourseGrade", "/gradebook/" + getGradebookId() + "/" + getAuthzLevel(), false);
+		getGradebookBean().postEvent("gradebook.downloadCourseGrade",
+				"/gradebook/" + getGradebookId() + "/" + getAuthzLevel(), false);
 
 		final String defaultFields = "userEid,sortName,courseGrade";
 		final String stringFields = ServerConfigurationService.getString("gradebook.institutional.export.fields",defaultFields);
