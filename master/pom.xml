@@ -413,7 +413,8 @@
 	  <dependency>
 		<groupId>com.fasterxml.jackson.core</groupId>
 		<artifactId>jackson-databind</artifactId>
-		<version>${sakai.jackson.version}</version>
+		<!-- Remove the .1 below on next major rev -->
+		<version>${sakai.jackson.version}.1</version>
 		<scope>provided</scope>
 	  </dependency>
 	  <dependency>
