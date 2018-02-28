@@ -2163,7 +2163,7 @@
         <!-- Can be run as mvn -Pdependency-check-support org.owasp:dependency-check-maven:aggregate at the root -->
         <groupId>org.owasp</groupId>
         <artifactId>dependency-check-maven</artifactId>
-        <version>2.1.1</version>
+        <version>3.1.1</version>
         <dependencies>
           <dependency>
             <groupId>org.sakaiproject</groupId>
