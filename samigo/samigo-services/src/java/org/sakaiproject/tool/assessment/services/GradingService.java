@@ -1334,19 +1334,13 @@ public class GradingService
               }
               break;
 
-      case 9: // Matching     
-              initScore = getAnswerScore(itemGrading, publishedAnswerHash);
+      case 9: // Matching
+              initScore = isThisItemDistractor(item, itemGrading) ? getScoreDistractor(item, itemGrading) : getAnswerScore(itemGrading, publishedAnswerHash);
               if (initScore > 0) {
-            	  	int nonDistractors = 0;
-          	    	Iterator<ItemTextIfc> itemIter = item.getItemTextArraySorted().iterator();
-          	    	while (itemIter.hasNext()) {
-          	    		ItemTextIfc curItem = itemIter.next();
-          	    		if (!isDistractor(curItem)) {
-          	    			nonDistractors++;
-          	    		}
-          	    	}            	  
-                    autoScore = initScore / nonDistractors;
-              	}
+                autoScore = initScore / item.getItemTextArraySorted().size();
+              } else {
+                autoScore = initScore;
+              }
               //overridescore?
               if (itemGrading.getOverrideScore() != null)
                 autoScore += itemGrading.getOverrideScore();
@@ -1464,6 +1458,25 @@ public class GradingService
     }
     
     return autoScore;
+  }
+
+  private boolean isThisItemDistractor(ItemDataIfc item, ItemGradingData thisItemGradingData) {
+    for (ItemTextIfc curItem : item.getItemTextArraySorted()) {
+      if (isDistractor(curItem) && curItem.getId().equals(thisItemGradingData.getPublishedItemTextId())) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  private double getScoreDistractor(ItemDataIfc item, ItemGradingData thisItemGradingData) {
+    if (thisItemGradingData.getPublishedAnswerId() == null) {
+      return 0;
+    } else if (thisItemGradingData.getPublishedAnswerId() < 0) {
+      return item.getScore();
+    } else {
+      return 0;
+    }
   }
 
 /**
@@ -2015,8 +2028,8 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
 			  ComplexFormat complexFormat = new ComplexFormat(df);
 			  studentAnswerComplex = complexFormat.parse(trimmedValue);
 
-			  // This is because there is a bug parsing complex number. 9i is parsed as 9
-			  if (studentAnswerComplex.getImaginary() == 0 && trimmedValue.contains("i")) {
+			  // Only checks for complex numbers, not real numbers
+			  if (studentAnswerComplex.getImaginary() == 0) {
 				  isComplex = false;
 			  }
 		  } catch (Exception e) {

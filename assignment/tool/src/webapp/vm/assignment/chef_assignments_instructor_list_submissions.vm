@@ -19,8 +19,8 @@
 				ASN.toggleSendFeedbackPanel();
 			}
 
-			if ( (checkedCount === 0 && resubPanel.style.display !== "none")
-				|| (checkedCount !== 0 && resubPanel.style.display === "none") )
+			if ( resubPanel != null && ((checkedCount === 0 && resubPanel.style.display !== "none")
+				|| (checkedCount !== 0 && resubPanel.style.display === "none") ))
 			{
 				ASN.toggleAllowResubmissionPanel();
 			}
@@ -46,7 +46,7 @@ function printView(url) {
 #set ($submissionType = $assignment.TypeOfSubmission.ordinal())
 
 <div class="portletBody container-fluid">
-    #navBarHREF( $allowAddAssignment $withGrade $allowGradeSubmission $allowAddAssignment $allowAllGroups $assignmentscheck $allowUpdateSite $enableViewOption $view "" )
+    #navBarHREF( $allowAddAssignment $withGrade $allowGradeSubmission $allowAddAssignment $allowRecoverAssignment $allowAllGroups $assignmentscheck $allowUpdateSite $enableViewOption $view "" )
 	<div class="page-header">
 		<h1>
 		$validator.escapeHtml($assignment.Title)
@@ -295,7 +295,6 @@ function printView(url) {
 				</div>
 			#end
 
-			#if ($!value_SubmissionType != 4)
 			<div id="sendFeedbackPanel">
 				<p class="discTria">
 					<a href="javascript:void(0)" onclick="ASN.toggleSendFeedbackPanel();">
@@ -339,6 +338,7 @@ function printView(url) {
 				</div>
 			</div>
 			<input type="hidden" name = "allowResToggle" id = "allowResToggle" value="" />
+			#if ($!value_SubmissionType != 4)
 			<div id="allowResubmissionPanel">
 				<p class="discTria">
 				<a href="javascript:void(0)" onclick="ASN.toggleAllowResubmissionPanel();">

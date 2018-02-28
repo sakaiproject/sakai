@@ -35,6 +35,8 @@ public interface AssignmentRepository extends SerializableRepository<Assignment,
 
     List<Assignment> findAssignmentsBySite(String siteId);
 
+    List<Assignment> findDeletedAssignmentsBySite(String siteId);
+
     List<String> findAllAssignmentIds();
 
     void newAssignment(Assignment assignment);
@@ -66,9 +68,16 @@ public interface AssignmentRepository extends SerializableRepository<Assignment,
 
     void initializeAssignment(Assignment assignment);
 
-    long countSubmittedSubmissionsForAssignment(String assignmentId);
-
-    long countUngradedSubmittedSubmissionsForAssignment(String assignmentId);
+    /**
+     * Count submissions for a given assignment.
+     * If any of the parameters are null they are not included in the query.
+     * @param assignmentId the assignment id whose submissions should be counted
+     * @param graded if not null adds the requirement that the submission's graded field matches this value
+     * @param hasSubmissionDate if not null adds the requirement of whether the submitted date can be null or not
+     * @param userSubmission if not null adds the requirement that the submission's userSubmission field matches this value
+     * @return
+     */
+    long countAssignmentSubmissions(String assignmentId, Boolean graded, Boolean hasSubmissionDate, Boolean userSubmission);
 
     void resetAssignment(Assignment assignment);
 }

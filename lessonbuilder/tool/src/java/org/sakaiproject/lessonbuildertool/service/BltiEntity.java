@@ -363,12 +363,12 @@ public class BltiEntity implements LessonEntity, BltiInterface {
 
         // Retrieve all tools
 	String search = null;
-	if (bltiToolId != null)
+	if (bltiToolId != null) {
 	    search = "lti_tools.id=" + bltiToolId;
-	else if (appStoresOnly) {
+	} else if (appStoresOnly) {
 		search = LTIService.LTI_PL_LINKSELECTION + "=1";
 	} else {
-		search = LTIService.LTI_PL_LINKSELECTION + "=0";
+		search = LTIService.LTI_PL_LINKSELECTION + "=0 OR " + LTIService.LTI_PL_LINKSELECTION + " IS NULL";
 	}
 	List<Map<String,Object>> tools = ltiService.getTools(search,null,0,0, bean.getCurrentSiteId());
 	for ( Map<String,Object> tool : tools ) {

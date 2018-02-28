@@ -123,10 +123,12 @@ public class MoreSiteViewImpl extends AbstractSiteViewImpl
 		processMySites();
 
 		String profileToolId = serverConfigurationService.getString("portal.profiletool","sakai.profile2");
+		String calendarToolId = serverConfigurationService.getString("portal.calendartool","sakai.schedule");
 		String preferencesToolId = serverConfigurationService.getString("portal.preferencestool","sakai.preferences");
 		String worksiteToolId = serverConfigurationService.getString("portal.worksitetool","sakai.sitesetup");
 
  		String profileToolUrl = null;
+		String calendarToolUrl = null;
  		String worksiteToolUrl = null;
  		String prefsToolUrl = null;
  		String mrphs_profileToolUrl = null;
@@ -148,6 +150,8 @@ public class MoreSiteViewImpl extends AbstractSiteViewImpl
                             if ( profileToolId.equals(placement.getToolId()) ) {
                                 profileToolUrl = Web.returnUrl(request, "/site/" + Web.escapeUrl(siteHelper.getSiteEffectiveId(s)) + "/page/" + Web.escapeUrl(p.getId()));
                                 mrphs_profileToolUrl = Web.returnUrl(request, "/site/" + Web.escapeUrl(siteHelper.getSiteEffectiveId(s)) + "/tool-reset/" + Web.escapeUrl(placement.getId()));
+                            } else if ( calendarToolId.equals(placement.getToolId()) ) {
+                                calendarToolUrl = Web.returnUrl(request, "/site/" + Web.escapeUrl(siteHelper.getSiteEffectiveId(s)) + "/page/" + Web.escapeUrl(p.getId()));
                             } else if ( preferencesToolId.equals(placement.getToolId()) ) {
                                 prefsToolUrl = Web.returnUrl(request, "/site/" + Web.escapeUrl(siteHelper.getSiteEffectiveId(s)) + "/page/" + Web.escapeUrl(p.getId()));
                                 mrphs_prefsToolUrl = Web.returnUrl(request, "/site/" + Web.escapeUrl(siteHelper.getSiteEffectiveId(s)) + "/tool-reset/" + Web.escapeUrl(placement.getId()));
@@ -167,6 +171,9 @@ public class MoreSiteViewImpl extends AbstractSiteViewImpl
 		if ( profileToolUrl != null ) {
 			renderContextMap.put("profileToolUrl", profileToolUrl);
 			renderContextMap.put("mrphs_profileToolUrl", mrphs_profileToolUrl);
+		}
+		if ( calendarToolUrl != null ) {
+			renderContextMap.put("calendarToolUrl", calendarToolUrl);
 		}
 		if ( prefsToolUrl != null ) {
 			renderContextMap.put("prefsToolUrl", prefsToolUrl);

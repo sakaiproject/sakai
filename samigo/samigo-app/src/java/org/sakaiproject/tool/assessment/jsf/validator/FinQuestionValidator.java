@@ -110,8 +110,10 @@ public class FinQuestionValidator implements Validator {
 			ComplexFormat complexFormat = new ComplexFormat(df);
 			complex = complexFormat.parse(value);
 
-		// This is because there is a bug parsing complex number. 9i is parsed as 9
-			if (complex.getImaginary() == 0 && value.contains("i")) isComplex = false;
+			// Only checks for complex numbers, not real numbers 
+			if (complex.getImaginary() == 0) {
+				isComplex = false;
+			}
 		} catch (Exception e) {
 			isComplex = false;
 		}
