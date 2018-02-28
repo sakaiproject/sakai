@@ -1846,6 +1846,19 @@ public class AssignmentAction extends PagedResourceActionII {
 
                 context.put("submit_text", StringUtils.trimToNull(s.getSubmittedText()));
                 context.put("email_confirmation", serverConfigurationService.getBoolean("assignment.submission.confirmation.email", true));
+
+                if (currentAssignment.getIsGroup()) {
+                    Map<String, User> users = s.getSubmitters().stream().map(u -> {
+                        try {
+                            return userDirectoryService.getUser(u.getSubmitter());
+                        } catch (UserNotDefinedException e) {
+                            log.warn("User not found, {}", u.getSubmitter());
+                            return null;
+                        }
+                    }).filter(Objects::nonNull).collect(Collectors.toMap(User::getId, Function.identity()));
+                    String submitterNames = users.values().stream().map(u -> u.getDisplayName() + " (" + u.getDisplayId() + ")").collect(Collectors.joining(", "));
+                    context.put("submitterNames", formattedText.escapeHtml(submitterNames));
+                }
             }
         }
 
@@ -6114,157 +6127,68 @@ public class AssignmentAction extends PagedResourceActionII {
                         //filter the attachments in the state to exclude inline attachments (nonInlineAttachments, is a subset of what's currently in the state)
                         state.setAttribute(ATTACHMENTS, nonInlineAttachments);
                     }
-
-                    // add attachments
-                    List<Reference> attachments = (List<Reference>) state.getAttribute(ATTACHMENTS);
-                    if (attachments != null) {
-                        Set<String> submittedAttachments = submission.getAttachments();
-                        submittedAttachments.clear();
-                        if (a.getTypeOfSubmission() != Assignment.SubmissionType.TEXT_ONLY_ASSIGNMENT_SUBMISSION) {
-
-                            if (submitter != null) {
-                                properties.put(AssignmentConstants.SUBMITTER_USER_ID, submitter.getId());
-                                state.setAttribute(STATE_SUBMITTER, u.getId());
-                            } else {
-                                properties.remove(AssignmentConstants.SUBMITTER_USER_ID);
-                            }
-                            attachments.forEach(att -> submittedAttachments.add(att.getReference()));
-
-                            //Check if we need to post the attachments
-                            if (a.getContentReview()) {
-                                if (!attachments.isEmpty()) {
-                                    assignmentService.postReviewableSubmissionAttachments(submission);
-                                }
-                            }
-                        }
-                    }
-
-                    // SAK-26322 - add inline as an attachment for the content review service
-                    if (a.getContentReview() && !isHtmlEmpty(text)) {
-                        prepareInlineForContentReview(text, submission, state, u);
-                    }
-
-                    if (submitter != null) {
-                        properties.put(AssignmentConstants.SUBMITTER_USER_ID, submitter.getId());
-                        state.setAttribute(STATE_SUBMITTER, u.getId());
-                    } else {
-                        properties.remove(AssignmentConstants.SUBMITTER_USER_ID);
-                    }
-
-                    // SAK-17606
-                    /*String logEntry = new Date().toString() + " ";
-                    boolean anonymousGrading = Boolean.parseBoolean(a.getProperties().get(NEW_ASSIGNMENT_CHECK_ANONYMOUS_GRADING));
-                    if (!anonymousGrading) {
-                        String subOrDraft = post ? "submitted" : "saved draft";
-                        if (submitter != null && !submitter.getEid().equals(u.getEid())) {
-                            logEntry += submitter.getDisplayName() + " (" + submitter.getEid() + ") " + subOrDraft + " " +
-                                    rb.getString("listsub.submitted.on.behalf") + " " + u.getDisplayName() + " (" +
-                                    u.getEid() + ")";
-                        } else {
-                            logEntry += u.getDisplayName() + " (" + u.getEid() + ") " + subOrDraft;
-                        }
-                    }*/
-                    // TODO submissionLog
-                    // submission.addSubmissionLogEntry( logEntry );
-                    try {
-                        assignmentService.updateSubmission(submission);
-                    } catch (PermissionException e) {
-                        log.warn("Could not update submission: {}, {}", submission.getId(), e.getMessage());
-                        return;
-                    }
                 } else {
                     // new submission
+                    // if assignment is a group submission... send group id and not user id
+                    String submitterId;
+                    if (a.getIsGroup()) {
+                        submitterId = group_id;
+                    } else {
+                        submitterId = u.getId();
+                    }
                     try {
-                        // if assignment is a group submission... send group id and not user id
-                        String submitterId;
-                        if (a.getIsGroup()) {
-                            submitterId = group_id;
-                        } else {
-                            submitterId = u.getId();
-                        }
                         submission = assignmentService.addSubmission(a.getId(), submitterId);
-                        if (submission != null) {
-                            log.debug("NEW SUBMISSION:submitter: {}", submission.getSubmitters());
-                            Set<AssignmentSubmissionSubmitter> submitters = submission.getSubmitters();
-                            if (a.getIsGroup()) {
-                                log.debug("NEW SUBMISSION: group: {}", group_id);
-                                try {
-                                    Site site = siteService.getSite(a.getContext());
-                                    Group group = site.getGroup(group_id);
-                                    submission.setGroupId(group.getId());
-                                    for (Member member : group.getMembers()) {
-                                        AssignmentSubmissionSubmitter ass = new AssignmentSubmissionSubmitter();
-                                        String userId = member.getUserId();
-                                        ass.setSubmitter(userId);
-                                        ass.setSubmittee(false);
-                                        if (u != null && StringUtils.equals(u.getId(), userId)) ass.setSubmittee(true);
-                                        submitters.add(ass);
-                                    }
-                                } catch (IdUnusedException e) {
-                                    log.warn("could not access the site {}, {}", a.getContext(), e.getMessage());
-                                }
-                            } else {
-                                AssignmentSubmissionSubmitter ass = new AssignmentSubmissionSubmitter();
-                                String userId = u.getId();
-                                ass.setSubmitter(userId);
-                                ass.setSubmittee(true);
-                                submitters.add(ass);
-                            }
-                            submission.setUserSubmission(true);
-                            submission.setSubmittedText(text);
-                            submission.setHonorPledge(Boolean.valueOf(honorPledgeYes));
-                            submission.setDateSubmitted(Instant.now());
-                            submission.setSubmitted(post);
-                            Map<String, String> properties = submission.getProperties();
 
-                            // add attachments
-                            List<Reference> attachments = (List<Reference>) state.getAttribute(ATTACHMENTS);
-                            Set<String> submittedAttachments = submission.getAttachments();
+                        submission.setUserSubmission(true);
+                        submission.setSubmittedText(text);
+                        submission.setHonorPledge(Boolean.valueOf(honorPledgeYes));
+                        submission.setDateSubmitted(Instant.now());
+                        submission.setSubmitted(post);
 
-                            if (attachments != null) {
-                                // add each attachment
-                                attachments.forEach(att -> submittedAttachments.add(att.getReference()));
-
-                                //Check if we need to post the attachments
-                                if ((!attachments.isEmpty()) && a.getContentReview()){
-                                    assignmentService.postReviewableSubmissionAttachments(submission);
-                                }
-                            }
-
-                            // SAK-26322 - add inline as an attachment for the content review service
-                            if (a.getContentReview() && !isHtmlEmpty(text)) {
-                                prepareInlineForContentReview(text, submission, state, u);
-                            }
-
-                            // set the resubmission properties
-                            setResubmissionProperties(a, submission);
-                            if (submitter != null) {
-                                properties.put(AssignmentConstants.SUBMITTER_USER_ID, submitter.getId());
-                                state.setAttribute(STATE_SUBMITTER, u.getId());
-                            } else {
-                                properties.remove(AssignmentConstants.SUBMITTER_USER_ID);
-                            }
-
-                            // SAK-17606
-                            /*String logEntry = new Date().toString() + " ";
-                            boolean anonymousGrading = Boolean.parseBoolean(a.getProperties().get(NEW_ASSIGNMENT_CHECK_ANONYMOUS_GRADING));
-                            if (!anonymousGrading) {
-                                String subOrDraft = post ? "submitted" : "saved draft";
-                                if (submitter != null && !submitter.getEid().equals(u.getEid())) {
-                                    logEntry += submitter.getDisplayName() + " (" + submitter.getEid() + ") " + subOrDraft + " " +
-                                            rb.getString("listsub.submitted.on.behalf") + " " + u.getDisplayName() + " (" +
-                                            u.getEid() + ")";
-                                } else {
-                                    logEntry += u.getDisplayName() + " (" + u.getEid() + ") " + subOrDraft;
-                                }
-                            }*/
-//							TODO submission log entry
-//							submission.addSubmissionLogEntry( logEntry );
-                            assignmentService.updateSubmission(submission);
-                        }
+                        // set the resubmission properties
+                        setResubmissionProperties(a, submission);
                     } catch (PermissionException e) {
+                        log.warn("Could not add submission for assignment/submitter: {}/{}, {}", a.getId(), submitterId, e.getMessage());
                         addAlert(state, rb.getString("youarenot13"));
-                        log.warn(this + ":post_save_submission " + e.getMessage());
+                        return;
+                    }
+                }
+
+                // add attachments
+                List<Reference> attachments = (List<Reference>) state.getAttribute(ATTACHMENTS);
+                if (attachments != null) {
+                    Set<String> submittedAttachments = submission.getAttachments();
+                    submittedAttachments.clear();
+                    if (a.getTypeOfSubmission() != Assignment.SubmissionType.TEXT_ONLY_ASSIGNMENT_SUBMISSION) {
+                        attachments.forEach(att -> submittedAttachments.add(att.getReference()));
+                    }
+                }
+
+                Map<String, String> properties = submission.getProperties();
+
+                if (submitter != null) {
+                    properties.put(AssignmentConstants.SUBMITTER_USER_ID, submitter.getId());
+                    state.setAttribute(STATE_SUBMITTER, u.getId());
+                } else {
+                    properties.remove(AssignmentConstants.SUBMITTER_USER_ID);
+                }
+
+                try {
+                    assignmentService.updateSubmission(submission);
+                } catch (PermissionException e) {
+                    log.warn("Could not update submission: {}, {}", submission.getId(), e.getMessage());
+                    addAlert(state, rb.getString("youarenot13"));
+                    return;
+                }
+
+                // SAK-26322 - add inline as an attachment for the content review service
+                if (a.getContentReview()) {
+                    if (!isHtmlEmpty(text)) {
+                        prepareInlineForContentReview(text, submission, state, u);
+                    }
+                    // Check if we need to post the attachments
+                    if (!submission.getAttachments().isEmpty()) {
+                        assignmentService.postReviewableSubmissionAttachments(submission);
                     }
                 }
             }
