@@ -1,5 +1,5 @@
 $(function(){
-    var url = $('.site-events-url').text().replace(/'/g,"");
+    var url = $('.site-events-url').first().text().replace(/'/g,"");
     var moreInfoUrl = $('.event-tool-url').text().replace(/'/g,"");
     //get user locale from browser to customise text in calendar
     var language = window.navigator.userLanguage || window.navigator.language;
