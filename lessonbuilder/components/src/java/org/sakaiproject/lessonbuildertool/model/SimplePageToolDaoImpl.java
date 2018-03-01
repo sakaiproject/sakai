@@ -1903,18 +1903,21 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 	}
 
 	public List<SimplePage> getTopLevelPages(final String siteId) {
-		DetachedCriteria d = DetachedCriteria.forClass(SimplePage.class).add(Restrictions.eq("siteId", siteId))
-			.add(Restrictions.disjunction()
-				.add(Restrictions.isNull("owner"))
-				.add(Restrictions.eq("owned", true)))
-			.add(Restrictions.isNull("parent"));
+	    // set of all top level pages, actually the items pointing to them                                                                       
+	    List<SimplePageItem> sitePages =  findItemsInSite(toolManager.getCurrentPlacement().getContext());
+	    if (sitePages == null)
+		return null;
 
-		List<SimplePage> l = (List<SimplePage>) getHibernateTemplate().findByCriteria(d);
+	    List<SimplePage> pages = new ArrayList<>();
+	    for (SimplePageItem i : sitePages) {
+		SimplePage page = getPage(Long.valueOf(i.getSakaiId()));
+		if (page != null)
+		    pages.add(page);
+	    }
 
-		if (l != null && l.size() > 0) {
-			return l;
-		} else {
-			return null;
-		}
+	    if (pages.isEmpty())
+		return null;
+
+	    return pages;
 	}
 }
