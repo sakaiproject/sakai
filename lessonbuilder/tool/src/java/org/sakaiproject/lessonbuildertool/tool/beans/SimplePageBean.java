@@ -5005,16 +5005,17 @@ public class SimplePageBean {
 		if (ret != null) {
 		    return (boolean)ret;
 		}
-
 		// item is page, and it is hidden or not released
 		if (item.getType() == SimplePageItem.BREAK)
 		    return true;  // breaks are always visible to all users
 		else if (item.getType() == SimplePageItem.PAGE) {
+		  if (!item.isRequired()) {
 		    SimplePage itemPage = getPage(Long.valueOf(item.getSakaiId()));
 		    if (itemPage.isHidden())
 			return false;
 		    if (itemPage.getReleaseDate() != null && itemPage.getReleaseDate().after(new Date()))
 			return false;
+		  }
 		} else if (page != null && isStudentPage(page) && (item.getType() == SimplePageItem.RESOURCE || item.getType() == SimplePageItem.MULTIMEDIA)) {
 
 		    // check for inline types. No resource to check. Since this section is for student page, no groups either
@@ -5075,9 +5076,11 @@ public class SimplePageBean {
 		Collection<String>itemGroups = null;
 		SecurityAdvisor advisor = null;
 		try {
+		    // need to do this before pushing the advisor, or we get bad results
+		    boolean canSeeAll = canSeeAll();
 		    advisor = pushAdvisorAlways();
 		    LessonEntity entity = null;
-		    if (!canSeeAll()) {
+		    if (!canSeeAll && !item.isRequired()) {
 			switch (item.getType()) {
 			case SimplePageItem.ASSIGNMENT:
 			    entity = assignmentEntity.getEntity(item.getSakaiId());
@@ -5103,8 +5106,11 @@ public class SimplePageBean {
 		    // entity can be null. passing the actual entity just avoids a second lookup
 		    itemGroups = getItemGroups(item, entity, false);
 		} catch (IdUnusedException exc) {
-		    visibleCache.put(item.getId(), false);
-		    return false; // underlying entity missing, don't show it
+		    // underlying entity missing. Normally don't show it. But if it's required
+		    // we have to. Can't do group test if there's nothing to test, so return true here
+		    // basically you can't group restrict an item until it exists
+		    visibleCache.put(item.getId(), item.isRequired());
+		    return item.isRequired();
 		} finally {
 		    popAdvisor(advisor);
 		}
