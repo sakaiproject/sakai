@@ -41,7 +41,8 @@ public class DiscussionTopicImpl extends OpenTopicImpl implements DiscussionTopi
     private List labels = new UniqueArrayList();
     private String gradebook;
     private String gradebookAssignment;
-    
+    private Boolean restrictPermissionsForGroups;
+
     public ActorPermissions getActorPermissions() {
         return actorPermissions;
     }
@@ -135,4 +136,12 @@ public class DiscussionTopicImpl extends OpenTopicImpl implements DiscussionTopi
         label.setDiscussionTopic(null);
         labels.remove(label);
     }
+
+	public Boolean getRestrictPermissionsForGroups(){
+		return restrictPermissionsForGroups;
+	}
+
+	public void setRestrictPermissionsForGroups(Boolean restrictPermissionsForGroups) {
+		this.restrictPermissionsForGroups = restrictPermissionsForGroups;
+	}
 }

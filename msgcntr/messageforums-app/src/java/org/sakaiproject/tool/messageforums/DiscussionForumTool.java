@@ -207,7 +207,7 @@ public class DiscussionForumTool
   private List totalGroupsUsersList;
   private List selectedGroupsUsersList;
   private Map courseMemberMap;
-  private List permissions;
+  private List<PermissionBean> permissions;
   private List levels;
   private AreaManager areaManager;
   private int numPendingMessages = 0;
@@ -404,8 +404,7 @@ public class DiscussionForumTool
 
   private int selectedMessageCount = 0;
   
-  private List siteGroups = new ArrayList();
-  private boolean createTopicsForGroups = false;  
+  private List<SiteGroupBean> siteGroups = new ArrayList<>();
 
   private boolean dialogGradeSavedSuccessfully = false;
   
@@ -1252,7 +1251,7 @@ public class DiscussionForumTool
    */
   public String processActionForumSettings()
   {
-    log.debug("processForumSettings()");
+    log.debug("processActionForumSettings()");
     forumClickCount = 0;
     topicClickCount = 0;
     setEditMode(true);
@@ -1377,8 +1376,8 @@ public class DiscussionForumTool
       setErrorMessage(getResourceBundleString(INSUFFICIENT_PRIVILEGES_CHAGNE_FORUM));
       return gotoMain();
     }   
-    
-    DiscussionForum forum = saveForumSettings(false);    
+
+    DiscussionForum forum = processForumSettings(false);
     if(!uiPermissionsManager.isNewTopic(selectedForum.getForum()))
     {
       setErrorMessage(getResourceBundleString(INSUFFICIENT_PRIVILEGES_CREATE_TOPIC));
@@ -1396,7 +1395,8 @@ public class DiscussionForumTool
     }
     setPermissionMode(PERMISSION_MODE_TOPIC);
     siteGroups.clear();
-    createTopicsForGroups = false;
+    selectedForum.getForum().setRestrictPermissionsForGroups(false);
+    selectedTopic.getTopic().setRestrictPermissionsForGroups(false);
     attachments.clear();
     prepareRemoveAttach.clear();
     
@@ -1450,10 +1450,9 @@ public class DiscussionForumTool
       setErrorMessage(getResourceBundleString(VALID_FORUM_TITLE_WARN));
       return FORUM_SETTING_REVISE;
     }    
-    saveForumSettings(false);
-    
-    //reset();
-    //return MAIN;
+    if(processForumSettings(false) == null){
+        return null;
+    }
     return processReturnToOriginatingPage();
   }
 
@@ -1501,11 +1500,21 @@ public class DiscussionForumTool
       setErrorMessage(getResourceBundleString(VALID_FORUM_TITLE_WARN));
       return FORUM_SETTING_REVISE;
     }    
-    saveForumSettings(true);
-    
-    //reset();
-    //return MAIN;
+    if(processForumSettings(true) == null){
+        return null;
+    }
     return processReturnToOriginatingPage();
+  }
+
+  private DiscussionForum processForumSettings(boolean draft){
+    if (selectedForum.getForum().getRestrictPermissionsForGroups() && selectedForum.getForum().getId() == null) {
+        if (!saveForumsForGroups(draft)) {
+            return null;
+        }
+    } else {
+        saveForumSettings(draft);
+    }
+    return selectedForum.getForum();
   }
 
   private DiscussionForum saveForumSettings(boolean draft)
@@ -1541,13 +1550,12 @@ public class DiscussionForumTool
 	if(forum.getShortDescription()!=null && forum.getShortDescription().length() > 255){
 		forum.setShortDescription(forum.getShortDescription().substring(0, 255));
 	}
-    
-    
+
     if ("<br/>".equals(forum.getExtendedDescription()))
 	{
 		forum.setExtendedDescription("");
 	}
-    
+
     saveForumSelectedAssignment(forum);
     saveForumAttach(forum);  
     setObjectPermissions(forum);
@@ -1567,7 +1575,7 @@ public class DiscussionForumTool
     		updateSynopticMessagesForForumComparingOldMessagesCount(getSiteId(), forum.getId(), null, beforeChangeHM, SynopticMsgcntrManager.NUM_OF_ATTEMPTS);
     	}        
     }
-    
+
     return forum;
   }
 
@@ -1633,12 +1641,9 @@ public class DiscussionForumTool
 		  }
 		  
 		  if(oldMembershipItemSet != null){
-			  Iterator iter = permissions.iterator();
-		      while (iter.hasNext())
-		      {
-		        PermissionBean permBean = (PermissionBean) iter.next();
+		      for (PermissionBean permBean : permissions) {
 		        if(permBean.getItem().getId() == null){
-					//this is a new permission set, a group more than likely, so update b/c this rarely happens anyways
+		        	//this is a new permission set, a group more than likely, so update b/c this rarely happens anyways
 		        	//and state isn't positive
 		        	update = true;
 		        	break;
@@ -1661,13 +1666,9 @@ public class DiscussionForumTool
 		      }
 		  }
 	  }
-		  
-	  
+
 	  return update;
   }
-  
-  
-
 
   /**
    * @return Returns the selectedTopic.
@@ -1728,7 +1729,6 @@ public class DiscussionForumTool
     attachments.clear();
     prepareRemoveAttach.clear();
     siteGroups.clear();
-    createTopicsForGroups = false;
     setFromMainOrForumOrTopic();
 
     return TOPIC_SETTING_REVISE;
@@ -1790,7 +1790,6 @@ public class DiscussionForumTool
     
     setFromMainOrForumOrTopic();
     siteGroups.clear();
-    createTopicsForGroups = false;
     return TOPIC_SETTING_REVISE;
   }
 
@@ -1839,14 +1838,11 @@ public class DiscussionForumTool
     {
     	forumManager.approveAllPendingMessages(selectedTopic.getTopic().getId());
     }
-    
-    if (createTopicsForGroups ) {
-        if (!saveTopicsForGroups(false)) {
-            return null;
-        }
-    } else {
-        saveTopicSettings(false);
+
+    if(processTopicSettings(false) == null){
+        return null;
     }
+
     Long forumId = selectedForum.getForum().getId();
     if (forumId == null)
     {
@@ -1866,7 +1862,7 @@ public class DiscussionForumTool
     attachments.clear();
     prepareRemoveAttach.clear();
     siteGroups.clear();
-    createTopicsForGroups = false;
+    selectedTopic.getTopic().setRestrictPermissionsForGroups(false);
 	LRS_Statement statement = null;
     if (null != learningResourceStoreService) {
     	try{
@@ -1942,12 +1938,8 @@ public class DiscussionForumTool
     	beforeChangeHM = SynopticMsgcntrManagerCover.getUserToNewMessagesForForumMap(getSiteId(), forumId, null); 	
     }
 
-    if (createTopicsForGroups ) {
-        if (!saveTopicsForGroups(false)) {
-            return null;
-        }
-    } else {
-        saveTopicSettings(false);  
+    if(processTopicSettings(false) == null){
+        return null;
     }
 
     if(updateSynopticCounts){
@@ -2018,17 +2010,24 @@ public class DiscussionForumTool
       setErrorMessage(getResourceBundleString(INSUFFICIENT_PRIVILEGES_NEW_TOPIC));
       return gotoMain();
     }
-    if (createTopicsForGroups ) {
-        if (!saveTopicsForGroups(true)) {
-            return null;
-        }
-    } else {
-        saveTopicSettings(true);  
-    }   
+    if(processTopicSettings(true) == null){
+        return null;
+    }
     //reset();
     //return MAIN;
     
     return processReturnToOriginatingPage();
+  }
+
+  private String processTopicSettings(boolean draft){
+    if(selectedTopic.getTopic().getRestrictPermissionsForGroups() && selectedTopic.getTopic().getId() == null) {
+        if (!saveTopicsForGroups(draft)) {
+            return null;
+        }
+    } else {
+       saveTopicSettings(draft);
+    }
+    return gotoMain();
   }
 
   private String saveTopicSettings(boolean draft)
@@ -2064,6 +2063,9 @@ public class DiscussionForumTool
     	}
     	
         topic.setBaseForum(selectedForum.getForum());
+        if(selectedForum.getForum().getRestrictPermissionsForGroups()){
+            topic.setRestrictPermissionsForGroups(true);
+        }
         if(topic.getCreatedBy()==null&&this.forumManager.getAnonRole()==true){
         	topic.setCreatedBy(".anon");
         }
@@ -2244,7 +2246,6 @@ public class DiscussionForumTool
     }  
     
     siteGroups.clear();
-    createTopicsForGroups = false;
     setTopicBeanAssign();
     setFromMainOrForumOrTopic();
     
@@ -6615,7 +6616,7 @@ public class DiscussionForumTool
   		{
   			List tempMsgs = selectedTopic.getMessages();
   			for(int i=0; i<tempMsgs.size(); i++)
-				{
+			{
 					DiscussionMessageBean dmb = (DiscussionMessageBean)tempMsgs.get(i);
 					if(i==0)
 					{
@@ -6639,7 +6640,7 @@ public class DiscussionForumTool
 						dmb.setHasNext(true);
 						dmb.setHasPre(true);
 					}
-				}
+			}
   		}
   	}
   }
@@ -7397,25 +7398,19 @@ public class DiscussionForumTool
     	//membershipItemSet = uiPermissionsManager.getTopicItemsSet(topic);
     	oldMembershipItemSet = uiPermissionsManager.getTopicItemsSet(topic);
     }
-     
-   
+
     membershipItemSet = new HashSet();
-            
+
     if(permissions!=null ){
-      Iterator iter = permissions.iterator();
-      while (iter.hasNext())
-      {
-        PermissionBean permBean = (PermissionBean) iter.next();
+      for (PermissionBean permBean : permissions) {
         //for group awareness
         //DBMembershipItem membershipItem = permissionLevelManager.createDBMembershipItem(permBean.getItem().getName(), permBean.getSelectedLevel(), DBMembershipItem.TYPE_ROLE);
         DBMembershipItem membershipItem = permissionLevelManager.createDBMembershipItem(permBean.getItem().getName(), permBean.getSelectedLevel(), permBean.getItem().getType());
         setupMembershipItemPermission(membershipItem, permBean);
-        
-                
+
         // save DBMembershiptItem here to get an id so we can add to the set
         permissionLevelManager.saveDBMembershipItem(membershipItem);          
-        
-        
+
         membershipItemSet.add(membershipItem);
       }
       
@@ -7714,8 +7709,7 @@ public class DiscussionForumTool
 	  try
 	  {
 		String currentUserId = getUserId();
-  	    
-  	    
+
 		  String userString = "";
 		  userString = userDirectoryService.getUser(currentUserId).getDisplayName();
 		  String userEidString = "";
@@ -7746,7 +7740,6 @@ public class DiscussionForumTool
  	public TimeZone getUserTimeZone() {
  		return userPreferencesManager.getTimeZone();
  	}
-
 
 	public boolean isDisableLongDesc()
 	{
@@ -8153,10 +8146,7 @@ public class DiscussionForumTool
 	 public void setSelectedMsgId(String selectedMsgId) {
 		 this.selectedMsgId = selectedMsgId;
 	 }
-	 
-	 
-	 
-	 
+
 	 // STANFORD: added for email notification feature 
 	public void setEmailNotificationManager(
 				EmailNotificationManager emailnotifyManager) {
@@ -8186,8 +8176,7 @@ public class DiscussionForumTool
 				watchSettingsBean.getEmailNotification().getNotificationLevel());
 		return WATCH_SETTING;
 	}
-	
-	
+
 	public String processActionSaveEmailNotificationOption() {
 		log.debug("ForumTool.processActionSaveEmailNotificationOption()");
 		if ((watchSettingsBean !=null) && (watchSettingsBean.getEmailNotification()!=null)){
@@ -8205,13 +8194,10 @@ public class DiscussionForumTool
 	
 	public List<String> getUserEmailsToBeNotifiedByLevel(List userlist) {
 		List<String> emaillist = new ArrayList<String>();
-		
-		
+
 		List<User> userMailList  = userDirectoryService.getUsers(userlist);
 		for (int i = 0; i < userMailList.size(); i++) {
 			User user = userMailList.get(i); 
-
-
 			String useremail = user.getEmail();
 			if (useremail != null && !"".equalsIgnoreCase(useremail)) {
 				if (log.isDebugEnabled()) {
@@ -8220,12 +8206,9 @@ public class DiscussionForumTool
 				}
 				emaillist.add(useremail);
 			}
-
-
 		}
 		
 		return emaillist;
-		
 	}
 	
 	public void sendEmailNotification(Message reply, DiscussionMessageBean currthread){
@@ -8262,9 +8245,7 @@ public class DiscussionForumTool
 				}
 				userlist.add(threadauthor);
 			}
-			
 		}
-		
 
 		//MSGCNTR-375 if this post needs to be moderated, only send the email notification to those with moderator permission
 		if(needsModeration) {
@@ -8303,10 +8284,8 @@ public class DiscussionForumTool
 		    Topic topicWithMessages = forumManager.getTopicByIdWithMessagesAndAttachments(reply.getTopic().getId());
 		    userlist.removeAll(getNeedToPostFirst(userlist, (DiscussionTopic)reply.getTopic(), topicWithMessages.getMessages()));
 		}
-		
-		
+
 		// now printing out all users = # of messages in the thread - level 2 users
-		
 		if (log.isDebugEnabled()){
 			log.debug("now printing out all users, including duplicates count = " + userlist.size());
 			Iterator iter1 = userlist.iterator();
@@ -8316,7 +8295,6 @@ public class DiscussionForumTool
 		}
 		
 		// now printing out all users again after removing duplicate
-		
 		if (log.isDebugEnabled()){
 			log.debug("now printing out all users again after removing duplicate count = " + userlist.size());
 			Iterator iter1 = userlist.iterator();
@@ -8331,9 +8309,7 @@ public class DiscussionForumTool
 		List<String> finalList = emailNotificationManager.filterUsers(userlist, currthread.getMessage().getTopic());
 		
 		List<String> useremaillist =  getUserEmailsToBeNotifiedByLevel(finalList);
-		
-		
-		
+
 		if (log.isDebugEnabled()){
 			log.debug("now printint unique emails , count = " + useremaillist.size());
 			Iterator useremaillistiter = useremaillist.iterator();
@@ -8349,8 +8325,7 @@ public class DiscussionForumTool
 		
 		ForumsEmailService emailService = new ForumsEmailService(useremaillist, reply, currthread);
 		emailService.send();
-		
-		
+
 	}
 	
 	DeveloperHelperService developerHelperService;
@@ -8361,8 +8336,7 @@ public class DiscussionForumTool
 		}
 		return developerHelperService;
 	}
-	
-	
+
 	public String getMessageURL() {
 		
 		String path = "/discussionForum/message/dfViewMessageDirect";
@@ -8393,8 +8367,7 @@ public class DiscussionForumTool
 		}
 		return url;
 	}
-	
-	
+
 	private class ThreadUpdateSorter implements Comparator<DiscussionMessageBean>{
 
 	    public int compare(DiscussionMessageBean dmb1, DiscussionMessageBean dmb2) {
@@ -8469,7 +8442,6 @@ public class DiscussionForumTool
    * Action for the duplicate option present the main forums page
    * @return
    */
-
   public String processActionDuplicateForumMainConfirm()
   {
 
@@ -8482,7 +8454,6 @@ public class DiscussionForumTool
 	  selectedForum.setMarkForDuplication(true);
 	  return FORUM_SETTING;
   }
-
 
   /**
    * @return
@@ -8854,7 +8825,7 @@ public class DiscussionForumTool
                 groups = sortGroups(groups);
                 for (Iterator groupIterator = groups.iterator(); groupIterator.hasNext();) {
                     Group currentGroup = (Group) groupIterator.next();
-                    siteGroups.add(new SiteGroupBean(currentGroup, false));
+                    siteGroups.add(new SiteGroupBean(currentGroup, false, false));
                 }
             } catch (IdUnusedException e) {
                 log.error(e.getMessage(), e);
@@ -8888,22 +8859,93 @@ public class DiscussionForumTool
 		}
 		return siteRolesNames;
 	}
-    
-	public String getCreateTopicsForGroups() {
-		  if (this.createTopicsForGroups) {
-			  return Boolean.TRUE.toString();
-		  }
-		  return Boolean.FALSE.toString();
+
+    /**
+	 * 
+	 * @param draft
+	 * @return error status (no groups selected)
+	 */
+    private boolean saveForumsForGroups(boolean draft) {
+        log.debug("saveForumsForGroups()");
+        if (siteGroups == null || siteGroups.isEmpty()) {
+            setErrorMessage(getResourceBundleString(NO_GROUP_SELECTED, new Object[]{getResourceBundleString("cdfm_discussion_forums")}));
+            return false;
+        }
+
+        DiscussionForumBean forumTemplate = selectedForum;
+        ArrayList attachmentsTemplate = attachments;
+        
+        // sakai.properties settings
+        ArrayList rolesNone = (ArrayList) getAutoRolesNone();
+        String groupLevel = getAutoGroupsPermConfig();
+
+        Collections.reverse(siteGroups);
+
+        ArrayList groupsNone = new ArrayList();
+        for (SiteGroupBean currentGroup : siteGroups){
+            if (currentGroup.getCreateForumForGroup()==true) {
+                groupsNone.add(currentGroup.getGroup().getTitle());
+            }
+        }
+
+        boolean groupSelected = false;
+        for (SiteGroupBean currentGroup : siteGroups){
+            if (currentGroup.getCreateForumForGroup()==true) {
+                groupSelected = true;
+                DiscussionForum forum = forumManager.createForum();
+                forum.setRestrictPermissionsForGroups(forumTemplate.getForum().getRestrictPermissionsForGroups());
+                forum.setModerated(forumTemplate.getForum().getModerated());
+                forum.setAutoMarkThreadsRead(forumTemplate.getForum().getAutoMarkThreadsRead());
+                forum.setPostFirst(forumTemplate.getForum().getPostFirst());
+                selectedForum = new DiscussionForumBean(forum, uiPermissionsManager, forumManager);
+                setNewForumBeanAssign();
+                DiscussionForum thisForum = selectedForum.getForum();
+                thisForum.setTitle(forumTemplate.getForum().getTitle() + " - " + currentGroup.getGroup().getTitle());
+                thisForum.setShortDescription(forumTemplate.getForum().getShortDescription());
+                thisForum.setExtendedDescription(forumTemplate.getForum().getExtendedDescription());
+                thisForum.setLocked(forumTemplate.getForum().getLocked());
+                thisForum.setAvailabilityRestricted(forumTemplate.getForum().getAvailabilityRestricted());
+                thisForum.setOpenDate(forumTemplate.getForum().getOpenDate());
+                thisForum.setCloseDate(forumTemplate.getForum().getCloseDate());
+
+                // Attachments
+                attachments.clear();
+                for (Iterator attachmentIterator = attachmentsTemplate.iterator(); attachmentIterator.hasNext();) {
+                    DecoratedAttachment currentAttachment = (DecoratedAttachment) attachmentIterator.next();
+                    Attachment thisDFAttach = forumManager.createDFAttachment(
+                            currentAttachment.getAttachment().getAttachmentId(),
+                            currentAttachment.getAttachment().getAttachmentName());
+                    attachments.add(new DecoratedAttachment(thisDFAttach));
+                }
+
+                // Permissions
+                for (PermissionBean permBean : permissions) {
+                    if (rolesNone.contains(permBean.getName())) {
+                        permBean.setSelectedLevel(PermissionLevelManager.PERMISSION_LEVEL_NAME_NONE);
+                    }
+                    // Permissions will be remembered across forum loops, so we must reset marked groups to none in every loop
+                    if (groupsNone.contains(permBean.getName())) {
+                        permBean.setSelectedLevel(PermissionLevelManager.PERMISSION_LEVEL_NAME_NONE); 
+                    }
+                    if (permBean.getName().equals(currentGroup.getGroup().getTitle())) {
+                        permBean.setSelectedLevel(groupLevel);
+                    }
+                }
+                saveForumSettings(draft);
+            }
+        }
+
+        if (!groupSelected) {
+            setErrorMessage(getResourceBundleString(NO_GROUP_SELECTED, new Object[]{getResourceBundleString("cdfm_discussion_forums")}));
+            Collections.reverse(siteGroups);
+            return false;
+        }
+		siteGroups.clear();
+		selectedForum.getForum().setRestrictPermissionsForGroups(false);
+        return true;
+
 	}
 
-	public void setCreateTopicsForGroups(String createTopics) {
-		if (createTopics.equals(Boolean.TRUE.toString())) {
-			createTopicsForGroups = true;
-		} else {
-			createTopicsForGroups = false;
-		}
-	}
-    
     /**
 	 * 
 	 * @param draft
@@ -8912,7 +8954,7 @@ public class DiscussionForumTool
     private boolean saveTopicsForGroups(boolean draft) {
         log.debug("saveTopicsForGroup()");
         if (siteGroups == null || siteGroups.isEmpty()) {
-            setErrorMessage(getResourceBundleString(NO_GROUP_SELECTED));
+            setErrorMessage(getResourceBundleString(NO_GROUP_SELECTED, new Object[]{getResourceBundleString("topics")}));
             return false;
         }
         DiscussionTopicBean topicTempate = selectedTopic;
@@ -8925,21 +8967,20 @@ public class DiscussionForumTool
 		Collections.reverse(siteGroups);
         
         ArrayList groupsNone = new ArrayList();
-        for (Iterator groupIterator = siteGroups.iterator(); groupIterator.hasNext();) {
-            SiteGroupBean currentGroup = (SiteGroupBean) groupIterator.next();
+        for (SiteGroupBean currentGroup : siteGroups){
             if (currentGroup.getCreateTopicForGroup()==true) {
                 groupsNone.add(currentGroup.getGroup().getTitle());
             }
         }
         
         boolean groupSelected = false;
-        for (Iterator groupIterator = siteGroups.iterator(); groupIterator.hasNext();) {
-            SiteGroupBean currentGroup = (SiteGroupBean) groupIterator.next();
+        for (SiteGroupBean currentGroup : siteGroups){
             if (currentGroup.getCreateTopicForGroup()==true) {
                 groupSelected = true;
                 selectedTopic = createTopic(topicTempate.getTopic().getBaseForum().getId());
                 selectedTopic.setGradeAssign(topicTempate.getGradeAssign());
                 DiscussionTopic thisTopic = selectedTopic.getTopic();
+                thisTopic.setRestrictPermissionsForGroups(topicTempate.getTopic().getRestrictPermissionsForGroups());
                 thisTopic.setTitle(topicTempate.getTopic().getTitle() + " - " + currentGroup.getGroup().getTitle());
                 thisTopic.setShortDescription(topicTempate.getTopic().getShortDescription());
                 thisTopic.setExtendedDescription(topicTempate.getTopic().getExtendedDescription());
@@ -8954,7 +8995,6 @@ public class DiscussionForumTool
                 thisTopic.setAutoMarkThreadsRead(topicTempate.getTopic().getAutoMarkThreadsRead());
                 thisTopic.setGradebookAssignment(topicTempate.getTopic().getGradebookAssignment());
 
-
                 // Attachments
                 attachments.clear();
                 for (Iterator attachmentIterator = attachmentsTemplate.iterator(); attachmentIterator.hasNext();) {
@@ -8966,9 +9006,7 @@ public class DiscussionForumTool
                 }
 
                 // Permissions
-                Iterator iter = permissions.iterator();
-                while(iter.hasNext()) {
-                    PermissionBean permBean = (PermissionBean) iter.next();
+                for (PermissionBean permBean : permissions) {
                     if (rolesNone.contains(permBean.getName())) {
                         permBean.setSelectedLevel(PermissionLevelManager.PERMISSION_LEVEL_NAME_NONE);
                     }
@@ -8984,11 +9022,12 @@ public class DiscussionForumTool
             }
         }
         if (!groupSelected) {
-            setErrorMessage(getResourceBundleString(NO_GROUP_SELECTED));
+            setErrorMessage(getResourceBundleString(NO_GROUP_SELECTED, new Object[]{getResourceBundleString("topics")}));
             Collections.reverse(siteGroups);
             return false;
         }
-        createTopicsForGroups = false;
+        siteGroups.clear();
+        selectedTopic.getTopic().setRestrictPermissionsForGroups(false);
         return true;
     }
 

@@ -591,6 +591,13 @@ div.msgcntr-profile-qtip {
     margin-top: 0.3em;
     display: block;
 }
+
+.createForumsForGroupsPanel {
+    margin-left: 3em;
+    margin-top: 0.3em;
+    display: block;
+}
+
 .navIntraTool li span a img,.navIntraTool li {
     vertical-align: middle;
 }

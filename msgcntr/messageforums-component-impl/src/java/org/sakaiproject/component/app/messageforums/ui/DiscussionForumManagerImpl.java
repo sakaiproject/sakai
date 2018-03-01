@@ -2577,5 +2577,12 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
 	public void setMemoryService(MemoryService memoryService) {
 		this.memoryService = memoryService;
 	}
-       
+
+	public String getAllowedGroupForRestrictedForum(final Long forumId, final String permissionName) {
+		return forumManager.getAllowedGroupForRestrictedForum(forumId, permissionName);
+	}
+
+	public String getAllowedGroupForRestrictedTopic(final Long topicId, final String permissionName) {
+		return forumManager.getAllowedGroupForRestrictedTopic(topicId, permissionName);
+	}
 }

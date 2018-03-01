@@ -606,4 +606,7 @@ public interface DiscussionForumManager
 
   /** returns true if getAnonymousTopicsInSite() is not empty */
   public boolean isSiteHasAnonymousTopics(final String contextId);
+
+  public String getAllowedGroupForRestrictedForum(final Long forumId, final String permissionName);
+  public String getAllowedGroupForRestrictedTopic(final Long topicId, final String permissionName);
 }
