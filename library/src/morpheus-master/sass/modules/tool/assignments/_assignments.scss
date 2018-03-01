@@ -473,7 +473,7 @@
 		@include justify-content(center);
 	}
 
-	#groupTable{
+	#groupTable, #filterByGroupDiv{
 		button.multiselect-clear-filter{
 			padding: 6px 12px;
 			font-size: 14px;
@@ -481,4 +481,5 @@
 			background-color: #eee;
 		}
 	}
+
 }
