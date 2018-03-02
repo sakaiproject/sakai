@@ -99,8 +99,8 @@ public class ContentReviewServiceTurnitinOC implements ContentReviewService {
 
 	private static final String SERVICE_NAME = "TurnitinOC";
 	private static final String TURNITIN_OC_API_VERSION = "v1";
-	private static final int TURNITIN_OC_RETRY_TIME_MINS = 30;
-	private static final int TURNITIN_MAX_RETRY = 30;
+	// private static final int TURNITIN_OC_RETRY_TIME_MINS = 30;
+	private static final int TURNITIN_MAX_RETRY = 8;
 	private static final String INTEGRATION_VERSION = "1.0";
 	private static final String INTEGRATION_FAMILY = "sakai";
 	// API key
@@ -266,21 +266,19 @@ public class ContentReviewServiceTurnitinOC implements ContentReviewService {
 
 			com.squareup.okhttp.Response response = client.newCall(request).execute();
 			ResponseBody responseBody = response.body();
-
-			try {
-				if ((response.code() >= 200) && (response.code() < 300)) {
-					log.info("Successfully retrieved viewer url");
-					JSONObject responseJSON = JSONObject.fromObject(responseBody.string());
-					if (responseJSON.containsKey("viewer_url")) {
-						return responseJSON.getString("viewer_url");
-					} else {
-						throw new Error("Failed to retrieve report viewer url (1)");
-					}
+			JSONObject responseJSON = JSONObject.fromObject(responseBody.string());
+			responseBody.close();
+			
+			if ((response.code() >= 200) && (response.code() < 300)) {
+				log.info("Successfully retrieved viewer url");
+				
+				if (responseJSON.containsKey("viewer_url")) {
+					return responseJSON.getString("viewer_url");
 				} else {
-					throw new Error("Failed to retrieve report viewer url (2)");
+					throw new Error("Failed to retrieve report viewer url (1)");
 				}
-			} finally {
-				responseBody.close();
+			} else {
+				throw new Error("Failed to retrieve report viewer url (2)");
 			}
 		} catch (Exception e) {
 			log.error(e.getLocalizedMessage());
@@ -530,7 +528,6 @@ public class ContentReviewServiceTurnitinOC implements ContentReviewService {
 			Long status = item.getStatus();
 			log.info("ITEM STATUS: " + status);
 			Calendar cal = Calendar.getInstance();
-			cal.add(Calendar.MINUTE, TURNITIN_OC_RETRY_TIME_MINS);
 			if (item.getRetryCount() == null) {
 				item.setRetryCount(Long.valueOf(0));
 				item.setNextRetryTime(cal.getTime());
@@ -544,6 +541,7 @@ public class ContentReviewServiceTurnitinOC implements ContentReviewService {
 				long l = item.getRetryCount().longValue();
 				l++;
 				item.setRetryCount(Long.valueOf(l));
+				cal.add(Calendar.MINUTE, getDelayTime(l));
 				item.setNextRetryTime(cal.getTime());
 				crqs.update(item);
 			}
@@ -636,8 +634,10 @@ public class ContentReviewServiceTurnitinOC implements ContentReviewService {
 		
 		// UPLOADED CONTENTS, AWAITING REPORT (STAGE 2)
 		for(ContentReviewItem item : crqs.getAwaitingReports(getProviderId())) {
-			// TODO: Check retry date
-			// If date is after now, continue:
+			// Make sure it's after the next retry time
+			if (item.getNextRetryTime().getTime() > new Date().getTime()) {
+				continue;
+			}
 			
 			try {
 				int status = getSimilarityReportStatus(item.getExternalId());
@@ -668,6 +668,12 @@ public class ContentReviewServiceTurnitinOC implements ContentReviewService {
 		}
 				
 		log.info("Submission Turnitin queue run completed: " + success + " items submitted, " + errors + " errors.");
+	}
+	
+	public int getDelayTime(long l) {
+		// Pattern:
+		double d = l == TURNITIN_MAX_RETRY ? 2 : (double) l;
+		return (int) Math.round(Math.pow(2, d));
 	}
 
 	public void queueContent(String userId, String siteId, String assignmentReference, List<ContentResource> content)
