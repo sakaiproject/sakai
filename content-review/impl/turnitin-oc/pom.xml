@@ -21,7 +21,7 @@
 		<gson-version>2.6.2</gson-version>
 	</properties>
 
-	<dependencies>
+	<dependencies>		
 		<dependency>
 			<groupId>org.sakaiproject.contentreview</groupId>
 			<artifactId>content-review-api</artifactId>
@@ -51,9 +51,13 @@
 			<groupId>org.apache.httpcomponents</groupId>
 			<artifactId>httpmime</artifactId>
 		</dependency>
-                <dependency>
-                        <groupId>commons-io</groupId>
-                        <artifactId>commons-io</artifactId>
-                </dependency>
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+        </dependency>
 	</dependencies>
 </project>

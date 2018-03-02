@@ -15,20 +15,22 @@
  */
 package org.sakaiproject.contentreview.turnitin.oc;
 
-import java.io.IOException;
-import java.net.MalformedURLException;
+import java.io.DataOutputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Objects;
+import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.SortedSet;
 
-import javax.ws.rs.core.MediaType;
-
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
@@ -49,15 +51,12 @@ import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.TypeException;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
-import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 
-import Response;
-import ResponseBody;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
-import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
 @Slf4j
@@ -218,59 +217,59 @@ public class ContentReviewServiceTurnitinOC implements ContentReviewService {
 	private String getAccessUrl(String reportId, String assignmentRef, String userId, boolean instructor)
 			throws QueueException, ReportException {
 		
-		try {
-			User user = userDirectoryService.getUser(userId);
-			JSONObject body = new JSONObject();
-			body.put("given_name", user.getFirstName());
-			body.put("family_name", user.getLastName());
-			
-			// TODO: FIGURE OUT HOW TO GET LOCALE!!!
-			// body.put("locale", locale);
-			body.put("locale", "en");
-
-			OkHttpClient client = new OkHttpClient();
-			Headers.Builder builder = new Headers.Builder();
-
-			String headerString = Objects.toString(SUBMISSION_REQUEST_HEADERS, "");
-			// {x-amz-server-side-encryption=AES256}
-			headerString = headerString.replace("{", "").replace("}", "");
-			String[] headerPairs = headerString.split(",");
-
-			for (String headerPair : headerPairs) {
-				headerPair = headerPair.trim();
-				String[] pairKeyValue = headerPair.split("=", 2);
-				if (pairKeyValue.length == 2) {
-					builder.add(pairKeyValue[0].trim(), pairKeyValue[1].trim());
-				}
-			}
-						
-			Headers headers = builder.build();
-			Request request = new Request.Builder()
-					.url(getNormalizedServiceUrl() + "submissions/" + reportId + "/viewer-url")
-					.put(RequestBody.create(MediaType.parse(MediaType.APPLICATION_JSON), body.toString()))
-					.headers(headers)				
-					.build();
-
-			Response response = client.newCall(request).execute();
-			ResponseBody responseBody = response.body();
-			JSONObject responseJSON = JSONObject.fromObject(responseBody.string());
-			responseBody.close();
-			
-			if ((response.code() >= 200) && (response.code() < 300)) {
-				log.info("Successfully retrieved viewer url");
-				
-				if (responseJSON.containsKey("viewer_url")) {
-					return responseJSON.getString("viewer_url");
-				} else {
-					throw new Error("Failed to retrieve report viewer url (1)");
-				}
-			} else {
-				throw new Error("Failed to retrieve report viewer url (2)");
-			}
-		} catch (Exception e) {
-			log.error(e.getMessage(), e);
+//		try {
+//			User user = userDirectoryService.getUser(userId);
+//			JSONObject body = new JSONObject();
+//			body.put("given_name", user.getFirstName());
+//			body.put("family_name", user.getLastName());
+//			
+//			// TODO: FIGURE OUT HOW TO GET LOCALE!!!
+//			// body.put("locale", locale);
+//			body.put("locale", "en");
+//
+//			OkHttpClient client = new OkHttpClient();
+//			Headers.Builder builder = new Headers.Builder();
+//
+//			String headerString = Objects.toString(SUBMISSION_REQUEST_HEADERS, "");
+//			// {x-amz-server-side-encryption=AES256}
+//			headerString = headerString.replace("{", "").replace("}", "");
+//			String[] headerPairs = headerString.split(",");
+//
+//			for (String headerPair : headerPairs) {
+//				headerPair = headerPair.trim();
+//				String[] pairKeyValue = headerPair.split("=", 2);
+//				if (pairKeyValue.length == 2) {
+//					builder.add(pairKeyValue[0].trim(), pairKeyValue[1].trim());
+//				}
+//			}
+//						
+//			Headers headers = builder.build();
+//			Request request = new Request.Builder()
+//					.url(getNormalizedServiceUrl() + "submissions/" + reportId + "/viewer-url")
+//					.put(RequestBody.create(MediaType.parse(MediaType.APPLICATION_JSON), body.toString()))
+//					.headers(headers)				
+//					.build();
+//
+//			Response response = client.newCall(request).execute();
+//			ResponseBody responseBody = response.body();
+//			JSONObject responseJSON = JSONObject.fromObject(responseBody.string());
+//			responseBody.close();
+//			
+//			if ((response.code() >= 200) && (response.code() < 300)) {
+//				log.info("Successfully retrieved viewer url");
+//				
+//				if (responseJSON.containsKey("viewer_url")) {
+//					return responseJSON.getString("viewer_url");
+//				} else {
+//					throw new Error("Failed to retrieve report viewer url (1)");
+//				}
+//			} else {
+//				throw new Error("Failed to retrieve report viewer url (2)");
+//			}
+//		} catch (Exception e) {
+//			log.error(e.getMessage(), e);
 			return null;
-		}
+		
 	}
 
 	public int getReviewScore(String contentId, String assignmentRef, String userId)
@@ -296,87 +295,90 @@ public class ContentReviewServiceTurnitinOC implements ContentReviewService {
 	}
 	
 	private void generateSimilarityReport(String reportId) throws Exception {
-		JSONObject body = new JSONObject();
-		JSONObject genSettings = new JSONObject();
-		JSONObject viewSettings = new JSONObject();
-		JSONArray searchList = new JSONArray();
-		
-		//TODO change hard coded settings
-		searchList.add("INTERNET");
-		searchList.add("PRIVATE");
-		
-		genSettings.put("search_repositories", searchList);
-		
-		viewSettings.put("exclude_quotes", true);
-		viewSettings.put("exclude_bibliography", true);
-		
-		body.put("generation_settings", genSettings);
-		body.put("view_settings", viewSettings);
+				
+		// set variables
+		HttpURLConnection connection = null;
+		DataOutputStream wr = null;
+		URL url = null;
+			
+		//Construct URL
+		url = new URL(getNormalizedServiceUrl() + "submissions/" + reportId + "/similarity");
 
-		OkHttpClient client = new OkHttpClient();
-		Headers.Builder builder = new Headers.Builder();
-
-		String headerString = Objects.toString(SUBMISSION_REQUEST_HEADERS, "");
-		headerString = headerString.replace("{", "").replace("}", "");
-		String[] headerPairs = headerString.split(",");
-
-		for (String headerPair : headerPairs) {
-			headerPair = headerPair.trim();
-			String[] pairKeyValue = headerPair.split("=", 2);
-			if (pairKeyValue.length == 2) {
-				builder.add(pairKeyValue[0].trim(), pairKeyValue[1].trim());
-			}
+		//Open connection and set HTTP method
+		connection=(HttpURLConnection) url.openConnection();
+		connection.setDoOutput(true);
+		connection.setRequestMethod("PUT");
+		
+		// Build JSON header maps
+		Map<String, Object> reportData = new HashMap<String, Object>();
+		Map<String, Object> generationSearchSettings = new HashMap<String, Object>();
+		generationSearchSettings.put("search_repositories", Arrays.asList("INTERNET", "PRIVATE"));
+		reportData.put("generation_settings", generationSearchSettings);		
+		
+		Map<String, Object> viewSettings = new HashMap<String, Object>();
+		viewSettings.put("exclude_quotes", Boolean.TRUE);
+		viewSettings.put("exclude_bibliography", Boolean.TRUE);
+		reportData.put("view_settings", viewSettings);
+		
+		// Set headers 
+		for(Entry<String, String> entry : SUBMISSION_REQUEST_HEADERS.entrySet()) {
+			connection.setRequestProperty(entry.getKey(), entry.getValue());
 		}
+		
+		//Convert data to JSON:
+		ObjectMapper objectMapper = new ObjectMapper();
+		String json = objectMapper.writeValueAsString(reportData);
 
-		Headers headers = builder.build();
-		Request request = new Request.Builder()
-				.url(getNormalizedServiceUrl() + "submissions/" + reportId + "/similarity")
-				.put(RequestBody.create(MediaType.parse(MediaType.APPLICATION_JSON), body.toString()))
-				.headers(headers)				
-				.build();
-
-		com.squareup.okhttp.Response response = client.newCall(request).execute();
-		ResponseBody responseBody = response.body();
-		responseBody.close();
-		if ((response.code() >= 200) && (response.code() < 300)) {
+		//Set Post body:
+		connection.setDoOutput(true);
+		wr = new DataOutputStream(connection.getOutputStream());
+		wr.writeBytes(json);
+		wr.flush();
+		wr.close();
+		
+		//Send request:
+		int responseCode = connection.getResponseCode();
+		String responseMessage = connection.getResponseMessage();			
+		String responseBody = IOUtils.toString(connection.getInputStream(), StandardCharsets.UTF_8);						        
+		
+		if ((responseCode >= 200) && (responseCode < 300)) {
 			log.info("Successfully initiated Similarity Report generation!!!!!" );
-		} else if ((response.code() == 409)) {
+		} else if ((responseCode == 409)) {
 			log.info("A Similarity Report is already generating for this submission");
 		} else {
-			throw new Error("Submission failed to initiate: " + response.code() + ", " + response.message() + ", " + responseBody);
+			throw new Error("Submission failed to initiate: " + responseCode + ", " + responseMessage + ", " + responseBody);
 		}
 	}
 
-	private String getSubmissionStatus(String reportId)
-			throws MalformedURLException, IOException {		
-		String status = null;
-		OkHttpClient client = new OkHttpClient();
-		Headers.Builder builder = new Headers.Builder();
-
-		String headerString = Objects.toString(BASE_HEADERS, "");
-		headerString = headerString.replace("{", "").replace("}", "");
-		String[] headerPairs = headerString.split(",");
-
-		for (String headerPair : headerPairs) {
-			headerPair = headerPair.trim();
-			String[] pairKeyValue = headerPair.split("=", 2);
-			if (pairKeyValue.length == 2) {
-				builder.add(pairKeyValue[0].trim(), pairKeyValue[1].trim());
-			}
-		}
-
-		Headers headers = builder.build();
-		Request request = new Request.Builder()
-				.url(getNormalizedServiceUrl() + "submissions/" + reportId)
-				.headers(headers)				
-				.build();
-
-		Response response = client.newCall(request).execute();
-		ResponseBody responseBody = response.body();
-		JSONObject responseJSON = JSONObject.fromObject(responseBody.string());
-		responseBody.close();
+	private String getSubmissionStatus(String reportId) throws Exception {		
 		
-		if ((response.code() >= 200) && (response.code() < 300)) {
+		// set variables
+		URL url = null;
+		HttpURLConnection connection = null;		
+		String status = null;
+		
+		//Construct URL
+		url = new URL(getNormalizedServiceUrl() + "submissions/" + reportId);
+
+		//Open connection and set HTTP method
+		connection=(HttpURLConnection) url.openConnection();
+		connection.setDoOutput(true);
+		connection.setRequestMethod("GET");
+		
+		// Set headers 
+		for(Entry<String, String> entry : BASE_HEADERS.entrySet()) {
+			connection.setRequestProperty(entry.getKey(), entry.getValue());
+		}		
+		
+		//Send request:
+		int responseCode = connection.getResponseCode();
+		String responseMessage = connection.getResponseMessage();					
+		String responseBody = IOUtils.toString(connection.getInputStream(), StandardCharsets.UTF_8);				
+		
+		// create JSONObject from response	
+		JSONObject responseJSON = JSONObject.fromObject(responseBody);
+									
+		if ((responseCode >= 200) && (responseCode < 300)) {
 			log.info("STATUS " + responseJSON.getString("status"));
 			// TODO add error catches for too little text, etc
 			if (responseJSON.containsKey("status")) {
@@ -384,43 +386,40 @@ public class ContentReviewServiceTurnitinOC implements ContentReviewService {
 				status = responseJSON.getString("status");
 			}
 		}else {
-			throw new Exception("getSubmissionStatus invalid request: " + response.code() + ", " + response.message() + ", " + responseBody);
+			throw new Exception("getSubmissionStatus invalid request: " + responseCode + ", " + responseMessage  + ", " + responseBody);
 		}
 		
 		return status;
 	}
 	
-	private int getSimilarityReportStatus(String reportId)
-			throws MalformedURLException, IOException {		
+	private int getSimilarityReportStatus(String reportId) throws Exception {		
 
-		OkHttpClient client = new OkHttpClient();
-		Headers.Builder builder = new Headers.Builder();
-
-		String headerString = Objects.toString(BASE_HEADERS, "");
-		// {x-amz-server-side-encryption=AES256}
-		headerString = headerString.replace("{", "").replace("}", "");
-		String[] headerPairs = headerString.split(",");
-
-		for (String headerPair : headerPairs) {
-			headerPair = headerPair.trim();
-			String[] pairKeyValue = headerPair.split("=", 2);
-			if (pairKeyValue.length == 2) {
-				builder.add(pairKeyValue[0].trim(), pairKeyValue[1].trim());
-			}
-		}
-
-		Headers headers = builder.build();
-		Request request = new Request.Builder()
-				.url(getNormalizedServiceUrl() + "submissions/" + reportId + "/similarity")
-				.headers(headers)				
-				.build();
-
-		Response response = client.newCall(request).execute();
-		ResponseBody responseBody = response.body();
-		JSONObject responseJSON = JSONObject.fromObject(responseBody.string());
-		responseBody.close();
+		//Set variables
+		URL url = null;
+		HttpURLConnection connection = null;				
 		
-		if ((response.code() >= 200) && (response.code() < 300)) {
+		//Construct URL
+		url = new URL(getNormalizedServiceUrl() + "submissions/" + reportId + "/similarity");
+
+		//Open connection and set HTTP method
+		connection=(HttpURLConnection) url.openConnection();
+		connection.setDoOutput(true);
+		connection.setRequestMethod("GET");
+		
+		// Set headers 
+		for(Entry<String, String> entry : BASE_HEADERS.entrySet()) {
+			connection.setRequestProperty(entry.getKey(), entry.getValue());
+		}		
+		
+		//Send request:
+		int responseCode = connection.getResponseCode();
+		String responseMessage = connection.getResponseMessage();					
+		String responseBody = IOUtils.toString(connection.getInputStream(), StandardCharsets.UTF_8);				
+		
+		// create JSONObject from response	
+		JSONObject responseJSON = JSONObject.fromObject(responseBody);				
+		
+		if ((responseCode >= 200) && (responseCode < 300)) {
 			// See if report is complete or pending. If pending, ignore, if complete, get score and viewer url
 			log.info("SIMILARITY REPORT EXISTS!!!!!");
 			
@@ -441,45 +440,61 @@ public class ContentReviewServiceTurnitinOC implements ContentReviewService {
 				throw new Error("Something went wrong in the similarity report process: reportId " + reportId);
 			}
 		} else {
-			throw new Error(response.message());
+			throw new Error(responseMessage);
 		}
 	}
 
 	//TODO documentation
 	private String getSubmissionId(String userID, String fileName){
-		String submissionId = null;
-		try {
-			JSONObject body = new JSONObject();
-			body.put("owner", userID);
-			body.put("title", fileName);
-
-			OkHttpClient client = new OkHttpClient();
-			Headers.Builder builder = new Headers.Builder();
-
-			String headerString = Objects.toString(SUBMISSION_REQUEST_HEADERS, "");
-			headerString = headerString.replace("{", "").replace("}", "");
-			String[] headerPairs = headerString.split(",");
-
-			for (String headerPair : headerPairs) {
-				headerPair = headerPair.trim();
-				String[] pairKeyValue = headerPair.split("=", 2);
-				if (pairKeyValue.length == 2) {
-					builder.add(pairKeyValue[0].trim(), pairKeyValue[1].trim());
-				}
+		
+		//Set variables
+		String submissionId = null;		
+		URL url = null;
+		HttpURLConnection connection = null;
+		DataOutputStream wr = null;
+		
+		
+		try {			
+			
+			// Construct URL
+			url = new URL(getNormalizedServiceUrl() + "submissions");
+			
+			//Open connection and set HTTP method
+			connection = (HttpURLConnection) url.openConnection();
+			connection.setDoOutput(true);		
+			connection.setRequestMethod("POST");						
+				
+			// Build JSON header maps
+			Map<String, Object> data = new HashMap<String, Object>();
+			data.put("owner", userID);
+			data.put("title", fileName);
+													
+			// Set headers 
+			for(Entry<String, String> entry : SUBMISSION_REQUEST_HEADERS.entrySet()) {
+				connection.setRequestProperty(entry.getKey(), entry.getValue());
 			}
-
-			Headers headers = builder.build();
-			Request request = new Request.Builder()
-					.url(getNormalizedServiceUrl() + "submissions").headers(headers).post(RequestBody
-							.create(MediaType.parse(MediaType.APPLICATION_JSON), body.toString()))
-					.build();
-
-			Response response = client.newCall(request).execute();
-			ResponseBody responseBody = response.body();
-			JSONObject responseJSON = JSONObject.fromObject(responseBody.string());
-			responseBody.close();
-
-			if ((response.code() >= 200) && (response.code() < 300)) {
+			
+			//Convert data to JSON:
+			ObjectMapper objectMapper = new ObjectMapper();
+			String json = objectMapper.writeValueAsString(data);
+			
+			//Set Post body:
+			connection.setDoOutput(true);
+			wr = new DataOutputStream(connection.getOutputStream());
+			wr.writeBytes(json);
+			wr.flush();
+			wr.close();
+			
+			//Send request:
+			int responseCode = connection.getResponseCode();
+			String responseMessage = connection.getResponseMessage();			
+			String responseBody = IOUtils.toString(connection.getInputStream(), StandardCharsets.UTF_8);
+						
+			
+			// create JSONObject from responseBody
+			JSONObject responseJSON = JSONObject.fromObject(responseBody);			
+																	
+			if ((responseCode >= 200) && (responseCode < 300)) {
 				//TODO: make CREATED a constant
 				if (responseJSON.containsKey("status") && responseJSON.getString("status").equals("CREATED")
 						&& responseJSON.containsKey("id")) {
@@ -490,13 +505,15 @@ public class ContentReviewServiceTurnitinOC implements ContentReviewService {
 					log.error("getSubmissionId response: " + responseJSON);
 				}
 			}else {
-				log.error("getSubmissionId response code: " + response.code() + ", " + response.message() + ", " + responseJSON);
+				log.error("getSubmissionId response code: " + responseCode + ", " + responseMessage + ", " + responseJSON);
 			}
 		}catch(Exception e) {
 			log.error(e.getMessage(), e);
 		}
 		return submissionId;
+				
 	}
+	
 
 	public void processQueue() {
 		log.info("Processing Turnitin OC submission queue");
@@ -569,7 +586,7 @@ public class ContentReviewServiceTurnitinOC implements ContentReviewService {
 					if(StringUtils.isEmpty(reportId)) {
 						throw new Error("submission id is missing");
 					}else {
-						uploadExternalContent(reportId, resource.getContent(), CONTENT_UPLOAD_HEADERS);
+						uploadExternalContent(reportId, resource.getContent());
 
 						item.setExternalId(reportId);
 						item.setRetryCount(new Long(0));				
@@ -592,7 +609,7 @@ public class ContentReviewServiceTurnitinOC implements ContentReviewService {
 				try {
 					String submissionStatus = getSubmissionStatus(item.getExternalId());
 					//TODO: logic for status:
-					if("COMPLETED".equals(submissionStatus)) {
+					if("COMPLETE".equals(submissionStatus)) {
 						generateSimilarityReport(item.getExternalId());
 						item.setStatus(ContentReviewConstants.CONTENT_REVIEW_SUBMITTED_AWAITING_REPORT_CODE);
 						item.setRetryCount(new Long(0));
@@ -604,6 +621,13 @@ public class ContentReviewServiceTurnitinOC implements ContentReviewService {
 					}else if("PROCESSING".equals(submissionStatus)) {
 						//do nothing... try again
 						continue;
+					}else if("CREATED".equals(submissionStatus)) {
+						//do nothing... try again
+						//TODO does this need to be handled differently?
+						continue;
+					}else if("ERROR".equals(submissionStatus)) {
+						//do nothing... try again
+						throw new Error("Submission returned with ERROR status");						
 					}else {
 						item.setLastError("SubmissionStatus " + submissionStatus);
 						item.setStatus(ContentReviewConstants.CONTENT_REVIEW_SUBMISSION_ERROR_NO_RETRY_CODE);
@@ -625,8 +649,7 @@ public class ContentReviewServiceTurnitinOC implements ContentReviewService {
 			// Make sure it's after the next retry time
 			if (item.getNextRetryTime().getTime() > new Date().getTime()) {
 				continue;
-			}
-			
+			}			
 			try {
 				int status = getSimilarityReportStatus(item.getExternalId());
 				if (status > -1) {
@@ -699,35 +722,36 @@ public class ContentReviewServiceTurnitinOC implements ContentReviewService {
 				+ TURNITIN_OC_API_VERSION + "/";
 	}
 
-	private void uploadExternalContent(String reportId, byte[] data, Object headersMap) throws Exception {
-		OkHttpClient client = new OkHttpClient();
+	private void uploadExternalContent(String reportId, byte[] data) throws Exception {
+		
+		//Set variables
+		URL url = null;
+		HttpURLConnection connection = null;
+		DataOutputStream wr = null;
+		
+		//Construct URL
+		url = new URL(getNormalizedServiceUrl() + "submissions/" + reportId + "/original/");
 
-		Headers.Builder builder = new Headers.Builder();
-
-		String headerString = Objects.toString(headersMap, "");
-		headerString = headerString.replace("{", "").replace("}", "");
-		String[] headerPairs = headerString.split(",");
-
-		for (String headerPair : headerPairs) {
-			headerPair = headerPair.trim();
-			String[] pairKeyValue = headerPair.split("=", 2);
-			if (pairKeyValue.length == 2) {
-				builder.add(pairKeyValue[0].trim(), pairKeyValue[1].trim());
-			}
+		//Open connection and set HTTP method
+		connection=(HttpURLConnection) url.openConnection();
+		connection.setDoOutput(true);
+		connection.setRequestMethod("PUT");
+		
+		// Set headers 
+		for(Entry<String, String> entry : CONTENT_UPLOAD_HEADERS.entrySet()) {
+			connection.setRequestProperty(entry.getKey(), entry.getValue());
 		}
 
-		Headers headers = builder.build();
-		Request request = new Request.Builder()
-				.url(getNormalizedServiceUrl() + "submissions/" + reportId + "/original/").headers(headers)
-				.put(RequestBody.create(MediaType.parse(MediaType.APPLICATION_OCTET_STREAM),
-						data))
-				.build();
-
-		Response response = client.newCall(request).execute();
-
-		int responseCode = response.code();
+		//Set Post body:
+		wr = new DataOutputStream(connection.getOutputStream());
+		wr.write(data);
+		wr.close();		
+		
+		//Send request:
+		int responseCode = connection.getResponseCode();
+		
 		if (responseCode < 200 || responseCode >= 300) {
-			throw new Error(responseCode + ": " + response.message());
+			throw new Error(responseCode + ": " + connection.getResponseMessage());
 		} else {
 			log.info("SUCCESS!!!");
 		}
