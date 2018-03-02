@@ -99,7 +99,7 @@ public class ContentReviewServiceTurnitinOC implements ContentReviewService {
 
 	private static final String SERVICE_NAME = "TurnitinOC";
 	private static final String TURNITIN_OC_API_VERSION = "v1";
-	// private static final int TURNITIN_OC_RETRY_TIME_MINS = 30;
+	private static final double TURNITIN_OC_BASE_RETRY_TIME_MINS = 2;
 	private static final int TURNITIN_MAX_RETRY = 8;
 	private static final String INTEGRATION_VERSION = "1.0";
 	private static final String INTEGRATION_FAMILY = "sakai";
@@ -118,6 +118,7 @@ public class ContentReviewServiceTurnitinOC implements ContentReviewService {
 	
 	HashMap<String, String> baseHeaders = new HashMap<String, String>();
 	HashMap<String, String> getIdHeaders = new HashMap<String, String>();	
+	HashMap<String, String> uploadHeaders = new HashMap<String, String>();
 
 	public void init() {
 		serviceUrl = serverConfigurationService.getString("turnitin.oc.serviceUrl", "");
@@ -129,6 +130,9 @@ public class ContentReviewServiceTurnitinOC implements ContentReviewService {
 		
 		getIdHeaders.putAll(baseHeaders);
 		getIdHeaders.put(HEADER_CONTENT, CONTENT_TYPE_JSON);
+		
+		uploadHeaders.putAll(baseHeaders);
+		uploadHeaders.put(HEADER_CONTENT, CONTENT_TYPE_BINARY);
 	}
 
 	public boolean allowResubmission() {
@@ -225,7 +229,7 @@ public class ContentReviewServiceTurnitinOC implements ContentReviewService {
 		return getAccessUrl(contentId, assignmentRef, userId, false);
 	}
 
-	private String getAccessUrl(String contentId, String assignmentRef, String userId, boolean instructor)
+	private String getAccessUrl(String reportId, String assignmentRef, String userId, boolean instructor)
 			throws QueueException, ReportException {
 		
 		try {
@@ -253,13 +257,10 @@ public class ContentReviewServiceTurnitinOC implements ContentReviewService {
 					builder.add(pairKeyValue[0].trim(), pairKeyValue[1].trim());
 				}
 			}
-			
-			// TODO: GET EXTERNAL ID FROM CONTENT ID
-			String externalId = "";
-
+						
 			Headers headers = builder.build();
 			Request request = new Request.Builder()
-					.url(getNormalizedServiceUrl() + "submissions/" + externalId + "/viewer-url")
+					.url(getNormalizedServiceUrl() + "submissions/" + reportId + "/viewer-url")
 					.put(RequestBody.create(com.squareup.okhttp.MediaType.parse(MediaType.APPLICATION_JSON), body.toString()))
 					.headers(headers)				
 					.build();
@@ -315,6 +316,7 @@ public class ContentReviewServiceTurnitinOC implements ContentReviewService {
 		JSONObject viewSettings = new JSONObject();
 		JSONArray searchList = new JSONArray();
 		
+		//TODO change hard coded settings
 		searchList.add("INTERNET");
 		searchList.add("PRIVATE");
 		
@@ -538,10 +540,10 @@ public class ContentReviewServiceTurnitinOC implements ContentReviewService {
 				errors++;
 				continue;
 			} else {
-				long l = item.getRetryCount().longValue();
-				l++;
-				item.setRetryCount(Long.valueOf(l));
-				cal.add(Calendar.MINUTE, getDelayTime(l));
+				long retryCount = item.getRetryCount().longValue();
+				retryCount++;
+				item.setRetryCount(Long.valueOf(retryCount));
+				cal.add(Calendar.MINUTE, getDelayTime(retryCount));
 				item.setNextRetryTime(cal.getTime());
 				crqs.update(item);
 			}
@@ -583,19 +585,18 @@ public class ContentReviewServiceTurnitinOC implements ContentReviewService {
 			if ((item.getExternalId() == null) || item.getExternalId().trim().isEmpty()) {
 				try {
 					log.info("Submission starting...");
-					
-					HashMap<String, String> uploadHeaders = new HashMap<String, String>();
-					uploadHeaders.putAll(baseHeaders);
-					uploadHeaders.put(HEADER_DISP, "inline; filename=\"" + fileName + "\"");
-					uploadHeaders.put(HEADER_CONTENT, CONTENT_TYPE_BINARY);
+										
+					uploadHeaders.put(HEADER_DISP, "inline; filename=\"" + fileName + "\"");					
 					
 					String reportId = getSubmissionId(userId, fileName);
 
 					uploadExternalContent(reportId, resource.getContent(), uploadHeaders);
 
 					item.setExternalId(reportId);
-					item.setRetryCount(new Long(0));
-					item.setNextRetryTime(new Date(cal.getTimeInMillis() + 120000));
+					item.setRetryCount(new Long(0));				
+					cal.setTime(new Date());
+					cal.add(Calendar.MINUTE, getDelayTime(item.getRetryCount()));
+					item.setNextRetryTime(cal.getTime());
 					item.setDateSubmitted(new Date());
 					crqs.update(item);
 					success++;
@@ -672,8 +673,8 @@ public class ContentReviewServiceTurnitinOC implements ContentReviewService {
 	
 	public int getDelayTime(long l) {
 		// Pattern:
-		double d = l == TURNITIN_MAX_RETRY ? 2 : (double) l;
-		return (int) Math.round(Math.pow(2, d));
+		double d = l == TURNITIN_MAX_RETRY ? TURNITIN_OC_BASE_RETRY_TIME_MINS : (double) l;
+		return (int) Math.round(Math.pow(TURNITIN_OC_BASE_RETRY_TIME_MINS, d));
 	}
 
 	public void queueContent(String userId, String siteId, String assignmentReference, List<ContentResource> content)
@@ -740,7 +741,7 @@ public class ContentReviewServiceTurnitinOC implements ContentReviewService {
 
 		int responseCode = response.code();
 		if (responseCode < 200 || responseCode >= 300) {
-			throw new Error("Turnitin upload content failed with code: " + responseCode);
+			throw new Error(responseCode + ": " + response.message());
 		} else {
 			log.info("SUCCESS!!!");
 		}
