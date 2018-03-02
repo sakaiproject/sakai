@@ -36,6 +36,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.entitybroker.EntityView;
 import org.sakaiproject.entitybroker.entityprovider.extension.Formats;
 import org.sakaiproject.entitybroker.entityprovider.extension.RequestStorage;
@@ -385,8 +386,9 @@ public class RequestUtils {
      */
     public static Search makeSearchFromRequestParams(Map<String, Object> params) {
         Search search = new Search();
-        int page = -1;
-        int limit = -1;
+        int limit, page, start;
+        page = start = 0;
+        limit = 10;
         try {
             if (params != null) {
                 for (Entry<String, Object> entry : params.entrySet()) {
@@ -409,8 +411,7 @@ public class RequestUtils {
                                 || "count".equals(key)
                                 || "itemsPerPage".equals(key)) {
                             try {
-                                limit = Integer.valueOf(value.toString()).intValue();
-                                search.setLimit(limit);
+                                limit = Integer.valueOf(value.toString());
                             } catch (NumberFormatException e) {
                                 log.warn("Invalid non-number passed in for _limit/_perpage param: " + value + ":" + e);
                             }
@@ -418,8 +419,7 @@ public class RequestUtils {
                         } else if ("_start".equals(key)
                                 || "startIndex".equals(key)) {
                             try {
-                                int start = Integer.valueOf(value.toString()).intValue();
-                                search.setStart(start);
+                                start = Integer.valueOf(value.toString());
                             } catch (NumberFormatException e) {
                                 log.warn("Invalid non-number passed in for '_start' param: " + value + ":" + e);
                             }
@@ -428,7 +428,7 @@ public class RequestUtils {
                                 || "page".equals(key)
                                 || "startPage".equals(key)) {
                             try {
-                                page = Integer.valueOf(value.toString()).intValue();
+                                page = Integer.valueOf(value.toString());
                             } catch (NumberFormatException e) {
                                 log.warn("Invalid non-number passed in for '_page' param: " + value + ":" + e);
                             }
@@ -436,39 +436,35 @@ public class RequestUtils {
                         } else if ("_order".equals(key)
                                 || "_sort".equals(key)
                                 || "sort".equals(key)) {
-                            if (value != null) {
-                                String val = value.toString();
-                                String[] sortBy = new String[] {val};
-                                if (val.indexOf(',') > 0) {
-                                    // multiple sort params
-                                    sortBy = val.split(",");
-                                }
-                                try {
-                                    for (int i = 0; i < sortBy.length; i++) {
-                                        String sortItem = sortBy[i].trim();
-                                        if (sortItem.endsWith("_reverse")) {
-                                            search.addOrder( new Order(sortItem.substring(0, sortItem.length()-8), false) );
-                                        } else if (sortItem.endsWith("_desc")) {
-                                            search.addOrder( new Order(sortItem.substring(0, sortItem.length()-5), false) );
-                                        } else if (sortItem.endsWith("_asc")) {
-                                            search.addOrder( new Order(sortItem.substring(0, sortItem.length()-4)) );
-                                        } else {
-                                            search.addOrder( new Order(sortItem) );
-                                        }
+                            String val = value.toString();
+                            String[] sortBy = new String[] {val};
+                            if (val.indexOf(',') > 0) {
+                                // multiple sort params
+                                sortBy = val.split(",");
+                            }
+                            try {
+                                for (String sortItem : sortBy) {
+                                    sortItem = StringUtils.trimToEmpty(sortItem);
+                                    if (sortItem.endsWith("_reverse")) {
+                                        search.addOrder(new Order(sortItem.substring(0, sortItem.length() - 8), false));
+                                    } else if (sortItem.endsWith("_desc")) {
+                                        search.addOrder(new Order(sortItem.substring(0, sortItem.length() - 5), false));
+                                    } else if (sortItem.endsWith("_asc")) {
+                                        search.addOrder(new Order(sortItem.substring(0, sortItem.length() - 4)));
+                                    } else {
+                                        search.addOrder(new Order(sortItem));
                                     }
-                                } catch (RuntimeException e) {
-                                    log.warn("WARN Failed while getting the sort/order param: " + val + ":" + e);
                                 }
+                            } catch (RuntimeException e) {
+                                log.warn("Failure while getting the sort/order param: {}:{}", val, e.getMessage());
                             }
                             continue;
                         } else if ("_searchTerms".equals(key) 
                                 || "searchTerms".equals(key)) {
                             // indicates a space delimited list of search terms
-                            if (value != null) {
-                                String val = value.toString();
-                                String[] terms = val.split(" ");
-                                search.addRestriction( new Restriction("searchTerms", terms) );
-                            }
+                            String val = value.toString();
+                            String[] terms = val.split(" ");
+                            search.addRestriction( new Restriction("searchTerms", terms) );
                             continue;
                         }
                     }
@@ -479,15 +475,19 @@ public class RequestUtils {
             // failed to translate the request to a search, not really much to do here
             log.warn("Could not translate entity request into search params: " + e.getMessage() + ":" + e);
         }
-        // translate page into start/limit
+
+        // if paging has been specified ignore start
+        int end;
         if (page > 0) {
-            if (limit <= -1) {
-                limit = 10; // set to a default value
-                search.setLimit(limit);
-                log.warn("Page is set without a limit per page, setting per page limit to default value of 10");
-            }
-            search.setStart( (page-1) * limit );
+            // translate page into start/end
+            start = ((page - 1) * limit);
+            end = page * limit;
+        } else {
+            end = start + limit;
         }
+        search.setStart(start);
+        search.setLimit(end);
+
         return search;
     }
 
