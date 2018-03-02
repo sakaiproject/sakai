@@ -3010,14 +3010,12 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
             updateGrades = true;
         }
         boolean autoSubmitCurrent;
-        boolean updateCurrentGrade;
         Integer scoringType;
         int failures = 0;
         
         while (iter.hasNext()) {
 
             autoSubmitCurrent = false;
-            updateCurrentGrade = false;
             scoringType = -1;
 
             try {
@@ -3096,7 +3094,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
                 if (success && updateGrades == true) {
                     GradingService gs = new GradingService();
                 	gs.updateAutosubmitEventLog(adata);
-                    gs.notifyGradebook(adata, publishedAssessment);
+                    gs.notifyGradebookByScoringType(adata, publishedAssessment);
                 }
                 else {
                     ++failures;

@@ -1264,17 +1264,34 @@ public class GradingService
     return totalAutoScore;
   }
 
-  private void notifyGradebookByScoringType(AssessmentGradingData data, PublishedAssessmentIfc pub){
+  public void notifyGradebookByScoringType(AssessmentGradingData data, PublishedAssessmentIfc pub){
+    if (pub == null || pub.getEvaluationModel() == null) {
+      // should not come to here
+      log.warn("publishedAssessment is null or publishedAssessment.getEvaluationModel() is null");
+      return;
+    }
     Integer scoringType = pub.getEvaluationModel().getScoringType();
     if (updateGradebook(data, pub)){
       AssessmentGradingData d = data; // data is the last submission
       // need to decide what to tell gradebook
-      if ((scoringType).equals(EvaluationModelIfc.HIGHEST_SCORE))
+      if ((scoringType).equals(EvaluationModelIfc.HIGHEST_SCORE)) {
         d = getHighestSubmittedAssessmentGrading(pub.getPublishedAssessmentId().toString(), data.getAgentId());
+      }
+      // Send the average score if average was selected for multiple submissions
+      else if (scoringType.equals(EvaluationModelIfc.AVERAGE_SCORE)) {
+        // status = 5: there is no submission but grader update something in the score page
+        if(data.getStatus() ==5) {
+          d.setFinalScore(data.getFinalScore());
+        } else {
+          Double averageScore = PersistenceService.getInstance().getAssessmentGradingFacadeQueries().
+            getAverageSubmittedAssessmentGrading(pub.getPublishedAssessmentId(), data.getAgentId());
+          d.setFinalScore(averageScore);
+        }
+      }
       notifyGradebook(d, pub);
     }
   }
-  
+
   private double getScoreByQuestionType(ItemGradingData itemGrading, ItemDataIfc item,
                                        Long itemType, Map publishedItemTextHash, 
                                        Map totalItems, Map fibAnswersMap, Map<Long, Map<Long,Set<EMIScore>>> emiScoresMap,
@@ -1552,7 +1569,7 @@ public class GradingService
 	  EventTrackingService.post(EventTrackingService.newEvent(SamigoConstants.EVENT_ASSESSMENT_SUBMITTED_AUTO, notiValues.toString(), AgentFacade.getCurrentSiteId(), false, SamigoConstants.NOTI_EVENT_ASSESSMENT_SUBMITTED));
   }
   
-  public void notifyGradebook(AssessmentGradingData data, PublishedAssessmentIfc pub) throws GradebookServiceException {
+  private void notifyGradebook(AssessmentGradingData data, PublishedAssessmentIfc pub) throws GradebookServiceException {
     // If the assessment is published to the gradebook, make sure to update the scores in the gradebook
     String toGradebook = pub.getEvaluationModel().getToGradeBook();
 
@@ -1579,18 +1596,6 @@ public class GradingService
     int retryCount = PersistenceService.getInstance().getPersistenceHelper().getRetryCount();
     while (retryCount > 0){
     	try {
-    		// Send the average score if average was selected for multiple submissions
-    		Integer scoringType = pub.getEvaluationModel().getScoringType();
-    		if (scoringType.equals(EvaluationModelIfc.AVERAGE_SCORE)) {
-    			// status = 5: there is no submission but grader update something in the score page
-    			if(data.getStatus() ==5) {
-    				data.setFinalScore(data.getFinalScore());
-    			} else {
-    				Double averageScore = PersistenceService.getInstance().getAssessmentGradingFacadeQueries().
-    				getAverageSubmittedAssessmentGrading(pub.getPublishedAssessmentId(), data.getAgentId());
-    				data.setFinalScore(averageScore);
-    			}
-    		}
     		gbsHelper.updateExternalAssessmentScore(data, g);
     		retryCount = 0;
     	}
