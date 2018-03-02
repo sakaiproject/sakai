@@ -995,6 +995,102 @@
                         </div>
 
                         <!-- End VeriCite custom options -->
+					#elseif($reviewServiceName.equals("TurnitinOC"))
+						<!-- Start TurnitinOC custom options -->
+						#if($show_NEW_ASSIGNMENT_REVIEW_SERVICE_CHECK_INTERNET || $show_NEW_ASSIGNMENT_REVIEW_SERVICE_CHECK_INSTITUTION)
+							<div class="form-required">
+								<label>$tlang.getString("review.originality.check")</label>
+							</div>
+							<div class="well" style="display:inline-block">
+								#if($show_NEW_ASSIGNMENT_REVIEW_SERVICE_CHECK_INTERNET)
+									<div class="checkbox">
+										<label for="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_CHECK_INTERNET">
+										#if ($!value_NEW_ASSIGNMENT_REVIEW_SERVICE_CHECK_INTERNET.equals("true"))
+											<input id="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_CHECK_INTERNET" name="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_CHECK_INTERNET" type="checkbox" value="true" checked="checked" />
+										#else
+											<input id="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_CHECK_INTERNET" name="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_CHECK_INTERNET" type="checkbox" value="true" />
+										#end
+											$tlang.getString("review.originality.check.internet")
+										</label>
+									</div>
+								#end
+								#if($show_NEW_ASSIGNMENT_REVIEW_SERVICE_CHECK_INSTITUTION)
+									<div class="checkbox">
+										<label for="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_CHECK_INSTITUTION">
+										#if ($!value_NEW_ASSIGNMENT_REVIEW_SERVICE_CHECK_INSTITUTION.equals("true"))
+											<input id="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_CHECK_INSTITUTION" name="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_CHECK_INSTITUTION" type="checkbox" value="true" checked="checked" />
+										#else
+											<input id="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_CHECK_INSTITUTION" name="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_CHECK_INSTITUTION" type="checkbox" value="true" />
+										#end
+											$tlang.getString("review.originality.check.institution")
+										</label>
+									</div>
+								#end
+							</div>
+						#end
+						#if($show_NEW_ASSIGNMENT_REVIEW_SERVICE_STORE_INST_INDEX)
+							<div>
+								<label>$tlang.getString("review.store.matches.header")</label>
+							</div>
+							<div class="well" style="display:inline-block">
+		                        <!-- Store Inst Index -->
+								#if($show_NEW_ASSIGNMENT_REVIEW_SERVICE_STORE_INST_INDEX)
+		                            <div class="checkbox">
+		                                <label for="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_STORE_INST_INDEX">
+											#if ($!value_NEW_ASSIGNMENT_REVIEW_SERVICE_STORE_INST_INDEX.equals("true"))
+		                                        <input id="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_STORE_INST_INDEX"
+		                                               name="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_STORE_INST_INDEX"
+		                                               type="checkbox" value="true" checked="checked"/>
+											#else
+		                                        <input id="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_STORE_INST_INDEX"
+		                                               name="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_STORE_INST_INDEX"
+		                                               type="checkbox" value="true"/>
+											#end
+											$tlang.getString("review.store.inst.index")
+		                                </label>
+		                             </div>
+								#end
+							</div>
+						#end
+						
+						#if($show_NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_BIBLIOGRAPHIC || $show_NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_QUOTED)
+							<div>
+								<label>$tlang.getString("review.exclude.matches.header")</label>
+							</div>
+							<div class="well" style="display:inline-block">
+								<!-- Exclude Quoted materials -->
+								#if($show_NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_QUOTED)
+		                            <div class="checkbox">
+		                                <label for="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_QUOTED">
+											#if ($!value_NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_QUOTED.equals("true"))
+		                                        <input id="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_QUOTED"
+		                                               name="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_QUOTED"
+		                                               type="checkbox" value="true" checked="checked"/>
+											#else
+		                                        <input id="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_QUOTED"
+		                                               name="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_QUOTED"
+		                                               type="checkbox" value="true"/>
+											#end
+											$tlang.getString("review.exclude.quoted")
+		                                </label>
+		                            </div>
+								#end
+								<!-- Exclude Bibliographic materials -->
+								#if($show_NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_BIBLIOGRAPHIC)
+									<div class="checkbox">
+										<label for="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_BIBLIOGRAPHIC">
+											#if ($!value_NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_BIBLIOGRAPHIC.equals("true"))
+												<input id="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_BIBLIOGRAPHIC" name="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_BIBLIOGRAPHIC" type="checkbox" value="true" checked="checked" />
+											#else
+												<input id="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_BIBLIOGRAPHIC" name="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_BIBLIOGRAPHIC" type="checkbox" value="true" />
+											#end
+											$tlang.getString("review.exclude.bibliographic")
+										</label>
+									</div>
+								#end
+							</div>
+						#end
+                        <!-- End TurnitinOC custom options -->
 				#elseif($reviewServiceName.equals("Compilatio"))
 						#if ($content_review_note)
 							$content_review_note

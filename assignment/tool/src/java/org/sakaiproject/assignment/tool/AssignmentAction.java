@@ -7631,6 +7631,18 @@ public class AssignmentAction extends PagedResourceActionII {
                 }
             }
 
+            //Check if all required content review fields are set
+            if (useReviewService
+            		&& contentReviewService != null 
+            		&& "TurnitinOC".equals(contentReviewService.getServiceName())
+            		&& !checkInstitution
+            		&& !checkInternet) {
+	            	//At least one "check" option must be selected for TurnitinOC
+	            	String contentReviewNote = rb.getFormattedMessage("review.required", new String[] {contentReviewService.getServiceName()});
+	            	addAlert(state, contentReviewNote);
+	            	return;
+            }  
+
 
             // the attachments
             List attachments = (List) state.getAttribute(NEW_ASSIGNMENT_ATTACHMENT);
