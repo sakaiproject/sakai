@@ -15,12 +15,8 @@
  */
 package org.sakaiproject.contentreview.turnitin.oc;
 
-import java.io.DataOutputStream;
 import java.io.IOException;
-import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
-import java.net.URL;
-import java.nio.charset.StandardCharsets;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
@@ -32,9 +28,7 @@ import java.util.Optional;
 import java.util.SortedSet;
 
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
 
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
@@ -58,17 +52,9 @@ import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.squareup.okhttp.Headers;
-import com.squareup.okhttp.OkHttpClient;
-import com.squareup.okhttp.Request;
-import com.squareup.okhttp.RequestBody;
-import com.squareup.okhttp.ResponseBody;
+import Response;
+import ResponseBody;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import net.sf.json.JSONArray;
@@ -99,8 +85,8 @@ public class ContentReviewServiceTurnitinOC implements ContentReviewService {
 
 	private static final String SERVICE_NAME = "TurnitinOC";
 	private static final String TURNITIN_OC_API_VERSION = "v1";
-	private static final double TURNITIN_OC_BASE_RETRY_TIME_MINS = 2;
-	private static final int TURNITIN_MAX_RETRY = 8;
+	private static final int TURNITIN_OC_MAX_RETRY_MINUTES = 240; //4 hours
+	private static final int TURNITIN_MAX_RETRY = 16;
 	private static final String INTEGRATION_VERSION = "1.0";
 	private static final String INTEGRATION_FAMILY = "sakai";
 	// API key
@@ -116,23 +102,23 @@ public class ContentReviewServiceTurnitinOC implements ContentReviewService {
 	private String serviceUrl;
 	private String apiKey;
 	
-	HashMap<String, String> baseHeaders = new HashMap<String, String>();
-	HashMap<String, String> getIdHeaders = new HashMap<String, String>();	
-	HashMap<String, String> uploadHeaders = new HashMap<String, String>();
-
+	private HashMap<String, String> BASE_HEADERS = new HashMap<String, String>();
+	private HashMap<String, String> SUBMISSION_REQUEST_HEADERS = new HashMap<String, String>();	
+	private HashMap<String, String> CONTENT_UPLOAD_HEADERS = new HashMap<String, String>();
+	
 	public void init() {
 		serviceUrl = serverConfigurationService.getString("turnitin.oc.serviceUrl", "");
 		apiKey = serverConfigurationService.getString("turnitin.oc.apiKey", "");
-		
-		baseHeaders.put(HEADER_NAME, INTEGRATION_FAMILY);
-		baseHeaders.put(HEADER_VERSION, INTEGRATION_VERSION);
-		baseHeaders.put(HEADER_AUTH, "Bearer " + apiKey);
-		
-		getIdHeaders.putAll(baseHeaders);
-		getIdHeaders.put(HEADER_CONTENT, CONTENT_TYPE_JSON);
-		
-		uploadHeaders.putAll(baseHeaders);
-		uploadHeaders.put(HEADER_CONTENT, CONTENT_TYPE_BINARY);
+		//TODO: documentation
+		BASE_HEADERS.put(HEADER_NAME, INTEGRATION_FAMILY);
+		BASE_HEADERS.put(HEADER_VERSION, INTEGRATION_VERSION);
+		BASE_HEADERS.put(HEADER_AUTH, "Bearer " + apiKey);
+		//TODO: documentation
+		SUBMISSION_REQUEST_HEADERS.putAll(BASE_HEADERS);
+		SUBMISSION_REQUEST_HEADERS.put(HEADER_CONTENT, CONTENT_TYPE_JSON);
+		//TODO: documentation
+		CONTENT_UPLOAD_HEADERS.putAll(BASE_HEADERS);
+		CONTENT_UPLOAD_HEADERS.put(HEADER_CONTENT, CONTENT_TYPE_BINARY);
 	}
 
 	public boolean allowResubmission() {
@@ -245,7 +231,7 @@ public class ContentReviewServiceTurnitinOC implements ContentReviewService {
 			OkHttpClient client = new OkHttpClient();
 			Headers.Builder builder = new Headers.Builder();
 
-			String headerString = Objects.toString(getIdHeaders, "");
+			String headerString = Objects.toString(SUBMISSION_REQUEST_HEADERS, "");
 			// {x-amz-server-side-encryption=AES256}
 			headerString = headerString.replace("{", "").replace("}", "");
 			String[] headerPairs = headerString.split(",");
@@ -261,11 +247,11 @@ public class ContentReviewServiceTurnitinOC implements ContentReviewService {
 			Headers headers = builder.build();
 			Request request = new Request.Builder()
 					.url(getNormalizedServiceUrl() + "submissions/" + reportId + "/viewer-url")
-					.put(RequestBody.create(com.squareup.okhttp.MediaType.parse(MediaType.APPLICATION_JSON), body.toString()))
+					.put(RequestBody.create(MediaType.parse(MediaType.APPLICATION_JSON), body.toString()))
 					.headers(headers)				
 					.build();
 
-			com.squareup.okhttp.Response response = client.newCall(request).execute();
+			Response response = client.newCall(request).execute();
 			ResponseBody responseBody = response.body();
 			JSONObject responseJSON = JSONObject.fromObject(responseBody.string());
 			responseBody.close();
@@ -282,7 +268,7 @@ public class ContentReviewServiceTurnitinOC implements ContentReviewService {
 				throw new Error("Failed to retrieve report viewer url (2)");
 			}
 		} catch (Exception e) {
-			log.error(e.getLocalizedMessage());
+			log.error(e.getMessage(), e);
 			return null;
 		}
 	}
@@ -309,8 +295,7 @@ public class ContentReviewServiceTurnitinOC implements ContentReviewService {
 		return true;
 	}
 	
-	private boolean getSimilarityReport(String reportId)
-			throws MalformedURLException, IOException {
+	private void generateSimilarityReport(String reportId) throws Exception {
 		JSONObject body = new JSONObject();
 		JSONObject genSettings = new JSONObject();
 		JSONObject viewSettings = new JSONObject();
@@ -331,8 +316,7 @@ public class ContentReviewServiceTurnitinOC implements ContentReviewService {
 		OkHttpClient client = new OkHttpClient();
 		Headers.Builder builder = new Headers.Builder();
 
-		String headerString = Objects.toString(getIdHeaders, "");
-		// {x-amz-server-side-encryption=AES256}
+		String headerString = Objects.toString(SUBMISSION_REQUEST_HEADERS, "");
 		headerString = headerString.replace("{", "").replace("}", "");
 		String[] headerPairs = headerString.split(",");
 
@@ -347,38 +331,29 @@ public class ContentReviewServiceTurnitinOC implements ContentReviewService {
 		Headers headers = builder.build();
 		Request request = new Request.Builder()
 				.url(getNormalizedServiceUrl() + "submissions/" + reportId + "/similarity")
-				.put(RequestBody.create(com.squareup.okhttp.MediaType.parse(MediaType.APPLICATION_JSON), body.toString()))
+				.put(RequestBody.create(MediaType.parse(MediaType.APPLICATION_JSON), body.toString()))
 				.headers(headers)				
 				.build();
 
 		com.squareup.okhttp.Response response = client.newCall(request).execute();
 		ResponseBody responseBody = response.body();
-
-		try {
-			if ((response.code() >= 200) && (response.code() < 300)) {
-				log.info("Successfully initiated Similarity Report generation!!!!!" );
-				return true;
-			} else if ((response.code() == 409)) {
-				log.info("A Similarity Report is already generating for this submission");
-				return false;
-			}
-			
-			else {
-				throw new Error("Submission failed to initiate (2)");
-			}
-		} finally {
-			responseBody.close();
+		responseBody.close();
+		if ((response.code() >= 200) && (response.code() < 300)) {
+			log.info("Successfully initiated Similarity Report generation!!!!!" );
+		} else if ((response.code() == 409)) {
+			log.info("A Similarity Report is already generating for this submission");
+		} else {
+			throw new Error("Submission failed to initiate: " + response.code() + ", " + response.message() + ", " + responseBody);
 		}
 	}
 
-	private boolean getSubmissionStatus(String reportId)
+	private String getSubmissionStatus(String reportId)
 			throws MalformedURLException, IOException {		
-
+		String status = null;
 		OkHttpClient client = new OkHttpClient();
 		Headers.Builder builder = new Headers.Builder();
 
-		String headerString = Objects.toString(baseHeaders, "");
-		// {x-amz-server-side-encryption=AES256}
+		String headerString = Objects.toString(BASE_HEADERS, "");
 		headerString = headerString.replace("{", "").replace("}", "");
 		String[] headerPairs = headerString.split(",");
 
@@ -396,25 +371,23 @@ public class ContentReviewServiceTurnitinOC implements ContentReviewService {
 				.headers(headers)				
 				.build();
 
-		com.squareup.okhttp.Response response = client.newCall(request).execute();
+		Response response = client.newCall(request).execute();
 		ResponseBody responseBody = response.body();
+		JSONObject responseJSON = JSONObject.fromObject(responseBody.string());
+		responseBody.close();
 		
 		if ((response.code() >= 200) && (response.code() < 300)) {
-			JSONObject responseJSON = JSONObject.fromObject(responseBody.string());
-			responseBody.close();
 			log.info("STATUS " + responseJSON.getString("status"));
 			// TODO add error catches for too little text, etc
-			if (responseJSON.containsKey("status") && responseJSON.getString("status").equals("COMPLETE")) {
+			if (responseJSON.containsKey("status")) {
 				// Only call getSimilarityReport if the report doesn't already exist
-				return true;
-			} else if (responseJSON.containsKey("status") && responseJSON.getString("status").equals("PENDING")) {
-				return false;
-			} else {
-				throw new Error("Report is not complete or pending");
+				status = responseJSON.getString("status");
 			}
-		} else {
-			throw new Error(response.message());
+		}else {
+			throw new Exception("getSubmissionStatus invalid request: " + response.code() + ", " + response.message() + ", " + responseBody);
 		}
+		
+		return status;
 	}
 	
 	private int getSimilarityReportStatus(String reportId)
@@ -423,7 +396,7 @@ public class ContentReviewServiceTurnitinOC implements ContentReviewService {
 		OkHttpClient client = new OkHttpClient();
 		Headers.Builder builder = new Headers.Builder();
 
-		String headerString = Objects.toString(baseHeaders, "");
+		String headerString = Objects.toString(BASE_HEADERS, "");
 		// {x-amz-server-side-encryption=AES256}
 		headerString = headerString.replace("{", "").replace("}", "");
 		String[] headerPairs = headerString.split(",");
@@ -442,7 +415,7 @@ public class ContentReviewServiceTurnitinOC implements ContentReviewService {
 				.headers(headers)				
 				.build();
 
-		com.squareup.okhttp.Response response = client.newCall(request).execute();
+		Response response = client.newCall(request).execute();
 		ResponseBody responseBody = response.body();
 		JSONObject responseJSON = JSONObject.fromObject(responseBody.string());
 		responseBody.close();
@@ -472,50 +445,57 @@ public class ContentReviewServiceTurnitinOC implements ContentReviewService {
 		}
 	}
 
-	private String getSubmissionId(String userID, String fileName)
-			throws MalformedURLException, IOException {
-		JSONObject body = new JSONObject();
-		body.put("owner", userID);
-		body.put("title", fileName);
+	//TODO documentation
+	private String getSubmissionId(String userID, String fileName){
+		String submissionId = null;
+		try {
+			JSONObject body = new JSONObject();
+			body.put("owner", userID);
+			body.put("title", fileName);
 
-		OkHttpClient client = new OkHttpClient();
-		Headers.Builder builder = new Headers.Builder();
+			OkHttpClient client = new OkHttpClient();
+			Headers.Builder builder = new Headers.Builder();
 
-		String headerString = Objects.toString(getIdHeaders, "");
-		// {x-amz-server-side-encryption=AES256}
-		headerString = headerString.replace("{", "").replace("}", "");
-		String[] headerPairs = headerString.split(",");
+			String headerString = Objects.toString(SUBMISSION_REQUEST_HEADERS, "");
+			headerString = headerString.replace("{", "").replace("}", "");
+			String[] headerPairs = headerString.split(",");
 
-		for (String headerPair : headerPairs) {
-			headerPair = headerPair.trim();
-			String[] pairKeyValue = headerPair.split("=", 2);
-			if (pairKeyValue.length == 2) {
-				builder.add(pairKeyValue[0].trim(), pairKeyValue[1].trim());
-			}
-		}
-
-		Headers headers = builder.build();
-		Request request = new Request.Builder()
-				.url(getNormalizedServiceUrl() + "submissions").headers(headers).post(RequestBody
-						.create(com.squareup.okhttp.MediaType.parse(MediaType.APPLICATION_JSON), body.toString()))
-				.build();
-
-		com.squareup.okhttp.Response response = client.newCall(request).execute();
-		ResponseBody responseBody = response.body();
-		JSONObject responseJSON = JSONObject.fromObject(responseBody.string());
-		responseBody.close();
-
-		if ((response.code() >= 200) && (response.code() < 300)) {
-			if (responseJSON.containsKey("status") && responseJSON.getString("status").equals("CREATED")
-					&& responseJSON.containsKey("id")) {
-				return responseJSON.getString("id");
-			} else {
-				throw new Error("Submission not created, or has no ID");
+			for (String headerPair : headerPairs) {
+				headerPair = headerPair.trim();
+				String[] pairKeyValue = headerPair.split("=", 2);
+				if (pairKeyValue.length == 2) {
+					builder.add(pairKeyValue[0].trim(), pairKeyValue[1].trim());
+				}
 			}
 
-		} else {
-			throw new Error(response.message());
+			Headers headers = builder.build();
+			Request request = new Request.Builder()
+					.url(getNormalizedServiceUrl() + "submissions").headers(headers).post(RequestBody
+							.create(MediaType.parse(MediaType.APPLICATION_JSON), body.toString()))
+					.build();
+
+			Response response = client.newCall(request).execute();
+			ResponseBody responseBody = response.body();
+			JSONObject responseJSON = JSONObject.fromObject(responseBody.string());
+			responseBody.close();
+
+			if ((response.code() >= 200) && (response.code() < 300)) {
+				//TODO: make CREATED a constant
+				if (responseJSON.containsKey("status") && responseJSON.getString("status").equals("CREATED")
+						&& responseJSON.containsKey("id")) {
+					submissionId = responseJSON.getString("id");
+				} else {
+					//TODO: need better error handling for different statuses returned from TII
+					
+					log.error("getSubmissionId response: " + responseJSON);
+				}
+			}else {
+				log.error("getSubmissionId response code: " + response.code() + ", " + response.message() + ", " + responseJSON);
+			}
+		}catch(Exception e) {
+			log.error(e.getMessage(), e);
 		}
+		return submissionId;
 	}
 
 	public void processQueue() {
@@ -527,8 +507,7 @@ public class ContentReviewServiceTurnitinOC implements ContentReviewService {
 		// NOT SUBMITTED, CREATE SUBMISSION AND UPLOAD CONTENTS (STAGE !)
 		while ((nextItem = crqs.getNextItemInQueueToSubmit(getProviderId())).isPresent()) {
 			ContentReviewItem item = nextItem.get();
-			Long status = item.getStatus();
-			log.info("ITEM STATUS: " + status);
+			log.info("ITEM STATUS: " + item.getStatus());
 			Calendar cal = Calendar.getInstance();
 			if (item.getRetryCount() == null) {
 				item.setRetryCount(Long.valueOf(0));
@@ -580,57 +559,65 @@ public class ContentReviewServiceTurnitinOC implements ContentReviewService {
 				log.info("Using Default Filename " + fileName);
 			}
 
-			String userId = item.getUserId();
-
-			if ((item.getExternalId() == null) || item.getExternalId().trim().isEmpty()) {
+			if (StringUtils.isEmpty(item.getExternalId())) {
 				try {
 					log.info("Submission starting...");
 										
-					uploadHeaders.put(HEADER_DISP, "inline; filename=\"" + fileName + "\"");					
+					CONTENT_UPLOAD_HEADERS.put(HEADER_DISP, "inline; filename=\"" + fileName + "\"");					
 					
-					String reportId = getSubmissionId(userId, fileName);
+					String reportId = getSubmissionId(item.getUserId(), fileName);
+					if(StringUtils.isEmpty(reportId)) {
+						throw new Error("submission id is missing");
+					}else {
+						uploadExternalContent(reportId, resource.getContent(), CONTENT_UPLOAD_HEADERS);
 
-					uploadExternalContent(reportId, resource.getContent(), uploadHeaders);
-
-					item.setExternalId(reportId);
-					item.setRetryCount(new Long(0));				
-					cal.setTime(new Date());
-					cal.add(Calendar.MINUTE, getDelayTime(item.getRetryCount()));
-					item.setNextRetryTime(cal.getTime());
-					item.setDateSubmitted(new Date());
-					crqs.update(item);
-					success++;
+						item.setExternalId(reportId);
+						item.setRetryCount(new Long(0));				
+						cal.setTime(new Date());
+						cal.add(Calendar.MINUTE, getDelayTime(item.getRetryCount()));
+						item.setNextRetryTime(cal.getTime());
+						item.setDateSubmitted(new Date());
+						crqs.update(item);
+						success++;
+					}
 				} catch (Exception e) {
-					log.error(e.getMessage());
-					log.warn("ServerOverloadException: " + item.getContentId(), e);
+					log.error(e.getMessage(), e);
 					item.setLastError(e.getMessage());
-					item.setStatus(ContentReviewConstants.CONTENT_REVIEW_NOT_SUBMITTED_CODE);
+					item.setStatus(ContentReviewConstants.CONTENT_REVIEW_SUBMISSION_ERROR_RETRY_CODE);
 					crqs.update(item);
 					errors++;
 				}
 			} else {
-				String external_id = item.getExternalId();
-				log.info("ID AWAITING REPORT " + external_id);
-				
+				log.info("ID AWAITING REPORT " + item.getExternalId());
 				try {
-					if (getSubmissionStatus(external_id)) {
-						if (getSimilarityReport(external_id)) {
-							item.setStatus(ContentReviewConstants.CONTENT_REVIEW_SUBMITTED_AWAITING_REPORT_CODE);
-							item.setRetryCount(new Long(0));
-							item.setNextRetryTime(new Date(cal.getTimeInMillis() + 120000));
-							crqs.update(item);
-							success++;
-						}
+					String submissionStatus = getSubmissionStatus(item.getExternalId());
+					//TODO: logic for status:
+					if("COMPLETED".equals(submissionStatus)) {
+						generateSimilarityReport(item.getExternalId());
+						item.setStatus(ContentReviewConstants.CONTENT_REVIEW_SUBMITTED_AWAITING_REPORT_CODE);
+						item.setRetryCount(new Long(0));
+						cal.setTime(new Date());
+						cal.add(Calendar.MINUTE, getDelayTime(item.getRetryCount()));
+						item.setNextRetryTime(cal.getTime());
+						crqs.update(item);
+						success++;
+					}else if("PROCESSING".equals(submissionStatus)) {
+						//do nothing... try again
+						continue;
+					}else {
+						item.setLastError("SubmissionStatus " + submissionStatus);
+						item.setStatus(ContentReviewConstants.CONTENT_REVIEW_SUBMISSION_ERROR_NO_RETRY_CODE);
+						crqs.update(item);
+						errors++;
 					}
 				} catch (Exception e) {
 					log.error(e.getMessage());
 					item.setLastError(e.getMessage());
-					item.setStatus(ContentReviewConstants.CONTENT_REVIEW_SUBMISSION_ERROR_NO_RETRY_CODE);
+					item.setStatus(ContentReviewConstants.CONTENT_REVIEW_SUBMISSION_ERROR_RETRY_CODE);
 					crqs.update(item);
 					errors++;
 				}	
 			}
-
 		}
 		
 		// UPLOADED CONTENTS, AWAITING REPORT (STAGE 2)
@@ -671,10 +658,10 @@ public class ContentReviewServiceTurnitinOC implements ContentReviewService {
 		log.info("Submission Turnitin queue run completed: " + success + " items submitted, " + errors + " errors.");
 	}
 	
-	public int getDelayTime(long l) {
-		// Pattern:
-		double d = l == TURNITIN_MAX_RETRY ? TURNITIN_OC_BASE_RETRY_TIME_MINS : (double) l;
-		return (int) Math.round(Math.pow(TURNITIN_OC_BASE_RETRY_TIME_MINS, d));
+	public int getDelayTime(long retries) {
+		// exponential retry algorithm that caps the retries off at 36 hours (checking once every 4 hours max)
+		int minutes = (int) Math.pow(2, retries < TURNITIN_MAX_RETRY ? retries : 1); //built in check for max retries to fail quicker
+		return minutes > TURNITIN_OC_MAX_RETRY_MINUTES ? TURNITIN_OC_MAX_RETRY_MINUTES : minutes;
 	}
 
 	public void queueContent(String userId, String siteId, String assignmentReference, List<ContentResource> content)
@@ -712,13 +699,12 @@ public class ContentReviewServiceTurnitinOC implements ContentReviewService {
 				+ TURNITIN_OC_API_VERSION + "/";
 	}
 
-	private void uploadExternalContent(String reportId, byte[] data, Object headersMap) throws IOException {
+	private void uploadExternalContent(String reportId, byte[] data, Object headersMap) throws Exception {
 		OkHttpClient client = new OkHttpClient();
 
 		Headers.Builder builder = new Headers.Builder();
 
 		String headerString = Objects.toString(headersMap, "");
-		// {x-amz-server-side-encryption=AES256}
 		headerString = headerString.replace("{", "").replace("}", "");
 		String[] headerPairs = headerString.split(",");
 
@@ -733,11 +719,11 @@ public class ContentReviewServiceTurnitinOC implements ContentReviewService {
 		Headers headers = builder.build();
 		Request request = new Request.Builder()
 				.url(getNormalizedServiceUrl() + "submissions/" + reportId + "/original/").headers(headers)
-				.put(RequestBody.create(com.squareup.okhttp.MediaType.parse(MediaType.APPLICATION_OCTET_STREAM),
+				.put(RequestBody.create(MediaType.parse(MediaType.APPLICATION_OCTET_STREAM),
 						data))
 				.build();
 
-		com.squareup.okhttp.Response response = client.newCall(request).execute();
+		Response response = client.newCall(request).execute();
 
 		int responseCode = response.code();
 		if (responseCode < 200 || responseCode >= 300) {
