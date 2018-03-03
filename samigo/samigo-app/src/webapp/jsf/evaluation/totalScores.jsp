@@ -303,7 +303,7 @@ $(document).ready(function(){
   <h:dataTable id="totalScoreTable" value="#{totalScores.agents}" var="description" styleClass="table table-striped table-bordered" columnClasses="textTable">
 
 	<!-- Add Submission Attempt Deleter-->
-	<h:column rendered="true">
+	<h:column rendered="#{person.isAdmin || !totalScores.restrictedDelete}">
      <f:facet name="header">
        <h:outputText value="#{commonMessages.delete}" rendered="true" />
      </f:facet>
