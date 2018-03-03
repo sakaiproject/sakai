@@ -72,6 +72,7 @@ import com.lowagie.text.pdf.BaseFont;
 import com.lowagie.text.pdf.PdfPCell;
 import com.lowagie.text.pdf.PdfPTable;
 import com.lowagie.text.pdf.PdfWriter;
+import org.sakaiproject.tool.assessment.jsf.convert.AnswerSurveyConverter;
 
 /**
  * 
@@ -617,7 +618,8 @@ public class PDFAssessmentBean implements Serializable {
 					contentBuffer.append(". ");
 				}
 				
-				contentBuffer.append(convertFormattedText(answer.getText()));
+				AnswerSurveyConverter conv = new AnswerSurveyConverter();
+				contentBuffer.append(convertFormattedText(conv.getAsString(null, null, answer.getText())));
 				contentBuffer.append("</td>");
 			}
 			contentBuffer.append("</td>");
