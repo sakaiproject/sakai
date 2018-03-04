@@ -3398,12 +3398,20 @@ public class DeliveryBean
   public boolean pastDueDate(){
     boolean pastDue = true;
     Date currentDate = new Date();
-		Date dueDate;
-		if (extendedTimeDeliveryService.hasExtendedTime()) {
-			dueDate = extendedTimeDeliveryService.getDueDate();
-		} else {
-			dueDate = publishedAssessment.getAssessmentAccessControl().getDueDate();
-		}
+    Date dueDate = extendedTimeService.hasExtendedTime() ?
+      extendedTimeService.getDueDate() : publishedAssessment.getAssessmentAccessControl().getDueDate();
+
+    if (dueDate == null) {
+        if (AssessmentAccessControlIfc.ACCEPT_LATE_SUBMISSION.equals(
+              publishedAssessment.getAssessmentAccessControl().getLateHandling())) {
+            Date retractDate = extendedTimeService.hasExtendedTime() ?
+              extendedTimeService.getRetractDate() : publishedAssessment.getAssessmentAccessControl().getRetractDate();
+            if((dueDate == null || "".equals(dueDate)) && (retractDate != null && !"".equals(retractDate))) {
+                dueDate = retractDate;
+            }
+        }
+    }
+
     if (dueDate == null || dueDate.after(currentDate)){
         pastDue = false;
     }
