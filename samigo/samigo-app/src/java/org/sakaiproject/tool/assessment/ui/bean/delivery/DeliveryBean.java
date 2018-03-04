@@ -3396,26 +3396,23 @@ public class DeliveryBean
   }
   
   public boolean pastDueDate(){
-    boolean pastDue = true;
+    boolean pastDueDate = true;
     Date currentDate = new Date();
-    Date dueDate = extendedTimeService.hasExtendedTime() ?
-      extendedTimeService.getDueDate() : publishedAssessment.getAssessmentAccessControl().getDueDate();
+    Date due = extendedTimeDeliveryService.hasExtendedTime() ? extendedTimeDeliveryService.getDueDate() : publishedAssessment.getAssessmentAccessControl().getDueDate();
 
-    if (dueDate == null) {
-        if (AssessmentAccessControlIfc.ACCEPT_LATE_SUBMISSION.equals(
-              publishedAssessment.getAssessmentAccessControl().getLateHandling())) {
-            Date retractDate = extendedTimeService.hasExtendedTime() ?
-              extendedTimeService.getRetractDate() : publishedAssessment.getAssessmentAccessControl().getRetractDate();
-            if((dueDate == null || "".equals(dueDate)) && (retractDate != null && !"".equals(retractDate))) {
-                dueDate = retractDate;
-            }
+    if (due == null) {
+      if (AssessmentAccessControlIfc.ACCEPT_LATE_SUBMISSION.equals(publishedAssessment.getAssessmentAccessControl().getLateHandling())) {
+        Date retract = extendedTimeDeliveryService.hasExtendedTime() ? extendedTimeDeliveryService.getRetractDate() : publishedAssessment.getAssessmentAccessControl().getRetractDate();
+        if (due == null && retract != null) {
+          due = retract;
         }
+      }
     }
 
-    if (dueDate == null || dueDate.after(currentDate)){
-        pastDue = false;
+    if (due == null || due.after(currentDate)) {
+      pastDueDate = false;
     }
-    return pastDue;
+    return pastDueDate;
   }
 
   public boolean isAcceptLateSubmission() {
