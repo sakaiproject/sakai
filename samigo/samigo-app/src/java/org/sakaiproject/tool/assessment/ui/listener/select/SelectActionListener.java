@@ -594,7 +594,7 @@ public class SelectActionListener
     Date retractDate = f.getRetractDate();
     boolean acceptLateSubmission = AssessmentAccessControlIfc.ACCEPT_LATE_SUBMISSION.equals(f.getLateHandling());
 
-    if ((dueDate == null || "".equals(dueDate)) && (retractDate != null && !"".equals(retractDate) && acceptLateSubmission)) {
+    if (dueDate == null && (retractDate != null && acceptLateSubmission)) {
         dueDate = retractDate;
     }
 
@@ -610,15 +610,11 @@ public class SelectActionListener
 
     //boolean notSubmitted = false;
     if (h.get(f.getPublishedAssessmentId()) != null){
-      totalSubmitted = ( (Integer) h.get(f.getPublishedAssessmentId())).
-          intValue();
+      totalSubmitted = ((Integer) h.get(f.getPublishedAssessmentId()));
     }
     
-    if (acceptLateSubmission
-            && (dueDate != null && dueDate.before(currentDate))
-            && retractDate == null
-            && totalSubmitted == 0) {
-        return true;
+    if (acceptLateSubmission && (dueDate != null && dueDate.before(currentDate)) && retractDate == null && totalSubmitted == 0) {
+      return true;
     }
     
     if (acceptLateSubmission
