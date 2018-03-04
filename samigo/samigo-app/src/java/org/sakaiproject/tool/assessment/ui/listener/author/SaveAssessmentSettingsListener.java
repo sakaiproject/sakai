@@ -102,12 +102,11 @@ public class SaveAssessmentSettingsListener
     	context.addMessage(null,new FacesMessage(dueDateErr));
     	error=true;
     }
-    if(assessmentSettings.getDueDate() == null &&
-          assessmentSettings.getRetractDate() != null &&
-          "true".equals(assessmentSettings.getLateHandling())){
+
+    if(assessmentSettings.getDueDate() == null && assessmentSettings.getRetractDate() != null && AssessmentAccessControlIfc.ACCEPT_LATE_SUBMISSION.toString().equals(assessmentSettings.getLateHandling())){
         String dueDateErr = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages", "due_null_with_retract_date");
         context.addMessage(null,new FacesMessage(dueDateErr));
-        error=true;
+        error = true;
     }
 
     // check if late submission date is valid
