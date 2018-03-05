@@ -2381,7 +2381,6 @@
     <property name="resources">
       <list>
         <ref bean="whatistheCommonstool"/>
-        <ref bean=""/>
         <ref bean="howdoIcreateapostinCommons"/>
         <ref bean="howdoIcommentreplytoapostinCommons"/>
         <ref bean="howdoIeditapostinCommons"/>
@@ -2403,17 +2402,6 @@
     </property>
     <property name="defaultForTool">
       <value>sakai.commons</value>
-    </property>
-  </bean>
-  <bean id="" class="org.sakaiproject.component.app.help.model.ResourceBean">
-    <property name="docId">
-      <value/>
-    </property>
-    <property name="name">
-      <value/>
-    </property>
-    <property name="location">
-      <value>/sakai_screensteps_commonsUserGuide/.html</value>
     </property>
   </bean>
   <bean id="howdoIcreateapostinCommons" class="org.sakaiproject.component.app.help.model.ResourceBean">
