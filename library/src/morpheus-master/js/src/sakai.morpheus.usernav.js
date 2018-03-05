@@ -79,7 +79,7 @@ $PBJQ('.Mrphs-userNav__pic-changer').on("click", function (event) {
 
                 if (data.status == "SUCCESS") {
                     refreshProfileImageTagsAndHideDialog();
-                    $('#cropToolbar').hide();
+                    $PBJQ('#cropToolbar').hide();
                 } else {
                     $PBJQ('#remove-error').show();
                 }
@@ -103,28 +103,28 @@ $PBJQ('.Mrphs-userNav__pic-changer').on("click", function (event) {
 
     function initCropWidgetToolBar() {
 
-        var $toolbar = $('#cropToolbar').show();
+        var $toolbar = $PBJQ('#cropToolbar').show();
 
         if (!portal.pictureToolbarSetup) {
-            $('.profile-image-zoom-in', $toolbar).on('click', function() {
+            $PBJQ('.profile-image-zoom-in', $toolbar).on('click', function() {
                 $cropWidget.find('> img').cropper('zoom', 0.1);
             });
-            $('.profile-image-zoom-out', $toolbar).on('click', function() {
+            $PBJQ('.profile-image-zoom-out', $toolbar).on('click', function() {
                 $cropWidget.find('> img').cropper('zoom', -0.1);
             });
-            $('.profile-image-pan-up', $toolbar).on('click', function() {
+            $PBJQ('.profile-image-pan-up', $toolbar).on('click', function() {
                 $cropWidget.find('> img').cropper('move', 0, -10);
             });
-            $('.profile-image-pan-down', $toolbar).on('click', function() {
+            $PBJQ('.profile-image-pan-down', $toolbar).on('click', function() {
                 $cropWidget.find('> img').cropper('move', 0, 10);
             });
-            $('.profile-image-pan-left', $toolbar).on('click', function() {
+            $PBJQ('.profile-image-pan-left', $toolbar).on('click', function() {
                 $cropWidget.find('> img').cropper('move', 10, 0);
             });
-            $('.profile-image-pan-right', $toolbar).on('click', function() {
+            $PBJQ('.profile-image-pan-right', $toolbar).on('click', function() {
                 $cropWidget.find('> img').cropper('move', -10, 0);
             });
-            $('.profile-image-rotate', $toolbar).on('click', function() {
+            $PBJQ('.profile-image-rotate', $toolbar).on('click', function() {
                 $cropWidget.find('> img').cropper('clear');
                 $cropWidget.find('> img').cropper('rotate', 90);
                 $cropWidget.find('> img').cropper('crop');
@@ -183,7 +183,7 @@ $PBJQ('.Mrphs-userNav__pic-changer').on("click", function (event) {
         picLink.attr('style', style);
         parent.prepend(picLink);
 
-        $('#profileImageUpload').modal('hide');
+        $PBJQ('#profileImageUpload').modal('hide');
     }
 
     function uploadProfileImage(imageByteSrc) {
@@ -254,36 +254,36 @@ $PBJQ('.Mrphs-userNav__pic-changer').on("click", function (event) {
     return false;
 });
 
-var header = $(".Mrphs-topHeader");
+var header = $PBJQ(".Mrphs-topHeader");
 var currentHeaderWidth = -1;
 
 $PBJQ(document).ready( function(){
 
-  $(header).data("sticked",false);
+  $PBJQ(header).data("sticked",false);
 
   if( $PBJQ('.Mrphs-hierarchy--parent-sites').length > 0 && $PBJQ(window).width() <= 800 ){
     $PBJQ('#content').css( 'margin-top', ( parseInt( $PBJQ('#content').css('margin-top').replace('px', '') ) +  $PBJQ('.Mrphs-hierarchy--parent-sites').outerHeight(true) ) + 'px' );
   }
  
   $PBJQ(window).resize(function() {
-	  currentHeaderWidth = $(".Mrphs-mainHeader").width();
+	  currentHeaderWidth = $PBJQ(".Mrphs-mainHeader").width();
   });
  
   $PBJQ(window).scroll(function(){
 		var size = 0;
-		var stick = (($(document).height() - $(window).height()) > $(header).height()) === true;
-		if($(window).scrollTop() > 0) {
-			if($(header).data("sticked") === false && stick === true) {
-				$(header).data("sticked",true);
-				$(".Mrphs-mainHeader").addClass("is-fixed");
+		var stick = (($PBJQ(document).height() - $PBJQ(window).height()) > $PBJQ(header).height()) === true;
+		if($PBJQ(window).scrollTop() > 0) {
+			if($PBJQ(header).data("sticked") === false && stick === true) {
+				$PBJQ(header).data("sticked",true);
+				$PBJQ(".Mrphs-mainHeader").addClass("is-fixed");
 		  }
 		} else {
-		  $(".Mrphs-mainHeader").removeClass("is-fixed");
-		  $(header).data("sticked",false);
+		  $PBJQ(".Mrphs-mainHeader").removeClass("is-fixed");
+		  $PBJQ(header).data("sticked",false);
 		}
   });
   
-  currentHeaderWidth = $(".Mrphs-mainHeader").width();
+  currentHeaderWidth = $PBJQ(".Mrphs-mainHeader").width();
 
 
 	$PBJQ('.Mrphs-headerLogo').on('click', function() {

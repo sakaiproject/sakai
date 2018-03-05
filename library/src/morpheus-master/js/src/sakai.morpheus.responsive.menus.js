@@ -39,7 +39,7 @@ $PBJQ(document).ready(function(){
     $PBJQ('#roleSwitchDropDown').attr('aria-hidden', 'true').attr('aria-label', 'submenu');
 
     $PBJQ('#roleSwitchDropDownToggle').click( function(){
-      $PBJQ('#roleSwitchDropDown').css('right', $(window).width() - 20 - ($('#roleSwitchDropDownToggle').offset().left + $('#roleSwitchDropDownToggle').width()));
+      $PBJQ('#roleSwitchDropDown').css('right', $PBJQ(window).width() - 20 - ($PBJQ('#roleSwitchDropDownToggle').offset().left + $PBJQ('#roleSwitchDropDownToggle').width()));
       $PBJQ('#roleSwitchDropDown').toggleClass('open');
       if ($PBJQ('#roleSwitchDropDown').is('.open')) {
           $PBJQ('#roleSwitchDropDown').attr('aria-hidden', 'false');
