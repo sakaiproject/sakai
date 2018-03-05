@@ -111,7 +111,7 @@ public class SearchEntityProvider extends AbstractEntityProvider implements Acti
      *
      * @return a list of supported tools
      */
-    @EntityCustomAction(action = "tools", viewKey = EntityView.VIEW_SHOW)
+    @EntityCustomAction(action = "tools", viewKey = EntityView.VIEW_LIST)
     public Set<String> getTools() {
         List<EntityContentProducer> entityContentProducers = searchIndexBuilder.getContentProducers();
         Set<String> tools = new HashSet<String>(entityContentProducers.size());

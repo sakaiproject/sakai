@@ -425,7 +425,8 @@
 	  <dependency>
 		<groupId>com.fasterxml.jackson.core</groupId>
 		<artifactId>jackson-databind</artifactId>
-		<version>${sakai.jackson.version}</version>
+		<!-- Remove the .1 below on next major rev -->
+		<version>${sakai.jackson.version}.1</version>
 		<scope>provided</scope>
 	  </dependency>
 	  <dependency>
@@ -2150,7 +2151,7 @@
         <!-- Can be run as mvn -Pdependency-check-support org.owasp:dependency-check-maven:aggregate at the root -->
         <groupId>org.owasp</groupId>
         <artifactId>dependency-check-maven</artifactId>
-        <version>2.1.1</version>
+        <version>3.1.1</version>
         <dependencies>
           <dependency>
             <groupId>org.sakaiproject</groupId>
