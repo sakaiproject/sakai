@@ -135,6 +135,7 @@ public class IMSBLTIPortlet extends GenericPortlet {
 		fieldList.add("releaseemail");
 		fieldList.add("assignment");
 		fieldList.add("newpage");
+		fieldList.add("sha256");
 		// fieldList.add("maximize");
 		fieldList.add("allowsettings");
 		fieldList.add("allowroster");

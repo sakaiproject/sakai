@@ -102,7 +102,7 @@
 #javascript("/library/js/lang-datepicker/lang-datepicker.js")
 
 <div class="portletBody container-fluid">
-	#navBarOnClick( $allowAddAssignment $withGrade $allowGradeSubmission $allowAddAssignment $allowAllGroups $assignmentscheck $allowUpdateSite $enableViewOption $view "newAssignmentForm" "new" )
+	#navBarOnClick( $allowAddAssignment $withGrade $allowGradeSubmission $allowAddAssignment $allowRecoverAssignment $allowAllGroups $assignmentscheck $allowUpdateSite $enableViewOption $view "newAssignmentForm" "new" )
 
 	<div class="page-header">
 		<h1>
@@ -504,7 +504,7 @@
 			</label>
 		</div>
 		#elseif( $allowAddAssignment )
-			#if ($!groups.size() >1)
+			#if ($!groupsList.size() >1)
                         <label class="$class" for="groups">$tlang.getString("groups")</label>
 			#else
                         <label class="$class" for="groups">$tlang.getString("group")</label>
@@ -516,7 +516,7 @@
 			<label class="$class" for="groups">
 			#if( !$!allowGroupAssignmentsInGradebook )
 				<input type="radio" name="range" id="groups" value="GROUP" onclick="if (document.getElementById('addToGradebook') != null){document.getElementById('addToGradebook').style.display = 'none';document.getElementById('$!name_Addtogradebook').checked=false};$('#groupTable').fadeIn('slow'); ASN.showOrHideAccessMessages( true ); ASN.resizeFrame();"
-				#if( $!range == "GROUP" && !$selectedGroupsNotFound )
+				#if( ($!range == "GROUP" && !$selectedGroupsNotFound) || !$allowAddSiteAssignment )
 					checked="checked"
 				#elseif( !$!groupsList )
 					disabled="disabled"
@@ -524,7 +524,7 @@
 				/>
 			#else
 				<input type="radio" name="range" id="groups" value="GROUP" onclick="$('#groupTable').fadeIn('slow'); ASN.showOrHideAccessMessages( true ); ASN.resizeFrame();"
-				#if( $!range == "GROUP" && !$selectedGroupsNotFound )
+				#if( ($!range == "GROUP" && !$selectedGroupsNotFound) || !$allowAddSiteAssignment)
 					checked="checked"
 				#elseif( !$!groupsList )
 					disabled="disabled"
@@ -539,7 +539,7 @@
                 #if( (($!range == "GROUP" || $!assignment.TypeOfAccess == $groupAccess) && !$selectedGroupsNotFound) || $selectedGroupsNotFound || $!range == "SITE" )
                     #set( $selectGroupsDisplay = "none" )
                 #end
-                #if( ($!range == "GROUP" || $!assignment.TypeOfAccess == $groupAccess) && !$selectedGroupsNotFound )
+                #if( (($!range == "GROUP" || $!assignment.TypeOfAccess == $groupAccess) && !$selectedGroupsNotFound) || !$allowAddSiteAssignment )
                     #set( $listDisplay = "block" )
 			#else
                     #set( $listDisplay = "none" )
@@ -731,7 +731,7 @@
 					<div id="review.switch.ne.1" class="information" style="display:none;">$reviewSwitchNe1</div>
 					<div class="checkbox">
 						<label id="lblReviewService" for="$name_UseReviewService">
-						#if($!value_UseReviewService)
+						#if($!value_UseReviewService == true)
 							<input id="$name_UseReviewService" name="$name_UseReviewService" type="checkbox" value="true" checked="checked" onclick="ASN.toggleReviewServiceOptions(this.checked)"/>
 						#else
 							<input id="$name_UseReviewService" name="$name_UseReviewService" type="checkbox" value="true" onclick="ASN.toggleReviewServiceOptions(this.checked)"/>

@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<content allowattach="true"
+         allowreview="false"
+         allowstudentview="false"
+         attachment0="/content/attachment/BVCC_942A_9301/Assignments/2e901aeb-3dc7-49b4-8ab8-8ce8c0df64d4/AssignmentGraph.png"
+         attachment1="/content/attachment/BVCC_942A_9301/Assignments/ba2db179-5a71-4a24-a92d-d07b52431b23/SakaiDB.png"
+         checkInstitution="false"
+         checkInternet="false"
+         checkPublications="false"
+         checkTurnitin="false"
+         context="BVCC_942A_9301"
+         datecreated="20180102201731349"
+         excludeBibliographic="false"
+         excludeQuoted="false"
+         excludeType="0"
+         excludeValue="1"
+         generateOriginalityReport="0"
+         groupproject="true"
+         hideduedate="false"
+         honorpledge="1"
+         id="b1dde8c2-ce1f-412d-88e2-5fd5cfda20f6"
+         indivgraded="false"
+         instructions="R3JvdXAgQXNzaWdubWVudCBGb3IgR3JvdXBzICBTaW5nbGUgc3VibWlzc2lvbiBmb3IgZ3JvdXBzIFJlZCBHcmVlbiBhbmQgQmx1ZS4="
+         instructions-html="PHA+R3JvdXAgQXNzaWdubWVudCBGb3IgR3JvdXBzPC9wPiAgPHA+U2luZ2xlIHN1Ym1pc3Npb24gZm9yIGdyb3VwcyBSZWQgR3JlZW4gYW5kIEJsdWUuPC9wPg=="
+         lastmod="20180102201731349"
+         numberofattachments="2"
+         numberofauthors="0"
+         releasegrades="false"
+         scaled_factor="100"
+         scaled_maxgradepoint="2500"
+         submissiontype="3"
+         submitReviewRepo="0"
+         title="Group Assignment For Groups"
+         typeofgrade="3">
+    <properties>
+        <property enc="BASE64"
+                  name="CHEF:creator"
+                  value="Y2I0ZmZhYmQtNmQ5YS00ZTVhLTk5NjktZGUxYmRhMmVmYmZi"/>
+        <property enc="BASE64"
+                  name="CHEF:modifiedby"
+                  value="Y2I0ZmZhYmQtNmQ5YS00ZTVhLTk5NjktZGUxYmRhMmVmYmZi"/>
+        <property enc="BASE64"
+                  name="DAV:getlastmodified"
+                  value="MjAxODAxMDIyMDE3MzEzNTc="/>
+        <property enc="BASE64"
+                  name="DAV:creationdate"
+                  value="MjAxODAxMDIyMDE3MzEzNDk="/>
+    </properties>
+</content>

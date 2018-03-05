@@ -3667,6 +3667,12 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 				}
 				
 				UILink link;
+				// if item shouldn't be visible, show fake link
+				// if canEditPage, code already handles the situation
+				if (!canEditPage && available && 
+				    (p.isHidden() || p.getReleaseDate() != null && p.getReleaseDate().after(new Date()))) {
+				    fake = true;
+				}
 				if (available) {
 					link = UIInternalLink.make(container, ID, eParams);
 					link.decorate(new UIFreeAttributeDecorator("lessonbuilderitem", itemString));
@@ -3846,8 +3852,9 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 				link.decorate(new UIFreeAttributeDecorator("onclick", 
 					 "setTimeout(function(){window.location.reload(true)},3000); return true"));
 
-			} else
+			} else {
 			    fake = true; // need to set this in case it's available for missing entity
+			}
 		    }
 		}
 
@@ -3863,7 +3870,11 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		    ID = ID + "-fake";
 		    UIOutput link = UIOutput.make(container, ID, i.getName());
 		    link.decorate(new UIFreeAttributeDecorator("lessonbuilderitem", itemString));
-		    if (!available)
+		    // fake and available occurs when prerequisites aren't the issue (it's avaiable)
+		    // so the item must be nonexistent or otherwise unavalable.
+		    if (available)
+			link.decorate(new UITooltipDecorator(messageLocator.getMessage("simplepage.not_usable")));
+		    else
 			link.decorate(new UITooltipDecorator(messageLocator.getMessage("simplepage.complete_required")));
 		} else
 		    UIOutput.make(container, ID + "-text", i.getName());
@@ -4204,6 +4215,11 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 			UIOutput.make(tofill, "blti-li");
 			createToolBarLink(BltiPickerProducer.VIEW_ID, tofill, "add-blti", "simplepage.blti", currentPage, "simplepage.blti.tooltip");
 		    }
+			// App Store Only BLTI Link
+			if (bltiEntity != null && ((BltiInterface)bltiEntity).servicePresent()) {
+				UIOutput.make(tofill, "blti-app-li");
+				createAppStoreToolBarLink(BltiPickerProducer.VIEW_ID, tofill, "add-blti-app", "simplepage.blti.app", currentPage, "simplepage.blti.app.tooltip");
+			}
 			
 		}
 	}
@@ -4211,6 +4227,14 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 	private GeneralViewParameters createToolBarLink(String viewID, UIContainer tofill, String ID, String message, SimplePage currentPage, String tooltip) {
 		GeneralViewParameters params = new GeneralViewParameters();
 		params.setSendingPage(currentPage.getPageId());
+		createStandardToolBarLink(viewID, tofill, ID, message, params, tooltip);
+		return params;
+	}
+
+	private GeneralViewParameters createAppStoreToolBarLink(String viewID, UIContainer tofill, String ID, String message, SimplePage currentPage, String tooltip) {
+		GeneralViewParameters params = new GeneralViewParameters();
+		params.setSendingPage(currentPage.getPageId());
+		params.bltiAppStores = true;
 		createStandardToolBarLink(viewID, tofill, ID, message, params, tooltip);
 		return params;
 	}

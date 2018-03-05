@@ -80,11 +80,6 @@
                     <property name="labelResourceKey" value="org.sakaiproject.component.app.scheduler.jobs.cm.processor.sis.InstructorProcessor.filename"/>
                     <property name="descriptionResourceKey" value="org.sakaiproject.component.app.scheduler.jobs.cm.processor.sis.InstructorProcessor.description"/>
                 </bean>
-                <bean class="org.sakaiproject.component.app.scheduler.jobs.SpringConfigurableJobProperty">
-                    <property name="required" value="false"/>
-                    <property name="labelResourceKey" value="org.sakaiproject.component.app.scheduler.jobs.cm.processor.sis.MembershipProcessor.filename"/>
-                    <property name="descriptionResourceKey" value="org.sakaiproject.component.app.scheduler.jobs.cm.processor.sis.MembershipProcessor.description"/>
-                </bean>
             </set>
         </property>
     </bean>
@@ -111,7 +106,6 @@
                 <ref bean="org.sakaiproject.component.app.scheduler.jobs.cm.processor.sis.SectionMemberProcessor"/>
                 <ref bean="org.sakaiproject.component.app.scheduler.jobs.cm.processor.sis.EnrollmentProcessor"/>
                 <ref bean="org.sakaiproject.component.app.scheduler.jobs.cm.processor.sis.InstructorProcessor"/>
-                <ref bean="org.sakaiproject.component.app.scheduler.jobs.cm.processor.sis.MembershipProcessor"/>
             </list>
         </property>
         <property name="emailNotification" value="false"/>

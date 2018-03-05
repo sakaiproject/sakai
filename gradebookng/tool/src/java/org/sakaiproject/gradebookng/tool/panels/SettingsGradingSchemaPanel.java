@@ -21,7 +21,6 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.TreeMap;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang.StringUtils;
@@ -31,6 +30,7 @@ import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.ajax.AjaxEventBehavior;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
+import org.apache.wicket.ajax.markup.html.form.AjaxButton;
 import org.apache.wicket.behavior.AttributeAppender;
 import org.apache.wicket.markup.head.IHeaderResponse;
 import org.apache.wicket.markup.head.OnLoadHeaderItem;
@@ -38,6 +38,7 @@ import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.ChoiceRenderer;
 import org.apache.wicket.markup.html.form.DropDownChoice;
+import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.IFormModelUpdateListener;
 import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.markup.html.list.ListItem;
@@ -45,14 +46,19 @@ import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
-import org.sakaiproject.gradebookng.business.DoubleComparator;
 import org.sakaiproject.gradebookng.business.FirstNameComparator;
 import org.sakaiproject.gradebookng.business.model.GbUser;
+import org.sakaiproject.gradebookng.business.util.FormatHelper;
+import org.sakaiproject.gradebookng.business.util.SettingsHelper;
+import org.sakaiproject.gradebookng.tool.component.GbAjaxButton;
 import org.sakaiproject.gradebookng.tool.model.GbGradingSchemaEntry;
 import org.sakaiproject.gradebookng.tool.model.GbSettings;
 import org.sakaiproject.service.gradebook.shared.CourseGrade;
 import org.sakaiproject.service.gradebook.shared.GradeMappingDefinition;
 import org.sakaiproject.user.api.User;
+
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -64,10 +70,15 @@ public class SettingsGradingSchemaPanel extends BasePanel implements IFormModelU
 	IModel<GbSettings> model;
 
 	WebMarkupContainer schemaWrap;
+	WebMarkupContainer statsWrap;
 	ListView<GbGradingSchemaEntry> schemaView;
-	List<GradeMappingDefinition> gradeMappings;
-	private boolean expanded;
+	private List<GradeMappingDefinition> gradeMappings;
+	boolean expanded;
 	String gradingSchemaName;
+	DescriptiveStatistics statistics;
+	Label modifiedSchema;
+	Label unsavedSchema;
+	Label duplicateEntries;
 
 	/**
 	 * This is the currently PERSISTED grade mapping id that is persisted for this gradebook
@@ -82,12 +93,22 @@ public class SettingsGradingSchemaPanel extends BasePanel implements IFormModelU
 	/**
 	 * List of {@link CourseGrade} cached here as it is used by a few components
 	 */
-	Map<String, CourseGrade> courseGradeMap;
+	private Map<String, CourseGrade> courseGradeMap;
 
 	/**
 	 * Count of grades for the chart
 	 */
 	int total;
+
+	/**
+	 * Has the schema been modified from the default percentages?
+	 */
+	boolean schemaModifiedFromDefault;
+
+	/**
+	 * Are there unsaved changes?
+	 */
+	boolean dirty;
 
 	public SettingsGradingSchemaPanel(final String id, final IModel<GbSettings> model, final boolean expanded) {
 		super(id, model);
@@ -111,6 +132,15 @@ public class SettingsGradingSchemaPanel extends BasePanel implements IFormModelU
 		// setup the grading scale schema entries
 		this.model.getObject().setGradingSchemaEntries(getGradingSchemaEntries());
 
+		// get the course grade map
+		this.courseGradeMap = getCourseGrades();
+
+		// get the total number of course grades
+		this.total = getTotalCourseGrades(this.courseGradeMap);
+
+		// is the schema modified from the defaults?
+		this.schemaModifiedFromDefault = isModified();
+
 		// create map of grading scales to use for the dropdown
 		final Map<String, String> gradeMappingMap = new LinkedHashMap<>();
 		for (final GradeMappingDefinition gradeMapping : this.gradeMappings) {
@@ -120,6 +150,8 @@ public class SettingsGradingSchemaPanel extends BasePanel implements IFormModelU
 		final WebMarkupContainer settingsGradingSchemaPanel = new WebMarkupContainer("settingsGradingSchemaPanel");
 		// Preserve the expand/collapse state of the panel
 		settingsGradingSchemaPanel.add(new AjaxEventBehavior("shown.bs.collapse") {
+			private static final long serialVersionUID = 1L;
+
 			@Override
 			protected void onEvent(final AjaxRequestTarget ajaxRequestTarget) {
 				settingsGradingSchemaPanel.add(new AttributeModifier("class", "panel-collapse collapse in"));
@@ -127,6 +159,8 @@ public class SettingsGradingSchemaPanel extends BasePanel implements IFormModelU
 			}
 		});
 		settingsGradingSchemaPanel.add(new AjaxEventBehavior("hidden.bs.collapse") {
+			private static final long serialVersionUID = 1L;
+
 			@Override
 			protected void onEvent(final AjaxRequestTarget ajaxRequestTarget) {
 				settingsGradingSchemaPanel.add(new AttributeModifier("class", "panel-collapse collapse"));
@@ -159,6 +193,24 @@ public class SettingsGradingSchemaPanel extends BasePanel implements IFormModelU
 		typeChooser.setModelObject(this.currentGradeMappingId);
 		settingsGradingSchemaPanel.add(typeChooser);
 
+		//add warning if the schema has been modified
+		this.modifiedSchema = new Label("modifiedSchema", new ResourceModel("settingspage.gradingschema.modified.note"));
+		this.modifiedSchema.setVisible(SettingsGradingSchemaPanel.this.schemaModifiedFromDefault);
+		this.modifiedSchema.setOutputMarkupPlaceholderTag(true);
+		settingsGradingSchemaPanel.add(this.modifiedSchema);
+
+		// add warning if the schema is dirty. hidden by default
+		this.unsavedSchema = new Label("unsavedSchema", new ResourceModel("settingspage.gradingschema.modified.warning"));
+		this.unsavedSchema.setVisible(false);
+		this.unsavedSchema.setOutputMarkupPlaceholderTag(true);
+		settingsGradingSchemaPanel.add(this.unsavedSchema);
+
+		// warning for duplicates
+		this.duplicateEntries = new Label("duplicateEntries", new ResourceModel("settingspage.gradingschema.duplicates.warning"));
+		this.duplicateEntries.setVisible(false);
+		this.duplicateEntries.setOutputMarkupPlaceholderTag(true);
+		settingsGradingSchemaPanel.add(this.duplicateEntries);
+
 		// render the grading schema table
 		this.schemaWrap = new WebMarkupContainer("schemaWrap");
 		this.schemaView = new ListView<GbGradingSchemaEntry>("schemaView",
@@ -172,39 +224,46 @@ public class SettingsGradingSchemaPanel extends BasePanel implements IFormModelU
 				final GbGradingSchemaEntry entry = item.getModelObject();
 
 				// grade
-				final Label grade = new Label("grade", new PropertyModel<String>(entry, "grade"));
+				final TextField<Double> grade = new TextField<>("grade", new PropertyModel<Double>(entry, "grade"));
 				item.add(grade);
 
 				// minpercent
-				final TextField<Double> minPercent = new TextField<Double>("minPercent", new PropertyModel<Double>(entry, "minPercent"));
+				final TextField<Double> minPercent = new TextField<>("minPercent", new PropertyModel<Double>(entry, "minPercent"));
 				item.add(minPercent);
 
-				// when minpercent is updated, reorder the listview
-				minPercent.add(new AjaxFormComponentUpdatingBehavior("onchange") {
+				// attach the onchange behaviours
+				minPercent.add(new GradingSchemaChangeBehaviour(GradingSchemaChangeBehaviour.ONCHANGE));
+				grade.add(new GradingSchemaChangeBehaviour(GradingSchemaChangeBehaviour.ONCHANGE));
+
+				// remove button
+				final AjaxButton remove = new AjaxButton("remove") {
 					private static final long serialVersionUID = 1L;
 
 					@Override
-					protected void onUpdate(final AjaxRequestTarget target) {
+					public void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
 
-						// fetch current data from model, sort and refresh the table
-						final List<GbGradingSchemaEntry> data = SettingsGradingSchemaPanel.this.model.getObject().getGradingSchemaEntries();
-						data.sort(Collections.reverseOrder());
-						SettingsGradingSchemaPanel.this.model.getObject().setGradingSchemaEntries(data);
+						// remove this entry from the model data
+						final GbGradingSchemaEntry current = item.getModelObject();
+						SettingsGradingSchemaPanel.this.model.getObject().getGradingSchemaEntries().remove(current);
+
+						// repaint table
 						target.add(SettingsGradingSchemaPanel.this.schemaWrap);
 
-						// refresh chart
-						final String siteId = SettingsGradingSchemaPanel.this.businessService.getCurrentSiteId();
-						target.appendJavaScript("renderGraph('" + siteId + "')");
+						// repaint chart
+						refreshCourseGradeChart(target);
 					}
-				});
+
+				};
+				remove.setDefaultFormProcessing(false);
+				item.add(remove);
 			}
 		};
 		this.schemaView.setOutputMarkupId(true);
-		this.schemaWrap.add(this.schemaView);
 		this.schemaWrap.setOutputMarkupId(true);
+		this.schemaWrap.add(this.schemaView);
 		settingsGradingSchemaPanel.add(this.schemaWrap);
 
-		// handle updates on the schema type chooser, to repaint the table
+		// handle updates on the schema type chooser
 		typeChooser.add(new AjaxFormComponentUpdatingBehavior("onchange") {
 			private static final long serialVersionUID = 1L;
 
@@ -217,13 +276,37 @@ public class SettingsGradingSchemaPanel extends BasePanel implements IFormModelU
 				// refresh data
 				SettingsGradingSchemaPanel.this.model.getObject().setGradingSchemaEntries(getGradingSchemaEntries());
 
-				// repaint
+				// repaint table
 				target.add(SettingsGradingSchemaPanel.this.schemaWrap);
+
+				// set the warning if required
+				SettingsGradingSchemaPanel.this.schemaModifiedFromDefault = isModified();
+				SettingsGradingSchemaPanel.this.modifiedSchema.setVisible(SettingsGradingSchemaPanel.this.schemaModifiedFromDefault);
+				target.add(SettingsGradingSchemaPanel.this.modifiedSchema);
 			}
 		});
 
-		// get the course grade map as we are about to use it a lot
-		this.courseGradeMap = getCourseGrades();
+		// button to add a mapping
+		final GbAjaxButton addMapping = new GbAjaxButton("addMapping") {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			protected void onSubmit(final AjaxRequestTarget target, final Form<?> f) {
+
+				// add a new empty mapping to the model data
+				final List<GbGradingSchemaEntry> entries = getGradingSchemaList();
+				entries.add(stubGradingSchemaMapping());
+				SettingsGradingSchemaPanel.this.model.getObject().setGradingSchemaEntries(entries);
+
+				// repaint table
+				target.add(SettingsGradingSchemaPanel.this.schemaWrap);
+
+				// Note that we don't need to worry about showing warnings about modifications here as the change notifications will handle
+				// that once a value has been added to the schema
+			}
+		};
+		addMapping.setDefaultFormProcessing(false);
+		this.schemaWrap.add(addMapping);
 
 		// if there are no grades, display message instead of chart
 		settingsGradingSchemaPanel
@@ -238,9 +321,13 @@ public class SettingsGradingSchemaPanel extends BasePanel implements IFormModelU
 
 		// other stats
 		// TODO this could be in a panel/fragment of its own
-		final DescriptiveStatistics stats = calculateStatistics();
+		this.statsWrap = new WebMarkupContainer("statsWrap");
+		this.statsWrap.setOutputMarkupId(true);
+		settingsGradingSchemaPanel.add(this.statsWrap);
 
-		settingsGradingSchemaPanel.add(new Label("averagegpa", getAverageGPA()) {
+		this.statistics = calculateStatistics();
+
+		this.statsWrap.add(new Label("averagegpa", getAverageGPA()) {
 			private static final long serialVersionUID = 1L;
 
 			@Override
@@ -248,12 +335,12 @@ public class SettingsGradingSchemaPanel extends BasePanel implements IFormModelU
 				return StringUtils.equals(SettingsGradingSchemaPanel.this.gradingSchemaName, "Grade Points");
 			}
 		});
-		settingsGradingSchemaPanel.add(new Label("average", getMean(stats)));
-		settingsGradingSchemaPanel.add(new Label("median", getMedian(stats)));
-		settingsGradingSchemaPanel.add(new Label("lowest", getMin(stats)));
-		settingsGradingSchemaPanel.add(new Label("highest", getMax(stats)));
-		settingsGradingSchemaPanel.add(new Label("deviation", getStandardDeviation(stats)));
-		settingsGradingSchemaPanel.add(new Label("graded", String.valueOf(this.total)));
+		this.statsWrap.add(new Label("average", getMean(this.statistics)));
+		this.statsWrap.add(new Label("median", getMedian(this.statistics)));
+		this.statsWrap.add(new Label("lowest", getMin(this.statistics)));
+		this.statsWrap.add(new Label("highest", getMax(this.statistics)));
+		this.statsWrap.add(new Label("deviation", getStandardDeviation(this.statistics)));
+		this.statsWrap.add(new Label("graded", String.valueOf(this.total)));
 
 		// if there are course grade overrides, add the list of students
 		final List<GbUser> usersWithOverrides = getStudentsWithCourseGradeOverrides();
@@ -274,32 +361,13 @@ public class SettingsGradingSchemaPanel extends BasePanel implements IFormModelU
 		final WebMarkupContainer chart = new WebMarkupContainer("gradingSchemaChart");
 		chart.setOutputMarkupId(true);
 		chart.add(new AttributeAppender("data-siteId", SettingsGradingSchemaPanel.this.businessService.getCurrentSiteId()));
-
 	}
 
 	@Override
 	public void renderHead(final IHeaderResponse response) {
 		super.renderHead(response);
 		final String siteId = SettingsGradingSchemaPanel.this.businessService.getCurrentSiteId();
-		response.render(OnLoadHeaderItem.forScript("renderGraph('" + siteId + "');"));
-	}
-
-	/**
-	 * Helper to sort the bottom percents maps.
-	 *
-	 * @param percents
-	 * @return
-	 */
-	private Map<String, Double> sortBottomPercents(final Map<String, Double> percents) {
-
-		Map<String, Double> rval = null;
-
-		// we only ever order by bottom percents now
-		final DoubleComparator doubleComparator = new DoubleComparator(percents);
-		rval = new TreeMap<String, Double>(doubleComparator);
-		rval.putAll(percents);
-
-		return rval;
+		response.render(OnLoadHeaderItem.forScript("renderChart('" + siteId + "');"));
 	}
 
 	/**
@@ -329,29 +397,21 @@ public class SettingsGradingSchemaPanel extends BasePanel implements IFormModelU
 
 		// get configured values or defaults
 		// need to retain insertion order
-		Map<String, Double> bottomPercents = new LinkedHashMap<>();
+		Map<String, Double> bottomPercents;
 
 		// note that we sort based on name so we need to pull the right name out of the list of mappings, for both cases
-		this.gradingSchemaName = this.gradeMappings.stream()
-				.filter(gradeMapping -> StringUtils.equals(gradeMapping.getId(), this.currentGradeMappingId))
-				.findFirst()
-				.get()
-				.getName();
+		this.gradingSchemaName = getGradingSchema(this.currentGradeMappingId).getName();
 
 		if (StringUtils.equals(this.currentGradeMappingId, this.configuredGradeMappingId)) {
-			// get the values from the configured grading scale in this gradebook and sort them
-			bottomPercents = sortBottomPercents(this.model.getObject().getGradebookInformation().getSelectedGradingScaleBottomPercents());
+			// get the values from the configured grading scale (sorted by the service)
+			bottomPercents = this.model.getObject().getGradebookInformation().getSelectedGradingScaleBottomPercents();
 		} else {
 			// get the default values for the chosen grading scale and sort them
-			bottomPercents = sortBottomPercents(
-					this.gradeMappings.stream()
-							.filter(gradeMapping -> StringUtils.equals(gradeMapping.getId(), this.currentGradeMappingId))
-							.findFirst()
-							.get()
-							.getDefaultBottomPercents());
+			bottomPercents = GradeMappingDefinition.sortGradeMapping(
+					getGradingSchema(this.currentGradeMappingId).getDefaultBottomPercents());
 		}
 
-		return asList(bottomPercents);
+		return SettingsHelper.asList(bottomPercents);
 	}
 
 	public boolean isExpanded() {
@@ -390,18 +450,18 @@ public class SettingsGradingSchemaPanel extends BasePanel implements IFormModelU
 	private Map<String, CourseGrade> getCourseGrades() {
 
 		final List<String> studentUuids = this.businessService.getGradeableUsers();
-		final Map<String, CourseGrade> rval = this.businessService.getCourseGrades(studentUuids);
-		return rval;
+		return this.businessService.getCourseGrades(studentUuids);
 	}
 
 	/**
-	 * Calculates stats based on the calculated course grade values
+	 * Calculates stats based on the calculated course grade values, excluding any empty grades
 	 *
-	 * @return
+	 * @return {@link DescriptiveStatistics}
 	 */
 	private DescriptiveStatistics calculateStatistics() {
 
-		final List<Double> grades = this.courseGradeMap.values().stream().map(c -> NumberUtils.toDouble(c.getCalculatedGrade()))
+		final List<Double> grades = this.courseGradeMap.values().stream().filter(c -> StringUtils.isNotBlank(c.getMappedGrade()))
+				.map(c -> NumberUtils.toDouble(c.getCalculatedGrade()))
 				.collect(Collectors.toList());
 
 		final DescriptiveStatistics stats = new DescriptiveStatistics();
@@ -513,18 +573,159 @@ public class SettingsGradingSchemaPanel extends BasePanel implements IFormModelU
 		return gpaScoresMap;
 	}
 
+
 	/**
-	 * Convert map into list of objects which is easier to work with in the views
+	 * Get the total number of course grades, excluding empty grades
 	 *
-	 * @param bottomPercents map
-	 * @return list of {@link GbGradingSchemaEntry}
+	 * @param map
+	 * @return
 	 */
-	private List<GbGradingSchemaEntry> asList(final Map<String, Double> bottomPercents) {
-		final List<GbGradingSchemaEntry> rval = new ArrayList<>();
-		for (final Map.Entry<String, Double> entry : bottomPercents.entrySet()) {
-			rval.add(new GbGradingSchemaEntry(entry.getKey(), entry.getValue()));
+	private int getTotalCourseGrades(final Map<String, CourseGrade> map) {
+		return map.values().stream().filter(c -> StringUtils.isNotBlank(c.getMappedGrade()))
+				.collect(Collectors.toList()).size();
+	}
+
+	/**
+	 * Find a {@link GradeMappingDefinition} in the list of {@link GradeMappingDefinition} based on the id
+	 *
+	 * @param mappingId the id of the schema we want to pick out
+	 * @return {@ link GradeMappingDefinition} or null
+	 */
+	private GradeMappingDefinition getGradingSchema(final String mappingId) {
+		return this.gradeMappings
+				.stream()
+				.filter(gradeMapping -> StringUtils.equals(gradeMapping.getId(), mappingId))
+				.findFirst()
+				.get();
+	}
+
+	/**
+	 * Has the stored grade mapping been modified from the defaults?
+	 *
+	 * @return
+	 */
+	private boolean isModified() {
+		final GradeMappingDefinition gradeMapping = getGradingSchema(this.currentGradeMappingId);
+		return gradeMapping.isModified();
+	}
+
+	/**
+	 * Has the page model's grade mapping been changed from the stored one?
+	 *
+	 * @return
+	 */
+	private boolean isDirty() {
+
+		// Note that the maps must be HashMaps for the comparison to work properly due to TreeMap.equals() != HashMap.equals().
+
+		//get current values
+		final List<GbGradingSchemaEntry> currentValues = SettingsGradingSchemaPanel.this.model.getObject().getGradingSchemaEntries();
+		final Map<String, Double> currentGradeMapping = new HashMap<>(SettingsHelper.asMap(currentValues));
+
+		// get stored values
+		final GradeMappingDefinition storedValues = getGradingSchema(this.currentGradeMappingId);
+		final Map<String, Double> storedGradeMapping = new HashMap<>(storedValues.getGradeMap());
+
+		return !currentGradeMapping.equals(storedGradeMapping);
+	}
+
+
+
+
+	/**
+	 * Class to encapsulate the refresh of components when a change is made to the grading schema
+	 */
+	class GradingSchemaChangeBehaviour extends AjaxFormComponentUpdatingBehavior {
+
+		private static final long serialVersionUID = 1L;
+
+		private transient AjaxRequestTarget target;
+
+		public static final String ONCHANGE = "onchange";
+
+		public GradingSchemaChangeBehaviour(final String event) {
+			super(event);
 		}
-		return rval;
+
+		@Override
+		protected void onUpdate(final AjaxRequestTarget t) {
+			this.target = t;
+			refreshGradingSchemaTable();
+			refreshCourseGradeChart(this.target);
+			refreshMessages();
+		}
+
+		/**
+		 * Refresh the grading schema table
+		 *
+		 * @param target
+		 */
+		private void refreshGradingSchemaTable() {
+			// fetch current data from model, sort and refresh the table
+			final List<GbGradingSchemaEntry> schemaList = getGradingSchemaList();
+
+			SettingsGradingSchemaPanel.this.model.getObject().setGradingSchemaEntries(schemaList);
+			this.target.add(SettingsGradingSchemaPanel.this.schemaWrap);
+		}
+
+
+		/**
+		 * Refresh messages
+		 *
+		 * @param target
+		 */
+		private void refreshMessages() {
+
+			// check if schema has changed from the persistent values and show the warning
+			SettingsGradingSchemaPanel.this.unsavedSchema.setVisible(isDirty());
+			this.target.add(SettingsGradingSchemaPanel.this.unsavedSchema);
+		}
+
+	}
+
+	/**
+	 * Helper to get the gradingschema list from the model
+	 *
+	 * @return
+	 */
+	private List<GbGradingSchemaEntry> getGradingSchemaList() {
+		final List<GbGradingSchemaEntry> schemaList = SettingsGradingSchemaPanel.this.model.getObject().getGradingSchemaEntries();
+		schemaList.sort(Collections.reverseOrder());
+		return schemaList;
+	}
+
+	/**
+	 * Create a new grading schema entry stub
+	 *
+	 * @return {@link GbGradingSchemaEntry}
+	 */
+	private GbGradingSchemaEntry stubGradingSchemaMapping() {
+		final GbGradingSchemaEntry entry = new GbGradingSchemaEntry(null, null);
+		return entry;
+	}
+
+	/**
+	 * Refresh the course grade chart
+	 *
+	 * @param target
+	 */
+	private void refreshCourseGradeChart(final AjaxRequestTarget target) {
+		// we need the current data from model (sorted) but in JSON form
+		final List<GbGradingSchemaEntry> schemaList = getGradingSchemaList();
+
+		// add warning for duplicates
+		this.duplicateEntries.setVisible(SettingsHelper.hasDuplicates(schemaList));
+		target.add(this.duplicateEntries);
+
+		Map<String, Double> schemaMap = SettingsHelper.asMap(schemaList);
+		schemaMap = GradeMappingDefinition.sortGradeMapping(schemaMap);
+		final Gson gson = new GsonBuilder().create();
+		final String schemaJson = gson.toJson(schemaMap);
+
+		final String siteId = SettingsGradingSchemaPanel.this.businessService.getCurrentSiteId();
+
+		// TODO this could be a wicket component instead of Javascript
+		target.appendJavaScript("renderChart('" + siteId + "', '" + FormatHelper.encode(schemaJson) + "')");
 	}
 
 }

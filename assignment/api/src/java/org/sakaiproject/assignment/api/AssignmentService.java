@@ -88,6 +88,15 @@ public interface AssignmentService extends EntityProducer {
     public boolean allowAddAssignment(String context);
 
     /**
+     * Check permissions for updating an Assignment based on context.
+     *
+     * @param context -
+     *                Describes the portlet context - generated with DefaultId.getChannel().
+     * @return True if the current User is allowed to update assignments, false if not.
+     */
+    public boolean allowUpdateAssignmentInContext(String context);
+
+    /**
      * Check if the user has permission to add a site-wide (not grouped) assignment.
      *
      * @param context -
@@ -95,6 +104,15 @@ public interface AssignmentService extends EntityProducer {
      * @return true if the user has permission to add a channel-wide (not grouped) assignment.
      */
     boolean allowAddSiteAssignment(String context);
+
+    /**
+     * Check permissions for removing an Assignment.
+     *
+     * @param context -
+     *                Describes the portlet context - generated with DefaultId.getChannel().
+     * @return True if the current User is allowed to remove an Assignment, false if not.
+     */
+    public boolean allowRemoveAssignmentInContext(String context);
 
     /**
      * Check permissions for all.groups.
@@ -122,6 +140,15 @@ public interface AssignmentService extends EntityProducer {
      * @return The Collection (Group) of groups defined for the context of this site that the end user has add assignment permissions in, empty if none.
      */
     public Collection<Group> getGroupsAllowAddAssignment(String context);
+
+    /**
+     * Get the collection of Groups defined for the context of this site that the end user has update assignment permissions in.
+     *
+     * @param context -
+     *                Describes the portlet context - generated with DefaultId.getChannel().
+     * @return The Collection (Group) of groups defined for the context of this site that the end user has update assignment permissions in, empty if none.
+     */
+    public Collection<Group> getGroupsAllowUpdateAssignment(String context);
 
     /**
      * Get the collection of Groups defined for the context of this site that the end user has grade assignment permissions in.
@@ -385,6 +412,15 @@ public interface AssignmentService extends EntityProducer {
     public Collection<Assignment> getAssignmentsForContext(String context);
 
     /**
+     * Access all the Assignments that are deleted
+     *
+     * @param context -
+     *                Describes the portlet context - generated with DefaultId.getChannel().
+     * @return List All the deleted assignments will be listed
+     */
+    public Collection<Assignment> getDeletedAssignmentsForContext(String context);
+
+    /**
      * Retrieve a map of Assignments to a list of User IDs of those who
      * may submit each assignment. This map is filtered to only those
      * assignments that can be viewed by the current user.
@@ -455,22 +491,14 @@ public interface AssignmentService extends EntityProducer {
     public List<User> getSortedGroupUsers(Group g);
 
     /**
-     * Get the number of submissions which has been submitted.
+     * Count the number of submissions for a given assignment.
      *
-     * @param assignmentRef -
-     *                      the reference of Assignment who's submission count you would like.
-     * @return int The total submissions for the specified assignment.
+     * @param assignmentRef the assignment reference of the submissions to count.
+     * @param graded count the number of submissions which have been submitted and are graded
+     *               respectively graded is true and ungraded is false or null for both.
+     * @return int count of submissions for the specified assignment.
      */
-    public int getSubmittedSubmissionsCount(String assignmentRef);
-
-    /**
-     * Get the number of submissions which has not been submitted and graded.
-     *
-     * @param assignmentRef -
-     *                      the reference of Assignment who's ungraded submission count you would like.
-     * @return int The total ungraded submissions for the specified assignment.
-     */
-    public int getUngradedSubmissionsCount(String assignmentRef);
+    public int countSubmissions(String assignmentRef, Boolean graded);
 
     /**
      * Access the grades spreadsheet for the reference, either for an assignment or all assignments in a context.

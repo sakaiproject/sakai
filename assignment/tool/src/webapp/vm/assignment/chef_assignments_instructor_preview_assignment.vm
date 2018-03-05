@@ -1,6 +1,6 @@
 <!-- start: chef_assignments_instructor_preview_assignment.vm  -->
 <div class="portletBody">
-	#navBarHREF( $allowAddAssignment $withGrade $allowGradeSubmission $allowAddAssignment $allowAllGroups $assignmentscheck $allowUpdateSite $enableViewOption $view "" )
+	#navBarHREF( $allowAddAssignment $withGrade $allowGradeSubmission $allowAddAssignment $allowRecoverAssignment $allowAllGroups $assignmentscheck $allowUpdateSite $enableViewOption $view "" )
 	<h3>
 		$tlang.getString("prevassig.preass")
 	</h3>

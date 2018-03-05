@@ -15,6 +15,11 @@
  */
 package org.sakaiproject.gradebookng.tool.pages;
 
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import org.apache.commons.lang.StringUtils;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.Component;
@@ -40,7 +45,6 @@ import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.gradebookng.business.GbRole;
 import org.sakaiproject.gradebookng.business.model.GbGroup;
 import org.sakaiproject.gradebookng.business.util.GbStopWatch;
-import org.sakaiproject.gradebookng.business.util.MessageHelper;
 import org.sakaiproject.gradebookng.tool.actions.DeleteAssignmentAction;
 import org.sakaiproject.gradebookng.tool.actions.EditAssignmentAction;
 import org.sakaiproject.gradebookng.tool.actions.EditCommentAction;
@@ -73,8 +77,6 @@ import org.sakaiproject.service.gradebook.shared.PermissionDefinition;
 import org.sakaiproject.service.gradebook.shared.SortType;
 import org.sakaiproject.tool.gradebook.Gradebook;
 
-import java.util.*;
-
 /**
  * Grades page. Instructors and TAs see this one. Students see the {@link StudentPage}.
  *
@@ -102,6 +104,7 @@ public class GradebookPage extends BasePage {
 
 	Label liveGradingFeedback;
 	boolean hasAssignmentsAndGrades;
+	private static final AttributeModifier DISPLAY_NONE = new AttributeModifier("style", "display: none");
 
 	Form<Void> form;
 
@@ -141,7 +144,7 @@ public class GradebookPage extends BasePage {
 		stopwatch.start();
 		stopwatch.time("GradebookPage init", stopwatch.getTime());
 
-		this.form = new Form<Void>("form");
+		this.form = new Form<>("form");
 		add(this.form);
 
 		form.add(new AttributeModifier("data-siteid", businessService.getCurrentSiteId()));
@@ -194,10 +197,7 @@ public class GradebookPage extends BasePage {
 
 			@Override
 			public boolean isVisible() {
-				if (GradebookPage.this.role != GbRole.INSTRUCTOR) {
-					return false;
-				}
-				return true;
+				return GradebookPage.this.role == GbRole.INSTRUCTOR;
 			}
 		};
 		addGradeItem.setDefaultFormProcessing(false);
@@ -483,7 +483,7 @@ public class GradebookPage extends BasePage {
 			settings = new GradebookUiSettings();
 			settings.setCategoriesEnabled(this.businessService.categoriesAreEnabled());
 			settings.initializeCategoryColors(this.businessService.getGradebookCategories());
-			settings.setCategoryColor(getString(GradebookPage.UNCATEGORISED), settings.generateRandomRGBColorString());
+			settings.setCategoryColor(getString(GradebookPage.UNCATEGORISED), GradebookUiSettings.generateRandomRGBColorString(null));
 			setUiSettings(settings);
 		}
 
@@ -553,6 +553,7 @@ public class GradebookPage extends BasePage {
 		this.liveGradingFeedback = new Label("liveGradingFeedback", getString("feedback.saved"));
 		this.liveGradingFeedback.setVisible(this.hasAssignmentsAndGrades);
 		this.liveGradingFeedback.setOutputMarkupId(true);
+		liveGradingFeedback.add(DISPLAY_NONE);
 
 		// add the 'saving...' message to the DOM as the JavaScript will
 		// need to be the one that displays this message (Wicket will handle
@@ -563,7 +564,9 @@ public class GradebookPage extends BasePage {
 
 	public Component updateLiveGradingMessage(final String message) {
 		this.liveGradingFeedback.setDefaultModel(Model.of(message));
-
+		if (liveGradingFeedback.getBehaviors().contains(DISPLAY_NONE)) {
+			liveGradingFeedback.remove(DISPLAY_NONE);
+		}
 		return this.liveGradingFeedback;
 	}
 }
