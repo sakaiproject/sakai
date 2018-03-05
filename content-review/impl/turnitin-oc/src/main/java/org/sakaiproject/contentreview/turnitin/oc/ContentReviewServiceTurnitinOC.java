@@ -88,34 +88,41 @@ public class ContentReviewServiceTurnitinOC implements ContentReviewService {
 	private static final int TURNITIN_MAX_RETRY = 16;
 	private static final String INTEGRATION_VERSION = "1.0";
 	private static final String INTEGRATION_FAMILY = "sakai";
-	// API key
 	private static final String CONTENT_TYPE_JSON = "application/json";
 	private static final String CONTENT_TYPE_BINARY = "application/octet-stream";
 	private static final String HEADER_NAME = "X-Turnitin-Integration-Name";
 	private static final String HEADER_VERSION = "X-Turnitin-Integration-Version";
 	private static final String HEADER_AUTH = "Authorization";
 	private static final String HEADER_CONTENT = "Content-Type";
-	private static final String HEADER_DISP = "Content-Disposition";
-	private static final String FAKE_URL = "https://test.turnitin.com/api/v1/";
+	private static final String HEADER_DISP = "Content-Disposition";	
 
 	private String serviceUrl;
 	private String apiKey;
 	
 	private HashMap<String, String> BASE_HEADERS = new HashMap<String, String>();
-	private HashMap<String, String> SUBMISSION_REQUEST_HEADERS = new HashMap<String, String>();	
+	private HashMap<String, String> SUBMISSION_REQUEST_HEADERS = new HashMap<String, String>();
+	private HashMap<String, String> SIMILARITY_REPORT_HEADERS = new HashMap<String, String>();
 	private HashMap<String, String> CONTENT_UPLOAD_HEADERS = new HashMap<String, String>();
 	
 	public void init() {
+		//Retrieve Service URL and API key
 		serviceUrl = serverConfigurationService.getString("turnitin.oc.serviceUrl", "");
 		apiKey = serverConfigurationService.getString("turnitin.oc.apiKey", "");
-		//TODO: documentation
+		
+		//Populate base headers that are needed for all calls to TCA
 		BASE_HEADERS.put(HEADER_NAME, INTEGRATION_FAMILY);
 		BASE_HEADERS.put(HEADER_VERSION, INTEGRATION_VERSION);
 		BASE_HEADERS.put(HEADER_AUTH, "Bearer " + apiKey);
-		//TODO: documentation
+
+		//Populate submission request headers used in getSubmissionId
 		SUBMISSION_REQUEST_HEADERS.putAll(BASE_HEADERS);
 		SUBMISSION_REQUEST_HEADERS.put(HEADER_CONTENT, CONTENT_TYPE_JSON);
-		//TODO: documentation
+		
+		//Populate similarity report headers used in generateSimilarityReport
+		SIMILARITY_REPORT_HEADERS.putAll(BASE_HEADERS);
+		SIMILARITY_REPORT_HEADERS.put(HEADER_CONTENT, CONTENT_TYPE_JSON);
+		
+		//Populate content upload headers used in uploadExternalContent
 		CONTENT_UPLOAD_HEADERS.putAll(BASE_HEADERS);
 		CONTENT_UPLOAD_HEADERS.put(HEADER_CONTENT, CONTENT_TYPE_BINARY);
 	}
@@ -321,7 +328,7 @@ public class ContentReviewServiceTurnitinOC implements ContentReviewService {
 		reportData.put("view_settings", viewSettings);
 		
 		// Set headers 
-		for(Entry<String, String> entry : SUBMISSION_REQUEST_HEADERS.entrySet()) {
+		for(Entry<String, String> entry : SIMILARITY_REPORT_HEADERS.entrySet()) {
 			connection.setRequestProperty(entry.getKey(), entry.getValue());
 		}
 		
@@ -444,7 +451,6 @@ public class ContentReviewServiceTurnitinOC implements ContentReviewService {
 		}
 	}
 
-	//TODO documentation
 	private String getSubmissionId(String userID, String fileName){
 		
 		//Set variables
@@ -514,27 +520,35 @@ public class ContentReviewServiceTurnitinOC implements ContentReviewService {
 				
 	}
 	
-
+	// Queue service for processing student submissions
+	// Stage one creates a submission, uploads submission and sets item externalId 
+	// Stage two starts similarity report process
+	// Stage three checks status of similarity reports and retrieves report score
+	// Loop 1 contains stage one and two, Loop 2 contains stage three
 	public void processQueue() {
 		log.info("Processing Turnitin OC submission queue");
 		int errors = 0;
 		int success = 0;		
 		Optional<ContentReviewItem> nextItem = null;		
 		
-		// NOT SUBMITTED, CREATE SUBMISSION AND UPLOAD CONTENTS (STAGE !)
+		// LOOP 1
 		while ((nextItem = crqs.getNextItemInQueueToSubmit(getProviderId())).isPresent()) {
 			ContentReviewItem item = nextItem.get();
 			log.info("ITEM STATUS: " + item.getStatus());
+			// Create new Calendar instance used for adding delay time to current time
 			Calendar cal = Calendar.getInstance();
+			// If retry count is null set to 0
 			if (item.getRetryCount() == null) {
 				item.setRetryCount(Long.valueOf(0));
 				item.setNextRetryTime(cal.getTime());
 				crqs.update(item);
+			// If retry count is above maximum increment error count, set status to nine and stop retrying
 			} else if (item.getRetryCount().intValue() > TURNITIN_MAX_RETRY) {
 				item.setStatus(ContentReviewConstants.CONTENT_REVIEW_SUBMISSION_ERROR_RETRY_EXCEEDED_CODE);
 				crqs.update(item);
 				errors++;
 				continue;
+			// Increment retry count, adjust delay time, schedule next retry attempt 
 			} else {
 				long retryCount = item.getRetryCount().longValue();
 				retryCount++;
@@ -546,6 +560,7 @@ public class ContentReviewServiceTurnitinOC implements ContentReviewService {
 
 			ContentResource resource = null;
 			try {
+				//Get resource with current item's content Id 
 				resource = contentHostingService.getResource(item.getContentId());
 			} catch (IdUnusedException e4) {
 				log.error("IdUnusedException: no resource with id " + item.getContentId());
@@ -569,29 +584,36 @@ public class ContentReviewServiceTurnitinOC implements ContentReviewService {
 				errors++;
 				continue;
 			}
+			// Get filename of submission 
 			String fileName = resource.getProperties().getProperty(ResourceProperties.PROP_DISPLAY_NAME);
 			if (StringUtils.isEmpty(fileName)) {
 				// set default file name:
 				fileName = "submission_" + item.getUserId() + "_" + item.getSiteId();
 				log.info("Using Default Filename " + fileName);
 			}
-
+			// EXTERNAL ID DOES NOT EXIST, CREATE SUBMISSION AND UPLOAD CONTENTS TO TCA (STAGE 1)
 			if (StringUtils.isEmpty(item.getExternalId())) {
 				try {
-					log.info("Submission starting...");
-										
-					CONTENT_UPLOAD_HEADERS.put(HEADER_DISP, "inline; filename=\"" + fileName + "\"");					
-					
-					String reportId = getSubmissionId(item.getUserId(), fileName);
-					if(StringUtils.isEmpty(reportId)) {
+					log.info("Submission starting...");	
+					// Retrieve submissionId from TCA and set to externalId
+					String externalId = getSubmissionId(item.getUserId(), fileName);
+					if(StringUtils.isEmpty(externalId)) {
 						throw new Error("submission id is missing");
-					}else {
-						uploadExternalContent(reportId, resource.getContent());
 
-						item.setExternalId(reportId);
-						item.setRetryCount(new Long(0));				
+					}else {						
+						// Add filename to content upload headers
+						CONTENT_UPLOAD_HEADERS.put(HEADER_DISP, "inline; filename=\"" + fileName + "\"");
+						// Upload submission contents of to TCA
+						uploadExternalContent(externalId, resource.getContent());
+						// Set item externalId to externalId
+						item.setExternalId(externalId);
+						// Reset retry count
+						item.setRetryCount(new Long(0));
+						// Reset cal to current time
 						cal.setTime(new Date());
+						// Reset delay time 
 						cal.add(Calendar.MINUTE, getDelayTime(item.getRetryCount()));
+						// Schedule next retry time 
 						item.setNextRetryTime(cal.getTime());
 						item.setDateSubmitted(new Date());
 						crqs.update(item);
@@ -604,18 +626,26 @@ public class ContentReviewServiceTurnitinOC implements ContentReviewService {
 					crqs.update(item);
 					errors++;
 				}
+			// EXTERNAL ID EXISTS, START SIMILARITY REPORT GENERATION PROCESS (STAGE 2)
 			} else {
 				log.info("ID AWAITING REPORT " + item.getExternalId());
 				try {
+					// Get submission status, returns the state of the submission as string
 					String submissionStatus = getSubmissionStatus(item.getExternalId());
-					//TODO: logic for status:
+					// Handle submission status
 					if("COMPLETE".equals(submissionStatus)) {
+						// If submission status is complete, start similarity report process
 						generateSimilarityReport(item.getExternalId());
+						// Update item status for loop 2 
 						item.setStatus(ContentReviewConstants.CONTENT_REVIEW_SUBMITTED_AWAITING_REPORT_CODE);
+						// Reset retry count
 						item.setRetryCount(new Long(0));
+						// Reset cal to current time
 						cal.setTime(new Date());
+						// Reset delay time 
 						cal.add(Calendar.MINUTE, getDelayTime(item.getRetryCount()));
-						item.setNextRetryTime(cal.getTime());
+						// Schedule next retry time 
+						item.setNextRetryTime(cal.getTime());						
 						crqs.update(item);
 						success++;
 					}else if("PROCESSING".equals(submissionStatus)) {
@@ -625,8 +655,7 @@ public class ContentReviewServiceTurnitinOC implements ContentReviewService {
 						//do nothing... try again
 						//TODO does this need to be handled differently?
 						continue;
-					}else if("ERROR".equals(submissionStatus)) {
-						//do nothing... try again
+					}else if("ERROR".equals(submissionStatus)) {						
 						throw new Error("Submission returned with ERROR status");						
 					}else {
 						item.setLastError("SubmissionStatus " + submissionStatus);
@@ -644,13 +673,18 @@ public class ContentReviewServiceTurnitinOC implements ContentReviewService {
 			}
 		}
 		
-		// UPLOADED CONTENTS, AWAITING REPORT (STAGE 2)
+		// LOOP 2
+		// UPLOADED CONTENTS, AWAITING SIMILAIRTY REPORT (STAGE 3)
 		for(ContentReviewItem item : crqs.getAwaitingReports(getProviderId())) {
 			// Make sure it's after the next retry time
 			if (item.getNextRetryTime().getTime() > new Date().getTime()) {
 				continue;
 			}			
 			try {
+				// Get status of similarity report
+				// Returns -1 if report is still processing
+				// Returns -2 if an error occurs
+				// Else returns reports score as integer
 				int status = getSimilarityReportStatus(item.getExternalId());
 				if (status > -1) {
 					// SUCCESS
@@ -664,7 +698,7 @@ public class ContentReviewServiceTurnitinOC implements ContentReviewService {
 					item.setErrorCode(null);
 					crqs.update(item);
 				} else if (status == -1) {
-					// PROCESSING, SKIP
+					// Similarity report is still generating, will try again
 					log.info("Processing report " + item.getExternalId() + "...");
 				} else {
 					throw new Error("Report score returned negative value");
