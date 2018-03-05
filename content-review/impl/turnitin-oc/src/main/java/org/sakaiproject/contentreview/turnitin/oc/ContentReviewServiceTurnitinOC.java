@@ -95,6 +95,10 @@ public class ContentReviewServiceTurnitinOC implements ContentReviewService {
 	private static final String HEADER_AUTH = "Authorization";
 	private static final String HEADER_CONTENT = "Content-Type";
 	private static final String HEADER_DISP = "Content-Disposition";	
+	
+	private static final String STATUS_CREATED = "CREATED";
+	private static final String STATUS_COMPLETE = "COMPLETE";
+	private static final String STATUS_PROCESSING = "PROCESSING";
 
 	private String serviceUrl;
 	private String apiKey;
@@ -349,9 +353,9 @@ public class ContentReviewServiceTurnitinOC implements ContentReviewService {
 		String responseBody = IOUtils.toString(connection.getInputStream(), StandardCharsets.UTF_8);						        
 		
 		if ((responseCode >= 200) && (responseCode < 300)) {
-			log.info("Successfully initiated Similarity Report generation!!!!!" );
+			log.debug("Successfully initiated Similarity Report generation." );
 		} else if ((responseCode == 409)) {
-			log.info("A Similarity Report is already generating for this submission");
+			log.debug("A Similarity Report is already generating for this submission");
 		} else {
 			throw new Error("Submission failed to initiate: " + responseCode + ", " + responseMessage + ", " + responseBody);
 		}
@@ -385,15 +389,30 @@ public class ContentReviewServiceTurnitinOC implements ContentReviewService {
 		// create JSONObject from response	
 		JSONObject responseJSON = JSONObject.fromObject(responseBody);
 									
-		if ((responseCode >= 200) && (responseCode < 300)) {
-			log.info("STATUS " + responseJSON.getString("status"));
-			// TODO add error catches for too little text, etc
+		if ((responseCode >= 200) && (responseCode < 300)) {						
+			// Get submission status value
 			if (responseJSON.containsKey("status")) {
-				// Only call getSimilarityReport if the report doesn't already exist
 				status = responseJSON.getString("status");
 			}
 		}else {
 			throw new Exception("getSubmissionStatus invalid request: " + responseCode + ", " + responseMessage  + ", " + responseBody);
+		}
+		// Handle possible error status 
+		switch (status) {
+			case "UNSUPPORTED_FILETYPE":
+				throw new Error("The uploaded filetype is not supported");
+			case "PROCESSING_ERROR":
+				throw new Error("An unspecified error occurred while processing the submissions");	
+			case "TOO_LITTLE_TEXT":
+				throw new Error("The submission does not have enough text to generate a Similarity Report (a submission must contain at least 20 words)");	
+			case "TOO_MUCH_TEXT":
+				throw new Error("The submission has too much text to generate a Similarity Report (after extracted text is converted to UTF-8, the submission must contain less than 2MB of text)");	
+			case "TOO_MANY_PAGES":
+				throw new Error("The submission has too many pages to generate a Similarity Report (a submission cannot contain more than 400 pages)");	
+			case "FILE_LOCKED":
+				throw new Error("The uploaded file requires a password in order to be opened");	
+			case "CORRUPT_FILE":
+				throw new Error("The uploaded file appears to be corrupt");	
 		}
 		
 		return status;
@@ -427,11 +446,8 @@ public class ContentReviewServiceTurnitinOC implements ContentReviewService {
 		JSONObject responseJSON = JSONObject.fromObject(responseBody);				
 		
 		if ((responseCode >= 200) && (responseCode < 300)) {
-			// See if report is complete or pending. If pending, ignore, if complete, get score and viewer url
-			log.info("SIMILARITY REPORT EXISTS!!!!!");
-			
-			if (responseJSON.containsKey("status") && responseJSON.getString("status").equals("COMPLETE")) {
-				log.info("Report is complete!!");
+			// See if report is complete or pending. If pending, ignore, if complete, get score and viewer URL						
+			if (responseJSON.containsKey("status") && responseJSON.getString("status").equals(STATUS_COMPLETE)) {				
 				log.debug("Submission successful");
 				if (responseJSON.containsKey("overall_match_percentage")) {
 					return responseJSON.getInt("overall_match_percentage");
@@ -440,8 +456,8 @@ public class ContentReviewServiceTurnitinOC implements ContentReviewService {
 					return 0;
 				}
 				
-			} else if (responseJSON.containsKey("status") && responseJSON.getString("status").equals("PROCESSING")) {
-				log.info("REPORT IS PROCESSING...");
+			} else if (responseJSON.containsKey("status") && responseJSON.getString("status").equals(STATUS_PROCESSING)) {
+				log.debug("report is processing...");
 				return -1;
 			} else {
 				throw new Error("Something went wrong in the similarity report process: reportId " + reportId);
@@ -458,10 +474,8 @@ public class ContentReviewServiceTurnitinOC implements ContentReviewService {
 		URL url = null;
 		HttpURLConnection connection = null;
 		DataOutputStream wr = null;
-		
-		
-		try {			
-			
+				
+		try {						
 			// Construct URL
 			url = new URL(getNormalizedServiceUrl() + "submissions");
 			
@@ -494,21 +508,17 @@ public class ContentReviewServiceTurnitinOC implements ContentReviewService {
 			//Send request:
 			int responseCode = connection.getResponseCode();
 			String responseMessage = connection.getResponseMessage();			
-			String responseBody = IOUtils.toString(connection.getInputStream(), StandardCharsets.UTF_8);
-						
+			String responseBody = IOUtils.toString(connection.getInputStream(), StandardCharsets.UTF_8);						
 			
 			// create JSONObject from responseBody
 			JSONObject responseJSON = JSONObject.fromObject(responseBody);			
 																	
 			if ((responseCode >= 200) && (responseCode < 300)) {
-				//TODO: make CREATED a constant
-				if (responseJSON.containsKey("status") && responseJSON.getString("status").equals("CREATED")
+				if (responseJSON.containsKey("status") && responseJSON.getString("status").equals(STATUS_CREATED)
 						&& responseJSON.containsKey("id")) {
 					submissionId = responseJSON.getString("id");
-				} else {
-					//TODO: need better error handling for different statuses returned from TII
-					
-					log.error("getSubmissionId response: " + responseJSON);
+				} else {					
+					log.error("getSubmissionId response: " + responseMessage);
 				}
 			}else {
 				log.error("getSubmissionId response code: " + responseCode + ", " + responseMessage + ", " + responseJSON);
@@ -516,12 +526,11 @@ public class ContentReviewServiceTurnitinOC implements ContentReviewService {
 		}catch(Exception e) {
 			log.error(e.getMessage(), e);
 		}
-		return submissionId;
-				
+		return submissionId;				
 	}
 	
 	// Queue service for processing student submissions
-	// Stage one creates a submission, uploads submission and sets item externalId 
+	// Stage one creates a submission, uploads submission contents to TCA and sets item externalId 
 	// Stage two starts similarity report process
 	// Stage three checks status of similarity reports and retrieves report score
 	// Loop 1 contains stage one and two, Loop 2 contains stage three
@@ -533,8 +542,7 @@ public class ContentReviewServiceTurnitinOC implements ContentReviewService {
 		
 		// LOOP 1
 		while ((nextItem = crqs.getNextItemInQueueToSubmit(getProviderId())).isPresent()) {
-			ContentReviewItem item = nextItem.get();
-			log.info("ITEM STATUS: " + item.getStatus());
+			ContentReviewItem item = nextItem.get();			
 			// Create new Calendar instance used for adding delay time to current time
 			Calendar cal = Calendar.getInstance();
 			// If retry count is null set to 0
@@ -626,9 +634,8 @@ public class ContentReviewServiceTurnitinOC implements ContentReviewService {
 					crqs.update(item);
 					errors++;
 				}
-			// EXTERNAL ID EXISTS, START SIMILARITY REPORT GENERATION PROCESS (STAGE 2)
 			} else {
-				log.info("ID AWAITING REPORT " + item.getExternalId());
+				// EXTERNAL ID EXISTS, START SIMILARITY REPORT GENERATION PROCESS (STAGE 2)
 				try {
 					// Get submission status, returns the state of the submission as string
 					String submissionStatus = getSubmissionStatus(item.getExternalId());
@@ -786,8 +793,6 @@ public class ContentReviewServiceTurnitinOC implements ContentReviewService {
 		
 		if (responseCode < 200 || responseCode >= 300) {
 			throw new Error(responseCode + ": " + connection.getResponseMessage());
-		} else {
-			log.info("SUCCESS!!!");
 		}
 	}
 
