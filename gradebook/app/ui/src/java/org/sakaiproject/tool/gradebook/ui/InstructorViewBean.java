@@ -27,27 +27,25 @@ import java.util.Set;
 
 import javax.faces.event.ActionEvent;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import org.sakaiproject.section.api.coursemanagement.EnrollmentRecord;
 import org.sakaiproject.service.gradebook.shared.StaleObjectModificationException;
 import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.tool.gradebook.AbstractGradeRecord;
-import org.sakaiproject.tool.gradebook.Assignment;
 import org.sakaiproject.tool.gradebook.AssignmentGradeRecord;
 import org.sakaiproject.tool.gradebook.Category;
 import org.sakaiproject.tool.gradebook.CourseGrade;
 import org.sakaiproject.tool.gradebook.CourseGradeRecord;
 import org.sakaiproject.tool.gradebook.GradableObject;
+import org.sakaiproject.tool.gradebook.GradebookAssignment;
 import org.sakaiproject.tool.gradebook.jsf.FacesUtil;
 
 /**
  * Provides data for the instructor's view of a student's grades in the gradebook.
  */
+@Slf4j
 public class InstructorViewBean extends ViewByStudentBean implements Serializable {
-	private static Logger logger = LoggerFactory.getLogger(InstructorViewBean.class);
-
 	private EnrollmentRecord previousStudent;
 	private EnrollmentRecord nextStudent;
 	private EnrollmentRecord currentStudent;
@@ -185,8 +183,8 @@ public class InstructorViewBean extends ViewByStudentBean implements Serializabl
 	 */
 	public void processStudentUidChange(ActionEvent event) {
 		Map params = FacesUtil.getEventParameterMap(event);
-		if (logger.isDebugEnabled()) 
-			logger.debug("processStudentUidChange params=" + params + ", current studentUid=" + getStudentUid());
+		if (log.isDebugEnabled()) 
+			log.debug("processStudentUidChange params=" + params + ", current studentUid=" + getStudentUid());
 		// run the updates before changing the student id
 		processUpdateScoresForPreNextStudent();
 		String idParam = (String)params.get("studentUid");
@@ -208,7 +206,7 @@ public class InstructorViewBean extends ViewByStudentBean implements Serializabl
 	 * @throws StaleObjectModificationException
 	 */
 	public void saveScoresWithoutConfirmation() throws StaleObjectModificationException {
-        if (logger.isInfoEnabled()) logger.info("saveScores for " + getStudentUid());
+        if (log.isInfoEnabled()) log.info("saveScores for " + getStudentUid());
 
 		// first, determine which scores were updated
 		List updatedGradeRecords = new ArrayList();
@@ -292,7 +290,7 @@ public class InstructorViewBean extends ViewByStudentBean implements Serializabl
 	 * @throws StaleObjectModificationException
 	 */
 	public void saveScores() throws StaleObjectModificationException {
-        if (logger.isInfoEnabled()) logger.info("saveScores for " + getStudentUid());
+        if (log.isInfoEnabled()) log.info("saveScores for " + getStudentUid());
 
 		// first, determine which scores were updated
 		List updatedGradeRecords = new ArrayList();
@@ -373,7 +371,7 @@ public class InstructorViewBean extends ViewByStudentBean implements Serializabl
 		if (gradableObject.isCourseGrade()) {
 			return getLocalizedString("roster_course_grade_column_name");
 		} else {
-			return ((Assignment)gradableObject).getName();
+			return ((GradebookAssignment)gradableObject).getName();
 		}
 	}
 	
@@ -431,7 +429,7 @@ public class InstructorViewBean extends ViewByStudentBean implements Serializabl
 		} else {
 			getGradebookManager().addToGradeRecordMap(gradeRecordMap, rosterGradeRecords);
 		}
-		if (logger.isDebugEnabled()) logger.debug("init - gradeRecordMap.keySet().size() = " + gradeRecordMap.keySet().size());
+		if (log.isDebugEnabled()) log.debug("init - gradeRecordMap.keySet().size() = " + gradeRecordMap.keySet().size());
 
 		List assignments = null;
 		String selectedCategoryUid = getSelectedCategoryUid();
@@ -451,7 +449,7 @@ public class InstructorViewBean extends ViewByStudentBean implements Serializabl
 		Map categoryResultMap = new HashMap();
 		List categories = getGradebookManager().getCategories(getGradebookId());
 		getGradebookManager().addToCategoryResultMap(categoryResultMap, categories, gradeRecordMap, studentIdEnrRecMap);
-		if (logger.isDebugEnabled()) logger.debug("init - categoryResultMap.keySet().size() = " + categoryResultMap.keySet().size());
+		if (log.isDebugEnabled()) log.debug("init - categoryResultMap.keySet().size() = " + categoryResultMap.keySet().size());
 
 
 		// Need to sort and page based on a scores column.
@@ -490,7 +488,7 @@ public class InstructorViewBean extends ViewByStudentBean implements Serializabl
 
 		Long assignmentIdAsLong = getAssignmentIdAsLong();
 		if (assignmentIdAsLong != null) {
-			Assignment prevAssignment = getGradebookManager().getAssignment(assignmentIdAsLong);
+			GradebookAssignment prevAssignment = getGradebookManager().getAssignment(assignmentIdAsLong);
 			Category category = prevAssignment.getCategory();
 			Long catId = null;
 			if (category != null)
@@ -603,7 +601,7 @@ public class InstructorViewBean extends ViewByStudentBean implements Serializabl
 	}
 	
 	/**
-	 * Go to either Roster or Assignment Details page.
+	 * Go to either Roster or GradebookAssignment Details page.
 	 */
 	public String processCancel() {
 		if (new Boolean((String) SessionManager.getCurrentToolSession().getAttribute("middle")).booleanValue()) {

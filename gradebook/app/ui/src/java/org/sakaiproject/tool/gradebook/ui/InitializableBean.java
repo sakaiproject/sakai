@@ -1,34 +1,27 @@
-/**********************************************************************************
-*
-* $Id$
-*
-***********************************************************************************
-*
- * Copyright (c) 2005, 2006, 2008 The Sakai Foundation, The MIT Corporation
+/**
+ * Copyright (c) 2003-2016 The Apereo Foundation
  *
  * Licensed under the Educational Community License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *       http://www.opensource.org/licenses/ECL-2.0
+ *             http://opensource.org/licenses/ecl2
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
-*
-**********************************************************************************/
+ */
 
 package org.sakaiproject.tool.gradebook.ui;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.jsf.model.PhaseAware;
 
+@Slf4j
 public abstract class InitializableBean implements PhaseAware {
-	private static final Logger logger = LoggerFactory.getLogger(InitializableBean.class);
-
 	private transient boolean notValidated;
 
 	/**
@@ -51,12 +44,12 @@ public abstract class InitializableBean implements PhaseAware {
 	 */
 	public void endProcessValidators() {
 		setNotValidated(true);
-		if (logger.isDebugEnabled()) logger.debug("endProcessValidators");
+		if (log.isDebugEnabled()) log.debug("endProcessValidators");
 	}
 
 	public void endProcessUpdates() {
 		setNotValidated(false);
-		if (logger.isDebugEnabled()) logger.debug("endProcessUpdates");
+		if (log.isDebugEnabled()) log.debug("endProcessUpdates");
 	}
 
 	/**
@@ -65,7 +58,7 @@ public abstract class InitializableBean implements PhaseAware {
 	 * only been tested with request scope.)
 	 */
 	public void startRenderResponse() {
-		if (logger.isDebugEnabled()) logger.debug("startRenderResponse notValidated=" + isNotValidated());
+		if (log.isDebugEnabled()) log.debug("startRenderResponse notValidated=" + isNotValidated());
 		init();
 	}
 
@@ -80,13 +73,9 @@ public abstract class InitializableBean implements PhaseAware {
 	 * Signals that configuration is finished.
 	 */
 	public void setConfigured(boolean isConfigured) {
-		if (logger.isDebugEnabled()) logger.debug("setConfigured " + isConfigured);
+		if (log.isDebugEnabled()) log.debug("setConfigured " + isConfigured);
 		if (isConfigured) {
 			init();
 		}
 	}
-
 }
-
-
-

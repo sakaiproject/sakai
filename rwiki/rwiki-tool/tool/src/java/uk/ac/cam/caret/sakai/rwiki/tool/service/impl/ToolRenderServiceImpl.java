@@ -21,8 +21,8 @@
 
 package uk.ac.cam.caret.sakai.rwiki.tool.service.impl;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.component.api.ComponentManager;
 
 import uk.ac.cam.caret.sakai.rwiki.service.api.RenderService;
@@ -33,9 +33,9 @@ import uk.ac.cam.caret.sakai.rwiki.utils.NameHelper;
 /**
  * @author andrew
  */
+@Slf4j
 public class ToolRenderServiceImpl implements ToolRenderService
 {
-	private static Logger log = LoggerFactory.getLogger(ToolRenderServiceImpl.class);
 
 	private RenderService renderService = null;
 
@@ -85,33 +85,6 @@ public class ToolRenderServiceImpl implements ToolRenderService
 		return renderService.renderPage(rwo, localSpace, plr);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see uk.ac.cam.caret.sakai.rwiki.service.api.RenderService#publicRenderPage(uk.ac.cam.caret.sakai.rwiki.service.api.api.model.RWikiObject,
-	 *      java.lang.String)
-	 */
-	public String renderPrintPage(RWikiObject rwo, boolean withBreadCrumbs)
-	{
-		return renderPrintPage(rwo, rwo.getRealm(), withBreadCrumbs);
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see uk.ac.cam.caret.sakai.rwiki.service.api.RenderService#publicRenderPage(uk.ac.cam.caret.sakai.rwiki.service.api.api.model.RWikiObject,
-	 *      java.lang.String, java.lang.String)
-	 */
-	public String renderPrintPage(RWikiObject rwo, String defaultRealm,
-			boolean withBreadCrumbs)
-	{
-		// SAK-2519
-		String localSpace = NameHelper.localizeSpace(rwo.getName(),
-				defaultRealm);
-		PrintPageLinkRendererImpl plr = new PrintPageLinkRendererImpl(
-				localSpace, defaultRealm, withBreadCrumbs);
-		return renderService.renderPage(rwo, localSpace, plr);
-	}
 	/*
 	 * (non-Javadoc)
 	 * 

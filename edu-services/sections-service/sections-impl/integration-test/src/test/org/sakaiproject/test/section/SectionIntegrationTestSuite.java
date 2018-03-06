@@ -20,17 +20,16 @@
  **********************************************************************************/
 package org.sakaiproject.test.section;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.sakaiproject.test.SakaiTestBase;
-
 import junit.extensions.TestSetup;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 
+import lombok.extern.slf4j.Slf4j;
+
+import org.sakaiproject.test.SakaiTestBase;
+
+@Slf4j
 public class SectionIntegrationTestSuite extends SakaiTestBase {
-	
-	private static final Logger log = LoggerFactory.getLogger(SectionIntegrationTestSuite.class);
 
 	/**
 	 * Runs only once for the entire TestSuite, so we can keep the same component manager

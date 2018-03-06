@@ -25,19 +25,19 @@
 package org.sakaiproject.tags.tool.forms;
 
 import javax.servlet.http.HttpServletRequest;
+
 import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.tags.api.TagCollection;
 import org.sakaiproject.tags.api.Errors;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Maps to and from the collection HTML form and a collection data object.
  */
 @Data
+@Slf4j
 public class TagCollectionForm extends BaseForm {
-
-
 
     private final String name;
     private final String description;
@@ -51,8 +51,6 @@ public class TagCollectionForm extends BaseForm {
     private final Boolean externalCreation;
     private final long lastSynchronizationDate;
     private final long lastUpdateDateInExternalSystem  ;
-
-    private static final Logger LOG = LoggerFactory.getLogger(TagCollectionForm.class);
 
     private TagCollectionForm(String uuid, String name,
                          String description, String createdBy, long creationDate,

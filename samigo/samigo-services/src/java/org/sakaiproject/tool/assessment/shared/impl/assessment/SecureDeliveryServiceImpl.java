@@ -1,3 +1,19 @@
+/**
+ * Copyright (c) 2005-2016 The Apereo Foundation
+ *
+ * Licensed under the Educational Community License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *             http://opensource.org/licenses/ecl2
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package org.sakaiproject.tool.assessment.shared.impl.assessment;
 
 import java.io.File;
@@ -11,26 +27,25 @@ import java.util.TreeSet;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.xml.XmlBeanDefinitionReader;
+import org.springframework.context.support.GenericApplicationContext;
+import org.springframework.core.io.Resource;
+
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.RegisteredSecureDeliveryModuleIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SecureDeliveryModuleIfc;
 import org.sakaiproject.tool.assessment.shared.api.assessment.SecureDeliveryServiceAPI;
-import org.springframework.beans.factory.xml.XmlBeanDefinitionReader;
-import org.springframework.context.support.GenericApplicationContext;
-import org.springframework.core.io.Resource;
 
 /**
  * 
  * @author Luis Camargo (lcamargo@respondus.com)
  *
  */
+@Slf4j
 public class SecureDeliveryServiceImpl implements SecureDeliveryServiceAPI {
-	
-	private Logger log = LoggerFactory.getLogger( SecureDeliveryServiceImpl.class );
-	
+
 	/*
 	 * Implementation of the SecureDeliveryModuleIfc interface with name,id ordering, except for id=NONE_ID
 	 * which is always placed before any other
@@ -44,7 +59,7 @@ public class SecureDeliveryServiceImpl implements SecureDeliveryServiceAPI {
 		public String getId() { return id; }		
 		public String getName() { return name; }
 		public boolean isEnabled() { return enabled; }
-		
+
 		public int compareTo(RegisteredSecureDeliveryModuleIfc other) {
 			if ( SecureDeliveryServiceAPI.NONE_ID.equals( id ) )
 				return -1;
@@ -55,7 +70,7 @@ public class SecureDeliveryServiceImpl implements SecureDeliveryServiceAPI {
 			else
 				return id.compareTo( other.getId() );
 		}
-		
+
 		public boolean equals(Object obj) {
 			if ( obj instanceof RegisteredSecureDeliveryModuleIfc )
 				return compareTo( (RegisteredSecureDeliveryModuleIfc) obj ) == 0;
@@ -82,10 +97,10 @@ public class SecureDeliveryServiceImpl implements SecureDeliveryServiceAPI {
 			for ( String plugin : plugins ) {
 				
 				handlePlugin( plugin );
-			}				
+			}
 		}
 	}
-	
+
 	/**
 	 * @returns true if at least one secure delivery module implementation is available.
 	 */
@@ -145,7 +160,7 @@ public class SecureDeliveryServiceImpl implements SecureDeliveryServiceAPI {
 		
 		if ( moduleId == null || NONE_ID.equals( moduleId ) || module == null || !module.isEnabled() )
 			return "";
-	
+
 		try {
 			return module.getTitleDecoration( locale );
 		}
@@ -155,7 +170,7 @@ public class SecureDeliveryServiceImpl implements SecureDeliveryServiceAPI {
 			return "";
 		}
 	}
-	
+
 	/**
 	 * Checks with the module specified by moduleId if the current delivery phase can continue. Returns
 	 * SUCCESS if moduleId is null or NONE_ID or if the module is no longer available or disabled.
@@ -183,7 +198,7 @@ public class SecureDeliveryServiceImpl implements SecureDeliveryServiceAPI {
 			return PhaseStatus.SUCCESS;
 		}
 	}
-	
+
 	/**
 	 * Returns the initial HTML fragments for all active modules. The fragments are inserted into
 	 * the assessment list. 
@@ -238,7 +253,7 @@ public class SecureDeliveryServiceImpl implements SecureDeliveryServiceAPI {
 			return "";
 		}
 	}
-	
+
 	/**
 	 * Helper method to obtain a reference to the runtime instance of the module specified. The context object 
 	 * provided is passed to the module itself for validation and the reference is only returned if the module
@@ -269,8 +284,7 @@ public class SecureDeliveryServiceImpl implements SecureDeliveryServiceAPI {
 			return null;
 		}
 	}
-	
-	
+
 	/**
 	 * Uses the module specified to encrypt the exit password before storing it on the assessment settings. The
 	 * encryption method used is up to the module implementation. Returns the same password if module id is null or 
@@ -296,7 +310,7 @@ public class SecureDeliveryServiceImpl implements SecureDeliveryServiceAPI {
 			return password;
 		}
 	}
-	
+
 	/**
 	 * Uses the module specified to decrypt the exit password. The encryption method used is up to the module
 	 * implementation. Returns the same password if module id is null or NONE_ID or if the module is no longer
@@ -339,13 +353,13 @@ public class SecureDeliveryServiceImpl implements SecureDeliveryServiceAPI {
 				log.warn( "Secure delivery plugin " + secureDeliveryPlugin + " not found" );
 				return;
 			}
-			
+
 			URL pluginUrl = new URL( "file:" + secureDeliveryPlugin );
 			URLClassLoader classLoader = new URLClassLoader( new URL[] { pluginUrl },  this.getClass().getClassLoader() );
 			GenericApplicationContext ctx = new GenericApplicationContext();
 			ctx.setClassLoader( classLoader );
 			Resource resource = ctx.getResource( "jar:file:" + secureDeliveryPlugin + "!/spring-context.xml" );
-					
+
 			XmlBeanDefinitionReader xmlReader = new XmlBeanDefinitionReader(ctx);
 			xmlReader.loadBeanDefinitions( resource );
 			ctx.refresh();
@@ -353,7 +367,6 @@ public class SecureDeliveryServiceImpl implements SecureDeliveryServiceAPI {
 			String[] secureDeliveryModuleBeanNames = ctx.getBeanNamesForType( SecureDeliveryModuleIfc.class );
 			if ( secureDeliveryModuleBeanNames.length == 0 )
 				log.warn( "Secure delivery plugin doesn't define any beans of type SecureDeliveryModuleIfc" );
-										
 			for ( String name : secureDeliveryModuleBeanNames ) {
 				
 				SecureDeliveryModuleIfc secureDeliveryModuleBean = (SecureDeliveryModuleIfc) ctx.getBean( name );				
@@ -365,10 +378,7 @@ public class SecureDeliveryServiceImpl implements SecureDeliveryServiceAPI {
 			}				
 		}
 		catch ( Exception e ) {
-			
 			log.error( "Unable to load secure delivery plugin " + secureDeliveryPlugin, e );
 		}
 	}
-	
-	
 }

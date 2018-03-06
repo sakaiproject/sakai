@@ -41,16 +41,18 @@ import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
-import org.sakaiproject.samigo.util.SamigoConstants;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.event.cover.EventTrackingService;
+import org.sakaiproject.samigo.util.SamigoConstants;
 import org.sakaiproject.tags.api.Tag;
 import org.sakaiproject.tags.api.TagService;
-import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.tool.assessment.data.dao.assessment.Answer;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AnswerFeedback;
+import org.sakaiproject.tool.assessment.data.dao.assessment.FavoriteColChoices;
+import org.sakaiproject.tool.assessment.data.dao.assessment.FavoriteColChoicesItem;
 import org.sakaiproject.tool.assessment.data.dao.assessment.ItemMetaData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.ItemText;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAnswer;
@@ -67,13 +69,13 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemMetaDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextAttachmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTagIfc;
-import org.sakaiproject.tool.assessment.services.FinFormatException;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.ItemFacade;
 import org.sakaiproject.tool.assessment.facade.PublishedItemFacade;
 import org.sakaiproject.tool.assessment.facade.SectionFacade;
 import org.sakaiproject.tool.assessment.facade.TypeFacade;
+import org.sakaiproject.tool.assessment.services.FinFormatException;
 import org.sakaiproject.tool.assessment.services.ItemService;
 import org.sakaiproject.tool.assessment.services.PublishedItemService;
 import org.sakaiproject.tool.assessment.services.QuestionPoolService;
@@ -95,8 +97,6 @@ import org.sakaiproject.tool.assessment.ui.bean.questionpool.QuestionPoolBean;
 import org.sakaiproject.tool.assessment.ui.bean.questionpool.QuestionPoolDataBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.util.TextFormat;
-import org.sakaiproject.tool.assessment.data.dao.assessment.FavoriteColChoices;
-import org.sakaiproject.tool.assessment.data.dao.assessment.FavoriteColChoicesItem;
 import org.sakaiproject.tool.assessment.ws.Item;
 import org.sakaiproject.util.FormattedText;
 
@@ -105,11 +105,10 @@ import org.sakaiproject.util.FormattedText;
  * <p>Description: Sakai Assessment Manager</p>
  * <p>Organization: Sakai Project</p>
  */
-
+@Slf4j
 public class ItemAddListener
     implements ActionListener {
 
-  private static final Logger log = LoggerFactory.getLogger(ItemAddListener.class);
   private static final TagService tagService= (TagService) ComponentManager.get( TagService.class );
     //private static ContextUtil cu;
   //private String scalename; // used for multiple choice Survey
@@ -131,8 +130,8 @@ public class ItemAddListener
     ItemBean item = itemauthorbean.getCurrentItem();
     
     item.setEmiVisibleItems("0");
-    String iText = ContextUtil.stringWYSIWYG(item.getItemText());
-    String iInstruction = ContextUtil.stringWYSIWYG(item.getInstruction());
+    String iText = item.getItemText();
+    String iInstruction = item.getInstruction();
     String iType = item.getItemType();
     String err="";
     FacesContext context=FacesContext.getCurrentInstance();
@@ -388,7 +387,7 @@ public class ItemAddListener
 			} // end of while
 		}
 		else { // Rich Options
-			String richText = ContextUtil.stringWYSIWYG(item.getEmiAnswerOptionsRich());;
+			String richText = item.getEmiAnswerOptionsRich();;
 			if (richText.toLowerCase().replaceAll("<^[^(img)]*?>", "").trim()
 					.equals("")) {
 				item.setEmiAnswerOptionsRich("");
@@ -491,7 +490,7 @@ public class ItemAddListener
 	  if(item.getMultipleChoiceAnswers()!=null){
 		  while (iter.hasNext()) {
 			  AnswerBean answerbean = (AnswerBean) iter.next();
-			  String answerTxt=ContextUtil.stringWYSIWYG(answerbean.getText());
+			  String answerTxt=answerbean.getText();
 			  //  if(answerTxt.replaceAll("<.*?>", "").trim().equals(""))        
 			  // SAK-6050
 			  if(answerTxt.toLowerCase().replaceAll("<^[^(img)]*?>", "").trim().equals("")) {
@@ -2534,15 +2533,15 @@ public class ItemAddListener
 		
 		if (bean.getKeyword() != null) {
 			set.add(new ItemMetaData(item.getData(),
-					ItemMetaDataIfc.KEYWORD, TextFormat.convertPlaintextToFormattedTextNoHighUnicode(log, bean.getKeyword())));
+					ItemMetaDataIfc.KEYWORD, TextFormat.convertPlaintextToFormattedTextNoHighUnicode(bean.getKeyword())));
 		}
 		if (bean.getRubric() != null) {
 			set.add(new ItemMetaData(item.getData(),
-					ItemMetaDataIfc.RUBRIC, TextFormat.convertPlaintextToFormattedTextNoHighUnicode(log, bean.getRubric())));
+					ItemMetaDataIfc.RUBRIC, TextFormat.convertPlaintextToFormattedTextNoHighUnicode(bean.getRubric())));
 		}
 		if (bean.getObjective() != null) {
 			set.add(new ItemMetaData(item.getData(),
-					ItemMetaDataIfc.OBJECTIVE, TextFormat.convertPlaintextToFormattedTextNoHighUnicode(log, bean.getObjective())));
+					ItemMetaDataIfc.OBJECTIVE, TextFormat.convertPlaintextToFormattedTextNoHighUnicode(bean.getObjective())));
 		}
 		
 		// Randomize property got left out, added in metadata
@@ -2654,13 +2653,13 @@ public class ItemAddListener
 	  while (iter.hasNext()) {
 		  ItemMetaDataIfc itemMetaData = (ItemMetaDataIfc) iter.next();
 		  if (itemMetaData.getLabel().equals(ItemMetaDataIfc.KEYWORD)){
-			  itemMetaData.setEntry(TextFormat.convertPlaintextToFormattedTextNoHighUnicode(log, bean.getKeyword()));
+			  itemMetaData.setEntry(TextFormat.convertPlaintextToFormattedTextNoHighUnicode(bean.getKeyword()));
 		  }
 		  else if (itemMetaData.getLabel().equals(ItemMetaDataIfc.RUBRIC)){
-			  itemMetaData.setEntry(TextFormat.convertPlaintextToFormattedTextNoHighUnicode(log, bean.getKeyword()));
+			  itemMetaData.setEntry(TextFormat.convertPlaintextToFormattedTextNoHighUnicode(bean.getKeyword()));
 		  }
 		  else if (itemMetaData.getLabel().equals(ItemMetaDataIfc.OBJECTIVE)){
-			  itemMetaData.setEntry(TextFormat.convertPlaintextToFormattedTextNoHighUnicode(log, bean.getObjective()));
+			  itemMetaData.setEntry(TextFormat.convertPlaintextToFormattedTextNoHighUnicode(bean.getObjective()));
 		  }
 		  else if (itemMetaData.getLabel().equals(ItemMetaDataIfc.RANDOMIZE)){
 			  itemMetaData.setEntry(bean.getRandomized());

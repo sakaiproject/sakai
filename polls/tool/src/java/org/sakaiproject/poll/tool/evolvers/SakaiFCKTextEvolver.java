@@ -1,3 +1,18 @@
+/**
+ * Copyright (c) 2003-2011 The Apereo Foundation
+ *
+ * Licensed under the Educational Community License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *             http://opensource.org/licenses/ecl2
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 /*
  * Created on 22 Sep 2006 Temp fix for http://www.caret.cam.ac.uk/jira/browse/RSF-44 from
  * http://ponder.org.uk/rsf/posts/list/184.page
@@ -7,6 +22,8 @@
 package org.sakaiproject.poll.tool.evolvers;
 
 import java.util.Iterator;
+
+import lombok.extern.slf4j.Slf4j;
 
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentHostingService;
@@ -20,6 +37,7 @@ import uk.org.ponder.rsf.components.decorators.UIDecorator;
 import uk.org.ponder.rsf.components.decorators.UIFreeAttributeDecorator;
 import uk.org.ponder.rsf.evolvers.TextInputEvolver;
 
+@Slf4j
 public class SakaiFCKTextEvolver implements TextInputEvolver {
 	public static final String COMPONENT_ID = "sakai-FCKEditor:";
 	private String context;
@@ -41,7 +59,6 @@ public class SakaiFCKTextEvolver implements TextInputEvolver {
 	public void setContentHostingService(ContentHostingService contentHostingService) {
 		this.contentHostingService = contentHostingService;
 	}
-
 
 	private ServerConfigurationService serverConfigurationService;
 	public void setServerConfigurationService(
@@ -65,7 +82,7 @@ public class SakaiFCKTextEvolver implements TextInputEvolver {
 						} catch (Exception e) {
 							// height isn't set to a string, show the developer a stack trace since
 							// he/she is lost...
-							e.printStackTrace();
+							log.error(e.getMessage(), e);
 						}
 					} else if (((UIFreeAttributeDecorator) decorator).attributes.get("width") != null) {
 						sizeset = true;
@@ -74,7 +91,7 @@ public class SakaiFCKTextEvolver implements TextInputEvolver {
 						} catch (Exception e) {
 							// height isn't set to a string, show the developer a stack trace since
 							// he/she is lost...
-							e.printStackTrace();
+							log.error(e.getMessage(), e);
 						}
 					}
 				}

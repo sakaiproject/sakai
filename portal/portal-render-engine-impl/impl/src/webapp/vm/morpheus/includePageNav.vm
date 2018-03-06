@@ -19,8 +19,8 @@
 	<div id="toolSubsitesContainer">
 		<nav id="toolMenu" role="navigation" aria-label="${rloader.sit_toolshead}" class="Mrphs-toolsNav__menu">
 			<ul>
-				<li id="toolsNav-toggle-li" class="Mrphs-toolsNav__menuitem Mrphs-collapseTools #if ( ${toolsCollapsed} ) min #else max #end" style='display: none;'>
-					<button type="button" tabindex="0" aria-pressed="#if ( ${toolsCollapsed} ) false #else true #end" title="${rloader.sit_toggle_nav}" class="Mrphs-toggleNav js-toggle-nav btn-link  #if ( ${toolsCollapsed} ) min #else max #end">
+				<li id="toolsNav-toggle-li" class="Mrphs-toolsNav__menuitem Mrphs-collapseTools #if ($toolsCollapsed) min #else max #end" style='display: none;'>
+					<button type="button" aria-pressed="$toolsCollapsed" title="${rloader.sit_toggle_nav}" class="Mrphs-toggleNav js-toggle-nav btn-link  #if ($toolsCollapsed) min #else max #end">
 						<span class="fa fa-lg fa-angle-double-left" aria-hidden="true"></span>
 						<span class="sr-only">${rloader.sit_toggle_nav}</span>
 					</button>
@@ -156,6 +156,17 @@
 	
 				#end ## END of if ( $subSites && $showSubsitesAsFlyout )
 	
+				#if (${sitePages.pageNavCanAddMoreTools})
+
+					<li>
+						<a class="Mrphs-toolsNav__menuitem--link" href="${sitePages.pageNavAddMoreToolsUrl}">
+							<span class="Mrphs-toolsNav__menuitem--icon icon-sakai--add-tool"></span>
+							<span class="Mrphs-toolsNav__menuitem--title">${rloader.sit_addmoretools}</span>
+						</a>
+					</li>
+
+				#end ## END of IF (${sitePages.pageNavCanAddMoreTools})
+
 				#if (${sitePages.pageNavShowHelp})
 	
 					<li class="Mrphs-toolsNav__menuitem--help">
@@ -167,17 +178,6 @@
 					</li>
 	
 				#end ## END of IF (${sitePages.pageNavShowHelp})
-	
-				#if (${sitePages.pageNavCanAddMoreTools})
-	
-					<li>
-						<a class="Mrphs-toolsNav__menuitem--link" href="${sitePages.pageNavAddMoreToolsUrl}">
-							<span class="Mrphs-toolsNav__menuitem--icon icon-sakai--add-tool"></span>
-							<span class="Mrphs-toolsNav__menuitem--title">${rloader.sit_addmoretools}</span>
-						</a>
-					</li>
-	
-				#end ## END of IF (${sitePages.pageNavCanAddMoreTools})
 	
 			</ul>
 		</nav>
@@ -203,6 +203,13 @@
 	
 		#end ## END of IF ( $subSites )
 	</div>
+
+	#if (${sitePages.additionalLessonsPages})
+		<script src="/library/js/lessons-subnav.js$!{portalCDNQuery}"></script>
+		<script>
+			sakai.lessons_subnav = new LessonsSubPageNavigation($sitePages.additionalLessonsPages);
+		</script>
+	#end
 </div>
 
 <!-- END VM includePageNav.vm -->

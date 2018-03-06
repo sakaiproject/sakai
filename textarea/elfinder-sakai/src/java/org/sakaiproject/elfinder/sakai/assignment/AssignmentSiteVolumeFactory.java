@@ -1,9 +1,32 @@
+/**
+ * Copyright (c) 2003-2016 The Apereo Foundation
+ *
+ * Licensed under the Educational Community License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *             http://opensource.org/licenses/ecl2
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.sakaiproject.elfinder.sakai.assignment;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
+
 import cn.bluejoe.elfinder.service.FsItem;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.sakaiproject.assignment.api.Assignment;
+import lombok.extern.slf4j.Slf4j;
+
+import org.sakaiproject.assignment.api.model.Assignment;
 import org.sakaiproject.assignment.api.AssignmentService;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.elfinder.sakai.ReadOnlyFsVolume;
@@ -15,19 +38,12 @@ import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.time.api.Time;
 import org.sakaiproject.user.api.UserDirectoryService;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-
-
 /**
  * Created by neelam on 11-Jan-16.
  */
+@Slf4j
 public class AssignmentSiteVolumeFactory implements SiteVolumeFactory {
 
-    private static final Logger LOG = LoggerFactory.getLogger(AssignmentSiteVolumeFactory.class);
     private AssignmentService assignmentService;
     private UserDirectoryService userDirectoryService;
     private ServerConfigurationService serverConfigurationService;
@@ -98,9 +114,9 @@ public class AssignmentSiteVolumeFactory implements SiteVolumeFactory {
                         Assignment assignment = assignmentService.getAssignment(parts[2]);
                         return new AssignmentFsItem(this, assignment.getId(), assignment.getTitle());
                     } catch (IdUnusedException e) {
-                        LOG.warn("Unexpected IdUnusedException for assignment in " + e.getClass().getName() + ": " + e.getMessage());
+                        log.warn("Unexpected IdUnusedException for assignment in " + e.getClass().getName() + ": " + e.getMessage());
                     } catch (PermissionException e) {
-                        LOG.warn("Unexpected Permission Exception for assignment in  " + e.getClass().getName() + ": " + e.getMessage());
+                        log.warn("Unexpected Permission Exception for assignment in  " + e.getClass().getName() + ": " + e.getMessage());
                     }
 
                 }
@@ -202,14 +218,11 @@ public class AssignmentSiteVolumeFactory implements SiteVolumeFactory {
         public FsItem[] listChildren(FsItem fsItem) {
             List<FsItem> items = new ArrayList<>();
             if(this.getRoot().equals(fsItem)){
-                Iterator assignmentIterator = assignmentService.getAssignmentsForContext(this.siteId, userDirectoryService.getCurrentUser().getId());
-                long nowMs = System.currentTimeMillis();
-                while(assignmentIterator.hasNext()){
-                    Assignment thisAssignment = (Assignment) assignmentIterator.next();
-                    Time thisAssignmentCloseTime = thisAssignment.getCloseTime();
+                for (Assignment thisAssignment : assignmentService.getAssignmentsForContext(this.siteId)) {
+                    Instant thisAssignmentCloseTime = thisAssignment.getCloseDate();
                     boolean assignmentClosed = false;
                     if(thisAssignmentCloseTime!=null){
-                        if(thisAssignmentCloseTime.getTime() < nowMs){
+                        if (thisAssignmentCloseTime.isBefore(Instant.now())) {
                             assignmentClosed=true;
                         }
                     }

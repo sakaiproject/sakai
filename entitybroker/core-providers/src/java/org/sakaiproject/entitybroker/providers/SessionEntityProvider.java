@@ -27,8 +27,10 @@ import java.util.Vector;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+
+import org.sakaiproject.authz.api.AuthzGroupService;
+import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.entitybroker.EntityView;
 import org.sakaiproject.entitybroker.entityprovider.CoreEntityProvider;
@@ -52,25 +54,33 @@ import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.event.api.UsageSessionService;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.SessionManager;
-import org.sakaiproject.authz.api.AuthzGroupService;
-import org.sakaiproject.authz.api.SecurityService;
+import org.sakaiproject.user.api.Authentication;
+import org.sakaiproject.user.api.AuthenticationException;
+import org.sakaiproject.user.api.AuthenticationManager;
+import org.sakaiproject.user.api.Evidence;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
+import org.sakaiproject.util.IdPwEvidence;
 
 /**
  * Entity provider for Sakai Sessions
  * 
  * @author Aaron Zeckoski (azeckoski @ gmail.com)
  */
+@Slf4j
 public class SessionEntityProvider extends AbstractEntityProvider implements CoreEntityProvider, CRUDable, CollectionResolvable, 
       Inputable, Outputable, RequestAware, Describeable, RedirectDefinable, ActionsExecutable {
 
    public static String AUTH_USERNAME = "_username";
    public static String AUTH_PASSWORD = "_password";
 
-   private static Logger log = LoggerFactory.getLogger(SessionEntityProvider.class);
    protected static final String SU_WS_BECOME_USER = "su.ws.become";
+
+   public AuthenticationManager authenticationManager;
+   public void setAuthenticationManager(AuthenticationManager authenticationManager) {
+      this.authenticationManager = authenticationManager;
+   }
 
    public SessionManager sessionManager;
    public void setSessionManager(SessionManager sessionManager) {
@@ -199,18 +209,21 @@ public class SessionEntityProvider extends AbstractEntityProvider implements Cor
                      + "the username must be provided as '_username' and the password as '_password' in the POST");
             }
             // now we auth
-            User u = userDirectoryService.authenticate(username, password);
-            if (u == null) {
+            try {
+                Evidence evidence = new IdPwEvidence(username, password, req.getRemoteAddr());
+                Authentication auth = authenticationManager.authenticate(evidence);
+
+                // create session or update existing one
+                currentSession = sessionManager.getCurrentSession();
+                if (currentSession == null) {
+                   // start a session if none is found
+                   currentSession = sessionManager.startSession();
+                }
+                currentSession.setUserId(auth.getUid());
+                currentSession.setUserEid(auth.getEid());
+            } catch (AuthenticationException ae) {
                throw new SecurityException("The username or password provided were invalid, could not authenticate user ("+username+") to create a session");
             }
-            // create session or update existing one
-            currentSession = sessionManager.getCurrentSession();
-            if (currentSession == null) {
-               // start a session if none is found
-               currentSession = sessionManager.startSession();
-            }
-            currentSession.setUserId(u.getId());
-            currentSession.setUserEid(u.getEid());
          }
       }
 

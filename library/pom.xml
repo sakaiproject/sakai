@@ -5,7 +5,7 @@
 	<parent>
 		<artifactId>master</artifactId>
 		<groupId>org.sakaiproject</groupId>
-		<version>12-SNAPSHOT</version>
+		<version>13-SNAPSHOT</version>
 		<relativePath>../master/pom.xml</relativePath>
 	</parent>
 	<name>Sakai Library</name>
@@ -14,10 +14,12 @@
 	<packaging>war</packaging>
 	<properties>
 		<!-- This is used in re-write rules as well -->
-		<ckeditor.version>4.5.7</ckeditor.version>
+		<ckeditor.version>4.8.0</ckeditor.version>
 		<bootstrap-version>3.3.7</bootstrap-version>
 		<font-awesome-version>4.7.0</font-awesome-version>
-		<!-- Empty defaults -->
+		<!-- Default extra plugins enabled, currently autosave disabled via SAK-33362 -->
+		<ckeditor-extra-plugins>sakaipreview,image2,audiorecorder,contentitem,movieplayer,wordcount,notification,autosave</ckeditor-extra-plugins>
+		<!-- Empty defaults for a11y-->
 		<ckeditor-a11y-extra-plugins></ckeditor-a11y-extra-plugins>
 	</properties>
 	<dependencies>
@@ -70,7 +72,12 @@
 			<version>${ckeditor.wordcount.version}</version>
 			<scope>runtime</scope>
 		</dependency>
-
+		<dependency>
+			<groupId>org.sakaiproject.webjars</groupId>
+			<artifactId>ckeditor-image2</artifactId>
+			<version>${ckeditor.image2.version}</version>
+			<scope>runtime</scope>
+		</dependency>
 		<dependency>
 			<groupId>org.webjars</groupId>
 			<artifactId>dropzone</artifactId>
@@ -80,7 +87,7 @@
 		<dependency>
 			<groupId>org.webjars</groupId>
 			<artifactId>handlebars</artifactId>
-			<version>4.0.5</version>
+			<version>${handlebars4.version}</version>
 			<scope>runtime</scope>
 		</dependency>
 		<dependency>
@@ -92,25 +99,25 @@
 		<dependency>
 			<groupId>org.webjars</groupId>
 			<artifactId>jquery</artifactId>
-			<version>1.11.3</version>
+			<version>1.12.4</version>
 			<scope>runtime</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.webjars</groupId>
 			<artifactId>jquery-migrate</artifactId>
-			<version>1.4.0</version>
+			<version>1.4.1</version>
 			<scope>runtime</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.webjars</groupId>
 			<artifactId>jquery-ui</artifactId>
-			<version>1.11.3</version>
+			<version>1.12.1</version>
 			<scope>runtime</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.webjars</groupId>
 			<artifactId>jquery-ui-themes</artifactId>
-			<version>1.11.3</version>
+			<version>1.12.1</version>
 			<scope>runtime</scope>
 		</dependency>
 		<dependency>
@@ -185,7 +192,7 @@
 			<version>3.0.0</version>
 			<scope>runtime</scope>
 		</dependency>
-    </dependencies>
+	</dependencies>
 	<profiles>
 		<profile>
 			<id>with-jsmath</id>
@@ -408,7 +415,25 @@
 							</execution>
 						</executions>
 					</plugin>
-
+					<plugin>
+						<groupId>com.github.jknack</groupId>
+						<artifactId>handlebars-maven-plugin</artifactId>
+						<version>4.0.5</version>
+						<executions>
+							<execution>
+								<id>templates</id>
+								<phase>prepare-package</phase>
+								<goals>
+									<goal>precompile</goal>
+								</goals>
+								<configuration>
+									<output>${basedir}/src/webapp/templates.js</output>
+									<prefix>${basedir}/src/templates</prefix>
+									<amd>false</amd>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
 				</plugins>
 			</build>
 		</profile>

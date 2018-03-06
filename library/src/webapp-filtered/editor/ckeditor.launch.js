@@ -26,8 +26,8 @@ sakai.editor.enableResourceSearch = false;
 
 sakai.editor.editors.ckeditor = sakai.editor.editors.ckeditor || {} ;
 
-//get path of directory ckeditor 
-var basePath = "/library/editor/ckextraplugins/"; 
+//get path of directory ckeditor
+var basePath = "/library/editor/ckextraplugins/";
 var webJars = "/library/webjars/"
 
 // Please note that no more parameters should be added to this signature.
@@ -108,11 +108,24 @@ sakai.editor.editors.ckeditor.launch = function(targetId, config, w, h) {
             "attemptAllowed" : Number.MAX_VALUE,
             "attemptsRemaining": Number.MAX_VALUE
         },
-        skin: 'moono',
+        skin: 'moono-lisa',
         defaultLanguage: 'en',
-        allowedContent: true, // http://docs.ckeditor.com/#!/guide/dev_advanced_content_filter-section-3
+        
+        // SAK-31829, SAK-33279 Disable functionality in table plugin
+        //https://docs.ckeditor.com/#!/guide/dev_disallowed_content-section-how-to-allow-everything-except...
+        allowedContent: {
+            $1: {
+                // Use the ability to specify elements as an object.
+                elements: CKEDITOR.dtd,
+                attributes: true,
+                styles: true,
+                classes: true
+            }
+        },
+        disallowedContent: 'table[cellspacing,cellpadding,border]',
+
         language: language + (country ? '-' + country.toLowerCase() : ''),
-        // This is used for uploading by the autorecorder and fmath_formula plugins.
+        // This is used for uploading by the autorecorder plugin.
         // TODO Get this to work with elfinder.
         fileConnectorUrl : '/sakai-fck-connector/web/editor/filemanager/browser/default/connectors/jsp/connector' + collectionId + '?' + folder,
 
@@ -155,8 +168,15 @@ sakai.editor.editors.ckeditor.launch = function(targetId, config, w, h) {
             ['BidiLtr', 'BidiRtl' ],
             ['Link','Unlink','Anchor'],
             (sakai.editor.enableResourceSearch
-                ? ['AudioRecorder','ResourceSearch', 'Image','Movie','Table','HorizontalRule','Smiley','SpecialChar','fmath_formula']
-                : ['AudioRecorder','Image','Movie','Table','HorizontalRule','Smiley','SpecialChar','fmath_formula']),
+                ? ( sakai.editor.contentItemUrl
+                    ? ['ContentItem', 'AudioRecorder','ResourceSearch', 'Image','Movie','Table','HorizontalRule','Smiley','SpecialChar']
+                    : ['AudioRecorder','ResourceSearch', 'Image','Movie','Table','HorizontalRule','Smiley','SpecialChar']
+                  )
+		: ( sakai.editor.contentItemUrl
+                    ? ['ContentItem', 'AudioRecorder', 'Image','Movie','Table','HorizontalRule','Smiley','SpecialChar']
+                    : ['AudioRecorder', 'Image','Movie','Table','HorizontalRule','Smiley','SpecialChar']
+                  )
+            ),
             '/',
             ['Styles','Format','Font','FontSize'],
             ['TextColor','BGColor'],
@@ -168,11 +188,13 @@ sakai.editor.editors.ckeditor.launch = function(targetId, config, w, h) {
         //SAK-23418
         pasteFromWordRemoveFontStyles : false,
         pasteFromWordRemoveStyles : false,
-        autosave_saveDetectionSelectors : "form input[type='button'],form input[type='submit']",
-        //Delay for autosave
-        autosave_delay: 120,
-        //autosave_messageType can be "no" or "notification"
-        autosave_messageType : "statusbar", 
+        autosave : {
+            saveDetectionSelectors : "form input[type='button'],form input[type='submit']",
+            //Delay for autosave
+            delay: 120,
+            //autosave_messageType can be "no" or "notification"
+            messageType : "statusbar"
+        },
 
         //wordcount Plugin see https://github.com/w8tcha/CKEditor-WordCount-Plugin for more config options
         //This value should match the one in antisamy (kernel/kernel-impl/src/main/resources/antisamy/low-security-policy.xml)
@@ -199,52 +221,72 @@ sakai.editor.editors.ckeditor.launch = function(targetId, config, w, h) {
     //To add extra plugins outside the plugins directory, add them here! (And in the variable)
     (function() {
         // SAK-30370 present a nice and simple editor without plugins to the user on a tiny screen.
-        if (getWidth() < 800) {
+        // 
+        //Check for the portal variable (Should be defined)
+        //These are defined in user/user-tool-prefs/tool/src/webapp/prefs/editor.jsp
+
+        var detectWidth = true;
+        if (typeof portal != 'undefined' && typeof portal.editor != 'undefined' && typeof portal.editor.type == 'string') {
+            if (portal.editor.type == "basic") {
+                ckconfig.toolbar = "Basic";
+                detectWidth = false;
+            }
+            else if (portal.editor.type == "full") {
+                ckconfig.toolbar = "Full";
+                detectWidth = false;
+            }
+        }
+
+        if (detectWidth == true && getWidth() < 800) {
             ckconfig.toolbar = 'Basic';
         }
-        else {
-            CKEDITOR.plugins.addExternal('lineutils',basePath+'lineutils/', 'plugin.js');
-            CKEDITOR.plugins.addExternal('widget',basePath+'widget/', 'plugin.js');
-            CKEDITOR.plugins.addExternal('iframedialog',basePath+'iframedialog/', 'plugin.js');
-            CKEDITOR.plugins.addExternal('movieplayer',basePath+'movieplayer/', 'plugin.js');
-            CKEDITOR.plugins.addExternal('fmath_formula',basePath+'fmath_formula/', 'plugin.js');
-            CKEDITOR.plugins.addExternal('audiorecorder',basePath+'audiorecorder/', 'plugin.js');
-            CKEDITOR.plugins.addExternal('image2',basePath+'image2/', 'plugin.js');
-            CKEDITOR.plugins.addExternal('sakaipreview',basePath+'sakaipreview/', 'plugin.js');
-            //Autosave has a dependency on notification
-            CKEDITOR.plugins.addExternal('autosave',webJars+'autosave/8541f541d9985cfd0859c7d8eb6be404afe95a2d/', 'plugin.js');
-            CKEDITOR.plugins.addExternal('wordcount',webJars+'wordcount/4897cb23a9f2ca7fb6b792add4350fb9e2a1722c/', 'plugin.js');
-            CKEDITOR.plugins.addExternal('notification',basePath+'notification/', 'plugin.js');
-            // Accessibility checker has a dependency on balloonpanel
-            CKEDITOR.plugins.addExternal('balloonpanel',webJars+'balloonpanel/4.6.2/', 'plugin.js');
-            CKEDITOR.plugins.addExternal('a11ychecker',webJars+'a11ychecker/1.1.0/', 'plugin.js');
-            /*
-               To enable after the deadline uncomment these two lines and add atd-ckeditor to toolbar
-               and to extraPlugins. This also needs extra stylesheets.
-               See readme for more info http://www.polishmywriting.com/atd-ckeditor/readme.html
-               You have to actually setup a server or get an API key
-               Hopefully this will get easier to configure soon.
-             */
-            CKEDITOR.plugins.addExternal('atd-ckeditor',basePath+'atd-ckeditor/', 'plugin.js'); 
-            /*
-               Replace this with your own server if you download it from http://openatd.wordpress.com/
-               Or you can proxy to the public one, see the page for more information.
-             */
-            //ckconfig.atd_rpc='//localhost/proxy/spellcheck';
-            //ckconfig.extraPlugins+="atd-ckeditor,";
-            //ckconfig.contentsCss = [basePath+'atd-ckeditor/atd.css'];
+        //These could be applicable to the basic toolbar
+        CKEDITOR.plugins.addExternal('lineutils',basePath+'lineutils/', 'plugin.js');
+        CKEDITOR.plugins.addExternal('widget',basePath+'widget/', 'plugin.js');
+        CKEDITOR.plugins.addExternal('iframedialog',basePath+'iframedialog/', 'plugin.js');
+        CKEDITOR.plugins.addExternal('movieplayer',basePath+'movieplayer/', 'plugin.js');
+        CKEDITOR.plugins.addExternal('audiorecorder',basePath+'audiorecorder/', 'plugin.js');
+        CKEDITOR.plugins.addExternal('contentitem',basePath+'contentitem/', 'plugin.js');
+        CKEDITOR.plugins.addExternal('sakaipreview',basePath+'sakaipreview/', 'plugin.js');
+        
+        CKEDITOR.plugins.addExternal('image2',webJars+'image2/${ckeditor.image2.version}/', 'plugin.js');
 
-            ckconfig.extraPlugins+="sakaipreview,image2,audiorecorder,movieplayer,wordcount,fmath_formula,autosave,notification${ckeditor-a11y-extra-plugins}";
+        //Autosave has a dependency on notification
+        CKEDITOR.plugins.addExternal('autosave',webJars+'autosave/${ckeditor.autosave.version}/', 'plugin.js');
+        CKEDITOR.plugins.addExternal('wordcount',webJars+'wordcount/${ckeditor.wordcount.version}/', 'plugin.js');
+        CKEDITOR.plugins.addExternal('notification',basePath+'notification/', 'plugin.js');
+        // Accessibility checker has a dependency on balloonpanel
+        CKEDITOR.plugins.addExternal('balloonpanel',webJars+'balloonpanel/${ckeditor.balloonpanel.version}/', 'plugin.js');
+        CKEDITOR.plugins.addExternal('a11ychecker',webJars+'a11ychecker/${ckeditor.a11ychecker.version}/', 'plugin.js');
+        /*
+           To enable after the deadline uncomment these two lines and add atd-ckeditor to toolbar
+           and to extraPlugins. This also needs extra stylesheets.
+           See readme for more info http://www.polishmywriting.com/atd-ckeditor/readme.html
+           You have to actually setup a server or get an API key
+           Hopefully this will get easier to configure soon.
+         */
+        CKEDITOR.plugins.addExternal('atd-ckeditor',basePath+'atd-ckeditor/', 'plugin.js'); 
+        /*
+           Replace this with your own server if you download it from http://openatd.wordpress.com/
+           Or you can proxy to the public one, see the page for more information.
+         */
+        //ckconfig.atd_rpc='//localhost/proxy/spellcheck';
+        //ckconfig.extraPlugins+="atd-ckeditor,";
+        //ckconfig.contentsCss = [basePath+'atd-ckeditor/atd.css'];
 
-            // Load FontAwesome CSS in case a user wants to manually add FA markup
-            ckconfig.contentsCss = [webJars+'fontawesome/4.7.0/css/font-awesome.min.css'];
-            //If the siteskin is defined, add the print.css
-            if (sakai.editor.sitePrintSkin) {
-                ckconfig.contentsCss.push(sakai.editor.sitePrintSkin);
-            } 
-            CKEDITOR.dtd.$removeEmpty.span = false;
-            CKEDITOR.dtd.$removeEmpty['i'] = false;
-        }
+        ckconfig.extraPlugins+="${ckeditor-extra-plugins}${ckeditor-a11y-extra-plugins}";
+
+        // Load FontAwesome CSS in case a user wants to manually add FA markup
+        ckconfig.contentsCss = [webJars+'fontawesome/4.7.0/css/font-awesome.min.css'];
+        //If the siteskin is defined, add the print.css
+        if (sakai.editor.sitePrintSkin) {
+            ckconfig.contentsCss.push(sakai.editor.sitePrintSkin);
+        } 
+        CKEDITOR.dtd.$removeEmpty.span = false;
+        CKEDITOR.dtd.$removeEmpty['i'] = false;
+        //Add greek special characters to set
+        ckconfig.specialChars = CKEDITOR.config.specialChars.concat([ ["&alpha;","alpha"],["&beta;","beta"],["&gamma;","gamma"],["&delta;","delta"],["&epsilon;","epsilon"],["&zeta;","zeta"],["&eta;","eta"],["&theta;","theta"], ["&iota;","iota"],["&kappa;","kappa"],["&lambda;","lambda"],["&mu;","mu"],["&nu;","nu"],["&xi;","xi"],["&omicron;","omnicron"],["&pi;","pi"],["&rho;","rho"],["&sigma;","sigma"],["&tau;","tau"],["&upsilon;","upsilon"], ["&phi;","phi"],["&chi;","chi"],["&psi;","psi"],["&omega;","omega"],["&Alpha;","Alpha"],["&Beta;","Beta"],["&Gamma;","Gamma"],["&Delta;","Delta"],["&Epsilon;","Epsilon"],["&Zeta;","Zeta"],["&Eta;","Eta"],["&Theta;","Theta"], ["&Iota;","Iota"],["&Kappa;","Kappa"],["&Lambda;","Lambda"],["&Mu;","Mu"],["&Nu;","Nu"],["&Xi;","Xi"],["&Omicron;","Omnicron"],["&Pi;","Pi"],["&Rho;","Rho"],["&Sigma;","Sigma"],["&Tau;","Tau"],["&Upsilon;","Upsilon"], ["&Phi;","Phi"],["&Chi;","Chi"],["&Psi;","Psi"],["&Omega;","Omega"] ]);
+
     })();
 
 	  CKEDITOR.replace(targetId, ckconfig);

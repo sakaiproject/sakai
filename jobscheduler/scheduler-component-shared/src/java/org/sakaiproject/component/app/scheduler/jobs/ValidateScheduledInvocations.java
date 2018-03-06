@@ -1,16 +1,34 @@
+/**
+ * Copyright (c) 2003-2016 The Apereo Foundation
+ *
+ * Licensed under the Educational Community License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *             http://opensource.org/licenses/ecl2
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.sakaiproject.component.app.scheduler.jobs;
 
-import org.apache.commons.lang.StringUtils;
-import org.quartz.*;
-import org.quartz.impl.matchers.GroupMatcher;
-import org.sakaiproject.component.app.scheduler.ContextMappingDAO;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import javax.inject.Inject;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
+
+import javax.inject.Inject;
+
+import lombok.extern.slf4j.Slf4j;
+
+import org.apache.commons.lang.StringUtils;
+
+import org.quartz.*;
+import org.quartz.impl.matchers.GroupMatcher;
+
+import org.sakaiproject.component.app.scheduler.ContextMappingDAO;
 
 import static org.sakaiproject.component.app.scheduler.ScheduledInvocationManagerImpl.CONTEXT_ID;
 import static org.sakaiproject.component.app.scheduler.ScheduledInvocationManagerImpl.GROUP_NAME;
@@ -18,9 +36,8 @@ import static org.sakaiproject.component.app.scheduler.ScheduledInvocationManage
 /**
  * This checks that the data stored in quartz and in the lookup tables is in sync.
  */
+@Slf4j
 public class ValidateScheduledInvocations implements Job {
-
-    private Logger log = LoggerFactory.getLogger(ValidateScheduledInvocations.class);
 
     @Inject
     private SchedulerFactory factory;

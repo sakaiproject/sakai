@@ -4,7 +4,7 @@
   <parent>
     <artifactId>kernel</artifactId>
     <groupId>org.sakaiproject</groupId>
-    <version>12-SNAPSHOT</version><!-- KernelVersion -->
+    <version>13-SNAPSHOT</version><!-- KernelVersion -->
     <relativePath>../pom.xml</relativePath>
   </parent>
   <name>Sakai Core Kernel Implementation</name>
@@ -263,21 +263,20 @@
     <dependency>
       <groupId>org.jasypt</groupId>
       <artifactId>jasypt</artifactId>
-      <version>1.9.0</version>
-    </dependency>
-    <dependency>
-        <groupId>com.ibm.icu</groupId>
-        <artifactId>icu4j</artifactId>
-        <version>4.8.1</version>
-        <type>jar</type>
-        <scope>compile</scope>
+      <version>1.9.2</version>
     </dependency>
 
     <!-- antisamy -->
     <dependency>
       <groupId>org.owasp.antisamy</groupId>
       <artifactId>antisamy</artifactId>
-      <version>1.5.5</version>
+      <version>1.5.7</version>
+    </dependency>
+    <!-- This is needed by antisamy because batik-css has wrong versions getting pulled in -->
+    <dependency>
+      <groupId>xml-apis</groupId>
+      <artifactId>xml-apis</artifactId>
+      <scope>runtime</scope>
     </dependency>
     <dependency>
       <groupId>xerces</groupId>
@@ -293,7 +292,7 @@
     <dependency>
       <groupId>org.jsoup</groupId>
       <artifactId>jsoup</artifactId>
-      <version>1.7.3</version>
+      <version>1.10.3</version>
       <type>jar</type>
       <scope>compile</scope>
     </dependency>

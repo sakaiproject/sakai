@@ -1,23 +1,35 @@
+/**
+ * Copyright (c) 2003-2016 The Apereo Foundation
+ *
+ * Licensed under the Educational Community License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *             http://opensource.org/licenses/ecl2
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.sakaiproject.citation.impl.openurl;
 
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.citation.impl.openurl.ContextObject.Entity;
 
 /**
  * Class to deal with Key Encoded Value format of OpenURLs.
  * @author buckett
  */
+@Slf4j
 public class KEVFormat implements Format {
-
-	private static final Logger log = LoggerFactory.getLogger(KEVFormat.class);
 	private static List<EntityFormatter> entityFormatters = new ArrayList<EntityFormatter>();
 	
 	public static String FORMAT_ID = "info:ofi/fmt:kev:mtx:ctx";

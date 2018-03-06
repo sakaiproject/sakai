@@ -1,38 +1,54 @@
+/**
+ * Copyright (c) 2005-2017 The Apereo Foundation
+ *
+ * Licensed under the Educational Community License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *             http://opensource.org/licenses/ecl2
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+ 
 package org.sakaiproject.tool.assessment.entity.impl;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang.StringUtils;
 import org.osid.assessment.Assessment;
-import org.sakaiproject.site.api.SiteService;
-import org.sakaiproject.tool.assessment.data.dao.assessment.ItemTag;
-import org.sakaiproject.tool.assessment.data.ifc.assessment.AnswerIfc;
-import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextIfc;
-import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
-import org.sakaiproject.tool.assessment.facade.AgentFacade;
-import org.sakaiproject.tool.assessment.facade.AssessmentFacadeQueriesAPI;
-import org.sakaiproject.tool.assessment.facade.QuestionPoolFacadeQueriesAPI;
-import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
 import org.sakaiproject.entitybroker.DeveloperHelperService;
 import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.entitybroker.entityprovider.CoreEntityProvider;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.AutoRegisterEntityProvider;
 import org.sakaiproject.entitybroker.entityprovider.extension.Formats;
+import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.tool.assessment.data.dao.assessment.ItemTag;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.AnswerIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextIfc;
+import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 import org.sakaiproject.tool.assessment.entity.api.ItemEntityProvider;
-import org.sakaiproject.tool.assessment.facade.ItemFacadeQueriesAPI;
+import org.sakaiproject.tool.assessment.facade.AgentFacade;
+import org.sakaiproject.tool.assessment.facade.AssessmentFacadeQueriesAPI;
 import org.sakaiproject.tool.assessment.facade.ItemFacade;
-import org.apache.commons.lang.StringUtils;
-
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.HashMap;
-import java.util.Set;
-
+import org.sakaiproject.tool.assessment.facade.ItemFacadeQueriesAPI;
+import org.sakaiproject.tool.assessment.facade.QuestionPoolFacadeQueriesAPI;
+import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 
 /**
  * Entity Provider impl for samigo questions.
  */
-
+@Slf4j
 public class ItemEntityProviderImpl implements ItemEntityProvider,CoreEntityProvider,AutoRegisterEntityProvider {
 
     private ItemFacadeQueriesAPI itemFacadeQueries;
@@ -42,7 +58,6 @@ public class ItemEntityProviderImpl implements ItemEntityProvider,CoreEntityProv
     private AssessmentService assessmentService = new AssessmentService();
     private SiteService siteService;
 
-    private static Logger log = LoggerFactory.getLogger(ItemEntityProviderImpl.class);
     public final static String ENTITY_PREFIX = ItemEntityProvider.ENTITY_PREFIX;
 
     public String getEntityPrefix() {

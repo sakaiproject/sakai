@@ -1,0 +1,586 @@
+ /* Fonts */
+ @font-face {
+    font-family:"gradebook-icons";
+    src:url(../fonts/gradebook-icons.eot);
+    src:url(../fonts/gradebook-icons.eot?#iefix) format("embedded-opentype"),url(../fonts/gradebook-icons.woff) format("woff"),url(../fonts/gradebook-icons.ttf) format("truetype"),url(../fonts/gradebook-icons.svg#gradebook-icons) format("svg");
+    font-weight:400;
+    font-style:normal
+}
+#gradebookSpreadsheet,
+#gradebookGradesToolbar {
+  margin-top: 15px;
+}
+#gradeTableWrapper {
+  position: relative;
+  overflow: visible;
+}
+
+#gradeTableWrapper {
+  font-size: 0.9em;
+}
+#gradeTableWrapper td {
+  text-align: center;
+  vertical-align: middle;
+}
+#gradeTableWrapper tbody th {
+  text-align: left;
+  vertical-align: middle;
+}
+#gradeTableWrapper .handsontableInputHolder {
+  text-align: center;
+}
+#gradeTableWrapper .handsontableInputHolder .out-of {
+  position: absolute;
+  right: 2px;
+  background-color: #FAFAFA;
+  font-size: 1em;
+  color: #666;
+  top: 2px;
+  border-left: 1px solid #EEE;
+  height: 28px;
+  line-height: 28px;
+  padding: 0 12px;
+}
+#gradeTableWrapper .handsontableInput {
+  line-height: 30px;
+  text-align: center;
+}
+
+#gradeTableWrapper .handsontable tr > *:nth-child(1){
+  text-align: left;
+}
+#gradeTableWrapper .handsontable tbody tr > *:nth-child(1) .relative,
+#gradeTableWrapper .handsontable tbody tr > *:nth-child(2) .relative {
+  padding: 2px 8px;
+}
+#gradeTableWrapper .handsontable tbody tr > *:nth-child(1) .relative .gb-value {
+  overflow: hidden;
+}
+/* right border for various number of fixed column options */
+#gradeTableWrapper .handsontable.gb-fixed-columns-1 tr > *:nth-child(1),
+#gradeTableWrapper .handsontable.gb-fixed-columns-2 tr > *:nth-child(2),
+#gradeTableWrapper .handsontable.gb-fixed-columns-3 tr > *:nth-child(3),
+#gradeTableWrapper .handsontable.gb-fixed-columns-4 tr > *:nth-child(4),
+#gradeTableWrapper .handsontable.gb-fixed-columns-5 tr > *:nth-child(5) {
+  border-right: 1px solid #BBB;
+}
+#gradeTableWrapper .handsontable thead th {
+  color: #666;
+  border-bottom: 1px solid #BBB;
+}
+#gradeTableWrapper .handsontable tbody tr:nth-child(2n) td,
+#gradeTableWrapper .handsontable tbody tr:nth-child(2n) td .relative {
+    background: #F9F9F9;
+}
+#gradeTableWrapper .handsontable th,
+#gradeTableWrapper .handsontable td {
+  border-color: #EAEAEA;
+  padding: 0;
+}
+#gradeTableWrapper .handsontable th > .relative,
+#gradeTableWrapper .handsontable td > .relative {
+  padding: 2px 4px;
+}
+#gradeTableWrapper .handsontable th > .relative > * {
+  white-space: normal;
+}
+#gradeTableWrapper .handsontable th {
+  background-color: #F6f6f6;
+  height: 102px;
+}
+
+#gradeTableWrapper thead th {
+  text-align: left;
+}
+#gradeTableWrapper thead th .relative {
+  height: 100%;
+}
+#gradeTableWrapper tbody td .relative {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 32px;
+}
+#gradeTableWrapper tbody td .gb-student-cell {
+  justify-content: flex-start;
+}
+#gradeTableWrapper tbody td .gb-student-cell .gb-value {
+  line-height: 1.2em;
+}
+#gradeTableWrapper tbody td .gb-student-cell .gb-view-grade-summary {
+  display: block;
+  font-weight: normal;
+}
+#gradeTableWrapper .relative {
+  border-top: 1px solid transparent;
+  border-bottom: 1px solid transparent;
+}
+#gradeTableWrapper .currentRow .relative {
+  border-top: 1px solid rgb(82, 146, 247);
+  border-bottom: 1px solid rgb(82, 146, 247);
+}
+
+#gradeTableWrapper .handsontable td {
+  white-space: nowrap;
+}
+#gradeTableWrapper .gb-title {
+  font-weight: bold;
+  white-space: normal;
+  text-align: left;
+  line-height: 1.2em;
+  display: inline-block;
+  cursor: pointer;
+  width: calc(100% - 16px);
+}
+#gradeTableWrapper .gb-title:hover:after {
+  font-family: 'gradebook-icons';
+  content: '\f0dc';
+  position: absolute;
+  right: 5px;
+  top: 5px;
+}
+#gradeTableWrapper .gb-title.gb-sorted-asc:after {
+  font-family: 'gradebook-icons';
+  content: '\f0de';
+  position: absolute;
+  right: 5px;
+  top: 5px;
+}
+#gradeTableWrapper .gb-title.gb-sorted-desc:after {
+  font-family: 'gradebook-icons';
+  content: '\f0dd';
+  position: absolute;
+  right: 5px;
+  top: 5px;
+}
+#gradeTableWrapper .gb-title .gb-category {
+  font-style: italic;
+}
+#gradeTableWrapper .gb-title .gb-category .gb-category-weight-label {
+  padding-left: 18px;
+}
+#gradeTableWrapper .gb-title .gb-category .gb-category-weight {
+  font-style: normal;
+}
+#gradeTableWrapper .gb-grade-section,
+#gradeTableWrapper .gb-due-date,
+#gradeTableWrapper .gb-category {
+  text-align: left;
+  font-size: 0.9em;
+  line-height: 1.3em;
+}
+#gradeTableWrapper .gb-grade-item-flags {
+  position: absolute;
+  bottom: 0;
+  left: 5px;
+}
+#gradeTableWrapper th .btn-group,
+#gradeTableWrapper td .btn-group {
+  position: absolute;
+  bottom: 5px;
+  right: 5px;
+}
+#gradeTableWrapper .btn-group > a {
+  line-height: 10px;
+  padding: 0 10px;
+  opacity: 0.2;
+  border-color: #EEE;
+}
+#gradeTableWrapper th:hover .btn-group > a,
+#gradeTableWrapper td:hover .btn-group > a,
+#gradeTableWrapper .highlight .btn-group > a {
+  opacity: 1;
+}
+
+#gradeTableWrapper .highlight {
+  color: inherit;
+  font-weight: inherit;
+}
+
+#gradebookSpreadsheet.gb-grouped-by-category #gradeTableWrapper th.gb-categorized {
+  border-top: 10px solid #F0F0F0;
+}
+#gradeTableWrapper .swatch {
+  width: 1em;
+  height: 1em;
+  display: inline-block;
+  margin-right: 4px;
+  box-shadow: 1px 1px 2px #CCC;
+}
+#gradeTableWrapper .gb-category-weight {
+  color: #999;
+  font-weight: normal;
+}
+#gradeTableWrapper .gb-uncategorized {
+  text-align: left;
+  color: #999;
+}
+#gradeTableWrapper tbody td .gb-value {
+  line-height: 30px;
+}
+#gradeTableWrapper tbody td .gb-value.gb-overridden {
+  font-weight: bold;
+}
+#gradeTableWrapper tbody td .btn-group {
+  position: absolute;
+  right: 0;
+  bottom: 2px;
+}
+#gradeTableWrapper .gb-comment-notification {
+  position: absolute;
+  top: 4px;
+  right: 8px;
+  font-size: 16px;
+  min-width: 16px;
+  height: 20px;
+  color: #AAA;
+}
+#gradeTableWrapper .gb-comment-notification:before,
+.gb-flag-comment:before {
+  font-family: "gradebook-icons";
+  content: '\f075';
+}
+
+#gradeTableWrapper .gb-notification {
+  position: absolute;
+  top: 50%;
+  left: 10px;
+  font-size: 16px;
+  min-width: 16px;
+  height: 20px;
+  margin-top: -10px;
+}
+[class*="gb-flag"] {
+  color: #999;
+  font-family: 'gradebook-icons';
+  display: inline-block;
+  min-width: 16px;
+  text-align: center;
+  font-style: normal;
+}
+.gb-flag-not-counted:before {
+  content: '\e600';
+}
+.gb-flag-not-released:before {
+  content: '\e601';
+}
+.gb-flag-not-released:before {
+  content: '\e601';
+}
+.gb-flag-counted,
+.gb-flag-released {
+  display: none;
+}
+#gradeTableWrapper .gb-extra-credit,
+#gradeTableWrapper .currentRow .gb-extra-credit,
+#gradeTableWrapper .currentCol .gb-extra-credit {
+  background-color: #FCF8E3 !important;
+}
+.gb-flag-extra-credit:before {
+  content: '\f0fe';
+  color: rgb(200,144,0);
+}
+.gb-flag-external:before {
+  content: '\f045';
+}
+.gb-flag-read-only:before {
+  content: '\f023';
+}
+#gradeTableWrapper th .gb-flag-extra-credit,
+#gradeTableWrapper th .gb-external-app {
+  font-size: 1.1em;
+  vertical-align: baseline;
+  display: inline-block;
+}
+#gradeTableWrapper th .relative > .gb-flag-extra-credit,
+#gradeTableWrapper th .relative > .gb-external-app {
+  float: left;
+  vertical-align: top;
+  line-height: inherit;
+  margin-right: 4px;
+}
+#gradeTableWrapper th .gb-flag-extra-credit:before {
+  color: #999;
+}
+#gradeTableWrapper .gb-save-success,
+#gradeTableWrapper .currentCol .gb-save-success,
+#gradeTableWrapper .currentRow .gb-save-success {
+  background-color: #DFF0D8 !important;
+}
+#gradeTableWrapper .gb-save-success .gb-notification:before {
+  font-family: "gradebook-icons";
+  content: "\f05d" !important;
+  color: green;
+}
+#gradeTableWrapper .gb-just-synced,
+#gradeTableWrapper .currentCol .gb-just-synced,
+#gradeTableWrapper .currentRow .gb-just-synced {
+  background-color: #DFF0D8 !important;
+}
+#gradeTableWrapper .gb-save-error,
+#gradeTableWrapper .currentCol .gb-save-error,
+#gradeTableWrapper .currentRow .gb-save-error {
+	background-color: #FFBBBB !important;
+}
+#gradeTableWrapper .gb-save-error .gb-notification:before,
+.gb-flag-save-error:before {
+  font-family: "gradebook-icons";
+  content: "\f06a" !important;
+  color: rgb(204,0,0) !important;
+}
+#gradeTableWrapper .gb-save-invalid {
+  background-color: #FCF8E3 !important;
+}
+#gradeTableWrapper .gb-save-invalid .gb-notification:before,
+.gb-flag-save-invalid:before {
+  font-family: "gradebook-icons";
+  content: "\f071" !important;
+  color: rgb(200,144,0) !important;
+}
+#gradeTableWrapper .gb-read-only {
+  color: #777;
+}
+#gradeTableWrapper .gb-read-only .gb-notification:before {
+  font-family: "gradebook-icons";
+  content: '\f023';
+  color: #DDD;
+}
+#gradeTableWrapper .gb-read-only .gb-notification.gb-flag-extra-credit:after {
+  font-family: "gradebook-icons";
+  content: '\f0fe';
+  color: rgb(200,144,0);
+  font-size: 10px;
+  position: absolute;
+  right: -5px;
+  bottom: -5px;
+}
+#gradeTableWrapper .gb-concurrent-edit .gb-notification:before,
+.gb-flag-concurrent-edit:before {
+  font-family: "gradebook-icons";
+  content: '\f040';
+  color: rgb(204,0,0);
+}
+
+/* Cell Metadata Summary */
+.gb-metadata {
+  position: absolute;
+  width: 300px;
+  padding: 10px;
+  font-size: 0.9em;
+  background: #FAFAFA;
+  color: #212121;
+  z-index: 1000;
+  border-radius: 5px;
+  box-shadow: 1px 1px 5px 1px #999;
+}
+.gb-metadata p,
+.gb-metadata dl,
+.gb-metadata ul,
+.gb-metadata blockquote {
+  margin: 0;
+}
+.gb-metadata dt {
+  width: 80px !important;
+  color: #555;
+}
+.gb-metadata dd {
+  margin-left: 90px !important;
+}
+.gb-metadata blockquote {
+  font-size: 1em;
+  padding: 5px;
+  color: #666;
+}
+.gb-metadata:after, .gb-metadata:before {
+  bottom: 100%;
+  left: 50%;
+  border: solid transparent;
+  content: " ";
+  height: 0;
+  width: 0;
+  position: absolute;
+  pointer-events: none;
+}
+.gb-metadata:after {
+  border-color: transparent;
+  border-bottom-color: #FAFAFA;
+  border-width: 10px;
+  margin-left: -10px;
+}
+.gb-metadata:before {
+  border-color: transparent;
+  border-bottom-color: #DDD;
+  border-width: 10px;
+  margin-left: -10px;
+}
+.gb-metadata .gb-metadata-close:before {
+  position: absolute;
+  right: 5px;
+  top: 5px;
+  font-family: 'gradebook-icons';
+  content: '\f00d';
+}
+.gb-metadata .gb-metadata-notifications ul {
+  list-style: none;
+  padding-left: 0;
+}
+#gradebookGradesToolbar {
+  border-top: 1px solid #F6f6f6;
+}
+#gradebookGradesToolbar button {
+  margin: 0;
+}
+.gb-student-filter {
+  position: relative;
+}
+.gb-student-filter #studentFilterInput {
+  height: 28px;
+  font-size: 12px;
+}
+.gb-student-filter .gb-student-filter-clear-button {
+  position: absolute;
+  top: 50%;
+  margin-top: -8px;
+  height: 16px;
+  right: 8px;
+  color: #999;
+}
+.gb-grade-item-summary .gb-item-summary-counts.warn-items-hidden,
+.gb-student-summary .gb-student-summary-counts.warn-students-hidden {
+  color: #CA7311;
+  font-weight: bold;
+}
+/* table caption and toggle */
+#captionToggle {
+  color: #777;
+  vertical-align: middle;
+  text-decoration: none;
+  font-size: 25px;
+  margin-left: 10px;
+}
+#captionToggle:before {
+  font-family: 'gradebook-icons';
+  content: '\f11c';
+}
+#captionToggle:hover {
+  text-shadow: 0 0 5px #AAA;
+}
+#gradeTableWrapper #gradeTableCaption {
+  /* hide the caption from users, but retain for screen readers */
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  border: 0;
+}
+#gradeTableWrapper #gradeTableCaption.maximized {
+  position: fixed;
+  width: 80%;
+  height: 60%;
+  background: #FAFAFA;
+  color: #212121;
+  z-index: 1000;
+  top: 20%;
+  left: 150px;
+  padding: 10px;
+  margin: 0;
+  border-radius: 5px;
+  box-shadow: 1px 1px 20px 5px #999;
+  overflow: auto;
+  clip: auto;
+}
+.handsontable th {
+  overflow: visible; /* to allow visual cue to be rendered nicely */
+}
+.gb-hidden-column-visual-cue {
+  position: absolute;
+  top: 0;
+  right: -10px;
+  cursor: pointer;
+  width: 19px;
+  border: 1px solid transparent;
+  height: 15px;
+  line-height: 14px;
+  padding: 0 1px;
+  border-radius: 2px;
+}
+.gb-grouped-by-category .gb-hidden-column-visual-cue {
+  top: -10px;
+}
+.gb-hidden-column-visual-cue:hover,
+.gb-hidden-column-visual-cue:active,
+.gb-hidden-column-visual-cue:focus {
+  text-decoration: none;
+  background-color: #FFF;
+  background-color: rgba(255,255,255,0.5);
+  border-color: #43a7c8;
+  border-color: rgba(67, 167, 200, 0.5);
+}
+.gb-hidden-column-visual-cue:before {
+  font-family: 'gradebook-icons';
+  content: '\f0d9';
+  float: left;
+}
+.gb-hidden-column-visual-cue:after {
+  font-family: 'gradebook-icons';
+  content: '\f0da';
+  float: right;
+}
+.gb-category-average {
+    background-color: #FCFCFC;
+}
+.gb-category-average .gb-value {
+    font-weight: bold;
+    color: #666;
+}
+
+/* For Webkit browsers, force the scrollbars to be visible
+   (due to hidden scroll bars in OS X)
+*/
+.ht_clone_left.handsontable {
+  height: calc(100% - 10px) !important;
+}
+.ht_clone_left.handsontable .wtHolder .wtHider {
+  padding-bottom: 10px;
+}
+.ht_clone_top.handsontable {
+  width: calc(100% - 10px) !important;
+}
+.ht_clone_top.handsontable .wtHolder .wtHider {
+  padding-right: 10px;
+}
+.wtHolder::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+.wtHolder::-webkit-scrollbar-track {
+  background-color: #EEE;
+}
+.wtHolder::-webkit-scrollbar-thumb {
+  border-radius: 10px;
+  background-color: rgba(170,170,170,0.5);
+}
+.wtHolder::-webkit-scrollbar-thumb:hover {
+  background-color: #AAA;
+}
+/* drop z-index so they don't interfere with site menu dropdowns */
+.ht_clone_top {
+  z-index: 96; /* was 101 */
+}
+.ht_clone_left {
+  z-index: 97; /* was 102 */
+}
+.ht_clone_top_left_corner,
+.ht_clone_bottom_left_corner {
+  z-index: 98; /* was 103 */
+}
+
+/* We want the original table header to take up space, but it doesn't need to be
+   visible.  Otherwise we see it show up as a "ghost" in firefox when scrolling
+   upwards. */
+.handsontable.ht_master thead {
+    visibility: hidden;
+}

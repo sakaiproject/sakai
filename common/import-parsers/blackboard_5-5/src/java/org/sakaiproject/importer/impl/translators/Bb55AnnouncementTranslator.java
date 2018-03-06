@@ -1,3 +1,18 @@
+/**
+ * Copyright (c) 2005-2016 The Apereo Foundation
+ *
+ * Licensed under the Educational Community License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *             http://opensource.org/licenses/ecl2
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.sakaiproject.importer.impl.translators;
 
 import java.text.DateFormat;
@@ -5,19 +20,19 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
+
 import org.sakaiproject.importer.api.Importable;
 import org.sakaiproject.importer.api.IMSResourceTranslator;
 import org.sakaiproject.importer.impl.Blackboard55FileParser;
 import org.sakaiproject.importer.impl.XPathHelper;
 import org.sakaiproject.importer.impl.importables.Announcement;
-import org.w3c.dom.Document;
-import org.w3c.dom.Node;
 
+@Slf4j
 public class Bb55AnnouncementTranslator implements IMSResourceTranslator {
-	
-	private static Logger log = LoggerFactory.getLogger(Bb55AnnouncementTranslator.class);
 
 	public String getTypeName() {
 		// TODO Auto-generated method stub

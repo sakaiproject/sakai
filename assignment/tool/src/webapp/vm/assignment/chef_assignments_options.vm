@@ -1,0 +1,39 @@
+<!-- start: chef_assignments_options.vm  -->
+<script type="text/javascript">
+	focus_path = [ "$form-notify" ];
+</script>
+
+<div class="portletBody container-fluid">
+	#navBarHREF( $allowAddAssignment $withGrade $allowGradeSubmission $allowAddAssignment $allowRecoverAssignment $allowAllGroups $assignmentscheck $allowUpdateSite $enableViewOption $view "options" )
+
+	<div class="page-header">
+        <h1>
+			$tlang.getString("options")
+		</h1>
+	</div>
+
+	#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $alertMessage</div><div class="clear"></div>#end
+	<form action="#toolForm("$action")" method="post" name="optionsForm">
+ 		<fieldset class="indnt2">
+            <legend><h3>$tlang.getString("options_instruction")</h3></legend>
+			<div class="checkbox">
+				<label for="submission_list_option_default">
+                	<input type="radio" id="submission_list_option_default" name="submissions_search_only" #if(!$submissions_search_only)checked#end value="false"/>
+    				$tlang.getString("options_default")
+				</label>
+			</div>
+            <div class="checkbox">
+				<label for="submission_list_option_searchonly">
+    				<input type="radio" id="submission_list_option_searchonly" name="submissions_search_only" #if($submissions_search_only)checked#end value="true"/>
+    				$tlang.getString("options_searchonly")
+				</label>
+            </div>
+		</fieldset>
+		<p class="act">
+			<input type="submit" class="active" name="eventSubmit_doUpdate_options" id = "eventSubmit_doUpdate_option_default" value="$tlang.getString("update")" accesskey="s" onclick="SPNR.disableControlsAndSpin( this, null );" />
+			<input type="submit" name="eventSubmit_doCancel_options" value="$tlang.getString("gen.can")" accesskey="x" onclick="SPNR.disableControlsAndSpin( this, null );"/>
+		</p>
+		<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+	</form>
+</div>
+<!-- end: chef_assignments_options.vm  -->

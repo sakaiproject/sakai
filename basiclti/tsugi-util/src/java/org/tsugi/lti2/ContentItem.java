@@ -19,32 +19,13 @@
 
 package org.tsugi.lti2;
 
-import java.net.URL;
-import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Properties;
-import java.util.HashMap;
-import java.util.logging.Logger;
-import java.lang.StringBuffer;
 
 import java.net.URLEncoder;
 
 import javax.servlet.http.HttpServletRequest;
-
-import org.tsugi.basiclti.BasicLTIUtil;
-import org.tsugi.lti2.objects.Service_offered;
-import org.tsugi.lti2.objects.StandardServices;
-import org.tsugi.lti2.objects.ToolConsumer;
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
-import org.json.simple.JSONValue;
-
-import static org.tsugi.lti2.LTI2Util.getArray;
-import static org.tsugi.lti2.LTI2Util.getObject;
-import static org.tsugi.lti2.LTI2Util.getString;
-
 
 import net.oauth.OAuthAccessor;
 import net.oauth.OAuthConsumer;
@@ -53,6 +34,13 @@ import net.oauth.OAuthValidator;
 import net.oauth.SimpleOAuthValidator;
 import net.oauth.server.OAuthServlet;
 import net.oauth.signature.OAuthSignatureMethod;
+
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.JSONValue;
+
+import static org.tsugi.lti2.LTI2Util.getArray;
+import static org.tsugi.lti2.LTI2Util.getString;
 
 /* {
 	"@context": "http:\/\/purl.imsglobal.org\/ctx\/lti\/v1\/ContentItem",
@@ -72,9 +60,6 @@ import net.oauth.signature.OAuthSignatureMethod;
 
 public class ContentItem {
 
-	// We use the built-in Java logger because this code needs to be very generic
-	private static Logger M_log = Logger.getLogger(ContentItem.class.toString());
-
 	public static final String ACCEPT_MEDIA_TYPES = "accept_media_types";
 	public static String MEDIA_LTILINKITEM = "application/vnd.ims.lti.v1.ltilink";
 	// http://www.iana.org/assignments/media-types/media-types.xhtml
@@ -83,11 +68,19 @@ public class ContentItem {
 	public static final String MEDIA_CC_1_3 = "application/vnd.ims.imsccv1p3";
 	public static final String MEDIA_CC = MEDIA_CC_1_3+","+MEDIA_CC_1_2+","+MEDIA_CC_1_3;
 
+	// TYPE is in LTI2Constants.TYPE (since it is JSON_LD really)
 	public static final String TYPE_LTILINKITEM = "LtiLinkItem";
 	public static final String TYPE_LTILINK_OLD = "LtiLink";
 	public static final String TYPE_CONTENTITEM = "ContentItem";
 	public static final String TYPE_FILEITEM = "FileItem";
 	public static final String TYPE_IMPORTITEM = "ImportItem";
+
+	public static final String TITLE = "title";
+	public static final String TEXT = "text";
+	public static final String URL = "url";
+	public static final String LINEITEM = "lineItem";
+	public static final String CUSTOM = "custom";
+	public static final String ICON = "icon";
 
 	HttpServletRequest servletRequest = null;
 

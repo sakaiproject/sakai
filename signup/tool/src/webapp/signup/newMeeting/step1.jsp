@@ -103,9 +103,8 @@
                 <div class="form-group row">
                     <h:outputLabel value="#{msgs.event_name}" for="name" styleClass="col-md-2 form-control-label form-required"/>
                     <div class="col-md-10">
-                        <h:inputText id="name" size="40" value="#{NewSignupMeetingBean.signupMeeting.title}" 
-                                    styleClass="editText form-control" required="true"  >
-                            <f:validator validatorId="Signup.EmptyStringValidator"/>
+                        <h:inputText id="name" size="40" value="#{NewSignupMeetingBean.title}" 
+                                    styleClass="editText form-control"  >
                             <f:validateLength maximum="255" />
                         </h:inputText>
                         <h:message for="name" errorClass="alertMessageInline"/>
@@ -385,30 +384,32 @@
                         </h:panelGroup>
                         <div id="meeting-participants">
                             <div id="multiple" class="mi">
-                                <h:outputText id="maxAttendeesPerSlot" style="display:none" value="#{NewSignupMeetingBean.maxAttendeesPerSlot}"></h:outputText>
-                                <h:outputText id="maxSlots" style="display:none" value="#{NewSignupMeetingBean.maxSlots}"></h:outputText>
-                                <div class="row">
-                                    <div class="col-xs-12 col-sm-6">
-                                        <h:outputLabel value="#{msgs.event_num_slot_avail_for_signup}" for="numberOfSlot"/>
+                                <div id="meeting:multipleCh">
+                                    <h:outputText id="maxAttendeesPerSlot" style="display:none" value="#{NewSignupMeetingBean.maxAttendeesPerSlot}"></h:outputText>
+                                    <h:outputText id="maxSlots" style="display:none" value="#{NewSignupMeetingBean.maxSlots}"></h:outputText>
+                                    <div class="row">
+                                        <div class="col-xs-12 col-sm-6">
+                                            <h:outputLabel value="#{msgs.event_num_slot_avail_for_signup}" for="numberOfSlot"/>
+                                        </div>
+                                        <div class="col-xs-12 col-sm-2">
+                                            <h:inputText  id="numberOfSlot" value="#{NewSignupMeetingBean.numberOfSlots}" size="2" styleClass="editText" onkeyup="getSignupDuration();return false;" style="margin-left:12px" />
+                                        </div>
                                     </div>
-                                    <div class="col-xs-12 col-sm-2">
-                                        <h:inputText  id="numberOfSlot" value="#{NewSignupMeetingBean.numberOfSlots}" size="2" styleClass="editText" onkeyup="getSignupDuration();return false;" style="margin-left:12px" />
+                                    <div class="row">
+                                        <div class="col-xs-12 col-sm-6">
+                                            <h:outputLabel value="#{msgs.event_num_participant_per_timeslot}" styleClass="titleText" for="numberOfAttendees"/>
+                                        </div>
+                                        <div class="col-xs-12 col-sm-2">
+                                            <h:inputText id="numberOfAttendees" value="#{NewSignupMeetingBean.numberOfAttendees}" styleClass="editText" size="2" style="margin-left:12px" onkeyup="validateAttendee();return false;" />
+                                        </div>
                                     </div>
-                                </div>
-                                <div class="row">
-                                    <div class="col-xs-12 col-sm-6">
-                                        <h:outputLabel value="#{msgs.event_num_participant_per_timeslot}" styleClass="titleText" for="numberOfAttendees"/>
-                                    </div>
-                                    <div class="col-xs-12 col-sm-2">
-                                        <h:inputText id="numberOfAttendees" value="#{NewSignupMeetingBean.numberOfAttendees}" styleClass="editText" size="2" style="margin-left:12px" onkeyup="validateAttendee();return false;" />
-                                    </div>
-                                </div>
-                                <div class="row">
-                                    <div class="col-xs-12 col-sm-6">
-                                        <h:outputLabel value="#{msgs.event_duration_each_timeslot_not_bold}" styleClass="titleText" for="currentTimeslotDuration"/>
-                                    </div>
-                                    <div class="col-xs-12 col-sm-2">
-                                        <h:inputText id='currentTimeslotDuration' value="0" size="2" style="margin-left:12px" disabled="true" />
+                                    <div class="row">
+                                        <div class="col-xs-12 col-sm-6">
+                                            <h:outputLabel value="#{msgs.event_duration_each_timeslot_not_bold}" styleClass="titleText" for="currentTimeslotDuration"/>
+                                        </div>
+                                        <div class="col-xs-12 col-sm-2">
+                                            <h:inputText id='currentTimeslotDuration' value="0" size="2" style="margin-left:12px" disabled="true" />
+                                        </div>
                                     </div>
                                 </div>
                             </div>

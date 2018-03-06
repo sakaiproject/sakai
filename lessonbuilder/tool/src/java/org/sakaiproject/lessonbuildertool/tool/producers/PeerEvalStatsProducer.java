@@ -20,26 +20,39 @@
  
 package org.sakaiproject.lessonbuildertool.tool.producers;
 
+import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Date;
+import java.util.Iterator;
 import java.util.Map;
+import java.util.List;
+import java.util.Locale;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
-import java.util.Iterator;
-import java.util.Locale;
-import java.text.SimpleDateFormat;
-import java.text.DateFormat;
-import java.util.Calendar;
 import java.util.Set;
 
-import org.sakaiproject.lessonbuildertool.SimplePageComment;
+import lombok.extern.slf4j.Slf4j;
+
+import uk.org.ponder.messageutil.MessageLocator;
+import uk.org.ponder.localeutil.LocaleGetter;
+import uk.org.ponder.rsf.components.UIBranchContainer;
+import uk.org.ponder.rsf.components.UIContainer;
+import uk.org.ponder.rsf.components.UIInternalLink;
+import uk.org.ponder.rsf.components.UIOutput;
+import uk.org.ponder.rsf.components.decorators.UIFreeAttributeDecorator;
+import uk.org.ponder.rsf.flow.jsfnav.NavigationCase;
+import uk.org.ponder.rsf.flow.jsfnav.NavigationCaseReporter;
+import uk.org.ponder.rsf.view.ComponentChecker;
+import uk.org.ponder.rsf.view.ViewComponentProducer;
+import uk.org.ponder.rsf.viewstate.SimpleViewParameters;
+import uk.org.ponder.rsf.viewstate.ViewParameters;
+import uk.org.ponder.rsf.viewstate.ViewParamsReporter;
+
+import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.lessonbuildertool.SimplePageItem;
 import org.sakaiproject.lessonbuildertool.SimplePage;
-import org.sakaiproject.lessonbuildertool.SimplePageLogEntry;
 import org.sakaiproject.lessonbuildertool.SimpleStudentPage;
 import org.sakaiproject.lessonbuildertool.model.SimplePageToolDao;
 import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean;
@@ -49,34 +62,11 @@ import org.sakaiproject.lessonbuildertool.SimplePagePeerEvalResult;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.tool.cover.ToolManager;
-import org.sakaiproject.site.api.Group;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.cover.UserDirectoryService;
-import org.sakaiproject.time.cover.TimeService;
-import org.sakaiproject.util.ResourceLoader;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.sakaiproject.authz.cover.SecurityService;
 
-import uk.org.ponder.messageutil.MessageLocator;
-import uk.org.ponder.localeutil.LocaleGetter;
-import uk.org.ponder.rsf.components.UIBranchContainer;
-import uk.org.ponder.rsf.components.UIContainer;
-import uk.org.ponder.rsf.components.UIInternalLink;
-import uk.org.ponder.rsf.components.UIOutput;
-import uk.org.ponder.rsf.components.UIVerbatim;
-import uk.org.ponder.rsf.components.decorators.UIFreeAttributeDecorator;
-import uk.org.ponder.rsf.components.decorators.UIStyleDecorator;
-import uk.org.ponder.rsf.flow.jsfnav.NavigationCase;
-import uk.org.ponder.rsf.flow.jsfnav.NavigationCaseReporter;
-import uk.org.ponder.rsf.view.ComponentChecker;
-import uk.org.ponder.rsf.view.ViewComponentProducer;
-import uk.org.ponder.rsf.viewstate.SimpleViewParameters;
-import uk.org.ponder.rsf.viewstate.ViewParameters;
-import uk.org.ponder.rsf.viewstate.ViewParamsReporter;
-
+@Slf4j
 public class PeerEvalStatsProducer implements ViewComponentProducer, ViewParamsReporter, NavigationCaseReporter {
-	private static final Logger log = LoggerFactory.getLogger(PeerEvalStatsProducer.class);
 	public static final String VIEW_ID = "PeerEvalStats";
 	
 	private SimplePageBean simplePageBean;
@@ -308,7 +298,6 @@ public class PeerEvalStatsProducer implements ViewComponentProducer, ViewParamsR
 			}
 		    }
 		} catch (Exception e) {
-			e.printStackTrace();
 			log.info("peer eval error " + e);
 		};
 

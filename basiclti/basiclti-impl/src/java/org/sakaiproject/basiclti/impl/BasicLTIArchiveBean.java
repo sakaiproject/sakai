@@ -1,14 +1,29 @@
+/**
+ * Copyright (c) 2009-2016 The Apereo Foundation
+ *
+ * Licensed under the Educational Community License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *             http://opensource.org/licenses/ecl2
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.sakaiproject.basiclti.impl;
 
 import java.util.Properties;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
+@Slf4j
 public class BasicLTIArchiveBean {
         private String pageTitle = null;
         private String toolTitle = null;
@@ -18,8 +33,6 @@ public class BasicLTIArchiveBean {
         public final static String PAGE_TITLE = "pageTitle";
         public final static String TOOL_TITLE = "toolTitle";
         public final static String SITE_TOOL_PROPERTIES = "siteToolProperties";
-        
-        private Logger logger = LoggerFactory.getLogger(BasicLTISecurityServiceImpl.class);
 
         public BasicLTIArchiveBean()
         {
@@ -112,7 +125,7 @@ public class BasicLTIArchiveBean {
         public Node toNode(Document doc)
         {
         	Node node = null;
-    		logger.debug("Building node for " + this.getPageTitle());
+    		log.debug("Building node for {}", this.getPageTitle());
 			// The alias is the name of the root element -- basicLTI
 			// Look at the XStream documentation to see why I chose the term "alias"
 			node = doc.createElement(BasicLTIArchiveBean.ALIAS);

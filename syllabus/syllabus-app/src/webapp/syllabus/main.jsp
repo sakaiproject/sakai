@@ -24,12 +24,10 @@
 	%>
 
 <script>includeLatestJQuery('main.jsp');</script>
-<script type="text/javascript" src="js/jqueryui-editable.js"></script>
 <script type="text/javascript" src="/library/webjars/momentjs/2.11.1/min/moment.min.js"></script>
 <script type="text/javascript" src="js/syllabus.js"></script>
-<sakai:stylesheet path="/syllabus/css/jqueryui-editable.css" />
 <script type="text/javascript" src="js/jquery-ui-timepicker-addon.js"></script>
-<link rel="stylesheet" href="/library/webjars/jquery-ui/1.11.3/jquery-ui.min.css" type="text/css" />
+<link rel="stylesheet" href="/library/webjars/jquery-ui/1.12.1/jquery-ui.min.css" type="text/css" />
 
 <script type="text/javascript">
 	var msgs;
@@ -37,7 +35,7 @@
 	// if redirected, just open in another window else
 	// open with size approx what actual print out will look like
 	function printFriendly(url) {
-		if (url.indexOf("printFriendly") == -1) {
+		if (url.indexOf("printFriendly") === -1) {
 			window.open(url,"mywindow");
 		}
 		else {
@@ -69,22 +67,22 @@
 				bar_new: $("#messages #bar_new").html(),
 				bar_publish: $("#messages #bar_publish").html(),
 				addItemTitle: $("#messages #addItemTitle").html(),
-				draftTitlePrefix: $("#messages #draftTitlePrefix").html()
+				draftTitlePrefix: $("#messages #draftTitlePrefix").html(),
+				noUndoWarning: $("#messages #noUndoWarning").html()
 			};
 		setupAccordion('<%= org.sakaiproject.util.Web.escapeJavascript(thisId)%>',<h:outputText value="#{SyllabusTool.editAble == 'true' ? true : false}"/>, msgs, 
 							'<h:outputText value="#{SyllabusTool.openDataId}"/>');
-		if(<h:outputText value="#{SyllabusTool.editAble == 'true'}"/>){
-			setupEditable(msgs, '<%= org.sakaiproject.util.Web.escapeJavascript(thisId)%>');
-			//draft/publish toggle:
-			setupToggleImages("publish", "publish", "publishOn", "publishOff", msgs);
-			//Calendar Toggle
-			setupToggleImages("linkCalendar", "linkCal", "linkCalOn", "linkCalOff", msgs);
-			//Public/Private to the world toggle
-			setupToggleImages("view", "linkWorld", "linkWorldOn", "linkWorldOff", msgs);
-		}else{
-			//remove CSS classes (otherwise you get those hover over "pencil edit" images
-			$(".editItem").removeClass("editItem");
-		}
+					if(<h:outputText value="#{SyllabusTool.editAble == 'true'}"/>){
+						//draft/publish toggle:
+						setupToggleImages("publish", "publish", "publishOn", "publishOff", msgs);
+						//Calendar Toggle
+						setupToggleImages("linkCalendar", "linkCal", "linkCalOn", "linkCalOff", msgs);
+						//Public/Private to the world toggle
+						setupToggleImages("view", "linkWorld", "linkWorldOn", "linkWorldOff", msgs);
+						}else{
+						//remove CSS classes (otherwise you get those hover over "pencil edit" images
+						$(".editItem").removeClass("editItem");
+						}
 	});
 	
 	function showConfirmDeleteHelper(deleteButton, event){
@@ -213,7 +211,7 @@
 						<f:verbatim>"><h3></f:verbatim>
 						<f:subview id="actionIcons" rendered="#{SyllabusTool.editAble == 'true'}">
 						    <f:verbatim>
-							<span class="fa fa-arrows actionIcon" alt="</f:verbatim><h:outputText value="#{msgs.dragToReorder}"/><f:verbatim>" title="</f:verbatim><h:outputText value="#{msgs.dragToReorder}"/><f:verbatim>"></span>
+							<span class="fa fa-arrows handleIcon" alt="</f:verbatim><h:outputText value="#{msgs.dragToReorder}"/><f:verbatim>" title="</f:verbatim><h:outputText value="#{msgs.dragToReorder}"/><f:verbatim>"></span>
 							<span class="edit-actions">
 							  <span class="fa fa-eye actionIcon publish publishOn" alt="</f:verbatim><h:outputText value="#{msgs.clickToUnpublish}"/><f:verbatim>" title="</f:verbatim><h:outputText value="#{msgs.clickToUnpublish}"/><f:verbatim>" style="</f:verbatim><h:outputText value="#{eachEntry.status == eachEntry.draftStatus ? 'display:none' : ''}"/><f:verbatim>"></span>
 							  <span class="fa fa-eye-slash actionIcon publish publishOff" alt="</f:verbatim><h:outputText value="#{msgs.clickToPublish}"/><f:verbatim>" title="</f:verbatim><h:outputText value="#{msgs.clickToPublish}"/><f:verbatim>" style="</f:verbatim><h:outputText value="#{eachEntry.status == eachEntry.draftStatus ? '' : 'display:none'}"/><f:verbatim>"></span>
@@ -231,9 +229,9 @@
 							</f:subview>
 							<f:verbatim>></f:verbatim>
 							<h:outputText styleClass="draftTitlePrefix" rendered="#{eachEntry.status == eachEntry.draftStatus}" value="#{msgs.draftTitlePrefix}" />
-							<h:outputText styleClass="editItem editItemTitle" value="#{eachEntry.entry.title}" />
+							<h:outputText styleClass="" value="#{eachEntry.entry.title}" />
 							<f:subview id="dateStudent" rendered="#{!SyllabusTool.editAble && (eachEntry.entry.startDate != null || eachEntry.entry.endDate != null)}">
-								<f:verbatim><span style="font-weight: normal; color: grey; float: right"></f:verbatim>
+								<f:verbatim><span style="float: right; padding-right: 1em; padding-left: 1em"></f:verbatim>
 									<h:outputText value="#{eachEntry.entry.startDate}">
 										<f:convertDateTime type="date" pattern="EEE MMM dd, yyyy hh:mm a"/>
 									</h:outputText>
@@ -241,17 +239,17 @@
 									<h:outputText value="#{eachEntry.entry.endDate}" rendered="#{!eachEntry.startAndEndDatesSameDay}">
 								  		<f:convertDateTime type="date" pattern="EEE MMM dd, yyyy hh:mm a"/>
 									</h:outputText>
-									<h:outputText value="#{eachEntry.entry.endDate}" rendered="#{eachEntry.startAndEndDatesSameDay}">
+									&nbsp;|&nbsp;<h:outputText value="#{eachEntry.entry.endDate}" rendered="#{eachEntry.startAndEndDatesSameDay}">
 								  		<f:convertDateTime type="date" pattern="hh:mm a"/>
 									</h:outputText>
 								<f:verbatim></span></f:verbatim>
 							</f:subview>
 							<f:subview id="dateInstructor" rendered="#{SyllabusTool.editAble == 'true'}">
-								<f:verbatim><span style="font-weight: normal; color: grey; float: right"></f:verbatim>
-									<h:outputText styleClass="editItem startTimeInput" value="#{eachEntry.entry.startDate}">
+								<f:verbatim><span style="float: right; padding-right:1em; padding-left:1em"></f:verbatim>
+									<h:outputText styleClass="" value="#{eachEntry.entry.startDate}">
 										<f:convertDateTime type="date" pattern="yyyy/MM/dd h:mm a"/>
 									</h:outputText>
-									<h:outputText styleClass="editItem endTimeInput" value="#{eachEntry.entry.endDate}">
+									&nbsp;|&nbsp;<h:outputText styleClass="" value="#{eachEntry.entry.endDate}">
 								  		<f:convertDateTime type="date" pattern="yyyy/MM/dd h:mm a"/>
 									</h:outputText>
 								<f:verbatim></span></f:verbatim>
@@ -261,7 +259,7 @@
 							</h3>
 						</f:verbatim>
 						<f:verbatim><div></f:verbatim>
-							<f:verbatim><div class="editItem bodyInput" data-tpl='<textarea cols="120" id="textAreaWysiwyg" style="display:none"></textarea><img id="loading" style="margin: 2em;" src="images/loading.gif"/>'></f:verbatim>
+							<f:verbatim><div class="" data-tpl='<textarea cols="120" id="textAreaWysiwyg" style="display:none"></textarea><img id="loading" style="margin: 2em;" src="images/loading.gif"/>'></f:verbatim>
 							<h:outputText value="#{eachEntry.entry.asset}" escape="false"/>
 							<f:verbatim></div></f:verbatim>
 							
@@ -307,12 +305,11 @@
 				<h:outputText value="#{msgs.syllabus_noEntry}" styleClass="instruction" rendered="#{SyllabusTool.displayNoEntryMsg}"/>
 			</syllabus:syllabus_if>				
 			<syllabus:syllabus_ifnot test="#{SyllabusTool.syllabusItem.redirectURL}">
-               <syllabus:syllabus_if test="#{SyllabusTool.openInNewWindowAsString}">
-  			     <syllabus:syllabus_iframe redirectUrl="#{SyllabusTool.syllabusItem.redirectURL}" width="100%"/>
-               </syllabus:syllabus_if>
-                <syllabus:syllabus_ifnot test="#{SyllabusTool.openInNewWindowAsString}">
-                    <h:outputText escape="false" value="<script>javascript:printFriendly('#{SyllabusTool.syllabusItem.redirectURL}');</script>" />
-                </syllabus:syllabus_ifnot>
+				<br/>
+				<h:outputText escape="false" value="#{msgs.redirect_explanation} " />
+				<h:outputLink target="_blank" rel="noopener" title="#{msgs.openLinkNewWindow}" value="#{SyllabusTool.syllabusItem.redirectURL}">
+					<h:outputText escape="false" value="#{SyllabusTool.syllabusItem.redirectURL}" />
+				</h:outputLink>
 			</syllabus:syllabus_ifnot>
 			<f:verbatim>
 				<div id="confirmDelete" style="display:none">
@@ -326,11 +323,6 @@
 						<input type="button" name="cancelDelete" value="</f:verbatim><h:outputText value="#{msgs.cancel}"/><f:verbatim>" title="</f:verbatim><h:outputText value="#{msgs.cancel}"/><f:verbatim>" onlclick="">
 					</p>
 				</div>
-				<syllabus:syllabus_ifnot test="#{SyllabusTool.openInNewWindowAsString}">
-					<h:outputFormat value="#{msgs.syllabus_PopupBlocked}" escape="false">
-						<f:param value="#{SyllabusTool.syllabusItem.redirectURL}"/>
-					</h:outputFormat>
-				</syllabus:syllabus_ifnot>
 		</f:verbatim>
         <f:verbatim><div style="padding-top: 600px" frameborder="0"></div></f:verbatim>
 		</h:form>
@@ -361,11 +353,12 @@
 				<span id="bar_cancel"></f:verbatim><h:outputText value="#{msgs.bar_cancel}"/><f:verbatim></span>
 				<span id="confirmDelete"></f:verbatim><h:outputText value="#{msgs.confirmDelete}"/><f:verbatim></span>
 				<span id="deleteItemTitle"></f:verbatim><h:outputText value="#{msgs.deleteItemTitle}"/><f:verbatim></span>
-				<span id="deleteAttachmentTitle"></f:verbatim><h:outputText value="#{msgs.addItemTitle}"/><f:verbatim></span>
+				<span id="deleteAttachmentTitle"></f:verbatim><h:outputText value="#{msgs.deleteAttachmentTitle}"/><f:verbatim></span>
 				<span id="bar_new"></f:verbatim><h:outputText value="#{msgs.bar_new}"/><f:verbatim></span>
 				<span id="bar_publish"></f:verbatim><h:outputText value="#{msgs.bar_publish}" /><f:verbatim></span>
 				<span id="addItemTitle"></f:verbatim><h:outputText value="#{msgs.addItemTitle}"/><f:verbatim></span>
 				<span id="draftTitlePrefix"></f:verbatim><h:outputText value="#{msgs.draftTitlePrefix}"/><f:verbatim></span>
+				<span id="noUndoWarning"></f:verbatim><h:outputText value="#{msgs.noUndoWarning}"/><f:verbatim></span>
 			</span>
 		</f:verbatim>
 	</sakai:view_content>

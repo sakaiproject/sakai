@@ -22,6 +22,8 @@ package org.sakaiproject.test.section;
 
 import junit.framework.Assert;
 
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.component.section.sakai.SectionManagerImpl;
 import org.sakaiproject.section.api.SectionManager;
 import org.sakaiproject.section.api.SectionManager.ExternalIntegrationConfig;
@@ -33,6 +35,7 @@ import org.sakaiproject.test.SakaiTestBase;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.SessionManager;
 
+@Slf4j
 public class CourseManagementIntegrationTest extends SakaiTestBase {
 	// Services
 	private SiteService siteService;
@@ -259,7 +262,7 @@ public class CourseManagementIntegrationTest extends SakaiTestBase {
 			sectionManager.updateSection(section.getUuid(), "a new title", null, null);
 		} catch (Exception e) {
 			fail("We should be able to edit sections, but couldn't: " + e);
-			e.printStackTrace();
+			log.error(e.getMessage(), e);
 		}
 
 		// Ensure that we can delete sections

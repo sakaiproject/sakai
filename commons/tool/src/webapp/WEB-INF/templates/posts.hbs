@@ -1,0 +1,54 @@
+    <div class="commons-post-editor">
+        <div class="commons-photo-text-wrapper">
+            <div class="commons-photo" style="background-image:url(/direct/profile/{{currentUserId}}/image/thumb)"></div>
+            <div class="commons-editor-text-wrapper">
+                <div class="commons-editor-text"><div id="commons-post-creator-editor" contenteditable="true">{{tr 'commons' 'post_editor_initial_text'}}</div></div>
+            </div>
+        </div>
+        <div id="commons-editor-toolbar">
+            <button id="commons-editor-post-button" disabled="true">{{tr 'commons' 'post'}}</button>
+            <button id="commons-editor-cancel-button" disabled="true">{{tr 'commons' 'cancel'}}</button>
+            <button id="commons-editor-link-button" class="commons-editor-special-button" title="{{tr 'commons' 'link_button_tooltip'}}"><span class="fa fa-link"></span></button>
+            <button id="commons-editor-image-button" class="commons-editor-special-button" title="{{tr 'commons' 'image_button_tooltip'}}"><span class="fa fa-picture-o"></span></button>
+        </div>
+    </div>
+
+    <div id="commons-posts-wrapper">
+        <br />
+        <div id="commons-posts">
+        </div>
+	</div>
+    <div id="commons-loading-image">
+        <img src="/commons-tool/images/ajax-loader.gif" />
+    </div>
+    <div id="commons-link-dialog">
+        <div class="commons-dialog-container">
+            <div id="commons-link-dialog-table">
+                <div class="commons-link-dialog-row">
+                    <div>{{tr 'commons' 'display_text'}}</div>
+                    <div><input type="text" id="commons-link-dialog-text" /></div>
+                </div>
+                <div class="commons-link-dialog-row">
+                    <div>{{tr 'commons' 'link_to'}}</div>
+                    <div><input type="text" id="commons-link-dialog-url" /></div>
+                </div>
+            </div>
+            <div id="commons-link-dialog-thumbnail-setting">
+                <input type="checkbox" id="commons-link-dialog-load-thumbnail"/ >
+                <label for="commons-link-dialog-load-thumbnail">{{tr 'commons' 'load_thumbnail'}}</label>
+            </div>
+            <button id="commons-link-dialog-insert-button" disabled="true">{{tr 'commons' 'insert'}}</button>
+            <button id="commons-link-dialog-cancel-button">{{tr 'commons' 'cancel'}}</button>
+        </div>
+    </div>
+    <div id="commons-image-dialog">
+        <div class="commons-dialog-container">
+            <div id="commons-link-dialog-table">
+                <div class="commons-link-dialog-row">
+                    <div id="commons-imagefile-instruction">{{tr 'commons' 'choose_image_file'}}</div><input type="file" id="commons-image-dialog-file" accept=".png,.jpg,.jpeg,.gif,image/png,image/jpeg,image/jpg,image/gif" />
+                </div>
+            </div>
+            <button id="commons-image-dialog-insert-button" disabled="true">{{tr 'commons' 'insert'}}</button>
+            <button id="commons-image-dialog-cancel-button">{{tr 'commons' 'cancel'}}</button>
+        </div>
+    </div>

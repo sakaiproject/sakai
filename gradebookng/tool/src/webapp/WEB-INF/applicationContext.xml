@@ -8,21 +8,13 @@
 		id="org.sakaiproject.gradebookng.business.GradebookNgBusinessService"
 		class="org.sakaiproject.gradebookng.business.GradebookNgBusinessService">
 		<property name="siteService" ref="org.sakaiproject.site.api.SiteService" />
-		<property name="userDirectoryService"
-			ref="org.sakaiproject.user.api.UserDirectoryService" />
+		<property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService" />
 		<property name="toolManager" ref="org.sakaiproject.tool.api.ToolManager" />
-		<property name="gradebookService"
-			ref="org.sakaiproject.service.gradebook.GradebookService" />
-		<property name="gradebookPermissionService"
-			ref="org.sakaiproject.service.gradebook.GradebookPermissionService" />
+		<property name="gradebookService" ref="org.sakaiproject.service.gradebook.GradebookService" />
+		<property name="gradebookPermissionService" ref="org.sakaiproject.service.gradebook.GradebookPermissionService" />
 		<property name="gradebookFrameworkService" ref="org.sakaiproject.service.gradebook.GradebookFrameworkService"/>
-		<property name="courseManagementService"
-			ref="org.sakaiproject.coursemanagement.api.CourseManagementService" />
 		<property name="securityService" ref="org.sakaiproject.authz.api.SecurityService" />
 		<property name="gradebookExternalAssessmentService" ref="org.sakaiproject.service.gradebook.GradebookExternalAssessmentService"/>
-		<property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService" />
-		
-		
 	</bean>
 
 	<bean

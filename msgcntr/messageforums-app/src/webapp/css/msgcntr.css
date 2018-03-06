@@ -681,3 +681,12 @@ div.msgcntr-profile-qtip {
 	cursor: pointer;
 	font-size: 20px !important;
 }
+
+#revise\:closeDateSpan #revise\:closeDate, #revise\:openDateSpan #revise\:openDate {
+	width: auto;
+	margin-left: 10px;
+}
+
+.openDateSpan {
+	display: block;
+}

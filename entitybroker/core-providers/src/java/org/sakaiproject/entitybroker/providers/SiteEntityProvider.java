@@ -30,9 +30,10 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+
 import org.azeckoski.reflectutils.ReflectUtils;
+
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.AuthzPermissionException;
@@ -68,7 +69,6 @@ import org.sakaiproject.entitybroker.providers.model.EntitySite;
 import org.sakaiproject.entitybroker.util.AbstractEntityProvider;
 import org.sakaiproject.entitybroker.util.TemplateParseUtil;
 import org.sakaiproject.event.api.EventTrackingService;
-import org.sakaiproject.event.api.Event;
 import org.sakaiproject.exception.IdInvalidException;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.IdUsedException;
@@ -90,6 +90,7 @@ import org.sakaiproject.util.FormattedText;
  * 
  * @author Aaron Zeckoski (azeckoski @ gmail.com)
  */
+@Slf4j
 public class SiteEntityProvider extends AbstractEntityProvider implements CoreEntityProvider,
 RESTful, ActionsExecutable, Redirectable, RequestStorable, DepthLimitable {
 
@@ -100,8 +101,6 @@ RESTful, ActionsExecutable, Redirectable, RequestStorable, DepthLimitable {
     public int getMaxDepth() {
         return maxDepth;
     }
-
-    private static Logger log = LoggerFactory.getLogger(SiteEntityProvider.class);
 
     private SiteService siteService;
     public void setSiteService(SiteService siteService) {
@@ -159,6 +158,8 @@ RESTful, ActionsExecutable, Redirectable, RequestStorable, DepthLimitable {
      * a property of "site.entity.pagesize.maximum".
      */
     private int maxPageSize = 500;
+
+    private static String[] updateableSiteProps;
     
     public void init() {
         int dps = serverConfigurationService.getInt(
@@ -173,6 +174,12 @@ RESTful, ActionsExecutable, Redirectable, RequestStorable, DepthLimitable {
             maxPageSize = mps;
         } else {
             maxPageSize = defaultPageSize;
+        }
+
+        updateableSiteProps = serverConfigurationService.getStrings("site.entity.updateable.props");
+        // Set defaults as these are the same values that can be changed through the UI.
+        if (updateableSiteProps == null) {
+            updateableSiteProps = new String [] {"contact-email", "contact-name"};
         }
     }
 
@@ -903,10 +910,19 @@ RESTful, ActionsExecutable, Redirectable, RequestStorable, DepthLimitable {
             s.setSkin(site.getSkin());
             s.setTitle(site.getTitle());
 
-            // put in properties if admin, otherwise ignore
+            // put in properties if admin, otherwise allow update of specific configurable fields.
             if (admin) {
                 ResourcePropertiesEdit rpe = s.getPropertiesEdit();
                 rpe.set(site.getProperties());
+            } else {
+                if (updateableSiteProps != null && updateableSiteProps.length != 0) {
+                    ResourcePropertiesEdit rpe = s.getPropertiesEdit();
+                    for (String prop : updateableSiteProps) {
+                        if (site.getProperties().getProperty(prop) != null) {
+                            rpe.addProperty(prop, site.getProperties().getProperty(prop));
+                        }
+                    }
+                }
             }
             
             // set the new publish status
@@ -949,12 +965,24 @@ RESTful, ActionsExecutable, Redirectable, RequestStorable, DepthLimitable {
             if (site.getInfoUrl() != null) 
             	s.setInfoUrl(site.getInfoUrl());
 
-            // put in properties if admin, otherwise ignore
+            // put in properties if admin, otherwise allow update of specific configurable fields.
             if (admin) {
                 ResourcePropertiesEdit rpe = s.getPropertiesEdit();
                 for (String key : site.getProps().keySet()) {
                     String value = site.getProps().get(key);
                     rpe.addProperty(key, value);
+                }
+            } else {
+                if (updateableSiteProps != null && updateableSiteProps.length != 0) {
+                    ResourcePropertiesEdit rpe = s.getPropertiesEdit();
+                    for (String prop: updateableSiteProps) {
+                        for (String key : site.getProps().keySet()) {
+                            if (prop.equals(key)) {
+                                String value = site.getProps().get(key);
+                                rpe.addProperty(key, value);
+                            }
+                        }
+                    }
                 }
             }
 

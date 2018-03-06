@@ -13,7 +13,7 @@
     <parent>
         <artifactId>entitybroker</artifactId>
         <groupId>org.sakaiproject</groupId>
-        <version>12-SNAPSHOT</version>
+        <version>13-SNAPSHOT</version>
     </parent>
     <dependencies>
         <!-- internal dependencies -->
@@ -49,6 +49,10 @@
         <dependency>
             <groupId>org.sakaiproject.kernel</groupId>
             <artifactId>sakai-kernel-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
         </dependency>
         <!-- required for bean cloning and reflection -->
         <dependency>

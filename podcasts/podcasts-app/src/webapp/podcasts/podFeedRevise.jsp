@@ -8,9 +8,7 @@
 </jsp:useBean>
 
   <f:view>
-        <link href="./css/podcaster.css" type="text/css" rel="stylesheet" media="all" />
-
-    <sakai:view>
+    <sakai:view toolCssHref="css/podcaster.css">
     <h:form id="podFeedRev" >
 
     <div>  <!-- Page title and Instructions -->

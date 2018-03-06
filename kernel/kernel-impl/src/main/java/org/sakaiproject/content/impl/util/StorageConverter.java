@@ -1,3 +1,18 @@
+/**
+ * Copyright (c) 2003-2016 The Apereo Foundation
+ *
+ * Licensed under the Educational Community License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *             http://opensource.org/licenses/ecl2
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.sakaiproject.content.impl.util;
 
 import java.io.File;
@@ -15,16 +30,18 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.sql.DataSource;
 
+import lombok.extern.slf4j.Slf4j;
+
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.beanutils.MethodUtils;
-import org.sakaiproject.content.api.FileSystemHandler;
-import org.sakaiproject.content.impl.ContentServiceSqlDefault;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowCallbackHandler;
 import org.springframework.jdbc.datasource.SimpleDriverDataSource;
 import org.springframework.jdbc.datasource.SingleConnectionDataSource;
+
+import org.sakaiproject.content.api.FileSystemHandler;
+import org.sakaiproject.content.impl.ContentServiceSqlDefault;
 
 /**
  * This is a utility class to convert the storage from one FileSystem to
@@ -32,9 +49,8 @@ import org.springframework.jdbc.datasource.SingleConnectionDataSource;
  *
  * @author Jaques
  */
+@Slf4j
 public class StorageConverter {
-    private static final Logger log = LoggerFactory.getLogger(StorageConverter.class);
-
     /**
      * The datasource for the database connections.
      */
@@ -252,7 +268,7 @@ public class StorageConverter {
                     }
                 } catch (IOException e) {
                     if (ignoreMissing) {
-                        print("Missing file: " + id);
+                        log.info("Missing file: " + id);
                     } else {
                         log.error("Failed to read or write resources from or to the FileSystemHandlers", e);
                         throw new SQLException("Failed to read or write resources from or to the FileSystemHandlers", e);
@@ -265,30 +281,30 @@ public class StorageConverter {
     }
 
     public static void main(String[] args) throws IOException, ClassNotFoundException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, InstantiationException{
-        print("Checking arguments...");
+        log.info("Checking arguments...");
         if (args == null || args.length == 0 || args[0].contains("help")) {
             printHelp();
             return;
         }
 
         Properties p = readProperties(args);
-        print("Properties: " + p);
+        log.info("Properties: " + p);
         StorageConverter sc = new StorageConverter();
         FileSystemHandler sourceFSH = null;
         FileSystemHandler destinationFSH = null;
 
         try {
-            print("Database connection...");
+            log.info("Database connection...");
             sc.setConnectionDriver(p.getProperty("connectionDriver"));
             sc.setConnectionURL(p.getProperty("connectionURL"));
             sc.setConnectionUsername(p.getProperty("connectionUsername"));
             sc.setConnectionPassword(p.getProperty("connectionPassword"));
-            print("Source FileSystemHandler...");
+            log.info("Source FileSystemHandler...");
             sourceFSH = getFileSystemHandler(p, "sourceFileSystemHandler");
             sc.setSourceBodyPath(p.getProperty("sourceBodyPath"));
             sc.setSourceFileSystemHandler(sourceFSH);
             sc.setDeleteFromSource(Boolean.parseBoolean(p.getProperty("deleteFromSource")));
-            print("Destination FileSystemHandler...");
+            log.info("Destination FileSystemHandler...");
             destinationFSH = getFileSystemHandler(p, "destinationFileSystemHandler");
             sc.setDestinationBodyPath(p.getProperty("destinationBodyPath"));
             sc.setDestinationFileSystemHandler(destinationFSH);
@@ -297,9 +313,9 @@ public class StorageConverter {
                 sc.setContentSql(p.getProperty("contentSql"));
             }
 
-            print("Running convert...");
+            log.info("Running convert...");
             sc.convertStorage();
-            print("Done...");
+            log.info("Done...");
         } finally {
             destroy(sourceFSH);
             destroy(destinationFSH);
@@ -311,13 +327,13 @@ public class StorageConverter {
      */
     private static void destroy(Object o) throws IllegalAccessException, InvocationTargetException {
         if (o == null) return;
-        print("Destroying " + o + "...");
+        log.info("Destroying " + o + "...");
         try {
-            print("Check if there is a destroy method...");
+            log.info("Check if there is a destroy method...");
             MethodUtils.invokeExactMethod(o, "destroy", (Object[])null);
-            print("destroy method invoked...");
+            log.info("destroy method invoked...");
         } catch (NoSuchMethodException e) {
-            print("No destroy method...");
+            log.info("No destroy method...");
         }
     }
 
@@ -327,7 +343,7 @@ public class StorageConverter {
      */
     private static FileSystemHandler getFileSystemHandler(Properties p, String fileSystemHandlerName) throws ClassNotFoundException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, InstantiationException{
         String clazz = p.getProperty(fileSystemHandlerName);
-        print("Building FileSystemHandler: " + clazz);
+        log.info("Building FileSystemHandler: " + clazz);
         Class<? extends FileSystemHandler> fshClass = Class.forName(clazz).asSubclass(FileSystemHandler.class);
         FileSystemHandler fsh = fshClass.newInstance();
 
@@ -336,19 +352,19 @@ public class StorageConverter {
             String fullProperty = propertyNames.nextElement();
             if (fullProperty.startsWith(fileSystemHandlerName + ".")) {
                 String property = fullProperty.substring(fullProperty.indexOf(".")+1);
-                print("Setting property: " + property);
+                log.info("Setting property: " + property);
                 BeanUtils.setProperty(fsh, property, p.getProperty(fullProperty));
             }
         }
 
         try {
-            print("Check if there is a init method...");
+            log.info("Check if there is a init method...");
             MethodUtils.invokeExactMethod(fsh, "init", (Object[])null);
-            print("init method invoked...");
+            log.info("init method invoked...");
         } catch (NoSuchMethodException e) {
-            print("No init method...");
+            log.info("No init method...");
         }
-        print("Done with FileSystemHandler: " + clazz);
+        log.info("Done with FileSystemHandler: " + clazz);
         return fsh;
     }
 
@@ -361,7 +377,7 @@ public class StorageConverter {
             @Override
             public String getProperty(String key) {
                 String prop = super.getProperty(key);
-                print("- Property " + key + "='" + prop + "'");
+                log.info("- Property " + key + "='" + prop + "'");
                 return prop;
             }
 
@@ -378,34 +394,27 @@ public class StorageConverter {
     }
 
     private static void printHelp(){
-        print("----------------------------------------------------------------------");
-        print("StorageConverter Help");
-        print("The StorageConverter needs properties to complete the conversion.");
-        print("These properties can either be loaded in a properties file indicated with '-p' followed by the location of the properties file");
-        print("or the properties specified in the arguments with a leading '-' followed by the values.");
-        print("");
-        print("Properties (mandatory):");
-        print("- connectionDriver: The database connection driver class.");
-        print("- connectionURL: The database connection URL.");
-        print("- connectionUsername: The database connection username.");
-        print("- connectionPassword: The database connection password.");
-        print("- sourceFileSystemHandler: This is the full class name of the source FileSystemHandler.");
-        print("- sourceFileSystemHandler.<some property>: You can set any property on the source FileSystemHandler by referensing their property names.");
-        print("- sourceBodyPath: The path set in sakai.properties for the source.");
-        print("- destinationFileSystemHandler: This is the full class name of the destination FileSystemHandler.");
-        print("- destinationFileSystemHandler.<some property>: You can set any property on the destination FileSystemHandler by referensing their property names.");
-        print("- destinationBodyPath: The path set in sakai.properties for the destination.");
-        print("");
-        print("Properties (optional):");
-        print("- deleteFromSource: Whether to delete the source files. Default false.");
-        print("- contentSql: The sql statement to retrieve the resource id's and paths. Default is new ContentServiceSqlDefault().getResourceIdAndFilePath()");
-        print("----------------------------------------------------------------------");
-    }
-
-    /**
-     * Print the text to the screen.
-     */
-    private static void print(String text){
-        log.info(text);
+        log.info("----------------------------------------------------------------------");
+        log.info("StorageConverter Help");
+        log.info("The StorageConverter needs properties to complete the conversion.");
+        log.info("These properties can either be loaded in a properties file indicated with '-p' followed by the location of the properties file");
+        log.info("or the properties specified in the arguments with a leading '-' followed by the values.");
+        log.info("");
+        log.info("Properties (mandatory):");
+        log.info("- connectionDriver: The database connection driver class.");
+        log.info("- connectionURL: The database connection URL.");
+        log.info("- connectionUsername: The database connection username.");
+        log.info("- connectionPassword: The database connection password.");
+        log.info("- sourceFileSystemHandler: This is the full class name of the source FileSystemHandler.");
+        log.info("- sourceFileSystemHandler.<some property>: You can set any property on the source FileSystemHandler by referensing their property names.");
+        log.info("- sourceBodyPath: The path set in sakai.properties for the source.");
+        log.info("- destinationFileSystemHandler: This is the full class name of the destination FileSystemHandler.");
+        log.info("- destinationFileSystemHandler.<some property>: You can set any property on the destination FileSystemHandler by referensing their property names.");
+        log.info("- destinationBodyPath: The path set in sakai.properties for the destination.");
+        log.info("");
+        log.info("Properties (optional):");
+        log.info("- deleteFromSource: Whether to delete the source files. Default false.");
+        log.info("- contentSql: The sql statement to retrieve the resource id's and paths. Default is new ContentServiceSqlDefault().getResourceIdAndFilePath()");
+        log.info("----------------------------------------------------------------------");
     }
 }

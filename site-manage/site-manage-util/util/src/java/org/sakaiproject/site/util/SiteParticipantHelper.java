@@ -1,3 +1,18 @@
+/**
+ * Copyright (c) 2003-2017 The Apereo Foundation
+ *
+ * Licensed under the Educational Community License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *             http://opensource.org/licenses/ecl2
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.sakaiproject.site.util;
 
 import java.util.ArrayList;
@@ -12,9 +27,9 @@ import java.util.Set;
 import java.util.Vector;
 import java.util.concurrent.ConcurrentHashMap;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.ArrayUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.GroupNotDefinedException;
 import org.sakaiproject.authz.api.Member;
@@ -34,10 +49,9 @@ import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.util.ResourceLoader;
 
+@Slf4j
 public class SiteParticipantHelper {
-	/** Our log (commons). */
-	private static Logger M_log = LoggerFactory.getLogger(SiteParticipantHelper.class);
-	
+
 	private static String NULL_STRING = "";
 	
 	private static org.sakaiproject.authz.api.GroupProvider groupProvider = (org.sakaiproject.authz.api.GroupProvider) ComponentManager
@@ -113,7 +127,7 @@ public class SiteParticipantHelper {
 								realm = authzGroupService.getAuthzGroup(realm.getId());
 								member = realm.getMember(userId);
 						    } catch (Exception exc) {
-						    	M_log.warn("SiteParticipantHelper.addParticipantsFromEnrollment " + exc.getMessage());
+						    	log.warn("SiteParticipantHelper.addParticipantsFromEnrollment " + exc.getMessage());
 						    }
 						}
 						
@@ -162,13 +176,13 @@ public class SiteParticipantHelper {
 							}
 							catch (Exception ee)
 							{
-								M_log.warn("SiteParticipantHelper.addParticipantsFromEnrollmentSet: " + ee.getMessage() + " user id = " + userId, ee);
+								log.warn("SiteParticipantHelper.addParticipantsFromEnrollmentSet: " + ee.getMessage() + " user id = " + userId, ee);
 							}
 						}
 					} catch (UserNotDefinedException exception) {
 						// deal with missing user quietly without throwing a
 						// warning message
-						M_log.warn("SiteParticipantHelper.addParticipantsFromEnrollmentSet: " + exception.getMessage() + " user id = " + e.getUserId());
+						log.warn("SiteParticipantHelper.addParticipantsFromEnrollmentSet: " + exception.getMessage() + " user id = " + e.getUserId());
 					}
 				}
 			}
@@ -244,7 +258,7 @@ public class SiteParticipantHelper {
 							realm = authzGroupService.getAuthzGroup(realm.getId());
 							member = realm.getMember(userId);
 					    } catch (Exception exc) {
-					    	M_log.warn("SiteParticipantHelper:addParticipantsFromMembership " + exc.getMessage());
+					    	log.warn("SiteParticipantHelper:addParticipantsFromMembership " + exc.getMessage());
 					    }
 					}
 					
@@ -278,7 +292,7 @@ public class SiteParticipantHelper {
 				} catch (UserNotDefinedException exception) {
 					// deal with missing user quietly without throwing a
 					// warning message
-					M_log.debug("SiteParticipantHelper:addParticipantsFromMemberships: user not defined id = " + m.getUserId());
+					log.debug("SiteParticipantHelper:addParticipantsFromMemberships: user not defined id = " + m.getUserId());
 				}
 			}
 		}
@@ -316,7 +330,7 @@ public class SiteParticipantHelper {
 						    AuthzGroup realmEdit = authzGroupService.getAuthzGroup(realmId);
 						    authzGroupService.save(realmEdit);
 						} catch (Exception exc) {
-						    M_log.warn("SiteParticipantHelper:addParticipantsFromMembers " + exc.getMessage());
+						    log.warn("SiteParticipantHelper:addParticipantsFromMembers " + exc.getMessage());
 						}
 
 					    }
@@ -353,8 +367,8 @@ public class SiteParticipantHelper {
 					participantsMap.put(userId, participant);
 				}
 
-				if (M_log.isDebugEnabled()) {
-					M_log.debug("SiteParticipantHelper:addParticipantsFromMembers: user not defined "+ g.getUserEid());
+				if (log.isDebugEnabled()) {
+					log.debug("SiteParticipantHelper:addParticipantsFromMembers: user not defined "+ g.getUserEid());
 				}
 			}
 		}
@@ -371,7 +385,7 @@ public class SiteParticipantHelper {
 			AuthzGroup realm = authzGroupService.getAuthzGroup(realmId);
 			rv = realm.getProviderGroupId();
 		} catch (GroupNotDefinedException e) {
-			M_log.warn("SiteParticipantHelper.getExternalRealmId: site realm not found " + realmId);
+			log.warn("SiteParticipantHelper.getExternalRealmId: site realm not found " + realmId);
 		}
 		return rv;
 
@@ -475,7 +489,7 @@ public class SiteParticipantHelper {
 				}
 				catch (IdNotFoundException e)
 				{
-					M_log.warn("SiteParticipantHelper.prepareParticipants: "+ e.getMessage() + " sectionId=" + providerCourseEid);
+					log.warn("SiteParticipantHelper.prepareParticipants: "+ e.getMessage() + " sectionId=" + providerCourseEid);
 				}
 			}
 			
@@ -488,7 +502,7 @@ public class SiteParticipantHelper {
 			}
 
 		} catch (GroupNotDefinedException ee) {
-			M_log.warn("SiteParticipantHelper.prepareParticipants:  IdUnusedException " + realmId);
+			log.warn("SiteParticipantHelper.prepareParticipants:  IdUnusedException " + realmId);
 		}
 		return participantsMap.values();
 	}
@@ -541,7 +555,7 @@ public class SiteParticipantHelper {
 					} catch (UserNotDefinedException exception) {
 						// deal with missing user quietly without throwing a
 						// warning message
-						M_log.warn(exception.getMessage());
+						log.warn(exception.getMessage());
 					}
 				}
 			}

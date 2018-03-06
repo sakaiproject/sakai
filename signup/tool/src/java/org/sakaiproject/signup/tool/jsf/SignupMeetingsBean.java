@@ -33,12 +33,11 @@ import javax.faces.event.ValueChangeEvent;
 import javax.faces.model.SelectItem;
 import javax.servlet.http.HttpServletRequest;
 
+import lombok.extern.slf4j.Slf4j;
 import lombok.Getter;
 import lombok.Setter;
-
 import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
 import org.sakaiproject.signup.logic.Permission;
 import org.sakaiproject.signup.logic.SakaiFacade;
 import org.sakaiproject.signup.logic.SignupEventTypes;
@@ -61,9 +60,8 @@ import org.sakaiproject.user.api.User;
  * system. It provides all the necessary business logic
  * </P>
  */
+@Slf4j
 public class SignupMeetingsBean implements SignupBeanConstants {
-
-	private static Logger log = LoggerFactory.getLogger(SignupMeetingsBean.class);
 
 	protected UIData meetingTable;
 

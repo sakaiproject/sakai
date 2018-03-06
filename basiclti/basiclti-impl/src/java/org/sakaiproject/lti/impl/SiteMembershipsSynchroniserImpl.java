@@ -1,7 +1,27 @@
+/**
+ * Copyright (c) 2009-2017 The Apereo Foundation
+ *
+ * Licensed under the Educational Community License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *             http://opensource.org/licenses/ecl2
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.sakaiproject.lti.impl;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -9,15 +29,20 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import org.tsugi.basiclti.BasicLTIConstants;
+import lombok.extern.slf4j.Slf4j;
+import net.oauth.OAuth;
+import net.oauth.OAuthAccessor;
+import net.oauth.OAuthConsumer;
+import net.oauth.OAuthMessage;
 
-import net.oauth.*;
 import net.oauth.signature.OAuthSignatureMethod;
 
-import org.sakaiproject.basiclti.util.LegacyShaUtil;
+import org.tsugi.basiclti.BasicLTIConstants;
 
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.cover.SecurityService;
+import org.sakaiproject.basiclti.util.LegacyShaUtil;
+import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.lti.api.SiteMembershipUpdater;
 import org.sakaiproject.lti.api.UserFinderOrCreator;
@@ -28,22 +53,8 @@ import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.user.api.User;
 
-import org.sakaiproject.component.api.ServerConfigurationService;
-
-import java.net.HttpURLConnection;
-import java.net.URL;
-
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+@Slf4j
 public class SiteMembershipsSynchroniserImpl implements SiteMembershipsSynchroniser {
-
-	private static Logger M_log = LoggerFactory.getLogger(SiteMembershipsSynchroniserImpl.class);
 
     private UserFinderOrCreator userFinderOrCreator = null;
     public void setUserFinderOrCreator(UserFinderOrCreator userFinderOrCreator) {
@@ -87,7 +98,7 @@ public class SiteMembershipsSynchroniserImpl implements SiteMembershipsSynchroni
         try {
             site = siteService.getSite(siteId);
         } catch (IdUnusedException iue) {
-            M_log.error("site.notfound id: " + siteId + ". This site's memberships will NOT be synchronised.", iue);
+            log.error("site.notfound id: {}. This site's memberships will NOT be synchronised. {}", siteId, iue);
             return;
         }
 
@@ -108,7 +119,7 @@ public class SiteMembershipsSynchroniserImpl implements SiteMembershipsSynchroni
         final String configPrefix = "basiclti.provider." + oauth_consumer_key + ".";
         final String oauth_secret = serverConfigurationService.getString(configPrefix+ "secret", null);
         if (oauth_secret == null) {
-            M_log.error("launch.key.notfound " + oauth_consumer_key + ". This site's memberships will NOT be synchronised.");
+            log.error("launch.key.notfound {}. This site's memberships will NOT be synchronised.", oauth_consumer_key);
             return;
         }
 
@@ -142,7 +153,7 @@ public class SiteMembershipsSynchroniserImpl implements SiteMembershipsSynchroni
 
             processMembershipsResponse(connection, site, oauth_consumer_key, isEmailTrustedConsumer);
         } catch (Exception e) {
-            e.printStackTrace();
+            log.warn("Problem synchronizing LTI1 memberships.", e);
         }
     }
 
@@ -152,7 +163,7 @@ public class SiteMembershipsSynchroniserImpl implements SiteMembershipsSynchroni
         final String configPrefix = "basiclti.provider." + oauth_consumer_key + ".";
         final String oauth_secret = serverConfigurationService.getString(configPrefix+ "secret", null);
         if (oauth_secret == null) {
-            M_log.error("launch.key.notfound " + oauth_consumer_key + ". This site's memberships will NOT be synchronised.");
+            log.error("launch.key.notfound {}. This site's memberships will NOT be synchronised.", oauth_consumer_key);
             return;
         }
 
@@ -177,10 +188,10 @@ public class SiteMembershipsSynchroniserImpl implements SiteMembershipsSynchroni
 
         String callXml = sb.toString();
 
-        if(M_log.isDebugEnabled()) M_log.debug("callXml: " + callXml);
+        if(log.isDebugEnabled()) log.debug("callXml: {}", callXml);
 
         String bodyHash = OAuthSignatureMethod.base64Encode(LegacyShaUtil.sha1(callXml));
-        M_log.debug(bodyHash);
+        log.debug(bodyHash);
 
         OAuthMessage om = new OAuthMessage("POST", membershipsUrl, null);
         om.addParameter("oauth_body_hash", bodyHash);
@@ -197,7 +208,7 @@ public class SiteMembershipsSynchroniserImpl implements SiteMembershipsSynchroni
 
             String authzHeader = om.getAuthorizationHeader(null);
 
-            if(M_log.isDebugEnabled()) M_log.debug("AUTHZ HEADER: " + authzHeader);
+            if(log.isDebugEnabled()) log.debug("AUTHZ HEADER: {}", authzHeader);
 
             URL url = new URL(membershipsUrl);
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
@@ -216,13 +227,13 @@ public class SiteMembershipsSynchroniserImpl implements SiteMembershipsSynchroni
 
             processMembershipsResponse(connection, site, oauth_consumer_key, isEmailTrustedConsumer);
         } catch (Exception e) {
-            e.printStackTrace();
+            log.warn("Problem synchronizing Mooodle memberships.", e);
         }
     }
 
     private void processMembershipsResponse(HttpURLConnection connection, Site site, String oauth_consumer_key, boolean isEmailTrustedConsumer) throws Exception {
 
-        M_log.debug("processMembershipsResponse");
+        log.debug("processMembershipsResponse");
 
         BufferedReader br = new BufferedReader(new InputStreamReader(connection.getInputStream()));
         POXMembershipsResponse poxMembershipsResponse = new POXMembershipsResponse(br);
@@ -233,20 +244,20 @@ public class SiteMembershipsSynchroniserImpl implements SiteMembershipsSynchroni
 
         Map<String,List<POXMembershipsResponse.Member>> consumerGroups = poxMembershipsResponse.getGroups();
 
-        if (M_log.isDebugEnabled()) {
+        if (log.isDebugEnabled()) {
             for (POXMembershipsResponse.Member member : members) {
-                M_log.debug("Member:");
-                M_log.debug("\tUser ID: " + member.userId);
-                M_log.debug("\tFirst Name: " + member.firstName);
-                M_log.debug("\tLast Name: " + member.lastName);
-                M_log.debug("\tEmail: " + member.email);
-                M_log.debug("\tRole: " + member.role);
+                log.debug("Member:");
+                log.debug("\tUser ID: {}", member.userId);
+                log.debug("\tFirst Name: {}", member.firstName);
+                log.debug("\tLast Name: {}", member.lastName);
+                log.debug("\tEmail: {}", member.email);
+                log.debug("\tRole: {}", member.role);
             }
 
             for (String groupTitle : consumerGroups.keySet()) {
-                M_log.debug("Group: " + groupTitle);
+                log.debug("Group: {}", groupTitle);
                 for(POXMembershipsResponse.Member groupMember : consumerGroups.get(groupTitle)) {
-                    M_log.debug("\tGroup Member ID: " + groupMember.userId);
+                    log.debug("\tGroup Member ID: {}", groupMember.userId);
                 }
             }
         }
@@ -277,13 +288,13 @@ public class SiteMembershipsSynchroniserImpl implements SiteMembershipsSynchroni
             try {
                 site.deleteGroup((Group) i.next());
             } catch (IllegalStateException e) {
-                M_log.error(".processMembershipsResponse: Group with id {} cannot be removed because is locked", ((Group) i).getId());
+                log.error(".processMembershipsResponse: Group with id {} cannot be removed because is locked", ((Group) i).getId());
             }
         }
 
         for (String consumerGroupTitle : consumerGroups.keySet()) {
-            if (M_log.isDebugEnabled()) {
-                M_log.debug("Creating group with title '" + consumerGroupTitle + "' ...");
+            if (log.isDebugEnabled()) {
+                log.debug("Creating group with title '{}' ...", consumerGroupTitle);
             }
 
             Group sakaiGroup = site.addGroup();
@@ -291,14 +302,14 @@ public class SiteMembershipsSynchroniserImpl implements SiteMembershipsSynchroni
             sakaiGroup.setTitle(consumerGroupTitle);
 
             for (POXMembershipsResponse.Member consumerGroupMember : consumerGroups.get(consumerGroupTitle)) {
-                if (M_log.isDebugEnabled()) {
-                    M_log.debug("Adding '" + consumerGroupMember.firstName + " " + consumerGroupMember.lastName + "' to '" + consumerGroupTitle + "' ...");
+                if (log.isDebugEnabled()) {
+                    log.debug("Adding '{} {}' to '{}' ...", consumerGroupMember.firstName, consumerGroupMember.lastName, consumerGroupTitle);
                 }
 
                 try {
                     sakaiGroup.insertMember(consumerGroupMember.userId, consumerGroupMember.role, true, false);
                 } catch (IllegalStateException e) {
-                    M_log.error(".processMembershipsResponse: User with id {} cannot be inserted in group with id {} because the group is locked", consumerGroupMember.userId, sakaiGroup.getId());
+                    log.error(".processMembershipsResponse: User with id {} cannot be inserted in group with id {} because the group is locked", consumerGroupMember.userId, sakaiGroup.getId());
                 }
             }
         }
@@ -306,11 +317,10 @@ public class SiteMembershipsSynchroniserImpl implements SiteMembershipsSynchroni
         pushAdvisor();
         try {
             siteService.save(site);
-            //M_log.info("Updated  site=" + site.getId() + " group=" + consumerGroupTitle);
-            M_log.info("Updated  site=" + site.getId());
+            log.info("Updated  site={}", site.getId());
         } catch (Exception e) {
             //M_log.error("Failed to add group '" + consumerGroupTitle + "' to site", e);
-            M_log.info("Failed to update site=" + site.getId());
+            log.info("Failed to update site={}", site.getId());
         } finally {
             popAdvisor();
         }

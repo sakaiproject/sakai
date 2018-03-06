@@ -30,11 +30,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.SortedMap;
 import java.util.Properties;
-import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.lang.Number;
 import java.sql.ResultSetMetaData;
+
+import lombok.extern.slf4j.Slf4j;
 
 import org.apache.commons.lang.StringUtils;
 import org.sakaiproject.lti.api.LTISearchData;
@@ -44,9 +45,8 @@ import org.sakaiproject.util.ResourceLoader;
 /**
  * 
  */
+@Slf4j
 public class Foorm {
-
-	private static Logger logger = Logger.getLogger("org.sakaiproject.util.foorm.Foorm");
 	
 	/** Resource bundle using current language locale */
 	protected static ResourceLoader rb = new ResourceLoader("ltiservice");
@@ -330,9 +330,19 @@ public class Foorm {
 	 * @param required
 	 * @param loader
 	 */
-	public void formInputEnd(StringBuffer sb, String field, String label, boolean required,
+	public void formInputEnd(StringBuffer sb, String field, String type, String label, boolean required,
 			Object loader) {
-		sb.append("</p>\n");
+		if (label != null && ( "checkbox".equals(type) ) ) {
+			sb.append("<label for=\"");
+			sb.append(field);
+			sb.append("\" style=\"display:block;float:none;\">");
+		}
+		if ( label != null) sb.append("</label>");
+		if ( "checkbox".equals(type) || "radio".equals(type) ) {
+			// Not needed
+		} else {
+			sb.append("</p>\n");
+		}
 	}
 
 	/**
@@ -360,7 +370,7 @@ public class Foorm {
 		sb.append("\" style=\"border:1px solid #555;padding:5px;font-size:1em;width:300px\" value=\"");
 		sb.append(htmlSpecialChars(value));
 		sb.append("\"/>");
-		formInputEnd(sb, field, label, required, loader);
+		formInputEnd(sb, field, "text", label, required, loader);
 		return sb.toString();
 	}
 
@@ -431,7 +441,7 @@ public class Foorm {
 		sb.append("\"/>");
 		sb.append(htmlSpecialChars(value));
 		sb.append("</textarea>\n");
-		formInputEnd(sb, field, label, required, loader);
+		formInputEnd(sb, field, "textarea", label, required, loader);
 		return sb.toString();
 	}
 
@@ -449,9 +459,7 @@ public class Foorm {
 			boolean required, String[] choices, Object loader) {
 		StringBuffer sb = new StringBuffer();
 		// formInputStart(sb, field, "radio", label, required, loader);
-		sb.append("<h4>");
-		sb.append(getI18N(label, loader));
-		sb.append("</h4>\n");
+		sb.append(formInputHeader(field, label, loader));
 		int val = 0;
 		if (value != null && value instanceof Number)
 			val = ((Number) value).intValue();
@@ -464,25 +472,27 @@ public class Foorm {
 		if (choices == null || val >= choices.length)
 			val = 0;
 		int i = 0;
+		sb.append("<ol style=\"list-style-type:none\">\n");
 		for (String choice : choices) {
 			String checked = "";
 			if (i == val)
 				checked = " checked=\"checked\"";
-			sb.append("<p  style=\"border:padding:3px;;margin:7px 3px;\">\n");
+			sb.append("<li style=\"border:padding:3px;;margin:7px 3px;\">\n");
 			sb.append("<input type=\"radio\" name=\"");
 			sb.append(field);
 			sb.append("\" value=\"" + i + "\" id=\"");
 			String id = field + "_" + choice;
 			sb.append(id + "\"");
 			sb.append(checked);
-			sb.append("/><label for=\"");
+			sb.append("/> <label for=\"");
 			sb.append(id);
 			sb.append("\">");
 			sb.append(getI18N(label + "_" + choice, loader));
-			sb.append("</label></p>\n");
+			sb.append("</label></li>\n");
 			i++;
 		}
-		formInputEnd(sb, field, label, required, loader);
+		sb.append("</ol>\n");
+		formInputEnd(sb, field, "radio", label, required, loader);
 		return sb.toString();
 	}
 
@@ -502,7 +512,7 @@ public class Foorm {
 		int val = getInt(value);
 		String checked = "";
 		if (val == 1) checked = " checked=\"checked\"";
-		sb.append("<input type=\"checkbox\" name=\"");
+		sb.append("<li><input type=\"checkbox\" name=\"");
 		sb.append(field);
 		sb.append("\" value=\"1\" id=\"");
 		sb.append(field);
@@ -521,7 +531,7 @@ public class Foorm {
 			sb.append(field);
 			sb.append("';\"");
 		}
-		sb.append("/>");
+		sb.append("/> ");
 		if ( val == 1 ) {
 			sb.append("<input type=\"hidden\" name=\"");
 			sb.append(field);
@@ -530,8 +540,8 @@ public class Foorm {
 			sb.append(".mirror\" value=\"0\" />");
 		}
 		sb.append(getI18N(label, loader));
-		sb.append("<br/>\n");
-		formInputEnd(sb, field, label, required, loader);
+		formInputEnd(sb, field, "checkbox", label, required, loader);
+		sb.append("</li>\n");
 		return sb.toString();
 	}
 
@@ -752,13 +762,19 @@ public class Foorm {
 		StringBuffer sb = new StringBuffer();
 		String header = null;
 		String fieldList[] = null;
-		for (String formInput : formDefinition) {
-			String tmp = formInput(row, formInput, loader);
+		boolean inCheckboxes = false;
+		for (String inp : formDefinition) {
+			String tmp = formInput(row, inp, loader);
 			if (tmp.length() < 1)
 				continue;
-			Properties info = parseFormString(formInput);
+			Properties info = parseFormString(inp);
 			String type = info.getProperty("type", null);
 			String field = info.getProperty("field", null);
+
+			if ( inCheckboxes && ! "checkbox".equals(type) ) {
+				sb.append("</ol>\n");
+				inCheckboxes = false;
+			}
 
 			if ( "header".equals(type) ) { 
 				String fields = info.getProperty("fields", "");
@@ -777,8 +793,18 @@ public class Foorm {
 				fieldList = null;
 			}
 
+			if ( ! inCheckboxes && "checkbox".equals(type) ) {
+				sb.append("<ol style=\"list-style-type:none\">\n");
+				inCheckboxes = true;
+			}
+
 			sb.append(tmp);
 			sb.append("\n");
+		}
+
+		if ( inCheckboxes ) {
+			sb.append("</ol>\n");
+			inCheckboxes = false;
 		}
 		return sb.toString();
 	}
@@ -1030,7 +1056,7 @@ public class Foorm {
 			}
 			if ( "header".equals(type) ) continue;
 			String label = info.getProperty("label", field);
-			logger.fine("field="+field+" type="+type);
+			log.debug("field={} type={}", field, type);
 
 			// Check the automatically populate empty date fields
 			if ("autodate".equals(type) && dataMap != null && (!isFieldSet(parms, field)) ) {
@@ -1434,6 +1460,10 @@ public class Foorm {
 		if (search == null) {
 			return null;
 		}
+		//check if is a direct search
+		if (StringUtils.isNotEmpty(search) && search.matches("(\\w+\\.)?\\w+\\s*=.+")) {
+			return search;
+		}
 		StringBuilder sb = new StringBuilder();
 		List<String> tokens = getSearchTokens(search);
 		List<String> separators = getSearchSeparators(search);
@@ -1759,8 +1789,11 @@ public class Foorm {
 			}
 		} else if ("url".equals(type) || "text".equals(type) || "textarea".equals(type)) {
 			if ("oracle".equals(vendor)) {
-				if (maxlength < 4000) {
-					schema = "VARCHAR2(" + maxlength + ")";
+				// SAK-31695
+				// Since we need UTF-8, we need to be conservative 4000/4 -> 1025
+				// Also we need to force "CHAR" to handle UTF-8 columns lengths
+				if (maxlength < 1025) {
+					schema = "VARCHAR2(" + maxlength + " CHAR)";
 				} else {
 					schema = "CLOB";
 				}
@@ -1844,8 +1877,8 @@ public class Foorm {
 				// ignore
 			}
 
-			logger.fine( field + " (" + maxlength + ") type="+type);
-			logger.fine( field + " (" + sqlLength + ") auto=" + autoIncrement+" type="+sqlType+" null="+isNullable);
+			log.debug("{} ({}) type={}", field, maxlength, type);
+			log.debug("{} ({}) auto={} type={} null={}", field, sqlLength, autoIncrement, sqlType, isNullable);
 
 			//  If the field is not there...
 			if ( sqlType == null ) {
@@ -1864,19 +1897,22 @@ public class Foorm {
 			// BLTI-220, BLTI-238 - Required will be enforced in software - not the DB
 			boolean shouldAlter = false;
 			if ("key".equals(type)) {
-				if ( ! NUMBER_TYPE.equals(sqlType) ) logger.severe(field+" must be Integer and Auto Increment");
+				if ( ! NUMBER_TYPE.equals(sqlType) ) log.warn("{} must be Integer and Auto Increment", field);
 			} else if ("autodate".equals(type)) {
 			} else if ("url".equals(type) || "text".equals(type) || "textarea".equals(type)) {
 				if ( "oracle.sql.CLOB".equals(sqlType) || "oracle.jdbc.OracleClob".equals(sqlType) ) continue;  // CLOBS large enough :)
 				if ( ! STRING_TYPE.equals(sqlType)) {
-					logger.severe(field+" must be String field");
+					log.warn("{} must be String field", field);
 					continue;
 				}
 				if ( sqlLength < maxlength ) shouldAlter = true;
 				if ( ! isNullable ) shouldAlter = true; // BLTI-220, BLTI-238
+
+				// shouldAlter = true; // Temporary SAK-31695 to force ALTER statements to be emitted
+
 			} else if ("radio".equals(type) || "checkbox".equals(type) || "integer".equals(type) ) {
 				if ( NUMBER_TYPE.equals(sqlType)) continue;
-				logger.severe(field+" must be Integer field");
+				log.warn("{} must be Integer field", field);
 			}
 
 			if ( shouldAlter ) {
@@ -1956,7 +1992,7 @@ public class Foorm {
 				c = c.getSuperclass();
 			}
 		} catch(Exception e) {
-			e.printStackTrace();
+			log.error(e.getMessage(), e);
 		}
 		return className;
 	}

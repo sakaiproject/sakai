@@ -30,6 +30,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.api.app.messageforums.MembershipManager;
 import org.sakaiproject.api.app.messageforums.ui.PrivateMessageManager;
 import org.sakaiproject.api.privacy.PrivacyManager;
@@ -49,13 +51,10 @@ import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.util.ResourceLoader;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
+@Slf4j
 public class MembershipManagerImpl implements MembershipManager{
 
-  private static final Logger LOG = LoggerFactory.getLogger(MembershipManagerImpl.class);
-          
   private SiteService siteService;
   private UserDirectoryService userDirectoryService;
   private AuthzGroupService authzGroupService;
@@ -69,7 +68,7 @@ public class MembershipManagerImpl implements MembershipManager{
   
 
   public void init() {
-     LOG.info("init()");
+     log.info("init()");
     ;
   }    
 
@@ -139,7 +138,7 @@ public class MembershipManagerImpl implements MembershipManager{
     
     Set membershipRoleSet = new HashSet();    
     
-    if(getPrtMsgManager().isAllowToFieldRoles()){
+    if(getPrtMsgManager().isAllowToFieldRoles() || getPrtMsgManager().isAllowToFieldMyGroupRoles()){
     	/** generate set of roles which has members */
     	for (Iterator i = allCourseUsers.iterator(); i.hasNext();){
     		MembershipItem item = (MembershipItem) i.next();
@@ -165,7 +164,7 @@ public class MembershipManagerImpl implements MembershipManager{
       Map.Entry entry = (Map.Entry) i.next();
       MembershipItem item = (MembershipItem) entry.getValue();
       
-      if (MembershipItem.TYPE_ROLE.equals(item.getType())){
+      if (MembershipItem.TYPE_ROLE.equals(item.getType()) || MembershipItem.TYPE_MYGROUPROLES.equals(item.getType())){
         /** if no member belongs to role, filter role */
         if (!membershipRoleSet.contains(item.getRole())){          
           i.remove();
@@ -212,7 +211,7 @@ public class MembershipManagerImpl implements MembershipManager{
               }
           }
       } catch (IdUnusedException e) {
-          LOG.warn("Unable to retrieve site to determine current user's fellow section members.");
+          log.warn("Unable to retrieve site to determine current user's fellow section members.");
       }
       
       return fellowMembers;
@@ -248,11 +247,11 @@ public class MembershipManagerImpl implements MembershipManager{
     }
     catch (IdUnusedException e){
 		//FIXME Is this expected behavior?  If so it should be documented - LDS
-      LOG.debug(e.getMessage(), e);
+      log.debug(e.getMessage(), e);
       return returnMap;
     } catch (GroupNotDefinedException e) {
 		//FIXME Is this expected behavior?  If so it should be documented - LDS
-    	LOG.error(e.getMessage(), e);
+    	log.error(e.getMessage(), e);
 	}
 
 	boolean viewHiddenGroups = getPrtMsgManager().isAllowToViewHiddenGroups();
@@ -331,7 +330,7 @@ public class MembershipManagerImpl implements MembershipManager{
 					}
 				}
 			} catch (IdUnusedException e) {
-				LOG.warn("Unable to retrieve site to determine current user's groups.");
+				log.warn("Unable to retrieve site to determine current user's groups.");
 			}
 		}
 
@@ -350,7 +349,38 @@ public class MembershipManagerImpl implements MembershipManager{
 					}
 				}
 			} catch (IdUnusedException e) {
-				LOG.warn("Unable to retrieve site to determine current user's group members.");
+				log.warn("Unable to retrieve site to determine current user's group members.");
+			}
+		}
+		
+		if (getPrtMsgManager().isAllowToFieldMyGroupRoles()) {
+			/** handle roles in current user's groups */
+
+			try {
+				Collection<Group> groups = siteService.getSite(toolManager.getCurrentPlacement().getContext())
+						.getGroupsWithMember(userDirectoryService.getCurrentUser().getId());
+				if (groups != null) {
+					for (Group group : groups) {
+						Set<Role> groupRoles = group.getRoles();
+						for (Role role : groupRoles) {
+							MembershipItem member = MembershipItem.getInstance();
+							member.setType(MembershipItem.TYPE_MYGROUPROLES);
+							String roleId = role.getId();
+							if (roleId != null && roleId.length() > 0) {
+								roleId = roleId.substring(0, 1).toUpperCase() + roleId.substring(1);
+							}
+							member.setName(rl.getFormattedMessage("group_role_desc", new Object[] { group.getTitle(), roleId }));
+							member.setRole(role);
+							member.setGroup(group);
+
+							if (!isGroupAlreadyInMap(returnMap, member)) {
+								returnMap.put(member.getId(), member);
+							}
+						}
+					}
+				}
+			} catch (IdUnusedException e) {
+				log.warn("Unable to retrieve site to determine current user's group member roles.");
 			}
 		}
 
@@ -369,7 +399,7 @@ public class MembershipManagerImpl implements MembershipManager{
 					user = userDirectoryService.getUser(userId);
 				}
 			} catch (UserNotDefinedException e) {
-				LOG.warn(" User " + userId + " not defined");
+				log.warn(" User " + userId + " not defined");
 			}
 
 			// Don't want admin as part of the list
@@ -440,7 +470,7 @@ public class MembershipManagerImpl implements MembershipManager{
       realm = authzGroupService.getAuthzGroup(realmId);      
     } catch (GroupNotDefinedException e) {
 		//FIXME Is this expected behavior?  If so it should be documented - LDS
-    	LOG.error(e.getMessage(), e);
+    	log.error(e.getMessage(), e);
 	}
                 
     /** handle users */

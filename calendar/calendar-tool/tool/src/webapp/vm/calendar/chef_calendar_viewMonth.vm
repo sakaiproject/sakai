@@ -99,7 +99,7 @@
                        title="$validator.escapeHtml($m.getDisplayName()) - $validator.escapeHtml($m.getSiteName())" 
                        style="	text-decoration: none !important">
                     #set($size = $m.getDisplayName().length())
-						  #iconImage($m.getType())
+                    <span class="icon $eventIconMap.get($m.getType())" title="$localizedEventTypes.get($m.getType())"></span>
                     #set($size = $m.getDisplayName().length())                            
                     #if ($size > 8)
                         #set($stringa = $m.getDisplayName().substring(0,8))
@@ -116,6 +116,12 @@
     #end  ## -- end of foreach
 </table>
 
-#eventLegend($tlang)
+<h4>$tlang.getString('view.legend')</h4>
+<ul class="calendarLegend">
+    #foreach ($key in $iconsAndLocalizedEventTypes.keySet())
+        <li><span class="icon $iconsAndLocalizedEventTypes.get($key)"></span> $key</li>
+    #end
+</ul>
+<div class="clear"></div>
 
 </div>

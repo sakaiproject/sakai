@@ -29,12 +29,15 @@ import java.io.Reader;
 
 import javax.servlet.ServletInputStream;
 
+import lombok.extern.slf4j.Slf4j;
+
 /**
  * This is a class which allows us to produce and control {@link ServletInputStream}s,
  * normally there is no default implementation available for these for some stupid reason
  * 
  * @author Aaron Zeckoski (azeckoski @ gmail.com)
  */
+@Slf4j
 public class EntityServletInputStream extends ServletInputStream {
 
     private BufferedInputStream in;
@@ -92,7 +95,7 @@ public class EntityServletInputStream extends ServletInputStream {
             try {
                 br.close();
             } catch (IOException e) {
-                e.printStackTrace();
+                log.error(e.getMessage(), e);
             }
         }
         String str = sb.toString();

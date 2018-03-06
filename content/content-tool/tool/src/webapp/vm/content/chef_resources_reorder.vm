@@ -1,8 +1,6 @@
 ## version: $Id:  $
 <!-- chef_resources_reorder.vm, use with org.sakaiproject.tool.content.ResourcesAction.java -->
 <!-- this is the reorder template -->
-#javascript("/library/js/fluid/1.5/MyInfusion.js")
-#javascript("/library/js/reorderer.js")
 
 <div class="portletBody specialLink">
 	<form name="reorderForm" id="reorderForm" action="#toolForm("ResourcesAction")" method="post">
@@ -22,9 +20,7 @@
 		</div>
 		<div class="instruction">
 			$tlang.getString("sort.instruction.general")
-				<span id="inputFieldMessage" style="display:none">$tlang.getString('sort.instruction.input')</span>
-				<span id="inputKbdMessage" class="skip">$tlang.getString('sort.instruction.general.hidden')</span>
-			
+				<span id="inputKbdMessage" class="sr-only">$tlang.getString('sort.instruction.general.hidden')</span>
 		</div>
 		
 		<ul class="itemAction noPrint">
@@ -47,12 +43,12 @@
 		
 
 		
-		<ul id="reorder-list" class="container-fluid">
+		<ul id="reorder-list" class="styled-reorder-list container-fluid">
 			#foreach($root in $this_site)
 				#set($collectionMembers = $root.members)
 				#set($count = 1)
 				#foreach($member in $collectionMembers)
-					<li class="sortable row well"  id="listitem.orderable$count">
+					<li class="sortable row well" tabindex="0" id="listitem.orderable$count">
 						<span style="display:none" class="grabHandle">
 							<input type="text" size="3" value="$count" id="index$count"/>
 							<input type="hidden"  size="3" id="holder$count"  value="$count" tabindex="-2"/>

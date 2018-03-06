@@ -1,23 +1,18 @@
-/**********************************************************************************
-* $URL$
-* $Id$
-***********************************************************************************
-*
- * Copyright (c) 2007, 2008 The Sakai Foundation
+/**
+ * Copyright (c) 2003-2017 The Apereo Foundation
  *
  * Licensed under the Educational Community License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *       http://www.opensource.org/licenses/ECL-2.0
+ *             http://opensource.org/licenses/ecl2
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
-*
-**********************************************************************************/
+ */
 
 
 package org.sakaiproject.chat2.model.impl;
@@ -26,14 +21,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sakaiproject.chat2.model.ChatChannel;
 import org.sakaiproject.chat2.model.ChatManager;
-import org.sakaiproject.courier.api.CourierService;
 import org.sakaiproject.entitybroker.EntityReference;
-import org.sakaiproject.entitybroker.EntityView;
-import org.sakaiproject.entitybroker.entityprovider.annotations.EntityCustomAction;
 import org.sakaiproject.entitybroker.entityprovider.CoreEntityProvider;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.ActionsExecutable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.AutoRegisterEntityProvider;
@@ -44,8 +34,6 @@ import org.sakaiproject.entitybroker.entityprovider.extension.Formats;
 import org.sakaiproject.entitybroker.entityprovider.search.Restriction;
 import org.sakaiproject.entitybroker.entityprovider.search.Search;
 import org.sakaiproject.exception.PermissionException;
-import org.sakaiproject.tool.api.Session;
-import org.sakaiproject.tool.cover.SessionManager;
 
 @SuppressWarnings("deprecation")
 public class ChatChannelEntityProvider implements CoreEntityProvider, AutoRegisterEntityProvider, RESTful,
@@ -54,8 +42,6 @@ public class ChatChannelEntityProvider implements CoreEntityProvider, AutoRegist
 	private ChatManager chatManager;
 	  
 	public final static String ENTITY_PREFIX = "chat-channel";
-
-	protected final Logger LOG = LoggerFactory.getLogger(getClass());
 	
 	public class SimpleChatChannel {
 
@@ -212,41 +198,6 @@ public class ChatChannelEntityProvider implements CoreEntityProvider, AutoRegist
         }
         
 		return channels;
-	}
-
-	/**
-	 *  Custom action to start listening to a channel
-	 * @return true if a listener is started. 
-	 */
-	 @EntityCustomAction(action="listen",viewKey=EntityView.VIEW_EDIT)
-	 public boolean listen(EntityReference ref, Map<String, Object> params) {
-
-		String id = ref.getId();
-		
-		if (id == null || "".equals(id)) {
-		         return false;
-		}
-		  
-		ChatChannel channel = chatManager.getChatChannel(id);
-
-		if (channel == null) {
-			throw new IllegalArgumentException("Channel not found");
-		}
-		
-		if (!chatManager.getCanReadMessage(channel)) {
-			throw new SecurityException("You do not have permission to access this chat channel");
-		}
-		
-	    Session session = SessionManager.getCurrentSession();
-	    String sessionId = session.getId();
-	      
-	    CourierService courier = org.sakaiproject.courier.cover.CourierService.getInstance();
-	    
-		ChatRestListener listener = new ChatRestListener(chatManager, courier, sessionId, channel); 
-
-		chatManager.addRoomListener(listener, channel.getId());
-		
-		return true;
 	}
 
 	

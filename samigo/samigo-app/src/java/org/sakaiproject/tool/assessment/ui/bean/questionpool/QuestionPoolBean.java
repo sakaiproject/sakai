@@ -19,8 +19,6 @@
  *
  **********************************************************************************/
 
-
-
 package org.sakaiproject.tool.assessment.ui.bean.questionpool;
 
 import java.io.IOException;
@@ -49,6 +47,7 @@ import javax.faces.model.SelectItem;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
@@ -94,15 +93,13 @@ import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.util.ResourceLoader;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 
 /**
  * This holds question pool information.
  *
  * $Id$
  */
+@Slf4j
 public class QuestionPoolBean implements Serializable
 {
 	
@@ -170,9 +167,6 @@ public class QuestionPoolBean implements Serializable
   private ItemFacade itemToPreview;
   private boolean showTags;
   private List<ItemContentsBean> itemsBean;
-
-  private static Logger log = LoggerFactory.getLogger(QuestionPoolBean.class);
-
 
   // for JSF
   private Tree tree;
@@ -382,7 +376,6 @@ public class QuestionPoolBean implements Serializable
       QuestionPoolService delegate = new QuestionPoolService();
       // getAllPools() returns pool in ascending order of poolId 
       // then a tree which represent the pool structure is built - daisyf
-      //System.out.println("****** QPBean: build tree");
       tree=
         new QuestionPoolTreeImpl(
           (QuestionPoolIteratorFacade) delegate.getAllPoolsWithAccess(AgentFacade.getAgentString()));
@@ -400,7 +393,6 @@ public class QuestionPoolBean implements Serializable
 		  QuestionPoolService delegate = new QuestionPoolService();
 		  // getAllPools() returns pool in ascending order of poolId 
 		  // then a tree which represent the pool structure is built - daisyf
-		  //System.out.println("****** QPBean: build tree");
 		  tree=
 			  new QuestionPoolTreeImpl(
 					  (QuestionPoolIteratorFacade) delegate.getAllPools(AgentFacade.getAgentString()));
@@ -417,7 +409,7 @@ public class QuestionPoolBean implements Serializable
     stars += "**";
     for (int i=0; i<children.size();i++){
       QuestionPoolDataIfc child = (QuestionPoolDataIfc) childrenMap.get(children.get(i).toString());
-      //System.out.println(stars+child.getTitle()+":"+child.getLastModified());
+      log.debug("{}{}:{}", stars, child.getTitle(), child.getLastModified());
       printChildrenPool(tree, child, stars);
     }  
   }
@@ -1294,7 +1286,7 @@ public String getAddOrEdit()
 					EventTrackingService.post(EventTrackingService.newEvent(SamigoConstants.EVENT_ASSESSMENT_SAVEITEM, "/sam/" + AgentFacade.getCurrentSiteId() + "/moved, itemId=" + sourceItemId, true));
 				}
 			} catch (Exception e) {
-				e.printStackTrace();
+				log.error(e.getMessage(), e);
 				throw new RuntimeException(e);
 			}
 		}
@@ -1425,7 +1417,7 @@ public String getAddOrEdit()
 						EventTrackingService.post(EventTrackingService.newEvent(SamigoConstants.EVENT_ASSESSMENT_SAVEITEM, "/sam/" + AgentFacade.getCurrentSiteId() + "/copied, itemId=" + sourceItemId, true));
 					}
 				} catch (Exception e) {
-					e.printStackTrace();
+					log.error(e.getMessage(), e);
 					throw new RuntimeException(e);
 				}
 			}
@@ -1461,7 +1453,7 @@ public String getAddOrEdit()
 		                delegate.addItemToPool(sourceItemId, new Long(destId));
 					}
 				} catch (Exception e) {
-					e.printStackTrace();
+					log.error(e.getMessage(), e);
 					throw new RuntimeException(e);
 				}
 			}
@@ -1642,7 +1634,7 @@ public String getAddOrEdit()
     }
     catch(RuntimeException e)
     {
-      e.printStackTrace();
+      log.error(e.getMessage(), e);
       throw e;
     }
 
@@ -1694,7 +1686,7 @@ public String getAddOrEdit()
 	    }
             catch(Exception e)
             {
-		e.printStackTrace();
+		log.error(e.getMessage(), e);
                 throw new RuntimeException(e);
             
 	    }
@@ -1738,7 +1730,7 @@ public String getAddOrEdit()
 	  }
           catch(Exception e)
           {
-            e.printStackTrace();
+            log.error(e.getMessage(), e);
             throw new RuntimeException(e);
           }
         }
@@ -1788,7 +1780,7 @@ public String getAddOrEdit()
     }
     catch(Exception e)
     {
-      e.printStackTrace();
+      log.error(e.getMessage(), e);
       throw new RuntimeException(e);
     }
   }
@@ -2181,20 +2173,6 @@ String poolId = ContextUtil.lookupParam("qpid");
         addPoolByLevel(sortedList, map, nextLevelPoolList);
     }
   }
-
-  /*
-  private void printTree(Collection objects){
-    Iterator iter = objects.iterator();
-    String stars="********";
-    while(iter.hasNext())
-    {
-      QuestionPoolDataIfc pool = (QuestionPoolDataIfc) iter.next();
-      //System.out.println();
-      //System.out.println("****** QPBean: "+pool.getTitle()+":"+pool.getLastModified()); 
-      printChildrenPool(tree, pool, stars);
-    }
-  }
-  */
   
   /**
    * DOCUMENTATION PENDING
@@ -2536,7 +2514,7 @@ String poolId = ContextUtil.lookupParam("qpid");
 
 		CellStyle boldStyle = wb.createCellStyle();
 		Font font = wb.createFont();
-		font.setBoldweight(Font.BOLDWEIGHT_BOLD);
+		font.setBold(true);
 		boldStyle.setFont(font);
 		CellStyle headerStyle = boldStyle;
 		
@@ -3224,7 +3202,6 @@ String poolId = ContextUtil.lookupParam("qpid");
 			return confirmMessage;
 		} catch(UserNotDefinedException e) {
 			log.warn("Unable to get user by eid: " + ownerId);
-			e.printStackTrace();
 			return "";
 		}
 	}
@@ -3261,7 +3238,6 @@ String poolId = ContextUtil.lookupParam("qpid");
 			return "poolList";
 		} catch (UserNotDefinedException e) {
 			log.warn("Unable to get user by eid: " + ownerId);
-			e.printStackTrace();
 			return "";
 		}
 	}

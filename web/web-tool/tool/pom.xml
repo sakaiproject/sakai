@@ -4,7 +4,7 @@
   <parent>
     <artifactId>web-base</artifactId>
     <groupId>org.sakaiproject</groupId>
-    <version>12-SNAPSHOT</version>
+    <version>13-SNAPSHOT</version>
     <relativePath>../../pom.xml</relativePath>
   </parent>
 

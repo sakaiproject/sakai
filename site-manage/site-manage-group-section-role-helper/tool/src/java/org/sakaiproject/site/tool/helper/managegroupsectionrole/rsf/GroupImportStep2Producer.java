@@ -1,3 +1,18 @@
+/**
+ * Copyright (c) 2003-2017 The Apereo Foundation
+ *
+ * Licensed under the Educational Community License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *             http://opensource.org/licenses/ecl2
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.sakaiproject.site.tool.helper.managegroupsectionrole.rsf;
 
 import java.util.ArrayList;
@@ -9,17 +24,8 @@ import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.sakaiproject.site.api.Group;
-import org.sakaiproject.site.tool.helper.managegroupsectionrole.impl.ImportedGroup;
-import org.sakaiproject.site.tool.helper.managegroupsectionrole.impl.SiteManageGroupSectionRoleHandler;
-import org.sakaiproject.tool.api.SessionManager;
-import org.sakaiproject.tool.api.Tool;
-
-import org.sakaiproject.rsf.producers.FrameAdjustingProducer;
-import org.sakaiproject.rsf.util.SakaiURLUtil;
 import uk.org.ponder.messageutil.MessageLocator;
 import uk.org.ponder.rsf.components.UIBranchContainer;
 import uk.org.ponder.rsf.components.UICommand;
@@ -40,12 +46,20 @@ import uk.org.ponder.rsf.viewstate.SimpleViewParameters;
 import uk.org.ponder.rsf.viewstate.ViewParameters;
 import uk.org.ponder.rsf.viewstate.ViewParamsReporter;
 
+import org.sakaiproject.rsf.producers.FrameAdjustingProducer;
+import org.sakaiproject.rsf.util.SakaiURLUtil;
+import org.sakaiproject.site.api.Group;
+import org.sakaiproject.site.tool.helper.managegroupsectionrole.impl.ImportedGroup;
+import org.sakaiproject.site.tool.helper.managegroupsectionrole.impl.SiteManageGroupSectionRoleHandler;
+import org.sakaiproject.tool.api.SessionManager;
+import org.sakaiproject.tool.api.Tool;
+
 /**
  * Producer for page 2 of the group import
  */
+@Slf4j
 public class GroupImportStep2Producer implements ViewComponentProducer, NavigationCaseReporter, ViewParamsReporter, ActionResultInterceptor {
 
-	private static Logger M_log = LoggerFactory.getLogger(GroupImportStep2Producer.class);
     public SiteManageGroupSectionRoleHandler handler;
     public static final String VIEW_ID = "GroupImportStep2";
     public MessageLocator messageLocator;
@@ -77,7 +91,7 @@ public class GroupImportStep2Producer implements ViewComponentProducer, Navigati
             Group existingGroup = null;
             
             //add title
-            UIOutput.make(branch,"title",importedGroup.getGroupTitle());
+            UIOutput.make(branch,"title", messageLocator.getMessage("import2.grouptitle") + " " + importedGroup.getGroupTitle());
             
             //check if group already exists
             for(Group g : existingGroups) {
@@ -99,31 +113,37 @@ public class GroupImportStep2Producer implements ViewComponentProducer, Navigati
             
             //print each user
             SortedSet<String> foundUserIds = new TreeSet<>();
+
+            boolean existingFlag = false;
             for(String userId: importedGroup.getUserIds()) {
-            	
-            	UIOutput output = UIOutput.make(branch,"member:",userId);
-            	
                 //check user is valid
                 String foundUserId = handler.lookupUser(userId);
                 if(foundUserId != null && handler.isValidSiteUser(foundUserId)){
-            		//is user existing?
-            		if(existingUserIds.contains(userId)) {
-            			//highlight grey
-            			Map<String,String> cssMap = new HashMap<String,String>();
-                		cssMap.put("color","grey");
-                		output.decorate(new UICSSDecorator(cssMap));
-            		} else {
-            		    foundUserIds.add(foundUserId);
+                    String userSortName = handler.getUserSortName(userId)+ " ( " + userId + " )";
+                    //is user existing?
+                    if(existingUserIds.contains(userId)) {
+                        existingFlag = true;
+                        UIOutput outputExisting = UIOutput.make(branch,"existmember:", userSortName);
+                    } else {
+                        if (foundUserIds.isEmpty()) {
+                            UIOutput.make(branch, "newmemberheading:", messageLocator.getMessage("import2.newmemberheading"));
+                        }
+                        foundUserIds.add(foundUserId);
+                        UIOutput outputNew = UIOutput.make(branch, "newmember:", userSortName);
                     }
-            		
-            	} else {
-            		badData = true;
-            		//highlight red
-            		Map<String,String> cssMap = new HashMap<String,String>();
-            		cssMap.put("color","red");
-            		output.decorate(new UICSSDecorator(cssMap));
-            	}
+                } else {
+                    badData = true;
+                    UIOutput outputInvalid = UIOutput.make(branch,"invalidmember:", userId);
+                }
             }
+
+            if (existingFlag) {
+                UIOutput.make(branch, "existmemberheading:", messageLocator.getMessage("import2.existmemberheading"));
+            }
+            if (badData) {
+                UIOutput.make(branch, "invalidmemberheading:", messageLocator.getMessage("import2.invalidmemberheading"));
+            }
+
             importedGroup.setUserIds(foundUserIds);
         }
         
@@ -131,18 +151,13 @@ public class GroupImportStep2Producer implements ViewComponentProducer, Navigati
         
         if(badData) {
             UIMessage.make(content, "import2.error", "import2.error");
-            handler.resetParams();
-            
-            UICommand cancel = UICommand.make(createForm, "cancel", messageLocator.getMessage("cancel"), "#{SiteManageGroupSectionRoleHandler.processCancel}");
-            cancel.parameters.add(new UIDeletionBinding("#{destroyScope.resultScope}"));
-            
         } else {
             UIMessage.make(content, "import2.okay", "import2.okay");
-
             UICommand.make(createForm, "continue", messageLocator.getMessage("import2.continue"), "#{SiteManageGroupSectionRoleHandler.processImportedGroups}");
-            UICommand cancel = UICommand.make(createForm, "cancel", messageLocator.getMessage("cancel"), "#{SiteManageGroupSectionRoleHandler.processCancel}");
-            cancel.parameters.add(new UIDeletionBinding("#{destroyScope.resultScope}"));
         }
+        UICommand.make(createForm, "back", messageLocator.getMessage("back"));
+        UICommand cancel = UICommand.make(createForm, "cancel", messageLocator.getMessage("cancel"), "#{SiteManageGroupSectionRoleHandler.processCancelGroups}");
+        cancel.parameters.add(new UIDeletionBinding("#{destroyScope.resultScope}"));
         
         if(StringUtils.equals(params.status, "error")){
         	UIMessage.make(content, "import2.couldntimportgroups", "import2.couldntimportgroups");
@@ -154,6 +169,7 @@ public class GroupImportStep2Producer implements ViewComponentProducer, Navigati
     public List<NavigationCase> reportNavigationCases() {
         List<NavigationCase> togo = new ArrayList<NavigationCase>();
         togo.add(new NavigationCase("success", new SimpleViewParameters(GroupListProducer.VIEW_ID)));
+        togo.add(new NavigationCase("returnToGroupList", new SimpleViewParameters(GroupListProducer.VIEW_ID)));
         togo.add(new NavigationCase("error", new GroupImportViewParameters(GroupImportStep2Producer.VIEW_ID, "error")));
         return togo;
     }

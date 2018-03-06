@@ -1,3 +1,18 @@
+/**
+ * Copyright (c) 2010-2017 The Apereo Foundation
+ *
+ * Licensed under the Educational Community License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *             http://opensource.org/licenses/ecl2
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.sakaiproject.lti.entityprovider;
 
 import java.util.Map;
@@ -226,63 +241,4 @@ public class LTIEntityProvider extends AbstractEntityProvider implements AutoReg
 		}
 		return site;
 	}
-
-/* Some old debug stuff - painful to re-create so I will keep it here.
-        @EntityCustomAction(action = "testmap", viewKey = "")
-        public Map<String,Object> handleTestMap(EntityView view) {
-		Map<String,Object> zap = new TreeMap<String, Object> ();
-		zap.put("astring", "zap");
-		zap.put("along", new Long(123));
-                return zap;
-        }
-
-        @EntityCustomAction(action = "testmap2", viewKey = "")
-        public EntityData handleTestMap2(EntityView view) {
-		Map<String,Object> zap = new TreeMap<String, Object> ();
-                String siteId = view.getPathSegment(2);
-                String msgId = view.getPathSegment(3);
-System.out.println("siteId="+siteId+" msgId="+msgId);
-		zap.put("astring", "zap");
-		zap.put("along", new Long(123));
-		zap.put("i7", new Long(123));
-		EntityData ed = new EntityData("/lti_testmap/123","ASKLJ", zap);
-                return ed;
-        }
-
-        @EntityCustomAction(action = "testlist2", viewKey = EntityView.VIEW_LIST)
-        public List<Map<String,Object>> handleTestList2(EntityView view,  Map<String, Object> params) {
-                String siteId = view.getPathSegment(2);
-                String msgId = view.getPathSegment(3);
-System.out.println("siteId="+siteId+" msgId="+msgId);
-		Map<String,Object> zap = new TreeMap<String, Object> ();
-		zap.put("astring", "b");
-		zap.put("along", new Long(12));
-		Map<String,Object> z2 = new TreeMap<String, Object> ();
-		z2.put("astring", "c");
-		z2.put("along", new Long(13));
-
-		List<Map<String, Object>> lst = new ArrayList<Map<String,Object>> ();
-		lst.add(zap);
-		lst.add(z2);
-
-                return lst;
-        }
-
-        @EntityCustomAction(action = "testlist", viewKey = "")
-        public LTIListEntity handleTestList(EntityView view) {
-		Map<String,Object> zap = new TreeMap<String, Object> ();
-		zap.put("astring", "b");
-		zap.put("along", new Long(12));
-		Map<String,Object> z2 = new TreeMap<String, Object> ();
-		z2.put("astring", "c");
-		z2.put("along", new Long(13));
-
-		List<Map<String, Object>> lst = new ArrayList<Map<String,Object>> ();
-		lst.add(zap);
-		lst.add(z2);
-
-		LTIListEntity retval = new LTIListEntity (lst);
-                return retval;
-        }
-*/
 }

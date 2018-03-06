@@ -6,12 +6,16 @@
 	<!-- ENTITY PROVIDERS START -->
 	<bean parent="org.sakaiproject.entitybroker.entityprovider.AbstractEntityProvider" 
 		class="org.sakaiproject.portal.entityprovider.PortalEntityProvider" init-method="init">
+	        <property name="memoryService" ref="org.sakaiproject.memory.api.MemoryService" />
+	        <property name="searchService" ref="org.sakaiproject.search.api.SearchService" />
 	        <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService" />
 	        <property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager" />
+	        <property name="siteService" ref="org.sakaiproject.site.api.SiteService" />
 	        <property name="bullhornService" ref="org.sakaiproject.portal.api.BullhornService" />
 	        <property name="profileConnectionsLogic" ref="org.sakaiproject.profile2.logic.ProfileConnectionsLogic" />
 	        <property name="profileLogic" ref="org.sakaiproject.profile2.logic.ProfileLogic" />
 	        <property name="profileLinkLogic" ref="org.sakaiproject.profile2.logic.ProfileLinkLogic" />
+	        <property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService" />
 	</bean>
 	<!-- ENTITY PROVIDERS END -->
        

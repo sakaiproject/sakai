@@ -1,15 +1,11 @@
 /**
-/**
- * $URL$
- * $Id$
- *
- * Copyright (c) 2006-2009 The Sakai Foundation
+ * Copyright (c) 2006-2017 The Apereo Foundation
  *
  * Licensed under the Educational Community License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *			   http://www.opensource.org/licenses/ECL-2.0
+ *             http://opensource.org/licenses/ecl2
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -32,14 +28,23 @@ import java.util.Observable;
 import java.util.Observer;
 import java.util.concurrent.locks.ReentrantLock;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.hibernate.Criteria;
 import org.hibernate.HibernateException;
 import org.hibernate.Query;
 import org.hibernate.Session;
-import org.hibernate.Transaction;
 import org.hibernate.criterion.Expression;
 import org.hibernate.criterion.Order;
+import org.springframework.dao.DataAccessException;
+import org.springframework.orm.hibernate4.HibernateCallback;
+import org.springframework.orm.hibernate4.SessionHolder;
+import org.springframework.orm.hibernate4.support.HibernateDaoSupport;
+import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.support.TransactionCallbackWithoutResult;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
+import org.springframework.transaction.support.TransactionTemplate;
+
 import org.sakaiproject.alias.api.AliasService;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.entity.api.EntityManager;
@@ -67,17 +72,12 @@ import org.sakaiproject.sitestats.api.Util;
 import org.sakaiproject.sitestats.api.event.EventRegistryService;
 import org.sakaiproject.sitestats.api.event.ToolInfo;
 import org.sakaiproject.sitestats.api.parser.EventParserTip;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.orm.hibernate4.HibernateCallback;
-import org.springframework.orm.hibernate4.support.HibernateDaoSupport;
-
 
 /**
  * @author <a href="mailto:nuno@ufp.pt">Nuno Fernandes</a>
  */
+@Slf4j
 public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runnable, StatsUpdateManager, Observer, StatsUpdateManagerMXBean {
-	private Logger								LOG									= LoggerFactory.getLogger(StatsUpdateManagerImpl.class);
 	private final static String				PRESENCE_SUFFIX						= "-presence";
 	private final static int				PRESENCE_SUFFIX_LENGTH				= PRESENCE_SUFFIX.length();
 
@@ -86,6 +86,7 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 	public long								collectThreadUpdateInterval			= 4000L;
 	private boolean							collectAdminEvents					= false;
 	private boolean							collectEventsForSiteWithToolOnly	= true;
+	private TransactionTemplate				transactionTemplate;
 
 	/** Sakai services */
 	private StatsManager					M_sm;
@@ -204,6 +205,10 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 		this.M_uss = uss;
 	}
 
+	public void setTransactionTemplate(TransactionTemplate template) {
+		this.transactionTemplate = template;
+	}
+
 	public void init(){
 		StringBuilder buff = new StringBuilder();
 		buff.append("init(): collect thread enabled: ");
@@ -252,7 +257,7 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 			isIdle = false;
 			preProcessEvent(e);
 			//long endTime = System.currentTimeMillis();
-			//LOG.debug("Time spent pre-processing 1 event: " + (endTime-startTime) + " ms");
+			//log.debug("Time spent pre-processing 1 event: " + (endTime-startTime) + " ms");
 			boolean success = doUpdateConsolidatedEvents();
 			isIdle = true;
 			totalTimeInEventProcessing += (System.currentTimeMillis() - startTime);
@@ -289,7 +294,7 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 					}
 				}
 				//long endTime = System.currentTimeMillis();
-				//LOG.debug("Time spent pre-processing " + eventCount + " event(s): " + (endTime-startTime) + " ms");
+				//log.debug("Time spent pre-processing " + eventCount + " event(s): " + (endTime-startTime) + " ms");
 				boolean success = doUpdateConsolidatedEvents();
 				isIdle = true;
 				totalTimeInEventProcessing += (System.currentTimeMillis() - startTime);
@@ -314,20 +319,17 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 		if(jobRun == null) {
 			return false;
 		}
-		Boolean r = getHibernateTemplate().execute(session -> {
-            Transaction tx = null;
-            try{
-                tx = session.beginTransaction();
-                session.saveOrUpdate(jobRun);
-                tx.commit();
-            }catch(Exception e){
-                if(tx != null) tx.rollback();
-                LOG.warn("Unable to commit transaction: ", e);
-                return Boolean.FALSE;
-            }
-            return Boolean.TRUE;
-        });
-		return r;
+
+        try {
+			getHibernateTemplate().execute(session -> {
+				session.saveOrUpdate(jobRun);
+				return null;
+			});
+			return true;
+		} catch(DataAccessException dae) {
+			log.error("Could not save job: {}", dae.getMessage(), dae);
+		}
+		return false;
 	}
 	
 	/* (non-Javadoc)
@@ -476,7 +478,7 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 	/** Update thread: do not call this method! */
 	public void run(){
 		try{
-			LOG.debug("Started statistics update thread");
+			log.debug("Started statistics update thread");
 			while(collectThreadRunning){
 				// do update job
 				isIdle = false;
@@ -488,9 +490,14 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 						preProcessEvent(collectThreadQueue.remove(0));
 					}
 					//long endTime2 = System.currentTimeMillis();
-					//LOG.debug("Time spent pre-processing " + eventCount + " event(s): " + (endTime2-startTime2) + " ms");
+					//log.debug("Time spent pre-processing " + eventCount + " event(s): " + (endTime2-startTime2) + " ms");
 				}
-				doUpdateConsolidatedEvents();
+				transactionTemplate.execute(new TransactionCallbackWithoutResult() {
+					@Override
+					protected void doInTransactionWithoutResult(TransactionStatus status) {
+						doUpdateConsolidatedEvents();
+					}
+				});
 				isIdle = true;
 				totalTimeInEventProcessing += (System.currentTimeMillis() - startTime);
 
@@ -501,18 +508,18 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 						collectThreadSemaphore.wait(collectThreadUpdateInterval);
 					}
 				}catch(InterruptedException e){
-					LOG.warn("Failed to sleep statistics update thread",e);
+					log.warn("Failed to sleep statistics update thread",e);
 				}
 			}
 		}catch(Throwable t){
-			LOG.debug("Failed to execute statistics update thread", t);
+			log.warn("Failed to execute statistics update thread", t);
 		}finally{
 			if(collectThreadRunning){
 				// thread was stopped by an unknown error: restart
-				LOG.debug("Statistics update thread was stoped by an unknown error: restarting...");
+				log.warn("Statistics update thread was stoped by an unknown error: restarting...");
 				startUpdateThread();
 			}else
-				LOG.debug("Finished statistics update thread");
+				log.debug("Finished statistics update thread");
 		}
 	}
 
@@ -587,8 +594,8 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 		} else if(getServerEvents().contains(e.getEvent()) && !isMyWorkspaceEvent(e)){
 			
 			//it's a server event
-			if(LOG.isDebugEnabled()) {
-				LOG.debug("Server event: "+e.toString());
+			if(log.isDebugEnabled()) {
+				log.debug("Server event: "+e.toString());
 			}
 			
 			String eventId = e.getEvent();
@@ -605,8 +612,8 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 		if (isUserLoginEvent(e)) {
 			
 			//it's a user event
-			if(LOG.isDebugEnabled()) {
-				LOG.debug("User event: "+e.toString());
+			if(log.isDebugEnabled()) {
+				log.debug("User event: "+e.toString());
 			}
 			
 			// user check
@@ -627,9 +634,15 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 		
 		
 		
-		//else LOG.debug("EventInfo ignored:  '"+e.toString()+"' ("+e.toString()+") USER_ID: "+userId);
+		//else log.debug("EventInfo ignored:  '"+e.toString()+"' ("+e.toString()+") USER_ID: "+userId);
 	}
-	
+
+	/**
+     * This processes events and updates in-memory cache. This doesn't push those changes back to the
+	 * DB yet.
+	 *
+	 * @param dateTime Can this be <code>null</code>?
+	 */
 	private void consolidateEvent(Date dateTime, String eventId, String resourceRef, String userId, String siteId) {
 		if(eventId == null)
 			return;
@@ -741,7 +754,7 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 							creatorUserId = creatorUserIds.get(0);
 							lessonPageCreateEventMap.put(resourceRef, creatorUserId);
 							if (creatorUserIds.size() > 1) {
-								LOG.warn("Multiple create events for page reference: " + resourceRef);
+								log.warn("Multiple create events for page reference: " + resourceRef);
 							}
 						}
 					}
@@ -798,6 +811,14 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 				try{
 					SitePresenceConsolidation spc = presencesMap.get(pKey);
 					if(spc == null) {
+						Calendar c = Calendar.getInstance(); 
+						c.setTime(date); 
+						c.add(Calendar.DATE, -1);
+						Date dateOneDayBefore = c.getTime();						 
+						pKey = siteId+userId+dateOneDayBefore;
+						spc = presencesMap.get(pKey);
+					}
+					if(spc == null) {
 						SitePresence sp = new SitePresenceImpl();
 						sp.setSiteId(siteId);
 						sp.setUserId(userId);
@@ -811,7 +832,7 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 						long thisEventTime = dateTime.getTime();
 						long additionalDuration = thisEventTime - start;
 						if(additionalDuration > 4*60*60*1000) {
-							LOG.warn("A site presence is longer than 4h!: duration="+(additionalDuration/1000/60)+" min (SITE:"+siteId+", USER:"+userId+", DATE:"+date+")");
+							log.warn("A site presence is longer than 4h!: duration="+(additionalDuration/1000/60)+" min (SITE:"+siteId+", USER:"+userId+", DATE:"+date+")");
 						}
 						spc.sitePresence.setDuration(existingDuration + additionalDuration);						
 						spc.sitePresence.setLastVisitStartTime(null);	
@@ -898,10 +919,9 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 				|| activityMap.size() > 0 || uniqueVisitsMap.size() > 0 
 				|| visitsMap.size() > 0 || presencesMap.size() > 0
 				|| serverStatMap.size() > 0 || userStatMap.size() > 0) {
-			Boolean r = getHibernateTemplate().execute(session -> {
-                Transaction tx = null;
-                try{
-                    tx = session.beginTransaction();
+
+		    try {
+				getHibernateTemplate().execute(session -> {
                     // do: EventStat
                     if(eventStatMap.size() > 0) {
                         Collection<EventStat> tmp1 = null;
@@ -992,22 +1012,15 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
                         }
                         doUpdateUserStatObjects(session, tmp8);
                     }
-
-                    // commit ALL
-                    tx.commit();
-                }catch(Exception e){
-                    if(tx != null) tx.rollback();
-                    LOG.warn("Unable to commit transaction: ", e);
-                    return Boolean.FALSE;
-                }
-                return Boolean.TRUE;
-            });
+                    return null;
+            	});
+			} catch(DataAccessException dae) {
+				return false;
+			}
 			long endTime = System.currentTimeMillis();
-			LOG.debug("Time spent in doUpdateConsolidatedEvents(): " + (endTime-startTime) + " ms");
-			return r;
-		}else{
-			return true;
+			log.debug("Time spent in doUpdateConsolidatedEvents(): " + (endTime-startTime) + " ms");
 		}
+		return true;
 	}
 	
 	private void doUpdateEventStatObjects(Session session, Collection<EventStat> o) {
@@ -1032,17 +1045,17 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 					try{
 						List events = c.list();
 						if ((events!=null) && (events.size()>0)){
-							LOG.debug("More than 1 result when unique result expected.", ex);
+							log.debug("More than 1 result when unique result expected.", ex);
 							eExisting = (EventStat) c.list().get(0);
 						}else{
-							LOG.debug("No result found", ex);
+							log.debug("No result found", ex);
 							eExisting = null;
 						}
 					}catch(Exception ex3){
 						eExisting = null;
 					}
 				}catch(Exception ex2){
-					LOG.warn("Probably ddbb error when loading data at java object", ex2);
+					log.warn("Probably ddbb error when loading data at java object", ex2);
 				}
 				if(eExisting == null) 
 					eExisting = eUpdate;
@@ -1052,7 +1065,7 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 				eExistingSiteId = eExisting.getSiteId();
 			}catch(Exception ex){
 				//If something happens, skip the event processing
-				LOG.warn("Failed to event:"+ eUpdate.getEventId(), ex);
+				log.warn("Failed to event:"+ eUpdate.getEventId(), ex);
 			}
 			if ((eExistingSiteId!=null) && (eExistingSiteId.trim().length()>0))
 					session.saveOrUpdate(eExisting);
@@ -1081,17 +1094,17 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 					try{
 						List events = c.list();
 						if ((events!=null) && (events.size()>0)){
-							LOG.debug("More than 1 result when unique result expected.", ex);
+							log.debug("More than 1 result when unique result expected.", ex);
 							eExisting = (ResourceStat) c.list().get(0);
 						}else{
-							LOG.debug("No result found", ex);
+							log.debug("No result found", ex);
 							eExisting = null;
 						}
 					}catch(Exception ex3){
 						eExisting = null;
 					}
 				}catch(Exception ex2){
-					LOG.warn("Probably ddbb error when loading data at java object", ex2);
+					log.warn("Probably ddbb error when loading data at java object", ex2);
 				}
 				if(eExisting == null) 
 					eExisting = eUpdate;
@@ -1100,7 +1113,7 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 				
 				eExistingSiteId = eExisting.getSiteId();
 			}catch(Exception ex){
-				LOG.warn("Failed to event:"+ eUpdate.getId(), ex);
+				log.warn("Failed to event:"+ eUpdate.getId(), ex);
 			}
 			if ((eExistingSiteId!=null) && (eExistingSiteId.trim().length()>0))
 					session.saveOrUpdate(eExisting);
@@ -1130,17 +1143,17 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 					try {
 						List events = c.list();
 						if ((events!=null) && (events.size()>0)){
-							LOG.debug("More than 1 result when unique result expected.", ex);
+							log.debug("More than 1 result when unique result expected.", ex);
 							eExisting = (LessonBuilderStat) c.list().get(0);
 						} else{
-							LOG.debug("No result found", ex);
+							log.debug("No result found", ex);
 							eExisting = null;
 						}
 					} catch (Exception ex3) {
 						eExisting = null;
 					}
 				} catch(Exception ex2) {
-					LOG.warn("Probably ddbb error when loading data at java object", ex2);
+					log.warn("Probably ddbb error when loading data at java object", ex2);
 				}
 				if (eExisting == null) {
 					eExisting = eUpdate;
@@ -1150,7 +1163,7 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 
 				eExistingSiteId = eExisting.getSiteId();
 			} catch (Exception ex) {
-				LOG.warn("Failed to event:"+ eUpdate.getId(), ex);
+				log.warn("Failed to event:"+ eUpdate.getId(), ex);
 			}
 			if ((eExistingSiteId!=null) && (eExistingSiteId.trim().length()>0))
 				session.saveOrUpdate(eExisting);
@@ -1177,17 +1190,17 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 					try{
 						List events = c.list();
 						if ((events!=null) && (events.size()>0)){
-							LOG.debug("More than 1 result when unique result expected.", ex);
+							log.debug("More than 1 result when unique result expected.", ex);
 							eExisting = (SiteActivity) c.list().get(0);
 						}else{
-							LOG.debug("No result found", ex);
+							log.debug("No result found", ex);
 							eExisting = null;
 						}
 					}catch(Exception ex3){
 						eExisting = null;
 					}
 				}catch(Exception ex2){
-					LOG.warn("Probably ddbb error when loading data at java object", ex2);
+					log.warn("Probably ddbb error when loading data at java object", ex2);
 				}
 				if(eExisting == null) 
 					eExisting = eUpdate;
@@ -1196,7 +1209,7 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 	
 				eExistingSiteId = eExisting.getSiteId();
 			}catch(Exception ex){
-				LOG.warn("Failed to event:"+ eUpdate.getEventId(), ex);
+				log.warn("Failed to event:"+ eUpdate.getEventId(), ex);
 			}
 			
 			if ((eExistingSiteId!=null) && (eExistingSiteId.trim().length()>0))
@@ -1223,17 +1236,17 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 					try{
 						List events = c.list();
 						if ((events!=null) && (events.size()>0)){
-							LOG.debug("More than 1 result when unique result expected.", ex);
+							log.debug("More than 1 result when unique result expected.", ex);
 							eExisting = (SiteVisits) c.list().get(0);
 						}else{
-							LOG.debug("No result found", ex);
+							log.debug("No result found", ex);
 							eExisting = null;
 						}
 					}catch(Exception ex3){
 						eExisting = null;
 					}
 				}catch(Exception ex2){
-					LOG.warn("Probably ddbb error when loading data at java object", ex2);
+					log.warn("Probably ddbb error when loading data at java object", ex2);
 				}
 				if(eExisting == null){
 					eExisting = eUpdate;
@@ -1245,59 +1258,13 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 	
 				eExistingSiteId = eExisting.getSiteId();
 			}catch(Exception ex){
-				LOG.warn("Failed to event:"+ eUpdate.getId(), ex);
+				log.warn("Failed to event:"+ eUpdate.getId(), ex);
 			}
 			if ((eExistingSiteId!=null) && (eExistingSiteId.trim().length()>0))
 					session.saveOrUpdate(eExisting);
 		}
 	}
-	
-	private void doUpdateSiteVisitTimeObjects(Session session, Collection<SitePresence> o) {
-		if(o == null) return;
-		List<SitePresence> objects = new ArrayList<SitePresence>(o);
-		Collections.sort(objects);
-		Iterator<SitePresence> i = objects.iterator();
-		while(i.hasNext()){
-			SitePresence eUpdate = i.next();
-			SitePresence eExisting = null;
-			String eExistingSiteId = null;
-			try{
-				Criteria c = session.createCriteria(SitePresenceImpl.class);
-				c.add(Expression.eq("siteId", eUpdate.getSiteId()));
-				c.add(Expression.eq("userId", eUpdate.getUserId()));
-				c.add(Expression.eq("date", eUpdate.getDate()));
-				try{
-					eExisting = (SitePresence) c.uniqueResult();
-				}catch(HibernateException ex){
-					try{
-						List<SitePresence> events = (List<SitePresence>) c.list();
-						if ((events!=null) && (events.size()>0)){
-							LOG.debug("More than 1 result when unique result expected.", ex);
-							eExisting = (SitePresence) c.list().get(0);
-						}else{
-							LOG.debug("No result found", ex);
-							eExisting = null;
-						}
-					}catch(Exception ex3){
-						eExisting = null;
-					}
-				}catch(Exception ex2){
-					LOG.warn("Probably ddbb error when loading data at java object", ex2);
-				}
-				if(eExisting == null){
-					eExisting = eUpdate;
-				}else{
-					eExisting.setDuration(eExisting.getDuration() + eUpdate.getDuration());
-				}
-				eExistingSiteId = eExisting.getSiteId();
-			}catch(Exception ex){
-				LOG.warn("Failed to event:" + eUpdate.getId(), ex);
-			}
-			if ((eExistingSiteId!=null) && (eExistingSiteId.trim().length()>0))
-					session.saveOrUpdate(eExisting);
-		}
-	}
-	
+
 	private void doUpdateServerStatObjects(Session session, Collection<ServerStat> o) {
 		if(o == null) return;
 		List<ServerStat> objects = new ArrayList<ServerStat>(o);
@@ -1316,17 +1283,17 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 					try{
 						List events = c.list();
 						if ((events!=null) && (events.size()>0)){
-							LOG.debug("More than 1 result when unique result expected.", ex);
+							log.debug("More than 1 result when unique result expected.", ex);
 							eExisting = (ServerStat) c.list().get(0);
 						}else{
-							LOG.debug("No result found", ex);
+							log.debug("No result found", ex);
 							eExisting = null;
 						}
 					}catch(Exception ex3){
 						eExisting = null;
 					}
 				}catch(Exception ex2){
-					LOG.warn("Probably ddbb error when loading data at java object", ex2);
+					log.warn("Probably ddbb error when loading data at java object", ex2);
 				}
 				if(eExisting == null) {
 					eExisting = eUpdate;
@@ -1335,7 +1302,7 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 				}
 				
 			}catch(Exception ex){
-				LOG.warn("Failed to event:"+ eUpdate.getEventId(), ex);
+				log.warn("Failed to event:"+ eUpdate.getEventId(), ex);
 			}
 			session.saveOrUpdate(eExisting);
 		}
@@ -1360,17 +1327,17 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 					try{
 						List events = c.list();
 						if ((events!=null) && (events.size()>0)){
-							LOG.debug("More than 1 result when unique result expected.", ex);
+							log.debug("More than 1 result when unique result expected.", ex);
 							eExisting = (UserStat) c.list().get(0);
 						}else{
-							LOG.debug("No result found", ex);
+							log.debug("No result found", ex);
 							eExisting = null;
 						}
 					}catch(Exception ex3){
 						eExisting = null;
 					}
 				}catch(Exception ex2){
-					LOG.warn("Probably ddbb error when loading data at java object", ex2);
+					log.warn("Probably ddbb error when loading data at java object", ex2);
 				}
 				if(eExisting == null) {
 					eExisting = eUpdate;
@@ -1381,7 +1348,7 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 				eExistingUserId = eExisting.getUserId();
 				
 			}catch(Exception ex){
-				LOG.warn("Failed to event:"+ eUpdate.getId(), ex);
+				log.warn("Failed to event:"+ eUpdate.getId(), ex);
 			}
 			
 			if(StringUtils.isNotBlank(eExistingUserId)) {
@@ -1411,10 +1378,10 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 				try{
 					List visits = q.list();
 					if ((visits!=null) && (visits.size()>0)){
-						LOG.debug("More than 1 result when unique result expected.", ex);
+						log.debug("More than 1 result when unique result expected.", ex);
 						uv = (Integer) q.list().get(0);
 					}else{
-						LOG.debug("No result found", ex);
+						log.debug("No result found", ex);
 						uv = 1;
 					}
 				}catch (Exception e3){
@@ -1422,7 +1389,7 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 				}
 				
 			}catch(Exception ex2){
-				LOG.debug("Probably ddbb error when loading data at java object", ex2);
+				log.debug("Probably ddbb error when loading data at java object", ex2);
 			}
 			int uniqueVisits = uv == null? 1 : uv.intValue();
 			map.put(key, Integer.valueOf((int)uniqueVisits));			
@@ -1432,7 +1399,7 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 	
 	private void doUpdateSitePresencesObjects(Session session, Collection<SitePresenceConsolidation> o) {
 		if(o == null) return;
-		List<SitePresenceConsolidation> objects = new ArrayList<SitePresenceConsolidation>(o);
+		List<SitePresenceConsolidation> objects = new ArrayList<>(o);
 		Collections.sort(objects);
 		Iterator<SitePresenceConsolidation> i = objects.iterator();
 		while(i.hasNext()){
@@ -1441,14 +1408,18 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 				SitePresence sp = spc.sitePresence;
 				SitePresence spExisting = doGetSitePresence(session, sp.getSiteId(), sp.getUserId(), sp.getDate());
 				if(spExisting == null) {
+					// Should we be doing this save if this is an end event?
 					session.save(sp);
 					if (!spc.firstEventIsPresEnd) {
 						doUpdateSitePresenceTotal(session, sp);
+					} else {
+						// TODO Should deal with midnight crossing.
+						// Should we at least warn that we've just got a end event without a start.
 					}
 				}else{
 					long previousTotalPresence = spExisting.getDuration();
 					long previousPresence = 0;
-					long newTotalPresence = 0;
+					long newTotalPresence;
 					if(spc.firstEventIsPresEnd) {
 						if(spExisting.getLastVisitStartTime() != null)
 							previousPresence = spc.firstPresEndDate.getTime() - spExisting.getLastVisitStartTime().getTime();
@@ -1464,22 +1435,20 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 					}
 				}
 			}catch(HibernateException e){
-				LOG.debug("Probably ddbb error when loading data at java object", e);
+				log.debug("Probably ddbb error when loading data at java object", e);
 			}catch(Exception e){
-				LOG.debug("Unknow error while consolidating presence events", e);
+				log.debug("Unknow error while consolidating presence events", e);
 			}
 		}
 	}
 
 	private void doUpdateSitePresenceTotal(Session session, SitePresence sp) throws Exception {
-
-		SitePresenceTotal spt = new SitePresenceTotalImpl(sp);
 		SitePresenceTotal sptExisting = doGetSitePresenceTotal(session, sp.getSiteId(), sp.getUserId());
 		if (sptExisting == null) {
+			SitePresenceTotal spt = new SitePresenceTotalImpl(sp);
 			session.save(spt);
 		} else {
-			sptExisting.incrementTotalVisits();
-			sptExisting.setLastVisitTime(sp.getLastVisitStartTime());
+			sptExisting.updateFrom(sp);
 			session.update(sptExisting);
 		}
 	}
@@ -1501,18 +1470,18 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 			try{
 				List es = c.list();
 				if(es != null && es.size() > 0){
-					LOG.debug("More than 1 result when unique result expected.", ex);
+					log.debug("More than 1 result when unique result expected.", ex);
 					eDb = (SitePresence) es.get(0);
 				}else{
 					eDb = null;
 				}
 			}catch (Exception e3){
-				LOG.debug("Probably ddbb error when loading data at java object", e3);
+				log.debug("Probably ddbb error when loading data at java object", e3);
 				eDb = null;
 			}
 			
 		}catch(Exception ex2){
-			LOG.debug("Probably ddbb error when loading data at java object", ex2);
+			log.debug("Probably ddbb error when loading data at java object", ex2);
 		}
 		return eDb;
 	}
@@ -1531,17 +1500,17 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 			try {
 				List es = c.list();
 				if (es != null && es.size() > 0) {
-					LOG.debug("More than 1 result when unique result expected.", ex);
+					log.debug("More than 1 result when unique result expected.", ex);
 					eDb = (SitePresenceTotal) es.get(0);
 				} else {
 					eDb = null;
 				}
 			} catch (Exception e3) {
-				LOG.debug("Probably ddbb error when loading data at java object", e3);
+				log.debug("Probably ddbb error when loading data at java object", e3);
 				eDb = null;
 			}
 		} catch (Exception ex2) {
-			LOG.debug("Probably ddbb error when loading data at java object", ex2);
+			log.debug("Probably ddbb error when loading data at java object", ex2);
 		}
 		return eDb;
 	}
@@ -1570,7 +1539,7 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 					if(parts.length <= 5) return false;
 				}else if ((parts.length >= 3) && (parts[2].equals("private"))) {
 		  // discard
-					LOG.debug("Discarding content event in private area.");
+					log.debug("Discarding content event in private area.");
 					return false;
 		}
 	  }catch(Exception ex){
@@ -1619,9 +1588,9 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 				if(contextId != null && contextId.startsWith(sitePrefix)) {
 					contextId = contextId.substring(sitePrefix.length());
 				}
-				LOG.debug("Context read from Event.getContext() for event: " + eventId + " - context: " + contextId);
+				log.debug("Context read from Event.getContext() for event: " + eventId + " - context: " + contextId);
 			}catch(Exception ex){
-				LOG.warn("Unable to get Event.getContext() for event: " + eventId, ex);
+				log.warn("Unable to get Event.getContext() for event: " + eventId, ex);
 			}
 			if(contextId != null)
 				return contextId; 
@@ -1647,15 +1616,15 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 						int index = Integer.parseInt(parserTip.getIndex());
 						return eventRef.split(parserTip.getSeparator())[index];
 					}else if(M_sm.isEventContextSupported()) {
-						LOG.info("Context information unavailable for event: " + eventId + " (ignoring)");
+						log.info("Context information unavailable for event: " + eventId + " (ignoring)");
 					}else{
-						LOG.info("<eventParserTip> is mandatory when Event.getContext() is unsupported! Ignoring event: " + eventId);
+						log.info("<eventParserTip> is mandatory when Event.getContext() is unsupported! Ignoring event: " + eventId);
 						// try with most common syntax (/abc/cde/SITE_ID/...)
 						// return eventRef.split("/")[3];
 					}
 				}
 			}catch(Exception ex){
-				LOG.warn("Unable to parse contextId from event: " + eventId + " | " + eventRef, ex);
+				log.warn("Unable to parse contextId from event: " + eventId + " | " + eventRef, ex);
 			}
 		}
 		return null;
@@ -1673,18 +1642,18 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 				String target = M_as.getTarget(alias);
 				if(target != null) {
 					String newSiteId = M_em.newReference(target).getId();
-					LOG.debug(alias + " is an alias targetting site id: "+newSiteId);
+					log.debug(alias + " is an alias targetting site id: "+newSiteId);
 					site = M_ss.getSite(newSiteId);
 				}else{
 					throw new IdUnusedException(siteId);
 				}
 			}catch(IdUnusedException e2){
 				// not a valid site
-				LOG.debug(siteId + " is not a valid site.", e2);
+				log.debug(siteId + " is not a valid site.", e2);
 			}
 		}catch(Exception ex) {
 			// not a valid site
-			LOG.debug(siteId + " is not a valid site.", ex);
+			log.debug(siteId + " is not a valid site.", ex);
 		}
 		return site;
 	}
@@ -1758,8 +1727,13 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 			return c.getTime();
 		}
 	}
-	
+
+	/**
+	 * This is used to hold the summary of a set of SitePresence objects in memory before
+	 * they get written out to the DB later.
+	 */
 	private static class SitePresenceConsolidation implements Comparable<SitePresenceConsolidation>{
+	    // Used to track if we never saw the presence start.
 		public boolean firstEventIsPresEnd;
 		public Date firstPresEndDate;
 		public SitePresence sitePresence;
@@ -1767,7 +1741,11 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 		public SitePresenceConsolidation(SitePresence sitePresence) {
 			this(sitePresence, null);
 		}
-		
+
+		/**
+		 * @param firstPresEndDate The date of the end of the first site presence and we never saw start. This may happen
+		 *                         when we process the start in one batch and end in another batch.
+		 */
 		public SitePresenceConsolidation(SitePresence sitePresence, Date firstPresEndDate) {
 			this.sitePresence = sitePresence;
 			if(firstPresEndDate == null) {

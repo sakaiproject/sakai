@@ -1,3 +1,18 @@
+/**
+ * Copyright (c) 2003-2017 The Apereo Foundation
+ *
+ * Licensed under the Educational Community License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *             http://opensource.org/licenses/ecl2
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.sakaiproject.site.impl;
 
 import java.util.ArrayList;
@@ -5,10 +20,10 @@ import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.List;
 
+import lombok.extern.slf4j.Slf4j;
+
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityService;
@@ -26,6 +41,7 @@ import org.sakaiproject.user.api.UserDirectoryService;
  * Contains methods used to join a site and to check for the different join options and restrictions.
  * @author sfoster
  */
+@Slf4j
 public class JoinSiteDelegate
 {
     // apis
@@ -34,35 +50,34 @@ public class JoinSiteDelegate
     private UserDirectoryService    userDirectoryService;
 
     // class members
-    private static Logger          log                             = LoggerFactory.getLogger(JoinSiteDelegate.class);
     private static final String COMMA_DELIMITER					= ",";										// Comma delimiter (for csv parsing)
     private static final String JOINSITE_GROUP_NO_SELECTION		= "noSelection";							// The value of the joiner group site
-	private static final String SAK_PERM_SITE_UPD				= "site.upd";								// The name of the site update permission
+    private static final String SAK_PERM_SITE_UPD				= "site.upd";								// The name of the site update permission
 
     // sakai.properties
     private static final String SAK_PROP_JOIN_GROUP_ENABLED 			= "sitemanage.join.joinerGroup.enabled";
-   	private static final String SAK_PROP_JOIN_LIMIT_ACCOUNT_TYPES 		= "sitemanage.join.limitAccountTypes.enabled";
-  	private static final String SAK_PROP_JOIN_ACCOUNT_TYPES	 			= "sitemanage.join.allowedJoinableAccountTypes";
-	private static final String SAK_PROP_JOIN_ACCOUNT_TYPE_LABELS		= "sitemanage.join.allowedJoinableAccountTypeLabels";
-	private static final String SAK_PROP_JOIN_ACCOUNT_TYPE_CATEGORIES	= "sitemanage.join.allowedJoinableAccountTypeCategories";
+    private static final String SAK_PROP_JOIN_LIMIT_ACCOUNT_TYPES 		= "sitemanage.join.limitAccountTypes.enabled";
+    private static final String SAK_PROP_JOIN_ACCOUNT_TYPES	 			= "sitemanage.join.allowedJoinableAccountTypes";
+    private static final String SAK_PROP_JOIN_ACCOUNT_TYPE_LABELS		= "sitemanage.join.allowedJoinableAccountTypeLabels";
+    private static final String SAK_PROP_JOIN_ACCOUNT_TYPE_CATEGORIES	= "sitemanage.join.allowedJoinableAccountTypeCategories";
     private static final String SAK_PROP_JOIN_EXCLUDE_FROM_PUBLIC_LIST 	= "sitemanage.join.excludeFromPublicList.enabled";
     private static final String SAK_PROP_SITE_BROWSER_JOIN_ENABLED		= "sitebrowser.join.enabled";
     
     // site properties
-   	private static final String SITE_PROP_JOIN_LIMIT_OFFICIAL 	= "joinLimitByAccountType";					// The name (key) of the join limit official site property
+    private static final String SITE_PROP_JOIN_LIMIT_OFFICIAL 	= "joinLimitByAccountType";					// The name (key) of the join limit official site property
     private static final String SITE_PROP_JOIN_ACCOUNT_TYPES 	= "joinLimitedAccountTypes";				// The name (key) of the limit join to account types site property
     private static final String SITE_PROP_JOINSITE_GROUP_ID 	= "joinerGroup";							// The name (key) of the joiner group site property
     
     // global switches
-	private static final boolean GLOBAL_JOIN_GROUP_ENABLED					= ServerConfigurationService.getBoolean( SAK_PROP_JOIN_GROUP_ENABLED, Boolean.FALSE );
-	private static final boolean GLOBAL_JOIN_EXCLUDE_FROM_PUBLIC_ENABLED	= ServerConfigurationService.getBoolean( SAK_PROP_JOIN_EXCLUDE_FROM_PUBLIC_LIST, Boolean.FALSE );
-	private static       boolean GLOBAL_JOIN_LIMIT_BY_ACCOUNT_TYPE_ENABLED	= ServerConfigurationService.getBoolean( SAK_PROP_JOIN_LIMIT_ACCOUNT_TYPES, Boolean.FALSE );
-	private static final boolean GLOBAL_SITE_BROWSER_JOIN_ENABLED			= ServerConfigurationService.getBoolean( SAK_PROP_SITE_BROWSER_JOIN_ENABLED, Boolean.FALSE );
+    private static final boolean GLOBAL_JOIN_GROUP_ENABLED					= ServerConfigurationService.getBoolean( SAK_PROP_JOIN_GROUP_ENABLED, Boolean.FALSE );
+    private static final boolean GLOBAL_JOIN_EXCLUDE_FROM_PUBLIC_ENABLED	= ServerConfigurationService.getBoolean( SAK_PROP_JOIN_EXCLUDE_FROM_PUBLIC_LIST, Boolean.FALSE );
+    private static       boolean GLOBAL_JOIN_LIMIT_BY_ACCOUNT_TYPE_ENABLED	= ServerConfigurationService.getBoolean( SAK_PROP_JOIN_LIMIT_ACCOUNT_TYPES, Boolean.FALSE );
+    private static final boolean GLOBAL_SITE_BROWSER_JOIN_ENABLED			= ServerConfigurationService.getBoolean( SAK_PROP_SITE_BROWSER_JOIN_ENABLED, Boolean.FALSE );
     
     // account type lists
-	private static List<String> 					allowJoinableAccountTypes 			= new ArrayList<String>();
-	private static LinkedHashSet<String> 			allowJoinableAccountTypeCategories	= new LinkedHashSet<String>();
-	private static List<AllowedJoinableAccount> 	allowJoinableAccounts				= new ArrayList<AllowedJoinableAccount>();
+    private static List<String> 					allowJoinableAccountTypes 			= new ArrayList<String>();
+    private static LinkedHashSet<String> 			allowJoinableAccountTypeCategories	= new LinkedHashSet<String>();
+    private static List<AllowedJoinableAccount> 	allowJoinableAccounts				= new ArrayList<AllowedJoinableAccount>();
     private static final List<String> accountTypes			= Arrays.asList(ArrayUtils.nullToEmpty(ServerConfigurationService.getStrings(SAK_PROP_JOIN_ACCOUNT_TYPES)));
     private static final List<String> accountTypeLabels		= Arrays.asList(ArrayUtils.nullToEmpty(ServerConfigurationService.getStrings(SAK_PROP_JOIN_ACCOUNT_TYPE_LABELS)));
     private static final List<String> accountTypeCategories	= Arrays.asList(ArrayUtils.nullToEmpty(ServerConfigurationService.getStrings(SAK_PROP_JOIN_ACCOUNT_TYPE_CATEGORIES)));
@@ -215,7 +230,7 @@ public class JoinSiteDelegate
      */
 	public boolean isLimitByAccountTypeEnabled(String siteID)
 	{
-		if(siteID == null || StringUtils.isBlank(siteID))
+		if(StringUtils.isBlank(siteID))
 		{
 			return false;
 		}

@@ -18,7 +18,7 @@
 
         loadPreviouslySavedChecklistItems();
 
-        var confirmMsg = $('#confirmDeleteLangSupp').html();
+        var confirmMsg = $('#deleteButtonLangSupp').html();
         $('.deleteButton').click(function () {
             return confirm(confirmMsg);
         });
@@ -214,7 +214,7 @@
     function updateChecklistItems() {
         $(".checklist-item-complete").each(function (index, el) {
             var id = $(el).parent().find(".checklist-item-id").val();
-            var text = $(el).parent().find("." + checklistItemName).val();
+            var text = $.trim($(el).parent().find("." + checklistItemName).val());
             var link = $(el).parent().find("." + checklistItemLink).val();
 
             $(el).val(JSON.stringify({"index": index, "id": id, "text": text, "link": link}));

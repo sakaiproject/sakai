@@ -22,7 +22,8 @@
     <!-- FORMATTING -->
     <directive name="formatOutput" value="false" /><!-- default: true -->
     <directive name="preserveComments" value="false" /><!-- default: false -->
-    <directive name="preserveSpace" value="false" /><!-- default: false -->
+    <directive name="preserveSpace" value="true" /><!-- default: false -->
+    <directive name="allowDynamicAttributes" value="true" /><!-- default: false -->
   </directives>
 
   <common-regexps>
@@ -120,7 +121,7 @@
         Add in your site (e.g. "new.site.host.com/path": with escaped ".": "new\.site\.host\.com/path|"
         Like shown here: (new\.site\.host\.com/path|download\.macromedia\.com/pub|
     -->
-    <regexp name="flashSites" value="(((https?:)?//(download\.macromedia\.com/pub|www\.macromedia\.com/(go|shockwave)|c\.brightcove\.com/services|gamevideos\.1up\.com/swf|(www\.)?youtube(\-nocookie)?\.com/(v|embed)|(www\.)?youtu\.be|(www\.|player\.)?vimeo\.com|w\.soundcloud\.com|www\.gametrailers\.com|videomedia\.ign\.com/ev|image\.com\.com/gamespot|www\.hulu\.com/embed|embed\.break\.com|player\.ordienetworks\.com/flash|www\.adultswim\.com/video/vplayer|www\.dailymotion\.com/swf|www\.ustream\.tv/flash/video|cdn-i\.dmdentertainment\.com|media\.mtvnservices\.com|www\.justin\.tv/widgets|www\.viddler\.com/(player|simple_on_site)|static\.twitter\.com/flash|www\.gamepro\.com/bin|cdn\.knightlab\.com|player\.pbs\.org|player\.history\.com|(.*)\.sharestream\.(com|net)\/|(.*)\.kaltura\.(com|net)\/|www\.divshare\.com/flash|www\.facebook\.com/v)/.*)|(/library/(?!.*\.\.[/|\\]).*)/.+)" />
+    <regexp name="flashSites" value="(((https?:)?//(download\.macromedia\.com/pub|www\.macromedia\.com/(go|shockwave)|c\.brightcove\.com/services|gamevideos\.1up\.com/swf|(www\.)?youtube(\-nocookie)?\.com/(v|embed)|(www\.)?youtu\.be|(www\.|player\.)?vimeo\.com|w\.soundcloud\.com|www\.gametrailers\.com|videomedia\.ign\.com/ev|image\.com\.com/gamespot|www\.hulu\.com/embed|embed\.break\.com|player\.ordienetworks\.com/flash|www\.adultswim\.com/video/vplayer|www\.dailymotion\.com/swf|www\.ustream\.tv/flash/video|cdn-i\.dmdentertainment\.com|media\.mtvnservices\.com|www\.justin\.tv/widgets|www\.viddler\.com/(player|simple_on_site)|static\.twitter\.com/flash|www\.gamepro\.com/bin|cdn\.knightlab\.com|player\.pbs\.org|player\.history\.com|(.*)\.sharestream\.(com|net)\/|(.*)\.kaltura\.(com|net)\/|www\.divshare\.com/flash|www\.facebook\.com/v|h5p\.(com|org)\/)/.*)|(/library/(?!.*\.\.[/|\\]).*)/.+)" />
 
     <!-- This is a basic alphanumeric and punctuation string -->
     <regexp name="basicAlphaNumeric" value="^[a-zA-Z0-9\s\-_.\?!,]*$" />
@@ -1076,9 +1077,17 @@
                 <regexp name="anything" />
             </regexp-list>
          </attribute>
-
+         <attribute name="data-" description="Allows the HTML5 'data-' attribute to be added to elements">
+             <regexp-list>
+                 <regexp name="anything"/>
+             </regexp-list>
+         </attribute>
+         <attribute name="aria-" description="Allows the HTML5 'aria-' attribute to be added to elements">
+             <regexp-list>
+                 <regexp name="anything"/>
+             </regexp-list>
+         </attribute>
     </common-attributes>
-
 
     <!--
     This requires normal updates as browsers continue to diverge from the W3C and each other. As long as the browser wars continue
@@ -1097,6 +1106,11 @@
         <attribute name="dir"/>
         <attribute name="role"/>
     </global-tag-attributes>
+
+    <dynamic-tag-attributes>
+        <attribute name="data-"/> <!-- HTML5 "data-" tag -->
+        <attribute name="aria-"/> <!-- HTML5 "aria-" tag -->
+    </dynamic-tag-attributes>
 
     <!-- You can declare tags here that will not be removed, filtered, validated or truncated, but encoded using HTML entities -->
     <tags-to-encode>
@@ -1523,13 +1537,6 @@
                 <regexp-list>
                     <regexp name="number"/>
                 </regexp-list>
-            </attribute>
-
-            <!-- https://jira.sakaiproject.org/browse/KNL-1061 -->
-            <attribute name="data-mathml">
-              <regexp-list>
-                <regexp name="anything" />
-              </regexp-list>
             </attribute>
 
             <!-- KNL-1426 sharestream and kaltura -->

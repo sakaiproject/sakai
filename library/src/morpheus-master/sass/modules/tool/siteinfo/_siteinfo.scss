@@ -1,12 +1,4 @@
 .#{$namespace}sakai-siteinfo{
-	.open > .dropdown-menu{
-		left: -124px;
-		width: 160px;
-		> li > a {
-			white-space: normal;
-		}
-	}
-	
 	.groups-site{
 		list-style: none;
 		
@@ -16,6 +8,20 @@
 				background: darken( $tool-background-color, 5% );
 			}
 		}
+	}
+
+	#example {
+		width: 340px;
+	}
+
+	#groupfile, #groupuploadtextarea {
+		display: inline-block;
+	}
+	#groupuploadtextarea {
+		padding-right: 30px;
+	}
+	#groupfile {
+		vertical-align: top;
 	}
 }
 

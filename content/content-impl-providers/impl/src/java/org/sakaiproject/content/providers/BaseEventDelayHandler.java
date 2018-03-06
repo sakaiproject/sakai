@@ -1,14 +1,29 @@
+/**
+ * Copyright (c) 2003-2016 The Apereo Foundation
+ *
+ * Licensed under the Educational Community License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *             http://opensource.org/licenses/ecl2
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.sakaiproject.content.providers;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.Instant;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.sakaiproject.api.app.scheduler.DelayedInvocation;
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.api.app.scheduler.ScheduledInvocationCommand;
 import org.sakaiproject.api.app.scheduler.ScheduledInvocationManager;
 import org.sakaiproject.authz.api.SecurityAdvisor;
@@ -25,11 +40,10 @@ import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
 
+@Slf4j
 public class BaseEventDelayHandler implements EventDelayHandler, ScheduledInvocationCommand
 {
 	private boolean autoDdl;
-
-	private static final Logger LOG = LoggerFactory.getLogger(BaseEventDelayHandler.class);
 
 	private SqlService sqlService;
 	private ScheduledInvocationManager schedInvocMgr;
@@ -125,7 +139,7 @@ public class BaseEventDelayHandler implements EventDelayHandler, ScheduledInvoca
 						}
 						catch (SQLException se)
 						{
-							LOG.error("Error trying to build event on read", se);
+							log.error("Error trying to build event on read", se);
 						}
 						return e;
 					}
@@ -221,8 +235,9 @@ public class BaseEventDelayHandler implements EventDelayHandler, ScheduledInvoca
 			id = (String) ids.get(0);
 
 		// Schedule the new delayed invocation
-		LOG.info("Creating new delayed event [" + id + "]");
-		schedInvocMgr.createDelayedInvocation(fireTime, BaseEventDelayHandler.class.getName(), id);
+		log.info("Creating new delayed event [" + id + "]");
+		Instant fireInstant = Instant.ofEpochMilli(fireTime.getTime());
+		schedInvocMgr.createDelayedInvocation(fireInstant, BaseEventDelayHandler.class.getName(), id);
 		return id;
 	}
 
@@ -290,7 +305,7 @@ public class BaseEventDelayHandler implements EventDelayHandler, ScheduledInvoca
 		final Event event = popEventDelay(opaqueContext);
 
 		if (event != null) {
-			LOG.info("Refiring delayed event [" + opaqueContext + "]");
+			log.info("Refiring delayed event [" + opaqueContext + "]");
 
 			// Set up security advisor
 			try
@@ -317,7 +332,7 @@ public class BaseEventDelayHandler implements EventDelayHandler, ScheduledInvoca
 				securityService.popAdvisor();
 			}
 		} else {
-			LOG.warn("Delayed event not found [" + opaqueContext + "]");
+			log.warn("Delayed event not found [" + opaqueContext + "]");
 		}
 		
 	}

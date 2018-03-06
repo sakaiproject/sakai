@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<content allowattach="true"
+         allowreview="false"
+         allowstudentview="false"
+         checkInstitution="false"
+         checkInternet="false"
+         checkPublications="false"
+         checkTurnitin="false"
+         context="CDOR_789U_0626"
+         datecreated="20171215211634441"
+         excludeBibliographic="false"
+         excludeQuoted="false"
+         excludeType="0"
+         excludeValue="1"
+         generateOriginalityReport="0"
+         groupproject="true"
+         hideduedate="true"
+         honorpledge="2"
+         id="7854df94-61ca-45e0-9348-a4a3a738292d"
+         indivgraded="false"
+         instructions="Q29tcGxleCBBc3NpZ25tZW50IGZvciBub24gZ3JvdXBz"
+         instructions-html="PHA+Q29tcGxleCBBc3NpZ25tZW50IGZvciBub24gZ3JvdXBzPC9wPg=="
+         lastmod="20171215211634441"
+         numberofattachments="0"
+         numberofauthors="0"
+         releasegrades="false"
+         scaled_factor="100"
+         scaled_maxgradepoint="2000"
+         submissiontype="3"
+         submitReviewRepo="0"
+         title="Assignment Everyone"
+         typeofgrade="3">
+    <properties>
+        <property enc="BASE64"
+                  name="CHEF:creator"
+                  value="ZTJjNzk1ZTYtY2RmYS00OGZmLTgxZGEtNWE0ZTg0YzI5YWVh"/>
+        <property enc="BASE64"
+                  name="CHEF:modifiedby"
+                  value="ZTJjNzk1ZTYtY2RmYS00OGZmLTgxZGEtNWE0ZTg0YzI5YWVh"/>
+        <property enc="BASE64"
+                  name="DAV:getlastmodified"
+                  value="MjAxNzEyMTUyMTE2MzQ0NjU="/>
+        <property enc="BASE64"
+                  name="DAV:creationdate"
+                  value="MjAxNzEyMTUyMTE2MzQ0NDE="/>
+    </properties>
+</content>

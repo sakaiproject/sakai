@@ -26,9 +26,11 @@ import java.util.GregorianCalendar;
 import java.util.HashSet;
 import java.util.Set;
 
+import lombok.extern.slf4j.Slf4j;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
+import org.springframework.orm.hibernate4.support.HibernateDaoSupport;
+
 import org.sakaiproject.coursemanagement.api.AcademicSession;
 import org.sakaiproject.coursemanagement.api.CourseManagementService;
 import org.sakaiproject.coursemanagement.api.CourseOffering;
@@ -44,17 +46,14 @@ import org.sakaiproject.coursemanagement.impl.EnrollmentSetCmImpl;
 import org.sakaiproject.coursemanagement.impl.MembershipCmImpl;
 import org.sakaiproject.coursemanagement.impl.SectionCategoryCmImpl;
 import org.sakaiproject.coursemanagement.impl.SectionCmImpl;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
-import org.springframework.orm.hibernate4.support.HibernateDaoSupport;
 
 /**
  * Loads data into the current transaction for use in a test case.
  * 
  * @author <a href="mailto:jholtzman@berkeley.edu">Josh Holtzman</a>
  */
+@Slf4j
 public class HibernateTestDataLoader extends HibernateDaoSupport implements DataLoader {
-	private static final Logger log = LoggerFactory.getLogger(HibernateTestDataLoader.class);
-	
 	private CourseManagementService cm;
 
 	public void setCourseManagementService(CourseManagementService cm) {
@@ -67,7 +66,7 @@ public class HibernateTestDataLoader extends HibernateDaoSupport implements Data
 		try {
 			loader.load();
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.error(e.getMessage(), e);
 		}
 	}
 	

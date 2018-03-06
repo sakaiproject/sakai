@@ -1,3 +1,18 @@
+/**
+ * Copyright (c) 2007-2017 The Apereo Foundation
+ *
+ * Licensed under the Educational Community License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *             http://opensource.org/licenses/ecl2
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 /*
 * Licensed to The Apereo Foundation under one or more contributor license
 * agreements. See the NOTICE file distributed with this work for
@@ -18,6 +33,10 @@
 */
 
 package org.sakaiproject.signup.logic;
+
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * <P>
@@ -60,5 +79,10 @@ public interface SignupMessageTypes {
 	static final String SEND_EMAIL_ONLY_SIGNED_UP_ATTENDEES = "signup_only";
 	
 	static final String SEND_EMAIL_ONLY_ORGANIZER_COORDINATORS = "organizers_only";
+
+	//Valid values for selected people 
+	static final Set<String> VALID_SEND_EMAIL_TO_SELECTED_PEOPLE_ONLY = new HashSet<String>(
+			Arrays.asList(SEND_EMAIL_ALL_PARTICIPANTS,SEND_EMAIL_ONLY_SIGNED_UP_ATTENDEES,SEND_EMAIL_ONLY_ORGANIZER_COORDINATORS));
+
 
 }

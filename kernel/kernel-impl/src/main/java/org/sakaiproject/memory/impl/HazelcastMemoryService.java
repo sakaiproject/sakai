@@ -29,9 +29,13 @@ import com.hazelcast.core.DistributedObject;
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
+
+import java.util.*;
+
+import lombok.extern.slf4j.Slf4j;
+
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.component.cover.ComponentManager;
@@ -40,8 +44,6 @@ import org.sakaiproject.memory.api.CacheRefresher;
 import org.sakaiproject.memory.api.Configuration;
 import org.sakaiproject.memory.api.MemoryService;
 
-import java.util.*;
-
 /**
  * Hazelcast based implementation of the MemoryService API which is automatically distributed by the nature of hazelcast
  *
@@ -49,10 +51,8 @@ import java.util.*;
  * Send questions to Aaron Zeckoski
  * @author Aaron Zeckoski (azeckoski @ unicon.net) (azeckoski @ gmail.com)
  */
+@Slf4j
 public class HazelcastMemoryService implements MemoryService {
-
-    final Logger log = LoggerFactory.getLogger(HazelcastMemoryService.class);
-
     ServerConfigurationService serverConfigurationService;
     SecurityService securityService;
     HazelcastInstance hcInstance;

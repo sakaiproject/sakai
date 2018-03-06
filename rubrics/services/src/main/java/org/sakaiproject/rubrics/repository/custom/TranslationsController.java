@@ -22,15 +22,6 @@
 
 package org.sakaiproject.rubrics.repository.custom;
 
-import lombok.NoArgsConstructor;
-import org.sakaiproject.rubrics.RubricsConfiguration;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.rest.webmvc.BasePathAwareController;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.RequestMethod;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -39,10 +30,21 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashMap;
 
+import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.rest.webmvc.BasePathAwareController;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RequestMethod;
+
+import org.sakaiproject.rubrics.RubricsConfiguration;
 
 @BasePathAwareController
 @RequestMapping(value="/translations")
 @NoArgsConstructor
+@Slf4j
 public class TranslationsController {
 
     @Autowired
@@ -53,68 +55,24 @@ public class TranslationsController {
     public Translations translations(@RequestParam("lang-code") String langCode) {
 
         try {
-            String sakaisession = getSakaiSession();
-            Translations translations = getSakaiTranslation(langCode,sakaisession);
+            Translations translations = getSakaiTranslation(langCode);
             return translations;
 
         }catch(Exception ex){
-            ex.printStackTrace();
+            log.error(ex.getMessage(), ex);
             return null;
         }
     }
 
     /**
-     * Returns the session string for admin user
+     * Returns the translations for rubrics
      * @return
      */
-    public String getSakaiSession() throws IOException {
+    public Translations getSakaiTranslation(String langCode) throws IOException {
 
 
         try{
-            String adminUser = rubricsConfiguration.getIntegration().getSakaiAdminUser();
-            String adminPassword = rubricsConfiguration.getIntegration().getSakaiAdminPassword();
-            URL url = new URL(rubricsConfiguration.getIntegration().getSakaiRestUrl() + "login/login?id="+adminUser+"&pw="+adminPassword);
-
-            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-            conn.setRequestMethod("GET");
-
-            if (conn.getResponseCode() != 200) {
-                throw new RuntimeException("Failed : HTTP error code : "
-                        + conn.getResponseCode());
-            }
-
-            BufferedReader br = new BufferedReader(new InputStreamReader(
-                    (conn.getInputStream())));
-
-            String output;
-            String result="";
-            if ((output = br.readLine()) != null) {
-                result = output;
-            }
-            conn.disconnect();
-            return result;
-
-        } catch (MalformedURLException e) {
-
-            //log.warn("Error getting a rubric association " + e.getMessage());
-            return null;
-
-        } catch (IOException e) {
-
-            //log.warn("Error getting a rubric association" + e.getMessage());
-            return null;
-        }
-    }
-
-    /**
-     * Returns the session string for admin user
-     * @return
-     */
-    public Translations getSakaiTranslation(String langCode, String session) throws IOException {
-
-
-        try{
-            URL url = new URL(rubricsConfiguration.getIntegration().getSakaiRestUrl() + "i18n/getI18nProperties?sessionid=" + session + "&locale=" + langCode +  "&resourceclass=org.sakaiproject.rubrics.logic.api.RubricsService&resourcebundle=rubricsMessages");
+            URL url = new URL(rubricsConfiguration.getIntegration().getSakaiRestUrl() + "i18n/getI18nProperties?locale=" + langCode +  "&resourceclass=org.sakaiproject.rubrics.logic.api.RubricsService&resourcebundle=rubricsMessages");
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setRequestMethod("GET");
 
@@ -176,9 +134,6 @@ public class TranslationsController {
         public void setLabels(HashMap<String, String> labels) {
             this.labels = labels;
         }
-
-
-
 
     }
 

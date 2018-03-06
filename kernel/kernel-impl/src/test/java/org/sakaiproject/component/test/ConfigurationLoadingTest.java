@@ -1,24 +1,18 @@
-/**********************************************************************************
-*
-* $Id$
-*
-***********************************************************************************
-*
- * Copyright (c) 2007, 2008 Sakai Foundation
+/**
+ * Copyright (c) 2003-2017 The Apereo Foundation
  *
  * Licensed under the Educational Community License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *       http://www.opensource.org/licenses/ECL-2.0
+ *             http://opensource.org/licenses/ecl2
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
-*
-**********************************************************************************/
+ */
 
 package org.sakaiproject.component.test;
 
@@ -26,21 +20,21 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.test.SakaiKernelTestBase;
 
 /**
  *
  */
+@Slf4j
 public class ConfigurationLoadingTest extends SakaiKernelTestBase {
-	private static Logger log = LoggerFactory.getLogger(ConfigurationLoadingTest.class);
-	
 	private ServerConfigurationService serverConfigurationService;
 
 	protected static final String CONFIG = "src/test/webapp/WEB-INF/components.xml";
@@ -314,6 +308,19 @@ public class ConfigurationLoadingTest extends SakaiKernelTestBase {
 	public void testGetRawPropertyDoesNotDereferencePlaceholderPropertiesForBeanAddressingProperties() {
 		Assert.assertEquals("Property value for \"overrideString1@org.sakaiproject.component.test.ITestComponent2\" inappropriately dereferenced",
 				"${stringWithNestedPlaceholders}", serverConfigurationService.getRawProperty("overrideString1@org.sakaiproject.component.test.ITestComponent2"));
+	}
+
+	@Test
+	public void testGetStringList() {
+
+		List<String> expected = new ArrayList<String>() {{
+			add("the");
+			add("cat");
+			add("in");
+			add("the");
+			add("hat");
+		}};
+		Assert.assertEquals(serverConfigurationService.getStringList("listOfStrings", new ArrayList<String>()), expected);
 	}
 
 	private String[] trim(String[] strArray) {

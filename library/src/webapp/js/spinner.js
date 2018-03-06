@@ -279,7 +279,7 @@ SPNR.disableElementAndSpin = function( divID, element, activateSpinner )
 
     // Now create a new disabled button with the same attributes as the existing button
     var newElement;
-    if( element.type === "submit" )
+    if( element.type === "submit" || element.type === "button" )
     {
         newElement = document.createElement( "button" );
     }
@@ -294,12 +294,15 @@ SPNR.disableElementAndSpin = function( divID, element, activateSpinner )
     newElement.setAttribute( "value", element.getAttribute( "value" ) );
     newElement.setAttribute( "disabled", "true" );
     newElement.style.display = origDisplay;
-    newElement.textContent = element.getAttribute( "value" );
     newElement.className = activateSpinner ? "spinButton formButtonDisabled" : "formButtonDisabled";
 
     if( element.type === "checkbox" || element.type === "radio" )
     {
         newElement.checked = element.checked;
+    }
+    else
+    {
+        newElement.textContent = element.getAttribute( "value" );
     }
 
     if( "" !== divID )

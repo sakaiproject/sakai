@@ -4,7 +4,7 @@
   <parent>
     <artifactId>common</artifactId>
     <groupId>org.sakaiproject.common</groupId>
-    <version>12-SNAPSHOT</version><!-- ProjectVersion -->
+    <version>13-SNAPSHOT</version><!-- ProjectVersion -->
     <relativePath>../pom.xml</relativePath>
   </parent>
   <name>Sakai Common API Composite Component</name>
@@ -47,17 +47,7 @@
 <!--  compile time dependencies -->
     <dependency>
       <groupId>org.sakaiproject.common</groupId>
-      <artifactId>sakai-common-edu-person-api</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.sakaiproject.common</groupId>
-      <artifactId>sakai-common-manager-api</artifactId>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.sakaiproject.common</groupId>
-      <artifactId>sakai-common-type-api</artifactId>
-      <scope>provided</scope>
+      <artifactId>sakai-common-api</artifactId>
     </dependency>
     <dependency>
       <groupId>org.sakaiproject.common</groupId>

@@ -119,7 +119,7 @@
                         <a href="#" 
                            onclick="location='#toolLinkParam("$action" "doDescription" "eventReference=$validator.escapeUrl($event.getReference())")';return false;" 
                            title="$validator.escapeHtml($event.getDisplayName()) - $validator.escapeHtml($event.getSiteName())">
-                        #iconImage($event.Type)
+                        <span class="icon $eventIconMap.get($event.getType())" title="$localizedEventTypes.get($event.getType())"></span>
                         $validator.escapeHtml($event.getDisplayName())</a></div></td>
 
                     #else   ## -> flag == true
@@ -276,7 +276,7 @@
                         <a href="#" 
                            onclick="location='#toolLinkParam("$action" "doDescription" "eventReference=$validator.escapeUrl($eventclass.getEvent().getReference())")';return false;" 
                            title="$validator.escapeHtml($event.getDisplayName()) - $validator.escapeHtml($event.getSiteName())">
-                        #iconImage($event.Type)
+                        <span class="icon $eventIconMap.get($event.getType())" title="$localizedEventTypes.get($event.getType())"></span>
                         $validator.escapeHtml($event.getDisplayName())</a></div></td>
             #else ## corresponding to if($eventD.getFlag()==false)
                     ## no cell to be rendered, because of the above rowspan. but column counter++
@@ -613,7 +613,7 @@
                         <a href="#" 
                            onclick="location='#toolLinkParam("$action" "doDescription" "eventReference=$validator.escapeUrl($event.getReference())")';return false;" 
                            title="$validator.escapeHtml($event.getDisplayName()) - $validator.escapeHtml($event.getSiteName())">
-                        #iconImage($event.Type)
+                        <span class="icon $eventIconMap.get($event.getType())" title="$localizedEventTypes.get($event.getType())"></span>
                         $validator.escapeHtml($event.getDisplayName())</a></div></td>
 
                     #else   ## -> flag == true
@@ -770,7 +770,7 @@
 
                         <a href="#toolLinkParam("$action" "doDescription" "eventReference=$validator.escapeUrl($eventclass.getEvent().getReference())")" 
                            title="$validator.escapeHtml($eventclass.getEvent().getDisplayName()) - $validator.escapeHtml($eventclass.getEvent().getSiteName())">
-                        #iconImage($event.Type)
+                        <span class="icon $eventIconMap.get($event.getType())" title="$localizedEventTypes.get($event.getType())"></span>
                         $validator.escapeHtml($event.getDisplayName())</a></div></td>
             #else ## corresponding to if($eventD.getFlag()==false)
                     ## no cell to be rendered, because of the above rowspan. but column counter++
@@ -926,6 +926,13 @@
 		<a href="#" onclick="location='#toolLink("$action" "doNpagew")';return false;" title="$tlang.getString('vieww.gotol')">$tlang.getString("vieww.gotol")</a>
 </div>
 #end
-#eventLegend($tlang)
+
+<h4>$tlang.getString('view.legend')</h4>
+<ul class="calendarLegend">
+    #foreach ($key in $iconsAndLocalizedEventTypes.keySet())
+        <li><span class="icon $iconsAndLocalizedEventTypes.get($key)"></span> $key</li>
+    #end
+</ul>
+<div class="clear"></div>
 
 </div>

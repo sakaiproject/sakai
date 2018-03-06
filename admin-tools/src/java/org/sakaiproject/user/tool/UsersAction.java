@@ -577,6 +577,8 @@ public class UsersAction extends PagedResourceActionII
 		// include the password fields?
 		context.put("incPw", state.getAttribute("include-password"));
 
+		context.put("providedUserType", isProvidedType(user.getType()));
+		
 		// include type fields (not if single user)
 		boolean singleUser = ((Boolean) state.getAttribute("single-user")).booleanValue();
 		context.put("incType", Boolean.valueOf(!singleUser));
@@ -1419,7 +1421,7 @@ public class UsersAction extends PagedResourceActionII
 			//and any duplicate ones will override previous ones (currently)
 			properties.addProperty(optionalAttributeKey, optionalAttributeValue);
 			
-			//System.out.println("optionalAttributeKey: " + optionalAttributeKey + ", optionalAttributeValue: " + optionalAttributeValue);
+			log.debug("optionalAttributeKey: {}, optionalAttributeValue: {}", optionalAttributeKey, optionalAttributeValue);
 			
 			count++;
 		}

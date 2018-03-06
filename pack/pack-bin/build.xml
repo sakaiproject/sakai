@@ -96,7 +96,7 @@
 	    <copy
 	        todir="${basedir}/target/pack/licenses/">
 	        <fileset
-	            dir="${basedir}/../../reference/licenses">
+	            dir="${basedir}/../../licenses">
 	            <exclude name=".svn/**" />
 	            <exclude name="CVS/**" />
 	        </fileset>

@@ -37,7 +37,9 @@ import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
+
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.entity.api.EntityPropertyNotDefinedException;
 import org.sakaiproject.entity.api.EntityPropertyTypeException;
@@ -65,13 +67,12 @@ import org.sakaiproject.tool.assessment.ui.bean.delivery.ItemContentsBean;
 import org.sakaiproject.tool.assessment.ui.bean.delivery.SectionContentsBean;
 import org.sakaiproject.tool.assessment.ui.bean.shared.PersonBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
+import org.sakaiproject.tool.assessment.util.ExtendedTimeDeliveryService;
 import org.sakaiproject.tool.assessment.util.SamigoLRSStatements;
 import org.sakaiproject.tool.assessment.util.TextFormat;
 import org.sakaiproject.user.api.Preferences;
 import org.sakaiproject.user.api.PreferencesService;
 import org.sakaiproject.user.api.UserDirectoryService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * <p>
@@ -84,9 +85,8 @@ import org.slf4j.LoggerFactory;
  * @version $Id: SubmitToGradingActionListener.java 11634 2006-07-06 17:35:54Z
  *          daisyf@stanford.edu $
  */
-
+@Slf4j
 public class SubmitToGradingActionListener implements ActionListener {
-	private static final Logger log = LoggerFactory.getLogger(SubmitToGradingActionListener.class);
     private final EventTrackingService eventTrackingService= ComponentManager.get( EventTrackingService.class );
 
 	
@@ -465,7 +465,7 @@ public class SubmitToGradingActionListener implements ActionListener {
 		}
 		
 		adata.setSubmitFromTimeoutPopup(delivery.getsubmitFromTimeoutPopup());
-		adata.setIsLate(isLate(publishedAssessment, delivery.getsubmitFromTimeoutPopup()));
+		adata.setIsLate(isLate(publishedAssessment, delivery.getsubmitFromTimeoutPopup(), adata.getAgentId()));
 		adata.setForGrade(delivery.getForGrade());
 		
 		// If this assessment grading data has been updated (comments or adj. score) by grader and then republic and allow student to resubmit
@@ -575,23 +575,18 @@ public class SubmitToGradingActionListener implements ActionListener {
 			            || calcQuestionMap.get(oldItem.getPublishedItemId())!=null
 						|| imagQuestionMap.get(oldItem.getPublishedItemId())!=null
 			            || mcmrMap.get(oldItem.getPublishedItemId()) != null) {
-			        String newAnswerText = ContextUtil.stringWYSIWYG(newItem.getAnswerText());
+			        String newAnswerText = newItem.getAnswerText();
 			        oldItem.setReview(newItem.getReview());
 			        oldItem.setPublishedAnswerId(newItem.getPublishedAnswerId());
-			        String newRationale = TextFormat.convertPlaintextToFormattedTextNoHighUnicode(log, newItem.getRationale());
+			        String newRationale = TextFormat.convertPlaintextToFormattedTextNoHighUnicode(newItem.getRationale());
 			        oldItem.setRationale(newRationale);
 			        oldItem.setAnswerText(newAnswerText);
 			        oldItem.setSubmittedDate(new Date());
 			        oldItem.setAutoScore(newItem.getAutoScore());
 			        oldItem.setOverrideScore(newItem.getOverrideScore());
 			        updateItemGradingSet.add(oldItem);
-			        // log.debug("**** SubmitToGrading: need update
-			        // "+oldItem.getItemGradingId());
 			    }
-			} else { // itemGrading from new set doesn't exist, add to set in
-				// this case
-				// log.debug("**** SubmitToGrading: need add new item");
-				//a new item should always have the grading ID set to null
+			} else { // itemGrading from new set doesn't exist, add to set in this case a new item should always have the grading ID set to null
 				newItem.setItemGradingId(null);
 				newItem.setAgentId(adata.getAgentId());
 				updateItemGradingSet.add(newItem);
@@ -694,7 +689,7 @@ public class SubmitToGradingActionListener implements ActionListener {
 							itemgrading.setAgentId(AgentFacade.getAgentString());
 							itemgrading.setSubmittedDate(new Date());
 							if (itemgrading.getRationale() != null && itemgrading.getRationale().length() > 0) {
-								itemgrading.setRationale(TextFormat.convertPlaintextToFormattedTextNoHighUnicode(log, itemgrading.getRationale()));
+								itemgrading.setRationale(TextFormat.convertPlaintextToFormattedTextNoHighUnicode(itemgrading.getRationale()));
 							}
 							// the rest of the info is collected by
 							// ItemContentsBean via JSF form
@@ -738,7 +733,7 @@ public class SubmitToGradingActionListener implements ActionListener {
 					break;
 				} else if (itemgrading.getAnswerText() != null && !itemgrading.getAnswerText().equals("")) {
 					// Change to allow student submissions in rich-text [SAK-17021]
-					itemgrading.setAnswerText(ContextUtil.stringWYSIWYG(itemgrading.getAnswerText()));
+					itemgrading.setAnswerText(itemgrading.getAnswerText());
 					adds.addAll(grading);
 					break;
 				}
@@ -764,7 +759,7 @@ public class SubmitToGradingActionListener implements ActionListener {
 					String s = itemgrading.getAnswerText();
 					log.debug("s = " + s);
 					// Change to allow student submissions in rich-text [SAK-17021]
-					itemgrading.setAnswerText(ContextUtil.stringWYSIWYG(s));
+					itemgrading.setAnswerText(s);
 					adds.addAll(grading);
 					if (!addedToAdds) {
 						adds.addAll(grading);
@@ -871,7 +866,7 @@ public class SubmitToGradingActionListener implements ActionListener {
 						itemgrading.setAgentId(AgentFacade.getAgentString());
 						itemgrading.setSubmittedDate(new Date());
 						if (itemgrading.getRationale() != null && itemgrading.getRationale().length() > 0) {
-							itemgrading.setRationale(TextFormat.convertPlaintextToFormattedTextNoHighUnicode(log, itemgrading.getRationale()));
+							itemgrading.setRationale(TextFormat.convertPlaintextToFormattedTextNoHighUnicode(itemgrading.getRationale()));
 						}
 						adds.add(itemgrading);
 					}
@@ -979,16 +974,27 @@ public class SubmitToGradingActionListener implements ActionListener {
     }
 
    
-	private Boolean isLate(PublishedAssessmentIfc pub, boolean submitFromTimeoutPopup) {
+	private Boolean isLate(PublishedAssessmentIfc pub, boolean submitFromTimeoutPopup, String adataAgentId) {
 		AssessmentAccessControlIfc a = pub.getAssessmentAccessControl();
 		// If submit from timeout popup, we don't record LATE
 		if(submitFromTimeoutPopup) {
 			return Boolean.FALSE;
-		}		
-		
-		if (a.getDueDate() != null && a.getDueDate().before(new Date()))
-			return Boolean.TRUE;
-		else
-			return Boolean.FALSE;
+		}
+
+		Boolean isLate = false;
+		if (a.getDueDate() != null && a.getDueDate().before(new Date())) {
+			isLate = Boolean.TRUE;
+		} else {
+			isLate = Boolean.FALSE;
+		}
+
+		if (isLate) {
+			ExtendedTimeDeliveryService assessmentExtended = new ExtendedTimeDeliveryService((PublishedAssessmentFacade) pub, adataAgentId);
+			if (assessmentExtended.hasExtendedTime() && assessmentExtended.getDueDate() != null && assessmentExtended.getDueDate().after(new Date())) {
+				isLate = Boolean.FALSE;	
+			}
+		}
+
+		return isLate;
 	}
 }

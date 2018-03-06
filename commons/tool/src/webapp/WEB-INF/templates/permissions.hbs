@@ -1,0 +1,68 @@
+<h2>{{tr 'commons' 'permissions'}}</h2>
+<table class="commons-permissions-table">
+	<thead>
+		<tr>
+			<th></th>
+			<th width="5px"></th>
+			<th align="center" colspan="6">{{tr 'commons' 'post'}}</th>
+		</tr>
+		<tr class="listHier">
+			<th align="left">{{tr 'commons' 'role'}}:</th>
+			<th style="background: white;border: none;"></th>
+			<th style="text-align:center;">{{tr 'commons' 'create'}}</th>
+			<th style="text-align:center;">{{tr 'commons' 'read_any'}}</th>
+			<th style="text-align:center;">{{tr 'commons' 'update_any'}}</th>
+			<th style="text-align:center;">{{tr 'commons' 'update_own'}}</th>
+			<th style="text-align:center;">{{tr 'commons' 'delete_any'}}</th>
+			<th style="text-align:center;">{{tr 'commons' 'delete_own'}}</th>
+		</tr>
+	</thead>
+<tbody>
+{{#each perms}}
+<tr>
+	<td align="left">{{role}}</td>
+	<td></td>
+	<td align="center"><input type="checkbox" class="commons-permission-checkbox" {{#if commons_post_create}}checked="checked"{{/if}}" id="{{role}}:commons.post.create"/></td>
+	<td align="center"><input type="checkbox" class="commons-permission-checkbox" {{#if commons_post_read_any}}checked="checked"{{/if}}" id="{{role}}:commons.post.read.any"/></td>
+	<td align="center"><input type="checkbox" class="commons-permission-checkbox" {{#if commons_post_update_any}}checked="checked"{{/if}}" id="{{role}}:commons.post.update.any"/></td>
+	<td align="center"><input type="checkbox" class="commons-permission-checkbox" {{#if commons_post_update_own}}checked="checked"{{/if}}" id="{{role}}:commons.post.update.own"/></td>
+	<td align="center"><input type="checkbox" class="commons-permission-checkbox" {{#if commons_post_delete_any}}checked="checked"{{/if}}" id="{{role}}:commons.post.delete.any"/></td>
+	<td align="center"><input type="checkbox" class="commons-permission-checkbox" {{#if commons_post_delete_own}}checked="checked"{{/if}}" id="{{role}}:commons.post.delete.own"/></td>
+</tr>
+{{/each}}
+</tbody>
+</table>
+<table class="commons-permissions-table">
+<thead>
+		<tr>
+			<th></th>
+			<th width="5px"></th>
+			<th colspan="6">{{tr 'commons' 'comment'}}</th>
+		</tr>
+		<tr class="listHier">
+			<th align="left">{{tr 'commons' 'role'}}:</th>
+			<th style="background: white;border: none;"></th>
+			<th style="text-align:center;">{{tr 'commons' 'create'}}</th>
+			<th style="text-align:center;">{{tr 'commons' 'read_any'}}</th>
+			<th style="text-align:center;">{{tr 'commons' 'update_any'}}</th>
+			<th style="text-align:center;">{{tr 'commons' 'update_own'}}</th>
+			<th style="text-align:center;">{{tr 'commons' 'delete_any'}}</th>
+			<th style="text-align:center;">{{tr 'commons' 'delete_own'}}</th>
+		</tr>
+	</thead>
+{{#each perms}}
+<tr>
+	<td align="left">{{role}}</td>
+	<td></td>
+	<td align="center"><input type="checkbox" class="commons-permission-checkbox" {{#if commons_comment_create}}checked="checked"{{/if}}" id="{{role}}:commons.comment.create"/></td>
+	<td align="center"><input type="checkbox" class="commons-permission-checkbox" {{#if commons_comment_read_any}}checked="checked"{{/if}}" id="{{role}}:commons.comment.read.any"/></td>
+	<td align="center"><input type="checkbox" class="commons-permission-checkbox" {{#if commons_comment_update_any}}checked="checked"{{/if}}" id="{{role}}:commons.comment.update.any"/></td>
+	<td align="center"><input type="checkbox" class="commons-permission-checkbox" {{#if commons_comment_update_own}}checked="checked"{{/if}}" id="{{role}}:commons.comment.update.own"/></td>
+	<td align="center"><input type="checkbox" class="commons-permission-checkbox" {{#if commons_comment_delete_any}}checked="checked"{{/if}}" id="{{role}}:commons.comment.delete.any"/></td>
+	<td align="center"><input type="checkbox" class="commons-permission-checkbox" {{#if commons_comment_delete_own}}checked="checked"{{/if}}" id="{{role}}:commons.comment.delete.own"/></td>
+</tr>
+{{/each}}
+</tbody>
+</table>
+<input id="commons_permissions_save_button" type="button" value="{{tr 'commons' 'save'}}"/>
+<input type="button" value="{{tr 'commons' 'cancel'}}" onclick="return commons.switchState('home');"/>

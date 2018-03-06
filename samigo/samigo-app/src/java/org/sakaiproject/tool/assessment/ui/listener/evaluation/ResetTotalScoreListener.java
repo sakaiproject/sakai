@@ -19,22 +19,19 @@
  *
  **********************************************************************************/
 
-
-
 package org.sakaiproject.tool.assessment.ui.listener.evaluation;
+
+import java.util.ArrayList;
 
 import javax.faces.context.FacesContext;
 import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import org.sakaiproject.tool.assessment.ui.bean.evaluation.TotalScoresBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
-
-import java.util.ArrayList;
 
 /**
  * <p>Title: Samigo</p>
@@ -43,10 +40,9 @@ import java.util.ArrayList;
  * @author Ed Smiley
  * @version $Id$
  */
-
+@Slf4j
 public class ResetTotalScoreListener implements ActionListener
 {
-  private static Logger log = LoggerFactory.getLogger(ResetTotalScoreListener.class);
   private static ContextUtil cu;
 
   /**
@@ -59,6 +55,5 @@ public class ResetTotalScoreListener implements ActionListener
   {
     TotalScoresBean bean = (TotalScoresBean) cu.lookupBean("totalScores");
     bean.setAssessmentGradingList(new ArrayList());
-    //System.out.println("****reset assessmentGradingList");
   }
 }

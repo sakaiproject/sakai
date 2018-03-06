@@ -21,8 +21,18 @@
 				  init-method="init"
 				  destroy-method="destroy">
 				<property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
-				<property name="entityManager" ref="org.sakaiproject.entity.api.EntityManager"/>
 				<property name="defaultChannelSettings" ref="defaultChatChannelSettings"/>
+				<property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService"/>
+				<property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
+				<property name="presenceService" ref="org.sakaiproject.presence.api.PresenceService"/>
+				<property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager" />
+				<property name="usageSessionService" ref="org.sakaiproject.event.api.UsageSessionService"/>
+				<property name="formattedText" ref="org.sakaiproject.util.api.FormattedText"/>
+				<property name="preferencesService" ref="org.sakaiproject.user.api.PreferencesService"/>
+				<property name="securityService" ref="org.sakaiproject.authz.api.SecurityService"/>
+				<property name="functionManager" ref="org.sakaiproject.authz.api.FunctionManager"/>
+				<property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
+				<property name="eventTrackingService" ref="org.sakaiproject.event.api.EventTrackingService"/>
 			</bean>
 		</property>
         <property name="transactionManager" ref="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager" />
@@ -59,9 +69,6 @@
     	<property name="chatMigrationExecuteImmediate">
     		<value>true</value>
     	</property>
-    	<property name="debug">
-    		<value>false</value>
-    	</property>
    </bean>
 
     <bean id="org.sakaiproject.chat2.model.impl.ChatEntityProducer"
@@ -82,6 +89,9 @@
 	<bean id="org.sakaiproject.chat2.model.impl.ChatMessageEntityProvider"
 		class="org.sakaiproject.chat2.model.impl.ChatMessageEntityProvider">
       <property name="chatManager"><ref bean="org.sakaiproject.chat2.model.ChatManager"/></property>
+      <property name="userDirectoryService"><ref bean="org.sakaiproject.user.api.UserDirectoryService"/></property>
+      <property name="sessionManager"><ref bean="org.sakaiproject.tool.api.SessionManager"/></property>
+      <property name="formattedText"><ref bean="org.sakaiproject.util.api.FormattedText"/></property>
 	</bean>
 
 

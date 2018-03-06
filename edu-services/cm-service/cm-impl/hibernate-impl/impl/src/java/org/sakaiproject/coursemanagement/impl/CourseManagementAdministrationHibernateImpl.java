@@ -27,12 +27,17 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+
 import org.hibernate.Hibernate;
 import org.hibernate.HibernateException;
 import org.hibernate.Query;
 import org.hibernate.Session;
+
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.orm.hibernate4.HibernateCallback;
+import org.springframework.orm.hibernate4.support.HibernateDaoSupport;
+
 import org.sakaiproject.coursemanagement.api.AcademicSession;
 import org.sakaiproject.coursemanagement.api.CanonicalCourse;
 import org.sakaiproject.coursemanagement.api.CourseManagementAdministration;
@@ -47,9 +52,6 @@ import org.sakaiproject.coursemanagement.api.SectionCategory;
 import org.sakaiproject.coursemanagement.api.exception.IdExistsException;
 import org.sakaiproject.coursemanagement.api.exception.IdNotFoundException;
 import org.sakaiproject.coursemanagement.impl.facade.Authentication;
-import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.orm.hibernate4.HibernateCallback;
-import org.springframework.orm.hibernate4.support.HibernateDaoSupport;
 
 /**
  * Manipulates course and enrollment data stored in sakai's local hibernate tables.
@@ -57,10 +59,9 @@ import org.springframework.orm.hibernate4.support.HibernateDaoSupport;
  * @author <a href="mailto:jholtzman@berkeley.edu">Josh Holtzman</a>
  *
  */
+@Slf4j
 public class CourseManagementAdministrationHibernateImpl extends
 		HibernateDaoSupport implements CourseManagementAdministration {
-
-	private static final Logger log = LoggerFactory.getLogger(CourseManagementAdministrationHibernateImpl.class);
 
 	protected Authentication authn;
 	public void setAuthn(Authentication authn) {

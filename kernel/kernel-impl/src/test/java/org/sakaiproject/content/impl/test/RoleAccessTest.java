@@ -1,10 +1,27 @@
+/**
+ * Copyright (c) 2003-2016 The Apereo Foundation
+ *
+ * Licensed under the Educational Community License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *             http://opensource.org/licenses/ecl2
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.sakaiproject.content.impl.test;
 
-import junit.extensions.TestSetup;
-import junit.framework.TestSuite;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.util.Collections;
+import java.util.List;
+
+import lombok.extern.slf4j.Slf4j;
+
 import org.junit.*;
+
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.AuthzPermissionException;
 import org.sakaiproject.content.api.ContentCollection;
@@ -18,16 +35,10 @@ import org.sakaiproject.test.SakaiKernelTestBase;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.SessionManager;
 
-import java.io.IOException;
-import java.util.Collections;
-import java.util.List;
-
 import static org.junit.Assert.*;
 
+@Slf4j
 public class RoleAccessTest extends SakaiKernelTestBase {
-
-    private static final Logger log = LoggerFactory.getLogger(RoleAccessTest.class);
-
     protected static final String SITE_ID           = "site-id";
     protected static final String IMAGES_COLLECTION = String.format("/group/%s/images/", SITE_ID);
     protected static final String PHOTOS_COLLECTION = String.format("/group/%s/images/photos/", SITE_ID);
@@ -197,4 +208,3 @@ public class RoleAccessTest extends SakaiKernelTestBase {
     }
 
 }
-

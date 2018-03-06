@@ -7,7 +7,7 @@
   <parent>
     <groupId>org.sakaiproject.content</groupId>
     <artifactId>content</artifactId>
-    <version>12-SNAPSHOT</version>
+    <version>13-SNAPSHOT</version>
     <relativePath>../../pom.xml</relativePath>
   </parent>
   <name>content-metadata-api</name>

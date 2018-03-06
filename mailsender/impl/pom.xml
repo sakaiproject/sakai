@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.sakaiproject.mailsender</groupId>
         <artifactId>mailsender</artifactId>
-        <version>12-SNAPSHOT</version><!-- ProjectVersion -->
+        <version>13-SNAPSHOT</version><!-- ProjectVersion -->
         <relativePath>../pom.xml</relativePath>
     </parent>
 
@@ -51,17 +51,8 @@
 
         <!-- java mail -->
         <dependency>
-            <groupId>javax.activation</groupId>
-            <artifactId>activation</artifactId>
-        </dependency>
-        <dependency>
             <groupId>com.sun.mail</groupId>
             <artifactId>javax.mail</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-email</artifactId>
-            <version>1.2</version>
         </dependency>
 
         <!-- internal -->

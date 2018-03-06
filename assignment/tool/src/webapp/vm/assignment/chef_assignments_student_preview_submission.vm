@@ -1,0 +1,196 @@
+<!-- start: chef_assignments_student_preview_submission.vm -->
+<div class="portletBody">
+    <h3>
+        $tlang.getString("gen.assig")<span class="highlight"> - $tlang.getString("gen.pre")</span>
+    </h3>
+
+    #set($allowUpdateAssignment = $!service.allowUpdateAssignment($assignmentReference))
+    #if ($alertMessage)
+        <div class="alertMessage">$tlang.getString("gen.alert") $alertMessage</div>
+        <div class="clear"></div>#end
+    <table class="itemSummary" summary="$tlang.getString("gen.assdet")" border="0">
+        <tr>
+            <th>
+                $tlang.getString("gen.title")
+            </th>
+            <td>
+                #assignmentTitleIcon($assignment)
+				$validator.escapeHtml($assignment.Title)
+            </td>
+        </tr>
+        <tr>
+            <th>
+                $tlang.getString("gen.due"):
+            </th>
+            <td>
+                #if (!$!assignment.HideDueDate || $!allowUpdateAssignment)
+                    $!service.getUsersLocalDateTimeString($!assignment.DueDate)
+                #end
+            </td>
+        </tr>
+        #if($assignment.TypeOfSubmission.ordinal() != 4)
+            ##resubmit number
+            #if($!resubmitNumber)
+                <tr>
+                    <th>
+                        $tlang.getString("allow.resubmit.number")
+                    </th>
+                    <td>
+                        $resubmitNumber
+                    </td>
+                </tr>
+            #end
+            ## resubmit close time
+            #if ($!resubmitCloseTime)
+                <tr>
+                    <th>
+                        $tlang.getString("allow.resubmit.closeTime")
+                    </th>
+                    <td>
+                        $resubmitCloseTime
+                    </td>
+                </tr>
+            #end
+        #end
+        #if ($withGrade)
+            <tr>
+                <th>
+                    $tlang.getString("gen.status")
+                </th>
+                <td>
+                    #if ($!submission)
+						$!service.getSubmissionStatus($!submission.Id)
+					#else
+                        $tlang.getString("gen.notsta")
+                    #end
+                </td>
+            </tr>
+            <tr>
+                <th>
+                    $tlang.getString("gen.grasca")
+                </th>
+                <td>
+                    #set ($gradeScale = $!typeOfGradeString)
+                    $gradeScale
+                    #if ($!assignment.TypeOfGrade.ordinal() == 3)
+                        ($tlang.getString("stupresub.max") $!service.getMaxPointGradeDisplay($!assignment.ScaleFactor, $!assignment.MaxGradePoint))
+                    #end
+
+                    ## for grading via an external scoring service, if enabled for an associated gradebook item
+                    #if($scoringComponentEnabled)
+                        #parse ("/vm/assignment/chef_assignments_scoring_agent.vm")
+                    #end
+
+                </td>
+            </tr>
+        #end
+        ## show alert when assignment is modified and the modified date is after its open date
+        #set($newAssignment="false")
+        #set($newAssignment=$assignment.getProperties().get("newAssignment"))
+        #if ($!assignment.DateModified.isAfter($assignment.OpenDate) && !$!newAssignment.equalsIgnoreCase("true"))
+            <tr>
+                <th>
+                    $tlang.getString("gen.modbyins")
+                </th>
+                <td>
+                    $!service.getUsersLocalDateTimeString($assignment.DateModified)
+                </td>
+            </tr>
+        #end
+    </table>
+    <h4>
+        $tlang.getString("gen.submission")
+    </h4>
+    #if ($!text.length() > 0)
+        <div class="textPanel">
+            $validator.escapeHtmlFormattedText($text)
+        </div>
+    #end
+
+    #set ($size = 0)
+    #set ($props = false)
+    #foreach ($attachment in $attachments)
+        #set ($props = $attachment.Properties)
+        #if ($!props)
+            #set ($size = $size + 1)
+        #end
+    #end
+    #if ($size > 0)
+        <h4>
+            #if ($!assignment.TypeOfSubmission.ordinal() == 5)
+				$tlang.getString("gen.att.single")
+			#else
+                $tlang.getString("gen.att")
+            #end
+        </h4>
+        <ul class="attachList indnt1">
+            #foreach ($attachment in $attachments)
+                #set ($props = false)
+                #set ($props = $attachment.Properties)
+                #if ($!props)
+                    <li>
+                        #if ($props.getBooleanProperty($props.NamePropIsCollection))
+                            <img src="#imageLink($contentTypeImageService.getContentTypeImage("folder"))" border="0" alt="$tlang.getString("gen.folatt")"/>
+                        #else
+                            <img src="#imageLink($contentTypeImageService.getContentTypeImage($props.getProperty($props.NamePropContentType)))" border="0" alt="$tlang.getString("gen.filatt")"/>
+                        #end
+                        <a href="$attachment.Url" target="_blank">$validator.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))</a>
+                        #propertyDetails($props)
+                    </li>
+                #end
+            #end
+        </ul>
+    #end
+
+    <p></p>
+    #if ($!assignment.HonorPledge)
+        #if ($honor_pledge_yes.equals("true"))
+            <p class="checkbox highlightPanel">
+                <label for="yes">
+                    <input name="Yes" type="checkbox" value="" checked="checked" id="yes" disabled="disabled"/>
+                    $honor_pledge_text
+                </label>
+            </p>
+        #else
+            <div class="alertMessage indnt1" style="width:40%">
+                $tlang.getString("gen.honple2val")
+            </div>
+            <p class="checkbox highlightPanel">
+                <label for="yes">
+                    <input name="Yes" type="checkbox" value="" disabled="disabled"/>
+                    $honor_pledge_text
+                </label>
+            </p>
+
+        #end
+    #end
+    <form id="addSubmissionForm" name="addSubmissionForm" action="#toolForm("AssignmentAction")" method="post" onsubmit="return true;">
+        <input type="hidden" name="assignmentId" value="$!assignmentReference"/>
+        <input type="hidden" name="eventSubmit_doRead_add_submission_form" value="x"/>
+        <input type="hidden" name="option" id="option" value="cancel"/>
+        ## submission information
+        <div class="act">
+            #if (!$!canSubmit)
+                <input name="eventSubmit_doSave_submission" type="submit" value="$tlang.getString("gen.sav")" disabled="disabled"/>
+                <input name="eventSubmit_doPost_submission" type="submit" value="$tlang.getString("gen.subm3")" disabled="disabled"/>
+                <input name="eventSubmit_doCancel_show_submission" type="submit" value="$tlang.getString("gen.revi")" disabled="disabled"/>
+            #else
+                #if ($!submission.Submitted && $!submission.DateSubmitted)
+                    #set($name=$tlang.getString("resubmit"))
+                #else
+                    #set($name=$tlang.getString("gen.subm3"))
+                #end
+                <input type="button" class="active" name="post" accesskey="s" id="post" value="$!name"
+                       onclick="SPNR.disableControlsAndSpin( this, null ); ASN.submitForm( 'addSubmissionForm', 'post', null, null ); return false;"/>
+                <input class="disableme" type="button" accesskey="d" name="save" id="save"
+                       value="$tlang.getString("gen.savdra")"
+                       onclick="SPNR.disableControlsAndSpin( this, null ); ASN.submitForm( 'addSubmissionForm', 'save', null, null ); return false;"/>
+                <input class="disableme" type="button" name="revise" accesskey="r" id="revise"
+                       value="$tlang.getString("gen.revi")"
+                       onclick="SPNR.disableControlsAndSpin( this, null ); ASN.submitForm( 'addSubmissionForm', 'revise', null, null ); return false;"/>
+            #end
+        </div>
+        <input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token"/>
+    </form>
+</div>
+<!-- end: chef_assignments_student_preview_submission.vm -->

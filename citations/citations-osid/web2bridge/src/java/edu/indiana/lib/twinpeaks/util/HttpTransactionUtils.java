@@ -17,13 +17,17 @@
 **********************************************************************************/
 package edu.indiana.lib.twinpeaks.util;
 
+import java.io.UnsupportedEncodingException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLEncoder;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
+
 import lombok.extern.slf4j.Slf4j;
-
-import java.io.*;
-import java.net.*;
-import java.util.*;
-
-import javax.servlet.http.*;
 
 /**
  * HTTP utilites
@@ -341,10 +345,10 @@ public class HttpTransactionUtils
   public static void main(String[] args) throws Exception {
   	String u = "http://example.com/dir1/dir2/file.html?parm1=1&param2=2";
 
-  	System.out.println("Server: " + getUrlComponent(u, "server"));
-  	System.out.println("File: " + getUrlComponent(u, "file"));
-  	System.out.println("Parameters: " + getUrlComponent(u, "parameters"));
-  	System.out.println("File & Parameters: " + getUrlComponent(u, "fileandparameters"));
-  	System.out.println("Bad: " + getUrlComponent(u, "bad"));
+  	log.debug("Server: {}", getUrlComponent(u, "server"));
+  	log.debug("File: {}", getUrlComponent(u, "file"));
+  	log.debug("Parameters: {}", getUrlComponent(u, "parameters"));
+  	log.debug("File & Parameters: {}", getUrlComponent(u, "fileandparameters"));
+  	log.debug("Bad: {}", getUrlComponent(u, "bad"));
   }
 }

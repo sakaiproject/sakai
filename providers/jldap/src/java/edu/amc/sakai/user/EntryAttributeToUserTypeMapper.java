@@ -25,9 +25,8 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.novell.ldap.LDAPAttribute;
 import com.novell.ldap.LDAPEntry;
@@ -43,11 +42,9 @@ import com.novell.ldap.LDAPEntry;
  * 
  * @author Dan McCallum, Unicon Inc
  */
+@Slf4j
 public class EntryAttributeToUserTypeMapper implements UserTypeMapper {
-	
-	/** Class-specific logger */
-	private static Logger M_log = LoggerFactory.getLogger(EntryAttributeToUserTypeMapper.class);
-	
+
 	/** map of attribute values to Sakai user types */
 	private Map<String,String> attributeValueToSakaiUserTypeMap = new HashMap<String,String>();
 	
@@ -83,8 +80,8 @@ public class EntryAttributeToUserTypeMapper implements UserTypeMapper {
 	public String mapLdapEntryToSakaiUserType(LDAPEntry ldapEntry,
 			LdapAttributeMapper mapper) {
 		
-		if ( M_log.isDebugEnabled() ) {
-			M_log.debug("mapLdapEntryToSakaiUserType(): [entry DN = " + 
+		if ( log.isDebugEnabled() ) {
+			log.debug("mapLdapEntryToSakaiUserType(): [entry DN = " + 
 					ldapEntry.getDN() + "]");
 		}
 		
@@ -99,8 +96,8 @@ public class EntryAttributeToUserTypeMapper implements UserTypeMapper {
 			getUserTypeAttribute(ldapEntry, mapper).getStringValueArray();
 		
 		String userType = mapUserTypeAttributeValues(userTypeAttrValues);
-		if ( M_log.isDebugEnabled() ) {
-			M_log.debug("mapLdapEntryToSakaiUserType(): finished mapping [user type = " + 
+		if ( log.isDebugEnabled() ) {
+			log.debug("mapLdapEntryToSakaiUserType(): finished mapping [user type = " + 
 					userType + "][entry values = " + Arrays.toString(userTypeAttrValues) + 
 					"][entry DN = " + ldapEntry.getDN() + "]");
 		}
@@ -123,13 +120,13 @@ public class EntryAttributeToUserTypeMapper implements UserTypeMapper {
 	protected LDAPAttribute getUserTypeAttribute(LDAPEntry ldapEntry, 
 			LdapAttributeMapper mapper) {
 		
-		if ( M_log.isDebugEnabled() ) {
-			M_log.debug("getUserTypeAttribute(): [entry DN = " + 
+		if ( log.isDebugEnabled() ) {
+			log.debug("getUserTypeAttribute(): [entry DN = " + 
 					ldapEntry.getDN() + "]");
 		}
 		
 		if ( StringUtils.isBlank(logicalAttributeName) ) {
-			M_log.debug("getUserTypeAttribute(): no logical attribute name specified, returning null");
+			log.debug("getUserTypeAttribute(): no logical attribute name specified, returning null");
 			return null;
 		}
 		
@@ -137,8 +134,8 @@ public class EntryAttributeToUserTypeMapper implements UserTypeMapper {
 		String attrName = mappings.get(logicalAttributeName);
 		
 		if ( attrName == null ) {
-			if ( M_log.isDebugEnabled() ) {
-				M_log.debug("getUserTypeAttribute(): failed to find attribute mapping [logical attr name = " +
+			if ( log.isDebugEnabled() ) {
+				log.debug("getUserTypeAttribute(): failed to find attribute mapping [logical attr name = " +
 						logicalAttributeName + 
 						"][entry DN = " + ldapEntry.getDN() + "]");
 			}
@@ -147,8 +144,8 @@ public class EntryAttributeToUserTypeMapper implements UserTypeMapper {
 		
 		LDAPAttribute attr = ldapEntry.getAttribute(attrName);
 		if ( attr == null ) {
-			if ( M_log.isDebugEnabled() ) {
-				M_log.debug("getUserTypeAttribute(): entry had no Sakai user type attr [physical attr name = " +
+			if ( log.isDebugEnabled() ) {
+				log.debug("getUserTypeAttribute(): entry had no Sakai user type attr [physical attr name = " +
 						attrName + "][entry DN = " + ldapEntry.getDN() + "]");
 			}
 		}

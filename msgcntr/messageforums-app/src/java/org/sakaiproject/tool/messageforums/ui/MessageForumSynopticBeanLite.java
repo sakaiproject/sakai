@@ -1,3 +1,18 @@
+/**
+ * Copyright (c) 2003-2017 The Apereo Foundation
+ *
+ * Licensed under the Educational Community License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *             http://opensource.org/licenses/ecl2
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.sakaiproject.tool.messageforums.ui;
 
 import java.text.DateFormat;
@@ -9,8 +24,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.api.app.messageforums.Area;
 import org.sakaiproject.api.app.messageforums.AreaManager;
 import org.sakaiproject.api.app.messageforums.DiscussionForumService;
@@ -37,6 +52,7 @@ import org.sakaiproject.tool.messageforums.SynopticSitesPreferencesComparator;
 import org.sakaiproject.user.api.Preferences;
 import org.sakaiproject.user.cover.PreferencesService;
 
+@Slf4j
 public class MessageForumSynopticBeanLite {
 	
 	// transient only persists in request scope
@@ -44,8 +60,6 @@ public class MessageForumSynopticBeanLite {
 	private transient Boolean anyMFToolInSite = null;
 	private transient List<DecoratedSynopticMsgcntrItem> myContents = null;
 	private transient DecoratedSynopticMsgcntrItem siteHomepageContent = null;
-	/** to get accces to log file */
-	private static final Logger LOG = LoggerFactory.getLogger(MessageForumSynopticBeanLite.class);	
 	private SynopticMsgcntrManager synopticMsgcntrManager;
 	private MessageForumsForumManager forumsManager;
 	private MessageForumsTypeManager typeManager;
@@ -63,9 +77,7 @@ public class MessageForumSynopticBeanLite {
 	private String disableMyWorkspaceDisabledMessage;
 	
 	public List<DecoratedSynopticMsgcntrItem> getContents(){
-		
-		
-		
+
 		if(isMyWorkspace() && !isDisableMyWorkspace()){
 			if(myContents != null){
 				return myContents;
@@ -232,7 +244,7 @@ public class MessageForumSynopticBeanLite {
 				siteHomepageContent = new DecoratedSynopticMsgcntrItem(synItem, site);
 			} catch (IdUnusedException e) {
 				//we not longer need this record so delete it
-				e.printStackTrace();
+				log.error(e.getMessage(), e);
 			}
 			
 		}else{
@@ -257,7 +269,7 @@ public class MessageForumSynopticBeanLite {
 				} catch (IdUnusedException e) {
 					//we not longer need this record so delete it
 					getSynopticMsgcntrManager().deleteSynopticMsgcntrItem(synItem);
-					e.printStackTrace();
+					log.error(e.getMessage(), e);
 				}					
 			}else{
 				//add a new entry to the table
@@ -282,7 +294,7 @@ public class MessageForumSynopticBeanLite {
 					} catch (IdUnusedException e) {
 						//we not longer need this record so delete it
 						getSynopticMsgcntrManager().deleteSynopticMsgcntrItem(synopticMsgcntrItem);
-						e.printStackTrace();
+						log.error(e.getMessage(), e);
 					}			
 				}
 			}
@@ -295,7 +307,7 @@ public class MessageForumSynopticBeanLite {
 		  try {
 			return SiteService.getSite(ToolManager.getCurrentPlacement().getContext()).getTitle();
 		} catch (IdUnusedException e) {
-			e.printStackTrace();
+			log.error(e.getMessage(), e);
 		}
 		return "";
 	  }
@@ -317,7 +329,7 @@ public class MessageForumSynopticBeanLite {
 
 			myWorkspace = SiteService.isUserSite(siteId);
 
-			LOG.debug("Result of determining if My Workspace: " + myWorkspace);
+			log.debug("Result of determining if My Workspace: " + myWorkspace);
 		}
 		
 		return myWorkspace.booleanValue();
@@ -399,7 +411,7 @@ public class MessageForumSynopticBeanLite {
 			mfToolExists = isForumsPageInSite(thisSite);
 
 		} catch (IdUnusedException e) {
-			LOG.error("IdUnusedException while trying to check if site has MF tool.");
+			log.error("IdUnusedException while trying to check if site has MF tool.");
 		}
 
 		return mfToolExists;
@@ -427,7 +439,7 @@ public class MessageForumSynopticBeanLite {
 			mfToolExists = isMessagesPageInSite(thisSite);
 
 		} catch (IdUnusedException e) {
-			LOG.error("IdUnusedException while trying to check if site has MF tool.");
+			log.error("IdUnusedException while trying to check if site has MF tool.");
 		}
 
 		return mfToolExists;
@@ -455,7 +467,7 @@ public class MessageForumSynopticBeanLite {
 			mfToolExists = isMessageForumsPageInSite(thisSite);
 
 		} catch (IdUnusedException e) {
-			LOG.error("IdUnusedException while trying to check if site has MF tool.");
+			log.error("IdUnusedException while trying to check if site has MF tool.");
 		}
 
 		return mfToolExists;
@@ -761,7 +773,7 @@ public class MessageForumSynopticBeanLite {
 			}
 			catch (IdUnusedException e) {
 				// Weirdness since site ids used gotten from SiteService
-				LOG.error("IdUnusedException while trying to check if site has MF tool.");
+				log.error("IdUnusedException while trying to check if site has MF tool.");
 
 			}
 
@@ -837,7 +849,7 @@ public class MessageForumSynopticBeanLite {
 		    		}
 		    	}
 		    	catch (IdUnusedException e) {
-		    		LOG.error("IdUnusedException attempting to move to Private Messages for a site. Site id used is: " + contextId);
+		    		log.error("IdUnusedException attempting to move to Private Messages for a site. Site id used is: " + contextId);
 		    	}
 		    }
 

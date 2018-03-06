@@ -17,6 +17,8 @@ package org.sakaiproject.webservices;
 
 import static org.mockito.Mockito.mock;
 
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.api.app.messageforums.AreaManager;
 import org.sakaiproject.api.app.messageforums.MessageForumsForumManager;
 import org.sakaiproject.api.app.messageforums.MessageForumsMessageManager;
@@ -43,10 +45,12 @@ import org.sakaiproject.time.api.TimeService;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.tool.assessment.samlite.api.SamLiteService;
+import org.sakaiproject.user.api.AuthenticationManager;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.PreferencesService;
 import org.sakaiproject.tool.assessment.shared.impl.questionpool.QuestionPoolServiceImpl;
 
+@Slf4j
 public class MockingAbstractWebService {
 
 	public static <U extends AbstractWebService> AbstractWebService getMockedAbstractWebService(Class<U> service) {
@@ -55,6 +59,7 @@ public class MockingAbstractWebService {
 			instance = service.newInstance();
 			instance.setAreaManager(mock(AreaManager.class));
 			instance.setSessionManager(mock(SessionManager.class));
+			instance.setAuthenticationManager(mock(AuthenticationManager.class));
 			instance.setAssignmentService(mock(AssignmentService.class));
 			instance.setAuthzGroupService(mock(AuthzGroupService.class));
 			instance.setCalendarService(mock(CalendarService.class));
@@ -83,7 +88,7 @@ public class MockingAbstractWebService {
 			instance.setPreferencesService(mock(PreferencesService.class));
 			instance.setQuestionPoolServiceImpl(mock(QuestionPoolServiceImpl.class));
 		} catch (InstantiationException | IllegalAccessException e) {
-			e.printStackTrace();
+			log.error(e.getMessage(), e);
 		}
 		return instance;
 	}

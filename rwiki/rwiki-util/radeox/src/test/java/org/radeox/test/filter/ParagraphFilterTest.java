@@ -21,6 +21,7 @@
 
 package org.radeox.test.filter;
 
+import lombok.extern.slf4j.Slf4j;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 
@@ -29,6 +30,7 @@ import org.radeox.filter.ParagraphFilter;
 /**
  * @author ieb
  */
+@Slf4j
 public class ParagraphFilterTest extends FilterTestSupport
 {
 
@@ -53,7 +55,7 @@ public class ParagraphFilterTest extends FilterTestSupport
 
 		String result = filter.filter(
 				"<h1>test</h1>TextA \n\n TextB\n <h2>Head2</h2>", context);
-		System.err.println(":" + result + ":");
+		log.info(":" + result + ":");
 		assertEquals("" +
 	   "<p class=\"paragraph\"><h1>test</h1>TextA</p><p class=\"paragraph\"> TextB\n <h2>Head2</h2></p>", result);
 	}
@@ -62,7 +64,7 @@ public class ParagraphFilterTest extends FilterTestSupport
 
 		String result = filter.filter(
 				"<h1>test</h1>\n\n TextB\n <h2>Head2</h2>", context);
-		System.err.println(":" + result + ":");
+		log.info(":" + result + ":");
 		assertEquals("<p class=\"paragraph\"><h1>test</h1></p><p class=\"paragraph\"> TextB\n <h2>Head2</h2></p>", result);
 	}
 	public void testParagraph3()
@@ -70,7 +72,7 @@ public class ParagraphFilterTest extends FilterTestSupport
 
 		String result = filter.filter(
 				"TextA \n\n TextB\n <h2>Head2</h2>", context);
-		System.err.println(":" + result + ":");
+		log.info(":" + result + ":");
 		assertEquals("<p class=\"paragraph\">TextA</p><p class=\"paragraph\"> TextB\n <h2>Head2</h2></p>", result);
 	}
 	
@@ -79,7 +81,7 @@ public class ParagraphFilterTest extends FilterTestSupport
 
 		String result = filter.filter(
 				"Some __Simple__ Content", context);
-		System.err.println(":" + result + ":");
+		log.info(":" + result + ":");
 		assertEquals("Some __Simple__ Content", result);
 	}
 	public void testDoubleParagraph()
@@ -87,7 +89,7 @@ public class ParagraphFilterTest extends FilterTestSupport
 
 		String result = filter.filter(
 				"\n\nSome __Simple__ Content", context);
-		System.err.println(":" + result + ":");
+		log.info(":" + result + ":");
 		assertEquals("<p class=\"paragraph\"></p><p class=\"paragraph\">Some __Simple__ Content</p>", result);
 	}
 	public void testSingleParagraph()
@@ -95,7 +97,7 @@ public class ParagraphFilterTest extends FilterTestSupport
 
 		String result = filter.filter(
 				"\nSome __Simple__ Content", context);
-		System.err.println(":" + result + ":");
+		log.info(":" + result + ":");
 		assertEquals("\nSome __Simple__ Content", result);
 	}
 	public void testSingleEmbededParagraph()
@@ -103,7 +105,7 @@ public class ParagraphFilterTest extends FilterTestSupport
 
 		String result = filter.filter(
 				"\nSome\n\n__Simple__ Content", context);
-		System.err.println(":" + result + ":");
+		log.info(":" + result + ":");
 		assertEquals("<p class=\"paragraph\">\nSome</p><p class=\"paragraph\">__Simple__ Content</p>", result);
 	}
 	
@@ -117,7 +119,7 @@ public class ParagraphFilterTest extends FilterTestSupport
 				+"Annother paragraph\n"
 				+"\n"
 				+"Annother paragraph\n", context);
-		System.err.println(":" + result + ":");
+		log.info(":" + result + ":");
 		assertEquals(
 				"<p class=\"paragraph\">sdfdgdfgdd dfgdf gdfg dfgd fgdgf dfg <span class=\"nobr\">\n"
 				+"<img src=\"/sakai-rwiki-tool/images/icklearrow.gif\" alt=\"external link: \" title=\"external link\"/> <a href=\"link\">link</a></span> part of the same paragraph</p><p class=\"paragraph\">Annother paragraph</p><p class=\"paragraph\">Annother paragraph\n"

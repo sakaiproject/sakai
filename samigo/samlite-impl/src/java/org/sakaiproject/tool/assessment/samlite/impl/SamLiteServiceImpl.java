@@ -1,3 +1,18 @@
+/**
+ * Copyright (c) 2007-2016 The Apereo Foundation
+ *
+ * Licensed under the Educational Community License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *             http://opensource.org/licenses/ecl2
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.sakaiproject.tool.assessment.samlite.impl;
 
 import java.io.File;
@@ -14,8 +29,7 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.xmlbeans.XmlOptions;
 import org.imsglobal.xsd.imsQtiasiv1P2.AssessfeedbackType;
 import org.imsglobal.xsd.imsQtiasiv1P2.AssessmentType;
@@ -63,8 +77,8 @@ import org.w3c.dom.Document;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.util.ResourceLoader;
 
+@Slf4j
 public class SamLiteServiceImpl implements SamLiteService {
-	private static Logger log = LoggerFactory.getLogger(SamLiteServiceImpl.class);
 	public static final String DEFAULT_CHARSET = "UTF-8";
 	private static ResourceLoader rb = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.SamLitePatternMessages");
 	
@@ -375,13 +389,7 @@ public class SamLiteServiceImpl implements SamLiteService {
 		Map prefixes = new HashMap();
 		prefixes.put("", "http://www.imsglobal.org/xsd/ims_qtiasiv1p2");
 		options.setSaveImplicitNamespaces(prefixes);
-		/*
-		try {
-			document.save(new File("/home/jrenfro/TestQuiz.xml"), options);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		*/
+
 		InputStream inputStream = null;
 		try {
 			inputStream = document.newInputStream(options);	

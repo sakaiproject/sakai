@@ -23,8 +23,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
+
 import org.sakaiproject.api.common.edu.person.SakaiPerson;
 import org.sakaiproject.api.common.edu.person.SakaiPersonManager;
 import org.sakaiproject.authz.api.SecurityAdvisor;
@@ -61,10 +64,6 @@ import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserEdit;
 import org.sakaiproject.user.api.UserNotDefinedException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import lombok.Setter;
 
 /**
  * Implementation of SakaiProxy for Profile2.
@@ -72,9 +71,8 @@ import lombok.Setter;
  * @author Steve Swinsburg (s.swinsburg@lancaster.ac.uk)
  *
  */
+@Slf4j
 public class SakaiProxyImpl implements SakaiProxy {
-
-	private static final Logger log = LoggerFactory.getLogger(SakaiProxyImpl.class);
 
 	/**
 	 * {@inheritDoc}
@@ -251,7 +249,7 @@ public class SakaiProxyImpl implements SakaiProxy {
 		try {
 			type = this.userDirectoryService.getUser(userId).getType();
 		} catch (final UserNotDefinedException e) {
-			log.info("User with eid: " + userId + " does not exist : " + e.getClass() + " : " + e.getMessage());
+			log.debug("User with eid: " + userId + " does not exist : " + e.getClass() + " : " + e.getMessage());
 		}
 		return type;
 	}
@@ -265,7 +263,7 @@ public class SakaiProxyImpl implements SakaiProxy {
 		try {
 			u = this.userDirectoryService.getUser(userId);
 		} catch (final UserNotDefinedException e) {
-			log.info("User with id: " + userId + " does not exist : " + e.getClass() + " : " + e.getMessage());
+			log.debug("User with id: " + userId + " does not exist : " + e.getClass() + " : " + e.getMessage());
 		}
 
 		return u;
@@ -446,7 +444,6 @@ public class SakaiProxyImpl implements SakaiProxy {
 			return true;
 		} catch (final Exception e) {
 			log.error("SakaiProxy.updateSakaiPerson(): Couldn't update SakaiPerson: " + e.getClass() + " : " + e.getMessage());
-			e.printStackTrace();
 		}
 		return false;
 	}
@@ -1585,11 +1582,11 @@ public class SakaiProxyImpl implements SakaiProxy {
 		try {
 			site = this.siteService.addSite(id, type);
 		} catch (final IdInvalidException e) {
-			e.printStackTrace();
+			log.error(e.getMessage(), e);
 		} catch (final IdUsedException e) {
-			e.printStackTrace();
+			log.error(e.getMessage(), e);
 		} catch (final PermissionException e) {
-			e.printStackTrace();
+			log.error(e.getMessage(), e);
 		}
 
 		return site;
@@ -1603,10 +1600,10 @@ public class SakaiProxyImpl implements SakaiProxy {
 		try {
 			this.siteService.save(site);
 		} catch (final IdUnusedException e) {
-			e.printStackTrace();
+			log.error(e.getMessage(), e);
 			return false;
 		} catch (final PermissionException e) {
-			e.printStackTrace();
+			log.error(e.getMessage(), e);
 			return false;
 		}
 		return true;
@@ -1620,7 +1617,7 @@ public class SakaiProxyImpl implements SakaiProxy {
 		try {
 			return this.siteService.getSite(siteId);
 		} catch (final IdUnusedException e) {
-			e.printStackTrace();
+			log.error(e.getMessage(), e);
 			return null;
 		}
 	}

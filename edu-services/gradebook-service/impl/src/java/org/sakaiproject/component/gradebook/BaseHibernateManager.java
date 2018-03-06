@@ -1,3 +1,18 @@
+/**
+ * Copyright (c) 2003-2017 The Apereo Foundation
+ *
+ * Licensed under the Educational Community License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *             http://opensource.org/licenses/ecl2
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
  /**********************************************************************************
 *
 * $Id$
@@ -49,12 +64,13 @@ package org.sakaiproject.component.gradebook;
  import org.sakaiproject.service.gradebook.shared.ConflictingAssignmentNameException;
  import org.sakaiproject.service.gradebook.shared.ConflictingCategoryNameException;
  import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService;
+ import org.sakaiproject.service.gradebook.shared.GradebookHelper;
  import org.sakaiproject.service.gradebook.shared.GradebookNotFoundException;
  import org.sakaiproject.service.gradebook.shared.GradebookService;
  import org.sakaiproject.service.gradebook.shared.GraderPermission;
  import org.sakaiproject.service.gradebook.shared.StaleObjectModificationException;
  import org.sakaiproject.tool.gradebook.AbstractGradeRecord;
- import org.sakaiproject.tool.gradebook.Assignment;
+ import org.sakaiproject.tool.gradebook.GradebookAssignment;
  import org.sakaiproject.tool.gradebook.AssignmentGradeRecord;
  import org.sakaiproject.tool.gradebook.Category;
  import org.sakaiproject.tool.gradebook.Comment;
@@ -107,16 +123,16 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
 
     }
 
-    protected List<Assignment> getAssignments(Long gradebookId) throws HibernateException {
+    protected List<GradebookAssignment> getAssignments(Long gradebookId) throws HibernateException {
         return getSessionFactory().getCurrentSession()
-                .createQuery("from Assignment as asn where asn.gradebook.id = :gradebookid and asn.removed is false")
+                .createQuery("from GradebookAssignment as asn where asn.gradebook.id = :gradebookid and asn.removed is false")
                 .setLong("gradebookid", gradebookId)
                 .list();
     }
 
     protected List getCountedStudentGradeRecords(Long gradebookId, String studentId) throws HibernateException {
         return getSessionFactory().getCurrentSession().createQuery(
-        	"select agr from AssignmentGradeRecord as agr, Assignment as asn where agr.studentId = :studentid and agr.gradableObject = asn and asn.removed is false and asn.notCounted is false and asn.gradebook.id = :gradebookid and asn.ungraded is false")
+        	"select agr from AssignmentGradeRecord as agr, GradebookAssignment as asn where agr.studentId = :studentid and agr.gradableObject = asn and asn.removed is false and asn.notCounted is false and asn.gradebook.id = :gradebookid and asn.ungraded is false")
         	.setString("studentid", studentId)
         	.setLong("gradebookid", gradebookId)
         	.list();
@@ -203,29 +219,29 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
 	}
 
 	@Deprecated
-	protected Assignment getAssignmentWithoutStats(String gradebookUid, String assignmentName) throws HibernateException {
-		return (Assignment) getSessionFactory().getCurrentSession()
-                .createQuery("from Assignment as asn where asn.name = :assignmentname and asn.gradebook.uid = :gradebookuid and asn.removed is false")
+	protected GradebookAssignment getAssignmentWithoutStats(String gradebookUid, String assignmentName) throws HibernateException {
+		return (GradebookAssignment) getSessionFactory().getCurrentSession()
+                .createQuery("from GradebookAssignment as asn where asn.name = :assignmentname and asn.gradebook.uid = :gradebookuid and asn.removed is false")
                 .setString("assignmentname", assignmentName)
                 .setString("gradebookuid", gradebookUid)
                 .uniqueResult();
 	}
 
-	protected Assignment getAssignmentWithoutStats(String gradebookUid, Long assignmentId) throws HibernateException {
-		return (Assignment) getSessionFactory().getCurrentSession()
-                .createQuery("from Assignment as asn where asn.id = :assignmentid and asn.gradebook.uid = :gradebookuid and asn.removed is false")
+	protected GradebookAssignment getAssignmentWithoutStats(String gradebookUid, Long assignmentId) throws HibernateException {
+		return (GradebookAssignment) getSessionFactory().getCurrentSession()
+                .createQuery("from GradebookAssignment as asn where asn.id = :assignmentid and asn.gradebook.uid = :gradebookuid and asn.removed is false")
                 .setLong("assignmentid", assignmentId)
                 .setString("gradebookuid", gradebookUid)
                 .uniqueResult();
 	}
 
-	protected void updateAssignment(Assignment assignment) throws ConflictingAssignmentNameException, HibernateException {
+	protected void updateAssignment(GradebookAssignment assignment) throws ConflictingAssignmentNameException, HibernateException {
 		// Ensure that we don't have the assignment in the session, since
 		// we need to compare the existing one in the db to our edited assignment
         Session session = getSessionFactory().getCurrentSession();
 		session.evict(assignment);
 
-		Assignment asnFromDb = (Assignment) session.load(Assignment.class, assignment.getId());
+		GradebookAssignment asnFromDb = (GradebookAssignment) session.load(GradebookAssignment.class, assignment.getId());
 
 		Long count = (Long) session.createCriteria(GradableObject.class)
                 .add(Restrictions.eq("name", assignment.getName()))
@@ -242,7 +258,7 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
 		session.update(assignment);
 	}
 
-    protected AssignmentGradeRecord getAssignmentGradeRecord(Assignment assignment, String studentUid) throws HibernateException {
+    protected AssignmentGradeRecord getAssignmentGradeRecord(GradebookAssignment assignment, String studentUid) throws HibernateException {
 		return (AssignmentGradeRecord) getSessionFactory().getCurrentSession()
                 .createQuery("from AssignmentGradeRecord as agr where agr.studentId = :studentid and agr.gradableObject.id = :assignmentid")
                 .setString("studentid", studentUid)
@@ -270,12 +286,12 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
     private Long createNewAssignment(final Long gradebookId, final Long categoryId, final String name, final Double points, final Date dueDate, final Boolean isNotCounted,
             final Boolean isReleased, final Boolean isExtraCredit) throws ConflictingAssignmentNameException, StaleObjectModificationException
     {
-        Assignment asn = prepareNewAssignment(name, points, dueDate, isNotCounted, isReleased, isExtraCredit);
+        GradebookAssignment asn = prepareNewAssignment(name, points, dueDate, isNotCounted, isReleased, isExtraCredit);
 
         return saveNewAssignment(gradebookId, categoryId, asn);
     }
 
-    private Assignment prepareNewAssignment(String name, Double points, Date dueDate, Boolean isNotCounted, Boolean isReleased, Boolean isExtraCredit)
+    private GradebookAssignment prepareNewAssignment(String name, Double points, Date dueDate, Boolean isNotCounted, Boolean isReleased, Boolean isExtraCredit)
     {
         String validatedName = StringUtils.trimToNull(name);
         if (validatedName == null){
@@ -283,12 +299,9 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
         }
 
         // name cannot contain these special chars as they are reserved for special columns in import/export
-        if(StringUtils.containsAny(validatedName, GradebookService.INVALID_CHARS_IN_GB_ITEM_NAME)) {
-            // TODO InvalidAssignmentNameException plus move all exceptions to their own package
-        	throw new ConflictingAssignmentNameException("Assignment names cannot contain *, #, [ or ] as they are reserved");
-        }
+        GradebookHelper.validateGradeItemName(validatedName);
 
-        Assignment asn = new Assignment();
+        GradebookAssignment asn = new GradebookAssignment();
         asn.setName(validatedName);
         asn.setPointsPossible(points);
         asn.setDueDate(dueDate);
@@ -309,7 +322,7 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
         return asn;
     }
 
-    private void loadAssignmentGradebookAndCategory(Assignment asn, Long gradebookId, Long categoryId)
+    private void loadAssignmentGradebookAndCategory(GradebookAssignment asn, Long gradebookId, Long categoryId)
     {
         Session session = getSessionFactory().getCurrentSession();
         Gradebook gb = (Gradebook) session.load(Gradebook.class, gradebookId);
@@ -321,7 +334,7 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
         }
     }
 
-    protected Long saveNewAssignment(final Long gradebookId, final Long categoryId, final Assignment asn) throws ConflictingAssignmentNameException
+    protected Long saveNewAssignment(final Long gradebookId, final Long categoryId, final GradebookAssignment asn) throws ConflictingAssignmentNameException
     {
         HibernateCallback<Long> hc = session -> {
             loadAssignmentGradebookAndCategory(asn, gradebookId, categoryId);
@@ -471,7 +484,7 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
             ca.setGradebook(gb);
             ca.setName(name);
             ca.setWeight(weight);
-            ca.setDrop_lowest(drop_lowest);
+            ca.setDropLowest(drop_lowest);
             ca.setDropHighest(dropHighest);
             ca.setKeepHighest(keepHighest);
             //ca.setItemValue(itemValue);
@@ -513,9 +526,9 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
     	return categoriesWithAssignments;
     }
 
-    public List<Assignment> getAssignmentsForCategory(final Long categoryId) throws HibernateException{
-    	HibernateCallback<List<Assignment>> hc = session -> session
-                .createQuery("from Assignment as assign where assign.category = :categoryid and assign.removed is false")
+    public List<GradebookAssignment> getAssignmentsForCategory(final Long categoryId) throws HibernateException{
+    	HibernateCallback<List<GradebookAssignment>> hc = session -> session
+                .createQuery("from GradebookAssignment as assign where assign.category = :categoryid and assign.removed is false")
                 .setLong("categoryid", categoryId)
                 .list();
     	return getHibernateTemplate().execute(hc);
@@ -565,7 +578,7 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
             List assigns = getAssignmentsForCategory(categoryId);
             for(Iterator iter = assigns.iterator(); iter.hasNext();)
             {
-                Assignment assignment = (Assignment) iter.next();
+                GradebookAssignment assignment = (GradebookAssignment) iter.next();
                 assignment.setCategory(null);
                 updateAssignment(assignment);
             }
@@ -792,7 +805,7 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
                 throw new ConflictingAssignmentNameException("You can not save multiple assignments in a gradebook with the same name");
             }
 
-            Assignment asn = new Assignment();
+            GradebookAssignment asn = new GradebookAssignment();
             asn.setGradebook(gb);
             asn.setName(trimmedName);
             asn.setDueDate(dueDate);
@@ -826,7 +839,7 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
                 throw new ConflictingAssignmentNameException("You can not save multiple assignments in a gradebook with the same name");
             }
 
-            Assignment asn = new Assignment();
+            GradebookAssignment asn = new GradebookAssignment();
             asn.setGradebook(gb);
             asn.setCategory(cat);
             asn.setName(trimmedName);
@@ -1070,7 +1083,7 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
     }
 
     public boolean isAssignmentDefined(Long gradableObjectId) {
-        HibernateCallback<Number> hc = session -> (Number) session.createCriteria(Assignment.class)
+        HibernateCallback<Number> hc = session -> (Number) session.createCriteria(GradebookAssignment.class)
                     .add(Restrictions.eq("id", gradableObjectId))
                     .add(Restrictions.eq("removed", false))
                     .setProjection(Projections.rowCount())
@@ -1081,10 +1094,10 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
     /**
      *
      * @param gradableObjectId
-     * @return the Assignment object with the given id
+     * @return the GradebookAssignment object with the given id
      */
-    public Assignment getAssignment(Long gradableObjectId) {
-        return getHibernateTemplate().load(Assignment.class, gradableObjectId);
+    public GradebookAssignment getAssignment(Long gradableObjectId) {
+        return getHibernateTemplate().load(GradebookAssignment.class, gradableObjectId);
     }
 
     /**
@@ -1180,7 +1193,7 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
 		return equivPoints.doubleValue();
     }
 
-    public List<Comment> getComments(final Assignment assignment, final Collection studentIds) {
+    public List<Comment> getComments(final GradebookAssignment assignment, final Collection studentIds) {
     	if (studentIds.isEmpty()) {
     		return new ArrayList<>();
     	}
@@ -1191,21 +1204,21 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
     	return getHibernateTemplate().execute(hc);
     }
 
-    protected Map<String, Set<Assignment>> getVisibleExternalAssignments(Gradebook gradebook, Collection<String> studentIds, List<Assignment> assignments) {
+    protected Map<String, Set<GradebookAssignment>> getVisibleExternalAssignments(Gradebook gradebook, Collection<String> studentIds, List<GradebookAssignment> assignments) {
         String gradebookUid = gradebook.getUid();
         Map<String, List<String>> allExternals = externalAssessmentService.getVisibleExternalAssignments(gradebookUid, studentIds);
-        Map<String, Assignment> allRequested = new HashMap<String, Assignment>();
+        Map<String, GradebookAssignment> allRequested = new HashMap<String, GradebookAssignment>();
 
-        for (Assignment a : assignments) {
+        for (GradebookAssignment a : assignments) {
             if (a.isExternallyMaintained()) {
                 allRequested.put(a.getExternalId(), a);
             }
         }
 
-        Map<String, Set<Assignment>> visible = new HashMap<String, Set<Assignment>>();
+        Map<String, Set<GradebookAssignment>> visible = new HashMap<String, Set<GradebookAssignment>>();
         for (String studentId : allExternals.keySet()) {
             if (studentIds.contains(studentId)) {
-                Set<Assignment> studentAssignments = new HashSet<Assignment>();
+                Set<GradebookAssignment> studentAssignments = new HashSet<GradebookAssignment>();
                 for (String assignmentId : allExternals.get(studentId)) {
                     if (allRequested.containsKey(assignmentId)) {
                         studentAssignments.add(allRequested.get(assignmentId));
@@ -1218,7 +1231,7 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
     }
 
 	// NOTE: This should not be called in a loop. Anything for sets should use getVisibleExternalAssignments
-	protected boolean studentCanView(String studentId, Assignment assignment) {
+	protected boolean studentCanView(String studentId, GradebookAssignment assignment) {
 		if (assignment.isExternallyMaintained()) {
 			try {
 				String gbUid = assignment.getGradebook().getUid();
@@ -1243,14 +1256,14 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
 		final String graderId = getAuthn().getUserUid();
 
         getHibernateTemplate().execute((HibernateCallback<Void>) session -> {
-            List<Assignment> countedAssignments = session
-                    .createQuery("from Assignment as asn where asn.gradebook.id = :gb and asn.removed is false and asn.notCounted is false and asn.ungraded is false")
+            List<GradebookAssignment> countedAssignments = session
+                    .createQuery("from GradebookAssignment as asn where asn.gradebook.id = :gb and asn.removed is false and asn.notCounted is false and asn.ungraded is false")
                     .setLong("gb", gradebook.getId())
                     .list();
 
-            Map<String, Set<Assignment>> visible = getVisibleExternalAssignments(gradebook, studentUids, countedAssignments);
+            Map<String, Set<GradebookAssignment>> visible = getVisibleExternalAssignments(gradebook, studentUids, countedAssignments);
 
-            for (Assignment assignment : countedAssignments) {
+            for (GradebookAssignment assignment : countedAssignments) {
                 List<AssignmentGradeRecord> scoredGradeRecords = session
                         .createQuery("from AssignmentGradeRecord as agr where agr.gradableObject.id = :go")
                         .setLong("go", assignment.getId())
@@ -1318,7 +1331,7 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
 		if (gradebookUid == null || assignmentId == null || studentUid == null) {
 			throw new IllegalArgumentException("null parameter passed to getAssignmentScoreComment. Values are gradebookUid:" + gradebookUid + " assignmentId:" + assignmentId + " studentUid:"+ studentUid);
 		}
-		Assignment assignment = getAssignmentWithoutStats(gradebookUid, assignmentId);
+		GradebookAssignment assignment = getAssignmentWithoutStats(gradebookUid, assignmentId);
 		if (assignment == null) {
 			throw new AssessmentNotFoundException("There is no assignmentId " + assignmentId + " for gradebookUid " + gradebookUid);
 		}

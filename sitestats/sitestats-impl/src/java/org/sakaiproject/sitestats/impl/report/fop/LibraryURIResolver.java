@@ -27,13 +27,12 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.URIResolver;
 import javax.xml.transform.stream.StreamSource;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.sitestats.api.StatsManager;
 
-
+@Slf4j
 public class LibraryURIResolver implements URIResolver {
-	private Logger					LOG					= LoggerFactory.getLogger(LibraryURIResolver.class);
 	private final static String	LIBRARY_HANDLER		= "library://";
 	private final static String	SITESTATS_HANDLER	= "sitestats://";
 	private String				libraryRoot			= null;
@@ -73,7 +72,7 @@ public class LibraryURIResolver implements URIResolver {
 				// If FileInputStream is closed as suggested by FindBugs, code doesn't work!
 				/*
 				 * if(fis != null) { try{ fis.close(); }catch(IOException e){
-				 * LOG.debug("Unable to read library image: "+href); } }
+				 * log.debug("Unable to read library image: "+href); } }
 				 */
 			}
 		}else{

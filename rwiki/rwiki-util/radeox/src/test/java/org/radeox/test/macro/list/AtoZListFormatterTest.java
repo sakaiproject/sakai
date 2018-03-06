@@ -51,7 +51,7 @@ public class AtoZListFormatterTest extends ListFormatterSupport
 		// try {
 		// formatter.format(writer, emptyLinkable, "", c, "", false);
 		// } catch (IOException e) {
-		// e.printStackTrace();
+		// log.error(e.getMessage(), e);
 		// }
 		// assertEquals("Single item is rendered",
 		// "<table width=\"100%\" class=\"index-top\" cellpadding=\"0\"

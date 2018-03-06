@@ -1,0 +1,291 @@
+<!-- start:  assignment_macros.vm -->
+#macro( propertyDetails $props )
+    <span class="textPanelFooter">(
+    #if (!$props.getBooleanProperty($props.NamePropIsCollection))
+        $props.getPropertyFormatted($props.NamePropContentLength);
+    #end
+    $props.getPropertyFormatted($props.NamePropCreationDate)
+    )</span>
+#end
+
+##defines a macro to display attachment details
+#macro( attachmentDetails )
+    #if ($props.getBooleanProperty($props.NamePropIsCollection))
+        <img src = "#imageLink($contentTypeImageService.getContentTypeImage("folder"))" border="0" alt="$tlang.getString("gen.folatt")"/>
+    #else
+        <img src = "#imageLink($contentTypeImageService.getContentTypeImage($props.getProperty($props.NamePropContentType)))" border="0" alt="$tlang.getString("gen.filatt")" />
+    #end
+    <a href="$attachment.Url" target="_blank">$validator.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))</a>
+    #propertyDetails($props)
+#end
+
+#macro( assignmentTitleIcon $assignment )
+    #if ($!assignment.IsGroup)
+        <i class="fa fa-users" aria-hidden="true" title="$tlang.getString('gen.groupassignment')"></i>
+    #end
+#end
+
+#macro( sectionIcon $group )
+    #if ($!group.getProperties().get("sections_category"))
+        <i class="fa fa-users" aria-hidden="true" title="$tlang.getString('gen.section.info')"></i>
+    #end
+#end
+
+## Defining macro to repeat buttons at the top and bottom of the page
+#macro( buttonBar )
+    <div class="act">
+        <input accesskey="s" type="button" class="active" name="post" value="$tlang.getString("gen.pos")" onclick="SPNR.disableControlsAndSpin( this, null ); ASN.submitForm( 'newAssignmentForm', 'post', null, null ); return false;" />
+        <input accesskey="v" type="button" name="preview" value="$tlang.getString("gen.pre")" onclick="SPNR.disableControlsAndSpin( this, null ); ASN.submitForm( 'newAssignmentForm', 'preview', null, null ); return false;" />
+        #if (!($!assignment && !$assignment.draft))
+            <input accesskey="d" type="button" name="save" value="$tlang.getString("gen.savdra")" onclick="SPNR.disableControlsAndSpin( this, null ); ASN.submitForm( 'newAssignmentForm', 'save', null, null ); return false;" />
+        #end
+        <input accesskey="x" type="button" name="cancel" value="$tlang.getString("gen.can")" onclick="SPNR.disableControlsAndSpin( this, null ); ASN.submitForm( 'newAssignmentForm', 'canceledit', null, null ); return false;" />
+    </div>
+#end
+
+## Macro for the paginator
+#macro( paginator $topMsgPos $btmMsgPos $allMsgNumber $pagesize $goFPButton $goPPButton $goNPButton $goLPButton $sakai_csrf_token $pagesizes )
+    <nav class="assignment-pager panel panel-default">
+        <div class="panel-heading" id="pagingHeader">
+            $tlang.getString( "gen.viewing" ) $topMsgPos - $btmMsgPos $tlang.getString( "gen.of" ) $allMsgNumber $tlang.getString( "gen.items" )
+        </div>
+        <div class="panel-body">
+        #if( $pagesize != 0 )
+            <form name="firstpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
+                    <span class="skip">$tlang.getString( "gen.first" )</span>
+                    <input type="submit" name="eventSubmit_doList_first" value="|&lt;" title="$tlang.getString("gen.first")"
+                        onclick="SPNR.disableControlsAndSpin( this, null ); ASN.resizeFrame();"
+                        #if( $goFPButton != "true" ) disabled="disabled" #end />
+                    <span class="skip">$tlang.getString( "gen.previous" ) $pagesize</span>
+                    <input type="submit" name="eventSubmit_doList_prev" value="&lt;" title="$tlang.getString( "gen.previous" ) $pagesize" accesskey="p"
+                        onclick="SPNR.disableControlsAndSpin( this, null ); ASN.resizeFrame();"
+                        #if( $goPPButton != "true" ) disabled="disabled" #end />
+                <input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+            </form>
+        #end
+        <form id="pagesizeForm" name="pagesizeForm" class="inlineForm" method="post" action="#toolForm("$action")">
+            <input type="hidden" name="eventSubmit_doChange_pagesize" value="changepagesize" />
+            <label for="selectPageSize" class="skip">$tlang.getString("newassig.selectmessage")</label>
+            <select id="selectPageSize" name="selectPageSize" onchange="SPNR.insertSpinnerAfter( this, null, 'pagingHeader' ); ASN.submitForm( 'pagesizeForm', null, null, null );">
+                #foreach( $i in $!pagesizes )
+                    <option value="$i" #if( $pagesize == $i ) selected="selected" #end>$tlang.getString( "list.show" ) $i $tlang.getString( "list.itemsper" )</option>
+                #end
+            </select>
+            <input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+        </form>
+        #if( $pagesize != 0 )
+            <form name="nextpageForm" class="inlineForm" method="post" action="#toolForm( "$action" )">
+                    <span class="skip">$tlang.getString( "gen.next" ) $pagesize</span>
+                    <input type="submit" name="eventSubmit_doList_next" value="&gt;" title="$tlang.getString( "gen.next" ) $pagesize" accesskey="n"
+                        onclick="SPNR.disableControlsAndSpin( this, null ); ASN.resizeFrame();"
+                        #if( $goNPButton != "true" ) disabled="disabled" #end />
+                    <span class="skip">$tlang.getString( "gen.last" )</span>
+                    <input type="submit" name="eventSubmit_doList_last" value="&gt;|" title="$tlang.getString( "gen.last" )"
+                        onclick="SPNR.disableControlsAndSpin( this, null ); ASN.resizeFrame();"
+                        #if( $goLPButton != "true" ) disabled="disabled" #end />
+                <input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+            </form>
+        #end
+        </div>
+    </nav>
+#end
+
+## Macro for the top nav bar HREF and #toolLink/#toolLinkParam
+#macro( navBarHREF $allowAddAssignment $withGrade $allowGradeSubmission $allowAddAssignment $allowRecoverAssignment $allowAllGroups $assignmentscheck $allowUpdateSite $enableViewOption $view $current )
+    <ul class="navIntraTool actionToolBar">
+        #set( $prevAction = false )
+        #if( $allowAddAssignment )
+            #set( $prevAction = true )
+            <li class="firstToolBarItem">
+                <span>
+                    <a href="#toolLink( "$action" "doNew_assignment" )" title="$!tlang.getString( "new" )">$!tlang.getString( "new" )</a>
+                </span>
+            </li>
+        #end
+        <li #if( $prevAction == false ) class="firstToolBarItem" #set( $prevAction = true ) #end>
+            #if( !$!view.equals( "lisofass1" ) )
+                <span>
+                    <a href="#toolLinkParam( "$action" "doView" "view=lisofass1" )" title="$!tlang.getString( "lisofass1" )">$!tlang.getString( "lisofass1" )</a>
+                </span>
+            #else
+                <span class="current">$!tlang.getString( "lisofass1" )</span>
+            #end
+        </li>
+
+        #if( $withGrade && $!allowGradeSubmission )
+            <li #if( $prevAction == false ) class="firstToolBarItem" #set( $prevAction = true ) #end>
+                #if( !$!view.equals( "grarep" ) )
+                    <span>
+                        <a href="#toolLinkParam( "$action" "doView" "view=grarep" )" title="$!tlang.getString( "gen.grarep" )">$!tlang.getString( "gen.grarep" )</a>
+                    </span>
+                #else
+                    <span class="current">$!tlang.getString( "gen.grarep" )</span>
+                #end
+            </li>
+        #end
+
+        #if( $allowAddAssignment )
+            <li #if( $prevAction == false ) class="firstToolBarItem" #set( $prevAction = true ) #end>
+                #if( !$!view.equals( "stuvie" ) )
+                    <span>
+                        <a href="#toolLinkParam( "$action" "doView" "view=stuvie" )" title="$!tlang.getString( "gen.stuvie" )">$!tlang.getString( "gen.stuvie" )</a>
+                    </span>
+                #else
+                    <span class="current">$!tlang.getString( "gen.stuvie" )</span>
+                #end
+            </li>
+        #end
+        #if( ($allowAllGroups) && ($assignmentscheck) )
+            <li #if( $prevAction == false ) class="firstToolBarItem" #set( $prevAction = true ) #end>
+                #if( !$!current.equals( "reorder" ) )
+                    <span>
+                        <a href="#toolLink( "$action" "doReorder" )" title="$tlang.getString( "gen.reorder" )">$tlang.getString( "gen.reorder" )</a>
+                    </span>
+                #else
+                    <span class="current">$!tlang.getString( "gen.reorder" )</span>
+                #end
+            </li>
+        #end
+        #if( $allowUpdateSite )
+            <li #if( $prevAction == false ) class="firstToolBarItem" #set( $prevAction = true ) #end>
+                <span>
+                    <a href="#toolLink( "$action" "doPermissions" )" title="$tlang.getString( "permis" )">$tlang.getString( "permis" )</a>
+                </span>
+            </li>
+            #if( $enableViewOption )
+                <li #if( $prevAction == false ) class="firstToolBarItem" #set( $prevAction = true ) #end>
+                    #if( !$!current.equals( "options" ) )
+                        <span>
+                            <a href="#toolLink( "$action" "doOptions" )" title="$tlang.getString( "options" )">$tlang.getString( "options" )</a>
+                        </span>
+                    #else
+                        <span class="current">$!tlang.getString( "options" )</span>
+                    #end
+                </li>
+            #end
+        #end
+        #if( $allowRecoverAssignment )
+            <li #if( $prevAction == false ) class="firstToolBarItem" #set( $prevAction = true ) #end>
+                #if( !$!current.equals("Assignment.mode_list_removed_assignments"))
+                    <span>
+                        <a href="#toolLinkParam( "$action" "doView" "view=Assignment.mode_list_removed_assignments" )" title="$!tlang.getString( "removedAssignmentList" )">$!tlang.getString( "removedAssignmentList" )</a>
+                    </span>
+                #else
+                    <span class="current">$!tlang.getString( "removedAssignmentList" )</span>
+                #end
+            </li>
+        #end
+    </ul>
+#end
+
+## Macro for the top nav bar using onclick JavaScript
+#macro( navBarOnClick $allowAddAssignment $withGrade $allowGradeSubmission $allowAddAssignment $allowRecoverAssignment $allowAllGroups $assignmentscheck $allowUpdateSite $enableViewOption $view $formID $current )
+    <ul class="navIntraTool actionToolBar">
+        #set( $prevAction = false )
+        #if( $allowAddAssignment )
+            #set( $prevAction = true )
+            <li class="firstToolBarItem">
+                #if( $current == "new" )
+                    <span class="current">$!tlang.getString( "new" )</span>
+                #else
+                    <span>
+                        <a href="javascript:void(0)" title="$!tlang.getString( "new" )" onclick="ASN.submitForm( '$formID', 'new', null, 'new' ); return false;">
+                            $!tlang.getString( "new" )
+                        </a>
+                    </span
+                #end
+            </li>
+        #end
+        #if( !$!view.equals( "lisofass1" ) )
+            #set( $prevAction = true )
+            <li #if( $prevAction == false ) class="firstToolBarItem" #set( $prevAction = true ) #end>
+                <span>
+                    <a href="javascript:void(0)" title="$!tlang.getString( "lisofass1" )" onclick="ASN.submitForm( '$formID', 'view', null, 'lisofass1' ); return false;">
+                        $!tlang.getString( "lisofass1" )
+                    </a>
+                </span>
+            </li>
+        #elseif( $current == "list" )
+            <li>
+                <span class="current">$!tlang.getString( "lisofass1" )</span>
+            </li>
+        #else
+            <li>
+                <span class="disabled">$!tlang.getString( "lisofass1" )</span>
+            </li>
+        #end
+        #if( $withGrade && $!allowGradeSubmission )
+            <li #if( $prevAction == false ) class="firstToolBarItem" #set( $prevAction = true ) #end>
+                #if( $current == "gradeReport" )
+                    <span class="current">$!tlang.getString( "gen.grarep" )</span>
+                #else
+                    <span>
+                        <a href="javascript:void(0)" title="$!tlang.getString( "gen.grarep" )" onclick="ASN.submitForm( '$formID', 'view', null, 'grarep' ); return false;">
+                            $!tlang.getString( "gen.grarep" )
+                        </a>
+                    </span>
+                #end
+            </li>
+        #end
+        #if( $allowAddAssignment )
+            <li #if( $prevAction == false ) class="firstToolBarItem" #set( $prevAction = true ) #end>
+                #if( !$!view.equals( "stuvie" ) )
+                    <span>
+                        <a href="javascript:void(0)" title="$!tlang.getString( "gen.stuvie" )" onclick="ASN.submitForm( '$formID', 'view', null, 'stuvie' ); return false;">
+                            $!tlang.getString( "gen.stuvie" )
+                        </a>
+                    </span>
+                #elseif( $current == "studentView" )
+                    <span class="current">$!tlang.getString( "gen.stuvie" )</span>
+                #else
+                    <span class="disabled">$!tlang.getString( "gen.stuvie" )</span>
+                #end
+            </li>
+        #end
+        #if( ($allowAllGroups) && ($assignmentscheck) )
+            <li #if( $prevAction == false ) class="firstToolBarItem" #set( $prevAction = true ) #end>
+                #if( $current == "reorder" )
+                    <span class="current">$tlang.getString( "gen.reorder" )</span>
+                #else
+                    <span>
+                        <a href="javascript:void(0)" title="$tlang.getString( "gen.reorder" )" onclick="ASN.submitForm( '$formID', 'reorderNavigation', null, null ); return false;">
+                            $tlang.getString( "gen.reorder" )
+                        </a>
+                    </span>
+                #end
+            </li>
+        #end
+        #if( $allowUpdateSite )
+            <li #if( $prevAction == false ) class="firstToolBarItem" #set( $prevAction = true ) #end>
+                <span>
+                    <a href="javascript:void(0)" title="$tlang.getString( "permis" )" onclick="ASN.submitForm( '$formID', 'permissions', null, null ); return false;">
+                        $tlang.getString( "permis" )
+                    </a>
+                </span>
+            </li>
+            #if( $enableViewOption )
+                <li #if( $prevAction == false ) class="firstToolBarItem" #set( $prevAction = true ) #end>
+                    <span>
+                        <a href="javascript:void(0)" title="$tlang.getString( "options" )" onclick="ASN.submitForm( '$formID', 'options', null, null ); return false;">
+                            $tlang.getString( "options" )
+                        </a>
+                    </span>
+                </li>
+            #end
+        #end
+        #if( $allowRecoverAssignment )
+            <li #if( $prevAction == false ) class="firstToolBarItem" #set( $prevAction = true ) #end>
+                #if( $current == "Assignment.mode_list_removed_assignments")
+                    <span class="current">$tlang.getString( "removedAssignmentList" )</span>
+                #else
+                    <span>
+                        <a href="javascript:void(0)" title="$tlang.getString( "removedAssignmentList" )" onclick="ASN.submitForm( '$formID', 'view', null, 'Assignment.mode_list_removed_assignments' ); return false;">
+                            $tlang.getString( "removedAssignmentList" )
+                        </a>
+                    </span>
+                #end
+            </li>
+        #end
+    </ul>
+#end
+<!-- end:  assignment_macros.vm -->

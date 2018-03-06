@@ -94,7 +94,6 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.Collections;
-import java.util.Collection;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.Hashtable;
@@ -116,18 +115,30 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
+import lombok.extern.slf4j.Slf4j;
+
 import org.apache.catalina.util.DOMWriter;
-import org.apache.tomcat.util.buf.UDecoder;
-import org.sakaiproject.citation.api.CitationService;
-import org.sakaiproject.content.api.ContentHostingService;
-import org.sakaiproject.dav.MD5Encoder;
 import org.apache.catalina.util.XMLWriter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.tomcat.util.buf.UDecoder;
+
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXParseException;
+
 import org.sakaiproject.alias.api.AliasService;
+import org.sakaiproject.citation.api.CitationService;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
-import org.sakaiproject.content.api.*;
+import org.sakaiproject.content.api.ContentCollection;
+import org.sakaiproject.content.api.ContentCollectionEdit;
+import org.sakaiproject.content.api.ContentEntity;
+import org.sakaiproject.content.api.ContentHostingService;
+import org.sakaiproject.content.api.ContentResource;
+import org.sakaiproject.content.api.ContentResourceEdit;
+import org.sakaiproject.dav.MD5Encoder;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityPropertyNotDefinedException;
 import org.sakaiproject.entity.api.EntityPropertyTypeException;
@@ -162,19 +173,14 @@ import org.sakaiproject.user.cover.AuthenticationManager;
 import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.util.IdPwEvidence;
 import org.sakaiproject.util.RequestFilter;
+import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.StringUtil;
 import org.sakaiproject.util.Validator;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-import org.xml.sax.InputSource;
-import org.xml.sax.SAXParseException;
-import org.sakaiproject.util.ResourceLoader;
 
 /**
  * Servlet which adds support for WebDAV level 2. All the basic HTTP requests are handled by the DefaultServlet.
  */
+@Slf4j
 public class DavServlet extends HttpServlet
 {
 	/**
@@ -182,8 +188,6 @@ public class DavServlet extends HttpServlet
 	 */
 	private static final long serialVersionUID = 1L;
 
-	/** Our logger. */
-	private static Logger M_log = LoggerFactory.getLogger(DavServlet.class);
 	protected static ResourceLoader rb = new ResourceLoader("org.sakaiproject.tool.dav.bundle.Messages");
 	// -------------------------------------------------------------- Constants
 
@@ -610,7 +614,7 @@ public class DavServlet extends HttpServlet
 				if (outVal.length() > 0) outVal = outVal + " : ";
 				outVal = outVal + ignorePatterns[i];
 			}
-			M_log.info("ignore patterns:" + outVal);
+			log.info("ignore patterns:" + outVal);
 		}
 
 		// Load the MD5 helper used to calculate signatures.
@@ -620,7 +624,7 @@ public class DavServlet extends HttpServlet
 		}
 		catch (NoSuchAlgorithmException e)
 		{
-			e.printStackTrace();
+			log.error(e.getMessage(), e);
 			throw new IllegalStateException();
 		}
 		
@@ -728,14 +732,14 @@ public class DavServlet extends HttpServlet
 	protected void showRequestInfo(HttpServletRequest req)
 	{
 
-		if (M_log.isDebugEnabled()) M_log.debug("DefaultServlet Request Info");
+		if (log.isDebugEnabled()) log.debug("DefaultServlet Request Info");
 
 		// Show generic info
-		if (M_log.isDebugEnabled()) M_log.debug("Encoding : " + req.getCharacterEncoding());
-		if (M_log.isDebugEnabled()) M_log.debug("Length : " + req.getContentLength());
-		if (M_log.isDebugEnabled()) M_log.debug("Type : " + req.getContentType());
+		if (log.isDebugEnabled()) log.debug("Encoding : " + req.getCharacterEncoding());
+		if (log.isDebugEnabled()) log.debug("Length : " + req.getContentLength());
+		if (log.isDebugEnabled()) log.debug("Type : " + req.getContentType());
 
-		if (M_log.isDebugEnabled()) M_log.debug("Parameters");
+		if (log.isDebugEnabled()) log.debug("Parameters");
 
 		Enumeration parameters = req.getParameterNames();
 
@@ -743,54 +747,54 @@ public class DavServlet extends HttpServlet
 		{
 			String paramName = (String) parameters.nextElement();
 			String[] values = req.getParameterValues(paramName);
-			System.out.print(paramName + " : ");
+			log.debug("{}:", paramName);
 			for (int i = 0; i < values.length; i++)
 			{
-				System.out.print(values[i] + ", ");
+				log.debug("{},", values[i]);
 			}
 		}
 
-		if (M_log.isDebugEnabled()) M_log.debug("Protocol : " + req.getProtocol());
-		if (M_log.isDebugEnabled()) M_log.debug("Address : " + req.getRemoteAddr());
-		if (M_log.isDebugEnabled()) M_log.debug("Host : " + req.getRemoteHost());
-		if (M_log.isDebugEnabled()) M_log.debug("Scheme : " + req.getScheme());
-		if (M_log.isDebugEnabled()) M_log.debug("Server Name : " + req.getServerName());
-		if (M_log.isDebugEnabled()) M_log.debug("Server Port : " + req.getServerPort());
+		if (log.isDebugEnabled()) log.debug("Protocol : " + req.getProtocol());
+		if (log.isDebugEnabled()) log.debug("Address : " + req.getRemoteAddr());
+		if (log.isDebugEnabled()) log.debug("Host : " + req.getRemoteHost());
+		if (log.isDebugEnabled()) log.debug("Scheme : " + req.getScheme());
+		if (log.isDebugEnabled()) log.debug("Server Name : " + req.getServerName());
+		if (log.isDebugEnabled()) log.debug("Server Port : " + req.getServerPort());
 
-		if (M_log.isDebugEnabled()) M_log.debug("Attributes");
+		if (log.isDebugEnabled()) log.debug("Attributes");
 
 		Enumeration attributes = req.getAttributeNames();
 
 		while (attributes.hasMoreElements())
 		{
 			String attributeName = (String) attributes.nextElement();
-			System.out.print(attributeName + " : ");
-			if (M_log.isDebugEnabled()) M_log.debug(req.getAttribute(attributeName).toString());
+			log.debug("{}: ", attributeName);
+			if (log.isDebugEnabled()) log.debug(req.getAttribute(attributeName).toString());
 		}
 
 		// Show HTTP info
-		if (M_log.isDebugEnabled()) M_log.debug("HTTP Header Info");
+		if (log.isDebugEnabled()) log.debug("HTTP Header Info");
 
-		if (M_log.isDebugEnabled()) M_log.debug("Authentication Type : " + req.getAuthType());
-		if (M_log.isDebugEnabled()) M_log.debug("HTTP Method : " + req.getMethod());
-		if (M_log.isDebugEnabled()) M_log.debug("Path Info : " + req.getPathInfo());
-		if (M_log.isDebugEnabled()) M_log.debug("Path translated : " + req.getPathTranslated());
-		if (M_log.isDebugEnabled()) M_log.debug("Query string : " + req.getQueryString());
-		if (M_log.isDebugEnabled()) M_log.debug("Remote user : " + req.getRemoteUser());
-		if (M_log.isDebugEnabled()) M_log.debug("Requested session id : " + req.getRequestedSessionId());
-		if (M_log.isDebugEnabled()) M_log.debug("Request URI : " + req.getRequestURI());
-		if (M_log.isDebugEnabled()) M_log.debug("Context path : " + req.getContextPath());
-		if (M_log.isDebugEnabled()) M_log.debug("Servlet path : " + req.getServletPath());
-		if (M_log.isDebugEnabled()) M_log.debug("User principal : " + req.getUserPrincipal());
-		if (M_log.isDebugEnabled()) M_log.debug("Headers : ");
+		if (log.isDebugEnabled()) log.debug("Authentication Type : " + req.getAuthType());
+		if (log.isDebugEnabled()) log.debug("HTTP Method : " + req.getMethod());
+		if (log.isDebugEnabled()) log.debug("Path Info : " + req.getPathInfo());
+		if (log.isDebugEnabled()) log.debug("Path translated : " + req.getPathTranslated());
+		if (log.isDebugEnabled()) log.debug("Query string : " + req.getQueryString());
+		if (log.isDebugEnabled()) log.debug("Remote user : " + req.getRemoteUser());
+		if (log.isDebugEnabled()) log.debug("Requested session id : " + req.getRequestedSessionId());
+		if (log.isDebugEnabled()) log.debug("Request URI : " + req.getRequestURI());
+		if (log.isDebugEnabled()) log.debug("Context path : " + req.getContextPath());
+		if (log.isDebugEnabled()) log.debug("Servlet path : " + req.getServletPath());
+		if (log.isDebugEnabled()) log.debug("User principal : " + req.getUserPrincipal());
+		if (log.isDebugEnabled()) log.debug("Headers : ");
 
 		Enumeration headers = req.getHeaderNames();
 
 		while (headers.hasMoreElements())
 		{
 			String headerName = (String) headers.nextElement();
-			System.out.print(headerName + " : ");
-			if (M_log.isDebugEnabled()) M_log.debug(req.getHeader(headerName));
+			log.debug("{}: ", headerName);
+			if (log.isDebugEnabled()) log.debug(req.getHeader(headerName));
 		}
 	}
 
@@ -906,7 +910,7 @@ public class DavServlet extends HttpServlet
 		}
 		catch (Exception e)
 		{
-			e.printStackTrace();
+			log.error(e.getMessage(), e);
 			writer = new OutputStreamWriter(buf);
 		}
 
@@ -1043,7 +1047,7 @@ public class DavServlet extends HttpServlet
 		    try {
 		        credItr = SakaiWASLoginModule.getSubject().getPrivateCredentials().iterator();
 		    } catch (Exception e) {
-		        M_log.error("SAKAIDAV: Unabled to obtain WAS credentials.", e);
+		        log.error("SAKAIDAV: Unabled to obtain WAS credentials.", e);
 		    }
 
 		    String pw = "";
@@ -1076,7 +1080,7 @@ public class DavServlet extends HttpServlet
 		{
 			String eid = prin.getName();
 			String pw = ((DavPrincipal) prin).getPassword();
-			Evidence e = new IdPwEvidence(eid, pw);
+			Evidence e = new IdPwEvidence(eid, pw, req.getRemoteAddr());
 
 			// in older versions of this code, we didn't authenticate
 			// if there was a session for this user. Unfortunately the
@@ -1155,7 +1159,7 @@ public class DavServlet extends HttpServlet
 	/** log a request processed */
 	public void log(HttpServletRequest req, SakaidavServletInfo info)
 	{
-		M_log.debug("from:" + req.getRemoteAddr() + " path:" + req.getPathInfo() + " options: " + info.optionsString());
+		log.debug("from:" + req.getRemoteAddr() + " path:" + req.getPathInfo() + " options: " + info.optionsString());
 
 	} // log
 
@@ -1168,17 +1172,17 @@ public class DavServlet extends HttpServlet
 
 		String method = req.getMethod();
 
-		if (M_log.isDebugEnabled())
+		if (log.isDebugEnabled())
 		{
 			String path = getRelativePath(req);
-			M_log.debug("SAKAIDAV doDispatch [" + method + "] " + path);
+			log.debug("SAKAIDAV doDispatch [" + method + "] " + path);
 		}
 
 		String remoteUser = req.getRemoteUser();
-		if (M_log.isDebugEnabled()) M_log.debug("SAKAIDAV remoteuser = " + remoteUser);
+		if (log.isDebugEnabled()) log.debug("SAKAIDAV remoteuser = " + remoteUser);
 		if (remoteUser == null)
 		{
-			if (M_log.isDebugEnabled()) M_log.debug("SAKAIDAV Requires Authorization");
+			if (log.isDebugEnabled()) log.debug("SAKAIDAV Requires Authorization");
 			resp.sendError(HttpServletResponse.SC_UNAUTHORIZED);
 			return;
 		}
@@ -1237,7 +1241,7 @@ public class DavServlet extends HttpServlet
 		}
 		else
 		{
-			M_log.warn("SAKAIDAV:Request not supported");
+			log.warn("SAKAIDAV:Request not supported");
 			resp.sendError(SakaidavStatus.SC_NOT_IMPLEMENTED);
 			// showRequestInfo(req);
 		}
@@ -1326,7 +1330,7 @@ public class DavServlet extends HttpServlet
 
 		String contentType = getServletContext().getMimeType(resourceInfo.path);
 
-		// if (M_log.isDebugEnabled()) M_log.debug("Default serveResource contentType = " + contentType);
+		// if (log.isDebugEnabled()) log.debug("Default serveResource contentType = " + contentType);
 		if (contentType != null)
 		{
 			response.setContentType(contentType);
@@ -1361,7 +1365,7 @@ public class DavServlet extends HttpServlet
 
 		if (resources == null)
 		{
-			M_log.warn("SAKAIDAV doOptions ERROR Resources is null");
+			log.warn("SAKAIDAV doOptions ERROR Resources is null");
 			resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 			return;
 		}
@@ -1434,7 +1438,7 @@ public class DavServlet extends HttpServlet
 
 				if (path.startsWith("/attachments"))
 				{
-					M_log.info("DirContextSAKAI.lookup - You do not have permission to view this area " + path);
+					log.info("DirContextSAKAI.lookup - You do not have permission to view this area " + path);
 					throw new NamingException();
 				}
 
@@ -1449,27 +1453,27 @@ public class DavServlet extends HttpServlet
 			}
 			catch (PermissionException e)
 			{
-				M_log.debug("DirContextSAKAI.lookup - You do not have permission to view this resource " + path);
+				log.debug("DirContextSAKAI.lookup - You do not have permission to view this resource " + path);
 				throw new NamingException();
 			}
 			catch (IdUnusedException e)
 			{
-				M_log.debug("DirContextSAKAI.lookup - This resource does not exist: " + id);
+				log.debug("DirContextSAKAI.lookup - This resource does not exist: " + id);
 				throw new NamingException();
 			}
 			catch (EntityPropertyNotDefinedException e)
 			{
-				M_log.warn("DirContextSAKAI.lookup - This resource is empty: " + id);
+				log.warn("DirContextSAKAI.lookup - This resource is empty: " + id);
 				throw new NamingException();
 			}
 			catch (EntityPropertyTypeException e)
 			{
-				M_log.warn("DirContextSAKAI.lookup - This resource has a EntityPropertyTypeException exception: " + id);
+				log.warn("DirContextSAKAI.lookup - This resource has a EntityPropertyTypeException exception: " + id);
 				throw new NamingException();
 			}
 			catch (TypeException e)
 			{
-				M_log.warn("DirContextSAKAI.lookup - This resource has a type exception: " + id);
+				log.warn("DirContextSAKAI.lookup - This resource has a type exception: " + id);
 				throw new NamingException();
 			}
 
@@ -1487,7 +1491,7 @@ public class DavServlet extends HttpServlet
 			{
 				return null;
 			}
-			if (M_log.isDebugEnabled()) M_log.debug("DirContextSAKAI.list getting collection members and iterator");
+			if (log.isDebugEnabled()) log.debug("DirContextSAKAI.list getting collection members and iterator");
 			List<ContentEntity> members = collection.getMemberResources();
 			Iterator<ContentEntity> it = members.iterator();
 			return it;
@@ -1527,7 +1531,7 @@ public class DavServlet extends HttpServlet
 			path = our_path;
 			exists = false;
 
-			// if (M_log.isDebugEnabled()) M_log.debug("ResourceInfoSAKAI Constructor path = " + path);
+			// if (log.isDebugEnabled()) log.debug("ResourceInfoSAKAI Constructor path = " + path);
 
 			// resource or collection? check the properties (also finds bad id and checks permissions)
 			collection = false;
@@ -1564,30 +1568,30 @@ public class DavServlet extends HttpServlet
 				// SAK-26593 if you don't clean the eTag you may send invalid XML to client
 				// SAK-29338 Cyberduck started to see our md5 etag as an AWS s3-like checksum so let's add a prefix
 				eTag = "sakai-" + MD5Encoder.encode(md5Helper.digest(eTag.getBytes()));
-				if (M_log.isDebugEnabled()) M_log.debug("Path=" + path + " eTag=" + eTag);
+				if (log.isDebugEnabled()) log.debug("Path=" + path + " eTag=" + eTag);
 				creationDate = props.getTimeProperty(ResourceProperties.PROP_CREATION_DATE).getTime();
 				resourceLink = mbr.getUrl();
 
 			}
 			catch (PermissionException e)
 			{
-				M_log.debug("ResourceInfoSAKAI - You do not have permission to view this resource " + path);
+				log.debug("ResourceInfoSAKAI - You do not have permission to view this resource " + path);
 			}
 			catch (IdUnusedException e)
 			{
-				M_log.debug("ResourceInfoSAKAI - This resource does not exist " + path);
+				log.debug("ResourceInfoSAKAI - This resource does not exist " + path);
 			}
 			catch (EntityPropertyNotDefinedException e)
 			{
-				M_log.warn("ResourceInfoSAKAI - This resource is empty" + path);
+				log.warn("ResourceInfoSAKAI - This resource is empty" + path);
 			}
 			catch (EntityPropertyTypeException e)
 			{
-				M_log.warn("ResourceInfoSAKAI - EntityPropertyType Exception " + path);
+				log.warn("ResourceInfoSAKAI - EntityPropertyType Exception " + path);
 			}
 			catch (TypeException e)
 			{
-				M_log.warn("ResourceInfoSAKAI - Type Exception " + path);
+				log.warn("ResourceInfoSAKAI - Type Exception " + path);
 			}
 
 			httpDate = getHttpDate(modificationDate);
@@ -1654,7 +1658,7 @@ public class DavServlet extends HttpServlet
 
 		for (String agent: nonDavUserAgent) {
 		    if (header.toUpperCase().contains(agent.toUpperCase())) {
-		        if (M_log.isInfoEnabled()) M_log.info("Redirecting DAV access because this is a browser." + header);
+		        if (log.isInfoEnabled()) log.info("Redirecting DAV access because this is a browser." + header);
 		        resp.sendRedirect("/access/content" + adjustId(path));
 		        return;
 		    }
@@ -1683,7 +1687,6 @@ public class DavServlet extends HttpServlet
 	private void doDirectory(String id, HttpServletRequest req, HttpServletResponse res)
 	{
 		// OK, it's a collection and we can read it. Do a listing.
-		// System.out.println("got to final check");
 
 		if (prohibited(id))
 			return;
@@ -1704,16 +1707,16 @@ public class DavServlet extends HttpServlet
 			// --this doesn't actually work. without / it doesn't get here
 			if (!uri.endsWith("/"))
 			{
-				// System.out.println("need redirect");
+				log.debug("need redirect");
 				try
 				{
 					res.sendRedirect(uri + "/");
-					// System.out.println("redirect ok");
+					log.debug("redirect ok");
 					return;
 				}
 				catch (IOException ignore)
 				{
-					// System.out.println("redirect failed");
+					log.debug("redirect failed");
 					return;
 				}
 			}
@@ -1868,7 +1871,7 @@ public class DavServlet extends HttpServlet
 		// for resources
 		if (!isCollection)
 		{
-			if (M_log.isDebugEnabled()) M_log.debug("SAKAIAccess doContent is resource " + id);
+			if (log.isDebugEnabled()) log.debug("SAKAIAccess doContent is resource " + id);
 
 			InputStream contentStream = null;
 			OutputStream out = null;
@@ -1922,7 +1925,7 @@ public class DavServlet extends HttpServlet
 			}
 			catch (Throwable e)
 			{
-				// M_log.warn(this + ".doContent(): exception: id: " + id + " : " + e.toString());
+				// log.warn(this + ".doContent(): exception: id: " + id + " : " + e.toString());
 				return e.toString();
 			}
 			finally
@@ -1973,7 +1976,7 @@ public class DavServlet extends HttpServlet
 		String path = req.getPathInfo();
 		
 		if (path == null) path = "/";
-		if (M_log.isDebugEnabled()) M_log.debug("getRelativePathSAKAI = " + path);
+		if (log.isDebugEnabled()) log.debug("getRelativePathSAKAI = " + path);
 		return path;
 
 	} // getRelativePathSAKAI
@@ -1993,7 +1996,7 @@ public class DavServlet extends HttpServlet
 			int lastSlash = idx.lastIndexOf("/", idx.length() - 2);
 			if (lastSlash > 0 && lastSlash + 1 <= idx.length() - 2)
 			{
-				// if (M_log.isDebugEnabled()) M_log.debug("ls1="+(lastSlash+1)+" idl="+(idx.length()-1));
+				// if (log.isDebugEnabled()) log.debug("ls1="+(lastSlash+1)+" idl="+(idx.length()-1));
 				resourceName = idx.substring(lastSlash + 1, idx.length() - 1);
 			}
 
@@ -2003,7 +2006,7 @@ public class DavServlet extends HttpServlet
 			int lastSlash = idx.lastIndexOf("/");
 			if (lastSlash > -1)
 			{
-				// if (M_log.isDebugEnabled()) M_log.debug("ls="+lastSlash);
+				// if (log.isDebugEnabled()) log.debug("ls="+lastSlash);
 				resourceName = idx.substring(lastSlash + 1);
 			}
 		}
@@ -2025,7 +2028,7 @@ public class DavServlet extends HttpServlet
 				catch (UserNotDefinedException notId)
 				{
 					// if context was not a valid ID, leave it alone
-					M_log.warn("getResourceNameSAKAI could not find either id or eid: " + parts[3]);
+					log.warn("getResourceNameSAKAI could not find either id or eid: " + parts[3]);
 				}
 			}
 		 }
@@ -2125,18 +2128,18 @@ public class DavServlet extends HttpServlet
 			if (lenRead > 0) try
 			{
 				InputStream is = new ByteArrayInputStream(byteContent, 0, lenRead);
-				// System.out.println("have bytes");
+				log.debug("have bytes");
 				Document document = documentBuilder.parse(new InputSource(is));
 
 				// Get the root element of the document
 				Element rootElement = document.getDocumentElement();
 				NodeList childList = rootElement.getChildNodes();
-				// System.out.println("have nodes " + childList.getLength());
+				log.debug("have nodes {}", childList.getLength());
 
 				for (int i = 0; i < childList.getLength(); i++)
 				{
 					Node currentNode = childList.item(i);
-					// System.out.println("looking at node " + currentNode.getNodeName());
+					log.debug("looking at node {}", currentNode.getNodeName());
 					switch (currentNode.getNodeType())
 					{
 						case Node.TEXT_NODE:
@@ -2165,13 +2168,13 @@ public class DavServlet extends HttpServlet
 			}
 			catch (Exception e)
 			{
-				M_log.warn("Exception parsing DAV request", e);
+				log.warn("Exception parsing DAV request", e);
 			}
 			// again, in case of exception, we'll have the default
 			// FIND_ALL_PROP
 		}
 
-		// System.out.println("Find type " + type);
+		log.debug("Find type {}", type);
 
 		if (type == FIND_BY_PROPERTY)
 		{
@@ -2288,7 +2291,7 @@ public class DavServlet extends HttpServlet
 
 				try
 				{
-					// if (M_log.isDebugEnabled()) M_log.debug("Lookup currentPath="+currentPath);
+					// if (log.isDebugEnabled()) log.debug("Lookup currentPath="+currentPath);
 					resources.lookup(currentPath);
 				}
 				catch (NamingException e)
@@ -2312,7 +2315,7 @@ public class DavServlet extends HttpServlet
 						newPath += resourceName;
 						if (!(newPath.toLowerCase().indexOf("/protected") >= 0 && !contentHostingService.allowAddCollection(newPath)))
 						stackBelow.push(newPath);
-						// if (M_log.isDebugEnabled()) M_log.debug("SAKAI found resource " + newPath);
+						// if (log.isDebugEnabled()) log.debug("SAKAI found resource " + newPath);
 					}
 
 					// Displaying the lock-null resources present in that
@@ -2340,13 +2343,13 @@ public class DavServlet extends HttpServlet
 
 					stackBelow = new Stack<String>();
 				}
-				// if (M_log.isDebugEnabled()) M_log.debug("SAKAIDAV.propfind() " + generatedXML.toString());
+				// if (log.isDebugEnabled()) log.debug("SAKAIDAV.propfind() " + generatedXML.toString());
 				generatedXML.sendData();
 			}
 		}
 
 		generatedXML.writeElement("D", "multistatus", XMLWriter.CLOSING);
-		// if (M_log.isDebugEnabled()) M_log.debug("SAKAIDAV.propfind() at end:" + generatedXML.toString());
+		// if (log.isDebugEnabled()) log.debug("SAKAIDAV.propfind() at end:" + generatedXML.toString());
 		generatedXML.sendData();
 
 	}
@@ -2626,7 +2629,7 @@ public class DavServlet extends HttpServlet
 		}
 		catch (IdInvalidException e)
 		{
-			M_log.warn("SAKAIDavServlet.doMkcol() IdInvalid:" + e.getMessage());
+			log.warn("SAKAIDavServlet.doMkcol() IdInvalid:" + e.getMessage());
 			resp.sendError(SakaidavStatus.SC_FORBIDDEN);
 			return;
 		}
@@ -2638,7 +2641,7 @@ public class DavServlet extends HttpServlet
 		}
 		catch (InconsistentException e)
 		{
-			M_log.warn("SAKAIDavServlet.doMkcol() InconsistentException:" + e.getMessage());
+			log.warn("SAKAIDavServlet.doMkcol() InconsistentException:" + e.getMessage());
 			resp.sendError(SakaidavStatus.SC_FORBIDDEN);
 			return;
 		}
@@ -2753,16 +2756,16 @@ public class DavServlet extends HttpServlet
 		    }
 		}
 
-		if (M_log.isDebugEnabled()) M_log.debug("  req.contentType() =" + contentType);
+		if (log.isDebugEnabled()) log.debug("  req.contentType() =" + contentType);
 
 		if (contentType == null)
 		{
 			contentType = getServletContext().getMimeType(path);
-			if (M_log.isDebugEnabled()) M_log.debug("Lookup contentType =" + contentType);
+			if (log.isDebugEnabled()) log.debug("Lookup contentType =" + contentType);
 		}
 		if (contentType == null)
 		{
-			if (M_log.isDebugEnabled()) M_log.debug("Unable to determine contentType");
+			if (log.isDebugEnabled()) log.debug("Unable to determine contentType");
 			contentType = ""; // Still cannot figure it out
 		}
 
@@ -2828,14 +2831,14 @@ public class DavServlet extends HttpServlet
 		catch (IdUsedException e)
 		{
 			// Should not happen because we deleted above (unless two requests at same time)
-			M_log.warn("SAKAIDavServlet.doPut() IdUsedException:" + e.getMessage());
+			log.warn("SAKAIDavServlet.doPut() IdUsedException:" + e.getMessage());
 
 			resp.sendError(HttpServletResponse.SC_CONFLICT);
 			return;
 		}
 		catch (IdInvalidException e)
 		{
-			M_log.warn("SAKAIDavServlet.doPut() IdInvalidException:" + e.getMessage());
+			log.warn("SAKAIDavServlet.doPut() IdInvalidException:" + e.getMessage());
 			resp.sendError(HttpServletResponse.SC_CONFLICT);
 			return;
 		}
@@ -2853,24 +2856,24 @@ public class DavServlet extends HttpServlet
 		}
 		catch (InconsistentException e)
 		{
-			M_log.warn("SAKAIDavServlet.doPut() InconsistentException:" + e.getMessage());
+			log.warn("SAKAIDavServlet.doPut() InconsistentException:" + e.getMessage());
 			resp.sendError(HttpServletResponse.SC_CONFLICT);
 			return;
 		}
 		catch (ServerOverloadException e)
 		{
-			M_log.warn("SAKAIDavServlet.doPut() ServerOverloadException:" + e.getMessage());
+			log.warn("SAKAIDavServlet.doPut() ServerOverloadException:" + e.getMessage());
 			resp.setStatus(SakaidavStatus.SC_SERVICE_UNAVAILABLE);
 			return;
 		} catch (InUseException e) {
 			resp.sendError(SakaidavStatus.SC_FORBIDDEN);
 			return;
 		} catch (TypeException e) {
-			M_log.warn("SAKAIDavServlet.doPut() TypeException:" + e.getMessage());
+			log.warn("SAKAIDavServlet.doPut() TypeException:" + e.getMessage());
 			resp.sendError(HttpServletResponse.SC_CONFLICT);
 			return;
 		} catch (IdUnusedException inconsistent) {
-			M_log.error("SAKAIDavServlet.doPut() Inconsistently got IdUnusedException after checking resource exists: " + inconsistent.getMessage());
+			log.error("SAKAIDavServlet.doPut() Inconsistently got IdUnusedException after checking resource exists: " + inconsistent.getMessage());
 			resp.sendError(HttpServletResponse.SC_FORBIDDEN);
 			return;
 		}
@@ -2888,7 +2891,7 @@ public class DavServlet extends HttpServlet
 	protected void doCopy(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException
 	{
 
-		// System.out.println("doCopy called");
+		log.debug("doCopy called");
 
 		if (readOnly)
 		{
@@ -3180,7 +3183,6 @@ public class DavServlet extends HttpServlet
 				// don't want to save it that way.
 
 				lock.owner = lock.owner.replaceAll("<(/?)[^>]+:([hH][rR][eE][fF])>", "<$1$2>");
-				// System.out.println("lock.owner: " + lock.owner);
 
 			}
 			else
@@ -3880,7 +3882,7 @@ public class DavServlet extends HttpServlet
 			return false;
 		}
 
-		if (M_log.isDebugEnabled()) M_log.debug("Dest path :" + destinationPath);
+		if (log.isDebugEnabled()) log.debug("Dest path :" + destinationPath);
 
 		if ((destinationPath.toUpperCase().startsWith("/WEB-INF")) || (destinationPath.toUpperCase().startsWith("/META-INF")))
 		{
@@ -4025,7 +4027,7 @@ public class DavServlet extends HttpServlet
 		    ResourcePropertiesEdit newProps = edit.getPropertiesEdit();
 		    newProps.addProperty(ResourceProperties.PROP_DISPLAY_NAME, Validator.escapeResourceName(filename));
 		    contentHostingService.commitResource(edit,NotificationService.NOTI_NONE);
-		} catch (Exception e) {M_log.info("copyResource unable to set new displayname " + e);};
+		} catch (Exception e) {log.info("copyResource unable to set new displayname " + e);};
 
 		// Removing any lock-null resource which would be present at
 		// the destination path
@@ -4054,7 +4056,7 @@ public class DavServlet extends HttpServlet
 	private boolean copyResource(DirContextSAKAI resources, Hashtable<String,Integer> errorList, String source, String dest, boolean move)
 	{
 
-		if (M_log.isDebugEnabled()) M_log.debug("Copy: " + source + " To: " + dest);
+		if (log.isDebugEnabled()) log.debug("Copy: " + source + " To: " + dest);
 
 		source = fixDirPathSAKAI(source);
 		dest = fixDirPathSAKAI(dest);
@@ -4087,80 +4089,80 @@ public class DavServlet extends HttpServlet
 		}
 		catch (EntityPropertyNotDefinedException e)
 		{
-		    // System.out.println("propnotdef " + e);
+		    log.error("propnotdef " + e);
 		    errorList.put(source, new Integer(SakaidavStatus.SC_INTERNAL_SERVER_ERROR));
 		    return false;
 		}
 		catch (EntityPropertyTypeException e)
 		{
-		    // System.out.println("propntype " + e);
+		    log.error("propntype " + e);
 		    errorList.put(source, new Integer(SakaidavStatus.SC_INTERNAL_SERVER_ERROR));
 		    return false;
 		}
 		catch (IdUsedException e)
 		    // internal error because caller checked for this
 		{
-		    // System.out.println("idunused " + e);
+		    log.error("idunused " + e);
 		    errorList.put(source, new Integer(SakaidavStatus.SC_INTERNAL_SERVER_ERROR));
 		    return false;
 		}
 		catch (IdUniquenessException e)
 		{
-		    // System.out.println("iduniqu " + e);
+		    log.error("iduniqu " + e);
 		    errorList.put(source, new Integer(SakaidavStatus.SC_INTERNAL_SERVER_ERROR));
 		    return false;
 		}
 		catch (IdLengthException e)
 		{
-		    // System.out.println("idlen " + e);
+		    log.error("idlen " + e);
 		    errorList.put(source, new Integer(SakaidavStatus.SC_FORBIDDEN));
 		    return false;
 		}
 		catch (InconsistentException e)
 		{
-		    // System.out.println("inconsis " + e);
+		    log.error("inconsis " + e);
 		    errorList.put(source, new Integer(SakaidavStatus.SC_CONFLICT));
 		    return false;
 		}
 		catch (PermissionException e)
 		{
-		    // System.out.println("perm " + e);
+		    log.error("perm " + e);
 		    errorList.put(source, new Integer(SakaidavStatus.SC_FORBIDDEN));
 		    return false;
 		}
 		catch (InUseException e)
 		{
-		    // System.out.println("in use " + e);
+		    log.error("in use " + e);
 		    errorList.put(source, new Integer(SakaidavStatus.SC_CONFLICT));
 		    return false;
 		}
 		catch (IdUnusedException e)
 		{
-		    // System.out.println("unused " + e);
+		    log.error("unused " + e);
 		    errorList.put(source, new Integer(SakaidavStatus.SC_NOT_FOUND));
 		    return false;
 		}
 		catch (OverQuotaException e)
 		{
-		    // System.out.println("quota " + e);
+		    log.error("quota " + e);
 		    errorList.put(source, new Integer(SakaidavStatus.SC_FORBIDDEN));
 		    return false;
 		}
 		catch (IdInvalidException e)
 		{
-		    // System.out.println("quota " + e);
+		    log.error("id invalid " + e);
 		    errorList.put(source, new Integer(SakaidavStatus.SC_FORBIDDEN));
 		    return false;
 		}
 		catch (TypeException e)
 		{
-		    // System.out.println("type " + e);
+		    log.error("type " + e);
 		    errorList.put(source, new Integer(SakaidavStatus.SC_FORBIDDEN));
 		    return false;
 		}
 		catch (ServerOverloadException e)
 		{
-		    // System.out.println("overload " + e);
+		    log.error("overload " + e);
 		    errorList.put(source, new Integer(SakaidavStatus.SC_INTERNAL_SERVER_ERROR));
 		    return false;
 		}
@@ -4254,22 +4256,22 @@ public class DavServlet extends HttpServlet
 		}
 		catch (EntityPropertyNotDefinedException e)
 		{
-			M_log.warn("SAKAIDavServlet.deleteResource() - EntityPropertyNotDefinedException " + path);
+			log.warn("SAKAIDavServlet.deleteResource() - EntityPropertyNotDefinedException " + path);
 			return false;
 		}
 		catch (EntityPropertyTypeException e)
 		{
-			M_log.warn("SAKAIDavServlet.deleteResource() - EntityPropertyTypeException " + path);
+			log.warn("SAKAIDavServlet.deleteResource() - EntityPropertyTypeException " + path);
 			return false;
 		}
 		catch (TypeException e)
 		{
-			M_log.warn("SAKAIDavServlet.deleteResource() - TypeException " + path);
+			log.warn("SAKAIDavServlet.deleteResource() - TypeException " + path);
 			return false;
 		}
 		catch (ServerOverloadException e)
 		{
-			M_log.warn("SAKAIDavServlet.deleteResource() - ServerOverloadException " + path);
+			log.warn("SAKAIDavServlet.deleteResource() - ServerOverloadException " + path);
 			return false;
 		}
 		return true;
@@ -4375,7 +4377,7 @@ public class DavServlet extends HttpServlet
 			href += path;
 		if ((resourceInfo.collection) && (!href.endsWith("/"))) href += "/";
 
-		if (M_log.isDebugEnabled()) M_log.debug("parserProperties href=" + href);
+		if (log.isDebugEnabled()) log.debug("parserProperties href=" + href);
 
 		generatedXML.writeText(rewriteUrl(href));
 

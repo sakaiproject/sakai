@@ -1,3 +1,18 @@
+/**
+ * Copyright (c) 2010-2017 The Apereo Foundation
+ *
+ * Licensed under the Educational Community License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *             http://opensource.org/licenses/ecl2
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 /*
 * Licensed to The Apereo Foundation under one or more contributor license
 * agreements. See the NOTICE file distributed with this work for
@@ -31,13 +46,12 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.sakaiproject.roster.api.SakaiProxy;
-import org.sakaiproject.util.ResourceLoader;
-
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationContext;
 import org.springframework.web.context.support.WebApplicationContextUtils;
+
+import org.sakaiproject.roster.api.SakaiProxy;
+import org.sakaiproject.util.ResourceLoader;
 
 /**
  * <code>RosterTool</code> performs basic checks and outputs a prebuilt startup
@@ -46,11 +60,10 @@ import org.springframework.web.context.support.WebApplicationContextUtils;
  * @author Daniel Robinson (d.b.robinson@lancaster.ac.uk)
  * @author Adrian Fish (a.fish@lancaster.ac.uk)
  */
+@Slf4j
 public class RosterTool extends HttpServlet {
 	
 	private static final long serialVersionUID = 1L;
-
-	private static final Logger log = LoggerFactory.getLogger(RosterTool.class);
 
 	private SakaiProxy sakaiProxy;
 
@@ -113,6 +126,7 @@ public class RosterTool extends HttpServlet {
         request.setAttribute("firstNameLastName", sakaiProxy.getFirstNameLastName());
 		request.setAttribute("hideSingleGroupFilter", sakaiProxy.getHideSingleGroupFilter());
         request.setAttribute("viewUserDisplayId", sakaiProxy.getViewUserDisplayId());
+        request.setAttribute("viewUserProperty", sakaiProxy.getViewUserProperty());
         request.setAttribute("officialPicturesByDefault", sakaiProxy.getOfficialPicturesByDefault());
         request.setAttribute("viewEmail", sakaiProxy.getViewEmail());
 		request.setAttribute("superUser", sakaiProxy.isSuperUser());

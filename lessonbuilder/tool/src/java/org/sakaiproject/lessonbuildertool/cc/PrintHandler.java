@@ -1,7 +1,19 @@
+/**
+ * Copyright (c) 2003-2017 The Apereo Foundation
+ *
+ * Licensed under the Educational Community License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *             http://opensource.org/licenses/ecl2
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.sakaiproject.lessonbuildertool.cc;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /***********
  * This code is based on a reference implementation done for the IMS Consortium.
@@ -44,78 +56,62 @@ import org.slf4j.LoggerFactory;
  *
  **********************************************************************************/
 
-import org.apache.commons.io.IOUtils;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.jdom.Element;
-import org.jdom.Namespace;
-import org.jdom.output.XMLOutputter;
-import org.jsoup.Jsoup;
-import org.jdom.filter.ElementFilter;
+import java.io.File;
+import java.io.InputStream;
+import java.io.FileInputStream;
+import java.io.PrintWriter;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Set;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.HashMap;
-import java.util.Properties;
 import java.util.Iterator;
-import java.io.File;
-import java.io.InputStream;
-import java.io.FileInputStream;
-import java.io.PrintWriter;
-import java.io.FileOutputStream;
-import java.io.CharArrayWriter;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.StringWriter;
-import java.net.URLEncoder;
-import org.jdom.output.DOMOutputter;
-
-import org.sakaiproject.util.FormattedText;
-import org.sakaiproject.util.Validator;
-import org.sakaiproject.tool.api.ToolManager;
-import org.sakaiproject.content.cover.ContentHostingService;
-import org.sakaiproject.content.cover.ContentTypeImageService;
-import org.sakaiproject.lessonbuildertool.SimplePage;
-import org.sakaiproject.lessonbuildertool.SimplePageItem;
-import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean;
-import org.sakaiproject.lessonbuildertool.service.GroupPermissionsService;
-import org.sakaiproject.lessonbuildertool.model.SimplePageToolDao;
-import org.sakaiproject.content.api.ContentCollectionEdit;
-import org.sakaiproject.content.api.ContentCollection;
-import org.sakaiproject.content.api.ContentResourceEdit;
-import org.sakaiproject.content.api.ContentResource;
-import org.sakaiproject.entity.api.ResourceProperties;
-import org.sakaiproject.entity.api.ResourcePropertiesEdit;
-import org.sakaiproject.exception.IdUsedException;
-import org.sakaiproject.event.api.NotificationService;
-import org.sakaiproject.lessonbuildertool.cc.QtiImport;
-import org.sakaiproject.lessonbuildertool.service.LessonEntity;
-import org.sakaiproject.lessonbuildertool.service.QuizEntity;
-import org.sakaiproject.lessonbuildertool.service.ForumInterface;
-import org.sakaiproject.lessonbuildertool.service.BltiInterface;
-import org.sakaiproject.lessonbuildertool.service.AssignmentInterface;
-import org.sakaiproject.component.cover.ComponentManager;
-import org.sakaiproject.component.cover.ServerConfigurationService;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-import org.sakaiproject.tool.assessment.services.qti.QTIService;
-import org.sakaiproject.tool.assessment.qti.constants.QTIVersion;
+
+import lombok.extern.slf4j.Slf4j;
+
+import org.jdom.Element;
+import org.jdom.Namespace;
+import org.jdom.filter.ElementFilter;
+import org.jdom.output.DOMOutputter;
+import org.jdom.output.XMLOutputter;
+
+import org.jsoup.Jsoup;
+
+import org.sakaiproject.content.api.ContentCollection;
+import org.sakaiproject.content.api.ContentCollectionEdit;
+import org.sakaiproject.content.api.ContentResourceEdit;
+import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.content.cover.ContentHostingService;
+import org.sakaiproject.content.cover.ContentTypeImageService;
+import org.sakaiproject.entity.api.ResourceProperties;
+import org.sakaiproject.event.api.NotificationService;
+import org.sakaiproject.exception.IdUsedException;
+import org.sakaiproject.lessonbuildertool.SimplePage;
+import org.sakaiproject.lessonbuildertool.SimplePageItem;
+import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean;
+import org.sakaiproject.lessonbuildertool.model.SimplePageToolDao;
+import org.sakaiproject.lessonbuildertool.service.AssignmentInterface;
+import org.sakaiproject.lessonbuildertool.service.BltiInterface;
+import org.sakaiproject.lessonbuildertool.service.ForumInterface;
+import org.sakaiproject.lessonbuildertool.service.GroupPermissionsService;
+import org.sakaiproject.lessonbuildertool.service.LessonEntity;
+import org.sakaiproject.lessonbuildertool.service.QuizEntity;
+import org.sakaiproject.util.FormattedText;
+import org.sakaiproject.util.Validator;
 
 /* PJN NOTE:
  * This class is an example of what an implementer might want to do as regards overloading DefaultHandler.
  * In this case, messages are written to the screen. If a method in default handler is not overridden, then it does
  * nothing.
  */
-
+@Slf4j
 public class PrintHandler extends DefaultHandler implements AssessmentHandler, DiscussionHandler, AuthorizationHandler,
                                        MetadataHandler, LearningApplicationResourceHandler, QuestionBankHandler,
                                        WebContentHandler, WebLinkHandler{
-  private static final Logger log = LoggerFactory.getLogger(PrintHandler.class);
-
   private static final String HREF="href";
   private static final String TYPE="type";
   private static final String FILE="file";
@@ -640,16 +636,8 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
 			  }
 		      }
 
-		      htmlString = html.toString();
-
-		      // remove stuff the exporter added
-		      int off = htmlString.indexOf("<body>");
-		      if (off > 0)
-			  htmlString = htmlString.substring(off + 7);
-		      off = htmlString.lastIndexOf("</body>");
-		      if (off > 0)
-			  htmlString = htmlString.substring(0, off);
-
+		      htmlString = FormattedText.getHtmlBody(html.toString());
+		      
 		      htmlString = fixupInlineReferences(htmlString);
 		      
 		  }
@@ -903,7 +891,7 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
 		      if (imp.getUsesCurriculum())
 			  usesCurriculum = true;
 		  } catch (Exception e) {
-		      e.printStackTrace();
+		      log.error(e.getMessage(), e);
 		  }
 
 		  outwriter.close();
@@ -1079,7 +1067,6 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
 	      log.debug("unknown type: " + resource.getAttributeValue(TYPE));
 	  }
       } catch (Exception e) {
-    	  e.printStackTrace();
     	  log.debug("Exception ", e);
       }
 
@@ -1508,24 +1495,22 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
 	  log.debug("set qti qb details: "+the_ident);  
   }
 
-    // xxx/abc/../ccc
-    // xxx/ccc
-    // xxx/../ccc
-    // ccc
+  // xxx/abc/../ccc
+  // xxx/ccc
+  // xxx/../ccc
+  // ccc
 
-    public String removeDotDot(String s) {
-	while (true) {
-	    int i = s.indexOf("/../");
-	    if (i < 1)
-		return s;
-	    int j = s.lastIndexOf("/", i-1);
-	    if (j < 0)
-		j = 0;
-	    else
-		j = j + 1;
-	    s = s.substring(0, j) + s.substring(i+4);
-	}
-    }
-
+  public String removeDotDot(String s) {
+      while (true) {
+	  int i = s.indexOf("/../");
+	  if (i < 1)
+            return s;
+	  int j = s.lastIndexOf("/", i-1);
+	  if (j < 0)
+            j = 0;
+	  else
+            j = j + 1;
+	  s = s.substring(0, j) + s.substring(i+4);
+      }
+  }
 }
-

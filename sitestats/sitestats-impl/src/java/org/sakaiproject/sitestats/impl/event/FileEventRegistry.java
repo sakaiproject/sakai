@@ -24,19 +24,18 @@ import java.io.IOException;
 import java.util.List;
 import java.util.MissingResourceException;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.io.ClassPathResource;
+
 import org.sakaiproject.sitestats.api.event.EventRegistry;
 import org.sakaiproject.sitestats.api.event.ToolInfo;
 import org.sakaiproject.sitestats.impl.parser.DigesterUtil;
 import org.sakaiproject.util.ResourceLoader;
-import org.springframework.core.io.ClassPathResource;
 
-
+@Slf4j
 public class FileEventRegistry implements EventRegistry {
 	/** Static fields */
 	public final static String		TOOL_EVENTS_DEF_FILE				= "toolEventsDef.xml";
-	private Logger						LOG									= LoggerFactory.getLogger(FileEventRegistry.class);
 	private static ResourceLoader	msgs								= new ResourceLoader("Events");
 
 	/** File based event registry */
@@ -113,22 +112,22 @@ public class FileEventRegistry implements EventRegistry {
 			if(customDefs.exists()){
 				FileInputStream in = null;
 				try{
-					LOG.info("init(): - loading custom event registry from: " + customDefs.getAbsolutePath());
+					log.info("init(): - loading custom event registry from: " + customDefs.getAbsolutePath());
 					in = new FileInputStream(customDefs);
 					eventRegistry = DigesterUtil.parseToolEventsDefinition(in);
 					customEventRegistryFileLoaded = true;
 				}catch(Throwable t){
-					LOG.warn("init(): - trouble loading event registry from : " + customDefs.getAbsolutePath(), t);
+					log.warn("init(): - trouble loading event registry from : " + customDefs.getAbsolutePath(), t);
 				}finally{
 					if(in != null)
 						try{
 							in.close();
 						}catch(IOException e){
-							LOG.warn("init(): - failed to close inputstream (event registry from : " + customDefs.getAbsolutePath()+")");
+							log.warn("init(): - failed to close inputstream (event registry from : " + customDefs.getAbsolutePath()+")");
 						}
 				}
 			}else {
-				LOG.warn("init(): - custom event registry file not found: "+customDefs.getAbsolutePath());
+				log.warn("init(): - custom event registry file not found: "+customDefs.getAbsolutePath());
 			}
 		}
 		
@@ -136,10 +135,10 @@ public class FileEventRegistry implements EventRegistry {
 		if(!customEventRegistryFileLoaded){
 			ClassPathResource defaultDefs = new ClassPathResource("org/sakaiproject/sitestats/config/" + FileEventRegistry.TOOL_EVENTS_DEF_FILE);
 			try{
-				LOG.info("init(): - loading default event registry from: " + defaultDefs.getPath()+". A custom one for adding/removing events can be specified in sakai.properties with the property: toolEventsDefinitionFile@org.sakaiproject.sitestats.api.StatsManager=${sakai.home}/toolEventsdef.xml.");
+				log.info("init(): - loading default event registry from: " + defaultDefs.getPath()+". A custom one for adding/removing events can be specified in sakai.properties with the property: toolEventsDefinitionFile@org.sakaiproject.sitestats.api.StatsManager=${sakai.home}/toolEventsdef.xml.");
 				eventRegistry = DigesterUtil.parseToolEventsDefinition(defaultDefs.getInputStream());
 			}catch(Throwable t){
-				LOG.error("init(): - trouble loading default event registry from : " + defaultDefs.getPath(), t);
+				log.error("init(): - trouble loading default event registry from : " + defaultDefs.getPath(), t);
 			}
 		}
 		
@@ -150,21 +149,21 @@ public class FileEventRegistry implements EventRegistry {
 			if(customDefs.exists()){
 				FileInputStream in = null;
 				try{
-					LOG.info("init(): - loading custom event registry additions from: " + customDefs.getAbsolutePath());
+					log.info("init(): - loading custom event registry additions from: " + customDefs.getAbsolutePath());
 					in = new FileInputStream(customDefs);
 					additions = DigesterUtil.parseToolEventsDefinition(in);
 				}catch(Throwable t){
-					LOG.warn("init(): - trouble loading custom event registry additions from : " + customDefs.getAbsolutePath(), t);
+					log.warn("init(): - trouble loading custom event registry additions from : " + customDefs.getAbsolutePath(), t);
 				}finally{
 					if(in != null)
 						try{
 							in.close();
 						}catch(IOException e){
-							LOG.warn("init(): - failed to close inputstream (custom event registry additions from : " + customDefs.getAbsolutePath()+")");
+							log.warn("init(): - failed to close inputstream (custom event registry additions from : " + customDefs.getAbsolutePath()+")");
 						}
 				}
 			}else {
-				LOG.warn("init(): - custom event registry additions file not found: "+customDefs.getAbsolutePath());
+				log.warn("init(): - custom event registry additions file not found: "+customDefs.getAbsolutePath());
 			}
 		}
 		if(additions != null)
@@ -177,30 +176,30 @@ public class FileEventRegistry implements EventRegistry {
 			if(customDefs.exists()){
 				FileInputStream in = null;
 				try{
-					LOG.info("init(): - loading custom event registry removals from: " + customDefs.getAbsolutePath());
+					log.info("init(): - loading custom event registry removals from: " + customDefs.getAbsolutePath());
 					in = new FileInputStream(customDefs);
 					removals = DigesterUtil.parseToolEventsDefinition(in);
 				}catch(Throwable t){
-					LOG.warn("init(): - trouble loading custom event registry removals from : " + customDefs.getAbsolutePath(), t);
+					log.warn("init(): - trouble loading custom event registry removals from : " + customDefs.getAbsolutePath(), t);
 				}finally{
 					if(in != null)
 						try{
 							in.close();
 						}catch(IOException e){
-							LOG.warn("init(): - failed to close inputstream (custom event regitry removals from : " + customDefs.getAbsolutePath()+")");
+							log.warn("init(): - failed to close inputstream (custom event regitry removals from : " + customDefs.getAbsolutePath()+")");
 						}
 				}
 			}else {
-				LOG.warn("init(): - custom event registry removals file not found: "+customDefs.getAbsolutePath());
+				log.warn("init(): - custom event registry removals file not found: "+customDefs.getAbsolutePath());
 			}
 		}
 		if(removals != null)
 			eventRegistry = EventUtil.removeFromEventRegistry(removals, eventRegistry);		
 		
 		// debug: print resulting list
-//		LOG.info("-------- Printing resulting eventRegistry list:");
+//		log.info("-------- Printing resulting eventRegistry list:");
 //		Iterator<ToolInfo> iT = eventRegistry.iterator();
-//		while(iT.hasNext()) LOG.info(iT.next().toString());
-//		LOG.info("------------------------------------------------------");
+//		while(iT.hasNext()) log.info(iT.next().toString());
+//		log.info("------------------------------------------------------");
 	}
 }

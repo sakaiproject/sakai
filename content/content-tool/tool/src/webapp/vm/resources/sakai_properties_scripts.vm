@@ -174,6 +174,50 @@
 			}
 		}
 	}      
+	function setupDatePickers(contentDiv, index) {
+		// remove the hasDatepicker CSS class so localDatePicker does the business
+		document.getElementById('releaseDatePicker${DOT}'+index).classList.remove('hasDatepicker');
+		document.getElementById('retractDatePicker${DOT}'+index).classList.remove('hasDatepicker');
+		// also remove the icon that will soon be recreated by localDatePicker
+		var icons = contentDiv.querySelectorAll('.ui-datepicker-trigger');
+		for (var i=0; i<icons.length; i++) {
+			icons[i].remove();
+		}
+
+		// build up a new value
+		var now = new Date();
+		var valueString = '' + now.getFullYear() + '-' + (now.getMonth() + 1) + '-' + now.getDate() + ' ' + now.getHours() + ':' + now.getMinutes();
+
+		// setup the date pickers
+		localDatePicker({
+			input:'#releaseDatePicker${DOT}'+index,
+			useTime:1,
+			parseFormat: 'YYYY-MM-DD HH:mm',
+			val: valueString,
+			ashidden:{
+				month: 'release_month${DOT}'+index,
+				day: 'release_day${DOT}'+index,
+				year: 'release_year${DOT}'+index,
+				hour: 'release_hour${DOT}'+index,
+				minute: 'release_minute${DOT}'+index,
+				ampm: 'release_ampm${DOT}'+index
+			}
+		});
+		localDatePicker({
+			input:'#retractDatePicker${DOT}'+index,
+			useTime:1,
+			parseFormat: 'YYYY-MM-DD HH:mm',
+			val: valueString,
+			ashidden:{
+				month: 'retract_month${DOT}'+index,
+				day: 'retract_day${DOT}'+index,
+				year: 'retract_year${DOT}'+index,
+				hour: 'retract_hour${DOT}'+index,
+				minute: 'retract_minute${DOT}'+index,
+				ampm: 'retract_ampm${DOT}'+index
+			}
+		});
+	}
 	function handleReleaseDatePopupRequest(evt)
 	{
 		evt = (typeof(evt)!= 'undefined') ? evt : ((typeof(event) != 'undefined') ? event : null);
@@ -396,14 +440,7 @@
 		{
 			var newContentDiv = copyTree(modelContentDiv, index);
 			fileInputDiv.appendChild(newContentDiv);
-		}
-		
-		var modelPropertiesDiv = document.getElementById("propertiesDiv$DOT" + prevIndex);
-		if(modelPropertiesDiv)
-		{
-			var newPropertiesDiv = copyTree(modelPropertiesDiv, index);
-			newPropertiesDiv.style.display = "none";
-			fileInputDiv.appendChild(newPropertiesDiv);
+
 			var addDetailsLink = document.getElementById("propsTrigger${DOT}" + index);
 			if(addDetailsLink)
 			{
@@ -425,6 +462,11 @@
 					hideGroupsTable(index);
 				}
 			}
+			// hide the properties div by default
+			var propertiesDiv = document.getElementById("propertiesDiv$DOT" + index);
+			propertiesDiv.style.display = 'none';
+
+			setupDatePickers(newContentDiv, index);
 		}
 		
 		var prevNext = document.getElementById("next$DOT" + prevIndex);
@@ -1436,47 +1478,37 @@
 		if(jQuery('#doShortUrl').is(':checked')) {
 			doShortUrl(defaultUrl);
 		} else {
-			//alert("Reverting to default URL: " + defaultUrl);
 			jQuery('#fileURLHolder').val(defaultUrl);
 			//remove cookie
 			jQuery.cookie('resources_short_urls_preferred', null, { path: '/' });
-			//alert("Cookie removed");
 		}
 	}
-	
-	jQuery('#shortUrlLoader').hide();
-	
+
 	//check cookie and enable short url if its checked.
 	//this is only run on the first load of the page so we can assume that the URL in the box is always the full URL
 	var short_urls_preferred = jQuery.cookie("resources_short_urls_preferred");
-	if(short_urls_preferred == "true") {
-		//alert("Short URLs are preferred");
-		
-		var currentUrl = jQuery('#fileURLHolder').val();
-		//alert("current URL: " + currentUrl);
+	var fileUrlHolder = jQuery('#fileURLHolder');
+	if(short_urls_preferred == "true" && fileUrlHolder.length) {
+		var currentUrl = fileUrlHolder.val();
 		doShortUrl(currentUrl);
-		
 		//check checkbox by default
 		jQuery('#doShortUrl').attr('checked','checked');
-		//alert("Checkbox checked");
 	}
 
 	
 	//helper to get the short version of a URL and return it
 	function doShortUrl(defaultUrl) {
-		jQuery.ajax({
-			url:'/direct/url/shorten?path='+encodeURI(defaultUrl),
-			success: function(shortUrl) {
-				//update field
-				//alert("URL shortened to: " + shortUrl);
-				updateUrlField(shortUrl);
-				//alert("Field updated");
-				
-				//set cookie
-				jQuery.cookie('resources_short_urls_preferred', 'true', { expires: 365,  path: '/' });		
-				//alert("Cookie set. Value = " + jQuery.cookie('resources_short_urls_preferred'));
-			}
-		});
+		if (defaultUrl) {
+			jQuery.ajax({
+				url: '/direct/url/shorten?path=' + encodeURI(defaultUrl),
+				success: function (shortUrl) {
+					updateUrlField(shortUrl);
+
+					//set cookie
+					jQuery.cookie('resources_short_urls_preferred', 'true', {expires: 365, path: '/'});
+				}
+			});
+		}
 	}
 	
 	// method used as a callback to update the field
@@ -1486,7 +1518,11 @@
 	
 	
 	attachEventHandlers();
-	
+
+// default these values always
+document.calendars = new Array();
+document.calendarcounter = 0;
+
 #if($calendarcounter > 0)	
 	document.calendars = new Array();
 	document.calendarcounter = $calendarcounter;

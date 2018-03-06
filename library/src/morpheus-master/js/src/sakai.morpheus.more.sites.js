@@ -2,7 +2,7 @@
  * For More Sites in Morpheus
  */
 
-var selectSiteModalLinks;
+var selectSiteModalLinks, selectSiteLastModalInTab;
 
 var dhtml_view_sites = function(){
 
@@ -19,8 +19,9 @@ var dhtml_view_sites = function(){
     modal.show();
 
     // Find all focusable items
-    if (typeof selectSiteModalLinks == 'undefined') {
+    if (typeof selectSiteModalLinks == 'undefined' || typeof selectSiteLastModalInTab == 'undefined') {
       selectSiteModalLinks = modal.find('button, a');
+      selectSiteLastModalInTab = modal.find('.tab-box a:last');
     }
 
     // Lock the focus into the modal links
@@ -41,7 +42,7 @@ var dhtml_view_sites = function(){
               cancel = true;
             }
           } else {
-            if (e.target === selectSiteModalLinks[selectSiteModalLinks.length - 1]) {
+            if (e.target === selectSiteModalLinks[selectSiteModalLinks.length - 1] || e.target === selectSiteLastModalInTab[selectSiteLastModalInTab.length - 1]) {
               selectSiteModalLinks[0].focus();
               cancel = true;
             }
@@ -613,7 +614,7 @@ $PBJQ(document).ready(function($){
   };
 
   var returnElementToOriginalPositionIfPossible = function (siteId) {
-    if (initialFavoritesList && initialFavoritesList.includes(siteId)) {
+    if (initialFavoritesList && initialFavoritesList.indexOf(siteId) > -1) {
       var idx = initialFavoritesList.indexOf(siteId);
 
       // We'll attempt to place our item to the right its original left
@@ -817,10 +818,10 @@ $PBJQ(document).ready(function($){
 
       highlightMaxItems();
 
-      list.sortable({
+      list.keyboardSortable({
         items: "li:not(.favorites-max-marker)",
         handle: ".fav-drag-handle",
-        stop: function () {
+        update: function () {
           // Rehighlight the first N items
           highlightMaxItems();
 

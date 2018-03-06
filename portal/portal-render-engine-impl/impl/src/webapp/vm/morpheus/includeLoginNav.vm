@@ -118,10 +118,20 @@
                                 </li>
 
                                 <li class="Mrphs-userNav__submenuitem Mrphs-userNav__submenuitem-indented">
-                                    <a role="menuitem" href="${site.siteUrl}" class="Mrphs-userNav__submenuitem--dashboard">
-                                        <span>${rloader.sit_dashboard}</span>
+                                    <a role="menuitem" href="javascript:;" id="Mrphs-userNav__submenuitem--connections">
+                                        <span>${rloader.sit_connections}</span>
                                     </a>
                                 </li>
+
+                                    #if (${tabsSites.calendarToolUrl})
+            
+                                        <li class="Mrphs-userNav__submenuitem Mrphs-userNav__submenuitem-indented">
+                                            <a role="menuitem" href="${tabsSites.calendarToolUrl}" class="Mrphs-userNav__submenuitem--calendar">
+                                                <span>${rloader.sit_calendar}</span>
+                                            </a>
+                                        </li>
+            
+                                    #end ## END of IF (${tabsSites.calendarToolUrl})
 
                                     #if (${tabsSites.prefsToolUrl})
 
@@ -130,20 +140,6 @@
                                                 <span>${rloader.sit_preferences}</span>
                                             </a>
                                         </li>
-
-                                    #end ## END of IF (${tabsSites.prefsToolUrl})
-
-                                    #if (${tabsSites.worksiteToolUrl})
-
-                                        #if ($allowAddSite)
-
-                                            <li class="Mrphs-userNav__submenuitem Mrphs-userNav__submenuitem-indented">
-                                                <a id="addNewSiteLink" role="menuitem" href="${tabsSites.mrphs_worksiteToolUrl}?panel=Shortcut&amp;sakai_action=doNew_site" class="Mrphs-userNav__submenuitem--newsite">
-                                            <span>${rloader.sit_newsite}</span>
-                                                </a>
-                                            </li>
-
-                                        #end ## END of IF ($allowAddSite)
 
                                     #end ## END of IF (${tabsSites.prefsToolUrl})
 

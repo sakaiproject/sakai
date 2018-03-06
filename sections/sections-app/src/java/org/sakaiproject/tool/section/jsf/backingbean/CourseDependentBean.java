@@ -29,8 +29,8 @@ import java.util.Set;
 
 import javax.faces.context.FacesContext;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.jsf.util.LocaleUtil;
 import org.sakaiproject.section.api.SectionManager;
 import org.sakaiproject.section.api.SectionManager.ExternalIntegrationConfig;
@@ -45,10 +45,10 @@ import org.sakaiproject.tool.section.jsf.JsfUtil;
  * @author <a href="mailto:jholtzman@berkeley.edu">Josh Holtzman</a>
  *
  */
+@Slf4j
 public class CourseDependentBean extends InitializableBean implements Serializable {
 
 	private static final long serialVersionUID = 1L;
-	private static final Logger log = LoggerFactory.getLogger(CourseDependentBean.class);
 
 	private transient CourseBean courseBean;
 

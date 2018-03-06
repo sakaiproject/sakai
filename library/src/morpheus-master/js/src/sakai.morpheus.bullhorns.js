@@ -80,7 +80,14 @@
                                 var markup = '<div class="portal-bullhorn-social-alerts">';
                                 data.alerts.forEach(function (alert) {
 
-                                    markup += '<a href="' + alert.url + '"><div id="portal-bullhorn-alert-' + alert.id + '" class="portal-bullhorn-social-alert">'
+                                    if (alert.event === 'profile.friend.request') {
+                                        markup += '<a href="javascript:;" class="portal-bullhorn-connectionmanager-pending">';
+                                    } else if (alert.event === 'profile.friend.confirm') {
+                                        markup += '<a href="javascript:;" class="portal-bullhorn-connectionmanager-current">';
+                                    } else {
+                                        markup += '<a href="' + alert.url + '">';
+                                    }
+                                    markup += '<div id="portal-bullhorn-alert-' + alert.id + '" class="portal-bullhorn-social-alert">'
                                                 + '<div class="portal-bullhorn-photo" style="background-image:url(/direct/profile/' + alert.from + '/image/thumb)"></div>'
                                                 + '<div class="portal-bullhorn-content"><div class="portal-bullhorn-message"><span class="portal-bullhorn-display-name">' + alert.fromDisplayName + '</span>';
 
@@ -123,6 +130,22 @@
                         }, function (xhr, status, error) {
                             api.set('content.text', status + ': ' + error);
                         });
+                }
+            },
+            events: {
+                visible: function (event, api) {
+
+                    $PBJQ('.portal-bullhorn-connectionmanager-pending').click(function (e) {
+
+                        portal.connectionManager.show({state: 'pending'});
+                        api.hide();
+                    });
+
+                    $PBJQ('.portal-bullhorn-connectionmanager-current').click(function (e) {
+
+                        portal.connectionManager.show();
+                        api.hide();
+                    });
                 }
             }
         });
@@ -240,9 +263,8 @@
                 });
         };
 
-    if (portal.loggedIn) {
+    if (portal.loggedIn && portal.bullhorns && portal.bullhorns.enabled) {
         updateCounts();
-        //portal.bullhornCountIntervalId = setInterval(updateCounts, portal.bullhorns.pollInterval);
-        portal.bullhornCountIntervalId = setInterval(updateCounts, 10000);
+        portal.bullhornCountIntervalId = setInterval(updateCounts, portal.bullhorns.pollInterval);
     }
 }) ($PBJQ);

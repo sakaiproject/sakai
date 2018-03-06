@@ -31,20 +31,21 @@ import java.util.Properties;
 import java.util.Random;
 import java.util.Map.Entry;
 
+import lombok.extern.slf4j.Slf4j;
+
 import org.apache.commons.dbcp.cpdsadapter.DriverAdapterCPDS;
 import org.apache.commons.dbcp.datasources.SharedPoolDataSource;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+
 import org.sakaiproject.util.ByteStorageConversion;
 
+@Slf4j
 public class MySQLByteStorage
 {
-	private static final Logger log = LoggerFactory.getLogger(MySQLByteStorage.class);
-
 	private SharedPoolDataSource tds;
 
 	@Before

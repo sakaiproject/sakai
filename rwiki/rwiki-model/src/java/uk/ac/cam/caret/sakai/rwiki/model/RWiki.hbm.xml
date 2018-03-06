@@ -1,62 +1,42 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
 <hibernate-mapping package="uk.ac.cam.caret.sakai.rwiki.component">
-	
-	<!--
-	Version 2 schema,
-	contains persistant properties of the database, including
-	the version of the schema 
-	 --> 
-	<class name="uk.ac.cam.caret.sakai.rwiki.model.RWikiPropertyImpl"
-		table="rwikiproperties" >
-		<id name="id" unsaved-value="null" >
+
+	<class name="uk.ac.cam.caret.sakai.rwiki.model.RWikiPropertyImpl" table="rwikiproperties" >
+		<id name="id" type="string" unsaved-value="null" >
 			<column name="id" length="36" not-null="true"/>
-			<generator class="uuid.hex" />
+			<generator class="uuid2" />
 		</id>
 		<property name="name" column="name" not-null="true" type="string" unique="true" length="255" />
 		<property name="value" column="value" type="string" length="4000" />
 	</class>
-	
-	<!--
-	Version 2 schema
-	contains content of the current object
-	-->
-	<class name="uk.ac.cam.caret.sakai.rwiki.model.RWikiCurrentObjectContentImpl"
-		table="rwikicurrentcontent" >
-		<id name="id" unsaved-value="null" >
+
+	<class name="uk.ac.cam.caret.sakai.rwiki.model.RWikiCurrentObjectContentImpl" table="rwikicurrentcontent" >
+		<id name="id" type="string" unsaved-value="null" >
 			<column name="id" length="36" not-null="true"/>
-			<generator class="uuid.hex" />
+			<generator class="uuid2" />
 		</id>
 		<property name="rwikiid" length="36" not-null="true" index="irwikicurrentcontent_rwi" />
-		<property name="content" not-null="false" type="materialized_clob" length="16777215" access="field"/> <!-- SAK-20790, set access to field to prevent Hibernate from calling the getter -->
+		<!-- SAK-20790, set access to field to prevent Hibernate from calling the getter -->
+		<property name="content" not-null="false" type="materialized_clob" length="16777215" access="field"/>
 	</class>
-	<!--
-	Version 2 schema 
-	contains content of history objects.
-	-->
-	<class name="uk.ac.cam.caret.sakai.rwiki.model.RWikiHistoryObjectContentImpl"
-		table="rwikihistorycontent">
-		<id name="id" unsaved-value="null" >
+
+	<class name="uk.ac.cam.caret.sakai.rwiki.model.RWikiHistoryObjectContentImpl" table="rwikihistorycontent">
+		<id name="id" type="string" unsaved-value="null" >
 			<column name="id" length="36" not-null="true"/>
-			<generator class="uuid.hex" />
+			<generator class="uuid2" />
 		</id>
 		<property name="rwikiid" length="36" not-null="true" index="irwikihistorycontent_rwi"/>
-		<property name="content" not-null="false" type="materialized_clob" length="16777215" access="field"/> <!-- SAK-20790, set access to field to prevent Hibernate from calling the getter -->
+		<!-- SAK-20790, set access to field to prevent Hibernate from calling the getter -->
+		<property name="content" not-null="false" type="materialized_clob" length="16777215" access="field"/>
 	</class>
-	
-	<!-- 
-	Version 2 schema, refactoed from version 1, 
-	contains detached historical versions
-	-->
-	<class 
-		name="uk.ac.cam.caret.sakai.rwiki.model.RWikiHistoryObjectImpl" 
-		table="rwikihistory" >
-<!--  		<cache usage="nonstrict-read-write" />  remove for the moment, until we know if acceptable -->
-		<id name="id" unsaved-value="null">
+
+	<class name="uk.ac.cam.caret.sakai.rwiki.model.RWikiHistoryObjectImpl" table="rwikihistory" >
+		<!-- <cache usage="nonstrict-read-write" />  remove for the moment, until we know if acceptable -->
+		<id name="id" type="string" unsaved-value="null">
 			<column name="id" length="36" not-null="true"/>
-			<generator class="uuid.hex"/>
+			<generator class="uuid2"/>
 		</id>
-		
 		<property name="version" type="timestamp" not-null="false"/>		
 		<!-- this is the name of the page -->
 		<property name="name" column="name" not-null="true" index="irwikihistory_name" type="string"  length="255"/>
@@ -83,62 +63,45 @@
 		<property name="groupAdmin" type="boolean" />
 		<property name="publicRead" type="boolean" />
 		<property name="publicWrite" type="boolean" />
-
 		<property name="sha1" length="64" />
-		
-		
 		<property name="revision"  type="int"/>
-
 		<!-- additional properties not in RWiki Object -->		
 		<property name="rwikiobjectid" length="36" not-null="true" index="irwikihistoryobj_rwid"/>
-
 	</class>
 
-	<class name="uk.ac.cam.caret.sakai.rwiki.model.RWikiCurrentObjectImpl" 
-			table="rwikiobject"
-			optimistic-lock="version">
-<!--		<cache usage="read-write" /> -->
-		<id name="id" unsaved-value="null">
-		<column name="id" length="36" not-null="true"/>
-		<generator class="uuid.hex"/>
-	</id>
-
-	<version name="version" type="timestamp" unsaved-value="null"/>
-
-    <!-- this is the name of the page -->
-    <property name="name" column="name" not-null="true" index="irwikiobject_name" type="string" unique="true" length="255"/>
-	<!-- this is the realm that the page belongs to -->
-	<property name="realm" not-null="false" type="string" index="irwikiobject_realm" length="255" />
-	
-	<!-- this is the content of the wiki -->
-	<!-- MOVED TO SEPERATE CONTENT OBJECT
-	<property name="content" not-null="false" type="materialized_clob" />
-	-->
-
-    <!-- enough for about 400 pages, dont want to use a clob here -->
-	<property name="referenced" not-null="false" length="4000" />
-
-	<!-- the user that edited this page. -->
-	<!-- when versioning is on, the last entry is the last updated -->
-	<!-- the first entry is the creator -->
-	<property name="user" column="userid" not-null="false" length="64" />
-	<property name="owner" not-null="false" length="64" />
-	<!-- access: this is a simple access control list on a page by page basis -->
-	<!-- it specifies read and or write for user, group, and public -->
-	<property name="ownerRead" type="boolean"  />
-	<property name="ownerWrite" type="boolean" />
-	<property name="ownerAdmin" type="boolean" />
-	<property name="groupRead" type="boolean" />
-	<property name="groupWrite" type="boolean" />
-	<property name="groupAdmin" type="boolean" />
-	<property name="publicRead" type="boolean" />
-	<property name="publicWrite" type="boolean" />
-
-	<property name="sha1" length="64" />
-		
-	<property name="revision"  type="int"/>
-		
-  </class>
-
-    
+	<class name="uk.ac.cam.caret.sakai.rwiki.model.RWikiCurrentObjectImpl" table="rwikiobject" optimistic-lock="version">
+		<!-- <cache usage="read-write" /> -->
+		<id name="id" type="string" unsaved-value="null">
+			<column name="id" length="36" not-null="true"/>
+			<generator class="uuid2"/>
+		</id>
+		<version name="version" type="timestamp" unsaved-value="null"/>
+		<!-- this is the name of the page -->
+		<property name="name" column="name" not-null="true" index="irwikiobject_name" type="string" unique="true" length="255"/>
+		<!-- this is the realm that the page belongs to -->
+		<property name="realm" not-null="false" type="string" index="irwikiobject_realm" length="255" />
+		<!-- this is the content of the wiki -->
+		<!-- MOVED TO SEPERATE CONTENT OBJECT
+			<property name="content" not-null="false" type="materialized_clob" />
+		-->
+		<!-- enough for about 400 pages, dont want to use a clob here -->
+		<property name="referenced" not-null="false" length="4000" />
+		<!-- the user that edited this page. -->
+		<!-- when versioning is on, the last entry is the last updated -->
+		<!-- the first entry is the creator -->
+		<property name="user" column="userid" not-null="false" length="64" />
+		<property name="owner" not-null="false" length="64" />
+		<!-- access: this is a simple access control list on a page by page basis -->
+		<!-- it specifies read and or write for user, group, and public -->
+		<property name="ownerRead" type="boolean"  />
+		<property name="ownerWrite" type="boolean" />
+		<property name="ownerAdmin" type="boolean" />
+		<property name="groupRead" type="boolean" />
+		<property name="groupWrite" type="boolean" />
+		<property name="groupAdmin" type="boolean" />
+		<property name="publicRead" type="boolean" />
+		<property name="publicWrite" type="boolean" />
+		<property name="sha1" length="64" />
+		<property name="revision"  type="int"/>
+	</class>
 </hibernate-mapping>

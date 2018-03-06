@@ -23,6 +23,7 @@ package org.sakaiproject.chat2.model;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import org.sakaiproject.entity.api.EntitySummary;
 import org.sakaiproject.exception.PermissionException;
@@ -145,20 +146,6 @@ public interface ChatManager extends EntitySummary {
     * @return ChatMessage
     */
    public ChatMessage getMessage(String chatMessageId);
-
-   /**
-    * Adds a room listener on the room
-    * @param observer RoomObserver the class to observe the room
-    * @param roomId the room being observed
-    */
-   public void addRoomListener(RoomObserver observer, String roomId);
-
-   /**
-    * Removes a room listener on the room
-    * @param observer RoomObserver the class to stop observing the room
-    * @param roomId the room being observed
-    */
-   public void removeRoomListener(RoomObserver observer, String roomId);
    
    /**
     * sends the message out to the other clients
@@ -263,5 +250,55 @@ public interface ChatManager extends EntitySummary {
      * @return the max number of messages that are returned from storage
      */
    public int getMessagesMax();
+   
+   /**
+    * Get all online users in given siteId and chat channel id 
+    * 
+    * @param siteId
+    * @param channelId
+    * @return
+    */
+   public List<SimpleUser> getPresentUsers(String siteId, String channelId);
+   
+   /**
+    * - Update heartbeat for current user
+    * - Get undelivered (latest) messages
+    * - Get online users
+    * - Get removed messages
+    * 
+    * @param siteId
+    * @param channelId
+    * @param sessionKey
+    * @return
+    */
+   public Map<String,Object> handleChatData(String siteId, String channelId, String sessionKey);
+   
+   /**
+    * Get pollInterval (in milliseconds) from properties
+    * @return
+    */
+   public int getPollInterval();
+   
+   /**
+    * Get session key (ussage_session_id:session_user_id) from current session
+    * @return
+    */
+   public String getSessionKey();
+   
+   /**
+    * Get different date strings based on given ChatMessage::messageDate
+    * @param msg
+    * @return
+    */
+   public MessageDateString getMessageDateString(ChatMessage msg);
+   
+   /**
+    * Get user timezone from preferencesService.
+    * This method is almost a duplicate from BasicTimeService.getUserTimezoneLocale. 
+    * Would be great if the preferencesService returns it directly
+    * @return
+    */
+   public String getUserTimeZone();
+   
    
 }

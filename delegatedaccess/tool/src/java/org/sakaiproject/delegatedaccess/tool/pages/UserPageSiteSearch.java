@@ -30,12 +30,11 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
-import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.ChoiceRenderer;
@@ -45,8 +44,8 @@ import org.apache.wicket.markup.html.form.Radio;
 import org.apache.wicket.markup.html.form.RadioGroup;
 import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.markup.html.link.DownloadLink;
+import org.apache.wicket.markup.html.link.ExternalLink;
 import org.apache.wicket.markup.html.link.Link;
-import org.apache.wicket.markup.html.link.PopupSettings;
 import org.apache.wicket.markup.html.navigation.paging.PagingNavigator;
 import org.apache.wicket.markup.repeater.DefaultItemReuseStrategy;
 import org.apache.wicket.markup.repeater.Item;
@@ -58,10 +57,10 @@ import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
-import org.apache.wicket.request.http.handler.RedirectRequestHandler;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.util.resource.FileResourceStream;
 import org.apache.wicket.util.resource.IResourceStream;
+
 import org.sakaiproject.delegatedaccess.model.ListOptionSerialized;
 import org.sakaiproject.delegatedaccess.model.SelectOption;
 import org.sakaiproject.delegatedaccess.model.SiteSearchResult;
@@ -76,8 +75,8 @@ import org.sakaiproject.user.api.User;
  * @author Bryan Holladay (holladay@longsight.com)
  *
  */
+@Slf4j
 public class UserPageSiteSearch extends BasePage {
-	private static final Logger log = LoggerFactory.getLogger(UserPageSiteSearch.class);
 	private int orderBy = DelegatedAccessConstants.SEARCH_COMPARE_DEFAULT;
 	private boolean orderAsc = true;
 	private SiteSearchResultDataProvider provider;
@@ -689,15 +688,7 @@ public class UserPageSiteSearch extends BasePage {
 			@Override
 			public void populateItem(final Item item) {
 				final SiteSearchResult siteSearchResult = (SiteSearchResult) item.getModelObject();
-				AjaxLink<Void> siteTitleLink = new AjaxLink("siteTitleLink"){
-					private static final long serialVersionUID = 1L;
-					public void onClick(AjaxRequestTarget target) {
-						if(siteSearchResult.getSiteUrl() != null){
-							//redirect the user to the site
-							getRequestCycle().scheduleRequestHandlerAfterCurrent(new RedirectRequestHandler(siteSearchResult.getSiteUrl()));
-						}
-					}
-				};
+				ExternalLink siteTitleLink = new ExternalLink("siteTitleLink", siteSearchResult.getSiteUrl());
 				siteTitleLink.add(new Label("siteTitle", siteSearchResult.getSiteTitle()));
 				item.add(siteTitleLink);
 				final String siteRef = siteSearchResult.getSiteReference();

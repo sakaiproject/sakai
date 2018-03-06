@@ -1,3 +1,18 @@
+/**
+ * Copyright (c) 2007-2016 The Apereo Foundation
+ *
+ * Licensed under the Educational Community License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *             http://opensource.org/licenses/ecl2
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 /*
 * Licensed to The Apereo Foundation under one or more contributor license
 * agreements. See the NOTICE file distributed with this work for
@@ -22,17 +37,17 @@ package org.sakaiproject.signup.dao;
 import java.util.Date;
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.hibernate.Criteria;
 import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
+import org.springframework.dao.DataAccessException;
+
 import org.sakaiproject.genericdao.hibernate.HibernateGeneralGenericDao;
 import org.sakaiproject.signup.model.SignupMeeting;
 import org.sakaiproject.signup.model.SignupTimeslot;
-import org.springframework.dao.DataAccessException;
 
 /**
  * <p>
@@ -44,10 +59,9 @@ import org.springframework.dao.DataAccessException;
  * 
  * </p>
  */
+@Slf4j
 public class SignupMeetingDaoImpl extends HibernateGeneralGenericDao  implements
 		SignupMeetingDao {
-
-	private static Logger log = LoggerFactory.getLogger(SignupMeetingDaoImpl.class);
 
 	public void init() {
 		log.debug("init");

@@ -17,10 +17,10 @@
 **********************************************************************************/
 package edu.indiana.lib.twinpeaks.search.sru;
 
-import edu.indiana.lib.twinpeaks.search.HttpTransactionQueryBase;
-import edu.indiana.lib.twinpeaks.util.LogUtils;
-import edu.indiana.lib.twinpeaks.util.StringUtils;
 import lombok.extern.slf4j.Slf4j;
+
+import edu.indiana.lib.twinpeaks.search.HttpTransactionQueryBase;
+import edu.indiana.lib.twinpeaks.util.StringUtils;
 
 /**
  * Basic SRU query functionality

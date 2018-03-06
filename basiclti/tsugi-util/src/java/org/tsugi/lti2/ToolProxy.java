@@ -26,9 +26,10 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
 import java.util.HashMap;
-import java.util.logging.Logger;
 
 import javax.servlet.http.HttpServletRequest;
+
+import lombok.extern.slf4j.Slf4j;
 
 import org.tsugi.basiclti.BasicLTIUtil;
 import org.tsugi.lti2.objects.Service_offered;
@@ -43,10 +44,8 @@ import static org.tsugi.lti2.LTI2Util.getObject;
 import static org.tsugi.lti2.LTI2Util.getString;
 import static org.tsugi.lti2.LTI2Util.compareServiceIds;
 
+@Slf4j
 public class ToolProxy {
-
-	// We use the built-in Java logger because this code needs to be very generic
-	private static Logger M_log = Logger.getLogger(ToolProxy.class.toString());
 
 	private JSONObject toolProxy = null;
 
@@ -314,8 +313,8 @@ public class ToolProxy {
 		try {
 			return parseToolProfileInternal(theTools, info);
 		} catch (Exception e) {
-			M_log.warning("Internal error parsing tool proxy\n"+toolProxy.toString());
-			e.printStackTrace();
+			log.warn("Internal error parsing tool proxy\n{}", toolProxy.toString());
+			log.error(e.getMessage(), e);
 			return "Internal error parsing tool proxy:"+e.getLocalizedMessage();
 		}
 	}
@@ -502,6 +501,9 @@ public class ToolProxy {
 					theTool.put(LTI2Constants.TOOL_PROXY_BINDING, tool_proxy_binding.toString());
 					theTools.add(theTool);
 
+				} else if ( LTI2Messages.TOOLPROXY_REGISTRATION_REQUEST.equals(message_type) || 
+				     LTI2Messages.TOOLPROXY_RE_REGISTRATION_REQUEST.equals(message_type) ) {
+                                        continue;
 				} else {
 					return "Only "+LTI2Messages.BASIC_LTI_LAUNCH_REQUEST+" and "+LTI2Messages.CONTENT_ITEM_SELECTION_REQUEST+ " are allowed message_types RT="+resource_type_code;
 				}

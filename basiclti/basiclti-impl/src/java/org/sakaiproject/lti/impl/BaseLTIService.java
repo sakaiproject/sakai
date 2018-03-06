@@ -21,12 +21,16 @@
 
 package org.sakaiproject.lti.impl;
 
-import java.util.UUID;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.UUID;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+
+import org.sakaiproject.lti.api.LTISubstitutionsFilter;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.component.cover.ComponentManager;
@@ -45,18 +49,13 @@ import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.foorm.SakaiFoorm;
 
-import java.util.ArrayList;
-import java.util.Properties;
-
 /**
  * <p>
  * Implements the LTIService, all but a Storage model.
  * </p>
  */
+@Slf4j
 public abstract class BaseLTIService implements LTIService {
-	/** Our log (commons). */
-	private static Logger M_log = LoggerFactory.getLogger(BaseLTIService.class);
-
 	/** Constants */
 	private final String ADMIN_SITE = "!admin";
 	public final String LAUNCH_PREFIX = "/access/basiclti/site/";
@@ -70,6 +69,9 @@ public abstract class BaseLTIService implements LTIService {
 
 	/** Dependency: SessionManager */
 	protected SessionManager m_sessionManager = null;
+
+	// The filters that are applied to custom properties.
+	protected List<LTISubstitutionsFilter> filters = new CopyOnWriteArrayList<>();
 
 	/**
 	 * Dependency: SessionManager.
@@ -158,10 +160,10 @@ public abstract class BaseLTIService implements LTIService {
 	 */
 	public void init() {
 		try {
-			M_log.info("init()");
+			log.info("init()");
 
 		} catch (Exception t) {
-			M_log.warn("init(): ", t);
+			log.warn("init(): ", t);
 		}
 
 		getServices();
@@ -169,17 +171,17 @@ public abstract class BaseLTIService implements LTIService {
 		// Check to see if all out properties are defined
 		ArrayList<String> strings = foorm.checkI18NStrings(LTIService.TOOL_MODEL, rb);
 		for (String str : strings) {
-			M_log.warn(str + "=Missing LTIService Translation");
+			log.warn("{}=Missing LTIService Translation", str);
 		}
 
 		strings = foorm.checkI18NStrings(LTIService.CONTENT_MODEL, rb);
 		for (String str : strings) {
-			M_log.warn(str + "=Missing LTIService Translation");
+			log.warn("{}=Missing LTIService Translation", str);
 		}
 
 		strings = foorm.checkI18NStrings(LTIService.DEPLOY_MODEL, rb);
 		for (String str : strings) {
-			M_log.warn(str + "=Missing LTIService Translation");
+			log.warn("{}=Missing LTIService Translation", str);
 		}
 	}
 
@@ -187,7 +189,7 @@ public abstract class BaseLTIService implements LTIService {
 	 * Returns to uninitialized state.
 	 */
 	public void destroy() {
-		M_log.info("destroy()");
+		log.info("destroy()");
 	}
 
 	/**********************************************************************************************************************************************************************************************************************************************************
@@ -445,6 +447,73 @@ public abstract class BaseLTIService implements LTIService {
 		return deleteToolDao(key, siteId, isAdmin(siteId), isMaintain(siteId));
 	}
 
+	/** Delete a tool and delete the content items and site links assocated with the tool
+	 *
+	 * This is called by a maintain user in a regualr site and deletes a tool, its content
+	 * item, and pages with it on the page.
+	 *
+	 * For the admin user in the !admin site - it deletes a tool and then removes the
+	 * placements + pages from all the sites that have the tool - might take a second or two.
+	 *
+	 * @return A list of strings that are error messages
+	 */
+	@Override
+	public List<String> deleteToolAndContents(Long key, String siteId) {
+
+		List<String> retval = new ArrayList<String> ();
+		String errstr;
+
+		List<Map<String,Object>> contents;
+		if ( isAdmin(siteId) ) {
+			contents = this.getContentsDao("lti_content.tool_id = "+key,null,0,5000, null, isAdmin(siteId));
+		} else {
+			contents = this.getContents("lti_content.tool_id = "+key, null,0,5000, siteId);
+		}
+
+		for ( Map<String,Object> content : contents ) {
+			// the content with same tool id remove the content link first
+			Long content_key = foorm.getLongNull(content.get(LTIService.LTI_ID));
+			if ( content_key == null ) continue;
+
+			// Check the tool_id - just double checking in case the WHER clause fails
+			Long tool_id = foorm.getLongNull(content.get(LTIService.LTI_TOOL_ID));
+			if ( ! key.equals(tool_id) ) continue;
+
+			// Admin edits all sites with the content item
+			String contentSite = siteId;
+			if ( isAdmin(siteId) ) {
+				contentSite = content.get(LTIService.LTI_SITE_ID).toString();
+			}
+
+			// Is there is a tool placement in the left Nav (i.e. not Lessons)
+			// remove the tool content link page from the site
+			String pstr = (String) content.get(LTIService.LTI_PLACEMENT);
+			if ( pstr != null && pstr.length() > 1 ) {
+				errstr = this.deleteContentLink(content_key, contentSite);
+				if ( errstr != null ) {
+					log.debug(errstr);
+					retval.add(errstr);
+				}
+			}
+
+			// remove the content item that depends on the tool
+			if ( ! this.deleteContent(content_key, contentSite) ) {
+				errstr = "Unable to delete content itemkey="+key+" site="+siteId;
+				log.debug(errstr);
+				retval.add(errstr);
+			}
+		}
+
+		// We are going to delete the tool even if there were problems along the way
+		// Since that is the one thing we are supposed to do in this method
+		if ( ! this.deleteTool(key, siteId) ) {
+			errstr = "Unable to delete tool key="+key+" site="+siteId;
+			log.debug(errstr);
+			retval.add(errstr);
+		}
+		return retval;
+	}
+
 	@Override
 	public Map<String, Object> getTool(Long key, String siteId) {
 		return getToolDao(key, siteId, isAdmin(siteId));
@@ -566,6 +635,26 @@ public abstract class BaseLTIService implements LTIService {
 		String returnUrl = reqProps.getProperty("returnUrl");
 
 		Long contentKey = null;
+		Long toolKey = new Long(toolId);
+		Map<String,Object> tool = getToolDao(toolKey, siteId, isAdminRole);
+		if ( tool == null ) {
+			retval = rb.getString("error.tool.not.found");
+			return retval;
+		}
+
+		// Make sure any missing required bits are inherited from the tool.
+		if ( ! reqProps.containsKey(LTIService.LTI_TOOL_ID) ) {
+			reqProps.setProperty(LTIService.LTI_TOOL_ID,toolId);
+		}
+
+		if ( ! reqProps.containsKey(LTIService.LTI_TITLE) ) {
+			reqProps.setProperty(LTIService.LTI_TITLE,(String) tool.get(LTIService.LTI_TITLE));
+		}
+
+		if ( ! reqProps.containsKey(LTIService.LTI_PAGETITLE) ) {
+			reqProps.setProperty(LTIService.LTI_PAGETITLE,(String) tool.get(LTIService.LTI_PAGETITLE));
+		}
+
 		if ( id == null ) 
 		{
 			reqProps.setProperty(LTIService.LTI_PLACEMENTSECRET, UUID.randomUUID().toString());
@@ -573,11 +662,6 @@ public abstract class BaseLTIService implements LTIService {
 			retval = insertContentDao(reqProps, siteId, isAdminRole, isMaintainRole);
 		} else {
 			contentKey = new Long(id);
-			Long toolKey = new Long(toolId);
-			Map<String,Object> tool = getToolDao(toolKey, siteId, isAdminRole);
-			if ( tool == null ) {
-				retval = rb.getString("error.tool.not.found");
-			}
 			if ( returnUrl != null ) {
 				if ( LTI_SECRET_INCOMPLETE.equals((String) tool.get(LTI_SECRET)) &&
 						LTI_SECRET_INCOMPLETE.equals((String) tool.get(LTI_CONSUMERKEY)) ) {
@@ -656,14 +740,14 @@ public abstract class BaseLTIService implements LTIService {
 			catch (PermissionException ee)
 			{
 				retval = new String("0" + rb.getFormattedMessage("error.link.placement.update", new Object[]{id}));
-				M_log.warn(this + " cannot add page and basic lti tool to site " + siteId);
+				log.warn("Cannot add page and basic lti tool to site {}", siteId);
 			}
 		}
 		catch (IdUnusedException e)
 		{
 			// cannot find site
 			retval = new String("0" + rb.getFormattedMessage("error.link.placement.update", new Object[]{id}));
-			M_log.warn(this + " cannot find site " + contentSite);
+			log.warn("Cannot find site {}", contentSite);
 		}
 				
 		return retval;
@@ -700,7 +784,7 @@ public abstract class BaseLTIService implements LTIService {
 		}
 
 		String siteStr = (String) content.get(LTI_SITE_ID);
-		// only admin can remve content from other site
+		// only admin can remove content from other site
 		if ( ! siteId.equals(siteStr) && !isAdminRole ) {
 			return rb.getString("error.placement.not.found");
 		}
@@ -719,10 +803,11 @@ public abstract class BaseLTIService implements LTIService {
 					return rb.getString("error.placement.not.removed");
 				}
 			} else {
-				M_log.warn(this + " LTI content="+key+" placement="+tool.getId()+" could not find page in site=" + siteStr);
+				log.warn("LTI content={} placement={} could not find page in site={}", key, tool.getId(), siteStr);
 			}
 	
 			// Remove the placement from the content item
+			// Our caller can remove the contentitem if they like
 			Properties newProps = new Properties();
 			newProps.setProperty(LTIService.LTI_PLACEMENT, "");
 			Object retval = updateContentDao(key, newProps, siteId, isAdminRole, isMaintainRole);
@@ -736,7 +821,7 @@ public abstract class BaseLTIService implements LTIService {
 		}
 		catch (IdUnusedException ee)
 		{
-			M_log.warn(this + " LTI content="+key+" placement="+tool.getId()+" could not remove page from site=" + siteStr);
+			log.warn("LTI content={} placement={} could not remove page from site={}", key, tool.getId(), siteStr);
 			return new String(rb.getFormattedMessage("error.link.placement.update", new Object[]{key.toString()}));
 		}
 	}
@@ -771,5 +856,20 @@ public abstract class BaseLTIService implements LTIService {
 	public abstract boolean deleteProxyBindingDao(Long key);
 	public abstract Map<String, Object> getProxyBindingDao(Long key);
 	public abstract Map<String, Object> getProxyBindingDao(Long tool_id, String siteId);
+
+	@Override
+	public void registerPropertiesFilter(LTISubstitutionsFilter filter) {
+		filters.add(filter);
+	}
+
+	@Override
+	public void removePropertiesFilter(LTISubstitutionsFilter filter) {
+		filters.remove(filter);
+	}
+
+	@Override
+	public void filterCustomSubstitutions(Properties properties, Map<String, Object> tool, Site site) {
+		filters.forEach(filter -> filter.filterCustomSubstitutions(properties, tool, site));
+	}
 
 }

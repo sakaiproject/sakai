@@ -1,15 +1,25 @@
+/**
+ * Copyright (c) 2007-2016 The Apereo Foundation
+ *
+ * Licensed under the Educational Community License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *             http://opensource.org/licenses/ecl2
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.sakaiproject.emailtemplateservice.tool.producers;
 
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.sakaiproject.emailtemplateservice.model.EmailTemplate;
-import org.sakaiproject.emailtemplateservice.service.EmailTemplateService;
-import org.sakaiproject.emailtemplateservice.service.external.ExternalLogic;
-import org.sakaiproject.emailtemplateservice.tool.params.EmailTemplateViewParams;
+import lombok.extern.slf4j.Slf4j;
 
 import uk.org.ponder.messageutil.TargettedMessage;
 import uk.org.ponder.messageutil.TargettedMessageList;
@@ -23,6 +33,12 @@ import uk.org.ponder.rsf.view.DefaultView;
 import uk.org.ponder.rsf.view.ViewComponentProducer;
 import uk.org.ponder.rsf.viewstate.ViewParameters;
 
+import org.sakaiproject.emailtemplateservice.model.EmailTemplate;
+import org.sakaiproject.emailtemplateservice.service.EmailTemplateService;
+import org.sakaiproject.emailtemplateservice.service.external.ExternalLogic;
+import org.sakaiproject.emailtemplateservice.tool.params.EmailTemplateViewParams;
+
+@Slf4j
 public class MainViewProducer implements ViewComponentProducer, DefaultView {
 
 	public static final String VIEW_ID = "main";
@@ -31,8 +47,6 @@ public class MainViewProducer implements ViewComponentProducer, DefaultView {
 		// TODO Auto-generated method stub
 		return VIEW_ID;
 	}
-
-	private static Logger log = LoggerFactory.getLogger(MainViewProducer.class);
 
 	private EmailTemplateService emailTemplateService;
 	public void setEmailTemplateService(EmailTemplateService ets) {

@@ -1,35 +1,30 @@
-/**********************************************************************************
-*
-* $Id$
-*
-***********************************************************************************
-*
-* Copyright (c) 2008 The Sakai Foundation
-*
-* Licensed under the Educational Community License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-*       http://www.opensource.org/licenses/ECL-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
-*
-**********************************************************************************/
+/**
+ * Copyright (c) 2003-2016 The Apereo Foundation
+ *
+ * Licensed under the Educational Community License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *             http://opensource.org/licenses/ecl2
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 package org.sakaiproject.user.impl.test;
 
 import java.util.Collection;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
@@ -49,9 +44,8 @@ import org.sakaiproject.user.impl.DbUserService;
  * Test that the User Directory Service is correctly enabling context-specific display IDs
  * and display names.
  */
+@Slf4j
 public class ContextualDisplayServiceTest extends SakaiKernelTestBase {
-	private static Logger log = LoggerFactory.getLogger(ContextualDisplayServiceTest.class);
-
 	private static final String FIRST_NAME = "Alice";
 	// Also use EIDs as last names.
 	private static final String NOT_IN_SITE_USER_EID = "not_in_site_user";

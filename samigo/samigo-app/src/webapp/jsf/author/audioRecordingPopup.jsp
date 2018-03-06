@@ -30,10 +30,10 @@ $Id: audioRecordingPopup.jsp 6643 2006-03-13 19:38:07Z hquinn@stanford.edu $
 	<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 		<head><%= request.getAttribute("html.head") %>
 			<title><h:outputText value="#{assessmentSettingsMessages.audio_recording}" /></title>
-			<script type="text/javascript" src="/library/js/swfobject/swfobject.js"></script>
-			<script type="text/javascript" src="/library/js/recorder/recorder.js"></script>
-			<script type="text/javascript" src="/library/js/recorder/jRecorder.js"></script>
-			<script type="text/javascript" src="/library/js/sakai-recorder.js"></script>
+			<samigo:script path="/../library/js/swfobject/swfobject.js"/>
+			<samigo:script path="/../library/js/recorder/recorder.js"/>
+			<samigo:script path="/../library/js/recorder/jRecorder.js"/>
+			<samigo:script path="/../library/js/sakai-recorder.js"/>
 			<script type="text/javascript">
 				var userMediaSupport = true;
 				var timer;

@@ -41,14 +41,16 @@ import static org.tsugi.basiclti.BasicLTIConstants.TOOL_CONSUMER_INSTANCE_URL;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Date;
+import java.util.TimeZone;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.TreeMap;
 import java.util.UUID;
-import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import java.text.SimpleDateFormat;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -68,6 +70,8 @@ import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
+
+import lombok.extern.slf4j.Slf4j;
 
 /* Leave out until we have JTidy 0.8 in the repository 
  import org.w3c.tidy.Tidy;
@@ -111,23 +115,19 @@ import java.io.OutputStreamWriter;
  * &lt;/basic_lti_link&gt;
  * </pre>
  */
+@Slf4j
 public class BasicLTIUtil {
 
-	// We use the built-in Java logger because this code needs to be very generic
-	private static Logger M_log = Logger.getLogger(BasicLTIUtil.class.toString());
+	// How to make ISO8601 Dates
+	// https://stackoverflow.com/questions/2891361/how-to-set-time-zone-of-a-java-util-date
+	// https://stackoverflow.com/questions/2201925/converting-iso-8601-compliant-string-to-java-util-date
+	public static final String ISO_8601_FORMAT = "yyyy-MM-dd'T'HH:mm:ssz";
 
 	/** To turn on really verbose debugging */
 	private static boolean verbosePrint = false;
 
 	private static final Pattern CUSTOM_REGEX = Pattern.compile("[^A-Za-z0-9]");
 	private static final String UNDERSCORE = "_";
-
-	// Simple Debug Print Mechanism
-	public static void dPrint(String str) {
-		if (verbosePrint)
-			System.out.println(str);
-		M_log.fine(str);
-	}
 
 	// Returns true if this is a Basic LTI message with minimum values to meet the protocol
 	public static boolean isRequest(HttpServletRequest request) {
@@ -167,8 +167,7 @@ public class BasicLTIUtil {
 		}
 
 		if ( expected_oauth_key != null && ! expected_oauth_key.equals(oauth_consumer_key) ) {
-			M_log.warning("BasicLTIUtil.validateMessage Incorrect consumer key="+oauth_consumer_key+
-				" expected key="+expected_oauth_key);
+			log.warn("BasicLTIUtil.validateMessage Incorrect consumer key={} expected key={}", oauth_consumer_key, expected_oauth_key);
 			return "Incorrect consumer key "+oauth_consumer_key;
 		}
 
@@ -322,7 +321,7 @@ public class BasicLTIUtil {
 			postProp.put("oauth_callback", "about:blank");
 
 		if (oauth_consumer_key == null || oauth_consumer_secret == null) {
-			dPrint("No signature generated in signProperties");
+			log.debug("No signature generated in signProperties");
 			return postProp;
 		}
 
@@ -333,7 +332,7 @@ public class BasicLTIUtil {
 		try {
 			oam.addRequiredParameters(acc);
 			String base_string = OAuthSignatureMethod.getBaseString(oam);
-			M_log.fine("Base Message String\n"+base_string+"\n");
+			log.debug("Base Message String\n{}\n", base_string);
 			if ( extra != null ) {
 				extra.put("BaseString", base_string);
 			}
@@ -347,16 +346,13 @@ public class BasicLTIUtil {
 			}
 			return nextProp;
 		} catch (net.oauth.OAuthException e) {
-			M_log.warning("BasicLTIUtil.signProperties OAuth Exception "
-					+ e.getMessage());
+			log.warn("BasicLTIUtil.signProperties OAuth Exception {}", e.getMessage());
 			throw new Error(e);
 		} catch (java.io.IOException e) {
-			M_log.warning("BasicLTIUtil.signProperties IO Exception "
-					+ e.getMessage());
+			log.warn("BasicLTIUtil.signProperties IO Exception {}", e.getMessage());
 			throw new Error(e);
 		} catch (java.net.URISyntaxException e) {
-			M_log.warning("BasicLTIUtil.signProperties URI Syntax Exception "
-					+ e.getMessage());
+			log.warn("BasicLTIUtil.signProperties URI Syntax Exception {}", e.getMessage());
 			throw new Error(e);
 		}
 
@@ -410,7 +406,7 @@ public class BasicLTIUtil {
 		try {
 			base_string = OAuthSignatureMethod.getBaseString(oam);
 		} catch (Exception e) {
-			M_log.warning(e.getLocalizedMessage());
+			log.warn(e.getLocalizedMessage());
 			base_string = null;
 			return false;
 		}
@@ -418,10 +414,10 @@ public class BasicLTIUtil {
 		try {
 			oav.validateMessage(oam, acc);
 		} catch (Exception e) {
-			M_log.warning("Provider failed to validate message");
-			M_log.warning(e.getLocalizedMessage());
+			log.warn("Provider failed to validate message");
+			log.warn(e.getLocalizedMessage());
 			if (base_string != null) {
-				M_log.warning(base_string);
+				log.warn(base_string);
 			}
 			return false;
 		}
@@ -553,14 +549,18 @@ public class BasicLTIUtil {
 		}
 
 		// Paint the submit button
-		text.append("<input type=\"submit\" value=\"");
-		text.append(htmlspecialchars(launchtext));
-		text.append("\">\n");
-
 		if ( debug ) {
+			text.append("<input type=\"submit\" value=\"");
+			text.append(htmlspecialchars(launchtext));
+			text.append("\">\n");
+
 			text.append(" <input type=\"Submit\" value=\"Show Launch Data\" onclick=\"document.getElementById('ltiLaunchDebug_");
 			text.append(submit_uuid);
 			text.append("').style.display = 'block';return false;\">\n");
+		} else {
+			text.append("<input type=\"submit\" style=\"display: none\" value=\"");
+			text.append(htmlspecialchars(launchtext));
+			text.append("\">\n");
 		}
 
 		if ( extra != null ) {
@@ -671,7 +671,7 @@ public class BasicLTIUtil {
 		    url = OAuth.addParameters(url, om.getParameters());
 		    return url;
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.error(e.getMessage(), e);
 			return null;
 		}
 	}
@@ -709,7 +709,7 @@ public class BasicLTIUtil {
 			int responseCode = connection.getResponseCode();
 			return connection;
 		} catch(Exception e) {
-			e.printStackTrace();
+			log.error(e.getMessage(), e);
 			return null;
 		}
 	}
@@ -746,7 +746,7 @@ public class BasicLTIUtil {
 			in.close();
 			return response.toString();
 		} catch(Exception e) {
-			e.printStackTrace();
+			log.error(e.getMessage(), e);
 			return null;
 		}
 	}
@@ -768,12 +768,11 @@ public class BasicLTIUtil {
 		try {
 			tm = XMLMap.getFullMap(descriptor.trim());
 		} catch (Exception e) {
-			M_log.warning("BasicLTIUtil exception parsing BasicLTI descriptor: "
-					+ e.getMessage());
+			log.warn("BasicLTIUtil exception parsing BasicLTI descriptor: {}", e.getMessage());
 			return false;
 		}
 		if (tm == null) {
-			M_log.warning("Unable to parse XML in parseDescriptor");
+			log.warn("Unable to parse XML in parseDescriptor");
 			return false;
 		}
 
@@ -797,13 +796,13 @@ public class BasicLTIUtil {
 		List<Map<String, Object>> theList = XMLMap.getList(tm,
 				"/basic_lti_link/custom/parameter");
 		for (Map<String, Object> setting : theList) {
-			dPrint("Setting=" + setting);
+			log.debug("Setting={}", setting);
 			String key = XMLMap.getString(setting, "/!key"); // Get the key attribute
 			String value = XMLMap.getString(setting, "/"); // Get the value
 			if (key == null || value == null)
 				continue;
 			key = "custom_" + mapKeyName(key);
-			dPrint("key=" + key + " val=" + value);
+			log.debug("key={} val={}", key, value);
 			postProp.setProperty(key, value);
 		}
 		return true;
@@ -824,12 +823,11 @@ public class BasicLTIUtil {
 		try {
 			tm = XMLMap.getFullMap(descriptor.trim());
 		} catch (Exception e) {
-			M_log.warning("BasicLTIUtil exception parsing BasicLTI descriptor: "
-					+ e.getMessage());
+			log.warn("BasicLTIUtil exception parsing BasicLTI descriptor: {}", e.getMessage());
 			return false;
 		}
 		if (tm == null) {
-			M_log.warning("Unable to parse XML in parseDescriptor");
+			log.warn("Unable to parse XML in parseDescriptor");
 			return false;
 		}
 
@@ -853,13 +851,13 @@ public class BasicLTIUtil {
 		List<Map<String, Object>> theList = XMLMap.getList(tm,
 				"/basic_lti_link/custom/parameter");
 		for (Map<String, Object> setting : theList) {
-			dPrint("Setting=" + setting);
+			log.debug("Setting={}", setting);
 			String key = XMLMap.getString(setting, "/!key"); // Get the key attribute
 			String value = XMLMap.getString(setting, "/"); // Get the value
 			if (key == null || value == null)
 				continue;
 			key = "custom_" + mapKeyName(key);
-			dPrint("key=" + key + " val=" + value);
+			log.debug("key={} val={}", key, value);
 			postProp.put(key, value);
 		}
 		return true;
@@ -871,12 +869,11 @@ public class BasicLTIUtil {
 		try {
 			tm = XMLMap.getFullMap(descriptor.trim());
 		} catch (Exception e) {
-			M_log.warning("BasicLTIUtil exception parsing BasicLTI descriptor"
-					+ e.getMessage());
+			log.warn("BasicLTIUtil exception parsing BasicLTI descriptor {}", e.getMessage());
 			return null;
 		}
 		if (tm == null) {
-			M_log.warning("Unable to parse XML in prepareForExport");
+			log.warn("Unable to parse XML in prepareForExport");
 			return null;
 		}
 		XMLMap.removeSubMap(tm, "/basic_lti_link/x-secure");
@@ -1142,4 +1139,26 @@ public class BasicLTIUtil {
 	public static boolean equalsIgnoreCase(String str1, String str2) {
 		return str1 == null ? str2 == null : str1.equalsIgnoreCase(str2);
 	}
+
+	/**
+         * Return a ISO 8601 formatted date
+	 */
+	public static String getISO8601() {
+		return getISO8601(null);
+	}
+
+	/**
+         * Return a ISO 8601 formatted date
+	 */
+	public static String getISO8601(Date date) {
+		if ( date == null ) {
+			date = new Date();
+		}
+		SimpleDateFormat isoFormat = new SimpleDateFormat(ISO_8601_FORMAT);
+		isoFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
+		String timestamp = isoFormat.format(date);
+		timestamp = timestamp.replace("GMT", "Z");
+		return timestamp;
+	}
+
 }

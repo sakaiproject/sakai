@@ -23,36 +23,29 @@ package org.sakaiproject.time.impl;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.time.Clock;
 import java.util.GregorianCalendar;
 import java.util.Hashtable;
-import java.util.Locale;
+import java.util.Objects;
 import java.util.StringTokenizer;
 import java.util.TimeZone;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.sakaiproject.entity.api.ResourceProperties;
-import org.sakaiproject.memory.api.Cache;
-import org.sakaiproject.memory.api.MemoryService;
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.time.api.Time;
 import org.sakaiproject.time.api.TimeBreakdown;
 import org.sakaiproject.time.api.TimeRange;
 import org.sakaiproject.time.api.TimeService;
-import org.sakaiproject.tool.api.SessionManager;
-import org.sakaiproject.user.api.Preferences;
-import org.sakaiproject.user.api.PreferencesService;
-import org.sakaiproject.util.ResourceLoader;
+import org.sakaiproject.time.api.UserTimeService;
 
 /**
  * <p>
  * BasicTimeService implements the Sakai TimeService
  * </p>
  */
+@Slf4j
 public class BasicTimeService implements TimeService
 {
-	/** Our log (commons). */
-	private static Logger M_log = LoggerFactory.getLogger(TimeService.class);
-
 	/** The time zone for our GMT times. */
 	protected TimeZone M_tz = null;
 
@@ -79,58 +72,49 @@ public class BasicTimeService implements TimeService
 	// Map of Timezone/Locales to LocalTzFormat objects
 	private Hashtable<String, LocalTzFormat> M_localeTzMap = new Hashtable<String, LocalTzFormat>();
 
-	// Cache of userIds to Timezone/Locales
-	private Cache<String, String[]> M_userTzCache;
-
-	// Default Timezone/Locale
-	protected String[] M_tz_locale_default = new String[] { TimeZone.getDefault().getID(), Locale.getDefault().toString() };
-
-	// Used for fetching user's default language locale
-	ResourceLoader rl = new ResourceLoader();
 
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * Dependencies and their setter methods
 	 *********************************************************************************************************************************************************************************************************************************************************/
-	private SessionManager sessionManager;
+	private UserTimeService userTimeService;
 
-	public void setSessionManager(SessionManager sessionManager) {
-		this.sessionManager = sessionManager;
+	public void setUserTimeService(UserTimeService userTimeService) {
+		this.userTimeService = userTimeService;
 	}
 
-	private PreferencesService preferencesService;
+	private UserLocaleServiceImpl userLocaleService;
 
-	public void setPreferencesService(PreferencesService preferencesService) {
-		this.preferencesService = preferencesService;
+	public void setUserLocaleService(UserLocaleServiceImpl userLocaleService) {
+		this.userLocaleService = userLocaleService;
 	}
-	
-	
-	private MemoryService memoryService;
 
-	public void setMemoryService(MemoryService memoryService) {
-		this.memoryService = memoryService;
+	// Can be injected for testing
+	private Clock clock = Clock.systemDefaultZone();
+
+	public void setClock(Clock clock) {
+		this.clock = clock;
 	}
-	
 
-	/**********************************************************************************************************************************************************************************************************************************************************
-	 * Init and Destroy
-	 *********************************************************************************************************************************************************************************************************************************************************/
-
-
+	public Clock getClock() {
+		return clock;
+	}
 
 	/**
 	 * Final initialization, once all dependencies are set.
 	 */
 	public void init()
 	{
+		Objects.requireNonNull(userLocaleService);
+		Objects.requireNonNull(userTimeService);
 		/** The time zone for our GMT times. */
 		M_tz = TimeZone.getTimeZone("GMT");
 
-		M_log.info("init()");
+		log.info("init()");
 
 		/**
 		 * a calendar to clone for GMT time construction
 		 */
-		M_GCal = getCalendar(M_tz, 0, 0, 0, 0, 0, 0, 0);
+		M_GCal = newCalendar(M_tz, 0, 0, 0, 0, 0, 0, 0);
 
 		// Note: formatting for GMT time representations
 		M_fmtA = (DateFormat)(new SimpleDateFormat("yyyyMMddHHmmssSSS"));
@@ -146,10 +130,7 @@ public class BasicTimeService implements TimeService
 		M_fmtD.setTimeZone(M_tz);
 		M_fmtE.setTimeZone(M_tz);
 		M_fmtG.setTimeZone(M_tz);
-		
-		
-		//register the Cache
-		M_userTzCache = memoryService.getCache("org.sakaiproject.time.impl.BasicTimeService.userTimezoneCache");
+
 	}
 
 	/**
@@ -157,35 +138,16 @@ public class BasicTimeService implements TimeService
 	 */
 	public void destroy()
 	{
-		M_log.info("destroy()");
+		log.info("destroy()");
 	}
 
-	/** Return string with user's prefered timezone _and_ preferred locale
-	 ** (dates are formatted according to the locale)
-	 **/
 	protected String[] getUserTimezoneLocale()
 	{
-		// Check if we already cached this user's timezone
-		String userId = sessionManager.getCurrentSessionUserId();
-		if (userId == null) return M_tz_locale_default;
+		String timeZone = userTimeService.getLocalTimeZone().getID();
+		// Now, get user's preferred locale
+		String localeId = userLocaleService.getLocalLocale();
 
-		String[] timeZoneLocale = M_userTzCache.get(userId);
-		if (timeZoneLocale != null) return timeZoneLocale;
-
-		// Otherwise, get the user's preferred time zone
-		Preferences prefs = preferencesService.getPreferences(userId);
-		ResourceProperties tzProps = prefs.getProperties(TimeService.APPLICATION_ID);
-		String timeZone = tzProps.getProperty(TimeService.TIMEZONE_KEY);
-
-		if (timeZone == null || timeZone.equals("")) 
-			timeZone = TimeZone.getDefault().getID();
-
-		// Now, get user's prefered locale
-		String localeId = rl.getLocale().toString();
-
-		timeZoneLocale = new String[] {timeZone, localeId};
-
-		M_userTzCache.put(userId, timeZoneLocale);
+		String[] timeZoneLocale = new String[] {timeZone, localeId};
 
 		return timeZoneLocale;
 	}
@@ -194,11 +156,11 @@ public class BasicTimeService implements TimeService
 	{
 		//we need to convert the String[] to a string key
 		String tzLocaleString = stringAraytoKeyString(timeZoneLocale);
-		
+
 		LocalTzFormat tzFormat = M_localeTzMap.get(tzLocaleString);
-		if (M_log.isDebugEnabled()) 
+		if (log.isDebugEnabled())
 		{
-			M_log.debug("M_localeTzMap contains: " + M_localeTzMap.size() + " members");
+			log.debug("M_localeTzMap contains: " + M_localeTzMap.size() + " members");
 		}
 		if (tzFormat == null)
 		{
@@ -213,33 +175,25 @@ public class BasicTimeService implements TimeService
 		StringBuilder sb = new StringBuilder();
 		for (int i = 0; i < timeZoneLocale.length; i++ )
 		{
-			if (i > 0) 
+			if (i > 0)
 			{
 				sb.append("_");
 			}
 			sb.append(timeZoneLocale[i]);
 		}
-		
-		if (M_log.isDebugEnabled())
+
+		if (log.isDebugEnabled())
 		{
-			M_log.debug("returing key: " + sb.toString());
+			log.debug("returing key: " + sb.toString());
 		}
 		return sb.toString();
 	}
 
-	
+
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * Work interface methods: org.sakai.service.time.TimeService
 	 *********************************************************************************************************************************************************************************************************************************************************/
 
-	
-
-	/**
-	 * no arg constructor
-	 */
-	public BasicTimeService()
-	{
-	}
 
 	/**
 	 * {@inheritDoc}
@@ -294,7 +248,7 @@ public class BasicTimeService implements TimeService
 	 */
 	public Time newTimeLocal(int year, int month, int day, int hour, int minute, int second, int millisecond)
 	{
-		TimeZone tz_local = getLocalTzFormat(getUserTimezoneLocale()).M_tz_local;
+		TimeZone tz_local = userTimeService.getLocalTimeZone();
 		return new MyTime(this,tz_local, year, month, day, hour, minute, second, millisecond);
 	}
 
@@ -303,7 +257,7 @@ public class BasicTimeService implements TimeService
 	 */
 	public Time newTimeLocal(TimeBreakdown breakdown)
 	{
-		TimeZone tz_local = getLocalTzFormat(getUserTimezoneLocale()).M_tz_local;
+		TimeZone tz_local = userTimeService.getLocalTimeZone();
 		return new MyTime(this,tz_local, breakdown);
 	}
 
@@ -358,18 +312,20 @@ public class BasicTimeService implements TimeService
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	public TimeZone getLocalTimeZone()
 	{
-		return getLocalTzFormat(getUserTimezoneLocale()).M_tz_local;
+		return userTimeService.getLocalTimeZone();
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	public boolean clearLocalTimeZone(String userId)
 	{
-		M_userTzCache.remove(userId);
-		return true;
+		// Must not use && as need to clear them both.
+		return userTimeService.clearLocalTimeZone(userId) & userLocaleService.clearLocalLocale(userId);
 	}
 
 	/**
@@ -377,11 +333,7 @@ public class BasicTimeService implements TimeService
 	 */
 	public GregorianCalendar getCalendar(TimeZone zone, int year, int month, int day, int hour, int min, int sec, int ms)
 	{
-		GregorianCalendar rv = new GregorianCalendar(year, month, day, hour, min, sec);
-		rv.setTimeZone(zone);
-		rv.set(GregorianCalendar.MILLISECOND, ms);
-
-		return rv;
+	    return newCalendar(zone, year, month, day, hour, min, sec, ms);
 	}
 
 	/**
@@ -403,96 +355,6 @@ public class BasicTimeService implements TimeService
 
 		// now we know neither are null, so compare
 		return (!a.equals(b));
-	}
-
-	/**********************************************************************************************************************************************************************************************************************************************************
-	 * LocalTzFormat -- maintains a local timezone, locale and DateFormats
-	 *********************************************************************************************************************************************************************************************************************************************************/
-
-	protected class LocalTzFormat
-	{
-		// The time zone for our local times
-		public TimeZone M_tz_local = null;
-
-		// The Locale for our local date/time formatting
-		public Locale M_locale = null;
-
-		// a calendar to clone for GMT time construction
-		public GregorianCalendar M_GCall = null;
-
-		// The formatter for our special local timezone format(s)
-		public DateFormat M_fmtAl = null;
-
-		public DateFormat M_fmtBl = null;
-
-		public DateFormat M_fmtBlz = null;
-
-		public DateFormat M_fmtCl = null;
-
-		public DateFormat M_fmtClz = null;
-
-		public DateFormat M_fmtDl = null;
-
-		public DateFormat M_fmtD2 = null;
-
-		public DateFormat M_fmtFl = null;
-
-		private LocalTzFormat()
-		{
-		}; // disable default constructor
-
-		public LocalTzFormat(String timeZoneId, String localeId )
-		{
-			M_tz_local = TimeZone.getTimeZone(timeZoneId);
-
-			Locale M_locale = null;
-			String langLoc[] = localeId.split("_");
-			if ( langLoc.length >= 2 )
-				if (langLoc[0].equals("en") && langLoc[1].equals("ZA"))
-					M_locale = new Locale("en", "GB");
-				else
-					M_locale = new Locale(langLoc[0], langLoc[1]);
-			else
-				M_locale = new Locale(langLoc[0]);
-
-			M_fmtAl = (DateFormat)(new SimpleDateFormat("yyyyMMddHHmmssSSS"));
-			M_fmtBl = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT, M_locale);
-			M_fmtBlz = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.LONG, M_locale);
-			M_fmtCl = DateFormat.getTimeInstance(DateFormat.SHORT, M_locale);
-			M_fmtClz = DateFormat.getTimeInstance(DateFormat.LONG, M_locale);
-			M_fmtDl = DateFormat.getDateInstance(DateFormat.MEDIUM, M_locale);
-			M_fmtD2 = DateFormat.getDateInstance(DateFormat.SHORT, M_locale);
-			M_fmtFl = (DateFormat)(new SimpleDateFormat("HH:mm:ss"));
-
-			// Strip the seconds from the Blz and Clz (default) formats         
-			try
-			{
-				SimpleDateFormat sdf = ((SimpleDateFormat)M_fmtBlz);
-				String pattern = sdf.toLocalizedPattern();
-				pattern = pattern.replaceAll(":ss","");
-				sdf.applyLocalizedPattern( pattern );
-
-				sdf = ((SimpleDateFormat)M_fmtClz);
-				pattern = sdf.toLocalizedPattern();
-				pattern = pattern.replaceAll(":ss","");
-				sdf.applyLocalizedPattern( pattern );
-			}
-			catch (ClassCastException e)
-			{
-				// ignore -- not all locales support this
-			}
-
-			M_fmtAl.setTimeZone(M_tz_local);
-			M_fmtBl.setTimeZone(M_tz_local);
-			M_fmtBlz.setTimeZone(M_tz_local);
-			M_fmtCl.setTimeZone(M_tz_local);
-			M_fmtClz.setTimeZone(M_tz_local);
-			M_fmtDl.setTimeZone(M_tz_local);
-			M_fmtD2.setTimeZone(M_tz_local);
-			M_fmtFl.setTimeZone(M_tz_local);
-
-			M_GCall = getCalendar(M_tz_local, 0, 0, 0, 0, 0, 0, 0);
-		}
 	}
 
 	/**********************************************************************************************************************************************************************************************************************************************************
@@ -521,7 +383,7 @@ public class BasicTimeService implements TimeService
 
 		/**
 		 * construct from a two times, and start and end inclusion booleans
-		 * 
+		 *
 		 * @param start:
 		 *        start time
 		 * @param end:
@@ -551,7 +413,7 @@ public class BasicTimeService implements TimeService
 
 		/**
 		 * construct from a string, in our format
-		 * 
+		 *
 		 * @param str
 		 *        the time range string
 		 */
@@ -563,7 +425,7 @@ public class BasicTimeService implements TimeService
 
 		/**
 		 * construct from a single time
-		 * 
+		 *
 		 * @param startAndEnd:
 		 *        the single time value for the range
 		 */
@@ -575,7 +437,7 @@ public class BasicTimeService implements TimeService
 
 		/**
 		 * construct from a time long and a duration long in ms
-		 * 
+		 *
 		 * @param start
 		 *        time value
 		 * @param duration
@@ -601,7 +463,7 @@ public class BasicTimeService implements TimeService
 
 		/**
 		 * construct from a two times - inclusive
-		 * 
+		 *
 		 * @param start:
 		 *        the start time
 		 * @param end:
@@ -615,7 +477,7 @@ public class BasicTimeService implements TimeService
 
 		/**
 		 * is this time in my range?
-		 * 
+		 *
 		 * @param time:
 		 *        the time to check for inclusion
 		 * @return true if the time is in the range, false if not
@@ -649,7 +511,7 @@ public class BasicTimeService implements TimeService
 
 		/**
 		 * do I overlap this other range at all?
-		 * 
+		 *
 		 * @param range:
 		 *        the time range to check for overlap
 		 * @return true if any time in range is in my range is in the other range, false if not
@@ -684,7 +546,7 @@ public class BasicTimeService implements TimeService
 
 		/**
 		 * do I completely contain this other range?
-		 * 
+		 *
 		 * @param range:
 		 *        the time range to check for containment
 		 * @return true if range is within my time ramge
@@ -698,7 +560,7 @@ public class BasicTimeService implements TimeService
 
 		/**
 		 * what is the first time range included?
-		 * 
+		 *
 		 * @return the first time actually in the range
 		 */
 		public Time firstTime()
@@ -709,7 +571,7 @@ public class BasicTimeService implements TimeService
 
 		/**
 		 * what is the last time range included?
-		 * 
+		 *
 		 * @return the last time actually in the range
 		 */
 		public Time lastTime()
@@ -720,7 +582,7 @@ public class BasicTimeService implements TimeService
 
 		/**
 		 * what is the first time range included?
-		 * 
+		 *
 		 * @param fudge
 		 *        How many ms to advance if the first is not included.
 		 * @return the first time actually in the range
@@ -742,7 +604,7 @@ public class BasicTimeService implements TimeService
 
 		/**
 		 * what is the last time range included?
-		 * 
+		 *
 		 * @param fudge
 		 *        How many ms to decrease if the first is not included.
 		 * @return the last time actually in the range
@@ -764,7 +626,7 @@ public class BasicTimeService implements TimeService
 
 		/**
 		 * format the range
-		 * 
+		 *
 		 * @return a string representation of the time range
 		 */
 		public String toString()
@@ -807,7 +669,7 @@ public class BasicTimeService implements TimeService
 
 		/**
 		 * format the range - human readable
-		 * 
+		 *
 		 * @return a string representation of the time range, human readable
 		 */
 		public String toStringHR()
@@ -881,13 +743,14 @@ public class BasicTimeService implements TimeService
 		 */
 		public long duration()
 		{
-			return (lastTime().getTime() - firstTime().getTime());
+			// KNL-1536, SAK-30793, SAK-23076 - Get the *actual* duration - Ignore fudging
+			return (lastTime(0).getTime() - firstTime(0).getTime());
 
 		} // duration
 
 		/**
 		 * parse from a string - resolve fully earliest ('!') and latest ('*') and durations ('=')
-		 * 
+		 *
 		 * @param str
 		 *        the string to parse
 		 * @param earliest
@@ -1051,7 +914,7 @@ public class BasicTimeService implements TimeService
 			}
 			catch (Exception e)
 			{
-				M_log.warn("parse: exception parsing: " + str + " : " + e.toString());
+				log.warn("parse: exception parsing: " + str + " : " + e.toString());
 
 				// set a now range, just to have something
 				m_startTime = newTime();
@@ -1063,7 +926,7 @@ public class BasicTimeService implements TimeService
 
 		/**
 		 * Shift the time range back an intervel
-		 * 
+		 *
 		 * @param i
 		 *        time intervel in ms
 		 */
@@ -1075,7 +938,7 @@ public class BasicTimeService implements TimeService
 
 		/**
 		 * Shift the time range forward an intervel
-		 * 
+		 *
 		 * @param i
 		 *        time intervel in ms
 		 */
@@ -1087,7 +950,7 @@ public class BasicTimeService implements TimeService
 
 		/**
 		 * Enlarge or shrink the time range by multiplying a zooming factor
-		 * 
+		 *
 		 * @param f
 		 *        zooming factor
 		 */
@@ -1103,7 +966,7 @@ public class BasicTimeService implements TimeService
 
 		/**
 		 * Adjust this time range based on the difference between the origRange and the modRange, if any
-		 * 
+		 *
 		 * @param original
 		 *        the original time range.
 		 * @param modified
@@ -1125,7 +988,7 @@ public class BasicTimeService implements TimeService
 
 		/**
 		 * check if the time range is really just a single time
-		 * 
+		 *
 		 * @return true if the time range is a single time, false if it is not
 		 */
 		public boolean isSingleTime()
@@ -1136,144 +999,14 @@ public class BasicTimeService implements TimeService
 
 	} // class TimeRange
 
-	/**********************************************************************************************************************************************************************************************************************************************************
-	 * TimeBreakdown implementation
-	 *********************************************************************************************************************************************************************************************************************************************************/
 
-	public class MyTimeBreakdown implements TimeBreakdown
+	public static GregorianCalendar newCalendar(TimeZone zone, int year, int month, int day, int hour, int min, int sec, int ms)
 	{
-		/** The parts. */
-		protected int year;
+		GregorianCalendar rv = new GregorianCalendar(year, month, day, hour, min, sec);
+		rv.setTimeZone(zone);
+		rv.set(GregorianCalendar.MILLISECOND, ms);
 
-		protected int month;
-
-		protected int day;
-
-		protected int hour;
-
-		protected int min;
-
-		protected int sec;
-
-		protected int ms;
-
-		public MyTimeBreakdown(int y, int m, int d, int h, int minutes, int s, int milliseconds)
-		{
-			year = y;
-			month = m;
-			day = d;
-			hour = h;
-			min = minutes;
-			sec = s;
-			ms = milliseconds;
-		}
-
-		public MyTimeBreakdown(TimeBreakdown other)
-		{
-			year = ((MyTimeBreakdown) other).year;
-			month = ((MyTimeBreakdown) other).month;
-			day = ((MyTimeBreakdown) other).day;
-			hour = ((MyTimeBreakdown) other).hour;
-			min = ((MyTimeBreakdown) other).min;
-			sec = ((MyTimeBreakdown) other).sec;
-			ms = ((MyTimeBreakdown) other).ms;
-		}
-
-		public String toString()
-		{
-			return "year: " + year + " month: " + month + " day: " + day + " hour: " + hour + " min: " + min + " sec: " + sec
-			+ " ms: " + ms;
-		}
-
-		public int getYear()
-		{
-			return year;
-		}
-
-		public int getMonth()
-		{
-			return month;
-		}
-
-		public int getDay()
-		{
-			return day;
-		}
-
-		public int getHour()
-		{
-			return hour;
-		}
-
-		public int getMin()
-		{
-			return min;
-		}
-
-		public int getSec()
-		{
-			return sec;
-		}
-
-		public int getMs()
-		{
-			return ms;
-		}
-
-		/**
-		 * @param i
-		 */
-		public void setDay(int i)
-		{
-			day = i;
-		}
-
-		/**
-		 * @param i
-		 */
-		public void setHour(int i)
-		{
-			hour = i;
-		}
-
-		/**
-		 * @param i
-		 */
-		public void setMin(int i)
-		{
-			min = i;
-		}
-
-		/**
-		 * @param i
-		 */
-		public void setMonth(int i)
-		{
-			month = i;
-		}
-
-		/**
-		 * @param i
-		 */
-		public void setMs(int i)
-		{
-			ms = i;
-		}
-
-		/**
-		 * @param i
-		 */
-		public void setSec(int i)
-		{
-			sec = i;
-		}
-
-		/**
-		 * @param i
-		 */
-		public void setYear(int i)
-		{
-			year = i;
-		}
+		return rv;
 	}
+
 }

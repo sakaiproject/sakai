@@ -1,0 +1,89 @@
+<!-- start: chef_assignments_student_view_group_error.vm -->
+<div class="portletBody">
+    #if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div>#end
+    <table class="itemSummary"  summary="$tlang.getString("gen.theassinf")">
+				<tr>
+					<th>
+						$tlang.getString("gen.title")
+					</th>
+					<td>
+                                        #if ($!assignment.isGroup() )
+                                           <i class="fa fa-users" aria-hidden="true" title="$tlang.getString('gen.groupassignment')"></i>
+                                        #end
+						$validator.escapeHtml($assignment.getTitle())
+						#set ($deleted = false)
+						#set ($deleted = $assignment.getProperties().getProperty($assignment.getProperties().getNamePropAssignmentDeleted()))
+						#if ($!deleted.equalsIgnoreCase("true"))
+							<span class="highlight">(Assignment has been deleted)</span>
+						#end
+					</td>
+				</tr>
+				<tr>
+					<th>
+						$tlang.getString("gen.due")
+					</th>
+					<td>
+						$!service.getUsersLocalDateTimeString($!assignment.DueDate)
+					</td>
+				</tr>
+                                <tr>
+						<th><span style="color: #B11;">$tlang.getString("group.error.title")</span></th>
+						<td>
+                                                    $tlang.getString("group.error.message")
+						</td>
+				</tr>
+				
+			
+        #if ($!assignment.isGroup())
+            <tr><th>$tlang.getString("gen.groups")</th><td>
+		#if ($!groups)
+                    #set ($size = 0)
+                    #set ($listDisplay="block")
+                                <table id="groupTable" style="width:80%;display:$listDisplay" class="listHier lines indnt3" border="0" cellpadding="0" cellspacing="0" summary="$tlang.getString('group.list.summary')">
+					#foreach ($group in $!groups)
+                                                #set ($size = $size + 1)
+						<tr>
+							<td headers="name" class="checkbox" style="white-space:nowrap">
+								<label for="id-$group.Id">
+									$validator.escapeHtml($group.Title)
+								</label>	
+							</td>
+                                                        <td headers="description" width="100%"> ##mozilla does not resize table children dynamically , so set here
+							<span style="font-size: smaller; color: blue;">	
+								#set($gusers = $assignmentService.getSortedGroupUsers($group))
+								#foreach ($user in $gusers)
+                                                                        ##if ($!alertMessage.indexOf($user.getDisplayName() > 0)
+                                                                        ##    <span style="color: #B11;">$user.getDisplayName()</span>
+                                                                        ##else
+                                                                            $user.getDisplayName()
+                                                                        ##end
+									#if ($velocityCount < $gusers.size()),#end
+								#end
+							</span>	
+                                                        #set($description = $group.Description)
+								<div style="font-size: smaller;">$validator.escapeHtml($!description)</div>
+							</td>
+						</tr>
+					#end
+                                        #if ($size == 0)
+                                                <tr><td colspan="2"><span class="highlight">$tlang.getString("group.must.member")</span></td></tr>
+                                        #end
+                                </table>
+                #else
+                            <span class="highlight">$tlang.getString("group.must.member")</span>              
+		#end
+                    </td></tr>
+            #end
+                           
+			</table>
+
+		<form action="#toolForm("AssignmentAction")" method="post" >
+			<div class="act">
+				<input type="submit" accesskey="x" name="eventSubmit_doCancel_view_grade" value="$tlang.getString("gen.backtolist")" accesskey="x" class="active TB_hideControl"
+					onclick="SPNR.disableControlsAndSpin( this, null );" />
+			</div>
+			<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+		</form>
+
+</div>
+<!-- end: chef_assignments_student_view_group_error.vm -->

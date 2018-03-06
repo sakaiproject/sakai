@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.sakaiproject.samigo.impl;
 
 import java.util.HashMap;
@@ -20,16 +21,16 @@ import java.util.Map;
 import java.util.Observable;
 import java.util.Observer;
 
+import lombok.extern.slf4j.Slf4j;
 import lombok.Setter;
 import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.samigo.util.SamigoConstants;
 
+@Slf4j
 public class SamigoObserver implements Observer {
-    private static final Logger log = LoggerFactory.getLogger(SamigoObserver.class);
 
     public void init() {
         log.info("init()");
@@ -49,7 +50,7 @@ public class SamigoObserver implements Observer {
         Event event = (Event) arg;
         String eventType = event.getEvent();
 
-        if(SamigoConstants.EVENT_ASSESSMENT_SUBMITTED.equals(eventType)) {
+        if(SamigoConstants.EVENT_ASSESSMENT_SUBMITTED_NOTI.equals(eventType)) {
             log.debug("Assessment Submitted Event");
             String hashMapString = event.getResource();
             Map<String, Object> notiValues =  stringToHashMap(hashMapString);
@@ -72,7 +73,7 @@ public class SamigoObserver implements Observer {
      * Derived from http://stackoverflow.com/a/26486046
      */
     private Map<String, Object> stringToHashMap(String hashMapString){
-        Map<String, Object> map = new HashMap<String, Object>();
+        Map<String, Object> map = new HashMap<>();
 
         hashMapString = StringUtils.substringBetween(hashMapString, "{", "}");           //remove curly brackets
         String[] keyValuePairs = hashMapString.split(",");              //split the string to create key-value pairs

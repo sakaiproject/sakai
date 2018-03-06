@@ -29,8 +29,8 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.event.cover.UsageSessionService;
 import org.sakaiproject.tool.api.Session;
@@ -47,13 +47,11 @@ import org.sakaiproject.util.ExternalTrustedEvidence;
  * ContainerLogin ...
  * </p>
  */
+@Slf4j
 public class ContainerLogin extends HttpServlet
 {
 	private static final long serialVersionUID = -3589514330633190919L;
 
-	/** Our log (commons). */
-	private static Logger M_log = LoggerFactory.getLogger(ContainerLogin.class);
-	
 	private String defaultReturnUrl;
 
 	/**
@@ -77,7 +75,7 @@ public class ContainerLogin extends HttpServlet
 	{
 		super.init(config);
 
-		M_log.info("init()");
+		log.info("init()");
 		defaultReturnUrl = ServerConfigurationService.getString("portalPath", "/portal"); 
 	}
 
@@ -86,7 +84,7 @@ public class ContainerLogin extends HttpServlet
 	 */
 	public void destroy()
 	{
-		M_log.info("destroy()");
+		log.info("destroy()");
 
 		super.destroy();
 	}
@@ -134,7 +132,7 @@ public class ContainerLogin extends HttpServlet
 		}
 		catch (AuthenticationException ex)
 		{
-			M_log.warn("Authentication Failed for: "+ remoteUser+ ". "+ ex.getMessage());
+			log.warn("Authentication Failed for: "+ remoteUser+ ". "+ ex.getMessage());
 		}
 
 		// mark the session and redirect (for login failure or authentication exception)
@@ -152,7 +150,7 @@ public class ContainerLogin extends HttpServlet
 		String url = (String) session.getAttribute(sessionAttribute);
 		if (url == null || url.length() == 0)
 		{
-			M_log.debug("No "+ sessionAttribute + " URL, redirecting to portal URL.");
+			log.debug("No "+ sessionAttribute + " URL, redirecting to portal URL.");
 			url = defaultReturnUrl;
 		}
 		return url;

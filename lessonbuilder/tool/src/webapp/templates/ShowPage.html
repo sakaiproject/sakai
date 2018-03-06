@@ -48,6 +48,19 @@
  </head>
 
  <body rsf:id="scr=sakai-body">
+ <input type='hidden' rsf:id="lessonsSubnavToolId" id="lessonsSubnavToolId"/>
+ <input type='hidden' rsf:id="lessonsSubnavTopLevelPageId" id="lessonsSubnavTopLevelPageId"/>
+ <input type='hidden' rsf:id="lessonsSubnavPageId" id="lessonsSubnavPageId"/>
+ <input type='hidden' rsf:id="lessonsSubnavItemId" id="lessonsSubnavItemId"/>
+ <input type='hidden' rsf:id="lessonsCurrentPageId" id="lessonsCurrentPageId"/>
+ <script>
+     if (sakai) {
+         if (sakai.lessons_subnav) {
+             // Notify the lessons_subnav that we're on a lessons page
+             sakai.lessons_subnav.set_current_lessons_page();
+         }
+     }
+ </script>
  <script type="text/javascript" src="$context/js/jquery-1.9.1.min.js"></script>
  <script type="text/javascript" src="$context/js/jquery-ui-1.11.1.custom.min.js"></script>
  <script rsf:id="datepicker" type="text/javascript" src="/library/js/lang-datepicker/lang-datepicker.js"></script>
@@ -130,15 +143,17 @@
 		       </div>
 	     <div class="action topaction">
                  <span id="expandCollapseButtons" style="display:none;">
-                   <a href="#" role="button" id="expandAllSections"><span class="fa fa-toggle-down" aria-hidden="true" style="padding-right:5px;"></span><span rsf:id="msg=simplepage.expand.all"></span></a>
-                   <a href="#" role="button" id="collapseAllSections" style="display:none;"><span class="fa fa-toggle-up" aria-hidden="true" style="padding-right:5px;"></span><span rsf:id="msg=simplepage.collapse.all"></span></a>
+                   <a href="#" role="button" id="expandAllSections" class="button menuitem"><span class="fa fa-toggle-down" aria-hidden="true" style="padding-right:5px;"></span><span rsf:id="msg=simplepage.expand.all"></span></a>
+                   <a href="#" role="button" id="collapseAllSections" style="display:none;" class="button menuitem"><span class="fa fa-toggle-up" aria-hidden="true" style="padding-right:5px;"></span><span rsf:id="msg=simplepage.collapse.all"></span></a>
 		 </span>
-
+		 <span>
+		   <a role="button" href="#" rsf:id="prev" class="nexprev prev menuitem button">prev</a>
+		   <a role="button" href="#" rsf:id="next" class="nexprev prev menuitem button">next</a>
+		 </span>
 		 <a role="button"  href="#" rsf:id="print-view" id="print-view" onclick="window.open(printView(window.location.href));return false" class="Mrphs-toolTitleNav__link top-icon fa fa-print"><span rsf:id="msg=simplepage.print_view" class="Mrphs-itemTitle"></span></a>
 		 <a role="button" href="#" rsf:id="show-pages" id="show-pages" class="Mrphs-toolTitleNav__link top-icon fa fa-list-ul"><span rsf:id="msg=simplepage.showallpages" class="Mrphs-itemTitle"></span></a>
-
 		 <span rsf:id="gradingSpan" class="gradingarea">
-		     <a role="button" href="#" rsf:id="gradingBack" style="margin-right:2px;background:none" class="usebutton grading-nextprev">&#60;</a><img class="statusImg" src="$context/images/no-status.png" id="statusImg" height="16px" width="16px" alt=""></img><span style="*vertical-align:13%"  rsf:id="msg=simplepage.comments-points"></span><span style="display:none" class="uuidBox" rsf:id="commentsUUID"></span><span style="display:none" class="pointsSpan" rsf:id="commentPoints"></span> <input rsf:id="studentPointsBox"  id="studentPointsBox" type="text" style="font-size:100%"  size="3"></input> / <span rsf:id="topmaxpoints"></span> <a role="button" class="usebutton" href="#" rsf:id="msg=simplepage.submit" style="background:none; width:auto; *vertical-align:13%;margin-right:.5em" id="submit-grading"></a> <a role="button" style="background:none" href="#" rsf:id="gradingForward" class="usebutton grading-nextprev">&#62;</a>
+		   <a role="button" href="#" rsf:id="gradingBack" style="margin-right:2px;background:none" class="usebutton grading-nextprev">&#60;</a><img class="statusImg" src="$context/images/no-status.png" id="statusImg" height="16px" width="16px" alt=""></img><span style="*vertical-align:13%"  rsf:id="msg=simplepage.comments-points"></span><span style="display:none" class="uuidBox" rsf:id="commentsUUID"></span><span style="display:none" class="pointsSpan" rsf:id="commentPoints"></span> <input rsf:id="studentPointsBox"  id="studentPointsBox" type="text" style="font-size:100%"  size="3"></input> / <span rsf:id="topmaxpoints"></span> <a role="button" class="usebutton" href="#" rsf:id="msg=simplepage.submit" style="background:none; width:auto; *vertical-align:13%;margin-right:.5em" id="submit-grading"></a> <a role="button" style="background:none" href="#" rsf:id="gradingForward" class="usebutton grading-nextprev">&#62;</a>
 		 </span>
 
 		   <a role="button" aria-haspopup="dialog" aria-controls="direct-dialog" href="#" rsf:id="directurl" id="directurl" class="title-tools tool-directurl Mrphs-toolTitleNav__link Mrphs-toolTitleNav__link--directurl">
@@ -161,6 +176,7 @@
     		</div>
         </div>
 		
+		 <div id="subpage-breadcrumb-div" class="subpage-breadcrumb-div"></div>
 	
 		<div rsf:id="tool-bar:" class="navIntraTool" role="application" style="z-index:100000" aria-labelledby="tool-bar::toolbar-label">
 			<h3 id="toolbar-label" rsf:id="msg=simplepage.toolbar" class="offscreen"></h3>
@@ -214,7 +230,6 @@
 		<li rsf:id="remove-student" class="contentButton"><span><a role="menuitem button" href="#" rsf:id="remove-page-student" class="add-at-end remove-page"><span rsf:id="msg=simplepage.remove-page" role="menuitem"></span></a></span></li>
 
                 <li class="contentButton"><span><a role="menuitem button" class="add-at-end" href="#" rsf:id="reorder"><span aria-hidden="true" class="fa-button-text"></span></a></span></li>
-                <li  class="contentButton"><span><a role="menuitem button" href="#" rsf:id="help" target="_blank"></a></span></li>
                 <li  class="contentButton">
                     <span rsf:id="title-descrip">
                     <a role="menuitem button" aria-haspopup="dialog" aria-controls="edit-title-dialog" href="#" rsf:id="edit-title" id="edit-title"><span aria-hidden="true" class="fa-button-text fa-cog"></span><span class="offscreen" rsf:id="edit-title-text"></span></a>
@@ -226,18 +241,18 @@
 		
 <script type="text/javascript">
 	var breadcrumbs = jQuery(".breadcrumbs span");
-	// if we're in morpheus, move breadcrums into top bar, and generate an H2 with the title
 	if (jQuery(".oldPortal").size() === 0) {
 	    var title = jQuery(".title span:last").text();
 	    var owner = jQuery("#owner").text();
 	    var title = title + owner;
 	    if (breadcrumbs.size() > 0) {
-		jQuery(".Mrphs-siteHierarchy").append(jQuery(".breadcrumbs span").slice(1));
+		jQuery(".subpage-breadcrumb-div").append(jQuery(".breadcrumbs span").slice(1));
+		jQuery(".subpage-breadcrumb-div").prepend('<a id="lessonReset">' + jQuery(".Mrphs-hierarchy--toolName").text().trim() + '</a>');
+		jQuery("#lessonReset").attr("href", jQuery(".Mrphs-hierarchy--toolName")[0].href);
+	    } else {
+		jQuery(".subpage-breadcrumb-div").css({"display": "none"});
 	    }
 	    jQuery(".Mrphs-siteHierarchy").children().wrapAll('<div class="hierarchyWrap" />');
-	    //jQuery(".Mrphs-siteHierarchy").append(jQuery("span.nextprev"));
-	    jQuery(".neoPortletTitleWrap").before('<h2 class="genTitle"></h2>');
-	    jQuery(".genTitle").text(title);
 
 	    jQuery(".Mrphs-toolTitleNav__addRight").before(jQuery(".topaction > a"));
 	    jQuery(".Mrphs-toolTitleNav__button_container > a").addClass("Mrphs-toolTitleNav__link");
@@ -245,12 +260,10 @@
          } else {
 	     jQuery(".topaction > a").addClass("button");
          }
-	 if (jQuery(".navIntraTool").size() > 0)
-  	   jQuery(".navIntraTool").append(jQuery(".action"));
-	 else
-	   jQuery(".neoPortletTitleWrap").before(jQuery(".action"));
 
+	jQuery(".Mrphs-toolTitleNav__button_container").after(jQuery(".action"));
 
+	jQuery(".portletBody").prepend(jQuery(".navIntraTool"));
 </script>
 
 		<div id="addContentDiv" style="display:none" class="dropDownDiv specialLink lessonsDialog" role="menu" aria-label="Add content menu">
@@ -270,6 +283,9 @@
 		  </li>
 		  <li>
 		    <a role="menuitem" href="#" rsf:id="add-folder" class="add-folder add-before-param"><span rsf:id="msg.simplepage.folder"></span></a>
+		  </li>
+		  <li rsf:id="blti-app-li">
+		    <a href="#" role="menuitem button" rsf:id="add-blti-app" class="add-before-param"><span rsf:id="msg.simplepage.blti.app"></span></a>
 		  </li>
 		  <hr class="addbreak" style="border:none" rsf:id="add-break1"/>
 		  <li rsf:id="add-break2" class="addbreak">
@@ -389,13 +405,6 @@
 		<ul id="error-list" rsf:id="error-list:" role="alert">
 		  <li id="error-item" rsf:id="error-item:"><span id="error-item-text" rsf:id="error-item-text">missing page</span></li>
 		</ul>
-
-		<ul class="top-next-prev navIntraTool">
-                    <li>
-                        <span><a role="button" href="#" rsf:id="prev" class="nexprev prev menuitem button">prev</a> <a role="button" href="#" rsf:id="next" class="nextprev next menuitem button">next</a> </span>
-                    </li>
-                </ul>
-
 		<div class="itemclass" rsf:id="itemContainer:" role="main" style="z-index: 1;">
 
             <div style="display:none" rsf:id="current-item-id"></div>
@@ -411,8 +420,9 @@
 			  <span rsf:id="section2" class="sectionedit sectionedit2"><a role="button" aria-haspopup="dialog" aria-controls="column-dialog" rsf:id="section3" href="#" class="columnopen"><span aria-hidden="true" class="fa-columns fa-edit-icon sectioneditfont"></span></a></span>
 			  </div>
 			<span rsf:id="addbottom" class="sectionedit addbottom"><a role="button" aria-haspopup="dialog" aria-controls="addContentDiv" rsf:id="addbottom2" class="add-bottom" href="#" ><span aria-hidden="true" class="fa-plus fa-edit-icon plus-edit-icon"></span></a></span>
-                        <ul class="indent mainList" rsf:id="itemTable:" border="0" style="z-index: 1;" role="list" aria-labelledby="itemContainer::maintablelabel">
-                <li rsf:id="item:" id="item" role="listitem" class="item"><span style="display:none" rsf:id="itemid" class="itemid"></span><span style="display:none" rsf:id="pageid" class="pageid"></span>
+
+                        <div class="indent mainList" rsf:id="itemTable:" border="0" style="z-index: 1;" role="list" aria-labelledby="itemContainer::maintablelabel">
+                <div rsf:id="item:" id="item" role="listitem" class="item"><span style="display:none" rsf:id="itemid" class="itemid"></span><span style="display:none" rsf:id="pageid" class="pageid"></span>
                     <div rsf:id="group-td" aria-hidden="true" class="group-col"><div><a href="#" class="usebutton" onclick="return false" rsf:id="group-link"><span rsf:id="group-icon"></span></a></div></div>
                     <div rsf:id="item-td" class="right-col">
                         <div class="statusCol">
@@ -445,6 +455,9 @@
                            height="300"
                            marginheight="0"
                            scrolling="auto"
+                           allowfullscreen="true"
+                           webkitallowfullscreen="true"
+                           mozallowfullscreen="true"
                            rsf:id="blti-iframe"
                                id="blti-iframe"
                            >
@@ -547,6 +560,9 @@
                          width="100%"
                          marginheight="0"
                          scrolling="auto"
+                         allowfullscreen="true"
+                         webkitallowfullscreen="true"
+                         mozallowfullscreen="true"
                          rsf:id="iframe"
                              id="iframe"
                          ></iframe>
@@ -585,7 +601,11 @@
                     <div rsf:id="youtubeSpan"  id="youtubeSpan"  class="hideOnDialog right-col"><div>
                         <div rsf:id="item-group-titles4" class="item-group-titles"></div>
                         
-                        <iframe rsf:id="youtubeIFrame" frameborder="0" allowfullscreen="allowfullscreen" class="playerwidth"></iframe>
+                        <iframe rsf:id="youtubeIFrame" frameborder="0"
+                            allowfullscreen="allowfullscreen"
+                            webkitallowfullscreen="true"
+                            mozallowfullscreen="true"
+                            class="playerwidth"></iframe>
 			<div rsf:id="youtube-td" role="toolbar" class="edit-col"><div><a role="button" aria-haspopup="dialog" aria-controls="youtube-dialog" href="#" class="usebutton edit-youtube" onclick="return false" rsf:id="youtube-edit"><span aria-hidden="true" class="fa-edit fa-edit-icon"></span></a><a role="button" href="#" class="usebutton del-item-link" onclick="return false"><span aria-hidden="true" class="fa-trash-o fa-edit-icon"></span></a><a role="button" aria-haspopup="dialog" aria-controls="youtube-dialog" href="#" class="usebutton add-link" onclick="return false"><span aria-hidden="true" class="fa-plus fa-edit-icon plus-edit-icon"></span></a></div></div>
                       </div>
                       <div style="display:none" rsf:id="youtubeId" class="youtube-id"></div>
@@ -873,6 +893,7 @@
                                 
                                 <div style="display:none" rsf:id="questionPollData:" class="questionPollData">
                                     <span rsf:id="questionPollText" class="questionPollText"></span>
+                                    <span rsf:id="questionPollLegend" class="questionPollLegend"></span>
                                     <span rsf:id="questionPollNumber" class="questionPollNumber"></span>
                                 </div>
                                 <div rsf:id="questionPollGraph" class="questionPollGraph"></div>
@@ -903,8 +924,8 @@
                         <span style="display:none" rsf:id="questionCorrectText" class="questionCorrectText"></span>
                         <span style="display:none" rsf:id="questionIncorrectText" class="questionIncorrectText"></span>
                     </div>
-                </li>
-            </ul>
+                </div>
+            </div>
 		    <script type="text/javascript">
 		    // to avoid flickering, process buttons in this item now
 		    $('.usebutton').button({text:true});
@@ -932,14 +953,15 @@
 		   height="500"
 		   marginheight="0"
 		   scrolling="auto"
+		   allowfullscreen="true"
+		   webkitallowfullscreen="true"
+		   mozallowfullscreen="true"
 		   id="iframe"
 		   ></iframe>
 		   <ul class="navIntraTool">
 		   <li class="bottomButtons contentButton">
-		   <span>
-		   <a role="button" href="#" rsf:id="prev1">next</a> 
-		   <a role="button" class="bottomRight" href="#" rsf:id="next1">next</a> 
-		   </span>
+		   <a role="button" class="nexprev prev menuitem button" href="#" rsf:id="prev1">next</a> 
+		   <a role="button" class="bottomRight nexprev prev menuitem button" href="#" rsf:id="next1">next</a>
 		   </li>
 		   </ul>
 
@@ -1041,6 +1063,9 @@
 			  <p rsf:id="msg=simplepage.break-items" id="simplepage.break-items"></p>
 			  <p rsf:id="msg=simplepage.delete-item" id="simplepage.delete-item"></p>
 			  <p rsf:id="msg=simplepage.add-above" id="simplepage.add-above"></p>
+			  <p rsf:id="msg=simplepage.add-content" id="simplepage.add-content"></p>
+			  <p rsf:id="msg=simplepage.add-item-column" id="simplepage.add-item-column"></p>
+			  <p rsf:id="msg=simplepage.more-tools" id="simplepage.more-tools"></p>
 			  <p rsf:id="msg=simplepage.join-items" id="simplepage.join-items"></p>
 			  <p rsf:id="msg=simplepage.break-here" id="simplepage.break-here"></p>
 			  <p rsf:id="msg=simplepage.break-column-here" id="simplepage.break-column-here"></p>
@@ -1305,7 +1330,7 @@
 			</div>
                         <p class="required">
                             <textarea id="mm-names" rsf:id="mm-names"style="display:none"></textarea>
-                            <label rsf:id="msg=simplepage.upload_label" for="mm-file">File</label>
+                            <label rsf:id="msg=simplepage.upload_label" for="mm-file" class="mm-file">File</label>
 			    <div class="add-file-div">
 			      <p class="add-another-file" style="margin-top:10px; display:none"  rsf:id="msg=simplepage.another-file">xxx</p>
                               <input type="file" name="mm-file" id="mm-file" style="width:95%" class="edit-multimedia-input mm-file-input" multiple="" />
@@ -1315,7 +1340,7 @@
 			      <label for="mm-file-replace"><span rsf:id="msg=simplepage.file-replace"></span></label>
 			    </span>
                         </p>
-                        <p class="required" style="">
+                        <p class="required mm-resources-section" style="">
                             <a role="button" href="#" id="mm-choose" rsf:id="mm-choose">...or choose exiting file</a>
                         </p>
 
@@ -1582,13 +1607,9 @@
                         <input type="file" name="cssUpload" rsf:id="cssUpload" class="edit-multimedia-input" />
                         <p class="instruction" rsf:id="cssDefaultInstructions"></p>
                     </p>
-                    <hr />
-		    <p class="indnt1">
-                      <input type="checkbox" name="nodownloads" id="nodownloads" rsf:id="nodownloads"/>
-		      <label for="nodownloads" rsf:id="msg=simplepage.dont-show-downloads"></label>
-		    </p>
-		    <br />
+
                     </div>
+ 		    <hr />
                     <p class="instruction" rsf:id="ownerDefaultInstructions"></p>
                     <div rsf:id="changeOwnerSection">
                         <label for="changeOwnerDropdown" rsf:id="changeOwnerDropdownLabel"></label>
@@ -2221,7 +2242,7 @@
 			<label rsf:id="msg=simplepage.endTime" for="endTime"></label>
 			<span id="endTime"></span><br/><br/>
 			<label rsf:id="msg=simplepage.eventType" for="event-type"></label>
-			<img id="event-type-icon"/><span id="event-type"></span><br/><br/>
+			<span id="event-type-icon"></span><span id="event-type"></span><br/><br/>
 			<label rsf:id="msg=simplepage.description" for="event-description"></label>
 			<span id="event-description"></span><br/><br/>
 			<label rsf:id="msg=simplepage.siteName" for="site-name"></label>

@@ -25,6 +25,16 @@
 						<input type="text" name="title" id="title" maxlength="$!titleMaxLength" size="20" value="" />
 					</div>
 				</div>
+				#if ($!isAdmin)
+				    <div class="form-group row">
+				        <label for="newSIteId" class="col-sm-2 form-control-label">
+				            $tlang.getString("sitdup.newsitid")
+				        </label>
+				        <div class="col-sm-6">
+				            <input type="text" name="newSiteId" id="newSiteId" maxlength="$!siteIdMaxLength" size="50" value="" />
+				        </div>
+				    </div>
+				#end
 				#if ($canSelect)
 				#if ($allowUnmanaged)			
 				<p class="checkbox indnt1">

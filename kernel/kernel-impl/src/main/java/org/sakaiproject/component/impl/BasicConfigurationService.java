@@ -21,6 +21,8 @@
 
 package org.sakaiproject.component.impl;
 
+import au.com.bytecode.opencsv.CSVParser;
+
 import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.util.*;
@@ -28,23 +30,26 @@ import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import lombok.extern.slf4j.Slf4j;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import org.springframework.beans.BeansException;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
+import org.springframework.core.io.Resource;
+
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.component.api.ServerConfigurationService.ConfigurationListener.BlockingConfigItem;
 import org.sakaiproject.component.locales.SakaiLocales;
 import org.sakaiproject.thread_local.api.ThreadLocalManager;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.util.SakaiProperties;
-import org.springframework.beans.BeansException;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationContextAware;
-import org.springframework.core.io.Resource;
-
-import au.com.bytecode.opencsv.CSVParser;
 
 /**
  * <p>
@@ -52,12 +57,10 @@ import au.com.bytecode.opencsv.CSVParser;
  * </p>
  */
 @SuppressWarnings({"rawtypes","unchecked"})
+@Slf4j
 public class BasicConfigurationService implements ServerConfigurationService, ApplicationContextAware
 {
     private static final String SOURCE_GET_STRINGS = "getStrings";
-
-    /** Our log (commons). */
-    private static Logger M_log = LoggerFactory.getLogger(BasicConfigurationService.class);
 
     /**
      * The delegate that handles all the configuration for tools.
@@ -151,7 +154,7 @@ public class BasicConfigurationService implements ServerConfigurationService, Ap
                 }
             }
         }
-        M_log.info("Configured "+this.secureConfigurationKeys.size()+" secured key names: "+this.secureConfigurationKeys);
+        log.info("Configured "+this.secureConfigurationKeys.size()+" secured key names: "+this.secureConfigurationKeys);
 	// always add "password@javax.sql.BaseDataSource"
         this.secureConfigurationKeys.add("password@javax.sql.BaseDataSource");
 
@@ -171,12 +174,12 @@ public class BasicConfigurationService implements ServerConfigurationService, Ap
         	}
             this.addProperties(entry.getValue(), entry.getKey());
         }
-        M_log.info("Configured "+this.secureConfigurationKeys.size()+" secured keys from all sources");
-        M_log.info("Loaded "+configurationItems.size()+" config items from all initial sources");
+        log.info("Configured "+this.secureConfigurationKeys.size()+" secured keys from all sources");
+        log.info("Loaded "+configurationItems.size()+" config items from all initial sources");
 
         if (this.getBoolean("config.dereference.on.load.initial", true)) {
             int changed = dereferenceConfig();
-            M_log.info("Dereference Initial: Changed (dereferenced) "+changed+" item values out of "+configurationItems.size()+" initial config items");
+            log.info("Dereference Initial: Changed (dereferenced) "+changed+" item values out of "+configurationItems.size()+" initial config items");
         }
 
         // load all the providers which are known (the rest have to manually register their configs), must be singleton without lazy init
@@ -190,15 +193,15 @@ public class BasicConfigurationService implements ServerConfigurationService, Ap
                     configCounter += items.size();
                     this.addConfigList(items);
                 } catch (Exception e) {
-                    M_log.warn("Unable to load the config values from provider ("+provider.getClass()+"): "+e);
+                    log.warn("Unable to load the config values from provider ("+provider.getClass()+"): "+e);
                 }
             }
-            M_log.info("Found and loaded "+configCounter+" config values from "+providerBeans.size()+" configuration providers");
+            log.info("Found and loaded "+configCounter+" config values from "+providerBeans.size()+" configuration providers");
         }
 
         if (this.getBoolean("config.dereference.on.load.all", false)) {
             int changed = dereferenceConfig();
-            M_log.info("Dereference All: Changed (dereferenced) "+changed+" item values out of all "+configurationItems.size()+" config items");
+            log.info("Dereference All: Changed (dereferenced) "+changed+" item values out of all "+configurationItems.size()+" config items");
         }
 
         // OTHER STUFF
@@ -212,10 +215,10 @@ public class BasicConfigurationService implements ServerConfigurationService, Ap
         }
         catch (Exception t)
         {
-            M_log.warn("init(): ", t);
+            log.warn("init(): ", t);
         }
 
-        M_log.info("init()");
+        log.info("init()");
 
         // Initialise the tool configuration service
         toolConfigurationService.setUseToolGroup(getConfig("config.sitemanage.useToolGroup", false));
@@ -229,7 +232,7 @@ public class BasicConfigurationService implements ServerConfigurationService, Ap
     {
         this.applicationContext = null;
         this.listeners.clear();
-        M_log.info("destroy()");
+        log.info("destroy()");
     }
 
     /**********************************************************************************************************************************************************************************************************************************************************
@@ -501,7 +504,7 @@ public class BasicConfigurationService implements ServerConfigurationService, Ap
      * @return the value with all matched ${vars} replaced (unmatched ones are left as is), only returns null if the input is null
      */
     protected String dereferenceValue(String value) {
-        if (M_log.isDebugEnabled()) M_log.debug("dereferenceValue("+value+")");
+        if (log.isDebugEnabled()) log.debug("dereferenceValue("+value+")");
         /*
          * NOTE: if the performance of this becomes an issue then the right way to handle it is
          * to place a flag on the ConfigItem to indicate if there is replaceable refs in it
@@ -515,14 +518,14 @@ public class BasicConfigurationService implements ServerConfigurationService, Ap
         if (value != null && value.length() >= 4) { // min length of a replaceable value - "${a}"
             Matcher matcher = referencePattern.matcher(value);
             if (matcher.find()) {
-                if (M_log.isDebugEnabled()) M_log.debug("dereferenceValue("+value+"), found refs to replace");
+                if (log.isDebugEnabled()) log.debug("dereferenceValue("+value+"), found refs to replace");
                 matcher.reset();
                 StringBuilder sb = new StringBuilder();
                 // loop through and find the vars to replace and write out the new string
                 int pointer = 0;
                 while (matcher.find()) {
                     String name = matcher.group(1);
-                    if (name != null && StringUtils.isNotBlank(name)) {
+                    if (StringUtils.isNotBlank(name)) {
                         // look up the value
                         String replacementValue = null;
                         ConfigItemImpl ci = findConfigItem(name, null);
@@ -548,7 +551,7 @@ public class BasicConfigurationService implements ServerConfigurationService, Ap
                 drValue = sb.toString();
             }
         }
-        if (M_log.isDebugEnabled()) M_log.debug("dereferenceValue("+value+"): return="+drValue);
+        if (log.isDebugEnabled()) log.debug("dereferenceValue("+value+"): return="+drValue);
         return drValue;
     }
 
@@ -608,7 +611,7 @@ public class BasicConfigurationService implements ServerConfigurationService, Ap
                         rv = csvParser.parseLine(value);
                         this.addConfigItem(new ConfigItemImpl(name, rv, TYPE_ARRAY, SOURCE_GET_STRINGS), SOURCE_GET_STRINGS);
                     } catch (IOException e) {
-                        M_log.warn("Config property ("+name+") read as multi-valued string, but failure occurred while parsing: "+e, e);
+                        log.warn("Config property ("+name+") read as multi-valued string, but failure occurred while parsing: "+e, e);
                     }
                 }
             }
@@ -638,6 +641,57 @@ public class BasicConfigurationService implements ServerConfigurationService, Ap
         if (StringUtils.isEmpty(value)) return dflt;
 
         return Boolean.valueOf(value);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public List<String> getStringList(String name, List<String> dflt) {
+
+        String value = getString(name, null);
+        if (StringUtils.isNotBlank(value)) {
+            return Stream.of(StringUtils.split(value, ",")).collect(Collectors.toList());
+        } else {
+            return dflt != null ? dflt : new ArrayList<>();
+        }
+    }
+
+    /**
+     * Converts the given list of Strings to a list of Pattern objects
+     *
+     * @param regexps
+     *            A list of regex pattern strings
+     *
+     * @exception IllegalArgumentException
+     *            if one of the patterns has invalid regular expression
+     *            syntax
+     */
+    private List<Pattern> getRegExPatterns(List<String> regexps) {
+
+        ArrayList<Pattern> patterns = new ArrayList<>();
+        for (String regexp : regexps) {
+            String regex = StringUtils.trimToNull(regexp);
+            if (regex != null) {
+                // if :empty: is in any of the then return an empty list
+                if (StringUtils.equals(":empty:", regex)) return new ArrayList<>();
+
+                try {
+                    patterns.add(Pattern.compile(regex, Pattern.CASE_INSENSITIVE));
+                } catch (PatternSyntaxException e) {
+                    throw new IllegalArgumentException("Illegal Regular Expression Syntax: [" + regex + "] - " + e.getMessage());
+                }
+            }
+        }
+        return patterns;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public List<Pattern> getPatternList(String name, List<String> dflt) {
+
+        List<String> list = getStringList(name, dflt);
+        return getRegExPatterns(list);
     }
 
     /**
@@ -851,7 +905,7 @@ public class BasicConfigurationService implements ServerConfigurationService, Ap
             if (source == null || "".equals(source)) {
                 source = UNKNOWN;
             }
-            M_log.info("Adding "+p.size()+" properties from "+source);
+            log.info("Adding "+p.size()+" properties from "+source);
             for (Enumeration<Object> e = p.keys(); e.hasMoreElements(); /**/) {
                 String name = (String) e.nextElement();
                 String value = p.getProperty(name);
@@ -860,7 +914,7 @@ public class BasicConfigurationService implements ServerConfigurationService, Ap
 			name.length() > SAKAI_SYSTEM_PROPERTY_SUFFIX.length() ) {
 			name = name.substring(0,name.length()-SAKAI_SYSTEM_PROPERTY_SUFFIX.length());
 			System.setProperty(name, value);
-			M_log.info("Promoted to system property: "+name);
+			log.info("Promoted to system property: "+name);
 			continue;
 		}
                 ConfigItemImpl ci = new ConfigItemImpl(name, value, source);
@@ -876,7 +930,7 @@ public class BasicConfigurationService implements ServerConfigurationService, Ap
      */
     protected void addConfigList(List<ConfigItem> list) {
         if (list != null && !list.isEmpty()) {
-            M_log.info("Adding "+list.size()+" config items from a list");
+            log.info("Adding "+list.size()+" config items from a list");
             for (ConfigItem configItem : list) {
                 this.registerConfigItem(configItem);
             }
@@ -914,14 +968,14 @@ public class BasicConfigurationService implements ServerConfigurationService, Ap
                                 // continue
                             } else if (rvci instanceof BlockingConfigItem) {
                                 haltProcessing = true;
-                                M_log.info("add configItem ("+configItem+") processing halted by "+listener);
+                                log.info("add configItem ("+configItem+") processing halted by "+listener);
                                 break; // HALT processing
                             } else {
                                 // merge in the safe changes to the config item
                                 configItem.merge(rvci);
                             }
                         } catch (Exception e) {
-                            M_log.warn("Exception when calling listener ("+listener+"): "+e);
+                            log.warn("Exception when calling listener ("+listener+"): "+e);
                         }
                     } else {
                         // cleanup bad listener ref
@@ -966,7 +1020,7 @@ public class BasicConfigurationService implements ServerConfigurationService, Ap
                                 try {
                                     listener.changed(ci, currentCI);
                                 } catch (Exception e) {
-                                    M_log.warn("Exception when calling listener ("+listener+"): "+e);
+                                    log.warn("Exception when calling listener ("+listener+"): "+e);
                                 }
                             } else {
                                 // cleanup bad listener ref
@@ -1088,7 +1142,7 @@ public class BasicConfigurationService implements ServerConfigurationService, Ap
             }
             ci = this.addConfigItem(ci, ci.getSource());
         } else {
-            M_log.warn("Skipping registering invalid config item (name not set): "+configItem);
+            log.warn("Skipping registering invalid config item (name not set): "+configItem);
         }
         return ci;
     }

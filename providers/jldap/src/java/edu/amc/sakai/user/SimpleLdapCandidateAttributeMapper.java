@@ -32,31 +32,32 @@ import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Set;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
+
+import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.user.api.UserEdit;
 import org.sakaiproject.user.detail.ValueEncryptionUtilities;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 
 /**
  * Extension for {@link SimpleLdapAttributeMapper}.
  * Adds logic to include encrypted CandidateId and additional info into the sakai user object.
  *
  */
+@Slf4j
 public class SimpleLdapCandidateAttributeMapper extends SimpleLdapAttributeMapper {
 	
 	private static final String USER_PROP_CANDIDATE_ID = "candidateID";
 	private static final String USER_PROP_ADDITIONAL_INFO = "additionalInfo";
+	private static final String USER_PROP_STUDENT_NUMBER = "studentNumber";
 	private static final String EMPTY = "";
-
-	/** Class-specific logger */
-	private final Logger log = LoggerFactory.getLogger(SimpleLdapCandidateAttributeMapper.class);
 
 	private ValueEncryptionUtilities encryption;
 	private int candidateIdLength;
 	private int additionalInfoLength;
+	private int studentNumberLength;
+	private ServerConfigurationService scs;
 
 	public void setEncryption(ValueEncryptionUtilities encryption) {
 		this.encryption = encryption;
@@ -68,6 +69,16 @@ public class SimpleLdapCandidateAttributeMapper extends SimpleLdapAttributeMappe
 
 	public void setAdditionalInfoLength(int additionalInfoLength) {
 		this.additionalInfoLength = additionalInfoLength;
+	}
+	
+	public void setStudentNumberLength(int value)
+	{
+		studentNumberLength = value;
+	}
+	
+	public void setServerConfigurationService(ServerConfigurationService value)
+	{
+		scs = value;
 	}
 
 	/**
@@ -177,6 +188,34 @@ public class SimpleLdapCandidateAttributeMapper extends SimpleLdapAttributeMappe
 				}
 				userDataProperties.remove(AttributeMappingConstants.ADDITIONAL_INFO_ATTR_MAPPING_KEY);
 			}
+			
+			o_prop = userDataProperties.get(AttributeMappingConstants.STUDENT_NUMBER_ATTR_MAPPING_KEY);
+			if(o_prop != null)
+			{
+				if(o_prop instanceof String)
+				{
+					addStudentNumberProperty((String) o_prop, userEditProperties);
+				}
+				else if (o_prop instanceof List)
+				{
+					Set<String> propertySet = new HashSet<>();
+					//remove duplicate values
+					for(String value : (List<String>)o_prop)
+					{
+						propertySet.add(value);
+					}
+					//add student number, if there is only one value
+					if(propertySet.size() == 1)
+					{
+						for(String value : propertySet)
+						{
+							addStudentNumberProperty(value, userEditProperties);
+						}
+					}
+				}
+				userDataProperties.remove(AttributeMappingConstants.STUDENT_NUMBER_ATTR_MAPPING_KEY);
+			}
+			
 			// Make sure we have a value for the encrypted properties.
 			if (StringUtils.isEmpty(userEditProperties.getProperty(USER_PROP_CANDIDATE_ID))) {
 				userEditProperties.addProperty(USER_PROP_CANDIDATE_ID, encryption.encrypt(EMPTY, candidateIdLength));
@@ -185,10 +224,24 @@ public class SimpleLdapCandidateAttributeMapper extends SimpleLdapAttributeMappe
 					userEditProperties.getPropertyList(USER_PROP_ADDITIONAL_INFO).isEmpty()) {
 				userEditProperties.addPropertyToList(USER_PROP_ADDITIONAL_INFO, encryption.encrypt(EMPTY, additionalInfoLength));
 			}
+			if (userEditProperties.getPropertyList(USER_PROP_STUDENT_NUMBER)!= null &&
+					userEditProperties.getPropertyList(USER_PROP_STUDENT_NUMBER).isEmpty()) {
+				addStudentNumberProperty(EMPTY, userEditProperties);
+			}
 
 		super.mapUserDataOntoUserEdit(userData, userEdit);
 
 		}
 
+	}
+	
+	private void addStudentNumberProperty(String number, ResourceProperties userEditProperties)
+	{
+		String studentNumber = number;
+		if (scs.getBoolean(AttributeMappingConstants.SYSTEM_PROP_ENCRYPT_NUMERIC_ID, true))
+		{
+			studentNumber = encryption.encrypt(studentNumber, studentNumberLength);
+		}
+		userEditProperties.addProperty(USER_PROP_STUDENT_NUMBER, studentNumber);
 	}
 }

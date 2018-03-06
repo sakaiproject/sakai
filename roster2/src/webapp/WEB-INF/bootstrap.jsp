@@ -37,7 +37,7 @@
                 firstNameLastName: ${firstNameLastName},
                 hideSingleGroupFilter: ${hideSingleGroupFilter},
                 viewUserDisplayId: ${viewUserDisplayId},
-                //officialPicturesByDefault: ${officialPicturesByDefault},
+                viewUserProperty: ${viewUserProperty},
                 officialPictureMode: ${officialPicturesByDefault},
                 viewEmail: ${viewEmail},
                 viewConnections: ${viewConnections},
@@ -81,12 +81,12 @@
 
 <!--  Templates End -->
 
-<script type="text/javascript" src="/library/webjars/jquery/1.11.3/jquery.min.js"></script>
+<script type="text/javascript" src="/library/webjars/jquery/1.12.4/jquery.min.js"></script>
 <script type="text/javascript" src="/library/webjars/jquery-i18n-properties/1.2.2/jquery.i18n.properties.min.js"></script>
-<script type="text/javascript" src="/library/webjars/jquery-migrate/1.4.0/jquery-migrate.min.js"></script>
+<script type="text/javascript" src="/library/webjars/jquery-migrate/1.4.1/jquery-migrate.min.js"></script>
 <script type="text/javascript" src="/sakai-roster2-tool/lib/jquery.waitforimages.min.js"></script>
 <script type="text/javascript" src="/profile2-tool/javascript/profile2-eb.js"></script>
-<script type="text/javascript" src="/library/webjars/handlebars/4.0.5/handlebars.runtime.min.js"></script>
+<script type="text/javascript" src="/library/webjars/handlebars/4.0.6/handlebars.runtime.min.js"></script>
 <script type="text/javascript" src="/sakai-roster2-tool/templates.js"></script>
 <script type="text/javascript" src="/sakai-roster2-tool/lib/sakai_utils.js"></script>
 <script type="text/javascript" src="/sakai-roster2-tool/js/roster_permissions.js"></script>

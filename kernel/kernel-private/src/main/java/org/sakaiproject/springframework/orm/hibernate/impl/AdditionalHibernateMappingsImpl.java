@@ -28,6 +28,7 @@ import org.sakaiproject.springframework.orm.hibernate.AdditionalHibernateMapping
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.orm.hibernate4.LocalSessionFactoryBuilder;
+import org.springframework.orm.jpa.persistenceunit.MutablePersistenceUnitInfo;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -44,7 +45,7 @@ public class AdditionalHibernateMappingsImpl implements AdditionalHibernateMappi
     @Setter private Resource[] mappingLocations;
     @Setter private String[] mappingResources;
     @Setter private String[] packagesToScan;
-    @Getter @Setter private Integer sortOrder = Integer.valueOf(Integer.MAX_VALUE);
+    @Getter @Setter private Integer sortOrder = Integer.MAX_VALUE;
 
     @Override
     public void processAdditionalMappings(LocalSessionFactoryBuilder sfb) throws IOException {
@@ -107,6 +108,81 @@ public class AdditionalHibernateMappingsImpl implements AdditionalHibernateMappi
             for (String scanPackage : packagesToScan) {
                 log.info("Hibernate add package [{}]", scanPackage.trim());
                 sfb.addPackage(scanPackage);
+            }
+        }
+    }
+
+    @Override
+    public void processAdditionalUnit(MutablePersistenceUnitInfo pui) {
+        if (annotatedClasses != null) {
+            for (Class<?> clazz : annotatedClasses) {
+                pui.addManagedClassName(clazz.getName());
+                log.info("Add annotated class [{}]", clazz.getCanonicalName());
+            }
+        }
+        if (annotatedPackages != null) {
+            for (String aPackage : annotatedPackages) {
+                pui.addManagedPackage(aPackage);
+                log.info("Add annotated package [{}]", aPackage.trim());
+            }
+        }
+
+        if (cacheableMappingLocations != null) {
+            for (Resource resource : cacheableMappingLocations) {
+                try {
+                    pui.addMappingFileName(resource.getURL().toString());
+                    log.info("Add cacheable mapping location [{}]", resource.getFilename());
+                } catch (IOException e) {
+                    log.error("Invalid mapping location [{}]", resource, e);
+                }
+            }
+        }
+
+        if (mappingDirectoryLocations != null) {
+            for (Resource resource : mappingDirectoryLocations) {
+                try {
+                    pui.addMappingFileName(resource.getURL().toString());
+                    log.info("Add mapping directory location [{}]", resource.getFilename());
+                } catch (IOException e) {
+                    log.error("Invalid mapping directory location [{}]", resource, e);
+                }
+            }
+        }
+
+        if (mappingJarLocations != null) {
+            for (Resource resource : mappingJarLocations) {
+                try {
+                    pui.addJarFileUrl(resource.getURL());
+                    log.info("Add mapping jar location [{}]", resource.getFilename());
+                } catch (IOException e) {
+                    log.error("Invalid mapping jar location [{}]", resource, e);
+                }
+            }
+        }
+
+        if (mappingLocations != null) {
+            for (Resource resource : mappingLocations) {
+                pui.addMappingFileName(resource.getFilename());
+                log.info("Add mapping location [{}]", resource.getFilename());
+            }
+        }
+
+        if (mappingResources != null) {
+            for (String resource : mappingResources) {
+                Resource r = new ClassPathResource(resource.trim(), this.getClass().getClassLoader());
+                try {
+                    pui.addMappingFileName(r.getURL().toString());
+                    log.info("Add mapping resource [{}]", resource.trim());
+                } catch (IOException e) {
+                    log.error("Invalid mapping resource [{}]", resource);
+                }
+            }
+        }
+
+        if (packagesToScan != null) {
+            for (String scanPackage : packagesToScan) {
+                log.info("Add package [{}]", scanPackage.trim());
+                pui.addManagedPackage(scanPackage);
             }
         }
     }

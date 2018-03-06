@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.sakaiproject.jsf</groupId>
         <artifactId>jsf</artifactId>
-        <version>12-SNAPSHOT</version>
+        <version>13-SNAPSHOT</version>
     </parent>
 
     <name>Sakai JSF Widgets (jsf-widgets)</name>
@@ -28,6 +28,10 @@
     </description>
 
     <dependencies>
+        <dependency>
+            <groupId>org.sakaiproject.portal</groupId>
+            <artifactId>sakai-portal-util</artifactId>
+        </dependency>
         <dependency>
             <groupId>org.sakaiproject.kernel</groupId>
             <artifactId>sakai-kernel-util</artifactId>

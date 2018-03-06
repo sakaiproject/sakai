@@ -29,8 +29,9 @@ import java.util.List;
 import java.util.Set;
 import java.util.Vector;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+import org.w3c.dom.Element;
+
 import org.sakaiproject.api.privacy.PrivacyManager;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.courier.api.PresenceUpdater;
@@ -51,17 +52,15 @@ import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
-import org.w3c.dom.Element;
 
 /**
  * <p>
  * Implements the PresenceService, all but a Storage model.
  * </p>
  */
+@Slf4j
 public abstract class BasePresenceService implements PresenceService, PresenceUpdater
 {
-	/** Our log (commons). */
-	private static Logger M_log = LoggerFactory.getLogger(BasePresenceService.class);
 
 	/** SessionState key. */
 	protected final static String SESSION_KEY = "sakai.presence.service";
@@ -195,7 +194,7 @@ public abstract class BasePresenceService implements PresenceService, PresenceUp
 			m_maintenance = new Maintenance();
 			m_maintenance.start();
 
-			M_log.info("init()");
+			log.info("init()");
 			
 			// register a transient notification for resources
 			notification = notificationService.addTransientNotification();
@@ -236,7 +235,7 @@ public abstract class BasePresenceService implements PresenceService, PresenceUp
 		}
 		catch (Exception t)
 		{
-			M_log.warn("init(): ", t);
+			log.warn("init(): ", t);
 		}
 	}
 
@@ -246,7 +245,7 @@ public abstract class BasePresenceService implements PresenceService, PresenceUp
 	public void destroy()
 	{
 		m_storage = null;
-		M_log.info("destroy()");
+		log.info("destroy()");
 	}
 
 	/**********************************************************************************************************************************************************************************************************************************************************
@@ -547,7 +546,7 @@ public abstract class BasePresenceService implements PresenceService, PresenceUp
 
 				Presence p = (Presence) ts.getAttribute(location);
 
-				if (M_log.isDebugEnabled()) M_log.debug("checking expiry of session " + session.getId() + " in location " + location);
+				if (log.isDebugEnabled()) log.debug("checking expiry of session " + session.getId() + " in location " + location);
 				
 				if (p != null && p.isExpired())
 				{
@@ -769,22 +768,22 @@ public abstract class BasePresenceService implements PresenceService, PresenceUp
 			// wait till things are rolling
 			ComponentManager.waitTillConfigured();
 
-			if (M_log.isDebugEnabled()) M_log.debug("run()");
+			if (log.isDebugEnabled()) log.debug("run()");
 
 			while (!m_maintenanceCheckerStop)
 			{
 				try
 				{
-					if (M_log.isDebugEnabled()) M_log.debug("checking for expired presence");
+					if (log.isDebugEnabled()) log.debug("checking for expired presence");
 					checkAllPresenceForExpiration();
 
 				}
 				catch (Exception e)
 				{
 					//SAK-20847 don't print the stacktrace unless we are in debug mode
-					M_log.warn("Exception checking for expired presence. If the app server is currently stopped you can safely ignore this warning. Under any other circumstances, enable debug logging to see the cause.");
-					if (M_log.isDebugEnabled()) {
-						M_log.debug("The exception is: ", e);
+					log.warn("Exception checking for expired presence. If the app server is currently stopped you can safely ignore this warning. Under any other circumstances, enable debug logging to see the cause.");
+					if (log.isDebugEnabled()) {
+						log.debug("The exception is: ", e);
 					}
 				}
 
@@ -801,7 +800,7 @@ public abstract class BasePresenceService implements PresenceService, PresenceUp
 				}
 			}
 
-			if (M_log.isDebugEnabled()) M_log.debug("done");
+			if (log.isDebugEnabled()) log.debug("done");
 		}
 	}
 

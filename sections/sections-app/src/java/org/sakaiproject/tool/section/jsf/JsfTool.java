@@ -20,13 +20,13 @@
  **********************************************************************************/
 package org.sakaiproject.tool.section.jsf;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationContext;
+import org.springframework.web.context.WebApplicationContext;
+
 import org.sakaiproject.section.api.facade.manager.Authn;
 import org.sakaiproject.section.api.facade.manager.Authz;
 import org.sakaiproject.section.api.facade.manager.Context;
-import org.springframework.context.ApplicationContext;
-import org.springframework.web.context.WebApplicationContext;
 
 /**
  * Extension to the Sakai JsfTool servlet, computing the default page view
@@ -35,11 +35,11 @@ import org.springframework.web.context.WebApplicationContext;
  * @author <a href="mailto:jholtzman@berkeley.edu">Josh Holtzman</a>
  *
  */
+@Slf4j
 public class JsfTool extends org.sakaiproject.jsf.util.JsfTool {
 
 	private static final long serialVersionUID = 1L;
-	private static final Logger log = LoggerFactory.getLogger(JsfTool.class);
-	
+
 	/**
 	 * @inheritDoc
 	 */

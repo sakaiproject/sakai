@@ -1,3 +1,18 @@
+/**
+ * Copyright (c) 2005-2017 The Apereo Foundation
+ *
+ * Licensed under the Educational Community License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *             http://opensource.org/licenses/ecl2
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.sakaiproject.component.app.messageforums.entity;
 
 import java.text.DateFormat;
@@ -8,6 +23,9 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.orm.hibernate4.HibernateOptimisticLockingFailureException;
 
 import org.sakaiproject.api.app.messageforums.Attachment;
 import org.sakaiproject.api.app.messageforums.DiscussionForum;
@@ -40,10 +58,8 @@ import org.sakaiproject.entitybroker.entityprovider.search.Restriction;
 import org.sakaiproject.entitybroker.entityprovider.search.Search;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.user.api.UserDirectoryService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.orm.hibernate4.HibernateOptimisticLockingFailureException;
 
+@Slf4j
 public class ForumMessageEntityProviderImpl implements ForumMessageEntityProvider,
     AutoRegisterEntityProvider, PropertyProvideable, RESTful, RequestStorable, RequestAware, ActionsExecutable {
 
@@ -55,10 +71,6 @@ public class ForumMessageEntityProviderImpl implements ForumMessageEntityProvide
   private SecurityService securityService;
   private SiteService siteService;
   private UserDirectoryService userDirectoryService;
-  
-  private static final Logger LOG = LoggerFactory.getLogger(ForumMessageEntityProviderImpl.class);
-  
-
 
 private RequestStorage requestStorage;
   public void setRequestStorage(RequestStorage requestStorage) {
@@ -80,7 +92,7 @@ private RequestStorage requestStorage;
       topic = forumManager.getTopicById(Long.valueOf(id));
     }
     catch (Exception e) {
-      e.printStackTrace();
+      log.error(e.getMessage(), e);
     }
     return (topic != null);
   }
@@ -431,18 +443,16 @@ private RequestStorage requestStorage;
 		  try {
 			  Thread.sleep(SynopticMsgcntrManager.OPT_LOCK_WAIT);
 		  } catch (InterruptedException e) {
-			  e.printStackTrace();
+			  log.error(e.getMessage(), e);
 		  }
 
 		  numOfAttempts--;
 
 		  if (numOfAttempts <= 0) {
-			  System.out
-			  .println("ForumMessageEntityProviderImpl: markAsRead: HibernateOptimisticLockingFailureException no more retries left");
-			  holfe.printStackTrace();
+			  log.info("ForumMessageEntityProviderImpl: markAsRead: HibernateOptimisticLockingFailureException no more retries left");
+			  log.error(holfe.getMessage(), holfe);
 		  } else {
-			  System.out
-			  .println("ForumMessageEntityProviderImpl: markAsRead: HibernateOptimisticLockingFailureException: attempts left: "
+			  log.info("ForumMessageEntityProviderImpl: markAsRead: HibernateOptimisticLockingFailureException: attempts left: "
 					  + numOfAttempts);
 			  markAsRead(userId, siteId, readMessageId, numOfAttempts);
 		  }
@@ -451,18 +461,16 @@ private RequestStorage requestStorage;
 		  try {
 			  Thread.sleep(SynopticMsgcntrManager.OPT_LOCK_WAIT);
 		  } catch (InterruptedException ie) {
-			  ie.printStackTrace();
+			  log.error(ie.getMessage(), ie);
 		  }
 
 		  numOfAttempts--;
 
 		  if (numOfAttempts <= 0) {
-			  System.out
-			  .println("ForumMessageEntityProviderImpl: markAsRead: no more retries left");
-			  e.printStackTrace();
+			  log.info("ForumMessageEntityProviderImpl: markAsRead: no more retries left");
+			  log.error(e.getMessage(), e);
 		  } else {
-			  System.out
-			  .println("ForumMessageEntityProviderImpl: markAsRead:  attempts left: "
+			  log.info("ForumMessageEntityProviderImpl: markAsRead:  attempts left: "
 					  + numOfAttempts);
 			  markAsRead(userId, siteId, readMessageId, numOfAttempts);
 		  }

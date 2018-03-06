@@ -30,6 +30,7 @@ import javax.faces.context.ResponseWriter;
 import javax.faces.render.Renderer;
 
 import org.sakaiproject.jsf.util.RendererUtil;
+import org.sakaiproject.portal.util.PortalUtils;
 
 /**
  * <p>Description: </p>
@@ -101,6 +102,7 @@ public class StylesheetRenderer extends Renderer
 
     writer.write(contextPath);
     writer.write( (String) RendererUtil.getAttribute(context, component, "path"));
+    writer.write(PortalUtils.getCDNQuery());
     writer.write("\"/>");
   }
 

@@ -1,0 +1,206 @@
+<!-- start:  chef_assignments_student_view_submission_confirmation.vm  -->
+<div class="portletBody">
+    <h3>
+        #if ($!assignment.IsGroup)
+            $tlang.getString('gen.group')
+        #end
+		#if ($!submission.Submitted)
+            $tlang.getString('confirm.submission.title')
+        #else
+            $tlang.getString('confirm.savesubmission.title')
+        #end
+    </h3>
+    <div class="success">
+        #if ($!submission.Submitted)
+            $tlang.getString('confirm.submission.success')
+        #else
+            $tlang.getString('confirm.savesubmission.success')
+        #end
+	#if ($!email_confirmation && $!submission.Submitted)
+        #if ($!user_email)
+            $tlang.getString('confirm.submission.email')
+        #end
+    #end
+    </div>
+    #if ($!email_confirmation && $!submission.Submitted)
+        #if (!$!user_email)
+            ## no email could be sent due to the missing recipent email address
+            <p class="alertMessage">$tlang.getString('confirm.submission.email.noEmailAddress')</p>
+        #end
+    #end
+    <form name="addSubmissionForm" action="#toolForm($action)" method="post" onsubmit="return true;">
+        <table class="itemSummary" border="0" cellspacing="0" summary="$tlang.getString('confirm.submission.title')">
+            ## user
+            <tr>
+                <th>
+                    $tlang.getString('confirm.submission.label.user')
+                </th>
+                <td>
+                    $validator.escapeHtml($!user_name) #if($!user_id)($!user_id)#end
+                </td>
+            </tr>
+
+            #if ($!assignment.IsGroup)
+                <tr>
+                    <th>
+                        $tlang.getString('gen.group'):
+                    </th>
+                    <td>
+                        #set($aGroup = $!site.getGroup($submission.GroupId))
+                        #if ($aGroup)
+                            $aGroup.Title
+                        #else
+                            $tlang.getString('group.submission.not.found')
+                        #end
+                    </td>
+                </tr>
+                <tr>
+                    <th>
+                        $tlang.getString('gen.students'):
+                    </th>
+                    <td>
+                        $!submitterNames
+                    </td>
+                </tr>
+            #end
+
+            ## site
+            <tr>
+                <th>
+                    $tlang.getString('confirm.submission.label.classsite')
+                </th>
+                <td>
+                    $validator.escapeHtml($!site_title)
+                </td>
+            </tr>
+            ## assignment title
+            <tr>
+                <th>
+                    $tlang.getString('assignment.title')
+                </th>
+                <td>
+                    #assignmentTitleIcon($assignment)
+					$validator.escapeHtml($!assignment.Title)
+                </td>
+            </tr>
+            ## submission id
+            <tr>
+                <th>
+                    #if ($!submission.Submitted)
+						$tlang.getString('submission.id')
+					#else
+                        $tlang.getString('confirm.savesubmission.label.submission.id')
+                    #end
+                </th>
+                <td class="highlight">
+                    $!submission.Id
+                </td>
+            </tr>
+            #if ($!submission.Submitted)
+            ## submit time
+                <tr>
+                    <th>
+                        $tlang.getString('noti.submit.time')
+                    </th>
+                    <td>
+                        $!service.getUsersLocalDateTimeString($!submission.DateSubmitted)
+                    </td>
+                </tr>
+            #end
+##          TODO Submission Log
+##          #if ($!submission && $!submission.getSubmissionLog().size() > 0)
+##              <tr>
+##                  <th>$tlang.getString('gen.history')</th>
+##                  <td>
+##                      #foreach ($entry in $submission.getSubmissionLog())
+##                          $entry<br>
+##                      #end
+##                  </td>
+##              </tr>
+##          #end
+        </table>
+        <h4>
+            #if ($!submission.Submitted)
+				$tlang.getString('confirm.submission.include')
+			#else
+                $tlang.getString('confirm.savesubmission.include')
+            #end
+        </h4>
+        ## only show the following section if text submission is allowed
+        #if (!$!attachmentSubmissionOnly)
+        ## submission text
+            #if ($!submit_text)
+                <div class="textPanel indnt2">
+                    $!submit_text
+					##$validator.escapeHtmlFormattedText($!submit_text)
+                </div>
+            #else
+                <p class="indnt2 instruction">
+                    #if ($!submission.Submitted)
+						$tlang.getString('confirm.submission.notext')
+					#else
+                        $tlang.getString('confirm.savesubmission.notext')
+                    #end
+                </p>
+            #end
+        #end
+        ## only show the following if attachment submission is allowed
+        #if (!$textSubmissionOnly)
+            <h4>
+                #if ($!submission.Submitted)
+					#if ($!assignment.SubmissionType.ordinal() == 5)
+                        $tlang.getString("gen.stuatt.single")
+                    #else
+                        $tlang.getString("gen.stuatt")
+                    #end
+				#else
+                    $tlang.getString('confirm.savesubmission.attachments')
+                #end
+            </h4>
+
+            ## Submission attachments
+            #set ($attachments = $submission.Attachments)
+            #if ($attachments)
+                #set ($size = $attachments.size())
+                #if ($size < 1)
+                    #if ($!assignment.SubmissionType.ordinal() == 5)
+                        $tlang.getString("gen.noatt.single")
+                    #else
+                        $tlang.getString("gen.noatt")
+                    #end
+                #else
+                    <ul class="attachList indnt2">
+                        #foreach ($attachmentReference in $attachments)
+                            #set ($reference = $attachmentReferences.get($attachmentReference))
+                            #if ($reference)
+                                #set ($props = false)
+                                #set ($props = $reference.Properties)
+                                #if ($!props)
+                                    <li>$validator.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))
+										#propertyDetails($props)
+                                    </li>
+                                #end
+                            #end
+                        #end
+                    </ul>
+                #end
+            #end
+        #end
+
+        #if ($!linkInvoked)
+            <p class="act">
+                <input type="submit" accesskey="x" onClick="SPNR.disableControlsAndSpin( this, null ); window.close();"
+                       name="eventSubmit_doConfirm_assignment_submission" value="$tlang.getString("gen.closeexit")"
+                       class="active"/>
+            </p>
+        #else
+            <p class="act">
+                <input type="submit" accesskey="x" name="eventSubmit_doConfirm_assignment_submission"
+                       value="$tlang.getString('gen.backtolist')" class="active"
+                       onclick="SPNR.disableControlsAndSpin( this, null );"/>
+            </p>
+        #end
+        <input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token"/>
+    </form>
+</div>
+<!-- end:  chef_assignments_student_view_submission_confirmation.vm  -->

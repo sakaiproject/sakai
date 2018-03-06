@@ -20,18 +20,10 @@
  **********************************************************************************/
 package org.sakaiproject.tags.impl.job;
 
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.quartz.Job;
-import org.quartz.JobExecutionContext;
-import org.quartz.JobExecutionException;
-
-import org.sakaiproject.component.api.ServerConfigurationService;
-import org.sakaiproject.email.api.EmailService;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStream;
+import java.util.Objects;
 
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamConstants;
@@ -40,12 +32,20 @@ import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMResult;
 import javax.xml.transform.stax.StAXSource;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.InputStream;
-import java.util.Objects;
 
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.quartz.Job;
+import org.quartz.JobExecutionContext;
+import org.quartz.JobExecutionException;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
 
+import org.sakaiproject.component.api.ServerConfigurationService;
+import org.sakaiproject.email.api.EmailService;
 
 /**
  * A quartz job to synchronize the TAGS with an
@@ -53,8 +53,8 @@ import java.util.Objects;
  *
  *
  */
+@Slf4j
 public class TagsSyncJob extends TagSynchronizer implements Job {
-	private static final Log log = LogFactory.getLog(TagsSyncJob.class);
 
 	private static final String TAGSERVICE_IMPORT_JOB_EMAIL_PROPERTY = "tags.import_job_email";
 	private static final String SAKAI_PORTAL_ERROR_EMAIL_PROPERTY = "portal.error.email";
@@ -63,9 +63,6 @@ public class TagsSyncJob extends TagSynchronizer implements Job {
 
 	private ServerConfigurationService serverConfigurationService;
 	private EmailService emailService;
-
-
-
 
 	/**
 	 * {@inheritDoc}
@@ -79,12 +76,8 @@ public class TagsSyncJob extends TagSynchronizer implements Job {
 					targetStream=new FileInputStream(xmlFile);
 				} catch (Exception e){
 					log.warn("The Tags file can't be found in the specified route: " + tagsPathToXml);
-					e.printStackTrace();
 				}
-
 		return targetStream;
-
-
 	}
 
 	public InputStream getTagCollectionssXmlInputStream() {
@@ -96,22 +89,16 @@ public class TagsSyncJob extends TagSynchronizer implements Job {
 			targetStream=new FileInputStream(xmlFile);
 		} catch (Exception e){
 			log.warn("The Tags file can't be found in the specified route: " + tagCollectionsPathToXml);
-			e.printStackTrace();
 		}
-
 		return targetStream;
-
-
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	public void execute(JobExecutionContext arg0) throws JobExecutionException {
-
 		syncAllTags();
 	}
-
 
 	public synchronized void syncAllTags() {
 
@@ -155,8 +142,6 @@ public class TagsSyncJob extends TagSynchronizer implements Job {
 			log.warn("Error Synchronizing the Tags from an xml file:",e);
 			sendStatusMail(2,e.getMessage());
 		}
-
-
 
 		try{
 			XMLInputFactory factory = XMLInputFactory.newInstance();
@@ -207,14 +192,12 @@ public class TagsSyncJob extends TagSynchronizer implements Job {
 			}
 			sendStatusMail(1,"");
 		}catch (Exception e){
-			e.printStackTrace();
 			log.warn("Error Synchronizing the Tags from an xml file:",e);
 			sendStatusMail(2,e.getMessage());
 		}
 		if(log.isInfoEnabled()) {
 			log.info("Finished Tags synchronization in " + (System.currentTimeMillis()-start) + " ms");
 		}
-
 
 	}
 
@@ -237,7 +220,6 @@ public class TagsSyncJob extends TagSynchronizer implements Job {
 
 			from= "no-reply@" + serverConfigurationService.getServerName();
 
-
 			if (emailService != null) {
 				emailService.send(from, emailAddr, subject, body + "\n" + extraInfo, emailAddr, null, null);
 			} else {
@@ -246,7 +228,6 @@ public class TagsSyncJob extends TagSynchronizer implements Job {
 		}
 	}
 
-
 	/**
 	 * @param serverConfigurationService The ServerConfigurationService.
 	 */
@@ -254,7 +235,6 @@ public class TagsSyncJob extends TagSynchronizer implements Job {
 	{
 		this.serverConfigurationService = serverConfigurationService;
 	}
-
 
 	public void setEmailService(EmailService emailService) {
 

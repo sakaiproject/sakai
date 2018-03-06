@@ -21,26 +21,18 @@
 
 package org.sakaiproject.poll.logic.impl;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TimeZone;
-import java.util.Map.Entry;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
+import lombok.extern.slf4j.Slf4j;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.AuthzPermissionException;
@@ -51,7 +43,6 @@ import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.email.api.EmailService;
-import org.sakaiproject.emailtemplateservice.model.EmailTemplate;
 import org.sakaiproject.emailtemplateservice.model.RenderedTemplate;
 import org.sakaiproject.emailtemplateservice.service.EmailTemplateService;
 import org.sakaiproject.entity.api.EntityManager;
@@ -59,6 +50,7 @@ import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entitybroker.DeveloperHelperService;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.EventTrackingService;
+import org.sakaiproject.event.api.NotificationService;
 import org.sakaiproject.event.api.LearningResourceStoreService;
 import org.sakaiproject.event.api.LearningResourceStoreService.LRS_Actor;
 import org.sakaiproject.event.api.LearningResourceStoreService.LRS_Object;
@@ -72,23 +64,17 @@ import org.sakaiproject.poll.model.PollRolePerms;
 import org.sakaiproject.poll.model.Vote;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
-import org.sakaiproject.time.api.TimeService;
+import org.sakaiproject.time.api.UserTimeService;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-import org.xml.sax.SAXException;
 
+@Slf4j
 public class ExternalLogicImpl implements ExternalLogic {
 
-	 private static Logger log = LoggerFactory.getLogger(ExternalLogicImpl.class);
-	
 	 private static final String
 	 	/* Email template constants */
 	 	EMAIL_TEMPLATE_NOTIFY_DELETED_OPTION = "polls.notifyDeletedOption",
@@ -103,6 +89,14 @@ public class ExternalLogicImpl implements ExternalLogic {
 	/**
 	 * Injected services
 	 */
+	
+    private LearningResourceStoreService learningResourceStoreService;
+    
+	public void setLearningResourceStoreService(
+			LearningResourceStoreService learningResourceStoreService) {
+		this.learningResourceStoreService = learningResourceStoreService;
+	}
+    
 	private DeveloperHelperService developerHelperService;
 	public void setDeveloperHelperService(
 			DeveloperHelperService developerHelperService) {
@@ -144,11 +138,6 @@ public class ExternalLogicImpl implements ExternalLogic {
     public void setFunctionManager(FunctionManager fm) {
         functionManager = fm;
     }
-    
-	private TimeService timeService;
-	public void setTimeService(TimeService ts) {
-		timeService = ts;
-	}
 
     private SiteService siteService;
     public void setSiteService(SiteService siteService) {
@@ -176,6 +165,12 @@ public class ExternalLogicImpl implements ExternalLogic {
 	public void setUserDirectoryService(UserDirectoryService userDirectoryService) {
 		this.userDirectoryService = userDirectoryService;
 	}
+	
+	private UserTimeService userTimeService;
+	public void setUserTimeService(UserTimeService userTimeService) {
+		this.userTimeService = userTimeService;
+	}
+
 
 	private String fromEmailAddress;
 	public void setFromEmailAddress(String fromEmailAddress) {
@@ -286,7 +281,7 @@ public class ExternalLogicImpl implements ExternalLogic {
 	}
 
 	public TimeZone getLocalTimeZone() {
-		return timeService.getLocalTimeZone();
+		return userTimeService.getLocalTimeZone();
 	}
 
 
@@ -304,8 +299,7 @@ public class ExternalLogicImpl implements ExternalLogic {
 			}
 			return ret;
 		} catch (GroupNotDefinedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			log.error(e.getMessage(), e);
 		}
 		
 
@@ -320,8 +314,7 @@ public class ExternalLogicImpl implements ExternalLogic {
 			Role role = group.getRole(roleId);
 			return  role.isAllowed(permission);
 		} catch (GroupNotDefinedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			log.error(e.getMessage(), e);
 		}
 		return false;
 	}
@@ -334,8 +327,7 @@ public class ExternalLogicImpl implements ExternalLogic {
 			site = siteService.getSite(siteId);
 			return site.getTitle();
 		} catch (IdUnusedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			log.error(e.getMessage(), e);
 		}
 	
 		return null;
@@ -379,7 +371,6 @@ public class ExternalLogicImpl implements ExternalLogic {
 			  catch(Exception e)
 			{
 			log.error(" ClassCast Ex PermKey: " + key);
-				e.printStackTrace();
 				return "error";
 			}*/
 		}
@@ -421,7 +412,7 @@ public class ExternalLogicImpl implements ExternalLogic {
 			}
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			log.error(e.getMessage(), e);
 		}
 		return perms;
 	}
@@ -441,8 +432,6 @@ public class ExternalLogicImpl implements ExternalLogic {
 	public String getSiteRefFromId(String siteId) {
 		return siteService.siteReference(siteId);
 	}
-
-
 
 	public boolean userIsViewingAsRole() {
 		String effectiveRole = securityService.getUserEffectiveRole(developerHelperService.getCurrentLocationReference());
@@ -531,7 +520,8 @@ public class ExternalLogicImpl implements ExternalLogic {
 		return ret;
 	}
 
-    private LRS_Statement getStatementForUserVotedInPoll(LRS_Actor student, String text, Vote vote) {
+    private LRS_Statement getStatementForUserVotedInPoll(String text, Vote vote) {
+    	LRS_Actor student = learningResourceStoreService.getActor(sessionManager.getCurrentSessionUserId());
         String url = serverConfigurationService.getPortalUrl();
         LRS_Verb verb = new LRS_Verb(SAKAI_VERB.interacted);
         LRS_Object lrsObject = new LRS_Object(url + "/poll", "voted-in-poll");
@@ -544,7 +534,8 @@ public class ExternalLogicImpl implements ExternalLogic {
         return new LRS_Statement(student, verb, lrsObject);
     }
 
-    private LRS_Statement getStatementForUserEditPoll(LRS_Actor student, String text, boolean newPoll) {
+    private LRS_Statement getStatementForUserEditPoll(String text, boolean newPoll) {
+    	LRS_Actor student = learningResourceStoreService.getActor(sessionManager.getCurrentSessionUserId());
         String url = serverConfigurationService.getPortalUrl();
         LRS_Verb verb = new LRS_Verb(SAKAI_VERB.interacted);
         LRS_Object lrsObject = new LRS_Object(url + "/poll", newPoll ? "new-poll" : "updated-poll");
@@ -562,11 +553,10 @@ public class ExternalLogicImpl implements ExternalLogic {
      */
     @Override
     public void registerStatement(String pollText, Vote vote) {
-        LearningResourceStoreService lrss = (LearningResourceStoreService) ComponentManager
-                .get("org.sakaiproject.event.api.LearningResourceStoreService");
-        if (null != lrss) {
-            Event event = eventTrackingService.newEvent("poll", "vote", true);
-            lrss.registerStatement(getStatementForUserVotedInPoll(lrss.getEventActor(event), pollText, vote), "polls");
+        if (null != learningResourceStoreService) {
+            LRS_Statement statement = getStatementForUserVotedInPoll(pollText, vote);
+            Event event = eventTrackingService.newEvent("poll.vote", "vote", null, true, NotificationService.NOTI_OPTIONAL, statement);
+            eventTrackingService.post(event);
         }
     }
 
@@ -575,11 +565,10 @@ public class ExternalLogicImpl implements ExternalLogic {
      */
     @Override
     public void registerStatement(String pollText, boolean newPoll) {
-        LearningResourceStoreService lrss = (LearningResourceStoreService) ComponentManager
-                .get("org.sakaiproject.event.api.LearningResourceStoreService");
-        if (null != lrss) {
-            Event event = eventTrackingService.newEvent("poll", "edit poll", true);
-            lrss.registerStatement(getStatementForUserEditPoll(lrss.getEventActor(event), pollText, newPoll), "polls");
+        if (null != learningResourceStoreService) {
+            LRS_Statement statement = getStatementForUserEditPoll(pollText, newPoll);
+            Event event = eventTrackingService.newEvent("poll.edit", "edit poll", null, true, NotificationService.NOTI_OPTIONAL, statement);
+            eventTrackingService.post(event);
         }
     }
 

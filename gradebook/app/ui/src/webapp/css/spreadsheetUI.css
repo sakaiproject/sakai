@@ -5,7 +5,6 @@ div#headers {
    background-color: #ddd;
    border: 1px solid #afafaf;
    border-bottom: 4px solid #afafaf;
-   margin-right: 15px;
    overflow: hidden;
    padding: 0;
 }
@@ -83,13 +82,12 @@ div#q4 {
 }
  
    div#q4 div{
-      overflow: scroll;
+      overflow: auto;
       position: relative;
+      height: auto !important;
    }
           
       div#q4 div table {
-         float: left;
-         position: absolute;
          text-align: center;
       }
       
@@ -114,9 +112,6 @@ div#q3 {
       position: relative;
    }
       div#q3 div table{
-         left: 0;
-         position: absolute;
-         top: 0;
       }
    
       div#q3 div table td,
@@ -124,6 +119,7 @@ div#q3 {
          border: 1px solid #6f6f6f;
          margin: 0;
          padding: 5px;
+         height: 33px;
       }
 
 #hidShowForm {

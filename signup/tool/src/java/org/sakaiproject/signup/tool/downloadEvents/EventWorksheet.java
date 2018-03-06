@@ -1,3 +1,18 @@
+/**
+ * Copyright (c) 2007-2017 The Apereo Foundation
+ *
+ * Licensed under the Educational Community License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *             http://opensource.org/licenses/ecl2
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 /*
 * Licensed to The Apereo Foundation under one or more contributor license
 * agreements. See the NOTICE file distributed with this work for
@@ -19,10 +34,29 @@
 
 package org.sakaiproject.signup.tool.downloadEvents;
 
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+
+import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.common.usermodel.HyperlinkType;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.CreationHelper;
+import org.apache.poi.ss.usermodel.Hyperlink;
+import org.apache.poi.ss.usermodel.PrintSetup;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.util.CellRangeAddress;
-import org.apache.poi.ss.usermodel.*;
-import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.signup.logic.SakaiFacade;
 import org.sakaiproject.signup.model.MeetingTypes;
@@ -32,24 +66,12 @@ import org.sakaiproject.signup.model.SignupGroup;
 import org.sakaiproject.signup.model.SignupMeeting;
 import org.sakaiproject.signup.model.SignupSite;
 import org.sakaiproject.signup.model.SignupTimeslot;
-import org.sakaiproject.signup.tool.jsf.HtmlSortHeaderRenderer;
 import org.sakaiproject.signup.tool.jsf.SignupMeetingWrapper;
 import org.sakaiproject.signup.tool.util.SignupBeanConstants;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.time.api.Time;
-
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.util.ResourceLoader;
-
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.HashMap;
-import java.util.Iterator;
 
 /*
  * <p> This class will provides formatting data to Excel style functionality.
@@ -57,6 +79,7 @@ import java.util.Iterator;
  * 
  * @author Peter Liu
  */
+@Slf4j
 public class EventWorksheet implements MeetingTypes, SignupBeanConstants {
 
 	private ResourceLoader rb = new ResourceLoader("messages");
@@ -89,8 +112,9 @@ public class EventWorksheet implements MeetingTypes, SignupBeanConstants {
 	 */
 	public EventWorksheet(SakaiFacade sakaiFacade) {
 		this.sakaiFacade = sakaiFacade;
-		wb = new HSSFWorkbook();
-		/* could also define wb = new XSSFWorkbook(); */
+
+		wb = new XSSFWorkbook();
+
 
 		styles = WorksheetStyleClass.createStyles(wb);
 
@@ -410,7 +434,7 @@ public class EventWorksheet implements MeetingTypes, SignupBeanConstants {
 				cell = row.getCell(0);
 				cell.setCellStyle(styles.get("item_left_wrap"));
 				cell.setCellValue(wrp.getMeeting().getTitle());
-				Hyperlink sheetLink = createHelper.createHyperlink(Hyperlink.LINK_DOCUMENT);
+				Hyperlink sheetLink = createHelper.createHyperlink(HyperlinkType.FILE);
 				String validSheetName = CreateValidWorksheetName(wrp.getMeeting().getTitle(), seqNum, true);
 				String hlinkAddr = "'" + validSheetName + "'" + "!A1";
 				sheetLink.setAddress(hlinkAddr);
@@ -488,13 +512,15 @@ public class EventWorksheet implements MeetingTypes, SignupBeanConstants {
 		// timezone row
 		Row timezoneRow = sheet.createRow(1);
 		timezoneRow.setHeightInPoints(16);
+		log.info("timezoneRow");
 		for (int i = 1; i <= 7; i++) {
+			log.info("timezone: " + i);
 			timezoneRow.createCell(i).setCellStyle(styles.get("tabItem_fields"));
 		}
 		Cell timezoneCell = timezoneRow.getCell(2);
-		timezoneCell.setCellValue("(" + rb.getString("event_timezone") + " " + sakaiFacade.getTimeService().getLocalTimeZone().getID() + ")");
+		timezoneCell.setCellValue("(" + rb.getString("event_timezone") + " " + sakaiFacade.getTimeService().getLocalTimeZone().getID() + ")");		
 		sheet.addMergedRegion(CellRangeAddress.valueOf("$C$2:$H$2"));
-
+		
 		// owner row
 		Row row = sheet.createRow(2);
 		row.setHeightInPoints(rowHigh);

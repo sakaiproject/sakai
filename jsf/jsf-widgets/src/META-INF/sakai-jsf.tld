@@ -1949,7 +1949,6 @@
 	             String fieldName = item.getFieldName();
 	             String fileName = item.getName();
 	             long fileSize = item.getSize();
-	             System.out.println("processFileUpload(): item: " + item + " fieldname: " + fieldName + " filename: " + fileName + " length: " + fileSize);
 	        
 	             // Read the file as a stream (may be more memory-efficient)
 	             InputStream fileAsStream = item.getInputStream();

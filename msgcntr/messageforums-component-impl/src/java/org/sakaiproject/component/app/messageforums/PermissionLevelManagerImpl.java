@@ -31,9 +31,18 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.beanutils.PropertyUtils;
 import org.hibernate.Query;
 import org.hibernate.type.LongType;
+import org.springframework.orm.hibernate4.HibernateCallback;
+import org.springframework.orm.hibernate4.support.HibernateDaoSupport;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.support.TransactionCallbackWithoutResult;
+import org.springframework.transaction.support.TransactionTemplate;
+import org.springframework.util.Assert;
+
 import org.sakaiproject.api.app.messageforums.AreaManager;
 import org.sakaiproject.api.app.messageforums.DBMembershipItem;
 import org.sakaiproject.api.app.messageforums.MessageForumsTypeManager;
@@ -46,19 +55,10 @@ import org.sakaiproject.component.app.messageforums.dao.hibernate.PermissionLeve
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.id.api.IdManager;
 import org.sakaiproject.tool.api.SessionManager;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.orm.hibernate4.HibernateCallback;
-import org.springframework.orm.hibernate4.support.HibernateDaoSupport;
-import org.springframework.transaction.PlatformTransactionManager;
-import org.springframework.transaction.TransactionStatus;
-import org.springframework.transaction.support.TransactionCallbackWithoutResult;
-import org.springframework.transaction.support.TransactionTemplate;
-import org.springframework.util.Assert;
 
+@Slf4j
 public class PermissionLevelManagerImpl extends HibernateDaoSupport implements PermissionLevelManager {
 
-	private static final Logger LOG = LoggerFactory.getLogger(PermissionLevelManagerImpl.class);
 	private EventTrackingService eventTrackingService;
 	private SessionManager sessionManager;
 	private IdManager idManager;
@@ -81,7 +81,7 @@ public class PermissionLevelManagerImpl extends HibernateDaoSupport implements P
 	public static final int MAX_NUMBER_OF_SQL_PARAMETERS_IN_LIST = 999;
 			
 	public void init(){
-		LOG.info("init()");
+		log.info("init()");
 		Assert.notNull(transactionManager, "The 'transactionManager' argument must not be null.");
 		transactionTemplate = new TransactionTemplate(transactionManager);
 		try {
@@ -100,14 +100,14 @@ public class PermissionLevelManagerImpl extends HibernateDaoSupport implements P
 			// to make it reusable
 			initializePermissionLevelData();
 		} catch ( Exception ex ) {
-			LOG.error("PermissionsLevelManager - a problem occurred loading default permission level data ",ex);
+			log.error("PermissionsLevelManager - a problem occurred loading default permission level data ",ex);
 		}
 
 	}
 	
 	public PermissionLevel getPermissionLevelByName(String name){
-		if (LOG.isDebugEnabled()){
-			LOG.debug("getPermissionLevelByName executing(" + name + ")");
+		if (log.isDebugEnabled()){
+			log.debug("getPermissionLevelByName executing(" + name + ")");
 		}
 		
 		if (PERMISSION_LEVEL_NAME_OWNER.equals(name)){
@@ -135,8 +135,8 @@ public class PermissionLevelManagerImpl extends HibernateDaoSupport implements P
 	
 	public  List getOrderedPermissionLevelNames(){
 
-		if (LOG.isDebugEnabled()){
-			LOG.debug("getOrderedPermissionLevelNames executing");
+		if (log.isDebugEnabled()){
+			log.debug("getOrderedPermissionLevelNames executing");
 		}
 
 		List<String> levelNames = new ArrayList<String>();
@@ -155,8 +155,8 @@ public class PermissionLevelManagerImpl extends HibernateDaoSupport implements P
 	
 	public String getPermissionLevelType(PermissionLevel level){
 		
-		if (LOG.isDebugEnabled()){
-			LOG.debug("getPermissionLevelType executing(" + level + ")");
+		if (log.isDebugEnabled()){
+			log.debug("getPermissionLevelType executing(" + level + ")");
 		}
 		
 		if (level == null) {      
@@ -206,8 +206,8 @@ public class PermissionLevelManagerImpl extends HibernateDaoSupport implements P
 	 */
 	private PermissionLevel createDefaultPermissionLevel(String name, String typeUuid, PermissionsMask mask)
 	{
-		if (LOG.isDebugEnabled()){
-			LOG.debug("createDefaultPermissionLevel executing(" + name + "," + typeUuid + "," + mask + ")");
+		if (log.isDebugEnabled()){
+			log.debug("createDefaultPermissionLevel executing(" + name + "," + typeUuid + "," + mask + ")");
 		}
 		
 		if (name == null || typeUuid == null || mask == null) {      
@@ -242,8 +242,8 @@ public class PermissionLevelManagerImpl extends HibernateDaoSupport implements P
 	
 	public PermissionLevel createPermissionLevel(String name, String typeUuid, PermissionsMask mask){
 		
-		if (LOG.isDebugEnabled()){
-			LOG.debug("createPermissionLevel executing(" + name + "," + typeUuid + "," + mask + ")");
+		if (log.isDebugEnabled()){
+			log.debug("createPermissionLevel executing(" + name + "," + typeUuid + "," + mask + ")");
 		}
 		
 		if (name == null || typeUuid == null || mask == null) {      
@@ -279,8 +279,8 @@ public class PermissionLevelManagerImpl extends HibernateDaoSupport implements P
 	
   public DBMembershipItem createDBMembershipItem(String name, String permissionLevelName, Integer type){
 		
-		if (LOG.isDebugEnabled()){
-			LOG.debug("createDBMembershipItem executing(" + name + "," + type + ")");
+		if (log.isDebugEnabled()){
+			log.debug("createDBMembershipItem executing(" + name + "," + type + ")");
 		}
 		
 		if (name == null || type == null) {      
@@ -312,8 +312,8 @@ public class PermissionLevelManagerImpl extends HibernateDaoSupport implements P
 	
   public PermissionLevel getDefaultOwnerPermissionLevel(){
 
-	  if (LOG.isDebugEnabled()){
-		  LOG.debug("getDefaultOwnerPermissionLevel executing");
+	  if (log.isDebugEnabled()){
+		  log.debug("getDefaultOwnerPermissionLevel executing");
 	  }
 
 	  String typeUuid = typeManager.getOwnerLevelType();
@@ -326,7 +326,7 @@ public class PermissionLevelManagerImpl extends HibernateDaoSupport implements P
 	  if(level == null)
 	  {    
 
-		  LOG.info("No permission level data exists for the Owner level in the MFR_PERMISSION_LEVEL_T table. " +
+		  log.info("No permission level data exists for the Owner level in the MFR_PERMISSION_LEVEL_T table. " +
 				  "Default Owner permissions will be used. If you want to customize this permission level, use " +
 				  "mfr.sql as a reference to add this level to the table.");
 
@@ -340,8 +340,8 @@ public class PermissionLevelManagerImpl extends HibernateDaoSupport implements P
 
   public PermissionLevel getDefaultAuthorPermissionLevel(){
 
-	  if (LOG.isDebugEnabled()){
-		  LOG.debug("getDefaultAuthorPermissionLevel executing");
+	  if (log.isDebugEnabled()){
+		  log.debug("getDefaultAuthorPermissionLevel executing");
 	  }
 
 	  String typeUuid = typeManager.getAuthorLevelType();
@@ -353,7 +353,7 @@ public class PermissionLevelManagerImpl extends HibernateDaoSupport implements P
 
 	  if(level == null)
 	  {
-		  LOG.info("No permission level data exists for the Author level in the MFR_PERMISSION_LEVEL_T table. " +
+		  log.info("No permission level data exists for the Author level in the MFR_PERMISSION_LEVEL_T table. " +
                   "Default Author permissions will be used. If you want to customize this permission level, use " +
                   "mfr.sql as a reference to add this level to the table.");
 
@@ -367,8 +367,8 @@ public class PermissionLevelManagerImpl extends HibernateDaoSupport implements P
 
   public PermissionLevel getDefaultNoneditingAuthorPermissionLevel(){
 
-	  if (LOG.isDebugEnabled()){
-		  LOG.debug("getDefaultNoneditingAuthorPermissionLevel executing");
+	  if (log.isDebugEnabled()){
+		  log.debug("getDefaultNoneditingAuthorPermissionLevel executing");
 	  }
 
 	  String typeUuid = typeManager.getNoneditingAuthorLevelType();
@@ -380,7 +380,7 @@ public class PermissionLevelManagerImpl extends HibernateDaoSupport implements P
 
 	  if(level == null)
 	  {
-		  LOG.info("No permission level data exists for the NoneditingAuthor level in the MFR_PERMISSION_LEVEL_T table. " +
+		  log.info("No permission level data exists for the NoneditingAuthor level in the MFR_PERMISSION_LEVEL_T table. " +
                   "Default NoneditingAuthor permissions will be used. If you want to customize this permission level, use " +
                   "mfr.sql as a reference to add this level to the table.");
 		  
@@ -395,8 +395,8 @@ public class PermissionLevelManagerImpl extends HibernateDaoSupport implements P
 
   public PermissionLevel getDefaultReviewerPermissionLevel(){
 
-	  if (LOG.isDebugEnabled()){
-		  LOG.debug("getDefaultReviewerPermissionLevel executing");
+	  if (log.isDebugEnabled()){
+		  log.debug("getDefaultReviewerPermissionLevel executing");
 	  }
 
 	  String typeUuid = typeManager.getReviewerLevelType();
@@ -408,7 +408,7 @@ public class PermissionLevelManagerImpl extends HibernateDaoSupport implements P
 
 	  if(level == null)
 	  {
-		  LOG.info("No permission level data exists for the Reviewer level in the MFR_PERMISSION_LEVEL_T table. " +
+		  log.info("No permission level data exists for the Reviewer level in the MFR_PERMISSION_LEVEL_T table. " +
                   "Default Reviewer permissions will be used. If you want to customize this permission level, use " +
                   "mfr.sql as a reference to add this level to the table.");
 		  
@@ -423,8 +423,8 @@ public class PermissionLevelManagerImpl extends HibernateDaoSupport implements P
 
   public PermissionLevel getDefaultContributorPermissionLevel(){
 
-	  if (LOG.isDebugEnabled()){
-		  LOG.debug("getDefaultContributorPermissionLevel executing");
+	  if (log.isDebugEnabled()){
+		  log.debug("getDefaultContributorPermissionLevel executing");
 	  }
 
 	  String typeUuid = typeManager.getContributorLevelType();
@@ -436,7 +436,7 @@ public class PermissionLevelManagerImpl extends HibernateDaoSupport implements P
 
 	  if(level == null)
 	  {
-		  LOG.info("No permission level data exists for the Contributor level in the MFR_PERMISSION_LEVEL_T table. " +
+		  log.info("No permission level data exists for the Contributor level in the MFR_PERMISSION_LEVEL_T table. " +
                   "Default Contributor permissions will be used. If you want to customize this permission level, use " +
                   "mfr.sql as a reference to add this level to the table.");
 		  
@@ -451,8 +451,8 @@ public class PermissionLevelManagerImpl extends HibernateDaoSupport implements P
 
   public PermissionLevel getDefaultNonePermissionLevel(){
 
-	  if (LOG.isDebugEnabled()){
-		  LOG.debug("getDefaultNonePermissionLevel executing");
+	  if (log.isDebugEnabled()){
+		  log.debug("getDefaultNonePermissionLevel executing");
 	  }
 
 	  String typeUuid = typeManager.getNoneLevelType();
@@ -464,7 +464,7 @@ public class PermissionLevelManagerImpl extends HibernateDaoSupport implements P
 
 	  if(level == null)
 	  {    
-		  LOG.info("No permission level data exists for the None level in the MFR_PERMISSION_LEVEL_T table. " +
+		  log.info("No permission level data exists for the None level in the MFR_PERMISSION_LEVEL_T table. " +
                   "Default None permissions will be used. If you want to customize this permission level, use " +
                   "mfr.sql as a reference to add this level to the table.");
 		  
@@ -489,8 +489,8 @@ public class PermissionLevelManagerImpl extends HibernateDaoSupport implements P
 		  throw new IllegalArgumentException("Null Argument");
 	  }
 
-	  if (LOG.isDebugEnabled()){
-		  LOG.debug("getDefaultPermissionLevel executing with typeUuid: " + typeUuid);
+	  if (log.isDebugEnabled()){
+		  log.debug("getDefaultPermissionLevel executing with typeUuid: " + typeUuid);
 	  }
 
 	  PermissionLevel level = null;
@@ -498,7 +498,7 @@ public class PermissionLevelManagerImpl extends HibernateDaoSupport implements P
 	  if(defaultPermissionsMap != null && defaultPermissionsMap.containsKey(typeUuid)) {
 		  // check to see if it is already in the map that was created at startup
 		  level =  ((PermissionLevel)defaultPermissionsMap.get(typeUuid)).clone();
-		  if (LOG.isDebugEnabled()) LOG.debug("got Default PermissionLevel from defaultPermissionsMap as " + level);
+		  if (log.isDebugEnabled()) log.debug("got Default PermissionLevel from defaultPermissionsMap as " + level);
 	  
 	  } else {
 		  // retrieve it from the table
@@ -510,7 +510,7 @@ public class PermissionLevelManagerImpl extends HibernateDaoSupport implements P
           };
 
 		  level = getHibernateTemplate().execute(hcb);
-		  if (LOG.isDebugEnabled()) LOG.debug("Returned Permission Level from query was "+level);
+		  if (log.isDebugEnabled()) log.debug("Returned Permission Level from query was "+level);
 	  }
 
 	  return level;
@@ -609,9 +609,9 @@ public class PermissionLevelManagerImpl extends HibernateDaoSupport implements P
 	
 	public List getAllMembershipItemsForForumsForSite(final Long areaId)
 	{
-		if (LOG.isDebugEnabled())
+		if (log.isDebugEnabled())
 		{
-			LOG.debug("getAllMembershipItemsForForumsForSite executing");
+			log.debug("getAllMembershipItemsForForumsForSite executing");
 		}
 		
 		HibernateCallback<List> hcb = session -> {
@@ -625,9 +625,9 @@ public class PermissionLevelManagerImpl extends HibernateDaoSupport implements P
 
 	private List getAllTopicsForSite(final Long areaId)
 	{
-		if (LOG.isDebugEnabled())
+		if (log.isDebugEnabled())
 		{
-			LOG.debug("getAllTopicsForSite executing");
+			log.debug("getAllTopicsForSite executing");
 		}
 		
 		HibernateCallback<List> hcb = session -> {
@@ -662,7 +662,7 @@ public class PermissionLevelManagerImpl extends HibernateDaoSupport implements P
     }
     catch(Exception e)
     {
-    	LOG.error("PermissionLevelManagerImpl.getAllTopicsForSite--" + e);
+    	log.error("PermissionLevelManagerImpl.getAllTopicsForSite--" + e);
     }
     
     return ids;
@@ -686,8 +686,8 @@ public class PermissionLevelManagerImpl extends HibernateDaoSupport implements P
 	
 	private void initializePermissionLevelData()
 	{
-		if (LOG.isDebugEnabled()){
-			LOG.debug("loadInitialDefaultPermissionLevel executing");
+		if (log.isDebugEnabled()){
+			log.debug("loadInitialDefaultPermissionLevel executing");
 		}
 		
 		defaultPermissionsMap = new HashMap();
@@ -754,7 +754,7 @@ public class PermissionLevelManagerImpl extends HibernateDaoSupport implements P
 				savePermissionLevel(permLevel);
 			}
 		} catch (Exception e) {
-			LOG.warn("Error loading initial default types and/or permissions", e);
+			log.warn("Error loading initial default types and/or permissions", e);
 		}
 	}
 
@@ -938,7 +938,7 @@ public class PermissionLevelManagerImpl extends HibernateDaoSupport implements P
 		if (defaultPermissionsMap != null && !defaultPermissionsMap.isEmpty()) {
 			defaultLevels.addAll(defaultPermissionsMap.values());
 		} else {
-			if (LOG.isDebugEnabled()) LOG.debug("Default permissions map was null!! Loading defaults to return from getDefaultPermissionLevels");
+			if (log.isDebugEnabled()) log.debug("Default permissions map was null!! Loading defaults to return from getDefaultPermissionLevels");
 			defaultLevels.add(getDefaultOwnerPermissionLevel());
 			defaultLevels.add(getDefaultAuthorPermissionLevel());
 			defaultLevels.add(getDefaultContributorPermissionLevel());

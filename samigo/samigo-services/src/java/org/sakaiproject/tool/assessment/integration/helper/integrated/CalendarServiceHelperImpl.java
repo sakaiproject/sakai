@@ -1,3 +1,18 @@
+/**
+ * Copyright (c) 2005-2016 The Apereo Foundation
+ *
+ * Licensed under the Educational Community License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *             http://opensource.org/licenses/ecl2
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.sakaiproject.tool.assessment.integration.helper.integrated;
 
 import java.util.ArrayList;
@@ -8,8 +23,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.calendar.api.Calendar;
 import org.sakaiproject.calendar.api.CalendarEvent;
 import org.sakaiproject.calendar.api.CalendarEventEdit;
@@ -33,8 +48,8 @@ import org.sakaiproject.tool.assessment.integration.helper.ifc.CalendarServiceHe
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 import org.sakaiproject.tool.cover.ToolManager;
 
+@Slf4j
 public class CalendarServiceHelperImpl implements CalendarServiceHelper {
-	private static final Logger log = LoggerFactory.getLogger(CalendarServiceHelperImpl.class);
 	private CalendarService calendarService;
 	private Boolean calendarExistsForSite = null;
 	private Map<String, Boolean> calendarExistCache = new HashMap<String, Boolean>();

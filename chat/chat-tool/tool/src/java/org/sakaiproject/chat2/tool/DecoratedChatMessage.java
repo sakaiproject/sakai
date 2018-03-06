@@ -21,10 +21,15 @@
  
 package org.sakaiproject.chat2.tool;
 
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.FormatStyle;
+
+import org.sakaiproject.chat2.model.ChatManager;
 import org.sakaiproject.chat2.model.ChatMessage;
-import org.sakaiproject.time.api.Time;
-import org.sakaiproject.time.cover.TimeService;
 import org.sakaiproject.util.FormattedText;
+import org.sakaiproject.util.ResourceLoader;
 
 public class DecoratedChatMessage {
 
@@ -32,21 +37,20 @@ public class DecoratedChatMessage {
    
    private ChatTool chatTool;
    
-   private Time messageTime;
+   private ChatManager chatManager;
    
-   public DecoratedChatMessage(ChatTool chatTool, ChatMessage chatMessage)
+   private ZonedDateTime ldt;
+   ResourceLoader rl = new ResourceLoader();
+   
+   public DecoratedChatMessage(ChatTool chatTool, ChatMessage chatMessage, ChatManager chatManager)
    {
       this.chatTool = chatTool;
       this.chatMessage = chatMessage;
+      this.chatManager = chatManager;
       if (chatMessage != null && chatMessage.getMessageDate() != null)
        {
-          messageTime = TimeService.newTime(chatMessage.getMessageDate().getTime());
+          ldt = ZonedDateTime.ofInstant(chatMessage.getMessageDate().toInstant(), ZoneId.of(chatManager.getUserTimeZone()));
        }
-   }
-   
-   public String getColor()
-   {
-      return chatTool.getColorMapper().getColor(chatMessage.getOwner());
    }
    
    public ChatMessage getChatMessage()
@@ -56,22 +60,22 @@ public class DecoratedChatMessage {
 
    public String getDateTime()
    {
-      return messageTime.toStringLocalFullZ();
+      return ldt.format(DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM, FormatStyle.LONG).withLocale(rl.getLocale()));
    }
    
    public String getDate()
    {
-      return messageTime.toStringLocalDate();
+      return ldt.format(DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM).withLocale(rl.getLocale()));
    }
    
    public String getTime()
    {
-      return messageTime.toStringLocalTimeZ();
+      return ldt.format(DateTimeFormatter.ofLocalizedTime(FormatStyle.LONG).withLocale(rl.getLocale()));
    }
    
    public String getId()
    {
-      return messageTime.toString();
+      return ldt.format(DateTimeFormatter.ofPattern("yyyyMMddHHmmssSSS", rl.getLocale()));
    }
    
    /**

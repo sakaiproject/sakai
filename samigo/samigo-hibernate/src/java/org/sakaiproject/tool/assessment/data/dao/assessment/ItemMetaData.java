@@ -20,17 +20,14 @@
  **********************************************************************************/
 
 package org.sakaiproject.tool.assessment.data.dao.assessment;
-import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemMetaDataIfc;
-import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 
 import java.io.*;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemMetaDataIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 
 public class ItemMetaData
     implements Serializable, ItemMetaDataIfc {
-  static Logger errorLogger = LoggerFactory.getLogger("errorLogger");
 
   private static final long serialVersionUID = 7526471155622776147L;
 

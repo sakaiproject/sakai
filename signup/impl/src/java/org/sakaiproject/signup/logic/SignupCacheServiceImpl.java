@@ -1,3 +1,18 @@
+/**
+ * Copyright (c) 2007-2016 The Apereo Foundation
+ *
+ * Licensed under the Educational Community License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *             http://opensource.org/licenses/ecl2
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 /*
 * Licensed to The Apereo Foundation under one or more contributor license
 * agreements. See the NOTICE file distributed with this work for
@@ -24,11 +39,9 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.sakaiproject.event.api.Event;
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.memory.api.Cache;
-import org.sakaiproject.memory.api.CacheRefresher;
 import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.signup.dao.SignupMeetingDao;
 import org.sakaiproject.signup.model.SignupMeeting;
@@ -42,15 +55,12 @@ import org.sakaiproject.signup.model.SignupMeeting;
  * @author Peter Liu
  * 
  */
-
-public class SignupCacheServiceImpl implements SignupCacheService,
-		CacheRefresher {
+@Slf4j
+public class SignupCacheServiceImpl implements SignupCacheService {
 
 	private MemoryService memoryService;
 
 	protected SignupMeetingDao signupMeetingDao;
-
-	private static Logger M_log = LoggerFactory.getLogger(SignupCacheServiceImpl.class);
 
 	private Cache m_signupSiteCache = null;
 
@@ -63,16 +73,16 @@ public class SignupCacheServiceImpl implements SignupCacheService,
 		try {
 			// The other parameters are not needed for this cache
 			m_signupSiteCache = memoryService
-					.newCache("org.sakaiproject.signup.logic.siteCache");
+					.getCache("org.sakaiproject.signup.logic.siteCache");
 			if (m_instance == null) {
 				m_instance = this;
 			}
 
-			if (M_log.isDebugEnabled()) {
-				M_log.debug(this + ".init()");
+			if (log.isDebugEnabled()) {
+				log.debug(this + ".init()");
 			}
-		} catch (Throwable t) {
-			M_log.warn(this + "init(): ", t);
+		} catch (Exception t) {
+			log.warn(this + "init(): ", t);
 		}
 	}
 
@@ -154,19 +164,9 @@ public class SignupCacheServiceImpl implements SignupCacheService,
 
 		}
 
-		M_log.info("destroy()");
+		log.info("destroy()");
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public Object refresh(Object key, Object oldValue, Event event) {
-		/*
-		 * instead of refreshing when an entry expires, let it go and we'll get
-		 * it again if needed
-		 */
-		return null;
-	}
 
 	public MemoryService getMemoryService() {
 		return memoryService;

@@ -13,7 +13,7 @@
 	<parent>
         <groupId>org.sakaiproject</groupId>
         <artifactId>master</artifactId>
-        <version>12-SNAPSHOT</version>
+        <version>13-SNAPSHOT</version>
         <relativePath>../master/pom.xml</relativePath>
     </parent>
 
@@ -120,7 +120,7 @@
                     <plugin>
                         <groupId>com.github.jknack</groupId>
                         <artifactId>handlebars-maven-plugin</artifactId>
-                        <version>1.3.1</version>
+                        <version>${handlebars1.version}</version>
                         <executions>
                             <execution>
                                 <id>precompile</id>
@@ -156,7 +156,7 @@
             <plugin>
                 <groupId>com.github.jknack</groupId>
                 <artifactId>handlebars-maven-plugin</artifactId>
-                <version>1.3.1</version>
+                <version>${handlebars1.version}</version>
                 <executions>
                     <execution>
                         <id>precompile</id>

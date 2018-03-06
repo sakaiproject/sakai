@@ -23,30 +23,16 @@
 
 package org.sakaiproject.lessonbuildertool.tool.producers;
 
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
-import java.net.URLEncoder;
+import lombok.extern.slf4j.Slf4j;
 
-import org.sakaiproject.tool.cover.SessionManager;
-
-import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean;
-import org.sakaiproject.lessonbuildertool.tool.view.GeneralViewParameters;
-import org.sakaiproject.tool.api.ToolSession;
-import org.sakaiproject.lessonbuildertool.model.SimplePageToolDao;
-import org.sakaiproject.component.cover.ServerConfigurationService;
-import org.sakaiproject.lti.api.LTIService;
-import org.tsugi.lti2.ContentItem;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.sakaiproject.basiclti.util.SakaiBLTIUtil;
-import org.sakaiproject.tool.api.ToolManager;
-import org.sakaiproject.tool.api.Placement;
-
-import uk.org.ponder.messageutil.MessageLocator;
-import uk.org.ponder.localeutil.LocaleGetter;										  
+import uk.org.ponder.localeutil.LocaleGetter;	
+import uk.org.ponder.messageutil.MessageLocator;									  
 import uk.org.ponder.rsf.components.UIBranchContainer;
 import uk.org.ponder.rsf.components.UICommand;
 import uk.org.ponder.rsf.components.UIContainer;
@@ -63,6 +49,19 @@ import uk.org.ponder.rsf.viewstate.SimpleViewParameters;
 import uk.org.ponder.rsf.viewstate.ViewParameters;
 import uk.org.ponder.rsf.viewstate.ViewParamsReporter;
 
+import org.sakaiproject.basiclti.util.SakaiBLTIUtil;
+import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.lessonbuildertool.model.SimplePageToolDao;
+import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean;
+import org.sakaiproject.lessonbuildertool.tool.view.GeneralViewParameters;
+import org.sakaiproject.lti.api.LTIService;
+import org.sakaiproject.tool.api.Placement;
+import org.sakaiproject.tool.api.ToolManager;
+import org.sakaiproject.tool.api.ToolSession;
+import org.sakaiproject.tool.cover.SessionManager;
+
+import org.tsugi.lti2.ContentItem;
+
 /**
  * Creates a list of LTI Content Items for the user to choose from. Their choice will be added
  * to the end of the list of items on this page.
@@ -70,8 +69,8 @@ import uk.org.ponder.rsf.viewstate.ViewParamsReporter;
  * @author Charles Severance <csev@umich.edu>
  * 
  */
+@Slf4j
 public class LtiImportItemProducer implements ViewComponentProducer, NavigationCaseReporter, ViewParamsReporter {
-	private static final Logger log = LoggerFactory.getLogger(LtiImportItemProducer.class);
 	public static final String VIEW_ID = "LtiImportItem";
 
 	private SimplePageBean simplePageBean;

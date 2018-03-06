@@ -17,7 +17,7 @@
 	<sakai:script contextBase="/messageforums-tool" path="/js/messages.js"/>
 	<sakai:script contextBase="/messageforums-tool" path="/js/datetimepicker.js"/>
 	<script type="text/javascript" src="/library/js/lang-datepicker/lang-datepicker.js"></script>
-	<link href="/library/webjars/jquery-ui/1.11.3/jquery-ui.min.css" rel="stylesheet" type="text/css" />
+	<link href="/library/webjars/jquery-ui/1.12.1/jquery-ui.min.css" rel="stylesheet" type="text/css" />
 	<%
 	  	String thisId = request.getParameter("panel");
   		if (thisId == null) 
@@ -206,7 +206,7 @@
                   <f:selectItem itemValue="true" itemLabel="#{msgs.cdfm_forum_avail_date}"/>
                </h:selectOneRadio>
                </h:panelGroup>
-               <h:panelGroup id="openDateSpan" styleClass="checkbox indnt2 openDateSpan calWidget" style="display: #{ForumTool.selectedForum.availabilityRestricted ? '' : 'none'}">
+               <h:panelGroup id="openDateSpan" styleClass="indnt2 openDateSpan calWidget" style="display: #{ForumTool.selectedForum.availabilityRestricted ? 'block' : 'none'}">
                	   <h:outputLabel value="#{msgs.openDate}: " for="openDate"/>
 
 	               <h:inputText id="openDate" styleClass="openDate" value="#{ForumTool.selectedForum.openDate}"/>

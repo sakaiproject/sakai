@@ -11,7 +11,7 @@
     <parent>
 		<groupId>org.sakaiproject.common</groupId>
 		<artifactId>common</artifactId>
-	    <version>12-SNAPSHOT</version>
+	    <version>13-SNAPSHOT</version>
 	</parent>
 	
     <properties>
@@ -24,30 +24,30 @@
          <dependency>
         <groupId>org.sakaiproject.common</groupId>
         <artifactId>sakai-common-edu-person-api</artifactId>
-        <version>12-SNAPSHOT</version>
+        <version>13-SNAPSHOT</version>
       </dependency>
       <dependency>
       <groupId>org.sakaiproject.common</groupId>
       <artifactId>sakai-common-composite-component-data</artifactId>
-      <version>12-SNAPSHOT</version>
+      <version>13-SNAPSHOT</version>
     </dependency>
     <dependency>
         <groupId>org.sakaiproject.common</groupId>
         <artifactId>sakai-common-composite-component</artifactId>
-        <version>12-SNAPSHOT</version>
+        <version>13-SNAPSHOT</version>
       </dependency>
       
      
       <dependency>
         <groupId>org.sakaiproject.common</groupId>
         <artifactId>sakai-common-manager-api</artifactId>
-        <version>12-SNAPSHOT</version>
+        <version>13-SNAPSHOT</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
         <groupId>org.sakaiproject.common</groupId>
         <artifactId>sakai-common-type-api</artifactId>
-        <version>12-SNAPSHOT</version>
+        <version>13-SNAPSHOT</version>
         <scope>provided</scope>
       </dependency>
      

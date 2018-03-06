@@ -24,8 +24,8 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.api.app.messageforums.AnonymousManager;
 import org.sakaiproject.api.app.messageforums.Attachment;
 import org.sakaiproject.api.app.messageforums.Message;
@@ -34,7 +34,6 @@ import org.sakaiproject.api.app.messageforums.MessageForumsForumManager;
 import org.sakaiproject.api.app.messageforums.Rank;
 import org.sakaiproject.api.app.messageforums.Topic;
 import org.sakaiproject.api.app.messageforums.ui.UIPermissionsManager;
- 
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.ToolManager;
@@ -45,10 +44,9 @@ import org.sakaiproject.user.cover.UserDirectoryService;
  * @author Chen Wen
  *
  */
+@Slf4j
 public class DiscussionMessageBean
 {
-	
-  private static final Logger LOG = LoggerFactory.getLogger(DiscussionMessageBean.class);
 
   private boolean selected;
   private Message message;
@@ -433,21 +431,21 @@ public class DiscussionMessageBean
   
 	public String getAuthorEmail()
 	{
-LOG.debug("... getAuthorEmail(): ");
+log.debug("... getAuthorEmail(): ");
 		String userEmail = "";
 		try
 		{
 			String currentUserId = this.getMessage().getCreatedBy();
-LOG.debug("... currentUserId : " + currentUserId);
+log.debug("... currentUserId : " + currentUserId);
 			
 			userEmail = UserDirectoryService.getUser(currentUserId).getEmail(); 		
-LOG.debug("... getAuthorEmail(): userEmail = " + userEmail);
+log.debug("... getAuthorEmail(): userEmail = " + userEmail);
 		}
 		catch(Exception e)
 		{
-			e.printStackTrace();
+			log.error(e.getMessage(), e);
 		}
-LOG.debug("... before return getAuthorEmail(): userEmail = " + userEmail);
+log.debug("... before return getAuthorEmail(): userEmail = " + userEmail);
 		
 		return userEmail;
 	}

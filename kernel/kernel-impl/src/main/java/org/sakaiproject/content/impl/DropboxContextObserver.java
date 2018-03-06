@@ -27,8 +27,11 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+
 import org.sakaiproject.entity.api.ContextObserver;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityManager;
@@ -36,19 +39,15 @@ import org.sakaiproject.entity.api.EntityProducer;
 import org.sakaiproject.entity.api.HttpAccess;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
 
 /**
  * 
  * DropboxContextObserver
  *
  */
+@Slf4j
 public class DropboxContextObserver implements EntityProducer, ContextObserver
 {
-	/** Our logger. */
-	private static Logger M_log = LoggerFactory.getLogger(DropboxContextObserver.class);
-	
 	/** This string starts the references to resources in this service. */
 	public static final String REFERENCE_ROOT = Entity.SEPARATOR + "dropbox";
 	
@@ -198,7 +197,7 @@ public class DropboxContextObserver implements EntityProducer, ContextObserver
 	 */
 	public void init()
 	{
-		M_log.info("init()");
+		log.info("init()");
 
 		// register as an entity producer
 		m_entityManager.registerEntityProducer(this, REFERENCE_ROOT);
@@ -209,7 +208,7 @@ public class DropboxContextObserver implements EntityProducer, ContextObserver
 	 */
 	public void destroy()
 	{
-		M_log.info("destroy()");
+		log.info("destroy()");
 	}
 
 }

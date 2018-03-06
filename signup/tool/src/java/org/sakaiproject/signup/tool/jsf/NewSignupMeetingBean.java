@@ -36,9 +36,9 @@ import javax.faces.model.SelectItem;
 import javax.faces.context.FacesContext;
 import javax.servlet.http.HttpServletRequest;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.signup.logic.SakaiFacade;
@@ -72,6 +72,7 @@ import org.sakaiproject.util.DateFormatterUtil;
  * 
  * </P>
  */
+@Slf4j
 public class NewSignupMeetingBean implements MeetingTypes, SignupMessageTypes, SignupBeanConstants {
 
 	private SignupMeetingService signupMeetingService;
@@ -95,6 +96,9 @@ public class NewSignupMeetingBean implements MeetingTypes, SignupMessageTypes, S
 	private boolean recurrence;
 
 	private String signupBeginsType;
+	
+	//Meeting title attribute
+	private String title;
 	
 	//Location selected from the dropdown
 	private String selectedLocation;
@@ -157,13 +161,16 @@ public class NewSignupMeetingBean implements MeetingTypes, SignupMessageTypes, S
 	private static boolean DEFAULT_EXPORT_TO_CALENDAR_TOOL = "true".equalsIgnoreCase(Utilities.getSignupConfigParamVal("signup.default.export.to.calendar.setting", "true")) ? true : false;
 
 	private static boolean DEFAULT_CREATE_GROUPS = "true".equalsIgnoreCase(Utilities.getSignupConfigParamVal("signup.default.create.groups.setting", "true")) ? true : false;
+	
+	protected static String DEFAULT_SEND_EMAIL_TO_SELECTED_PEOPLE_ONLY = Utilities.getSignupConfigParamVal(
+			"signup.default.email.selected", SEND_EMAIL_ALL_PARTICIPANTS, VALID_SEND_EMAIL_TO_SELECTED_PEOPLE_ONLY);
 
 	protected static boolean NEW_MEETING_SEND_EMAIL = "true".equalsIgnoreCase(Utilities.getSignupConfigParamVal(
 			"signup.email.notification.mandatory.for.newMeeting", "true")) ? true : false;
 	
 	private boolean mandatorySendEmail = NEW_MEETING_SEND_EMAIL;
 	
-	private String sendEmailToSelectedPeopleOnly = SEND_EMAIL_ONLY_ORGANIZER_COORDINATORS;
+	private String sendEmailToSelectedPeopleOnly = DEFAULT_SEND_EMAIL_TO_SELECTED_PEOPLE_ONLY;
 	
 	private boolean publishToCalendar = DEFAULT_EXPORT_TO_CALENDAR_TOOL;
 	
@@ -225,8 +232,6 @@ public class NewSignupMeetingBean implements MeetingTypes, SignupMessageTypes, S
 	
 	private int maxAttendeesPerSlot;
 
-	private Logger logger = LoggerFactory.getLogger(getClass());
-
 	/* used for jsf parameter passing */
 	private final static String PARAM_NAME_FOR_ATTENDEE_USERID = "attendeeUserId";
 
@@ -259,6 +264,14 @@ public class NewSignupMeetingBean implements MeetingTypes, SignupMessageTypes, S
 	
 	public String getCurrentUserDisplayName() {
 		return sakaiFacade.getUserDisplayName(sakaiFacade.getCurrentUserId());
+	}
+	
+	public String getTitle() {
+		return title;
+	}
+
+	public void setTitle(String title) {
+		this.title = title;
 	}
 	
 	public String getselectedLocation() {
@@ -448,7 +461,7 @@ public class NewSignupMeetingBean implements MeetingTypes, SignupMessageTypes, S
 		if(NEW_MEETING_SEND_EMAIL){
 			sendEmail = NEW_MEETING_SEND_EMAIL;
 		}
-		sendEmailToSelectedPeopleOnly=SEND_EMAIL_ONLY_ORGANIZER_COORDINATORS;
+		sendEmailToSelectedPeopleOnly=DEFAULT_SEND_EMAIL_TO_SELECTED_PEOPLE_ONLY;
 		receiveEmail = false;
 		sendEmailByOwner= DEFAULT_SEND_EMAIL; /*will be inherited per meeting basis*/
 		allowComment = DEFAULT_ALLOW_COMMENT;
@@ -625,19 +638,48 @@ public class NewSignupMeetingBean implements MeetingTypes, SignupMessageTypes, S
 		String step = (String) currentStepHiddenInfo.getValue();
 
 		if (step.equals("step1")) {
-			
+			Map<String, String> params = FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap();
+
+			String isoStartTime = params.get(HIDDEN_ISO_STARTTIME);
+
+			if(DateFormatterUtil.isValidISODate(isoStartTime)){
+				this.signupMeeting.setStartTime(DateFormatterUtil.parseISODate(isoStartTime));
+			}
+
+			String isoEndTime = params.get(HIDDEN_ISO_ENDTIME);
+
+			if(DateFormatterUtil.isValidISODate(isoEndTime)){
+				this.signupMeeting.setEndTime(DateFormatterUtil.parseISODate(isoEndTime));
+			}
+
+			String isoUntilTime = params.get(HIDDEN_ISO_UNTILTIME);
+
+			if(DateFormatterUtil.isValidISODate(isoUntilTime)){
+				setRepeatUntil(DateFormatterUtil.parseISODate(isoUntilTime));
+			}
+
 			boolean locationSet = false;
+			
+			//Set Title		
+			if (StringUtils.isNotBlank(title)){
+				log.debug("title set: " + title);
+				this.signupMeeting.setTitle(title);
+			}else{
+				validationError = true;
+				Utilities.addErrorMessage(Utilities.rb.getString("event.title_cannot_be_blank"));
+				return;
+			}
 			
 			//Set Location		
 			if (StringUtils.isNotBlank(customLocation)){
-				logger.debug("custom location set: " + customLocation);
+				log.debug("custom location set: " + customLocation);
 				this.signupMeeting.setLocation(customLocation);
 				locationSet = true;
 			}
 			
 			if (!locationSet && StringUtils.isNotBlank(selectedLocation) && !StringUtils.equals(selectedLocation, Utilities.rb.getString("select_location"))){
 				this.signupMeeting.setLocation(selectedLocation);
-				logger.debug("chose a location: " + selectedLocation);
+				log.debug("chose a location: " + selectedLocation);
 				locationSet = true;
 			}
 			
@@ -674,25 +716,6 @@ public class NewSignupMeetingBean implements MeetingTypes, SignupMessageTypes, S
 			//set instructor
 			this.signupMeeting.setCreatorUserId(creatorUserId);
 			
-			Map<String, String> params = FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap();
-
-			String isoStartTime = params.get(HIDDEN_ISO_STARTTIME);
-
-			if(DateFormatterUtil.isValidISODate(isoStartTime)){
-				this.signupMeeting.setStartTime(DateFormatterUtil.parseISODate(isoStartTime));
-			}
-
-			String isoEndTime = params.get(HIDDEN_ISO_ENDTIME);
-
-			if(DateFormatterUtil.isValidISODate(isoEndTime)){
-				this.signupMeeting.setEndTime(DateFormatterUtil.parseISODate(isoEndTime));
-			}
-
-			String isoUntilTime = params.get(HIDDEN_ISO_UNTILTIME);
-
-			if(DateFormatterUtil.isValidISODate(isoUntilTime)){
-				setRepeatUntil(DateFormatterUtil.parseISODate(isoUntilTime));
-			}
 
 			Date eventEndTime = signupMeeting.getEndTime();
 			Date eventStartTime = signupMeeting.getStartTime();
@@ -885,7 +908,7 @@ public class NewSignupMeetingBean implements MeetingTypes, SignupMessageTypes, S
 			setEndTimeAutoAdjusted(false);
 			//reset who should receive emails
 			//setSendEmailAttendeeOnly(false);
-			sendEmailToSelectedPeopleOnly = SEND_EMAIL_ONLY_ORGANIZER_COORDINATORS;//reset
+			sendEmailToSelectedPeopleOnly = DEFAULT_SEND_EMAIL_TO_SELECTED_PEOPLE_ONLY;//reset
 
 			return ADD_MEETING_STEP2_PAGE_URL;
 		}
@@ -1675,8 +1698,7 @@ public class NewSignupMeetingBean implements MeetingTypes, SignupMessageTypes, S
 				}
 			}
 		} catch (IdUnusedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			log.error(e.getMessage(), e);
 		}
 		
 		this.allSignupUsers = sakaiFacade.getAllPossibleAttendees(meeting);
@@ -1917,9 +1939,9 @@ public class NewSignupMeetingBean implements MeetingTypes, SignupMessageTypes, S
 			this.attachments.clear();
 			
 		} catch (PermissionException e) {
-			logger.info(Utilities.rb.getString("no.permission_create_event") + " - " + e.getMessage());
+			log.info(Utilities.rb.getString("no.permission_create_event") + " - " + e.getMessage());
 		} catch (Exception e) {
-			logger.error(Utilities.rb.getString("error.occurred_try_again") + " - " + e.getMessage());
+			log.error(Utilities.rb.getString("error.occurred_try_again") + " - " + e.getMessage());
 			Utilities.addErrorMessage(Utilities.rb.getString("error.occurred_try_again"));
 		}
 	
@@ -1998,7 +2020,7 @@ public class NewSignupMeetingBean implements MeetingTypes, SignupMessageTypes, S
 				this.publishedSite = new Boolean(status);
 
 			} catch (Exception e) {
-				logger.warn(e.getMessage());
+				log.warn(e.getMessage());
 				this.publishedSite = new Boolean(false);
 
 			}

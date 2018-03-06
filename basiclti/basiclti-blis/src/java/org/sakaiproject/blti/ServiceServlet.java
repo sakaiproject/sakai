@@ -19,11 +19,8 @@
 
 package org.sakaiproject.blti;
 
-import java.lang.StringBuffer;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.net.URL;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.ArrayList;
@@ -31,17 +28,16 @@ import java.util.Map;
 import java.util.HashMap;
 import java.util.TreeMap;
 import java.util.Properties;
-import java.util.Enumeration;
 import java.util.Set;
 import java.util.Iterator;
-import java.util.UUID;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
-import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import lombok.extern.slf4j.Slf4j;
 
 import net.oauth.OAuthAccessor;
 import net.oauth.OAuthConsumer;
@@ -51,47 +47,28 @@ import net.oauth.SimpleOAuthValidator;
 import net.oauth.server.OAuthServlet;
 import net.oauth.signature.OAuthSignatureMethod;
 
-import org.tsugi.basiclti.XMLMap;
-
-import org.w3c.dom.Node;
-import org.w3c.dom.Element;
-import org.w3c.dom.NodeList;
-import javax.xml.xpath.XPath;
-import javax.xml.xpath.XPathExpression;
-import javax.xml.xpath.XPathFactory;
-import javax.xml.xpath.XPathConstants;
-
-import org.sakaiproject.component.cover.ComponentManager;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.tsugi.basiclti.BasicLTIUtil;
-import org.sakaiproject.authz.api.Member;
-import org.sakaiproject.authz.api.Role;
-import org.sakaiproject.authz.api.AuthzGroupService;
-import org.sakaiproject.component.cover.ServerConfigurationService;
-import org.sakaiproject.event.cover.UsageSessionService;
-import org.sakaiproject.id.cover.IdManager;
-import org.sakaiproject.site.api.Group;
-import org.sakaiproject.site.api.Site;
-import org.sakaiproject.site.api.SitePage;
-import org.sakaiproject.exception.IdUnusedException;
-import org.sakaiproject.site.api.ToolConfiguration;
-import org.sakaiproject.site.cover.SiteService;
-import org.sakaiproject.tool.api.Session;
-import org.sakaiproject.tool.api.Tool;
-import org.sakaiproject.tool.cover.SessionManager;
-import org.sakaiproject.tool.cover.ToolManager;
-import org.sakaiproject.user.api.User;
-import org.sakaiproject.user.cover.UserDirectoryService;
-import org.sakaiproject.util.ResourceLoader;
-import org.sakaiproject.basiclti.util.SakaiBLTIUtil;
 import org.tsugi.basiclti.BasicLTIConstants;
-import org.sakaiproject.basiclti.util.LegacyShaUtil;
-import org.sakaiproject.util.FormattedText;
-
+import org.tsugi.basiclti.BasicLTIUtil;
+import org.tsugi.basiclti.XMLMap;
 import org.tsugi.pox.IMSPOXRequest;
 
+import org.sakaiproject.authz.api.AuthzGroupService;
+import org.sakaiproject.authz.api.Member;
+import org.sakaiproject.authz.api.Role;
+import org.sakaiproject.basiclti.util.LegacyShaUtil;
+import org.sakaiproject.basiclti.util.SakaiBLTIUtil;
+import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.lti.api.LTIService;
+import org.sakaiproject.site.api.Group;
+import org.sakaiproject.site.api.Site;
+import org.sakaiproject.site.api.ToolConfiguration;
+import org.sakaiproject.user.api.User;
+import org.sakaiproject.site.cover.SiteService;
+import org.sakaiproject.user.cover.UserDirectoryService;
+import org.sakaiproject.util.FormattedText;
+import org.sakaiproject.util.ResourceLoader;
+
 
 /**
  * Notes:
@@ -115,10 +92,10 @@ import org.sakaiproject.lti.api.LTIService;
  */
 
 @SuppressWarnings("deprecation")
+@Slf4j
 public class ServiceServlet extends HttpServlet {
 
 	private static final long serialVersionUID = 1L;
-	private static Logger M_log = LoggerFactory.getLogger(ServiceServlet.class);
 	private static ResourceLoader rb = new ResourceLoader("blis");
 
 	protected static LTIService ltiService = null;
@@ -151,17 +128,17 @@ public class ServiceServlet extends HttpServlet {
 	throws java.io.IOException 
 	{
 		if (e != null) {
-			M_log.error(e.getLocalizedMessage(), e);
+			log.error(e.getLocalizedMessage(), e);
 		}
 		theMap.put("/message_response/statusinfo/codemajor", "Fail");
 		theMap.put("/message_response/statusinfo/severity", "Error");
 		String msg = rb.getString(s) + ": " + message;
-		M_log.info(msg);
+		log.info(msg);
 		theMap.put("/message_response/statusinfo/description", FormattedText.escapeHtmlFormattedText(msg));
 		String theXml = XMLMap.getXML(theMap, true);
 		PrintWriter out = response.getWriter();
 		out.println(theXml);
-		M_log.info("doError="+theXml);
+		log.info("doError={}", theXml);
 	}
 
 	@Override
@@ -188,13 +165,13 @@ public class ServiceServlet extends HttpServlet {
 		throws IOException
 	{
 		String lti_errorlog = request.getParameter("lti_errorlog");
-		if ( lti_errorlog != null ) M_log.error(lti_errorlog);
+		if ( lti_errorlog != null ) log.error(lti_errorlog);
 		String lti_errormsg = request.getParameter("lti_errormsg");
-		if ( lti_errormsg != null ) M_log.error(lti_errormsg);
+		if ( lti_errormsg != null ) log.error(lti_errormsg);
 		String lti_log = request.getParameter("lti_log");
-		if ( lti_log != null ) M_log.info(lti_log);
+		if ( lti_log != null ) log.info(lti_log);
 		String lti_msg = request.getParameter("lti_msg");
-		if ( lti_msg != null ) M_log.info(lti_msg);
+		if ( lti_msg != null ) log.info(lti_msg);
 		
 		String message = rb.getString("outcome.tool.finished");
 		String gotMessage = "false";
@@ -244,7 +221,7 @@ public class ServiceServlet extends HttpServlet {
 	protected void doPostForm(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		String ipAddress = request.getRemoteAddr();
 
-		M_log.debug("Basic LTI Service request from IP=" + ipAddress);
+		log.debug("Basic LTI Service Form request from IP={}", ipAddress);
 
 		String allowOutcomes = ServerConfigurationService.getString(
 				SakaiBLTIUtil.BASICLTI_OUTCOMES_ENABLED, SakaiBLTIUtil.BASICLTI_OUTCOMES_ENABLED_DEFAULT);
@@ -259,7 +236,7 @@ public class ServiceServlet extends HttpServlet {
 		if ( ! "true".equals(allowRoster) ) allowRoster = null;
 
 		if (allowOutcomes == null && allowSettings == null && allowRoster == null ) {
-			M_log.warn("LTI Services are disabled IP=" + ipAddress);
+			log.warn("LTI Services are disabled IP={}", ipAddress);
 			response.setStatus(HttpServletResponse.SC_FORBIDDEN);
 			return;
 		}
@@ -269,7 +246,7 @@ public class ServiceServlet extends HttpServlet {
 
 		Map<String,String[]> params = (Map<String,String[]>)request.getParameterMap();
 		for (Map.Entry<String,String[]> param : params.entrySet()) {
-			M_log.debug(param.getKey() + ":" + param.getValue()[0]);
+			log.debug("{}:{}", param.getKey(), param.getValue()[0]);
 		}
 
 		//check lti_message_type
@@ -303,11 +280,13 @@ public class ServiceServlet extends HttpServlet {
 			return;
 		}
 
-		// Perform the Outcomee first because we use the SakaiBLTIUtil code for this
+		// This is for the pre-LTI 1.x "Sakai Basic Outcomes" and is probably never used
+		// Perform the Outcome here because we use SakaiBLTIUtil.handleGradebook()
 		if ( "basicoutcome".equals(message_type) ) {
 			processOutcome(request, response, lti_message_type, sourcedid, theMap);
 			return;
 		}
+
 
 		// No point continuing without a sourcedid
 		if(BasicLTIUtil.isBlank(sourcedid)) {
@@ -358,7 +337,7 @@ public class ServiceServlet extends HttpServlet {
 			}
 		} catch (Exception e) {
 			// Logger some detail for ourselves
-			M_log.warn("Unable to decrypt result_sourcedid IP=" + ipAddress + " Error=" + e.getMessage(),e);
+			log.warn("Unable to decrypt result_sourcedid IP={} Error={}", ipAddress, e.getMessage());
 			signature = null;
 			placement_id = null;
 			user_id = null;
@@ -370,13 +349,13 @@ public class ServiceServlet extends HttpServlet {
 			return;
 		}
 
-		M_log.debug("signature="+signature);
-		M_log.debug("user_id="+user_id);
-		M_log.debug("placement_id="+placement_id);
+		log.debug("signature={}", signature);
+		log.debug("user_id={}", user_id);
+		log.debug("placement_id={}", placement_id);
 
 		Properties pitch = SakaiBLTIUtil.getPropertiesFromPlacement(placement_id, ltiService);
 		if ( pitch == null ) {
-			M_log.debug("Error retrieving result_sourcedid information");
+			log.debug("Error retrieving result_sourcedid information");
 			doError(request, response, theMap, "outcomes.sourcedid", "sourcedid", null);
 			return;
 		}
@@ -386,7 +365,7 @@ public class ServiceServlet extends HttpServlet {
 		try { 
 			site = SiteService.getSite(siteId);
 		} catch (Exception e) {
-			M_log.debug("Error retrieving result_sourcedid site: "+e.getLocalizedMessage(), e);
+			log.debug("Error retrieving result_sourcedid site: {}", e.getLocalizedMessage());
 		}
 
 		// Send a more generic message back to the caller
@@ -397,9 +376,9 @@ public class ServiceServlet extends HttpServlet {
 
 		// Check the message signature using OAuth
 		String oauth_secret = pitch.getProperty(LTIService.LTI_SECRET);
-		M_log.debug("oauth_secret: "+oauth_secret);
+		log.debug("oauth_secret: {}", oauth_secret);
 		oauth_secret = SakaiBLTIUtil.decryptSecret(oauth_secret);
-		M_log.debug("oauth_secret (decrypted): "+oauth_secret);
+		log.debug("oauth_secret (decrypted): {}", oauth_secret);
 
 		String URL = SakaiBLTIUtil.getOurServletPath(request);
 		OAuthMessage oam = OAuthServlet.getMessage(request, URL);
@@ -411,18 +390,19 @@ public class ServiceServlet extends HttpServlet {
 		String base_string = null;
 		try {
 			base_string = OAuthSignatureMethod.getBaseString(oam);
+			log.debug("base_string={}",base_string);
 		} catch (Exception e) {
-			M_log.error(e.getLocalizedMessage(), e);
+			log.error(e.getLocalizedMessage(), e);
 			base_string = null;
 		}
 
 		try {
 			oav.validateMessage(oam, acc);
 		} catch (Exception e) {
-			M_log.warn("Provider failed to validate message");
-			M_log.warn(e.getLocalizedMessage(), e);
+			log.warn("Provider failed to validate message");
+			log.warn(e.getLocalizedMessage(), e);
 			if (base_string != null) {
-				M_log.warn(base_string);
+				log.warn(base_string);
 			}
 			doError(request, response, theMap, "outcome.no.validate", oauth_consumer_key, null);
 			return;
@@ -439,14 +419,14 @@ public class ServiceServlet extends HttpServlet {
 
 		String pre_hash = placement_secret + ":::" + user_id + ":::" + placement_id;
 		String received_signature = LegacyShaUtil.sha256Hash(pre_hash);
-		M_log.debug("Received signature="+signature+" received="+received_signature);
+		log.debug("Received signature={} received={}", signature, received_signature);
 		boolean matched = signature.equals(received_signature);
 
 		String old_placement_secret  = pitch.getProperty(LTIService.LTI_OLDPLACEMENTSECRET);
 		if ( old_placement_secret != null && ! matched ) {
 			pre_hash = placement_secret + ":::" + user_id + ":::" + placement_id;
 			received_signature = LegacyShaUtil.sha256Hash(pre_hash);
-			M_log.debug("Received signature II="+signature+" received="+received_signature);
+			log.debug("Received signature II={} received={}", signature, received_signature);
 			matched = signature.equals(received_signature);
 		}
 
@@ -456,7 +436,7 @@ public class ServiceServlet extends HttpServlet {
 			return;
 		}
 
-		// Perform the message-specific handling
+		// These are the Sakai-post form extensions
 		if ( "toolsetting".equals(message_type) ) processSetting(request, response, lti_message_type, site, siteId, placement_id, pitch, user_id, theMap);
 
 		if ( "roster".equals(message_type) ) processRoster(request, response, lti_message_type, site, siteId, placement_id, pitch, user_id, theMap);
@@ -497,7 +477,7 @@ public class ServiceServlet extends HttpServlet {
 					if ( "basic-lti-savesetting".equals(lti_message_type) ) {
 						setting = request.getParameter("setting");
 						if ( setting == null ) {
-							M_log.warn("No setting parameter");
+							log.warn("No setting parameter");
 							doError(request, response, theMap, "setting.empty", "", null);
 						} else {
 							if ( setting.length() > 8096) setting = setting.substring(0,8096);
@@ -521,7 +501,7 @@ public class ServiceServlet extends HttpServlet {
 						if ( "basic-lti-savesetting".equals(lti_message_type) ) {
 							setting = request.getParameter("setting");
 							if ( setting == null ) {
-								M_log.warn("No setting parameter");
+								log.warn("No setting parameter");
 								doError(request, response, theMap, "setting.empty", "", null);
 							} else {
 								if ( setting.length() > 8096) setting = setting.substring(0,8096);
@@ -535,7 +515,7 @@ public class ServiceServlet extends HttpServlet {
 						if ( success ) {
 							Object result = ltiService.updateContentDao(contentKey,content, siteId);
 							if ( result instanceof String ) {
-								M_log.warn("Setting update failed: "+result);
+								log.warn("Setting update failed: {}", result);
 								doError(request, response, theMap, "setting.fail", "", null);
 								success = false;
 							}
@@ -734,7 +714,7 @@ public class ServiceServlet extends HttpServlet {
 		String theXml = XMLMap.getXML(theMap, true);
 		PrintWriter out = response.getWriter();
 		out.println(theXml);
-		M_log.debug(theXml);
+		log.debug(theXml);
 	}
 
 	/* IMS POX XML versions of this service */
@@ -743,10 +723,10 @@ public class ServiceServlet extends HttpServlet {
 		throws java.io.IOException 
 	{
 		if (e != null) {
-			M_log.error(e.getLocalizedMessage(), e);
+			log.error(e.getLocalizedMessage(), e);
 		}
 		String msg = rb.getString(s) + ": " + message;
-		M_log.info(msg);
+		log.info(msg);
 		response.setContentType("application/xml");
 		PrintWriter out = response.getWriter();
 		String output = null;
@@ -761,7 +741,7 @@ public class ServiceServlet extends HttpServlet {
 			output = pox.getResponseFailure(msg, null, body);
 		}
 		out.println(output);
-		M_log.debug(output);
+		log.debug(output);
 	}
 
 
@@ -771,7 +751,7 @@ public class ServiceServlet extends HttpServlet {
 	{
 		String ipAddress = request.getRemoteAddr();
 
-		M_log.warn("LTI JSON Services not implemented IP=" + ipAddress);
+		log.warn("LTI JSON Services not implemented IP={}", ipAddress);
 		response.setStatus(HttpServletResponse.SC_FORBIDDEN);
 		return;
 	}
@@ -781,14 +761,14 @@ public class ServiceServlet extends HttpServlet {
 	{
 		String ipAddress = request.getRemoteAddr();
 
-		M_log.debug("LTI POX Service request from IP=" + ipAddress);
+		log.debug("LTI POX Service request from IP={}", ipAddress);
 
 		String allowOutcomes = ServerConfigurationService.getString(
 				SakaiBLTIUtil.BASICLTI_OUTCOMES_ENABLED, SakaiBLTIUtil.BASICLTI_OUTCOMES_ENABLED_DEFAULT);
 		if ( ! "true".equals(allowOutcomes) ) allowOutcomes = null;
 
 		if (allowOutcomes == null ) {
-			M_log.warn("LTI Services are disabled IP=" + ipAddress);
+			log.warn("LTI Services are disabled IP={}", ipAddress);
 			response.setStatus(HttpServletResponse.SC_FORBIDDEN);
 			return;
 		}
@@ -804,7 +784,7 @@ public class ServiceServlet extends HttpServlet {
 
 		String sourcedid = null;
 		String message_type = null;
-		if ( M_log.isDebugEnabled() ) M_log.debug("POST\n"+XMLMap.prettyPrint(pox.postBody));
+		if ( log.isDebugEnabled() ) log.debug("POST\n{}", XMLMap.prettyPrint(pox.postBody));
 		Map<String,String> bodyMap = pox.getBodyMap();
 		if ( ( "replaceResultRequest".equals(lti_message_type) || "readResultRequest".equals(lti_message_type) ||
 			  "deleteResultRequest".equals(lti_message_type) )  && allowOutcomes != null ) {
@@ -824,7 +804,8 @@ public class ServiceServlet extends HttpServlet {
 			return;
 		}
 
-		// Handle the outcomes here using the new SakaiBLTIUtil code
+		// Handle the LTI 1.x Outcomes
+		// Perform the Outcome here because we use SakaiBLTIUtil.handleGradebook()
 		if ( allowOutcomes != null && "basicoutcome".equals(message_type) ) {
 			processOutcomeXml(request, response, lti_message_type, sourcedid, pox);
 			return;
@@ -848,7 +829,7 @@ public class ServiceServlet extends HttpServlet {
 			}
 		} catch (Exception e) {
 			// Logger some detail for ourselves
-			M_log.warn("Unable to decrypt result_sourcedid IP=" + ipAddress + " Error=" + e.getMessage(),e);
+			log.warn("Unable to decrypt result_sourcedid IP={} Error={}, {}", ipAddress, e.getMessage(), e);
 			signature = null;
 			placement_id = null;
 			user_id = null;
@@ -860,13 +841,13 @@ public class ServiceServlet extends HttpServlet {
 			return;
 		}
 
-		M_log.debug("signature="+signature);
-		M_log.debug("user_id="+user_id);
-		M_log.debug("placement_id="+placement_id);
+		log.debug("signature={}", signature);
+		log.debug("user_id={}", user_id);
+		log.debug("placement_id={}", placement_id);
 
 		Properties pitch = SakaiBLTIUtil.getPropertiesFromPlacement(placement_id, ltiService);
 		if ( pitch == null ) {
-			M_log.debug("Error retrieving result_sourcedid information");
+			log.debug("Error retrieving result_sourcedid information");
 			doErrorXML(request, response, pox, "outcomes.sourcedid", "sourcedid", null);
 			return;
 		}
@@ -876,7 +857,7 @@ public class ServiceServlet extends HttpServlet {
 		try { 
 			site = SiteService.getSite(siteId);
 		} catch (Exception e) {
-			M_log.debug("Error retrieving result_sourcedid site: "+e.getLocalizedMessage(), e);
+			log.debug("Error retrieving result_sourcedid site: {}, error: {}", e.getLocalizedMessage(), e);
 		}
 
 		// Send a more generic message back to the caller
@@ -888,15 +869,15 @@ public class ServiceServlet extends HttpServlet {
 		// Check the message signature using OAuth
 		String oauth_consumer_key = pox.getOAuthConsumerKey();
 		String oauth_secret = pitch.getProperty(LTIService.LTI_SECRET);
-		M_log.debug("oauth_secret: "+oauth_secret);
+		log.debug("oauth_secret: {}", oauth_secret);
 		oauth_secret = SakaiBLTIUtil.decryptSecret(oauth_secret);
-		M_log.debug("oauth_secret (decrypted): "+oauth_secret);
+		log.debug("oauth_secret (decrypted): {}", oauth_secret);
 
 		String URL = SakaiBLTIUtil.getOurServletPath(request);
 		pox.validateRequest(oauth_consumer_key, oauth_secret, request, URL);
 		if ( ! pox.valid ) {
 			if (pox.base_string != null) {
-				M_log.warn(pox.base_string);
+				log.warn(pox.base_string);
 			}
 			doErrorXML(request, response, pox, "outcome.no.validate", oauth_consumer_key, null);
 			return;
@@ -907,21 +888,21 @@ public class ServiceServlet extends HttpServlet {
 
 		// Send a generic message back to the caller
 		if ( placement_secret ==null ) {
-			M_log.debug("placement_secret is null");
+			log.debug("placement_secret is null");
 			doErrorXML(request, response, pox, "outcomes.sourcedid", "sourcedid", null);
 			return;
 		}
 
 		String pre_hash = placement_secret + ":::" + user_id + ":::" + placement_id;
 		String received_signature = LegacyShaUtil.sha256Hash(pre_hash);
-		M_log.debug("Received signature="+signature+" received="+received_signature);
+		log.debug("Received signature={} received={}", signature, received_signature);
 		boolean matched = signature.equals(received_signature);
 
 		String old_placement_secret  = pitch.getProperty(LTIService.LTI_OLDPLACEMENTSECRET);
 		if ( old_placement_secret != null && ! matched ) {
 			pre_hash = placement_secret + ":::" + user_id + ":::" + placement_id;
 			received_signature = LegacyShaUtil.sha256Hash(pre_hash);
-			M_log.debug("Received signature II="+signature+" received="+received_signature);
+			log.debug("Received signature II={} received={}", signature, received_signature);
 			matched = signature.equals(received_signature);
 		}
 
@@ -950,8 +931,8 @@ public class ServiceServlet extends HttpServlet {
 		String result_resultscore_textstring = bodyMap.get("/resultRecord/result/resultScore/textString");
 		String result_resultdata_text = bodyMap.get("/resultRecord/result/resultData/text");
 		String sourced_id = bodyMap.get("/resultRecord/result/sourcedId");
-		// System.out.println("comment="+result_resultdata_text);
-		// System.out.println("grade="+result_resultscore_textstring);
+		log.debug("comment={}", result_resultdata_text);
+		log.debug("grade={}", result_resultscore_textstring);
 
 		if(BasicLTIUtil.isBlank(result_resultscore_textstring) && ! isRead && ! isDelete ) {
 			doErrorXML(request, response, pox, "outcomes.missing", "result_resultscore_textstring", null);
@@ -1035,7 +1016,7 @@ public class ServiceServlet extends HttpServlet {
 		response.setContentType("application/xml");
 		PrintWriter out = response.getWriter();
 		out.println(output);
-		M_log.debug(output);
+		log.debug(output);
 	}
 
 

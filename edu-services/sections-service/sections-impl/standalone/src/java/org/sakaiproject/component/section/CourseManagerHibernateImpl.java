@@ -25,15 +25,17 @@ import java.util.Iterator;
 import java.util.Set;
 import java.util.UUID;
 
+import lombok.extern.slf4j.Slf4j;
+
 import org.hibernate.Query;
+
+import org.springframework.orm.hibernate4.HibernateCallback;
+import org.springframework.orm.hibernate4.support.HibernateDaoSupport;
+
 import org.sakaiproject.section.api.CourseManager;
 import org.sakaiproject.section.api.coursemanagement.Course;
 import org.sakaiproject.section.api.coursemanagement.ParticipationRecord;
 import org.sakaiproject.section.api.coursemanagement.User;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.orm.hibernate4.HibernateCallback;
-import org.springframework.orm.hibernate4.support.HibernateDaoSupport;
 
 /**
  * Hibernate implementation of CourseManager.  Useful for loading data in standalone mode.
@@ -41,10 +43,9 @@ import org.springframework.orm.hibernate4.support.HibernateDaoSupport;
  * @author <a href="mailto:jholtzman@berkeley.edu">Josh Holtzman</a>
  *
  */
+@Slf4j
 public class CourseManagerHibernateImpl extends HibernateDaoSupport
 	implements CourseManager {
-
-	private static final Logger log = LoggerFactory.getLogger(CourseManagerHibernateImpl.class);
 
 	public Course createCourse(final String siteContext, final String title,
 			final boolean selfRegAllowed, final boolean selfSwitchingAllowed,

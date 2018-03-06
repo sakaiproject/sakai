@@ -1,0 +1,278 @@
+<!-- start: chef_assignments_student_view_assignment.vm -->
+<script type="text/javascript">
+    $(document).ready(function(){
+        ASN.setupToggleAreas('toggleAnchor', 'toggledContent', false, 'fast');
+    });
+</script>
+
+#set ($submissionType = $assignment.TypeOfSubmission)
+#set($allowUpdateAssignment=$!service.allowUpdateAssignment($assignmentReference))
+<div class="portletBody">
+		<h3>
+		$tlang.getString("viewassig.viewass1") 	
+	</h3>
+	#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $alertMessage</div><div class="clear"></div>#end
+		#if (!$hideAssignmentFlag)
+		<p class="discTria">
+			 $tlang.getString("gen.settfor") "$validator.escapeHtml($assignment.title)"
+		</p>
+		<table class="itemSummary" border="0">
+			<tr>
+				<th>	
+					$tlang.getString("gen.creby")
+				</th>	
+				<td>
+					$validator.escapeHtml($!creator)
+				</td>
+			</tr>
+			<tr> 
+				<th>
+					$tlang.getString("gen.open")
+				</th>
+				<td>
+					$!service.getUsersLocalDateTimeString($assignment.OpenDate)
+				</td>
+			</tr>
+			<tr>
+				<th>
+					$tlang.getString("viewassig.datcre")
+				</th>
+				<td>
+					$!service.getUsersLocalDateTimeString($assignment.DateCreated)
+				</td>
+			</tr>
+			<tr> 
+				<th>
+					$tlang.getString("gen.due")
+				</th>
+				<td>
+                    #if (!$assignment.HideDueDate || $!allowUpdateAssignment)
+                        $!service.getUsersLocalDateTimeString($!assignment.DueDate)
+                    #end
+				</td>
+			</tr>
+			<tr>
+				<th>
+					$tlang.getString("viewassig.datcre")
+				</th>
+				<td>
+					$!service.getUsersLocalDateTimeString($assignment.DateModified)
+				</td>
+			</tr>
+			#set ($closeDate = $assignment.CloseDate)
+			#if ($!closeDate)
+				<tr> 
+					<th>
+						$tlang.getString("gen.acesubunt")
+					</th>
+					<td>
+						$!service.getUsersLocalDateTimeString($closeDate)
+					</td>
+				</tr>
+			#end
+			#if ($submissionType != 4)
+				##resubmit number
+				#if($!resubmitNumber)
+					<tr>
+						<th>
+							$tlang.getString("allow.resubmit.number")
+						</th>
+						<td>
+							$resubmitNumber
+						</td>
+					</tr>
+				#end
+				## resubmit close time
+				#if ($!resubmitCloseTime)
+					<tr>
+						<th>
+							$tlang.getString("allow.resubmit.closeTime")
+						</th>
+						<td>
+							$resubmitCloseTime
+						</td>
+					</tr>
+				#end
+			#end
+			<tr> 
+				<th>
+                                        $tlang.getString("gen.groupassignment")
+                                </th>
+                                <td>
+                                        #if ($assignment.IsGroup)
+                                        $tlang.getString("gen.yes")
+                                        #else
+                                        $tlang.getString("gen.no")
+                                        #end
+                                </td>
+                        </tr>
+			<tr> 
+				<th>
+					$tlang.getString("gen.gra")
+				</th>
+				<td>
+					#set ($gradeScale = $assignment.TypeOfGrade)
+					$gradeScale
+					#if ($gradeTypeTable.get($assignment.TypeOfGrade) == $!tlang.getString("points"))
+						($tlang.getString("grade.max") $assignment.MaxGradePoint)
+					#end
+				</td>
+			</tr>
+			<tr> 
+				<th>
+					$tlang.getString("gen.honple")
+				</td>
+				<td> 
+					#if ($assignment.HonorPledge)
+						$tlang.getString("gen.yes")
+					#else
+						$tlang.getString("gen.no")
+					#end
+				</td>
+			</tr>
+		</table>
+		<h4>
+			$tlang.getString("gen.assinf")
+		</h4>
+		<p>					
+			#if ($assignment.Instructions.length()>0)
+				$validator.escapeHtmlFormattedText($assignment.Instructions)
+			#end
+		</p>
+		## assignment attachment
+		#set ($size = 0)
+		#set ($props = false)
+		#foreach ($attachment in $assignment.Attachments)
+			#set ($props = $attachment.Properties)
+			#if ($!props)
+				#set ($size = $size + 1)
+			#end
+		#end
+		#if ($size == 0)
+##			$tlang.getString("gen.noatt")
+		#else
+			<h4>
+				$tlang.getString("gen.addres2")
+			</h4>	
+			<ul class="attachList">
+				#foreach ($attachment in $assignment.Attachments)
+					#set ($props = false)
+					#set ($props = $attachment.Properties) 
+					#if ($!props)
+						<li>
+							#if ($props.getBooleanProperty($props.NamePropIsCollection))
+								<img src = "#imageLink($contentTypeImageService.getContentTypeImage("folder"))" border="0" alt="$tlang.getString("gen.folatt")" />
+							#else
+								<img src = "#imageLink($contentTypeImageService.getContentTypeImage($props.getProperty($props.NamePropContentType)))" border="0" alt="$tlang.getString("gen.filatt")" />
+							#end
+							<a href="$attachment.Url" target="_blank">$validator.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))</a>						
+							#propertyDetails($props)
+						</li>
+					#end
+				#end
+			</ul>
+		#end
+			## model answer
+			#if($allowViewModelAnswer)
+			<h4  id="toggleModel" class="toggleAnchor specialLink"><img alt="expand" class="expand" src="/library/image/sakai/expand.gif" /><img alt="collapse" class="collapse" src="/library/image/sakai/collapse.gif" />$tlang.getString('modelAnswer')</h4>
+			<div class="model toggledContent">
+					<p>$validator.escapeHtml($!assignmentModelAnswerItem.getText())</p>
+					#set ($mAttachments = $!assignmentModelAnswerItem.getAttachmentObjectSet())
+						<ul class="attachList">
+							#set ($size = 0)
+							#set ($props = false)
+							#foreach ($attachment in $!mAttachments) 
+								#set ($props = $attachment.Properties) 
+								#if ($!props)
+									#set ($size = $size + 1)
+								#end
+							#end
+							#if ($size > 0)
+								#foreach ($attachment in $mAttachments)
+									#set ($props = false)
+									#set ($props = $attachment.Properties) 
+									#if ($!props)
+									<li>
+										#if ($props.getBooleanProperty($props.NamePropIsCollection))
+											<img src = "#imageLink($contentTypeImageService.getContentTypeImage("folder"))" border="0" alt="$tlang.getString("gen.folatt")" />
+										#else
+											<img src = "#imageLink($contentTypeImageService.getContentTypeImage($props.getProperty($props.NamePropContentType)))" border="0" alt="$tlang.getString("gen.filatt")" />
+										#end
+										<a href="$attachment.Url" target="_blank">$validator.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))</a>						
+										#propertyDetails($props)
+									</li>
+									#end
+							#end
+					#end
+					</ul>
+				</div>
+			#end
+			#if ($!allowReadAssignmentNoteItem)
+				<h4  id="toggleNotes" class="toggleAnchor specialLink"><img alt="expand" class="expand" src="/library/image/sakai/expand.gif" /><img alt="collapse" class="collapse" src="/library/image/sakai/collapse.gif" />$tlang.getString('note.label')</h4>
+				<div class="notes toggledContent">
+					$validator.escapeHtml($!assignmentNoteItem.getNote())
+				</div>
+			#end
+			##all purpose
+			#if ($!allowViewAllPurposeItem)
+			<h4  id="toggleAllPurpose" class="toggleAnchor specialLink"><img alt="expand" class="expand" src="/library/image/sakai/expand.gif" /><img alt="collapse" class="collapse" src="/library/image/sakai/collapse.gif" />$tlang.getString('allPurpose')</h4>
+			<div class="allPurpose toggledContent">
+					<p>$validator.escapeHtml($!assignmentAllPurposeItem.getTitle())</p>
+					<p>$validator.escapeHtml($!assignmentAllPurposeItem.getText())</p>
+					#set ($aAttachments = $!assignmentAllPurposeItem.getAttachmentObjectSet())
+						<ul class="attachList">
+							#set ($size = 0)
+							#set ($props = false)
+							#foreach ($attachment in $!aAttachments) 
+								#set ($props = $attachment.Properties) 
+								#if ($!props)
+									#set ($size = $size + 1)
+								#end
+							#end
+							#if ($size == 0)
+								<p class="instruction">
+                                                                    #if ($submissionType == 5)
+                                                                        $tlang.getString("gen.noatt.single")
+                                                                    #else
+                                                                        $tlang.getString("gen.noatt")
+                                                                    #end
+                                                                </p>
+							#else
+								#foreach ($attachment in $aAttachments)
+									#set ($props = false)
+									#set ($props = $attachment.Properties) 
+									#if ($!props)
+									<li>
+										#if ($props.getBooleanProperty($props.NamePropIsCollection))
+											<img src = "#imageLink($contentTypeImageService.getContentTypeImage("folder"))" border="0" alt="$tlang.getString("gen.folatt")" />
+										#else
+											<img src = "#imageLink($contentTypeImageService.getContentTypeImage($props.getProperty($props.NamePropContentType)))" border="0" alt="$tlang.getString("gen.filatt")" />
+										#end
+										<a href="$attachment.Url" target="_blank">$validator.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))</a>						
+										#propertyDetails($props)
+									</li>
+									#end
+							#end
+					#end
+					</ul>
+				</div>
+			#end
+		#if ($taggable)
+        	#parse ("/vm/assignment/chef_assignments_tags_list.vm")
+		#end
+		#else
+			<p class="discTria">
+				<a href="javascript:void(0)" onclick="location='#toolLink("AssignmentAction" "doShow_view_assignment")'; return false;" title="$tlang.getString("viewassig.shoassinf")">	
+				<img src="#imageLink("sakai/expand.gif")" alt="$tlang.getString("gen.open")" border="0" width="13" height="13" align="top" alt="$tlang.getString("viewassig.shoassinf")" /></a>
+				$tlang.getString("gen.settfor") "$validator.escapeHtml($assignment.title)"
+			</p>	
+		#end
+	<form name="viewAssignmentsForm" action="#toolForm("AssignmentAction")" method="post">
+		<input type="hidden" name="assignmentId" value="$assignment.Reference" />
+			<div class="act">
+				<input type="submit" name="eventSubmit_doCancel_student_view_assignment" value="$tlang.getString("gen.don")" onclick="SPNR.disableControlsAndSpin( this, null );" />
+			</div>
+			<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+		</form>
+	</div>
+<!-- end: check_assignments_student_view_assignment.vm -->

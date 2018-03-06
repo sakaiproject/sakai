@@ -35,8 +35,12 @@ import java.util.Map;
 import java.util.Stack;
 import java.util.Vector;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+
+import org.sakaiproject.util.CalendarEventType;
 import org.sakaiproject.calendar.api.Calendar;
 import org.sakaiproject.calendar.api.CalendarEvent;
 import org.sakaiproject.calendar.api.CalendarEventEdit;
@@ -58,17 +62,13 @@ import org.sakaiproject.time.api.TimeRange;
 import org.sakaiproject.time.api.TimeService;
 import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.util.ResourceLoader;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
 
 /**
  * This class provides common importing functionality after a lower-level reader has taken care of the peculiarities of a given import format.
  */
+@Slf4j
 public class GenericCalendarImporter implements CalendarImporterService
 {
-	/** Our logger. */
-	private static Logger M_log = LoggerFactory.getLogger(GenericCalendarImporter.class);
-
 	public static final String LOCATION_PROPERTY_NAME = "Location";
 
 	public static final String LOCATION_DEFAULT_COLUMN_HEADER = "Location";
@@ -912,49 +912,10 @@ public class GenericCalendarImporter implements CalendarImporterService
 						else if (ITEM_TYPE_PROPERTY_NAME.equals(column.getColumnHeader())){
 							String cellValue = column.getCellValue();
 							if (cellValue!=null){
-								if (cellValue.equals("event.activity")){
-									mapCellValue = "Activity";
-								}else if (cellValue.equals("event.exam")){
-									mapCellValue="Exam";
-								}else if (cellValue.equals("event.meeting")){
-									mapCellValue="Meeting"; 
-								}else if (cellValue.equals("event.academic.calendar")){
-									mapCellValue="Academic Calendar"; 
-								}else if (cellValue.equals("event.cancellation")){
-									mapCellValue="Cancellation"; 
-								}else if (cellValue.equals("event.discussion")){
-									mapCellValue="Class section - Discussion"; 
-								}else if (cellValue.equals("event.lab")){
-									mapCellValue="Class section - Lab"; 
-								}else if (cellValue.equals("event.lecture")){
-									mapCellValue="Class section - Lecture"; 
-								}else if (cellValue.equals("event.smallgroup")){
-									mapCellValue="Class section - Small Group"; 
-								}else if (cellValue.equals("event.class")){
-									mapCellValue="Class session"; 
-								}else if (cellValue.equals("event.computer")){
-									mapCellValue="Computer Session"; 
-								}else if (cellValue.equals("event.deadline")){
-									mapCellValue="Deadline";
-								}else if (cellValue.equals("event.formative")){
-									mapCellValue="Formative Assessment";
-								}else if (cellValue.equals("event.conference")){
-									mapCellValue="Multidisciplinary Conference"; 
-								}else if (cellValue.equals("event.quiz")){
-									mapCellValue="Quiz"; 
-								}else if (cellValue.equals("event.special")){
-									mapCellValue="Special event";
-								}else if (cellValue.equals("event.submission")){
-									mapCellValue="Submission Date";
-								}else if (cellValue.equals("event.tutorial")){
-									mapCellValue="Tutorial";
-								}else if (cellValue.equals("event.assignment")){
-									mapCellValue="Web Assignment";
-								}else if (cellValue.equals("event.workshop")){
-									mapCellValue="Workshop"; 
-								}else{ 
-									mapCellValue = cellValue; 
-								}
+								CalendarEventType.getEventTypeFromImportType(cellValue);
+							}
+							else { 
+								mapCellValue = cellValue; 
 							}
 						}
 						else
@@ -1162,7 +1123,7 @@ public class GenericCalendarImporter implements CalendarImporterService
 		}
 		catch (Throwable t)
 		{
-			M_log.warn("init(): ", t);
+			log.warn("init(): ", t);
 		}
 	}
 
@@ -1171,6 +1132,6 @@ public class GenericCalendarImporter implements CalendarImporterService
 	 */
 	public void destroy()
 	{
-		M_log.info("destroy()");
+		log.info("destroy()");
 	}
 }

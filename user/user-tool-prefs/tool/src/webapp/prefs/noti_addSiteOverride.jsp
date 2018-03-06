@@ -12,7 +12,6 @@
 <f:verbatim>
 <h:outputText value="#{Portal.latestJQuery}" escape="false"/>
 <script type="text/javascript" src="/sakai-user-tool-prefs/js/prefs.js">// </script>
-<script type="text/javascript" src="/library/js/fluid/1.5/MyInfusion.js">//</script>
 </f:verbatim>
 	
 		<h:form id="site_list_form">

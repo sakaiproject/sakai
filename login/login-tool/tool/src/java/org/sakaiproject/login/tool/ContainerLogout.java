@@ -1,3 +1,18 @@
+/**
+ * Copyright (c) 2003-2016 The Apereo Foundation
+ *
+ * Licensed under the Educational Community License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *             http://opensource.org/licenses/ecl2
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.sakaiproject.login.tool;
 
 import java.io.IOException;
@@ -8,8 +23,8 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.event.api.UsageSessionService;
@@ -22,11 +37,8 @@ import org.sakaiproject.tool.api.SessionManager;
  * authentication needs to do some cleanup and you can't do that on a normal logout. We redirect to this servlet
  * so that we can be sure that we get the additional HTTP request on a known URL.
  */
+@Slf4j
 public class ContainerLogout extends HttpServlet {
-
-	/** Our log (commons). */
-	private static final Logger M_log = LoggerFactory.getLogger(ContainerLogin.class);
-
 	private ServerConfigurationService serverConfigurationService;
 	private UsageSessionService usageSessionService;
 	private SessionManager sessionManager;
@@ -52,7 +64,7 @@ public class ContainerLogout extends HttpServlet {
 	{
 		super.init(config);
 
-		M_log.debug("init()");
+		log.debug("init()");
 		serverConfigurationService = (ServerConfigurationService) ComponentManager.get(ServerConfigurationService.class);
 		usageSessionService = (UsageSessionService) ComponentManager.get(UsageSessionService.class);
 		sessionManager = (SessionManager) ComponentManager.get(SessionManager.class);
@@ -63,7 +75,7 @@ public class ContainerLogout extends HttpServlet {
 	 */
 	public void destroy()
 	{
-		M_log.debug("destroy()");
+		log.debug("destroy()");
 
 		super.destroy();
 	}
@@ -77,11 +89,11 @@ public class ContainerLogout extends HttpServlet {
 		// if we end up with nowhere to go, go to the portal
 		if (returnUrl == null)
 		{
-			M_log.warn("login.container.logout.url isn't set, to use container logout it should be.");
+			log.warn("login.container.logout.url isn't set, to use container logout it should be.");
 			returnUrl = (String)session.getAttribute(Tool.HELPER_DONE_URL);
 			if (returnUrl == null || "".equals(returnUrl))
 			{
-				M_log.debug("complete: nowhere set to go, going to portal");
+				log.debug("complete: nowhere set to go, going to portal");
 				returnUrl = serverConfigurationService.getPortalUrl();
 			}
 		}

@@ -425,7 +425,7 @@
 	function userDefinedTsChoice(){
 		var singleBoxTag = document.getElementById("meeting:singleCh");
 		var userDefTschoiceTag = document.getElementById("meeting:userDefTsChoice");
-		var mutiplBoxTag = document.getElementById('meeting:mutipleCh');
+		var mutiplBoxTag = document.getElementById('meeting:multipleCh');
 		var createEditTSBttn = document.getElementById('meeting:createEditTS');
 		var isCreateTSTagExist = document.getElementById('meeting:createTS');
 		if(userDefTschoiceTag && (mutiplBoxTag || singleBoxTag)){

@@ -2,45 +2,21 @@
 <!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
 <hibernate-mapping package="org.sakaiproject.search.model.impl">
       
-      <class name="org.sakaiproject.search.model.impl.SearchBuilderItemImpl"
-          table="searchbuilderitem" 
-          optimistic-lock="version">
-          <id name="id" unsaved-value="null" >
+      <class name="org.sakaiproject.search.model.impl.SearchBuilderItemImpl" table="searchbuilderitem" optimistic-lock="version">
+          <id name="id" type="string" unsaved-value="null" >
               <column name="id" length="64" not-null="true"/>
-              <generator class="uuid.hex" />
+              <generator class="uuid2" />
           </id>
           <!-- the last update to the record used for optimistic locks -->    
           <version name="version" type="timestamp" unsaved-value="null"/>
           <!-- this is the resource string -->
-          <property 
-              name="name" 
-              column="name" 
-              not-null="true" 
-              type="string" 
-              unique="true" 
-              length="255" />
-          <property 
-              name="context" 
-              column="context" 
-              not-null="true" 
-              index="isearchbuilderitem_ctx" 
-              type="string" 
-              unique="false" 
-              length="255" />
+          <property name="name" column="name" not-null="true" type="string" unique="true" length="255"/>
+          <property name="context" column="context" not-null="true" index="isearchbuilderitem_ctx" type="string" unique="false" length="255"/>
           <!-- the action to perform add, update, delete -->
-          <property name="searchaction" 
-              column="searchaction" 
-              type="int" 
-              index="isearchbuilderitem_act" />
+          <property name="searchaction" column="searchaction" type="int" index="isearchbuilderitem_act"/>
           <!-- the state of the record, pending, completed -->
-          <property name="searchstate" 
-              column="searchstate" 
-              type="int" 
-              index="isearchbuilderitem_sta" />
-          <property name="itemscope" 
-              column="itemscope" 
-              type="int" 
-              index="isearchbuilderitem_sco" />
+          <property name="searchstate" column="searchstate" type="int" index="isearchbuilderitem_sta"/>
+          <property name="itemscope" column="itemscope" type="int" index="isearchbuilderitem_sco"/>
       </class>
   </hibernate-mapping>
   

@@ -1,3 +1,18 @@
+/**
+ * Copyright (c) 2007-2016 The Apereo Foundation
+ *
+ * Licensed under the Educational Community License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *             http://opensource.org/licenses/ecl2
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 /*
 * Licensed to The Apereo Foundation under one or more contributor license
 * agreements. See the NOTICE file distributed with this work for
@@ -28,11 +43,11 @@ import java.util.List;
 import java.util.Set;
 import java.util.StringTokenizer;
 
+import lombok.extern.slf4j.Slf4j;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.dao.OptimisticLockingFailureException;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.calendar.api.Calendar;
 import org.sakaiproject.calendar.api.CalendarEventEdit;
@@ -54,7 +69,6 @@ import org.sakaiproject.site.api.Site;
 import org.sakaiproject.time.api.Time;
 import org.sakaiproject.time.api.TimeRange;
 import org.sakaiproject.time.api.TimeService;
-import org.springframework.dao.OptimisticLockingFailureException;
 
 /**
  * <p>
@@ -66,9 +80,8 @@ import org.springframework.dao.OptimisticLockingFailureException;
  * 
  * </p>
  */
+@Slf4j
 public class SignupMeetingServiceImpl implements SignupMeetingService, Retry, MeetingTypes, SignupMessageTypes {
-
-	private static Logger log = LoggerFactory.getLogger(SignupMeetingServiceImpl.class);
 
 	@Getter @Setter
 	private SignupMeetingDao signupMeetingDao;

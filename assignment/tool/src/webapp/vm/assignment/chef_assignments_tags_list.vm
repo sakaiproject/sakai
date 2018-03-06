@@ -1,0 +1,70 @@
+<!-- start: chef_assignments_tags_list.vm  -->
+<script type="text/javascript">
+	iframeId = '$iframeId';
+</script>
+<form id="form" name="form" action="#toolForm("AssignmentAction")" method="post">
+	<input type="hidden" name="sakai_action" value=""/>
+	<input type="hidden" name="providerId" value=""/>
+	<input type="hidden" name="criteria" value=""/>
+	<input type="hidden" name="savedText" value=""/>
+	#set ($firstFlag = true)
+	#foreach ($provider in $providers)
+		#if ($provider.getProvider().allowViewTags($activity.getContext()))
+			#if ($firstFlag)
+				<br>
+				<br>
+				#set ($firstFlag = false)
+			#end
+			<div class="navPanel row">
+				<div class="viewNav col-lg-6 col-md-5 col-xs-12">
+					<h4>$provider.getProvider().getSimpleTextLabel()</h4>
+				</div>
+			#set ($tagList = $provider.getTags($activity))
+			#if (!$tagList.isEmpty())
+				#set ($pager = $provider.getPager())
+				#if ($pager.getTotalItems() > 5)
+					<div class="col-lg-6 col-md-7 col-xs-12">
+						#paginator( $topMsgPos $btmMsgPos $allMsgNumber $pagesize $goFPButton $goPPButton $goNPButton $goLPButton $sakai_csrf_token $pagesizes )
+					</div>
+				</div>
+				#end
+				<table class="listHier lines nolines" border="0" cellspacing="0" summary="$tlang.getString('tag.list.summary')">
+					#set ($columns = $provider.getColumns($activity))
+					<tr>
+						#foreach ($column in $columns)
+							#if ($column.isSortable())
+								<th>
+									<div class="spinnerBesideContainer">
+										<a href="javascript:void(0)" title="$!column.getDescription()" onclick="SPNR.insertSpinnerAfter( this, null, null ); ASN.saveChanges('form', '$name_submission_text'); ASN.doTagsListAction( form, 'doSort_tags', '$provider.provider.id' ); form.criteria.value='$column.name'; form.submit(); return false;">
+											$!column.getDisplayName()
+									#if ($provider.getSort().getSort().equals($!column.getName()))
+										#if ($provider.getSort().isAscending())
+											<img id="sortascendinglastname" src = "#imageLink("sakai/sortascending.gif")" border="0" alt="$tlang.getString("gen.sorasc")" />
+										#else
+											<img id="sortdescendinglastname" src = "#imageLink("sakai/sortdescending.gif")" border="0" alt="$tlang.getString("gen.sordes")" />
+										#end
+									#end
+										</a>
+									</div>
+								</th>
+							#else
+								<th>$column.getDisplayName()</th>
+							#end
+						#end
+					</tr>
+					#foreach ($tag in $tagList)
+						<tr>
+							#foreach ($column in $columns)
+								<td>$!tag.getField($column)</td>
+							#end
+						</tr>
+					#end
+				</table>
+			#else
+				<div class="information">$tlang.getString("tag.emptylist")</div>
+			#end
+		#end
+	#end
+	<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+</form>
+<!-- end: chef_assignments_tags_list.vm  -->

@@ -16,6 +16,8 @@
 package org.sakaiproject.contentreview.dao;
 
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -46,6 +48,7 @@ public class ContentReviewItem {
 	private String lastError;
 	private Long retryCount;
 	private Integer version;
+	private Map<String, String> properties = new HashMap<>();
 
 	public ContentReviewItem(String contentId, Integer providerId) {
 		this(contentId, null, null, null, new Date(), ContentReviewConstants.CONTENT_REVIEW_NOT_SUBMITTED_CODE, providerId);

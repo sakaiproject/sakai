@@ -1,3 +1,18 @@
+/**
+ * Copyright (c) 2003-2016 The Apereo Foundation
+ *
+ * Licensed under the Educational Community License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *             http://opensource.org/licenses/ecl2
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 /*
 * Licensed to The Apereo Foundation under one or more contributor license
 * agreements. See the NOTICE file distributed with this work for
@@ -30,6 +45,8 @@ import java.util.UUID;
 
 import javax.annotation.Resource;
 
+import lombok.extern.slf4j.Slf4j;
+
 import net.fortuna.ical4j.model.Calendar;
 import net.fortuna.ical4j.model.component.VEvent;
 import net.fortuna.ical4j.model.property.CalScale;
@@ -39,10 +56,18 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+
 import org.sakaiproject.calendar.api.CalendarEvent;
 import org.sakaiproject.calendar.api.CalendarEventEdit;
 import org.sakaiproject.calendaring.api.ExternalCalendaringService;
@@ -54,11 +79,6 @@ import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserAlreadyDefinedException;
 import org.sakaiproject.user.api.UserIdInvalidException;
 import org.sakaiproject.user.api.UserPermissionException;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -72,6 +92,7 @@ import static org.mockito.Mockito.when;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations={"/test-components.xml"})
 @Configuration
+@Slf4j
 public class ExternalCalendaringServiceTest {
 
 	private final String EVENT_NAME = "A new event";
@@ -144,18 +165,18 @@ public class ExternalCalendaringServiceTest {
 		//create vevent
 		net.fortuna.ical4j.model.component.VEvent vevent = service.createEvent(event);
 		
-		System.out.println("testGeneratingVEvent");
-		System.out.println("####################");
-		System.out.println(vevent);
+		log.debug("testGeneratingVEvent");
+		log.debug("####################");
+		log.debug("{}", vevent);
 		
 		Assert.assertNotNull(vevent);
 
 		//Testing timeIsLocal case
 		vevent = service.createEvent(event, null, true);
 		
-		System.out.println("testGeneratingVEvent");
-		System.out.println("####################");
-		System.out.println(vevent);
+		log.debug("testGeneratingVEvent");
+		log.debug("####################");
+		log.debug("{}", vevent);
 		
 		Assert.assertNotNull(vevent);
 
@@ -178,9 +199,9 @@ public class ExternalCalendaringServiceTest {
 		//create vevent
 		net.fortuna.ical4j.model.component.VEvent vevent = service.createEvent(event);
 		
-		System.out.println("testGeneratingVEventWithOverridenUuid");
-		System.out.println("#####################################");
-		System.out.println(vevent);
+		log.debug("testGeneratingVEventWithOverridenUuid");
+		log.debug("#####################################");
+		log.debug("{}", vevent);
 		
 		Assert.assertNotNull(vevent);
 		
@@ -203,9 +224,9 @@ public class ExternalCalendaringServiceTest {
 		//create vevent
 		net.fortuna.ical4j.model.component.VEvent vevent = service.createEvent(event, users);
 		
-		System.out.println("testGeneratingVEventWithAttendees");
-		System.out.println("#################################");
-		System.out.println(vevent);
+		log.debug("testGeneratingVEventWithAttendees");
+		log.debug("#################################");
+		log.debug("{}", vevent);
 		
 		Assert.assertNotNull(vevent);
 		
@@ -226,14 +247,14 @@ public class ExternalCalendaringServiceTest {
 		//create vevent
 		net.fortuna.ical4j.model.component.VEvent vevent = service.createEvent(event);
 		
-		System.out.println("testUpdatingVEventWithAttendees");
-		System.out.println("#################################");
-		System.out.println("Before:");
-		System.out.println(vevent);
+		log.debug("testUpdatingVEventWithAttendees");
+		log.debug("#################################");
+		log.debug("Before:");
+		log.debug("{}", vevent);
 		
 		net.fortuna.ical4j.model.component.VEvent veventUpdated = service.addAttendeesToEvent(vevent, users);
-		System.out.println("After:");
-		System.out.println(vevent);
+		log.debug("After:");
+		log.debug("{}", vevent);
 		
 		Assert.assertNotNull(vevent);
 		
@@ -257,9 +278,9 @@ public class ExternalCalendaringServiceTest {
 		//set it to cancelled
 		VEvent cancelled = service.cancelEvent(vevent);
 		
-		System.out.println("testCancellingVEvent");
-		System.out.println("####################");
-		System.out.println(cancelled);
+		log.debug("testCancellingVEvent");
+		log.debug("####################");
+		log.debug("{}", cancelled);
 		
 		Assert.assertNotNull(cancelled);
 		
@@ -282,9 +303,9 @@ public class ExternalCalendaringServiceTest {
 		VEvent cancelled = service.cancelEvent(vevent);
 		VEvent cancelledTwice = service.cancelEvent(vevent);
 
-		System.out.println("testCancellingVEventTwice");
-		System.out.println("####################");
-		System.out.println(cancelledTwice);
+		log.debug("testCancellingVEventTwice");
+		log.debug("####################");
+		log.debug("{}", cancelledTwice);
 
 		Assert.assertNotNull(cancelledTwice);
 
@@ -309,9 +330,9 @@ public class ExternalCalendaringServiceTest {
 		//create vevent
 		net.fortuna.ical4j.model.component.VEvent vevent = service.createEvent(event);
 		
-		System.out.println("testCreatingVEventWithUidProperty");
-		System.out.println("####################");
-		System.out.println(vevent);
+		log.debug("testCreatingVEventWithUidProperty");
+		log.debug("####################");
+		log.debug("{}", vevent);
 		
 		Assert.assertNotNull(vevent);
 		
@@ -331,9 +352,9 @@ public class ExternalCalendaringServiceTest {
 		//create vevent
 		net.fortuna.ical4j.model.component.VEvent vevent = service.createEvent(event);
 		
-		System.out.println("testCreatingVEventWithUrlProperty");
-		System.out.println("####################");
-		System.out.println(vevent);
+		log.debug("testCreatingVEventWithUrlProperty");
+		log.debug("####################");
+		log.debug("{}", vevent);
 		
 		Assert.assertNotNull(vevent);
 		
@@ -353,9 +374,9 @@ public class ExternalCalendaringServiceTest {
 		//create vevent
 		net.fortuna.ical4j.model.component.VEvent vevent = service.createEvent(event);
 		
-		System.out.println("testCreatingVEventWithSequenceProperty");
-		System.out.println("####################");
-		System.out.println(vevent);
+		log.debug("testCreatingVEventWithSequenceProperty");
+		log.debug("####################");
+		log.debug("{}", vevent);
 		
 		Assert.assertNotNull(vevent);
 		
@@ -378,9 +399,9 @@ public class ExternalCalendaringServiceTest {
 		//create calendar from vevent
 		net.fortuna.ical4j.model.Calendar calendar = service.createCalendar(Collections.singletonList(vevent));
 		
-		System.out.println("testGeneratingCalendar");
-		System.out.println("######################");
-		System.out.println(calendar);
+		log.debug("testGeneratingCalendar");
+		log.debug("######################");
+		log.debug("{}", calendar);
 		
 		Assert.assertNotNull(calendar);
 		
@@ -406,9 +427,9 @@ public class ExternalCalendaringServiceTest {
 		//create calendar from vevent
 		net.fortuna.ical4j.model.Calendar calendar = service.createCalendar(vevents);
 		
-		System.out.println("testGeneratingCalendarWithMultipleVEvents");
-		System.out.println("#########################################");
-		System.out.println(calendar);
+		log.debug("testGeneratingCalendarWithMultipleVEvents");
+		log.debug("#########################################");
+		log.debug("{}", calendar);
 		
 		Assert.assertNotNull(calendar);
 		
@@ -426,10 +447,10 @@ public class ExternalCalendaringServiceTest {
 		//create calendar with null
 		net.fortuna.ical4j.model.Calendar calendar = service.createCalendar(null);
 		
-		System.out.println("testGeneratingCalendarWithNullList");
-		System.out.println("##################################");
-		System.out.println(calendar);
-		System.out.println("This should be null.");		
+		log.debug("testGeneratingCalendarWithNullList");
+		log.debug("##################################");
+		log.debug("{}", calendar);
+		log.debug("This should be null.");		
 		
 		//should be null
 		Assert.assertNull(calendar);
@@ -442,10 +463,10 @@ public class ExternalCalendaringServiceTest {
 		//create calendar with null
 		net.fortuna.ical4j.model.Calendar calendar = service.createCalendar(Collections.EMPTY_LIST);
 		
-		System.out.println("testGeneratingCalendarWithEmptyList");
-		System.out.println("###################################");
-		System.out.println(calendar);
-		System.out.println("This should be null.");
+		log.debug("testGeneratingCalendarWithEmptyList");
+		log.debug("###################################");
+		log.debug("{}", calendar);
+		log.debug("This should be null.");
 		
 		//should be null
 		Assert.assertNull(calendar);
@@ -467,8 +488,8 @@ public class ExternalCalendaringServiceTest {
 				
 		String path = service.toFile(calendar);
 		
-		System.out.println("testCreatingFile");
-		System.out.println("################");
+		log.debug("testCreatingFile");
+		log.debug("################");
 		
 		Assert.assertNotNull(path);
 		
@@ -484,10 +505,10 @@ public class ExternalCalendaringServiceTest {
 		
 		String path = service.toFile(null);
 		
-		System.out.println("testCreatingFileWithNullCalendar");
-		System.out.println("################################");
-		System.out.println(	path);
-		System.out.println("This should be null.");
+		log.debug("testCreatingFileWithNullCalendar");
+		log.debug("################################");
+		log.debug(	path);
+		log.debug("This should be null.");
 		
 		Assert.assertNull(path);
 		

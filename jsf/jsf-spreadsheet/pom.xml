@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.sakaiproject.jsf</groupId>
         <artifactId>jsf</artifactId>
-        <version>12-SNAPSHOT</version>
+        <version>13-SNAPSHOT</version>
     </parent>
 
     <name>Sakai JSF Spreadsheet Support (jsf-spreadsheet)</name>
@@ -37,6 +37,11 @@
         <dependency>
         	<groupId>org.apache.poi</groupId>
         	<artifactId>poi</artifactId>
+        	<version>${sakai.poi.version}</version>
+        </dependency>
+        <dependency>
+        	<groupId>org.apache.poi</groupId>
+        	<artifactId>poi-ooxml</artifactId>
         	<version>${sakai.poi.version}</version>
         </dependency>
         <dependency>

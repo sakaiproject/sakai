@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.sakaiproject</groupId>
         <artifactId>master</artifactId>
-        <version>12-SNAPSHOT</version>
+        <version>13-SNAPSHOT</version>
 	<relativePath>../master/pom.xml</relativePath>
     </parent>
 
@@ -18,11 +18,6 @@
         <profile>
             <id>framework</id>
             <modules>
-                <module>site-association-api/api</module>
-                <module>site-association-hbm/hbm</module>
-                <module>site-association-impl/impl</module>
-                <module>site-association-tool/tool</module>
-                <module>site-association-util/util</module>
                 <module>site-manage-api/api</module>
                 <module>site-manage-hbm</module>
                 <module>site-manage-impl/impl</module>
@@ -41,11 +36,6 @@
             </activation>
             <modules>
                 <module>pageorder/tool</module>
-                <module>site-association-api/api</module>
-                <module>site-association-hbm/hbm</module>
-                <module>site-association-impl/impl</module>
-                <module>site-association-tool/tool</module>
-                <module>site-association-util/util</module>
                 <module>site-manage-api/api</module>
                 <module>site-manage-hbm</module>
                 <module>site-manage-impl/impl</module>
@@ -87,28 +77,6 @@
             <dependency>
                 <groupId>${project.groupId}</groupId>
                 <artifactId>sakai-site-manage-util</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>${project.groupId}</groupId>
-                <artifactId>sakai-siteassociation-api</artifactId>
-                <version>${project.version}</version>
-                <scope>provided</scope>
-            </dependency>
-            <dependency>
-                <groupId>${project.groupId}</groupId>
-                <artifactId>sakai-siteassociation-hbm</artifactId>
-                <version>${project.version}</version>
-                <scope>provided</scope>
-            </dependency>
-            <dependency>
-                <groupId>${project.groupId}</groupId>
-                <artifactId>sakai-siteassociation-impl</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>${project.groupId}</groupId>
-                <artifactId>sakai-siteassociation-util</artifactId>
                 <version>${project.version}</version>
             </dependency>
         </dependencies>

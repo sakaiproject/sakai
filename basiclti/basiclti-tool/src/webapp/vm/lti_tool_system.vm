@@ -4,8 +4,8 @@
 	<!-- jQuery -->
 ${includeLatestJQuery}
 
-<script type="text/javascript" src="/library/webjars/jquery-ui/1.11.3/jquery-ui.min.js"></script>
-<link type="text/css" href="/library/webjars/jquery-ui/1.11.3/jquery-ui.min.css" rel="stylesheet" media="screen" />
+<script type="text/javascript" src="/library/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
+<link type="text/css" href="/library/webjars/jquery-ui/1.12.1/jquery-ui.min.css" rel="stylesheet" media="screen" />
 
 	<!-- Tablesorter: required -->
 	<link rel="stylesheet" href="/basiclti-admin-tool/css/blue/style.css">
@@ -90,9 +90,11 @@ ${includeLatestJQuery}
 		      filter_functions : {} 
 		 
 		    },
+		    //Default sort
+		    sortList : [ [ 4,0] ],
 			headers: { 
-	            // assign the fourth column (we start counting zero) 
-	            4: { 
+	            // special configuration for this column (we start counting zero) 
+	            5: { 
 	                // disable it by setting the property sorter to false 
 	                sorter: false
 	            }
@@ -113,6 +115,7 @@ ${includeLatestJQuery}
 	</ul>
 	#if ($messageSuccess)<div class="messageSuccess">$tlang.getString("gen.success") $validator.escapeHtml($messageSuccess)</div><div class="clear"></div>#end
 	#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div><div class="clear"></div>#end
+        #if ($configMessage)<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($configMessage)</div><div class="clear"></div>#end
 	#if ($isAdmin || $allowMaintainerAddSystemTool)<div align="right"><a href="" title="$tlang.getString("add.to.system")" onclick="location = '$sakai_ActionURL.setPanel("ToolInsert")';return false;"> $tlang.getString("add.to.system")</a></a></div>#end
 	<br/>
 	#if ($!ltiTools && $ltiTools.size() > 0 )
@@ -138,6 +141,7 @@ ${includeLatestJQuery}
                 <th id="launch" data-placeholder="$tlang.getString('search.url')">$tlang.getString("bl_launch")</th>
                 <th id="site_id" data-placeholder="$tlang.getString('search.siteid')">$tlang.getString("bl_site")</th>
                 #if ($isAdmin) <th id="use" data-placeholder="$tlang.getString('search.uses')">$tlang.getString("bl_use")</th> #end
+                #if ($isAdmin) <th id="toolorder" class="filter-false">$tlang.getString("bl_toolorder")</th> #end
                 #if ($isAdmin || $allowMaintainerAddSystemTool) <th id="action" class="filter-false">$tlang.getString("bl_action")</th>#end
 	        </tr>
 	        </thead>
@@ -157,6 +161,7 @@ ${includeLatestJQuery}
 	                	$!siteId
 	                </td>
 	                #if ($isAdmin) <td headers="use"><a href="$sakai_ActionURL.setPanel("ToolSite").setParameter("sakai_action","doFilter").setQueryString("id=$tool.get('id')")">$tool.get("lti_content_count")</a></td> #end
+	                #if ($isAdmin) <td headers="toolorder">$!tool.get("toolorder")</a></td> #end
 	                #if ( $isAdmin || $allowMaintainerAddSystemTool) 
 		                <td headers="action">
 		                	#if ( $isAdmin || ($allowMaintainerAddSystemTool && $getContext == $tool.get("SITE_ID")))

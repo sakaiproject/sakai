@@ -21,14 +21,24 @@
 
 package org.sakaiproject.util;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.security.Principal;
+import java.util.*;
+
+import javax.servlet.*;
+import javax.servlet.http.*;
+
+import lombok.extern.slf4j.Slf4j;
+
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.FileUploadBase;
 import org.apache.commons.fileupload.FileUploadException;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.apache.commons.lang3.math.NumberUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
 import org.sakaiproject.cluster.api.ClusterNode;
 import org.sakaiproject.cluster.api.ClusterService;
 import org.sakaiproject.cluster.api.ClusterService.Status;
@@ -44,19 +54,13 @@ import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.tool.api.SessionManager;
 
-import javax.servlet.*;
-import javax.servlet.http.*;
-import java.io.File;
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.security.Principal;
-import java.util.*;
 
 /**
  * RequestFilter Filters all requests to Sakai tools. It is responsible for keeping the Sakai session, done using a cookie to the
  * end user's browser storing the user's session id.
  */
 @SuppressWarnings("deprecation")
+@Slf4j
 public class RequestFilter implements Filter
 {
 	/** The request attribute name used to store the Sakai session. */
@@ -171,6 +175,9 @@ public class RequestFilter implements Filter
 	/** The name of the Sakai property to disable setting the HttpOnly attribute on the cookie (if false). */
 	protected static final String SAKAI_COOKIE_HTTP_ONLY = "sakai.cookieHttpOnly";
 
+	/** The name of the Sakai property to set the SameSite attribute on the cookie. "lax" is the default. */
+	protected static final String SAKAI_COOKIE_SAME_SITE = "sakai.cookieSameSite";
+
 	/** The name of the Sakai property to set the X-UA Compatible header
 	 */
 	protected static final String SAKAI_UA_COMPATIBLE = "sakai.X-UA-Compatible";
@@ -184,8 +191,6 @@ public class RequestFilter implements Filter
 	/** The name of the Skaia property to say we should redirect to another node when in shutdown */
 	protected static final String SAKAI_CLUSTER_REDIRECT_RANDOM = "cluster.redirect.random.node";
 
-	/** Our log (commons). */
-	private static Logger M_log = LoggerFactory.getLogger(RequestFilter.class);
 	/** If true, we deliver the Sakai end user enterprise id as the remote user in each request. */
 	protected boolean m_sakaiRemoteUser = true;
 
@@ -249,6 +254,8 @@ public class RequestFilter implements Filter
 
 	/** Set the HttpOnly attribute on the cookie */
 	protected boolean m_cookieHttpOnly = true;
+	/** Set the SameSite attribute on the cookie */
+	protected String m_cookieSameSite = "lax";
 
 	protected String m_UACompatible = null;
             
@@ -414,7 +421,7 @@ public class RequestFilter implements Filter
 			// filter the request
 			else
 			{
-				M_log.debug("http-request: {} {}?{}", req.getMethod(), req.getRequestURL(), req.getQueryString());
+				log.debug("http-request: {} {}?{}", req.getMethod(), req.getRequestURL(), req.getQueryString());
 
 				try
 				{
@@ -497,17 +504,17 @@ public class RequestFilter implements Filter
 				}
 				catch (RuntimeException t)
 				{
-					M_log.error("", t);
+					log.error("", t);
 					throw t;
 				}
 				catch (IOException ioe)
 				{
-					M_log.error("", ioe);
+					log.error("", ioe);
 					throw ioe;
 				}
 				catch (ServletException se)
 				{
-					M_log.error(se.getMessage(), se);
+					log.error(se.getMessage(), se);
 					throw se;
 				}
 				finally
@@ -534,10 +541,10 @@ public class RequestFilter implements Filter
 			// delete any temp files
 			deleteTempFiles(tempFiles);
 
-			if (M_log.isDebugEnabled() && sb != null)
+			if (log.isDebugEnabled() && sb != null)
 			{
 				long elapsedTime = System.currentTimeMillis() - startTime;
-				M_log.debug("request timing (ms): " + elapsedTime + " for " + sb);
+				log.debug("request timing (ms): " + elapsedTime + " for " + sb);
 			}
 		}
 	}
@@ -551,7 +558,7 @@ public class RequestFilter implements Filter
 	protected void closingRedirect(HttpServletRequest req, HttpServletResponse res) throws IOException {
 		// We should avoid redirecting on non get methods as the body will be lost.
 		if (!"GET".equals(req.getMethod())) {
-			M_log.warn("Non GET request for "+ req.getPathInfo());
+			log.warn("Non GET request for "+ req.getPathInfo());
 		}
 
 		// We could check that we aren't in a redirect loop here, but if the load balancer doesn't know that
@@ -688,7 +695,7 @@ public class RequestFilter implements Filter
 			}
 			else
 			{
-				M_log.warn("invalid " + CONFIG_SESSION + " setting (" + s + "): not one of container, sakai, context, tool");
+				log.warn("invalid " + CONFIG_SESSION + " setting (" + s + "): not one of container, sakai, context, tool");
 			}
 		}
 
@@ -787,7 +794,7 @@ public class RequestFilter implements Filter
 		// Note: if set to continue processing max exceeded uploads, we only support per-file max, not overall max
 		if (m_uploadContinue && !m_uploadMaxPerFile)
 		{
-			M_log.warn("overridding " + CONFIG_MAX_PER_FILE + " setting: must be 'true' with " + CONFIG_CONTINUE + " ='true'");
+			log.warn("overridding " + CONFIG_MAX_PER_FILE + " setting: must be 'true' with " + CONFIG_CONTINUE + " ='true'");
 			m_uploadMaxPerFile = true;
 		}
 
@@ -810,6 +817,8 @@ public class RequestFilter implements Filter
 
 		// retrieve option to enable or disable cookie HttpOnly
 		m_cookieHttpOnly = serverConfigurationService.getBoolean(SAKAI_COOKIE_HTTP_ONLY, true);
+		// retrieve option to enable or disable cookie SameSite
+		m_cookieSameSite = serverConfigurationService.getString(SAKAI_COOKIE_SAME_SITE, "lax");
 
 		m_UACompatible = serverConfigurationService.getString(SAKAI_UA_COMPATIBLE, null);
 
@@ -887,7 +896,7 @@ public class RequestFilter implements Filter
 			}
 			catch (NumberFormatException e)
 			{
-				M_log.warn(CONFIG_UPLOAD_MAX + " set to non-numeric: " + override);
+				log.warn(CONFIG_UPLOAD_MAX + " set to non-numeric: " + override);
 			}
 		}
 
@@ -898,7 +907,7 @@ public class RequestFilter implements Filter
 			 * KNL-602 This is the expected behaviour of the request filter honouring the globaly configured
 			 * value -DH
 			 */
-			M_log.debug("Upload size exceeds ceiling: " + ((uploadMax / 1024L) / 1024L) + " > "
+			log.debug("Upload size exceeds ceiling: " + ((uploadMax / 1024L) / 1024L) + " > "
 					+ ((m_uploadCeiling / 1024L) / 1024L) + " megs");
 
 			uploadMax = m_uploadCeiling;
@@ -972,7 +981,7 @@ public class RequestFilter implements Filter
 					{
 						uploadOk = false;
 
-						M_log.info("Upload size limit exceeded: " + ((uploadMax / 1024L) / 1024L));
+						log.info("Upload size limit exceeded: " + ((uploadMax / 1024L) / 1024L));
 
 						req.setAttribute("upload.status", "size_limit_exceeded");
 						// TODO: for 1.2 commons-fileupload, switch this to a FileSizeLimitExceededException
@@ -995,7 +1004,7 @@ public class RequestFilter implements Filter
 		}
 		catch (FileUploadBase.SizeLimitExceededException ex)
 		{
-			M_log.info("Upload size limit exceeded: " + ((upload.getSizeMax() / 1024L) / 1024L));
+			log.info("Upload size limit exceeded: " + ((upload.getSizeMax() / 1024L) / 1024L));
 
 			// DON'T throw an exception, instead note the exception
 			// so that the tool down-the-line can handle the problem
@@ -1006,7 +1015,7 @@ public class RequestFilter implements Filter
 		// TODO: put in for commons-fileupload 1.2
 		// catch (FileUploadBase.FileSizeLimitExceededException ex)
 		// {
-		// M_log.info("Upload size limit exceeded: " + ((upload.getFileSizeMax() / 1024L) / 1024L));
+		// log.info("Upload size limit exceeded: " + ((upload.getFileSizeMax() / 1024L) / 1024L));
 		//
 		// // DON'T throw an exception, instead note the exception
 		// // so that the tool down-the-line can handle the problem
@@ -1016,7 +1025,7 @@ public class RequestFilter implements Filter
 		// }
 		catch (FileUploadException ex)
 		{
-			M_log.info("Unexpected exception in upload parsing", ex);
+			log.info("Unexpected exception in upload parsing", ex);
 			req.setAttribute("upload.status", "exception");
 			req.setAttribute("upload.exception", ex);
 		}
@@ -1109,9 +1118,9 @@ public class RequestFilter implements Filter
 				{
 					sessionId = sessionId.substring(0, dotPosition);
 				}
-				if (M_log.isDebugEnabled())
+				if (log.isDebugEnabled())
 				{
-					M_log.debug("assureSession found sessionId in cookie: " + sessionId);
+					log.debug("assureSession found sessionId in cookie: " + sessionId);
 				}
 
 				// find the session
@@ -1173,7 +1182,7 @@ public class RequestFilter implements Filter
 				String serverInstanceId = serverConfigurationService.getServerIdInstance();
 				if ((serverInstanceId != null) && (!serverInstanceId.equals(us.getServer()))) {
 					// Logger that the UsageSession server value is changing
-					M_log.info("UsageSession: Server change detected: Old Server=" + us.getServer() +
+					log.info("UsageSession: Server change detected: Old Server=" + us.getServer() +
 							"    New Server=" + serverInstanceId);
 					// set the new UsageSession server value
 					us.setServer(serverInstanceId);
@@ -1379,7 +1388,7 @@ public class RequestFilter implements Filter
 		{
 			if (m_displayModJkWarning)
 			{
-				M_log.warn("no sakai.serverId system property set - mod_jk load balancing will not function properly");
+				log.warn("no sakai.serverId system property set - mod_jk load balancing will not function properly");
 			}
 			m_displayModJkWarning = false;
 			suffix = "sakai";
@@ -1399,7 +1408,7 @@ public class RequestFilter implements Filter
 
 			ServerCookie.appendCookieValue(sb, cookie.getVersion(), cookie.getName(), cookie.getValue(),
 					cookie.getPath(), cookie.getDomain(), cookie.getComment(),
-					cookie.getMaxAge(), cookie.getSecure(), m_cookieHttpOnly);
+					cookie.getMaxAge(), cookie.getSecure(), m_cookieHttpOnly, m_cookieSameSite);
 
 			res.addHeader("Set-Cookie", sb.toString());
 		}
@@ -1655,6 +1664,4 @@ public class RequestFilter implements Filter
 			return url;
 		}
 	}
-
-
 }

@@ -5,7 +5,7 @@
     <parent>
         <artifactId>portal</artifactId>
         <groupId>org.sakaiproject.portal</groupId>
-        <version>12-SNAPSHOT</version>
+        <version>13-SNAPSHOT</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
 
@@ -19,29 +19,11 @@
     <inceptionYear>2003</inceptionYear>
     <packaging>war</packaging>
 
-    <repositories>
-        <repository>
-            <id>jboss</id>
-            <name>JBoss Maven Repo</name>
-            <layout>default</layout>
-            <url>http://repository.jboss.org/nexus/content/groups/public</url>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-        </repository>
-    </repositories>
-
     <dependencies>
-    	<dependency>
-			<groupId>org.sakaiproject.portal</groupId>
-   			<artifactId>sakai-portal-api</artifactId>
-            <version>${project.version}</version>
-            <scope>provided</scope>
-    	</dependency>
-    
+        <dependency>
+            <groupId>org.sakaiproject.portal</groupId>
+            <artifactId>sakai-portal-api</artifactId>
+        </dependency>
         <dependency>
             <groupId>org.sakaiproject.kernel</groupId>
             <artifactId>sakai-kernel-api</artifactId>
@@ -81,7 +63,7 @@
         <dependency>
             <groupId>org.jgroups</groupId>
             <artifactId>jgroups</artifactId>
-            <version>3.0.10.Final</version>
+            <version>3.6.13.Final</version>
         </dependency>
         <dependency>
             <groupId>javax.servlet</groupId>

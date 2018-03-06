@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.sakaiproject.samigo</groupId>
         <artifactId>samigo</artifactId>
-        <version>12-SNAPSHOT</version>
+        <version>13-SNAPSHOT</version>
     </parent>
 
     <name>Sakai Samigo Services (samigo-services)</name>
@@ -154,6 +154,11 @@
             <groupId>org.sakaiproject.jsf</groupId>
             <artifactId>jsf-app</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.mariuszgromada.math</groupId>
+            <artifactId>MathParser.org-mXparser</artifactId>
+        </dependency>
+
         <!-- Unit test dependencies -->
         <dependency>
         	<groupId>org.springframework</groupId>

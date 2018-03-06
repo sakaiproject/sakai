@@ -1,29 +1,40 @@
+/**
+ * Copyright (c) 2003-2017 The Apereo Foundation
+ *
+ * Licensed under the Educational Community License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *             http://opensource.org/licenses/ecl2
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.sakaiproject.lessonbuildertool.tool.beans;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.HashSet;
 import java.util.Set;
-import java.util.Collection;
 
+import lombok.extern.slf4j.Slf4j;
+
+import org.sakaiproject.authz.api.AuthzGroup;
+import org.sakaiproject.authz.api.AuthzGroupService;
+import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.lessonbuildertool.SimplePageComment;
-import org.sakaiproject.lessonbuildertool.SimplePage;
 import org.sakaiproject.lessonbuildertool.SimplePageItem;
 import org.sakaiproject.lessonbuildertool.SimplePageQuestionResponse;
 import org.sakaiproject.lessonbuildertool.SimpleStudentPage;
 import org.sakaiproject.lessonbuildertool.model.SimplePageToolDao;
 import org.sakaiproject.lessonbuildertool.service.GradebookIfc;
-import org.sakaiproject.authz.api.AuthzGroupService;
-import org.sakaiproject.authz.api.Member;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.tool.cover.SessionManager;
 
-
+@Slf4j
 public class GradingBean {
-	private static final Logger log = LoggerFactory.getLogger(GradingBean.class);
 	public String id;
 	public String points;
 	public String jsId;
@@ -128,7 +139,7 @@ public class GradingBean {
 		try {
 			r = gradebookIfc.updateExternalAssessmentScore(simplePageBean.getCurrentSiteId(), gradebookId, comment.getAuthor(), Double.toString(newpoints));
 		}catch(Exception ex) {
-			ex.printStackTrace();
+			log.error(ex.getMessage(), ex);
 		}
 		
 		if(r) {

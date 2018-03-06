@@ -14,17 +14,17 @@
                 <!-- Allow these to be set -->
                 <configuration name="functions.require" />
 				<!-- This allows an LTI Tool to choose a CSS class for its icon
-					other than the default.   It may require a new icon and 
+					other than the default.   It may require a new icon and
 					CSS change to get it to work for a completely new icon. -->
                 <configuration name="sakai:menuClass"/>
 
-                <!-- The default / pre-configured settings for this 
-                     placement.  If you set a value here and don't make 
-                     it final below - it is just the default and the 
+                <!-- The default / pre-configured settings for this
+                     placement.  If you set a value here and don't make
+                     it final below - it is just the default and the
                      Intructor can edit it.   If you make it final
-                     the Instructor won't even see the value.  
+                     the Instructor won't even see the value.
 
-                     If you make everything final, then the Instructor's 
+                     If you make everything final, then the Instructor's
                      tool configuration screen will be empty.
 
                      Adminitrators can set any of these Parameters in the
@@ -41,18 +41,20 @@
                 <configuration name="imsti.newpage" />
                 <configuration name="imsti.maximize" />
                 <configuration name="imsti.frameheight" />
+                <configuration name="imsti.toolorder" />
                 <configuration name="imsti.debug" />
                 <configuration name="imsti.releasename" />
                 <configuration name="imsti.releaseemail" />
+                <configuration name="imsti.sha256" />
                 <configuration name="imsti.custom" />
                 <configuration name="imsti.allowsettings" />
                 <configuration name="imsti.allowroster" />
                 <configuration name="imsti.allowoutcomes" />
                 <configuration name="imsti.contentlink" />
                 <configuration name="imsti.splash" />
-                <configuration name="imsti.fa-icon" /> <!-- A font awesome icon line "fa-adjust" -->
+                <configuration name="imsti.fa_icon" /> <!-- A font awesome icon line "fa-adjust" -->
 
-                <!-- Setting these to true means the corresponding above values 
+                <!-- Setting these to true means the corresponding above values
 		     cannot be altered by by the instructor.  -->
                 <configuration name="final.launch" value="false"/>
 		<!-- We default xml to final to suppress it in the configuration display -->
@@ -65,16 +67,18 @@
                 <configuration name="final.newpage" value="false"/>
                 <configuration name="final.maximize" value="false"/>
                 <configuration name="final.frameheight" value="false"/>
+                <configuration name="final.toolorder" value="false"/>
                 <configuration name="final.debug" value="false"/>
                 <configuration name="final.releasename" value="false"/>
                 <configuration name="final.releaseemail" value="false"/>
+                <configuration name="final.sha256" value="false"/>
                 <configuration name="final.custom" value="false"/>
                 <configuration name="final.allowsettings" value="false"/>
                 <configuration name="final.allowroster" value="false"/>
                 <configuration name="final.allowoutcomes" value="false"/>
                 <configuration name="final.contentlink" value="false"/>
                 <configuration name="final.splash" value="false"/>
-                <configuration name="final.fa-icon" value="false"/>
+                <configuration name="final.fa_icon" value="false"/>
 
                 <!-- Allow multiple instances of this tool within one site -->
                 <configuration name="allowMultipleInstances" value="true" />
@@ -109,12 +113,13 @@
                 <configuration name="imsti.maximize" value="on" />
                 <configuration name="imsti.frameheight" value="1024" />
                 <configuration name="imsti.debug" />
-                <configuration name="imsti.releasename" value="off"/>  
-                <configuration name="imsti.releaseemail" value="on"/> 
+                <configuration name="imsti.releasename" value="off"/>
+                <configuration name="imsti.releaseemail" value="on"/>
+                <configuration name="imsti.sha256" value="on"/>
                 <configuration name="imsti.custom" />
                 <configuration name="imsti.allowsettings" value="on"/>
-                <configuration name="imsti.allowroster" value="on"/> 
-                <configuration name="imsti.allowoutcomes" value="on"/> 
+                <configuration name="imsti.allowroster" value="on"/>
+                <configuration name="imsti.allowoutcomes" value="on"/>
                 <configuration name="imsti.contentlink" />
                 <configuration name="imsti.splash" value="You are leaving this system."/>
 
@@ -131,6 +136,7 @@
                 <configuration name="final.debug" value="false"/>
                 <configuration name="final.releasename" value="true"/>
                 <configuration name="final.releaseemail" value="true"/>
+                <configuration name="final.sha256" value="true"/>
                 <configuration name="final.custom" value="true"/>
                 <configuration name="final.allowsettings" value="true"/>
                 <configuration name="final.allowroster" value="true"/>

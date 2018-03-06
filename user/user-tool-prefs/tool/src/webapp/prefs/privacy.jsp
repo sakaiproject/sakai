@@ -3,6 +3,9 @@
 <%@ taglib uri="http://java.sun.com/jsf/html" prefix="h" %>
 <%@ taglib uri="http://java.sun.com/jsf/core" prefix="f" %>
 <%@ taglib uri="http://sakaiproject.org/jsf/sakai" prefix="sakai" %>
+<%@ taglib uri="http://myfaces.apache.org/tomahawk" prefix="t"%>
+<%-- Core JSTL tag library --%>
+<%@ taglib uri = "http://java.sun.com/jsp/jstl/core" prefix = "c" %>
 <% response.setContentType("text/html; charset=UTF-8"); %>
 
 <f:view> 
@@ -12,7 +15,6 @@
     <h:form>
       <!--SAK-18566 -->
 <h:outputText value="#{Portal.latestJQuery}" escape="false"/>
-        <script type="text/javascript" src="/library/js/fluid/1.5/MyInfusion.js">//</script>
 		<script type="text/javascript" src="/sakai-user-tool-prefs/js/prefs.js">// </script>
 		<script type="text/javascript">
 			$(document).ready(function(){
@@ -20,48 +22,22 @@
 			})
 	 </script>   
 
+
 	<!-- *********** Tool rendering top of page if on MyWorkspace home page *********** --> 
    	<h:panelGroup rendered="#{privacyBean.myWorkspace}" >
-		<sakai:tool_bar>
- 		    <sakai:tool_bar_item action="#{UserPrefsTool.processActionNotiFrmEdit}" value="#{msgs.prefs_noti_title}" rendered="#{UserPrefsTool.noti_selection == 1}" current="false" />
- 		    <sakai:tool_bar_item action="#{UserPrefsTool.processActionTZFrmEdit}" value="#{msgs.prefs_timezone_title}" rendered="#{UserPrefsTool.timezone_selection == 1}" current="false" />
- 		    <sakai:tool_bar_item action="#{UserPrefsTool.processActionLocFrmEdit}" value="#{msgs.prefs_lang_title}" rendered="#{UserPrefsTool.language_selection == 1}" current="false" />
- 		    <sakai:tool_bar_item value="#{msgs.prefs_privacy}"  rendered="#{UserPrefsTool.privacy_selection == 1}" current="true" />
- 		    
- 		    <sakai:tool_bar_item action="#{UserPrefsTool.processActionNotiFrmEdit}" value="#{msgs.prefs_noti_title}" rendered="#{UserPrefsTool.noti_selection == 2}" current="false" />
- 		    <sakai:tool_bar_item action="#{UserPrefsTool.processActionTZFrmEdit}" value="#{msgs.prefs_timezone_title}" rendered="#{UserPrefsTool.timezone_selection == 2}" current="false" />
- 		    <sakai:tool_bar_item action="#{UserPrefsTool.processActionLocFrmEdit}" value="#{msgs.prefs_lang_title}" rendered="#{UserPrefsTool.language_selection == 2}" current="false" />
- 		    <sakai:tool_bar_item value="#{msgs.prefs_privacy}"  rendered="#{UserPrefsTool.privacy_selection == 2}" current="true" />
- 		    
- 		    <sakai:tool_bar_item action="#{UserPrefsTool.processActionNotiFrmEdit}" value="#{msgs.prefs_noti_title}" rendered="#{UserPrefsTool.noti_selection == 3}" current="false" />
- 		    <sakai:tool_bar_item action="#{UserPrefsTool.processActionTZFrmEdit}" value="#{msgs.prefs_timezone_title}" rendered="#{UserPrefsTool.timezone_selection == 3}" current="false" />
- 		    <sakai:tool_bar_item action="#{UserPrefsTool.processActionLocFrmEdit}" value="#{msgs.prefs_lang_title}" rendered="#{UserPrefsTool.language_selection == 3}" current="false" />
- 		    <sakai:tool_bar_item value="#{msgs.prefs_privacy}"  rendered="#{UserPrefsTool.privacy_selection == 3}" current="true" />
- 		    
- 		    <sakai:tool_bar_item action="#{UserPrefsTool.processActionNotiFrmEdit}" value="#{msgs.prefs_noti_title}" rendered="#{UserPrefsTool.noti_selection == 4}" current="false" />
- 		    <sakai:tool_bar_item action="#{UserPrefsTool.processActionTZFrmEdit}" value="#{msgs.prefs_timezone_title}" rendered="#{UserPrefsTool.timezone_selection == 4}" current="false" />
- 		    <sakai:tool_bar_item action="#{UserPrefsTool.processActionLocFrmEdit}" value="#{msgs.prefs_lang_title}" rendered="#{UserPrefsTool.language_selection == 4}" current="false" />
- 		    <sakai:tool_bar_item value="#{msgs.prefs_privacy}"  rendered="#{UserPrefsTool.privacy_selection == 4}" current="true" />
- 		    
- 		    <sakai:tool_bar_item action="#{UserPrefsTool.processActionNotiFrmEdit}" value="#{msgs.prefs_noti_title}" rendered="#{UserPrefsTool.noti_selection == 5}" current="false" />
- 		    <sakai:tool_bar_item action="#{UserPrefsTool.processActionTZFrmEdit}" value="#{msgs.prefs_timezone_title}" rendered="#{UserPrefsTool.timezone_selection == 5}" current="false" />
- 		    <sakai:tool_bar_item action="#{UserPrefsTool.processActionLocFrmEdit}" value="#{msgs.prefs_lang_title}" rendered="#{UserPrefsTool.language_selection == 5}" current="false" />
- 		    <sakai:tool_bar_item value="#{msgs.prefs_privacy}"  rendered="#{UserPrefsTool.privacy_selection == 5}" current="true" />
-		    
-		</sakai:tool_bar>
-			
-		<f:verbatim><div><h3></f:verbatim>
-     
-     	<h:outputText value="#{msgs.privacy_title}" rendered="#{privacyBean.myWorkspace}" />
+		<%-- Set current value for template --%> 
+		<c:set var="cTemplate" value = "privacy" scope = "session" />
+		<%@ include file="toolbar.jspf"%>
 
-         <!--SAK-18566 -->
-        <h3>
-		 <h:panelGroup rendered="#{privacyBean.updateMessage}" style="margin:0 3em;font-weight:normal">
-		 <jsp:include page="prefUpdatedMsg.jsp"/>
-		 </h:panelGroup>
-	   </h3>
-
-		<f:verbatim></h3></div></f:verbatim>
+		<!--SAK-18566 -->
+		<t:div rendered="#{privacyBean.updateMessage}">
+			<jsp:include page="prefUpdatedMsg.jsp"/>
+		</t:div>
+		<h:panelGroup rendered="#{privacyBean.myWorkspace}" >
+			<h3>
+				<h:outputText value="#{msgs.privacy_title}" />
+			</h3>
+		</h:panelGroup>
 	 	<%--  Message if Show All or Hide All has been clicked --%>
 	 	<f:verbatim><div></f:verbatim>
 	 	<h:outputText value="#{privacyBean.changeAllMsg}" styleClass="success" rendered="#{privacyBean.allChanged}" />

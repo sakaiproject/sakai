@@ -28,7 +28,7 @@ CREATE TABLE SAKAI_USER
        PW                   VARCHAR (255) NULL,
        CREATEDBY            VARCHAR (99) NOT NULL,
        MODIFIEDBY           VARCHAR (99) NOT NULL,
-       CREATEDON            TIMESTAMP NOT NULL,
+       CREATEDON            DATETIME NOT NULL,
        MODIFIEDON           DATETIME NOT NULL
 );
 

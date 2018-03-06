@@ -22,10 +22,10 @@ package org.sakaiproject.test.section;
 
 import java.util.List;
 
+import lombok.extern.slf4j.Slf4j;
 import junit.framework.Assert;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.sakaiproject.component.section.support.UserManager;
 import org.sakaiproject.section.api.CourseManager;
 import org.sakaiproject.section.api.SectionManager;
 import org.sakaiproject.section.api.coursemanagement.Course;
@@ -34,7 +34,6 @@ import org.sakaiproject.section.api.coursemanagement.User;
 import org.sakaiproject.section.api.facade.Role;
 import org.sakaiproject.section.api.facade.manager.Authz;
 import org.sakaiproject.section.api.facade.manager.Context;
-import org.sakaiproject.component.section.support.UserManager;
 
 /**
  * Each test method is isolated in its own transaction, which is rolled back when
@@ -44,9 +43,9 @@ import org.sakaiproject.component.section.support.UserManager;
  * @author <a href="mailto:jholtzman@berkeley.edu">Josh Holtzman</a>
  *
  */
+@Slf4j
 public class AuthzTest extends SectionsTestBase{
-	private static final Logger log = LoggerFactory.getLogger(AuthzTest.class);
-	
+
 	private Authz authz;
 	private Context context;
 	private SectionManager secMgr;

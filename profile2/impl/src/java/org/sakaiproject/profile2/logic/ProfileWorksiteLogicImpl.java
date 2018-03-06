@@ -25,7 +25,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
+import org.springframework.util.CollectionUtils;
+
 import org.sakaiproject.profile2.model.Person;
 import org.sakaiproject.profile2.util.Messages;
 import org.sakaiproject.profile2.util.ProfileConstants;
@@ -34,21 +38,15 @@ import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.user.api.User;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.util.CollectionUtils;
-
-import lombok.Setter;
 
 /**
  * Implementation of ProfileWorksiteLogic API
  * 
  * @author d.b.robinson@lancaster.ac.uk
  */
+@Slf4j
 public class ProfileWorksiteLogicImpl implements ProfileWorksiteLogic {
 
-	private static final Logger log = LoggerFactory.getLogger(ProfileWorksiteLogicImpl.class);
-	
 	/**
 	 * Profile2 creates <code>project</code> type worksites.
 	 */

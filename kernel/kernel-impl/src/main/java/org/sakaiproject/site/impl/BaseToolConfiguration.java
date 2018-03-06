@@ -26,19 +26,21 @@ import java.util.Hashtable;
 import java.util.Properties;
 import java.util.Stack;
 
+import lombok.extern.slf4j.Slf4j;
+
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+
 import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.util.StringUtil;
 import org.sakaiproject.util.Xml;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 
 /**
  * <p>
@@ -46,12 +48,10 @@ import org.w3c.dom.NodeList;
  * ToolConfiguration.
  * </p>
  */
+@Slf4j
 public class BaseToolConfiguration extends org.sakaiproject.util.Placement implements
 		ToolConfiguration, Identifiable
 {
-	/** Our log (commons). */
-	private static Logger M_log = LoggerFactory.getLogger(BaseToolConfiguration.class);
-
 	/** A fixed class serial number. */
 	private static final long serialVersionUID = 1L;
 
@@ -69,7 +69,7 @@ public class BaseToolConfiguration extends org.sakaiproject.util.Placement imple
 
 	/** The site skin, in case I have no m_page. */
 	protected String m_skin = null;
-
+	
 	/** True if the placement conf has not been read yet. */
 	protected boolean m_configLazy = false;
 
@@ -109,9 +109,11 @@ public class BaseToolConfiguration extends org.sakaiproject.util.Placement imple
 		m_custom_title = getTitleCustom(page);
 
 		m_configLazy = true;
+
 		setPageCategory();
 	}
 	
+
 	/**
 	 ** Checks if the tool's page has set the custom_title property (for custom page or tool titles),
 	 ** or alternately checks if this tool should be cosidered a "legacy" custom tool title
@@ -123,16 +125,14 @@ public class BaseToolConfiguration extends org.sakaiproject.util.Placement imple
 	{
 		if (page.isHomePage())
 		{
-			return page.getHomeToolsTitleCustom(getId());
+			return page.getHomeToolsTitleCustom(m_id) || page.isTitleToolException(m_toolId);
 		}
 		else
 		{
 			String custom = (String)page.getProperties().get(SitePage.PAGE_CUSTOM_TITLE_PROP);
 			if ( custom != null )
 				return Boolean.parseBoolean(custom);
-			else	if ( "sakai.iframe".equals(m_toolId) || "sakai.news".equals(m_toolId) || "sakai.rutgers.linktool".equals(m_toolId) )
-				return true;
-			else if (m_toolId != null && m_toolId.startsWith("sakai.iframe"))
+			else if (page.isTitleToolException(m_toolId))
 				return true;
 			else
 				return false;
@@ -469,7 +469,7 @@ public class BaseToolConfiguration extends org.sakaiproject.util.Placement imple
 	{
 		if (m_page == null)
 		{
-			M_log.warn("moveUp: null page: " + m_id);
+			log.warn("moveUp: null page: " + m_id);
 			return;
 		}
 
@@ -483,7 +483,7 @@ public class BaseToolConfiguration extends org.sakaiproject.util.Placement imple
 	{
 		if (m_page == null)
 		{
-			M_log.warn("moveDown: null page: " + m_id);
+			log.warn("moveDown: null page: " + m_id);
 			return;
 		}
 

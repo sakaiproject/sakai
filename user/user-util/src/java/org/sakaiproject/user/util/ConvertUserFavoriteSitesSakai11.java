@@ -1,3 +1,18 @@
+/**
+ * Copyright (c) 2003-2017 The Apereo Foundation
+ *
+ * Licensed under the Educational Community License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *             http://opensource.org/licenses/ecl2
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.sakaiproject.user.util;
 
 // Sakai 11 introduced a new way of storing users' favorite sites, which
@@ -57,6 +72,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Properties;
+
 import javax.xml.bind.DatatypeConverter;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -64,6 +80,8 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathFactory;
+
+import lombok.extern.slf4j.Slf4j;
 import org.w3c.dom.DOMImplementation;
 import org.w3c.dom.Document;
 import org.sakaiproject.user.api.PreferencesService;
@@ -75,7 +93,7 @@ import org.w3c.dom.ls.LSOutput;
 import org.w3c.dom.ls.LSSerializer;
 import org.xml.sax.InputSource;
 
-
+@Slf4j
 class ConvertUserFavoriteSitesSakai11 {
 
     // The maximum number of favorites we'll give to a user who needs some
@@ -83,15 +101,13 @@ class ConvertUserFavoriteSitesSakai11 {
 
     static int UPDATES_PER_TRANSACTION = 200;
 
-    static boolean DEBUG = false;
-
     private static void info(String msg) {
-        System.err.println(msg);
+        log.info(msg);
     }
 
     private static void debug(String msg) {
-        if (DEBUG) {
-            System.err.println("*** DEBUG: " + msg);
+        if (log.isDebugEnabled()) {
+            log.debug("*** DEBUG: " + msg);
         }
     }
 
@@ -210,7 +226,7 @@ class ConvertUserFavoriteSitesSakai11 {
                         info("Failed to migrate preferences for user: " + entry.userId + ". Skipped!");
                         info("Migration error was: " + e);
                         info("\n");
-                        e.printStackTrace();
+                        log.error(e.getMessage(), e);
                     }
                 } else {
                     info("Couldn't fetch preferences for user: " + entry.userId + ".  Skipped!");

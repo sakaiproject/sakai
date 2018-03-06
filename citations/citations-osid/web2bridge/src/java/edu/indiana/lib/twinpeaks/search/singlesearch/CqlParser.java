@@ -8,8 +8,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 
-import edu.indiana.lib.twinpeaks.util.*;
-
 @Slf4j
 public class CqlParser extends org.xml.sax.helpers.DefaultHandler {
   //
@@ -358,24 +356,20 @@ public class CqlParser extends org.xml.sax.helpers.DefaultHandler {
     String query;
 
     query = "title=\"My Title\"";
-    System.out.println();
-    System.out.println("CQL:    " + query);
-    System.out.println("Sirsi:  " + parser.doCQL2MetasearchCommand(query));
+    log.debug("CQL:    {}", query);
+    log.debug("Sirsi:  {}", parser.doCQL2MetasearchCommand(query));
 
     query = "title=\"\\\"My Title\\\"\"";
-    System.out.println();
-    System.out.println("CQL:    " + query);
-    System.out.println("Sirsi:  " + parser.doCQL2MetasearchCommand(query));
+    log.debug("CQL:    {}", query);
+    log.debug("Sirsi:  {}", parser.doCQL2MetasearchCommand(query));
 
     query = "title=\"My Title\" and keyword=\"some keywords\"";
-    System.out.println();
-    System.out.println("CQL:    " + query);
-    System.out.println("Sirsi:  " + parser.doCQL2MetasearchCommand(query));
+    log.debug("CQL:    {}", query);
+    log.debug("Sirsi:  {}", parser.doCQL2MetasearchCommand(query));
 
     query = "title=\"My Title\" and keyword=\"some keywords\" and year=\"1999\"";
-    System.out.println();
-    System.out.println("CQL:    " + query);
-    System.out.println("Sirsi:  " + parser.doCQL2MetasearchCommand(query));
+    log.debug("CQL:    {}", query);
+    log.debug("Sirsi:  {}", parser.doCQL2MetasearchCommand(query));
   }
 }
 

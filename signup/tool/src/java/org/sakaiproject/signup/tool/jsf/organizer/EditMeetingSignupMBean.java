@@ -30,7 +30,9 @@ import javax.faces.context.FacesContext;
 import javax.faces.event.ActionEvent;
 import javax.faces.model.SelectItem;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
+
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.signup.logic.SignupEventTypes;
 import org.sakaiproject.signup.logic.SignupUser;
@@ -59,6 +61,7 @@ import org.sakaiproject.util.DateFormatterUtil;
  * 
  * </P>
  */
+@Slf4j
 public class EditMeetingSignupMBean extends SignupUIBaseBean {
 
 	private SignupMeeting signupMeeting;
@@ -69,6 +72,9 @@ public class EditMeetingSignupMBean extends SignupUIBaseBean {
 
 	// private int addMoreTimeslots;
 	
+	//Meeting title
+	private String title;
+
 	//Location selected from the dropdown
 	private String selectedLocation;
 	
@@ -151,7 +157,7 @@ public class EditMeetingSignupMBean extends SignupUIBaseBean {
 		showAttendeeName = false;
 		sendEmail = DEFAULT_SEND_EMAIL;		
 		//sendEmailAttendeeOnly = false;
-		sendEmailToSelectedPeopleOnly = SEND_EMAIL_ONLY_ORGANIZER_COORDINATORS;
+		sendEmailToSelectedPeopleOnly = DEFAULT_SEND_EMAIL_TO_SELECTED_PEOPLE_ONLY;
 		
 		unlimited = false;
 
@@ -163,7 +169,10 @@ public class EditMeetingSignupMBean extends SignupUIBaseBean {
 		
 		/*refresh copy of original*/
 		this.signupMeeting = reloadMeeting(meetingWrapper.getMeeting());
-		
+
+		/*get meeting title*/
+		title = this.signupMeeting.getTitle();
+
 		/*get meeting default notification value*/
 		sendEmail =this.signupMeeting.isSendEmailByOwner();
 		//pass default value
@@ -473,7 +482,7 @@ public class EditMeetingSignupMBean extends SignupUIBaseBean {
 								.getSignupEventTrackingInfo());
 					}
 				} catch (Exception e) {
-					logger.error(Utilities.rb.getString("email.exception") + " - " + e.getMessage(), e);
+					log.error(Utilities.rb.getString("email.exception") + " - " + e.getMessage(), e);
 					Utilities.addErrorMessage(Utilities.rb.getString("email.exception"));
 				}
 			}
@@ -491,11 +500,11 @@ public class EditMeetingSignupMBean extends SignupUIBaseBean {
 					} catch (PermissionException pe) {
 						Utilities.addErrorMessage(Utilities.rb
 								.getString("error.calendarEvent.updated_failed_due_to_permission"));
-						logger.debug(Utilities.rb.getString("error.calendarEvent.updated_failed_due_to_permission")
+						log.debug(Utilities.rb.getString("error.calendarEvent.updated_failed_due_to_permission")
 								+ " - Meeting title:" + savedMeeting.getTitle());
 					} catch (Exception e) {
 						Utilities.addErrorMessage(Utilities.rb.getString("error.calendarEvent.updated_failed"));
-						logger.warn(Utilities.rb.getString("error.calendarEvent.updated_failed") + " - Meeting title:"
+						log.warn(Utilities.rb.getString("error.calendarEvent.updated_failed") + " - Meeting title:"
 								+ savedMeeting.getTitle());
 					}
 				}
@@ -513,7 +522,7 @@ public class EditMeetingSignupMBean extends SignupUIBaseBean {
 			Utilities.addErrorMessage(ue.getMessage());
 		} catch (Exception e) {
 			Utilities.addErrorMessage(Utilities.rb.getString("db.error_or_event.notExisted"));
-			logger.error(Utilities.rb.getString("db.error_or_event.notExisted") + " - " + e.getClass() + ":" + e.getMessage());
+			log.error(Utilities.rb.getString("db.error_or_event.notExisted") + " - " + e.getClass() + ":" + e.getMessage());
 			Utilities.resetMeetingList();
 			return MAIN_EVENTS_LIST_PAGE_URL;
 		}
@@ -601,7 +610,17 @@ public class EditMeetingSignupMBean extends SignupUIBaseBean {
 
 		Date eventEndTime = this.signupMeeting.getEndTime();
 		Date eventStartTime = this.signupMeeting.getStartTime();
-		
+
+		//Set Title		
+		if (StringUtils.isNotBlank(title)){
+			log.debug("title set: " + title);
+			this.signupMeeting.setTitle(title);
+		}else{
+			validationError = true;
+			Utilities.addErrorMessage(Utilities.rb.getString("event.title_cannot_be_blank"));
+			return;
+		}
+
 		/*user defined own TS case*/
 		if(isUserDefinedTS()){
 			eventEndTime= getUserDefineTimeslotBean().getEventEndTime();
@@ -1154,5 +1173,13 @@ public class EditMeetingSignupMBean extends SignupUIBaseBean {
 
 	public void setEndTimeString(String endTimeString) {
 		this.endTimeString = endTimeString;
+	}
+
+	public String getTitle() {
+		return title;
+	}
+
+	public void setTitle(String title) {
+		this.title = title;
 	}
 }

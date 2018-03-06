@@ -1,3 +1,18 @@
+/**
+ * Copyright (c) 2003-2017 The Apereo Foundation
+ *
+ * Licensed under the Educational Community License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *             http://opensource.org/licenses/ecl2
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 /*
 * Licensed to The Apereo Foundation under one or more contributor license
 * agreements. See the NOTICE file distributed with this work for
@@ -32,6 +47,7 @@ import java.util.UUID;
 
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+
 import net.fortuna.ical4j.data.CalendarOutputter;
 import net.fortuna.ical4j.model.Calendar;
 import net.fortuna.ical4j.model.DateTime;
@@ -45,11 +61,23 @@ import net.fortuna.ical4j.model.parameter.Cn;
 import net.fortuna.ical4j.model.parameter.PartStat;
 import net.fortuna.ical4j.model.parameter.Role;
 import net.fortuna.ical4j.model.parameter.Rsvp;
-import net.fortuna.ical4j.model.property.*;
-
+import net.fortuna.ical4j.model.property.Attendee;
+import net.fortuna.ical4j.model.property.CalScale;
+import net.fortuna.ical4j.model.property.Description;
+import net.fortuna.ical4j.model.property.Location;
+import net.fortuna.ical4j.model.property.Method;
+import net.fortuna.ical4j.model.property.Organizer;
+import net.fortuna.ical4j.model.property.ProdId;
+import net.fortuna.ical4j.model.property.Sequence;
+import net.fortuna.ical4j.model.property.Status;
+import net.fortuna.ical4j.model.property.Uid;
+import net.fortuna.ical4j.model.property.Url;
+import net.fortuna.ical4j.model.property.Version;
 import net.fortuna.ical4j.validate.ValidationException;
+
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
+
 import org.sakaiproject.calendar.api.CalendarEvent;
 import org.sakaiproject.calendaring.logic.SakaiProxy;
 import org.sakaiproject.time.api.TimeRange;
@@ -83,17 +111,7 @@ public class ExternalCalendaringServiceImpl implements ExternalCalendaringServic
 		return createEvent(event, null, false);
 	}
 
-	
-	/**
-	 * {@inheritDoc}
-	 */
-	public VEvent createEvent(CalendarEvent event, Set<User> attendees, boolean timeIsLocal) {
-		
-		if(!isIcsEnabled()) {
-			log.debug("ExternalCalendaringService is disabled. Enable via calendar.ics.generation.enabled=true in sakai.properties");
-			return null;
-		}
-		
+	public VTimeZone getTimeZone(boolean timeIsLocal) {
 		//timezone. All dates are in GMT so we need to explicitly set that
 		TimeZoneRegistry registry = TimeZoneRegistryFactory.getInstance().createRegistry();
 		
@@ -106,7 +124,21 @@ public class ExternalCalendaringServiceImpl implements ExternalCalendaringServic
 			//This is guaranteed to return timezone if timeIsLocal == false or it fails and returns null
 			timezone = registry.getTimeZone("GMT");
 		}
-		VTimeZone tz = timezone.getVTimeZone();
+		return timezone.getVTimeZone();
+	}
+	
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	public VEvent createEvent(CalendarEvent event, Set<User> attendees, boolean timeIsLocal) {
+		
+		if(!isIcsEnabled()) {
+			log.debug("ExternalCalendaringService is disabled. Enable via calendar.ics.generation.enabled=true in sakai.properties");
+			return null;
+		}
+		
+		VTimeZone tz = getTimeZone(timeIsLocal);
 
 		//start and end date
 		DateTime start = new DateTime(getStartDate(event.getRange()).getTime());
@@ -260,13 +292,13 @@ public class ExternalCalendaringServiceImpl implements ExternalCalendaringServic
 	 * {@inheritDoc}
 	 */
 	public Calendar createCalendar(List<VEvent> events) {
-		return createCalendar(events, null);
+		return createCalendar(events, null, true);
 	}
 	
 	/**
 	 * {@inheritDoc}
 	 */
-	public Calendar createCalendar(List<VEvent> events, String method) {
+	public Calendar createCalendar(List<VEvent> events, String method, boolean timeIsLocal) {
 		
 		if(!isIcsEnabled()) {
 			log.debug("ExternalCalendaringService is disabled. Enable via calendar.ics.generation.enabled=true in sakai.properties");
@@ -284,6 +316,11 @@ public class ExternalCalendaringServiceImpl implements ExternalCalendaringServic
 		
 		//add vevents to calendar
 		calendar.getComponents().addAll(events);
+		
+		//add vtimezone
+		VTimeZone tz = getTimeZone(timeIsLocal);
+
+		calendar.getComponents().add(tz);
 		
 		//validate
 		try {
@@ -346,14 +383,11 @@ public class ExternalCalendaringServiceImpl implements ExternalCalendaringServic
 			fout.flush();
 			fout.close();
 		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			log.error(e.getMessage(), e);
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			log.error(e.getMessage(), e);
 		} catch (ValidationException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			log.error(e.getMessage(), e);
 		}
  
 		return path;

@@ -29,27 +29,27 @@ import java.util.List;
 
 import javax.faces.context.FacesContext;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
 import org.sakaiproject.api.app.messageforums.Attachment;
 import org.sakaiproject.api.app.messageforums.DiscussionForum;
 import org.sakaiproject.api.app.messageforums.DiscussionTopic;
+import org.sakaiproject.api.app.messageforums.UserPreferencesManager;
 import org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager;
 import org.sakaiproject.api.app.messageforums.ui.UIPermissionsManager;
-
 import org.sakaiproject.component.cover.ComponentManager;
-import org.sakaiproject.time.api.TimeService;
 import org.sakaiproject.util.ResourceLoader;
 
 /**
  * @author <a href="mailto:rshastri@iupui.edu">Rashmi Shastri</a>
  * @author Chen Wen
  */
+@Slf4j
 public class DiscussionTopicBean
 {
-  private static final Logger LOG = LoggerFactory.getLogger(DiscussionTopicBean.class);
-  private static TimeService timeService = (TimeService)ComponentManager.get(TimeService.class);
+
+  private static UserPreferencesManager userPreferencesManager = ComponentManager.get(UserPreferencesManager.class);
   private DiscussionTopic topic;
   private int totalNoMessages;
   private int unreadNoMessages;
@@ -102,7 +102,7 @@ public class DiscussionTopicBean
 
   private SimpleDateFormat ourDateFormat() {
       SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
-      df.setTimeZone(timeService.getLocalTimeZone());
+      df.setTimeZone(userPreferencesManager.getTimeZone());
       return df;
   }
 
@@ -234,18 +234,18 @@ public class DiscussionTopicBean
 
   public void setMessages(List messages)
   {
-    if(LOG.isDebugEnabled())
+    if(log.isDebugEnabled())
     {
-       LOG.debug("setMessages(List"+ messages+")");
+       log.debug("setMessages(List"+ messages+")");
     }
     this.messages = messages;
   }
 
   public void addMessage(DiscussionMessageBean decoMessage)
   {
-    if(LOG.isDebugEnabled())
+    if(log.isDebugEnabled())
     {
-       LOG.debug("addMessage(DiscussionMessageBean"+ decoMessage+")");
+       log.debug("addMessage(DiscussionMessageBean"+ decoMessage+")");
     }
     if (!messages.contains(decoMessage))
     {
@@ -255,9 +255,9 @@ public class DiscussionTopicBean
 
   public void insertMessage(DiscussionMessageBean decoMessage)
   {
-    if(LOG.isDebugEnabled())
+    if(log.isDebugEnabled())
     {
-       LOG.debug("insertMessage(DiscussionMessageBean"+ decoMessage+")");
+       log.debug("insertMessage(DiscussionMessageBean"+ decoMessage+")");
     }
     if (!messages.contains(decoMessage))
     {
@@ -270,7 +270,7 @@ public class DiscussionTopicBean
    */
   public boolean getHasExtendedDesciption()
   {
-    LOG.debug("getHasExtendedDesciption()");
+    log.debug("getHasExtendedDesciption()");
     if (topic.getExtendedDescription() != null
         && topic.getExtendedDescription().trim().length() > 0
         && (!readFullDesciption))
@@ -285,7 +285,7 @@ public class DiscussionTopicBean
    */
   public boolean isReadFullDesciption()
   {
-    LOG.debug("isReadFullDesciption()");
+    log.debug("isReadFullDesciption()");
     return readFullDesciption;
   }
 
@@ -295,9 +295,9 @@ public class DiscussionTopicBean
    */
   public void setReadFullDesciption(boolean readFullDesciption)
   {
-    if(LOG.isDebugEnabled())
+    if(log.isDebugEnabled())
     {
-       LOG.debug("setReadFullDesciption(boolean "+ readFullDesciption+")");
+       log.debug("setReadFullDesciption(boolean "+ readFullDesciption+")");
     }
     this.readFullDesciption = readFullDesciption;
   }
@@ -307,7 +307,7 @@ public class DiscussionTopicBean
    */
   public String getParentForumId()
   {
-    LOG.debug("getParentForumId()");
+    log.debug("getParentForumId()");
     if ("".equals(parentForumId)){
     	parentForumId = topic.getBaseForum().getId().toString();
     }
@@ -319,7 +319,7 @@ public class DiscussionTopicBean
    */
   public String getMustRespondBeforeReading()
   {
-    LOG.debug("getMustRespondBeforeReading()");
+    log.debug("getMustRespondBeforeReading()");
     if ("".equals(mustRespondBeforeReading)){
 	    if (topic == null || topic.getMustRespondBeforeReading() == null
 	        || topic.getMustRespondBeforeReading().booleanValue() == false)
@@ -339,9 +339,9 @@ public class DiscussionTopicBean
    */
   public void setMustRespondBeforeReading(String mustRespondBeforeReading)
   {
-    if(LOG.isDebugEnabled())
+    if(log.isDebugEnabled())
     {
-       LOG.debug("setMustRespondBeforeReading(String"+ mustRespondBeforeReading+")");
+       log.debug("setMustRespondBeforeReading(String"+ mustRespondBeforeReading+")");
     }
     if (mustRespondBeforeReading.equals(Boolean.TRUE.toString()))
     {
@@ -358,7 +358,7 @@ public class DiscussionTopicBean
    */
   public String getLocked()
   {
-    LOG.debug("getLocked()");
+    log.debug("getLocked()");
     if ("".equals(locked)){
 	    if (topic == null || topic.getLocked() == null
 	        || topic.getLocked().booleanValue() == false)
@@ -379,9 +379,9 @@ public class DiscussionTopicBean
    */
   public void setLocked(String locked)
   {
-    if(LOG.isDebugEnabled())
+    if(log.isDebugEnabled())
     {
-       LOG.debug("setLocked(String "+ locked+")");
+       log.debug("setLocked(String "+ locked+")");
     }
     if (locked.equals(Boolean.TRUE.toString()))
     {
@@ -398,7 +398,7 @@ public class DiscussionTopicBean
    */
   public Boolean getTopicLocked()
   {
-    LOG.debug("getTopicLocked()");
+    log.debug("getTopicLocked()");
     if ("".equals(locked)){
 	    if (topic == null || topic.getLocked() == null
 	        || topic.getLocked().booleanValue() == false)
@@ -419,9 +419,9 @@ public class DiscussionTopicBean
    */
   public void setTopicLocked(Boolean locked)
   {
-    if(LOG.isDebugEnabled())
+    if(log.isDebugEnabled())
     {
-       LOG.debug("setTopicLocked(String "+ locked+")");
+       log.debug("setTopicLocked(String "+ locked+")");
     }
     topic.setLocked(locked);
   }
@@ -432,7 +432,7 @@ public class DiscussionTopicBean
    */
   public String getModerated()
   {
-    LOG.debug("getModerated()");
+    log.debug("getModerated()");
     if ("".equals(moderated)){
 	    if (topic == null || topic.getModerated() == null
 	        || topic.getModerated().booleanValue() == false)
@@ -453,9 +453,9 @@ public class DiscussionTopicBean
    */
   public void setModerated(String moderated)
   {
-    if(LOG.isDebugEnabled())
+    if(log.isDebugEnabled())
     {
-       LOG.debug("setModerated(String "+ moderated+")");
+       log.debug("setModerated(String "+ moderated+")");
     }
     if (moderated.equals(Boolean.TRUE.toString()))
     {
@@ -472,7 +472,7 @@ public class DiscussionTopicBean
    */
   public Boolean getTopicModerated()
   {
-    LOG.debug("getTopicModerated()");
+    log.debug("getTopicModerated()");
     if ("".equals(moderated)){
 	    if (topic == null || topic.getModerated() == null
 	        || topic.getModerated().booleanValue() == false)
@@ -493,9 +493,9 @@ public class DiscussionTopicBean
    */
   public void setTopicModerated(Boolean moderated)
   {
-    if(LOG.isDebugEnabled())
+    if(log.isDebugEnabled())
     {
-       LOG.debug("setTopicModerated(String "+ moderated+")");
+       log.debug("setTopicModerated(String "+ moderated+")");
     }
     topic.setModerated(moderated);    
   }
@@ -505,7 +505,7 @@ public class DiscussionTopicBean
    */
   public String getAutoMarkThreadsRead()
   {
-    LOG.debug("getAutoMarkThreadsRead()");
+    log.debug("getAutoMarkThreadsRead()");
     if (topic == null || topic.getAutoMarkThreadsRead() == null) {
       return Boolean.FALSE.toString();
     } else {
@@ -518,9 +518,9 @@ public class DiscussionTopicBean
    */
   public void setAutoMarkThreadsRead(String autoMarkThreadsRead)
   {
-    if (LOG.isDebugEnabled()) 
+    if (log.isDebugEnabled()) 
     {
-      LOG.debug("setAutoMarkThreadsRead(String " + autoMarkThreadsRead + ")");
+      log.debug("setAutoMarkThreadsRead(String " + autoMarkThreadsRead + ")");
     }
     
     topic.setAutoMarkThreadsRead(Boolean.parseBoolean(autoMarkThreadsRead));
@@ -531,7 +531,7 @@ public class DiscussionTopicBean
    */
   public String getPostFirst()
   {
-    LOG.debug("getPostFirst()");
+    log.debug("getPostFirst()");
     if ("".equals(postFirst)){
 	    if (topic == null || topic.getPostFirst() == null
 	        || topic.getPostFirst().booleanValue() == false)
@@ -552,9 +552,9 @@ public class DiscussionTopicBean
    */
   public void setPostFirst(String postFirst)
   {
-    if(LOG.isDebugEnabled())
+    if(log.isDebugEnabled())
     {
-       LOG.debug("setPostFirst(String "+ postFirst+")");
+       log.debug("setPostFirst(String "+ postFirst+")");
     }
     if (postFirst.equals(Boolean.TRUE.toString()))
     {
@@ -571,7 +571,7 @@ public class DiscussionTopicBean
    */
   public String getPostAnonymous()
   {
-    LOG.debug("getPostAnonymous()");
+    log.debug("getPostAnonymous()");
     if ("".equals(postAnonymous))
     {
       boolean isAnonymous = topic != null && topic.getPostAnonymous() != null && topic.getPostAnonymous().booleanValue();
@@ -586,9 +586,9 @@ public class DiscussionTopicBean
    */
   public void setPostAnonymous(String postAnonymous)
   {
-    if (LOG.isDebugEnabled())
+    if (log.isDebugEnabled())
     {
-      LOG.debug("setPostAnonymous(String " + postAnonymous + ")");
+      log.debug("setPostAnonymous(String " + postAnonymous + ")");
     }
     boolean isAnonymous = Boolean.TRUE.toString().equals(postAnonymous);
     topic.setPostAnonymous(Boolean.valueOf(isAnonymous));
@@ -599,7 +599,7 @@ public class DiscussionTopicBean
    */
   public String getRevealIDsToRoles()
   {
-    LOG.debug("getRevealIDsToRoles()");
+    log.debug("getRevealIDsToRoles()");
     if ("".equals(revealIDsToRoles))
     {
       boolean isRevealIDsToRoles = topic != null && topic.getRevealIDsToRoles() != null && topic.getRevealIDsToRoles().booleanValue();
@@ -614,9 +614,9 @@ public class DiscussionTopicBean
    */
   public void setRevealIDsToRoles(String revealIDsToRoles)
   {
-    if (LOG.isDebugEnabled())
+    if (log.isDebugEnabled())
     {
-      LOG.debug("setRevealIDsToRoles(String " + revealIDsToRoles + ")");
+      log.debug("setRevealIDsToRoles(String " + revealIDsToRoles + ")");
     }
     boolean isRevealIDsToRoles = Boolean.TRUE.toString().equals(revealIDsToRoles);
     topic.setRevealIDsToRoles(Boolean.valueOf(isRevealIDsToRoles));
@@ -628,7 +628,7 @@ public class DiscussionTopicBean
    */
   public Boolean getTopicAutoMarkThreadsRead()
   {
-    LOG.debug("getTopicAutoMarkThreadsRead()");
+    log.debug("getTopicAutoMarkThreadsRead()");
     if (topic == null || topic.getAutoMarkThreadsRead() == null) {
       return false;
     } else {
@@ -641,9 +641,9 @@ public class DiscussionTopicBean
    */
   public void setTopicAutoMarkThreadsRead(Boolean autoMarkThreadsRead)
   {
-    if (LOG.isDebugEnabled()) 
+    if (log.isDebugEnabled()) 
     {
-      LOG.debug("setTopicAutoMarkThreadsRead(String " + autoMarkThreadsRead + ")");
+      log.debug("setTopicAutoMarkThreadsRead(String " + autoMarkThreadsRead + ")");
     }    
     topic.setAutoMarkThreadsRead(autoMarkThreadsRead);
   }
@@ -653,7 +653,7 @@ public class DiscussionTopicBean
    */
   public Boolean getTopicPostFirst()
   {
-    LOG.debug("getTopicPostFirst()");
+    log.debug("getTopicPostFirst()");
     if ("".equals(postFirst)){
 	    if (topic == null || topic.getPostFirst() == null
 	        || topic.getPostFirst().booleanValue() == false)
@@ -674,9 +674,9 @@ public class DiscussionTopicBean
    */
   public void setTopicPostFirst(Boolean postFirst)
   {
-    if(LOG.isDebugEnabled())
+    if(log.isDebugEnabled())
     {
-       LOG.debug("setTopicPostFirst(String "+ postFirst+")");
+       log.debug("setTopicPostFirst(String "+ postFirst+")");
     }
     topic.setPostFirst(postFirst);    
   }
@@ -686,7 +686,7 @@ public class DiscussionTopicBean
    */
   public Boolean getTopicPostAnonymous()
   {
-    LOG.debug("getTopicPostAnonymous()");
+    log.debug("getTopicPostAnonymous()");
     if ("".equals(postAnonymous))
     {
       boolean isPostAnonymous = topic != null && topic.getPostAnonymous() != null && topic.getPostAnonymous();
@@ -701,9 +701,9 @@ public class DiscussionTopicBean
    */
   public void setTopicPostAnonymous(Boolean postAnonymous)
   {
-    if (LOG.isDebugEnabled())
+    if (log.isDebugEnabled())
     {
-      LOG.debug("setTopicPostAnonymous(String " + postAnonymous + ")");
+      log.debug("setTopicPostAnonymous(String " + postAnonymous + ")");
     }
     topic.setPostAnonymous(postAnonymous);
   }
@@ -713,7 +713,7 @@ public class DiscussionTopicBean
    */
   public Boolean getTopicRevealIDsToRoles()
   {
-    LOG.debug("getTopicRevealIDsToRoles()");
+    log.debug("getTopicRevealIDsToRoles()");
     if ("".equals(revealIDsToRoles))
     {
       boolean isRevealIDsToRoles = topic != null && topic.getRevealIDsToRoles() != null && topic.getRevealIDsToRoles();
@@ -728,9 +728,9 @@ public class DiscussionTopicBean
    */
   public void setTopicRevealIDsToRoles(Boolean revealIDsToRoles)
   {
-    if (LOG.isDebugEnabled())
+    if (log.isDebugEnabled())
     {
-      LOG.debug("setTopicRevealIDsToRoles(String " + revealIDsToRoles + ")");
+      log.debug("setTopicRevealIDsToRoles(String " + revealIDsToRoles + ")");
     }
     topic.setRevealIDsToRoles(revealIDsToRoles);
   }
@@ -739,9 +739,9 @@ public class DiscussionTopicBean
 
   public void removeMessage(DiscussionMessageBean decoMessage)
   {
-    if(LOG.isDebugEnabled())
+    if(log.isDebugEnabled())
     {
-       LOG.debug("removeMessage(DiscussionMessageBean"+ decoMessage+")");
+       log.debug("removeMessage(DiscussionMessageBean"+ decoMessage+")");
     }
     for (int i = 0; i < messages.size(); i++)
     {
@@ -759,7 +759,7 @@ public class DiscussionTopicBean
    */
   public boolean isMarkForDeletion()
   {
-    LOG.debug("isMarkForDeletion()");
+    log.debug("isMarkForDeletion()");
     return markForDeletion;
   }
 
@@ -769,9 +769,9 @@ public class DiscussionTopicBean
    */
   public void setMarkForDeletion(boolean markForDeletion)
   {
-    if(LOG.isDebugEnabled())
+    if(log.isDebugEnabled())
     {
-       LOG.debug("setMarkForDeletion(boolean "+ markForDeletion+")");
+       log.debug("setMarkForDeletion(boolean "+ markForDeletion+")");
     }
     this.markForDeletion = markForDeletion;
   }
@@ -781,9 +781,9 @@ public class DiscussionTopicBean
    */
   public void setTopic(DiscussionTopic topic)
   {
-    if(LOG.isDebugEnabled())
+    if(log.isDebugEnabled())
     {
-       LOG.debug("setTopic(DiscussionTopic"+ topic+")");
+       log.debug("setTopic(DiscussionTopic"+ topic+")");
     }
     this.topic = topic;
   }
@@ -793,7 +793,7 @@ public class DiscussionTopicBean
    */
   public boolean isMarkForDuplication()
   {
-    LOG.debug("isMarkForDuplication()");
+    log.debug("isMarkForDuplication()");
     return markForDuplication;
   }
 
@@ -803,9 +803,9 @@ public class DiscussionTopicBean
    */
   public void setMarkForDuplication(boolean markForDuplication)
   {
-    if(LOG.isDebugEnabled())
+    if(log.isDebugEnabled())
     {
-       LOG.debug("setMarkForDuplication(boolean "+ markForDuplication+")");
+       log.debug("setMarkForDuplication(boolean "+ markForDuplication+")");
     }
     this.markForDuplication = markForDuplication;
   }
@@ -815,7 +815,7 @@ public class DiscussionTopicBean
    */
   public boolean getIsNewResponse()
   {
-    LOG.debug("getIsNewResponse()");
+    log.debug("getIsNewResponse()");
     if (isNewResponse == null){
     	isNewResponse = uiPermissionsManager.isNewResponse(topic, (DiscussionForum) topic
     			.getBaseForum());
@@ -828,7 +828,7 @@ public class DiscussionTopicBean
    */
   public boolean getIsNewResponseToResponse()
   {
-    LOG.debug("getIsNewResponseToResponse()");
+    log.debug("getIsNewResponseToResponse()");
     if (isNewResponseToResponse == null){
     	isNewResponseToResponse = uiPermissionsManager.isNewResponseToResponse(topic,
     			(DiscussionForum) topic.getBaseForum());
@@ -842,7 +842,7 @@ public class DiscussionTopicBean
    */
   public boolean getIsMovePostings()
   {
-    LOG.debug("getIsMovePostings()");
+    log.debug("getIsMovePostings()");
     if (isMovePostings == null){
     	isMovePostings = uiPermissionsManager.isMovePostings(topic, (DiscussionForum) topic
     			.getBaseForum());
@@ -855,7 +855,7 @@ public class DiscussionTopicBean
    */
   public boolean isChangeSettings()
   {
-    LOG.debug("isChangeSettings()");
+    log.debug("isChangeSettings()");
     if (changeSettings == null){
     	changeSettings = uiPermissionsManager.isChangeSettings(topic, (DiscussionForum) topic
     			.getBaseForum());
@@ -868,7 +868,7 @@ public class DiscussionTopicBean
    */
   public boolean isPostToGradebook()
   {
-    LOG.debug("isPostToGradebook()");
+    log.debug("isPostToGradebook()");
     if (postToGradebook == null){
     	postToGradebook = uiPermissionsManager.isPostToGradebook(topic,
     			(DiscussionForum) topic.getBaseForum());
@@ -878,7 +878,7 @@ public class DiscussionTopicBean
   
   public boolean getIsPostToGradebook()
   {
-    LOG.debug("getIsPostToGradebook()");
+    log.debug("getIsPostToGradebook()");
     return isPostToGradebook();
   }
   
@@ -887,7 +887,7 @@ public class DiscussionTopicBean
    */
   public boolean getIsRead()
   {
-    LOG.debug("getIsRead()");
+    log.debug("getIsRead()");
     if (isRead == null){
     	isRead = uiPermissionsManager.isRead(topic, (DiscussionForum) topic
 		        .getBaseForum());
@@ -900,7 +900,7 @@ public class DiscussionTopicBean
    */
   public boolean getIsReviseAny()
   {
-    LOG.debug("getIsReviseAny()");
+    log.debug("getIsReviseAny()");
     if (isReviseAny == null){
     	isReviseAny = uiPermissionsManager.isReviseAny(topic, (DiscussionForum) topic
 		        .getBaseForum());
@@ -913,7 +913,7 @@ public class DiscussionTopicBean
    */
   public boolean getIsReviseOwn()
   {
-    LOG.debug("getIsReviseOwn()");
+    log.debug("getIsReviseOwn()");
     if (isReviseOwn == null){
     	isReviseOwn = uiPermissionsManager.isReviseOwn(topic, (DiscussionForum) topic
 		        .getBaseForum());
@@ -926,7 +926,7 @@ public class DiscussionTopicBean
    */
   public boolean getIsDeleteAny()
   {
-    LOG.debug("getIsDeleteAny()");
+    log.debug("getIsDeleteAny()");
     if (isDeleteAny == null){
     	isDeleteAny = uiPermissionsManager.isDeleteAny(topic, (DiscussionForum) topic
 		        .getBaseForum());
@@ -939,7 +939,7 @@ public class DiscussionTopicBean
    */
   public boolean getIsDeleteOwn()
   {
-    LOG.debug("getIsDeleteOwn()");
+    log.debug("getIsDeleteOwn()");
     if (isDeleteOwn == null){
     	isDeleteOwn = uiPermissionsManager.isDeleteOwn(topic, (DiscussionForum) topic
 		        .getBaseForum());
@@ -952,7 +952,7 @@ public class DiscussionTopicBean
    */
   public boolean getIsMarkAsRead()
   {
-    LOG.debug("getIsMarkAsRead()");
+    log.debug("getIsMarkAsRead()");
     if (isMarkAsRead == null){
     	isMarkAsRead = uiPermissionsManager.isMarkAsRead(topic, (DiscussionForum) topic
 		        .getBaseForum());
@@ -962,7 +962,7 @@ public class DiscussionTopicBean
   
   public boolean getIsModeratedAndHasPerm()
   {
-	  LOG.debug("getIsModeratedAndHasPerm()");
+	  log.debug("getIsModeratedAndHasPerm()");
 	  if (isModeratedAndHasPerm == null){
 	    	isModeratedAndHasPerm = topic.getModerated().booleanValue()
 		  	&& uiPermissionsManager.isModeratePostings(topic, (DiscussionForum) topic.getBaseForum());
@@ -975,7 +975,7 @@ public class DiscussionTopicBean
    */
   public ArrayList getContributorsList()
   {
-    LOG.debug("getContributorsList()");  
+    log.debug("getContributorsList()");  
     Iterator iter= forumManager.getContributorsList(topic, (DiscussionForum)topic.getBaseForum()).iterator();
     while (iter.hasNext())
     { 
@@ -990,7 +990,7 @@ public class DiscussionTopicBean
    */
   public ArrayList getAccessorList()
   {
-    LOG.debug("getAccessorList()");
+    log.debug("getAccessorList()");
     Iterator iter= forumManager.getAccessorsList(topic, (DiscussionForum)topic.getBaseForum()).iterator();
     while (iter.hasNext())
     { 
@@ -1004,9 +1004,9 @@ public class DiscussionTopicBean
    */
   public void setAccessorList(ArrayList accessorList)
   {    
-    if(LOG.isDebugEnabled())
+    if(log.isDebugEnabled())
      {
-        LOG.debug("setAccessorList(List"+ accessorList+")");
+        log.debug("setAccessorList(List"+ accessorList+")");
      }    
     topic.getActorPermissions().setAccessors(forumManager.decodeAccessorsList(accessorList));
   }
@@ -1016,9 +1016,9 @@ public class DiscussionTopicBean
    */
   public void setContributorsList(ArrayList contributorsList)
   {
-    if(LOG.isDebugEnabled())
+    if(log.isDebugEnabled())
     {
-       LOG.debug("setContributorsList(List"+ contributorsList+")");
+       log.debug("setContributorsList(List"+ contributorsList+")");
     }    
     topic.getActorPermissions().setContributors(forumManager.decodeContributorsList(contributorsList));
   }
@@ -1152,7 +1152,7 @@ public class DiscussionTopicBean
 	
 	public String getAvailabilityRestricted()
 	  {
-		  LOG.debug("getAvailabilityRestricted()");
+		  log.debug("getAvailabilityRestricted()");
 		  if (topic == null || topic.getAvailabilityRestricted() == null || 
 				  topic.getAvailabilityRestricted().booleanValue() == false)
 		  {
@@ -1168,7 +1168,7 @@ public class DiscussionTopicBean
 	   */
 	  public void setAvailabilityRestricted(String restricted)
 	  {
-		  LOG.debug("setAvailabilityRestricted()");
+		  log.debug("setAvailabilityRestricted()");
 		  if (restricted.equals(Boolean.TRUE.toString()))
 		  {
 			  topic.setAvailabilityRestricted(Boolean.valueOf(true));
@@ -1181,7 +1181,7 @@ public class DiscussionTopicBean
 	
 	public String getAvailability()
 	{
-		LOG.debug("getAvailability()");
+		log.debug("getAvailability()");
 		if (topic == null || topic.getAvailability() == null || 
 				topic.getAvailability().booleanValue() == false)
 		{
@@ -1197,7 +1197,7 @@ public class DiscussionTopicBean
 	 */
 	public void setAvailability(String restricted)
 	{
-		LOG.debug("setAvailability()");
+		log.debug("setAvailability()");
 		if (restricted.equals(Boolean.TRUE.toString()))
 		{
 			topic.setAvailability(Boolean.valueOf(true));
@@ -1224,7 +1224,7 @@ public class DiscussionTopicBean
 				Date openDate = (Date) datetimeFormat.parse(hiddenOpenDate);
 				topic.setOpenDate(openDate);
 			}catch (ParseException e) {
-				LOG.error("Couldn't convert open date", e);
+				log.error("Couldn't convert open date", e);
 			}
 		}else{
 			topic.setOpenDate(null);
@@ -1247,7 +1247,7 @@ public class DiscussionTopicBean
 				Date CloseDate = (Date) datetimeFormat.parse(hiddenCloseDate);
 				topic.setCloseDate(CloseDate);
 			}catch (ParseException e) {
-				LOG.error("Couldn't convert Close date", e);
+				log.error("Couldn't convert Close date", e);
 			}
 		}else{
 			topic.setCloseDate(null);
@@ -1259,7 +1259,7 @@ public class DiscussionTopicBean
 			return "";
 		}else{
 			SimpleDateFormat formatter_date = new SimpleDateFormat(rb.getString("date_format"), new ResourceLoader().getLocale());
-			formatter_date.setTimeZone(timeService.getLocalTimeZone());
+			formatter_date.setTimeZone(userPreferencesManager.getTimeZone());
 			String formattedCloseDate = formatter_date.format(topic.getCloseDate());
 			return formattedCloseDate;
 		}
@@ -1270,7 +1270,7 @@ public class DiscussionTopicBean
 			return "";
 		}else{
 			SimpleDateFormat formatter_date = new SimpleDateFormat(rb.getString("date_format"), new ResourceLoader().getLocale());
-			formatter_date.setTimeZone(timeService.getLocalTimeZone());
+			formatter_date.setTimeZone(userPreferencesManager.getTimeZone());
 			String formattedOpenDate = formatter_date.format(topic.getOpenDate());
 			return formattedOpenDate;
 		}

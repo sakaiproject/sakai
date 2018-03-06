@@ -29,8 +29,6 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.jsf.util.JsfTool;
 import org.sakaiproject.util.Web;
@@ -45,9 +43,6 @@ import org.sakaiproject.util.Web;
  */
 public class HelpJsfTool extends JsfTool
 {
-
-  /** Our log (commons). */
-  private static Logger M_log = LoggerFactory.getLogger(HelpJsfTool.class);
 
   private static String HELP_DOC_REGEXP = org.sakaiproject.api.app.help.HelpManager.HELP_DOC_REGEXP;
 

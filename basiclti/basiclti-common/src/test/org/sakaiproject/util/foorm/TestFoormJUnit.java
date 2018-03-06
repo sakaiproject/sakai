@@ -41,6 +41,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
+import lombok.extern.slf4j.Slf4j;
+
 /* 
  * This is originally based on the FoormTest.java file but modified to use JUnit
  * code and conventions. It is targeted for a change to address the issue tested
@@ -55,7 +57,7 @@ import java.util.Properties;
  * fully unit test the basic lti code.
  *
  */
-
+@Slf4j
 public class TestFoormJUnit {
     static Connection conn = null;
 
@@ -117,8 +119,34 @@ public class TestFoormJUnit {
 	@Test
 	public void testSearchCheckSql() {
 		Foorm foorm = new Foorm();
-		// There was a problem with a NPE being thrown when there weren't any colons in the search
-		assertEquals(null, foorm.searchCheck("COLUMN = 'value'", "table", new String[]{}));
+		// SAK-32704 - Want to review all this can perhaps adjust how the decision is made
+		// about which search approach is in use
+		String whereStyle = "COLUMN = 'value'";
+		assertEquals(whereStyle, foorm.searchCheck(whereStyle, "table", new String[]{}));
+		whereStyle = "COLUMN='value'";
+		assertEquals(whereStyle, foorm.searchCheck(whereStyle, "table", new String[]{}));
+		whereStyle = "COLUMN='value' OR OTHER=42";
+		assertEquals(whereStyle,foorm.searchCheck(whereStyle, "table", new String[]{}));
+		whereStyle = "COLUMN='value' OR ( OTHER=42 and zap=21)";
+		assertEquals(whereStyle, foorm.searchCheck(whereStyle, "table", new String[]{}));
+
+		// Workaround for the Null ones below - not pretty but works
+		whereStyle = "1=1 and (table.COLUMN LIKE '%zap%' OR ( othertable.OTHER=42 and zap=21))";
+		assertEquals(whereStyle, foorm.searchCheck(whereStyle, "table", new String[]{}));
+
+		// At some point we might want these to pass
+		whereStyle = "(1=1) and (table.COLUMN LIKE '%zap%' OR ( othertable.OTHER=42 and zap=21))";
+		assertNull(foorm.searchCheck(whereStyle, "table", new String[]{}));
+		whereStyle = "table.COLUMN LIKE '%zap%' OR ( othertable.OTHER=42 and zap=21)";
+		assertNull(foorm.searchCheck(whereStyle, "table", new String[]{}));
+
+		// A parenthesis first should be OK
+		whereStyle = "(COLUMN='value') OR ( OTHER=42 and zap=21)";
+		assertNull(foorm.searchCheck(whereStyle, "table", new String[]{}));
+		whereStyle = "( COLUMN = 'value' ) OR ( OTHER=42 and zap=21)";
+		assertNull(foorm.searchCheck(whereStyle, "table", new String[]{}));
+		whereStyle = " ( COLUMN = 'value' ) OR ( OTHER=42 and zap=21)";
+		assertNull(foorm.searchCheck(whereStyle, "table", new String[]{}));
 	}
 
 	@Test
@@ -248,7 +276,7 @@ public class TestFoormJUnit {
 	st = conn.createStatement();    // statements
 	int i = st.executeUpdate(expression);    // run the query
 	if (i == -1) {
-	    System.out.println("db error : " + expression);
+	    log.debug("db error : {}", expression);
 	}
 	st.close();
     } 
@@ -261,10 +289,8 @@ public class TestFoormJUnit {
 	for (; rs.next(); ) {
 	    for (i = 0; i < colmax; ++i) {
 		o = rs.getObject(i + 1);
-		System.out.print(o.toString() + " ");
+		log.debug("{}", o.toString());
 	    }
-
-	    System.out.println(" ");
 	}
     }
 
@@ -272,15 +298,13 @@ public class TestFoormJUnit {
 	ResultSetMetaData md   = rs.getMetaData();
 	// Print the column labels
 	for( int i = 1; i <= md.getColumnCount(); i++ ) {
-	    System.out.println( md.getColumnLabel(i) + " (" + md.getColumnDisplaySize(i) + ") auto=" + md.isAutoIncrement(i)) ;
-	    System.out.println(" type="+md.getColumnClassName(i));
+	    log.debug("{} ({}) auto={}", md.getColumnLabel(i), md.getColumnDisplaySize(i), md.isAutoIncrement(i));
+	    log.debug("type={}", md.getColumnClassName(i));
 	}
-	System.out.println() ;
 
 	// Loop through the result set
 	while( rs.next() ) {
-	    for( int i = 1; i <= md.getColumnCount(); i++ ) System.out.print( rs.getString(i) + " " ) ;
-	    System.out.println() ;
+	    for( int i = 1; i <= md.getColumnCount(); i++ ) log.debug("{} ", rs.getString(i)) ;
 	}
     }
 	
@@ -298,11 +322,10 @@ public class TestFoormJUnit {
 	    pw = "";
 
 	    conn = DriverManager.getConnection(jdbcUrl,user,pw);
-	    System.out.println("Got Connection="+conn);
+	    log.debug("Got Connection={}", conn);
 	    return conn;
 	} catch (Exception e) {
-	    System.out.println("Unable to connect to oracle database"+e);
-	    e.printStackTrace();
+	    log.error(e.getMessage(), e);
 	    assert false;
 	}
 	return null;
@@ -312,11 +335,10 @@ public class TestFoormJUnit {
 	try {
 	    Class.forName("org.hsqldb.jdbcDriver");
 	    conn = DriverManager.getConnection("jdbc:hsqldb:file:testdb", "sa", "");
-	    System.out.println("Got Connection="+conn);
+	    log.debug("Got Connection={}", conn);
 	    return conn;
 	} catch (Exception e) {
-	    System.out.println("Unable to connect to hsql database");
-	    e.printStackTrace();
+	    log.error("Unable to connect to hsql database error: {}, {}", e.getMessage(), e);
 	    assert false;
 	}
 	return null;
@@ -333,13 +355,13 @@ public class TestFoormJUnit {
 	//	conn = getHSqlDatabase();
 	conn = vendorConnection;
 
-	System.out.println("First time ...");
+	log.debug("First time ...");
 	for (String sql : sqls) {
-	    System.out.println("time1: SQL="+sql);
+	    log.debug("time1: SQL={}", sql);
 	    try {
 		update(conn, sql);
 	    } catch (SQLException e) {
-		System.out.println("create Schema issue: "+e);
+		log.error("create Schema issue: {}", e.getMessage());
 		fail("FAILED: time1: [sql]"+e);
 	    }
 	}
@@ -347,11 +369,11 @@ public class TestFoormJUnit {
 	try {
 	    query(conn,"SELECT * FROM lti_content");
 	} catch (SQLException ex3) {
-	    ex3.printStackTrace();
+	    log.error(ex3.getMessage(), ex3);
 	    fail("FAILED: time1: SELECT * FROM lti_content"+ex3);
 	}
 
-	System.out.println("Second time...");
+	log.debug("Second time...");
 	try {
 	    doReset = false;
 	    Statement st = conn.createStatement(); 
@@ -359,17 +381,17 @@ public class TestFoormJUnit {
 	    ResultSetMetaData md   = rs.getMetaData();
 	    sqls = foorm.formAdjustTable("lti_content", test_form_2, vendorName, md);
 	    for (String sql : sqls) {
-		System.out.println("time2: SQL="+sql);
+		log.debug("time2: SQL={}", sql);
 		try {
 		    update(conn, sql);
 		} catch (SQLException e) {
-		    e.printStackTrace();
+		    log.error(e.getMessage(), e);
 		    fail("FAILED: time2: sql loop: [sql]"+e);
 		}
 	    }
 	    query(conn,"SELECT * FROM lti_content");
 	} catch (SQLException ex3) {
-	    ex3.printStackTrace();
+	    log.error(ex3.getMessage(), ex3);
 	    fail("FAILED: time2: SELECT * FROM lti_content"+ex3);
 	}
 

@@ -1,30 +1,32 @@
-/**********************************************************************************
-/**********************************************************************************
- * $URL$
- * $Id$
- ***********************************************************************************
- *
- * Copyright (c) 2003, 2004, 2005, 2006, 2007, 2008 Sakai Foundation
+/**
+ * Copyright (c) 2003-2017 The Apereo Foundation
  *
  * Licensed under the Educational Community License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *       http://www.opensource.org/licenses/ECL-2.0
+ *             http://opensource.org/licenses/ecl2
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- **********************************************************************************/
+ */
 
 package org.sakaiproject.user.impl;
 
+import java.util.*;
+
+import lombok.extern.slf4j.Slf4j;
+
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+
 import org.sakaiproject.authz.api.*;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.component.cover.ComponentManager;
@@ -45,12 +47,6 @@ import org.sakaiproject.util.BaseResourcePropertiesEdit;
 import org.sakaiproject.util.StringUtil;
 import org.sakaiproject.util.Validator;
 import org.sakaiproject.util.api.FormattedText;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-
-import java.util.*;
 
 /**
  * <p>
@@ -63,11 +59,9 @@ import java.util.*;
  * Each User that ever goes through Sakai is allocated a Sakai unique UUID. Even if we don't keep the User record in Sakai, we keep a map of this id to the external eid.
  * </p>
  */
+@Slf4j
 public abstract class BaseUserDirectoryService implements UserDirectoryService, UserFactory
 {
-	/** Our log (commons). */
-	private static Logger M_log = LoggerFactory.getLogger(BaseUserDirectoryService.class);
-
 	/** Storage manager for this service. */
 	protected Storage m_storage = null;
 
@@ -88,7 +82,10 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 
 	/** A cache of users */
 	protected Cache<String, UserEdit> m_callCache = null;
-	
+
+	/** A cache of users' id/eid map */
+	protected Cache<String, String> m_userCache = null;
+
 	/** Optional service to provide site-specific aliases for a user's display ID and display name. */
 	protected ContextualUserDisplayService m_contextualUserDisplayService = null;
 	
@@ -539,17 +536,18 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 			// <= 0 indicates no caching desired
 			if (m_cacheSeconds > 0)
 			{
-				M_log.warn("cacheSeconds@org.sakaiproject.user.api.UserDirectoryService is no longer supported");
+				log.warn("cacheSeconds@org.sakaiproject.user.api.UserDirectoryService is no longer supported");
 			}
 			if (m_cacheCleanerSeconds > 0) {
-				M_log.warn("cacheCleanerSeconds@org.sakaiproject.user.api.UserDirectoryService is no longer supported");
+				log.warn("cacheCleanerSeconds@org.sakaiproject.user.api.UserDirectoryService is no longer supported");
 			}
 
             // caching for users
+            m_userCache = memoryService().getCache("org.sakaiproject.user.api.UserDirectoryService");
             m_callCache = memoryService().getCache("org.sakaiproject.user.api.UserDirectoryService.callCache");
             if (!m_callCache.isDistributed()) {
                 // KNL_1229 use an Observer for cache cleanup when the cache is not distributed
-                M_log.info("Creating user callCache observer for event based cache expiration (for local caches)");
+                log.info("Creating user callCache observer for event based cache expiration (for local caches)");
                 m_userCacheObserver = new UserCacheObserver();
                 eventTrackingService().addObserver(m_userCacheObserver);
             }
@@ -566,6 +564,8 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 			functionManager().registerFunction(SECURE_UPDATE_USER_OWN_PASSWORD);
 			functionManager().registerFunction(SECURE_UPDATE_USER_OWN_TYPE);
 			functionManager().registerFunction(SECURE_UPDATE_USER_ANY);
+			functionManager().registerFunction("user.studentnumber.visible");
+			
 
 			// if no provider was set, see if we can find one
 			if ((m_provider == null) && (m_providerName != null))
@@ -588,19 +588,19 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 			m_passwordPolicyProviderName = serverConfigurationService().getString(PasswordPolicyProvider.SAK_PROP_PROVIDER_NAME, PasswordPolicyProvider.class.getName());
 			if (StringUtils.isEmpty(m_passwordPolicyProviderName)) {
 			    m_passwordPolicyProviderName = PasswordPolicyProvider.class.getName();
-			    M_log.warn("init(): Empty name for passwordPolicyProvider: Using the default name instead: "+m_passwordPolicyProviderName);
+			    log.warn("init(): Empty name for passwordPolicyProvider: Using the default name instead: "+m_passwordPolicyProviderName);
 			}
 			if (m_passwordPolicyProvider == null) {
 				m_passwordPolicyProvider = getPasswordPolicy(); // this will load the PasswordPolicy provider bean or instantiate the default
 			}
-			M_log.info("init(): PasswordPolicyProvider ("+m_passwordPolicyProviderName+"): " + ((m_passwordPolicyProvider == null) ? "none" : m_passwordPolicyProvider.getClass().getName()));
+			log.info("init(): PasswordPolicyProvider ("+m_passwordPolicyProviderName+"): " + ((m_passwordPolicyProvider == null) ? "none" : m_passwordPolicyProvider.getClass().getName()));
 
-			M_log.info("init(): provider: " + ((m_provider == null) ? "none" : m_provider.getClass().getName())
+			log.info("init(): provider: " + ((m_provider == null) ? "none" : m_provider.getClass().getName())
 					+ " separateIdEid: " + m_separateIdEid);
 		}
 		catch (Exception t)
 		{
-			M_log.error("init(): ", t);
+			log.error("init(): ", t);
 		}
 	}
 
@@ -625,7 +625,9 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
                     )
                 ) {
                     String userRef = event.getResource();
-                    removeCachedUser(userRef);
+                    UserEdit u = getCachedUser(userRef);
+                    String oldEid = u != null ? u.getEid() : null;
+                    removeCachedUser(userRef, oldEid);
                 }
             }
 
@@ -642,10 +644,10 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 		m_provider = null;
 		m_anon = null;
 		m_passwordPolicyProvider = null;
-        m_callCache.close();
-        m_userCacheObserver = null;
+		m_callCache.close();
+		m_userCacheObserver = null;
 
-		M_log.info("destroy()");
+		log.info("destroy()");
 	}
 
 	/**********************************************************************************************************************************************************************************************************************************************************
@@ -747,7 +749,7 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 		//Check if another user has the same email
 		String email = StringUtils.trimToNull (user.getEmail());
 		
-		M_log.debug("commitEdit(): Check for mail " + email);
+		log.debug("commitEdit(): Check for mail " + email);
 		
 		if (email!=null)
 		{
@@ -900,7 +902,7 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 					else
 					{
 						// this user is not internally defined, and we can't find an eid for it, so we skip it
-						M_log.warn("getUsers: cannot find eid for user id: " + id);
+						log.warn("getUsers: cannot find eid for user id: " + id);
 					}
 				}
 			}
@@ -1212,7 +1214,7 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 		// check for closed edit
 		if (!user.isActiveEdit())
 		{
-			M_log.error("commitEdit(): closed UserEdit", new Exception());
+			log.error("commitEdit(): closed UserEdit", new Exception());
 			return;
 		}
 
@@ -1254,7 +1256,7 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 			}
 			catch (Exception e)
 			{
-				M_log.error("cancelEdit(): closed UserEdit", e);
+				log.error("cancelEdit(): closed UserEdit", e);
 			}
 			return;
 		}
@@ -1355,7 +1357,7 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 		if (m_provider instanceof ExternalUserSearchUDP) {
 			providedUserRecords =  ((ExternalUserSearchUDP) m_provider).searchExternalUsers(criteria, first, last, this);
 		} else {
-			M_log.debug("searchExternalUsers capability is not supported by your provider");
+			log.debug("searchExternalUsers capability is not supported by your provider");
 		}
 		
 		if (providedUserRecords != null){
@@ -1566,7 +1568,7 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 		// check for closed edit
 		if (!user.isActiveEdit())
 		{
-			M_log.error("removeUser(): closed UserEdit", new Exception());
+			log.error("removeUser(): closed UserEdit", new Exception());
 			return;
 		}
 
@@ -1589,14 +1591,14 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 		}
 		catch (AuthzPermissionException e)
 		{
-			M_log.warn("removeUser: removing realm for : " + ref + " : " + e);
+			log.warn("removeUser: removing realm for : " + ref + " : " + e);
 		}
 		catch (GroupNotDefinedException ignore)
 		{
 		}
 
 		// Remove from cache.
-		removeCachedUser(ref);
+		removeCachedUser(ref, user.getEid());
 	}
 
 	/**
@@ -1789,11 +1791,16 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 		}
 	}
 
-	protected void removeCachedUser(String ref)
+	protected void removeCachedUser(String ref, String eid)
 	{
 		if (m_callCache != null)
 		{
 			m_callCache.remove(ref);
+		}
+
+		if (m_userCache != null && StringUtils.isNotBlank(eid))
+		{
+			m_userCache.remove(IDCACHE + eid);
 		}
 	}
 
@@ -1911,7 +1918,7 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 		}
 		catch (NullPointerException e)
 		{
-			M_log.warn("getEntityRealms(): " + e);
+			log.warn("getEntityRealms(): " + e);
 		}
 
 		return rv;
@@ -1979,27 +1986,60 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 			if(!locksSucceeded.isEmpty()) {
 				UserEdit user = m_storage.edit(id);
 				if (user == null) {
-					M_log.warn("Can't find user " + id + " when trying to update email address");
+					log.warn("Can't find user " + id + " when trying to update email address");
 					return false;
 				}
 				user.setEid(newEmail);
 				user.setEmail(newEmail);
+				((BaseUserEdit) user).setEvent(SECURE_UPDATE_USER_ANY);
 				commitEdit(user);
 				return true;
 			}
 			else {
-				M_log.warn("User with id: "+id+" failed permission checks" );
+				log.warn("User with id: "+id+" failed permission checks" );
 				return false;
 			}
 		} catch (UserPermissionException e) {
-			M_log.warn("You do not have sufficient permission to edit the user with Id: "+id, e);
+			log.warn("You do not have sufficient permission to edit the user with Id: "+id, e);
 			return false;
 		} catch (UserAlreadyDefinedException e) {
-			M_log.error("A users already exists with EID of: "+id +"having email :"+ newEmail, e);
+			log.error("A users already exists with EID of: "+id +"having email :"+ newEmail, e);
 			return false;
 		}
 	}
 
+	public boolean updateUserEid(String id, String newEid)
+	{
+		try {
+			List<String> locksSucceeded = new ArrayList<String>();
+
+			List<String> locks = new ArrayList<String>();
+			locks.add(SECURE_UPDATE_USER_ANY);
+			locksSucceeded = unlock(locks, userReference(id));
+
+			if(!locksSucceeded.isEmpty()) {
+				UserEdit user = m_storage.edit(id);
+				if (user == null) {
+					log.warn("Can't find user " + id + " when trying to update user eid");
+					return false;
+				}
+				user.setEid(newEid);
+				((BaseUserEdit) user).setEvent(SECURE_UPDATE_USER_ANY);
+				commitEdit(user);
+				return true;
+			}
+			else {
+				log.warn("User with id: "+id+" failed permission checks" );
+				return false;
+			}
+		} catch (UserPermissionException e) {
+			log.warn("You do not have sufficient permission to edit the user eid with Id: "+id, e);
+			return false;
+		} catch (UserAlreadyDefinedException e) {
+			log.error("A user already exists with EID of: "+id +"having eid :"+ newEid, e);
+			return false;
+		}
+	}
 
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * UserEdit implementation
@@ -2430,7 +2470,12 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 		 */
 		public Date getCreatedDate()
 		{
-			return new Date(m_createdTime.getTime());
+			Date date = null;
+			if (m_createdTime != null) 
+			{
+				date = new Date(m_createdTime.getTime());
+			} 
+			return date;
 		}
 		/**
 		 * @inheritDoc
@@ -2445,7 +2490,11 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 		 */
 		public Date getModifiedDate()
 		{
-			return new Date(m_lastModifiedTime.getTime());
+			Date date = null;
+			if (m_lastModifiedTime != null) {
+				date = new Date(m_lastModifiedTime.getTime());
+			}
+			return date;
 		}
 		
 		/**
@@ -2915,7 +2964,7 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 		 */
 		public void valueUnbound(SessionBindingEvent event)
 		{
-			if (M_log.isDebugEnabled()) M_log.debug("valueUnbound()");
+			if (log.isDebugEnabled()) log.debug("valueUnbound()");
 
 			// catch the case where an edit was made but never resolved
 			if (m_active)

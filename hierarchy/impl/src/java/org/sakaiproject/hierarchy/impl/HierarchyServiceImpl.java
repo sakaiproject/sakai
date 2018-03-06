@@ -1,3 +1,18 @@
+/**
+ * Copyright (c) 2007-2016 The Apereo Foundation
+ *
+ * Licensed under the Educational Community License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *             http://opensource.org/licenses/ecl2
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 /*
 * Licensed to The Apereo Foundation under one or more contributor license
 * agreements. See the NOTICE file distributed with this work for
@@ -29,8 +44,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+
+import org.sakaiproject.db.api.SqlService;
 import org.sakaiproject.genericdao.api.search.Order;
 import org.sakaiproject.genericdao.api.search.Restriction;
 import org.sakaiproject.genericdao.api.search.Search;
@@ -41,16 +57,16 @@ import org.sakaiproject.hierarchy.dao.model.HierarchyNodePermission;
 import org.sakaiproject.hierarchy.dao.model.HierarchyPersistentNode;
 import org.sakaiproject.hierarchy.impl.utils.HierarchyImplUtils;
 import org.sakaiproject.hierarchy.model.HierarchyNode;
-import org.sakaiproject.db.api.SqlService;
+import org.sakaiproject.memory.api.Cache;
+import org.sakaiproject.memory.api.MemoryService;
 
 /**
  * The default implementation of the Hierarchy interface
  * 
  * @author Aaron Zeckoski (aaronz@vt.edu)
  */
+@Slf4j
 public class HierarchyServiceImpl implements HierarchyService {
-
-    private static Logger log = LoggerFactory.getLogger(HierarchyServiceImpl.class);
 
     private static int ORACLE_IN_CLAUSE_SIZE_LIMIT = 1000;
     private boolean oracle = false;
@@ -66,6 +82,17 @@ public class HierarchyServiceImpl implements HierarchyService {
     public void setSqlService(SqlService sqlService) {
         this.sqlService = sqlService;
     }
+    
+    private MemoryService memoryService;
+    public void setMemoryService(MemoryService memoryService){
+    	this.memoryService = memoryService;
+    }
+    
+    private Cache cache;
+    public void setCache(Cache cache){
+        this.cache = cache;
+    }
+    private final String CACHE_NAME = "org.sakaiproject.hierarchy.cache";
 
     // private SessionManager sessionManager;
     // public void setSessionManager(SessionManager sessionManager) {
@@ -81,6 +108,8 @@ public class HierarchyServiceImpl implements HierarchyService {
 
         // handle any DB migration/cleanup which needs to happen (mostly for upgrades)
         dao.fixupDatabase();
+        
+        cache = memoryService.getCache(CACHE_NAME);
     }
 
     public HierarchyNode createHierarchy(String hierarchyId) {
@@ -165,8 +194,19 @@ public class HierarchyServiceImpl implements HierarchyService {
     }
 
     public HierarchyNode getNodeById(String nodeId) {
+        String cacheKey = "n"+nodeId;
+        if(cache.containsKey(cacheKey)){
+            log.debug("--- Fetching getNodeById record from cache for: {}", cacheKey);
+            HierarchyNode ret = (HierarchyNode)cache.get(cacheKey);
+            if(ret != null) {
+                  return ret;
+            }
+        }
         HierarchyNodeMetaData metaData = getNodeMeta(nodeId);
-        return HierarchyImplUtils.makeNode(metaData);
+        HierarchyNode ret = HierarchyImplUtils.makeNode(metaData);
+        log.debug("+++ Adding getNodeById record to cache for: {}", cacheKey);
+        cache.put(cacheKey, ret);
+        return ret;
     }
 
 
@@ -181,6 +221,15 @@ public class HierarchyServiceImpl implements HierarchyService {
     }
 
     public Set<HierarchyNode> getChildNodes(String nodeId, boolean directOnly) {
+      String cacheKey = "cn"+nodeId;
+      if(cache.containsKey(cacheKey)){
+            log.debug("--- Fetching ChildNodes record from cache for: {}", cacheKey);
+            Set<HierarchyNode> set = (Set<HierarchyNode>)cache.get(cacheKey);
+            if(set != null) {
+                  return set;
+            }
+        }
+      
         Set<HierarchyNode> children = new HashSet<HierarchyNode>();
 
         HierarchyNodeMetaData parentMetaData = getNodeMeta(nodeId);
@@ -192,6 +241,8 @@ public class HierarchyServiceImpl implements HierarchyService {
         }
 
         if (childIdString == null) {
+            log.debug("+++ Adding Empty ChildNodes record to cache for: {}", cacheKey);
+            cache.put(cacheKey, children);
             return children;
         }
 
@@ -200,6 +251,8 @@ public class HierarchyServiceImpl implements HierarchyService {
         for (HierarchyNodeMetaData metaData : childNodeMetas) {
             children.add(HierarchyImplUtils.makeNode(metaData));
         }
+        log.debug("+++ Adding ChildNodes record to cache for: {}", cacheKey);
+        cache.put(cacheKey, children);
         return children;
     }
 

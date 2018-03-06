@@ -18,6 +18,12 @@
   .selectPageSize {
     margin-right: 0.7em;
   }
+  .truncate{
+    width: 180px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
 </style>
 
 #javascript("/sakai-content-tool/js/content.js")
@@ -189,31 +195,31 @@
 
     <div class="container-fluid">
       <div class="row">
-    		#if($listActions || $showHotDropboxWidget)
-    				<div class="col-lg-6 col-md-8 col-sm-8 col-xs-12 btn-group btn-group-sm" role="group" style="padding-left:0;">
-    					#if($listActions)
-    							#set ($itemsOnLine = 0)
-    							#foreach($key in $listActions.keySet())
-    								#set($action = $listActions.get("$key"))
-    								<button style="margin:0" class="btn btn-default" id="${action.id}-button"
-    									onclick="document.getElementById('sakai_action').value='doMultiItemDispatch';document.getElementById('rt_action').value='$action.id';document.getElementById('showForm').submit();"
-    									disabled="disabled" >$!action.label
-                                    </button>
-    							#end
+            #if($listActions || $showHotDropboxWidget)
+                    <div class="col-lg-6 col-md-8 col-sm-8 col-xs-12 btn-group btn-group-sm" role="group" style="padding-left:0;">
+                        #if($listActions)
+                                #set ($itemsOnLine = 0)
+                                #foreach($key in $listActions.keySet())
+                                    #set($action = $listActions.get("$key"))
+                                        <button style="margin:0" title="$!action.label ($tlang.getString("sakai_resources_list.messageActivateActions"))" class="btn btn-default" id="${action.id}-button"
+                                        onclick="document.getElementById('sakai_action').value='doMultiItemDispatch';document.getElementById('rt_action').value='$action.id';document.getElementById('showForm').submit();"
+                                        disabled="disabled" >$!action.label
+                                        </button>
+                                #end
 
                                 ####### begin SAK-23304, add Show and Hide
                                 ####### Show/Hide can not be part of listActions because it was not a multipleItemAction for an item.
                                 ####### listActions are a list of multipleItemAction that you can do on individual resource/collection items.
                                 #if (!$dropboxMode)
                                     #if($canShowHide)
-                                            <button  style="margin:0" class="btn btn-default" id="show-button" type="button"
-                                                onclick="document.getElementById('sakai_action').value='doMultiItemDispatch';document.getElementById('rt_action').value='show';document.getElementById('showForm').submit();"
-                                                disabled="disabled">$tlang.getString('avail.show')
-                                            </button>
-                                            <button  style="margin:0" class="btn btn-default" id="hide-button" type="button"
-                                                onclick="document.getElementById('sakai_action').value='doMultiItemDispatch';document.getElementById('rt_action').value='hide';document.getElementById('showForm').submit();"
-                                                disabled="disabled">$tlang.getString('avail.hide')
-                                            </button>
+                                        <button style="margin:0" title="$tlang.getString('avail.show') ($tlang.getString("sakai_resources_list.messageActivateActions"))" class="btn btn-default" id="show-button" type="button"
+                                            onclick="document.getElementById('sakai_action').value='doMultiItemDispatch';document.getElementById('rt_action').value='show';document.getElementById('showForm').submit();"
+                                            disabled="disabled">$tlang.getString('avail.show')
+                                        </button>
+                                        <button style="margin:0" title="$tlang.getString('avail.hide') ($tlang.getString("sakai_resources_list.messageActivateActions"))" class="btn btn-default" id="hide-button" type="button"
+                                            onclick="document.getElementById('sakai_action').value='doMultiItemDispatch';document.getElementById('rt_action').value='hide';document.getElementById('showForm').submit();"
+                                            disabled="disabled">$tlang.getString('avail.hide')
+                                        </button>
                                     #end
                                  #end
                                  ####### end SAK-23304, add Show and Hide
@@ -397,12 +403,6 @@
 					</td>
 					<td style="text-indent:$width" class="specialLink title" scope="row">
 					#if($item.isHot("$!dropboxHighlight")) #set($iconDecor="recentItem") #set($newNote="new") #else  #set($iconDecor="nil")  #set($newNote="")#end 
-              #if($validator.escapeHtml($item.name).length() > 25)
-                #set($trimmed = $validator.escapeHtml($item.name).substring(0,25))
-                #set($trimmedTitle = "$trimmed ...")
-              #else
-                #set($trimmedTitle = $validator.escapeHtml($item.name))
-              #end
 
               #if ($item.canRead())
 								#if($item.isCollection()) 
@@ -412,11 +412,11 @@
 										<span class="sr-only">$!item.hoverText</span>
 									#else
 										<span class="sr-only">$!item.hoverText</span>
-										<a class="$iconDecor $item.iconClass" href="#"
+										<a class="$iconDecor $item.iconClass" href="#$qid" name="$qid"
 											#if($item.isExpanded())
-												onclick="document.getElementById('sakai_action').value='doCollapse_collection';document.getElementById('collectionId').value='$qid';document.getElementById('showForm').submit();"
+												onclick="document.getElementById('sakai_action').value='doCollapse_collection';document.getElementById('collectionId').value='$qid';thisForm=document.getElementById('showForm');thisForm.action+='#$qid';thisForm.submit();"
 											#else
-												onclick="document.getElementById('sakai_action').value='doExpand_collection';document.getElementById('collectionId').value='$qid';document.getElementById('showForm').submit();"
+												onclick="document.getElementById('sakai_action').value='doExpand_collection';document.getElementById('collectionId').value='$qid';thisForm=document.getElementById('showForm');thisForm.action+='#$qid';thisForm.submit();""
 											#end
 											title= "$item.expandLabel"><span class="sr-only">$item.expandLabel: $validator.escapeHtml($item.name)</span></a>
 									#end
@@ -447,23 +447,23 @@
 									&#169;
 								#elseif($item.isCollection())
     								#if($item.isTooBigNav())
-                      <span class="visible-sm-inline visible-xs-inline">$trimmedTitle</span>
+                      <span class="visible-sm-inline-block visible-xs-inline-block truncate">$validator.escapeHtml($item.name)</span>
                       <span class="hidden-sm hidden-xs">$validator.escapeHtml($item.name)</span>
 									#else
 										<a href="#"
     										onclick="document.getElementById('sakai_action').value='doNavigate';document.getElementById('collectionId').value='$qid';document.getElementById('navRoot').value='$validator.escapeUrl($item.root)';document.getElementById('showForm').submit();"
     										title= "$item.hoverText">
-                        <span class="visible-sm-inline visible-xs-inline">$trimmedTitle</span>
+                        <span class="visible-sm-inline-block visible-xs-inline-block truncate">$validator.escapeHtml($item.name)</span>
                         <span class="hidden-sm hidden-xs">$validator.escapeHtml($item.name)</span>
     									</a>
 									#end	
 								#else
 									#if($item.isTooBigNav())
-                        <span class="visible-sm-inline visible-xs-inline">$trimmedTitle</span>
+                        <span class="visible-sm-inline-block visible-xs-inline-block truncate">$validator.escapeHtml($item.name)</span>
                         <span class="hidden-sm hidden-xs">$validator.escapeHtml($item.name)</span>
 									#else
 										<a href="$item.accessUrl" target="$item.target" title="$item.hoverText">
-                        <span class="visible-sm-inline visible-xs-inline">$trimmedTitle</span>
+                        <span class="visible-sm-inline-block visible-xs-inline-block truncate">$validator.escapeHtml($item.name)</span>
                         <span class="hidden-sm hidden-xs">$validator.escapeHtml($item.name)</span>
     									</a>
 									#end
@@ -475,14 +475,14 @@
 									<span class="fa fa-lock" aria-hidden="true"></span>
 									<span class="sr-only">$clang.getString('locked')</span>
 								#end
-                <span class="visible-sm-inline visible-xs-inline">$trimmedTitle</span>
+                <span class="visible-sm-inline-block visible-xs-inline-block truncate">$validator.escapeHtml($item.name)</span>
                 <span class="hidden-sm hidden-xs">$validator.escapeHtml($item.name)</span>
 								#if ($item.hasCopyrightAlert())
 									&#169;
 								#end
 							#end 
 							#if ($item.description !="" && $item.description)
-								<a class="fa fa-info-circle" tabindex="0" data-placement="bottom" role="button" data-toggle="popover" data-trigger="focus" data-content="$validator.escapeHtml($item.description)"></a>
+								<a class="fa fa-info-circle" tabindex="0" data-placement="bottom" role="button" data-toggle="popover" data-trigger="focus" data-content="$validator.escapeHtmlTextarea($item.description)"></a>
 							#end
 					</td>
 					<td headers="actions1"  style="white-space:nowrap;vertical-align:middle"  class="attach">

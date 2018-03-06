@@ -1,3 +1,18 @@
+/**
+ * Copyright (c) 2003-2017 The Apereo Foundation
+ *
+ * Licensed under the Educational Community License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *             http://opensource.org/licenses/ecl2
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.sakaiproject.component.app.scheduler.jobs;
 
 import java.util.Collections;
@@ -5,13 +20,16 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
 
+import lombok.extern.slf4j.Slf4j;
+
 import org.quartz.DisallowConcurrentExecution;
 import org.quartz.InterruptableJob;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.quartz.UnableToInterruptJobException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import org.springframework.beans.factory.annotation.Autowired;
+
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.AuthzPermissionException;
 import org.sakaiproject.authz.api.GroupNotDefinedException;
@@ -19,7 +37,6 @@ import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.javax.PagingPosition;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.SessionManager;
-import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * Class to load all the sites, check if they have a provided group and if so refresh
@@ -28,10 +45,8 @@ import org.springframework.beans.factory.annotation.Autowired;
  * @author Matthew Buckett
  */
 @DisallowConcurrentExecution
+@Slf4j
 public class AuthzGroupProviderSync implements InterruptableJob {
-
-	private final Logger log = LoggerFactory.getLogger(AuthzGroupProviderSync.class);
-	
 	// If it's been modified in the last hour ignore it.
 	private long refreshAge = 3600000;
 	

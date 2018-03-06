@@ -21,12 +21,18 @@
 
 package org.sakaiproject.site.impl;
 
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
+import lombok.extern.slf4j.Slf4j;
+
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.event.CacheEventListener;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.MemoryService;
@@ -35,20 +41,14 @@ import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.api.ToolConfiguration;
 
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-
 /**
  * <p>
  * SiteCacheImpl is a cache tuned for Site (and page / tool) access.
  * </p>
  * @deprecated after 10, remove this for Sakai 11
  */
+@Slf4j
 public class SiteCacheImpl implements CacheEventListener, SiteCache {
-	
-	private static Logger M_log = LoggerFactory.getLogger(SiteCacheImpl.class);
 	/** Map of a tool id to a cached site's tool configuration instance. */
 	protected Map<String, ToolConfiguration> m_tools = new ConcurrentHashMap<String, ToolConfiguration>();
 	/** Map of a page id to a cached site's SitePage instance. */
@@ -304,7 +304,7 @@ public class SiteCacheImpl implements CacheEventListener, SiteCache {
 			return;
 		}
 
-		if (M_log.isDebugEnabled()) M_log.debug("SiteCacheSafe:"
+		if (log.isDebugEnabled()) log.debug("SiteCacheSafe:"
                         + " eventCount: " + cacheEventCount
                         + " tools: " + m_tools.size()
                         + " pages: " + m_pages.size()
@@ -313,13 +313,13 @@ public class SiteCacheImpl implements CacheEventListener, SiteCache {
 	}
 
 	public void dispose() {
-		M_log.debug("ehcache event: dispose");	
+		log.debug("ehcache event: dispose");	
 	}
 
 	public void notifyElementEvicted(Ehcache cache, Element element) {
 		
-		if (M_log.isDebugEnabled()) {
-			M_log.debug("ehcache event: notifyElementEvicted: "+element.getKey());
+		if (log.isDebugEnabled()) {
+			log.debug("ehcache event: notifyElementEvicted: "+element.getKey());
 		}
 		
 		notifyCacheRemove(element.getObjectKey().toString(), element.getObjectValue());
@@ -327,8 +327,8 @@ public class SiteCacheImpl implements CacheEventListener, SiteCache {
 	}
 
 	public void notifyElementExpired(Ehcache cache, Element element) {
-		if (M_log.isDebugEnabled()) {
-			M_log.debug("ehcache event: notifyElementExpired: "+element.getKey());
+		if (log.isDebugEnabled()) {
+			log.debug("ehcache event: notifyElementExpired: "+element.getKey());
 		}
 		
 		notifyCacheRemove(element.getObjectKey().toString(), element.getObjectValue());
@@ -337,8 +337,8 @@ public class SiteCacheImpl implements CacheEventListener, SiteCache {
 
 	public void notifyElementPut(Ehcache cache, Element element)
 			throws CacheException {
-		if (M_log.isDebugEnabled()) {
-			M_log.debug("ehcache event: notifyElementPut: "+element.getKey());
+		if (log.isDebugEnabled()) {
+			log.debug("ehcache event: notifyElementPut: "+element.getKey());
 		}
         notifyCachePut(element.getObjectKey().toString(), element.getObjectValue());
 		updateSiteCacheStatistics();
@@ -346,8 +346,8 @@ public class SiteCacheImpl implements CacheEventListener, SiteCache {
 
 	public void notifyElementRemoved(Ehcache cache, Element element)
 			throws CacheException {
-		if (M_log.isDebugEnabled()) {
-			M_log.debug("ehcache event: notifyElementRemoved: "+element.getKey());	
+		if (log.isDebugEnabled()) {
+			log.debug("ehcache event: notifyElementRemoved: "+element.getKey());	
 		}
         notifyCacheRemove(element.getObjectKey().toString(), element.getObjectValue());
 		updateSiteCacheStatistics();
@@ -355,15 +355,15 @@ public class SiteCacheImpl implements CacheEventListener, SiteCache {
 
 	public void notifyElementUpdated(Ehcache cache, Element element)
 			throws CacheException {
-		if (M_log.isDebugEnabled()) {
-			M_log.debug("ehcache event: notifyElementUpdated: "+element.getKey());
+		if (log.isDebugEnabled()) {
+			log.debug("ehcache event: notifyElementUpdated: "+element.getKey());
 		}
 		updateSiteCacheStatistics();
 	}
 
 	public void notifyRemoveAll(Ehcache cache) {
-		if (M_log.isDebugEnabled()) {
-			M_log.debug("ehcache event: notifyRemoveAll");
+		if (log.isDebugEnabled()) {
+			log.debug("ehcache event: notifyRemoveAll");
 		}
         notifyCacheClear();
 		updateSiteCacheStatistics();
@@ -372,7 +372,7 @@ public class SiteCacheImpl implements CacheEventListener, SiteCache {
 	@Override
 	public Object clone() throws CloneNotSupportedException 
 	{
-		M_log.debug("ehcache event: clone()");
+		log.debug("ehcache event: clone()");
 		
 		// Creates a clone of this listener. This method will only be called by ehcache before a cache is initialized.
 		// This may not be possible for listeners after they have been initialized. Implementations should throw CloneNotSupportedException if they do not support clone.

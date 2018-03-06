@@ -34,9 +34,9 @@ import javax.faces.component.UIViewRoot;
 import javax.faces.application.Application;
 import javax.faces.application.ViewHandler;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
 import org.sakaiproject.section.api.coursemanagement.CourseSection;
 import org.sakaiproject.section.api.coursemanagement.EnrollmentRecord;
 import org.sakaiproject.section.api.exception.RoleConfigurationException;
@@ -52,11 +52,10 @@ import org.sakaiproject.tool.section.jsf.JsfUtil;
  * @author <a href="mailto:jholtzman@berkeley.edu">Josh Holtzman</a>
  *
  */
+@Slf4j
 public class StudentViewBean extends EditStudentSectionsBean implements Serializable {
 
 	private static final long serialVersionUID = 1L;
-
-	private static final Logger log = LoggerFactory.getLogger(StudentViewBean.class);
 
 	private boolean externallyManaged;
 	private boolean joinAllowed;

@@ -1,19 +1,20 @@
+/**
+ * Copyright (c) 2003-2017 The Apereo Foundation
+ *
+ * Licensed under the Educational Community License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *             http://opensource.org/licenses/ecl2
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.sakaiproject.component.app.scheduler.jobs.autoimport;
 
-import org.quartz.Job;
-import org.quartz.JobBuilder;
-import org.quartz.JobDataMap;
-import org.quartz.JobDetail;
-import org.quartz.JobExecutionContext;
-import org.quartz.JobExecutionException;
-import org.quartz.Scheduler;
-import org.quartz.SchedulerException;
-import org.sakaiproject.api.app.scheduler.SchedulerManager;
-import org.sakaiproject.component.api.ServerConfigurationService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import javax.inject.Inject;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -26,12 +27,27 @@ import java.nio.file.StandardCopyOption;
 import java.util.regex.Pattern;
 import java.util.regex.Matcher;
 
+import javax.inject.Inject;
+
+import lombok.extern.slf4j.Slf4j;
+
+import org.quartz.Job;
+import org.quartz.JobBuilder;
+import org.quartz.JobDataMap;
+import org.quartz.JobDetail;
+import org.quartz.JobExecutionContext;
+import org.quartz.JobExecutionException;
+import org.quartz.Scheduler;
+import org.quartz.SchedulerException;
+
+import org.sakaiproject.api.app.scheduler.SchedulerManager;
+import org.sakaiproject.component.api.ServerConfigurationService;
+
 /**
  * Attempts to download a file that lists all the site archives to import automatically.
  */
+@Slf4j
 public class GetArchivesJob implements Job {
-
-    private final Logger log = LoggerFactory.getLogger(GetArchivesJob.class);
 
     private final Pattern uuidRegex = Pattern.compile("[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}");
 

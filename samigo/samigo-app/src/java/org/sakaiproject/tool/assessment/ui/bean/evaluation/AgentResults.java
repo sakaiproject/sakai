@@ -31,8 +31,7 @@ import java.util.Set;
 import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.sakaiproject.content.api.FilePickerHelper;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.tool.api.ToolSession;
@@ -45,12 +44,12 @@ import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.util.AttachmentUtil;
 import org.sakaiproject.tool.cover.SessionManager;
 
-
 /**
  * A set of information for an agent.  This contains both totalScores
  * and questionScores information.
 */
 
+@Slf4j
 public class AgentResults
     implements Serializable
 {
@@ -58,7 +57,6 @@ public class AgentResults
 	 * 
 	 */
 	private static final long serialVersionUID = 2820488402465439395L;
-	private static Logger log = LoggerFactory.getLogger(AgentResults.class);
 	
   private Long assessmentGradingId;
   private Long itemGradingId;
@@ -90,7 +88,7 @@ public class AgentResults
   private List itemGradingArrayList;
   private String rationale="";
   private boolean retakeAllowed;
-  private boolean isAutoSubmitted;
+  private Boolean isAutoSubmitted;
   private boolean isAttemptDateAfterDueDate;
   private ItemGradingData itemGrading;
   private AssessmentGradingData assessmentGrading;
@@ -404,11 +402,11 @@ public class AgentResults
 		this.retakeAllowed = retakeAllowed;
 	}
 	
-	public boolean getIsAutoSubmitted() {
+	public Boolean getIsAutoSubmitted() {
 		return this.isAutoSubmitted;
 	}
 	
-	public void setIsAutoSubmitted(boolean isAutoSubmitted) {
+	public void setIsAutoSubmitted(Boolean isAutoSubmitted) {
 		this.isAutoSubmitted = isAutoSubmitted;
 	}
 	
@@ -518,9 +516,9 @@ public class AgentResults
 	
 	public String getFormatedTimeElapsed() {
 	    String timeElapsedInString = "n/a";
-	    if (this.timeElapsed!=null && this.timeElapsed.intValue() >0)
+	    if (this.timeElapsed!=null && this.timeElapsed >0)
 	    {
-	      int totalSec = this.timeElapsed.intValue();
+	      int totalSec = this.timeElapsed;
 	      int hr = totalSec / 3600;
 	      int min = (totalSec % 3600)/60;
 	      int sec = (totalSec % 3600)%60;

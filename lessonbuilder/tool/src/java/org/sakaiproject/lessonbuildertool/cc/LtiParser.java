@@ -1,3 +1,18 @@
+/**
+ * Copyright (c) 2003-2016 The Apereo Foundation
+ *
+ * Licensed under the Educational Community License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *             http://opensource.org/licenses/ecl2
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.sakaiproject.lessonbuildertool.cc;
 
 /***********
@@ -42,18 +57,14 @@ package org.sakaiproject.lessonbuildertool.cc;
  **********************************************************************************/
 
 import java.io.IOException;
-import java.util.Iterator;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.jdom.Attribute;
+import lombok.extern.slf4j.Slf4j;
+
 import org.jdom.Element;
-import org.jdom.JDOMException;
 import org.jdom.Namespace;
-import org.jdom.xpath.XPath;
 
+@Slf4j
 public class LtiParser extends AbstractParser implements ContentParser {
-  private static final Logger log = LoggerFactory.getLogger(LtiParser.class);
   private static final Namespace LT_NS = Namespace.getNamespace("dt", "http://www.imsglobal.org/xsd/imsbasiclti_v1p0");
   
   private static final String FILE="file";
@@ -70,7 +81,7 @@ public class LtiParser extends AbstractParser implements ContentParser {
     try {
       //ok, so we're looking at a discussion topic here...
       Element blti = getXML(the_cartridge, ((Element)the_resource.getChildren(FILE, the_handler.getNs().cc_ns()).get(0)).getAttributeValue(HREF));
-log.info("blti="+blti);
+      log.info("blti="+blti);
       Namespace topicNs = the_handler.getNs().blti_ns();
       the_handler.startLti(blti.getChildText(TITLE, topicNs),
                                   blti.getChild(TEXT, topicNs).getAttributeValue(TEXTTYPE),

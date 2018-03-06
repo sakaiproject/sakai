@@ -11,7 +11,7 @@
 	<sakai:view_content>
 
 <script>includeLatestJQuery('main_edit.jsp');</script>
-<link rel="stylesheet" href="/library/webjars/jquery-ui/1.11.3/jquery-ui.min.css" type="text/css" />
+<link rel="stylesheet" href="/library/webjars/jquery-ui/1.12.1/jquery-ui.min.css" type="text/css" />
 <script type="text/javascript" src="/library/js/lang-datepicker/lang-datepicker.js"></script>
 <script type="text/javascript" src="js/syllabus.js"></script>
 <script type="text/javascript">
@@ -24,7 +24,7 @@
   							input: $(this),
   							useTime: 1,
   							parseFormat: 'YYYY-MM-DD HH:mm:ss',
-  							allowEmptyDate: false,
+  							allowEmptyDate: true,
   							val: $(this).val(),
   							ashidden: {
   									iso8601: $(this).attr('id').replace(idPrefix,'').replace(':dataStartDate','dataStartDateISO8601')}
@@ -35,7 +35,7 @@
   							input: $(this),
   							useTime: 1,
   							parseFormat: 'YYYY-MM-DD HH:mm:ss',
-  							allowEmptyDate: false,
+  							allowEmptyDate: true,
   							val: $(this).val(),
   							ashidden: {
   									iso8601: $(this).attr('id').replace(idPrefix,'').replace(':dataEndDate','dataEndDateISO8601')}
@@ -202,41 +202,36 @@
         </script>
 
 		<h:form id="syllabusMainEdit">
-		<h:panelGroup>
-		  <f:verbatim><ul class="navIntraTool actionToolbar" role="menu"></f:verbatim> 
-		  <%-- (gsilver) cannot pass a needed title attribute to these next items --%>
-		  <h:panelGroup rendered="#{SyllabusTool.addItem == 'true'}">
-			   <f:verbatim><li role="menuitem" class="firstToolBarItem"> <span></f:verbatim>
-				  	<h:commandLink action="#{SyllabusTool.processListNew}" 
-				  		styleClass="actionLink" 
-				  		onmousedown="assignWarningClick(this);"
-					    rendered="#{SyllabusTool.addItem == 'true'}">
-					    	<h:outputText value="#{msgs.bar_new}"/>
-					</h:commandLink>
-				<f:verbatim></span></li></f:verbatim>
-			</h:panelGroup>
-			<h:panelGroup rendered="#{SyllabusTool.bulkAddItem == 'true'}">
-				<f:verbatim><li role="menuitem" ><span></f:verbatim>
-				   	<h:commandLink
-							action="#{SyllabusTool.processListNewBulkMainEdit}"
-							onmousedown="assignWarningClick(this);"
-				   			rendered="#{SyllabusTool.bulkAddItem == 'true'}">
-								<h:outputText value="#{msgs.bar_new_bulk}"/>
-				   	</h:commandLink>
-			   	<f:verbatim></span></li></f:verbatim>
-		   	</h:panelGroup>
-		   	<h:panelGroup rendered="#{SyllabusTool.addOrEdit == 'true'}">
-			   	<f:verbatim><li role="menuitem" ><span></f:verbatim>
-				   	<h:commandLink
-							action="#{SyllabusTool.processStudentView}"
-							onmousedown="assignWarningClick(this);"
-				   			rendered="#{SyllabusTool.addOrEdit == 'true'}">
-					    		<h:outputText value="#{msgs.bar_student_view}"/>
-					</h:commandLink>
-				<f:verbatim></span></li></f:verbatim>
-			</h:panelGroup>
-		   	<f:verbatim></ul></f:verbatim>		
-   	      </h:panelGroup>
+		<f:verbatim><ul class="navIntraTool actionToolbar"></f:verbatim>
+				<h:panelGroup rendered="#{SyllabusTool.addItem == 'true'}">
+					<f:verbatim>
+						<li class="firstToolBarItem" role="menuitem">
+							<span>
+					</f:verbatim>
+								<h:commandLink action="#{SyllabusTool.processListNew}" styleClass="actionLink" onmousedown="assignWarningClick(this);"
+										rendered="#{SyllabusTool.addItem == 'true'}">
+									<h:outputText value="#{msgs.bar_new}"/>
+								</h:commandLink>
+					<f:verbatim>
+							</span>
+						</li>
+					</f:verbatim>
+				</h:panelGroup>
+				<h:panelGroup rendered="#{SyllabusTool.bulkAddItem == 'true'}">
+					<f:verbatim>
+						<li role="menuitem">
+							<span>
+					</f:verbatim>
+								<h:commandLink action="#{SyllabusTool.processListNewBulkMainEdit}" onmousedown="assignWarningClick(this);"
+										rendered="#{SyllabusTool.bulkAddItem == 'true'}">
+									<h:outputText value="#{msgs.bar_new_bulk}"/>
+								</h:commandLink>
+					<f:verbatim>
+							</span>
+						</li>
+					</f:verbatim>
+				</h:panelGroup>
+			<f:verbatim></ul></f:verbatim>
    	      
    	      <h:messages globalOnly="true" styleClass="alertMessage" rendered="#{!empty facesContext.maximumSeverity}" />
 	      <syllabus:syllabus_if test="#{SyllabusTool.syllabusItem.redirectURL}">
@@ -328,21 +323,25 @@
 					 action="#{SyllabusTool.processMainEditCancel}"
 					 title="#{msgs.reset}"
 				     rendered="#{! SyllabusTool.displayNoEntryMsg}"
-					 accesskey="r" 	/>
+					 accesskey="s" styleClass="active"/>
+				<h:commandButton
+					value="#{msgs.cancel}"
+					action="#{SyllabusTool.processStudentView}"
+					title="#{msgs.cancel}"
+					rendered="#{SyllabusTool.addOrEdit == 'true'}"
+					onclick="assignWarningClick(this);"
+					accesskey="c" />
 			<f:verbatim></p></f:verbatim>		  
 		  </syllabus:syllabus_if>
 
-          <syllabus:syllabus_ifnot test="#{SyllabusTool.syllabusItem.redirectURL}">
-            <sakai:tool_bar_message value="#{msgs.redirect_sylla}" />
-
-            <syllabus:syllabus_if test="#{SyllabusTool.openInNewWindowAsString}">
-                <syllabus:syllabus_iframe redirectUrl="#{SyllabusTool.syllabusItem.redirectURL}" width="100%"/>
-            </syllabus:syllabus_if>
-            <syllabus:syllabus_ifnot test="#{SyllabusTool.openInNewWindowAsString}">
-                <h:outputText escape="false"
-                              value="<script>javascript:printFriendly('#{SyllabusTool.syllabusItem.redirectURL}');</script>"/>
-            </syllabus:syllabus_ifnot>
-          </syllabus:syllabus_ifnot>
+			<syllabus:syllabus_ifnot test="#{SyllabusTool.syllabusItem.redirectURL}">
+				<sakai:tool_bar_message value="#{msgs.redirect_sylla}" />
+				<br/>
+				<h:outputText escape="false" value="#{msgs.redirect_explanation} " />
+				<h:outputLink target="_blank" rel="noopener" title="#{msgs.openLinkNewWindow}" value="#{SyllabusTool.syllabusItem.redirectURL}">
+					<h:outputText escape="false" value="#{SyllabusTool.syllabusItem.redirectURL}" />
+				</h:outputLink>
+			</syllabus:syllabus_ifnot>
 
         </h:form>
 	</sakai:view_content>

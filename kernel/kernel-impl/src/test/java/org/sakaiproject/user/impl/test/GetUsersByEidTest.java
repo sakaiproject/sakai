@@ -1,32 +1,32 @@
-/**********************************************************************************
-*
-* $Id$
-*
-***********************************************************************************
-*
-* Copyright (c) 2008 The Sakai Foundation
-*
-* Licensed under the Educational Community License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-*       http://www.opensource.org/licenses/ECL-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
-*
-**********************************************************************************/
+/**
+ * Copyright (c) 2003-2016 The Apereo Foundation
+ *
+ * Licensed under the Educational Community License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *             http://opensource.org/licenses/ecl2
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 package org.sakaiproject.user.impl.test;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
+
+import lombok.extern.slf4j.Slf4j;
+
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
+
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.MemoryService;
@@ -38,20 +38,14 @@ import org.sakaiproject.user.api.UserDirectoryProvider;
 import org.sakaiproject.user.api.UserEdit;
 import org.sakaiproject.user.impl.DbUserService;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
-
 /**
  * This is a white-box-ish test which uses inner knowledge of the current
  * UserDirectoryService implementation.
  */
+@Slf4j
 public class GetUsersByEidTest extends SakaiKernelTestBase {
-	private static Logger log = LoggerFactory.getLogger(GetUsersByEidTest.class);
-	
-    // Oracle will throw a SQLException if we put more than this into a
-    // "WHERE tbl.col IN (:paramList)" query, and so we need to test for
+	// Oracle will throw a SQLException if we put more than this into a
+	// "WHERE tbl.col IN (:paramList)" query, and so we need to test for
 	// that condition.
 	private static int MAX_NUMBER_OF_SQL_PARAMETERS_IN_LIST = 1000;
 	

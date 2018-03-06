@@ -7,6 +7,9 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.util.Properties;
+
+import lombok.extern.slf4j.Slf4j;
+
 import org.tsugi.casa.objects.Launch;
 import org.tsugi.casa.objects.Use;
 import org.tsugi.casa.objects.Contact;
@@ -16,6 +19,7 @@ import org.tsugi.casa.objects.Application;
 
 import org.tsugi.jackson.JacksonUtil;
 
+@Slf4j
 public class CASATest {
 
 	@Before
@@ -65,9 +69,7 @@ public class CASATest {
 		output = JacksonUtil.prettyPrintLog(apps);
 		assertNotNull(output);
 
-		
-System.out.println("output="+output);
-		
+		log.debug("output={}", output);
 	}
 
 }

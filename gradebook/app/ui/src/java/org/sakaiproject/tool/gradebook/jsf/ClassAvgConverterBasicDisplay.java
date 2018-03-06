@@ -25,25 +25,24 @@ package org.sakaiproject.tool.gradebook.jsf;
 import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.sakaiproject.tool.gradebook.ui.AssignmentGradeRow;
-import org.sakaiproject.tool.gradebook.ui.GradebookBean;
-import org.sakaiproject.tool.gradebook.Assignment;
+import lombok.extern.slf4j.Slf4j;
+
+import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.tool.gradebook.Category;
 import org.sakaiproject.tool.gradebook.CourseGrade;
 import org.sakaiproject.tool.gradebook.Gradebook;
+import org.sakaiproject.tool.gradebook.GradebookAssignment;
 import org.sakaiproject.tool.gradebook.LetterGradePercentMapping;
-import org.sakaiproject.component.api.ServerConfigurationService;
+import org.sakaiproject.tool.gradebook.ui.AssignmentGradeRow;
+import org.sakaiproject.tool.gradebook.ui.GradebookBean;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
 
 /**
  * This formatting-only converter displays appropriate class avg depending on
  * grade entry method for this gradebook. Truncates with 0 decimals or uses the config setting.
  */
+@Slf4j
 public class ClassAvgConverterBasicDisplay extends PointsConverter {
-	private static final Logger log = LoggerFactory.getLogger(ClassAvgConverterBasicDisplay.class);
-
 	private int averageDecimalPlaces = 0;
 
 	public ClassAvgConverterBasicDisplay() {
@@ -74,8 +73,8 @@ public class ClassAvgConverterBasicDisplay extends PointsConverter {
 		Gradebook gradebook;
 
 		if (value != null) {
-			if (value instanceof Assignment) {
-				Assignment assignment = (Assignment)value;
+			if (value instanceof GradebookAssignment) {
+				GradebookAssignment assignment = (GradebookAssignment)value;
 				gradebook = assignment.getGradebook();
 
 				if (gradebook.getGrade_type() == GradebookService.GRADE_TYPE_POINTS) {

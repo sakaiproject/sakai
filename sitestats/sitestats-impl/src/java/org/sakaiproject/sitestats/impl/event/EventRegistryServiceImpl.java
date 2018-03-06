@@ -18,8 +18,10 @@
  */
 package org.sakaiproject.sitestats.impl.event;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.util.*;
+
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.MemoryService;
@@ -37,12 +39,9 @@ import org.sakaiproject.sitestats.impl.parser.ToolFactoryImpl;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.util.ResourceLoader;
 
-import java.util.*;
-
-
+@Slf4j
 public class EventRegistryServiceImpl implements EventRegistry, EventRegistryService, Observer {
 	/** Static fields */
-	private static Logger					LOG							= LoggerFactory.getLogger(EventRegistryServiceImpl.class);
 	private static final String			CACHENAME					= EventRegistryServiceImpl.class.getName();
 	private static final String			CACHENAME_EVENTREGISTRY		= "eventRegistry";
 	private static ResourceLoader		msgs						= new ResourceLoader("Messages");
@@ -60,7 +59,7 @@ public class EventRegistryServiceImpl implements EventRegistry, EventRegistrySer
 	private List<String> 				serverEventIds				= new ArrayList<String>();
 
 	/** Caching */
-	private Cache						eventRegistryCache			= null;
+	private Cache<String, List>						eventRegistryCache			= null;
 
 	/** Sakai services */
 	private StatsManager				M_sm;
@@ -69,10 +68,10 @@ public class EventRegistryServiceImpl implements EventRegistry, EventRegistrySer
 	private MemoryService				M_ms;
 	private ServerConfigurationService	M_scs;
 
-
 	// ################################################################
 	// Spring methods
 	// ################################################################
+	@Override
 	public void setStatsManager(StatsManager m_sm) {
 		M_sm = m_sm;
 	}
@@ -108,10 +107,10 @@ public class EventRegistryServiceImpl implements EventRegistry, EventRegistrySer
 
 	public void init() {
 		String willCheckLocalEventNamesFirst = checkLocalEventNamesFirst ? "Local event names in sitestats-bundles will be checked first" : "Tool specified event names (Statisticable interface) will be checked first";
-		LOG.info("init(): " + willCheckLocalEventNamesFirst);
+		log.info("init(): " + willCheckLocalEventNamesFirst);
 		
 		// configure cache
-		eventRegistryCache = M_ms.newCache(CACHENAME);		
+		eventRegistryCache = M_ms.getCache(CACHENAME);		
 	}
 
 	// ################################################################
@@ -204,7 +203,7 @@ public class EventRegistryServiceImpl implements EventRegistry, EventRegistrySer
 			eventName = secondEr.getEventName(eventId);
 		}
 		if(eventName == null) {
-			LOG.warn("Missing resource bundle for event id: "+eventId);
+			log.warn("Missing resource bundle for event id: "+eventId);
 			eventName = eventId;
 		}
 		return eventName;
@@ -222,11 +221,11 @@ public class EventRegistryServiceImpl implements EventRegistry, EventRegistrySer
 				toolName = M_tm.getTool(toolId).getTitle();
 			}catch(Exception e){
 				try{
-					LOG.debug("No sakai tool found for toolId: " + toolId
+					log.debug("No sakai tool found for toolId: " + toolId
 							+ " (tool undeployed?). Using bundle (if supplied) in sitestats/sitestats-impl/impl/src/bundle/org/sakaiproject/sitestats/impl/bundle/ for tool name.");
 					toolName = msgs.getString(toolId, toolId);
 				}catch(Exception e1){
-					LOG.debug("No translation found for toolId: " + toolId
+					log.debug("No translation found for toolId: " + toolId
 							+ " - using toolId as tool name. Please specify it in sitestats/sitestats-impl/impl/src/bundle/org/sakaiproject/sitestats/impl/bundle/");
 					toolName = toolId;
 				}
@@ -327,7 +326,7 @@ public class EventRegistryServiceImpl implements EventRegistry, EventRegistrySer
 			if(tools != null && icons != null) {
 				int count = tools.length;
 				if(tools.length != icons.length) {
-					LOG.warn("Number of values for property 'sitestats.toolicons.tools' doesn't match number of values in 'sitestats.toolicons.icons'! Using smaller number.");
+					log.warn("Number of values for property 'sitestats.toolicons.tools' doesn't match number of values in 'sitestats.toolicons.icons'! Using smaller number.");
 					if(icons.length < count) {
 						count = icons.length;
 					}
@@ -336,7 +335,7 @@ public class EventRegistryServiceImpl implements EventRegistry, EventRegistrySer
 					toolIdIconMap.put(tools[i], icons[i]);
 				}
 			}else if((tools != null && icons == null) || (tools == null && icons != null)) {
-				LOG.warn("Both 'sitestats.toolicons.tools' and 'sitestats.toolicons.icons' properties are required!");
+				log.warn("Both 'sitestats.toolicons.tools' and 'sitestats.toolicons.icons' properties are required!");
 			}
 		}
 		return toolIdIconMap.get(toolId);
@@ -399,7 +398,7 @@ public class EventRegistryServiceImpl implements EventRegistry, EventRegistrySer
 
 			// Cache Event Registry
 			eventRegistryCache.put(CACHENAME_EVENTREGISTRY, eventRegistry);
-			LOG.debug("Cached EventRegistry.");
+			log.debug("Cached EventRegistry.");
 		}
 		// STAT-380 ensure we do not return a null from this method
 		if (eventRegistry == null) {
@@ -415,7 +414,7 @@ public class EventRegistryServiceImpl implements EventRegistry, EventRegistrySer
 			eventIdToolMap = null;
 			toolEventIds = null;
 			anonymousToolEventIds = null;
-			LOG.debug("EventRegistry expired. Reloading...");
+			log.debug("EventRegistry expired. Reloading...");
 		}
 	}
 

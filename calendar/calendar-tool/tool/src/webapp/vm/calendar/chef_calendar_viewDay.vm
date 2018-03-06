@@ -159,8 +159,8 @@
                         #end
                         <a href="#toolLinkParam("$action" "doDescription" "eventReference=$validator.escapeUrl($x.getEvent().getReference())")" 
                            title="$x.getEvent().getDisplayName() - $validator.escapeHtml($x.getEvent().getSiteName())">
-                        #iconImage ($x.getEvent().getType())
-                        $validator.escapeHtml($x.getEvent().getDisplayName())</a>   
+                            <span class="icon $eventIconMap.get($x.getEvent().getType())" title="$localizedEventTypes.get($x.getEvent().getType())" ></span>
+                                $validator.escapeHtml($x.getEvent().getDisplayName())</a>
                         </td> 
                         #set($counter = $counter +1)
                     #else
@@ -208,8 +208,8 @@
                             <a href="#" 
                                onclick="location='#toolLinkParam("$action" "doDescription" "eventReference=$validator.escapeUrl($x.getEvent().getReference())")';return false;" 
                                title="$x.getEvent().getDisplayName() - $validator.escapeHtml($x.getEvent().getSiteName())">
-                            #iconImage($x.getEvent().getType())
-                            $validator.escapeHtml($x.getEvent().getDisplayName())
+                                <span class="icon $eventIconMap.get($x.getEvent().getType())" title="$localizedEventTypes.get($x.getEvent().getType())"></span>
+                                    $validator.escapeHtml($x.getEvent().getDisplayName())
                             </a>
                             </td>
                         #end
@@ -253,6 +253,11 @@
 	#end
 </div>	
 
-#eventLegend($tlang)
-
+<h4>$tlang.getString('view.legend')</h4>
+<ul class="calendarLegend">
+    #foreach ($key in $iconsAndLocalizedEventTypes.keySet())
+        <li><span class="icon $iconsAndLocalizedEventTypes.get($key)"></span> $key</li>
+    #end
+</ul>
+<div class="clear"></div>
 </div>

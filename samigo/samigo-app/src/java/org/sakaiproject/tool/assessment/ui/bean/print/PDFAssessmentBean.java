@@ -1,3 +1,18 @@
+/**
+ * Copyright (c) 2005-2017 The Apereo Foundation
+ *
+ * Licensed under the Educational Community License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *             http://opensource.org/licenses/ecl2
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.sakaiproject.tool.assessment.ui.bean.print;
 
 import java.awt.Color;
@@ -22,9 +37,8 @@ import javax.faces.context.FacesContext;
 import javax.imageio.ImageIO;
 import javax.servlet.http.HttpServletResponse;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAnswer;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAssessmentAttachment;
@@ -58,6 +72,7 @@ import com.lowagie.text.pdf.BaseFont;
 import com.lowagie.text.pdf.PdfPCell;
 import com.lowagie.text.pdf.PdfPTable;
 import com.lowagie.text.pdf.PdfWriter;
+import org.sakaiproject.tool.assessment.jsf.convert.AnswerSurveyConverter;
 
 /**
  * 
@@ -67,11 +82,10 @@ import com.lowagie.text.pdf.PdfWriter;
  * PDF's from assessments
  * 
  */
+@Slf4j
 public class PDFAssessmentBean implements Serializable {
 
 	private static final long serialVersionUID = 1L;
-
-	private static Logger log = LoggerFactory.getLogger(PDFAssessmentBean.class);
 
 	private static org.sakaiproject.util.api.FormattedText formattedText = (org.sakaiproject.util.api.FormattedText)ComponentManager.get(org.sakaiproject.util.api.FormattedText.class);
 	
@@ -230,7 +244,6 @@ public class PDFAssessmentBean implements Serializable {
 		
 		if (log.isWarnEnabled())
 			log.warn(name.toString());
-			//log.warn(fTitle.substring(0, end) + year + month + day + hour + min + sec + ".pdf");
 
 		return formattedText.escapeUrl(name.toString().replace(" ", "_"));
 	}
@@ -605,7 +618,8 @@ public class PDFAssessmentBean implements Serializable {
 					contentBuffer.append(". ");
 				}
 				
-				contentBuffer.append(convertFormattedText(answer.getText()));
+				AnswerSurveyConverter conv = new AnswerSurveyConverter();
+				contentBuffer.append(convertFormattedText(conv.getAsString(null, null, answer.getText())));
 				contentBuffer.append("</td>");
 			}
 			contentBuffer.append("</td>");
@@ -1040,7 +1054,6 @@ public class PDFAssessmentBean implements Serializable {
 		}
 		catch(Exception e) {
 			log.error(e.getMessage(), e);
-			System.err.println("document: " + e.getMessage());
 		}
 
 		return output;

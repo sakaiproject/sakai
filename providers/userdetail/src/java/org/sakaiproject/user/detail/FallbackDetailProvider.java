@@ -1,8 +1,25 @@
+/**
+ * Copyright (c) 2005-2017 The Apereo Foundation
+ *
+ * Licensed under the Educational Community License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *             http://opensource.org/licenses/ecl2
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.sakaiproject.user.detail;
 
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+
+import lombok.extern.slf4j.Slf4j;
 
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.site.api.Site;
@@ -10,25 +27,21 @@ import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.user.api.CandidateDetailProvider;
 import org.sakaiproject.user.api.User;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * This candidate details provider is designed to be a sensible fallback when using a chaining provider.
  */
+@Slf4j
 public class FallbackDetailProvider implements CandidateDetailProvider {
-	
-	private static final String USER_PROP_CANDIDATE_ID = "candidateID";
-	private static final String USER_PROP_ADDITIONAL_INFO = "additionalInfo";
 	
 	private final static String SITE_PROP_USE_INSTITUTIONAL_ANONYMOUS_ID = "useInstitutionalAnonymousID";
 	private final static String SITE_PROP_DISPLAY_ADDITIONAL_INFORMATION = "displayAdditionalInformation";
+	private final static String SITE_PROP_USE_INSTITUTIONAL_NUMERIC_ID = "useInstitutionalNumericID";
 	
 	private final static String SYSTEM_PROP_USE_INSTITUTIONAL_ANONYMOUS_ID = "useInstitutionalAnonymousID";
 	private final static String SYSTEM_PROP_DISPLAY_ADDITIONAL_INFORMATION = "displayAdditionalInformation";
+	private final static String SYSTEM_PROP_USE_INSTITUTIONAL_NUMERIC_ID = "useInsitutionalNumericID";
 
-	private final Logger log = LoggerFactory.getLogger(FallbackDetailProvider.class);
-	
 	private ServerConfigurationService serverConfigurationService;
 	private SiteService siteService;
 	private ToolManager toolManager;
@@ -72,6 +85,33 @@ public class FallbackDetailProvider implements CandidateDetailProvider {
 		return false;
 	}
 	
+	@Override
+	public Optional<String> getInstitutionalNumericId(User user, Site site)
+	{
+		log.debug("Getting student number from fallback provider");
+		if (user != null && isInstitutionalNumericIdEnabled(site))
+		{
+			return Optional.of(("no-student-number:" + user.getId()));
+		}
+		
+		return Optional.empty();
+	}
+	
+	@Override
+	public Optional<String> getInstitutionalNumericIdIgnoringCandidatePermissions(User candidate, Site site)
+	{
+		return getInstitutionalNumericId(candidate, site);
+	}
+	
+	@Override
+	public boolean isInstitutionalNumericIdEnabled(Site site)
+	{
+		try {
+			return (serverConfigurationService.getBoolean(SYSTEM_PROP_USE_INSTITUTIONAL_NUMERIC_ID, false)
+					|| (site != null && Boolean.parseBoolean(site.getProperties().getProperty(SITE_PROP_USE_INSTITUTIONAL_NUMERIC_ID))));
+		} catch(Exception ignore) {}
+		return false;
+	}
 
 	public void setServerConfigurationService(ServerConfigurationService serverConfigurationService) {
 		this.serverConfigurationService = serverConfigurationService;

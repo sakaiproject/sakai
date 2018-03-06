@@ -10,7 +10,7 @@
 	<parent>
 		<artifactId>content-review-impl</artifactId>
 		<groupId>org.sakaiproject.contentreview</groupId>
-		<version>12-SNAPSHOT</version>
+		<version>13-SNAPSHOT</version>
 	</parent>
 
 	<dependencies>
@@ -37,15 +37,7 @@
 		<!-- Sakai Person -->
 		<dependency>
 			<groupId>org.sakaiproject.common</groupId>
-			<artifactId>sakai-common-edu-person-api</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.sakaiproject.common</groupId>
-			<artifactId>sakai-common-manager-api</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.sakaiproject.common</groupId>
-			<artifactId>sakai-common-type-api</artifactId>
+			<artifactId>sakai-common-api</artifactId>
 		</dependency>
 
 		<!-- Various Sakai dependencies -->

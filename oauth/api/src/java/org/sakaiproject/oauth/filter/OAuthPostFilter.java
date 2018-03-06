@@ -1,15 +1,23 @@
+/**
+ * Copyright (c) 2009-2017 The Apereo Foundation
+ *
+ * Licensed under the Educational Community License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *             http://opensource.org/licenses/ecl2
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 package org.sakaiproject.oauth.filter;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.sakaiproject.component.api.ComponentManager;
-import org.sakaiproject.event.api.UsageSessionService;
-import org.sakaiproject.tool.api.SessionManager;
-import org.sakaiproject.user.api.Authentication;
-import org.sakaiproject.user.api.UserDirectoryService;
-import org.sakaiproject.user.api.UserNotDefinedException;
-import org.sakaiproject.oauth.service.OAuthHttpService;
+import java.io.IOException;
+import java.security.Principal;
 
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
@@ -19,8 +27,16 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.security.Principal;
+
+import lombok.extern.slf4j.Slf4j;
+
+import org.sakaiproject.component.api.ComponentManager;
+import org.sakaiproject.event.api.UsageSessionService;
+import org.sakaiproject.tool.api.SessionManager;
+import org.sakaiproject.user.api.Authentication;
+import org.sakaiproject.user.api.UserDirectoryService;
+import org.sakaiproject.user.api.UserNotDefinedException;
+import org.sakaiproject.oauth.service.OAuthHttpService;
 
 /**
  * Last filter applied for the OAuth protocol
@@ -30,8 +46,8 @@ import java.security.Principal;
  *
  * @author Colin Hebert
  */
+@Slf4j
 public class OAuthPostFilter implements Filter {
-    private static final Logger log = LoggerFactory.getLogger(OAuthPostFilter.class);
     private OAuthHttpService oAuthHttpService;
     private SessionManager sessionManager;
     private UserDirectoryService userDirectoryService;

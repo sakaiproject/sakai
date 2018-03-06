@@ -26,8 +26,7 @@ package org.radeox.filter.regex;
 import java.util.Locale;
 import java.util.ResourceBundle;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.radeox.api.engine.context.InitialRenderContext;
 import org.radeox.api.engine.context.RenderContext;
 
@@ -38,10 +37,9 @@ import org.radeox.api.engine.context.RenderContext;
  * @version $Id: LocaleRegexReplaceFilter.java 7707 2006-04-12 17:30:19Z
  *          ian@caret.cam.ac.uk $
  */
-
+@Slf4j
 public abstract class LocaleRegexReplaceFilter extends RegexReplaceFilter
 {
-	private static Logger log = LoggerFactory.getLogger(LocaleRegexReplaceFilter.class);
 
 	protected abstract String getLocaleKey();
 
@@ -78,7 +76,7 @@ public abstract class LocaleRegexReplaceFilter extends RegexReplaceFilter
 
 		String match = inputMessages.getString(getLocaleKey() + ".match");
 		String print = outputMessages.getString(getLocaleKey() + ".print");
-		// System.err.println(getLocaleKey()+": match="+match+"
+		// log.info(getLocaleKey()+": match="+match+"
 		// pattern="+print);
 		addRegex(match, print, isSingleLine() ? RegexReplaceFilter.SINGLELINE
 				: RegexReplaceFilter.MULTILINE);

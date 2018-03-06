@@ -47,7 +47,7 @@ function textCounter(field, maxlimit) {
 }
 
 </script>
-<script src="/library/js/spinner.js" type="text/javascript"></script>
+<samigo:script path="/../library/js/spinner.js"/>
           <script type="text/javascript">
               function flagFolders() {
                   collapseRowsByLevel(<h:outputText value="#{questionpool.htmlIdLevel}"/>);
@@ -55,7 +55,7 @@ function textCounter(field, maxlimit) {
               }
               function initPage()
               {
-                  disableIt();checkUpdate();
+                  checkUpdate();
                   var importButton = document.getElementById('editform:import');
                   if (importButton !== null)
                   {
@@ -67,7 +67,7 @@ function textCounter(field, maxlimit) {
           </script>
       </head>
 
-<f:verbatim><body onload="disableIt();checkUpdate();collapseRowsByLevel(</f:verbatim><h:outputText value="#{questionpool.htmlIdLevel}"/><f:verbatim>);flagRows();<%= request.getAttribute("html.body.onload") %>;"></f:verbatim>
+<f:verbatim><body onload="checkUpdate();collapseRowsByLevel(</f:verbatim><h:outputText value="#{questionpool.htmlIdLevel}"/><f:verbatim>);flagRows();<%= request.getAttribute("html.body.onload") %>;"></f:verbatim>
   
 <div class="portletBody container-fluid">
 <h:form id="editform">
@@ -102,7 +102,7 @@ function textCounter(field, maxlimit) {
 <div class="form-group row"> 
     <h:outputLabel for="namefield" value="#{questionPoolMessages.p_name}" styleClass="col-sm-2  form-control-label"/>
     <div class="col-sm-6">
-    	<h:inputText readonly="#{questionpool.importToAuthoring == 'true' || questionpool.owner!=questionpool.currentPool.owner}" onchange="inIt()" id="namefield" size="30" maxlength="255" value="#{questionpool.currentPool.displayName}" styleClass="form-control"/>
+    	<h:inputText readonly="#{questionpool.importToAuthoring == 'true' || questionpool.owner!=questionpool.currentPool.owner}"  id="namefield" size="30" maxlength="255" value="#{questionpool.currentPool.displayName}" styleClass="form-control"/>
     </div>
 </div>
 <div class="form-group row"> 
@@ -114,7 +114,7 @@ function textCounter(field, maxlimit) {
 <h:panelGroup layout="block" styleClass="form-group row">
     <h:outputLabel for="orgfield" value="#{questionPoolMessages.dept}" styleClass="col-sm-2 form-control-label"/>
     <div class="col-sm-6">
-       <h:inputText readonly="#{questionpool.importToAuthoring == 'true' || questionpool.owner!=questionpool.currentPool.owner}" onchange="inIt()" id="orgfield" size="30" maxlength="255" value="#{questionpool.currentPool.organizationName}" styleClass="form-control"/>
+       <h:inputText readonly="#{questionpool.importToAuthoring == 'true' || questionpool.owner!=questionpool.currentPool.owner}"  id="orgfield" size="30" maxlength="255" value="#{questionpool.currentPool.organizationName}" styleClass="form-control"/>
     </div>
 </h:panelGroup>    
 <h:panelGroup layout="block" styleClass="form-group row">
@@ -127,13 +127,13 @@ function textCounter(field, maxlimit) {
 <h:panelGroup layout="block"  styleClass="form-group row">
     <h:outputLabel for="objfield" value="#{questionPoolMessages.obj}" styleClass="col-sm-2 form-control-label"/>
     <div class="col-sm-6">
-        <h:inputText readonly="#{questionpool.importToAuthoring == 'true' || questionpool.owner!=questionpool.currentPool.owner}" onchange="inIt()" id="objfield" size="30" maxlength="255" value="#{questionpool.currentPool.objectives}" styleClass="form-control"/>
+        <h:inputText readonly="#{questionpool.importToAuthoring == 'true' || questionpool.owner!=questionpool.currentPool.owner}"  id="objfield" size="30" maxlength="255" value="#{questionpool.currentPool.objectives}" styleClass="form-control"/>
     </div>
 </h:panelGroup>   
 <h:panelGroup layout="block" styleClass="form-group row">
     <h:outputLabel for="keyfield" value="#{questionPoolMessages.keywords}" styleClass="col-sm-2 form-control-label"/>
     <div class="col-sm-6">
-        <h:inputText readonly="#{questionpool.importToAuthoring == 'true' || questionpool.owner!=questionpool.currentPool.owner}" onchange="inIt()" id="keyfield" size="30" maxlength="255" value="#{questionpool.currentPool.keywords}" styleClass="form-control"/>
+        <h:inputText readonly="#{questionpool.importToAuthoring == 'true' || questionpool.owner!=questionpool.currentPool.owner}"  id="keyfield" size="30" maxlength="255" value="#{questionpool.currentPool.keywords}" styleClass="form-control"/>
     </div>
 </h:panelGroup>
 

@@ -1,31 +1,24 @@
-/**********************************************************************************
-*
-* $Id$
-*
-***********************************************************************************
-*
- * Copyright (c) 2005, 2006, 2007, 2008, 2009 The Sakai Foundation, The MIT Corporation
+/**
+ * Copyright (c) 2003-2017 The Apereo Foundation
  *
  * Licensed under the Educational Community License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *       http://www.opensource.org/licenses/ECL-2.0
+ *             http://opensource.org/licenses/ecl2
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
-*
-**********************************************************************************/
+ */
 
 package org.sakaiproject.tool.gradebook.business;
 
 import java.util.*;
 
 import org.hibernate.HibernateException;
-import org.hibernate.Session;
 import org.sakaiproject.service.gradebook.shared.ConflictingAssignmentNameException;
 import org.sakaiproject.service.gradebook.shared.ConflictingCategoryNameException;
 import org.sakaiproject.service.gradebook.shared.ConflictingSpreadsheetNameException;
@@ -110,7 +103,7 @@ public interface GradebookManager {
      * @param = studentUid
      * @return AssignmentGradeRecord
      */
-    public AssignmentGradeRecord getAssignmentGradeRecordForAssignmentForStudent(Assignment assignment, String studentUid);
+    public AssignmentGradeRecord getAssignmentGradeRecordForAssignmentForStudent(GradebookAssignment assignment, String studentUid);
     
     /**
      * Get all assignment score records for the given set of student UIDs.
@@ -119,7 +112,7 @@ public interface GradebookManager {
      * @param studentUids
      * @return AssignmentGradeRecord list
      */
-    public List getAssignmentGradeRecords(Assignment assignment, Collection studentUids);
+    public List getAssignmentGradeRecords(GradebookAssignment assignment, Collection studentUids);
 
     /**
      * Get one course grade record (with autocalculated fields) for the given
@@ -212,10 +205,10 @@ public interface GradebookManager {
      * @return The set of student UIDs who were given scores higher than the
      * assignment's value.
      */
-    public Set updateAssignmentGradeRecords(Assignment assignment, Collection gradeRecords)
+    public Set updateAssignmentGradeRecords(GradebookAssignment assignment, Collection gradeRecords)
     	throws StaleObjectModificationException;
 
-    public Set updateAssignmentGradesAndComments(Assignment assignment, Collection gradeRecords, Collection comments)
+    public Set updateAssignmentGradesAndComments(GradebookAssignment assignment, Collection gradeRecords, Collection comments)
 		throws StaleObjectModificationException;
  
     public void updateComments(Collection comments)
@@ -288,7 +281,7 @@ public interface GradebookManager {
 
     /**
      * Fetches a List of Assignments for a given gradebook, and populates the
-     * Assignments with all of the statistics fields available in the Assignment
+     * Assignments with all of the statistics fields available in the GradebookAssignment
      * object.
      *
      * @param gradebookId The gradebook ID
@@ -313,7 +306,7 @@ public interface GradebookManager {
      * @param assignmentId The assignment ID
      * @return The assignment
      */
-    public Assignment getAssignment(Long assignmentId);
+    public GradebookAssignment getAssignment(Long assignmentId);
 
     /**
      * Fetches an assignment and populates its non-persistent statistics
@@ -324,7 +317,7 @@ public interface GradebookManager {
      *        from the calculation
      * @return The GradableObject with all statistics fields populated
      */
-    public Assignment getAssignmentWithStats(Long assignmentId);
+    public GradebookAssignment getAssignmentWithStats(Long assignmentId);
 
    /**
      * Add a new assignment to a gradebook
@@ -346,7 +339,7 @@ public interface GradebookManager {
     /**
      * Updates an existing assignment
      */
-    public void updateAssignment(Assignment assignment)
+    public void updateAssignment(GradebookAssignment assignment)
         throws ConflictingAssignmentNameException, StaleObjectModificationException;
 
     /**
@@ -360,7 +353,7 @@ public interface GradebookManager {
 
     public double getTotalPoints(Long gradebookId);
     
-    abstract double getTotalPointsInternal(final Gradebook gradebook, final List categories, final String studentId, List<AssignmentGradeRecord> studentGradeRecs, List<Assignment> countedAssigns, boolean literalTotal);
+    abstract double getTotalPointsInternal(final Gradebook gradebook, final List categories, final String studentId, List<AssignmentGradeRecord> studentGradeRecs, List<GradebookAssignment> countedAssigns, boolean literalTotal);
 
     /**
      * Fetches a spreadsheet that has been saved
@@ -404,7 +397,7 @@ public interface GradebookManager {
      * @param studentIds
      * @return
      */
-    public List getComments(Assignment assignment, Collection studentIds);
+    public List getComments(GradebookAssignment assignment, Collection studentIds);
 
     /**method to get comments for a assignments for a student in a gradebook
      *
@@ -428,7 +421,7 @@ public interface GradebookManager {
     * @return id of the new category
     * @throws ConflictingAssignmentNameException StaleObjectModificationException
     */
-    public Long createCategory(final Long gradebookId, final String name, final Double weight, final Integer drop_lowest, final Integer dropHighest, final Integer keepHighest, final Boolean is_extra_credit) 
+    public Long createCategory(final Long gradebookId, final String name, final Double weight, final Integer dropLowest, final Integer dropHighest, final Integer keepHighest, final Boolean is_extra_credit) 
     throws ConflictingCategoryNameException, StaleObjectModificationException;
     
     /**method to get all categories for a gradebook
@@ -501,8 +494,8 @@ public interface GradebookManager {
     
     /**
      * Updates the grade records in the GradeRecordSet.
-     * This method calls public Set updateAssignmentGradeRecords(Assignment assignment, Collection gradeRecords) for DB udpates.
-     * Method of public Set updateAssignmentGradeRecords(Assignment assignment, Collection gradeRecords) should not be 
+     * This method calls public Set updateAssignmentGradeRecords(GradebookAssignment assignment, Collection gradeRecords) for DB udpates.
+     * Method of public Set updateAssignmentGradeRecords(GradebookAssignment assignment, Collection gradeRecords) should not be
      * called outside of impl of GradebookManager anymore later.
      *
      * @param assignment
@@ -511,12 +504,12 @@ public interface GradebookManager {
      * @return The set of student UIDs who were given scores higher than the
      * assignment's value.
      */
-    public Set updateAssignmentGradeRecords(Assignment assignment, Collection gradeRecords, int grade_type);
+    public Set updateAssignmentGradeRecords(GradebookAssignment assignment, Collection gradeRecords, int grade_type);
 
     /**
      * Updates the grade records in the GradeRecordSet for a student.
-     * This method calls public Set updateStudentGradeRecords(Assignment assignment, Collection gradeRecords) for DB udpates.
-     * Method of public Set updateStudentGradeRecords(Assignment assignment, Collection gradeRecords) should not be 
+     * This method calls public Set updateStudentGradeRecords(GradebookAssignment assignment, Collection gradeRecords) for DB udpates.
+     * Method of public Set updateStudentGradeRecords(GradebookAssignment assignment, Collection gradeRecords) should not be
      * called outside of impl of GradebookManager anymore later.
      *
      * @param assignment
@@ -538,7 +531,7 @@ public interface GradebookManager {
      * @param studentUids
      * @return AssignmentGradeRecord list
      */
-    public List getAssignmentGradeRecordsConverted(Assignment assignment, Collection studentUids);
+    public List getAssignmentGradeRecordsConverted(GradebookAssignment assignment, Collection studentUids);
 
     /**
      * Get all categories with stats
@@ -605,7 +598,7 @@ public interface GradebookManager {
      * @param gradebookId
      * @param assignmentSort assignment sorting string
      * @param assignAscending assignment sorting ascending/descending
-     * @return Assignment list
+     * @return GradebookAssignment list
      */
     public List getAssignmentsWithNoCategory(final Long gradebookId, String assignmentSort, boolean assignAscending);
     
@@ -615,19 +608,19 @@ public interface GradebookManager {
      * @param gradebookId
      * @param assignmentSort assignment sorting string
      * @param assignAscending assignment sorting ascending/descending
-     * @return Assignment list
+     * @return GradebookAssignment list
      */
     public List getAssignmentsWithNoCategoryWithStats(Long gradebookId, String assignmentSort, boolean assignAscending);
     
     /**
      * Convert grading events to percentage or letter value depending upon grade_type
      *  
-     * @param assign Assignment
+     * @param assign GradebookAssignment
      * @param events GradingEvents
      * @param studentUids List of student ids
      * @param grade_type gradebook's grade_type
      */
-    public void convertGradingEventsConverted(Assignment assign, GradingEvents events, List studentUids, int grade_type);
+    public void convertGradingEventsConverted(GradebookAssignment assign, GradingEvents events, List studentUids, int grade_type);
     
     /**
      * Convert grading events to percentage or letter value depending upon grade_type
@@ -662,7 +655,7 @@ public interface GradebookManager {
      * @param Double newTotal the old total point for assignment
      * @param studentUids List of student uid.
      */
-    public void convertGradePointsForUpdatedTotalPoints(Gradebook gradebook, Assignment assignment, Double newTotal, List studentUids);
+    public void convertGradePointsForUpdatedTotalPoints(Gradebook gradebook, GradebookAssignment assignment, Double newTotal, List studentUids);
     
     /**
      * Get the default letter grading percentage mappings. 
@@ -884,10 +877,10 @@ public interface GradebookManager {
      * Check if the assignment's name is valid to add or not.
      *
      *@param gradebookId Long of the gradebook's ID
-     * @param assignment Assignment to be added
+     * @param assignment GradebookAssignment to be added
      * @return boolean
      */
-    public boolean checkValidName(final Long gradebookId, final Assignment assignment);
+    public boolean checkValidName(final Long gradebookId, final GradebookAssignment assignment);
     
     public void updateCategoryAndAssignmentsPointsPossible(final Long gradebookId, final Category category)
     throws ConflictingAssignmentNameException, StaleObjectModificationException;    

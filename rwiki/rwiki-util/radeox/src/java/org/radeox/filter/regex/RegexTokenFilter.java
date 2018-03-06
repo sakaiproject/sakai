@@ -23,8 +23,7 @@
 
 package org.radeox.filter.regex;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.radeox.filter.context.FilterContext;
 import org.radeox.regex.MatchResult;
 import org.radeox.regex.Matcher;
@@ -38,11 +37,9 @@ import org.radeox.regex.Substitution;
  * @version $Id: RegexTokenFilter.java 7707 2006-04-12 17:30:19Z
  *          ian@caret.cam.ac.uk $
  */
-
+@Slf4j
 public abstract class RegexTokenFilter extends RegexFilter
 {
-
-	private static Logger log = LoggerFactory.getLogger(RegexTokenFilter.class);
 
 	public RegexTokenFilter()
 	{
@@ -116,7 +113,6 @@ public abstract class RegexTokenFilter extends RegexFilter
 			{
 				log.warn("<span class=\"error\">Error</span>: " + this + ": "
 						+ err);
-				err.printStackTrace();
 			}
 			input = result;
 		}

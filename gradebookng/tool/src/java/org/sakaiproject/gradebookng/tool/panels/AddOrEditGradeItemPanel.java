@@ -1,10 +1,24 @@
+/**
+ * Copyright (c) 2003-2017 The Apereo Foundation
+ *
+ * Licensed under the Educational Community License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *             http://opensource.org/licenses/ecl2
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.sakaiproject.gradebookng.tool.panels;
 
 import java.text.MessageFormat;
 import java.util.Date;
 import java.util.List;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.html.basic.Label;
@@ -22,7 +36,9 @@ import org.sakaiproject.service.gradebook.shared.AssignmentHasIllegalPointsExcep
 import org.sakaiproject.service.gradebook.shared.CategoryDefinition;
 import org.sakaiproject.service.gradebook.shared.ConflictingAssignmentNameException;
 import org.sakaiproject.service.gradebook.shared.ConflictingExternalIdException;
+import org.sakaiproject.service.gradebook.shared.GradebookHelper;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
+import org.sakaiproject.service.gradebook.shared.InvalidGradeItemNameException;
 import org.sakaiproject.tool.gradebook.Gradebook;
 import org.sakaiproject.util.DateFormatterUtil;
 
@@ -95,8 +111,8 @@ public class AddOrEditGradeItemPanel extends BasePanel {
 				final Assignment assignment = (Assignment) form.getModelObject();
 
 				setISODates();
-				if (dueDate != null) {
-					assignment.setDueDate(dueDate);
+				if (AddOrEditGradeItemPanel.this.dueDate != null) {
+					assignment.setDueDate(AddOrEditGradeItemPanel.this.dueDate);
 				}
 
 				boolean validated = true;
@@ -108,9 +124,8 @@ public class AddOrEditGradeItemPanel extends BasePanel {
 					final List<CategoryDefinition> categories = AddOrEditGradeItemPanel.this.businessService.getGradebookCategories();
 					final CategoryDefinition category = categories
 							.stream()
-							.filter(c -> (c.getId() == assignment.getCategoryId())
-									&& (c.getDropHighest() > 0 || c.getKeepHighest() > 0 || c.getDrop_lowest() > 0))
-							.filter(c -> (c.getDropHighest() > 0 || c.getKeepHighest() > 0 || c.getDrop_lowest() > 0))
+							.filter(c -> (c.getId().equals(assignment.getCategoryId()))
+									&& (c.getDropHighest() > 0 || c.getKeepHighest() > 0 || c.getDropLowest() > 0))
 							.findFirst()
 							.orElse(null);
 
@@ -129,10 +144,14 @@ public class AddOrEditGradeItemPanel extends BasePanel {
 				}
 
 				// 2. names cannot contain these special chars
-				if(validated && StringUtils.containsAny(assignment.getName(), GradebookService.INVALID_CHARS_IN_GB_ITEM_NAME)) {
-					validated = false;
-					error(getString("error.addeditgradeitem.titlecharacters"));
-					target.addChildren(form, FeedbackPanel.class);
+				if (validated) {
+					try {
+						GradebookHelper.validateGradeItemName(assignment.getName());
+					} catch (final InvalidGradeItemNameException e) {
+						validated = false;
+						error(getString("error.addeditgradeitem.titlecharacters"));
+						target.addChildren(form, FeedbackPanel.class);
+					}
 				}
 
 				// OK
@@ -143,7 +162,8 @@ public class AddOrEditGradeItemPanel extends BasePanel {
 
 						if (success) {
 							getSession().success(MessageFormat.format(getString("message.edititem.success"), assignment.getName()));
-							setResponsePage(getPage().getPageClass());
+							setResponsePage(getPage().getPageClass(),
+									new PageParameters().add(GradebookPage.FOCUS_ASSIGNMENT_ID_PARAM, assignment.getId()));
 						} else {
 							error(new ResourceModel("message.edititem.error").getObject());
 							target.addChildren(form, FeedbackPanel.class);
@@ -173,7 +193,7 @@ public class AddOrEditGradeItemPanel extends BasePanel {
 							getSession()
 									.success(MessageFormat.format(getString("notification.addgradeitem.success"), assignment.getName()));
 							setResponsePage(getPage().getPageClass(),
-									new PageParameters().add(GradebookPage.CREATED_ASSIGNMENT_ID_PARAM, assignmentId));
+									new PageParameters().add(GradebookPage.FOCUS_ASSIGNMENT_ID_PARAM, assignmentId));
 						} else {
 							target.addChildren(form, FeedbackPanel.class);
 						}
@@ -225,10 +245,10 @@ public class AddOrEditGradeItemPanel extends BasePanel {
 		}
 	}
 
-	private void setISODates(){
-		String dueDateString = getRequest().getRequestParameters().getParameterValue(HIDDEN_DUEDATE_ISO8601).toString("");
-		if(DateFormatterUtil.isValidISODate(dueDateString)){
-			dueDate = DateFormatterUtil.parseISODate(dueDateString);
+	private void setISODates() {
+		final String dueDateString = getRequest().getRequestParameters().getParameterValue(HIDDEN_DUEDATE_ISO8601).toString("");
+		if (DateFormatterUtil.isValidISODate(dueDateString)) {
+			this.dueDate = DateFormatterUtil.parseISODate(dueDateString);
 		}
 	}
 }

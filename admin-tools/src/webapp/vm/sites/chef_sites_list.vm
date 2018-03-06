@@ -101,9 +101,10 @@
 ##		#set ($realm = $realms.getAuthzGroup($site.Reference))
 			<tr>
 				<th scope="row" headers="Id">
+				<a href="#siteLink($site.Id)" id="external-link" class="external-link"><span class="fa fa-external-link" title="$tlang.getString("sitlis.link")"></span></a> | 
 					#if ($service.allowUpdateSite($site.Id))
-						<a href="#toolLinkParam("$action" "doEdit" "id=$validator.escapeUrl($site.Id)")">
-							$validator.escapeHtml($site.Id)
+						<a href="#toolLinkParam("$action" "doEdit" "id=$validator.escapeUrl($site.Id)")" title="$tlang.getString("sitlis.edit")">
+							$validator.escapeHtml($site.Id) <span class="fa fa-pencil-square-o"></span>
 						</a>
 					#else
 						$validator.escapeHtml($site.Id)

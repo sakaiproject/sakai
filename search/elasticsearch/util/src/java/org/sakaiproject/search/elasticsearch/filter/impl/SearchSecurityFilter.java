@@ -21,8 +21,12 @@
 
 package org.sakaiproject.search.elasticsearch.filter.impl;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.component.api.ComponentManager;
 import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.search.api.EntityContentProducer;
@@ -32,18 +36,12 @@ import org.sakaiproject.search.api.TermFrequency;
 import org.sakaiproject.search.elasticsearch.Messages;
 import org.sakaiproject.search.elasticsearch.filter.SearchItemFilter;
 
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
-
-
 /**
  * @author ieb
  */
+@Slf4j
 public class SearchSecurityFilter implements SearchItemFilter
 {
-
-	private static final Logger log = LoggerFactory.getLogger(SearchSecurityFilter.class);
 
 	private SearchIndexBuilder searchIndexBuilder = null;
 

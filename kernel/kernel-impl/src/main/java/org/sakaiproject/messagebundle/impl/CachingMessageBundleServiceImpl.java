@@ -1,16 +1,33 @@
+/**
+ * Copyright (c) 2003-2017 The Apereo Foundation
+ *
+ * Licensed under the Educational Community License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *             http://opensource.org/licenses/ecl2
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.sakaiproject.messagebundle.impl;
-
-import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.sakaiproject.memory.api.Cache;
-import org.sakaiproject.memory.api.MemoryService;
-import org.sakaiproject.messagebundle.api.MessageBundleProperty;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collections;
 import java.util.Locale;
 import java.util.Map;
+
+import lombok.extern.slf4j.Slf4j;
+
+import org.apache.commons.lang3.StringUtils;
+
+import org.springframework.transaction.annotation.Transactional;
+
+import org.sakaiproject.memory.api.Cache;
+import org.sakaiproject.memory.api.MemoryService;
+import org.sakaiproject.messagebundle.api.MessageBundleProperty;
 
 /**
  * CachingMessageBundleServiceImpl
@@ -24,8 +41,8 @@ import java.util.Map;
  * Created on Aug 29, 2013
  * 
  */
+@Slf4j
 public class CachingMessageBundleServiceImpl extends MessageBundleServiceImpl {
-	private static Logger LOG = LoggerFactory.getLogger(CachingMessageBundleServiceImpl.class);
 	private static String CACHE_NAME = "org.sakaiproject.messagebundle.cache.bundles"; 
 
 	private MemoryService memoryService;
@@ -54,14 +71,14 @@ public class CachingMessageBundleServiceImpl extends MessageBundleServiceImpl {
 
 		Map<String, String> bundle = null;
 		String key = super.getIndexKeyName(baseName, moduleName, loc.toString());
-        if (LOG.isDebugEnabled()) { LOG.debug("Retrieve bundle from cache with key=" + key); }
+        if (log.isDebugEnabled()) { log.debug("Retrieve bundle from cache with key=" + key); }
 		
 		bundle = cache.get(key);
 		if (bundle == null) {
 		    // bundle not in cache or expired
 		    bundle = super.getBundle(baseName, moduleName, loc);
             cache.put(key, bundle);
-            if (LOG.isDebugEnabled()) { LOG.debug("Add bundle to cache with key=" + key); }
+            if (log.isDebugEnabled()) { log.debug("Add bundle to cache with key=" + key); }
 		}
 
 		return bundle;
@@ -101,4 +118,3 @@ public class CachingMessageBundleServiceImpl extends MessageBundleServiceImpl {
 		this.memoryService = memoryService;
 	}
 }
-

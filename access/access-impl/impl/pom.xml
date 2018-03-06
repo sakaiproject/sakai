@@ -4,7 +4,7 @@
   <parent>
     <artifactId>access-base</artifactId>
     <groupId>org.sakaiproject</groupId>
-    <version>12-SNAPSHOT</version>
+    <version>13-SNAPSHOT</version>
     <relativePath>../../pom.xml</relativePath>
   </parent>
   <name>sakai-access-impl</name>
@@ -43,7 +43,6 @@
     <dependency>
       <groupId>commons-fileupload</groupId>
       <artifactId>commons-fileupload</artifactId>
-      <version>1.1.1</version>
     </dependency>
     <dependency>
       <groupId>org.sakaiproject.velocity</groupId>

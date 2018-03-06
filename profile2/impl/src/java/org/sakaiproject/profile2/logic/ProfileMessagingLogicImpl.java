@@ -22,7 +22,10 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
+
 import org.sakaiproject.profile2.dao.ProfileDao;
 import org.sakaiproject.profile2.model.Message;
 import org.sakaiproject.profile2.model.MessageParticipant;
@@ -30,10 +33,6 @@ import org.sakaiproject.profile2.model.MessageThread;
 import org.sakaiproject.profile2.types.EmailType;
 import org.sakaiproject.profile2.util.ProfileConstants;
 import org.sakaiproject.profile2.util.ProfileUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import lombok.Setter;
 
 /**
  * Implementation of ProfileMessagingLogic for Profile2.
@@ -41,9 +40,8 @@ import lombok.Setter;
  * @author Steve Swinsburg (s.swinsburg@gmail.com)
  *
  */
+@Slf4j
 public class ProfileMessagingLogicImpl implements ProfileMessagingLogic {
-
-	private static final Logger log = LoggerFactory.getLogger(ProfileMessagingLogicImpl.class);
 
 	/**
  	 * {@inheritDoc}
@@ -77,17 +75,14 @@ public class ProfileMessagingLogicImpl implements ProfileMessagingLogic {
  	 */
 	@Override
 	public boolean sendNewMessage(final String uuidTo, final String uuidFrom, final String threadId, final String subject, final String messageStr) {
-		
+
+		String messageSubject = StringUtils.defaultIfBlank(subject, ProfileConstants.DEFAULT_PRIVATE_MESSAGE_SUBJECT);
+
 		//setup thread
 		MessageThread thread = new MessageThread();
 		thread.setId(threadId);
-		
-		if(StringUtils.isBlank(subject)) {
-			thread.setSubject(ProfileConstants.DEFAULT_PRIVATE_MESSAGE_SUBJECT);
-		} else {
-			thread.setSubject(subject);
-		}
-		
+		thread.setSubject(messageSubject);
+
 		//setup message
 		Message message = new Message();
 		message.setId(ProfileUtils.generateUuid());
@@ -121,7 +116,7 @@ public class ProfileMessagingLogicImpl implements ProfileMessagingLogic {
 		}
 		
 		if(saveAllNewMessageParts(thread, message, participants)) {
-			sendMessageEmailNotification(threadParticipants, uuidFrom, threadId, subject, messageStr, EmailType.EMAIL_NOTIFICATION_MESSAGE_NEW);
+			sendMessageEmailNotification(threadParticipants, uuidFrom, threadId, messageSubject, messageStr, EmailType.EMAIL_NOTIFICATION_MESSAGE_NEW);
             //post event
             sakaiProxy.postEvent(ProfileConstants.EVENT_MESSAGE_SENT, "/profile/" + uuidTo, true);
 			return true;

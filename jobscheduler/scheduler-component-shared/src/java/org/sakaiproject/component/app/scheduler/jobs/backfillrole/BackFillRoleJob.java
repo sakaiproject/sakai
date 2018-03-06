@@ -1,8 +1,30 @@
+/**
+ * Copyright (c) 2003-2017 The Apereo Foundation
+ *
+ * Licensed under the Educational Community License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *             http://opensource.org/licenses/ecl2
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.sakaiproject.component.app.scheduler.jobs.backfillrole;
 
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
+
+import lombok.extern.slf4j.Slf4j;
+
 import org.quartz.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import org.springframework.beans.factory.annotation.*;
+
 import org.sakaiproject.authz.api.*;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
@@ -10,22 +32,15 @@ import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.SessionManager;
-import org.springframework.beans.factory.annotation.*;
-
-import javax.inject.*;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
 
 /**
  * This Job looks at the site realms. For each realm it attempts to work out the template realm it came from.
  * Then it looks for new roles in the template and copies them into the realm.
  */
+@Slf4j
 public class BackFillRoleJob  implements InterruptableJob {
 
     private static final String TEMPLATE_PREFIX = "!site.template";
-
-    private final Logger log = LoggerFactory.getLogger(BackFillRoleJob.class);
 
     private SiteService siteService;
 

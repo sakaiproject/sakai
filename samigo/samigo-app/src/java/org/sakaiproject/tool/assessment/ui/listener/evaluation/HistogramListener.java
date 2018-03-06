@@ -1,3 +1,18 @@
+/**
+ * Copyright (c) 2005-2017 The Apereo Foundation
+ *
+ * Licensed under the Educational Community License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *             http://opensource.org/licenses/ecl2
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 
 package org.sakaiproject.tool.assessment.ui.listener.evaluation;
@@ -28,10 +43,8 @@ import javax.faces.event.ValueChangeEvent;
 import javax.faces.event.ValueChangeListener;
 import javax.servlet.http.HttpServletRequest;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.beanutils.BeanUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-//import org.hibernate.Hibernate;
 import org.sakaiproject.tool.assessment.api.SamigoApiFactory;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedSectionData;
 import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingComparatorByScoreAndUniqueIdentifier;
@@ -85,11 +98,10 @@ import org.sakaiproject.util.ResourceLoader;
  *
  * @version $Id$
  */
-
+@Slf4j
 public class HistogramListener
   implements ActionListener, ValueChangeListener
 {
-  private static Logger log = LoggerFactory.getLogger(HistogramListener.class);
   //private static BeanSort bs;
   //private static ContextUtil cu;
   //private static EvaluationListenerUtil util;
@@ -261,7 +273,6 @@ public class HistogramListener
 			  }
 		  }
 		  Iterator iter = scores.iterator();
-		  //log.info("Has this many agents: " + scores.size());
 		  
 		  if (!iter.hasNext()){
 			  log.info("Students who have submitted may have been removed from this site");
@@ -723,40 +734,8 @@ public class HistogramListener
 							  .getNumStudentCollection()[i]);
 					  bars[i].setRangeInfo(histogramScores
 							  .getRangeCollection()[i]);
-					  //log.info("Set bar " + i + ": " + bean.getColumnHeight()[i] + ", " + bean.getNumStudentCollection()[i] + ", " + bean.getRangeCollection()[i]);
 				  }
 				  histogramScores.setHistogramBars(bars);
-
-
-
-				  ///////////////////////////////////////////////////////////
-				  // START DEBUGGING
-				  /*
-					 log.info("TESTING ASSESSMENT MAP");
-					 log.info("assessmentMap: =>");
-					 log.info(assessmentMap);
-					 log.info("--------------------------------------------");
-					 log.info("TESTING TOTALS HISTOGRAM FORM");
-					 log.info(
-					 "HistogramScoresForm Form: =>\n" + "bean.getMean()=" +
-					 bean.getMean() + "\n" +
-					 "bean.getColumnHeight()[0] (first elem)=" +
-					 bean.getColumnHeight()[0] + "\n" + "bean.getInterval()=" +
-					 bean.getInterval() + "\n" + "bean.getLowerQuartile()=" +
-					 bean.getLowerQuartile() + "\n" + "bean.getMaxScore()=" +
-					 bean.getMaxScore() + "\n" + "bean.getMean()=" + bean.getMean() +
-					 "\n" + "bean.getMedian()=" + bean.getMedian() + "\n" +
-					 "bean.getNumResponses()=" + bean.getNumResponses() + "\n" +
-					 "bean.getNumStudentCollection()=" +
-					 bean.getNumStudentCollection() +
-					 "\n" + "bean.getQ1()=" + bean.getQ1() + "\n" + "bean.getQ2()=" +
-					 bean.getQ2() + "\n" + "bean.getQ3()=" + bean.getQ3() + "\n" +
-					 "bean.getQ4()=" + bean.getQ4());
-					 log.info("--------------------------------------------");
-
-				   */
-				  // END DEBUGGING CODE
-				  ///////////////////////////////////////////////////////////
 			  } catch (IllegalAccessException e) {
 				  log.warn("IllegalAccessException:  unable to populate bean" + e);
 			  } catch (InvocationTargetException e) {
@@ -988,7 +967,6 @@ public class HistogramListener
 			//This should always be the case as only valid responses 
 			//from the list of available options are allowed 
 			if (answer != null) {
-				// log.info("Gopal: looking for " + answer.getId());
 				// found a response
 				Integer num = null;
 				// num is a counter for the number of responses that select this published answer
@@ -1130,7 +1108,7 @@ public class HistogramListener
 						break;
 					}
 				} catch (Exception e) {
-					e.printStackTrace();
+					log.error(e.getMessage(), e);
 					throw new RuntimeException(
 							"error calculating emi question.");
 				}
@@ -1410,7 +1388,6 @@ public class HistogramListener
 			AnswerIfc answer = (AnswerIfc) publishedAnswerHash.get(data
 					.getPublishedAnswerId());
 			if (answer != null) {
-				// log.info("Rachel: looking for " + answer.getId());
 				// found a response
 				Integer num = null;
 				// num is a counter
@@ -1548,7 +1525,7 @@ public class HistogramListener
 							break;
 						}
 					} catch (Exception e) {
-						e.printStackTrace();
+						log.error(e.getMessage(), e);
 						throw new RuntimeException(
 								"error calculating mcmc question.");
 					}
@@ -1621,7 +1598,6 @@ public class HistogramListener
 					.getPublishedAnswerId());
 
 			if (answer != null) {
-				// log.info("Rachel: looking for " + answer.getId());
 				// found a response
 				Integer num = null;
 				// num is a counter
@@ -1632,7 +1608,7 @@ public class HistogramListener
 
 				} catch (Exception e) {
 					log.warn("No results for " + answer.getId());
-					e.printStackTrace();
+					log.error(e.getMessage(), e);
 				}
 				if (num == null)
 					num = Integer.valueOf(0);
@@ -2104,7 +2080,6 @@ private void getCalculatedQuestionScores(List<ItemGradingData> scores, Histogram
 		  rows.put(label.getId(), Integer.valueOf(0));
 		  // sequenceMap.put(label.getSequence(), label.getId());
 	  }
-	  // log.info("kim debug: row size and texts size " + rows.keySet().size()+ " " + texts.keySet().size());
 	  // result only contains the row information, I should have another HashMap to store the Answer results
 	  // find the number of responses (ItemGradingData) for each answer
 	  iter = scores.iterator();
@@ -2161,7 +2136,6 @@ private void getCalculatedQuestionScores(List<ItemGradingData> scores, Histogram
 			  continue;
 		  }
 		  isIn = false;
-		  //log.info("kim debug: publishedAnswerHash: key value " + id + answer.getText());
 		  for(int i=0; i< answerTextList.size(); i++){
 			  if((((String)answer.getText()).trim()).equals(((String)answerTextList.get(i)).trim())){
 				  isIn = true;
@@ -2184,8 +2158,6 @@ private void getCalculatedQuestionScores(List<ItemGradingData> scores, Histogram
 		  HistogramBarBean gramBar = new HistogramBarBean();
 		  ItemTextIfc ifc = (ItemTextIfc)texts.get(id);
 		  Integer totalCount = (Integer)rows.get(id);
-		  //log.info("kim debug: total count: " + totalCount.intValue());
-		  //log.info("kim debug: row.next()" + ifc.getText());
 		  gramBar.setLabel(ifc.getText());
 		  //add each small beans
 		  List<ItemBarBean> itemBars = new ArrayList<ItemBarBean>();
@@ -2199,7 +2171,6 @@ private void getCalculatedQuestionScores(List<ItemGradingData> scores, Histogram
 			  while(iter1.hasNext()){
 				  Long id1 = (Long)iter1.next();
 				  AnswerIfc answer1 = (AnswerIfc)publishedAnswerHash.get(id1);
-				  //log.info("kim debug:answer1.getText()  + ifc.getText()" + 
 				  //answer1.getText() + answer1.getItemText().getText() + ifc.getText() + answer1.getId());
 				  
 				  // bjones86 - SAM-2232 - null checks
@@ -2222,7 +2193,6 @@ private void getCalculatedQuestionScores(List<ItemGradingData> scores, Histogram
 					  //2. then get the count from HashMap
 					  if(answers.containsKey(answer1.getId())) {
 						  count =((Integer) answers.get(answer1.getId())).intValue();
-						  //log.info("kim debug: count " + count);
 						  break;
 					  }
 				  }
@@ -2237,7 +2207,7 @@ private void getCalculatedQuestionScores(List<ItemGradingData> scores, Histogram
 
 			  //2. get the answer text
 			  barBean.setItemText((String)answerTextList.get(i));
-			  //log.info("kim debug: getItemText " + barBean.getItemText());
+
 			  //3. set the columnHeight
 			  int height= 0;
 			  if (totalCount.intValue() != 0)
@@ -2245,12 +2215,10 @@ private void getCalculatedQuestionScores(List<ItemGradingData> scores, Histogram
 			  barBean.setColumnHeight(Integer.toString(height));
 			  itemBars.add(barBean);
 		  }
-		  //log.info("kim debug: itemBars size: " +itemBars.size());
 		  gramBar.setItemBars(itemBars);
 		  histogramBarList.add(gramBar);
-	  }	
-	  //debug purpose
-	  //log.info("kim debug: histogramBarList size: " +histogramBarList.size());
+	  }
+
 	  qbean.setHistogramBars(histogramBarList.toArray(new HistogramBarBean[histogramBarList.size()]));
 	  qbean.setNumResponses(numStudentRespondedMap.size());
   }	
@@ -2316,9 +2284,9 @@ private void getCalculatedQuestionScores(List<ItemGradingData> scores, Histogram
       qbean.setHistogramBars(bars);
     }
       catch (IllegalAccessException e) {
-		e.printStackTrace();
+		log.error(e.getMessage(), e);
 	} catch (InvocationTargetException e) {
-		e.printStackTrace();
+		log.error(e.getMessage(), e);
 	}
   }
 
@@ -2818,8 +2786,7 @@ private void getCalculatedQuestionScores(List<ItemGradingData> scores, Histogram
         n=""+number;
         indexOfDec=n.indexOf(".");
         index=indexOfDec+decimal+1;
-        //log.info("NUMBER : "+n);
-        //log.info("NUMBER LENGTH : "+n.length());
+
         if(n.length()>index)
             {
         return n.substring(0,index);

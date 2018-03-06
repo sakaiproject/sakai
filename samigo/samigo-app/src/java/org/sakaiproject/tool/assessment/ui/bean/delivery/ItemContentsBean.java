@@ -30,14 +30,14 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 import java.util.Map;
+
 import javax.faces.model.SelectItem;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
-import org.sakaiproject.samigo.util.SamigoConstants;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.apache.commons.math3.util.Precision;
 import org.sakaiproject.event.cover.EventTrackingService;
+import org.sakaiproject.samigo.util.SamigoConstants;
 import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData;
 import org.sakaiproject.tool.assessment.data.dao.grading.MediaData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AnswerIfc;
@@ -64,13 +64,12 @@ import org.sakaiproject.util.ResourceLoader;
  * </p>
  */
 
+@Slf4j
 public class ItemContentsBean implements Serializable {
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 6270034338280029897L;
-
-	private static Logger log = LoggerFactory.getLogger(ItemContentsBean.class);
 
 	private static ResourceLoader rb = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.DeliveryMessages");
 
@@ -280,17 +279,17 @@ public class ItemContentsBean implements Serializable {
 	public boolean getModelAnswerIsNotEmpty() {
 		String k = getKey();
 		if (k != null)
-			return isNotEmpty(strip(ContextUtil.stringWYSIWYG(k)));
+			return isNotEmpty(k);
 		else
 			return false;
 	}
 	
 	public boolean getFeedbackIsNotEmpty() {
-		return isNotEmpty(strip(ContextUtil.stringWYSIWYG(getFeedback())));
+		return isNotEmpty(getFeedback());
 	}
 
 	public boolean getGradingCommentIsNotEmpty() {
-		return isNotEmpty(strip(getGradingComment()));
+		return isNotEmpty(getGradingComment());
 	}
 
 	public String getStrippedKey() {
@@ -632,12 +631,8 @@ public class ItemContentsBean implements Serializable {
 
 	public List<ItemGradingData> getItemGradingDataArray() {
 		if (itemGradingDataArray == null) {
-			// log.debug("getReview : getitemgradingdataarray is null, size =0
-			// ");
 			return new ArrayList<ItemGradingData>();
 		}
-		// log.debug("getReview: getitemgradingdataarray size " +
-		// itemGradingDataArray.size());
 		return itemGradingDataArray;
 	}
 
@@ -752,7 +747,7 @@ public class ItemContentsBean implements Serializable {
 				}
 			}
 		} catch (RuntimeException e) {
-			e.printStackTrace();
+			log.error(e.getMessage(), e);
 		}
 	}
 
@@ -795,7 +790,7 @@ public class ItemContentsBean implements Serializable {
     }
     catch (Exception e)
     {
-      e.printStackTrace();
+      log.error(e.getMessage(), e);
       return new String[0];
     }
   }
@@ -837,7 +832,7 @@ public class ItemContentsBean implements Serializable {
 			}
 			setItemGradingDataArray(newItems);
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.error(e.getMessage(), e);
 		}
 	}
 
@@ -852,7 +847,7 @@ public class ItemContentsBean implements Serializable {
 			}
 			return response;
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.error(e.getMessage(), e);
 			return responseText;
 		}
 	}
@@ -878,7 +873,7 @@ public class ItemContentsBean implements Serializable {
 				return responseText;
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.error(e.getMessage(), e);
 			return responseText;
 		}
 	}
@@ -911,7 +906,7 @@ public class ItemContentsBean implements Serializable {
 			}
 			data.setAnswerText(presponseId);
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.error(e.getMessage(), e);
 		}
 	}
 
@@ -1045,7 +1040,7 @@ public class ItemContentsBean implements Serializable {
 			}
 			return comment;
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.error(e.getMessage(), e);
 			return studentComment;
 		}
 	}
@@ -1073,7 +1068,7 @@ public class ItemContentsBean implements Serializable {
 			}
 			data.setAnswerText(param);
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.error(e.getMessage(), e);
 		}
 	}	
 
@@ -1237,7 +1232,7 @@ public class ItemContentsBean implements Serializable {
 				itemGradingData = iter.next();
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.error(e.getMessage(), e);
 		}
 		if (itemGradingData != null
 				&& itemGradingData.getItemGradingId() != null) {

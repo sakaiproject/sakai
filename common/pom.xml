@@ -3,7 +3,7 @@
   <parent>
     <groupId>org.sakaiproject</groupId>
     <artifactId>master</artifactId>
-    <version>12-SNAPSHOT</version>
+    <version>13-SNAPSHOT</version>
     <relativePath>../master/pom.xml</relativePath>
   </parent>
 
@@ -15,9 +15,7 @@
   <modules>
     <module>common-composite-component</module>
     <module>impl</module>
-    <module>edu-person-api</module>
-    <module>manager-api</module>
-    <module>type-api</module>
+    <module>common-api</module>
     <module>privacy-api</module>
     <module>privacy-comp-impl</module>
     <module>privacy-hbm</module>
@@ -45,19 +43,7 @@
       </dependency>
       <dependency>
         <groupId>org.sakaiproject.common</groupId>
-        <artifactId>sakai-common-manager-api</artifactId>
-        <version>${project.version}</version>
-        <scope>provided</scope>
-      </dependency>
-      <dependency>
-        <groupId>org.sakaiproject.common</groupId>
-        <artifactId>sakai-common-type-api</artifactId>
-        <version>${project.version}</version>
-        <scope>provided</scope>
-      </dependency>
-      <dependency>
-        <groupId>org.sakaiproject.common</groupId>
-        <artifactId>sakai-common-edu-person-api</artifactId>
+        <artifactId>sakai-common-api</artifactId>
         <version>${project.version}</version>
         <scope>provided</scope>
       </dependency>

@@ -30,8 +30,7 @@ import java.util.ResourceBundle;
 
 import javax.faces.context.FacesContext;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Instead of using standard methods of deciding which locale should be used
@@ -49,9 +48,8 @@ import org.slf4j.LoggerFactory;
  * Note that we only use the "getLocale()" method in ResourceLoader.
  * For details, see the comments to SAK-6886.
  */
+@Slf4j
 public class LocaleUtil {
-	private static final Logger log = LoggerFactory.getLogger(LocaleUtil.class);
-	
 	private static Object sakaiResourceLoader = null;
 	private static Method sakaiResourceLoaderGetLocale;
 	private static Method sakaiResourceLoaderGetOrientation;

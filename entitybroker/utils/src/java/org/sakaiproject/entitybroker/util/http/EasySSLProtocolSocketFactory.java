@@ -31,6 +31,8 @@ import javax.net.SocketFactory;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
 
+import lombok.extern.slf4j.Slf4j;
+
 import org.apache.commons.httpclient.ConnectTimeoutException;
 import org.apache.commons.httpclient.HttpClientError;
 import org.apache.commons.httpclient.params.HttpConnectionParams;
@@ -82,7 +84,7 @@ import org.apache.commons.httpclient.protocol.SecureProtocolSocketFactory;
  * for use without additional customization.
  * </p>
  */
-
+@Slf4j
 public class EasySSLProtocolSocketFactory implements SecureProtocolSocketFactory {
 
     private SSLContext sslcontext = null;
@@ -103,7 +105,7 @@ public class EasySSLProtocolSocketFactory implements SecureProtocolSocketFactory
               null);
             return context;
         } catch (Exception e) {
-            System.err.println(e);
+            log.error(e.getMessage(), e);
             throw new HttpClientError(e.toString());
         }
     }

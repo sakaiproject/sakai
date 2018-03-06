@@ -1,3 +1,18 @@
+/**
+ * Copyright (c) 2013-2016 The Apereo Foundation
+ *
+ * Licensed under the Educational Community License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *             http://opensource.org/licenses/ecl2
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.sakaiproject.portlet.util;
 
 import java.io.IOException;
@@ -9,6 +24,7 @@ import java.util.Properties;
 
 import javax.portlet.PortletContext;
 
+import lombok.extern.slf4j.Slf4j;
 // Velocity
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.Template;
@@ -17,16 +33,12 @@ import org.apache.velocity.runtime.RuntimeConstants;
 import org.apache.velocity.app.VelocityEngine;
 
 import org.sakaiproject.velocity.util.SLF4JLogChute;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * a simple VelocityHelper Utility
  */
+@Slf4j
 public class VelocityHelper {
-
-	/** Our log (commons). */
-	private static Logger M_log = LoggerFactory.getLogger(VelocityHelper.class);
 
 	public static VelocityEngine makeEngine(PortletContext pContext)
 		throws java.io.IOException,org.apache.velocity.exception.ResourceNotFoundException,
@@ -39,12 +51,12 @@ public class VelocityHelper {
 				   InputStream is = pContext.getResourceAsStream(webappRegPath);
 				   if ( is == null ) 
 				   {
-					   M_log.info("Configuration not found at "+webappRegPath+" using default configuration");
+					   log.info("Configuration not found at "+webappRegPath+" using default configuration");
 					   is = new StringBufferInputStream(defaultConfiguration);
 				   }
 				   p.load(is);
 				   vengine.init(p);
-				   M_log.info("Velocity Engine Created "+vengine);
+				   log.info("Velocity Engine Created "+vengine);
 				   return vengine;
 			   }
 
@@ -63,7 +75,7 @@ public class VelocityHelper {
 
 		finally
 		{
-			if ( retval == false) M_log.warn("Unable to process Template - "+vTemplate);
+			if ( retval == false) log.warn("Unable to process Template - "+vTemplate);
 			return retval;
 		}
 	}
@@ -78,19 +90,19 @@ public class VelocityHelper {
 		}
 		catch( org.apache.velocity.exception.ResourceNotFoundException e )
 		{
-			M_log.warn("Resource not found - "+vTemplate);
+			log.warn("Resource not found - "+vTemplate);
 			return false;
 		}
 		catch ( org.apache.velocity.exception.ParseErrorException e )
 		{
-			M_log.warn("Parse Error - "+vTemplate);
-			M_log.warn(e.getMessage());
+			log.warn("Parse Error - "+vTemplate);
+			log.warn(e.getMessage());
 			return false;
 		}
 		catch ( Exception e )
 		{
-			M_log.warn("Exception - "+vTemplate);
-			M_log.warn(e.getMessage());
+			log.warn("Exception - "+vTemplate);
+			log.warn(e.getMessage());
 			return false;
 		}
 

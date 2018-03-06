@@ -21,8 +21,7 @@
 
 package org.sakaiproject.tool.assessment.shared.impl.qti;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.w3c.dom.Document;
 
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentIfc;
@@ -37,9 +36,9 @@ import org.sakaiproject.tool.assessment.qti.util.XmlUtil;
  * information.
  * @author Ed Smiley <esmiley@stanford.edu>
  */
+@Slf4j
 public class QTIServiceImpl implements QTIServiceAPI
 {
-  private static Logger log = LoggerFactory.getLogger(QTIServiceImpl.class);
 
   /**
  * Import an assessment XML document in QTI format, extract & persist the data.

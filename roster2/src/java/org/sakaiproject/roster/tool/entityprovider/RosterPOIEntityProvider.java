@@ -1,3 +1,18 @@
+/**
+ * Copyright (c) 2010-2017 The Apereo Foundation
+ *
+ * Licensed under the Educational Community License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *             http://opensource.org/licenses/ecl2
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 /*
 * Licensed to The Apereo Foundation under one or more contributor license
 * agreements. See the NOTICE file distributed with this work for
@@ -28,6 +43,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletResponse;
@@ -389,6 +405,11 @@ public class RosterPOIEntityProvider extends AbstractEntityProvider implements
 				row.add(member.getEmail());
 			}
 
+			if (this.sakaiProxy.getViewUserProperty(siteId)) {
+				List<String> props = member.getUserProperties().entrySet().stream().map(e -> e.getKey() + ":" + e.getValue()).collect(Collectors.toList());
+				row.add(String.join(",", props));
+			}
+
 			row.add(member.getRole());
 
 			if (this.sakaiProxy.hasUserSitePermission(userId, RosterFunctions.ROSTER_FUNCTION_VIEWGROUP, siteId)) {
@@ -441,6 +462,11 @@ public class RosterPOIEntityProvider extends AbstractEntityProvider implements
 
 			if (this.sakaiProxy.getViewEmail(siteId)) {
 				row.add(member.getEmail());
+			}
+
+			if (this.sakaiProxy.getViewUserProperty(siteId)) {
+				List<String> props = member.getUserProperties().entrySet().stream().sorted(Map.Entry.comparingByKey()).map(e -> e.getKey() + ":" + e.getValue()).collect(Collectors.toList());
+				row.add(String.join(",", props));
 			}
 
 			row.add(member.getEnrollmentStatusText());
@@ -507,8 +533,13 @@ public class RosterPOIEntityProvider extends AbstractEntityProvider implements
 		if (this.sakaiProxy.getViewUserDisplayId()) {
 			header.add(rl.getString("facet_userId"));
 		}
+
 		if (this.sakaiProxy.getViewEmail(siteId)) {
 			header.add(rl.getString("facet_email"));
+		}
+
+		if (this.sakaiProxy.getViewUserProperty(siteId)) {
+			header.add(rl.getString("facet_userProperties"));
 		}
 
 		if (VIEW_OVERVIEW.equals(viewType)) {

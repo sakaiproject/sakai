@@ -1,10 +1,24 @@
+/**
+ * Copyright (c) 2003-2017 The Apereo Foundation
+ *
+ * Licensed under the Educational Community License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *             http://opensource.org/licenses/ecl2
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.sakaiproject.search.elasticsearch;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringEscapeUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.elasticsearch.action.admin.cluster.node.info.NodeInfo;
 import org.elasticsearch.action.admin.cluster.node.info.NodesInfoRequest;
 import org.elasticsearch.action.admin.cluster.node.info.NodesInfoResponse;
@@ -86,8 +100,8 @@ import static org.elasticsearch.node.NodeBuilder.nodeBuilder;
  * <p/>
  * </p>
  */
-public class ElasticSearchService implements SearchService {
-    private static final Logger log = LoggerFactory.getLogger(ElasticSearchService.class);
+@Slf4j
+ public class ElasticSearchService implements SearchService {
 
     /* constant config */
     private static final String PENDING_INDEX_BUILDER_REGISTRATION = ElasticSearchService.class.getName() + ".pendingIndexBuilderRegistration";
@@ -508,7 +522,7 @@ public class ElasticSearchService implements SearchService {
             try {
                 StringWriter sw = new StringWriter();
                 PrintWriter pw = new PrintWriter(sw);
-                ex.printStackTrace(pw);
+                log.error("Search Service XML response failed ", pw);
                 pw.flush();
                 sb.append(sw.toString());
                 pw.close();

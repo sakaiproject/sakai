@@ -1,3 +1,18 @@
+/**
+ * Copyright (c) 2011-2016 The Apereo Foundation
+ *
+ * Licensed under the Educational Community License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *             http://opensource.org/licenses/ecl2
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.sakaiproject.lti.extensions;
 
 import java.io.Reader;
@@ -9,18 +24,16 @@ import java.util.HashMap;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import org.xml.sax.Attributes;
 import org.xml.sax.InputSource;
 import org.xml.sax.helpers.DefaultHandler;
 
+@Slf4j
 public class POXMembershipsResponse {
 
     public static final String UNSPECIFIED = "unspecified";
-
-	private static Logger M_log = LoggerFactory.getLogger(POXMembershipsResponse.class);
 
     private MembershipsHandler handler = new MembershipsHandler();
 
@@ -31,7 +44,7 @@ public class POXMembershipsResponse {
             parser.parse(new InputSource(reader), handler);
             reader.close();
         } catch (Exception e) {
-            M_log.error("Failed to parse memberships xml.", e);
+            log.error("Failed to parse memberships xml.", e);
         }
     }
 
@@ -71,7 +84,7 @@ public class POXMembershipsResponse {
 
         public void startElement(String uri, String localName, String qName, Attributes attributes) {
 
-            if(M_log.isDebugEnabled()) M_log.debug("qName: " + qName);
+            if(log.isDebugEnabled()) log.debug("qName: {}", qName);
 
             grab = true;
 
@@ -108,7 +121,7 @@ public class POXMembershipsResponse {
                     members.add(currentMember);
                 } else {
                     // No role specified. This is incorrect.
-                    M_log.warn("No role specified for member '" + currentMember.firstName + " " + currentMember.lastName + "'. Omitting from the list ...");
+                    log.warn("No role specified for member '{} {}'. Omitting from the list ...", currentMember.firstName, currentMember.lastName);
                 }
             } else if (USER_ID.equals(qName)) {
                 currentMember.userId = builder.toString();
@@ -141,7 +154,7 @@ public class POXMembershipsResponse {
                     groups.put(groupTitle, groupMembers);
                 } else {
 
-                    if(M_log.isDebugEnabled()) M_log.debug("Adding " + currentMember.userId + " to " + groupTitle);
+                    if(log.isDebugEnabled()) log.debug("Adding {} to {}", currentMember.userId, groupTitle);
 
                     groups.get(groupTitle).add(currentMember);
                 }

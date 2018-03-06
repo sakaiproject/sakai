@@ -36,8 +36,7 @@ import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 import javax.faces.model.SelectItem;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.content.api.FilePickerHelper;
@@ -88,9 +87,9 @@ import org.sakaiproject.util.ResourceLoader;
  *
  * Used to be org.navigoproject.ui.web.asi.author.assessment.AssessmentActionForm.java
  */
+@Slf4j
 public class AssessmentSettingsBean
     implements Serializable {
-    private static final Logger log = LoggerFactory.getLogger(AssessmentSettingsBean.class);
 
     private static final IntegrationContextFactory integrationContextFactory =
       IntegrationContextFactory.getInstance();
@@ -119,8 +118,7 @@ public class AssessmentSettingsBean
   private String keywords;
   private String rubrics;
   private String authors;
-  private String templateAuthors;
-
+  
   // these are properties in AssessmentAccessControl
   private Date startDate;
   private Date dueDate;
@@ -243,9 +241,7 @@ public class AssessmentSettingsBean
       if (template != null){
         setNoTemplate(false);
         this.templateTitle = template.getTitle();
-        this.templateDescription = template.getDescription();
-        this.templateAuthors = template.getAssessmentMetaDataByLabel(
-            "author"); // see TemplateUploadListener line 142
+        this.templateDescription = template.getDescription();        
       }
       else{
         setNoTemplate(true);
@@ -1237,14 +1233,6 @@ public class AssessmentSettingsBean
     this.templateTitle = title;
   }
 
-  public String getTemplateAuthors() {
-    return this.templateAuthors;
-  }
-
-  public void setTemplateAuthors(String templateAuthors) {
-    this.templateAuthors = templateAuthors;
-  }
-
   public String getTemplateDescription() {
     return this.templateDescription;
   }
@@ -1761,22 +1749,21 @@ public class AssessmentSettingsBean
 
     //Internal to be able to supress error easier
     public void addExtendedTime(boolean errorToContext) {
-    	ExtendedTime entry = this.extendedTime;
-  	if(StringUtils.isBlank(entry.getUser()) && StringUtils.isBlank(entry.getGroup())) {
-  		if (errorToContext) {
-  			  FacesContext context = FacesContext.getCurrentInstance();
-  			  String errorString = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages", "extended_time_user_and_group_set");
-  			  errorString = errorString.replace("{0}", entry.getUser()).replace("{1}", entry.getGroup());
-  			  context.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_WARN, errorString, null));
-  		}
-    	}
-    	else {
-    		this.extendedTime.syncDates();
-    		this.extendedTimes.add(this.extendedTime);
-    		resetExtendedTime();
-    	}
+        ExtendedTime entry = this.extendedTime;
+        if (StringUtils.isBlank(entry.getUser()) && StringUtils.isBlank(entry.getGroup())) {
+            if (errorToContext) {
+                FacesContext context = FacesContext.getCurrentInstance();
+                String errorString = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages", "extended_time_user_and_group_set");
+                context.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_WARN, errorString, null));
+            }
+        }
+        else {
+            this.extendedTime.syncDates();
+            this.extendedTimes.add(this.extendedTime);
+            resetExtendedTime();
+        }
     }
-    
+
     public void deleteExtendedTime() {
         this.extendedTimes.remove(this.transitoryExtendedTime);
         this.transitoryExtendedTime = null;

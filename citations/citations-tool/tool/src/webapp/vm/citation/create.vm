@@ -1,7 +1,7 @@
 #set($default = "")
 #if($!DEFAULT_TEMPLATE)#set($default = "$!DEFAULT_TEMPLATE.identifier")#end
 
-<script type="text/javascript" src="#libraryLink('webjars/jquery/1.11.3/jquery.js')">
+<script type="text/javascript" src="#libraryLink('webjars/jquery/1.12.4/jquery.js')">
 </script>
 <script type="text/javascript" src="/sakai-citations-tool/js/citationscript.js">
 </script>

@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.sakaiproject.jsf</groupId>
         <artifactId>jsf</artifactId>
-        <version>12-SNAPSHOT</version>
+        <version>13-SNAPSHOT</version>
     </parent>
 
     <name>Sakai JSF widget dependencies for Sun's RI (sakai-depend-jsf-widgets-sun)</name>

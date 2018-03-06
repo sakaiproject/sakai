@@ -47,13 +47,13 @@ $Id$
       <title><h:outputText value="#{commonMessages.total_scores}" /></title>
     <samigo:script path="/jsf/widget/hideDivision/hideDivision.js" />
     
-		<script type="text/javascript" src="/library/webjars/jquery/1.11.3/jquery.min.js"></script>
-		<script language='javascript' src='/samigo-app/js/jquery.dynamiclist.student.preview.js'></script>
-		<script language='javascript' src='/samigo-app/js/selection.student.preview.js'></script>
-		<script language='javascript' src='/samigo-app/js/selection.author.preview.js'></script>
+		<samigo:script path="/../library/webjars/jquery/1.12.4/jquery.min.js"/>
+		<samigo:script path="/js/jquery.dynamiclist.student.preview.js"/>
+		<samigo:script path="/js/selection.student.preview.js"/>
+		<samigo:script path="/js/selection.author.preview.js"/>
 
-		<link href="/samigo-app/css/imageQuestion.student.css" type="text/css" rel="stylesheet" media="all" />
-		<link href="/samigo-app/css/imageQuestion.author.css" type="text/css" rel="stylesheet" media="all" />
+		<samigo:stylesheet path="/css/imageQuestion.student.css"/>
+		<samigo:stylesheet path="/css/imageQuestion.author.css"/>
 		
 		<script type="text/JavaScript">		
 			jQuery(window).load(function(){

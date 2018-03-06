@@ -24,71 +24,60 @@
 package org.sakaiproject.lessonbuildertool.service;
 
 import java.io.IOException;
+import java.lang.reflect.Method;
+import java.sql.Connection;
+import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.List;
-import java.util.Set;
-import java.util.SortedSet;
-import java.util.HashSet;
-import java.util.TreeSet;
 import java.util.Comparator;
 import java.util.Date;
-import java.util.Map;
+import java.util.HashSet;
 import java.util.Iterator;
-import java.lang.reflect.Method;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import org.jdom.Element;
 import org.jdom.Namespace;
 
-import org.sakaiproject.content.api.ContentResource;
-import org.sakaiproject.entity.api.ResourceProperties;
-import org.sakaiproject.content.cover.ContentHostingService;
-import org.sakaiproject.util.Validator;
-import org.sakaiproject.lessonbuildertool.service.LessonSubmission;
-import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean;
-import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean.UrlItem;
-import org.sakaiproject.assignment2.model.constants.AssignmentConstants;
+import uk.org.ponder.messageutil.MessageLocator;
+
 import org.sakaiproject.assignment2.model.Assignment2;
 import org.sakaiproject.assignment2.model.AssignmentAttachment;
-import org.sakaiproject.util.FormattedText;
-
+import org.sakaiproject.assignment2.model.constants.AssignmentConstants;
+import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.content.api.ContentResource;
+import org.sakaiproject.content.cover.ContentHostingService;
+import org.sakaiproject.db.api.SqlReader;
+import org.sakaiproject.db.cover.SqlService;
+import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.InUseException;
 import org.sakaiproject.exception.PermissionException;
-
-import org.sakaiproject.site.api.Group;
-import org.sakaiproject.site.api.Site;
-import org.sakaiproject.site.cover.SiteService;
-import org.sakaiproject.tool.api.Session;
-import org.sakaiproject.db.cover.SqlService;
-import org.sakaiproject.db.api.SqlReader;
-import org.sakaiproject.tool.cover.ToolManager;
-import org.sakaiproject.site.api.ToolConfiguration;
-import org.sakaiproject.tool.api.SessionManager;
-import org.sakaiproject.user.api.User;
-import org.sakaiproject.user.cover.UserDirectoryService;
-import org.sakaiproject.component.cover.ServerConfigurationService;             
-import org.sakaiproject.component.cover.ComponentManager;
-
+import org.sakaiproject.lessonbuildertool.service.LessonSubmission;
+import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean;
+import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean.UrlItem;
 import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.CacheRefresher;
 import org.sakaiproject.memory.api.MemoryService;
-
-import uk.org.ponder.messageutil.MessageLocator;
-
-import org.sakaiproject.component.cover.ComponentManager;
-
 import org.sakaiproject.service.gradebook.shared.*;
-	
-import org.sakaiproject.db.cover.SqlService;
-import org.sakaiproject.db.api.SqlReader;
-import java.sql.Connection;
-import java.sql.ResultSet;
-
+import org.sakaiproject.site.api.Group;
+import org.sakaiproject.site.api.Site;
+import org.sakaiproject.site.api.ToolConfiguration;
+import org.sakaiproject.site.cover.SiteService;
+import org.sakaiproject.tool.api.Session;
+import org.sakaiproject.tool.api.SessionManager;
+import org.sakaiproject.tool.cover.ToolManager;
+import org.sakaiproject.user.api.User;
+import org.sakaiproject.user.cover.UserDirectoryService;
+import org.sakaiproject.util.FormattedText;
+import org.sakaiproject.util.Validator;
 
 /**
  * Interface to Assignment
@@ -106,7 +95,7 @@ import java.sql.ResultSet;
 // variables lessonEntity because the same module will probably have an
 // injected class to handle tests and quizes as well. That will eventually
 // be converted to be a LessonEntity.
-
+@Slf4j
 public class Assignment2Entity implements LessonEntity, AssignmentInterface {
 
     class Assignment {
@@ -122,8 +111,6 @@ public class Assignment2Entity implements LessonEntity, AssignmentInterface {
 	Long version;
 	String groupid;
     }
-
-    private static Logger log = LoggerFactory.getLogger(Assignment2Entity.class);
 
     private static Cache assignmentCache = null;
     protected static final int DEFAULT_EXPIRATION = 10 * 60;
@@ -173,7 +160,7 @@ public class Assignment2Entity implements LessonEntity, AssignmentInterface {
 
 	if (haveA2) {
 	    assignmentCache = memoryService
-		.newCache("org.sakaiproject.lessonbuildertool.service.Assignment2Entity.cache");
+		.getCache("org.sakaiproject.lessonbuildertool.service.Assignment2Entity.cache");
 
 	    // Unfortunately the interface class is part of the component, not the shared library,
 	    // so we can't get to it. The only way to invoke stuff in the DAO is through introspection.

@@ -21,6 +21,7 @@
 
 package org.sakaiproject.util;
 
+import java.time.Instant;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -32,9 +33,20 @@ import java.util.Properties;
 import java.util.Stack;
 import java.util.Vector;
 
+import lombok.extern.slf4j.Slf4j;
+
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+
+import org.xml.sax.Attributes;
+import org.xml.sax.ContentHandler;
+import org.xml.sax.SAXException;
+import org.xml.sax.helpers.DefaultHandler;
+
 import org.sakaiproject.content.cover.ContentTypeImageService;
 import org.sakaiproject.entity.api.EntityPropertyNotDefinedException;
 import org.sakaiproject.entity.api.EntityPropertyTypeException;
@@ -47,30 +59,20 @@ import org.sakaiproject.time.api.Time;
 import org.sakaiproject.time.cover.TimeService;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.cover.UserDirectoryService;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-import org.xml.sax.Attributes;
-import org.xml.sax.ContentHandler;
-import org.xml.sax.SAXException;
-import org.xml.sax.helpers.DefaultHandler;
 
 /**
  * <p>
  * BaseResourceProperties is the base class for ResourceProperties implementations.
  * </p>
  */
+@Slf4j
 public class BaseResourceProperties implements ResourceProperties, SerializablePropertiesAccess, SerializableEntity
 {
-	/** Our logger. */
-	private static Logger M_log = LoggerFactory.getLogger(BaseResourceProperties.class);
-
 	/** A fixed class serian number. */
 	private static final long serialVersionUID = 1L;
 
 	/** The hashtable of properties. */
-	protected Hashtable m_props = null;
+	protected Hashtable<String, Object> m_props = null;
 
 	/** If the full properties have not yet been read. */
 	protected transient boolean m_lazy = false;
@@ -80,7 +82,16 @@ public class BaseResourceProperties implements ResourceProperties, SerializableP
 	 */
 	public BaseResourceProperties()
 	{
-		m_props = new Hashtable();
+		m_props = new Hashtable<>();
+	}
+
+	public BaseResourceProperties(Map<String, String> map) {
+		this();
+		for (Map.Entry<String, String> entry : map.entrySet()) {
+		    if (entry.getKey() != null) {
+		    	addProperty(entry.getKey(), entry.getValue());
+			}
+		}
 	}
 
 	/**
@@ -140,7 +151,7 @@ public class BaseResourceProperties implements ResourceProperties, SerializableP
 					// if it's not a list, it's wrong!
 					else
 					{
-						M_log.warn("construct(el): value set not a list: " + name);
+						log.warn("construct(el): value set not a list: " + name);
 					}
 				}
 				else
@@ -195,13 +206,13 @@ public class BaseResourceProperties implements ResourceProperties, SerializableP
 					}
 					else
 					{
-						M_log.warn(".toXml: in list not string: " + name);
+						log.warn(".toXml: in list not string: " + name);
 					}
 				}
 			}
 			else
 			{
-				M_log.warn(".toXml: not a string, not a value: " + name);
+				log.warn(".toXml: not a string, not a value: " + name);
 			}
 		}
 
@@ -391,7 +402,7 @@ public class BaseResourceProperties implements ResourceProperties, SerializableP
 
 		else
 		{
-			M_log.warn("getPropertyFormatted: value not string, not list: " + name);
+			log.warn("getPropertyFormatted: value not string, not list: " + name);
 			return "";
 		}
 	}
@@ -480,6 +491,11 @@ public class BaseResourceProperties implements ResourceProperties, SerializableP
 		return new Date(time.getTime());
 	}
 	
+	public Instant getInstantProperty(String name) throws EntityPropertyNotDefinedException, EntityPropertyTypeException
+	{
+		Time time = getTimeProperty(name);
+		return Instant.ofEpochMilli(time.getTime());
+	}
 	/**
 	 * Access a named property as a User.
 	 * 
@@ -832,7 +848,7 @@ public class BaseResourceProperties implements ResourceProperties, SerializableP
 		// if it's not a list, it's wrong!
 		else
 		{
-			M_log.warn("addPropertyToList() value set not a list: " + name);
+			log.warn("addPropertyToList() value set not a list: " + name);
 		}
 	}
 
@@ -918,8 +934,7 @@ public class BaseResourceProperties implements ResourceProperties, SerializableP
 	/**
 	 * Take all values from this object.
 	 * 
-	 * @param user
-	 *        The ResourceProperties object to take values from.
+	 * @param props the ResourceProperties object to take values from.
 	 */
 	public void set(ResourceProperties props)
 	{
@@ -991,7 +1006,7 @@ public class BaseResourceProperties implements ResourceProperties, SerializableP
 						// if it's not a list, it's wrong!
 						else
 						{
-							M_log.warn("construct(el): value set not a list: " + name);
+							log.warn("construct(el): value set not a list: " + name);
 						}
 					}
 					else

@@ -19,9 +19,8 @@
  *
  **********************************************************************************/
 
-
-
 package org.sakaiproject.tool.assessment.ui.servlet.delivery;
+
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.ByteArrayInputStream;
@@ -34,8 +33,8 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
@@ -63,14 +62,13 @@ import org.sakaiproject.tool.assessment.util.TextFormat;
  * @version $Id: .java 17070 2006-10-12 00:07:52Z
  *          ktsao@stanford.edu $
  */
-
+@Slf4j
 public class ShowAttachmentMediaServlet extends HttpServlet
 {
   /**
 	 * 
 	 */
   private static final long serialVersionUID = 2203681863823855810L;
-  private static Logger log = LoggerFactory.getLogger(ShowAttachmentMediaServlet.class);
 
   public ShowAttachmentMediaServlet()
   {
@@ -89,7 +87,7 @@ public class ShowAttachmentMediaServlet extends HttpServlet
 	String mimeType = req.getParameter("mimeType");
 	String filename = req.getParameter("filename");
 
-	String cleanedFilename = TextFormat.convertPlaintextToFormattedTextNoHighUnicode(log, filename);
+	String cleanedFilename = TextFormat.convertPlaintextToFormattedTextNoHighUnicode(filename);
 	
     res.setHeader("Content-Disposition", "inline;filename=\"" + cleanedFilename +"\";");
     log.debug("resourceId = " + resourceId);
@@ -142,7 +140,6 @@ public class ShowAttachmentMediaServlet extends HttpServlet
 
     	int i=0;
     	while ((i=buf_inputStream.read()) != -1){
-    		// System.out.print(i);
     		buf_outputStream.write(i);
     		count++;
     	}
@@ -189,4 +186,3 @@ public class ShowAttachmentMediaServlet extends HttpServlet
     }
   }
 }
-

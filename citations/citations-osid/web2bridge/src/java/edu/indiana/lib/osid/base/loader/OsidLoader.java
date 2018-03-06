@@ -1,4 +1,11 @@
 package edu.indiana.lib.osid.base.loader;
+
+import lombok.extern.slf4j.Slf4j;
+
+import org.osid.OsidContext;
+import org.osid.OsidException;
+import org.osid.OsidManager;
+
 /**
  * OsidLoader loads a specific implementation of an Open Service Interface
  * Definition (OSID) with its getManager method. The getManager method loads
@@ -62,6 +69,7 @@ package edu.indiana.lib.osid.base.loader;
  * O.K.I&#46; OSID Definition License}.
  * </p>
  */
+@Slf4j
 public class OsidLoader implements java.io.Serializable {
     /**
      * Returns an instance of the org.osid.OsidManager of the OSID specified by the OSID
@@ -117,11 +125,11 @@ public class OsidLoader implements java.io.Serializable {
      *         org.osid.OsidException#ERROR_ASSIGNING_CONFIGURATION
      *         ERROR_ASSIGNING_CONFIGURATION}
      */
-    public static org.osid.OsidManager getManager(
+    public static OsidManager getManager(
         String osidPackageManagerName, String implPackageName,
-        org.osid.OsidContext context,
+        OsidContext context,
         java.util.Properties additionalConfiguration)
-        throws org.osid.OsidException {
+        throws OsidException {
 
 
         try {
@@ -140,19 +148,19 @@ public class OsidLoader implements java.io.Serializable {
 
                     if (null != managerClass) {
                         if (osidInterface.isAssignableFrom(managerClass)) {
-                            org.osid.OsidManager manager = (org.osid.OsidManager) managerClass.newInstance();
+                            OsidManager manager = (OsidManager) managerClass.newInstance();
 
                             if (null != manager) {
                                 try {
                                     manager.osidVersion_2_0();
                                 } catch (Throwable ex) {
-                                    throw new org.osid.OsidException(org.osid.OsidException.VERSION_ERROR);
+                                    throw new OsidException(OsidException.VERSION_ERROR);
                                 }
 
                                 try {
                                     manager.assignOsidContext(context);
                                 } catch (Exception ex) {
-                                    throw new org.osid.OsidException(org.osid.OsidException.ERROR_ASSIGNING_CONTEXT);
+                                    throw new OsidException(OsidException.ERROR_ASSIGNING_CONTEXT);
                                 }
 
                                 try {
@@ -182,34 +190,34 @@ public class OsidLoader implements java.io.Serializable {
 
                                     return manager;
                                 } catch (Exception ex) {
-                                    throw new org.osid.OsidException(org.osid.OsidException.ERROR_ASSIGNING_CONFIGURATION);
+                                    throw new OsidException(OsidException.ERROR_ASSIGNING_CONFIGURATION);
                                 }
                             }
 
-                            throw new org.osid.OsidException(org.osid.OsidException.MANAGER_INSTANTIATION_ERROR);
+                            throw new OsidException(OsidException.MANAGER_INSTANTIATION_ERROR);
                         }
 
-                        throw new org.osid.OsidException(org.osid.OsidException.MANAGER_NOT_OSID_IMPLEMENTATION);
+                        throw new OsidException(OsidException.MANAGER_NOT_OSID_IMPLEMENTATION);
                     }
 
-                    throw new org.osid.OsidException(org.osid.OsidException.MANAGER_NOT_FOUND);
+                    throw new OsidException(OsidException.MANAGER_NOT_FOUND);
                 }
 
-                throw new org.osid.OsidException(org.osid.OsidException.INTERFACE_NOT_FOUND);
+                throw new OsidException(OsidException.INTERFACE_NOT_FOUND);
             }
 
-            throw new org.osid.OsidException(org.osid.OsidException.NULL_ARGUMENT);
-        } catch (org.osid.OsidException oex) {
-            oex.printStackTrace();
-            throw new org.osid.OsidException(oex.getMessage());
-        } catch (java.lang.Throwable ex) {
-            ex.printStackTrace();
-            throw new org.osid.OsidException(org.osid.OsidException.OPERATION_FAILED);
+            throw new OsidException(OsidException.NULL_ARGUMENT);
+        } catch (OsidException oex) {
+            log.error(oex.getMessage(), oex);
+            throw new OsidException(oex.getMessage());
+        } catch (Throwable ex) {
+            log.error(ex.getMessage(), ex);
+            throw new OsidException(OsidException.OPERATION_FAILED);
         }
     }
 
     private static String makeClassName(String packageManagerName)
-        throws org.osid.OsidException {
+        throws OsidException {
         String className = packageManagerName;
 
         if (null != className) {
@@ -227,7 +235,7 @@ public class OsidLoader implements java.io.Serializable {
     }
 
     private static String makeFullyQualifiedClassName(String packageName,
-        String className) throws org.osid.OsidException {
+        String className) throws OsidException {
         String cName = className;
 
         if (null != packageName) {
@@ -285,7 +293,7 @@ public class OsidLoader implements java.io.Serializable {
         }
 
     private static java.util.Properties getConfiguration(
-        org.osid.OsidManager manager) throws org.osid.OsidException {
+        OsidManager manager) throws OsidException {
         java.util.Properties properties = null;
 
         if (null != manager) {

@@ -20,8 +20,7 @@
  **********************************************************************************/
 package uk.ac.cam.caret.sakai.rwiki.tool.bean;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import uk.ac.cam.caret.sakai.rwiki.tool.api.PopulateService;
 
@@ -31,10 +30,9 @@ import uk.ac.cam.caret.sakai.rwiki.tool.api.PopulateService;
  * 
  * @author andrew
  */
+@Slf4j
 public class PrePopulateBean
 {
-	private static Logger log = LoggerFactory.getLogger(PrePopulateBean.class);
-
 	private PopulateService populateService;
 
 	private String currentPageRealm;

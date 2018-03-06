@@ -19,14 +19,11 @@
  *
  **********************************************************************************/
 
-
-
 package org.sakaiproject.tool.assessment.ui.bean.evaluation;
 
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -35,9 +32,8 @@ import java.util.Set;
 
 import javax.faces.event.ActionEvent;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.apache.commons.math3.util.Precision;
 import org.sakaiproject.jsf.model.PhaseAware;
 import org.sakaiproject.tool.assessment.business.entity.RecordingData;
@@ -54,6 +50,7 @@ import org.sakaiproject.util.ResourceLoader;
  * <p>Description: class form for evaluating question scores</p>
  *
  */
+@Slf4j
 public class QuestionScoresBean
   implements Serializable, PhaseAware
 {
@@ -92,7 +89,6 @@ public class QuestionScoresBean
   private String totalPeople;
   private String typeId;
   private Map scoresByItem;
-  private static Logger log = LoggerFactory.getLogger(QuestionScoresBean.class);
 
   //private String selectedSectionFilterValue = TotalScoresBean.ALL_SECTIONS_SELECT_VALUE;
   private String selectedSectionFilterValue = null;

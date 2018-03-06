@@ -28,8 +28,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.entity.api.EntityProducer;
 import org.sakaiproject.entity.api.Reference;
@@ -41,6 +41,7 @@ import org.sakaiproject.util.Validator;
  * EntityManagerComponent is an implementation of the EntityManager.
  * </p>
  */
+@Slf4j
 public class EntityManagerComponent implements EntityManager
 {
 	/**
@@ -142,9 +143,6 @@ public class EntityManagerComponent implements EntityManager
 
 	}
 
-	/** Our logger. */
-	protected static final Logger M_log = LoggerFactory.getLogger(EntityManagerComponent.class);
-
 	/** Set of EntityProducer services. */
 	protected ConcurrentHashMap<String, EntityProducer> m_producersIn = new ConcurrentHashMap<String, EntityProducer>();
 
@@ -184,7 +182,7 @@ public class EntityManagerComponent implements EntityManager
 			m_rejectRefIn.put("library", "library");
 
 			m_rejectRef = new HashMap<String, String>(m_rejectRefIn);
-			M_log.info("init()");
+			log.info("init()");
 		}
 		catch (Exception t)
 		{
@@ -196,7 +194,7 @@ public class EntityManagerComponent implements EntityManager
 	 */
 	public void destroy()
 	{
-		M_log.info("destroy()");
+		log.info("destroy()");
 	}
 
 	/***************************************************************************
@@ -224,7 +222,7 @@ public class EntityManagerComponent implements EntityManager
 		if (referenceRoot == null || referenceRoot.trim().length() == 0)
 		{
 			referenceRoot = String.valueOf(System.currentTimeMillis());
-			M_log.warn("Entity Producer does not provide a root reference :" + manager);
+			log.warn("Entity Producer does not provide a root reference :" + manager);
 		}
 		if (referenceRoot.startsWith("/"))
 		{
@@ -316,7 +314,7 @@ public class EntityManagerComponent implements EntityManager
 
 	public EntityProducer getEntityProducer(String reference, Reference target)
 	{
-		if ( M_log.isDebugEnabled() ) {
+		if ( log.isDebugEnabled() ) {
 			return getEntityProducerWithDebug(reference, target);
 		} else {
 			return getEntityProducerNoDebug(reference, target);		
@@ -349,8 +347,8 @@ public class EntityManagerComponent implements EntityManager
 					sb.append("\n     [").append(c).append("]")
 							.append(m_producers.get(c));
 				}
-				M_log.debug("EntityManager Montor " + sb.toString());
-				M_log.info("EntityManager Montor Average " + rate + " ms per parse");
+				log.debug("EntityManager Monitor " + sb.toString());
+				log.info("EntityManager Monitor Average " + rate + " ms per parse");
 			}
 
 			String ref = reference;
@@ -388,7 +386,7 @@ public class EntityManagerComponent implements EntityManager
 					c.lookupEnd();
 				}
 			}
-			M_log.info("Entity Scan for " + ref + " for " + reference);
+			log.info("Entity Scan for " + ref + " for " + reference);
 			for (Iterator<EntityProducer> iServices = m_producers.values().iterator(); iServices
 					.hasNext();)
 			{
@@ -408,10 +406,10 @@ public class EntityManagerComponent implements EntityManager
 					c.iterateEnd();
 				}
 			}
-			M_log.info("Nothing Found for  " + ref + " for " + reference + " adding "
+			log.info("Nothing Found for  " + ref + " for " + reference + " adding "
 					+ ref + " to the reject list");
 			Exception e = new Exception("Traceback");
-			M_log.info("Traceback ", e);
+			log.info("Traceback ", e);
 			addRejectRef(ref);
 			return null;
 		}

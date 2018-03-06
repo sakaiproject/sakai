@@ -116,6 +116,15 @@
     <h:column>
       <f:facet name="header">
         <h:panelGroup>
+          <h:outputText value="#{questionPoolMessages.q_points}" />
+        </h:panelGroup>
+      </f:facet>
+       <h:outputText value="#{question.score}"/>
+    </h:column>
+
+    <h:column>
+      <f:facet name="header">
+        <h:panelGroup>
           <h:outputText value="#{questionPoolMessages.last_mod}" />
         </h:panelGroup>
       </f:facet>

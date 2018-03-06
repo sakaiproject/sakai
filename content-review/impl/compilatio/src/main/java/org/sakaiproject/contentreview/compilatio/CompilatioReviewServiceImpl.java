@@ -17,49 +17,27 @@
  **********************************************************************************/
 package org.sakaiproject.contentreview.compilatio;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
-import java.net.URLEncoder;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Optional;
-import java.util.SortedSet;
-import java.util.TreeSet;
-
 import lombok.Setter;
-
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.assignment.api.Assignment;
-import org.sakaiproject.assignment.api.AssignmentContent;
 import org.sakaiproject.assignment.api.AssignmentService;
+import org.sakaiproject.assignment.api.model.Assignment;
+import org.sakaiproject.component.api.ServerConfigurationService;
+import org.sakaiproject.content.api.ContentHostingService;
+import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.contentreview.advisors.ContentReviewSiteAdvisor;
 import org.sakaiproject.contentreview.compilatio.util.CompilatioAPIUtil;
 import org.sakaiproject.contentreview.dao.ContentReviewConstants;
 import org.sakaiproject.contentreview.dao.ContentReviewItem;
-import org.sakaiproject.component.api.ServerConfigurationService;
-import org.sakaiproject.content.api.ContentHostingService;
-import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.contentreview.exception.QueueException;
 import org.sakaiproject.contentreview.exception.ReportException;
 import org.sakaiproject.contentreview.exception.SubmissionException;
 import org.sakaiproject.contentreview.exception.TransientSubmissionException;
 import org.sakaiproject.contentreview.service.ContentReviewQueueService;
 import org.sakaiproject.contentreview.service.ContentReviewService;
-import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityManager;
-import org.sakaiproject.entity.api.EntityProducer;
-import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.exception.IdUnusedException;
@@ -67,13 +45,19 @@ import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.TypeException;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.tool.api.ToolManager;
-import org.sakaiproject.user.api.PreferencesService;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.util.ResourceLoader;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.time.Instant;
+import java.util.*;
 
 public class CompilatioReviewServiceImpl implements ContentReviewService {
 	
@@ -161,7 +145,8 @@ public class CompilatioReviewServiceImpl implements ContentReviewService {
 	private final int DEFAULT_MAX_FILENAME_LENGTH = -1;
 
 	private final String KEY_FILE_TYPE_PREFIX = "file.type";
-	
+
+	private static final String NEW_ASSIGNMENT_REVIEW_SERVICE_REPORT_RADIO = "report_gen_speed";
 	private static final String NEW_ASSIGNMENT_REVIEW_SERVICE_REPORT_IMMEDIATELY = "0";
 	private static final String NEW_ASSIGNMENT_REVIEW_SERVICE_REPORT_DUE = "2";	
 	
@@ -411,11 +396,10 @@ public class CompilatioReviewServiceImpl implements ContentReviewService {
 				//check if current item has to be processed after the assignment due date
 				String assignmentId = assignmentService.getEntity(entityManager.newReference(currentItem.getTaskId())).getId();
 				Assignment a = assignmentService.getAssignment(assignmentId);
-				AssignmentContent ac = a.getContent();
-				
-				if(ac.getGenerateOriginalityReport().equals(NEW_ASSIGNMENT_REVIEW_SERVICE_REPORT_DUE)) {
-					Date dueDate = new Date(a.getDueTime().getTime());
-					if(dueDate.after(new Date())) {
+
+				if(NEW_ASSIGNMENT_REVIEW_SERVICE_REPORT_DUE.equals(a.getProperties().get(NEW_ASSIGNMENT_REVIEW_SERVICE_REPORT_RADIO))) {
+					Instant dueDate = a.getDueDate();
+					if(dueDate.isAfter(Instant.now())) {
 						log.debug("assignment due time not yet reached for item: " + currentItem.getId());
 						currentItem.setNextRetryTime(this.getNextRetryTime(0));
 						crqs.update(currentItem);
@@ -1040,5 +1024,18 @@ public class CompilatioReviewServiceImpl implements ContentReviewService {
 		crqs.update(currentItem);
 		
 		return true;
+	}
+
+	@Override
+	public ContentReviewItem getContentReviewItemByContentId(String contentId){
+		Optional<ContentReviewItem> cri = crqs.getQueuedItem(getProviderId(), contentId);
+		if(cri.isPresent()){
+			ContentReviewItem item = cri.get();
+
+			//Compilatio specific work would be here
+
+			return item;
+		}
+		return null;
 	}
 }

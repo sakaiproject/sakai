@@ -35,11 +35,11 @@
       <head><%= request.getAttribute("html.head") %>
       <title><h:outputText value="#{authorMessages.item_display_author}"/></title>
 	  
-	  <script type="text/javascript" src="/library/webjars/jquery/1.11.3/jquery.min.js"></script>
-	  <script language='javascript' src='/samigo-app/js/jquery.dynamiclist.author.js'></script>
-	  <script language='javascript' src='/samigo-app/js/selection.author.js'></script>
+	  <samigo:script path="/../library/webjars/jquery/1.12.4/jquery.min.js"/>
+	  <samigo:script path="/js/jquery.dynamiclist.author.js"/>
+	  <samigo:script path="/js/selection.author.js"/>
 	  
-	  <link href="/samigo-app/css/imageQuestion.author.css" type="text/css" rel="stylesheet" media="all" />
+	  <samigo:stylesheet path="/css/imageQuestion.author.css"/>
 <%--
 <script type="text/JavaScript">
 <!--

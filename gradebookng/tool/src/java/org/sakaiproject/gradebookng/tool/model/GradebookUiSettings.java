@@ -1,3 +1,18 @@
+/**
+ * Copyright (c) 2003-2017 The Apereo Foundation
+ *
+ * Licensed under the Educational Community License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *             http://opensource.org/licenses/ecl2
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.sakaiproject.gradebookng.tool.model;
 
 import java.io.Serializable;
@@ -19,9 +34,8 @@ import lombok.Setter;
 import org.sakaiproject.service.gradebook.shared.CategoryDefinition;
 
 /**
- * DTO for storing data in the session so that state is preserved between
- * requests. Things like filters and ordering go in here and are persisted
- * whenever something is set.
+ * DTO for storing data in the session so that state is preserved between requests. Things like filters and ordering go in here and are
+ * persisted whenever something is set.
  *
  * They are then retrieved on the GradebookPage load and passed around.
  *
@@ -46,6 +60,9 @@ public class GradebookUiSettings implements Serializable {
 	@Getter
 	private boolean categoriesEnabled;
 
+	@Getter
+	private boolean groupedByCategory;
+
 	private final Map<Long, Boolean> assignmentVisibility;
 	private final Map<String, Boolean> categoryScoreVisibility;
 	private final Map<String, String> categoryColors;
@@ -68,6 +85,12 @@ public class GradebookUiSettings implements Serializable {
 	 */
 	@Getter
 	private SortDirection studentSortOrder;
+	
+	/**
+	 * The direction to sort the student number column
+	 */
+	@Getter
+	private SortDirection studentNumberSortOrder;
 
 	/**
 	 * For sorting based on coursegrade
@@ -84,27 +107,25 @@ public class GradebookUiSettings implements Serializable {
 	@Setter
 	private Boolean showPoints;
 
-
 	/**
-	 * For toggling the group by categories option in the course grade summary table 
+	 * For toggling the group by categories option in the course grade summary table
 	 */
 	@Getter
 	@Setter
 	private boolean gradeSummaryGroupedByCategory;
 
-
 	public GradebookUiSettings() {
 		// defaults. Note there is no default for assignmentSortOrder as that
 		// requires an assignmentId which will differ between gradebooks
 		this.categoriesEnabled = false;
-		this.assignmentVisibility = new HashMap<Long, Boolean>();
-		this.categoryScoreVisibility = new HashMap<String, Boolean>();
+		this.assignmentVisibility = new HashMap<>();
+		this.categoryScoreVisibility = new HashMap<>();
 
 		// default sort order to student
 		this.nameSortOrder = GbStudentNameSortOrder.LAST_NAME;
 		this.studentSortOrder = SortDirection.ASCENDING;
 
-		this.categoryColors = new HashMap<String, String>();
+		this.categoryColors = new HashMap<>();
 		this.showPoints = false;
 		this.gradeSummaryGroupedByCategory = false;
 	}
@@ -130,34 +151,38 @@ public class GradebookUiSettings implements Serializable {
 		this.categoryColors.put(categoryName, rgbColorString);
 	}
 
-	public String getCategoryColor(final String categoryName) {
+	public String getCategoryColor(final String categoryName, final Long categoryID) {
 		if (!this.categoryColors.containsKey(categoryName)) {
-			setCategoryColor(categoryName, generateRandomRGBColorString());
+			setCategoryColor(categoryName, generateRandomRGBColorString(categoryID));
 		}
-
 		return this.categoryColors.get(categoryName);
 	}
 
-	public void setCategoryColors(final List<CategoryDefinition> categories) {
-		if (categories != null) {
-			for (CategoryDefinition category : categories) {
-				if (!this.categoryColors.containsKey(category.getName())) {
-					setCategoryColor(category.getName(), generateRandomRGBColorString());
-				}
-			}
+	public void initializeCategoryColors(final List<CategoryDefinition> categories) {
+		for (CategoryDefinition category : categories) {
+			setCategoryColor(category.getName(), generateRandomRGBColorString(category.getId()));
 		}
 	}
 
-	public void setCategoriesEnabled(final boolean categoriesEnabled){
+	public void setCategoriesEnabled(final boolean categoriesEnabled) {
 		this.categoriesEnabled = categoriesEnabled;
+		this.groupedByCategory = categoriesEnabled;
+		this.gradeSummaryGroupedByCategory = categoriesEnabled;
+	}
+
+	public void setGroupedByCategory(final boolean groupedByCategory) {
+		this.groupedByCategory = groupedByCategory;
 		this.gradeSummaryGroupedByCategory = categoriesEnabled;
 	}
 
 	/**
 	 * Helper to generate a RGB CSS color string with values between 180-250 to ensure a lighter color e.g. rgb(181,222,199)
 	 */
-	private String generateRandomRGBColorString() {
-		final Random rand = new Random();
+	public static String generateRandomRGBColorString(Long categoryID) {
+		if (categoryID == null) {
+			categoryID = -1L;
+		}
+		final Random rand = new Random(categoryID);
 		final int min = 180;
 		final int max = 250;
 
@@ -187,12 +212,19 @@ public class GradebookUiSettings implements Serializable {
 		resetSortOrder();
 		this.studentSortOrder = sortOrder;
 	}
+	
+	public void setStudentNumberSortOrder(SortDirection sortOrder)
+	{
+		resetSortOrder();
+		studentNumberSortOrder = sortOrder;
+	}
 
 	private void resetSortOrder() {
 		this.courseGradeSortOrder = null;
 		this.categorySortOrder = null;
 		this.assignmentSortOrder = null;
 		this.studentSortOrder = null;
+		studentNumberSortOrder = null;
 	}
 
 	@Override

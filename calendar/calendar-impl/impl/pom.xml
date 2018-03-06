@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.sakaiproject.calendar</groupId>
         <artifactId>calendar</artifactId>
-        <version>12-SNAPSHOT</version>
+        <version>13-SNAPSHOT</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
 
@@ -85,9 +85,14 @@
             <artifactId>ical4j</artifactId>
         </dependency>
         <dependency>
-            <groupId>fop</groupId>
+            <groupId>org.apache.xmlgraphics</groupId>
             <artifactId>fop</artifactId>
-            <version>0.20.5</version>
+            <version>2.2</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.xmlgraphics</groupId>
+            <artifactId>xmlgraphics-commons</artifactId>
+            <version>2.2</version>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>

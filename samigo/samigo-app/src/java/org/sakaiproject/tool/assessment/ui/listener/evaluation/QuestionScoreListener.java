@@ -22,15 +22,16 @@
 package org.sakaiproject.tool.assessment.ui.listener.evaluation;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 
 import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
@@ -38,6 +39,7 @@ import javax.faces.event.ActionListener;
 import javax.faces.event.ValueChangeEvent;
 import javax.faces.event.ValueChangeListener;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.math.NumberUtils;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentAccessControl;
@@ -67,8 +69,6 @@ import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.util.BeanSort;
 import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.util.ResourceLoader;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 // end testing
 
@@ -91,9 +91,9 @@ import org.slf4j.LoggerFactory;
  *          daisyf@stanford.edu $
  */
 
-public class QuestionScoreListener implements ActionListener,
+@Slf4j
+ public class QuestionScoreListener implements ActionListener,
 		ValueChangeListener {
-	private static Logger log = LoggerFactory.getLogger(QuestionScoreListener.class);
 
 	// private static EvaluationListenerUtil util;
 	private static BeanSort bs;
@@ -102,6 +102,11 @@ public class QuestionScoreListener implements ActionListener,
 			.getLocalizedString(
 					"org.sakaiproject.tool.assessment.bundle.EvaluationMessages",
 					"no_answer");
+
+	private static final String noneOfTheAbove = (String) ContextUtil
+			.getLocalizedString(
+					"org.sakaiproject.tool.assessment.bundle.EvaluationMessages",
+					"none_above");
 
 	/**
 	 * Standard process action method.
@@ -217,10 +222,32 @@ public class QuestionScoreListener implements ActionListener,
 			log.debug("questionScores(): publishedItemHash.size = "
 					+ publishedItemHash.size());
 			// build a hashMap (publishedItemTextId, publishedItemText)
-			Map publishedItemTextHash = pubService
-					.preparePublishedItemTextHash(publishedAssessment);
+			Map<Long, ItemTextIfc> publishedItemTextHash = pubService.preparePublishedItemTextHash(publishedAssessment);
 			log.debug("questionScores(): publishedItemTextHash.size = "
 					+ publishedItemTextHash.size());
+			GradingService delegate = new GradingService();
+			HashMap<Long, TreeMap<Long, ItemTextIfc>>  allItemsHash = new HashMap<>();
+			for (Long thisKey : publishedItemTextHash.keySet()) {
+				ItemTextIfc thisItemTextIfc = (ItemTextIfc) publishedItemTextHash.get(thisKey);
+				for (AnswerIfc thisAnswerIfc : thisItemTextIfc.getAnswerSet()) {
+					log.debug("{}", thisAnswerIfc.getId());
+				}
+				if (delegate.isDistractor(thisItemTextIfc)) {
+					log.debug("item is a distractor");
+				}
+
+				TreeMap<Long, ItemTextIfc> thisItemOptions = allItemsHash.get(thisItemTextIfc.getItem().getItemId());
+				if (thisItemOptions == null) {
+					thisItemOptions = new TreeMap<>();
+					thisItemOptions.put(thisItemTextIfc.getSequence(), thisItemTextIfc);
+					allItemsHash.put(thisItemTextIfc.getItem().getItemId(), thisItemOptions);
+				} else {
+					thisItemOptions.put(thisItemTextIfc.getSequence(), thisItemTextIfc);
+					allItemsHash.put(thisItemTextIfc.getItem().getItemId(), thisItemOptions);
+				}
+				log.debug("item = {}:{}-{}", thisItemTextIfc.getSequence(), thisItemTextIfc.getText(), thisItemTextIfc.getItem().getItemId());
+
+			}
 			Map publishedAnswerHash = pubService
 					.preparePublishedAnswerHash(publishedAssessment);
 			// re-attach session and load all lazy loaded parent/child stuff
@@ -237,8 +264,6 @@ public class QuestionScoreListener implements ActionListener,
 			log.debug("questionScores(): publishedAnswerHash.size = "
 					+ publishedAnswerHash.size());
 			Map agentResultsByItemGradingIdMap = new HashMap();
-
-			GradingService delegate = new GradingService();
 
 			TotalScoresBean totalBean = (TotalScoresBean) ContextUtil
 					.lookupBean("totalScores");
@@ -414,7 +439,6 @@ public class QuestionScoreListener implements ActionListener,
 								EvaluationModel.ANONYMOUS_GRADING) ? "true"
 										: "false");
 			} catch (RuntimeException e) {
-				// log.info("No evaluation model.");
 				bean.setAnonymous("false");
 			}
 			
@@ -424,7 +448,6 @@ public class QuestionScoreListener implements ActionListener,
 						.getAssessmentAccessControl().getLateHandling()
 						.toString());
 			} catch (Exception e) {
-				// log.info("No access control model.");
 				bean
 				.setLateHandling(AssessmentAccessControl.NOT_ACCEPT_LATE_SUBMISSION
 						.toString());
@@ -435,7 +458,6 @@ public class QuestionScoreListener implements ActionListener,
 				dueDate = publishedAssessment.getAssessmentAccessControl()
 				.getDueDate();
 			} catch (RuntimeException e) {
-				// log.info("No due date.");
 				bean.setDueDate(new Date().toString());
 			}
 			try {
@@ -696,6 +718,7 @@ public class QuestionScoreListener implements ActionListener,
 						answerTextLength = 35;
 					}
 
+					log.debug("answerText=" + answerText);
 					// Fix for SAK-6932: Strip out all HTML tags except image tags
  					if (answerText.length() > answerTextLength) {
 						String noHTMLAnswerText;
@@ -721,9 +744,9 @@ public class QuestionScoreListener implements ActionListener,
 					 */
 
 					//SAM-755-"checkmark" indicates right, add "X" to indicate wrong
+					String checkmarkGif = "<img src='/samigo-app/images/delivery/checkmark.gif'>";
+					String crossmarkGif = "<img src='/samigo-app/images/crossmark.gif'>";
 					if (gdataAnswer != null) {
-						String checkmarkGif = "<img src='/samigo-app/images/delivery/checkmark.gif'>";
-						String crossmarkGif = "<img src='/samigo-app/images/crossmark.gif'>";
 						answerText = FormattedText.escapeHtml(answerText, true);
 						if (bean.getTypeId().equals("8") || bean.getTypeId().equals("11")) {
 							if (gdata.getIsCorrect() == null) {
@@ -774,12 +797,61 @@ public class QuestionScoreListener implements ActionListener,
 								answerText = crossmarkGif + answerText;
 							}
 						}
+					} else if (bean.getTypeId().equals("9")) {
+						log.debug("scoring a type 9 - matching");
+						boolean itemHasCorrectAnswers = hasCorrectAnswers(gdataPubItemText.getAnswerSet());
+						ItemGradingData thisItemGradingData = null;
+						for (Object thisItem : allscores) {
+							thisItemGradingData = (ItemGradingData) thisItem;
+							log.debug("thisItemGradingData.getItemGradingId().intValue()={}", thisItemGradingData.getItemGradingId().intValue());
+							log.debug("gdata.getItemGradingId().intValue()={}", gdata.getItemGradingId().intValue());
+							log.debug("thisItemGradingData.getAnswerText()={}", thisItemGradingData.getAnswerText());
+							if (thisItemGradingData.getItemGradingId().equals(gdata.getItemGradingId())) {
+								break;
+							}
+						}
+						if (thisItemGradingData != null) {
+							log.debug("thisItemGradingData was found");
+						}
+						if (answerText.contains(noAnswer) && fullAnswerText.contains(noAnswer)) {
+							log.debug("check point A");
+							if (thisItemGradingData.getPublishedAnswerId() == null) {
+								log.debug("null anwser id:thisItemGradingData.getAnswerText()={}", thisItemGradingData.getAnswerText());
+								if (answerList.size() == 1) {
+									TreeMap<Long, ItemTextIfc> thisItemOptions = allItemsHash.get(item.getItemId());
+									StringBuilder optionsBuffer = new StringBuilder();
+									for (Long thisItemKey : thisItemOptions.keySet()) {
+										ItemTextIfc thisItemOptionText = (ItemTextIfc) thisItemOptions.get(thisItemKey);
+										optionsBuffer.append(crossmarkGif).append(" ").append(thisItemOptionText.getSequence().toString()).append(":No Response <br/>");
+									}
+									answerText = optionsBuffer.toString();
+								} else {
+									answerText = crossmarkGif + gdataPubItemText.getSequence() + ":" + "No Response";
+								}
+							} else if (itemHasCorrectAnswers && thisItemGradingData.getPublishedAnswerId() < 0) {
+								answerText = crossmarkGif + gdataPubItemText.getSequence() + ":" + noneOfTheAbove;
+							} else {
+								answerText = checkmarkGif + gdataPubItemText.getSequence() + ":" + noneOfTheAbove;
+							}
+							log.debug("answerText={}", answerText);
+							String thisAgentId = gdata.getAgentId();
+							boolean agentFound = false;
+							for (Object thisAgent : bean.getAgents()) {
+								AgentResults thisAgentResult = (AgentResults) thisAgent;
+								if (thisAgentResult.getIdString().compareTo(thisAgentId) == 0) {
+									agentFound = true;
+									break;
+								}
+							}
+						}
 					}
 
+					log.debug("check point B answerText={}", answerText);
 					// -- Got the answer text --
 					if (!answerList.get(0).equals(gdata)) { // We already have
 						// an agentResults
 						// for this one
+						log.debug("check point C1");
 						results.setAnswer(results.getAnswer() + "<br/>"
 								+ answerText);
 						if (gdata.getAutoScore() != null) {
@@ -796,6 +868,7 @@ public class QuestionScoreListener implements ActionListener,
 							results.setAnswerKey(results.getAnswerKey()+ " <br/>" + answerKey);
 						}
 					} else {
+						log.debug("check point C2");
 						results.setItemGradingId(gdata.getItemGradingId());
 						results.setAssessmentGradingId(gdata
 								.getAssessmentGradingId());
@@ -817,7 +890,6 @@ public class QuestionScoreListener implements ActionListener,
 						results.setSubmittedDate(gdata.getSubmittedDate());
 
 						AgentFacade agent = new AgentFacade(gdata.getAgentId());
-						// log.info("Rachel: agentid = " + gdata.getAgentId());
 						results.setLastName(agent.getLastName());
 						results.setFirstName(agent.getFirstName());
 						results.setEmail(agent.getEmail());
@@ -850,8 +922,8 @@ public class QuestionScoreListener implements ActionListener,
 				}
 			}
 
-			// log.info("Sort type is " + bean.getSortType() + ".");
 			bs = new BeanSort(agents, bean.getSortType());
+			log.debug("check point D");
 			if ((bean.getSortType()).equals("assessmentGradingId")
 					|| (bean.getSortType()).equals("totalAutoScore")
 					|| (bean.getSortType()).equals("totalOverrideScore")
@@ -869,7 +941,9 @@ public class QuestionScoreListener implements ActionListener,
 				agents = (List) bs.sortDesc();
 			}
 
-			// log.info("Listing agents.");
+			if (bean.getTypeId().equals("9")) {
+				agents = sortMatching(agents);
+			}
 			bean.setAgents(agents);
 			bean.setAllAgents(agents);
 			bean
@@ -879,11 +953,37 @@ public class QuestionScoreListener implements ActionListener,
 		}
 
 		catch (RuntimeException e) {
-			e.printStackTrace();
+			log.error(e.getMessage(), e);
 			return false;
 		}
 
 		return true;
+	}
+
+	private List sortMatching(List<AgentResults> agentResults){
+
+		List<AgentResults> returnValues = new ArrayList<>();
+		for (AgentResults thisAgentResult : agentResults) {
+			String thisItemOptions[] = thisAgentResult.getAnswer().split("<br/>");
+			for (int s = 0; s < thisItemOptions.length; s++) {
+				int endOfCheckmark = thisItemOptions[s].indexOf(">");
+				int colonAt = thisItemOptions[s].indexOf(":");
+				String thisSequence = thisItemOptions[s].substring(endOfCheckmark, colonAt);
+				StringBuilder editItemBuffer = new StringBuilder();
+				editItemBuffer.append(thisSequence).append("|").append(thisItemOptions[s]);
+				thisItemOptions[s] = editItemBuffer.toString();
+			}
+			Arrays.sort(thisItemOptions);
+			StringBuilder optionBuffer = new StringBuilder();
+			for (String thisItemOption : thisItemOptions) {
+				int dlmIndex = thisItemOption.indexOf('|');
+				optionBuffer.append(thisItemOption.substring(dlmIndex + 1)).append("<br/>");
+			}
+			log.debug("sortedOptions{}", optionBuffer);
+			thisAgentResult.setAnswer(optionBuffer.toString());
+			returnValues.add(thisAgentResult);
+		}
+		return returnValues;
 	}
 
 	/**
@@ -943,6 +1043,15 @@ public class QuestionScoreListener implements ActionListener,
 			log.warn("**duration recorded is not an integer value="
 					+ e.getMessage());
 		}
+	}
+
+	private boolean hasCorrectAnswers(Set<AnswerIfc> answerSet){
+		for (AnswerIfc thisAnswer : answerSet) {
+			if (((PublishedAnswer) thisAnswer).getIsCorrect()) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	private void populateSections(PublishedAssessmentIfc publishedAssessment,

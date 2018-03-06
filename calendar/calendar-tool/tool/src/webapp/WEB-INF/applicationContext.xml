@@ -4,7 +4,7 @@
     xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
 	<bean parent="org.sakaiproject.entitybroker.entityprovider.AbstractEntityProvider"
-		class="org.sakaiproject.calendar.entityproviders.CalendarEventEntityProvider" init-method="init">
+		class="org.sakaiproject.calendar.entityproviders.CalendarEventEntityProvider">
 		<property name="calendarService"
 			ref="org.sakaiproject.calendar.api.CalendarService" />
 		<property name="siteService" ref="org.sakaiproject.site.api.SiteService" />

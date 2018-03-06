@@ -30,14 +30,14 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.springframework.web.context.WebApplicationContext;
+import org.springframework.web.context.support.WebApplicationContextUtils;
+
 import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.tool.cover.SessionManager;
-import org.springframework.web.context.WebApplicationContext;
-import org.springframework.web.context.support.WebApplicationContextUtils;
 
 import uk.ac.cam.caret.sakai.rwiki.tool.api.HttpCommand;
 import uk.ac.cam.caret.sakai.rwiki.tool.bean.PrePopulateBean;
@@ -50,9 +50,9 @@ import uk.ac.cam.caret.sakai.rwiki.utils.TimeLogger;
 /**
  * @author andrew
  */
+@Slf4j
 public class RWikiServlet extends HttpServlet
 {
-	private static Logger log = LoggerFactory.getLogger(RWikiServlet.class);
 
 	/**
 	 * Required for serialization... also to stop eclipse from giving me a
@@ -297,8 +297,6 @@ public class RWikiServlet extends HttpServlet
 				.getParameter(RequestHelper.PANEL))) return false;
 
 		if (WikiPageAction.PUBLICVIEW_ACTION.getName().equals(
-				request.getParameter(RequestHelper.ACTION))) return false;
-		if (WikiPageAction.PRINTVIEW_ACTION.getName().equals(
 				request.getParameter(RequestHelper.ACTION))) return false;
 
 		

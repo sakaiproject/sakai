@@ -34,8 +34,12 @@ import java.util.Stack;
 import java.util.UUID;
 import java.util.Vector;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataAccessException;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
+
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.entity.api.EntityTransferrer;
@@ -55,18 +59,11 @@ import org.sakaiproject.poll.model.Poll;
 import org.sakaiproject.poll.model.Vote;
 import org.sakaiproject.poll.util.PollUtil;
 import org.sakaiproject.site.api.SiteService;
-import org.springframework.dao.DataAccessException;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.NodeList;
 
-
+@Slf4j
 public class PollListManagerImpl implements PollListManager,EntityTransferrer {
 
-    // use commons logger
-    private static Logger log = LoggerFactory.getLogger(PollListManagerImpl.class);
     public static final String REFERENCE_ROOT = Entity.SEPARATOR + "poll";
-
 
     private EntityManager entityManager;
     public void setEntityManager(EntityManager em) {
@@ -622,7 +619,7 @@ public class PollListManagerImpl implements PollListManager,EntityTransferrer {
 			        savePoll(toPoll);
 				}
 			}catch(Exception e){
-				e.printStackTrace();
+				log.error(e.getMessage(), e);
 			}
 		}
 
@@ -680,7 +677,7 @@ public class PollListManagerImpl implements PollListManager,EntityTransferrer {
 	        search.addRestriction(new Restriction("userId", userId));
 	        
 	        List<Vote> votes = dao.findBySearch(Vote.class, search);		
-	        //System.out.println("got " + pollCollection.size() + "votes for this poll");
+	        //log.info("got " + pollCollection.size() + "votes for this poll");
 	        if (votes.size() > 0)
 	        	return true;
 		}

@@ -74,7 +74,7 @@
 			<param-name>headerPreContent</param-name>
 			<param-value>
 				<![CDATA[
-				<script  type="text/javascript" src="/library/webjars/jquery/1.11.3/jquery.min.js"> <!-- don't reduce this! --></script>
+				<script  type="text/javascript" src="/library/webjars/jquery/1.12.4/jquery.min.js"> <!-- don't reduce this! --></script>
 				<link href="/sakai-rwiki-tool/styles/wikiStyle.css" type="text/css" rel="stylesheet" media="all" />
 				<script type="text/javascript" src="/sakai-rwiki-tool/scripts/stateswitcher.js"> </script>
 				<script type="text/javascript" src="/sakai-rwiki-tool/scripts/ajaxpopup.js" > </script>

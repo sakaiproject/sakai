@@ -23,14 +23,16 @@ package org.sakaiproject.conditions.impl;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.conditions.api.Condition;
 import org.sakaiproject.conditions.api.Operator;
-
 
 /**
  * @author Zach A. Thomas
  *
  */
+@Slf4j
 public class BooleanExpression implements Condition {
 	private String eventDataClassName;
 	private String missingTermMethodName;
@@ -68,23 +70,17 @@ public class BooleanExpression implements Condition {
 				return ((Boolean)missingTerm).booleanValue();
 			} else return evalExpression(missingTerm, op, argument);
 		} catch (SecurityException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			log.error(e.getMessage(), e);
 		} catch (IllegalArgumentException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			log.error(e.getMessage(), e);
 		} catch (ClassNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			log.error(e.getMessage(), e);
 		} catch (NoSuchMethodException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			log.error(e.getMessage(), e);
 		} catch (IllegalAccessException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			log.error(e.getMessage(), e);
 		} catch (InvocationTargetException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			log.error(e.getMessage(), e);
 		}
 		// if all else fails, return false
 		return false;

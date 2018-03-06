@@ -1,10 +1,25 @@
+/**
+ * Copyright (c) 2003-2012 The Apereo Foundation
+ *
+ * Licensed under the Educational Community License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *             http://opensource.org/licenses/ecl2
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.sakaiproject.tool.gradebook.ui.helpers.beans;
 
 import java.util.Map;
 
 import org.sakaiproject.service.gradebook.shared.ConflictingAssignmentNameException;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
-import org.sakaiproject.tool.gradebook.Assignment;
+import org.sakaiproject.tool.gradebook.GradebookAssignment;
 import org.sakaiproject.tool.gradebook.Category;
 import org.sakaiproject.tool.gradebook.Gradebook;
 import org.sakaiproject.tool.gradebook.business.GradebookManager;
@@ -29,7 +44,7 @@ public class GradebookItemBean {
     	this.messages = messages;
     }
 		
-    private Map<String, Assignment> OTPMap;
+    private Map<String, GradebookAssignment> OTPMap;
     private EntityBeanLocator assignmentEntityBeanLocator;
 	@SuppressWarnings("unchecked")
 	public void setAssignmentEntityBeanLocator(EntityBeanLocator entityBeanLocator) {
@@ -66,7 +81,7 @@ public class GradebookItemBean {
 		}
 		
 		for (String key : OTPMap.keySet()) {
-			Assignment assignment = OTPMap.get(key);
+			GradebookAssignment assignment = OTPMap.get(key);
 			
 			//check for null name
 			if (assignment.getName() == null || assignment.getName().equals("")) {
@@ -123,12 +138,12 @@ public class GradebookItemBean {
 								assignment.getDueDate(), assignment.isNotCounted(), assignment.isReleased(), assignment.isExtraCredit());
 					}
 					assignment.setId(id);
-					//new UIELBinding("Assignment." + key + ".id", id);
+					//new UIELBinding("GradebookAssignment." + key + ".id", id);
 					messages.addMessage(new TargettedMessage("gradebook.add-gradebook-item.successful",
 							new Object[] {assignment.getName() }, TargettedMessage.SEVERITY_INFO));
 				} catch (ConflictingAssignmentNameException e){
 					messages.addMessage(new TargettedMessage("gradebook.add-gradebook-item.conflicting_name",
-							new Object[] {assignment.getName() }, "Assignment." + key + ".name"));
+							new Object[] {assignment.getName() }, "GradebookAssignment." + key + ".name"));
 					errorFound = Boolean.TRUE;
 				}
 			} else {
@@ -151,7 +166,7 @@ public class GradebookItemBean {
 							new Object[] {assignment.getName() }, TargettedMessage.SEVERITY_INFO));
 				} catch (ConflictingAssignmentNameException e){
 					messages.addMessage(new TargettedMessage("gradebook.add-gradebook-item.conflicting_name",
-							new Object[] {assignment.getName() }, "Assignment." + key + ".name"));
+							new Object[] {assignment.getName() }, "GradebookAssignment." + key + ".name"));
 					errorFound = Boolean.TRUE;
 				}
 			}
@@ -173,7 +188,7 @@ public class GradebookItemBean {
 	 * @param assignmentId
 	 * @return
 	 */
-	public Assignment getAssignmentById(Long assignmentId){
+	public GradebookAssignment getAssignmentById(Long assignmentId){
 		return gradebookManager.getAssignment(assignmentId);
 	}
 }

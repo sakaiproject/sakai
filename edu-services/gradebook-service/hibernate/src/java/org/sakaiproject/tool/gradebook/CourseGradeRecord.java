@@ -1,24 +1,18 @@
-/**********************************************************************************
-*
-* $Id$
-*
-***********************************************************************************
-*
- * Copyright (c) 2005, 2006, 2007, 2008 The Sakai Foundation, The MIT Corporation
+/**
+ * Copyright (c) 2003-2017 The Apereo Foundation
  *
  * Licensed under the Educational Community License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *       http://www.opensource.org/licenses/ECL-2.0
+ *             http://opensource.org/licenses/ecl2
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
-*
-**********************************************************************************/
+ */
 
 package org.sakaiproject.tool.gradebook;
 
@@ -27,7 +21,6 @@ import java.util.Comparator;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
-
 import org.sakaiproject.service.gradebook.shared.GradebookService;
 
 /**
@@ -36,147 +29,158 @@ import org.sakaiproject.service.gradebook.shared.GradebookService;
  * @author <a href="mailto:jholtzman@berkeley.edu">Josh Holtzman</a>
  */
 public class CourseGradeRecord extends AbstractGradeRecord {
-  
+
 	private static final long serialVersionUID = 1L;
-	
+
 	private String enteredGrade;
-    private Double autoCalculatedGrade;  // Not persisted
-	private Double calculatedPointsEarned;	// Not persisted
+	private Double autoCalculatedGrade; // Not persisted
+	private Double calculatedPointsEarned; // Not persisted
 	private Double totalPointsPossible; // Not persisted
-	
-    public static Comparator<CourseGradeRecord> calcComparator;
 
-    static {
-        calcComparator = new Comparator<CourseGradeRecord>() {
-            public int compare(CourseGradeRecord cgr1, CourseGradeRecord cgr2) {
-                if((cgr1 == null || cgr2 == null) || (cgr1.getGradeAsPercentage() == null && cgr2.getGradeAsPercentage() == null)) {
-                    return 0;
-                }
-                if(cgr1 == null || cgr1.getGradeAsPercentage() == null) {
-                    return -1;
-                }
-                if(cgr2 == null || cgr2.getGradeAsPercentage() == null) {
-                    return 1;
-                }
-                //SAK-12017 - Commented out as getPointsEarned is no longer an accurate comparator
-                // due to nulls no longer being calculated in to the Course Grade
-                //return cgr1.getPointsEarned().compareTo(cgr2.getPointsEarned());
-                //   Better to use getGradeAsPercentage
-                return cgr1.getGradeAsPercentage().compareTo(cgr2.getGradeAsPercentage());
-            }
-        };
-    }
+	public static Comparator<CourseGradeRecord> calcComparator;
 
-    public static Comparator<CourseGradeRecord> getOverrideComparator(final GradeMapping mapping) {
-        return new Comparator<CourseGradeRecord>() {
-            public int compare(CourseGradeRecord cgr1, CourseGradeRecord cgr2) {
+	static {
+		calcComparator = new Comparator<CourseGradeRecord>() {
+			@Override
+			public int compare(final CourseGradeRecord cgr1, final CourseGradeRecord cgr2) {
+				if ((cgr1 == null || cgr2 == null) || (cgr1.getGradeAsPercentage() == null && cgr2.getGradeAsPercentage() == null)) {
+					return 0;
+				}
+				if (cgr1.getGradeAsPercentage() == null) {
+					return -1;
+				}
+				if (cgr2.getGradeAsPercentage() == null) {
+					return 1;
+				}
+				// SAK-12017 - Commented out as getPointsEarned is no longer an accurate comparator
+				// due to nulls no longer being calculated in to the Course Grade
+				// return cgr1.getPointsEarned().compareTo(cgr2.getPointsEarned());
+				// Better to use getGradeAsPercentage
+				return cgr1.getGradeAsPercentage().compareTo(cgr2.getGradeAsPercentage());
+			}
+		};
+	}
 
-                if(cgr1 == null && cgr2 == null) {
-                    return 0;
-                }
-                if(cgr1 == null) {
-                    return -1;
-                }
-                if(cgr2 == null) {
-                    return 1;
-                }
+	public static Comparator<CourseGradeRecord> getOverrideComparator(final GradeMapping mapping) {
+		return new Comparator<CourseGradeRecord>() {
+			@Override
+			public int compare(final CourseGradeRecord cgr1, final CourseGradeRecord cgr2) {
 
-                String enteredGrade1 = StringUtils.trimToEmpty(cgr1.getEnteredGrade());
-                String enteredGrade2 = StringUtils.trimToEmpty(cgr2.getEnteredGrade());
-                
-                // Grading scales are always defined in descending order.
-                List<String> grades = mapping.getGradingScale().getGrades();
-                int gradePos1 = -1;
-                int gradePos2 = -1;
-                for (int i = 0; (i < grades.size()) && ((gradePos1 == -1) || (gradePos2 == -1)); i++) {
-                	String grade = grades.get(i);
-                	if (grade.equals(enteredGrade1)) gradePos1 = i;
-                	if (grade.equals(enteredGrade2)) gradePos2 = i;
-                }
-                return gradePos2 - gradePos1;
-            }
-        };
+				if (cgr1 == null && cgr2 == null) {
+					return 0;
+				}
+				if (cgr1 == null) {
+					return -1;
+				}
+				if (cgr2 == null) {
+					return 1;
+				}
 
-    }
-    /**
-     * The graderId and dateRecorded properties will be set explicitly by the
-     * grade manager before the database is updated.
+				final String enteredGrade1 = StringUtils.trimToEmpty(cgr1.getEnteredGrade());
+				final String enteredGrade2 = StringUtils.trimToEmpty(cgr2.getEnteredGrade());
+
+				// Grading scales are always defined in descending order.
+				final List<String> grades = mapping.getGradingScale().getGrades();
+				int gradePos1 = -1;
+				int gradePos2 = -1;
+				for (int i = 0; (i < grades.size()) && ((gradePos1 == -1) || (gradePos2 == -1)); i++) {
+					final String grade = grades.get(i);
+					if (grade.equals(enteredGrade1)) {
+						gradePos1 = i;
+					}
+					if (grade.equals(enteredGrade2)) {
+						gradePos2 = i;
+					}
+				}
+				return gradePos2 - gradePos1;
+			}
+		};
+
+	}
+
+	/**
+	 * The graderId and dateRecorded properties will be set explicitly by the grade manager before the database is updated.
+	 *
 	 * @param courseGrade
 	 * @param studentId
 	 */
-	public CourseGradeRecord(CourseGrade courseGrade, String studentId) {
-        this.gradableObject = courseGrade;
-        this.studentId = studentId;
+	public CourseGradeRecord(final CourseGrade courseGrade, final String studentId) {
+		this.gradableObject = courseGrade;
+		this.studentId = studentId;
 	}
 
-    /**
-     * Default no-arg constructor
-     */
-    public CourseGradeRecord() {
-        super();
-    }
+	/**
+	 * Default no-arg constructor
+	 */
+	public CourseGradeRecord() {
+		super();
+	}
 
 	/**
-     * This method will fail unless this course grade was fetched "with statistics",
-     * since it relies on having the total number of points possible available to
-     * calculate the percentage.
-     *
-     * @see org.sakaiproject.tool.gradebook.AbstractGradeRecord#getGradeAsPercentage()
-     */
-    public Double getGradeAsPercentage() {
-        if(enteredGrade == null) {
-            return autoCalculatedGrade;
-        } else {
-            return getCourseGrade().getGradebook().getSelectedGradeMapping().getValue(enteredGrade);
-        }
-    }
+	 * This method will fail unless this course grade was fetched "with statistics", since it relies on having the total number of points
+	 * possible available to calculate the percentage.
+	 *
+	 * @see org.sakaiproject.tool.gradebook.AbstractGradeRecord#getGradeAsPercentage()
+	 */
+	@Override
+	public Double getGradeAsPercentage() {
+		if (this.enteredGrade == null) {
+			return this.autoCalculatedGrade;
+		} else {
+			return getCourseGrade().getGradebook().getSelectedGradeMapping().getValue(this.enteredGrade);
+		}
+	}
 
-    /**
-     * Convenience method to get the correctly cast CourseGrade that this
-     * CourseGradeRecord references.
-     *
-     * @return CourseGrade referenced by this GradableObject
-     */
-    public CourseGrade getCourseGrade() {
-    	return (CourseGrade)super.getGradableObject();
-    }
-    /**
+	/**
+	 * Convenience method to get the correctly cast CourseGrade that this CourseGradeRecord references.
+	 *
+	 * @return CourseGrade referenced by this GradableObject
+	 */
+	public CourseGrade getCourseGrade() {
+		return (CourseGrade) super.getGradableObject();
+	}
+
+	/**
 	 * @return Returns the enteredGrade.
 	 */
 	public String getEnteredGrade() {
-		return enteredGrade;
+		return this.enteredGrade;
 	}
+
 	/**
 	 * @param enteredGrade The enteredGrade to set.
 	 */
-	public void setEnteredGrade(String enteredGrade) {
+	public void setEnteredGrade(final String enteredGrade) {
 		this.enteredGrade = enteredGrade;
 	}
+
 	/**
 	 * @return Returns the autoCalculatedGrade.
 	 */
 	public Double getAutoCalculatedGrade() {
-		return autoCalculatedGrade;
+		return this.autoCalculatedGrade;
 	}
 
+	@Override
 	public Double getPointsEarned() {
-		return calculatedPointsEarned;
+		return this.calculatedPointsEarned;
 	}
 
-    /**
+	/**
 	 * @return Returns the displayGrade.
 	 */
 	public String getDisplayGrade() {
-        if(enteredGrade != null) {
-            return enteredGrade;
-        } else {
-            return getCourseGrade().getGradebook().getSelectedGradeMapping().getGrade(autoCalculatedGrade);
-        }
+		if (this.enteredGrade != null) {
+			return this.enteredGrade;
+		} else {
+			return getCourseGrade().getGradebook().getSelectedGradeMapping().getMappedGrade(this.autoCalculatedGrade);
+		}
 	}
 
 	/**
 	 * @see org.sakaiproject.tool.gradebook.AbstractGradeRecord#isCourseGradeRecord()
 	 */
+	@Override
 	public boolean isCourseGradeRecord() {
 		return true;
 	}
@@ -192,50 +196,56 @@ public class CourseGradeRecord extends AbstractGradeRecord {
 		return percent;
 	}
 
-	public void initNonpersistentFields(double totalPointsPossible, double totalPointsEarned) {
+	public void initNonpersistentFields(final double totalPointsPossible, final double totalPointsEarned) {
 		Double percentageEarned;
 		this.totalPointsPossible = totalPointsPossible;
-		calculatedPointsEarned = totalPointsEarned;
-		BigDecimal bdTotalPointsPossible = new BigDecimal(totalPointsPossible);
-		BigDecimal bdTotalPointsEarned = new BigDecimal(totalPointsEarned);
+		this.calculatedPointsEarned = totalPointsEarned;
+		final BigDecimal bdTotalPointsPossible = new BigDecimal(totalPointsPossible);
+		final BigDecimal bdTotalPointsEarned = new BigDecimal(totalPointsEarned);
 		if (totalPointsPossible == 0.0) {
 			percentageEarned = null;
 		} else {
-			percentageEarned = Double.valueOf(bdTotalPointsEarned.divide(bdTotalPointsPossible, GradebookService.MATH_CONTEXT).multiply(new BigDecimal("100")).doubleValue());
+			percentageEarned = Double.valueOf(bdTotalPointsEarned.divide(bdTotalPointsPossible, GradebookService.MATH_CONTEXT)
+					.multiply(new BigDecimal("100")).doubleValue());
 		}
-		autoCalculatedGrade = percentageEarned;
+		this.autoCalculatedGrade = percentageEarned;
 	}
-	
-	//Added by -Qu for totalPoints implementation in GB2 bugid:4371 9/2011
-	public void setCalculatedPointsEarned(double literalTotalPointsEarned){
+
+	// Added by -Qu for totalPoints implementation in GB2 bugid:4371 9/2011
+	public void setCalculatedPointsEarned(final double literalTotalPointsEarned) {
 		this.calculatedPointsEarned = literalTotalPointsEarned;
 	}
 
-	public void initNonpersistentFields(double totalPointsPossible, double totalPointsEarned, double literalTotalPointsEarned) {
+	public void initNonpersistentFields(final double totalPointsPossible, final double totalPointsEarned,
+			final double literalTotalPointsEarned) {
 		Double percentageEarned;
-		//calculatedPointsEarned = totalPointsEarned;
-		calculatedPointsEarned = literalTotalPointsEarned;
+		this.calculatedPointsEarned = literalTotalPointsEarned;
 		this.totalPointsPossible = totalPointsPossible;
-		BigDecimal bdTotalPointsPossible = new BigDecimal(totalPointsPossible);
-		BigDecimal bdTotalPointsEarned = new BigDecimal(totalPointsEarned);
+		final BigDecimal bdTotalPointsPossible = new BigDecimal(totalPointsPossible);
+		final BigDecimal bdTotalPointsEarned = new BigDecimal(totalPointsEarned);
 
 		if (totalPointsPossible <= 0.0) {
 			percentageEarned = null;
 		} else {
-			percentageEarned = Double.valueOf(bdTotalPointsEarned.divide(bdTotalPointsPossible, GradebookService.MATH_CONTEXT).multiply(new BigDecimal("100")).doubleValue());
+			percentageEarned = Double.valueOf(bdTotalPointsEarned.divide(bdTotalPointsPossible, GradebookService.MATH_CONTEXT)
+					.multiply(new BigDecimal("100")).doubleValue());
 		}
-		autoCalculatedGrade = percentageEarned;
+		this.autoCalculatedGrade = percentageEarned;
 	}
+
 	public Double getCalculatedPointsEarned() {
-		return calculatedPointsEarned;
+		return this.calculatedPointsEarned;
 	}
-	public void setAutoCalculatedGrade(Double autoCalculatedGrade) {
+
+	public void setAutoCalculatedGrade(final Double autoCalculatedGrade) {
 		this.autoCalculatedGrade = autoCalculatedGrade;
 	}
+
 	public Double getTotalPointsPossible() {
-		return totalPointsPossible;
+		return this.totalPointsPossible;
 	}
-	public void setTotalPointsPossible(Double totalPointsPossible) {
+
+	public void setTotalPointsPossible(final Double totalPointsPossible) {
 		this.totalPointsPossible = totalPointsPossible;
 	}
 }

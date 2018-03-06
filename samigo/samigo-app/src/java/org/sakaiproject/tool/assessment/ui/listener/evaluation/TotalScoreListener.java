@@ -41,9 +41,8 @@ import javax.faces.event.ActionListener;
 import javax.faces.event.ValueChangeEvent;
 import javax.faces.event.ValueChangeListener;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.beanutils.BeanUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sakaiproject.tool.assessment.business.entity.RecordingData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentAccessControl;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAccessControl;
@@ -85,10 +84,10 @@ import org.sakaiproject.util.FormattedText;
  * @version $Id$
  */
 
-public class TotalScoreListener
+@Slf4j
+ public class TotalScoreListener
   implements ActionListener, ValueChangeListener
 {
-  private static Logger log = LoggerFactory.getLogger(TotalScoreListener.class);
   private static BeanSort bs;
 
   //private SectionAwareness sectionAwareness;
@@ -114,7 +113,6 @@ public class TotalScoreListener
     
     // we probably want to change the poster to be consistent
     String publishedId = ContextUtil.lookupParam("publishedId");
-    //log.info("Got publishedId " + publishedId);
     PublishedAssessmentService pubAssessmentService = new PublishedAssessmentService();
     PublishedAssessmentFacade pubAssessment = pubAssessmentService.
                                               getPublishedAssessment(publishedId);
@@ -215,7 +213,6 @@ public class TotalScoreListener
     ResetTotalScoreListener reset = new ResetTotalScoreListener();
     reset.processAction(null);
 
-    //log.info("TotalScore CHANGE LISTENER.");
     TotalScoresBean bean = (TotalScoresBean) ContextUtil.lookupBean("totalScores");
     QuestionScoresBean questionbean = (QuestionScoresBean) ContextUtil.lookupBean("questionScores");
     HistogramScoresBean histobean = (HistogramScoresBean) ContextUtil.lookupBean("histogramScores");
@@ -245,7 +242,6 @@ public class TotalScoreListener
       }
     }
 
-    //log.info("Calling totalScores.");
     if (!totalScores(pubAssessment, bean, true))
     {
       throw new RuntimeException("failed to call totalScores.");
@@ -415,7 +411,7 @@ log.debug("totallistener: firstItem = " + bean.getFirstItem());
 
     catch (Exception e)
     {
-      e.printStackTrace();
+      log.error(e.getMessage(), e);
       return false;
     }
 
@@ -774,7 +770,6 @@ log.debug("totallistener: firstItem = " + bean.getFirstItem());
     }
  
     String sortProperty = bean.getSortType();
-    //System.out.println("****Sort type is " + sortProperty);
     log.debug("TotalScoreListener: setRoleAndSortSection() :: sortProperty = " + sortProperty);
     
     bs = new BeanSort(agents, sortProperty);

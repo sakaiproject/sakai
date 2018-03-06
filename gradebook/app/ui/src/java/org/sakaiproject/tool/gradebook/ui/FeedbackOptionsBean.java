@@ -1,24 +1,18 @@
-/**********************************************************************************
-*
-* $Id$
-*
-***********************************************************************************
-*
- * Copyright (c) 2005, 2006, 2007, 2008 The Sakai Foundation, The MIT Corporation
+/**
+ * Copyright (c) 2003-2016 The Apereo Foundation
  *
  * Licensed under the Educational Community License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *       http://www.opensource.org/licenses/ECL-2.0
+ *             http://opensource.org/licenses/ecl2
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
-*
-**********************************************************************************/
+ */
 
 package org.sakaiproject.tool.gradebook.ui;
 
@@ -32,21 +26,20 @@ import java.util.Map;
 import javax.faces.event.ActionEvent;
 import javax.faces.model.SelectItem;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+
+import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.service.gradebook.shared.StaleObjectModificationException;
 import org.sakaiproject.tool.gradebook.GradeMapping;
 import org.sakaiproject.tool.gradebook.Gradebook;
 import org.sakaiproject.tool.gradebook.jsf.FacesUtil;
-import org.sakaiproject.service.gradebook.shared.GradebookService;
 
 /**
  * Provides support for the student feedback options page, which also controls
  * grade-to-percentage mappings for the gradebook.
  */
+@Slf4j
 public class FeedbackOptionsBean extends GradebookDependentBean implements Serializable {
-	private static final Logger log = LoggerFactory.getLogger(FeedbackOptionsBean.class);
-
 	// View maintenance fields - serializable.
 
 	/**
@@ -59,49 +52,49 @@ public class FeedbackOptionsBean extends GradebookDependentBean implements Seria
 	private boolean workInProgress;
 
 	/** Cache a copy of the gradebook object in the request thread, to keep track of all grade mapping changes */
-    private Gradebook localGradebook;
+	private Gradebook localGradebook;
 
-    private Long selectedGradeMappingId;
+	private Long selectedGradeMappingId;
 
-    /** The list of select box items */
-    private List gradeMappingsSelectItems;
+	/** The list of select box items */
+	private List gradeMappingsSelectItems;
 
-    // View into row-specific data.
-    private List gradeRows;
+	// View into row-specific data.
+	private List gradeRows;
     
-    private boolean isValidWithLetterGrade = true;
+	private boolean isValidWithLetterGrade = true;
 
-    public class GradeRow implements Serializable {
-    	private GradeMapping gradeMapping;
-    	private String grade;
-    	private boolean editable;
-    	public GradeRow() {
-    	}
-    	public GradeRow(GradeMapping gradeMapping, String grade, boolean editable) {
-    		this.gradeMapping = gradeMapping;
-    		this.grade = grade;
-    		this.editable = editable;
-    	}
+	public class GradeRow implements Serializable {
+    		private GradeMapping gradeMapping;
+    		private String grade;
+    		private boolean editable;
+    		public GradeRow() {
+    		}
+    		public GradeRow(GradeMapping gradeMapping, String grade, boolean editable) {
+    			this.gradeMapping = gradeMapping;
+    			this.grade = grade;
+    			this.editable = editable;
+    		}
 
-    	public String getGrade() {
-    		return grade;
-    	}
+    		public String getGrade() {
+    			return grade;
+    		}
 
-    	public Double getMappingValue() {
-    		return (Double)gradeMapping.getGradeMap().get(grade);
-    	}
-    	public void setMappingValue(Double value) {
-    		gradeMapping.getGradeMap().put(grade, value);
-    	}
+    		public Double getMappingValue() {
+    			return (Double)gradeMapping.getGradeMap().get(grade);
+    		}
+    		public void setMappingValue(Double value) {
+    			gradeMapping.getGradeMap().put(grade, value);
+    		}
 
-    	public boolean isGradeEditable() {
-			return editable;
+    		public boolean isGradeEditable() {
+    			return editable;
 		}
 	}
 
-    public Gradebook getLocalGradebook() {
-        return localGradebook;
-    }
+	public Gradebook getLocalGradebook() {
+		return localGradebook;
+	}
 	/**
 	 * Initializes this backing bean.
 	 */
@@ -294,25 +287,25 @@ public class FeedbackOptionsBean extends GradebookDependentBean implements Seria
 		return "overview";
 	}
 
-    public List getGradeMappingsSelectItems() {
+	public List getGradeMappingsSelectItems() {
 		return gradeMappingsSelectItems;
 	}
 	public void setGradeMappingsSelectItems(List gradeMappingsSelectItems) {
 		this.gradeMappingsSelectItems = gradeMappingsSelectItems;
 	}
 
-    public Long getSelectedGradeMappingId() {
-        return selectedGradeMappingId;
-    }
-    public void setSelectedGradeMappingId(Long selectedGradeMappingId) {
-        this.selectedGradeMappingId = selectedGradeMappingId;
-    }
-		public boolean getIsValidWithLetterGrade()
-		{
-			return isValidWithLetterGrade;
-		}
-		public void setIsValidWithLetterGrade(boolean isValidWithLetterGrade)
-		{
-			this.isValidWithLetterGrade = isValidWithLetterGrade;
-		}
+	public Long getSelectedGradeMappingId() {
+		return selectedGradeMappingId;
+	}
+	public void setSelectedGradeMappingId(Long selectedGradeMappingId) {
+		this.selectedGradeMappingId = selectedGradeMappingId;
+	}
+	public boolean getIsValidWithLetterGrade()
+	{
+		return isValidWithLetterGrade;
+	}
+	public void setIsValidWithLetterGrade(boolean isValidWithLetterGrade)
+	{
+		this.isValidWithLetterGrade = isValidWithLetterGrade;
+	}
 }

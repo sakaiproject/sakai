@@ -13,7 +13,7 @@
   <parent>
     <artifactId>pasystem-base</artifactId>
     <groupId>org.sakaiproject.pasystem</groupId>
-    <version>12-SNAPSHOT</version>
+    <version>13-SNAPSHOT</version>
     <relativePath>../../pom.xml</relativePath>
   </parent>
 
@@ -41,7 +41,7 @@
     <dependency>
       <groupId>com.github.jknack</groupId>
       <artifactId>handlebars</artifactId>
-      <version>2.1.0</version>
+      <version>${handlebars4.version}</version>
     </dependency>
     <dependency>
       <groupId>org.apache.commons</groupId>

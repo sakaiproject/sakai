@@ -1,3 +1,18 @@
+/**
+ * Copyright (c) 2003-2016 The Apereo Foundation
+ *
+ * Licensed under the Educational Community License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *             http://opensource.org/licenses/ecl2
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.sakaiproject.site.tool.helper.managegroup.rsf;
 
 import java.util.ArrayList;
@@ -6,20 +21,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.sakaiproject.authz.api.Member;
-import org.sakaiproject.site.api.Group;
-import org.sakaiproject.site.api.SiteService;
-import org.sakaiproject.site.tool.helper.managegroup.impl.SiteManageGroupHandler;
-import org.sakaiproject.site.util.Participant;
-import org.sakaiproject.site.util.SiteComparator;
-import org.sakaiproject.site.util.SiteConstants;
-import org.sakaiproject.user.api.User;
-import org.sakaiproject.user.api.UserDirectoryService;
-import org.sakaiproject.util.SortedIterator;
-
-import org.sakaiproject.rsf.producers.FrameAdjustingProducer;
+import lombok.extern.slf4j.Slf4j;
 import uk.org.ponder.messageutil.MessageLocator;
 import uk.org.ponder.messageutil.TargettedMessage;
 import uk.org.ponder.messageutil.TargettedMessageList;
@@ -40,16 +42,26 @@ import uk.org.ponder.rsf.viewstate.SimpleViewParameters;
 import uk.org.ponder.rsf.viewstate.ViewParameters;
 import uk.org.ponder.rsf.viewstate.ViewParamsReporter;
 
+import org.sakaiproject.authz.api.Member;
+import org.sakaiproject.rsf.producers.FrameAdjustingProducer;
+import org.sakaiproject.site.api.Group;
+import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.site.tool.helper.managegroup.impl.SiteManageGroupHandler;
+import org.sakaiproject.site.util.Participant;
+import org.sakaiproject.site.util.SiteComparator;
+import org.sakaiproject.site.util.SiteConstants;
+import org.sakaiproject.user.api.User;
+import org.sakaiproject.user.api.UserDirectoryService;
+import org.sakaiproject.util.SortedIterator;
+
 /**
  * 
  * @author Dr. WHO?
  *
  */
+@Slf4j
 public class GroupEditProducer implements ViewComponentProducer, ActionResultInterceptor, ViewParamsReporter {
 
-	/** Our log (commons). */
-	private static final Logger M_log = LoggerFactory.getLogger(GroupEditProducer.class);
-	
     public SiteManageGroupHandler handler;
     public static final String VIEW_ID = "GroupEdit";
     public MessageLocator messageLocator;
@@ -105,7 +117,7 @@ public class GroupEditProducer implements ViewComponentProducer, ActionResultInt
     		 }
     		 catch (Exception e)
     		 {
-    			 M_log.debug(this + "fillComponents: cannot get group id=" + id, e);
+    			 log.debug(this + "fillComponents: cannot get group id=" + id, e);
     		 }
     	 }
     	 else
@@ -166,7 +178,7 @@ public class GroupEditProducer implements ViewComponentProducer, ActionResultInt
 	        	}
 	        	catch (Exception e)
 	        	{
-	        		M_log.debug(this + ":fillComponents: cannot find user " + userId, e);
+	        		log.debug(this + ":fillComponents: cannot find user " + userId, e);
 	        		// need to remove the group member
 	        		groupMembers.remove(p);
 	        	}

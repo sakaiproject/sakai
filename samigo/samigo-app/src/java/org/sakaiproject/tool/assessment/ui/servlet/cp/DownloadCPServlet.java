@@ -31,16 +31,15 @@ import java.util.zip.ZipOutputStream;
 
 import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
-
-import javax.servlet.RequestDispatcher;
-import javax.servlet.ServletException;
-import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.RequestDispatcher;
+import javax.servlet.ServletException;
+import javax.servlet.ServletOutputStream;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.tool.assessment.contentpackaging.ManifestGenerator;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
@@ -49,15 +48,12 @@ import org.sakaiproject.tool.assessment.ui.bean.qti.XMLController;
 import org.sakaiproject.tool.assessment.ui.bean.shared.PersonBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 
-
 /**
  * <p>Title: Samigo</p>
  * @version $Id$
  */
-
+@Slf4j
 public class DownloadCPServlet extends HttpServlet {
-
-	private static Logger log = LoggerFactory.getLogger(DownloadCPServlet.class);
 
 	/**
 	 * passthu to post

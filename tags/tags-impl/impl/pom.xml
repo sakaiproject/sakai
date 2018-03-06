@@ -12,7 +12,7 @@
   <parent>
     <artifactId>tags-base</artifactId>
     <groupId>org.sakaiproject.tags</groupId>
-    <version>12-SNAPSHOT</version>
+    <version>13-SNAPSHOT</version>
     <relativePath>../../pom.xml</relativePath>
   </parent>
 
@@ -40,7 +40,7 @@
     <dependency>
       <groupId>com.github.jknack</groupId>
       <artifactId>handlebars</artifactId>
-      <version>${handlebars.version}</version>
+      <version>${handlebars2.version}</version>
     </dependency>
     <dependency>
       <groupId>org.apache.commons</groupId>

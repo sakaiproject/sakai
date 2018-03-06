@@ -5,7 +5,7 @@
     <parent>
         <artifactId>portal</artifactId>
         <groupId>org.sakaiproject.portal</groupId>
-        <version>12-SNAPSHOT</version>
+        <version>13-SNAPSHOT</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
 
@@ -60,6 +60,11 @@
             <artifactId>sakai-portal-api</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.sakaiproject.basiclti</groupId>
+            <artifactId>basiclti-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
             <groupId>javax.portlet</groupId>
             <artifactId>portlet-api</artifactId>
         </dependency>
@@ -87,6 +92,10 @@
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.hibernate</groupId>
+            <artifactId>hibernate-core</artifactId>
         </dependency>
     </dependencies>
 

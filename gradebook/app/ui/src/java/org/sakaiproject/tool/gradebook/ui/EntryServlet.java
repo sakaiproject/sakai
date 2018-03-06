@@ -1,24 +1,18 @@
-/**********************************************************************************
-*
-* $Id$
-*
-***********************************************************************************
-*
- * Copyright (c) 2005, 2006, 2007, 2008 The Sakai Foundation, The MIT Corporation
+/**
+ * Copyright (c) 2003-2016 The Apereo Foundation
  *
  * Licensed under the Educational Community License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *       http://www.opensource.org/licenses/ECL-2.0
+ *             http://opensource.org/licenses/ecl2
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
-*
-**********************************************************************************/
+ */
 
 package org.sakaiproject.tool.gradebook.ui;
 
@@ -34,8 +28,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.support.WebApplicationContextUtils;
@@ -47,9 +40,8 @@ import org.sakaiproject.tool.gradebook.facades.ContextManagement;
 /**
  * Redirects the request to the role-appropriate initial view of the gradebook.
  */
+@Slf4j
 public class EntryServlet extends HttpServlet {
-    private static final Logger logger = LoggerFactory.getLogger(EntryServlet.class);
-
     public static final String INIT_SECRET = "org.apache.myfaces.secret";
     public static final String GENERATE_RANDOM_SECRET = "GENERATE_RANDOM_SECRET";
     public static final String DEFAULT_ALGORITHM = "DES";
@@ -63,14 +55,14 @@ public class EntryServlet extends HttpServlet {
     private void handleMyFacesSecret(ServletContext servletContext) {
         String secret = servletContext.getInitParameter(INIT_SECRET);
         if(secret == null) { // this means that org.apache.myfaces.secret context param was removed from gradebook web.xml
-            if (logger.isWarnEnabled()) logger.warn("MyFaces ViewState encryption has been disabled.  See the MyFaces Wiki for encryption options.");
+            if (log.isWarnEnabled()) log.warn("MyFaces ViewState encryption has been disabled.  See the MyFaces Wiki for encryption options.");
         } else if(secret.equalsIgnoreCase(GENERATE_RANDOM_SECRET)) {
             int length = 8;
             byte[] bytes = new byte[length];
             new Random().nextBytes(bytes);
             SecretKey secretKey = new SecretKeySpec(bytes, DEFAULT_ALGORITHM);
             servletContext.setAttribute("org.apache.myfaces.secret.CACHE", secretKey);
-            if(logger.isDebugEnabled()) logger.debug("generated random MyFaces secret");
+            if(log.isDebugEnabled()) log.debug("generated random MyFaces secret");
         } // else if this is not true, then org.apache.myfaces.secret context param was customized in web.xml, so let MyFaces StateUtils handle secret
     }
 
@@ -93,10 +85,10 @@ public class EntryServlet extends HttpServlet {
             if (gradebookUid != null) {
                 StringBuilder path = new StringBuilder(request.getContextPath());
                 if (authzService.isUserAbleToGrade(gradebookUid)) {
-		            if(logger.isDebugEnabled()) logger.debug("Sending user to the overview page");
+		            if(log.isDebugEnabled()) log.debug("Sending user to the overview page");
                     path.append("/overview.jsf");
                 } else if (authzService.isUserAbleToViewOwnGrades(gradebookUid)) {
-		            if(logger.isDebugEnabled()) logger.debug("Sending user to the student view page");
+		            if(log.isDebugEnabled()) log.debug("Sending user to the student view page");
                     path.append("/studentView.jsf");
                 } else {
 					// The role filter has not been invoked yet, so this could happen here
@@ -110,7 +102,7 @@ public class EntryServlet extends HttpServlet {
                 response.sendRedirect(path.toString());
             }
         } catch (IOException ioe) {
-            logger.error("Could not redirect user: {}", ioe.getMessage(), ioe);
+            log.error("Could not redirect user: {}", ioe.getMessage(), ioe);
         }
 	}
 

@@ -34,25 +34,27 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
+import lombok.extern.slf4j.Slf4j;
+
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import org.xml.sax.Attributes;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
+import org.xml.sax.helpers.DefaultHandler;
+
 import org.sakaiproject.content.api.ResourceType;
 import org.sakaiproject.content.api.GroupAwareEntity.AccessMode;
 import org.sakaiproject.content.impl.serialize.api.SerializableCollectionAccess;
 import org.sakaiproject.content.impl.serialize.impl.Type1BaseContentCollectionSerializer;
 import org.sakaiproject.entity.api.serialize.SerializableEntity;
 import org.sakaiproject.time.api.Time;
-import org.sakaiproject.util.StringUtil;
 import org.sakaiproject.util.Xml;
-import org.xml.sax.Attributes;
-import org.xml.sax.InputSource;
-import org.xml.sax.SAXException;
-import org.xml.sax.helpers.DefaultHandler;
 
 /**
  * @author ieb
  */
+@Slf4j
 public class SAXSerializableCollectionAccess implements SerializableCollectionAccess,
 		SerializableEntity
 {
@@ -60,8 +62,6 @@ public class SAXSerializableCollectionAccess implements SerializableCollectionAc
 	protected static final long END_OF_TIME = 8000L * 365L * 24L * 60L * 60L * 1000L;
 
 	protected static final long START_OF_TIME = 365L * 24L * 60L * 60L * 1000L;
-
-	protected static final Logger log = LoggerFactory.getLogger(SAXSerializableResourceAccess.class);
 
 	private Type1BaseContentCollectionSerializer type1CollectionSerializer;
 

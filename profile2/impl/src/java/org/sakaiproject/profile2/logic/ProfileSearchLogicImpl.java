@@ -25,7 +25,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
+
 import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.profile2.cache.CacheManager;
@@ -37,10 +40,6 @@ import org.sakaiproject.profile2.util.ProfileConstants;
 import org.sakaiproject.profile2.util.ProfileUtils;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.user.api.User;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import lombok.Setter;
 
 /**
  * Implementation of ProfileSearchLogic API
@@ -48,11 +47,10 @@ import lombok.Setter;
  * @author Steve Swinsburg (steve.swinsburg@gmail.com)
  * @author Daniel Robinson (d.b.robinson@lancaster.ac.uk)
  */
+@Slf4j
 public class ProfileSearchLogicImpl implements ProfileSearchLogic {
 
-	private static final Logger log = LoggerFactory.getLogger(ProfileSearchLogicImpl.class);
-	
-	private Cache cache;
+	private Cache<String, Map<String, ProfileSearchTerm>> cache;
 	private final String CACHE_NAME = "org.sakaiproject.profile2.cache.search";
 	
 	/**
@@ -151,18 +149,12 @@ public class ProfileSearchLogicImpl implements ProfileSearchLogic {
 	 */
 	@Override
 	public List<ProfileSearchTerm> getSearchHistory(String userUuid) {
-
-		if (cache.containsKey(userUuid)) {
-
-			log.debug("Fetching searchHistory from cache for: " + userUuid);
-		
-			//TODO this could do with a refactor
-			List<ProfileSearchTerm> searchHistory = new ArrayList<ProfileSearchTerm>(
-					((Map<String, ProfileSearchTerm>) cache.get(userUuid))
-							.values());
-
+		log.debug("Fetching searchHistory from cache for: {}", userUuid);
+		//TODO this could do with a refactor
+		Map<String, ProfileSearchTerm> termMap = cache.get(userUuid);
+		if (termMap != null) {
+			List<ProfileSearchTerm> searchHistory = new ArrayList<>(termMap.values());
 			Collections.sort(searchHistory);
-
 			return searchHistory;
 		} else {
 			return null;
@@ -187,16 +179,9 @@ public class ProfileSearchLogicImpl implements ProfileSearchLogic {
 			throw new IllegalArgumentException("userUuid must match search term userUuid");
 		}
 		
-		Map<String, ProfileSearchTerm> searchHistory = null;
-		if (cache.containsKey(userUuid)) {
-			searchHistory = (HashMap<String, ProfileSearchTerm>) cache.get(userUuid);
-			if(searchHistory == null) {
-				// This means that the cache has expired. evict the key from the cache
-				log.debug("SearchHistory cache appears to have expired for " + userUuid);
-				this.cacheManager.evictFromCache(this.cache, userUuid);
-			}
-		} else {
-			searchHistory = new HashMap<String, ProfileSearchTerm>();
+		Map<String, ProfileSearchTerm> searchHistory = cache.get(userUuid);
+		if(searchHistory == null) {
+			searchHistory = new HashMap<>();
 		}
 
 		// if search term already in history, remove old one (do BEFORE checking size)

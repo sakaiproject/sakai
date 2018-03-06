@@ -17,12 +17,10 @@
 package org.sakaiproject.tool.gradebook.ui;
 
 import java.io.Serializable;
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -30,13 +28,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService;
-import org.sakaiproject.service.gradebook.shared.StaleObjectModificationException;
 import org.sakaiproject.service.gradebook.shared.UnknownUserException;
-import org.sakaiproject.tool.gradebook.Assignment;
 import org.sakaiproject.tool.gradebook.AssignmentGradeRecord;
 import org.sakaiproject.tool.gradebook.Category;
 import org.sakaiproject.tool.gradebook.Comment;
@@ -44,19 +40,16 @@ import org.sakaiproject.tool.gradebook.CourseGrade;
 import org.sakaiproject.tool.gradebook.CourseGradeRecord;
 import org.sakaiproject.tool.gradebook.GradableObject;
 import org.sakaiproject.tool.gradebook.Gradebook;
+import org.sakaiproject.tool.gradebook.GradebookAssignment;
 import org.sakaiproject.tool.gradebook.GradingEvent;
-import org.sakaiproject.tool.gradebook.GradingEvents;
-import org.sakaiproject.tool.gradebook.jsf.FacesUtil;
-import org.sakaiproject.tool.gradebook.ui.AssignmentGradeRow;
 
 /**
  * Provides data for the student view of the gradebook. Is used by both the
  * instructor and student views. Based upon original StudentViewBean
  *
  */
+@Slf4j
 public class ViewByStudentBean extends EnrollmentTableBean implements Serializable {
-	private static Logger logger = LoggerFactory.getLogger(ViewByStudentBean.class);
-
     // View maintenance fields - serializable.
     private String userDisplayName;
     private boolean courseGradeReleased;
@@ -109,17 +102,17 @@ public class ViewByStudentBean extends EnrollmentTableBean implements Serializab
         };
         nameComparator = new Comparator() {
             public int compare(Object o1, Object o2) {
-                return Assignment.nameComparator.compare(((AssignmentGradeRow)o1).getAssociatedAssignment(), ((AssignmentGradeRow)o2).getAssociatedAssignment());
+                return GradebookAssignment.nameComparator.compare(((AssignmentGradeRow)o1).getAssociatedAssignment(), ((AssignmentGradeRow)o2).getAssociatedAssignment());
             }
         };
         dateComparator = new Comparator() {
             public int compare(Object o1, Object o2) {
-                return Assignment.dateComparator.compare(((AssignmentGradeRow)o1).getAssociatedAssignment(), ((AssignmentGradeRow)o2).getAssociatedAssignment());
+                return GradebookAssignment.dateComparator.compare(((AssignmentGradeRow)o1).getAssociatedAssignment(), ((AssignmentGradeRow)o2).getAssociatedAssignment());
             }
         };
         pointsPossibleComparator = new Comparator() {
             public int compare(Object o1, Object o2) {
-                return Assignment.pointsComparator.compare(((AssignmentGradeRow)o1).getAssociatedAssignment(), ((AssignmentGradeRow)o2).getAssociatedAssignment());
+                return GradebookAssignment.pointsComparator.compare(((AssignmentGradeRow)o1).getAssociatedAssignment(), ((AssignmentGradeRow)o2).getAssociatedAssignment());
             }
         };
 
@@ -172,7 +165,7 @@ public class ViewByStudentBean extends EnrollmentTableBean implements Serializab
         };
         gradeEditorComparator = new Comparator() {
         	public int compare(Object o1, Object o2) {
-        		return Assignment.gradeEditorComparator.compare(((AssignmentGradeRow)o1).getAssociatedAssignment(), ((AssignmentGradeRow)o2).getAssociatedAssignment());
+        		return GradebookAssignment.gradeEditorComparator.compare(((AssignmentGradeRow)o1).getAssociatedAssignment(), ((AssignmentGradeRow)o2).getAssociatedAssignment());
         	}
         };
 
@@ -184,7 +177,7 @@ public class ViewByStudentBean extends EnrollmentTableBean implements Serializab
         columnSortMap.put(SORT_BY_POINTS_EARNED, ViewByStudentBean.pointsEarnedComparator);
         columnSortMap.put(SORT_BY_GRADE, ViewByStudentBean.gradeAsPercentageComparator);
         columnSortMap.put(SORT_BY_ITEM_VALUE, ViewByStudentBean.itemValueComparator);
-        columnSortMap.put(Assignment.SORT_BY_EDITOR, ViewByStudentBean.gradeEditorComparator);
+        columnSortMap.put(GradebookAssignment.SORT_BY_EDITOR, ViewByStudentBean.gradeEditorComparator);
     }
     
     /**
@@ -219,7 +212,7 @@ public class ViewByStudentBean extends EnrollmentTableBean implements Serializab
     	try {
     		userDisplayName = getUserDirectoryService().getUserDisplayName(studentUid);
     	} catch (UnknownUserException e) {
-    		if(logger.isErrorEnabled())logger.error("User " + studentUid + " is unknown but referenced in gradebook " + gradebook.getUid());
+    		if(log.isErrorEnabled())log.error("User " + studentUid + " is unknown but referenced in gradebook " + gradebook.getUid());
     		userDisplayName = "";
     	}
     	
@@ -245,11 +238,11 @@ public class ViewByStudentBean extends EnrollmentTableBean implements Serializab
     	List<AssignmentGradeRecord> studentGradeRecs = getGradebookManager().getStudentGradeRecords(gradebook.getId(), studentUid);     
     	getGradebookManager().applyDropScores(studentGradeRecs);
     	
-    	List<Assignment> assignments = getGradebookManager().getAssignments(gradebook.getId());
-    	List<Assignment> countedAssigns = new ArrayList<Assignment>();
+    	List<GradebookAssignment> assignments = getGradebookManager().getAssignments(gradebook.getId());
+    	List<GradebookAssignment> countedAssigns = new ArrayList<GradebookAssignment>();
         // let's filter the passed assignments to make sure they are all counted
         if (assignments != null) {
-            for (Assignment assign : assignments) {
+            for (GradebookAssignment assign : assignments) {
                 if (assign.isIncludedInCalculations()) {
                     countedAssigns.add(assign);
                 }
@@ -412,9 +405,9 @@ public class ViewByStudentBean extends EnrollmentTableBean implements Serializab
     	if (assignments == null)
     		return gradeRows;
 
-    	if(logger.isDebugEnabled()) {
-    		logger.debug(assignments.size() + " total assignments");
-    		logger.debug(gradeRecords.size()  +"  grade records");
+    	if(log.isDebugEnabled()) {
+    		log.debug(assignments.size() + " total assignments");
+    		log.debug(gradeRecords.size()  +"  grade records");
     	}
     	
 		boolean userHasGraderPerms;
@@ -434,7 +427,7 @@ public class ViewByStudentBean extends EnrollmentTableBean implements Serializab
     	Map asnMap = new HashMap();
     	for(Iterator iter = assignments.iterator(); iter.hasNext();) {
 
-    		Assignment asn = (Assignment)iter.next();
+    		GradebookAssignment asn = (GradebookAssignment)iter.next();
 
     		if (userHasGraderPerms) {
     			String function = (String)viewableAssignmentsMap.get(asn.getId());
@@ -459,7 +452,7 @@ public class ViewByStudentBean extends EnrollmentTableBean implements Serializab
         		// Update the AssignmentGradeRow in the map
         		AssignmentGradeRow asnGradeRow = (AssignmentGradeRow)asnMap.get(asnGr.getAssignment());
         		if (asnGradeRow != null) {
-        			Assignment asnGrAssignment = asnGr.getAssignment();
+        			GradebookAssignment asnGrAssignment = asnGr.getAssignment();
         			
         			// if weighted gb and no category for assignment,
         			// it is not counted toward course grade
@@ -489,7 +482,7 @@ public class ViewByStudentBean extends EnrollmentTableBean implements Serializab
     	//iterate through the assignments and update the comments and grading events
     	Iterator assignmentIterator = assignments.iterator();
     	while(assignmentIterator.hasNext()){
-    		Assignment assignment = (Assignment) assignmentIterator.next();
+    		GradebookAssignment assignment = (GradebookAssignment) assignmentIterator.next();
     		
     		AssignmentGradeRow asnGradeRow = (AssignmentGradeRow)asnMap.get(assignment);
     		
@@ -517,8 +510,8 @@ public class ViewByStudentBean extends EnrollmentTableBean implements Serializab
     			if(comment.getCommentText().length() > 0)
     				asnGradeRow.setCommentText(comment.getCommentText());
     		}catch(NullPointerException npe){
-    			if(logger.isDebugEnabled())
-    				logger.debug("assignment has no associated comment");
+    			if(log.isDebugEnabled())
+    				log.debug("assignment has no associated comment");
     		}
     	}
 
@@ -551,7 +544,7 @@ public class ViewByStudentBean extends EnrollmentTableBean implements Serializab
 		}
 
 		while (i.hasNext()) {
-			Assignment assignment = ((AssignmentGradeRow)i.next()).getAssociatedAssignment();
+			GradebookAssignment assignment = ((AssignmentGradeRow)i.next()).getAssociatedAssignment();
 
 			if (assignment.isExternallyMaintained() && !externalAssignments.containsKey(assignment.getExternalId())) {
 				i.remove();
@@ -581,7 +574,7 @@ public class ViewByStudentBean extends EnrollmentTableBean implements Serializab
     		//get grade comments and load them into a map assignmentId->comment
     		commentMap = new HashMap();
     		List assignmentComments = getGradebookManager().getStudentAssignmentComments(studentUid, gradebook.getId());
-    		logger.debug("number of comments "+assignmentComments.size());
+    		log.debug("number of comments "+assignmentComments.size());
     		Iterator iteration = assignmentComments.iterator();
     		while (iteration.hasNext()){
     			Comment comment = (Comment)iteration.next();
@@ -602,9 +595,9 @@ public class ViewByStudentBean extends EnrollmentTableBean implements Serializab
     			Set studentUids = new HashSet<String>();
     			studentUids.add(studentUid);
     			if (sortColumn.equals(Category.SORT_BY_WEIGHT))
-    				categoryListWithCG = getGradebookManager().getCategoriesWithStats(getGradebookId(), Assignment.DEFAULT_SORT, true, sortColumn, sortAscending, false, studentUids);
+    				categoryListWithCG = getGradebookManager().getCategoriesWithStats(getGradebookId(), GradebookAssignment.DEFAULT_SORT, true, sortColumn, sortAscending, false, studentUids);
     			else
-    				categoryListWithCG = getGradebookManager().getCategoriesWithStats(getGradebookId(), Assignment.DEFAULT_SORT, true, Category.SORT_BY_NAME, true, false, studentUids);
+    				categoryListWithCG = getGradebookManager().getCategoriesWithStats(getGradebookId(), GradebookAssignment.DEFAULT_SORT, true, Category.SORT_BY_NAME, true, false, studentUids);
   
     			List categoryList = new ArrayList();
     			
@@ -685,7 +678,7 @@ public class ViewByStudentBean extends EnrollmentTableBean implements Serializab
     			if (!isUserAbleToGradeAll() && (isUserHasGraderPermissions() && !getGradebookPermissionService().getPermissionForUserForAllAssignmentForStudent(getGradebookId(), getUserUid(), studentUid, getViewableSectionIds()))) {
     				// user is not authorized to view/grade the unassigned category for the current student
     			} else {
-    				List assignNoCat = getGradebookManager().getAssignmentsWithNoCategory(getGradebookId(), Assignment.DEFAULT_SORT, true);
+    				List assignNoCat = getGradebookManager().getAssignmentsWithNoCategory(getGradebookId(), GradebookAssignment.DEFAULT_SORT, true);
     				if (assignNoCat != null && !assignNoCat.isEmpty()) {
     					Category unassignedCat = new Category();
     					unassignedCat.setGradebook(gradebook);
@@ -764,6 +757,3 @@ public class ViewByStudentBean extends EnrollmentTableBean implements Serializab
     	}
     }
 }
-
-
-

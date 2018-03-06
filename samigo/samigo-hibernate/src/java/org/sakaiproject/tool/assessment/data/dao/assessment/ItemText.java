@@ -20,6 +20,7 @@
  **********************************************************************************/
 
 package org.sakaiproject.tool.assessment.data.dao.assessment;
+
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -30,9 +31,8 @@ import java.util.Set;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.HashSet;
+import org.sakaiproject.samigo.util.SamigoConstants;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sakaiproject.tool.assessment.data.dao.shared.TypeD;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AnswerIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextAttachmentIfc;
@@ -41,7 +41,6 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextIfc;
 
 public class ItemText
     implements Serializable, ItemTextIfc, Comparable<ItemTextIfc> {
-  static Logger errorLogger = LoggerFactory.getLogger("errorLogger");
 
   private static final long serialVersionUID = 7526471155622776147L;
 
@@ -114,7 +113,9 @@ public class ItemText
 
   public List<AnswerIfc> getAnswerArray() {
     List<AnswerIfc> list = new ArrayList<AnswerIfc>();
-    list.addAll(answerSet);
+    if (answerSet != null) {
+      list.addAll(answerSet);
+    }
     return list;
   }
 
@@ -126,6 +127,49 @@ public class ItemText
     List<AnswerIfc> list = getAnswerArray();
     Collections.sort(list);
     return list;
+  }
+
+  /**
+   * This is used for displaying the enumerated answers, with a distractor option if necessary.
+   * If the question has a distractor, it should be presented once and only once, at the end of the list of choices. Ex:
+   * A. Option 1
+   * B. Option 2
+   * C. None of the above
+   * @return
+   */
+  public List<AnswerIfc> getAnswerArrayWithDistractorSorted() {
+    List<AnswerIfc> answers = getAnswerArraySorted();
+    List<ItemTextIfc> questions = item.getItemTextArray();
+
+    // If the number of questions differs from the number of answers, there's either distractors or questions with the same answer
+    if (questions.size() != answers.size()) {
+      for (ItemTextIfc question : questions) {
+
+        boolean isDistractor = true;
+        List<AnswerIfc> answersSorted = question.getAnswerArraySorted();
+        for (AnswerIfc answer : answersSorted) {
+          if (answer.getIsCorrect()) {
+            isDistractor = false;
+            break;
+          }
+        }
+
+        // There's at least one distractor; add the distractor answer to the end of the list for presentation purposes
+        if (isDistractor) {
+          Answer distractor = new Answer();
+          distractor.setId(new Long(0));
+          distractor.setLabel(Character.toString(SamigoConstants.ALPHABET.charAt(answers.size())));
+          distractor.setText(NONE_OF_THE_ABOVE);
+          distractor.setIsCorrect(false);
+          distractor.setScore(this.getItem().getScore());
+          distractor.setSequence(new Long(answers.size()));
+          answers.add(distractor);
+          break;
+        }
+      }
+    }
+
+    return answers;
   }
   
 	public Set<ItemTextAttachmentIfc> getItemTextAttachmentSet() {

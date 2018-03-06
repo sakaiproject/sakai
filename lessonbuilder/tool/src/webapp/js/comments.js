@@ -76,7 +76,7 @@ $(function() {
 			},
 			
 			"Delete Comment": function() {
-				confirmDelete();
+				deleteButton();
 			}
 		}
 	});
@@ -296,7 +296,7 @@ function deleteComment(link) {
 	//setMainFrameHeight(window.name);
 }
 
-function confirmDelete() {
+function deleteButton() {
 	$(commentToReload).load(deleteDialogCommentURL, commentsLoaded);
 	//$("#delete-dialog").parents(".replaceWithComments").load($(dialog).children(".delete-dialog-comment-url").text());
 	setMainFrameHeight(window.name);

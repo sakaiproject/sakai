@@ -4,7 +4,7 @@
   <parent>
     <groupId>org.sakaiproject.msgcntr</groupId>
     <artifactId>msgcntr</artifactId>
-    <version>12-SNAPSHOT</version>
+    <version>13-SNAPSHOT</version>
   </parent>
   <name>Sakai Message Forums Component Implementation</name>
   <groupId>org.sakaiproject.msgcntr</groupId>
@@ -73,11 +73,7 @@
     </dependency>
     <dependency>
       <groupId>org.sakaiproject.common</groupId>
-      <artifactId>sakai-common-type-api</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.sakaiproject.common</groupId>
-      <artifactId>sakai-common-manager-api</artifactId>
+      <artifactId>sakai-common-api</artifactId>
     </dependency>
     <dependency>
       <groupId>commons-codec</groupId>

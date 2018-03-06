@@ -27,7 +27,14 @@ import java.util.Observable;
 import java.util.Observer;
 import java.util.concurrent.ConcurrentHashMap;
 
+import lombok.extern.slf4j.Slf4j;
+
 import org.apache.commons.lang3.StringUtils;
+
+import org.springframework.beans.BeansException;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
+
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.EventTrackingService;
@@ -39,11 +46,6 @@ import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.BeansException;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationContextAware;
 
 /**
  * Core implementation of the LRS integration
@@ -61,12 +63,11 @@ import org.springframework.context.ApplicationContextAware;
  * @author Aaron Zeckoski (azeckoski @ unicon.net) (azeckoski @ vt.edu)
  */
 //@Aspect
+@Slf4j
 public class BaseLearningResourceStoreService implements LearningResourceStoreService, ApplicationContextAware {
 
     private static final String ORIGIN_SAKAI_SYSTEM = "sakai.system";
     private static final String ORIGIN_SAKAI_CONTENT = "sakai.resources";
-
-    private static final Logger log = LoggerFactory.getLogger(BaseLearningResourceStoreService.class);
 
     /**
      * Stores the complete set of known LRSP providers (from the Spring AC or registered manually)
@@ -308,8 +309,8 @@ public class BaseLearningResourceStoreService implements LearningResourceStoreSe
         LRS_Result result = null;
         if (event.getLrsStatement() != null) {
             statement =  event.getLrsStatement();
-            //If the statement is fully populated nothing left to do
-            if (statement.isPopulated()) {
+            //If the statement is fully populated (with context) nothing left to do
+            if (statement.isPopulated() && statement.getContext() != null) {
                 return statement;
             }
             verb=statement.getVerb();
@@ -343,29 +344,16 @@ public class BaseLearningResourceStoreService implements LearningResourceStoreSe
         }
         return statement;
     }
-
     /* (non-Javadoc)
-     * @see org.sakaiproject.event.api.LearningResourceStoreService#getEventActor(org.sakaiproject.event.api.Event)
+     * @see org.sakaiproject.event.api.LearningResourceStoreService#getActor(String)
      */
-    public LRS_Actor getEventActor(Event event) {
+    public LRS_Actor getActor(String userId) {
         LRS_Actor actor = null;
         User user = null;
-        if (event.getUserId() != null) {
-            try {
-                user = this.userDirectoryService.getUser(event.getUserId());
-            } catch (UserNotDefinedException e) {
-                user = null;
-            }
-        }
-        if (user == null && event.getSessionId() != null) {
-            Session session = this.sessionManager.getSession(event.getSessionId());
-            if (session != null) {
-                try {
-                    user = this.userDirectoryService.getUser(session.getUserId());
-                } catch (UserNotDefinedException e) {
-                    user = null;
-                }
-            }
+        try {
+            user = this.userDirectoryService.getUser(userId);
+        } catch (UserNotDefinedException e) {
+            user = null;
         }
         if (user != null) {
             String actorEmail;
@@ -391,6 +379,30 @@ public class BaseLearningResourceStoreService implements LearningResourceStoreSe
             // TODO implement OpenID support
         }
         return actor;
+    }
+    
+    /* (non-Javadoc)
+     * @see org.sakaiproject.event.api.LearningResourceStoreService#getEventActor(org.sakaiproject.event.api.Event)
+     */
+    public LRS_Actor getEventActor(Event event) {
+    	return getActor(event);
+    }
+
+    /* (non-Javadoc)
+     * @see org.sakaiproject.event.api.LearningResourceStoreService#getActor(org.sakaiproject.event.api.Event)
+     */
+    public LRS_Actor getActor(Event event) {
+    	String userId = null;
+    	if (event != null) {
+    		userId = event.getUserId();
+    	}
+    	if (userId == null && event != null && event.getSessionId() != null) {
+    		Session session = this.sessionManager.getSession(event.getSessionId());
+    		if (session != null) {
+    			userId = session.getUserId();
+    		}
+    	}
+    	return getActor(userId);
     }
 
     /**

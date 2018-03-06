@@ -19,16 +19,14 @@
  *
  **********************************************************************************/
 
-
-
 package org.sakaiproject.tool.assessment.qti.helper.section;
 
 import java.io.IOException;
 import java.io.InputStream;
+
 import javax.xml.parsers.ParserConfigurationException;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
@@ -44,11 +42,10 @@ import org.sakaiproject.tool.assessment.qti.helper.AuthoringHelper;
  * some portions of code @author Shastri, Rashmi <rshastri@iupui.edu>
  * @version $Id$
  */
-
+@Slf4j
 abstract public class SectionHelperBase
   implements SectionHelperIfc
 {
-  private static Logger log = LoggerFactory.getLogger(SectionHelperBase.class);
 
   private Document doc;
 

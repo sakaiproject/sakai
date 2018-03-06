@@ -29,8 +29,8 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.entity.api.EntityAccessOverloadException;
 import org.sakaiproject.entity.api.EntityNotDefinedException;
 import org.sakaiproject.entity.api.EntityPermissionException;
@@ -55,11 +55,9 @@ import org.sakaiproject.util.Web;
  * 
  * @author Sakai Software Development Team
  */
+@Slf4j
 public class WikiAccessServlet extends HttpServlet
 {
-	/** Our log (commons). */
-	private static Logger M_log = LoggerFactory.getLogger(WikiAccessServlet.class);
-
 
 	protected BasicAuth basicAuth = null;
 
@@ -186,12 +184,12 @@ public class WikiAccessServlet extends HttpServlet
 		}
 		catch (EntityAccessOverloadException e)
 		{
-			M_log.info("dispatch(): ref: " + ref.getReference() + e);
+			log.info("dispatch(): ref: " + ref.getReference() + e);
 			sendError(res, HttpServletResponse.SC_SERVICE_UNAVAILABLE);
 		}
 		catch (Throwable e)
 		{
-			M_log.warn("dispatch(): exception: ", e);
+			log.warn("dispatch(): exception: ", e);
 			sendError(res, HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 		}
 
@@ -200,8 +198,8 @@ public class WikiAccessServlet extends HttpServlet
 			long end = System.currentTimeMillis();
 
 			// log
-			if (M_log.isDebugEnabled())
-				M_log.debug("from:" + req.getRemoteAddr() + " path:" + origPath + " options: " + req.getQueryString()
+			if (log.isDebugEnabled())
+				log.debug("from:" + req.getRemoteAddr() + " path:" + origPath + " options: " + req.getQueryString()
 						+ " time: " + (end-start));
 		}
 	}
@@ -279,7 +277,7 @@ public class WikiAccessServlet extends HttpServlet
 	{
 		// if basic auth is valid do that
 		if ( basicAuth.doAuth(req,res) ) {
-			//System.err.println("BASIC Auth Request Sent to the Browser ");
+			//log.info("BASIC Auth Request Sent to the Browser ");
 			return;
 		} 
 		
@@ -298,7 +296,7 @@ public class WikiAccessServlet extends HttpServlet
 		// check that we have a return path set; might have been done earlier
 		if (session.getAttribute(Tool.HELPER_DONE_URL) == null)
 		{
-			M_log.error("doLogin - proceeding with null HELPER_DONE_URL");
+			log.error("doLogin - proceeding with null HELPER_DONE_URL");
 		}
 
 		// map the request to the helper, leaving the path after ".../options" for the helper
@@ -315,7 +313,7 @@ public class WikiAccessServlet extends HttpServlet
 		}
 		catch (Throwable t)
 		{
-			M_log.warn("sendError: " + t);
+			log.warn("sendError: " + t);
 		}
 	}
 

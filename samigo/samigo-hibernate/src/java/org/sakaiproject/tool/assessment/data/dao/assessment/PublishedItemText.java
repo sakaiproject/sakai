@@ -20,21 +20,18 @@
  **********************************************************************************/
 
 package org.sakaiproject.tool.assessment.data.dao.assessment;
+
+import java.io.*;
+import java.util.*;
+
 import org.sakaiproject.tool.assessment.data.dao.shared.TypeD;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AnswerIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextAttachmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 
-import java.io.*;
-import java.util.*;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 public class PublishedItemText
     implements Serializable, ItemTextIfc, Comparable<ItemTextIfc> {
-  static Logger errorLogger = LoggerFactory.getLogger("errorLogger");
 
   private static final long serialVersionUID = 7526471155622776147L;
 
@@ -114,9 +111,48 @@ public class PublishedItemText
     return list;
   }
 
+  private boolean hasDistractors(){
+    List thisItemElements = getItem().getItemTextArray();
+    return thisItemElements.size() != answerSet.size();
+  }
+
+  private boolean hasCorrectAnswers(){
+    for (Object thisAnswer : answerSet) {
+      if (((PublishedAnswer) thisAnswer).getIsCorrect()) {
+        return true;
+      }
+    }
+    return false;
+  }
+
   public ArrayList getAnswerArraySorted() {
     ArrayList list = getAnswerArray();
     Collections.sort(list);
+    return list;
+  }
+
+  public ArrayList getAnswerArrayWithDistractorSorted() {
+    ArrayList list = getAnswerArray();
+    Collections.sort(list);
+    if (this.getItem().getTypeId() == 9) {
+      if (hasDistractors()) {
+        if (hasCorrectAnswers()) {
+          PublishedAnswer distractorAnswer = new PublishedAnswer();
+          distractorAnswer.setId(new Long(0));
+          distractorAnswer.setText(NONE_OF_THE_ABOVE);
+          distractorAnswer.setIsCorrect(false);
+          distractorAnswer.setScore(this.getItem().getScore());
+          list.add(distractorAnswer);
+        }else{
+          PublishedAnswer distractorAnswer = new PublishedAnswer();
+          distractorAnswer.setText(NONE_OF_THE_ABOVE);
+          distractorAnswer.setIsCorrect(true);
+          distractorAnswer.setScore(this.getItem().getScore());
+          distractorAnswer.setId(new Long(0));
+          list.add(distractorAnswer);
+        }
+      }
+    }
     return list;
   }
 

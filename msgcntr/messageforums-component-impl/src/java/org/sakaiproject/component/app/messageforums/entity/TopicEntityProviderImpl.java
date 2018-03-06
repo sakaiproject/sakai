@@ -1,3 +1,18 @@
+/**
+ * Copyright (c) 2005-2017 The Apereo Foundation
+ *
+ * Licensed under the Educational Community License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *             http://opensource.org/licenses/ecl2
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.sakaiproject.component.app.messageforums.entity;
 
 import java.text.DateFormat;
@@ -7,6 +22,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+
+import lombok.extern.slf4j.Slf4j;
 
 import org.sakaiproject.api.app.messageforums.Area;
 import org.sakaiproject.api.app.messageforums.Attachment;
@@ -51,9 +68,8 @@ import org.sakaiproject.service.gradebook.shared.GradebookNotFoundException;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.util.ResourceLoader;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
+@Slf4j
 public class TopicEntityProviderImpl implements TopicEntityProvider,
 AutoRegisterEntityProvider, PropertyProvideable, RESTful, RequestStorable, RequestAware, ActionsExecutable {
 
@@ -63,7 +79,6 @@ AutoRegisterEntityProvider, PropertyProvideable, RESTful, RequestStorable, Reque
 	private MessageForumsTypeManager typeManager;
 	private PrivateMessageManager privateMessageManager;
 	private static final ResourceLoader rb = new ResourceLoader("org.sakaiproject.api.app.messagecenter.bundle.Messages");
-	private static final Logger LOG = LoggerFactory.getLogger(TopicEntityProviderImpl.class);
 	public static final String PVTMSG_MODE_DRAFT = "Drafts";
 	
 	private UserDirectoryService userDirectoryService;	
@@ -102,7 +117,7 @@ AutoRegisterEntityProvider, PropertyProvideable, RESTful, RequestStorable, Reque
 			topic = forumManager.getTopicById(new Long(id));
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			log.error(e.getMessage(), e);
 		}
 		return (topic != null);
 	}
@@ -378,9 +393,9 @@ AutoRegisterEntityProvider, PropertyProvideable, RESTful, RequestStorable, Reque
 				        }
 				    }
 				} catch (GradebookNotFoundException gnfe) {
-				    LOG.debug("No gradebook exists for site " + siteId + ". No gb item ids will be included.", gnfe);
+				    log.debug("No gradebook exists for site " + siteId + ". No gb item ids will be included.", gnfe);
 				} catch (Exception e) {
-				    LOG.debug("Exception attempting to retrieve gradebook information for site " + siteId + ". ", e);
+				    log.debug("Exception attempting to retrieve gradebook information for site " + siteId + ". ", e);
 				}
 
 				for (DiscussionForum forum : forums) {

@@ -23,27 +23,28 @@ package org.sakaiproject.lessonbuildertool.tool.entityproviders;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.Getter;
 import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 
 import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+
+import org.sakaiproject.authz.api.SecurityService;
+import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.content.api.ContentHostingService;
+import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.entitybroker.EntityView;
-import org.sakaiproject.entity.cover.EntityManager;
 import org.sakaiproject.entitybroker.entityprovider.annotations.EntityCustomAction;
 import org.sakaiproject.entitybroker.entityprovider.EntityProvider;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.ActionsExecutable;
@@ -56,39 +57,32 @@ import org.sakaiproject.entitybroker.entityprovider.extension.Formats;
 import org.sakaiproject.entitybroker.exception.EntityNotFoundException;
 import org.sakaiproject.entitybroker.util.AbstractEntityProvider;
 import org.sakaiproject.entitybroker.DeveloperHelperService;
-
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
-
-import org.sakaiproject.authz.api.SecurityService;
+import org.sakaiproject.lessonbuildertool.SimplePage;
+import org.sakaiproject.lessonbuildertool.SimplePageItem;
+import org.sakaiproject.lessonbuildertool.SimplePageQuestionAnswer;
+import org.sakaiproject.lessonbuildertool.model.SimplePageToolDao;
+import org.sakaiproject.lessonbuildertool.service.LessonsAccess;
+import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.api.SiteService.SortType;
 import org.sakaiproject.site.api.ToolConfiguration;
+import org.sakaiproject.thread_local.cover.ThreadLocalManager;
+import org.sakaiproject.tool.api.ActiveTool;
+import org.sakaiproject.tool.api.Placement;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.tool.api.ToolSession;
-import org.sakaiproject.tool.api.ActiveTool;
-import org.sakaiproject.component.cover.ServerConfigurationService;
-import org.sakaiproject.content.api.ContentHostingService;
-import org.sakaiproject.content.api.ContentResource;
-import org.sakaiproject.thread_local.cover.ThreadLocalManager;
 import org.sakaiproject.tool.cover.ActiveToolManager;
-import org.sakaiproject.tool.api.Placement;
-
-import org.sakaiproject.lessonbuildertool.model.SimplePageToolDao;
-import org.sakaiproject.lessonbuildertool.SimplePage;
-import org.sakaiproject.lessonbuildertool.SimplePageItem;
-import org.sakaiproject.lessonbuildertool.SimplePageQuestionAnswer;
-import org.sakaiproject.lessonbuildertool.service.LessonsAccess;
-import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean;
-
 
 /**
  * @author fsaez
  *
  */
+@Slf4j
 public class LessonsEntityProvider extends AbstractEntityProvider implements EntityProvider, AutoRegisterEntityProvider, Outputable, Describeable, Sampleable, Resolvable, ActionsExecutable {
 	
 	public final static String ENTITY_PREFIX = "lessons";
@@ -103,9 +97,6 @@ public class LessonsEntityProvider extends AbstractEntityProvider implements Ent
 	/** Key in the ThreadLocalManager for binding our current tool. */
 	protected final static String CURRENT_TOOL = "sakai:ToolComponent:current.tool";
 
-
-	private static final Logger log = LoggerFactory.getLogger(LessonsEntityProvider.class);
-	
 	@Override
 	public String getEntityPrefix() {
 	    	return ENTITY_PREFIX;
@@ -410,6 +401,63 @@ public class LessonsEntityProvider extends AbstractEntityProvider implements Ent
 		if (ret != null && ret.size() > 0)
 		    return ret.get(0);
 		return ret;
+	}
+
+
+	/**
+	 * subnav-prerequisites
+	 * example: /direct/lessons/subnav-prerequisites/SITEID.xml
+	 */
+	@EntityCustomAction(action = "subnav-prerequisites", viewKey = EntityView.VIEW_LIST)
+	public String getPrerequisiteDataForSubNav(final EntityView view, final Map<String, Object> params) {
+		final String siteId = view.getPathSegment(2);
+
+		if (siteId == null || "".equals(siteId)) {
+			throw new IllegalArgumentException("siteId is required");
+		}
+		Site site = null;
+		try {
+			site = siteService.getSiteVisit(siteId);
+		} catch (IdUnusedException e) {
+			throw new EntityNotFoundException("Invalid siteId: " + siteId, siteId);
+		} catch (PermissionException e) {
+			throw new EntityNotFoundException("No access to site: " + siteId, siteId);
+		}
+
+		setToolSession(site);
+
+		final JSONObject result = new JSONObject();
+
+		final List<SimplePage> topLevelPages = simplePageToolDao.getTopLevelPages(siteId);
+		SimplePageBean simplePageBean = null;
+		final String currentUserId = sessionManager.getCurrentSessionUserId();
+
+		for (SimplePage topLevelPage : topLevelPages) {
+			final List<SimplePageItem> itemsOnPage = simplePageToolDao.findItemsOnPage(topLevelPage.getPageId());
+			final JSONObject pageData = new JSONObject();
+			final JSONArray inaccessibleItems = new JSONArray();
+			final JSONArray invisibleItems = new JSONArray();
+
+			if (!itemsOnPage.isEmpty())
+				simplePageBean = makeSimplePageBean(null, siteId, itemsOnPage.get(0));
+
+			for (SimplePageItem item : itemsOnPage) {
+
+				if (!simplePageBean.isItemVisible(item, null, false)) {
+					invisibleItems.add(String.valueOf(item.getId()));
+				}
+				if (!simplePageBean.isItemAvailable(item, topLevelPage.getPageId())) {
+					inaccessibleItems.add(String.valueOf(item.getId()));
+				}
+			}
+
+			pageData.put("invisible", invisibleItems);
+			pageData.put("unavailable", inaccessibleItems);
+			
+			result.put(topLevelPage.getToolId(), pageData);
+		}
+
+		return result.toJSONString();
 	}
 	
 	

@@ -1,3 +1,18 @@
+/**
+ * Copyright (c) 2003-2017 The Apereo Foundation
+ *
+ * Licensed under the Educational Community License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *             http://opensource.org/licenses/ecl2
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.sakaiproject.site.tool.helper.managegroupsectionrole.rsf;
 
 import java.util.HashMap;
@@ -8,23 +23,7 @@ import java.util.Set;
 import java.util.ArrayList;
 import java.util.Collections;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.sakaiproject.authz.api.AuthzGroup;
-import org.sakaiproject.authz.api.AuthzGroupService;
-import org.sakaiproject.authz.api.GroupNotDefinedException;
-import org.sakaiproject.authz.api.Member;
-import org.sakaiproject.site.api.Group;
-import org.sakaiproject.site.tool.helper.managegroupsectionrole.impl.SiteManageGroupSectionRoleHandler;
-import org.sakaiproject.site.util.SiteComparator;
-import org.sakaiproject.site.util.SiteConstants;
-import org.sakaiproject.tool.api.SessionManager;
-import org.sakaiproject.tool.api.Tool;
-import org.sakaiproject.user.api.User;
-import org.sakaiproject.user.api.UserDirectoryService;
-import org.sakaiproject.rsf.producers.FrameAdjustingProducer;
-import org.sakaiproject.rsf.util.SakaiURLUtil;
-
+import lombok.extern.slf4j.Slf4j;
 import uk.org.ponder.messageutil.MessageLocator;
 import uk.org.ponder.messageutil.TargettedMessageList;
 import uk.org.ponder.rsf.components.UIBranchContainer;
@@ -52,17 +51,30 @@ import uk.org.ponder.rsf.viewstate.SimpleViewParameters;
 import uk.org.ponder.rsf.viewstate.ViewParameters;
 import uk.org.ponder.stringutil.StringList;
 
+import org.sakaiproject.authz.api.AuthzGroup;
+import org.sakaiproject.authz.api.AuthzGroupService;
+import org.sakaiproject.authz.api.GroupNotDefinedException;
+import org.sakaiproject.authz.api.Member;
+import org.sakaiproject.rsf.producers.FrameAdjustingProducer;
+import org.sakaiproject.rsf.util.SakaiURLUtil;
+import org.sakaiproject.site.api.Group;
+import org.sakaiproject.site.tool.helper.managegroupsectionrole.impl.SiteManageGroupSectionRoleHandler;
+import org.sakaiproject.site.util.SiteComparator;
+import org.sakaiproject.site.util.SiteConstants;
+import org.sakaiproject.tool.api.SessionManager;
+import org.sakaiproject.tool.api.Tool;
+import org.sakaiproject.user.api.User;
+import org.sakaiproject.user.api.UserDirectoryService;
+
 /**
  * 
  * @author
  *
  */
+@Slf4j
 public class GroupListProducer 
         implements ViewComponentProducer, ActionResultInterceptor, DefaultView {
-    
-	/** Our log (commons). */
-	private static final Logger M_log = LoggerFactory.getLogger(GroupListProducer.class);
-	
+
     public static final String VIEW_ID = "GroupList";
     public Map siteGroups;
     public SiteManageGroupSectionRoleHandler handler;
@@ -114,7 +126,7 @@ public class GroupListProducer
 		if (groups != null && groups.size() > 0)
         {
 			StringList deletable = new StringList();
-			M_log.debug(this + "fillComponents: got a list of " + groups.size() + " groups");
+			log.debug(this + "fillComponents: got a list of " + groups.size() + " groups");
 			
 			// Create a multiple selection control for the tasks to be deleted.
 			// We will fill in the options at the loop end once we have collected them.
@@ -153,7 +165,7 @@ public class GroupListProducer
 				} else {
 					editLink.decorators = new DecoratorList(new UITooltipDecorator(messageLocator.getMessage("editgroup.revise")+ ":" + groupTitle));
 				}
-				M_log.debug("Check if the group is locked : {} -> {}", group.getId(), group.isLocked());
+				log.debug("Check if the group is locked : {} -> {}", group.getId(), group.isLocked());
 
 				String joinableSet = "---";
 				if(group.getProperties().getProperty(Group.GROUP_PROP_JOINABLE_SET) != null){
@@ -191,7 +203,7 @@ public class GroupListProducer
 							}
 							catch (Exception e)
 							{
-								M_log.debug(this + "fillInComponent: cannot find user with id " + userId, e);
+								log.debug(this + "fillInComponent: cannot find user with id " + userId, e);
 								// need to remove the group member
 								size--;
 							}
@@ -200,7 +212,7 @@ public class GroupListProducer
 				}
 				catch (GroupNotDefinedException e)
 				{
-					M_log.debug(this + "fillComponent: cannot find group " + group.getReference(), e);
+					log.debug(this + "fillComponent: cannot find group " + group.getReference(), e);
 				}
 				String sizeStr = String.valueOf(size);
 				if(group.getProperties().getProperty(Group.GROUP_PROP_JOINABLE_SET_MAX) != null){

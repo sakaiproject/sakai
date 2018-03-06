@@ -25,6 +25,7 @@
 package org.sakaiproject.tool.assessment.shared.api.grading;
 
 import java.util.List;
+import org.sakaiproject.section.api.coursemanagement.EnrollmentRecord;
 
 /**
  *
@@ -51,8 +52,7 @@ public interface GradingSectionAwareServiceAPI
   *      an EnrollmentRecord list for each student that the current user
   *  is allowed to grade.
   */
-  public List getAvailableEnrollments(String siteId, String userUid);
-
+  public List<EnrollmentRecord> getAvailableEnrollments(String siteId, String userUid);
 
   /**
   * @return

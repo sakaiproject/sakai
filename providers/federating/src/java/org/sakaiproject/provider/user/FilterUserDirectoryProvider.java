@@ -32,11 +32,11 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Vector;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import org.sakaiproject.user.api.ExternalUserSearchUDP;
 import org.sakaiproject.user.api.AuthenticationIdUDP;
+import org.sakaiproject.user.api.DisplayAdvisorUDP;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryProvider;
 import org.sakaiproject.user.api.UserEdit;
@@ -82,10 +82,9 @@ import org.sakaiproject.user.api.UsersShareEmailUDP;
  * @author Ian Boston, Andrew Thornton, Daniel Parry, Raad
  * @version $Revision$
  */
-public class FilterUserDirectoryProvider implements UserDirectoryProvider, ExternalUserSearchUDP, UsersShareEmailUDP, AuthenticationIdUDP
+@Slf4j
+public class FilterUserDirectoryProvider implements UserDirectoryProvider, ExternalUserSearchUDP, UsersShareEmailUDP, AuthenticationIdUDP, DisplayAdvisorUDP
 {
-	/** Our log (commons). */
-	private static Logger m_logger = LoggerFactory.getLogger(FilterUserDirectoryProvider.class);
 
 	private static ThreadLocal authenticatedProvider = new ThreadLocal();
 
@@ -122,11 +121,11 @@ public class FilterUserDirectoryProvider implements UserDirectoryProvider, Exter
 		providerID = new Long(sr.nextLong()); 
 		try
 		{
-			m_logger.info("init() FILTER as "+providerID);
+			log.info("init() FILTER as "+providerID);
 		}
 		catch (Throwable t)
 		{
-			m_logger.info(".init(): ", t);
+			log.info(".init(): ", t);
 		}
 
 	} // init
@@ -137,7 +136,7 @@ public class FilterUserDirectoryProvider implements UserDirectoryProvider, Exter
 	public void destroy()
 	{
 
-		m_logger.info("destroy()");
+		log.info("destroy()");
 
 	} // destroy
 
@@ -161,15 +160,15 @@ public class FilterUserDirectoryProvider implements UserDirectoryProvider, Exter
 	 */
 	public boolean getUser(UserEdit edit)
 	{
-		if (m_logger.isDebugEnabled()) {
-			m_logger.debug("FUDP: getUser(" + edit.getId() + " eid:" + edit.getEid()  + ") as "+providerID);
-			m_logger.debug("FUDP: doing myProvider.getUser() as " + providerID);
+		if (log.isDebugEnabled()) {
+			log.debug("FUDP: getUser(" + edit.getId() + " eid:" + edit.getEid()  + ") as "+providerID);
+			log.debug("FUDP: doing myProvider.getUser() as " + providerID);
 		}
 		if (  myProvider.getUser(edit) ) {
 			return true;
 		} else if ( nextProvider != null ) {
-			if (m_logger.isDebugEnabled()) {
-				m_logger.debug("FUDP: doing nextProvider.getUser() as " + providerID);
+			if (log.isDebugEnabled()) {
+				log.debug("FUDP: doing nextProvider.getUser() as " + providerID);
 			}
 			return nextProvider.getUser(edit);
 		}
@@ -183,25 +182,25 @@ public class FilterUserDirectoryProvider implements UserDirectoryProvider, Exter
 	 */
 	public void getUsers(Collection users)
 	{
-		if (m_logger.isDebugEnabled()) {
-			m_logger.debug("getUsers() size()=" + users.size() + " as "+providerID);
+		if (log.isDebugEnabled()) {
+			log.debug("getUsers() size()=" + users.size() + " as "+providerID);
 		}
 		if (nextProvider != null) {
 			// We need to be clever and wrap the collection
 			GetUsersCollectionWrapper wrapper = new GetUsersCollectionWrapper(users);
-			if (m_logger.isDebugEnabled()) {
-				m_logger.debug("using wrapper on " + myProvider + " as " + providerID);
+			if (log.isDebugEnabled()) {
+				log.debug("using wrapper on " + myProvider + " as " + providerID);
 			}
 			myProvider.getUsers(wrapper.firstPassCollection());
-			if (m_logger.isDebugEnabled()) {
-				m_logger.debug("Passing myProvider removals collection to nextProvider size()=" + wrapper.secondPassCollection.size() + " as " + providerID);
-				m_logger.debug("using second wrapper on " + nextProvider);
+			if (log.isDebugEnabled()) {
+				log.debug("Passing myProvider removals collection to nextProvider size()=" + wrapper.secondPassCollection.size() + " as " + providerID);
+				log.debug("using second wrapper on " + nextProvider);
 			}
 			
 			nextProvider.getUsers(wrapper.secondPassCollection());
-			if (m_logger.isDebugEnabled()) {
-				m_logger.debug("Total number of removals from users collection=" + wrapper.realRemovals.size() + " as " + providerID);
-				m_logger.debug("Applying Changes");
+			if (log.isDebugEnabled()) {
+				log.debug("Total number of removals from users collection=" + wrapper.realRemovals.size() + " as " + providerID);
+				log.debug("Applying Changes");
 			}
 			wrapper.apply();			
 			
@@ -296,9 +295,9 @@ public class FilterUserDirectoryProvider implements UserDirectoryProvider, Exter
 
 					public void remove()
 					{
-						if (m_logger.isDebugEnabled()) {
+						if (log.isDebugEnabled()) {
 							User u = (User) current;
-							m_logger.debug("Removing object from internal collection :" + u.getEid());
+							log.debug("Removing object from internal collection :" + u.getEid());
 						}
 						if (originals.contains(current) && !removals.contains(current)) {
 							removals.add(current);
@@ -313,9 +312,9 @@ public class FilterUserDirectoryProvider implements UserDirectoryProvider, Exter
 			 */
 			public boolean remove(Object o)
 			{
-				if (m_logger.isDebugEnabled()) {
+				if (log.isDebugEnabled()) {
 					User u = (User) o;
-					m_logger.debug("Removing object from internal collection :" + u.getEid());
+					log.debug("Removing object from internal collection :" + u.getEid());
 				}
 
 				if (originals.contains(o) && !removals.contains(o)) {
@@ -330,9 +329,9 @@ public class FilterUserDirectoryProvider implements UserDirectoryProvider, Exter
 				boolean doneSomething = false;
 				for (Iterator it = c.iterator(); it.hasNext() ;) {
 					Object o = it.next();
-					if (m_logger.isDebugEnabled()) {
+					if (log.isDebugEnabled()) {
 						User u = (User) o;
-						m_logger.debug("Removing object from internal collection :" + u.getEid());
+						log.debug("Removing object from internal collection :" + u.getEid());
 					}
 
 					if (originals.contains(o) && !removals.contains(o)) {
@@ -349,9 +348,9 @@ public class FilterUserDirectoryProvider implements UserDirectoryProvider, Exter
 				for (Iterator it = originals.iterator(); it.hasNext();) {
 					Object  o = it.next();
 					
-					if (m_logger.isDebugEnabled()) {
+					if (log.isDebugEnabled()) {
 						User u = (User) o;
-						m_logger.debug("Removing object from internal collection :" + u.getEid());
+						log.debug("Removing object from internal collection :" + u.getEid());
 					}
 
 					if (!c.contains(o) && !removals.contains(o)) {
@@ -401,9 +400,9 @@ public class FilterUserDirectoryProvider implements UserDirectoryProvider, Exter
 	  public void apply() {
 		  for (Iterator it = inner.iterator(); it.hasNext();) {
 			  Object o = it.next();
-				if (m_logger.isDebugEnabled()) {
+				if (log.isDebugEnabled()) {
 					User u = (User) o;
-					m_logger.debug("Actually removing object from collection :" + u.getEid());
+					log.debug("Actually removing object from collection :" + u.getEid());
 				}
 
 			  if (realRemovals.contains(o)) {
@@ -427,8 +426,8 @@ public class FilterUserDirectoryProvider implements UserDirectoryProvider, Exter
 	 */
 	public boolean findUserByEmail(UserEdit edit, String email)
 	{
-		if (m_logger.isDebugEnabled()) {
-			m_logger.debug("findUserByEmail() edit.getId()=" +edit.getId() +"  email=" + email + " as "+providerID);
+		if (log.isDebugEnabled()) {
+			log.debug("findUserByEmail() edit.getId()=" +edit.getId() +"  email=" + email + " as "+providerID);
 		}
 
         if (  myProvider.findUserByEmail(edit,email) ) {
@@ -454,18 +453,18 @@ public class FilterUserDirectoryProvider implements UserDirectoryProvider, Exter
 		Collection rv = new Vector();
 		if ( myProvider instanceof UsersShareEmailUDP ) {
 			UsersShareEmailUDP ushare = (UsersShareEmailUDP) myProvider;
-			if (m_logger.isDebugEnabled()) {
-				m_logger.debug("myProvider Multiple lookup on "+email+" for "+ushare + " as " + providerID);
+			if (log.isDebugEnabled()) {
+				log.debug("myProvider Multiple lookup on "+email+" for "+ushare + " as " + providerID);
 			}
 			rv.addAll(ushare.findUsersByEmail(email,factory));
-			if (m_logger.isDebugEnabled()) {
-				m_logger.debug("myProvider - got "+rv.size()+" matches" + " as " + providerID);
+			if (log.isDebugEnabled()) {
+				log.debug("myProvider - got "+rv.size()+" matches" + " as " + providerID);
 			}
 		} else {
 			UserEdit edit = factory.newUser();
 			if ( myProvider.findUserByEmail(edit,email) ) {
-				if (m_logger.isDebugEnabled()) {
-					m_logger.debug("myProvider - found user "+edit.getId()+" for "+email + " as " + providerID);
+				if (log.isDebugEnabled()) {
+					log.debug("myProvider - found user "+edit.getId()+" for "+email + " as " + providerID);
 				}
 				rv.add(edit);
 			}
@@ -473,18 +472,18 @@ public class FilterUserDirectoryProvider implements UserDirectoryProvider, Exter
 
 		if ( nextProvider instanceof UsersShareEmailUDP) {
 			UsersShareEmailUDP ushare = (UsersShareEmailUDP) nextProvider;
-			if (m_logger.isDebugEnabled()) {
-				m_logger.debug("nextProvider Multiple lookup on "+email+" for "+ushare + " as " + providerID);
+			if (log.isDebugEnabled()) {
+				log.debug("nextProvider Multiple lookup on "+email+" for "+ushare + " as " + providerID);
 			}
 			rv.addAll(ushare.findUsersByEmail(email,factory));
-			if (m_logger.isDebugEnabled()) {
-				m_logger.debug("nextProvider - got "+rv.size()+" matches" + " as " + providerID);
+			if (log.isDebugEnabled()) {
+				log.debug("nextProvider - got "+rv.size()+" matches" + " as " + providerID);
 			}
 		} else if ( nextProvider != null ) {
 			UserEdit edit = factory.newUser();
 			if ( nextProvider.findUserByEmail(edit,email) ) {
-				if (m_logger.isDebugEnabled()) {
-					m_logger.debug("nextProvider - found user "+edit.getId()+" for "+email + " as " + providerID);
+				if (log.isDebugEnabled()) {
+					log.debug("nextProvider - found user "+edit.getId()+" for "+email + " as " + providerID);
 				}
 				rv.add(edit);
 			}
@@ -506,8 +505,8 @@ public class FilterUserDirectoryProvider implements UserDirectoryProvider, Exter
 	 */
 	public boolean authenticateUser(String userId, UserEdit edit, String password)
 	{
-		if (m_logger.isDebugEnabled()) {
-			m_logger.debug("authenticateUser() userId=" + userId + " as "+providerID);
+		if (log.isDebugEnabled()) {
+			log.debug("authenticateUser() userId=" + userId + " as "+providerID);
 		}
 
 		authenticatedProvider.set(null);
@@ -570,8 +569,8 @@ public class FilterUserDirectoryProvider implements UserDirectoryProvider, Exter
 		if ( myProvider instanceof ExternalUserSearchUDP ) {
 			ExternalUserSearchUDP extSearchUDP = (ExternalUserSearchUDP) myProvider;
 			
-			if (m_logger.isDebugEnabled()) {
-				m_logger.debug("searchExternalUsers() criteria=" + criteria);
+			if (log.isDebugEnabled()) {
+				log.debug("searchExternalUsers() criteria=" + criteria);
 			}
 			
 			List<UserEdit> searchExternalUsers = extSearchUDP.searchExternalUsers(criteria, first, last, factory);
@@ -586,8 +585,8 @@ public class FilterUserDirectoryProvider implements UserDirectoryProvider, Exter
 		if ( nextProvider instanceof ExternalUserSearchUDP) {
 			ExternalUserSearchUDP extSearchUDP = (ExternalUserSearchUDP) nextProvider;
 			
-			if (m_logger.isDebugEnabled()) {
-				m_logger.debug("nextProvider searchExternalUsers() criteria=" + criteria);
+			if (log.isDebugEnabled()) {
+				log.debug("nextProvider searchExternalUsers() criteria=" + criteria);
 			}
 			
 			List<UserEdit> searchExternalUsers = extSearchUDP.searchExternalUsers(criteria, first, last, factory);
@@ -614,6 +613,40 @@ public class FilterUserDirectoryProvider implements UserDirectoryProvider, Exter
 			}
 		}
 		return false;
+	}
+
+	public String getDisplayId(User user) {
+		String displayId = null;
+		if (myProvider instanceof DisplayAdvisorUDP) {
+			displayId = ((DisplayAdvisorUDP)myProvider).getDisplayId(user); 
+			if (displayId != null) {
+				return displayId;
+			}
+		}
+		if (nextProvider instanceof DisplayAdvisorUDP) {
+			displayId = ((DisplayAdvisorUDP)nextProvider).getDisplayId(user); 
+			if (displayId != null) {
+				return displayId;
+			}
+		}
+		return null;
+	}
+
+	public String getDisplayName(User user) {
+		String displayName = null;
+		if (myProvider instanceof DisplayAdvisorUDP) {
+			displayName = ((DisplayAdvisorUDP)myProvider).getDisplayName(user);
+			if (displayName != null) {
+				return displayName;
+			}
+		}
+		if (nextProvider instanceof DisplayAdvisorUDP) {
+			displayName = ((DisplayAdvisorUDP)nextProvider).getDisplayName(user);
+			if (displayName != null) {
+				return displayName;
+			}
+		}
+		return null;
 	}
 
 

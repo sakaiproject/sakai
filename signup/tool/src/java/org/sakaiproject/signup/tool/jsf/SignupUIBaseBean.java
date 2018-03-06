@@ -39,11 +39,13 @@ import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import lombok.extern.slf4j.Slf4j;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
 import org.sakaiproject.signup.logic.SakaiFacade;
 import org.sakaiproject.signup.logic.SignupCalendarHelper;
 import org.sakaiproject.signup.logic.SignupMeetingService;
@@ -60,9 +62,6 @@ import org.sakaiproject.signup.tool.util.Utilities;
 import org.sakaiproject.time.api.TimeService;
 import org.sakaiproject.user.api.User;
 
-import lombok.Getter;
-import lombok.Setter;
-
 /**
  * <p>
  * This is a abstract base class for JSF Signup tool UIBean. It provides some
@@ -70,6 +69,7 @@ import lombok.Setter;
  * etc.
  * </P>
  */
+@Slf4j
 abstract public class SignupUIBaseBean implements SignupBeanConstants, SignupMessageTypes, MeetingTypes {
 
 	protected SakaiFacade sakaiFacade;
@@ -93,18 +93,20 @@ abstract public class SignupUIBaseBean implements SignupBeanConstants, SignupMes
 										"signup.default.email.notification", "true")) ? true : false;
 
 	protected static boolean DEFAULT_EXPORT_TO_CALENDAR_TOOL = "true".equalsIgnoreCase(Utilities.getSignupConfigParamVal("signup.default.export.to.calendar.setting", "true")) ? true : false;
+
+	protected static String DEFAULT_SEND_EMAIL_TO_SELECTED_PEOPLE_ONLY = Utilities.getSignupConfigParamVal(
+			"signup.default.email.selected", SEND_EMAIL_ALL_PARTICIPANTS, VALID_SEND_EMAIL_TO_SELECTED_PEOPLE_ONLY);
 	
 	protected boolean publishToCalendar = DEFAULT_EXPORT_TO_CALENDAR_TOOL;
 	
 	protected boolean sendEmail = DEFAULT_SEND_EMAIL;
 
-	protected Logger logger = LoggerFactory.getLogger(SignupUIBaseBean.class);
-
 	protected Boolean publishedSite;
 	
 	//protected boolean sendEmailAttendeeOnly = false;
 	
-	protected String sendEmailToSelectedPeopleOnly = SEND_EMAIL_ALL_PARTICIPANTS;
+	protected String sendEmailToSelectedPeopleOnly = Utilities.getSignupConfigParamVal(
+			"signup.default.email.selected", SEND_EMAIL_ALL_PARTICIPANTS);
 	
 	private int maxSlots; 
 
@@ -133,7 +135,7 @@ abstract public class SignupUIBaseBean implements SignupBeanConstants, SignupMes
 				updateTimeSlotWrappers(meetingWrapper);
 			} catch (Exception e) {
 				Utilities.addErrorMessage(Utilities.rb.getString("db.error_or_event.notExisted"));
-				logger.error(Utilities.rb.getString("db.error_or_event.notExisted") + " - " + e.getMessage());
+				log.error(Utilities.rb.getString("db.error_or_event.notExisted") + " - " + e.getMessage());
 			}
 		}
 		return meetingWrapper;
@@ -212,7 +214,7 @@ abstract public class SignupUIBaseBean implements SignupBeanConstants, SignupMes
 			return destinationUrl;
 		} catch (Exception e) {
 			Utilities.addErrorMessage(Utilities.rb.getString("db.error_or_event.notExisted"));
-			logger.warn(Utilities.rb.getString("db.error_or_event.notExisted") + " - " + e.getMessage());
+			log.warn(Utilities.rb.getString("db.error_or_event.notExisted") + " - " + e.getMessage());
 			Utilities.resetMeetingList();
 			return MAIN_EVENTS_LIST_PAGE_URL;
 		}
@@ -530,7 +532,7 @@ abstract public class SignupUIBaseBean implements SignupBeanConstants, SignupMes
 				this.publishedSite = new Boolean(status);
 
 			} catch (Exception e) {
-				logger.warn(e.getMessage());
+				log.warn(e.getMessage());
 				this.publishedSite = new Boolean(false);
 
 			}
@@ -770,10 +772,10 @@ abstract public class SignupUIBaseBean implements SignupBeanConstants, SignupMes
 		}
 		
 		if(StringUtils.isNotBlank(filePath)) {
-			logger.debug("filepath: " + filePath);
+			log.debug("filepath: " + filePath);
 			sendDownload(filePath, ICS_MIME_TYPE);
 		} else {
-			logger.error("Could not generate file for download");
+			log.error("Could not generate file for download");
 			//TODO this could set an error and return perhaps.
 		}
 	}
@@ -820,10 +822,10 @@ abstract public class SignupUIBaseBean implements SignupBeanConstants, SignupMes
 		}
 		
 		if(StringUtils.isNotBlank(filePath)) {
-			logger.debug("filepath: " + filePath);
+			log.debug("filepath: " + filePath);
 			sendDownload(filePath, ICS_MIME_TYPE);
 		} else {
-			logger.error("Could not generate file for download");
+			log.error("Could not generate file for download");
 			//TODO this could set an error and return perhaps.
 		}
 		
@@ -860,7 +862,7 @@ abstract public class SignupUIBaseBean implements SignupBeanConstants, SignupMes
 	}
 	
 	private void handleICSDownloadWarningToUser(){
-		logger.error("The site calendar could not be retrieved when using the Signup tool");
+		log.error("The site calendar could not be retrieved when using the Signup tool");
 		String warningFileName = Utilities.rb.getString("ics_file_name_for_failure_warning");
 		String warningMsg = Utilities.rb.getString("ics_message_for_failure_warning");
 		sendDownloadWarning(warningFileName,warningMsg);
@@ -896,7 +898,7 @@ abstract public class SignupUIBaseBean implements SignupBeanConstants, SignupMes
 
 			out.flush();
 		} catch (IOException ex) {
-			logger.warn("Error generating file for download:" + ex.getMessage());
+			log.warn("Error generating file for download:" + ex.getMessage());
 		} finally {
 			IOUtils.closeQuietly(in);
 			IOUtils.closeQuietly(out);
@@ -931,7 +933,7 @@ abstract public class SignupUIBaseBean implements SignupBeanConstants, SignupMes
 
 			out.flush();
 		} catch (IOException ex) {
-			logger.warn("Error generating file for download:" + ex.getMessage());
+			log.warn("Error generating file for download:" + ex.getMessage());
 		} finally {
 			try{
 				out.close();

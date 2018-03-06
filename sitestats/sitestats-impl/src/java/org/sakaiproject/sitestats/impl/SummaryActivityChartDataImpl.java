@@ -126,7 +126,7 @@ public class SummaryActivityChartDataImpl implements SummaryActivityChartData {
 		activity = new long[timeSlots];
 		for(int i = timeSlots - 1; i >= 0; i--){
 			SiteActivity sa = null;
-			//System.out.println("SummaryActivityChartDataImpl.fillData:  i="+i+"  date="+cal.getTime().toGMTString());
+			//log.debug("SummaryActivityChartDataImpl.fillData:  i="+i+"  date="+cal.getTime().toGMTString());
 			
 			if(StatsManager.VIEW_YEAR.equals(viewType))
 				sa = getDataForMonth(cal);
@@ -146,7 +146,7 @@ public class SummaryActivityChartDataImpl implements SummaryActivityChartData {
 			}
 		}
 		firstDay = cal.getTime();
-		//System.out.println("SummaryActivityChartDataImpl.firstDay:  "+firstDay.toGMTString());
+		//log.debug("SummaryActivityChartDataImpl.firstDay:  "+firstDay.toGMTString());
 	}
 	
 	private SiteActivity getDataForDay(Calendar cal_) {
@@ -158,7 +158,7 @@ public class SummaryActivityChartDataImpl implements SummaryActivityChartData {
 			cal.setTime(sa.getDate());
 			int thisDay = cal.get(Calendar.DAY_OF_YEAR);
 			if(desiredDay == thisDay){
-				//System.out.println("SummaryActivityChartDataImpl.getDataForDay: "+(cal.getTime().toGMTString()) +" matches "+sa.getDate().toGMTString()+" => "+sa.getCount());
+				//log.debug("SummaryActivityChartDataImpl.getDataForDay: "+(cal.getTime().toGMTString()) +" matches "+sa.getDate().toGMTString()+" => "+sa.getCount());
 				return sa;
 			}
 		}
@@ -174,7 +174,7 @@ public class SummaryActivityChartDataImpl implements SummaryActivityChartData {
 			cal.setTime(sa.getDate());
 			int thisMonth = cal.get(Calendar.MONTH);
 			if(desiredMonth == thisMonth){
-				//System.out.println("SummaryActivityChartDataImpl.getDataForMonth: "+(cal.getTime().toGMTString()) +" matches "+sa.getDate().toGMTString()+" => "+sa.getCount());
+				//log.debug("SummaryActivityChartDataImpl.getDataForMonth: "+(cal.getTime().toGMTString()) +" matches "+sa.getDate().toGMTString()+" => "+sa.getCount());
 				return sa;
 			}
 		}

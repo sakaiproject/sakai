@@ -19,6 +19,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import lombok.extern.slf4j.Slf4j;
 import org.sakaiproject.content.api.ContentResource;
@@ -75,6 +76,7 @@ public class ContentReviewQueueServiceImpl implements ContentReviewQueueService 
 			itemDao.create(item);
 		}
 	}
+	
 	
 	/* (non-Javadoc)
 	 * @see org.sakaiproject.contentreview.common.service.ContentReviewCommonService#getReviewScore(java.lang.Integer, java.lang.String, java.lang.String, java.lang.String)

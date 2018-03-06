@@ -62,6 +62,10 @@ should be included in file importing DeliveryMessages
         rendered="#{((question.itemData.partialCreditFlag && (selection.answer.partialCredit le 0 || selection.answer.partialCredit == null)) || (selection.answer.isCorrect != null && !selection.answer.isCorrect)) && selection.response}"
         styleClass="icon-sakai--delete feedBackCross">
       </h:panelGroup>
+      <h:panelGroup id="noimage"
+        rendered="#{!selection.response}"
+        styleClass="icon-sakai--check feedBackNone">
+      </h:panelGroup>
     </h:panelGroup>
     <div class="mcscFixUpTarget"></div>
     <h:panelGroup styleClass="mcAnswerText">
@@ -86,13 +90,18 @@ should be included in file importing DeliveryMessages
 
   <f:verbatim></div></f:verbatim>
   <f:verbatim><script>
-    $('div.mcscFixUp').each(function(index1,elBlockToFix){
+    $('div.mcscFixUp').each(function(index1,elBlockToFix) {
       $(elBlockToFix).find('div.mcscFixUpSource td').each(function(index,elLabelAndInputToMove) {
-        $(elBlockToFix).find('div.mcscFixUpTarget:first').replaceWith($(elLabelAndInputToMove).contents());
+        var contentsToMove = $(elLabelAndInputToMove).contents();
+        if (typeof contentsToMove !== 'undefined') {
+          $(elBlockToFix).find('div.mcscFixUpTarget:first').replaceWith(contentsToMove);
+        }
       });
       $(elBlockToFix).find('li.samigo-question-answer label').each(function(index2, answerLabel) {
         var properLabel = $(answerLabel).parent('li').children('span.mcAnswerText')[0];
-        answerLabel.append(properLabel);
+        if (typeof properLabel !== 'undefined') {
+          answerLabel.append(properLabel);
+        }
       });
       $(elBlockToFix).find('div.mcscFixUpSource').remove();
     });
@@ -111,7 +120,7 @@ should be included in file importing DeliveryMessages
                  || delivery.actionString=='gradeAssessment'}" escape="false"/>
   </h:panelGroup>
 
-<h:commandLink id="cmdclean" value="#{deliveryMessages.reset_selection}" action="#{delivery.cleanRadioButton}" 
+<h:commandLink id="cmdclean" value="#{deliveryMessages.reset_selection}" action="#{delivery.cleanRadioButton}" onclick="saveTime(); serializeImagePoints();" 
 	rendered="#{(delivery.actionString=='previewAssessment' || delivery.actionString=='previewAssessmentPublished'
                 || delivery.actionString=='takeAssessment'
                 || delivery.actionString=='takeAssessmentViaUrl')}">

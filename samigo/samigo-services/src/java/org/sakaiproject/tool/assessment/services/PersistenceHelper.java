@@ -21,19 +21,16 @@
 
 package org.sakaiproject.tool.assessment.services;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Utility methods for helping with persistence
  * @author dhorwitz
  * @since 10.0
  */
-public class PersistenceHelper {
-	
-	private Logger log = LoggerFactory.getLogger(PersistenceHelper.class);
-	
-	
+@Slf4j
+ public class PersistenceHelper {
+
 	private Integer deadlockInterval; // in ms
 
     public void setDeadlockInterval(Integer deadlockInterval){
@@ -77,5 +74,4 @@ public class PersistenceHelper {
     public Integer getRetryCount(){
       return retryCount;
     }
-	
 }

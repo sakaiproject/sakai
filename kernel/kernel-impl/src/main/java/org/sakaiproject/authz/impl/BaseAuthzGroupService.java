@@ -21,8 +21,22 @@
 
 package org.sakaiproject.authz.impl;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.Stack;
+import java.util.UUID;
+import java.util.Vector;
+import lombok.extern.slf4j.Slf4j;
+
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+
 import org.sakaiproject.authz.api.*;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.component.cover.ComponentManager;
@@ -38,10 +52,7 @@ import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.util.Resource;
 import org.sakaiproject.util.ResourceLoader;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
 
-import java.util.*;
 
 /**
  * <p>
@@ -51,11 +62,9 @@ import java.util.*;
  * To support the public view feature, an AuthzGroup named TEMPLATE_PUBVIEW must exist, with a role named ROLE_PUBVIEW - all the abilities in this role become the public view abilities for any resource.
  * </p>
  */
+@Slf4j
 public abstract class BaseAuthzGroupService implements AuthzGroupService
 {
-	/** Our logger. */
-	private static Logger M_log = LoggerFactory.getLogger(BaseAuthzGroupService.class);
-
 	/** Storage manager for this service. */
 	protected Storage m_storage = null;
 
@@ -65,8 +74,8 @@ public abstract class BaseAuthzGroupService implements AuthzGroupService
 	/** A provider of additional Abilities for a userId. */
 	protected GroupProvider m_provider = null;
 
-    /** A provider of additional roles for a userId. */
-    protected RoleProvider m_roleProvider = null;
+	/** A provider of additional roles for a userId. */
+	protected RoleProvider m_roleProvider = null;
 
  	private static final String DEFAULT_RESOURCECLASS = "org.sakaiproject.localization.util.AuthzImplProperties";
  	private static final String DEFAULT_RESOURCEBUNDLE = "org.sakaiproject.localization.bundle.authzimpl.authz-impl";
@@ -303,13 +312,13 @@ public abstract class BaseAuthzGroupService implements AuthzGroupService
                 m_roleProvider = (RoleProvider) ComponentManager.get(RoleProvider.class.getName());
             }
 
-			M_log.info("init(): provider: " + ((m_provider == null) ? "none" : m_provider.getClass().getName()));
+			log.info("init(): provider: " + ((m_provider == null) ? "none" : m_provider.getClass().getName()));
 			
 			dummyUserPrefix = UUID.randomUUID().toString().substring(0, 8);
 		}
 		catch (Exception t)
 		{
-			M_log.warn("init(); ", t);
+			log.warn("init(); ", t);
 		}
 	}
 
@@ -321,7 +330,7 @@ public abstract class BaseAuthzGroupService implements AuthzGroupService
 		m_storage.close();
 		m_storage = null;
 
-		M_log.info("destroy()");
+		log.info("destroy()");
 	}
 
 	/**********************************************************************************************************************************************************************************************************************************************************
@@ -614,7 +623,7 @@ public abstract class BaseAuthzGroupService implements AuthzGroupService
 				AuthzGroup newAzg = m_storage.put(azGroup.getId());
 				if (newAzg == null)
 				{
-					M_log.warn("saveUsingSecurity, storage.put for a new returns null");
+					log.warn("saveUsingSecurity, storage.put for a new returns null");
 				}
 			}
 			else
@@ -642,7 +651,7 @@ public abstract class BaseAuthzGroupService implements AuthzGroupService
 			try {
 				authzGroupAdvisor.update(azGroup);
 			} catch (Exception e) {
-				M_log.error("Advisor error during completeSave()", e);
+				log.error("Advisor error during completeSave()", e);
 			}
 		}
 		// complete the azGroup
@@ -665,13 +674,13 @@ public abstract class BaseAuthzGroupService implements AuthzGroupService
                         permissions.add(rf.function);
                         roles.add(rf.role);
                     }
-                    if (M_log.isDebugEnabled()) {
-                        M_log.debug("Changed permissions for roles (" + roles + ") in " + azGroup.getId() + ": " + permissions);
+                    if (log.isDebugEnabled()) {
+                        log.debug("Changed permissions for roles (" + roles + ") in " + azGroup.getId() + ": " + permissions);
                     }
                 }
                 ((SakaiSecurity) securityService()).notifyRealmChanged(azGroup.getId(), roles, permissions);
             } catch (Exception e) {
-                M_log.warn("Failure while trying to notify SS about realm changes for AZG(" + azGroup.getId() + "): " + e, e);
+                log.warn("Failure while trying to notify SS about realm changes for AZG(" + azGroup.getId() + "): " + e, e);
             }
         } // End KNL-1230
 		eventTrackingService().post(eventTrackingService().newEvent(event, azGroup.getReference(), true));
@@ -703,7 +712,7 @@ public abstract class BaseAuthzGroupService implements AuthzGroupService
 			try {
 				authzGroupAdvisor.groupUpdate(azGroup, userId, roleId);
 			} catch (Exception e) {
-				M_log.error("Advisor error during addMemberToGroup()", e);
+				log.error("Advisor error during addMemberToGroup()", e);
 			}
 		}
 		
@@ -743,7 +752,7 @@ public abstract class BaseAuthzGroupService implements AuthzGroupService
 			try {
 				authzGroupAdvisor.groupUpdate(azGroup, userId, azGroup.getMember(userId).getRole().getId());
 			} catch (Exception e) {
-				M_log.error("Advisor error during removeMemberFromGroup()", e);
+				log.error("Advisor error during removeMemberFromGroup()", e);
 			}
 		}
 		// remove user from the azGroup
@@ -829,7 +838,7 @@ public abstract class BaseAuthzGroupService implements AuthzGroupService
 				}
 				catch (RoleAlreadyDefinedException e)
 				{
-					M_log.warn("addAuthzGroup: ", e);
+					log.warn("addAuthzGroup: ", e);
 				}
 			}
 			azGroup.addMember(userId, roleName, true, false);
@@ -891,14 +900,14 @@ public abstract class BaseAuthzGroupService implements AuthzGroupService
 			try {
 				authzGroupAdvisor.remove(azGroup);
 			} catch (Exception e) {
-				M_log.error("Advisor error during removeAuthzGroup()", e);
+				log.error("Advisor error during removeAuthzGroup()", e);
 			}
 		}
         // KNL-1230 handle removal of authzgroups by processing caching changes
         try {
             ((SakaiSecurity) securityService()).notifyRealmRemoved(azGroup.getId());
         } catch (Exception e) {
-            M_log.warn("Failure while trying to notify SS about realm removal for AZG(" + azGroup.getId() + "): " + e, e);
+            log.warn("Failure while trying to notify SS about realm removal for AZG(" + azGroup.getId() + "): " + e, e);
         } // End KNL-1230
 		// complete the azGroup
 		m_storage.remove(azGroup);
@@ -1112,7 +1121,7 @@ public abstract class BaseAuthzGroupService implements AuthzGroupService
 		}
 		catch (UserNotDefinedException e)
 		{
-			M_log.warn("refreshUser: cannot find eid for user: " + userId);
+			log.warn("refreshUser: cannot find eid for user: " + userId);
 		}
 	}
 

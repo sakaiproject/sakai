@@ -17,7 +17,7 @@
 	<sakai:view title="#{msgs.pvt_pvtcompose}">
 		<link rel="stylesheet" href="/library/js/jquery/select2/4.0.0/select2.css" type="text/css" />
 		<link rel="stylesheet" href="/messageforums-tool/css/messages.css" type="text/css" />
-		<link rel="stylesheet" href="/library/webjars/jquery-ui/1.11.3/jquery-ui.min.css" type="text/css" />
+		<link rel="stylesheet" href="/library/webjars/jquery-ui/1.12.1/jquery-ui.min.css" type="text/css" />
 		<script type="text/javascript">includeLatestJQuery("msgcntr");</script>
 		<script type="text/javascript" src="/library/js/jquery/select2/4.0.0/select2.min.js"></script>
 		<sakai:script contextBase="/messageforums-tool" path="/js/sak-10625.js"/>

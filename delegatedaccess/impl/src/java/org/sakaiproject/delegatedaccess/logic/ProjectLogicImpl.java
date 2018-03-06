@@ -18,12 +18,12 @@ package org.sakaiproject.delegatedaccess.logic;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -31,6 +31,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
@@ -38,10 +39,8 @@ import javax.swing.tree.TreeModel;
 
 import lombok.Getter;
 import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.sakaiproject.api.app.scheduler.DelayedInvocation;
 import org.sakaiproject.api.app.scheduler.ScheduledInvocationManager;
 import org.sakaiproject.delegatedaccess.dao.DelegatedAccessDao;
 import org.sakaiproject.delegatedaccess.model.AccessNode;
@@ -62,11 +61,9 @@ import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.api.SiteService.SelectionType;
 import org.sakaiproject.site.api.ToolConfiguration;
-import org.sakaiproject.time.api.TimeService;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.user.api.User;
-
 
 /**
  * Implementation of {@link ProjectLogic}
@@ -74,9 +71,8 @@ import org.sakaiproject.user.api.User;
  * @author Bryan Holladay (holladay@longsight.com)
  *
  */
+@Slf4j
 public class ProjectLogicImpl implements ProjectLogic {
-
-	private static final Logger log = LoggerFactory.getLogger(ProjectLogicImpl.class);
 	@Getter @Setter
 	private SakaiProxy sakaiProxy;
 	@Getter @Setter
@@ -91,8 +87,6 @@ public class ProjectLogicImpl implements ProjectLogic {
 	private Cache restrictedAuthToolsCache;
 	@Getter @Setter
 	private ScheduledInvocationManager scheduledInvocationManager;
-	@Getter @Setter
-	private TimeService timeService;
 	
 	private Cache restrictedPublicToolsCache;
 	
@@ -102,10 +96,10 @@ public class ProjectLogicImpl implements ProjectLogic {
 	 */
 	public void init() {
 		log.info("init");
-		nodeCache = memoryService.newCache("org.sakaiproject.delegatedaccess.logic.ProjectLogic.nodeCache");
-		restrictedAuthToolsCache = memoryService.newCache("org.sakaiproject.delegatedaccess.logic.ProjectLogic.restrictedAuthToolsCache");
-		restrictedPublicToolsCache = memoryService.newCache("org.sakaiproject.delegatedaccess.logic.ProjectLogic.restrictedPublicToolsCache");
-		hierarchySearchCache = memoryService.newCache("org.sakaiproject.delegatedaccess.logic.ProjectLogic.hierarchySearchCache");
+		nodeCache = memoryService.getCache("org.sakaiproject.delegatedaccess.logic.ProjectLogic.nodeCache");
+		restrictedAuthToolsCache = memoryService.getCache("org.sakaiproject.delegatedaccess.logic.ProjectLogic.restrictedAuthToolsCache");
+		restrictedPublicToolsCache = memoryService.getCache("org.sakaiproject.delegatedaccess.logic.ProjectLogic.restrictedPublicToolsCache");
+		hierarchySearchCache = memoryService.getCache("org.sakaiproject.delegatedaccess.logic.ProjectLogic.hierarchySearchCache");
 	}
 
 	/**
@@ -234,7 +228,7 @@ public class ProjectLogicImpl implements ProjectLogic {
 			// Remove any existing notifications for this node
 	    	scheduledInvocationManager.deleteDelayedInvocation("org.sakaiproject.delegatedaccess.jobs.DelegatedAccessShoppingPeriodJob", nodeModel.getNode().id);
 			//update the shopping period site settings (realm, site properties, etc)
-			scheduledInvocationManager.createDelayedInvocation(timeService.newTime(),
+			scheduledInvocationManager.createDelayedInvocation(Instant.now(),
 					"org.sakaiproject.delegatedaccess.jobs.DelegatedAccessShoppingPeriodJob",
 					nodeModel.getNode().id);
 		}
@@ -2272,7 +2266,6 @@ public class ProjectLogicImpl implements ProjectLogic {
 				}catch(Exception e){
 					log.error(e.getMessage(), e);
 					StringWriter sw = new StringWriter();
-					e.printStackTrace(new PrintWriter(sw));
 					errors.put(nodeModel.getNode().title, sw.toString());
 				}
 			}
@@ -2494,7 +2487,7 @@ public class ProjectLogicImpl implements ProjectLogic {
 		// Remove any existing notifications for this node
     	scheduledInvocationManager.deleteDelayedInvocation("org.sakaiproject.delegatedaccess.jobs.DelegatedAccessAddToolToMyWorkspacesJob", "");
 		//update the shopping period site settings (realm, site properties, etc)
-		scheduledInvocationManager.createDelayedInvocation(timeService.newTime(),
+		scheduledInvocationManager.createDelayedInvocation(Instant.now(),
 				"org.sakaiproject.delegatedaccess.jobs.DelegatedAccessAddToolToMyWorkspacesJob", "");
 		
 		updateAddDAMyworkspaceJobStatus("0");

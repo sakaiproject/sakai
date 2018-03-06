@@ -348,7 +348,7 @@ public interface ContentHostingService extends EntityProducer
 	 * @throws IdInvalidException 
 	 * @throws IdUsedException 
 	 * @deprecated Suggest use of {@link #addCollection(String)} followed by {@link Entity#getProperties()},
-	 * 		{@link GroupAwareEdit#setGroupAccess(Collection)}, {@link GroupAwareEdit#setAvailability(boolean, Time, Time)} 
+	 * 		{@link GroupAwareEdit#setGroupAccess(Collection)}, {@link GroupAwareEdit#setAvailability(boolean, Instant, Instant)} 
 	 * 		and {@link #commitCollection(ContentCollectionEdit)}
 	 */
 	public ContentCollection addCollection(String id, ResourceProperties properties, Collection<String>  groups, boolean hidden, Time releaseDate, Time retractDate) throws IdUsedException, IdInvalidException, PermissionException, InconsistentException;
@@ -1971,7 +1971,7 @@ public interface ContentHostingService extends EntityProducer
 				IdLengthException, IdInvalidException, TypeException, IdUniquenessException;
 
    /**
-    * gets the quota for a site collection or for a user's my workspace collection
+    * gets the quota for a site collection or for a user's Home collection
     *
     * @param collection the collection on which to test for a quota.  this can be the collection for a site
     * or a user's workspace collection

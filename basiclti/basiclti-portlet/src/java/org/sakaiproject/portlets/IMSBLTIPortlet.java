@@ -52,10 +52,10 @@ import javax.portlet.PortletSession;
 import javax.portlet.ReadOnlyException;
 
 import javax.servlet.ServletRequest;
-import org.sakaiproject.thread_local.cover.ThreadLocalManager;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+
+import org.sakaiproject.thread_local.cover.ThreadLocalManager;
 
 import org.sakaiproject.portlet.util.PortletHelper;
 
@@ -94,6 +94,7 @@ import org.sakaiproject.service.gradebook.shared.GradebookNotFoundException;
  * a simple IMSBLTIPortlet Portlet
  */
 @SuppressWarnings("deprecation")
+@Slf4j
 public class IMSBLTIPortlet extends GenericPortlet {
 
 	private static ResourceLoader rb = new ResourceLoader("basiclti");
@@ -102,15 +103,9 @@ public class IMSBLTIPortlet extends GenericPortlet {
 
 	private ArrayList<String> fieldList = new ArrayList<String>();
 
-	/** Our log (commons). */
-	private static Logger M_log = LoggerFactory.getLogger(IMSBLTIPortlet.class);
-
 	public static final String EVENT_BASICLTI_CONFIG = "basiclti.config";
 
 	private static String LEAVE_SECRET_ALONE = "__dont_change_secret__";
-
-	/** To turn on really verbose debugging */
-	private static boolean verbosePrint = false;
 
 	public static final String ISO_8601_FORMAT = "yyyy-MM-dd'T'HH:mm:ssz";
 
@@ -131,6 +126,7 @@ public class IMSBLTIPortlet extends GenericPortlet {
 		fieldList.add("key");
 		fieldList.add("xml");
 		fieldList.add("frameheight");
+		fieldList.add("toolorder");
 		fieldList.add("debug");
 		fieldList.add("pagetitle");
 		fieldList.add("tooltitle");
@@ -139,19 +135,13 @@ public class IMSBLTIPortlet extends GenericPortlet {
 		fieldList.add("releaseemail");
 		fieldList.add("assignment");
 		fieldList.add("newpage");
+		fieldList.add("sha256");
 		// fieldList.add("maximize");
 		fieldList.add("allowsettings");
 		fieldList.add("allowroster");
 		fieldList.add("contentlink");
 		fieldList.add("splash");
 		fieldList.add("fa_icon");
-	}
-
-	// Simple Debug Print Mechanism
-	public void dPrint(String str)
-	{
-		if ( verbosePrint ) System.out.println(str);
-		M_log.trace(str);
 	}
 
 	// If the property is final, the property wins.  If it is not final,
@@ -168,7 +158,7 @@ public class IMSBLTIPortlet extends GenericPortlet {
 	public void doView(RenderRequest request, RenderResponse response)
 		throws PortletException, IOException {
 
-			dPrint("==== doView called ====");
+			log.debug("==== doView called ====");
 
 			response.setContentType("text/html; charset=UTF-8");
 
@@ -210,7 +200,7 @@ public class IMSBLTIPortlet extends GenericPortlet {
 			if ( retval.length > 1 ) {
 				String iframeUrl = "/access/basiclti/site/"+context+"/"+placement.getId();
 				String frameHeight =  getCorrectProperty(request, "frameheight", null);
-				dPrint("fh="+frameHeight);
+				log.debug("fh={}", frameHeight);
 				String newPage =  getCorrectProperty(request, "newpage", null);
 				String serverUrl = SakaiBLTIUtil.getOurServerUrl();
 				boolean forcePopup = false;
@@ -231,7 +221,7 @@ public class IMSBLTIPortlet extends GenericPortlet {
 
 				Session session = SessionManager.getCurrentSession();
 				session.setAttribute("sakai:maximized-url",iframeUrl);
-				dPrint("Setting sakai:maximized-url="+iframeUrl);
+				log.debug("Setting sakai:maximized-url={}", iframeUrl);
 
 				if ( "on".equals(newPage) || forcePopup ) {
 					String windowOpen = "window.open('"+iframeUrl+"','BasicLTI');"; 			
@@ -262,6 +252,7 @@ public class IMSBLTIPortlet extends GenericPortlet {
 					text.append("\" \n");
 					text.append("width=\"100%\" frameborder=\"0\" marginwidth=\"0\"\n");
 					text.append("marginheight=\"0\" scrolling=\"auto\"\n");
+					text.append(" allowfullscreen=\"true\" webkitallowfullscreen=\"true\" mozallowfullscreen=\"true\"\n");
 					text.append("src=\""+iframeUrl+"\">\n");
 					text.append(rb.getString("noiframes"));
 					text.append("<br>");
@@ -281,24 +272,27 @@ public class IMSBLTIPortlet extends GenericPortlet {
 					text.append("    if ( message.subject == 'lti.frameResize' ) {\n");
 					text.append("      var height = message.height;\n");
 					text.append("      document.getElementById(idval).height = height;\n");
-					text.append("      console.log('Reveived lti.frameResize height='+height);\n");
+					text.append("      window.console && console.log('Received lti.frameResize height='+height);\n");
+					text.append("    }\n");
+					text.append("    else if ( message.subject == 'lti.pageRefresh' ) {\n");
+					text.append("      location.reload(true);\n");
 					text.append("    }\n");
 					text.append("  } catch (error) {\n");
-					text.append("   console.log('lti.frameResize of '+idval+' failed height='+height);\n");
-					text.append("   console.log(e.data);\n");
+					text.append("   window.console && console.log('lti.frameResize of '+idval+' failed height='+height);\n");
+					text.append("   window.console && console.log(e.data);\n");
 					text.append("  }\n");
 					text.append("});\n");
 					text.append("</script>\n");
 				}
 				out.println(text);
-				dPrint("==== doView complete ====");
+				log.debug("==== doView complete ====");
 				return;
 			} else {
 				out.println(rb.getString("not.configured"));
 			}
 
 			clearErrorMessage(request);
-			dPrint("==== doView complete ====");
+			log.debug("==== doView complete ====");
 		}
 
 	// Prepare the edit screen with data
@@ -307,9 +301,9 @@ public class IMSBLTIPortlet extends GenericPortlet {
 		// Hand up the tool properties
 		Placement placement = ToolManager.getCurrentPlacement();
 		Properties config = placement.getConfig();
-		dPrint("placement="+ placement.getId());
-		dPrint("placement.toolId="+ placement.getToolId());
-		dPrint("properties="+ config);
+		log.debug("placement={}", placement.getId());
+		log.debug("placement.toolId={}", placement.getToolId());
+		log.debug("properties={}", config);
 		for (String element : fieldList) {
 			String propertyName = placement.getToolId() + "." + element;
 			String propValue = ServerConfigurationService.getString(propertyName,null);
@@ -317,7 +311,7 @@ public class IMSBLTIPortlet extends GenericPortlet {
 				propValue = ServerConfigurationService.getString(placement.getToolId() + ".overridesplash",null);
 			}
 			if ( propValue != null && propValue.trim().length() > 0 ) {
-				dPrint("Forcing Final = "+propertyName);
+				log.debug("Forcing Final = {}", propertyName);
 				config.setProperty("final."+element,"true");
 			}
 		}
@@ -387,7 +381,7 @@ public class IMSBLTIPortlet extends GenericPortlet {
 				}
 			}
 		} catch (IdUnusedException ex) {
-			M_log.warn("Could not load site.");
+			log.warn("Could not load site.", ex);
 		}
 
 		if ( ! foundGradebook ) allowOutcomes = "false";
@@ -419,7 +413,7 @@ public class IMSBLTIPortlet extends GenericPortlet {
 		String propertyName = placement.getToolId() + "." + propName;
 		String propValue = ServerConfigurationService.getString(propertyName,null);
 		if ( propValue != null && propValue.trim().length() > 0 ) {
-			// System.out.println("Sakai.home "+propName+"="+propValue);
+			log.debug("Sakai.home {}={}", propName, propValue);
 			return propValue;
 		}
 
@@ -427,28 +421,28 @@ public class IMSBLTIPortlet extends GenericPortlet {
 		propValue = getSakaiProperty(config, "imsti."+propName);
 		if ( propValue != null && "true".equals(config.getProperty("final."+propName)) )
 		{
-			// System.out.println("Frozen "+propName+" ="+propValue);
+			log.debug("Frozen {} ={}", propName, propValue);
 			return propValue;
 		}
 
 		PortletPreferences prefs = request.getPreferences();
 		propValue = prefs.getValue("imsti."+propName, null);
 		if ( propValue != null ) {
-			// System.out.println("Portlet "+propName+" ="+propValue);
+			log.debug("Portlet {} ={}", propName, propValue);
 			return propValue;
 		}
 
 		propValue = getSakaiProperty(config, "imsti."+propName);
 		if ( propValue != null ) {
-			// System.out.println("Tool "+propName+" ="+propValue);
+			log.debug("Tool {} ={}", propName, propValue);
 			return propValue;
 		}
 
 		if ( defaultValue != null ) {
-			// System.out.println("Default "+propName+" ="+defaultValue);
+			log.debug("Default {} ={}", propName, defaultValue);
 			return defaultValue;
 		}
-		// System.out.println("Fell through "+propName);
+		log.debug("Fell through {}", propName);
 		return null;
 	}
 
@@ -476,7 +470,7 @@ public class IMSBLTIPortlet extends GenericPortlet {
 		throws PortletException, IOException {
 
 			response.setContentType("text/html");
-			dPrint("==== doEdit called ====");
+			log.debug("==== doEdit called ====");
 
 			PortletSession pSession = request.getPortletSession(true);
 
@@ -485,12 +479,12 @@ public class IMSBLTIPortlet extends GenericPortlet {
 
 			// Debug
 			String inputData = (String) pSession.getAttribute("sakai.descriptor");
-			if ( inputData != null ) dPrint("descriptor.length()="+inputData.length());
+			if ( inputData != null ) log.debug("descriptor.length()={}", inputData.length());
 			String url = (String) pSession.getAttribute("sakai.url");
-			dPrint("sakai.url="+url);
+			log.debug("sakai.url={}", url);
 
 			String view = (String) pSession.getAttribute("sakai.view");
-			dPrint("sakai.view="+view);
+			log.debug("sakai.view={}", view);
 			if ( "edit.reset".equals(view) ) {
 				sendToJSP(request, response, "/editreset.jsp");
 			} else {
@@ -499,28 +493,28 @@ public class IMSBLTIPortlet extends GenericPortlet {
 			}
 
 			clearErrorMessage(request);
-			dPrint("==== doEdit called ====");
+			log.debug("==== doEdit called ====");
 		}
 
 	public void doHelp(RenderRequest request, RenderResponse response)
 		throws PortletException, IOException {
-			dPrint("==== doHelp called ====");
+			log.debug("==== doHelp called ====");
 
 			String title = getTitleString(request);
 			if ( title != null ) response.setTitle(title);
 			sendToJSP(request, response, "/help.jsp");
 
 			clearErrorMessage(request);
-			dPrint("==== doHelp done  ====");
+			log.debug("==== doHelp done  ====");
 		}
 
 	public void processAction(ActionRequest request, ActionResponse response)
 		throws PortletException, IOException {
 
-			dPrint("==== processAction called ====");
+			log.debug("==== processAction called ====");
 
 			String action = request.getParameter("sakai.action");
-			dPrint("sakai.action = "+action);
+			log.debug("sakai.action = {}", action);
 
 			PortletSession pSession = request.getPortletSession(true);
 
@@ -528,7 +522,7 @@ public class IMSBLTIPortlet extends GenericPortlet {
 			clearErrorMessage(request);
 
 			String view = (String) pSession.getAttribute("sakai.view");
-			dPrint("sakai.view="+view);
+			log.debug("sakai.view={}", view);
 
 			if ( action == null ) {
 				// Do nothing
@@ -549,7 +543,7 @@ public class IMSBLTIPortlet extends GenericPortlet {
 			} else if ( action.equals("edit.save") ) {
 				processActionSave(action,request, response);
 			}
-			dPrint("==== End of ProcessAction ====");
+			log.debug("==== End of ProcessAction ====");
 		}
 
 	private void clearSession(PortletRequest request)
@@ -570,7 +564,7 @@ public class IMSBLTIPortlet extends GenericPortlet {
 		throws PortletException, IOException {
 
 			// TODO: Check Role
-			dPrint("Removing preferences....");
+			log.debug("Removing preferences....");
 			clearSession(request);
 			PortletSession pSession = request.getPortletSession(true);
 			PortletPreferences prefs = request.getPreferences();
@@ -580,7 +574,7 @@ public class IMSBLTIPortlet extends GenericPortlet {
 					prefs.reset("imsti."+element);
 					prefs.reset("sakai:imsti."+element);
 				}
-				dPrint("Preference removed");
+				log.debug("Preference removed");
 			} catch (ReadOnlyException e) {
 				setErrorMessage(request, rb.getString("error.modify.prefs")) ;
 				return;
@@ -618,7 +612,7 @@ public class IMSBLTIPortlet extends GenericPortlet {
 		{
 			propValue = request.getParameter("imsti."+propName);
 		}
-		dPrint("Form/Final imsti."+propName+"="+propValue);
+		log.debug("Form/Final imsti.{}={}", propName, propValue);
 		if (propValue != null ) propValue = propValue.trim();
 		return propValue;
 	}
@@ -682,12 +676,12 @@ public class IMSBLTIPortlet extends GenericPortlet {
 			String allowRoster = ServerConfigurationService.getString(SakaiBLTIUtil.BASICLTI_ROSTER_ENABLED, SakaiBLTIUtil.BASICLTI_ROSTER_ENABLED_DEFAULT);
 			if ( "true".equals(allowOutcomes) && newAssignment != null && newAssignment.trim().length() > 1 ) {
 				if ( addGradeBookItem(request, newAssignment) ) {
-					// System.out.println("Success!");
+					log.debug("Success!");
 					assignment = newAssignment;
 				}
 			}
 
-			// System.out.println("old placementsecret="+oldPlacementSecret);
+			log.debug("old placementsecret={}", oldPlacementSecret);
 			if ( oldPlacementSecret == null && 
 					("true".equals(allowOutcomes) || "true".equals(allowSettings) || 
                      "true".equals(allowRoster) ) ) {
@@ -698,7 +692,7 @@ public class IMSBLTIPortlet extends GenericPortlet {
 					String date_secret = sdf.format(date);
 					prefs.setValue("sakai:imsti.placementsecret", uuid);
 					prefs.setValue("sakai:imsti.placementsecretdate", date_secret);
-					// System.out.println("placementsecret set to="+uuid+" data="+date_secret);
+					log.debug("placementsecret set to={} data={}", uuid, date_secret);
 					changed = true;
 				} catch (ReadOnlyException e) {
 					setErrorMessage(request, rb.getString("error.modify.prefs") );
@@ -785,7 +779,7 @@ public class IMSBLTIPortlet extends GenericPortlet {
 									prefs.reset("sakai:imsti.encryptedsecret"); 
 							}
 						} catch (RuntimeException re) {
-							M_log.warn("Failed to encrypt secret, falling back to plaintext: "+ re.getMessage());
+							log.warn("Failed to encrypt secret, falling back to plaintext: {}", re.getMessage());
 						}
 					}
 				}
@@ -924,9 +918,9 @@ public class IMSBLTIPortlet extends GenericPortlet {
 		}
 		catch (Exception e)
 		{
-			dPrint("GradebookNotFoundException (may be because GradeBook has not yet been added to the Site) " + e.getMessage());
+			log.warn("GradebookNotFoundException (may be because GradeBook has not yet been added to the Site) {}", e.getMessage());
 			setErrorMessage(request, rb.getString("error.gradable.badcreate") + ":" + e.getMessage() );
-			M_log.warn(this + ":addGradeItem " + e.getMessage());
+			log.warn("{}:addGradeItem {}", this, e.getMessage());
 		}
 		return false;
 	}
@@ -955,7 +949,7 @@ public class IMSBLTIPortlet extends GenericPortlet {
 		}
 		catch (GradebookNotFoundException e)
 		{
-			dPrint("GradebookNotFoundException (may be because GradeBook has not yet been added to the Site) " + e.getMessage());
+			log.warn("GradebookNotFoundException (may be because GradeBook has not yet been added to the Site) {}", e.getMessage());
 			return null;
 		}
 	}

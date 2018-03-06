@@ -1,14 +1,20 @@
+/**
+ * Copyright (c) 2005-2017 The Apereo Foundation
+ *
+ * Licensed under the Educational Community License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *             http://opensource.org/licenses/ecl2
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.sakaiproject.user.detail;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import javax.crypto.Cipher;
-import javax.crypto.SecretKey;
-import javax.crypto.SecretKeyFactory;
-import javax.crypto.spec.IvParameterSpec;
-import javax.crypto.spec.PBEKeySpec;
-import javax.crypto.spec.SecretKeySpec;
 import java.nio.ByteBuffer;
 import java.nio.charset.CodingErrorAction;
 import java.nio.charset.StandardCharsets;
@@ -20,12 +26,22 @@ import java.security.spec.KeySpec;
 import java.util.Arrays;
 import java.util.Base64;
 
+import javax.crypto.Cipher;
+import javax.crypto.SecretKey;
+import javax.crypto.SecretKeyFactory;
+import javax.crypto.spec.IvParameterSpec;
+import javax.crypto.spec.PBEKeySpec;
+import javax.crypto.spec.SecretKeySpec;
+
+import lombok.extern.slf4j.Slf4j;
+
 /**
  * This class provides encryption/decryption services. Service is thread safe.
  * It makes sure that the same source text never encrypts to the same ciphertext. It's designed to be performant
  * so that multiple encryption/decryptions can be done on a single request. Please don't use this
  * for anything else as it's specifically designed with one opertaion in mind.
  */
+@Slf4j
 public class ValueEncryptionUtilities {
 
 	public static final int UTF_8_ILLEGAL = 255;
@@ -36,8 +52,6 @@ public class ValueEncryptionUtilities {
 	// We don't need many rounds as we aren't getting users to type a key but are instead
 	// generating one. Having lots of rounds makes the key generation part too slow.
 	private static final int KEY_ROUNDS = 1;
-
-	private final Logger log = LoggerFactory.getLogger(ValueEncryptionUtilities.class);
 
 	private SecureRandom random = new SecureRandom();
 	private Base64.Encoder encoder = Base64.getEncoder();

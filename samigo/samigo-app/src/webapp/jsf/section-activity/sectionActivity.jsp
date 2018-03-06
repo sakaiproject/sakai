@@ -8,7 +8,8 @@
   <f:view>
     <html xmlns="http://www.w3.org/1999/xhtml">
       <head><%= request.getAttribute("html.head") %>
-      <title><h:outputText value="User Activity Report"/></title>
+      <title><h:outputText value="#{sectionActivityMessages.section_activity_report}"/></title>
+      <samigo:script path="/js/eventInfo.js"/>
       <samigo:stylesheet path="/css/tool_sam.css"/>
       </head>
     <body onload="<%= request.getAttribute("html.body.onload") %>">
@@ -51,7 +52,7 @@
         <f:param name="sortAscending" value="true"/>
         </h:commandLink>
      </f:facet>
-     <h:panelGroup>	 
+     <h:panelGroup rendered="#{!pageData.anonymousGrading}">
 		<h:commandLink title ="#{sectionActivityMessages.assessment_name}" action="gradeStudentResultFromSectionActivity" immediate="true" >
 		  <h:outputText value="#{pageData.assessmentName}"/>
 		   <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.evaluation.ResetTotalScoreListener" />
@@ -61,7 +62,16 @@
         	  <f:param name="studentid" value="#{sectionActivity.selectedUser}" />
        		  <f:param name="publishedIdd" value="#{pageData.assessmentId}" />
       		  <f:param name="gradingData" value="#{pageData.assessmentGradingId}" />	
-	    </h:commandLink>	
+	    </h:commandLink>
+     </h:panelGroup>
+     <h:panelGroup rendered="#{pageData.anonymousGrading}">
+         <h:outputText value="#{pageData.assessmentName}"/>
+         <f:verbatim><span class="info"></f:verbatim>
+            <h:graphicImage url="/images/info_icon.gif" alt="" styleClass="infoDiv"/>
+            <h:panelGroup styleClass="makeLogInfo" style="display:none;z-index:2000;" >
+                <h:outputText value="#{sectionActivityMessages.anon_grading_info}"/>
+            </h:panelGroup>
+        <f:verbatim></span></f:verbatim>
      </h:panelGroup>
      </h:column>
      
@@ -75,7 +85,7 @@
              type="org.sakaiproject.tool.assessment.ui.listener.author.SectionActivityListener" />
           </h:commandLink>    
       </f:facet>
-      <h:panelGroup>	 
+      <h:panelGroup rendered="#{!pageData.anonymousGrading}">
 		<h:commandLink title ="#{sectionActivityMessages.assessment_name}" action="gradeStudentResultFromSectionActivity" immediate="true" >
 		  <h:outputText value="#{pageData.assessmentName}"/>
 		   <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.evaluation.ResetTotalScoreListener" />
@@ -86,6 +96,15 @@
        		  <f:param name="publishedIdd" value="#{pageData.assessmentId}" />
       		  <f:param name="gradingData" value="#{pageData.assessmentGradingId}" />	
 	    </h:commandLink>	
+     </h:panelGroup>
+     <h:panelGroup rendered="#{pageData.anonymousGrading}">
+         <h:outputText value="#{pageData.assessmentName}"/>
+         <f:verbatim><span class="info"></f:verbatim>
+            <h:graphicImage url="/images/info_icon.gif" alt="" styleClass="infoDiv"/>
+            <h:panelGroup styleClass="makeLogInfo" style="display:none;z-index:2000;" >
+                <h:outputText value="#{sectionActivityMessages.anon_grading_info}"/>
+            </h:panelGroup>
+        <f:verbatim></span></f:verbatim>
      </h:panelGroup>
     </h:column>
     
@@ -99,7 +118,7 @@
              type="org.sakaiproject.tool.assessment.ui.listener.author.SectionActivityListener" />
       </h:commandLink> 
       </f:facet>
-	 <h:panelGroup>	 
+	 <h:panelGroup rendered="#{!pageData.anonymousGrading}">
 		<h:commandLink title ="#{sectionActivityMessages.assessment_name}" action="gradeStudentResultFromSectionActivity" immediate="true" >
 		  <h:outputText value="#{pageData.assessmentName}"/>
 		   <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.evaluation.ResetTotalScoreListener" />
@@ -110,6 +129,15 @@
        		  <f:param name="publishedIdd" value="#{pageData.assessmentId}" />
       		  <f:param name="gradingData" value="#{pageData.assessmentGradingId}" />	
 	    </h:commandLink>	
+     </h:panelGroup>
+     <h:panelGroup rendered="#{pageData.anonymousGrading}">
+         <h:outputText value="#{pageData.assessmentName}"/>
+         <f:verbatim><span class="info"></f:verbatim>
+            <h:graphicImage url="/images/info_icon.gif" alt="" styleClass="infoDiv"/>
+            <h:panelGroup styleClass="makeLogInfo" style="display:none;z-index:2000;" >
+                <h:outputText value="#{sectionActivityMessages.anon_grading_info}"/>
+            </h:panelGroup>
+        <f:verbatim></span></f:verbatim>
      </h:panelGroup>
 	</h:column>
 	<!-- Assessment ID... -->

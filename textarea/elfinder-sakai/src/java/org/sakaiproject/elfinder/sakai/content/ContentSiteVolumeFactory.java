@@ -1,14 +1,30 @@
+/**
+ * Copyright (c) 2003-2017 The Apereo Foundation
+ *
+ * Licensed under the Educational Community License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *             http://opensource.org/licenses/ecl2
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.sakaiproject.elfinder.sakai.content;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.*;
 
 import cn.bluejoe.elfinder.controller.ErrorException;
 import cn.bluejoe.elfinder.service.FsItem;
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityService;
-import org.sakaiproject.exception.TypeException;
-import org.sakaiproject.thread_local.api.ThreadLocalManager;
-import org.sakaiproject.user.api.UserDirectoryService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sakaiproject.content.api.*;
 import org.sakaiproject.elfinder.sakai.SiteVolumeFactory;
 import org.sakaiproject.elfinder.sakai.SakaiFsService;
@@ -22,18 +38,16 @@ import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.SakaiException;
+import org.sakaiproject.exception.TypeException;
 import org.sakaiproject.site.api.SiteService;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.*;
+import org.sakaiproject.thread_local.api.ThreadLocalManager;
+import org.sakaiproject.user.api.UserDirectoryService;
 
 /**
  * This is the creator of ContentHosting FsVolumes.
  */
+@Slf4j
 public class ContentSiteVolumeFactory implements SiteVolumeFactory {
-
-    private static final Logger LOG = LoggerFactory.getLogger(ContentSiteVolumeFactory.class);
 
     protected ContentHostingService contentHostingService;
     protected SiteService siteService;
@@ -254,14 +268,14 @@ public class ContentSiteVolumeFactory implements SiteVolumeFactory {
                 Date date = contentEntity.getProperties().getDateProperty(ResourceProperties.PROP_MODIFIED_DATE);
                 return date.getTime() / 1000;
             } catch (IdUnusedException iue) {
-                LOG.debug("Failed to find item to get last modified date for: "+ id);
+                log.debug("Failed to find item to get last modified date for: "+ id);
             } catch (SakaiException se) {
-                LOG.warn("Failed to get last modified date for: " + id, se);
+                log.warn("Failed to get last modified date for: " + id, se);
             } catch (EntityPropertyTypeException e) {
-                LOG.warn("Property isn't date on :" + id, e);
+                log.warn("Property isn't date on :" + id, e);
             } catch (EntityPropertyNotDefinedException e) {
                 // This isn't too much of a problem.
-                LOG.debug("No modified date set on: " + id, e);
+                log.debug("No modified date set on: " + id, e);
             }
             return 0;
         }
@@ -305,9 +319,9 @@ public class ContentSiteVolumeFactory implements SiteVolumeFactory {
                 }
                 return contentEntity.getProperties().getProperty(ResourceProperties.PROP_DISPLAY_NAME);
             } catch (IdUnusedException iue) {
-                LOG.debug("Failed to find item to get name: "+ id);
+                log.debug("Failed to find item to get name: "+ id);
             } catch (SakaiException se) {
-                LOG.warn("Failed to get name for: " + id, se);
+                log.warn("Failed to get name for: " + id, se);
             }
             return lastPathSegment(id);
         }
@@ -340,7 +354,7 @@ public class ContentSiteVolumeFactory implements SiteVolumeFactory {
                 return fromPath(id);
             } catch (IdUnusedException | PermissionException ignored) {
             } catch (TypeException e) {
-                LOG.warn("Unexpected error getting root.", e);
+                log.warn("Unexpected error getting root.", e);
             }
             return null;
         }
@@ -354,9 +368,9 @@ public class ContentSiteVolumeFactory implements SiteVolumeFactory {
                     return contentHostingService.getResource(id).getContentLength();
                 }
             } catch (IdUnusedException uie) {
-                LOG.debug("Failed to file size as item can't be found: "+ id);
+                log.debug("Failed to file size as item can't be found: "+ id);
             } catch (SakaiException se) {
-                LOG.warn("Failed to get size for: " + id, se);
+                log.warn("Failed to get size for: " + id, se);
             }
             return 0;
         }
@@ -378,9 +392,9 @@ public class ContentSiteVolumeFactory implements SiteVolumeFactory {
                     }
                 }
             } catch (IdUnusedException iue) {
-                LOG.debug("Couldn't find resource to look for child folders: "+ id);
+                log.debug("Couldn't find resource to look for child folders: "+ id);
             } catch (SakaiException se) {
-                LOG.warn("Couldn't see if there are child folders: " + id, se);
+                log.warn("Couldn't see if there are child folders: " + id, se);
             }
 
             return false;
@@ -408,11 +422,11 @@ public class ContentSiteVolumeFactory implements SiteVolumeFactory {
                 }
                 return items.toArray(new FsItem[items.size()]);
             } catch (IdUnusedException iue) {
-                LOG.debug("Failed to list children as item can't be found for: "+ id);
+                log.debug("Failed to list children as item can't be found for: "+ id);
             } catch (PermissionException pe) {
                 throw new ErrorException("errPerm");
             } catch (SakaiException se) {
-                LOG.warn("Failed to find children of: " + id, se);
+                log.warn("Failed to find children of: " + id, se);
             }
             return new FsItem[0];
         }

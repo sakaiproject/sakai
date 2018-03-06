@@ -1,3 +1,18 @@
+/**
+ * Copyright (c) 2010-2017 The Apereo Foundation
+ *
+ * Licensed under the Educational Community License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *             http://opensource.org/licenses/ecl2
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 /*
 * Licensed to The Apereo Foundation under one or more contributor license
 * agreements. See the NOTICE file distributed with this work for
@@ -25,8 +40,9 @@ import java.util.List;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.entitybroker.EntityView;
 import org.sakaiproject.entitybroker.entityprovider.annotations.EntityCustomAction;
@@ -44,8 +60,6 @@ import org.sakaiproject.roster.api.SakaiProxy;
 import org.sakaiproject.sitestats.api.SitePresenceTotal;
 import org.sakaiproject.user.api.User;
 
-import lombok.Setter;
-
 /**
  * <code>EntityProvider</code> to allow Roster to access site, membership, and
  * enrollment data for the current user. The provider respects Roster
@@ -54,12 +68,10 @@ import lombok.Setter;
  * 
  * @author d.b.robinson@lancaster.ac.uk
  */
+@Slf4j
 public class RosterSiteEntityProvider extends AbstractEntityProvider implements
 		AutoRegisterEntityProvider, ActionsExecutable, Outputable {
 
-	@SuppressWarnings("unused")
-	private static final Logger log = LoggerFactory.getLogger(RosterSiteEntityProvider.class);
-	
 	public final static String ENTITY_PREFIX		= "roster-membership";
 	public final static String DEFAULT_ID			= ":ID:";
 	
@@ -150,7 +162,7 @@ public class RosterSiteEntityProvider extends AbstractEntityProvider implements
         if (returnAll) {
             subList = membership;
         } else {
-            int pageSize = 10;
+            int pageSize = sakaiProxy.getPageSize();
             int start  = page * pageSize;
             log.debug("start: {}", start);
 
@@ -172,6 +184,7 @@ public class RosterSiteEntityProvider extends AbstractEntityProvider implements
         RosterData data = new RosterData();
         data.setMembers(subList);
         data.setMembersTotal(membershipsSize);
+        data.setPageSize(sakaiProxy.getPageSize());
 
         boolean showVisits = sakaiProxy.getShowVisits();
 

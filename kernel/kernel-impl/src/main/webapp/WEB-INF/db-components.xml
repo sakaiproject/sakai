@@ -244,9 +244,9 @@
 			<value>10</value>
 		</property>
 
-		<!-- This property controls the maximum size of the pool for idle and in use. Default 10 (TODO: Seems low)-->
+		<!-- This property controls the maximum size of the pool for idle and in use. Default 50 -->
 		<property name="maximumPoolSize">
-			<value>10</value>
+			<value>50</value>
 		</property>
 
 		<!-- Register MBeans -->
@@ -427,7 +427,7 @@
             parent="javax.sql.BaseDataSource">
     </bean>
 
-    <!--  The "Global" Hibernate Session Factory -->
+	<!--  The "Global" Hibernate Session Factory -->
 	<bean id="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"
 		  class="org.sakaiproject.springframework.orm.hibernate.AddableSessionFactoryBean"
 		  init-method="init">
@@ -444,17 +444,72 @@
 				<prop key="hibernate.cache.region.factory_class">org.hibernate.cache.SingletonEhCacheRegionFactory</prop>
 				<prop key="hibernate.hbm2ddl.auto">${hibernate.hbm2ddl.auto}</prop>
 				<prop key="hibernate.generate_statistics">true</prop>
+				<prop key="hibernate.enable_lazy_load_no_trans">true</prop>
+				<prop key="net.sf.ehcache.configurationResourceName">/org/sakaiproject/memory/api/ehcache.xml</prop>
+			</props>
+		</property>
+		<property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
+	</bean>
+
+	<!-- To use the EntityManager you will need to comment the bean above this and uncomment the following 3 beans -->
+	<!-- uncomment this bean for EntityManager
+	<bean id="org.sakaiproject.springframework.orm.hibernate.SakaiPersistenceUnitManager"
+		  class="org.sakaiproject.springframework.orm.hibernate.SakaiPersistenceUnitManager">
+		<property name="dataSource" ref="javax.sql.LazyDataSource"/>
+		<property name="persistenceUnitPostProcessors">
+			<list>
+				<bean class="org.sakaiproject.springframework.orm.hibernate.AddablePersistenceUnit"/>
+			</list>
+		</property>
+		<property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
+	</bean>
+	-->
+
+	<!--  The "Global" JPA Entity Manager Factory -->
+	<!-- uncomment this bean for EntityManager
+	<bean id="org.sakaiproject.springframework.orm.jpa.EntityManagerFactory" class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean">
+		<property name="jpaVendorAdapter">
+			<bean class="org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter"/>
+		</property>
+		<property name="jpaDialect">
+			<bean class="org.springframework.orm.jpa.vendor.HibernateJpaDialect"/>
+		</property>
+		<property name="persistenceUnitManager" ref="org.sakaiproject.springframework.orm.hibernate.SakaiPersistenceUnitManager"/>
+		<property name="jpaProperties">
+			<props>
+				<prop key="hibernate.dialect">${hibernate.dialect}</prop>
+				<prop key="hibernate.show_sql">${hibernate.show_sql}</prop>
+				<prop key="hibernate.query.substitutions">true 1, false 0, yes 'Y', no 'N'</prop>
+				<prop key="hibernate.jdbc.use_streams_for_binary">true</prop>
+				<prop key="hibernate.cache.use_query_cache">true</prop>
+				<prop key="hibernate.cache.region.factory_class">org.hibernate.cache.SingletonEhCacheRegionFactory</prop>
+				<prop key="hibernate.hbm2ddl.auto">${hibernate.hbm2ddl.auto}</prop>
+				<prop key="hibernate.generate_statistics">true</prop>
+				<prop key="hibernate.enable_lazy_load_no_trans">true</prop>
+				<prop key="net.sf.ehcache.configurationResourceName">/org/sakaiproject/memory/api/ehcache.xml</prop>
+				<prop key="hibernate.current_session_context_class">org.springframework.orm.hibernate4.SpringSessionContext</prop>
 			</props>
 		</property>
 	</bean>
+	-->
+
+	<!--  The "Global" Session Factory -->
+	<!-- uncomment this bean for EntityManager
+	<bean id="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"
+		  class="org.springframework.orm.jpa.vendor.HibernateJpaSessionFactoryBean">
+		<property name="entityManagerFactory" ref="org.sakaiproject.springframework.orm.jpa.EntityManagerFactory"/>
+	</bean>
+	-->
 
 	<!--  The "Global" Transaction Manager -->
-	<bean id="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager"
-		  class="org.springframework.orm.hibernate4.HibernateTransactionManager">
-
-		<property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory" />
-		<property name="dataSource" ref="javax.sql.LazyDataSource" />
+	<bean id="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager" class="org.springframework.orm.hibernate4.HibernateTransactionManager">
+		<property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
 	</bean>
+	<!-- This jpa tx manager currently does not work as it behaves differently than hibernate's tx manager
+	<bean id="org.sakaiproject.springframework.orm.jpa.GlobalTransactionManager" class="org.springframework.orm.jpa.JpaTransactionManager">
+		<property name="entityManagerFactory" ref="org.sakaiproject.springframework.orm.jpa.EntityManagerFactory"/>
+	</bean>
+	-->
 
 	<!-- enables JMX on hibernate -->
 	<bean id="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory.statistics"
