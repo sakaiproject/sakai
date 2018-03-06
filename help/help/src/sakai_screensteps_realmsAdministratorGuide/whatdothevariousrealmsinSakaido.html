@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<title>How do I enable student peer review for an assignment?</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta content="sakai.assignment" name="description">
+<meta content="peer review, peer assessment, peer evaluation" name="search">
+<link href="/library/skin/tool_base.css" media="screen" rel="stylesheet" type="text/css" charset="utf-8">
+<link href="../css/help.css" media="screen" rel="stylesheet" type="text/css" charset="utf-8">
+<link href="/library/skin/morpheus-default/tool.css" media="screen" rel="stylesheet" type="text/css" charset="utf-8">
+<link href="/library/js/jquery/featherlight/0.4.0/featherlight.min.css" media="screen" rel="stylesheet" type="text/css" charset="utf-8">
+<script src="/library/webjars/jquery/1.12.4/jquery.min.js" type="text/javascript" charset="utf-8"></script><script src="/library/js/jquery/featherlight/0.4.0/featherlight.min.js" type="text/javascript" charset="utf-8"></script><script type="text/javascript" charset="utf-8">
+    $(document).ready(function(){
+      $("a[rel^='featherlight']").featherlight({
+        type: { image:true },
+    closeOnClick: 'anywhere'
+      }); 
+    });   
+  </script>
+</head>
+<body>
+  <div id="wrapper"><div id="article-content">
+<div id="article-header"><h1 class="article-title">What do the various realms in Sakai do?</h1></div>
+<div id="article-description">
+  <div class="step-instructions screensteps-textblock">
+  <p>Below is a listing of various realms in Sakai. This list is not an exhaustive one, since system administrators may edit existing realms or add new custom realms.</p>
+</div>
+
+
+  
+  <div class="step screensteps-section screensteps-depth-1" id="group-template-realm">
+    <h2 id="group-template-realm" class="step-title screensteps-heading">Group template realm</h2>
+    
+      <div class="step-instructions screensteps-textblock">
+  <p>The Site Group feature introduced in Sakai 2.1 introduced group templates !group.template and !group.template.course. In order for Site Groups to work properly, these templates must have the same roles defined as those in the corresponding site templates !site.template and  !site.template.course. So for Sakai OOTB, !group.template has the roles maintain and access, and !site.template.course has the roles Instructor, Student, and Teaching Assistant.</p>
+</div>
+
+    
+  </div>
+
+
+
+  
+  <div class="step screensteps-section screensteps-depth-1" id="the-site-helper-realm">
+    <h2 id="the-site-helper-realm" class="step-title screensteps-heading">The !site.helper realm</h2>
+    
+      <div class="step-instructions screensteps-textblock">
+  <p>Editing a template realm affects all future sites. Editing a site’s realm affects the site only. It is sometimes desirable to add a permission to all existing sites. For example, a new tool is added with its set of permissions. It would be nice to add the new tool’s default permission settings to roles in all sites so that if an existing site wanted to add the new tool, permissions would be setup properly for the various roles. The !site.helper realm provides such a capability.  The !site.helper realm can be used to assign permissions for a particular role in all sites. </p>
+</div>
+
+    
+  </div>
+
+
+
+  
+  <div class="step screensteps-section screensteps-depth-1" id="other-realms-and-realm-templates">
+    <h2 id="other-realms-and-realm-templates" class="step-title screensteps-heading">Other realms and realm templates</h2>
+    
+      <div class="step-instructions screensteps-textblock">
+  <p>A few other realms are delivered with Sakai out of the box. These have special uses as follows.</p>
+<p><strong>!group.template  </strong>- Used to specify group related permissions for tools that are group aware for sites which do not have a corresponding !group.template.&lt;sitetype&gt; realm.</p>
+<p><strong>!group.template.course </strong>-<strong> </strong>Used to specify group related permissions for tools that are group aware for course sites (sites with a type value of ‘course’)</p>
+<p><strong>!pubview </strong>-<strong> </strong>Gives permissions to non-authenticated users who are viewing public content in a site. Public content includes Announcements, Resources, Syllabus items that have been specified as being public when they were created (or subsequently edited). Public content for a site can be viewed from the Site Browser tool on the Gateway page, before a user logs in. !pubview typically has read only permissions set so that unauthenticated users can see the public content but not add/change site content.</p>
+<p><strong>!site.helper </strong>-<strong> </strong>Can be used to grant permission to all sites, as a way of retroactively granting permissions when a new permission is added to the system. </p>
+<p><strong>!site.template </strong>- Realm template used for sites that do not have any type, or for which a corresponding !site.template.&lt;sitetype&gt; does not exist.</p>
+<p><strong>!site.template.course </strong>-<strong> </strong>Realm template for sites of type ‘course’.</p>
+<p><strong>!site.template.myworkspace </strong>- Not used.</p>
+<p><strong>!site.user 	</strong>-<strong> </strong>Provides permissions to the user in their My Workspaces.  When a user first logs in, their My Workspace inherits this realm by default.  </p>
+<p><strong>!user.template - </strong>User templates are a way of granting certain permissions to users within the scope of their My Workspace based on their account type. Currently, these templates are used to grant the ability to create new sites or not via the site.new permission.  If the user template has site.new checked, then the ‘New’ action appears in the user’s Worksite Setup tool in their My Workspace. If the site.new permission is not checked, then the user cannot create new worksites since the New action will be missing from their Worksite Setup toolbar.</p>
+<p><strong>!user.template</strong> - Used for user account with no type, or accounts which have a type but for which there isn’t a corresponding !user.template.&lt;accounttype&gt; realm.</p>
+<p><strong>!user.template.guest </strong>-<strong> </strong>Used for user accounts of type ‘guest’.</p>
+<p><strong>!user.template.maintain </strong>- Used for user accounts of type ‘maintain’</p>
+<p><strong>!user.template.registered - </strong>Used for user accounts of type ‘registered’</p>
+<p><strong>!user.template.sample </strong>- Used for user accounts of type ‘sample’</p>
+<p> </p>
+</div>
+
+    
+  </div>
+
+
+
+</div>
+</div></div>
+</body>
+</html>

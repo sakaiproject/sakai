@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<title>How do I enable student peer review for an assignment?</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta content="sakai.assignment" name="description">
+<meta content="peer review, peer assessment, peer evaluation" name="search">
+<link href="/library/skin/tool_base.css" media="screen" rel="stylesheet" type="text/css" charset="utf-8">
+<link href="../css/help.css" media="screen" rel="stylesheet" type="text/css" charset="utf-8">
+<link href="/library/skin/morpheus-default/tool.css" media="screen" rel="stylesheet" type="text/css" charset="utf-8">
+<link href="/library/js/jquery/featherlight/0.4.0/featherlight.min.css" media="screen" rel="stylesheet" type="text/css" charset="utf-8">
+<script src="/library/webjars/jquery/1.12.4/jquery.min.js" type="text/javascript" charset="utf-8"></script><script src="/library/js/jquery/featherlight/0.4.0/featherlight.min.js" type="text/javascript" charset="utf-8"></script><script type="text/javascript" charset="utf-8">
+    $(document).ready(function(){
+      $("a[rel^='featherlight']").featherlight({
+        type: { image:true },
+    closeOnClick: 'anywhere'
+      }); 
+    });   
+  </script>
+</head>
+<body>
+  <div id="wrapper"><div id="article-content">
+<div id="article-header"><h1 class="article-title">How can an instructor retrieve assessments that were saved but not submitted? </h1></div>
+<div id="article-description">
+  <div class="step-instructions screensteps-textblock screensteps-wrapper--introduction screensteps-wrapper">
+  <p>When a student clicks the <strong>Submit for Grading</strong> button on the last page of an assessment or the <em>Table of Contents</em>, they are taken to an <em>Assessment Submission Warning</em> screen to confirm their submission.  If they do not click the final <strong>Submit for Grading</strong> button to confirm, and the assessment is NOT timed, their responses may be saved, but the assessment will remain <em>In Progress</em>.</p>
+<p>Instructors do not have access to the content of<em> In Progress</em> assessments.  On the <em><a rel="nofollow" href="content.hlp?docId=howdoiviewstatisticsaboutacompletedassessment">Total Scores</a></em> screen, students with incomplete submissions would be listed as having <em>No Submission</em> recorded.</p>
+<p>However, if a student has not yet submitted a copy of an untimed assessment, an instructor can retrieve their submission using the <strong>Automatic Submission</strong> (<strong>Autosubmit</strong>) feature in <em>Tests &amp; Quizzes</em>.</p>
+<p><em>Note: The autosubmit option is only available if it has been enabled on your system.</em></p>
+</div>
+
+
+  
+  <div class="step screensteps-section screensteps-depth-1" id="how-does-automatic-submission-work">
+    <h2 id="how-does-automatic-submission-work" class="step-title screensteps-heading">How does automatic submission work?</h2>
+    
+      <div class="step-instructions screensteps-textblock">
+  <p>The <strong>Autosubmit</strong> setting can be enabled on a per-assessment basis and is unchecked (not enabled) by default.  For more information on how to enable automatic submission in an assessment's settings, see <a rel="nofollow" href="content.hlp?docId=whataretheavailabilityandsubmissionsoptionsforanassessmentcopiedAvailabilityandSubmissionsAutomaticsubmission">Availability and Submissions options: Automatic submission</a>, or the steps below.</p>
+<p>Behind the scenes, there is an automated process that will check:</p>
+<ol>
+<li>Did the instructor select the <strong>Autosubmit</strong> setting on this assessment?</li>
+<li>Did the <strong>latest acceptance date</strong> for this assessment pass yet?</li>
+<li>Did this student press the <strong>Begin Assessment</strong> button, save their work, but fail to successfully submit the assessment via the <strong>Submit for Grading</strong> button on the <em>Assessment Submission Warning</em> screen?</li>
+<li>Is this the student's first submission attempt?</li>
+</ol>
+<p>If all four conditions above are true, the system will automatically submit the student’s saved assessment. The submission data will be available to instructors on the <em><a rel="nofollow" href="content.hlp?docId=howdoiviewstatisticsaboutacompletedassessment">Total Scores</a></em> screen within 5 minutes (or however often your system is configured to run) after the <strong>latest acceptance date</strong> passes.</p>
+<p>Instructors can review all student submissions normally.  Any assessments that were submitted via the automatic submission feature will be flagged on the <em>Total Scores</em> screen with the text <em>AUTO-SUBMIT</em>.  All answers that were saved will be included in the student's automatic submission.</p>
+<p><em>Note: Timed assessments are automatically submitted when the timer expires, so you do not need to enable Autosubmit for a timed assessment.</em></p>
+</div>
+
+    
+  </div>
+
+
+
+  
+  <div class="step screensteps-section screensteps-depth-1" id="how-do-i-enable-autosubmit-on-an-assessment">
+    <h2 id="how-do-i-enable-autosubmit-on-an-assessment" class="step-title screensteps-heading">How do I enable Autosubmit on an assessment?</h2>
+    
+      
+  <div class="step screensteps-section screensteps-depth-2" id="go-to-tests-quizzes">
+    <h3 id="go-to-tests-quizzes" class="step-title screensteps-heading">Go to Tests &amp; Quizzes.</h3>
+    
+      <div class="image screensteps-image">
+  
+  
+    <img src="https://s3.amazonaws.com/screensteps_live/image_assets/assets/001/335/854/original/ffab3937-4f04-4392-8c10-ade436d4d397.png" alt="Go to Tests &amp; Quizzes." height="123" width="200">
+  
+</div>
+
+    
+      <div class="step-instructions screensteps-textblock">
+  <p>Select the <strong>Tests &amp; Quizzes</strong> tool from the Tool Menu of your site.</p>
+</div>
+
+    
+  </div>
+
+
+    
+      
+  <div class="step screensteps-section screensteps-depth-2" id="edit-the-settings">
+    <h3 id="edit-the-settings" class="step-title screensteps-heading">Edit the settings.</h3>
+    
+      <div class="image screensteps-image">
+  
+  
+    <a rel="nofollow" href="https://s3.amazonaws.com/screensteps_live/image_assets/assets/001/335/850/original/9da7c3ab-6f68-4119-9629-24966fde543a.png" class="screensteps-image-zoom">
+      <img src="https://s3.amazonaws.com/screensteps_live/image_assets/assets/001/335/850/medium/9da7c3ab-6f68-4119-9629-24966fde543a.png" alt="Edit the settings." height="338" width="855">
+    </a>
+  
+</div>
+
+    
+      <div class="step-instructions screensteps-textblock">
+  <p>From the Tests &amp; Quizzes tool home screen, choose the <strong>Settings</strong> option in the drop-down menu for the quiz.  Be sure that you are in the <strong>Working Copies</strong> tab; otherwise, you won't see your unpublished items.</p>
+<p><em>Note: You can review and edit settings on a published assessment by going to the <strong>Published Copies</strong> tab and selecting <strong>Settings </strong>in the drop-down menu for the assessment. It is not recommended to modify the settings of an assessment while testing is in progress, as it may cause loss of student submission data.</em></p>
+</div>
+
+    
+  </div>
+
+
+    
+      
+  <div class="step screensteps-section screensteps-depth-2" id="alternatively-you-can-access-assessment-settings-from-the-edit-assessment-screen">
+    <h3 id="alternatively-you-can-access-assessment-settings-from-the-edit-assessment-screen" class="step-title screensteps-heading">Alternatively, you can access assessment settings from the edit assessment screen.</h3>
+    
+      <div class="image screensteps-image">
+  
+  
+    <a rel="nofollow" href="https://s3.amazonaws.com/screensteps_live/image_assets/assets/001/335/880/original/f4960747-a33e-4fa6-8de4-91f55099243e.png" class="screensteps-image-zoom">
+      <img src="https://s3.amazonaws.com/screensteps_live/image_assets/assets/001/335/880/medium/f4960747-a33e-4fa6-8de4-91f55099243e.png" alt="Alternatively, you can access assessment settings from the edit assessment screen." height="94" width="855">
+    </a>
+  
+</div>
+
+    
+      <div class="step-instructions screensteps-textblock">
+  <p>If you are currently editing the <strong>Working Copy</strong> of the assessment, click the <strong>Settings</strong> link at the top of the assessment editing screen.</p>
+</div>
+
+    
+  </div>
+
+
+    
+      
+  <div class="step screensteps-section screensteps-depth-2" id="verify-dates-and-select-the-autosubmit-option">
+    <h3 id="verify-dates-and-select-the-autosubmit-option" class="step-title screensteps-heading">Verify dates and select the Autosubmit option.</h3>
+    
+      <div class="image screensteps-image">
+  
+  
+    <a rel="nofollow" href="https://s3.amazonaws.com/screensteps_live/image_assets/assets/001/336/096/original/bf7dcc07-1fb8-4564-a89d-4c24586b3b47.png" class="screensteps-image-zoom">
+      <img src="https://s3.amazonaws.com/screensteps_live/image_assets/assets/001/336/096/medium/bf7dcc07-1fb8-4564-a89d-4c24586b3b47.png" alt="Verify dates and select the Autosubmit option." height="421" width="855">
+    </a>
+  
+</div>
+
+    
+      <div class="step-instructions screensteps-textblock">
+  <p>In an assessment's <em>Settings, </em>select the <strong>Availability and Submissions</strong> section.</p>
+<ol>
+<li>Make sure that the <strong>due</strong> and/or <strong>late submissions accepted </strong>date fields have dates entered in them.  If you do not want to accept late submissions, select <strong>No, not after due date</strong>.  Assessments will be automatically submitted at the <strong>latest acceptance date</strong>.</li>
+<li>Select the check box to <strong>Autosubmit saved student work after latest acceptance date</strong>.</li>
+</ol>
+</div>
+
+    
+  </div>
+
+
+    
+      
+  <div class="step screensteps-section screensteps-depth-2" id="Publish-the-assessment.">
+    <h3 id="Publish-the-assessment." class="step-title screensteps-heading">Save Settings and publish the assessment.</h3>
+    
+      <div class="image screensteps-image">
+  
+  
+    <img src="https://s3.amazonaws.com/screensteps_live/image_assets/assets/001/335/868/original/d9f6a1f0-f3b4-4f46-9dd2-84f59dea2e46.png" alt="Save Settings and publish the assessment." height="53" width="309">
+  
+</div>
+
+    
+      <div class="step-instructions screensteps-textblock">
+  <p>When the assessment settings are ready, and the questions are in place, click <strong>Save Settings and Publish</strong> to publish the assessment so that your students can take it.  See the article <a rel="nofollow" href="content.hlp?docId=howdoipublishanassessmentietestorquiz">How do I publish an assessment (i.e. test or quiz)?</a></p>
+<p>Alternatively, if you're not ready to publish the assessment, you can click <strong>Save</strong> to save your settings selections.</p>
+<p><em>Note: If you're modifying the settings of an assessment in <strong>Published Copies</strong>, you'll only see the Save and Cancel buttons.</em></p>
+</div>
+
+    
+  </div>
+
+
+    
+  </div>
+
+
+
+  
+  <div class="step screensteps-section screensteps-depth-1" id="How-do-I-trigger-Autosubmit-on-a-completed-assessm">
+    <h2 id="How-do-I-trigger-Autosubmit-on-a-completed-assessm" class="step-title screensteps-heading">How do I trigger Autosubmit on a completed assessment?</h2>
+    
+      <div class="step-instructions screensteps-textblock">
+  <p>If you did not enable <strong>Autosubmit</strong> before students began taking an assessment, some students' submissions remain <em>In Progress</em>, and those students have not already submitted a copy of the assessment, you can edit the <em>Settings</em> on the published assessment to trigger an automatic submission and access any responses they saved.</p>
+</div>
+
+    
+      
+  <div class="step screensteps-section screensteps-depth-2" id="go-to-tests-quizzes_1">
+    <h3 id="go-to-tests-quizzes_1" class="step-title screensteps-heading">Go to Tests &amp; Quizzes.</h3>
+    
+      <div class="image screensteps-image">
+  
+  
+    <img src="https://s3.amazonaws.com/screensteps_live/image_assets/assets/001/335/846/original/5b71fbf9-c4f4-45af-918d-f73c23f526ab.png" alt="Go to Tests &amp; Quizzes." height="123" width="200">
+  
+</div>
+
+    
+      <div class="step-instructions screensteps-textblock">
+  <p>Select the <strong>Tests &amp; Quizzes</strong> tool from the Tool Menu of your site.</p>
+</div>
+
+    
+  </div>
+
+
+    
+      
+  <div class="step screensteps-section screensteps-depth-2" id="select-the-published-copies-tab">
+    <h3 id="select-the-published-copies-tab" class="step-title screensteps-heading">Select the Published Copies tab.</h3>
+    
+      <div class="image screensteps-image">
+  
+  
+    <a rel="nofollow" href="https://s3.amazonaws.com/screensteps_live/image_assets/assets/001/335/859/original/b914eae5-b892-4663-9e7e-bd3eb95ee5d6.png" class="screensteps-image-zoom">
+      <img src="https://s3.amazonaws.com/screensteps_live/image_assets/assets/001/335/859/medium/b914eae5-b892-4663-9e7e-bd3eb95ee5d6.png" alt="Select the Published Copies tab." height="157" width="855">
+    </a>
+  
+</div>
+
+    
+  </div>
+
+
+    
+      
+  <div class="step screensteps-section screensteps-depth-2" id="edit-the-settings_1">
+    <h3 id="edit-the-settings_1" class="step-title screensteps-heading">Edit the settings.</h3>
+    
+      <div class="image screensteps-image">
+  
+  
+    <a rel="nofollow" href="https://s3.amazonaws.com/screensteps_live/image_assets/assets/001/335/870/original/58ad1d4d-eb73-4a31-ae4d-a1b3daefde06.png" class="screensteps-image-zoom">
+      <img src="https://s3.amazonaws.com/screensteps_live/image_assets/assets/001/335/870/medium/58ad1d4d-eb73-4a31-ae4d-a1b3daefde06.png" alt="Edit the settings." height="293" width="855">
+    </a>
+  
+</div>
+
+    
+      <div class="step-instructions screensteps-textblock">
+  <p>Choose the <strong>Settings</strong> option in the drop-down menu for the published quiz.</p>
+<p><em>Note: It is not recommended to modify the settings of an assessment while testing is in progress, as it may cause loss of student submission data.</em></p>
+</div>
+
+    
+  </div>
+
+
+    
+      
+  <div class="step screensteps-section screensteps-depth-2" id="if-the-latest-acceptance-date-is-in-the-past-verify-dates-and-select-autosubmit">
+    <h3 id="if-the-latest-acceptance-date-is-in-the-past-verify-dates-and-select-autosubmit" class="step-title screensteps-heading">If the latest acceptance date is in the past, verify dates and select Autosubmit.</h3>
+    
+      <div class="image screensteps-image">
+  
+  
+    <a rel="nofollow" href="https://s3.amazonaws.com/screensteps_live/image_assets/assets/001/336/095/original/f4caee4a-7404-4131-ad86-e8a17b8aea4d.png" class="screensteps-image-zoom">
+      <img src="https://s3.amazonaws.com/screensteps_live/image_assets/assets/001/336/095/medium/f4caee4a-7404-4131-ad86-e8a17b8aea4d.png" alt="If the latest acceptance date is in the past, verify dates and select Autosubmit." height="449" width="855">
+    </a>
+  
+</div>
+
+    
+      <div class="step-instructions screensteps-textblock">
+  <p>In an assessment's <em>Settings</em>, select the <strong>Availability and Submissions</strong> section.</p>
+<ol>
+<li>Verify that the <strong>due</strong> and/or <strong>late submissions accepted </strong>date fields have dates entered in them.  Assessments will be automatically submitted at the <strong>latest acceptance date</strong>.  If the <strong>latest acceptance date</strong> is in the past, assessments will be automatically submitted the next time the <strong>Automatic Submission</strong> process runs; this occurs once every 5 minutes or however often your system has been configured to run.</li>
+<li>Select the check box to <strong>Autosubmit saved student work after latest acceptance date</strong>.</li>
+</ol>
+</div>
+
+    
+  </div>
+
+
+    
+      
+  <div class="step screensteps-section screensteps-depth-2" id="click-save">
+    <h3 id="click-save" class="step-title screensteps-heading">Click Save.</h3>
+    
+      <div class="image screensteps-image">
+  
+  
+    <img src="https://s3.amazonaws.com/screensteps_live/image_assets/assets/001/335/864/original/ae0bb655-0eda-403f-8b7e-d8c79991550a.png" alt="Click Save." height="55" width="140">
+  
+</div>
+
+    
+      <div class="step-instructions screensteps-textblock">
+  <p>At the bottom of the screen, click <strong>Save</strong> to save changes.</p>
+</div>
+
+    
+  </div>
+
+
+    
+      
+  <div class="step screensteps-section screensteps-depth-2" id="or-select-the-autosubmit-option-then-stop-accepting-now">
+    <h3 id="or-select-the-autosubmit-option-then-stop-accepting-now" class="step-title screensteps-heading">OR select the Autosubmit option, then Stop Accepting Now.</h3>
+    
+      <div class="image screensteps-image">
+  
+  
+    <a rel="nofollow" href="https://s3.amazonaws.com/screensteps_live/image_assets/assets/001/336/090/original/e2d9d12a-ec46-4bad-8b8c-b65668041230.png" class="screensteps-image-zoom">
+      <img src="https://s3.amazonaws.com/screensteps_live/image_assets/assets/001/336/090/medium/e2d9d12a-ec46-4bad-8b8c-b65668041230.png" alt="OR select the Autosubmit option, then Stop Accepting Now." height="449" width="855">
+    </a>
+  
+</div>
+
+    
+      <div class="step-instructions screensteps-textblock">
+  <p>If the assessment's <strong>latest acceptance date</strong> is in the future, but you'd like to prevent more students from submitting and automatically submit <em>In Progress</em> assessments, you can use the option <strong>Stop Accepting Now</strong>.</p>
+<p>In an assessment's <em>Settings</em>, select the <strong>Availability and Submissions</strong> section.</p>
+<ol>
+<li>Select the check box to <strong>Autosubmit saved student work after latest acceptance date</strong>.</li>
+<li>Click <strong>Stop Accepting Now</strong>.</li>
+</ol>
+</div>
+
+    
+  </div>
+
+
+    
+      
+  <div class="step screensteps-section screensteps-depth-2" id="confirm-to-stop-accepting">
+    <h3 id="confirm-to-stop-accepting" class="step-title screensteps-heading">Confirm to Stop Accepting.</h3>
+    
+      <div class="image screensteps-image">
+  
+  
+    <a rel="nofollow" href="https://s3.amazonaws.com/screensteps_live/image_assets/assets/001/335/852/original/da5698df-fe7a-4f4d-b443-3b6f36e0f26e.png" class="screensteps-image-zoom">
+      <img src="https://s3.amazonaws.com/screensteps_live/image_assets/assets/001/335/852/medium/da5698df-fe7a-4f4d-b443-3b6f36e0f26e.png" alt="Confirm to Stop Accepting." height="165" width="855">
+    </a>
+  
+</div>
+
+    
+      <div class="step-instructions screensteps-textblock">
+  <p>You'll be shown a warning indicating that the assessment will no longer be available for students to take.  If you're sure you don't want to accept any more student submissions, click <strong>Stop Accepting </strong>to confirm.</p>
+</div>
+
+    
+  </div>
+
+
+    
+      
+  <div class="step screensteps-section screensteps-depth-2" id="wait-for-submissions-to-become-available">
+    <h3 id="wait-for-submissions-to-become-available" class="step-title screensteps-heading">Wait for submissions to become available.</h3>
+    
+      <div class="image screensteps-image">
+  
+  
+    <a rel="nofollow" href="https://s3.amazonaws.com/screensteps_live/image_assets/assets/001/335/856/original/34b3e788-dbc9-4a40-924c-6ca03f157928.png" class="screensteps-image-zoom">
+      <img src="https://s3.amazonaws.com/screensteps_live/image_assets/assets/001/335/856/medium/34b3e788-dbc9-4a40-924c-6ca03f157928.png" alt="Wait for submissions to become available." height="310" width="855">
+    </a>
+  
+</div>
+
+    
+      <div class="step-instructions screensteps-textblock">
+  <p>The Automatic Submission process runs once every 5 minutes or however often your system is configured to run.  If you have enabled <strong>Autosubmit</strong> and your assessment's <strong>latest acceptance date</strong> is in the past OR if you've chosen to <strong>Stop Accepting Now</strong>, <em>In Progress</em> assessments will be automatically submitted the next time Automatic Submission process runs.</p>
+<p>After the <em>In Progress </em>assessments are automatically submitted, the students' saved responses will be available along with other students' submissions.</p>
+</div>
+
+    
+  </div>
+
+
+    
+  </div>
+
+
+
+  
+  <div class="step screensteps-section screensteps-depth-1" id="i-enabled-autosubmit-why-are-some-assessments-still-listed-in-progress">
+    <h2 id="i-enabled-autosubmit-why-are-some-assessments-still-listed-in-progress" class="step-title screensteps-heading">I enabled Autosubmit; why are some assessments still listed In Progress?</h2>
+    
+      <div class="image screensteps-image">
+  
+  
+    <a rel="nofollow" href="https://s3.amazonaws.com/screensteps_live/image_assets/assets/001/335/872/original/ce70890a-e312-4d48-a81e-801a8515ca25.png" class="screensteps-image-zoom">
+      <img src="https://s3.amazonaws.com/screensteps_live/image_assets/assets/001/335/872/medium/ce70890a-e312-4d48-a81e-801a8515ca25.png" alt="I enabled Autosubmit; why are some assessments still listed In Progress?" height="157" width="855">
+    </a>
+  
+</div>
+
+    
+      <div class="step-instructions screensteps-textblock">
+  <p>You might still see <em>In Progress</em> assessments after you enabled <strong>Autosubmit</strong> AND waited for about 5-10 minutes (or however often your system is configured to run) after the <strong>latest acceptance date</strong> if:</p>
+<ol>
+<li>The assessment allowed multiple submissions, or a student was <a rel="nofollow" href="content.hlp?docId=howdoiallowastudenttoretakeatestorquiz">allowed to retake</a> the assessment.  A student who already submitted the assessment started a new submission but did not complete it.  The Automatic Submission process will only submit a student's assessment if they do not have any previous submissions already recorded for that exam. This prevents previous, already successful, submissions from being overwritten by an automatic submission.</li>
+<li>Very rarely, there have been instances where the Automatic Submission feature has not completed submitting an assessment.  If your assessment should have been automatically submitted, but it has not, follow the steps above to <a rel="nofollow" href="#How-do-I-trigger-Autosubmit-on-a-completed-assessm" target="_self">trigger Autosubmit again on the completed assessment.</a>
+</li>
+</ol>
+</div>
+
+    
+  </div>
+
+
+
+  
+  <div class="step screensteps-section screensteps-depth-1" id="how-do-automatic-submissions-display">
+    <h2 id="how-do-automatic-submissions-display" class="step-title screensteps-heading">How do automatic submissions display?</h2>
+    
+      <div class="image screensteps-image">
+  
+  
+    <a rel="nofollow" href="https://s3.amazonaws.com/screensteps_live/image_assets/assets/001/336/091/original/f0d17083-de86-4e96-af99-052503968985.png" class="screensteps-image-zoom">
+      <img src="https://s3.amazonaws.com/screensteps_live/image_assets/assets/001/336/091/medium/f0d17083-de86-4e96-af99-052503968985.png" alt="How do automatic submissions display?" height="136" width="855">
+    </a>
+  
+</div>
+
+    
+      <div class="step-instructions screensteps-textblock">
+  <p>Instructors access automatic submissions from the <em><a rel="nofollow" href="content.hlp?docId=howdoiviewstatisticsaboutacompletedassessment">Total Scores</a></em> screen just as they would any other assessment submission.  However, automatic submissions display differently from manual or timer submissions as follows:</p>
+<ol>
+<li>When an automatic submission occurs, the <a rel="nofollow" href="content.hlp?docId=whatnotificationscanigetwhenisubmitatestorquiz">email notification sent to students and/or instructors</a> will contain <em>Notification for assessment auto submission</em>. The <em>Submitted Date</em> in the email notification indicates when the student last saved content in the assessment.  The time stamp on the email that was sent will indicate when the actual submission occurred.</li>
+<li>On the <em><a rel="nofollow" href="content.hlp?docId=howdoiviewstatisticsaboutacompletedassessment">Total Scores</a></em> screen, automatic submissions are flagged with the text <em>AUTO-SUBMIT</em>.  The time stamp that appears in the <em>Submit Date</em> column for automatic submissions indicates when the student last saved content in the assessment, NOT when it was actually submitted by the Automatic Submission feature.</li>
+<li>In the <em>Tests &amp; Quizzes</em> <em><a rel="nofollow" href="content.hlp?docId=whatisthetestsquizzeseventlog">Event Log</a></em>, the <em>Errors</em> column will indicate <em>No Errors (Auto submit)</em>.  The <em>Date Submitted</em> column will indicate when the actual submission occurred.  The <em>Duration</em> column will indicate how much time elapsed between when the student began taking the assessment and when it was actually submitted; it does NOT indicate how much time the student actually spent taking the assessment.</li>
+</ol>
+<p>Below are examples displaying automatic submissions.</p>
+</div>
+
+    
+      
+  <div class="step screensteps-section screensteps-depth-2" id="example-of-email-notification-for-automatic-submission">
+    <h3 id="example-of-email-notification-for-automatic-submission" class="step-title screensteps-heading">Example of email notification for Automatic Submission</h3>
+    
+      <div class="image screensteps-image">
+  
+  
+    <img src="https://s3.amazonaws.com/screensteps_live/image_assets/assets/001/335/876/original/92667108-e628-4498-be74-71a503764544.png" alt="Example of email notification for Automatic Submission" height="277" width="620">
+  
+</div>
+
+    
+      <div class="step-instructions screensteps-textblock">
+  <p>In the event of an automatic submission, the time stamp on the notification email sent to a student and/or instructor is <em>when the actual submission occurred</em>, while the <em>Submitted Date</em> in the email is the <em>last time the student accessed the assessment</em>.</p>
+<p>The subject of the email for an automatic submission will say: <em>Notification for assessment auto submission: [the title of the site where the assessment was taken] - [the assessment title]</em></p>
+<p>The first line of the email notification will include the text: <em>The following assessment auto submission was recorded.</em></p>
+<p>For more information on <em>Tests &amp; Quizzes</em> email notifications, see <a rel="nofollow" href="content.hlp?docId=whatinformationisinatestsquizzesemailnotification">What information is in a Tests &amp; Quizzes email notification?</a></p>
+</div>
+
+    
+  </div>
+
+
+    
+      
+  <div class="step screensteps-section screensteps-depth-2" id="examples-of-automatic-submissions-on-the-total-scores-screen">
+    <h3 id="examples-of-automatic-submissions-on-the-total-scores-screen" class="step-title screensteps-heading">Examples of automatic submissions on the Total Scores screen</h3>
+    
+      <div class="image screensteps-image">
+  
+  
+    <a rel="nofollow" href="https://s3.amazonaws.com/screensteps_live/image_assets/assets/001/336/093/original/776258ed-3687-4f8e-8612-f271ecaedcbc.png" class="screensteps-image-zoom">
+      <img src="https://s3.amazonaws.com/screensteps_live/image_assets/assets/001/336/093/medium/776258ed-3687-4f8e-8612-f271ecaedcbc.png" alt="Examples of automatic submissions on the Total Scores screen" height="135" width="855">
+    </a>
+  
+</div>
+
+    
+      <div class="step-instructions screensteps-textblock">
+  <ol>
+<li>When an instructor accesses the <em>Total Scores</em> screen to grade the assessment, automatic submissions are flagged with the text <em>AUTO-SUBMIT</em>.</li>
+<li>The time stamp that appears in the <em>Submit Date</em> column for automatic submissions indicates when the student last saved content in the assessment, NOT when it was actually submitted by the <strong>Automatic Submission</strong> feature.</li>
+</ol>
+<p>For more information on accessing student submissions and grading, see <a rel="nofollow" href="content.hlp?docId=howdoigradetestsquizzes">How do I grade Tests &amp; Quizzes?</a></p>
+</div>
+
+    
+  </div>
+
+
+    
+      
+  <div class="step screensteps-section screensteps-depth-2" id="examples-of-automatic-submissions-in-the-event-log">
+    <h3 id="examples-of-automatic-submissions-in-the-event-log" class="step-title screensteps-heading">Examples of automatic submissions in the Event Log</h3>
+    
+      <div class="image screensteps-image">
+  
+  
+    <a rel="nofollow" href="https://s3.amazonaws.com/screensteps_live/image_assets/assets/001/336/097/original/35751bd2-cc67-4a78-bfa0-4b3fd4d2d02c.png" class="screensteps-image-zoom">
+      <img src="https://s3.amazonaws.com/screensteps_live/image_assets/assets/001/336/097/medium/35751bd2-cc67-4a78-bfa0-4b3fd4d2d02c.png" alt="Examples of automatic submissions in the Event Log" height="116" width="855">
+    </a>
+  
+</div>
+
+    
+      <div class="step-instructions screensteps-textblock">
+  <ol>
+<li>In the <em>Tests &amp; Quizzes Event Log</em>, the <em>Errors</em> column will indicate <em>No Errors (Auto submit)</em>.</li>
+<li>The <em>Date Submitted</em> column will indicate when the actual submission occurred.</li>
+</ol>
+<p>For more information on the <em>Event Log</em>, see <a rel="nofollow" href="content.hlp?docId=whatisthetestsquizzeseventlog">What is the Tests &amp; Quizzes Event Log?</a></p>
+</div>
+
+    
+  </div>
+
+
+    
+  </div>
+
+
+
+</div>
+</div></div>
+</body>
+</html>
