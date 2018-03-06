@@ -221,7 +221,7 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 
 	public String getReviewReport(String contentId, String assignmentRef, String userId)
 			throws QueueException, ReportException {
-		return getAccessUrl(contentId, assignmentRef, userId, false);
+		return getViewerUrl(contentId, userId);
 	}
 
 	public String getReviewReportInstructor(String contentId, String assignmentRef, String userId)
@@ -230,65 +230,65 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 		 * contentId:
 		 * /attachment/04bad844-493c-45a1-95b4-af70129d54d1/Assignments/b9872422-fb24-4f85-abf5-2fe0e069b251/plag.docx
 		 */
-		return getAccessUrl(contentId, assignmentRef, userId, true);
+		return getViewerUrl(contentId, userId);
 	}
 
 	public String getReviewReportStudent(String contentId, String assignmentRef, String userId)
 			throws QueueException, ReportException {
-		return getAccessUrl(contentId, assignmentRef, userId, false);
+		return getViewerUrl(contentId, userId);
 	}
-
-	private String getAccessUrl(String reportId, String assignmentRef, String userId, boolean instructor)
-			throws QueueException, ReportException {
-
+	
+	private String getViewerUrl(String userId, String contentId) {
+		URL url = null;
+		HttpURLConnection connection = null;
+		DataOutputStream wr = null;
+		String viewerUrl = null;
 		try {
-			// Set variables
-			URL url = null;
-			HttpURLConnection connection = null;
-			DataOutputStream wr = null;
-
+			
 			User user = userDirectoryService.getUser(userId);
 			Map<String, Object> data = new HashMap<String, Object>();
 			data.put("given_name", user.getFirstName());
 			data.put("family_name", user.getLastName());
-			data.put("locale", preferencesService.getLocale(userId).getLanguage());
-
+			Locale userlocalePreference = preferencesService.getLocale(userId);
+			String lang = userlocalePreference == null ? "en" : userlocalePreference.getLanguage();		
+			data.put("locale", lang);
+	
 			// Construct URL
-			url = new URL(getNormalizedServiceUrl() + "submissions/" + reportId + "/viewer-url");
-
+			url = new URL(getNormalizedServiceUrl() + "submissions/" + contentId + "/viewer-url");
+	
 			// Open connection and set HTTP method
 			connection = (HttpURLConnection) url.openConnection();
 			connection.setDoOutput(true);
 			connection.setRequestMethod("GET");
-
+	
 			// Set headers
 			for (Entry<String, String> entry : SUBMISSION_REQUEST_HEADERS.entrySet()) {
 				connection.setRequestProperty(entry.getKey(), entry.getValue());
 			}
-
+	
 			// Convert data to JSON:
 			ObjectMapper objectMapper = new ObjectMapper();
 			String json = objectMapper.writeValueAsString(data);
-
+	
 			// Set Post body:
 			connection.setDoOutput(true);
 			wr = new DataOutputStream(connection.getOutputStream());
 			wr.writeBytes(json);
 			wr.flush();
 			wr.close();
-
+	
 			// Send request:
 			int responseCode = connection.getResponseCode();
 			String responseMessage = connection.getResponseMessage();
 			String responseBody = IOUtils.toString(connection.getInputStream(), StandardCharsets.UTF_8);
-
+	
 			// create JSONObject from responseBody
 			JSONObject responseJSON = JSONObject.fromObject(responseBody);
-
+	
 			if ((responseCode >= 200) && (responseCode < 300)) {
-
+	
 				if (responseJSON.containsKey("viewer_url")) {
-					String viewerUrl = responseJSON.getString("viewer_url");
+					viewerUrl = responseJSON.getString("viewer_url");
 					log.info("Successfully retrieved viewer url: " + viewerUrl);
 					return viewerUrl;
 				} else {
@@ -299,11 +299,11 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 			}
 		} catch (Exception e) {
 			log.error(e.getLocalizedMessage());
-			;
 		}
-
-		return null;
+	
+		return viewerUrl;
 	}
+
 
 	public int getReviewScore(String contentId, String assignmentRef, String userId)
 			throws QueueException, ReportException, Exception {
@@ -434,6 +434,26 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 		} else {
 			throw new Exception("getSubmissionStatus invalid request: " + responseCode + ", " + responseMessage + ", "
 					+ responseBody);
+		}
+		// Handle possible error status
+		switch (status) {
+		case "UNSUPPORTED_FILETYPE":
+			throw new Error("The uploaded filetype is not supported");
+		case "PROCESSING_ERROR":
+			throw new Error("An unspecified error occurred while processing the submissions");
+		case "TOO_LITTLE_TEXT":
+			throw new Error(
+					"The submission does not have enough text to generate a Similarity Report (a submission must contain at least 20 words)");
+		case "TOO_MUCH_TEXT":
+			throw new Error(
+					"The submission has too much text to generate a Similarity Report (after extracted text is converted to UTF-8, the submission must contain less than 2MB of text)");
+		case "TOO_MANY_PAGES":
+			throw new Error(
+					"The submission has too many pages to generate a Similarity Report (a submission cannot contain more than 400 pages)");
+		case "FILE_LOCKED":
+			throw new Error("The uploaded file requires a password in order to be opened");
+		case "CORRUPT_FILE":
+			throw new Error("The uploaded file appears to be corrupt");
 		}
 
 		return status;
@@ -667,10 +687,8 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 				try {
 					// Get submission status, returns the state of the submission as string
 					String submissionStatus = getSubmissionStatus(item.getExternalId());
-					// Handle possible error status
-					String errorStr = null;
-					switch (submissionStatus) {
-					case "COMPLETE":
+					// Handle submission status
+					if ("COMPLETE".equals(submissionStatus)) {
 						// If submission status is complete, start similarity report process
 						generateSimilarityReport(item.getExternalId(), item.getTaskId().split("/")[4]);
 						// Update item status for loop 2
@@ -685,33 +703,16 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 						item.setNextRetryTime(cal.getTime());
 						crqs.update(item);
 						success++;
-					case "PROCESSING":
+					} else if ("PROCESSING".equals(submissionStatus)) {
 						// do nothing... try again
 						continue;
-					case "CREATED":
-						// do nothing... try again
+					} else if ("CREATED".equals(submissionStatus)) {
+						// do nothing... try again					
 						continue;
-					case "UNSUPPORTED_FILETYPE":
-						errorStr = "The uploaded filetype is not supported";
-					case "PROCESSING_ERROR":
-						errorStr = "An unspecified error occurred while processing the submissions";
-					case "TOO_LITTLE_TEXT":
-						errorStr = "The submission does not have enough text to generate a Similarity Report (a submission must contain at least 20 words)";
-					case "TOO_MUCH_TEXT":
-						errorStr = "The submission has too much text to generate a Similarity Report (after extracted text is converted to UTF-8, the submission must contain less than 2MB of text)";
-					case "TOO_MANY_PAGES":
-						errorStr = "The submission has too many pages to generate a Similarity Report (a submission cannot contain more than 400 pages)";
-					case "FILE_LOCKED":
-						errorStr = "The uploaded file requires a password in order to be opened";
-					case "CORRUPT_FILE":
-						errorStr = "The uploaded file appears to be corrupt";
-					case "ERROR":				
-						errorStr = "Submission returned with ERROR status";
-					default:
-						errorStr = "Unknown status " + submissionStatus;
-					}
-					if(StringUtils.isNotEmpty(errorStr)) {
-						item.setLastError(errorStr);
+					} else if ("ERROR".equals(submissionStatus)) {
+						throw new Error("Submission returned with ERROR status");
+					} else {
+						item.setLastError("SubmissionStatus " + submissionStatus);
 						item.setStatus(ContentReviewConstants.CONTENT_REVIEW_SUBMISSION_ERROR_NO_RETRY_CODE);
 						crqs.update(item);
 						errors++;
@@ -744,6 +745,8 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 					log.info("Report complete! Score: " + status);
 					// status is report score
 					item.setReviewScore(status);
+					getViewerUrl(item.getUserId(), item.getExternalId());
+					//TODO HANDLE THE GENERATED VIEWER URL					
 					item.setStatus(ContentReviewConstants.CONTENT_REVIEW_SUBMITTED_REPORT_AVAILABLE_CODE);
 					item.setDateReportReceived(new Date());
 					item.setRetryCount(Long.valueOf(0));
