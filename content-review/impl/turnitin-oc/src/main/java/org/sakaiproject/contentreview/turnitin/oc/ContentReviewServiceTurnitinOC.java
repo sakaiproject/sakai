@@ -358,7 +358,7 @@ public class ContentReviewServiceTurnitinOC implements ContentReviewService {
 		// Build JSON header maps
 		Map<String, Object> reportData = new HashMap<String, Object>();
 		Map<String, Object> generationSearchSettings = new HashMap<String, Object>();
-		generationSearchSettings.put("search_repositories", Arrays.asList(repositories));
+		generationSearchSettings.put("search_repositories", repositories);
 		reportData.put("generation_settings", generationSearchSettings);
 
 		Map<String, Object> viewSettings = new HashMap<String, Object>();
