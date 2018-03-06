@@ -239,19 +239,30 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 	}
 	
 	private String getViewerUrl(String userId, String contentId) {
+		
+		// Set variables
 		URL url = null;
 		HttpURLConnection connection = null;
 		DataOutputStream wr = null;
 		String viewerUrl = null;
+		
 		try {
 			
+			// Get current user
 			User user = userDirectoryService.getUser(userId);
 			Map<String, Object> data = new HashMap<String, Object>();
+			
+			// Set user name 			
 			data.put("given_name", user.getFirstName());
 			data.put("family_name", user.getLastName());
-			Locale userlocalePreference = preferencesService.getLocale(userId);
-			String lang = userlocalePreference == null ? "en" : userlocalePreference.getLanguage();		
-			data.put("locale", lang);
+			
+			// Check user preference for locale			
+			// If user has no preference set - get the system default
+			Locale locale = Optional.ofNullable(preferencesService.getLocale(userId))
+					.orElse(Locale.getDefault());
+						
+			// Set locale, getLanguage removes locale region
+			data.put("locale", locale.getLanguage());
 	
 			// Construct URL
 			url = new URL(getNormalizedServiceUrl() + "submissions/" + contentId + "/viewer-url");
@@ -574,8 +585,7 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 	}
 
 	// Queue service for processing student submissions
-	// Stage one creates a submission, uploads submission contents to TCA and sets
-	// item externalId
+	// Stage one creates a submission, uploads submission contents to TCA and sets item externalId
 	// Stage two starts similarity report process
 	// Stage three checks status of similarity reports and retrieves report score
 	// Loop 1 contains stage one and two, Loop 2 contains stage three
@@ -596,8 +606,7 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 				item.setRetryCount(Long.valueOf(0));
 				item.setNextRetryTime(cal.getTime());
 				crqs.update(item);
-				// If retry count is above maximum increment error count, set status to nine and
-				// stop retrying
+				// If retry count is above maximum increment error count, set status to nine and stop retrying
 			} else if (item.getRetryCount().intValue() > TURNITIN_MAX_RETRY) {
 				item.setStatus(ContentReviewConstants.CONTENT_REVIEW_SUBMISSION_ERROR_RETRY_EXCEEDED_CODE);
 				crqs.update(item);
@@ -642,7 +651,7 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 			// Get filename of submission
 			String fileName = resource.getProperties().getProperty(ResourceProperties.PROP_DISPLAY_NAME);
 			if (StringUtils.isEmpty(fileName)) {
-				// set default file name:
+				// Set default file name:
 				fileName = "submission_" + item.getUserId() + "_" + item.getSiteId();
 				log.info("Using Default Filename " + fileName);
 			}
@@ -740,10 +749,9 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 				// Returns -2 if an error occurs
 				// Else returns reports score as integer
 				int status = getSimilarityReportStatus(item.getExternalId());
-				if (status > -1) {
-					// SUCCESS
+				if (status > -1) {					
 					log.info("Report complete! Score: " + status);
-					// status is report score
+					// Status value is report score
 					item.setReviewScore(status);
 					getViewerUrl(item.getUserId(), item.getExternalId());
 					//TODO HANDLE THE GENERATED VIEWER URL					
@@ -772,8 +780,7 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 	}
 
 	public int getDelayTime(long retries) {
-		// exponential retry algorithm that caps the retries off at 36 hours (checking
-		// once every 4 hours max)
+		// exponential retry algorithm that caps the retries off at 36 hours (checking once every 4 hours max)
 		int minutes = (int) Math.pow(2, retries < TURNITIN_MAX_RETRY ? retries : 1); // built in check for max retries
 																						// to fail quicker
 		return minutes > TURNITIN_OC_MAX_RETRY_MINUTES ? TURNITIN_OC_MAX_RETRY_MINUTES : minutes;
@@ -861,7 +868,6 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 						"Turnitin - getReviewScore error called from getContentReviewItemByContentId with content {} - {}",
 						contentId, e.getMessage());
 			}
-
 			return item;
 		}
 		return null;
