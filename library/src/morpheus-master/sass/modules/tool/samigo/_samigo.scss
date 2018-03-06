@@ -18,7 +18,11 @@
 	#samigo-create-new-box, #samigo-create-import-box {
 		@extend .bs-callout-primary;
 		border-left-width: 1px;
-		margin-top: 0;
+		margin-top: 20px;
+	}
+
+	#samigo-create-or-box {
+		margin-top: 20px;
 	}
 
 	.samigo-question-callout {
@@ -242,6 +246,140 @@
 	
 	.navIntraTool {
 		margin: 0px !important;
+	}
+
+	.ui-autocomplete-input {
+		@extend .form-control;
+
+		width: initial;
+		max-width: initial;
+		display: inline-block;
+	}
+
+	.ui-corner-right {
+		height: 34px;
+		margin-top: -3px;
+		margin-left: -3px;
+	}
+
+	.dataTables_wrapper {
+		.dataTables_length {
+			float: left;
+
+			@media #{$phone}{
+				float: initial;
+			}
+		}
+
+		.dataTables_filter {
+			float: right;
+			text-align: right;
+
+			@media #{$phone}{
+				float: initial;
+				text-align: initial;
+			}
+
+			input {
+				@extend .form-control;
+
+				width: initial;
+				max-width: initial;
+				display: inline-block;
+				margin-left: 6px;
+			}
+		}
+
+		.dataTables_info {
+			clear: both;
+			float: left;
+		}
+
+		.dataTables_paginate {
+			float: right;
+			text-align: right;
+
+			> a.paginate_button {
+				@extend input[type="submit"];
+
+				&.disabled {
+					@extend input[type="submit"][disabled="disabled"];
+				}
+			}
+
+			span {
+				.paginate_button {
+					color: #333 !important;
+
+					@extend button;
+
+					&:hover {
+						color: #333 !important;
+					}
+
+					&.current {
+						@extend .btn-default:active:hover;
+					}
+				}
+
+				a.paginate_button {
+					@extend .btn-default;
+				}
+			}
+
+			.ellipsis {
+				margin-right: 10px;
+			}
+		}
+	}
+
+	.dataTable {
+		thead {
+			.sorting_asc, .sorting_desc {
+				a {
+					position: relative;
+					margin-right: 11px;
+
+					&::after {
+						content: " ";
+						width: 11px;
+						height: 11px;
+						position: absolute;
+						bottom: 2px;
+						right: -14px;
+					}
+				}
+			}
+
+			.sorting_asc {
+				a::after {
+					background: url(/library/image/sakai/sortascending.gif?panel=Main);
+				}
+			}
+
+			.sorting_desc {
+				a::after {
+					background: url(/library/image/sakai/sortdescending.gif?panel=Main);
+				}
+			}
+		}
+	}
+
+	#{'#authorIndexForm\\:remove-selected'} {
+		@extend button;
+
+		&.disabled {
+			@extend input[type="submit"][disabled="disabled"];
+			background: #f3f3f3;
+			border-color: #e7e7e7;
+			color: #717171 !important;
+
+			&:hover {
+				background: #f3f3f3;
+				border-color: #e7e7e7;
+				color: #717171 !important;
+			}
+		}
 	}
 
 }

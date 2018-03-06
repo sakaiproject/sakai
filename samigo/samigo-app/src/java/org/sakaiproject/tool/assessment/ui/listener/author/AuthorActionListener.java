@@ -94,6 +94,7 @@ public class AuthorActionListener
     GradingService gradingService = new GradingService();
     AuthorBean author = (AuthorBean) ContextUtil.lookupBean(
                        "author");
+    AuthorizationBean authorizationBean = (AuthorizationBean) ContextUtil.lookupBean("authorization");
     author.setProtocol(ContextUtil.getProtocol());
     
     //#1 - prepare active template list. Note that we only need the title. We don't need the
@@ -113,7 +114,7 @@ public class AuthorActionListener
     }
 
     author.setAssessCreationMode("1");
-    prepareAssessmentsList(author, assessmentService, gradingService, publishedAssessmentService);
+    prepareAssessmentsList(author, authorizationBean, assessmentService, gradingService, publishedAssessmentService);
    
     // UVa: per SAK-2438, add a check for the site property 'samigo.editPubAssessment.restricted'.
     //      If this site property exists (Admin user adds it per site), obey it.
@@ -173,12 +174,11 @@ public class AuthorActionListener
 	author.setEditPubAssessmentRestrictedAfterStarted(ServerConfigurationService.getBoolean("samigo.editPubAssessment.restricted.afterStart", false));
 	author.setRemovePubAssessmentsRestrictedAfterStarted(ServerConfigurationService.getBoolean("samigo.removePubAssessment.restricted.afterStart", false));
 
-	AuthorizationBean authorizationBean = (AuthorizationBean) ContextUtil.lookupBean("authorization");
 	author.setIsGradeable(authorizationBean.getGradeAnyAssessment() || authorizationBean.getGradeOwnAssessment());
 	author.setIsEditable(authorizationBean.getEditAnyAssessment() || authorizationBean.getEditOwnAssessment());
   }
 
-  public void prepareAssessmentsList(AuthorBean author, AssessmentService assessmentService, GradingService gradingService, PublishedAssessmentService publishedAssessmentService) {
+  public void prepareAssessmentsList(AuthorBean author, AuthorizationBean authorization, AssessmentService assessmentService, GradingService gradingService, PublishedAssessmentService publishedAssessmentService) {
 		// #2 - prepare core assessment list
 		author.setCoreAssessmentOrderBy(AssessmentFacadeQueries.TITLE);
 		List assessmentList = assessmentService.getBasicInfoOfAllActiveAssessments(
@@ -200,10 +200,10 @@ public class AuthorActionListener
 
 		List publishedAssessmentList = publishedAssessmentService.getBasicInfoOfAllPublishedAssessments2(
 				  PublishedAssessmentFacadeQueries.TITLE, true, AgentFacade.getCurrentSiteId());
-		prepareAllPublishedAssessmentsList(author, gradingService, publishedAssessmentList);
+		prepareAllPublishedAssessmentsList(author, authorization, gradingService, publishedAssessmentList);
   }
   
-  public void prepareAllPublishedAssessmentsList(AuthorBean author, GradingService gradingService, List publishedAssessmentList) {
+  public void prepareAllPublishedAssessmentsList(AuthorBean author, AuthorizationBean authorization, GradingService gradingService, List publishedAssessmentList) {
 	  try {
 		  Site site = SiteService.getSite(ToolManager.getCurrentPlacement().getContext());
 		  Set siteStudentRoles = site.getRolesIsAllowed(SectionAwareness.STUDENT_MARKER);
@@ -241,6 +241,14 @@ public class AuthorActionListener
 	  
 	  prepareRetractWarningText(author, (List) dividedPublishedAssessmentList.get(1));
 	  author.setPublishedAssessments(publishedAssessmentList);
+	  List allAssessments = new ArrayList<>();
+	  if (authorization.getEditAnyAssessment() || authorization.getEditOwnAssessment()) {
+	      allAssessments.addAll(author.getAssessments());
+	  }
+	  if (authorization.getGradeAnyAssessment() || authorization.getGradeOwnAssessment()) {
+	      allAssessments.addAll(publishedAssessmentList);
+	  }
+	  author.setAllAssessments(allAssessments);
   }
 
   public void prepareRetractWarningText(AuthorBean author, List inactivePublishedList) {

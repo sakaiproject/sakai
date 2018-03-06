@@ -53,7 +53,7 @@ public class NameListener implements ActionListener {
 	    if (null == assessmentTitle || "".equals(assessmentTitle.trim())) {
 	        String err1=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","assessmentName_empty");
 	        context.addMessage(null,new FacesMessage(err1));
-	        author.setOutcome("author");
+	        author.setOutcome("createAssessmentTitle");
 	        return;
 	    }
 	    

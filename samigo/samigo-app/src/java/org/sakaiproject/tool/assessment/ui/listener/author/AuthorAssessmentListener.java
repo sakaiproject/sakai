@@ -67,8 +67,16 @@ public class AuthorAssessmentListener
     FacesContext context = FacesContext.getCurrentInstance();
     AssessmentService assessmentService = new AssessmentService();
 
-    //#0 - permission checking before proceeding - daisyf
+    String action = ContextUtil.lookupParam("action");
+
     AuthorBean author = (AuthorBean) ContextUtil.lookupBean("author");
+
+    if ("create_assessment_title".equals(action)) {
+        author.setOutcome("createAssessmentTitle");
+        return;
+    }
+
+    //#0 - permission checking before proceeding - daisyf
     if ("2".equals(author.getAssessCreationMode())) {
     	NameListener nameListener = new NameListener();
     	nameListener.processAction(null);
@@ -107,13 +115,13 @@ public class AuthorAssessmentListener
     if (assessmentTitle!=null && (assessmentTitle.trim()).equals("")){
       String err1=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","assessmentName_empty");
       context.addMessage(null,new FacesMessage(err1));
-      author.setOutcome("author");
+      author.setOutcome("createAssessmentTitle");
       return;
     }
     if (!isUnique){
       String err=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","duplicateName_error");
       context.addMessage(null,new FacesMessage(err));
-      author.setOutcome("author");
+      author.setOutcome("createAssessmentTitle");
       return;
     }
 

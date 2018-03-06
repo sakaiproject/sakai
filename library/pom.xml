@@ -192,6 +192,12 @@
 			<version>3.0.0</version>
 			<scope>runtime</scope>
 		</dependency>
+		<dependency>
+			<groupId>org.webjars</groupId>
+			<artifactId>datatables</artifactId>
+			<version>1.10.16</version>
+			<scope>runtime</scope>
+		</dependency>
 	</dependencies>
 	<profiles>
 		<profile>

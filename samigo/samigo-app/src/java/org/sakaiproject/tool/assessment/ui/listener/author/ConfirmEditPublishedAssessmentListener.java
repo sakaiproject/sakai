@@ -38,7 +38,7 @@ public class ConfirmEditPublishedAssessmentListener  implements ActionListener {
 
 		AuthorBean author = (AuthorBean) ContextUtil.lookupBean("author");
 		author.setIsEditPendingAssessmentFlow(false);
-		String publishedAssessmentId = ContextUtil.lookupParam("publishedAssessmentId");
+		String publishedAssessmentId = ContextUtil.lookupParam("publishedId");
 		AssessmentBean assessmentBean = (AssessmentBean) ContextUtil.lookupBean("assessmentBean");
 
 		PublishedAssessmentService publishedAssessmentService = new PublishedAssessmentService();
