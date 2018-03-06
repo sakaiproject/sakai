@@ -12,6 +12,8 @@
          <property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService" />
          <property name="entityManager" ref="org.sakaiproject.entity.api.EntityManager" />
          <property name="securityService" ref="org.sakaiproject.authz.api.SecurityService" />
+         <property name="assignmentService" ref="org.sakaiproject.assignment.api.AssignmentService" />
+         <property name="preferencesService" ref="org.sakaiproject.user.api.PreferencesService" />
          <property name="siteService" ref="org.sakaiproject.site.api.SiteService" />
          <property name="crqs" ref="org.sakaiproject.contentreview.service.ContentReviewQueueService" />
          <property name="contentHostingService" ref="org.sakaiproject.content.api.ContentHostingService" />
