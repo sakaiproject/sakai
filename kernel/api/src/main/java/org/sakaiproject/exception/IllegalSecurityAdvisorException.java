@@ -1,4 +1,4 @@
-package org.sakaiproject.authz.api;
+package org.sakaiproject.exception;
 
 public class IllegalSecurityAdvisorException extends RuntimeException {
 
