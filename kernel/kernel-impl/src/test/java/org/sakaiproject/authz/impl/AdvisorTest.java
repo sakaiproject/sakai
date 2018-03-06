@@ -20,7 +20,7 @@ import static org.junit.Assert.fail;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.sakaiproject.authz.api.SecurityAdvisor;
-import org.sakaiproject.authz.api.IllegalSecurityAdvisorException;
+import org.sakaiproject.exception.IllegalSecurityAdvisorException;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.test.SakaiKernelTestBase;
 
