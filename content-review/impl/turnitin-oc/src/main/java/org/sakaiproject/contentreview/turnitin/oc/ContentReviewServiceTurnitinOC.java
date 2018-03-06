@@ -435,26 +435,6 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 			throw new Exception("getSubmissionStatus invalid request: " + responseCode + ", " + responseMessage + ", "
 					+ responseBody);
 		}
-		// Handle possible error status
-		switch (status) {
-		case "UNSUPPORTED_FILETYPE":
-			throw new Error("The uploaded filetype is not supported");
-		case "PROCESSING_ERROR":
-			throw new Error("An unspecified error occurred while processing the submissions");
-		case "TOO_LITTLE_TEXT":
-			throw new Error(
-					"The submission does not have enough text to generate a Similarity Report (a submission must contain at least 20 words)");
-		case "TOO_MUCH_TEXT":
-			throw new Error(
-					"The submission has too much text to generate a Similarity Report (after extracted text is converted to UTF-8, the submission must contain less than 2MB of text)");
-		case "TOO_MANY_PAGES":
-			throw new Error(
-					"The submission has too many pages to generate a Similarity Report (a submission cannot contain more than 400 pages)");
-		case "FILE_LOCKED":
-			throw new Error("The uploaded file requires a password in order to be opened");
-		case "CORRUPT_FILE":
-			throw new Error("The uploaded file appears to be corrupt");
-		}
 
 		return status;
 	}
@@ -687,8 +667,10 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 				try {
 					// Get submission status, returns the state of the submission as string
 					String submissionStatus = getSubmissionStatus(item.getExternalId());
-					// Handle submission status
-					if ("COMPLETE".equals(submissionStatus)) {
+					// Handle possible error status
+					String errorStr = null;
+					switch (submissionStatus) {
+					case "COMPLETE":
 						// If submission status is complete, start similarity report process
 						generateSimilarityReport(item.getExternalId(), item.getTaskId().split("/")[4]);
 						// Update item status for loop 2
@@ -703,17 +685,33 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 						item.setNextRetryTime(cal.getTime());
 						crqs.update(item);
 						success++;
-					} else if ("PROCESSING".equals(submissionStatus)) {
+					case "PROCESSING":
 						// do nothing... try again
 						continue;
-					} else if ("CREATED".equals(submissionStatus)) {
+					case "CREATED":
 						// do nothing... try again
-						// TODO does this need to be handled differently?
 						continue;
-					} else if ("ERROR".equals(submissionStatus)) {
-						throw new Error("Submission returned with ERROR status");
-					} else {
-						item.setLastError("SubmissionStatus " + submissionStatus);
+					case "UNSUPPORTED_FILETYPE":
+						errorStr = "The uploaded filetype is not supported";
+					case "PROCESSING_ERROR":
+						errorStr = "An unspecified error occurred while processing the submissions";
+					case "TOO_LITTLE_TEXT":
+						errorStr = "The submission does not have enough text to generate a Similarity Report (a submission must contain at least 20 words)";
+					case "TOO_MUCH_TEXT":
+						errorStr = "The submission has too much text to generate a Similarity Report (after extracted text is converted to UTF-8, the submission must contain less than 2MB of text)";
+					case "TOO_MANY_PAGES":
+						errorStr = "The submission has too many pages to generate a Similarity Report (a submission cannot contain more than 400 pages)";
+					case "FILE_LOCKED":
+						errorStr = "The uploaded file requires a password in order to be opened";
+					case "CORRUPT_FILE":
+						errorStr = "The uploaded file appears to be corrupt";
+					case "ERROR":				
+						errorStr = "Submission returned with ERROR status";
+					default:
+						errorStr = "Unknown status " + submissionStatus;
+					}
+					if(StringUtils.isNotEmpty(errorStr)) {
+						item.setLastError(errorStr);
 						item.setStatus(ContentReviewConstants.CONTENT_REVIEW_SUBMISSION_ERROR_NO_RETRY_CODE);
 						crqs.update(item);
 						errors++;
