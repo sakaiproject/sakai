@@ -1280,7 +1280,7 @@ public class GradingService
       // Send the average score if average was selected for multiple submissions
       else if (scoringType.equals(EvaluationModelIfc.AVERAGE_SCORE)) {
         // status = 5: there is no submission but grader update something in the score page
-        if(data.getStatus() ==5) {
+        if(data.getStatus() == AssessmentGradingData.NO_SUBMISSION) {
           d.setFinalScore(data.getFinalScore());
         } else {
           Double averageScore = PersistenceService.getInstance().getAssessmentGradingFacadeQueries().
