@@ -21,9 +21,6 @@
 
 package org.sakaiproject.content.impl;
 
-import com.ibm.icu.text.CharsetDetector;
-import com.ibm.icu.text.CharsetMatch;
-
 import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.FileInputStream;
@@ -79,6 +76,8 @@ import org.apache.tika.detect.DefaultDetector;
 import org.apache.tika.detect.Detector;
 import org.apache.tika.mime.MimeTypes;
 
+import org.apache.tika.parser.txt.CharsetDetector;
+import org.apache.tika.parser.txt.CharsetMatch;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;

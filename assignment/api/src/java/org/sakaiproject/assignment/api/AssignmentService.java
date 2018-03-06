@@ -88,6 +88,15 @@ public interface AssignmentService extends EntityProducer {
     public boolean allowAddAssignment(String context);
 
     /**
+     * Check permissions for updating an Assignment based on context.
+     *
+     * @param context -
+     *                Describes the portlet context - generated with DefaultId.getChannel().
+     * @return True if the current User is allowed to update assignments, false if not.
+     */
+    public boolean allowUpdateAssignmentInContext(String context);
+
+    /**
      * Check if the user has permission to add a site-wide (not grouped) assignment.
      *
      * @param context -
@@ -95,6 +104,15 @@ public interface AssignmentService extends EntityProducer {
      * @return true if the user has permission to add a channel-wide (not grouped) assignment.
      */
     boolean allowAddSiteAssignment(String context);
+
+    /**
+     * Check permissions for removing an Assignment.
+     *
+     * @param context -
+     *                Describes the portlet context - generated with DefaultId.getChannel().
+     * @return True if the current User is allowed to remove an Assignment, false if not.
+     */
+    public boolean allowRemoveAssignmentInContext(String context);
 
     /**
      * Check permissions for all.groups.
@@ -122,6 +140,15 @@ public interface AssignmentService extends EntityProducer {
      * @return The Collection (Group) of groups defined for the context of this site that the end user has add assignment permissions in, empty if none.
      */
     public Collection<Group> getGroupsAllowAddAssignment(String context);
+
+    /**
+     * Get the collection of Groups defined for the context of this site that the end user has update assignment permissions in.
+     *
+     * @param context -
+     *                Describes the portlet context - generated with DefaultId.getChannel().
+     * @return The Collection (Group) of groups defined for the context of this site that the end user has update assignment permissions in, empty if none.
+     */
+    public Collection<Group> getGroupsAllowUpdateAssignment(String context);
 
     /**
      * Get the collection of Groups defined for the context of this site that the end user has grade assignment permissions in.

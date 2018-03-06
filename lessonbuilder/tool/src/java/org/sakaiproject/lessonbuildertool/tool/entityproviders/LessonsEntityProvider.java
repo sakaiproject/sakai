@@ -434,16 +434,27 @@ public class LessonsEntityProvider extends AbstractEntityProvider implements Ent
 
 		for (SimplePage topLevelPage : topLevelPages) {
 			final List<SimplePageItem> itemsOnPage = simplePageToolDao.findItemsOnPage(topLevelPage.getPageId());
+			final JSONObject pageData = new JSONObject();
 			final JSONArray inaccessibleItems = new JSONArray();
+			final JSONArray invisibleItems = new JSONArray();
+
+			if (!itemsOnPage.isEmpty())
+				simplePageBean = makeSimplePageBean(null, siteId, itemsOnPage.get(0));
 
 			for (SimplePageItem item : itemsOnPage) {
-				simplePageBean = makeSimplePageBean(simplePageBean, siteId, item);
-				if (!lessonsAccess.isItemAccessible(item.getId(), siteId, currentUserId, simplePageBean)) {
+
+				if (!simplePageBean.isItemVisible(item, null, false)) {
+					invisibleItems.add(String.valueOf(item.getId()));
+				}
+				if (!simplePageBean.isItemAvailable(item, topLevelPage.getPageId())) {
 					inaccessibleItems.add(String.valueOf(item.getId()));
 				}
 			}
 
-			result.put(topLevelPage.getToolId(), inaccessibleItems);
+			pageData.put("invisible", invisibleItems);
+			pageData.put("unavailable", inaccessibleItems);
+			
+			result.put(topLevelPage.getToolId(), pageData);
 		}
 
 		return result.toJSONString();

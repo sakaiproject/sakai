@@ -8,6 +8,12 @@ $(function () {
     target.append(leftPane);
     target.append(rightPane);
 
+    var decodeEntities = function(encodedString) {
+        var textArea = document.createElement('textarea');
+        textArea.innerHTML = encodedString;
+        return textArea.value;
+    };
+    
     // Group sites by term with appropriate checkboxes
     $('.term', '#sitesByTerm').each(function (i, term) {
         var title = $('h2', term);
@@ -15,8 +21,8 @@ $(function () {
         var sites = $('.site', term).map(function () {
             return {
                 siteid: $(this).find('.site-id').text(),
-                title: $(this).find('.site-title').text(),
-                description: $(this).find('.site-short-description').text(),
+                title: decodeEntities($(this).find('.site-title').text()),
+                description: decodeEntities($(this).find('.site-short-description').text()),
                 tooltip: $(this).find('.site-titleFull').text()
             };
         }).toArray();

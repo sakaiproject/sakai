@@ -27,6 +27,8 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.StringResourceModel;
 import org.apache.wicket.validation.validator.StringValidator;
+
+import org.sakaiproject.gradebookng.business.importExport.CommentValidator;
 import org.sakaiproject.gradebookng.business.model.GbUser;
 import org.sakaiproject.gradebookng.tool.component.GbAjaxButton;
 import org.sakaiproject.service.gradebook.shared.Assignment;
@@ -68,11 +70,11 @@ public class EditGradeCommentPanel extends BasePanel {
 		// form model
 		final GradeComment gradeComment = new GradeComment();
 		gradeComment.setGradeComment(this.comment);
-		final CompoundPropertyModel<GradeComment> formModel = new CompoundPropertyModel<GradeComment>(gradeComment);
+		final CompoundPropertyModel<GradeComment> formModel = new CompoundPropertyModel<>(gradeComment);
 
 		// build form
 		// modal window forms must be submitted via AJAX so we do not specify an onSubmit here
-		final Form<GradeComment> form = new Form<GradeComment>("form", formModel);
+		final Form<GradeComment> form = new Form<>("form", formModel);
 
 		final GbAjaxButton submit = new GbAjaxButton("submit") {
 			private static final long serialVersionUID = 1L;
@@ -120,8 +122,8 @@ public class EditGradeCommentPanel extends BasePanel {
 						new Object[] { user.getDisplayName(), user.getDisplayId(), assignment.getName() })).getString());
 
 		// textarea
-		form.add(new TextArea<String>("comment", new PropertyModel<String>(formModel, "gradeComment"))
-				.add(StringValidator.maximumLength(500)));
+		form.add(new TextArea<>("comment", new PropertyModel<>(formModel, "gradeComment"))
+				.add(StringValidator.maximumLength(CommentValidator.MAX_COMMENT_LENGTH)));
 
 		// instant validation
 		// AjaxFormValidatingBehavior.addToAllFormComponents(form, "onkeyup", Duration.ONE_SECOND);

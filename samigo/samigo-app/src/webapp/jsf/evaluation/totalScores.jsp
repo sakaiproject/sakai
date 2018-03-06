@@ -85,7 +85,7 @@ $(document).ready(function(){
     this.existingOnclick = this.onclick;
     this.onclick = null;
     $(this).click(function(){
-      if ( confirm("Are you sure you want to delete this attempt?") ) {
+    	if ( confirm("<h:outputText value="#{commonMessages.confirm_delete_attempt}" escape="false"/>") ) {
         this.existingOnclick();
       } else {
         return false;
@@ -305,14 +305,14 @@ $(document).ready(function(){
 	<!-- Add Submission Attempt Deleter-->
 	<h:column rendered="true">
      <f:facet name="header">
-       <h:outputText value="Delete" rendered="true" />
+       <h:outputText value="#{commonMessages.delete}" rendered="true" />
      </f:facet>
      <h:panelGroup> <span class="tier2">
        <h:outputText value="<a name=\"" escape="false" />
        <h:outputText value="#{description.lastInitial}" />
        <h:outputText value="\"></a>" escape="false" />
 
-       <h:commandLink styleClass="sam-scoretable-deleteattempt" title="delete attempt" action="totalScores" immediate="true" rendered="true" >
+       <h:commandLink styleClass="sam-scoretable-deleteattempt" title="#{commonMessages.delete_attempt}" action="totalScores" immediate="true" rendered="true" >
          <h:outputText value="X" rendered="#{description.submittedDate!=null &&  description.assessmentGradingId ne '-1'}" />
          <f:actionListener  type="org.sakaiproject.tool.assessment.ui.listener.evaluation.GrantSubmissionListener" />
          <f:actionListener  type="org.sakaiproject.tool.assessment.ui.listener.evaluation.ResetTotalScoreListener" />

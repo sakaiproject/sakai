@@ -206,7 +206,7 @@
                   <f:selectItem itemValue="true" itemLabel="#{msgs.cdfm_forum_avail_date}"/>
                </h:selectOneRadio>
                </h:panelGroup>
-               <h:panelGroup id="openDateSpan" styleClass="checkbox indnt2 openDateSpan calWidget" style="display: #{ForumTool.selectedForum.availabilityRestricted ? '' : 'none'}">
+               <h:panelGroup id="openDateSpan" styleClass="indnt2 openDateSpan calWidget" style="display: #{ForumTool.selectedForum.availabilityRestricted ? 'block' : 'none'}">
                	   <h:outputLabel value="#{msgs.openDate}: " for="openDate"/>
 
 	               <h:inputText id="openDate" styleClass="openDate" value="#{ForumTool.selectedForum.openDate}"/>
