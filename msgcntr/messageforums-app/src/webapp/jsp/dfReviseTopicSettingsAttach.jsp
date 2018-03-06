@@ -44,7 +44,50 @@
 	function closeDateCal(){
 		NewCal('revise:closeDate','MMDDYYYY',true,12, '<h:outputText value="#{ForumTool.defaultAvailabilityTime}"/>');	
 	}
+
+	// locate and record SELECT dom nodes with Contributor OPTIONs initially SELECTED
+	function primeAutoCreate() {
+		if (window.originalContributors) {
+			return; // prime only once
+		}
+		window.originalContributors = [];
+
+		// detect which SELECTs will have their value saved.  do detection only once, on page load ...
+		$("span.permissionRow > span > select").each(function() {
+			if ( $(this).children("option:selected[value='Contributor']").length === 1 ) {
+				window.originalContributors.push( { selectNode: $(this), optionNode: null } );
+				// ... though specific optionNode to track is not known until each toggle.
+			}
+		});
+	}
+
 	function setAutoCreatePanel(radioButton) {
+		var selectNode, optionsNowSelected, noneOptions, originalContributor;
+		primeAutoCreate(); // will be no-op after first call
+		for (originalContributor of window.originalContributors) {
+			selectNode = originalContributor.selectNode;
+			if (originalContributor.optionNode === null) {
+				// transition from "Create one topic" to "Automatically create multiple topics for groups"
+				optionsNowSelected = $(selectNode).children("option:selected");
+				noneOptions = $(selectNode).children("option[value='None']");
+				if (optionsNowSelected.length === 1 && noneOptions.length === 1) {
+					originalContributor.optionNode = optionsNowSelected;
+					$(optionsNowSelected).prop("selected", false);
+					$(noneOptions).prop("selected", "selected");
+					setCorrespondingCheckboxes( $(selectNode).attr("id") );
+				}
+			} else {
+				// transition from "Automatically create multiple topics for groups" to "Create one topic"
+				optionsNowSelected = $(selectNode).children("option:selected");
+				if (optionsNowSelected.length === 1 && originalContributor.optionNode !== null) {
+					$(optionsNowSelected).prop("selected", false);
+					$(originalContributor.optionNode).prop("selected", "selected");
+					originalContributor.optionNode = null;
+					setCorrespondingCheckboxes( $(selectNode).attr("id") );
+				}
+			}
+		}
+
 		$(".createOneTopicPanel").slideToggle("fast");
 		$(".createTopicsForGroupsPanel").slideToggle("fast");
 	}
