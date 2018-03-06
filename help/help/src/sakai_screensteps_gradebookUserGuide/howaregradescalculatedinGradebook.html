@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<title>How do I enable student peer review for an assignment?</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta content="sakai.assignment" name="description">
+<meta content="peer review, peer assessment, peer evaluation" name="search">
+<link href="/library/skin/tool_base.css" media="screen" rel="stylesheet" type="text/css" charset="utf-8">
+<link href="../css/help.css" media="screen" rel="stylesheet" type="text/css" charset="utf-8">
+<link href="/library/skin/morpheus-default/tool.css" media="screen" rel="stylesheet" type="text/css" charset="utf-8">
+<link href="/library/js/jquery/featherlight/0.4.0/featherlight.min.css" media="screen" rel="stylesheet" type="text/css" charset="utf-8">
+<script src="/library/webjars/jquery/1.12.4/jquery.min.js" type="text/javascript" charset="utf-8"></script><script src="/library/js/jquery/featherlight/0.4.0/featherlight.min.js" type="text/javascript" charset="utf-8"></script><script type="text/javascript" charset="utf-8">
+    $(document).ready(function(){
+      $("a[rel^='featherlight']").featherlight({
+        type: { image:true },
+    closeOnClick: 'anywhere'
+      }); 
+    });   
+  </script>
+</head>
+<body>
+  <div id="wrapper"><div id="article-content">
+<div id="article-header"><h1 class="article-title">How are grades calculated in Gradebook?</h1></div>
+<div id="article-description">
+  <div class="step-instructions screensteps-textblock screensteps-wrapper--introduction screensteps-wrapper">
+  <p>Gradebook automatically calculates a course grade based on the number of points scored out of the total points submitted (i.e., a running grade). Ungraded items will not be included in the course grade calculation, so the course grade will not necessarily reflect the student's true score. To include ungraded items in the course grade calculation, you need to enter a 0 (zero) for those items.</p>
+<p>To exclude a gradebook item from the course grade, you can edit the gradebook item and deselect<strong> Include this item in course grade calculations</strong>. The score for that item will appear in parentheses to indicate that it is not included in the course grade calculation.</p>
+<p>Extra credit points are excluded from the total possible points available, but included in student grade calculations for points awarded. See <a rel="nofollow" href="../../50750/l/506737-how-does-extra-credit-work-in-gradebook" target="_blank">How does extra credit work in Gradebook?</a> for more information on extra credit gradebook items and categories.</p>
+<p><em>Note: Students can't see their grades for an item unless you select<strong> Release this item to students</strong> when editing the gradebook item.</em></p>
+</div>
+
+
+  
+  <div class="step screensteps-section screensteps-depth-1" id="example-of-a-non-weighted-gradebook-calculation">
+    <h2 id="example-of-a-non-weighted-gradebook-calculation" class="step-title screensteps-heading">Example of a non-weighted gradebook calculation:</h2>
+    
+      <div class="step-instructions screensteps-textblock">
+  <p>If your gradebook does not have weighted categories, the calculation is relatively simple. The Course Grade is the total number of points awarded divided by the total points possible. Let's look at an example of this below.</p>
+</div>
+
+    
+      
+  <div class="step screensteps-section screensteps-depth-2" id="assignment-is-worth-50-points">
+    <h3 id="assignment-is-worth-50-points" class="step-title screensteps-heading">Assignment is worth 50 points.</h3>
+    
+      <div class="image screensteps-image">
+  
+  
+    <img src="https://s3.amazonaws.com/screensteps_live/image_assets/assets/001/311/649/original/630ba7a3-adb2-4adb-b3ab-8b36b969f67e.png" alt="Assignment is worth 50 points." height="445" width="582">
+  
+</div>
+
+    
+      <div class="step-instructions screensteps-textblock">
+  <p>In this example, the Assignment has a total points possible of 50 points.</p>
+</div>
+
+    
+  </div>
+
+
+    
+      
+  <div class="step screensteps-section screensteps-depth-2" id="only-assignment-has-been-graded">
+    <h3 id="only-assignment-has-been-graded" class="step-title screensteps-heading">Only Assignment has been graded.</h3>
+    
+      <div class="image screensteps-image">
+  
+  
+    <a rel="nofollow" href="https://s3.amazonaws.com/screensteps_live/image_assets/assets/001/311/651/original/46b2c250-cc28-440b-b018-aa25fedfc024.png" class="screensteps-image-zoom">
+      <img src="https://s3.amazonaws.com/screensteps_live/image_assets/assets/001/311/651/medium/46b2c250-cc28-440b-b018-aa25fedfc024.png" alt="Only Assignments has been graded." height="227" width="855">
+    </a>
+  
+</div>
+
+    
+      <div class="step-instructions screensteps-textblock">
+  <p>Notice the scores for each student.</p>
+<ul>
+<li>student01 has a course grade of 70%. This grade is based on 35 out of 50 points on Assignment. </li>
+<li>student02 has a course grade of 80%. This grade is based on 40 out of 50 points on Assignment. </li>
+<li>student03  has a course grade of 90%. This grade is based on 45 out of 50 points on Assignment. </li>
+</ul>
+<p>The Homework and Quiz are not calculated in the course grade since they have not been assigned any scores.</p>
+</div>
+
+    
+  </div>
+
+
+    
+      
+  <div class="step screensteps-section screensteps-depth-2" id="homework-is-worth-100-points">
+    <h3 id="homework-is-worth-100-points" class="step-title screensteps-heading">Homework is worth 100 points.</h3>
+    
+      <div class="image screensteps-image">
+  
+  
+    <img src="https://s3.amazonaws.com/screensteps_live/image_assets/assets/001/311/657/original/917a6742-8b18-4c96-8c39-03d4cacd4398.png" alt="Homework is worth 100 points." height="446" width="582">
+  
+</div>
+
+    
+  </div>
+
+
+    
+      
+  <div class="step screensteps-section screensteps-depth-2" id="cumulative-grades-after-homework-is-graded">
+    <h3 id="cumulative-grades-after-homework-is-graded" class="step-title screensteps-heading">Cumulative grades after Homework is graded.</h3>
+    
+      <div class="image screensteps-image">
+  
+  
+    <a rel="nofollow" href="https://s3.amazonaws.com/screensteps_live/image_assets/assets/001/311/653/original/309ce275-c07d-4fa6-aa15-158d87c4fbd5.png" class="screensteps-image-zoom">
+      <img src="https://s3.amazonaws.com/screensteps_live/image_assets/assets/001/311/653/medium/309ce275-c07d-4fa6-aa15-158d87c4fbd5.png" alt="Cumulative grades after Homework is graded." height="240" width="855">
+    </a>
+  
+</div>
+
+    
+      <div class="step-instructions screensteps-textblock">
+  <p>Now, notice the updated course grades for each student. The scores for Assignment and Homework are added together, and then they are divided by the total possible points for those two items combined.</p>
+<ul>
+<li>student01 has a course grade of 83.33%. This grade is based on the following calculation:  (35 + 90) / 150 = 83.33%</li>
+<li>student02 has a course grade of 80%. This grade is based on the following calculation:  (40 + 80) / 150 = 80%</li>
+<li>student03 has a course grade of 76.67%. This grade is based on the following calculation:  (45 + 70) / 150 = 76.67%</li>
+</ul>
+</div>
+
+    
+  </div>
+
+
+    
+      
+  <div class="step screensteps-section screensteps-depth-2" id="not-all-quizzes-have-been-submitted">
+    <h3 id="not-all-quizzes-have-been-submitted" class="step-title screensteps-heading">Not all Quizzes have been submitted.</h3>
+    
+      <div class="image screensteps-image">
+  
+  
+    <a rel="nofollow" href="https://s3.amazonaws.com/screensteps_live/image_assets/assets/001/311/655/original/2d443c7c-f769-40f9-bbef-8f64291b8a91.png" class="screensteps-image-zoom">
+      <img src="https://s3.amazonaws.com/screensteps_live/image_assets/assets/001/311/655/medium/2d443c7c-f769-40f9-bbef-8f64291b8a91.png" alt="Not all Quizzes have been submitted." height="237" width="855">
+    </a>
+  
+</div>
+
+    
+      <div class="step-instructions screensteps-textblock">
+  <p>Only the grades that have been entered are calculated. Student01 has not submitted a quiz, so her grade is still (90 + 35) / 150 or 83.33%. </p>
+<p>The other students have submitted quizzes. Quizzes are worth 25 points. so their scores are:</p>
+<ul>
+<li>student02 (40 + 80 + 24) / 175 = 82.29% </li>
+<li>student03 (45 + 70 + 25) / 175 = 80%</li>
+</ul>
+</div>
+
+    
+  </div>
+
+
+    
+      
+  <div class="step screensteps-section screensteps-depth-2" id="the-student-did-not-submit-the-quiz">
+    <h3 id="the-student-did-not-submit-the-quiz" class="step-title screensteps-heading">The student did not submit the quiz.</h3>
+    
+      <div class="image screensteps-image">
+  
+  
+    <a rel="nofollow" href="https://s3.amazonaws.com/screensteps_live/image_assets/assets/001/311/659/original/4001a08e-1372-4005-babd-54b08a23d677.png" class="screensteps-image-zoom">
+      <img src="https://s3.amazonaws.com/screensteps_live/image_assets/assets/001/311/659/medium/4001a08e-1372-4005-babd-54b08a23d677.png" alt="The student did not submit the quiz." height="238" width="855">
+    </a>
+  
+</div>
+
+    
+      <div class="step-instructions screensteps-textblock">
+  <p>Since student01 did not turn in the quiz and was assigned a zero on that item by the instructor, now the grade is (90 + 35) / 175 = 71.43%</p>
+</div>
+
+    
+  </div>
+
+
+    
+  </div>
+
+
+
+  
+  <div class="step screensteps-section screensteps-depth-1" id="example-of-a-weighted-gradebook-calculation">
+    <h2 id="example-of-a-weighted-gradebook-calculation" class="step-title screensteps-heading">Example of a weighted gradebook calculation:</h2>
+    
+      <div class="step-instructions screensteps-textblock">
+  <p>On the other hand, if you have weighted categories in your gradebook, the calculation is a little more complex. First, all of the items within each category are averaged, taking the total points awarded within the category, and dividing that by the total possible points within the category. Then, all category averages are multiplied by the category weighting and added together to determine the final score.  </p>
+<p>The example below shows the grade for an individual student in a weighted gradebook with three categories: Assignments (50% of course grade), Discussions (20% of course grade), and Quizzes (30% of course grade).</p>
+</div>
+
+    
+      
+  <div class="step screensteps-section screensteps-depth-2" id="student01-course-grade-with-ungraded-items">
+    <h3 id="student01-course-grade-with-ungraded-items" class="step-title screensteps-heading">Student01 course grade with ungraded items.</h3>
+    
+      <div class="image screensteps-image">
+  
+  
+    <a rel="nofollow" href="https://s3.amazonaws.com/screensteps_live/image_assets/assets/001/311/553/original/7f22900a-42f1-4bf2-ab80-36d65d3e9f0e.png" class="screensteps-image-zoom">
+      <img src="https://s3.amazonaws.com/screensteps_live/image_assets/assets/001/311/553/medium/7f22900a-42f1-4bf2-ab80-36d65d3e9f0e.png" alt="Student01 course grade with ungraded items." height="717" width="855">
+    </a>
+  
+</div>
+
+    
+      <div class="step-instructions screensteps-textblock">
+  <p>In this example, student01 has not received a score for Assignment 3, Quiz 2, or Quiz 3. Those three items and their associated possible points are automatically excluded from the grade calculation. Therefore, the grade is calculated as follows:</p>
+<p>Average within each category = total of awarded points divided by total possible points</p>
+<ul>
+<li>Assignments = (80 + 90) / 200 = 0.85 or 85%</li>
+<li>Discussions = (10 + 10 +10) / 30 = 1 or 100%</li>
+<li>Quizzes = 13 / 20 = 0.65 or 65%</li>
+</ul>
+<p>Weighted course grade = category averages multiplied by category weighting and added together</p>
+<ul><li>(0.85 x 50) + (1 x 20) + (0.65 x 30) = 82%</li></ul>
+</div>
+
+    
+  </div>
+
+
+    
+      
+  <div class="step screensteps-section screensteps-depth-2" id="demostudent01-with-no-ungraded-items">
+    <h3 id="demostudent01-with-no-ungraded-items" class="step-title screensteps-heading">Student01 with no ungraded items.</h3>
+    
+      <div class="image screensteps-image">
+  
+  
+    <a rel="nofollow" href="https://s3.amazonaws.com/screensteps_live/image_assets/assets/001/311/562/original/2e2ba83c-ae07-4472-ba0f-64c08b7c547a.png" class="screensteps-image-zoom">
+      <img src="https://s3.amazonaws.com/screensteps_live/image_assets/assets/001/311/562/medium/2e2ba83c-ae07-4472-ba0f-64c08b7c547a.png" alt="Demostudent01 with no ungraded items." height="719" width="855">
+    </a>
+  
+</div>
+
+    
+      <div class="step-instructions screensteps-textblock">
+  <p>Now, demostudent01 has received grades for all items, including a zero for Quiz 3 which the student failed to submit. The grade is recalculated as follows:</p>
+<p>Average within each category = total of awarded points divided by total possible points</p>
+<ul>
+<li>Assignments = (80 + 90 + 100) / 300 = 0.90 or 90%</li>
+<li>Discussions = (10 + 10 +10) / 30 = 1 or 100%</li>
+<li>Quizzes = (13 + 15 + 0) / 60 = 0.46 or 46%</li>
+</ul>
+<p>Weighted course grade = category averages multiplied by category weighting and added together</p>
+<ul><li>(0.90 x 50) + (1 x 20) + (0.46 x 30) = 79%</li></ul>
+</div>
+
+    
+  </div>
+
+
+    
+  </div>
+
+
+
+  
+  <div class="step screensteps-section screensteps-depth-1" id="setting-all-ungraded-items-to-zero">
+    <h2 id="setting-all-ungraded-items-to-zero" class="step-title screensteps-heading">Setting all ungraded items to zero.</h2>
+    
+      <div class="image screensteps-image">
+  
+  
+    <img src="https://s3.amazonaws.com/screensteps_live/image_assets/assets/001/311/683/original/47fb886b-df51-4005-b150-d727f2626fc0.png" alt="Setting all ungraded items to zero." height="179" width="357">
+  
+</div>
+
+    
+      <div class="step-instructions screensteps-textblock">
+  <p>If you would like to enter zeros for all ungraded items in the course, select the down arrow in the <strong>Course Grade</strong> column and then select the <strong>Set Zero Score for Empty Cells</strong> option to update all items at once.</p>
+<p><em>Note: This option should be used with caution, as it will enter a zero for any items not yet scored. It is best used at the end of the term after all submitted work has been graded.</em></p>
+</div>
+
+    
+  </div>
+
+
+
+</div>
+</div></div>
+</body>
+</html>
