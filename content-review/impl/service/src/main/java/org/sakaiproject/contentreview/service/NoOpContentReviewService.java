@@ -15,6 +15,7 @@
  */
 package org.sakaiproject.contentreview.service;
 
+import java.time.Instant;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -33,7 +34,7 @@ import org.sakaiproject.site.api.Site;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-public class NoOpContentReviewService implements ContentReviewService {
+public class NoOpContentReviewService extends BaseContentReviewService {
 	private static final String SERVICE_NAME = "No Operation";
 
 	@Override
@@ -240,5 +241,32 @@ public class NoOpContentReviewService implements ContentReviewService {
 		ContentReviewItem ret = null;
 		log.debug("{} getContentReviewItemByContentId {}", ret, contentId);
 		return ret;
+	}
+
+	@Override
+	public String getEndUserLicenseAgreementLink() {
+		String ret = "There is no content review service configured, please see your administrator";
+		log.debug("{} getEndUserLicenseAgreementLink", ret);
+		return null;
+	}
+
+	@Override
+	public Instant getEndUserLicenseAgreementTimestamp() {
+		String ret = "There is no content review service configured, please see your administrator";
+		log.debug("{} getEndUserLicenseAgreementTimestamp", ret);
+		return null;
+	}
+	
+	@Override
+	public Instant getUserEULATimestamp(String userId) {
+		String ret = "There is no content review service configured, please see your administrator";
+		log.debug("{} getUserEULATimestamp {}", ret, userId);
+		return null;
+	}
+	
+	@Override
+	public void updateUserEULATimestamp(String userId) {
+		String ret = "There is no content review service configured, please see your administrator";
+		log.debug("{} updateUserEULATimestamp {}", ret, userId);
 	}
 }

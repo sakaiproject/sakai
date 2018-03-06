@@ -19,6 +19,7 @@ package org.sakaiproject.contentreview.urkund;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -51,6 +52,7 @@ import org.sakaiproject.contentreview.exception.TransientSubmissionException;
 import org.sakaiproject.contentreview.advisors.ContentReviewSiteAdvisor;
 import org.sakaiproject.contentreview.dao.ContentReviewConstants;
 import org.sakaiproject.contentreview.dao.ContentReviewItem;
+import org.sakaiproject.contentreview.service.BaseContentReviewService;
 import org.sakaiproject.contentreview.service.ContentReviewQueueService;
 import org.sakaiproject.contentreview.service.ContentReviewService;
 import org.sakaiproject.entity.api.ResourceProperties;
@@ -67,7 +69,7 @@ import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.util.ResourceLoader;
 
 @Slf4j
-public class UrkundReviewServiceImpl implements ContentReviewService {
+public class UrkundReviewServiceImpl extends BaseContentReviewService {
 	private static final String STATE_SUBMITTED = "Submitted";
 	private static final String STATE_ACCEPTED = "Accepted";
 	private static final String STATE_REJECTED = "Rejected";
@@ -944,6 +946,16 @@ public class UrkundReviewServiceImpl implements ContentReviewService {
 			//Urkund specific work
 			return item;
 		}
+		return null;
+	}
+
+	@Override
+	public String getEndUserLicenseAgreementLink() {
+		return null;
+	}
+
+	@Override
+	public Instant getEndUserLicenseAgreementTimestamp() {
 		return null;
 	}
 }

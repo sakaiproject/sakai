@@ -15,6 +15,7 @@
  */
 package org.sakaiproject.contentreview.service;
 
+import java.time.Instant;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -22,12 +23,12 @@ import java.util.Map;
 import java.util.SortedSet;
 
 import org.sakaiproject.content.api.ContentResource;
-import org.sakaiproject.site.api.Site;
 import org.sakaiproject.contentreview.dao.ContentReviewItem;
 import org.sakaiproject.contentreview.exception.QueueException;
 import org.sakaiproject.contentreview.exception.ReportException;
 import org.sakaiproject.contentreview.exception.SubmissionException;
 import org.sakaiproject.contentreview.exception.TransientSubmissionException;
+import org.sakaiproject.site.api.Site;
 
 /**
  *  ContentReview Service manages submission to the Content review queue and retrieving reports from the service
@@ -344,4 +345,29 @@ public interface ContentReviewService {
 	 * @return ContentReviewResult
 	 */	
 	public ContentReviewItem getContentReviewItemByContentId(String contentId);
+	
+	/**
+	 * Returns a hyperlink to a providers EULA, if empty, no EULA will be shown to the user
+	 * @return
+	 */
+	public String getEndUserLicenseAgreementLink();
+	
+	/**
+	 * Returns date for most recent EULA. If null, no date will be checked. If provided, the user must re-accept the EULA if the date has changed.
+	 * @return
+	 */
+	public Instant getEndUserLicenseAgreementTimestamp();
+	
+	/**
+	 * Returns date for the user's last agreement to the EULA. If null, the user has not agreed.
+	 * @param userId
+	 * @return
+	 */
+	public Instant getUserEULATimestamp(String userId);
+	
+	/**
+	 * Sets date for the user's last agreement to the EULA to current date
+	 * @param userId
+	 */
+	public void updateUserEULATimestamp(String userId);
 }

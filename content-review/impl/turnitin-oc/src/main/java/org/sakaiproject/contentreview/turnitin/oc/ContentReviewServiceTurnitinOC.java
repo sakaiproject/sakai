@@ -19,6 +19,7 @@ import java.io.DataOutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -46,8 +47,8 @@ import org.sakaiproject.contentreview.exception.QueueException;
 import org.sakaiproject.contentreview.exception.ReportException;
 import org.sakaiproject.contentreview.exception.SubmissionException;
 import org.sakaiproject.contentreview.exception.TransientSubmissionException;
+import org.sakaiproject.contentreview.service.BaseContentReviewService;
 import org.sakaiproject.contentreview.service.ContentReviewQueueService;
-import org.sakaiproject.contentreview.service.ContentReviewService;
 import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.exception.IdUnusedException;
@@ -66,7 +67,7 @@ import lombok.extern.slf4j.Slf4j;
 import net.sf.json.JSONObject;
 
 @Slf4j
-public class ContentReviewServiceTurnitinOC implements ContentReviewService {
+public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 	@Setter
 	private ServerConfigurationService serverConfigurationService;
 
@@ -862,6 +863,16 @@ public class ContentReviewServiceTurnitinOC implements ContentReviewService {
 
 			return item;
 		}
+		return null;
+	}
+	
+	@Override
+	public String getEndUserLicenseAgreementLink() {
+		return null;
+	}
+
+	@Override
+	public Instant getEndUserLicenseAgreementTimestamp() {
 		return null;
 	}
 }
