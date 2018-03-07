@@ -73,9 +73,6 @@ ul#createdChecklistItems .handle, ul#createdChecklistItems .handle:hover {
     color: #555;
     font-size: 110%;
 }
-p.edit-group {
-    margin-top: 2em;
-}
 .checklist-checkbox {
     /** Hide from sighted users **/
     position: absolute;

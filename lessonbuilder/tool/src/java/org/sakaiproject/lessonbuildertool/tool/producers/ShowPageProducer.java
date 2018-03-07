@@ -34,6 +34,7 @@ package org.sakaiproject.lessonbuildertool.tool.producers;
 
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.StringEscapeUtils;
 import org.sakaiproject.authz.api.AuthzGroup;
@@ -4662,6 +4663,9 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 
 		UIOutput.make(form, "mm-url-label", messageLocator.getMessage("simplepage.addLink_label"));
 		UIInput.make(form, "mm-url", "#{simplePageBean.mmUrl}");
+
+		UIOutput.make(form, "mm-url-name-label", messageLocator.getMessage("simplepage.addlink_label_name"));
+		UIInput.make(form, "mm-url-name", "#{simplePageBean.name}");
 
 		FilePickerViewParameters fileparams = new FilePickerViewParameters();
 		fileparams.setSender(currentPage.getPageId());

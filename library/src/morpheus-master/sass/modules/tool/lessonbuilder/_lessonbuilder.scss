@@ -379,6 +379,47 @@
 		padding-bottom: 10px;
 	}
 
+	#accordion, #accordion2 {
+		.accordionBtn{
+			color: #333 !important; /*have to override Sakai button color*/
+			background-color: transparent;
+			border: none;
+			margin: 0px;
+			padding: 0px;
+
+			&:focus {
+				outline: none !important;
+			}
+
+			&:before {
+				font-family: "FontAwesome";
+				content: "\f0d7";
+				color: #333;
+				padding-right: 5px;
+			}
+
+			&.collapsed {
+				&:before {
+					font-family: "FontAwesome";
+					content: "\f0da";
+					color: #333;
+					padding-right: 5px;
+				}
+			}
+		}
+
+		.dialog-panel{
+			margin-top: 10px;
+
+			&.displayPanel{
+				margin-top: 0px;
+				border-bottom: 1px solid #ddd;
+			}
+		}
+
+	}
+	/* end dialog stuff */
+
 	#content {
 			padding-top: 0;
 	}

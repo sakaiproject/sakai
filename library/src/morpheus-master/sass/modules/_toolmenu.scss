@@ -841,13 +841,14 @@ body {
 					background-color: #FFFFFF;
 
 					a {
-						@include display-flex();
 						@include align-items (center);
 						min-height: 28px;
 						max-height: 100px;
 						overflow:hidden;
 						border-left: $tool-menu-item-border-left !important;
 						line-height: 1.5;
+						width: calc(100% - 8px);
+						display: block;
 						@if $tool-menu-icon-on-left {
 							padding: $tool-lessons-subpage-menu-text-padding;
 							text-align: left;
