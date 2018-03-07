@@ -797,11 +797,15 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 	 * @exception PermissionException
 	 *            If the user does not have any permissions to the calendar.
 	 */
-	public Calendar getCalendar(String ref) throws IdUnusedException, PermissionException
+	public Calendar getCalendar(String ref) throws IdUnusedException, PermissionException {
+		return getCalendar(ref, null, null);
+	}
+	
+	public Calendar getCalendar(String ref, String userId, String tzid) throws IdUnusedException, PermissionException
 	{
 		Reference _ref = m_entityManager.newReference(ref);
 		if(REF_TYPE_CALENDAR_SUBSCRIPTION.equals(_ref.getSubType())) {
-			Calendar c = externalCalendarSubscriptionService.getCalendarSubscription(ref);
+			Calendar c = externalCalendarSubscriptionService.getCalendarSubscription(ref, userId, tzid);
 			if (c == null) throw new IdUnusedException(ref);
 			return c;
 		}
@@ -5893,8 +5897,8 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 		
 		// add external calendar subscriptions
 		List referenceList = mergedCalendarList.getReferenceList();
-		Set subscriptionRefList = externalCalendarSubscriptionService.getCalendarSubscriptionChannelsForChannels(primaryCalendarReference,referenceList);
-		referenceList.addAll(subscriptionRefList);
+		Set<ExternalSubscriptionDetails> subscriptionDetailsList = externalCalendarSubscriptionService.getCalendarSubscriptionChannelsForChannels(primaryCalendarReference,referenceList);
+        subscriptionDetailsList.stream().forEach(x->referenceList.add(x.getReference()));
 		
 		return referenceList;
 	}

@@ -66,6 +66,7 @@ public interface ExternalCalendarSubscriptionService
 
 	/** Key value for ToolConfig */
 	public final static String TC_PROP_SUBCRIPTIONS = "externalCalendarSubscriptions";
+	public final static String TC_PROP_SUBCRIPTIONS_WITH_TZ = "externalCalendarSubscriptionsWithTZ";
 
 	/** Value delimiter for subscription reference in ToolConfig */
 	public final static String SUBS_REF_DELIMITER = "_,_";
@@ -81,14 +82,15 @@ public interface ExternalCalendarSubscriptionService
 
 	/** Get Calendar object from Calendar Subscription */
 	public Calendar getCalendarSubscription(String reference);
+	public Calendar getCalendarSubscription(String reference, String userId, String tzid);
 
 	/** Get Calendar Subscriptions for specified Calendar channels */
-	public Set<String> getCalendarSubscriptionChannelsForChannels(
+	public Set<ExternalSubscriptionDetails> getCalendarSubscriptionChannelsForChannels(
 			String primaryCalendarReference,
 			Collection<Object> channels);
 
 	/** Get Calendar channels for specified Calendar channels */
-	public Set<String> getCalendarSubscriptionChannelsForChannel(String reference);
+	public Set<ExternalSubscriptionDetails> getCalendarSubscriptionChannelsForChannel(String reference);
 
 	/**
 	 * Get list of available institutional calendar subscriptions for a given

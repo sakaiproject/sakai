@@ -64,4 +64,20 @@ public interface CalendarImporterService
 	public List<CalendarEvent> doImport(String importType, InputStream importStream, Map<String, String> columnMapping, String[] customFieldPropertyNames)
 		throws ImportException;
 
+	/**
+	 * Perform an import given the import type. (SAK-33451)
+	 * @param importType Type such as Outlook, MeetingMaker, etc. defined in the CalendarImporterService interface.
+	 * @param importStream Stream of data to be imported
+	 * @param columnMapping Map of column headers (keys) to property names (values)
+	 * @param customFieldPropertyNames Array of custom properties that we want to import.  null if there are no custom properties.
+	 * @param userTzid Id of user's time zone when the user subscribed to calendar.
+	 * @return A list of CalendarEvent objects.  These objects are not "real", so their copies
+	 * must be copied into CalendarEvents created by the Calendar service.
+	 * @throws ImportException
+	 */
+	public List<CalendarEvent> doImport(String importType, InputStream importStream, Map<String, String> columnMapping,
+			String[] customFieldPropertyNames, String userTzid)
+			throws ImportException;
+
+
 }
