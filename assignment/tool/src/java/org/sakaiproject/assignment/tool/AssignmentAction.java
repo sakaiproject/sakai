@@ -11119,81 +11119,126 @@ public class AssignmentAction extends PagedResourceActionII {
         // put the input value into the state attributes
         state.setAttribute(NEW_ASSIGNMENT_TITLE, "");
 
+        // get the configured date offsets in seconds  
+        // defaults: visible date - now, open date - now, due date - seven days later,   
+        //           accept until date - eight days after now, peer eval date - fifteen days after now.  
+        // note that front-end javascript code rounds the time back to the nearest five minutes.
+
+        int visibleDateOffset = serverConfigurationService.getInt("assignment.visibledate", 0);
+        int openDateOffset = serverConfigurationService.getInt("assignment.opendate", 0);
+        int dueDateOffset = serverConfigurationService.getInt("assignment.duedate", 604800);
+        int acceptUntilDateOffset = serverConfigurationService.getInt("assignment.acceptuntildate", 691200);
+        int peerEvaluationDateOffset = serverConfigurationService.getInt("assignment.peerevaluationdate", 1296000);
+
         // get current time
         Instant t = Instant.now();
-        LocalDateTime ldt = LocalDateTime.ofInstant(t, timeService.getLocalTimeZone().toZoneId());
-        int month = ldt.getMonthValue();
-        int day = ldt.getDayOfMonth();
-        int year = ldt.getYear();
+        int minute;
+        int hour;
+        int month;
+        int day;
+        int year;
 
-        // set the visible time to be 12:00 PM
         if (serverConfigurationService.getBoolean("assignment.visible.date.enabled", false)) {
+            Instant tVisible = t.plusSeconds(visibleDateOffset);
+            LocalDateTime ldtVisible = LocalDateTime.ofInstant(tVisible, ZoneId.systemDefault());
+            minute = ldtVisible.getMinute();
+            hour = ldtVisible.getHour();
+            month = ldtVisible.getMonthValue();
+            day = ldtVisible.getDayOfMonth();
+            year = ldtVisible.getYear();
             state.setAttribute(NEW_ASSIGNMENT_VISIBLEMONTH, month);
             state.setAttribute(NEW_ASSIGNMENT_VISIBLEDAY, day);
             state.setAttribute(NEW_ASSIGNMENT_VISIBLEYEAR, year);
-            state.setAttribute(NEW_ASSIGNMENT_VISIBLEHOUR, 12);
-            state.setAttribute(NEW_ASSIGNMENT_VISIBLEMIN, 0);
+            state.setAttribute(NEW_ASSIGNMENT_VISIBLEHOUR, hour);
+            state.setAttribute(NEW_ASSIGNMENT_VISIBLEMIN, minute);
             state.setAttribute(NEW_ASSIGNMENT_VISIBLETOGGLE, false);
         }
 
-        // set the open time to be 12:00 PM
+        // open date is shifted forward by the offset
+        Instant tOpen = t.plusSeconds(openDateOffset);
+        LocalDateTime ldtOpen = LocalDateTime.ofInstant(tOpen, ZoneId.systemDefault());
+        minute = ldtOpen.getMinute();
+        hour = ldtOpen.getHour();
+        month = ldtOpen.getMonthValue();
+        day = ldtOpen.getDayOfMonth();
+        year = ldtOpen.getYear();
+
         state.setAttribute(NEW_ASSIGNMENT_OPENMONTH, month);
         state.setAttribute(NEW_ASSIGNMENT_OPENDAY, day);
         state.setAttribute(NEW_ASSIGNMENT_OPENYEAR, year);
-        state.setAttribute(NEW_ASSIGNMENT_OPENHOUR, 12);
-        state.setAttribute(NEW_ASSIGNMENT_OPENMIN, 0);
+        state.setAttribute(NEW_ASSIGNMENT_OPENHOUR, hour);
+        state.setAttribute(NEW_ASSIGNMENT_OPENMIN, minute);
 
         // set the all purpose item release time
         state.setAttribute(ALLPURPOSE_RELEASE_MONTH, month);
         state.setAttribute(ALLPURPOSE_RELEASE_DAY, day);
         state.setAttribute(ALLPURPOSE_RELEASE_YEAR, year);
-        state.setAttribute(ALLPURPOSE_RELEASE_HOUR, 12);
-        state.setAttribute(ALLPURPOSE_RELEASE_MIN, 0);
+        state.setAttribute(ALLPURPOSE_RELEASE_HOUR, hour);
+        state.setAttribute(ALLPURPOSE_RELEASE_MIN, minute);
 
-        // due date is shifted forward by 7 days
-        Instant t7 = t.plus(Duration.ofDays(7));
-        LocalDateTime ldt7 = LocalDateTime.ofInstant(t7, timeService.getLocalTimeZone().toZoneId());
-        month = ldt7.getMonthValue();
-        day = ldt7.getDayOfMonth();
-        year = ldt7.getYear();
+        // due date is shifted forward by the offset
+        Instant tDue = t.plusSeconds(dueDateOffset);
+        LocalDateTime ldtDue = LocalDateTime.ofInstant(tDue, ZoneId.systemDefault());
+        minute = ldtDue.getMinute();
+        hour = ldtDue.getHour();
+        month = ldtDue.getMonthValue();
+        day = ldtDue.getDayOfMonth();
+        year = ldtDue.getYear();
 
-        // set the due time to be 5:00pm
         state.setAttribute(NEW_ASSIGNMENT_DUEMONTH, month);
         state.setAttribute(NEW_ASSIGNMENT_DUEDAY, day);
         state.setAttribute(NEW_ASSIGNMENT_DUEYEAR, year);
-        state.setAttribute(NEW_ASSIGNMENT_DUEHOUR, 17);
-        state.setAttribute(NEW_ASSIGNMENT_DUEMIN, 0);
+        state.setAttribute(NEW_ASSIGNMENT_DUEHOUR, hour);
+        state.setAttribute(NEW_ASSIGNMENT_DUEMIN, minute);
 
         // set the resubmit time to be the same as due time
         state.setAttribute(ALLOW_RESUBMIT_CLOSEMONTH, month);
         state.setAttribute(ALLOW_RESUBMIT_CLOSEDAY, day);
         state.setAttribute(ALLOW_RESUBMIT_CLOSEYEAR, year);
-        state.setAttribute(ALLOW_RESUBMIT_CLOSEHOUR, 17);
-        state.setAttribute(ALLOW_RESUBMIT_CLOSEMIN, 0);
+        state.setAttribute(ALLOW_RESUBMIT_CLOSEHOUR, hour);
+        state.setAttribute(ALLOW_RESUBMIT_CLOSEMIN, minute);
         state.setAttribute(AssignmentConstants.ALLOW_RESUBMIT_NUMBER, 1);
 
         // enable the close date by default
         state.setAttribute(NEW_ASSIGNMENT_ENABLECLOSEDATE, Boolean.TRUE);
-        // set the close time to be 5:00 pm, same as the due time by default
+
+        // Accept until date is shifted forward by the offset
+        Instant tAccept = t.plusSeconds(acceptUntilDateOffset);
+        LocalDateTime ldtAccept = LocalDateTime.ofInstant(tAccept, ZoneId.systemDefault());
+        minute = ldtAccept.getMinute();
+        hour = ldtAccept.getHour();
+        month = ldtAccept.getMonthValue();
+        day = ldtAccept.getDayOfMonth();
+        year = ldtAccept.getYear();
+
+        // Set the close date (accept until)
         state.setAttribute(NEW_ASSIGNMENT_CLOSEMONTH, month);
         state.setAttribute(NEW_ASSIGNMENT_CLOSEDAY, day);
         state.setAttribute(NEW_ASSIGNMENT_CLOSEYEAR, year);
-        state.setAttribute(NEW_ASSIGNMENT_CLOSEHOUR, 17);
-        state.setAttribute(NEW_ASSIGNMENT_CLOSEMIN, 0);
+        state.setAttribute(NEW_ASSIGNMENT_CLOSEHOUR, hour);
+        state.setAttribute(NEW_ASSIGNMENT_CLOSEMIN, minute);
 
         // set the all purpose retract time
         state.setAttribute(ALLPURPOSE_RETRACT_MONTH, month);
         state.setAttribute(ALLPURPOSE_RETRACT_DAY, day);
         state.setAttribute(ALLPURPOSE_RETRACT_YEAR, year);
-        state.setAttribute(ALLPURPOSE_RETRACT_HOUR, 17);
-        state.setAttribute(ALLPURPOSE_RETRACT_MIN, 0);
+        state.setAttribute(ALLPURPOSE_RETRACT_HOUR, hour);
+        state.setAttribute(ALLPURPOSE_RETRACT_MIN, minute);
 
-        // set the peer period time to be 10 mins after accept until date
+        // Peer evaluation date is shifted forward by the offset
+        Instant tPeer = t.plusSeconds(peerEvaluationDateOffset);
+        LocalDateTime ldtPeer = LocalDateTime.ofInstant(tPeer, ZoneId.systemDefault());
+        minute = ldtPeer.getMinute();
+        hour = ldtPeer.getHour();
+        month = ldtPeer.getMonthValue();
+        day = ldtPeer.getDayOfMonth();
+        year = ldtPeer.getYear();
+
         state.setAttribute(NEW_ASSIGNMENT_PEERPERIODMONTH, month);
         state.setAttribute(NEW_ASSIGNMENT_PEERPERIODDAY, day);
         state.setAttribute(NEW_ASSIGNMENT_PEERPERIODYEAR, year);
-        state.setAttribute(NEW_ASSIGNMENT_PEERPERIODHOUR, 17);
-        state.setAttribute(NEW_ASSIGNMENT_PEERPERIODMIN, 10);
+        state.setAttribute(NEW_ASSIGNMENT_PEERPERIODHOUR, hour);
+        state.setAttribute(NEW_ASSIGNMENT_PEERPERIODMIN, minute);
 
         state.setAttribute(NEW_ASSIGNMENT_PEER_ASSESSMENT_ANON_EVAL, Boolean.TRUE);
         state.setAttribute(NEW_ASSIGNMENT_PEER_ASSESSMENT_STUDENT_VIEW_REVIEWS, Boolean.TRUE);
