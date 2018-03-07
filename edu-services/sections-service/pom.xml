@@ -12,11 +12,9 @@
     <packaging>pom</packaging>
     <modules>
         <module>sections-api</module>
-        <module>sections-impl/integration-support</module>
         <!-- module>sections-impl/integration-test</module -->
         <module>sections-impl/sakai/impl</module>
         <module>sections-impl/sakai/model</module>
-        <module>sections-impl/standalone</module>
     </modules>
     <dependencyManagement>
         <dependencies>
@@ -24,12 +22,6 @@
                 <groupId>org.sakaiproject.edu-services.sections</groupId>
                 <artifactId>sections-impl</artifactId>
                 <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.sakaiproject.edu-services.sections</groupId>
-                <artifactId>sections-impl-standalone</artifactId>
-                <version>${project.version}</version>
-                <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>org.sakaiproject.edu-services.sections</groupId>
