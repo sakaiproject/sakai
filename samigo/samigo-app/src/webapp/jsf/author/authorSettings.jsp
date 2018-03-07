@@ -93,7 +93,7 @@
               input: '#assessmentSettingsAction\\:retractDate',
               useTime: 1,
               parseFormat: 'YYYY-MM-DD HH:mm:ss',
-              allowEmptyDate: false,
+              allowEmptyDate: true,
               val: '<h:outputText value="#{assessmentSettings.retractDate}"><f:convertDateTime pattern="yyyy-MM-dd HH:mm:ss"/></h:outputText>',
               ashidden: { iso8601: 'retractDateISO8601' }
           });
