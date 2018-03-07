@@ -157,6 +157,9 @@ legend.no-border {
     display: none;
 }
 
+#additionalSettings h3.checklist-settings-header {
+    padding-left: calc(.5em + 16px);
+}
 
 .checklistLabel.disabled:hover .externally-linked {
     margin-right: -19px;
