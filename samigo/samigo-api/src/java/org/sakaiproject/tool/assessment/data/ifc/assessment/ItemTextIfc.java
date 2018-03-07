@@ -33,6 +33,7 @@ public interface ItemTextIfc
   public static Long EMI_THEME_TEXT_SEQUENCE = Long.valueOf(-1);
   public static Long EMI_ANSWER_OPTIONS_SEQUENCE = Long.valueOf(-2);
   public static Long EMI_LEAD_IN_TEXT_SEQUENCE = Long.valueOf(-3);
+  public static String NONE_OF_THE_ABOVE = "None of the above";
  
   Long getId();
 
@@ -57,6 +58,8 @@ public interface ItemTextIfc
   List<AnswerIfc> getAnswerArray();
 
   List<AnswerIfc> getAnswerArraySorted();
+
+  List<AnswerIfc> getAnswerArrayWithDistractorSorted();
   
   Set<ItemTextAttachmentIfc> getItemTextAttachmentSet();
 

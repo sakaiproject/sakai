@@ -1,0 +1,308 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<suppressions xmlns="https://jeremylong.github.io/DependencyCheck/dependency-suppression.1.1.xsd">
+    <suppress>
+        <notes><![CDATA[
+   file name: lombok-1.16.16.jar
+   ]]></notes>
+        <gav regex="true">^org\.projectlombok:lombok:.*$</gav>
+        <cpe>cpe:/a:spice_project:spice</cpe>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: mail-1.4.4.jar
+   ]]></notes>
+        <gav regex="true">^javax\.mail:mail:.*$</gav>
+        <cpe>cpe:/a:mail_project:mail</cpe>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: mariadb-java-client-2.1.0.jar
+   ]]></notes>
+        <gav regex="true">^org\.mariadb\.jdbc:mariadb-java-client:.*$</gav>
+        <cpe>cpe:/a:mariadb:mariadb</cpe>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: entitybroker-api-13-SNAPSHOT.jar
+   ]]></notes>
+        <gav regex="true">^org\.sakaiproject\.entitybroker:entitybroker-api:.*$</gav>
+        <cpe>cpe:/a:entity_api_project:entity_api</cpe>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: jsf-widgets-sun-13-SNAPSHOT.jar
+   ]]></notes>
+        <gav regex="true">^org\.sakaiproject\.jsf:jsf-widgets-sun:.*$</gav>
+        <cpe>cpe:/a:sun:jsf</cpe>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: jsf-widgets-13-SNAPSHOT.jar
+   ]]></notes>
+        <gav regex="true">^org\.sakaiproject\.jsf:jsf-widgets:.*$</gav>
+        <cpe>cpe:/a:widgets_project:widgets</cpe>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: myfaces-widgets-13-SNAPSHOT.jar
+   ]]></notes>
+        <gav regex="true">^org\.sakaiproject\.jsf:myfaces-widgets:.*$</gav>
+        <cpe>cpe:/a:widgets_project:widgets</cpe>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: lessonbuilder-hbm-13-SNAPSHOT.jar
+   ]]></notes>
+        <gav regex="true">^org\.sakaiproject\.lessonbuilder:lessonbuilder-hbm:.*$</gav>
+        <cpe>cpe:/a:hbm:hbm</cpe>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: mailsender-api-13-SNAPSHOT.jar
+   ]]></notes>
+        <gav regex="true">^org\.sakaiproject\.mailsender:mailsender-api:.*$</gav>
+        <cpe>cpe:/a:mail_project:mail</cpe>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: messageforums-hbm-13-SNAPSHOT.jar
+   ]]></notes>
+        <gav regex="true">^org\.sakaiproject\.msgcntr:messageforums-hbm:.*$</gav>
+        <cpe>cpe:/a:hbm:hbm</cpe>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: sakai-portal-api-13-SNAPSHOT.jar
+   ]]></notes>
+        <gav regex="true">^org\.sakaiproject\.portal:sakai-portal-api:.*$</gav>
+        <cpe>cpe:/a:in-portal:in-portal</cpe>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: sakai-postem-hbm-13-SNAPSHOT.jar
+   ]]></notes>
+        <gav regex="true">^org\.sakaiproject:sakai-postem-hbm:.*$</gav>
+        <cpe>cpe:/a:hbm:hbm</cpe>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: elasticsearch-api-13-SNAPSHOT.jar
+   ]]></notes>
+        <gav regex="true">^org\.sakaiproject\.search\.elasticsearch:elasticsearch-api:.*$</gav>
+        <cpe>cpe:/a:elasticsearch:elasticsearch</cpe>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: search-api-13-SNAPSHOT.jar
+   ]]></notes>
+        <gav regex="true">^org\.sakaiproject\.search:search-api:.*$</gav>
+        <cpe>cpe:/a:pro_search:pro_search</cpe>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: shortenedurl-api-13-SNAPSHOT.jar
+   ]]></notes>
+        <gav regex="true">^org\.sakaiproject\.shortenedurl:shortenedurl-api:.*$</gav>
+        <cpe>cpe:/a:short_url:short_url</cpe>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: ckeditor-autosave-b88e3878f0c7442a52e542f67e76d97e2ce32f8.jar
+   ]]></notes>
+        <gav regex="true">^org\.sakaiproject\.webjars:ckeditor-autosave:.*$</gav>
+        <cpe>cpe:/a:ckeditor:ckeditor</cpe>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: sakai-privacy-hbm-13-SNAPSHOT.jar
+   ]]></notes>
+        <gav regex="true">^org\.sakaiproject\.common:sakai-privacy-hbm:.*$</gav>
+        <cpe>cpe:/a:hbm:hbm</cpe>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: jsf-widgets-sun-13-SNAPSHOT.jar
+   ]]></notes>
+        <gav regex="true">^org\.sakaiproject\.jsf:jsf-widgets-sun:.*$</gav>
+        <cpe>cpe:/a:widgets_project:widgets</cpe>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: sakai-portal-impl-13-SNAPSHOT.jar
+   ]]></notes>
+        <gav regex="true">^org\.sakaiproject\.portal:sakai-portal-impl:.*$</gav>
+        <cpe>cpe:/a:in-portal:in-portal</cpe>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: elfinder-servlet-2-1.2-classes.jar
+   ]]></notes>
+        <gav regex="true">^com\.github\.bluejoe2008:elfinder-servlet-2:.*$</gav>
+        <cpe>cpe:/a:finder_project:finder</cpe>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: filters-2.0.235.jar
+   ]]></notes>
+        <gav regex="true">^com\.jhlabs:filters:.*$</gav>
+        <cpe>cpe:/a:image_processing_software:image_processing_software</cpe>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: jldap-2009-10-07.jar
+   ]]></notes>
+        <gav regex="true">^com\.novell\.ldap:jldap:.*$</gav>
+        <cpe>cpe:/a:ldap_project:ldap</cpe>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: javax.mail-1.6.0.jar
+   ]]></notes>
+        <gav regex="true">^com\.sun\.mail:javax\.mail:.*$</gav>
+        <cpe>cpe:/a:mail_project:mail</cpe>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: javax.annotation-api-1.2.jar
+   ]]></notes>
+        <gav regex="true">^javax\.annotation:javax\.annotation-api:.*$</gav>
+        <cpe>cpe:/a:oracle:glassfish</cpe>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: javax.faces-api-2.1.jar
+   ]]></notes>
+        <gav regex="true">^javax\.faces:javax\.faces-api:.*$</gav>
+        <cpe>cpe:/a:oracle:mojarra</cpe>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: javax.servlet-api-3.1.0.jar
+   ]]></notes>
+        <gav regex="true">^javax\.servlet:javax\.servlet-api:.*$</gav>
+        <cpe>cpe:/a:oracle:glassfish</cpe>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: validation-api-1.1.0.Final.jar
+   ]]></notes>
+        <gav regex="true">^javax\.validation:validation-api:.*$</gav>
+        <cpe>cpe:/a:bean_project:bean</cpe>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: joda-time-2.0.jar
+   ]]></notes>
+        <gav regex="true">^joda-time:joda-time:.*$</gav>
+        <cpe>cpe:/a:date_project:date</cpe>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: joda-time-2.2.jar
+   ]]></notes>
+        <gav regex="true">^joda-time:joda-time:.*$</gav>
+        <cpe>cpe:/a:date_project:date</cpe>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: openstack-keystone-1.9.1.jar
+   ]]></notes>
+        <gav regex="true">^org\.apache\.jclouds\.api:openstack-keystone:.*$</gav>
+        <cpe>cpe:/a:openstack:keystone</cpe>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: openstack-keystone-1.9.1.jar
+   ]]></notes>
+        <gav regex="true">^org\.apache\.jclouds\.api:openstack-keystone:.*$</gav>
+        <cpe>cpe:/a:openstack:openstack</cpe>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: openstack-swift-1.9.1.jar
+   ]]></notes>
+        <gav regex="true">^org\.apache\.jclouds\.api:openstack-swift:.*$</gav>
+        <cpe>cpe:/a:openstack:openstack</cpe>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: openstack-swift-1.9.1.jar
+   ]]></notes>
+        <gav regex="true">^org\.apache\.jclouds\.api:openstack-swift:.*$</gav>
+        <cpe>cpe:/a:openstack:swift</cpe>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: fontbox-1.8.6.jar
+   ]]></notes>
+        <gav regex="true">^org\.apache\.pdfbox:fontbox:.*$</gav>
+        <cpe>cpe:/a:font_project:font</cpe>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: fontbox-2.0.3.jar
+   ]]></notes>
+        <gav regex="true">^org\.apache\.pdfbox:fontbox:.*$</gav>
+        <cpe>cpe:/a:font_project:font</cpe>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: tomcat-api-8.5.20.jar
+   ]]></notes>
+        <gav regex="true">^org\.apache\.tomcat:tomcat-api:.*$</gav>
+        <cve>CVE-2017-6056</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: tomcat-api-8.5.20.jar
+   ]]></notes>
+        <gav regex="true">^org\.apache\.tomcat:tomcat-api:.*$</gav>
+        <cve>CVE-2016-6325</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: tomcat-api-8.5.20.jar
+   ]]></notes>
+        <gav regex="true">^org\.apache\.tomcat:tomcat-api:.*$</gav>
+        <cve>CVE-2016-5425</cve>
+    </suppress>
+    <!-- 1.5.7 looks to have the fix -->
+    <suppress>
+        <notes><![CDATA[
+   file name: antisamy-1.5.7.jar
+   ]]></notes>
+        <gav regex="true">^org\.owasp\.antisamy:antisamy:.*$</gav>
+        <cve>CVE-2017-14735</cve>
+    </suppress>
+    <!-- We are using the Java version of this project and not the C/shell -->
+    <suppress>
+        <notes><![CDATA[
+   file name: xz-1.5.jar
+   ]]></notes>
+        <gav regex="true">^org\.tukaani:xz:.*$</gav>
+        <cve>CVE-2015-4035</cve>
+    </suppress>
+    <!-- We don't use PHP in font awesome -->
+    <suppress>
+        <notes><![CDATA[
+   file name: fontawesome-4.7.0.jar
+   ]]></notes>
+        <gav regex="true">^org\.webjars\.bower:fontawesome:.*$</gav>
+        <cve>CVE-2015-7683</cve>
+    </suppress>
+    <!-- We don't use moment-js serverside so this doesn't affect us -->
+    <suppress>
+        <notes><![CDATA[
+   file name: momentjs-2.11.1.jar
+   ]]></notes>
+        <gav regex="true">^org\.webjars:momentjs:.*$</gav>
+        <cve>CVE-2016-4055</cve>
+    </suppress>
+
+
+
+
+
+
+
+</suppressions>

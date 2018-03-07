@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<title>How do I enable student peer review for an assignment?</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta content="sakai.assignment" name="description">
+<meta content="peer review, peer assessment, peer evaluation" name="search">
+<link href="/library/skin/tool_base.css" media="screen" rel="stylesheet" type="text/css" charset="utf-8">
+<link href="../css/help.css" media="screen" rel="stylesheet" type="text/css" charset="utf-8">
+<link href="/library/skin/morpheus-default/tool.css" media="screen" rel="stylesheet" type="text/css" charset="utf-8">
+<link href="/library/js/jquery/featherlight/0.4.0/featherlight.min.css" media="screen" rel="stylesheet" type="text/css" charset="utf-8">
+<script src="/library/webjars/jquery/1.12.4/jquery.min.js" type="text/javascript" charset="utf-8"></script><script src="/library/js/jquery/featherlight/0.4.0/featherlight.min.js" type="text/javascript" charset="utf-8"></script><script type="text/javascript" charset="utf-8">
+    $(document).ready(function(){
+      $("a[rel^='featherlight']").featherlight({
+        type: { image:true },
+    closeOnClick: 'anywhere'
+      }); 
+    });   
+  </script>
+</head>
+<body>
+  <div id="wrapper"><div id="article-content">
+<div id="article-header"><h1 class="article-title">What is Delegated Access?</h1></div>
+<div id="article-description">
+  <div class="step-instructions screensteps-textblock screensteps-wrapper--introduction screensteps-wrapper">
+  <p>The delegated access tool controls both delegating access to users outside of the site membership realm as well as setting up and controlling site shopping period information.  It is most easily described by breaking it down into two related functions: “Delegated Access” and “Shopping Period.”</p>
+<p><strong>Delegated Access:</strong></p>
+<p>The delegated access tool has five primary functions:  </p>
+<ol>
+<li>Provide a friendly interface for administrators to delegated user access to specific sites or department levels.</li>
+<li>Provide a friendly interface for administrators to delegated shopping period admin privileges for users at the site or departments level.</li>
+<li>Provide a friendly interface for delegated users to view, search and access their delegated sites.</li>
+<li>Provide a friendly interface for delegated shopping period admins to adjust shopping period data within their scope of privileges.</li>
+<li>Allow a user, that has been granted access to sites, to use the direct URL for the site to access it.</li>
+</ol>
+<p>The delegated access tool allows administrators to search for users and delegate site, role, and shopping period admin access.  It also allows you to select specific tools the user should not have access to.</p>
+<p>The easiest way to think of how the tool works is liking it to the Role Swap feature in Sakai. Instead of just swapping the role, you can specify the realm and role the user will receive for that particular site or node in the hierarchy.  All child nodes will inherit the parent settings unless overridden.</p>
+<p><strong>Shopping Period:</strong></p>
+<p>The shopping period tool is just a special use case of the Delegated Access Tool from the perspective of shopping consumer.  In another words, it treats the .anon or .auth role as a delegated user and then can determine what role that user will inherit when he or she enters a site.  There are three user cases that the shopping period section handles:</p>
+<ol>
+<li>
+<strong>Administrator: </strong>When a user that has been granted shopping period administrative privileges goes into the delegated access tool, they will see a link for “Shopping Period Admin”.  Here they can modify what role a .anon or .auth (public/logged in) user will inherit when they enter.  They can also choose which tools are open as well as the open and close date for the shopping period for that site or department.</li>
+<li>
+<strong>Instructor: </strong>If you enable the instructor to override shopping settings, then the instructor will have an interface in the "Site Info" tool under the link "Manage Access" where he/she can modify their course's shopping settings.  This allows an instructor to opt in or out of the shopping period.</li>
+<li>
+<strong>Shopper: </strong>When a user that wants to shop for a particular site goes to the Shopping Period tool, they will see a node structure and a search box to look for a particular site they want to test out.  This tool, for example, can be added to Sakai’s !Gateway site so unauthorized users can view it.  When the user finds the site they want, they just click the link and go to the site.</li>
+</ol>
+</div>
+
+
+  
+  <div class="step screensteps-section screensteps-depth-1" id="to-access-this-tool-select-delegated-access-from-the-tool-menu-in-the-administration-workspace">
+    <h2 id="to-access-this-tool-select-delegated-access-from-the-tool-menu-in-the-administration-workspace" class="step-title screensteps-heading">To access this tool, select Delegated Access from the Tool Menu in the Administration Workspace.</h2>
+    
+      <div class="image screensteps-image">
+  
+  
+    <img src="https://s3.amazonaws.com/screensteps_live/image_assets/assets/000/886/504/original/cb01a9b2-d99f-4ff5-8239-7be7e43b8020.png" alt="To access this tool, select Delegated Access from the Tool Menu in the Administration Workspace." height="125" width="198">
+  
+</div>
+
+    
+      <div class="step-instructions screensteps-textblock">
+  <p>You may also see the Delegated Access tool in the Home Tool Menu if it has been added to your user account.</p>
+</div>
+
+    
+  </div>
+
+
+
+</div>
+</div></div>
+</body>
+</html>

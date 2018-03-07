@@ -2,9 +2,11 @@
 <beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns:tx="http://www.springframework.org/schema/tx"
        xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:util="http://www.springframework.org/schema/util"
        xmlns="http://www.springframework.org/schema/beans"
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
                            http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd
+                           http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd
                            http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
 
     <context:component-scan base-package="org.sakaiproject.assignment"/>
@@ -16,7 +18,7 @@
         <property name="announcementService" ref="org.sakaiproject.announcement.api.AnnouncementService"/>
         <property name="assignmentActivityProducer" ref="org.sakaiproject.assignment.taggable.api.AssignmentActivityProducer"/>
         <property name="assignmentEntityFactory" ref="org.sakaiproject.assignment.api.AssignmentEntity.factory"/>
-        <property name="assignmentRepository" ref="org.sakaiproject.assignment.persistence.AssignmentRepository"/>
+        <property name="assignmentRepository" ref="org.sakaiproject.assignment.api.persistence.AssignmentRepository"/>
         <property name="assignmentSupplementItemService" ref="org.sakaiproject.assignment.api.model.AssignmentSupplementItemService"/>
         <property name="authzGroupService" ref="org.sakaiproject.authz.api.AuthzGroupService"/>
         <property name="calendarService" ref="org.sakaiproject.calendar.api.CalendarService"/>
@@ -86,7 +88,7 @@
     </bean>
 
     <bean id="org.sakaiproject.assignment.taggable.api.AssignmentActivityProducer"
-          class="org.sakaiproject.assignment.taggable.impl.AssignmentActivityProducerImpl"
+          class="org.sakaiproject.assignment.impl.taggable.AssignmentActivityProducerImpl"
           init-method="init">
         <property name="assignmentService" ref="org.sakaiproject.assignment.api.AssignmentService"/>
         <property name="entityManager" ref="org.sakaiproject.entity.api.EntityManager"/>
@@ -119,8 +121,8 @@
         </property>
     </bean>
 
-    <bean id="org.sakaiproject.assignment.persistence.AssignmentRepository"
-          class="org.sakaiproject.assignment.persistence.AssignmentRepositoryImpl">
+    <bean id="org.sakaiproject.assignment.api.persistence.AssignmentRepository"
+          class="org.sakaiproject.assignment.impl.persistence.AssignmentRepositoryImpl">
         <property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
     </bean>
 
@@ -175,29 +177,55 @@
         <property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager"/>
     </bean>
 
-    <bean id="org.sakaiproject.assignment.impl.conversion.api.AssignmentConversionService"
-          class="org.sakaiproject.assignment.impl.conversion.impl.AssignmentConversionServiceImpl"
+    <bean id="org.sakaiproject.assignment.api.conversion.AssignmentConversionService"
+          class="org.sakaiproject.assignment.impl.conversion.AssignmentConversionServiceImpl"
           init-method="init">
-        <property name="assignmentRepository" ref="org.sakaiproject.assignment.persistence.AssignmentRepository"/>
+        <property name="assignmentRepository" ref="org.sakaiproject.assignment.api.persistence.AssignmentRepository"/>
         <property name="dataProvider" ref="org.sakaiproject.assignment.api.conversion.AssignmentDataProvider"/>
         <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
     </bean>
 
     <bean id="org.sakaiproject.assignment.api.conversion.AssignmentDataProvider"
-          class="org.sakaiproject.assignment.impl.conversion.impl.AssignmentDataProvider11">
+          class="org.sakaiproject.assignment.impl.conversion.AssignmentDataProvider11">
         <property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
     </bean>
 
-    <bean id="org.sakaiproject.assignment.impl.conversion.impl.Assignment12ConversionJob"
-          class="org.sakaiproject.assignment.impl.conversion.impl.Assignment12ConversionJob">
-        <property name="assignmentConversionService" ref="org.sakaiproject.assignment.impl.conversion.api.AssignmentConversionService"/>
+    <bean id="org.sakaiproject.assignment.impl.conversion.Assignment12ConversionJob"
+          class="org.sakaiproject.assignment.impl.conversion.Assignment12ConversionJob">
+        <property name="assignmentConversionService" ref="org.sakaiproject.assignment.api.conversion.AssignmentConversionService"/>
     </bean>
 
-    <bean id="org.sakaiproject.assignment.impl.conversion.impl.Assignment12ConversionJob.jobWrapper"
-          class="org.sakaiproject.component.app.scheduler.jobs.SpringJobBeanWrapper"
+    <bean id="org.sakaiproject.assignment.impl.conversion.Assignment12ConversionJob.jobWrapper"
+          class="org.sakaiproject.component.app.scheduler.jobs.SpringConfigurableJobBeanWrapper"
           init-method="init">
-        <property name="beanId" value="org.sakaiproject.assignment.impl.conversion.impl.Assignment12ConversionJob"/>
+        <property name="beanId" value="org.sakaiproject.assignment.impl.conversion.Assignment12ConversionJob"/>
         <property name="jobName" value="Assignment 12 Conversion"/>
+        <property name="resourceBundleBase" value="org.sakaiproject.assignment.api.conversion.messages"/>
         <property name="schedulerManager" ref="org.sakaiproject.api.app.scheduler.SchedulerManager"/>
+        <property name="configurableJobProperties">
+            <set>
+                <bean id="org.sakaiproject.assignment.impl.conversion.Assignment12ConversionJob.jobWrapper.size"
+                      class="org.sakaiproject.component.app.scheduler.jobs.SpringConfigurableJobProperty">
+                    <property name="required" value="false"/>
+                    <property name="labelResourceKey" value="length.attribute.property"/>
+                    <property name="descriptionResourceKey" value="length.attribute.description"/>
+                    <property name="defaultValue">
+                        <util:constant static-field="com.ctc.wstx.api.ReaderConfig.DEFAULT_MAX_ATTRIBUTE_LENGTH"/>
+                    </property>
+                </bean>
+                <bean id="org.sakaiproject.assignment.impl.conversion.Assignment12ConversionJob.jobWrapper.number"
+                      class="org.sakaiproject.component.app.scheduler.jobs.SpringConfigurableJobProperty">
+                    <property name="required" value="false"/>
+                    <property name="labelResourceKey" value="number.attributes.property"/>
+                    <property name="descriptionResourceKey" value="number.attributes.description"/>
+                    <property name="defaultValue">
+                        <util:constant static-field="com.ctc.wstx.api.ReaderConfig.DEFAULT_MAX_ATTRIBUTES_PER_ELEMENT"/>
+                    </property>
+                </bean>
+            </set>
+        </property>
+        <property name="configurableJobPropertyValidator">
+            <bean class="org.sakaiproject.assignment.impl.conversion.Assignment12ConversionJobValidator"/>
+        </property>
     </bean>
 </beans>

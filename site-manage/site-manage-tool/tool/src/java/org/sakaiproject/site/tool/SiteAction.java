@@ -1202,6 +1202,8 @@ public class SiteAction extends PagedResourceActionII {
 
 		// SAK-24423 - remove joinable site settings from the state
 		JoinableSiteSettings.removeJoinableSiteSettingsFromState( state );
+		
+		state.removeAttribute(STATE_CREATE_FROM_ARCHIVE);
 
 	} // cleanState
 
@@ -7548,6 +7550,8 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 		} else {
 			state.setAttribute(STATE_TEMPLATE_INDEX, "0");
 		}
+
+		state.setAttribute(STATE_CREATE_FROM_ARCHIVE, Boolean.FALSE);
 		
 		resetVisitedTemplateListToIndex(state, (String) state.getAttribute(STATE_TEMPLATE_INDEX));
 		

@@ -203,16 +203,15 @@ public class AnswerLabelWithCorrectStatus {
     this.isCorrect = isCorrect;
   }
   
-  public Boolean getIsCorrect()
-  {
-      /*
-    if (data != null && data.getPublishedAnswerId() != null &&
-        answer.getIsCorrect() != null &&
-        answer.getIsCorrect().booleanValue())
-      return true;
-    return false;
-      */
-    return isCorrect;
+  public Boolean getIsCorrect() {
+    if (this.getIsDistractor()) {
+      if (this.response == null) {
+        return false;
+      }
+      return Integer.parseInt(this.response) < 0;
+    } else {
+        return isCorrect;
+    }
   }
   
   public boolean getIsDistractor() {

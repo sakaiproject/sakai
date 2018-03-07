@@ -50,6 +50,8 @@ public class GeneralViewParameters extends SimpleViewParameters {
 	public int addTool = -1;
 	public boolean postedComment = false;
 	public long studentItemId;
+
+	public boolean bltiAppStores = false;
 	
 	public String author; // An author whose comments should be highlighted
 	public String addBefore = ""; // itemid to add a new item before that item

@@ -52,6 +52,7 @@ public class TimerBarTag
   private String height;
   private String wait;
   private String width;
+  private String timeUpMessage;
 
 
   public void setHeight(String height)
@@ -94,6 +95,7 @@ public class TimerBarTag
     TagUtil.setInteger(component, "wait", wait);
     TagUtil.setInteger(component, "elapsed", elapsed);
     TagUtil.setString(component, "expireScript", expireScript);
+    TagUtil.setString(component, "timeUpMessage", timeUpMessage);
   }
   public String getWidth()
   {
@@ -126,6 +128,12 @@ public class TimerBarTag
   public void setExpireScript(String expireScript)
   {
     this.expireScript = expireScript;
+  }
+  public void setTimeUpMessage(String timeUpMessage) {
+	this.timeUpMessage = timeUpMessage;
+  }
+  public String getTimeUpMessage() {
+	return timeUpMessage;
   }
   
 }

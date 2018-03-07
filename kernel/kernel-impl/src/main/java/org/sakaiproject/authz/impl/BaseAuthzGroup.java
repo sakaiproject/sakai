@@ -489,7 +489,7 @@ public class BaseAuthzGroup implements AuthzGroup
 
 		else if (getId().equals("!site.user"))
 		{
-			return "My Workspace AuthzGroup Template";
+			return "Home AuthzGroup Template";
 		}
 
 		else if (getId().startsWith("!user.template"))

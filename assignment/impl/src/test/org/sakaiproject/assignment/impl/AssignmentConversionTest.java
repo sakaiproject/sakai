@@ -33,11 +33,11 @@ import org.sakaiproject.assignment.api.conversion.AssignmentDataProvider;
 import org.sakaiproject.assignment.api.model.Assignment;
 import org.sakaiproject.assignment.api.model.AssignmentSubmission;
 import org.sakaiproject.assignment.api.model.AssignmentSubmissionSubmitter;
-import org.sakaiproject.assignment.impl.conversion.impl.AssignmentConversionServiceImpl;
-import org.sakaiproject.assignment.impl.conversion.impl.O11Assignment;
-import org.sakaiproject.assignment.impl.conversion.impl.O11AssignmentContent;
-import org.sakaiproject.assignment.impl.conversion.impl.O11Submission;
-import org.sakaiproject.assignment.persistence.AssignmentRepository;
+import org.sakaiproject.assignment.impl.conversion.AssignmentConversionServiceImpl;
+import org.sakaiproject.assignment.impl.conversion.O11Assignment;
+import org.sakaiproject.assignment.impl.conversion.O11AssignmentContent;
+import org.sakaiproject.assignment.impl.conversion.O11Submission;
+import org.sakaiproject.assignment.api.persistence.AssignmentRepository;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.hibernate.AssignableUUIDGenerator;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -112,7 +112,7 @@ public class AssignmentConversionTest extends AbstractTransactionalJUnit4SpringC
         Mockito.when(mockDataProvider.fetchAssignmentContent("7854df94-61ca-45e0-9348-a4a3a738292d")).thenReturn(cXml);
         Mockito.when(mockDataProvider.fetchAssignmentSubmissions("cac11b82-64ec-4cc3-87b9-cd0385aebd71")).thenReturn(sXml);
 
-        conversion.runConversion();
+        conversion.runConversion(0, 0);
 
         // assignment verification
         Map<String, String> assignmentPropertiesToCheck = new HashMap<>();
@@ -219,7 +219,7 @@ public class AssignmentConversionTest extends AbstractTransactionalJUnit4SpringC
         Mockito.when(mockDataProvider.fetchAssignmentContent("eb1ea4f1-1a4a-46b9-aaea-928db68b005f")).thenReturn(cXml);
         Mockito.when(mockDataProvider.fetchAssignmentSubmissions("447711b7-4148-4be5-912c-3aea3f4dd4b5")).thenReturn(sXml);
 
-        conversion.runConversion();
+        conversion.runConversion(0, 0);
 
         Set<String> attachmentsToCheck = new HashSet<>();
         attachmentsToCheck.add("/content/attachment/BVCC_942A_9301/Assignments/ea1201e5-cae4-4c93-bda8-85a2218d2560/AssignmentGraph.png");
@@ -342,7 +342,7 @@ public class AssignmentConversionTest extends AbstractTransactionalJUnit4SpringC
         Mockito.when(mockDataProvider.fetchAssignmentContent("b1dde8c2-ce1f-412d-88e2-5fd5cfda20f6")).thenReturn(cXml);
         Mockito.when(mockDataProvider.fetchAssignmentSubmissions("cd9b83ce-6864-453f-ab5d-059fdb2c9e28")).thenReturn(sXml);
 
-        conversion.runConversion();
+        conversion.runConversion(0, 0);
 
         Map<String, String> assignmentPropertiesToCheck = new HashMap<>();
         assignmentPropertiesToCheck.put("CHEF:creator", AssignmentConversionServiceImpl.decodeBase64("Y2I0ZmZhYmQtNmQ5YS00ZTVhLTk5NjktZGUxYmRhMmVmYmZi"));

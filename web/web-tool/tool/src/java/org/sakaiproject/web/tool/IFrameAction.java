@@ -73,7 +73,7 @@ import org.sakaiproject.util.ResourceLoader;
  * </p>
  * <ul>
  * <li>"site" - to show the services "server.info.url" configuration URL setting</li>
- * <li>"workspace" - to show the configured "myworkspace.info.url" URL, introducing a my workspace to users</li>
+ * <li>"workspace" - to show the configured "myworkspace.info.url" URL, introducing a "Home" site to users</li>
  * <li>"worksite" - to show the current site's "getInfoUrlFull()" setting</li>
  * <li>"annotatedurl" - to show a link to a configured target url, with a description following the link. Aid in redirection.</li>
  * </ul>

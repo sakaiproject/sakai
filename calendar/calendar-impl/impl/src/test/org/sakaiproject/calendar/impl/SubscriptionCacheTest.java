@@ -71,7 +71,7 @@ public class SubscriptionCacheTest {
     @Test
     public void testCacheGetPresent() {
         BaseExternalSubscriptionDetails value = new BaseExternalSubscriptionDetails(
-                "test", "http://example.com/", "siteId", null, false, true, null, Instant.now(clock));
+                "test", "http://example.com/", "siteId", null, false, null, null, true, null, Instant.now(clock));
         when(cache.get("http://example.com/")).thenReturn(value);
         assertEquals(value, subscriptionCache.get("http://example.com/"));
         assertEquals(value, subscriptionCache.get("http://example.com/"));
@@ -80,7 +80,7 @@ public class SubscriptionCacheTest {
     @Test
     public void testCacheGetFailureNew() {
         BaseExternalSubscriptionDetails value = new BaseExternalSubscriptionDetails(
-                "test", "http://example.com/", "siteId", null, false, false, null, Instant.now(clock));
+                "test", "http://example.com/", "siteId", null, false, null, null, false, null, Instant.now(clock));
         when(cache.get("http://example.com/")).thenReturn(value);
         // Still not expired.
         assertEquals(value, subscriptionCache.get("http://example.com/"));
@@ -89,7 +89,7 @@ public class SubscriptionCacheTest {
     @Test
     public void testCacheGetFailureOld() {
         BaseExternalSubscriptionDetails value = new BaseExternalSubscriptionDetails(
-                "test", "http://example.com/", "siteId", null, false, false, null, Instant.now(clock).minus(2, ChronoUnit.MINUTES));
+                "test", "http://example.com/", "siteId", null, false, null, null, false, null, Instant.now(clock).minus(2, ChronoUnit.MINUTES));
         when(cache.get("http://example.com/")).thenReturn(value);
         // Now should have expired.
         assertNull(subscriptionCache.get("http://example.com/"));

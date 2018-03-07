@@ -95,10 +95,9 @@ public interface GradebookService {
 	}
 
 	/**
-	 * Array of chars that are not allowed in a gb item title
+	 * Array of chars that are not allowed at the beginning of a gb item title
 	 */
-	public static final char[] INVALID_CHARS_IN_GB_ITEM_NAME = { '*', '[', ']' };
-	public static final String[] INVALID_CHARS_AT_START_OF_GB_ITEM_NAME = { "#" };
+	public static final String[] INVALID_CHARS_AT_START_OF_GB_ITEM_NAME = { "#", "*", "[" };
 
 	/**
 	 * Comparator to ensure correct ordering of letter grades, catering for + and - in the grade This is duplicated in GradebookNG. If
@@ -597,6 +596,13 @@ public interface GradebookService {
 	 */
 	public boolean isGradeValid(String gradebookUuid, String grade)
 			throws GradebookNotFoundException;
+
+	/**
+	 * Determines if the given string contains a valid numeric grade.
+	 * @param grade the grade as a string, expected to contain a numeric value
+	 * @return true if the string contains a valid numeric grade
+	 */
+	public boolean isValidNumericGrade(String grade);
 
 	/**
 	 *

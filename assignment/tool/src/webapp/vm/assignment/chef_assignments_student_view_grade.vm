@@ -205,7 +205,7 @@
                                 #if (!$reviewResult.getReviewReport().equals("Error") &&
                                     $reviewResult.contentReviewItem.Properties.get($NamePropContentReviewOptoutUrl))
                                     (<a href="$!reviewResult.contentReviewItem.Properties.get($NamePropContentReviewOptoutUrl)" target="_blank">$tlang.getString("review.report.urkund.optoutlink")</a>)
-                                #end								
+                                #end
                             </div>
                         #end
                         #if ($reviewResults.size() >= 3)
@@ -450,39 +450,7 @@
         #end
 
         ## Feedback Attachments
-        #set ($attachments = $submission.feedbackAttachments)
-        #if ($attachments)
-            #set ($size = $attachments.size())
-            #if ($size > 0)
-                <h4>
-                    $tlang.getString("gen.addinstatts")
-                </h4>
-                <ul class="attachList indnt1">
-                    #foreach ($attachmentReference in $attachments)
-                        #set ($reference = $submissionFeedbackAttachmentReferences.get($attachmentReference))
-                        #if ($reference)
-                            #set ($props = false)
-                            #set ($props = $reference.Properties)
-                            #if ($!props)
-                                <li>
-                                    #if ($props.getBooleanProperty($props.NamePropIsCollection))
-                                        <img src = "#imageLink($contentTypeImageService.getContentTypeImage("folder"))" border="0" alt="$tlang.getString("gen.folatt")" />
-                                    #else
-                                        <img src = "#imageLink($contentTypeImageService.getContentTypeImage($props.getProperty($props.NamePropContentType)))" border="0" alt="$tlang.getString("gen.filatt")" />
-                                    #end
-                                    #if ($decoratedUrlMap)
-                                        <a href="$decoratedUrlMap.get($reference.Url)" target="_blank">$validator.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))</a>
-                                    #else
-                                        <a href="$reference.Url" target="_blank">$validator.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))</a>
-                                    #end
-                                    #propertyDetails($props)
-                                </li>
-                            #end
-                        #end
-                    #end
-                </ul>
-            #end
-        #end
+        #parse ("/vm/assignment/chef_assignments_student_view_feedback_attachments.vm")
 
         ## Show reviewer feedback from peer review (if exist and the peer review is closed)
         #if ($peerReviews)
