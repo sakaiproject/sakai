@@ -280,13 +280,9 @@
 </script>
 
 		<div id="addContentDiv" style="display:none" class="dropDownDiv specialLink lessonsDialog" role="menu" aria-label="Add content menu">
-		<div class="addContentMessage instruction" rsf:id="msg=simplepage.add-item-page"></div>
 		<ul>
 		  <li>
 		    <a role="button" href="#" rsf:id="add-text" class="add-text-link add-before-param" ><span rsf:id="msg.simplepage.text"></span></a>
-		  </li>
-		  <li>
-		    <a role="button" aria-haspopup="dialog" aria-controls="add-multimedia-dialog" href="#" rsf:id="add-multimedia" class="add-multimedia add-before-param"><span rsf:id="msg.simplepage.multimedia"></span></a>
 		  </li>
 		  <li>
 		    <a role="button" aria-haspopup="dialog" aria-controls="add-multimedia-dialog" href="#" rsf:id="add-resource" class="add-resource add-before-param"><span rsf:id="msg.simplepage.resource"></span></a>
@@ -294,15 +290,15 @@
 		  <li>
 		    <a role="button" aria-haspopup="dialog" aria-controls="subpage-dialog" href="#" rsf:id="subpage-link" class="subpage-link"><span rsf:id="msg=simplepage.subpage"></span></a>
 		  </li>
-		  <li>
-		    <a role="menuitem" href="#" rsf:id="add-folder" class="add-folder add-before-param"><span rsf:id="msg.simplepage.folder"></span></a>
-		  </li>
 		  <li rsf:id="blti-app-li">
 		    <a href="#" role="button" rsf:id="add-blti-app" class="add-before-param"><span rsf:id="msg.simplepage.blti.app"></span></a>
 		  </li>
 		  <li>
-		    <a role="menuitem button" href="#" rsf:id="add-from-subpage" class="add-before-param"><span rsf:id="simplepage.reorder-addpage"></span></a>
+		    <a role="button" href="#" rsf:id="add-from-subpage" class="add-before-param"><span rsf:id="simplepage.reorder-addpage"></span></a>
           </li>
+		  <li>
+		    <a role="button" aria-haspopup="dialog" aria-controls="add-multimedia-dialog" href="#" rsf:id="add-multimedia" class="add-multimedia add-before-param"><span rsf:id="msg.simplepage.multimedia"></span></a>
+		  </li>
 		  <hr class="addbreak" style="border:none" rsf:id="add-break1"/>
 		  <li rsf:id="add-break2" class="addbreak">
 		    <a role="button" href="#" rsf:id="add-break3" class="add-break-section"><span rsf:id="msg=simplepage.break-items"></span></a>
@@ -329,14 +325,20 @@
                   <li rsf:id="forum-li">
                     <a role="button" class="add-forum-link add-before-param" href="#" rsf:id="add-forum"><span rsf:id="msg.simplepage.forum"></span></a>
                   </li>
-                  <li rsf:id="twitter-li">
-                    <a href="#" role="menuitem" rsf:id="add-twitter" class="twitter-link"><span rsf:id="msg=simplepage.twitter"></span></a>
-                  </li>
+		  <li>
+		    <a role="menuitem" href="#" rsf:id="add-folder" class="add-folder add-before-param"><span rsf:id="msg.simplepage.folder"></span></a>
+		  </li>
+		  <li rsf:id="calendar-li">
+		    <a role="menuitem" rsf:id="calendar-link" class="calendar-link add-before-param"><span rsf:id="msg=simplepage.calendarLinkText"></span></a>
+		  </li>
 		  <li rsf:id="announcements-li">
 		    <a role="menuitem" href="#" rsf:id="announcements-link" class="announcements-link"><span rsf:id="msg=simplepage.announcementsLinkText"></span></a>
 		  </li>
 		  <li rsf:id="forum-summary-li">
 		    <a role="menuitem" href="#" rsf:id="forum-summary-link" class="forum-summary-link"><span rsf:id="msg=simplepage.forumSummaryLinkText"></span></a>
+		  </li>
+		  <li rsf:id="twitter-li">
+		    <a href="#" role="menuitem" rsf:id="add-twitter" class="twitter-link"><span rsf:id="msg=simplepage.twitter"></span></a>
 		  </li>
 		  <hr style="border:none"/>
             <li rsf:id="checklist-li">
@@ -372,6 +374,7 @@
                     <a href="#" role="button" rsf:id="add-blti" class="add-before-param"><span rsf:id="msg.simplepage.blti"></span></a>
                   </li>
 		</ul>
+		<div class="addContentMessage instruction" rsf:id="msg=simplepage.add-item-page"></div>
 		</div>
 
 		<div rsf:id="moreDiv" id="moreDiv" style="display:none" class="dropDownDiv specialLink lessonsDialog" role="menu" aria-label="More menu options">
