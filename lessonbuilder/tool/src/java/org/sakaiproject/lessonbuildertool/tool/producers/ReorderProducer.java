@@ -33,25 +33,13 @@ import lombok.extern.slf4j.Slf4j;
 import lombok.Setter;
 import org.apache.commons.lang.StringUtils;
 import org.sakaiproject.content.api.ContentTypeImageService;
-import org.sakaiproject.util.FormattedText;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.sakaiproject.lessonbuildertool.SimplePage;
-import org.sakaiproject.lessonbuildertool.SimplePageItem;
-import org.sakaiproject.lessonbuildertool.model.SimplePageToolDao;
-import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean;
-import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean.Status;
-import org.sakaiproject.lessonbuildertool.tool.view.GeneralViewParameters;
-
-import org.sakaiproject.tool.cover.SessionManager;
-import org.sakaiproject.tool.api.ToolSession;
 
 import uk.org.ponder.localeutil.LocaleGetter;
 import uk.org.ponder.messageutil.MessageLocator;
 import uk.org.ponder.rsf.components.*;
 import uk.org.ponder.rsf.components.decorators.UIFreeAttributeDecorator;
-
 import uk.org.ponder.rsf.components.decorators.UIStyleDecorator;
+
 import uk.org.ponder.rsf.flow.jsfnav.NavigationCase;
 import uk.org.ponder.rsf.flow.jsfnav.NavigationCaseReporter;
 import uk.org.ponder.rsf.view.ComponentChecker;
