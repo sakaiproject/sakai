@@ -114,6 +114,12 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 	private static final String STATUS_CREATED = "CREATED";
 	private static final String STATUS_COMPLETE = "COMPLETE";
 	private static final String STATUS_PROCESSING = "PROCESSING";
+	
+	private static final String RESPONSE_CODE = "responseCode";
+	private static final String RESPONSE_MESSAGE = "responseMessage";
+	private static final String RESPONSE_BODY = "responseBody";
+	private static final String GIVEN_NAME = "given_name";
+	private static final String FAMILY_NAME = "family_name";
 
 	private String serviceUrl;
 	private String apiKey;
@@ -250,10 +256,9 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 			User user = userDirectoryService.getUser(userId);
 			Map<String, Object> data = new HashMap<String, Object>();
 
-			// Set user name 
-			//TODO: hard code parameter names
-			data.put("given_name", user.getFirstName());
-			data.put("family_name", user.getLastName());
+			// Set user name
+			data.put(GIVEN_NAME, user.getFirstName());
+			data.put(FAMILY_NAME, user.getLastName());
 
 			// Check user preference for locale			
 			// If user has no preference set - get the system default
@@ -270,18 +275,13 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 					null);
 
 			// Get response:
-			//TODO: hard code responseCode, responseMessage, responseBody
-			//TODO: NPE check on (int) and (String) casts
-			int responseCode = (int) response.get("responseCode");
-			String responseMessage = (String) response.get("responseMessage");
-			String responseBody = (String) response.get("responseBody");
+			int responseCode = !response.containsKey(RESPONSE_CODE) ? 0 : (int) response.get(RESPONSE_CODE);
+			String responseMessage = !response.containsKey(RESPONSE_MESSAGE) ? "" : (String) response.get(RESPONSE_MESSAGE);
+			String responseBody = !response.containsKey(RESPONSE_BODY) ? "" : (String) response.get(RESPONSE_BODY);
 	
-			// create JSONObject from responseBody
-			//TODO: NPE check on resopnse body, also, move inside if(>200){}
-			JSONObject responseJSON = JSONObject.fromObject(responseBody);
-	
-			if ((responseCode >= 200) && (responseCode < 300)) {
-	
+			if ((responseCode >= 200) && (responseCode < 300) && (responseBody != null)) {
+				// create JSONObject from responseBody
+				JSONObject responseJSON = JSONObject.fromObject(responseBody);
 				if (responseJSON.containsKey("viewer_url")) {
 					viewerUrl = responseJSON.getString("viewer_url");
 					log.info("Successfully retrieved viewer url: " + viewerUrl);
@@ -334,12 +334,12 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 
 		// Open connection and set HTTP method
 		connection = (HttpURLConnection) url.openConnection();
-		//TODO: Do Output should only happen if there is output to write
-		connection.setDoOutput(true);
 		connection.setRequestMethod(method);
 
 		// Set headers
-		//TODO: NPE check got headers
+		if (headers == null) {
+			throw new Error("No headers present for call: " + method + ":" + urlStr);
+		}
 		for (Entry<String, String> entry : headers.entrySet()) {
 			connection.setRequestProperty(entry.getKey(), entry.getValue());
 		}
@@ -347,6 +347,7 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 		// Set Post body:
 		if (data != null) {
 			// Convert data to string:
+			connection.setDoOutput(true);
 			wr = new DataOutputStream(connection.getOutputStream());
 			ObjectMapper objectMapper = new ObjectMapper();
 			String dataStr = objectMapper.writeValueAsString(data);
@@ -354,6 +355,7 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 			wr.flush();
 			wr.close();
 		} else if (dataBytes != null) {
+			connection.setDoOutput(true);
 			wr = new DataOutputStream(connection.getOutputStream());
 			wr.write(dataBytes);
 			wr.close();
@@ -365,10 +367,9 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 		String responseBody = IOUtils.toString(connection.getInputStream(), StandardCharsets.UTF_8);
 		
 		HashMap<String, Object> response = new HashMap<String, Object>();
-		//TODO: hard code responseCode, responseMessage, responseBody
-		response.put("responseCode", responseCode);
-		response.put("responseMessage", responseMessage);
-		response.put("responseBody", responseBody);
+		response.put(RESPONSE_CODE, responseCode);
+		response.put(RESPONSE_MESSAGE, responseMessage);
+		response.put(RESPONSE_BODY, responseBody);
 		
 		return response;
 	}
@@ -411,11 +412,9 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 			null);
 		
 		// Get response:
-		//TODO: hard code responseCode, responseMessage, responseBody
-		//TODO: NPE check on (int) and (String) casts
-		int responseCode = (int) response.get("responseCode");
-		String responseMessage = (String) response.get("responseMessage");
-		String responseBody = (String) response.get("responseBody");
+		int responseCode = !response.containsKey(RESPONSE_CODE) ? 0 : (int) response.get(RESPONSE_CODE);
+		String responseMessage = !response.containsKey(RESPONSE_MESSAGE) ? "" : (String) response.get(RESPONSE_MESSAGE);
+		String responseBody = !response.containsKey(RESPONSE_BODY) ? "" : (String) response.get(RESPONSE_BODY);
 		
 		if ((responseCode >= 200) && (responseCode < 300)) {
 			log.debug("Successfully initiated Similarity Report generation.");
@@ -435,11 +434,9 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 				null,
 				null);
 		// Get response data:
-		//TODO: hard code responseCode, responseMessage, responseBody
-		//TODO: NPE check on (int) and (String) casts
-		int responseCode = (int) response.get("responseCode");
-		String responseMessage = (String) response.get("responseMessage");
-		String responseBody = (String) response.get("responseBody");
+		int responseCode = !response.containsKey(RESPONSE_CODE) ? 0 : (int) response.get(RESPONSE_CODE);
+		String responseMessage = !response.containsKey(RESPONSE_MESSAGE) ? "" : (String) response.get(RESPONSE_MESSAGE);
+		String responseBody = !response.containsKey(RESPONSE_BODY) ? "" : (String) response.get(RESPONSE_BODY);
 
 		// Create JSONObject from response
 		JSONObject responseJSON = JSONObject.fromObject(responseBody);
@@ -464,11 +461,9 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 				null);
 
 		// Get response:
-		//TODO: hard code responseCode, responseMessage, responseBody
-		//TODO: NPE check on (int) and (String) casts
-		int responseCode = (int) response.get("responseCode");
-		String responseMessage = (String) response.get("responseMessage");
-		String responseBody = (String) response.get("responseBody");
+		int responseCode = !response.containsKey(RESPONSE_CODE) ? 0 : (int) response.get(RESPONSE_CODE);
+		String responseMessage = !response.containsKey(RESPONSE_MESSAGE) ? "" : (String) response.get(RESPONSE_MESSAGE);
+		String responseBody = !response.containsKey(RESPONSE_BODY) ? "" : (String) response.get(RESPONSE_BODY);
 
 		// create JSONObject from response
 		JSONObject responseJSON = JSONObject.fromObject(responseBody);
@@ -481,9 +476,8 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 				if (responseJSON.containsKey("overall_match_percentage")) {
 					return responseJSON.getInt("overall_match_percentage");
 				} else {
-					log.warn("Report complete but no overall match percentage, defaulting to 0");
-					//TODO: 0 is not a good response here, a normal score could be 0
-					return 0;
+					log.error("Report came back as complete, but without a score");
+					return -2;
 				}
 
 			} else if (responseJSON.containsKey("status")
@@ -491,14 +485,12 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 				log.debug("report is processing...");
 				return -1;
 			} else {
-				//TODO: check if there is any known "failed" states, where retry doesn't make sense... if so, stop retrying
-				
-				//TODO: do not throw Error, return status instead
-				throw new Error("Something went wrong in the similarity report process: reportId " + reportId);
+				log.error("Something went wrong in the similarity report process: reportId " + reportId);
+				return -2;
 			}
 		} else {
-			//TODO: do not throw Error, return status instead
-			throw new Error(responseMessage);
+			log.error("Submission status call failed: " + responseMessage);
+			return -2;
 		}
 	}
 
@@ -519,11 +511,9 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 					null);
 
 			// Get response:
-			//TODO: hard code responseCode, responseMessage, responseBody
-			//TODO: NPE check on (int) and (String) casts
-			int responseCode = (int) response.get("responseCode");
-			String responseMessage = (String) response.get("responseMessage");
-			String responseBody = (String) response.get("responseBody");
+			int responseCode = !response.containsKey(RESPONSE_CODE) ? 0 : (int) response.get(RESPONSE_CODE);
+			String responseMessage = !response.containsKey(RESPONSE_MESSAGE) ? "" : (String) response.get(RESPONSE_MESSAGE);
+			String responseBody = !response.containsKey(RESPONSE_BODY) ? "" : (String) response.get(RESPONSE_BODY);
 
 			// create JSONObject from responseBody
 			JSONObject responseJSON = JSONObject.fromObject(responseBody);
@@ -552,18 +542,20 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 	// Loop 1 contains stage one and two, Loop 2 contains stage three
 	public void processQueue() {
 		log.info("Processing Turnitin OC submission queue");
+		// Create new Calendar instance used for adding delay time to current time
+		Calendar cal = Calendar.getInstance();
 		
 		ExecutorService executor = Executors.newFixedThreadPool(2);
 		executor.execute(new Runnable() {
 			@Override
 			public void run() {
-				//TODO: put first loop here, but call it in a function
+				processUnsubmitted(cal);
 			}
 		});
 		executor.execute(new Runnable() {
 			@Override
 			public void run() {
-				//TODO: put second loop here, but call it in a function
+				checkForReport(cal);
 			}
 		});
 		executor.shutdown();
@@ -575,41 +567,72 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 		} catch (InterruptedException e) {
 			log.error(e.getMessage(), e);
 		}
-		
-		
-		
-		
-		
-		
+	}
+	
+	public void checkForReport(Calendar cal) {
+		// Original file has been uploaded, and similarity report has been requested
+		// Check for status of report and return score
+		int errors = 0;
+		int success = 0;
+
+		for (ContentReviewItem item : crqs.getAwaitingReports(getProviderId())) {
+			// Make sure it's after the next retry time
+			if (item.getNextRetryTime().getTime() > new Date().getTime()) {
+				continue;
+			}
+			if (!incrementItem(cal, item)) {
+				errors++;
+				continue;
+			}
+			try {
+				// Get status of similarity report
+				// Returns -1 if report is still processing
+				// Returns -2 if an error occurs
+				// Else returns reports score as integer
+				int status = getSimilarityReportStatus(item.getExternalId());
+				if (status > -1) {					
+					log.info("Report complete! Score: " + status);
+					// Status value is report score
+					item.setReviewScore(status);		
+					item.setStatus(ContentReviewConstants.CONTENT_REVIEW_SUBMITTED_REPORT_AVAILABLE_CODE);
+					item.setDateReportReceived(new Date());
+					item.setRetryCount(Long.valueOf(0));
+					item.setLastError(null);
+					item.setErrorCode(null);
+					crqs.update(item);
+				} else if (status == -1) {
+					// Similarity report is still generating, will try again
+					log.info("Processing report " + item.getExternalId() + "...");
+				} else if(status == -2){
+					throw new Error("Unknown error during report status call");
+				}
+			} catch (Exception e) {
+				log.error(e.getLocalizedMessage(), e);
+				item.setLastError(e.getMessage());
+				item.setStatus(ContentReviewConstants.CONTENT_REVIEW_REPORT_ERROR_RETRY_CODE);
+				crqs.update(item);
+				errors++;
+			}
+		}
+
+		log.info("Submission Turnitin queue run completed: " + success + " items submitted, " + errors + " errors.");
+	}
+	
+	public void processUnsubmitted(Calendar cal) {
+		// Submission process phase 1
+		// 1. Establish submission object, get ID
+		// 2. Upload original file to submission
+		// 3. Start originality report
 		int errors = 0;
 		int success = 0;
 		Optional<ContentReviewItem> nextItem = null;
 
-		// LOOP 1
 		while ((nextItem = crqs.getNextItemInQueueToSubmit(getProviderId())).isPresent()) {
 			ContentReviewItem item = nextItem.get();
 			
-			// Create new Calendar instance used for adding delay time to current time
-			Calendar cal = Calendar.getInstance();
-			// If retry count is null set to 0
-			if (item.getRetryCount() == null) {
-				item.setRetryCount(Long.valueOf(0));
-				item.setNextRetryTime(cal.getTime());
-				crqs.update(item);
-				// If retry count is above maximum increment error count, set status to nine and stop retrying
-			} else if (item.getRetryCount().intValue() > TURNITIN_MAX_RETRY) {
-				item.setStatus(ContentReviewConstants.CONTENT_REVIEW_SUBMISSION_ERROR_RETRY_EXCEEDED_CODE);
-				crqs.update(item);
+			if (!incrementItem(cal, item)) {
 				errors++;
 				continue;
-				// Increment retry count, adjust delay time, schedule next retry attempt
-			} else {
-				long retryCount = item.getRetryCount().longValue();
-				retryCount++;
-				item.setRetryCount(Long.valueOf(retryCount));
-				cal.add(Calendar.MINUTE, getDelayTime(retryCount));
-				item.setNextRetryTime(cal.getTime());
-				crqs.update(item);
 			}
 
 			ContentResource resource = null;
@@ -744,46 +767,31 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 				}
 			}
 		}
+		
+		log.info("Turnitin queue phase 1 completed: " + success + " items submitted, " + errors + " errors.");
+	}
 
-		// LOOP 2
-		// UPLOADED CONTENTS, AWAITING SIMILAIRTY REPORT (STAGE 3)
-		for (ContentReviewItem item : crqs.getAwaitingReports(getProviderId())) {
-			// Make sure it's after the next retry time
-			if (item.getNextRetryTime().getTime() > new Date().getTime()) {
-				continue;
-			}
-			try {
-				// Get status of similarity report
-				// Returns -1 if report is still processing
-				// Returns -2 if an error occurs
-				// Else returns reports score as integer
-				int status = getSimilarityReportStatus(item.getExternalId());
-				if (status > -1) {					
-					log.info("Report complete! Score: " + status);
-					// Status value is report score
-					item.setReviewScore(status);		
-					item.setStatus(ContentReviewConstants.CONTENT_REVIEW_SUBMITTED_REPORT_AVAILABLE_CODE);
-					item.setDateReportReceived(new Date());
-					item.setRetryCount(Long.valueOf(0));
-					item.setLastError(null);
-					item.setErrorCode(null);
-					crqs.update(item);
-				} else if (status == -1) {
-					// Similarity report is still generating, will try again
-					log.info("Processing report " + item.getExternalId() + "...");
-				} else if(status == -2){
-					throw new Error("Unknown error during report status call");
-				}
-			} catch (Exception e) {
-				log.error(e.getLocalizedMessage(), e);
-				item.setLastError(e.getMessage());
-				item.setStatus(ContentReviewConstants.CONTENT_REVIEW_REPORT_ERROR_RETRY_CODE);
-				crqs.update(item);
-				errors++;
-			}
+	public boolean incrementItem(Calendar cal, ContentReviewItem item) {
+		// If retry count is null set to 0
+		if (item.getRetryCount() == null) {
+			item.setRetryCount(Long.valueOf(0));
+			item.setNextRetryTime(cal.getTime());
+			crqs.update(item);
+			// If retry count is above maximum increment error count, set status to nine and stop retrying
+		} else if (item.getRetryCount().intValue() > TURNITIN_MAX_RETRY) {
+			item.setStatus(ContentReviewConstants.CONTENT_REVIEW_SUBMISSION_ERROR_RETRY_EXCEEDED_CODE);
+			crqs.update(item);
+			return false;
+			// Increment retry count, adjust delay time, schedule next retry attempt
+		} else {
+			long retryCount = item.getRetryCount().longValue();
+			retryCount++;
+			item.setRetryCount(Long.valueOf(retryCount));
+			cal.add(Calendar.MINUTE, getDelayTime(retryCount));
+			item.setNextRetryTime(cal.getTime());
+			crqs.update(item);
 		}
-
-		log.info("Submission Turnitin queue run completed: " + success + " items submitted, " + errors + " errors.");
+		return true;
 	}
 
 	public int getDelayTime(long retries) {
@@ -836,10 +844,8 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 				data);
 
 		// Get response:
-		//TODO: hard code responseCode, responseMessage, responseBody
-		//TODO: NPE check on (int) and (String) casts
-		int responseCode = (int) response.get("responseCode");
-		String responseMessage = (String) response.get("responseMessage");
+		int responseCode = !response.containsKey(RESPONSE_CODE) ? 0 : (int) response.get(RESPONSE_CODE);
+		String responseMessage = !response.containsKey(RESPONSE_MESSAGE) ? "" : (String) response.get(RESPONSE_MESSAGE);
 
 		if (responseCode < 200 || responseCode >= 300) {
 			throw new Error(responseCode + ": " + responseMessage);
