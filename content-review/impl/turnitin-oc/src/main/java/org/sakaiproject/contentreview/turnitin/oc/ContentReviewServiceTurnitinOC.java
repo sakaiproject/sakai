@@ -16,14 +16,13 @@
 package org.sakaiproject.contentreview.turnitin.oc;
 
 import java.io.DataOutputStream;
+import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Calendar;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -241,57 +240,35 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 	private String getViewerUrl(String userId, String contentId) {
 		
 		// Set variables
-		URL url = null;
-		HttpURLConnection connection = null;
-		DataOutputStream wr = null;
 		String viewerUrl = null;
 		
 		try {
-			
 			// Get current user
 			User user = userDirectoryService.getUser(userId);
 			Map<String, Object> data = new HashMap<String, Object>();
-			
+
 			// Set user name 			
 			data.put("given_name", user.getFirstName());
 			data.put("family_name", user.getLastName());
-			
+
 			// Check user preference for locale			
 			// If user has no preference set - get the system default
 			Locale locale = Optional.ofNullable(preferencesService.getLocale(userId))
 					.orElse(Locale.getDefault());
-						
+
 			// Set locale, getLanguage removes locale region
 			data.put("locale", locale.getLanguage());
-	
-			// Construct URL
-			url = new URL(getNormalizedServiceUrl() + "submissions/" + contentId + "/viewer-url");
-	
-			// Open connection and set HTTP method
-			connection = (HttpURLConnection) url.openConnection();
-			connection.setDoOutput(true);
-			connection.setRequestMethod("GET");
-	
-			// Set headers
-			for (Entry<String, String> entry : SUBMISSION_REQUEST_HEADERS.entrySet()) {
-				connection.setRequestProperty(entry.getKey(), entry.getValue());
-			}
-	
-			// Convert data to JSON:
-			ObjectMapper objectMapper = new ObjectMapper();
-			String json = objectMapper.writeValueAsString(data);
-	
-			// Set Post body:
-			connection.setDoOutput(true);
-			wr = new DataOutputStream(connection.getOutputStream());
-			wr.writeBytes(json);
-			wr.flush();
-			wr.close();
-	
-			// Send request:
-			int responseCode = connection.getResponseCode();
-			String responseMessage = connection.getResponseMessage();
-			String responseBody = IOUtils.toString(connection.getInputStream(), StandardCharsets.UTF_8);
+
+			HashMap<String, Object> response = makeHttpCall("GET",
+					getNormalizedServiceUrl() + "submissions/" + contentId + "/viewer-url",
+					SUBMISSION_REQUEST_HEADERS,
+					data,
+					null);
+
+			// Get response:
+			int responseCode = (int) response.get("responseCode");
+			String responseMessage = (String) response.get("responseMessage");
+			String responseBody = (String) response.get("responseBody");
 	
 			// create JSONObject from responseBody
 			JSONObject responseJSON = JSONObject.fromObject(responseBody);
@@ -337,21 +314,56 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 	public boolean isSiteAcceptable(Site arg0) {
 		return true;
 	}
-
-	private void generateSimilarityReport(String reportId, String assignmentId) throws Exception {
-
+	
+	private HashMap<String, Object> makeHttpCall(String method, String urlStr, Map<String, String> headers,  Map<String, Object> data, byte[] dataBytes) 
+		throws IOException {
 		// Set variables
 		HttpURLConnection connection = null;
 		DataOutputStream wr = null;
 		URL url = null;
 
 		// Construct URL
-		url = new URL(getNormalizedServiceUrl() + "submissions/" + reportId + "/similarity");
+		url = new URL(urlStr);
 
 		// Open connection and set HTTP method
 		connection = (HttpURLConnection) url.openConnection();
 		connection.setDoOutput(true);
-		connection.setRequestMethod("PUT");
+		connection.setRequestMethod(method);
+
+		// Set headers
+		for (Entry<String, String> entry : headers.entrySet()) {
+			connection.setRequestProperty(entry.getKey(), entry.getValue());
+		}
+
+		// Set Post body:
+		if (data != null) {
+			// Convert data to string:
+			wr = new DataOutputStream(connection.getOutputStream());
+			ObjectMapper objectMapper = new ObjectMapper();
+			String dataStr = objectMapper.writeValueAsString(data);
+			wr.writeBytes(dataStr);
+			wr.flush();
+			wr.close();
+		} else if (dataBytes != null) {
+			wr = new DataOutputStream(connection.getOutputStream());
+			wr.write(dataBytes);
+			wr.close();
+		}
+
+		// Send request:
+		int responseCode = connection.getResponseCode();
+		String responseMessage = connection.getResponseMessage();
+		String responseBody = IOUtils.toString(connection.getInputStream(), StandardCharsets.UTF_8);
+		
+		HashMap<String, Object> response = new HashMap<String, Object>();
+		response.put("responseCode", responseCode);
+		response.put("responseMessage", responseMessage);
+		response.put("responseBody", responseBody);
+		
+		return response;
+	}
+
+	private void generateSimilarityReport(String reportId, String assignmentId) throws Exception {
 		
 		Assignment assignment = assignmentService.getAssignment(assignmentId);
 		Map<String, String> assignmentSettings = assignment.getProperties();
@@ -367,7 +379,7 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 			repositories.add("JOURNAL");
 		}
 
-		// Build JSON header maps
+		// Build header maps
 		Map<String, Object> reportData = new HashMap<String, Object>();
 		Map<String, Object> generationSearchSettings = new HashMap<String, Object>();
 		generationSearchSettings.put("search_repositories", repositories);
@@ -377,28 +389,18 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 		viewSettings.put("exclude_quotes", "true".equals(assignmentSettings.get("exclude_quoted")) ? Boolean.TRUE : Boolean.FALSE);
 		viewSettings.put("exclude_bibliography", "true".equals(assignmentSettings.get("exclude_biblio")) ? Boolean.TRUE : Boolean.FALSE);
 		reportData.put("view_settings", viewSettings);
-
-		// Set headers
-		for (Entry<String, String> entry : SIMILARITY_REPORT_HEADERS.entrySet()) {
-			connection.setRequestProperty(entry.getKey(), entry.getValue());
-		}
-
-		// Convert data to JSON:
-		ObjectMapper objectMapper = new ObjectMapper();
-		String json = objectMapper.writeValueAsString(reportData);
-
-		// Set Post body:
-		connection.setDoOutput(true);
-		wr = new DataOutputStream(connection.getOutputStream());
-		wr.writeBytes(json);
-		wr.flush();
-		wr.close();
-
-		// Send request:
-		int responseCode = connection.getResponseCode();
-		String responseMessage = connection.getResponseMessage();
-		String responseBody = IOUtils.toString(connection.getInputStream(), StandardCharsets.UTF_8);
-
+		
+		HashMap<String, Object> response = makeHttpCall("PUT",
+			getNormalizedServiceUrl() + "submissions/" + reportId + "/similarity",
+			SIMILARITY_REPORT_HEADERS,
+			reportData,
+			null);
+		
+		// Get response:
+		int responseCode = (int) response.get("responseCode");
+		String responseMessage = (String) response.get("responseMessage");
+		String responseBody = (String) response.get("responseBody");
+		
 		if ((responseCode >= 200) && (responseCode < 300)) {
 			log.debug("Successfully initiated Similarity Report generation.");
 		} else if ((responseCode == 409)) {
@@ -410,32 +412,20 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 	}
 
 	private String getSubmissionStatus(String reportId) throws Exception {
-
-		// Set variables
-		URL url = null;
-		HttpURLConnection connection = null;
-		String status = null;
-
-		// Construct URL
-		url = new URL(getNormalizedServiceUrl() + "submissions/" + reportId);
-
-		// Open connection and set HTTP method
-		connection = (HttpURLConnection) url.openConnection();
-		connection.setDoOutput(true);
-		connection.setRequestMethod("GET");
-
-		// Set headers
-		for (Entry<String, String> entry : BASE_HEADERS.entrySet()) {
-			connection.setRequestProperty(entry.getKey(), entry.getValue());
-		}
-
-		// Send request:
-		int responseCode = connection.getResponseCode();
-		String responseMessage = connection.getResponseMessage();
-		String responseBody = IOUtils.toString(connection.getInputStream(), StandardCharsets.UTF_8);
+		
+		HashMap<String, Object> response = makeHttpCall("GET",
+				getNormalizedServiceUrl() + "submissions/" + reportId,
+				BASE_HEADERS,
+				null,
+				null);
+		// Get response data:
+		int responseCode = (int) response.get("responseCode");
+		String responseMessage = (String) response.get("responseMessage");
+		String responseBody = (String) response.get("responseBody");
 
 		// Create JSONObject from response
 		JSONObject responseJSON = JSONObject.fromObject(responseBody);
+		String status = null;
 
 		if ((responseCode >= 200) && (responseCode < 300)) {
 			// Get submission status value
@@ -472,27 +462,16 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 
 	private int getSimilarityReportStatus(String reportId) throws Exception {
 
-		// Set variables
-		URL url = null;
-		HttpURLConnection connection = null;
+		HashMap<String, Object> response = makeHttpCall("GET",
+				getNormalizedServiceUrl() + "submissions/" + reportId + "/similarity",
+				BASE_HEADERS,
+				null,
+				null);
 
-		// Construct URL
-		url = new URL(getNormalizedServiceUrl() + "submissions/" + reportId + "/similarity");
-
-		// Open connection and set HTTP method
-		connection = (HttpURLConnection) url.openConnection();
-		connection.setDoOutput(true);
-		connection.setRequestMethod("GET");
-
-		// Set headers
-		for (Entry<String, String> entry : BASE_HEADERS.entrySet()) {
-			connection.setRequestProperty(entry.getKey(), entry.getValue());
-		}
-
-		// Send request:
-		int responseCode = connection.getResponseCode();
-		String responseMessage = connection.getResponseMessage();
-		String responseBody = IOUtils.toString(connection.getInputStream(), StandardCharsets.UTF_8);
+		// Get response:
+		int responseCode = (int) response.get("responseCode");
+		String responseMessage = (String) response.get("responseMessage");
+		String responseBody = (String) response.get("responseBody");
 
 		// create JSONObject from response
 		JSONObject responseJSON = JSONObject.fromObject(responseBody);
@@ -523,46 +502,24 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 
 	private String getSubmissionId(String userID, String fileName) {
 
-		// Set variables
 		String submissionId = null;
-		URL url = null;
-		HttpURLConnection connection = null;
-		DataOutputStream wr = null;
-
 		try {
-			// Construct URL
-			url = new URL(getNormalizedServiceUrl() + "submissions");
 
-			// Open connection and set HTTP method
-			connection = (HttpURLConnection) url.openConnection();
-			connection.setDoOutput(true);
-			connection.setRequestMethod("POST");
-
-			// Build JSON header maps
+			// Build header maps
 			Map<String, Object> data = new HashMap<String, Object>();
 			data.put("owner", userID);
 			data.put("title", fileName);
 
-			// Set headers
-			for (Entry<String, String> entry : SUBMISSION_REQUEST_HEADERS.entrySet()) {
-				connection.setRequestProperty(entry.getKey(), entry.getValue());
-			}
+			HashMap<String, Object> response = makeHttpCall("POST",
+					getNormalizedServiceUrl() + "submissions",
+					SUBMISSION_REQUEST_HEADERS,
+					data,
+					null);
 
-			// Convert data to JSON:
-			ObjectMapper objectMapper = new ObjectMapper();
-			String json = objectMapper.writeValueAsString(data);
-
-			// Set Post body:
-			connection.setDoOutput(true);
-			wr = new DataOutputStream(connection.getOutputStream());
-			wr.writeBytes(json);
-			wr.flush();
-			wr.close();
-
-			// Send request:
-			int responseCode = connection.getResponseCode();
-			String responseMessage = connection.getResponseMessage();
-			String responseBody = IOUtils.toString(connection.getInputStream(), StandardCharsets.UTF_8);
+			// Get response:
+			int responseCode = (int) response.get("responseCode");
+			String responseMessage = (String) response.get("responseMessage");
+			String responseBody = (String) response.get("responseBody");
 
 			// create JSONObject from responseBody
 			JSONObject responseJSON = JSONObject.fromObject(responseBody);
@@ -752,9 +709,7 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 				if (status > -1) {					
 					log.info("Report complete! Score: " + status);
 					// Status value is report score
-					item.setReviewScore(status);
-					getViewerUrl(item.getUserId(), item.getExternalId());
-					//TODO HANDLE THE GENERATED VIEWER URL					
+					item.setReviewScore(status);		
 					item.setStatus(ContentReviewConstants.CONTENT_REVIEW_SUBMITTED_REPORT_AVAILABLE_CODE);
 					item.setDateReportReceived(new Date());
 					item.setRetryCount(Long.valueOf(0));
@@ -821,35 +776,19 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 	}
 
 	private void uploadExternalContent(String reportId, byte[] data) throws Exception {
+		
+		HashMap<String, Object> response = makeHttpCall("PUT",
+				getNormalizedServiceUrl() + "submissions/" + reportId + "/original/",
+				CONTENT_UPLOAD_HEADERS,
+				null,
+				data);
 
-		// Set variables
-		URL url = null;
-		HttpURLConnection connection = null;
-		DataOutputStream wr = null;
-
-		// Construct URL
-		url = new URL(getNormalizedServiceUrl() + "submissions/" + reportId + "/original/");
-
-		// Open connection and set HTTP method
-		connection = (HttpURLConnection) url.openConnection();
-		connection.setDoOutput(true);
-		connection.setRequestMethod("PUT");
-
-		// Set headers
-		for (Entry<String, String> entry : CONTENT_UPLOAD_HEADERS.entrySet()) {
-			connection.setRequestProperty(entry.getKey(), entry.getValue());
-		}
-
-		// Set Post body:
-		wr = new DataOutputStream(connection.getOutputStream());
-		wr.write(data);
-		wr.close();
-
-		// Send request:
-		int responseCode = connection.getResponseCode();
+		// Get response:
+		int responseCode = (int) response.get("responseCode");
+		String responseMessage = (String) response.get("responseMessage");
 
 		if (responseCode < 200 || responseCode >= 300) {
-			throw new Error(responseCode + ": " + connection.getResponseMessage());
+			throw new Error(responseCode + ": " + responseMessage);
 		}
 	}
 
