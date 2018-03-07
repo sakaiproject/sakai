@@ -31,6 +31,9 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.SortedSet;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
@@ -247,7 +250,8 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 			User user = userDirectoryService.getUser(userId);
 			Map<String, Object> data = new HashMap<String, Object>();
 
-			// Set user name 			
+			// Set user name 
+			//TODO: hard code parameter names
 			data.put("given_name", user.getFirstName());
 			data.put("family_name", user.getLastName());
 
@@ -266,11 +270,14 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 					null);
 
 			// Get response:
+			//TODO: hard code responseCode, responseMessage, responseBody
+			//TODO: NPE check on (int) and (String) casts
 			int responseCode = (int) response.get("responseCode");
 			String responseMessage = (String) response.get("responseMessage");
 			String responseBody = (String) response.get("responseBody");
 	
 			// create JSONObject from responseBody
+			//TODO: NPE check on resopnse body, also, move inside if(>200){}
 			JSONObject responseJSON = JSONObject.fromObject(responseBody);
 	
 			if ((responseCode >= 200) && (responseCode < 300)) {
@@ -286,7 +293,7 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 				throw new Error(responseMessage);
 			}
 		} catch (Exception e) {
-			log.error(e.getLocalizedMessage());
+			log.error(e.getLocalizedMessage(), e);
 		}
 	
 		return viewerUrl;
@@ -327,10 +334,12 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 
 		// Open connection and set HTTP method
 		connection = (HttpURLConnection) url.openConnection();
+		//TODO: Do Output should only happen if there is output to write
 		connection.setDoOutput(true);
 		connection.setRequestMethod(method);
 
 		// Set headers
+		//TODO: NPE check got headers
 		for (Entry<String, String> entry : headers.entrySet()) {
 			connection.setRequestProperty(entry.getKey(), entry.getValue());
 		}
@@ -356,6 +365,7 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 		String responseBody = IOUtils.toString(connection.getInputStream(), StandardCharsets.UTF_8);
 		
 		HashMap<String, Object> response = new HashMap<String, Object>();
+		//TODO: hard code responseCode, responseMessage, responseBody
 		response.put("responseCode", responseCode);
 		response.put("responseMessage", responseMessage);
 		response.put("responseBody", responseBody);
@@ -401,6 +411,8 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 			null);
 		
 		// Get response:
+		//TODO: hard code responseCode, responseMessage, responseBody
+		//TODO: NPE check on (int) and (String) casts
 		int responseCode = (int) response.get("responseCode");
 		String responseMessage = (String) response.get("responseMessage");
 		String responseBody = (String) response.get("responseBody");
@@ -416,21 +428,21 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 	}
 
 	private String getSubmissionStatus(String reportId) throws Exception {
-		
+		String status = null;
 		HashMap<String, Object> response = makeHttpCall("GET",
 				getNormalizedServiceUrl() + "submissions/" + reportId,
 				BASE_HEADERS,
 				null,
 				null);
 		// Get response data:
+		//TODO: hard code responseCode, responseMessage, responseBody
+		//TODO: NPE check on (int) and (String) casts
 		int responseCode = (int) response.get("responseCode");
 		String responseMessage = (String) response.get("responseMessage");
 		String responseBody = (String) response.get("responseBody");
 
 		// Create JSONObject from response
 		JSONObject responseJSON = JSONObject.fromObject(responseBody);
-		String status = null;
-
 		if ((responseCode >= 200) && (responseCode < 300)) {
 			// Get submission status value
 			if (responseJSON.containsKey("status")) {
@@ -440,27 +452,6 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 			throw new Exception("getSubmissionStatus invalid request: " + responseCode + ", " + responseMessage + ", "
 					+ responseBody);
 		}
-		// Handle possible error status
-		switch (status) {
-		case "UNSUPPORTED_FILETYPE":
-			throw new Error("The uploaded filetype is not supported");
-		case "PROCESSING_ERROR":
-			throw new Error("An unspecified error occurred while processing the submissions");
-		case "TOO_LITTLE_TEXT":
-			throw new Error(
-					"The submission does not have enough text to generate a Similarity Report (a submission must contain at least 20 words)");
-		case "TOO_MUCH_TEXT":
-			throw new Error(
-					"The submission has too much text to generate a Similarity Report (after extracted text is converted to UTF-8, the submission must contain less than 2MB of text)");
-		case "TOO_MANY_PAGES":
-			throw new Error(
-					"The submission has too many pages to generate a Similarity Report (a submission cannot contain more than 400 pages)");
-		case "FILE_LOCKED":
-			throw new Error("The uploaded file requires a password in order to be opened");
-		case "CORRUPT_FILE":
-			throw new Error("The uploaded file appears to be corrupt");
-		}
-
 		return status;
 	}
 
@@ -473,6 +464,8 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 				null);
 
 		// Get response:
+		//TODO: hard code responseCode, responseMessage, responseBody
+		//TODO: NPE check on (int) and (String) casts
 		int responseCode = (int) response.get("responseCode");
 		String responseMessage = (String) response.get("responseMessage");
 		String responseBody = (String) response.get("responseBody");
@@ -489,6 +482,7 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 					return responseJSON.getInt("overall_match_percentage");
 				} else {
 					log.warn("Report complete but no overall match percentage, defaulting to 0");
+					//TODO: 0 is not a good response here, a normal score could be 0
 					return 0;
 				}
 
@@ -497,9 +491,13 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 				log.debug("report is processing...");
 				return -1;
 			} else {
+				//TODO: check if there is any known "failed" states, where retry doesn't make sense... if so, stop retrying
+				
+				//TODO: do not throw Error, return status instead
 				throw new Error("Something went wrong in the similarity report process: reportId " + reportId);
 			}
 		} else {
+			//TODO: do not throw Error, return status instead
 			throw new Error(responseMessage);
 		}
 	}
@@ -521,6 +519,8 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 					null);
 
 			// Get response:
+			//TODO: hard code responseCode, responseMessage, responseBody
+			//TODO: NPE check on (int) and (String) casts
 			int responseCode = (int) response.get("responseCode");
 			String responseMessage = (String) response.get("responseMessage");
 			String responseBody = (String) response.get("responseBody");
@@ -552,6 +552,35 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 	// Loop 1 contains stage one and two, Loop 2 contains stage three
 	public void processQueue() {
 		log.info("Processing Turnitin OC submission queue");
+		
+		ExecutorService executor = Executors.newFixedThreadPool(2);
+		executor.execute(new Runnable() {
+			@Override
+			public void run() {
+				//TODO: put first loop here, but call it in a function
+			}
+		});
+		executor.execute(new Runnable() {
+			@Override
+			public void run() {
+				//TODO: put second loop here, but call it in a function
+			}
+		});
+		executor.shutdown();
+		// wait:
+		try {
+			if(!executor.awaitTermination(30, TimeUnit.MINUTES)){
+				log.error("ContentReviewServiceTurnitinOC.processQueue: time out waiting for executor to complete");
+			}
+		} catch (InterruptedException e) {
+			log.error(e.getMessage(), e);
+		}
+		
+		
+		
+		
+		
+		
 		int errors = 0;
 		int success = 0;
 		Optional<ContentReviewItem> nextItem = null;
@@ -588,21 +617,21 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 				// Get resource with current item's content Id
 				resource = contentHostingService.getResource(item.getContentId());
 			} catch (IdUnusedException e4) {
-				log.error("IdUnusedException: no resource with id " + item.getContentId());
+				log.error("IdUnusedException: no resource with id " + item.getContentId(), e4);
 				item.setLastError("IdUnusedException: no resource with id " + item.getContentId());
 				item.setStatus(ContentReviewConstants.CONTENT_REVIEW_SUBMISSION_ERROR_NO_RETRY_CODE);
 				crqs.update(item);
 				errors++;
 				continue;
 			} catch (PermissionException e) {
-				log.error("PermissionException: no resource with id " + item.getContentId());
+				log.error("PermissionException: no resource with id " + item.getContentId(), e);
 				item.setLastError("PermissionException: no resource with id " + item.getContentId());
 				item.setStatus(ContentReviewConstants.CONTENT_REVIEW_SUBMISSION_ERROR_NO_RETRY_CODE);
 				crqs.update(item);
 				errors++;
 				continue;
 			} catch (TypeException e) {
-				log.error("TypeException: no resource with id " + item.getContentId());
+				log.error("TypeException: no resource with id " + item.getContentId(), e);
 				item.setLastError("TypeException: no resource with id " + item.getContentId());
 				item.setStatus(ContentReviewConstants.CONTENT_REVIEW_SUBMISSION_ERROR_NO_RETRY_CODE);
 				crqs.update(item);
@@ -657,8 +686,10 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 				try {
 					// Get submission status, returns the state of the submission as string
 					String submissionStatus = getSubmissionStatus(item.getExternalId());
-					// Handle submission status
-					if ("COMPLETE".equals(submissionStatus)) {
+					// Handle possible error status
+					String errorStr = null;
+					switch (submissionStatus) {
+					case "COMPLETE":
 						// If submission status is complete, start similarity report process
 						generateSimilarityReport(item.getExternalId(), item.getTaskId().split("/")[4]);
 						// Update item status for loop 2
@@ -673,22 +704,39 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 						item.setNextRetryTime(cal.getTime());
 						crqs.update(item);
 						success++;
-					} else if ("PROCESSING".equals(submissionStatus)) {
+					case "PROCESSING":
 						// do nothing... try again
 						continue;
-					} else if ("CREATED".equals(submissionStatus)) {
-						// do nothing... try again					
+					case "CREATED":
+						// do nothing... try again
 						continue;
-					} else if ("ERROR".equals(submissionStatus)) {
-						throw new Error("Submission returned with ERROR status");
-					} else {
-						item.setLastError("SubmissionStatus " + submissionStatus);
+					case "UNSUPPORTED_FILETYPE":
+						errorStr = "The uploaded filetype is not supported";
+					case "PROCESSING_ERROR":
+						errorStr = "An unspecified error occurred while processing the submissions";
+					case "TOO_LITTLE_TEXT":
+						errorStr = "The submission does not have enough text to generate a Similarity Report (a submission must contain at least 20 words)";
+					case "TOO_MUCH_TEXT":
+						errorStr = "The submission has too much text to generate a Similarity Report (after extracted text is converted to UTF-8, the submission must contain less than 2MB of text)";
+					case "TOO_MANY_PAGES":
+						errorStr = "The submission has too many pages to generate a Similarity Report (a submission cannot contain more than 400 pages)";
+					case "FILE_LOCKED":
+						errorStr = "The uploaded file requires a password in order to be opened";
+					case "CORRUPT_FILE":
+						errorStr = "The uploaded file appears to be corrupt";
+					case "ERROR":				
+						errorStr = "Submission returned with ERROR status";
+					default:
+						log.info("Unknown submission status, will retry: " + submissionStatus);
+					}
+					if(StringUtils.isNotEmpty(errorStr)) {
+						item.setLastError(errorStr);
 						item.setStatus(ContentReviewConstants.CONTENT_REVIEW_SUBMISSION_ERROR_NO_RETRY_CODE);
 						crqs.update(item);
 						errors++;
 					}
 				} catch (Exception e) {
-					log.error(e.getMessage());
+					log.error(e.getMessage(), e);
 					item.setLastError(e.getMessage());
 					item.setStatus(ContentReviewConstants.CONTENT_REVIEW_SUBMISSION_ERROR_RETRY_CODE);
 					crqs.update(item);
@@ -723,13 +771,13 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 				} else if (status == -1) {
 					// Similarity report is still generating, will try again
 					log.info("Processing report " + item.getExternalId() + "...");
-				} else {
-					throw new Error("Report score returned negative value");
+				} else if(status == -2){
+					throw new Error("Unknown error during report status call");
 				}
 			} catch (Exception e) {
-				log.error(e.getLocalizedMessage());
+				log.error(e.getLocalizedMessage(), e);
 				item.setLastError(e.getMessage());
-				item.setStatus(ContentReviewConstants.CONTENT_REVIEW_REPORT_ERROR_NO_RETRY_CODE);
+				item.setStatus(ContentReviewConstants.CONTENT_REVIEW_REPORT_ERROR_RETRY_CODE);
 				crqs.update(item);
 				errors++;
 			}
@@ -788,6 +836,8 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 				data);
 
 		// Get response:
+		//TODO: hard code responseCode, responseMessage, responseBody
+		//TODO: NPE check on (int) and (String) casts
 		int responseCode = (int) response.get("responseCode");
 		String responseMessage = (String) response.get("responseMessage");
 
@@ -807,9 +857,7 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 				int score = getReviewScore(contentId, item.getTaskId(), null);
 				log.debug(" getReviewScore returned a score of: {} ", score);
 			} catch (Exception e) {
-				log.error(
-						"Turnitin - getReviewScore error called from getContentReviewItemByContentId with content {} - {}",
-						contentId, e.getMessage());
+				log.error("Turnitin - getReviewScore error called from getContentReviewItemByContentId with content " + contentId + ", " + e.getMessage(), e);
 			}
 			return item;
 		}
@@ -818,11 +866,11 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 	
 	@Override
 	public String getEndUserLicenseAgreementLink() {
-		return null;
+		return "https://www.vericite.com";
 	}
 
 	@Override
 	public Instant getEndUserLicenseAgreementTimestamp() {
-		return null;
+		return Instant.MIN;
 	}
 }
