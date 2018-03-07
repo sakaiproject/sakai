@@ -40,7 +40,7 @@
             modal: true,
             resizable: false,
             draggable: false
-        }).parent('.ui-dialog').css('zIndex', 150000);
+        }).parent('.ui-dialog').css('zIndex', 900);
 
         $("#externalLink-dialog-close").click(function(e){
             e.preventDefault();

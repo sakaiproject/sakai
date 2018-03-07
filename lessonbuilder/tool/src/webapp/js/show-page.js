@@ -39,7 +39,7 @@ function msg(s) {
 
 function setupdialog(oe) {
 	oe.dialog("option", "width", modalDialogWidth());
-	$('.ui-dialog').css('zIndex',150000);
+	$('.ui-dialog').css('zIndex', 900);
 }
 
 function checksize(oe) {
@@ -374,14 +374,14 @@ $(document).ready(function() {
 			modal: false,
 			resizable: false,
 			draggable: false
-                }).parent('.ui-dialog').css('zIndex',150000);
+                }).parent('.ui-dialog').css('zIndex',900);
 
 		$('#moreDiv').dialog({
 			autoOpen: false,
 			modal: false,
 			resizable: false,
 			draggable: false
-		}).parent('.ui-dialog').css('zIndex',150000);
+		}).parent('.ui-dialog').css('zIndex',900);
 
 		$('#column-dialog').dialog({
 			autoOpen: false,
@@ -389,7 +389,7 @@ $(document).ready(function() {
 			width: 'auto',
 			resizable: false,
 			draggable: true
-		}).parent('.ui-dialog').css('zIndex',150000);
+		}).parent('.ui-dialog').css('zIndex',900);
 
 		$('#delete-confirm').dialog({
 			autoOpen: false,
@@ -403,7 +403,7 @@ $(document).ready(function() {
 				      }},{text:msg("simplepage.cancel_message"),
 				          click: function() {
 				          $( this ).dialog( "close" );}}
-				]}).parent('.ui-dialog').css('zIndex',150000);
+				]}).parent('.ui-dialog').css('zIndex',900);
 		
 		$(window).resize(function() {
 			var modalDialogList = ['#subpage-dialog', '#edit-item-dialog', '#edit-multimedia-dialog',
