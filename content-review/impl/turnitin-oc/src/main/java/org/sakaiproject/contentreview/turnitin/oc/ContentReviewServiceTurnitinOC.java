@@ -58,6 +58,8 @@ import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.TypeException;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.tool.api.Session;
+import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.user.api.PreferencesService;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
@@ -96,6 +98,9 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 
 	@Setter
 	private ContentHostingService contentHostingService;
+	
+	@Setter
+	private SessionManager sessionManager;
 
 	private static final String SERVICE_NAME = "TurnitinOC";
 	private static final String TURNITIN_OC_API_VERSION = "v1";
@@ -544,17 +549,20 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 		log.info("Processing Turnitin OC submission queue");
 		// Create new Calendar instance used for adding delay time to current time
 		Calendar cal = Calendar.getInstance();
-		
+		// Create new session object to ensure permissions are carried correctly to each new thread
+		final Session session = sessionManager.getCurrentSession();
 		ExecutorService executor = Executors.newFixedThreadPool(2);
 		executor.execute(new Runnable() {
 			@Override
 			public void run() {
+				sessionManager.setCurrentSession(session);
 				processUnsubmitted(cal);
 			}
 		});
 		executor.execute(new Runnable() {
 			@Override
 			public void run() {
+				sessionManager.setCurrentSession(session);
 				checkForReport(cal);
 			}
 		});
