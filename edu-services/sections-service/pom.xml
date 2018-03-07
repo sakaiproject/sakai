@@ -29,12 +29,6 @@
                 <version>${project.version}</version>
                 <scope>provided</scope>
             </dependency>
-            <dependency>
-                <groupId>org.sakaiproject.edu-services.sections</groupId>
-                <artifactId>sections-integrationsupport</artifactId>
-                <version>${project.version}</version>
-                <scope>provided</scope>
-            </dependency>
         </dependencies>
     </dependencyManagement>
 </project>

@@ -76,15 +76,6 @@
             <artifactId>sections-api</artifactId>
             <scope>provided</scope>
         </dependency>
-        <!--
-            TODO Come up with a way to make the dependencies
-            deployment-sensitive.
-        -->
-        <!-- Needed for standalone user directory -->
-        <dependency>
-            <groupId>org.sakaiproject.edu-services.sections</groupId>
-            <artifactId>sections-integrationsupport</artifactId>
-        </dependency>
         <dependency>
             <groupId>org.hsqldb</groupId>
             <artifactId>hsqldb</artifactId>
