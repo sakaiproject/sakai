@@ -369,14 +369,18 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 		Map<String, String> assignmentSettings = assignment.getProperties();
 		
 		List<String> repositories = new ArrayList<>();
-		// if ("true".equals(assignmentSettings.get("internet_check"))) {
+		if ("true".equals(assignmentSettings.get("internet_check"))) {
 			repositories.add("INTERNET");
-		// }
-		// if ("true".equals(assignmentSettings.get("institution_check"))) {
+		}
+		if ("true".equals(assignmentSettings.get("institution_check"))) {
 			repositories.add("PRIVATE");
-		// }
+		}
 		if ("true".equals(assignmentSettings.get("journal_check"))) {
 			repositories.add("JOURNAL");
+		}
+		
+		if (repositories.size() == 0) {
+			throw new Error("Cannot generate similarity report - at least one search repo must be selected");
 		}
 
 		// Build header maps
@@ -386,8 +390,8 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 		reportData.put("generation_settings", generationSearchSettings);
 
 		Map<String, Object> viewSettings = new HashMap<String, Object>();
-		viewSettings.put("exclude_quotes", "true".equals(assignmentSettings.get("exclude_quoted")) ? Boolean.TRUE : Boolean.FALSE);
-		viewSettings.put("exclude_bibliography", "true".equals(assignmentSettings.get("exclude_biblio")) ? Boolean.TRUE : Boolean.FALSE);
+		viewSettings.put("exclude_quotes", "true".equals(assignmentSettings.get("exclude_quoted")));
+		viewSettings.put("exclude_bibliography", "true".equals(assignmentSettings.get("exclude_biblio")));
 		reportData.put("view_settings", viewSettings);
 		
 		HashMap<String, Object> response = makeHttpCall("PUT",
