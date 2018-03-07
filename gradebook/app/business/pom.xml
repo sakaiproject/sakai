@@ -68,16 +68,6 @@
         <scope>provided</scope>
         <version>${sakai.version}</version>
     </dependency>
-<!-- Standalone component -->
-	<!--    <dependency>
-      <groupId>org.sakaiproject.edu-services.sections</groupId>
-      <artifactId>sections-impl-standalone</artifactId>
-    </dependency> -->
-<!-- Used only for test data. -->
-    <dependency>
-      <groupId>org.sakaiproject.edu-services.sections</groupId>
-      <artifactId>sections-integrationsupport</artifactId>
-    </dependency>
 <!-- this is required for any Sakai JSF tool -->
     <dependency>
       <groupId>org.sakaiproject.jsf</groupId>
