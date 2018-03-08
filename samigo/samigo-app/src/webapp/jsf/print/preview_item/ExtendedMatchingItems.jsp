@@ -57,10 +57,10 @@
   <%-- answerBlock --%>
   <h:panelGroup styleClass="answerBlock" rendered="#{printSettings.showKeys || printSettings.showKeysFeedback}">
   	<h:outputLabel value="#{printMessages.answer_point}: "/>
-	<h:outputText value="#{question.itemData.score}">
-		<f:convertNumber maxFractionDigits="2"/>
+    <h:outputText value="#{question.itemData.score}">
+        <f:convertNumber maxFractionDigits="2"/>
     </h:outputText>
-  	<h:outputText escape="false" value=" #{authorMessages.points_lower_case}" />
+    <h:outputText escape="false" value=" #{authorMessages.points_lower_case}" />
   	<h:outputText value="<br />" escape="false" />
     <h:outputLabel value="#{printMessages.answer_key}: "/>
     <h:outputText escape="false" value="#{question.key}" />
