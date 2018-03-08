@@ -171,9 +171,9 @@ function toPoint(id)
         <t:dataList layout="unorderedList" itemStyleClass="list-group-item" styleClass="list-group question-wrapper" value="#{part.itemContents}" var="question">
                 <span class="badge">
                   <h:outputText escape="false" value="#{question.roundedMaxPoints}">
-                  	<f:convertNumber maxFractionDigits="2"/>
-    			  </h:outputText>
-    			  <h:outputText escape="false" value=" #{deliveryMessages.pt} "/>
+                    <f:convertNumber maxFractionDigits="2"/>
+                  </h:outputText>
+                  <h:outputText escape="false" value=" #{deliveryMessages.pt} "/>
                 </span>
                 <h:outputLink value="##{part.number}#{deliveryMessages.underscore}#{question.number}"> 
                   <h:outputText escape="false" value="#{question.number}#{deliveryMessages.dot} #{question.strippedText}"/>

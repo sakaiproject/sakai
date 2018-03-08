@@ -385,8 +385,7 @@ private static Logger log = LoggerFactory.getLogger(DeliveryBeanie.class);
 
   public String getRoundedRawScore() {
    try {
-      //String newscore= ContextUtil.getRoundedValue(rawScore, 2);
-	  String newscore=rawScore;
+      String newscore=rawScore;
       return Validator.check(newscore, "N/A");
     }
     catch (Exception e) {

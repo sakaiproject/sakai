@@ -342,8 +342,7 @@ public class QuestionScoresBean
    */
   public double getMaxScore()
   {
-    //return Precision.round(maxScore, 2);
-	return maxScore;
+    return maxScore;
   }
 
   /**
