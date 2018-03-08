@@ -507,8 +507,8 @@ div.layout-option > div {
    make them subjectively the same darkness.
 */
 /* default */
-.column .commentDiv, .column .studentContentTable, .column .questionDiv .contentCol, .column .checklistDiv, .column .forumSummaryHeaderDiv, .column .announcementsHeaderDiv, .column .fc-toolbar {
-  background-color: #b3ecff;
+.column .commentDiv, .column .studentContentTable, .column .questionDiv .contentCol, .column .forumSummaryHeaderDiv, .column .announcementsHeaderDiv, .column .fc-toolbar {
+  background-color: #ddd;
 }
 .column a[href]{
   color: #004860;
@@ -618,13 +618,16 @@ div.layout-option > div {
     color: #1a5276;
     border: 1px solid #1a5276;
 }
-.colnblue2-header, .colnblue2-trans-header {
+.colnblue2-header, .colnblue2-trans-header, .colnblue2 .forumSummaryHeaderDiv, .colnblue2-trans .forumSummaryHeaderDiv, .colnblue2 .announcementsHeaderDiv, .colnblue2-trans .announcementsHeaderDiv, .colnblue2 .fc-toolbar, .colnblue2-trans .fc-toolbar, .colnblue2 .questionDiv .contentCol, .colnblue2-trans .questionDiv .contentCol {
     background-color: #1a5276;
     color: #fff;
     border: 1px solid #1a5276;
 }
 .collapsibleSectionHeader.colnblue2-header:hover, .collapsibleSectionHeader.colnblue2-trans-header:hover {
     background-color: #0d293b;
+}
+.colnblue2 .forumSummaryHeaderDiv .forumSummaryLink, .colnblue2-trans .forumSummaryHeaderDiv .forumSummaryLink, .colnblue2 .announcementsHeaderDiv .announcementLink, .colnblue2-trans .announcementsHeaderDiv .announcementLink {
+    color: #fff;
 }
 
 .colnred, .colnred-trans {
@@ -674,13 +677,16 @@ div.layout-option > div {
     color: #2e4053;
     border: 1px solid #576675;
 }
-.colnnavy2-header, .colnnavy2-trans-header {
+.colnnavy2-header, .colnnavy2-trans-header, .colnnavy2 .forumSummaryHeaderDiv, .colnnavy2-trans .forumSummaryHeaderDiv, .colnnavy2 .announcementsHeaderDiv, .colnnavy2-trans .announcementsHeaderDiv,  .colnnavy2 .fc-toolbar, .colnnavy2-trans .fc-toolbar, .colnnavy2 .questionDiv .contentCol, .colnnavy2-trans .questionDiv .contentCol {
     background-color: #2e4053;
     color: #fff;
     border: 1px solid #576675;
 }
 .collapsibleSectionHeader.colnnavy2-header:hover, .collapsibleSectionHeader.colnnavy2-trans-header:hover {
     background-color: #172029;
+}
+.colnnavy2 .forumSummaryHeaderDiv .forumSummaryLink, .colnnavy2-trans .forumSummaryHeaderDiv .forumSummaryLink, .colnnavy2 .announcementsHeaderDiv .announcementLink, .colnnavy2-trans .announcementsHeaderDiv .announcementLink {
+    color: #fff;
 }
 
 .colngreen, .colngreen-trans {
@@ -702,6 +708,10 @@ div.layout-option > div {
     border-color: transparent;
     box-shadow: none;
     transition: none;
+}
+
+.colnblue2 .studentContentTable, .colnnavy2 .studentContentTable {
+    background: transparent;
 }
 
 .columnopen, .addbottom {
@@ -1140,13 +1150,13 @@ a.peer-eval-stats {
     margin-left: 23px;
 }
 .studentContentTable {
-        margin-top:10px;
+    margin-top:10px;
 	border: none;
 	background-color: #e4edff; 
 	padding: 14px 8px;
-	-moz-border-radius: 5px;
-	-webkit-border-radius: 5px;
-	border-radius: 5px;
+	-moz-border-radius: 2px;
+	-webkit-border-radius: 2px;
+	border-radius: 2px;
 }
 .studentContentTable .studentRow{
     padding:1px 8px;
@@ -1282,9 +1292,9 @@ img {
    width: 100.0%;
    vertical-align: top;
    overflow: hidden;
-   -moz-border-radius: 10px 10px 0px 0px;
-   -webkit-border-radius: 10px 10px 0px 0px;
-   border-radius: 10px 10px 0px 0px;
+   -moz-border-radius: 6px 6px 0 0;
+   -webkit-border-radius: 6px 6px 0 0;
+   border-radius: 6px 6px 0 0;
 }
 .forumSummaryHeader{
  padding: 0px 0px 10px 15px;
@@ -1306,10 +1316,10 @@ img {
  padding: 0 15px;
  font-family: 'Segoe UI', Segoe, Tahoma, Helvetica, Arial, sans-serif;
  color: #666;
- -moz-border-radius: 0px 0px 10px 10px;
- -webkit-border-radius: 0px 0px 10px 10px;
- border-radius: 0px 0px 10px 10px;
- border: solid #999 1px;
+ -moz-border-radius: 0 0 6px 6px;
+ -webkit-border-radius: 0 0 6px 6px;
+ border-radius: 0 0 6px 6px;
+ border: solid #ddd 1px;
  border-top-style: none;
 }
 .first-row {
@@ -1373,8 +1383,8 @@ img {
  overflow-y: auto;
  float: left;margin:
  0 10.0px 20.0px 0;
- border: solid #999 1px;
- border-radius: 0px 0px 10px 10px;
+ border: solid #ddd 1px;
+ border-radius: 0 0 6px 6px;
  clear: right;
 }
 .edit-twitter-div{
@@ -1644,9 +1654,9 @@ div[role="dialog"] {
    width: 100.0%;
    vertical-align: top;
    overflow: hidden;
-   -moz-border-radius: 10px 10px 0px 0px;
-   -webkit-border-radius: 10px 10px 0px 0px;
-   border-radius: 10px 10px 0px 0px;
+   -moz-border-radius: 6px 6px 0 0;
+   -webkit-border-radius: 6px 6px 0 0;
+   border-radius: 6px 6px 0 0;
 }
 .announcementSummaryHeader{
  padding: 0px 0px 10px 15px;
@@ -1657,10 +1667,10 @@ div[role="dialog"] {
 margin-left: 5px;
 }
 .announcementList {
- -moz-border-radius: 0px 0px 10px 10px;
- -webkit-border-radius: 0px 0px 10px 10px;
- border-radius: 0px 0px 10px 10px;
- border: solid #999 1px;
+ -moz-border-radius: 0 0 6px 6px;
+ -webkit-border-radius: 0 0 6px 6px;
+ border-radius: 0 0 6px 6px;
+ border: solid #ddd 1px;
  border-top-style: none;
  padding-bottom:15px;
 }
@@ -1704,7 +1714,7 @@ color: #666;
 }
 .calendar-div{
 max-width: 650px;
-border: solid #999 1px;
+border: solid #ddd 1px;
 border-radius: 0px 0px 10px 10px;
 }
 
