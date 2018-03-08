@@ -852,7 +852,11 @@ implements ActionListener
 					try {
 						gbsHelper.updateGradebook(assessment, g);
 					} catch (Exception e) {
+                                               String gbConflict_error=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","gbConflict_error");
+                                               context.addMessage(null,new FacesMessage(gbConflict_error));
+                                               evaluation.setToGradeBook("0");
 						log.warn("Exception thrown in updateGB():" + e.getMessage());
+                                               return false;
 					}
 				}
 				else{
