@@ -809,7 +809,7 @@ implements ActionListener
 			try{
 				assessmentName = TextFormat.convertPlaintextToFormattedTextNoHighUnicode(assessmentSettings.getTitle().trim());
 				gbItemExists = gbsHelper.isAssignmentDefined(assessmentName, g);
-				if (assessmentSettings.getToDefaultGradebook() && gbItemExists && isTitleChanged){
+				if (assessmentSettings.getToDefaultGradebook() && gbItemExists){
 					String gbConflict_error=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","gbConflict_error");
 					context.addMessage(null,new FacesMessage(gbConflict_error));
 					return false;
