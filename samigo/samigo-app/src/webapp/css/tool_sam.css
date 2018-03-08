@@ -165,12 +165,18 @@ font-size:1.2em
 }
 
 .titlePending {
-	width: 34%;
+	width: 27%;
+	border-right: 0 !important;
+}
+
+.titleActions {
+	width: 1px;
+	border-left: 0 !important;
 }
 
 @media screen and (max-width: 991px) {
 	.titlePending {
-		width: 50%;
+		width: 40%;
 	}
 }
 

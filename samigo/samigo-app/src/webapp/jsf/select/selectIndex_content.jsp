@@ -65,32 +65,32 @@
             var notEmptySelectTableTd = $("#selectIndexForm\\:selectTable td:not(:empty)").length;
             if (notEmptySelectTableTd > 0) {
               var table = $("#selectIndexForm\\:selectTable").DataTable({
-                  "paging": true,
-                  "lengthMenu": [[5, 10, 20, 50, 100, 200, -1], [5, 10, 20, 50, 100, 200, viewAllText]],
-                  "pageLength": 20,
-                  "aaSorting": [[2, "desc"]],
-                  "columns": [
-                      {"bSortable": true, "bSearchable": true, "type": "span"},
-                      {"bSortable": true, "bSearchable": false},
-                      {"bSortable": true, "bSearchable": true},
-                  ],
-                  "language": {
-                      "search": searchText,
-                      "lengthMenu": lengthMenuText,
-                      "zeroRecords": zeroRecordsText,
-                      "info": infoText,
-                      "infoEmpty": infoEmptyText,
-                      "infoFiltered": infoFilteredText,
-                      "emptyTable": emptyTableText,
-                      "paginate": {
-                          "next": nextText,
-                          "previous": previousText,
-                      },
-                      "aria": {
-                          "sortAscending": sortAscendingText,
-                          "sortDescending": sortDescendingText,
-                      }
-                  }
+                    "paging": true,
+                    "lengthMenu": [[5, 10, 20, 50, 100, 200, -1], [5, 10, 20, 50, 100, 200, viewAllText]],
+                    "pageLength": 20,
+                    "aaSorting": [[2, "desc"]],
+                    "columns": [
+                        {"bSortable": true, "bSearchable": true, "type": "span"},
+                        {"bSortable": true, "bSearchable": false},
+                        {"bSortable": true, "bSearchable": true},
+                    ],
+                    "language": {
+                        "search": searchText,
+                        "lengthMenu": lengthMenuText,
+                        "zeroRecords": zeroRecordsText,
+                        "info": infoText,
+                        "infoEmpty": infoEmptyText,
+                        "infoFiltered": infoFilteredText,
+                        "emptyTable": emptyTableText,
+                        "paginate": {
+                            "next": nextText,
+                            "previous": previousText,
+                        },
+                        "aria": {
+                            "sortAscending": sortAscendingText,
+                            "sortDescending": sortDescendingText,
+                        }
+                    }
               });
             }
 
