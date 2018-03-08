@@ -1757,7 +1757,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
 
     @Override
     public String submissionReference(String context, String id, String assignmentId) {
-        return AssignmentReferenceReckoner.reckoner().context(context).id(id).container(assignmentId).reckon().getReference();
+        return AssignmentReferenceReckoner.reckoner().context(context).id(id).container(assignmentId).subtype("s").reckon().getReference();
     }
 
     @Override
@@ -2177,7 +2177,10 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
 
     @Override
     public boolean assignmentUsesAnonymousGrading(Assignment assignment) {
-        return Boolean.valueOf(assignment.getProperties().get(AssignmentServiceConstants.NEW_ASSIGNMENT_CHECK_ANONYMOUS_GRADING));
+        if (assignment != null) {
+            return Boolean.valueOf(assignment.getProperties().get(AssignmentServiceConstants.NEW_ASSIGNMENT_CHECK_ANONYMOUS_GRADING));
+        }
+        return false;
     }
 
     @Override
@@ -2644,7 +2647,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
 
     private void removeAssociatedGradebookItem(Assignment assignment, String context) {
         String associatedGradebookAssignment = assignment.getProperties().get(AssignmentServiceConstants.PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT);
-        if (associatedGradebookAssignment != null) {
+        if (StringUtils.startsWith(associatedGradebookAssignment, REFERENCE_ROOT)) {
             try {
                 boolean isExternalAssignmentDefined = gradebookExternalAssessmentService.isExternalAssignmentDefined(context, associatedGradebookAssignment);
                 if (isExternalAssignmentDefined) {
@@ -3590,8 +3593,8 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                     nProperties.remove(ResourceProperties.PROP_ASSIGNMENT_DUEDATE_CALENDAR_EVENT_ID);
 
                     // gradebook-integration link
-                    String associatedGradebookAssignment = StringUtils.trimToNull(nProperties.get(PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT));
-                    if (associatedGradebookAssignment != null) {
+                    String associatedGradebookAssignment = nProperties.get(PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT);
+                    if (StringUtils.startsWith(associatedGradebookAssignment, REFERENCE_ROOT)) {
                         // see if the old assignment's associated gradebook item is an internal gradebook entry or externally defined
                         boolean isExternalAssignmentDefined = gradebookExternalAssessmentService.isExternalAssignmentDefined(oAssignment.getContext(), associatedGradebookAssignment);
                         if (isExternalAssignmentDefined) {

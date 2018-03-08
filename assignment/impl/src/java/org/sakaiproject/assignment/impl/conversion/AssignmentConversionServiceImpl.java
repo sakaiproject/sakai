@@ -378,6 +378,9 @@ public class AssignmentConversionServiceImpl implements AssignmentConversionServ
             assignment.getGroups().forEach(g -> a.getGroups().add(g.getAuthzGroup()));
         }
 
+        // remove any properties that are null or blank
+        properties.values().removeIf(StringUtils::isBlank);
+
         return a;
     }
 
@@ -499,6 +502,9 @@ public class AssignmentConversionServiceImpl implements AssignmentConversionServ
 
         // Add any remaining undefined keys as properties
         extraKeys.forEach(k -> properties.put(k, (String) submissionAny.get(k)));
+
+        // remove any properties that are null or blank
+        properties.values().removeIf(StringUtils::isBlank);
 
         return s;
     }

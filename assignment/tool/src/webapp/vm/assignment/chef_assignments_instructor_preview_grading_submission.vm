@@ -19,12 +19,11 @@
                     $tlang.getString("gen.student")
                 </th>
                 <td>
-					#set($anonymousSubmissionId = $!submission.Id + ' ' + ($tlang.getString("grading.anonymous.title")))
-					#if ($value_CheckAnonymousGrading.equals("true"))
-                    $anonymousSubmissionId
-                #else
-                    $validator.escapeHtml($!submitterNames)
-                #end
+					#if ($value_CheckAnonymousGrading)
+                        $validator.escapeHtml($!submission.Id) $tlang.getString("grading.anonymous.title")
+                    #else
+                        $validator.escapeHtml($!submitterNames)
+                    #end
 
                 </td>
             </tr>
