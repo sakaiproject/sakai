@@ -129,7 +129,6 @@ import org.sakaiproject.exception.InUseException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.ServerOverloadException;
 import org.sakaiproject.exception.TypeException;
-import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.service.gradebook.shared.GradeDefinition;
 import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService;
 import org.sakaiproject.service.gradebook.shared.GradebookNotFoundException;
@@ -157,7 +156,10 @@ import org.sakaiproject.util.api.LinkMigrationHelper;
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
+import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionCallbackWithoutResult;
+import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.util.Assert;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -194,7 +196,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
     @Setter private GradeSheetExporter gradeSheetExporter;
     @Setter private LearningResourceStoreService learningResourceStoreService;
     @Setter private LinkMigrationHelper linkMigrationHelper;
-    @Setter private MemoryService memoryService;
+    @Setter private TransactionTemplate transactionTemplate;
     @Setter private ResourceLoader resourceLoader;
     @Setter private SecurityService securityService;
     @Setter private SessionManager sessionManager;
@@ -205,13 +207,9 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
     @Setter private UserDirectoryService userDirectoryService;
     @Setter private UserTimeService userTimeService;
 
-    private DateTimeFormatter dateTimeFormatter;
     private boolean allowSubmitByInstructor;
 
     public void init() {
-        log.info("init()");
-        dateTimeFormatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmssSSS");
-
         allowSubmitByInstructor = serverConfigurationService.getBoolean("assignments.instructor.submit.for.student", true);
         if (!allowSubmitByInstructor) {
             log.info("Instructor submission of assignments is disabled - add assignments.instructor.submit.for.student=true to sakai config to enable");
@@ -488,11 +486,16 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                                 res.setContentType("application/zip");
                                 res.setHeader("Content-Disposition", "attachment; filename = bulk_download.zip");
 
-                                try (OutputStream out = res.getOutputStream()) {
-                                    getSubmissionsZip(out, ref.getReference(), queryString);
-                                } catch (Exception ignore) {
-                                    log.warn("Could not stream the zip of submissions for reference: {}", ref.getReference());
-                                }
+                                transactionTemplate.execute(new TransactionCallbackWithoutResult() {
+                                    @Override
+                                    protected void doInTransactionWithoutResult(TransactionStatus status) {
+                                        try (OutputStream out = res.getOutputStream()) {
+                                            getSubmissionsZip(out, ref.getReference(), queryString);
+                                        } catch (Exception ignore) {
+                                            log.warn("Could not stream the zip of submissions for reference: {}", ref.getReference());
+                                        }
+                                    }
+                                });
                             } else {
                                 // if subtype is assignment and there is no assignmentId then were downloading grades
                                 res.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
