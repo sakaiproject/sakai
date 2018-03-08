@@ -1033,7 +1033,7 @@
 			</div>
 			</div>
 		#end
-		#if( ($!withGrade && $!withGradebook) || ($enableAnonGrading || $value_CheckAnonymousGrading.equals("true")) )
+		#if(($!withGrade && $!withGradebook) || ($enableAnonGrading || $value_CheckAnonymousGrading))
 			<h4>$!tlang.getString('grading')</h4>
 		#end
 
@@ -1225,12 +1225,12 @@
 		#end
 
 		## SAK-17606 - Show the anonymous grading checkbox if enabled
-		#if( $enableAnonGrading || $value_CheckAnonymousGrading.equals("true") )
+		#if( $enableAnonGrading || $value_CheckAnonymousGrading)
 			#set ($anonDisabled = !$enableAnonGrading || $forceAnonGrading)
 			<div class="checkbox">
 				<label for="$name_CheckAnonymousGrading" #if($anonDisabled) class="disabled" #end>
 					<input id="$name_CheckAnonymousGrading" name="$name_CheckAnonymousGrading" type="checkbox" value="true"
-					#if ($forceAnonGrading || $value_CheckAnonymousGrading.equals("true"))
+					#if ($forceAnonGrading || $value_CheckAnonymousGrading)
 						checked="checked"
 					#end
 					#if($anonDisabled)

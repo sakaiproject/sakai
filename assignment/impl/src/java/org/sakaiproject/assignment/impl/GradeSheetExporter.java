@@ -225,7 +225,7 @@ public class GradeSheetExporter {
                                             try {
                                                 // numeric cell type?
                                                 String grade = null;
-                                                if (StringUtils.trimToNull(a.getProperties().get(AssignmentServiceConstants.PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT)) != null) {
+                                                if (StringUtils.startsWith(a.getProperties().get(AssignmentServiceConstants.PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT), AssignmentServiceConstants.REFERENCE_ROOT)) {
                                                     grade = assignmentService.getGradeForUserInGradeBook(submission.getAssignment().getId(), userId);
                                                 }
 
