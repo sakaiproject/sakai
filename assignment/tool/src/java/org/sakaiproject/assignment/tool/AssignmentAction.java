@@ -4642,8 +4642,6 @@ public class AssignmentAction extends PagedResourceActionII {
         String search = (String) state.getAttribute(VIEW_SUBMISSION_SEARCH);
         Boolean searchFilterOnly = (state.getAttribute(SUBMISSIONS_SEARCH_ONLY) != null && ((Boolean) state.getAttribute(SUBMISSIONS_SEARCH_ONLY)) ? Boolean.TRUE : Boolean.FALSE);
 
-        // get the realm and its member
-        List studentMembers = new ArrayList();
         Collection<Assignment> assignments = assignmentService.getAssignmentsForContext(contextString);
 
         boolean hasAtLeastOneAnonAssigment = false;
@@ -4655,67 +4653,58 @@ public class AssignmentAction extends PagedResourceActionII {
         }
         context.put("hasAtLeastOneAnonAssignment", hasAtLeastOneAnonAssigment);
 
-        //No duplicates
-        Set allowSubmitMembers = new HashSet();
-        for (Assignment a : assignments) {
-            List<String> submitterIds = assignmentService.getSubmitterIdList(searchFilterOnly.toString(), allOrOneGroup, search, AssignmentReferenceReckoner.reckoner().assignment(a).reckon().getReference(), contextString);
-            allowSubmitMembers.addAll(submitterIds);
-        }
-        for (Iterator allowSubmitMembersIterator = allowSubmitMembers.iterator(); allowSubmitMembersIterator.hasNext(); ) {
-            // get user
-            try {
-                String userId = (String) allowSubmitMembersIterator.next();
-                User user = userDirectoryService.getUser(userId);
-                studentMembers.add(user);
-            } catch (Exception ee) {
-                log.warn(this + ":build_instructor_view_student_assignment_context " + ee.getMessage());
-            }
-        }
+        Map<String, User> studentMembers = assignments.stream()
+                // flatten to a single List<String>
+                .flatMap(a -> assignmentService.getSubmitterIdList(searchFilterOnly.toString(), allOrOneGroup, search, AssignmentReferenceReckoner.reckoner().assignment(a).reckon().getReference(), contextString).stream())
+                // collect into set for uniqueness
+                .collect(Collectors.toSet()).stream()
+                // convert to User
+                .map(s -> {
+                    try {
+                        return userDirectoryService.getUser(s);
+                    } catch (UserNotDefinedException e) {
+                        log.warn("User is not defined {}, {}", s, e.getMessage());
+                        return null;
+                    }
+                })
+                // filter nulls
+                .filter(Objects::nonNull)
+                // collect to Map<String, User>
+                .collect(Collectors.toMap(User::getId, Function.identity()));
 
-        context.put("studentMembers", new SortedIterator(studentMembers.iterator(), new AssignmentComparator(state, SORTED_USER_BY_SORTNAME, Boolean.TRUE.toString())));
-        context.put("assignmentService", assignmentService);
-        context.put("userService", userDirectoryService);
+        context.put("studentMembersMap", studentMembers);
+        context.put("studentMembers", new SortedIterator(studentMembers.values().iterator(), new AssignmentComparator(state, SORTED_USER_BY_SORTNAME, Boolean.TRUE.toString())));
         context.put("viewGroup", state.getAttribute(VIEW_SUBMISSION_LIST_OPTION));
-
         context.put("searchString", state.getAttribute(VIEW_SUBMISSION_SEARCH) != null ? state.getAttribute(VIEW_SUBMISSION_SEARCH) : "");
-        context.put("showSubmissionByFilterSearchOnly", state.getAttribute(SUBMISSIONS_SEARCH_ONLY) != null && ((Boolean) state.getAttribute(SUBMISSIONS_SEARCH_ONLY)) ? Boolean.TRUE : Boolean.FALSE);
-
+        context.put("showSubmissionByFilterSearchOnly", state.getAttribute(SUBMISSIONS_SEARCH_ONLY) != null ? (Boolean) state.getAttribute(SUBMISSIONS_SEARCH_ONLY) : Boolean.FALSE);
         Collection groups = getAllGroupsInSite(contextString);
         context.put("groups", new SortedIterator(groups.iterator(), new AssignmentComparator(state, SORTED_BY_GROUP_TITLE, Boolean.TRUE.toString())));
 
         Map<User, Iterator<Assignment>> showStudentAssignments = new HashMap<>();
-        if (state.getAttribute(STUDENT_LIST_SHOW_TABLE) != null) {
-            Set<String> showStudentListSet = (Set<String>) state.getAttribute(STUDENT_LIST_SHOW_TABLE);
+
+        Set<String> showStudentListSet = (Set<String>) state.getAttribute(STUDENT_LIST_SHOW_TABLE);
+        if (showStudentListSet != null) {
             context.put("studentListShowSet", showStudentListSet);
             for (String userId : showStudentListSet) {
-                // get user
-                try {
-                    User user = userDirectoryService.getUser(userId);
+                User user = studentMembers.get(userId);
 
-                    // sort the assignments into the default order before adding
-                    // filter to obtain only grade-able assignments
-                    List<Assignment> rv = new ArrayList<>();
-                    for (Assignment assignment : assignmentService.getAssignmentsForContext(contextString)) {
-                        if (assignmentService.allowGradeSubmission(AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getReference())) {
-                            rv.add(assignment);
-                        }
-                    }
-                    Iterator assignmentSortFinal = new SortedIterator(rv.iterator(), new AssignmentComparator(state, SORTED_BY_DEFAULT, Boolean.TRUE.toString()));
+                // filter to obtain only grade-able assignments
+                List<Assignment> rv = assignments.stream()
+                        .filter(a -> assignmentService.allowGradeSubmission(AssignmentReferenceReckoner.reckoner().assignment(a).reckon().getReference()))
+                        .collect(Collectors.toList());
 
-                    showStudentAssignments.put(user, assignmentSortFinal);
-                } catch (Exception ee) {
-                    log.warn(this + ":build_instructor_view_student_assignment_context " + ee.getMessage());
-                }
+                // sort the assignments into the default order before adding
+                Iterator assignmentSortFinal = new SortedIterator(rv.iterator(), new AssignmentComparator(state, SORTED_BY_DEFAULT, Boolean.TRUE.toString()));
+
+                showStudentAssignments.put(user, assignmentSortFinal);
             }
-
         }
 
         context.put("studentAssignmentsTable", showStudentAssignments);
 
         add2ndToolbarFields(data, context);
 
-        String template = (String) getContext(data).get("template");
-        return template + TEMPLATE_INSTRUCTOR_VIEW_STUDENTS_ASSIGNMENT;
+        return getContext(data).get("template") + TEMPLATE_INSTRUCTOR_VIEW_STUDENTS_ASSIGNMENT;
 
     } // build_instructor_view_students_assignment_context
 
@@ -9644,6 +9633,7 @@ public class AssignmentAction extends PagedResourceActionII {
 
         ParameterParser params = data.getParameters();
         String assignmentId = params.getString("assignmentId");
+        state.setAttribute(EXPORT_ASSIGNMENT_REF, assignmentId);
         String submissionId = params.getString("submissionId");
 
         // SAK-29314 - put submission information into state
@@ -9698,7 +9688,6 @@ public class AssignmentAction extends PagedResourceActionII {
                 s.getFeedbackAttachments().forEach(f -> v.add(entityManager.newReference(f)));
                 state.setAttribute(ATTACHMENTS, v);
                 state.setAttribute(GRADE_SUBMISSION_FEEDBACK_ATTACHMENT, v);
-
                 state.setAttribute(GRADE_SUBMISSION_GRADE, s.getGrade());
 
                 // populate grade overrides if they exist
