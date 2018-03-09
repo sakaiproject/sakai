@@ -251,62 +251,66 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 		return getViewerUrl(contentId, userId);
 	}
 	
-	private String getViewerUrl(String contentId, String viewUserId) {
+	private String getViewerUrl(String contentId, String viewUserId) throws QueueException {
 		
 		// Set variables
 		String viewerUrl = null;
-		
-		try {
-			String externalId = crqs.getReviewExternalId(getProviderId(), contentId);
-			//Get report owner user information
-			String givenName = "", familyName = "";
-			try{
-				String ownerUserId = crqs.getReviewUserId(getProviderId(), contentId);
-				User user = userDirectoryService.getUser(ownerUserId);
-				givenName = user.getFirstName();
-				familyName = user.getLastName();
-			}catch (Exception e) {
-				log.error(e.getMessage(), e);
-			}
-			Map<String, Object> data = new HashMap<String, Object>();
-			// Set user name
-			data.put(GIVEN_NAME, givenName);
-			data.put(FAMILY_NAME, familyName);
-
-			// Check user preference for locale			
-			// If user has no preference set - get the system default
-			Locale locale = Optional.ofNullable(preferencesService.getLocale(viewUserId))
-					.orElse(Locale.getDefault());
-
-			// Set locale, getLanguage removes locale region
-			data.put("locale", locale.getLanguage());
-
-			HashMap<String, Object> response = makeHttpCall("GET",
-					getNormalizedServiceUrl() + "submissions/" + externalId + "/viewer-url",
-					SUBMISSION_REQUEST_HEADERS,
-					data,
-					null);
-
-			// Get response:
-			int responseCode = !response.containsKey(RESPONSE_CODE) ? 0 : (int) response.get(RESPONSE_CODE);
-			String responseMessage = !response.containsKey(RESPONSE_MESSAGE) ? "" : (String) response.get(RESPONSE_MESSAGE);
-			String responseBody = !response.containsKey(RESPONSE_BODY) ? "" : (String) response.get(RESPONSE_BODY);
-	
-			if ((responseCode >= 200) && (responseCode < 300) && (responseBody != null)) {
-				// create JSONObject from responseBody
-				JSONObject responseJSON = JSONObject.fromObject(responseBody);
-				if (responseJSON.containsKey("viewer_url")) {
-					viewerUrl = responseJSON.getString("viewer_url");
-					log.debug("Successfully retrieved viewer url: " + viewerUrl);
-					return viewerUrl;
-				} else {
-					throw new Error("Viewer URL not found. Response: " + responseMessage);
+		Optional<ContentReviewItem> optionalItem = crqs.getQueuedItem(getProviderId(), contentId);
+		ContentReviewItem item = optionalItem.isPresent() ? optionalItem.get() : null;
+		if(item != null && ContentReviewConstants.CONTENT_REVIEW_SUBMITTED_REPORT_AVAILABLE_CODE.equals(item.getStatus())) {
+			try {
+				//Get report owner user information
+				String givenName = "", familyName = "";
+				try{
+					User user = userDirectoryService.getUser(item.getUserId());
+					givenName = user.getFirstName();
+					familyName = user.getLastName();
+				}catch (Exception e) {
+					log.error(e.getMessage(), e);
 				}
-			} else {
-				throw new Error(responseMessage);
+				Map<String, Object> data = new HashMap<String, Object>();
+				// Set user name
+				data.put(GIVEN_NAME, givenName);
+				data.put(FAMILY_NAME, familyName);
+
+				// Check user preference for locale			
+				// If user has no preference set - get the system default
+				Locale locale = Optional.ofNullable(preferencesService.getLocale(viewUserId))
+						.orElse(Locale.getDefault());
+
+				// Set locale, getLanguage removes locale region
+				data.put("locale", locale.getLanguage());
+
+				HashMap<String, Object> response = makeHttpCall("GET",
+						getNormalizedServiceUrl() + "submissions/" + item.getExternalId() + "/viewer-url",
+						SUBMISSION_REQUEST_HEADERS,
+						data,
+						null);
+
+				// Get response:
+				int responseCode = !response.containsKey(RESPONSE_CODE) ? 0 : (int) response.get(RESPONSE_CODE);
+				String responseMessage = !response.containsKey(RESPONSE_MESSAGE) ? "" : (String) response.get(RESPONSE_MESSAGE);
+				String responseBody = !response.containsKey(RESPONSE_BODY) ? "" : (String) response.get(RESPONSE_BODY);
+
+				if ((responseCode >= 200) && (responseCode < 300) && (responseBody != null)) {
+					// create JSONObject from responseBody
+					JSONObject responseJSON = JSONObject.fromObject(responseBody);
+					if (responseJSON.containsKey("viewer_url")) {
+						viewerUrl = responseJSON.getString("viewer_url");
+						log.debug("Successfully retrieved viewer url: " + viewerUrl);
+						return viewerUrl;
+					} else {
+						throw new Error("Viewer URL not found. Response: " + responseMessage);
+					}
+				} else {
+					throw new Error(responseMessage);
+				}
+			} catch (Exception e) {
+				log.error(e.getLocalizedMessage(), e);
 			}
-		} catch (Exception e) {
-			log.error(e.getLocalizedMessage(), e);
+		}else {
+			// Only generate viewerUrl if report is available
+			log.info("Content review item is not ready for the report: " + contentId + ", " + (item != null ? item.getStatus() : ""));
 		}
 	
 		return viewerUrl;
@@ -871,19 +875,7 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 	@Override
 	public ContentReviewItem getContentReviewItemByContentId(String contentId) {
 		Optional<ContentReviewItem> cri = crqs.getQueuedItem(getProviderId(), contentId);
-		if (cri.isPresent()) {
-			ContentReviewItem item = cri.get();
-
-			// Turnitin specific work
-			try {
-				int score = getReviewScore(contentId, item.getTaskId(), null);
-				log.debug(" getReviewScore returned a score of: {} ", score);
-			} catch (Exception e) {
-				log.error("Turnitin - getReviewScore error called from getContentReviewItemByContentId with content " + contentId + ", " + e.getMessage(), e);
-			}
-			return item;
-		}
-		return null;
+		return cri.isPresent() ? cri.get() : null;
 	}
 	
 	@Override
