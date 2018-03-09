@@ -125,6 +125,27 @@ public class ContentReviewQueueServiceImpl implements ContentReviewQueueService 
 
 		return matchingItem.get().getStatus();
 	}
+	
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.contentreview.common.service.ContentReviewCommonService#getReviewExternalId(java.lang.Integer, java.lang.String)
+	 */
+	@Override
+	@Transactional(readOnly=true)
+	public String getReviewExternalId(Integer providerId, String contentId) throws QueueException {
+		Objects.requireNonNull(providerId, "providerId cannot be null");
+		Objects.requireNonNull(contentId, "contentId cannot be null");
+
+		log.debug("Returning review externalId for content: " + contentId);
+
+		Optional<ContentReviewItem> matchingItem = itemDao.findByProviderAndContentId(providerId, contentId);
+
+		if (!matchingItem.isPresent()) {
+			log.debug("Content " + contentId + " has not been queued previously");
+			throw new QueueException("Content " + contentId + " has not been queued previously");
+		}
+
+		return matchingItem.get().getExternalId();
+	}
 
 	/* (non-Javadoc)
 	 * @see org.sakaiproject.contentreview.common.service.ContentReviewCommonService#getDateQueued(java.lang.Integer, java.lang.String)
