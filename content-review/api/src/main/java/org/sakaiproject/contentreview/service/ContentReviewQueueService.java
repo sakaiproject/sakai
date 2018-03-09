@@ -70,6 +70,16 @@ public interface ContentReviewQueueService {
 	 * @throws Exception
 	 */	
 	String getReviewExternalId(Integer providerId, String contentId) throws QueueException, Exception;
+	
+	/**
+	 * Get the userId of the content item
+	 * @param providerId
+	 * @param contentId
+	 * @return
+	 * @throws QueueException
+	 * @throws Exception
+	 */
+	String getReviewUserId(Integer providerId, String contentId) throws QueueException, Exception;
 
 	/**
 	 * Get when the content item was first queued.
