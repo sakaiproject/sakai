@@ -283,4 +283,9 @@ public class ContentReviewFederatedServiceImpl extends BaseContentReviewService 
 		getSelectedProvider().updateUserEULATimestamp(userId);
 	}
 
+	@Override
+	public String getEndUserLicenseAgreementVersion() {
+		return getSelectedProvider().getEndUserLicenseAgreementVersion();
+	}
+
 }

@@ -359,11 +359,24 @@ public interface ContentReviewService {
 	public Instant getEndUserLicenseAgreementTimestamp();
 	
 	/**
+	 * Returns version for most recent EULA. If provided, the user must re-accept the EULA if the version doesn't match.
+	 * @return
+	 */
+	public String getEndUserLicenseAgreementVersion();
+	
+	/**
 	 * Returns date for the user's last agreement to the EULA. If null, the user has not agreed.
 	 * @param userId
 	 * @return
 	 */
 	public Instant getUserEULATimestamp(String userId);
+	
+	/**
+	 * Returns version for the user's last agreement to the EULA. If null, the user has not agreed.
+	 * @param userId
+	 * @return
+	 */
+	public String getUserEULAVersion(String userId);
 	
 	/**
 	 * Sets date for the user's last agreement to the EULA to current date

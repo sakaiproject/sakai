@@ -15,7 +15,14 @@
 	   <property name="itemDao" ref="org.sakaiproject.contentreview.dao.ContentReviewItemDao" />
 	</bean>
 
-	<bean id="org.sakaiproject.contentreview.service.ContentReviewService" class="org.sakaiproject.contentreview.service.ContentReviewFederatedServiceImpl" init-method="init">
+	<bean id="org.sakaiproject.contentreview.service.BaseContentReviewService"
+			class="org.sakaiproject.contentreview.service.BaseContentReviewService"
+			abstract="true">
+		<property name="preferencesService" ref="org.sakaiproject.user.api.PreferencesService" />
+	</bean>
+
+	<bean id="org.sakaiproject.contentreview.service.ContentReviewService" class="org.sakaiproject.contentreview.service.ContentReviewFederatedServiceImpl"
+			parent="org.sakaiproject.contentreview.service.BaseContentReviewService" init-method="init">
 		<property name="providers">
 			<list>
 				<ref bean="org.sakaiproject.contentreview.vericite.ContentReviewServiceVeriCite" />

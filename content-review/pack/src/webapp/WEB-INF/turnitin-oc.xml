@@ -7,6 +7,7 @@
     <bean
         id="org.sakaiproject.contentreview.turnitin.oc.ContentReviewServiceTurnitinOC"
         class="org.sakaiproject.contentreview.turnitin.oc.ContentReviewServiceTurnitinOC"
+        parent="org.sakaiproject.contentreview.service.BaseContentReviewService"
         init-method="init" lazy-init="true">
          <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService" />
          <property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService" />
@@ -14,7 +15,6 @@
          <property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager" />
          <property name="securityService" ref="org.sakaiproject.authz.api.SecurityService" />
          <property name="assignmentService" ref="org.sakaiproject.assignment.api.AssignmentService" />
-         <property name="preferencesService" ref="org.sakaiproject.user.api.PreferencesService" />
          <property name="siteService" ref="org.sakaiproject.site.api.SiteService" />
          <property name="crqs" ref="org.sakaiproject.contentreview.service.ContentReviewQueueService" />
          <property name="contentHostingService" ref="org.sakaiproject.content.api.ContentHostingService" />

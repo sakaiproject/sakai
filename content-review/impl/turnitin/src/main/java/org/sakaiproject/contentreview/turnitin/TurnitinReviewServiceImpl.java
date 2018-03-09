@@ -2581,4 +2581,9 @@ public class TurnitinReviewServiceImpl extends BaseContentReviewService {
 	public Instant getEndUserLicenseAgreementTimestamp() {
 		return null;
 	}
+
+	@Override
+	public String getEndUserLicenseAgreementVersion() {
+		return null;
+	}
 }

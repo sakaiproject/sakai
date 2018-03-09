@@ -151,6 +151,10 @@ public class AssignmentAction extends PagedResourceActionII {
     private static final String NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_SMALL_MATCHES = "exclude_smallmatches";
     private static final String NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_TYPE = "exclude_type";
     private static final String NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_VALUE = "exclude_value";
+    private static final String SUBMISSION_REVIEW_SERVICE_EULA_AGREEMENT = "review_service_eula_agreement";
+    private static final String SUBMISSION_REVIEW_CHECK_SERVICE_EULA_AGREEMENT = "review_check_service_eula_agreement";
+    private static final String SUBMISSION_REVIEW_EULA_AGREEMENT_LINK = "review_service_eula_agreement_link";
+    
     /**
      * Peer Review Attachments
      **/
@@ -1421,9 +1425,11 @@ public class AssignmentAction extends PagedResourceActionII {
 
             if (assignment.getContentReview()) {
                 Map<String, String> properties = assignment.getProperties();
-                context.put("plagiarismNote", rb.getFormattedMessage("gen.yoursubwill", contentReviewService.getServiceName()));
+                state.setAttribute("plagiarismNote", rb.getFormattedMessage("gen.yoursubwill", contentReviewService.getServiceName()));
+                context.put("plagiarismNote", state.getAttribute("plagiarismNote"));
                 if (!contentReviewService.allowAllContent() && assignmentSubmissionTypeTakesAttachments(assignment)) {
-                    context.put("plagiarismFileTypes", rb.getFormattedMessage("gen.onlythefoll", getContentReviewAcceptedFileTypesMessage()));
+                		state.setAttribute("plagiarismFileTypes", rb.getFormattedMessage("gen.onlythefoll", getContentReviewAcceptedFileTypesMessage())); 
+                    context.put("plagiarismFileTypes", state.getAttribute("plagiarismFileTypes"));
 
                     // SAK-31649 commenting this out to remove file picker filters, as the results vary depending on OS and browser.
                     // If in the future browser support for the 'accept' attribute on a file picker becomes more robust and
@@ -1432,10 +1438,28 @@ public class AssignmentAction extends PagedResourceActionII {
                 }
                 try {
                     if (Boolean.valueOf(properties.get(NEW_ASSIGNMENT_REVIEW_SERVICE_STUDENT_PREVIEW))) {
-                        context.put("plagiarismStudentPreview", rb.getString("gen.subStudentPreview"));
+                    		state.setAttribute("plagiarismStudentPreview", rb.getString("gen.subStudentPreview"));
+                    		context.put("plagiarismStudentPreview", state.getAttribute("plagiarismStudentPreview"));
                     }
                 } catch (Exception e) {
                     log.error(e.getMessage(), e);
+                }
+                //Check if content review service requires a EULA
+                String eulaServiceLink = contentReviewService.getEndUserLicenseAgreementLink();
+                if(StringUtils.isNotEmpty(eulaServiceLink)) {
+	                	Instant providerEulaTimestamp = contentReviewService.getEndUserLicenseAgreementTimestamp();
+	                	Instant userEulaTimestamp = contentReviewService.getUserEULATimestamp(user.getId());
+	                	String providerEulaVersion = contentReviewService.getEndUserLicenseAgreementVersion();
+	                	String userEulaVersion = contentReviewService.getUserEULAVersion(user.getId());
+	                	if((providerEulaTimestamp != null && (userEulaTimestamp == null || userEulaTimestamp.isBefore(providerEulaTimestamp)))
+	                			|| (providerEulaVersion != null && (userEulaVersion == null || !userEulaVersion.equals(providerEulaVersion)))) {
+	                		//user has either not accepted the required EULA or there is a new EULA that needs to be re-accepted
+	                		context.put("plagiarismEULALink", eulaServiceLink);
+	                		state.setAttribute("plagiarismEULALink", eulaServiceLink);
+	                		context.put("name_plagiarism_eula_agreement", SUBMISSION_REVIEW_SERVICE_EULA_AGREEMENT);
+	                		context.put("value_plagiarism_eula_agreement", state.getAttribute(SUBMISSION_REVIEW_SERVICE_EULA_AGREEMENT) != null ? state.getAttribute(SUBMISSION_REVIEW_SERVICE_EULA_AGREEMENT) : "false");
+	                		context.put("name_check_plagiarism_eula_agreement", SUBMISSION_REVIEW_CHECK_SERVICE_EULA_AGREEMENT);
+	                	}
                 }
             }
             if (assignment.getTypeOfSubmission() == Assignment.SubmissionType.NON_ELECTRONIC_ASSIGNMENT_SUBMISSION) {
@@ -1563,6 +1587,8 @@ public class AssignmentAction extends PagedResourceActionII {
         context.put("value_submission_text", state.getAttribute(VIEW_SUBMISSION_TEXT));
         context.put("name_submission_honor_pledge_yes", VIEW_SUBMISSION_HONOR_PLEDGE_YES);
         context.put("value_submission_honor_pledge_yes", state.getAttribute(VIEW_SUBMISSION_HONOR_PLEDGE_YES));
+        context.put("name_plagiarism_eula_agreement", SUBMISSION_REVIEW_SERVICE_EULA_AGREEMENT);
+        context.put("value_plagiarism_eula_agreement", state.getAttribute(SUBMISSION_REVIEW_SERVICE_EULA_AGREEMENT));
         context.put("honor_pledge_text", serverConfigurationService.getString("assignment.honor.pledge", rb.getString("gen.honple2")));
         context.put("attachments", stripInvisibleAttachments(state.getAttribute(ATTACHMENTS)));
         context.put("new_attachments", newAttachments);
@@ -1995,6 +2021,15 @@ public class AssignmentAction extends PagedResourceActionII {
         context.put("text", state.getAttribute(PREVIEW_SUBMISSION_TEXT));
         context.put("honor_pledge_yes", state.getAttribute(PREVIEW_SUBMISSION_HONOR_PLEDGE_YES));
         context.put("honor_pledge_text", serverConfigurationService.getString("assignment.honor.pledge", rb.getString("gen.honple2")));
+        if(assignment.getContentReview()) {
+	        	context.put("plagiarismStudentPreview", state.getAttribute("plagiarismStudentPreview"));
+	        	context.put("plagiarismFileTypes", state.getAttribute("plagiarismFileTypes"));
+	        	context.put("plagiarismNote", state.getAttribute("plagiarismNote"));
+	        	context.put("name_plagiarism_eula_agreement", SUBMISSION_REVIEW_SERVICE_EULA_AGREEMENT);
+	        	context.put("value_plagiarism_eula_agreement", state.getAttribute(SUBMISSION_REVIEW_SERVICE_EULA_AGREEMENT));
+	        	context.put("plagiarismEULALink", state.getAttribute("eulaServiceLink"));
+	        	context.put("name_check_plagiarism_eula_agreement", SUBMISSION_REVIEW_CHECK_SERVICE_EULA_AGREEMENT);
+        }
         context.put("attachments", stripInvisibleAttachments(state.getAttribute(PREVIEW_SUBMISSION_ATTACHMENTS)));
         context.put("contentTypeImageService", contentTypeImageService);
 
@@ -5301,6 +5336,13 @@ public class AssignmentAction extends PagedResourceActionII {
         }
         state.setAttribute(PREVIEW_SUBMISSION_HONOR_PLEDGE_YES, honor_pledge_yes);
         state.setAttribute(VIEW_SUBMISSION_HONOR_PLEDGE_YES, honor_pledge_yes);
+        
+        // assign the EULA attribute
+        String eulaAgreementYes = params.getString(SUBMISSION_REVIEW_SERVICE_EULA_AGREEMENT);
+        if(StringUtils.isEmpty(eulaAgreementYes)) {
+        		eulaAgreementYes = "false";
+        }
+        state.setAttribute(SUBMISSION_REVIEW_SERVICE_EULA_AGREEMENT, eulaAgreementYes);
 
         // get attachment input and generate alert message according to assignment submission type
         checkSubmissionTextAttachmentInput(data, state, a, text);
@@ -5940,6 +5982,11 @@ public class AssignmentAction extends PagedResourceActionII {
             if (honorPledgeYes == null) {
                 honorPledgeYes = "false";
             }
+            
+            String eulaAgreementYes = params.getString(SUBMISSION_REVIEW_SERVICE_EULA_AGREEMENT);
+            if(StringUtils.isEmpty(eulaAgreementYes)) {
+            		eulaAgreementYes = "false";
+            }
 
             User u = (User) state.getAttribute(STATE_USER);
             User submitter = null;
@@ -6006,6 +6053,13 @@ public class AssignmentAction extends PagedResourceActionII {
                     }
                     state.setAttribute(VIEW_SUBMISSION_HONOR_PLEDGE_YES, honorPledgeYes);
                 }
+                
+                if (StringUtils.isNotEmpty(params.getString(SUBMISSION_REVIEW_CHECK_SERVICE_EULA_AGREEMENT))) {
+                    if (!Boolean.valueOf(eulaAgreementYes)) {
+                        addAlert(state, rb.getFormattedMessage("youarenot21", contentReviewService.getServiceName()));
+                    }
+                    state.setAttribute(SUBMISSION_REVIEW_SERVICE_EULA_AGREEMENT, eulaAgreementYes);
+                }
 
                 // SAK-26322
                 List nonInlineAttachments = getNonInlineAttachments(state, a);
@@ -6024,6 +6078,10 @@ public class AssignmentAction extends PagedResourceActionII {
             }
             if ((state.getAttribute(STATE_MESSAGE) == null) && (a != null)) {
                 AssignmentSubmission submission;
+                if (contentReviewService != null && Boolean.valueOf(eulaAgreementYes)) {
+                		//update EULA agreement timestamp
+                		contentReviewService.updateUserEULATimestamp(sessionManager.getCurrentSessionUserId());
+                }
 
                 if (a.getIsGroup()) {
                     String g = StringUtils.isNotBlank(original_group_id) ? original_group_id : group_id;
@@ -10374,6 +10432,11 @@ public class AssignmentAction extends PagedResourceActionII {
         state.setAttribute(VIEW_SUBMISSION_TEXT, text);
         if (params.getString(VIEW_SUBMISSION_HONOR_PLEDGE_YES) != null) {
             state.setAttribute(VIEW_SUBMISSION_HONOR_PLEDGE_YES, "true");
+        }
+        if(params.getString(SUBMISSION_REVIEW_SERVICE_EULA_AGREEMENT) != null) {
+        		state.setAttribute(SUBMISSION_REVIEW_SERVICE_EULA_AGREEMENT, "true");
+        }else {
+        		state.removeAttribute(SUBMISSION_REVIEW_SERVICE_EULA_AGREEMENT);
         }
 
         String assignmentRef = (String) state.getAttribute(VIEW_SUBMISSION_ASSIGNMENT_REFERENCE);

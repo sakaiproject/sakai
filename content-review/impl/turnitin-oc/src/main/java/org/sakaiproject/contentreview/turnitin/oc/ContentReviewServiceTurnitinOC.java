@@ -85,9 +85,6 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 	private SecurityService securityService;
 	
 	@Setter
-	private PreferencesService preferencesService;
-	
-	@Setter
 	private AssignmentService assignmentService;
 
 	@Setter
@@ -886,5 +883,10 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 	@Override
 	public Instant getEndUserLicenseAgreementTimestamp() {
 		return Instant.MIN;
+	}
+
+	@Override
+	public String getEndUserLicenseAgreementVersion() {
+		return "1.1";
 	}
 }
