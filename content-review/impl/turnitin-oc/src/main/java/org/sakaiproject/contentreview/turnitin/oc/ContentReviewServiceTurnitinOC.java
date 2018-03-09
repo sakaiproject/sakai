@@ -251,30 +251,38 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 		return getViewerUrl(contentId, userId);
 	}
 	
-	private String getViewerUrl(String userId, String contentId) {
+	private String getViewerUrl(String contentId, String viewUserId) {
 		
 		// Set variables
 		String viewerUrl = null;
 		
 		try {
-			// Get current user
-			User user = userDirectoryService.getUser(userId);
+			String externalId = crqs.getReviewExternalId(getProviderId(), contentId);
+			//Get report owner user information
+			String givenName = "", familyName = "";
+			try{
+				String ownerUserId = crqs.getReviewUserId(getProviderId(), contentId);
+				User user = userDirectoryService.getUser(ownerUserId);
+				givenName = user.getFirstName();
+				familyName = user.getLastName();
+			}catch (Exception e) {
+				log.error(e.getMessage(), e);
+			}
 			Map<String, Object> data = new HashMap<String, Object>();
-
 			// Set user name
-			data.put(GIVEN_NAME, user.getFirstName());
-			data.put(FAMILY_NAME, user.getLastName());
+			data.put(GIVEN_NAME, givenName);
+			data.put(FAMILY_NAME, familyName);
 
 			// Check user preference for locale			
 			// If user has no preference set - get the system default
-			Locale locale = Optional.ofNullable(preferencesService.getLocale(userId))
+			Locale locale = Optional.ofNullable(preferencesService.getLocale(viewUserId))
 					.orElse(Locale.getDefault());
 
 			// Set locale, getLanguage removes locale region
 			data.put("locale", locale.getLanguage());
 
 			HashMap<String, Object> response = makeHttpCall("GET",
-					getNormalizedServiceUrl() + "submissions/" + contentId + "/viewer-url",
+					getNormalizedServiceUrl() + "submissions/" + externalId + "/viewer-url",
 					SUBMISSION_REQUEST_HEADERS,
 					data,
 					null);
@@ -289,7 +297,7 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 				JSONObject responseJSON = JSONObject.fromObject(responseBody);
 				if (responseJSON.containsKey("viewer_url")) {
 					viewerUrl = responseJSON.getString("viewer_url");
-					log.info("Successfully retrieved viewer url: " + viewerUrl);
+					log.debug("Successfully retrieved viewer url: " + viewerUrl);
 					return viewerUrl;
 				} else {
 					throw new Error("Viewer URL not found. Response: " + responseMessage);
@@ -601,7 +609,7 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 				if (status > -1) {					
 					log.info("Report complete! Score: " + status);
 					// Status value is report score
-					item.setReviewScore(status);		
+					item.setReviewScore(status);								
 					item.setStatus(ContentReviewConstants.CONTENT_REVIEW_SUBMITTED_REPORT_AVAILABLE_CODE);
 					item.setDateReportReceived(new Date());
 					item.setRetryCount(Long.valueOf(0));
@@ -623,7 +631,7 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 			}
 		}
 
-		log.info("Submission Turnitin queue run completed: " + success + " items submitted, " + errors + " errors.");
+		log.info("Turnitin report queue run completed: " + success + " items submitted, " + errors + " errors.");
 	}
 	
 	public void processUnsubmitted(Calendar cal) {
@@ -776,7 +784,7 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 			}
 		}
 		
-		log.info("Turnitin queue phase 1 completed: " + success + " items submitted, " + errors + " errors.");
+		log.info("Turnitin submission queue completed: " + success + " items submitted, " + errors + " errors.");
 	}
 
 	public boolean incrementItem(Calendar cal, ContentReviewItem item) {
