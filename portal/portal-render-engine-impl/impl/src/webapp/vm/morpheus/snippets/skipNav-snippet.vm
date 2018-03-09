@@ -27,6 +27,14 @@
                 ${rloader.sit_menutools}
                 <span class="accesibility_key">[l]</span>
             </a>
+			#foreach( $page in $sitePages.pageNavTools )
+				#if (${page.current})
+					<a href="${page.pageResetUrl}" title="$rloader.sit_reset" class="xs-visible Mrphs-skipNav--toolName">
+						<span class="Mrphs-breadcrumb--icon ${page.menuClass} $!{page.menuClassOverride}"></span>
+						<span>${page.pageTitle}</span>
+					</a>
+				#end
+			#end
         </li>
     </ul>
 </nav>
