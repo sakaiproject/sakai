@@ -234,22 +234,40 @@ public class ReorderProducer implements ViewComponentProducer, NavigationCaseRep
 				    UILink.make(row, "link", i.getAttribute("multimediaUrl"), i.getAttribute("multimediaUrl"));
 				} else if (i.getType() == SimplePageItem.QUESTION) {
 				    String text = i.getAttribute("questionText");
-				    if (text == null)
-					text = messageLocator.getMessage("simplepage.questionName");
-				    if (text.length() > 100)
-					text = text.substring(0,100);
+				    if (text == null) {
+						text = messageLocator.getMessage("simplepage.questionName");
+					}
+				    if (text.length() > 50) {
+						text = text.substring(0,50);
+						text = text + "...";
+					}
 				    UIOutput.make(row, "text-snippet", text);
 				} else if (i.getType() == SimplePageItem.BREAK) {
-				    if ("section".equals(i.getFormat())) {
-				    	String sectionName = (second ? ">> " : "") + messageLocator.getMessage("simplepage.break-here") + (StringUtils.isBlank(i.getName()) ? "" : " (" + i.getName() + ")");
-				    	UIOutput.make(row, "section-label", sectionName);
+					if ("section".equals(i.getFormat())) {
+						String sectionName = (second ? ">> " : "") + messageLocator.getMessage("simplepage.break-here") + (StringUtils.isBlank(i.getName()) ? "" : " (" + i.getName() + ")");
+						UIOutput.make(row, "section-label", sectionName);
 						row.decorate(new UIStyleDecorator("active"));
 					} else {
 						String text = messageLocator.getMessage("simplepage.break-column-here");
 						UIOutput textSnippet = UIOutput.make(row, "text-snippet", text);
 						textSnippet.decorate(new UIStyleDecorator("column-section-break-text"));
-				    	row.decorate(new UIStyleDecorator("list-group-item-info"));
+						row.decorate(new UIStyleDecorator("list-group-item-info"));
 					}
+				} else if (i.getType() == SimplePageItem.CALENDAR) {
+					String text = messageLocator.getMessage("simplepage.embedded.calendar");
+					UIOutput.make(row, "text-snippet", text);
+				} else if (i.getType() == SimplePageItem.ANNOUNCEMENTS) {
+					String text = messageLocator.getMessage("simplepage.embedded.announcements");
+					UIOutput.make(row, "text-snippet", text);
+				} else if (i.getType() == SimplePageItem.FORUM_SUMMARY) {
+					String text = messageLocator.getMessage("simplepage.embedded.forums");
+					UIOutput.make(row, "text-snippet", text);
+				} else if (i.getType() == SimplePageItem.TWITTER) {
+					String text = messageLocator.getMessage("simplepage.embedded.twitter");
+					UIOutput.make(row, "text-snippet", text);
+				} else if (i.getType() == SimplePageItem.RESOURCE_FOLDER) {
+					String text = messageLocator.getMessage("simplepage.embedded.resources");
+					UIOutput.make(row, "text-snippet", text);
 				} else {
 					String description = i.getDescription();
 					if (StringUtils.isNotBlank(description) && i.getType() != SimplePageItem.COMMENTS && i.getType() != SimplePageItem.STUDENT_CONTENT) {
@@ -357,6 +375,16 @@ public class ReorderProducer implements ViewComponentProducer, NavigationCaseRep
 				return getImageSourceDecoratorFromMimeType(pageItem);
 			case SimplePageItem.TEXT:
 				return new UIStyleDecorator("fa fa-font darkgrayLessonsIcon");
+			case SimplePageItem.ANNOUNCEMENTS:
+				return new UIStyleDecorator("icon-sakai--sakai-announcements darkblueLessonsIcon");
+			case SimplePageItem.TWITTER:
+				return new UIStyleDecorator("fa fa-twitter blueLessonsIcon");
+			case SimplePageItem.CALENDAR:
+				return new UIStyleDecorator("icon-sakai--sakai-schedule darkblueLessonsIcon");
+			case SimplePageItem.FORUM_SUMMARY:
+				return new UIStyleDecorator("icon-sakai--sakai-forums darkblueLessonsIcon");
+            case SimplePageItem.RESOURCE_FOLDER:
+                return new UIStyleDecorator("icon-sakai--sakai-resources darkblueLessonsIcon");
 			default:
 				return new UIStyleDecorator("");
 		}

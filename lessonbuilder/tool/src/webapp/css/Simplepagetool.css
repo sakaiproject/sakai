@@ -999,6 +999,10 @@ h3.section-label {
 #reorderCol2 {
     padding: 0;
 }
+#reorderCol2 .list-group-item.active, #reorderCol2 .list-group-item.active:hover, #reorderCol2 .list-group-item.active:focus {
+    z-index: 1;
+}
+
 .afterheader {
 	margin-top: 1em
 }
@@ -2325,4 +2329,22 @@ form#revise[action$=dfReviseForumSettingsAttach] #forum_grading {
 .row.row-no-margin {
     margin-left:0;
     margin-right:0;
+}
+.blueLessonsIcon {
+    color: #0033FF;
+}
+.darkblueLessonsIcon {
+    color: #000099;
+}
+.darkgrayLessonsIcon {
+    color: #686868;
+}
+.greenLessonsIcon {
+    color: #006633;
+}
+.redLessonsIcon {
+    color: #900000;
+}
+.orangeLessonsIcon {
+    color: #e68a00;
 }
