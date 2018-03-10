@@ -47,11 +47,18 @@ $PBJQ(document).ready(function () {
         } else {
             var position = subsitesLink.position();
             var _top = ( -1 * ( $PBJQ('#toolMenu').height() - position.top ) );
-            $PBJQ('#subSites').css({
-                'display': 'block',
-                'left': position.left + subsitesLink.width() + 6 + 'px',
-                'top': _top + 'px'
-            });
+            var subsitesPosition = ( MorpheusViewportHelper.isPhone() ) ? {
+            	'display': 'block',
+            	'left': '-0.7rem',
+            	'top': 0,
+            	'margin-top' : '0.3rem',
+            	'overflow' : 'hidden'
+            }:{
+            	'display': 'block',
+            	'left': position.left + subsitesLink.width() + 6 + 'px',
+            	'top': _top + 'px'
+            }
+            $PBJQ('#subSites').css(subsitesPosition);
             $PBJQ('#subSites').addClass('floating');
             if ($PBJQ("#toggleSubsitesLink").position().top < 240) {
                 $PBJQ("#subSites.floating").addClass('ontop');

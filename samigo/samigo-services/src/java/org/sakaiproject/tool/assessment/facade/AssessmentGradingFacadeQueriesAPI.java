@@ -177,7 +177,7 @@ public interface AssessmentGradingFacadeQueriesAPI
 
   public void saveItemGrading(ItemGradingData item);
 
-  public void saveOrUpdateAssessmentGrading(AssessmentGradingData assessment);
+  public boolean saveOrUpdateAssessmentGrading(AssessmentGradingData assessment);
 
     //public void setIsLate(AssessmentGradingData assessment);
 

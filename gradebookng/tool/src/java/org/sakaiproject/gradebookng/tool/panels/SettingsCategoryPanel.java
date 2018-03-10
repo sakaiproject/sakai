@@ -106,7 +106,7 @@ public class SettingsCategoryPanel extends BasePanel {
 			if (category.getDropHighest() != null && category.getDropHighest() > 0) {
 				this.isDropHighest = true;
 			}
-			if (category.getDrop_lowest() != null && category.getDrop_lowest() > 0) {
+			if (category.getDropLowest() != null && category.getDropLowest() > 0) {
 				this.isDropLowest = true;
 			}
 			if (category.getKeepHighest() != null && category.getKeepHighest() > 0) {
@@ -224,7 +224,7 @@ public class SettingsCategoryPanel extends BasePanel {
 				if (!SettingsCategoryPanel.this.isDropLowest) {
 					for (final CategoryDefinition c : SettingsCategoryPanel.this.model.getObject().getGradebookInformation()
 							.getCategories()) {
-						c.setDrop_lowest(0);
+						c.setDropLowest(0);
 					}
 					target.appendJavaScript("$('.gb-category-droplowest').hide();");
 				}
@@ -398,7 +398,7 @@ public class SettingsCategoryPanel extends BasePanel {
 				final TextField<Integer> categoryDropHighest = new TextField<Integer>("categoryDropHighest",
 						new PropertyModel<Integer>(category, "dropHighest"));
 				final TextField<Integer> categoryDropLowest = new TextField<Integer>("categoryDropLowest",
-						new PropertyModel<Integer>(category, "drop_lowest"));
+						new PropertyModel<Integer>(category, "dropLowest"));
 				final TextField<Integer> categoryKeepHighest = new TextField<Integer>("categoryKeepHighest",
 						new PropertyModel<Integer>(category, "keepHighest"));
 
@@ -411,7 +411,7 @@ public class SettingsCategoryPanel extends BasePanel {
 					categoryKeepHighestEnabled = false;
 				}
 
-				if (category.getDrop_lowest() != null && category.getDrop_lowest().intValue() > 0) {
+				if (category.getDropLowest() != null && category.getDropLowest().intValue() > 0) {
 					categoryKeepHighest.setModelValue(new String[] { "0" });
 					categoryKeepHighestEnabled = false;
 				}
@@ -651,10 +651,10 @@ public class SettingsCategoryPanel extends BasePanel {
 	private CategoryDefinition stubCategoryDefinition() {
 		final CategoryDefinition cd = new CategoryDefinition();
 		cd.setExtraCredit(false);
-		cd.setWeight(new Double(0));
+		cd.setWeight(Double.valueOf(0));
 		cd.setAssignmentList(Collections.<Assignment>emptyList());
 		cd.setDropHighest(0);
-		cd.setDrop_lowest(0);
+		cd.setDropLowest(0);
 		cd.setKeepHighest(0);
 
 		final GbSettings settings = this.model.getObject();
@@ -683,8 +683,8 @@ public class SettingsCategoryPanel extends BasePanel {
 			// convert
 			Double d;
 			try {
-				NumberFormat format = NumberFormat.getInstance(locale);
-				Number number = format.parse(value);
+				final NumberFormat format = NumberFormat.getInstance(locale);
+				final Number number = format.parse(value);
 				d = number.doubleValue() / 100;
 			} catch (final java.text.ParseException e) {
 				throw new ConversionException(e).setResourceKey("settingspage.update.failure.categoryweightnumber");
@@ -810,7 +810,7 @@ public class SettingsCategoryPanel extends BasePanel {
 
 	/**
 	 * Helper to add the tooltip when drop/keep settings cause a field to be disabled.
-	 * 
+	 *
 	 * @param textfield
 	 */
 	private void addDropKeepDisabledToolTip(final Component textfield) {
@@ -820,7 +820,7 @@ public class SettingsCategoryPanel extends BasePanel {
 
 	/**
 	 * Helper to remove the tooltip from above
-	 * 
+	 *
 	 * @param textfield
 	 */
 	private void removeDropKeepDisabledToolTip(final Component textfield) {

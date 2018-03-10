@@ -1,5 +1,5 @@
-<script src="/library/webjars/select2/4.0.3/dist/js/select2.full.min.js"></script>
-<link href="/library/webjars/select2/4.0.3/dist/css/select2.css" rel="stylesheet" type="text/css">
+<samigo:script path="/../library/webjars/select2/4.0.3/dist/js/select2.full.min.js"/>
+<samigo:stylesheet path="/../library/webjars/select2/4.0.3/dist/css/select2.css"/>
 
 <script type="text/javascript">
 

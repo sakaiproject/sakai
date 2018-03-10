@@ -27,7 +27,7 @@ include file for displaying matching questions
 <h:dataTable value="#{question.itemTextArraySorted}" var="itemText">
  <h:column>
    <h:outputText value="#{itemText.sequence}#{evaluationMessages.dot} #{itemText.text}" escape="false" />
-   <h:dataTable value="#{itemText.answerArraySorted}" var="answer">
+   <h:dataTable value="#{itemText.answerArrayWithDistractorSorted}" var="answer">
      <h:column>
       <h:graphicImage alt="#{evaluationMessages.alt_correct}" id="image4" rendered="#{answer.isCorrect}"
         url="/images/delivery/checkmark.gif" >

@@ -30,15 +30,13 @@
         #set($submitterName=$submitterName.concat(" (").concat($submitterDisplayId).concat(")"))
       #end
       #if ($!submission)## && $submission.submitted) 
-        ## SAK-17606
-        #set($anonymousSubmissionId = $submission.getId() + ' ' + ($tlang.getString("grading.anonymous.title")))
         #set($notes = [])
         #set($notes = $notesMap.get($siteUser.id))
         #if($notes.size() > 0)
         <tr>        
           <td headers="studentname">
-            #if ($value_CheckAnonymousGrading.equals("true"))
-                $anonymousSubmissionId
+            #if ($value_CheckAnonymousGrading)
+                $validator.escapeHtml($!submission.Id) $tlang.getString("grading.anonymous.title")
             #else
                 $validator.escapeHtml($submitterName)
             #end

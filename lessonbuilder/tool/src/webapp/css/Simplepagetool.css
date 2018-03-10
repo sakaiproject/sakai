@@ -22,7 +22,8 @@
 }
 
 .ui-dialog label {
-   padding-left: 0.5em;
+   padding-left: 0.5em;  
+   padding-right: 0.5em;
    font-weight: normal;
 }
 
@@ -278,6 +279,9 @@ a.edit-link:link, a.edit-link:visited, a.section-merge-link:link, a.section-merg
 	text-decoration: none !important;
 	background-color: #eee;
 }
+.border2.controlsPanel label.mm-file {
+    padding-left: 0;
+}
 .mm-file-input {
 	display:inline;
 }
@@ -294,7 +298,6 @@ a.edit-link:link, a.edit-link:visited, a.section-merge-link:link, a.section-merg
 .add-another-file-div {
 	padding: 10px;
 	padding-top: 0px;
-        margin-left: 30px;
 	background-color: #ddd;
 	border: 1px solid #bbb;
 }
@@ -1271,7 +1274,8 @@ div[role="dialog"] {
     display: none !important;
 }
 .neoPortletTitleWrap {
-    border-radius:0
+    border-radius:0;
+    top: 25px;
 }
 .portletTitle {
     width: 100%;

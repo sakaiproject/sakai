@@ -21,9 +21,9 @@
     
   <%@ include file="/jsf/delivery/deliveryjQuery.jsp" %>
   
-	<script language='javascript' src='/samigo-app/js/selection.author.preview.js'></script>
+	<samigo:script path="/js/selection.author.preview.js"/>
 		
-	<link href="/samigo-app/css/imageQuestion.author.css" type="text/css" rel="stylesheet" media="all" />
+	<samigo:stylesheet path="/css/imageQuestion.author.css"/>
 		
 	<script type="text/JavaScript">		
 		jQuery(window).load(function(){

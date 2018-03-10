@@ -106,7 +106,7 @@ function removeOptionalAttributeBlock(elem) {
 				#if($user)$validator.escapeHtml($user.Email)#elseif($valueEmail)$validator.escapeHtml($valueEmail)#end
 			#end
 			</div>	
-#if ($incPw)
+#if ($incPw && !$providedUserType)
   #if(!$!superUser)
     #if ($service.allowUpdateUserName($user.Id) || $service.allowUpdateUserEmail($user.Id) || $service.allowUpdateUserPassword($user.Id) || !$user)
         <div class="shorttext">

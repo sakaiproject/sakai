@@ -22,12 +22,10 @@
 package org.sakaiproject.springframework.orm.hibernate;
 
 import java.io.IOException;
-import java.util.Comparator;
 
-import org.hibernate.MappingException;
-import org.hibernate.cfg.Configuration;
 import org.springframework.core.io.Resource;
 import org.springframework.orm.hibernate4.LocalSessionFactoryBuilder;
+import org.springframework.orm.jpa.persistenceunit.MutablePersistenceUnitInfo;
 
 /**
  * When the kernel starts up it will ask the component manager for all instances of this interface and then
@@ -39,6 +37,7 @@ public interface AdditionalHibernateMappings extends Comparable<AdditionalHibern
 {
 	Integer getSortOrder();
 	void processAdditionalMappings(LocalSessionFactoryBuilder localSessionFactoryBuilder) throws IOException;
+	void processAdditionalUnit(MutablePersistenceUnitInfo pui);
 	void setAnnotatedClasses(Class<?>... annotatedClasses);
 	void setAnnotatedPackages(String... annotatedPackages);
 	void setCacheableMappingLocations(Resource... mappingLocations);

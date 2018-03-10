@@ -403,12 +403,14 @@ div#article-navigation li#next-article
   width: 240px;
 }
 
-span.helpIcon {
-    background-image: url("/library/image/help/en/About-Sakai-Help/Tool-Help.png");
-    background-repeat: no-repeat;
-    background-position: center;
-    display: inline-block;
-    height: 16px;
-    width: 16px;
-    vertical-align: text-top;
+#article-content .step-instructions {
+    border-bottom: 1px solid #f0f0f0;
+    margin-bottom: 3em;
+}
+#article-content div.step {
+    padding: 0;
+    background-color: transparent;
+}
+#article-content h2.step-title {
+    font-size: 1.5em;
 }

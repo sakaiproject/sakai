@@ -40,6 +40,10 @@ public class BaseExternalSubscriptionDetails implements ExternalSubscriptionDeta
 	private boolean isInstitutional;
 
 	private Status status;
+	
+	private String userId;
+	
+	private String tzid;
 
 	public BaseExternalSubscriptionDetails() {
 	}
@@ -55,6 +59,8 @@ public class BaseExternalSubscriptionDetails implements ExternalSubscriptionDeta
 		this.calendar = other.calendar;
 		this.isInstitutional = other.isInstitutional;
 		this.status = other.status;
+		this.userId = other.userId;
+		this.tzid = other.tzid;
 	}
 
 	/**
@@ -70,11 +76,19 @@ public class BaseExternalSubscriptionDetails implements ExternalSubscriptionDeta
 		setContext(context);
 		setInstitutional(isInstitutional);
 	}
-
+	
 	public BaseExternalSubscriptionDetails(String subscriptionName,
-										   String subscriptionUrl, String context, ExternalCalendarSubscription calendar,
-										   boolean isInstitutional, boolean ok, String error, Instant instant) {
+			   String subscriptionUrl, String context, ExternalCalendarSubscription calendar,
+			   boolean isInstitutional, String userId, String tzid) {
 	    this(subscriptionName, subscriptionUrl, context, calendar, isInstitutional);
+		this.userId = userId;
+		this.tzid = tzid;
+	}
+	
+	public BaseExternalSubscriptionDetails(String subscriptionName,
+			   String subscriptionUrl, String context, ExternalCalendarSubscription calendar,
+			   boolean isInstitutional, String userId, String tzid, boolean ok, String error, Instant instant) {
+		this(subscriptionName, subscriptionUrl, context, calendar, isInstitutional, userId, tzid);
 		status = new Status(ok, error, instant);
 	}
 
@@ -136,6 +150,22 @@ public class BaseExternalSubscriptionDetails implements ExternalSubscriptionDeta
 
 	public Instant getRefreshed() {
 		return status != null? status.getRefreshed(): null;
+	}
+	
+	public String getUserId() {
+		return userId;
+	}
+
+	public void setUserId(String userId) {
+		this.userId = userId;
+	}
+
+	public String getTzid() {
+		return tzid;
+	}
+	
+	public void setTzid(String tzid) {
+		this.tzid = tzid;
 	}
 
 	@Override

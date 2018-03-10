@@ -49,6 +49,7 @@ import org.sakaiproject.authz.api.GroupNotDefinedException;
 import org.sakaiproject.authz.api.GroupProvider;
 import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.authz.api.Role;
+import org.sakaiproject.thread_local.api.ThreadLocalManager;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.coursemanagement.api.CourseManagementService;
@@ -949,6 +950,14 @@ public class SiteManageGroupSectionRoleHandler {
     	return "cancel";
     }
     
+    public String processCancelGroups()
+    {
+        // reset the warning messages
+        resetTargettedMessageList();
+
+        return "returnToGroupList";
+    }
+    
     /**
      * SAK-29373 - Common validation algorithm for both roster and role based random groups
      * 
@@ -1511,7 +1520,8 @@ public class SiteManageGroupSectionRoleHandler {
      * @return status
      */
     public String processUploadAndCheck() {
-        String uploadsDone = (String) httpServletRequest.getAttribute(RequestFilter.ATTR_UPLOADS_DONE);
+        HttpServletRequest request = (HttpServletRequest) ComponentManager.get(ThreadLocalManager.class).get(RequestFilter.CURRENT_HTTP_REQUEST);
+        String uploadsDone = (String) request.getAttribute(RequestFilter.ATTR_UPLOADS_DONE);
 
         FileItem usersFileItem;
         String processingFlag = "success";
@@ -1519,7 +1529,7 @@ public class SiteManageGroupSectionRoleHandler {
         if (uploadsDone != null && uploadsDone.equals(RequestFilter.ATTR_UPLOADS_DONE)) {
 
             try {
-                usersFileItem = (FileItem) httpServletRequest.getAttribute(REQ_ATTR_GROUPFILE);
+                usersFileItem = (FileItem) request.getAttribute(REQ_ATTR_GROUPFILE);
                 // Check for nothing to upload.
                 if (getGroupUploadTextArea().length() == 0 && usersFileItem.getSize() == 0) {
                     messages.addMessage(new TargettedMessage("import1.error.no.content", null, TargettedMessage.SEVERITY_ERROR));
@@ -1609,14 +1619,10 @@ public class SiteManageGroupSectionRoleHandler {
 				messages.addMessage(new TargettedMessage("import1.error.invalid.data.format", null, TargettedMessage.SEVERITY_ERROR));
 				return false;
 			}
-			// if we already have an occurrence of this group, get the group, check whether the user is already there, if not add them.
+			// if we already have an occurrence of this group add the user, otherwise create a new group.
 			if(groupMap.containsKey(groupTitle)){
 				ImportedGroup group = groupMap.get(groupTitle);
-				for (String s: group.getUserIds()) {
-					if (!s.equals(userId)) {
-						group.addUser(userId);
-					}
-				}
+				group.addUser(userId);
 			} else {
 				ImportedGroup group = new ImportedGroup(groupTitle, userId);
 				groupMap.put(groupTitle, group);
@@ -1714,7 +1720,7 @@ public class SiteManageGroupSectionRoleHandler {
 	}
 	
 	/**
-	 * Helper to get a list of user eids in a group
+	 * Helper to get a list of user display ids in a group
 	 * @param g	the group
 	 * @return
 	 */
@@ -1728,12 +1734,28 @@ public class SiteManageGroupSectionRoleHandler {
 		
 		Set<Member> members= g.getMembers();
 		for(Member m: members) {
-			userIds.add(m.getUserEid());
+			userIds.add(m.getUserDisplayId());
 		}
 		return userIds;
 	}
-	
-	
+	/**
+	 * Helper to get a user's name for display in the format surname, first name.
+	 * @param userId	authentication ID of the user
+	 * @return
+	 */
+	public String getUserSortName(String userId) {
+		// Return the userId if the user does not exist.
+		String sortName = userId;
+		try
+		{
+			sortName = userDirectoryService.getUserByAid(userId).getSortName();
+		}
+		catch( UserNotDefinedException ex )
+		{
+			log.debug( this + ".getUserSortName: can't find user for " + userId, ex );
+		}
+		return sortName;
+	}
 	/**
 	 * Helper to add a user to a group. Takes care of the role selection.
 	 * @param id	eid of the user eg jsmith26
@@ -1768,12 +1790,6 @@ public class SiteManageGroupSectionRoleHandler {
 	@Setter
 	private UserDirectoryService userDirectoryService;
 	
-	 /**
-     * We need this to get the uploaded file as snaffled by the request filter.
-     */
-	@Setter
-    private HttpServletRequest httpServletRequest;
-   
     
     /**
      * As we import groups we store the details here for use in further stages

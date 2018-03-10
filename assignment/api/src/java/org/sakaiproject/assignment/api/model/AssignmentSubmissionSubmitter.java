@@ -63,16 +63,16 @@ public class AssignmentSubmissionSubmitter {
     @JoinColumn(name = "SUBMISSION_ID", nullable = false)
     private AssignmentSubmission submission;
 
-    @Column(name = "SUBMITTER", nullable = false)
+    @Column(name = "SUBMITTER", length = 99, nullable = false)
     private String submitter;
 
     @Column(name = "SUBMITTEE", nullable = false)
     private Boolean submittee = Boolean.FALSE;
 
-    @Column(name = "GRADE")
+    @Column(name = "GRADE", length = 32)
     private String grade;
 
     @Lob
-    @Column(name = "FEEDBACK")
+    @Column(name = "FEEDBACK", length = 65535)
     private String feedback;
 }

@@ -30,7 +30,7 @@ should be included in file importing DeliveryMessages
   <!-- 1. print out the matching choices -->
   <h:dataTable value="#{question.itemData.itemTextArraySorted}" var="itemText">
     <h:column>
-      <h:dataTable value="#{itemText.answerArraySorted}" var="answer"
+      <h:dataTable value="#{itemText.answerArrayWithDistractorSorted}" var="answer"
          rendered="#{itemText.sequence==1}">
         <h:column>
             <h:panelGrid columns="2">

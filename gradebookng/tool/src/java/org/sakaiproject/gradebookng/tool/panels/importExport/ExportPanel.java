@@ -15,6 +15,8 @@
  */
 package org.sakaiproject.gradebookng.tool.panels.importExport;
 
+import au.com.bytecode.opencsv.CSVWriter;
+
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -31,6 +33,7 @@ import org.apache.wicket.markup.html.link.DownloadLink;
 import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.util.time.Duration;
+
 import org.sakaiproject.gradebookng.business.GbCategoryType;
 import org.sakaiproject.gradebookng.business.model.GbCourseGrade;
 import org.sakaiproject.gradebookng.business.model.GbGradeInfo;
@@ -42,8 +45,6 @@ import org.sakaiproject.gradebookng.tool.panels.BasePanel;
 import org.sakaiproject.service.gradebook.shared.Assignment;
 import org.sakaiproject.service.gradebook.shared.CourseGrade;
 import org.sakaiproject.util.FormattedText;
-
-import au.com.bytecode.opencsv.CSVWriter;
 
 public class ExportPanel extends BasePanel {
 
@@ -62,6 +63,7 @@ public class ExportPanel extends BasePanel {
 	boolean includeStudentName = true;
 	boolean includeStudentId = true;
 	boolean includeStudentNumber = false;
+	boolean includeStudentDisplayId = false;
 	boolean includeGradeItemScores = true;
 	boolean includeGradeItemComments = true;
 	boolean includeCourseGrade = false;
@@ -86,6 +88,16 @@ public class ExportPanel extends BasePanel {
 			protected void onUpdate(final AjaxRequestTarget ajaxRequestTarget) {
 				ExportPanel.this.includeStudentId = !ExportPanel.this.includeStudentId;
 				setDefaultModelObject(ExportPanel.this.includeStudentId);
+			}
+		});
+
+		add(new AjaxCheckBox("includeStudentDisplayId", Model.of(this.includeStudentDisplayId)) {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			protected void onUpdate(final AjaxRequestTarget ajaxRequestTarget) {
+				ExportPanel.this.includeStudentDisplayId = !ExportPanel.this.includeStudentDisplayId;
+				setDefaultModelObject(ExportPanel.this.includeStudentDisplayId);
 			}
 		});
 
@@ -241,144 +253,147 @@ public class ExportPanel extends BasePanel {
 
 		try {
 			tempFile = File.createTempFile("gradebookTemplate", ".csv");
-			final FileWriter fw = new FileWriter(tempFile);
+
 			//CSV separator is comma unless the comma is the decimal separator, then is ;
-			final CSVWriter csvWriter = new CSVWriter(fw, ".".equals(FormattedText.getDecimalSeparator()) ? CSVWriter.DEFAULT_SEPARATOR : CSV_SEMICOLON_SEPARATOR);
+			try (FileWriter fw = new FileWriter(tempFile);
+					CSVWriter csvWriter = new CSVWriter(fw, ".".equals(FormattedText.getDecimalSeparator()) ? CSVWriter.DEFAULT_SEPARATOR : CSV_SEMICOLON_SEPARATOR)) {
 
-			// Create csv header
-			final List<String> header = new ArrayList<String>();
-			if (!isCustomExport || this.includeStudentId) {
-				header.add(getString("importExport.export.csv.headers.studentId"));
-			}
-			if (!isCustomExport || this.includeStudentName) {
-				header.add(getString("importExport.export.csv.headers.studentName"));
-			}
-
-			if (isCustomExport && this.includeStudentNumber)
-			{
-				header.add(String.join(" ", IGNORE_COLUMN_PREFIX, getString("importExport.export.csv.headers.studentNumber")));
-			}
-
-			// get list of assignments. this allows us to build the columns and then fetch the grades for each student for each assignment
-			// from the map
-			final List<Assignment> assignments = this.businessService.getGradebookAssignments();
-
-			// no assignments, give a template
-			if (assignments.isEmpty()) {
-				// with points
-				header.add(String.join(" ", getString("importExport.export.csv.headers.example.points"), "[100]"));
-
-				// no points
-				header.add(getString("importExport.export.csv.headers.example.nopoints"));
-
-				// points and comments
-				header.add(String.join(" ", COMMENTS_COLUMN_PREFIX, getString("importExport.export.csv.headers.example.pointscomments"),
-						"[50]"));
-
-				// ignore
-				header.add(String.join(" ", IGNORE_COLUMN_PREFIX, getString("importExport.export.csv.headers.example.ignore")));
-			}
-
-			// build column header
-			assignments.forEach(assignment -> {
-				final String assignmentPoints = assignment.getPoints().toString();
-				if (!isCustomExport || this.includeGradeItemScores) {
-					header.add(assignment.getName() + " [" + StringUtils.removeEnd(assignmentPoints, ".0") + "]");
-				}
-				if (!isCustomExport || this.includeGradeItemComments) {
-					header.add(String.join(" ", COMMENTS_COLUMN_PREFIX, assignment.getName()));
-				}
-			});
-
-			if (isCustomExport && this.includePoints) {
-				header.add(String.join(" ", IGNORE_COLUMN_PREFIX, getString("importExport.export.csv.headers.points")));
-			}
-			if (isCustomExport && this.includeCalculatedGrade) {
-				header.add(String.join(" ", IGNORE_COLUMN_PREFIX, getString("importExport.export.csv.headers.calculatedGrade")));
-			}
-			if (isCustomExport && this.includeCourseGrade) {
-				header.add(String.join(" ", IGNORE_COLUMN_PREFIX, getString("importExport.export.csv.headers.courseGrade")));
-			}
-			if (isCustomExport && this.includeLastLogDate) {
-				header.add(String.join(" ", IGNORE_COLUMN_PREFIX, getString("importExport.export.csv.headers.lastLogDate")));
-			}
-
-			csvWriter.writeNext(header.toArray(new String[] {}));
-
-			// apply section/group filter
-			final GradebookUiSettings settings = new GradebookUiSettings();
-			if (isCustomExport && !GbGroup.Type.ALL.equals(this.group.getType())) {
-				settings.setGroupFilter(this.group);
-			}
-
-			// get the grade matrix
-			final List<GbStudentGradeInfo> grades = this.businessService.buildGradeMatrix(assignments, settings);
-
-			// add grades
-			grades.forEach(studentGradeInfo -> {
-				final List<String> line = new ArrayList<String>();
+				// Create csv header
+				final List<String> header = new ArrayList<>();
 				if (!isCustomExport || this.includeStudentId) {
-					line.add(studentGradeInfo.getStudentEid());
+					header.add(getString("importExport.export.csv.headers.studentId"));
+				}
+				if (isCustomExport || this.includeStudentDisplayId) {
+					header.add(getString("importExport.export.csv.headers.studentDisplayId"));
 				}
 				if (!isCustomExport || this.includeStudentName) {
-					line.add(studentGradeInfo.getStudentLastName() + ", " + studentGradeInfo.getStudentFirstName());
+					header.add(getString("importExport.export.csv.headers.studentName"));
 				}
-				if (isCustomExport && this.includeStudentNumber)
-				{
-					line.add(studentGradeInfo.getStudentNumber());
-				}
-				if (!isCustomExport || this.includeGradeItemScores || this.includeGradeItemComments) {
-					assignments.forEach(assignment -> {
-						final GbGradeInfo gradeInfo = studentGradeInfo.getGrades().get(assignment.getId());
-						if (gradeInfo != null) {
-							if (!isCustomExport || this.includeGradeItemScores) {
-								String grade = FormatHelper.formatGradeForDisplay(gradeInfo.getGrade());
-								line.add(StringUtils.removeEnd(grade, FormattedText.getDecimalSeparator()+"0"));
-							}
-							if (!isCustomExport || this.includeGradeItemComments) {
-								line.add(gradeInfo.getGradeComment());
-							}
-						} else {
-							// Need to account for no grades
-							if (!isCustomExport || this.includeGradeItemScores) {
-								line.add(null);
-							}
-							if (!isCustomExport || this.includeGradeItemComments) {
-								line.add(null);
-							}
-						}
-					});
+				if (isCustomExport && this.includeStudentNumber) {
+					header.add(String.join(" ", IGNORE_COLUMN_PREFIX, getString("importExport.export.csv.headers.studentNumber")));
 				}
 
-				final GbCourseGrade gbCourseGrade = studentGradeInfo.getCourseGrade();
-				final CourseGrade courseGrade = gbCourseGrade.getCourseGrade();
+				// get list of assignments. this allows us to build the columns and then fetch the grades for each student for each assignment from the map
+				final List<Assignment> assignments = this.businessService.getGradebookAssignments();
+				
+				// no assignments, give a template
+				if (assignments.isEmpty()) {
+					// with points
+					header.add(String.join(" ", getString("importExport.export.csv.headers.example.points"), "[100]"));
+					
+					// no points
+					header.add(getString("importExport.export.csv.headers.example.nopoints"));
+					
+					// points and comments
+					header.add(String.join(" ", COMMENTS_COLUMN_PREFIX, getString("importExport.export.csv.headers.example.pointscomments"), "[50]"));
+					
+					// ignore
+					header.add(String.join(" ", IGNORE_COLUMN_PREFIX, getString("importExport.export.csv.headers.example.ignore")));
+				}
+
+				// build column header
+				assignments.forEach(assignment -> {
+					final String assignmentPoints = assignment.getPoints().toString();
+					if (!isCustomExport || this.includeGradeItemScores) {
+						header.add(assignment.getName() + " [" + StringUtils.removeEnd(assignmentPoints, ".0") + "]");
+					}
+					if (!isCustomExport || this.includeGradeItemComments) {
+						header.add(String.join(" ", COMMENTS_COLUMN_PREFIX, assignment.getName()));
+					}
+				});
 
 				if (isCustomExport && this.includePoints) {
-					line.add(FormatHelper.formatGradeForDisplay(FormatHelper.formatDoubleToDecimal(courseGrade.getPointsEarned())));
+					header.add(String.join(" ", IGNORE_COLUMN_PREFIX, getString("importExport.export.csv.headers.points")));
 				}
 				if (isCustomExport && this.includeCalculatedGrade) {
-					line.add(FormatHelper.formatGradeForDisplay(courseGrade.getCalculatedGrade()));
+					header.add(String.join(" ", IGNORE_COLUMN_PREFIX, getString("importExport.export.csv.headers.calculatedGrade")));
 				}
 				if (isCustomExport && this.includeCourseGrade) {
-					line.add(courseGrade.getMappedGrade());
+					header.add(String.join(" ", IGNORE_COLUMN_PREFIX, getString("importExport.export.csv.headers.courseGrade")));
 				}
 				if (isCustomExport && this.includeGradeOverride) {
-					line.add(FormatHelper.formatGradeForDisplay(courseGrade.getEnteredGrade()));
+					header.add(String.join(" ", IGNORE_COLUMN_PREFIX, getString("importExport.export.csv.headers.gradeOverride")));
 				}
 				if (isCustomExport && this.includeLastLogDate) {
-					if (courseGrade.getDateRecorded() == null) {
-						line.add(null);
-					} else {
-						line.add(FormatHelper.formatDateTime(courseGrade.getDateRecorded()));
-					}
+					header.add(String.join(" ", IGNORE_COLUMN_PREFIX, getString("importExport.export.csv.headers.lastLogDate")));
+				}
+				
+				csvWriter.writeNext(header.toArray(new String[] {}));
+
+				// apply section/group filter
+				final GradebookUiSettings settings = new GradebookUiSettings();
+				if (isCustomExport && !GbGroup.Type.ALL.equals(this.group.getType())) {
+					settings.setGroupFilter(this.group);
 				}
 
-				csvWriter.writeNext(line.toArray(new String[] {}));
+				// get the grade matrix
+				final List<GbStudentGradeInfo> grades = this.businessService.buildGradeMatrixForImportExport(assignments, group);
 
-			});
+				// add grades
+				grades.forEach(studentGradeInfo -> {
+					final List<String> line = new ArrayList<>();
+					if (!isCustomExport || this.includeStudentId) {
+						line.add(studentGradeInfo.getStudentEid());
+					}
+					if (isCustomExport || this.includeStudentDisplayId) {
+						header.add(studentGradeInfo.getStudentDisplayId());
+					}
+					if (!isCustomExport || this.includeStudentName) {
+						line.add(studentGradeInfo.getStudentLastName() + ", " + studentGradeInfo.getStudentFirstName());
+					}
+					if (isCustomExport && this.includeStudentNumber)
+					{
+						line.add(studentGradeInfo.getStudentNumber());
+					}
+					if (!isCustomExport || this.includeGradeItemScores || this.includeGradeItemComments) {
+						assignments.forEach(assignment -> {
+							final GbGradeInfo gradeInfo = studentGradeInfo.getGrades().get(assignment.getId());
+							if (gradeInfo != null) {
+								if (!isCustomExport || this.includeGradeItemScores) {
+									String grade = FormatHelper.formatGradeForDisplay(gradeInfo.getGrade());
+									line.add(StringUtils.removeEnd(grade, FormattedText.getDecimalSeparator() + "0"));
+								}
+								if (!isCustomExport || this.includeGradeItemComments) {
+									line.add(gradeInfo.getGradeComment());
+								}
+							} else {
+								// Need to account for no grades
+								if (!isCustomExport || this.includeGradeItemScores) {
+									line.add(null);
+								}
+								if (!isCustomExport || this.includeGradeItemComments) {
+									line.add(null);
+								}
+							}
+						});
+					}
 
-			csvWriter.close();
-			fw.close();
+					final GbCourseGrade gbCourseGrade = studentGradeInfo.getCourseGrade();
+					final CourseGrade courseGrade = gbCourseGrade.getCourseGrade();
+
+					if (isCustomExport && this.includePoints) {
+						line.add(FormatHelper.formatGradeForDisplay(FormatHelper.formatDoubleToDecimal(courseGrade.getPointsEarned())));
+					}
+					if (isCustomExport && this.includeCalculatedGrade) {
+						line.add(FormatHelper.formatGradeForDisplay(courseGrade.getCalculatedGrade()));
+					}
+					if (isCustomExport && this.includeCourseGrade) {
+						line.add(courseGrade.getMappedGrade());
+					}
+					if (isCustomExport && this.includeGradeOverride) {
+						line.add(FormatHelper.formatGradeForDisplay(courseGrade.getEnteredGrade()));
+					}
+					if (isCustomExport && this.includeLastLogDate) {
+						if (courseGrade.getDateRecorded() == null) {
+							line.add(null);
+						} else {
+							line.add(FormatHelper.formatDateTime(courseGrade.getDateRecorded()));
+						}
+					}
+
+					csvWriter.writeNext(line.toArray(new String[] {}));
+				});
+			}
 		} catch (final IOException e) {
 			throw new RuntimeException(e);
 		}

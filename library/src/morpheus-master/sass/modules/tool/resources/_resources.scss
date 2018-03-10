@@ -247,4 +247,39 @@
 		color : $primary-color;
 		text-decoration: none;
 	}
+	
+	/* SAK-33897 - Restore + symbols in folders */
+	a.nil.fa-folder {
+		position: static;
+		&::after {
+			color: #fff;
+			content: "+";
+			display: inline-block;
+			position: absolute;
+			margin: 0.45em 0 0 -2.2em;
+			text-align: center;
+			font-size: 11px;
+			font-family: monospace;
+			@media #{$tablet} {
+				margin: 0.75em 0 0 -2.2em;
+			}
+		}
+	}
+
+	a.nil.fa-folder-open {
+		position: static;
+		&::after {
+			color: #FFF;
+			content: "-";
+			display: inline-block;
+			position: absolute;
+			margin: 0.55em 0 0 -2.2em;
+			text-align: center;
+			font-size: 11px;
+			font-family: monospace;
+			@media #{$tablet} {
+				margin: 0.85em 0 0 -2.2em;
+			}
+		}
+	}
 }

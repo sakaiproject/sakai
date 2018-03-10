@@ -3,6 +3,7 @@
 <%@ taglib uri="http://java.sun.com/jsf/html" prefix="h" %>
 <%@ taglib uri="http://java.sun.com/jsf/core" prefix="f" %>
 <%@ taglib uri="http://sakaiproject.org/jsf/sakai" prefix="sakai" %>
+<%@ taglib uri="http://myfaces.apache.org/tomahawk" prefix="t"%>
 <%-- Core JSTL tag library --%>
 <%@ taglib uri = "http://java.sun.com/jsp/jstl/core" prefix = "c" %>
 <% response.setContentType("text/html; charset=UTF-8"); %>
@@ -27,19 +28,16 @@
 		<%-- Set current value for template --%> 
 		<c:set var="cTemplate" value = "privacy" scope = "session" />
 		<%@ include file="toolbar.jspf"%>
-			
-		<f:verbatim><div><h3></f:verbatim>
-     
-     	<h:outputText value="#{msgs.privacy_title}" rendered="#{privacyBean.myWorkspace}" />
 
-         <!--SAK-18566 -->
-        <h3>
-		 <h:panelGroup rendered="#{privacyBean.updateMessage}" style="margin:0 3em;font-weight:normal">
-		 <jsp:include page="prefUpdatedMsg.jsp"/>
-		 </h:panelGroup>
-	   </h3>
-
-		<f:verbatim></h3></div></f:verbatim>
+		<!--SAK-18566 -->
+		<t:div rendered="#{privacyBean.updateMessage}">
+			<jsp:include page="prefUpdatedMsg.jsp"/>
+		</t:div>
+		<h:panelGroup rendered="#{privacyBean.myWorkspace}" >
+			<h3>
+				<h:outputText value="#{msgs.privacy_title}" />
+			</h3>
+		</h:panelGroup>
 	 	<%--  Message if Show All or Hide All has been clicked --%>
 	 	<f:verbatim><div></f:verbatim>
 	 	<h:outputText value="#{privacyBean.changeAllMsg}" styleClass="success" rendered="#{privacyBean.allChanged}" />

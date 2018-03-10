@@ -91,7 +91,7 @@ public class GroupImportStep2Producer implements ViewComponentProducer, Navigati
             Group existingGroup = null;
             
             //add title
-            UIOutput.make(branch,"title",importedGroup.getGroupTitle());
+            UIOutput.make(branch,"title", messageLocator.getMessage("import2.grouptitle") + " " + importedGroup.getGroupTitle());
             
             //check if group already exists
             for(Group g : existingGroups) {
@@ -113,31 +113,37 @@ public class GroupImportStep2Producer implements ViewComponentProducer, Navigati
             
             //print each user
             SortedSet<String> foundUserIds = new TreeSet<>();
+
+            boolean existingFlag = false;
             for(String userId: importedGroup.getUserIds()) {
-            	
-            	UIOutput output = UIOutput.make(branch,"member:",userId);
-            	
                 //check user is valid
                 String foundUserId = handler.lookupUser(userId);
                 if(foundUserId != null && handler.isValidSiteUser(foundUserId)){
-            		//is user existing?
-            		if(existingUserIds.contains(userId)) {
-            			//highlight grey
-            			Map<String,String> cssMap = new HashMap<String,String>();
-                		cssMap.put("color","grey");
-                		output.decorate(new UICSSDecorator(cssMap));
-            		} else {
-            		    foundUserIds.add(foundUserId);
+                    String userSortName = handler.getUserSortName(userId)+ " ( " + userId + " )";
+                    //is user existing?
+                    if(existingUserIds.contains(userId)) {
+                        existingFlag = true;
+                        UIOutput outputExisting = UIOutput.make(branch,"existmember:", userSortName);
+                    } else {
+                        if (foundUserIds.isEmpty()) {
+                            UIOutput.make(branch, "newmemberheading:", messageLocator.getMessage("import2.newmemberheading"));
+                        }
+                        foundUserIds.add(foundUserId);
+                        UIOutput outputNew = UIOutput.make(branch, "newmember:", userSortName);
                     }
-            		
-            	} else {
-            		badData = true;
-            		//highlight red
-            		Map<String,String> cssMap = new HashMap<String,String>();
-            		cssMap.put("color","red");
-            		output.decorate(new UICSSDecorator(cssMap));
-            	}
+                } else {
+                    badData = true;
+                    UIOutput outputInvalid = UIOutput.make(branch,"invalidmember:", userId);
+                }
             }
+
+            if (existingFlag) {
+                UIOutput.make(branch, "existmemberheading:", messageLocator.getMessage("import2.existmemberheading"));
+            }
+            if (badData) {
+                UIOutput.make(branch, "invalidmemberheading:", messageLocator.getMessage("import2.invalidmemberheading"));
+            }
+
             importedGroup.setUserIds(foundUserIds);
         }
         
@@ -145,18 +151,13 @@ public class GroupImportStep2Producer implements ViewComponentProducer, Navigati
         
         if(badData) {
             UIMessage.make(content, "import2.error", "import2.error");
-            handler.resetParams();
-            
-            UICommand cancel = UICommand.make(createForm, "cancel", messageLocator.getMessage("cancel"), "#{SiteManageGroupSectionRoleHandler.processCancel}");
-            cancel.parameters.add(new UIDeletionBinding("#{destroyScope.resultScope}"));
-            
         } else {
             UIMessage.make(content, "import2.okay", "import2.okay");
-
             UICommand.make(createForm, "continue", messageLocator.getMessage("import2.continue"), "#{SiteManageGroupSectionRoleHandler.processImportedGroups}");
-            UICommand cancel = UICommand.make(createForm, "cancel", messageLocator.getMessage("cancel"), "#{SiteManageGroupSectionRoleHandler.processCancel}");
-            cancel.parameters.add(new UIDeletionBinding("#{destroyScope.resultScope}"));
         }
+        UICommand.make(createForm, "back", messageLocator.getMessage("back"));
+        UICommand cancel = UICommand.make(createForm, "cancel", messageLocator.getMessage("cancel"), "#{SiteManageGroupSectionRoleHandler.processCancelGroups}");
+        cancel.parameters.add(new UIDeletionBinding("#{destroyScope.resultScope}"));
         
         if(StringUtils.equals(params.status, "error")){
         	UIMessage.make(content, "import2.couldntimportgroups", "import2.couldntimportgroups");
@@ -168,6 +169,7 @@ public class GroupImportStep2Producer implements ViewComponentProducer, Navigati
     public List<NavigationCase> reportNavigationCases() {
         List<NavigationCase> togo = new ArrayList<NavigationCase>();
         togo.add(new NavigationCase("success", new SimpleViewParameters(GroupListProducer.VIEW_ID)));
+        togo.add(new NavigationCase("returnToGroupList", new SimpleViewParameters(GroupListProducer.VIEW_ID)));
         togo.add(new NavigationCase("error", new GroupImportViewParameters(GroupImportStep2Producer.VIEW_ID, "error")));
         return togo;
     }

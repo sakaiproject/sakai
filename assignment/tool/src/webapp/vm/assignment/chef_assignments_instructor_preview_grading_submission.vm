@@ -1,6 +1,6 @@
 <!-- start:  chef_assignments_instructor_preview_grading_submission.vm -->
 <div class="portletBody">
-    #navBarHREF($allowAddAssignment $withGrade $allowGradeSubmission $allowAddAssignment $allowAllGroups $assignmentscheck $allowUpdateSite $enableViewOption $view "")
+    #navBarHREF($allowAddAssignment $withGrade $allowGradeSubmission $allowAddAssignment $allowRecoverAssignment $allowAllGroups $assignmentscheck $allowUpdateSite $enableViewOption $view "")
     <h3>$tlang.getString("gen.pre")
         $tlang.getString("gen.instrcomment")
         $tlang.getString("gen.to")
@@ -19,12 +19,11 @@
                     $tlang.getString("gen.student")
                 </th>
                 <td>
-					#set($anonymousSubmissionId = $!submission.Id + ' ' + ($tlang.getString("grading.anonymous.title")))
-					#if ($value_CheckAnonymousGrading.equals("true"))
-                    $anonymousSubmissionId
-                #else
-                    $validator.escapeHtml($!submitterNames)
-                #end
+					#if ($value_CheckAnonymousGrading)
+                        $validator.escapeHtml($!submission.Id) $tlang.getString("grading.anonymous.title")
+                    #else
+                        $validator.escapeHtml($!submitterNames)
+                    #end
 
                 </td>
             </tr>
