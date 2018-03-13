@@ -54,6 +54,12 @@ public class GbCourseGradeChart extends BasePanel {
 	@Override
 	public void renderHead(final IHeaderResponse response) {
 		final String version = ServerConfigurationService.getString("portal.cdn.version", "");
+
+		// chart requires ChartJS
+		response.render(
+				JavaScriptHeaderItem.forUrl(String.format("/gradebookng-tool/webjars/chartjs/2.7.0/Chart.min.js?version=%s", version)));
+
+		// our chart functions
 		response.render(
 				JavaScriptHeaderItem.forUrl(String.format("/gradebookng-tool/scripts/gradebook-coursegrade-chart.js?version=%s", version)));
 

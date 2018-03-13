@@ -47,14 +47,14 @@ import org.sakaiproject.gradebookng.tool.component.JFreeChartImageWithToolTip;
 import org.sakaiproject.service.gradebook.shared.Assignment;
 import org.sakaiproject.service.gradebook.shared.GradingType;
 
-public class GradeStatisticsPanel extends BasePanel {
+public class AssignmentStatisticsPanel extends BasePanel {
 
 	private static final long serialVersionUID = 1L;
 
 	private final ModalWindow window;
 	private final GradingType gradingType;
 
-	public GradeStatisticsPanel(final String id, final IModel<Long> model, final ModalWindow window) {
+	public AssignmentStatisticsPanel(final String id, final IModel<Long> model, final ModalWindow window) {
 		super(id, model);
 		this.window = window;
 		this.gradingType = GradingType.valueOf(this.businessService.getGradebook().getGrade_type());
@@ -68,7 +68,7 @@ public class GradeStatisticsPanel extends BasePanel {
 
 		final Assignment assignment = this.businessService.getAssignment(assignmentId.longValue());
 
-		GradeStatisticsPanel.this.window.setTitle(
+		AssignmentStatisticsPanel.this.window.setTitle(
 				(new StringResourceModel("label.statistics.title", null,
 						new Object[] { assignment.getName() }).getString()));
 
@@ -200,7 +200,7 @@ public class GradeStatisticsPanel extends BasePanel {
 
 			@Override
 			public void onClick(final AjaxRequestTarget target) {
-				GradeStatisticsPanel.this.window.close(target);
+				AssignmentStatisticsPanel.this.window.close(target);
 			}
 		});
 	}
