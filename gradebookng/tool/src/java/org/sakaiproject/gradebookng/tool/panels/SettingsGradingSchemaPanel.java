@@ -706,7 +706,7 @@ public class SettingsGradingSchemaPanel extends BasePanel implements IFormModelU
 		this.duplicateEntries.setVisible(SettingsHelper.hasDuplicates(schemaList));
 		target.add(this.duplicateEntries);
 
-		// refresh the cahrt
+		// refresh the chart
 		Map<String, Double> schemaMap = SettingsHelper.asMap(schemaList);
 		schemaMap = GradeMappingDefinition.sortGradeMapping(schemaMap);
 		this.chart.refresh(target, schemaMap);
