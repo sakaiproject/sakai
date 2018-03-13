@@ -32,7 +32,7 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
-import java.time.Instant;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -259,6 +259,8 @@ public class RubricsServiceImpl implements RubricsService {
         String associationHref = null;
         String created = "";
         String owner = "";
+        String ownerType = "";
+        String creatorId = "";
         Map <String,Boolean> oldParams = new HashMap<>();
 
         try {
@@ -268,21 +270,24 @@ public class RubricsServiceImpl implements RubricsService {
                 ToolItemRubricAssociation association = associationResource.get().getContent();
                 created = association.getMetadata().getCreated().toString();
                 owner = association.getMetadata().getOwnerId();
+                ownerType = association.getMetadata().getOwnerType();
+                creatorId = association.getMetadata().getCreatorId();
                 oldParams = association.getParameters();
             }
 
             //we will create a new one or update if the parameter rbcs-associate is true
-            String nowTime = DateTimeFormatter.ISO_INSTANT.format(Instant.now());
+            String nowTime = LocalDateTime.now().toString();
             if (params.get("rbcs-associate").equals("1")) {
 
                 if (associationHref ==null) {  // create a new one.
-                    String input = "{\"toolId\" : \""+tool+"\",\"itemId\" : \"" + id + "\",\"rubricId\" : " + params.get("rbcs-rubricslist") + ",\"metadata\" : {\"created\" : \"" + nowTime + "\",\"modified\" : \"" + nowTime + "\",\"owner\" : \"" + userDirectoryService.getCurrentUser().getId() + "\"},\"parameters\" : {" + setConfigurationParameters(params,oldParams) + "}}";
+                    String input = "{\"toolId\" : \""+tool+"\",\"itemId\" : \"" + id + "\",\"rubricId\" : " + params.get("rbcs-rubricslist") + ",\"metadata\" : {\"created\" : \"" + nowTime + /*"\",\"modified\" : \"" + nowTime +*/ "\",\"ownerId\" : \"" + userDirectoryService.getCurrentUser().getId() + "\"},\"parameters\" : {" + setConfigurationParameters(params,oldParams) + "}}";
                     log.debug("New association " + input);
                     String query = serverConfigurationService.getServerUrl() + RBCS_SERVICE_URL_PREFIX + "rubric-associations/";
                     String resultPost = postRubricResource(query, input, tool);
                     log.debug("resultPost: " +  resultPost);
                 }else{
-                    String input = "{\"toolId\" : \""+tool+"\",\"itemId\" : \"" + id + "\",\"rubricId\" : " + params.get("rbcs-rubricslist") + ",\"metadata\" : {\"created\" : \"" + created + "\",\"modified\" : \"" + nowTime + "\",\"owner\" : \"" + owner + "\"},\"parameters\" : {" + setConfigurationParameters(params,oldParams) + "}}";
+                    String input = "{\"toolId\" : \""+tool+"\",\"itemId\" : \"" + id + "\",\"rubricId\" : " + params.get("rbcs-rubricslist") + ",\"metadata\" : {\"created\" : \"" + created + /*"\",\"modified\" : \"" + nowTime +*/ "\",\"ownerId\" : \"" + owner +
+					"\",\"ownerType\" : \"" + ownerType + "\",\"creatorId\" : \"" + creatorId + "\"},\"parameters\" : {" + setConfigurationParameters(params,oldParams) + "}}";
                     log.debug("Existing association update" + input);
                     String resultPut = putRubricResource(associationHref, input, tool);
                     //update the actual one.
@@ -342,18 +347,18 @@ public class RubricsServiceImpl implements RubricsService {
                     throw new IllegalStateException(String.format("Number of evaluation resources greater than one for request: %s",
                             evaluationResources.getLink(Link.REL_SELF).toString()));
                 }
+
                 for (Resource<Evaluation> evaluationResource : evaluationResources) {
                     existingEvaluation = evaluationResource.getContent();
                     evaluationUri = evaluationResource.getLink(Link.REL_SELF).getHref();
                 }
 
             } catch (Exception ex){
-                log.info(ex.getMessage());
+                log.info("Exception on saveRubricEvaluation: " + ex.getMessage());
                 //no previous evaluation
             }
 
-            // Get the actual association (necessary to get the rubrics association resource for persisting
-            // the evaluation)
+            // Get the actual association (necessary to get the rubrics association resource for persisting the evaluation)
             Resource<ToolItemRubricAssociation> rubricToolItemAssociationResource = getRubricAssociationResource(
                     toolId, associatedItemId).get();
 
@@ -379,9 +384,10 @@ public class RubricsServiceImpl implements RubricsService {
                 // so ID is not added and the resource URI is where it is derived from.
 
                 String input = String.format("{ \"evaluatorId\" : \"%s\",\"evaluatedItemId\" : \"%s\", " +
-                        "\"evaluatedItemOwnerId\" : \"%s\", \"overallComment\" : \"%s\", \"toolItemRubricAssociation\" : \"%s\", " +
-                        "\"criterionOutcomes\" : [ %s ] }", evaluatorId, evaluatedItemId, evaluatedItemOwnerId, "",
-                        rubricToolItemAssociationResource.getLink(Link.REL_SELF).getHref(), criterionJsonData);
+                        "\"evaluatedItemOwnerId\" : \"%s\", \"overallComment\" : \"%s\", \"toolItemRubricAssociation\" : \"%s\", \"criterionOutcomes\" : [ %s ], " + 
+                        "\"metadata\" : {\"created\" : \"%s\", \"ownerId\" : \"%s\", \"ownerType\" : \"%s\", \"creatorId\" : \"%s\"} }", evaluatorId, evaluatedItemId, evaluatedItemOwnerId, existingEvaluation.getOverallComment(),
+                        rubricToolItemAssociationResource.getLink(Link.REL_SELF).getHref(), criterionJsonData, existingEvaluation.getMetadata().getCreated(), existingEvaluation.getMetadata().getOwnerId(), 
+						existingEvaluation.getMetadata().getOwnerType(), existingEvaluation.getMetadata().getCreatorId());
 
                 String resultPut = putRubricResource(evaluationUri, input, toolId);
                 //lets update the actual one.
