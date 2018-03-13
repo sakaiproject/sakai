@@ -25,7 +25,7 @@ import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.beans.factory.xml.ResourceEntityResolver;
 import org.springframework.beans.factory.xml.XmlBeanDefinitionReader;
 import org.springframework.context.ApplicationContextException;
-import org.springframework.web.context.support.GenericWebApplicationContext;
+import org.springframework.context.support.GenericApplicationContext;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 
 /**
@@ -34,7 +34,7 @@ import org.springframework.beans.factory.support.DefaultListableBeanFactory;
  * PostProcessor objects (e.g., SakaiProperties) a chance to do their work,
  * and load a few central components before the rest.
  */
-public class SakaiApplicationContext extends GenericWebApplicationContext {
+public class SakaiApplicationContext extends GenericApplicationContext {
 	private String[] initialSingletonNames;
 	private String[] configLocations;
 

@@ -52,7 +52,4 @@
 	<listener>
 		<listener-class>org.sakaiproject.util.SakaiContextLoaderListener</listener-class>
 	</listener>
-
-
-
 </web-app>
