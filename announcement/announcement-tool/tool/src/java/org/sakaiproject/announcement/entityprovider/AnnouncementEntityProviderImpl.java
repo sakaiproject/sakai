@@ -92,7 +92,6 @@ public class AnnouncementEntityProviderImpl extends AbstractEntityProvider imple
 	private static final String ADMIN_SITEID = "!admin";
 	private static final String MOTD_CHANNEL_SUFFIX = "motd";
 	public static int DEFAULT_NUM_ANNOUNCEMENTS = 3;
-	public static int DEFAULT_DAYS_IN_PAST = 10;
 	private static final long MILLISECONDS_IN_DAY = (24 * 60 * 60 * 1000);
 	private static ResourceLoader rb = new ResourceLoader("announcement");
     
@@ -186,9 +185,6 @@ public class AnnouncementEntityProviderImpl extends AbstractEntityProvider imple
 				if (numberOfAnnouncements == 0 && props.get("items") != null) {
 					numberOfAnnouncements = getIntegerParameter(props, "items", DEFAULT_NUM_ANNOUNCEMENTS);
 				}
-				if (numberOfDaysInThePast == 0 && props.get("days") != null) {
-					numberOfDaysInThePast = getIntegerParameter(props, "days", DEFAULT_DAYS_IN_PAST);
-				}
 			}
 		}
 		
@@ -204,17 +200,18 @@ public class AnnouncementEntityProviderImpl extends AbstractEntityProvider imple
 		if(numberOfAnnouncements == 0) {
 			numberOfAnnouncements = DEFAULT_NUM_ANNOUNCEMENTS;
 		}
-		if(numberOfDaysInThePast == 0) {
-			numberOfDaysInThePast = DEFAULT_DAYS_IN_PAST;
-		}
 
 		if(log.isDebugEnabled()) {
 			log.debug("numberOfAnnouncements: {}", numberOfAnnouncements);
 			log.debug("numberOfDaysInThePast: {}", numberOfDaysInThePast);
 		}
 		
-		//get the Sakai Time for the given java Date
-		Time t = timeService.newTime(getTimeForDaysInPast(numberOfDaysInThePast).getTime());
+		//get the Sakai Time for the given java Date, if t is null then announcements are
+		//not limited by the number of days in the past in the announcement service.
+		Time t = null;
+		if (numberOfDaysInThePast > 0) {
+			t = timeService.newTime(getTimeForDaysInPast(numberOfDaysInThePast).getTime());
+		}
 		
 		//get the announcements for each channel
 		List<Message> announcements = new ArrayList<Message>();
