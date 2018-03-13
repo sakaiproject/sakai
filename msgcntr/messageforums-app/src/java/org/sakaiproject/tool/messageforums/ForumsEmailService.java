@@ -40,7 +40,7 @@ import org.sakaiproject.api.app.messageforums.Topic;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentResource;
-import org.sakaiproject.content.cover.ContentHostingService;
+import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.email.api.AddressValidationException;
 import org.sakaiproject.email.api.EmailAddress;
 import org.sakaiproject.email.api.EmailAddress.RecipientType;
@@ -52,8 +52,8 @@ import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.ServerOverloadException;
 import org.sakaiproject.exception.TypeException;
 import org.sakaiproject.site.api.Site;
-import org.sakaiproject.site.cover.SiteService;
-import org.sakaiproject.time.cover.TimeService;
+import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.time.api.UserTimeService;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.tool.messageforums.ui.DiscussionMessageBean;
 import org.sakaiproject.util.FormattedText;
@@ -143,7 +143,8 @@ public class ForumsEmailService {
 			String sitetitle = "";
 			BaseForum baseforum = reply.getTopic().getBaseForum();
 			try {
-				currentSite = SiteService.getSite(getToolManager()
+				SiteService siteService = ComponentManager.get(SiteService.class);
+				currentSite = siteService.getSite(getToolManager()
 						.getCurrentPlacement().getContext());
 			} catch (IdUnusedException e) {
 				log.error("ForumsEmailService.send(), Site ID not found: "
@@ -158,7 +159,8 @@ public class ForumsEmailService {
 			String topictitle = topic.getTitle();
 			String threadtitle = threadhead.getMessage().getTitle();
 			SimpleDateFormat formatter = new SimpleDateFormat(DiscussionForumTool.getResourceBundleString("date_format"), new ResourceLoader().getLocale());
-			formatter.setTimeZone(TimeService.getLocalTimeZone());
+			UserTimeService userTimeService = ComponentManager.get(UserTimeService.class);
+			formatter.setTimeZone(userTimeService.getLocalTimeZone());
 			content.append(DiscussionForumTool
 					.getResourceBundleString("email.body.location")
 					+ " "
@@ -226,7 +228,7 @@ public class ForumsEmailService {
 				msg.addAttachment(attachment);
 			}
 			
-			EmailService instance = org.sakaiproject.email.cover.EmailService.getInstance();
+			EmailService instance = ComponentManager.get(EmailService.class);
 			instance.send(msg);
 		} catch (AddressValidationException e) {
 			log.error("Failed to send all emails: "+ e.getMessage());
@@ -252,7 +254,8 @@ public class ForumsEmailService {
 	private File getAttachedFile(String resourceId) throws PermissionException,
 			IdUnusedException, TypeException, ServerOverloadException,
 			IOException {
-		ContentResource cr = ContentHostingService.getResource(resourceId);
+		ContentHostingService contentHostingService = ComponentManager.get(ContentHostingService.class);;
+		ContentResource cr = contentHostingService.getResource(resourceId);
 		byte[] data = cr.getContent();
 		StringBuilder sbPrefixedPath = new StringBuilder(prefixedPath);
 		sbPrefixedPath.append("/email_tmp/");
