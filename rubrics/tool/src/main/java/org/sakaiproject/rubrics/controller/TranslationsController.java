@@ -72,7 +72,7 @@ public class TranslationsController {
 
 
         try{
-            URL url = new URL(rubricsConfiguration.getIntegration().getSakaiRestUrl() + "i18n/getI18nProperties?locale=" + langCode +  "&resourceclass=org.sakaiproject.rubrics.logic.api.RubricsService&resourcebundle=rubricsMessages");
+            URL url = new URL(rubricsConfiguration.getIntegration().getSakaiRestUrl() + "i18n/getI18nProperties?locale=" + langCode +  "&resourceclass=org.sakaiproject.rubrics.logic.RubricsService&resourcebundle=rubricsMessages");
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setRequestMethod("GET");
 

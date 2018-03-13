@@ -49,48 +49,31 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "rbc_evaluation",
-    uniqueConstraints = @UniqueConstraint(columnNames = { "association_id", "evaluated_item_id", "evaluator_id" })
-)
-@JsonPropertyOrder({"id", "evaluator_id", "evaluated_item_id", "evaluated_item_owner_id", "overallComment",
-        "criterionOutcomes", "metadata"})
-public class Evaluation extends BaseResource<Evaluation.Metadata> implements Serializable {
+@Table(name = "rbc_criterion_outcome")
+/*@JsonPropertyOrder({"id", "evaluator_id", "evaluated_item_id", "evaluated_item_owner_id", "overallComment",
+        "criterionOutcomes", "metadata"})*/
+public class CriterionOutcome implements Serializable {
 
-    @Id
-    @SequenceGenerator(name="rbc_eval_seq", sequenceName = "rbc_eval_seq")
-    @GeneratedValue(strategy = GenerationType.AUTO, generator = "rbc_eval_seq")
-    private Long id;
+        @Id
+        @SequenceGenerator(name="rbc_crit_out_seq", sequenceName = "rbc_crit_out_seq")
+        @GeneratedValue(strategy = GenerationType.AUTO, generator = "rbc_crit_out_seq")
+        private Long id;
 
-    @Column(name = "evaluator_id")
-    @NonNull
-    private String evaluatorId;
+        @Column(name = "criterion_id")
+        private Long criterionId;
 
-    @Column(name = "evaluated_item_id")
-    @NonNull
-    private String evaluatedItemId;
+        @ManyToOne
+        @JoinColumn(name = "criterion_id", referencedColumnName = "id", insertable = false, updatable = false)
+        private Criterion criterion;
 
-    @Column(name = "evaluated_item_owner_id")
-    @NonNull
-    private String evaluatedItemOwnerId;
+        @Column(name = "selected_rating_id")
+        private Long selectedRatingId;
 
-    private String overallComment;
+        private boolean pointsAdjusted;
 
-    @ManyToOne
-    @JoinColumn(name = "association_id", referencedColumnName = "id", nullable = false)
-    private ToolItemRubricAssociation toolItemRubricAssociation;
+        @NonNull
+        private Integer points;
 
-    @OneToMany(cascade = CascadeType.ALL)
-    @JoinTable(name = "rbc_eval_criterion_outcomes")
-    private List<CriterionOutcome> criterionOutcomes;
-
-    public Metadata getMetadata() {
-        if (this.metadata == null) {
-            this.metadata = new Metadata(); //initialize only if not set by reflection based utility like JPA or Jackson
-        }
-        return this.metadata;
-    }
-
-    @Embeddable
-    public static class Metadata extends BaseMetadata { }
+        private String comments;
 
 }

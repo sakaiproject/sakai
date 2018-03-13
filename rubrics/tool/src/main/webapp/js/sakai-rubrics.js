@@ -219,12 +219,20 @@ var rubrics = {
 
     if (!webComponentsSupported) {
       var wcPoly = document.createElement('script');
-      wcPoly.src = '/rubrics-service/bower_components/webcomponentsjs/webcomponents-lite.min.js';
+      wcPoly.src = '/rubrics-service/bower_components/webcomponentsjs/webcomponents-lite.min.js';//
       wcPoly.onload = lazyLoadPolymerAndElements;
       document.head.appendChild(wcPoly);
     } else {
       lazyLoadPolymerAndElements();
     }
   });
+
+  window.onerror = function(msg, url, linenumber) {
+    //alert('Error message: '+msg+'\nURL: '+url+'\nLine Number: '+linenumber);
+    if(msg.includes('AddDebouncer')) {
+      window.location.reload();
+      return true;
+    }
+  }
 
 })();

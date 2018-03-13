@@ -31,7 +31,7 @@ import javax.persistence.Embedded;
 import javax.persistence.MappedSuperclass;
 import javax.persistence.PrePersist;
 import javax.persistence.PreUpdate;
-import java.time.Instant;
+import java.time.LocalDateTime;
 
 @MappedSuperclass
 @Data
@@ -44,13 +44,12 @@ public abstract class BaseResource<T extends BaseMetadata> {
 
     @PrePersist
     protected void onCreate() {
-
         AuthenticatedRequestContext authenticatedRequestContext =
                 (AuthenticatedRequestContext) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
         T metadata = getMetadata();
-        metadata.setCreated(Instant.now());
-        metadata.setModified(Instant.now());
+        metadata.setCreated(LocalDateTime.now());
+        metadata.setModified(LocalDateTime.now());
         metadata.setCreatorId(authenticatedRequestContext.getUserId());
         metadata.setOwnerId(authenticatedRequestContext.getContextId());
         metadata.setOwnerType(authenticatedRequestContext.getContextType());
@@ -59,7 +58,7 @@ public abstract class BaseResource<T extends BaseMetadata> {
 
     @PreUpdate
     protected void onUpdate() {
-        this.getMetadata().setModified(Instant.now());
+        this.getMetadata().setModified(LocalDateTime.now());
     }
 
 }

@@ -23,6 +23,7 @@
 package org.sakaiproject.rubrics;
 
 import org.sakaiproject.rubrics.logic.model.Criterion;
+import org.sakaiproject.rubrics.logic.model.CriterionOutcome;
 import org.sakaiproject.rubrics.logic.model.Evaluation;
 import org.sakaiproject.rubrics.logic.model.Rating;
 import org.sakaiproject.rubrics.logic.model.Rubric;
@@ -37,6 +38,6 @@ public class AppRepositoryRestConfiguration extends RepositoryRestConfigurerAdap
 
     @Override
     public void configureRepositoryRestConfiguration(RepositoryRestConfiguration config) {
-        config.exposeIdsFor(Rubric.class, Criterion.class, Rating.class, ToolItemRubricAssociation.class, Evaluation.class, Resource.class);
+        config.exposeIdsFor(Rubric.class, Criterion.class, Rating.class, ToolItemRubricAssociation.class, Evaluation.class, Resource.class, CriterionOutcome.class);
     }
 }

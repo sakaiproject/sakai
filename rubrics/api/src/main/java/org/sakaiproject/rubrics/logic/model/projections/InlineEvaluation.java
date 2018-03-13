@@ -25,6 +25,7 @@ package org.sakaiproject.rubrics.logic.model.projections;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import org.sakaiproject.rubrics.logic.model.CriterionOutcome;
 import org.sakaiproject.rubrics.logic.model.Evaluation;
 import org.sakaiproject.rubrics.logic.model.ToolItemRubricAssociation;
 import org.springframework.data.rest.core.config.Projection;
@@ -53,7 +54,7 @@ public interface InlineEvaluation {
 
     ToolItemRubricAssociation getToolItemRubricAssociation();
 
-    List<Evaluation.CriterionOutcome> getCriterionOutcomes();
+    List<CriterionOutcome> getCriterionOutcomes();
 
     Evaluation.Metadata getMetadata();
 }

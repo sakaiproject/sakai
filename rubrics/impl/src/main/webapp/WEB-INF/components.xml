@@ -4,7 +4,7 @@
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
     <!-- ProjectLogic -->
-    <bean id="org.sakaiproject.rubrics.logic.api.RubricsService"
+    <bean id="org.sakaiproject.rubrics.logic.RubricsService"
         class="org.sakaiproject.rubrics.logic.RubricsServiceImpl"
         init-method="init">
         <!-- API injection -->
@@ -19,11 +19,12 @@
         <property name="authzGroupService" ref="org.sakaiproject.authz.api.AuthzGroupService"/>
     </bean>
 
-    <bean id="org.sakaiproject.springframework.orm.hibernate.AdditionalPersistentUnit.rubrics"
-          class="org.sakaiproject.springframework.orm.hibernate.impl.AdditionalPersistentUnitImpl">
+	<bean id="org.sakaiproject.springframework.orm.hibernate.impl.AdditionalHibernateMappings.rubrics"
+          class="org.sakaiproject.springframework.orm.hibernate.impl.AdditionalHibernateMappingsImpl">
         <property name="annotatedClasses">
             <list>
                 <value>org.sakaiproject.rubrics.logic.model.Criterion</value>
+                <value>org.sakaiproject.rubrics.logic.model.CriterionOutcome</value>
                 <value>org.sakaiproject.rubrics.logic.model.Evaluation</value>
                 <value>org.sakaiproject.rubrics.logic.model.Rating</value>
                 <value>org.sakaiproject.rubrics.logic.model.Rubric</value>
