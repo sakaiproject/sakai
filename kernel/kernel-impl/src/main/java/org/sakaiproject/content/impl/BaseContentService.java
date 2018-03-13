@@ -4037,7 +4037,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 			siteTitle = m_site.getTitle();
 			siteCreator = m_site.getCreatedBy().getId();
 		} catch (IdUnusedException e1) {
-			log.debug("Site {} was null, defaulting to regular title", site);
+			M_log.debug("Site {} was null, defaulting to regular title", site);
 		}
 
 		try
