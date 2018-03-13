@@ -480,11 +480,20 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                     switch (refReckoner.getSubtype()) {
                         case REF_TYPE_CONTENT:
                         case REF_TYPE_ASSIGNMENT:
+                            String assignmentName = "bulk_download";
+                            try {
+                                assignmentName = getAssignment(refReckoner.getId()).getTitle();
+                            } catch (Exception ignore) {
+                                log.error("Could not find assignment for ref = {}", ref.getReference());
+                            }
+                            String date = dateTimeFormatter.withZone(userTimeService.getLocalTimeZone().toZoneId()).format(ZonedDateTime.now());
+                            String filename = assignmentName + "_" + date;
+
                             String queryString = req.getQueryString();
                             if (StringUtils.isNotBlank(refReckoner.getId())) {
                                 // if subtype is assignment then were downloading all submissions for an assignment
                                 res.setContentType("application/zip");
-                                res.setHeader("Content-Disposition", "attachment; filename = bulk_download.zip");
+                                res.setHeader("Content-Disposition", "attachment; filename = \"" + filename + ".zip\"");
 
                                 transactionTemplate.execute(new TransactionCallbackWithoutResult() {
                                     @Override
@@ -499,7 +508,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                             } else {
                                 // if subtype is assignment and there is no assignmentId then were downloading grades
                                 res.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
-                                res.setHeader("Content-Disposition", "attachment; filename = export_grades_file.xlsx");
+                                res.setHeader("Content-Disposition", "attachment; filename = \"export_grades_" + filename + ".xlsx\"");
 
                                 try (OutputStream out = res.getOutputStream()) {
                                     gradeSheetExporter.getGradesSpreadsheet(out, ref.getReference(), queryString);
