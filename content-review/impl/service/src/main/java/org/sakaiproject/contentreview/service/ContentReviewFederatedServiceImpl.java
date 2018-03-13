@@ -287,5 +287,10 @@ public class ContentReviewFederatedServiceImpl extends BaseContentReviewService 
 	public String getEndUserLicenseAgreementVersion() {
 		return getSelectedProvider().getEndUserLicenseAgreementVersion();
 	}
+	
+	@Override
+	public String getReviewReportRedirectUrl(String contentId, String assignmentRef, String userId, boolean isInstructor) {
+		return getSelectedProvider().getReviewReportRedirectUrl(contentId, assignmentRef, userId, isInstructor);
+	}
 
 }

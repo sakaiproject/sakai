@@ -228,27 +228,8 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 			throws QueueException, SubmissionException, ReportException {
 		return null;
 	}
-
-	public String getReviewReport(String contentId, String assignmentRef, String userId)
-			throws QueueException, ReportException {
-		return getViewerUrl(contentId, userId);
-	}
-
-	public String getReviewReportInstructor(String contentId, String assignmentRef, String userId)
-			throws QueueException, ReportException {
-		/**
-		 * contentId:
-		 * /attachment/04bad844-493c-45a1-95b4-af70129d54d1/Assignments/b9872422-fb24-4f85-abf5-2fe0e069b251/plag.docx
-		 */
-		return getViewerUrl(contentId, userId);
-	}
-
-	public String getReviewReportStudent(String contentId, String assignmentRef, String userId)
-			throws QueueException, ReportException {
-		return getViewerUrl(contentId, userId);
-	}
 	
-	private String getViewerUrl(String contentId, String viewUserId) throws QueueException {
+	public String getReviewReportRedirectUrl(String contentId, String assignmentRef, String userId, boolean isInstructor) {
 		
 		// Set variables
 		String viewerUrl = null;
@@ -272,7 +253,7 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 
 				// Check user preference for locale			
 				// If user has no preference set - get the system default
-				Locale locale = Optional.ofNullable(preferencesService.getLocale(viewUserId))
+				Locale locale = Optional.ofNullable(preferencesService.getLocale(userId))
 						.orElse(Locale.getDefault());
 
 				// Set locale, getLanguage removes locale region

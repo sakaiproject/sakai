@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <artifactId>content-review</artifactId>
+    <groupId>org.sakaiproject.contentreview</groupId>
+    <version>13-SNAPSHOT</version>
+  </parent>
+  <artifactId>content-review-tool</artifactId>
+	<name>Content Review Tool</name>
+  <packaging>war</packaging>
+  <dependencies>
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>${sakai.spring.artifactId}</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-web</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-webmvc</artifactId>
+    </dependency>
+    <!-- we are running a webapp in a servlet container so we need the servlet API -->
+    <dependency>
+      <groupId>javax.servlet</groupId>
+      <artifactId>servlet-api</artifactId>
+      <scope>provided</scope>
+    </dependency>
+    <!-- third party dependencies -->
+    <dependency>
+      <groupId>commons-lang</groupId>
+      <artifactId>commons-lang</artifactId>
+    </dependency>
+	<!-- Sakai dependencies -->
+	<dependency>
+		<groupId>org.sakaiproject.kernel</groupId>
+		<artifactId>sakai-kernel-api</artifactId>
+	</dependency>
+	<dependency>
+        <groupId>org.sakaiproject.contentreview</groupId>
+        <artifactId>content-review-api</artifactId>
+    </dependency>
+    <dependency>
+		<groupId>org.sakaiproject.assignment</groupId>
+		<artifactId>sakai-assignment-api</artifactId>
+	</dependency>
+  </dependencies>
+  <build>
+    <!-- configure the build to use the standard maven structure -->
+    <sourceDirectory>src/main/java</sourceDirectory>
+    <resources>
+      <resource>
+        <directory>${basedir}/src/main/java</directory>
+        <includes>
+          <include>**/*.xml</include>
+        </includes>
+      </resource>
+      <resource>
+        <directory>${basedir}/src/main/resources</directory>
+        <includes>
+          <include>**/*</include>
+        </includes>
+      </resource>
+    </resources>
+    <plugins>
+      <!-- configure the war plugin to correctly use the standard maven structure -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-war-plugin</artifactId>
+        <configuration>
+          <warSourceDirectory>${basedir}/src/main/webapp</warSourceDirectory>
+          <ouputDirectory>${project.build.directory}</ouputDirectory>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+</project>

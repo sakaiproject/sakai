@@ -383,4 +383,17 @@ public interface ContentReviewService {
 	 * @param userId
 	 */
 	public void updateUserEULATimestamp(String userId);
+	
+	/**
+	 * 
+	 * Option for providers to decide whether they want to use redirect logic
+	 * for the report URLs. This means that instead of loading the report URLs for the entire page
+	 * all at once, Sakai will only request the URL when the user clicks the link.
+	 * @param contentId
+	 * @param assignmentRef
+	 * @param userId
+	 * @param isInstructor
+	 * @return
+	 */
+	public String getReviewReportRedirectUrl(String contentId, String assignmentRef, String userId, boolean isInstructor);
 }

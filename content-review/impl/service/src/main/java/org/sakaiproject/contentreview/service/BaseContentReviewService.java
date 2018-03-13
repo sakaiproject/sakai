@@ -3,6 +3,8 @@ package org.sakaiproject.contentreview.service;
 import java.time.Instant;
 
 import org.apache.commons.lang.StringUtils;
+import org.sakaiproject.contentreview.exception.QueueException;
+import org.sakaiproject.contentreview.exception.ReportException;
 import org.sakaiproject.entity.api.EntityPropertyNotDefinedException;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
@@ -21,6 +23,7 @@ public abstract class BaseContentReviewService implements ContentReviewService{
 	private static final String PROP_KEY_EULA = "contentReviewEULA";
 	private static final String PROP_KEY_EULA_TIMESTAMP = "contentReviewEULATimestamp";
 	private static final String PROP_KEY_EULA_VERSION = "contentReviewEULAVersion";
+	private static final String REDIRECT_URL_TEMPLATE =  "/content-review-tool/viewreport?contentId=%s&assignmentRef=%s";
 	
 	@Override
 	public Instant getUserEULATimestamp(String userId) {
@@ -78,4 +81,28 @@ public abstract class BaseContentReviewService implements ContentReviewService{
 			log.error(e.getMessage(), e);
 		}	
 	}
+	
+	@Override
+	public String getReviewReport(String contentId, String assignmentRef, String userId)
+			throws QueueException, ReportException {
+		return String.format(REDIRECT_URL_TEMPLATE, contentId, assignmentRef);
+	}
+	
+	@Override
+	public String getReviewReportInstructor(String contentId, String assignmentRef, String userId)
+			throws QueueException, ReportException {
+		return String.format(REDIRECT_URL_TEMPLATE, contentId, assignmentRef);
+	}
+	
+	@Override
+	public String getReviewReportStudent(String contentId, String assignmentRef, String userId)
+			throws QueueException, ReportException {
+		return String.format(REDIRECT_URL_TEMPLATE, contentId, assignmentRef);
+	}
+	
+	@Override
+	public String getReviewReportRedirectUrl(String contentId, String assignmentRef, String userId, boolean isInstructor) {
+		return null;
+	}
+	
 }
