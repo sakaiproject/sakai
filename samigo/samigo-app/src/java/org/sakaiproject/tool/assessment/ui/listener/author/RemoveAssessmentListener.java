@@ -204,6 +204,7 @@ public class RemoveAssessmentListener implements ActionListener
             if (authorizationBean.getGradeAnyAssessment() || authorizationBean.getGradeOwnAssessment()) {
                 allAssessments.addAll(publishedAssessmentList);
             }
+            author.setOutcome("author");
             author.setAssessments(assessmentList);
             author.setPublishedAssessments(publishedAssessmentList);
             author.setAllAssessments(allAssessments);
