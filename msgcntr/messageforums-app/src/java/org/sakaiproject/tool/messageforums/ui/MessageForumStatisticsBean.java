@@ -57,11 +57,11 @@ import org.sakaiproject.api.app.messageforums.UserStatistics;
 import org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager;
 import org.sakaiproject.api.app.messageforums.ui.UIPermissionsManager;
 import org.sakaiproject.authz.api.Member;
-import org.sakaiproject.authz.cover.SecurityService;
+import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.app.messageforums.MembershipItem;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
-import org.sakaiproject.event.cover.EventTrackingService;
+import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.service.gradebook.shared.Assignment;
 import org.sakaiproject.service.gradebook.shared.GradeDefinition;
@@ -69,11 +69,11 @@ import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.tool.api.ToolManager;
-import org.sakaiproject.site.cover.SiteService;
-import org.sakaiproject.tool.cover.SessionManager;
+import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserNotDefinedException;
-import org.sakaiproject.user.cover.UserDirectoryService;
+import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.util.ResourceLoader;
 
 @Slf4j
@@ -460,7 +460,11 @@ public class MessageForumStatisticsBean {
 	private AnonymousManager anonymousManager;
 
 	private ToolManager toolManager;
-	
+	private UserDirectoryService userDirectoryService;
+	private SecurityService securityService;
+	private EventTrackingService eventTrackingService;
+	private SiteService siteService;
+	private SessionManager sessionManager;
 	
 	/** Needed to determine if user has read permission of topic */
 	private UIPermissionsManager uiPermissionsManager;
@@ -483,7 +487,26 @@ public class MessageForumStatisticsBean {
 		this.toolManager = toolManager;
 	}
 	
-	
+	public void setUserDirectoryService(UserDirectoryService userDirectoryService) {
+		this.userDirectoryService = userDirectoryService;
+	}
+
+	public void setSiteService(SiteService siteService) {
+		this.siteService = siteService;
+	}
+
+	public void setSessionManager(SessionManager sessionManager) {
+		this.sessionManager = sessionManager;
+	}
+
+	public void setEventTrackingService(EventTrackingService eventTrackingService) {
+		this.eventTrackingService = eventTrackingService;
+	}
+
+	public void setSecurityService(SecurityService securityService) {
+		this.securityService = securityService;
+	}
+
 	public String getSelectedSiteUserId(){
 		return this.selectedSiteUserId;
 	}
@@ -792,7 +815,7 @@ public class MessageForumStatisticsBean {
 			
 			if(!DEFAULT_GB_ITEM.equals(selectedGroup)){
 				try{
-					Site currentSite = SiteService.getSite(toolManager.getCurrentPlacement().getContext());		
+					Site currentSite = siteService.getSite(toolManager.getCurrentPlacement().getContext());		
 					if(currentSite.hasGroups()){
 						Group group = currentSite.getGroup(selectedGroup);
 						
@@ -1052,7 +1075,7 @@ public class MessageForumStatisticsBean {
 	}
 
 	private String getCurrentUserId() {
-		String currentUserId = SessionManager.getCurrentSessionUserId();;
+		String currentUserId = sessionManager.getCurrentSessionUserId();;
 		return currentUserId;
 	}
 
@@ -2107,7 +2130,7 @@ public class MessageForumStatisticsBean {
 		String userName="";
 		try
 		{
-			User user=UserDirectoryService.getUser(userId) ;
+			User user=userDirectoryService.getUser(userId) ;
 			if (ServerConfigurationService.getBoolean("msg.displayEid", true)) {
 				if(user != null) {
 					userName= user.getLastName() + ", " + user.getFirstName() + " (" + user.getDisplayId() + ")" ;
@@ -2154,7 +2177,7 @@ public class MessageForumStatisticsBean {
 		{
 			try
 			{
-				User u = UserDirectoryService.getUser(selectedSiteUserId);
+				User u = userDirectoryService.getUser(selectedSiteUserId);
 				userName = u.getDisplayName();
 			}
 			catch (UserNotDefinedException unde)
@@ -2757,7 +2780,7 @@ public class MessageForumStatisticsBean {
 				eventRef = getEventReference(selectedAllTopicsForumId);
 			}
 			
-			EventTrackingService.post(EventTrackingService.newEvent(DiscussionForumService.EVENT_FORUMS_GRADE, eventRef, true));
+			eventTrackingService.post(eventTrackingService.newEvent(DiscussionForumService.EVENT_FORUMS_GRADE, eventRef, true));
 
 		}		
 		
@@ -2778,7 +2801,7 @@ public class MessageForumStatisticsBean {
 		else
 			eventMessagePrefix = "/forums";
 
-		return eventMessagePrefix + getContextSiteId() + "/" + ref + "/" + SessionManager.getCurrentSessionUserId();
+		return eventMessagePrefix + getContextSiteId() + "/" + ref + "/" + sessionManager.getCurrentSessionUserId();
 	}
 	
 	private boolean validateGradeInput(){
@@ -2885,7 +2908,7 @@ public class MessageForumStatisticsBean {
 		if(groups == null){
 			groups = new ArrayList<SelectItem>();
 			try{
-				Site currentSite = SiteService.getSite(toolManager.getCurrentPlacement().getContext());		
+				Site currentSite = siteService.getSite(toolManager.getCurrentPlacement().getContext());		
 				if(currentSite.hasGroups()){					
 					groups.add(new SelectItem(DEFAULT_GB_ITEM, getResourceBundleString(DEFAULT_ALL_GROUPS)));
 					Collection siteGroups = currentSite.getGroups();    
@@ -3033,7 +3056,7 @@ public class MessageForumStatisticsBean {
 		for (Iterator i = members.iterator(); i.hasNext();) {
 			MembershipItem item = (MembershipItem) i.next();
 			if (null != item.getUser()) {
-				overridingPermissionMap.put(item.getUser().getId(), forumManager.isInstructor(item.getUser()) || SecurityService.isSuperUser(item.getUser().getId()));
+				overridingPermissionMap.put(item.getUser().getId(), forumManager.isInstructor(item.getUser()) || securityService.isSuperUser(item.getUser().getId()));
 			}
 		}
 		return overridingPermissionMap;

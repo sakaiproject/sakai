@@ -20,19 +20,13 @@
  **********************************************************************************/
 package org.sakaiproject.tool.messageforums.ui;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-
-import javax.faces.model.SelectItem;
-
 import org.sakaiproject.api.app.messageforums.DBMembershipItem;
 import org.sakaiproject.api.app.messageforums.MessageForumsTypeManager;
 import org.sakaiproject.api.app.messageforums.PermissionLevel;
 import org.sakaiproject.api.app.messageforums.PermissionLevelManager;
+import org.sakaiproject.api.app.messageforums.PermissionsMask;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.util.ResourceLoader;
-import org.sakaiproject.api.app.messageforums.PermissionsMask;
 
 public class PermissionBean {
   
