@@ -35,6 +35,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.sakaiproject.assignment.api.AssignmentConstants;
@@ -672,11 +673,11 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 					fileName = "submission_" + item.getUserId() + "_" + item.getSiteId();
 					log.info("Using Default Filename " + fileName);
 				}				
-				// Add .html for inline submissions
-				ResourceProperties resourceProperties = resource.getProperties();
-				if ("true".equals(resourceProperties.getProperty(AssignmentConstants.PROP_INLINE_SUBMISSION))) {
+				// Add .html for inline submissions				
+				if ("true".equals(resource.getProperties().getProperty(AssignmentConstants.PROP_INLINE_SUBMISSION))
+						&& FilenameUtils.getExtension(fileName).isEmpty()) {
 					fileName += HTML_EXTENSION;
-				}								
+				}							
 				try {
 					log.info("Submission starting...");
 					// Retrieve submissionId from TCA and set to externalId
