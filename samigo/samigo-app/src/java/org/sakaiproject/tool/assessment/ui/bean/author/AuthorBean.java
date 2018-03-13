@@ -19,9 +19,8 @@
  *
  **********************************************************************************/
 
-
-
 package org.sakaiproject.tool.assessment.ui.bean.author;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -31,9 +30,11 @@ import java.util.List;
 import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 import javax.faces.model.SelectItem;
+
 import org.apache.commons.lang.StringUtils;
 
 import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
 import org.sakaiproject.tool.assessment.facade.AssessmentTemplateFacade;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
@@ -64,6 +65,7 @@ public class AuthorBean implements Serializable
   private List assessmentTemplateList;
   private List assessments;
   private List publishedAssessments;
+  private List allAssessments;
   private List inactivePublishedAssessments;
   private SelectItem[] assessmentTemplates;
   private boolean showCompleteAssessment;
@@ -117,7 +119,6 @@ public class AuthorBean implements Serializable
   private String editPoolSectionName;
   private String editPoolSectionId;
   /* ------------------------------------ /*
-  
   
   /**
    * @return the id
@@ -214,6 +215,14 @@ public class AuthorBean implements Serializable
 
   public List getPublishedAssessments(){
     return publishedAssessments;
+  }
+
+  public void setAllAssessments(List allAssessments) {
+    this.allAssessments = allAssessments;
+  }
+
+  public List getAllAssessments(){
+    return allAssessments;
   }
 
   public void setInactivePublishedAssessments(List inactivePublishedAssessments){
@@ -687,7 +696,6 @@ public class AuthorBean implements Serializable
 	  boolean isDeleteAnyAssessment = authorizationBean.getDeleteAnyAssessment();
 	  boolean isDeleteOwnAssessment = authorizationBean.getDeleteOwnAssessment();
 
-	  pendingActionList1.add(new SelectItem("select", com.getString("action_select")));
 	  if (isEditAnyAssessment || isEditOwnAssessment) {
 		  pendingActionList1.add(new SelectItem("edit_pending", com.getString("edit_action")));
 		  pendingActionList1.add(new SelectItem("preview_pending", com.getString("action_preview")));
@@ -698,9 +706,6 @@ public class AuthorBean implements Serializable
 		  pendingActionList1.add(new SelectItem("publish", com.getString("publish_action")));
 		  pendingActionList1.add(new SelectItem("duplicate", com.getString("action_duplicate")));
 		  pendingActionList1.add(new SelectItem("export", com.getString("export_action")));
-	  }
-	  if (isDeleteAnyAssessment || isDeleteOwnAssessment) {
-		  pendingActionList1.add(new SelectItem("remove_pending", com.getString("remove_action")));
 	  }
 	  return pendingActionList1;
   }
@@ -720,7 +725,6 @@ public class AuthorBean implements Serializable
 	  boolean isDeleteAnyAssessment = authorizationBean.getDeleteAnyAssessment();
 	  boolean isDeleteOwnAssessment = authorizationBean.getDeleteOwnAssessment();
 
-	  pendingActionList2.add(new SelectItem("select", com.getString("action_select")));
 	  if (isEditAnyAssessment || isEditOwnAssessment) {
 		  pendingActionList2.add(new SelectItem("edit_pending", com.getString("edit_action")));
 		  pendingActionList2.add(new SelectItem("preview_pending", com.getString("action_preview")));
@@ -730,9 +734,6 @@ public class AuthorBean implements Serializable
 		  pendingActionList2.add(new SelectItem("settings_pending", com.getString("settings_action")));
 		  pendingActionList2.add(new SelectItem("duplicate", com.getString("action_duplicate")));
 		  pendingActionList2.add(new SelectItem("export", com.getString("export_action")));
-	  }
-	  if (isDeleteAnyAssessment || isDeleteOwnAssessment) {
-		  pendingActionList2.add(new SelectItem("remove_pending", com.getString("remove_action")));
 	  }
 	  return pendingActionList2;
   }

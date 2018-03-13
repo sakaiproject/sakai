@@ -105,6 +105,7 @@ public class PublishedAssessmentFacade
   private Integer timeLimit;
   private String lastModifiedDateForDisplay;
   private int groupCount;
+  private boolean selected;
   
   public PublishedAssessmentFacade() {
   }
@@ -890,5 +891,13 @@ public class PublishedAssessmentFacade
 
   public void setLateHandling(Integer lateHandling) {
 	  this.lateHandling = lateHandling;
+  }
+
+  public boolean isSelected() {
+	  return this.selected;
+  }
+
+  public void setSelected(boolean selected) {
+	  this.selected = selected;
   }
 }

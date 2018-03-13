@@ -22,6 +22,8 @@
 package org.sakaiproject.tool.assessment.facade;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -29,10 +31,13 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 
 import lombok.extern.slf4j.Slf4j;
+
 import org.hibernate.Hibernate;
 import org.hibernate.Query;
+
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.content.api.ContentResource;
@@ -42,6 +47,7 @@ import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.TypeException;
 import org.sakaiproject.samigo.util.SamigoConstants;
 import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService;
+import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.spring.SpringBeanLocator;
@@ -651,11 +657,12 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements Asse
 	}
 
 	public List<AssessmentFacade> getBasicInfoOfAllActiveAssessmentsByAgent(String orderBy, final String siteAgentId, boolean ascending) {
-		// Get the list of assessment 
-		StringBuilder sb = new StringBuilder("select new AssessmentData(a.assessmentBaseId, a.title, a.lastModifiedDate, a.lastModifiedBy) ");
-		sb.append("from AssessmentData a, AuthorizationData z where a.status = :status and ");
+		// Get the list of assessment
+		StringBuilder sb = new StringBuilder("select new AssessmentData(a.assessmentBaseId, a.title, a.lastModifiedDate, a.lastModifiedBy, ac.startDate, ac.dueDate, ac.releaseTo) ");
+		sb.append("from AssessmentData a, AuthorizationData z, AssessmentAccessControl ac where a.status = :status and ");
 		sb.append("a.assessmentBaseId=z.qualifierId and z.functionId = :fid ");
-		sb.append("and z.agentIdString = :site order by a.");
+		sb.append("and z.agentIdString = :site ");
+		sb.append("and ac.assessmentBase.assessmentBaseId = a.assessmentBaseId order by a.");
 		sb.append(orderBy);
 		
 		String query = sb.toString();
@@ -692,15 +699,26 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements Asse
 		
 		List<AssessmentFacade> assessmentList = new ArrayList<>();
 		String lastModifiedBy = "";
+		Map groupsForSite = null;
+		String releaseToGroups;
 		AgentFacade agent = null;
 		for (AssessmentData a : list) {
+			releaseToGroups = null;
+			if (a.getReleaseTo().equals(AssessmentAccessControl.RELEASE_TO_SELECTED_GROUPS)) {
+				if (groupsForSite == null) {
+					groupsForSite = getGroupsForSite(siteAgentId);
+				}
+				Long assessmentId = a.getAssessmentBaseId();
+				releaseToGroups = getReleaseToGroupsAsString(groupsForSite, assessmentId);
+			}
+
 			agent = new AgentFacade(a.getLastModifiedBy());
 			lastModifiedBy = agent.getDisplayName();
 			int questionSize = 0;
 			if (questionSizeMap.get(a.getAssessmentBaseId()) != null) {
 				questionSize = ((Long) questionSizeMap.get(a.getAssessmentBaseId())).intValue();
 			}
-			AssessmentFacade f = new AssessmentFacade(a.getAssessmentBaseId(), a.getTitle(), a.getLastModifiedDate(), lastModifiedBy, questionSize);
+			AssessmentFacade f = new AssessmentFacade(a.getAssessmentBaseId(), a.getTitle(), a.getLastModifiedDate(), a.getStartDate(), a.getDueDate(), a.getReleaseTo(), releaseToGroups, lastModifiedBy, questionSize);
 			assessmentList.add(f);
 		}
 		return assessmentList;
@@ -2258,5 +2276,60 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements Asse
 			}
 		}
 		return h;
+	}
+
+	private String getReleaseToGroupsAsString(Map groupsForSite, Long assessmentId) {
+		List releaseToGroups = new ArrayList();
+		String releaseToGroupsAsString = null;
+		AuthzQueriesFacadeAPI authz = PersistenceService.getInstance().getAuthzQueriesFacade();
+		List authorizations = authz.getAuthorizationByFunctionAndQualifier("TAKE_ASSESSMENT", assessmentId.toString());
+		if (authorizations != null && authorizations.size()>0) {
+			Iterator authsIter = authorizations.iterator();
+			while (authsIter.hasNext()) {
+				AuthorizationData ad = (AuthorizationData) authsIter.next();
+				Object group = groupsForSite.get(ad.getAgentIdString());
+				if (group != null) {
+					releaseToGroups.add(group);
+				}
+			}
+			Collections.sort(releaseToGroups);
+			StringBuilder releaseToGroupsAsStringbuf = new StringBuilder();
+
+			if (releaseToGroups != null && releaseToGroups.size()!=0 ) {
+				String lastGroup = (String) releaseToGroups.get(releaseToGroups.size()-1);
+				Iterator releaseToGroupsIter = releaseToGroups.iterator();
+				while (releaseToGroupsIter.hasNext()) {
+					String group = (String) releaseToGroupsIter.next();
+					//releaseToGroupsAsString += group;
+					releaseToGroupsAsStringbuf.append(group);
+					if (!group.equals(lastGroup) ) {
+						//releaseToGroupsAsString += ", ";
+						releaseToGroupsAsStringbuf.append(", ");
+					}
+				}
+			}
+			releaseToGroupsAsString = releaseToGroupsAsStringbuf.toString();
+		}
+		return releaseToGroupsAsString;
+	}
+
+	private Map getGroupsForSite(String siteId){
+		Map sortedGroups = new TreeMap();
+		Site site;
+		try {
+			site = SiteService.getSite(siteId);
+			Collection groups = site.getGroups();
+			if (groups != null && groups.size() > 0) {
+				Iterator groupIter = groups.iterator();
+				while (groupIter.hasNext()) {
+					Group group = (Group) groupIter.next();
+					sortedGroups.put(group.getId(), group.getTitle());
+				}
+			}
+		}
+		catch (IdUnusedException ex) {
+			// No site available
+		}
+		return sortedGroups;
 	}
 }
