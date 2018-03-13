@@ -35,6 +35,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.sakaiproject.assignment.api.AssignmentService;
@@ -112,6 +113,10 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 	private static final String HEADER_AUTH = "Authorization";
 	private static final String HEADER_CONTENT = "Content-Type";
 	private static final String HEADER_DISP = "Content-Disposition";
+	
+	private static final String INLINE_SUBMISSION = "Inline Submission";
+	private static final String HTML_EXTENSION = ".html";
+	private static final String DOCX_EXTENSION = ".docx";
 
 	private static final String STATUS_CREATED = "CREATED";
 	private static final String STATUS_COMPLETE = "COMPLETE";
@@ -659,23 +664,32 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 				errors++;
 				continue;
 			}
-			// Get filename of submission
-			String fileName = resource.getProperties().getProperty(ResourceProperties.PROP_DISPLAY_NAME);
-			if (StringUtils.isEmpty(fileName)) {
-				// Set default file name:
-				fileName = "submission_" + item.getUserId() + "_" + item.getSiteId();
-				log.info("Using Default Filename " + fileName);
-			}
 			// EXTERNAL ID DOES NOT EXIST, CREATE SUBMISSION AND UPLOAD CONTENTS TO TCA
 			// (STAGE 1)
 			if (StringUtils.isEmpty(item.getExternalId())) {
+				// Get filename of submission
+				String fileName = resource.getProperties().getProperty(ResourceProperties.PROP_DISPLAY_NAME);
+				// If file name is missing extension add to fulfill TCA header requirement
+				if (FilenameUtils.getExtension(fileName).isEmpty()) {
+					// Add .html for in line submissions
+					if (INLINE_SUBMISSION.equals(fileName)) {
+						fileName += HTML_EXTENSION;
+						// Else add .docx
+					} else {
+						fileName += DOCX_EXTENSION;
+					}
+				}
+				// If fileName is empty set default
+				if (StringUtils.isEmpty(fileName)) {
+					fileName = "submission_" + item.getUserId() + "_" + item.getSiteId();
+					log.info("Using Default Filename " + fileName);
+				}
 				try {
 					log.info("Submission starting...");
 					// Retrieve submissionId from TCA and set to externalId
 					String externalId = getSubmissionId(item.getUserId(), fileName);
 					if (StringUtils.isEmpty(externalId)) {
 						throw new Error("submission id is missing");
-
 					} else {
 						// Add filename to content upload headers
 						CONTENT_UPLOAD_HEADERS.put(HEADER_DISP, "inline; filename=\"" + fileName + "\"");
