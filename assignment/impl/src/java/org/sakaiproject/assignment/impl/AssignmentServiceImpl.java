@@ -486,7 +486,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                             } catch (Exception ignore) {
                                 log.error("Could not find assignment for ref = {}", ref.getReference());
                             }
-                            String date = dateTimeFormatter.withZone(userTimeService.getLocalTimeZone().toZoneId()).format(ZonedDateTime.now());
+                            String date = DateTimeFormatter.ofPattern("yyyyMMddHHmmss").withZone(userTimeService.getLocalTimeZone().toZoneId()).format(ZonedDateTime.now());
                             String filename = assignmentName + "_" + date;
 
                             String queryString = req.getQueryString();
