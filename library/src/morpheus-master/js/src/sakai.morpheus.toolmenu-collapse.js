@@ -1,8 +1,8 @@
 jQuery(function () {
-    var collapse = $('.Mrphs-collapseTools');
+    var collapse = $PBJQ('.Mrphs-collapseTools');
     if (collapse.length > 0) {
         var floatIt = function () {
-            var width = $('#toolMenuWrap').outerWidth();
+            var width = $PBJQ('#toolMenuWrap').outerWidth();
 
             collapse.css('position', 'fixed')
                     .css('bottom', 0)

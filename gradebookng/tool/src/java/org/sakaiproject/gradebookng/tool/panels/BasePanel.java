@@ -48,10 +48,10 @@ public abstract class BasePanel extends Panel {
 
 	/**
 	 * Helper to get the user role, via the business service. Handles the Access Denied scenario.
-	 * 
+	 *
 	 * @return
 	 */
-	public GbRole getUserRole() {
+	protected GbRole getUserRole() {
 
 		GbRole role;
 		try {
@@ -66,19 +66,28 @@ public abstract class BasePanel extends Panel {
 
 	/**
 	 * Get the current user, via the business service
-	 * 
+	 *
 	 * @return
 	 */
-	public String getCurrentUserId() {
+	protected String getCurrentUserId() {
 		return this.businessService.getCurrentUser().getId();
 	}
 
 	/**
-	 * Get the Gradebook for the panel, via the business service
+	 * Get the current siteId, via the business service
 	 * 
 	 * @return
 	 */
-	public Gradebook getGradebook() {
+	protected String getCurrentSiteId() {
+		return this.businessService.getCurrentSiteId();
+	}
+
+	/**
+	 * Get the Gradebook for the panel, via the business service
+	 *
+	 * @return
+	 */
+	protected Gradebook getGradebook() {
 		return this.businessService.getGradebook();
 	}
 

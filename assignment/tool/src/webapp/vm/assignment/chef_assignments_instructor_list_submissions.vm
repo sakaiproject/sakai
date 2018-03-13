@@ -79,7 +79,7 @@ function printView(url) {
 			<input type="hidden" name="eventSubmit_doView_submission_list_option" value="x" />
 			## show the view by group choice when there is at least one group defined
 			#if (!$assignment.IsGroup)
-				#if (!$value_CheckAnonymousGrading.equals("true") && $!groups.hasNext())
+				#if (!$value_CheckAnonymousGrading && $!groups.hasNext())
 					<div class="form-group spinnerBesideContainer">
 						<label class="col-md-2" for="view">
 							$tlang.getString("gen.view2")
@@ -100,8 +100,7 @@ function printView(url) {
 					</div>
 				#end
 
-				## SAK-17606
-				#if (!$value_CheckAnonymousGrading.equals("true"))
+				#if (!$value_CheckAnonymousGrading)
 					<div class="form-group">
 						<label class="col-md-2" for="$form_search">$tlang.getString("search_students")</label>
 						<div class="col-md-10">
@@ -548,7 +547,7 @@ function printView(url) {
 							<td headers="allowResubmit" class="screenOnly smallCol">
 								#set($userId = $!siteUser)
 								<input type="checkbox" name="selectedAllowResubmit" value="$!submitterId" id="check_$submitterDisplayId" />
-								<label for="check_$submitterDisplayId" class="skip">$tlang.getString("allowResubmission.select.student") #if($value_CheckAnonymousGrading.equals("true"))$anonymousSubmissionId#else$validator.escapeHtml($submitterName)#end</label>
+								<label for="check_$submitterDisplayId" class="skip">$tlang.getString("allowResubmission.select.student") #if($value_CheckAnonymousGrading)$anonymousSubmissionId#else$validator.escapeHtml($submitterName)#end</label>
 							</td>
 							<td headers="attachment" class="attach">
 								#set ($size = $submission.Attachments.size())
@@ -566,11 +565,10 @@ function printView(url) {
 										#end
 									#end
 									
-									## SAK-17606
-									#if ($value_CheckAnonymousGrading.equals("true"))
+									#if ($value_CheckAnonymousGrading)
 										$anonymousSubmissionId
 									#else
-									$validator.escapeHtml($submitterName)
+										$validator.escapeHtml($submitterName)
 									#end
 
 									#if ($gusers)
@@ -594,7 +592,7 @@ function printView(url) {
 									#end
 									#if(!$disableGrade)
 										<div class="itemAction">
-											<a href="#toolLinkParam("AssignmentAction" "doGrade_submission" "assignmentId=$validator.escapeUrl($assignmentReference)&submissionId=$validator.escapeUrl($userSubmission.Reference)")" title="$tlang.getString("listsub.grasub")">$!tlang.getString("gen.assign.gra")<span class="skip">:#if($value_CheckAnonymousGrading.equals("true"))$anonymousSubmissionId#else$validator.escapeHtml($submitterName)#end</span></a>
+											<a href="#toolLinkParam("AssignmentAction" "doGrade_submission" "assignmentId=$validator.escapeUrl($assignmentReference)&submissionId=$validator.escapeUrl($userSubmission.Reference)")" title="$tlang.getString("listsub.grasub")">$!tlang.getString("gen.assign.gra")<span class="skip">:#if($value_CheckAnonymousGrading)$anonymousSubmissionId#else$validator.escapeHtml($submitterName)#end</span></a>
 											#foreach ($provider in $providers)
 												#set ($item = $producer.getItem($submission, $siteUser.getId()))
 												#set ($helperInfo = false)
@@ -616,8 +614,7 @@ function printView(url) {
 												#end
 											#end
 											
-											## SAK-17606
-											#if ($value_CheckAnonymousGrading.equals("true"))
+											#if ($value_CheckAnonymousGrading)
 												$anonymousSubmissionId
 											#else
 												$validator.escapeHtml($submitterName)
@@ -625,11 +622,10 @@ function printView(url) {
 
 										</a>
 									#else
-										## SAK-17606
-										#if ($value_CheckAnonymousGrading.equals("true"))
+										#if ($value_CheckAnonymousGrading)
 											$anonymousSubmissionId
 										#else
-										$validator.escapeHtml($submitterName)
+											$validator.escapeHtml($submitterName)
 									#end
 								#end
 								#end

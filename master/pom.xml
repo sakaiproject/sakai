@@ -41,6 +41,7 @@
     <sakai.httpcore.version>4.4.9</sakai.httpcore.version>
     <sakai.httpmime.version>4.5.5</sakai.httpmime.version>
     <sakai.jackson.version>2.8.11</sakai.jackson.version>
+    <sakai.jsoup.version>1.11.2</sakai.jsoup.version>
     <sakai.woodstox.version>5.0.3</sakai.woodstox.version>
     <sakai.stax2.version>3.1.4</sakai.stax2.version>
     <sakai.java.jwt.version>3.1.0</sakai.java.jwt.version>
@@ -425,7 +426,8 @@
 	  <dependency>
 		<groupId>com.fasterxml.jackson.core</groupId>
 		<artifactId>jackson-databind</artifactId>
-		<version>${sakai.jackson.version}</version>
+		<!-- Remove the .1 below on next major rev -->
+		<version>${sakai.jackson.version}.1</version>
 		<scope>provided</scope>
 	  </dependency>
 	  <dependency>
@@ -457,6 +459,11 @@
         <artifactId>stax2-api</artifactId>
         <version>${sakai.stax2.version}</version>
         <scope>provided</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.jsoup</groupId>
+        <artifactId>jsoup</artifactId>
+        <version>1.11.2</version>
       </dependency>
       <dependency>
         <groupId>aopalliance</groupId>
@@ -2150,7 +2157,7 @@
         <!-- Can be run as mvn -Pdependency-check-support org.owasp:dependency-check-maven:aggregate at the root -->
         <groupId>org.owasp</groupId>
         <artifactId>dependency-check-maven</artifactId>
-        <version>2.1.1</version>
+        <version>3.1.1</version>
         <dependencies>
           <dependency>
             <groupId>org.sakaiproject</groupId>

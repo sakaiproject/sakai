@@ -24,9 +24,11 @@ package org.sakaiproject.calendar.impl.readers;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Calendar;
+import java.time.Duration;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.Date;
-import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -34,7 +36,6 @@ import java.util.Map;
 
 import org.sakaiproject.calendar.impl.GenericCalendarImporter;
 import org.sakaiproject.exception.ImportException;
-import org.sakaiproject.time.api.TimeBreakdown;
 import org.sakaiproject.util.ResourceLoader;
 
 /**
@@ -60,7 +61,7 @@ public class MeetingMakerReader extends Reader
 	/* (non-Javadoc)
 	 * @see org.sakaiproject.tool.calendar.ImportReader#importStreamFromDelimitedFile(java.io.InputStream, org.sakaiproject.tool.calendar.ImportReader.ReaderImportRowHandler)
 	 */
-	public void importStreamFromDelimitedFile(
+	public String importStreamFromDelimitedFile(
 		InputStream stream,
 		ReaderImportRowHandler handler)
 		throws ImportException
@@ -205,13 +206,25 @@ public class MeetingMakerReader extends Reader
 			// If we get this far, increment the line counter.
 			lineNumber++;
 		}
+		
+		// tzid of calendar
+		return null;
+
 	}
 
 	/* (non-Javadoc)
-	 * @see org.sakaiproject.tool.calendar.schedimportreaders.Reader#filterEvents(java.util.List, java.lang.String[])
+	 * @see org.sakaiproject.tool.calendar.schedimportreaders.Reader#filterEvents(java.util.List, java.lang.String[], String)
 	 */
-	public List filterEvents(List events, String[] customFieldNames) throws ImportException
+	public List filterEvents(List events, String[] customFieldNames, String tzid) throws ImportException
 	{
+		ZoneId dstZoneId = ZoneId.of(getTimeService().getLocalTimeZone().getID());		
+		ZoneId srcZoneId;
+		if (tzid != null) {
+			srcZoneId = ZoneId.of(tzid);
+		} else {
+			srcZoneId = dstZoneId;
+		}
+		
 		Iterator it = events.iterator();
 		int lineNumber = 1;
 		
@@ -224,82 +237,38 @@ public class MeetingMakerReader extends Reader
 			Map eventProperties = (Map)it.next();
 
 			Date startTime = (Date) eventProperties.get(defaultHeaderMap.get(GenericCalendarImporter.START_TIME_DEFAULT_COLUMN_HEADER));
-			TimeBreakdown startTimeBreakdown = null;
-			
-			if ( startTime != null )
-			{
-            // if the source time zone were known, this would be
-            // a good place to set it: startCal.setTimeZone()
-            GregorianCalendar startCal = new GregorianCalendar();
-            startCal.setTimeInMillis( startTime.getTime() );
-            startTimeBreakdown = 
-                    getTimeService().newTimeBreakdown( 0, 0, 0, 
-                       startCal.get(Calendar.HOUR_OF_DAY),
-                       startCal.get(Calendar.MINUTE),
-                       startCal.get(Calendar.SECOND),
-                        0 );
-			}
-			else
-			{
-            Integer line = Integer.valueOf(lineNumber);
-				String msg = (String)rb.getFormattedMessage("err_no_stime_on", 
-                                                        new Object[]{line});
-				throw new ImportException( msg );
-			}
-			
-			Integer durationInMinutes = (Integer)eventProperties.get(defaultHeaderMap.get(GenericCalendarImporter.DURATION_DEFAULT_COLUMN_HEADER));
-
-			if ( durationInMinutes == null )
-			{
-            Integer line = Integer.valueOf(lineNumber);
-				String msg = (String)rb.getFormattedMessage("err_no_dtime_on", 
-                                                        new Object[]{line});
-				throw new ImportException( msg );
-			}
-			
-			Date endTime =
-				new Date(
-					startTime.getTime() + (durationInMinutes.longValue() * 60 * 1000) );
-					
-			TimeBreakdown endTimeBreakdown = null;
-
-			if ( endTime != null )
-			{
-            // if the source time zone were known, this would be
-            // a good place to set it: endCal.setTimeZone()
-            GregorianCalendar endCal = new GregorianCalendar();
-            endCal.setTimeInMillis( endTime.getTime() );
-            endTimeBreakdown = 
-                    getTimeService().newTimeBreakdown( 0, 0, 0, 
-                       endCal.get(Calendar.HOUR_OF_DAY),
-                       endCal.get(Calendar.MINUTE),
-                       endCal.get(Calendar.SECOND),
-                       0 );
-			}
-
 			Date startDate = (Date) eventProperties.get(defaultHeaderMap.get(GenericCalendarImporter.DATE_DEFAULT_COLUMN_HEADER));
+			Integer durationInMinutes = (Integer)eventProperties.get(defaultHeaderMap.get(GenericCalendarImporter.DURATION_DEFAULT_COLUMN_HEADER));
 			
-         // if the source time zone were known, this would be
-         // a good place to set it: startCal.setTimeZone()
-         GregorianCalendar startCal = new GregorianCalendar();
-			if ( startDate != null )
-            startCal.setTimeInMillis( startDate.getTime() );
-            
-         startTimeBreakdown.setYear( startCal.get(Calendar.YEAR) );
-         startTimeBreakdown.setMonth( startCal.get(Calendar.MONTH)+1 );
-         startTimeBreakdown.setDay( startCal.get(Calendar.DAY_OF_MONTH) );
-            
-         endTimeBreakdown.setYear( startCal.get(Calendar.YEAR) );
-         endTimeBreakdown.setMonth( startCal.get(Calendar.MONTH)+1 );
-         endTimeBreakdown.setDay( startCal.get(Calendar.DAY_OF_MONTH) );
+			if (startTime == null ) {
+				Integer line = Integer.valueOf(lineNumber);
+				String msg = (String)rb.getFormattedMessage("err_no_stime_on", new Object[]{line});
+				throw new ImportException( msg );
+			}
+			if (startDate == null) {
+	            Integer line = Integer.valueOf(lineNumber);
+				String msg = (String)rb.getFormattedMessage("err_no_start", new Object[]{line});
+				throw new ImportException( msg );
+			}
+			if (durationInMinutes == null) {
+				Integer line = Integer.valueOf(lineNumber);
+				String msg = (String)rb.getFormattedMessage("err_no_dur", new Object[]{line});
+				throw new ImportException( msg );
+			}
 			
-			eventProperties.put(
-				GenericCalendarImporter.ACTUAL_TIMERANGE,
-				getTimeService().newTimeRange(
-                    getTimeService().newTimeLocal(startTimeBreakdown),
-                    getTimeService().newTimeLocal(endTimeBreakdown),
-					true,
-					false));
+			// Raw date + raw time
+			Instant startInstant = startDate.toInstant().plusMillis(startTime.getTime());
+
+			// Raw + calendar/owner TZ's offset
+			ZonedDateTime srcZonedDateTime = startInstant.atZone(srcZoneId);
+			long millis = startInstant.plusMillis(srcZonedDateTime.getOffset().getTotalSeconds() * 1000).toEpochMilli();
+			
+			// Duration of event
+			Duration gapMinutes = Duration.ofMinutes(durationInMinutes);
+			
+			// Time Service will ajust to current user's TZ
+			eventProperties.put(GenericCalendarImporter.ACTUAL_TIMERANGE,
+				getTimeService().newTimeRange(millis, gapMinutes.toMillis()));
 					
 			lineNumber++;
 		}

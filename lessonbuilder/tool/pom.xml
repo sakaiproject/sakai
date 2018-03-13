@@ -162,11 +162,9 @@
              <groupId>net.sf.opencsv</groupId>
              <artifactId>opencsv</artifactId>
         </dependency>
-        <!-- https://mvnrepository.com/artifact/org.jsoup/jsoup -->
         <dependency>
             <groupId>org.jsoup</groupId>
             <artifactId>jsoup</artifactId>
-            <version>1.10.2</version>
         </dependency>
         
 

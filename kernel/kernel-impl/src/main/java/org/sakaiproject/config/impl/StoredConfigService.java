@@ -21,10 +21,15 @@
 
 package org.sakaiproject.config.impl;
 
-import com.ibm.icu.text.SimpleDateFormat;
-import com.ibm.icu.util.Calendar;
-
-import java.util.*;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -75,6 +80,7 @@ public class StoredConfigService implements ConfigurationListener, Configuration
     public static final String SAKAI_CONFIG_USE_RAW = "sakai.config.use.raw";
     // config that should never be persisted
     public static final String SAKAI_CONFIG_NEVER_PERSIST = "sakai.config.never.persist";
+    private static final DateTimeFormatter dtf = DateTimeFormatter.ofPattern("HH:mm:ss");
 
     private ScheduledExecutorService scheduler;
 
@@ -86,11 +92,9 @@ public class StoredConfigService implements ConfigurationListener, Configuration
     private String node;
 
     public void init() {
-        log.info("init()");
-
         node = serverConfigurationService.getServerId();
         if (StringUtils.isBlank(node)) {
-            log.error("init(); node cannot be blank, StoredConfigService is disabled");
+            log.error("node cannot be blank, StoredConfigService is disabled");
             return;
         }
 
@@ -99,7 +103,7 @@ public class StoredConfigService implements ConfigurationListener, Configuration
         List<String> tmpdoNotPersist;
         if (doNotPersistConfig == null) {
             // SCS can return a null here if config is not found
-            tmpdoNotPersist = new ArrayList<String>();
+            tmpdoNotPersist = new ArrayList<>();
         } else {
             tmpdoNotPersist = Arrays.asList(doNotPersistConfig);
         }
@@ -107,7 +111,7 @@ public class StoredConfigService implements ConfigurationListener, Configuration
         tmpdoNotPersist.add("password@org.jasypt.encryption.pbe.PBEStringEncryptor");
         // TODO add more stuff here like serverId, DB password
         // Setup list of items we should never persist
-        neverPersistItems = Collections.unmodifiableSet(new HashSet<String>(tmpdoNotPersist));
+        neverPersistItems = Collections.unmodifiableSet(new HashSet<>(tmpdoNotPersist));
 
         // delete items that should never persisted
         for (String item : neverPersistItems) {
@@ -127,7 +131,7 @@ public class StoredConfigService implements ConfigurationListener, Configuration
             // schedule task for every pollDelaySeconds
             scheduler.scheduleWithFixedDelay(
                 new Runnable() {
-                    Date pollDate;
+                    ZonedDateTime pollDate;
                     @Override
                     public void run() {
                         pollDate = storedConfigPoller(pollDelaySeconds, pollDate);
@@ -136,7 +140,7 @@ public class StoredConfigService implements ConfigurationListener, Configuration
                 pollDelaySeconds < 120 ? 120 : pollDelaySeconds, // minimally wait 120 seconds for sakai to start
                 pollDelaySeconds, TimeUnit.SECONDS
             );
-            log.info("init() " + SAKAI_CONFIG_POLL_ENABLE + " is enabled and polling every " + pollDelaySeconds + " seconds");
+            log.info("{} is enabled and polling every {} seconds", SAKAI_CONFIG_POLL_ENABLE, pollDelaySeconds);
         }
     }
 
@@ -147,14 +151,13 @@ public class StoredConfigService implements ConfigurationListener, Configuration
         }
     }
 
-    private Date storedConfigPoller(int delay, Date then) {
-        Calendar calendar = Calendar.getInstance();
-        Date now = calendar.getTime();
+    private ZonedDateTime storedConfigPoller(int delay, ZonedDateTime then) {
+        ZonedDateTime now = ZonedDateTime.now();
 
         if (then == null) {
             // on start set then
-            calendar.add(Calendar.SECOND, -(delay));
-            then = calendar.getTime();
+            now.minusSeconds(delay);
+            then = now;
         }
 
         List<HibernateConfigItem> polled = findPollOn(then, now);
@@ -169,13 +172,15 @@ public class StoredConfigService implements ConfigurationListener, Configuration
                     registered++;
                 }
             } else {
-                log.warn("storedConfigPoller() item " + item.getName() + " is not registered skipping");
+                log.warn("Item {} is not registered skipping", item.getName());
             }
         }
         if (log.isDebugEnabled()) {
-            log.debug("storedConfigPoller() Polling found " + polled.size() + " config item(s) (from " +
-                              new SimpleDateFormat("HH:mm:ss").format(then) + " to " +
-                              new SimpleDateFormat("HH:mm:ss").format(now) + "), " + registered + " item(s) registered");
+            log.debug("storedConfigPoller() Polling found {} config item(s) (from {} to {}), {} item(s) registered",
+                    polled.size(),
+                    dtf.format(then),
+                    dtf.format(now),
+                    registered);
         }
 
         return now;
@@ -225,7 +230,7 @@ public class StoredConfigService implements ConfigurationListener, Configuration
 
             saveOrUpdate(hItem);
         }
-        log.info("initItems() processed " + total + " config items, updated " + updated + " created " + created);
+        log.info("processed {} config items, updated {} created {}", total, updated, created);
     }
 
     /**
@@ -243,13 +248,13 @@ public class StoredConfigService implements ConfigurationListener, Configuration
         String type = hItem.getType();
 
         if (name == null || name.isEmpty()) {
-            log.warn("saveOrUpdate() item name is missing");
+            log.warn("item name is missing");
             return;
         } else if (!(ServerConfigurationService.TYPE_STRING.equals(type)
                              || ServerConfigurationService.TYPE_INT.equals(type)
                              || ServerConfigurationService.TYPE_BOOLEAN.equals(type)
                              || ServerConfigurationService.TYPE_ARRAY.equals(type))) {
-            log.warn("saveOrUpdate() item type is incorrect");
+            log.warn("item type is incorrect");
             return;
         }
 
@@ -269,9 +274,7 @@ public class StoredConfigService implements ConfigurationListener, Configuration
             ConfigItem item = createConfigItem(hItem);
             if (item != null) {
                 configItems.add(item);
-                if (log.isDebugEnabled()) {
-                    log.debug("getConfigItems() " + item.toString());
-                }
+                log.debug("{}", item);
             }
         }
 
@@ -317,9 +320,7 @@ public class StoredConfigService implements ConfigurationListener, Configuration
             hItem.isDynamic()
         );
 
-        if (log.isDebugEnabled()) {
-            log.debug("createConfigItem() " + item.toString());
-        }
+        log.debug("{}", item);
 
         return item;
     }
@@ -336,9 +337,7 @@ public class StoredConfigService implements ConfigurationListener, Configuration
             return null;
         }
 
-        if (log.isDebugEnabled()) {
-            log.debug("createHibernateConfigItem() New ConfigItem = " + item.toString());
-        }
+        log.debug("New ConfigItem = {}", item);
 
         String serialValue;
         String serialDefaultValue;
@@ -349,7 +348,7 @@ public class StoredConfigService implements ConfigurationListener, Configuration
             serialDefaultValue = serializeValue(item.getDefaultValue(), item.getType(), item.isSecured());
             serialRawValue = serializeValue(getRawProperty(item.getName()), ServerConfigurationService.TYPE_STRING, item.isSecured());
         } catch (IllegalClassException ice) {
-            log.error("createHibernateConfigItem() IllegalClassException " + ice.getMessage() + " skip ConfigItem " + item.toString(), ice);
+            log.error("Skip ConfigItem {}, {}", item, ice.getMessage());
             return null;
         }
 
@@ -366,9 +365,7 @@ public class StoredConfigService implements ConfigurationListener, Configuration
                                                                    item.isSecured(),
                                                                    item.isDynamic());
 
-        if (log.isDebugEnabled()) {
-            log.debug("createHibernateConfigItem() Created HibernateConfigItem = " + hItem.toString());
-        }
+        log.debug("Created HibernateConfigItem = {}", hItem);
 
         return hItem;
     }
@@ -391,9 +388,7 @@ public class StoredConfigService implements ConfigurationListener, Configuration
         // check if updating is needed, update it
         if (!hItem.similar(item)) {
             // if they are not similar update it
-            if (log.isDebugEnabled()) {
-                log.debug("updateHibernateConfigItem() Before " + hItem.toString());
-            }
+            log.debug("Before = {}", hItem);
 
             Object value = deSerializeValue(hItem.getValue(), hItem.getType(), hItem.isSecured());
             Object defaultValue = deSerializeValue(hItem.getDefaultValue(), hItem.getType(), hItem.isSecured());
@@ -419,7 +414,7 @@ public class StoredConfigService implements ConfigurationListener, Configuration
                     hItem.setDefaultValue(serializeValue(item.getDefaultValue(), item.getType(), item.isSecured()));
                 }
             } catch (IllegalClassException ice) {
-                log.error("updateHibernateConfigItem() IllegalClassException " + ice.getMessage() + " skip ConfigItem " + item.toString(), ice);
+                log.error("Skip ConfigItem = {}, {}", item, ice.getMessage());
                 return null;
             }
 
@@ -431,11 +426,9 @@ public class StoredConfigService implements ConfigurationListener, Configuration
             hItem.setSource(item.getSource());
             hItem.setDescription(item.getDescription());
             hItem.setDynamic(item.isDynamic());
-            hItem.setModified(Calendar.getInstance().getTime());
+            hItem.setModified(new Date());
 
-            if (log.isDebugEnabled()) {
-                log.debug("updateHibernateConfigItem() After " + hItem.toString());
-            }
+            log.debug("After = {}", hItem);
 
             updatedItem = hItem;
         }
@@ -466,7 +459,7 @@ public class StoredConfigService implements ConfigurationListener, Configuration
 
         HibernateConfigItem hItem = findByName(name);
         if (hItem != null) {
-            log.info("deleteHibernateConfigItem() delete HibernateConfigItem = " + hItem);
+            log.info("Delete HibernateConfigItem = {}", hItem);
             dao.delete(hItem);
         }
     }
@@ -598,8 +591,8 @@ public class StoredConfigService implements ConfigurationListener, Configuration
      * @param before select items before this timestamp
      * @return a List of HibernateConfigItem(s)
      */
-    public List<HibernateConfigItem> findPollOn(Date after, Date before) {
-        return dao.findPollOnByNode(node, after, before);
+    public List<HibernateConfigItem> findPollOn(ZonedDateTime after, ZonedDateTime before) {
+        return dao.findPollOnByNode(node, Date.from(after.toInstant()), Date.from(before.toInstant()));
     }
 
     private String getRawProperty(String name) {
@@ -627,7 +620,7 @@ public class StoredConfigService implements ConfigurationListener, Configuration
             if (Base64.isBase64(value)) {
                 string = textEncryptor.decrypt(value);
             } else {
-                log.warn("deSerializeValue() Invalid value found attempting to decrypt a secured property, check your secured properties");
+                log.warn("Invalid value found attempting to decrypt a secured property, check your secured properties");
                 string = value;
             }
         } else {
