@@ -499,7 +499,7 @@
 					
 					<td headers="actions2" class="attach actions2">
                         <div class="btn-group  pull-right">
-                            <button type="button" class="btn resources-dropdown btn-xs" aria-expanded="false" data-toggle="dropdown" title="$clang.getString('gen.actions')">
+                            <button type="button" class="btn resources-dropdown btn-xs dropdown-toggle" aria-expanded="false" data-toggle="dropdown" title="$clang.getString('gen.actions')">
                                 <span class="sr-only">$validator.escapeHtml($item.name) $clang.getString('gen.actions')</span>
                                 <span class="hidden-xs hidden-sm">$clang.getString('gen.actions')</span>
                                 <span class="caret"></span>
