@@ -234,4 +234,10 @@ public class FakeSitePage implements SitePage {
 		return false;
 	}
 
+	public boolean isTitleToolException(String toolId)
+	{
+		// TODO
+		return false;
+	}
+
 }
