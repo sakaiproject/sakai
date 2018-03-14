@@ -288,11 +288,10 @@
                                     </h:panelGroup>
                                 </h:panelGroup>
                             </f:facet>
-
                             <h:outputText value="#{reviewable.assessmentTitle}" rendered="#{!reviewable.isRecordedAssessment}" styleClass="hidden" />
+                            <h:outputText styleClass="highlight fa fa-fw fa-exclamation-circle" rendered="#{reviewable.isRecordedAssessment && reviewable.feedback == 'show' && !reviewable.isAssessmentRetractForEdit && reviewable.hasAssessmentBeenModified && select.warnUserOfModification}" title="#{selectIndexMessages.has_been_modified}" />
+                            <h:outputText styleClass="highlight fa fa-fw fa-exclamation" rendered="#{reviewable.isRecordedAssessment && reviewable.isAssessmentRetractForEdit}" title="#{selectIndexMessages.currently_being_edited}" />
                             <h:outputText value="#{reviewable.assessmentTitle}" styleClass="currentSort"  rendered="#{reviewable.isRecordedAssessment}"  escape="false"/>
-                            <h:outputText value="#{selectIndexMessages.asterisk}" rendered="#{reviewable.isRecordedAssessment && reviewable.feedback == 'show' && !reviewable.isAssessmentRetractForEdit && reviewable.hasAssessmentBeenModified && select.warnUserOfModification}" styleClass="validate"/>
-                            <h:outputText value="#{selectIndexMessages.asterisk_2}" rendered="#{reviewable.isRecordedAssessment && reviewable.isAssessmentRetractForEdit}" styleClass="validate" />
                         </t:column>
 
                         <!-- STATS creating separate column for stats -->
@@ -401,8 +400,18 @@
                     </t:dataTable>
 
                     <t:div styleClass="sam-asterisks-row" rendered="#{(select.hasAnyAssessmentBeenModified && select.warnUserOfModification) || select.hasAnyAssessmentRetractForEdit}">
-                        <h:outputText value="#{selectIndexMessages.asterisk} #{selectIndexMessages.has_been_modified}" rendered="#{select.hasAnyAssessmentBeenModified && select.warnUserOfModification}" styleClass="validate"/>
-                        <h:outputText value="#{selectIndexMessages.asterisk_2} #{selectIndexMessages.currently_being_edited}" rendered="#{select.hasAnyAssessmentRetractForEdit}" styleClass="validate"/>
+                        <h:panelGroup rendered="#{select.hasAnyAssessmentBeenModified && select.warnUserOfModification}">
+                            <f:verbatim><p></f:verbatim>
+                                <h:outputText styleClass="highlight fa fa-fw fa-exclamation-circle" />
+                                <h:outputText value="#{selectIndexMessages.has_been_modified}" styleClass="highlight"/>
+                            <f:verbatim></p></f:verbatim>
+                        </h:panelGroup>
+                        <h:panelGroup rendered="#{select.hasAnyAssessmentRetractForEdit}">
+                            <f:verbatim><p></f:verbatim>
+                                <h:outputText styleClass="highlight fa fa-fw fa-exclamation" title="#{selectIndexMessages.currently_being_edited}" />
+                                <h:outputText value="#{selectIndexMessages.currently_being_edited}" styleClass="highlight"/>
+                            <f:verbatim></p></f:verbatim>
+                        </h:panelGroup>
                     </t:div>
                 </div>
             </t:div>

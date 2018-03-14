@@ -215,11 +215,12 @@
                             <h:outputText value="#{authorFrontDoorMessages.assessment_draft} - " styleClass="highlight" />
                         </h:panelGroup>
 
+                        <h:panelGroup rendered="#{assessment['class'].simpleName == 'PublishedAssessmentFacade' and assessment.status == 3}">
+                            <h:outputText styleClass="highlight fa fa-fw fa-exclamation-circle" title="#{authorFrontDoorMessages.retracted_for_edit}" />
+                        </h:panelGroup>
+
                         <h:outputText styleClass="spanValue" value="#{assessment.title}" />
                     </strong>
-
-                    <h:panelGroup rendered="#{assessment['class'].simpleName == 'AssessmentFacade'}">
-                    </h:panelGroup>
 
                 </t:column>
 
@@ -229,7 +230,7 @@
                     </f:facet>
 
                     <h:panelGroup rendered="#{assessment['class'].simpleName == 'AssessmentFacade'}" styleClass="btn-group pull-right">
-                        <f:verbatim><button class="btn btn-xs" aria-expanded="false" data-toggle="dropdown" title="</f:verbatim>
+                        <f:verbatim><button class="btn btn-xs dropdown-toggle" aria-expanded="false" data-toggle="dropdown" title="</f:verbatim>
                             <h:outputText value="#{authorMessages.actions_for} " />
                             <h:outputText value="#{authorFrontDoorMessages.assessment_draft} - " rendered="#{assessment['class'].simpleName == 'AssessmentFacade'}" />
                             <h:outputText value="#{assessment.title}" />
@@ -262,7 +263,7 @@
 
                     <h:panelGroup rendered="#{assessment['class'].simpleName == 'PublishedAssessmentFacade'}" styleClass="btn-group pull-right">
                         <h:panelGroup rendered="#{(author.isGradeable && assessment.submittedCount > 0) && (author.isEditable && (!author.editPubAssessmentRestricted || !assessment.hasAssessmentGradingData))}">
-                            <f:verbatim><button class="btn btn-xs" aria-expanded="false" data-toggle="dropdown" title="</f:verbatim>
+                            <f:verbatim><button class="btn btn-xs dropdown-toggle" aria-expanded="false" data-toggle="dropdown" title="</f:verbatim>
                                 <h:outputText value="#{authorMessages.actions_for} " />
                                 <h:outputText value="#{authorFrontDoorMessages.assessment_draft} - " rendered="#{assessment['class'].simpleName == 'AssessmentFacade'}" />
                                 <h:outputText value="#{assessment.title}" />
@@ -300,7 +301,7 @@
                         </h:panelGroup>
 
                         <h:panelGroup rendered="#{(author.isGradeable && assessment.submittedCount > 0) && (author.isEditable && !(!author.editPubAssessmentRestricted || !assessment.hasAssessmentGradingData))}">
-                            <f:verbatim><button class="btn btn-xs" aria-expanded="false" data-toggle="dropdown" title="</f:verbatim>
+                            <f:verbatim><button class="btn btn-xs dropdown-toggle" aria-expanded="false" data-toggle="dropdown" title="</f:verbatim>
                                 <h:outputText value="#{authorMessages.actions_for} " />
                                 <h:outputText value="#{authorFrontDoorMessages.assessment_draft} - " rendered="#{assessment['class'].simpleName == 'AssessmentFacade'}" />
                                 <h:outputText value="#{assessment.title}" />
@@ -331,7 +332,7 @@
                         </h:panelGroup>
 
                         <h:panelGroup rendered="#{!(author.isGradeable && assessment.submittedCount > 0) && (author.isEditable && (!author.editPubAssessmentRestricted || !assessment.hasAssessmentGradingData))}">
-                            <f:verbatim><button class="btn btn-xs" aria-expanded="false" data-toggle="dropdown" title="</f:verbatim>
+                            <f:verbatim><button class="btn btn-xs dropdown-toggle" aria-expanded="false" data-toggle="dropdown" title="</f:verbatim>
                                 <h:outputText value="#{authorMessages.actions_for} " />
                                 <h:outputText value="#{authorFrontDoorMessages.assessment_draft} - " rendered="#{assessment['class'].simpleName == 'AssessmentFacade'}" />
                                 <h:outputText value="#{assessment.title}" />
@@ -529,9 +530,12 @@
 
             <div class="clearfix"></div>
 
-            <h:panelGrid columns="1">
-                <h:outputText id="assessment-retracted" value="#{authorFrontDoorMessages.asterisk_2} #{authorFrontDoorMessages.retracted_for_edit}" rendered="#{author.isAnyAssessmentRetractForEdit == true && author.allAssessments.size() > 0}" styleClass="validate"/>
-            </h:panelGrid>
+            <h:panelGroup rendered="#{author.isAnyAssessmentRetractForEdit == true && author.allAssessments.size() > 0}">
+                <f:verbatim><p></f:verbatim>
+                    <h:outputText styleClass="highlight fa fa-fw fa-exclamation-circle" />
+                    <h:outputText id="assessment-retracted" value="#{authorFrontDoorMessages.retracted_for_edit}" styleClass="highlight" />
+                <f:verbatim></p></f:verbatim>
+            </h:panelGroup>
         </div>
 
         <div class="clearfix"></div>
