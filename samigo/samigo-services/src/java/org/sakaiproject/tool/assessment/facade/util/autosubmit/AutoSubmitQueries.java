@@ -111,7 +111,7 @@ public class AutoSubmitQueries extends HibernateDaoSupport implements AutoSubmit
 					+ adata.getAgentId() + "-" + adata.getSubmittedDate().toString();
 				notiValues.put( "confirmationNumber", confirmationNumber );
 
-				EventTrackingService.post(EventTrackingService.newEvent(SamigoConstants.EVENT_ASSESSMENT_AUTO_SUBMITTED, notiValues.toString(), AgentFacade.getCurrentSiteId(), false, SamigoConstants.NOTI_EVENT_ASSESSMENT_SUBMITTED));
+				EventTrackingService.post(EventTrackingService.newEvent(SamigoConstants.EVENT_ASSESSMENT_SUBMITTED_AUTO, notiValues.toString(), AgentFacade.getCurrentSiteId(), false, SamigoConstants.NOTI_EVENT_ASSESSMENT_SUBMITTED));
 			}
 		}
 		catch (Exception e)
