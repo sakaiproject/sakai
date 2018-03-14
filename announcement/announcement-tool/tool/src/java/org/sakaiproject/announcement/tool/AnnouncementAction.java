@@ -2468,8 +2468,8 @@ public class AnnouncementAction extends PagedResourceActionII
 			addAlert(sstate, rb.getFormattedMessage("java.youmess.pes", e.toString()));
 		}
 		finally {
-			m_securityService.popAdvisor(channelAdvisor);
 			m_securityService.popAdvisor(messageAdvisor);
+			m_securityService.popAdvisor(channelAdvisor);
 		}
 
 		String template = (String) getContext(rundata).get("template");
