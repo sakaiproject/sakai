@@ -1352,7 +1352,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 				    }
 
 				    UIBranchContainer tableRow = UIBranchContainer.make(tableContainer, "item:");
-				    tableRow.decorate(new UIFreeAttributeDecorator("class", "break" + i.getFormat()));
+				    tableRow.decorate(new UIFreeAttributeDecorator("class", "breakitem break" + i.getFormat()));
 				    if (canEditPage) {
 					// usual case is this is a break
 					if (i.getType() == SimplePageItem.BREAK)
