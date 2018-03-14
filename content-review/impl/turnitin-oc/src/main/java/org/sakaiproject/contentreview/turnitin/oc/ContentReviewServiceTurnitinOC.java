@@ -129,6 +129,7 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 
 	private String serviceUrl;
 	private String apiKey;
+	private String sakaiVersion;
 
 	private HashMap<String, String> BASE_HEADERS = new HashMap<String, String>();
 	private HashMap<String, String> SUBMISSION_REQUEST_HEADERS = new HashMap<String, String>();
@@ -139,10 +140,12 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 		// Retrieve Service URL and API key
 		serviceUrl = serverConfigurationService.getString("turnitin.oc.serviceUrl", "");
 		apiKey = serverConfigurationService.getString("turnitin.oc.apiKey", "");
+		// Retrieve Sakai Version if null set default 		
+		sakaiVersion = Optional.ofNullable(serverConfigurationService.getString("version.sakai", "")).orElse("UNKNOWN");		
 
 		// Populate base headers that are needed for all calls to TCA
 		BASE_HEADERS.put(HEADER_NAME, INTEGRATION_FAMILY);
-		BASE_HEADERS.put(HEADER_VERSION, INTEGRATION_VERSION);
+		BASE_HEADERS.put(HEADER_VERSION, sakaiVersion);
 		BASE_HEADERS.put(HEADER_AUTH, "Bearer " + apiKey);
 
 		// Populate submission request headers used in getSubmissionId
