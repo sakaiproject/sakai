@@ -3522,7 +3522,36 @@ public class DeliveryBean
 		}
 		return site;
 	}
-	
+
+	public String getCurrentToolId() {
+		Site currentSite = getCurrentSite(getSiteId());
+		if (currentSite == null) {
+			return "";
+		}
+		SitePage page;
+		String toolId;
+		try {
+			List pageList = currentSite.getPages();
+			for (int i = 0; i < pageList.size(); i++) {
+				page = (SitePage) pageList.get(i);
+				List pageToolList = page.getTools();
+
+				// issue with null tool
+				if (pageToolList.get(0)==null && ((ToolConfiguration) pageToolList.get(0)).getTool()==null) {
+					continue;
+				}
+				toolId = ((ToolConfiguration) pageToolList.get(0)).getToolId();
+
+				if (toolId.equalsIgnoreCase("sakai.samigo")) {
+					return ((ToolConfiguration) pageToolList.get(0)).getId();
+				}
+			}
+		} catch (Exception e) {
+			log.warn("Could not find Samigo tool in site", e);
+		}
+		return "";
+	}
+
 	private String getCurrentPageId(String id) {
 		Site currentSite = getCurrentSite(id);
 		if (currentSite == null) {
