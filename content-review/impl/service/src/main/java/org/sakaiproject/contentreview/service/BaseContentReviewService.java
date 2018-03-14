@@ -3,6 +3,8 @@ package org.sakaiproject.contentreview.service;
 import java.time.Instant;
 
 import org.apache.commons.lang.StringUtils;
+import org.sakaiproject.contentreview.dao.ContentReviewConstants;
+import org.sakaiproject.contentreview.dao.ContentReviewItem;
 import org.sakaiproject.contentreview.exception.QueueException;
 import org.sakaiproject.contentreview.exception.ReportException;
 import org.sakaiproject.entity.api.EntityPropertyNotDefinedException;
@@ -85,19 +87,30 @@ public abstract class BaseContentReviewService implements ContentReviewService{
 	@Override
 	public String getReviewReport(String contentId, String assignmentRef, String userId)
 			throws QueueException, ReportException {
+		checkContentItemStatus(contentId);
 		return String.format(REDIRECT_URL_TEMPLATE, contentId, assignmentRef);
 	}
 	
 	@Override
 	public String getReviewReportInstructor(String contentId, String assignmentRef, String userId)
 			throws QueueException, ReportException {
+		checkContentItemStatus(contentId);
 		return String.format(REDIRECT_URL_TEMPLATE, contentId, assignmentRef);
 	}
 	
 	@Override
 	public String getReviewReportStudent(String contentId, String assignmentRef, String userId)
 			throws QueueException, ReportException {
+		checkContentItemStatus(contentId);
 		return String.format(REDIRECT_URL_TEMPLATE, contentId, assignmentRef);
+	}
+	
+	private void checkContentItemStatus(String contentId) throws ReportException {
+		ContentReviewItem item = getContentReviewItemByContentId(contentId);
+		if(item == null
+				|| !ContentReviewConstants.CONTENT_REVIEW_SUBMITTED_REPORT_AVAILABLE_CODE.equals(item.getStatus())) {
+			throw new ReportException("Report status: " + (item != null ? item.getStatus() : ""));
+		}
 	}
 	
 	@Override
