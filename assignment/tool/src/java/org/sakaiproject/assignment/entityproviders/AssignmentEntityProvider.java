@@ -811,7 +811,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
 
             String gradebookAssignmentProp = a.getProperties().get(AssignmentServiceConstants.PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT);
             if (gradebookService.isGradebookDefined(a.getContext())) {
-                if (StringUtils.startsWith(gradebookAssignmentProp, AssignmentServiceConstants.REFERENCE_ROOT)) {
+                if (StringUtils.isNotBlank(gradebookAssignmentProp)) {
                     // try to get internal gradebook assignment first
                     org.sakaiproject.service.gradebook.shared.Assignment gAssignment = gradebookService.getAssignment(a.getContext(), gradebookAssignmentProp);
                     if (gAssignment != null) {
