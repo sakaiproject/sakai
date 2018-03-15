@@ -7,3 +7,4 @@
 *.swf  binary -delta
 *.zip  binary -delta
 *.pdf  binary -delta
+crowdin.yml

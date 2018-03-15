@@ -1,0 +1,31 @@
+files:
+  - source: /**/*.properties
+    ignore:
+      - /**/*_*.properties
+      - /**/velocity.properties
+      - /**/log4j.properties
+      - /**/*sakai.properties
+      - /**/hibernat*.properties
+      - /**/mysql*
+      - /**/hsql*
+      - /**/oracle*
+      - /**/database*
+      - /**/derby.pr*
+      - /**/db2.pr*
+      - /**/mssql.pr*
+      - /**/postgres.pr*
+      - /**/ddl.properties
+      - /**/sakai.db.properties
+      - /**/jmeter.properties
+      - /**/jquery.*.properties
+      - /**/radeox_mar*.properties
+      - /**/content_type_*.properties
+      - /**/siteemacon/siteemacon.properties
+      - /**/section/CourseSectionCategories.properties
+      - /**/quartz.properties
+      - /**/jsf/Configuration.properties
+      - /**/sakai.properties
+      - /**/test-sakai.properties
+      - /**/simplelog.properties
+      - /**/jmeter.properties
+    translation: /**/%file_name%_%locale_with_underscore%.%file_extension%
