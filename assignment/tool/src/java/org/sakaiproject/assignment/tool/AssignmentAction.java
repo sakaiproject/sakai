@@ -7689,18 +7689,23 @@ public class AssignmentAction extends PagedResourceActionII {
                 }
             }
 
+            // Set if required "check" options are visible to user                        
+            boolean showInternetCheck = "true".equals(params.getString("show_NEW_ASSIGNMENT_REVIEW_SERVICE_CHECK_INTERNET"));
+            boolean showInstituionCheck = "true".equals(params.getString("show_NEW_ASSIGNMENT_REVIEW_SERVICE_CHECK_INSTITUTION"));
+                        
             //Check if all required content review fields are set
-            if (useReviewService
-            		&& contentReviewService != null 
-            		&& "TurnitinOC".equals(contentReviewService.getServiceName())
-            		&& !checkInstitution
-            		&& !checkInternet) {
-	            	//At least one "check" option must be selected for TurnitinOC
+            if (useReviewService            		            		            	
+            		&& contentReviewService != null
+    				&& "TurnitinOC".equals(contentReviewService.getServiceName())
+    				//At least one "check" option must be selected for TurnitinOC 
+    				&& !checkInternet 
+    				&& !checkInstitution
+    				// If both are unchecked make sure options were visible to user
+    				&& (showInstituionCheck || showInternetCheck)) {	            	
 	            	String contentReviewNote = rb.getFormattedMessage("review.required", new String[] {contentReviewService.getServiceName()});
 	            	addAlert(state, contentReviewNote);
 	            	return;
             }  
-
 
             // the attachments
             List attachments = (List) state.getAttribute(NEW_ASSIGNMENT_ATTACHMENT);

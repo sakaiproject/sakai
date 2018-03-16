@@ -708,6 +708,9 @@
 		#end
 
 		#if ($allowReviewService)
+			## Set hidden values to false if repository options are hidden from user, used in AssignmentAction.post_save_assignment  
+			<input id = "show_NEW_ASSIGNMENT_REVIEW_SERVICE_CHECK_INTERNET" name = "show_NEW_ASSIGNMENT_REVIEW_SERVICE_CHECK_INTERNET" type= "hidden" value = "$show_NEW_ASSIGNMENT_REVIEW_SERVICE_CHECK_INTERNET" />
+			<input id = "show_NEW_ASSIGNMENT_REVIEW_SERVICE_CHECK_INSTITUTION" name = "show_NEW_ASSIGNMENT_REVIEW_SERVICE_CHECK_INSTITUTION" type= "hidden" value = "$show_NEW_ASSIGNMENT_REVIEW_SERVICE_CHECK_INSTITUTION" />
 			<h4> $reviewServiceTitle </h4>
 			<div>
 				#if (4 == $value_SubmissionType)
