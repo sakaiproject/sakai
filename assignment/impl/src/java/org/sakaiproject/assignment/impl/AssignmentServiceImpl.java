@@ -2650,7 +2650,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
 
     private void removeAssociatedGradebookItem(Assignment assignment, String context) {
         String associatedGradebookAssignment = assignment.getProperties().get(AssignmentServiceConstants.PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT);
-        if (StringUtils.startsWith(associatedGradebookAssignment, REFERENCE_ROOT)) {
+        if (StringUtils.isNotBlank(associatedGradebookAssignment)) {
             try {
                 boolean isExternalAssignmentDefined = gradebookExternalAssessmentService.isExternalAssignmentDefined(context, associatedGradebookAssignment);
                 if (isExternalAssignmentDefined) {
@@ -3597,7 +3597,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
 
                     // gradebook-integration link
                     String associatedGradebookAssignment = nProperties.get(PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT);
-                    if (StringUtils.startsWith(associatedGradebookAssignment, REFERENCE_ROOT)) {
+                    if (StringUtils.isNotBlank(associatedGradebookAssignment)) {
                         // see if the old assignment's associated gradebook item is an internal gradebook entry or externally defined
                         boolean isExternalAssignmentDefined = gradebookExternalAssessmentService.isExternalAssignmentDefined(oAssignment.getContext(), associatedGradebookAssignment);
                         if (isExternalAssignmentDefined) {
