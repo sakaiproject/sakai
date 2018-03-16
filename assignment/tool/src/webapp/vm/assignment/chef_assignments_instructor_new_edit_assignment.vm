@@ -880,8 +880,7 @@
 						<div class="checkbox">
 							<label for="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_CHECK_INTERNET">
 							#if ($!value_NEW_ASSIGNMENT_REVIEW_SERVICE_CHECK_INTERNET.equals("true"))
-								<input id="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_CHECK_INTERNET" name="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_CHECK_INTERNET" type="checkbox" value="true" checked="checked" />
-			
+								<input id="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_CHECK_INTERNET" name="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_CHECK_INTERNET" type="checkbox" value="true" checked="checked" />			
 							#else
 								<input id="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_CHECK_INTERNET" name="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_CHECK_INTERNET" type="checkbox" value="true" />
 							#end
