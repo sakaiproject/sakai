@@ -22,14 +22,10 @@
 
 package org.sakaiproject.rubrics.logic.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-
-import javax.persistence.Embeddable;
+import java.io.Serializable;
+import javax.persistence.Embedded;
 import javax.persistence.Entity;
+import javax.persistence.EntityListeners;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -39,15 +35,24 @@ import javax.persistence.PostLoad;
 import javax.persistence.PostUpdate;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
-import java.io.Serializable;
 
-@Data
-@NoArgsConstructor
+import org.sakaiproject.rubrics.logic.listener.MetadataListener;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
 @AllArgsConstructor
+@Data
 @Entity
-@Table(name = "rbc_rating")
+@EntityListeners(MetadataListener.class)
 @JsonPropertyOrder({"id", "title", "description", "points", "metadata"})
-public class Rating extends BaseResource<Rating.Metadata> implements Serializable, Cloneable {
+@NoArgsConstructor
+@Table(name = "rbc_rating")
+public class Rating implements Modifiable, Serializable, Cloneable {
 
     @Id
     @SequenceGenerator(name="rbc_rat_seq", sequenceName ="rbc_rat_seq")
@@ -62,15 +67,8 @@ public class Rating extends BaseResource<Rating.Metadata> implements Serializabl
     @JsonIgnore
     private Criterion criterion;
 
-    public Metadata getMetadata() {
-        if (this.metadata == null) {
-            this.metadata = new Metadata(); //initialize only if not set by reflection based utility like JPA or Jackson
-        }
-        return this.metadata;
-    }
-
-    @Embeddable
-    public static class Metadata extends BaseMetadata {  }
+    @Embedded
+    private Metadata metadata;
 
     @PostLoad
     @PostUpdate
@@ -92,5 +90,15 @@ public class Rating extends BaseResource<Rating.Metadata> implements Serializabl
         clonedRating.setDescription(this.description);
         clonedRating.setPoints(this.points);
         return clonedRating;
+    }
+
+    @Override
+    public Metadata getModified() {
+        return metadata;
+    }
+
+    @Override
+    public void setModified(Metadata metadata) {
+        this.metadata = metadata;
     }
 }

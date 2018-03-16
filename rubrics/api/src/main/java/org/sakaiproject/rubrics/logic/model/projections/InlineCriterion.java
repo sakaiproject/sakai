@@ -22,12 +22,14 @@
 
 package org.sakaiproject.rubrics.logic.model.projections;
 
-import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import java.util.List;
+
 import org.sakaiproject.rubrics.logic.model.Criterion;
+import org.sakaiproject.rubrics.logic.model.Metadata;
 import org.sakaiproject.rubrics.logic.model.Rating;
 import org.springframework.data.rest.core.config.Projection;
 
-import java.util.List;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 @Projection(name = "inlineCriterion", types = { Criterion.class })
 @JsonPropertyOrder({"id", "title", "description", "metadata", "ratings"})
@@ -41,5 +43,5 @@ public interface InlineCriterion {
 
     List<Rating> getRatings();
 
-    Criterion.Metadata getMetadata();
+    Metadata getMetadata();
 }

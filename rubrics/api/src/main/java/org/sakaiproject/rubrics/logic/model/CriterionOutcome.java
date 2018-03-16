@@ -45,18 +45,16 @@ import javax.persistence.UniqueConstraint;
 import java.io.Serializable;
 import java.util.List;
 
-@Data
-@NoArgsConstructor
 @AllArgsConstructor
 @Entity
+@Data
+@NoArgsConstructor
 @Table(name = "rbc_criterion_outcome")
-/*@JsonPropertyOrder({"id", "evaluator_id", "evaluated_item_id", "evaluated_item_owner_id", "overallComment",
-        "criterionOutcomes", "metadata"})*/
 public class CriterionOutcome implements Serializable {
 
         @Id
-        @SequenceGenerator(name="rbc_crit_out_seq", sequenceName = "rbc_crit_out_seq")
         @GeneratedValue(strategy = GenerationType.AUTO, generator = "rbc_crit_out_seq")
+        @SequenceGenerator(name="rbc_crit_out_seq", sequenceName = "rbc_crit_out_seq")
         private Long id;
 
         @Column(name = "criterion_id")
@@ -69,6 +67,7 @@ public class CriterionOutcome implements Serializable {
         @Column(name = "selected_rating_id")
         private Long selectedRatingId;
 
+        @Column(nullable = false)
         private boolean pointsAdjusted;
 
         @NonNull

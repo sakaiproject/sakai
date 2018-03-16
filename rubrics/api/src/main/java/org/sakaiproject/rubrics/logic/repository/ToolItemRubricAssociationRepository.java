@@ -34,7 +34,7 @@ import org.springframework.data.rest.core.annotation.RestResource;
 import org.springframework.security.access.prepost.PreAuthorize;
 
 @RepositoryRestResource(collectionResourceRel = "rubric-associations", path = "rubric-associations")
-public interface ToolItemRubricAssociationRepository extends BaseResourceRepository<ToolItemRubricAssociation, Long> {
+public interface ToolItemRubricAssociationRepository extends MetadataRepository<ToolItemRubricAssociation, Long> {
 
     @Override
     @PreAuthorize("canRead(#id, 'ToolItemRubricAssociation')")
@@ -49,12 +49,10 @@ public interface ToolItemRubricAssociationRepository extends BaseResourceReposit
     void delete(Long id);
 
     @RestResource(path = "by-tool-item-ids", rel = "by-tool-item-ids")
-    @Query("select resource from ToolItemRubricAssociation resource where resource.toolId = :toolId " +
-            "and resource.itemId = :itemId and " + QUERY_CONTEXT_CONSTRAINT)
+    @Query("select resource from ToolItemRubricAssociation resource where resource.toolId = :toolId and resource.itemId = :itemId and " + QUERY_CONTEXT_CONSTRAINT)
     List<ToolItemRubricAssociation> findByToolIdAndItemId(@Param("toolId") String toolId, @Param("itemId") String itemId);
 
     @RestResource(path = "by-rubric-id", rel = "by-rubric-id")
-    @Query("select resource from ToolItemRubricAssociation resource where resource.rubricId = :rubricId " +
-            "and " + QUERY_CONTEXT_CONSTRAINT)
+    @Query("select resource from ToolItemRubricAssociation resource where resource.rubricId = :rubricId and " + QUERY_CONTEXT_CONSTRAINT)
     List<ToolItemRubricAssociation> findByRubricId(@Param("rubricId") String rubricId);
 }

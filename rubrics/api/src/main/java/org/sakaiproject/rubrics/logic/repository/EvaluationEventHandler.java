@@ -27,11 +27,11 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import lombok.extern.slf4j.Slf4j;
 import org.sakaiproject.rubrics.logic.exception.UnprocessableEntityException;
 import org.sakaiproject.rubrics.logic.model.Criterion;
 import org.sakaiproject.rubrics.logic.model.CriterionOutcome;
 import org.sakaiproject.rubrics.logic.model.Evaluation;
+import org.sakaiproject.rubrics.logic.model.Metadata;
 import org.sakaiproject.rubrics.logic.model.Rubric;
 import org.sakaiproject.rubrics.logic.model.ToolItemRubricAssociation;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,6 +39,8 @@ import org.springframework.data.rest.core.annotation.HandleBeforeCreate;
 import org.springframework.data.rest.core.annotation.HandleBeforeSave;
 import org.springframework.data.rest.core.annotation.RepositoryEventHandler;
 import org.springframework.stereotype.Component;
+
+import lombok.extern.slf4j.Slf4j;
 
 @Component
 @RepositoryEventHandler(Evaluation.class)
@@ -71,12 +73,12 @@ public class EvaluationEventHandler {
                         "Evaluation Criterion Outcomes do not match number and IDs of Rubric Criterions.");
             }
             if (evaluation.getMetadata() == null){
-                Evaluation.Metadata metadata = new Evaluation.Metadata();
+                Metadata metadata = new Metadata();
                 metadata.setCreated(LocalDateTime.now());
                 metadata.setModified(LocalDateTime.now());
                 evaluation.setMetadata(metadata);
             }else{
-                Evaluation.Metadata metadata = evaluation.getMetadata();
+                Metadata metadata = evaluation.getMetadata();
                 metadata.setModified(LocalDateTime.now());
                 evaluation.setMetadata(metadata);
             }

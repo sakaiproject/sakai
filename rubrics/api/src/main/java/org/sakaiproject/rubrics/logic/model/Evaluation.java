@@ -22,16 +22,13 @@
 
 package org.sakaiproject.rubrics.logic.model;
 
-import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.NonNull;
-
+import java.io.Serializable;
+import java.util.List;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
-import javax.persistence.Embeddable;
+import javax.persistence.Embedded;
 import javax.persistence.Entity;
+import javax.persistence.EntityListeners;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -42,19 +39,27 @@ import javax.persistence.OneToMany;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
-import java.io.Serializable;
-import java.util.List;
 
-@Data
-@NoArgsConstructor
+import org.sakaiproject.rubrics.logic.listener.MetadataListener;
+
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.NonNull;
+
 @AllArgsConstructor
+@Data
 @Entity
+@EntityListeners(MetadataListener.class)
+@JsonPropertyOrder({"id", "evaluator_id", "evaluated_item_id", "evaluated_item_owner_id", "overallComment",
+        "criterionOutcomes", "metadata"})
+@NoArgsConstructor
 @Table(name = "rbc_evaluation",
     uniqueConstraints = @UniqueConstraint(columnNames = { "association_id", "evaluated_item_id", "evaluator_id" })
 )
-@JsonPropertyOrder({"id", "evaluator_id", "evaluated_item_id", "evaluated_item_owner_id", "overallComment",
-        "criterionOutcomes", "metadata"})
-public class Evaluation extends BaseResource<Evaluation.Metadata> implements Serializable {
+public class Evaluation implements Modifiable, Serializable {
 
     @Id
     @SequenceGenerator(name="rbc_eval_seq", sequenceName = "rbc_eval_seq")
@@ -83,14 +88,16 @@ public class Evaluation extends BaseResource<Evaluation.Metadata> implements Ser
     @JoinTable(name = "rbc_eval_criterion_outcomes")
     private List<CriterionOutcome> criterionOutcomes;
 
-    public Metadata getMetadata() {
-        if (this.metadata == null) {
-            this.metadata = new Metadata(); //initialize only if not set by reflection based utility like JPA or Jackson
-        }
-        return this.metadata;
+    @Embedded
+    private Metadata metadata;
+
+    @Override
+    public Metadata getModified() {
+        return metadata;
     }
 
-    @Embeddable
-    public static class Metadata extends BaseMetadata { }
-
+    @Override
+    public void setModified(Metadata metadata) {
+        this.metadata = metadata;
+    }
 }

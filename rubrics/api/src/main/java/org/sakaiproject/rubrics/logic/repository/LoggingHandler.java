@@ -13,19 +13,21 @@ import org.springframework.stereotype.Component;
 @Component
 public class LoggingHandler {
 
-    Logger log = LoggerFactory.getLogger(this.getClass());
+    Logger log = LoggerFactory.getLogger(LoggingHandler.class);
 
     @Pointcut("this(org.springframework.data.repository.Repository)")
-    public void repository() { }
+    public void repository() {
+    }
 
     @Pointcut("execution(* *.*(..))")
-    protected void allMethod() { }
+    protected void allMethod() {
+    }
 
     //before -> Any resource annotated with @Repository annotation and all method and function
     @Before("repository() && allMethod()")
     public void logBefore(JoinPoint joinPoint) {
         log.debug("Entering in Method :  " + joinPoint.getSignature().getName() + " at " + System.currentTimeMillis());
-		Object[] args = joinPoint.getArgs();
+        Object[] args = joinPoint.getArgs();
         for (int argIndex = 0; argIndex < args.length; argIndex++) {
             log.debug("  " + argIndex + " = " + args[argIndex]);
         }

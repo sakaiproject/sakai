@@ -34,7 +34,7 @@ import org.springframework.data.rest.core.annotation.RestResource;
 import org.springframework.security.access.prepost.PreAuthorize;
 
 @RepositoryRestResource(collectionResourceRel = "evaluations", path = "evaluations")
-public interface EvaluationRepository extends BaseResourceRepository<Evaluation, Long> {
+public interface EvaluationRepository extends MetadataRepository<Evaluation, Long> {
 
     static final String EVALUATOR_CONSTRAINT = "(1 = ?#{principal.isEvaluator() ? 1 : 0} and " +
             QUERY_CONTEXT_CONSTRAINT + ")";

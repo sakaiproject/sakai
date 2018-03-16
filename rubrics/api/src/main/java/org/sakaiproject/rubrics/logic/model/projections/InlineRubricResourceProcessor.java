@@ -17,7 +17,6 @@ package org.sakaiproject.rubrics.logic.model.projections;
 
 import org.springframework.hateoas.Resource;
 import org.springframework.hateoas.ResourceProcessor;
-import org.springframework.stereotype.Component;
 
 /**
  * This redundancy with {@link org.sakaiproject.rubrics.logic.impl.repository.RubricResourceProcessor} is an unfortunate necessity

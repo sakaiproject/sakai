@@ -22,34 +22,42 @@
 
 package org.sakaiproject.rubrics.logic.model;
 
+import java.time.LocalDateTime;
+import javax.persistence.Column;
+import javax.persistence.Embeddable;
+import javax.persistence.Transient;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
-import lombok.Data;
 
-import javax.persistence.MappedSuperclass;
-import java.time.LocalDateTime;
+import lombok.Data;
 
 /**
  * Base type for representing the core metadata common to all resources.
  */
-@MappedSuperclass
 @Data
-public class BaseMetadata {
+@Embeddable
+public class Metadata {
 
     @JsonSerialize(using = LocalDateTimeSerializer.class)
     @JsonDeserialize(using = LocalDateTimeDeserializer.class)
-    protected LocalDateTime created;
+    private LocalDateTime created;
 
     @JsonSerialize(using = LocalDateTimeSerializer.class)
     @JsonDeserialize(using = LocalDateTimeDeserializer.class)
-    protected LocalDateTime modified;
-    protected String ownerId;
-    protected String ownerType;
-    protected String creatorId;
+    private LocalDateTime modified;
+    private String ownerId;
+    private String ownerType;
+    private String creatorId;
 
-    @JsonIgnore
-    protected boolean shared;
+    @JsonProperty("public")
+    @Column(name = "shared", nullable = false)
+    private boolean shared;
+
+    @Transient
+    private boolean locked;
 }
