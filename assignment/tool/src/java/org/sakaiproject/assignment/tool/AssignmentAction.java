@@ -352,6 +352,10 @@ public class AssignmentAction extends PagedResourceActionII {
     /*********************** Sort by user sort name *****************************************/
     private static final String SORTED_USER_BY_SORTNAME = "sorted_user_by_sortname";
     /**
+     * filter by group in assignments list
+     */
+    private static final String FILTER_BY_GROUP = "filterByGroup";
+     /**
      * the assignment object been viewing *
      */
     private static final String VIEW_SUBMISSION_ASSIGNMENT_REFERENCE = "Assignment.view_submission_assignment_reference";
@@ -873,6 +877,7 @@ public class AssignmentAction extends PagedResourceActionII {
      * Site property for forcing anonymous grading in a site
      */
     private static final String SAK_PROP_FORCE_ANON_GRADING = "assignment.anon.grading.forced";
+
     private static final String FLAG_ON = "on";
     private static final String FLAG_TRUE = "true";
     private static final String FLAG_NEXT = "next";
@@ -2279,6 +2284,13 @@ public class AssignmentAction extends PagedResourceActionII {
             Collection groups = getAllGroupsInSite(contextString);
 
             context.put("groups", (groups != null && groups.size() > 0) ? Boolean.TRUE : Boolean.FALSE);
+
+            boolean groupFilterEnabled = serverConfigurationService.getBoolean(PROP_ASSIGNMENT_GROUP_FILTER_ENABLED, false);
+            context.put("groupFilterEnabled", groupFilterEnabled);
+            if(groupFilterEnabled){
+                User user = (User) state.getAttribute(STATE_USER);
+                context.put("groupListWhereIsMember", new SortedIterator(site.getGroupsWithMember(user.getId()).iterator(), new AssignmentComparator(state, SORTED_BY_GROUP_TITLE, Boolean.TRUE.toString())));
+            }
 
             // add active user list
             AuthzGroup realm = authzGroupService.getAuthzGroup(siteService.siteReference(contextString));
@@ -5041,6 +5053,19 @@ public class AssignmentAction extends PagedResourceActionII {
             }
         }
     } // integrateGradebook
+
+    /**
+     * Filter the assignments list by group
+     */
+    public void doFilterByGroup(RunData data) {
+        SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
+
+        resetPaging(state);
+        state.setAttribute(STATE_MODE, MODE_LIST_ASSIGNMENTS);
+        state.setAttribute(SORTED_BY, SORTED_BY_DEFAULT);
+        state.setAttribute(SORTED_ASC, Boolean.TRUE.toString());
+        state.setAttribute(FILTER_BY_GROUP, (String) data.getParameters().getString(FILTER_BY_GROUP));
+    } // doFilterByGroup
 
     /**
      * Go to the instructor view
@@ -11784,6 +11809,7 @@ public class AssignmentAction extends PagedResourceActionII {
         switch (mode) {
             case MODE_LIST_ASSIGNMENTS:
                 String view = (String) state.getAttribute(STATE_SELECTED_VIEW);
+                String selectedGroup = (String) state.getAttribute(FILTER_BY_GROUP);
 
                 if (allowAddAssignment && (MODE_LIST_ASSIGNMENTS).equals(view)) {
                     // read all Assignments
@@ -11813,6 +11839,11 @@ public class AssignmentAction extends PagedResourceActionII {
                 } else {
                     // read all Assignments
                     returnResources.addAll(assignmentService.getAssignmentsForContext((String) state.getAttribute(STATE_CONTEXT_STRING)));
+                }
+
+                //Filter assignments by group
+                if(StringUtils.isNotEmpty(selectedGroup) && !"all".equals(selectedGroup)){
+                    returnResources = ((List<Assignment>)returnResources).stream().filter(a -> a.getGroups().stream().anyMatch(g -> g.endsWith(selectedGroup))).collect(Collectors.toList());
                 }
 
                 state.setAttribute(HAS_MULTIPLE_ASSIGNMENTS, returnResources.size() > 1);
