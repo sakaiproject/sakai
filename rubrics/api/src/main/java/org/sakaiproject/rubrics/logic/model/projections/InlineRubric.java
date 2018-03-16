@@ -22,14 +22,15 @@
 
 package org.sakaiproject.rubrics.logic.model.projections;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import java.util.List;
 
+import org.sakaiproject.rubrics.logic.model.Metadata;
 import org.sakaiproject.rubrics.logic.model.Rubric;
 import org.sakaiproject.rubrics.logic.model.ToolItemRubricAssociation;
 import org.springframework.data.rest.core.config.Projection;
 
-import java.util.List;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 @Projection(name = "inlineRubric", types = { Rubric.class })
 @JsonPropertyOrder({"id", "title", "description", "metadata", "criterions"})
@@ -43,7 +44,7 @@ public interface InlineRubric {
 
     List<InlineCriterion> getCriterions();
 
-    Rubric.Metadata getMetadata();
+    Metadata getMetadata();
 
     @JsonIgnore
     List<ToolItemRubricAssociation> getToolItemAssociations();

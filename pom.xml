@@ -180,7 +180,7 @@
                 <module>reset-pass</module>
                 <module>roster2</module>
                 <module>rss</module>
-                <!--<module>rubrics</module>-->
+                <module>rubrics</module>
                 <module>rwiki</module>
                 <module>tags</module>
                 <module>samigo</module>

@@ -26,16 +26,16 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.sakaiproject.rubrics.logic.AuthenticatedRequestContext;
-import org.sakaiproject.rubrics.logic.model.BaseResource;
+import org.sakaiproject.rubrics.logic.Role;
 import org.sakaiproject.rubrics.logic.model.Criterion;
 import org.sakaiproject.rubrics.logic.model.Evaluation;
+import org.sakaiproject.rubrics.logic.model.Modifiable;
 import org.sakaiproject.rubrics.logic.model.Rating;
-import org.sakaiproject.rubrics.logic.Role;
 import org.sakaiproject.rubrics.logic.model.Rubric;
 import org.sakaiproject.rubrics.logic.model.ToolItemRubricAssociation;
-import org.sakaiproject.rubrics.logic.repository.BaseResourceRepository;
 import org.sakaiproject.rubrics.logic.repository.CriterionRepository;
 import org.sakaiproject.rubrics.logic.repository.EvaluationRepository;
+import org.sakaiproject.rubrics.logic.repository.MetadataRepository;
 import org.sakaiproject.rubrics.logic.repository.RatingRepository;
 import org.sakaiproject.rubrics.logic.repository.RubricRepository;
 import org.sakaiproject.rubrics.logic.repository.ToolItemRubricAssociationRepository;
@@ -51,11 +51,11 @@ import org.springframework.security.core.Authentication;
  * Within rubrics, only <em>Editors</em> can create and modify rubric resources, with two exceptions:
  * <em>Associators</em> are the only ones who can create and modify {@link ToolItemRubricAssociation}s and
  * <em>Evaluators</em> are the only ones who can create and modify {@link Evaluation}s.</p>
- *
+ * <p>
  * <p>In all cases, resources are associated with an owning context and the requester must be accessing from within
  * that context (or at least the integrating partner tool must create an access token representing that the bearer
  * has appropriate roles in that context).</p>
- *
+ * <p>
  * <p>There is one special exception to the requirement that all requests must be scoped to a single owning context, and
  * that is the case where a special context ID of <code>*</code> is provided, which grants access to resources in all
  * owning contexts of the provided context type. The token exists to support administrative functions like deep copying
@@ -63,12 +63,11 @@ import org.springframework.security.core.Authentication;
  * resources in the exact two contexts for each copy would be prohibitive on the client. We stopped short of creating an
  * Admin role with all access since the required use case what we are aware of is quite constrained.</p>
  */
-public class CustomMethodSecurityExpressionRoot extends SecurityExpressionRoot
-        implements MethodSecurityExpressionOperations {
+public class CustomMethodSecurityExpressionRoot extends SecurityExpressionRoot implements MethodSecurityExpressionOperations {
 
     private static final String DEFAULT_RESOURCE_COPY_ID = "default";
 
-    private final Map<String, BaseResourceRepository<? extends BaseResource, Long>> repositories;
+    private final Map<String, MetadataRepository<? extends Modifiable, Long>> repositories;
 
     private AuthenticatedRequestContext authenticatedRequestContext;
 
@@ -89,35 +88,31 @@ public class CustomMethodSecurityExpressionRoot extends SecurityExpressionRoot
     }
 
     /**
-     *
      * @param resourceId
      * @param resourceType
      * @return
      */
     public boolean canRead(Long resourceId, String resourceType) {
-        BaseResource resource = repositories.get(resourceType).findOne(resourceId);
-        boolean result = resource.getMetadata().isShared()
-                || isAuthorizedToAccessContextResource(resourceId, resourceType);
-        if (result) {
-            result = verifyResourceSpecificReadRules(resource);
-        }
+        Modifiable resource = repositories.get(resourceType).findOne(resourceId);
+        boolean result = resource.getModified().isShared() || isAuthorizedToAccessContextResource(resourceId, resourceType);
+        if (result) result = verifyResourceSpecificReadRules(resource);
         return result;
     }
 
     public boolean canWrite(Long resourceId, String resourceType) {
         boolean result = false;
         if (resourceId == null || isAuthorizedToAccessContextResource(resourceId, resourceType)) {
-            result = authenticatedRequestContext.getAuthorities().stream().anyMatch(
-                    authority -> Role.valueOf(authority.getAuthority()).canCreateOrEdit(resourceType));
-        };
+            result = authenticatedRequestContext.getAuthorities().stream()
+                    .anyMatch(authority -> Role.valueOf(authority.getAuthority()).canCreateOrEdit(resourceType));
+        }
         return result;
     }
 
-    public <T extends BaseResource> boolean canRead(T resource) {
+    public <T extends Modifiable> boolean canRead(T resource) {
         return canRead(resource.getId(), resource.getClass().getSimpleName());
     }
 
-    public <T extends BaseResource> boolean canWrite(T resource) {
+    public <T extends Modifiable> boolean canWrite(T resource) {
         return canWrite(resource.getId(), resource.getClass().getSimpleName());
     }
 
@@ -144,18 +139,19 @@ public class CustomMethodSecurityExpressionRoot extends SecurityExpressionRoot
     private boolean isAuthorizedToAccessContextResource(Long resourceId, String resourceType) {
         boolean allowed = authenticatedRequestContext.isSuperUser();
         if (!allowed) {
-            BaseResource resource = repositories.get(resourceType).findOne(resourceId);
-            allowed = resource.getMetadata().getOwnerId().equalsIgnoreCase(
+            Modifiable resource = repositories.get(resourceType).findOne(resourceId);
+            allowed = resource.getModified().getOwnerId().equalsIgnoreCase(
                     authenticatedRequestContext.getContextId())
-                    && resource.getMetadata().getOwnerType().equalsIgnoreCase(
+                    && resource.getModified().getOwnerType().equalsIgnoreCase(
                     authenticatedRequestContext.getContextType())
-                    || resource.getMetadata().getCreatorId().equalsIgnoreCase(authenticatedRequestContext.getUserId());
+                    || resource.getModified().getCreatorId().equalsIgnoreCase(authenticatedRequestContext.getUserId());
         }
         return allowed;
     }
 
     /**
      * Applies resource type specific read access rules, after the broader context checks have occurred.
+     *
      * @param resource
      * @return
      */
@@ -174,10 +170,9 @@ public class CustomMethodSecurityExpressionRoot extends SecurityExpressionRoot
                 result = true; // All evaluators in a context can view all evaluations
                 // NOTE: TBD Peer evaluators will require a more limited access to only their evaluations or a sub-context/group
                 // result = authenticatedRequestContext.getUserId().equalsIgnoreCase(((Evaluation)resource).getEvaluatorId());
-            }
-            else if (authenticatedRequestContext.isEvalueeOnly()) {
+            } else if (authenticatedRequestContext.isEvalueeOnly()) {
                 // Can always see Evaluation that they are evaluatedId on
-                result = authenticatedRequestContext.getUserId().equalsIgnoreCase(((Evaluation)resource).getEvaluatedItemOwnerId());
+                result = authenticatedRequestContext.getUserId().equalsIgnoreCase(((Evaluation) resource).getEvaluatedItemOwnerId());
             }
         } else if (ToolItemRubricAssociation.class.isInstance(resource)) {
             result = true; //All roles in the context can view associations, associated rubric data may be filtered though
@@ -186,22 +181,22 @@ public class CustomMethodSecurityExpressionRoot extends SecurityExpressionRoot
     }
 
     @Override
-    public void setFilterObject(Object o) {
-        throw new UnsupportedOperationException("Not implemented");
-    }
-
-    @Override
     public Object getFilterObject() {
         throw new UnsupportedOperationException("Not implemented");
     }
 
     @Override
-    public void setReturnObject(Object o) {
+    public void setFilterObject(Object o) {
         throw new UnsupportedOperationException("Not implemented");
     }
 
     @Override
     public Object getReturnObject() {
+        throw new UnsupportedOperationException("Not implemented");
+    }
+
+    @Override
+    public void setReturnObject(Object o) {
         throw new UnsupportedOperationException("Not implemented");
     }
 

@@ -29,6 +29,7 @@
                 <value>org.sakaiproject.rubrics.logic.model.Rating</value>
                 <value>org.sakaiproject.rubrics.logic.model.Rubric</value>
                 <value>org.sakaiproject.rubrics.logic.model.ToolItemRubricAssociation</value>
+                <value>org.sakaiproject.rubrics.logic.listener.MetadataListener</value>
             </list>
         </property>
     </bean>

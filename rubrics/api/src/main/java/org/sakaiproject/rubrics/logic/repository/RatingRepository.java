@@ -30,7 +30,7 @@ import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 import org.springframework.security.access.prepost.PreAuthorize;
 
 @RepositoryRestResource(collectionResourceRel = "ratings", path = "ratings")
-public interface RatingRepository extends BaseResourceRepository<Rating, Long> {
+public interface RatingRepository extends MetadataRepository<Rating, Long> {
 
     @Override
     @PreAuthorize("canRead(#id, 'Rating')")

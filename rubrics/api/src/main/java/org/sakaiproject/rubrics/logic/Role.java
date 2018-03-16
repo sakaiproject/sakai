@@ -19,7 +19,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import org.sakaiproject.rubrics.logic.model.BaseResource;
 import org.sakaiproject.rubrics.logic.model.Criterion;
 import org.sakaiproject.rubrics.logic.model.Evaluation;
 import org.sakaiproject.rubrics.logic.model.Rating;
@@ -35,9 +34,9 @@ public enum Role {
     ROLE_SUPERUSER ("rbcs.superuser", Collections.emptyList());
 
     private String permissionKey;
-    private List<Class<? extends BaseResource>> authorizedToCreateOrEditResources;
+    private List<Class> authorizedToCreateOrEditResources;
 
-    Role(String permissionKey, List<Class<? extends BaseResource>> authorizedToCreateOrEditResources) {
+    Role(String permissionKey, List<Class> authorizedToCreateOrEditResources) {
         this.permissionKey = permissionKey;
         this.authorizedToCreateOrEditResources = authorizedToCreateOrEditResources;
     }

@@ -22,7 +22,9 @@
 
 package org.sakaiproject.rubrics.logic.repository;
 
-import org.sakaiproject.rubrics.logic.model.BaseResource;
+import java.io.Serializable;
+
+import org.sakaiproject.rubrics.logic.model.Modifiable;
 import org.springframework.data.repository.NoRepositoryBean;
 import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.data.repository.query.Param;
@@ -30,14 +32,10 @@ import org.springframework.data.rest.core.annotation.RestResource;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 
-import java.io.Serializable;
-
 @NoRepositoryBean
-public interface BaseResourceRepository<T extends BaseResource, ID extends Serializable>
-        extends PagingAndSortingRepository<T, ID> {
+public interface MetadataRepository<T extends Modifiable, ID extends Serializable> extends PagingAndSortingRepository<T, ID> {
 
-    static final String QUERY_CONTEXT_CONSTRAINT = "(resource.metadata.ownerId = ?#{principal.contextId} " +
-            "or 1 = ?#{principal.isSuperUser() ? 1 : 0})";
+    static final String QUERY_CONTEXT_CONSTRAINT = "(resource.metadata.ownerId = ?#{principal.contextId} or 1 = ?#{principal.isSuperUser() ? 1 : 0})";
 
     @Override
     @PreAuthorize("canWrite(#resource)")

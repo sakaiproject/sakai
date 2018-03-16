@@ -33,17 +33,24 @@ import org.sakaiproject.rubrics.logic.model.ToolItemRubricAssociation;
  */
 public interface RubricsService {
 
-    public boolean hasAssociatedRubric(String toolId, String associatedToolItemId);
+    boolean hasAssociatedRubric(String toolId,
+                                String associatedToolItemId);
 
-    public Optional<ToolItemRubricAssociation> getRubricAssociation(String toolId,
-                                                                    String associatedToolItemId) throws Exception;
+    Optional<ToolItemRubricAssociation> getRubricAssociation(String toolId,
+                                                             String associatedToolItemId) throws Exception;
 
-    public void saveRubricAssociation(String toolId, String associatedToolItemId, HashMap<String,String> params);
+    void saveRubricAssociation(String toolId,
+                               String associatedToolItemId,
+                               HashMap<String, String> params);
 
-    public void saveRubricEvaluation(String toolId, String associatedToolItemId, String evaluatedItemId,
-            String evaluatedItemOwnerId, String evaluatorId, HashMap<String,String> params);
+    void saveRubricEvaluation(String toolId,
+                              String associatedToolItemId,
+                              String evaluatedItemId,
+                              String evaluatedItemOwnerId,
+                              String evaluatorId,
+                              HashMap<String, String> params);
 
-    public String generateJsonWebToken(String tool);
+    String generateJsonWebToken(String tool);
 
-    public String generateLang();
+    String generateLang();
 }

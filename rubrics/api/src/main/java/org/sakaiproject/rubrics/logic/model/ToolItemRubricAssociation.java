@@ -22,16 +22,15 @@
 
 package org.sakaiproject.rubrics.logic.model;
 
-import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-
+import java.io.Serializable;
+import java.util.Map;
 import javax.persistence.CollectionTable;
 import javax.persistence.Column;
 import javax.persistence.ElementCollection;
 import javax.persistence.Embeddable;
+import javax.persistence.Embedded;
 import javax.persistence.Entity;
+import javax.persistence.EntityListeners;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -40,16 +39,23 @@ import javax.persistence.ManyToOne;
 import javax.persistence.MapKeyColumn;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
-import java.io.Serializable;
-import java.util.Map;
 
-@Data
-@NoArgsConstructor
+import org.sakaiproject.rubrics.logic.listener.MetadataListener;
+
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
 @AllArgsConstructor
+@Data
 @Entity
-@Table(name = "rbc_tool_item_rbc_assoc")
+@EntityListeners(MetadataListener.class)
 @JsonPropertyOrder({"id", "toolId", "itemId", "rubricId", "parameters", "metadata"})
-public class ToolItemRubricAssociation extends BaseResource<ToolItemRubricAssociation.Metadata> implements Serializable, Cloneable  {
+@NoArgsConstructor
+@Table(name = "rbc_tool_item_rbc_assoc")
+public class ToolItemRubricAssociation implements Modifiable, Serializable, Cloneable  {
 
     @Id
     @SequenceGenerator(name="rbc_tool_item_rbc_seq", sequenceName = "rbc_tool_item_rbc_seq")
@@ -66,15 +72,8 @@ public class ToolItemRubricAssociation extends BaseResource<ToolItemRubricAssoci
     @JoinColumn(name = "rubric_id", referencedColumnName = "id", insertable = false, updatable = false)
     private Rubric rubric;
 
-    public Metadata getMetadata() {
-        if (this.metadata == null) {
-            this.metadata = new Metadata(); //initialize only if not set by reflection based utility like JPA or Jackson
-        }
-        return this.metadata;
-    }
-
-    @Embeddable
-    public static class Metadata extends BaseMetadata { }
+    @Embedded
+    private Metadata metadata;
 
     @ElementCollection
     @CollectionTable(name = "rbc_tool_item_rbc_assoc_conf", joinColumns = @JoinColumn(name = "association_id", referencedColumnName = "id"))
@@ -88,5 +87,15 @@ public class ToolItemRubricAssociation extends BaseResource<ToolItemRubricAssoci
 
     public Boolean getParameter(String param) {
         return parameters.get(param);
+    }
+
+    @Override
+    public Metadata getModified() {
+        return metadata;
+    }
+
+    @Override
+    public void setModified(Metadata metadata) {
+        this.metadata = metadata;
     }
 }

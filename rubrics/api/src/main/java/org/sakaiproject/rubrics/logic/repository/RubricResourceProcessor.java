@@ -20,7 +20,7 @@ import org.springframework.hateoas.Resource;
 import org.springframework.hateoas.ResourceProcessor;
 
 /**
- * <em>WARNING: Must keep {@link org.sakaiproject.rubrics.logic.api.model.projections.InlineRubricResourceProcessor} in sync with
+ * <em>WARNING: Must keep {@link org.sakaiproject.rubrics.logic.model.projections.InlineRubricResourceProcessor} in sync with
  * any changes to this class.
  */
 public class RubricResourceProcessor implements ResourceProcessor<Resource<Rubric>> {

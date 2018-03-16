@@ -33,7 +33,7 @@ import org.springframework.data.rest.core.annotation.RestResource;
 import org.springframework.security.access.prepost.PreAuthorize;
 
 @RepositoryRestResource(collectionResourceRel = "rubrics", path = "rubrics")
-public interface RubricRepository extends BaseResourceRepository<Rubric, Long> {
+public interface RubricRepository extends MetadataRepository<Rubric, Long> {
 
     @Override
     @PreAuthorize("canRead(#id, 'Rubric')")

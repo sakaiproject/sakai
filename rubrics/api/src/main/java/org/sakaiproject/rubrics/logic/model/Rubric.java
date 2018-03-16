@@ -22,20 +22,13 @@
 
 package org.sakaiproject.rubrics.logic.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import org.springframework.data.rest.core.annotation.RestResource;
-
+import java.io.Serializable;
+import java.util.List;
+import java.util.stream.Collectors;
 import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Embeddable;
+import javax.persistence.Embedded;
 import javax.persistence.Entity;
+import javax.persistence.EntityListeners;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -46,21 +39,26 @@ import javax.persistence.OrderColumn;
 import javax.persistence.PostLoad;
 import javax.persistence.PostUpdate;
 import javax.persistence.SequenceGenerator;
-import javax.persistence.PrePersist;
 import javax.persistence.Table;
-import javax.persistence.Transient;
-import java.io.Serializable;
-import java.util.List;
-import java.util.stream.Collectors;
 
-@Setter
-@Getter
-@NoArgsConstructor
+import org.sakaiproject.rubrics.logic.listener.MetadataListener;
+import org.springframework.data.rest.core.annotation.RestResource;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
 @AllArgsConstructor
+@Data
 @Entity
-@Table(name = "rbc_rubric")
+@EntityListeners(MetadataListener.class)
 @JsonPropertyOrder({"id", "title", "description", "metadata"})
-public class Rubric extends BaseResource<Rubric.Metadata> implements Serializable, Cloneable {
+@NoArgsConstructor
+@Table(name = "rbc_rubric")
+public class Rubric implements Modifiable, Serializable, Cloneable {
 
     @Id
     @SequenceGenerator(name="rbc_seq",sequenceName = "rbc_seq")
@@ -80,34 +78,8 @@ public class Rubric extends BaseResource<Rubric.Metadata> implements Serializabl
     @JsonIgnore
     private List<ToolItemRubricAssociation> toolItemAssociations;
 
-    public Metadata getMetadata() {
-        if (this.metadata == null) {
-            this.metadata = new Metadata(); //initialize only if not set by reflection based utility like JPA or Jackson
-        }
-        return this.metadata;
-    }
-
-    @Data
-    @Embeddable
-    public static class Metadata extends BaseMetadata {
-
-        /**
-         * This shared field masks the @Transient version in the BaseMetadata and makes this one persistable.
-         */
-        @JsonProperty("public")
-        @Column(name = "shared", insertable = false, updatable = false)
-        private boolean shared;
-
-        @Transient
-        private boolean locked;
-    }
-
-    @PrePersist
-    protected void onCreate() {
-        super.onCreate();
-        this.getMetadata().setShared(false);
-        this.getMetadata().setLocked(false);
-    }
+    @Embedded
+    private Metadata metadata;
 
     @PostLoad
     @PostUpdate
@@ -137,5 +109,15 @@ public class Rubric extends BaseResource<Rubric.Metadata> implements Serializabl
             return clonedCriterion;
         }).collect(Collectors.toList()));
         return clonedRubric;
+    }
+
+    @Override
+    public Metadata getModified() {
+        return metadata;
+    }
+
+    @Override
+    public void setModified(Metadata metadata) {
+        this.metadata = metadata;
     }
 }

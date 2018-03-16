@@ -22,12 +22,13 @@
 
 package org.sakaiproject.rubrics.logic;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import java.util.ArrayList;
+import java.util.Collection;
+
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import java.util.ArrayList;
-import java.util.Collection;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 /**
  * Holds the info for a authenticated user (Principal)
  */
