@@ -1350,6 +1350,7 @@ input[type='reset'].linearButton {
 	margin: 0;
 	padding: 6px 12px;
 }
+
 .input-group-btn button.multiselect-clear-filter{
 	padding: 6px 12px;
 	font-size: 14px;
@@ -1358,4 +1359,9 @@ input[type='reset'].linearButton {
 }
 .multiselect-container.dropdown-menu {
 	z-index: 999;
+
+label#itemForm\:noFeedbackMsg {
+	font-weight: normal;
+	margin-left: 1em;
+	font-style: italic;
 }
