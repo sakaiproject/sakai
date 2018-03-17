@@ -1335,3 +1335,9 @@ input[type='reset'].linearButton {
 	margin: 0;
 	padding: 6px 12px;
 }
+
+label#itemForm\:noFeedbackMsg {
+	font-weight: normal;
+	margin-left: 1em;
+	font-style: italic;
+}
