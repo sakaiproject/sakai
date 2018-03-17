@@ -80,33 +80,31 @@
           $("body").height($("body").outerHeight() + 900);
 
           checkNav = function() {
-            QuesFormatRadios = ["assessmentSettingsAction\\:assessmentFormat\\:0", "assessmentSettingsAction\\:assessmentFormat\\:1", "assessmentSettingsAction\\:assessmentFormat\\:2"];
+              QuesFormatRadios = ["assessmentSettingsAction\\:assessmentFormat\\:0", "assessmentSettingsAction\\:assessmentFormat\\:1", "assessmentSettingsAction\\:assessmentFormat\\:2"];
 
-            if ($("#assessmentSettingsAction\\:itemNavigation\\:0:checked").val() != undefined) {
-              enabled=false;
-            } else {
-              enabled=true
-            }
+              enabled = true;
+              if ($("#assessmentSettingsAction\\:itemNavigation\\:0").is(":checked")) {
+                enabled = false;
+              }
 
-            if (enabled) {
-              QuesFormatRadios.forEach(function(v,i,a){
-                $('#assessmentSettingsAction\\:markForReview1').removeAttr("disabled");
-                $('#assessmentSettingsAction\\:markForReview1').parent().css("color", "#333");
-                $('label[for="'+v+'"]').css("color", "#333");
-                $('label[for="assessmentSettingsAction\\:assessmentFormat"]').css("color", "#333");
-                $("#"+v).removeAttr("disabled")
-              });
-            } else {
-              QuesFormatRadios.forEach(function(v,i,a){
-                $('#assessmentSettingsAction\\:markForReview1').attr("disabled", true);
-                $('#assessmentSettingsAction\\:markForReview1').attr("checked", false);
-                $('#assessmentSettingsAction\\:markForReview1').parent().css("color", "#aaa");
-                $('#assessmentSettingsAction\\:assessmentFormat\\:0').click();
-                $('label[for="'+v+'"]').css("color", "#aaa");
-                $("#"+v).attr("disabled", true)
-              });
-            }
-          }
+              if (enabled) {
+                  $('#assessmentSettingsAction\\:markForReview1').removeAttr("disabled");
+                  $('#assessmentSettingsAction\\:markForReview1').parent().toggleClass("placeholder");
+                  QuesFormatRadios.forEach( function(v, i, a) {
+                      $('label[for="' + v + '"]').toggleClass("placeholder");
+                      $("#" + v).removeAttr("disabled");
+                  });
+              } else {
+                  $('#assessmentSettingsAction\\:markForReview1').attr("disabled", true);
+                  $('#assessmentSettingsAction\\:markForReview1').attr("checked", false);
+                  $('#assessmentSettingsAction\\:markForReview1').parent().toggleClass("placeholder");
+                  QuesFormatRadios.forEach( function(v, i, a) {
+                      $('#assessmentSettingsAction\\:assessmentFormat\\:0').click();
+                      $('label[for="' + v + '"]').toggleClass("placeholder");
+                      $("#" + v).attr("disabled", true);
+                  });
+              }
+          };
 
           $('#assessmentSettingsAction\\:itemNavigation\\:0').change(checkNav);
           $('#assessmentSettingsAction\\:itemNavigation\\:1').change(checkNav);
