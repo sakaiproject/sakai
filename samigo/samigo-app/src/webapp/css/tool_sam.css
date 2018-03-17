@@ -507,7 +507,7 @@ a.hideDivision {
     color: #404040;
     font-family: Arial,Helvetica,sans-serif;
 }
-.placeholder
+.placeholder, form#assessmentSettingsAction label.placeholder
 {
   color: #aaa;
 }
