@@ -189,7 +189,11 @@ public class PortalUtils
 			Collection<AcademicSession> sessions = courseManagementService.getAcademicSessions();
 			for (AcademicSession s: sessions) {
 				String title = s.getTitle();
-				if (tabsMoreTerms != null && tabsMoreTerms.contains(title)) {
+				//Add this if the user doesn't specify to filter terms
+				if (tabsMoreTerms == null) {
+						tabsMoreSortedTermList.add(title);
+				}
+				else if (tabsMoreTerms.contains(title)) {
 					if (!tabsMoreSortedTermList.contains(title)) {
 						tabsMoreSortedTermList.add(title);
 					}
