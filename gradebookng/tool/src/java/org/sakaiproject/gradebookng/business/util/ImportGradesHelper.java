@@ -51,11 +51,8 @@ public class ImportGradesHelper {
 	public final static int USER_NAME_POS = 1;
 
 	// patterns for detecting column headers and their types
-	final static Pattern ASSIGNMENT_WITH_POINTS_PATTERN = Pattern.compile("([^\\*\\[\\]\\*]+\\[[0-9]+(\\.[0-9][0-9]?)?\\])");
-	final static Pattern ASSIGNMENT_COMMENT_PATTERN = Pattern.compile("(\\* .*)");
-	final static Pattern STANDARD_HEADER_PATTERN = Pattern.compile("([^\\*\\#\\$\\[\\]\\*]+)");
-	final static Pattern POINTS_PATTERN = Pattern.compile("(\\d+)(?=]$)");
-	final static Pattern IGNORE_PATTERN = Pattern.compile("(\\#.+)");
+	final static Pattern ASSIGNMENT_COMMENT_PATTERN = Pattern.compile("\\* (.*)$");
+	final static Pattern ASSIGNMENT_WITH_POINTS_PATTERN = Pattern.compile("^(.*) \\[([0-9]+(\\.[0-9][0-9]?)?)\\] *$");
 
 	// list of mimetypes for each category. Must be compatible with the parser
 	private static final String[] XLS_MIME_TYPES = { "application/vnd.ms-excel", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" };
@@ -128,7 +125,7 @@ public class ImportGradesHelper {
 			try {
 				reader.close();
 			} catch (final IOException e) {
-				e.printStackTrace();
+				log.warn("Error closing the reader", e);
 			}
 		}
 
@@ -522,59 +519,58 @@ public class ImportGradesHelper {
 
 		final ImportedColumn column = new ImportedColumn();
 
-		// assignment with points header
-		final Matcher m1 = ASSIGNMENT_WITH_POINTS_PATTERN.matcher(headerValue);
-		if (m1.matches()) {
-
-			// extract title and score
-			final Matcher titleMatcher = STANDARD_HEADER_PATTERN.matcher(headerValue);
-			final Matcher pointsMatcher = POINTS_PATTERN.matcher(headerValue);
-
-			if (titleMatcher.find()) {
-				column.setColumnTitle(trim(titleMatcher.group()));
-			}
-			if (pointsMatcher.find()) {
-				column.setPoints(pointsMatcher.group());
-			}
-
-			column.setType(ImportedColumn.Type.GB_ITEM_WITH_POINTS);
-
-			return column;
-		}
-
-		final Matcher m2 = ASSIGNMENT_COMMENT_PATTERN.matcher(headerValue);
-		if (m2.matches()) {
-
-			// extract title
-			final Matcher titleMatcher = STANDARD_HEADER_PATTERN.matcher(headerValue);
-
-			if (titleMatcher.find()) {
-				column.setColumnTitle(trim(titleMatcher.group()));
-			}
-			column.setType(ImportedColumn.Type.COMMENTS);
-
-			return column;
-		}
-
-		final Matcher m3 = IGNORE_PATTERN.matcher(headerValue);
-		if (m3.matches()) {
+		if (headerValue.startsWith("#")) {
 			log.info("Found header: " + headerValue + " but ignoring it as it is prefixed with a #.");
 			column.setType(ImportedColumn.Type.IGNORE);
 			return column;
 		}
 
-		final Matcher m5 = STANDARD_HEADER_PATTERN.matcher(headerValue);
-		if (m5.matches()) {
+		// Comment lines start with a "* "
+		Matcher m = ASSIGNMENT_COMMENT_PATTERN.matcher(headerValue);
+		if (m.matches()) {
 
-			column.setColumnTitle(headerValue);
-			column.setType(ImportedColumn.Type.GB_ITEM_WITHOUT_POINTS);
+			// extract title
+			columnSetColumnTitle(headerValue, m.group(1), column);
+			column.setType(ImportedColumn.Type.COMMENTS);
 
 			return column;
 		}
 
-		// if we got here, couldn't parse the column header, throw an error
-		throw new GbImportExportInvalidColumnException("Invalid column header: " + headerValue);
+		// assignment with points header - ends with a "[nn.nn]"
+		m = ASSIGNMENT_WITH_POINTS_PATTERN.matcher(headerValue);
+		if (m.matches()) {
 
+			// extract title and score
+			columnSetColumnTitle(headerValue, m.group(1), column);
+			column.setPoints(m.group(2));
+			column.setType(ImportedColumn.Type.GB_ITEM_WITH_POINTS);
+
+			return column;
+		}
+
+
+		// It's a standard columm
+		columnSetColumnTitle(headerValue, headerValue, column);
+		column.setType(ImportedColumn.Type.GB_ITEM_WITHOUT_POINTS);
+
+		return column;
+	}
+
+	/**
+	 * Helper to set a column title or raise an exception if empty
+	 * @param headerValue
+	 * @param title
+	 * @param column
+	 */
+	private static void columnSetColumnTitle(String headerValue, String title, ImportedColumn column)
+	{
+		title = trim(title);
+		if(title == null)
+		{
+			// Empty column title is invalid
+			throw new GbImportExportInvalidColumnException("Invalid column header: " + headerValue);
+		}
+		column.setColumnTitle(title);
 	}
 
 	/**

@@ -10,14 +10,11 @@ import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.link.Link;
-import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
-import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.gradebookng.business.GbCategoryType;
 import org.sakaiproject.gradebookng.business.GbRole;
-import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
 import org.sakaiproject.gradebookng.business.SortDirection;
 import org.sakaiproject.gradebookng.tool.component.GbAjaxLink;
 import org.sakaiproject.gradebookng.tool.model.GbModalWindow;
@@ -25,12 +22,9 @@ import org.sakaiproject.gradebookng.tool.model.GradebookUiSettings;
 import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
 import org.sakaiproject.tool.gradebook.Gradebook;
 
-public class CourseGradeColumnHeaderPanel extends Panel {
+public class CourseGradeColumnHeaderPanel extends BasePanel {
 
 	private static final long serialVersionUID = 1L;
-
-	@SpringBean(name = "org.sakaiproject.gradebookng.business.GradebookNgBusinessService")
-	protected GradebookNgBusinessService businessService;
 
 	IModel<Boolean> model;
 
@@ -82,8 +76,8 @@ public class CourseGradeColumnHeaderPanel extends Panel {
 		}
 		add(title);
 
-		final Gradebook gradebook = this.businessService.getGradebook();
-		final GbRole role = this.businessService.getUserRole();
+		final Gradebook gradebook = getGradebook();
+		final GbRole role = getUserRole();
 
 		final GbCategoryType categoryType = GbCategoryType.valueOf(gradebook.getCategory_type());
 

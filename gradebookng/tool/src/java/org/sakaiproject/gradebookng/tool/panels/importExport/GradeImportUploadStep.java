@@ -11,11 +11,8 @@ import org.apache.wicket.markup.html.form.Button;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.upload.FileUpload;
 import org.apache.wicket.markup.html.form.upload.FileUploadField;
-import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.Model;
-import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.apache.wicket.util.lang.Bytes;
-import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
 import org.sakaiproject.gradebookng.business.exception.GbImportCommentMissingItemException;
 import org.sakaiproject.gradebookng.business.exception.GbImportExportDuplicateColumnException;
 import org.sakaiproject.gradebookng.business.exception.GbImportExportInvalidColumnException;
@@ -27,23 +24,21 @@ import org.sakaiproject.gradebookng.business.util.ImportGradesHelper;
 import org.sakaiproject.gradebookng.tool.model.ImportWizardModel;
 import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
 import org.sakaiproject.gradebookng.tool.pages.ImportExportPage;
+import org.sakaiproject.gradebookng.tool.panels.BasePanel;
 import org.sakaiproject.service.gradebook.shared.Assignment;
 import org.sakaiproject.user.api.User;
 
-import au.com.bytecode.opencsv.CSVWriter;
 import lombok.extern.slf4j.Slf4j;
 
 /**
  * Upload/Download page
  */
 @Slf4j
-public class GradeImportUploadStep extends Panel {
+public class GradeImportUploadStep extends BasePanel {
+
 	private static final long serialVersionUID = 1L;
 
 	private final String panelId;
-
-	@SpringBean(name = "org.sakaiproject.gradebookng.business.GradebookNgBusinessService")
-	private GradebookNgBusinessService businessService;
 
 	public GradeImportUploadStep(final String id) {
 		super(id);
@@ -103,20 +98,20 @@ public class GradeImportUploadStep extends Panel {
 				try {
 					spreadsheetWrapper = ImportGradesHelper.parseImportedGradeFile(upload.getInputStream(), upload.getContentType(), upload.getClientFileName(), userMap);
 				} catch (final GbImportExportInvalidColumnException e) {
-					log.debug("GBNG import error", e);
-					error(getString("importExport.error.incorrectformat"));
+					log.debug("incorrect format", e);
+					error(getString("importExport.error.incorrectformat")+" - "+e.getMessage());
 					return;
 				} catch (final GbImportExportInvalidFileTypeException | InvalidFormatException e) {
-					log.debug("GBNG import error", e);
-					error(getString("importExport.error.incorrecttype"));
+					log.debug("incorrect type", e);
+					error(getString("importExport.error.incorrecttype")+" - "+e.getMessage());
 					return;
 				} catch (final GbImportExportDuplicateColumnException e) {
-					log.debug("GBNG import error", e);
-					error(getString("importExport.error.duplicatecolumn"));
+					log.debug("duplicate column", e);
+					error(getString("importExport.error.duplicatecolumn")+" - "+e.getMessage());
 					return;
 				} catch (final IOException e) {
-					log.debug("GBNG import error", e);
-					error(getString("importExport.error.unknown"));
+					log.debug("unknown", e);
+					error(getString("importExport.error.unknown")+" - "+e.getMessage());
 					return;
 				}
 
@@ -135,7 +130,8 @@ public class GradeImportUploadStep extends Panel {
 					processedGradeItems = ImportGradesHelper.processImportedGrades(spreadsheetWrapper, assignments, grades);
 				} catch (final GbImportCommentMissingItemException e) {
 					// TODO would be good if we could show the column here, but would have to return it
-					error(getString("importExport.error.commentnoitem"));
+					log.debug("commentnoitem", e);
+					error(getString("importExport.error.commentnoitem")+" - "+e.getMessage());
 					return;
 				}
 				// if empty there are no users

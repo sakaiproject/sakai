@@ -5,6 +5,7 @@ import java.util.Locale;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.wicket.AttributeModifier;
+import org.apache.wicket.RestartResponseException;
 import org.apache.wicket.behavior.AttributeAppender;
 import org.apache.wicket.markup.head.CssHeaderItem;
 import org.apache.wicket.markup.head.IHeaderResponse;
@@ -17,10 +18,12 @@ import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.link.Link;
 import org.apache.wicket.model.Model;
+import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.gradebookng.business.GbRole;
 import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
+import org.sakaiproject.gradebookng.business.exception.GbAccessDeniedException;
 import org.sakaiproject.gradebookng.tool.component.GbFeedbackPanel;
 
 import lombok.extern.slf4j.Slf4j;
@@ -61,7 +64,12 @@ public class BasePage extends WebPage {
 
 		// setup some data that can be shared across all pages
 		this.currentUserUuid = this.businessService.getCurrentUser().getId();
-		this.role = this.businessService.getUserRole();
+		try {
+			this.role = this.businessService.getUserRole();
+		} catch (final GbAccessDeniedException e) {
+			log.error("Error getting user role", e);
+			// do not redirect here, let the subclasses handle this!
+		}
 
 		// set locale
 		setUserPreferredLocale();
@@ -250,5 +258,16 @@ public class BasePage extends WebPage {
 		final Locale locale = this.businessService.getUserPreferredLocale();
 		log.debug("User preferred locale: " + locale);
 		getSession().setLocale(locale);
+	}
+
+	/**
+	 * Send a user to the access denied page with a message
+	 * @param message the message
+	 */
+	public void sendToAccessDeniedPage(final String message){
+		final PageParameters params = new PageParameters();
+		params.add("message", message);
+		log.debug("Redirecting to AccessDeniedPage: " + message);
+		throw new RestartResponseException(AccessDeniedPage.class, params);
 	}
 }

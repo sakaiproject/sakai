@@ -5,11 +5,14 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
 
+import org.apache.commons.lang.StringUtils;
 import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Mockito;
+import org.sakaiproject.gradebookng.business.exception.GbImportExportDuplicateColumnException;
 import org.sakaiproject.gradebookng.business.exception.GbImportExportInvalidFileTypeException;
 import org.sakaiproject.gradebookng.business.model.GbGradeInfo;
 import org.sakaiproject.gradebookng.business.model.GbStudentGradeInfo;
@@ -29,6 +32,40 @@ import org.sakaiproject.user.api.User;
  */
 public class TestImportGradesHelper {
 
+	@Test
+	public void when_pointsHasDecimal_thenImportSucceeds() throws Exception {
+		String headerValue = "Week #1: Intro to A-B-C [55.4]";
+		Matcher m1 = ImportGradesHelper.ASSIGNMENT_WITH_POINTS_PATTERN.matcher(headerValue);
+		Assert.assertTrue(m1.matches());
+		Assert.assertEquals(StringUtils.trimToNull(m1.group(1)), "Week #1: Intro to A-B-C");
+		Assert.assertEquals(m1.group(2), "55.4");
+	}
+
+	@Test
+	public void when_itemsSimilarButDistinct_thenImportSucceeds() throws Exception {
+		String headerValueA = "Week #1 [55.1]";
+		String headerValueB = "Week #2 [55.2]";
+
+		Matcher m1 = ImportGradesHelper.ASSIGNMENT_WITH_POINTS_PATTERN.matcher(headerValueA);
+		Assert.assertTrue(m1.matches());
+
+		Matcher m2 = ImportGradesHelper.ASSIGNMENT_WITH_POINTS_PATTERN.matcher(headerValueB);
+		Assert.assertTrue(m2.matches());
+
+		Assert.assertEquals(StringUtils.trimToNull(m1.group(1)), "Week #1");
+		Assert.assertEquals(StringUtils.trimToNull(m2.group(1)), "Week #2");
+		Assert.assertEquals(m1.group(2), "55.1");
+		Assert.assertEquals(m2.group(2), "55.2");
+	}
+
+	@Test
+	public void when_headerHasPoundSign_thenImportSucceeds() throws Exception {
+		String headerValue = "Week #2 [5]";
+		Matcher m1 = ImportGradesHelper.ASSIGNMENT_WITH_POINTS_PATTERN.matcher(headerValue);
+		Assert.assertTrue(m1.matches());
+		Assert.assertEquals(StringUtils.trimToNull(m1.group(1)), "Week #2");
+		Assert.assertEquals(m1.group(2), "5");
+	}
 
 	@Test
 	public void when_textcsv_thenCsvImportSucceeds() throws Exception {
@@ -95,22 +132,41 @@ public class TestImportGradesHelper {
 		testImport(importedSpreadsheetWrapper);
 	}
 
+	public void when_caseSensitiveDupes_thenImportSucceeds() throws Exception {
+		final ImportedSpreadsheetWrapper importedSpreadsheetWrapper;
+		try (InputStream is = this.getClass().getClassLoader().getResourceAsStream("grades_import_with_case_sensitive_dupes.csv")) {
+			importedSpreadsheetWrapper = ImportGradesHelper.parseImportedGradeFile(is, "application/csv", "grades_import_with_case_sensitive_dupes.csv", mockUserMap());
+		}
+		testImport(importedSpreadsheetWrapper);
+	}
+
+	@Test(expected=GbImportExportDuplicateColumnException.class)
+	public void when_exactDupes_thenImportFails() throws Exception {
+		final ImportedSpreadsheetWrapper importedSpreadsheetWrapper;
+		try (InputStream is = this.getClass().getClassLoader().getResourceAsStream("grades_import_with_exact_dupes.csv")) {
+			importedSpreadsheetWrapper = ImportGradesHelper.parseImportedGradeFile(is, "application/csv", "grades_import_with_exact_dupes.csv", mockUserMap());
+		}
+		testImport(importedSpreadsheetWrapper);
+	}
+
 	private void testImport(final ImportedSpreadsheetWrapper importedSpreadsheetWrapper) {
 		Assert.assertNotNull(importedSpreadsheetWrapper);
 
 		final List<ImportedRow> rows = importedSpreadsheetWrapper.getRows();
 
+		// check we have 2 student rows
 		Assert.assertNotNull(rows);
 		Assert.assertEquals("unexpected list size", 2, rows.size());
 
-		Assert.assertNotNull(rows.get(0).getCellMap());
-		Assert.assertEquals(2, rows.get(0).getCellMap().size());
+		// can't reliably do these assertions if we have files with differing numbers of columns
+		//Assert.assertNotNull(rows.get(0).getCellMap());
+		//Assert.assertEquals(2, rows.get(0).getCellMap().size());
 
 		final ImportedCell item11 = rows.get(0).getCellMap().get("a1");
 		Assert.assertEquals("comments don't match", "graded", item11.getComment());
 		Assert.assertEquals("scores don't match", "7", item11.getScore());
 
-		final ImportedCell item12 = rows.get(0).getCellMap().get("Week 2: January 22/23 - 29");
+		final ImportedCell item12 = rows.get(0).getCellMap().get("Week #2: January 22/23 - 29");
 		Assert.assertEquals("comments don't match", "null", item12.getComment());
 		Assert.assertEquals("scores don't match", "null", item12.getScore());
 
@@ -118,7 +174,7 @@ public class TestImportGradesHelper {
 		Assert.assertEquals("comments don't match", "interesting work", item21.getComment());
 		Assert.assertEquals("scores don't match", "3", item21.getScore());
 
-		final ImportedCell item22 = rows.get(1).getCellMap().get("Week 2: January 22/23 - 29");
+		final ImportedCell item22 = rows.get(1).getCellMap().get("Week #2: January 22/23 - 29");
 		Assert.assertEquals("comments don't match", "I'm hungry", item22.getComment());
 		Assert.assertEquals("scores don't match", "42", item22.getScore());
 	}

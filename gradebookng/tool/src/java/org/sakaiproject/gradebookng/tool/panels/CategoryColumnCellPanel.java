@@ -5,11 +5,8 @@ import java.util.Map;
 import org.apache.wicket.behavior.AttributeAppender;
 import org.apache.wicket.event.IEvent;
 import org.apache.wicket.markup.html.basic.Label;
-import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
-import org.apache.wicket.spring.injection.annot.SpringBean;
-import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
 import org.sakaiproject.gradebookng.business.util.FormatHelper;
 import org.sakaiproject.gradebookng.tool.model.ScoreChangedEvent;
 
@@ -20,12 +17,9 @@ import org.sakaiproject.gradebookng.tool.model.ScoreChangedEvent;
  * @author Steve Swinsburg (steve.swinsburg@gmail.com)
  *
  */
-public class CategoryColumnCellPanel extends Panel {
+public class CategoryColumnCellPanel extends BasePanel {
 
 	private static final long serialVersionUID = 1L;
-
-	@SpringBean(name = "org.sakaiproject.gradebookng.business.GradebookNgBusinessService")
-	protected GradebookNgBusinessService businessService;
 
 	IModel<Map<String, Object>> model;
 
