@@ -666,6 +666,10 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 				errors++;
 				continue;
 			}
+			
+			String dueDate = resource.getProperties().getProperty(ResourceProperties.PROP_ASSIGNMENT_DUEDATE_CALENDAR_EVENT_ID);
+			log.info(dueDate);
+			
 			// EXTERNAL ID DOES NOT EXIST, CREATE SUBMISSION AND UPLOAD CONTENTS TO TCA
 			// (STAGE 1)
 			if (StringUtils.isEmpty(item.getExternalId())) {
@@ -681,31 +685,45 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 						&& FilenameUtils.getExtension(fileName).isEmpty()) {
 					fileName += HTML_EXTENSION;
 				}							
-				try {
-					log.info("Submission starting...");
-					// Retrieve submissionId from TCA and set to externalId
-					String externalId = getSubmissionId(item.getUserId(), fileName);
-					if (StringUtils.isEmpty(externalId)) {
-						throw new Error("submission id is missing");
-					} else {
-						// Add filename to content upload headers
-						CONTENT_UPLOAD_HEADERS.put(HEADER_DISP, "inline; filename=\"" + fileName + "\"");
-						// Upload submission contents of to TCA
-						uploadExternalContent(externalId, resource.getContent());
-						// Set item externalId to externalId
-						item.setExternalId(externalId);
-						// Reset retry count
-						item.setRetryCount(new Long(0));
-						// Reset cal to current time
-						cal.setTime(new Date());
-						// Reset delay time
-						cal.add(Calendar.MINUTE, getDelayTime(item.getRetryCount()));
-						// Schedule next retry time
-						item.setNextRetryTime(cal.getTime());
-						item.setDateSubmitted(new Date());
-						crqs.update(item);
-						success++;
+				try {															
+					
+					// Get assignment due date and report generation speed setting
+					Assignment assignment = assignmentService.getAssignment(item.getTaskId().split("/")[4]);				
+					Date assignmentDueDate = Date.from(assignment.getDueDate());					
+					String reportGenSpeed = assignment.getProperties().get("report_gen_speed");															
+						
+					// If report gen speed is set to due date, and it's before the due date right now, do not process item
+					if (reportGenSpeed != null && assignmentDueDate != null && reportGenSpeed.equals("2")
+							&& assignmentDueDate.after(new Date())) {
+						log.info("Report generate speed is 2, skipping for now. ItemID: " + item.getId());						
+						continue;
 					}
+					else {
+						log.info("Submission starting...");
+						// Retrieve submissionId from TCA and set to externalId
+						String externalId = getSubmissionId(item.getUserId(), fileName);
+						if (StringUtils.isEmpty(externalId)) {
+							throw new Error("submission id is missing");
+						} else {
+							// Add filename to content upload headers
+							CONTENT_UPLOAD_HEADERS.put(HEADER_DISP, "inline; filename=\"" + fileName + "\"");
+							// Upload submission contents of to TCA
+							uploadExternalContent(externalId, resource.getContent());
+							// Set item externalId to externalId
+							item.setExternalId(externalId);
+							// Reset retry count
+							item.setRetryCount(new Long(0));
+							// Reset cal to current time
+							cal.setTime(new Date());
+							// Reset delay time
+							cal.add(Calendar.MINUTE, getDelayTime(item.getRetryCount()));
+							// Schedule next retry time
+							item.setNextRetryTime(cal.getTime());
+							item.setDateSubmitted(new Date());
+							crqs.update(item);
+							success++;
+						}
+					}					
 				} catch (Exception e) {
 					log.error(e.getMessage(), e);
 					item.setLastError(e.getMessage());
@@ -717,6 +735,7 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 				// EXTERNAL ID EXISTS, START SIMILARITY REPORT GENERATION PROCESS (STAGE 2)
 				try {
 					// Get submission status, returns the state of the submission as string
+					// TODO Account for when reportGenSpeed is 1
 					String submissionStatus = getSubmissionStatus(item.getExternalId());
 					// Handle possible error status
 					String errorStr = null;
