@@ -4,7 +4,7 @@
   <parent>
     <artifactId>common</artifactId>
     <groupId>org.sakaiproject.common</groupId>
-    <version>12.0</version><!-- ProjectVersion -->
+    <version>12-SNAPSHOT</version><!-- ProjectVersion -->
     <relativePath>../pom.xml</relativePath>
   </parent>
   <name>Sakai Common API Composite Component Data</name>

@@ -4,7 +4,7 @@
     <parent>
         <artifactId>sections</artifactId>
         <groupId>org.sakaiproject.edu-services.sections</groupId>
-        <version>12.0</version><!-- ProjectVersion -->
+        <version>12-SNAPSHOT</version><!-- ProjectVersion -->
         <relativePath>../../pom.xml</relativePath>
     </parent>
     <name>sakai-sections-impl-standalone</name>
