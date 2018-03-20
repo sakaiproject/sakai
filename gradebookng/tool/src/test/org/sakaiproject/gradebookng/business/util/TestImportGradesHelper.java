@@ -76,6 +76,14 @@ public class TestImportGradesHelper {
 	}
 
 	@Test
+	public void when_textcsv_i18n_thenCsvImportSucceeds() throws Exception {
+		final InputStream is = this.getClass().getClassLoader().getResourceAsStream("grades_import_i18n.csv");
+		final ImportedSpreadsheetWrapper importedSpreadsheetWrapper = ImportGradesHelper.parseImportedGradeFile(is, "text/csv", "grades_import_i18n.csv", mockUserMap(), ",");
+		is.close();
+		testImport(importedSpreadsheetWrapper);
+	}
+
+	@Test
 	public void when_textplain_thenCsvImportSucceeds() throws Exception {
 		final InputStream is = this.getClass().getClassLoader().getResourceAsStream("grades_import.csv");
 		final ImportedSpreadsheetWrapper importedSpreadsheetWrapper = ImportGradesHelper.parseImportedGradeFile(is, "text/plain", "grades_import.csv", mockUserMap());
