@@ -38,6 +38,7 @@ import org.sakaiproject.gradebookng.tool.model.AssignmentStudentGradeInfo;
 import org.sakaiproject.service.gradebook.shared.Assignment;
 
 import au.com.bytecode.opencsv.CSVReader;
+import au.com.bytecode.opencsv.CSVParser;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -52,7 +53,7 @@ public class ImportGradesHelper {
 
 	// patterns for detecting column headers and their types
 	final static Pattern ASSIGNMENT_COMMENT_PATTERN = Pattern.compile("\\* (.*)$");
-	final static Pattern ASSIGNMENT_WITH_POINTS_PATTERN = Pattern.compile("^(.*) \\[([0-9]+(\\.[0-9][0-9]?)?)\\] *$");
+	final static Pattern ASSIGNMENT_WITH_POINTS_PATTERN = Pattern.compile("^(.*) \\[([0-9]+([\\.,][0-9][0-9]?)?)\\] *$");
 
 	// list of mimetypes for each category. Must be compatible with the parser
 	private static final String[] XLS_MIME_TYPES = { "application/vnd.ms-excel", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" };
@@ -60,6 +61,7 @@ public class ImportGradesHelper {
 	private static final String[] CSV_MIME_TYPES = { "text/csv", "text/plain", "text/comma-separated-values", "application/csv" };
 	private static final String[] CSV_FILE_EXTS = { ".csv", ".txt" };
 
+	private static final char CSV_SEMICOLON_SEPARATOR = ';';
 
 	/**
 	 * Helper to parse the imported file into an {@link ImportedSpreadsheetWrapper} depending on its type
@@ -74,14 +76,34 @@ public class ImportGradesHelper {
 	 * @throws InvalidFormatException
 	 */
 	public static ImportedSpreadsheetWrapper parseImportedGradeFile(final InputStream is, final String mimetype, final String filename, final Map<String, String> userMap) throws GbImportExportInvalidColumnException, GbImportExportInvalidFileTypeException, GbImportExportDuplicateColumnException, IOException, InvalidFormatException {
+				return parseImportedGradeFile(is, mimetype, filename, userMap, "");
+	}
+
+	/**
+	 * Helper to parse the imported file into an {@link ImportedSpreadsheetWrapper} depending on its type
+	 * 
+	 * @param is
+	 * @param mimetype
+	 * @param userMap
+	 * @param userCSVSeparator
+	 * @return
+	 * @throws GbImportExportInvalidColumnException
+	 * @throws GbImportExportInvalidFileTypeException
+	 * @throws GbImportExportDuplicateColumnException
+	 * @throws IOException
+	 * @throws InvalidFormatException
+	 */
+	public static ImportedSpreadsheetWrapper parseImportedGradeFile(final InputStream is, final String mimetype, final String filename,
+			final Map<String, String> userMap, String userCSVSeparator) throws GbImportExportInvalidColumnException, GbImportExportInvalidFileTypeException,
+			GbImportExportDuplicateColumnException, IOException, InvalidFormatException {
 
 		ImportedSpreadsheetWrapper rval = null;
 
 		// It would be great if we could depend on the browser mimetype, but Windows + Excel will always send an Excel mimetype
 		if (StringUtils.endsWithAny(filename, CSV_FILE_EXTS) || ArrayUtils.contains(CSV_MIME_TYPES, mimetype)) {
-			rval = ImportGradesHelper.parseCsv(is, userMap);
+			rval = ImportGradesHelper.parseCsv(is, userMap, userCSVSeparator);
 		} else if (StringUtils.endsWithAny(filename, XLS_FILE_EXTS) || ArrayUtils.contains(XLS_MIME_TYPES, mimetype)) {
-			rval = ImportGradesHelper.parseXls(is, userMap);
+			rval = ImportGradesHelper.parseXls(is, userMap, userCSVSeparator);
 		} else {
 			throw new GbImportExportInvalidFileTypeException("Invalid file type for grade import: " + mimetype);
 		}
@@ -97,10 +119,15 @@ public class ImportGradesHelper {
 	 * @throws GbImportExportInvalidColumnException
 	 * @throws GbImportExportDuplicateColumnException
 	 */
-	private static ImportedSpreadsheetWrapper parseCsv(final InputStream is, final Map<String, String> userMap) throws GbImportExportInvalidColumnException, IOException, GbImportExportDuplicateColumnException {
+	private static ImportedSpreadsheetWrapper parseCsv(final InputStream is, final Map<String, String> userMap, String userCSVSeparator) throws GbImportExportInvalidColumnException, IOException, GbImportExportDuplicateColumnException {
 
 		// manually parse method so we can support arbitrary columns
-		final CSVReader reader = new CSVReader(new InputStreamReader(is));
+		CSVReader reader = null;
+		if(StringUtils.isEmpty(userCSVSeparator)){
+			reader = new CSVReader(new InputStreamReader(is));
+		}else{
+			reader = new CSVReader(new InputStreamReader(is), ".".equals(userCSVSeparator) ? CSVParser.DEFAULT_SEPARATOR : CSV_SEMICOLON_SEPARATOR);
+		}
 		String[] nextLine;
 		int lineCount = 0;
 		final List<ImportedRow> list = new ArrayList<ImportedRow>();
@@ -114,7 +141,7 @@ public class ImportGradesHelper {
 					mapping = mapHeaderRow(nextLine);
 				} else {
 					// map the fields into the object
-					final ImportedRow importedRow = mapLine(nextLine, mapping, userMap);
+					final ImportedRow importedRow = mapLine(nextLine, mapping, userMap, userCSVSeparator);
 					if(importedRow != null) {
 						list.add(importedRow);
 					}
@@ -148,7 +175,7 @@ public class ImportGradesHelper {
 	 * @throws GbImportExportInvalidColumnException
 	 * @Throws GbImportExportDuplicateColumnException
 	 */
-	private static ImportedSpreadsheetWrapper parseXls(final InputStream is, final Map<String, String> userMap) throws GbImportExportInvalidColumnException, InvalidFormatException, IOException, GbImportExportDuplicateColumnException {
+	private static ImportedSpreadsheetWrapper parseXls(final InputStream is, final Map<String, String> userMap, String userCSVSeparator) throws GbImportExportInvalidColumnException, InvalidFormatException, IOException, GbImportExportDuplicateColumnException {
 
 		int lineCount = 0;
 		final List<ImportedRow> list = new ArrayList<>();
@@ -165,7 +192,7 @@ public class ImportGradesHelper {
 				mapping = mapHeaderRow(r);
 			} else {
 				// map the fields into the object
-				final ImportedRow importedRow = mapLine(r, mapping, userMap);
+				final ImportedRow importedRow = mapLine(r, mapping, userMap, userCSVSeparator);
 				if(importedRow != null) {
 					list.add(importedRow);
 				}
@@ -187,7 +214,7 @@ public class ImportGradesHelper {
 	 * @param mapping
 	 * @return
 	 */
-	private static ImportedRow mapLine(final String[] line, final Map<Integer, ImportedColumn> mapping, final Map<String, String> userMap) {
+	private static ImportedRow mapLine(final String[] line, final Map<Integer, ImportedColumn> mapping, final Map<String, String> userMap, String userCSVSeparator) {
 
 		final ImportedRow row = new ImportedRow();
 
@@ -231,10 +258,20 @@ public class ImportGradesHelper {
 				row.setStudentName(lineVal);
 
 			} else if (column.getType() == ImportedColumn.Type.GB_ITEM_WITH_POINTS) {
+				//Fix the separator for the comparison with the current values
+				if(",".equals(userCSVSeparator) && StringUtils.isNotEmpty(lineVal)){
+					lineVal = lineVal.replace(",",".");
+				}
+
 				cell.setScore(lineVal);
 				row.getCellMap().put(columnTitle, cell);
 
 			} else if (column.getType() == ImportedColumn.Type.GB_ITEM_WITHOUT_POINTS) {
+				//Fix the separator for the comparison with the current values
+				if(",".equals(userCSVSeparator) && StringUtils.isNotEmpty(lineVal)){
+					lineVal = lineVal.replace(",",".");
+				}
+				cell.setScore(lineVal);
 				row.getCellMap().put(columnTitle, cell);
 
 			} else if (column.getType() == ImportedColumn.Type.COMMENTS) {
