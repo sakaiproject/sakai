@@ -30,6 +30,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
+import java.util.Random;
 import java.util.SortedSet;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -37,6 +38,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.RandomStringUtils;
 import org.apache.commons.lang.StringUtils;
 import org.sakaiproject.assignment.api.AssignmentConstants;
 import org.sakaiproject.assignment.api.AssignmentService;
@@ -126,6 +128,8 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 	private static final String RESPONSE_BODY = "responseBody";
 	private static final String GIVEN_NAME = "given_name";
 	private static final String FAMILY_NAME = "family_name";
+	
+	private static final int PLACEHOLDER_FLAG = -10;
 
 	private String serviceUrl;
 	private String apiKey;
@@ -579,6 +583,10 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 		// Check for status of report and return score
 		int errors = 0;
 		int success = 0;
+		
+		for (ContentReviewItem item : crqs.getContentReviewItems(1571541951, "placeholder", "placeholder")) {
+			log.info(item.getExternalId());
+		}
 
 		for (ContentReviewItem item : crqs.getAwaitingReports(getProviderId())) {
 			// Make sure it's after the next retry time
@@ -594,23 +602,42 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 				// Returns -1 if report is still processing
 				// Returns -2 if an error occurs
 				// Else returns reports score as integer
-				int status = getSimilarityReportStatus(item.getExternalId());
-				if (status > -1) {					
-					log.info("Report complete! Score: " + status);
-					// Status value is report score
-					item.setReviewScore(status);								
-					item.setStatus(ContentReviewConstants.CONTENT_REVIEW_SUBMITTED_REPORT_AVAILABLE_CODE);
-					item.setDateReportReceived(new Date());
-					item.setRetryCount(Long.valueOf(0));
-					item.setLastError(null);
-					item.setErrorCode(null);
-					crqs.update(item);
-				} else if (status == -1) {
-					// Similarity report is still generating, will try again
-					log.info("Processing report " + item.getExternalId() + "...");
-				} else if(status == -2){
-					throw new Error("Unknown error during report status call");
+				
+				// Update Placeholder items first
+				// TODO CLEAN THIS CODE
+				log.info(item.getContentId());
+				
+				if (item.getReviewScore() != null &&  item.getReviewScore().equals(PLACEHOLDER_FLAG)) {
+					// Get assignment due date and report generation speed setting
+					Assignment assignment = assignmentService.getAssignment(item.getTaskId().split("/")[4]);				
+					Date assignmentDueDate = Date.from(assignment.getDueDate());										
+					if (assignmentDueDate.before(new Date())) {
+						int status = getSimilarityReportStatus(item.getExternalId());
+					} else {
+						continue;
+					}
+					
 				}
+				else {
+					int status = getSimilarityReportStatus(item.getExternalId());
+					if (status > -1) {					
+						log.info("Report complete! Score: " + status);
+						// Status value is report score
+						item.setReviewScore(status);								
+						item.setStatus(ContentReviewConstants.CONTENT_REVIEW_SUBMITTED_REPORT_AVAILABLE_CODE);
+						item.setDateReportReceived(new Date());
+						item.setRetryCount(Long.valueOf(0));
+						item.setLastError(null);
+						item.setErrorCode(null);
+						crqs.update(item);
+					} else if (status == -1) {
+						// Similarity report is still generating, will try again
+						log.info("Processing report " + item.getExternalId() + "...");
+					} else if(status == -2){
+						throw new Error("Unknown error during report status call");
+					}
+				}
+				
 			} catch (Exception e) {
 				log.error(e.getLocalizedMessage(), e);
 				item.setLastError(e.getMessage());
@@ -666,10 +693,7 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 				errors++;
 				continue;
 			}
-			
-			String dueDate = resource.getProperties().getProperty(ResourceProperties.PROP_ASSIGNMENT_DUEDATE_CALENDAR_EVENT_ID);
-			log.info(dueDate);
-			
+						
 			// EXTERNAL ID DOES NOT EXIST, CREATE SUBMISSION AND UPLOAD CONTENTS TO TCA
 			// (STAGE 1)
 			if (StringUtils.isEmpty(item.getExternalId())) {
@@ -733,6 +757,52 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 				}
 			} else {
 				// EXTERNAL ID EXISTS, START SIMILARITY REPORT GENERATION PROCESS (STAGE 2)
+				// TODO ADD NEW ITEM HERE 
+				// Account for items that have a genSpeed of 1 and create a placeholder item that will regenerate report score after due date
+				try {
+					Assignment assignment = assignmentService.getAssignment(item.getTaskId().split("/")[4]);
+					Date assignmentDueDate = Date.from(assignment.getDueDate());					
+					String reportGenSpeed = assignment.getProperties().get("report_gen_speed");
+					// If report gen speed is set to due date, and it's before the due date right now, do not process item
+					if (reportGenSpeed != null && assignmentDueDate != null && reportGenSpeed.equals("1")
+							&& assignmentDueDate.after(new Date())) {
+						log.info("Report generate speed is 2, skipping for now. ItemID: " + item.getId());						
+						ContentReviewItem placeholderItem = new ContentReviewItem();
+						long generatedLong = new Random().nextLong();
+						String generatedString = RandomStringUtils.randomAlphabetic(10);
+						int generatedInt = new Random().nextInt();
+						Calendar retryCal = Calendar.getInstance(); // creates calendar
+						retryCal.setTime(new Date()); // sets calendar time/date
+						retryCal.add(Calendar.HOUR_OF_DAY, 1); // adds one hour
+						Date newRetryCal = retryCal.getTime(); // returns new date object, one hour in the future
+
+						placeholderItem.setId(generatedLong);
+						placeholderItem.setProviderId(item.getProviderId());						
+						placeholderItem.setUserId(generatedString);
+						placeholderItem.setSiteId(generatedString);
+						placeholderItem.setTaskId(item.getTaskId());
+						placeholderItem.setDateQueued(new Date());
+						placeholderItem.setDateSubmitted(new Date());
+						placeholderItem.setRetryCount(new Long(0));
+						placeholderItem.setNextRetryTime(newRetryCal);		
+						placeholderItem.setReviewScore(-10);
+						placeholderItem.setContentId(generatedString);
+						placeholderItem.setExternalId(item.getExternalId());						
+						placeholderItem.setStatus(ContentReviewConstants.CONTENT_REVIEW_SUBMITTED_AWAITING_REPORT_CODE);
+						crqs.update(placeholderItem);
+//						try {
+//							crqs.queueContent(placeholderItem.getProviderId(), placeholderItem.getUserId(), placeholderItem.getSiteId(), placeholderItem.getTaskId(), (List<ContentResource>) placeholderItem);
+//						} catch (QueueException e) {
+//							// TODO Auto-generated catch block
+//							e.printStackTrace();
+//						}
+					}
+				} catch (IdUnusedException | PermissionException e) {
+					// TODO Auto-generated catch block
+					log.info(e.getMessage());
+				}
+				
+				
 				try {
 					// Get submission status, returns the state of the submission as string
 					// TODO Account for when reportGenSpeed is 1
@@ -792,11 +862,15 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 					item.setStatus(ContentReviewConstants.CONTENT_REVIEW_SUBMISSION_ERROR_RETRY_CODE);
 					crqs.update(item);
 					errors++;
-				}
+				}											
 			}
-		}
-		
+														
 		log.info("Turnitin submission queue completed: " + success + " items submitted, " + errors + " errors.");
+																																	
+	}
+		
+		
+		
 	}
 
 	public boolean incrementItem(Calendar cal, ContentReviewItem item) {
