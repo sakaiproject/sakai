@@ -185,7 +185,7 @@ function removeOptionalAttributeBlock(elem) {
 			</div>
 			<div class="shorttext">
 				<label>$tlang.getString("useedi.cre")</label>
-				$validator.escapeHtml($user.CreatedDate.toString())
+				$validator.escapeHtml($userCreated)
 			</div>
 			<div class="shorttext">
 				<label>$tlang.getString("useedi.modby")</label>
@@ -193,7 +193,7 @@ function removeOptionalAttributeBlock(elem) {
 			</div>	
 			<div class="shorttext">
 				<label>$tlang.getString("useedi.mod")</label>
-				$validator.escapeHtml($user.ModifiedDate.toString())
+				$validator.escapeHtml($userModifiedDate)
 			</div>	
 			<div class="shorttext">
 				<label>$tlang.getString("useconrem.useuid")</label>
