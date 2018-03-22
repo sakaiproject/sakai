@@ -279,7 +279,7 @@ public class GradebookPage extends BasePage {
 		this.gradeTable.addEventListener("moveAssignmentLeft", new MoveAssignmentLeftAction());
 		this.gradeTable.addEventListener("moveAssignmentRight", new MoveAssignmentRightAction());
 		this.gradeTable.addEventListener("viewCourseGradeStatistics", new ViewCourseGradeStatisticsAction());
-
+		
 		this.form.add(this.gradeTable);
 
 		final Button toggleCategoriesToolbarItem = new Button("toggleCategoriesToolbarItem") {
