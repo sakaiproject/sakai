@@ -328,6 +328,28 @@ $( document ).ready( function() {
 
     });
 
+    // Fix the input value and display for the correct answer in Multiple Choice when entering with partial credit enabled.
+    $('[id$="mcradiobtn"]').click( function(e) {
+
+        // Transform the previous full credit label into an empty text field
+        $('[id$="partialCredit"]').removeAttr('disabled');
+        $('[id$="partialCredit"]').attr('type', 'text');
+        $('#correctAnswerPC').remove();
+
+        // For the choice that was marked as correct, replace the editable point value field with a static value/label of 100%
+        pcBox = $('#'+this.id.replace(/:/g, '\\:').replace('mcradiobtn', 'partialCredit'));
+        pcBox.after('<span id="correctAnswerPC">100%</span>');
+        pcBox.attr('disabled', true);
+        pcBox.attr('type', 'hidden');
+        pcBox.val("0");
+    });
+
+    // Apply the above when the form loads.
+    $('[id$="mcradiobtn"]').each(function() {
+        if( $("input", this).attr("checked") ) {
+            $("input", this).click();
+        }
+    });
 });
 
 function validationWarningSetDefault(element, value) {

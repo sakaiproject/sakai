@@ -1101,6 +1101,13 @@ GbGradeTable.renderTable = function (elementId, tableData) {
         var col = GbGradeTable.instance.view.settings.columns[colIndex]._data_;
         $togglePanel.find('.gb-item-category-score-filter :checkbox[value="'+col.categoryName+'"]').trigger('click');
       }
+  }).
+  // View Course Grade Statistics
+  on("click", ".gb-dropdown-menu .gb-view-course-grade-statistics", function() {
+    GbGradeTable.ajax({
+      action: 'viewCourseGradeStatistics',
+      siteId: GbGradeTable.container.data("siteid")
+    });
   });
 
   GbGradeTable.setupToggleGradeItems();

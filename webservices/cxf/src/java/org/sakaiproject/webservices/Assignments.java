@@ -247,7 +247,7 @@ public class Assignments extends AbstractWebService {
     		
     		// If necessary, update the assignment grade in the Gradebook
 
-    		String associateGradebookAssignment = StringUtils.trimToNull(assign.getProperties().get(AssignmentServiceConstants.PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT));
+    		String associateGradebookAssignment = assign.getProperties().get(AssignmentServiceConstants.PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT);
     		String sReference = AssignmentReferenceReckoner.reckoner().submission(sub).reckon().getReference();
     		
     		// update grade in gradebook

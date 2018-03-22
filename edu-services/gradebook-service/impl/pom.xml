@@ -76,31 +76,6 @@
             <artifactId>sections-api</artifactId>
             <scope>provided</scope>
         </dependency>
-        <!--
-            TODO Come up with a way to make the dependencies
-            deployment-sensitive.
-        -->
-        <!-- Needed for standalone user directory -->
-        <dependency>
-            <groupId>org.sakaiproject.edu-services.sections</groupId>
-            <artifactId>sections-integrationsupport</artifactId>
-        </dependency>
-        <!-- JSF needed for standalone authn -->
-        <dependency>
-            <groupId>org.apache.myfaces.core</groupId>
-            <artifactId>myfaces-api</artifactId>
-            <version>1.1.5</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.myfaces.core</groupId>
-            <artifactId>myfaces-impl</artifactId>
-            <version>1.1.5</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.myfaces.tomahawk</groupId>
-            <artifactId>tomahawk</artifactId>
-            <version>1.1.6</version>
-        </dependency>
         <dependency>
             <groupId>org.hsqldb</groupId>
             <artifactId>hsqldb</artifactId>

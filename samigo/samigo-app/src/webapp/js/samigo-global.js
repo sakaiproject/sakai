@@ -38,26 +38,6 @@ function chef_setupformattedtextarea(client_id, shouldToggle, frame_id) {
 	setMainFrameHeight(frame_id);
 }
 
-$( document ).ready(function() {
-  if ( $("#selectIndexForm\\:selectTable").length ) {
-    $("#selectIndexForm\\:selectTable").tablesorter({ 
-      sortList: [[2,0]],
-      textExtraction: {
-        0: function(node, table, cellIndex) { return $(node).find("a").text(); }
-      }
-    });
-  }
-  if ( $("#editform\\:questionpool-questions").length ) {
-    $("#editform\\:questionpool-questions").tablesorter({
-      headers: {
-        0: {
-          sorter: false
-        }
-      }
-    });
-  }
-});
-
 function whichradio(el) {
 	var parentTable = $(el).closest('table');
 	var forcedRanking;

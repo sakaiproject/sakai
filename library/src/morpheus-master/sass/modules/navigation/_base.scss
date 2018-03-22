@@ -215,6 +215,9 @@ body.is-logged-out{
 		@include align-items( center );
 
 		color: $topNav-text-color;
+		@media #{$phone} {
+			line-height: 1;
+		}
 	}
 	> * {
 		transition: all 0.3s ease;

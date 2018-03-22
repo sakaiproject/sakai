@@ -53,7 +53,10 @@ public class AssessmentBaseData
   private Integer status;
   private String createdBy;
   private Date createdDate;
+  private Date startDate;
+  private Date dueDate;
   private String lastModifiedBy;
+  private String releaseTo;
   private Date lastModifiedDate;
   private AssessmentAccessControlIfc assessmentAccessControl;
   private EvaluationModelIfc evaluationModel;
@@ -94,11 +97,14 @@ public class AssessmentBaseData
    * lastModifiedDate. This object is merely used for display. It is not used
    * for persistence.
    */
-  public AssessmentBaseData(Long assessmentBaseId, String title,Date lastModifiedDate, String lastModifiedBy){
+  public AssessmentBaseData(Long assessmentBaseId, String title,Date lastModifiedDate, String lastModifiedBy, Date startDate, Date dueDate, String releaseTo){
 	    this.assessmentBaseId = assessmentBaseId;
 	    this.title = title;
 	    this.lastModifiedDate = lastModifiedDate;
 	    this.lastModifiedBy = lastModifiedBy;
+	    this.startDate = startDate;
+	    this.dueDate = dueDate;
+	    this.releaseTo = releaseTo;
 	  }
   
   public AssessmentBaseData(Long assessmentBaseId, String title,Date lastModifiedDate, String lastModifiedBy, Integer questionSize){
@@ -243,12 +249,36 @@ public class AssessmentBaseData
     this.createdDate = createdDate;
   }
 
+  public Date getStartDate() {
+    return this.startDate;
+  }
+
+  public void setStartDate(Date startDate) {
+    this.startDate = startDate;
+  }
+
+  public Date getDueDate() {
+    return this.dueDate;
+  }
+
+  public void setDueDate(Date dueDate) {
+    this.dueDate = dueDate;
+  }
+
   public String getLastModifiedBy() {
     return this.lastModifiedBy;
   }
 
   public void setLastModifiedBy(String lastModifiedBy) {
     this.lastModifiedBy = lastModifiedBy;
+  }
+
+  public String getReleaseTo() {
+    return this.releaseTo;
+  }
+
+  public void setReleaseTo(String releaseTo) {
+    this.releaseTo = releaseTo;
   }
 
   public Date getLastModifiedDate() {

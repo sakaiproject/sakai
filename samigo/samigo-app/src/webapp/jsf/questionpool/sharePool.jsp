@@ -60,31 +60,31 @@ function checkUpdate()
 <!-- content... -->
 <h:form id="questionpoolshare">
 
-<f:verbatim><ul class="navIntraTool actionToolbar" role="menu">
-<li role="menuitem" class="firstToolBarItem"><span></f:verbatim>
-   	<h:commandLink title="#{generalMessages.t_assessment}" action="author"  immediate="true">
-   		<h:outputText value="#{generalMessages.assessment}"/>
-       	<f:actionListener
-         	type="org.sakaiproject.tool.assessment.ui.listener.author.AuthorActionListener" />
-   	</h:commandLink>
-       
-<f:verbatim></span></li></f:verbatim>
-<h:panelGroup rendered="#{authorization.adminTemplate and template.showAssessmentTypes}">
-<f:verbatim><li role="menuitem"><span></f:verbatim>
-
-   	<h:commandLink title="#{generalMessages.t_template}" action="template" immediate="true">
-        <h:outputText value="#{generalMessages.template}"/>
-      	<f:actionListener 
-      		type="org.sakaiproject.tool.assessment.ui.listener.author.TemplateListener" />
-   	</h:commandLink>
-
-<f:verbatim></span></li></f:verbatim>
-</h:panelGroup>
-<f:verbatim><li role="menuitem"><span class="current"></f:verbatim>
-
-   	<h:outputText value="#{questionPoolMessages.qps}"/>
-<f:verbatim></span></li>
-</ul></f:verbatim>
+<ul class="navIntraTool actionToolbar" role="menu">
+    <li role="menuitem">
+        <span>
+            <h:commandLink title="#{generalMessages.t_assessment}" action="author"  immediate="true">
+                <h:outputText value="#{generalMessages.assessment}"/>
+                <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.AuthorActionListener" />
+            </h:commandLink>
+        </span>
+    </li>
+    <h:panelGroup rendered="#{authorization.adminTemplate and template.showAssessmentTypes}">
+        <li role="menuitem">
+            <span>
+                <h:commandLink title="#{generalMessages.t_template}" action="template" immediate="true">
+                    <h:outputText value="#{generalMessages.template}"/>
+                    <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.TemplateListener" />
+                </h:commandLink>
+            </span>
+        </li>
+    </h:panelGroup>
+    <li role="menuitem">
+        <span class="current">
+            <h:outputText value="#{questionPoolMessages.qps}"/>
+        </span>
+    </li>
+</ul>
 
 
  <h3><h:outputText value="#{questionPoolMessages.share_pool}"/></h3>

@@ -68,7 +68,6 @@ import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.time.api.UserTimeService;
 import org.sakaiproject.tool.api.SessionManager;
-import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.api.FormattedText;
@@ -90,7 +89,6 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
     @Autowired private AssignmentService assignmentService;
     @Autowired private EntityManager entityManager;
     @Autowired private ServerConfigurationService serverConfigurationService;
-    @Autowired private UserDirectoryService userDirectoryService;
     @Autowired private SiteService siteService;
     @Autowired private FormattedText formattedText;
     @Resource(name = "org.sakaiproject.time.api.UserTimeService")

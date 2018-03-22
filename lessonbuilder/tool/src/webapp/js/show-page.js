@@ -1554,6 +1554,12 @@ $(document).ready(function() {
 			return false;
 		    });
 
+		$('#calendar-link').click(function() {
+			$("#calendar-addBefore").val(addAboveItem);
+                        $("#add-calendar").click();
+			return false;
+		    });
+
 		$('#add-student-link').click(function() {
 			$("#add-student-addBefore").val(addAboveItem);
                         $("#add-student").click();
