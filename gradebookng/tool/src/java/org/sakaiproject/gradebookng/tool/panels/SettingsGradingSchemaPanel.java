@@ -356,7 +356,7 @@ public class SettingsGradingSchemaPanel extends BasePanel implements IFormModelU
 
 		// chart
 		this.chart = new GbCourseGradeChart("gradingSchemaChart", getCurrentSiteId());
-		add(this.chart);
+		settingsGradingSchemaPanel.add(this.chart);
 	}
 
 	/**
