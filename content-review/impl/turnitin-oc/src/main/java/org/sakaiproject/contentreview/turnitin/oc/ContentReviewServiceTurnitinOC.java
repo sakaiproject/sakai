@@ -582,7 +582,7 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 		// Original file has been uploaded, and similarity report has been requested
 		// Check for status of report and return score
 		int errors = 0;
-		int success = 0;		
+		int success = 0;
 
 		for (ContentReviewItem item : crqs.getAwaitingReports(getProviderId())) {
 			// Make sure it's after the next retry time
@@ -667,8 +667,8 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 				crqs.update(item);
 				errors++;
 			}
-		}		
-		
+		}
+
 		log.info("Turnitin report queue run completed: " + success + " items submitted, " + errors + " errors.");
 		
 	}
@@ -755,7 +755,7 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 						&& FilenameUtils.getExtension(fileName).isEmpty()) {
 					fileName += HTML_EXTENSION;
 				}							
-				try {															
+				try {
 					log.info("Submission starting...");
 					// Retrieve submissionId from TCA and set to externalId
 					String externalId = getSubmissionId(item.getUserId(), fileName);
@@ -789,7 +789,7 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 					errors++;
 				}
 			} else {
-				// EXTERNAL ID EXISTS, START SIMILARITY REPORT GENERATION PROCESS (STAGE 2)								
+				// EXTERNAL ID EXISTS, START SIMILARITY REPORT GENERATION PROCESS (STAGE 2)
 				try {
 					// Get submission status, returns the state of the submission as string
 					String submissionStatus = getSubmissionStatus(item.getExternalId());
