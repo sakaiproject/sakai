@@ -261,7 +261,7 @@ public class GradebookPage extends BasePage {
 				});
 
 		this.gradeTable.addEventListener("setScore", new GradeUpdateAction());
-    this.gradeTable.addEventListener("setExcluded", new SetGradeAsExcludedAction());
+    		this.gradeTable.addEventListener("setExcluded", new SetGradeAsExcludedAction());
 		this.gradeTable.addEventListener("checkExcluded", new CheckGradeExcludedStatusAction());
 		this.gradeTable.addEventListener("viewLog", new ViewGradeLogAction());
 		this.gradeTable.addEventListener("editAssignment", new EditAssignmentAction());
