@@ -26,17 +26,15 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
-import java.util.Locale;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TimeZone;
-import java.util.Map.Entry;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import javax.faces.application.FacesMessage;
 import javax.faces.context.ExternalContext;
@@ -45,13 +43,9 @@ import javax.faces.event.ValueChangeEvent;
 import javax.faces.model.SelectItem;
 import javax.servlet.http.HttpServletRequest;
 
-import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.validator.EmailValidator;
-import org.springframework.orm.hibernate4.HibernateOptimisticLockingFailureException;
-
 import org.sakaiproject.api.app.messageforums.Area;
 import org.sakaiproject.api.app.messageforums.Attachment;
-import org.sakaiproject.api.app.messageforums.DBMembershipItem;
 import org.sakaiproject.api.app.messageforums.DefaultPermissionsManager;
 import org.sakaiproject.api.app.messageforums.DiscussionForumService;
 import org.sakaiproject.api.app.messageforums.HiddenGroup;
@@ -70,45 +64,46 @@ import org.sakaiproject.api.app.messageforums.UserPreferencesManager;
 import org.sakaiproject.api.app.messageforums.ui.PrivateMessageManager;
 import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.authz.api.PermissionsHelper;
-import org.sakaiproject.authz.cover.SecurityService;
+import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.app.messageforums.MembershipItem;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.HiddenGroupImpl;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.PrivateMessageImpl;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.PrivateTopicImpl;
-import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.FilePickerHelper;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.event.api.Event;
+import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.event.api.LearningResourceStoreService;
-import org.sakaiproject.event.api.NotificationService;
 import org.sakaiproject.event.api.LearningResourceStoreService.LRS_Actor;
 import org.sakaiproject.event.api.LearningResourceStoreService.LRS_Object;
 import org.sakaiproject.event.api.LearningResourceStoreService.LRS_Statement;
 import org.sakaiproject.event.api.LearningResourceStoreService.LRS_Verb;
 import org.sakaiproject.event.api.LearningResourceStoreService.LRS_Verb.SAKAI_VERB;
-import org.sakaiproject.event.api.EventTrackingService;
+import org.sakaiproject.event.api.NotificationService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
-import org.sakaiproject.site.cover.SiteService;
-import org.sakaiproject.time.cover.TimeService;
-import org.sakaiproject.tool.api.ToolSession;
+import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.time.api.UserTimeService;
 import org.sakaiproject.tool.api.Session;
-import org.sakaiproject.tool.cover.SessionManager;
-import org.sakaiproject.tool.cover.ToolManager;
+import org.sakaiproject.tool.api.SessionManager;
+import org.sakaiproject.tool.api.ToolSession;
+import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.tool.messageforums.ui.DecoratedAttachment;
-import org.sakaiproject.tool.messageforums.ui.PermissionBean;
 import org.sakaiproject.tool.messageforums.ui.PrivateForumDecoratedBean;
 import org.sakaiproject.tool.messageforums.ui.PrivateMessageDecoratedBean;
 import org.sakaiproject.tool.messageforums.ui.PrivateTopicDecoratedBean;
 import org.sakaiproject.user.api.User;
+import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
-import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.Validator;
+import org.springframework.orm.hibernate4.HibernateOptimisticLockingFailureException;
+
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class PrivateMessagesTool
@@ -179,9 +174,14 @@ public class PrivateMessagesTool
   private MessageForumsTypeManager typeManager;
   private ContentHostingService contentHostingService;
   private LearningResourceStoreService learningResourceStoreService;
-
+  private UserDirectoryService userDirectoryService;
+  private SecurityService securityService;
   private EventTrackingService eventTrackingService;
- 
+  private SiteService siteService;
+  private SessionManager sessionManager;
+  private UserTimeService userTimeService;
+  private ToolManager toolManager;
+
 
 /** Navigation for JSP   */
   public static final String MAIN_PG="main";
@@ -976,7 +976,7 @@ public class PrivateMessagesTool
 
   private String getSiteTitle(){	  
 	  try {
-		return SiteService.getSite(ToolManager.getCurrentPlacement().getContext()).getTitle();
+		return siteService.getSite(toolManager.getCurrentPlacement().getContext()).getTitle();
 	} catch (IdUnusedException e) {
 		log.error(e.getMessage(), e);
 	}
@@ -984,12 +984,12 @@ public class PrivateMessagesTool
   }
   
   private String getSiteId() {
-	  return ToolManager.getCurrentPlacement().getContext();
+	  return toolManager.getCurrentPlacement().getContext();
   }
     
   private String getContextSiteId() 
   {
-	 return "/site/" + ToolManager.getCurrentPlacement().getContext();
+	 return "/site/" + toolManager.getCurrentPlacement().getContext();
   }
   
   public List getTotalComposeToList()
@@ -1079,7 +1079,7 @@ public class PrivateMessagesTool
   public String getUserSortNameById(String id){    
     try
     {
-      User user=UserDirectoryService.getUser(id) ;
+      User user=userDirectoryService.getUser(id) ;
       if (ServerConfigurationService.getBoolean("msg.displayEid", true))
       {
     	  userName= user.getSortName() + " (" + user.getDisplayId() + ")";
@@ -1096,10 +1096,10 @@ public class PrivateMessagesTool
   }
 
   public String getUserName() {
-   String userId=SessionManager.getCurrentSessionUserId();
+   String userId=sessionManager.getCurrentSessionUserId();
    try
    {
-     User user=UserDirectoryService.getUser(userId) ;
+     User user=userDirectoryService.getUser(userId) ;
      if (ServerConfigurationService.getBoolean("msg.displayEid", true))
      {
     	 userName= user.getDisplayName() + " (" + user.getDisplayId() + ")";
@@ -1116,7 +1116,7 @@ public class PrivateMessagesTool
   
   public String getUserId()
   {
-    return SessionManager.getCurrentSessionUserId();
+    return sessionManager.getCurrentSessionUserId();
   }
   
   public TimeZone getUserTimeZone() {
@@ -1663,11 +1663,11 @@ public void processChangeSelectView(ValueChangeEvent eve)
 
 	// format the created date according to the setting in the bundle
     SimpleDateFormat formatter_date = new SimpleDateFormat(getResourceBundleString("date_format_date"), new ResourceLoader().getLocale());
-	formatter_date.setTimeZone(TimeService.getLocalTimeZone());
+	formatter_date.setTimeZone(userTimeService.getLocalTimeZone());
 	String formattedCreateDate = formatter_date.format(pm.getCreated());
 	
 	SimpleDateFormat formatter_date_time = new SimpleDateFormat(getResourceBundleString("date_format_time"), new ResourceLoader().getLocale());
-	formatter_date_time.setTimeZone(TimeService.getLocalTimeZone());
+	formatter_date_time.setTimeZone(userTimeService.getLocalTimeZone());
 	String formattedCreateTime = formatter_date_time.format(pm.getCreated());
 
 	StringBuilder replyText = new StringBuilder();
@@ -1735,7 +1735,7 @@ public void processChangeSelectView(ValueChangeEvent eve)
 
     	// format the created date according to the setting in the bundle
 	    SimpleDateFormat formatter = new SimpleDateFormat(getResourceBundleString("date_format"), new ResourceLoader().getLocale());
-		formatter.setTimeZone(TimeService.getLocalTimeZone());
+		formatter.setTimeZone(userTimeService.getLocalTimeZone());
 		String formattedCreateDate = formatter.format(pm.getCreated());
 		
 		StringBuilder forwardedText = new StringBuilder();
@@ -1835,11 +1835,11 @@ private   int   getNum(char letter,   String   a)
 
     	// format the created date according to the setting in the bundle
 	    SimpleDateFormat formatter = new SimpleDateFormat(getResourceBundleString("date_format"), new ResourceLoader().getLocale());
-		formatter.setTimeZone(TimeService.getLocalTimeZone());
+		formatter.setTimeZone(userTimeService.getLocalTimeZone());
 		String formattedCreateDate = formatter.format(pm.getCreated());
 		
 		SimpleDateFormat formatter_date_time = new SimpleDateFormat(getResourceBundleString("date_format_time"), new ResourceLoader().getLocale());
-		formatter_date_time.setTimeZone(TimeService.getLocalTimeZone());
+		formatter_date_time.setTimeZone(userTimeService.getLocalTimeZone());
 		String formattedCreateTime = formatter_date_time.format(pm.getCreated());
 
 		StringBuilder replyallText = new StringBuilder();
@@ -3247,7 +3247,7 @@ private   int   getNum(char letter,   String   a)
 
 	  User autheruser=null;
 	  try {
-		  autheruser = UserDirectoryService.getUser(currentMessage.getCreatedBy());
+		  autheruser = userDirectoryService.getUser(currentMessage.getCreatedBy());
 	  } catch (UserNotDefinedException e) {
 		  log.error(e.getMessage(), e);
 	  }
@@ -3264,7 +3264,7 @@ private   int   getNum(char letter,   String   a)
 		  PrivateMessageRecipient tmpPMR = (PrivateMessageRecipient)iter.next();
 		  User replyrecipientaddtmp=null;
 		  try {
-			  replyrecipientaddtmp = UserDirectoryService.getUser(tmpPMR.getUserId());
+			  replyrecipientaddtmp = userDirectoryService.getUser(tmpPMR.getUserId());
 		  } catch (UserNotDefinedException e) {
 			  // TODO Auto-generated catch block
 			  log.warn("Unable to find user : " + tmpPMR.getUserId(), e);
@@ -3428,7 +3428,7 @@ private   int   getNum(char letter,   String   a)
 			 PrivateMessageRecipient tmpPMR = (PrivateMessageRecipient)iter.next();
 		 	User replyrecipientaddtmp=null;
 				try {
-					replyrecipientaddtmp = UserDirectoryService.getUser(tmpPMR.getUserId());
+					replyrecipientaddtmp = userDirectoryService.getUser(tmpPMR.getUserId());
 				} catch (UserNotDefinedException e) {
 					log.error(e.getMessage(), e);
 				}
@@ -3578,7 +3578,7 @@ private   int   getNum(char letter,   String   a)
   
   public ArrayList getAttachments()
   {
-    ToolSession session = SessionManager.getCurrentToolSession();
+    ToolSession session = sessionManager.getCurrentToolSession();
     if (session.getAttribute(FilePickerHelper.FILE_PICKER_CANCEL) == null &&
         session.getAttribute(FilePickerHelper.FILE_PICKER_ATTACHMENTS) != null) 
     {
@@ -3609,7 +3609,7 @@ private   int   getNum(char letter,   String   a)
   
   public List getAllAttachments()
   {
-    ToolSession session = SessionManager.getCurrentToolSession();
+    ToolSession session = sessionManager.getCurrentToolSession();
     if (session.getAttribute(FilePickerHelper.FILE_PICKER_CANCEL) == null &&
         session.getAttribute(FilePickerHelper.FILE_PICKER_ATTACHMENTS) != null) 
     {
@@ -3855,7 +3855,7 @@ private   int   getNum(char letter,   String   a)
   
   public boolean getSuperUser()
   {
-    superUser=SecurityService.isSuperUser();
+    superUser=securityService.isSuperUser();
     return superUser;
   }
   //is instructor
@@ -4148,7 +4148,7 @@ private   int   getNum(char letter,   String   a)
       	PrivateMessage tmpPM = (PrivateMessage) tmpMsgList.get(i);
       	List tmpRecipList = tmpPM.getRecipients();
       	tmpPM.setTypeUuid(newTypeUuid);
-      	String currentUserId = SessionManager.getCurrentSessionUserId();
+      	String currentUserId = sessionManager.getCurrentSessionUserId();
       	Iterator iter = tmpRecipList.iterator();
       	while(iter.hasNext())
       	{
@@ -4910,7 +4910,7 @@ private   int   getNum(char letter,   String   a)
        
        try
        {
-    	 User user = UserDirectoryService.getUser(getUserId());
+    	 User user = userDirectoryService.getUser(getUserId());
     	 if (ServerConfigurationService.getBoolean("msg.displayEid", true))
     	 {
     		 authorString = user.getSortName() + " (" + user.getDisplayId() + ")";
@@ -4930,7 +4930,7 @@ private   int   getNum(char letter,   String   a)
     
     public String getPlacementId() 
     {
-       return Validator.escapeJavascript("Main" + ToolManager.getCurrentPlacement().getId());
+       return Validator.escapeJavascript("Main" + toolManager.getCurrentPlacement().getId());
     }
 
     public boolean isSearchPvtMsgsEmpty()
@@ -5087,14 +5087,14 @@ private   int   getNum(char letter,   String   a)
 	public String processActionPermissions()
 	{
 		ExternalContext context = FacesContext.getCurrentInstance().getExternalContext();
-		ToolSession toolSession = SessionManager.getCurrentToolSession();
+		ToolSession toolSession = sessionManager.getCurrentToolSession();
 
 		try {
 			String url = "../sakai.permissions.helper.helper/tool?" +
 			"session." + PermissionsHelper.DESCRIPTION + "=" +
 			org.sakaiproject.util.Web.escapeUrl(getResourceBundleString("pvt_properties_desc")) +
 			"&session." + PermissionsHelper.TARGET_REF + "=" +
-			SiteService.getSite(ToolManager.getCurrentPlacement().getContext()).getReference() +
+			siteService.getSite(toolManager.getCurrentPlacement().getContext()).getReference() +
 			"&session." + PermissionsHelper.PREFIX + "=" +
 			DefaultPermissionsManager.MESSAGE_FUNCTION_PREFIX + DefaultPermissionsManager.MESSAGE_FUNCITON_PREFIX_PERMISSIONS;
 
@@ -5112,7 +5112,7 @@ private   int   getNum(char letter,   String   a)
 				toolSession.setAttribute("permissionDescriptions", pRbValues); 
 				
 				// set group awareness
-				 String groupAware = ToolManager.getCurrentTool().getRegisteredConfig().getProperty("groupAware");
+				 String groupAware = toolManager.getCurrentTool().getRegisteredConfig().getProperty("groupAware");
 				 toolSession.setAttribute("groupAware", groupAware != null ? Boolean.valueOf(groupAware) : Boolean.FALSE);
 			}
 
@@ -5175,7 +5175,7 @@ private   int   getNum(char letter,   String   a)
 	
 	private String getEventMessage(Object object) {
 	  	String eventMessagePrefix = "";
-	  	final String toolId = ToolManager.getCurrentTool().getId();
+	  	final String toolId = toolManager.getCurrentTool().getId();
 		  	
 		if (toolId.equals(DiscussionForumService.MESSAGE_CENTER_ID))
 			eventMessagePrefix = "/messages&Forums/site/";
@@ -5184,8 +5184,8 @@ private   int   getNum(char letter,   String   a)
 		else
 			eventMessagePrefix = "/forums/site/";
 	  	
-	  	return eventMessagePrefix + ToolManager.getCurrentPlacement().getContext() + 
-	  				"/" + object.toString() + "/" + SessionManager.getCurrentSessionUserId();
+	  	return eventMessagePrefix + toolManager.getCurrentPlacement().getContext() + 
+	  				"/" + object.toString() + "/" + sessionManager.getCurrentSessionUserId();
 	}
 
 	public void setContentHostingService(ContentHostingService contentHostingService) {
@@ -5199,6 +5199,29 @@ private   int   getNum(char letter,   String   a)
 		this.eventTrackingService = eventTrackingService;
 	}
 
+	public void setUserDirectoryService(UserDirectoryService userDirectoryService) {
+		this.userDirectoryService = userDirectoryService;
+	}
+
+	public void setUserTimeService(UserTimeService userTimeService) {
+		this.userTimeService = userTimeService;
+	}
+
+	public void setToolManager(ToolManager toolManager) {
+		this.toolManager = toolManager;
+	}
+
+	public void setSessionManager(SessionManager sessionManager) {
+		this.sessionManager = sessionManager;
+	}
+
+	public void setSiteService(SiteService siteService) {
+		this.siteService = siteService;
+	}
+
+	public void setSecurityService(SecurityService securityService) {
+		this.securityService = securityService;
+	}
 
 	public SynopticMsgcntrManager getSynopticMsgcntrManager() {
 		return synopticMsgcntrManager;
@@ -5215,7 +5238,7 @@ private   int   getNum(char letter,   String   a)
 	
 	public String getMobileSession()
 	{
-		Session session = SessionManager.getCurrentSession();
+		Session session = sessionManager.getCurrentSession();
 		String rv = session.getAttribute("is_wireless_device") != null && ((Boolean) session.getAttribute("is_wireless_device")).booleanValue()?"true":"false"; 
 		return rv;
 	}
@@ -5231,7 +5254,7 @@ private   int   getNum(char letter,   String   a)
 	
 	public Site getCurrentSite(){
 		try{
-			return SiteService.getSite(ToolManager.getCurrentPlacement().getContext());
+			return siteService.getSite(toolManager.getCurrentPlacement().getContext());
 		} catch (IdUnusedException e) {
 			log.error(e.getMessage());
 		}
@@ -5338,7 +5361,7 @@ private   int   getNum(char letter,   String   a)
 		}
 
     private LRS_Statement getStatementForUserReadPvtMsg(String subject) {
-    	LRS_Actor student = learningResourceStoreService.getActor(SessionManager.getCurrentSessionUserId());
+    	LRS_Actor student = learningResourceStoreService.getActor(sessionManager.getCurrentSessionUserId());
 
         String url = ServerConfigurationService.getPortalUrl();
         LRS_Verb verb = new LRS_Verb(SAKAI_VERB.interacted);
@@ -5353,7 +5376,7 @@ private   int   getNum(char letter,   String   a)
     }
 
     private LRS_Statement getStatementForUserSentPvtMsg(String subject, SAKAI_VERB sakaiVerb) {
-        LRS_Actor student = learningResourceStoreService.getActor(SessionManager.getCurrentSessionUserId());
+        LRS_Actor student = learningResourceStoreService.getActor(sessionManager.getCurrentSessionUserId());
         String url = ServerConfigurationService.getPortalUrl();
         LRS_Verb verb = new LRS_Verb(sakaiVerb);
         LRS_Object lrsObject = new LRS_Object(url + "/privateMessage", "send-private-message");

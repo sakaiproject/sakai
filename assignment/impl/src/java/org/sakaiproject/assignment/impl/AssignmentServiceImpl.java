@@ -480,11 +480,20 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                     switch (refReckoner.getSubtype()) {
                         case REF_TYPE_CONTENT:
                         case REF_TYPE_ASSIGNMENT:
+                            String assignmentName = "bulk_download";
+                            try {
+                                assignmentName = getAssignment(refReckoner.getId()).getTitle();
+                            } catch (Exception ignore) {
+                                log.error("Could not find assignment for ref = {}", ref.getReference());
+                            }
+                            String date = DateTimeFormatter.ofPattern("yyyyMMddHHmmss").withZone(userTimeService.getLocalTimeZone().toZoneId()).format(ZonedDateTime.now());
+                            String filename = assignmentName + "_" + date;
+
                             String queryString = req.getQueryString();
                             if (StringUtils.isNotBlank(refReckoner.getId())) {
                                 // if subtype is assignment then were downloading all submissions for an assignment
                                 res.setContentType("application/zip");
-                                res.setHeader("Content-Disposition", "attachment; filename = bulk_download.zip");
+                                res.setHeader("Content-Disposition", "attachment; filename = \"" + filename + ".zip\"");
 
                                 transactionTemplate.execute(new TransactionCallbackWithoutResult() {
                                     @Override
@@ -499,7 +508,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                             } else {
                                 // if subtype is assignment and there is no assignmentId then were downloading grades
                                 res.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
-                                res.setHeader("Content-Disposition", "attachment; filename = export_grades_file.xlsx");
+                                res.setHeader("Content-Disposition", "attachment; filename = \"export_grades_" + filename + ".xlsx\"");
 
                                 try (OutputStream out = res.getOutputStream()) {
                                     gradeSheetExporter.getGradesSpreadsheet(out, ref.getReference(), queryString);
@@ -2650,7 +2659,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
 
     private void removeAssociatedGradebookItem(Assignment assignment, String context) {
         String associatedGradebookAssignment = assignment.getProperties().get(AssignmentServiceConstants.PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT);
-        if (StringUtils.startsWith(associatedGradebookAssignment, REFERENCE_ROOT)) {
+        if (StringUtils.isNotBlank(associatedGradebookAssignment)) {
             try {
                 boolean isExternalAssignmentDefined = gradebookExternalAssessmentService.isExternalAssignmentDefined(context, associatedGradebookAssignment);
                 if (isExternalAssignmentDefined) {
@@ -3597,7 +3606,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
 
                     // gradebook-integration link
                     String associatedGradebookAssignment = nProperties.get(PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT);
-                    if (StringUtils.startsWith(associatedGradebookAssignment, REFERENCE_ROOT)) {
+                    if (StringUtils.isNotBlank(associatedGradebookAssignment)) {
                         // see if the old assignment's associated gradebook item is an internal gradebook entry or externally defined
                         boolean isExternalAssignmentDefined = gradebookExternalAssessmentService.isExternalAssignmentDefined(oAssignment.getContext(), associatedGradebookAssignment);
                         if (isExternalAssignmentDefined) {

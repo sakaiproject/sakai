@@ -22,8 +22,8 @@
 package org.sakaiproject.tool.assessment.ui.listener.author;
 
 import javax.faces.event.AbortProcessingException;
-import javax.faces.event.ValueChangeEvent;
-import javax.faces.event.ValueChangeListener;
+import javax.faces.event.ActionEvent;
+import javax.faces.event.ActionListener;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -44,30 +44,29 @@ import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
  * @version $Id$
  */
 @Slf4j
-public class ActionSelectListener implements ValueChangeListener {
+public class ActionSelectListener implements ActionListener {
 
 	/**
 	 * Standard process action method.
-	 * @param ae ValueChangeEvent
+	 * @param ae ActionEvent
 	 * @throws AbortProcessingException
 	 */
-	public void processValueChange(ValueChangeEvent ae)
-			throws AbortProcessingException {
+    @Override
+    public void processAction(ActionEvent ae) throws AbortProcessingException {
 		AuthorBean author = (AuthorBean) ContextUtil.lookupBean("author");
 		DeliveryBean delivery = (DeliveryBean) ContextUtil.lookupBean("delivery");
 		PersonBean person = (PersonBean) ContextUtil.lookupBean("person");
-		String newValue = ae.getNewValue().toString();
 		String publishedID = ContextUtil.lookupParam( "publishedId" );
-		log.debug("**** ae.getNewValue : " + newValue);
+		String action = ContextUtil.lookupParam( "action" );
+		log.debug("**** action : " + action);
 
-		
-		if ("edit_pending".equals(newValue)) {
+		if ("edit_pending".equals(action)) {
 			EditAssessmentListener editAssessmentListener = new EditAssessmentListener();
 			editAssessmentListener.processAction(null);
 			author.setFirstFromPage("editAssessment");
 			author.setJustPublishedAnAssessment(false);
 		}
-		else if ("preview_pending".equals(newValue)) {
+		else if ("preview_pending".equals(action)) {
 			delivery.setActionString("previewAssessment");
 			delivery.setIsFromPrint(false);
 			author.setIsEditPendingAssessmentFlow(true);
@@ -77,11 +76,11 @@ public class ActionSelectListener implements ValueChangeListener {
 			author.setOutcome("beginAssessment");
 			author.setJustPublishedAnAssessment(false);
 		}
-		else if ("print_pending".equals(newValue) || "print_published".equals(newValue)) {
+		else if ("print_pending".equals(action) || "print_published".equals(action)) {
 			delivery.setActionString("previewAssessment");
 			delivery.setIsFromPrint(true);
 			author.setIsEditPendingAssessmentFlow(true);
-			if ("print_published".equals(newValue)) {
+			if ("print_published".equals(action)) {
 				author.setIsEditPendingAssessmentFlow(false);
 				author.setJustPublishedAnAssessment(true);
 			}
@@ -93,14 +92,14 @@ public class ActionSelectListener implements ValueChangeListener {
 			pdfBean.setActionString("author");
 			author.setOutcome("print");
 		}
-		else if ("settings_pending".equals(newValue)) {
+		else if ("settings_pending".equals(action)) {
 			AuthorSettingsListener authorSettingsListener = new AuthorSettingsListener();
 			authorSettingsListener.processAction(null);
 			author.setFromPage("author");
 			author.setFirstFromPage("author");
 			author.setJustPublishedAnAssessment(false);
 		}
-		else if ("publish".equals(newValue)) {
+		else if ("publish".equals(action)) {
 			AuthorSettingsListener authorSettingsListener = new AuthorSettingsListener();
 			authorSettingsListener.processAction(null);
 			author.setIsErrorInSettings(false);
@@ -118,24 +117,24 @@ public class ActionSelectListener implements ValueChangeListener {
 			author.setFromPage("author");
 			author.setFirstFromPage("author");
 		}
-		else if ("duplicate".equals(newValue)) {
+		else if ("duplicate".equals(action)) {
 			ConfirmCopyAssessmentListener confirmCopyAssessmentListener = new ConfirmCopyAssessmentListener();
 			confirmCopyAssessmentListener.processAction(null);
 			author.setOutcome("confirmCopyAssessment");
 			author.setJustPublishedAnAssessment(false);
 		}
-		else if ("export".equals(newValue)) {
+		else if ("export".equals(action)) {
 			ChooseExportTypeListener chooseExportTypeListener = new ChooseExportTypeListener();
 			chooseExportTypeListener.processAction(null);
 			author.setOutcome("chooseExportType");
 			author.setJustPublishedAnAssessment(false);
 		}
-		else if ("remove_pending".equals(newValue)) {
-			ConfirmRemoveAssessmentListener confirmRemoveAssessmentListener = new ConfirmRemoveAssessmentListener();
-			confirmRemoveAssessmentListener.processAction(null);
+		else if ("remove_selected".equals(action)) {
+			RemoveAssessmentListener removeAssessmentListener = new RemoveAssessmentListener();
+			removeAssessmentListener.processAction(null);
 			author.setJustPublishedAnAssessment(false);
 		}
-		else if ("scores".equals(newValue)) {
+		else if ("scores".equals(action)) {
 			delivery.setActionString("gradeAssessment");
 			ResetTotalScoreListener resetTotalScoreListener = new ResetTotalScoreListener();
 			resetTotalScoreListener.processAction(null);
@@ -143,7 +142,7 @@ public class ActionSelectListener implements ValueChangeListener {
 			totalScoreListener.processAction(null);
 			author.setJustPublishedAnAssessment(true);
 		}
-		else if ("edit_published".equals(newValue)) {
+		else if ("edit_published".equals(action)) {
 			ConfirmEditPublishedAssessmentListener confirmEditPublishedAssessmentListener = new ConfirmEditPublishedAssessmentListener();
 			confirmEditPublishedAssessmentListener.processAction(null);
 			author.setOutcome("confirmEditPublishedAssessment");
@@ -151,7 +150,7 @@ public class ActionSelectListener implements ValueChangeListener {
 			author.setEditPublishedAssessmentID( publishedID );
 			author.setJustPublishedAnAssessment(true);
 		}
-		else if ("preview_published".equals(newValue)) {
+		else if ("preview_published".equals(action)) {
 			delivery.setActionString("previewAssessment");
 			author.setIsEditPendingAssessmentFlow(false);
 			person.setPreviewFromPage("author");
@@ -160,14 +159,9 @@ public class ActionSelectListener implements ValueChangeListener {
 			author.setOutcome("beginAssessment");
 			author.setJustPublishedAnAssessment(true);
 		}
-		else if ("settings_published".equals(newValue)) {
+		else if ("settings_published".equals(action)) {
 			EditPublishedSettingsListener editPublishedSettingsListener = new EditPublishedSettingsListener();
 			editPublishedSettingsListener.processAction(null);
-			author.setJustPublishedAnAssessment(true);
-		}
-		else if ("remove_published".equals(newValue)) {
-			ConfirmRemovePublishedAssessmentListener confirmRemovePublishedAssessmentListener = new ConfirmRemovePublishedAssessmentListener();
-			confirmRemovePublishedAssessmentListener.processAction(null);
 			author.setJustPublishedAnAssessment(true);
 		}
 	}

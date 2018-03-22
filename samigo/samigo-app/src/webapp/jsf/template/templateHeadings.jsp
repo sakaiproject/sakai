@@ -19,45 +19,57 @@
 **********************************************************************************/
 --%>
 -->
-  <h:panelGroup rendered="#{authorization.adminQuestionPool or authorization.adminAssessment}">
-
-<f:verbatim><ul class="navIntraTool actionToolbar" role="menu">
-<li role="menuitem" class="firstToolBarItem"><span></f:verbatim>
-
-   <h:commandLink title="#{generalMessages.t_assessment}" action="author" id="authorlink" immediate="true" rendered="#{authorization.adminAssessment}">
-      <h:outputText value="#{generalMessages.assessment}" />
-       <f:actionListener
-         type="org.sakaiproject.tool.assessment.ui.listener.author.AuthorActionListener" />
-   </h:commandLink>
-
-<f:verbatim></span></li>
-<li role="menuitem" ><span class="current"></f:verbatim>
-
-      <h:outputText value="#{generalMessages.template}" />
-      
-<f:verbatim></span></li>
-<li role="menuitem" ><span></f:verbatim>
-
-    <h:commandLink id="questionPoolsLink" title="#{generalMessages.t_questionPool}" action="poolList" immediate="true" rendered="#{authorization.adminQuestionPool}">
-      <h:outputText value="#{generalMessages.questionPool}" />
-      <f:actionListener
-         type="org.sakaiproject.tool.assessment.ui.listener.questionpool.QuestionPoolListener" />
-    </h:commandLink>
-
-<f:verbatim></span></li>
-<li role="menuitem" ><span></f:verbatim>
-    <h:commandLink id="evnetLogLink" accesskey="#{generalMessages.a_log}" title="#{generalMessages.t_eventLog}" action="eventLog" immediate="true" rendered="#{authorization.adminQuestionPool}">
-      <h:outputText value="#{generalMessages.eventLog}" />
-      <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.EventLogListener" />
-    </h:commandLink>
-<f:verbatim></span></li>
-<li role="menuitem" ><span></f:verbatim>
-	<h:commandLink id="sectionActivity" accesskey="#{generalMessages.a_section_activity}" title="#{generalMessages.section_activity}" action="sectionActivity" immediate="true" rendered="#{authorization.adminQuestionPool}">
-		<h:outputText value="#{generalMessages.section_activity}" />
-		<f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.SectionActivityListener" />
-	</h:commandLink>
-<f:verbatim></span></li> 
-
-</ul></f:verbatim>
-
-  </h:panelGroup>
+<h:panelGroup>
+    <ul class="navIntraTool actionToolbar" role="menu">
+        <h:panelGroup rendered="#{authorization.createAssessment}">
+            <li role="menuitem">
+                <span>
+                    <h:commandLink title="#{generalMessages.add}" action="#{author.getOutcome}" immediate="true">
+                        <f:param name="action" value="create_assessment_title" />
+                        <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.AuthorAssessmentListener" />
+                        <h:outputText value="#{generalMessages.add}" />
+                    </h:commandLink>
+                </span>
+            </li>
+        </h:panelGroup>
+        <h:panelGroup rendered="#{authorization.createAssessment or authorization.editAnyAssessment or authorization.editOwnAssessment or authorization.gradeAnyAssessment or authorization.gradeOwnAssessment}">
+            <li role="menuitem">
+                <span>
+                    <h:commandLink title="#{generalMessages.t_assessment}" action="author" id="authorlink" immediate="true" rendered="#{authorization.adminAssessment}">
+                        <h:outputText value="#{generalMessages.assessment}" />
+                        <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.AuthorActionListener" />
+                    </h:commandLink>
+                </span>
+            </li>
+        </h:panelGroup>
+        <li role="menuitem">
+            <span class="current">
+                <h:outputText value="#{generalMessages.template}" />
+            </span>
+        </li>
+        <li role="menuitem">
+            <span>
+                <h:commandLink id="questionPoolsLink" title="#{generalMessages.t_questionPool}" action="poolList" immediate="true" rendered="#{authorization.adminQuestionPool}">
+                    <h:outputText value="#{generalMessages.questionPool}" />
+                    <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.questionpool.QuestionPoolListener" />
+                </h:commandLink>
+            </span>
+        </li>
+        <li role="menuitem">
+            <span>
+                <h:commandLink id="evnetLogLink" accesskey="#{generalMessages.a_log}" title="#{generalMessages.t_eventLog}" action="eventLog" immediate="true" rendered="#{authorization.adminQuestionPool}">
+                    <h:outputText value="#{generalMessages.eventLog}" />
+                    <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.EventLogListener" />
+                </h:commandLink>
+            </span>
+        </li>
+        <li role="menuitem">
+            <span>
+                <h:commandLink id="sectionActivity" accesskey="#{generalMessages.a_section_activity}" title="#{generalMessages.section_activity}" action="sectionActivity" immediate="true" rendered="#{authorization.adminQuestionPool}">
+                    <h:outputText value="#{generalMessages.section_activity}" />
+                    <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.SectionActivityListener" />
+                </h:commandLink>
+            </span>
+        </li> 
+    </ul>
+</h:panelGroup>

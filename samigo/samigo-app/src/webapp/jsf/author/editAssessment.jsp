@@ -97,7 +97,7 @@ $(window).load( function() {
   <h:inputHidden id="ItemIdent" value="#{author.currentItem}"/>
 
   <!-- HEADINGS -->
-  <%@ include file="/jsf/author/allHeadings.jsp" %>
+  <%@ include file="/jsf/author/editAssessmentHeadings.jsp" %>
 
   <div class="navView">
     <h1>
@@ -165,7 +165,7 @@ $(window).load( function() {
           action="#{author.getOutcome}">
         
         <h:outputText  value="#{commonMessages.settings_action}" />
-        <f:param name="publishedAssessmentId" value="#{assessmentBean.assessmentId}"/>
+        <f:param name="publishedId" value="#{assessmentBean.assessmentId}"/>
         <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.EditPublishedSettingsListener" />
 	    <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.SetFromPageAsEditAssessmentListener" />
     </h:commandLink>

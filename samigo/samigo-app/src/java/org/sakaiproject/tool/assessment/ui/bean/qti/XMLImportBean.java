@@ -57,6 +57,7 @@ import org.sakaiproject.tool.assessment.services.qti.QTIService;
 import org.sakaiproject.tool.assessment.ui.bean.author.AssessmentBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.AuthorBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.ItemAuthorBean;
+import org.sakaiproject.tool.assessment.ui.bean.authz.AuthorizationBean;
 import org.sakaiproject.tool.assessment.ui.bean.questionpool.QuestionPoolBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.util.FormattedText;
@@ -80,6 +81,7 @@ public class XMLImportBean implements Serializable
   private AuthorBean authorBean;
   private AssessmentBean assessmentBean;
   private ItemAuthorBean itemAuthorBean;
+  private AuthorizationBean authorizationBean;
   private QuestionPoolBean questionPoolBean;
   private boolean isCP;
   private String importType2;
@@ -358,7 +360,15 @@ public class XMLImportBean implements Serializable
 			log.warn("Unable to format date: " + ex.getMessage());
 		}
 	}
+    List allAssessments = new ArrayList<>();
+    if (authorizationBean.getEditAnyAssessment() || authorizationBean.getEditOwnAssessment()) {
+        allAssessments.addAll(list);
+    }
+    if (authorizationBean.getGradeAnyAssessment() || authorizationBean.getGradeOwnAssessment()) {
+        allAssessments.addAll(authorBean.getPublishedAssessments());
+    }
     authorBean.setAssessments(list);
+    authorBean.setAllAssessments(allAssessments);
   }
   
   private String getImportedFilename(String filename) {
@@ -441,6 +451,16 @@ public class XMLImportBean implements Serializable
   public void setItemAuthorBean(ItemAuthorBean itemAuthorBean)
   {
     this.itemAuthorBean = itemAuthorBean;
+  }
+
+  public AuthorizationBean getAuthorizationBean()
+  {
+    return authorizationBean;
+  }
+
+  public void setAuthorizationBean(AuthorizationBean authorizationBean)
+  {
+    this.authorizationBean = authorizationBean;
   }
 
   /**

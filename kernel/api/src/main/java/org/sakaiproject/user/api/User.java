@@ -43,23 +43,13 @@ public interface User extends Entity, Comparable
 	 */
 	User getModifiedBy();
 
-	/**
-	 * @return the time created.
-	 * @deprecated see {@link #getCreatedDate()}
-	 * 
-	 */
-	Time getCreatedTime();
+
 	
 	/**
 	 * @return the time created.
 	 */
 	Date getCreatedDate();
 
-	/**
-	 * @return the time last modified.
-	 * @deprecated see {@link #getModifiedDate()}
-	 */
-	Time getModifiedTime();
 
 	/**
 	 * @return the time last modified.

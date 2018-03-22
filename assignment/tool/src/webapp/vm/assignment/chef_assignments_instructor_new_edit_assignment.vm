@@ -1,6 +1,6 @@
 <!-- start: chef_assignments_instructor_new_edit_assignment.vm  -->
 #set( $H = '-' )
-<!-- Initialize the plugin: -->
+<!-- Initialize the Bootstrap-multiselect plugin: -->
 <script type="text/javascript">
     $(document).ready(function() {
         $('#selectedGroups').multiselect({
@@ -8,11 +8,13 @@
             nonSelectedText: '$tlang.getString("asn.edit.selectone")',
             allSelectedText: '$tlang.getString("asn.edit.allselected")',
             nSelectedText: ' $tlang.getString("asn.edit.groupsselected")',
+            filterPlaceholder: '$tlang.getString("asn.edit.searchgroup")',
             enableFiltering: true,
-            includeSelectAllOption: true,
-            onChange: function(option, checked, select) {
-                ASN.showOrHideSelectGroupsMessage();
-            }
+            enableCaseInsensitiveFiltering: true,
+            includeSelectAllOption: true
+        });
+        $('#selectedGroups').change(function(){
+            ASN.showOrHideSelectGroupsMessage();
         });
     });
 </script>

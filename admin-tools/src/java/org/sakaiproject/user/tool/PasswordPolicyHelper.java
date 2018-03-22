@@ -149,8 +149,6 @@ public class PasswordPolicyHelper {
         @Override public User 				getCreatedBy() 								{ return null; }
         @Override public Date 				getCreatedDate() 							{ return null; }
         @Override public Date 				getModifiedDate() 							{ return null; }
-        @Override public Time 				getCreatedTime() 							{ return null; }
-        @Override public Time 				getModifiedTime() 							{ return null; }
         @Override public int 				compareTo(Object o) 						{ return 0; }
     }
 }
