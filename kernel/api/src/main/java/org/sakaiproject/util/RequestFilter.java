@@ -818,7 +818,7 @@ public class RequestFilter implements Filter
 		// retrieve option to enable or disable cookie HttpOnly
 		m_cookieHttpOnly = serverConfigurationService.getBoolean(SAKAI_COOKIE_HTTP_ONLY, true);
 		// retrieve option to enable or disable cookie SameSite
-		m_cookieSameSite = serverConfigurationService.getString(SAKAI_COOKIE_SAME_SITE, "lax");
+		m_cookieSameSite = serverConfigurationService.getString(SAKAI_COOKIE_SAME_SITE, null);
 
 		m_UACompatible = serverConfigurationService.getString(SAKAI_UA_COMPATIBLE, null);
 
