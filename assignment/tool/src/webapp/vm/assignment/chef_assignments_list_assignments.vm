@@ -44,7 +44,7 @@
 		</h1>
 	</div>
 
-	#if($!groupFilterEnabled && $!groupListWhereIsMember.hasNext())
+	#if($!groupFilterEnabled && $!filterGroupIterator.hasNext())
 		<div class="row" id="filterByGroupDiv">
 			<div class="col-md-12">
 			<form id="groupFilterForm" name="groupFilterForm" class="inlineForm" method="post" action="#toolForm("AssignmentAction")">
@@ -56,7 +56,7 @@
 						<span class="skip">$tlang.getString("newassig.selectmessage")</span>
 						<select id="filterByGroup" name="filterByGroup" onchange="SPNR.insertSpinnerAfter( this, null, null ); ASN.submitForm( 'groupFilterForm', null, null, null ); return false;">
 							<option value="all" #if($!filterByGroup.equals('all'))selected="selected"#end>$!tlang.getString("listassig.allgroups")</option>
-							#foreach($group in $!groupListWhereIsMember)
+							#foreach($group in $!filterGroupIterator)
 								<option value="$group.getId()" #if($!filterByGroup.equals($group.getId()))selected="selected"#end>$group.getTitle()</option>
 							#end
 						</select>
