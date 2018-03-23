@@ -129,6 +129,8 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 	private static final String GIVEN_NAME = "given_name";
 	private static final String FAMILY_NAME = "family_name";
 	
+	private static final String GENERATE_REPORTS_IMMEDIATELY_AND_ON_DUE_DATE= "1";
+	private static final String GENERATE_REPORTS_ON_DUE_DATE = "2";
 	private static final int PLACEHOLDER_ITEM_REVIEW_SCORE = -10;
 
 	private String serviceUrl;
@@ -380,9 +382,9 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 		return response;
 	}
 
-	private void generateSimilarityReport(String reportId, String assignmentId) throws Exception {
+	private void generateSimilarityReport(String reportId, String assignmentRef) throws Exception {
 		
-		Assignment assignment = assignmentService.getAssignment(assignmentId);
+		Assignment assignment = assignmentService.getAssignment(entityManager.newReference(assignmentRef));
 		Map<String, String> assignmentSettings = assignment.getProperties();
 		
 		List<String> repositories = new ArrayList<>();
@@ -548,8 +550,6 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 	// Loop 1 contains stage one and two, Loop 2 contains stage three
 	public void processQueue() {
 		log.info("Processing Turnitin OC submission queue");
-		// Create new Calendar instance used for adding delay time to current time
-		Calendar cal = Calendar.getInstance();
 		// Create new session object to ensure permissions are carried correctly to each new thread
 		final Session session = sessionManager.getCurrentSession();
 		ExecutorService executor = Executors.newFixedThreadPool(2);
@@ -557,14 +557,14 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 			@Override
 			public void run() {
 				sessionManager.setCurrentSession(session);
-				processUnsubmitted(cal);
+				processUnsubmitted();
 			}
 		});
 		executor.execute(new Runnable() {
 			@Override
 			public void run() {
 				sessionManager.setCurrentSession(session);
-				checkForReport(cal);
+				checkForReport();
 			}
 		});
 		executor.shutdown();
@@ -578,88 +578,92 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 		}
 	}
 	
-	public void checkForReport(Calendar cal) {
+	public void checkForReport() {
 		// Original file has been uploaded, and similarity report has been requested
 		// Check for status of report and return score
 		int errors = 0;
 		int success = 0;
 
 		for (ContentReviewItem item : crqs.getAwaitingReports(getProviderId())) {
-			// Make sure it's after the next retry time
-			if (item.getNextRetryTime().getTime() > new Date().getTime()) {
-				continue;
-			}
-			if (!incrementItem(cal, item)) {
-				errors++;
-				continue;
-			}
-			// Check if any placeholder items need to regenerate report after due date
-			if (item.getReviewScore() != null &&  item.getReviewScore().equals(PLACEHOLDER_ITEM_REVIEW_SCORE)) {
-				// Get assignment due date			
-				try {
-					Assignment assignment = assignmentService.getAssignment(item.getTaskId().split("/")[4]);
-					Date assignmentDueDate = Date.from(assignment.getDueDate());
-					// Make sure due date is past
-					if (assignmentDueDate.before(new Date())) {
-						// Regenerate similarity request 
-						generateSimilarityReport(item.getExternalId(), item.getTaskId().split("/")[4]);
-						// Reset retry count
-						item.setRetryCount(new Long(0));
-						// Remove placeholder item score
-						item.setReviewScore(null);
-						// Reset cal to current time
-						cal.setTime(new Date());
-						// Reset delay time
-						cal.add(Calendar.MINUTE, getDelayTime(item.getRetryCount()));
-						// Schedule next retry time
-						item.setNextRetryTime(cal.getTime());
-						crqs.update(item);
-						success++;
-						continue;
-					} else {
-						// We don't want placeholder items to exceed retry count maximum
-						// Reset retry count to zero
-						item.setRetryCount(Long.valueOf(0));
-						// Retry in one hour
-						cal.setTime(new Date());
-						cal.add(Calendar.HOUR_OF_DAY, 1);
-						item.setNextRetryTime(cal.getTime());
-						crqs.update(item);
+			try {
+				// Make sure it's after the next retry time
+				if (item.getNextRetryTime().getTime() > new Date().getTime()) {
+					continue;
+				}
+				if (!incrementItem(item)) {
+					errors++;
+					continue;
+				}
+				// Check if any placeholder items need to regenerate report after due date
+				if (item.getReviewScore() != null && item.getReviewScore().equals(PLACEHOLDER_ITEM_REVIEW_SCORE)) {	
+					// Get assignment associated with current item's task Id
+					Assignment assignment = assignmentService.getAssignment(entityManager.newReference(item.getTaskId()));
+					if(assignment != null && assignment.getDueDate() != null ) {
+						// Make sure due date is past
+						Date assignmentDueDate = Date.from(assignment.getDueDate());
+						if (assignmentDueDate.before(new Date())) {
+							// Regenerate similarity request 
+							generateSimilarityReport(item.getExternalId(), item.getTaskId());
+							//Lookup reference item
+							String referenceItemContentId = item.getContentId().substring(0, item.getContentId().indexOf("_placeholder"));							
+							Optional<ContentReviewItem> quededReferenceItem = crqs.getQueuedItem(item.getProviderId(), referenceItemContentId);
+							ContentReviewItem referenceItem = quededReferenceItem.isPresent() ? quededReferenceItem.get() : null;							
+							//reschedule reference item by setting score to null, reset retry time and set status to awaiting report
+							if (referenceItem != null) {
+								referenceItem.setStatus(ContentReviewConstants.CONTENT_REVIEW_SUBMITTED_AWAITING_REPORT_CODE);
+								referenceItem.setRetryCount(Long.valueOf(0));
+								referenceItem.setReviewScore(null);
+								referenceItem.setNextRetryTime(new Date());
+								crqs.update(referenceItem);
+								// Report regenerated for reference item, placeholder item is no longer needed
+								crqs.delete(item);
+								success++;
+								continue;															
+							}
+							else {
+								// Reference item no longer exists
+								// Placeholder item is no longer needed
+								crqs.delete(item);
+								continue;
+							}
+						} else {
+							// We don't want placeholder items to exceed retry count maximum
+							// Reset retry count to zero
+							item.setRetryCount(Long.valueOf(0));
+							item.setNextRetryTime(getDueDateRetryTime(assignmentDueDate));
+							crqs.update(item);
+							continue;
+						}					
+					}else {
+						// Assignment or due date no longer exist
+						// placeholder item is no longer needed
+						crqs.delete(item);
 						continue;
 					}
-				} catch (Exception e) {
-					log.error(e.getLocalizedMessage(), e);
-					item.setLastError(e.getMessage());
-					item.setStatus(ContentReviewConstants.CONTENT_REVIEW_REPORT_ERROR_RETRY_CODE);
-					crqs.update(item);
-					errors++;												
 				}
-			}
-						
-			try {
 				// Get status of similarity report
 				// Returns -1 if report is still processing
 				// Returns -2 if an error occurs
 				// Else returns reports score as integer																	
-					int status = getSimilarityReportStatus(item.getExternalId());
-					if (status > -1) {					
-						log.info("Report complete! Score: " + status);
-						// Status value is report score
-						item.setReviewScore(status);								
-						item.setStatus(ContentReviewConstants.CONTENT_REVIEW_SUBMITTED_REPORT_AVAILABLE_CODE);
-						item.setDateReportReceived(new Date());
-						item.setRetryCount(Long.valueOf(0));
-						item.setLastError(null);
-						item.setErrorCode(null);
-						success++;
-						crqs.update(item);
-					} else if (status == -1) {
-						// Similarity report is still generating, will try again
-						log.info("Processing report " + item.getExternalId() + "...");
-					} else if(status == -2){
-						throw new Error("Unknown error during report status call");
-					}
-								
+				int status = getSimilarityReportStatus(item.getExternalId());
+				if (status > -1) {					
+					log.info("Report complete! Score: " + status);
+					// Status value is report score
+					item.setReviewScore(status);								
+					item.setStatus(ContentReviewConstants.CONTENT_REVIEW_SUBMITTED_REPORT_AVAILABLE_CODE);
+					item.setDateReportReceived(new Date());
+					item.setRetryCount(Long.valueOf(0));
+					item.setLastError(null);
+					item.setErrorCode(null);
+					success++;
+					crqs.update(item);
+				} else if (status == -1) {
+					// Similarity report is still generating, will try again
+					log.info("Processing report " + item.getExternalId() + "...");
+				} else if(status == -2){
+					throw new Error("Unknown error during report status call");
+				}
+
 			} catch (Exception e) {
 				log.error(e.getLocalizedMessage(), e);
 				item.setLastError(e.getMessage());
@@ -668,12 +672,10 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 				errors++;
 			}
 		}
-
-		log.info("Turnitin report queue run completed: " + success + " items submitted, " + errors + " errors.");
-		
+		log.info("Turnitin report queue run completed: " + success + " items submitted, " + errors + " errors.");		
 	}
 	
-	public void processUnsubmitted(Calendar cal) {
+	public void processUnsubmitted() {
 		// Submission process phase 1
 		// 1. Establish submission object, get ID
 		// 2. Upload original file to submission
@@ -683,222 +685,231 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 		Optional<ContentReviewItem> nextItem = null;
 
 		while ((nextItem = crqs.getNextItemInQueueToSubmit(getProviderId())).isPresent()) {
-			ContentReviewItem item = nextItem.get();
-
-			if (!incrementItem(cal, item)) {
-				errors++;
-				continue;
-			}						
-			// Handle items that only generate reports on due date				
 			try {
-				// Get assignment due date with current item's task Id
-				Assignment assignment = assignmentService.getAssignment(item.getTaskId().split("/")[4]);
-				Date assignmentDueDate = Date.from(assignment.getDueDate());					
-				String reportGenSpeed = assignment.getProperties().get("report_gen_speed");
-				// If report gen speed is set to due date, and it's before the due date right now, do not process item
-				if (reportGenSpeed != null && assignmentDueDate != null && reportGenSpeed.equals("2")
-						&& assignmentDueDate.after(new Date())) {
-					log.info("Report generate speed is 2, skipping for now. ItemID: " + item.getId());
-					// We don't items with gen speed 2 items to exceed retry count maximum
-					// Reset retry count to zero
-					item.setRetryCount(Long.valueOf(0));
-					// Retry in one hour
-					cal.setTime(new Date());
-					cal.add(Calendar.HOUR_OF_DAY, 1);
-					item.setNextRetryTime(cal.getTime());
-					crqs.update(item);
+				ContentReviewItem item = nextItem.get();
+				if (!incrementItem(item)) {
+					errors++;
 					continue;
-				}
-			} catch (IdUnusedException | PermissionException e) {				
-				log.error(e.getMessage(), e);
-			}				
-
-			ContentResource resource = null;
-			try {
-				// Get resource with current item's content Id
-				resource = contentHostingService.getResource(item.getContentId());
-			} catch (IdUnusedException e4) {
-				log.error("IdUnusedException: no resource with id " + item.getContentId(), e4);
-				item.setLastError("IdUnusedException: no resource with id " + item.getContentId());
-				item.setStatus(ContentReviewConstants.CONTENT_REVIEW_SUBMISSION_ERROR_NO_RETRY_CODE);
-				crqs.update(item);
-				errors++;
-				continue;
-			} catch (PermissionException e) {
-				log.error("PermissionException: no resource with id " + item.getContentId(), e);
-				item.setLastError("PermissionException: no resource with id " + item.getContentId());
-				item.setStatus(ContentReviewConstants.CONTENT_REVIEW_SUBMISSION_ERROR_NO_RETRY_CODE);
-				crqs.update(item);
-				errors++;
-				continue;
-			} catch (TypeException e) {
-				log.error("TypeException: no resource with id " + item.getContentId(), e);
-				item.setLastError("TypeException: no resource with id " + item.getContentId());
-				item.setStatus(ContentReviewConstants.CONTENT_REVIEW_SUBMISSION_ERROR_NO_RETRY_CODE);
-				crqs.update(item);
-				errors++;
-				continue;
-			}
-
-			// EXTERNAL ID DOES NOT EXIST, CREATE SUBMISSION AND UPLOAD CONTENTS TO TCA
-			// (STAGE 1)
-			if (StringUtils.isEmpty(item.getExternalId())) {
-				// Get filename of submission						
-				String fileName = resource.getProperties().getProperty(ResourceProperties.PROP_DISPLAY_NAME);						
-				// If fileName is empty set default
-				if (StringUtils.isEmpty(fileName)) {
-					fileName = "submission_" + item.getUserId() + "_" + item.getSiteId();
-					log.info("Using Default Filename " + fileName);
-				}				
-				// Add .html for inline submissions				
-				if ("true".equals(resource.getProperties().getProperty(AssignmentConstants.PROP_INLINE_SUBMISSION))
-						&& FilenameUtils.getExtension(fileName).isEmpty()) {
-					fileName += HTML_EXTENSION;
-				}							
-				try {
-					log.info("Submission starting...");
-					// Retrieve submissionId from TCA and set to externalId
-					String externalId = getSubmissionId(item.getUserId(), fileName);
-					if (StringUtils.isEmpty(externalId)) {
-						throw new Error("submission id is missing");
-					} else {
-						// Add filename to content upload headers
-						CONTENT_UPLOAD_HEADERS.put(HEADER_DISP, "inline; filename=\"" + fileName + "\"");
-						// Upload submission contents of to TCA
-						uploadExternalContent(externalId, resource.getContent());
-						// Set item externalId to externalId
-						item.setExternalId(externalId);
-						// Reset retry count
-						item.setRetryCount(new Long(0));
-						// Reset cal to current time
-						cal.setTime(new Date());
-						// Reset delay time
-						cal.add(Calendar.MINUTE, getDelayTime(item.getRetryCount()));
-						// Schedule next retry time
-						item.setNextRetryTime(cal.getTime());
-						item.setDateSubmitted(new Date());
+				}						
+				// Handle items that only generate reports on due date				
+				// Get assignment associated with current item's task Id
+				Assignment assignment = assignmentService.getAssignment(entityManager.newReference(item.getTaskId()));
+				Date assignmentDueDate = null;
+				String reportGenSpeed = null;
+				if(assignment != null) {
+					assignmentDueDate = Date.from(assignment. getDueDate());					
+					reportGenSpeed = assignment.getProperties().get("report_gen_speed");
+					// If report gen speed is set to due date, and it's before the due date right now, do not process item
+					if (assignmentDueDate != null && GENERATE_REPORTS_ON_DUE_DATE.equals(reportGenSpeed) 
+							&& assignmentDueDate.after(new Date())) {
+						log.info("Report generate speed is 2, skipping for now. ItemID: " + item.getId());
+						// We don't items with gen speed 2 items to exceed retry count maximum
+						// Reset retry count to zero
+						item.setRetryCount(Long.valueOf(0));
+						item.setNextRetryTime(getDueDateRetryTime(assignmentDueDate));
 						crqs.update(item);
-						success++;
+						continue;
 					}
-
-				} catch (Exception e) {
-					log.error(e.getMessage(), e);
-					item.setLastError(e.getMessage());
-					item.setStatus(ContentReviewConstants.CONTENT_REVIEW_SUBMISSION_ERROR_RETRY_CODE);
+				}
+				//Paper is ready to be submitted
+				ContentResource resource = null;
+				try {
+					// Get resource with current item's content Id
+					resource = contentHostingService.getResource(item.getContentId());
+				} catch (IdUnusedException e4) {
+					log.error("IdUnusedException: no resource with id " + item.getContentId(), e4);
+					item.setLastError("IdUnusedException: no resource with id " + item.getContentId());
+					item.setStatus(ContentReviewConstants.CONTENT_REVIEW_SUBMISSION_ERROR_NO_RETRY_CODE);
 					crqs.update(item);
 					errors++;
+					continue;
+				} catch (PermissionException e) {
+					log.error("PermissionException: no resource with id " + item.getContentId(), e);
+					item.setLastError("PermissionException: no resource with id " + item.getContentId());
+					item.setStatus(ContentReviewConstants.CONTENT_REVIEW_SUBMISSION_ERROR_NO_RETRY_CODE);
+					crqs.update(item);
+					errors++;
+					continue;
+				} catch (TypeException e) {
+					log.error("TypeException: no resource with id " + item.getContentId(), e);
+					item.setLastError("TypeException: no resource with id " + item.getContentId());
+					item.setStatus(ContentReviewConstants.CONTENT_REVIEW_SUBMISSION_ERROR_NO_RETRY_CODE);
+					crqs.update(item);
+					errors++;
+					continue;
 				}
-			} else {
-				// EXTERNAL ID EXISTS, START SIMILARITY REPORT GENERATION PROCESS (STAGE 2)
-				try {
-					// Get submission status, returns the state of the submission as string
-					String submissionStatus = getSubmissionStatus(item.getExternalId());
-					// Handle possible error status
-					String errorStr = null;
-					switch (submissionStatus) {
-					case "COMPLETE":
-						// If submission status is complete, start similarity report process
-						generateSimilarityReport(item.getExternalId(), item.getTaskId().split("/")[4]);
-						// Update item status for loop 2
-						item.setStatus(ContentReviewConstants.CONTENT_REVIEW_SUBMITTED_AWAITING_REPORT_CODE);
-						// Reset retry count
-						item.setRetryCount(new Long(0));
-						// Reset cal to current time
-						cal.setTime(new Date());
-						// Reset delay time
-						cal.add(Calendar.MINUTE, getDelayTime(item.getRetryCount()));
-						// Schedule next retry time
-						item.setNextRetryTime(cal.getTime());
-						crqs.update(item);
-						success++;
-						break;
-					case "PROCESSING":
-						// do nothing... try again
-						break;
-					case "CREATED":
-						// do nothing... try again
-						break;
-					case "UNSUPPORTED_FILETYPE":
-						errorStr = "The uploaded filetype is not supported";
-					case "PROCESSING_ERROR":
-						errorStr = "An unspecified error occurred while processing the submissions";
-					case "TOO_LITTLE_TEXT":
-						errorStr = "The submission does not have enough text to generate a Similarity Report (a submission must contain at least 20 words)";
-					case "TOO_MUCH_TEXT":
-						errorStr = "The submission has too much text to generate a Similarity Report (after extracted text is converted to UTF-8, the submission must contain less than 2MB of text)";
-					case "TOO_MANY_PAGES":
-						errorStr = "The submission has too many pages to generate a Similarity Report (a submission cannot contain more than 400 pages)";
-					case "FILE_LOCKED":
-						errorStr = "The uploaded file requires a password in order to be opened";
-					case "CORRUPT_FILE":
-						errorStr = "The uploaded file appears to be corrupt";
-					case "ERROR":				
-						errorStr = "Submission returned with ERROR status";
-					default:
-						log.info("Unknown submission status, will retry: " + submissionStatus);
-					}
-					if(StringUtils.isNotEmpty(errorStr)) {
-						item.setLastError(errorStr);
-						item.setStatus(ContentReviewConstants.CONTENT_REVIEW_SUBMISSION_ERROR_NO_RETRY_CODE);
+
+				// EXTERNAL ID DOES NOT EXIST, CREATE SUBMISSION AND UPLOAD CONTENTS TO TCA
+				// (STAGE 1)
+				if (StringUtils.isEmpty(item.getExternalId())) {
+					// Get filename of submission						
+					String fileName = resource.getProperties().getProperty(ResourceProperties.PROP_DISPLAY_NAME);						
+					// If fileName is empty set default
+					if (StringUtils.isEmpty(fileName)) {
+						fileName = "submission_" + item.getUserId() + "_" + item.getSiteId();
+						log.info("Using Default Filename " + fileName);
+					}				
+					// Add .html for inline submissions				
+					if ("true".equals(resource.getProperties().getProperty(AssignmentConstants.PROP_INLINE_SUBMISSION))
+							&& FilenameUtils.getExtension(fileName).isEmpty()) {
+						fileName += HTML_EXTENSION;
+					}							
+					try {
+						log.info("Submission starting...");
+						// Retrieve submissionId from TCA and set to externalId
+						String externalId = getSubmissionId(item.getUserId(), fileName);
+						if (StringUtils.isEmpty(externalId)) {
+							throw new Error("submission id is missing");
+						} else {
+							// Add filename to content upload headers
+							CONTENT_UPLOAD_HEADERS.put(HEADER_DISP, "inline; filename=\"" + fileName + "\"");
+							// Upload submission contents of to TCA
+							uploadExternalContent(externalId, resource.getContent());
+							// Set item externalId to externalId
+							item.setExternalId(externalId);
+							// Reset retry count
+							item.setRetryCount(new Long(0));
+							Calendar cal = Calendar.getInstance();
+							// Reset cal to current time
+							cal.setTime(new Date());
+							// Reset delay time
+							cal.add(Calendar.MINUTE, getDelayTime(item.getRetryCount()));
+							// Schedule next retry time
+							item.setNextRetryTime(cal.getTime());
+							item.setDateSubmitted(new Date());
+							crqs.update(item);
+							success++;
+						}
+
+					} catch (Exception e) {
+						log.error(e.getMessage(), e);
+						item.setLastError(e.getMessage());
+						item.setStatus(ContentReviewConstants.CONTENT_REVIEW_SUBMISSION_ERROR_RETRY_CODE);
 						crqs.update(item);
 						errors++;
 					}
-				} catch (Exception e) {
-					log.error(e.getMessage(), e);
-					item.setLastError(e.getMessage());
-					item.setStatus(ContentReviewConstants.CONTENT_REVIEW_SUBMISSION_ERROR_RETRY_CODE);
-					crqs.update(item);
-					errors++;
-				}
-
-				try {
-					// Check for items that generate reports both immediately and on due date
-					// Create a placeholder item that will regenerate report score after due date
-					Assignment assignment = assignmentService.getAssignment(item.getTaskId().split("/")[4]);
-					Date assignmentDueDate = Date.from(assignment.getDueDate());					
-					String reportGenSpeed = assignment.getProperties().get("report_gen_speed");
-					if (reportGenSpeed != null && assignmentDueDate != null && reportGenSpeed.equals("1")
-							&& assignmentDueDate.after(new Date())) {
-						log.info("Creating placeholder item for when due date is passed for ItemID: " + item.getId());						
-						ContentReviewItem placeholderItem = new ContentReviewItem();																		
-						// Set placeholder review score, handled in checkForReport
-						placeholderItem.setReviewScore(PLACEHOLDER_ITEM_REVIEW_SCORE);
-						// Id must be unique for each row in content review table, assigning random long
-						placeholderItem.setId(new Random().nextLong());
-						// Content Id must be unique for each row in content review table, assigning random string 
-						placeholderItem.setContentId(RandomStringUtils.randomAlphabetic(120));
-						placeholderItem.setExternalId(item.getExternalId());
-						placeholderItem.setStatus(ContentReviewConstants.CONTENT_REVIEW_SUBMITTED_AWAITING_REPORT_CODE);
-
-						// Set retry time for placeholder item to one hour from current time
-						cal.setTime(new Date());
-						cal.add(Calendar.HOUR_OF_DAY, 1);																	
-						placeholderItem.setNextRetryTime(cal.getTime());
-
-						// Other required fields are copied from original item 
-						placeholderItem.setProviderId(item.getProviderId());						
-						placeholderItem.setUserId(item.getUserId());
-						placeholderItem.setSiteId(item.getSiteId());
-						placeholderItem.setTaskId(item.getTaskId());
-						placeholderItem.setDateQueued(new Date());
-						placeholderItem.setDateSubmitted(new Date());
-						placeholderItem.setRetryCount(new Long(0));																		
-						crqs.update(placeholderItem);
-						success++;
+				} else {
+					// EXTERNAL ID EXISTS, START SIMILARITY REPORT GENERATION PROCESS (STAGE 2)					
+					try {
+						// Get submission status, returns the state of the submission as string		
+						String submissionStatus = getSubmissionStatus(item.getExternalId());
+						// Handle possible error status
+						String errorStr = null;
+						switch (submissionStatus) {
+						case "COMPLETE":
+							// If submission status is complete, start similarity report process
+							generateSimilarityReport(item.getExternalId(), item.getTaskId());
+							// Update item status for loop 2
+							item.setStatus(ContentReviewConstants.CONTENT_REVIEW_SUBMITTED_AWAITING_REPORT_CODE);
+							// Reset retry count
+							item.setRetryCount(new Long(0));
+							Calendar cal = Calendar.getInstance();
+							// Reset cal to current time
+							cal.setTime(new Date());
+							// Reset delay time
+							cal.add(Calendar.MINUTE, getDelayTime(item.getRetryCount()));
+							// Schedule next retry time
+							item.setNextRetryTime(cal.getTime());
+							crqs.update(item);
+							success++;
+							// Check for items that generate reports both immediately and on due date
+							// Create a placeholder item that will regenerate report score after due date
+							if (assignmentDueDate != null && GENERATE_REPORTS_IMMEDIATELY_AND_ON_DUE_DATE.equals(reportGenSpeed)
+									&& assignmentDueDate.after(new Date())) {
+								createPlaceholderItem(item, assignmentDueDate);
+							}							
+							break;
+						case "PROCESSING":
+							// do nothing... try again
+							break;
+						case "CREATED":
+							// do nothing... try again
+							break;
+						case "UNSUPPORTED_FILETYPE":
+							errorStr = "The uploaded filetype is not supported";
+							break;
+							//break on all
+						case "PROCESSING_ERROR":
+							errorStr = "An unspecified error occurred while processing the submissions";
+							break;
+						case "TOO_LITTLE_TEXT":
+							errorStr = "The submission does not have enough text to generate a Similarity Report (a submission must contain at least 20 words)";
+							break;
+						case "TOO_MUCH_TEXT":
+							errorStr = "The submission has too much text to generate a Similarity Report (after extracted text is converted to UTF-8, the submission must contain less than 2MB of text)";
+							break;
+						case "TOO_MANY_PAGES":
+							errorStr = "The submission has too many pages to generate a Similarity Report (a submission cannot contain more than 400 pages)";
+							break;
+						case "FILE_LOCKED":
+							errorStr = "The uploaded file requires a password in order to be opened";
+							break;
+						case "CORRUPT_FILE":
+							errorStr = "The uploaded file appears to be corrupt";
+							break;
+						case "ERROR":				
+							errorStr = "Submission returned with ERROR status";
+							break;
+						default:
+							log.info("Unknown submission status, will retry: " + submissionStatus);
+						}
+						if(StringUtils.isNotEmpty(errorStr)) {
+							item.setLastError(errorStr);
+							item.setStatus(ContentReviewConstants.CONTENT_REVIEW_SUBMISSION_ERROR_NO_RETRY_CODE);
+							crqs.update(item);
+							errors++;
+						}
+					} catch (Exception e) {
+						log.error(e.getMessage(), e);
+						item.setLastError(e.getMessage());
+						item.setStatus(ContentReviewConstants.CONTENT_REVIEW_SUBMISSION_ERROR_RETRY_CODE);
+						crqs.update(item);
+						errors++;
 					}
-				} catch (IdUnusedException | PermissionException e) {
-					log.error("Error creating placeholder item");
-					log.error(e.getMessage(), e);
 				}
+			} catch (Exception e) {				
+				log.error(e.getMessage(), e);
 			}
-
-			log.info("Turnitin submission queue completed: " + success + " items submitted, " + errors + " errors.");
-
+		}		
+		log.info("Turnitin submission queue completed: " + success + " items submitted, " + errors + " errors.");		
+	}
+	
+	private Date getDueDateRetryTime(Date dueDate) {
+		// Set retry time to every 4 hours
+		Calendar cal = Calendar.getInstance();
+		cal.add(Calendar.HOUR_OF_DAY, 4);
+		// If due date is less than 4 hours away, set retry time to due date + five minutes
+		if (cal.getTime().after(dueDate)) {
+			cal.setTime(dueDate);
+			cal.add(Calendar.MINUTE, 5);
 		}
+		return cal.getTime();
 	}
 
-	public boolean incrementItem(Calendar cal, ContentReviewItem item) {
+	private void createPlaceholderItem(ContentReviewItem item, Date dueDate) {
+		log.info("Creating placeholder item for when due date is passed for ItemID: " + item.getId());						
+		ContentReviewItem placeholderItem = new ContentReviewItem();
+		// Review score is used as flag for placeholder items in checkForReport
+		placeholderItem.setReviewScore(PLACEHOLDER_ITEM_REVIEW_SCORE); 
+		// Content Id must be original
+		placeholderItem.setContentId(item.getContentId() + "_placeholder");	
+		placeholderItem.setStatus(ContentReviewConstants.CONTENT_REVIEW_SUBMITTED_AWAITING_REPORT_CODE);
+		placeholderItem.setNextRetryTime(getDueDateRetryTime(dueDate));
+		placeholderItem.setDateQueued(new Date());
+		placeholderItem.setDateSubmitted(new Date());
+		placeholderItem.setRetryCount(new Long(0));	
+		// All other fields are copied from original item 
+		placeholderItem.setExternalId(item.getExternalId());
+		placeholderItem.setProviderId(item.getProviderId());						
+		placeholderItem.setUserId(item.getUserId());
+		placeholderItem.setSiteId(item.getSiteId());
+		placeholderItem.setTaskId(item.getTaskId());																	
+		crqs.update(placeholderItem);
+	}			
+	
+	public boolean incrementItem(ContentReviewItem item) {
 		// If retry count is null set to 0
+		Calendar cal = Calendar.getInstance();
 		if (item.getRetryCount() == null) {
 			item.setRetryCount(Long.valueOf(0));
 			item.setNextRetryTime(cal.getTime());

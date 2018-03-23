@@ -2615,7 +2615,7 @@ public class AssignmentAction extends PagedResourceActionII {
         context.put("show_NEW_ASSIGNMENT_REVIEW_SERVICE_SUBMIT", subOptions);
 
         List<String> reportGenOptions = getReportGenOptions();
-        String reportRadio = serverConfigurationService.getString("turnitin.report_gen_speed.setting.value", null) == null ? NEW_ASSIGNMENT_REVIEW_SERVICE_REPORT_IMMEDIATELY : serverConfigurationService.getString("turnitin.report_gen_speed.setting.value");
+        String reportRadio = serverConfigurationService.getString("turnitin.report_gen_speed.setting.value", null) == null ? reportGenOptions.get(0) : serverConfigurationService.getString("turnitin.report_gen_speed.setting.value");
         if (state.getAttribute(NEW_ASSIGNMENT_REVIEW_SERVICE_REPORT_RADIO) != null && reportGenOptions.contains(state.getAttribute(NEW_ASSIGNMENT_REVIEW_SERVICE_REPORT_RADIO)))
             reportRadio = state.getAttribute(NEW_ASSIGNMENT_REVIEW_SERVICE_REPORT_RADIO).toString();
         context.put("value_NEW_ASSIGNMENT_REVIEW_SERVICE_REPORT_RADIO", reportRadio);
@@ -9304,8 +9304,8 @@ public class AssignmentAction extends PagedResourceActionII {
         if (propertyValues != null && propertyValues.length > 0) {
             for (int i = 0; i < propertyValues.length; i++) {
                 String propertyVal = propertyValues[i];
-                if (propertyVal.equals(NEW_ASSIGNMENT_REVIEW_SERVICE_REPORT_DUE) || propertyVal.equals(NEW_ASSIGNMENT_REVIEW_SERVICE_REPORT_IMMEDIATELY_AND_DUE) ||
-                        propertyVal.equals(NEW_ASSIGNMENT_REVIEW_SERVICE_REPORT_IMMEDIATELY)) {
+                if (propertyVal.equals(NEW_ASSIGNMENT_REVIEW_SERVICE_REPORT_IMMEDIATELY) || propertyVal.equals(NEW_ASSIGNMENT_REVIEW_SERVICE_REPORT_IMMEDIATELY_AND_DUE) ||
+                        propertyVal.equals(NEW_ASSIGNMENT_REVIEW_SERVICE_REPORT_DUE)) {
                     reportGenSettings.add(propertyVal);
                 }
             }
@@ -9314,9 +9314,9 @@ public class AssignmentAction extends PagedResourceActionII {
         // if there are still no valid settings in the list at this point, use the default
         if (reportGenSettings.isEmpty()) {
             // add all three
-            reportGenSettings.add(NEW_ASSIGNMENT_REVIEW_SERVICE_REPORT_DUE);
-            reportGenSettings.add(NEW_ASSIGNMENT_REVIEW_SERVICE_REPORT_IMMEDIATELY);
+        		reportGenSettings.add(NEW_ASSIGNMENT_REVIEW_SERVICE_REPORT_IMMEDIATELY);                        
             reportGenSettings.add(NEW_ASSIGNMENT_REVIEW_SERVICE_REPORT_IMMEDIATELY_AND_DUE);
+            reportGenSettings.add(NEW_ASSIGNMENT_REVIEW_SERVICE_REPORT_DUE);
         }
 
         return reportGenSettings;

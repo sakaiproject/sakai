@@ -227,7 +227,6 @@ public class ContentReviewQueueServiceImpl implements ContentReviewQueueService 
 	@Transactional
 	public void update(ContentReviewItem item) {
 		Objects.requireNonNull(item, "item cannot be null");
-		Objects.requireNonNull(item.getId(), "Id cannot be null");
 		Objects.requireNonNull(item.getProviderId(), "providerId cannot be null");
 		
 		itemDao.save(item);
