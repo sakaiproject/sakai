@@ -6,9 +6,9 @@ import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.head.IHeaderResponse;
 import org.apache.wicket.markup.head.JavaScriptHeaderItem;
 import org.apache.wicket.markup.head.OnLoadHeaderItem;
+import org.apache.wicket.markup.html.WebComponent;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.gradebookng.business.util.FormatHelper;
-import org.sakaiproject.gradebookng.tool.panels.BasePanel;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -16,7 +16,7 @@ import com.google.gson.GsonBuilder;
 /**
  * Panel that renders the course grade chart
  */
-public class GbCourseGradeChart extends BasePanel {
+public class GbCourseGradeChart extends WebComponent {
 
 	private static final long serialVersionUID = 1L;
 
