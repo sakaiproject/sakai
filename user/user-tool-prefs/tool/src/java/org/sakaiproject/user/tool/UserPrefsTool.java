@@ -42,12 +42,14 @@ import javax.faces.event.ValueChangeEvent;
 import javax.faces.model.SelectItem;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.event.cover.NotificationService;
 import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.portal.util.PortalUtils;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService.SelectionType;
 import org.sakaiproject.site.api.SiteService.SortType;
@@ -2523,11 +2525,12 @@ public class UserPrefsTool
 	public class TermSites
 	{
 		private List<Term> terms;
+		private List <String> termOrder;
 
 		public class Term implements Comparable<Term> {
 			private String label;
 			private List<Site> sites;
-
+			
 			public Term(String label, List<Site> sites) {
 				if (sites.isEmpty()) {
 					throw new RuntimeException("List of sites can't be empty");
@@ -2550,10 +2553,14 @@ public class UserPrefsTool
 			}
 
 			public int compareTo(Term other) {
+				if (termOrder != null && (termOrder.contains(this.label) || termOrder.contains(other.label))) {
+					return(NumberUtils.compare(termOrder.indexOf(this.label), termOrder.indexOf(other.label)));
+				}
+				
 				String myType = this.getType();
 				String theirType = other.getType();
 
-				// Course sites win out over non-course-sites
+				// Otherwise if not found in a term course sites win out over non-course-sites
 				if (myType == null) {
 					return 1;
 				} else if (theirType == null) {
@@ -2589,6 +2596,8 @@ public class UserPrefsTool
 			for (String name : termNames) {
 				terms.add(new Term(name, termsToSites.get(name)));
 			}
+
+			termOrder = PortalUtils.getPortalTermOrder(null);
 
 			Collections.sort(terms);
 		}
