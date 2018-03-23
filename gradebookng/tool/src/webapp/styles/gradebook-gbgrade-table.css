@@ -280,6 +280,11 @@
   content: '\f0fe';
   color: rgb(200,144,0);
 }
+
+ .gb-flag-Excluded:before {
+   content: '\e600';
+   color: rgb(136, 85, 200);
+ }
 .gb-flag-external:before {
   content: '\f045';
 }

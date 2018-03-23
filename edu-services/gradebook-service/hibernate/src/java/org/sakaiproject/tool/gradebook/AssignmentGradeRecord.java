@@ -209,11 +209,12 @@ public class AssignmentGradeRecord extends AbstractGradeRecord implements Clonea
     	agr.setPointsEarned(pointsEarned);
     	agr.setPercentEarned(percentEarned);
     	agr.setStudentId(studentId);
+    	agr.setExcludedFromGrade(excludedFromGrade);
     	return agr;
     }
 
 	public Boolean isExcludedFromGrade() {
-		return excludedFromGrade;
+		return this.excludedFromGrade == null ? false : this.excludedFromGrade;
 	}
 
 	public void setExcludedFromGrade(Boolean isExcludedFromGrade) {

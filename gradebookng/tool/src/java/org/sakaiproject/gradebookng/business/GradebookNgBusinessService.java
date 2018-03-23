@@ -731,6 +731,39 @@ public class GradebookNgBusinessService {
 	}
 
 	/**
+	 * Save the excluded status for a student's assignment
+	 *
+	 * @param assignmentId id of the gradebook assignment
+	 * @param studentUuid uuid of the user
+	 * @param newStatus New Excluded Status for Assignment
+	 *
+	 * @return
+	 *
+	 */
+	public GradeSaveResponse saveGradeExcludedStatus(final Long assignmentId, final String studentUuid, final boolean newStatus) {
+
+		final Gradebook gradebook = this.getGradebook();
+		if (gradebook == null) {
+			return GradeSaveResponse.ERROR;
+		}
+
+		GradeSaveResponse rval = null;
+
+		// save
+		try {
+			this.gradebookService.saveExcludedStatusForStudentGrade(gradebook.getUid(), assignmentId, studentUuid,
+					newStatus);
+			if (rval == null) {
+				rval = GradeSaveResponse.OK;
+			}
+		} catch (InvalidGradeException | GradebookNotFoundException | AssessmentNotFoundException e) {
+			log.error("An error occurred saving the grade. " + e.getClass() + ": " + e.getMessage());
+			rval = GradeSaveResponse.ERROR;
+		}
+		return rval;
+	}
+
+	/**
 	 * Build the matrix of assignments, students and grades for all students
 	 *
 	 * @param assignments list of assignments
@@ -1928,6 +1961,37 @@ public class GradebookNgBusinessService {
 			log.error("An error occurred retrieving the comment. {}: {}", e.getClass(), e.getMessage());
 		}
 		return null;
+	}
+
+	/**
+	 * Set the Excluded Status for a given student assignment grade
+	 *
+	 * @param assignmentId id of assignment
+	 * @param studentUuid uuid of student
+	 */
+	public void setAssignmentExcludedStatus(final Long assignmentId, final String studentUuid, final boolean isExcluded) {
+		final String siteId = getCurrentSiteId();
+		final Gradebook gradebook = getGradebook(siteId);
+		gradebookService.toggleGradeRecordExcluded(gradebook.getUid(), assignmentId, studentUuid, isExcluded);
+	}
+
+	/**
+	 * Returns the assignment grade for a student
+	 *
+	 * @param assignmentId
+	 * @param studentUuid
+	 */
+	public GradeDefinition getGradeForStudent (final Long assignmentId, final String studentUuid){
+		final String siteId = getCurrentSiteId();
+		final Gradebook gradebook = getGradebook(siteId);
+		List<String> student = new ArrayList<>();
+		student.add(studentUuid);
+		List<GradeDefinition> studentGradeDef = gradebookService.getGradesForStudentsForItem(gradebook.getUid(), assignmentId, student);
+		if(studentGradeDef.size() == 0){
+			return null;
+		}else{
+			return studentGradeDef.get(0);
+		}
 	}
 
 	/**
