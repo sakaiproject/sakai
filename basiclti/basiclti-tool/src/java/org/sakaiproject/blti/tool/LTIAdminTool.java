@@ -72,11 +72,15 @@ import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.tool.api.Placement;
 import org.sakaiproject.tool.api.ToolManager;
+import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.util.ResourceLoader;
 // import org.sakaiproject.lti.impl.DBLTIService; // HACK
 import org.sakaiproject.util.foorm.SakaiFoorm;
+
+// We need to interact with the RequestFilter
+import org.sakaiproject.util.RequestFilter;
 
 /**
  * <p>
@@ -137,6 +141,9 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 	protected static ServerConfigurationService serverConfigurationService = null;
 
 	protected static SakaiFoorm foorm = new SakaiFoorm();
+
+	// Should be RequestFilter.SAKAI_SERVERID
+	public final static String SAKAI_SERVERID = "sakai.serverId";
 
 	/**
 	 * Pull in any necessary services using factory pattern
@@ -1914,6 +1921,12 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		// Time to store our content item and redirect back to our helpee
 		log.debug("Content Item complete toolKey={}", toolKey);
 		doContentPutInternal(data, context, reqProps);
+
+		String sakaiSession = data.getParameters().getString(RequestFilter.ATTR_SESSION);
+		if ( sakaiSession != null ) {
+			switchPanel(state, "Redirect&"+RequestFilter.ATTR_SESSION+"="+sakaiSession);
+		}
+
 	}
 
 	public void doContentItemEditorHandle(RunData data, Context context)
@@ -2196,11 +2209,22 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		// Create a POSTable URL back to this application with the right parameters
 		// Since the external tool will be setting all the POST data we need to
 		// include GET data for things that we might normally have sent as "hidden" data
+
+		/** The name of the system property that will be used when setting the value of the session cookie. */
+		String suffix = System.getProperty(SAKAI_SERVERID);
+
+		String sessionid = "Missing";
+		Session s = SessionManager.getCurrentSession();
+		if (s != null) {
+			sessionid = s.getId();
+		}
+
 		Placement placement = toolManager.getCurrentPlacement();
 		// String contentReturn = SakaiBLTIUtil.getOurServerUrl() + "/portal/tool/" + placement.getId() +
                 String contentReturn = serverConfigurationService.getToolUrl() + "/" + placement.getId() +
 			"/sakai.basiclti.admin.helper.helper" +
 			"?eventSubmit_doContentItemPut=Save" +
+			"&" + RequestFilter.ATTR_SESSION + "=" +  URLEncoder.encode(sessionid+"."+suffix) +
 			"&returnUrl=" + URLEncoder.encode(returnUrl) +
 			"&panel=PostContentItem" +
 			"&tool_id=" + tool.get(LTIService.LTI_ID);
