@@ -26,6 +26,8 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.security.Principal;
 import java.util.*;
+import java.util.regex.Pattern;
+import java.util.regex.Matcher;
 
 import javax.servlet.*;
 import javax.servlet.http.*;
@@ -184,6 +186,11 @@ public class RequestFilter implements Filter
 	
 	/** The name of the Sakai property to allow passing a session id in the ATTR_SESSION request parameter */
 	protected static final String SAKAI_SESSION_PARAM_ALLOW = "session.parameter.allow";
+
+	/** The name of the Sakai property of a URL regular expression that always allows ATTR_SESSION request parameter */
+	protected static final String SAKAI_SESSION_PARAM_ALLOW_BYPASS = "session.parameter.allow.bypass";
+	protected static final String SAKAI_SESSION_PARAM_ALLOW_BYPASS_DEFAULT =
+		"sakai\\.basiclti\\.admin\\.helper\\.helper";
 	
 	/** The tools allowed as lti provider **/
 	protected static final String SAKAI_BLTI_PROVIDER_TOOLS = "basiclti.provider.allowedtools";
@@ -234,6 +241,7 @@ public class RequestFilter implements Filter
 
 	/** Allow setting the cookie in a request parameter */
 	protected boolean m_sessionParamAllow = false;
+	protected Pattern m_sessionParamRegex = null;
                                                                                                              
     /** The name of the cookie we use to keep sakai session. */                                            
     protected String cookieName = "JSESSIONID";                                                            
@@ -813,7 +821,13 @@ public class RequestFilter implements Filter
 			cookieDomain = System.getProperty(SAKAI_COOKIE_DOMAIN);
 		}
 
+		// session id provided in a request parameter?
 		m_sessionParamAllow = serverConfigurationService.getBoolean(SAKAI_SESSION_PARAM_ALLOW, false);
+		String allowBypassSession = serverConfigurationService.getString(SAKAI_SESSION_PARAM_ALLOW_BYPASS,
+			SAKAI_SESSION_PARAM_ALLOW_BYPASS_DEFAULT);
+		if ( ! "none".equals(allowBypassSession) ) {
+			m_sessionParamRegex = Pattern.compile(allowBypassSession);
+		}
 
 		// retrieve option to enable or disable cookie HttpOnly
 		m_cookieHttpOnly = serverConfigurationService.getBoolean(SAKAI_COOKIE_HTTP_ONLY, true);
@@ -1062,7 +1076,14 @@ public class RequestFilter implements Filter
 		boolean auto = req.getParameter(PARAM_AUTO) != null;
 
 		// session id provided in a request parameter?
-		boolean reqsession = m_sessionParamAllow && req.getParameter(ATTR_SESSION) != null;
+		boolean matched = false;
+		if ( m_sessionParamRegex != null ) {
+			String uri = req.getRequestURI();
+			Matcher m = m_sessionParamRegex.matcher(uri.toLowerCase());
+			matched = m.find();
+		}
+
+		boolean reqsession = (matched || m_sessionParamAllow) && req.getParameter(ATTR_SESSION) != null;
 
 		String suffix = getCookieSuffix();
 
@@ -1097,7 +1118,7 @@ public class RequestFilter implements Filter
 		// if no principal, check request parameter and cookie
 		if (sessionId == null || s == null)
 		{
-			if (m_sessionParamAllow) {
+			if (matched || m_sessionParamAllow) {
 				sessionId = req.getParameter(ATTR_SESSION);
 			}
 
