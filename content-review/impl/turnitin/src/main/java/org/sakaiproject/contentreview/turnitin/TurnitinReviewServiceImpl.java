@@ -38,6 +38,8 @@ import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.validator.routines.EmailValidator;
@@ -45,7 +47,6 @@ import org.sakaiproject.api.common.edu.person.SakaiPerson;
 import org.sakaiproject.api.common.edu.person.SakaiPersonManager;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityService;
-import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.contentreview.advisors.ContentReviewSiteAdvisor;
@@ -206,9 +207,6 @@ public class TurnitinReviewServiceImpl extends BaseContentReviewService {
 
 	@Setter
 	private TurnitinAccountConnection turnitinConn;
-
-	@Setter
-	private ServerConfigurationService serverConfigurationService;
 
 	@Setter
 	private EntityManager entityManager;
@@ -2585,5 +2583,10 @@ public class TurnitinReviewServiceImpl extends BaseContentReviewService {
 	@Override
 	public String getEndUserLicenseAgreementVersion() {
 		return null;
+	}
+	
+	@Override
+	public void webhookEvent(HttpServletRequest request, String providerName, Optional<String> customParam) {
+
 	}
 }

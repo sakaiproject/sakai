@@ -92,6 +92,11 @@
 			<groupId>commons-validator</groupId>
 			<artifactId>commons-validator</artifactId>
 		</dependency>
+		<dependency>
+	        <groupId>javax.servlet</groupId>
+	        <artifactId>servlet-api</artifactId>
+	        <scope>provided</scope>
+	    </dependency>
 
 		<!-- Spring and Hibernate dependencies. -->
 		<dependency>

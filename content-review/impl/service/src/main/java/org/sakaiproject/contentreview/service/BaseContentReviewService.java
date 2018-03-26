@@ -1,8 +1,10 @@
 package org.sakaiproject.contentreview.service;
 
 import java.time.Instant;
+import java.util.Optional;
 
 import org.apache.commons.lang.StringUtils;
+import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.contentreview.dao.ContentReviewConstants;
 import org.sakaiproject.contentreview.dao.ContentReviewItem;
 import org.sakaiproject.contentreview.exception.QueueException;
@@ -21,11 +23,16 @@ public abstract class BaseContentReviewService implements ContentReviewService{
 	
 	@Setter
 	protected PreferencesService preferencesService;
+	@Setter
+	protected ServerConfigurationService serverConfigurationService;
 	
 	private static final String PROP_KEY_EULA = "contentReviewEULA";
 	private static final String PROP_KEY_EULA_TIMESTAMP = "contentReviewEULATimestamp";
 	private static final String PROP_KEY_EULA_VERSION = "contentReviewEULAVersion";
+	//relative path since it will be used within Sakai
 	private static final String REDIRECT_URL_TEMPLATE =  "/content-review-tool/viewreport?contentId=%s&assignmentRef=%s";
+	//full path since it will be used externally
+	private static final String WEBHOOK_URL_TEMPLATE = "%scontent-review-tool/webhooks?providerName=%s";
 	
 	@Override
 	public Instant getUserEULATimestamp(String userId) {
@@ -117,5 +124,13 @@ public abstract class BaseContentReviewService implements ContentReviewService{
 	public String getReviewReportRedirectUrl(String contentId, String assignmentRef, String userId, boolean isInstructor) {
 		return null;
 	}
-	
+
+	public String getWebhookUrl(Optional<String> customParam) {
+		StringBuilder sb = new StringBuilder();
+		sb.append(serverConfigurationService.getServerUrl());
+		if(!StringUtils.endsWith(sb.toString(), "/")) {
+			sb.append("/");
+		}
+		return String.format(WEBHOOK_URL_TEMPLATE, sb.toString(), getServiceName()) + (customParam.isPresent() ? "&custom=" + customParam.get() : "");
+	}
 }

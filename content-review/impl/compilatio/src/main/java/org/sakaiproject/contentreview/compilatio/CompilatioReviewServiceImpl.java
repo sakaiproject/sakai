@@ -60,6 +60,8 @@ import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.util.*;
 
+import javax.servlet.http.HttpServletRequest;
+
 public class CompilatioReviewServiceImpl extends BaseContentReviewService {
 	
 	private static final Log log = LogFactory.getLog(CompilatioReviewServiceImpl.class);
@@ -1053,5 +1055,11 @@ public class CompilatioReviewServiceImpl extends BaseContentReviewService {
 	@Override
 	public String getEndUserLicenseAgreementVersion() {
 		return null;
+	}
+
+	@Override
+	public void webhookEvent(HttpServletRequest request, String providerName, Optional<String> customParam) {
+		// TODO Auto-generated method stub
+		
 	}
 }

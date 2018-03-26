@@ -21,7 +21,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
 import java.util.SortedSet;
+
+import javax.servlet.http.HttpServletRequest;
 
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.contentreview.dao.ContentReviewItem;
@@ -275,5 +278,11 @@ public class NoOpContentReviewService extends BaseContentReviewService {
 		String ret = "There is no content review service configured, please see your administrator";
 		log.debug("{} getEndUserLicenseAgreementVersion", ret);
 		return null;
+	}
+
+	@Override
+	public void webhookEvent(HttpServletRequest request, String providerName, Optional<String> customParam) {
+		String ret = "There is no content review service configured, please see your administrator";
+		log.debug("{} webhookEvent", ret);
 	}
 }

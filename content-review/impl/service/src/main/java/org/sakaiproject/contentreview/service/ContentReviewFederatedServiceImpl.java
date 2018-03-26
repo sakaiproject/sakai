@@ -26,9 +26,9 @@ import java.util.Optional;
 import java.util.SortedSet;
 import java.util.stream.Collectors;
 
-import lombok.extern.slf4j.Slf4j;
+import javax.servlet.http.HttpServletRequest;
+
 import org.apache.commons.lang.StringUtils;
-import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.contentreview.dao.ContentReviewItem;
 import org.sakaiproject.contentreview.exception.ContentReviewProviderException;
@@ -41,15 +41,13 @@ import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.ToolManager;
 
 import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 
 /* This class is passed a list of providers in the bean as references, it will use the first
  * by default unless overridden by a site property.
  */
 @Slf4j
 public class ContentReviewFederatedServiceImpl extends BaseContentReviewService {
-
-	@Setter
-	private ServerConfigurationService serverConfigurationService;
 
 	@Setter
 	private ToolManager toolManager;
@@ -293,4 +291,8 @@ public class ContentReviewFederatedServiceImpl extends BaseContentReviewService 
 		return getSelectedProvider().getReviewReportRedirectUrl(contentId, assignmentRef, userId, isInstructor);
 	}
 
+	@Override
+	public void webhookEvent(HttpServletRequest request, String providerName, Optional<String> customParam) {
+		providers.stream().filter(crs -> crs.getServiceName().equals(providerName)).collect(Collectors.toList()).get(0).webhookEvent(request, providerName, customParam);		
+	}
 }

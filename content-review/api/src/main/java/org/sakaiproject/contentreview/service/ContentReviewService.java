@@ -20,7 +20,10 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
 import java.util.SortedSet;
+
+import javax.servlet.http.HttpServletRequest;
 
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.contentreview.dao.ContentReviewItem;
@@ -396,4 +399,12 @@ public interface ContentReviewService {
 	 * @return
 	 */
 	public String getReviewReportRedirectUrl(String contentId, String assignmentRef, String userId, boolean isInstructor);
+	
+	/**
+	 * Webhook event listener that can be used to get messages sent from the provider to Sakai
+	 * @param request
+	 * @param customParam
+	 * @param providerId
+	 */
+	public void webhookEvent(HttpServletRequest request, String providerName, Optional<String> customParam);
 }

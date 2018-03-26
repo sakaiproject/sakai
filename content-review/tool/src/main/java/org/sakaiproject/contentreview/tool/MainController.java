@@ -13,6 +13,12 @@
  ******************************************************************************/
 package org.sakaiproject.contentreview.tool;
 
+import java.security.InvalidParameterException;
+import java.util.Optional;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import org.apache.commons.lang.StringUtils;
 import org.sakaiproject.assignment.api.AssignmentService;
 import org.sakaiproject.contentreview.dao.ContentReviewItem;
@@ -51,8 +57,18 @@ public class MainController {
 	@Autowired
 	private AssignmentService assignmentService;
 
-
-	@RequestMapping(value = "/viewreport", params={"contentId", "assignmentRef"}, method = RequestMethod.GET)
+	
+	@RequestMapping(value = "/webhooks", method = RequestMethod.POST)
+	public void webhooks(HttpServletRequest request, HttpServletResponse response, Model model, 
+			@RequestParam String providerName, @RequestParam(required=false) String custom) {
+		if(StringUtils.isEmpty(providerName)) {
+			throw new InvalidParameterException("Missing providerName");
+		}
+		log.info("webhook provider and custom: " + custom);
+		contentReviewService.webhookEvent(request, providerName, Optional.ofNullable(custom));
+	}
+	
+	@RequestMapping(value = "/viewreport", method = RequestMethod.GET)
 	public String viewReport(Model model, @RequestParam String contentId, @RequestParam String assignmentRef) {
 		//TODO: does this work for federated course properties override?
 		log.info("viewReport(): contentId: " + contentId + ", assignmentRef: " + assignmentRef);

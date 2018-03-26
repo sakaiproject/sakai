@@ -33,6 +33,8 @@ import java.util.Optional;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
+import javax.servlet.http.HttpServletRequest;
+
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
@@ -131,7 +133,6 @@ public class UrkundReviewServiceImpl extends BaseContentReviewService {
 	final static long LOCK_PERIOD = 12000000;
 	private Long maxRetry = 20L;
 	
-	@Setter	protected ServerConfigurationService serverConfigurationService;
 	@Setter	protected UserDirectoryService userDirectoryService;
 	@Setter	protected ToolManager toolManager;
 	@Setter	protected ContentHostingService contentHostingService;
@@ -962,5 +963,11 @@ public class UrkundReviewServiceImpl extends BaseContentReviewService {
 	@Override
 	public String getEndUserLicenseAgreementVersion() {
 		return null;
+	}
+
+	@Override
+	public void webhookEvent(HttpServletRequest request, String providerName, Optional<String> customParam) {
+		// TODO Auto-generated method stub
+		
 	}
 }
