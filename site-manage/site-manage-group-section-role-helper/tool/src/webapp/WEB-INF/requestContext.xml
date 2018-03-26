@@ -25,6 +25,7 @@
     <property name="targettedMessageList" ref="targettedMessageList" />
     <property name="siteService" ref="org.sakaiproject.site.api.SiteService" />
     <property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService" />
+    <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService" />
   </bean>
   
   <bean id="GroupAutoCreateProdcuer" 

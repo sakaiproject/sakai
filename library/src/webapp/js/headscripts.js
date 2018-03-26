@@ -752,6 +752,17 @@ function includeLatestJQuery(where) {
 	}
 }
 
+function includeWebjarLibraryWithVersion(library) {
+	var webjars = "/library/webjars/";
+	var ver = "";
+	if ( typeof portal !== 'undefined' ) {
+		if (portal.pageScriptPath) psp = portal.pageScriptPath;
+		if (portal.pageWebjarsPath) webjars = portal.pageWebjarsPath;
+		if (portal.portalCDNQuery) ver = portal.portalCDNQuery;
+	}
+	document.write('\x3Cscript type="text/javascript" src="'+webjars+library+ver+'">'+'\x3C/script>')
+}
+
 // Return the breakpoint between small and medium sized displays - for morpheus currently the same
 function portalSmallBreakPoint() { return 800; } 
 function portalMediumBreakPoint() { return 800; } 
