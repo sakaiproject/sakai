@@ -17,6 +17,8 @@
 				<span rsf:id="error"></span> </p>
 			</div>
 		</div>
+
+
 		<div rsf:id="no-blti-tools" class="ui-widget" role="alert">
 			<div class="instruction below-link-help">
 				<div rsf:id="no-blti-tools-text" ></div>
@@ -29,6 +31,15 @@
 
 		<p rsf:id="blti-tools-text"></p>
 
+		<div rsf:id="app-store-shortcut:" class="col-md-11 col-md-offset-1">
+			<div rsf:id="blti-create:">
+				<a rsf:id="blti-create-link" id="blti-shortcut-link" href="#" class="btn btn-primary" target="sakai-basiclti-admin-iframe" onclick="showIframe(this.title);">
+					<i class="fa fa-shopping-cart lessons-shopping-cart" rsf:id="blti-search-icon"></i>
+					<i class="" rsf:id="blti-create-icon"></i>
+					<span rsf:id="blti-create-text"></span>
+				</a>
+			</div>
+		</div>
 
 		<div rsf:id="app-store-container:" class="col-md-11 col-md-offset-1">
 			<div rsf:id="blti-create:">
@@ -100,6 +111,7 @@ function showIframe(title) {
 		$("#modal-iframe-div").dialog("option", "width", modalDialogWidth());
 		$('#sakai-basiclti-admin-iframe').attr('width', '100%');
 	});
+
 }
 
 // Make sure to be careful to use .style.height or .height sepending on the iframe 
@@ -119,6 +131,21 @@ window.addEventListener('message', function(e) {
 		console.log(e.data);
 	}
 });
+
+// See if we are supposed to launch the shortcut link
+var shortcut_tag = document.getElementById('app-store-shortcut::blti-create::blti-create-link');
+console.log(shortcut_tag);
+if ( shortcut_tag ) {
+    var shortcut_title = shortcut_tag.getAttribute('title');
+    var shortcut_href = shortcut_tag.getAttribute('href');
+    if ( shortcut_href && shortcut_title ) {
+        console.log('shortcut-Launching '+shortcut_title);
+        console.log(shortcut_href);
+        document.getElementById('sakai-basiclti-admin-iframe').src = shortcut_href;
+        showIframe(shortcut_title);
+    }
+}
+
 //]]>
 </script>
 
