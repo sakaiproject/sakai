@@ -204,7 +204,7 @@ public class PasswordResetProducer extends BaseValidationProducer implements Vie
 
 		UICommand.make(detailsForm, "addDetailsSub", UIMessage.make("submit.new.reset"), "accountValidationLocator.validateAccount");
 
-		String otp = "accountValidationLocator." + va.getId();
+		String otp = "accountValidationLocator." + va.getValidationToken();
 
 		UIMessage.make(detailsForm, "username.new", "username.new.reset", args);
 		UIOutput.make(detailsForm, "eid", u.getDisplayId());
@@ -218,8 +218,6 @@ public class PasswordResetProducer extends BaseValidationProducer implements Vie
 
 		UIBranchContainer row2 = UIBranchContainer.make(detailsForm, "passrow2:");
 		UIInput.make(row2, "password2", otp + ".password2");
-
-		detailsForm.parameters.add(new UIELBinding(otp + ".userId", va.getUserId()));
 	}
 
 	/**

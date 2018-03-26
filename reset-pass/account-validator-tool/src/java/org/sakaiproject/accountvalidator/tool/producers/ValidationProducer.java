@@ -303,7 +303,7 @@ ViewParamsReporter, ActionResultInterceptor {
 				UICommand.make(detailsForm, "addDetailsSub", UIMessage.make("submit.new.account"), "accountValidationLocator.validateAccount");
 			}
 			
-			String otp =  "accountValidationLocator." + va.getId();
+			String otp =  "accountValidationLocator." + va.getValidationToken();
 			
 			UIOutput.make(detailsForm, "eid", u.getDisplayId());
 			UIInput.make(detailsForm, "firstName", otp + ".firstName", u.getFirstName());
