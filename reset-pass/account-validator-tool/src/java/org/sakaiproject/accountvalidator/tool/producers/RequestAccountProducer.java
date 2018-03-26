@@ -105,7 +105,7 @@ public class RequestAccountProducer extends BaseValidationProducer implements Vi
 
             UICommand.make(detailsForm, "addDetailsSub", UIMessage.make("submit.new.account"), "accountValidationLocator.validateAccount");
 
-            String otp = "accountValidationLocator." + va.getId();
+            String otp = "accountValidationLocator." + va.getValidationToken();
             UIMessage.make(detailsForm, "username.new", "username.new", args);
             UIOutput.make(detailsForm, "eid", u.getDisplayId());
 
@@ -137,8 +137,6 @@ public class RequestAccountProducer extends BaseValidationProducer implements Vi
                 });
                 UIVerbatim.make(termsRow, "termsLabel", terms);
             }
-
-            detailsForm.parameters.add(new UIELBinding(otp + ".userId", va.getUserId()));
         }
     }
 }
