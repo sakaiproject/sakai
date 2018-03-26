@@ -3963,7 +3963,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
             }
             reviewResult.setContentReviewItem(cri);
 
-            AssignmentReferenceReckoner.AssignmentReference referenceReckoner = AssignmentReferenceReckoner.reckoner().reference(s.getAssignment().getId()).reckon();
+            AssignmentReferenceReckoner.AssignmentReference referenceReckoner = AssignmentReferenceReckoner.reckoner().assignment(s.getAssignment()).reckon();
             reviewResult.setReviewReport(getReviewReport(cr, referenceReckoner.getReference()));
             String iconUrl = getReviewIconCssClass(reviewResult);
             reviewResult.setReviewIconCssClass(iconUrl);
