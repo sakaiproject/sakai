@@ -30,7 +30,6 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
-import java.util.Random;
 import java.util.SortedSet;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -38,7 +37,6 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.RandomStringUtils;
 import org.apache.commons.lang.StringUtils;
 import org.sakaiproject.assignment.api.AssignmentConstants;
 import org.sakaiproject.assignment.api.AssignmentService;
@@ -130,8 +128,9 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 	private static final String FAMILY_NAME = "family_name";
 	
 	private static final String GENERATE_REPORTS_IMMEDIATELY_AND_ON_DUE_DATE= "1";
-	private static final String GENERATE_REPORTS_ON_DUE_DATE = "2";
-	private static final int PLACEHOLDER_ITEM_REVIEW_SCORE = -10;
+	private static final String GENERATE_REPORTS_ON_DUE_DATE = "2";	
+	private static final String PLACEHOLDER_STRING_FLAG = "_placeholder";
+	private static final Integer PLACEHOLDER_ITEM_REVIEW_SCORE = -10;
 
 	private String serviceUrl;
 	private String apiKey;
@@ -595,17 +594,17 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 					continue;
 				}
 				// Check if any placeholder items need to regenerate report after due date
-				if (item.getReviewScore() != null && item.getReviewScore().equals(PLACEHOLDER_ITEM_REVIEW_SCORE)) {	
+				if (PLACEHOLDER_ITEM_REVIEW_SCORE.equals(item.getReviewScore())) {	
 					// Get assignment associated with current item's task Id
 					Assignment assignment = assignmentService.getAssignment(entityManager.newReference(item.getTaskId()));
-					if(assignment != null && assignment.getDueDate() != null ) {
-						// Make sure due date is past
-						Date assignmentDueDate = Date.from(assignment.getDueDate());
+					Date assignmentDueDate = Date.from(assignment.getDueDate());
+					if(assignment != null && assignmentDueDate != null ) {
+						// Make sure due date is past						
 						if (assignmentDueDate.before(new Date())) {
 							// Regenerate similarity request 
 							generateSimilarityReport(item.getExternalId(), item.getTaskId());
 							//Lookup reference item
-							String referenceItemContentId = item.getContentId().substring(0, item.getContentId().indexOf("_placeholder"));							
+							String referenceItemContentId = item.getContentId().substring(0, item.getContentId().indexOf(PLACEHOLDER_STRING_FLAG));							
 							Optional<ContentReviewItem> quededReferenceItem = crqs.getQueuedItem(item.getProviderId(), referenceItemContentId);
 							ContentReviewItem referenceItem = quededReferenceItem.isPresent() ? quededReferenceItem.get() : null;							
 							//reschedule reference item by setting score to null, reset retry time and set status to awaiting report
@@ -879,7 +878,7 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 		Calendar cal = Calendar.getInstance();
 		cal.add(Calendar.HOUR_OF_DAY, 4);
 		// If due date is less than 4 hours away, set retry time to due date + five minutes
-		if (cal.getTime().after(dueDate)) {
+		if (dueDate != null && cal.getTime().after(dueDate)) {
 			cal.setTime(dueDate);
 			cal.add(Calendar.MINUTE, 5);
 		}
@@ -892,7 +891,7 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 		// Review score is used as flag for placeholder items in checkForReport
 		placeholderItem.setReviewScore(PLACEHOLDER_ITEM_REVIEW_SCORE); 
 		// Content Id must be original
-		placeholderItem.setContentId(item.getContentId() + "_placeholder");	
+		placeholderItem.setContentId(item.getContentId() + PLACEHOLDER_STRING_FLAG);	
 		placeholderItem.setStatus(ContentReviewConstants.CONTENT_REVIEW_SUBMITTED_AWAITING_REPORT_CODE);
 		placeholderItem.setNextRetryTime(getDueDateRetryTime(dueDate));
 		placeholderItem.setDateQueued(new Date());
