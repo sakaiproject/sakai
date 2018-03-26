@@ -9313,9 +9313,8 @@ public class AssignmentAction extends PagedResourceActionII {
 
         // if there are still no valid settings in the list at this point, use the default
         if (reportGenSettings.isEmpty()) {
-            // add all three
-        		reportGenSettings.add(NEW_ASSIGNMENT_REVIEW_SERVICE_REPORT_IMMEDIATELY);                        
-            reportGenSettings.add(NEW_ASSIGNMENT_REVIEW_SERVICE_REPORT_IMMEDIATELY_AND_DUE);
+            // add only the defaults used in original Turnitin integration
+        		reportGenSettings.add(NEW_ASSIGNMENT_REVIEW_SERVICE_REPORT_IMMEDIATELY);                                    
             reportGenSettings.add(NEW_ASSIGNMENT_REVIEW_SERVICE_REPORT_DUE);
         }
 
