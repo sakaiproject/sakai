@@ -623,6 +623,7 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 								// Reference item no longer exists
 								// Placeholder item is no longer needed
 								crqs.delete(item);
+								errors++;
 								continue;
 							}
 						} else {
@@ -637,6 +638,7 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 						// Assignment or due date no longer exist
 						// placeholder item is no longer needed
 						crqs.delete(item);
+						errors++;
 						continue;
 					}
 				}
