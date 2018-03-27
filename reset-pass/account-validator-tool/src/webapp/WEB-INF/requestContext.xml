@@ -21,6 +21,7 @@
 		<property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService"/>
 		<property name="validationLogic" ref="org.sakaiproject.accountvalidator.logic.ValidationLogic"/>
 		<property name="targettedMessageList" ref="targettedMessageList"/>
+		<property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
 		<property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
 		<property name="developerHelperService" ref="org.sakaiproject.entitybroker.DeveloperHelperService"/>
 		<property name="springMessageLocator" ref="messageLocator"/>
