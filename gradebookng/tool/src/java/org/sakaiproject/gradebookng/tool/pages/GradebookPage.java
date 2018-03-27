@@ -123,6 +123,9 @@ public class GradebookPage extends BasePage {
 			sendToAccessDeniedPage(getString("error.role"));
 		}
 
+		// get Gradebook to save additional calls later
+		final Gradebook gradebook = this.businessService.getGradebook();
+
 		// students cannot access this page, they have their own
 		if (this.role == GbRole.STUDENT) {
 			throw new RestartResponseException(StudentPage.class);
@@ -220,9 +223,6 @@ public class GradebookPage extends BasePage {
 			sortBy = SortType.SORT_BY_CATEGORY;
 			this.form.add(new AttributeAppender("class", "gb-grouped-by-category"));
 		}
-
-		// get Gradebook to save additional calls later
-		final Gradebook gradebook = this.businessService.getGradebook();
 
 		final List<Assignment> assignments = this.businessService.getGradebookAssignments(sortBy);
 		final List<String> students = this.businessService.getGradeableUsers();
