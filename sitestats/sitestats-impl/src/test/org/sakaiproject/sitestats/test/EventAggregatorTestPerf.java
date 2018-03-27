@@ -161,6 +161,7 @@ public class EventAggregatorTestPerf extends AbstractJUnit4SpringContextTests {
 		((StatsManagerImpl)M_sm).setContentTypeImageService(M_ctis);
 		((StatsManagerImpl)M_sm).setResourceLoader(msgs);
 		((StatsManagerImpl)M_sm).setCountFilesUsingCHS(false);
+		((StatsManagerImpl)M_sm).setCountPagesUsingLBS(false);
 		((StatsUpdateManagerImpl)M_sum).setSiteService(M_ss);
 		((StatsUpdateManagerImpl)M_sum).setStatsManager(M_sm);
 	}
