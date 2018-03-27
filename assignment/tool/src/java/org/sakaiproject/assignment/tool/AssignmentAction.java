@@ -2289,7 +2289,12 @@ public class AssignmentAction extends PagedResourceActionII {
             context.put("groupFilterEnabled", groupFilterEnabled);
             if(groupFilterEnabled){
                 User user = (User) state.getAttribute(STATE_USER);
-                context.put("groupListWhereIsMember", new SortedIterator(site.getGroupsWithMember(user.getId()).iterator(), new AssignmentComparator(state, SORTED_BY_GROUP_TITLE, Boolean.TRUE.toString())));
+                Collection<Group> groupCollection = assignmentService.getGroupsAllowAddAssignment(contextString);
+                //If the user doesn't have any group, show the groups where is member (Mostly students)
+                if(groupCollection.isEmpty()){
+                    groupCollection = site.getGroupsWithMember(user.getId());
+                }
+                context.put("filterGroupIterator", new SortedIterator(groupCollection.iterator(), new AssignmentComparator(state, SORTED_BY_GROUP_TITLE, Boolean.TRUE.toString())));
             }
 
             // add active user list
