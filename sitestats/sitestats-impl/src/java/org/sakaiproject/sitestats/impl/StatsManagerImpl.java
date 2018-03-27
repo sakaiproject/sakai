@@ -892,64 +892,7 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 		if (siteId == null){
 			throw new IllegalArgumentException("Null siteId");
 		} else {
-			// Use SiteStats tables (very fast, relies on resource events)
-			// Build common HQL
-			String hql_ = "select s.siteId, sum(s.count) "
-				+ "from LessonBuilderStatImpl as s "
-				+ "where s.siteId = :siteid "
-				+ "and s.pageAction = :pageAction "
-				+ "and s.pageRef like :pageRefLike "
-				+ "group by s.siteId";
-			final String hql = hql_;
-			final String pageRefLike = "/lessonbuilder/page/%";
-
-			// New files
-			HibernateCallback hcb1 = new HibernateCallback() {
-
-				@SuppressWarnings("unchecked")
-				public Object doInHibernate(Session session) throws HibernateException, SQLException {
-
-					Query q = session.createQuery(hql);
-					q.setString("siteid", siteId);
-					q.setString("pageAction", "create");
-					q.setString("pageRefLike", pageRefLike);
-					List<Object[]> list = q.list();
-					Long total = Long.valueOf(0);
-					if (list != null && list.size() > 0) {
-						try {
-							total = (Long) (list.get(0))[1];
-						} catch (ClassCastException e) {
-							total = Long.valueOf( ((Integer) (list.get(0))[1]).longValue() );
-						}
-					}
-					return total;
-				}
-			};
-			Long totalNew = (Long) getHibernateTemplate().execute(hcb1);
-
-			// Deleted files
-			HibernateCallback hcb2 = new HibernateCallback() {
-				@SuppressWarnings("unchecked")
-				public Object doInHibernate(Session session) throws HibernateException, SQLException {
-					Query q = session.createQuery(hql);
-					q.setString("siteid", siteId);
-					q.setString("pageAction", "delete");
-					q.setString("pageRefLike", pageRefLike);
-					List<Object[]> list = q.list();
-					Long total = Long.valueOf(0);
-					if (list != null && list.size() > 0) {
-						try {
-							total = (Long) (list.get(0))[1];
-						} catch (ClassCastException e) {
-							total = Long.valueOf( ((Integer) (list.get(0))[1]).longValue() );
-						}
-					}
-					return total;
-				}
-			};
-			Long totalDel = (Long) getHibernateTemplate().execute(hcb2);
-
-			return (int) (totalNew.longValue() - totalDel.longValue());
+			return lessonBuilderService.getSitePages(siteId).size();
 		}
 	}
 
