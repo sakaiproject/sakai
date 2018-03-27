@@ -185,7 +185,6 @@ public class CompilatioReviewServiceImpl extends BaseContentReviewService {
 	@Setter protected ToolManager toolManager;
 	@Setter protected UserDirectoryService userDirectoryService;
 	@Setter protected ContentHostingService contentHostingService;
-	@Setter protected ServerConfigurationService serverConfigurationService;
 	@Setter protected EntityManager entityManager;
 	@Setter protected AssignmentService assignmentService;
 	@Setter protected CompilatioAccountConnection compilatioConn;
