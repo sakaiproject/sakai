@@ -294,10 +294,8 @@ public class ImportGradesHelper {
 				case GB_ITEM_WITHOUT_POINTS:
 					// fix the separator for the comparison with the current values
 					if (StringUtils.isNotBlank(lineVal)) {
-						if (",".equals(userDecimalSeparator)) {
-							lineVal = lineVal.replace(userDecimalSeparator,".");
-						}
-						cell.setScore(lineVal);
+						cell.setRawScore(lineVal);
+						cell.setScore(",".equals(userDecimalSeparator) ? lineVal.replace(userDecimalSeparator, ".") : lineVal);
 					}
 					row.getCellMap().put(columnTitle, cell);
 					break;
