@@ -72,6 +72,8 @@ import org.sakaiproject.user.api.UserDirectoryService;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import lombok.AllArgsConstructor;
+import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import net.sf.json.JSONArray;
@@ -176,14 +178,18 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 		try {
 			// Get the webhook url
 			String webhookUrl = getWebhookUrl(Optional.empty());
+			// Hard-coded url for testing locally (leave in for now):
+			// String webhookUrl = "http://vericite.com/content-review-tool/webhooks?providerName=TurnitinOC";
 			// Get list of existing webhooks, if any
 			ArrayList<Webhook> webhooks = getWebhooks();
-			
+
 			boolean webhooksSetup = false;
 			// Check to see if any webhooks exist for this url
 			for (Webhook webhook : webhooks) {
 				if (StringUtils.isNotEmpty(webhook.getUrl()) && webhook.getUrl().equals(webhookUrl)) {
 					webhooksSetup = true;
+					// TODO: If webhook ID is valid, then webhookId = webhook.getId()
+					// TODO: Else throw error?
 					break;
 				}
 			}
@@ -1167,21 +1173,10 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 		log.info(body);
 	}
 	
+	@Getter
+	@AllArgsConstructor
 	private class Webhook {
 		private String id;
 		private String url;
-		
-		Webhook(String id, String url) {
-			this.id = id;
-			this.url = url;
-		}
-		
-		public String getId() {
-			return id;
-		}
-		
-		public String getUrl() {
-			return url;
-		}
 	}
 }
