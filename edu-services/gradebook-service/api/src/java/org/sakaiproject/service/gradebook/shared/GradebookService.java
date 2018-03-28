@@ -634,21 +634,6 @@ public interface GradebookService {
 			throws InvalidGradeException, GradebookNotFoundException, AssessmentNotFoundException;
 
 	/**
-	 * Save a excluded status for a gradebook item. The input score must
-	 * be valid according to the given gradebook's grade entry type.
-	 * @param gradebookUid
-	 * @param assignmentId
-	 * @param studentId
-	 * @param excludedStatus
-	 * @throws InvalidGradeException - if grade is invalid. grade and comment will not be saved
-	 * @throws GradebookNotFoundException
-	 * @throws AssessmentNotFoundException
-	 * @throws SecurityException if current user is not authorized to grade student
-	 */
-	public void saveExcludedStatusForStudentGrade(String gradebookUid, Long assignmentId, String studentId, Boolean excludedStatus)
-		throws InvalidGradeException, GradebookNotFoundException, AssessmentNotFoundException;
-	
-	/**
 	 * Given a list of GradeDefinitions for students for a given gradebook and gradable object, will save the associated scores and
 	 * comments. Scores must be in a format according to the gradebook's grade entry type (ie points, %, letter).
 	 *
@@ -665,22 +650,7 @@ public interface GradebookService {
 			throws InvalidGradeException, GradebookNotFoundException, AssessmentNotFoundException;
 
 	/**
-	 * Given a list of GradeDefinitions for students for a given gradebook and gradable object,
-	 * will save the excluded status for each student's assignment.
-	 * @param gradebookUid
-	 * @param assignmentId
-	 * @param gradeDefList
-	 * @throws InvalidGradeException if any of the grades are not valid - none will be saved
-	 * @throws SecurityException if the user does not have access to a student in the list -
-	 * no grades or comments will be saved for any student
-	 * @throws GradebookNotFoundException
-	 * @throws AssessmentNotFoundException
-	 */
-	public void saveExcludedStatusForStudentGrade(String gradebookUid, Long assignmentId, List<GradeDefinition> gradeDefList)
-	throws InvalidGradeException, GradebookNotFoundException, AssessmentNotFoundException;
-
-	/**
-	 * 
+	 *
 	 * @param gradebookUid
 	 * @return the constant representation of the grade entry type (ie points, %, letter grade)
 	 * @throws GradebookNotFoundException if no gradebook exists w/ the given uid
@@ -943,11 +913,4 @@ public interface GradebookService {
 	 */
 	List getGradingEvents(final List<Long> assignmentIds, final Date since);
 
-	/**
-	 *
-	 * @param gradebookUid
-	 * @param assignmentId
-	 * @param studentUid
-	 */
-	void toggleGradeRecordExcluded(final String gradebookUid, final Long assignmentId, final String studentUid, final boolean isExcluded);
 }

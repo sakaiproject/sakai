@@ -29,8 +29,6 @@ public class GradeDefinition {
 	private String gradeComment;
 	private int gradeEntryType;
 	private boolean gradeReleased;
-	private boolean gradeIgnored;
-	private Boolean gradeExcluded;
 	
 	public String getStudentUid() {
 		return studentUid;
@@ -116,36 +114,6 @@ public class GradeDefinition {
 	public void setGradeReleased(boolean gradeReleased) {
 		this.gradeReleased = gradeReleased;
 	}
-
-	/**
-	 *
-	 * @return true if this grade is being ignored in grading
-	 */
-	public boolean isGradeIgnored() {
-		return gradeIgnored;
-	}
-
-	/**
-	 * true if this grade is being ignored in grading
-	 * @param gradeIgnored
-	 */
-	public void setGradeIgnored(boolean gradeIgnored) {
-		this.gradeIgnored = gradeIgnored;
-	}
-
-	/**
-	 * Returns true if this assignmentGradeRecord is being excluded from grading
-	 * @return gradeExcluded
-	 */
-	public Boolean isGradeExcluded() {
-		return this.gradeExcluded == null ? false : this.gradeExcluded;
-	}
-
-	/**
-	 * Sets the assignmentGradeRecord to be excluded from grading
-	 * @param gradeExcluded
-	 */
-	public void setGradeExcluded(Boolean gradeExcluded) {
-		this.gradeExcluded = gradeExcluded;
-	}
+	
+	
 }

@@ -381,17 +381,14 @@ public class GbGradebookData {
 			final CourseGrade courseGrade = gbCourseGrade.getCourseGrade();
 
 			gradeData[0] = gbCourseGrade.getDisplayString();
-			if (courseGrade == null){
-				gradeData[2] = "0";
-			} else if (StringUtils.isNotBlank(courseGrade.getEnteredGrade())) {
+
+			if (StringUtils.isNotBlank(courseGrade.getEnteredGrade())) {
 				gradeData[2] = "1";
 			} else {
 				gradeData[2] = "0";
 			}
 
-			if (courseGrade == null){
-				gradeData[1] = "0";
-			} else if (StringUtils.isNotBlank(courseGrade.getEnteredGrade())) {
+			if (StringUtils.isNotBlank(courseGrade.getEnteredGrade())) {
 				Double mappedGrade = courseGradeMap.get(courseGrade.getEnteredGrade());
 				if (mappedGrade == null) {
 					mappedGrade = new Double(0);

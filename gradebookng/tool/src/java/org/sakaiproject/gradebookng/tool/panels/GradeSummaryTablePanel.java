@@ -37,7 +37,6 @@ import org.sakaiproject.gradebookng.tool.model.GradebookUiSettings;
 import org.sakaiproject.gradebookng.tool.pages.BasePage;
 import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
 import org.sakaiproject.service.gradebook.shared.Assignment;
-import org.sakaiproject.service.gradebook.shared.GradeDefinition;
 import org.sakaiproject.service.gradebook.shared.GradingType;
 
 public class GradeSummaryTablePanel extends BasePanel {
@@ -71,7 +70,6 @@ public class GradeSummaryTablePanel extends BasePanel {
 		final boolean isCategoryWeightEnabled = (boolean) data.get("isCategoryWeightEnabled");
 		final boolean showingStudentView = (boolean) data.get("showingStudentView");
 		final GradingType gradingType = (GradingType) data.get("gradingType");
-		final String studentUID = (String) data.get("studentuid");
 		this.isGroupedByCategory = (boolean) data.get("isGroupedByCategory");
 
 		if (getPage() instanceof GradebookPage) {
@@ -176,14 +174,7 @@ public class GradeSummaryTablePanel extends BasePanel {
 
 					@Override
 					protected void populateItem(final ListItem<Assignment> assignmentItem) {
-						boolean excluded;
 						final Assignment assignment = assignmentItem.getModelObject();
-						GradeDefinition studentGradeDef = businessService.getGradeForStudent(assignment.getId(), studentUID);
-						if(studentGradeDef != null) {
-							excluded = studentGradeDef.isGradeExcluded();
-						} else {
-							excluded = false;
-						}
 
 						if (!categoriesEnabled) {
 							assignmentItem.add(new AttributeAppender("class", " gb-no-categories"));
@@ -208,10 +199,6 @@ public class GradeSummaryTablePanel extends BasePanel {
 
 						// popover flags
 						final WebMarkupContainer flags = new WebMarkupContainer("flags");
-						flags.add(page.buildFlagWithPopover("isExcluded", getString("label.gradeitem.excluded"))
-								.add(new AttributeModifier("data-trigger", "focus"))
-								.add(new AttributeModifier("data-container", "#gradeSummaryTable"))
-								.setVisible(excluded));
 						flags.add(page.buildFlagWithPopover("isExtraCredit", getString("label.gradeitem.extracredit"))
 								.add(new AttributeModifier("data-trigger", "focus"))
 								.add(new AttributeModifier("data-container", "#gradeSummaryTable"))

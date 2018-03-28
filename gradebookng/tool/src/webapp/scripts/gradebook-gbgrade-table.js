@@ -409,29 +409,6 @@ GbGradeTable.cellRenderer = function (instance, td, row, col, prop, value, cellP
     isExtraCredit = parseFloat(value) > 100;
   }
 
-  var isExcluded = false;
-  var studentId = student.userId;
-  var assignmentId = column.assignmentId;
-  var test = {
-    action: 'checkExcluded',
-    studentId: studentId,
-    assignmentId: assignmentId
-  };
-
-  GbGradeTable.ajax(test, function (status, data) {
-    isExcluded = data.isExcluded;
-    if (isExcluded) {
-      $cellDiv.addClass("gb-Excluded");
-      $(gbNotification).addClass("gb-flag-Excluded");
-      notifications.push({
-        type: 'Excluded'
-      });
-    } else {
-      $(gbNotification).removeClass("gb-flag-Excluded");
-      $cellDiv.removeClass("gb-Excluded");
-    }
-  });
-
   if (isExtraCredit) {
     $cellDiv.addClass("gb-extra-credit");
     $(gbNotification).addClass("gb-flag-extra-credit");
@@ -1004,12 +981,6 @@ GbGradeTable.renderTable = function (elementId, tableData) {
 
     GbGradeTable.editComment($.data($cell[0], "studentid"), $.data($cell[0], "assignmentid"));
   }).
-  // Set to Excluded
-  on("click", ".gb-dropdown-menu .gb-exclude-grade", function() {
-      var $dropdown = $(this).closest(".gb-dropdown-menu");
-      var $cell = $dropdown.data("cell");
-      GbGradeTable.toggleIgnored($.data($cell[0], "studentid"), $.data($cell[0], "assignmentid"));
-  }).
   // View Grade Summary
   on("click", ".gb-view-grade-summary", function() {
     var $cell = $(this).closest('td');
@@ -1307,31 +1278,6 @@ GbGradeTable.editComment = function(studentId, assignmentId) {
   });
 };
 
-GbGradeTable.toggleIgnored = function(studentId, assignmentId) {
-  var row = GbGradeTable.rowForStudent(studentId);
-  var assignment = GbGradeTable.colModelForAssignment(assignmentId);
-  var col = GbGradeTable.colForAssignment(assignmentId);
-  var excludedData = {
-    action: 'setExcluded',
-    studentId: studentId,
-    assignmentId: assignmentId,
-    categoryId: assignment.categoryId
-  };
-
-  GbGradeTable.ajax(excludedData, function (status, data) {
-    GbGradeTable.setCellState('saved', row, col);
-    //Update the cell
-      if(data.assignmentScore == "-"){
-          GbGradeTable.syncScore(studentId, assignmentId, "-");
-      } else {
-          GbGradeTable.syncScore(studentId, assignmentId, data.assignmentScore);
-      }
-    // update the course grade cell
-    GbGradeTable.syncCourseGrade(studentId, data.courseGrade);
-    // update the category average cell
-   GbGradeTable.syncCategoryAverage(studentId, assignment.categoryId, data.categoryScore);
-  });
-};
 
 GbGradeTable.editSettings = function() {
   GbGradeTable.ajax({

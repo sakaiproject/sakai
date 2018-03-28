@@ -72,7 +72,6 @@ import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.service.gradebook.shared.InvalidGradeException;
 import org.sakaiproject.service.gradebook.shared.SortType;
 import org.sakaiproject.service.gradebook.shared.StaleObjectModificationException;
-import org.sakaiproject.service.gradebook.shared.*;
 import org.sakaiproject.service.gradebook.shared.exception.UnmappableCourseGradeOverrideException;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
@@ -1099,7 +1098,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 				}
 
                 if (assign.isCounted() && !assign.getUngraded() && !assign.isRemoved() && countedSet.contains(assign) &&
-                        assign.getPointsPossible() != null && assign.getPointsPossible() > 0 && !gradeRec.getDroppedFromGrade() && !extraCredit && !gradeRec.isExcludedFromGrade()) {
+                        assign.getPointsPossible() != null && assign.getPointsPossible() > 0 && !gradeRec.getDroppedFromGrade() && !extraCredit) {
                     countedGradeRecs.add(gradeRec);
                 }
             }
@@ -1219,7 +1218,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 	    final Set assignmentsTaken = new HashSet();
 	    for (final AssignmentGradeRecord gradeRec : gradeRecs)
 	    {
-	        if(gradeRec.getPointsEarned() != null && !gradeRec.getPointsEarned().equals("") && !gradeRec.getDroppedFromGrade() && !gradeRec.isExcludedFromGrade())
+	        if(gradeRec.getPointsEarned() != null && !gradeRec.getPointsEarned().equals("") && !gradeRec.getDroppedFromGrade())
 	        {
 	            final GradebookAssignment go = gradeRec.getAssignment();
 	            if (go.isIncludedInCalculations() && countedAssigns.contains(go))
@@ -1963,8 +1962,6 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 			gradeDef.setGradeComment(commentText);
 		}
 
-		gradeDef.setGradeExcluded(gradeRecord.isExcludedFromGrade());
-
 		return gradeDef;
 	}
 
@@ -2311,123 +2308,6 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 				return getAssignmentWithoutStats(gradebookUID, gradeableObjectID);
 			}
 		});
-	}
-
-
-	@Override
-	public void saveExcludedStatusForStudentGrade(String gradebookUid, Long gradableObjectId, String studentUid, Boolean excludedStatus) {
-		if (gradebookUid == null || gradableObjectId == null || studentUid == null) {
-			throw new IllegalArgumentException("Null gradebookUid or gradableObjectId or studentUid passed to saveExcludedStatusForStudentGrade");
-		}
-
-		GradeDefinition gradeDef = new GradeDefinition();
-		gradeDef.setStudentUid(studentUid);
-		gradeDef.setGradeExcluded(excludedStatus);
-
-		List<GradeDefinition> gradeDefList = new ArrayList<GradeDefinition>();
-		gradeDefList.add(gradeDef);
-
-		saveExcludedStatusForStudentGrade(gradebookUid, gradableObjectId, gradeDefList);
-	}
-
-	@Override
-	public void saveExcludedStatusForStudentGrade(final String gradebookUid, final Long gradableObjectId, List<GradeDefinition> gradeDefList) {
-		if (gradebookUid == null || gradableObjectId == null) {
-			throw new IllegalArgumentException("Null gradebookUid or gradableObjectId passed to saveExcludedStatusForStudentGrade");
-		}
-
-		if (gradeDefList != null) {
-			Gradebook gradebook;
-
-			try {
-				gradebook = getGradebook(gradebookUid);
-			} catch (GradebookNotFoundException gnfe) {
-				throw new GradebookNotFoundException("No gradebook exists with the given gradebookUid: " +
-						gradebookUid + "Error: " + gnfe.getMessage());
-			}
-
-			GradebookAssignment assignment = (GradebookAssignment) getHibernateTemplate().execute(new HibernateCallback() {
-				@Override
-				public Object doInHibernate(Session session) throws HibernateException {
-					return getAssignmentWithoutStats(gradebookUid, gradableObjectId);
-				}
-			});
-
-			if (assignment == null) {
-				throw new AssessmentNotFoundException("No gradebook item exists with gradable object id = " + gradableObjectId);
-			}
-
-			if (!currentUserHasGradingPerm(gradebookUid)) {
-				log.warn("User attempted to save grades and comments without authorization");
-				throw new SecurityException("Current user is not authorized to save grades or comments in gradebook " + gradebookUid);
-			}
-
-			// let's identify all of the students being updated first
-			Map<String, GradeDefinition> studentIdGradeDefMap = new HashMap<String, GradeDefinition>();
-
-			for (GradeDefinition gradeDef : gradeDefList) {
-				studentIdGradeDefMap.put(gradeDef.getStudentUid(), gradeDef);
-			}
-
-			// let's retrieve all of the existing grade recs for the given students
-			// and assignments
-			List<AssignmentGradeRecord> allGradeRecs =
-					getAllAssignmentGradeRecordsForGbItem(gradableObjectId, studentIdGradeDefMap.keySet());
-
-			// put in map for easier accessibility
-			Map<String, AssignmentGradeRecord> studentIdToAgrMap = new HashMap<String, AssignmentGradeRecord>();
-			if (allGradeRecs != null) {
-				for (AssignmentGradeRecord rec : allGradeRecs) {
-					studentIdToAgrMap.put(rec.getStudentId(), rec);
-				}
-			}
-
-			// these are the records that will need to be updated. iterate through
-			// everything and then we'll save it all at once
-			Set<AssignmentGradeRecord> agrToUpdate = new HashSet<AssignmentGradeRecord>();
-
-			Set<GradingEvent> eventsToAdd = new HashSet<GradingEvent>();
-
-			for (GradeDefinition gradeDef : gradeDefList) {
-
-				String studentId = gradeDef.getStudentUid();
-				boolean excludedStatus = gradeDef.isGradeExcluded();
-				String graderUid = getAuthn().getUserUid();
-
-				// let's see if this agr needs to be updated
-				AssignmentGradeRecord gradeRec = studentIdToAgrMap.get(studentId);
-				if (gradeRec != null) {
-					gradeRec.setExcludedFromGrade(excludedStatus);
-					agrToUpdate.add(gradeRec);
-
-					// we also need to add a GradingEvent
-					// the event stores the actual input grade, not the converted one
-					GradingEvent event = new GradingEvent(assignment, graderUid, studentId, gradeDef.getGrade());
-					eventsToAdd.add(event);
-				}
-			}
-
-			// now let's save them
-			try {
-				for (AssignmentGradeRecord assignmentGradeRecord : agrToUpdate) {
-					System.out.println("saveorupdate:_ " + assignmentGradeRecord);
-					getHibernateTemplate().saveOrUpdate(assignmentGradeRecord);
-				}
-				for (GradingEvent gradingEvent : eventsToAdd) {
-					getHibernateTemplate().saveOrUpdate(gradingEvent);
-				}
-			} catch (HibernateOptimisticLockingFailureException holfe) {
-				if (log.isInfoEnabled()){
-					log.info("An optimistic locking failure occurred while attempting to save scores and comments for gb Item " + gradableObjectId);
-				}
-				throw new StaleObjectModificationException(holfe);
-			} catch (StaleObjectStateException sose) {
-				if (log.isInfoEnabled()) {
-					log.info("An optimistic locking failure occurred while attempting to save scores and comments for gb Item " + gradableObjectId);
-				}
-				throw new StaleObjectModificationException(sose);
-			}
-		}
 	}
 
   /**
@@ -3298,18 +3178,8 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 			a.setCategory(c);
 
 			//create the AGR
-			AssignmentGradeRecord gradeRecord = new AssignmentGradeRecord(a, studentUuid, grade);
+			final AssignmentGradeRecord gradeRecord = new AssignmentGradeRecord(a, studentUuid, grade);
 
-			//Add Excluded Status to the AGR
-			GradebookAssignment assignmentForGradeRecord = getAssignmentWithoutStats(((Gradebook) gradebook).getUid(), assignmentId);
-			AssignmentGradeRecord tempAGR = getAssignmentGradeRecord(assignmentForGradeRecord, studentUuid);
-			if(tempAGR != null){
-				gradeRecord.setExcludedFromGrade(tempAGR.isExcludedFromGrade());
-			} else {
-				gradeRecord.setExcludedFromGrade(false);
-			}
-
-			//Add the AGR
 			gradeRecords.add(gradeRecord);
 		}
 
@@ -3375,7 +3245,6 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 		// Rule 5. the assignment is  released to the student (safety check against condition 3)
 		// Rule 6. the grade is not dropped from the calc
 		// Rule 7. extra credit items have their grade value counted only. Their total points possible does not apply to the calculations
-		// Rule 8. the grade has not been excluded from being counted in the final grade
 		log.debug("categoryId: {}", categoryId);
 
 		gradeRecords.removeIf(gradeRecord -> {
@@ -3388,16 +3257,12 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 			if(categoryId.longValue() != assignment.getCategory().getId().longValue()){
 				return true;
 			}
+
 			//remove if the assignment/graderecord doesn't meet the criteria for the calculation (rule 2-6)
 			if(assignment.getPointsPossible() == null || gradeRecord.getPointsEarned() == null || !assignment.isCounted() || !assignment.isReleased() || gradeRecord.getDroppedFromGrade()) {
 				return true;
 			}
-			//remove if the assignment/graderecord is excluded (rule 8)
-			if(gradeRecord.isExcludedFromGrade() != null){
-				if (gradeRecord.isExcludedFromGrade()){
-					return true;
-				}
-			}
+
 			return false;
 		});
 
@@ -4010,23 +3875,5 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
         final List<GradebookAssignment> assignments = allAssignments.stream().filter(a -> a.getCategory() == null).collect(Collectors.toList());
         assignments.forEach(a -> a.setCounted(false));
         batchPersistEntities(assignments);
-	}
-
-	/**
-	 *  Toggles the excluded status for an assignment grade record
-	 */
-	public void toggleGradeRecordExcluded(final String gradebookUid, final Long assignmentId, final String studentUid, final boolean isExcluded){
-		GradebookAssignment assignment = getAssignmentWithoutStats(gradebookUid, assignmentId);
-		AssignmentGradeRecord gradeRecord = getAssignmentGradeRecord(assignment, studentUid);
-		if(gradeRecord != null) {
-			if (gradeRecord.isExcludedFromGrade() == null) {
-				gradeRecord.setExcludedFromGrade(true);
-			} else if (isExcluded) {
-				gradeRecord.setExcludedFromGrade(false);
-			} else {
-				gradeRecord.setExcludedFromGrade(true);
-			}
-			getHibernateTemplate().saveOrUpdate(gradeRecord);
-		}
 	}
 }

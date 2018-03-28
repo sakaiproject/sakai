@@ -51,8 +51,6 @@ import org.sakaiproject.gradebookng.tool.actions.EditAssignmentAction;
 import org.sakaiproject.gradebookng.tool.actions.EditCommentAction;
 import org.sakaiproject.gradebookng.tool.actions.EditSettingsAction;
 import org.sakaiproject.gradebookng.tool.actions.GradeUpdateAction;
-import org.sakaiproject.gradebookng.tool.actions.CheckGradeExcludedStatusAction;
-import org.sakaiproject.gradebookng.tool.actions.SetGradeAsExcludedAction;
 import org.sakaiproject.gradebookng.tool.actions.MoveAssignmentLeftAction;
 import org.sakaiproject.gradebookng.tool.actions.MoveAssignmentRightAction;
 import org.sakaiproject.gradebookng.tool.actions.OverrideCourseGradeAction;
@@ -260,7 +258,7 @@ public class GradebookPage extends BasePage {
 					}
 				});
 		this.gradeTable.addEventListener("setScore", new GradeUpdateAction());
- 		this.gradeTable.addEventListener("viewLog", new ViewGradeLogAction());
+		this.gradeTable.addEventListener("viewLog", new ViewGradeLogAction());
 		this.gradeTable.addEventListener("editAssignment", new EditAssignmentAction());
 		this.gradeTable.addEventListener("viewStatistics", new ViewAssignmentStatisticsAction());
 		this.gradeTable.addEventListener("overrideCourseGrade", new OverrideCourseGradeAction());
@@ -276,8 +274,8 @@ public class GradebookPage extends BasePage {
 		this.gradeTable.addEventListener("moveAssignmentLeft", new MoveAssignmentLeftAction());
 		this.gradeTable.addEventListener("moveAssignmentRight", new MoveAssignmentRightAction());
 		this.gradeTable.addEventListener("viewCourseGradeStatistics", new ViewCourseGradeStatisticsAction());
-		this.gradeTable.addEventListener("setExcluded", new SetGradeAsExcludedAction());
-		this.gradeTable.addEventListener("checkExcluded", new CheckGradeExcludedStatusAction());
+
+
 		this.form.add(this.gradeTable);
 
 		final Button toggleCategoriesToolbarItem = new Button("toggleCategoriesToolbarItem") {
