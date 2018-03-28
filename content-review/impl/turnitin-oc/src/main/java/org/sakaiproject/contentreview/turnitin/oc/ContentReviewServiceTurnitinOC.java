@@ -170,10 +170,8 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 
 		try {
 			// Get the webhook url
-			log.info("GET WEBHOOK URL");
 			webhookUrl = getWebhookUrl(Optional.empty());
 			// Get list of existing webhooks, if any
-			log.info("GET WEBHOOKS");
 			ArrayList<Webhook> webhooks = getWebhooks();
 			
 			boolean webhooksSetup = false;
@@ -183,13 +181,12 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 					webhooksSetup = true;
 				}
 			}
+
 			if (!webhooksSetup) {
 				// No webhook set up for this url, set one up
-				log.info("SETTING UP WEBHOOK");
 				setupWebhook();
 			}
 		} catch (Exception e) {
-			log.info("WEBHOOK ERROR :(((");
 			log.error(e.getLocalizedMessage(), e);
 		}
 	}
@@ -204,7 +201,7 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 		types.add("SUBMISSION_COMPLETE");
 
 		data.put("signing_secret", apiKey);
-		data.put("url", getWebhookUrl(Optional.empty()));
+		data.put("url", webhookUrl);
 		data.put("description", "Sakai " + sakaiVersion);
 		data.put("allow_insecure", true);
 		data.put("event_types", types);
@@ -223,10 +220,10 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 		if ((responseCode >= 200) && (responseCode < 300) && (responseBody != null)) {
 			// create JSONObject from responseBody
 			JSONObject responseJSON = JSONObject.fromObject(responseBody);
-			if (responseJSON.containsKey("id")) {
+			if (responseJSON.has("id")) {
 				id = responseJSON.getString("id");
 			} else {
-				throw new Error("Viewer URL not found. Response: " + responseMessage);
+				throw new Error("Error setting up webhook - returned with no ID");
 			}
 		} else {
 			throw new Error(responseMessage);
