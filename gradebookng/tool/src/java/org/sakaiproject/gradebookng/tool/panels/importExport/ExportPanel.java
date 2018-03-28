@@ -279,9 +279,9 @@ public class ExportPanel extends BasePanel {
 
 				// build column header
 				assignments.forEach(assignment -> {
-					final String assignmentPoints = assignment.getPoints().toString();
+					final String assignmentPoints = FormatHelper.formatGradeForDisplay(assignment.getPoints().toString());
 					if (!isCustomExport || this.includeGradeItemScores) {
-						header.add(assignment.getName() + " [" + StringUtils.removeEnd(assignmentPoints, ".0") + "]");
+						header.add(assignment.getName() + " [" + StringUtils.removeEnd(assignmentPoints, FormattedText.getDecimalSeparator() + "0") + "]");
 					}
 					if (!isCustomExport || this.includeGradeItemComments) {
 						header.add(String.join(" ", COMMENTS_COLUMN_PREFIX, assignment.getName()));

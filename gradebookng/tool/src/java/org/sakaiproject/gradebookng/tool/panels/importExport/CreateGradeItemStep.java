@@ -38,6 +38,7 @@ import org.sakaiproject.gradebookng.tool.pages.ImportExportPage;
 import org.sakaiproject.gradebookng.tool.panels.AddOrEditGradeItemPanelContent;
 import org.sakaiproject.gradebookng.tool.panels.BasePanel;
 import org.sakaiproject.service.gradebook.shared.Assignment;
+import org.sakaiproject.util.FormattedText;
 
 /**
  * Importer has detected that items need to be created so extract the data and wrap the 'AddOrEditGradeItemPanelContent' panel
@@ -75,8 +76,13 @@ public class CreateGradeItemStep extends BasePanel {
 		final Assignment assignment = assignmentFromModel == null ? new Assignment() : assignmentFromModel;
 		if (assignmentFromModel == null) {
 			assignment.setName(StringUtils.trim(processedGradeItem.getItemTitle()));
-			if(StringUtils.isNotBlank(processedGradeItem.getItemPointValue())) {
-				assignment.setPoints(Double.parseDouble(processedGradeItem.getItemPointValue()));
+			String itemPointValue = processedGradeItem.getItemPointValue();
+			if(StringUtils.isNotBlank(itemPointValue)) {
+				String decimalSeparator = FormattedText.getDecimalSeparator();
+				if (",".equals(decimalSeparator)) {
+					itemPointValue = itemPointValue.replace(decimalSeparator, ".");
+				}
+				assignment.setPoints(Double.parseDouble(itemPointValue));
 			}
 		}
 
