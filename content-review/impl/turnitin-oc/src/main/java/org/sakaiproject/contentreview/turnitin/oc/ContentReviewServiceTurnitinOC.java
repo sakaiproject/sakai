@@ -178,18 +178,11 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 		try {
 			// Get the webhook url
 			String webhookUrl = getWebhookUrl(Optional.empty());
-			// Hard-coded url for testing locally (leave in for now):
-			// String webhookUrl = "http://vericite.com/content-review-tool/webhooks?providerName=TurnitinOC";
-			// Get list of existing webhooks, if any
-			ArrayList<Webhook> webhooks = getWebhooks();
-
 			boolean webhooksSetup = false;
-			// Check to see if any webhooks exist for this url
-			for (Webhook webhook : webhooks) {
+			// Check to see if any webhooks have already been set up for this url
+			for (Webhook webhook : getWebhooks()) {
 				if (StringUtils.isNotEmpty(webhook.getUrl()) && webhook.getUrl().equals(webhookUrl)) {
 					webhooksSetup = true;
-					// TODO: If webhook ID is valid, then webhookId = webhook.getId()
-					// TODO: Else throw error?
 					break;
 				}
 			}
@@ -260,18 +253,13 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 
 		if ((responseCode < 200) || (responseCode >= 300) || (responseBody == null)) {
 			throw new Error(responseMessage);
-		} else {
-			
-			if (responseBody != "" && responseBody != "[]") {
-				// Make sure the webhook(s) is/are valid
-				// Create List from responseBody
-				
-				JSONArray webhookList = JSONArray.fromObject(responseBody);
-				for (int i=0; i < webhookList.size(); i++) {
-					JSONObject webhookJSON = webhookList.getJSONObject(i);
-					if (webhookJSON.has("id") && webhookJSON.has("url")) {
-						webhooks.add(new Webhook(webhookJSON.getString("id"), webhookJSON.getString("url")));
-					}
+		} else if (responseBody != "" && responseBody != "[]") {
+			// Loop through response via JSON, convert objects to Webhooks
+			JSONArray webhookList = JSONArray.fromObject(responseBody);
+			for (int i=0; i < webhookList.size(); i++) {
+				JSONObject webhookJSON = webhookList.getJSONObject(i);
+				if (webhookJSON.has("id") && webhookJSON.has("url")) {
+					webhooks.add(new Webhook(webhookJSON.getString("id"), webhookJSON.getString("url")));
 				}
 			}
 		}
