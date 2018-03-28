@@ -273,7 +273,7 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 		}
 	}
 
-	public void deleteWebhook(String id) throws IOException {
+	public void deleteWebhook(String id) throws Exception {
 		HashMap<String, Object> response = makeHttpCall("DELETE",
 				getNormalizedServiceUrl() + "webhooks/" + id,
 				BASE_HEADERS,
