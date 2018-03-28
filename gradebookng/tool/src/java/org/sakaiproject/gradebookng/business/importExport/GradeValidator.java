@@ -24,6 +24,7 @@ import org.sakaiproject.gradebookng.business.model.ImportedCell;
 import org.sakaiproject.gradebookng.business.model.ImportedColumn;
 import org.sakaiproject.gradebookng.business.model.ImportedColumn.Type;
 import org.sakaiproject.gradebookng.business.model.ImportedRow;
+import org.sakaiproject.gradebookng.business.util.FormatHelper;
 
 /**
  * Used to validate grades in an imported file.
@@ -88,6 +89,9 @@ public class GradeValidator
         {
             return;
         }
+
+        // Convert back to user's locale for display/validation purposes
+        grade = FormatHelper.formatGradeForDisplay( grade );
 
         // TODO: when/if letter grades are introduce, determine if grade is numeric
         // or alphabetical here and call/write the appropriate business service method.
