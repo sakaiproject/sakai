@@ -25,6 +25,7 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
@@ -136,6 +137,7 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 	private String serviceUrl;
 	private String apiKey;
 	private String sakaiVersion;
+	private String webhookUrl;
 
 	private HashMap<String, String> BASE_HEADERS = new HashMap<String, String>();
 	private HashMap<String, String> SUBMISSION_REQUEST_HEADERS = new HashMap<String, String>();
@@ -165,6 +167,128 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 		// Populate content upload headers used in uploadExternalContent
 		CONTENT_UPLOAD_HEADERS.putAll(BASE_HEADERS);
 		CONTENT_UPLOAD_HEADERS.put(HEADER_CONTENT, CONTENT_TYPE_BINARY);
+
+		try {
+			// Get the webhook url
+			log.info("GET WEBHOOK URL");
+			webhookUrl = getWebhookUrl(Optional.empty());
+			// Get list of existing webhooks, if any
+			log.info("GET WEBHOOKS");
+			ArrayList<Webhook> webhooks = getWebhooks();
+			
+			boolean webhooksSetup = false;
+			// Check to see if any webhooks exist for this url
+			for (Webhook webhook : webhooks) {
+				if (webhook.getUrl() == "http://vericite.com/content-review-tool/webhooks?providerName=TurnitinOC") {
+					webhooksSetup = true;
+				}
+			}
+			if (!webhooksSetup) {
+				// No webhook set up for this url, set one up
+				log.info("SETTING UP WEBHOOK");
+				setupWebhook();
+			}
+		} catch (Exception e) {
+			log.info("WEBHOOK ERROR :(((");
+			log.error(e.getLocalizedMessage(), e);
+		}
+	}
+
+	public String setupWebhook() throws Exception {
+		String id = "";
+
+		Map<String, Object> data = new HashMap<String, Object>();
+
+		List<String> types = new ArrayList<>();
+		types.add("SIMILARITY_COMPLETE");
+		types.add("SUBMISSION_COMPLETE");
+
+		data.put("signing_secret", apiKey);
+		data.put("url", getWebhookUrl(Optional.empty()));
+		data.put("description", "Sakai " + sakaiVersion);
+		data.put("allow_insecure", true);
+		data.put("event_types", types);
+
+		HashMap<String, Object> response = makeHttpCall("POST",
+				getNormalizedServiceUrl() + "webhooks",
+				SUBMISSION_REQUEST_HEADERS,
+				data,
+				null);
+
+		// Get response:
+		int responseCode = !response.containsKey(RESPONSE_CODE) ? 0 : (int) response.get(RESPONSE_CODE);
+		String responseMessage = !response.containsKey(RESPONSE_MESSAGE) ? "" : (String) response.get(RESPONSE_MESSAGE);
+		String responseBody = !response.containsKey(RESPONSE_BODY) ? "" : (String) response.get(RESPONSE_BODY);
+
+		if ((responseCode >= 200) && (responseCode < 300) && (responseBody != null)) {
+			// create JSONObject from responseBody
+			JSONObject responseJSON = JSONObject.fromObject(responseBody);
+			if (responseJSON.containsKey("id")) {
+				id = responseJSON.getString("id");
+			} else {
+				throw new Error("Viewer URL not found. Response: " + responseMessage);
+			}
+		} else {
+			throw new Error(responseMessage);
+		}
+
+		return id;
+	}
+	
+	public ArrayList<Webhook> getWebhooks() throws Exception {
+		HashMap<String, Object> response = makeHttpCall("GET",
+				getNormalizedServiceUrl() + "webhooks",
+				BASE_HEADERS,
+				null,
+				null);
+
+		// Get response:
+		int responseCode = !response.containsKey(RESPONSE_CODE) ? 0 : (int) response.get(RESPONSE_CODE);
+		String responseMessage = !response.containsKey(RESPONSE_MESSAGE) ? "" : (String) response.get(RESPONSE_MESSAGE);
+		String responseBody = !response.containsKey(RESPONSE_BODY) ? "" : (String) response.get(RESPONSE_BODY);
+		
+		log.info("GET WEBHOOKS RESPONSE: " + responseBody);
+
+		if ((responseCode < 200) || (responseCode >= 300) || (responseBody == null)) {
+			throw new Error(responseMessage);
+		} else {
+			ArrayList<Webhook> webhooks = new ArrayList<>();
+			if (responseBody != "" && responseBody != "[]") {
+				// Make sure the webhook(s) is/are valid
+				// Create List from responseBody
+				
+				List<String> webhookList = new ArrayList<String>(Arrays.asList(responseBody.replace("[", "").replace("]", "").split(",")));
+				for (String webhookStr : webhookList) {
+					if (StringUtils.isNotEmpty(webhookStr) && webhookStr.startsWith("{") && webhookStr.endsWith("}")) {
+						// If call is successful and list is valid, 
+						try {
+							JSONObject webhookJSON = JSONObject.fromObject(webhookStr);
+							if (webhookJSON.has("id") && webhookJSON.has("url")) {
+								webhooks.add(new Webhook(webhookJSON.getString("id"), webhookJSON.getString("url")));
+							}
+						} catch (Exception e) {
+							log.error("Webhook JSON error: " + e.getLocalizedMessage(), e);
+						}
+					}
+				}
+			}
+			return webhooks;
+		}
+	}
+
+	public void deleteWebhook(String id) throws IOException {
+		HashMap<String, Object> response = makeHttpCall("DELETE",
+				getNormalizedServiceUrl() + "webhooks/" + id,
+				BASE_HEADERS,
+				null,
+				null);
+
+		// Get response:
+		int responseCode = !response.containsKey(RESPONSE_CODE) ? 0 : (int) response.get(RESPONSE_CODE);
+
+		if ((responseCode < 200) || (responseCode >= 300)) {
+			throw new Error("Could not delete webhook: " + id);
+		}
 	}
 
 	public boolean allowResubmission() {
@@ -1044,5 +1168,23 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 		}
 		body = stringBuilder.toString();
 		log.info(body);
+	}
+	
+	private class Webhook {
+		private String id;
+		private String url;
+		
+		Webhook(String mId, String mUrl) {
+			id = mId;
+			url = mUrl;
+		}
+		
+		public String getId() {
+			return id;
+		}
+		
+		public String getUrl() {
+			return url;
+		}
 	}
 }
