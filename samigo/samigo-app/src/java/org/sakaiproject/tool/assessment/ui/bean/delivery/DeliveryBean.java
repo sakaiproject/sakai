@@ -3511,6 +3511,7 @@ public class DeliveryBean
     this.timerId = timerId;
   }
 
+  
 	private Site getCurrentSite(String id) {
 		Site site = null;
 		//Placement placement = ToolManager.getCurrentPlacement();
@@ -3522,36 +3523,23 @@ public class DeliveryBean
 		}
 		return site;
 	}
-
-	public String getCurrentToolId() {
+	
+	public String getAudioQuestionLink() {
 		Site currentSite = getCurrentSite(getSiteId());
-		if (currentSite == null) {
-			return "";
+		String placement = null;
+		
+		if (currentSite != null) {
+			placement = ToolManager.getCurrentPlacement().getId();
 		}
-		SitePage page;
-		String toolId;
-		try {
-			List pageList = currentSite.getPages();
-			for (int i = 0; i < pageList.size(); i++) {
-				page = (SitePage) pageList.get(i);
-				List pageToolList = page.getTools();
 
-				// issue with null tool
-				if (pageToolList.get(0)==null && ((ToolConfiguration) pageToolList.get(0)).getTool()==null) {
-					continue;
-				}
-				toolId = ((ToolConfiguration) pageToolList.get(0)).getToolId();
-
-				if (toolId.equalsIgnoreCase("sakai.samigo")) {
-					return ((ToolConfiguration) pageToolList.get(0)).getId();
-				}
-			}
-		} catch (Exception e) {
-			log.warn("Could not find Samigo tool in site", e);
+		if (placement != null) {
+			return "/portal/tool/" + placement + "/jsf/author/audioRecordingPopup.faces";
 		}
-		return "";
+		else {
+			return "/samigo-app/jsf/author/audioRecordingPopup.faces";
+		}
 	}
-
+	
 	private String getCurrentPageId(String id) {
 		Site currentSite = getCurrentSite(id);
 		if (currentSite == null) {
