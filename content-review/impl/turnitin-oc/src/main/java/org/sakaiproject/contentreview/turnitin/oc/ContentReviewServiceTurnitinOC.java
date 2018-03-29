@@ -253,7 +253,7 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 
 		if ((responseCode < 200) || (responseCode >= 300) || (responseBody == null)) {
 			throw new Error(responseMessage);
-		} else if (responseBody != "" && responseBody != "[]") {
+		} else if (StringUtils.isNotEmpty(responseBody) && !"[]".equals(responseBody)) {
 			// Loop through response via JSON, convert objects to Webhooks
 			JSONArray webhookList = JSONArray.fromObject(responseBody);
 			for (int i=0; i < webhookList.size(); i++) {
