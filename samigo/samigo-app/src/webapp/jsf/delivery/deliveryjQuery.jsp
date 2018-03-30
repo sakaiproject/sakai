@@ -51,8 +51,15 @@
 
 			$.blockUI({ message: '<h3>' + please_wait + ' <img src="/library/image/sakai/spinner.gif" /></h3>', overlayCSS: { backgroundColor: '#ccc', opacity: 0.25} });
 		}); 
-		//Disable the back button
-		disableBackButton("<h:outputText value="#{deliveryMessages.use_form_navigation}"/>");
+		//Disable the back button, might be in an iframe so check the parent
+		if (typeof(disableBackButton) !== 'function') {
+			if (typeof(parent.disableBackButton === 'function')) {
+				disableBackButton = parent.disableBackButton;
+			}
+		}
+		if (typeof(disableBackButton) === 'function') {
+			disableBackButton("<h:outputText value="#{deliveryMessages.use_form_navigation}"/>");
+		}
 
 		if($('#submittedForm\\:renderTimeoutMessage').length > 0){
 			showTimerExpiredWarning(function() { ($('#timer-expired-warning').parent()).css('display', 'none');});
