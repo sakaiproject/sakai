@@ -41,7 +41,7 @@
                 officialPictureMode: ${officialPicturesByDefault},
                 viewEmail: ${viewEmail},
                 viewConnections: ${viewConnections},
-                superUser: ${superUser},
+                showPermsToMaintainers: ${showPermsToMaintainers},
                 siteMaintainer: ${siteMaintainer},
                 i18n: {},
                 showVisits: ${showVisits}

@@ -129,7 +129,7 @@ public class RosterTool extends HttpServlet {
         request.setAttribute("viewUserProperty", sakaiProxy.getViewUserProperty());
         request.setAttribute("officialPicturesByDefault", sakaiProxy.getOfficialPicturesByDefault());
         request.setAttribute("viewEmail", sakaiProxy.getViewEmail());
-		request.setAttribute("superUser", sakaiProxy.isSuperUser());
+		request.setAttribute("showPermsToMaintainers", sakaiProxy.showPermsToMaintainers());
 		request.setAttribute("siteMaintainer", sakaiProxy.isSiteMaintainer(sakaiProxy.getCurrentSiteId()));
         request.setAttribute("viewConnections", sakaiProxy.getViewConnections());
         request.setAttribute("showVisits", sakaiProxy.getShowVisits());
