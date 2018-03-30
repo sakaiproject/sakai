@@ -197,7 +197,7 @@ public class ContentReviewQueueServiceImpl implements ContentReviewQueueService 
 	@Transactional(readOnly=true)
 	public Optional<ContentReviewItem> getQueuedItemByExternalId(Integer providerId, String externalId) {
 		Objects.requireNonNull(providerId, "providerId cannot be null");
-		Objects.requireNonNull(externalId, "contentId cannot be null");
+		Objects.requireNonNull(externalId, "externalId cannot be null");
 		
 		return itemDao.findByProviderAndExternalId(providerId, externalId);
 	}

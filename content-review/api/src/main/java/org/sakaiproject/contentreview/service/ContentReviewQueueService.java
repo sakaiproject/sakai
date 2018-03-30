@@ -106,7 +106,7 @@ public interface ContentReviewQueueService {
 	Optional<ContentReviewItem> getQueuedItem(Integer providerId, String contentId);
 	
 	/**
-	 * Get an item that has been queued and contentId.
+	 * Get an item that has been queued via external ID.
 	 * @param providerId the id of content review implementation
 	 * @param externalId the external id of the content item
 	 * @return {@code Optional<ContentReviewItem>}
