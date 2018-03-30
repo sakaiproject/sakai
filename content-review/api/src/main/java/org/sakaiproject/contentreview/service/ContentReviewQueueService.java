@@ -18,6 +18,7 @@ package org.sakaiproject.contentreview.service;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.contentreview.dao.ContentReviewItem;
