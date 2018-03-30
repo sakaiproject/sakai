@@ -25,7 +25,6 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
@@ -363,6 +362,20 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 		String viewerUrl = null;
 		Optional<ContentReviewItem> optionalItem = crqs.getQueuedItem(getProviderId(), contentId);
 		ContentReviewItem item = optionalItem.isPresent() ? optionalItem.get() : null;
+		
+		log.info("REPORT REDIRECT URL");
+		
+		
+		Optional<ContentReviewItem> optionalItemm = crqs.getQueuedItemByExternalId(getProviderId(), item.getExternalId());
+		ContentReviewItem itemm = optionalItemm.isPresent() ? optionalItem.get() : null;
+		
+		if (itemm == null) {
+			log.info("ITEMM IS NULLL :(((");
+		} else {
+			log.info("ITEMM FOUND!!!! " + item.getContentId() + " ==? " + contentId);
+		}
+		
+		
 		if(item != null && ContentReviewConstants.CONTENT_REVIEW_SUBMITTED_REPORT_AVAILABLE_CODE.equals(item.getStatus())) {
 			try {
 				//Get report owner user information

@@ -104,6 +104,14 @@ public interface ContentReviewQueueService {
 	 * @return {@code Optional<ContentReviewItem>}
 	 */
 	Optional<ContentReviewItem> getQueuedItem(Integer providerId, String contentId);
+	
+	/**
+	 * Get an item that has been queued and contentId.
+	 * @param providerId the id of content review implementation
+	 * @param externalId the external id of the content item
+	 * @return {@code Optional<ContentReviewItem>}
+	 */
+	Optional<ContentReviewItem> getQueuedItemByExternalId(Integer providerId, String externalId);
 
 	/**
 	 * Get items queued but have not yet been submitted to the content review service

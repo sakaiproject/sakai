@@ -19,7 +19,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import lombok.extern.slf4j.Slf4j;
 import org.sakaiproject.content.api.ContentResource;
@@ -188,6 +187,18 @@ public class ContentReviewQueueServiceImpl implements ContentReviewQueueService 
 		Objects.requireNonNull(contentId, "contentId cannot be null");
 		
 		return itemDao.findByProviderAndContentId(providerId, contentId);
+	}
+	
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.contentreview.service.ContentReviewQueueService#getQueuedItem(java.lang.Integer, java.lang.String)
+	 */
+	@Override
+	@Transactional(readOnly=true)
+	public Optional<ContentReviewItem> getQueuedItemByExternalId(Integer providerId, String externalId) {
+		Objects.requireNonNull(providerId, "providerId cannot be null");
+		Objects.requireNonNull(externalId, "contentId cannot be null");
+		
+		return itemDao.findByProviderAndExternalId(providerId, externalId);
 	}
 
 	/* (non-Javadoc)
