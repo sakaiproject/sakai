@@ -163,7 +163,12 @@ public class BltiPickerProducer implements ViewComponentProducer, NavigationCase
 
 			UIBranchContainer toolListContainer = null;
 			if(appStoresOnly) {
-				toolListContainer = UIBranchContainer.make(tofill, "app-store-container:");
+				// If we have one store, we get two links, the last one is the "Cancel/panel=Main" link
+				if ( createLinks.size() <= 2 ) {
+					toolListContainer = UIBranchContainer.make(tofill, "app-store-shortcut:");
+				} else {
+					toolListContainer = UIBranchContainer.make(tofill, "app-store-container:");
+				}
 			} else {
 				toolListContainer = UIBranchContainer.make(tofill, "external-tool-container:");
 			}
