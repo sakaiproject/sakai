@@ -99,11 +99,11 @@
     <random-source></random-source>
 
     <!-- These should only be updated when the webjars version is updated -->
-    <ckeditor.autosave.version>786318aefed553a62cebbe4cd10b67c3ab266437</ckeditor.autosave.version>
-    <ckeditor.wordcount.version>b29a29d4dc8a42732ce46720e1efc30c826e4c9</ckeditor.wordcount.version>
+    <ckeditor.autosave.version>278c922c6d8529edd15a2b2c11b574fb4320e0c2</ckeditor.autosave.version>
+    <ckeditor.wordcount.version>136ba881ddcff5aa029e3648c69358c15a982afc</ckeditor.wordcount.version>
     <ckeditor.a11ychecker.version>1.1.0</ckeditor.a11ychecker.version>
     <ckeditor.balloonpanel.version>4.6.2</ckeditor.balloonpanel.version>
-    <ckeditor.image2.version>4.8.0</ckeditor.image2.version>
+    <ckeditor.image2.version>4.9.1</ckeditor.image2.version>
     
   </properties>
   <distributionManagement>

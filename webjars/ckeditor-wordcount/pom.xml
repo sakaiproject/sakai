@@ -20,7 +20,7 @@
     <!-- They're separate here so this can be released independently of the rest of Sakai -->
     <!-- Either use a tag or a SHA so the version is predictable. -->
     <!-- Source at https://github.com/w8tcha/CKEditor-WordCount-Plugin -->
-    <version>b29a29d4dc8a42732ce46720e1efc30c826e4c9</version>
+    <version>136ba881ddcff5aa029e3648c69358c15a982afc</version>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
