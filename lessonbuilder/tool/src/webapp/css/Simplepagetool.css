@@ -629,10 +629,13 @@ a.edit-link:link, a.edit-link:visited, a.section-merge-link:link, a.section-merg
 	padding-left: 20px
 }
 .offscreen {
-	/* from drupal */
+	/* from global skip */
 	position: absolute !important;
+	height: 1px; width: 1px; 
+	overflow: hidden;
 	clip: rect(1px 1px 1px 1px); /* IE6, IE7 */
 	clip: rect(1px, 1px, 1px, 1px);
+	clip-path: polygon(0px 0px, 0px 0px,0px 0px, 0px 0px);
 }
 .columnSetup2 {
     padding:5px;
