@@ -1365,7 +1365,6 @@ public class UsersAction extends PagedResourceActionII
 		
 		// get the user
 		UserEdit user = (UserEdit) state.getAttribute("user");
-
 		//process any additional attributes
 		//we continue processing these until we get an empty attribute KEY
 		//counter starts at 1
