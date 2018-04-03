@@ -32,11 +32,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head><%= request.getAttribute("html.head") %>
     <title><h:outputText value="#{authorFrontDoorMessages.auth_front_door}" /></title>
+    <link rel="stylesheet" type="text/css" href="/library/webjars/bootstrap-multiselect/0.9.15/css/bootstrap-multiselect.css">
 </head>
 <body onload="<%= request.getAttribute("html.body.onload") %>">
     <div class="portletBody container-fluid">
 
     <script src="/library/webjars/datatables/1.10.16/js/jquery.dataTables.min.js"></script>
+    <script src="/library/webjars/bootstrap-multiselect/0.9.15/js/bootstrap-multiselect.js"></script>
     <samigo:script path="/js/info.js"/>
     <samigo:script path="/js/naturalSort.js"/>
     <script type="text/JavaScript">
@@ -95,17 +97,34 @@
                 });
 
                 var spanClassName = "";
-                function filterBySpanClassName() {
+                var filterGroups = [];
+                function filterBy() {
                     $.fn.dataTableExt.afnFiltering.push(
                         function (oSettings, aData, iDataIndex) {
+                            var showBySpan = true;
+                            var showByGroups = !<h:outputText value="#{author.groupFilterEnabled}" />;
+
                             if (spanClassName != "") {
-                                var spanLength = $(oSettings.aoData[iDataIndex].anCells).children("span." + spanClassName).length;
-                                if (spanLength > 0) {
-                                    return true;
-                                }
-                                return false;
+                                showBySpan = (($(oSettings.aoData[iDataIndex].anCells).children("span." + spanClassName).length > 0) ? true : false);
                             }
-                            return true;
+                            if (filterGroups != null) {
+                                for (var i=0; i<filterGroups.length; i++) {
+                                    var filter = filterGroups[i];
+                                    if (filter.startsWith("releaseto")) {
+                                        showByGroups = (($(oSettings.aoData[iDataIndex].anCells).children("." + filterGroups[i]).length > 0) ? true : false);
+                                    } else {
+                                        showByGroups = (($(oSettings.aoData[iDataIndex].anCells[5]).find(".groupList > li > .hidden:contains('" + filter + "')").length > 0) ? true : false);  
+                                    }
+                                    if (showByGroups) {
+                                        break;
+                                    }
+                                }
+                            }
+
+                            if (showBySpan && showByGroups) {
+                                return true;
+                            }
+                            return false;
                         }
                     );
                     table.draw();
@@ -116,7 +135,7 @@
                     $.fn.dataTableExt.afnFiltering.push(
                         function (oSettings, aData, iDataIndex) {
                             if (spanClassName != "") {
-                                var spanLength = $(oSettings.aoData[iDataIndex].anCells).children("span." + spanClassName).length;
+                                var spanLength = $(oSettings.aoData[iDataIndex].anCells).children("." + spanClassName).length;
                                 if (spanLength > 0) {
                                     return true;
                                 }
@@ -130,7 +149,45 @@
 
                 $("#authorIndexForm\\:filter-type").change(function() {
                     spanClassName = $(this).val();
-                    filterBySpanClassName();
+                    filterBy();
+                });
+
+                $("#authorIndexForm\\:group-select").attr("multiple", true);
+                $("#authorIndexForm\\:group-select").children("option").each(function() {
+                    $(this).prop("selected", true);
+                });
+                filterGroups = $("#authorIndexForm\\:group-select").val();
+
+                var divElem = document.createElement('div');
+                var filterPlaceholder = <h:outputText value="'#{authorFrontDoorMessages.multiselect_filterPlaceholder}'" />;
+                divElem.innerHTML = filterPlaceholder;
+                filterPlaceholder = divElem.textContent;
+                var selectAllText = <h:outputText value="'#{authorFrontDoorMessages.multiselect_selectAllText}'" />;
+                divElem.innerHTML = selectAllText;
+                selectAllText = divElem.textContent;
+                var nonSelectedText = <h:outputText value="'#{authorFrontDoorMessages.multiselect_nonSelectedText}'" />;
+                divElem.innerHTML = nonSelectedText;
+                nonSelectedText = divElem.textContent;
+                var allSelectedText = <h:outputText value="'#{authorFrontDoorMessages.multiselect_allSelectedText}'" />;
+                divElem.innerHTML = allSelectedText;
+                allSelectedText = divElem.textContent;
+                var nSelectedText = <h:outputText value="'#{authorFrontDoorMessages.multiselect_nSelectedText}'" />;
+                divElem.innerHTML = nSelectedText;
+                nSelectedText = divElem.textContent;
+                $("#authorIndexForm\\:group-select").multiselect({
+                    enableFiltering: true,
+                    enableCaseInsensitiveFiltering: true,
+                    includeSelectAllOption: true,
+                    filterPlaceholder: filterPlaceholder,
+                    selectAllText: selectAllText,
+                    nonSelectedText: nonSelectedText,
+                    allSelectedText: allSelectedText,
+                    nSelectedText: nSelectedText
+                });
+
+                $("#authorIndexForm\\:group-select").change(function() {
+                    filterGroups = $(this).val();
+                    filterBy();
                 });
             }
 
@@ -188,6 +245,19 @@
                             <f:selectItem itemValue="status_published" itemLabel="#{authorFrontDoorMessages.assessment_pub}" />
                             <f:selectItem itemValue="status_true" itemLabel="#{authorFrontDoorMessages.assessment_status_active}" />
                             <f:selectItem itemValue="status_false" itemLabel="#{authorFrontDoorMessages.assessment_status_inactive}" />
+                        </h:selectOneMenu>
+                    <f:verbatim></label></f:verbatim>
+                </div>
+            </h:panelGroup>
+
+            <h:panelGroup rendered="#{author.groupFilterEnabled and author.allAssessments.size() > 0}">
+                <div>
+                    <f:verbatim><label></f:verbatim>
+                        <h:outputText value="#{authorFrontDoorMessages.filterbygroup} "/>
+                        <h:selectOneMenu value="select" id="group-select">
+                            <f:selectItem itemValue="releaseto_anon" itemLabel="#{authorFrontDoorMessages.anonymous_users}" />
+                            <f:selectItem itemValue="releaseto_entire" itemLabel="#{authorFrontDoorMessages.entire_site}" />
+                            <t:selectItems value="#{author.groups.entrySet()}" var="group" itemValue="#{group.key}" itemLabel="#{group.value}" />
                         </h:selectOneMenu>
                     <f:verbatim></label></f:verbatim>
                 </div>
@@ -440,8 +510,8 @@
                         </h:panelGroup>
                     </f:facet>
 
-                    <h:outputText value="#{authorFrontDoorMessages.anonymous_users}" rendered="#{assessment.releaseTo eq 'Anonymous Users'}" />
-                    <h:outputText value="#{authorFrontDoorMessages.entire_site}" rendered="#{assessment.releaseTo ne 'Anonymous Users' && assessment.releaseTo ne 'Selected Groups'}" />
+                    <h:outputText value="#{authorFrontDoorMessages.anonymous_users}" styleClass="releaseto_anon" rendered="#{assessment.releaseTo eq 'Anonymous Users'}" />
+                    <h:outputText value="#{authorFrontDoorMessages.entire_site}" styleClass="releaseto_entire" rendered="#{assessment.releaseTo ne 'Anonymous Users' && assessment.releaseTo ne 'Selected Groups'}" />
 
                     <t:div rendered="#{assessment.releaseTo eq 'Selected Groups'}">
                         <t:div id="groupsHeader" onclick="#{assessment.groupCount gt 0 ? 'toggleGroups( this );' : ''}" styleClass="#{assessment.groupCount ge 1 ? 'collapsed' : 'messageError'}">
@@ -451,8 +521,9 @@
                             <h:outputText value="#{authorFrontDoorMessages.no_selected_groups_error}" rendered="#{assessment.releaseTo eq 'Selected Groups' and assessment.groupCount eq 0}"/>
                         </t:div>
                         <t:div id="groupsPanel" style="display: none;">
-                            <t:dataList layout="unorderedList" value="#{assessment.releaseToGroupsList}" var="group" styleClass="groupList">
-                                <h:outputText value="#{group}" />
+                            <t:dataList layout="unorderedList" value="#{assessment.releaseToGroups.entrySet()}" var="group" styleClass="groupList">
+                                <h:outputText value="#{group.value}" />
+                                <h:outputText value="#{group.key}" styleClass="hidden" />
                             </t:dataList>
                         </t:div>
                     </t:div>

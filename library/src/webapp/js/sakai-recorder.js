@@ -416,8 +416,10 @@ function audioAnalyzer(time) {
         $('#audio-statusbar').css('width', ((closeSoon/5)*(maxWidth)) + 'px');
         if (closeSoon > 5) {
             var ckeditor_loaded = false;
-            for (var instances in CKEDITOR.instances) {
-              ckeditor_loaded = true;
+            if (typeof CKEDITOR !== 'undefined') {
+                for (var instances in CKEDITOR.instances) {
+                  ckeditor_loaded = true;
+                }
             }
 
             if (ckeditor_loaded) {

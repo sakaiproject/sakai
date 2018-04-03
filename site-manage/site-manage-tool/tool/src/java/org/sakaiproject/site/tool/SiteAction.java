@@ -40,6 +40,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Properties;
 import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.UUID;
 import java.util.Vector;
 
@@ -13427,25 +13428,22 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 		List<AcademicSession> academicSessions = new ArrayList<AcademicSession>();
 		User user = UserDirectoryService.getCurrentUser();
 		
-		if( cms != null && user != null)
+		if( cms != null && user != null && groupProvider != null)
 		{
-			Map<String, String> sectionRoles = cms.findSectionRoles( user.getEid() );			
-			if( sectionRoles != null )
+			Map<String, String> sectionsToRoles = groupProvider.getGroupRolesForUser(user.getEid());
+			final Set<String> rolesAllowed = getRolesAllowedToAttachSection();
+			Map<String, String> filteredSectionsToRoles = sectionsToRoles.entrySet().stream()
+				.filter(entry->rolesAllowed.contains(entry.getValue()))
+				.collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+			for (String sectionEid : filteredSectionsToRoles.keySet())
 			{
-				// Iterate through all the sections and add their corresponding academic sessions to our return value
-				Set<String> sectionEids = sectionRoles.keySet();
-				Iterator<String> itr = sectionEids.iterator();
-				while( itr.hasNext() )
+				Section section = cms.getSection(sectionEid);
+				if (section != null)
 				{
-					String sectionEid = itr.next();
-					Section section = cms.getSection( sectionEid );
-					if( section != null )
+					CourseOffering courseOffering = cms.getCourseOffering(section.getCourseOfferingEid());
+					if (courseOffering != null)
 					{
-						CourseOffering courseOffering = cms.getCourseOffering( section.getCourseOfferingEid() );
-						if( courseOffering != null )
-						{
-							academicSessions.add( courseOffering.getAcademicSession() );
-						}
+						academicSessions.add(courseOffering.getAcademicSession());
 					}
 				}
 			}
@@ -13569,7 +13567,7 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 		return includeRole;
 	} // includeRole
 
-	protected Set getRolesAllowedToAttachSection() {
+	protected Set<String> getRolesAllowedToAttachSection() {
 		// Use !site.template.[site_type]
 		String azgId = "!site.template.course";
 		AuthzGroup azgTemplate;
@@ -13579,7 +13577,7 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 			log.error(this + ".getRolesAllowedToAttachSection: Could not find authz group " + azgId, e);
 			return new HashSet();
 		}
-		Set roles = azgTemplate.getRolesIsAllowed("site.upd");
+		Set<String> roles = azgTemplate.getRolesIsAllowed("site.upd");
 		roles.addAll(azgTemplate.getRolesIsAllowed("realm.upd"));
 		return roles;
 	} // getRolesAllowedToAttachSection
@@ -14944,7 +14942,16 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 					}
 					else
 					{
-						state.setAttribute(STATE_TEMPLATE_INDEX, "37");
+						if (ServerConfigurationService.getBoolean(SAK_PROP_FILTER_TERMS, Boolean.FALSE))
+						{
+							// Filter terms is intended to prevent users from hitting case 37 (manual creation).
+							// This will handle element inspecting the academic session dropdown
+							state.setAttribute(STATE_TEMPLATE_INDEX, "36");
+						}
+						else
+						{
+							state.setAttribute(STATE_TEMPLATE_INDEX, "37");
+						}
 					}		
 				}
 

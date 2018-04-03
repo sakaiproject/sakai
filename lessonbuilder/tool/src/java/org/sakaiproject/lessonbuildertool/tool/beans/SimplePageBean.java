@@ -8675,13 +8675,12 @@ public class SimplePageBean {
 	 * @param ab
 	 * @return
 	 */
-	public String addCalendar(String ab){
-		if (!itemOk(itemId))
+	public String addCalendar(){
+		if (!itemOk(itemId) || !checkCsrf())
 			return "permission-failed";
 		String result = "success";
 		if (canEditPage()) {
 			//set addBefore value which will be used by append item to place calendar item at correct place
-			addBefore = ab;
 			SimplePageItem item;
 			if (itemId != null && itemId != -1) {
 				//existing item, need to update

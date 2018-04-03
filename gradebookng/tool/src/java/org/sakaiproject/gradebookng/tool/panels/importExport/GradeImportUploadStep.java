@@ -40,6 +40,7 @@ import org.sakaiproject.gradebookng.tool.model.ImportWizardModel;
 import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
 import org.sakaiproject.gradebookng.tool.pages.ImportExportPage;
 import org.sakaiproject.gradebookng.tool.panels.BasePanel;
+import org.sakaiproject.util.FormattedText;
 
 /**
  * Upload/Download page
@@ -136,7 +137,8 @@ public class GradeImportUploadStep extends BasePanel {
 				// turn file into list
 				ImportedSpreadsheetWrapper spreadsheetWrapper;
 				try {
-					spreadsheetWrapper = ImportGradesHelper.parseImportedGradeFile(upload.getInputStream(), upload.getContentType(), upload.getClientFileName(), businessService);
+					spreadsheetWrapper = ImportGradesHelper.parseImportedGradeFile(upload.getInputStream(), upload.getContentType(), 
+																					upload.getClientFileName(), businessService, FormattedText.getDecimalSeparator());
 				} catch (final GbImportExportInvalidFileTypeException | InvalidFormatException e) {
 					log.debug("incorrect type", e);
 					error(getString("importExport.error.incorrecttype"));

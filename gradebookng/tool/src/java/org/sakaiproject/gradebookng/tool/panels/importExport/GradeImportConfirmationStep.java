@@ -237,7 +237,7 @@ public class GradeImportConfirmationStep extends BasePanel {
 					for (ProcessedGradeItemDetail processedGradeItemDetail : processedGradeItemDetails) {
 						GradeDefinition gradeDef = new GradeDefinition();
 						gradeDef.setStudentUid(processedGradeItemDetail.getUser().getUserUuid());
-						gradeDef.setGrade(processedGradeItemDetail.getGrade());
+						gradeDef.setGrade(FormatHelper.formatGradeForDisplay(processedGradeItemDetail.getGrade()));
 						gradeDef.setGradeComment(processedGradeItemDetail.getComment());
 						gradeDefList.add(gradeDef);
 					}

@@ -472,11 +472,6 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 			return;
 		}
 
-		String addBefore = params.getAddBefore();
-		if(params.addTool == GeneralViewParameters.CALENDAR){
-			simplePageBean.addCalendar(addBefore);
-		}
-
 		// Find the MSIE version, if we're running it.
 		int ieVersion = checkIEVersion();
 		// as far as I can tell, none of these supports fck or ck
@@ -4149,12 +4144,13 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 
 		    boolean showEmbedCalendarLink = ServerConfigurationService.getBoolean("lessonbuilder.show.calendar.link", true);
 		    if (showEmbedCalendarLink){
-			    GeneralViewParameters eParams = new GeneralViewParameters(VIEW_ID);
-			    eParams.addTool = GeneralViewParameters.CALENDAR;
-			    UIOutput.make(tofill, "calendar-li");
-			    UILink calendarLink = UIInternalLink.make(tofill, "calendar-link", messageLocator.getMessage("simplepage.calendarLinkText"), eParams);
-			    calendarLink.decorate(new UITooltipDecorator(messageLocator.getMessage("simplepage.calendar-descrip")));
-		    }
+			UIOutput.make(tofill, "calendar-li");
+			UIOutput.make(tofill, "calendar-link").decorate(new UITooltipDecorator(messageLocator.getMessage("simplepage.calendar-descrip")));
+			UIForm form = UIForm.make(tofill, "add-calendar-form");
+			UIInput.make(form, "calendar-addBefore", "#{simplePageBean.addBefore}");
+			makeCsrf(form, "csrf28");
+			UICommand.make(form, "add-calendar", "#{simplePageBean.addCalendar}");
+		    }		    
 		    UIOutput.make(tofill, "quiz-li");
 		    createToolBarLink(QuizPickerProducer.VIEW_ID, tofill, "add-quiz", "simplepage.quiz-descrip", currentPage, "simplepage.quiz");
 

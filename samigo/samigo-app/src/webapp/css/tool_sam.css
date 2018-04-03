@@ -507,7 +507,7 @@ a.hideDivision {
     color: #404040;
     font-family: Arial,Helvetica,sans-serif;
 }
-.placeholder
+.placeholder, form#assessmentSettingsAction label.placeholder
 {
   color: #aaa;
 }
@@ -1349,4 +1349,19 @@ input[type='reset'].linearButton {
 .mathjax-warning.alert, .mathjax-warning .alert {
 	margin: 0;
 	padding: 6px 12px;
+}
+
+.input-group-btn button.multiselect-clear-filter{
+	padding: 6px 12px;
+	font-size: 14px;
+	line-height: 1.42857143;
+	background-color: #eee;
+}
+.multiselect-container.dropdown-menu {
+	z-index: 999;
+
+label#itemForm\:noFeedbackMsg {
+	font-weight: normal;
+	margin-left: 1em;
+	font-style: italic;
 }

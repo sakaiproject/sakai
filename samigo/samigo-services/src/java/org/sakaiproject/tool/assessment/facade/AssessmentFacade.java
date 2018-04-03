@@ -28,6 +28,7 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import lombok.extern.slf4j.Slf4j;
@@ -64,8 +65,7 @@ public class AssessmentFacade extends AssessmentBaseFacade
   private Date dueDate;
   private String lastModifiedDateForDisplay;
   private String releaseTo;
-  private String releaseToGroups;
-  private List<String> releaseToGroupsList = new ArrayList<String>();
+  private Map releaseToGroups;
   private int groupCount;
   private boolean selected;
 
@@ -115,7 +115,7 @@ public class AssessmentFacade extends AssessmentBaseFacade
     super.setLastModifiedBy(lastModifiedBy);
   }
 
-  public AssessmentFacade(Long id, String title, Date lastModifiedDate, Date startDate, Date dueDate, String releaseTo, String releaseToGroups, String lastModifiedBy, int questionSize) {
+  public AssessmentFacade(Long id, String title, Date lastModifiedDate, Date startDate, Date dueDate, String releaseTo, Map releaseToGroups, String lastModifiedBy, int questionSize) {
 	    // in the case of template assessmentBaseId is the assessmentTemplateId
 	    super.setAssessmentBaseId(id);
 	    super.setTitle(title);
@@ -126,9 +126,6 @@ public class AssessmentFacade extends AssessmentBaseFacade
 	    this.dueDate = dueDate;
 	    this.releaseTo = releaseTo;
 	    this.releaseToGroups = releaseToGroups;
-	    if (releaseToGroups != null && !releaseToGroups.trim().equals("")) {
-	        setReleaseToGroupsList();
-	    }
 	    setGroupCount();
   }
   
@@ -341,29 +338,17 @@ public class AssessmentFacade extends AssessmentBaseFacade
 	  this.releaseTo = releaseTo;
   }
 
-  public String getReleaseToGroups() {
+  public Map getReleaseToGroups() {
 	  return this.releaseToGroups;
   }
 
-  public void setReleaseToGroups(String releaseToGroups) {
+  public void setReleaseToGroups(Map releaseToGroups) {
 	  this.releaseToGroups = releaseToGroups;
   }
 
-  public void setReleaseToGroupsList() {
-    releaseToGroupsList = new ArrayList<String>();
-    for (String group : releaseToGroups.split(",")) {
-      releaseToGroupsList.add( group.trim());
-    }
-    Collections.sort(releaseToGroupsList);
-  }
-  
-  public List<String> getReleaseToGroupsList() {
-    return releaseToGroupsList;
-  }
-
   public void setGroupCount() {
-    if (releaseToGroupsList != null) {
-      groupCount = releaseToGroupsList.size();
+    if (releaseToGroups != null) {
+      groupCount = releaseToGroups.size();
     } else {
       groupCount = 0;
     }

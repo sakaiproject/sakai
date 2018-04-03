@@ -3529,6 +3529,7 @@ public class DeliveryBean
     this.timerId = timerId;
   }
 
+  
 	private Site getCurrentSite(String id) {
 		Site site = null;
 		//Placement placement = ToolManager.getCurrentPlacement();
@@ -3539,6 +3540,22 @@ public class DeliveryBean
 			log.error(e.getMessage(), e);
 		}
 		return site;
+	}
+	
+	public String getAudioQuestionLink() {
+		Site currentSite = getCurrentSite(getSiteId());
+		String placement = null;
+		
+		if (currentSite != null) {
+			placement = ToolManager.getCurrentPlacement().getId();
+		}
+
+		if (placement != null) {
+			return "/portal/tool/" + placement + "/jsf/author/audioRecordingPopup.faces";
+		}
+		else {
+			return "/samigo-app/jsf/author/audioRecordingPopup.faces";
+		}
 	}
 	
 	private String getCurrentPageId(String id) {
