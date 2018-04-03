@@ -421,7 +421,10 @@ public class LessonsWidget extends Panel {
             public ReportDef getTableReportDefinition() {
                 ReportDef r = getChartReportDefinition();
                 ReportParams rp = r.getReportParams();
-                rp.setHowTotalsBy(Arrays.asList(StatsManager.T_USER));
+                List<String> totalsBy = new ArrayList<String>();
+                totalsBy.add(StatsManager.T_USER);
+                totalsBy.add(StatsManager.T_PAGE);
+                rp.setHowTotalsBy(totalsBy);
                 rp.setHowSort(true);
                 rp.setHowSortBy(StatsManager.T_TOTAL);
                 rp.setHowSortAscending(false);
