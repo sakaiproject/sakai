@@ -440,11 +440,11 @@ public class TestImportGradesHelper {
 	private Map<String, GbUser> mockUserMap() {
 		final Map<String, GbUser> userMap = new HashMap<>();
 		final GbUser user1 = Mockito.mock(GbUser.class);
-		Mockito.when(user1.getUserUuid()).thenReturn("student name 1");
-		Mockito.when(user1.getDisplayId()).thenReturn("student1");
+		Mockito.when(user1.getDisplayId()).thenReturn("student name 1");
+		Mockito.when(user1.getUserUuid()).thenReturn("student1");
 		final GbUser user2 = Mockito.mock(GbUser.class);
-		Mockito.when(user2.getUserUuid()).thenReturn("student name 2");
-		Mockito.when(user2.getDisplayId()).thenReturn("student2");
+		Mockito.when(user2.getDisplayId()).thenReturn("student name 2");
+		Mockito.when(user2.getUserUuid()).thenReturn("student2");
 		userMap.put("student1", user1);
 		userMap.put("student2", user2);
 		return userMap;
