@@ -22,8 +22,6 @@ import java.util.concurrent.ConcurrentSkipListSet;
 
 import lombok.Getter;
 
-import org.apache.commons.lang.StringUtils;
-
 import org.sakaiproject.gradebookng.business.model.GbUser;
 
 /**
@@ -40,7 +38,7 @@ public class UserIdentificationReport implements Serializable
     private final SortedSet<GbUser> missingUsers; // users that could have been matched against an id but weren't
 
     @Getter
-    private final SortedSet<String> unknownUsers; // ids that couldn't be matched against a user
+    private final SortedSet<GbUser> unknownUsers; // ids that couldn't be matched against a user
 
     @Getter
     private final SortedSet<GbUser> duplicateUsers; // users that have more than one entry in the sheet
@@ -69,9 +67,9 @@ public class UserIdentificationReport implements Serializable
         }
     }
 
-    public void addUnknownUser(String user)
+    public void addUnknownUser(GbUser user)
     {
-        if (StringUtils.isNotBlank(user))
+        if (user != null)
         {
             unknownUsers.add(user);
         }
