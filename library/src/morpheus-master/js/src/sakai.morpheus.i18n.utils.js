@@ -1,5 +1,9 @@
 (function ($) {
 
+    if (!portal.loggedIn){
+        return;
+    }
+
     portal.i18n = portal.i18n || {};
     portal.i18n.translations = portal.i18n.translations || {};
 

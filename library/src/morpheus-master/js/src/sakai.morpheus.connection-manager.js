@@ -1,5 +1,9 @@
 (function ($) {
 
+    if (!portal.loggedIn){
+        return;
+    }
+
     portal.connectionManager = portal.connectionManager || {};
 
     var connectionTemplate = Handlebars.templates['connection-manager-connection'];
