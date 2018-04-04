@@ -708,9 +708,9 @@ function supports_history_api() {
 //Call this to disable the back button in a page context - SAK-23247
 function disableBackButton(message) {
 	if (supports_history_api()) {
-		history.pushState(null, null, 'no-back-button');
+		history.pushState(null, null, '');
 		window.addEventListener('popstate', function(event) {
-			history.pushState(null, null, 'no-back-button');
+			history.pushState(null, null, '');
 			window.alert(message);
 		});
 	}
