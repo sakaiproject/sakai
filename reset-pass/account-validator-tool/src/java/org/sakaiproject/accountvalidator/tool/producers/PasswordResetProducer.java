@@ -172,7 +172,7 @@ public class PasswordResetProducer extends BaseValidationProducer implements Vie
 		if (u == null)
 		{
 			log.error("user ID does not exist for ValidationAccount with tokenId: " + va.getValidationToken());
-			tml.addMessage(new TargettedMessage("validate.userNotDefined", new Object[]{}, TargettedMessage.SEVERITY_ERROR));
+			tml.addMessage(new TargettedMessage("validate.userNotDefined", new Object[]{getUIService()}, TargettedMessage.SEVERITY_ERROR));
 			return;
 		}
 

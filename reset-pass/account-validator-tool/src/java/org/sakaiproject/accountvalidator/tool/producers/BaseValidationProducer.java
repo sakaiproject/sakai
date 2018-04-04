@@ -254,6 +254,11 @@ public class BaseValidationProducer implements ViewParamsReporter
 		return serverUrl + "/accountvalidator/faces/" + view + "?tokenId=" + va.getValidationToken();
 	}
 
+	public String getUIService()
+	{
+		return serverConfigurationService.getString("ui.service", "Sakai");
+	}
+
 	public void interceptActionResult(ARIResult result, ViewParameters incoming, Object actionReturn)
 	{
 		if (result.resultingView instanceof ValidationViewParams)
