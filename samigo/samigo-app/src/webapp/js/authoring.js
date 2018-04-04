@@ -328,6 +328,28 @@ $( document ).ready( function() {
 
     });
 
+    // Fix the input value and display for the correct answer in Multiple Choice when entering with partial credit enabled.
+    $('[id$="mcradiobtn"]').click( function(e) {
+
+        // Transform the previous full credit label into an empty text field
+        $('[id$="partialCredit"]').removeAttr('disabled');
+        $('[id$="partialCredit"]').attr('type', 'text');
+        $('#correctAnswerPC').remove();
+
+        // For the choice that was marked as correct, replace the editable point value field with a static value/label of 100%
+        pcBox = $('#'+this.id.replace(/:/g, '\\:').replace('mcradiobtn', 'partialCredit'));
+        pcBox.after('<span id="correctAnswerPC">100%</span>');
+        pcBox.attr('disabled', true);
+        pcBox.attr('type', 'hidden');
+        pcBox.val("0");
+    });
+
+    // Apply the above when the form loads.
+    $('[id$="mcradiobtn"]').each(function() {
+        if( $("input", this).attr("checked") ) {
+            $("input", this).click();
+        }
+    });
 });
 
 function validationWarningSetDefault(element, value) {
@@ -341,15 +363,28 @@ function validationWarningSetDefault(element, value) {
  * for the match part of the MatchItemBean.  Odd syntax for id required to find the
  * jsf pulldown menu, standard #<pulldown> would not retrieve the component.
  * @param pulldown
+ * @param feedbackContainerID the ID of the feedback container to conditionally show/hide based on the pulldown selection
+ * @param noFeedbackMsgID the ID of the container which contains the feedback not available message
  */
-function applyMenuListener(pulldown) {
-	var $pulldownHolder = $("[id='itemForm:" + pulldown + "']");	
+function applyMenuListener(pulldown, feedbackContainerID, noFeedbackMsgID) {
+	var $pulldownHolder = $("[id='itemForm:" + pulldown + "']");
 	$pulldownHolder.change( function() {
+		var applyNoFeedbackChanges = (feedbackContainerID !== undefined && feedbackContainerID !== null) && (noFeedbackMsgID !== undefined && noFeedbackMsgID !== null);
+		var $feedbackContainer = applyNoFeedbackChanges ? $("[id='itemForm:" + feedbackContainerID + "']") : null;
+		var $noFeedbackMsgID = applyNoFeedbackChanges ? $("[id='itemForm:" + noFeedbackMsgID + "']") : null;
 		var $editor = $(this).parent("div").find("div.toggle_link_container").parent("td:last");
 		if (this.value === "*new*") {
 			$editor.show();
+			if (applyNoFeedbackChanges) {
+				$feedbackContainer.show();
+				$noFeedbackMsgID.hide();
+			}
 		} else {
-			$editor.hide();			
+			$editor.hide();
+			if (applyNoFeedbackChanges) {
+				$feedbackContainer.hide();
+				$noFeedbackMsgID.show();
+			}
 		}
 	});
 	

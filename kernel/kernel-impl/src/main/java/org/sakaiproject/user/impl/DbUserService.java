@@ -23,6 +23,7 @@ package org.sakaiproject.user.impl;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.Instant;
 import java.util.*;
 
 import lombok.extern.slf4j.Slf4j;
@@ -416,8 +417,8 @@ public abstract class DbUserService extends BaseUserDirectoryService
 					rv[8] = rv[0];
 				}
 
-				rv[9] = edit.getCreatedTime();
-				rv[10] = edit.getModifiedTime();
+				rv[9] = edit.getCreatedDate();
+				rv[10] = edit.getModifiedDate();
 			}
 
 			return rv;
@@ -443,8 +444,8 @@ public abstract class DbUserService extends BaseUserDirectoryService
 				String pw = result.getString(7);
 				String createdBy = result.getString(8);
 				String modifiedBy = result.getString(9);
-				Time createdOn = timeService().newTime(result.getTimestamp(10, sqlService().getCal()).getTime());
-				Time modifiedOn = timeService().newTime(result.getTimestamp(11, sqlService().getCal()).getTime());
+				Instant createdOn = Instant.ofEpochMilli(result.getTimestamp(10, sqlService().getCal()).getTime());
+				Instant modifiedOn = Instant.ofEpochMilli(result.getTimestamp(11, sqlService().getCal()).getTime());
 
 				// find the eid from the mapping
 				String eid = checkMapForEid(id);
@@ -846,8 +847,8 @@ public abstract class DbUserService extends BaseUserDirectoryService
 					String pw = result.getString(8);
 					String createdBy = result.getString(9);
 					String modifiedBy = result.getString(10);
-					Time createdOn = (result.getObject(11) != null) ? timeService().newTime(result.getTimestamp(11, sqlService().getCal()).getTime()) : null;
-					Time modifiedOn = (result.getObject(12) != null) ? timeService().newTime(result.getTimestamp(12, sqlService().getCal()).getTime()) : null;
+					Instant createdOn = (result.getObject(11) != null) ? Instant.ofEpochMilli(result.getTimestamp(11, sqlService().getCal()).getTime()) : null;
+					Instant modifiedOn = (result.getObject(12) != null) ? Instant.ofEpochMilli(result.getTimestamp(12, sqlService().getCal()).getTime()) : null;
 
 					// create the Resource from these fields
 					userEdit = new BaseUserEdit(idFromMap, eidFromMap, email, firstName, lastName, type, pw, createdBy, createdOn, modifiedBy, modifiedOn);

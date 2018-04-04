@@ -24,10 +24,6 @@ package org.sakaiproject.tool.messageforums;
 
 import java.util.Comparator;
 
-import lombok.extern.slf4j.Slf4j;
-
-import org.sakaiproject.entity.api.EntityPropertyNotDefinedException;
-import org.sakaiproject.entity.api.EntityPropertyTypeException;
 import org.sakaiproject.site.api.Group;
 
 public class GroupComparator implements Comparator {

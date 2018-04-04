@@ -42,6 +42,7 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.TimeZone;
 import java.util.Vector;
+import java.util.stream.Collectors;
 import java.util.Map.Entry;
 
 import lombok.extern.slf4j.Slf4j;
@@ -1713,7 +1714,10 @@ extends VelocityPortletStateAction
 						.getIdFromSubscriptionUrl(calendarUrl);
 				String ref = externalCalendarSubscriptionService
 						.calendarSubscriptionReference(contextId, id);
-				addSubscriptions.add(new SubscriptionWrapper(calendarName, ref, true));
+				String currentUserId = sessionManager.getCurrentSessionUserId();
+				String currentUserTzid = TimeService.getLocalTimeZone().getID();
+				
+				addSubscriptions.add(new SubscriptionWrapper(calendarName, ref, currentUserId, currentUserTzid, true));
 
 				// Sort collections by name
 				Collections.sort(addSubscriptions);
@@ -1769,6 +1773,7 @@ extends VelocityPortletStateAction
 			List<SubscriptionWrapper> addSubscriptions = (List<SubscriptionWrapper>) sstate
 					.getAttribute(CalendarAction.SSTATE_ATTRIBUTE_ADDSUBSCRIPTIONS);
 			List<String> subscriptionTC = new LinkedList<String>();
+			List<String> subscriptionTCWithTZ = new LinkedList<String>();
 			ParameterParser params = runData.getParameters();
 
 			// Institutional Calendars
@@ -1792,7 +1797,24 @@ extends VelocityPortletStateAction
 					{
 						String name = add.getDisplayName();
 						if (name == null || name.equals("")) name = add.getUrl();
-						subscriptionTC.add(add.getReference() + ExternalCalendarSubscriptionService.SUBS_NAME_DELIMITER + name);
+
+						if (add.getUserId()==null) {
+							// Backward compatibility: reference/name
+							StringBuilder sb = new StringBuilder(add.getReference());
+							sb.append(ExternalCalendarSubscriptionService.SUBS_NAME_DELIMITER);
+							sb.append(name);
+							subscriptionTC.add(sb.toString());
+						} else {
+							// With TZ: reference/user/tzid/name
+							StringBuilder sb = new StringBuilder(add.getReference());
+							sb.append(ExternalCalendarSubscriptionService.SUBS_NAME_DELIMITER);
+							sb.append(add.getUserId());
+							sb.append(ExternalCalendarSubscriptionService.SUBS_NAME_DELIMITER);
+							sb.append(add.getUserTzid());
+							sb.append(ExternalCalendarSubscriptionService.SUBS_NAME_DELIMITER);
+							sb.append(name);
+							subscriptionTCWithTZ.add(sb.toString());
+						}
 					}
 				}
 			}
@@ -1804,18 +1826,19 @@ extends VelocityPortletStateAction
 				Properties config = placement.getPlacementConfig();
 				if (config != null)
 				{
-					boolean first = true;
-					StringBuilder propValue = new StringBuilder();
-					for (String ref : subscriptionTC)
-					{
-						if (!first) propValue.append(ExternalCalendarSubscriptionService.SUBS_REF_DELIMITER);
-						first = false;
-						propValue.append(ref);
+					String propValue = "";
+					if (!subscriptionTC.isEmpty()) {
+						propValue = subscriptionTC.stream().collect(Collectors.joining(ExternalCalendarSubscriptionService.SUBS_REF_DELIMITER));										
 					}
-					config.setProperty(
-							ExternalCalendarSubscriptionService.TC_PROP_SUBCRIPTIONS,
-							propValue.toString());
-	
+					
+					String propValueWithTZ = "";
+					if (!subscriptionTCWithTZ.isEmpty()) {
+						propValueWithTZ = subscriptionTCWithTZ.stream().collect(Collectors.joining(ExternalCalendarSubscriptionService.SUBS_REF_DELIMITER));										
+					}
+					
+					config.setProperty(ExternalCalendarSubscriptionService.TC_PROP_SUBCRIPTIONS, propValue);
+					config.setProperty(ExternalCalendarSubscriptionService.TC_PROP_SUBCRIPTIONS_WITH_TZ, propValueWithTZ);
+					
 					// commit the change
 					saveOptions();
 				}
@@ -1848,6 +1871,10 @@ extends VelocityPortletStateAction
 
 			private boolean isSelected;
 
+			private String userId;
+			
+			private String userTzid;
+			
 			public SubscriptionWrapper()
 			{
 			}
@@ -1859,9 +1886,13 @@ extends VelocityPortletStateAction
 				this.displayName = subscription.getSubscriptionName();
 				this.isInstitutional = subscription.isInstitutional();
 				this.isSelected = selected;
+				if (subscription.getUserId()!=null) {
+					this.setUserId(subscription.getUserId());
+				}
+				this.setUserTzid(subscription.getTzid());
 			}
 
-			public SubscriptionWrapper(String calendarName, String ref, boolean selected)
+			public SubscriptionWrapper(String calendarName, String ref, String userId, String userTzid, boolean selected)
 			{
 				Reference _reference = EntityManager.newReference(ref);
 				this.reference = ref;
@@ -1872,6 +1903,8 @@ extends VelocityPortletStateAction
 				this.isInstitutional = externalCalendarSubscriptionService
 						.isInstitutionalCalendar(ref);
 				this.isSelected = selected;
+				this.setUserId(userId);
+				this.setUserTzid(userTzid);
 			}
 
 			public String getReference()
@@ -1922,6 +1955,22 @@ extends VelocityPortletStateAction
 			public void setSelected(boolean isSelected)
 			{
 				this.isSelected = isSelected;
+			}
+			
+			public String getUserId() {
+				return userId;
+			}
+			
+			public void setUserId(String userId) {
+				this.userId = userId;
+			}
+			
+			public String getUserTzid() {
+				return userTzid;
+			}
+			
+			public void setUserTzid(String userTzid) {
+				this.userTzid = userTzid;
 			}
 
 			public int compareTo(SubscriptionWrapper sub)
@@ -2326,12 +2375,12 @@ extends VelocityPortletStateAction
 		
 		// add external calendar subscriptions
       List referenceList = mergedCalendarList.getReferenceList();
-      Set subscriptionRefList = externalCalendarSubscriptionService.getCalendarSubscriptionChannelsForChannels(
+      Set<ExternalSubscriptionDetails> subscriptionDetailsList = externalCalendarSubscriptionService.getCalendarSubscriptionChannelsForChannels(
     		  primaryCalendarReference,
     		  referenceList);
-      referenceList.addAll(subscriptionRefList);
-        
-		return referenceList;
+      subscriptionDetailsList.stream().forEach(x->referenceList.add(x.getReference()));
+      
+      return referenceList;
 	}
 	
 	/**

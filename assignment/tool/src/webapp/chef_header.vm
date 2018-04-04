@@ -6,4 +6,7 @@
 #header_append("<script type=${quote}text/javascript${quote} src=${quote}/sakai-assignment-tool/js/assignments.js$!{portalCdnQuery}${quote}></script>")
 #header_append("<script type=${quote}text/javascript${quote} src=${quote}/library/js/spinner.js$!{portalCdnQuery}${quote}></script>")
 
+#header_append("<script type=${quote}text/javascript${quote} src=${quote}/library/webjars/bootstrap-multiselect/0.9.15/js/bootstrap-multiselect.js$!{portalCdnQuery}${quote}></script>")
+#header_append("<link rel=${quote}stylesheet${quote} type=${quote}text/css${quote} href=${quote}/library/webjars/bootstrap-multiselect/0.9.15/css/bootstrap-multiselect.css${quote}></link>")
+
 #chef_start()

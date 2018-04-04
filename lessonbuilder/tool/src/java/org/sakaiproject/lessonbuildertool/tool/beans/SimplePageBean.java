@@ -4902,7 +4902,12 @@ public class SimplePageBean {
 				entry.setPath(path);
 				entry.setToolId(toolId);
 				SimplePageItem item = findItem(itemId);
-				EventTrackingService.post(EventTrackingService.newEvent(LessonBuilderEvents.ITEM_READ, "/lessonbuilder/item/" + item.getId(), complete));
+				//If sakaiId is not empty, the item is a page, if not is an item
+				if(!StringUtils.isEmpty(item.getSakaiId())){
+					EventTrackingService.post(EventTrackingService.newEvent(LessonBuilderEvents.PAGE_READ, "/lessonbuilder/page/" + item.getSakaiId(), complete));
+				}else{
+					EventTrackingService.post(EventTrackingService.newEvent(LessonBuilderEvents.ITEM_READ, "/lessonbuilder/item/" + item.getId(), complete));
+				}
 				trackComplete(item, complete);
 				studentPageId = -1L;
 			}else if(path != null) {
@@ -4924,7 +4929,12 @@ public class SimplePageBean {
 				entry.setToolId(toolId);
 				entry.setDummy(false);
 				SimplePageItem item = findItem(itemId);
-				EventTrackingService.post(EventTrackingService.newEvent(LessonBuilderEvents.ITEM_READ, "/lessonbuilder/item/" + item.getId(), complete));
+				//If sakaiId is not empty, the item is a page, if not is an item
+				if(!StringUtils.isEmpty(item.getSakaiId())){
+					EventTrackingService.post(EventTrackingService.newEvent(LessonBuilderEvents.PAGE_READ, "/lessonbuilder/page/" + item.getSakaiId(), complete));
+				}else{
+					EventTrackingService.post(EventTrackingService.newEvent(LessonBuilderEvents.ITEM_READ, "/lessonbuilder/item/" + item.getId(), complete));
+				}
 				if (complete != wasComplete)
 				    trackComplete(item, complete);
 			}else if(path != null) {
@@ -8675,13 +8685,12 @@ public class SimplePageBean {
 	 * @param ab
 	 * @return
 	 */
-	public String addCalendar(String ab){
-		if (!itemOk(itemId))
+	public String addCalendar(){
+		if (!itemOk(itemId) || !checkCsrf())
 			return "permission-failed";
 		String result = "success";
 		if (canEditPage()) {
 			//set addBefore value which will be used by append item to place calendar item at correct place
-			addBefore = ab;
 			SimplePageItem item;
 			if (itemId != null && itemId != -1) {
 				//existing item, need to update

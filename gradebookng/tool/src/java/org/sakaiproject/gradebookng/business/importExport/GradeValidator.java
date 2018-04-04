@@ -66,7 +66,9 @@ public class GradeValidator
                     if (cell != null)
                     {
                         String studentIdentifier = row.getStudentEid();
-                        validateGrade(columnTitle, studentIdentifier, cell.getScore());
+
+                        // Validation is locale-aware, so use the raw score that the user input in their own locale
+                        validateGrade( columnTitle, studentIdentifier, cell.getRawScore() );
                     }
                 }
             }
@@ -88,7 +90,6 @@ public class GradeValidator
         {
             return;
         }
-
         // TODO: when/if letter grades are introduce, determine if grade is numeric
         // or alphabetical here and call/write the appropriate business service method.
 

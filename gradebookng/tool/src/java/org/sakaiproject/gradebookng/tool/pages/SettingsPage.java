@@ -24,6 +24,7 @@ import org.apache.wicket.ajax.markup.html.form.AjaxButton;
 import org.apache.wicket.markup.head.CssHeaderItem;
 import org.apache.wicket.markup.head.IHeaderResponse;
 import org.apache.wicket.markup.head.JavaScriptHeaderItem;
+import org.apache.wicket.markup.html.form.Button;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.sakaiproject.component.cover.ServerConfigurationService;
@@ -224,7 +225,7 @@ public class SettingsPage extends BasePage {
 		form.add(submit);
 
 		// cancel button
-		final AjaxButton cancel = new AjaxButton("cancel") {
+		final Button cancel = new Button("cancel") {
 			private static final long serialVersionUID = 1L;
 
 			@Override
@@ -232,6 +233,7 @@ public class SettingsPage extends BasePage {
 				setResponsePage(GradebookPage.class);
 			}
 		};
+
 		cancel.setDefaultFormProcessing(false);
 		form.add(cancel);
 
@@ -271,10 +273,6 @@ public class SettingsPage extends BasePage {
 		// Drag and Drop (requires jQueryUI)
 		response.render(
 				JavaScriptHeaderItem.forUrl(String.format("/library/webjars/jquery-ui/1.12.1/jquery-ui.min.js?version=%s", version)));
-
-		// chart requires ChartJS
-		response.render(
-				JavaScriptHeaderItem.forUrl(String.format("/gradebookng-tool/webjars/chartjs/2.7.0/Chart.min.js?version=%s", version)));
 
 		response.render(CssHeaderItem.forUrl(String.format("/gradebookng-tool/styles/gradebook-settings.css?version=%s", version)));
 		response.render(JavaScriptHeaderItem.forUrl(String.format("/gradebookng-tool/scripts/gradebook-settings.js?version=%s", version)));

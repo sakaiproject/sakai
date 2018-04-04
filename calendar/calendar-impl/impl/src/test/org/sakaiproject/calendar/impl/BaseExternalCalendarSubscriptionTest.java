@@ -15,7 +15,31 @@
  */
 package org.sakaiproject.calendar.impl;
 
-import net.sf.ehcache.CacheManager;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import static org.sakaiproject.calendar.api.ExternalCalendarSubscriptionService.SAK_PROP_EXTSUBSCRIPTIONS_ENABLED;
+import static org.sakaiproject.calendar.api.ExternalCalendarSubscriptionService.SUBS_NAME_DELIMITER;
+import static org.sakaiproject.calendar.api.ExternalCalendarSubscriptionService.TC_PROP_SUBCRIPTIONS;
+import static org.sakaiproject.calendar.api.ExternalCalendarSubscriptionService.TC_PROP_SUBCRIPTIONS_WITH_TZ;
+import static org.sakaiproject.calendar.impl.BaseExternalCalendarSubscriptionService.SCHEDULE_TOOL_ID;
+
+import java.time.Clock;
+import java.time.Duration;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -29,6 +53,7 @@ import org.powermock.modules.junit4.PowerMockRunner;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.calendar.api.CalendarEventEdit;
 import org.sakaiproject.calendar.api.CalendarImporterService;
+import org.sakaiproject.calendar.api.ExternalSubscriptionDetails;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.entity.api.EntityManager;
@@ -44,23 +69,7 @@ import org.sakaiproject.time.api.TimeRange;
 import org.sakaiproject.time.api.TimeService;
 import org.sakaiproject.tool.api.SessionManager;
 
-import java.time.Clock;
-import java.time.Duration;
-import java.time.Instant;
-import java.time.ZoneId;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
-
-import static org.junit.Assert.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
-import static org.sakaiproject.calendar.api.ExternalCalendarSubscriptionService.SAK_PROP_EXTSUBSCRIPTIONS_ENABLED;
-import static org.sakaiproject.calendar.api.ExternalCalendarSubscriptionService.TC_PROP_SUBCRIPTIONS;
-import static org.sakaiproject.calendar.impl.BaseExternalCalendarSubscriptionService.SCHEDULE_TOOL_ID;
+import net.sf.ehcache.CacheManager;
 
 /**
  * EntityManager shouldn't have to be Mocked as it's simple enough to have a real instance
@@ -161,14 +170,14 @@ public class BaseExternalCalendarSubscriptionTest {
         when(event.getDescription()).thenReturn("Description");
         when(event.getLocation()).thenReturn("Location");
 
-        when(importer.doImport(any(), any(), any(),any())).thenReturn(Collections.singletonList(event));
+        when(importer.doImport(any(), any(), any(),any(), any())).thenReturn(Collections.singletonList(event));
 
         assertNotNull(service.getCalendarSubscription(referenceString));
         // This should come from the cache
         assertNotNull(service.getCalendarSubscription(referenceString));
         assertNotNull(service.getCalendarSubscription(referenceString));
         // Only parsed once.
-        verify(importer, times(1)).doImport(any(), any(), any(), any());
+        verify(importer, times(1)).doImport(any(), any(), any(), any(), any());
     }
 
     @Test
@@ -208,6 +217,15 @@ public class BaseExternalCalendarSubscriptionTest {
             when(entityManager.newReference("/calendar/other")).thenReturn(ref);
             when(ref.getContext()).thenReturn("other");
         }
+        
+        String urlTest = "https://test/url";
+        String subscription = "/calendar/other/"+BaseExternalSubscriptionDetails.getIdFromSubscriptionUrl(urlTest);
+        {
+            Reference ref = mock(Reference.class);
+            when(entityManager.newReference(subscription)).thenReturn(ref);
+            when(ref.getContext()).thenReturn("other");
+            when(ref.getId()).thenReturn(BaseExternalSubscriptionDetails.getIdFromSubscriptionUrl(urlTest));
+        }
 
         {
             Site site = mock(Site.class);
@@ -215,15 +233,61 @@ public class BaseExternalCalendarSubscriptionTest {
             ToolConfiguration configuration = mock(ToolConfiguration.class);
             when(site.getToolForCommonId(SCHEDULE_TOOL_ID)).thenReturn(configuration);
             Properties props = new Properties();
-            props.setProperty(TC_PROP_SUBCRIPTIONS, "/calendar/external/subscription");
+            props.setProperty(TC_PROP_SUBCRIPTIONS, subscription+SUBS_NAME_DELIMITER+"calName");
             when(configuration.getConfig()).thenReturn(props);
-
-            Reference ref = mock(Reference.class);
-            when(entityManager.newReference("/calendar/external/subscription")).thenReturn(ref);
-            when(ref.getId()).thenReturn("/calendar/external/subscription");
         }
-        Set<String> subs = service.getCalendarSubscriptionChannelsForChannels("/calendar/primary", Collections.singleton("/calendar/other"));
+        
+        Set<ExternalSubscriptionDetails> subs = service.getCalendarSubscriptionChannelsForChannels("/calendar/primary", Collections.singleton("/calendar/other"));
         assertEquals(1, subs.size());
-        assertEquals("/calendar/external/subscription", subs.iterator().next());
+        
+        ExternalSubscriptionDetails esd = subs.iterator().next();
+        assertEquals(urlTest, esd.getSubscriptionUrl());
+        assertEquals("other", esd.getContext());
     }
+    
+    @Test
+    public void testGetCalendarSubscriptionChannelsForChannelsWithTZ() throws IdUnusedException {
+        {
+            Reference ref = mock(Reference.class);
+            when(entityManager.newReference("/calendar/primary")).thenReturn(ref);
+            when(ref.getContext()).thenReturn("primary");
+        }
+
+        when(siteService.isUserSite("primary")).thenReturn(false);
+
+        {
+            Reference ref = mock(Reference.class);
+            when(entityManager.newReference("/calendar/other")).thenReturn(ref);
+            when(ref.getContext()).thenReturn("other");
+        }
+        
+        String urlTest = "https://test/url";
+        String subscription = "/calendar/other/"+BaseExternalSubscriptionDetails.getIdFromSubscriptionUrl(urlTest);
+        {
+            Reference ref = mock(Reference.class);
+            when(entityManager.newReference(subscription)).thenReturn(ref);
+            when(ref.getContext()).thenReturn("other");
+            when(ref.getId()).thenReturn(BaseExternalSubscriptionDetails.getIdFromSubscriptionUrl(urlTest));
+        }
+
+        {
+            Site site = mock(Site.class);
+            when(siteService.getSite("other")).thenReturn(site);
+            ToolConfiguration configuration = mock(ToolConfiguration.class);
+            when(site.getToolForCommonId(SCHEDULE_TOOL_ID)).thenReturn(configuration);
+            Properties props = new Properties();
+            props.setProperty(TC_PROP_SUBCRIPTIONS_WITH_TZ, subscription+SUBS_NAME_DELIMITER+"userId"+SUBS_NAME_DELIMITER+"userTimeZone"+SUBS_NAME_DELIMITER+"calName");
+            when(configuration.getConfig()).thenReturn(props);
+        }
+        
+        Set<ExternalSubscriptionDetails> subs = service.getCalendarSubscriptionChannelsForChannels("/calendar/primary", Collections.singleton("/calendar/other"));
+        assertEquals(1, subs.size());
+        
+        ExternalSubscriptionDetails esd = subs.iterator().next();
+        assertEquals(urlTest, esd.getSubscriptionUrl());
+        assertEquals("other", esd.getContext());
+        assertEquals("userId", esd.getUserId());
+        assertEquals("userTimeZone", esd.getTzid());
+    }
+    
 }

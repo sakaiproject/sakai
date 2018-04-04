@@ -144,12 +144,6 @@ public class TimedAssessmentRunnable implements Runnable {
             PublishedAssessmentService publishedAssessmentService = new PublishedAssessmentService();
             String siteId = publishedAssessmentService.getPublishedAssessmentOwner(ag.getPublishedAssessmentId());
 
-            EventTrackingService.post(EventTrackingService.newEvent(SamigoConstants.EVENT_ASSESSMENT_SUBMITTED_THREAD,
-               "siteId=" + siteId + ", submissionId=" + ag.getAssessmentGradingId(),
-               siteId,
-               true,
-               NotificationService.NOTI_REQUIRED));
-
             Map<String, Object> notiValues = new HashMap<>();
             notiValues.put("assessmentGradingID", ag.getAssessmentGradingId());
             notiValues.put("userID", ag.getAgentId());
@@ -171,7 +165,8 @@ public class TimedAssessmentRunnable implements Runnable {
                true,
                SamigoConstants.NOTI_EVENT_ASSESSMENT_TIMED_SUBMITTED));
 
-            notifyGradebookByScoringType(ag, timedAG.getPublishedAssessment());
+            GradingService g = new GradingService();
+            g.notifyGradebookByScoringType(ag, publishedAssessment);
 
             log.info("SAMIGO_TIMED_ASSESSMENT:SUBMIT:FORGRADE assessmentId:" + eventLogData.getAssessmentId() + 
                " userEid:" + eventLogData.getUserEid() + 
@@ -203,23 +198,6 @@ public class TimedAssessmentRunnable implements Runnable {
     }
   }
 
-
-  private void notifyGradebookByScoringType(AssessmentGradingData ag, PublishedAssessmentFacade publishedAssessment){
-    if (publishedAssessment == null || publishedAssessment.getEvaluationModel() == null) {
-      // should not come to here
-      log.debug("publishedAssessment is null or publishedAssessment.getEvaluationModel() is null");
-      return;
-    }
-    if (publishedAssessment.getEvaluationModel().getToGradeBook().equals(EvaluationModelIfc.TO_DEFAULT_GRADEBOOK.toString())) {
-      AssessmentGradingData assessmentGrading = ag; // data is the last submission
-      GradingService g = new GradingService();
-      // need to decide what to tell gradebook
-      if (publishedAssessment.getEvaluationModel().getScoringType().equals(EvaluationModelIfc.HIGHEST_SCORE)) {
-        assessmentGrading = g.getHighestSubmittedAssessmentGrading(publishedAssessment.getPublishedAssessmentId().toString(), ag.getAgentId());
-      }
-      g.notifyGradebook(assessmentGrading, publishedAssessment);
-    }
-  }
 }
 
 

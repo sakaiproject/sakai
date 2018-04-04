@@ -165,7 +165,19 @@ font-size:1.2em
 }
 
 .titlePending {
-	width: 50%;
+	width: 27%;
+	border-right: 0 !important;
+}
+
+.titleActions {
+	width: 1px;
+	border-left: 0 !important;
+}
+
+@media screen and (max-width: 991px) {
+	.titlePending {
+		width: 40%;
+	}
 }
 
 .titlePub {
@@ -368,12 +380,33 @@ tr.list-row-even td, tr.list-row-odd td {
 	border-width: 0;
 	background: none;
 }
-#tabs .ui-widget-content a {
-	color: #0080C0;
-	text-decoration: none;
+.table-assessments {
+	width: 100% !important;
 }
-#tabs .ui-widget-content a:hover {
-	text-decoration: underline;
+.table-assessments .itemAction {
+	display: block;
+}
+.table-assessments .itemAction li::after {
+	content: "|";
+	margin: 0 -5px 0 5px;
+}
+.table-assessments .itemAction > span::after {
+	content: "|";
+	margin: 0 0 0 1px;
+}
+.table-assessments .itemAction > span {
+	margin: 0 .3em;
+	display: inline-block;
+	float: left;
+}
+.table-assessments .itemAction li:last-child::after, .table-assessments .itemAction > span:last-child::after {
+	content: "";
+}
+.table-assessments .itemAction > ul {
+	padding: 0;
+}
+.table-sent-assessments {
+	padding: 15px;
 }
 #divider {
 	background: none repeat scroll 0 0 #88D0E8;
@@ -421,7 +454,7 @@ a.hideDivision {
 	font-size: 1em;
 	clear: both;
 	color: black;
-	margin: 5px 0;
+	margin: 20px 0 10px 0;
 	padding: 1px 5px 1px 25px;
 }
 
@@ -433,7 +466,7 @@ a.hideDivision {
 	font-size: 1em;
 	clear: both;
 	color: black;
-	margin: 5px 0;
+	margin: 20px 0 10px 0;
 	padding: 5px 5px 5px 25px;
 }
 
@@ -445,7 +478,7 @@ a.hideDivision {
 	font-size: 1em;
 	clear: both;
 	color: black;
-	margin: 5px 0;
+	margin: 20px 0 10px 0;
 	padding: 3px 5px 3px 25px;
 }
 
@@ -474,7 +507,7 @@ a.hideDivision {
     color: #404040;
     font-family: Arial,Helvetica,sans-serif;
 }
-.placeholder
+.placeholder, form#assessmentSettingsAction label.placeholder
 {
   color: #aaa;
 }
@@ -1283,11 +1316,6 @@ input[type='reset'].linearButton {
 	border-top: 1px solid #dddddd;
 }
 
-.sam-asterisks-row span
-{
-	display: block;
-}
-
 .sam-submittedPanel
 {
 	margin-top: 10px;
@@ -1321,4 +1349,19 @@ input[type='reset'].linearButton {
 .mathjax-warning.alert, .mathjax-warning .alert {
 	margin: 0;
 	padding: 6px 12px;
+}
+
+.input-group-btn button.multiselect-clear-filter{
+	padding: 6px 12px;
+	font-size: 14px;
+	line-height: 1.42857143;
+	background-color: #eee;
+}
+.multiselect-container.dropdown-menu {
+	z-index: 999;
+
+label#itemForm\:noFeedbackMsg {
+	font-weight: normal;
+	margin-left: 1em;
+	font-style: italic;
 }

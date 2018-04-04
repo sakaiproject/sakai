@@ -90,11 +90,11 @@ public class FormatHelper {
 	public static String formatDoubleToMatch(final Double score, final String toMatch) {
 		int numberOfDecimalPlaces = 0;
 
-		if (toMatch.indexOf(".") >= 0) {
+		if (toMatch.contains(".")) {
 			numberOfDecimalPlaces = toMatch.split("\\.")[1].length();
 		}
 
-		if (toMatch.indexOf(",") >= 0) {
+		if (toMatch.contains(",")) {
 			numberOfDecimalPlaces = toMatch.split("\\,")[1].length();
 		}
 
@@ -168,7 +168,7 @@ public class FormatHelper {
 			return "";
 		}
 
-		String s = null;
+		String s;
 		try {
 			final DecimalFormat dfParse = (DecimalFormat) NumberFormat.getInstance(Locale.ROOT);
 			dfParse.setParseBigDecimal(true);
@@ -179,11 +179,8 @@ public class FormatHelper {
 			dfFormat.setMaximumFractionDigits(2);
 			dfFormat.setGroupingUsed(true);
 			s = dfFormat.format(d);
-		} catch (final NumberFormatException e) {
-			log.debug("Bad format, returning original string: " + grade);
-			s = grade;
-		} catch (final ParseException e) {
-			log.debug("Bad format, returning original string: " + grade);
+		} catch (final NumberFormatException | ParseException e) {
+			log.debug("Bad format, returning original string: {}", grade);
 			s = grade;
 		}
 
@@ -202,7 +199,7 @@ public class FormatHelper {
 			return "";
 		}
 
-		String s = null;
+		String s;
 		try {
 			final DecimalFormat df = (DecimalFormat) NumberFormat.getInstance(locale);
 			final Double d = df.parse(grade).doubleValue();
@@ -211,11 +208,8 @@ public class FormatHelper {
 			df.setGroupingUsed(false);
 
 			s = df.format(d);
-		} catch (final NumberFormatException e) {
-			log.debug("Bad format, returning original string: " + grade);
-			s = grade;
-		} catch (final ParseException e) {
-			log.debug("Bad format, returning original string: " + grade);
+		} catch (final NumberFormatException | ParseException e) {
+			log.debug("Bad format, returning original string: {}", grade);
 			s = grade;
 		}
 

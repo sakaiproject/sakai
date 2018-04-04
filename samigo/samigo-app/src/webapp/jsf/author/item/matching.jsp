@@ -210,7 +210,8 @@
         <div class="col-md-8">
         <h:selectOneMenu value="#{itemauthor.currentItem.currentMatchPair.controllingSequence }" id="controllingSequence">
             <f:selectItems value="#{itemauthor.currentItem.selfSequenceList }" />
-        </h:selectOneMenu>        
+        </h:selectOneMenu>
+        <h:outputLabel id="noFeedbackMsg" value="#{authorMessages.feedback_unavailable}" style="#{itemauthor.currentItem.currentMatchPair.sequence != pair.sequence ? 'display: none;' : ''}" />
         <h:panelGrid>
             <samigo:wysiwyg value="#{itemauthor.currentItem.currentMatchPair.match}"
                 rows="140" hasToggle="yes" mode="author">
@@ -222,7 +223,7 @@
     </div>
 
     <!-- Match FEEDBACK -->
-    <h:panelGroup layout="block" rendered="#{itemauthor.target == 'questionpool' || (itemauthor.target != 'questionpool' && (author.isEditPendingAssessmentFlow && assessmentSettings.feedbackAuthoring ne '1') || (!author.isEditPendingAssessmentFlow && publishedSettings.feedbackAuthoring ne '1'))}"> 
+    <h:panelGroup id="feedbackContainer" layout="block" rendered="#{itemauthor.target == 'questionpool' || (itemauthor.target != 'questionpool' && (author.isEditPendingAssessmentFlow && assessmentSettings.feedbackAuthoring ne '1') || (!author.isEditPendingAssessmentFlow && publishedSettings.feedbackAuthoring ne '1'))}">
         <!-- WYSIWYG -->
         <div class="form-group row">
             <h:outputLabel value="#{authorMessages.correct_match_feedback_opt}" styleClass="col-md-4 col-lg-2 form-control-label"/>
@@ -379,7 +380,7 @@
 </div>
 
 <script type="text/javascript">
-applyMenuListener("controllingSequence");
+applyMenuListener("controllingSequence", "feedbackContainer", "noFeedbackMsg");
 </script>
     </body>
   </html>

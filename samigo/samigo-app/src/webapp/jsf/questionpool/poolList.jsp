@@ -43,63 +43,77 @@
           </script>
       </head>
 <body onload="collapseAllRows();flagRows();;<%= request.getAttribute("html.body.onload") %>;disabledButton()">
- <div class="portletBody container-fluid">
+<div class="portletBody container-fluid">
 <!-- content... -->
 <h:form id="questionpool">
 
-<f:verbatim><ul class="navIntraTool actionToolbar" role="menu">
-<li role="menuitem" class="firstToolBarItem"><span></f:verbatim>
+<ul class="navIntraTool actionToolbar" role="menu">
+    <h:panelGroup rendered="#{authorization.createAssessment}">
+        <li role="menuitem">
+            <span>
+                <h:commandLink title="#{generalMessages.add}" action="#{author.getOutcome}" immediate="true">
+                    <f:param name="action" value="create_assessment_title" />
+                    <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.AuthorAssessmentListener" />
+                    <h:outputText value="#{generalMessages.add}" />
+                </h:commandLink>
+            </span>
+        </li>
+    </h:panelGroup>
+    <h:panelGroup rendered="#{authorization.createAssessment or authorization.editAnyAssessment or authorization.editOwnAssessment or authorization.gradeAnyAssessment or authorization.gradeOwnAssessment}">
+        <li role="menuitem">
+            <span>
+               <h:commandLink title="#{generalMessages.t_assessment}" rendered="#{questionpool.importToAuthoring == 'true'}" action="author" immediate="true">
+               <h:outputText value="#{generalMessages.assessment}"/>
+                   <f:actionListener
+                     type="org.sakaiproject.tool.assessment.ui.listener.author.AuthorActionListener" />
+                   <f:actionListener
+                     type="org.sakaiproject.tool.assessment.ui.listener.questionpool.CancelImportToAssessmentListener" />
+               </h:commandLink>
 
-   <h:commandLink title="#{generalMessages.t_assessment}" rendered="#{questionpool.importToAuthoring == 'true'}" action="author" immediate="true">
-   <h:outputText value="#{generalMessages.assessment}"/>
-       <f:actionListener
-         type="org.sakaiproject.tool.assessment.ui.listener.author.AuthorActionListener" />
-       <f:actionListener
-         type="org.sakaiproject.tool.assessment.ui.listener.questionpool.CancelImportToAssessmentListener" />
-   </h:commandLink>
+               <h:commandLink title="#{generalMessages.t_assessment}" rendered="#{questionpool.importToAuthoring == 'false'}" action="author"  immediate="true">
+               <h:outputText value="#{generalMessages.assessment}"/>
+                   <f:actionListener
+                     type="org.sakaiproject.tool.assessment.ui.listener.author.AuthorActionListener" />
+               </h:commandLink>
+            </span>
+        </li>
+    </h:panelGroup>
+    <h:panelGroup rendered="#{authorization.adminTemplate and template.showAssessmentTypes}">
+        <li role="menuitem">
+            <span>
+                <h:commandLink title="#{generalMessages.t_template}" rendered="#{questionpool.importToAuthoring == 'false'}" action="template" immediate="true">
+                    <h:outputText value="#{generalMessages.template}"/>
+                    <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.TemplateListener" />
+                </h:commandLink>
 
-   <h:commandLink title="#{generalMessages.t_assessment}" rendered="#{questionpool.importToAuthoring == 'false'}" action="author"  immediate="true">
-   <h:outputText value="#{generalMessages.assessment}"/>
-       <f:actionListener
-         type="org.sakaiproject.tool.assessment.ui.listener.author.AuthorActionListener" />
-   </h:commandLink>
-                                       
-<f:verbatim></span></li></f:verbatim>
-<h:panelGroup rendered="#{authorization.adminTemplate and template.showAssessmentTypes}">
-<li role="menuitem" ><span>
- 
-   <h:commandLink title="#{generalMessages.t_template}" rendered="#{questionpool.importToAuthoring == 'false'}" action="template" immediate="true">
-        <h:outputText value="#{generalMessages.template}"/>
-      <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.TemplateListener" />
-   </h:commandLink>
-
-   <h:commandLink title="#{generalMessages.t_questionPool}" rendered="#{questionpool.importToAuthoring == 'true'}" action="template" immediate="true">
-        <h:outputText value="#{generalMessages.template}"/>
-       <f:actionListener
-         type="org.sakaiproject.tool.assessment.ui.listener.questionpool.CancelImportToAssessmentListener" />
-   </h:commandLink>
-
-</span></li>
-</h:panelGroup>
-<li role="menuitem" ><span class="current">
-
-        <h:outputText value="#{questionPoolMessages.qps}"/>
-
-<f:verbatim></span></li>
-
-<li role="menuitem" ><span></f:verbatim>
-    <h:commandLink id="evnetLogLink" accesskey="#{generalMessages.a_log}" title="#{generalMessages.t_eventLog}" action="eventLog" immediate="true" rendered="#{authorization.adminQuestionPool}">
-      <h:outputText value="#{generalMessages.eventLog}" />
-      <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.EventLogListener" />
-    </h:commandLink>
-<f:verbatim></span></li>
-<li role="menuitem" ><span></f:verbatim>
-	<h:commandLink id="sectionActivity" accesskey="#{generalMessages.a_section_activity}" title="#{generalMessages.section_activity}" action="sectionActivity" immediate="true" rendered="#{authorization.adminQuestionPool}">
-		<h:outputText value="#{generalMessages.section_activity}" />
-		<f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.SectionActivityListener" />
-	</h:commandLink>
-    </span>
-  </li> 
+                <h:commandLink title="#{generalMessages.t_questionPool}" rendered="#{questionpool.importToAuthoring == 'true'}" action="template" immediate="true">
+                    <h:outputText value="#{generalMessages.template}"/>
+                    <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.questionpool.CancelImportToAssessmentListener" />
+                </h:commandLink>
+            </span>
+        </li>
+    </h:panelGroup>
+    <li role="menuitem">
+        <span class="current">
+            <h:outputText value="#{questionPoolMessages.qps}"/>
+        </span>
+    </li>
+    <li role="menuitem">
+        <span>
+            <h:commandLink id="evnetLogLink" accesskey="#{generalMessages.a_log}" title="#{generalMessages.t_eventLog}" action="eventLog" immediate="true" rendered="#{authorization.adminQuestionPool}">
+                <h:outputText value="#{generalMessages.eventLog}" />
+                <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.EventLogListener" />
+            </h:commandLink>
+        </span>
+    </li>
+    <li role="menuitem">
+        <span>
+            <h:commandLink id="sectionActivity" accesskey="#{generalMessages.a_section_activity}" title="#{generalMessages.section_activity}" action="sectionActivity" immediate="true" rendered="#{authorization.adminQuestionPool}">
+                <h:outputText value="#{generalMessages.section_activity}" />
+                <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.SectionActivityListener" />
+            </h:commandLink>
+        </span>
+    </li>
 </ul>
 
 <h1>
@@ -130,10 +144,10 @@
 <h:outputText value="&#160;" escape="false" />
 
 <h:commandLink title="#{questionPoolMessages.t_transferPool}" rendered="#{questionpool.importToAuthoring == 'false' && authorization.createQuestionPool}" 
-	id="transfer" immediate="true" action="#{questionpool.transferPool}">
-	<h:outputText value="#{questionPoolMessages.transfer_pool_ownership}" />
-	<f:param name="qpid" value="0" />
-	<f:param name="outCome" value="poolList"/>
+    id="transfer" immediate="true" action="#{questionpool.transferPool}">
+    <h:outputText value="#{questionPoolMessages.transfer_pool_ownership}" />
+    <f:param name="qpid" value="0" />
+    <f:param name="outCome" value="poolList"/>
 </h:commandLink>
  
 <h:outputText rendered="#{questionpool.importToAuthoring == 'false' && authorization.createQuestionPool}" escape="false" value="</p>"/>

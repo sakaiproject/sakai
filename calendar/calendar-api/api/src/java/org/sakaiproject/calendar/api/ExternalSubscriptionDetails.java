@@ -42,4 +42,9 @@ public interface ExternalSubscriptionDetails extends ExternalSubscription {
 	 */
 	State getState();
 
+	/** Owner of calendar subscription **/
+	String getUserId();
+	
+	/** Time Zone Id of user, is used when calendar has not time zone defined */
+	String getTzid();
 }

@@ -41,6 +41,7 @@
     <sakai.httpcore.version>4.4.9</sakai.httpcore.version>
     <sakai.httpmime.version>4.5.5</sakai.httpmime.version>
     <sakai.jackson.version>2.8.11</sakai.jackson.version>
+    <sakai.jsoup.version>1.11.2</sakai.jsoup.version>
     <sakai.woodstox.version>5.0.3</sakai.woodstox.version>
     <sakai.stax2.version>3.1.4</sakai.stax2.version>
     <sakai.java.jwt.version>3.1.0</sakai.java.jwt.version>
@@ -99,11 +100,11 @@
     <random-source></random-source>
 
     <!-- These should only be updated when the webjars version is updated -->
-    <ckeditor.autosave.version>786318aefed553a62cebbe4cd10b67c3ab266437</ckeditor.autosave.version>
-    <ckeditor.wordcount.version>b29a29d4dc8a42732ce46720e1efc30c826e4c9</ckeditor.wordcount.version>
+    <ckeditor.autosave.version>278c922c6d8529edd15a2b2c11b574fb4320e0c2</ckeditor.autosave.version>
+    <ckeditor.wordcount.version>136ba881ddcff5aa029e3648c69358c15a982afc</ckeditor.wordcount.version>
     <ckeditor.a11ychecker.version>1.1.0</ckeditor.a11ychecker.version>
     <ckeditor.balloonpanel.version>4.6.2</ckeditor.balloonpanel.version>
-    <ckeditor.image2.version>4.8.0</ckeditor.image2.version>
+    <ckeditor.image2.version>4.9.1</ckeditor.image2.version>
     
   </properties>
   <distributionManagement>
@@ -458,6 +459,11 @@
         <artifactId>stax2-api</artifactId>
         <version>${sakai.stax2.version}</version>
         <scope>provided</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.jsoup</groupId>
+        <artifactId>jsoup</artifactId>
+        <version>1.11.2</version>
       </dependency>
       <dependency>
         <groupId>aopalliance</groupId>

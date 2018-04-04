@@ -75,6 +75,7 @@ import org.sakaiproject.tool.assessment.ui.bean.author.AssessmentBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.AuthorBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.PublishRepublishNotificationBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.PublishedAssessmentSettingsBean;
+import org.sakaiproject.tool.assessment.ui.bean.authz.AuthorizationBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.util.TextFormat;
 import org.sakaiproject.util.ResourceLoader;
@@ -208,13 +209,14 @@ implements ActionListener
 		EventTrackingService.post(EventTrackingService.newEvent(SamigoConstants.EVENT_PUBLISHED_ASSESSMENT_SETTING_EDIT, "siteId=" + AgentFacade.getCurrentSiteId() + ", pubAssessmentId=" + assessmentSettings.getAssessmentId(), true));
 	    
 		AuthorBean author = (AuthorBean) ContextUtil.lookupBean("author");
+		AuthorizationBean authorization = (AuthorizationBean) ContextUtil.lookupBean("authorization");
 		if ("editAssessment".equals(author.getFromPage())) {
 			// If go back to edit assessment page, need to refresh the title
 			AssessmentBean assessmentBean = (AssessmentBean) ContextUtil.lookupBean("assessmentBean");
 			assessmentBean.setTitle(assessmentSettings.getTitle());
 		}
 		else {
-			resetPublishedAssessmentsList(author, assessmentService);
+			resetPublishedAssessmentsList(author, authorization, assessmentService);
 		}
 		assessmentSettings.setOutcome(author.getFromPage());
 		
@@ -809,7 +811,7 @@ implements ActionListener
 			try{
 				assessmentName = TextFormat.convertPlaintextToFormattedTextNoHighUnicode(assessmentSettings.getTitle().trim());
 				gbItemExists = gbsHelper.isAssignmentDefined(assessmentName, g);
-				if (assessmentSettings.getToDefaultGradebook() && gbItemExists && isTitleChanged){
+				if (assessmentSettings.getToDefaultGradebook() && gbItemExists){
 					String gbConflict_error=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","gbConflict_error");
 					context.addMessage(null,new FacesMessage(gbConflict_error));
 					return false;
@@ -915,13 +917,13 @@ implements ActionListener
 		return true;
 	}
 
-	public void resetPublishedAssessmentsList(AuthorBean author,
+	public void resetPublishedAssessmentsList(AuthorBean author, AuthorizationBean authorization,
 			PublishedAssessmentService assessmentService) {
 		AuthorActionListener authorActionListener = new AuthorActionListener();
 		GradingService gradingService = new GradingService();
 		List publishedAssessmentList = assessmentService.getBasicInfoOfAllPublishedAssessments2(
 				  PublishedAssessmentFacadeQueries.TITLE, true, AgentFacade.getCurrentSiteId());
-		authorActionListener.prepareAllPublishedAssessmentsList(author, gradingService, publishedAssessmentList);
+		authorActionListener.prepareAllPublishedAssessmentsList(author, authorization, gradingService, publishedAssessmentList);
 	}
 
 	private String getExtendedTimeErrorString(String key, ExtendedTime entry, PublishedAssessmentSettingsBean settings) {

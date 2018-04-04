@@ -123,7 +123,7 @@
                     $tlang.getString("gen.student")
                 </th>
                 <td>
-					#if ($value_CheckAnonymousGrading.equals("true"))
+					#if ($value_CheckAnonymousGrading)
                         $validator.escapeHtml($!submission.Id) $tlang.getString("grading.anonymous.title")
                     #else
                         $!submitterNames

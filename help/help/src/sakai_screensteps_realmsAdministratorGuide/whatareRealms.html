@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<title>How do I enable student peer review for an assignment?</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta content="sakai.assignment" name="description">
+<meta content="peer review, peer assessment, peer evaluation" name="search">
+<link href="/library/skin/tool_base.css" media="screen" rel="stylesheet" type="text/css" charset="utf-8">
+<link href="../css/help.css" media="screen" rel="stylesheet" type="text/css" charset="utf-8">
+<link href="/library/skin/morpheus-default/tool.css" media="screen" rel="stylesheet" type="text/css" charset="utf-8">
+<link href="/library/js/jquery/featherlight/0.4.0/featherlight.min.css" media="screen" rel="stylesheet" type="text/css" charset="utf-8">
+<script src="/library/webjars/jquery/1.12.4/jquery.min.js" type="text/javascript" charset="utf-8"></script><script src="/library/js/jquery/featherlight/0.4.0/featherlight.min.js" type="text/javascript" charset="utf-8"></script><script type="text/javascript" charset="utf-8">
+    $(document).ready(function(){
+      $("a[rel^='featherlight']").featherlight({
+        type: { image:true },
+    closeOnClick: 'anywhere'
+      }); 
+    });   
+  </script>
+</head>
+<body>
+  <div id="wrapper"><div id="article-content">
+<div id="article-header"><h1 class="article-title">What are Realms?</h1></div>
+<div id="article-description">
+  <div class="step-instructions screensteps-textblock screensteps-wrapper--introduction screensteps-wrapper">
+  <p>Realms are a combination of roles and permissions for a site. Every Sakai sites has its own unique realm. When a new site is created, it is based on a template site and copies the roles and permissions from the template. Modifications to roles and permissions within a template realm will affect all new sites created from that template. However, once created, an individual, non-template site's realm can be modified to create custom roles and/or permissions within that specific realm, independent of the original template. Realms can be viewed and modified using the administrative Realms tool.</p>
+<p><strong>Site Template Realms</strong></p>
+<p>Depending on the type of site being created, one of the following templates is used.</p>
+<ul>
+<li>If the site is a user workspace, the template used is <strong>!site.user</strong>.</li>
+<li>If the site is not a user workspace, and has a type configured, the template used will be <strong>!site.template.&lt;type&gt;</strong> where &lt;type&gt; is the site type (e.g. <strong>!site.template.course</strong>, <strong>!site.template.project</strong>, etc.).</li>
+<li>If there is no site type defined, the default template is <strong>!site.template</strong>.</li>
+</ul>
+<p><strong>User Template Realms</strong></p>
+<p>User accounts are also based on realms. </p>
+<ul>
+<li>
+<strong>!user.template.&lt;usertype&gt;</strong>, this realm depends on the user type. Do not confuse this with the user's role.</li>
+<li><strong>!user.template</strong></li>
+</ul>
+<p><strong>Site Helper Template</strong></p>
+<p>The<strong> !site.helper</strong> template can be used to force permissions on a role for all existing sites. This is useful if you have need to add new roles or change role permissions in all sites after many sites have been created.</p>
+</div>
+
+
+  
+  <div class="step screensteps-section screensteps-depth-1" id="to-access-this-tool-select-realms-from-the-tool-menu-in-the-administration-workspace">
+    <h2 id="to-access-this-tool-select-realms-from-the-tool-menu-in-the-administration-workspace" class="step-title screensteps-heading">To access this tool, select Realms from the Tool Menu in the Administration Workspace.</h2>
+    
+      <div class="image screensteps-image">
+  
+  
+    <img src="https://s3.amazonaws.com/screensteps_live/image_assets/assets/000/998/317/original/f0200cab-d3fe-45e4-8098-410e2177e319.png" alt="To access this tool, select Realms from the Tool Menu in the Administration Workspace." height="142" width="197">
+  
+</div>
+
+    
+  </div>
+
+
+
+</div>
+</div></div>
+</body>
+</html>
