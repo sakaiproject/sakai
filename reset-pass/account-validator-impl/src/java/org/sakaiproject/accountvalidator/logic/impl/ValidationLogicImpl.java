@@ -32,6 +32,9 @@ import java.util.Set;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.joda.time.Period;
+import org.joda.time.format.PeriodFormat;
+import org.joda.time.format.PeriodFormatter;
 
 import org.sakaiproject.accountvalidator.logic.ValidationException;
 import org.sakaiproject.accountvalidator.logic.ValidationLogic;
@@ -64,6 +67,7 @@ import org.sakaiproject.user.api.UserEdit;
 import org.sakaiproject.user.api.UserLockedException;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.user.api.UserPermissionException;
+import org.sakaiproject.util.ResourceLoader;
 
 @Slf4j
 public class ValidationLogicImpl implements ValidationLogic {
@@ -80,7 +84,10 @@ public class ValidationLogicImpl implements ValidationLogic {
 	private static final int VALIDATION_PERIOD_MONTHS = -36;
 
 	private static final String MAX_PASSWORD_RESET_MINUTES = "accountValidator.maxPasswordResetMinutes";
-	
+	private static final int MAX_PASSWORD_RESET_MINUTES_DEFAULT = 60;
+
+	private static ResourceLoader rl = new ResourceLoader();
+
 	public void init(){
 		log.info("init()");
 
@@ -222,37 +229,28 @@ public class ValidationLogicImpl implements ValidationLogic {
 		{
 			throw new IllegalArgumentException("null ValidationAccount passed to isTokenExpired");
 		}
-		// check if it's expired in relation to accountValidator.maxPasswordResetMinutes sakai property
-		String strMinutes = serverConfigurationService.getString(MAX_PASSWORD_RESET_MINUTES);
-		if (strMinutes != null && !strMinutes.isEmpty())
+
+		// expiry validation only applies to validation tokens coming from reset-pass
+		if (va.getAccountStatus() != null && va.getAccountStatus().equals(ValidationAccount.ACCOUNT_STATUS_PASSWORD_RESET))
 		{
-			// this property only applies to validation tokens coming from reset-pass
-			if (va.getAccountStatus() != null && va.getAccountStatus().equals(ValidationAccount.ACCOUNT_STATUS_PASSWORD_RESET))
+			// check if it's expired in relation to accountValidator.maxPasswordResetMinutes sakai property
+			int minutes = serverConfigurationService.getInt(MAX_PASSWORD_RESET_MINUTES, MAX_PASSWORD_RESET_MINUTES_DEFAULT);
+
+			// get the time limit and convert to millis
+			long maxMillis = minutes * 60 * 1000;
+
+			// the time when the validation was sent to the email server
+			long sentTime = va.getValidationSent().getTime();
+
+			// all calls to setValidationSent use 'new Date()' whose time is equivalent to System.getCurrentTimeMillis(), so we can do this:
+			if (System.currentTimeMillis() - sentTime > maxMillis)
 			{
-				try
-				{
-					// get the time limit and convert to millis
-					int minutes = Integer.parseInt(strMinutes);
-					long maxMillis = minutes * 60 * 1000;
-
-					// the time when the validation was sent to the email server
-					long sentTime = va.getValidationSent().getTime();
-
-					// all calls to setValidationSent use 'new Date()' whose time is equivalent to System.getCurrentTimeMillis(), so we can do this:
-					if (System.currentTimeMillis() - sentTime > maxMillis)
-					{
-						// it's been too long, so invalidate the token and return
-						va.setStatus(ValidationAccount.STATUS_EXPIRED);
-						Calendar cal = new GregorianCalendar();
-						va.setvalidationReceived(cal.getTime());
-						dao.save(va);
-						return true;
-					}
-				}
-				catch (NumberFormatException nfe)
-				{
-					log.warn("accountValidator.maxPasswordResetMinutes must be an integer", nfe);
-				}
+				// it's been too long, so invalidate the token and return
+				va.setStatus(ValidationAccount.STATUS_EXPIRED);
+				Calendar cal = new GregorianCalendar();
+				va.setvalidationReceived(cal.getTime());
+				dao.save(va);
+				return true;
 			}
 		}
 
@@ -339,6 +337,14 @@ public class ValidationLogicImpl implements ValidationLogic {
 		v = saveValidationAccount(v);
 		return v;
 	}
+
+	private String getFormattedExpirationMinutes() {
+		int expirationMinutes = serverConfigurationService.getInt(MAX_PASSWORD_RESET_MINUTES, MAX_PASSWORD_RESET_MINUTES_DEFAULT);
+		Period period = new Period(expirationMinutes * 60 * 1000);
+		PeriodFormatter periodFormatter = PeriodFormat.wordBased(rl.getLocale());
+		return periodFormatter.print(period);
+	}
+
 	//Set other details for ValidationAccount and save
 	private ValidationAccount saveValidationAccount(ValidationAccount account){
 		account.setValidationSent(new Date());
@@ -531,8 +537,9 @@ public class ValidationLogicImpl implements ValidationLogic {
 		String page = getPageForAccountStatus(account.getAccountStatus());
 		String serverUrl = serverConfigurationService.getServerUrl();
 		String url = serverUrl + "/accountvalidator/faces/" + page + "?tokenId=" + account.getValidationToken();
-		
-		
+
+		replacementValues.put("expireTime", getFormattedExpirationMinutes());
+
 		replacementValues.put("url", url);
 		//add some details about the user
 		String userId = EntityReference.getIdFromRef(account.getUserId());
