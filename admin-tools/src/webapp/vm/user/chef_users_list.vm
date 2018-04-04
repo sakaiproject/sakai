@@ -82,7 +82,7 @@
 					<th id="Name">$tlang.getString("useconrem.nam")</th>
 					<th id="Email">$tlang.getString("useconrem.ema")</th>
 					<th id="Type" class="hidden-xs">$tlang.getString("usecre.typ")</th>
-					<th id="Enabled" class="hidden-xs">$tlang.getString("usecre.status")</th>
+					<th id="Status" class="hidden-xs">$tlang.getString("usecre.status")</th>
 					<th id="Id" class="hidden-xs">$tlang.getString("useconrem.useuid")</th>
 				</tr>
 	#foreach ($user in $users)
@@ -99,7 +99,7 @@
 					<td headers="Name">$validator.escapeHtml($user.SortName)</td>
 					<td headers="Email">$validator.escapeHtml($user.Email)</td>
 					<td headers="Type" class="hidden-xs">$validator.escapeHtml($user.Type)</td>
-					<td headers="Enabled" class="hidden-xs">#if($!user.Properties.getProperty("disabled")) $tlang.getString("disabled") #else $tlang.getString("enabled") #end</td>
+					<td headers="Status" class="hidden-xs">#if($!user.Properties.getProperty("disabled")) $tlang.getString("disabled") #else $tlang.getString("enabled") #end</td>
 					<td headers="Id" class="hidden-xs">$validator.escapeHtml($user.Id)
 					</td>
 				</tr>
