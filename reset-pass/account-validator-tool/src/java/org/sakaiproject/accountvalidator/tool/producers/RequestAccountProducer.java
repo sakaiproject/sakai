@@ -51,7 +51,7 @@ public class RequestAccountProducer extends BaseValidationProducer implements Vi
 
     public void fillComponents(UIContainer tofill, ViewParameters viewparams, ComponentChecker checker)
     {
-        Object[] args = new Object[]{serverConfigurationService.getString("ui.service", "Sakai")};
+        Object[] args = new Object[]{getUIService()};
         UIMessage.make(tofill, "welcome1", "validate.welcome1", args);
         UIMessage.make(tofill, "welcome2", "validate.welcome.request", args);
 
@@ -88,7 +88,7 @@ public class RequestAccountProducer extends BaseValidationProducer implements Vi
         catch (UserNotDefinedException e)
         {
             log.error("user ID does not exist for ValidationAccount with tokenId: " + va.getValidationToken());
-            tml.addMessage(new TargettedMessage("validate.userNotDefined", new Object[]{}, TargettedMessage.SEVERITY_ERROR));
+            tml.addMessage(new TargettedMessage("validate.userNotDefined", new Object[]{getUIService()}, TargettedMessage.SEVERITY_ERROR));
         }
 
         if (u != null)
