@@ -357,9 +357,21 @@ public class ValidationLogicImpl implements ValidationLogic {
 				account.setFirstName(u.getFirstName());
 			}
 
+			// For oracle - empty strings map to null in the DB.
+			else
+			{
+				account.setFirstName(" ");
+			}
+
 			if (StringUtils.isNotBlank(u.getLastName()))
 			{
 				account.setSurname(u.getLastName());
+			}
+
+			// For oracle - empty strings map to null in the DB.
+			else
+			{
+				account.setSurname(" ");
 			}
 		}
 		catch(UserNotDefinedException e){
@@ -503,8 +515,14 @@ public class ValidationLogicImpl implements ValidationLogic {
 	}
 
 	public void save(ValidationAccount toSave) {
+		// For oracle - empty strings map to null in the DB.
+		if (StringUtils.isEmpty(toSave.getFirstName())) {
+			toSave.setFirstName(" ");
+		}
+		if (StringUtils.isEmpty(toSave.getSurname())) {
+			toSave.setSurname(" ");
+		}
 		dao.save(toSave);
-		
 	}
 
 	public void resendValidation(String token) {
