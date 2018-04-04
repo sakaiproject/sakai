@@ -75,7 +75,9 @@ function _renderChart(dataset) {
 		options: {
 			title: {
 				display: true,
-				text: 'Course Grade Distribution'
+				text: 'Course Grade Distribution',
+				fontSize: 26,
+				fontStyle: 'bold'
 			},
 			legend: {
 				display: false
@@ -88,13 +90,17 @@ function _renderChart(dataset) {
 					},
 					scaleLabel: {
 						display: true,
-						labelString: 'Number of Students'
+						labelString: 'Number of Students',
+						fontSize: 14,
+						fontStyle: 'bold'
 					}
 				}],
 				yAxes: [{
 					scaleLabel: {
 						display: true,
-						labelString: 'Course Grade'
+						labelString: 'Course Grade',
+						fontSize: 14,
+						fontStyle: 'bold'
 					}
 				}]
 			},
