@@ -15,7 +15,15 @@
         )
                 $pan.hide();
         });
-        disableBackButton("$!tlang.getString("use_form_navigation")");
+        //Disable the back button, might be in an iframe so check the parent
+        if (typeof(disableBackButton) !== 'function') {
+            if (typeof(parent.disableBackButton === 'function')) {
+                disableBackButton = parent.disableBackButton;
+            }
+        }
+        if (typeof(disableBackButton) === 'function') {
+            disableBackButton("$!tlang.getString("use_form_navigation")");
+        }
     });
 </script>
 <div class="portletBody">
