@@ -11,7 +11,7 @@
 			$tlang.getFormattedMessage("presence.list1.alert.message", $validator.escapeHtml($alertMessage))
 		</div>
 	#end
-	<table class="listHier lines" cellspacing="0" summary ="$tlang.getString("presence.list1.tablesummary")" border="0">
+	<table class="table table-hover table-striped table-bordered" summary ="$tlang.getString("presence.list1.tablesummary")" border="0">
 		#foreach ($location in $locations)
 			#set($list = $service.getPresence($location))
 			<tr class="highLightRow">
@@ -19,7 +19,7 @@
 					$list.size()
 				</td>
 				<td colspan="5">
-					<h4>$tlang.getFormattedMessage("presence.list1.location.value", $validator.escapeHtml($location))</h4>
+					$tlang.getFormattedMessage("presence.list1.location.value", $validator.escapeHtml($location))
 				</td>
 			</tr>
 			#foreach($entry in $list)
@@ -27,22 +27,21 @@
 					<td>
 					</td>
 					<td>
-						<h5><span title="$tlang.getString("presence.session.name")">$validator.escapeHtml($entry.UserDisplayId)</span></h5>
+						<span title="$tlang.getString("presence.session.name")">$validator.escapeHtml($entry.UserDisplayId)</span>
 					</td>
-					<td>
+					<td class="hidden-xs">
 						<span title="$tlang.getString("presence.session.session")">$validator.escapeHtml($entry.Id)</span>
 					</td>
 					<td>
 						<span title="$tlang.getString("presence.session.adress")">$validator.escapeHtml($entry.IpAddress)</span>
 					</td>
-				<td>
-					<span title="$tlang.getString("presence.session.agent")" class="textPanelFooter">$validator.escapeHtml($entry.UserAgent)</span>
-				</td>
-				<td>
-					<span title="$tlang.getString("presence.session.started")">$validator.escapeHtml($entry.getStart().toStringLocalFull())</span>
-				</td>
-			</tr>	
-	
+					<td class="hidden-xs">
+						<span title="$tlang.getString("presence.session.agent")" class="textPanelFooter">$validator.escapeHtml($entry.UserAgent)</span>
+					</td>
+					<td>
+						<span title="$tlang.getString("presence.session.started")">$validator.escapeHtml($entry.getStart().toStringLocalFull())</span>
+					</td>
+				</tr>
 			#end
 		#end
 	</table>

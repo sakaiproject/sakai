@@ -24,8 +24,9 @@
 		     action="#{schedulerTool.processRefreshJobs}"
 			   value="#{msgs.bar_return_jobs}" />
    	  </sakai:tool_bar>
+   	  <br/>
    	  <sakai:view_content>
-  	    <h:dataTable rendered="#{!empty schedulerTool.selectedJobDetailWrapper.triggerWrapperList}" value="#{schedulerTool.selectedJobDetailWrapper.triggerWrapperList}" var="wrapper" styleClass="table table-striped">
+  	    <h:dataTable rendered="#{!empty schedulerTool.selectedJobDetailWrapper.triggerWrapperList}" value="#{schedulerTool.selectedJobDetailWrapper.triggerWrapperList}" var="wrapper" styleClass="table table-hover table-striped table-bordered">
   	      <h:column>
     	      <f:facet name="header">    	      
     	        <h:commandButton alt="SelectAll" image="/scheduler-tool/images/checkbox.gif" action="#{schedulerTool.processSelectAllTriggers}"/>    	        

@@ -24,7 +24,7 @@
                     <sakai:panel_edit>
                         <h:dataTable id="propertyTable" value="#{schedulerTool.configurableProperties}"
                                      var="prop"
-                                     styleClass="table table-striped">
+                                     styleClass="table table-hover table-striped table-bordered">
                             <h:column>
 
                                 <f:facet name="header">
