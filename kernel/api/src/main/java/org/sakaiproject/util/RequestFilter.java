@@ -242,7 +242,7 @@ public class RequestFilter implements Filter
 	/** Allow setting the cookie in a request parameter */
 	protected boolean m_sessionParamAllow = false;
 	protected Pattern m_sessionParamRegex = null;
-                                                                                                             
+
     /** The name of the cookie we use to keep sakai session. */                                            
     protected String cookieName = "JSESSIONID";                                                            
                                                                                                               
@@ -826,7 +826,14 @@ public class RequestFilter implements Filter
 		String allowBypassSession = serverConfigurationService.getString(SAKAI_SESSION_PARAM_ALLOW_BYPASS,
 			SAKAI_SESSION_PARAM_ALLOW_BYPASS_DEFAULT);
 		if ( ! "none".equals(allowBypassSession) ) {
-			m_sessionParamRegex = Pattern.compile(allowBypassSession);
+			try {
+				m_sessionParamRegex = Pattern.compile(allowBypassSession);
+			}
+			catch( Exception e )
+			{
+				log.warn("Unable to compile " + SAKAI_SESSION_PARAM_ALLOW + "=" + allowBypassSession);
+				m_sessionParamRegex = null;
+			}
 		}
 
 		// retrieve option to enable or disable cookie HttpOnly
