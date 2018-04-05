@@ -191,12 +191,6 @@ div.action span .nextbutton, .Mrphs-siteHierarchy span .nextbutton{
 .indent {
     margin-left: 10px;
 }
-.grouplist {
-    margin-left: 20px;
-    border:1px solid #bbb;
-    background: #ddd;
-    padding: 5px;
-}
 .controlsPanel {
     padding:0;
     background:none;
