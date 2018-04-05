@@ -8,7 +8,7 @@
 	</h3>
 	#if ($alertMessage)<div class="alertMessage">$tlang.getFormattedMessage("presence.session.alert.message", $validator.escapeHtml($alertMessage))</div>#end
 	<div class="instruction">$tlang.getFormattedMessage("presence.session.total.value", $total)</div>
-	<table  class="listHier lines" summary ="$tlang.getString("presence.session.list.summary")" border="0" cellpadding="0" cellspacing="0"> 	
+	<table class="table table-hover table-striped table-bordered" summary="$tlang.getString("presence.session.list.summary")">
 		#foreach ($serverName in $serverList)
 			<tr class="exclude">
 				<th colspan="3"><h4>$tlang.getFormattedMessage("presence.session.on.server", $servers.get("$serverName").size(), $validator.escapeHtml($serverName))</h4></th>
@@ -29,16 +29,15 @@
 				</tr>
 				<tr>
 					<td>$tlang.getString("presence.session.agent")</td>
-					<td>$validator.escapeHtml($currSession.UserAgent)</td>															
+					<td>$validator.escapeHtml($currSession.UserAgent)</td>
 				</tr>
 				<tr>
 					<td>$tlang.getString("presence.session.started")</td>
-					<td>$validator.escapeHtml($currSession.getStart().toStringLocalFull())</td>															
+					<td>$validator.escapeHtml($currSession.getStart().toStringLocalFull())</td>
 				</tr>	
 			#end
 		#end
 	</table>
 </div>
-#sakai_courier() 
-
+#sakai_courier()
 

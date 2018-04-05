@@ -22,7 +22,7 @@
    	  </sakai:tool_bar>
    	  <sakai:view_content>
    	  	<h:messages warnClass="warningMessage" infoClass="information"/>
-  	    <h:dataTable value="#{schedulerTool.runningJobs}" var="job" styleClass="table table-striped">
+  	    <h:dataTable value="#{schedulerTool.runningJobs}" var="job" styleClass="table table-hover table-striped table-bordered">
   	      <h:column>
     	      <f:facet name="header">
     	        <h:outputText value="#{msgs.job_name}"/>
