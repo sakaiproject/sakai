@@ -192,7 +192,7 @@
         this.selectedConfigOptions = this.association.parameters ? this.association.parameters : {};
   
         for (var property in this.selectedConfigOptions) {
-          this.$$('#rbcs-config-' + property).checked = true;
+          this.$$('#rbcs-config-' + property).checked = this.selectedConfigOptions[property];
         }
       },
       buildOptions: function() {        
