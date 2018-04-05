@@ -49,7 +49,6 @@
        
        #delivPageWrapper
        {
-            height:1800px;
             width: 100%
             float: left;
        }
@@ -57,7 +56,6 @@
        #delivAssessmentWrapper
        {
             width: 96%;
-            float: left;
        }
       </style>
 
