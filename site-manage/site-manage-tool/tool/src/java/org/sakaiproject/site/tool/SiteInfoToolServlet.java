@@ -97,6 +97,7 @@ public class SiteInfoToolServlet extends HttpServlet
 	protected static final String PARTICIPANT_SECTIONS_NODE_NAME = "SECTIONS";
 	protected static final String PARTICIPANT_SECTION_NODE_NAME = "SECTION";
 	protected static final String PARTICIPANT_ID_NODE_NAME = "ID";
+	protected static final String PARTICIPANT_CREDITS_NODE_NAME = "CREDITS";
 	protected static final String PARTICIPANT_CREDIT_NODE_NAME = "CREDIT";
 	protected static final String PARTICIPANT_ROLE_NODE_NAME = "ROLE";
 	protected static final String PARTICIPANT_STATUS_NODE_NAME = "STATUS";
@@ -296,20 +297,17 @@ public class SiteInfoToolServlet extends HttpServlet
 		if (participants != null)
 		{
 		
-			// Go through all the time ranges (days)
-			for (Iterator<Participant> iParticipants = participants.iterator(); iParticipants.hasNext();)
+			// Go through all the participants
+			for (Participant participant : participants)
 			{
-				Participant participant = iParticipants.next();
 				// Create Participant Element
 				Element participantNode = doc.createElement(PARTICIPANT_NODE_NAME);
 				
 				// participant name
-				String participantName= participant.getName();
-				if (participant.getDisplayId() != null)
-				{
-					participantName +="( " +  participant.getDisplayId() + " )";
-				}
-				writeStringNodeToDom(doc, participantNode, PARTICIPANT_NAME_NODE_NAME, StringUtils.trimToEmpty(participantName));
+				writeStringNodeToDom(doc, participantNode, PARTICIPANT_NAME_NODE_NAME, StringUtils.trimToEmpty(participant.getName()));
+
+				// display id
+				writeStringNodeToDom(doc, participantNode, PARTICIPANT_ID_NODE_NAME, StringUtils.trimToEmpty(participant.getDisplayId()));
 
 				// sections
 				Element sectionsNode = doc.createElement(PARTICIPANT_SECTIONS_NODE_NAME);
@@ -319,12 +317,15 @@ public class SiteInfoToolServlet extends HttpServlet
 					writeStringNodeToDom(doc, sectionsNode, PARTICIPANT_SECTION_NODE_NAME, StringUtils.trimToEmpty(section));
 				}
 				participantNode.appendChild(sectionsNode);
-
-				// registration id
-				writeStringNodeToDom(doc, participantNode, PARTICIPANT_ID_NODE_NAME, StringUtils.trimToEmpty(participant.getRegId()));
 				
-				// credit
-				writeStringNodeToDom(doc, participantNode, PARTICIPANT_CREDIT_NODE_NAME, StringUtils.trimToEmpty(participant.getCredits()));
+				// credits
+				String[] credits = StringUtils.trimToEmpty(participant.getCredits()).replaceAll("<br />", "").split(",");
+				Element creditsNode = doc.createElement(PARTICIPANT_CREDITS_NODE_NAME);
+				for (String credit : credits)
+				{
+					writeStringNodeToDom(doc, creditsNode, PARTICIPANT_CREDIT_NODE_NAME, credit.trim());
+				}
+				participantNode.appendChild(creditsNode);
 
 				// role id
 				writeStringNodeToDom(doc, participantNode, PARTICIPANT_ROLE_NODE_NAME, StringUtils.trimToEmpty(participant.getRole()));
@@ -407,8 +408,8 @@ public class SiteInfoToolServlet extends HttpServlet
 			InputStream in = getClass().getClassLoader().getResourceAsStream(xslFileName);
 			Transformer transformer = transformerFactory.newTransformer(new StreamSource(in));
 			transformer.setParameter("titleName", rb.getString("sitegen.siteinfolist.title.name"));
-			transformer.setParameter("titleSection", rb.getString("sitegen.siteinfolist.title.section"));
 			transformer.setParameter("titleId", rb.getString("sitegen.siteinfolist.title.id"));
+			transformer.setParameter("titleSection", rb.getString("sitegen.siteinfolist.title.section"));
 			transformer.setParameter("titleCredit", rb.getString("sitegen.siteinfolist.title.credit"));
 			transformer.setParameter("titleRole", rb.getString("sitegen.siteinfolist.title.role"));
 			transformer.setParameter("titleStatus", rb.getString("sitegen.siteinfolist.title.status"));
