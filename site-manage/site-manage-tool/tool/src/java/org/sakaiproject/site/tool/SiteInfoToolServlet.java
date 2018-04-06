@@ -109,6 +109,7 @@ public class SiteInfoToolServlet extends HttpServlet
 
 	/**
 	 * Initialize this servlet.
+	 * @throws javax.servlet.ServletException
 	 */
 	public void init() throws ServletException
 	{
@@ -124,11 +125,11 @@ public class SiteInfoToolServlet extends HttpServlet
     		}
     		catch (ParserConfigurationException e)
     		{
-    			log.warn(this + " cannot get DocumentBuilder " + e.getMessage());
+    			log.warn("{} cannot get DocumentBuilder {}", this, e.getMessage());
     		}
 
         } catch (Exception e) {
-            log.warn(this + "init " + e.getMessage());
+            log.warn("{}init {}", this, e.getMessage());
         }
 	}
 	
@@ -183,7 +184,7 @@ public class SiteInfoToolServlet extends HttpServlet
 		if (userId == null)
 		{
 			// fail the request, user not logged in yet.
-			log.warn(this + " HttpAccess for printing participant of site id =" + siteId + " without user loggin. ");
+			log.warn("{} HttpAccess for printing participant of site id ={} without user loggin. ", this, siteId);
 		}
 		else
 		{
@@ -195,14 +196,14 @@ public class SiteInfoToolServlet extends HttpServlet
 			}
 			else
 			{
-				log.warn(this + " HttpAccess for printing participant of site id =" + siteId + " with user id = " + userId + ": user does not have permission to view roster. " );
+				log.warn("{} HttpAccess for printing participant of site id ={} with user id = {}: user does not have permission to view roster. ", this, siteId, userId);
 			}
 		}
 	}
 	
 	/**
 	 * generate PDF file containing all site participant
-	 * @param data
+	 * @param siteId
 	 */
 	public void print_participant(String siteId)
 	{
@@ -272,7 +273,7 @@ public class SiteInfoToolServlet extends HttpServlet
 		// Create Root Element
 		Element root = doc.createElement(PARTICIPANTS_NODE_NAME);
 
-		String siteTitle = "";
+		String siteTitle;
 		
 		if (siteId != null)
 		{
@@ -282,11 +283,11 @@ public class SiteInfoToolServlet extends HttpServlet
 				siteTitle = site.getTitle();
 	    		
 				// site title
-				writeStringNodeToDom(doc, root, SITE_TITLE_NODE_NAME, rb.getFormattedMessage("participant_pdf_title", new String[] {siteTitle}));
+				writeStringNodeToDom(doc, root, SITE_TITLE_NODE_NAME, rb.getFormattedMessage("participant_pdf_title", new Object[] {siteTitle}));
 			}
 			catch (Exception e)
 			{
-				log.warn(this + ":generateParticipantXMLDocument: Cannot find site with id =" + siteId);
+				log.warn("{}:generateParticipantXMLDocument: Cannot find site with id ={}", this, siteId);
 			}
 		}
 
@@ -341,6 +342,11 @@ public class SiteInfoToolServlet extends HttpServlet
 	
 	/**
 	 * Utility routine to write a string node to the DOM.
+	 * @param doc
+	 * @param parent
+	 * @param nodeName
+	 * @param nodeValue
+	 * @return
 	 */
 	protected Element writeStringNodeToDom(Document doc, Element parent, String nodeName, String nodeValue)
 	{
@@ -359,8 +365,7 @@ public class SiteInfoToolServlet extends HttpServlet
 	 * 
 	 * @param doc
 	 *        DOM structure
-	 * @param xslFileName
-	 *        XSL file to use to translate the DOM document to FOP
+	 * @param streamOut
 	 */
 	@SuppressWarnings("unchecked")
 	protected void generatePDF(Document doc, OutputStream streamOut)
@@ -419,13 +424,11 @@ public class SiteInfoToolServlet extends HttpServlet
 		}
 		catch (Exception e)
 		{
-			log.warn(this+".generatePDF(): " + e);
-			return;
+			log.warn("{}.generatePDF(): {}", this, e.toString());
 		}
 		finally
 		{
 			IOUtils.closeQuietly(configInputStream);
 		}
 	}
-	
 }
