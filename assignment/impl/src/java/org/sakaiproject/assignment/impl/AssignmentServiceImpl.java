@@ -580,7 +580,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                         return groupsAllowed;
                     case GROUP: // return only matching groups for group access
                         Set<String> assignmentGroups = assignment.getGroups();
-                        return groupsAllowed.stream().filter(g -> assignmentGroups.contains(g.getId())).collect(Collectors.toSet());
+                        return groupsAllowed.stream().filter(g -> assignmentGroups.contains(g.getReference())).collect(Collectors.toSet());
                 }
             }
         }
