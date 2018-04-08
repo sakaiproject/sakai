@@ -75,7 +75,9 @@ function _renderChart(dataset) {
 		options: {
 			title: {
 				display: true,
-				text: 'Course Grade Distribution'
+				text: 'Course Grade Distribution',
+				fontSize: 18,
+				fontStyle: 'bold'
 			},
 			legend: {
 				display: false
@@ -84,17 +86,25 @@ function _renderChart(dataset) {
 				xAxes: [{
 					ticks: {
 						beginAtZero:true,
-						stepSize: 1
+						stepSize: 1,
+						fontStyle: 'bold'
 					},
 					scaleLabel: {
 						display: true,
-						labelString: 'Number of Students'
+						labelString: 'Number of Students',
+						fontSize: 14,
+						fontStyle: 'bold'
 					}
 				}],
 				yAxes: [{
+					ticks: {
+						fontStyle: 'bold'
+					},
 					scaleLabel: {
 						display: true,
-						labelString: 'Course Grade'
+						labelString: 'Course Grade',
+						fontSize: 14,
+						fontStyle: 'bold'
 					}
 				}]
 			},
