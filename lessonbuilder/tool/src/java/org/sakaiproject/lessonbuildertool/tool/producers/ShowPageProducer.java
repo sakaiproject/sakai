@@ -5110,8 +5110,9 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		    // other item types, but here there's no separate tool where you
 		    // can look at the status. I'm currently showing completed, to
 		    // be consistent with non-polls, where I always show a result
-		    if (response != null)
-			return Status.COMPLETED;
+		    if (response != null) {
+			    return response.isCorrect()?Status.COMPLETED:Status.FAILED;
+		    }
 		    if(question.isRequired())
 			return Status.REQUIRED;
 		    return Status.NOT_REQUIRED;
