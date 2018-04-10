@@ -824,7 +824,7 @@ public class PDFExportService {
         writeStringNodeToDom(doc, eventElement, TITLE_NODE, event.getDisplayName());
 
         // Add the event type node.
-        writeStringNodeToDom(doc, eventElement, TYPE_NODE, getEventDescription(event.getType()));
+        writeStringNodeToDom(doc, eventElement, TYPE_NODE, event.getType());
 
         // Add the place/location node.
         writeStringNodeToDom(doc, eventElement, PLACE_NODE, event.getLocation());
