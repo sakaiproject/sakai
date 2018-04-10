@@ -358,8 +358,7 @@ td div.title{
 .selChanged{
 	/*flag an item as changed in organize view*/
 	border: 1px solid #aaa;
-	background: #fc6;
-	padding: 1px;
+	background-color: #fc6;
 }
 .attachPanel{
 /*panel listing attachmetns when in edit mode for forum/topic/message*/
