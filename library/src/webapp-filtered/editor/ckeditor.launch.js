@@ -157,8 +157,8 @@ sakai.editor.editors.ckeditor.launch = function(targetId, config, w, h) {
             ['Source','-','Templates'],
             // Uncomment the next line and comment the following to enable the default spell checker.
             // Note that it uses spellchecker.net, displays ads and sends content to remote servers without additional setup.
-            //['Cut','Copy','Paste','PasteText','PasteFromWord','-','Print', 'SpellChecker', 'Scayt'],
-            ['Cut','Copy','Paste','PasteText','PasteFromWord','-','Print', 'SakaiPreview'],
+            //['Cut','Copy','Paste','PasteText','-','Print', 'SpellChecker', 'Scayt'],
+            ['Cut','Copy','Paste','PasteText','-','Print', 'SakaiPreview'],
             ['Undo','Redo','-','Find','Replace','-','SelectAll','RemoveFormat'],
             ['NumberedList','BulletedList','-','Outdent','Indent','Blockquote','CreateDiv'],
             '/',
