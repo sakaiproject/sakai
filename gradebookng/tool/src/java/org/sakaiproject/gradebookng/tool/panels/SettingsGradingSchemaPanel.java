@@ -279,6 +279,9 @@ public class SettingsGradingSchemaPanel extends BasePanel implements IFormModelU
 				SettingsGradingSchemaPanel.this.schemaModifiedFromDefault = isModified();
 				SettingsGradingSchemaPanel.this.modifiedSchema.setVisible(SettingsGradingSchemaPanel.this.schemaModifiedFromDefault);
 				target.add(SettingsGradingSchemaPanel.this.modifiedSchema);
+
+				// refresh chart
+				refreshCourseGradeChart(target);
 			}
 		});
 
