@@ -1603,7 +1603,7 @@ public class AssignmentAction extends PagedResourceActionII {
      *
      * @return true if currentAttachments isn't equal to oldAttachments
      */
-    private boolean areAttachmentsModified(Set<String> oldAttachments, List currentAttachments) {
+    private boolean areAttachmentsModified(Set<String> oldAttachments, List<Reference> currentAttachments) {
         boolean hasCurrent = CollectionUtils.isNotEmpty(currentAttachments);
         boolean hasOld = CollectionUtils.isNotEmpty(oldAttachments);
 
@@ -1616,8 +1616,9 @@ public class AssignmentAction extends PagedResourceActionII {
             return true;
         }
 
+        Set<String> currentSet = currentAttachments.stream().map(Reference::getReference).collect(Collectors.toSet());
         //.equals on Sets of Strings will compare .equals on the contained Strings
-        return !oldAttachments.equals(currentAttachments);
+        return !oldAttachments.equals(currentSet);
     }
 
     /**
