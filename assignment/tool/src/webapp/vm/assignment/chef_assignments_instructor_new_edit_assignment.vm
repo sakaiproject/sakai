@@ -1302,9 +1302,9 @@
 				#else
 					<div id="peerAssessmentOptions" style="display:none" class="col-sm-offset-1">
 				#end
-					<p class="instruction">
+					<div class="messageInformation">
 						$tlang.getString("peerassessment.note")
-					</p>
+					</div>
 					<div id="peerperiod-finish">
 						$tlang.getString("peerassessment.periodfinishes")
 						<input type="text" id="new_assignment_peerperiod" name="new_assignment_peerperiod" class="datepicker" value="">
