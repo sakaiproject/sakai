@@ -68,8 +68,8 @@ function _renderChart(dataset) {
 			labels: labels,
 			datasets: [{
 				data: data,
-				backgroundColor: 'rgb(64, 120, 209)',
-				borderWidth: 0,
+				backgroundColor: '#15597e',
+				borderWidth: 0
 			}]
 		},
 		options: {
