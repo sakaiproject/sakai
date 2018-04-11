@@ -146,7 +146,9 @@ extends VelocityPortletStateAction
 	private static final String STATE_SCHEDULE_IMPORT = "scheduleImport";
 	private static final String CALENDAR_INIT_PARAMETER = "calendar";
 	private static final int HOURS_PER_DAY = 24;
-	private static final int NUMBER_HOURS_PER_PAGE_FOR_WEEK_VIEW = 10;
+	static int tempHours = ServerConfigurationService.getInt("calendar.hoursPerPage", 10);
+	private static final int NUMBER_HOURS_PER_PAGE = tempHours > 24 ? 24 : (tempHours < 10 ? 10 : tempHours);
+	private static final int NUMBER_OF_SECTIONS = (NUMBER_HOURS_PER_PAGE*2)-1;
 
 	private static final int FIRST_PAGE_START_HOUR = 0;
 	private static final int SECOND_PAGE_START_HOUR = 8;
@@ -3523,15 +3525,15 @@ extends VelocityPortletStateAction
 				
 				if(currentPage.equals("third"))
 				{
-					eventVector = getNewEvents(year,month,day, state, runData,THIRD_PAGE_START_HOUR,19,context,CalendarEventVectorObj);
+					eventVector = getNewEvents(year,month,day, state, runData,THIRD_PAGE_START_HOUR,NUMBER_OF_SECTIONS,context,CalendarEventVectorObj);
 				}
 				else if (currentPage.equals("second"))
 				{
-					eventVector = getNewEvents(year,month,day, state, runData,SECOND_PAGE_START_HOUR,19,context,CalendarEventVectorObj);
+					eventVector = getNewEvents(year,month,day, state, runData,SECOND_PAGE_START_HOUR,NUMBER_OF_SECTIONS,context,CalendarEventVectorObj);
 				}
 				else
 				{
-					eventVector = getNewEvents(year,month,day, state, runData,FIRST_PAGE_START_HOUR,19,context,CalendarEventVectorObj);
+					eventVector = getNewEvents(year,month,day, state, runData,FIRST_PAGE_START_HOUR,NUMBER_OF_SECTIONS,context,CalendarEventVectorObj);
 				}
 				
 				dateObj1.setEventBerDay(eventVector);
@@ -3559,6 +3561,7 @@ extends VelocityPortletStateAction
 		context.put("helper",new Helper());
 		context.put("calObj", calObj);
 		context.put("tlang",rb);
+		context.put("numberOfSections",NUMBER_OF_SECTIONS);
 		state.setState("day");
 		context.put("message", state.getState());
 		
@@ -3713,7 +3716,7 @@ extends VelocityPortletStateAction
 			{
 				eventVector1 = new Vector();
 				// JS -- the third page starts at 2PM(14 o'clock), and lasts 20 half-hour
-				eventVector = getNewEvents(calObj.getYear(),calObj.getMonthInteger(),calObj.getDayOfMonth(), state, runData,THIRD_PAGE_START_HOUR,19,context,CalendarEventVectorObj);
+				eventVector = getNewEvents(calObj.getYear(),calObj.getMonthInteger(),calObj.getDayOfMonth(), state, runData,THIRD_PAGE_START_HOUR,NUMBER_OF_SECTIONS,context,CalendarEventVectorObj);
 				
 				for(int index = 0;index<eventVector1.size();index++)
 				{
@@ -3722,22 +3725,22 @@ extends VelocityPortletStateAction
 				
 				// Reminder: weekview vm is using 0..6
 				pageStartTime[i-1] = TimeService.newTimeLocal(calObj.getYear(),calObj.getMonthInteger(),calObj.getDayOfMonth(), THIRD_PAGE_START_HOUR, 0, 0, 0);
-				pageEndTime[i-1] = TimeService.newTimeLocal(calObj.getYear(),calObj.getMonthInteger(),calObj.getDayOfMonth(), 23, 59, 0, 0);
+				pageEndTime[i-1] = TimeService.newTimeLocal(calObj.getYear(),calObj.getMonthInteger(),calObj.getDayOfMonth(), THIRD_PAGE_START_HOUR+NUMBER_HOURS_PER_PAGE, 59, 0, 0);
 				
 			}
 			else if (state.getCurrentPage().equals("second"))
 			{
-				eventVector = getNewEvents(calObj.getYear(),calObj.getMonthInteger(),calObj.getDayOfMonth(), state, runData,SECOND_PAGE_START_HOUR,19,context,CalendarEventVectorObj);
+				eventVector = getNewEvents(calObj.getYear(),calObj.getMonthInteger(),calObj.getDayOfMonth(), state, runData,SECOND_PAGE_START_HOUR,NUMBER_OF_SECTIONS,context,CalendarEventVectorObj);
 				// Reminder: weekview vm is using 0..6
 				pageStartTime[i-1] = TimeService.newTimeLocal(calObj.getYear(),calObj.getMonthInteger(),calObj.getDayOfMonth(), SECOND_PAGE_START_HOUR, 0, 0, 0);
-				pageEndTime[i-1] = TimeService.newTimeLocal(calObj.getYear(),calObj.getMonthInteger(),calObj.getDayOfMonth(), 17, 59, 0, 0);
+				pageEndTime[i-1] = TimeService.newTimeLocal(calObj.getYear(),calObj.getMonthInteger(),calObj.getDayOfMonth(), SECOND_PAGE_START_HOUR+NUMBER_HOURS_PER_PAGE, 59, 0, 0);
 				
 			}
 			else
 			{
 				eventVector1 = new Vector();
 				// JS -- the first page starts at 12AM(0 o'clock), and lasts 20 half-hour
-				eventVector1 = getNewEvents(calObj.getYear(),calObj.getMonthInteger(),calObj.getDayOfMonth(), state, runData, FIRST_PAGE_START_HOUR,19,context,CalendarEventVectorObj);
+				eventVector1 = getNewEvents(calObj.getYear(),calObj.getMonthInteger(),calObj.getDayOfMonth(), state, runData, FIRST_PAGE_START_HOUR,NUMBER_OF_SECTIONS,context,CalendarEventVectorObj);
 				
 				for(int index = 0;index<eventVector1.size();index++)
 				{
@@ -3746,7 +3749,7 @@ extends VelocityPortletStateAction
 				
 				// Reminder: weekview vm is using 0..6
 				pageStartTime[i-1] = TimeService.newTimeLocal(calObj.getYear(),calObj.getMonthInteger(),calObj.getDayOfMonth(), 0, 0, 0, 0);
-				pageEndTime[i-1] = TimeService.newTimeLocal(calObj.getYear(),calObj.getMonthInteger(),calObj.getDayOfMonth(), 9, 59, 0, 0);
+				pageEndTime[i-1] = TimeService.newTimeLocal(calObj.getYear(),calObj.getMonthInteger(),calObj.getDayOfMonth(), FIRST_PAGE_START_HOUR+NUMBER_HOURS_PER_PAGE, 59, 0, 0);
 				
 			}
 			dateObj2.setEventBerWeek(eventVector);
@@ -3765,6 +3768,7 @@ extends VelocityPortletStateAction
 		context.put("page",state.getCurrentPage());
 		state.setState("week");
 		context.put("tlang",rb);
+		context.put("numberOfSections",NUMBER_OF_SECTIONS);
 		context.put("message",state.getState());
 
 		DateFormat formatter = DateFormat.getDateInstance(DateFormat.FULL, new ResourceLoader().getLocale());
@@ -7404,19 +7408,19 @@ extends VelocityPortletStateAction
 			if (state.getCurrentPage().equals("first"))
 			{
 				startHour = FIRST_PAGE_START_HOUR;
-				endHour = startHour + NUMBER_HOURS_PER_PAGE_FOR_WEEK_VIEW;
+				endHour = startHour + NUMBER_HOURS_PER_PAGE;
 			}
 			else
 				if (state.getCurrentPage().equals("second"))
 				{
 					startHour = SECOND_PAGE_START_HOUR;
-					endHour = startHour + NUMBER_HOURS_PER_PAGE_FOR_WEEK_VIEW;
+					endHour = startHour + NUMBER_HOURS_PER_PAGE;
 				}
 				else
 					if (state.getCurrentPage().equals("third"))
 					{
 						startHour = THIRD_PAGE_START_HOUR;
-						endHour = startHour + NUMBER_HOURS_PER_PAGE_FOR_WEEK_VIEW;
+						endHour = startHour + NUMBER_HOURS_PER_PAGE;
 					}
 					else
 					{
