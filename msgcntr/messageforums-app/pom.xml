@@ -103,6 +103,10 @@
 		  <version>2.4</version>
 		  <classifier>jdk15</classifier>
 		</dependency>
+		<dependency>
+            <groupId>org.sakaiproject.rubrics</groupId>
+            <artifactId>rubrics-service-api</artifactId>
+        </dependency>
 	</dependencies>
 	<build>
 		<resources>
