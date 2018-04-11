@@ -8615,7 +8615,6 @@ public class DiscussionForumTool
 	if (fromTopic.getExtendedDescription() != null && fromTopic.getExtendedDescription().length() > 0)
 		newTopic.setExtendedDescription(fromTopic.getExtendedDescription());
 	newTopic.setLocked(fromTopic.getLocked());
-	newTopic.setDraft(fromTopic.getDraft());
 	newTopic.setModerated(fromTopic.getModerated());
 	newTopic.setPostFirst(fromTopic.getPostFirst());
 	newTopic.setPostAnonymous(fromTopic.getPostAnonymous());
@@ -8668,7 +8667,7 @@ public class DiscussionForumTool
 	}
 
 	newTopic.setBaseForum(forum);
-	forumManager.saveTopic(newTopic);
+	forumManager.saveTopic(newTopic, fromTopic.getDraft(), true);
 	selectedTopic = new DiscussionTopicBean(newTopic, forum, uiPermissionsManager, forumManager);
 
     if("true".equalsIgnoreCase(ServerConfigurationService.getString("mc.defaultLongDescription")))
@@ -8760,7 +8759,7 @@ public class DiscussionForumTool
 			forum.setCloseDate(oldForum.getCloseDate());
 		}
 
-		forum = saveForumSettings(true);
+		forum = saveForumSettings(oldForum.getDraft());
 
 		forum = forumManager.getForumById(forum.getId());
 		List attachList = forum.getAttachments();

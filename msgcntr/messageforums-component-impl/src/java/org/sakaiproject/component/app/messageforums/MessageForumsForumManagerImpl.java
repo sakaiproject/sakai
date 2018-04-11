@@ -968,13 +968,8 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
           DiscussionForum discussionForum = 
             (DiscussionForum) getForumByIdWithTopics(topic.getBaseForum().getId());
           discussionForum.addTopic(topic);
-                                  
-          if(topic.getDraft().equals(Boolean.TRUE))
-          {        	  
-	  	    saveDiscussionForum(discussionForum, discussionForum.getDraft().booleanValue(), logEvent, currentUser);
-          }
-          else
-            saveDiscussionForum(discussionForum, parentForumDraftStatus, logEvent, currentUser);
+
+          saveDiscussionForum(discussionForum, parentForumDraftStatus, logEvent, currentUser);
           //sak-5146 saveDiscussionForum(discussionForum, parentForumDraftStatus);
             
         } else {
