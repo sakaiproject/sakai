@@ -40,7 +40,8 @@ import org.sakaiproject.gradebookng.business.GbRole;
 import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
 import org.sakaiproject.gradebookng.business.exception.GbAccessDeniedException;
 import org.sakaiproject.gradebookng.business.model.GbGradeCell;
-import org.sakaiproject.gradebookng.rest.model.CourseGradeSummary;
+import org.sakaiproject.gradebookng.business.util.MessageHelper;
+import org.sakaiproject.gradebookng.rest.model.ChartData;
 import org.sakaiproject.service.gradebook.shared.CourseGrade;
 import org.sakaiproject.service.gradebook.shared.GradeMappingDefinition;
 import org.sakaiproject.service.gradebook.shared.GradebookInformation;
@@ -199,7 +200,7 @@ public class GradebookNgEntityProvider extends AbstractEntityProvider implements
 
 	@SuppressWarnings("unused")
 	@EntityCustomAction(action = "course-grades", viewKey = EntityView.VIEW_LIST)
-	public CourseGradeSummary getCourseGradeSummary(final EntityView view, final Map<String, Object> params) {
+	public ChartData getCourseGradeSummary(final EntityView view, final Map<String, Object> params) {
 
 		// get params
 		final String siteId = (String) params.get("siteId");
@@ -239,7 +240,14 @@ public class GradebookNgEntityProvider extends AbstractEntityProvider implements
 		// get the course grades and re-map to summary. Also sorts the data so it is ready for the consumer to use
 		final Map<String, CourseGrade> courseGrades = this.businessService.getCourseGrades(siteId, gradingSchema);
 
-		return reMap(courseGrades, gradingSchema.keySet());
+		final ChartData data = reMap(courseGrades, gradingSchema.keySet());
+
+		// set the labels for the chart to render
+		data.setChartTitle(MessageHelper.getString("settingspage.gradingschema.chart.heading"));
+		data.setXAxisLabel(MessageHelper.getString("settingspage.gradingschema.chart.xaxis"));
+		data.setYAxisLabel(MessageHelper.getString("settingspage.gradingschema.chart.yaxis"));
+
+		return data;
 	}
 
 	/**
@@ -328,20 +336,20 @@ public class GradebookNgEntityProvider extends AbstractEntityProvider implements
 	}
 
 	/**
-	 * Re-map the course grades returned from the business service into our CourseGradeSummary object for returning on the REST API.
+	 * Re-map the course grades returned from the business service into our {@link ChartData} object for returning on the REST API.
 	 *
 	 * @param courseGrades map of student to course grade
 	 * @param gradingSchema the grading schema that has the order
 	 * @return
 	 */
-	private CourseGradeSummary reMap(final Map<String, CourseGrade> courseGrades, final Set<String> order) {
-		final CourseGradeSummary summary = new CourseGradeSummary();
+	private ChartData reMap(final Map<String, CourseGrade> courseGrades, final Set<String> order) {
+		final ChartData data = new ChartData();
 		courseGrades.forEach((k,v) -> {
-			summary.add(v.getDisplayGrade());
+			data.add(v.getDisplayGrade());
 		});
 
 		//sort the map based on the ordered schema
-		final Map<String, Integer> originalData = summary.getDataset();
+		final Map<String, Integer> originalData = data.getDataset();
 		final Map<String, Integer> sortedData = new LinkedHashMap<>();
 		order.forEach(o -> {
 			// data set must contain everything in the grading schema
@@ -351,9 +359,9 @@ public class GradebookNgEntityProvider extends AbstractEntityProvider implements
 			}
 			sortedData.put(o, value);
 		});
-		summary.setDataset(sortedData);
+		data.setDataset(sortedData);
 
-		return summary;
+		return data;
 	}
 
 	@Setter

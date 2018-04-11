@@ -18,8 +18,8 @@ function renderChart(siteId, schemaJson) {
       	dataType : "json",
        	async : true,
 		cache: false,
-	   	success : function(data) {
-	   		_renderChart(data.dataset);
+	   	success : function(chartData) {
+	   		_renderChart(chartData);
 		}
 	});
 }
@@ -38,18 +38,23 @@ function refreshChart(siteId, schemaJson) {
       	dataType : "json",
        	async : true,
 		cache: false,
-	   	success : function(data) {
-	   		_renderChart(data.dataset);
+	   	success : function(chartData) {
+	   		_renderChart(chartData);
 		}
 	});
 }
 
 /**
  * Render the course grade summary chart from the given dataset.
- * @param dataset
+ * @param chartData the data for the chart
  * @returns
  */
-function _renderChart(dataset) {
+function _renderChart(chartData) {
+	
+	var dataset = chartData.dataset;
+	var chartTitle = chartData.chartTitle;
+	var xAxisLabel = chartData.xAxisLabel;
+	var yAxisLabel = chartData.yAxisLabel;
 
 	var data = $.map(dataset, function(value, index) {
 		return value;
@@ -75,7 +80,7 @@ function _renderChart(dataset) {
 		options: {
 			title: {
 				display: true,
-				text: 'Course Grade Distribution',
+				text: chartTitle,
 				fontSize: 18,
 				fontStyle: 'bold'
 			},
@@ -91,7 +96,7 @@ function _renderChart(dataset) {
 					},
 					scaleLabel: {
 						display: true,
-						labelString: 'Number of Students',
+						labelString: xAxisLabel,
 						fontSize: 14,
 						fontStyle: 'bold'
 					}
@@ -102,7 +107,7 @@ function _renderChart(dataset) {
 					},
 					scaleLabel: {
 						display: true,
-						labelString: 'Course Grade',
+						labelString: yAxisLabel,
 						fontSize: 14,
 						fontStyle: 'bold'
 					}
