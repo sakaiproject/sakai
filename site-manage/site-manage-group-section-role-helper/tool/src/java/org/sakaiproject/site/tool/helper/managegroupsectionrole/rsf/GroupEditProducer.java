@@ -242,7 +242,6 @@ public class GroupEditProducer implements ViewComponentProducer, ActionResultInt
 		 UIBoundBoolean checkbox = UIBoundBoolean.make(joinableDiv, "allowPreviewMembership", "#{SiteManageGroupSectionRoleHandler.allowPreviewMembership}");
 		 UILabelTargetDecorator.targetLabel(UIMessage.make(joinableDiv, "allowPreviewMembership-label", "group.joinable.allowPreview"), checkbox);
 
-
 		 UIOutput.make(groupForm, "membership_label", messageLocator.getMessage("editgroup.membership"));
 		 UIOutput.make(groupForm, "membership_site_label", messageLocator.getMessage("editgroup.generallist"));
 		 UIOutput.make(groupForm, "membership_group_label", messageLocator.getMessage("editgroup.grouplist"));
@@ -297,24 +296,21 @@ public class GroupEditProducer implements ViewComponentProducer, ActionResultInt
 					}
 			 }
 		} else {
-			Set<Member> filterGroupMembers = filterGroup.getMembers();
+			List<Member> filterGroupMembers = new ArrayList<>(filterGroup.getMembers());
+			Collections.sort(filterGroupMembers, new SiteComparator(SiteConstants.SORTED_BY_MEMBER_NAME, Boolean.TRUE.toString()));
 			for(Member m : filterGroupMembers){
 				if (!membersSelected.contains( m.getUserId() )){
 					String userId = m.getUserId();
-					 try
-					 {
+					 try {
 						 User u = userDirectoryService.getUser(userId);
 						 siteMemberLabels.add( u.getSortName() + " (" + u.getDisplayId() + ")" );
 						 siteMemberValues.add( userId );
-					 }
-					 catch (Exception e)
-					 {
+					 } catch (Exception e) {
 						 log.debug(this + ":fillComponents: cannot find user " + userId, e);
 					 }
 				}
 			}
 		}
-			
 
 	     UISelect siteMembersSelect = UISelect.makeMultiple( groupForm, "siteMembers", siteMemberValues.toArray( new String[siteMemberValues.size()] ), 
 	     	     	     	     siteMemberLabels.toArray( new String[siteMemberLabels.size()] ), 
