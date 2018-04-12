@@ -24,6 +24,7 @@ package org.sakaiproject.tool.su;
 import java.io.IOException;
 import java.lang.reflect.Method;
 import java.text.DateFormat;
+import java.util.Date;
 import java.util.List;
 import java.util.Vector;
 
@@ -386,7 +387,8 @@ public class SuTool
 
 		DateFormat dsf = DateFormat.getDateTimeInstance(DateFormat.LONG, DateFormat.LONG, msgs.getLocale());
 		dsf.setTimeZone(userTimeService.getLocalTimeZone());
-		return dsf.format(userinfo.getCreatedDate());
+		Date createdDate = userinfo.getCreatedDate();
+		return dsf.format(createdDate == null ? new Date() : createdDate);
 	}
 
 	public String getMessage(){
