@@ -17,6 +17,7 @@
 
 <f:view>
   <sakai:view title="#{msgs.title_new}">
+      <script src="/library/js/spinner.js" type="text/javascript"></script>
       <h:form enctype="multipart/form-data">
       
       	<div class="page-header">
@@ -44,9 +45,7 @@
 						  <h:inputText id="title" value="#{PostemTool.currentGradebook.title}"/>
 						</div>
 					</div>											
-                    <%--
-						<corejsf:upload value="#{PostemTool.csv}" />
-                    --%>
+
           <div class="form-group row">
             <h:outputLabel for="choosefile" value="#{msgs.feedback_title}" styleClass="form-group-label col-xs-2" />
             <div class="col-xs-4">
@@ -61,12 +60,6 @@
             </div>
           </div>
 
-						<%--<h:outputText value="#{msgs.delimiter}" style="font-weight: bold;" />
-					  <h:selectOneRadio styleClass="checkbox" value="#{PostemTool.delimiter}" layout="pageDirection">
-				      <f:selectItem itemValue="comma" itemLabel="#{msgs.comma_delim}"/>
-  			      <f:selectItem itemValue="tab" itemLabel="#{msgs.tab_delim}"/>
-			      </h:selectOneRadio>--%>
-
 					<div class="form-group row">
 						<h:outputLabel value="#{msgs.gradebook_feedbackavail}" styleClass="form-group-label col-xs-2" />
 						<div class="col-xs-4">
@@ -76,52 +69,19 @@
 
 					</div>											
 				</sakai:panel_titled>
-	
-								
-				<%-- <sakai:hideDivision title="#{msgs.notification}">
-					<sakai:panel_edit>
-					<h:outputText style="font-size: 13px; font-weight:bold;" value="#{msgs.description}"/><h:inputTextarea/>
-					<h:outputText style="font-size: 13px; font-weight:bold; margin-right: 50px;" value="#{msgs.email_notification}"/><h:inputText/>
-					</sakai:panel_edit>
-				</sakai:hideDivision> --%>
-				
-				<%-- <sakai:script contextBase="/jsf-resource" path="/hideDivision/hideDivision.js"/> --%>
-				
-				<%--<sakai:script contextBase="/jsf-resource" path="/hideDivision/hideDivision.js"/>
-				
-				<sakai:hideDivision title="#{msgs.advanced}">--%>
-				<%--<sakai:panel_edit>
-					<h:outputText value="#{msgs.with_header}"/>
-					<h:selectBooleanCheckbox value="#{PostemTool.withHeader}"/>
-					<h:outputText value="#{msgs.release_statistics}"/>
-					<h:selectBooleanCheckbox value="#{PostemTool.currentGradebook.releaseStats}"/>
-				</sakai:panel_edit>--%>
-				
-					<%--<sakai:panel_titled>
-					  <h4><h:outputText value="#{msgs.template_file}" /></h4>
-						<h:outputText value="#{msgs.feedback_instructions}" style="font-weight: bold;" />
-						<f:verbatim><br /></f:verbatim>
-						<h:outputText value="#{msgs.template_instructions}"/>
-						<f:verbatim><br /></f:verbatim>
-					  <h:panelGrid styleClass="jsfFormTable" columns="2" width="80%">
-					    <h:outputText style="font-weight: bold;" value="#{msgs.choose_template}" />
-					    <corejsf:upload value="#{PostemTool.newTemplate}"/>
-				   	</h:panelGrid>
-					</sakai:panel_titled>
-				
-				</sakai:hideDivision>
-				<script type="text/javascript">showHideDiv(<h:outputText value="#{msgs.divid}"/>, '/jsf-resource');</script>--%>
-				
+
 				<br />
-				
+
 				<sakai:button_bar>
           <sakai:button_bar_item
 			    	action="#{PostemTool.processCreate}"
-					value="#{msgs.bar_post}" 
+					value="#{msgs.bar_post}"
+					onclick="SPNR.disableControlsAndSpin(this, null);"
 					rendered="#{PostemTool.editable}"/>
 			  	<sakai:button_bar_item
 			    	action="#{PostemTool.processCancelNew}"
-					value="#{msgs.cancel}" 
+					value="#{msgs.cancel}"
+					onclick="SPNR.disableControlsAndSpin(this, null);"
 					rendered="#{PostemTool.editable}"/>
    	    </sakai:button_bar>
 				
