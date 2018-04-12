@@ -63,7 +63,7 @@
       </div>
     </div>
     </template>
-    <input name="rbcs-state-details" id="rbcs-state-details" type="hidden" value="[[stateDetails]]">
+    <input name="rbcs-[[entityId]]-state-details" id="rbcs-[[entityId]]-state-details" type="hidden" value="[[stateDetails]]">
 
   </template>
 
@@ -104,6 +104,9 @@
         preview: {
           type: Boolean,
           value: false
+        },
+        entityId: {
+          type: String,
         }
       },
       behaviors: [rubrics.behaviors],

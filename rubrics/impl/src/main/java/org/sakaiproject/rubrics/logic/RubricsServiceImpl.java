@@ -362,7 +362,7 @@ public class RubricsServiceImpl implements RubricsService {
             Resource<ToolItemRubricAssociation> rubricToolItemAssociationResource = getRubricAssociationResource(
                     toolId, associatedItemId).get();
 
-            String criterionJsonData = createCriterionJsonPayload(params, rubricToolItemAssociationResource);
+            String criterionJsonData = createCriterionJsonPayload(associatedItemId, params, rubricToolItemAssociationResource);
 
             if (existingEvaluation == null) { // Create a new one
 
@@ -401,7 +401,8 @@ public class RubricsServiceImpl implements RubricsService {
 
     }
 
-    private String createCriterionJsonPayload(HashMap<String,String> formPostParameters,
+    private String createCriterionJsonPayload(String associatedItemId,
+                                              HashMap<String,String> formPostParameters,
                                               Resource<ToolItemRubricAssociation> association) throws Exception {
 
         Map<String, Map<String, String>> criterionDataMap = extractCriterionDataFromParams(formPostParameters);
@@ -432,11 +433,11 @@ public class RubricsServiceImpl implements RubricsService {
             }
             index++;
 
-            final String selectedRatingPoints = criterionData.getValue().get("rbcs-criterion");
+            final String selectedRatingPoints = criterionData.getValue().get("rbcs-" + associatedItemId + "-criterion");
 
-            if (StringUtils.isNotBlank(criterionData.getValue().get("rbcs-criterion-override"))) {
+            if (StringUtils.isNotBlank(criterionData.getValue().get("rbcs-" + associatedItemId + "-criterion-override"))) {
                 pointsAdjusted = true;
-                points = criterionData.getValue().get("rbcs-criterion-override");
+                points = criterionData.getValue().get("rbcs-" + associatedItemId + "-criterion-override");
             } else {
                 pointsAdjusted = false;
                 points = selectedRatingPoints;
@@ -455,7 +456,7 @@ public class RubricsServiceImpl implements RubricsService {
 
             criterionJsonData += String.format("{ \"criterionId\" : \"%s\", \"points\" : \"%s\", " +
                             "\"comments\" : \"%s\", \"pointsAdjusted\" : %b, \"selectedRatingId\" : \"%s\"  }",
-                    criterionData.getKey(), points, StringEscapeUtils.escapeJson(criterionData.getValue().get("rbcs-criterion-comment")),
+                    criterionData.getKey(), points, StringEscapeUtils.escapeJson(criterionData.getValue().get("rbcs-" + associatedItemId + "-criterion-comment")),
                     pointsAdjusted, selectedRatingId);
         }
 

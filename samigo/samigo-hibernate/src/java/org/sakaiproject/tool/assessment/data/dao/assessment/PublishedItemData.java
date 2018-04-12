@@ -54,6 +54,7 @@ public class PublishedItemData
   private static final long serialVersionUID = 7526471155622776147L;
 
   private Long itemId;
+  private Long originalItemId;
   private String itemIdString;
   private SectionDataIfc section;
   private Integer sequence;
@@ -167,6 +168,43 @@ public class PublishedItemData
     this.itemHash = itemHash;
   }
 
+  public PublishedItemData(SectionDataIfc section, Integer sequence,
+                  Integer duration, String instruction, String description,
+                  Long typeId, String grade, Double score, Boolean scoreDisplayFlag, Double discount, Double minScore, String hint,
+                  Boolean hasRationale, Integer status, String createdBy,
+                  Date createdDate, String lastModifiedBy,
+                  Date lastModifiedDate,
+                  Set itemTextSet, Set itemMetaDataSet, Set itemFeedbackSet,
+                  Integer triesAllowed, Boolean partialCreditFlag, String hash, String itemHash,
+                  Long originalItemId) {
+    this.section = section;
+    this.sequence = sequence;
+    this.duration = duration;
+    this.instruction = instruction;
+    this.description = description;
+    this.typeId = typeId;
+    this.grade = grade;
+    this.score = score;
+    this.scoreDisplayFlag = scoreDisplayFlag;
+    this.discount = discount;
+    this.hint = hint;
+    this.hasRationale = hasRationale;
+    this.status = status;
+    this.createdBy = createdBy;
+    this.createdDate = createdDate;
+    this.lastModifiedBy = lastModifiedBy;
+    this.lastModifiedDate = lastModifiedDate;
+    this.itemTextSet = itemTextSet;
+    this.itemMetaDataSet = itemMetaDataSet;
+    this.itemFeedbackSet = itemFeedbackSet;
+    this.triesAllowed = triesAllowed;
+    this.partialCreditFlag=partialCreditFlag;
+    this.minScore = minScore;
+    this.hash = hash;
+    this.itemHash = itemHash;
+    this.originalItemId = originalItemId;
+  }
+
   public Long getItemId() {
     return this.itemId;
   }
@@ -182,6 +220,14 @@ public class PublishedItemData
 
   public void setItemIdString(String itemIdString) {
     this.itemIdString = itemIdString;
+  }
+
+  public Long getOriginalItemId() {
+    return this.originalItemId;
+  }
+
+  public void setOriginalItemId(Long originalItemId) {
+    this.originalItemId = originalItemId;
   }
 
   public SectionDataIfc getSection() {

@@ -38,7 +38,19 @@
       <samigo:script path="/../sakai-editor/editor.js"/>
       <samigo:script path="/../sakai-editor/editor-launch.js"/>
 	  <samigo:script path="/js/saveForm.js"/>	  	  
-    
+
+    <h:panelGroup rendered="#{delivery.actionString == 'reviewAssessment'}">
+      <script>
+        var imports = [
+          '/rubrics-service/imports/sakai-rubric-student.html'
+        ];
+        var Polymerdom = 'shady';
+        var rbcstoken = '<h:outputText value="#{delivery.rbcsToken}" />';
+      </script>
+
+      <script src="/rubrics-service/js/sakai-rubrics.js"></script>
+    </h:panelGroup>
+
 	<h:outputText value="#{delivery.mathJaxHeader}" escape="false" rendered="#{delivery.actionString=='takeAssessmentViaUrl' and delivery.isMathJaxEnabled}"/>
       </head>
 	<body>
@@ -335,6 +347,14 @@ document.links[newindex].onclick();
 			<f:convertNumber maxFractionDigits="2"/>
           </h:outputText>
          </h:panelGroup>
+       </h:panelGroup>
+
+       <h:panelGroup rendered="#{delivery.actionString == 'reviewAssessment' and delivery.feedbackComponent.showItemLevel}">
+         <sakai-rubric-student
+           tool-id="sakai.samigo"
+           entity-id='<h:outputText value="pub.#{delivery.assessmentId}.#{question.itemData.itemId}"/>'
+           evaluated-item-id='<h:outputText value="#{delivery.assessmentGradingId}.#{question.itemData.itemId}" />'>
+         </sakai-rubric-student>
        </h:panelGroup>
 
        <div class="samigo-question-callout">
