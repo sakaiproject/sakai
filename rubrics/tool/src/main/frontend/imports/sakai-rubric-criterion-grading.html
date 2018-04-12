@@ -36,7 +36,7 @@
             </div>
           </div>
           <div class="criterion-actions">
-              <sakai-rubric-grading-comment on-update-comment="updateStateDetails" criterion="{{criterionitem}}"></sakai-rubric-grading-comment>
+              <sakai-rubric-grading-comment on-update-comment="updateStateDetails" criterion="{{criterionitem}}" entity-id="{{entityId}}"></sakai-rubric-grading-comment>
               
               <strong class$="points-display {{isOverridden(criterionitem.pointoverride)}}">
                 &nbsp;
@@ -47,21 +47,21 @@
               
               
               <template is="dom-if" if="[[options.fineTunePoints]]">
-                <input type="number" title="[[lang('point_override_details','Fine tune points by entering a number and overriding the selected rating points')]]" class="fine-tune-points form-control" id="rbcs-criterion-override-[[criterionitem.id]]" name="rbcs-criterion-override-[[criterionitem.id]]" on-input="finetuneRating" value="{{criterionitem.pointoverride::input}}">
+                <input type="number" title="[[lang('point_override_details','Fine tune points by entering a number and overriding the selected rating points')]]" class="fine-tune-points form-control" id="rbcs-[[entityId]]-criterion-override-[[criterionitem.id]]" name="rbcs-[[entityId]]-criterion-override-[[criterionitem.id]]" on-input="finetuneRating" value="{{criterionitem.pointoverride::input}}">
               </template>
-              <input type="hidden" id="rbcs-criterion-[[criterionitem.id]]" name="rbcs-criterion-[[criterionitem.id]]" value="{{criterionitem.selectedvalue}}">
+              <input type="hidden" id="rbcs-[[entityId]]-criterion-[[criterionitem.id]]" name="rbcs-[[entityId]]-criterion-[[criterionitem.id]]" value="{{criterionitem.selectedvalue}}">
           </div>
         </div>
       </template>
     </div>
     <div class="rubric-totals">
-      <input type="hidden" id="rbcs-totalpoints" name="rbcs-totalpoints" value="{{totalPoints}}">
+      <input type="hidden" id="rbcs-[[entityId]]-totalpoints" name="rbcs-[[entityId]]-totalpoints" value="{{totalPoints}}">
       <div class="total-points">
         <sr-lang key="total">Total</sr-lang>: <strong>{{totalPoints}}</strong>
       </div>
     </div>
 
-    <input name="rbcs-state-details" id="rbcs-state-details" type="hidden" value="[[stateDetails]]">
+    <input name="rbcs-[[entityId]]-state-details" id="rbcs-[[entityId]]-state-details" type="hidden" value="[[stateDetails]]">
 
   </template>
 
@@ -95,6 +95,9 @@
         },
         evaluationDetails: {
           type: Array,
+        },
+        entityId: {
+          type: String,
         }
       },
       behaviors: [rubrics.behaviors],

@@ -21,7 +21,7 @@
       <div class="popover-content form">
         <div class="form-group">
           <label for=""><sr-lang key="comment_for_criterion">Comment for Criterion</sr-lang></label>
-          <textarea class="form-control" name="rbcs-criterion-comment-[[criterion.id]]" id="criterion_comment_[[criterion.id]]" value="{{comments::keyup}}"></textarea>
+          <textarea class="form-control" name="rbcs-[[entityId]]-criterion-comment-[[criterion.id]]" id="criterion_[[entityId]]_comment_[[criterion.id]]" value="{{comments::keyup}}"></textarea>
         </div>
       </div>
     </div>
@@ -56,6 +56,9 @@
         comments: {
           type: String,
           observer: 'handleComment'
+        },
+        entityId: {
+          type: String,
         }
       },
       behaviors: [rubrics.behaviors],
@@ -128,7 +131,7 @@
         setTimeout(function(){
           this.comments = this.criterion.comments;
           this.showActive();
-          var commentEditor = CKEDITOR.replace('criterion_comment_'+this.criterion.id, {
+          var commentEditor = CKEDITOR.replace('criterion_' + this.entityId + '_comment_'+this.criterion.id, {
             toolbar : [
               // ['Bold', 'Italic', 'Underline', '-', 'Link', 'Unlink'],
               ['Bold', 'Italic', 'Underline'],
@@ -143,8 +146,6 @@
       ready: function(e) {
         // // get popover reference
         this.tt = this.$$('.popover');
-
-
       }
     });
   </script>

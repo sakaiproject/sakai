@@ -33,6 +33,10 @@ import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
 
 import lombok.extern.slf4j.Slf4j;
+
+import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.rubrics.logic.RubricsService;
+import org.sakaiproject.samigo.util.SamigoConstants;
 import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
 import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
@@ -41,6 +45,7 @@ import org.sakaiproject.tool.assessment.ui.bean.delivery.DeliveryBean;
 import org.sakaiproject.tool.assessment.ui.bean.delivery.ItemContentsBean;
 import org.sakaiproject.tool.assessment.ui.bean.delivery.SectionContentsBean;
 import org.sakaiproject.tool.assessment.ui.bean.evaluation.StudentScoresBean;
+import org.sakaiproject.tool.assessment.ui.bean.evaluation.SubmissionStatusBean;
 import org.sakaiproject.tool.assessment.ui.listener.delivery.DeliveryActionListener;
 import org.sakaiproject.tool.assessment.ui.listener.evaluation.util.EvaluationListenerUtil;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
@@ -64,6 +69,8 @@ import org.sakaiproject.util.FormattedText;
 {
   private static EvaluationListenerUtil util;
   private static BeanSort bs;
+
+  private RubricsService rubricsService = ComponentManager.get(RubricsService.class);
 
   /**
    * Standard process action method.
@@ -104,6 +111,7 @@ import org.sakaiproject.util.FormattedText;
 //  SAK-4121, do not pass studentName as f:param, will cause javascript error if name contains apostrophe 
 //    bean.setStudentName(cu.lookupParam("studentName"));
 
+      SubmissionStatusBean submissionbean = (SubmissionStatusBean) ContextUtil.lookupBean("submissionStatus");
 
       bean.setPublishedId(publishedId);
       String studentId = ContextUtil.lookupParam("studentid");
@@ -133,6 +141,7 @@ import org.sakaiproject.util.FormattedText;
           while (iter2.hasNext())
           {
         	  ItemContentsBean question = (ItemContentsBean) iter2.next();
+        	  question.setRubricStateDetails("");
         	  if (question.getGradingComment() != null && !question.getGradingComment().equals("")) {
         		  question.setGradingComment(FormattedText.convertFormattedTextToPlaintext(question.getGradingComment()));
         	  }
@@ -142,7 +151,7 @@ import org.sakaiproject.util.FormattedText;
       GradingService service = new GradingService();
       AssessmentGradingData adata= (AssessmentGradingData) service.load(bean.getAssessmentGradingId(), false);
       bean.setComments(FormattedText.convertFormattedTextToPlaintext(adata.getComments()));
-      buildItemContentsMap(dbean);
+      buildItemContentsMap(dbean, publishedId);
 
       return true;
     } catch (Exception e) {
@@ -151,7 +160,7 @@ import org.sakaiproject.util.FormattedText;
     }
   }
   
-  private void buildItemContentsMap(DeliveryBean dbean) {
+  private void buildItemContentsMap(DeliveryBean dbean, String publishedId) {
 	  Map itemContentsMap = new HashMap();
 	  List partsContents = dbean.getPageContents().getPartsContents();
 	  if (partsContents != null) {
@@ -163,6 +172,8 @@ import org.sakaiproject.util.FormattedText;
 				  Iterator iter2 = itemContents.iterator();
 				  while (iter2.hasNext()) {
 					  ItemContentsBean itemContentsBean = (ItemContentsBean) iter2.next();
+					  itemContentsBean.setHasAssociatedRubric(rubricsService.hasAssociatedRubric(SamigoConstants.RBCS_TOOL_ID, SamigoConstants.RBCS_PUBLISHED_ASSESSMENT_ENTITY_PREFIX + publishedId + "." + itemContentsBean.getItemData().getItemId()));
+
 					  if (itemContentsBean != null) {
 						  List<ItemGradingData> itemGradingDataArray = itemContentsBean.getItemGradingDataArray();
 						  Iterator<ItemGradingData> iter3 = itemGradingDataArray.iterator();

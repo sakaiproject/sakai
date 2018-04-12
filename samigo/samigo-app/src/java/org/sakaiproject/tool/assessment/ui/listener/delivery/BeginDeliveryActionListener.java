@@ -35,6 +35,9 @@ import javax.servlet.ServletContext;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 
+import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.rubrics.logic.RubricsService;
+import org.sakaiproject.samigo.util.SamigoConstants;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentAccessControl;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedFeedback;
 import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
@@ -75,6 +78,7 @@ import org.sakaiproject.util.ResourceLoader;
 @Slf4j
 public class BeginDeliveryActionListener implements ActionListener
 {
+  private RubricsService rubricsService = ComponentManager.get(RubricsService.class);
 
   /**
    * ACTION.
@@ -181,7 +185,8 @@ public class BeginDeliveryActionListener implements ActionListener
     }
     delivery.setFileUploadSizeMax(Math.round(sizeMax_float));
     delivery.setPublishedAssessment(pub);
-    
+    delivery.setRbcsToken(rubricsService.generateJsonWebToken(SamigoConstants.RBCS_TOOL_ID));
+
     // populate backing bean from published assessment
     populateBeanFromPub(delivery, pub);
   }

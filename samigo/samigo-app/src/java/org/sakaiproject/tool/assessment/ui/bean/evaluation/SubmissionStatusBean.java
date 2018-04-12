@@ -90,6 +90,9 @@ public class SubmissionStatusBean
   
   private Boolean releasedToGroups = null;
 
+  // Rubrics
+  private String rbcsToken;
+
   /**
    * Creates a new SubmissionStatusBean object.
    */
@@ -712,5 +715,12 @@ public class SubmissionStatusBean
 		}
 		return releasedToGroups;
 	}
-	
+
+  public String getRbcsToken() {
+    return rbcsToken;
+  }
+
+  public void setRbcsToken(String rbcsToken) {
+    this.rbcsToken = rbcsToken;
+  }
 }
