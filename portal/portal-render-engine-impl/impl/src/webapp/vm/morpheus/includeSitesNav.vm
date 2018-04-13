@@ -11,8 +11,8 @@
                         <a class="link-container" href="${site.siteUrl}" title="${rloader.sit_mywor}">
                             <span class="fa fa-home" aria-hidden="true"></span>
                             <span class="Mrphs-sitesNav__menuitem--myworkspace-label">${rloader.sit_mywor}</span>
-                            <span class="Mrphs-sitesNav__drop" tabindex="-1" data-site-id="${site.siteId}"></span>
                         </a>
+                        <a class="Mrphs-sitesNav__dropdown" href="#" data-site-id="${site.siteId}" role="separator"></a>
                     </li>           
                 #end ## END of IF (${site.isMyWorkspace})
 
