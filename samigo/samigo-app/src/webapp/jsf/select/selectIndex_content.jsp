@@ -289,7 +289,7 @@
                                 </h:panelGroup>
                             </f:facet>
                             <h:outputText value="#{reviewable.assessmentTitle}" rendered="#{!reviewable.isRecordedAssessment}" styleClass="hidden" />
-                            <h:outputText styleClass="highlight fa fa-fw fa-exclamation-circle" rendered="#{reviewable.isRecordedAssessment && reviewable.feedback == 'show' && !reviewable.isAssessmentRetractForEdit && reviewable.hasAssessmentBeenModified && select.warnUserOfModification}" title="#{selectIndexMessages.has_been_modified}" />
+                            <h:outputText styleClass="highlight fa fa-fw fa-exclamation-circle" rendered="#{reviewable.isRecordedAssessment && !reviewable.isAssessmentRetractForEdit && reviewable.hasAssessmentBeenModified && select.warnUserOfModification}" title="#{selectIndexMessages.has_been_modified}" />
                             <h:outputText styleClass="highlight fa fa-fw fa-exclamation" rendered="#{reviewable.isRecordedAssessment && reviewable.isAssessmentRetractForEdit}" title="#{selectIndexMessages.currently_being_edited}" />
                             <h:outputText value="#{reviewable.assessmentTitle}" styleClass="currentSort"  rendered="#{reviewable.isRecordedAssessment}"  escape="false"/>
                         </t:column>
