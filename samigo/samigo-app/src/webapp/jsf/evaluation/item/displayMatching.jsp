@@ -29,12 +29,8 @@ include file for displaying matching questions
    <h:outputText value="#{itemText.sequence}#{evaluationMessages.dot} #{itemText.text}" escape="false" />
    <h:dataTable value="#{itemText.answerArrayWithDistractorSorted}" var="answer">
      <h:column>
-      <h:graphicImage alt="#{evaluationMessages.alt_correct}" id="image4" rendered="#{answer.isCorrect}"
-        url="/images/delivery/checkmark.gif" >
-       </h:graphicImage>
-      <h:graphicImage id="image5" rendered="#{!answer.isCorrect}"
-        alt=" " url="/images/crossmark.gif" >
-       </h:graphicImage>
+       <h:outputText value="" rendered="#{answer.isCorrect}" title="#{evaluationMessages.alt_correct}" styleClass="icon-sakai--check feedBackCheck" />
+       <h:outputText value="" rendered="#{!answer.isCorrect}" title="#{evaluationMessages.alt_incorrect}" styleClass="icon-sakai--delete feedBackCross" />
      </h:column>
      <h:column>
        <h:outputText value="#{answer.text}" escape="false" />
