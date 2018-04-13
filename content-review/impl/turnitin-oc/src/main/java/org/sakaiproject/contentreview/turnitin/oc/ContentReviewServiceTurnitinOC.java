@@ -766,8 +766,8 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 							item.setNextRetryTime(getDueDateRetryTime(assignmentDueDate));
 							crqs.update(item);
 							continue;
-						}
-					}else {					
+						}					      	
+					}else {
 						// Assignment or due date no longer exist
 						// placeholder item is no longer needed
 						crqs.delete(item);
