@@ -156,8 +156,6 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 	private HashMap<String, String> CONTENT_UPLOAD_HEADERS = new HashMap<String, String>();
 	private HashMap<String, String> WEBHOOK_SETUP_HEADERS = new HashMap<String, String>();
 
-
-
 	public void init() {
 		// Retrieve Service URL and API key
 		serviceUrl = serverConfigurationService.getString("turnitin.oc.serviceUrl", "");
@@ -780,7 +778,7 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 				// Returns -2 if an error occurs
 				// Else returns reports score as integer																	
 				int status = getSimilarityReportStatus(item.getExternalId());
-				if (status > 1) {
+				if (status >= 0) {
 					success++;
 				}
 				handleReportStatus(item, status);
