@@ -724,7 +724,7 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 					continue;
 				}
 				// Check if any placeholder items need to regenerate report after due date
-				if (PLACEHOLDER_ITEM_REVIEW_SCORE.equals(item.getReviewScore())) {
+				if (PLACEHOLDER_ITEM_REVIEW_SCORE.equals(item.getReviewScore())) { 
 					// Get assignment associated with current item's task Id
 					Assignment assignment = assignmentService.getAssignment(entityManager.newReference(item.getTaskId()));
 					Date assignmentDueDate = Date.from(assignment.getDueDate());
@@ -748,7 +748,7 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 								// Report regenerated for reference item, placeholder item is no longer needed
 								crqs.delete(item);
 								success++;
-								continue;			
+								continue;		
 							}
 							else {
 								// Reference item no longer exists
