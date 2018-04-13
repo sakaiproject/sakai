@@ -1391,7 +1391,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		List<Assignment> visible = new ArrayList<Assignment>();
 		for (Assignment assignment : assignments)
 		{
-			if (assignment != null && isAvailableOrSubmitted(assignment, userId))
+			if (assignment != null && (isAvailableOrSubmitted(assignment, userId) || allowAddAssignment(assignment.getContext())))
 			{
 				visible.add(assignment);
 			}
