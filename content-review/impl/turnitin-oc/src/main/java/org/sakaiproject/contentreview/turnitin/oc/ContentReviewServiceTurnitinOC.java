@@ -750,7 +750,7 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 								// Report regenerated for reference item, placeholder item is no longer needed
 								crqs.delete(item);
 								success++;
-								continue;
+								continue;			
 							}
 							else {
 								// Reference item no longer exists
@@ -767,7 +767,7 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 							crqs.update(item);
 							continue;
 						}
-					}else {
+					}else {					
 						// Assignment or due date no longer exist
 						// placeholder item is no longer needed
 						crqs.delete(item);
@@ -985,7 +985,7 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 	}
 
 	private void createPlaceholderItem(ContentReviewItem item, Date dueDate) {
-		log.info("Creating placeholder item for when due date is passed for ItemID: " + item.getId());
+		log.info("Creating placeholder item for when due date is passed for ItemID: " + item.getId());						
 		ContentReviewItem placeholderItem = new ContentReviewItem();
 		// Review score is used as flag for placeholder items in checkForReport
 		placeholderItem.setReviewScore(PLACEHOLDER_ITEM_REVIEW_SCORE); 
