@@ -40,7 +40,6 @@ import javax.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
-import org.apache.poi.ss.usermodel.BuiltinFormats;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Font;
@@ -50,7 +49,6 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.jsf.model.PhaseAware;
-import org.sakaiproject.samigo.util.SamigoConstants;
 import org.sakaiproject.tool.assessment.jsf.convert.AnswerSurveyConverter;
 import org.sakaiproject.tool.assessment.services.GradingService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
@@ -218,11 +216,8 @@ public class ExportResponsesBean implements Serializable, PhaseAware {
   		  headerList.add(ContextUtil.getLocalizedString(MSG_BUNDLE,"num_submission"));
   	  	}
 
-        if (ServerConfigurationService.getBoolean(SamigoConstants.SAK_PROP_EXPORT_INCLUDE_DATES,
-                SamigoConstants.SAK_PROP_EXPORT_INCLUDE_DATES_DEFAULT)) {
-          headerList.add(startTimeString);
-          headerList.add(submitTimeString);
-        }
+        headerList.add(startTimeString);
+        headerList.add(submitTimeString);
 
         PublishedAssessmentService pubService = new PublishedAssessmentService();
         if (showPartAndTotalScoreSpreadsheetColumns) {

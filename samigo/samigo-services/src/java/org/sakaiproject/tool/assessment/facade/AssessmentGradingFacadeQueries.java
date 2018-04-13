@@ -53,7 +53,6 @@ import org.hibernate.criterion.Restrictions;
 import org.sakaiproject.antivirus.api.VirusFoundException;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityService;
-import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentCollection;
 import org.sakaiproject.content.api.ContentCollectionEdit;
 import org.sakaiproject.content.api.ContentHostingService;
@@ -70,7 +69,6 @@ import org.sakaiproject.exception.OverQuotaException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.ServerOverloadException;
 import org.sakaiproject.exception.TypeException;
-import org.sakaiproject.samigo.util.SamigoConstants;
 import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService;
 import org.sakaiproject.spring.SpringBeanLocator;
 import org.sakaiproject.tool.assessment.data.dao.assessment.EvaluationModel;
@@ -144,11 +142,6 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
     public void setPersistenceHelper(PersistenceHelper persistenceHelper) {
         this.persistenceHelper = persistenceHelper;
     }
-
-  private ServerConfigurationService serverConfigurationService;
-  public void setServerConfigurationService(ServerConfigurationService serverConfigurationService) {
-       this.serverConfigurationService = serverConfigurationService;
-  }
 
     /**
      * @param publishedId
@@ -2044,13 +2037,10 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 
             if (canBeExported) {
 
-                if (serverConfigurationService.getBoolean(SamigoConstants.SAK_PROP_EXPORT_INCLUDE_DATES,
-                        SamigoConstants.SAK_PROP_EXPORT_INCLUDE_DATES_DEFAULT)) {
-                    Date attempt = assessmentGradingData.getAttemptDate();
-                    Date submitted = assessmentGradingData.getSubmittedDate();
-                    responseList.add(attempt == null ? "" : attempt);
-                    responseList.add(submitted == null ? "" : submitted);
-                }
+                Date attempt = assessmentGradingData.getAttemptDate();
+                Date submitted = assessmentGradingData.getSubmittedDate();
+                responseList.add(attempt == null ? "" : attempt);
+                responseList.add(submitted == null ? "" : submitted);
 
                 int sectionScoreColumnStart = responseList.size();
                 if (showPartAndTotalScoreSpreadsheetColumns) {

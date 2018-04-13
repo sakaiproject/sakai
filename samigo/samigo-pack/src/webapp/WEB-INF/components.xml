@@ -219,7 +219,6 @@
           <property name="securityService" ref="org.sakaiproject.authz.api.SecurityService"/>
           <property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService"/>
           <property name="persistenceHelper" ref="persistenceHelper"/>
-          <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
 	</bean>
       </property>
       <property name="transactionAttributes">
