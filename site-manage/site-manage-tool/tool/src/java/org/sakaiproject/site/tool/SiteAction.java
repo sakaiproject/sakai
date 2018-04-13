@@ -101,6 +101,7 @@ import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.entity.cover.EntityManager;
+import org.sakaiproject.entitybroker.DeveloperHelperService;
 import org.sakaiproject.event.api.SessionState;
 import org.sakaiproject.event.api.NotificationService;
 import org.sakaiproject.event.cover.EventTrackingService;
@@ -222,6 +223,8 @@ public class SiteAction extends PagedResourceActionII {
 	private static ShortenedUrlService shortenedUrlService = (ShortenedUrlService) ComponentManager.get(ShortenedUrlService.class);
 	
 	private PreferencesService preferencesService = (PreferencesService)ComponentManager.get(PreferencesService.class);
+
+	private static DeveloperHelperService devHelperService = (DeveloperHelperService) ComponentManager.get(DeveloperHelperService.class);
 
 	private static final String SITE_MODE_SITESETUP = "sitesetup";
 
@@ -15001,40 +15004,33 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 	
 	/**
 	 * Handle the eventSubmit_doUnjoin command to have the user un-join this site.
+	 * @param data
 	 */
 	public void doUnjoin(RunData data) {
 		
-		SessionState state = ((JetspeedRunData) data)
-			.getPortletSessionState(((JetspeedRunData) data).getJs_peid());
+		SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
 		final ParameterParser params = data.getParameters();
-
 		final String id = params.get("itemReference");
-		String siteTitle = null;
-		
-		if (id != null)	{
-			try	{
-				siteTitle = SiteService.getSite(id).getTitle();
+
+		if (id != null) {
+			try {
 				SiteService.unjoin(id);
-				String msg = rb.getString("sitinfimp.youhave") + " " + siteTitle;
-				addAlert(state, msg);
-				
-			} catch (IdUnusedException ignore) {
-				
-			} catch (PermissionException e)	{
-				// This could occur if the user's role is the maintain role for the site, and we don't let the user
-				// unjoin sites they are maintainers of
-			 	log.warn(e.getMessage());
-				//TODO can't access site so redirect to portal
-				
+				String userHomeURL = devHelperService.getUserHomeLocationURL(devHelperService.getCurrentUserReference());
+				addAlert(state, rb.getFormattedMessage("site.unjoin", new Object[] {userHomeURL}));
+			} catch (IdUnusedException e) {
+				// Something strange happened, log and notify the user
+				log.debug("Unexpected error: ", e);
+				addAlert(state, rb.getFormattedMessage("site.unjoin.error", new Object[] {ServerConfigurationService.getString("mail.support")}));
+			} catch (PermissionException e) {
+				// This could occur if the user's role is the maintain role for the site, and unjoining would leave the site without
+				// a user with the maintain role
+				log.warn(e.getMessage());
+				addAlert(state, rb.getString("site.unjoin.permissionException"));
 			} catch (InUseException e) {
-				addAlert(state, siteTitle + " "
-						+ rb.getString("sitinfimp.sitebeing") + " ");
+				log.debug("InUseException: ", e);
+				addAlert(state, rb.getString("site.unjoin.inUseException"));
 			}
 		}
-		
-		// refresh the whole page
-		scheduleTopRefresh();
-		
 	} // doUnjoin
 
 	
