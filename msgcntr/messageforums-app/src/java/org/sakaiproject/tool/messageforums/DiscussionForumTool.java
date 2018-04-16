@@ -6582,7 +6582,7 @@ public class DiscussionForumTool
     	}
     }
     
-	Event event = eventTrackingService.newEvent(DiscussionForumService.EVENT_FORUMS_GRADE, getEventReference(selectedTopic.getTopic().getId()), null, true, NotificationService.NOTI_OPTIONAL, statement);
+	Event event = eventTrackingService.newEvent(DiscussionForumService.EVENT_FORUMS_GRADE, eventRef, null, true, NotificationService.NOTI_OPTIONAL, statement);
   	eventTrackingService.post(event);
     
     gradeNotify = false; 
