@@ -763,7 +763,7 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 								// Report regenerated for reference item, placeholder item is no longer needed
 								crqs.delete(item);
 								success++;
-								continue;								
+								continue;
 							}
 							else {
 								// Reference item no longer exists
@@ -779,7 +779,7 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 							item.setNextRetryTime(getDueDateRetryTime(assignmentDueDate));
 							crqs.update(item);
 							continue;
-						}					
+						}
 					}else {
 						// Assignment or due date no longer exist
 						// placeholder item is no longer needed
