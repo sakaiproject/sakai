@@ -51,6 +51,7 @@ import org.sakaiproject.assignment.api.AssignmentConstants;
 import org.sakaiproject.assignment.api.AssignmentService;
 import org.sakaiproject.assignment.api.model.Assignment;
 import org.sakaiproject.assignment.api.model.AssignmentSubmission;
+import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentResource;
@@ -140,11 +141,13 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 	private static final String GENERATE_REPORTS_ON_DUE_DATE = "2";	
 	private static final String PLACEHOLDER_STRING_FLAG = "_placeholder";
 	private static final Integer PLACEHOLDER_ITEM_REVIEW_SCORE = -10;
-	private static final Integer DRAFT_ITEM_REVIEW_SCORE = -15;
 
 	private static final String COMPLETE_STATUS = "COMPLETE";
 	private static final String CREATED_STATUS = "CREATED";
 	private static final String PROCESSING_STATUS = "PROCESSING";
+
+	private static final String SUBMISSION_COMPLETE_EVENT_TYPE = "SUBMISSION_COMPLETE";
+	private static final String SIMILARITY_COMPLETE_EVENT_TYPE = "SIMILARITY_COMPLETE";
 
 	private String serviceUrl;
 	private String apiKey;
@@ -186,8 +189,7 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 
 		try {
 			// Get the webhook url
-//			String webhookUrl = getWebhookUrl(Optional.empty());
-			String webhookUrl = "https://c5eca61e.ngrok.io/content-review-tool/webhooks?providerName=TurnitinOC";
+			String webhookUrl = getWebhookUrl(Optional.empty());
 			boolean webhooksSetup = false;
 			// Check to see if any webhooks have already been set up for this url
 			for (Webhook webhook : getWebhooks()) {
@@ -209,7 +211,6 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 	public String setupWebhook(String webhookUrl) throws Exception {
 		String id;
 		Map<String, Object> data = new HashMap<String, Object>();
-
 		List<String> types = new ArrayList<>();
 		types.add("SIMILARITY_COMPLETE");
 		types.add("SUBMISSION_COMPLETE");
@@ -454,6 +455,20 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 		return true;
 	}
 	
+	public SecurityAdvisor pushAdvisor() {
+        SecurityAdvisor advisor = new SecurityAdvisor() {
+            public SecurityAdvisor.SecurityAdvice isAllowed(String userId, String function, String reference) {
+                return SecurityAdvisor.SecurityAdvice.ALLOWED;
+            }
+        };
+        securityService.pushAdvisor(advisor);
+        return advisor;
+    }
+
+    public void popAdvisor(SecurityAdvisor advisor) {
+        securityService.popAdvisor(advisor);
+    }
+
 	private HashMap<String, Object> makeHttpCall(String method, String urlStr, Map<String, String> headers,  Map<String, Object> data, byte[] dataBytes) 
 		throws IOException {
 		// Set variables
@@ -537,16 +552,16 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 		viewSettings.put("exclude_bibliography", "true".equals(assignmentSettings.get("exclude_biblio")));
 		reportData.put("view_settings", viewSettings);
 		
+		Map<String, Object> indexingSettings = new HashMap<String, Object>();
+		//Drafts are not added to index to avoid self plagiarism
+		indexingSettings.put("add_to_index", !isDraft);
+		reportData.put("indexing_settings", indexingSettings);
+
 		HashMap<String, Object> response = makeHttpCall("PUT",
 			getNormalizedServiceUrl() + "submissions/" + reportId + "/similarity",
 			SIMILARITY_REPORT_HEADERS,
 			reportData,
 			null);
-		
-		Map<String, Object> indexingSettings = new HashMap<String, Object>();
-		//Drafts are not added to index to avoid self plagiarism
-		indexingSettings.put("add_to_index", !isDraft);
-		reportData.put("indexing_settings", indexingSettings);
 
 		// Get response:
 		int responseCode = !response.containsKey(RESPONSE_CODE) ? 0 : (int) response.get(RESPONSE_CODE);
@@ -873,13 +888,6 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 							&& FilenameUtils.getExtension(fileName).isEmpty()) {
 						fileName += HTML_EXTENSION;
 					}
-
-					// Check for and flag drafts
-					if(checkForDraft(item, assignment)) {
-						// Flag to avoid indexing drafts
-						item.setReviewScore(DRAFT_ITEM_REVIEW_SCORE);
-					}
-
 					try {
 						log.info("Submission starting...");
 						// Retrieve submissionId from TCA and set to externalId
@@ -962,19 +970,7 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 		// Checks if current item is a draft or submitted
 		try {
 			AssignmentSubmission currentSubmission = assignmentService.getSubmission(assignment.getId(), item.getUserId());
-			// Drafts return true, final submissions return false, if null return false
 			return Optional.ofNullable(!currentSubmission.getSubmitted()).orElse(false);
-		} catch (Exception e) {
-			log.error(e.getMessage(), e);
-			// Error retrieving draft, process item as final submission
-			return false;
-		}
-	}
-
-	private boolean checkForDraftFlag(ContentReviewItem item) {
-		// Checks if current item is a draft or submitted by it's review score, does not require access to assignmentService
-		try {
-			return DRAFT_ITEM_REVIEW_SCORE.equals(item.getReviewScore());
 		} catch (Exception e) {
 			log.error(e.getMessage(), e);
 			// Error retrieving draft, process item as final submission
@@ -1015,16 +1011,10 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 
 			switch (submissionStatus) {
 			case "COMPLETE":
-				// Check for items that generate reports both immediately and on due date or draft items
-				// Create a placeholder item that will regenerate and index report after due date
-				if (assignmentDueDate != null && assignmentDueDate.after(new Date())
-						&& GENERATE_REPORTS_IMMEDIATELY_AND_ON_DUE_DATE.equals(reportGenSpeed) || DRAFT_ITEM_REVIEW_SCORE.equals(item.getReviewScore())) {
-					createPlaceholderItem(item, assignmentDueDate);
-				}
+				// Check if current item is a draft submission
+				boolean submissionIsDraft = checkForDraft(item, assignment);
 				// If submission status is complete, start similarity report process
-				generateSimilarityReport(item.getExternalId(), item.getTaskId(), checkForDraftFlag(item));
-				// Make sure any draft items scores are reset to null
-				item.setReviewScore(null);
+				generateSimilarityReport(item.getExternalId(), item.getTaskId(), submissionIsDraft);
 				// Update item status for loop 2
 				item.setStatus(ContentReviewConstants.CONTENT_REVIEW_SUBMITTED_AWAITING_REPORT_CODE);
 				// Reset retry count
@@ -1037,6 +1027,12 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 				// Schedule next retry time
 				item.setNextRetryTime(cal.getTime());
 				crqs.update(item);
+				// Check for items that generate reports both immediately and on due date or draft items
+				// Create a placeholder item that will regenerate and index report after due date
+				if (assignmentDueDate != null && assignmentDueDate.after(new Date())
+						&& GENERATE_REPORTS_IMMEDIATELY_AND_ON_DUE_DATE.equals(reportGenSpeed) || submissionIsDraft) {
+					createPlaceholderItem(item, assignmentDueDate);
+				}
 				break;
 			case "PROCESSING":
 				// do nothing... try again
@@ -1204,6 +1200,17 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 	public String getEndUserLicenseAgreementVersion() {
 		return "1.1";
 	}
+
+	public static String getSigningSignature(byte[] key, String data) throws Exception {
+		Mac sha256_HMAC = Mac.getInstance("HmacSHA256");
+		SecretKeySpec secret_key = new SecretKeySpec(key, "HmacSHA256");
+		sha256_HMAC.init(secret_key);
+		return Hex.encodeHexString(sha256_HMAC.doFinal(data.getBytes("UTF-8")));
+	}
+
+	public static String base64Encode(String src) {
+		return Base64.getEncoder().encodeToString(src.getBytes());
+	}
 	
 	@Override
 	public void webhookEvent(HttpServletRequest request, String providerName, Optional<String> customParam) {
@@ -1245,36 +1252,30 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 		String eventType = request.getHeader("X-Turnitin-Eventtype");
 		String signature_header = request.getHeader("X-Turnitin-Signature");
 
-		// Make sure cb is signed correctly
-		boolean callback_correctly_signed = false;
-		try {
-			String secrete_key_encoded = getSigningSignature(apiKey.getBytes(), body);
-			if (secrete_key_encoded != null && signature_header.equals(secrete_key_encoded)) {
-				callback_correctly_signed = true;
-			}
-		} catch (Exception e1) {
-			log.error(e1.getMessage(), e1);
-		}
 
-		if (callback_correctly_signed) {
-			try {
-				if (eventType.equals("SUBMISSION_COMPLETE")) {
-					if (webhookJSON.has("id") && webhookJSON.get("status").equals("COMPLETE")) {
+		try {
+			// Make sure cb is signed correctly
+			String secrete_key_encoded = getSigningSignature(apiKey.getBytes(), body);
+			if (StringUtils.isNotEmpty(secrete_key_encoded) && signature_header.equals(secrete_key_encoded)) {
+				if (SUBMISSION_COMPLETE_EVENT_TYPE.equals(eventType)) {
+					if (webhookJSON.has("id") && STATUS_COMPLETE.equals(webhookJSON.get("status"))) {
+						// Allow cb to access assignment settings, needed for draft check
+						SecurityAdvisor advisor = pushAdvisor();
 						log.info("Submission complete webhook cb received");
 						log.info(webhookJSON.toString());
 						Optional<ContentReviewItem> optionalItem = crqs.getQueuedItemByExternalId(getProviderId(), webhookJSON.getString("id"));
 						ContentReviewItem item = optionalItem.isPresent() ? optionalItem.get() : null;
 						Assignment assignment = assignmentService.getAssignment(entityManager.newReference(item.getTaskId()));
 						handleSubmissionStatus(webhookJSON.getString("status"), item, assignment);
+						// Remove advisor override
+						popAdvisor(advisor);
 						success++;
 					} else {
-						log.warn("Callback item received needed information");
+						log.warn("Callback item received without needed information");
 						errors++;
 					}
-
-				}
-				if (eventType.equals("SIMILARITY_COMPLETE")) {
-					if (webhookJSON.has("submission_id") && webhookJSON.get("status").equals("COMPLETE")) {
+				} else if (SIMILARITY_COMPLETE_EVENT_TYPE.equals(eventType)) {
+					if (webhookJSON.has("submission_id") && STATUS_COMPLETE.equals(webhookJSON.get("status"))) {
 						log.info("Similarity complete webhook cb received");
 						log.info(webhookJSON.toString());
 						Optional<ContentReviewItem> optionalItem = crqs.getQueuedItemByExternalId(getProviderId(), webhookJSON.getString("submission_id"));
@@ -1286,28 +1287,14 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 						errors++;
 					}
 				}
-
-			} catch (Exception e) {
-				log.error(e.getMessage(), e);
+			} else {
+				log.warn("Callback signatures did not match");
 				errors++;
 			}
-
-		} else {
-			log.warn("Callback signatures did not match");
-			errors++;
+		} catch (Exception e1) {
+			log.error(e1.getMessage(), e1);
 		}
 		log.info("Turnitin webhook received: " + success + " items processed, " + errors + " errors.");
-	}
-
-	public static String getSigningSignature(byte[] key, String data) throws Exception {
-		Mac sha256_HMAC = Mac.getInstance("HmacSHA256");
-		SecretKeySpec secret_key = new SecretKeySpec(key, "HmacSHA256");
-		sha256_HMAC.init(secret_key);
-		return Hex.encodeHexString(sha256_HMAC.doFinal(data.getBytes("UTF-8")));
-	}
-
-	public static String base64Encode(String src) {
-		return Base64.getEncoder().encodeToString(src.getBytes());
 	}
 	
 	@Getter
