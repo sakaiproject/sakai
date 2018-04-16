@@ -435,7 +435,12 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 
 	public int getReviewScore(String contentId, String assignmentRef, String userId)
 			throws QueueException, ReportException, Exception {
-		return crqs.getReviewScore(getProviderId(), contentId);
+		Optional<ContentReviewItem> optionalItem = crqs.getQueuedItem(getProviderId(), contentId);
+		if(optionalItem.isPresent()) {
+			return optionalItem.get().getReviewScore();
+		}else {
+			throw new ReportException("Could not find content item: " + contentId);
+		}
 	}
 
 	public Long getReviewStatus(String contentId) throws QueueException {
@@ -1182,8 +1187,17 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 
 	@Override
 	public ContentReviewItem getContentReviewItemByContentId(String contentId) {
-		Optional<ContentReviewItem> cri = crqs.getQueuedItem(getProviderId(), contentId);
-		return cri.isPresent() ? cri.get() : null;
+		Optional<ContentReviewItem> optionalItem = crqs.getQueuedItem(getProviderId(), contentId);
+		ContentReviewItem item = optionalItem.isPresent() ? optionalItem.get() : null;
+		if(item != null && ContentReviewConstants.CONTENT_REVIEW_SUBMISSION_ERROR_RETRY_EXCEEDED_CODE.equals(item.getStatus())) {
+			//user initiated this request but the report timed out, let's requeue this report and try again:
+			item.setStatus(StringUtils.isEmpty(item.getExternalId()) ? ContentReviewConstants.CONTENT_REVIEW_SUBMISSION_ERROR_RETRY_CODE : ContentReviewConstants.CONTENT_REVIEW_REPORT_ERROR_RETRY_CODE);
+			item.setRetryCount(0l);
+			item.setLastError(null);
+			item.setNextRetryTime(Calendar.getInstance().getTime());
+			crqs.update(item);
+		}
+		return item;
 	}
 	
 	@Override
