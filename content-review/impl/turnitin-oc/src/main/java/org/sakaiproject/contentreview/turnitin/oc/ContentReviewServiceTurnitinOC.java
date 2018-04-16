@@ -755,7 +755,7 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 							String referenceItemContentId = item.getContentId().substring(0, item.getContentId().indexOf(PLACEHOLDER_STRING_FLAG));							
 							Optional<ContentReviewItem> quededReferenceItem = crqs.getQueuedItem(item.getProviderId(), referenceItemContentId);
 							ContentReviewItem referenceItem = quededReferenceItem.isPresent() ? quededReferenceItem.get() : null;							
-							if (referenceItem != null) {
+							if (referenceItem != null && checkForContentItemInSubmission(referenceItem, assignment)) {
 								// Regenerate similarity request for reference id
 								// Report is recalled after due date, no need to account for draft
 								generateSimilarityReport(referenceItem.getExternalId(), referenceItem.getTaskId(), false);
@@ -833,10 +833,9 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 				// Handle items that only generate reports on due date				
 				// Get assignment associated with current item's task Id
 				Assignment assignment = assignmentService.getAssignment(entityManager.newReference(item.getTaskId()));
-				Date assignmentDueDate = null;
 				String reportGenSpeed = null;
 				if(assignment != null) {
-					assignmentDueDate = Date.from(assignment. getDueDate());					
+					Date assignmentDueDate = Date.from(assignment. getDueDate());					
 					reportGenSpeed = assignment.getProperties().get("report_gen_speed");
 					// If report gen speed is set to due date, and it's before the due date right now, do not process item
 					if (assignmentDueDate != null && GENERATE_REPORTS_ON_DUE_DATE.equals(reportGenSpeed) 
@@ -850,37 +849,38 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 						continue;
 					}
 				}
-				//Paper is ready to be submitted
-				ContentResource resource = null;
-				try {
-					// Get resource with current item's content Id
-					resource = contentHostingService.getResource(item.getContentId());
-				} catch (IdUnusedException e4) {
-					log.error("IdUnusedException: no resource with id " + item.getContentId(), e4);
-					item.setLastError("IdUnusedException: no resource with id " + item.getContentId());
-					item.setStatus(ContentReviewConstants.CONTENT_REVIEW_SUBMISSION_ERROR_NO_RETRY_CODE);
-					crqs.update(item);
-					errors++;
-					continue;
-				} catch (PermissionException e) {
-					log.error("PermissionException: no resource with id " + item.getContentId(), e);
-					item.setLastError("PermissionException: no resource with id " + item.getContentId());
-					item.setStatus(ContentReviewConstants.CONTENT_REVIEW_SUBMISSION_ERROR_NO_RETRY_CODE);
-					crqs.update(item);
-					errors++;
-					continue;
-				} catch (TypeException e) {
-					log.error("TypeException: no resource with id " + item.getContentId(), e);
-					item.setLastError("TypeException: no resource with id " + item.getContentId());
-					item.setStatus(ContentReviewConstants.CONTENT_REVIEW_SUBMISSION_ERROR_NO_RETRY_CODE);
-					crqs.update(item);
-					errors++;
-					continue;
-				}
 
 				// EXTERNAL ID DOES NOT EXIST, CREATE SUBMISSION AND UPLOAD CONTENTS TO TCA
 				// (STAGE 1)
 				if (StringUtils.isEmpty(item.getExternalId())) {
+					//Paper is ready to be submitted
+					ContentResource resource = null;
+					try {
+						// Get resource with current item's content Id
+						resource = contentHostingService.getResource(item.getContentId());
+					} catch (IdUnusedException e4) {
+						log.error("IdUnusedException: no resource with id " + item.getContentId(), e4);
+						item.setLastError("IdUnusedException: no resource with id " + item.getContentId());
+						item.setStatus(ContentReviewConstants.CONTENT_REVIEW_SUBMISSION_ERROR_NO_RETRY_CODE);
+						crqs.update(item);
+						errors++;
+						continue;
+					} catch (PermissionException e) {
+						log.error("PermissionException: no resource with id " + item.getContentId(), e);
+						item.setLastError("PermissionException: no resource with id " + item.getContentId());
+						item.setStatus(ContentReviewConstants.CONTENT_REVIEW_SUBMISSION_ERROR_NO_RETRY_CODE);
+						crqs.update(item);
+						errors++;
+						continue;
+					} catch (TypeException e) {
+						log.error("TypeException: no resource with id " + item.getContentId(), e);
+						item.setLastError("TypeException: no resource with id " + item.getContentId());
+						item.setStatus(ContentReviewConstants.CONTENT_REVIEW_SUBMISSION_ERROR_NO_RETRY_CODE);
+						crqs.update(item);
+						errors++;
+						continue;
+					}
+					
 					// Get filename of submission						
 					String fileName = resource.getProperties().getProperty(ResourceProperties.PROP_DISPLAY_NAME);						
 					// If fileName is empty set default
@@ -971,14 +971,22 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 		return cal.getTime();
 	}
 
-	private boolean checkForDraft(ContentReviewItem item, Assignment assignment) {
+	private boolean checkForDraft(ContentReviewItem item, Assignment assignment) throws Exception {
 		// Checks if current item is a draft or submitted
+		AssignmentSubmission currentSubmission = assignmentService.getSubmission(assignment.getId(), item.getUserId());
+		return Optional.ofNullable(!currentSubmission.getSubmitted()).orElse(false);
+	}
+	
+	private boolean checkForContentItemInSubmission(ContentReviewItem item, Assignment assignment) {
 		try {
 			AssignmentSubmission currentSubmission = assignmentService.getSubmission(assignment.getId(), item.getUserId());
-			return Optional.ofNullable(!currentSubmission.getSubmitted()).orElse(false);
-		} catch (Exception e) {
+			String referenceItemContentId = item.getContentId();
+			if(referenceItemContentId.endsWith(PLACEHOLDER_STRING_FLAG)) {
+				referenceItemContentId = referenceItemContentId.substring(0, referenceItemContentId.indexOf(PLACEHOLDER_STRING_FLAG));
+			}
+			return currentSubmission.getAttachments().contains(contentHostingService.getResource(referenceItemContentId).getReference());
+		}catch(Exception e) {
 			log.error(e.getMessage(), e);
-			// Error retrieving draft, process item as final submission
 			return false;
 		}
 	}
@@ -1035,7 +1043,7 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 				// Check for items that generate reports both immediately and on due date or draft items
 				// Create a placeholder item that will regenerate and index report after due date
 				if (assignmentDueDate != null && assignmentDueDate.after(new Date())
-						&& GENERATE_REPORTS_IMMEDIATELY_AND_ON_DUE_DATE.equals(reportGenSpeed) || submissionIsDraft) {
+						&& (GENERATE_REPORTS_IMMEDIATELY_AND_ON_DUE_DATE.equals(reportGenSpeed) || submissionIsDraft)) {
 					createPlaceholderItem(item, assignmentDueDate);
 				}
 				break;
