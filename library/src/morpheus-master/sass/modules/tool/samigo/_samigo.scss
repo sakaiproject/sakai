@@ -192,6 +192,9 @@
 	   			margin-right: 5px;
 	   		}
 	   	}
+	   	&.listHier td:empty{
+   			padding: 0;
+   		}
 	}
 	
 	#samLiteEntryForm\:data{
