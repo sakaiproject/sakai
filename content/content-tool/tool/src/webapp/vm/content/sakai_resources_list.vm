@@ -94,7 +94,7 @@
 		</ul>
 		</ul>
 	#if ($alertMessage)
-                 <br /><div class="messageValidation">$alertMessage</div><div class="clear"></div>
+                 <br /><div class="messageWarning">$alertMessage</div><div class="clear"></div>
 	#end
 	## display print success message
 	#if ($content_print_status_success)
