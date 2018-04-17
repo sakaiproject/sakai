@@ -89,6 +89,7 @@ import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.tool.api.ToolManager;
+import org.sakaiproject.tool.gradebook.facades.Authz;
 import org.sakaiproject.tool.gradebook.Gradebook;
 import org.sakaiproject.tool.gradebook.GradingEvent;
 import org.sakaiproject.user.api.CandidateDetailProvider;
@@ -138,6 +139,9 @@ public class GradebookNgBusinessService {
 
 	@Setter
 	private SecurityService securityService;
+	
+	@Setter
+	private Authz authz;
 
 	public static final String ASSIGNMENT_ORDER_PROP = "gbng_assignment_order";
 	public static final String ICON_SAKAI = "icon-sakai--";
@@ -2483,6 +2487,10 @@ public class GradebookNgBusinessService {
 			// something has happened between getting the siteId and getting the site.
 			throw new GbException("An error occurred checking some bits and pieces, please try again.", e);
 		}
+	}
+	
+	public boolean isUserAbleToEditAssessments(String Uid) {
+		return authz.isUserAbleToEditAssessments(Uid);
 	}
 
 	/**

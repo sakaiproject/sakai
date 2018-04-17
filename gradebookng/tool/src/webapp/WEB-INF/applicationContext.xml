@@ -3,7 +3,6 @@
 
 <beans>
 
-
 	<bean
 		id="org.sakaiproject.gradebookng.business.GradebookNgBusinessService"
 		class="org.sakaiproject.gradebookng.business.GradebookNgBusinessService">
@@ -15,6 +14,7 @@
 		<property name="gradebookFrameworkService" ref="org.sakaiproject.service.gradebook.GradebookFrameworkService"/>
 		<property name="securityService" ref="org.sakaiproject.authz.api.SecurityService" />
 		<property name="gradebookExternalAssessmentService" ref="org.sakaiproject.service.gradebook.GradebookExternalAssessmentService"/>
+		<property name="authz" ref="org_sakaiproject_tool_gradebook_facades_Authz"/>
 	</bean>
 
 	<bean
@@ -40,5 +40,11 @@
 		class="org.sakaiproject.gradebookng.framework.GradebookNgContextObserver"
 		parent="org.sakaiproject.gradebookng.framework.GradebookNgEntityProducer">
 	</bean>	
+
+	<!-- bean
+		id="org.sakaiproject.gradebookng.tool.pages.GradebookPage"
+		class="org.sakaiproject.gradebookng.tool.pages.GradebookPage">
+		<property name="authz" ref="org_sakaiproject_tool_gradebook_facades_Authz"/>
+	</bean-->
 
 </beans>
