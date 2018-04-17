@@ -45,6 +45,7 @@ import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.HibernateException;
+import org.sakaiproject.assignment.api.AssignmentConstants;
 import org.sakaiproject.assignment.api.AssignmentReferenceReckoner;
 import org.sakaiproject.assignment.api.conversion.AssignmentConversionService;
 import org.sakaiproject.assignment.api.conversion.AssignmentDataProvider;
@@ -323,7 +324,7 @@ public class AssignmentConversionServiceImpl implements AssignmentConversionServ
         a.setPeerAssessmentStudentReview(assignment.getPeerassessmentstudentviewreviews());
         a.setPosition(assignment.getPosition_order());
         a.setReleaseGrades(content.getReleasegrades());
-        a.setScaleFactor(content.getScaled_factor());
+        a.setScaleFactor(content.getScaled_factor() == null ? AssignmentConstants.DEFAULT_SCALED_FACTOR : content.getScaled_factor());
         a.setSection(assignment.getSection());
         a.setTitle(assignment.getTitle());
         a.setTypeOfAccess("site".equals(assignment.getAccess()) ? Assignment.Access.SITE : Assignment.Access.GROUP);
