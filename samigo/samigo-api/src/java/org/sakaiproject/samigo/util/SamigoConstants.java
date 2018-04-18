@@ -139,6 +139,12 @@ public final class SamigoConstants {
 
     public static final     String      ALPHABET                                            = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
+    /*
+     * Message Bundles
+     */
+    public static final     String      EVAL_BUNDLE                                         = "org.sakaiproject.tool.assessment.bundle.EvaluationMessages";
+    public static final     String      AUTHOR_BUNDLE                                       = "org.sakaiproject.tool.assessment.bundle.AuthorMessages";
+
     private SamigoConstants() {
     	throw new AssertionError();
     }

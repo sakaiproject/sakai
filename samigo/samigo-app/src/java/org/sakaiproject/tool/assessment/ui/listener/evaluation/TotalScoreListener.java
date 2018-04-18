@@ -714,6 +714,12 @@ log.debug("totallistener: firstItem = " + bean.getFirstItem());
     		AgentResults ar=(AgentResults)it.next();
     		Double averageScore=ar.getScoreSummation()/ar.getSubmissionCount();
     		ar.setFinalScore(averageScore.toString());
+    		if (AssessmentGradingData.NO_SUBMISSION.equals(ar.getStatus()))
+    		{
+    			// no student submission, just an instructor-assigned grade, so reset the submission count to 0
+    			// (which was incremented earlier in order to calculate the average)
+    			ar.setSubmissionCount(0);
+    		}
     		ar.setComments(null);
     		ar.setSubmittedDate(new Date());
     		ar.setStatus(null);
