@@ -181,6 +181,9 @@ import org.sakaiproject.util.Web;
 import org.sakaiproject.util.Xml;
 import org.sakaiproject.util.api.LinkMigrationHelper;
 
+import static org.sakaiproject.content.util.IdUtil.isolateContainingId;
+import static org.sakaiproject.content.util.IdUtil.isolateName;
+
 /**
  * <p>
  * BaseContentService is an abstract base implementation of the Sakai ContentHostingService.
@@ -5918,7 +5921,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 					throw new IdUniquenessException(new_folder_id);
 				}
 			}
-			String containerId = this.isolateContainingId(new_folder_id);
+			String containerId = isolateContainingId(new_folder_id);
 			ContentCollection containingCollection = findCollection(containerId);
 			SortedSet<String> siblings = new TreeSet<String>();
 			siblings.addAll(containingCollection.getMembers());
@@ -9184,38 +9187,6 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 		return edit;
 
 	} // mergeResource
-
-	/**
-	 * Find the containing collection id of a given resource id.
-	 * 
-	 * @param id
-	 *        The resource id.
-	 * @return the containing collection id.
-	 */
-	protected String isolateContainingId(String id)
-	{
-		// take up to including the last resource path separator, not counting one at the very end if there
-		return id.substring(0, id.lastIndexOf('/', id.length() - 2) + 1);
-
-	} // isolateContainingId
-
-	/**
-	 * Find the resource name of a given resource id.
-	 * 
-	 * @param id
-	 *        The resource id.
-	 * @return the resource name.
-	 */
-	protected String isolateName(String id)
-	{
-		if (id == null) return null;
-		if (id.length() == 0) return null;
-
-		// take after the last resource path separator, not counting one at the very end if there
-		boolean lastIsSeparator = id.charAt(id.length() - 1) == '/';
-		return id.substring(id.lastIndexOf('/', id.length() - 2) + 1, (lastIsSeparator ? id.length() - 1 : id.length()));
-
-	} // isolateName
 
 	/**
 	 * Check the fixed type and id infomation: The same or better content type based on the known type for this id's extension, if any. The same or added extension id based on the know MIME type, if any Only if the type is the unknown type already.
