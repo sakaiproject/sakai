@@ -143,7 +143,6 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
         this.persistenceHelper = persistenceHelper;
     }
 
-
     /**
      * @param publishedId
      * @param which
@@ -2037,6 +2036,12 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
             }
 
             if (canBeExported) {
+
+                Date attempt = assessmentGradingData.getAttemptDate();
+                Date submitted = assessmentGradingData.getSubmittedDate();
+                responseList.add(attempt == null ? "" : attempt);
+                responseList.add(submitted == null ? "" : submitted);
+
                 int sectionScoreColumnStart = responseList.size();
                 if (showPartAndTotalScoreSpreadsheetColumns) {
                     Double finalScore = assessmentGradingData.getFinalScore();
