@@ -43,4 +43,8 @@ public interface DiscussionForum extends OpenForum {
     public Boolean getAutoMarkThreadsRead();
     
     public void setAutoMarkThreadsRead(Boolean autoMarkThreadsRead);
+
+    public Boolean getRestrictPermissionsForGroups();
+    
+    public void setRestrictPermissionsForGroups(Boolean restrictPermissionsForGroups);
 }

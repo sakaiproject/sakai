@@ -42,12 +42,32 @@
 	function closeDateCal(){
 			NewCal('revise:closeDate','MMDDYYYY',true,12, '<h:outputText value="#{ForumTool.defaultAvailabilityTime}"/>');
 	}
+
+	function setAutoCreatePanel(radioButton) {
+		$(".createOneForumPanel").slideToggle("fast");
+		$(".createForumsForGroupsPanel").slideToggle("fast", function() {
+			if ($('#createForumsForGroupsPanel').is(':hidden')) {
+			   document.getElementById("revise:saveandadd").disabled = false;
+			}
+			else {
+			   document.getElementById("revise:saveandadd").disabled = true;
+			}
+		});		
+	}
 	</script>
 
   <!-- Y:\msgcntr\messageforums-app\src\webapp\jsp\dfReviseForumSettingsAttach.jsp -->
     <h:form id="revise">
 		  <script type="text/javascript">
             $(document).ready(function(){
+				$('.displayMore').click(function(e){
+					e.preventDefault();
+					$('.displayMorePanel').fadeIn('slow')
+				})
+				$('.displayMoreAutoCreate').click(function(e){
+					e.preventDefault();
+					$('.displayMoreAutoCreatePanel').fadeIn('slow')
+				})
 				if ($('.gradeSelector').find('option').length ===1){
 					$('.gradeSelector').find('select').hide();
 					$('.gradeSelector').find('.instrWithGrades').hide();
@@ -279,8 +299,45 @@
 					</div>
 				</div>
 
-			<%@ include file="/jsp/discussionForum/permissions/permissions_include.jsp"%>
+			<h:panelGroup rendered="#{ForumTool.selectedForum.forum.id==null && !empty ForumTool.siteGroups}">
+					<f:verbatim><h4></f:verbatim><h:outputText  value="#{msgs.cdfm_autocreate_forums_header}" /><f:verbatim></h4></f:verbatim>
+				</h:panelGroup>
+				<div class="indnt1">
+					<h:panelGrid columns="1" columnClasses="longtext,checkbox" cellpadding="0" cellspacing="0" >
+						<h:panelGroup rendered="#{ForumTool.selectedForum.forum.id==null && !empty ForumTool.siteGroups}">
+							<h:selectOneRadio layout="pageDirection" onclick="this.blur()" onchange="setAutoCreatePanel(this);" disabled="#{not ForumTool.editMode}" id="createForumsForGroups" value="#{ForumTool.selectedForum.restrictPermissionsForGroups}">
+								<f:selectItem itemValue="false" itemLabel="#{msgs.cdfm_create_one_forum}"/>
+								<f:selectItem itemValue="true" itemLabel="#{msgs.cdfm_autocreate_forums_for_groups}"/>
+							</h:selectOneRadio>
+						</h:panelGroup>
+					</h:panelGrid>
+				</div>
+				<div id="createOneForumPanel" class="createOneForumPanel">
+					<%@ include file="/jsp/discussionForum/permissions/permissions_include.jsp"%>
+				</div>
 
+				<div id="createForumsForGroupsPanel" class="createForumsForGroupsPanel" style="display:none" >
+				<h:panelGroup rendered="#{ForumTool.selectedForum.forum.id==null && !empty ForumTool.siteGroups}"> 
+					<h:outputText value="#{msgs.cdfm_autocreate_forums_desc}" rendered="#{ForumTool.selectedForum.forum.id==null && !empty ForumTool.siteGroups}" />
+					<h:panelGroup styleClass="itemAction">
+						<h:outputLink value="#" style="text-decoration:none"  styleClass="instrWithGrades">
+							<h:outputText styleClass="displayMoreAutoCreate" value="#{msgs.perm_choose_instruction_more_link}"/>
+						</h:outputLink>
+					</h:panelGroup>
+					<f:verbatim><br/></f:verbatim>
+					<h:panelGroup styleClass="displayMoreAutoCreatePanel instruction" style="display:none">
+						<h:outputText value="#{ForumTool.autoRolesNoneDesc}" />
+						<h:outputText value="#{ForumTool.autoGroupsDesc}" />
+					</h:panelGroup>
+					<h:dataTable value="#{ForumTool.siteGroups}" var="siteGroup" cellpadding="0" cellspacing="0" styleClass="indnt1 jsfFormTable" 
+								 rendered="#{ForumTool.selectedForum.forum.id==null}">
+						<h:column>
+							<h:selectBooleanCheckbox value="#{siteGroup.createForumForGroup}" />
+							<h:outputText value="#{siteGroup.group.title}" />
+						</h:column>
+					</h:dataTable>
+				</h:panelGroup>
+				</div>
 				
         
       <div class="act">
@@ -288,7 +345,7 @@
           								 rendered="#{!ForumTool.selectedForum.markForDeletion}" accesskey="s" styleClass="blockMeOnClick"> 
     	 	  	<f:param value="#{ForumTool.selectedForum.forum.id}" name="forumId"/>         
           </h:commandButton>
-				<h:commandButton action="#{ForumTool.processActionSaveForumAndAddTopic}" value="#{msgs.cdfm_button_bar_save_setting_add_topic}" accesskey="t"
+				<h:commandButton id="saveandadd" action="#{ForumTool.processActionSaveForumAndAddTopic}" value="#{msgs.cdfm_button_bar_save_setting_add_topic}" accesskey="t"
           								 rendered = "#{!ForumTool.selectedForum.markForDeletion}" styleClass="blockMeOnClick">
 	        	<f:param value="#{ForumTool.selectedForum.forum.id}" name="forumId"/>
           </h:commandButton>  

@@ -341,10 +341,15 @@
 				</h:panelGroup>
 				<div class="indnt1">
 					<h:panelGrid columns="1" columnClasses="longtext,checkbox" cellpadding="0" cellspacing="0" >
-						<h:panelGroup rendered="#{ForumTool.selectedTopic.topic.id==null && !empty ForumTool.siteGroups}">
-							<h:selectOneRadio layout="pageDirection" onclick="this.blur()" onchange="setAutoCreatePanel(this);" disabled="#{not ForumTool.editMode}" id="createTopicsForGroups" value="#{ForumTool.createTopicsForGroups}">
+						<h:panelGroup rendered="#{ForumTool.selectedTopic.topic.id==null && !empty ForumTool.siteGroups && !ForumTool.selectedForum.restrictPermissionsForGroups}">
+							<h:selectOneRadio layout="pageDirection" onclick="this.blur()" onchange="setAutoCreatePanel(this);" disabled="#{not ForumTool.editMode}" id="createTopicsForGroups" value="#{ForumTool.selectedTopic.restrictPermissionsForGroups}">
 								<f:selectItem itemValue="false" itemLabel="#{msgs.cdfm_create_one_topic}"/>
 								<f:selectItem itemValue="true" itemLabel="#{msgs.cdfm_autocreate_topics_for_groups}"/>
+							</h:selectOneRadio>
+						</h:panelGroup>
+						<h:panelGroup style="display:none" rendered="#{ForumTool.selectedTopic.topic.id==null && !empty ForumTool.siteGroups && ForumTool.selectedForum.restrictPermissionsForGroups}">
+							<h:selectOneRadio layout="pageDirection" onclick="this.blur()" onchange="setAutoCreatePanel(this);" disabled="#{not ForumTool.editMode}" id="createTopicsForGroups2" value="#{ForumTool.selectedTopic.restrictPermissionsForGroups}">
+								<f:selectItem itemValue="false" itemLabel="#{msgs.cdfm_create_one_topic}"/>
 							</h:selectOneRadio>
 						</h:panelGroup>
 					</h:panelGrid>
@@ -354,7 +359,7 @@
 				</div>
 
 				<div id="createTopicsForGroupsPanel" class="createTopicsForGroupsPanel" style="display:none" >
-				<h:panelGroup rendered="#{ForumTool.selectedTopic.topic.id==null && !empty ForumTool.siteGroups}"> 
+				<h:panelGroup rendered="#{ForumTool.selectedTopic.topic.id==null && !empty ForumTool.siteGroups && !ForumTool.selectedForum.restrictPermissionsForGroups}">
 					<h:outputText value="#{msgs.cdfm_autocreate_topics_desc}" rendered="#{ForumTool.selectedTopic.topic.id==null && !empty ForumTool.siteGroups}" />
 					<h:panelGroup styleClass="itemAction">
 						<h:outputLink value="#" style="text-decoration:none"  styleClass="instrWithGrades">
@@ -380,7 +385,7 @@
 <script type="text/javascript">
 setPanelId('<%= org.sakaiproject.util.Web.escapeJavascript(thisId)%>');
 $(function () {
-	if (<h:outputText value="#{ForumTool.selectedTopic.topic.id==null && !empty ForumTool.siteGroups && ForumTool.createTopicsForGroups}" />) {
+	if (<h:outputText value="#{ForumTool.selectedTopic.topic.id==null && !empty ForumTool.siteGroups && ForumTool.selectedTopic.restrictPermissionsForGroups}" />) {
 		$("#createOneTopicPanel").hide();
 		$("#createTopicsForGroupsPanel").show();
 	}
