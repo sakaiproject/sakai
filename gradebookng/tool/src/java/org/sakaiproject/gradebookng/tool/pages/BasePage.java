@@ -131,7 +131,7 @@ public class BasePage extends WebPage {
 
 			@Override
 			public boolean isVisible() {
-				return (BasePage.this.role == GbRole.INSTRUCTOR);
+				return (businessService.isUserAbleToEditAssessments(businessService.getGradebook().getUid()));
 			}
 		};
 		this.importExportPageLink.add(new Label("screenreaderlabel", getString("link.screenreader.tabnotselected")));
