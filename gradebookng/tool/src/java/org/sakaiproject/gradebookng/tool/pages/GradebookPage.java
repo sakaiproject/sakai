@@ -207,7 +207,7 @@ public class GradebookPage extends BasePage {
 
 			@Override
 			public boolean isVisible() {
-				return GradebookPage.this.role == GbRole.INSTRUCTOR;
+				return (businessService.isUserAbleToEditAssessments(businessService.getGradebook().getUid()));
 			}
 		};
 		addGradeItem.setDefaultFormProcessing(false);

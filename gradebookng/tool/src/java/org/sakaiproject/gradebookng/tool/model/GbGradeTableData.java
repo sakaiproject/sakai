@@ -39,6 +39,7 @@ public class GbGradeTableData {
 	private GbRole role;
 	private Map<String, String> toolNameToIconCSS;
 	private String defaultIconCSS;
+	private boolean isUserAbleToEditAssessments;
 	private Map<String, Double> courseGradeMap;
 	private boolean isStudentNumberVisible;
 
@@ -61,6 +62,7 @@ public class GbGradeTableData {
 			throw new RuntimeException(e);
 		}
 
+		isUserAbleToEditAssessments = businessService.isUserAbleToEditAssessments(businessService.getGradebook().getUid());
 		assignments = businessService.getGradebookAssignments(sortBy);
 		stopwatch.time("getGradebookAssignments", stopwatch.getTime());
 
@@ -107,6 +109,10 @@ public class GbGradeTableData {
 
 	public GbRole getRole() {
 		return role;
+	}
+
+	public boolean getisUserAbleToEditAssessments() {
+		return isUserAbleToEditAssessments;
 	}
 
 	public Map<String, String> getToolNameToIconCSS() {

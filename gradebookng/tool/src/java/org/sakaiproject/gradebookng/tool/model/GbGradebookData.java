@@ -71,7 +71,7 @@ public class GbGradebookData {
 	private interface ColumnDefinition {
 		public String getType();
 
-		public Score getValueFor(GbStudentGradeInfo studentGradeInfo, boolean isInstructor);
+		public Score getValueFor(GbStudentGradeInfo studentGradeInfo, boolean isUserAbleToEditAssessments);
 	}
 
 	@Value
@@ -104,7 +104,7 @@ public class GbGradebookData {
 		}
 
 		@Override
-		public Score getValueFor(final GbStudentGradeInfo studentGradeInfo, final boolean isInstructor) {
+		public Score getValueFor(final GbStudentGradeInfo studentGradeInfo, final boolean isUserAbleToEditAssessments) {
 			final Map<Long, GbGradeInfo> studentGrades = studentGradeInfo.getGrades();
 
 			final GbGradeInfo gradeInfo = studentGrades.get(assignmentId);
@@ -114,7 +114,7 @@ public class GbGradebookData {
 			} else {
 				final String grade = gradeInfo.getGrade();
 
-				if (isInstructor || gradeInfo.isGradeable()) {
+				if (isUserAbleToEditAssessments || gradeInfo.isGradeable()) {
 					return new EditableScore(grade);
 				} else {
 					return new ReadOnlyScore(grade);
@@ -140,7 +140,7 @@ public class GbGradebookData {
 		}
 
 		@Override
-		public Score getValueFor(final GbStudentGradeInfo studentGradeInfo, final boolean isInstructor) {
+		public Score getValueFor(final GbStudentGradeInfo studentGradeInfo, final boolean isUserAbleToEditAssessments) {
 			final Map<Long, Double> categoryAverages = studentGradeInfo.getCategoryAverages();
 
 			final Double average = categoryAverages.get(categoryId);
@@ -187,6 +187,7 @@ public class GbGradebookData {
 	private GradebookInformation settings;
 	private GradebookUiSettings uiSettings;
 	private GbRole role;
+	private boolean isUserAbleToEditAssessments;
 	private Map<String, String> toolNameIconCSSMap;
 	private String defaultIconCSS;
 	private Map<String, Double> courseGradeMap;
@@ -200,6 +201,7 @@ public class GbGradebookData {
 		this.settings = gbGradeTableData.getGradebookInformation();
 		this.uiSettings = gbGradeTableData.getUiSettings();
 		this.role = gbGradeTableData.getRole();
+		this.isUserAbleToEditAssessments = gbGradeTableData.getisUserAbleToEditAssessments();
 
 		this.courseGradeMap = gbGradeTableData.getCourseGradeMap();
 
@@ -221,7 +223,7 @@ public class GbGradebookData {
 
 		// if we can't edit one of the items,
 		// we need to serialize this into the data
-		if (!isInstructor() && grades.stream().anyMatch(g -> !g.canEdit())) {
+		if (!isUserAbleToEditAssessments() && grades.stream().anyMatch(g -> !g.canEdit())) {
 			int i = 0;
 			for (StudentDefinition student : GbGradebookData.this.students) {
 				String readonly = "";
@@ -354,7 +356,7 @@ public class GbGradebookData {
 		result.put("isGroupedByCategory", uiSettings.isGroupedByCategory());
 		result.put("isCourseGradeReleased", settings.isCourseGradeDisplayed());
 		result.put("showPoints", uiSettings.getShowPoints());
-		result.put("instructor", isInstructor());
+		result.put("isUserAbleToEditAssessments", isUserAbleToEditAssessments());
 		result.put("isStudentNumberVisible", this.isStudentNumberVisible);
 
 		return result;
@@ -416,7 +418,7 @@ public class GbGradebookData {
 
 		for (GbStudentGradeInfo studentGradeInfo : GbGradebookData.this.studentGradeInfoList) {
 			for (ColumnDefinition column : GbGradebookData.this.columns) {
-				final Score grade = column.getValueFor(studentGradeInfo, isInstructor());
+				final Score grade = column.getValueFor(studentGradeInfo, isUserAbleToEditAssessments());
 				result.add(grade);
 			}
 		}
@@ -580,6 +582,10 @@ public class GbGradebookData {
 
 	private boolean isInstructor() {
 		return GbRole.INSTRUCTOR.equals(role);
+	}
+
+	private boolean isUserAbleToEditAssessments() {
+		return isUserAbleToEditAssessments;
 	}
 
 	private abstract class Score {
