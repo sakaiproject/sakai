@@ -752,7 +752,7 @@ function includeLatestJQuery(where) {
 	}
 }
 
-function includeWebjarLibraryWithVersion(library) {
+function includeWebjarLibrary(library) {
 	var webjars = "/library/webjars/";
 	var ver = "";
 	if ( typeof portal !== 'undefined' ) {
@@ -760,7 +760,15 @@ function includeWebjarLibraryWithVersion(library) {
 		if (portal.pageWebjarsPath) webjars = portal.pageWebjarsPath;
 		if (portal.portalCDNQuery) ver = portal.portalCDNQuery;
 	}
-	document.write('\x3Cscript type="text/javascript" src="'+webjars+library+ver+'">'+'\x3C/script>')
+
+	if (library == 'bootstrap-multiselect') {
+		var bootstrapMultiselectVersion = "0.9.15";
+		document.write('\x3Cscript type="text/javascript" src="'+webjars+'bootstrap-multiselect/'+bootstrapMultiselectVersion+'/js/bootstrap-multiselect.js'+ver+'">'+'\x3C/script>');
+		document.write('\x3Clink rel="stylesheet" href="'+webjars+'bootstrap-multiselect/'+bootstrapMultiselectVersion+'/css/bootstrap-multiselect.css'+ver+'"/>');
+		window.console && console.log('Adding bootstrap-multiselect, version '+bootstrapMultiselectVersion);
+	}else{
+		document.write('\x3Cscript type="text/javascript" src="'+webjars+library+ver+'">'+'\x3C/script>');
+	}
 }
 
 // Return the breakpoint between small and medium sized displays - for morpheus currently the same
