@@ -471,9 +471,12 @@ GbGradeTable.headerRenderer = function (col, column) {
     return colDef.headerTemplate.process({col: col, settings: GbGradeTable.settings});
   }
 
+  var hasAssociatedRubric = column.type === "assignment" ? column.hasAssociatedRubric : false;
+
   var templateData = $.extend({
     col: col,
-    settings: GbGradeTable.settings
+    settings: GbGradeTable.settings,
+    hasAssociatedRubric: hasAssociatedRubric,
   }, column);
 
   if (column.type === "assignment") {

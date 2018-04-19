@@ -2737,4 +2737,12 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
 		
 		return updatedAssessmentStringData;
 	}
+
+	public List getQuestionsIdList(final Long publishedAssessmentId) {
+		HibernateCallback<List<Long>> hcb = session -> session
+				.createQuery("select i.itemId from PublishedItemData i, PublishedSectionData s,  PublishedAssessmentData a where a = s.assessment and s = i.section and a.publishedAssessmentId=?")
+				.setLong(0, publishedAssessmentId.longValue())
+				.list();
+		return getHibernateTemplate().execute(hcb);
+	}
 }

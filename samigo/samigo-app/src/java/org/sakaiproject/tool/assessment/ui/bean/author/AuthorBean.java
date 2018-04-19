@@ -40,12 +40,17 @@ import org.apache.commons.lang.StringUtils;
 import lombok.extern.slf4j.Slf4j;
 
 import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.rubrics.logic.RubricsService;
+import org.sakaiproject.samigo.util.SamigoConstants;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
 import org.sakaiproject.tool.assessment.facade.AssessmentTemplateFacade;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
+import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
+import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 import org.sakaiproject.tool.assessment.ui.bean.authz.AuthorizationBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.util.ResourceLoader;
+import org.sakaiproject.component.cover.ComponentManager;
 
 /**
  * General authoring information.
@@ -126,6 +131,9 @@ public class AuthorBean implements Serializable
 
   private boolean groupFilterEnabled;
 
+  AssessmentService assessmentService = new AssessmentService();
+  PublishedAssessmentService publishedAssessmentService = new PublishedAssessmentService();
+  private RubricsService rubricsService = ComponentManager.get(RubricsService.class);
   /* ------------------------------------ /*
   
   /**
@@ -951,4 +959,35 @@ public class AuthorBean implements Serializable
   public void setGroupFilterEnabled(boolean groupFilterEnabled) {
     this.groupFilterEnabled = groupFilterEnabled;
   }
+
+	public Boolean assessmentHasRubric(Long assessmentId, boolean isPublished) {
+		List<Long> assessmentQuestionIdsList  = null;
+		if(!isPublished){
+			assessmentQuestionIdsList = assessmentService.getQuestionsIdList(assessmentId);
+		}else{
+			assessmentQuestionIdsList = publishedAssessmentService.getQuestionsIdList(assessmentId);
+		}
+		if(assessmentQuestionIdsList == null){
+			return Boolean.FALSE;
+		}
+		for(Long questionId : assessmentQuestionIdsList){
+			if(!isPublished && rubricsService.hasAssociatedRubric(SamigoConstants.RBCS_TOOL_ID, assessmentId + "." + questionId)){
+				return Boolean.TRUE;
+			}
+			if(isPublished && rubricsService.hasAssociatedRubric(SamigoConstants.RBCS_TOOL_ID,SamigoConstants.RBCS_PUBLISHED_ASSESSMENT_ENTITY_PREFIX + assessmentId + "." + questionId)){
+				return Boolean.TRUE;
+			}
+		}
+		return Boolean.FALSE;
+	}
+
+	public Boolean questionHasRubric(Long assessmentId, Long questionId, boolean isPublished) {
+		if(!isPublished && rubricsService.hasAssociatedRubric(SamigoConstants.RBCS_TOOL_ID, assessmentId + "." + questionId)){
+			return Boolean.TRUE;
+		}
+		if(isPublished && rubricsService.hasAssociatedRubric(SamigoConstants.RBCS_TOOL_ID,SamigoConstants.RBCS_PUBLISHED_ASSESSMENT_ENTITY_PREFIX + assessmentId + "." + questionId)){
+			return Boolean.TRUE;
+		}
+		return Boolean.FALSE;
+	}
 }
