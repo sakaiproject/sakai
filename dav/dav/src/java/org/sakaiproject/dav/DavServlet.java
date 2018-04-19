@@ -177,6 +177,8 @@ import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.StringUtil;
 import org.sakaiproject.util.Validator;
 
+import static org.sakaiproject.content.util.IdUtil.isolateContainingId;
+
 /**
  * Servlet which adds support for WebDAV level 2. All the basic HTTP requests are handled by the DefaultServlet.
  */
@@ -2491,21 +2493,6 @@ public class DavServlet extends HttpServlet
 			return str;
 		}
 	}
-
-	/**
-	 * Find the containing collection id of a given resource id. Copied from BaseContentService.
-	 * 
-	 * @param id
-	 *        The resource id.
-	 * @return the containing collection id.
-	 */
-	private String isolateContainingId(String id)
-	{
-		// take up to including the last resource path separator, not counting one at the very end if there
-		return id.substring(0, id.lastIndexOf('/', id.length() - 2) + 1);
-
-	} // isolateContainingId
-
 
 	/**
 	 * MKCOL Method.
