@@ -72,6 +72,9 @@ public class PermissionsPage extends BasePage {
 	private final Long ALL_CATEGORIES = new Long(-1);
 
 	public PermissionsPage() {
+
+		defaultRoleChecksForInstructorOnlyPage();
+
 		disableLink(this.permissionsPageLink);
 	}
 

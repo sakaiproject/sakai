@@ -79,6 +79,7 @@ public class BasePage extends WebPage {
 
 		// setup some data that can be shared across all pages
 		this.currentUserUuid = this.businessService.getCurrentUser().getId();
+		role = GbRole.NONE;
 		try {
 			this.role = this.businessService.getUserRole();
 		} catch (final GbAccessDeniedException e) {
@@ -229,7 +230,7 @@ public class BasePage extends WebPage {
 	/**
 	 * Helper to disable a link. Add the Sakai class 'current'.
 	 */
-	protected void disableLink(final Link<Void> l) {
+	protected final void disableLink(final Link<Void> l) {
 		l.add(new AttributeAppender("class", new Model<String>("current"), " "));
 		l.replace(new Label("screenreaderlabel", getString("link.screenreader.tabselected")));
 		l.setEnabled(false);
@@ -280,7 +281,7 @@ public class BasePage extends WebPage {
 	 * 
 	 * @param message the message
 	 */
-	public void sendToAccessDeniedPage(final String message) {
+	public final void sendToAccessDeniedPage(final String message) {
 		final PageParameters params = new PageParameters();
 		params.add("message", message);
 		log.debug("Redirecting to AccessDeniedPage: " + message);
@@ -289,5 +290,25 @@ public class BasePage extends WebPage {
 
 	public GbRole getCurrentRole() {
 		return BasePage.this.role;
+	}
+
+	/**
+	 * Performs role checks for instructor-only pages and redirects users to appropriate pages based on their role.
+	 * No role -> AccessDeniedPage. Student -> StudentPage. TA -> GradebookPage.
+	 */
+	protected final void defaultRoleChecksForInstructorOnlyPage()
+	{
+		switch (role)
+		{
+			case NONE:
+				sendToAccessDeniedPage(getString("error.role"));
+				break;
+			case STUDENT:
+				throw new RestartResponseException(StudentPage.class);
+			case TA:
+				throw new RestartResponseException(GradebookPage.class);
+			default:
+				break;
+		}
 	}
 }
