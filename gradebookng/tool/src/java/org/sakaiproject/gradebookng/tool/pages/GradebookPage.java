@@ -119,7 +119,7 @@ public class GradebookPage extends BasePage {
 	public GradebookPage() {
 		disableLink(this.gradebookPageLink);
 
-		if (this.role == null) {
+		if (this.role == GbRole.NONE) {
 			sendToAccessDeniedPage(getString("error.role"));
 		}
 
