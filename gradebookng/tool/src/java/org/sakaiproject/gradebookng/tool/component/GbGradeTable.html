@@ -74,6 +74,9 @@
                 {var tooltip = title.replace(/"/g, '&quot;')}
                 <a class="gb-title" title="${tooltip}">
                     ${abbrevTitle}
+                    {if hasAssociatedRubric}
+                        <span class="fa fa-fw fa-table" wicket:message="title:rubrics.question_use_rubric"></span>
+                    {/if}
                 </a>
                 {if settings.isCategoriesEnabled}
                     {if categoryId}

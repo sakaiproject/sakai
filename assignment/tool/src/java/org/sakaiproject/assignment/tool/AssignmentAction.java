@@ -1082,6 +1082,7 @@ public class AssignmentAction extends PagedResourceActionII {
         context.put("dateFormat", getDateFormatString());
         context.put("cheffeedbackhelper", this);
         context.put("service", assignmentService);
+        context.put("rubricsService", rubricsService);
 
         String contextString = (String) state.getAttribute(STATE_CONTEXT_STRING);
 

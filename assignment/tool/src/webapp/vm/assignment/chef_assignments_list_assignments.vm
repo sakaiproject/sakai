@@ -268,11 +268,15 @@
 												<span class="highlight">$tlang.getString("gen.dra2")</span>
 											#end
 												$validator.escapeHtml($!assignment.Title)
+											</a>
 
 											#if ($assignment.getContentReview())
 												<img alt="$reviewIndicator" title="$reviewIndicator" src="/library/image/silk/rosette.png" />
 											#end
-											</a>
+											#if ($rubricsService.hasAssociatedRubric("sakai.assignment", $assignment.getId()))
+												<i class="fa fa-table" aria-hidden="true" title="$tlang.getString("asn.list.userubric")"></i>
+											#end
+
 										</strong>
 										<div class="itemAction">
 											#set($prevAction=false)

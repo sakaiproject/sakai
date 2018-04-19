@@ -727,4 +727,9 @@ public class PublishedAssessmentService extends AssessmentService{
 		return PersistenceService.getInstance().getPublishedAssessmentFacadeQueries()
 				.getAllAssessmentsGradingDataByAgentAndSiteId(agentId, siteId);
 	}
+
+	public List getQuestionsIdList(long publishedAssessmentId) {
+		return PersistenceService.getInstance().getPublishedAssessmentFacadeQueries()
+				.getQuestionsIdList(publishedAssessmentId);
+	}
 }
