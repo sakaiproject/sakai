@@ -25,6 +25,7 @@ import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.StringResourceModel;
 import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.gradebookng.business.GbRole;
 import org.sakaiproject.gradebookng.tool.panels.StudentGradeSummaryGradesPanel;
 import org.sakaiproject.user.api.User;
 
@@ -40,6 +41,10 @@ public class StudentPage extends BasePage {
 	private static final long serialVersionUID = 1L;
 
 	public StudentPage() {
+
+		if (role == GbRole.NONE) {
+			sendToAccessDeniedPage(getString("error.role"));
+		}
 
 		final User u = this.businessService.getCurrentUser();
 
