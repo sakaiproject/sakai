@@ -906,6 +906,13 @@ public abstract class BaseSiteService implements SiteService, Observer
 		{
 			throw new IdUnusedException(site.getId());
 		}
+		
+		// Invalidate the user-site cache.
+		Site cached = getCachedSite(site.getId());
+		if (cached != null ) {
+			clearUserCacheForSite(site);
+		}
+		cacheSite(site);
 
 		try
 		{
@@ -936,6 +943,13 @@ public abstract class BaseSiteService implements SiteService, Observer
 		{
 			throw new IdUnusedException(site.getId());
 		}
+		
+		// Invalidate the user-site cache.
+		Site cached = getCachedSite(site.getId());
+		if (cached != null ) {
+			clearUserCacheForSite(site);
+		}
+		cacheSite(site);
 
 		try
 		{
