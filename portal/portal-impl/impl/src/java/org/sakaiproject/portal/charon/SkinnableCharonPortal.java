@@ -1687,7 +1687,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 			}
 
                         boolean neoChatAvailable
-                            = ServerConfigurationService.getBoolean("portal.neochat", true)
+                            = ServerConfigurationService.getBoolean("portal.neochat", false)
                                 && chatHelper.checkChatPermitted(thisUser);
 
                         rcontext.put("neoChat", neoChatAvailable);
