@@ -1162,7 +1162,7 @@ public class SiteManageGroupSectionRoleHandler {
             // save the changes
             try
             {
-                siteService.save(site);
+                siteService.saveGroupMembership(site);
                 // reset the form params
                 resetParams();
             } 
