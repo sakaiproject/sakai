@@ -96,6 +96,9 @@
                             <div id="errorSubmit" class="alertMessage" style="display:none">
                                 <h:outputText value="#{msgs['therewaspro']}" />
                             </div>
+                            <label for="topForm:controlPanel:message" class="sr-only">
+                                <h:outputText value="#{msgs['control.lab']}" />
+                            </label>
                             <c:out value="<textarea id='topForm:controlPanel:message' value='" escapeXml="false" /><h:outputText value="#{ChatTool.newMessageText}" /><c:out value="' placeholder='" escapeXml="false" /><h:outputText value="#{msgs['control.lab']}" /><c:out value="' rows='3' cols='125'></textarea>" escapeXml="false" /> 
                             <div class="act">
                                 <h:commandButton type="button" id="submit" value="#{msgs['control.post']}" styleClass="active" />
