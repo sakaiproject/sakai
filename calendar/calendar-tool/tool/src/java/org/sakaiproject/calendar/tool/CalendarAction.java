@@ -5205,8 +5205,9 @@ extends VelocityPortletStateAction
 			log.debug(".doConfirm(): " + e);
 		}
 		
-		String returnState = state.getReturnState();
-		state.setState(returnState);
+		String stateName = ServerConfigurationService.getString("calendar.default.view", defaultStateView);
+		state.setState(stateName);
+		state.setReturnState(stateName);
 		
 	} // doConfirm
 	
@@ -6514,7 +6515,10 @@ extends VelocityPortletStateAction
 						addAlert(sstate, rb.getString("java.alert.youcreate"));
 						log.debug(".doUpdate(): " + e);
 					} // try-catch
-				} // if(title.length()==0)
+				} // if(title.length()==0)				
+				String stateName = ServerConfigurationService.getString("calendar.default.view", defaultStateView);
+				state.setState(stateName);
+				state.setReturnState(stateName);
 			} // if (state.getState().equalsIgnoreCase(STATE_CUSTOMIZE_CALENDAR))
 		
 	}	 // doUpdate
