@@ -18,6 +18,7 @@ package org.sakaiproject.gradebookng.tool.panels.importExport;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import org.apache.commons.lang3.StringUtils;
 
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.ajax.AjaxEventBehavior;
@@ -120,7 +121,7 @@ public class GradeItemImportOmissionsPanel extends Panel
 
         // Sort the omission lists alphabetically
         List<GbUser> missingUsersSorted = new ArrayList<>( report.getMissingUsers() );
-        List<String> unknownUsersSorted = new ArrayList<>( report.getUnknownUsers() );
+        List<GbUser> unknownUsersSorted = new ArrayList<>( report.getUnknownUsers() );
         Collections.sort( missingUsersSorted );
         Collections.sort( unknownUsersSorted );
 
@@ -136,13 +137,19 @@ public class GradeItemImportOmissionsPanel extends Panel
         };
 
         // Create and populate the list of unknown users
-        final ListView<String> unknownUsers = new ListView<String>( "unknownUsers", unknownUsersSorted )
+        final ListView<GbUser> unknownUsers = new ListView<GbUser>( "unknownUsers", unknownUsersSorted )
         {
             @Override
-            protected void populateItem( final ListItem<String> item )
+            protected void populateItem( final ListItem<GbUser> item )
             {
-                final String user = item.getModelObject();
-                item.add( new Label( "unknownUser", user ) );
+                final GbUser user = item.getModelObject();
+                String userDisplay = user.getDisplayId();
+                String displayName = user.getDisplayName().trim();
+                if( StringUtils.isNotBlank( displayName ))
+                {
+                    userDisplay += " (" + displayName + ")";
+                }
+                item.add( new Label( "unknownUser", userDisplay ) );
             }
         };
 

@@ -363,8 +363,8 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                 entity = createAssignmentEntity(reference.getId());
                 break;
             case REF_TYPE_SUBMISSION:
-                // entity = createSubmissionEntity();
                 // TODO assignment submission entities
+                log.warn("Submission Entity not implemented open a JIRA, reference: {}", reference.getReference());
                 break;
             default:
                 log.warn("Unknown Entity subtype: {} in ref: {}", reference.getSubType(), reference.getReference());
@@ -389,27 +389,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
 
     @Override
     public String getEntityUrl(Reference reference) {
-        String url = null;
-
-        try {
-            switch (reference.getSubType()) {
-                case REF_TYPE_CONTENT:
-                case REF_TYPE_ASSIGNMENT:
-                    Assignment a = getAssignment(reference.getId());
-                    url = createAssignmentEntity(a.getId()).getUrl();
-                    break;
-                case REF_TYPE_SUBMISSION:
-                    // url = createAssignmentEntity(a.getId()).getUrl();
-                    // TODO assignment submission entities
-                    break;
-                default:
-                    log.warn("Unknown Entity subtype: {} in ref: {}", reference.getSubType(), reference.getReference());
-            }
-        } catch (Exception e) {
-            log.warn("Could not get entity url with ref = {}", reference.getReference(), e);
-        }
-
-        return url;
+        return getEntity(reference).getUrl();
     }
 
     @Override
@@ -580,7 +560,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                         return groupsAllowed;
                     case GROUP: // return only matching groups for group access
                         Set<String> assignmentGroups = assignment.getGroups();
-                        return groupsAllowed.stream().filter(g -> assignmentGroups.contains(g.getId())).collect(Collectors.toSet());
+                        return groupsAllowed.stream().filter(g -> assignmentGroups.contains(g.getReference())).collect(Collectors.toSet());
                 }
             }
         }

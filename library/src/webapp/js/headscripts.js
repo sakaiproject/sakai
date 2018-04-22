@@ -708,9 +708,9 @@ function supports_history_api() {
 //Call this to disable the back button in a page context - SAK-23247
 function disableBackButton(message) {
 	if (supports_history_api()) {
-		history.pushState(null, null, 'no-back-button');
+		history.pushState(null, null, '');
 		window.addEventListener('popstate', function(event) {
-			history.pushState(null, null, 'no-back-button');
+			history.pushState(null, null, '');
 			window.alert(message);
 		});
 	}
@@ -750,6 +750,17 @@ function includeLatestJQuery(where) {
 		document.write('\x3Clink rel="stylesheet" href="'+webjars+'jquery-ui/1.12.1/jquery-ui.min.css'+ver+'"/>');
 		window.console && console.log("jQuery+migrate+BootStrap+UI Loaded by "+where+" from "+webjars);
 	}
+}
+
+function includeWebjarLibraryWithVersion(library) {
+	var webjars = "/library/webjars/";
+	var ver = "";
+	if ( typeof portal !== 'undefined' ) {
+		if (portal.pageScriptPath) psp = portal.pageScriptPath;
+		if (portal.pageWebjarsPath) webjars = portal.pageWebjarsPath;
+		if (portal.portalCDNQuery) ver = portal.portalCDNQuery;
+	}
+	document.write('\x3Cscript type="text/javascript" src="'+webjars+library+ver+'">'+'\x3C/script>')
 }
 
 // Return the breakpoint between small and medium sized displays - for morpheus currently the same

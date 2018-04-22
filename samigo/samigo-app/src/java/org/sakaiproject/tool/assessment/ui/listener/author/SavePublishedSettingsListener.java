@@ -578,8 +578,7 @@ implements ActionListener
 		else if (retractNow) {
 			control.setDueDate(new Date());
 		}
-		else if (assessmentSettings.getRetractDate() == null || "".equals(assessmentSettings.getRetractDateString())) {
-			control.setLateHandling(AssessmentAccessControl.NOT_ACCEPT_LATE_SUBMISSION);
+		else if ("".equals(assessmentSettings.getRetractDateString())) {
 			control.setRetractDate(null);
 		}
 		else {

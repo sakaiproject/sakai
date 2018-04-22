@@ -262,7 +262,6 @@
         #end
         #if ($assignment_expand_flag)
             #if (!$assignment.Instructions.isEmpty())
-                +
                 <div class="textPanel">$validator.escapeHtmlFormattedText($assignment.Instructions)</div>
             #end
 

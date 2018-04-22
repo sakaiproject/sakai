@@ -170,7 +170,7 @@ function _renderChart(dataset) {
 			labels: labels,
 			datasets: [{
 				data: data,
-				backgroundColor: 'rgb(64, 120, 209)',
+				backgroundColor: '#15597e',
 				borderWidth: 0
 			}]
 		},
@@ -178,7 +178,9 @@ function _renderChart(dataset) {
 			roundedCorners: true,
 			title: {
 				display: true,
-				text: 'Course Grade Distribution'
+				text: 'Course Grade Distribution',
+				fontSize: 18,
+				fontStyle: 'bold'
 			},
 			legend: {
 				display: false
@@ -187,20 +189,37 @@ function _renderChart(dataset) {
 				xAxes: [{
 					ticks: {
 						beginAtZero:true,
-						stepSize: 1
+						stepSize: 1,
+						fontStyle: 'bold'
 					},
 					scaleLabel: {
 						display: true,
-						labelString: 'Number of Students'
+						labelString: 'Number of Students',
+						fontSize: 14,
+						fontStyle: 'bold'
 					}
 				}],
 				yAxes: [{
+					ticks: {
+						fontStyle: 'bold'
+					},
 					scaleLabel: {
 						display: true,
-						labelString: 'Course Grade'
+						labelString: 'Course Grade',
+						fontSize: 14,
+						fontStyle: 'bold'
 					}
 				}]
 			},
+			tooltips: {
+				displayColors: false,
+				callbacks: {
+			        title: function(tooltipItem, data) {
+			          return tooltipItem[0].yLabel + ': ' + tooltipItem[0].xLabel;
+			        },
+			        label: function() {}
+				}
+			}
 		}
 	});
 }

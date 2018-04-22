@@ -205,7 +205,7 @@ $(document).ready(function(){
     <h:panelGroup styleClass="all-submissions form-group row" layout="block">
       <h:outputLabel styleClass="col-md-2" value="#{evaluationMessages.view}"/>
       <h:selectOneMenu value="#{totalScores.allSubmissions}" id="allSubmissionsA1"
-        required="true" onchange="document.forms[0].submit();" rendered="#{totalScores.scoringOption eq '4' && totalScores.multipleSubmissionsAllowed eq 'true' }">
+        required="true" onchange="document.forms[0].submit();" rendered="#{totalScores.scoringOption eq '4'}">
       <f:selectItem itemValue="3" itemLabel="#{evaluationMessages.all_sub}" />
       <f:selectItem itemValue="4" itemLabel="#{evaluationMessages.average_sub}" />
       <f:valueChangeListener
@@ -213,7 +213,7 @@ $(document).ready(function(){
      </h:selectOneMenu>
 
      <h:selectOneMenu value="#{totalScores.allSubmissions}" id="allSubmissionsL1"
-        required="true" onchange="document.forms[0].submit();" rendered="#{totalScores.scoringOption eq '2' && totalScores.multipleSubmissionsAllowed eq 'true' }">
+        required="true" onchange="document.forms[0].submit();" rendered="#{totalScores.scoringOption eq '2'}">
       <f:selectItem itemValue="3" itemLabel="#{evaluationMessages.all_sub}" />
       <f:selectItem itemValue="2" itemLabel="#{evaluationMessages.last_sub}" />
       <f:valueChangeListener
@@ -221,7 +221,7 @@ $(document).ready(function(){
      </h:selectOneMenu>
 
      <h:selectOneMenu value="#{totalScores.allSubmissions}" id="allSubmissionsH1"
-        required="true" onchange="document.forms[0].submit();" rendered="#{totalScores.scoringOption eq '1' && totalScores.multipleSubmissionsAllowed eq 'true' }">
+        required="true" onchange="document.forms[0].submit();" rendered="#{totalScores.scoringOption eq '1'}">
       <f:selectItem itemValue="3" itemLabel="#{evaluationMessages.all_sub}" />
       <f:selectItem itemValue="1" itemLabel="#{evaluationMessages.highest_sub}" />
       <f:valueChangeListener

@@ -3396,18 +3396,23 @@ public class DeliveryBean
   }
   
   public boolean pastDueDate(){
-    boolean pastDue = true;
+    boolean pastDueDate = true;
     Date currentDate = new Date();
-		Date dueDate;
-		if (extendedTimeDeliveryService.hasExtendedTime()) {
-			dueDate = extendedTimeDeliveryService.getDueDate();
-		} else {
-			dueDate = publishedAssessment.getAssessmentAccessControl().getDueDate();
-		}
-    if (dueDate == null || dueDate.after(currentDate)){
-        pastDue = false;
+    Date due = extendedTimeDeliveryService.hasExtendedTime() ? extendedTimeDeliveryService.getDueDate() : publishedAssessment.getAssessmentAccessControl().getDueDate();
+
+    if (due == null) {
+      if (AssessmentAccessControlIfc.ACCEPT_LATE_SUBMISSION.equals(publishedAssessment.getAssessmentAccessControl().getLateHandling())) {
+        Date retract = extendedTimeDeliveryService.hasExtendedTime() ? extendedTimeDeliveryService.getRetractDate() : publishedAssessment.getAssessmentAccessControl().getRetractDate();
+        if (due == null && retract != null) {
+          due = retract;
+        }
+      }
     }
-    return pastDue;
+
+    if (due == null || due.after(currentDate)) {
+      pastDueDate = false;
+    }
+    return pastDueDate;
   }
 
   public boolean isAcceptLateSubmission() {

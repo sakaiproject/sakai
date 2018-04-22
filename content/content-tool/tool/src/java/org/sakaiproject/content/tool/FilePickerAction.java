@@ -112,6 +112,8 @@ import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.StringUtil;
 import org.sakaiproject.util.Validator;
 
+import static org.sakaiproject.content.util.IdUtil.isolateName;
+
 /**
  * The FilePickerAction drives the FilePicker helper.<br />
  * This works with the ResourcesTool to show a file picker / attachment editor that can be used by any Sakai tools as a helper.<br />
@@ -2559,24 +2561,6 @@ public class FilePickerAction extends PagedResourceHelperAction
 		}
 		return true;
 	}
-
-	/**
-	 * Find the resource name of a given resource id or filepath.
-	 * 
-	 * @param id
-	 *        The resource id.
-	 * @return the resource name.
-	 */
-	protected static String isolateName(String id)
-	{
-		if (id == null) return null;
-		if (id.length() == 0) return null;
-
-		// take after the last resource path separator, not counting one at the very end if there
-		boolean lastIsSeparator = id.charAt(id.length() - 1) == '/';
-		return id.substring(id.lastIndexOf('/', id.length() - 2) + 1, (lastIsSeparator ? id.length() - 1 : id.length()));
-
-	} // isolateName
 
 	/**
 	 * @param url
