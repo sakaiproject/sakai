@@ -18,16 +18,12 @@
  */
 package org.sakaiproject.sitestats.test.mocks;
 
-import java.security.Principal;
 import java.util.ArrayList;
 import java.util.List;
-
-import javax.servlet.http.HttpServletRequest;
 
 import org.mockito.Mockito;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.SessionManager;
-import org.sakaiproject.tool.api.ToolSession;
 
 public abstract class FakeSessionManager implements SessionManager {
 	private List<Session> sessions = new ArrayList<Session>();
