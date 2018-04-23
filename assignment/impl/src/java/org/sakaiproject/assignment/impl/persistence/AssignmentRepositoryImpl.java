@@ -62,6 +62,20 @@ public class AssignmentRepositoryImpl extends BasicSerializableRepository<Assign
     }
 
     @Override
+    @SuppressWarnings("unchecked")
+    public List<Assignment> findAssignmentsThatNeedReminding() {
+        final Instant now = Instant.now();
+        final Instant twentyFourHrsLater = now.plusSeconds(24*60*60); // Add 24 hours
+        return startCriteriaQuery()
+                .add(Restrictions.le("dueDate", twentyFourHrsLater))
+                .add(Restrictions.gt("dueDate", now))
+                .add(Restrictions.lt("openDate", now))
+                .add(Restrictions.eq("deleted", Boolean.FALSE))
+                .add(Restrictions.eq("reminderEmailSent", Boolean.FALSE))
+                .list();
+    }
+
+    @Override
     public List<String> findAllAssignmentIds() {
         return startCriteriaQuery()
                 .setProjection(Projections.property("id"))

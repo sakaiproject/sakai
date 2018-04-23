@@ -246,6 +246,13 @@ public class Assignment {
     @Column(name = "CONTENT_REVIEW")
     private Boolean contentReview = Boolean.FALSE;
 
+    @Column(name = "REMINDER_SENT")
+    private Boolean reminderEmailSent = Boolean.FALSE;
+
+    @Type(type = "org.sakaiproject.springframework.orm.hibernate.type.InstantType")
+    @Column(name = "REMINDER_DATE")
+    private Instant reminderEmailDate;
+
     public enum Access {
         SITE,
         GROUP
