@@ -29,6 +29,7 @@ import org.apache.wicket.extensions.markup.html.tabs.AbstractTab;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.ResourceModel;
 
+import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.sitestats.api.EventStat;
 import org.sakaiproject.sitestats.api.PrefsData;
 import org.sakaiproject.sitestats.api.Stat;
@@ -294,7 +295,7 @@ public class ActivityWidget extends Panel {
 				String val = null;
 				if(mostActiveUser != null) {
 					String id = null;
-					if(("-").equals(mostActiveUser) || ("?").equals(mostActiveUser)){
+					if(("-").equals(mostActiveUser) || EventTrackingService.UNKNOWN_USER.equals(mostActiveUser)){
 						id = "-";
 					}else{
 						try{
@@ -323,7 +324,7 @@ public class ActivityWidget extends Panel {
 					String name = null;
 					if(("-").equals(mostActiveUser)) {
 						name = (String) new ResourceModel("user_anonymous").getObject();
-					}else if(("?").equals(mostActiveUser)) {
+					}else if(EventTrackingService.UNKNOWN_USER.equals(mostActiveUser)) {
 						name = (String) new ResourceModel("user_anonymous_access").getObject();
 					}else{
 						name = Locator.getFacade().getStatsManager().getUserNameForDisplay(mostActiveUser);

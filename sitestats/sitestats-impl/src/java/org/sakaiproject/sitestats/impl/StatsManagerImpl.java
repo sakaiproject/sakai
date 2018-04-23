@@ -1262,7 +1262,7 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
                         .add(Expression.eq("siteId", siteId))
                         .add(Expression.in("eventId", events));
                 if(!showAnonymousAccessEvents)
-                    c.add(Expression.ne("userId", "?"));
+                    c.add(Expression.ne("userId", M_ets.UNKNOWN_USER));
                 if(userIdList != null && userIdList.size() > 0)
                     c.add(Expression.in("userId", userIdList));
                 if(iDate != null)
@@ -1819,7 +1819,7 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
                 Criteria c = session.createCriteria(ResourceStatImpl.class)
                         .add(Expression.eq("siteId", siteId));
                 if(!showAnonymousAccessEvents)
-                    c.add(Expression.ne("userId", "?"));
+                    c.add(Expression.ne("userId", M_ets.UNKNOWN_USER));
                 if(userIdList != null && userIdList.size() > 0)
                     c.add(Expression.in("userId", userIdList));
                 if(iDate != null)

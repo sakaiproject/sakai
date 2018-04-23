@@ -574,7 +574,7 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 			}
 			if(!isCollectAdminEvents() && ("admin").equals(userId)){
 				return;
-			}if(!M_sm.isShowAnonymousAccessEvents() && ("?").equals(userId)){
+			}if(!M_sm.isShowAnonymousAccessEvents() && M_ets.UNKNOWN_USER.equals(userId)){
 				return;
 			}
 			

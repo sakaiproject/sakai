@@ -50,6 +50,7 @@ import org.apache.wicket.model.StringResourceModel;
 import org.apache.wicket.request.http.WebResponse;
 import org.apache.wicket.request.handler.EmptyRequestHandler;
 
+import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.sitestats.api.EventStat;
@@ -330,7 +331,7 @@ public class ReportDataPage extends BasePage {
 					final String userId = ((Stat) model.getObject()).getUserId();
 					String name = null;
 					if (userId != null) {
-						if(("-").equals(userId) || ("?").equals(userId)) {
+						if(("-").equals(userId) || EventTrackingService.UNKNOWN_USER.equals(userId)) {
 							name = "-";
 						}else{
 							try{
@@ -353,7 +354,7 @@ public class ReportDataPage extends BasePage {
 					if (userId != null) {
 						if(("-").equals(userId)) {
 							name = (String) new ResourceModel("user_anonymous").getObject();
-						}else if(("?").equals(userId)) {
+						}else if(EventTrackingService.UNKNOWN_USER.equals(userId)) {
 							name = (String) new ResourceModel("user_anonymous_access").getObject();
 						}else{
 							name= Locator.getFacade().getStatsManager().getUserNameForDisplay(userId);

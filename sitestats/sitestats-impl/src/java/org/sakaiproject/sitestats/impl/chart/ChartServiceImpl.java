@@ -70,6 +70,7 @@ import org.jfree.data.xy.XYDataset;
 import org.jfree.ui.RectangleInsets;
 import org.jfree.util.SortOrder;
 
+import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.sitestats.api.EventStat;
@@ -1246,7 +1247,7 @@ public class ChartServiceImpl implements ChartService {
 				if (userId != null) {
 					if(("-").equals(userId)) {
 						name = msgs.getString("user_anonymous");
-					}else if(("?").equals(userId)) {
+					}else if(EventTrackingService.UNKNOWN_USER.equals(userId)) {
 						name = msgs.getString("user_anonymous_access");
 					}else{
 						name = M_sm.getUserNameForDisplay(userId);

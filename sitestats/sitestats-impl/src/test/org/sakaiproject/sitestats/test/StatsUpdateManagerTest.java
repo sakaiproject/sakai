@@ -763,7 +763,7 @@ public class StatsUpdateManagerTest extends AbstractTransactionalJUnit4SpringCon
 		// #3: ShowAnonymousAccessEvents
 		Assert.assertEquals(true, M_sm.isShowAnonymousAccessEvents());
 		// make sure it processes access events from anonymous
-		Event e1 = M_sum.buildEvent(new Date(), FakeData.EVENT_CONTENTNEW, "/content/group/"+FakeData.SITE_A_ID+"/resource_id", FakeData.SITE_A_ID, "?", "session-id-a");
+		Event e1 = M_sum.buildEvent(new Date(), FakeData.EVENT_CONTENTNEW, "/content/group/"+FakeData.SITE_A_ID+"/resource_id", FakeData.SITE_A_ID, EventTrackingService.UNKNOWN_USER, "session-id-a");
 		Event e2 = M_sum.buildEvent(new Date(), FakeData.EVENT_CONTENTNEW, "/content/group/"+FakeData.SITE_A_ID+"/resource_id", FakeData.SITE_A_ID, FakeData.USER_A_ID, "session-id-a");
 		M_sum.collectEvents(Arrays.asList(e1, e2));
 		List<ResourceStat> results = (List<ResourceStat>) db.getResultsForClass(ResourceStatImpl.class);
