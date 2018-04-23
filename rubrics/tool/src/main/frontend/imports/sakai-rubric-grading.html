@@ -34,7 +34,7 @@
     <iron-ajax
          id="getRubric"
          url="/rubrics-service/rest/rubrics/[[rubricId]]?projection=inlineRubric"
-         headers$='{"authorization": "[[token]]"}'
+         headers$='{"authorization": "[[rbcstoken]]"}'
          handle-as="json"
          content-type="application/json"
          on-response="rubricResponse"
@@ -44,7 +44,7 @@
     <iron-ajax
          id="getAssociation"
          url="/rubrics-service/rest/rubric-associations/search/by-tool-item-ids?toolId=[[toolId]]&itemId=[[entityId]]"
-         headers$='{"authorization": "[[token]]"}'
+         headers$='{"authorization": "[[rbcstoken]]"}'
          handle-as="json"
          on-response="associationsResponse"
          debounce-duration="300">
@@ -53,7 +53,7 @@
     <iron-ajax
          id="getEvaluation"
          url="/rubrics-service/rest/evaluations/search/by-tool-item-and-associated-item-and-evaluated-item-ids?toolId=[[toolId]]&itemId=[[entityId]]&evaluatedItemId=[[evaluatedItemId]]"
-         headers$='{"authorization": "[[token]]"}'
+         headers$='{"authorization": "[[rbcstoken]]"}'
          handle-as="json"
          on-response="evaluationResponse"
          debounce-duration="300">
@@ -66,7 +66,7 @@
       is: "sakai-rubric-grading",
       properties: {
         // API token
-        token: {
+        rbcstoken: {
           type: String,
           value: rubrics.getToken()
         },

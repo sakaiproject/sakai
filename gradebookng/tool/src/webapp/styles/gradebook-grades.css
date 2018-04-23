@@ -687,3 +687,16 @@ div.wicket-modal div.w_right > div {
 {
 	margin: 0;
 }
+
+div.wicket-modal {
+  z-index: 999 !important;
+  max-width: 100%;
+}
+
+div.wicket-mask-transparent, div.wicket-mask-dark {
+  z-index: 998 !important;
+}
+
+div.wicket-modal div.w_content_container {
+  overflow: initial !important;
+}

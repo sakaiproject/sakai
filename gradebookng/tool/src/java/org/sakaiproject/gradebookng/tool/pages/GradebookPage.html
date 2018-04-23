@@ -22,6 +22,24 @@
     <div wicket:id="updateCourseGradeDisplayWindow" />
     <div wicket:id="sortGradeItemsWindow" />
     <div wicket:id="courseGradeStatisticsWindow" />
+    <div wicket:id="rubricGradeWindow" />
+    <input wicket:id="rubricsTokenHiddenField" type="hidden" />
+    <script>
+        var tokenAttr = $("[name$='rubricsTokenHiddenField']").val();
+        var imports = [
+            '/rubrics-service/imports/sakai-rubric-association.html',
+            '/rubrics-service/imports/sakai-rubric-grading.html',
+            '/rubrics-service/imports/sakai-rubric-student.html'
+        ];
+        var Polymerdom = 'shady';
+        var rbcstoken = tokenAttr;
+
+        rubricGradingPoints = 0;
+        $('body').on('rubrics-event', function(e, payload){
+            rubricGradingPoints = payload.value;
+        });
+    </script>
+    <script src="/rubrics-service/js/sakai-rubrics.js"></script>
 
     <div wicket:id="gradeTableArea">
         <div wicket:id="noAssignments" class="gb-noGbItems">
