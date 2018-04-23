@@ -38,6 +38,7 @@ import org.apache.wicket.markup.html.form.Button;
 import org.apache.wicket.markup.html.form.ChoiceRenderer;
 import org.apache.wicket.markup.html.form.DropDownChoice;
 import org.apache.wicket.markup.html.form.Form;
+import org.apache.wicket.markup.html.form.HiddenField;
 import org.apache.wicket.markup.html.panel.EmptyPanel;
 import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.model.Model;
@@ -62,6 +63,7 @@ import org.sakaiproject.gradebookng.tool.actions.ViewAssignmentStatisticsAction;
 import org.sakaiproject.gradebookng.tool.actions.ViewCourseGradeLogAction;
 import org.sakaiproject.gradebookng.tool.actions.ViewCourseGradeStatisticsAction;
 import org.sakaiproject.gradebookng.tool.actions.ViewGradeLogAction;
+import org.sakaiproject.gradebookng.tool.actions.ViewRubricGradeAction;
 import org.sakaiproject.gradebookng.tool.actions.ViewGradeSummaryAction;
 import org.sakaiproject.gradebookng.tool.component.GbAjaxButton;
 import org.sakaiproject.gradebookng.tool.component.GbAjaxLink;
@@ -97,6 +99,7 @@ public class GradebookPage extends BasePage {
 	GbModalWindow addOrEditGradeItemWindow;
 	GbModalWindow studentGradeSummaryWindow;
 	GbModalWindow updateUngradedItemsWindow;
+	GbModalWindow rubricGradeWindow;
 	GbModalWindow gradeLogWindow;
 	GbModalWindow gradeCommentWindow;
 	GbModalWindow deleteItemWindow;
@@ -172,6 +175,14 @@ public class GradebookPage extends BasePage {
 
 		this.updateUngradedItemsWindow = new GbModalWindow("updateUngradedItemsWindow");
 		this.form.add(this.updateUngradedItemsWindow);
+
+		this.rubricGradeWindow = new GbModalWindow("rubricGradeWindow");
+		this.rubricGradeWindow.setPositionAtTop(true);
+		this.form.add(this.rubricGradeWindow);
+
+		String rubricsToken = rubricsService.generateJsonWebToken("sakai.gradebookng");
+		final HiddenField<String> rubricsTokenHiddenField = new HiddenField<String>("rubricsTokenHiddenField", Model.of(rubricsToken));
+		this.form.add(rubricsTokenHiddenField);
 
 		this.gradeLogWindow = new GbModalWindow("gradeLogWindow");
 		this.form.add(this.gradeLogWindow);
@@ -265,6 +276,7 @@ public class GradebookPage extends BasePage {
 					}
 				});
 		this.gradeTable.addEventListener("setScore", new GradeUpdateAction());
+		this.gradeTable.addEventListener("gradeRubric", new ViewRubricGradeAction());
 		this.gradeTable.addEventListener("viewLog", new ViewGradeLogAction());
 		this.gradeTable.addEventListener("editAssignment", new EditAssignmentAction());
 		this.gradeTable.addEventListener("viewStatistics", new ViewAssignmentStatisticsAction());
@@ -453,6 +465,10 @@ public class GradebookPage extends BasePage {
 		return this.updateUngradedItemsWindow;
 	}
 
+	public GbModalWindow getRubricGradeWindow() {
+		return this.rubricGradeWindow;
+	}
+
 	public GbModalWindow getGradeLogWindow() {
 		return this.gradeLogWindow;
 	}
@@ -539,6 +555,8 @@ public class GradebookPage extends BasePage {
 				.forUrl(String.format("/gradebookng-tool/scripts/gradebook-sorter.js?version=%s", version)));
 		response.render(JavaScriptHeaderItem
 				.forUrl(String.format("/gradebookng-tool/scripts/gradebook-connection-poll.js?version=%s", version)));
+		response.render(CssHeaderItem
+				.forUrl(String.format("/rubrics-service/css/sakai-rubrics-associate.css?version=%s", version)));
 
 		final StringValue focusAssignmentId = getPageParameters().get(FOCUS_ASSIGNMENT_ID_PARAM);
 		if (!focusAssignmentId.isNull()) {

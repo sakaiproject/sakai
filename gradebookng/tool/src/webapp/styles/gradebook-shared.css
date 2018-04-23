@@ -39,3 +39,6 @@
 .btn-table {
 	height: 34px;
 }
+.gb-summary-grade-score-rubric {
+  cursor: pointer;
+}

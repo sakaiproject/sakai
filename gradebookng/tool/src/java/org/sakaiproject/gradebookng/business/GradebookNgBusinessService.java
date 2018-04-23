@@ -67,6 +67,7 @@ import org.sakaiproject.gradebookng.business.util.EventHelper;
 import org.sakaiproject.gradebookng.business.util.FormatHelper;
 import org.sakaiproject.gradebookng.business.util.GbStopWatch;
 import org.sakaiproject.gradebookng.tool.model.GradebookUiSettings;
+import org.sakaiproject.rubrics.logic.RubricsService;
 import org.sakaiproject.service.gradebook.shared.AssessmentNotFoundException;
 import org.sakaiproject.service.gradebook.shared.Assignment;
 import org.sakaiproject.service.gradebook.shared.CategoryDefinition;
@@ -139,6 +140,9 @@ public class GradebookNgBusinessService {
 
 	@Setter
 	private SecurityService securityService;
+
+	@Setter
+	private RubricsService rubricsService;
 
 	public static final String ASSIGNMENT_ORDER_PROP = "gbng_assignment_order";
 	public static final String ICON_SAKAI = "icon-sakai--";
@@ -831,6 +835,16 @@ public class GradebookNgBusinessService {
 	public List<GbStudentGradeInfo> buildGradeMatrix(final List<Assignment> assignments,
 			final GradebookUiSettings uiSettings) throws GbException {
 		return this.buildGradeMatrix(assignments, this.getGradeableUsers(uiSettings.getGroupFilter()), uiSettings);
+	}
+
+	public HashMap<Long, Boolean> buildHasAssociatedRubricMap(final List<Assignment> assignments) {
+		HashMap<Long, Boolean> map = new HashMap<Long, Boolean>();
+		for (Assignment assignment : assignments) {
+			Long assignmentId = assignment.getId();
+			boolean hasAssociatedRubric = rubricsService.hasAssociatedRubric("sakai.gradebookng", assignmentId.toString());
+			map.put(assignmentId, hasAssociatedRubric);
+		}
+		return map;
 	}
 
 	/**

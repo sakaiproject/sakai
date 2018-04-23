@@ -22,6 +22,7 @@ import org.apache.wicket.markup.head.CssHeaderItem;
 import org.apache.wicket.markup.head.IHeaderResponse;
 import org.apache.wicket.markup.head.JavaScriptHeaderItem;
 import org.apache.wicket.markup.html.basic.Label;
+import org.apache.wicket.markup.html.form.HiddenField;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.StringResourceModel;
 import org.sakaiproject.component.cover.ServerConfigurationService;
@@ -52,6 +53,9 @@ public class StudentPage extends BasePage {
 		final Map<String, Object> userData = new HashMap<>();
 		userData.put("studentUuid", u.getId());
 		userData.put("groupedByCategoryByDefault", true);
+
+		final HiddenField<String> rubricsTokenHiddenField = new HiddenField<String>("rubricsTokenHiddenField", Model.of(rubricsService.generateJsonWebToken("sakai.gradebookng")));
+		add(rubricsTokenHiddenField);
 
 		add(new Label("heading", new StringResourceModel("heading.studentpage", null, new Object[] { u.getDisplayName() })));
 		add(new StudentGradeSummaryGradesPanel("summary", Model.ofMap(userData)));

@@ -70,7 +70,7 @@
     <iron-ajax
          id="getRubrics"
          url="/rubrics-service/rest/rubrics"
-         headers$='{"authorization": "[[token]]"}'
+         headers$='{"authorization": "[[rbcstoken]]"}'
          handle-as="json"
          on-response="listresponse"
          debounce-duration="300">
@@ -80,7 +80,7 @@
     <iron-ajax
          id="getAssociation"
          url="/rubrics-service/rest/rubric-associations/search/by-tool-item-ids?toolId=[[toolId]]&itemId=[[entityId]]"
-         headers$='{"authorization": "[[token]]"}'
+         headers$='{"authorization": "[[rbcstoken]]"}'
          handle-as="json"
          on-response="associationsResponse"
          debounce-duration="300">
@@ -92,7 +92,7 @@
     Polymer({
       is: "sakai-rubric-association",
       properties: {
-        token: {
+        rbcstoken: {
           type: String,
           value: rubrics.getToken()
         },
@@ -248,6 +248,7 @@
       },
       ready: function(e) {
         this.isAssociated = 0;
+        this.configurationOptions = [];
         this.$.getAssociation.generateRequest();
       }
     });

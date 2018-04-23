@@ -185,12 +185,15 @@ var rubrics = {
   function lazyLoadPolymerAndElements () {
     
     // Let's use Shadow DOM if we have it, because awesome.
+    // Is this really awesome?
+    /*
     window.Polymer = window.Polymer || {};
     window.Polymer.dom = 'shadow';
 
     if (typeof Polymerdom !== "undefined") {
       window.Polymer.dom = Polymerdom;
     }
+    */
 
     imports.forEach(function(elementURL) {
 

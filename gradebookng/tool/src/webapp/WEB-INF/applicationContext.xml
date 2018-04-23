@@ -13,6 +13,7 @@
 		<property name="gradebookPermissionService" ref="org.sakaiproject.service.gradebook.GradebookPermissionService" />
 		<property name="gradebookFrameworkService" ref="org.sakaiproject.service.gradebook.GradebookFrameworkService"/>
 		<property name="securityService" ref="org.sakaiproject.authz.api.SecurityService" />
+		<property name="rubricsService" ref="org.sakaiproject.rubrics.logic.RubricsService" />
 		<property name="gradebookExternalAssessmentService" ref="org.sakaiproject.service.gradebook.GradebookExternalAssessmentService"/>
 	</bean>
 
