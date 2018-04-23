@@ -87,6 +87,8 @@ public class DiscussionTopicBean
   private String postFirst = "";
   private String postAnonymous = "";
   private String revealIDsToRoles = "";
+  private Boolean allowEmailNotifications = null;
+  private Boolean includeContentsInEmails = null;
   private String mustRespondBeforeReading = "";
   private String parentForumId = "";
   
@@ -1274,6 +1276,57 @@ public class DiscussionTopicBean
 			String formattedOpenDate = formatter_date.format(topic.getOpenDate());
 			return formattedOpenDate;
 		}
+	}
+
+	/**
+	 * @return Returns boolean value of allowEmailNotifications
+	 */
+	public Boolean getTopicAllowEmailNotifications() {
+		log.debug("getTopicAllowEmailNotifications()");
+		if (allowEmailNotifications == null) {
+			if (topic == null || topic.getAllowEmailNotifications() == null) {
+				allowEmailNotifications = Boolean.FALSE;
+			} else {
+				allowEmailNotifications = topic.getAllowEmailNotifications();
+			}
+		}
+
+		return allowEmailNotifications;
+	}
+
+	/**
+	 * @param allowEmailNotifications
+	 * Set the allowEmailNotifications status.
+	 */
+	public void setTopicAllowEmailNotifications(Boolean allowEmailNotifications)
+	{
+		log.debug("setTopicAllowEmailNotifications(Boolean {}", allowEmailNotifications);
+		topic.setAllowEmailNotifications(allowEmailNotifications);
+	}
+
+	/**
+	 * @return Returns boolean value of includeContentsInEmails status.
+	 */
+	public Boolean getTopicIncludeContentsInEmails() {
+		log.debug("getTopicIncludeContentsInEmails()");
+		if (includeContentsInEmails == null) {
+			if (topic == null || topic.getIncludeContentsInEmails() == null) {
+				includeContentsInEmails = Boolean.FALSE;
+			} else {
+				includeContentsInEmails = topic.getIncludeContentsInEmails();
+			}
+		}
+
+		return includeContentsInEmails;
+	}
+
+	/**
+	 * @param includeContentsInEmails
+	 * Set the includeContentsInEmails status.
+	 */
+	public void setTopicIncludeContentsInEmails(Boolean includeContentsInEmails) {
+		log.debug("setTopicIncludeContentsInEmails(Boolean {})", includeContentsInEmails);
+		topic.setIncludeContentsInEmails(includeContentsInEmails);
 	}
 
 	/**
