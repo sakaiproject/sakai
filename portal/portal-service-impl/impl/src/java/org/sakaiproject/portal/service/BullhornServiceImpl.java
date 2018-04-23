@@ -194,7 +194,7 @@ public class BullhornServiceImpl implements BullhornService, Observer {
         if (arg instanceof Event) {
             Event e = (Event) arg;
             String event = e.getEvent();
-            // We add this comparation with UNKNOWN_USER because implementation of BaseEventTrackingService
+            // SAK-38425, we add this comparation with UNKNOWN_USER because implementation of BaseEventTrackingService
             // UNKNOWN_USER is an user in a server without session. 
             if (HANDLED_EVENTS.contains(event) && !EventTrackingService.UNKNOWN_USER.equals(e.getUserId()) ) {
                 // About to start a new thread that expects the changes in this hibernate session
