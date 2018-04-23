@@ -275,7 +275,7 @@ public abstract class BaseEventTrackingService implements EventTrackingService
 			id = sessionManager().getCurrentSessionUserId();
 			if (id == null)
 			{
-				id = "?";
+				id = UNKNOWN_USER;
 			}
 
 			be.setUserId(id);
