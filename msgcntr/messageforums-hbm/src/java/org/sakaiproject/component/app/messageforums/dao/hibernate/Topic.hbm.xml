@@ -72,6 +72,14 @@
     <property name="revealIDsToRoles">
         <column name="REVEAL_IDS_TO_ROLES" not-null="true" />
     </property>
+
+    <property name="allowEmailNotifications">
+        <column name="ALLOW_EMAIL_NOTIFICATIONS" not-null="true" />
+    </property>
+
+    <property name="includeContentsInEmails">
+        <column name="INCLUDE_CONTENTS_IN_EMAILS" not-null="true" />
+    </property>
 	
 	<property name="autoMarkThreadsRead" column="AUTO_MARK_THREADS_READ" not-null="true" />
 
