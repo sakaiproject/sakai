@@ -48,6 +48,13 @@ public class GbGradeInfo implements Serializable, Comparable<GbGradeInfo> {
 	private boolean gradeable;
 
 	/**
+	* Whether this grade has been dropped from the category score calculation
+	*/
+	@Getter
+	@Setter
+	private boolean droppedFromCategoryScore = false;
+
+	/**
 	 * Constructor. Takes a GradeDefinition or null. If null, a stub is created.
 	 *
 	 * @param gd GradeDefinition object. May be null

@@ -32,6 +32,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -58,6 +59,7 @@ import org.sakaiproject.section.api.facade.Role;
 import org.sakaiproject.service.gradebook.shared.AssessmentNotFoundException;
 import org.sakaiproject.service.gradebook.shared.AssignmentHasIllegalPointsException;
 import org.sakaiproject.service.gradebook.shared.CategoryDefinition;
+import org.sakaiproject.service.gradebook.shared.CategoryScoreData;
 import org.sakaiproject.service.gradebook.shared.CommentDefinition;
 import org.sakaiproject.service.gradebook.shared.ConflictingAssignmentNameException;
 import org.sakaiproject.service.gradebook.shared.ConflictingCategoryNameException;
@@ -3132,7 +3134,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
     }
 
 	@Override
-	public Double calculateCategoryScore(final Object gradebook, final String studentUuid, final CategoryDefinition category, final List<org.sakaiproject.service.gradebook.shared.Assignment> categoryAssignments, final Map<Long,String> gradeMap) {
+	public Optional<CategoryScoreData> calculateCategoryScore(final Object gradebook, final String studentUuid, final CategoryDefinition category, final List<org.sakaiproject.service.gradebook.shared.Assignment> categoryAssignments, final Map<Long,String> gradeMap) {
 
 		final Gradebook gb = (Gradebook) gradebook;
 
@@ -3176,6 +3178,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 			a.setRemoved(false); //shared.GradebookAssignment doesn't include removed so this will always be false
 			a.setGradebook(gb);
 			a.setCategory(c);
+			a.setId(assignment.getId());  // store the id so we can find out later which grades were dropped, if any
 
 			//create the AGR
 			final AssignmentGradeRecord gradeRecord = new AssignmentGradeRecord(a, studentUuid, grade);
@@ -3187,7 +3190,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 	}
 
 	@Override
-	public Double calculateCategoryScore(final Long gradebookId, final String studentUuid, final Long categoryId) {
+	public Optional<CategoryScoreData> calculateCategoryScore(final Long gradebookId, final String studentUuid, final Long categoryId) {
 
 		//get all grade records for the student
 		@SuppressWarnings({ "unchecked", "rawtypes"})
@@ -3208,22 +3211,22 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 	/**
 	 * Does the heavy lifting for the category calculations.
 	 * Requires the List of AssignmentGradeRecord so that we can applyDropScores.
-	 * @param studentUuid the studnet uuid
-	 * @param categoryId the cateogry id we are interested in
+	 * @param studentUuid the student uuid
+	 * @param categoryId the category id we are interested in
 	 * @param gradeRecords all grade records for the student
 	 * @return
 	 */
-	private Double calculateCategoryScore(final String studentUuid, final Long categoryId, final List<AssignmentGradeRecord> gradeRecords) {
+	private Optional<CategoryScoreData> calculateCategoryScore(final String studentUuid, final Long categoryId, final List<AssignmentGradeRecord> gradeRecords) {
 
 		//validate
 		if(gradeRecords == null) {
 			log.debug("No grade records for student: {}. Nothing to do.", studentUuid);
-			return null;
+			return Optional.empty();
 		}
 
 		if (categoryId == null) {
 			log.debug("No category supplied, nothing to do.");
-			return null;
+			return Optional.empty();
 		}
 
 		//setup
@@ -3234,6 +3237,13 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 
 		// apply any drop/keep settings for this category
 		applyDropScores(gradeRecords);
+
+		// find the records marked as dropped (highest/lowest) before continuing,
+		// as gradeRecords will be modified in place after this and these records will be removed
+		List<Long> droppedItemIds = gradeRecords.stream()
+				.filter(AssignmentGradeRecord::getDroppedFromGrade)
+				.map(agr -> agr.getAssignment().getId())
+				.collect(Collectors.toList());
 
 		// Since all gradeRecords for the student are passed in, not just for this category,
 		// plus they may not meet the criteria for including in the calculation,
@@ -3271,7 +3281,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 		// pre-calculation
 		// Rule 1. If category only has a single EC item, don't try to calculate category total.
 		if(gradeRecords.size() == 1 && gradeRecords.get(0).getAssignment().isExtraCredit()) {
-			return null;
+			return Optional.empty();
 		}
 
 		//iterate the filtered list and set the variables for the calculation
@@ -3295,11 +3305,11 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 		}
 
 		if (numScored == 0 || numOfAssignments == 0 || totalPossible.doubleValue() == 0) {
-    		return null;
+    		return Optional.empty();
     	}
 
     	final BigDecimal mean = totalEarned.divide(new BigDecimal(numScored), GradebookService.MATH_CONTEXT).divide((totalPossible.divide(new BigDecimal(numOfAssignments), GradebookService.MATH_CONTEXT)), GradebookService.MATH_CONTEXT).multiply(new BigDecimal("100"));
-    	return mean.doubleValue();
+    	return Optional.of(new CategoryScoreData(mean.doubleValue(), droppedItemIds));
 	}
 
 	@Override

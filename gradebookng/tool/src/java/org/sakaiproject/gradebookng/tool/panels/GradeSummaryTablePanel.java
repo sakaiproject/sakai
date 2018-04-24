@@ -37,6 +37,7 @@ import org.sakaiproject.gradebookng.tool.model.GradebookUiSettings;
 import org.sakaiproject.gradebookng.tool.pages.BasePage;
 import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
 import org.sakaiproject.service.gradebook.shared.Assignment;
+import org.sakaiproject.service.gradebook.shared.CategoryDefinition;
 import org.sakaiproject.service.gradebook.shared.GradingType;
 
 public class GradeSummaryTablePanel extends BasePanel {
@@ -71,6 +72,7 @@ public class GradeSummaryTablePanel extends BasePanel {
 		final boolean showingStudentView = (boolean) data.get("showingStudentView");
 		final GradingType gradingType = (GradingType) data.get("gradingType");
 		this.isGroupedByCategory = (boolean) data.get("isGroupedByCategory");
+		final Map<String, CategoryDefinition> categoriesMap = (Map<String, CategoryDefinition>) data.get("categoriesMap");
 
 		if (getPage() instanceof GradebookPage) {
 			final GradebookPage page = (GradebookPage) getPage();
@@ -117,7 +119,11 @@ public class GradeSummaryTablePanel extends BasePanel {
 		addOrReplace(new WebMarkupContainer("weightColumnHeader")
 				.setVisible(categoriesEnabled && isCategoryWeightEnabled && this.isGroupedByCategory));
 
-		addOrReplace(new WebMarkupContainer("categoryColumnHeader").setVisible(categoriesEnabled && !this.isGroupedByCategory));
+		boolean catColVisible = categoriesEnabled && !isGroupedByCategory;
+		addOrReplace(new WebMarkupContainer("categoryColumnHeader").setVisible(catColVisible));
+
+		addOrReplace(new WebMarkupContainer("dateColumnHeader")
+				.add(AttributeAppender.append("class", catColVisible ? "col-md-1" : "col-md-2"))); // steal width from date column to give to category column
 
 		// output all of the categories
 		// within each we then add the assignments in each category
@@ -135,18 +141,27 @@ public class GradeSummaryTablePanel extends BasePanel {
 					if (categoryNamesToAssignments.containsKey(categoryName)) {
 						categoryAssignments = categoryNamesToAssignments.get(categoryName);
 					} else {
-						categoryAssignments = new ArrayList<Assignment>();
+						categoryAssignments = new ArrayList<>();
 					}
 				} else {
-					categoryAssignments = new ArrayList<Assignment>();
+					categoryAssignments = new ArrayList<>();
 					categoryNamesToAssignments.values().forEach(categoryAssignments::addAll);
 				}
 
 				final WebMarkupContainer categoryRow = new WebMarkupContainer("categoryRow");
-				categoryRow
-						.setVisible(categoriesEnabled && GradeSummaryTablePanel.this.isGroupedByCategory && !categoryAssignments.isEmpty());
+				categoryRow.setVisible(categoriesEnabled && GradeSummaryTablePanel.this.isGroupedByCategory && !categoryAssignments.isEmpty());
 				categoryItem.add(categoryRow);
 				categoryRow.add(new Label("category", categoryName));
+
+				DropInfoPair pair = getDropInfo(categoryName, categoriesMap);
+				if (!pair.second.isEmpty()) {
+					pair.first += " " + getString("label.category.dropSeparator") + " ";
+				}
+				WebMarkupContainer dropInfo = new WebMarkupContainer("categoryDropInfo");
+				dropInfo.setVisible(!pair.first.isEmpty());
+				dropInfo.add(new Label("categoryDropInfo1", pair.first));
+				dropInfo.add(new Label("categoryDropInfo2", pair.second).setVisible(!pair.second.isEmpty()));
+				categoryRow.add(dropInfo);
 
 				if (!categoryAssignments.isEmpty()) {
 					final Double categoryAverage = categoryAverages.get(categoryAssignments.get(0).getCategoryId());
@@ -232,8 +247,9 @@ public class GradeSummaryTablePanel extends BasePanel {
 								assignment.getDueDate() == null ? 0 : assignment.getDueDate().getTime()));
 						assignmentItem.add(dueDate);
 
+						final WebMarkupContainer gradeScore = new WebMarkupContainer("gradeScore");
 						if (GradingType.PERCENTAGE.equals(gradingType)) {
-							assignmentItem.add(new Label("grade",
+							gradeScore.add(new Label("grade",
 									new StringResourceModel("label.percentage.valued", null,
 											new Object[] { FormatHelper.formatGrade(rawGrade) })) {
 								@Override
@@ -241,10 +257,10 @@ public class GradeSummaryTablePanel extends BasePanel {
 									return StringUtils.isNotBlank(rawGrade);
 								}
 							});
-							assignmentItem.add(new Label("outOf").setVisible(false));
+							gradeScore.add(new Label("outOf").setVisible(false));
 						} else {
-							assignmentItem.add(new Label("grade", FormatHelper.formatGradeForDisplay(rawGrade)));
-							assignmentItem.add(new Label("outOf",
+							gradeScore.add(new Label("grade", FormatHelper.formatGradeForDisplay(rawGrade)));
+							gradeScore.add(new Label("outOf",
 									new StringResourceModel("label.studentsummary.outof", null, new Object[] { assignment.getPoints() })) {
 								@Override
 								public boolean isVisible() {
@@ -252,15 +268,44 @@ public class GradeSummaryTablePanel extends BasePanel {
 								}
 							});
 						}
+						if (gradeInfo != null && gradeInfo.isDroppedFromCategoryScore()) {
+							gradeScore.add(AttributeAppender.append("class", "gb-summary-grade-score-dropped"));
+						}
+						assignmentItem.add(gradeScore);
 
 						assignmentItem.add(new Label("comments", comment));
-						assignmentItem.add(
-								new Label("category", assignment.getCategoryName())
-										.setVisible(categoriesEnabled && !GradeSummaryTablePanel.this.isGroupedByCategory));
+
+						WebMarkupContainer catCon = new WebMarkupContainer("category");
+						catCon.setVisible(categoriesEnabled && !isGroupedByCategory);
+						catCon.add(new Label("categoryName", assignment.getCategoryName()));
+						DropInfoPair pair = getDropInfo(assignment.getCategoryName(), categoriesMap);
+						catCon.add(new Label("categoryDropInfo", pair.first).setVisible(!pair.first.isEmpty()));
+						catCon.add(new Label("categoryDropInfo2", pair.second).setVisible(!pair.second.isEmpty()));
+						assignmentItem.add(catCon);
 					}
 				});
 			}
 		});
 
+	}
+
+	private final class DropInfoPair {
+		public String first = "";
+		public String second = "";
+	}
+
+	private DropInfoPair getDropInfo(String categoryName, Map<String, CategoryDefinition> categoriesMap) {
+		DropInfoPair pair = new DropInfoPair();
+		if (categoryName != null && !categoryName.equals(getString(GradebookPage.UNCATEGORISED))) {
+			List<String> info = FormatHelper.formatCategoryDropInfo(categoriesMap.get(categoryName));
+			if (info.size() > 0) {
+				pair.first = info.get(0);
+			}
+			if (info.size() > 1) {
+				pair.second = info.get(1);
+			}
+		}
+
+		return pair;
 	}
 }
