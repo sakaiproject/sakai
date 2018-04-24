@@ -17,12 +17,7 @@
 package org.sakaiproject.tool.gradebook.ui;
 
 import java.io.IOException;
-import java.util.Random;
 
-import javax.crypto.SecretKey;
-import javax.crypto.spec.SecretKeySpec;
-import javax.servlet.ServletConfig;
-import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -42,29 +37,6 @@ import org.sakaiproject.tool.gradebook.facades.ContextManagement;
  */
 @Slf4j
 public class EntryServlet extends HttpServlet {
-    public static final String INIT_SECRET = "org.apache.myfaces.secret";
-    public static final String GENERATE_RANDOM_SECRET = "GENERATE_RANDOM_SECRET";
-    public static final String DEFAULT_ALGORITHM = "DES";
-
-    public void init(ServletConfig config) throws ServletException {
-        ServletContext servletContext = config.getServletContext();
-        handleMyFacesSecret(servletContext);
-        super.init(config);
-    }
-    
-    private void handleMyFacesSecret(ServletContext servletContext) {
-        String secret = servletContext.getInitParameter(INIT_SECRET);
-        if(secret == null) { // this means that org.apache.myfaces.secret context param was removed from gradebook web.xml
-            if (log.isWarnEnabled()) log.warn("MyFaces ViewState encryption has been disabled.  See the MyFaces Wiki for encryption options.");
-        } else if(secret.equalsIgnoreCase(GENERATE_RANDOM_SECRET)) {
-            int length = 8;
-            byte[] bytes = new byte[length];
-            new Random().nextBytes(bytes);
-            SecretKey secretKey = new SecretKeySpec(bytes, DEFAULT_ALGORITHM);
-            servletContext.setAttribute("org.apache.myfaces.secret.CACHE", secretKey);
-            if(log.isDebugEnabled()) log.debug("generated random MyFaces secret");
-        } // else if this is not true, then org.apache.myfaces.secret context param was customized in web.xml, so let MyFaces StateUtils handle secret
-    }
 
     public void doPost(HttpServletRequest req, HttpServletResponse resp)
 			throws ServletException, java.io.IOException {
