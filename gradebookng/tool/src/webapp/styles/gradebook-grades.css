@@ -418,7 +418,7 @@ div.wicket-modal div.w_right > div {
 .gb-summary-grade-panel .gb-summary-category-toggle:hover,
 .gb-summary-grade-panel .gb-summary-category-toggle:active {
   text-decoration: none;
-  float: left;
+  display: flex;
 }
 .gb-summary-grade-title {
   font-weight: normal;
@@ -426,7 +426,9 @@ div.wicket-modal div.w_right > div {
 .gb-summary-grade-panel .gb-summary-category-toggle:before {
   font-family: 'gradebook-icons';
   content: '\f078';
-  padding-right: 4px;
+  padding-right: 5px;
+  width: 24px;
+  text-align: center;
 }
 .gb-summary-grade-panel .gb-summary-category-toggle.collapsed:before {
   content: '\f054';
@@ -520,3 +522,36 @@ div.wicket-modal div.w_right > div {
 {
   text-align: left;
 }
+
+.gb-summary-grade-score-dropped
+{
+  background-image: repeating-linear-gradient(135deg, #eee, #eee 5px, #fff 5px, #fff 10px);
+  position: relative;
+}
+
+.gb-summary-grade-score-dropped .gb-summary-grade-score-raw
+{
+  text-decoration: line-through;
+}
+
+.gb-summary-grade-category-dropInfo
+{
+  font-size: 0.9em;
+  color: #999999;
+  font-weight: normal;
+  margin: 0 0 0 24px;
+}
+
+.gb-summary-grade-category-dropInfo span
+{
+  white-space: nowrap;
+}
+
+.gb-summary-grade-category-col-dropInfo
+{
+  font-size: 0.9em;
+  color: #999999;
+  font-weight: normal;
+  margin: 0;
+}
+
