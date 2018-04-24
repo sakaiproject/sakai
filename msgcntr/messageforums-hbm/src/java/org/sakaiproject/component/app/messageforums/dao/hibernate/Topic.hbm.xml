@@ -169,7 +169,7 @@
 	      <column name="HOUR_BEFORE_RESPONSES_VISIBLE" length="10" not-null="false" />
 	    </property>
 	    <property name="restrictPermissionsForGroups">
-	      <column name="RESTRICT_PERMISSIONS_FOR_GROUPS" not-null="true" />
+	      <column name="RESTRICT_PERMS_FOR_GROUPS" not-null="true" />
 	    </property>
 	    <!-- 
 	    <many-to-one name="dateRestrictions" column="DATE_RESTRICTIONS"
