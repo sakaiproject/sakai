@@ -5,15 +5,6 @@
 	<display-name>sakai-gradebook-tool</display-name>
 	<description>Sakai Gradebook Tool Integration</description>
 	
-	<!-- the following context-param allows the gradebook to generate a random secret for 
-	MyFaces ViewState encryption. The encryption algorithm can be customized by 
-	changing <param-value>.  See MyFaces wiki for encryption options. However, removal 
-	of this context-param disables encryption.  Do not remove!
-	-->
-    <context-param>
-      <param-name>org.apache.myfaces.secret</param-name>
-      <param-value>GENERATE_RANDOM_SECRET</param-value>
-    </context-param>
 	<context-param>
 		<param-name>contextConfigLocation</param-name>
 		<param-value>
