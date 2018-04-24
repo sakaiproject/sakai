@@ -19,6 +19,7 @@
 
 package org.sakaiproject.signup.tool.jsf.organizer.action;
 
+import java.text.Collator;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -105,6 +106,11 @@ public class CreateSitesGroups {
 					groupWrappers.add(groupWrapper);
 				}
 			}
+			groupWrappers.sort( (SignupGroupWrapper x, SignupGroupWrapper y) ->{
+				Collator collator = Collator.getInstance();
+				collator.setStrength(Collator.PRIMARY);
+		        return collator.compare(x.getSignupGroup().getTitle(), y.getSignupGroup().getTitle());
+			});
 			// TODO remove no permission to create any site groupWrappers empty
 			// and site-wide not allowed
 			sSiteWrapper.setSignupGroupWrappers(groupWrappers);
