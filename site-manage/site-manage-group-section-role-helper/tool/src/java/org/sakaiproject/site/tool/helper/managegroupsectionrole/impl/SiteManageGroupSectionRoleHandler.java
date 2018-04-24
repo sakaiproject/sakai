@@ -833,10 +833,7 @@ public class SiteManageGroupSectionRoleHandler {
     		try
     		{
     			siteService.save(site);
-    			
-    			// post event about the participant update
-				EventTrackingService.post(EventTrackingService.newEvent(SiteService.SECURE_UPDATE_GROUP_MEMBERSHIP, group.getId(),true));
-			
+
 				if (serverConfigurationService.getBoolean(SiteHelper.WSETUP_TRACK_USER_MEMBERSHIP_CHANGE, false))
 				{
 					// added members
@@ -1162,7 +1159,7 @@ public class SiteManageGroupSectionRoleHandler {
             // save the changes
             try
             {
-                siteService.saveGroupMembership(site);
+                siteService.save(site);
                 // reset the form params
                 resetParams();
             } 

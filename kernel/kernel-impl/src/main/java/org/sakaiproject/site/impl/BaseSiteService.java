@@ -1096,6 +1096,8 @@ public abstract class BaseSiteService implements SiteService, Observer
 				try
 				{
 					authzGroupService().save(group.m_azg);
+					// track it
+					eventTrackingService().post(eventTrackingService().newEvent(SECURE_UPDATE_GROUP_MEMBERSHIP, group.getId(), true));
 				}
 				catch (Exception t)
 				{
