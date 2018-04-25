@@ -12,7 +12,7 @@
                             <span class="fa fa-home" aria-hidden="true"></span>
                             <span class="Mrphs-sitesNav__menuitem--myworkspace-label">${rloader.sit_mywor}</span>
                         </a>
-                        <a class="Mrphs-sitesNav__dropdown" href="#" data-site-id="${site.siteId}" role="separator"></a>
+                        <a class="Mrphs-sitesNav__dropdown" href="#" data-site-id="${site.siteId}" aria-haspopup="true"></a>
                     </li>           
                 #end ## END of IF (${site.isMyWorkspace})
 
@@ -22,7 +22,7 @@
                         <a class="link-container" href="${site.siteUrl}" title="${site.fullTitle}">
                             <span>#if ( ( ${tabDisplayLabel} == 2 ) && ( ${site.shortDescription} ) )${site.shortDescription}#else${site.siteTitleTrunc}#end</span>
                         </a>
-                        <a class="Mrphs-sitesNav__dropdown" href="#" data-site-id="${site.siteId}" role="separator"></a>
+                        <a class="Mrphs-sitesNav__dropdown" href="#" data-site-id="${site.siteId}" aria-haspopup="true"></a>
                     </li>
 
                 #end ## END of IF (${site.isMyWorkspace})
