@@ -22,9 +22,7 @@ import java.util.List;
 
 import org.mockito.Mockito;
 import org.sakaiproject.entity.api.EntityManager;
-import org.sakaiproject.entity.api.EntityProducer;
 import org.sakaiproject.entity.api.Reference;
-import org.sakaiproject.sitestats.test.data.FakeData;
 
 public abstract class FakeEntityManager implements EntityManager {
 

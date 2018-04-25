@@ -1,7 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+
+    <context:annotation-config />
+    <bean id="org.sakaiproject.sitestats.impl.SiteStatsDatabaseConfig"
+          class="org.sakaiproject.sitestats.impl.SiteStatsPersistenceConfig" />
 
     <!-- Read file properties -->
     <bean id="testPropertiesConfigurer"
@@ -39,15 +44,15 @@
         </property>
     </bean>
 
-    <!-- Transaction manager from the SessionFactory --> 
+    <!-- Transaction manager from the SessionFactory -->
     <bean id="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager"
         class="org.springframework.orm.hibernate4.HibernateTransactionManager">
-        <property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
+        <property name="sessionFactory" ref="org.sakaiproject.sitestats.SiteStatsSessionFactory"/>
     </bean>
 
     <bean abstract="true" id="sstTxTemplate"
         class="org.springframework.orm.hibernate4.support.HibernateDaoSupport">
-        <property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory" />
+        <property name="sessionFactory" ref="org.sakaiproject.sitestats.SiteStatsSessionFactory" />
     </bean>
 
 </beans>
