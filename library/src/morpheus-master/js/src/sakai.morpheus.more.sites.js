@@ -134,7 +134,14 @@ function closeDrawer() {
   $PBJQ('#otherSiteTools').remove();
   $PBJQ('.selectedTab').unbind('click');
   $PBJQ('.moreSitesLink').unbind('keydown');
-  $PBJQ('.more-tab a').focus();
+
+  // For desktop screen size
+  if ($PBJQ('.view-all-sites-btn a:visible').length) {
+    $PBJQ('.view-all-sites-btn a').focus();
+  }
+  else {
+    $PBJQ('.js-toggle-sites-nav').focus();
+  }
 
 }
 
