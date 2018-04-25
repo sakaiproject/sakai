@@ -188,12 +188,13 @@ function addArrowNavAndDisableTabNav(ul) {
       e.preventDefault();
       var next = obj.closest('li').next();
 
-      if (next.length === 0 || next.find('a.Mrphs-sitesNav__submenuitem-title').length == 0) {
+      if (next.length === 0 || next.find('a').length == 0) {
         // loop around
         next = ul.find('li').first();
       }
 
-      next.find('a.Mrphs-sitesNav__submenuitem-title').focus();
+      ul.find('li a').attr('tabindex', '-1');
+      next.find('a').focus().attr('tabindex', '0');
 
     } else if (e.keyCode == 38) {
       // Up arrow.  Move to the previous item, or loop around if we're at the top.
@@ -202,10 +203,11 @@ function addArrowNavAndDisableTabNav(ul) {
 
       if (prev.length === 0) {
         // jump to the bottom
-        prev = ul.find('a.Mrphs-sitesNav__submenuitem-title').closest('ul')
+        prev = ul.find('a').closest('ul')
       }
 
-      prev.find('a.Mrphs-sitesNav__submenuitem-title').focus();
+      ul.find('li a').attr('tabindex', '-1');
+      prev.find('a').focus().attr('tabindex', '0');
 
     } else if (e.keyCode == 9) { // Suck up the menu if tab is pressed
         closeAllDropdownMenus();
