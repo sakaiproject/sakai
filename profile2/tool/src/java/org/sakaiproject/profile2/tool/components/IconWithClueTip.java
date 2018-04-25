@@ -24,23 +24,9 @@ import org.apache.wicket.markup.html.image.ContextImage;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
+import org.apache.wicket.model.ResourceModel;
 
 /*
- * Must already have cluetip js libraries setup
- * 
- * Customise the behaviour by configuring like so, on your page:
- * 
- $(document).ready(function() {
-	$('.sakai-wicket-iconwithtooltip').cluetip({
-		local: true,
-		showTitle: false,
-		attribute: 'rel',
-		cursor: 'pointer',
-		cluetipClass: 'jtip',
-		arrows: true,
-		hoverIntent: true
-	});	
-});
  * 
  * Eventually this will be done via setters on this object
  * 
@@ -71,9 +57,11 @@ public class IconWithClueTip extends Panel{
 		};
 		link.add(new AttributeModifier("rel", true, new Model(textId)));
 		link.add(new AttributeModifier("href", true, new Model(textId)));
+		link.add(new AttributeModifier("title", true, textModel));
 		
 		//image
 		ContextImage image = new ContextImage("icon",new Model(iconUrl));
+		image.add(new AttributeModifier("alt", true, new ResourceModel("accessibility.tooltip")));
 		link.add(image);
 		
 		add(link);
