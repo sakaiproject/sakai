@@ -295,7 +295,7 @@ public abstract class BaseEventTrackingService implements EventTrackingService
 	public void post(Event event, UsageSession session)
 	{
 		BaseEvent be = ensureBaseEvent(event);
-		String id = "?";
+		String id = UNKNOWN_USER;
 		if (session != null) id = session.getId();
 
 		be.setSessionId(id);
@@ -314,7 +314,7 @@ public abstract class BaseEventTrackingService implements EventTrackingService
 	public void post(Event event, User user)
 	{
 		BaseEvent be = ensureBaseEvent(event);
-		String id = "?";
+		String id = UNKNOWN_USER;
 		if (user != null) id = user.getId();
 
 		be.setUserId(id);
@@ -357,7 +357,7 @@ public abstract class BaseEventTrackingService implements EventTrackingService
 
 				if (id == null)
 				{
-					id = "?";
+					id = UNKNOWN_USER;
 				}
 
 				delayHandler.createDelay(event, id, fireTime);
@@ -590,7 +590,7 @@ public abstract class BaseEventTrackingService implements EventTrackingService
 			String uId = sessionManager().getCurrentSessionUserId();
 			if (uId == null)
 			{
-				uId = "?";
+				uId = UNKNOWN_USER;
 			}
 			setUserId(uId);
 

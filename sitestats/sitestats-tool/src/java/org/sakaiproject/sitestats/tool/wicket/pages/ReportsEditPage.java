@@ -67,6 +67,7 @@ import org.apache.wicket.util.convert.IConverter;
 import org.apache.wicket.util.convert.converter.IntegerConverter;
 
 import org.sakaiproject.authz.api.Role;
+import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
@@ -1006,7 +1007,7 @@ public class ReportsEditPage extends BasePage {
 			List<SelectOption> users = new ArrayList<SelectOption>();
 			// anonymous access
 			if(Locator.getFacade().getStatsManager().isShowAnonymousAccessEvents()) {
-				SelectOption anon = new SelectOption("option", new Model("?"));
+				SelectOption anon = new SelectOption("option", new Model(EventTrackingService.UNKNOWN_USER));
 				users.add(anon);
 			}
 			// site users
@@ -1033,7 +1034,7 @@ public class ReportsEditPage extends BasePage {
 				public String getDisplayValue(Object object) {
 					SelectOption opt = (SelectOption) object;
 					String userId = (String) opt.getDefaultModel().getObject();
-					if(("?").equals(userId)) {
+					if(EventTrackingService.UNKNOWN_USER.equals(userId)) {
 						return Web.escapeHtml( (String) new ResourceModel("user_anonymous_access").getObject() );
 					}else{
 						User u = null;
