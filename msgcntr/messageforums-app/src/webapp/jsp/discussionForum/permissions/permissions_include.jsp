@@ -16,7 +16,13 @@
 
 <script type="text/javascript">
   setPanelId('<%= org.sakaiproject.util.Web.escapeJavascript(thisId)%>');
-</script>   
+</script>
+    <h:panelGroup rendered="#{ForumTool.selectedForum.restrictPermissionsForGroups == 'true' && ForumTool.permissionMode == 'forum'}" styleClass="itemAction">
+		<h:outputText value="#{msgs.cdfm_autocreate_forums_edit}" style="display:block"/>
+    </h:panelGroup>
+    <h:panelGroup rendered="#{ForumTool.selectedTopic.restrictPermissionsForGroups == 'true' && ForumTool.permissionMode == 'topic'}" styleClass="itemAction">
+		<h:outputText value="#{msgs.cdfm_autocreate_topics_edit}" style="display:block"/>
+    </h:panelGroup>
     <h:panelGroup styleClass="permissionRoleLabel">
 		<h:outputLabel style="font-weight:bold;padding-left:5px;"><h:outputText value="#{msgs.perm_role}" /></h:outputLabel>
     </h:panelGroup> 
@@ -27,7 +33,15 @@
   <h:dataTable id="perm" value="#{ForumTool.permissions}" var="permission" cellpadding="0" cellspacing="0" styleClass="table table-hover table-striped table-bordered">
     <h:column>
     <%-- row for role permission level begin --%>
-    <h:panelGroup styleClass="permissionRow">
+	<h:panelGroup rendered="#{permission.item.type == 3 && (ForumTool.selectedForum.restrictPermissionsForGroups || ForumTool.selectedTopic.restrictPermissionsForGroups)}" styleClass="permissionRow">
+		<h:panelGroup styleClass="permissionRoleLabel">
+          <h:outputLabel for="level"><h:outputText value="#{permission.name}" /></h:outputLabel>		  
+        </h:panelGroup> 
+		<h:panelGroup style="padding-left:5px">
+          <h:outputText value="#{permission.selectedLevel}" />
+        </h:panelGroup>
+	</h:panelGroup>
+    <h:panelGroup rendered="#{!(ForumTool.selectedForum.restrictPermissionsForGroups || ForumTool.selectedTopic.restrictPermissionsForGroups) || permission.item.type != 3}" styleClass="permissionRow">
         
         <h:panelGroup styleClass="permissionRoleLabel">
           <h:outputLabel for="level"><h:outputText value="#{permission.name}" /></h:outputLabel>

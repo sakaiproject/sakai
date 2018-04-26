@@ -79,9 +79,13 @@ public class AssignmentEntity implements Entity {
         reference = entityManager.newReference(AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getReference());
     }
 
+    private String getAccessPoint(boolean relative) {
+        return (relative ? "" : serverConfigurationService.getAccessUrl());
+    }
+
     @Override
     public String getUrl() {
-        return reference.getUrl();
+        return getAccessPoint(false) + reference.getReference();
     }
 
     @Override
@@ -91,7 +95,7 @@ public class AssignmentEntity implements Entity {
 
     @Override
     public String getUrl(String rootProperty) {
-        return null;
+        return getUrl();
     }
 
     @Override

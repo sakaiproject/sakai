@@ -5,11 +5,11 @@
 
     <!-- Load fake services -->
     <import resource="fake-services.xml" />
-    
-    <!-- Load test-aid classes and classes to test -->
-    <import resource="test-classes.xml" />
 
     <!-- Load test-aid classes and classes to test -->
     <import resource="hibernate-beans.xml" />
+
+    <!-- Load test-aid classes and classes to test -->
+    <import resource="test-classes.xml" />
 
 </beans>

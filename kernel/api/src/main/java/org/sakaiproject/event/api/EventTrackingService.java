@@ -39,6 +39,7 @@ public interface EventTrackingService
 {
 	/** This string can be used to find the service in the service manager. */
 	static final String SERVICE_NAME = EventTrackingService.class.getName();
+	static final String UNKNOWN_USER = "?";
 
 	/**
 	 * Construct a Event object.

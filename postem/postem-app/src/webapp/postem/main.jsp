@@ -63,7 +63,6 @@
 								<h:graphicImage value="postem/images/sortdescending.gif"  rendered="#{PostemTool.modDateSort && !PostemTool.ascending}" alt="#{msgs.sort_mod_date_desc}"/>
 							</h:commandLink>
 						</f:facet>
-						<%-- <sakai:outputDate value="#{gradebook.lastUpdated}" showDate="true" showTime="true"/> --%>
 						<h:outputText value="#{gradebook.updatedDateTime}"/>
 					</h:column>
 					<h:column rendered="#{PostemTool.editable}">
@@ -74,15 +73,9 @@
 								<h:graphicImage value="postem/images/sortdescending.gif"  rendered="#{PostemTool.releasedSort && !PostemTool.ascending}" alt="#{msgs.sort_released_desc}"/>
 							</h:commandLink>
 						</f:facet>
-
+						<h:outputText rendered="#{gradebook.release}" value="#{msgs.yes}"/>
+						<h:outputText rendered="#{!gradebook.release}" value="#{msgs.no}"/>
 					</h:column>
-					<%-- <h:column rendered="#{PostemTool.editable}">
-						<f:facet name="header">
-							<h:outputText value="#{msgs.stats}"/>
-						</f:facet>
-						<h:outputText rendered="#{gradebook.releaseStats}" value="#{msgs.yes}"/>
-						<h:outputText rendered="#{!gradebook.releaseStats}" value="#{msgs.no}"/>
-					</h:column> --%>
 					<h:column>
 						<h:commandLink action="#{PostemTool.processGradebookView}" rendered="#{!PostemTool.editable}">
 							<h:outputText value="#{msgs.gradebook_view}" />

@@ -551,21 +551,6 @@ log.debug("totallistener: firstItem = " + bean.getFirstItem());
     List allscores = bean.getAssessmentGradingList();
     if (allscores == null || allscores.size()==0){
       PublishedAccessControl ac = (PublishedAccessControl) p.getAssessmentAccessControl();
-      if (ac.getUnlimitedSubmissions()!=null && !ac.getUnlimitedSubmissions().booleanValue()){
-        if (ac.getSubmissionsAllowed().intValue() == 1) {
-          // although the assessment is currently set to allow one submission, multiple submissions may still exist. Set
-          // the bean to display either the latest or the highest score, as defined in the assessment settings.
-          Integer scoringType = p.getEvaluationModel().getScoringType();
-          String scoringTypeStr = scoringType != null ? scoringType.toString() : TotalScoresBean.LAST_SUBMISSION;
-          if (TotalScoresBean.LAST_SUBMISSION.equals(scoringTypeStr) || TotalScoresBean.HIGHEST_SUBMISSION.equals(scoringTypeStr))
-          {
-            bean.setAllSubmissions(scoringTypeStr);
-            ((QuestionScoresBean) ContextUtil.lookupBean("questionScores")).setAllSubmissions(scoringTypeStr);
-            ((HistogramScoresBean) ContextUtil.lookupBean("histogramScores")).setAllSubmissions(scoringTypeStr);
-          }
-        }
-      }
-      
       EvaluationModelIfc model = p.getEvaluationModel();
       // If the assessment is set to anonymous grading, we don't want to get assessmentGrading records which has not
       // submitted by students but has been updated by grader (ie, forGrade != true, lastGradedBy and lastGradedDate is not null) 
@@ -729,6 +714,12 @@ log.debug("totallistener: firstItem = " + bean.getFirstItem());
     		AgentResults ar=(AgentResults)it.next();
     		Double averageScore=ar.getScoreSummation()/ar.getSubmissionCount();
     		ar.setFinalScore(averageScore.toString());
+    		if (AssessmentGradingData.NO_SUBMISSION.equals(ar.getStatus()))
+    		{
+    			// no student submission, just an instructor-assigned grade, so reset the submission count to 0
+    			// (which was incremented earlier in order to calculate the average)
+    			ar.setSubmissionCount(0);
+    		}
     		ar.setComments(null);
     		ar.setSubmittedDate(new Date());
     		ar.setStatus(null);

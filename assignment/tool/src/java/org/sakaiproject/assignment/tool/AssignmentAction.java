@@ -1608,7 +1608,7 @@ public class AssignmentAction extends PagedResourceActionII {
      *
      * @return true if currentAttachments isn't equal to oldAttachments
      */
-    private boolean areAttachmentsModified(Set<String> oldAttachments, List currentAttachments) {
+    private boolean areAttachmentsModified(Set<String> oldAttachments, List<Reference> currentAttachments) {
         boolean hasCurrent = CollectionUtils.isNotEmpty(currentAttachments);
         boolean hasOld = CollectionUtils.isNotEmpty(oldAttachments);
 
@@ -1621,8 +1621,9 @@ public class AssignmentAction extends PagedResourceActionII {
             return true;
         }
 
+        Set<String> currentSet = currentAttachments.stream().map(Reference::getReference).collect(Collectors.toSet());
         //.equals on Sets of Strings will compare .equals on the contained Strings
-        return !oldAttachments.equals(currentAttachments);
+        return !oldAttachments.equals(currentSet);
     }
 
     /**
@@ -11980,7 +11981,7 @@ public class AssignmentAction extends PagedResourceActionII {
                                 if (sub != null) {
                                     returnResources.add(new SubmitterSubmission(gId, sub));  // UserSubmission accepts either User or Group
                                 } else {
-                                    log.warn("Cannot find submission with reference = {}, group = {}, {}", aRef, gId.getId());
+                                    log.warn("Cannot find submission with reference = {}, group = {}", aRef, gId.getId());
                                 }
                             }
                         }
@@ -12589,15 +12590,8 @@ public class AssignmentAction extends PagedResourceActionII {
         }
 
         String assignmentId = (String) state.getAttribute(EXPORT_ASSIGNMENT_REF);
-        // record the default grade setting for no-submission
         Assignment a = getAssignment(assignmentId, "doSet_defaultNotGradedNonElectronicScore", state);
         if (a != null) {
-            a.getProperties().put(GRADE_NO_SUBMISSION_DEFAULT_GRADE, grade);
-            try {
-                assignmentService.updateAssignment(a);
-            } catch (PermissionException e) {
-                log.warn("Could not update assignment: {}, {}", a.getId(), e.getMessage());
-            }
             if (a.getTypeOfGrade() == SCORE_GRADE_TYPE) {
                 //for point-based grades
                 validPointGrade(state, grade, a.getScaleFactor());
@@ -12621,8 +12615,16 @@ public class AssignmentAction extends PagedResourceActionII {
                     }
                 }
 
+                // Only record the default grade setting for no-submission if there were no errors produced
                 if (state.getAttribute(STATE_MESSAGE) == null) {
                     grade = scalePointGrade(state, grade, a.getScaleFactor());
+
+                    try {
+                        a.getProperties().put(GRADE_NO_SUBMISSION_DEFAULT_GRADE, grade);
+                        assignmentService.updateAssignment(a);
+                    } catch (PermissionException e) {
+                        log.warn("Could not update assignment: {}, {}", a.getId(), e.getMessage());
+                    }
                 }
             }
 
@@ -12667,16 +12669,8 @@ public class AssignmentAction extends PagedResourceActionII {
         }
 
         String assignmentId = (String) state.getAttribute(EXPORT_ASSIGNMENT_REF);
-        // record the default grade setting for no-submission
         Assignment a = getAssignment(assignmentId, "doSet_defaultNoSubmissionScore", state);
         if (a != null) {
-            a.getProperties().put(GRADE_NO_SUBMISSION_DEFAULT_GRADE, grade);
-            try {
-                assignmentService.updateAssignment(a);
-            } catch (PermissionException e) {
-                log.warn("Could not update assignment: {}, {}", a.getId(), e.getMessage());
-            }
-
             if (a.getTypeOfGrade() == SCORE_GRADE_TYPE) {
                 //for point-based grades
                 validPointGrade(state, grade, a.getScaleFactor());
@@ -12700,8 +12694,16 @@ public class AssignmentAction extends PagedResourceActionII {
                     }
                 }
 
+                // Only record the default grade setting for no-submission if there were no errors produced
                 if (state.getAttribute(STATE_MESSAGE) == null) {
                     grade = scalePointGrade(state, grade, a.getScaleFactor());
+
+                    try {
+                        a.getProperties().put(GRADE_NO_SUBMISSION_DEFAULT_GRADE, grade);
+                        assignmentService.updateAssignment(a);
+                    } catch (PermissionException e) {
+                        log.warn("Could not update assignment: {}, {}", a.getId(), e.getMessage());
+                    }
                 }
             }
 

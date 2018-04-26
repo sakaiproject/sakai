@@ -363,8 +363,8 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                 entity = createAssignmentEntity(reference.getId());
                 break;
             case REF_TYPE_SUBMISSION:
-                // entity = createSubmissionEntity();
                 // TODO assignment submission entities
+                log.warn("Submission Entity not implemented open a JIRA, reference: {}", reference.getReference());
                 break;
             default:
                 log.warn("Unknown Entity subtype: {} in ref: {}", reference.getSubType(), reference.getReference());
@@ -389,27 +389,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
 
     @Override
     public String getEntityUrl(Reference reference) {
-        String url = null;
-
-        try {
-            switch (reference.getSubType()) {
-                case REF_TYPE_CONTENT:
-                case REF_TYPE_ASSIGNMENT:
-                    Assignment a = getAssignment(reference.getId());
-                    url = createAssignmentEntity(a.getId()).getUrl();
-                    break;
-                case REF_TYPE_SUBMISSION:
-                    // url = createAssignmentEntity(a.getId()).getUrl();
-                    // TODO assignment submission entities
-                    break;
-                default:
-                    log.warn("Unknown Entity subtype: {} in ref: {}", reference.getSubType(), reference.getReference());
-            }
-        } catch (Exception e) {
-            log.warn("Could not get entity url with ref = {}", reference.getReference(), e);
-        }
-
-        return url;
+        return getEntity(reference).getUrl();
     }
 
     @Override
@@ -480,40 +460,39 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                     switch (refReckoner.getSubtype()) {
                         case REF_TYPE_CONTENT:
                         case REF_TYPE_ASSIGNMENT:
-                            String assignmentName = "bulk_download";
-                            try {
-                                assignmentName = getAssignment(refReckoner.getId()).getTitle();
-                            } catch (Exception ignore) {
-                                log.error("Could not find assignment for ref = {}", ref.getReference());
-                            }
                             String date = DateTimeFormatter.ofPattern("yyyyMMddHHmmss").withZone(userTimeService.getLocalTimeZone().toZoneId()).format(ZonedDateTime.now());
-                            String filename = assignmentName + "_" + date;
-
                             String queryString = req.getQueryString();
                             if (StringUtils.isNotBlank(refReckoner.getId())) {
                                 // if subtype is assignment then were downloading all submissions for an assignment
-                                res.setContentType("application/zip");
-                                res.setHeader("Content-Disposition", "attachment; filename = \"" + filename + ".zip\"");
+                                try {
+                                    Assignment a = getAssignment(refReckoner.getId());
+                                    String filename = a.getTitle() + "_" + date;
+                                    res.setContentType("application/zip");
+                                    res.setHeader("Content-Disposition", "attachment; filename = \"" + filename + ".zip\"");
 
-                                transactionTemplate.execute(new TransactionCallbackWithoutResult() {
-                                    @Override
-                                    protected void doInTransactionWithoutResult(TransactionStatus status) {
-                                        try (OutputStream out = res.getOutputStream()) {
-                                            getSubmissionsZip(out, ref.getReference(), queryString);
-                                        } catch (Exception ignore) {
-                                            log.warn("Could not stream the zip of submissions for reference: {}", ref.getReference());
+                                    transactionTemplate.execute(new TransactionCallbackWithoutResult() {
+                                        @Override
+                                        protected void doInTransactionWithoutResult(TransactionStatus status) {
+                                            try (OutputStream out = res.getOutputStream()) {
+                                                getSubmissionsZip(out, ref.getReference(), queryString);
+                                            } catch (Exception e) {
+                                                log.warn("Could not stream the submissions for reference: {}", ref.getReference(), e);
+                                            }
                                         }
-                                    }
-                                });
+                                    });
+                                } catch (Exception e) {
+                                    log.warn("Could not find assignment for ref = {}", ref.getReference(), e);
+                                }
                             } else {
+                                String filename = "bulk_download_" + date;
                                 // if subtype is assignment and there is no assignmentId then were downloading grades
                                 res.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
                                 res.setHeader("Content-Disposition", "attachment; filename = \"export_grades_" + filename + ".xlsx\"");
 
                                 try (OutputStream out = res.getOutputStream()) {
                                     gradeSheetExporter.getGradesSpreadsheet(out, ref.getReference(), queryString);
-                                } catch (Exception ignore) {
-                                    log.warn("Could not stream the grades for reference: {}", ref.getReference());
+                                } catch (Exception e) {
+                                    log.warn("Could not stream the grades for reference: {}", ref.getReference(), e);
                                 }
                             }
                             break;

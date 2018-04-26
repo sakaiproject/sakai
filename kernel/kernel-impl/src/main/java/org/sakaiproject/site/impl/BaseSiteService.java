@@ -58,6 +58,7 @@ import org.sakaiproject.time.api.Time;
 import org.sakaiproject.time.api.TimeService;
 import org.sakaiproject.tool.api.ActiveToolManager;
 import org.sakaiproject.tool.api.SessionManager;
+import org.sakaiproject.user.api.PreferencesService;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
@@ -906,6 +907,13 @@ public abstract class BaseSiteService implements SiteService, Observer
 		{
 			throw new IdUnusedException(site.getId());
 		}
+		
+		// Invalidate the user-site cache.
+		Site cached = getCachedSite(site.getId());
+		if (cached != null ) {
+			clearUserCacheForSite(site);
+		}
+		cacheSite(site);
 
 		try
 		{
@@ -936,6 +944,13 @@ public abstract class BaseSiteService implements SiteService, Observer
 		{
 			throw new IdUnusedException(site.getId());
 		}
+		
+		// Invalidate the user-site cache.
+		Site cached = getCachedSite(site.getId());
+		if (cached != null ) {
+			clearUserCacheForSite(site);
+		}
+		cacheSite(site);
 
 		try
 		{
@@ -1082,6 +1097,8 @@ public abstract class BaseSiteService implements SiteService, Observer
 				try
 				{
 					authzGroupService().save(group.m_azg);
+					// track it
+					eventTrackingService().post(eventTrackingService().newEvent(SECURE_UPDATE_GROUP_MEMBERSHIP, group.getId(), true));
 				}
 				catch (Exception t)
 				{
@@ -3589,8 +3606,7 @@ public abstract class BaseSiteService implements SiteService, Observer
 
 		String eventType = event.getEvent();
 
-		if (EVENT_SITE_USER_INVALIDATE.equals(eventType))
-		{
+		if (EVENT_SITE_USER_INVALIDATE.equals(eventType) || PreferencesService.SECURE_EDIT_PREFS.equals(eventType)) {
 			// KNL-1171: always clear the cache for the user as the Site below may have been deleted
 			clearUserCacheForUser(event.getUserId());
 

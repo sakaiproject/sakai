@@ -98,15 +98,9 @@ import org.sakaiproject.util.ResourceLoader;
 	// private static EvaluationListenerUtil util;
 	private static BeanSort bs;
 
-	private static final String noAnswer = (String) ContextUtil
-			.getLocalizedString(
-					"org.sakaiproject.tool.assessment.bundle.EvaluationMessages",
-					"no_answer");
-
-	private static final String noneOfTheAbove = (String) ContextUtil
-			.getLocalizedString(
-					"org.sakaiproject.tool.assessment.bundle.EvaluationMessages",
-					"none_above");
+	private static final String MSG_BUNDLE = "org.sakaiproject.tool.assessment.bundle.EvaluationMessages";
+	private static final String noAnswer = ContextUtil.getLocalizedString(MSG_BUNDLE, "no_answer");
+	private static final String noneOfTheAbove = ContextUtil.getLocalizedString(MSG_BUNDLE, "none_above");
 
 	/**
 	 * Standard process action method.
@@ -122,9 +116,7 @@ import org.sakaiproject.util.ResourceLoader;
 				.lookupBean("questionScores");
 
 		// Reset the search field
-		String defaultSearchString = ContextUtil.getLocalizedString(
-				"org.sakaiproject.tool.assessment.bundle.EvaluationMessages",
-				"search_default_student_search_string");
+		String defaultSearchString = ContextUtil.getLocalizedString(MSG_BUNDLE, "search_default_student_search_string");
 		bean.setSearchString(defaultSearchString);
 
 		// we probably want to change the poster to be consistent
@@ -632,7 +624,7 @@ import org.sakaiproject.util.ResourceLoader;
 
 					if ("4".equals(bean.getTypeId())) {
 						if (rb == null) { 	 
-			        		rb = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.EvaluationMessages");
+			        		rb = new ResourceLoader(MSG_BUNDLE);
 			        	}
 						if ("true".equals(answerText)) {
 							answerText = rb.getString("true_msg");
@@ -744,8 +736,10 @@ import org.sakaiproject.util.ResourceLoader;
 					 */
 
 					//SAM-755-"checkmark" indicates right, add "X" to indicate wrong
-					String checkmarkGif = "<img src='/samigo-app/images/delivery/checkmark.gif'>";
-					String crossmarkGif = "<img src='/samigo-app/images/crossmark.gif'>";
+					String correct = ContextUtil.getLocalizedString(MSG_BUNDLE, "alt_correct");
+					String incorrect = ContextUtil.getLocalizedString(MSG_BUNDLE, "alt_incorrect");
+					String checkmarkGif = String.format("<span title=\"%s\" class=\"icon-sakai--check feedBackCheck\"></span>", correct);
+					String crossmarkGif = String.format("<span title=\"%s\" class=\"icon-sakai--delete feedBackCross\"></span>", incorrect);
 					if (gdataAnswer != null) {
 						answerText = FormattedText.escapeHtml(answerText, true);
 						if (bean.getTypeId().equals("8") || bean.getTypeId().equals("11")) {
@@ -790,8 +784,7 @@ import org.sakaiproject.util.ResourceLoader;
 						}
 						else if(!bean.getTypeId().equals("3")){
 							if((gdataAnswer.getIsCorrect() != null && gdataAnswer.getIsCorrect()) || 
-								(gdataAnswer.getPartialCredit() != null && gdataAnswer.getPartialCredit() > 0) ||
-								(delegate.isDistractor(gdataAnswer.getItemText())) ){
+								(gdataAnswer.getPartialCredit() != null && gdataAnswer.getPartialCredit() > 0)){
 								answerText = checkmarkGif + answerText;
 							}else if(gdataAnswer.getIsCorrect() != null && !gdataAnswer.getIsCorrect()){
 								answerText = crossmarkGif + answerText;

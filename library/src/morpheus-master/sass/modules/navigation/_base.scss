@@ -974,13 +974,12 @@ body.is-logged-out{
 			}
 
 			&.#{$namespace}sitesNav__menuitem--myworkspace{
-				.#{$namespace}sitesNav__drop{
-					display: none;
+
+				.link-container{
+					padding-left: 0.5em;
 				}
 
 				a{
-					padding: 0.5em;
-
 					i{
 						margin-top: 1px; /* to compensate for an issue with the icon */
 						margin-bottom: -1px; /* to compensate for an issue with the icon */

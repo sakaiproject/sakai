@@ -66,18 +66,22 @@ public class SettingsPage extends BasePage {
 	SettingsGradingSchemaPanel gradingSchemaPanel;
 
 	public SettingsPage() {
+
+		defaultRoleChecksForInstructorOnlyPage();
+
 		disableLink(this.settingsPageLink);
 		setShowGradeEntryToNonAdmins();
 	}
 
 	public SettingsPage(final boolean gradeEntryExpanded, final boolean gradeReleaseExpanded,
 			final boolean categoryExpanded, final boolean gradingSchemaExpanded) {
-		disableLink(this.settingsPageLink);
+
+		this();
+
 		this.gradeEntryExpanded = gradeEntryExpanded;
 		this.gradeReleaseExpanded = gradeReleaseExpanded;
 		this.categoryExpanded = categoryExpanded;
 		this.gradingSchemaExpanded = gradingSchemaExpanded;
-		setShowGradeEntryToNonAdmins();
 	}
 
 	private void setShowGradeEntryToNonAdmins() {

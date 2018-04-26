@@ -126,7 +126,10 @@
       </property>
       <property name="postFirst">
         <column name="POST_FIRST" not-null="true" />
-      </property> 
+      </property>
+      <property name="restrictPermissionsForGroups">
+        <column name="RESTRICT_PERMS_FOR_GROUPS" not-null="true" />
+      </property>
     </subclass>
 
   </class>

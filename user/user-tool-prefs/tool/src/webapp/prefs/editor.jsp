@@ -44,7 +44,7 @@
                                                 <f:selectItem itemValue="full" itemLabel="#{msgs.editor_full}"/>
                         </h:selectOneRadio>
                         
-                        <div class="submit-buttons">
+                        <div class="submit-buttons act">
                                 <h:commandButton accesskey="s" id="submit" styleClass="active formButton" value="#{msgs.update_pref}" action="#{UserPrefsTool.processActionEditorSave}" onclick="SPNR.disableControlsAndSpin( this, null );" />
                                 <h:commandButton accesskey="x" id="cancel" styleClass="formButton" value="#{msgs.cancel_pref}" action="#{UserPrefsTool.processActionEditorFrmEdit}" onclick="SPNR.disableControlsAndSpin( this, null );" />
                         </div>

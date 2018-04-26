@@ -183,9 +183,13 @@ video, embed, object, iframe {
 	max-width: 100%;
 }
 
-legend{
-	padding: 0.5em 0 0.1em 0;
+legend {
+	// override the Bootstrap defaults
+	display: inline-block;
+	width: auto;
 	margin-bottom: 0;
+	padding: 0.5em;
+	border: 0 none;
 }
 
 input[type="submit"][disabled="disabled"],

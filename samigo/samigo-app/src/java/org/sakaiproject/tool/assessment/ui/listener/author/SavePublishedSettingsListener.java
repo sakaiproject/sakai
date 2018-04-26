@@ -578,8 +578,7 @@ implements ActionListener
 		else if (retractNow) {
 			control.setDueDate(new Date());
 		}
-		else if (assessmentSettings.getRetractDate() == null || "".equals(assessmentSettings.getRetractDateString())) {
-			control.setLateHandling(AssessmentAccessControl.NOT_ACCEPT_LATE_SUBMISSION);
+		else if ("".equals(assessmentSettings.getRetractDateString())) {
 			control.setRetractDate(null);
 		}
 		else {
@@ -811,7 +810,7 @@ implements ActionListener
 			try{
 				assessmentName = TextFormat.convertPlaintextToFormattedTextNoHighUnicode(assessmentSettings.getTitle().trim());
 				gbItemExists = gbsHelper.isAssignmentDefined(assessmentName, g);
-				if (assessmentSettings.getToDefaultGradebook() && gbItemExists){
+				if (assessmentSettings.getToDefaultGradebook() && gbItemExists && isTitleChanged){
 					String gbConflict_error=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","gbConflict_error");
 					context.addMessage(null,new FacesMessage(gbConflict_error));
 					return false;
@@ -852,7 +851,11 @@ implements ActionListener
 					try {
 						gbsHelper.updateGradebook(assessment, g);
 					} catch (Exception e) {
+                                               String gbConflict_error=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","gbConflict_error");
+                                               context.addMessage(null,new FacesMessage(gbConflict_error));
+                                               evaluation.setToGradeBook("0");
 						log.warn("Exception thrown in updateGB():" + e.getMessage());
+                                               return false;
 					}
 				}
 				else{
