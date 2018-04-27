@@ -332,10 +332,16 @@ nav#subSites{
 						box-shadow: $tool-menu-collapse-active-hover-shadow;
 					}
 
-					span.fa-angle-double-left {
-						color: $tool-menu-collapse-active-icon-color;
+					button {
+						span.fa-angle-double-left {
+							color: $tool-menu-collapse-active-icon-color;
+						}
+						&:focus {
+							outline-color: invert($tool-menu-collapse-active-background-color) !important;
+						}
 					}
 				}
+
 				span.fa-angle-double-left
 				{
 					@include transition( transform, 0.25s, ease-out, 0s ); /* animate the arrow direction change */
