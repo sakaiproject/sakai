@@ -159,9 +159,16 @@ import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.userauditservice.api.UserAuditRegistration;
 import org.sakaiproject.userauditservice.api.UserAuditService;
 import org.sakaiproject.shortenedurl.api.ShortenedUrlService;
-// for basiclti integration
+import org.sakaiproject.util.BaseResourcePropertiesEdit;
+import org.sakaiproject.util.FileItem;
+import org.sakaiproject.util.FormattedText;
+import org.sakaiproject.util.ParameterParser;
+import org.sakaiproject.util.RequestFilter;
+import org.sakaiproject.util.ResourceLoader;
+import org.sakaiproject.util.SortedIterator;
+import org.sakaiproject.util.Validator;
+import org.sakaiproject.util.Web;
 import org.sakaiproject.util.api.LinkMigrationHelper;
-import org.sakaiproject.util.*;
 
 /**
  * <p>
@@ -2899,27 +2906,30 @@ public class SiteAction extends PagedResourceActionII {
 			if (state.getAttribute(STATE_LTITOOL_SELECTED_LIST) != null)
 			{
 				HashMap<String, Map<String, Object>> currentLtiTools = (HashMap<String, Map<String, Object>>) state.getAttribute(STATE_LTITOOL_SELECTED_LIST);
-				HashMap<String, Map<String, Object>> dialogLtiTools =  new HashMap<String, Map<String, Object>> ();
+				HashMap<String, Map<String, Object>> dialogLtiTools = new HashMap<>();
 
 				for (Map.Entry<String, Map<String, Object>> entry : currentLtiTools.entrySet() ) {
-					 Map<String, Object> toolMap = entry.getValue();
-					 String toolId = entry.getKey();
+					Map<String, Object> toolMap = entry.getValue();
 					// get the configuration html for tool is post-add configuration has been requested (by Laura)
 					Object showDialog = toolMap.get(LTIService.LTI_SITEINFOCONFIG);
 					if ( showDialog == null || ! "1".equals(showDialog.toString()) ) continue;
 
 					String ltiToolId = toolMap.get("id").toString();
-					String[] contentToolModel=m_ltiService.getContentModel(Long.valueOf(ltiToolId), site.getId());
-					// attach the ltiToolId to each model attribute, so that we could have the tool configuration page for multiple tools
-					for(int k=0; k<contentToolModel.length;k++)
-					{
-						contentToolModel[k] = ltiToolId + "_" + contentToolModel[k];
+					String[] contentToolModel = m_ltiService.getContentModelIfConfigurable(Long.valueOf(ltiToolId), site.getId());
+					if (contentToolModel != null) {
+
+						// attach the ltiToolId to each model attribute, so that we could have the tool configuration page for multiple tools
+						for(int k = 0; k < contentToolModel.length; k++) {
+							contentToolModel[k] = ltiToolId + "_" + contentToolModel[k];
+						}
+						Map<String, Object> ltiTool = m_ltiService.getTool(Long.valueOf(ltiToolId), site.getId());
+						String formInput = m_ltiService.formInput(ltiTool, contentToolModel);
+						toolMap.put("formInput", formInput);
+						toolMap.put("hasConfiguration", true);
+
+						// Add the entry to the tools that need a dialog
+						dialogLtiTools.put(ltiToolId, toolMap);
 					}
-					Map<String, Object> ltiTool = m_ltiService.getTool(Long.valueOf(ltiToolId), site.getId());
-					String formInput=m_ltiService.formInput(ltiTool, contentToolModel);
-					toolMap.put("formInput", formInput);
-					// Add the entry to the tools that need a dialog
-					dialogLtiTools.put(ltiToolId, toolMap);
 				}
 				context.put("ltiTools", dialogLtiTools);
 				context.put("ltiService", m_ltiService);
@@ -11242,6 +11252,9 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 					Properties reqProperties = (Properties) toolValues.get("reqProperties");
 					if (reqProperties==null) {
 						reqProperties = new Properties();
+
+						// any customized properties that need to be copied from lti_tool into lti_content should go here, but generally we detect null in lti_content and fallback to lti_tool
+						reqProperties.put(LTIService.LTI_TOOL_ID, ltiToolId);
 					}
 					Object retval = m_ltiService.insertToolContent(null, ltiToolId, reqProperties, site.getId());
 					if (retval instanceof String)
@@ -11632,13 +11645,29 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 			if (state.getAttribute(STATE_IMPORT) != null) {
 				// go to import tool page
 				state.setAttribute(STATE_TEMPLATE_INDEX, "27");
-			} else if (goToToolConfigPage || ltiToolNeedsConfig) {
+			} else if (goToToolConfigPage) {
 				state.setAttribute(STATE_MULTIPLE_TOOL_INSTANCE_SELECTED, Boolean.valueOf(goToToolConfigPage));
 				// go to the configuration page for multiple instances of tools
 				state.setAttribute(STATE_TEMPLATE_INDEX, "26");
 			} else {
-				// go to next page
-				state.setAttribute(STATE_TEMPLATE_INDEX, continuePageIndex);
+				boolean ltiToConfigure = false;
+				if (ltiToolNeedsConfig) {
+					// iterate over ltiSelectedTools; if any are configurable, go to 26
+					Site site = getStateSite(state);
+					for (String ltiToolId : ltiSelectedTools.keySet()) {
+						// don't display configuration for LTI tools if all configuration is disabled
+						if ((existingLtiIds == null || !existingLtiIds.keySet().contains(ltiToolId)) && m_ltiService.getContentModelIfConfigurable(Long.parseLong(ltiToolId), site.getId()) != null) {
+							ltiToConfigure = true;
+							break;
+						}
+					}
+				}
+				if (ltiToConfigure) {
+					state.setAttribute(STATE_TEMPLATE_INDEX, "26");
+				} else {
+					// go to next page
+					state.setAttribute(STATE_TEMPLATE_INDEX, continuePageIndex);
+				}
 			}
 			state.setAttribute(STATE_MULTIPLE_TOOL_ID_SET, multipleToolIdSet);
 			state.setAttribute(STATE_MULTIPLE_TOOL_ID_TITLE_MAP, multipleToolIdTitleMap);
