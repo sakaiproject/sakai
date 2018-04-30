@@ -631,19 +631,6 @@ function checkUncheckTimeBox(){
   }
 }
 
-function checkUncheckAllReleaseGroups(){
-  var checkboxState = document.getElementById("assessmentSettingsAction:checkUncheckAllReleaseGroups").checked;
-  var inputList= document.getElementsByTagName("INPUT");
-  for (i = 0; i <inputList.length; i++) 
-  {
-    if(inputList[i].type=='checkbox')
-    {
-      if(inputList[i].name.indexOf("groupsForSite")>=0)
-        inputList[i].checked=checkboxState;
-    }
-  }
-}
-
 function lockdownQuestionLayout(value) {
   if (value == 1) {
     $('#assessmentSettingsAction\\:assessmentFormat input[value=1]').prop('checked', 'checked');
