@@ -255,6 +255,11 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
   }
 
   public boolean isInstructorForAllowedGroup(Long objectId, boolean isForum){
+
+    if(objectId == null){
+        return false;
+    }
+
     String groupTitle = null;
     if(isForum){
       groupTitle = forumManager.getAllowedGroupForRestrictedForum(objectId, PermissionLevelManager.PERMISSION_LEVEL_NAME_CONTRIBUTOR);
