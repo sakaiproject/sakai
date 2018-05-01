@@ -3,7 +3,6 @@ package org.sakaiproject.sitestats.impl;
 import com.zaxxer.hikari.HikariDataSource;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.SessionFactory;
-import org.jfree.util.Log;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.springframework.orm.hibernate.AdditionalHibernateMappings;
 import org.sakaiproject.springframework.orm.hibernate.impl.AdditionalHibernateMappingsImpl;
@@ -107,12 +106,11 @@ public class SiteStatsPersistenceConfig {
         p.setProperty("hibernate.dialect", serverConfigurationService.getString("sitestats.externalDb.hibernate.dialect", "org.hibernate.dialect.HSQLDialect"));
         String autoDdl = serverConfigurationService.getString("sitestats.externalDb.auto.ddl", "update");
         if ("true".equals(autoDdl)) {
-        	autoDdl = "update";
-        	Log.info("Auto DDL has been set to update based on old value of true, please update the property sitestats.externalDb.auto.ddl");
-        }
-        else if ("false".equals(autoDdl)) {
-        	autoDdl = "validate";
-        	Log.info("Auto DDL has been set to validate based on old value of false, please update the property sitestats.externalDb.auto.ddl");
+            autoDdl = "update";
+            log.info("Auto DDL has been set to update based on old value of true, please update the property sitestats.externalDb.auto.ddl");
+        } else if ("false".equals(autoDdl)) {
+            autoDdl = "validate";
+            log.info("Auto DDL has been set to validate based on old value of false, please update the property sitestats.externalDb.auto.ddl");
         }
 
         p.setProperty("hibernate.hbm2ddl.auto", autoDdl);
