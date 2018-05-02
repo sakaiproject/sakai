@@ -25,6 +25,7 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Base64;
 import java.util.Calendar;
 import java.util.Date;
@@ -531,21 +532,7 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 		Assignment assignment = assignmentService.getAssignment(entityManager.newReference(assignmentRef));
 		Map<String, String> assignmentSettings = assignment.getProperties();
 		
-		List<String> repositories = new ArrayList<>();
-		if ("true".equals(assignmentSettings.get("internet_check"))) {
-			repositories.add("INTERNET");
-		}
-		if ("true".equals(assignmentSettings.get("institution_check"))) {
-			repositories.add("PRIVATE");
-		}
-		if ("true".equals(assignmentSettings.get("journal_check"))) {
-			repositories.add("JOURNAL");
-		}
-		
-		if (repositories.size() == 0) {
-			throw new Error("Cannot generate similarity report - at least one search repo must be selected");
-		}
-
+		List<String> repositories = Arrays.asList("INTERNET", "SUBMITTED_WORK");
 		// Build header maps
 		Map<String, Object> reportData = new HashMap<String, Object>();
 		Map<String, Object> generationSearchSettings = new HashMap<String, Object>();
