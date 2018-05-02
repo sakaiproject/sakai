@@ -22,8 +22,10 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.ajax.markup.html.form.AjaxCheckBox;
@@ -72,6 +74,8 @@ public class ExportPanel extends BasePanel {
 	boolean includeCalculatedGrade = false;
 	boolean includeGradeOverride = false;
 	GbGroup group;
+
+	Component customDownloadLink;
 
 	public ExportPanel(final String id) {
 		super(id);
@@ -224,6 +228,11 @@ public class ExportPanel extends BasePanel {
 				} else {
 					ExportPanel.this.group = (GbGroup) ((DropDownChoice) getComponent()).getDefaultModelObject();
 				}
+				// Rebuild the custom download link so it has a filename including the selected group
+				Component updatedCustomDownloadLink = buildCustomDownloadLink();
+				ExportPanel.this.customDownloadLink.replaceWith(updatedCustomDownloadLink);
+				ExportPanel.this.customDownloadLink = updatedCustomDownloadLink;
+				target.add(ExportPanel.this.customDownloadLink);
 			}
 		}));
 
@@ -235,9 +244,15 @@ public class ExportPanel extends BasePanel {
 				return buildFile(false);
 			}
 
-		}, buildFileName()).setCacheDuration(Duration.NONE).setDeleteAfterDownload(true));
+		}, buildFileName(false)).setCacheDuration(Duration.NONE).setDeleteAfterDownload(true));
 
-		add(new DownloadLink("downloadCustomGradebook", new LoadableDetachableModel<File>() {
+
+		this.customDownloadLink = buildCustomDownloadLink();
+		add(this.customDownloadLink);
+	}
+
+	private Component buildCustomDownloadLink() {
+		return new DownloadLink("downloadCustomGradebook", new LoadableDetachableModel<File>() {
 			private static final long serialVersionUID = 1L;
 
 			@Override
@@ -245,7 +260,7 @@ public class ExportPanel extends BasePanel {
 				return buildFile(true);
 			}
 
-		}, buildFileName()).setCacheDuration(Duration.NONE).setDeleteAfterDownload(true));
+		}, buildFileName(true)).setCacheDuration(Duration.NONE).setDeleteAfterDownload(true).setOutputMarkupId(true);
 	}
 
 	private File buildFile(final boolean isCustomExport) {
@@ -401,16 +416,31 @@ public class ExportPanel extends BasePanel {
 		return tempFile;
 	}
 
-	private String buildFileName() {
-		final String prefix = "gradebook_export";
-		final String extension = this.exportFormat.toString().toLowerCase();
-		String gradebookName = this.businessService.getGradebook().getName();
 
-		if (StringUtils.trimToNull(gradebookName) == null) {
-			return String.format("%s.%s", gradebookName, extension);
-		} else {
-			gradebookName = gradebookName.replaceAll("\\s", "_");
-			return String.format("%s-%s.%s", prefix, gradebookName, extension);
+	private String buildFileName(final boolean customDownload) {
+		final String prefix = getString("importExport.download.filenameprefix");
+		final String extension = this.exportFormat.toString().toLowerCase();
+		final String gradebookName = this.businessService.getGradebook().getName();
+
+		// File name contains the prefix
+		final List<String> fileNameComponents = new ArrayList<>();
+		fileNameComponents.add(prefix);
+
+		// Add gradebook name/site id to filename
+		if (StringUtils.trimToNull(gradebookName) != null) {
+			fileNameComponents.add(gradebookName.replaceAll("\\s", "_"));
 		}
+
+		// If custom download for all sections, append 'ALL' to filename
+		if (customDownload && (this.group == null || this.group.getId() == null)) {
+			fileNameComponents.add(getString("importExport.download.filenameallsuffix"));
+
+		// If group/section filter is selected, add group title to filename
+		} else if (this.group != null && this.group.getId() != null && StringUtils.isNotBlank(this.group.getTitle())) {
+			final String sanitizedGroupName = this.group.getTitle().replaceAll("[^A-Za-z0-9]", "_");
+			fileNameComponents.add(sanitizedGroupName);
+		}
+
+		return String.format("%s.%s", fileNameComponents.stream().collect(Collectors.joining("-")), extension);
 	}
 }
