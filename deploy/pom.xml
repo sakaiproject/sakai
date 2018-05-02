@@ -135,6 +135,13 @@
             <scope>compile</scope>
         </dependency>
 
+        <!-- Required by JSF 2.3 -->
+        <dependency>
+            <groupId>javax.enterprise</groupId>
+            <artifactId>cdi-api</artifactId>
+            <scope>compile</scope>
+        </dependency>
+
         <!-- quartz scheduler -->
         <dependency>
             <groupId>org.quartz-scheduler</groupId>

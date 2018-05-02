@@ -1,0 +1,101 @@
+<?xml version="1.0"?>
+
+<!-- This registers the Sakai 13.x JSF widgets (Tags, Components, and Renderers) -->
+<faces-config xmlns="http://xmlns.jcp.org/xml/ns/javaee"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee
+        http://xmlns.jcp.org/xml/ns/javaee/web-facesconfig_2_3.xsd"
+    version="2.3">
+
+  <!-- =================== Components ============== -->
+
+  <component>
+    <component-type>org.sakaiproject.ButtonBar</component-type>
+    <component-class>org.sakaiproject.jsf2.component.ButtonBarComponent</component-class>
+  </component>
+
+  <component>
+    <component-type>org.sakaiproject.GroupBox</component-type>
+    <component-class>org.sakaiproject.jsf2.component.GroupBoxComponent</component-class>
+  </component>
+
+  <component>
+    <component-type>org.sakaiproject.InstructionMessage</component-type>
+    <component-class>org.sakaiproject.jsf2.component.InstructionMessageComponent</component-class>
+  </component>
+
+  <component>
+    <component-type>org.sakaiproject.PanelEdit</component-type>
+    <component-class>org.sakaiproject.jsf2.component.PanelEditComponent</component-class>
+  </component>
+
+  <component>
+    <component-type>org.sakaiproject.ToolBar</component-type>
+    <component-class>org.sakaiproject.jsf2.component.ToolBarComponent</component-class>
+  </component>
+
+  <component>
+    <component-type>org.sakaiproject.View</component-type>
+    <component-class>org.sakaiproject.jsf2.component.ViewComponent</component-class>
+  </component>
+
+  <component>
+    <component-type>org.sakaiproject.ViewTitle</component-type>
+    <component-class>org.sakaiproject.jsf2.component.ViewTitleComponent</component-class>
+  </component>
+
+  <component>
+    <component-type>org.sakaiproject.SeparatedList</component-type>
+    <component-class>org.sakaiproject.jsf2.component.SeparatedListComponent</component-class>
+  </component>
+  <!-- Popup and selectCommand not included -->
+
+  <!-- =================== Renderers ============== -->
+
+  <render-kit>
+
+    <renderer>
+      <component-family>org.sakaiproject.ButtonBar</component-family>
+      <renderer-type>org.sakaiproject.ButtonBar</renderer-type>
+      <renderer-class>org.sakaiproject.jsf2.renderer.ButtonBarRenderer</renderer-class>
+    </renderer>
+
+    <renderer>
+      <component-family>javax.faces.Output</component-family>
+      <renderer-type>org.sakaiproject.GroupBox</renderer-type>
+      <renderer-class>org.sakaiproject.jsf2.renderer.GroupBoxRenderer</renderer-class>
+    </renderer>
+
+    <renderer>
+      <component-family>javax.faces.Output</component-family>
+      <renderer-type>org.sakaiproject.InstructionMessage</renderer-type>
+      <renderer-class>org.sakaiproject.jsf2.renderer.InstructionMessageRenderer</renderer-class>
+    </renderer>
+
+    <renderer>
+      <component-family>org.sakaiproject.ToolBar</component-family>
+      <renderer-type>org.sakaiproject.ToolBar</renderer-type>
+      <renderer-class>org.sakaiproject.jsf2.renderer.ToolBarRenderer</renderer-class>
+    </renderer>
+
+    <renderer>
+      <component-family>javax.faces.Output</component-family>
+      <renderer-type>org.sakaiproject.View</renderer-type>
+      <renderer-class>org.sakaiproject.jsf2.renderer.ViewRenderer</renderer-class>
+    </renderer>
+
+    <renderer>
+      <component-family>javax.faces.Output</component-family>
+      <renderer-type>org.sakaiproject.ViewTitle</renderer-type>
+      <renderer-class>org.sakaiproject.jsf2.renderer.ViewTitleRenderer</renderer-class>
+    </renderer>
+
+    <renderer>
+        <component-family>javax.faces.Output</component-family>
+        <renderer-type>org.sakaiproject.SeparatedList</renderer-type>
+        <renderer-class>org.sakaiproject.jsf2.renderer.SeparatedListRenderer</renderer-class>
+    </renderer>
+
+  </render-kit>
+
+</faces-config>

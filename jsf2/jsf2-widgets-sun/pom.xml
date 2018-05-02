@@ -1,0 +1,63 @@
+<?xml version="1.0"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  
+   <parent>
+        <groupId>org.sakaiproject.jsf2</groupId>
+        <artifactId>jsf2</artifactId>
+        <version>13-SNAPSHOT</version>
+    </parent>
+  
+  <name>Sakai JSF 2 Widgets - Sun RI (jsf2-widgets-sun)</name>
+  <groupId>org.sakaiproject.jsf2</groupId>
+  <artifactId>jsf2-widgets-sun</artifactId>
+  <packaging>jar</packaging>
+  
+  <description>
+    This is the Maven project for the implementation-specific details
+    for using Sakai's JSF 2 widgets on Sun runtime implementation.
+  </description>
+
+  <dependencies>
+    <dependency>
+      <groupId>javax.servlet</groupId>
+      <artifactId>servlet-api</artifactId>
+    </dependency>
+    <dependency>
+        <groupId>javax.faces</groupId>
+        <artifactId>javax.faces-api</artifactId>
+    </dependency>
+    <dependency>
+        <groupId>org.glassfish</groupId>
+        <artifactId>javax.faces</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>javax.servlet.jsp</groupId>
+      <artifactId>jsp-api</artifactId>
+    </dependency>
+  </dependencies>
+  
+  <build>
+    <resources>
+      <resource>
+        <directory>${basedir}/src/bundle</directory>
+        <includes>
+          <include>**/*.properties</include>
+        </includes>
+      </resource>
+      <resource>
+        <directory>${basedir}/src/java</directory>
+        <includes>
+          <include>**/*.properties</include>
+        </includes>
+      </resource>
+      <resource>
+        <directory>${basedir}/src</directory>
+        <includes>
+          <include>META-INF/*.tld</include>
+          <include>META-INF/*.xml</include>
+        </includes>
+      </resource>
+    </resources>
+  </build>
+</project>

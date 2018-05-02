@@ -120,10 +120,10 @@
 			</h:panelGrid>
 
 			<sakai:button_bar>
-				<sakai:button_bar_item id="submit"
+				<h:commandButton id="submit"
 					action="#{ChatTool.processActionEditRoomSave}"
 					value="#{msgs['gen.save']}" />
-				<sakai:button_bar_item id="cancel" immediate="true"
+				<h:commandButton id="cancel" immediate="true"
 					action="#{ChatTool.processActionEditRoomCancel}"
 					value="#{msgs['gen.cancel']}" />
 			</sakai:button_bar>

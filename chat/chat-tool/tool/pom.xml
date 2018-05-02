@@ -50,12 +50,12 @@
       <artifactId>sakai-velocity-tool</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.sakaiproject.jsf</groupId>
-      <artifactId>jsf-tool</artifactId>
+      <groupId>org.sakaiproject.jsf2</groupId>
+      <artifactId>jsf2-tool</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.sakaiproject.jsf</groupId>
-      <artifactId>jsf-app</artifactId>
+      <groupId>org.sakaiproject.jsf2</groupId>
+      <artifactId>jsf2-app</artifactId>
     </dependency>
     <dependency>
         <groupId>org.sakaiproject.portal</groupId>
@@ -63,14 +63,14 @@
     </dependency>
 <!-- this will pull the correct dependency set for a Sun Widget Set -->
     <dependency>
-      <groupId>org.sakaiproject.jsf</groupId>
-      <artifactId>jsf-widgets-sun-depend</artifactId>
+      <groupId>org.sakaiproject.jsf2</groupId>
+      <artifactId>jsf2-widgets-sun-depend</artifactId>
       <type>pom</type>
     </dependency>
 <!-- tomahawk tags are being used, so we have to pull them seperately -->
     <dependency>
       <groupId>org.apache.myfaces.tomahawk</groupId>
-      <artifactId>tomahawk</artifactId>
+      <artifactId>tomahawk21</artifactId>
       <version>1.1.14</version>
       <scope>compile</scope>
     </dependency>
@@ -91,14 +91,27 @@
       <groupId>commons-beanutils</groupId>
       <artifactId>commons-beanutils</artifactId>
     </dependency>
-        <dependency>
+    <dependency>
         <groupId>commons-lang</groupId>
         <artifactId>commons-lang</artifactId>
     </dependency>
+    <!--JSF 2.3 dependencies-->
     <dependency>
-      <groupId>taglibs</groupId>
-      <artifactId>standard</artifactId>
-      <version>1.0.4</version>
+        <groupId>javax.servlet</groupId>
+        <artifactId>jstl</artifactId>
+        <version>${sakai.jstl.version}</version>
+        <scope>compile</scope>
+    </dependency>
+    <dependency>
+        <groupId>org.jboss</groupId>
+        <artifactId>jandex</artifactId>
+        <version>2.0.5.Final</version>
+        <scope>compile</scope>
+    </dependency>
+    <dependency>
+        <groupId>org.jboss.weld.servlet</groupId>
+        <artifactId>weld-servlet-shaded</artifactId>
+        <version>3.0.4.Final</version>
     </dependency>
   </dependencies>
   <build>

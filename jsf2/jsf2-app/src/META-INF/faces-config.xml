@@ -1,0 +1,35 @@
+<?xml version="1.0"?>
+
+<faces-config xmlns="http://xmlns.jcp.org/xml/ns/javaee"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee
+        http://xmlns.jcp.org/xml/ns/javaee/web-facesconfig_2_3.xsd"
+    version="2.3">
+
+  <!-- =================== Beans ============== -->
+
+	<!-- This bean, placed into the application scope, can be used in managed-bean managed-property
+	     entries to provide backing beans with service components.  It surfaces the registered components
+	     as a map -->
+	<managed-bean>
+		<description>Component Manager Map</description>
+		<managed-bean-name>Components</managed-bean-name>
+		<managed-bean-class>org.sakaiproject.util.ComponentMap</managed-bean-class>
+		<managed-bean-scope>application</managed-bean-scope>
+	</managed-bean>
+
+ <!-- =================== Application Objects ============== -->
+
+	<application>
+		<view-handler>
+			org.sakaiproject.jsf2.app.SakaiViewHandler
+		</view-handler>
+		<navigation-handler>
+			org.sakaiproject.jsf2.app.SakaiNavigationHandler
+		</navigation-handler>
+		<variable-resolver>
+			org.sakaiproject.jsf2.app.SakaiVariableResolver
+		</variable-resolver>
+	</application>
+
+</faces-config>

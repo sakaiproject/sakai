@@ -15,7 +15,7 @@
 			
 			<sakai:view_title value="#{msgs.room_list_title}"/>  	
 
-			<sakai:messages rendered="#{!empty facesContext.maximumSeverity}" />
+			<h:messages rendered="#{!empty facesContext.maximumSeverity}" />
 
 			<h:dataTable value="#{ChatTool.chatChannels}" var="channel"
 				styleClass="lines listHier" headerClass="exclude">
@@ -73,7 +73,7 @@
 			</h:dataTable>
 			
 			<sakai:button_bar>
-				<sakai:button_bar_item id="back"
+				<h:commandButton id="back"
 					action="#{ChatTool.processActionBackToRoom}"
 					value="#{msgs.back_to_room}" />
 			</sakai:button_bar>
