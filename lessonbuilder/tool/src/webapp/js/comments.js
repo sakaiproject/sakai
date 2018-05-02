@@ -66,19 +66,21 @@ $(function() {
 		width: 400,
 		modal: false,
 		resizable: false,
-		buttons: {
-			"Cancel": function() {
+		buttons:[{
+			text: msg("simplepage.cancel_message"),
+			click: function() {
 				if(originalDeleteDialogText !== null) {
 					$("#delete-comment-confirm").text(originalDeleteDialogText);
 				}
-				
-				$(this).dialog("close");
-			},
 			
-			"Delete Comment": function() {
+				$(this).dialog("close");
+			}
+		},{
+			text: msg("simplepage.delete_comment"),
+			click: function() {
 				deleteButton();
 			}
-		}
+		}]
 	});
 });
 
