@@ -82,6 +82,7 @@ $tlang.getString("gen.trouble.loading")
     marginheight="0"
     scrolling="auto"
     allowfullscreen="true" webkitallowfullscreen="true" mozallowfullscreen="true"
+    allow="camera; microphone"
     src="$!source">
 </iframe>
 <script>
