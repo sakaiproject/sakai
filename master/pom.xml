@@ -46,7 +46,7 @@
     <sakai.stax2.version>3.1.4</sakai.stax2.version>
     <sakai.java.jwt.version>3.1.0</sakai.java.jwt.version>
     <sakai.jcr.version>1.0</sakai.jcr.version>
-    <sakai.jstl.version>1.1.2</sakai.jstl.version>
+    <sakai.jstl.version>1.2</sakai.jstl.version>
     <sakai.lombok.version>1.16.20</sakai.lombok.version>
     <sakai.lucene.version>4.10.4</sakai.lucene.version>
     <sakai.mail.version>1.6.0</sakai.mail.version>
@@ -790,7 +790,13 @@
       <dependency>
         <groupId>javax.servlet</groupId>
         <artifactId>jstl</artifactId>
-        <version>1.1.2</version>
+        <version>${sakai.jstl.version}</version>
+        <scope>provided</scope>
+      </dependency>
+      <dependency>
+        <groupId>javax.enterprise</groupId>
+        <artifactId>cdi-api</artifactId>
+        <version>2.0</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
@@ -1648,6 +1654,39 @@
       <dependency>
         <groupId>javax.servlet</groupId>
         <artifactId>jstl</artifactId>
+        <version>${sakai.version}</version>
+        <type>pom</type>
+      </dependency>
+      <!--JSF 2 Dependencies-->
+      <dependency>
+        <groupId>org.sakaiproject.jsf2</groupId>
+        <artifactId>jsf2-app</artifactId>
+        <version>${sakai.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.sakaiproject.jsf2</groupId>
+        <artifactId>jsf2-tool</artifactId>
+        <version>${sakai.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.sakaiproject.jsf2</groupId>
+        <artifactId>jsf2-tool-sun</artifactId>
+        <version>${sakai.version}</version>
+        <type>pom</type>
+      </dependency>
+      <dependency>
+        <groupId>org.sakaiproject.jsf2</groupId>
+        <artifactId>jsf2-widgets</artifactId>
+        <version>${sakai.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.sakaiproject.jsf2</groupId>
+        <artifactId>jsf2-widgets-sun</artifactId>
+        <version>${sakai.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.sakaiproject.jsf2</groupId>
+        <artifactId>jsf2-widgets-sun-depend</artifactId>
         <version>${sakai.version}</version>
         <type>pom</type>
       </dependency>

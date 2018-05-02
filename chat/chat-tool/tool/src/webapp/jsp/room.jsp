@@ -1,7 +1,7 @@
 <f:view>
     <sakai:view title="#{msgs['custom.chatroom']}">
         <h:outputText value="#{Portal.latestJQuery}" escape="false"/>
-        <sakai:script contextBase="/sakai-chat-tool" path="/js/chatscript.js"/>
+        <script type="text/javascript" src="/sakai-chat-tool/js/chatscript.js"></script>
         <script type="text/javascript">
             if ( window.frameElement) window.frameElement.className='wcwmenu';
         </script>
@@ -76,7 +76,7 @@
                                 var chat2_messagesUnreadedTemplate = "<h:outputText value="#{ChatTool.unreadedMessagesText}" />"; // replace *SHOWN* and *TOTAL*
                                 var unreadedMessages = 0;
                             </script>
-                            <sakai:messages  rendered="#{!empty facesContext.maximumSeverity}" />
+                            <h:messages  rendered="#{!empty facesContext.maximumSeverity}" />
                             <div id="Monitor" class="chatListMonitor">
                                 <%@ include file="roomMonitor.jspf" %>
                             </div>
