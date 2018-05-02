@@ -1185,7 +1185,9 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
             }
         } else {
             // submitting a submission
-            eventTrackingService.post(eventTrackingService.newEvent(AssignmentConstants.EVENT_SUBMIT_ASSIGNMENT_SUBMISSION, reference, true));
+            Assignment a = submission.getAssignment();
+            LRS_Statement statement = getStatementForSubmitAssignment(a.getId(), serverConfigurationService.getAccessUrl(), a.getTitle());
+            eventTrackingService.post(eventTrackingService.newEvent(AssignmentConstants.EVENT_SUBMIT_ASSIGNMENT_SUBMISSION, reference, null, true, NotificationService.NOTI_OPTIONAL, statement));
 
             // only doing the notification for real online submissions
             if (submission.getAssignment().getTypeOfSubmission() != Assignment.SubmissionType.NON_ELECTRONIC_ASSIGNMENT_SUBMISSION) {
@@ -3824,6 +3826,20 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
         LRS_Actor student = learningResourceStoreService.getActor(studentUser.getId());
         student.setName(studentUser.getDisplayName());
         return new LRS_Statement(student, verb, lrsObject, getLRS_Result(a, s, false), null);
+    }
+
+    private LRS_Statement getStatementForSubmitAssignment(String reference, String accessUrl, String assignmentName) {
+    	LRS_Actor actor = learningResourceStoreService.getActor(sessionManager.getCurrentSessionUserId());
+        LRS_Verb verb = new LRS_Verb(SAKAI_VERB.attempted);
+        LRS_Object lrsObject = new LRS_Object(accessUrl + reference, "submit-assignment");
+        HashMap<String, String> nameMap = new HashMap<String, String>();
+        nameMap.put("en-US", "User submitted an assignment");
+        lrsObject.setActivityName(nameMap);
+        // Add description
+        HashMap<String, String> descMap = new HashMap<String, String>();
+        descMap.put("en-US", "User submitted an assignment: " + assignmentName);
+        lrsObject.setDescription(descMap);
+        return new LRS_Statement(actor, verb, lrsObject);
     }
 
     private void sendGradeReleaseNotification(AssignmentSubmission submission) {
