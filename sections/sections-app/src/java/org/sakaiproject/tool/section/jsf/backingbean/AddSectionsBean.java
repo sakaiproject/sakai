@@ -492,7 +492,7 @@ public class AddSectionsBean extends CourseDependentBean implements SectionEdito
 
     protected void initDaysOfWeek(){
        ResourceLoader rl = new ResourceLoader();
-       DateFormatSymbols dfs = new DateFormatSymbols(rl.getLocale());
+       DateFormatSymbols dfs = DateFormatSymbols.getInstance(rl.getLocale());
        daysOfWeek = dfs.getWeekdays();
     }
 }

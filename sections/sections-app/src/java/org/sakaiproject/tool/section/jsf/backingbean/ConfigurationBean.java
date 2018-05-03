@@ -18,7 +18,7 @@ public class ConfigurationBean {
 		return this.capPM;
 	}
 	private void localizeParameters(){
-		DateFormatSymbols dsf = new DateFormatSymbols(new ResourceLoader().getLocale());
+		DateFormatSymbols dsf = DateFormatSymbols.getInstance(new ResourceLoader().getLocale());
 		String[] amPmString = dsf.getAmPmStrings();
 		capAM = amPmString[0];
 		capPM = amPmString[1];
