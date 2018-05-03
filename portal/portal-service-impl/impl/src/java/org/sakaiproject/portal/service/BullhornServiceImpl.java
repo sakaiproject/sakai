@@ -179,7 +179,7 @@ public class BullhornServiceImpl implements BullhornService, Observer {
             HANDLED_EVENTS.add(AssignmentConstants.EVENT_GRADE_ASSIGNMENT_SUBMISSION);
             HANDLED_EVENTS.add(COMMONS_COMMENT_CREATED);
             HANDLED_EVENTS.add(LessonBuilderEvents.COMMENT_CREATE);
-            eventTrackingService.addObserver(this);
+            eventTrackingService.addLocalObserver(this);
         }
 
         if (serverConfigurationService.getBoolean("auto.ddl", true)) {
