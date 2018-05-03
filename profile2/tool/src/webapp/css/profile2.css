@@ -832,18 +832,6 @@ h2 {
 }
 
 
-
-
-
-
-
-/* overrides cluetip's text color and border that jquery-ui sets */
-.cluetip-inner {
-	color: #5D5D5D;
-	border: 0 !important;
-}
-
-
 /* heading for pages and items */
 .header {
 	border-bottom: 1px solid #DDD;

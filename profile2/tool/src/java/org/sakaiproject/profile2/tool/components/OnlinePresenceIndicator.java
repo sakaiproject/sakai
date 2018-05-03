@@ -70,7 +70,7 @@ public class OnlinePresenceIndicator extends Panel {
 		add(text);
 		
 		//we need to id of the text span so that we can map it to the link.
-		//the cluetip functions automatically hide it for us.
+		//the qtip functions automatically hide it for us.
 		StringBuilder textId = new StringBuilder();
 		textId.append("#");
 		textId.append(text.getMarkupId());
