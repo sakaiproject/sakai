@@ -1446,7 +1446,7 @@ public class AssignmentAction extends PagedResourceActionII {
                     log.error(e.getMessage(), e);
                 }
                 //Check if content review service requires a EULA
-                String eulaServiceLink = contentReviewService.getEndUserLicenseAgreementLink();
+                String eulaServiceLink = contentReviewService.getEndUserLicenseAgreementLink(user.getId());
                 if(StringUtils.isNotEmpty(eulaServiceLink)) {
 	                	Instant providerEulaTimestamp = contentReviewService.getEndUserLicenseAgreementTimestamp();
 	                	Instant userEulaTimestamp = contentReviewService.getUserEULATimestamp(user.getId());

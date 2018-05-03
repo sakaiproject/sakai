@@ -951,7 +951,7 @@ public class UrkundReviewServiceImpl extends BaseContentReviewService {
 	}
 
 	@Override
-	public String getEndUserLicenseAgreementLink() {
+	public String getEndUserLicenseAgreementLink(String userId) {
 		return null;
 	}
 

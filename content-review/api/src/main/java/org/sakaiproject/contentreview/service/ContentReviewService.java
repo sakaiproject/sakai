@@ -353,7 +353,7 @@ public interface ContentReviewService {
 	 * Returns a hyperlink to a providers EULA, if empty, no EULA will be shown to the user
 	 * @return
 	 */
-	public String getEndUserLicenseAgreementLink();
+	public String getEndUserLicenseAgreementLink(String userId);
 	
 	/**
 	 * Returns date for most recent EULA. If null, no date will be checked. If provided, the user must re-accept the EULA if the date has changed.

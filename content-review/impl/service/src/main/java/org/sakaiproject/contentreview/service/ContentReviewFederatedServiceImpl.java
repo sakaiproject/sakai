@@ -262,8 +262,8 @@ public class ContentReviewFederatedServiceImpl extends BaseContentReviewService 
 	}
 
 	@Override
-	public String getEndUserLicenseAgreementLink() {
-		return getSelectedProvider().getEndUserLicenseAgreementLink();
+	public String getEndUserLicenseAgreementLink(String userId) {
+		return getSelectedProvider().getEndUserLicenseAgreementLink(userId);
 	}
 
 	@Override

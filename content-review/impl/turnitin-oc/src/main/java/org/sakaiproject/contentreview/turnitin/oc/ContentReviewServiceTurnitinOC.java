@@ -69,6 +69,9 @@ import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.TypeException;
+import org.sakaiproject.memory.api.Cache;
+import org.sakaiproject.memory.api.MemoryService;
+import org.sakaiproject.memory.api.SimpleConfiguration;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.Session;
@@ -137,6 +140,10 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 	private static final String RESPONSE_BODY = "responseBody";
 	private static final String GIVEN_NAME = "given_name";
 	private static final String FAMILY_NAME = "family_name";
+	private static final String MATCH_OVERVIEW = "match_overview";
+	private static final String ALL_SOURCES = "all_sources";
+	private static final String MODES = "modes";
+	private static final String SIMILARITY = "similarity";
 	
 	private static final String GENERATE_REPORTS_IMMEDIATELY_AND_ON_DUE_DATE= "1";
 	private static final String GENERATE_REPORTS_ON_DUE_DATE = "2";	
@@ -159,8 +166,16 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 	private HashMap<String, String> SIMILARITY_REPORT_HEADERS = new HashMap<String, String>();
 	private HashMap<String, String> CONTENT_UPLOAD_HEADERS = new HashMap<String, String>();
 	private HashMap<String, String> WEBHOOK_SETUP_HEADERS = new HashMap<String, String>();
+	
+	@Setter
+	private MemoryService memoryService;
+	//Caches requests for instructors so that we don't have to send a request for every student
+	private Cache EULA_CACHE;
+	private static final String EULA_LATEST_KEY = "latest";
+	private static final String EULA_DEFAULT_LOCALE = "en-EN";
 
 	public void init() {
+		EULA_CACHE = memoryService.createCache("org.sakaiproject.contentreview.turnitin.oc.ContentReviewServiceTurnitinOC.LATEST_EULA_CACHE", new SimpleConfiguration<>(10000, 24 * 60 * 60, -1));
 		// Retrieve Service URL and API key
 		serviceUrl = serverConfigurationService.getString("turnitin.oc.serviceUrl", "");
 		apiKey = serverConfigurationService.getString("turnitin.oc.apiKey", "");
@@ -343,23 +358,19 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 	}
 
 	public String getLocalizedStatusMessage(String arg0) {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	public String getLocalizedStatusMessage(String arg0, String arg1) {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	public String getLocalizedStatusMessage(String arg0, Locale arg1) {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	public List<ContentReviewItem> getReportList(String siteId)
 			throws QueueException, SubmissionException, ReportException {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
@@ -389,6 +400,12 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 				// Set user name
 				data.put(GIVEN_NAME, givenName);
 				data.put(FAMILY_NAME, familyName);
+				Map<String, Object> similarity = new HashMap<String, Object>();
+				Map<String, Object> modes = new HashMap<String, Object>();
+				modes.put(MATCH_OVERVIEW, Boolean.TRUE);
+				modes.put(ALL_SOURCES, Boolean.TRUE);
+				similarity.put(MODES, modes);
+				data.put(SIMILARITY, similarity);
 
 				// Check user preference for locale			
 				// If user has no preference set - get the system default
@@ -647,6 +664,15 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 			Map<String, Object> data = new HashMap<String, Object>();
 			data.put("owner", userID);
 			data.put("title", fileName);
+			Instant eulaTimestamp = getUserEULATimestamp(userID);
+			String eulaVersion = getUserEULAVersion(userID);
+			if(eulaTimestamp != null && StringUtils.isNotEmpty(eulaVersion)) {
+				Map<String, Object> eula = new HashMap<String, Object>();
+				eula.put("accepted_timestamp", eulaTimestamp.toString());
+				eula.put("language", getUserEulaLocale(userID));
+				eula.put("version", eulaVersion);
+				data.put("eula", eula);
+			}
 
 			HashMap<String, Object> response = makeHttpCall("POST",
 					getNormalizedServiceUrl() + "submissions",
@@ -1139,7 +1165,7 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 	}
 
 	public void resetUserDetailsLockedItems(String arg0) {
-		// TODO Auto-generated method stub
+
 	}
 
 	public String getReviewError(String contentId) {
@@ -1196,18 +1222,102 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 	}
 	
 	@Override
-	public String getEndUserLicenseAgreementLink() {
-		return "https://www.vericite.com";
+	public String getEndUserLicenseAgreementLink(String userId) {
+		String url = null;
+		Map<String, Object> latestEula = getLatestEula();
+		if(latestEula != null && latestEula.containsKey("url")) {
+			url = latestEula.get("url").toString() + "?lang=" + getUserEulaLocale(userId);
+		}
+		return url;
 	}
 
 	@Override
 	public Instant getEndUserLicenseAgreementTimestamp() {
-		return Instant.MIN;
+		Instant validFrom = null;
+		Map<String, Object> latestEula = getLatestEula();
+		if(latestEula != null && latestEula.containsKey("valid_from")) {
+			try {
+				validFrom = Instant.parse(latestEula.get("valid_from").toString());
+			}catch(Exception e) {
+				log.error(e.getMessage(), e);
+			}
+		}
+		return validFrom;
 	}
 
 	@Override
 	public String getEndUserLicenseAgreementVersion() {
-		return "1.1";
+		String version = null;
+		Map<String, Object> latestEula = getLatestEula();
+		if(latestEula != null && latestEula.containsKey("version")) {
+			version = latestEula.get("version").toString();
+		}
+		return version;
+	}
+	
+	private Map<String, Object> getLatestEula(){
+		Map<String, Object> eula = null;
+		if(EULA_CACHE.containsKey(EULA_LATEST_KEY)) {
+			//EULA is still cached, grab it:
+			Object cacheObj = EULA_CACHE.get(EULA_LATEST_KEY);
+			if(cacheObj != null && cacheObj instanceof Map && ((Map<String, Object>) cacheObj).containsKey("url")){
+				eula = ((Map<String, Object>) cacheObj);
+			}
+		}
+		if(eula == null) {
+			//get Eula from API and cache it:
+			try {
+				Map<String, Object> response = makeHttpCall("GET", getNormalizedServiceUrl() + "eula/" + EULA_LATEST_KEY, BASE_HEADERS, null, null);
+				String responseBody = !response.containsKey(RESPONSE_BODY) ? "" : (String) response.get(RESPONSE_BODY);
+				if(StringUtils.isNotEmpty(responseBody)) {
+					ObjectMapper objectMapper = new ObjectMapper();
+					eula = new ObjectMapper().readValue(responseBody, Map.class);
+				}
+				if(eula != null && eula.containsKey("url")) {
+					//store in cache:
+					EULA_CACHE.put(EULA_LATEST_KEY, eula);
+				}
+			} catch (Exception e) {
+				log.error(e.getMessage(), e);
+			}			
+		}
+		return eula;
+	}
+	
+	private String getUserEulaLocale(String userId) {
+		String userLocale = null;
+		// Check user preference for locale			
+		// If user has no preference set - get the system default
+		Locale locale = Optional.ofNullable(preferencesService.getLocale(userId))
+				.orElse(Locale.getDefault());
+		//find available EULA langauges:
+		Map<String, Object> eula = getLatestEula();
+		if(eula != null && eula.containsKey("available_languages") && eula.get("available_languages") instanceof List) {
+			for(String eula_locale : (List<String>) eula.get("available_languages")) {
+				if(locale.getLanguage().equalsIgnoreCase(eula_locale)) {
+					//found exact match
+					userLocale = eula_locale;
+					break;
+				}
+			}
+			//if we do not find the exact match, find a match based on the first part
+			if(locale.getLanguage().length() >= 2) {
+				String userLanguage = locale.getLanguage().substring(0, 2);
+				for(String eula_locale : (List<String>) eula.get("available_languages")) {
+					if(eula_locale.toLowerCase().startsWith(userLanguage.toLowerCase())) {					
+						//found language match
+						userLocale = eula_locale;
+						break;
+					}
+				}
+			}
+		}
+		if(StringUtils.isEmpty(userLocale)) {
+			//default to english:
+			userLocale = EULA_DEFAULT_LOCALE;
+		}
+			
+		return userLocale;
 	}
 
 	public static String getSigningSignature(byte[] key, String data) throws Exception {
