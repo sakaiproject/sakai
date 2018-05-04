@@ -26,8 +26,9 @@ import org.quartz.*;
 
 import org.springframework.transaction.annotation.Transactional;
 
+import org.sakaiproject.api.app.scheduler.ScheduledInvocationManager;
+
 import org.sakaiproject.component.app.scheduler.DelayedInvocationDAO;
-import org.sakaiproject.component.app.scheduler.ScheduledInvocationManagerImpl;
 import org.sakaiproject.scheduler.events.hibernate.DelayedInvocation;
 
 /**
@@ -41,18 +42,17 @@ public class SchedulerMigrationJob implements Job {
     public static final String SCHEDULED_JOB_GROUP = "org.sakaiproject.component.app.scheduler.ScheduledInvocationManagerImpl";
 
     @Inject
-    private Scheduler scheduler;
-
-    @Inject
     private DelayedInvocationDAO invocationDAO;
 
     @Inject
-    private ScheduledInvocationManagerImpl manager;
+    private ScheduledInvocationManager manager;
 
     @Override
     @Transactional
     public void execute(JobExecutionContext context) throws JobExecutionException {
         // First need to stop the existing quartz job.
+        Scheduler scheduler = context.getScheduler();
+
         try {
             if(scheduler.deleteJob(new JobKey(SCHEDULED_JOB_NAME, SCHEDULED_JOB_GROUP))) {
                 log.info("Removed old scheduler job.");
@@ -67,7 +67,7 @@ public class SchedulerMigrationJob implements Job {
         for (DelayedInvocation invocation: all) {
             Instant instant = Instant.ofEpochMilli(invocation.getTime().getTime());
             // This will create the job as well.
-            manager.createDelayedInvocation(instant, invocation.getComponent(), invocation.getContext(), invocation.getId());
+            manager.createDelayedInvocation(instant, invocation.getComponent(), invocation.getContext());
             invocationDAO.remove(invocation);
             log.info("Migrated "+ invocation.getId()+ " of "+ invocation.getComponent() +" at "+ instant);
         }
