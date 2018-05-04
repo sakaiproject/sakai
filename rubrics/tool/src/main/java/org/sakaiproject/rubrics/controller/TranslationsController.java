@@ -39,6 +39,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RequestMethod;
 
+import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.rubrics.RubricsConfiguration;
 
 @BasePathAwareController
@@ -49,6 +50,9 @@ public class TranslationsController {
 
     @Autowired
     RubricsConfiguration rubricsConfiguration;
+
+    @Autowired
+    ServerConfigurationService serverConfigurationService;
 
     @RequestMapping(value = "", method = RequestMethod.GET, produces = "application/json")
     @ResponseBody
@@ -72,7 +76,7 @@ public class TranslationsController {
 
 
         try{
-            URL url = new URL(rubricsConfiguration.getIntegration().getSakaiRestUrl() + "i18n/getI18nProperties?locale=" + langCode +  "&resourceclass=org.sakaiproject.rubrics.logic.RubricsService&resourcebundle=rubricsMessages");
+            URL url = new URL(serverConfigurationService.getServerUrl() + "/sakai-ws/rest/i18n/getI18nProperties?locale=" + langCode +  "&resourceclass=org.sakaiproject.rubrics.logic.RubricsService&resourcebundle=rubricsMessages");
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setRequestMethod("GET");
 

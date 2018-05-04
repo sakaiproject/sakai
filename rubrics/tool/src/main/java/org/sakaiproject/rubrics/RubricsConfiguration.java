@@ -34,9 +34,10 @@ import lombok.Data;
 @ConfigurationProperties(prefix = "rubrics")
 public class RubricsConfiguration {
 
+    public static final String RUBRICS_TOKEN_SIGNING_SHARED_SECRET_PROPERTY = "rubrics.integration.token-secret";
+    public static final String RUBRICS_TOKEN_SIGNING_SHARED_SECRET_DEFAULT = "12345678900909091234";
+
     @Valid
     private RubricsInstanceConfiguration instance;
 
-    @Valid
-    private RubricsIntegrationConfiguration integration;
 }
