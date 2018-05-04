@@ -32,13 +32,12 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head><%= request.getAttribute("html.head") %>
     <title><h:outputText value="#{authorFrontDoorMessages.auth_front_door}" /></title>
-    <link rel="stylesheet" type="text/css" href="/library/webjars/bootstrap-multiselect/0.9.15/css/bootstrap-multiselect.css">
 </head>
 <body onload="<%= request.getAttribute("html.body.onload") %>">
     <div class="portletBody container-fluid">
 
     <script src="/library/webjars/datatables/1.10.16/js/jquery.dataTables.min.js"></script>
-    <script src="/library/webjars/bootstrap-multiselect/0.9.15/js/bootstrap-multiselect.js"></script>
+    <script type="text/JavaScript">includeWebjarLibrary('bootstrap-multiselect');</script>
     <samigo:script path="/js/info.js"/>
     <samigo:script path="/js/naturalSort.js"/>
     <script type="text/JavaScript">
