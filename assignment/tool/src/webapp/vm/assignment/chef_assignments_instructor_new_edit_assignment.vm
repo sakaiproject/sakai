@@ -1090,6 +1090,10 @@
 								#end
 							</div>
 						#end
+						<br/><br/>
+						<p class="text-muted small">
+							$tlang.getString("turnitinoc.instructions")&nbsp;<a href="http://help.turnitin.com" target="_blank">http://help.turnitin.com</a>
+						</p>
                         <!-- End TurnitinOC custom options -->
 				#elseif($reviewServiceName.equals("Compilatio"))
 						#if ($content_review_note)
