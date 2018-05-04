@@ -751,7 +751,7 @@
 					</div>
 
 					<!-- Start TII custom options -->
-					#if($reviewServiceName.equals("Turnitin"))
+					#if($reviewServiceProviderId == 199481773)
 
 					#if ($content_review_note)
 						$content_review_note
@@ -995,7 +995,7 @@
                         </div>
 
                         <!-- End VeriCite custom options -->
-					#elseif($reviewServiceName.equals("TurnitinOC"))
+					#elseif($reviewServiceProviderId == 1571541951)
 						<!-- Start TurnitinOC custom options -->
 						
 						#if($show_NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_BIBLIOGRAPHIC || $show_NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_QUOTED)

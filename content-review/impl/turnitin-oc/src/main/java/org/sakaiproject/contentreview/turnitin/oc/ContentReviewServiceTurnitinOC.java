@@ -115,7 +115,7 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 	@Setter
 	private SessionManager sessionManager;
 
-	private static final String SERVICE_NAME = "TurnitinOC";
+	private static final String SERVICE_NAME = "Turnitin";
 	private static final String TURNITIN_OC_API_VERSION = "v1";
 	private static final int TURNITIN_OC_MAX_RETRY_MINUTES = 240; // 4 hours
 	private static final int TURNITIN_MAX_RETRY = 16;
@@ -467,6 +467,12 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 
 	public String getServiceName() {
 		return SERVICE_NAME;
+	}
+	
+	@Override
+	public Integer getProviderId() {
+		//Since there is an already existing Turnitin integration, we can't use the same "namespace" for the provider ID
+		return Math.abs("TurnitinOC".hashCode());
 	}
 
 	public boolean isAcceptableContent(ContentResource arg0) {
