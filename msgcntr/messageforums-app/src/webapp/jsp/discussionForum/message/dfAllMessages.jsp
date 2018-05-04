@@ -26,8 +26,8 @@
 
 <!--jsp/discussionForum/message/dfAllMessages.jsp-->
 		<link rel="stylesheet" type="text/css" href="../../css/TableSorter.css" />
- 		<script type="text/javascript" src="/library/js/jquery/tablesorter/2.0.3/jquery.tablesorter-2.0.3.min.js"></script>
- 		<sakai:script contextBase="/messageforums-tool" path="/js/forumTopicThreadsSorter.js"/>
+		<script type="text/javascript">includeWebjarLibrary('jquery.tablesorter');</script>
+		<sakai:script contextBase="/messageforums-tool" path="/js/forumTopicThreadsSorter.js"/>
  		<script type="text/javascript">
  		jQuery(document).ready(function(){
  			//sort forum threads
