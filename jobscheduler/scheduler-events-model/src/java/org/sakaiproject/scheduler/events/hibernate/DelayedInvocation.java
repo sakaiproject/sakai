@@ -19,6 +19,11 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
+
+import org.hibernate.annotations.GenericGenerator;
+
+import javax.persistence.GeneratedValue;
+
 import java.util.Date;
 
 /**
@@ -30,6 +35,9 @@ import java.util.Date;
 public class DelayedInvocation {
 
     @Id
+    @Column(name = "INVOCATION_ID", nullable = false, length = 36)
+    @GeneratedValue(generator = "uuid")
+	@GenericGenerator(name = "uuid", strategy = "uuid2")
     private String id;
 
     @Column(name = "INVOCATION_TIME", nullable = false)

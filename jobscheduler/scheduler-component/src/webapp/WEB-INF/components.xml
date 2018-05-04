@@ -34,6 +34,7 @@
             <list>
                 <value>org.sakaiproject.scheduler.events.hibernate.ContextMapping</value>
                 <value>org.sakaiproject.scheduler.events.hibernate.TriggerEventHibernateImpl</value>
+                <value>org.sakaiproject.scheduler.events.hibernate.DelayedInvocation</value>
             </list>
         </property>
     </bean>
@@ -125,6 +126,10 @@
     <bean id="org.sakaiproject.component.app.scheduler.ContextMappingDAO"
           class="org.sakaiproject.component.app.scheduler.ContextMappingDAO"/>
     
+    <bean id="org.sakaiproject.component.app.scheduler.DelayedInvocationDAO"
+        class="org.sakaiproject.component.app.scheduler.DelayedInvocationDAO">
+    </bean>
+
     <bean id="org.sakaiproject.api.app.scheduler.ScheduledInvocationManager"
         class="org.sakaiproject.component.app.scheduler.ScheduledInvocationManagerImpl"
         init-method="init" destroy-method="destroy">
@@ -391,12 +396,18 @@
         <property name="schedulerManager">
             <ref bean="org.sakaiproject.api.app.scheduler.SchedulerManager"/>
         </property>
+
         <property name="jobBeans">
             <list>
                 <bean class="org.sakaiproject.component.app.scheduler.AutowiredJobBeanWrapper">
                     <constructor-arg
                             value="org.sakaiproject.component.app.scheduler.jobs.ValidateScheduledInvocations"/>
                     <constructor-arg value="Scheduled Invocation Validation"/>
+                </bean>
+                <bean class="org.sakaiproject.component.app.scheduler.AutowiredJobBeanWrapper">
+                    <constructor-arg
+                            value="org.sakaiproject.component.app.scheduler.jobs.SchedulerMigrationJob"/>
+                    <constructor-arg value="Scheduler: Migrate pre 12 scheduler_delayed_invocation jobs to 12 format (Run once)"/>
                 </bean>
                 <bean class="org.sakaiproject.component.app.scheduler.AutowiredJobBeanWrapper">
                     <constructor-arg value="org.sakaiproject.component.app.scheduler.jobs.AuthzGroupProviderSync"/>
