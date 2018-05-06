@@ -78,8 +78,6 @@
 				
 				<f:verbatim><li role="menuitem" ><span></f:verbatim>
 					<h:outputLink id="print" value="javascript:window.print();">
-							<h:graphicImage url="/images/printer.png"
-								alt="#{msgs.print_friendly}" title="#{msgs.print_friendly}" styleClass="openCloseImageIcon"/>
 							<h:outputText value="#{msgs.print_event}" escape="false"/>
 					</h:outputLink>				
 				<f:verbatim></span></li>
