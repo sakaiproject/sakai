@@ -756,7 +756,7 @@
 					   						<%-- TODO add spacer only if the attendees exist in atleast one timeslot --%>
 					   						<h:graphicImage value="/images/spacer.gif" width="20" height="16" alt="spacer" style="border:none"/>
 						   					<h:outputLink value="javascript:showHideAddPanel('#{timeSlotWrapper.positionInTSlist}');" styleClass="addAttendee">
-						   						<h:graphicImage value="/images/add.png"  alt="add an attendee" title="#{msgs.event_tool_tips_add}" style="border:none" styleClass="openCloseImageIcon"/>
+						   						<h:graphicImage value="/images/add.png" alt="" title="#{msgs.event_tool_tips_add}" style="border:none" styleClass="openCloseImageIcon"/>
 						   						<h:outputText value="#{msgs.event_add_attendee}" escape="false" />
 						   					</h:outputLink>
 						   				</h:panelGroup>
