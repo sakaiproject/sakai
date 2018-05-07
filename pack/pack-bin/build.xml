@@ -162,35 +162,35 @@
 	    <zip destfile="sakai-bin-${sakai.version}.zip" compress="yes">
 	        <zipfileset
 	            dir="${basedir}/target/pack/common"
-	            prefix="/common" dirmode="750"
+	            prefix="common" dirmode="750"
 	            filemode="750" erroronmissingdir="false" />
 	        <zipfileset
 	            dir="${basedir}/target/pack/components"
-	            prefix="/components" dirmode="750"
+	            prefix="components" dirmode="750"
 	            filemode="750" />
 	        <zipfileset
 	            dir="${basedir}/target/pack/licenses"
-	            prefix="/licenses" dirmode="750"
+	            prefix="licenses" dirmode="750"
 	            filemode="750" />
 	        <zipfileset
 	            dir="${basedir}/target/pack/server"
-	            prefix="/server" dirmode="750"
+	            prefix="server" dirmode="750"
 	            filemode="750" erroronmissingdir="false" />
 	        <zipfileset
 	            dir="${basedir}/target/pack/shared"
-	            prefix="/shared" dirmode="750"
+	            prefix="shared" dirmode="750"
 	            filemode="750" erroronmissingdir="false" />
 	        <zipfileset
 	            dir="${basedir}/target/pack/lib"
-	            prefix="/lib" dirmode="750"
+	            prefix="lib" dirmode="750"
 	            filemode="750" />
 	        <zipfileset
 	            dir="${basedir}/target/pack/webapps"
-	            prefix="/webapps" dirmode="750"
+	            prefix="webapps" dirmode="750"
 	            filemode="750" />
 	        <zipfileset
 	            dir="${basedir}/target/pack/"
-	            prefix="/">
+	            prefix="">
 	            <include name="LICENSE" />
 	        </zipfileset>
 	    </zip>
