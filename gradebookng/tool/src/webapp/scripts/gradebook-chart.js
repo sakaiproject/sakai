@@ -1,48 +1,11 @@
-/**
- * Refresh the course grade summary chart for the site. 
- * If the schema is provided it is sent and the course grades will be recalculated based on transient data.
- * Otherwise it will use the persistent data.
- * @param siteId
- * @param schemaJson the JSON of the grading schema
- * @returns
- */
-function renderChart(siteId, schemaJson) {
-	
-	var url = "/direct/gbng/course-grades.json?siteId="+siteId;
-	if(schemaJson) {
-		url += "&schema="+schemaJson;
-	}
-	
-	$.ajax({
-		url : url,
-      	dataType : "json",
-       	async : true,
-		cache: false,
-	   	success : function(chartData) {
-	   		_renderChart(chartData);
-		}
-	});
-}
 
 /**
- * Refresh the course grade summary chart for the site based on the provided schema.
- * This delegates to the REST service which calculates the course grades based on transient data.
- * @param siteId
- * @param schemaJson the JSON of the grading schema
- * @returns
+ * GradebookNG Chart JS.
+ * 
+ * Renders charts using the supplied {@link org.sakaiproject.gradebookng.tool.model.GbChartData} object (serialised to JSON).
+ * Draws charts using ChartJS.
  */
-function refreshChart(siteId, schemaJson) {
-	
-	$.ajax({
-		url : "/direct/gbng/course-grades.json?siteId="+siteId+"&schema="+schemaJson,
-      	dataType : "json",
-       	async : true,
-		cache: false,
-	   	success : function(chartData) {
-	   		_renderChart(chartData);
-		}
-	});
-}
+
 
 /**
  * Custom chart drawing, to enable us to have rounded corners
@@ -147,17 +110,21 @@ Chart.elements.Rectangle.prototype.draw = function() {
 };
 
 /**
- * Render the course grade summary chart from the given dataset.
- * @param chartData the data for the chart
+ * Render the chart from the given dataset.
+ * @param gbChartData the data for the chart. Must be a GbChartData object serialised to JSON.
  * @returns
  */
-function _renderChart(chartData) {
+function renderChart(gbChartData) {
 	
+	var chartData = JSON.parse(gbChartData);
+		
 	var dataset = chartData.dataset;
 	var chartTitle = chartData.chartTitle;
 	var xAxisLabel = chartData.xAxisLabel;
 	var yAxisLabel = chartData.yAxisLabel;
-
+	var chartType = chartData.chartType;
+	var chartId = chartData.chartId;
+	
 	var data = $.map(dataset, function(value, index) {
 		return value;
 	});
@@ -166,11 +133,11 @@ function _renderChart(chartData) {
 	});
 	
 	//clear data. If ChartJS implements a better way, change this.
-	$("#gradingSchemaChart").replaceWith('<canvas id="gradingSchemaChart"></canvas>');
+	$('#'+chartId).replaceWith('<canvas id="'+chartId+'"></canvas>');
 
-	var ctx = $("#gradingSchemaChart");
+	var ctx = $('#'+chartId);
 	var myChart = new Chart(ctx, {
-		type: 'horizontalBar',
+		type: chartType,
 		data: {
 			labels: labels,
 			datasets: [{

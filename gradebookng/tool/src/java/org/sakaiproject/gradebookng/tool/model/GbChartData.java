@@ -1,4 +1,4 @@
-package org.sakaiproject.gradebookng.rest.model;
+package org.sakaiproject.gradebookng.tool.model;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -9,10 +9,10 @@ import lombok.Getter;
 import lombok.Setter;
 
 /**
- * Class that wraps up the sumamry of grades for an assignment or course grade. Provides the dataset, config and labels to be used by the
+ * Class that wraps up the summary of grades for an assignment or course grade. Provides the dataset, config and labels to be used by the
  * chart
  */
-public class ChartData {
+public class GbChartData {
 
 	/**
 	 * Key is the label, ie letter grade, value is the count of students that have that grade
@@ -33,7 +33,21 @@ public class ChartData {
 	@Setter
 	private String yAxisLabel;
 
-	public ChartData() {
+	/**
+	 * 'horizontalBar' or 'bar' are currently supported options
+	 */
+	@Getter
+	@Setter
+	private String chartType;
+	
+	/**
+	 * HTML ID of the chart
+	 */
+	@Getter
+	@Setter
+	private String chartId;
+
+	public GbChartData() {
 		this.dataset = new LinkedHashMap<>();
 	}
 

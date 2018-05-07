@@ -4,10 +4,9 @@
 <body>
 	<wicket:panel>
 
-		<div class="gb-statistics-chart">
-			<img wicket:id="chart" usemap="#tooltip"></img>
-		</div>
+		<canvas wicket:id="gradingSchemaChart" id="gradingSchemaChart"></canvas>
 
+		<!--
 		<dl class="dl-horizontal">
 			<dt><wicket:message key="label.statistics.average"></wicket:message></dt>
 			<dd wicket:id="average"></dd>
@@ -22,10 +21,12 @@
 			<dt><wicket:message key="label.statistics.graded"></wicket:message></dt>
 			<dd wicket:id="graded"></dd>
 		</dl>
+		-->
 
 		<div>
 			<input type="button" class="button_color" wicket:id="done" wicket:message="value:button.done" />
 		</div>
+		
 	</wicket:panel>
 </body>
 </html>
