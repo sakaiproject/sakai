@@ -938,9 +938,8 @@ public class GradebookNgBusinessService {
 				Collections.sort(users, comp);
 			}
 		}
-
 		for (User u : users) {
-			gbUsers.add(new GbUser(u));
+			gbUsers.add(new GbUser(u, getStudentNumber(u, site)));
 		}
 
 		return gbUsers;
