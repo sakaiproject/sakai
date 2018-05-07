@@ -25,6 +25,9 @@ ConnectionPoll.prototype.ping = function() {
   $.ajax({
     type: "GET",
     url: this.PING_URL,
+    data: {
+      auto: true // indicate that the request is automatic, not from a user action
+    },
     timeout: this.PING_TIMEOUT,
     cache: false,
     success: $.proxy(this.onSuccess, this),

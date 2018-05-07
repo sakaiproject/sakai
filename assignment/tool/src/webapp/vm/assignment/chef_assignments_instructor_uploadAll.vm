@@ -100,7 +100,7 @@
 						onclick="ASN.invokeDownloadUrl('$accessPointUrl', '$actionString', '$alertMessage', '$contextString', '$viewString', '$searchString', '$showSubmissionByFilterSearchOnly', this);" value="$tlang.getString('downloadall.button.download')" />
 			#else
 				<input type="button" name="uploadButton" id="uploadButton"  accesskey="s" class="active"
-						onclick="SPNR.disableControlsAndSpin( this, null ); document.getElementById('uploadAllForm').action='#toolLinkParam($action 'doUpload_all')'; ASN.submitForm( 'uploadAllForm', null, null, null );" value="$tlang.getString('uploadall.button.upload')" />
+						onclick="SPNR.disableControlsAndSpin( this, null ); document.getElementById('uploadAllForm').action='#toolLinkParam($action "doUpload_all" "sakai_csrf_token=$validator.escapeUrl($sakai_csrf_token)")'; ASN.submitForm( 'uploadAllForm', null, null, null );" value="$tlang.getString('uploadall.button.upload')" />
 			#end	
 					<input type="button" name="cancelButton" id="cancelButton"  accesskey="x"
 						onclick="SPNR.disableControlsAndSpin( this, null ); document.getElementById('uploadAllForm').action='#toolLinkParam($action 'doCancel_download_upload_all')'; ASN.submitForm( 'uploadAllForm', null, null, null );" value="$tlang.getString('gen.can')" />

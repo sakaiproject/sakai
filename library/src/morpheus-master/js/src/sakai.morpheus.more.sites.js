@@ -134,7 +134,14 @@ function closeDrawer() {
   $PBJQ('#otherSiteTools').remove();
   $PBJQ('.selectedTab').unbind('click');
   $PBJQ('.moreSitesLink').unbind('keydown');
-  $PBJQ('.more-tab a').focus();
+
+  // For desktop screen size
+  if ($PBJQ('.view-all-sites-btn a:visible').length) {
+    $PBJQ('.view-all-sites-btn a').focus();
+  }
+  else {
+    $PBJQ('.js-toggle-sites-nav').focus();
+  }
 
 }
 
@@ -174,13 +181,13 @@ function showToolMenu(jqObj){
   } else {
     var subsubmenu_elt = $PBJQ('<ul id="otherSiteTools" role="menu" />').addClass(classId);
     var siteURL = '/direct/site/' + classId + '/pages.json';
-    scroll(0, 0)
+    scroll(0, 0);
     var maxToolsInt = parseInt($PBJQ('#maxToolsInt').text());
     var maxToolsText = $PBJQ('#maxToolsText').text();
 
     var li_template = $PBJQ('<li class="otherSiteTool" >' +
                             '<span>' +
-                            '<a role="menuitem"><span class="Mrphs-toolsNav__menuitem--icon"> </span></a>' +
+                            '<a role="menuitem" tabindex="-1"><span class="Mrphs-toolsNav__menuitem--icon"> </span></a>' +
                             '</span>' +
                             '</li>');
 
@@ -234,6 +241,9 @@ function showToolMenu(jqObj){
 
       $PBJQ('#otherSiteTools').remove();
       jqObj.closest('li').append(subsubmenu_elt);
+      // Move focus to first option and setup menu tools for arrow navigation
+      jqObj.closest('li').find('ul li a').first().focus();
+      addArrowNavAndDisableTabNav($PBJQ('ul#otherSiteTools'));
 
       jqObj.parent().find('.toolMenus').addClass("toolMenusActive");
     }); // end json call
@@ -401,9 +411,9 @@ $PBJQ(document).ready(function($){
     $PBJQ(btn).data('favorite-state', state);
 
     if (state === 'favorite') {
-      $PBJQ(btn).attr('title', $PBJQ('#removeFromFavoritesText').text());
+      $PBJQ(btn).attr('title', $PBJQ('#removeFromFavoritesText').text().replace("[site]", $PBJQ(btn).parent().find('span.fullTitle').text() ));
     } else if (state === 'nonfavorite') {
-      $PBJQ(btn).attr('title', $PBJQ('#addToFavoritesText').text());
+      $PBJQ(btn).attr('title', $PBJQ('#addToFavoritesText').text().replace("[site]", $PBJQ(btn).parent().find('span.fullTitle').text() ));
     } else {
       $PBJQ(btn).attr('title', null);
     }

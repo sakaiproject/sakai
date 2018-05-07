@@ -48,6 +48,7 @@ public class PasswordResetProducer extends BaseValidationProducer implements Vie
 
 	public static final String VIEW_ID = "passwordReset";
 	private static final String MAX_PASSWORD_RESET_MINUTES = "accountValidator.maxPasswordResetMinutes";
+	private static final int MAX_PASSWORD_RESET_MINUTES_DEFAULT = 60;
 	private static LocaleGetter localeGetter;
 	
 	public void setLocaleGetter(LocaleGetter localeGetter)
@@ -127,44 +128,33 @@ public class PasswordResetProducer extends BaseValidationProducer implements Vie
 			 * Password resets should go quickly. If it takes longer than accountValidator.maxPasswordResetMinutes, 
 			 * it could be an intruder who stumbled on an old validation token.
 			 */
-			//Only do this check if accountValidator.maxPasswordResetMinutes is configured correctly
-			String strMinutes = serverConfigurationService.getString(MAX_PASSWORD_RESET_MINUTES);
-			if (strMinutes != null && !"".equals(strMinutes))
+			if (va.getAccountStatus() != null)
 			{
-				if (va.getAccountStatus() != null)
+				int minutes = serverConfigurationService.getInt(MAX_PASSWORD_RESET_MINUTES, MAX_PASSWORD_RESET_MINUTES_DEFAULT);
+
+				//get the time limit and convert to millis
+				long maxMillis = minutes * 60 * 1000;
+
+				//the time when the validation token was sent to the email server
+				long sentTime = va.getValidationSent().getTime();
+
+				if (System.currentTimeMillis() - sentTime > maxMillis)
 				{
-					try
+					//it's been too long, so invalide the token and stop the user
+					va.setStatus(ValidationAccount.STATUS_EXPIRED);
+
+					//get a nice expiration meesage
+					TargettedMessage expirationMessage = getExpirationMessage();
+					if (expirationMessage == null)
 					{
-						//get the time limit and convert to millis
-						long maxMillis = Long.parseLong(strMinutes);
-						maxMillis*=60*1000;
-
-						//the time when the validation token was sent to the email server
-						long sentTime = va.getValidationSent().getTime();
-
-						if (System.currentTimeMillis() - sentTime > maxMillis)
-						{
-							//it's been too long, so invalide the token and stop the user
-							va.setStatus(ValidationAccount.STATUS_EXPIRED);
-
-							//get a nice expiration meesage
-							TargettedMessage expirationMessage = getExpirationMessage();
-							if (expirationMessage == null)
-							{
-								//should never happen
-								args = new Object[]{ va.getValidationToken() };
-								tml.addMessage(new TargettedMessage("msg.expiredValidation", args, TargettedMessage.SEVERITY_ERROR));
-								return;
-							}
-							tml.addMessage(expirationMessage);
-							addResetPassLink(tofill, va);
-							return;
-						}
+						//should never happen
+						args = new Object[]{ va.getValidationToken() };
+						tml.addMessage(new TargettedMessage("msg.expiredValidation", args, TargettedMessage.SEVERITY_ERROR));
+						return;
 					}
-					catch (NumberFormatException nfe)
-					{
-						log.error("accountValidator.maxPasswordResetMinutes is not configured correctly");
-					}
+					tml.addMessage(expirationMessage);
+					addResetPassLink(tofill, va);
+					return;
 				}
 			}
 		}
@@ -182,23 +172,12 @@ public class PasswordResetProducer extends BaseValidationProducer implements Vie
 		if (u == null)
 		{
 			log.error("user ID does not exist for ValidationAccount with tokenId: " + va.getValidationToken());
-			tml.addMessage(new TargettedMessage("validate.userNotDefined", new Object[]{}, TargettedMessage.SEVERITY_ERROR));
+			tml.addMessage(new TargettedMessage("validate.userNotDefined", new Object[]{getUIService()}, TargettedMessage.SEVERITY_ERROR));
 			return;
 		}
 
-		String resetMinutes = serverConfigurationService.getString(MAX_PASSWORD_RESET_MINUTES);
-		if (resetMinutes != null && !"".equals(resetMinutes))
-		{
-			try
-			{
-				int minutes = Integer.parseInt(resetMinutes);
-				UIMessage.make(tofill, "welcome2", "validate.expirationtime", new Object[]{getFormattedMinutes(minutes)});
-			}
-			catch (NumberFormatException nfe)
-			{
-				log.error("accountValidator.maxPasswordResetMinutes is not configured correctly");
-			}
-		}
+		int minutes = serverConfigurationService.getInt(MAX_PASSWORD_RESET_MINUTES, MAX_PASSWORD_RESET_MINUTES_DEFAULT);
+		UIMessage.make(tofill, "welcome2", "validate.expirationtime", new Object[]{getFormattedMinutes(minutes)});
 
 		//the form
 		UIForm detailsForm = UIForm.make(tofill, "setDetailsForm");
@@ -254,30 +233,17 @@ public class PasswordResetProducer extends BaseValidationProducer implements Vie
 	/**
 	 * When a user's validation token expires (by accountValidator.maxPasswordResetMinutes elapsing)
 	 * this returns an appropriate TargettedMessage
-	 * @return an approrpiate TargettedMessage when a validaiton token has expired,
-	 * null if accountValidator.maxPasswordResetMinutes isn't configured correctly
+	 * @return an appropriate TargettedMessage when a validation token has expired
 	 */
 	private TargettedMessage getExpirationMessage()
 	{
 		//get the time limit (iff possible)
-		String strMinutes = serverConfigurationService.getString(MAX_PASSWORD_RESET_MINUTES);
-		if (strMinutes != null && !"".equals(strMinutes))
-		{
-			try
-			{
-				int totalMinutes = Integer.parseInt(strMinutes);
+		int minutes = serverConfigurationService.getInt(MAX_PASSWORD_RESET_MINUTES, MAX_PASSWORD_RESET_MINUTES_DEFAULT);
 
-				//get a formatted string representation of the time limit, and create the return value
-				String formattedTime = getFormattedMinutes(totalMinutes);
+		//get a formatted string representation of the time limit, and create the return value
+		String formattedTime = getFormattedMinutes(minutes);
 
-				Object [] args = new Object[]{ formattedTime };
-				return new TargettedMessage("msg.expiredValidationRealTime", args, TargettedMessage.SEVERITY_ERROR);
-			}
-			catch (NumberFormatException e)
-			{
-				log.warn("accountValidator.maxPasswordResetMinutes is not configured properly");
-			}
-		}
-		return null;
+		Object [] args = new Object[]{ formattedTime };
+		return new TargettedMessage("msg.expiredValidationRealTime", args, TargettedMessage.SEVERITY_ERROR);
 	}
 }

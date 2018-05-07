@@ -768,7 +768,7 @@ public class ReportManagerImpl extends HibernateDaoSupport implements ReportMana
 	    			if(("-").equals(userId)) {
 	    				userEid = "-";
 	    				userName = msgs.getString("user_anonymous");
-	    			}else if(("?").equals(userId)) {
+	    			}else if(EventTrackingService.UNKNOWN_USER.equals(userId)) {
 	    				userEid = "-";
 	    				userName = msgs.getString("user_anonymous_access");
 	    			}else{
@@ -977,7 +977,7 @@ public class ReportManagerImpl extends HibernateDaoSupport implements ReportMana
 	    			if(("-").equals(userId)) {
 	    				userEid = "-";
 	    				userName = msgs.getString("user_anonymous");
-	    			}else if(("?").equals(userId)) {
+	    			}else if(EventTrackingService.UNKNOWN_USER.equals(userId)) {
 	    				userEid = "-";
 	    				userName = msgs.getString("user_anonymous_access");
 	    			}else{
@@ -1225,7 +1225,7 @@ public class ReportManagerImpl extends HibernateDaoSupport implements ReportMana
 	private String getUserDisplayId(String userId) {
 		String userEid = null;		
 		if (userId != null) {
-			if(("-").equals(userId) || ("?").equals(userId)) {
+			if(("-").equals(userId) || EventTrackingService.UNKNOWN_USER.equals(userId)) {
 				userEid = "-";
 			}else{
 				try{
@@ -1245,7 +1245,7 @@ public class ReportManagerImpl extends HibernateDaoSupport implements ReportMana
 		if (userId != null) {
 			if(("-").equals(userId)) {
 				userName = msgs.getString("user_anonymous");
-			}else if(("?").equals(userId)) {
+			}else if(EventTrackingService.UNKNOWN_USER.equals(userId)) {
 				userName = msgs.getString("user_anonymous_access");
 			}else{
 				userName = M_sm.getUserNameForDisplay(userId);

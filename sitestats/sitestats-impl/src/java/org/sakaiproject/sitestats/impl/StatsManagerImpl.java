@@ -876,7 +876,8 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 		if (siteId == null){
 			throw new IllegalArgumentException("Null siteId");
 		} if(countPagesUsingLBS){
-			return lessonBuilderService.getSitePages(siteId).size();
+			 List<SimplePage> sitePages = lessonBuilderService.getSitePages(siteId);
+			 return sitePages != null ? sitePages.size() : 0;
 		} else {
 			// Use SiteStats tables (very fast, relies on resource events)
 			// Build common HQL
@@ -1262,7 +1263,7 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
                         .add(Expression.eq("siteId", siteId))
                         .add(Expression.in("eventId", events));
                 if(!showAnonymousAccessEvents)
-                    c.add(Expression.ne("userId", "?"));
+                    c.add(Expression.ne("userId", EventTrackingService.UNKNOWN_USER));
                 if(userIdList != null && userIdList.size() > 0)
                     c.add(Expression.in("userId", userIdList));
                 if(iDate != null)
@@ -1819,7 +1820,7 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
                 Criteria c = session.createCriteria(ResourceStatImpl.class)
                         .add(Expression.eq("siteId", siteId));
                 if(!showAnonymousAccessEvents)
-                    c.add(Expression.ne("userId", "?"));
+                    c.add(Expression.ne("userId", EventTrackingService.UNKNOWN_USER));
                 if(userIdList != null && userIdList.size() > 0)
                     c.add(Expression.in("userId", userIdList));
                 if(iDate != null)

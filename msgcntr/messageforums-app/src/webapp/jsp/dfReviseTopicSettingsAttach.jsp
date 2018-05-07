@@ -60,6 +60,18 @@
 			revealIDsToRoles.css("display", "none");
 		}
 	}
+
+	function toggleIncludeContentsInEmailsOption(checked) {
+		var includeContentsInEmails = $("#revise\\:includeContentsInEmailsContainer");
+		if (checked)
+		{
+			includeContentsInEmails.css("display", "");
+		}
+		else
+		{
+			includeContentsInEmails.css("display", "none");
+		}
+	}
 	</script>
 
 <!--jsp/dfReviseTopicSettingsAttach.jsp-->
@@ -282,6 +294,23 @@
 			      	useTime:1
 			      });
 			</script>
+
+			<h4><h:outputText value="#{msgs.cdfm_forum_notifications}"/></h4>
+			<div class="indnt1">
+				<p class="checkbox">
+					<h:selectBooleanCheckbox
+						title="allowEmailNotifications" value="#{ForumTool.selectedTopic.topicAllowEmailNotifications}"
+						id="topic_allow_email_notifications"
+						onclick='toggleIncludeContentsInEmailsOption(this.checked);resizeFrame();'>
+					</h:selectBooleanCheckbox> <h:outputLabel for="topic_allow_email_notifications" value="#{msgs.cdfm_allowEmailNotifications}" />
+				<t:htmlTag value="p" id="includeContentsInEmailsContainer" style="display: #{ForumTool.selectedTopic.topicAllowEmailNotifications ? '' : 'none'}" styleClass="checkbox indnt1">
+					<h:selectBooleanCheckbox
+						title="includeContentsInEmails" value="#{ForumTool.selectedTopic.topicIncludeContentsInEmails}"
+						id="topic_includeContentsInEmails">
+					</h:selectBooleanCheckbox> <h:outputLabel for="topic_includeContentsInEmails" value="#{msgs.cdfm_includeContentsInEmails}" />
+				</t:htmlTag>
+				</p>
+			</div>
 
 		<%--
 		   <h4><h:outputText  value="Confidential Responses"/></h4>

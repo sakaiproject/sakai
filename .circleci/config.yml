@@ -15,8 +15,8 @@ jobs:
           name: Maven Test
           command: mvn test -B
       - run:
-          name: Delete org.sakaiproject SNAPSHOT
-          command: find ~/.m2/repository/org/sakaiproject -name \*-SNAPSHOT.\*  -delete
+          name: Delete org.sakaiproject
+          command: rm -rf ~/.m2/repository/org/sakaiproject
       - save_cache:
           key: MAVEN
           paths:

@@ -14,7 +14,7 @@ var buildDropdownMenu = function(container, siteId, callback) {
   var navsubmenu = "<ul class=\"Mrphs-sitesNav__submenu\" role=\"menu\">";
   var maxToolsInt = parseInt($PBJQ('#linkNav').attr('data-max-tools-int'));
   var maxToolsText = $PBJQ('#linkNav').attr('data-max-tools-anchor');
-  var goToSite = '<li class=\"Mrphs-sitesNav__submenuitem Mrphs-sitesNav__submenuitem__gotosite\"><a role=\"menuitem\" href=\"' + portal.portalPath + '/site/' + siteId + '\" title=\"' + maxToolsText + '\"><span class=\"toolMenuIcon icon-sakai--see-all-tools\"></span>' + maxToolsText + '</a></li>';
+  var goToSite = '<li class=\"Mrphs-sitesNav__submenuitem Mrphs-sitesNav__submenuitem__gotosite\"><a tabindex=\"-1\" role=\"menuitem\" href=\"' + portal.portalPath + '/site/' + siteId + '\" title=\"' + maxToolsText + '\"><span class=\"toolMenuIcon icon-sakai--see-all-tools\"></span>' + maxToolsText + '</a></li>';
   var siteURL = '/direct/site/' + siteId + '/pages.json';
   var currentSite = window.location.pathname.split('/').pop();
 
@@ -40,7 +40,7 @@ var buildDropdownMenu = function(container, siteId, callback) {
           if (item.toolpopup) {
             var link_attrs = ' role="menuitem" href="{{tool_url}}?sakai.popup=yes" title="{{item_title}}" onclick="window.open(\'{{item_toolpopupurl}}\');"';
             li_template = '<li class="Mrphs-sitesNav__submenuitem" >' +
-              '<a class="Mrphs-sitesNav__submenuitem-link"' + link_attrs+'>' +
+              '<a tabindex="-1" class="Mrphs-sitesNav__submenuitem-link"' + link_attrs+'>' +
               '  <span class="Mrphs-sitesNav__submenuitem-icon"><span class="toolMenuIcon icon-sakai--{{icon}}"></span></span>' +
               '  <span class="Mrphs-sitesNav__submenuitem-title">{{item_title}}</span>' +
               '</a>' +
@@ -49,7 +49,7 @@ var buildDropdownMenu = function(container, siteId, callback) {
             var link_attrs = ' role="menuitem" href="{{tool_url}}" title="{{item_title}}"';
 
             li_template = '<li class="Mrphs-sitesNav__submenuitem{{is_current}}">' +
-              '<a class="Mrphs-sitesNav__submenuitem-link"' + link_attrs+'>' +
+              '<a tabindex="-1" class="Mrphs-sitesNav__submenuitem-link"' + link_attrs+'>' +
               '  <span class="Mrphs-sitesNav__submenuitem-icon"><span class="toolMenuIcon icon-sakai--{{icon}}"></span></span>' +
               '  <span class="Mrphs-sitesNav__submenuitem-title">{{item_title}}</span>' +
               '</a>' +
@@ -75,6 +75,7 @@ var buildDropdownMenu = function(container, siteId, callback) {
 
       container.append(navsubmenu);
 
+      // Setup the arrow nav and focus on first element
       addArrowNavAndDisableTabNav(navsubmenu);
 
       callback(navsubmenu);
@@ -113,7 +114,7 @@ var setupSiteNav = function(){
                           // AJAX a chance to finish.
                         } else {
                           dropdown.data('clicked', true);
-                          dropdown.trigger('click', [true]);
+                          dropdown.trigger('click');
                         }
                       } else if (e.keyCode == 27) {
                         // escape
@@ -123,9 +124,8 @@ var setupSiteNav = function(){
 
                     });
 
-  // focusFirstLink is only ever passed from the keydown handler. We
-  // don't want to focus on click; it looks odd.
-  $PBJQ("ul.Mrphs-sitesNav__menu li .Mrphs-sitesNav__dropdown").click(function(e, focusFirstLink) {
+  // Must focus on first item for accessibility
+  $PBJQ("ul.Mrphs-sitesNav__menu li .Mrphs-sitesNav__dropdown").click(function(e) {
     e.preventDefault()
 
     var jqObjDrop = $PBJQ(e.target);
@@ -150,10 +150,8 @@ var setupSiteNav = function(){
 
       // now display the menu
       navsubmenu.addClass('is-visible');
-
-      if(focusFirstLink) {
-        container.find('a.Mrphs-sitesNav__submenuitem-title').first().focus();
-      }
+      // focus on first menu item per accessibility recommendations
+      container.find('li a').first().focus();
 
       // Add an invisible overlay to allow clicks to close the dropdown
       var overlay = $PBJQ('<div class="sitenav-dropdown-overlay" />');
@@ -179,7 +177,10 @@ var setupSiteNav = function(){
   });
 }
 
-/* Callback is a function and is called after sliding up ul */
+/*
+  Callback is a function and is called after sliding up ul.
+  This function is used by the Sites dialog and the main sites nav.
+*/
 function addArrowNavAndDisableTabNav(ul) {
   ul.find('li a').attr('tabindex','-1').keydown(function (e) {
     var obj = $PBJQ(e.target);
@@ -188,12 +189,13 @@ function addArrowNavAndDisableTabNav(ul) {
       e.preventDefault();
       var next = obj.closest('li').next();
 
-      if (next.length === 0 || next.find('a.Mrphs-sitesNav__submenuitem-title').length == 0) {
+      if (next.length === 0 || next.find('a').length == 0) {
         // loop around
         next = ul.find('li').first();
       }
 
-      next.find('a.Mrphs-sitesNav__submenuitem-title').focus();
+      ul.find('li a').attr('tabindex', '-1');
+      next.find('a').focus().attr('tabindex', '0');
 
     } else if (e.keyCode == 38) {
       // Up arrow.  Move to the previous item, or loop around if we're at the top.
@@ -202,10 +204,11 @@ function addArrowNavAndDisableTabNav(ul) {
 
       if (prev.length === 0) {
         // jump to the bottom
-        prev = ul.find('a.Mrphs-sitesNav__submenuitem-title').closest('ul')
+        prev = ul.find('a').closest('ul')
       }
 
-      prev.find('a.Mrphs-sitesNav__submenuitem-title').focus();
+      ul.find('li a').attr('tabindex', '-1');
+      prev.find('a').focus().attr('tabindex', '0');
 
     } else if (e.keyCode == 9) { // Suck up the menu if tab is pressed
         closeAllDropdownMenus();

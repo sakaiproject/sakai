@@ -78,7 +78,7 @@
                             <div class="fav-title #if (${site.isMyWorkspace}) fav-title-myworkspace #end">
                             	<a href="${site.siteUrl}" title="${site.siteTitle}">
                                     #if (${site.isMyWorkspace})
-                                        <i class="fa fa-home" aria-hidden="true"></i><span class="fullTitle">${rloader.sit_mywor}</span>
+                                        <span class="fa fa-home" aria-hidden="true"></span><span class="fullTitle">${rloader.sit_mywor}</span>
                                     #elseif ( ( ${tabDisplayLabel} == 2 ) && ( ${site.shortDescription} ) )
                                         <span class="fullTitle">${site.shortDescription}</span>
                                     #else
@@ -86,7 +86,9 @@
                                     #end
                                 </a>
                             </div>
-                            <a href="#" id="${site.siteId}" class="toolMenus"><i class="fa fa-chevron-down" aria-hidden="true"></i></a>
+                            <a href="#" id="${site.siteId}" class="toolMenus" aria-haspopup="true" aria-label="${site.siteTitleTrunc} - ${rloader.sit_open_menu}">
+                                <span class="fa fa-chevron-down" aria-hidden="true"></span>
+                            </a>
                         </li>
                     #end
 
