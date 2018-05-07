@@ -2,6 +2,7 @@ package org.sakaiproject.gradebookng.tool.component;
 
 import org.apache.wicket.markup.head.IHeaderResponse;
 import org.apache.wicket.markup.head.JavaScriptHeaderItem;
+import org.apache.wicket.markup.head.OnLoadHeaderItem;
 import org.apache.wicket.markup.html.WebComponent;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.component.cover.ServerConfigurationService;
@@ -15,6 +16,8 @@ import lombok.extern.slf4j.Slf4j;
 
 /**
  * Base panel for gradebook charts. See {@link GbCourseGradeChart} or {@link GbAssignmentGradeChart}.
+ * 
+ * Immediately renders itself with the base data. Subclasses may provide a refresh option.
  */
 @Slf4j
 public abstract class GbBaseChart extends WebComponent {
@@ -41,10 +44,21 @@ public abstract class GbBaseChart extends WebComponent {
 		response.render(
 				JavaScriptHeaderItem.forUrl(String.format("/gradebookng-tool/scripts/gradebook-chart.js?version=%s", version)));
 
+		// render immediately (for all subclasses)
+		final GbChartData data = this.getData();
+		response.render(OnLoadHeaderItem.forScript("renderChart('" + toJson(data) + "');"));
 	}
-
+	
 	/**
-	 * Convert data to json
+	 * Get the data for the current instance
+	 * 
+	 * @return
+	 */
+	protected abstract GbChartData getData();
+
+	
+	/**
+	 * Helper to convert data to json
 	 *
 	 * @param data
 	 * @return
@@ -52,9 +66,7 @@ public abstract class GbBaseChart extends WebComponent {
 	protected String toJson(final GbChartData data) {
 		final Gson gson = new GsonBuilder().disableHtmlEscaping().create();
 		final String json = gson.toJson(data);
-		
-		log.info(json);
-		
+		log.debug(json);
 		return json;
 	}
 

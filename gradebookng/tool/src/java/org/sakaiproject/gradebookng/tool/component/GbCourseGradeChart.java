@@ -5,8 +5,6 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.markup.head.IHeaderResponse;
-import org.apache.wicket.markup.head.OnLoadHeaderItem;
 import org.sakaiproject.gradebookng.business.util.MessageHelper;
 import org.sakaiproject.gradebookng.tool.model.GbChartData;
 import org.sakaiproject.service.gradebook.shared.CourseGrade;
@@ -38,23 +36,13 @@ public class GbCourseGradeChart extends GbBaseChart {
 		target.appendJavaScript("renderChart('" + toJson(data) + "')");
 	}
 
-
-
-	@Override
-	public void renderHead(final IHeaderResponse response) {
-		super.renderHead(response);
-
-		// render immediately
-		final GbChartData data = this.getData();
-		response.render(OnLoadHeaderItem.forScript("renderChart('" + toJson(data) + "');"));
-	}
-
 	/**
 	 * Get chart data for this site
 	 *
 	 * @return
 	 */
-	private GbChartData getData() {
+	@Override
+	protected GbChartData getData() {
 		final GradebookInformation info = this.businessService.getGradebookSettings(this.siteId);
 		final Map<String, Double> gradingSchema = info.getSelectedGradingScaleBottomPercents();
 		return getData(gradingSchema);

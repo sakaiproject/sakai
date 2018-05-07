@@ -1,7 +1,6 @@
 package org.sakaiproject.gradebookng.tool.component;
 
-import org.apache.wicket.markup.head.IHeaderResponse;
-import org.apache.wicket.markup.head.OnLoadHeaderItem;
+import org.sakaiproject.gradebookng.tool.model.GbChartData;
 
 /**
  * Panel that renders the individual assignment grade charts
@@ -18,11 +17,9 @@ public class GbAssignmentGradeChart extends GbBaseChart {
 	}
 
 	@Override
-	public void renderHead(final IHeaderResponse response) {
-		super.renderHead(response);
-		
-		// render immediately
-		response.render(OnLoadHeaderItem.forScript("renderChart('" + this.assignmentId + "');"));
+	protected GbChartData getData() {
+		return null;
+
 	}
 
 }
