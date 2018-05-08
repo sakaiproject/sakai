@@ -23,6 +23,7 @@ package org.sakaiproject.tool.assessment.data.dao.assessment;
 
 import java.io.*;
 import java.util.*;
+import org.sakaiproject.samigo.util.SamigoConstants;
 
 import org.sakaiproject.tool.assessment.data.dao.shared.TypeD;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AnswerIfc;
@@ -142,6 +143,7 @@ public class PublishedItemText
           distractorAnswer.setText(NONE_OF_THE_ABOVE);
           distractorAnswer.setIsCorrect(false);
           distractorAnswer.setScore(this.getItem().getScore());
+          distractorAnswer.setLabel(Character.toString(SamigoConstants.ALPHABET.charAt(list.size())));
           list.add(distractorAnswer);
         }else{
           PublishedAnswer distractorAnswer = new PublishedAnswer();
@@ -149,6 +151,7 @@ public class PublishedItemText
           distractorAnswer.setIsCorrect(true);
           distractorAnswer.setScore(this.getItem().getScore());
           distractorAnswer.setId(new Long(0));
+          distractorAnswer.setLabel(Character.toString(SamigoConstants.ALPHABET.charAt(list.size())));
           list.add(distractorAnswer);
         }
       }
