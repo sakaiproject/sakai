@@ -41,10 +41,4 @@
 		parent="org.sakaiproject.gradebookng.framework.GradebookNgEntityProducer">
 	</bean>	
 
-	<!-- bean
-		id="org.sakaiproject.gradebookng.tool.pages.GradebookPage"
-		class="org.sakaiproject.gradebookng.tool.pages.GradebookPage">
-		<property name="authz" ref="org_sakaiproject_tool_gradebook_facades_Authz"/>
-	</bean-->
-
 </beans>

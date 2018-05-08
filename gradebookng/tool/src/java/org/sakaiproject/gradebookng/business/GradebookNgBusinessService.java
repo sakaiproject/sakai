@@ -2322,11 +2322,8 @@ public class GradebookNgBusinessService {
 	}
 
 	public List<PermissionDefinition> getPermissionsForUser(final String userUuid, String siteId) {
-		//final String siteId2 = getCurrentSiteId();
+
 		if(siteId==null) {siteId = getCurrentSiteId();}
-		//assert (siteId != null);
-		//siteId = (siteId == null) ? getCurrentSiteId() : siteId;
-		
 		
 		final Gradebook gradebook = getGradebook(siteId);
 
