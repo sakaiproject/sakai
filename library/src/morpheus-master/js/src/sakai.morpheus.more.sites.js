@@ -174,7 +174,7 @@ function showToolMenu(jqObj){
   var classId = jqObj.attr('id');
   // We need to escape special chars, like exclamations, or else $PBJQ selectors don't work.
   var id = classId.replace(/!/g,'\\!').replace(/~/g,'\\~');
-  $PBJQ('.toolMenus').removeClass('toolMenusActive');
+  $PBJQ('.toolMenus').removeClass('toolMenusActive').attr('aria-expanded', 'false');
 
   if ($PBJQ('.' + id).length) {
     $PBJQ('#otherSiteTools').remove();
@@ -245,7 +245,7 @@ function showToolMenu(jqObj){
       jqObj.closest('li').find('ul li a').first().focus();
       addArrowNavAndDisableTabNav($PBJQ('ul#otherSiteTools'));
 
-      jqObj.parent().find('.toolMenus').addClass("toolMenusActive");
+      jqObj.parent().find('.toolMenus').addClass("toolMenusActive").attr('aria-expanded', 'true');
     }); // end json call
   }
 }
