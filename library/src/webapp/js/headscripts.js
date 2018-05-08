@@ -763,14 +763,24 @@ function includeWebjarLibrary(library) {
 	}
 
 	if (library == 'bootstrap-multiselect') {
-		libraryVersion = "0.9.15";
-		document.write('\x3Cscript type="text/javascript" src="'+webjars+'bootstrap-multiselect/'+libraryVersion+'/js/bootstrap-multiselect.js'+ver+'">'+'\x3C/script>');
-		document.write('\x3Clink rel="stylesheet" href="'+webjars+'bootstrap-multiselect/'+libraryVersion+'/css/bootstrap-multiselect.css'+ver+'"/>');
-	}else{
-		document.write('\x3Cscript type="text/javascript" src="'+webjars+library+ver+'">'+'\x3C/script>');
+        libraryVersion = "0.9.15";
+        document.write('\x3Cscript type="text/javascript" src="' + webjars + 'bootstrap-multiselect/' + libraryVersion + '/js/bootstrap-multiselect.js' + ver + '">' + '\x3C/script>');
+        document.write('\x3Clink rel="stylesheet" href="' + webjars + 'bootstrap-multiselect/' + libraryVersion + '/css/bootstrap-multiselect.css' + ver + '"/>');
+    } else if (library == 'jquery.tablesorter') {
+		libraryVersion = "2.27.7";
+        document.write('\x3Cscript type="text/javascript" src="' + webjars + 'jquery.tablesorter/' + libraryVersion + '/dist/js/jquery.tablesorter.combined.min.js' + ver + '">' + '\x3C/script>');
+        document.write('\x3Cscript type="text/javascript" src="' + webjars + 'jquery.tablesorter/' + libraryVersion + '/dist/js/extras/jquery.tablesorter.pager.min.js' + ver + '">' + '\x3C/script>');
+        document.write('\x3Cscript type="text/javascript" src="' + webjars + 'jquery.tablesorter/' + libraryVersion + '/dist/js/extras/jquery.metadata.min.js' + ver + '">' + '\x3C/script>');
+        document.write('\x3Clink rel="stylesheet" href="' + webjars + 'jquery.tablesorter/' + libraryVersion + '/dist/css/theme.jui.min.css' + ver + '"/>');
+        document.write('\x3Clink rel="stylesheet" href="' + webjars + 'jquery.tablesorter/' + libraryVersion + '/dist/css/jquery.tablesorter.pager.min.css' + ver + '"/>');
+	} else {
+		if (library.endsWith(".js")) {
+			document.write('\x3Cscript type="text/javascript" src="' + webjars + library + ver + '">' + '\x3C/script>');
+		} else if (library.endsWith(".css")) {
+			document.write('\x3Clink rel="stylesheet" type="text/css" href="' + webjars + library + ver + '" />');
+		}
 	}
 	window.console && console.log('Adding webjar library '+library+', version '+libraryVersion);
-
 }
 
 // Return the breakpoint between small and medium sized displays - for morpheus currently the same

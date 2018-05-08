@@ -522,12 +522,8 @@ public class GradebookPage extends BasePage {
 				.forUrl(String.format("/library/js/lang-datepicker/lang-datepicker.js?version=%s", version)));
 
 		// tablesorted used by student grade summary
-		response.render(CssHeaderItem
-				.forUrl(String.format("/library/js/jquery/tablesorter/2.27.7/css/theme.bootstrap.min.css?version=%s", version)));
-		response.render(JavaScriptHeaderItem
-				.forUrl(String.format("/library/js/jquery/tablesorter/2.27.7/js/jquery.tablesorter.min.js?version=%s", version)));
-		response.render(JavaScriptHeaderItem
-				.forUrl(String.format("/library/js/jquery/tablesorter/2.27.7/js/jquery.tablesorter.widgets.min.js?version=%s", version)));
+		response.render(JavaScriptHeaderItem.forScript("includeWebjarLibrary('jquery.tablesorter')", null));
+		response.render(JavaScriptHeaderItem.forScript("includeWebjarLibrary('jquery.tablesorter/2.27.7/dist/css/theme.bootstrap.min.css')", null));
 
 		// GradebookNG Grade specific styles and behaviour
 		response.render(CssHeaderItem
