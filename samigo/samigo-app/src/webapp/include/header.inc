@@ -10,8 +10,8 @@
       head += "<link href=\"/library/webjars/jquery.tablesorter/2.27.7/dist/css/theme.default.min.css\" type=\"text/css\" rel=\"stylesheet\" media=\"all\" />\n";
       head += "<script type=\"text/javascript\" src=\"/samigo-app/js/samigo-global.js\"></script>\n";
 
-      head += "<script type=\"text/javascript\" src=\"/library/js/jquery/qtip/jquery.qtip-latest.min.js\"></script>\n";
-      head += "<link rel=\"stylesheet\" type=\"text/css\" href=\"/library/js/jquery/qtip/jquery.qtip-latest.min.css\"/>\n";
+      head += "<script type=\"text/javascript\" src=\"/library/webjars/qtip2/3.0.3/jquery.qtip.min.js\"></script>\n";
+      head += "<link rel=\"stylesheet\" type=\"text/css\" href=\"/library/webjars/qtip2/3.0.3/jquery.qtip.min.css\"/>\n";
       
       head += "<script type=\"text/javascript\" src=\"/library/js/headscripts.js\"></script>\n";
 
