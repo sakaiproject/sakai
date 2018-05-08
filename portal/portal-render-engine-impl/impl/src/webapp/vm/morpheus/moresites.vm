@@ -62,15 +62,15 @@
                     <hr />
 
                     <div id="otherSiteSearch">
-                        <label class="sr-only" for="txtSearch">${rloader.sit_search}"</label>
-                        <input type="text" id="txtSearch" name="txtSearch" maxlength="50" placeholder=" ${rloader.sit_search}">
+                        <label for="txtSearch">${rloader.sit_search}</label>
+                        <input type="text" id="txtSearch" name="txtSearch" maxlength="50">
                         <a id="otherSiteSearchClear" class="other-site-search-clear" href="javascript:void(0);"></a>
                     </div>
                     <div id="noSearchResults" class="is-hidden">${rloader.sit_search_none}</div>
 
 
                     #macro( displaySite $site )
-                        <li class="fav-sites-entry #if (${site.isCurrentSite})is-selected #end #if (${site.isMyWorkspace})my-workspace #end">
+                        <li role="presentation" class="fav-sites-entry #if (${site.isCurrentSite})is-selected #end #if (${site.isMyWorkspace})my-workspace #end">
                             #if (!${site.isMyWorkspace})
                             	<a class="site-favorite-btn" data-site-id="${site.siteId}" href="javascript:void(0);"></a>
                             #end
