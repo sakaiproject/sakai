@@ -103,7 +103,11 @@ private static Logger log = LoggerFactory.getLogger(UploadAudioMediaServlet.clas
     if (mediaLocation != null && !(mediaLocation.trim()).equals(""))
     {
       File repositoryPathDir = new File(repositoryPath);
-      mediaLocation = repositoryPathDir.getCanonicalPath() + "/" + mediaLocation;
+      // Fix Windows paths
+      if("\\".equals(File.separator)){
+          mediaLocation = mediaLocation.replace("/","\\");
+      }
+      mediaLocation = repositoryPathDir.getCanonicalPath() + File.separator + mediaLocation;
       File mediaFile = new File(mediaLocation);
       
       if (mediaFile.getCanonicalPath().equals (mediaLocation)){
@@ -113,7 +117,7 @@ private static Logger log = LoggerFactory.getLogger(UploadAudioMediaServlet.clas
           //log.debug("*** directory exist="+mediaDir.exists());
           mediaIsValid=writeToFile(req, mediaLocation);  
       }else{
-    	  log.debug ("****Error in file paths " + mediaFile.getCanonicalPath() + " is not equal to " + mediaLocation);
+    	  log.error ("****Error in file paths " + mediaFile.getCanonicalPath() + " is not equal to " + mediaLocation);
     	  mediaIsValid=false;
       }
 
@@ -312,7 +316,7 @@ private static Logger log = LoggerFactory.getLogger(UploadAudioMediaServlet.clas
     PublishedAssessmentService pubService = new PublishedAssessmentService();
     int assessmentIndex = mediaLocation.indexOf("assessment");
     int questionIndex = mediaLocation.indexOf("question");
-    int agentIndex = mediaLocation.indexOf("/", questionIndex + 8);
+    int agentIndex = mediaLocation.indexOf(File.separator, questionIndex + 8);
     //int myfileIndex = mediaLocation.lastIndexOf("/");
     String pubAssessmentId = mediaLocation.substring(assessmentIndex + 10,
 						     questionIndex - 1);
