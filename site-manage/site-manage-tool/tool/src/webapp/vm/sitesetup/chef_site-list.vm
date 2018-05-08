@@ -45,32 +45,31 @@
 					<input type="hidden" name="eventSubmit_doView_sites" value="view" />
 					<label for="view" class="col-sm-3">$tlang.getString("list.view")</label>
 					<div class="col-sm-5">
-						<select id="view" name="view" size="1" onchange="SPNR.insertSpinnerInPreallocated( this, null, 'viewFilterSpinner' );document.viewForm.submit();">
+						<select id="view" name="view" size="1">
 							#foreach($view in $viewKeys)
 								<option value ="$view"
 								#if($view == $viewSelected) selected="selected" #end
 								> $views.get($view) </option>
 							#end
 						</select>
-						<div id="viewFilterSpinner" class="allocatedSpinPlaceholder"></div>
 					</div>
 				</div>
 				<div class="form-group row"> 					
 					#if(!$hideTermFilter)
 						<label for="termview" class="col-sm-3">$tlang.getString("list.selectTerm")</label>
 						<div class="col-sm-5">
-							<select id="termview" name="termview" size="1" onchange="SPNR.insertSpinnerInPreallocated( this, null, 'termFilterSpinner' );document.viewForm.submit();">
+							<select id="termview" name="termview" size="1">
 								#foreach($view in $termViewKeys)
 									<option value ="$view"
 									#if($view == $viewTermSelected) selected="selected" #end
 									> $termViews.get($view) </option>
 								#end
 							</select>
-							<div id="termFilterSpinner" class="allocatedSpinPlaceholder"></div>
 						</div>						
 					#end
 				</div>
 				<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+				<input type="submit" class="button" value="$tlang.getString("list.submit")" />
 			</form>
 		</div>
 		<div class="searchNav col-sm-5" style="text-align: right">
@@ -95,6 +94,12 @@
 			#if ($!superUser || (!$!superUser && $viewSelected != $tlang.getString("java.my")))
 				#if ($sites.size() > 0)
 					<div class ="viewNav">
+						#if (($!searchString) && (!$searchString.equals("")))
+						<span class="instruction highlight">#if($!allMsgNumber == "1") $tlang.getString("list.onesite")#else $allMsgNumber $tlang.getString("list.sites")#end $tlang.getString("list.found") $validator.escapeHtml($!searchString) $tlang.getString("list.inthe") "$!viewSelected".</span>
+						#end
+
+						<br /><span class="instruction">$tlang.getString("list.check")</span>
+
 						<div class="actionsContainer">
 							<input type="button" id="btnEdit1" name="btnEdit1" class="actionButton" value="$tlang.getString("java.revise")" disabled="disabled" 
 								onclick="SPNR.disableControlsAndSpin( this, null );document.getElementById('sakai_action').value='doGet_site';document.getElementById('sitesForm').submit();return false;" />
@@ -110,11 +115,6 @@
 							#end
 						</div>
 
-						#if (($!searchString) && (!$searchString.equals("")))
-						<span class="instruction highlight">#if($!allMsgNumber == "1") $tlang.getString("list.onesite")#else $allMsgNumber $tlang.getString("list.sites")#end $tlang.getString("list.found") $validator.escapeHtml($!searchString) $tlang.getString("list.inthe") "$!viewSelected".</span>
-						#end
-
-						<br /><span class="instruction">$tlang.getString("list.check")</span>
 					</div>
 				#end
 				<div class="listNav">
