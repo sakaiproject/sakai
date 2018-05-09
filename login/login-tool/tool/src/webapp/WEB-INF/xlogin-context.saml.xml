@@ -333,7 +333,8 @@
         <constructor-arg ref="parserPool"/>
     </bean>
 
-    <!-- Initialization of OpenSAML library-->
+    <!-- Initialization of OpenSAML library -->
+    <!-- Use SHA256SAMLBootstrap for SHA-256 instead of default SHA-1 -->
     <bean class="org.springframework.security.saml.SAMLBootstrap"/>
 
     <!-- Initialization of the velocity engine -->
