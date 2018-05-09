@@ -45,7 +45,16 @@ public class GbCourseGradeChart extends GbBaseChart {
 	protected GbChartData getData() {
 		final GradebookInformation info = this.businessService.getGradebookSettings(this.siteId);
 		final Map<String, Double> gradingSchema = info.getSelectedGradingScaleBottomPercents();
-		return getData(gradingSchema);
+
+		final GbChartData data = getData(gradingSchema);
+
+		data.setChartTitle(MessageHelper.getString("settingspage.gradingschema.chart.heading"));
+		data.setXAxisLabel(MessageHelper.getString("settingspage.gradingschema.chart.xaxis"));
+		data.setYAxisLabel(MessageHelper.getString("settingspage.gradingschema.chart.yaxis"));
+		data.setChartType("horizontalBar");
+		data.setChartId(this.getMarkupId());
+
+		return data;
 	}
 
 	/**
@@ -59,16 +68,9 @@ public class GbCourseGradeChart extends GbBaseChart {
 		// ensure schema is sorted so the grade mapping works correctly
 		final Map<String, Double> schema = GradeMappingDefinition.sortGradeMapping(gradingSchema);
 
-		// get the course grades and re-map to summary. Also sorts the data so it is ready for the consumer to use
+		// get the course grades and re-map. Also sorts the data so it is ready for the consumer to use
 		final Map<String, CourseGrade> courseGrades = this.businessService.getCourseGrades(this.siteId, schema);
 		final GbChartData data = reMap(courseGrades, gradingSchema.keySet());
-
-		// chart config
-		data.setChartTitle(MessageHelper.getString("settingspage.gradingschema.chart.heading"));
-		data.setXAxisLabel(MessageHelper.getString("settingspage.gradingschema.chart.xaxis"));
-		data.setYAxisLabel(MessageHelper.getString("settingspage.gradingschema.chart.yaxis"));
-		data.setChartType("horizontalBar");
-		data.setChartId(this.getMarkupId());
 
 		return data;
 	}
