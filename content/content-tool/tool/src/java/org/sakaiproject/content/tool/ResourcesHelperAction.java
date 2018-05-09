@@ -33,7 +33,6 @@ import java.net.URLDecoder;
 import java.text.Format;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Enumeration;
@@ -135,25 +134,9 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 	/** The content type image lookup service in the State. */
 	private static final String STATE_CONTENT_TYPE_IMAGE_SERVICE = PREFIX + "content_type_image_service";
 	
-	private static final String STATE_COPYRIGHT_FAIRUSE_URL = PREFIX + "copyright_fairuse_url";
-
-	private static final String STATE_COPYRIGHT_NEW_COPYRIGHT = PREFIX + "new_copyright";
-	
-	/** copyright related info */
-	private static final String STATE_COPYRIGHT_TYPES = PREFIX + "copyright_types";
-
-	private static final String STATE_DEFAULT_COPYRIGHT = PREFIX + "default_copyright";
-	
-	private static final String STATE_DEFAULT_COPYRIGHT_ALERT = PREFIX + "default_copyright_alert";
-	
 	/** state attribute for the maximum size for file upload */
 	static final String STATE_FILE_UPLOAD_MAX_SIZE = PREFIX + "file_upload_max_size";
-	
-	/** The user copyright string */
-	private static final String	STATE_MY_COPYRIGHT = PREFIX + "mycopyright";
-	
-	private static final String STATE_NEW_COPYRIGHT_INPUT = PREFIX + "new_copyright_input";
-  
+
 	/** state attribute indicating whether users in current site should be denied option of making resources public */
 	private static final String STATE_PREVENT_PUBLIC_DISPLAY = PREFIX + "prevent_public_display";
 	
@@ -167,10 +150,12 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 	protected static final String STATE_PAGE_TITLE = PREFIX + "page_title";
 	
 	/** We need to send a single email with every D&D upload reported in it */
-	private static final String DRAGNDROP_FILENAME_REFERENCE_LIST = "dragndrop_filename_reference_list";	
+	private static final String DRAGNDROP_FILENAME_REFERENCE_LIST = "dragndrop_filename_reference_list";
 
 	private NotificationService notificationService = (NotificationService) ComponentManager.get(NotificationService.class);	
 	private EventTrackingService eventTrackingService = (EventTrackingService) ComponentManager.get(EventTrackingService.class);
+	private static final org.sakaiproject.content.copyright.api.CopyrightManager copyrightManager = (org.sakaiproject.content.copyright.api.CopyrightManager)
+			ComponentManager.get("org.sakaiproject.content.copyright.api.CopyrightManager");
 
 	public String buildAccessContext(VelocityPortlet portlet,
 			Context context,
@@ -725,15 +710,6 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 		
 		ResourcesAction.copyrightChoicesIntoContext(state, context);
 		ResourcesAction.publicDisplayChoicesIntoContext(state, context);
-		
-		String defaultCopyrightStatus = (String) state.getAttribute(STATE_DEFAULT_COPYRIGHT);
-		if(defaultCopyrightStatus == null || defaultCopyrightStatus.trim().equals(""))
-		{
-			defaultCopyrightStatus = ServerConfigurationService.getString("default.copyright");
-			state.setAttribute(STATE_DEFAULT_COPYRIGHT, defaultCopyrightStatus);
-		}
-
-		context.put("defaultCopyrightStatus", defaultCopyrightStatus);
 		
 		ResourceConditionsHelper.buildConditionContext(context, state);
 	
@@ -1621,7 +1597,16 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 					addAlert(state, rb.getString("alert.youchoosegroup")); 
 					return;
 				}
-				
+
+				copyrightManager.setLocale(rb.getLocale());
+				List<String> alerts = newFile.checkRequiredProperties(copyrightManager);
+				if (!alerts.isEmpty()) {
+					for(String alert : alerts) {
+						addAlert(state, alert);
+					}
+					return;
+				}
+
 				ResourceConditionsHelper.saveCondition(newFile, params, state, i);
 				
 				uploadCount++;
@@ -1704,62 +1689,14 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 		//state.setAttribute(ResourceToolAction.STATE_MODE, MODE_MAIN);
 		if(state.getAttribute(STATE_USING_CREATIVE_COMMONS) == null)
 		{
-			String usingCreativeCommons = ServerConfigurationService.getString("copyright.use_creative_commons");
-			if( usingCreativeCommons != null && usingCreativeCommons.equalsIgnoreCase(Boolean.TRUE.toString()))
+			boolean usingCreativeCommons = ServerConfigurationService.getBoolean("copyright.use_creative_commons", false);
+			if(usingCreativeCommons)
 			{
 				state.setAttribute(STATE_USING_CREATIVE_COMMONS, Boolean.TRUE.toString());
 			}
 			else
 			{
 				state.setAttribute(STATE_USING_CREATIVE_COMMONS, Boolean.FALSE.toString());
-			}
-		}
-
-		if (state.getAttribute(STATE_COPYRIGHT_TYPES) == null)
-		{
-			if (ServerConfigurationService.getStrings("copyrighttype") != null)
-			{
-				state.setAttribute(STATE_COPYRIGHT_TYPES, new ArrayList(Arrays.asList(ServerConfigurationService.getStrings("copyrighttype"))));
-			}
-		}
-
-		if (state.getAttribute(STATE_DEFAULT_COPYRIGHT) == null)
-		{
-			if (ServerConfigurationService.getString("default.copyright") != null)
-			{
-				state.setAttribute(STATE_DEFAULT_COPYRIGHT, ServerConfigurationService.getString("default.copyright"));
-			}
-		}
-
-		if (state.getAttribute(STATE_DEFAULT_COPYRIGHT_ALERT) == null)
-		{
-			if (ServerConfigurationService.getString("default.copyright.alert") != null)
-			{
-				state.setAttribute(STATE_DEFAULT_COPYRIGHT_ALERT, ServerConfigurationService.getString("default.copyright.alert"));
-			}
-		}
-
-		if (state.getAttribute(STATE_NEW_COPYRIGHT_INPUT) == null)
-		{
-			if (ServerConfigurationService.getString("newcopyrightinput") != null)
-			{
-				state.setAttribute(STATE_NEW_COPYRIGHT_INPUT, ServerConfigurationService.getString("newcopyrightinput"));
-			}
-		}
-
-		if (state.getAttribute(STATE_COPYRIGHT_FAIRUSE_URL) == null)
-		{
-			if (ServerConfigurationService.getString("fairuse.url") != null)
-			{
-				state.setAttribute(STATE_COPYRIGHT_FAIRUSE_URL, ServerConfigurationService.getString("fairuse.url"));
-			}
-		}
-
-		if (state.getAttribute(STATE_COPYRIGHT_NEW_COPYRIGHT) == null)
-		{
-			if (ServerConfigurationService.getString("copyrighttype.new") != null)
-			{
-				state.setAttribute(STATE_COPYRIGHT_NEW_COPYRIGHT, ServerConfigurationService.getString("copyrighttype.new"));
 			}
 		}
 
@@ -2005,6 +1942,8 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 		
 		SessionState state = getState(request);
 		ToolSession toolSession = SessionManager.getCurrentToolSession();
+		JetspeedRunData rundata = (JetspeedRunData) request.getAttribute(ATTR_RUNDATA);
+		ParameterParser params = rundata.getParameters();
 
 		ContentResourceEdit resource = null;
 		ContentCollectionEdit collection= null;
@@ -2115,6 +2054,11 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 					
 					ResourcePropertiesEdit resourceProps = resource.getPropertiesEdit();
 					resourceProps.addProperty(ResourcePropertiesEdit.PROP_DISPLAY_NAME, uploadFileName);
+
+					CopyrightDelegate copyrightDelegate = new CopyrightDelegate();
+					copyrightDelegate.captureCopyright(params);
+					copyrightDelegate.setCopyrightOnEntity(resourceProps);
+
 					resource.setContent(uploadFile.getInputStream());
 					resource.setContentType(contentType);
 					resource.setAvailability(hidden, null, null);
