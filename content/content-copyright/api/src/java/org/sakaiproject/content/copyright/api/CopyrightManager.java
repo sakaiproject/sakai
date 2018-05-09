@@ -29,5 +29,19 @@ public interface CopyrightManager {
 	public CopyrightInfo getCopyrightInfo(Locale locale, String [] rights, URL serverURL);
 	
 	public String getUseThisCopyright(String [] rights);
-	
+
+	/**
+	 * Get the copyright string by the given key
+	 *
+	 * @param messageKey the key for the message to be retrieved
+	 * @return the message denoted by the key, or empty string if not found
+	 */
+	public String getCopyrightString(String messageKey);
+
+	/**
+	 * Set the locale to be used for the resource bundle
+	 *
+	 * @param locale the locale to be used
+	 */
+	public void setLocale(Locale locale);
 }

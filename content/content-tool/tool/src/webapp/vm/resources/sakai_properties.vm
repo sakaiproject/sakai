@@ -192,10 +192,10 @@
 	#if ($!copyrightTypes.size() > 0)
 		<p class="form-group">
 			<span class="reqStar">*</span>
-			<label for="copyright${DOT}$i">
-				$tlang.getString("cright.status") (<a href="#" onclick="openMoreInfoCopyrightWindow('copyright${DOT}$i');" title="[$tlang.getString('cright.newwin')]"><span class="skip"> [$tlang.getString('cright.newwin')]</span>$tlang.getString('cright.fairuse')</a>)
-			</label>
-			<select name="copyright${DOT}$i" id ="copyright${DOT}$i" class="form-control">
+			<label for="copyright">
+				$tlang.getString("cright.status")
+			</label><br />
+			<select name="copyright" id ="copyright" class="copyrightStatus">
 				#set ($noOneSelected=true)
 				#foreach ($copyright in $copyrightTypes)
 					<option value="$copyright.getType()"#if($model.copyrightStatus == $copyright.getType() || $model.copyrightStatus == $copyright.getText()) selected="selected"#end #if ($!copyright.getLicenseUrl()) title="${copyright.getLicenseUrl()}"#end>$copyright.getText()</option>
@@ -207,23 +207,28 @@
 					<option value="$model.copyrightStatus" selected="selected">${model.copyrightStatus}</option>
 				#end
 			</select>
+			<small>
+				(<a href="#" onclick="openMoreInfoCopyrightWindow('copyright');" title="[$tlang.getString('cright.newwin')]"><span class="skip"> [$tlang.getString('cright.newwin')]</span>$tlang.getString('cright.fairuse')</a>)
+			</small>
 		</p>
-		<div id="copyright_status${DOT}$i"#if($model.copyrightStatus == $USE_THIS_COPYRIGHT) class="form-group" style="display:block;"#else style="display:none;"#end>
+		<div id="copyright_status"#if($model.copyrightStatus == $USE_THIS_COPYRIGHT) class="form-group" style="display:block;"#else style="display:none;"#end>
 			<p class="shorttext">
 				<span class="reqStar">*</span>
-				<label for="newcopyright${DOT}$i">
+				<label for="newcopyright">
 					$tlang.getString("cright.info")
 				</label>
-				<textarea class="form-control" name="newcopyright${DOT}$i" id="newcopyright${DOT}$i" rows="2" wrap="virtual" >$validator.escapeHtmlTextarea("$!model.copyrightInfo")</textarea>
+				<textarea class="form-control" name="newcopyright" id="newcopyright" rows="2" wrap="virtual" >$validator.escapeHtmlTextarea("$!model.copyrightInfo")</textarea>
 			</p>
 		</div>
 		<div class="form-group">
-			<label for="copyrightAlert${DOT}$i" style="width:15.5em;display:block">
+			<label for="copyrightAlert" style="width:15.5em;display:block">
 				$tlang.getString("cright.alert")
 			</label>
-			<input type="checkbox" name="copyrightAlert${DOT}$i" id ="copyrightAlert${DOT}$i" value="true" #if($model.hasCopyrightAlert())checked="checked"#end />
+			<input type="checkbox" name="copyrightAlert" id ="copyrightAlert" value="true" #if($model.hasCopyrightAlert())checked="checked"#end />
 			$tlang.getString("cright.display")
-			(<a href="#" onclick="openSampleCopyrightWindow();" title="[$tlang.getString('cright.newwin')]"><span class="skip">[$tlang.getString('cright.newwin')]</span>$tlang.getString("cright.show")</a>)
+			<small>
+				(<a href="#" onclick="openSampleCopyrightWindow();" title="[$tlang.getString('cright.newwin')]"><span class="skip">[$tlang.getString('cright.newwin')]</span>$tlang.getString("cright.show")</a>)
+			</small>
 		</div>
 	#end
 #end

@@ -31,8 +31,12 @@
     <dependency>
       	<groupId>org.sakaiproject.content</groupId>
       	<artifactId>content-copyright-api</artifactId>
-      	<version>${project.version}</version>
       	<scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-lang3</artifactId>
+      <type>jar</type>
     </dependency>
   </dependencies>
   <build>
