@@ -27,7 +27,7 @@
 	  var selectElement = document.getElementById(selectId);
 	  var url = selectElement.options[selectElement.selectedIndex].title;
 	  if (!url) url = "$fairuseurl"; 
-	  if (url && url!="") window.open(url,"MoreInfoCopyrightWindow","scrollbars=yes,menubar=no,height=400,width=700,resizable=yes,toolbar=no,location=no,status=no");
+	  if (url && url!="") window.open(url,"MoreInfoCopyrightWindow","scrollbars=yes,menubar=no,height=400,width=1000,resizable=yes,toolbar=no,location=no,status=no");
 	  return false;
 	}
 	/* Small function that should be run after adding or removing a file item so that we don't display the close link on the last item */
@@ -128,7 +128,7 @@
 			{
 				tag.onchange = handleMimeCategoryChange;
 			}
-			else if(tag.id && tag.id.match(/^copyright${DOT}\d+$/))
+			else if(tag.id && tag.id.match(/^copyright$/))
 			{
 				tag.onchange = handleCopyrightChange;
 			}
@@ -275,15 +275,7 @@
 			var element = (typeof(evt.target) != 'undefined') ? evt.target : ((typeof(evt.srcElement) != 'undefined') ? evt.srcElement : null);
 			if(element)
 			{
-				//element = (element.nodeType == 1 || element.nodeType == 9) ? element : element.parentNode;
-				element = (element.id && element.id.lastIndexOf(DOT) >= 0) ? element : element.parentNode;
-				
-				var dot = element.id.lastIndexOf("$DOT");
-				if(dot >= 0)
-				{
-					var index = element.id.substr(dot + 1);
-					updateCopyright(index);
-				}
+				updateCopyright();
 			}
 		}
 		return false;
@@ -488,7 +480,15 @@
 		{
 			debug_guy.value = fileInputDiv.innerHTML;
 		}
-		
+
+		updateCopyright();
+		var copyrightSelect = document.getElementById("copyright");
+		if(copyrightSelect && copyrightSelect.value)
+		{
+			// Set copyright to default
+			copyrightSelect.selectedIndex = 0;
+		}
+
 		resizeFrame('grow');
 		return false;
 	}
@@ -1091,14 +1091,14 @@
 			target_element.select();
 		}
 	}
-	function updateCopyright(index)
+	function updateCopyright()
 	{
-		var selectElement = document.getElementById("copyright${DOT}" + index );
+		var selectElement = document.getElementById("copyright");
 		if(selectElement && selectElement.value)
 		{
 			var selection = selectElement.selectedIndex;
 			var selectionValue = selectElement.options[selection].value;
-			var copyrightDiv = document.getElementById("copyright_status${DOT}" + index );
+			var copyrightDiv = document.getElementById("copyright_status");
 			if(copyrightDiv)
 			{
 				if(selectionValue == "${USE_THIS_COPYRIGHT}")

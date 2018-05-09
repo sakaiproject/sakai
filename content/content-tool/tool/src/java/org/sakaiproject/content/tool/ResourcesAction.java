@@ -64,7 +64,6 @@ import lombok.extern.slf4j.Slf4j;
 
 import org.apache.commons.lang.StringUtils;
 
-import org.sakaiproject.content.util.IdUtil;
 import org.w3c.dom.Element;
 
 import org.quartz.Scheduler;
@@ -112,6 +111,8 @@ import org.sakaiproject.content.api.providers.SiteContentAdvisor;
 import org.sakaiproject.content.api.providers.SiteContentAdvisorProvider;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentTypeImageService;
+import org.sakaiproject.content.copyright.api.CopyrightInfo;
+import org.sakaiproject.content.copyright.api.CopyrightItem;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityPropertyNotDefinedException;
 import org.sakaiproject.entity.api.EntityPropertyTypeException;
@@ -141,7 +142,6 @@ import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.time.api.Time;
-import org.sakaiproject.time.api.TimeBreakdown;
 import org.sakaiproject.time.api.TimeService;
 import org.sakaiproject.tool.api.Placement;
 import org.sakaiproject.tool.api.Tool;
@@ -440,7 +440,17 @@ public class ResourcesAction
     private static final ResourceLoader rrb = new ResourceLoader("right");
     /** Resource bundle using current language locale */
     private static final ResourceLoader metaLang = new ResourceLoader("metadata");
-	
+
+	public static final String MSG_KEY_COPYRIGHT_REQ_CHOICE = "copyright.requireChoice";
+	public static final String MSG_KEY_COPYRIGHT_REQ_CHOICE_ERROR = "copyright.requireChoice.error";
+
+	public static final String SAK_PROP_COPYRIGHT_REQ_CHOICE = "copyright.requireChoice";
+	private static final String SAK_PROP_COPYRIGHT_DEFAULT_TYPE = "copyright.type.default";
+	public static final boolean SAK_PROP_COPYRIGHT_REQ_CHOICE_DEFAULT = false;
+
+	private static final org.sakaiproject.content.copyright.api.CopyrightManager copyrightManager = (org.sakaiproject.content.copyright.api.CopyrightManager)
+			ComponentManager.get("org.sakaiproject.content.copyright.api.CopyrightManager");
+
 	/** Shared messages */
 	private static final String DEFAULT_RESOURCECLASS = "org.sakaiproject.sharedI18n.SharedProperties";
 	private static final String DEFAULT_RESOURCEBUNDLE = "org.sakaiproject.sharedI18n.bundle.shared";
@@ -477,18 +487,7 @@ public class ResourcesAction
 	/** copyright path -- MUST have same value as AccessServlet.COPYRIGHT_PATH */
 	public static final String COPYRIGHT_PATH = Entity.SEPARATOR + "copyright";
 
-	private static final String STATE_DEFAULT_COPYRIGHT = PREFIX + SYS + "default_copyright";
-
-	private static final String STATE_DEFAULT_COPYRIGHT_ALERT = PREFIX + SYS + "default_copyright_alert";
-
 	private static final String COPYRIGHT_ALERT_URL = ServerConfigurationService.getAccessUrl() + COPYRIGHT_PATH;
-
-	private static final String STATE_COPYRIGHT_FAIRUSE_URL = PREFIX + SYS + "copyright_fairuse_url";
-	
-	private static final String STATE_COPYRIGHT_NEW_COPYRIGHT = PREFIX + SYS + "new_copyright";
-	
-	/** copyright related info */
-	private static final String STATE_COPYRIGHT_TYPES = PREFIX + SYS + "copyright_types";
 	
 	private static final int CREATE_MAX_ITEMS = 10;
     
@@ -729,9 +728,6 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 	
 	/** The copied item ids */
 	private static final String STATE_MOVED_IDS = PREFIX + REQUEST + "revise_moved_ids";
-	
-	/** The user copyright string */
-	private static final String	STATE_MY_COPYRIGHT = PREFIX + REQUEST + "mycopyright";
 	
 	/** The root of the navigation breadcrumbs for a folder, either the home or another site the user belongs to */
 	private static final String STATE_NAVIGATION_ROOT = PREFIX + REQUEST + "navigation_root";
@@ -1026,6 +1022,8 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		
 		context.put("siteTitle", state.getAttribute(STATE_SITE_TITLE));
 
+		copyrightChoicesIntoContext(state, context);
+
 		if (item.isUrl())
 		{
 			context.put("contentString", getEditItem(entityId, homeCollectionId, data).getContentstring());
@@ -1097,14 +1095,22 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 			//copyright
 			context.put("fairuseurl", rrb.getString("fairuse.url"));
 			
-			context.put("newcopyrightinput", rrb.getString("newcopyrightinput"));
-			
-			org.sakaiproject.content.copyright.api.CopyrightManager copyrightManager = (org.sakaiproject.content.copyright.api.CopyrightManager) ComponentManager.get("org.sakaiproject.content.copyright.api.CopyrightManager");
-			org.sakaiproject.content.copyright.api.CopyrightInfo copyrightInfo = copyrightManager.getCopyrightInfo(new ResourceLoader().getLocale(),rrb.getStrings("copyrighttype"),ResourcesAction.class.getResource("ResourcesAction.class"));
-			List<org.sakaiproject.content.copyright.api.CopyrightItem> copyrightTypes = copyrightInfo.getItems();
+			context.put("publicdomain", rrb.getString("copyrighttype.1"));
+			context.put("copyrightError", rb.getString(MSG_KEY_COPYRIGHT_REQ_CHOICE));
 
-            context.put("copyrightTypes", copyrightTypes);
-            context.put("copyrightTypesSize", copyrightTypes.size());				
+			boolean copyrightReqChoice = ServerConfigurationService.getBoolean(SAK_PROP_COPYRIGHT_REQ_CHOICE, SAK_PROP_COPYRIGHT_REQ_CHOICE_DEFAULT);
+			context.put("copyright_requireChoice", copyrightReqChoice);
+
+			// Only provide default copyright choice if require choice property is false
+			if (!copyrightReqChoice) {
+				context.put("copyright_defaultType", ServerConfigurationService.getString(SAK_PROP_COPYRIGHT_DEFAULT_TYPE));
+			}
+
+			CopyrightInfo copyrightInfo = copyrightManager.getCopyrightInfo(new ResourceLoader().getLocale(), rrb.getStrings("copyrighttype"), ResourcesAction.class.getResource("ResourcesAction.class"));
+			List<CopyrightItem> copyrightTypes = copyrightInfo.getItems();
+
+			context.put("copyrightTypes", copyrightTypes);
+			context.put("copyrightTypesSize", copyrightTypes.size());
 			context.put("USE_THIS_COPYRIGHT", copyrightManager.getUseThisCopyright(rrb.getStrings("copyrighttype")));
 			
 		}
@@ -2247,14 +2253,6 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 				item.setEncoding(encoding);
 			}
 
-			String defaultCopyrightStatus = (String) state.getAttribute(STATE_DEFAULT_COPYRIGHT);
-			if(StringUtils.isBlank(defaultCopyrightStatus))
-			{
-				defaultCopyrightStatus = ServerConfigurationService.getString("default.copyright");
-				state.setAttribute(STATE_DEFAULT_COPYRIGHT, defaultCopyrightStatus);
-			}
-			item.setCopyrightStatus(defaultCopyrightStatus);
-
 			if(content != null)
 			{
 				item.setContent(content);
@@ -2519,11 +2517,6 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 			item.setSize(size);
 
 			String copyrightStatus = properties.getProperty(properties.getNamePropCopyrightChoice());
-			if(StringUtils.isBlank(copyrightStatus))
-			{
-				copyrightStatus = (String) state.getAttribute(STATE_DEFAULT_COPYRIGHT);
-
-			}
 			item.setCopyrightStatus(copyrightStatus);
 			String copyrightInfo = properties.getPropertyFormatted(properties.getNamePropCopyright());
 			item.setCopyrightInfo(copyrightInfo);
@@ -3296,7 +3289,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		return operations_stack.isEmpty();
 	}
 
-	protected static List newEditItems(String collectionId, String itemtype, String encoding, String defaultCopyrightStatus, boolean preventPublicDisplay, Time defaultRetractDate, int number)
+	protected static List newEditItems(String collectionId, String itemtype, String encoding, boolean preventPublicDisplay, Time defaultRetractDate, int number)
 	{
 		log.debug("ResourcesAction.newEditItems()");
 		List new_items = new ArrayList();
@@ -3412,7 +3405,6 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 			item.setRetractDate(defaultRetractDate);
 			item.setInWorkspace(isUserSite);
 
-			item.setCopyrightStatus(defaultCopyrightStatus);
 			new_items.add(item);
 			// item.setPossibleGroups(new ArrayList(possibleGroups));
 //			if(inheritedGroups != null)
@@ -3910,13 +3902,6 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 			context.put(PIPE_INIT_ID, pipe.getInitializationId());
 			
 			// complete the create wizard
-			String defaultCopyrightStatus = (String) state.getAttribute(STATE_DEFAULT_COPYRIGHT);
-			if(StringUtils.isBlank(defaultCopyrightStatus))
-			{
-				defaultCopyrightStatus = ServerConfigurationService.getString("default.copyright");
-				state.setAttribute(STATE_DEFAULT_COPYRIGHT, defaultCopyrightStatus);
-			}
-
 			Time defaultRetractDate = (Time) state.getAttribute(STATE_DEFAULT_RETRACT_TIME);
 			if(defaultRetractDate == null)
 			{
@@ -5570,13 +5555,6 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
     {
 		log.debug("{}.getListItem()", this);
 	    // complete the create wizard
-		String defaultCopyrightStatus = (String) state.getAttribute(STATE_DEFAULT_COPYRIGHT);
-		if(StringUtils.isBlank(defaultCopyrightStatus))
-		{
-			defaultCopyrightStatus = ServerConfigurationService.getString("default.copyright");
-			state.setAttribute(STATE_DEFAULT_COPYRIGHT, defaultCopyrightStatus);
-		}
-
 		Time defaultRetractDate = (Time) state.getAttribute(STATE_DEFAULT_RETRACT_TIME);
 		if(defaultRetractDate == null)
 		{
@@ -6169,8 +6147,6 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		log.debug("{}.doCompleteCreateWizard()", this);
 		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
 		
-		ListItem item = (ListItem) state.getAttribute(STATE_CREATE_WIZARD_ITEM);
-		
 		// get the parameter-parser
 		ParameterParser params = data.getParameters();
 		
@@ -6203,7 +6179,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		
 		if("save".equals(user_action))
 		{
-
+			ListItem item = (ListItem) state.getAttribute(STATE_CREATE_WIZARD_ITEM);
 			item.captureProperties(params, ListItem.DOT + "0");
 			if (item.numberFieldIsInvalid) {
 				addAlert(state, rb.getString("conditions.invalid.condition.argument"));
@@ -6344,8 +6320,8 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 					}
 				}
 				
-				List<String> alerts = item.checkRequiredProperties();
-				
+				List<String> alerts = item.checkRequiredProperties(copyrightManager);
+
 				if(alerts.isEmpty())
 				{
 					try
@@ -7602,8 +7578,8 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 				}
 			}
 			
-			List<String> alerts = item.checkRequiredProperties();
-			
+			List<String> alerts = item.checkRequiredProperties(copyrightManager);
+
 			if(alerts.isEmpty())
 			{
 				try 
@@ -8427,10 +8403,6 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		state.setAttribute (STATE_CONTENT_TYPE_IMAGE_SERVICE, contentTypeImageService);
 		state.setAttribute(STATE_RESOURCES_TYPE_REGISTRY, ComponentManager.get("org.sakaiproject.content.api.ResourceTypeRegistry"));
 
-		TimeBreakdown timeBreakdown = (timeService.newTime()).breakdownLocal ();
-		String mycopyright = rb.getFormattedMessage("cpright1", new Object[] { timeBreakdown.getYear(), userDirectoryService.getCurrentUser().getDisplayName()});
-		state.setAttribute (STATE_MY_COPYRIGHT, mycopyright);
-
 		if(state.getAttribute(STATE_MODE) == null)
 		{
 			state.setAttribute (STATE_MODE, MODE_LIST);
@@ -8541,8 +8513,8 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		
 		if(state.getAttribute(STATE_USING_CREATIVE_COMMONS) == null)
 		{
-			String usingCreativeCommons = ServerConfigurationService.getString("copyright.use_creative_commons");
-			if( usingCreativeCommons != null && usingCreativeCommons.equalsIgnoreCase(Boolean.TRUE.toString()))
+			boolean usingCreativeCommons = ServerConfigurationService.getBoolean("copyright.use_creative_commons", false);
+			if(usingCreativeCommons)
 			{
 				state.setAttribute(STATE_USING_CREATIVE_COMMONS, Boolean.TRUE.toString());
 			}

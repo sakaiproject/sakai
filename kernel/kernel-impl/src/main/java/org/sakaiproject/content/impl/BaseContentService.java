@@ -1907,25 +1907,6 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 		p.addProperty(ResourceProperties.PROP_CONTENT_TYPE, r.getContentType());
 
 		p.addProperty(ResourceProperties.PROP_IS_COLLECTION, "false");
-
-		if (StringUtils.isBlank(p.getProperty(ResourceProperties.PROP_COPYRIGHT_CHOICE))) {
-			String copyright = m_serverConfigurationService.getString("copyright.type.default", "not_determined");
-			// if copyright is null don't set a default copyright
-			if (copyright != null) {
-				String[] copyrightTypes = m_serverConfigurationService.getStrings("copyright.types");
-				if (copyrightTypes != null && copyrightTypes.length > 0) {
-					List<String> l = Arrays.asList(copyrightTypes);
-					if (l.contains(copyright)) {
-						p.addProperty(ResourceProperties.PROP_COPYRIGHT_CHOICE, copyright);
-					} else {
-						log.warn("Cannot set the default copyright " + copyright + " on " + r.getId() + " does not match any copyright types");
-					}
-				} else {
-					log.warn("Cannot set the default copyright " + copyright + " on " + r.getId() + " no copyright types are defined");
-				}
-			}
-		}
-
 	} // addLiveResourceProperties
 
 	/**
