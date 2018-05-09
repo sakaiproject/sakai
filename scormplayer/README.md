@@ -9,7 +9,7 @@ portal.iframesuppress=:all:sakai.scorm.singlepackage.tool:sakai.scorm.tool
 This project was originally developed and maintained by UC Davis and made available on an ECL 1 license.
 Since the project was moved to GitHub, the license has been updated to ECL 2.
 
-UC Davis never got around to finishing the project and never took deployed the tool to production.
+UC Davis never got around to finishing the project and never deployed the tool to production.
 
 EDIA saw a growing demand for a working SCORM player for Sakai. EDIA has been fixing bugs and working
 on the code base at several points in time to improve the stability. Furthermore, the ability to
