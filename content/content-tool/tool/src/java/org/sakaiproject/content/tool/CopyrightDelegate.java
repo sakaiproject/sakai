@@ -30,7 +30,7 @@ public class CopyrightDelegate
 {
 	private String copyrightInfo;	// Copyright info takes its value from the dropdown (eg. "I hold copyright")
 	private String copyrightStatus;	// Copyright status takes its value from the text area (ie. when "Use copyright below." is selected)
-	private boolean copyrightAlert;	// copyrightAlert is... ?
+	private boolean copyrightAlert;	// copyrightAlert takes it's value from the copyright alert checkbox ("Display copyright alert and require acknowledgement...")
 
 	public CopyrightDelegate() {}
 
@@ -53,24 +53,22 @@ public class CopyrightDelegate
 		String copyright = StringUtils.trimToNull(params.getString("copyright"));
 		if (copyright == null)
 		{
-			// do nothing -- there must be no copyrightDialog
+			return;
+		}
+
+		String newCopyright = StringUtils.trimToNull(params.getString("newcopyright"));
+		boolean crAlert = params.getBoolean("copyrightAlert");
+		if (li == null)
+		{
+			copyrightInfo = copyright;
+			copyrightStatus = newCopyright;
+			copyrightAlert = crAlert;
 		}
 		else
 		{
-			String newCopyright = StringUtils.trimToNull(params.getString("newcopyright"));
-			boolean crAlert = params.getBoolean("copyrightAlert");
-			if (li == null)
-			{
-				this.copyrightInfo = copyright;
-				this.copyrightStatus = newCopyright;
-				this.copyrightAlert = crAlert;
-			}
-			else
-			{
-				li.setCopyrightInfo(copyright);
-				li.setCopyrightStatus(newCopyright);
-				li.setCopyrightAlert(crAlert);
-			}
+			li.setCopyrightInfo(copyright);
+			li.setCopyrightStatus(newCopyright);
+			li.setCopyrightAlert(crAlert);
 		}
 	}
 
@@ -95,9 +93,9 @@ public class CopyrightDelegate
 		boolean crAlert;
 		if (li == null)
 		{
-			crInfo = StringUtils.trimToNull(this.copyrightInfo);
-			crStatus = StringUtils.trimToNull(this.copyrightStatus);
-			crAlert = this.copyrightAlert;
+			crInfo = StringUtils.trimToNull(copyrightInfo);
+			crStatus = StringUtils.trimToNull(copyrightStatus);
+			crAlert = copyrightAlert;
 		}
 		else
 		{
