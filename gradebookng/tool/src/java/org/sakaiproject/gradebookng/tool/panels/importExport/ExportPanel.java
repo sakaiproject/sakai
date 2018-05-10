@@ -47,6 +47,7 @@ import org.sakaiproject.gradebookng.tool.panels.BasePanel;
 import org.sakaiproject.service.gradebook.shared.Assignment;
 import org.sakaiproject.service.gradebook.shared.CourseGrade;
 import org.sakaiproject.util.FormattedText;
+import org.sakaiproject.util.Validator;
 
 public class ExportPanel extends BasePanel {
 
@@ -437,10 +438,11 @@ public class ExportPanel extends BasePanel {
 
 		// If group/section filter is selected, add group title to filename
 		} else if (this.group != null && this.group.getId() != null && StringUtils.isNotBlank(this.group.getTitle())) {
-			final String sanitizedGroupName = this.group.getTitle().replaceAll("[^A-Za-z0-9]", "_");
-			fileNameComponents.add(sanitizedGroupName);
+			fileNameComponents.add(this.group.getTitle());
 		}
 
-		return String.format("%s.%s", fileNameComponents.stream().collect(Collectors.joining("-")), extension);
+		final String cleanFilename = Validator.cleanFilename(fileNameComponents.stream().collect(Collectors.joining("-")));
+
+		return String.format("%s.%s", cleanFilename, extension);
 	}
 }
