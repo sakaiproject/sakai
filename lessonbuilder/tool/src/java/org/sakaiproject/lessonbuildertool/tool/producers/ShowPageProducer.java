@@ -718,6 +718,8 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		showAll.setSource("summary");
 		UIInternalLink.make(tofill, "print-view", showAll)
 		    .decorate(new UITooltipDecorator(messageLocator.getMessage("simplepage.print_view")));
+		UIInternalLink.make(tofill, "print-all", showAll)
+		    .decorate(new UITooltipDecorator("Print all"));
 		UIInternalLink.make(tofill, "show-pages", showAll)
 		    .decorate(new UITooltipDecorator(messageLocator.getMessage("simplepage.showallpages")));
 		
@@ -1116,7 +1118,8 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		// Is anything visible?
 		// Note that we don't need to check whether any item is available, since the first visible
 		// item is always available.
-		boolean anyItemVisible = false;
+		boolean[] anyItemVisible = new boolean[1];
+		anyItemVisible[0]=false;
 
 		if (itemList.size() > 0) {
 			UIBranchContainer container = UIBranchContainer.make(tofill, "itemContainer:");
@@ -1134,7 +1137,127 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 			UIBranchContainer tableContainer = null;
 
 			boolean first = true;
+			
+			printSubpage(itemList, first, sectionWrapper, sectionContainer, columnContainer, tableContainer, 
+					container, cols, colnum, canEditPage, currentPage, anyItemVisible, newItemId, showRefresh, canSeeAll, 
+					M_locale, ieVersion, showDownloads, iframeJavascriptDone, tofill, placement, params, postedCommentId, 
+					addedCommentsScript, cameFromGradingPane, pageItem, noEditor, commentsCount, textboxcount);
 
+			// end of items. This is the end for normal users. Following is
+			// special
+			// checks and putting out the dialogs for the popups, for
+			// instructors.
+
+			boolean showBreak = false;
+
+			// I believe refresh is now done automatically in all cases
+			// if (showRefresh) {
+			// UIOutput.make(tofill, "refreshAlert");
+			//
+			// // Should simply refresh
+			// GeneralViewParameters p = new GeneralViewParameters(VIEW_ID);
+			// p.setSendingPage(currentPage.getPageId());
+			// UIInternalLink.make(tofill, "refreshLink", p);
+			// showBreak = true;
+			// }
+
+			// stuff goes on the page in the order in the HTML file. So the fact
+			// that it's here doesn't mean it shows
+			// up at the end. This code produces errors and other odd stuff.
+
+			if (canSeeAll) {
+				// if the page is hidden, warn the faculty [students get stopped
+				// at
+				// the top]
+				if (currentPage.isHidden()) {
+					UIOutput.make(tofill, "hiddenAlert").decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.pagehidden")));
+					UIVerbatim.make(tofill, "hidden-text", messageLocator.getMessage("simplepage.pagehidden.text"));
+
+					showBreak = true;
+					// similarly warn them if it isn't released yet
+				} else if (currentPage.getReleaseDate() != null && currentPage.getReleaseDate().after(new Date())) {
+					DateFormat df = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT, M_locale);
+					TimeZone tz = timeService.getLocalTimeZone();
+					df.setTimeZone(tz);
+					String releaseDate = df.format(currentPage.getReleaseDate());
+					UIOutput.make(tofill, "hiddenAlert").decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.notreleased")));
+					UIVerbatim.make(tofill, "hidden-text", messageLocator.getMessage("simplepage.notreleased.text").replace("{}", releaseDate));
+					showBreak = true;
+				}
+			}
+
+			if (showBreak) {
+				UIOutput.make(tofill, "breakAfterWarnings");
+			}
+		}
+
+		// more warnings: if no item on the page, give faculty instructions,
+		// students an error
+		if (!anyItemVisible[0]) {
+			if (canEditPage) {
+				String helpUrl = null;
+				// order:
+				// localized placedholder
+				// localized general
+				// default placeholder
+				// we know the defaults exist because we include them, so
+				// we never need to consider default general
+				if (simplePageBean.isStudentPage(currentPage)) {
+				    helpUrl = getLocalizedURL("student.html", true);
+				}
+				else {
+				    helpUrl = getLocalizedURL("placeholder.html", false);
+				    if (helpUrl == null)
+					helpUrl = getLocalizedURL("general.html", false);
+				    if (helpUrl == null)
+					helpUrl = getLocalizedURL("placeholder.html", true);
+				}
+
+				UIOutput.make(tofill, "startupHelp")
+				    .decorate(new UIFreeAttributeDecorator("src", helpUrl))
+				    .decorate(new UIFreeAttributeDecorator("id", "iframe"));
+				if (!iframeJavascriptDone) {
+				    UIOutput.make(tofill, "iframeJavascript");
+				    iframeJavascriptDone = true;
+				}
+			} else {
+				UIOutput.make(tofill, "error-div");
+				UIOutput.make(tofill, "error", messageLocator.getMessage("simplepage.noitems_error_user"));
+			}
+		}
+
+		// now output the dialogs. but only for faculty (to avoid making the
+		// file bigger)
+		if (canEditPage) {
+			createSubpageDialog(tofill, currentPage);
+		}
+
+		createDialogs(tofill, currentPage, pageItem, cssLink);
+
+		// Add pageids to the page so the portal lessons subnav menu can update its state
+		List<SimplePageBean.PathEntry> path = simplePageBean.getHierarchy();
+		if (path.size() > 2) {
+			SimplePageBean.PathEntry topLevelSubPage = path.get(1);
+			UIOutput.make(tofill, "lessonsSubnavTopLevelPageId")
+				.decorate(new UIFreeAttributeDecorator("value", String.valueOf(topLevelSubPage.pageId)));
+		} else {
+			UIOutput.make(tofill, "lessonsSubnavPageId")
+				.decorate(new UIFreeAttributeDecorator("value", String.valueOf(simplePageBean.getCurrentPage().getPageId())));
+		}
+		UIOutput.make(tofill, "lessonsSubnavToolId")
+			.decorate(new UIFreeAttributeDecorator("value", String.valueOf(placement.getId())));
+		UIOutput.make(tofill, "lessonsSubnavItemId")
+			.decorate(new UIFreeAttributeDecorator("value", String.valueOf(pageItem.getId())));
+
+		UIOutput.make(tofill, "lessonsCurrentPageId")
+			.decorate(new UIFreeAttributeDecorator("value", String.valueOf(simplePageBean.getCurrentPage().getPageId())));
+	}
+
+	public void printSubpage(List<SimplePageItem> itemList, boolean first, UIBranchContainer sectionWrapper, UIBranchContainer sectionContainer, UIBranchContainer columnContainer, UIBranchContainer tableContainer, 
+			UIBranchContainer container, int cols, int colnum, boolean canEditPage, SimplePage currentPage, boolean[] anyItemVisible, long newItemId, boolean showRefresh, boolean canSeeAll, 
+			Locale M_locale, int ieVersion, boolean showDownloads, boolean iframeJavascriptDone, UIContainer tofill, Placement placement, GeneralViewParameters params, long postedCommentId, 
+			boolean addedCommentsScript, boolean cameFromGradingPane, SimplePageItem pageItem, boolean noEditor, int commentsCount, int textboxcount) {
+					
 			for (SimplePageItem i : itemList) {
 
 				// break is not a normal item. handle it first
@@ -1220,6 +1343,19 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 				    continue;
 				    // for first item, if wasn't break, process it
 				}
+				
+				if(httpServletRequest.getParameter("printall") != null && i.getSakaiId() != null && !"".equals(i.getSakaiId()) && StringUtils.isNumeric(i.getSakaiId()))			
+				{
+					// is a subpage		
+				
+					List<SimplePageItem> subitemList = (List<SimplePageItem>) simplePageBean.getItemsOnPage(Long.valueOf(i.getSakaiId()));
+					printSubpage(subitemList, first, sectionWrapper, sectionContainer, columnContainer, tableContainer, 
+							container, cols, colnum, canEditPage, currentPage, anyItemVisible, newItemId, showRefresh, canSeeAll, 
+							M_locale, ieVersion, showDownloads, iframeJavascriptDone, tofill, placement, params, postedCommentId,
+							addedCommentsScript, cameFromGradingPane, pageItem, noEditor, commentsCount, textboxcount);				
+				}
+				else
+				{
 
 				// listitem is mostly historical. it uses some shared HTML, but
 				// if I were
@@ -1241,7 +1377,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 				}
 				// break isn't a real item. probably don't want to count it
 				if (i.getType() != SimplePageItem.BREAK)
-				    anyItemVisible = true;
+				    anyItemVisible[0] = true;
 
 				UIBranchContainer tableRow = UIBranchContainer.make(tableContainer, "item:");
 
@@ -3388,117 +3524,10 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 						textboxcount++;
 					}
 				}
+				} // else - is not a subpage
 			}
-
-			// end of items. This is the end for normal users. Following is
-			// special
-			// checks and putting out the dialogs for the popups, for
-			// instructors.
-
-			boolean showBreak = false;
-
-			// I believe refresh is now done automatically in all cases
-			// if (showRefresh) {
-			// UIOutput.make(tofill, "refreshAlert");
-			//
-			// // Should simply refresh
-			// GeneralViewParameters p = new GeneralViewParameters(VIEW_ID);
-			// p.setSendingPage(currentPage.getPageId());
-			// UIInternalLink.make(tofill, "refreshLink", p);
-			// showBreak = true;
-			// }
-
-			// stuff goes on the page in the order in the HTML file. So the fact
-			// that it's here doesn't mean it shows
-			// up at the end. This code produces errors and other odd stuff.
-
-			if (canSeeAll) {
-				// if the page is hidden, warn the faculty [students get stopped
-				// at
-				// the top]
-				if (currentPage.isHidden()) {
-					UIOutput.make(tofill, "hiddenAlert").decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.pagehidden")));
-					UIVerbatim.make(tofill, "hidden-text", messageLocator.getMessage("simplepage.pagehidden.text"));
-
-					showBreak = true;
-					// similarly warn them if it isn't released yet
-				} else if (currentPage.getReleaseDate() != null && currentPage.getReleaseDate().after(new Date())) {
-					DateFormat df = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT, M_locale);
-					TimeZone tz = timeService.getLocalTimeZone();
-					df.setTimeZone(tz);
-					String releaseDate = df.format(currentPage.getReleaseDate());
-					UIOutput.make(tofill, "hiddenAlert").decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.notreleased")));
-					UIVerbatim.make(tofill, "hidden-text", messageLocator.getMessage("simplepage.notreleased.text").replace("{}", releaseDate));
-					showBreak = true;
-				}
-			}
-
-			if (showBreak) {
-				UIOutput.make(tofill, "breakAfterWarnings");
-			}
-		}
-
-		// more warnings: if no item on the page, give faculty instructions,
-		// students an error
-		if (!anyItemVisible) {
-			if (canEditPage) {
-				String helpUrl = null;
-				// order:
-				// localized placedholder
-				// localized general
-				// default placeholder
-				// we know the defaults exist because we include them, so
-				// we never need to consider default general
-				if (simplePageBean.isStudentPage(currentPage)) {
-				    helpUrl = getLocalizedURL("student.html", true);
-				}
-				else {
-				    helpUrl = getLocalizedURL("placeholder.html", false);
-				    if (helpUrl == null)
-					helpUrl = getLocalizedURL("general.html", false);
-				    if (helpUrl == null)
-					helpUrl = getLocalizedURL("placeholder.html", true);
-				}
-
-				UIOutput.make(tofill, "startupHelp")
-				    .decorate(new UIFreeAttributeDecorator("src", helpUrl))
-				    .decorate(new UIFreeAttributeDecorator("id", "iframe"));
-				if (!iframeJavascriptDone) {
-				    UIOutput.make(tofill, "iframeJavascript");
-				    iframeJavascriptDone = true;
-				}
-			} else {
-				UIOutput.make(tofill, "error-div");
-				UIOutput.make(tofill, "error", messageLocator.getMessage("simplepage.noitems_error_user"));
-			}
-		}
-
-		// now output the dialogs. but only for faculty (to avoid making the
-		// file bigger)
-		if (canEditPage) {
-			createSubpageDialog(tofill, currentPage);
-		}
-
-		createDialogs(tofill, currentPage, pageItem, cssLink);
-
-		// Add pageids to the page so the portal lessons subnav menu can update its state
-		List<SimplePageBean.PathEntry> path = simplePageBean.getHierarchy();
-		if (path.size() > 2) {
-			SimplePageBean.PathEntry topLevelSubPage = path.get(1);
-			UIOutput.make(tofill, "lessonsSubnavTopLevelPageId")
-				.decorate(new UIFreeAttributeDecorator("value", String.valueOf(topLevelSubPage.pageId)));
-		} else {
-			UIOutput.make(tofill, "lessonsSubnavPageId")
-				.decorate(new UIFreeAttributeDecorator("value", String.valueOf(simplePageBean.getCurrentPage().getPageId())));
-		}
-		UIOutput.make(tofill, "lessonsSubnavToolId")
-			.decorate(new UIFreeAttributeDecorator("value", String.valueOf(placement.getId())));
-		UIOutput.make(tofill, "lessonsSubnavItemId")
-			.decorate(new UIFreeAttributeDecorator("value", String.valueOf(pageItem.getId())));
-
-		UIOutput.make(tofill, "lessonsCurrentPageId")
-			.decorate(new UIFreeAttributeDecorator("value", String.valueOf(simplePageBean.getCurrentPage().getPageId())));
 	}
+			
 	
 	public void makeCsrf(UIContainer tofill, String rsfid) {
 	    Object sessionToken = SessionManager.getCurrentSession().getAttribute("sakai.csrf.token");
