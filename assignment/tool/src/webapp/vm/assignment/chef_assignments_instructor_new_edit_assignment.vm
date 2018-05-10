@@ -1092,7 +1092,7 @@
 						#end
 						<br/><br/>
 						<p class="text-muted small">
-							<a href="http://help.turnitin.com" target="_blank">$tlang.getString("turnitinoc.instructions")</a>
+							<a href="https://guides.turnitin.com/03_Integrations/Turnitin_Partner_Integrations/Sakai" target="_blank">$tlang.getString("turnitinoc.instructions")</a>
 						</p>
                         <!-- End TurnitinOC custom options -->
 				#elseif($reviewServiceName.equals("Compilatio"))

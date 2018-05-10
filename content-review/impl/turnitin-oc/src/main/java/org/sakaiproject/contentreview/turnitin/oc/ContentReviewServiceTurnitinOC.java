@@ -140,6 +140,8 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 	private static final String RESPONSE_BODY = "responseBody";
 	private static final String GIVEN_NAME = "given_name";
 	private static final String FAMILY_NAME = "family_name";
+	private static final String VIEWER_USER_ID = "viewer_user_id";
+	private static final String AUTHOR_METADATA_OVERRIDE = "author_metadata_override";
 	private static final String MATCH_OVERVIEW = "match_overview";
 	private static final String ALL_SOURCES = "all_sources";
 	private static final String MODES = "modes";
@@ -398,8 +400,11 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 				}
 				Map<String, Object> data = new HashMap<String, Object>();
 				// Set user name
-				data.put(GIVEN_NAME, givenName);
-				data.put(FAMILY_NAME, familyName);
+				Map<String, Object> authorMetaDataOverride = new HashMap<String, Object>();				
+				authorMetaDataOverride.put(GIVEN_NAME, givenName);
+				authorMetaDataOverride.put(FAMILY_NAME, familyName);
+				data.put(AUTHOR_METADATA_OVERRIDE, authorMetaDataOverride);
+				data.put(VIEWER_USER_ID, userId);
 				Map<String, Object> similarity = new HashMap<String, Object>();
 				Map<String, Object> modes = new HashMap<String, Object>();
 				modes.put(MATCH_OVERVIEW, Boolean.TRUE);
