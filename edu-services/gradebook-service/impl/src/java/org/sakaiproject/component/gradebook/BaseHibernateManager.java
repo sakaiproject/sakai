@@ -394,7 +394,7 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
         HibernateCallback<Boolean> hc = session -> {
             Long result = (Long) session.createCriteria(CourseGradeRecord.class)
                     .add(Restrictions.isNotNull("enteredGrade"))
-                    .add(Restrictions.eq("gradableObject.gradebook.id", gradebookId))
+                    .add(Restrictions.eq("id", gradebookId))
                     .add(HibernateCriterionUtils.CriterionInRestrictionSplitter("studentId", studentUids))
                     .setProjection(Projections.rowCount())
                     .uniqueResult();
