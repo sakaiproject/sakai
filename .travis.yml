@@ -27,7 +27,7 @@ addons:
   sonarcloud:
     organization: "sakai-sandbox"
     token:
-      secure: "x59elKsea0HAOMrRnxSkP3hAVG+d5eZaxjm/s9Q9tKXxZMeUo+bsxuxmbt+yGeyyj8sMeN3Wce1i0lNbnGlyBFZF7gSefimHvOM72pCv9oqBwm+MAyGqd+bBMX+ctWq9jAkz7uxRVbRnt0tHqow/ZJa4C4UXoRnNOV1SFq1sG0vJV5aSX6CAsYn42rGt0PxPT71FFl+T7XTlFcQClPJ/z92OwcykKtVq1RYL9c/jjTXoj43/KXCRhMUZixHnuko1/NBBUWlrDJjkW09QE0GnDEeHbq0gnt2A0Mvu5Qb6GNeX4XkovV2mqbpR8s84XjdFgdg3iUtDDfL12M6wuGaTDOH1x/PEx3m/Oz47FQ2o7bADGnJ4cTPzJPmqvwm6Y+iSACXNhr1lh8EKt5+F2iJ5wROuNlONOfTOrJrYKWPqiczPE0DMsAiZUagG+WfMNgXOlNJc0NklsTGN9OI5w/LKcn25UoMd+MwpWvCWtfm169i8SliI+tbYcB7JerV56XU76xn9fGWBqovOx/RIvENGgTQ5A1LkonfCvE50R/r8BshYZouBCFn6/t1SImgae7Xnpx9vsYh7wdLXJSL7B/+iAa8+MWoKFmz4+SGlqmTLVpxXhZi3lVJR2vzMrQZmXXsK1IPp4ox8zDLgjIzImJlW7bHqsuT5uTq0wLUynxiG6mc="
+    secure: "G34ivrx9eXat+i535OfNFtrokRxNF8UAPWVP6sKb8XoRTflhKcuR/WzhX0n11gI7iloNDEzKGFmG5x5NmcuC1EqqRf/N+DiW6l7c0LAcvKcSaJXKlvtSb2kAdywLa4VJnrvQYZIzETNhWoY/uY329coXtaWxk170/YWKnp5DHE8="
 script:
   # this is what we want Travis to do
   - mvn clean install org.jacoco:jacoco-maven-plugin:prepare-agent sonar:sonar -Dsonar.host.url=https://sonarcloud.io
