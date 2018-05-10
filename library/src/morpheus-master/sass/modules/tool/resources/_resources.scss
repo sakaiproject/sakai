@@ -290,4 +290,21 @@
 			margin-right: 0.1em;
 		}
 	}
+
+	.show {
+		display: block;
+	}
+
+	.hide {
+		display: none;
+	}
+
+	label.copyrightAlert {
+		width: 15.5em;
+	}
+
+	div.alertMessage {
+		display: none;
+		clear: both;
+	}
 }
