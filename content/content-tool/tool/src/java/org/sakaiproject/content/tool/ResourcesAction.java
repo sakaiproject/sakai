@@ -1096,7 +1096,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 			context.put("fairuseurl", rrb.getString("fairuse.url"));
 			
 			context.put("publicdomain", rrb.getString("copyrighttype.1"));
-			context.put("copyrightError", rb.getString(MSG_KEY_COPYRIGHT_REQ_CHOICE));
+			context.put("copyrightError", rb.getString(MSG_KEY_COPYRIGHT_REQ_CHOICE_ERROR));
 
 			boolean copyrightReqChoice = ServerConfigurationService.getBoolean(SAK_PROP_COPYRIGHT_REQ_CHOICE, SAK_PROP_COPYRIGHT_REQ_CHOICE_DEFAULT);
 			context.put("copyright_requireChoice", copyrightReqChoice);

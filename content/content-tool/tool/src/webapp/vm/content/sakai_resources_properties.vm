@@ -111,25 +111,12 @@
 #end
 
 	// Client side copyright check
-	var submitButton = document.querySelector("#finish_button");
+	var submitButton = document.getElementById("finish_button");
 	submitButton.addEventListener("click", function()
 	{
-		var requireChoice = $copyright_requireChoice;
-		var copyrightSelect = document.getElementById('copyright');
-
-		// 'Please select...' is always the first element in the drop down, but only enforce this if configured via sakai.properties
-		if (requireChoice && copyrightSelect !== null && copyrightSelect.selectedIndex < 1)
+		if (checkCopyright(submitButton))
 		{
-			$('.alertMessage').html('$tlang.getString("label.alert") $copyrightError');
-			$('.alertMessage').show();
-			window.scrollTo(0, 0);
-			copyrightSelect.focus();
-		}
-		else
-		{
-			$('.alertMessage').hide();
 			document.getElementById('user_action').value='save';
-			submitButton.disabled = true;
 			submitform('$DETAILS_FORM_NAME');
 		}
 	});

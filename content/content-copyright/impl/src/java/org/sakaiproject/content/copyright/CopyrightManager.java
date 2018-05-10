@@ -136,10 +136,13 @@ public class CopyrightManager implements org.sakaiproject.content.copyright.api.
 		if (active) {
 			item.setType(key);
 			item.setText(copyrightMap.get(key));
-			if (existsFile(COPYRIGHT_LICENSE_FILE_LOCATION + key + "_" + language + COPYRIGHT_LICENSE_FILE_EXT, baseURL)) {
-				item.setLicenseUrl(COPYRIGHT_LICENSE_FILE_LOCATION + key + "_" + language + COPYRIGHT_LICENSE_FILE_EXT);
-			} else if (existsFile(COPYRIGHT_LICENSE_FILE_LOCATION + key + COPYRIGHT_LICENSE_FILE_EXT, baseURL)) {
-				item.setLicenseUrl(COPYRIGHT_LICENSE_FILE_LOCATION + key + COPYRIGHT_LICENSE_FILE_EXT);
+
+			String location1 = COPYRIGHT_LICENSE_FILE_LOCATION + key + "_" + language + COPYRIGHT_LICENSE_FILE_EXT;
+			String location2 = COPYRIGHT_LICENSE_FILE_LOCATION + key + COPYRIGHT_LICENSE_FILE_EXT;
+			if (existsFile(location1, baseURL)) {
+				item.setLicenseUrl(location1);
+			} else if (existsFile(location2, baseURL)) {
+				item.setLicenseUrl(location2);
 			}
 		} else {
 			String copyrightText = copyrightMap.get(key);

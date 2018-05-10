@@ -211,7 +211,7 @@
 				(<a href="#" onclick="openMoreInfoCopyrightWindow('copyright');" title="[$tlang.getString('cright.newwin')]"><span class="skip"> [$tlang.getString('cright.newwin')]</span>$tlang.getString('cright.fairuse')</a>)
 			</small>
 		</p>
-		<div id="copyright_status"#if($model.copyrightStatus == $USE_THIS_COPYRIGHT) class="form-group" style="display:block;"#else style="display:none;"#end>
+		<div id="copyright_status"#if($model.copyrightStatus == $USE_THIS_COPYRIGHT) class="form-group show"#else class="hide"#end>
 			<p class="shorttext">
 				<span class="reqStar">*</span>
 				<label for="newcopyright">
@@ -221,7 +221,7 @@
 			</p>
 		</div>
 		<div class="form-group">
-			<label for="copyrightAlert" style="width:15.5em;display:block">
+			<label for="copyrightAlert" class="copyrightAlert show">
 				$tlang.getString("cright.alert")
 			</label>
 			<input type="checkbox" name="copyrightAlert" id ="copyrightAlert" value="true" #if($model.hasCopyrightAlert())checked="checked"#end />

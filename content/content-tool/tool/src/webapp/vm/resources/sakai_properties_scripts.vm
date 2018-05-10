@@ -1103,15 +1103,37 @@
 			{
 				if(selectionValue == "${USE_THIS_COPYRIGHT}")
 				{
-					copyrightDiv.style.display="block";
+					copyrightDiv.className = "show";
 					resizeFrame('grow');
 				}
 				else
 				{
-					copyrightDiv.style.display="none";
+					copyrightDiv.className = "hide";
 				}
 			}
 		}
+	}
+	function checkCopyright(submitButton)
+	{
+		var requireChoice = $copyright_requireChoice;
+		var copyrightSelect = document.getElementById('copyright');
+
+		// 'Please select...' is always the first element in the drop down, but only enforce this if configured via sakai.properties
+		if (requireChoice && copyrightSelect !== null && copyrightSelect.selectedIndex < 1)
+		{
+			$('.alertMessage').html('$tlang.getString("label.alert") $copyrightError');
+			$('.alertMessage').show();
+			window.scrollTo(0, 0);
+			copyrightSelect.focus();
+
+			// Indicate that the copyright status still needs to be selected
+			return false;
+		}
+
+		// Copyright status has been selected; let the calling site submit the necessary form
+		$('.alertMessage').hide();
+		submitButton.disabled = true;
+		return true;
 	}
 	function changeMimeType(index)
 	{
