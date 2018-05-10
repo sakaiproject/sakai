@@ -294,7 +294,7 @@ public class BasePage extends WebPage {
 
 	/**
 	 * Performs role checks for instructor-only pages and redirects users to appropriate pages based on their role.
-	 * No role -> AccessDeniedPage. Student -> StudentPage. TA -> GradebookPage.
+	 * No role -> AccessDeniedPage. Student -> StudentPage. TA -> GradebookPage (if ta does not have the gradebook.editAssignments permission)
 	 */
 	protected final void defaultRoleChecksForInstructorOnlyPage()
 	{
@@ -306,6 +306,9 @@ public class BasePage extends WebPage {
 			case STUDENT:
 				throw new RestartResponseException(StudentPage.class);
 			case TA:
+				if(businessService.isUserAbleToEditAssessments(businessService.getGradebook().getUid())) {
+					break;
+				}
 				throw new RestartResponseException(GradebookPage.class);
 			default:
 				break;
