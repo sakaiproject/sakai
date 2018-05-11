@@ -1057,7 +1057,7 @@ publishedId = ppublishedId;
         String poolStr = ", " + ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.EvaluationMessages","pool") + ": ";
         for(PublishedSectionData section: assesmentParts){
             StringBuilder text = new StringBuilder();
-        	text.append(partStr + String.valueOf(section.getSequence()));
+            text.append(partStr + String.valueOf(section.getSequence()));
             if(!defaultStr.equals(section.getTitle())){
                 text.append(": " + section.getTitle());
             }
