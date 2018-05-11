@@ -5228,7 +5228,8 @@ public class AssignmentAction extends PagedResourceActionII
 										{
 											String submitterId = (String) entry.getKey();
 											String grade = StringUtils.trimToNull(displayGrade(state, (String) sm.get(submitterId), a.getContent().getFactor()));
-											if (grade != null)
+											if (grade != null && 
+												g.isUserAbleToGradeItemForStudent(gradebookUid, associateGradebookAssignmentId, submitterId))
 											{
 												g.setAssignmentScoreString(gradebookUid, associateGradebookAssignmentId, submitterId, grade, "");
 												String comment = StringUtils.isNotEmpty(cm.get(submitterId)) ? cm.get(submitterId) : "";
