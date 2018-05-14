@@ -41,6 +41,7 @@ import org.mockito.Mockito;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.presence.api.PresenceService;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.sitestats.api.EventStat;
@@ -211,8 +212,8 @@ public class StatsUpdateManagerTest extends AbstractJUnit4SpringContextTests {
 	@Test
 	public void testSiteVisits() {
 		// #1 Test: 2 site visit (different users)
-		Event eSV1 = M_sum.buildEvent(new Date(), StatsManager.SITEVISIT_EVENTID, "/presence/"+FakeData.SITE_A_ID+"-presence", null, FakeData.USER_A_ID, "session-id-a");
-		Event eSV2 = M_sum.buildEvent(new Date(), StatsManager.SITEVISIT_EVENTID, "/presence/"+FakeData.SITE_A_ID+"-presence", null, FakeData.USER_B_ID, "session-id-b");
+		Event eSV1 = M_sum.buildEvent(new Date(), StatsManager.SITEVISIT_EVENTID, "/presence/"+FakeData.SITE_A_ID+PresenceService.PRESENCE_SUFFIX, null, FakeData.USER_A_ID, "session-id-a");
+		Event eSV2 = M_sum.buildEvent(new Date(), StatsManager.SITEVISIT_EVENTID, "/presence/"+FakeData.SITE_A_ID+PresenceService.PRESENCE_SUFFIX, null, FakeData.USER_B_ID, "session-id-b");
 		Assert.assertTrue(M_sum.collectEvents(Arrays.asList(eSV1, eSV2)));
 		// #1: SST_EVENTS
 		List<EventStat> r1 = (List<EventStat>) db.getResultsForClass(EventStatImpl.class);
@@ -248,8 +249,8 @@ public class StatsUpdateManagerTest extends AbstractJUnit4SpringContextTests {
 
 		// #2 Test: 2 site visit (same users)
 		db.deleteAll();
-		eSV1 = M_sum.buildEvent(new Date(), StatsManager.SITEVISIT_EVENTID, "/presence/"+FakeData.SITE_A_ID+"-presence", null, FakeData.USER_A_ID, "session-id-a");
-		eSV2 = M_sum.buildEvent(new Date(), StatsManager.SITEVISIT_EVENTID, "/presence/"+FakeData.SITE_A_ID+"-presence", null, FakeData.USER_A_ID, "session-id-a");
+		eSV1 = M_sum.buildEvent(new Date(), StatsManager.SITEVISIT_EVENTID, "/presence/"+FakeData.SITE_A_ID+PresenceService.PRESENCE_SUFFIX, null, FakeData.USER_A_ID, "session-id-a");
+		eSV2 = M_sum.buildEvent(new Date(), StatsManager.SITEVISIT_EVENTID, "/presence/"+FakeData.SITE_A_ID+PresenceService.PRESENCE_SUFFIX, null, FakeData.USER_A_ID, "session-id-a");
 		Assert.assertTrue(M_sum.collectEvents(Arrays.asList(eSV1, eSV2)));
 		// #2: SST_EVENTS
 		r1 = (List<EventStat>) db.getResultsForClass(EventStatImpl.class);
@@ -279,28 +280,28 @@ public class StatsUpdateManagerTest extends AbstractJUnit4SpringContextTests {
 	    // Start and end across collections.
 		{
 			List<Event> events = new ArrayList<>();
-			events.add(M_sum.buildEvent(new Date(), StatsManager.SITEVISIT_EVENTID, "/presence/" + FakeData.SITE_A_ID + "-presence", null, FakeData.USER_A_ID, "session-id"));
+			events.add(M_sum.buildEvent(new Date(), StatsManager.SITEVISIT_EVENTID, "/presence/" + FakeData.SITE_A_ID + PresenceService.PRESENCE_SUFFIX, null, FakeData.USER_A_ID, "session-id"));
 			Assert.assertTrue(M_sum.collectEvents(events));
 		}
 		{
 			List<Event> events = new ArrayList<>();
-			events.add(M_sum.buildEvent(new Date(), StatsManager.SITEVISITEND_EVENTID, "/presence/" + FakeData.SITE_A_ID + "-presence", null, FakeData.USER_A_ID, "session-id"));
+			events.add(M_sum.buildEvent(new Date(), StatsManager.SITEVISITEND_EVENTID, "/presence/" + FakeData.SITE_A_ID + PresenceService.PRESENCE_SUFFIX, null, FakeData.USER_A_ID, "session-id"));
 			Assert.assertTrue(M_sum.collectEvents(events));
 		}
 
 		// Start and end in the same collection.
 		{
 			List<Event> events = new ArrayList<>();
-			events.add(M_sum.buildEvent(new Date(), StatsManager.SITEVISIT_EVENTID, "/presence/" + FakeData.SITE_A_ID + "-presence", null, FakeData.USER_A_ID, "session-id"));
-			events.add(M_sum.buildEvent(new Date(), StatsManager.SITEVISITEND_EVENTID, "/presence/" + FakeData.SITE_A_ID + "-presence", null, FakeData.USER_A_ID, "session-id"));
+			events.add(M_sum.buildEvent(new Date(), StatsManager.SITEVISIT_EVENTID, "/presence/" + FakeData.SITE_A_ID + PresenceService.PRESENCE_SUFFIX, null, FakeData.USER_A_ID, "session-id"));
+			events.add(M_sum.buildEvent(new Date(), StatsManager.SITEVISITEND_EVENTID, "/presence/" + FakeData.SITE_A_ID + PresenceService.PRESENCE_SUFFIX, null, FakeData.USER_A_ID, "session-id"));
 			Assert.assertTrue(M_sum.collectEvents(events));
 		}
 		// Multiple end events in the same collection.
 		{
 			List<Event> events = new ArrayList<>();
-			events.add(M_sum.buildEvent(new Date(), StatsManager.SITEVISIT_EVENTID, "/presence/" + FakeData.SITE_A_ID + "-presence", null, FakeData.USER_A_ID, "session-id"));
-			events.add(M_sum.buildEvent(new Date(), StatsManager.SITEVISITEND_EVENTID, "/presence/" + FakeData.SITE_A_ID + "-presence", null, FakeData.USER_A_ID, "session-id"));
-			events.add(M_sum.buildEvent(new Date(), StatsManager.SITEVISITEND_EVENTID, "/presence/" + FakeData.SITE_A_ID + "-presence", null, FakeData.USER_A_ID, "session-id"));
+			events.add(M_sum.buildEvent(new Date(), StatsManager.SITEVISIT_EVENTID, "/presence/" + FakeData.SITE_A_ID + PresenceService.PRESENCE_SUFFIX, null, FakeData.USER_A_ID, "session-id"));
+			events.add(M_sum.buildEvent(new Date(), StatsManager.SITEVISITEND_EVENTID, "/presence/" + FakeData.SITE_A_ID + PresenceService.PRESENCE_SUFFIX, null, FakeData.USER_A_ID, "session-id"));
+			events.add(M_sum.buildEvent(new Date(), StatsManager.SITEVISITEND_EVENTID, "/presence/" + FakeData.SITE_A_ID + PresenceService.PRESENCE_SUFFIX, null, FakeData.USER_A_ID, "session-id"));
 			Assert.assertTrue(M_sum.collectEvents(events));
 		}
 	}
@@ -431,8 +432,8 @@ public class StatsUpdateManagerTest extends AbstractJUnit4SpringContextTests {
 		
 		// BEGIN SITE PRESENCE
 		Date now = new Date();
-		Event eSV1 = M_sum.buildEvent(now, StatsManager.SITEVISIT_EVENTID, "/presence/"+FakeData.SITE_A_ID+"-presence", null, FakeData.USER_A_ID, "session-id-a");
-		Event eSV2 = M_sum.buildEvent(now, StatsManager.SITEVISIT_EVENTID, "/presence/"+FakeData.SITE_A_ID+"-presence", null, FakeData.USER_B_ID, "session-id-b");
+		Event eSV1 = M_sum.buildEvent(now, StatsManager.SITEVISIT_EVENTID, "/presence/"+FakeData.SITE_A_ID+PresenceService.PRESENCE_SUFFIX, null, FakeData.USER_A_ID, "session-id-a");
+		Event eSV2 = M_sum.buildEvent(now, StatsManager.SITEVISIT_EVENTID, "/presence/"+FakeData.SITE_A_ID+PresenceService.PRESENCE_SUFFIX, null, FakeData.USER_B_ID, "session-id-b");
 		Assert.assertTrue(M_sum.collectEvents(Arrays.asList(eSV1, eSV2)));
 		// ... check SST_PRESENCES
 		List<SitePresence> r1 = (List<SitePresence>) db.getResultsForClass(SitePresenceImpl.class);
@@ -459,8 +460,8 @@ public class StatsUpdateManagerTest extends AbstractJUnit4SpringContextTests {
 			Thread.sleep(minPresenceTime);			
 		}catch(Exception e) {}
 		now = new Date();
-		Event eSV1e = M_sum.buildEvent(now, StatsManager.SITEVISITEND_EVENTID, "/presence/"+FakeData.SITE_A_ID+"-presence", null, FakeData.USER_A_ID, "session-id-a");
-		Event eSV2e = M_sum.buildEvent(now, StatsManager.SITEVISITEND_EVENTID, "/presence/"+FakeData.SITE_A_ID+"-presence", null, FakeData.USER_B_ID, "session-id-b");
+		Event eSV1e = M_sum.buildEvent(now, StatsManager.SITEVISITEND_EVENTID, "/presence/"+FakeData.SITE_A_ID+PresenceService.PRESENCE_SUFFIX, null, FakeData.USER_A_ID, "session-id-a");
+		Event eSV2e = M_sum.buildEvent(now, StatsManager.SITEVISITEND_EVENTID, "/presence/"+FakeData.SITE_A_ID+PresenceService.PRESENCE_SUFFIX, null, FakeData.USER_B_ID, "session-id-b");
 		Assert.assertTrue(M_sum.collectEvents(Arrays.asList(eSV1e, eSV2e)));
 		// ... check SST_PRESENCES
 		r1 = (List<SitePresence>) db.getResultsForClass(SitePresenceImpl.class);
@@ -488,7 +489,7 @@ public class StatsUpdateManagerTest extends AbstractJUnit4SpringContextTests {
 		
 		// BEGIN SITE PRESENCE
 		now = new Date();
-		eSV1 = M_sum.buildEvent(now, StatsManager.SITEVISIT_EVENTID, "/presence/"+FakeData.SITE_A_ID+"-presence", null, FakeData.USER_A_ID, "session-id-a");
+		eSV1 = M_sum.buildEvent(now, StatsManager.SITEVISIT_EVENTID, "/presence/"+FakeData.SITE_A_ID+PresenceService.PRESENCE_SUFFIX, null, FakeData.USER_A_ID, "session-id-a");
 		Assert.assertTrue(M_sum.collectEvents(Arrays.asList(eSV1)));
 		try{
 			// give it time before ending presence
@@ -497,7 +498,7 @@ public class StatsUpdateManagerTest extends AbstractJUnit4SpringContextTests {
 		}catch(Exception e) {}
 		Date now2 = new Date();
 		long secondDuration = now2.getTime() - now.getTime();
-		eSV2 = M_sum.buildEvent(now2, StatsManager.SITEVISITEND_EVENTID, "/presence/"+FakeData.SITE_A_ID+"-presence", null, FakeData.USER_A_ID, "session-id-a");
+		eSV2 = M_sum.buildEvent(now2, StatsManager.SITEVISITEND_EVENTID, "/presence/"+FakeData.SITE_A_ID+PresenceService.PRESENCE_SUFFIX, null, FakeData.USER_A_ID, "session-id-a");
 		Assert.assertTrue(M_sum.collectEvents(Arrays.asList(eSV2)));
 		// ... check SST_PRESENCES
 		r1 = (List<SitePresence>) db.getResultsForClass(SitePresenceImpl.class);
@@ -512,7 +513,7 @@ public class StatsUpdateManagerTest extends AbstractJUnit4SpringContextTests {
 		
 		// END SITE PRESENCE
 		now = new Date();
-		eSV1e = M_sum.buildEvent(now, StatsManager.SITEVISIT_EVENTID, "/presence/"+FakeData.SITE_A_ID+"-presence", null, FakeData.USER_A_ID, "session-id-a");
+		eSV1e = M_sum.buildEvent(now, StatsManager.SITEVISIT_EVENTID, "/presence/"+FakeData.SITE_A_ID+PresenceService.PRESENCE_SUFFIX, null, FakeData.USER_A_ID, "session-id-a");
 		Assert.assertTrue(M_sum.collectEvents(Arrays.asList(eSV1e)));
 		try{
 			// give it time before ending presence
@@ -521,7 +522,7 @@ public class StatsUpdateManagerTest extends AbstractJUnit4SpringContextTests {
 		}catch(Exception e) {}
 		now2 = new Date();
 		secondDuration = now2.getTime() - now.getTime();
-		eSV2e = M_sum.buildEvent(now2, StatsManager.SITEVISITEND_EVENTID, "/presence/"+FakeData.SITE_A_ID+"-presence", null, FakeData.USER_A_ID, "session-id-a");
+		eSV2e = M_sum.buildEvent(now2, StatsManager.SITEVISITEND_EVENTID, "/presence/"+FakeData.SITE_A_ID+PresenceService.PRESENCE_SUFFIX, null, FakeData.USER_A_ID, "session-id-a");
 		Assert.assertTrue(M_sum.collectEvents(Arrays.asList(eSV2e)));
 		// ... check SST_PRESENCES
 		r1 = (List<SitePresence>) db.getResultsForClass(SitePresenceImpl.class);
@@ -559,7 +560,7 @@ public class StatsUpdateManagerTest extends AbstractJUnit4SpringContextTests {
 		}catch(Exception e) {}
 		now2 = new Date();
 		secondDuration = now2.getTime() - now.getTime();
-		eSV2e = M_sum.buildEvent(now2, StatsManager.SITEVISITEND_EVENTID, "/presence/"+FakeData.SITE_A_ID+"-presence", null, FakeData.USER_A_ID, "session-id-a");
+		eSV2e = M_sum.buildEvent(now2, StatsManager.SITEVISITEND_EVENTID, "/presence/"+FakeData.SITE_A_ID+PresenceService.PRESENCE_SUFFIX, null, FakeData.USER_A_ID, "session-id-a");
 		Assert.assertTrue(M_sum.collectEvents(Arrays.asList(eSV2e)));
 		r1 = (List<SitePresence>) db.getResultsForClass(SitePresenceImpl.class);
 		Assert.assertEquals(1, r1.size());
@@ -596,7 +597,7 @@ public class StatsUpdateManagerTest extends AbstractJUnit4SpringContextTests {
 		}catch(Exception e) {}
 		now2 = new Date();
 		secondDuration = now2.getTime() - now.getTime();
-		eSV2e = M_sum.buildEvent(now2, StatsManager.SITEVISITEND_EVENTID, "/presence/"+FakeData.SITE_A_ID+"-presence", null, FakeData.USER_A_ID, "session-id-a");
+		eSV2e = M_sum.buildEvent(now2, StatsManager.SITEVISITEND_EVENTID, "/presence/"+FakeData.SITE_A_ID+PresenceService.PRESENCE_SUFFIX, null, FakeData.USER_A_ID, "session-id-a");
 		Assert.assertTrue(M_sum.collectEvents(Arrays.asList(eSV2e)));
 		r1 = (List<SitePresence>) db.getResultsForClass(SitePresenceImpl.class);
 		Assert.assertEquals(1, r1.size());
@@ -711,8 +712,8 @@ public class StatsUpdateManagerTest extends AbstractJUnit4SpringContextTests {
 		// #3: collect admin events
 		Assert.assertEquals(true, M_sum.isCollectAdminEvents());
 		// make sure it processes admin events
-		Event e1 = M_sum.buildEvent(new Date(), StatsManager.SITEVISIT_EVENTID, "/presence/"+FakeData.SITE_A_ID+"-presence", null, "admin", "session-id-a");
-		Event e2 = M_sum.buildEvent(new Date(), StatsManager.SITEVISIT_EVENTID, "/presence/"+FakeData.SITE_A_ID+"-presence", null, FakeData.USER_A_ID, "session-id-a");
+		Event e1 = M_sum.buildEvent(new Date(), StatsManager.SITEVISIT_EVENTID, "/presence/"+FakeData.SITE_A_ID+PresenceService.PRESENCE_SUFFIX, null, "admin", "session-id-a");
+		Event e2 = M_sum.buildEvent(new Date(), StatsManager.SITEVISIT_EVENTID, "/presence/"+FakeData.SITE_A_ID+PresenceService.PRESENCE_SUFFIX, null, FakeData.USER_A_ID, "session-id-a");
 		M_sum.collectEvents(Arrays.asList(e1, e2));
 		List<SiteVisits> results2 = (List<SiteVisits>) db.getResultsForClass(SiteVisitsImpl.class);
 		Assert.assertEquals(1, results2.size());
@@ -737,11 +738,11 @@ public class StatsUpdateManagerTest extends AbstractJUnit4SpringContextTests {
 		// make sure events get processed for sites with SiteStats only
 		M_sum.setCollectEventsForSiteWithToolOnly(true);
 		Assert.assertEquals(true, M_sum.isCollectEventsForSiteWithToolOnly());
-		Event e1 = M_sum.buildEvent(new Date(), StatsManager.SITEVISIT_EVENTID, "/presence/"+FakeData.SITE_A_ID+"-presence", null, FakeData.USER_A_ID, "session-id-a");
+		Event e1 = M_sum.buildEvent(new Date(), StatsManager.SITEVISIT_EVENTID, "/presence/"+FakeData.SITE_A_ID+PresenceService.PRESENCE_SUFFIX, null, FakeData.USER_A_ID, "session-id-a");
 		M_sum.collectEvent(e1);
 		List<SiteVisits> results2 = (List<SiteVisits>) db.getResultsForClass(SiteVisitsImpl.class);
 		Assert.assertEquals(1, results2.size());
-		e1 = M_sum.buildEvent(new Date(), StatsManager.SITEVISIT_EVENTID, "/presence/"+FakeData.SITE_B_ID+"-presence", null, FakeData.USER_A_ID, "session-id-a");
+		e1 = M_sum.buildEvent(new Date(), StatsManager.SITEVISIT_EVENTID, "/presence/"+FakeData.SITE_B_ID+PresenceService.PRESENCE_SUFFIX, null, FakeData.USER_A_ID, "session-id-a");
 		M_sum.collectEvent(e1);
 		results2 = (List<SiteVisits>) db.getResultsForClass(SiteVisitsImpl.class);
 		Assert.assertEquals(1, results2.size());
@@ -749,11 +750,11 @@ public class StatsUpdateManagerTest extends AbstractJUnit4SpringContextTests {
 		db.deleteAll();
 		M_sum.setCollectEventsForSiteWithToolOnly(false);
 		Assert.assertEquals(false, M_sum.isCollectEventsForSiteWithToolOnly());
-		e1 = M_sum.buildEvent(new Date(), StatsManager.SITEVISIT_EVENTID, "/presence/"+FakeData.SITE_A_ID+"-presence", null, FakeData.USER_A_ID, "session-id-a");
+		e1 = M_sum.buildEvent(new Date(), StatsManager.SITEVISIT_EVENTID, "/presence/"+FakeData.SITE_A_ID+PresenceService.PRESENCE_SUFFIX, null, FakeData.USER_A_ID, "session-id-a");
 		M_sum.collectEvent(e1);
 		results2 = (List<SiteVisits>) db.getResultsForClass(SiteVisitsImpl.class);
 		Assert.assertEquals(1, results2.size());
-		e1 = M_sum.buildEvent(new Date(), StatsManager.SITEVISIT_EVENTID, "/presence/"+FakeData.SITE_B_ID+"-presence", null, FakeData.USER_A_ID, "session-id-a");
+		e1 = M_sum.buildEvent(new Date(), StatsManager.SITEVISIT_EVENTID, "/presence/"+FakeData.SITE_B_ID+PresenceService.PRESENCE_SUFFIX, null, FakeData.USER_A_ID, "session-id-a");
 		M_sum.collectEvent(e1);
 		results2 = (List<SiteVisits>) db.getResultsForClass(SiteVisitsImpl.class);
 		Assert.assertEquals(2, results2.size());	
