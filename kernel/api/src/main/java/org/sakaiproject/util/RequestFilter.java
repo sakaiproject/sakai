@@ -21,24 +21,13 @@
 
 package org.sakaiproject.util;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.security.Principal;
-import java.util.*;
-
-import javax.servlet.*;
-import javax.servlet.http.*;
-
 import lombok.extern.slf4j.Slf4j;
-
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.FileUploadBase;
 import org.apache.commons.fileupload.FileUploadException;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.apache.commons.lang3.math.NumberUtils;
-
 import org.sakaiproject.cluster.api.ClusterNode;
 import org.sakaiproject.cluster.api.ClusterService;
 import org.sakaiproject.cluster.api.ClusterService.Status;
@@ -50,9 +39,34 @@ import org.sakaiproject.thread_local.api.ThreadLocalManager;
 import org.sakaiproject.tool.api.ClosingException;
 import org.sakaiproject.tool.api.RebuildBreakdownService;
 import org.sakaiproject.tool.api.Session;
+import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.tool.api.ToolSession;
-import org.sakaiproject.tool.api.SessionManager;
+
+import javax.servlet.Filter;
+import javax.servlet.FilterChain;
+import javax.servlet.FilterConfig;
+import javax.servlet.ServletContext;
+import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletRequestWrapper;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpServletResponseWrapper;
+import javax.servlet.http.HttpSession;
+import java.io.File;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.security.Principal;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
 
 
 /**
@@ -1358,15 +1372,25 @@ public class RequestFilter implements Filter
 		{
 			for (int i = 0; i < cookies.length; i++)
 			{
-				if (cookies[i].getName().equals(name))
+				Cookie cookie = cookies[i];
+
+				if (cookie.getName().equals(name))
 				{
-					// If this is NOT a terracotta cluster environment
-					// and the suffix passed in to this method is not null
-					// then only match the cookie if the end of the cookie
-					// value is equal to the suffix passed in.
-					if (isSessionClusteringEnabled() || ((suffix == null) || cookies[i].getValue().endsWith(suffix)))
-					{
-						return cookies[i];
+					// Assume valid cookie as name matches
+					Boolean validCookie = true;
+
+					// If no cluster and suffix value, we need a match for a valid cookie
+					if (!isSessionClusteringEnabled() && suffix != null) {
+						validCookie = cookie.getValue().endsWith(suffix);
+					}
+
+					// If no suffix on cookie value, throw away
+					if (suffix != null && !cookie.getValue().contains(DOT)) {
+						validCookie = false;
+					}
+
+					if (validCookie) {
+						return cookie;
 					}
 				}
 			}
