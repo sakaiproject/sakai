@@ -12534,9 +12534,9 @@ public class AssignmentAction extends PagedResourceActionII {
 
                 // Only record the default grade setting for no-submission if there were no errors produced
                 if (state.getAttribute(STATE_MESSAGE) == null) {
-                    grade = scalePointGrade(state, grade, a.getScaleFactor());
 
                     try {
+                        // Save value as input by user, not scaled
                         a.getProperties().put(GRADE_NO_SUBMISSION_DEFAULT_GRADE, grade);
                         assignmentService.updateAssignment(a);
                     } catch (PermissionException e) {
@@ -12547,6 +12547,8 @@ public class AssignmentAction extends PagedResourceActionII {
 
 
             if (grade != null && state.getAttribute(STATE_MESSAGE) == null) {
+                grade = scalePointGrade(state, grade, a.getScaleFactor());
+
                 // get the user list
                 String aRef = AssignmentReferenceReckoner.reckoner().assignment(a).reckon().getReference();
                 List<AssignmentSubmission> submissions = getFilteredSubmitters(state, aRef);
@@ -12613,9 +12615,8 @@ public class AssignmentAction extends PagedResourceActionII {
 
                 // Only record the default grade setting for no-submission if there were no errors produced
                 if (state.getAttribute(STATE_MESSAGE) == null) {
-                    grade = scalePointGrade(state, grade, a.getScaleFactor());
-
                     try {
+                        // Save value as input by user, not scaled
                         a.getProperties().put(GRADE_NO_SUBMISSION_DEFAULT_GRADE, grade);
                         assignmentService.updateAssignment(a);
                     } catch (PermissionException e) {
@@ -12626,6 +12627,8 @@ public class AssignmentAction extends PagedResourceActionII {
 
 
             if (grade != null && state.getAttribute(STATE_MESSAGE) == null) {
+                grade = scalePointGrade(state, grade, a.getScaleFactor());
+
                 // get the submission list
                 String aRef = AssignmentReferenceReckoner.reckoner().assignment(a).reckon().getReference();
                 List<AssignmentSubmission> submissions = getFilteredSubmitters(state, aRef);
