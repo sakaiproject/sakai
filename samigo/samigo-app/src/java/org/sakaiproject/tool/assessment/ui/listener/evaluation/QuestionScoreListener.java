@@ -548,22 +548,39 @@ import org.sakaiproject.util.ResourceLoader;
 				results.setItemGradingArrayList(answerList);
 				// The list is sorted by item id so that it will come back from the student in a 
 				// predictable order. This is also required by the getCalcQResult method.
-				Collections.sort(answerList, new Comparator<ItemGradingData>() {
-					public int compare(ItemGradingData i1, ItemGradingData i2) {
+				if (bean.getTypeId().equals("15")) { // CALCULATED_QUESTION
+					// list is sorted by answer id for calculated question
+					Collections.sort(answerList, new Comparator<ItemGradingData>() {
+						public int compare(ItemGradingData i1, ItemGradingData i2) {
 						if (i1 == i2) {
 							return 0;
-						}
-						else if (i1 == null || i1.getPublishedItemId() == null) {
+						} else if (i1 == null || i1.getPublishedAnswerId() == null) {
 							return -1;
-						}
-						else if (i2 == null || i2.getPublishedItemId() == null) {
+						} else if (i2 == null || i2.getPublishedAnswerId() == null) {
 							return 1;
+						} else {
+							return NumberUtils.compare(i1.getPublishedAnswerId(),i2.getPublishedAnswerId());
 						}
-						else {
+					   }
+					});
+
+				} else { // Non calculated question
+					// The list is sorted by item id so that it will come back from the student in a 
+					// predictable order. This is also required by the getCalcQResult method. 
+					Collections.sort(answerList, new Comparator<ItemGradingData>() {
+						public int compare(ItemGradingData i1, ItemGradingData i2) {
+						if (i1 == i2) {
+							return 0;
+						} else if (i1 == null || i1.getPublishedItemId() == null) {
+							return -1;
+						} else if (i2 == null || i2.getPublishedItemId() == null) {
+							return 1;
+						} else {
 							return NumberUtils.compare(i1.getPublishedItemId(),i2.getPublishedItemId());
 						}
-					}
-				});
+					   }
+					});
+				}
 				Iterator iter2 = answerList.iterator();
 				List itemGradingAttachmentList = new ArrayList();
 				Map<Long, Set<String>> fibmap = new HashMap<Long, Set<String>>();
