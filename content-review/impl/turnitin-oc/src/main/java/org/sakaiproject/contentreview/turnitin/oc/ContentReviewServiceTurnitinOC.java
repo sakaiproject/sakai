@@ -30,12 +30,14 @@ import java.util.Base64;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.SortedSet;
+import java.util.TreeSet;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -78,6 +80,7 @@ import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
+import org.sakaiproject.util.ResourceLoader;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -175,6 +178,76 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 	private Cache EULA_CACHE;
 	private static final String EULA_LATEST_KEY = "latest";
 	private static final String EULA_DEFAULT_LOCALE = "en-EN";
+	
+	
+	// Define Turnitin's acceptable file extensions and MIME types, order of these arrays DOES matter
+	private final String[] DEFAULT_ACCEPTABLE_FILE_EXTENSIONS = new String[] {
+			".pdf",
+			".doc",
+			".ppt",
+			".pps",
+			".xls",
+			".doc",
+			".docx",
+			".ppt",
+			".pptx",
+			".ppsx",
+			".pps",
+			".pptx",
+			".ppsx",
+			".xlsx",
+			".xls",
+			".ps",
+			".rtf",
+			".doc",
+			".rtf",
+			".doc",
+			".htm",
+			".html",
+			".wpd",
+			".odt",
+			".hwp",
+			".txt"
+	};
+	private final String[] DEFAULT_ACCEPTABLE_MIME_TYPES = new String[] {
+			"application/pdf",
+			"application/msword",
+			"application/vnd.ms-powerpoint",
+			"application/vnd.ms-powerpoint",
+			"application/vnd.ms-excel",
+			"application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+			"application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+			"application/vnd.openxmlformats-officedocument.presentationml.presentation",
+			"application/vnd.openxmlformats-officedocument.presentationml.presentation",
+			"application/vnd.openxmlformats-officedocument.presentationml.presentation",
+			"application/vnd.openxmlformats-officedocument.presentationml.slideshow",
+			"application/vnd.openxmlformats-officedocument.presentationml.slideshow",
+			"application/vnd.openxmlformats-officedocument.presentationml.slideshow",
+			"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+			"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+			"application/postscript",
+			"text/rtf",
+			"text/rtf",
+			"application/rtf",
+			"application/rtf",
+			"text/html",
+			"text/html",
+			"application/wordperfect",
+			"application/vnd.oasis.opendocument.text",
+			"application/x-hwp",
+			"text/plain"
+	};
+
+	// Sakai.properties overriding the arrays above
+	private final String PROP_ACCEPT_ALL_FILES = "turnitin.accept.all.files";
+
+	private final String PROP_ACCEPTABLE_FILE_EXTENSIONS = "turnitin.acceptable.file.extensions";
+	private final String PROP_ACCEPTABLE_MIME_TYPES = "turnitin.acceptable.mime.types";
+
+	// A list of the displayable file types (ie. "Microsoft Word", "WordPerfect document", "Postscript", etc.)
+	private final String PROP_ACCEPTABLE_FILE_TYPES = "turnitin.acceptable.file.types";
+
+	private final String KEY_FILE_TYPE_PREFIX = "file.type";
 
 	public void init() {
 		EULA_CACHE = memoryService.createCache("org.sakaiproject.contentreview.turnitin.oc.ContentReviewServiceTurnitinOC.LATEST_EULA_CACHE", new SimpleConfiguration<>(10000, 24 * 60 * 60, -1));
@@ -1184,15 +1257,87 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 	}
 
 	public boolean allowAllContent() {
-		return true;
+		// Turntin reports errors when content is submitted that it can't check originality against. So we will block unsupported content.
+		return serverConfigurationService.getBoolean(PROP_ACCEPT_ALL_FILES, false);
 	}
 
+	@Override
 	public Map<String, SortedSet<String>> getAcceptableExtensionsToMimeTypes() {
-		return new HashMap<String, SortedSet<String>>();
+		Map<String, SortedSet<String>> acceptableExtensionsToMimeTypes = new HashMap<>();
+		String[] acceptableFileExtensions = getAcceptableFileExtensions();
+		String[] acceptableMimeTypes = getAcceptableMimeTypes();
+		int min = Math.min(acceptableFileExtensions.length, acceptableMimeTypes.length);
+		for (int i = 0; i < min; i++) {
+			appendToMap(acceptableExtensionsToMimeTypes, acceptableFileExtensions[i], acceptableMimeTypes[i]);
+		}
+
+		return acceptableExtensionsToMimeTypes;
 	}
 
+	@Override
 	public Map<String, SortedSet<String>> getAcceptableFileTypesToExtensions() {
-		return new HashMap<String, SortedSet<String>>();
+		Map<String, SortedSet<String>> acceptableFileTypesToExtensions = new LinkedHashMap<>();
+		String[] acceptableFileTypes = getAcceptableFileTypes();
+		String[] acceptableFileExtensions = getAcceptableFileExtensions();
+		if (acceptableFileTypes != null && acceptableFileTypes.length > 0) {
+			// The acceptable file types are listed in sakai.properties. Sakai.properties takes precedence.
+			int min = Math.min(acceptableFileTypes.length, acceptableFileExtensions.length);
+			for (int i = 0; i < min; i++) {
+				appendToMap(acceptableFileTypesToExtensions, acceptableFileTypes[i], acceptableFileExtensions[i]);
+			}
+		}
+		else {
+			/*
+			 * acceptableFileTypes not specified in sakai.properties (this is normal).
+			 * Use ResourceLoader to resolve the file types.
+			 * If the resource loader doesn't find the file extenions, log a warning and return the [missing key...] messages
+			 */
+			ResourceLoader resourceLoader = new ResourceLoader("turnitin");
+			for( String fileExtension : acceptableFileExtensions ) {
+				String key = KEY_FILE_TYPE_PREFIX + fileExtension;
+				if (!resourceLoader.getIsValid(key)) {
+					log.warn("While resolving acceptable file types for Turnitin, the sakai.property " + PROP_ACCEPTABLE_FILE_TYPES + " is not set, and the message bundle " + key + " could not be resolved. Displaying [missing key ...] to the user");
+				}
+				String fileType = resourceLoader.getString(key);
+				appendToMap( acceptableFileTypesToExtensions, fileType, fileExtension );
+			}
+		}
+
+		return acceptableFileTypesToExtensions;
+	}
+	
+	public String[] getAcceptableFileExtensions() {
+		String[] extensions = serverConfigurationService.getStrings(PROP_ACCEPTABLE_FILE_EXTENSIONS);
+		if (extensions != null && extensions.length > 0) {
+			return extensions;
+		}
+		return DEFAULT_ACCEPTABLE_FILE_EXTENSIONS;
+	}
+	
+	public String[] getAcceptableMimeTypes() {
+		String[] mimeTypes = serverConfigurationService.getStrings(PROP_ACCEPTABLE_MIME_TYPES);
+		if (mimeTypes != null && mimeTypes.length > 0) {
+			return mimeTypes;
+		}
+		return DEFAULT_ACCEPTABLE_MIME_TYPES;
+	}
+	
+	public String [] getAcceptableFileTypes() {
+		return serverConfigurationService.getStrings(PROP_ACCEPTABLE_FILE_TYPES);
+	}
+	
+	/**
+	 * Inserts (key, value) into a Map<String, Set<String>> such that value is inserted into the value Set associated with key.
+	 * The value set is implemented as a TreeSet, so the Strings will be in alphabetical order
+	 * Eg. if we insert (a, b) and (a, c) into map, then map.get(a) will return {b, c}
+	 */
+	private void appendToMap(Map<String, SortedSet<String>> map, String key, String value) {
+		SortedSet<String> valueList = map.get(key);
+		if (valueList == null) {
+			valueList = new TreeSet<>();
+			map.put(key, valueList);
+		}
+		valueList.add(value);
 	}
 
 	private String getNormalizedServiceUrl() {
