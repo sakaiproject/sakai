@@ -46,7 +46,9 @@
       <samigo:script path="/jsf/widget/colorpicker/colorpicker.js"/>
       <samigo:script path="/../library/js/lang-datepicker/lang-datepicker.js"/>
       <samigo:script path="/js/authoring.js"/>
-      
+
+      <script type="text/JavaScript">includeWebjarLibrary('bootstrap-multiselect');</script>
+
       <script type="text/javascript">
         $(document).ready(function() {
           // set up the accordion for settings
@@ -173,7 +175,38 @@
           initTimedCheckBox();
           checkUncheckTimeBox();
           checkLastHandling();
+
+          <!--Initialize bootstrap multiselect-->
+          $("#assessmentSettingsAction\\:groupsForSite").attr("multiple", "multiple");
+
+          var divElem = document.createElement('div');
+          var filterPlaceholder = <h:outputText value="'#{assessmentSettingsMessages.multiselect_filterPlaceholder}'" />;
+          divElem.innerHTML = filterPlaceholder;
+          filterPlaceholder = divElem.textContent;
+          var selectAllText = <h:outputText value="'#{assessmentSettingsMessages.select_all_groups}'" />;
+          divElem.innerHTML = selectAllText;
+          selectAllText = divElem.textContent;
+          var nonSelectedText = <h:outputText value="'#{assessmentSettingsMessages.multiselect_nonSelectedText}'" />;
+          divElem.innerHTML = nonSelectedText;
+          nonSelectedText = divElem.textContent;
+          var allSelectedText = <h:outputText value="'#{assessmentSettingsMessages.multiselect_allSelectedText}'" />;
+          divElem.innerHTML = allSelectedText;
+          allSelectedText = divElem.textContent;
+          var nSelectedText = <h:outputText value="'#{assessmentSettingsMessages.multiselect_nSelectedText}'" />;
+          divElem.innerHTML = nSelectedText;
+          nSelectedText = divElem.textContent;
+          $("#assessmentSettingsAction\\:groupsForSite").multiselect({
+              enableFiltering: true,
+              enableCaseInsensitiveFiltering: true,
+              includeSelectAllOption: true,
+              filterPlaceholder: filterPlaceholder,
+              selectAllText: selectAllText,
+              nonSelectedText: nonSelectedText,
+              allSelectedText: allSelectedText,
+              nSelectedText: nSelectedText
+          });
         });
+
         function expandAccordion(iframId){
 			$('.ui-accordion-content').show();
 			mySetMainFrameHeight(iframId);
@@ -342,11 +375,9 @@
   </div>
 
   <div id="groupDiv" class="groupTable">
-    <h:selectBooleanCheckbox id="checkUncheckAllReleaseGroups" onclick="checkUncheckAllReleaseGroups();"/>
-    <h:outputText value="#{assessmentSettingsMessages.select_all_groups}" />
-    <h:selectManyCheckbox id="groupsForSite" layout="pagedirection" value="#{assessmentSettings.groupsAuthorized}">
+    <h:selectManyListbox id="groupsForSite" value="#{assessmentSettings.groupsAuthorized}">
       <f:selectItems value="#{assessmentSettings.groupsForSite}" />
-    </h:selectManyCheckbox>
+    </h:selectManyListbox>
   </div>
 
   <!-- NUMBER OF SUBMISSIONS -->
