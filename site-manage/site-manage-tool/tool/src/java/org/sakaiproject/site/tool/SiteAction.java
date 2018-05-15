@@ -4813,11 +4813,11 @@ public class SiteAction extends PagedResourceActionII {
 		// read the search form field into the state object
 		String search = StringUtils.trimToNull(Validator.escapeHtml(data.getParameters().getString(FORM_SEARCH)));
 
-		// set the flag to go to the prev page on the next list
-		if (StringUtils.isNotBlank(search)) {
+		// If there is no search term provided, remove any previous search term from state
+		if (StringUtils.isBlank(search)) {
 			state.removeAttribute(SITE_USER_SEARCH);
 		} else {
-			//search item is present, if the result was paged clear the top position from the state
+			// Search term is present, reset the paging and set the search term in state
 			resetPaging(state);
 			state.setAttribute(SITE_USER_SEARCH, search);
 		}
