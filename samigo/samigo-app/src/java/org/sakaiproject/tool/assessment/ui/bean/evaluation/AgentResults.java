@@ -228,7 +228,7 @@ public class AgentResults
     this.forGrade = forGrade;
   }
   public String getTotalAutoScore() {
-    return getRoundedTotalAutoScore();
+    return getExactTotalAutoScore();
   }
   
   public String getExactTotalAutoScore() {

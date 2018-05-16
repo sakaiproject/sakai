@@ -379,7 +379,7 @@ public class DeliveryBeanie
 
   public String getRoundedRawScore() {
    try {
-      String newscore= ContextUtil.getRoundedValue(rawScore, 2);
+      String newscore=rawScore;
       return Validator.check(newscore, "N/A");
     }
     catch (Exception e) {
@@ -387,6 +387,17 @@ public class DeliveryBeanie
       return Validator.check(rawScore, "0");
     }
 
+  }
+  
+  public String getRoundedRawScoreToDisplay() {
+	try {
+	  String newscore= ContextUtil.getRoundedValue(rawScore, 2);	      
+	  return Validator.check(newscore, "N/A");
+	}
+	catch (Exception e) {
+	  // encountered some weird number format/locale
+	  return Validator.check(rawScore, "0");
+	}
   }
 
   public String getSubmissionDateString()

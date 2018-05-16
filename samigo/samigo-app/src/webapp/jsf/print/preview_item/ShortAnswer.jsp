@@ -34,7 +34,10 @@ should be included in file importing DeliveryMessages
   
   <h:panelGroup styleClass="answerBlock" rendered="#{printSettings.showKeys || printSettings.showKeysFeedback}">
     <h:outputLabel value="#{printMessages.answer_point}: "/>
-  	<h:outputText escape="false" value="#{question.itemData.score} #{authorMessages.points_lower_case}" />
+    <h:outputText value="#{question.itemData.score}">
+        <f:convertNumber maxFractionDigits="2"/>
+    </h:outputText>
+    <h:outputText escape="false" value=" #{authorMessages.points_lower_case}" />
   	<h:outputText value="<br />" escape="false" />
     <h:outputLabel value="#{printMessages.answer_model}: "/>
     <h:outputText rendered="#{question.key != null && question.key != '' && question.key != 'null'}" escape="false" value="#{question.key}" />
