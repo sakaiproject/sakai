@@ -423,7 +423,7 @@ public class ExportResponsesBean implements Serializable, PhaseAware {
 						}
 						if (data != null) {
 							if (data instanceof Double) {
-								cell.setCellValue((Double)data);
+								cell.setCellValue(ContextUtil.getRoundedValue(((Double)data).doubleValue(), 2));
 							} else if (data instanceof Date) {
 								// tell Excel this is a date
 								CellStyle style = wb.createCellStyle();
