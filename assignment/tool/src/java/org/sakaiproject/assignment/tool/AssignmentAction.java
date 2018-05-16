@@ -4953,13 +4953,13 @@ public class AssignmentAction extends PagedResourceActionII {
                                         Long associateGradebookAssignmentId = gradebookService.getAssignment(gradebookUid, associateGradebookAssignment).getId();
                                         // the associated assignment is internal one, update records one by one
                                         for (Map.Entry<String, String> entry : sm.entrySet()) {
-                                            String submitterId = (String) entry.getKey();
-                                            String grade = StringUtils.trimToNull(displayGrade(state, (String) sm.get(submitterId), a.getScaleFactor()));
-                                            if (grade != null) {
-                                                gradebookService.setAssignmentScoreString(gradebookUid, associateGradebookAssignmentId, submitterId, grade, "");
-                                                String comment = StringUtils.isNotEmpty(cm.get(submitterId)) ? cm.get(submitterId) : "";
-                                                gradebookService.setAssignmentScoreComment(gradebookUid, associateGradebookAssignmentId, submitterId, comment);
-                                            }
+                                        	String submitterId = (String) entry.getKey();
+                                        	String grade = StringUtils.trimToNull(displayGrade(state, (String) sm.get(submitterId), a.getScaleFactor()));
+                                        	if (grade != null && gradebookService.isUserAbleToGradeItemForStudent(gradebookUid, associateGradebookAssignmentId, submitterId)) {
+                                        		gradebookService.setAssignmentScoreString(gradebookUid, associateGradebookAssignmentId, submitterId, grade, "");
+                                        		String comment = StringUtils.isNotEmpty(cm.get(submitterId)) ? cm.get(submitterId) : "";
+                                        		gradebookService.setAssignmentScoreComment(gradebookUid, associateGradebookAssignmentId, submitterId, comment);
+                                        	}
                                         }
                                     }
                                 } else if (isExternalAssignmentDefined) {
@@ -4986,12 +4986,15 @@ public class AssignmentAction extends PagedResourceActionII {
                                             gradebookExternalAssessmentService.updateExternalAssessmentComment(gradebookUid, associateGradebookAssignment, submitter.getSubmitter(),
                                                     (commentString != null && aSubmission.getGradeReleased()) ? commentString : "");
                                         } else if (gradebookService.isAssignmentDefined(gradebookUid, associateGradebookAssignment)) {
-                                            Long associateGradebookAssignmentId = gradebookService.getAssignment(gradebookUid, associateGradebookAssignment).getId();
-                                            // the associated assignment is internal one, update records
-                                            gradebookService.setAssignmentScoreString(gradebookUid, associateGradebookAssignmentId, submitter.getSubmitter(),
-                                                    (gradeStringToUse != null && aSubmission.getGradeReleased()) ? gradeStringToUse : "", "");
-                                            gradebookService.setAssignmentScoreComment(gradebookUid, associateGradebookAssignmentId, submitter.getSubmitter(),
-                                                    (commentString != null && aSubmission.getGradeReleased()) ? commentString : "");
+                                        	// the associated assignment is internal one, update records
+                                        	final Long associateGradebookAssignmentId = gradebookService.getAssignment(gradebookUid, associateGradebookAssignment).getId();
+                                        	final String submitterId = submitter.getSubmitter();
+                                        	if (gradebookService.isUserAbleToGradeItemForStudent(gradebookUid, associateGradebookAssignmentId, submitterId)) {
+                                        		gradebookService.setAssignmentScoreString(gradebookUid, associateGradebookAssignmentId, submitterId,
+                                        				(gradeStringToUse != null && aSubmission.getGradeReleased()) ? gradeStringToUse : "", "");
+                                        		gradebookService.setAssignmentScoreComment(gradebookUid, associateGradebookAssignmentId, submitterId,
+                                        				(commentString != null && aSubmission.getGradeReleased()) ? commentString : "");
+                                        	}
                                         }
                                     } else {
                                         gradebookExternalAssessmentService.updateExternalAssessmentScore(gradebookUid, assignmentRef, submitter.getSubmitter(),
@@ -5025,7 +5028,11 @@ public class AssignmentAction extends PagedResourceActionII {
                                             // if the old associated assignment is an external maintained one
                                             gradebookExternalAssessmentService.updateExternalAssessmentScore(gradebookUid, associateGradebookAssignment, submitters[i].getId(), null);
                                         } else if (isAssignmentDefined) {
-                                            gradebookService.setAssignmentScoreString(gradebookUid, associateGradebookAssignment, submitters[i].getId(), "0", assignmentToolTitle);
+                                        	final String submitterId = submitters[i].getId();
+                                        	final Long associateGradebookAssignmentId = gradebookService.getAssignment(gradebookUid, associateGradebookAssignment).getId();
+                                        	if (gradebookService.isUserAbleToGradeItemForStudent(gradebookUid, associateGradebookAssignmentId, submitterId)) {
+                                        		gradebookService.setAssignmentScoreString(gradebookUid, associateGradebookAssignmentId, submitterId, "0", assignmentToolTitle);
+                                        	}
                                         }
                                     }
                                 }
@@ -5043,13 +5050,16 @@ public class AssignmentAction extends PagedResourceActionII {
                                     }
                                 }).filter(Objects::nonNull).toArray(User[]::new);
                                 for (int i = 0; submitters != null && i < submitters.length; i++) {
-
                                     if (isExternalAssociateAssignmentDefined) {
                                         // external assignment
                                         gradebookExternalAssessmentService.updateExternalAssessmentScore(gradebookUid, assignmentRef, submitters[i].getId(), null);
                                     } else if (isAssignmentDefined) {
-                                        // gb assignment
-                                        gradebookService.setAssignmentScoreString(gradebookUid, associateGradebookAssignment, submitters[i].getId(), "0", "");
+                                    	// gb assignment
+                                    	final String submitterId = submitters[i].getId();
+                                    	final Long associateGradebookAssignmentId = gradebookService.getAssignment(gradebookUid, associateGradebookAssignment).getId();
+                                    	if (gradebookService.isUserAbleToGradeItemForStudent(gradebookUid, associateGradebookAssignmentId, submitterId)) {
+                                    		gradebookService.setAssignmentScoreString(gradebookUid, associateGradebookAssignmentId, submitterId, "0", "");
+                                    	}
                                     }
                                 }
                             }
