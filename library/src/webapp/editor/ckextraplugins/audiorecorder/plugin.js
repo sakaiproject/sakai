@@ -115,7 +115,9 @@ CKEDITOR.plugins.add( 'audiorecorder',
 				onHide : function () {
 					var editor = this._.editor;
 					//Try to stop the recording and update the iframe when the dialog is closed
-					audioiframe = tab1window.stopRecording();
+					$("#audio-stop").each(function() {
+						$(this).click();
+					});
                     // If there's no URL, just stop entirely
 					txtUrl = tab1doc.getElementById('txtUrl').value;
 					if(txtUrl === undefined || txtUrl.length == 0) {
