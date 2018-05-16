@@ -248,7 +248,7 @@ public class ItemBean
    */
   public double getItemScore()
   {
-    return Precision.round(itemScore, 2);
+    return itemScore;
   }
 
   /**
@@ -266,7 +266,7 @@ public class ItemBean
    */
   public double getItemDiscount()
   {
-    return Precision.round(itemDiscount, 2);
+    return itemDiscount;
   }
 
   /**

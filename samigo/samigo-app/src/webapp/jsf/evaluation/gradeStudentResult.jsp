@@ -170,7 +170,10 @@ function toPoint(id)
        #{part.questions-part.unansweredQuestions}#{evaluationMessages.splash}#{part.questions} #{deliveryMessages.ans_q}, #{part.pointsDisplayString} #{part.roundedMaxPoints} #{deliveryMessages.pt}" > 
         <t:dataList layout="unorderedList" itemStyleClass="list-group-item" styleClass="list-group question-wrapper" value="#{part.itemContents}" var="question">
                 <span class="badge">
-                  <h:outputText escape="false" value="#{question.roundedMaxPoints} #{deliveryMessages.pt} "/>
+                  <h:outputText escape="false" value="#{question.roundedMaxPoints}">
+                    <f:convertNumber maxFractionDigits="2"/>
+                  </h:outputText>
+                  <h:outputText escape="false" value=" #{deliveryMessages.pt} "/>
                 </span>
                 <h:outputLink value="##{part.number}#{deliveryMessages.underscore}#{question.number}"> 
                   <h:outputText escape="false" value="#{question.number}#{deliveryMessages.dot} #{question.strippedText}"/>
@@ -208,7 +211,7 @@ function toPoint(id)
               <f:validateDoubleRange/>
             </h:inputText>
             <span class="input-group-addon">
-            <h:outputText value=" #{deliveryMessages.splash} #{question.roundedMaxPoints} " />
+            <h:outputText value=" #{deliveryMessages.splash} #{question.roundedMaxPointsToDisplay} " />
             <h:outputText value="#{deliveryMessages.pt}"/>
             </span>
             <h:message for="adjustedScore" style="color:red"/>
