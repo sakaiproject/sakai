@@ -51,8 +51,6 @@
 <f:verbatim></div></f:verbatim>
 
 <f:verbatim>
-<div id="audio-posting" style="display:none"></f:verbatim><h:outputFormat value=" #{deliveryMessages.audio_recorder_posting}" /><f:verbatim></div>
-<div id="audio-finished" style="display:none"></f:verbatim><h:outputFormat value=" #{deliveryMessages.audio_recorder_complete}" /><f:verbatim></div>
 <div id="audio-browser-plea" style="display:none"></f:verbatim><h:outputFormat value=" #{deliveryMessages.audio_recorder_browser_plea}" /><f:verbatim></div>
 <div id="flashrecarea"> </div>
 <div id="audio-visual-container">
@@ -66,10 +64,10 @@
       <div id="audio-scrubber"> </div>
       <span id="audio-max-time">30</span>
     </div>
-    <button id="audio-record" onclick="startRecording(this);"></f:verbatim><h:outputFormat value=" #{deliveryMessages.audio_recorder_record}" /><f:verbatim></button>
-    <button id="audio-stop"   onclick="stopRecording(this);" disabled></f:verbatim><h:outputFormat value=" #{deliveryMessages.audio_recorder_stop}" /><f:verbatim></button>
-    <button id="audio-play" onclick="playRecording(this);" disabled></f:verbatim><h:outputFormat value=" #{deliveryMessages.audio_recorder_play}" /><f:verbatim></button>
-    <button id="audio-upload" onclick="postDataToServer(this);" disabled></f:verbatim><h:outputFormat value=" #{deliveryMessages.audio_recorder_post}" /><f:verbatim></button>
+    <button id="audio-record"></f:verbatim><h:outputFormat value=" #{deliveryMessages.audio_recorder_record}" /><f:verbatim></button>
+    <button id="audio-stop" disabled></f:verbatim><h:outputFormat value=" #{deliveryMessages.audio_recorder_stop}" /><f:verbatim></button>
+    <button id="audio-play" disabled></f:verbatim><h:outputFormat value=" #{deliveryMessages.audio_recorder_play}" /><f:verbatim></button>
+    <button id="audio-upload" disabled></f:verbatim><h:outputFormat value=" #{deliveryMessages.audio_recorder_post}" /><f:verbatim></button>
   </div>
 
   <%-- SAM-2317 We're going to keep the mic check hidden until more browsers support it --%>

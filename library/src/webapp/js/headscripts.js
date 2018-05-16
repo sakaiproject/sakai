@@ -773,6 +773,10 @@ function includeWebjarLibrary(library) {
         document.write('\x3Cscript type="text/javascript" src="' + webjars + 'jquery.tablesorter/' + libraryVersion + '/dist/js/extras/jquery.metadata.min.js' + ver + '">' + '\x3C/script>');
         document.write('\x3Clink rel="stylesheet" href="' + webjars + 'jquery.tablesorter/' + libraryVersion + '/dist/css/theme.jui.min.css' + ver + '"/>');
         document.write('\x3Clink rel="stylesheet" href="' + webjars + 'jquery.tablesorter/' + libraryVersion + '/dist/css/jquery.tablesorter.pager.min.css' + ver + '"/>');
+	} else if (library == 'featherlight') {
+		libraryVersion = "1.7.13";
+		document.write('\x3Cscript type="text/javascript" src="' + webjars + 'featherlight/src/featherlight.js' + ver + '">' + '\x3C/script>');
+		document.write('\x3Clink rel="stylesheet" href="' + webjars + 'featherlight/src/featherlight.css' + ver + '"/>');
 	} else {
 		if (library.endsWith(".js")) {
 			document.write('\x3Cscript type="text/javascript" src="' + webjars + library + ver + '">' + '\x3C/script>');
