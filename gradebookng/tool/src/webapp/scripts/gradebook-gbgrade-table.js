@@ -629,7 +629,12 @@ GbGradeTable.renderTable = function (elementId, tableData) {
   };
 
   GbGradeTable.calculateIdealWidth = function() {
-    return MorpheusViewportHelper.isPhone() ? $("#pageBody").width() - 40 : $("#pageBody").width() - $("#toolMenuWrap").width() - 60;
+    if (GbGradeTable.columns.length > 0) {
+        return MorpheusViewportHelper.isPhone() ? $("#pageBody").width() - 40 : $("#pageBody").width() - $("#toolMenuWrap").width() - 60;
+    }
+
+    var scrollbarWidth = GbGradeTable.students.length > 0 ? 16 : 0;
+    return GbGradeTable.getColumnWidths().reduce(function (acc, cur) { return acc + cur; }, 0) + scrollbarWidth;
   };
 
   GbGradeTable.instance = new Handsontable(document.getElementById(elementId), {
@@ -735,7 +740,7 @@ GbGradeTable.renderTable = function (elementId, tableData) {
       // show visual cue that columns are hidden
       // check for last of the fixed columns
       if (col == GbGradeTable.FIXED_COLUMN_OFFSET - 1) { //GbGradeTable.instance.getSettings().fixedColumnsLeft - 1) {
-        if (GbGradeTable.columns[0].hidden &&
+        if (GbGradeTable.columns[0] && GbGradeTable.columns[0].hidden &&
             $th.find(".gb-hidden-column-visual-cue").length == 0) {
           $th.find(".relative").append("<a href='javascript:void(0);' class='gb-hidden-column-visual-cue'></a>");
         }
