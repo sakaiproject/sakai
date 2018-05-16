@@ -373,7 +373,8 @@
 							<f:facet name="header">
 								<h:outputText value="#{msgs.tab_event_remove}" escape="false"/>
 							</f:facet>
-							<h:selectBooleanCheckbox value="#{wrapper.selected}" rendered="#{wrapper.meeting.permission.delete}" onclick="determineDeleteMessage(this, #{wrapper.recurEventsSize >1});"/>							
+							<h:outputLabel for="eventRemove" value="#{msgs.tab_event_remove} - #{wrapper.meeting.title}" styleClass="sr-only" escape="false"/>
+							<h:selectBooleanCheckbox id="eventRemove" value="#{wrapper.selected}" rendered="#{wrapper.meeting.permission.delete}" onclick="determineDeleteMessage(this, #{wrapper.recurEventsSize >1});"/>							
 						</t:column>				
 						
 					</t:dataTable></div>
