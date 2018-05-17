@@ -39,12 +39,19 @@ import org.sakaiproject.assignment.impl.conversion.O11AssignmentContent;
 import org.sakaiproject.assignment.impl.conversion.O11Submission;
 import org.sakaiproject.assignment.api.persistence.AssignmentRepository;
 import org.sakaiproject.component.api.ServerConfigurationService;
+import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.hibernate.AssignableUUIDGenerator;
+import org.sakaiproject.site.api.Group;
+import org.sakaiproject.authz.api.Member;
+import org.sakaiproject.authz.api.Role;
+import org.sakaiproject.site.api.Site;
+import org.sakaiproject.site.api.SiteService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.AbstractTransactionalJUnit4SpringContextTests;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.util.ReflectionTestUtils;
+import static org.sakaiproject.assignment.api.AssignmentServiceConstants.*;
 
 @Slf4j
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -63,6 +70,7 @@ public class AssignmentConversionTest extends AbstractTransactionalJUnit4SpringC
     @Autowired private AssignmentConversionService conversion;
     @Autowired private AssignmentRepository assignmentRepository;
     @Autowired private ServerConfigurationService serviceConfigurationService;
+    @Autowired private SiteService siteService;
 
     private AssignmentDataProvider mockDataProvider;
 
@@ -74,6 +82,41 @@ public class AssignmentConversionTest extends AbstractTransactionalJUnit4SpringC
                 .thenReturn(new String[] {"org.sakaiproject.assignment.api.model.Assignment", "org.sakaiproject.assignment.api.model.AssignmentSubmission"});
         Mockito.when(serviceConfigurationService.getConfigItem(AssignableUUIDGenerator.HIBERNATE_ASSIGNABLE_ID_CLASSES)).thenReturn(null);
         AssignableUUIDGenerator.setServerConfigurationService(serviceConfigurationService);
+        try {
+            Site site = (Site) Mockito.mock(Site.class);
+            Mockito.when(siteService.getSite("2614_G_2015_N_N")).thenReturn(site);
+            Group group1 = (Group) Mockito.mock(Group.class);
+            Mockito.when(site.getGroup("3d53024d-0f55-44fc-b1dc-acc03ff53b2b")).thenReturn(group1);
+            Group group2 = (Group) Mockito.mock(Group.class);
+            Mockito.when(site.getGroup("53453ae9-afa2-4983-996b-aeda741bf14b")).thenReturn(group2);
+            Role student = (Role) Mockito.mock(Role.class);
+            Mockito.when(student.isAllowed(SECURE_ADD_ASSIGNMENT)).thenReturn(false);
+            Mockito.when(student.isAllowed(SECURE_GRADE_ASSIGNMENT_SUBMISSION)).thenReturn(false);
+            Role instructor = (Role) Mockito.mock(Role.class);
+            Mockito.when(instructor.isAllowed(SECURE_ADD_ASSIGNMENT)).thenReturn(true);
+            Mockito.when(instructor.isAllowed(SECURE_GRADE_ASSIGNMENT_SUBMISSION)).thenReturn(true);
+            Set<Member> members = new HashSet<>();
+            Member m1 = (Member) Mockito.mock(Member.class);
+            members.add(m1);
+            Mockito.when(m1.getRole()).thenReturn(student);
+            Mockito.when(m1.getUserId()).thenReturn("bd67eb80-721c-44dd-9fee-599be7086ad4");
+            Member m2 = (Member) Mockito.mock(Member.class);
+            members.add(m2);
+            Mockito.when(m2.getRole()).thenReturn(student);
+            Mockito.when(m2.getUserId()).thenReturn("cef95910-fbd7-4e3c-bdb9-623061c23686");
+            Member m3 = (Member) Mockito.mock(Member.class);
+            members.add(m3);
+            Mockito.when(m3.getRole()).thenReturn(student);
+            Mockito.when(m3.getUserId()).thenReturn("97597bf2-80b1-41ee-a298-d4e0944dc9dc");
+            Member m4 = (Member) Mockito.mock(Member.class);
+            members.add(m4);
+            Mockito.when(m4.getRole()).thenReturn(instructor);
+            Mockito.when(m4.getUserId()).thenReturn("aaa7eb80-721c-44dd-9fee-599be7086ad4");
+            Mockito.when(group1.getMembers()).thenReturn(members);
+            Mockito.when(group2.getMembers()).thenReturn(members);
+        } catch (IdUnusedException iue) {
+            log.warn("IdUnusedException: ",iue);
+        }
     }
 
     @Test
@@ -452,6 +495,152 @@ public class AssignmentConversionTest extends AbstractTransactionalJUnit4SpringC
         );
     }
 
+    @Test
+    public void incompleteAssignmentConversion() {
+        List<String> aList = Arrays.asList("0fe0293a-dbd4-4f8c-ba12-cbb60c3d88b5");
+        String aXml = readResourceToString("/incomplete_asn.xml");
+        String cXml = readResourceToString("/incomplete_asn_content.xml");
+        List<String> sXml = Arrays.asList(new String[] {
+        		readResourceToString("/incomplete_asn_submission1.xml"),
+        		readResourceToString("/incomplete_asn_submission0.xml"),
+        		readResourceToString("/incomplete_asn_submission2.xml")});
+
+        Mockito.when(mockDataProvider.fetchAssignmentsToConvert()).thenReturn(aList);
+        Mockito.when(mockDataProvider.fetchAssignment("0fe0293a-dbd4-4f8c-ba12-cbb60c3d88b5")).thenReturn(aXml);
+        Mockito.when(mockDataProvider.fetchAssignmentContent("0fd801dc-91a8-46d5-80f4-5964a7a4360c")).thenReturn(cXml);
+        Mockito.when(mockDataProvider.fetchAssignmentSubmissions("0fe0293a-dbd4-4f8c-ba12-cbb60c3d88b5")).thenReturn(sXml);
+
+        conversion.runConversion(0, 0);
+
+        Map<String, String> assignmentPropertiesToCheck = new HashMap<>();
+        assignmentPropertiesToCheck.put("CHEF:creator", AssignmentConversionServiceImpl.decodeBase64("MDBkNGE4NDAtMDEyYy00NzQ5LWJlNjUtNmJmYzM0ODA2NTE1"));
+        assignmentPropertiesToCheck.put("CHEF:modifiedby", AssignmentConversionServiceImpl.decodeBase64("MDBkNGE4NDAtMDEyYy00NzQ5LWJlNjUtNmJmYzM0ODA2NTE1"));
+        assignmentPropertiesToCheck.put("new_assignment_add_to_gradebook", AssignmentConversionServiceImpl.decodeBase64("bm8="));
+        assignmentPropertiesToCheck.put("assignment_releasereturn_notification_value", AssignmentConversionServiceImpl.decodeBase64("YXNzaWdubWVudF9yZWxlYXNlcmV0dXJuX25vdGlmaWNhdGlvbl9ub25l"));
+        assignmentPropertiesToCheck.put("DAV:getlastmodified", AssignmentConversionServiceImpl.decodeBase64("MjAxNTEwMTgyMTA3Mjk3NTA="));
+        assignmentPropertiesToCheck.put("prop_new_assignment_add_to_gradebook", null);
+        assignmentPropertiesToCheck.put("DAV:creationdate", AssignmentConversionServiceImpl.decodeBase64("MjAxNTEwMTgxOTQxMTkxMDE="));
+        assignmentPropertiesToCheck.put("new_assignment_check_auto_announce", AssignmentConversionServiceImpl.decodeBase64("ZmFsc2U="));
+        assignmentPropertiesToCheck.put("new_assignment_check_add_due_date", AssignmentConversionServiceImpl.decodeBase64("ZmFsc2U="));
+        assignmentPropertiesToCheck.put("assignment_releasegrade_notification_value", AssignmentConversionServiceImpl.decodeBase64("YXNzaWdubWVudF9yZWxlYXNlZ3JhZGVfbm90aWZpY2F0aW9uX25vbmU="));
+        assignmentPropertiesToCheck.put("assignment_instructor_notifications_value", AssignmentConversionServiceImpl.decodeBase64("YXNzaWdubWVudF9pbnN0cnVjdG9yX25vdGlmaWNhdGlvbnNfZWFjaA=="));
+        assignmentPropertiesToCheck.put("new_assignment_check_anonymous_grading", null);
+
+        Set<String> attachmentsToCheck = new HashSet<>();
+        attachmentsToCheck.add("/content/attachment/2614_G_2015_N_N/Tareas/6bad591a-b529-4a8d-89e0-fbe41e069589/Tareas para grupos de Seminario S1.pdf");
+
+        Set<String> groupsToCheck = new HashSet<>();
+        groupsToCheck.add("/site/2614_G_2015_N_N/group/3d53024d-0f55-44fc-b1dc-acc03ff53b2b");
+        groupsToCheck.add("/site/2614_G_2015_N_N/group/53453ae9-afa2-4983-996b-aeda741bf14b");
+
+        assignmentVerification(
+                "0fe0293a-dbd4-4f8c-ba12-cbb60c3d88b5",
+                true,
+                false,
+                "20151031225500000",
+                false,
+                "2614_G_2015_N_N",
+                "20151018194119092",
+                "20151018194119092",
+                false,
+                "20151030225500000",
+                "20151030225500000",
+                false,
+                false,
+                false,
+                AssignmentConversionServiceImpl.decodeBase64("PHA+R3JvdXAgQXNzaWdubWVudCBGb3IgR3JvdXBzPC9wPiAgPHA+U2luZ2xlIHN1Ym1pc3Npb24gZm9yIGdyb3VwcyBSZWQgR3JlZW4gYW5kIEJsdWUuPC9wPg=="),
+                true,
+                0,
+                "20151018100000000",
+                true,
+                null,
+                "20151025161000000",
+                1,
+                true,
+                0,
+                false,
+                10,
+                null,
+                "Group Assignment For Groups",
+                Assignment.Access.GROUP,
+                Assignment.GradeType.UNGRADED_GRADE_TYPE,
+                Assignment.SubmissionType.TEXT_AND_ATTACHMENT_ASSIGNMENT_SUBMISSION,
+                null,
+                groupsToCheck,
+                attachmentsToCheck,
+                assignmentPropertiesToCheck
+        );
+
+        Set<String> submissionAttachmentsToCheck = new HashSet<>();
+        submissionAttachmentsToCheck.add("/content/attachment/2614_G_2015_N_N/Assignments/76907fe8-d843-4397-9d16-3b0c73d25553/Intervención quirúrgica. S1 G1.docx");
+
+        Map<String, String> submissionPropertiesToCheck = new HashMap<>();
+        submissionPropertiesToCheck.put("CHEF:creator", AssignmentConversionServiceImpl.decodeBase64("YmQ2N2ViODAtNzIxYy00NGRkLTlmZWUtNTk5YmU3MDg2YWQ0"));
+        submissionPropertiesToCheck.put("CHEF:modifiedby", AssignmentConversionServiceImpl.decodeBase64("YmQ2N2ViODAtNzIxYy00NGRkLTlmZWUtNTk5YmU3MDg2YWQ0"));
+        submissionPropertiesToCheck.put("DAV:getlastmodified", AssignmentConversionServiceImpl.decodeBase64("MjAxNTEwMzAxMzAyMDg0ODM="));
+        submissionPropertiesToCheck.put("DAV:creationdate", AssignmentConversionServiceImpl.decodeBase64("MjAxNTEwMzAxMzAyMDgxMzk="));
+
+        Map<String, String> submissionPropertiesToCheck2 = new HashMap<>();
+        submissionPropertiesToCheck2.put("CHEF:creator", AssignmentConversionServiceImpl.decodeBase64("Y2VmOTU5MTAtZmJkNy00ZTNjLWJkYjktNjIzMDYxYzIzNjg2"));
+        submissionPropertiesToCheck2.put("CHEF:modifiedby", AssignmentConversionServiceImpl.decodeBase64("Y2VmOTU5MTAtZmJkNy00ZTNjLWJkYjktNjIzMDYxYzIzNjg2"));
+        submissionPropertiesToCheck2.put("DAV:getlastmodified", AssignmentConversionServiceImpl.decodeBase64("MjAxNTEwMzAxNDM5MjAyMzA="));
+        submissionPropertiesToCheck2.put("DAV:creationdate", AssignmentConversionServiceImpl.decodeBase64("MjAxNTEwMzAxNDM5MTk5NTE="));
+        
+        Set<String> submittersToCheck = new HashSet<>();
+        submittersToCheck.add("bd67eb80-721c-44dd-9fee-599be7086ad4");
+        submittersToCheck.add("cef95910-fbd7-4e3c-bdb9-623061c23686");
+        submittersToCheck.add("97597bf2-80b1-41ee-a298-d4e0944dc9dc");
+
+        submissionVerification(
+                "631c4955-8f90-486d-bf26-e6987f8a1af2",
+                "20151030130208483",
+                null,
+                "20151030130208481",
+                null,
+                null,
+                null,
+                false,
+                null,
+                false,
+                false,
+                false,
+                false,
+                true,
+                AssignmentConversionServiceImpl.decodeBase64("PHA+MjAwMjQxMjI2IGFzZGZhc2xmanNhbGpsYWRqbGFkamxhc2Q8L3A+ICA8cD5hc2RsZmtqYXNsZGpsc2RqYTwvcD4gIDxwPsKgPC9wPg=="),
+                true,
+                "3d53024d-0f55-44fc-b1dc-acc03ff53b2b",
+                submittersToCheck,
+                submissionAttachmentsToCheck,
+                submissionPropertiesToCheck
+        );
+        submissionVerification(
+                "6a484d18-49f9-4987-9a88-d8ee17c7fc1c",
+                "20151030143920230",
+                null,
+                "20151030143920227",
+                null,
+                null,
+                null,
+                false,
+                null,
+                false,
+                false,
+                false,
+                false,
+                true,
+                AssignmentConversionServiceImpl.decodeBase64("PHA+MjAwMjQxMjI2IGFzZGZhc2xmanNhbGpsYWRqbGFkamxhc2Q8L3A+ICA8cD5hc2RsZmtqYXNsZGpsc2RqYTwvcD4gIDxwPsKgPC9wPg=="),
+                true,
+                "53453ae9-afa2-4983-996b-aeda741bf14b",
+                submittersToCheck,
+                submissionAttachmentsToCheck,
+                submissionPropertiesToCheck2
+        );
+        // Submission0 is not valid doesn't belong to any assignment group
+        AssignmentSubmission submission = assignmentRepository.findSubmission("xxxc4955-8f90-486d-bf26-e6987f8a1af2");
+        assertEquals(submission,null);
+        
+    }
+    
     private void assignmentVerification(String aId,
                                         Boolean cAllowAttachments,
                                         Boolean aAllowPeerAssessment,
