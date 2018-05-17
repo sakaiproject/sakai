@@ -104,7 +104,7 @@ function active_doSave() {
 					$tlang.getString("useconrem.ema")
 				</label>
 			#if ($service.allowUpdateUserEmail($user.Id) || !$user)
-				<input type="text" name="email" id="email" oninput="USER.validateEmail();" onkeyup="USER.validateEmail();" autocomplete="off"#if($user)value="$validator.escapeHtml($user.Email)"#elseif($valueEmail)value="$validator.escapeHtml($valueEmail)"#end onkeyup="active_doSave();"/>
+				<input type="text" name="email" id="email" oninput="USER.validateEmail();" onkeyup="USER.validateEmail();active_doSave();" autocomplete="off"#if($user)value="$validator.escapeHtml($user.Email)"#elseif($valueEmail)value="$validator.escapeHtml($valueEmail)"#end/>
                 <div id="emailWarningMsg" style="display:none">$tlang.getString("useact.invemail")</div>
 			#else
 				#if($user)$validator.escapeHtml($user.Email)#elseif($valueEmail)$validator.escapeHtml($valueEmail)#end
