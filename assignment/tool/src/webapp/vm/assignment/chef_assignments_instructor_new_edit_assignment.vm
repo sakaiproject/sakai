@@ -84,7 +84,6 @@
 				useReview.disabled=false;
 				lblUseReview.style.display = 'block';
 			#end
-			## SAK-26640 ## SAK-40016
 			document.getElementById('tempAllowRes').parentNode.parentNode.style.display = 'block';
 			if (document.getElementById('allowResToggle').checked)
 			{
@@ -108,7 +107,6 @@
 				reviewSwitchNe1.style.removeProperty('display');
 				lblUseReview.style.display = 'none';
 			#end
-			## SAK-26640 ## SAK-40016
 			document.getElementById('tempAllowRes').parentNode.parentNode.style.display = 'none';
 			document.getElementById('allowResubmitNumber').style.display = 'none';
 			document.getElementById('allowResubmitTime').style.display = 'none';
