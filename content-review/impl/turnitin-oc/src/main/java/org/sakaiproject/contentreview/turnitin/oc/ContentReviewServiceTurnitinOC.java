@@ -739,7 +739,7 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 		}
 	}
 
-	private String getSubmissionId(String userID, String fileName) {
+	private String getSubmissionId(String userID, String fileName, Site site, Assignment assignment) {
 
 		String submissionId = null;
 		try {
@@ -757,7 +757,21 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 				eula.put("version", eulaVersion);
 				data.put("eula", eula);
 			}
-
+			if(assignment != null) {
+				Map<String, Object> metadata = new HashMap<String, Object>();
+				Map<String, Object> group = new HashMap<String, Object>();
+				group.put("id", assignment.getId());
+				group.put("name", assignment.getTitle());
+				group.put("type", "ASSIGNMENT");
+				metadata.put("group", group);
+				if(site != null) {
+					Map<String, Object> groupContext = new HashMap<String, Object>();
+					groupContext.put("id", site.getId());
+					groupContext.put("name", site.getTitle());
+					metadata.put("group_context", groupContext);
+				}
+				data.put("metadata", metadata);
+			}
 			HashMap<String, Object> response = makeHttpCall("POST",
 					getNormalizedServiceUrl() + "submissions",
 					SUBMISSION_REQUEST_HEADERS,
@@ -993,7 +1007,15 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 					try {
 						log.info("Submission starting...");
 						// Retrieve submissionId from TCA and set to externalId
-						String externalId = getSubmissionId(item.getUserId(), fileName);
+						//get site title
+						Site site = null;
+						try{
+							site = siteService.getSite(item.getSiteId());
+						}catch(Exception e){
+							//no worries, just log it
+							log.error("Site not found for item: " + item.getId() + ", site: " + item.getSiteId(), e);
+						}
+						String externalId = getSubmissionId(item.getUserId(), fileName, site, assignment);
 						if (StringUtils.isEmpty(externalId)) {
 							throw new Error("submission id is missing");
 						} else {
