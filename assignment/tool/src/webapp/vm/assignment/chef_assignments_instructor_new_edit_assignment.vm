@@ -1360,7 +1360,7 @@
 		#if ($group_submissions_enabled)
 			<div class="radio">
 				<label for="$name_CheckIsGroupSubmission" class="$class">
-					<input id="$name_CheckIsGroupSubmission" name="$name_additionalOptions" type="radio" value="GROUP" onclick="ASN.toggleAddOptions('group');"
+					<input id="$name_CheckIsGroupSubmission" name="$name_additionalOptions" type="radio" value="GROUP" onclick="ASN.toggleAddOptions('GROUP');"
 					#if ($!value_additionalOptions.equals("GROUP") && $!groupsList)
 						checked="checked"
 					#elseif( !$!groupsList || ($!assignment && !$assignment.draft))
