@@ -187,6 +187,7 @@
         <property name="assignmentRepository" ref="org.sakaiproject.assignment.api.persistence.AssignmentRepository"/>
         <property name="dataProvider" ref="org.sakaiproject.assignment.api.conversion.AssignmentDataProvider"/>
         <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
+        <property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
     </bean>
 
     <bean id="org.sakaiproject.assignment.api.conversion.AssignmentDataProvider"

@@ -53,10 +53,15 @@ import org.sakaiproject.assignment.api.model.Assignment;
 import org.sakaiproject.assignment.api.model.AssignmentSubmission;
 import org.sakaiproject.assignment.api.model.AssignmentSubmissionSubmitter;
 import org.sakaiproject.assignment.api.persistence.AssignmentRepository;
+import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.component.api.ServerConfigurationService;
+import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.hibernate.AssignableUUIDGenerator;
+import org.sakaiproject.site.api.Site;
+import org.sakaiproject.site.api.Group;
 import org.sakaiproject.util.BasicConfigItem;
+import static org.sakaiproject.assignment.api.AssignmentServiceConstants.*;
 
 @Slf4j
 public class AssignmentConversionServiceImpl implements AssignmentConversionService {
@@ -67,6 +72,7 @@ public class AssignmentConversionServiceImpl implements AssignmentConversionServ
     @Setter private AssignmentRepository assignmentRepository;
     @Setter private AssignmentDataProvider dataProvider;
     @Setter private ServerConfigurationService serverConfigurationService;
+    @Setter private SiteService siteService;
 
     private Predicate<String> attachmentFilter = Pattern.compile("attachment\\d+").asPredicate();
     private Predicate<String> submitterFilter = Pattern.compile("submitter\\d+").asPredicate();
@@ -421,12 +427,16 @@ public class AssignmentConversionServiceImpl implements AssignmentConversionServ
         s.setReturned(submission.getReturned());
         s.setSubmitted(submission.getSubmitted());
         s.setSubmittedText(decodeBase64(submission.getSubmittedtextHtml()));
-        s.setUserSubmission(submission.getIsUserSubmission());
+        s.setUserSubmission(submission.getIsUserSubmission()!=null?submission.getIsUserSubmission(): 
+        		StringUtils.isNotBlank(s.getSubmittedText()) 
+        		|| Arrays.stream(submissionAnyKeys).filter(submittedAttachmentFilter).collect(Collectors.toSet()).size() > 0 
+        		|| assignment.getTypeOfSubmission() == Assignment.SubmissionType.NON_ELECTRONIC_ASSIGNMENT_SUBMISSION);
 
         Set<AssignmentSubmissionSubmitter> submitters = s.getSubmitters();
         if (assignment.getIsGroup()) {
             // submitterid is the group
-            if (StringUtils.isNotBlank(submission.getSubmitterid())) {
+            if (StringUtils.isNotBlank(submission.getSubmitterid()) 
+            		&& assignment.getGroups().contains("/site/"+assignment.getContext()+"/group/"+submission.getSubmitterid())) {
                 s.setGroupId(submission.getSubmitterid());
             } else {
                 // the submitterid must not be blank for a group submission
@@ -435,6 +445,26 @@ public class AssignmentConversionServiceImpl implements AssignmentConversionServ
 
             // support for a list of submitter0, grade0
             Set<String> submitterKeys = Arrays.stream(submissionAnyKeys).filter(submitterFilter).collect(Collectors.toSet());
+            // Maybe the xml has no submitterN attributes, check the group members
+            if (submitterKeys.size() == 0) {
+            	// Maybe submitter keys are missing check group members
+		        try {
+		            Site assignmentSite = siteService.getSite(assignment.getContext());
+		            Group submissionGroup = assignmentSite.getGroup(s.getGroupId());
+		            int k=0;
+		            for (Member member : submissionGroup.getMembers()) {
+	                	if (!member.getRole().isAllowed(SECURE_ADD_ASSIGNMENT) 
+	                			&& !member.getRole().isAllowed(SECURE_GRADE_ASSIGNMENT_SUBMISSION)) {
+	                		submissionAny.put("submitter"+k, member.getUserId());
+	                		submitterKeys.add("submitter"+k);
+	                		k++;
+	                	}
+		            }
+        		} catch (Exception ex) {
+        			log.warn("Error looking for real group members in submission: {} site: {} group: {}",s.getId(),assignment.getContext(),s.getGroupId());
+        		}
+            }
+            
             for (String submitterKey : submitterKeys) {
                 AssignmentSubmissionSubmitter submitter = new AssignmentSubmissionSubmitter();
                 String submitterId = (String) submissionAny.get(submitterKey);
