@@ -1024,7 +1024,7 @@ public abstract class BaseSiteService implements SiteService, Observer
 		// track it
 		String event = site.getEvent();
 		if (event == null) event = SECURE_UPDATE_SITE;
-		eventTrackingService().post(eventTrackingService().newEvent(event, site.getReference(), true));
+		eventTrackingService().post(eventTrackingService().newEvent(event, site.getReference(), site.getId(), true, NotificationService.NOTI_OPTIONAL));
 
 		// clear the event for next time
 		site.setEvent(null);
