@@ -38,7 +38,6 @@ import java.net.HttpURLConnection;
 import java.net.ProtocolException;
 import java.net.URL;
 import java.net.URLEncoder;
-import java.sql.Timestamp;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
@@ -1824,7 +1823,6 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 								SimplePage sPage = simplePageBean.getPage(Long.parseLong(i.getSakaiId()));
 								if (sPage != null) {
 									Date rDate = sPage.getReleaseDate();
-									String rDateString = "";
 									if (rDate != null && Instant.now().isBefore(rDate.toInstant())) {
 										UIOutput.make(tableRow, (isInline ? "item-group-titles-div" : "item-group-titles"), itemGroupString).decorate(new UIFreeAttributeDecorator("class", " item-group-titles"));
 									} else {
