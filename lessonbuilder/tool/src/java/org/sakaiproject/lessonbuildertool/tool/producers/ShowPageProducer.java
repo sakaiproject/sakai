@@ -40,6 +40,7 @@ import java.net.URL;
 import java.net.URLEncoder;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -205,7 +206,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 	private static LessonEntity assignmentEntity;
 	private static LessonEntity bltiEntity;
 	public MessageLocator messageLocator;
-	private LocaleGetter localegetter;
+	private static LocaleGetter localegetter;
 	public static final String VIEW_ID = "ShowPage";
 	// mp4 means it plays with the flash player if HTML5 doesn't work.
 	// flv is also played with the flash player, but it doesn't get a backup <OBJECT> inside the player
@@ -1703,20 +1704,6 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 								    notPublished = true;
 
 							}
-						} else if (i.getType() == SimplePageItem.PAGE) {
-							UIOutput.make(tableRow, "type", "page");
-							UIOutput.make(tableRow, "page-next", Boolean.toString(i.getNextPage()));
-							UIOutput.make(tableRow, "page-button", Boolean.toString("button".equals(i.getFormat())));
-							itemGroupString = simplePageBean.getItemGroupString(i, null, true);
-							UIOutput.make(tableRow, "item-groups", itemGroupString);
-							SimplePage sPage = simplePageBean.getPage(Long.parseLong(i.getSakaiId()));
-							if (sPage != null) {
-								Date rDate = sPage.getReleaseDate();
-								String rDateString = "";
-								if(rDate != null)
-									rDateString = rDate.toString();
-								UIOutput.make(tableRow, "subpagereleasedate", rDateString);
-							}
 						} else if (i.getType() == SimplePageItem.RESOURCE) {
 						        try {
 							    itemGroupString = simplePageBean.getItemGroupStringOrErr(i, null, true);
@@ -1735,6 +1722,23 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 
 					} // end of canEditPage
 
+					if (i.getType() == SimplePageItem.PAGE) {
+						UIOutput.make(tableRow, "type", "page");
+						UIOutput.make(tableRow, "page-next", Boolean.toString(i.getNextPage()));
+						UIOutput.make(tableRow, "page-button", Boolean.toString("button".equals(i.getFormat())));
+						SimplePage page = simplePageToolDao.getPage(Long.valueOf(i.getSakaiId()));
+						UIOutput.make(tableRow, "page-hidden", Boolean.toString(page.isHidden()));
+						itemGroupString = simplePageBean.getItemGroupString(i, null, true);
+						UIOutput.make(tableRow, "item-groups", itemGroupString);
+						SimplePage sPage = simplePageBean.getPage(Long.parseLong(i.getSakaiId()));
+						if (sPage != null) {
+							Date rDate = sPage.getReleaseDate();
+							String rDateString = "";
+							if (rDate != null)
+								rDateString = rDate.toString();
+							UIOutput.make(tableRow, "subpagereleasedate", rDateString);
+						}
+					}
 					if (canSeeAll) {
 						// haven't set up itemgroupstring yet
 						if (!canEditPage) {
@@ -1818,12 +1822,59 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 								itemGroupString = messageLocator.getMessage("simplepage.deleted-entity");
 							}
 
-							if (itemGroupString != null)
-							    UIOutput.make(tableRow, (isInline ? "item-group-titles-div" : "item-group-titles"), itemGroupString);
+							if (itemGroupString != null) {
+								String cssClasses = "item-group-titles";
+								if (i.getType() == SimplePageItem.PAGE) {
+									SimplePage sPage = simplePageBean.getPage(Long.parseLong(i.getSakaiId()));
+									if (sPage != null) {
+										Date rDate = sPage.getReleaseDate();
+
+										//hidden, deleted, not published, or release date is in future. Not considered released.
+										if (sPage.isHidden() || entityDeleted || notPublished || (rDate != null && Instant.now().isBefore(rDate.toInstant()))) {
+											cssClasses += " not-released";
+										} //not hidden, deleted, is published, release date has passed. considered released
+										else if(rDate != null && Instant.now().isAfter(rDate.toInstant())){
+											cssClasses+= " released";
+										} //not hidden, deleted, is published. No release date restriction. Considered released.
+									}
+								}
+									UIOutput.make(tableRow, (isInline ? "item-group-titles-div" : "item-group-titles"), itemGroupString).decorate(new UIFreeAttributeDecorator("class", cssClasses));
+
+							}
 						}
-
 					} // end of canSeeAll
+					else {
+						String releaseString = simplePageBean.getReleaseString(i, M_locale);
+						if (itemGroupString != null || releaseString != null) {
+							if (itemGroupString != null)
+								itemGroupString = simplePageBean.getItemGroupTitles(itemGroupString, i);
+							if (itemGroupString != null) {
+								itemGroupString = " [" + itemGroupString + "]";
+								if (releaseString != null)
+									itemGroupString = " " + releaseString + itemGroupString;
+							} else if (releaseString != null)
+								itemGroupString = " " + releaseString;
+						}
+						if (itemGroupString != null) {
+							String cssClasses = "item-group-titles";
+							if (i.getType() == SimplePageItem.PAGE) {
+								SimplePage sPage = simplePageBean.getPage(Long.parseLong(i.getSakaiId()));
+								if (sPage != null) {
+									Date rDate = sPage.getReleaseDate();
 
+									//hidden, deleted, not published, or release date is in future. Not considered released.
+									if (sPage.isHidden() || entityDeleted || notPublished || (rDate != null && Instant.now().isBefore(rDate.toInstant()))) {
+										cssClasses += " not-released";
+									} //not hidden, deleted, is published, release date has passed. considered released
+									else if(rDate != null && Instant.now().isAfter(rDate.toInstant())){
+										cssClasses+= " released";
+									} //not hidden, deleted, is published. No release date restriction. Considered released.
+								}
+							}
+							UIOutput.make(tableRow, (isInline ? "item-group-titles-div" : "item-group-titles"), itemGroupString).decorate(new UIFreeAttributeDecorator("class", cssClasses));
+
+						}
+					}
 					// the following are for the inline item types. Multimedia
 					// is the most complex because
 					// it can be IMG, IFRAME, or OBJECT, and Youtube is treated
@@ -3737,7 +3788,8 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 				    (p.isHidden() || p.getReleaseDate() != null && p.getReleaseDate().after(new Date()))) {
 				    fake = true;
 				}
-				if (available) {
+
+				if (available && !fake) {
 					link = UIInternalLink.make(container, ID, eParams);
 					link.decorate(new UIFreeAttributeDecorator("lessonbuilderitem", itemString));
 					if (i.isPrerequisite()) {
@@ -3939,8 +3991,27 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		    link.decorate(new UIFreeAttributeDecorator("lessonbuilderitem", itemString));
 		    // fake and available occurs when prerequisites aren't the issue (it's avaiable)
 		    // so the item must be nonexistent or otherwise unavalable.
-		    if (available)
-			link.decorate(new UITooltipDecorator(messageLocator.getMessage("simplepage.not_usable")));
+		    if (available) {
+		    	if(i.getType() == SimplePageItem.PAGE){
+					// set up locale
+					Locale M_locale = null;
+					String langLoc[] = localegetter.get().toString().split("_");
+					if (langLoc.length >= 2) {
+						if ("en".equals(langLoc[0]) && "ZA".equals(langLoc[1])) {
+							M_locale = new Locale("en", "GB");
+						} else {
+							M_locale = new Locale(langLoc[0], langLoc[1]);
+						}
+					} else {
+						M_locale = new Locale(langLoc[0]);
+					}
+
+					String releaseString = simplePageBean.getReleaseString(i, M_locale);
+		    		link.decorate(new UITooltipDecorator(releaseString));
+				}else {
+					link.decorate(new UITooltipDecorator(messageLocator.getMessage("simplepage.not_usable")));
+				}
+			}
 		    else
 			link.decorate(new UITooltipDecorator(messageLocator.getMessage("simplepage.complete_required")));
 		} else
@@ -4469,6 +4540,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		UIInput customCssClass = UIInput.make(form, "customCssClass", "#{simplePageBean.customCssClass}");
 		UIOutput.make(form, "custom-css-label", messageLocator.getMessage("simplepage.custom.css.class"));
 
+		UIBoundBoolean.make(form, "hide2", "#{simplePageBean.hidePage}", (currentPage.isHidden()));
 		UIBoundBoolean.make(form, "page-releasedate2", "#{simplePageBean.hasReleaseDate}", Boolean.FALSE);
 
 		String releaseDateString = "";

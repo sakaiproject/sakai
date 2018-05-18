@@ -28,6 +28,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.json.simple.JSONObject;
 import org.sakaiproject.time.cover.TimeService;
 import org.sakaiproject.util.ResourceLoader;
+import org.springframework.util.StringUtils;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -39,6 +40,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TimeZone;
+import java.util.Arrays;
 
 @Slf4j
 public class LessonsSubNavBuilder {
@@ -48,11 +50,13 @@ public class LessonsSubNavBuilder {
     private String siteId;
     private boolean isInstructor;
     private Map<String, ArrayList<Map<String, String>>> subnavData;
+    private List<String> groups;
 
-    public LessonsSubNavBuilder(final String siteId, final boolean isInstructor) {
+    public LessonsSubNavBuilder(final String siteId, final boolean isInstructor, List<String> groups) {
         this.siteId = siteId;
         this.isInstructor = isInstructor;
         this.subnavData = new HashMap<>();
+        this.groups = groups;
     }
 
     public String toJSON() {
@@ -112,7 +116,7 @@ public class LessonsSubNavBuilder {
         if (rs.getTimestamp("pageReleaseDate") != null) {
             final Timestamp releaseDate = rs.getTimestamp("pageReleaseDate");
             if (releaseDate.getTime() > System.currentTimeMillis()) {
-                subnavItem.put("hidden", "true");
+                subnavItem.put("disabled", "true");
                 final DateFormat df = DateFormat.getDateTimeInstance(DateFormat.DEFAULT, DateFormat.DEFAULT, rb.getLocale());
                 final TimeZone tz = TimeService.getLocalTimeZone();
                 df.setTimeZone(tz);
@@ -120,8 +124,27 @@ public class LessonsSubNavBuilder {
             }
         }
 
-        this.subnavData.get(sakaiToolId).add(subnavItem);
+        String group = rs.getString("groups");
+        boolean contains = true;
+        if(!StringUtils.isEmpty(group) && !isInstructor){
+            contains = false;
+            List<String> pageGroups = (Arrays.asList(group.split(",")));
+            for(String id : pageGroups){
+                if(groups.contains(id)){
+                    contains = true;
+                    break; //can stop looping
+                }
+            }
+            if(!contains){
+                subnavItem.put("hidden", "true");
+            }
+            //nothing needed for if the user is in the group-- it will display as normal.
+            //If the user is not in the groups, subpage is marked hidden above.
+        }
 
+        if(contains) {
+            this.subnavData.get(sakaiToolId).add(subnavItem); //only send the subpage if user is in the group.
+        }
         return subnavItem;
     }
 
@@ -132,12 +155,7 @@ public class LessonsSubNavBuilder {
 
         if (rs.getInt("pageHidden") == 1) {
             return true;
-        } else if (rs.getTimestamp("pageReleaseDate") != null) {
-            if (rs.getTimestamp("pageReleaseDate").getTime() > System.currentTimeMillis()) {
-                return true;
-            }
         }
-
         return false;
     }
 

@@ -1709,6 +1709,14 @@ $(document).ready(function() {
 				$("#item-button").prop("checked", false);
 			    }
 
+			    var pagehidden = row.find(".page-hidden").text();
+			    if(pagehidden === "true") {
+			    	$("#hide2").prop("checked", true);
+			    	$("#hide2").attr("defaultChecked", true);
+				}else {
+			    	$("#hide2").prop("checked", false);
+				}
+
 			    $("#change-page-p").show();
 			    $("#change-page").attr("href", 
 				$("#change-page").attr("href").replace("itemId=-1", "itemId=" + itemid));

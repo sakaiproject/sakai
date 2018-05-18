@@ -37,6 +37,7 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -2983,14 +2984,12 @@ public class SimplePageBean {
 		}
 
 		SimplePageItem i = findItem(itemId);
-		
 		if (i == null) {
 			return "failure";
 		} else {
 			i.setName(name);
 			i.setDescription(description);
 			i.setRequired(required);
-
 			i.setPrerequisite(prerequisite);
 			i.setSubrequirement(subrequirement);
 			i.setNextPage(subpageNext);
@@ -3039,6 +3038,7 @@ public class SimplePageBean {
 						page.setReleaseDate(releaseDate);
 					else
 						page.setReleaseDate(null);
+					page.setHidden(hidePage);
 					update(page);
 				}
 			} else {
@@ -3555,19 +3555,19 @@ public class SimplePageBean {
 		 if (page.isHidden())
 		     return messageLocator.getMessage("simplepage.hiddenpage");
 		 // for index of pages we need to show even out of date release dates
-		 if (page.getReleaseDate() != null) { // && page.getReleaseDate().after(new Date())) {
-		     Date releaseDate = page.getReleaseDate();
-		     Date date = new Date();
-		     if (date.before(releaseDate)) {
-		        DateFormat df = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT, locale);
-		        TimeZone tz = userTimeService.getLocalTimeZone();
-		        String releaseDateStr = df.format(page.getReleaseDate());
-		        df.setTimeZone(tz);
-		        return messageLocator.getMessage("simplepage.pagenotreleased").replace("{}", releaseDateStr);
-		     }
-		     return null;
+		 if (page.getReleaseDate() != null ) {
+		     DateFormat df = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT, locale);
+		     TimeZone tz = userTimeService.getLocalTimeZone();
+		     df.setTimeZone(tz);
+			 String releaseDate = df.format(page.getReleaseDate());
+		     if(Instant.now().isBefore(page.getReleaseDate().toInstant())){
+				 return messageLocator.getMessage("simplepage.pagenotreleased").replace("{}", releaseDate);
+			 } else{
+		     	return messageLocator.getMessage("simplepage.pagereleased").replace("{}", releaseDate);
+			 }
 		 }
-	     }
+		 }
+
 	     return null;
 	 }
 
@@ -5063,13 +5063,11 @@ public class SimplePageBean {
 		if (item.getType() == SimplePageItem.BREAK)
 		    return true;  // breaks are always visible to all users
 		else if (item.getType() == SimplePageItem.PAGE) {
-		  if (!item.isRequired()) {
 		    SimplePage itemPage = getPage(Long.valueOf(item.getSakaiId()));
 		    if (itemPage.isHidden())
 			return false;
 		    if (itemPage.getReleaseDate() != null && itemPage.getReleaseDate().after(new Date()))
-			return false;
-		  }
+			return true;
 		} else if (page != null && isStudentPage(page) && (item.getType() == SimplePageItem.RESOURCE || item.getType() == SimplePageItem.MULTIMEDIA)) {
 
 		    // check for inline types. No resource to check. Since this section is for student page, no groups either
