@@ -2894,7 +2894,7 @@ public class SiteAction extends PagedResourceActionII {
 					{
 						contentToolModel[k] = ltiToolId + "_" + contentToolModel[k];
 					}
-					Map<String, Object> ltiTool = m_ltiService.getTool(Long.valueOf(ltiToolId));
+					Map<String, Object> ltiTool = m_ltiService.getTool(Long.valueOf(ltiToolId), site.getId());
 					String formInput=m_ltiService.formInput(ltiTool, contentToolModel);
 					toolMap.put("formInput", formInput);
 					currentLtiTools.put(ltiToolId, toolMap);
@@ -3944,7 +3944,7 @@ public class SiteAction extends PagedResourceActionII {
 							ToolConfiguration toolConfig = SiteService.findTool(pstr);
 							if (toolConfig != null && toolConfig.getSiteId().equals(siteId)) {
 								Map<String, Object> m = new HashMap<>();
-								Map<String, Object> ltiToolValues = m_ltiService.getTool(Long.valueOf(ltiToolId));
+								Map<String, Object> ltiToolValues = m_ltiService.getTool(Long.valueOf(ltiToolId), siteId);
 								if (ltiToolValues != null) {
 									m.put("toolTitle", ltiToolValues.get(LTIService.LTI_TITLE));
 									m.put("pageTitle", ltiToolValues.get(LTIService.LTI_PAGETITLE));

@@ -159,9 +159,10 @@ public interface LTIService {
 	/**
 	 * 
 	 * @param key
+	 * @param siteId
 	 * @return
 	 */
-	public Map<String, Object> getTool(Long key);
+	public Map<String, Object> getTool(Long key, String siteId);
 
 	/**
 	 * 
@@ -328,9 +329,10 @@ public interface LTIService {
 	/**
 	 * 
 	 * @param newProps
+	 * @param siteId
 	 * @return
 	 */
-	public Object insertContent(Properties newProps);
+	public Object insertContent(Properties newProps, String siteId);
 
 	/**
 	 * 
