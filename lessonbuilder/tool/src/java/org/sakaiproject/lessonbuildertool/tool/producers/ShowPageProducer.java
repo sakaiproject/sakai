@@ -38,6 +38,7 @@ import java.net.HttpURLConnection;
 import java.net.ProtocolException;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.sql.Timestamp;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -1818,10 +1819,19 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 								itemGroupString = messageLocator.getMessage("simplepage.deleted-entity");
 							}
 
-							if (itemGroupString != null)
-							    UIOutput.make(tableRow, (isInline ? "item-group-titles-div" : "item-group-titles"), itemGroupString);
+							if (itemGroupString != null) {
+								SimplePage sPage = simplePageBean.getPage(Long.parseLong(i.getSakaiId()));
+								if (sPage != null) {
+									Date rDate = sPage.getReleaseDate();
+									String rDateString = "";
+									if (rDate != null && rDate.after(new Timestamp(System.currentTimeMillis()))) {
+										UIOutput.make(tableRow, (isInline ? "item-group-titles-div" : "item-group-titles"), itemGroupString).decorate(new UIFreeAttributeDecorator("class", " item-group-titles"));
+									} else {
+										UIOutput.make(tableRow, (isInline ? "item-group-titles-div" : "item-group-titles"), itemGroupString).decorate(new UIFreeAttributeDecorator("class", "item-group-titles released"));
+									}
+								}
+							}
 						}
-
 					} // end of canSeeAll
 
 					// the following are for the inline item types. Multimedia

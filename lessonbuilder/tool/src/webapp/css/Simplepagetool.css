@@ -1080,6 +1080,10 @@ h3.author {
 	color: #930;
 	padding-left: 1em;
 }
+.item-group-titles.released {
+    color:#390;
+}
+
 .page-picker-note {
 	font-style: italic;
 	color: #930;

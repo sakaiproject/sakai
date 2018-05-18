@@ -35,6 +35,7 @@ import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.net.URL;
 import java.net.URLConnection;
+import java.sql.Timestamp;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -3636,17 +3637,18 @@ public class SimplePageBean {
 		 if (page.isHidden())
 		     return messageLocator.getMessage("simplepage.hiddenpage");
 		 // for index of pages we need to show even out of date release dates
-		 if (page.getReleaseDate() != null) { // && page.getReleaseDate().after(new Date())) {
-		     Date releaseDate = page.getReleaseDate();
-		     Date date = new Date();
-		     if (date.before(releaseDate)) {
-		        DateFormat df = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT, locale);
-		        TimeZone tz = userTimeService.getLocalTimeZone();
-		        String releaseDateStr = df.format(page.getReleaseDate());
-		        df.setTimeZone(tz);
-		        return messageLocator.getMessage("simplepage.pagenotreleased").replace("{}", releaseDateStr);
-		     }
-		     return null;
+		 if (page.getReleaseDate() != null && page.getReleaseDate().after(new Timestamp(System.currentTimeMillis()))) { // && page.getReleaseDate().after(new Date())) {
+		     DateFormat df = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT, locale);
+		     TimeZone tz = userTimeService.getLocalTimeZone();
+		     df.setTimeZone(tz);
+		     String releaseDate = df.format(page.getReleaseDate());
+		     return messageLocator.getMessage("simplepage.pagenotreleased").replace("{}", releaseDate);
+		 } else if(page.getReleaseDate() != null){
+		 	DateFormat df = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT, locale);
+		 	TimeZone tz = userTimeService.getLocalTimeZone();
+		 	df.setTimeZone(tz);
+		 	String releaseDate = df.format(page.getReleaseDate());
+		 	return messageLocator.getMessage("simplepage.pagereleased").replace("{}", releaseDate);
 		 }
 	     }
 	     return null;
