@@ -41,6 +41,7 @@ import java.net.URLEncoder;
 import java.sql.Timestamp;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -1824,7 +1825,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 								if (sPage != null) {
 									Date rDate = sPage.getReleaseDate();
 									String rDateString = "";
-									if (rDate != null && rDate.after(new Timestamp(System.currentTimeMillis()))) {
+									if (rDate != null && Instant.now().isBefore(rDate.toInstant())) {
 										UIOutput.make(tableRow, (isInline ? "item-group-titles-div" : "item-group-titles"), itemGroupString).decorate(new UIFreeAttributeDecorator("class", " item-group-titles"));
 									} else {
 										UIOutput.make(tableRow, (isInline ? "item-group-titles-div" : "item-group-titles"), itemGroupString).decorate(new UIFreeAttributeDecorator("class", "item-group-titles released"));
