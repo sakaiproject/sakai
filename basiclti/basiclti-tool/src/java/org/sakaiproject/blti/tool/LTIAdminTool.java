@@ -140,6 +140,11 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		String toolReg = placement.getToolId();
 	}
 
+	private String getSiteId(SessionState state) {
+	    return (String) state.getAttribute("SITE_ID");
+
+	}
+
 	/**
 	 * Setup the velocity context and choose the template for the response.
 	 */
@@ -282,7 +287,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 			return "lti_main";
 		}
 		Long key = new Long(id);
-		Map<String,Object> tool = ltiService.getTool(key);
+		Map<String,Object> tool = ltiService.getTool(key, getSiteId(state));
 		if (  tool == null ) return "lti_main";	
 
 		// Deal with the differences between LTI 1 and LTI 2
@@ -329,7 +334,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 			return "lti_main";
 		}		
 		Long key = new Long(id);
-		Map<String,Object> tool = ltiService.getTool(key);
+		Map<String,Object> tool = ltiService.getTool(key, getSiteId(state));
 		if (  tool == null ) return "lti_main";
 
 		// Hide the old tool secret unless it is incomplete
@@ -1301,7 +1306,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		}
 		Map<String,Object> tool = null;
 		if ( key != null ) {
-			tool = ltiService.getTool(key);
+			tool = ltiService.getTool(key, getSiteId(state));
 			if ( tool == null ) {
 				addAlert(state, rb.getString("error.tool.not.found"));
 				return "lti_content_insert";
@@ -1329,7 +1334,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 
 			if ( key == null ) {
 				key = foorm.getLongNull(content.get(LTIService.LTI_TOOL_ID));
-				if ( key != null ) tool = ltiService.getTool(key);
+				if ( key != null ) tool = ltiService.getTool(key, getSiteId(state));
 			}
 			previousData = content;
 			
@@ -1552,7 +1557,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 			switchPanel(state, "Error");
                         return;
 		}
-		Map<String, Object> tool = ltiService.getTool(toolKey);
+		Map<String, Object> tool = ltiService.getTool(toolKey, getSiteId(state));
 		if ( tool == null ) {
 			addAlert(state,rb.getString("error.contentitem.missing"));
 			switchPanel(state, "Error");
@@ -1739,7 +1744,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 			toolKey = foorm.getLongNull(content.get(LTIService.LTI_TOOL_ID));
 		}
 		if ( toolKey == null && previousPost != null ) toolKey = foorm.getLongNull(previousPost.getProperty(LTIService.LTI_TOOL_ID));
-		if ( toolKey != null ) tool = ltiService.getTool(toolKey);
+		if ( toolKey != null ) tool = ltiService.getTool(toolKey, getSiteId(state));
 
 		// No matter what, we must have a tool
 		if ( tool == null ) {
