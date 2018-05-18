@@ -72,6 +72,8 @@ If you can't find your  "at institution.edu" on the Apereo signup page then send
 
 Sakai 10.0 and earlier are no longer supported by the community.
 
+For full history of supported releases please see our [release information on confluence](https://confluence.sakaiproject.org/display/DOC/Sakai+Release+Date+list).
+
 ## Under Development
 Sakai 12.2 is under development as the second maintenance release of Sakai 12. It is expected to be released in the Q3 July/August 2018 timeframe.
 
