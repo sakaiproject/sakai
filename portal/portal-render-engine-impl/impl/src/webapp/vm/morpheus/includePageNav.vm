@@ -41,7 +41,7 @@
 						#set( $breadToolName  = $page.pageTitle )
 	
 						<li class="Mrphs-toolsNav__menuitem is-current">
-							<a class="Mrphs-toolsNav__menuitem--link #if(${page.hidden})is-invisible#end" href="${page.pageResetUrl}" title="${page.pageTitle}">
+							<a class="Mrphs-toolsNav__menuitem--link #if(${page.hidden})is-invisible#end" href="${page.pageResetUrl}" title="${page.pageTitle}" aria-current="page">
 								<span class="Mrphs-toolsNav__menuitem--icon ${page.menuClass} $!{page.menuClassOverride} icon-active"></span>
 								<span class="Mrphs-toolsNav__menuitem--title">${page.pageTitle}</span>
 							</a>
@@ -96,7 +96,7 @@
 					#if (${page.current})
 	
 						<li class="Mrphs-toolsNav__menuitem is-current">
-							<a class="Mrphs-toolsNav__menuitem--link #if(${page.hidden})is-invisible#end" href="${page.pageResetUrl}" title="${page.pageTitle}">
+							<a class="Mrphs-toolsNav__menuitem--link #if(${page.hidden})is-invisible#end" href="${page.pageResetUrl}" title="${page.pageTitle}" aria-current="page">
 								<span class="Mrphs-toolsNav__menuitem--icon ${page.menuClass} $!{page.menuClassOverride} icon-active"></span>
 								<span class="Mrphs-toolsNav__menuitem--title">${page.pageTitle}</span>
 							</a>
