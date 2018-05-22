@@ -1820,11 +1820,12 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 							}
 
 							if (itemGroupString != null) {
+								String cssClasses = "item-group-titles";
 								if (i.getType() == SimplePageItem.PAGE) {
 									SimplePage sPage = simplePageBean.getPage(Long.parseLong(i.getSakaiId()));
 									if (sPage != null) {
 										Date rDate = sPage.getReleaseDate();
-										String cssClasses = "item-group-titles";
+
 
 										//hidden, deleted, not published, or release date is in future. Not considered released.
 										if(sPage.isHidden() || entityDeleted || notPublished || (rDate != null && Instant.now().isBefore(rDate.toInstant()))){
@@ -1834,10 +1835,11 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 											cssClasses+= " released";
 										} //not hidden, deleted, is published. No release date restriction. Considered released.
 
-										UIOutput.make(tableRow, (isInline ? "item-group-titles-div" : "item-group-titles"), itemGroupString).decorate(new UIFreeAttributeDecorator("class", cssClasses));
+
 
 									}
 								}
+								UIOutput.make(tableRow, (isInline ? "item-group-titles-div" : "item-group-titles"), itemGroupString).decorate(new UIFreeAttributeDecorator("class", cssClasses));
 							}
 						}
 					} // end of canSeeAll
