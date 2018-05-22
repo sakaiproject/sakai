@@ -3851,11 +3851,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 		final Session session = getSessionFactory().openSession();
 
 		for (int i = 0; i < entities.size(); i++) {
-			session.saveOrUpdate(entities.get(i));
-			if (i % 20 == 0) {
-				session.flush();
-				session.clear();
-			}
+			session.update(entities.get(i));
 		}
 
 		// Sakai auto commits the session
