@@ -1833,8 +1833,9 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 										else if(rDate != null && Instant.now().isAfter(rDate.toInstant())){
 											cssClasses+= " released";
 										} //not hidden, deleted, is published. No release date restriction. Considered released.
+									}
+									UIOutput.make(tableRow, (isInline ? "item-group-titles-div" : "item-group-titles"), itemGroupString).decorate(new UIFreeAttributeDecorator("class", cssClasses));
 								}
-								UIOutput.make(tableRow, (isInline ? "item-group-titles-div" : "item-group-titles"), itemGroupString).decorate(new UIFreeAttributeDecorator("class", cssClasses));
 							}
 						}
 					} // end of canSeeAll
