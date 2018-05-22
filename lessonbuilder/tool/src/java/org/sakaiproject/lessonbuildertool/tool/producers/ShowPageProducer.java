@@ -1825,8 +1825,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 									SimplePage sPage = simplePageBean.getPage(Long.parseLong(i.getSakaiId()));
 									if (sPage != null) {
 										Date rDate = sPage.getReleaseDate();
-
-
+										
 										//hidden, deleted, not published, or release date is in future. Not considered released.
 										if(sPage.isHidden() || entityDeleted || notPublished || (rDate != null && Instant.now().isBefore(rDate.toInstant()))){
 											cssClasses+= " not-released";
@@ -1834,10 +1833,6 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 										else if(rDate != null && Instant.now().isAfter(rDate.toInstant())){
 											cssClasses+= " released";
 										} //not hidden, deleted, is published. No release date restriction. Considered released.
-
-
-
-									}
 								}
 								UIOutput.make(tableRow, (isInline ? "item-group-titles-div" : "item-group-titles"), itemGroupString).decorate(new UIFreeAttributeDecorator("class", cssClasses));
 							}
