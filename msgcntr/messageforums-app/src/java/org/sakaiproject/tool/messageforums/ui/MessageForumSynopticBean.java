@@ -31,13 +31,11 @@ import java.util.Map;
 import javax.faces.context.FacesContext;
 import javax.faces.event.ActionEvent;
 
-import lombok.extern.slf4j.Slf4j;
-
 import org.sakaiproject.api.app.messageforums.Area;
 import org.sakaiproject.api.app.messageforums.AreaManager;
 import org.sakaiproject.api.app.messageforums.DiscussionForum;
-import org.sakaiproject.api.app.messageforums.DiscussionTopic;
 import org.sakaiproject.api.app.messageforums.DiscussionForumService;
+import org.sakaiproject.api.app.messageforums.DiscussionTopic;
 import org.sakaiproject.api.app.messageforums.MessageForumsForumManager;
 import org.sakaiproject.api.app.messageforums.MessageForumsMessageManager;
 import org.sakaiproject.api.app.messageforums.MessageForumsTypeManager;
@@ -53,13 +51,15 @@ import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.site.api.Site;
+import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.api.ToolConfiguration;
-import org.sakaiproject.site.cover.SiteService;
-import org.sakaiproject.tool.cover.SessionManager;
-import org.sakaiproject.tool.cover.ToolManager;
+import org.sakaiproject.tool.api.SessionManager;
+import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.tool.messageforums.PrivateMessagesTool;
 import org.sakaiproject.user.api.Preferences;
 import org.sakaiproject.user.api.PreferencesService;
+
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class MessageForumSynopticBean {
@@ -196,6 +196,24 @@ public class MessageForumSynopticBean {
 	
 	/** Preferences service (injected dependency) */
 	protected PreferencesService preferencesService = null;
+	
+	/** Dependency Injected   */
+	private SiteService siteService;
+	private SessionManager sessionManager;
+	private ToolManager toolManager;
+
+	
+	public void setToolManager(ToolManager toolManager) {
+		this.toolManager = toolManager;
+	}
+
+	public void setSessionManager(SessionManager sessionManager) {
+		this.sessionManager = sessionManager;
+	}
+
+	public void setSiteService(SiteService siteService) {
+		this.siteService = siteService;
+	}
 
 	/** =============== Main page bean values =============== */
 	/** Used to determine if there are sites to display on page */
@@ -267,10 +285,10 @@ public class MessageForumSynopticBean {
 			// get context id
 			final String siteId = getContext();
 
-			if (SiteService.getUserSiteId("admin").equals(siteId))
+			if (siteService.getUserSiteId("admin").equals(siteId))
 				return false;
 
-			myWorkspace = SiteService.isUserSite(siteId);
+			myWorkspace = siteService.isUserSite(siteId);
 
 			log.debug("Result of determining if My Workspace: " + myWorkspace);
 		}
@@ -1593,7 +1611,7 @@ public class MessageForumSynopticBean {
 		}
 	
 		if (sitesMap.get(siteId) == null) {
-			Site site = SiteService.getSite(siteId);
+			Site site = siteService.getSite(siteId);
 			sitesMap.put(site.getId(), site);
 			return site;
 		}
@@ -1610,7 +1628,7 @@ public class MessageForumSynopticBean {
 	 * 		String The site id (context) where tool currently located
 	 */
 	private String getContext() {
-		return ToolManager.getCurrentPlacement().getContext();
+		return toolManager.getCurrentPlacement().getContext();
 	}
 	
 	/**
@@ -1627,14 +1645,14 @@ public class MessageForumSynopticBean {
 				sitesMap = new HashMap();
 			}
 			
-			List mySites = SiteService.getSites(org.sakaiproject.site.api.SiteService.SelectionType.ACCESS,
+			List mySites = siteService.getSites(org.sakaiproject.site.api.SiteService.SelectionType.ACCESS,
 					null,null,null,org.sakaiproject.site.api.SiteService.SortType.TITLE_ASC,
 					null);
 
 			Iterator lsi = mySites.iterator();
 
 			if (!lsi.hasNext()) {
-				log.debug("User " + SessionManager.getCurrentSessionUserId() + " does not belong to any sites.");
+				log.debug("User " + sessionManager.getCurrentSessionUserId() + " does not belong to any sites.");
 
 				return mySites;
 			}
@@ -1764,7 +1782,7 @@ public class MessageForumSynopticBean {
 	 */
 	private List getExcludedSitesFromTabs() {
 		final Preferences prefs = preferencesService.getPreferences(
-								SessionManager.getCurrentSessionUserId());
+								sessionManager.getCurrentSessionUserId());
 
 		final ResourceProperties props = prefs.getProperties(PreferencesService.SITENAV_PREFS_KEY);
 		final List l = props.getPropertyList(TAB_EXCLUDED_SITES);
@@ -1803,7 +1821,7 @@ public class MessageForumSynopticBean {
 	 * @return <code>true</code> if the current request is being made by a logged in user. 
 	 */
 	public boolean isLoggedIn() {
-		return SessionManager.getCurrentSessionUserId() != null;
+		return sessionManager.getCurrentSessionUserId() != null;
 	}
 
 }

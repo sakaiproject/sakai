@@ -135,6 +135,7 @@ public class IMSBLTIPortlet extends GenericPortlet {
 		fieldList.add("releaseemail");
 		fieldList.add("assignment");
 		fieldList.add("newpage");
+		fieldList.add("sha256");
 		// fieldList.add("maximize");
 		fieldList.add("allowsettings");
 		fieldList.add("allowroster");
@@ -252,6 +253,7 @@ public class IMSBLTIPortlet extends GenericPortlet {
 					text.append("width=\"100%\" frameborder=\"0\" marginwidth=\"0\"\n");
 					text.append("marginheight=\"0\" scrolling=\"auto\"\n");
 					text.append(" allowfullscreen=\"true\" webkitallowfullscreen=\"true\" mozallowfullscreen=\"true\"\n");
+					text.append(" allow=\"camera; microphone\"\n");
 					text.append("src=\""+iframeUrl+"\">\n");
 					text.append(rb.getString("noiframes"));
 					text.append("<br>");

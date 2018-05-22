@@ -1,120 +1,120 @@
 $PBJQ(document).ready(function(){
-    if ($("#reorder-list li").size() - 1 > 15) {
-        $('.grabHandle').show();
-        $('#inputFieldMessage').show();
-        $('#inputKbdMessage').remove();
+    if ($PBJQ("#reorder-list li").size() - 1 > 15) {
+        $PBJQ('.grabHandle').show();
+        $PBJQ('#inputFieldMessage').show();
+        $PBJQ('#inputKbdMessage').remove();
     }
     //get the initial order TODO - make an  array instead of putting the values in a span
-    $('#reorder-list li').each(function(n){
-        $('#lastMoveArrayInit').append($(this).attr('id') + ' ');
-        $('#lastMoveArray').append($(this).attr('id') + ' ');
+    $PBJQ('#reorder-list li').each(function(n){
+        $PBJQ('#lastMoveArrayInit').append($PBJQ(this).attr('id') + ' ');
+        $PBJQ('#lastMoveArray').append($PBJQ(this).attr('id') + ' ');
     });
     
     //allow user to click on a field to edit
-    $('input[id^="index"]').click(function(event){
+    $PBJQ('input[id^="index"]').click(function(event){
         event.stopPropagation();
     });
     //trap return key
-    $('input[id^="index"]').bind("keypress", function(e){
+    $PBJQ('input[id^="index"]').bind("keypress", function(e){
         var code = e.charCode || e.keyCode;
         return (code == 13) ? false : true;
     });
     
-    $('#undo-all').click(function(event){
+    $PBJQ('#undo-all').click(function(event){
         var initOrder;
-        initOrder = $.trim($('#lastMoveArrayInit').text()).split(" ");
+        initOrder = $PBJQ.trim($PBJQ('#lastMoveArrayInit').text()).split(" ");
         for (z in initOrder) {
             thisRow = document.getElementById(initOrder[z]);
-            $(thisRow).appendTo('#reorder-list');
+            $PBJQ(thisRow).appendTo('#reorder-list');
         }
         
         event.preventDefault();
         registerChange();
-        $('#undo-all').hide();
-        $('#undo-all-inact').show();
-        $('#undo-last-inact').show();
-        $('#undo-last').hide();
+        $PBJQ('#undo-all').hide();
+        $PBJQ('#undo-all-inact').show();
+        $PBJQ('#undo-last-inact').show();
+        $PBJQ('#undo-last').hide();
     });
-    $('#undo-last').click(function(event){
+    $PBJQ('#undo-last').click(function(event){
         var prevOrder;
         var lastMovedT;
         var lastMoved;
-        prevOrder = $.trim($('#lastMoveArray').text()).split(" ");
+        prevOrder = $PBJQ.trim($PBJQ('#lastMoveArray').text()).split(" ");
         for (z in prevOrder) {
             thisRow = document.getElementById(prevOrder[z]);
-            $(thisRow).appendTo('#reorder-list');
+            $PBJQ(thisRow).appendTo('#reorder-list');
         }
-        lastMovedT = $.trim($('#lastItemMoved').text());
-        lastMoved = $('li:eq(' + lastMovedT.substr(20) + ')');
-        $(lastMoved).addClass('recentMove');
+        lastMovedT = $PBJQ.trim($PBJQ('#lastItemMoved').text());
+        lastMoved = $PBJQ('li:eq(' + lastMovedT.substr(20) + ')');
+        $PBJQ(lastMoved).addClass('recentMove');
         event.preventDefault();
         registerChange('notfluid', lastMoved);
-        $('#undo-last-inact').fadeIn('slow');
-        $('#undo-last').hide();
+        $PBJQ('#undo-last-inact').fadeIn('slow');
+        $PBJQ('#undo-last').hide();
     });
     
     
     
     // handle changing the order text field
-    $('input[id^="index"]').change(function(){
+    $PBJQ('input[id^="index"]').change(function(){
         // get existing order
         var that = this;
         preserveStatus();
         //what the value was (plucked from a hidden input)
-        var oldVal = parseInt($(this).siblings('input[id^="holder"]').attr('value'));
+        var oldVal = parseInt($PBJQ(this).siblings('input[id^="holder"]').attr('value'));
         // the new value in the text field
         var newVal = parseInt(this.value);
-        if (isNaN(newVal) || newVal > $('input[id^="index"]').size()) {
-            var failedValidMessage = $('#failedValidMessage').text();
-            $('#messageHolder').text(failedValidMessage.replace('#', $('input[id^="index"]').size()));
-            $('.orderable-selected').removeClass('orderable-selected');
-            $('#messageHolder').removeClass('messageSuccess');
-            $('#messageHolder').addClass('messageValidation');
-			var messagePos = $(that).position();
-			$("#messageHolder").css({
+        if (isNaN(newVal) || newVal > $PBJQ('input[id^="index"]').size()) {
+            var failedValidMessage = $PBJQ('#failedValidMessage').text();
+            $PBJQ('#messageHolder').text(failedValidMessage.replace('#', $PBJQ('input[id^="index"]').size()));
+            $PBJQ('.orderable-selected').removeClass('orderable-selected');
+            $PBJQ('#messageHolder').removeClass('messageSuccess');
+            $PBJQ('#messageHolder').addClass('messageValidation');
+			var messagePos = $PBJQ(that).position();
+			$PBJQ("#messageHolder").css({
 				'position':'absolute',
 				'height':'1.3em',
 				'top':messagePos.top,
 				'left':55
 			});
-            $('#messageHolder').fadeIn('slow');
-            $("#messageHolder").animate({
+            $PBJQ('#messageHolder').fadeIn('slow');
+            $PBJQ("#messageHolder").animate({
                 opacity: 1.0
             }, 2000, function(){
-                $(that).val(oldVal);
+                $PBJQ(that).val(oldVal);
                 that.focus();
                 that.select();
             });
-            $("#messageHolder").fadeOut('slow');
-            $(this).parents('li').addClass('orderable-selected');
+            $PBJQ("#messageHolder").fadeOut('slow');
+            $PBJQ(this).parents('li').addClass('orderable-selected');
             return (null);
         }
         
-        var inputs = $('input[id^="index"]');
+        var inputs = $PBJQ('input[id^="index"]');
         // handle the things that happen after a move
-        $('#undo-last').fadeIn('slow');
-        $('#undo-last-inact').hide();
-        $('#undo-all').fadeIn('slow');
-        $('#undo-all-inact').hide();
+        $PBJQ('#undo-last').fadeIn('slow');
+        $PBJQ('#undo-last-inact').hide();
+        $PBJQ('#undo-all').fadeIn('slow');
+        $PBJQ('#undo-all-inact').hide();
         
         //insert the row in new location - if new value is 1, insert before, if it is the last possible
         // insert after, otherwise insert before or after depending on if it is going up or down
         if (newVal === '1') {
-            $($(this).parents('li')).insertBefore($(this).parents('li').siblings('li').children('span').children('input[value=' + newVal + ']').parents('li'));
+            $PBJQ($PBJQ(this).parents('li')).insertBefore($PBJQ(this).parents('li').siblings('li').children('span').children('input[value=' + newVal + ']').parents('li'));
         }
         else 
             if (newVal == inputs.length) {
-                $($(this).parents('li')).insertAfter($(this).parents('li').siblings('li').children('span').children('input[value=' + newVal + ']').parents('li'));
+                $PBJQ($PBJQ(this).parents('li')).insertAfter($PBJQ(this).parents('li').siblings('li').children('span').children('input[value=' + newVal + ']').parents('li'));
             }
             else {
                 if (newVal > oldVal) {
-                    $($(this).parents('li')).insertAfter($(this).parents('li').siblings('li').children('span').children('input[value=' + newVal + ']').parents('li'));
+                    $PBJQ($PBJQ(this).parents('li')).insertAfter($PBJQ(this).parents('li').siblings('li').children('span').children('input[value=' + newVal + ']').parents('li'));
                 }
                 else {
-                    $($(this).parents('li')).insertBefore($(this).parents('li').siblings('li').children('span').children('input[value=' + newVal + ']').parents('li'));
+                    $PBJQ($PBJQ(this).parents('li')).insertBefore($PBJQ(this).parents('li').siblings('li').children('span').children('input[value=' + newVal + ']').parents('li'));
                 }
             }
-        registerChange('notfluid', $(this).parents('li'));
+        registerChange('notfluid', $PBJQ(this).parents('li'));
     });
 
     // the jquery-ui sortable initialization
@@ -133,20 +133,20 @@ $PBJQ(document).ready(function(){
 // handle things that happen after a move
 var registerChange = function(originEvent, movedEl){
 
-    var rows = $("#reorder-list li").size();
+    var rows = $PBJQ("#reorder-list li").size();
     if (originEvent !== 'notfluid') {
-        movedEl = $("li[aria-selected='true']");
+        movedEl = $PBJQ("li[aria-selected='true']");
     }
     
-    $('#lastItemMoved').text($(movedEl).attr('id'));
+    $PBJQ('#lastItemMoved').text($PBJQ(movedEl).attr('id'));
     
-    $(movedEl).addClass('recentMove');
+    $PBJQ(movedEl).addClass('recentMove');
     var newVal = 0;
-    newVal = $((movedEl).prevAll('li').length + 1);
+    newVal = $PBJQ((movedEl).prevAll('li').length + 1);
     // change the value of all the text fields (and value holders) to reflect new order
-    var inputsX = $('input[id^="index"]');
-    var holderinputs = $('input[id^="holder"]');
-    var selectItems = $("select.selectSet");
+    var inputsX = $PBJQ('input[id^="index"]');
+    var holderinputs = $PBJQ('input[id^="holder"]');
+    var selectItems = $PBJQ("select.selectSet");
     for (var i = 0; i < inputsX.length; i = i + 1) {
         inputsX[i].value = i + 1;
     }
@@ -157,24 +157,24 @@ var registerChange = function(originEvent, movedEl){
         selectItems[y].value = y + 1;
     }
     
-    $('#undo-last').fadeIn('slow');
-    $('#undo-last-inact').hide();
-    $('#undo-all').fadeIn('slow');
-    $('#undo-all-inact').hide();
-    $(movedEl).animate({
+    $PBJQ('#undo-last').fadeIn('slow');
+    $PBJQ('#undo-last-inact').hide();
+    $PBJQ('#undo-all').fadeIn('slow');
+    $PBJQ('#undo-all-inact').hide();
+    $PBJQ(movedEl).animate({
         opacity: 1.0
     }, 2000, function(){
-        $(movedEl).removeClass('recentMove');
+        $PBJQ(movedEl).removeClass('recentMove');
     });
 };
 
 
 
 var preserveStatus = function(item){
-    $('#lastMoveArray').text('');
-    $('#reorder-list li').each(function(n){
-        if ($(this).attr('id') !== undefined && $(this).attr('id') !== 'undefined_avatar') {
-            $('#lastMoveArray').append($(this).attr('id') + ' ');
+    $PBJQ('#lastMoveArray').text('');
+    $PBJQ('#reorder-list li').each(function(n){
+        if ($PBJQ(this).attr('id') !== undefined && $PBJQ(this).attr('id') !== 'undefined_avatar') {
+            $PBJQ('#lastMoveArray').append($PBJQ(this).attr('id') + ' ');
         }
     });
 };

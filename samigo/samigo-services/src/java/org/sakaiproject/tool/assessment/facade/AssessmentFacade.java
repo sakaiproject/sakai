@@ -28,10 +28,13 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import lombok.extern.slf4j.Slf4j;
+
 import org.osid.assessment.AssessmentException;
+
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.SectionData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentIfc;
@@ -58,8 +61,14 @@ public class AssessmentFacade extends AssessmentBaseFacade
   private Set sectionSet;
   private Set assessmentAttachmentSet;
   private Integer questionSize;
+  private Date startDate;
+  private Date dueDate;
   private String lastModifiedDateForDisplay;
-  
+  private String releaseTo;
+  private Map releaseToGroups;
+  private int groupCount;
+  private boolean selected;
+
   public AssessmentFacade() {
     //super();
     this.data = new AssessmentData();
@@ -106,13 +115,18 @@ public class AssessmentFacade extends AssessmentBaseFacade
     super.setLastModifiedBy(lastModifiedBy);
   }
 
-  public AssessmentFacade(Long id, String title, Date lastModifiedDate, String lastModifiedBy, int questionSize) {
+  public AssessmentFacade(Long id, String title, Date lastModifiedDate, Date startDate, Date dueDate, String releaseTo, Map releaseToGroups, String lastModifiedBy, int questionSize) {
 	    // in the case of template assessmentBaseId is the assessmentTemplateId
 	    super.setAssessmentBaseId(id);
 	    super.setTitle(title);
 	    super.setLastModifiedDate(lastModifiedDate);
 	    super.setLastModifiedBy(lastModifiedBy);
 	    this.questionSize = questionSize;
+	    this.startDate = startDate;
+	    this.dueDate = dueDate;
+	    this.releaseTo = releaseTo;
+	    this.releaseToGroups = releaseToGroups;
+	    setGroupCount();
   }
   
   public AssessmentFacade(AssessmentIfc data, Boolean loadSection) {
@@ -291,6 +305,22 @@ public class AssessmentFacade extends AssessmentBaseFacade
   public void setQuestionSize(Integer questionSize) {
 	  this.questionSize = questionSize;
   }
+
+  public Date getStartDate() {
+	  return this.startDate;
+  }
+
+  public void setStartDate(Date startDate) {
+	  this.startDate = startDate;
+  }
+
+  public Date getDueDate() {
+	  return this.dueDate;
+  }
+
+  public void setDueDate(Date dueDate) {
+	  this.dueDate = dueDate;
+  }
   
   public String getLastModifiedDateForDisplay() {
 	  return lastModifiedDateForDisplay;
@@ -298,5 +328,41 @@ public class AssessmentFacade extends AssessmentBaseFacade
 
   public void setLastModifiedDateForDisplay(String lastModifiedDateForDisplay) {
 	  this.lastModifiedDateForDisplay = lastModifiedDateForDisplay;
+  }
+
+  public String getReleaseTo() {
+	  return this.releaseTo;
+  }
+
+  public void setReleaseTo(String releaseTo) {
+	  this.releaseTo = releaseTo;
+  }
+
+  public Map getReleaseToGroups() {
+	  return this.releaseToGroups;
+  }
+
+  public void setReleaseToGroups(Map releaseToGroups) {
+	  this.releaseToGroups = releaseToGroups;
+  }
+
+  public void setGroupCount() {
+    if (releaseToGroups != null) {
+      groupCount = releaseToGroups.size();
+    } else {
+      groupCount = 0;
+    }
+  }
+
+  public int getGroupCount() {
+    return groupCount;
+  }
+
+  public boolean isSelected() {
+    return this.selected;
+  }
+
+  public void setSelected(boolean selected) {
+    this.selected = selected;
   }
 }

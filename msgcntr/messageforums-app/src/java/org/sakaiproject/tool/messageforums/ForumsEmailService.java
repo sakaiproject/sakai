@@ -40,7 +40,7 @@ import org.sakaiproject.api.app.messageforums.Topic;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentResource;
-import org.sakaiproject.content.cover.ContentHostingService;
+import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.email.api.AddressValidationException;
 import org.sakaiproject.email.api.EmailAddress;
 import org.sakaiproject.email.api.EmailAddress.RecipientType;
@@ -52,8 +52,8 @@ import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.ServerOverloadException;
 import org.sakaiproject.exception.TypeException;
 import org.sakaiproject.site.api.Site;
-import org.sakaiproject.site.cover.SiteService;
-import org.sakaiproject.time.cover.TimeService;
+import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.time.api.UserTimeService;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.tool.messageforums.ui.DiscussionMessageBean;
 import org.sakaiproject.util.FormattedText;
@@ -143,7 +143,8 @@ public class ForumsEmailService {
 			String sitetitle = "";
 			BaseForum baseforum = reply.getTopic().getBaseForum();
 			try {
-				currentSite = SiteService.getSite(getToolManager()
+				SiteService siteService = ComponentManager.get(SiteService.class);
+				currentSite = siteService.getSite(getToolManager()
 						.getCurrentPlacement().getContext());
 			} catch (IdUnusedException e) {
 				log.error("ForumsEmailService.send(), Site ID not found: "
@@ -158,7 +159,8 @@ public class ForumsEmailService {
 			String topictitle = topic.getTitle();
 			String threadtitle = threadhead.getMessage().getTitle();
 			SimpleDateFormat formatter = new SimpleDateFormat(DiscussionForumTool.getResourceBundleString("date_format"), new ResourceLoader().getLocale());
-			formatter.setTimeZone(TimeService.getLocalTimeZone());
+			UserTimeService userTimeService = ComponentManager.get(UserTimeService.class);
+			formatter.setTimeZone(userTimeService.getLocalTimeZone());
 			content.append(DiscussionForumTool
 					.getResourceBundleString("email.body.location")
 					+ " "
@@ -171,69 +173,82 @@ public class ForumsEmailService {
 					+ " " + greaterThanHtml + " "
 					+ forumtitle
 					+ " " + greaterThanHtml + " "
-					+ topictitle
-					+ " " + greaterThanHtml + " " + threadtitle);
+					+ topictitle);
+			if (topic.getIncludeContentsInEmails()) {
+				content.append(" ").append(greaterThanHtml).append(" ").append(threadtitle);
+			}
 			content.append(newline);
 			content.append(newline);
 			content.append(DiscussionForumTool
 					.getResourceBundleString("email.body.author")
 					+ " " + anonAwareAuthor);
-			content.append(newline);
-			content.append(DiscussionForumTool
-					.getResourceBundleString("email.body.msgtitle")
-					+ " " + reply.getTitle());
+			if (topic.getIncludeContentsInEmails()) {
+				content.append(newline);
+				content.append(DiscussionForumTool.getResourceBundleString("email.body.msgtitle"))
+						.append(" ").append(reply.getTitle());
+			}
 			content.append(newline);
 			content.append(DiscussionForumTool
 					.getResourceBundleString("email.body.msgposted")
 					+ " " + formatter.format(reply.getCreated()));
 			content.append(newline);
 			content.append(newline);
-			content.append(reply.getBody());
+			if (topic.getIncludeContentsInEmails()) {
+				content.append(reply.getBody());
+			} else {
+				content.append(DiscussionForumTool.getResourceBundleString("email.body.noContents", new Object[] { fromName }));
+			}
 			content.append(newline);
 			content.append(newline);
 			if (log.isDebugEnabled()) {
 				log.debug("Email content: " + content.toString());
-			}
-			ArrayList<File> fileList = new ArrayList<File>();
-			ArrayList<String> fileNameList = new ArrayList<String>();
-			if (attachmentList != null) {
-				if (prefixedPath == null || "".equals(prefixedPath)) {
-					log.error("forum.email.prefixedPath is not set");
-					return;
-				}
-				Iterator<Attachment> iter = attachmentList.iterator();
-				while (iter.hasNext()) {
-					try {
-					a = (Attachment) iter.next();
-					log.debug("send(): file");
-					File attachedFile = getAttachedFile(a.getAttachmentId());
-					fileList.add(attachedFile);
-					fileNameList.add(a.getAttachmentName());
-					} catch (Exception e) {
-						log.warn("Failed to load attachment: "+ a.getAttachmentId(), e);
-					}
-				}
 			}
 
 			msg.setBody(FormattedText.escapeHtmlFormattedText(content.toString()));
 			msg.setContentType("text/html");
 			msg.setCharacterSet("utf-8");
 			msg.addHeader("Content-Transfer-Encoding", "quoted-printable");
-			org.sakaiproject.email.api.Attachment attachment;
-			for (int count = 0; count < fileList.size(); count++) {
-				attachment = new org.sakaiproject.email.api.Attachment(fileList
-						.get(count), fileNameList.get(count));
-				msg.addAttachment(attachment);
+			if (topic.getIncludeContentsInEmails()) {
+				// Create temporary files to send as attachments
+				ArrayList<File> fileList = new ArrayList<>();
+				ArrayList<String> fileNameList = new ArrayList<>();
+				if (attachmentList != null) {
+					if (prefixedPath == null || "".equals(prefixedPath)) {
+						log.error("forum.email.prefixedPath is not set");
+						return;
+					}
+					Iterator<Attachment> iter = attachmentList.iterator();
+					while (iter.hasNext()) {
+						try {
+						a = (Attachment) iter.next();
+						log.debug("send(): file");
+						File attachedFile = getAttachedFile(a.getAttachmentId());
+						fileList.add(attachedFile);
+						fileNameList.add(a.getAttachmentName());
+						} catch (Exception e) {
+							log.warn("Failed to load attachment: {}", a.getAttachmentId(), e);
+						}
+					}
+				}
+
+				// Attach temporary files to the emails
+				org.sakaiproject.email.api.Attachment attachment;
+				for (int count = 0; count < fileList.size(); count++) {
+					attachment = new org.sakaiproject.email.api.Attachment(fileList
+							.get(count), fileNameList.get(count));
+					msg.addAttachment(attachment);
+				}
 			}
 			
-			EmailService instance = org.sakaiproject.email.cover.EmailService.getInstance();
+			EmailService instance = ComponentManager.get(EmailService.class);
 			instance.send(msg);
 		} catch (AddressValidationException e) {
 			log.error("Failed to send all emails: "+ e.getMessage());
 		} catch (NoRecipientsException e) {
 			log.warn("No valid recipients found: "+ toEmailAddress.toString());
 		} finally {
-			if (attachmentList != null) {
+			if (attachmentList != null && reply.getTopic().getIncludeContentsInEmails()) {
+				// Clean up temporary files that were created for email attachments
 				if (prefixedPath != null && !"".equals(prefixedPath)) {
 					StringBuilder sbPrefixedPath;
 					Iterator<Attachment> iter = attachmentList.iterator();
@@ -252,7 +267,8 @@ public class ForumsEmailService {
 	private File getAttachedFile(String resourceId) throws PermissionException,
 			IdUnusedException, TypeException, ServerOverloadException,
 			IOException {
-		ContentResource cr = ContentHostingService.getResource(resourceId);
+		ContentHostingService contentHostingService = ComponentManager.get(ContentHostingService.class);;
+		ContentResource cr = contentHostingService.getResource(resourceId);
 		byte[] data = cr.getContent();
 		StringBuilder sbPrefixedPath = new StringBuilder(prefixedPath);
 		sbPrefixedPath.append("/email_tmp/");

@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<title>How do I enable student peer review for an assignment?</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta content="sakai.assignment" name="description">
+<meta content="peer review, peer assessment, peer evaluation" name="search">
+<link href="/library/skin/tool_base.css" media="screen" rel="stylesheet" type="text/css" charset="utf-8">
+<link href="../css/help.css" media="screen" rel="stylesheet" type="text/css" charset="utf-8">
+<link href="/library/skin/morpheus-default/tool.css" media="screen" rel="stylesheet" type="text/css" charset="utf-8">
+<link href="/library/js/jquery/featherlight/0.4.0/featherlight.min.css" media="screen" rel="stylesheet" type="text/css" charset="utf-8">
+<script src="/library/webjars/jquery/1.12.4/jquery.min.js" type="text/javascript" charset="utf-8"></script><script src="/library/js/jquery/featherlight/0.4.0/featherlight.min.js" type="text/javascript" charset="utf-8"></script><script type="text/javascript" charset="utf-8">
+    $(document).ready(function(){
+      $("a[rel^='featherlight']").featherlight({
+        type: { image:true },
+    closeOnClick: 'anywhere'
+      }); 
+    });   
+  </script>
+</head>
+<body>
+  <div id="wrapper"><div id="article-content">
+<div id="article-header"><h1 class="article-title">How do I define the default set of tools added to site on site creation?</h1></div>
+<div id="article-description">
+  <div class="step-instructions screensteps-textblock screensteps-wrapper--introduction screensteps-wrapper">
+  <p>The default tool suite (i.e. the tools added to a site on creation) is specified in the file toolOrder.xml file (located in the .../apache-tomcatxxx/sakai folder).</p>
+<p>See the sample extract from the toolOrder.xml file for course sites below:</p>
+<p class="indent1">	&lt;toolOrder&gt;&lt;category name="course"&gt;</p>
+<p class="indent1">	&lt;tool id="sakai.iframe.site"/&gt;</p>
+<p class="indent1">	&lt;tool id="sakai.synoptic.chat"/&gt;</p>
+<p class="indent1">	&lt;tool id="sakai.synoptic.announcement"/&gt;</p>
+<p class="indent1">	&lt;tool id="home" selected="true"/&gt;</p>
+<p class="indent1">	&lt;tool id="sakai.announcements" selected="true"/&gt;</p>
+<p class="indent1">	&lt;tool id="sakai.schedule"/&gt;</p>
+<p class="indent1">	&lt;tool id="sakai.syllabus"/&gt;</p>
+<p class="indent1">	&lt;tool id="sakai.resources" selected="true"/&gt;</p>
+<p class="indent1">	&lt;tool id="sakai.lessonbuildertool" selected="true"/&gt;</p>
+<p class="indent1">	&lt;tool id="sakai.podcasts"/&gt;</p>
+<p class="indent1">	&lt;tool id="sakai.rwiki"/&gt;</p>
+<p>      &lt;tool id="sakai.poll"/&gt;</p>
+<p class="indent1">	&lt;tool id="sakai.messagecenter"/&gt;</p>
+<p class="indent1">	&lt;tool id="sakai.forums"/&gt;</p>
+<p class="indent1">	&lt;tool id="sakai.messages"/&gt;</p>
+<p class="indent1">	&lt;tool id="sakai.discussion"/&gt;</p>
+<p class="indent1">	&lt;tool id="sakai.mailbox"/&gt;</p>
+<p class="indent1">	&lt;tool id="sakai.chat" selected="true"/&gt;</p>
+<p class="indent1">	&lt;tool id="sakai.dropbox"/&gt;</p>
+<p class="indent1">	&lt;tool id="sakai.assignment.grades" selected="true"/&gt;</p>
+<p class="indent1">	&lt;tool id="sakai.samigo"/&gt;</p>
+<p class="indent1">	&lt;tool id="sakai.gradebookng" selected="true"/&gt;</p>
+<p class="indent1">	&lt;tool id="sakai.postem"/&gt;</p>
+<p class="indent1">	&lt;tool id="sakai.news"/&gt;</p>
+<p class="indent1">	&lt;tool id="sakai.iframe"/&gt;</p>
+<p class="indent1">	&lt;tool id="sakai.sections"/&gt;</p>
+<p class="indent1">	&lt;tool id="sakai.site.roster" selected="true"/&gt;</p>
+<p class="indent1">	&lt;tool id="sakai.search" selected="true"/&gt;</p>
+<p class="indent1">	&lt;tool id="sakai.siteinfo" selected="true" required="true"/&gt;</p>
+<p class="indent1">	&lt;/category&gt;&lt;category name="project"&gt;</p>
+<p> </p>
+<p>The tools which include <strong>selected="true"</strong> will be selected by default when the person creating the site is on the <strong>Site Info &gt; Edit Tools &gt; Course Site Tools</strong> screen. </p>
+<p>The tools which include <strong>required="true"</strong>, such as Site Info, are mandatory tools. The user will not be able to de-select them on the <strong>Site Info &gt; Edit Tools &gt; Course Site Tools</strong> screen.</p>
+<p> If your instance of Sakai uses different site types (project, collaboration etc.), each site type can its own section in the toolOrder file.</p>
+</div>
+
+
+</div>
+</div></div>
+</body>
+</html>

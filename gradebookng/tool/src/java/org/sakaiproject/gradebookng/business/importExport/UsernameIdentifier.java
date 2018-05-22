@@ -48,11 +48,12 @@ public class UsernameIdentifier implements Serializable
 
     /**
      * Finds the user by the given identifier
-     * @param userID a string that uniquely identifies a user
+     * @param row - the row data 
      * @return the user
      */
-    private GbUser getUser(String userEID)
+    private GbUser getUser(ImportedRow row)
     {
+        String userEID = row.getStudentEid();
         GbUser user = userEidMap.get(userEID);
         if (user != null)
         {
@@ -61,8 +62,8 @@ public class UsernameIdentifier implements Serializable
         }
         else
         {
-            user = new GbUser(userEID, "");
-            report.addUnknownUser(userEID);
+            user = GbUser.forDisplayOnly(userEID, row.getStudentName().trim());
+            report.addUnknownUser(user);
             log.debug("User {} is unknown to this gradebook", userEID);
         }
 
@@ -80,7 +81,7 @@ public class UsernameIdentifier implements Serializable
     {
         for (ImportedRow row : rows)
         {
-            GbUser user = getUser(row.getStudentEid());
+            GbUser user = getUser(row);
             if (user != null)
             {
                 row.setUser(user);

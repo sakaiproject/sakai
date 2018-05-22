@@ -123,6 +123,16 @@
                                     </a>
                                 </li>
 
+                                    #if (${tabsSites.calendarToolUrl})
+            
+                                        <li class="Mrphs-userNav__submenuitem Mrphs-userNav__submenuitem-indented">
+                                            <a role="menuitem" href="${tabsSites.calendarToolUrl}" class="Mrphs-userNav__submenuitem--calendar">
+                                                <span>${rloader.sit_calendar}</span>
+                                            </a>
+                                        </li>
+            
+                                    #end ## END of IF (${tabsSites.calendarToolUrl})
+
                                     #if (${tabsSites.prefsToolUrl})
 
                                         <li class="Mrphs-userNav__submenuitem Mrphs-userNav__submenuitem-indented">

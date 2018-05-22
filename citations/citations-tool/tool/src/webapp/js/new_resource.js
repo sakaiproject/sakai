@@ -521,6 +521,12 @@ citations_new_resource.init = function() {
 		citations_new_resource.processClick(successObj);
 		return false;
 	});
+	$('#newCitationListForm .citationFields').on('keypress', function(e) {
+		if(e.which == 13) {
+			e.preventDefault();
+			return false;
+		}
+	});
 	$('#ImportCitation').on('click', function(eventObject) {
 		var successObj = {
 			invoke				: function(jsObj) {

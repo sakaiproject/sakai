@@ -181,6 +181,7 @@ public class SiteManageServiceImpl implements SiteManageService {
                         // handle Home tool specially, need to update the site infomration display url if needed
                         String newSiteInfoUrl = transferSiteResource(oSiteId, nSiteId, site.getInfoUrl());
                         site.setInfoUrl(newSiteInfoUrl);
+                        saveSite(site);
                     } else {
                         // other
                         // tools

@@ -49,7 +49,6 @@
        
        #delivPageWrapper
        {
-            height:1800px;
             width: 100%
             float: left;
        }
@@ -57,12 +56,10 @@
        #delivAssessmentWrapper
        {
             width: 96%;
-            float: left;
        }
       </style>
 
       <%@ include file="/jsf/delivery/deliveryjQuery.jsp" %>
-      <samigo:script path="/../library/js/headscripts.js"/>
       <samigo:script path="/../sakai-editor/editor-bootstrap.js"/>
       <samigo:script path="/../sakai-editor/editor.js"/>
       <samigo:script path="/../sakai-editor/editor-launch.js"/>

@@ -20,7 +20,6 @@
  **********************************************************************************/
 package org.sakaiproject.component.app.messageforums.dao.hibernate;
 
-import java.util.Comparator;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -36,7 +35,6 @@ import org.sakaiproject.api.app.messageforums.BaseForum;
 import org.sakaiproject.api.app.messageforums.DBMembershipItem;
 import org.sakaiproject.api.app.messageforums.Message;
 import org.sakaiproject.api.app.messageforums.OpenForum;
-import org.sakaiproject.api.app.messageforums.PermissionLevel;
 import org.sakaiproject.api.app.messageforums.PrivateForum;
 import org.sakaiproject.api.app.messageforums.Topic;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.util.comparator.AttachmentByCreatedDateDesc;
@@ -74,6 +72,8 @@ public abstract class TopicImpl extends MutableEntityImpl implements Topic {
     private Boolean postFirst;
     private Boolean postAnonymous = Boolean.FALSE;
     private Boolean revealIDsToRoles = Boolean.FALSE;
+    private Boolean allowEmailNotifications = Boolean.TRUE;
+    private Boolean includeContentsInEmails = Boolean.TRUE;
     
     /**
      * availabilityRestricted: this is the radio button the users turns on or off this feature with
@@ -424,4 +424,19 @@ public abstract class TopicImpl extends MutableEntityImpl implements Topic {
 		this.revealIDsToRoles = revealIDsToRoles;
 	}
 
+	public Boolean getAllowEmailNotifications() {
+		return allowEmailNotifications;
+	}
+
+	public void setAllowEmailNotifications(Boolean allowEmailNotifications) {
+		this.allowEmailNotifications = allowEmailNotifications;
+	}
+
+	public Boolean getIncludeContentsInEmails() {
+		return includeContentsInEmails;
+	}
+
+	public void setIncludeContentsInEmails(Boolean includeContentsInEmails) {
+		this.includeContentsInEmails = includeContentsInEmails;
+	}
 }

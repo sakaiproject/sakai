@@ -21,7 +21,8 @@
 -->
 
 <script type="text/JavaScript">
-function addAttachments(field){
+function addAttachments(event, field){
+event.preventDefault();
 var insertlinkid= field.id.replace("addAttachments", "hiddenlink");
 var newindex = 0;
 for (i=0; i<document.links.length; i++) {
@@ -32,10 +33,11 @@ for (i=0; i<document.links.length; i++) {
   }
 }
 
-document.links[newindex].onclick();
+document.links[newindex].click();
 }
 
-function addRemoveAttachments(field){
+function addRemoveAttachments(event, field){
+event.preventDefault();
 var insertlinkid= field.id.replace("addRemoveAttachments", "hiddenlink");
 var newindex = 0;
 for (i=0; i<document.links.length; i++) {
@@ -46,7 +48,7 @@ for (i=0; i<document.links.length; i++) {
   }
 }
 
-document.links[newindex].onclick();
+document.links[newindex].click();
 }
 
 </script>
@@ -76,10 +78,10 @@ document.links[newindex].onclick();
   </h:panelGroup>
 
   <h:commandButton tabindex="-1" value="#{assessmentSettingsMessages.add_attachments}" type="button" id="addAttachments" rendered="#{!question.hasItemGradingAttachment}"
-       style="act" onclick="addAttachments(this);" onkeypress="addAttachments(this);" />
+       style="act" onclick="addAttachments(event, this);" onkeypress="addAttachments(event, this);" />
 
   <h:commandButton tabindex="-1" value="#{assessmentSettingsMessages.add_remove_attachments}" type="button" id="addRemoveAttachments" rendered="#{question.hasItemGradingAttachment}"
-       style="act" onclick="addRemoveAttachments(this);" onkeypress="addRemoveAttachments(this);" />
+       style="act" onclick="addRemoveAttachments(event, this);" onkeypress="addRemoveAttachments(event, this);" />
 
     <h:commandLink tabindex="-1" id="hiddenlink" action="#{studentScores.addAttachmentsRedirect}">
       <f:param name="itemGradingId" value="#{question.itemGradingIdForFilePicker}" />

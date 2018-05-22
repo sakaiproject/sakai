@@ -154,7 +154,7 @@ public interface UsageSessionService
 	 * 
 	 * @return a Map (server id -> List (UsageSession)) of all open sessions, ordered by server, then by start (asc)
 	 */
-	Map<String, UsageSession> getOpenSessionsByServer();
+	Map<String, List<UsageSession>> getOpenSessionsByServer();
 	
 	/**
 	 * Start a usage session and do any other book-keeping needed to login a user who has already been authenticated.

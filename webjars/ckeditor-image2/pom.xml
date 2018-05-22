@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.sakaiproject</groupId>
+        <artifactId>oss-parent</artifactId>
+        <version>1</version>
+        <relativePath></relativePath>
+    </parent> 
+
+    <packaging>jar</packaging>
+    <groupId>org.sakaiproject.webjars</groupId>
+    <artifactId>ckeditor-image2</artifactId>
+    <name>CKEditor-image2-webjar</name>
+    <description>WebJar for CKEditor-image2</description>
+    <url>http://webjars.org</url>
+
+    <!-- You must keep these synced in master so they're picked up correctly in library -->
+    <!-- They're separate here so this can be released independently of the rest of Sakai -->
+    <!-- Either use a tag or a SHA so the version is predictable. -->
+    <!-- Source at https://ckeditor.com/cke4/addon/image2 -->
+    <version>4.9.1</version>
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <upstream.version>${project.version}</upstream.version>
+        <upstream.url>https://download.ckeditor.com/image2/releases/image2_${upstream.version}.zip</upstream.url>
+        <destDir>${project.build.outputDirectory}/META-INF/resources/webjars/image2/${upstream.version}</destDir>
+        <requirejs>
+            {
+                "paths": {
+                    "image2": "image2",
+                }
+            }
+        </requirejs>
+    </properties>
+
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <version>1.8</version>
+                <executions>
+                    <execution>
+                        <phase>process-resources</phase>
+                        <goals><goal>run</goal></goals>
+                        <configuration>
+                            <target>
+                                <mkdir dir="${destDir}" />
+                                <get src="${upstream.url}" dest="${project.build.directory}/${project.artifactId}.zip" />
+                                <echo message="unzip archives" />
+                                <unzip src="${project.build.directory}/${project.artifactId}.zip" dest="${project.build.directory}"/>
+                                    
+                                <echo message="moving resources" />
+                                <move todir="${destDir}">
+                                    <fileset dir="${project.build.directory}/image2" excludes="samples/" />
+                                </move>
+                            </target>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>

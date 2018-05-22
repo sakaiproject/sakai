@@ -354,7 +354,6 @@
 		<event eventId="sam.assessment.submit.auto" selected="true"/>
 		<event eventId="sam.assessment.submit.from_last" selected="true"/>
 		<event eventId="sam.assessment.submit.from_toc" selected="true"/>
-		<event eventId="sam.assessment.submit.thread" selected="true"/>
 		<event eventId="sam.assessment.submit.timer" selected="true"/>
 		<event eventId="sam.assessment.submit.timer.url" selected="true"/>
 		<event eventId="sam.assessment.submit.timer.thrd" selected="true"/>

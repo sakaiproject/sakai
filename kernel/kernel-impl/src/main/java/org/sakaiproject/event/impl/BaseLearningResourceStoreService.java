@@ -446,7 +446,7 @@ public class BaseLearningResourceStoreService implements LearningResourceStoreSe
                 verb = new LRS_Verb(SAKAI_VERB.shared);
             } else if ("gradebook.read".equals(e)) {
                 verb = new LRS_Verb(SAKAI_VERB.experienced);
-            } else if ("lessonbuilder.read".equals(e)) {
+            } else if ("lessonbuilder.page.read".equals(e) || "lessonbuilder.item.read".equals(e)) {
                 verb = new LRS_Verb(SAKAI_VERB.experienced);
             } else if ("news.read".equals(e)) {
                 verb = new LRS_Verb(SAKAI_VERB.experienced);
@@ -492,7 +492,7 @@ public class BaseLearningResourceStoreService implements LearningResourceStoreSe
                 object = new LRS_Object(serverConfigurationService.getAccessUrl() + event.getResource(), "edit-resource");
             } else if ("gradebook.read".equals(e)) {
                 object = new LRS_Object(serverConfigurationService.getPortalUrl() + event.getResource(), "view-grades");
-            } else if ("lessonbuilder.read".equals(e)) {
+            } else if ("lessonbuilder.page.read".equals(e) || "lessonbuilder.item.read".equals(e)) {
                 object = new LRS_Object(serverConfigurationService.getPortalUrl() + event.getResource(), "view-lesson");
             } else if ("news.read".equals(e)) {
                 object = new LRS_Object(serverConfigurationService.getPortalUrl() + event.getResource(), "view-news");
@@ -529,7 +529,7 @@ public class BaseLearningResourceStoreService implements LearningResourceStoreSe
                 origin = ORIGIN_SAKAI_CONTENT;
             } else if ("gradebook.read".equals(e)) {
                 origin = "gradebook";
-            } else if ("lessonbuilder.read".equals(e)) {
+            } else if ("lessonbuilder.page.read".equals(e) || "lessonbuilder.item.read".equals(e)) {
                 origin = "lessonbuilder";
             } else if ("news.read".equals(e)) {
                 origin = "news";

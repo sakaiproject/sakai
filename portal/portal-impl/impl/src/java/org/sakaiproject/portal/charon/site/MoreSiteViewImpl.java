@@ -41,6 +41,7 @@ import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.portal.api.Portal;
 import org.sakaiproject.portal.api.SiteNeighbourhoodService;
+import org.sakaiproject.portal.util.PortalUtils;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.api.ToolConfiguration;
@@ -50,9 +51,6 @@ import org.sakaiproject.user.api.Preferences;
 import org.sakaiproject.user.api.PreferencesService;
 
 import org.sakaiproject.util.ResourceLoader;
-import org.sakaiproject.coursemanagement.api.AcademicSession;
-import org.sakaiproject.coursemanagement.api.CourseManagementService;
-import org.sakaiproject.component.cover.ComponentManager;
 
 import org.sakaiproject.util.Web;
 import lombok.extern.slf4j.Slf4j;
@@ -65,7 +63,6 @@ public class MoreSiteViewImpl extends AbstractSiteViewImpl
 {
 	/** messages. */
 	private static ResourceLoader rb = new ResourceLoader("sitenav");
-	private CourseManagementService courseManagementService = (CourseManagementService) ComponentManager.get(CourseManagementService.class);
 
 	/**
 	 * @param siteHelper
@@ -123,10 +120,12 @@ public class MoreSiteViewImpl extends AbstractSiteViewImpl
 		processMySites();
 
 		String profileToolId = serverConfigurationService.getString("portal.profiletool","sakai.profile2");
+		String calendarToolId = serverConfigurationService.getString("portal.calendartool","sakai.schedule");
 		String preferencesToolId = serverConfigurationService.getString("portal.preferencestool","sakai.preferences");
 		String worksiteToolId = serverConfigurationService.getString("portal.worksitetool","sakai.sitesetup");
 
  		String profileToolUrl = null;
+		String calendarToolUrl = null;
  		String worksiteToolUrl = null;
  		String prefsToolUrl = null;
  		String mrphs_profileToolUrl = null;
@@ -148,6 +147,8 @@ public class MoreSiteViewImpl extends AbstractSiteViewImpl
                             if ( profileToolId.equals(placement.getToolId()) ) {
                                 profileToolUrl = Web.returnUrl(request, "/site/" + Web.escapeUrl(siteHelper.getSiteEffectiveId(s)) + "/page/" + Web.escapeUrl(p.getId()));
                                 mrphs_profileToolUrl = Web.returnUrl(request, "/site/" + Web.escapeUrl(siteHelper.getSiteEffectiveId(s)) + "/tool-reset/" + Web.escapeUrl(placement.getId()));
+                            } else if ( calendarToolId.equals(placement.getToolId()) ) {
+                                calendarToolUrl = Web.returnUrl(request, "/site/" + Web.escapeUrl(siteHelper.getSiteEffectiveId(s)) + "/page/" + Web.escapeUrl(p.getId()));
                             } else if ( preferencesToolId.equals(placement.getToolId()) ) {
                                 prefsToolUrl = Web.returnUrl(request, "/site/" + Web.escapeUrl(siteHelper.getSiteEffectiveId(s)) + "/page/" + Web.escapeUrl(p.getId()));
                                 mrphs_prefsToolUrl = Web.returnUrl(request, "/site/" + Web.escapeUrl(siteHelper.getSiteEffectiveId(s)) + "/tool-reset/" + Web.escapeUrl(placement.getId()));
@@ -167,6 +168,9 @@ public class MoreSiteViewImpl extends AbstractSiteViewImpl
 		if ( profileToolUrl != null ) {
 			renderContextMap.put("profileToolUrl", profileToolUrl);
 			renderContextMap.put("mrphs_profileToolUrl", mrphs_profileToolUrl);
+		}
+		if ( calendarToolUrl != null ) {
+			renderContextMap.put("calendarToolUrl", calendarToolUrl);
 		}
 		if ( prefsToolUrl != null ) {
 			renderContextMap.put("prefsToolUrl", prefsToolUrl);
@@ -364,56 +368,8 @@ public class MoreSiteViewImpl extends AbstractSiteViewImpl
 
 		}
 
-		String[] termOrder = serverConfigurationService
-				.getStrings("portal.term.order");
-		List<String> tabsMoreSortedTermList = new ArrayList<String>();
-
-		// Order term column headers according to order specified in
-		// portal.term.order
-		// Filter out terms for which user is not a member of any sites
-		
-		// SAK-19464 - Set tab order
-		// Property portal.term.order 
-		// Course sites (sorted in order by getAcademicSessions START_DATE ASC)
-		// Rest of terms in alphabetic order
-		if (termOrder != null)
-		{
-			for (int i = 0; i < termOrder.length; i++)
-			{
-
-				if (tabsMoreTerms.containsKey(termOrder[i]))
-				{
-
-					tabsMoreSortedTermList.add(termOrder[i]);
-
-				}
-
-			}
-		}
-		
-
-		if (courseManagementService != null) {
-			Collection<AcademicSession> sessions = courseManagementService.getAcademicSessions();
-			for (AcademicSession s: sessions) {
-				String title = s.getTitle();
-				if (tabsMoreTerms.containsKey(title)) {
-					if (!tabsMoreSortedTermList.contains(title)) {
-						tabsMoreSortedTermList.add(title);
-					}
-				}
-			}
-		}
-
-		Iterator i = tabsMoreTerms.keySet().iterator();
-		while (i.hasNext())
-		{
-			String term = (String) i.next();
-			if (!tabsMoreSortedTermList.contains(term))
-			{
-				tabsMoreSortedTermList.add(term);
-
-			}
-		}
+		//Get a list of sorted terms
+		List<String> tabsMoreSortedTermList = PortalUtils.getPortalTermOrder(tabsMoreTerms.keySet());
 
 		SitePanesArrangement sitesByPane = arrangeSitesIntoPanes(tabsMoreTerms);
 		renderContextMap.put("tabsMoreTermsLeftPane", sitesByPane.sitesInLeftPane);

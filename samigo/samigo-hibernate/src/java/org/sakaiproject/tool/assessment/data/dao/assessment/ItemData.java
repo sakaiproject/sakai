@@ -27,6 +27,8 @@ import java.util.ResourceBundle;
 import java.util.Set;
 
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang.StringUtils;
+import org.sakaiproject.samigo.util.SamigoConstants;
 import org.sakaiproject.tool.assessment.data.dao.shared.TypeD;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AnswerIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemAttachmentIfc;
@@ -720,9 +722,30 @@ public ItemData() {}
 		}
 		return answerKey;
 	}
-   
-   List<AnswerIfc> answerArray = itemTextArray.get(0).getAnswerArraySorted();
-   HashMap<String, String> h = new HashMap<String, String>();
+
+	else if (typeId.equals(TypeD.MATCHING)) {
+
+		List<String> answerKeys = new ArrayList<>(itemTextArray.size());
+		for (ItemTextIfc question : itemTextArray) {
+			boolean isDistractor = true;
+
+			List<AnswerIfc> answersSorted = question.getAnswerArraySorted();
+			for (AnswerIfc answer : answersSorted) {
+				if (!getPartialCreditFlag() && answer.getIsCorrect()) {
+					answerKeys.add(question.getSequence() + ":" + answer.getLabel());
+					isDistractor = false;
+					break;
+				}
+			}
+
+			if (isDistractor) {
+				answerKeys.add(question.getSequence() + ":" + Character.toString(SamigoConstants.ALPHABET.charAt(answersSorted.size())));
+			}
+		}
+
+		answerKey = StringUtils.join(answerKeys, ", ");
+		return answerKey;
+	}
 
    for (int i=0; i<itemTextArray.size();i++){
 	   ItemTextIfc text = itemTextArray.get(i);
@@ -730,7 +753,6 @@ public ItemData() {}
 	   for (int j=0; j<answers.size();j++){
 		   AnswerIfc a = answers.get(j);
 		   if (!this.getPartialCreditFlag() && (Boolean.TRUE).equals(a.getIsCorrect())){
-			   String pair = (String)h.get(a.getLabel());
 			   if((!this.getTypeId().equals(TypeD.MATCHING))&&(!this.getTypeId().equals(TypeD.IMAGEMAP_QUESTION)))
 			   {
 				   if(this.getTypeId().equals(TypeD.TRUE_FALSE))
@@ -747,17 +769,6 @@ public ItemData() {}
 					   {
 						   answerKey+=","+a.getLabel();
 					   }
-				   }
-			   }
-			   else if (this.getTypeId().equals(TypeD.MATCHING)){
-				   if (pair==null)
-				   {
-					   String s = a.getLabel() + ":" + text.getSequence();
-					   h.put(a.getLabel(), s);
-				   }
-				   else
-				   {
-					   h.put(a.getLabel(), pair+" "+text.getSequence());
 				   }
 			   }
 		   }
@@ -778,29 +789,8 @@ public ItemData() {}
 		   }
 	   }
    }
-   
-   if (this.getTypeId().equals(TypeD.MATCHING))
-   {
-	   for (int k=0; k<answerArray.size();k++)
-	   {
-		   AnswerIfc a = (AnswerIfc)answerArray.get(k);
-		   String pair = (String)h.get(a.getLabel());
-		   //if answer is not a match to any text, just print answer label
-		   if (pair == null)
-		       pair = a.getLabel()+": ";
-
-		   if (k!=0)
-		       answerKey = answerKey+",  "+pair;
-		   else
-
-		       answerKey = pair;
-	   }
-   }
-
-
 
    return answerKey;
-
   }
 
   public int compareTo(ItemDataIfc o) {

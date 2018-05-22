@@ -88,16 +88,6 @@
 		});
 
 		$(document).ready(function() {
-			$('.sakai-wicket-iconwithtooltip').cluetip({
-				local: true,
-				showTitle: false,
-				attribute: 'rel',
-				cursor: 'pointer',
-				cluetipClass: 'jtip',
-				arrows: true,
-				hoverIntent: true
-			});
-			
 			// PRFL-451. The Wicket multi file upload component adds input tags to this container
 			// for each file chosen. If we bind to it we can check what is being added.
 			$('.add-form-item').bind('DOMNodeInserted', function(e) {

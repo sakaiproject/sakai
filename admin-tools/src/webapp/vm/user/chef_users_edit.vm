@@ -106,7 +106,7 @@ function removeOptionalAttributeBlock(elem) {
 				#if($user)$validator.escapeHtml($user.Email)#elseif($valueEmail)$validator.escapeHtml($valueEmail)#end
 			#end
 			</div>	
-#if ($incPw)
+#if ($incPw && !$providedUserType)
   #if(!$!superUser)
     #if ($service.allowUpdateUserName($user.Id) || $service.allowUpdateUserEmail($user.Id) || $service.allowUpdateUserPassword($user.Id) || !$user)
         <div class="shorttext">
@@ -185,7 +185,7 @@ function removeOptionalAttributeBlock(elem) {
 			</div>
 			<div class="shorttext">
 				<label>$tlang.getString("useedi.cre")</label>
-				$validator.escapeHtml($user.CreatedTime.toStringLocalFull())
+				$validator.escapeHtml($userCreated)
 			</div>
 			<div class="shorttext">
 				<label>$tlang.getString("useedi.modby")</label>
@@ -193,7 +193,7 @@ function removeOptionalAttributeBlock(elem) {
 			</div>	
 			<div class="shorttext">
 				<label>$tlang.getString("useedi.mod")</label>
-				$validator.escapeHtml($user.ModifiedTime.toStringLocalFull())
+				$validator.escapeHtml($userModifiedDate)
 			</div>	
 			<div class="shorttext">
 				<label>$tlang.getString("useconrem.useuid")</label>

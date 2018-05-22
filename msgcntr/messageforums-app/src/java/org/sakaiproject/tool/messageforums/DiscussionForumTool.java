@@ -55,16 +55,8 @@ import javax.faces.model.SelectItem;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
-import lombok.extern.slf4j.Slf4j;
-import net.sf.json.JSON;
-import net.sf.json.JSONArray;
-import net.sf.json.JSONObject;
-import net.sf.json.JSONSerializer;
-import net.sf.json.JsonConfig;
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.lang.StringUtils;
-import org.springframework.orm.hibernate4.HibernateOptimisticLockingFailureException;
-
 import org.sakaiproject.api.app.messageforums.AnonymousManager;
 import org.sakaiproject.api.app.messageforums.Area;
 import org.sakaiproject.api.app.messageforums.AreaManager;
@@ -95,17 +87,16 @@ import org.sakaiproject.api.app.messageforums.cover.SynopticMsgcntrManagerCover;
 import org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager;
 import org.sakaiproject.api.app.messageforums.ui.UIPermissionsManager;
 import org.sakaiproject.authz.api.AuthzGroup;
+import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.GroupNotDefinedException;
 import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.authz.api.Role;
-import org.sakaiproject.authz.api.AuthzGroupService;
-import org.sakaiproject.authz.cover.SecurityService;
+import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.app.messageforums.MembershipItem;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.util.comparator.ForumBySortIndexAscAndCreatedDateDesc;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentHostingService;
-import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.content.api.ContentResourceEdit;
 import org.sakaiproject.content.api.FilePickerHelper;
 import org.sakaiproject.entity.api.Entity;
@@ -115,6 +106,7 @@ import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.entitybroker.DeveloperHelperService;
 import org.sakaiproject.entitybroker.util.SakaiToolData;
 import org.sakaiproject.event.api.Event;
+import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.event.api.LearningResourceStoreService;
 import org.sakaiproject.event.api.LearningResourceStoreService.LRS_Actor;
 import org.sakaiproject.event.api.LearningResourceStoreService.LRS_Object;
@@ -123,18 +115,17 @@ import org.sakaiproject.event.api.LearningResourceStoreService.LRS_Statement;
 import org.sakaiproject.event.api.LearningResourceStoreService.LRS_Verb;
 import org.sakaiproject.event.api.LearningResourceStoreService.LRS_Verb.SAKAI_VERB;
 import org.sakaiproject.event.api.NotificationService;
-import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.service.gradebook.shared.Assignment;
 import org.sakaiproject.service.gradebook.shared.GradeDefinition;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
-import org.sakaiproject.site.cover.SiteService;
-import org.sakaiproject.thread_local.cover.ThreadLocalManager;
+import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.thread_local.api.ThreadLocalManager;
+import org.sakaiproject.tool.api.SessionManager;
+import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.tool.api.ToolSession;
-import org.sakaiproject.tool.cover.SessionManager;
-import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.tool.messageforums.ui.DecoratedAttachment;
 import org.sakaiproject.tool.messageforums.ui.DiscussionAreaBean;
 import org.sakaiproject.tool.messageforums.ui.DiscussionForumBean;
@@ -145,10 +136,18 @@ import org.sakaiproject.tool.messageforums.ui.ForumRankBean;
 import org.sakaiproject.tool.messageforums.ui.PermissionBean;
 import org.sakaiproject.tool.messageforums.ui.SiteGroupBean;
 import org.sakaiproject.user.api.User;
+import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
-import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.util.ResourceLoader;
+import org.springframework.orm.hibernate4.HibernateOptimisticLockingFailureException;
+
+import lombok.extern.slf4j.Slf4j;
+import net.sf.json.JSON;
+import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
+import net.sf.json.JSONSerializer;
+import net.sf.json.JsonConfig;
 
 /**
  * @author <a href="mailto:rshastri@iupui.edu">Rashmi Shastri</a>
@@ -208,7 +207,7 @@ public class DiscussionForumTool
   private List totalGroupsUsersList;
   private List selectedGroupsUsersList;
   private Map courseMemberMap;
-  private List permissions;
+  private List<PermissionBean> permissions;
   private List levels;
   private AreaManager areaManager;
   private int numPendingMessages = 0;
@@ -379,7 +378,14 @@ public class DiscussionForumTool
   private AuthzGroupService authzGroupService;
   private LearningResourceStoreService learningResourceStoreService;
   private EventTrackingService eventTrackingService;
-  
+  private UserDirectoryService userDirectoryService;
+  private SiteService siteService;
+  private SecurityService securityService;
+  private SessionManager sessionManager;
+  private ToolManager toolManager;
+  private ThreadLocalManager threadLocalManager;
+
+
   private Boolean instructor = null;
   private Boolean sectionTA = null;
   private Boolean newForum = null;
@@ -398,8 +404,7 @@ public class DiscussionForumTool
 
   private int selectedMessageCount = 0;
   
-  private List siteGroups = new ArrayList();
-  private boolean createTopicsForGroups = false;  
+  private List<SiteGroupBean> siteGroups = new ArrayList<>();
 
   private boolean dialogGradeSavedSuccessfully = false;
   
@@ -438,7 +443,31 @@ public class DiscussionForumTool
 	  this.eventTrackingService = eventTrackingService;
   }
 
-private String editorRows;
+  public void setUserDirectoryService(UserDirectoryService userDirectoryService) {
+	this.userDirectoryService = userDirectoryService;
+  }
+
+  public void setSiteService(SiteService siteService) {
+	this.siteService = siteService;
+  }
+  
+  public void setSecurityService(SecurityService securityService) {
+	this.securityService = securityService;
+  }
+
+  public void setSessionManager(SessionManager sessionManager) {
+	this.sessionManager = sessionManager;
+  }
+
+  public void setToolManager(ToolManager toolManager) {
+	this.toolManager = toolManager;
+  }
+
+  public void setThreadLocalManager(ThreadLocalManager threadLocalManager) {
+	this.threadLocalManager = threadLocalManager;
+  }
+
+  private String editorRows;
   
   private boolean threadMoved;
 
@@ -486,7 +515,7 @@ private String editorRows;
 		  }
 			
 		  GradebookService g = (GradebookService) og;
-		  String gradebookUid = ToolManager.getInstance().getCurrentPlacement().getContext();
+		  String gradebookUid = toolManager.getCurrentPlacement().getContext();
 		  if (g.isGradebookDefined(gradebookUid) && (g.currentUserHasEditPerm(gradebookUid) || g.currentUserHasGradingPerm(gradebookUid)))
 		  {
 			  rv = true;
@@ -621,7 +650,7 @@ private String editorRows;
 	     userId = getUserId();
 	     
 	     boolean hasOverridingPermissions = false;
-	     if(SecurityService.isSuperUser()
+	     if(securityService.isSuperUser()
 	           || isInstructor()){
 	    	 hasOverridingPermissions = true;
 	     }
@@ -633,7 +662,7 @@ private String editorRows;
 	    	 // query the database for all of the forums that are associated with the current site
 	    	 List<DiscussionForum> tempForums = forumManager.getForumsForMainPage();
 	    	 if (tempForums == null || tempForums.size() < 1) {	    	 
-	    		 if(SecurityService.isSuperUser() && ServerConfigurationService.getBoolean("forums.setDefault.forum", true)){
+	    		 if(securityService.isSuperUser() && ServerConfigurationService.getBoolean("forums.setDefault.forum", true)){
 	    			 //initialize area:
 	    			 forumManager.getDiscussionForumArea();
 	    			 //try again:
@@ -722,7 +751,7 @@ private String editorRows;
 	    		 GradebookService gradebookService = getGradebookService();
 
 	    		 if(getGradebookExist()) {
-	    			 List gradeAssignmentsBeforeFilter = gradebookService.getAssignments(ToolManager.getCurrentPlacement().getContext());
+	    			 List gradeAssignmentsBeforeFilter = gradebookService.getAssignments(toolManager.getCurrentPlacement().getContext());
 	    			 for(int i=0; i<gradeAssignmentsBeforeFilter.size(); i++) {
 	    				 Assignment thisAssign = (Assignment) gradeAssignmentsBeforeFilter.get(i);
 	    				 if(!thisAssign.isExternallyMaintained()) {
@@ -1222,7 +1251,7 @@ private String editorRows;
    */
   public String processActionForumSettings()
   {
-    log.debug("processForumSettings()");
+    log.debug("processActionForumSettings()");
     forumClickCount = 0;
     topicClickCount = 0;
     setEditMode(true);
@@ -1347,8 +1376,8 @@ private String editorRows;
       setErrorMessage(getResourceBundleString(INSUFFICIENT_PRIVILEGES_CHAGNE_FORUM));
       return gotoMain();
     }   
-    
-    DiscussionForum forum = saveForumSettings(false);    
+
+    DiscussionForum forum = processForumSettings(false);
     if(!uiPermissionsManager.isNewTopic(selectedForum.getForum()))
     {
       setErrorMessage(getResourceBundleString(INSUFFICIENT_PRIVILEGES_CREATE_TOPIC));
@@ -1366,7 +1395,8 @@ private String editorRows;
     }
     setPermissionMode(PERMISSION_MODE_TOPIC);
     siteGroups.clear();
-    createTopicsForGroups = false;
+    selectedForum.getForum().setRestrictPermissionsForGroups(false);
+    selectedTopic.getTopic().setRestrictPermissionsForGroups(false);
     attachments.clear();
     prepareRemoveAttach.clear();
     
@@ -1420,10 +1450,9 @@ private String editorRows;
       setErrorMessage(getResourceBundleString(VALID_FORUM_TITLE_WARN));
       return FORUM_SETTING_REVISE;
     }    
-    saveForumSettings(false);
-    
-    //reset();
-    //return MAIN;
+    if(processForumSettings(false) == null){
+        return null;
+    }
     return processReturnToOriginatingPage();
   }
 
@@ -1471,11 +1500,21 @@ private String editorRows;
       setErrorMessage(getResourceBundleString(VALID_FORUM_TITLE_WARN));
       return FORUM_SETTING_REVISE;
     }    
-    saveForumSettings(true);
-    
-    //reset();
-    //return MAIN;
+    if(processForumSettings(true) == null){
+        return null;
+    }
     return processReturnToOriginatingPage();
+  }
+
+  private DiscussionForum processForumSettings(boolean draft){
+    if (selectedForum.getForum().getRestrictPermissionsForGroups() && selectedForum.getForum().getId() == null) {
+        if (!saveForumsForGroups(draft)) {
+            return null;
+        }
+    } else {
+        saveForumSettings(draft);
+    }
+    return selectedForum.getForum();
   }
 
   private DiscussionForum saveForumSettings(boolean draft)
@@ -1511,13 +1550,12 @@ private String editorRows;
 	if(forum.getShortDescription()!=null && forum.getShortDescription().length() > 255){
 		forum.setShortDescription(forum.getShortDescription().substring(0, 255));
 	}
-    
-    
+
     if ("<br/>".equals(forum.getExtendedDescription()))
 	{
 		forum.setExtendedDescription("");
 	}
-    
+
     saveForumSelectedAssignment(forum);
     saveForumAttach(forum);  
     setObjectPermissions(forum);
@@ -1537,7 +1575,7 @@ private String editorRows;
     		updateSynopticMessagesForForumComparingOldMessagesCount(getSiteId(), forum.getId(), null, beforeChangeHM, SynopticMsgcntrManager.NUM_OF_ATTEMPTS);
     	}        
     }
-    
+
     return forum;
   }
 
@@ -1603,12 +1641,9 @@ private String editorRows;
 		  }
 		  
 		  if(oldMembershipItemSet != null){
-			  Iterator iter = permissions.iterator();
-		      while (iter.hasNext())
-		      {
-		        PermissionBean permBean = (PermissionBean) iter.next();
+		      for (PermissionBean permBean : permissions) {
 		        if(permBean.getItem().getId() == null){
-					//this is a new permission set, a group more than likely, so update b/c this rarely happens anyways
+		        	//this is a new permission set, a group more than likely, so update b/c this rarely happens anyways
 		        	//and state isn't positive
 		        	update = true;
 		        	break;
@@ -1631,13 +1666,9 @@ private String editorRows;
 		      }
 		  }
 	  }
-		  
-	  
+
 	  return update;
   }
-  
-  
-
 
   /**
    * @return Returns the selectedTopic.
@@ -1698,7 +1729,6 @@ private String editorRows;
     attachments.clear();
     prepareRemoveAttach.clear();
     siteGroups.clear();
-    createTopicsForGroups = false;
     setFromMainOrForumOrTopic();
 
     return TOPIC_SETTING_REVISE;
@@ -1760,7 +1790,6 @@ private String editorRows;
     
     setFromMainOrForumOrTopic();
     siteGroups.clear();
-    createTopicsForGroups = false;
     return TOPIC_SETTING_REVISE;
   }
 
@@ -1809,14 +1838,11 @@ private String editorRows;
     {
     	forumManager.approveAllPendingMessages(selectedTopic.getTopic().getId());
     }
-    
-    if (createTopicsForGroups ) {
-        if (!saveTopicsForGroups(false)) {
-            return null;
-        }
-    } else {
-        saveTopicSettings(false);
+
+    if(processTopicSettings(false) == null){
+        return null;
     }
+
     Long forumId = selectedForum.getForum().getId();
     if (forumId == null)
     {
@@ -1836,7 +1862,7 @@ private String editorRows;
     attachments.clear();
     prepareRemoveAttach.clear();
     siteGroups.clear();
-    createTopicsForGroups = false;
+    selectedTopic.getTopic().setRestrictPermissionsForGroups(false);
 	LRS_Statement statement = null;
     if (null != learningResourceStoreService) {
     	try{
@@ -1912,12 +1938,8 @@ private String editorRows;
     	beforeChangeHM = SynopticMsgcntrManagerCover.getUserToNewMessagesForForumMap(getSiteId(), forumId, null); 	
     }
 
-    if (createTopicsForGroups ) {
-        if (!saveTopicsForGroups(false)) {
-            return null;
-        }
-    } else {
-        saveTopicSettings(false);  
+    if(processTopicSettings(false) == null){
+        return null;
     }
 
     if(updateSynopticCounts){
@@ -1988,17 +2010,24 @@ private String editorRows;
       setErrorMessage(getResourceBundleString(INSUFFICIENT_PRIVILEGES_NEW_TOPIC));
       return gotoMain();
     }
-    if (createTopicsForGroups ) {
-        if (!saveTopicsForGroups(true)) {
-            return null;
-        }
-    } else {
-        saveTopicSettings(true);  
-    }   
+    if(processTopicSettings(true) == null){
+        return null;
+    }
     //reset();
     //return MAIN;
     
     return processReturnToOriginatingPage();
+  }
+
+  private String processTopicSettings(boolean draft){
+    if(selectedTopic.getTopic().getRestrictPermissionsForGroups() && selectedTopic.getTopic().getId() == null) {
+        if (!saveTopicsForGroups(draft)) {
+            return null;
+        }
+    } else {
+       saveTopicSettings(draft);
+    }
+    return gotoMain();
   }
 
   private String saveTopicSettings(boolean draft)
@@ -2034,6 +2063,9 @@ private String editorRows;
     	}
     	
         topic.setBaseForum(selectedForum.getForum());
+        if(selectedForum.getForum().getRestrictPermissionsForGroups()){
+            topic.setRestrictPermissionsForGroups(true);
+        }
         if(topic.getCreatedBy()==null&&this.forumManager.getAnonRole()==true){
         	topic.setCreatedBy(".anon");
         }
@@ -2058,7 +2090,7 @@ private String editorRows;
         	if(beforeChangeHM != null){
         		if(permissionsUpdated){
         			//need to reset permissions cache to get the correct counts:
-        			ThreadLocalManager.set("message_center_permission_set", false);
+        			threadLocalManager.set("message_center_permission_set", false);
         		}
         		updateSynopticMessagesForForumComparingOldMessagesCount(getSiteId(), topic.getBaseForum().getId(), topic.getId(), beforeChangeHM, SynopticMsgcntrManager.NUM_OF_ATTEMPTS);
         	}
@@ -2214,7 +2246,6 @@ private String editorRows;
     }  
     
     siteGroups.clear();
-    createTopicsForGroups = false;
     setTopicBeanAssign();
     setFromMainOrForumOrTopic();
     
@@ -2988,7 +3019,7 @@ private String editorRows;
 //		  TODO: put this logic in database layer
 		  if (topic != null && (topic.getDraft().equals(Boolean.FALSE) && topic.getAvailability())
 				  ||isInstructor()
-				  ||SecurityService.isSuperUser()
+				  ||securityService.isSuperUser()
 				  ||forumManager.isTopicOwner(topic))
 		  { 
 
@@ -3056,7 +3087,7 @@ private String editorRows;
 //    TODO: put this logic in database layer
       if (topic != null && (topic.getDraft().equals(Boolean.FALSE)
               ||isInstructor()
-              ||SecurityService.isSuperUser()
+              ||securityService.isSuperUser()
               ||forumManager.isTopicOwner(topic)))
       { 
           DiscussionTopicBean decoTopic = new DiscussionTopicBean(topic, forum,
@@ -3498,7 +3529,7 @@ private String editorRows;
 			throw new IllegalArgumentException("getUserIdAnonIdMapForMessages: null argument");
 		}
 
-		String siteId = ToolManager.getCurrentPlacement().getContext();
+		String siteId = toolManager.getCurrentPlacement().getContext();
 		// Iterate over messages and construct a list of authors
 		List<String> userIds = new ArrayList<>();
 		for (Message message : messages)
@@ -3726,7 +3757,7 @@ private String editorRows;
   
   public ArrayList getAttachments()
   {
-    ToolSession session = SessionManager.getCurrentToolSession();
+    ToolSession session = sessionManager.getCurrentToolSession();
     if (session.getAttribute(FilePickerHelper.FILE_PICKER_CANCEL) == null
         && session.getAttribute(FilePickerHelper.FILE_PICKER_ATTACHMENTS) != null)
     {
@@ -4180,7 +4211,7 @@ private String editorRows;
   public String getUserId()
   {
 	  if (userId == null)
-    	userId = SessionManager.getCurrentSessionUserId();
+    	userId = sessionManager.getCurrentSessionUserId();
 	  
 	  return userId;
   }
@@ -4407,7 +4438,7 @@ private String editorRows;
   {
 	  try
 	  {
-		  String createdById = UserDirectoryService.getUser(selectedMessage.getMessage().getCreatedBy()).getId();
+		  String createdById = userDirectoryService.getUser(selectedMessage.getMessage().getCreatedBy()).getId();
 		  String msgAssignmentName = selectedMessage.getMessage().getGradeAssignmentName();
 
 		  String returnStr = processDfMsgGrdHelper(createdById, msgAssignmentName);
@@ -4432,7 +4463,7 @@ private String editorRows;
 	  selectedAssign = DEFAULT_GB_ITEM; 
 	  resetGradeInfo();
 
-	  String gradebookUid = ToolManager.getCurrentPlacement().getContext();
+	  String gradebookUid = toolManager.getCurrentPlacement().getContext();
 
 	  String topicDefaultAssignment = null;
 	  if(selectedTopic != null){
@@ -5240,7 +5271,7 @@ private String editorRows;
   private String getEventReference(Object obj) 
   {
 	  String eventMessagePrefix = "";
-	  final String toolId = ToolManager.getCurrentTool().getId();
+	  final String toolId = toolManager.getCurrentTool().getId();
   	
 	  if (toolId.equals(DiscussionForumService.MESSAGE_CENTER_ID))
 		  eventMessagePrefix = "/messagesAndForums";
@@ -5249,7 +5280,7 @@ private String editorRows;
   	  else
   		  eventMessagePrefix = "/forums";
   	
-	  return eventMessagePrefix + getContextSiteId() + "/" + obj.toString() + "/" + SessionManager.getCurrentSessionUserId();
+	  return eventMessagePrefix + getContextSiteId() + "/" + obj.toString() + "/" + sessionManager.getCurrentSessionUserId();
   }
   
   /**
@@ -5456,7 +5487,7 @@ private String editorRows;
 
 		  // For all message beans in anonymous contexts, populate their anonymousIDs now to reduce queries and improve performance
 		  // Get the anonId map for all releveant users.
-		  String siteId = ToolManager.getCurrentPlacement().getContext();
+		  String siteId = toolManager.getCurrentPlacement().getContext();
 		  // AnonymousManager requires lists (because it needs to sublist into groups of 1000 for Oracle)
 		  // Convert to userIdAnonMessagesMap's keySet into a list
 		  List<String> userIdList = new ArrayList<>();
@@ -5760,7 +5791,7 @@ private String editorRows;
 	  else
 	  {
 	  	sb.append(getResourceBundleString(MOD_COMMENT_TEXT)).append(" ");
-	  	sb.append(UserDirectoryService.getCurrentUser().getDisplayName());
+	  	sb.append(userDirectoryService.getCurrentUser().getDisplayName());
 	  }
 	  sb.append("</div>");
 	  sb.append("<div class=\"messageCommentBody\">");
@@ -6345,12 +6376,12 @@ private String editorRows;
 			  resetGradeInfo();
 
 			  if(!DEFAULT_GB_ITEM.equalsIgnoreCase(selectedAssign)) {
-				  String gradebookUid = ToolManager.getCurrentPlacement().getContext();
+				  String gradebookUid = toolManager.getCurrentPlacement().getContext();
 				  String studentId;
 				  if(selectedMessage == null && selectedGradedUserId != null && !"".equals(selectedGradedUserId)){
 					  studentId = selectedGradedUserId;
 				  }else{
-					  studentId = UserDirectoryService.getUser(selectedMessage.getMessage().getCreatedBy()).getId();  
+					  studentId = userDirectoryService.getUser(selectedMessage.getMessage().getCreatedBy()).getId();  
 				  }				   
 				  
 				  setUpGradeInformation(gradebookUid, selectedAssign, studentId);
@@ -6505,11 +6536,11 @@ private String editorRows;
     String studentUid = null;
     try 
     {   
-        String gradebookUuid = ToolManager.getCurrentPlacement().getContext();
+        String gradebookUuid = toolManager.getCurrentPlacement().getContext();
         if(selectedMessage == null && selectedGradedUserId != null && !"".equals(selectedGradedUserId)){
         	studentUid = selectedGradedUserId;
         }else{
-        	studentUid = UserDirectoryService.getUser(selectedMessage.getMessage().getCreatedBy()).getId();
+        	studentUid = userDirectoryService.getUser(selectedMessage.getMessage().getCreatedBy()).getId();
         }
         
         Long gbItemId = gradebookService.getAssignmentByNameOrId(gradebookUuid, selectedAssign).getId();
@@ -6552,7 +6583,7 @@ private String editorRows;
     	}
     }
     
-	Event event = eventTrackingService.newEvent(DiscussionForumService.EVENT_FORUMS_GRADE, getEventReference(selectedTopic.getTopic().getId()), null, true, NotificationService.NOTI_OPTIONAL, statement);
+	Event event = eventTrackingService.newEvent(DiscussionForumService.EVENT_FORUMS_GRADE, eventRef, null, true, NotificationService.NOTI_OPTIONAL, statement);
   	eventTrackingService.post(event);
     
     gradeNotify = false; 
@@ -6585,7 +6616,7 @@ private String editorRows;
   		{
   			List tempMsgs = selectedTopic.getMessages();
   			for(int i=0; i<tempMsgs.size(); i++)
-				{
+			{
 					DiscussionMessageBean dmb = (DiscussionMessageBean)tempMsgs.get(i);
 					if(i==0)
 					{
@@ -6609,7 +6640,7 @@ private String editorRows;
 						dmb.setHasNext(true);
 						dmb.setHasPre(true);
 					}
-				}
+			}
   		}
   	}
   }
@@ -7133,7 +7164,7 @@ private String editorRows;
         
       if(includeGroup)
       {
-    	  currentSite = SiteService.getSite(ToolManager.getCurrentPlacement().getContext());   
+    	  currentSite = siteService.getSite(toolManager.getCurrentPlacement().getContext());   
       
     	  Collection groups = currentSite.getGroups();
 
@@ -7212,7 +7243,7 @@ private String editorRows;
   private String getContextSiteId()
   {
     log.debug("getContextSiteId()");
-    return ("/site/" + ToolManager.getCurrentPlacement().getContext());
+    return ("/site/" + toolManager.getCurrentPlacement().getContext());
   }
 
   /**
@@ -7367,25 +7398,19 @@ private String editorRows;
     	//membershipItemSet = uiPermissionsManager.getTopicItemsSet(topic);
     	oldMembershipItemSet = uiPermissionsManager.getTopicItemsSet(topic);
     }
-     
-   
+
     membershipItemSet = new HashSet();
-            
+
     if(permissions!=null ){
-      Iterator iter = permissions.iterator();
-      while (iter.hasNext())
-      {
-        PermissionBean permBean = (PermissionBean) iter.next();
+      for (PermissionBean permBean : permissions) {
         //for group awareness
         //DBMembershipItem membershipItem = permissionLevelManager.createDBMembershipItem(permBean.getItem().getName(), permBean.getSelectedLevel(), DBMembershipItem.TYPE_ROLE);
         DBMembershipItem membershipItem = permissionLevelManager.createDBMembershipItem(permBean.getItem().getName(), permBean.getSelectedLevel(), permBean.getItem().getType());
         setupMembershipItemPermission(membershipItem, permBean);
-        
-                
+
         // save DBMembershiptItem here to get an id so we can add to the set
         permissionLevelManager.saveDBMembershipItem(membershipItem);          
-        
-        
+
         membershipItemSet.add(membershipItem);
       }
       
@@ -7657,7 +7682,7 @@ private String editorRows;
 				
 				GradebookService gradebookService = getGradebookService();
 				if (gradebookService == null) return false;
-		 	    	gradebookExist = gradebookService.isGradebookDefined(ToolManager.getCurrentPlacement().getContext());
+		 	    	gradebookExist = gradebookService.isGradebookDefined(toolManager.getCurrentPlacement().getContext());
 		 	    	gradebookExistChecked = true;
 		 	    	return gradebookExist;
 			    }
@@ -7684,12 +7709,11 @@ private String editorRows;
 	  try
 	  {
 		String currentUserId = getUserId();
-  	    
-  	    
+
 		  String userString = "";
-		  userString = UserDirectoryService.getUser(currentUserId).getDisplayName();
+		  userString = userDirectoryService.getUser(currentUserId).getDisplayName();
 		  String userEidString = "";
-		  userEidString = UserDirectoryService.getUser(currentUserId).getDisplayId();
+		  userEidString = userDirectoryService.getUser(currentUserId).getDisplayId();
 		  
 		  if((userString != null && userString.length() > 0) && ServerConfigurationService.getBoolean("msg.displayEid", true))
 		  {
@@ -7716,7 +7740,6 @@ private String editorRows;
  	public TimeZone getUserTimeZone() {
  		return userPreferencesManager.getTimeZone();
  	}
-
 
 	public boolean isDisableLongDesc()
 	{
@@ -7941,7 +7964,7 @@ private String editorRows;
 	 public String getPrintFriendlyUrl()
 	  {
 		  return ServerConfigurationService.getToolUrl() + Entity.SEPARATOR
-						+ ToolManager.getCurrentPlacement().getId() + Entity.SEPARATOR + "discussionForum" 
+						+ toolManager.getCurrentPlacement().getId() + Entity.SEPARATOR + "discussionForum" 
 						+ Entity.SEPARATOR + "message" + Entity.SEPARATOR 
 						+ "printFriendly";
 	  }
@@ -7949,7 +7972,7 @@ private String editorRows;
 	 public String getPrintFriendlyUrlThread()
 	  {
 		  return ServerConfigurationService.getToolUrl() + Entity.SEPARATOR
-						+ ToolManager.getCurrentPlacement().getId() + Entity.SEPARATOR + "discussionForum" 
+						+ toolManager.getCurrentPlacement().getId() + Entity.SEPARATOR + "discussionForum" 
 						+ Entity.SEPARATOR + "message" + Entity.SEPARATOR 
 						+ "printFriendlyThread";
 	  }
@@ -7957,7 +7980,7 @@ private String editorRows;
 	 public String getPrintFriendlyAllAuthoredMsg()
 	  {
 		  return ServerConfigurationService.getToolUrl() + Entity.SEPARATOR
-						+ ToolManager.getCurrentPlacement().getId() + Entity.SEPARATOR + "discussionForum" 
+						+ toolManager.getCurrentPlacement().getId() + Entity.SEPARATOR + "discussionForum" 
 						+ Entity.SEPARATOR + "statistics" + Entity.SEPARATOR 
 						+ "printFriendlyAllAuthoredMsg";
 	  }
@@ -7965,7 +7988,7 @@ private String editorRows;
 	 public String getPrintFriendlyFullTextForOne()
 	  {
 		  return ServerConfigurationService.getToolUrl() + Entity.SEPARATOR
-						+ ToolManager.getCurrentPlacement().getId() + Entity.SEPARATOR + "discussionForum" 
+						+ toolManager.getCurrentPlacement().getId() + Entity.SEPARATOR + "discussionForum" 
 						+ Entity.SEPARATOR + "statistics" + Entity.SEPARATOR 
 						+ "printFriendlyFullTextForOne";
 	  }
@@ -7973,7 +7996,7 @@ private String editorRows;
 	 public String getPrintFriendlyDisplayInThread()
 	  {
 		  return ServerConfigurationService.getToolUrl() + Entity.SEPARATOR
-						+ ToolManager.getCurrentPlacement().getId() + Entity.SEPARATOR + "discussionForum" 
+						+ toolManager.getCurrentPlacement().getId() + Entity.SEPARATOR + "discussionForum" 
 						+ Entity.SEPARATOR + "statistics" + Entity.SEPARATOR 
 						+ "printFriendlyDisplayInThread";
 	  }
@@ -8123,10 +8146,7 @@ private String editorRows;
 	 public void setSelectedMsgId(String selectedMsgId) {
 		 this.selectedMsgId = selectedMsgId;
 	 }
-	 
-	 
-	 
-	 
+
 	 // STANFORD: added for email notification feature 
 	public void setEmailNotificationManager(
 				EmailNotificationManager emailnotifyManager) {
@@ -8143,7 +8163,7 @@ private String editorRows;
 
 	public String processActionWatch() {
 		log.debug("processActionWatch()");
-		User curruser = UserDirectoryService.getCurrentUser();
+		User curruser = userDirectoryService.getCurrentUser();
 		log.debug("got user: " + curruser.getDisplayId());
 		EmailNotification userwatchoption = emailNotificationManager.getEmailNotification(curruser.getId());
 		log.debug("userwatchoption = " + userwatchoption.getNotificationLevel());
@@ -8156,8 +8176,7 @@ private String editorRows;
 				watchSettingsBean.getEmailNotification().getNotificationLevel());
 		return WATCH_SETTING;
 	}
-	
-	
+
 	public String processActionSaveEmailNotificationOption() {
 		log.debug("ForumTool.processActionSaveEmailNotificationOption()");
 		if ((watchSettingsBean !=null) && (watchSettingsBean.getEmailNotification()!=null)){
@@ -8175,13 +8194,10 @@ private String editorRows;
 	
 	public List<String> getUserEmailsToBeNotifiedByLevel(List userlist) {
 		List<String> emaillist = new ArrayList<String>();
-		
-		
-		List<User> userMailList  = UserDirectoryService.getUsers(userlist);
+
+		List<User> userMailList  = userDirectoryService.getUsers(userlist);
 		for (int i = 0; i < userMailList.size(); i++) {
 			User user = userMailList.get(i); 
-
-
 			String useremail = user.getEmail();
 			if (useremail != null && !"".equalsIgnoreCase(useremail)) {
 				if (log.isDebugEnabled()) {
@@ -8190,12 +8206,9 @@ private String editorRows;
 				}
 				emaillist.add(useremail);
 			}
-
-
 		}
 		
 		return emaillist;
-		
 	}
 	
 	public void sendEmailNotification(Message reply, DiscussionMessageBean currthread){
@@ -8205,7 +8218,11 @@ private String editorRows;
 	
 	public void  sendEmailNotification(Message reply, DiscussionMessageBean currthread, boolean needsModeration){
 		log.debug("ForumTool.sendEmailNotification(Message, DiscussionMessageBean, boolean)");
-		
+
+		if (!reply.getTopic().getAllowEmailNotifications()) {
+			return;
+		}
+
 		// get all users with notification level = 2
 		List<String> userlist = emailNotificationManager.getUsersToBeNotifiedByLevel( EmailNotification.EMAIL_REPLY_TO_ANY_MESSAGE);
 		
@@ -8232,9 +8249,7 @@ private String editorRows;
 				}
 				userlist.add(threadauthor);
 			}
-			
 		}
-		
 
 		//MSGCNTR-375 if this post needs to be moderated, only send the email notification to those with moderator permission
 		if(needsModeration) {
@@ -8273,10 +8288,8 @@ private String editorRows;
 		    Topic topicWithMessages = forumManager.getTopicByIdWithMessagesAndAttachments(reply.getTopic().getId());
 		    userlist.removeAll(getNeedToPostFirst(userlist, (DiscussionTopic)reply.getTopic(), topicWithMessages.getMessages()));
 		}
-		
-		
+
 		// now printing out all users = # of messages in the thread - level 2 users
-		
 		if (log.isDebugEnabled()){
 			log.debug("now printing out all users, including duplicates count = " + userlist.size());
 			Iterator iter1 = userlist.iterator();
@@ -8286,7 +8299,6 @@ private String editorRows;
 		}
 		
 		// now printing out all users again after removing duplicate
-		
 		if (log.isDebugEnabled()){
 			log.debug("now printing out all users again after removing duplicate count = " + userlist.size());
 			Iterator iter1 = userlist.iterator();
@@ -8301,9 +8313,7 @@ private String editorRows;
 		List<String> finalList = emailNotificationManager.filterUsers(userlist, currthread.getMessage().getTopic());
 		
 		List<String> useremaillist =  getUserEmailsToBeNotifiedByLevel(finalList);
-		
-		
-		
+
 		if (log.isDebugEnabled()){
 			log.debug("now printint unique emails , count = " + useremaillist.size());
 			Iterator useremaillistiter = useremaillist.iterator();
@@ -8319,8 +8329,7 @@ private String editorRows;
 		
 		ForumsEmailService emailService = new ForumsEmailService(useremaillist, reply, currthread);
 		emailService.send();
-		
-		
+
 	}
 	
 	DeveloperHelperService developerHelperService;
@@ -8331,8 +8340,7 @@ private String editorRows;
 		}
 		return developerHelperService;
 	}
-	
-	
+
 	public String getMessageURL() {
 		
 		String path = "/discussionForum/message/dfViewMessageDirect";
@@ -8346,7 +8354,7 @@ private String editorRows;
 		String forumId = getSelectedTopic().getTopic().getOpenForum().getId().toString();
 		log.debug("message: " + msgId + " topic: " + topicId + " forum: " + forumId);
 		
-		String context = SiteService.siteReference(ToolManager.getCurrentPlacement().getContext());
+		String context = siteService.siteReference(toolManager.getCurrentPlacement().getContext());
 		log.debug("context: " + context);
 		
 		developerHelperService = getDevelperHelperService();
@@ -8363,8 +8371,7 @@ private String editorRows;
 		}
 		return url;
 	}
-	
-	
+
 	private class ThreadUpdateSorter implements Comparator<DiscussionMessageBean>{
 
 	    public int compare(DiscussionMessageBean dmb1, DiscussionMessageBean dmb2) {
@@ -8383,7 +8390,7 @@ private String editorRows;
 	
 	private String getSiteTitle(){	  
 		try {
-			return SiteService.getSite(ToolManager.getCurrentPlacement().getContext()).getTitle();
+			return siteService.getSite(toolManager.getCurrentPlacement().getContext()).getTitle();
 		} catch (IdUnusedException e) {
 			log.error(e.getMessage(), e);
 		}
@@ -8391,7 +8398,7 @@ private String editorRows;
 	}
 
 	private String getSiteId() {
-		return ToolManager.getCurrentPlacement().getContext();
+		return toolManager.getCurrentPlacement().getContext();
 	}
 
 	public SynopticMsgcntrManager getSynopticMsgcntrManager() {
@@ -8439,7 +8446,6 @@ private String editorRows;
    * Action for the duplicate option present the main forums page
    * @return
    */
-
   public String processActionDuplicateForumMainConfirm()
   {
 
@@ -8452,7 +8458,6 @@ private String editorRows;
 	  selectedForum.setMarkForDuplication(true);
 	  return FORUM_SETTING;
   }
-
 
   /**
    * @return
@@ -8614,7 +8619,6 @@ private String editorRows;
 	if (fromTopic.getExtendedDescription() != null && fromTopic.getExtendedDescription().length() > 0)
 		newTopic.setExtendedDescription(fromTopic.getExtendedDescription());
 	newTopic.setLocked(fromTopic.getLocked());
-	newTopic.setDraft(fromTopic.getDraft());
 	newTopic.setModerated(fromTopic.getModerated());
 	newTopic.setPostFirst(fromTopic.getPostFirst());
 	newTopic.setPostAnonymous(fromTopic.getPostAnonymous());
@@ -8667,7 +8671,7 @@ private String editorRows;
 	}
 
 	newTopic.setBaseForum(forum);
-	forumManager.saveTopic(newTopic);
+	forumManager.saveTopic(newTopic, fromTopic.getDraft(), true);
 	selectedTopic = new DiscussionTopicBean(newTopic, forum, uiPermissionsManager, forumManager);
 
     if("true".equalsIgnoreCase(ServerConfigurationService.getString("mc.defaultLongDescription")))
@@ -8759,7 +8763,7 @@ private String editorRows;
 			forum.setCloseDate(oldForum.getCloseDate());
 		}
 
-		forum = saveForumSettings(true);
+		forum = saveForumSettings(oldForum.getDraft());
 
 		forum = forumManager.getForumById(forum.getId());
 		List attachList = forum.getAttachments();
@@ -8819,12 +8823,12 @@ private String editorRows;
         if (siteGroups == null || siteGroups.isEmpty()) {
             siteGroups = new ArrayList();
             try {
-                Site currentSite = SiteService.getSite(ToolManager.getCurrentPlacement().getContext());
+                Site currentSite = siteService.getSite(toolManager.getCurrentPlacement().getContext());
                 Collection groups = currentSite.getGroups();
                 groups = sortGroups(groups);
                 for (Iterator groupIterator = groups.iterator(); groupIterator.hasNext();) {
                     Group currentGroup = (Group) groupIterator.next();
-                    siteGroups.add(new SiteGroupBean(currentGroup, false));
+                    siteGroups.add(new SiteGroupBean(currentGroup, false, false));
                 }
             } catch (IdUnusedException e) {
                 log.error(e.getMessage(), e);
@@ -8858,22 +8862,93 @@ private String editorRows;
 		}
 		return siteRolesNames;
 	}
-    
-	public String getCreateTopicsForGroups() {
-		  if (this.createTopicsForGroups) {
-			  return Boolean.TRUE.toString();
-		  }
-		  return Boolean.FALSE.toString();
+
+    /**
+	 * 
+	 * @param draft
+	 * @return error status (no groups selected)
+	 */
+    private boolean saveForumsForGroups(boolean draft) {
+        log.debug("saveForumsForGroups()");
+        if (siteGroups == null || siteGroups.isEmpty()) {
+            setErrorMessage(getResourceBundleString(NO_GROUP_SELECTED, new Object[]{getResourceBundleString("cdfm_discussion_forums")}));
+            return false;
+        }
+
+        DiscussionForumBean forumTemplate = selectedForum;
+        ArrayList attachmentsTemplate = attachments;
+        
+        // sakai.properties settings
+        ArrayList rolesNone = (ArrayList) getAutoRolesNone();
+        String groupLevel = getAutoGroupsPermConfig();
+
+        Collections.reverse(siteGroups);
+
+        ArrayList groupsNone = new ArrayList();
+        for (SiteGroupBean currentGroup : siteGroups){
+            if (currentGroup.getCreateForumForGroup()==true) {
+                groupsNone.add(currentGroup.getGroup().getTitle());
+            }
+        }
+
+        boolean groupSelected = false;
+        for (SiteGroupBean currentGroup : siteGroups){
+            if (currentGroup.getCreateForumForGroup()==true) {
+                groupSelected = true;
+                DiscussionForum forum = forumManager.createForum();
+                forum.setRestrictPermissionsForGroups(forumTemplate.getForum().getRestrictPermissionsForGroups());
+                forum.setModerated(forumTemplate.getForum().getModerated());
+                forum.setAutoMarkThreadsRead(forumTemplate.getForum().getAutoMarkThreadsRead());
+                forum.setPostFirst(forumTemplate.getForum().getPostFirst());
+                selectedForum = new DiscussionForumBean(forum, uiPermissionsManager, forumManager);
+                setNewForumBeanAssign();
+                DiscussionForum thisForum = selectedForum.getForum();
+                thisForum.setTitle(forumTemplate.getForum().getTitle() + " - " + currentGroup.getGroup().getTitle());
+                thisForum.setShortDescription(forumTemplate.getForum().getShortDescription());
+                thisForum.setExtendedDescription(forumTemplate.getForum().getExtendedDescription());
+                thisForum.setLocked(forumTemplate.getForum().getLocked());
+                thisForum.setAvailabilityRestricted(forumTemplate.getForum().getAvailabilityRestricted());
+                thisForum.setOpenDate(forumTemplate.getForum().getOpenDate());
+                thisForum.setCloseDate(forumTemplate.getForum().getCloseDate());
+
+                // Attachments
+                attachments.clear();
+                for (Iterator attachmentIterator = attachmentsTemplate.iterator(); attachmentIterator.hasNext();) {
+                    DecoratedAttachment currentAttachment = (DecoratedAttachment) attachmentIterator.next();
+                    Attachment thisDFAttach = forumManager.createDFAttachment(
+                            currentAttachment.getAttachment().getAttachmentId(),
+                            currentAttachment.getAttachment().getAttachmentName());
+                    attachments.add(new DecoratedAttachment(thisDFAttach));
+                }
+
+                // Permissions
+                for (PermissionBean permBean : permissions) {
+                    if (rolesNone.contains(permBean.getName())) {
+                        permBean.setSelectedLevel(PermissionLevelManager.PERMISSION_LEVEL_NAME_NONE);
+                    }
+                    // Permissions will be remembered across forum loops, so we must reset marked groups to none in every loop
+                    if (groupsNone.contains(permBean.getName())) {
+                        permBean.setSelectedLevel(PermissionLevelManager.PERMISSION_LEVEL_NAME_NONE); 
+                    }
+                    if (permBean.getName().equals(currentGroup.getGroup().getTitle())) {
+                        permBean.setSelectedLevel(groupLevel);
+                    }
+                }
+                saveForumSettings(draft);
+            }
+        }
+
+        if (!groupSelected) {
+            setErrorMessage(getResourceBundleString(NO_GROUP_SELECTED, new Object[]{getResourceBundleString("cdfm_discussion_forums")}));
+            Collections.reverse(siteGroups);
+            return false;
+        }
+		siteGroups.clear();
+		selectedForum.getForum().setRestrictPermissionsForGroups(false);
+        return true;
+
 	}
 
-	public void setCreateTopicsForGroups(String createTopics) {
-		if (createTopics.equals(Boolean.TRUE.toString())) {
-			createTopicsForGroups = true;
-		} else {
-			createTopicsForGroups = false;
-		}
-	}
-    
     /**
 	 * 
 	 * @param draft
@@ -8882,7 +8957,7 @@ private String editorRows;
     private boolean saveTopicsForGroups(boolean draft) {
         log.debug("saveTopicsForGroup()");
         if (siteGroups == null || siteGroups.isEmpty()) {
-            setErrorMessage(getResourceBundleString(NO_GROUP_SELECTED));
+            setErrorMessage(getResourceBundleString(NO_GROUP_SELECTED, new Object[]{getResourceBundleString("topics")}));
             return false;
         }
         DiscussionTopicBean topicTempate = selectedTopic;
@@ -8895,21 +8970,20 @@ private String editorRows;
 		Collections.reverse(siteGroups);
         
         ArrayList groupsNone = new ArrayList();
-        for (Iterator groupIterator = siteGroups.iterator(); groupIterator.hasNext();) {
-            SiteGroupBean currentGroup = (SiteGroupBean) groupIterator.next();
+        for (SiteGroupBean currentGroup : siteGroups){
             if (currentGroup.getCreateTopicForGroup()==true) {
                 groupsNone.add(currentGroup.getGroup().getTitle());
             }
         }
         
         boolean groupSelected = false;
-        for (Iterator groupIterator = siteGroups.iterator(); groupIterator.hasNext();) {
-            SiteGroupBean currentGroup = (SiteGroupBean) groupIterator.next();
+        for (SiteGroupBean currentGroup : siteGroups){
             if (currentGroup.getCreateTopicForGroup()==true) {
                 groupSelected = true;
                 selectedTopic = createTopic(topicTempate.getTopic().getBaseForum().getId());
                 selectedTopic.setGradeAssign(topicTempate.getGradeAssign());
                 DiscussionTopic thisTopic = selectedTopic.getTopic();
+                thisTopic.setRestrictPermissionsForGroups(topicTempate.getTopic().getRestrictPermissionsForGroups());
                 thisTopic.setTitle(topicTempate.getTopic().getTitle() + " - " + currentGroup.getGroup().getTitle());
                 thisTopic.setShortDescription(topicTempate.getTopic().getShortDescription());
                 thisTopic.setExtendedDescription(topicTempate.getTopic().getExtendedDescription());
@@ -8924,7 +8998,6 @@ private String editorRows;
                 thisTopic.setAutoMarkThreadsRead(topicTempate.getTopic().getAutoMarkThreadsRead());
                 thisTopic.setGradebookAssignment(topicTempate.getTopic().getGradebookAssignment());
 
-
                 // Attachments
                 attachments.clear();
                 for (Iterator attachmentIterator = attachmentsTemplate.iterator(); attachmentIterator.hasNext();) {
@@ -8936,9 +9009,7 @@ private String editorRows;
                 }
 
                 // Permissions
-                Iterator iter = permissions.iterator();
-                while(iter.hasNext()) {
-                    PermissionBean permBean = (PermissionBean) iter.next();
+                for (PermissionBean permBean : permissions) {
                     if (rolesNone.contains(permBean.getName())) {
                         permBean.setSelectedLevel(PermissionLevelManager.PERMISSION_LEVEL_NAME_NONE);
                     }
@@ -8954,11 +9025,12 @@ private String editorRows;
             }
         }
         if (!groupSelected) {
-            setErrorMessage(getResourceBundleString(NO_GROUP_SELECTED));
+            setErrorMessage(getResourceBundleString(NO_GROUP_SELECTED, new Object[]{getResourceBundleString("topics")}));
             Collections.reverse(siteGroups);
             return false;
         }
-        createTopicsForGroups = false;
+        siteGroups.clear();
+        selectedTopic.getTopic().setRestrictPermissionsForGroups(false);
         return true;
     }
 
@@ -9014,8 +9086,9 @@ private String editorRows;
             return false;
         }
         boolean hasOverridingPermissions = false;
-        if(SecurityService.isSuperUser()
-                || isInstructor()){
+        
+        if(securityService.isSuperUser()){
+
             return true;
         }
 
@@ -9023,22 +9096,24 @@ private String editorRows;
         if(topic == null){
             return false;
         }
-        if(userId.equals(topic.getCreatedBy())){
-            return true;
-        }
+        
         DiscussionForum forum = forumManager.getForumById(topic.getBaseForum().getId());
         if(forum == null){
             return false;
         }
-        Area area = forumManager.getDiscussionForumArea();
-        if(area == null){
+        
+        Area currentArea = forumManager.getDiscussionForumArea();
+        Area forumArea = forum.getArea();
+        if(forumArea == null || currentArea == null || !forumArea.getId().equals(currentArea.getId()) ){
             return false;
         }
 
-        return !topic.getDraft() && !forum.getDraft()
-                && topic.getAvailability() 
-                && forum.getAvailability() 
-                && area.getAvailability();
+        return isInstructor()
+        		|| userId.equals(topic.getCreatedBy())
+        		|| (!topic.getDraft() && !forum.getDraft()
+        				&& topic.getAvailability() 
+        				&& forum.getAvailability() 
+        				&& currentArea.getAvailability());
     }
     
 	public String getServerUrl() {
@@ -9833,7 +9908,7 @@ private String editorRows;
 	}
 
     private LRS_Statement getStatementForUserReadViewed(String subject, String target) {
-    	LRS_Actor student = learningResourceStoreService.getActor(SessionManager.getCurrentSessionUserId());
+    	LRS_Actor student = learningResourceStoreService.getActor(sessionManager.getCurrentSessionUserId());
         String url = ServerConfigurationService.getPortalUrl();
         LRS_Verb verb = new LRS_Verb(SAKAI_VERB.interacted);
         LRS_Object lrsObject = new LRS_Object(url + "/forums", "viewed-" + target);
@@ -9847,7 +9922,7 @@ private String editorRows;
     }
 
     private LRS_Statement getStatementForUserPosted(String subject, SAKAI_VERB sakaiVerb) {
-    	LRS_Actor student = learningResourceStoreService.getActor(SessionManager.getCurrentSessionUserId());
+    	LRS_Actor student = learningResourceStoreService.getActor(sessionManager.getCurrentSessionUserId());
         String url = ServerConfigurationService.getPortalUrl();
         LRS_Verb verb = new LRS_Verb(sakaiVerb);
         LRS_Object lrsObject = new LRS_Object(url + "/forums", sakaiVerb == SAKAI_VERB.responded ? "post-to-thread" : "created-topic");
@@ -9863,7 +9938,7 @@ private String editorRows;
     
     private LRS_Statement getStatementForGrade(String studentUid, String forumTitle, double score)
             throws UserNotDefinedException {
-    	LRS_Actor instructor = learningResourceStoreService.getActor(SessionManager.getCurrentSessionUserId());
+    	LRS_Actor instructor = learningResourceStoreService.getActor(sessionManager.getCurrentSessionUserId());
         LRS_Verb verb = new LRS_Verb(SAKAI_VERB.scored);
         LRS_Object lrsObject = new LRS_Object(ServerConfigurationService.getPortalUrl() + "/forums", "received-grade-forum");
         HashMap<String, String> nameMap = new HashMap<String, String>();
@@ -9872,7 +9947,7 @@ private String editorRows;
         HashMap<String, String> descMap = new HashMap<String, String>();
         descMap.put("en-US", "User received a grade for their forum post: " + forumTitle);
         lrsObject.setDescription(descMap);
-        User studentUser = UserDirectoryService.getUser(studentUid);
+        User studentUser = userDirectoryService.getUser(studentUid);
         LRS_Actor student = learningResourceStoreService.getActor(studentUser.getId());
         student.setName(studentUser.getDisplayName());
         LRS_Statement statement = new LRS_Statement(student, verb, lrsObject, getLRS_Result(score), null);
@@ -9893,7 +9968,7 @@ private String editorRows;
     }
     
     public String getCurrentToolId(){
-    	return ToolManager.getCurrentPlacement().getId();
+    	return toolManager.getCurrentPlacement().getId();
     }
     
     /**

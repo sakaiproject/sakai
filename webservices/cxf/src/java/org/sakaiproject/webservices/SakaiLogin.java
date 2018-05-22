@@ -78,15 +78,17 @@ public class SakaiLogin extends AbstractWebService {
      * @param pw password for the user
      * @return session string
      */
-    @WebMethod
+    @WebMethod(operationName="login")
     @Path("/login")
     @Produces(MediaType.TEXT_PLAIN)
     //Can't get MediaType.MULTIPART_FORM_DATA to work
     @Consumes({MediaType.APPLICATION_FORM_URLENCODED})
     @POST
     public java.lang.String loginPOST(
+            @WebParam(partName = "id", name = "id")
             @FormParam("id")
             java.lang.String id,
+            @WebParam(partName = "pw", name = "pw")
             @FormParam("pw")
             java.lang.String pw) {
     	return login (id,pw);
@@ -167,7 +169,7 @@ public class SakaiLogin extends AbstractWebService {
      * @return
      * @throws InterruptedException
      */
-    @WebMethod
+    @WebMethod(operationName="logout")
     @Produces(MediaType.TEXT_PLAIN)
     //Can't get MediaType.MULTIPART_FORM_DATA to work
     @Consumes({MediaType.APPLICATION_FORM_URLENCODED})
@@ -175,6 +177,7 @@ public class SakaiLogin extends AbstractWebService {
     @Path("/logout")
     public boolean logoutPOST(
             @FormParam("sessionid")
+            @WebParam(partName = "sessionid", name = "sessionid")
             java.lang.String sessionid) {
     	return logout (sessionid);
     }
@@ -214,15 +217,17 @@ public class SakaiLogin extends AbstractWebService {
     }
 
 
-    @WebMethod
+    @WebMethod(operationName="loginToServer")
     @Produces(MediaType.TEXT_PLAIN)
     //Can't get MediaType.MULTIPART_FORM_DATA to work
     @Consumes({MediaType.APPLICATION_FORM_URLENCODED})
     @POST
     @Path("/loginToServer")
     public java.lang.String loginToServerPOST(
+            @WebParam(partName = "id", name = "id")
             @FormParam("id")
             java.lang.String id,
+            @WebParam(partName = "pw", name = "pw")
             @FormParam("pw")
             java.lang.String pw) {
         return login(id, pw) + "," + serverConfigurationService.getString("webservices.directurl", serverConfigurationService.getString("serverUrl"));

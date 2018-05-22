@@ -23,6 +23,7 @@ import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.assignment.api.AssignmentConstants;
 import org.sakaiproject.assignment.api.AssignmentReferenceReckoner;
 import org.sakaiproject.assignment.api.AssignmentService;
@@ -462,7 +463,6 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
      */
     public Map<String, String> getProperties(String reference) {
         Map<String, String> props = new HashMap<String, String>();
-        String parsedRef = reference;
         String defaultView = "doView_submission";
         String[] refParts = reference.split(Entity.SEPARATOR);
         String submissionId = "null"; // setting to the string null
@@ -471,9 +471,8 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
         String decSiteId = "";
         String decPageId = "";
 
+        String assignmentId = refParts[2];
         if (refParts.length >= 4) {
-            parsedRef = refParts[0] + Entity.SEPARATOR + refParts[1]
-                    + Entity.SEPARATOR + refParts[2];
             defaultView = refParts[3];
             if (refParts.length >= 5) {
                 submissionId = refParts[4].replaceAll("_", Entity.SEPARATOR);
@@ -491,7 +490,6 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
             }
         }
 
-        String assignmentId = parsedRef;
         boolean canUserAccessWizardPageAndLinkedArtifcact = false;
         if (!"".equals(decSiteId) && !"".equals(decPageId)
                 && !"null".equals(submissionId)) {
@@ -522,10 +520,9 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
             if (assignment.getDateCreated() != null) {
                 props.put("created_time", assignment.getDateCreated().toString());
             }
-            // TODO add
-//			if (assignment.getAuthorLastModified() != null) {
-//				props.put("modified_by", assignment.getAuthorLastModified());
-//			}
+			if (assignment.getModifier() != null) {
+				props.put("modified_by", assignment.getModifier());
+			}
             if (assignment.getDateModified() != null) {
                 props.put("modified_time", assignment.getDateModified().toString());
             }
@@ -544,6 +541,12 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
             props.put("security.assignment.function", AssignmentServiceConstants.SECURE_ACCESS_ASSIGNMENT);
             props.put("security.assignment.grade.function", AssignmentServiceConstants.SECURE_GRADE_ASSIGNMENT_SUBMISSION);
             props.put("security.assignment.grade.ref", entity.getReference());
+            props.put("url",
+                    "/portal/tool/" + placement
+                    + "?assignmentId=" + assignment.getId()
+                    + "&submissionId=" + submissionId
+                    + "&assignmentReference=" + entity.getReference()
+                    + "&panel=Main&sakai_action=" + defaultView);
         } catch (IdUnusedException e) {
             throw new EntityNotFoundException("No assignment found", reference, e);
         } catch (PermissionException e) {
@@ -810,7 +813,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
 
             String gradebookAssignmentProp = a.getProperties().get(AssignmentServiceConstants.PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT);
             if (gradebookService.isGradebookDefined(a.getContext())) {
-                if (gradebookAssignmentProp != null) {
+                if (StringUtils.isNotBlank(gradebookAssignmentProp)) {
                     // try to get internal gradebook assignment first
                     org.sakaiproject.service.gradebook.shared.Assignment gAssignment = gradebookService.getAssignment(a.getContext(), gradebookAssignmentProp);
                     if (gAssignment != null) {

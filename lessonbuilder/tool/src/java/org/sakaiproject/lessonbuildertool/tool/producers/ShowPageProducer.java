@@ -472,11 +472,6 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 			return;
 		}
 
-		String addBefore = params.getAddBefore();
-		if(params.addTool == GeneralViewParameters.CALENDAR){
-			simplePageBean.addCalendar(addBefore);
-		}
-
 		// Find the MSIE version, if we're running it.
 		int ieVersion = checkIEVersion();
 		// as far as I can tell, none of these supports fck or ck
@@ -3667,6 +3662,12 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 				}
 				
 				UILink link;
+				// if item shouldn't be visible, show fake link
+				// if canEditPage, code already handles the situation
+				if (!canEditPage && available && 
+				    (p.isHidden() || p.getReleaseDate() != null && p.getReleaseDate().after(new Date()))) {
+				    fake = true;
+				}
 				if (available) {
 					link = UIInternalLink.make(container, ID, eParams);
 					link.decorate(new UIFreeAttributeDecorator("lessonbuilderitem", itemString));
@@ -3846,8 +3847,9 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 				link.decorate(new UIFreeAttributeDecorator("onclick", 
 					 "setTimeout(function(){window.location.reload(true)},3000); return true"));
 
-			} else
+			} else {
 			    fake = true; // need to set this in case it's available for missing entity
+			}
 		    }
 		}
 
@@ -3863,7 +3865,11 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		    ID = ID + "-fake";
 		    UIOutput link = UIOutput.make(container, ID, i.getName());
 		    link.decorate(new UIFreeAttributeDecorator("lessonbuilderitem", itemString));
-		    if (!available)
+		    // fake and available occurs when prerequisites aren't the issue (it's avaiable)
+		    // so the item must be nonexistent or otherwise unavalable.
+		    if (available)
+			link.decorate(new UITooltipDecorator(messageLocator.getMessage("simplepage.not_usable")));
+		    else
 			link.decorate(new UITooltipDecorator(messageLocator.getMessage("simplepage.complete_required")));
 		} else
 		    UIOutput.make(container, ID + "-text", i.getName());
@@ -4138,12 +4144,13 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 
 		    boolean showEmbedCalendarLink = ServerConfigurationService.getBoolean("lessonbuilder.show.calendar.link", true);
 		    if (showEmbedCalendarLink){
-			    GeneralViewParameters eParams = new GeneralViewParameters(VIEW_ID);
-			    eParams.addTool = GeneralViewParameters.CALENDAR;
-			    UIOutput.make(tofill, "calendar-li");
-			    UILink calendarLink = UIInternalLink.make(tofill, "calendar-link", messageLocator.getMessage("simplepage.calendarLinkText"), eParams);
-			    calendarLink.decorate(new UITooltipDecorator(messageLocator.getMessage("simplepage.calendar-descrip")));
-		    }
+			UIOutput.make(tofill, "calendar-li");
+			UIOutput.make(tofill, "calendar-link").decorate(new UITooltipDecorator(messageLocator.getMessage("simplepage.calendar-descrip")));
+			UIForm form = UIForm.make(tofill, "add-calendar-form");
+			UIInput.make(form, "calendar-addBefore", "#{simplePageBean.addBefore}");
+			makeCsrf(form, "csrf28");
+			UICommand.make(form, "add-calendar", "#{simplePageBean.addCalendar}");
+		    }		    
 		    UIOutput.make(tofill, "quiz-li");
 		    createToolBarLink(QuizPickerProducer.VIEW_ID, tofill, "add-quiz", "simplepage.quiz-descrip", currentPage, "simplepage.quiz");
 
@@ -5116,8 +5123,9 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		    // other item types, but here there's no separate tool where you
 		    // can look at the status. I'm currently showing completed, to
 		    // be consistent with non-polls, where I always show a result
-		    if (response != null)
-			return Status.COMPLETED;
+		    if (response != null) {
+			    return response.isCorrect()?Status.COMPLETED:Status.FAILED;
+		    }
 		    if(question.isRequired())
 			return Status.REQUIRED;
 		    return Status.NOT_REQUIRED;

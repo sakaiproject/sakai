@@ -30,6 +30,7 @@ import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.portal.api.Portal;
 import org.sakaiproject.portal.api.PortalHandlerException;
+import org.sakaiproject.presence.api.PresenceService;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.tool.api.ActiveTool;
@@ -125,7 +126,7 @@ public class PresenceHandler extends BasePortalHandler
 		// site's presence...
 		// Note: the placement is transient, but will always have the same id
 		// and context based on the siteId
-		Placement placement = new org.sakaiproject.util.Placement(siteId + "-presence",
+		Placement placement = new org.sakaiproject.util.Placement(siteId + PresenceService.PRESENCE_SUFFIX,
 				tool.getId(), tool, null, siteId, null);
 
 		portal

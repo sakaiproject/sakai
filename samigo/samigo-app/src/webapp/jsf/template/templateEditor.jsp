@@ -49,35 +49,31 @@
  <div class="portletBody">
   <h:form id="templateEditorForm">
   
-<f:verbatim><ul class="navIntraTool actionToolbar" role="menu">
-<li role="menuitem" class="firstToolBarItem"><span></f:verbatim>
-
-   <h:commandLink title="#{generalMessages.t_assessment}" action="author" id="authorLink" immediate="true">
-      <h:outputText value="#{generalMessages.assessment}" />
-       <f:actionListener
-         type="org.sakaiproject.tool.assessment.ui.listener.author.AuthorActionListener" />
-   </h:commandLink>
-                                       
-<f:verbatim></span></li>
-<li role="menuitem" ><span></f:verbatim>
-
-    <h:commandLink title="#{generalMessages.t_template}" action="template" id="templateLink" immediate="true">
-      <h:outputText value="#{generalMessages.template}" />
-       <f:actionListener
-         type="org.sakaiproject.tool.assessment.ui.listener.author.TemplateListener" />
-    </h:commandLink>
- 
-<f:verbatim></span></li>
-<li role="menuitem" ><span></f:verbatim>
-
-    <h:commandLink title="#{generalMessages.t_questionPool}" action="poolList" id="poolLink" immediate="true">
-      <h:outputText value="#{templateMessages.link_pool}" />
-    </h:commandLink>
-    
-<f:verbatim></span></li>
-</ul></f:verbatim>
-
-
+<ul class="navIntraTool actionToolbar" role="menu">
+    <li role="menuitem">
+        <span>
+            <h:commandLink title="#{generalMessages.t_assessment}" action="author" id="authorLink" immediate="true">
+               <h:outputText value="#{generalMessages.assessment}" />
+               <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.AuthorActionListener" />
+            </h:commandLink>
+        </span>
+    </li>
+    <li role="menuitem">
+        <span>
+            <h:commandLink title="#{generalMessages.t_template}" action="template" id="templateLink" immediate="true">
+                <h:outputText value="#{generalMessages.template}" />
+                <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.TemplateListener" />
+            </h:commandLink>
+        </span>
+    </li>
+    <li role="menuitem">
+        <span>
+            <h:commandLink title="#{generalMessages.t_questionPool}" action="poolList" id="poolLink" immediate="true">
+                <h:outputText value="#{templateMessages.link_pool}" />
+            </h:commandLink>
+        </span>
+    </li>
+</ul>
 
 <h3><h:outputText value="#{templateMessages.template_editor}"/>
      <h:outputText value="#{template.templateName}"/>
@@ -120,7 +116,7 @@
       </h:panelGroup>
       <h:panelGroup>
         <h:selectBooleanCheckbox id="honor_pledge" value="#{template.honorPledge}"/>
-	    <h:outputLabel for="honor_pledge" value="#{templateMessages.honor_pledge_add}"/>
+        <h:outputLabel for="honor_pledge" value="#{templateMessages.honor_pledge_add}"/>
       </h:panelGroup>
     </h:panelGrid>
     </div></div>
@@ -298,7 +294,7 @@
         <h:outputLabel for="mark_for_review" value="#{templateMessages.template_canbedefault}"/>
         <h:outputText value=" "/>
        
-	    <h:panelGroup>
+        <h:panelGroup>
           <h:selectBooleanCheckbox id="add_mark_for_review"
            value="#{template.markForReview}"/>
            <h:outputLabel for="add_mark_for_review" value="#{templateMessages.add_mark_for_review}"/>
@@ -383,10 +379,10 @@
         <h:selectBooleanCheckbox id="automatic_submission"
           value="#{template.valueMap.automaticSubmission_isInstructorEditable}"/>
         <h:outputLabel for="automatic_submission" value="#{templateMessages.template_canbedefault}"/>
-		
-		<h:outputText value=" "/>
-		<h:panelGroup>
-		<h:selectBooleanCheckbox id="add_automatic_submission"
+        
+        <h:outputText value=" "/>
+        <h:panelGroup>
+        <h:selectBooleanCheckbox id="add_automatic_submission"
           value="#{template.automaticSubmission}"/>
         <h:outputLabel for="add_automatic_submission" value="#{templateMessages.add_automatic_submission}"/>
         </h:panelGroup>
@@ -618,7 +614,7 @@
 </div>
   </samigo:hideDivision>
 
- <!-- *** HUONG COLORS AND GRAPHICS	*** -->
+ <!-- *** HUONG COLORS AND GRAPHICS *** -->
  <samigo:hideDivision title="#{templateMessages.graphics}" id="div13">
     <div class="tier2">
  <div class="longtext"><h:outputLabel value="#{templateMessages.template_canbeedited}"/></div>

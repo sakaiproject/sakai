@@ -12,6 +12,8 @@
 
 *#
 
+#set($multipleTypes = ($templateSites.size() > 0) || ($canImportArchive))
+
 <script type="text/javascript" language="JavaScript">
     $(document).ready(function(){
         sakai.siteTypeSetup()
@@ -27,17 +29,25 @@
         <input type="text" id="courseSiteTypes" style="display:none" value="$courseSiteTypeStrings">
         
     #if ($alertMessage)<div class="alertMessage">$tlang.getString("sitetype.alert") $alertMessage</div>  #end
-    <p class="instruction">
-        $tlang.getString("sitetype.chothetyp.withouttemplate")
-    </p>
-    <form name="typeform" id="typeform" action="#toolForm("$action")&special=upload" method="post">
-        <p class="checkbox indnt1">
-            ## only show the radio button when there is any template site defined
-            <input type="radio" name="createMode" id="buildOwn" value="buildOwn" checked="checked"/>    
-            <label for="buildOwn">$tlang.getString("sitetype.buildown")</label>
+    #if ($multipleTypes)
+        <p class="instruction">
+            $tlang.getString("sitetype.chothetyp.different.ways")
         </p>
-        <p class="indnt4 textPanelFooter" style="margin-bottom:5px;">$tlang.getString("sitetype.chothetyp.withtemplate.build.own.info")</p>
-   
+    #end
+    <form name="typeform" id="typeform" action="#toolForm("$action")&special=upload" method="post">
+        #if ($multipleTypes)
+            <p class="checkbox indnt1">
+                ## only show the radio button when there is any template site defined
+                <input type="radio" name="createMode" id="buildOwn" value="buildOwn" checked="checked"/>
+                <label for="buildOwn">$tlang.getString("sitetype.buildown")</label>
+            </p>
+            <p class="indnt4 textPanelFooter" style="margin-bottom:5px;">$tlang.getString("sitetype.chothetyp.withtemplate.build.own.info")</p>
+        #else
+            ## otherwise, default to the choice
+            <input type="hidden" name="createMode" id="buildOwn" value="buildOwn" />
+            <p>$tlang.getString("sitetype.chothetyp.withouttemplate")</p>
+        #end
+
         ## NOTE: end if create from template enabled
         #* following block should show if "build own" has been selected,
          a site type has been picked, and then the user (from the next screen) hits "back"  - the "Build own" radio
@@ -285,9 +295,11 @@
 
         ## end create site from archive
 
-        <p class="instruction">
-             $tlang.getString("sitetype.chothetyp.toolinfo")
-        </p>
+        #if ($multipleTypes)
+            <p class="instruction">
+                 $tlang.getString("sitetype.chothetyp.toolinfo")
+            </p>
+        #end
 
         <input type="hidden" name="back" value="$!backIndex" />
         <input type="hidden" name="templateIndex" value="$!templateIndex" />

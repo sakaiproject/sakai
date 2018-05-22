@@ -31,6 +31,8 @@ import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.events.XMLEvent;
 
+import com.ctc.wstx.api.ReaderConfig;
+import com.ctc.wstx.api.WstxInputProperties;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationContext;
@@ -43,6 +45,7 @@ import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.HibernateException;
+import org.sakaiproject.assignment.api.AssignmentConstants;
 import org.sakaiproject.assignment.api.AssignmentReferenceReckoner;
 import org.sakaiproject.assignment.api.conversion.AssignmentConversionService;
 import org.sakaiproject.assignment.api.conversion.AssignmentDataProvider;
@@ -50,51 +53,45 @@ import org.sakaiproject.assignment.api.model.Assignment;
 import org.sakaiproject.assignment.api.model.AssignmentSubmission;
 import org.sakaiproject.assignment.api.model.AssignmentSubmissionSubmitter;
 import org.sakaiproject.assignment.api.persistence.AssignmentRepository;
+import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.component.api.ServerConfigurationService;
+import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.hibernate.AssignableUUIDGenerator;
+import org.sakaiproject.site.api.Site;
+import org.sakaiproject.site.api.Group;
 import org.sakaiproject.util.BasicConfigItem;
+import static org.sakaiproject.assignment.api.AssignmentServiceConstants.*;
 
 @Slf4j
 public class AssignmentConversionServiceImpl implements AssignmentConversionService {
 
     @Setter private static boolean cleanUTF8 = true;
     @Setter private static String replacementUTF8 = "";
-    private static final DateTimeFormatter dateTimeFormatter;
-    private static final XmlMapper xmlMapper;
 
-    static {
+    @Setter private AssignmentRepository assignmentRepository;
+    @Setter private AssignmentDataProvider dataProvider;
+    @Setter private ServerConfigurationService serverConfigurationService;
+    @Setter private SiteService siteService;
+
+    private Predicate<String> attachmentFilter = Pattern.compile("attachment\\d+").asPredicate();
+    private Predicate<String> submitterFilter = Pattern.compile("submitter\\d+").asPredicate();
+    private Predicate<String> feedbackAttachmentFilter = Pattern.compile("feedbackattachment\\d+").asPredicate();
+    private Predicate<String> submittedAttachmentFilter = Pattern.compile("submittedattachment\\d+").asPredicate();
+
+    private DateTimeFormatter dateTimeFormatter;
+    private int assignmentsConverted;
+    private int submissionsConverted;
+    private int submissionsFailed;
+    private int assignmentsFailed;
+    private XmlMapper xmlMapper;
+
+    public void init() {
         // DateTimeParseException Text '20171222220000000' could not be parsed at index 0
         // https://bugs.openjdk.java.net/browse/JDK-8031085
         // DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmssSSS");
         dateTimeFormatter = new DateTimeFormatterBuilder().appendPattern("yyyyMMddHHmmss").appendValue(ChronoField.MILLI_OF_SECOND, 3).toFormatter();
 
-        SimpleModule module = new SimpleModule().addDeserializer(String.class, new StdDeserializer<String>(String.class) {
-            @Override
-            public String deserialize(JsonParser p, DeserializationContext ctxt) throws IOException, JsonProcessingException {
-                String str = StringDeserializer.instance.deserialize(p, ctxt);
-                if (StringUtils.isBlank(str)) return null;
-                return str;
-            }
-        });
-
-        xmlMapper = new XmlMapper();
-        xmlMapper.registerModule(new Jdk8Module());
-        xmlMapper.registerModule(module);
-    }
-
-    @Setter private AssignmentRepository assignmentRepository;
-    @Setter private AssignmentDataProvider dataProvider;
-    @Setter private ServerConfigurationService serverConfigurationService;
-
-    private int assignmentsConverted;
-    private int submissionsConverted;
-    private int submissionsFailed;
-    private int assignmentsFailed;
-    private int assignmentsTotal;
-    private int progress;
-
-    public void init() {
         cleanUTF8 = serverConfigurationService.getBoolean("content.cleaner.filter.utf8", Boolean.TRUE);
         replacementUTF8 = serverConfigurationService.getString("content.cleaner.filter.utf8.replacement", "");
     }
@@ -117,8 +114,31 @@ public class AssignmentConversionServiceImpl implements AssignmentConversionServ
     }
 
     @Override
-    public void runConversion() {
-        assignmentsConverted = submissionsConverted = submissionsFailed = assignmentsFailed = assignmentsTotal = progress = 0;
+    public void runConversion(int numberOfAttributes, int lengthOfAttribute) {
+        int assignmentsTotal, progress = 0;
+        assignmentsConverted = submissionsConverted = submissionsFailed = assignmentsFailed = 0;
+
+        SimpleModule module = new SimpleModule().addDeserializer(String.class, new StdDeserializer<String>(String.class) {
+            @Override
+            public String deserialize(JsonParser p, DeserializationContext ctxt) throws IOException, JsonProcessingException {
+                String str = StringDeserializer.instance.deserialize(p, ctxt);
+                if (StringUtils.isBlank(str)) return null;
+                return str;
+            }
+        });
+
+        // woodstox xml parser defaults we don't allow values smaller than the default
+        if (numberOfAttributes < ReaderConfig.DEFAULT_MAX_ATTRIBUTES_PER_ELEMENT) numberOfAttributes = ReaderConfig.DEFAULT_MAX_ATTRIBUTES_PER_ELEMENT;
+        if (lengthOfAttribute < ReaderConfig.DEFAULT_MAX_ATTRIBUTE_LENGTH) lengthOfAttribute = ReaderConfig.DEFAULT_MAX_ATTRIBUTE_LENGTH;
+
+        log.info("<===== Assignments conversion xml parser limits: number of attributes={}, attribute size={} =====>", numberOfAttributes, lengthOfAttribute);
+
+        XMLInputFactory xmlInputFactory = XMLInputFactory.newFactory();
+        xmlInputFactory.setProperty(WstxInputProperties.P_MAX_ATTRIBUTES_PER_ELEMENT, numberOfAttributes);
+        xmlInputFactory.setProperty(WstxInputProperties.P_MAX_ATTRIBUTE_SIZE, lengthOfAttribute);
+        xmlMapper = new XmlMapper(xmlInputFactory);
+        xmlMapper.registerModule(new Jdk8Module());
+        xmlMapper.registerModule(module);
 
         String configValue = "org.sakaiproject.assignment.api.model.Assignment,org.sakaiproject.assignment.api.model.AssignmentSubmission";
         String currentValue = serverConfigurationService.getConfig(AssignableUUIDGenerator.HIBERNATE_ASSIGNABLE_ID_CLASSES, null);
@@ -277,7 +297,6 @@ public class AssignmentConversionServiceImpl implements AssignmentConversionServ
         Map<String, Object> contentAny = content.getAny();
         String[] assignmentAnyKeys = assignmentAny.keySet().toArray(new String[assignmentAny.size()]);
         String[] contentAnyKeys = contentAny.keySet().toArray(new String[contentAny.size()]);
-        Predicate<String> attachmentFilter = Pattern.compile("attachment\\d+").asPredicate();
 
         // if an assignment context is missing we ignore the assignment
         if (StringUtils.isBlank(assignment.getContext())) {
@@ -311,7 +330,7 @@ public class AssignmentConversionServiceImpl implements AssignmentConversionServ
         a.setPeerAssessmentStudentReview(assignment.getPeerassessmentstudentviewreviews());
         a.setPosition(assignment.getPosition_order());
         a.setReleaseGrades(content.getReleasegrades());
-        a.setScaleFactor(content.getScaled_factor());
+        a.setScaleFactor(content.getScaled_factor() == null ? AssignmentConstants.DEFAULT_SCALED_FACTOR : content.getScaled_factor());
         a.setSection(assignment.getSection());
         a.setTitle(assignment.getTitle());
         a.setTypeOfAccess("site".equals(assignment.getAccess()) ? Assignment.Access.SITE : Assignment.Access.GROUP);
@@ -366,16 +385,15 @@ public class AssignmentConversionServiceImpl implements AssignmentConversionServ
             assignment.getGroups().forEach(g -> a.getGroups().add(g.getAuthzGroup()));
         }
 
+        // remove any properties that are null or blank
+        properties.values().removeIf(StringUtils::isBlank);
+
         return a;
     }
 
     private AssignmentSubmission submissionReintegration(Assignment assignment, O11Submission submission) {
         Map<String, Object> submissionAny = submission.getAny();
         String[] submissionAnyKeys = submissionAny.keySet().toArray(new String[submissionAny.size()]);
-        Predicate<String> submitterFilter = Pattern.compile("submitter\\d+").asPredicate();
-        Predicate<String> feedbackAttachmentFilter = Pattern.compile("feedbackattachment\\d+").asPredicate();
-        Predicate<String> submittedAttachmentFilter = Pattern.compile("submittedattachment\\d+").asPredicate();
-
 
         AssignmentSubmission s = new AssignmentSubmission();
         Map<String, String> properties = s.getProperties();
@@ -387,7 +405,6 @@ public class AssignmentConversionServiceImpl implements AssignmentConversionServ
                 .filter(feedbackAttachmentFilter.negate())
                 .filter(submittedAttachmentFilter.negate())
                 .collect(Collectors.toSet());
-        extraKeys.forEach(k -> properties.put(k, (String) submissionAny.get(k)));
 
         s.setDateModified(convertStringToTime(submission.getLastmod()));
         s.setDateReturned(convertStringToTime(submission.getDatereturned()));
@@ -410,12 +427,16 @@ public class AssignmentConversionServiceImpl implements AssignmentConversionServ
         s.setReturned(submission.getReturned());
         s.setSubmitted(submission.getSubmitted());
         s.setSubmittedText(decodeBase64(submission.getSubmittedtextHtml()));
-        s.setUserSubmission(submission.getIsUserSubmission());
+        s.setUserSubmission(submission.getIsUserSubmission()!=null?submission.getIsUserSubmission(): 
+        		StringUtils.isNotBlank(s.getSubmittedText()) 
+        		|| Arrays.stream(submissionAnyKeys).filter(submittedAttachmentFilter).collect(Collectors.toSet()).size() > 0 
+        		|| assignment.getTypeOfSubmission() == Assignment.SubmissionType.NON_ELECTRONIC_ASSIGNMENT_SUBMISSION);
 
         Set<AssignmentSubmissionSubmitter> submitters = s.getSubmitters();
         if (assignment.getIsGroup()) {
             // submitterid is the group
-            if (StringUtils.isNotBlank(submission.getSubmitterid())) {
+            if (StringUtils.isNotBlank(submission.getSubmitterid()) 
+            		&& assignment.getGroups().contains("/site/"+assignment.getContext()+"/group/"+submission.getSubmitterid())) {
                 s.setGroupId(submission.getSubmitterid());
             } else {
                 // the submitterid must not be blank for a group submission
@@ -424,6 +445,26 @@ public class AssignmentConversionServiceImpl implements AssignmentConversionServ
 
             // support for a list of submitter0, grade0
             Set<String> submitterKeys = Arrays.stream(submissionAnyKeys).filter(submitterFilter).collect(Collectors.toSet());
+            // Maybe the xml has no submitterN attributes, check the group members
+            if (submitterKeys.size() == 0) {
+            	// Maybe submitter keys are missing check group members
+		        try {
+		            Site assignmentSite = siteService.getSite(assignment.getContext());
+		            Group submissionGroup = assignmentSite.getGroup(s.getGroupId());
+		            int k=0;
+		            for (Member member : submissionGroup.getMembers()) {
+	                	if (!member.getRole().isAllowed(SECURE_ADD_ASSIGNMENT) 
+	                			&& !member.getRole().isAllowed(SECURE_GRADE_ASSIGNMENT_SUBMISSION)) {
+	                		submissionAny.put("submitter"+k, member.getUserId());
+	                		submitterKeys.add("submitter"+k);
+	                		k++;
+	                	}
+		            }
+        		} catch (Exception ex) {
+        			log.warn("Error looking for real group members in submission: {} site: {} group: {}",s.getId(),assignment.getContext(),s.getGroupId());
+        		}
+            }
+            
             for (String submitterKey : submitterKeys) {
                 AssignmentSubmissionSubmitter submitter = new AssignmentSubmissionSubmitter();
                 String submitterId = (String) submissionAny.get(submitterKey);
@@ -431,7 +472,14 @@ public class AssignmentConversionServiceImpl implements AssignmentConversionServ
                     submitter.setSubmitter(submitterId);
 
                     String gradeKey = submitterKey.replace("submitter", "grade");
-                    submitter.setGrade((String) submissionAny.get(gradeKey));
+                    extraKeys.remove(gradeKey);
+
+                    String gradeValue = (String) submissionAny.get(gradeKey);
+                    if (gradeValue != null && gradeValue.contains("::")) {
+                        String values[] = gradeValue.split("::", 2);
+                        gradeValue = values[1];
+                    }
+                    submitter.setGrade(gradeValue);
 
                     submitter.setSubmission(s);
                     submitters.add(submitter);
@@ -482,6 +530,12 @@ public class AssignmentConversionServiceImpl implements AssignmentConversionServ
         // support for list of submittedattachment0
         Set<String> submittedAttachmentKeys = Arrays.stream(submissionAnyKeys).filter(submittedAttachmentFilter).collect(Collectors.toSet());
         submittedAttachmentKeys.forEach(k -> s.getAttachments().add((String) submissionAny.get(k)));
+
+        // Add any remaining undefined keys as properties
+        extraKeys.forEach(k -> properties.put(k, (String) submissionAny.get(k)));
+
+        // remove any properties that are null or blank
+        properties.values().removeIf(StringUtils::isBlank);
 
         return s;
     }

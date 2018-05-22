@@ -363,12 +363,14 @@ ASN.showOrHideSelectGroupsMessage = function() {
     // Get the elements
     var groupMsg = document.getElementById("msgSelectGroups");
     var groupsRadio = document.getElementById("groups");
-    var checkboxes = document.getElementsByName("selectedGroups");
+    var checkboxes = document.getElementById("selectedGroups");
     
     // Determine if groups are selected
     var groupsSelected = false;
+    checkboxes = checkboxes && checkboxes.options;
+    
     for (i = 0; i < checkboxes.length; i++) {
-        if (checkboxes[i].checked === true) {
+        if (checkboxes[i].selected) {
             groupsSelected = true;
         }
     }
@@ -586,6 +588,25 @@ ASN.checkEnableRemove = function()
 
     document.getElementById( "btnRemove" ).disabled = !selected;
     document.getElementById( "btnRemove" ).className = (selected ? "active" : "" );
+};
+
+ASN.checkEnableRestore = function()
+{
+    var selected = false;
+    var checkboxes = document.getElementsByName( "selectedAssignments" );
+    for( var i = 0; i < checkboxes.length; i++ )
+    {
+        if( checkboxes[i].checked )
+        {
+            selected = true;
+            break;
+        }
+    }
+
+    document.getElementById( "btnRestore" ).disabled = !selected;
+    document.getElementById( "btnRestore" ).className = (selected ? "active" : "" );
+    document.getElementById( "btnHardRemove" ).disabled = !selected;
+    document.getElementById( "btnHardRemove" ).className = (selected ? "active" : "" );
 };
 
 ASN.toggleResubmitTimePanel = function()

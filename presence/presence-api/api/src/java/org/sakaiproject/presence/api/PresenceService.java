@@ -39,6 +39,9 @@ public interface PresenceService
 	/** This string starts the references to resources in this service. */
 	static final String REFERENCE_ROOT = "/presence";
 
+	/** This string gets appended to presence event references. */
+	static final String PRESENCE_SUFFIX = "-presence";
+
 	/** Name for the event of establishing presence at a location. */
 	static final String EVENT_PRESENCE = "pres.begin";
 

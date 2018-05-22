@@ -24,7 +24,10 @@ import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 
 import org.apache.commons.lang.StringUtils;
@@ -32,6 +35,7 @@ import org.apache.commons.validator.routines.DoubleValidator;
 import org.sakaiproject.util.ResourceLoader;
 
 import lombok.extern.slf4j.Slf4j;
+import org.sakaiproject.service.gradebook.shared.CategoryDefinition;
 
 @Slf4j
 public class FormatHelper {
@@ -90,11 +94,11 @@ public class FormatHelper {
 	public static String formatDoubleToMatch(final Double score, final String toMatch) {
 		int numberOfDecimalPlaces = 0;
 
-		if (toMatch.indexOf(".") >= 0) {
+		if (toMatch.contains(".")) {
 			numberOfDecimalPlaces = toMatch.split("\\.")[1].length();
 		}
 
-		if (toMatch.indexOf(",") >= 0) {
+		if (toMatch.contains(",")) {
 			numberOfDecimalPlaces = toMatch.split("\\,")[1].length();
 		}
 
@@ -168,7 +172,7 @@ public class FormatHelper {
 			return "";
 		}
 
-		String s = null;
+		String s;
 		try {
 			final DecimalFormat dfParse = (DecimalFormat) NumberFormat.getInstance(Locale.ROOT);
 			dfParse.setParseBigDecimal(true);
@@ -179,11 +183,8 @@ public class FormatHelper {
 			dfFormat.setMaximumFractionDigits(2);
 			dfFormat.setGroupingUsed(true);
 			s = dfFormat.format(d);
-		} catch (final NumberFormatException e) {
-			log.debug("Bad format, returning original string: " + grade);
-			s = grade;
-		} catch (final ParseException e) {
-			log.debug("Bad format, returning original string: " + grade);
+		} catch (final NumberFormatException | ParseException e) {
+			log.debug("Bad format, returning original string: {}", grade);
 			s = grade;
 		}
 
@@ -202,7 +203,7 @@ public class FormatHelper {
 			return "";
 		}
 
-		String s = null;
+		String s;
 		try {
 			final DecimalFormat df = (DecimalFormat) NumberFormat.getInstance(locale);
 			final Double d = df.parse(grade).doubleValue();
@@ -211,11 +212,8 @@ public class FormatHelper {
 			df.setGroupingUsed(false);
 
 			s = df.format(d);
-		} catch (final NumberFormatException e) {
-			log.debug("Bad format, returning original string: " + grade);
-			s = grade;
-		} catch (final ParseException e) {
-			log.debug("Bad format, returning original string: " + grade);
+		} catch (final NumberFormatException | ParseException e) {
+			log.debug("Bad format, returning original string: {}", grade);
 			s = grade;
 		}
 
@@ -327,5 +325,38 @@ public class FormatHelper {
 		} catch (final UnsupportedEncodingException e) {
 			throw new AssertionError("UTF-8 not supported");
 		}
+	}
+
+	/**
+	 * Returns a list of drop highest/lowest labels based on the settings of the given category.
+	 * @param category the category
+	 * @return a list of 1 or 2 labels indicating that drop highest/lowest is in use, or an empty list if not in use.
+	 */
+	public static List<String> formatCategoryDropInfo(CategoryDefinition category) {
+
+		if (category == null) {
+			return Collections.emptyList();
+		}
+
+		int dropHighest = category.getDropHighest() == null ? 0 : category.getDropHighest();
+		int dropLowest = category.getDropLowest() == null ? 0 : category.getDropLowest();
+		int keepHighest = category.getKeepHighest() == null ? 0 : category.getKeepHighest();
+
+		if (dropHighest == 0 && dropLowest == 0 && keepHighest == 0) {
+			return Collections.emptyList();
+		}
+
+		List<String> info = new ArrayList<>(2);
+		if (dropHighest > 0) {
+			info.add(MessageHelper.getString("label.category.drophighest", dropHighest));
+		}
+		if (dropLowest > 0) {
+			info.add(MessageHelper.getString("label.category.droplowest", dropLowest));
+		}
+		if (keepHighest > 0) {
+			info.add(MessageHelper.getString("label.category.keephighest", keepHighest));
+		}
+
+		return info;
 	}
 }

@@ -94,7 +94,7 @@
 		</ul>
 		</ul>
 	#if ($alertMessage)
-                 <br /><div class="messageValidation">$alertMessage</div><div class="clear"></div>
+                 <br /><div class="messageWarning">$alertMessage</div><div class="clear"></div>
 	#end
 	## display print success message
 	#if ($content_print_status_success)
@@ -499,7 +499,7 @@
 					
 					<td headers="actions2" class="attach actions2">
                         <div class="btn-group  pull-right">
-                            <button type="button" class="btn resources-dropdown btn-xs" aria-expanded="false" data-toggle="dropdown" title="$clang.getString('gen.actions')">
+                            <button type="button" class="btn resources-dropdown btn-xs dropdown-toggle" aria-expanded="false" data-toggle="dropdown" title="$clang.getString('gen.actions')">
                                 <span class="sr-only">$validator.escapeHtml($item.name) $clang.getString('gen.actions')</span>
                                 <span class="hidden-xs hidden-sm">$clang.getString('gen.actions')</span>
                                 <span class="caret"></span>
@@ -776,7 +776,7 @@
 					#end ## foreach $root in $other_sites
 	
 				#else
-					<tr class="hidden-xs">
+					<tr>
 						<th colspan="10">
 						<h3>
 							<a href="#" onclick="document.getElementById('sakai_action').value='doShowOtherSites';document.getElementById('showForm').submit();"

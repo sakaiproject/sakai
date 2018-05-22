@@ -688,8 +688,26 @@ public abstract class SectionManagerImpl implements SectionManager, SiteAdvisor 
 		// must be the same
 		List membershipInCategory = authzGroupService.getAuthzUserGroupIds(categorySections, userUid);
 		
-		if (!membershipInCategory.isEmpty()) {
-			log.info("User " + userUid + " can not enroll in section " + sectionUuid + ".  This user is already in section " + membershipInCategory.get(0));
+		List realMembershipInCategory=new ArrayList();
+		
+		for(String msic: (List <String>) membershipInCategory)
+		{
+			String realmGroup=msic;
+			Group group = findGroup(realmGroup);
+			Member member = group.getMember(userUid);
+			if(member == null) {
+				if (log.isDebugEnabled()) { 
+					log.debug("getAuthzUserGroupIds said {} is member of {} but getMember disagrees", userUid, group.getId());
+				}
+				continue;
+			}
+			else {
+				realMembershipInCategory.add(realmGroup);
+			}
+		}
+		
+		if (!realMembershipInCategory.isEmpty()) {
+			log.info("User {} can not enroll in section {}. This user is already in section {} ",userUid, sectionUuid, membershipInCategory.get(0));
 			return null;
 		}
 

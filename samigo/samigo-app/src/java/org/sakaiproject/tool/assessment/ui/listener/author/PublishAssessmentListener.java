@@ -72,6 +72,7 @@ import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentS
 import org.sakaiproject.tool.assessment.ui.bean.author.AssessmentSettingsBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.AuthorBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.PublishRepublishNotificationBean;
+import org.sakaiproject.tool.assessment.ui.bean.authz.AuthorizationBean;
 import org.sakaiproject.tool.assessment.ui.bean.evaluation.TotalScoresBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.util.TextFormat;
@@ -132,6 +133,7 @@ public class PublishAssessmentListener
   			//Map requestParams = context.getExternalContext().getRequestParameterMap();
   			AuthorBean author = (AuthorBean) ContextUtil.lookupBean(
   			"author");
+  			AuthorizationBean authorization = (AuthorizationBean) ContextUtil.lookupBean("authorization");
 
   			AssessmentSettingsBean assessmentSettings = (AssessmentSettingsBean) ContextUtil.lookupBean("assessmentSettings");
 
@@ -162,7 +164,7 @@ public class PublishAssessmentListener
   				GradingService gradingService = new GradingService();
   				PublishedAssessmentService publishedAssessmentService = new PublishedAssessmentService();
   				AuthorActionListener authorActionListener = new AuthorActionListener();
-  				authorActionListener.prepareAssessmentsList(author, assessmentService, gradingService, publishedAssessmentService);
+  				authorActionListener.prepareAssessmentsList(author, authorization, assessmentService, gradingService, publishedAssessmentService);
 
   				repeatedPublish = true;
   			}else{

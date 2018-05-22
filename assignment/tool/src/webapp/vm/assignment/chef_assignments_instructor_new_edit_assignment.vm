@@ -1,5 +1,23 @@
 <!-- start: chef_assignments_instructor_new_edit_assignment.vm  -->
 #set( $H = '-' )
+<!-- Initialize the Bootstrap-multiselect plugin: -->
+<script type="text/javascript">
+    $(document).ready(function() {
+        $('#selectedGroups').multiselect({
+            selectAllText: '$tlang.getString("asn.edit.selectall")',
+            nonSelectedText: '$tlang.getString("asn.edit.selectone")',
+            allSelectedText: '$tlang.getString("asn.edit.allselected")',
+            nSelectedText: ' $tlang.getString("asn.edit.groupsselected")',
+            filterPlaceholder: '$tlang.getString("asn.edit.searchgroup")',
+            enableFiltering: true,
+            enableCaseInsensitiveFiltering: true,
+            includeSelectAllOption: true
+        });
+        $('#selectedGroups').change(function(){
+            ASN.showOrHideSelectGroupsMessage();
+        });
+    });
+</script>
 <script type="text/javascript">
 	$(document).ready(function() {
 		ASN.setupAssignNew();
@@ -102,7 +120,7 @@
 #javascript("/library/js/lang-datepicker/lang-datepicker.js")
 
 <div class="portletBody container-fluid">
-	#navBarOnClick( $allowAddAssignment $withGrade $allowGradeSubmission $allowAddAssignment $allowAllGroups $assignmentscheck $allowUpdateSite $enableViewOption $view "newAssignmentForm" "new" )
+	#navBarOnClick( $allowAddAssignment $withGrade $allowGradeSubmission $allowAddAssignment $allowRecoverAssignment $allowAllGroups $assignmentscheck $allowUpdateSite $enableViewOption $view "newAssignmentForm" "new" )
 
 	<div class="page-header">
 		<h1>
@@ -504,7 +522,7 @@
 			</label>
 		</div>
 		#elseif( $allowAddAssignment )
-			#if ($!groups.size() >1)
+			#if ($!groupsList.size() >1)
                         <label class="$class" for="groups">$tlang.getString("groups")</label>
 			#else
                         <label class="$class" for="groups">$tlang.getString("group")</label>
@@ -516,7 +534,7 @@
 			<label class="$class" for="groups">
 			#if( !$!allowGroupAssignmentsInGradebook )
 				<input type="radio" name="range" id="groups" value="GROUP" onclick="if (document.getElementById('addToGradebook') != null){document.getElementById('addToGradebook').style.display = 'none';document.getElementById('$!name_Addtogradebook').checked=false};$('#groupTable').fadeIn('slow'); ASN.showOrHideAccessMessages( true ); ASN.resizeFrame();"
-				#if( $!range == "GROUP" && !$selectedGroupsNotFound )
+				#if( ($!range == "GROUP" && !$selectedGroupsNotFound) || !$allowAddSiteAssignment )
 					checked="checked"
 				#elseif( !$!groupsList )
 					disabled="disabled"
@@ -524,7 +542,7 @@
 				/>
 			#else
 				<input type="radio" name="range" id="groups" value="GROUP" onclick="$('#groupTable').fadeIn('slow'); ASN.showOrHideAccessMessages( true ); ASN.resizeFrame();"
-				#if( $!range == "GROUP" && !$selectedGroupsNotFound )
+				#if( ($!range == "GROUP" && !$selectedGroupsNotFound) || !$allowAddSiteAssignment)
 					checked="checked"
 				#elseif( !$!groupsList )
 					disabled="disabled"
@@ -539,54 +557,30 @@
                 #if( (($!range == "GROUP" || $!assignment.TypeOfAccess == $groupAccess) && !$selectedGroupsNotFound) || $selectedGroupsNotFound || $!range == "SITE" )
                     #set( $selectGroupsDisplay = "none" )
                 #end
-                #if( ($!range == "GROUP" || $!assignment.TypeOfAccess == $groupAccess) && !$selectedGroupsNotFound )
+                #if( (($!range == "GROUP" || $!assignment.TypeOfAccess == $groupAccess) && !$selectedGroupsNotFound) || !$allowAddSiteAssignment )
                     #set( $listDisplay = "block" )
 			#else
                     #set( $listDisplay = "none" )
 			#end
 
-			<div class="row">
-				<div class="col-sm-offset-1 col-sm-9">
-					<div id="msgSelectGroups" class="messageInformation" style="display: $selectGroupsDisplay">$tlang.getString( "settings.access.selectGroups" )</div>
-					<table id="groupTable" style="display:$listDisplay" class="table table-striped table-condensed" summary="$tlang.getString('group.list.summary')">
-						<tr>
-							<th id ="selectAllGroups" style="width:2em;padding-left:.4em">
-								<input type="checkbox" name="selectall" id="selectall" title="$tlang.getString('gen.toggle')" onclick="ASN.toggleSelectAll(this, 'selectedGroups'); ASN.showOrHideSelectGroupsMessage();"  />
-							</th>
-							<th id="groupname">
-								$tlang.getString('gen.title')
-							</th>
-							<th id="groupdescription">
-								$tlang.getString('group.list.descr')
-							</th>
-						</tr>
-						#foreach ($group in $!groups)
-							<tr>
-								<td headers="selected">
-									#set($selected=false)
-									#foreach($aGroupRef in $assignmentGroups)
-										#set($aGroup = $!site.getGroup($!aGroupRef))
-										#if ($!group.Id == $!aGroup.Id)
-											#set($selected = true)
-										#end
-									#end
-									<input type="checkbox" name="selectedGroups" id="id-$group.Id" title="$group.Id" value="$group.Id" #if($selected) checked="checked"#end onclick="ASN.showOrHideSelectGroupsMessage();" />
-								</td>
-								<td headers="name">
-									<label for="id-$group.Id">
-										$validator.escapeHtml($group.Title)
-									</label>
-								</td>
-								<td headers="description">
-									#set($description = "")
-									#set($description = $group.Description)
-									$validator.escapeHtml($!description)
-								</td>
-							</tr>
+		<div class="row" id="groupTable" style="display:$listDisplay">
+			<div class="col-sm-offset-1 col-sm-9">
+				<div id="msgSelectGroups" class="messageInformation" style="display: $selectGroupsDisplay">$tlang.getString( "settings.access.selectGroups" )</div>
+				<select id="selectedGroups" name="selectedGroups" multiple="multiple">
+					#foreach ($group in $!groups)
+						#set($description = $validator.escapeHtml($group.Description))
+						#set($selected=false)
+						#foreach($aGroupRef in $assignmentGroups)
+							#set($aGroup = $!site.getGroup($!aGroupRef))
+							#if ($!group.Id == $!aGroup.Id)
+								#set($selected = true)
+							#end
 						#end
-					</table>
-				</div>
+						<option value="$group.Id" #if($selected) selected #end>$validator.escapeHtml($group.Title) #if("$!description" != "") ($description) #end</option>
+					#end
+				</select>
 			</div>
+		</div>
 
 		<h4>
 			$tlang.getString("gen.stusub")
@@ -1033,7 +1027,7 @@
 			</div>
 			</div>
 		#end
-		#if( ($!withGrade && $!withGradebook) || ($enableAnonGrading || $value_CheckAnonymousGrading.equals("true")) )
+		#if(($!withGrade && $!withGradebook) || ($enableAnonGrading || $value_CheckAnonymousGrading))
 			<h4>$!tlang.getString('grading')</h4>
 		#end
 
@@ -1225,12 +1219,12 @@
 		#end
 
 		## SAK-17606 - Show the anonymous grading checkbox if enabled
-		#if( $enableAnonGrading || $value_CheckAnonymousGrading.equals("true") )
+		#if( $enableAnonGrading || $value_CheckAnonymousGrading)
 			#set ($anonDisabled = !$enableAnonGrading || $forceAnonGrading)
 			<div class="checkbox">
 				<label for="$name_CheckAnonymousGrading" #if($anonDisabled) class="disabled" #end>
 					<input id="$name_CheckAnonymousGrading" name="$name_CheckAnonymousGrading" type="checkbox" value="true"
-					#if ($forceAnonGrading || $value_CheckAnonymousGrading.equals("true"))
+					#if ($forceAnonGrading || $value_CheckAnonymousGrading)
 						checked="checked"
 					#end
 					#if($anonDisabled)
@@ -1302,9 +1296,9 @@
 				#else
 					<div id="peerAssessmentOptions" style="display:none" class="col-sm-offset-1">
 				#end
-					<p class="instruction">
+					<div class="messageInformation">
 						$tlang.getString("peerassessment.note")
-					</p>
+					</div>
 					<div id="peerperiod-finish">
 						$tlang.getString("peerassessment.periodfinishes")
 						<input type="text" id="new_assignment_peerperiod" name="new_assignment_peerperiod" class="datepicker" value="">
@@ -1366,7 +1360,7 @@
 		#if ($group_submissions_enabled)
 			<div class="radio">
 				<label for="$name_CheckIsGroupSubmission" class="$class">
-					<input id="$name_CheckIsGroupSubmission" name="$name_additionalOptions" type="radio" value="GROUP" onclick="ASN.toggleAddOptions('group');"
+					<input id="$name_CheckIsGroupSubmission" name="$name_additionalOptions" type="radio" value="GROUP" onclick="ASN.toggleAddOptions('GROUP');"
 					#if ($!value_additionalOptions.equals("GROUP") && $!groupsList)
 						checked="checked"
 					#elseif( !$!groupsList || ($!assignment && !$assignment.draft))

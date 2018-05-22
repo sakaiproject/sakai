@@ -1,7 +1,6 @@
 <!-- start: chef_assignments_instructor_student_list_submissions.vm  -->
 <div class="portletBody container-fluid">
-	#navBarHREF( $allowAddAssignment $withGrade $allowGradeSubmission $allowAddAssignment $allowAllGroups $assignmentscheck $allowUpdateSite $enableViewOption $view "" )
-
+	#navBarHREF( $allowAddAssignment $withGrade $allowGradeSubmission $allowAddAssignment $allowRecoverAssignment $allowAllGroups $assignmentscheck $allowUpdateSite $enableViewOption $view "" )
 	<div class="page-header">
 		<h1>
 			$!tlang.getString('lisofass2')
@@ -136,23 +135,18 @@
 							#set($assignments=$!studentAssignmentsTable.get($member))
 							#foreach ($assignment in $!assignments)
 								#set ($assignmentReference = $!service.assignmentReference($assignment.Id))
-								#set ($isAnon = $assignmentService.assignmentUsesAnonymousGrading($assignment))
-								#set ($deleted = false)
-								#set ($deleted = $assignment.getProperties().getProperty($assignment.getProperties().getNamePropAssignmentDeleted()))
-								#if (!$assignment.Draft && !$deleted.equalsIgnoreCase("true"))
-									## not show the draft assignment
+								#set ($isAnon = $!service.assignmentUsesAnonymousGrading($assignment))
+								#if (!$assignment.Draft)
+									## do not show draft assignments
 									#set($submission = false)
 									#set($submission=$service.getSubmission($assignment.Id, $member))
 									#set($submissionReference=$service.submissionReference($assignment.Context, $submission.Id, $assignment.Id))
 									<tr>
-										<td headers="studentname">
-											&nbsp;
-										</td>
+										<td headers="studentname"/>
 										<td headers="assignment">
-											## SAK-27824
 											#if (!$isAnon)
 											<h5>
-												<a href="#toolLinkParam("AssignmentAction" "doGrade_submission" "assignmentId=$validator.escapeUrl($assignmentReference)&submissionId=$validator.escapeUrl($submissionReference)&option=lisofass2")" title="$validator.escapeHtml($assignment.Title)">$validator.limit($validator.escapeHtml($assignment.Title), 40)</a>
+												<a href="#toolLinkParam("AssignmentAction" "doGrade_submission" "assignmentId=$validator.escapeUrl($assignmentReference)&submissionId=$validator.escapeUrl($submissionReference)&option=lisofass2")" title="$validator.escapeHtml($assignment.Title)">$validator.escapeHtml($assignment.Title)</a>
 												#if ($allowAddAssignment && $allowSubmitByInstructor)
 												#set( $submitSpinnerID = "submitFor_" + $member.Id + "_" + $validator.escapeUrl($assignmentReference) )
 												<div class="itemAction spinnerBesideContainer">
@@ -163,7 +157,7 @@
 												</div>
 												#end
 											#else
-												$validator.limit($validator.escapeHtml($assignment.Title), 40) ($tlang.getString("grading.anonymous.title"))
+												$validator.escapeHtml($assignment.Title) ($tlang.getString("grading.anonymous.title"))
 											#end
 											</h5>
 										</td>
@@ -172,14 +166,15 @@
 												#if (!$isAnon)
 													#if ($!submission.DateSubmitted)
 														$!service.getUsersLocalDateTimeString($!submission.DateSubmitted)
-														#if ($submission.DateSubmitted.isAfter($assignment.DueDate))<span class="highlight">$tlang.getString("gen.late2")</span>
+														#if ($submission.DateSubmitted.isAfter($assignment.DueDate))
+															<span class="highlight">$tlang.getString("gen.late2")</span>
 														#end
 													#end
-													#set ($submitterId = false)
-													#set ($submitterId = $!submission.Properties.get("submitted_user_id"))
-													#if ($!submitterId)
-														<br />$tlang.getString("listsub.submitted.by") $userService.getUser($submitterId).getDisplayName()
-														#if( $member.getDisplayId() != $submitterId )
+													#set ($submissionSubmitter = $!service.getSubmissionSubmittee($submission))
+													#if ($!submissionSubmitter.isPresent())
+														#set ($submitterId = $!submissionSubmitter.get().getSubmitter())
+														<br />$tlang.getString("listsub.submitted.by") $studentMembersMap.get($submitterId).getDisplayName()
+														#if($member.getId() != $submitterId)
 															($tlang.getString("listsub.submitted.on.behalf") $validator.escapeHtml($member.sortName))
 														#end
 													#end
@@ -197,31 +192,39 @@
 										</td>
 										#if ($withGrade)
 											<td headers="grade">
-													#if ($assignment.TypeOfGrade.ordinal() == 1)
-														$tlang.getString("gen.nograd")
-													#else
-														#if ($assignment.isGroup())
-															#if(($assignment.getProperties().getProperty("prop_new_assignment_add_to_gradebook").trim()) && ($assignment.TypeOfGrade == 3))
-																#if ($submission.getGradeForUserInGradeBook($!member.getId()))
-																	$!submission.getGradeForUserInGradeBook($!member.getId()) <abbr title="Group Grades">($!submission.gradeDisplay)</abbr>
-																#else
-																	#if ($!submission.getGradeForUser($!member.getId()))
-																		$!submission.getGradeForUser($!member.getId()) <abbr title="Group Grades">($!submission.gradeDisplay)</abbr>
-																	#else
-																		$!submission.gradeDisplay
-																	#end
-																#end
-															#else
-																#if ($!submission.getGradeForUser($!member.getId()))
-																	$!submission.getGradeForUser($!member.getId()) <abbr title="Group Grades">($!submission.gradeDisplay)</abbr>
-																#else
-																	$!submission.gradeDisplay
+												#if ($assignment.TypeOfGrade.ordinal() == 1)
+													$tlang.getString("gen.nograd")
+												#elseif ($assignment.TypeOfGrade.ordinal() == 3)
+													#if ($assignment.IsGroup)
+														#set($grade = false)
+														#if(($assignment.Properties.get("prop_new_assignment_add_to_gradebook")))
+															#set($grade = $!service.getGradeForUserInGradeBook($assignment.Id, $!member.getId()))
+														#end
+														#if (!$grade)
+															#set($submissionSubmitters = $!submission.Submitters)
+															#foreach ($submitter in $!submissionSubmitters)
+																#if ($!submitter.Submitter == $!member.getId())
+																	#set($grade = $!submitter.Grade)
+																	#break
 																#end
 															#end
-														#else
-															$!submission.gradeDisplay
 														#end
+														#if (!$grade)
+															#set($grade = $!submission.Grade)
+														#end
+														#if ($grade)
+															$!service.getGradeDisplay($grade, $assignment.TypeOfGrade, $assignment.ScaleFactor) <abbr title="Group Grades">($!service.getGradeDisplay($!submission.Grade, $assignment.TypeOfGrade, $assignment.ScaleFactor))</abbr>
+														#else
+															$tlang.getString("gen.nograd")
+														#end
+													#else
+														$!service.getGradeDisplay($submission.Grade, $assignment.TypeOfGrade, $assignment.ScaleFactor)
 													#end
+												#else
+													#if ($!submission.Grade)
+														$!service.getGradeDisplay($submission.Grade, $assignment.TypeOfGrade, $assignment.ScaleFactor)
+													#end
+												#end
 											</td>
 										#end
 									</tr>

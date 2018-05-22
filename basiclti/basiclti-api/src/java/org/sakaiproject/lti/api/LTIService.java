@@ -25,10 +25,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
-import org.sakaiproject.exception.IdUnusedException;
-import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.lti.api.LTIExportService.ExportType;
-import org.sakaiproject.site.api.Site;
 
 /**
  * <p>
@@ -80,6 +77,8 @@ public interface LTIService extends LTISubstitutionsFilter {
             "placement:text:hidden=true:maxlength=256",
             "placementsecret:text:hidden=true:maxlength=512",
             "oldplacementsecret:text:hidden=true:maxlength=512",
+            // SHA256 Support (See SAK-33898)
+            "sha256:radio:label=bl_sha256:choices=off,on",
             // LTI 1.3 expansion space (See SAK-33772)
             "lti13:radio:label=bl_lti13:role=admin",
             "lti13_settings:text:maxlength=1M:role=admin",
@@ -103,6 +102,7 @@ public interface LTIService extends LTISubstitutionsFilter {
             "title:text:label=bl_title:required=true:maxlength=1024",
             "allowtitle:radio:label=bl_allowtitle:choices=disallow,allow",
             "fa_icon:text:label=bl_fa_icon:allowed=true:maxlength=1024",
+            "allowfa_icon:radio:label=bl_allowfa_icon:choices=disallow,allow",
             "pagetitle:text:label=bl_pagetitle:required=true:maxlength=1024",
             "allowpagetitle:radio:label=bl_allowpagetitle:choices=disallow,allow",
             "description:textarea:label=bl_description:maxlength=4096",
@@ -146,6 +146,8 @@ public interface LTIService extends LTISubstitutionsFilter {
             "parameter:textarea:label=bl_parameter:rows=5:cols=25:maxlength=16384:only=lti2",
             "tool_proxy_binding:textarea:label=bl_tool_proxy_binding:maxlength=2M:only=lti2:hide=insert:role=admin",
             "allowcustom:checkbox:label=bl_allowcustom",
+            // SHA256 Support (See SAK-33898)
+            "sha256:radio:label=bl_sha256:choices=off,on,content",
             // LTI 1.3 expansion space (See SAK-33772)
             "lti13:radio:label=bl_lti13:choices=off,on,content:role=admin",
             "lti13_settings:text:maxlength=1M:role=admin",
@@ -248,6 +250,8 @@ public interface LTIService extends LTISubstitutionsFilter {
     String LTI_PLACEMENTSECRET = "placementsecret";
     String LTI_OLDPLACEMENTSECRET = "oldplacementsecret";
     String LTI_DEPLOYMENT_ID = "deployment_id";
+    // SHA256 Support (See SAK-33898)
+    String LTI_SHA256 = "sha256";
     // BLTI-230 - LTI 2.0
     String LTI_VERSION = "version";
     Long LTI_VERSION_1 = 0L;
@@ -316,6 +320,13 @@ public interface LTIService extends LTISubstitutionsFilter {
     String[] getToolModel(String siteId);
 
     String[] getContentModel(Long tool_id, String siteId);
+
+    /**
+     * @param tool_id
+     * @param siteId
+     * @return If the form does not contain configuration, returns null; otherwise returns an array containing the result of getContentModel(tool_id, siteId)
+     */
+    public String[] getContentModelIfConfigurable(Long tool_id, String siteId);
 
     String[] getContentModel(Map<String, Object> tool, String siteId);
 

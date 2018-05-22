@@ -54,6 +54,7 @@
                                     </a>
                                 </li>
                             {/if}
+                        		<li><a href="javascript:void(0);" class="gb-view-course-grade-statistics" role="menuitem"><wicket:message key="coursegrade.option.viewcoursegradestatistics" /></a></li>
                         </ul>
                     </div>
                 {/if}
@@ -165,6 +166,9 @@
                         {/if}
                     </span>
                 </a>
+                {for info in dropInfo}
+                <div class="gb-drop-info">${info}</div>
+                {/for}
                 <div class="btn-group">
                     <a class="btn btn-sm btn-default dropdown-toggle"
                        data-toggle="dropdown" href="#" role="button" aria-haspopup="true"

@@ -46,6 +46,7 @@ import java.util.Base64;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 public class GbGradebookData {
@@ -64,6 +65,7 @@ public class GbGradebookData {
 		private String readonly;
 
 		private String studentNumber;
+		private String hasDroppedScores;
 	}
 
 	private interface ColumnDefinition {
@@ -130,6 +132,7 @@ public class GbGradebookData {
 		private boolean isExtraCredit;
 		private String color;
 		private boolean hidden;
+		private List<String> dropInfo;
 
 		@Override
 		public String getType() {
@@ -435,7 +438,8 @@ public class GbGradebookData {
 			studentDefinition.setUserId(student.getStudentUuid());
 			studentDefinition.setFirstName(student.getStudentFirstName());
 			studentDefinition.setLastName(student.getStudentLastName());
-			studentDefinition.setHasComments(formatCommentData(student));
+			studentDefinition.setHasComments(formatColumnFlags(student, g -> StringUtils.isNotBlank(g.getGradeComment())));
+			studentDefinition.setHasDroppedScores(formatColumnFlags(student, g -> g.isDroppedFromCategoryScore()));
 
 			if (this.isStudentNumberVisible) {
 				studentDefinition.setStudentNumber(student.getStudentNumber());
@@ -513,7 +517,10 @@ public class GbGradebookData {
 						nullable(categoryWeight),
 						a1.isCategoryExtraCredit(),
 						userSettings.getCategoryColor(a1.getCategoryName(), a1.getCategoryId()),
-						!uiSettings.isCategoryScoreVisible(a1.getCategoryName())));
+						!uiSettings.isCategoryScoreVisible(a1.getCategoryName()),
+						FormatHelper.formatCategoryDropInfo(categories.stream()
+								.filter(c -> c.getId().equals(a1.getCategoryId()))
+								.findAny().orElse(null))));
 			}
 		}
 
@@ -534,7 +541,8 @@ public class GbGradebookData {
 							nullable(categoryWeight),
 							category.isExtraCredit(),
 							userSettings.getCategoryColor(category.getName(), category.getId()),
-							!uiSettings.isCategoryScoreVisible(category.getName())));
+							!uiSettings.isCategoryScoreVisible(category.getName()),
+							FormatHelper.formatCategoryDropInfo(category)));
 				}
 			}
 		}
@@ -542,14 +550,14 @@ public class GbGradebookData {
 		return result;
 	}
 
-	private String formatCommentData(final GbStudentGradeInfo student) {
+	private String formatColumnFlags(final GbStudentGradeInfo student, Predicate<GbGradeInfo> predicate) {
 		final StringBuilder sb = new StringBuilder();
 
-		for (ColumnDefinition column : GbGradebookData.this.columns) {
+		for (ColumnDefinition column : columns) {
 			if (column instanceof AssignmentDefinition) {
 				final AssignmentDefinition assignmentColumn = (AssignmentDefinition) column;
 				final GbGradeInfo gradeInfo = student.getGrades().get(assignmentColumn.getAssignmentId());
-				if (gradeInfo != null && !StringUtils.isBlank(gradeInfo.getGradeComment())) {
+				if (gradeInfo != null && predicate.test(gradeInfo)) {
 					sb.append('1');
 				} else {
 					sb.append('0');

@@ -8,7 +8,7 @@
 	</h3>
 	#if ($alertMessage)<div class="alertMessage">$tlang.getFormattedMessage("presence.list.alert.message", $validator.escapeHtml($alertMessage))</div>#end
 	<div class="instruction">$tlang.getFormattedMessage("presence.list.total.withValue", $total)</div>
-	<table class ="listHier lines nolines" cellspacing="0" summary ="$tlang.getString("presence.list.server.summary")">
+	<table class="table table-hover table-striped table-bordered" summary ="$tlang.getString("presence.list.server.summary")">
 			<tr>
 				<th id="Id">$tlang.getString("presence.list.server")</th>
 				<th id="Count">$tlang.getString("presence.list.sessions")</th>
@@ -17,9 +17,7 @@
 		#foreach ($serverName in $serverList)
 			<tr>
 				<td headers="Id">
-					<h4>
 						$validator.escapeHtml($serverName)
-					</h4>
 				</td>
 				<td headers="Count">
 					$!serverSessions.get($serverName).size()

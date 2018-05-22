@@ -1,0 +1,92 @@
+<!-- start: chef_assignments_instructor_list_deleted_assignments.vm  -->
+<div class="portletBody container-fluid">
+	#navBarHREF( $allowAddAssignment $withGrade $allowGradeSubmission $allowAddAssignment $allowRecoverAssignment $allowAllGroups $assignmentscheck $allowUpdateSite $enableViewOption $view "Assignment.mode_list_removed_assignments" )
+	#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $alertMessage</div><div class="clear"></div>#end
+
+	<div class="page-header">
+		<h1>
+			$!tlang.getString('removedAssignmentList')
+		</h1>
+	</div>
+
+	#if (!$!assignments.hasNext())
+		<p class="instruction">
+			$tlang.getString("gen.thearecur1")
+		</p>
+	#else
+		<div class="navPanel row">
+			<div class="col-sm-5 col-xs-12">
+			</div>
+			<div class="col-sm-7 col-xs-12">
+				#paginator( $topMsgPos $btmMsgPos $allMsgNumber $pagesize $goFPButton $goPPButton $goNPButton $goLPButton $sakai_csrf_token $pagesizes )
+			</div>
+		</div>
+		<form name="listDeletedAssignmentsForm" action="#toolForm("$action")" method="post">
+			<div class="table-responsive">
+				<input type="hidden" name="source" value="0" />
+				<table class="table table-hover table-striped table-bordered" summary="$tlang.getString("gen.ass.lis.sum")">
+					<tr>
+						<th id="title" scope="col">
+							<a href="javascript:void(0)" onclick="location='#toolLinkParam("$action" "doSort" "criteria=title")'; return false;"   title="$tlang.getString("listassig.sorbytit")">
+								$tlang.getString("gen.asstit")
+								#if ($sortedBy.equals("title"))
+									#if ($sortedAsc.equals("true"))
+										<img id="sortascendingtitle" src = "#imageLink("sakai/sortascending.gif")" border="0" alt="$tlang.getString("gen.sorasc")" />
+									#else
+										<img id="sortdescendingtitle" src = "#imageLink("sakai/sortdescending.gif")" border="0" alt="$tlang.getString("gen.sordes")" />
+									#end
+								#end
+							</a>
+						</th>
+						#if ($!allowRecoverAssignment)
+							<th id="selectAssignments" scope="col">
+								<span class="hidden-xs">$tlang.getString("selectAssignments")</span>
+							</th>
+						#end
+					</tr>
+					#set ($assignmentCount = 0)
+					#foreach ($assignment in $assignments)
+						#set ($assignmentCount = $assignmentCount + 1)
+							<tr>
+								<td headers="title" scope="row">
+											<strong>
+												$validator.escapeHtml($!assignment.title)
+												#if ($assignment.getContentReview())
+													<img alt="$reviewIndicator" title="$reviewIndicator" src="/library/image/silk/rosette.png" />
+												#end
+											</strong>
+								</td>
+								#if ($!allowRecoverAssignment)
+									<td headers="selectAssignments" class="screenOnly">
+											<input type="checkbox" name="selectedAssignments" value="$assignment.Id" id="check_$assignmentCount" onclick="ASN.checkEnableRestore();" />
+											<label for="check_$assignmentCount" class="skip">$validator.escapeHtml($!assignment.Title)</label>
+									</td>
+								#end
+							</tr>
+					#end
+				</table>
+			</div>
+		#if ($!allowRecoverAssignment)
+			<p class="act">
+				<input type="submit" id="btnRestore" name="eventSubmit_doRestore_confirm_assignment" value="$tlang.getString("restoreSelected")" accesskey="s" disabled="disabled" />
+				<input type="submit" id="btnHardRemove" name="eventSubmit_doHardRemove_confirm_assignment" value="$tlang.getString("hardRemoveSelected")" accesskey="s" disabled="disabled" />
+			</p>
+		#end
+
+			<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+		</form>
+	#end
+</div>
+<script type="text/javascript">
+	$(document).ready(function() {
+		$("#btnRestore").click(function(event) {
+			if( !confirm('$tlang.getString("restoreConfirmation")') )
+				event.preventDefault();
+		});
+		$("#btnHardRemove").click(function(event) {
+			if( !confirm('$tlang.getString("hardRemoveConfirmation")') )
+				event.preventDefault();
+		});
+	});
+</script>
+<!-- end: chef_assignments_instructor_list_deleted_assignments.vm  -->

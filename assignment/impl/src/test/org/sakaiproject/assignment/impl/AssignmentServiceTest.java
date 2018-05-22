@@ -68,7 +68,6 @@ import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.time.api.UserTimeService;
 import org.sakaiproject.tool.api.SessionManager;
-import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.api.FormattedText;
@@ -90,7 +89,6 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
     @Autowired private AssignmentService assignmentService;
     @Autowired private EntityManager entityManager;
     @Autowired private ServerConfigurationService serverConfigurationService;
-    @Autowired private UserDirectoryService userDirectoryService;
     @Autowired private SiteService siteService;
     @Autowired private FormattedText formattedText;
     @Resource(name = "org.sakaiproject.time.api.UserTimeService")
@@ -198,6 +196,7 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
         Assignment assignment = createNewAssignment(context);
         String assignmentId = assignment.getId();
         assignment.setDraft(Boolean.TRUE);
+        when(securityService.unlock(AssignmentServiceConstants.SECURE_UPDATE_ASSIGNMENT, AssignmentReferenceReckoner.reckoner().context(context).reckon().getReference())).thenReturn(true);
         when(securityService.unlock(AssignmentServiceConstants.SECURE_UPDATE_ASSIGNMENT, AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getReference())).thenReturn(true);
         try {
             assignmentService.updateAssignment(assignment);
@@ -302,6 +301,7 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
         Assignment assignment = createNewAssignment(context);
         assignment.setTitle(title);
         Assignment updatedAssignment = null;
+        when(securityService.unlock(AssignmentServiceConstants.SECURE_UPDATE_ASSIGNMENT, AssignmentReferenceReckoner.reckoner().context(context).reckon().getReference())).thenReturn(true);
         when(securityService.unlock(AssignmentServiceConstants.SECURE_UPDATE_ASSIGNMENT, AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getReference())).thenReturn(true);
         try {
             assignmentService.updateAssignment(assignment);
@@ -410,6 +410,32 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
     }
 
     @Test
+    public void getDeletedAssignmentsForContext() {
+        String context = UUID.randomUUID().toString();
+        Assignment assignment = createNewAssignment(context);
+        String stringRef = AssignmentReferenceReckoner.reckoner().context(assignment.getContext()).subtype("a").id(assignment.getId()).reckon().getReference();
+        when(securityService.unlock(AssignmentServiceConstants.SECURE_REMOVE_ASSIGNMENT, stringRef)).thenReturn(true);
+        //The assignment list should contain the newly created element
+        Collection<Assignment> assignmentCollection = assignmentService.getAssignmentsForContext(context);
+        Assert.assertNotNull(assignmentCollection);
+        Assert.assertEquals(1, assignmentCollection.size());
+        //Soft delete the assignment
+        try{
+            assignmentService.softDeleteAssignment(assignment);
+        } catch (PermissionException e) {
+            Assert.fail("Get Deleted Assignments For context");
+        }
+        //The assignment list should not contain the assignment because it's deleted
+        assignmentCollection = assignmentService.getAssignmentsForContext(context);
+        Assert.assertNotNull(assignmentCollection);
+        Assert.assertEquals(0, assignmentCollection.size());
+        //The assignment list should contain the assignment because it's deleted
+        Collection<Assignment> deletedAssignmentCollection = assignmentService.getDeletedAssignmentsForContext(context);
+        Assert.assertNotNull(deletedAssignmentCollection);
+        Assert.assertEquals(1, deletedAssignmentCollection.size());
+    }
+
+    @Test
     public void duplicateAssignment() throws IdUnusedException {
         // Setup a new Assignment
         String context = UUID.randomUUID().toString();
@@ -428,6 +454,7 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
         AssignmentServiceConstants.PROPERTIES_EXCLUDED_FROM_DUPLICATE_ASSIGNMENTS.forEach(p -> properties.put(p, p + "_VALUE"));
         assignment.setProperties(properties);
 
+        when(securityService.unlock(AssignmentServiceConstants.SECURE_UPDATE_ASSIGNMENT, AssignmentReferenceReckoner.reckoner().context(context).reckon().getReference())).thenReturn(true);
         when(securityService.unlock(AssignmentServiceConstants.SECURE_UPDATE_ASSIGNMENT, AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getReference())).thenReturn(true);
         try {
             assignmentService.updateAssignment(assignment);
@@ -546,6 +573,7 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
         assignment.setCloseDate(now);
         assignment.setPeerAssessmentPeriodDate(now.minus(Duration.ofDays(1)));
 
+        when(securityService.unlock(AssignmentServiceConstants.SECURE_UPDATE_ASSIGNMENT, AssignmentReferenceReckoner.reckoner().context(context).reckon().getReference())).thenReturn(true);
         when(securityService.unlock(AssignmentServiceConstants.SECURE_UPDATE_ASSIGNMENT, AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getReference())).thenReturn(true);
         try {
             assignmentService.updateAssignment(assignment);
@@ -647,6 +675,7 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
         assignment.getGroups().add(groupRef);
         String assignmentReference = AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getReference();
         when(securityService.unlock(AssignmentServiceConstants.SECURE_UPDATE_ASSIGNMENT, assignmentReference)).thenReturn(true);
+        when(securityService.unlock(AssignmentServiceConstants.SECURE_UPDATE_ASSIGNMENT, AssignmentReferenceReckoner.reckoner().context(context).reckon().getReference())).thenReturn(true);
         assignmentService.updateAssignment(assignment);
 
         // configure mock group objects

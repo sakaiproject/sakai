@@ -26,6 +26,8 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.security.Principal;
 import java.util.*;
+import java.util.regex.Pattern;
+import java.util.regex.Matcher;
 
 import javax.servlet.*;
 import javax.servlet.http.*;
@@ -175,12 +177,20 @@ public class RequestFilter implements Filter
 	/** The name of the Sakai property to disable setting the HttpOnly attribute on the cookie (if false). */
 	protected static final String SAKAI_COOKIE_HTTP_ONLY = "sakai.cookieHttpOnly";
 
+	/** The name of the Sakai property to set the SameSite attribute on the cookie. "lax" is the default. */
+	protected static final String SAKAI_COOKIE_SAME_SITE = "sakai.cookieSameSite";
+
 	/** The name of the Sakai property to set the X-UA Compatible header
 	 */
 	protected static final String SAKAI_UA_COMPATIBLE = "sakai.X-UA-Compatible";
 	
 	/** The name of the Sakai property to allow passing a session id in the ATTR_SESSION request parameter */
 	protected static final String SAKAI_SESSION_PARAM_ALLOW = "session.parameter.allow";
+
+	/** The name of the Sakai property of a URL regular expression that always allows ATTR_SESSION request parameter */
+	protected static final String SAKAI_SESSION_PARAM_ALLOW_BYPASS = "session.parameter.allow.bypass";
+	protected static final String SAKAI_SESSION_PARAM_ALLOW_BYPASS_DEFAULT =
+		"sakai\\.basiclti\\.admin\\.helper\\.helper";
 	
 	/** The tools allowed as lti provider **/
 	protected static final String SAKAI_BLTI_PROVIDER_TOOLS = "basiclti.provider.allowedtools";
@@ -231,7 +241,8 @@ public class RequestFilter implements Filter
 
 	/** Allow setting the cookie in a request parameter */
 	protected boolean m_sessionParamAllow = false;
-                                                                                                             
+	protected Pattern m_sessionParamRegex = null;
+
     /** The name of the cookie we use to keep sakai session. */                                            
     protected String cookieName = "JSESSIONID";                                                            
                                                                                                               
@@ -251,6 +262,8 @@ public class RequestFilter implements Filter
 
 	/** Set the HttpOnly attribute on the cookie */
 	protected boolean m_cookieHttpOnly = true;
+	/** Set the SameSite attribute on the cookie */
+	protected String m_cookieSameSite = "lax";
 
 	protected String m_UACompatible = null;
             
@@ -808,10 +821,25 @@ public class RequestFilter implements Filter
 			cookieDomain = System.getProperty(SAKAI_COOKIE_DOMAIN);
 		}
 
+		// session id provided in a request parameter?
 		m_sessionParamAllow = serverConfigurationService.getBoolean(SAKAI_SESSION_PARAM_ALLOW, false);
+		String allowBypassSession = serverConfigurationService.getString(SAKAI_SESSION_PARAM_ALLOW_BYPASS,
+			SAKAI_SESSION_PARAM_ALLOW_BYPASS_DEFAULT);
+		if ( ! "none".equals(allowBypassSession) ) {
+			try {
+				m_sessionParamRegex = Pattern.compile(allowBypassSession);
+			}
+			catch( Exception e )
+			{
+				log.warn("Unable to compile " + SAKAI_SESSION_PARAM_ALLOW + "=" + allowBypassSession);
+				m_sessionParamRegex = null;
+			}
+		}
 
 		// retrieve option to enable or disable cookie HttpOnly
 		m_cookieHttpOnly = serverConfigurationService.getBoolean(SAKAI_COOKIE_HTTP_ONLY, true);
+		// retrieve option to enable or disable cookie SameSite
+		m_cookieSameSite = serverConfigurationService.getString(SAKAI_COOKIE_SAME_SITE, "lax");
 
 		m_UACompatible = serverConfigurationService.getString(SAKAI_UA_COMPATIBLE, null);
 
@@ -1055,7 +1083,14 @@ public class RequestFilter implements Filter
 		boolean auto = req.getParameter(PARAM_AUTO) != null;
 
 		// session id provided in a request parameter?
-		boolean reqsession = m_sessionParamAllow && req.getParameter(ATTR_SESSION) != null;
+		boolean matched = false;
+		if ( m_sessionParamRegex != null ) {
+			String uri = req.getRequestURI();
+			Matcher m = m_sessionParamRegex.matcher(uri.toLowerCase());
+			matched = m.find();
+		}
+
+		boolean reqsession = (matched || m_sessionParamAllow) && req.getParameter(ATTR_SESSION) != null;
 
 		String suffix = getCookieSuffix();
 
@@ -1090,7 +1125,7 @@ public class RequestFilter implements Filter
 		// if no principal, check request parameter and cookie
 		if (sessionId == null || s == null)
 		{
-			if (m_sessionParamAllow) {
+			if (matched || m_sessionParamAllow) {
 				sessionId = req.getParameter(ATTR_SESSION);
 			}
 
@@ -1401,7 +1436,7 @@ public class RequestFilter implements Filter
 
 			ServerCookie.appendCookieValue(sb, cookie.getVersion(), cookie.getName(), cookie.getValue(),
 					cookie.getPath(), cookie.getDomain(), cookie.getComment(),
-					cookie.getMaxAge(), cookie.getSecure(), m_cookieHttpOnly);
+					cookie.getMaxAge(), cookie.getSecure(), m_cookieHttpOnly, m_cookieSameSite);
 
 			res.addHeader("Set-Cookie", sb.toString());
 		}

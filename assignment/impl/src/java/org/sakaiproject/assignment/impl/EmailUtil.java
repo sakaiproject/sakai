@@ -35,6 +35,7 @@ public class EmailUtil {
     private static final String BOUNDARY_LINE = "\n\n--" + MULTIPART_BOUNDARY + "\n";
     private static final String TERMINATION_LINE = "\n\n--" + MULTIPART_BOUNDARY + "--\n\n";
     private static final String NEW_LINE = "<br />\n";
+    private static final String INDENT = "    ";
 
     @Setter private AssignmentService assignmentService;
     @Setter private DeveloperHelperService developerHelperService;
@@ -206,9 +207,16 @@ public class EmailUtil {
             //if this is a archive (zip etc) append the list of files in it
             attachments.stream().map(attachment -> entityManager.newReference(attachment)).forEach(reference -> {
                 ResourceProperties properties = reference.getProperties();
-                buffer.append(properties.getProperty(ResourceProperties.PROP_DISPLAY_NAME)).append(" (").append(reference.getProperties().getPropertyFormatted(ResourceProperties.PROP_CONTENT_LENGTH)).append(")\n");
+                boolean isArchiveFile = isArchiveFile(reference);
+                buffer.append(properties.getProperty(ResourceProperties.PROP_DISPLAY_NAME))
+                        .append(" (")
+                        .append(reference.getProperties().getPropertyFormatted(ResourceProperties.PROP_CONTENT_LENGTH))
+                        .append(isArchiveFile ? "):" : ")")
+                        .append(NEW_LINE);
                 if (isArchiveFile(reference)) {
-                    buffer.append(getArchiveManifest(reference));
+                    buffer.append("<blockquote>\n");
+                    buffer.append(getArchiveManifest(reference, true));
+                    buffer.append("</blockquote>\n");
                 }
             });
         }
@@ -317,23 +325,35 @@ public class EmailUtil {
     }
 
     private boolean isArchiveFile(Reference reference) {
-        String extension = getFileExtension(reference);
-        if (".zip".equals(extension)) {
-            return true;
-        }
-        return false;
+        return ".zip".equals(getFileExtension(reference));
     }
 
-    private Object getArchiveManifest(Reference r) {
+    /**
+     * get a list of the files in the archive
+     * @param r the entity reference for the archive file
+     * @param indent specifies whether each line should be prefixed with 4 spaces
+     * @return a formatted listing of the files in the archive
+     */
+    private String getArchiveManifest(Reference r, boolean indent) {
         String extension = getFileExtension(r);
         StringBuilder builder = new StringBuilder();
+        // assume archive is empty until at least one entry is found
+        boolean archiveIsEmpty = true;
         if (".zip".equals(extension)) {
             ZipContentUtil zipUtil = new ZipContentUtil();
             Map<String, Long> manifest = zipUtil.getZipManifest(r);
             Set<Map.Entry<String, Long>> set = manifest.entrySet();
+            archiveIsEmpty = set.isEmpty();
             for (Map.Entry<String, Long> entry : set) {
+                if (indent) {
+                    builder.append(INDENT);
+                }
                 builder.append(entry.getKey()).append(" (").append(formatFileSize(entry.getValue())).append(")").append(NEW_LINE);
             }
+        }
+
+        if (archiveIsEmpty) {
+            return INDENT + resourceLoader.getString("noti.archive.empty") + NEW_LINE;
         }
         return builder.toString();
     }

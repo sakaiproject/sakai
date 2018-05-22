@@ -164,7 +164,8 @@
 }
 #gradeTableWrapper .gb-grade-section,
 #gradeTableWrapper .gb-due-date,
-#gradeTableWrapper .gb-category {
+#gradeTableWrapper .gb-category,
+#gradeTableWrapper .gb-drop-info {
   text-align: left;
   font-size: 0.9em;
   line-height: 1.3em;
@@ -359,6 +360,15 @@
   font-family: "gradebook-icons";
   content: '\f040';
   color: rgb(204,0,0);
+}
+#gradeTableWrapper .handsontable tbody tr td .gb-dropped-grade-cell,
+#gradeTableWrapper .handsontable tbody tr:nth-child(2n) td .gb-dropped-grade-cell,
+#gradeTableWrapper .handsontable tbody tr:nth-child(2n) td .relative .gb-dropped-grade-cell {
+  background-image: repeating-linear-gradient(135deg, #eee, #eee 5px, #fff 5px, #fff 10px);
+  background-clip: padding-box;
+}
+#gradeTableWrapper .handsontable tbody tr td .gb-dropped-grade-cell .gb-value {
+  text-decoration: line-through;
 }
 
 /* Cell Metadata Summary */

@@ -38,8 +38,8 @@ import org.easymock.IAnswer;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.AbstractJUnit4SpringContextTests;
 
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentTypeImageService;
@@ -55,10 +55,9 @@ import org.sakaiproject.sitestats.test.data.FakeData;
 import org.sakaiproject.sitestats.test.mocks.FakeSite;
 import org.sakaiproject.time.api.Time;
 import org.sakaiproject.util.ResourceLoader;
+import org.springframework.test.context.junit4.AbstractJUnit4SpringContextTests;
 
-@ContextConfiguration(locations={
-		"/hbm-db.xml",
-		"/hibernate-test.xml"})
+@ContextConfiguration(locations = {"/hibernate-test.xml"})
 @Slf4j
 public class EventAggregatorTestPerf extends AbstractJUnit4SpringContextTests {
 	private static final int		MAX_USERS				= 250;
@@ -161,6 +160,7 @@ public class EventAggregatorTestPerf extends AbstractJUnit4SpringContextTests {
 		((StatsManagerImpl)M_sm).setContentTypeImageService(M_ctis);
 		((StatsManagerImpl)M_sm).setResourceLoader(msgs);
 		((StatsManagerImpl)M_sm).setCountFilesUsingCHS(false);
+		((StatsManagerImpl)M_sm).setCountPagesUsingLBS(false);
 		((StatsUpdateManagerImpl)M_sum).setSiteService(M_ss);
 		((StatsUpdateManagerImpl)M_sum).setStatsManager(M_sm);
 	}

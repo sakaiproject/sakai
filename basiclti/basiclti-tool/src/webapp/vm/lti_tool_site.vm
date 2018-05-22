@@ -7,99 +7,98 @@ ${includeLatestJQuery}
 <script type="text/javascript" src="/library/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
 <link type="text/css" href="/library/webjars/jquery-ui/1.12.1/jquery-ui.min.css" rel="stylesheet" media="screen" />
 
-	<!-- Tablesorter: required -->
-	<link rel="stylesheet" href="/basiclti-admin-tool/css/blue/style.css">
-	<script src="/basiclti-admin-tool/js/jquery.tablesorter.js"></script>
+    <!-- Tablesorter: required -->
+    <script type="text/javascript">includeWebjarLibrary('jquery.tablesorter/2.27.7/dist/css/theme.blue.min.css');</script>
+    <script type="text/javascript">includeWebjarLibrary('jquery.tablesorter');</script>
 
-	<!-- Tablesorter: pager optional -->
-	<link rel="stylesheet" href="/basiclti-admin-tool/addons/pager/jquery.tablesorter.pager.css">
-	<script src="/basiclti-admin-tool/addons/pager/jquery.tablesorter.pager.js"></script>
+    <script id="js">$(function(){
 
-	<!-- Tablesorter: search -->
-	<script src="/basiclti-admin-tool/js/jquery.tablesorter.widgets.js"></script>
-	
-	<script id="js">$(function(){
-		
-		$("thead tr th", "#tools_site").each(function(){
-			var elem = $(this);
-			var elemId = elem.attr('id');
-			var link = elem.children('a').first();
+        // **********************************
+        //  Description of ALL pager options
+        // **********************************
+        var pagerOptions_system = {
 
-			if(link.size() > 0) {
-				elem.addClass('tablesorter-header');
-				elem.click(function() {
-					$(location).attr("href", '#toolLinkParam("ToolSite" "doSort" "criteria=#elemId#")'
-						.replace(/&amp;/g, '&')
-						.replace('#elemId#', elemId));
-				});
-				
-				#if($!LAST_SORTED_FIELD)
-				if(elemId == "$!LAST_SORTED_FIELD") {
-					elem.addClass(($!ASCENDING_ORDER) ? 'tablesorter-headerSortDown' : 'tablesorter-headerSortUp');
-				}
-				#end
-			}
-			
-		});
-		
-		//prepare searching fields
-		var changeTimeout = null;
-		
-		onInputchange = function(){
-			if(changeTimeout != null) {
-				clearTimeout(changeTimeout);
-			}
-			var id = $(this).attr('id').replace('input_', '');
-			var value = $(this).val();
-			changeTimeout = setTimeout(function() { doChange(id, value); }, 1000);
-		};
-		
-		$("thead tr td input", "#tools_site").keyup(onInputchange).each(function(){
-			var id = $(this).attr('id');
-			if(id) {
-				$(this).attr('placeholder', $('#'+id.replace('input_', '')).attr('data-placeholder'));
-			}
-		}).focus(function() {
-			this.value = this.value;
-		});
-		
-		$("thead tr td select", "#tools_site").change(onInputchange);
-		
-		var doChange = function(id, val) {
-			$(location).attr("href", '#toolLinkParam("ToolSite" "doSearch" "field=#fieldId#&search=#searchField#")'
-				.replace(/&amp;/g, '&')
-				.replace('#fieldId#', id)
-				.replace('#searchField#', encodeURIComponent(val)));
-		};
-		
-		$(".pagesize").change(function(){
-			$(location).attr("href", '#toolLinkParam("ToolSite" "doChangePageSize" "pagesize=#pageSize#")'
-				.replace(/&amp;/g, '&')
-				.replace('#pageSize#', $(this).find('option:selected').val()));
-		});
-		
-		$(".pager_button").click(function(){
-			var elem = $(this);
-			if(!elem.hasClass("disabled")) {
-				var ev = null;
-				if(elem.hasClass('first')) ev = 'first';
-				if(elem.hasClass('prev')) ev = 'prev';
-				if(elem.hasClass('next')) ev = 'next';
-				if(elem.hasClass('last')) ev = 'last';
-				if(ev != null) {
-					$(location).attr("href", '#toolLinkParam("ToolSite" "doChangePage" "page_event=#pageEvent#")'
-						.replace(/&amp;/g, '&')
-						.replace('#pageEvent#', ev));
-				}
-			}
-		});
-		
-		#if($!SEARCH_LAST_FIELD)
-			$("#input_$!SEARCH_LAST_FIELD").focus();
-		#end
+            // target the pager markup - see the HTML block below
+            container: $("#tools_site_pager"),
 
-	});
-</script>
+            // output string - default is '{page}/{totalPages}'; possible variables: {page}, {totalPages}, {startRow}, {endRow} and {totalRows}
+            output: '{startRow} to {endRow} ({totalRows})',
+
+            // apply disabled classname to the pager arrows when the rows at either extreme is visible - default is true
+            updateArrows: true,
+
+            // starting page of the pager (zero based index)
+            page: 0,
+
+            // Number of visible rows - default is 10
+            size: 10,
+
+            // if true, the table will remain the same height no matter how many records are displayed. The space is made up by an empty
+            // table row set to a height to compensate; default is false
+            fixedHeight: true,
+
+            // remove rows from the table to speed up the sort of large tables.
+            // setting this to false, only hides the non-visible rows; needed if you plan to add/remove rows with the pager enabled.
+            removeRows: false,
+
+            // css class names of pager arrows
+            cssNext: '.next', // next page arrow
+            cssPrev: '.prev', // previous page arrow
+            cssFirst: '.first', // go to first page arrow
+            cssLast: '.last', // go to last page arrow
+            cssPageDisplay: '.pagedisplay', // location of where the "output" is displayed
+            cssPageSize: '.pagesize', // page size selector - select dropdown that sets the "size" option
+
+            // class added to arrows when at the extremes (i.e. prev/first arrows are "disabled" when on the first page)
+            cssDisabled: 'disabled' // Note there is no period "." in front of this class name
+
+        };
+
+        // initialize the tablersorter for the system external tool table
+        $("#tools_site")
+                .tablesorter({
+                    theme: 'blue',
+                    widthFixed: true,
+                    widgets: ['zebra', "filter"],
+                    widgetOptions : {
+                        // css class applied to the table row containing the filters & the inputs within that row
+                        filter_cssFilter : 'tablesorter-filter',
+
+                        // If there are child rows in the table (rows with class name from "cssChildRow" option)
+                        // and this option is true and a match is found anywhere in the child row, then it will make that row
+                        // visible; default is false
+                        filter_childRows : false,
+
+                        // Set this option to true to use the filter to find text from the start of the column
+                        // So typing in "a" will find "albert" but not "frank", both have a's; default is false
+                        filter_startsWith : false,
+
+                        // Set this option to false to make the searches case sensitive
+                        filter_ignoreCase : true,
+
+                        // Delay in milliseconds before the filter widget starts searching; This option prevents searching for
+                        // every character while typing and should make searching large tables faster.
+                        filter_searchDelay : 300,
+
+                        // See the filter widget advanced demo on how to use these special functions
+                        filter_functions : {}
+
+                    },
+                    headers: {
+                        // assign the fourth column (we start counting zero)
+                        4: {
+                            // disable it by setting the property sorter to false
+                            sorter: false
+                        }
+                    }
+                })
+
+                // initialize the pager plugin
+                // ****************************
+                .tablesorterPager(pagerOptions_system);
+
+    });
+    </script>
 
 <div class="portletBody">
 	<ul class="navIntraTool actionToolBar">
@@ -126,11 +125,11 @@ ${includeLatestJQuery}
 			</div>
 		</div>
 		<div id="tools_site_pager" class="pager">
-			<img src="/basiclti-admin-tool/addons/pager/icons/first.png" class="pager_button first #if ($sortIndex == 1) disabled #end" alt="First" />
-			<img src="/basiclti-admin-tool/addons/pager/icons/prev.png" class="pager_button prev #if ($sortIndex == 1) disabled #end" alt="Prev" />
+			<img src="/basiclti-admin-tool/icons/first.png" class="pager_button first #if ($sortIndex == 1) disabled #end" alt="First" />
+			<img src="/basiclti-admin-tool/icons/prev.png" class="pager_button prev #if ($sortIndex == 1) disabled #end" alt="Prev" />
 			<span class="pagedisplay">$sortIndex - $sortLastIndex ($count_contents)</span> <!-- this can be any element, including an input -->
-			<img src="/basiclti-admin-tool/addons/pager/icons/next.png" class="pager_button next #if ($sortLastIndex == $count_contents) disabled #end" alt="Next" />
-			<img src="/basiclti-admin-tool/addons/pager/icons/last.png" class="pager_button last #if ($sortLastIndex == $count_contents) disabled #end" alt="Last" />
+			<img src="/basiclti-admin-tool/icons/next.png" class="pager_button next #if ($sortLastIndex == $count_contents) disabled #end" alt="Next" />
+			<img src="/basiclti-admin-tool/icons/last.png" class="pager_button last #if ($sortLastIndex == $count_contents) disabled #end" alt="Last" />
 			<select class="pagesize">
 				<option #if ($sortPageSize == 10) selected="selected" #end value="10">10</option>
 				<option #if ($sortPageSize == 50) selected="selected" #end value="50">50</option>
@@ -158,22 +157,6 @@ ${includeLatestJQuery}
 					#end
 				#end
 				<th id="action" width="25%" class="filter-false">$tlang.getString("bl_action")</th>
-			</tr>
-			<tr class="tablesorter-filter">
-				<td><input class="tablesorter-filter" id="input_title" #if($search_map && $search_map.get('title')) value="$search_map.get('title')" #end /></td>
-				<td><input class="tablesorter-filter" id="input_URL" #if($search_map && $search_map.get('URL')) value="$search_map.get('URL')" #end /></td>
-				#if ($isAdmin) 
-					<td><input class="tablesorter-filter" id="input_SITE_TITLE" #if($search_map && $search_map.get('SITE_TITLE')) value="$search_map.get('SITE_TITLE')" #end /></td>
-				#end
-					<td><input class="tablesorter-filter" id="input_created_at" #if($search_map && $search_map.get('created_at')) value="$search_map.get('created_at')" #end /></td>
-				#if ($isAdmin)
-					<td><input class="tablesorter-filter" id="input_SITE_CONTACT_NAME" #if($search_map && $search_map.get('SITE_CONTACT_NAME')) value="$search_map.get('SITE_CONTACT_NAME')" #end /></td>
-					<td><input class="tablesorter-filter" id="input_SITE_CONTACT_EMAIL" #if($search_map && $search_map.get('SITE_CONTACT_EMAIL')) value="$search_map.get('SITE_CONTACT_EMAIL')" #end /></td>
-					#if ($attribution_name)
-					<td><input class="tablesorter-filter" id="input_ATTRIBUTION" #if($search_map && $search_map.get('ATTRIBUTION')) value="$search_map.get('ATTRIBUTION')" #end /></td>
-					#end
-				#end
-				<td></td>
 			</tr>
 			</thead>
 			<tbody>

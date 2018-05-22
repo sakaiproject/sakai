@@ -255,10 +255,11 @@ GbGradeTable.cellRenderer = function (instance, td, row, col, prop, value, cellP
   // key needs to contain all values the cell requires for render
   // otherwise it won't rerender when those values change
   var hasComment = column.type === "assignment" ? GbGradeTable.hasComment(student, column.assignmentId) : false;
+  var isDropped = column.type === "assignment" ? student.hasDroppedScores[index] === '1' : false;
   var scoreState = GbGradeTable.getCellState(row, col, instance);
   var isReadOnly = column.type === "assignment" ? GbGradeTable.isReadOnly(student, column.assignmentId) : false;
   var hasConcurrentEdit = column.type === "assignment" ? GbGradeTable.hasConcurrentEdit(student, column.assignmentId) : false;
-  var keyValues = [row, index, value, student.eid, hasComment, isReadOnly, hasConcurrentEdit, column.type, scoreState];
+  var keyValues = [row, index, value, student.eid, hasComment, isReadOnly, hasConcurrentEdit, column.type, scoreState, isDropped];
   var cellKey = GbGradeTable.cleanKey(keyValues.join("_"));
 
   var wasInitialised = $.data(td, 'cell-initialised');
@@ -419,6 +420,8 @@ GbGradeTable.cellRenderer = function (instance, td, row, col, prop, value, cellP
     $(gbNotification).removeClass("gb-flag-extra-credit");
     $cellDiv.removeClass("gb-extra-credit");
   }
+
+  $cellDiv.toggleClass("gb-dropped-grade-cell", isDropped && scoreState !== "error" && scoreState !== "invalid");
 
   if (column.type == 'category') {
     $cellDiv.addClass('gb-category-average');
@@ -1072,6 +1075,13 @@ GbGradeTable.renderTable = function (elementId, tableData) {
         var col = GbGradeTable.instance.view.settings.columns[colIndex]._data_;
         $togglePanel.find('.gb-item-category-score-filter :checkbox[value="'+col.categoryName+'"]').trigger('click');
       }
+  }).
+  // View Course Grade Statistics
+  on("click", ".gb-dropdown-menu .gb-view-course-grade-statistics", function() {
+    GbGradeTable.ajax({
+      action: 'viewCourseGradeStatistics',
+      siteId: GbGradeTable.container.data("siteid")
+    });
   });
 
   GbGradeTable.setupToggleGradeItems();
@@ -1235,6 +1245,29 @@ GbGradeTable.colModelForAssignment = function(assignmentId) {
   }
   
   throw "colModelForAssignment: column not found for " + assignmentId;
+};
+
+// returns the gradebook items included in this category, as AssignmentColumn objects
+GbGradeTable.itemsInCategory = function(categoryId) {
+    return GbGradeTable.columns.filter(function(col) {
+        return col.categoryId === categoryId && col.type === "assignment";
+    });
+};
+
+GbGradeTable.updateHasDroppedScores = function(student, assignmentIndex, dropped) {
+    var hasDroppedScores = student.hasDroppedScores;
+    var flag = dropped ? '1' : '0';
+    student.hasDroppedScores = hasDroppedScores.substr(0, assignmentIndex) + flag + hasDroppedScores.substr(assignmentIndex + 1);
+};
+
+GbGradeTable.moveItemFlag = function(flagString, fromIndex, toIndex) {
+    if (fromIndex === toIndex)
+    {
+        return flagString;
+    }
+    var tmp = flagString[fromIndex];
+    var removed = flagString.substr(0, fromIndex) + flagString.substr(fromIndex + 1);
+    return removed.substr(0, toIndex) + tmp + removed.substr(toIndex);
 };
 
 GbGradeTable.hasComment = function(student, assignmentId) {
@@ -2203,9 +2236,19 @@ GbGradeTable.setupDragAndDrop = function () {
           moveColumn(GbGradeTable.grades, sourceColIndex, targetColIndex);
 
           /* And the header columns */
-          moveColumn([GbGradeTable.columns],
-                     (sourceColIndex - numberOfFixedColumns),
-                     (targetColIndex - numberOfFixedColumns));
+          var adjustedSource = sourceColIndex - numberOfFixedColumns;
+          var adjustedTarget = targetColIndex - numberOfFixedColumns;
+          moveColumn([GbGradeTable.columns], adjustedSource, adjustedTarget);
+
+          /* And the comment/concurrent/dropped flag strings in the student objects */
+          var hasCategories = GbGradeTable.settings.isCategoriesEnabled;
+          GbGradeTable.students.forEach(function(student) {
+              if (hasCategories) {
+                  student.hasDroppedScores = GbGradeTable.moveItemFlag(student.hasDroppedScores, adjustedSource, adjustedTarget);
+              }
+              student.hasComments = GbGradeTable.moveItemFlag(student.hasComments, adjustedSource, adjustedTarget);
+              student.hasConcurrentEdit = GbGradeTable.moveItemFlag(student.hasConcurrentEdit, adjustedSource, adjustedTarget);
+          });
 
           GbGradeTable.redrawTable(true);
         };
@@ -2829,7 +2872,7 @@ GbGradeTable.syncCourseGrade = function(studentId, courseGradeData) {
 };
 
 
-GbGradeTable.syncCategoryAverage = function(studentId, categoryId, categoryScore) {
+GbGradeTable.syncCategoryAverage = function(studentId, categoryId, categoryScore, droppedItems) {
     var categoryScoreAsLocaleString = GbGradeTable.localizeNumber(categoryScore);
 
     // update table
@@ -2844,6 +2887,16 @@ GbGradeTable.syncCategoryAverage = function(studentId, categoryId, categoryScore
     var modelRow = GbGradeTable.modelIndexForStudent(studentId);
     var modelCol = $.inArray(GbGradeTable.colModelForCategoryId(categoryId), GbGradeTable.columns);
     GbGradeTable.grades[modelRow][modelCol + GbGradeTable.FIXED_COLUMN_OFFSET] = categoryScore;
+
+    // update dropped status of all items in this category
+    var categoryItems = GbGradeTable.itemsInCategory(categoryId);
+    categoryItems.forEach(function(col) {
+        var dropped = droppedItems.indexOf(col.assignmentId) > -1;
+        var columnIndex = GbGradeTable.colForAssignment(col.assignmentId);
+        var student = GbGradeTable.modelForStudent(studentId);
+        GbGradeTable.updateHasDroppedScores(student, columnIndex - GbGradeTable.FIXED_COLUMN_OFFSET, dropped);
+        GbGradeTable.redrawCell(tableRow, columnIndex);
+    });
 };
 
 
@@ -2894,7 +2947,7 @@ GbGradeTable.setScore = function(studentId, assignmentId, oldScore, newScore) {
 
         // update the category average cell
         if (assignment.categoryId) {
-          GbGradeTable.syncCategoryAverage(studentId, assignment.categoryId, data.categoryScore);
+          GbGradeTable.syncCategoryAverage(studentId, assignment.categoryId, data.categoryScore, data.categoryDroppedItems);
         }
 
         GbGradeTable.syncScore(studentId, assignmentId, newScore);
@@ -3031,7 +3084,8 @@ GradebookAPI = {};
 GradebookAPI.isAnotherUserEditing = function(siteId, timestamp, onSuccess, onError) {
   var endpointURL = "/direct/gbng/isotheruserediting/" + siteId + ".json";
   var params = {
-    since: timestamp
+    since: timestamp,
+    auto: true // indicate that the request is automatic, not from a user action
   };
   GradebookAPI._GET(endpointURL, params, onSuccess, onError);
 };

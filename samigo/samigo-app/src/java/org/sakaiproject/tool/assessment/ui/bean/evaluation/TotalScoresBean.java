@@ -35,11 +35,18 @@ import javax.faces.event.ActionEvent;
 import javax.faces.model.SelectItem;
 
 import lombok.extern.slf4j.Slf4j;
+
 import org.apache.commons.lang.StringUtils;
 
+import org.sakaiproject.component.api.ServerConfigurationService;
+import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.jsf.model.PhaseAware;
 import org.sakaiproject.section.api.coursemanagement.CourseSection;
 import org.sakaiproject.section.api.coursemanagement.EnrollmentRecord;
+import org.sakaiproject.site.api.Site;
+import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.tool.assessment.business.entity.RecordingData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentAccessControl;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAccessControl;
@@ -84,6 +91,15 @@ public class TotalScoresBean
   public static final int CALLED_FROM_HISTOGRAM_LISTENER_STUDENT = 5;
   public static final int CALLED_FROM_EXPORT_LISTENER = 6;
   public static final int CALLED_FROM_NOTIFICATION_LISTENER = 7;
+
+  private static final SiteService siteService = (SiteService) ComponentManager.get(SiteService.class);
+  private static final ToolManager toolManager = (ToolManager) ComponentManager.get(ToolManager.class);
+  private static final ServerConfigurationService serverConfigurationService = (ServerConfigurationService) ComponentManager.get(ServerConfigurationService.class);
+
+  private static final String SAK_PROP_DELETE_RESTRICTED = "samigo.removeSubmission.restricted";
+  private static final boolean SAK_PROP_DELETE_RESTRICTED_DEFAULT = false;
+  
+  private boolean deleteRestrictedForCurrentSite = false;
  
     /** Use serialVersionUID for interoperability. */
   private final static long serialVersionUID = 5517587781720762296L;
@@ -155,6 +171,26 @@ public class TotalScoresBean
 
 	protected void init() {
         defaultSearchString = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.EvaluationMessages", "search_default_student_search_string");
+
+		try {
+			Site site = siteService.getSite(toolManager.getCurrentPlacement().getContext());
+			boolean sitePropertyExists = false;
+			if (site != null) {
+				ResourceProperties siteProperties = site.getProperties();
+				if (siteProperties != null) {
+					String prop = StringUtils.trimToEmpty(siteProperties.getProperty(SAK_PROP_DELETE_RESTRICTED));
+					sitePropertyExists = !prop.isEmpty();
+					deleteRestrictedForCurrentSite = StringUtils.equalsIgnoreCase(prop, "true");
+				}
+			}
+
+			if (!sitePropertyExists) {
+				deleteRestrictedForCurrentSite = serverConfigurationService.getBoolean(SAK_PROP_DELETE_RESTRICTED, SAK_PROP_DELETE_RESTRICTED_DEFAULT);
+			}
+
+		} catch (Exception ex) {
+			log.warn(ex.getMessage(), ex);
+		}
 
 		if (searchString == null) {
 			searchString = defaultSearchString;
@@ -1192,5 +1228,9 @@ public class TotalScoresBean
 	public void setIsAnyAssessmentGradingAttachmentListModified(boolean isAnyAssessmentGradingAttachmentListModified)
 	{
 		this.isAnyAssessmentGradingAttachmentListModified = isAnyAssessmentGradingAttachmentListModified;
+	}
+
+	public boolean getRestrictedDelete() {
+		return deleteRestrictedForCurrentSite;
 	}
 }

@@ -1,5 +1,9 @@
 (function ($) {
 
+    if (!portal.loggedIn){
+        return;
+    }
+
     portal.connectionManager = portal.connectionManager || {};
 
     var connectionTemplate = Handlebars.templates['connection-manager-connection'];
@@ -12,7 +16,7 @@
     var indexedSearchResults = {};
     var lastSearchResults = {};
 
-    $(document).ready(function () {
+    $PBJQ(document).ready(function () {
 
         portal.i18n.loadProperties({
             resourceClass: 'org.sakaiproject.portal.api.PortalService',
@@ -42,18 +46,18 @@
 
     portal.connectionManager.show = function (options) {
 
-        var connectionManager = $('#connection-manager');
+        var connectionManager = $PBJQ('#connection-manager');
 
         connectionManager.modal({
             width: 320
         });
 
-        var connectionsView = $('#connection-manager-connectionsview');
-        var searchResultsView = $('#connection-manager-searchresultsview');
-        var searchResultsCount = $('#connection-manager-searchresultsview-count');
+        var connectionsView = $PBJQ('#connection-manager-connectionsview');
+        var searchResultsView = $PBJQ('#connection-manager-searchresultsview');
+        var searchResultsCount = $PBJQ('#connection-manager-searchresultsview-count');
 
-        var currentTab = $('#connection-manager-navbar-current > span > a');
-        var pendingTab = $('#connection-manager-navbar-pending > span > a');
+        var currentTab = $PBJQ('#connection-manager-navbar-current > span > a');
+        var pendingTab = $PBJQ('#connection-manager-navbar-pending > span > a');
 
         var updateSearchResultsCount = function (count) {
 
@@ -94,8 +98,8 @@
 
                 var countBefore = countPending();
 
-                $('#connection-manager-connection-' + friendId).remove();
-                $('#connection-manager-connectionsview-searchresult-' + friendId).remove();
+                $PBJQ('#connection-manager-connection-' + friendId).remove();
+                $PBJQ('#connection-manager-connectionsview-searchresult-' + friendId).remove();
 
                 if (searchResults.children().length === 0) {
                     searchResultsWrapper.hide();
@@ -121,15 +125,15 @@
                     showPendingTab();
                 }
 
-                $('#connection-manager-cancel-button-' + friendId).click(cancelHandler);
+                $PBJQ('#connection-manager-cancel-button-' + friendId).click(cancelHandler);
             };
 
         currentTab.click(function (e) { showCurrentTab(); });
         pendingTab.click(function (e) { showPendingTab(); });
 
-        var searchResultsWrapper = $('#connection-manager-connectionsview-searchresults-wrapper');
-        var searchResults = $('#connection-manager-connectionsview-searchresults');
-        var moreSearchResults = $('#connection-manager-searchresultsview-results');
+        var searchResultsWrapper = $PBJQ('#connection-manager-connectionsview-searchresults-wrapper');
+        var searchResults = $PBJQ('#connection-manager-connectionsview-searchresults');
+        var moreSearchResults = $PBJQ('#connection-manager-searchresultsview-results');
 
         connectionManager.click(function (e) {
 
@@ -144,15 +148,15 @@
             }
         });
 
-        var currentConnectionsDiv = $('#connection-manager-current-connections');
-        var currentConnectionsWrapper = $('#connection-manager-current-connections-wrapper');
-        var noCurrentConnectionsDiv = $('#connection-manager-no-current-connections-wrapper');
-        var pendingConnectionsDiv = $('#connection-manager-pending-connections');
-        var pendingConnectionsWrapper = $('#connection-manager-pending-connections-wrapper');
-        var noPendingConnectionsDiv = $('#connection-manager-no-pending-connections-wrapper');
-        var searchBox = $('#connection-manager-connectionsview-searchbox');
+        var currentConnectionsDiv = $PBJQ('#connection-manager-current-connections');
+        var currentConnectionsWrapper = $PBJQ('#connection-manager-current-connections-wrapper');
+        var noCurrentConnectionsDiv = $PBJQ('#connection-manager-no-current-connections-wrapper');
+        var pendingConnectionsDiv = $PBJQ('#connection-manager-pending-connections');
+        var pendingConnectionsWrapper = $PBJQ('#connection-manager-pending-connections-wrapper');
+        var noPendingConnectionsDiv = $PBJQ('#connection-manager-no-pending-connections-wrapper');
+        var searchBox = $PBJQ('#connection-manager-connectionsview-searchbox');
         searchBox.clearSearch({callback: function () { searchResultsWrapper.hide(); }});
-        var moreSearchBox = $('#connection-manager-searchresultsview-searchbox');
+        var moreSearchBox = $PBJQ('#connection-manager-searchresultsview-searchbox');
 
         if (shown == 0) {
             pendingTabBaseHtml = pendingTab.html();
@@ -161,7 +165,7 @@
 
         var moveFromPendingToCurrent = function (friendId) {
 
-                $('#connection-manager-connection-' + friendId).remove();
+                $PBJQ('#connection-manager-connection-' + friendId).remove();
                 if (currentTotal == 0) {
                     currentConnectionsDiv.html('');
                 }
@@ -172,7 +176,7 @@
                 var markup = connectionTemplate(connection);
                 currentConnectionsDiv.append(markup);
                 currentTotal += 1;
-                $('#connection-manager-remove-button-' + friendId).click(removeHandler);
+                $PBJQ('#connection-manager-remove-button-' + friendId).click(removeHandler);
                 noCurrentConnectionsDiv.hide();
                 delete indexedPendingConnections[friendId];
                 indexedCurrentConnections[friendId] = connection;
@@ -184,7 +188,7 @@
 
                 var friendId = this.dataset.userId;
                 var displayName = this.dataset.displayName;
-                $.ajax('/direct/profile/' + portal.user.id + '/confirmFriendRequest?friendId=' + friendId
+                $PBJQ.ajax('/direct/profile/' + portal.user.id + '/confirmFriendRequest?friendId=' + friendId
                         , {cache: false})
                     .done(function (data) {
                         moveFromPendingToCurrent(friendId);
@@ -196,7 +200,7 @@
 
         var removePending = function (friendId) {
 
-                $('.connection-manager-connection-' + friendId).remove();
+                $PBJQ('.connection-manager-connection-' + friendId).remove();
                 delete indexedPendingConnections[friendId];
                 updatePendingTabText();
             };
@@ -205,7 +209,7 @@
 
                 var friendId = this.dataset.userId;
                 var displayName = this.dataset.displayName;
-                $.ajax('/direct/profile/' + portal.user.id + '/ignoreFriendRequest?friendId=' + friendId, {cache: false})
+                $PBJQ.ajax('/direct/profile/' + portal.user.id + '/ignoreFriendRequest?friendId=' + friendId, {cache: false})
                     .done(function (data) {
                         removePending(friendId);
                     })
@@ -218,7 +222,7 @@
 
                 var friendId = this.dataset.userId;
                 var displayName = this.dataset.displayName;
-                $.ajax('/direct/profile/' + portal.user.id + '/requestFriend?friendId=' + friendId
+                $PBJQ.ajax('/direct/profile/' + portal.user.id + '/requestFriend?friendId=' + friendId
                         , {cache: false})
                     .done(function (data) {
 
@@ -231,7 +235,7 @@
 
         var removeCurrent = function (friendId) {
 
-                $('#connection-manager-connection-' + friendId).remove();
+                $PBJQ('#connection-manager-connection-' + friendId).remove();
                 currentTotal -= 1;
                 if (currentTotal == 0) {
                     noCurrentConnectionsDiv.show();
@@ -244,7 +248,7 @@
                 var friendId = this.dataset.userId;
                 var displayName = this.dataset.displayName;
                 if (confirm(portal.i18n.tr('connection-manager', 'connection_manager_remove_confirm', {displayName: displayName}))) {
-                    $.ajax('/direct/profile/' + portal.user.id + '/removeFriend?friendId=' + friendId, {cache: false})
+                    $PBJQ.ajax('/direct/profile/' + portal.user.id + '/removeFriend?friendId=' + friendId, {cache: false})
                         .done(function (data) {
                             removeCurrent(friendId);
                         })
@@ -259,10 +263,10 @@
                 var friendId = this.dataset.userId;
                 var displayName = this.dataset.displayName;
 
-                $.ajax('/direct/profile/' + friendId + '/ignoreFriendRequest?friendId=' + portal.user.id, {cache: false})
+                $PBJQ.ajax('/direct/profile/' + friendId + '/ignoreFriendRequest?friendId=' + portal.user.id, {cache: false})
                     .done(function (data) {
 
-                        $('.connection-manager-connection-' + friendId).remove();
+                        $PBJQ('.connection-manager-connection-' + friendId).remove();
                         delete indexedPendingConnections[friendId];
                         updatePendingTabText();
                     })
@@ -301,7 +305,7 @@
 
                 var template = (showFullConnections) ? connectionTemplate : searchResultTemplate;
 
-                $.ajax('/direct/portal/connectionsearch.json?query=' + criteria, {cache: false})
+                $PBJQ.ajax('/direct/portal/connectionsearch.json?query=' + criteria, {cache: false})
                     .done(function (results) {
 
                         container.html('');
@@ -345,15 +349,15 @@
                             container.show();
                         }
 
-                        $(document).ready(function () {
+                        $PBJQ(document).ready(function () {
 
                             if (!showFullConnections) {
-                                profile.attachPopups($('.profile-popup'), {connect: addPendingAndShowTab, cancel: removePending, accept: moveFromPendingToCurrent, ignore: removePending, remove: removeCurrent});
+                                profile.attachPopups($PBJQ('.profile-popup'), {connect: addPendingAndShowTab, cancel: removePending, accept: moveFromPendingToCurrent, ignore: removePending, remove: removeCurrent});
                             } else {
-                                $('.connection-manager-connect-button').click(connectHandler);
+                                $PBJQ('.connection-manager-connect-button').click(connectHandler);
                             }
 
-                            $('#connection-manager-connectionsview-searchresults-more').click(function (e) {
+                            $PBJQ('#connection-manager-connectionsview-searchresults-more').click(function (e) {
 
                                 currentState = SEARCH_RESULTS;
 
@@ -363,7 +367,7 @@
                                 searchResultsView.show();
                                 moreSearchBox.val(portal.connectionManager.searchCriteria);
                                 searchBox.val('');
-                                $(document).ready(function () {
+                                $PBJQ(document).ready(function () {
 
                                     updateSearchResultsCount(lastSearchResults.length);
 
@@ -385,18 +389,18 @@
                                         markup += connectionTemplate(result);
                                     });
                                     moreSearchResults.html(markup);
-                                    $(document).ready(function () {
+                                    $PBJQ(document).ready(function () {
 
-                                        $('.connection-manager-accept-button').click(acceptHandler);
-                                        $('.connection-manager-ignore-button').click(ignoreHandler);
-                                        $('.connection-manager-connect-button').click(connectHandler);
-                                        $('.connection-manager-remove-button').click(removeHandler);
-                                        $('.connection-manager-cancel-button').click(cancelHandler);
+                                        $PBJQ('.connection-manager-accept-button').click(acceptHandler);
+                                        $PBJQ('.connection-manager-ignore-button').click(ignoreHandler);
+                                        $PBJQ('.connection-manager-connect-button').click(connectHandler);
+                                        $PBJQ('.connection-manager-remove-button').click(removeHandler);
+                                        $PBJQ('.connection-manager-cancel-button').click(cancelHandler);
                                     });
                                 });
                             });
 
-                            $('#connection-manager-backtoconnections-link').click(function (e) {
+                            $PBJQ('#connection-manager-backtoconnections-link').click(function (e) {
 
                                 currentState = CONNECTIONS;
                                 searchResultsView.hide();
@@ -410,7 +414,7 @@
             }; // search
 
         // Load up the current connections
-        $.ajax('/direct/profile/' + portal.user.id + '/connections.json', {cache: false})
+        $PBJQ.ajax('/direct/profile/' + portal.user.id + '/connections.json', {cache: false})
             .done(function (data) {
 
                 indexedCurrentConnections = {};
@@ -441,8 +445,8 @@
                     currentConnectionsDiv.append(connectionTemplate(connection));
                 });
 
-                $(document).ready(function () {
-                    $('.connection-manager-remove-button').click(removeHandler);
+                $PBJQ(document).ready(function () {
+                    $PBJQ('.connection-manager-remove-button').click(removeHandler);
                 });
             })
             .fail(function (jqXHR, textStatus, errorThrown) {
@@ -474,16 +478,16 @@
                     pendingTab.html(pendingTabBaseHtml);
                 }
 
-                $(document).ready(function () {
+                $PBJQ(document).ready(function () {
 
-                    $('.connection-manager-accept-button').click(acceptHandler);
-                    $('.connection-manager-ignore-button').click(ignoreHandler);
-                    $('.connection-manager-cancel-button').click(cancelHandler);
+                    $PBJQ('.connection-manager-accept-button').click(acceptHandler);
+                    $PBJQ('.connection-manager-ignore-button').click(ignoreHandler);
+                    $PBJQ('.connection-manager-cancel-button').click(cancelHandler);
                 }); // document.ready
             }; // pendingConnectionsCallback
 
         // Load up the pending connections
-        $.ajax('/direct/profile/' + portal.user.id + '/incomingConnectionRequests.json', {cache: false})
+        $PBJQ.ajax('/direct/profile/' + portal.user.id + '/incomingConnectionRequests.json', {cache: false})
             .done(function (data) {
 
                 indexedPendingConnections = {};
@@ -492,7 +496,7 @@
                     connection.incoming = true;
                 });
 
-                $.ajax('/direct/profile/' + portal.user.id + '/outgoingConnectionRequests.json', {cache: false})
+                $PBJQ.ajax('/direct/profile/' + portal.user.id + '/outgoingConnectionRequests.json', {cache: false})
                     .done(function (outgoing) {
 
                         outgoing.forEach(function (connection) {
@@ -515,7 +519,7 @@
         searchBox.keydown(function (e) {
 
             if (e.which == 13 && this.value.length >= 4) {
-                $('#connection-manager-connectionsview-searchresults-more').click();
+                $PBJQ('#connection-manager-connectionsview-searchresults-more').click();
             }
         });
         moreSearchBox.keyup(function (e) { search(this.value, true); });
@@ -525,5 +529,5 @@
         }
     }; // portal.connectionManager.show
 
-    $('#Mrphs-userNav__submenuitem--connections').click(portal.connectionManager.show);
+    $PBJQ('#Mrphs-userNav__submenuitem--connections').click(portal.connectionManager.show);
 }) ($PBJQ);

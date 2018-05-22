@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<title>How do I enable student peer review for an assignment?</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta content="sakai.assignment" name="description">
+<meta content="peer review, peer assessment, peer evaluation" name="search">
+<link href="/library/skin/tool_base.css" media="screen" rel="stylesheet" type="text/css" charset="utf-8">
+<link href="../css/help.css" media="screen" rel="stylesheet" type="text/css" charset="utf-8">
+<link href="/library/skin/morpheus-default/tool.css" media="screen" rel="stylesheet" type="text/css" charset="utf-8">
+<link href="/library/js/jquery/featherlight/0.4.0/featherlight.min.css" media="screen" rel="stylesheet" type="text/css" charset="utf-8">
+<script src="/library/webjars/jquery/1.12.4/jquery.min.js" type="text/javascript" charset="utf-8"></script><script src="/library/js/jquery/featherlight/0.4.0/featherlight.min.js" type="text/javascript" charset="utf-8"></script><script type="text/javascript" charset="utf-8">
+    $(document).ready(function(){
+      $("a[rel^='featherlight']").featherlight({
+        type: { image:true },
+    closeOnClick: 'anywhere'
+      }); 
+    });   
+  </script>
+</head>
+<body>
+  <div id="wrapper"><div id="article-content">
+<div id="article-header"><h1 class="article-title">Accessibility Information</h1></div>
+<div id="article-description">
+  <div class="step-instructions screensteps-textblock screensteps-wrapper--introduction screensteps-wrapper">
+  <p>Sakai is a Learning Management System created to assist faculty and students by providing online tools for communication, assessment, content delivery, etc.</p>
+<p>Sakai is composed of sites, and each site has a number of tools selected by the site creator. There is also a special site, My Workspace, private to you, where you can access personal information and change your settings.</p>
+<p>This document is assistive technology agnostic and will briefly describe the different areas of the interface, point out how they are implemented for accessibility, and go into more depth where extra assistance may be needed.</p>
+<p>If you need specific help with your assistive technology, please contact your institution's office for Disability Student Services and/or Information Technology Services.</p>
+<p>For additional information visit the <a rel="nofollow" href="https://confluence.sakaiproject.org/display/2ACC/Accessibility+Working+Group" target="_blank">Accessibility Working Group</a> on the Confluence Wiki.</p>
+<p><em>Note: The content depicted in images on this page may differ from what you experience, due to your institutions customization of Sakai.</em></p>
+</div>
+
+
+  
+  <div class="step screensteps-section screensteps-depth-1" id="description-of-the-environment">
+    <h2 id="description-of-the-environment" class="step-title screensteps-heading">Description of the Environment</h2>
+    
+      
+  <div class="step screensteps-section screensteps-depth-2" id="portal-organization">
+    <h3 id="portal-organization" class="step-title screensteps-heading">Portal Organization</h3>
+    
+      <div class="step-instructions screensteps-textblock">
+  <p>The portal consists of the following elements. They are always present:</p>
+<ul>
+<li>Quick access <strong>Skip to...</strong> links </li>
+<li>
+<strong>Login/logout</strong> links</li>
+<li>Favorite sites list</li>
+<li>List of tools for the current site</li>
+<li>
+<strong>Minimize tool navigation</strong> link</li>
+<li>Footer</li>
+</ul>
+</div>
+
+    
+  </div>
+
+
+    
+      
+  <div class="step screensteps-section screensteps-depth-2" id="important-access-keys">
+    <h3 id="important-access-keys" class="step-title screensteps-heading">Important Access keys</h3>
+    
+      <div class="step-instructions screensteps-textblock">
+  <p>The six major elements listed above can be accessed via <strong>Access keys</strong> (see note for more information on how to use <strong>Access keys</strong>):</p>
+<p><strong>Tool</strong> menu - Every site has a tool menu on the left-hand side of the screen.</p>
+<ul>
+<li>
+<strong>Landmark</strong>: navigation (“Tools begin here”)  </li>
+<li>
+<strong>Access key</strong>:  [<strong>L</strong>] </li>
+</ul>
+<p><strong>Favorite Sites</strong> list - You can select favorite sites to appear at the top of the screen after you log in, for quick access to them.</p>
+<ul>
+<li>
+<strong>Landmark</strong>: navigation (“Sites begin here”)</li>
+<li>
+<strong>Access key</strong>:  [<strong>W</strong>]</li>
+</ul>
+<p><strong>Content</strong> - The area that contains the site where you are working.</p>
+<ul>
+<li>
+<strong>Landmark</strong>: main </li>
+<li>
+<strong>Access key</strong>:  [<strong>C</strong>]</li>
+</ul>
+<p><em>Note: The exact keyboard commands to trigger an Access key depend on your computer operating system and internet browser.  Commonly used browsers tend to use the following commands:</em></p>
+<ul>
+<li><em>Most Windows browsers: <strong>Shift + Alt + [the Access key]</strong></em></li>
+<li><em>Most Mac browsers: <strong>Ctrl + Option + [the Access key]</strong></em></li>
+</ul>
+<p><em>The information on Access keys in this note provided by <a rel="nofollow" href="http://webaim.org" target="_blank">WebAIM.org</a>.  You can learn more about Access keys on their website, <a rel="nofollow" href="http://webaim.org/techniques/keyboard/accesskey" target="_blank">Keyboard Accessibility © WebAIM</a>.</em></p>
+</div>
+
+    
+  </div>
+
+
+    
+      
+  <div class="step screensteps-section screensteps-depth-2" id="quick-access-links-skip-to">
+    <h3 id="quick-access-links-skip-to" class="step-title screensteps-heading">Quick Access Links ("Skip to...")</h3>
+    
+      <div class="step-instructions screensteps-textblock">
+  <p><strong>Location</strong>: The first three links on the page. They are announced by text-to speech software after the page title.</p>
+<p>These links enable the user to reach frequently used areas of Sakai.</p>
+</div>
+
+    
+  </div>
+
+
+    
+      
+  <div class="step screensteps-section screensteps-depth-2" id="login-and-logout-links">
+    <h3 id="login-and-logout-links" class="step-title screensteps-heading">Login and Logout Links</h3>
+    
+      
+  <div class="step screensteps-section screensteps-depth-3" id="login-link">
+    <h4 id="login-link" class="step-title screensteps-heading">Login link</h4>
+    
+      <div class="image screensteps-image">
+  
+  
+    <img src="https://s3.amazonaws.com/screensteps_live/image_assets/assets/001/310/374/original/c4aec40e-1956-4da9-b150-b70c5959d20a.png" alt="" height="54" width="832">
+  
+</div>
+
+    
+      <div class="step-instructions screensteps-textblock">
+  <p><strong>Location</strong>: the second link in the portal</p>
+<p>This link will take you to a login screen if you are not logged in.  After successful login you will be returned to Sakai.</p>
+</div>
+
+    
+  </div>
+
+
+    
+      
+  <div class="step screensteps-section screensteps-depth-3" id="logout-link">
+    <h4 id="logout-link" class="step-title screensteps-heading">Logout link</h4>
+    
+      <div class="image screensteps-image">
+  
+  
+    <img src="https://s3.amazonaws.com/screensteps_live/image_assets/assets/001/310/377/original/07b52796-69b6-458f-85a2-7a942a234a11.png" alt="" height="298" width="283">
+  
+</div>
+
+    
+      <div class="step-instructions screensteps-textblock">
+  <p><strong>Location</strong>: When logged in, the Logout link is the fifth link listed in the user menu. </p>
+<p>This link will take you to a logout page.</p>
+</div>
+
+    
+  </div>
+
+
+    
+  </div>
+
+
+    
+      
+  <div class="step screensteps-section screensteps-depth-2" id="favorite-sites-list">
+    <h3 id="favorite-sites-list" class="step-title screensteps-heading">Favorite Sites list</h3>
+    
+      <div class="image screensteps-image">
+  
+  
+    <img src="https://s3.amazonaws.com/screensteps_live/image_assets/assets/001/310/372/original/9dd046b4-228b-49eb-b4f1-9c76912e07ba.png" alt="The list of Favorite Sites" height="104" width="831">
+  
+</div>
+
+    
+      <div class="step-instructions screensteps-textblock">
+  <ul>
+<li>
+<strong>Location</strong>:  at the top of the screen </li>
+<li>
+<strong>Landmark</strong>: navigation (“Sites begin here ”)  </li>
+<li>
+<strong>Heading</strong>: Level 1 (“Sites begin here ”)</li>
+<li>
+<strong>Access key</strong>: <strong>[W] </strong>
+</li>
+</ul>
+<p><em>Note: Access keys will be capitalized for clarity only.</em></p>
+<p>This list contains the menu links to sites you most commonly use.  Each menu link will either take you to the site, or if you <strong>Tab</strong> into the menu and press the <strong>Down</strong> arrow key, supply you with a submenu of that site’s tools so that you can go straight to that tool on the selected site.</p>
+<p>Using the <strong>Up</strong> and <strong>Down</strong> arrow keys, you can navigate the submenu to the site specific tool links. These links can be activated using the <strong>Enter</strong> key.</p>
+<p>If you have a large number of favorite sites in this list, some sites will not be displayed due to space limitations. Any sites not displayed are contained in a submenu accessed via the <strong>Sites</strong> link.  </p>
+<p>The rest of the sites you may be a member of can also be found in the <strong>Home &gt; Membership </strong>or <strong>Home &gt; Worksite Setup </strong>area. </p>
+</div>
+
+    
+  </div>
+
+
+    
+      
+  <div class="step screensteps-section screensteps-depth-2" id="the-list-of-tools-for-the-current-site">
+    <h3 id="the-list-of-tools-for-the-current-site" class="step-title screensteps-heading">The List of Tools for the Current Site</h3>
+    
+      <div class="image screensteps-image">
+  
+  
+    <img src="https://s3.amazonaws.com/screensteps_live/image_assets/assets/001/310/383/original/6bd8441e-dbb1-44a5-a944-c9e54f99771f.png" alt="The List of Tools for the Current Site" height="566" width="200">
+  
+</div>
+
+    
+      <div class="step-instructions screensteps-textblock">
+  <ul>
+<li>
+<strong>Location</strong>: to the left of the screen</li>
+<li>
+<strong>Landmark</strong>: navigation (“Tools begin here”)</li>
+<li>
+<strong>Heading</strong>: Level 1 (“Tools begin here”)</li>
+<li>
+<strong>Access key</strong>: [L]</li>
+</ul>
+<p><em>Note: The Help tool will always be present as the last item in the tools list no matter what site you are on. This enables quick access to the Sakai help information.</em></p>
+</div>
+
+    
+  </div>
+
+
+    
+      
+  <div class="step screensteps-section screensteps-depth-2" id="minimize-tool-navigation-link">
+    <h3 id="minimize-tool-navigation-link" class="step-title screensteps-heading">Minimize Tool Navigation Link</h3>
+    
+      <div class="image screensteps-image">
+  
+  
+    <img src="https://s3.amazonaws.com/screensteps_live/image_assets/assets/001/310/385/original/3c4c4323-d52a-4a40-80eb-6fd3d912ce39.png" alt="" height="571" width="50">
+  
+</div>
+
+    
+      <div class="step-instructions screensteps-textblock">
+  <p><strong>Location</strong>: right after the current site's tools list (at the bottom of the screen) is a link to minimize the tools list. </p>
+<p>The link text switches between “Expand Tool Navigation” and “Minimize tool navigation”, depending on the state of the tools list.</p>
+<p><em>Note: Using this link will have no effect on page navigation for users of screen reading software  as all tools will still be available and announced. </em></p>
+</div>
+
+    
+  </div>
+
+
+    
+      
+  <div class="step screensteps-section screensteps-depth-2" id="content-area">
+    <h3 id="content-area" class="step-title screensteps-heading">Content Area.</h3>
+    
+      <div class="step-instructions screensteps-textblock">
+  <p>The content comes right after the favorite sites list and the tools list.  </p>
+<ul>
+<li>
+<strong>Location</strong>: to the right of the tool list.</li>
+<li>
+<strong>Landmark</strong>: main</li>
+<li>
+<strong>Heading</strong>: Level 1 “Content begins here”</li>
+<li>
+<strong>Access key</strong>: [C]</li>
+</ul>
+</div>
+
+    
+      <div class="image screensteps-image">
+  
+  
+    <img src="https://s3.amazonaws.com/screensteps_live/image_assets/assets/001/310/380/original/39d91ab0-4fa2-42cf-8ed3-aa8d27fabaf0.png" alt="" height="583" width="819">
+  
+</div>
+
+    
+      <div class="step-instructions screensteps-textblock">
+  <p>The content area consists of the following items: </p>
+<ol>
+<li>The <strong>title</strong> of the tool you are currently viewing.  Selecting the link for the tool title will reset the tool to its initial state.</li>
+<li>A <strong>Direct link to this tool</strong> option, with an icon resembling a <strong>chain link</strong>, where you can obtain a web URL to open the tool directly in your internet browser</li>
+<li>
+<strong>Help</strong> link, with an icon that resembles a <strong>small blue circle with a question mark (?)</strong>.  The <strong>Help</strong> link opens a new window with help documentation for the tool you're viewing.</li>
+<li>Depending on the tool you are viewing and the permissions you have in the site, the title will be followed by one or more links in an <strong>action toolbar</strong>.  This toolbar contains links for actions on the content (creating new items, navigating to other views, etc.).</li>
+<li>The content itself.</li>
+</ol>
+<p><em>Note: Most actions in a given tool will return the focus to the top of the content area, a few will reload the portal, returning you to the top of that instead.</em></p>
+</div>
+
+    
+  </div>
+
+
+    
+      
+  <div class="step screensteps-section screensteps-depth-2" id="footer-area">
+    <h3 id="footer-area" class="step-title screensteps-heading">Footer Area</h3>
+    
+      <div class="image screensteps-image">
+  
+  
+    <img src="https://s3.amazonaws.com/screensteps_live/image_assets/assets/001/310/375/original/1d0c575a-6d37-4a65-89cf-2504b4ea0a31.png" alt="" height="143" width="811">
+  
+</div>
+
+    
+      <div class="step-instructions screensteps-textblock">
+  <p><strong>Location</strong>: Bottom of the screen. After the content container.</p>
+<p><strong>Landmark</strong>: contentinfo</p>
+<p>This area contains a list of three links: Gateway which takes you to the main page (similar to a homepage) of the current Sakai instance, Accessibility Information about Sakai, and The Sakai Project which takes you to the Sakai project home page.</p>
+<p>This section also contains the copyright information, the current version/build of Sakai, and server information.</p>
+<p><em>Note: These links may differ based on your institution's customization of Sakai.</em></p>
+</div>
+
+    
+  </div>
+
+
+    
+      
+  <div class="step screensteps-section screensteps-depth-2" id="portal-navigation-summary">
+    <h3 id="portal-navigation-summary" class="step-title screensteps-heading">Portal navigation summary</h3>
+    
+      <div class="step-instructions screensteps-textblock">
+  <p>All major areas of the portal are announced by a heading level 1, consist of landmark areas, and can be accessed via access keys:</p>
+<ul>
+<li>Favorite Sites list<ul>
+<li>
+<strong>Landmark</strong>: navigation (“Sites begin here ”)</li>
+<li>
+<strong>Access key</strong>:  [W]</li>
+</ul>
+</li>
+<li>Tools list<ul>
+<li>
+<strong>Landmark</strong>: navigation (“Tools begin here”)  </li>
+<li>
+<strong>Access key</strong>:  [L] </li>
+</ul>
+</li>
+<li>Content<ul>
+<li>
+<strong>Landmark</strong>: main </li>
+<li>
+<strong>Access key</strong>:  [C]</li>
+</ul>
+</li>
+</ul>
+</div>
+
+    
+  </div>
+
+
+    
+      
+  <div class="step screensteps-section screensteps-depth-2" id="navigating-content-area-summary">
+    <h3 id="navigating-content-area-summary" class="step-title screensteps-heading">Navigating content area summary</h3>
+    
+      <div class="step-instructions screensteps-textblock">
+  <p>All content areas are organized by heading levels. Links should all be unique and descriptive.</p>
+<p>Most content views use some or all of these access keys:</p>
+<ul>
+<li>Delete, remove, or cancel - <strong>Access key</strong>: [X]</li>
+<li>Edit or revise -  <strong>Access key</strong>: [E]</li>
+<li>Help -   <strong>Access key</strong>: [0]</li>
+<li>Refresh -   <strong>Access key</strong>: [U]</li>
+<li>Save -  <strong>Access key</strong>: [S]</li>
+<li>View or preview -  <strong>Access key</strong>: [V] </li>
+</ul>
+</div>
+
+    
+  </div>
+
+
+    
+  </div>
+
+
+
+  
+  <div class="step screensteps-section screensteps-depth-1" id="working-with-the-rich-text-editor">
+    <h2 id="working-with-the-rich-text-editor" class="step-title screensteps-heading">Working with the rich text editor</h2>
+    
+      <div class="step-instructions screensteps-textblock">
+  <p>All tools use a rich text editor to allow users to create content. You will find this editor while adding resources, creating announcements, responding to assignments, etc. </p>
+<p>To operate the rich text editor:</p>
+</div>
+
+    
+      
+  <div class="step screensteps-section screensteps-depth-2" id="basic-navigation">
+    <h3 id="basic-navigation" class="step-title screensteps-heading">Basic Navigation</h3>
+    
+      <div class="step-instructions screensteps-textblock">
+  <ul>
+<li>
+<strong>Alt+0</strong> – opens Accessibility Instructions within the editor.</li>
+<li>
+<strong>Tab</strong> or <strong>arrow down</strong> into the editor edit field to edit content. When you are done you can tab or arrow down out of the editor.</li>
+<li>
+<strong>Alt+F10</strong> – enters the toolbar or the tab list of the currently open dialog window.</li>
+<li>
+<strong>Shift+F10</strong> – Opens the context menu of an element inside the editing area. </li>
+<li>
+<strong>Alt+F11</strong> – enters the elements path.</li>
+</ul>
+</div>
+
+    
+  </div>
+
+
+    
+      
+  <div class="step screensteps-section screensteps-depth-2" id="navigating-toolbar">
+    <h3 id="navigating-toolbar" class="step-title screensteps-heading">Navigating Toolbar</h3>
+    
+      <div class="step-instructions screensteps-textblock">
+  <ul>
+<li>
+<strong>Alt+- (minus)</strong>– collapses and restores the toolbar.</li>
+<li>
+<strong>Tab</strong> and <strong>Shift+Tab</strong> – move focus forward and backward among the toolbar button groups.</li>
+<li>
+<strong>Left Arrow</strong> and <strong>Right Arrow</strong> – move focus forward and backward among the toolbar buttons within a group, respectively.</li>
+<li>
+<strong>Enter</strong> and <strong>Space</strong>– activates a selected toolbar feature.</li>
+<li>
+<strong>Escape</strong> - puts the focus back to the editing area without executing any commands.</li>
+</ul>
+</div>
+
+    
+  </div>
+
+
+    
+      
+  <div class="step screensteps-section screensteps-depth-2" id="navigating-dialog-window">
+    <h3 id="navigating-dialog-window" class="step-title screensteps-heading">Navigating Dialog Window</h3>
+    
+      <div class="step-instructions screensteps-textblock">
+  <ul>
+<li>
+<strong>Tab </strong>and<strong> Shift+Tab</strong><ul>
+<li>when dialog window tabs are not in focus, these keyboard shortcuts move focus among input element of the dialog window.</li>
+<li>when a dialog window tab is in focus, Tab and Shift+Tab cycle through dialog window tabs.</li>
+</ul>
+</li>
+<li>
+<strong>Left Arrow</strong> and <strong>Right Arrow</strong> – when a dialog window tab is in focus, the Left Arrow and Right Arrow keys can be used to cycle between tabs just like <strong>Tab</strong> and <strong>Shift+Tab</strong>.</li>
+<li>
+<strong>Enter</strong><ul>
+<li>while inside the dialog window, when a single-line text input is in focus, is equivalent to pressing the <strong>OK</strong> button.</li>
+<li>while inside the dialog window, when a dialog window tab is in focus, puts the focus back to the first input element inside that tab.</li>
+</ul>
+</li>
+<li>
+<strong>Escape</strong> – while inside the dialog window is equivalent to clicking the <strong>Cancel</strong> or <strong>Close</strong> buttons.</li>
+</ul>
+</div>
+
+    
+  </div>
+
+
+    
+      
+  <div class="step screensteps-section screensteps-depth-2" id="navigating-context-menus">
+    <h3 id="navigating-context-menus" class="step-title screensteps-heading">Navigating Context Menus</h3>
+    
+      <div class="step-instructions screensteps-textblock">
+  <ul>
+<li>
+<strong>Tab</strong>, <strong>Shift+Tab</strong> – cycle through menu items forward or<strong> Shift+Tab</strong> to cycle backwards.</li>
+<li>
+<strong>Down Arrow</strong> and<strong> Up Arrow</strong> – can be used to cycle between menu items just like <strong>Tab</strong> and <strong>Shift+Tab</strong>, respectively.</li>
+<li>
+<strong>Right Arrow </strong>and <strong>Left Arrow </strong> <ul>
+<li>when the context menu item contains a submenu, the <strong>Right Arrow</strong> lets you enter the submenu.</li>
+<li>to return to the parent context menu, use the <strong>Left Arrow</strong>.</li>
+</ul>
+</li>
+<li>
+<strong>Enter</strong> and <strong>Space</strong> – activate a menu item or open a submenu.</li>
+<li>
+<strong>Escape</strong>  <ul>
+<li>Closes a context menu without executing any command.</li>
+<li>When inside a submenu, closes the submenu and returns focus to the parent context menu. Press <strong>Esc</strong> again to close it.</li>
+</ul>
+</li>
+</ul>
+</div>
+
+    
+  </div>
+
+
+    
+      
+  <div class="step screensteps-section screensteps-depth-2" id="navigating-toolbar-drop-down-lists">
+    <h3 id="navigating-toolbar-drop-down-lists" class="step-title screensteps-heading">Navigating Toolbar Drop-down Lists</h3>
+    
+      <div class="step-instructions screensteps-textblock">
+  <ul>
+<li>
+<strong>Down Arrow</strong>, <strong>Enter</strong>, and <strong>Space</strong> – enter the drop-down list once it is selected on the toolbar.</li>
+<li>
+<strong>Tab</strong>, <strong>Shift+Tab</strong> – cycle through list items forward or <strong>Shift+Tab</strong> to cycle backwards.</li>
+<li>
+<strong>Down Arrow</strong> and <strong>Up Arrow</strong> – can be used to cycle between list items just like <strong>Tab</strong> and<strong> Shift+Tab</strong>, respectively.</li>
+<li>
+<strong>Enter</strong> and <strong>Space</strong> – activate a feature selected from the drop-down list and put the focus back to the editing area.</li>
+<li>
+<strong>Escape</strong>  – closes a drop-down list without introducing any changes.</li>
+</ul>
+</div>
+
+    
+  </div>
+
+
+    
+      
+  <div class="step screensteps-section screensteps-depth-2" id="editor-hotkeys">
+    <h3 id="editor-hotkeys" class="step-title screensteps-heading">Editor Hotkeys</h3>
+    
+      <div class="step-instructions screensteps-textblock">
+  <ul>
+<li>When focus is in the editor you can use these shortcut keys:<ul>
+<li>Bold<strong> - Control/Command b</strong>
+</li>
+<li>Italics<strong> - Control/Command i</strong>
+</li>
+<li>Underline<strong> - Control/Command u</strong>
+</li>
+</ul>
+</li>
+<li>To add a link<ul>
+<li>Highlight the link text (<strong>shift</strong> + <strong>arrow keys</strong>)</li>
+<li>then press <strong>Control/Command + l </strong>
+</li>
+<li>fill in the link information.  </li>
+</ul>
+</li>
+</ul>
+<p><em>Note: For a complete list of all keyboard commands, please see the <a rel="nofollow" href="https://docs.ckeditor.com/ckeditor4/latest/guide/dev_a11y.html" target="_blank">CKEditor Accessibility Guide</a>. </em></p>
+</div>
+
+    
+  </div>
+
+
+    
+  </div>
+
+
+
+  
+  <div class="step screensteps-section screensteps-depth-1" id="instructions-for-enlarging-screen-elements-modifying-colors-contrast">
+    <h2 id="instructions-for-enlarging-screen-elements-modifying-colors-contrast" class="step-title screensteps-heading">Instructions for enlarging screen elements, modifying colors/contrast</h2>
+    
+      <div class="step-instructions screensteps-textblock">
+  <p>You can use the browser’s zooming function to increase text size.  Sakai will work well with up to 200% zoom.</p>
+<p>If you need a higher level of magnification, or if you need to have the cursor/pointer augmented, you may be more comfortable using a third-party magnifier such as MAGic (which is available on all Sites computers) or ZoomText.</p>
+<p>To change color and contrast settings use the operating system settings, browser settings, or your preferred browser plug ins.  </p>
+</div>
+
+    
+  </div>
+
+
+
+  
+  <div class="step screensteps-section screensteps-depth-1" id="getting-more-help">
+    <h2 id="getting-more-help" class="step-title screensteps-heading">Getting more help</h2>
+    
+      <div class="step-instructions screensteps-textblock">
+  <p>If you need further help, please contact your institution's local support center and ask to be directed to the unit that assists users with disabilities.</p>
+</div>
+
+    
+  </div>
+
+
+
+</div>
+</div></div>
+</body>
+</html>

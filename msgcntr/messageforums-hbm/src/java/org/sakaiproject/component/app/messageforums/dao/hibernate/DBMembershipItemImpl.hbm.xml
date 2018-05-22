@@ -87,4 +87,16 @@
     ]]>
   </query>
 
+    <query name="findAllowedGroupInForum">
+        <![CDATA[select membership.name from org.sakaiproject.component.app.messageforums.dao.hibernate.DBMembershipItemImpl as membership
+             where membership.forum.id = :id and membership.type = 3 and membership.permissionLevelName = :permissionLevelName
+        ]]>
+    </query>
+
+    <query name="findAllowedGroupInTopic">
+        <![CDATA[select membership.name from org.sakaiproject.component.app.messageforums.dao.hibernate.DBMembershipItemImpl as membership
+             where membership.topic.id = :id and membership.type = 3 and membership.permissionLevelName = :permissionLevelName
+        ]]>
+    </query>
+
 </hibernate-mapping>

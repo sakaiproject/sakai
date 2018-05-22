@@ -132,7 +132,7 @@ public class EmailEntryTest {
 		otherRecipients.add("someone@example.com");
 		otherRecipients.add("whatever@example.com");
 
-		entry.setOtherRecipients(otherRecipients);
+		entry.setOtherRecipientsList(otherRecipients);
 		assertFalse(entry.getOtherRecipients().isEmpty());
 		assertEquals(3, entry.getOtherRecipients().size());
 		assertEquals("nobody@example.com", entry.getOtherRecipients().get(0));

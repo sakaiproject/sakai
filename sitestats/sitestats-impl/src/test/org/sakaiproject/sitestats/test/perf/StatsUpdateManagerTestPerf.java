@@ -78,7 +78,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
  */
 @Sql("/update-manager-perf.sql")
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration( locations = { "classpath:/hibernate-beans.xml", "classpath:/hbm-db.xml"})
+@ContextConfiguration( locations = { "/hibernate-beans.xml"})
 @Slf4j
 public class StatsUpdateManagerTestPerf {
 

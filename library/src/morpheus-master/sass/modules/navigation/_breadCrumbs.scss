@@ -89,12 +89,11 @@
 		background-color: transparent;
 		box-shadow: none;
 		position: absolute;
-		top: $banner-height - 4;
+		top: 0;
 		height: $banner-height - 4;
 		line-height: $banner-height - 4;
-		width: calc(100% - 80px); // leave space for the Tool menu toggle
 		white-space: nowrap;
-		left: 80px;
+		left: 0;
 
 		h1{
 			color: $breadcrumbs-tool-color;
@@ -104,6 +103,9 @@
 			text-decoration: underline;
 		}
 		
+		a.#{$namespace}hierarchy--toolName{
+			display: none;
+		}
 		a.#{$namespace}hierarchy--toolName:hover{
 			color: $breadcrumbs-tool-color;
 			border-bottom: 1px solid $breadcrumbs-hover-color;
@@ -115,29 +117,6 @@
 
 		.#{$namespace}breadcrumb--reset-icon{
 			display: none;
-		}
-
-		.#{$namespace}hierarchy--siteName {
-			position: absolute;
-			top: - ($banner-height - 4);
-			height: $banner-height - 4;
-			left: -80px;
-			padding: 0 10px;
-			line-height: $banner-height - 4;
-			overflow: hidden;
-			white-space: nowrap;
-			width: 100%;
-
-			a {
-				color: $sites-nav-menu-item-color;
-				display: inline-block;
-				margin: 0;
-				padding: 0;
-				text-overflow: ellipsis;
-				max-width: 100%;
-				width: auto;
-				overflow: hidden;
-			}
 		}
 
 		.#{$namespace}hierarchy-item {

@@ -20,7 +20,7 @@ import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.model.Model;
 import org.sakaiproject.gradebookng.tool.model.GbModalWindow;
 import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
-import org.sakaiproject.gradebookng.tool.panels.GradeStatisticsPanel;
+import org.sakaiproject.gradebookng.tool.panels.AssignmentStatisticsPanel;
 
 import java.io.Serializable;
 
@@ -36,9 +36,9 @@ public class ViewAssignmentStatisticsAction extends InjectableAction implements 
 		final String assignmentId = params.get("assignmentId").asText();
 
 		final GradebookPage gradebookPage = (GradebookPage) target.getPage();
-		final GbModalWindow window = gradebookPage.getGradeStatisticsWindow();
+		final GbModalWindow window = gradebookPage.getAssignmentStatisticsWindow();
 		window.setAssignmentToReturnFocusTo(assignmentId);
-		window.setContent(new GradeStatisticsPanel(window.getContentId(),
+		window.setContent(new AssignmentStatisticsPanel(window.getContentId(),
 				Model.of(Long.valueOf(assignmentId)),
 				window));
 		window.show(target);

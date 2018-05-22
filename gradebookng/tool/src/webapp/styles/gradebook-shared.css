@@ -31,3 +31,11 @@
 .control-label.required:before {
   content: '*';
 }
+
+/* align the input boxes with the remove button in the grading schema table */
+.table>tbody>tr>td {
+	vertical-align: middle !important;
+}
+.btn-table {
+	height: 34px;
+}

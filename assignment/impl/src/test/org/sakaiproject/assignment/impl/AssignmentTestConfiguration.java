@@ -44,7 +44,6 @@ import org.sakaiproject.entitybroker.DeveloperHelperService;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.event.api.LearningResourceStoreService;
 import org.sakaiproject.hibernate.AssignableUUIDGenerator;
-import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.site.api.SiteService;
@@ -204,11 +203,6 @@ public class AssignmentTestConfiguration {
     @Bean(name = "org.sakaiproject.assignment.impl.GradeSheetExporter")
     public GradeSheetExporter gradeSheetExporter() {
         return mock(GradeSheetExporter.class);
-    }
-
-    @Bean(name = "org.sakaiproject.memory.api.MemoryService")
-    public MemoryService memoryService() {
-        return mock(MemoryService.class);
     }
 
     @Bean(name = "org.sakaiproject.site.api.SiteService")

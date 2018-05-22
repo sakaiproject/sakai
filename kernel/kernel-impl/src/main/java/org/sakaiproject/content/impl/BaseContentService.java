@@ -21,9 +21,6 @@
 
 package org.sakaiproject.content.impl;
 
-import com.ibm.icu.text.CharsetDetector;
-import com.ibm.icu.text.CharsetMatch;
-
 import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.FileInputStream;
@@ -79,6 +76,8 @@ import org.apache.tika.detect.DefaultDetector;
 import org.apache.tika.detect.Detector;
 import org.apache.tika.mime.MimeTypes;
 
+import org.apache.tika.parser.txt.CharsetDetector;
+import org.apache.tika.parser.txt.CharsetMatch;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -180,6 +179,9 @@ import org.sakaiproject.util.Validator;
 import org.sakaiproject.util.Web;
 import org.sakaiproject.util.Xml;
 import org.sakaiproject.util.api.LinkMigrationHelper;
+
+import static org.sakaiproject.content.util.IdUtil.isolateContainingId;
+import static org.sakaiproject.content.util.IdUtil.isolateName;
 
 /**
  * <p>
@@ -5918,7 +5920,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 					throw new IdUniquenessException(new_folder_id);
 				}
 			}
-			String containerId = this.isolateContainingId(new_folder_id);
+			String containerId = isolateContainingId(new_folder_id);
 			ContentCollection containingCollection = findCollection(containerId);
 			SortedSet<String> siblings = new TreeSet<String>();
 			siblings.addAll(containingCollection.getMembers());
@@ -9186,38 +9188,6 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 	} // mergeResource
 
 	/**
-	 * Find the containing collection id of a given resource id.
-	 * 
-	 * @param id
-	 *        The resource id.
-	 * @return the containing collection id.
-	 */
-	protected String isolateContainingId(String id)
-	{
-		// take up to including the last resource path separator, not counting one at the very end if there
-		return id.substring(0, id.lastIndexOf('/', id.length() - 2) + 1);
-
-	} // isolateContainingId
-
-	/**
-	 * Find the resource name of a given resource id.
-	 * 
-	 * @param id
-	 *        The resource id.
-	 * @return the resource name.
-	 */
-	protected String isolateName(String id)
-	{
-		if (id == null) return null;
-		if (id.length() == 0) return null;
-
-		// take after the last resource path separator, not counting one at the very end if there
-		boolean lastIsSeparator = id.charAt(id.length() - 1) == '/';
-		return id.substring(id.lastIndexOf('/', id.length() - 2) + 1, (lastIsSeparator ? id.length() - 1 : id.length()));
-
-	} // isolateName
-
-	/**
 	 * Check the fixed type and id infomation: The same or better content type based on the known type for this id's extension, if any. The same or added extension id based on the know MIME type, if any Only if the type is the unknown type already.
 	 * 
 	 * @param id
@@ -11026,7 +10996,11 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 
 		public Date getReleaseTime()
 		{
-			return new Date(m_releaseDate.getTime());
+			Date date = null;
+			if (m_releaseDate != null) {
+				date = new Date(m_releaseDate.getTime());
+			}
+			return date;
 		}
 		
 		public Time getRetractDate()
@@ -11036,18 +11010,29 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 		
 		public Date getRetractTime()
 		{
-			return new Date(m_retractDate.getTime());
+			Date date = null;
+			if (m_retractDate != null) {
+				date = new Date(m_retractDate.getTime());
+			}
+			return date;
 		}
 		
 		@Override
 		public Instant getReleaseInstant() {
-			// TODO Auto-generated method stub
-			return Instant.ofEpochMilli(m_releaseDate.getTime());
+			Instant instant = null;
+			if (m_releaseDate != null) {
+				instant =  Instant.ofEpochMilli(m_releaseDate.getTime());
+			}
+			return instant;
 		}
 
 		@Override
 		public Instant getRetractInstant() {
-			return Instant.ofEpochMilli(m_retractDate.getTime());
+			Instant instant = null;
+			if (m_retractDate != null) {
+				instant = instant.ofEpochMilli(m_retractDate.getTime());
+			}
+			return instant;
 		}
 
 		@Override

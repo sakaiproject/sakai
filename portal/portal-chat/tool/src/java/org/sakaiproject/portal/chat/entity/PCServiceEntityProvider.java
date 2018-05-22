@@ -522,9 +522,9 @@ public final class PCServiceEntityProvider extends AbstractEntityProvider implem
         if (siteId != null && siteId.length() > 0 && showSiteUsers) {
 			// A site id has been specified, so we refresh our presence at the 
 			// location and retrieve the present users
-			String location = siteId + "-presence";
+			String location = siteId + PresenceService.PRESENCE_SUFFIX;
 			presenceService.setPresence(location);
-			List<User> presentSakaiUsers = presenceService.getPresentUsers(siteId + "-presence");
+			List<User> presentSakaiUsers = presenceService.getPresentUsers(siteId + PresenceService.PRESENCE_SUFFIX);
 			presentSakaiUsers.remove(currentUser);
 			for (User user : presentSakaiUsers) {
 				UserMessage heartbeat = heartbeatMap.get(user.getId());

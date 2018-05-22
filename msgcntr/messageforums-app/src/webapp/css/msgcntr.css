@@ -358,8 +358,7 @@ td div.title{
 .selChanged{
 	/*flag an item as changed in organize view*/
 	border: 1px solid #aaa;
-	background: #fc6;
-	padding: 1px;
+	background-color: #fc6;
 }
 .attachPanel{
 /*panel listing attachmetns when in edit mode for forum/topic/message*/
@@ -591,6 +590,13 @@ div.msgcntr-profile-qtip {
     margin-top: 0.3em;
     display: block;
 }
+
+.createForumsForGroupsPanel {
+    margin-left: 3em;
+    margin-top: 0.3em;
+    display: block;
+}
+
 .navIntraTool li span a img,.navIntraTool li {
     vertical-align: middle;
 }
@@ -680,4 +686,13 @@ div.msgcntr-profile-qtip {
 	float: right;
 	cursor: pointer;
 	font-size: 20px !important;
+}
+
+#revise\:closeDateSpan #revise\:closeDate, #revise\:openDateSpan #revise\:openDate {
+	width: auto;
+	margin-left: 10px;
+}
+
+.openDateSpan {
+	display: block;
 }

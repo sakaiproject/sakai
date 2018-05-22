@@ -21,19 +21,21 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.validator.routines.DoubleValidator;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.html.panel.FeedbackPanel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
-import org.sakaiproject.gradebookng.business.GbRole;
 import org.sakaiproject.gradebookng.business.GradeSaveResponse;
 import org.sakaiproject.gradebookng.business.util.CourseGradeFormatter;
 import org.sakaiproject.gradebookng.business.util.FormatHelper;
 import org.sakaiproject.gradebookng.tool.model.GradebookUiSettings;
 import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
 import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
+import org.sakaiproject.service.gradebook.shared.CategoryScoreData;
 import org.sakaiproject.service.gradebook.shared.CourseGrade;
 import org.sakaiproject.tool.gradebook.Gradebook;
 
@@ -51,13 +53,15 @@ public class GradeUpdateAction extends InjectableAction implements Serializable 
 		private String courseGrade;
 		private String points;
 		private String categoryScore;
+		private List<Long> droppedItems;
 		private boolean isOverride;
 		private boolean extraCredit;
 
 		public GradeUpdateResponse(final boolean extraCredit, final String courseGrade, final String points, final boolean isOverride,
-				final String categoryScore) {
+				final String categoryScore, List<Long> droppedItems) {
 			this.courseGrade = courseGrade;
 			this.categoryScore = categoryScore;
+			this.droppedItems = droppedItems;
 			this.points = points;
 			this.isOverride = isOverride;
 			this.extraCredit = extraCredit;
@@ -79,6 +83,10 @@ public class GradeUpdateAction extends InjectableAction implements Serializable 
 			result.put("courseGrade", courseGradeArray);
 			result.put("categoryScore", categoryScore);
 			result.put("extraCredit", extraCredit);
+
+			ArrayNode catDroppedItemsArray = mapper.createArrayNode();
+			droppedItems.stream().forEach(i -> catDroppedItemsArray.add(i));
+			result.put("categoryDroppedItems", catDroppedItemsArray);
 
 			return result.toString();
 		}
@@ -188,14 +196,10 @@ public class GradeUpdateAction extends InjectableAction implements Serializable 
 			}
 		}
 
-		String categoryScore = "-";
-
-		if (categoryId != null) {
-			final Double average = businessService.getCategoryScoreForStudent(Long.valueOf(categoryId), studentUuid);
-			if (average != null) {
-				categoryScore = FormatHelper.formatDoubleToDecimal(average);
-			}
-		}
+		Optional<CategoryScoreData> catData = categoryId == null ?
+				Optional.empty() : businessService.getCategoryScoreForStudent(Long.valueOf(categoryId), studentUuid);
+		String categoryScore = catData.map(c -> String.valueOf(c.score)).orElse("-");
+		List<Long> droppedItems = catData.map(c -> c.droppedItems).orElse(Collections.emptyList());
 
 		target.add(page.updateLiveGradingMessage(page.getString("feedback.saved")));
 
@@ -204,6 +208,7 @@ public class GradeUpdateAction extends InjectableAction implements Serializable 
 				grade,
 				points,
 				isOverride,
-				categoryScore);
+				categoryScore,
+				droppedItems);
 	}
 }

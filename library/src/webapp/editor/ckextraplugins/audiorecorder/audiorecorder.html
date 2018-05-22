@@ -19,7 +19,7 @@ To change a value
 Local i18n items are in oEditor.lang.audiorecorder.*
 
 -->
-<body scroll="no">
+<body scroll="no" id="ckaudiorecorder">
                 
                        <script type="text/javascript" src="/library/webjars/jquery/1.12.4/jquery.min.js"></script>
                        <script type="text/javascript" src="/library/js/swfobject/swfobject.js"></script>
@@ -27,26 +27,26 @@ Local i18n items are in oEditor.lang.audiorecorder.*
                        <script type="text/javascript" src="/library/js/recorder/jRecorder.js"></script>
                        <script type="text/javascript" src="/library/js/sakai-recorder.js"></script>
                        <script type="text/javascript">
-                               var userMediaSupport = true;
-                               var timer;
-                               var timeRemaining;
-                               var maxWidth;
+                          var postUrl = oEditor.config.fileConnectorUrl+'&Command=QuickUploadAttachment';
+                          function updateUrl(url) {
+                              document.getElementById("txtUrl").value = (url);
+                          }
 
-                               var audio_context;
-                               var recorder;
+                          $(document).ready(function() {
+                            var maxSeconds = oEditor.config.audiorecorder.maxSeconds
+                            var attemptsAllowed = oEditor.config.audiorecorder.attemptsAllowed
+                            var attemptsRemaining = oEditor.config.audiorecorder.attemptsRemaining
 
-                               var maxSeconds = oEditor.config.audiorecorder.maxSeconds
-                               var attemptsAllowed = oEditor.config.audiorecorder.attemptsAllowed
-                               var attemptsRemaining = oEditor.config.audiorecorder.attemptsRemaining
-
-
-                               var postUrl = oEditor.config.fileConnectorUrl+'&Command=QuickUploadAttachment';
-                               function updateUrl(url) {
-                                    document.getElementById("txtUrl").value = (url);
-                               }
-
-
-
+                            var $elem = $("#ckaudiorecorder");
+                            var sakaiAudioRecorder = new SakaiRecorder($elem);
+                            sakaiAudioRecorder.init({
+                              ckEditor: true,
+                              maxSeconds: maxSeconds,
+                              attemptsAllowed: attemptsAllowed,
+                              attemptsRemaining: attemptsRemaining,
+                              postUrl: postUrl
+                            });
+                          });
                        </script>
 
 <p id="audio-recorder-intro">
@@ -56,10 +56,10 @@ Local i18n items are in oEditor.lang.audiorecorder.*
 
   <div id="audio-controls">
     <div id="audio-timer-wrapper"><span id="audio-timer">00</span> / <span id="audio-max-time">30</span> <span><script>document.write(oEditor.lang.audiorecorder.seconds_label)</script></span></div>
-    <button id="audio-record" onclick="startRecording(this);"><script>document.write(oEditor.lang.audiorecorder.record)</script></button>
-    <button id="audio-stop"   onclick="stopRecording(this);" disabled><script>document.write(oEditor.lang.audiorecorder.stop)</script></button>
-    <button id="audio-play" onclick="playRecording(this);" disabled><script>document.write(oEditor.lang.audiorecorder.play)</script></button>
-    <button id="audio-upload" onclick="postDataToServer(this);" disabled><script>document.write(oEditor.lang.audiorecorder.post)</script></button>
+    <button id="audio-record"><script>document.write(oEditor.lang.audiorecorder.record)</script></button>
+    <button id="audio-stop" disabled><script>document.write(oEditor.lang.audiorecorder.stop)</script></button>
+    <button id="audio-play" disabled><script>document.write(oEditor.lang.audiorecorder.play)</script></button>
+    <button id="audio-upload" disabled><script>document.write(oEditor.lang.audiorecorder.post)</script></button>
     <div id="audio-posting" style="display:none"><script>document.write(oEditor.lang.audiorecorder.posting)</script></div>
     <div id="audio-finished" style="display:none"><script>document.write(oEditor.lang.audiorecorder.complete)</script></div>
     <div id="audio-statusbar" style="display:none"> </div>

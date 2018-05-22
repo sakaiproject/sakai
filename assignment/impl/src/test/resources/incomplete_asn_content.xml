@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<content allowattach="true" allowreview="false"
+	allowstudentview="false"
+	attachment0="/content/attachment/2614_G_2015_N_N/Tareas/6bad591a-b529-4a8d-89e0-fbe41e069589/Tareas para grupos de Seminario S1.pdf"
+	checkInstitution="false" checkInternet="false"
+	checkPublications="false" checkTurnitin="false"
+	context="2614_G_2015_N_N" datecreated="20151018194119092"
+	excludeBibliographic="false" excludeQuoted="false" excludeType="0"
+	excludeValue="1" generateOriginalityReport="0" groupproject="true"
+	hideduedate="false" honorpledge="1"
+	id="0fd801dc-91a8-46d5-80f4-5964a7a4360c" indivgraded="false"
+	instructions="R3JvdXAgQXNzaWdubWVudCBGb3IgR3JvdXBzICBTaW5nbGUgc3VibWlzc2lvbiBmb3IgZ3JvdXBzIFJlZCBHcmVlbiBhbmQgQmx1ZS4="
+	instructions-html="PHA+R3JvdXAgQXNzaWdubWVudCBGb3IgR3JvdXBzPC9wPiAgPHA+U2luZ2xlIHN1Ym1pc3Npb24gZm9yIGdyb3VwcyBSZWQgR3JlZW4gYW5kIEJsdWUuPC9wPg=="
+	lastmod="20151018194119092" numberofattachments="1" numberofauthors="0"
+	releasegrades="false" scaled_maxgradepoint="0" submissiontype="3"
+	submitReviewRepo="0" title="Presentación caso clínico 1 S1"
+	typeofgrade="1">
+	<properties>
+		<property enc="BASE64" name="CHEF:creator"
+			value="MDBkNGE4NDAtMDEyYy00NzQ5LWJlNjUtNmJmYzM0ODA2NTE1" />
+		<property enc="BASE64" name="CHEF:modifiedby"
+			value="MDBkNGE4NDAtMDEyYy00NzQ5LWJlNjUtNmJmYzM0ODA2NTE1" />
+		<property enc="BASE64" name="DAV:getlastmodified"
+			value="MjAxNTEwMTgyMTA3Mjk3MDg=" />
+		<property enc="BASE64" name="DAV:creationdate"
+			value="MjAxNTEwMTgxOTQxMTkwOTI=" />
+	</properties>
+</content>

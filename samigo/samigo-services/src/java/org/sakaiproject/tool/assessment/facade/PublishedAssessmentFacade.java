@@ -99,12 +99,12 @@ public class PublishedAssessmentFacade
   private int submittedCount;
   private Date lastNeedResubmitDate;
   private boolean activeStatus;
-  private String releaseToGroups;
-  private List<String> releaseToGroupsList = new ArrayList<String>();
+  private Map releaseToGroups;
   private int enrolledStudentCount;
   private Integer timeLimit;
   private String lastModifiedDateForDisplay;
   private int groupCount;
+  private boolean selected;
   
   public PublishedAssessmentFacade() {
   }
@@ -118,22 +118,22 @@ public class PublishedAssessmentFacade
 
   // constructor that whole min. info, used for listing
   public PublishedAssessmentFacade(Long id, String title, String releaseTo,
-                                 Date startDate, Date dueDate, String releaseToGroups){
+                                 Date startDate, Date dueDate, Map releaseToGroups){
 	  this(id, title, releaseTo, startDate, dueDate, releaseToGroups, null, null);
   }
   
   public PublishedAssessmentFacade(Long id, String title, String releaseTo,
-		  Date startDate, Date dueDate, String releaseToGroups, Date lastModifiedDate, String lastModifiedBy){
+		  Date startDate, Date dueDate, Map releaseToGroups, Date lastModifiedDate, String lastModifiedBy){
 	  this(id, title, releaseTo, startDate, dueDate, null, null, releaseToGroups, lastModifiedDate, lastModifiedBy, null, null, null);
   }
 
   public PublishedAssessmentFacade(Long id, String title, String releaseTo,
-		  Date startDate, Date dueDate, Integer status, String releaseToGroups, Date lastModifiedDate, String lastModifiedBy){
+		  Date startDate, Date dueDate, Integer status, Map releaseToGroups, Date lastModifiedDate, String lastModifiedBy){
 	  this(id, title, releaseTo, startDate, dueDate, null, status, releaseToGroups, lastModifiedDate, lastModifiedBy, null, null, null);
   }
 
   public PublishedAssessmentFacade(Long id, String title, String releaseTo,
-		  Date startDate, Date dueDate, Date retractDate, Integer status, String releaseToGroups, 
+		  Date startDate, Date dueDate, Date retractDate, Integer status, Map releaseToGroups, 
 		  Date lastModifiedDate, String lastModifiedBy, Integer lateHandling,
 		  Boolean unlimitedSubmissions, Integer submissionsAllowed){
 	  this.publishedAssessmentId = id;
@@ -146,9 +146,6 @@ public class PublishedAssessmentFacade
 	  this.lastModifiedDate = lastModifiedDate;
 	  this.lastModifiedBy = lastModifiedBy;
 	  this.releaseToGroups = releaseToGroups;
-	  if (releaseToGroups != null && !releaseToGroups.trim().equals("")) {
-		  setReleaseToGroupsList();
-	  }
 	  this.lateHandling = lateHandling;
 	  this.unlimitedSubmissions = unlimitedSubmissions;
 	  this.submissionsAllowed = submissionsAllowed;
@@ -244,14 +241,14 @@ public class PublishedAssessmentFacade
     this.publishedSectionSet = data.getSectionSet();
   }
   
-  public PublishedAssessmentFacade(PublishedAssessmentIfc data, String releaseToGroups) {
-	    setProperties(data);
-	    this.publishedSectionSet = data.getSectionSet();
-	    this.releaseToGroups = releaseToGroups;
-	  }
+  public PublishedAssessmentFacade(PublishedAssessmentIfc data, Map releaseToGroups) {
+    setProperties(data);
+    this.publishedSectionSet = data.getSectionSet();
+    this.releaseToGroups = releaseToGroups;
+  }
   
   public PublishedAssessmentFacade(AssessmentIfc data) {
-	this((PublishedAssessmentIfc) data);
+    this((PublishedAssessmentIfc) data);
   }
 
   private void setProperties(PublishedAssessmentIfc data){
@@ -788,7 +785,7 @@ public class PublishedAssessmentFacade
 	    return (String)this.publishedMetaDataMap.get(HASMETADATAFORQUESTIONS);
   }
 
-  public String getReleaseToGroups() {
+  public Map getReleaseToGroups() {
 	    return this.releaseToGroups;
   }
   
@@ -799,24 +796,10 @@ public class PublishedAssessmentFacade
   public void setHasAssessmentGradingData(boolean hasAssessmentGradingData) {
 	  this.hasAssessmentGradingData = hasAssessmentGradingData;
   }
-
-  public void setReleaseToGroupsList() {
-          
-          // SAM-2382
-          releaseToGroupsList = new ArrayList<String>();
-          for (String group : releaseToGroups.split(",")) {
-              releaseToGroupsList.add( group.trim());
-	  }
-          Collections.sort(releaseToGroupsList);
-  }
-  
-  public List<String> getReleaseToGroupsList() {
-	    return releaseToGroupsList;
-  }
   
   public void setGroupCount() {
-      if (releaseToGroupsList != null) {
-          groupCount = releaseToGroupsList.size();
+      if (releaseToGroups != null) {
+          groupCount = releaseToGroups.size();
       }
       else {
           groupCount = 0;
@@ -890,5 +873,13 @@ public class PublishedAssessmentFacade
 
   public void setLateHandling(Integer lateHandling) {
 	  this.lateHandling = lateHandling;
+  }
+
+  public boolean isSelected() {
+	  return this.selected;
+  }
+
+  public void setSelected(boolean selected) {
+	  this.selected = selected;
   }
 }

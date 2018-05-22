@@ -127,7 +127,8 @@ public class EmailEntry
 		return config;
 	}
 
-	public void setOtherRecipients(List<String> otherRecipients)
+	// RSF Has a problem with overloaded setters so we force it to use the String one.
+	public void setOtherRecipientsList(List<String> otherRecipients)
 	{
 		this.otherRecipients = otherRecipients;
 	}

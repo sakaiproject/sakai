@@ -1097,10 +1097,10 @@ public class ChatManagerImpl extends HibernateDaoSupport implements ChatManager,
         if (StringUtils.isNotBlank(siteId)) {
 
             // refresh our presence at the location and retrieve the present users
-            String location = siteId + "-presence";
+            String location = siteId + PresenceService.PRESENCE_SUFFIX;
             presenceService.setPresence(location);
 
-            for(UsageSession us : presenceService.getPresence(siteId + "-presence")){
+            for(UsageSession us : presenceService.getPresence(siteId + PresenceService.PRESENCE_SUFFIX)){
                 //check if still online in the heartbeat map
                 if (isOnline(channelId, us.getId())) {
                     TransferableChatMessage tcm = heartbeatMap.getIfPresent(channelId).getIfPresent(us.getId());

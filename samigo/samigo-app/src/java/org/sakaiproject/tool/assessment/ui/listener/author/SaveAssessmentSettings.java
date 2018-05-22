@@ -114,10 +114,8 @@ public class SaveAssessmentSettings
         control.setLateHandling(new Integer(assessmentSettings.getLateHandling()));
     }
 
-    if (assessmentSettings.getRetractDate() == null
-            || "".equals(assessmentSettings.getRetractDateString())) {
+    if ("".equals(assessmentSettings.getRetractDateString())) {
         control.setRetractDate(null);
-        control.setLateHandling(AssessmentAccessControl.NOT_ACCEPT_LATE_SUBMISSION);
     } else if (!assessmentSettings.getAutoSubmit() && 
                assessmentSettings.getRetractDate() != null && 
                assessmentSettings.getLateHandling() != null && 

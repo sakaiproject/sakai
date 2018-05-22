@@ -69,76 +69,45 @@
     #set ($timeType = $amString)
 #elseif ( $page == "third" )
     ## set start time to be 2 PM 
-    #set($timer = 2)
+    #set($timer = 14)
     #set ($timeType = $pmString)
 #else ##if ( $page == "first" )
     #set($timer = 0)
     #set ($timeType = $amString)
 #end
 
-#foreach($nx in [0..19])
+#foreach($nx in [0..$numberOfSections])
     #set($m = $date.getEventsBerDay($nx))
     #if ($m.size() > $colspan) #set ($colspan = $m.size()) #end
 #end
 #set ($v = 95 / $colspan )
 
-#foreach($nx in [0..19])
+#foreach($nx in [0..$numberOfSections])
     #set($m = $date.getEventsBerDay($nx))
 
     <tr align="left" valign="top" bgcolor="#FFFFFF">
     #if ($section == 1)
         #set($section = 2)
+        
+        #set($temp = $timer)
+        #set($temp2 = $timer % 24)
+        #set($timer = $temp2 % 12)
 
-        #if ( $page == "second")
-            #if($timer==12) 
-                #set ($timeType = $pmString)
-            #elseif ($timer>12)
-                #set ($timeType = $pmString)
-                #set($temp = $timer)
-                #set($timer = $timer - 12)
-            #end
-            <th width="5%" rowspan="2" align="right" bgcolor="#eeeeee" class="borderWhite" nowrap="nowrap" scope="row">
-            #foreach ($format in $timeFormat)
-                #if ($format == "h")
-                    $timer
-                #elseif ($format == "a")
-                    $timeType
-                #elseif ($format == "H")
-                    #if ($temp > 12)
-                        ${temp}:00
-                    #else
-                        ${timer}:00
-                    #end
+        <th width="5%" rowspan="2" align="right" bgcolor="#eeeeee" class="borderWhite" nowrap="nowrap" scope="row">
+        #foreach ($format in $timeFormat)
+            #if ($format == "h")
+                #if ($timer == 0 && $temp2 == 12) #set($timer=12) #end
+                $timer
+            #elseif ($format == "a")
+                #if ($temp2 >= 12) $pmString
+                #else $amString
                 #end
+            #elseif ($format == "H")
+                ${temp2}:00
             #end
-            </th>
-            #if ($temp>12) #set($timer = $temp) #end
-        #elseif ( $page == "third" )
-            <th width="5%" rowspan="2" align="right" bgcolor="#eeeeee" class="borderWhite" nowrap="nowrap" scope="row">
-            #foreach ($format in $timeFormat)
-                #if ($format == "h")
-                    $timer
-                #elseif ($format == "a")
-                    $timeType
-                #elseif ($format == "H")
-                    #set ($temp = $timer + 12)
-                    ${temp}:00
-                #end
-            #end
-            </th>
-        #elseif ($page == "first")            
-            <th width="5%" rowspan="2" align="right" bgcolor="#eeeeee" class="borderWhite" nowrap="nowrap" scope="row">
-            #foreach ($format in $timeFormat)
-                #if ($format == "h")
-                    #if($timer == 0) 12 #else $timer #end
-                #elseif ($format == "a")
-                    $timeType
-                #elseif ($format == "H")
-                    ${timer}:00
-                #end
-            #end
-            </th>
         #end
+        </th>
+        #set($timer = $temp)
 
         #set($timer = $timer + 1)
         #if($m.isEmpty())

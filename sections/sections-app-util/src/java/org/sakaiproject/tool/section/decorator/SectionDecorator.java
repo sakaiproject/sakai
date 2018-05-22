@@ -482,7 +482,7 @@ public class SectionDecorator implements RowGroupable,Serializable, Comparable{
         private List<String> getAbbreviatedDayList() {
             List<String> list = new ArrayList<String>();
             ResourceLoader rl = new ResourceLoader();
-            DateFormatSymbols dfs = new DateFormatSymbols(rl.getLocale());
+            DateFormatSymbols dfs = DateFormatSymbols.getInstance(rl.getLocale());
             String[] daysOfWeek = dfs.getShortWeekdays();
             if(meeting.isMonday())
                 list.add(daysOfWeek[Calendar.MONDAY]);
