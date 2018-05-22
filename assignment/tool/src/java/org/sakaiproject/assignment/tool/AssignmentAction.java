@@ -5210,12 +5210,14 @@ public class AssignmentAction extends PagedResourceActionII {
             if (submission != null) {
                 // submission read event
             	LRS_Statement statement = getStatementForViewSubmittedAssignment(submission.getId(), a.getTitle());
-                Event event = eventTrackingService.newEvent(AssignmentConstants.EVENT_ACCESS_ASSIGNMENT_SUBMISSION, submission.getId(), null, false, NotificationService.NOTI_OPTIONAL, statement);
+                String ref = AssignmentReferenceReckoner.reckoner().submission(submission).reckon().getReference();
+                Event event = eventTrackingService.newEvent(AssignmentConstants.EVENT_ACCESS_ASSIGNMENT_SUBMISSION, ref, null, false, NotificationService.NOTI_OPTIONAL, statement);
                 eventTrackingService.post(event);
             } else {
                 // otherwise, the student just read assignment description and prepare for submission
             	LRS_Statement statement = getStatementForViewAssignment(a.getId(), a.getTitle());
-                Event event = eventTrackingService.newEvent(AssignmentConstants.EVENT_ACCESS_ASSIGNMENT, a.getId(), null, false, NotificationService.NOTI_OPTIONAL, statement);
+                String ref = AssignmentReferenceReckoner.reckoner().assignment(a).reckon().getReference();
+                Event event = eventTrackingService.newEvent(AssignmentConstants.EVENT_ACCESS_ASSIGNMENT, ref, null, false, NotificationService.NOTI_OPTIONAL, statement);
                 eventTrackingService.post(event);
             }
         }
