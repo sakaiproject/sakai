@@ -1824,17 +1824,18 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 									SimplePage sPage = simplePageBean.getPage(Long.parseLong(i.getSakaiId()));
 									if (sPage != null) {
 										Date rDate = sPage.getReleaseDate();
+										String cssClasses = "item-group-titles";
 
 										//hidden, deleted, not published, or release date is in future. Not considered released.
 										if(sPage.isHidden() || entityDeleted || notPublished || (rDate != null && Instant.now().isBefore(rDate.toInstant()))){
-											UIOutput.make(tableRow, (isInline ? "item-group-titles-div" : "item-group-titles"), itemGroupString).decorate(new UIFreeAttributeDecorator("class", " item-group-titles not-released"));
+											cssClasses+= " not-released";
 										} //not hidden, deleted, is published, release date has passed. considered released
 										else if(rDate != null && Instant.now().isAfter(rDate.toInstant())){
-											UIOutput.make(tableRow, (isInline ? "item-group-titles-div" : "item-group-titles"), itemGroupString).decorate(new UIFreeAttributeDecorator("class", "item-group-titles released"));
+											cssClasses+= " released";
 										} //not hidden, deleted, is published. No release date restriction. Considered released.
-										else {
-											UIOutput.make(tableRow, (isInline ? "item-group-titles-div" : "item-group-titles"), itemGroupString).decorate(new UIFreeAttributeDecorator("class", "item-group-titles"));
-										}
+
+										UIOutput.make(tableRow, (isInline ? "item-group-titles-div" : "item-group-titles"), itemGroupString).decorate(new UIFreeAttributeDecorator("class", cssClasses));
+
 									}
 								}
 							}
