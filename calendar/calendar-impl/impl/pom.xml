@@ -184,6 +184,7 @@
                     <include>**/*.xml</include>
                     <include>**/*.properties</include>
                     <include>**/*.ics</include>
+                    <include>**/*.csv</include>
                 </includes>
             </testResource>
         </testResources>
