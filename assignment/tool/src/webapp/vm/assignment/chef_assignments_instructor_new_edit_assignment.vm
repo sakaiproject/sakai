@@ -84,8 +84,7 @@
 				useReview.disabled=false;
 				lblUseReview.style.display = 'block';
 			#end
-			## SAK-26640
-			document.getElementById('tempAllowRes').style.display = 'block';
+			document.getElementById('tempAllowRes').parentNode.parentNode.style.display = 'block';
 			if (document.getElementById('allowResToggle').checked)
 			{
 				document.getElementById('allowResubmitNumber').style.display = 'block';
@@ -108,8 +107,7 @@
 				reviewSwitchNe1.style.removeProperty('display');
 				lblUseReview.style.display = 'none';
 			#end
-			## SAK-26640
-			document.getElementById('tempAllowRes').style.display = 'none';
+			document.getElementById('tempAllowRes').parentNode.parentNode.style.display = 'none';
 			document.getElementById('allowResubmitNumber').style.display = 'none';
 			document.getElementById('allowResubmitTime').style.display = 'none';
 			document.getElementById('resubmitNotification').style.display = 'none';
