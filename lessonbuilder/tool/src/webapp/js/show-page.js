@@ -3524,6 +3524,17 @@ function printView(url) {
 	return url;
     return url.substring(0, i) + url.substring(j);
 }
+
+function printViewWithParameter(url) {
+    var i = url.indexOf("/site/");
+    if (i < 0)
+	return url;
+    var j = url.indexOf("/tool/");
+    if (j < 0)
+	return url;
+    return url.substring(0, i) + url.substring(j) + '?printall=true';
+}
+
 // make columns in a section the same height. Is there a better place to trigger this?
 // use load because we want to do this after images, etc. are loaded so heights are set
 
