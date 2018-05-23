@@ -144,7 +144,7 @@
 
         <!-- csv library -->
         <dependency>
-            <groupId>net.sf.opencsv</groupId>
+            <groupId>com.opencsv</groupId>
             <artifactId>opencsv</artifactId>
             <scope>compile</scope>
         </dependency>

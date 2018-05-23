@@ -21,7 +21,7 @@
 
 package org.sakaiproject.component.impl;
 
-import au.com.bytecode.opencsv.CSVParser;
+import com.opencsv.CSVParser;
 
 import java.io.IOException;
 import java.lang.ref.WeakReference;

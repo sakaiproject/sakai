@@ -15,7 +15,7 @@
  */
 package org.sakaiproject.gradebookng.tool.panels.importExport;
 
-import au.com.bytecode.opencsv.CSVWriter;
+import com.opencsv.CSVWriter;
 
 import java.io.File;
 import java.io.FileWriter;
