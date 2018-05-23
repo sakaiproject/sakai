@@ -1310,8 +1310,9 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
     {
         Number count = (Number) getHibernateTemplate().execute(session -> session
                 .createCriteria(GradableObject.class)
+                .createAlias("gradebook", "gb")
                 .add(Restrictions.eq("name", name))
-                .add(Restrictions.eq("gradebook", gradebook))
+                .add(Restrictions.eq("gb.uid", gradebook.getUid()))
                 .add(Restrictions.eq("removed", false))
                 .setProjection(Projections.rowCount())
                 .uniqueResult());
