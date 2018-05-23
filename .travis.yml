@@ -16,6 +16,7 @@ sudo: false
 cache:
  directories:
  - $HOME/.m2
+ - $HOME/.sonar/cache
 
 # We don't want to cache our own artifacts, just the externally downloaded ones.
 # This makes the cache smaller and helps highlight problems with a clean build
