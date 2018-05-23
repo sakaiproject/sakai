@@ -932,13 +932,33 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 				retVal.setDropDeadTime(existingAssignment.getDropDeadTime());
 				retVal.setCloseTime(existingAssignment.getCloseTime());
 				retVal.setDraft(true);
-                		retVal.setGroup(existingAssignment.isGroup());
-               			retVal.setAllowPeerAssessment(existingAssignment.getAllowPeerAssessment());
-               			retVal.setPeerAssessmentInstructions(existingAssignment.getPeerAssessmentInstructions());
-                		retVal.setPeerAssessmentAnonEval(existingAssignment.getPeerAssessmentAnonEval());
-                		retVal.setPeerAssessmentNumReviews(existingAssignment.getPeerAssessmentNumReviews());
-                		retVal.setPeerAssessmentPeriod(existingAssignment.getPeerAssessmentPeriod());
-                		retVal.setPeerAssessmentStudentViewReviews(existingAssignment.getPeerAssessmentStudentViewReviews());
+				retVal.setGroup(existingAssignment.isGroup());
+				if (!existingAssignment.getGroups().isEmpty())
+				{
+					try
+					{
+						Site site = SiteService.getSite(existingAssignment.getContext());
+						
+						Collection groups = new ArrayList();
+						for (String groupRef: (ArrayList<String>) existingAssignment.getGroups())
+						{
+							groups.add(site.getGroup(groupRef));
+						}
+						
+						retVal.setGroupAccess(groups);
+					}
+					catch (IdUnusedException e)
+					{
+						
+						e.printStackTrace();
+					}
+				}
+				retVal.setAllowPeerAssessment(existingAssignment.getAllowPeerAssessment());
+				retVal.setPeerAssessmentInstructions(existingAssignment.getPeerAssessmentInstructions());
+				retVal.setPeerAssessmentAnonEval(existingAssignment.getPeerAssessmentAnonEval());
+				retVal.setPeerAssessmentNumReviews(existingAssignment.getPeerAssessmentNumReviews());
+				retVal.setPeerAssessmentPeriod(existingAssignment.getPeerAssessmentPeriod());
+				retVal.setPeerAssessmentStudentViewReviews(existingAssignment.getPeerAssessmentStudentViewReviews());
 				ResourcePropertiesEdit pEdit = (BaseResourcePropertiesEdit) retVal.getProperties();
 				pEdit.addAll(existingAssignment.getProperties());
 				addLiveProperties(pEdit);

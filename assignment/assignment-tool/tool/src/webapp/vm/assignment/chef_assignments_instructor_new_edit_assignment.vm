@@ -1123,7 +1123,7 @@
 				<input type="radio" name="range" id="site" value="site" onclick="$('#groupTable').fadeOut('slow'); ASN.showOrHideAccessMessages( false ); ASN.resizeFrame();"
 				#if( $!range == "site" || $selectedGroupsNotFound )
 					checked="checked"
-				#elseif (($!value_CheckIsGroupSubmission.equals("1") && $!groupsList) || ($!assignment && !$assignment.draft && $!value_additionalOptions.equals("group")))
+				#elseif (($!value_CheckIsGroupSubmission.equals("1") && $!groupsList) || ($!assignment && $!value_additionalOptions.equals("group")))
 					disabled="disabled"
 				#end
 				/>
