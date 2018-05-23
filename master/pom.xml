@@ -53,7 +53,7 @@
     <sakai.org.json.version>20171018</sakai.org.json.version>
     <sakai.pluto.version>1.1.7</sakai.pluto.version>
     <sakai.quartz.version>2.2.3</sakai.quartz.version>
-    <sakai.opencsv.version>2.3</sakai.opencsv.version>
+    <sakai.opencsv.version>4.1</sakai.opencsv.version>
     <sakai.servletapi.version>2.4</sakai.servletapi.version>
     <sakai.groovy.version>2.4.13</sakai.groovy.version>
     <sakai.simple-xml.version>2.6.4</sakai.simple-xml.version>
@@ -949,7 +949,7 @@
         <scope>provided</scope>
       </dependency>
       <dependency>
-        <groupId>net.sf.opencsv</groupId>
+        <groupId>com.opencsv</groupId>
         <artifactId>opencsv</artifactId>
         <version>${sakai.opencsv.version}</version>
         <scope>provided</scope>
