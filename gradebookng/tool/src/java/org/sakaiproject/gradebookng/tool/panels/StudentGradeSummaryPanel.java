@@ -84,7 +84,7 @@ public class StudentGradeSummaryPanel extends BasePanel {
 
 		// Disable Student View for TAs as they most likely won't have the access
 		// to view the grade data for every student
-		if (businessService.isUserAbleToEditAssessments(businessService.getGradebook().getUid())) {
+		if (businessService.isUserAbleToEditAssessments()) {
 			tabs.add(new AbstractTab(new Model<String>(getString("label.studentsummary.studentviewtab"))) {
 				private static final long serialVersionUID = 1L;
 

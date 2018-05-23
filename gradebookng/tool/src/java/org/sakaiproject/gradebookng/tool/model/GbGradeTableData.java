@@ -62,7 +62,7 @@ public class GbGradeTableData {
 			throw new RuntimeException(e);
 		}
 
-		isUserAbleToEditAssessments = businessService.isUserAbleToEditAssessments(businessService.getGradebook().getUid());
+		isUserAbleToEditAssessments = businessService.isUserAbleToEditAssessments();
 		assignments = businessService.getGradebookAssignments(sortBy);
 		stopwatch.time("getGradebookAssignments", stopwatch.getTime());
 

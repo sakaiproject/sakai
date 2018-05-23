@@ -14,7 +14,6 @@
 		<property name="gradebookFrameworkService" ref="org.sakaiproject.service.gradebook.GradebookFrameworkService"/>
 		<property name="securityService" ref="org.sakaiproject.authz.api.SecurityService" />
 		<property name="gradebookExternalAssessmentService" ref="org.sakaiproject.service.gradebook.GradebookExternalAssessmentService"/>
-		<property name="authz" ref="org_sakaiproject_tool_gradebook_facades_Authz"/>
 	</bean>
 
 	<bean

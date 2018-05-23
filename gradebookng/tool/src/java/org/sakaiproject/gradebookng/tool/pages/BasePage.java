@@ -131,7 +131,7 @@ public class BasePage extends WebPage {
 
 			@Override
 			public boolean isVisible() {
-				return (businessService.isUserAbleToEditAssessments(businessService.getGradebook().getUid()));
+				return (businessService.isUserAbleToEditAssessments());
 			}
 		};
 		this.importExportPageLink.add(new Label("screenreaderlabel", getString("link.screenreader.tabnotselected")));
@@ -165,7 +165,7 @@ public class BasePage extends WebPage {
 
 			@Override
 			public boolean isVisible() {
-				return (businessService.isUserAbleToEditAssessments(businessService.getGradebook().getUid()));
+				return (businessService.isUserAbleToEditAssessments());
 			}
 		};
 		this.settingsPageLink.add(new Label("screenreaderlabel", getString("link.screenreader.tabnotselected")));
@@ -306,7 +306,7 @@ public class BasePage extends WebPage {
 			case STUDENT:
 				throw new RestartResponseException(StudentPage.class);
 			case TA:
-				if(businessService.isUserAbleToEditAssessments(businessService.getGradebook().getUid())) {
+				if(businessService.isUserAbleToEditAssessments()) {
 					break;
 				}
 				throw new RestartResponseException(GradebookPage.class);

@@ -89,7 +89,6 @@ import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.tool.api.ToolManager;
-import org.sakaiproject.tool.gradebook.facades.Authz;
 import org.sakaiproject.tool.gradebook.Gradebook;
 import org.sakaiproject.tool.gradebook.GradingEvent;
 import org.sakaiproject.user.api.CandidateDetailProvider;
@@ -139,9 +138,6 @@ public class GradebookNgBusinessService {
 
 	@Setter
 	private SecurityService securityService;
-	
-	@Setter
-	private Authz authz;
 
 	public static final String ASSIGNMENT_ORDER_PROP = "gbng_assignment_order";
 	public static final String ICON_SAKAI = "icon-sakai--";
@@ -329,16 +325,6 @@ public class GradebookNgBusinessService {
 		return gbUsers;
 	}
 
-	/**
-	 * Helper to get a reference to the gradebook uid for the specified site
-	 *
-	 * @param siteId the siteId
-	 * @return the gradebook uid for the site
-	 */
-	public String getGradebookUid(final String siteId) {
-		return getGradebook(siteId).getUid();
-	}
-	
 	/**
 	 * Helper to get a reference to the gradebook for the current site
 	 *
@@ -1554,7 +1540,7 @@ public class GradebookNgBusinessService {
 		return rval;
 	}
 
-	public List<GbGroup> getSiteSectionsAndGroups(final String siteId) {
+	private List<GbGroup> getSiteSectionsAndGroups(final String siteId) {
 
 		final List<GbGroup> rval = new ArrayList<>();
 
@@ -2321,9 +2307,11 @@ public class GradebookNgBusinessService {
 		return permissions;
 	}
 
-	public List<PermissionDefinition> getPermissionsForUser(final String userUuid, String siteId) {
+	private List<PermissionDefinition> getPermissionsForUser(final String userUuid, String siteId) {
 
-		if(siteId==null) {siteId = getCurrentSiteId();}
+		if(siteId==null) {
+			siteId = getCurrentSiteId();
+		}
 		
 		final Gradebook gradebook = getGradebook(siteId);
 
@@ -2486,7 +2474,7 @@ public class GradebookNgBusinessService {
 	 *
 	 * @return
 	 */
-	public Map<String, Set<Member>> getGroupMembers(final String siteId) {
+	private Map<String, Set<Member>> getGroupMembers(final String siteId) {
 
 		Site site;
 		try {
@@ -2585,9 +2573,22 @@ public class GradebookNgBusinessService {
 			throw new GbException("An error occurred checking some bits and pieces, please try again.", e);
 		}
 	}
-	
-	public boolean isUserAbleToEditAssessments(String Uid) {
-		return authz.isUserAbleToEditAssessments(Uid);
+
+	/**
+	 * Check if current user has "gradebook.editAssignments" permission 
+	 *
+	 * @return true if yes, false if no.
+	 */
+	public boolean isUserAbleToEditAssessments(){
+		String siteRef;
+		
+		try {
+			siteRef = this.siteService.getSite(getCurrentSiteId()).getReference();
+		} catch (final IdUnusedException e) {
+			throw new GbException(e);
+		}
+		
+		return this.securityService.unlock("gradebook.editAssignments", siteRef);
 	}
 
 	/**
