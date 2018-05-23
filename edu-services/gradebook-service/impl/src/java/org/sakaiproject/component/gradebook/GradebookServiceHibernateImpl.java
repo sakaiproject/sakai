@@ -3837,19 +3837,8 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 	 * @param entities a list of entities.
 	 */
 	private void batchPersistEntities(final List<?> entities) {
-
-		final Session session = getSessionFactory().openSession();
-
-		for (int i = 0; i < entities.size(); i++) {
-			session.saveOrUpdate(entities.get(i));
-			if (i % 20 == 0) {
-				session.flush();
-				session.clear();
-			}
-		}
-
-		// Sakai auto commits the session
-		session.close();
+		final Session session = getSessionFactory().getCurrentSession();
+		entities.forEach(session::update);
 	}
 
 	private boolean isCurrentUserFromGroup(final String gradebookUid, final String studentId) {
