@@ -48,7 +48,7 @@
 					#if(!$view_only && $assignment.getPeerAssessmentAnonEval())
 						$tlang.getString("gen.student")
 					#else
-						$validator.escapeHtml($!submitterNames)
+						$!submitterNames
 					#end
 					#if($view_only)
 						<br/>
