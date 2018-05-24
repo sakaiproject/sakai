@@ -122,7 +122,6 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 	private static final String TURNITIN_OC_API_VERSION = "v1";
 	private static final int TURNITIN_OC_MAX_RETRY_MINUTES = 240; // 4 hours
 	private static final int TURNITIN_MAX_RETRY = 16;
-	private static final String INTEGRATION_VERSION = "1.0";
 	private static final String INTEGRATION_FAMILY = "sakai";
 	private static final String CONTENT_TYPE_JSON = "application/json";
 	private static final String CONTENT_TYPE_BINARY = "application/octet-stream";
@@ -284,6 +283,7 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 			boolean webhooksSetup = false;
 			// Check to see if any webhooks have already been set up for this url
 			for (Webhook webhook : getWebhooks()) {
+				log.info("Found webhook: " + webhook.getUrl());
 				if (StringUtils.isNotEmpty(webhook.getUrl()) && webhook.getUrl().equals(webhookUrl)) {
 					webhooksSetup = true;
 					break;
@@ -292,7 +292,9 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 
 			if (!webhooksSetup) {
 				// No webhook set up for this url, set one up
-				setupWebhook(webhookUrl);
+				log.info("No matching webhook for " + webhookUrl);
+				String id = setupWebhook(webhookUrl);
+				log.info("successfully created webhook: " + id);
 			}
 		} catch (Exception e) {
 			log.error(e.getLocalizedMessage(), e);
@@ -329,7 +331,7 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 			if (responseJSON.has("id")) {
 				id = responseJSON.getString("id");
 			} else {
-				throw new Error("Error setting up webhook - returned with no ID");
+				throw new Error("Error setting up webhook - returned with no ID: " + responseJSON);
 			}
 		} else {
 			throw new Error(responseMessage);
