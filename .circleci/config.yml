@@ -1,6 +1,6 @@
 version: 2
 jobs:
-  test-jdk-8:
+  jdk-8:
     working_directory: ~/sakai/
     docker:
       - image: maven:3-jdk-8
@@ -21,7 +21,7 @@ jobs:
           key: MAVEN
           paths:
             - ~/.m2/
-  test-jdk-9:
+  jdk-9:
     working_directory: ~/sakai/
     docker:
       - image: maven:3-jdk-9
@@ -42,7 +42,7 @@ jobs:
           key: MAVEN
           paths:
             - ~/.m2/
-  test-jdk-10:
+  jdk-10:
     working_directory: ~/sakai/
     docker:
       - image: maven:3-jdk-10
@@ -67,6 +67,6 @@ workflows:
   version: 2
   build_and_test:
     jobs:
-      - test-jdk-8
-      - test-jdk-9
-      - test-jdk-10
+      - jdk-8
+      - jdk-9
+      - jdk-10
