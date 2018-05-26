@@ -210,6 +210,9 @@ public class GradeMapping implements Serializable, Comparable<Object> {
 
 	@Override
 	public int hashCode() {
+		if (getGradingScale() == null || getName() == null) {
+			return 0;
+		}
 		return new HashCodeBuilder().append(getName()).toHashCode();
 
 	}

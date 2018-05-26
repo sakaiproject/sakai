@@ -26,15 +26,12 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Collections;
 
 import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
 
 import lombok.extern.slf4j.Slf4j;
-import org.sakaiproject.event.cover.EventTrackingService;
-import org.sakaiproject.samigo.util.SamigoConstants;
 import org.sakaiproject.tool.assessment.data.dao.assessment.ItemData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.ItemMetaData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AttachmentIfc;
@@ -110,6 +107,7 @@ import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 
         // SAM-2395 - iterate over the sorted list
         Iterator iter = sortedQuestions.iterator();
+        List<ItemFacade> itemsToSave = new ArrayList<>(sortedQuestions.size());
         while (iter.hasNext()) {
         // path instead. so we will fix it here
           itemfacade = (ItemFacade) iter.next();
@@ -133,7 +131,7 @@ import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
               } else {
                   // if adding to the end
                 if (section.getItemSet() != null) {
-                    itemfacade.setSequence(section.getItemSet().size() + 1);
+                    itemfacade.setSequence(section.getItemSet().size() + itempos + 1);
                 } else {
                     // this is a new part 
                     itemfacade.setSequence(1);
@@ -147,16 +145,24 @@ import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
                 itemfacade.setSequence(insertPosIntvalue + 1);
           }
 
-              delegate.saveItem(itemfacade);
-             EventTrackingService.post(EventTrackingService.newEvent(SamigoConstants.EVENT_ASSESSMENT_SAVEITEM, "/sam/" + AgentFacade.getCurrentSiteId() + "/saved itemId=" + itemfacade.getItemId().toString(), true));
-          // remove POOLID metadata if any,
-              delegate.deleteItemMetaData(itemfacade.getItemId(), ItemMetaData.POOLID, AgentFacade.getAgentString());
-              delegate.deleteItemMetaData(itemfacade.getItemId(), ItemMetaData.PARTID, AgentFacade.getAgentString());
-              delegate.addItemMetaData(itemfacade.getItemId(), ItemMetaData.PARTID,section.getSectionId().toString(), AgentFacade.getAgentString());
-      }
+              // SAK-38439 - Delete the PARTID and POOL meta data in the facade before saving to the DB
+              Iterator itMetaData = itemfacade.getItemMetaDataSet().iterator();
+              while (itMetaData.hasNext()) {
+                ItemMetaData metaData = (ItemMetaData) itMetaData.next();
+                String label = metaData.getLabel();
+                if (ItemMetaData.POOLID.equals(label) || ItemMetaData.PARTID.equals(label)) {
+                    itMetaData.remove();
+                }
+              }
+
+              itemfacade.addItemMetaData(ItemMetaData.PARTID, section.getSectionId().toString());
+              itemsToSave.add(itemfacade);
+            }
 
             itempos++;   // for next item in the destItem.
           }
+
+        delegate.saveItems(itemsToSave);
 
       // reset InsertPosition
       itemauthor.setInsertPosition("");

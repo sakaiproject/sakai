@@ -2,7 +2,7 @@
 #set($hometoolId=$hometool.getId())
 <li id="row-home">
 	<div class="toolListControl">
-		<input type="checkbox" name="selectedTools" value="$!hometoolId" id="sakai.home"
+		<input type="checkbox" name="selectedTools" value="$!hometoolId" id="sakai.home" aria-describedby="sakai.home.desc"
         	#if ($!hometool.getSelected())
         	    checked="checked"
         	#end
@@ -21,7 +21,7 @@
         	#end
     	</label>
     </div>
-    <div class="toolListDesc textPanelFooter specialLink">
+    <div class="toolListDesc textPanelFooter specialLink" id="sakai.home.desc">
     	$tlang.getString("feat.forv")
  	</div>
 ##</li>

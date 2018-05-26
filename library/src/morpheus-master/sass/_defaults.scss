@@ -335,9 +335,9 @@ $measure: 960px !default;
 $banner-height: 52px !default;
 
 /* Logo location */
-$logo: 'images/logo.png' !default;
+$logo: 'images/logo-jewel.png' !default;
 $logo-height: 36px !default;
-$logo-width: 60px !default;
+$logo-width: 126px !default;
 
 /* Tool icons */
 $skin-with-icons: true !default;
@@ -365,5 +365,11 @@ $overview-portlet-title-background-color: $tool-tab-background-color !default;
 
 $instruction-color: #5c5c5c !default;
 $instruction-background-color: #fff !default;
+
+// Accessibility
+// This should be visible based on your button colors and is based on webkit's default
+
+$focus-outline-color: #5b9dd9;
+
 
 @import url(#{$font-family-url});

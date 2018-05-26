@@ -107,7 +107,6 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 	private static String ALLOW_MAINTAINER_ADD_SYSTEM_TOOL = "lti:allow_maintainer_add_system_tool";
 	private static String ALLOW_MAINTAINER_ADD_TOOL_SITE = "lti:allow_maintainer_add_tool_site";
 
-	
 	//accepted parameters for page, sort and search actions
 	private static String PARAM_ID = "id";
 	private static String PARAM_CRITERIA = "criteria";
@@ -115,16 +114,16 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 	private static String PARAM_PAGE = "pagesize";
 	private static String PARAM_SEARCH_FIELD = "field";
 	private static String PARAM_SEARCH_VALUE = "search";
-	
+
 	//default elements per page
 	private static int ELEMENTS_PER_PAGE = 50;
-	
+
 	//available paging events
 	private static String PAGE_EVENT_FIRST = "first";
 	private static String PAGE_EVENT_PREV = "prev";
 	private static String PAGE_EVENT_NEXT = "next";
 	private static String PAGE_EVENT_LAST = "last";
-	
+
 	//attributes stored in the state/context
 	private static String ATTR_FILTER_ID = "FILTER_ID";
 	private static String ATTR_SORT_CRITERIA = "SORT_CRITERIA";
@@ -213,7 +212,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		// default to site view
 		return buildToolSystemPanelContext(portlet, context, data, state);
 	}
-	
+
 	/**
 	 * Filter action : allows to filter tool site list with the given tool_id
 	 *
@@ -346,7 +345,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 			if (StringUtils.isNotEmpty(searchValue)) {
 				searchValue = searchValue.replace(LTIService.LTI_SEARCH_TOKEN_SEPARATOR_AND, LTIService.ESCAPED_LTI_SEARCH_TOKEN_SEPARATOR_AND);
 				searchValue = searchValue.replace(LTIService.LTI_SEARCH_TOKEN_SEPARATOR_OR, LTIService.ESCAPED_LTI_SEARCH_TOKEN_SEPARATOR_OR);
-				searchMap.put(searchField, searchValue);			
+				searchMap.put(searchField, searchValue);
 			}
 			else
 			{
@@ -372,7 +371,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		state.setAttribute(ATTR_LAST_SORTED_FIELD, null);
 		state.setAttribute(ATTR_ASCENDING_ORDER, true);
 	}
-	
+
 	public String buildToolSitePanelContext(VelocityPortlet portlet, Context context,
 			RunData data, SessionState state)
 	{
@@ -391,7 +390,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		context.put("doEndHelper", BUTTON + "doEndHelper");
 		state.removeAttribute(STATE_POST);
 		state.removeAttribute(STATE_SUCCESS);
-		
+
 		String order = (String)state.getAttribute(ATTR_SORT_CRITERIA);
 
 		Integer pageSize = (Integer)state.getAttribute(ATTR_SORT_PAGESIZE);
@@ -439,7 +438,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		context.put("sortPageSize", pageSize);
 		context.put(ATTR_LAST_SORTED_FIELD, state.getAttribute(ATTR_LAST_SORTED_FIELD));
 		context.put(ATTR_ASCENDING_ORDER, state.getAttribute(ATTR_ASCENDING_ORDER));
-		
+
 		// this is for the "site tools" panel
 		List<Map<String, Object>> contents = new ArrayList<Map<String, Object>>();
 		if (count_contents > 0) {
@@ -462,7 +461,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 				if ( tool == null ) {
 					content.put(LTIService.LTI_PLACEMENT, null);
 				}
-				
+
 				//get site url based on site id
 				String siteId = (String) content.get(LTIService.LTI_SITE_ID);
 				try {
@@ -477,14 +476,14 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 				{
 					log.error("error getting url for site {}", siteId);
 				}
-				
+
 				//get LTI url based on site id and tool id
 				content.put("tool_url", "/access/basiclti/site/"+siteId+"/content:"+content.get(LTIService.LTI_ID));
 			}
 		}
 		context.put("contents", contents);
 		context.put("messageSuccess",state.getAttribute(STATE_SUCCESS));
-		
+
 		//put velocity date tool in the context
 		DateFormat df = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.MEDIUM, rb.getLocale());
 		context.put("dateTool", df);
@@ -503,16 +502,16 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 			}
 			context.put("attribution_name", attribution_name);
 		}
-		
+
 		// top navigation menu
 		Menu menu = new MenuImpl(portlet, data, "LTIAdminTool");
 		menu.add(new MenuEntry(rb.getString("tool.in.system"), true, "doNav_tool_system"));
 		menu.add(new MenuEntry(rb.getString("tool.in.site"), false, "doNav_tool_site"));
 		context.put("menu", menu);
-		
+
 		return "lti_tool_site";
 	}
-	
+
 	public String buildToolSystemPanelContext(VelocityPortlet portlet, Context context,
 			RunData data, SessionState state)
 	{
@@ -541,23 +540,23 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		// by default, site maintainer can add system-wide LTI tool
 		context.put("allowMaintainerAddSystemTool", new Boolean(serverConfigurationService.getBoolean(ALLOW_MAINTAINER_ADD_SYSTEM_TOOL, true)));
 		context.put("getContext", contextString);
-		
+
 		// this is for the system tool panel
 		List<Map<String,Object>> tools = ltiService.getTools(null,null,0,0, getSiteId(state));
 		context.put("ltiTools", tools);
-		
+
 		// top navigation menu
 		Menu menu = new MenuImpl(portlet, data, "LTIAdminTool");
 		menu.add(new MenuEntry(rb.getString("tool.in.system"), false, "doNav_tool_system"));
 		menu.add(new MenuEntry(rb.getString("tool.in.site"), true, "doNav_tool_site"));
 		context.put("menu", menu);
-		
+
 		//reset paging/sorting/searching state
 		doReset(data);
-		
+
 		return "lti_tool_system";
 	}
-	
+
 	public void doEndHelper(RunData data, Context context)
 	{
 		// Request a shortcut transfer back to the tool we are helping
@@ -588,7 +587,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		}
 		Long key = new Long(id);
 		Map<String,Object> tool = ltiService.getTool(key, getSiteId(state));
-		if (  tool == null ) return "lti_main";	
+		if (  tool == null ) return "lti_main";
 
 		// Deal with the differences between LTI 1 and LTI 2
 		Long version = foorm.getLongNull(tool.get(LTIService.LTI_VERSION));
@@ -632,14 +631,14 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		if ( id == null ) {
 			addAlert(state,rb.getString("error.id.not.found"));
 			return "lti_main";
-		}		
+		}
 		Long key = new Long(id);
 		Map<String,Object> tool = ltiService.getTool(key, getSiteId(state));
 		if (  tool == null ) return "lti_main";
 
 		// Hide the old tool secret unless it is incomplete
 		if ( ! LTIService.LTI_SECRET_INCOMPLETE.equals(tool.get(LTIService.LTI_SECRET)) ) {
-			tool.put(LTIService.LTI_SECRET,LTIService.SECRET_HIDDEN);		
+			tool.put(LTIService.LTI_SECRET,LTIService.SECRET_HIDDEN);
 		}
 
 		// Deal with the differences between LTI 1 and LTI 2
@@ -683,7 +682,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		if ( id == null ) {
 			addAlert(state,rb.getString("error.id.not.found"));
 			return "lti_main";
-		}	
+		}
 		Long key = new Long(id);
 
 		// Retrieve the tool using a WHERE clause so the counts get computed
@@ -699,7 +698,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		context.put("tool",tool);
 		context.put("tool_count", tool.get("lti_content_count"));
 		context.put("tool_unique_site_count", tool.get("lti_site_count"));
-		
+
 		state.removeAttribute(STATE_SUCCESS);
 		return "lti_tool_delete";
 	}
@@ -858,7 +857,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		}
 		Long key = new Long(id);
 		Map<String,Object> deploy = ltiService.getDeployDao(key);
-		if (  deploy == null ) return "lti_error";	
+		if (  deploy == null ) return "lti_error";
 
 		// Extract the reg_state to make it view only
 		String fieldInfo = foorm.getFormField(mappingForm, "reg_state");
@@ -895,7 +894,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		if ( id == null ) {
 			addAlert(state,rb.getString("error.id.not.found"));
 			return "lti_error";
-		}		
+		}
 		Long key = new Long(id);
 		Map<String,Object> deploy = ltiService.getDeployDao(key);
 		if (  deploy == null ) return "lti_error";
@@ -990,7 +989,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		if ( id == null ) {
 			addAlert(state,rb.getString("error.id.not.found"));
 			return "lti_error";
-		}	
+		}
 		Long key = new Long(id);
 		Map<String,Object> deploy = ltiService.getDeployDao(key);
 		if (  deploy == null ) {
@@ -1004,9 +1003,9 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		String consumerkey = (String) deploy.get(LTIService.LTI_CONSUMERKEY);
 		String secret = (String) deploy.get(LTIService.LTI_SECRET);
 
-		if ( reg_state == 0 && reg_key != null && reg_password != null && consumerkey != null) {	
+		if ( reg_state == 0 && reg_key != null && reg_password != null && consumerkey != null) {
 			// Good news ...
-		} else if ( (reg_state == 1 || reg_state == 2 ) && secret != null && consumerkey != null) {	
+		} else if ( (reg_state == 1 || reg_state == 2 ) && secret != null && consumerkey != null) {
 			// Good news ...
 		} else {
 			addAlert(state,rb.getString("error.register.not.ready"));
@@ -1027,7 +1026,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		context.put("registerURL",registerURL);
 		context.put("isInlineRequest",new Boolean(ToolUtils.isInlineRequest(data.getRequest())));
 		context.put("id",key);
-		
+
 		state.removeAttribute(STATE_SUCCESS);
 		return "lti_deploy_register";
 	}
@@ -1064,7 +1063,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 			return "Non-numeric id value "+id;
 		}
 		Map<String,Object> deploy = ltiService.getDeployDao(key);
-		if ( deploy == null ) return "lti_error";	
+		if ( deploy == null ) return "lti_error";
 
 		String profileText = (String) deploy.get(LTIService.LTI_REG_PROFILE);
 		if ( profileText == null || profileText.length() < 1 ) {
@@ -1215,7 +1214,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		if ( inserts > 0 ) success = inserts + " tools inserted ";
 		if ( updates > 0 ) success = updates + " tools updated ";
 		if ( success.length() > 0 ) state.setAttribute(STATE_SUCCESS,success);
-			
+
 		if ( failures.length() > 0 )
 		{
 			state.setAttribute(STATE_POST,reqProps);
@@ -1380,7 +1379,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 			if ( !selection && toolProxyBinding.getMessageOfType(LTI2Messages.CONTENT_ITEM_SELECTION_REQUEST) != null ) {
 				newTool.put(LTIService.LTI_PL_LINKSELECTION, new Integer(1));
 			}
-			
+
 			newTool.put(LTIService.LTI_TOOL_PROXY_BINDING, tool_proxy_binding);
 			String fa_icon = toolProxyBinding.getIconPath("FontAwesome");
 			if ( fa_icon != null ) newTool.put("fa_icon", fa_icon);
@@ -1408,7 +1407,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		context.put("getContext", contextString);
 
 		state.removeAttribute(STATE_SUCCESS);
-		
+
 		List<Map<String,Object>> deploys = ltiService.getDeploysDao(null,null,0,5000);
 		context.put("deploys", deploys);
 
@@ -1421,7 +1420,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 			log.error("* Do not use this in production.  Test only *");
 			log.error("*********************************************");
 		}
-		
+
 		return "lti_deploy_system";
 	}
 
@@ -1439,7 +1438,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		if ( id == null ) {
 			addAlert(state,rb.getString("error.id.not.found"));
 			return "lti_deploy_system";
-		}	
+		}
 		Long key = new Long(id);
 
 		// Retrieve the tool using a WHERE clause so the counts get computed
@@ -1464,7 +1463,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		deployData = deployData.replace(":tools",""+deploy.get("lti_tool_count"))
 			.replace(":contents",""+deploy.get("lti_content_count"))
 			.replace(":sites",""+deploy.get("lti_site_count"));
-		
+
 		context.put("deployData", deployData);
 		state.removeAttribute(STATE_SUCCESS);
 		return "lti_deploy_delete";
@@ -1596,7 +1595,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		if ( toolId == null ) toolId = stateToolId;
 		// output the tool id value to context
 		context.put("tool_id", toolId);
-		
+
 		Long key = null;
 		if ( toolId != null ) {
 			try {
@@ -1641,7 +1640,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 				if ( key != null ) tool = ltiService.getTool(key, getSiteId(state));
 			}
 			previousData = content;
-			
+
 			// whether the content has a site link created already?
 			String plstr = (String) content.get(LTIService.LTI_PLACEMENT);
 			ToolConfiguration siteLinkTool = SiteService.findTool(plstr);
@@ -1650,9 +1649,9 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 			}
 		}
 
-		// We will handle the tool_id field ourselves in the Velocity code	
+		// We will handle the tool_id field ourselves in the Velocity code
 		String [] contentForm = foorm.filterForm(null,ltiService.getContentModel(key, getSiteId(state)), null, "^tool_id:.*");
-        if ( contentForm == null || key == null ) {	
+        if ( contentForm == null || key == null ) {
                 addAlert(state,rb.getString("error.tool.not.found"));
                 return "lti_error";
         }
@@ -1666,7 +1665,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 			defaultData.put("fa_icon",tool.get(LTIService.LTI_FA_ICON));
 		}
         	previousData = defaultData;
-        	
+
         }
 
         String formInput = ltiService.formInput(previousData, contentForm);
@@ -1678,7 +1677,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 			Long visible = foorm.getLong(tool.get(LTIService.LTI_VISIBLE));
 			context.put("tool_visible", visible);
 		}
-		
+
 		return "lti_content_insert";
 	}
 
@@ -1695,13 +1694,13 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		String peid = ((JetspeedRunData) data).getJs_peid();
 		SessionState state = ((JetspeedRunData) data).getPortletSessionState(peid);
 		state.removeAttribute(STATE_POST);
-		
+
 		String id = reqProps.getProperty(LTIService.LTI_ID);
 		String toolId = reqProps.getProperty(LTIService.LTI_TOOL_ID);
 
 		// Does an insert when id is null and update when is is not null
 		Object retval = ltiService.insertToolContent(id, toolId, reqProps, getSiteId(state));
-		
+
 		Long contentKey = null;
 		Map<String,Object> content = null;
 		if ( retval instanceof String )
@@ -1779,7 +1778,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 			success = rb.getString("success.updated");
 		}
 		state.setAttribute(STATE_SUCCESS,success);
-		
+
 		String title = reqProps.getProperty(LTIService.LTI_PAGETITLE);
 
 		// Take the title from the content (or tool) definition
@@ -1825,7 +1824,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 				}
 				return;
 			}
-			
+
 			state.setAttribute(STATE_SUCCESS,rb.getString("success.link.add"));
 		}
 
@@ -2290,7 +2289,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 			String secretField = foorm.formInput(null,"secret:text:required=true:label=need.tool.secret:maxlength=255", rb);
 			context.put("secretField", secretField);
 		}
-		
+
 		String formInput = ltiService.formInput(previousData, contentForm);
 		context.put("formInput",formInput);
 
@@ -2366,16 +2365,27 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 			return "lti_editor_select";
 		}
 
+
+		String sessionid = "Missing";
+		Session s = SessionManager.getCurrentSession();
+		if (s != null) {
+			sessionid = s.getId();
+		}
+		String suffix = System.getProperty(SAKAI_SERVERID);
+
 		// Add New: panel=Config&tool_id=14
 		if ( ! doContent ) {
 			String returnUrl = serverConfigurationService.getToolUrl() + "/" + placement.getId() +
 				"/sakai.basiclti.admin.helper.helper" +
-				"?panel=CKEditorPostConfig" ;
+				"?panel=CKEditorPostConfig" +
+				"&" + RequestFilter.ATTR_SESSION + "=" +  URLEncoder.encode(sessionid+"."+suffix);
+
 			String configUrl = serverConfigurationService.getToolUrl() + "/" + placement.getId() +
 				"/sakai.basiclti.admin.helper.helper" +
 				"?panel=ContentConfig" +
 				"&returnUrl=" + URLEncoder.encode(returnUrl) +
-				"&tool_id=" + tool.get(LTIService.LTI_ID);
+				"&tool_id=" + tool.get(LTIService.LTI_ID) +
+				"&" + RequestFilter.ATTR_SESSION + "=" +  URLEncoder.encode(sessionid+"."+suffix);
 			context.put("forwardUrl",configUrl);
 			return "lti_content_redirect";
 		}
@@ -2383,6 +2393,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
                 String contentReturn = serverConfigurationService.getToolUrl() + "/" + placement.getId() +
                         "/sakai.basiclti.admin.helper.helper" +
                         "?eventSubmit_doContentItemEditorHandle=Save" +
+                        "&" + RequestFilter.ATTR_SESSION + "=" +  URLEncoder.encode(sessionid+"."+suffix) +
                         "&panel=PostContentItem" +
                         "&tool_id=" + tool.get(LTIService.LTI_ID);
 
@@ -2465,7 +2476,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		if ( id == null ) {
 			addAlert(state,rb.getString("error.id.not.found"));
 			return "lti_deploy_system";
-		}	
+		}
 		Long key = new Long(id);
 		Map<String,Object> content = ltiService.getContent(key, getSiteId(state));
 		if (  content == null ) {
@@ -2484,7 +2495,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		context.put("tool_id_long", tool_id_long);
 		context.put("content",content);
 		context.put("ltiService", ltiService);
-		
+
 		state.removeAttribute(STATE_SUCCESS);
 		return "lti_content_delete";
 	}
@@ -2515,7 +2526,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 			state.setAttribute(STATE_SUCCESS,rb.getString("success.deleted"));
 		} else {
 			addAlert(state,rb.getString("error.delete.fail"));
-		}	
+		}
 
 		if ( ToolUtils.isInlineRequest(data.getRequest()) ) {
 			switchPanel(state, "ToolSite");
@@ -2538,7 +2549,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		if ( id == null ) {
 			addAlert(state,rb.getString("error.id.not.found"));
 			return "lti_deploy_system";
-		}	
+		}
 		Long key = new Long(id);
 		Map<String,Object> content = ltiService.getContent(key, getSiteId(state));
 		if (  content == null ) {
@@ -2557,7 +2568,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		SessionState state = ((JetspeedRunData) data).getPortletSessionState(peid);
 		String id = data.getParameters().getString(LTIService.LTI_ID);
 		String button_text = data.getParameters().getString("button_text");
-		
+
 		Object retval = ltiService.insertToolSiteLink(id, button_text, getSiteId(state));
 		if ( retval instanceof String ) {
 			String prefix = ((String) retval).substring(0,2);
@@ -2572,7 +2583,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 			}
 			return;
 		}
-		
+
 		state.setAttribute(STATE_SUCCESS,rb.getString("success.link.add"));
 
 		if ( ToolUtils.isInlineRequest(data.getRequest()) ) {
@@ -2596,7 +2607,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		if ( id == null ) {
 			addAlert(state,rb.getString("error.id.not.found"));
 			return "lti_main";
-		}	
+		}
 		Long key = new Long(id);
 		Map<String,Object> content = ltiService.getContent(key, getSiteId(state));
 		if (  content == null ) {
@@ -2612,10 +2623,10 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 	{
 		String peid = ((JetspeedRunData) data).getJs_peid();
 		SessionState state = ((JetspeedRunData) data).getPortletSessionState(peid);
-		
+
 		String id = data.getParameters().getString(LTIService.LTI_ID);
 		Long key = id == null ? null:new Long(id);
-		
+
 		String rv = ltiService.deleteContentLink(key, getSiteId(state));
 		if (rv != null)
 		{
@@ -2645,7 +2656,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		state.removeAttribute(STATE_SUCCESS);
 		return "lti_top_refresh";
 	}
-	
+
 	//generates a search clause (SEARCH_FIELD_1:SEARCH_VALUE_1[#&#|#\\|#]SEARCH_FIELD_2:SEARCH_VALUE_2[#&#|#\\|#]...[#&#|#\\|#]SEARCH_FIELD_N:SEARCH_VALUE_N) and puts some parameters in the context
 	private String buildSearch(RunData data, Context context) {
         SessionState state = ((JetspeedRunData)data).getPortletSessionState(((JetspeedRunData)data).getJs_peid());

@@ -23,3 +23,7 @@
 		@extend .fa-times;
 	}
 }
+
+.cke_inner.cke_reset.cke_maximized {
+	position: fixed !important;
+}

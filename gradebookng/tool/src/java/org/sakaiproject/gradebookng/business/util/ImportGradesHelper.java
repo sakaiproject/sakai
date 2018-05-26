@@ -15,8 +15,8 @@
  */
 package org.sakaiproject.gradebookng.business.util;
 
-import au.com.bytecode.opencsv.CSVParser;
-import au.com.bytecode.opencsv.CSVReader;
+import com.opencsv.CSVParser;
+import com.opencsv.CSVReader;
 
 import java.io.IOException;
 import java.io.InputStream; 

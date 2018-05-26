@@ -19,11 +19,7 @@
 		<property name="defaultDataSource">
 			<ref bean="javax.sql.DataSource" />
 		</property>
-		
-		<property name="longDataSource">
-			<ref bean="javax.sql.LongDataSource" />
-		</property>
-		
+
 		<property name="autoDdl">
 			<value>${auto.ddl}</value>
 		</property>
@@ -420,11 +416,6 @@
        because it keeps the connection from being opened and held if it is not needed -->
     <bean id="javax.sql.LazyDataSource" class="org.springframework.jdbc.datasource.LazyConnectionDataSourceProxy">
        <property name="targetDataSource"><ref bean="javax.sql.DataSource" /></property>
-    </bean>
-
-    <!-- The "slow" connection pool for streaming downloads from db -->
-    <bean id="javax.sql.LongDataSource"
-            parent="javax.sql.BaseDataSource">
     </bean>
 
 	<!--  The "Global" Hibernate Session Factory -->
