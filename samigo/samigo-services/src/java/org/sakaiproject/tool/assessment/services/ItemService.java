@@ -25,6 +25,7 @@ package org.sakaiproject.tool.assessment.services;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 
 import org.slf4j.Logger;
@@ -190,9 +191,6 @@ public class ItemService
     }
   }
 
-
-
-
   /**
    * Save a question item.
    */
@@ -207,6 +205,22 @@ public class ItemService
       log.error(e.getMessage(), e);
 
       return item;
+    }
+  }
+
+  /**
+   * Save question items (in a single transaction for improved performance over sequential saveItem() invocations)
+   */
+  public List<ItemFacade> saveItems(List<ItemFacade> items)
+  {
+    try
+    {
+      return PersistenceService.getInstance().getItemFacadeQueries().saveItems(items);
+    }
+    catch (Exception e)
+    {
+      log.error(e.getMessage(), e);
+      return items;
     }
   }
 
