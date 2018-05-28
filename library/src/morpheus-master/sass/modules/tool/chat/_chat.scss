@@ -67,11 +67,11 @@
 						}
 						.chatListHeadWrapper {
 							padding: 8px 17px 0;
-							color: #888888;
+							color: $footerApp__chat__color-lighter;
 							text-align: center;
 						}
 						.shown_total {
-							color: #888888;
+							color: $footerApp__chat__color-lighter;
 							text-align: center;
 							margin: 0 17px 0 17px;
 							padding-bottom: 8px;
@@ -165,8 +165,8 @@
 											margin-right: 4px
 										}
 										.chatDate {
-											font-size: 9px;
-											color: #cacaca;
+											font-size: 10px;
+											color: $footerApp__chat__color-lighter;
 											display: inline-block;
 											margin-right: 32px;
 										}
@@ -178,8 +178,8 @@
 										line-height: 19px;
 										margin: 5px 0 5px 53px;
 										.chatMessageDate {
-											font-size: 9px;
-											color: #cacaca;
+											font-size: 0.8em;
+											color: $footerApp__chat__color-lighter;
 											position: absolute;
 											top: -13px;
 											display: none;

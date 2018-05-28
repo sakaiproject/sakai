@@ -29,28 +29,22 @@
 
 						<%@ include file="toolbar.jspf"%>
 
-                        <h:panelGroup rendered="#{UserPrefsTool.editorUpdated}"  style="margin-top:1em;display:inline-block;font-weight:normal">
+                        <t:div rendered="#{UserPrefsTool.editorUpdated}">
                                 <jsp:include page="prefUpdatedMsg.jsp"/>
-                        </h:panelGroup>
+                        </t:div>
 
-                        <h3>
+                        <h3 style="display: inline-block;">
                                 <h:outputText rendered="#{UserPrefsTool.prefShowTabLabelOption==true}" value="#{msgs.prefs_editor_tab_options}" />
                         </h3>
 
-                        <f:verbatim>
-                        <div>
-                        </f:verbatim>
-                        <h:outputText value="#{msgs.editor_prompt}"  rendered="#{UserPrefsTool.prefShowTabLabelOption==true}"/>
+                        <p class="instruction"><h:outputText value="#{msgs.editor_prompt}"  rendered="#{UserPrefsTool.prefShowTabLabelOption==true}"/></p>
                         <h:selectOneRadio value="#{UserPrefsTool.selectedEditorType}" layout="pageDirection"  rendered="#{UserPrefsTool.prefShowTabLabelOption==true}">
                                                 <f:selectItem itemValue="auto" itemLabel="#{msgs.editor_auto}"/>
                                                 <f:selectItem itemValue="basic" itemLabel="#{msgs.editor_basic}"/>
                                                 <f:selectItem itemValue="full" itemLabel="#{msgs.editor_full}"/>
                         </h:selectOneRadio>
-                        <f:verbatim>
-                        </div>
-                        </f:verbatim>
                         
-                        <div class="submit-buttons">
+                        <div class="submit-buttons act">
                                 <h:commandButton accesskey="s" id="submit" styleClass="active formButton" value="#{msgs.update_pref}" action="#{UserPrefsTool.processActionEditorSave}" onclick="SPNR.disableControlsAndSpin( this, null );" />
                                 <h:commandButton accesskey="x" id="cancel" styleClass="formButton" value="#{msgs.cancel_pref}" action="#{UserPrefsTool.processActionEditorFrmEdit}" onclick="SPNR.disableControlsAndSpin( this, null );" />
                         </div>

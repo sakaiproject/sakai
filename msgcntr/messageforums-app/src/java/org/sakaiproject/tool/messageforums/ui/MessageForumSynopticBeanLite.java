@@ -23,6 +23,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -42,10 +43,10 @@ import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.site.api.Site;
+import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.api.ToolConfiguration;
-import org.sakaiproject.site.cover.SiteService;
-import org.sakaiproject.tool.cover.SessionManager;
-import org.sakaiproject.tool.cover.ToolManager;
+import org.sakaiproject.tool.api.SessionManager;
+import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.tool.messageforums.PrivateMessagesTool;
 import org.sakaiproject.tool.messageforums.SynopticSiteSemesterComparator;
 import org.sakaiproject.tool.messageforums.SynopticSitesPreferencesComparator;
@@ -66,7 +67,7 @@ public class MessageForumSynopticBeanLite {
 	private AreaManager areaManager;
 	private PrivateMessageManager pvtMessageManager;
 	private int myContentsSize = -1;
-	private HashMap mfPageInSiteMap, sitesMap;
+	private Map mfPageInSiteMap, sitesMap;
 	private int myDisplayedSites = 0;
 	private static final String PERFORMANCE_2 = "2";
 	private String performance;
@@ -75,6 +76,25 @@ public class MessageForumSynopticBeanLite {
 	private Boolean disableMessages;
 	private Boolean disableForums;
 	private String disableMyWorkspaceDisabledMessage;
+	
+	/** Dependency Injected   */
+	private SiteService siteService;
+	private SessionManager sessionManager;
+	private ToolManager toolManager;
+
+	
+	public void setToolManager(ToolManager toolManager) {
+		this.toolManager = toolManager;
+	}
+
+	public void setSessionManager(SessionManager sessionManager) {
+		this.sessionManager = sessionManager;
+	}
+
+	public void setSiteService(SiteService siteService) {
+		this.siteService = siteService;
+	}
+
 	
 	public List<DecoratedSynopticMsgcntrItem> getContents(){
 
@@ -119,7 +139,7 @@ public class MessageForumSynopticBeanLite {
 			 * In theory sorting by TITLE_ASC seems like it would be slower, but that actually allows the query cache to find
 			 * it. If this is causing a slow down, check to see if portal changed it's getSites query.
 			 */
-			List<Site> sites = SiteService.getSites(
+			List<Site> sites = siteService.getSites(
 					org.sakaiproject.site.api.SiteService.SelectionType.ACCESS, null, null,
 					null, org.sakaiproject.site.api.SiteService.SortType.TITLE_ASC, null);
 			
@@ -238,7 +258,7 @@ public class MessageForumSynopticBeanLite {
 			//return empty synopticMsgcntrItem for anon users
 			Site site;
 			try {
-				site = SiteService.getSite(getContext());
+				site = siteService.getSite(getContext());
 				synItem = new SynopticMsgcntrItemImpl();
 				synItem.setSiteId(site.getId());
 				siteHomepageContent = new DecoratedSynopticMsgcntrItem(synItem, site);
@@ -257,7 +277,7 @@ public class MessageForumSynopticBeanLite {
 				Site site;
 				try {
 					//only add if the site exists:
-					site = SiteService.getSite(synItem.getSiteId());
+					site = siteService.getSite(synItem.getSiteId());
 					//check if the site title has changed:
 					if(synItem.getSiteTitle() != null && !synItem.getSiteTitle().equals(site.getTitle())){
 						//update all site titles in table
@@ -273,8 +293,8 @@ public class MessageForumSynopticBeanLite {
 				}					
 			}else{
 				//add a new entry to the table
-				String userId = SessionManager.getCurrentSessionUserId();
-				String siteId = ToolManager.getCurrentPlacement().getContext();
+				String userId = sessionManager.getCurrentSessionUserId();
+				String siteId = toolManager.getCurrentPlacement().getContext();
 				
 				
 				//calling resetMessagesAndForumSynopticInfo will create a new item (if needed) and 
@@ -289,7 +309,7 @@ public class MessageForumSynopticBeanLite {
 					Site site;
 					try {
 						//only add if the site exists:
-						site = SiteService.getSite(synopticMsgcntrItem.getSiteId());
+						site = siteService.getSite(synopticMsgcntrItem.getSiteId());
 						siteHomepageContent = new DecoratedSynopticMsgcntrItem(synopticMsgcntrItem, site);	
 					} catch (IdUnusedException e) {
 						//we not longer need this record so delete it
@@ -305,7 +325,7 @@ public class MessageForumSynopticBeanLite {
 	
 	  private String getSiteTitle(){	  
 		  try {
-			return SiteService.getSite(ToolManager.getCurrentPlacement().getContext()).getTitle();
+			return siteService.getSite(toolManager.getCurrentPlacement().getContext()).getTitle();
 		} catch (IdUnusedException e) {
 			log.error(e.getMessage(), e);
 		}
@@ -324,10 +344,10 @@ public class MessageForumSynopticBeanLite {
 			// get context id
 			final String siteId = getContext();
 
-			if (SiteService.getUserSiteId("admin").equals(siteId))
+			if (siteService.getUserSiteId("admin").equals(siteId))
 				return false;
 
-			myWorkspace = SiteService.isUserSite(siteId);
+			myWorkspace = siteService.isUserSite(siteId);
 
 			log.debug("Result of determining if My Workspace: " + myWorkspace);
 		}
@@ -342,7 +362,7 @@ public class MessageForumSynopticBeanLite {
 	 * 		String The site id (context) where tool currently located
 	 */
 	public String getContext() {
-		return ToolManager.getCurrentPlacement().getContext();
+		return toolManager.getCurrentPlacement().getContext();
 	}
 
 	public SynopticMsgcntrManager getSynopticMsgcntrManager() {
@@ -356,7 +376,7 @@ public class MessageForumSynopticBeanLite {
 
 
 	public String getCurrentUser(){
-		return SessionManager.getCurrentSessionUserId();
+		return sessionManager.getCurrentSessionUserId();
 	}
 
 	public String getServerUrl() {
@@ -492,7 +512,7 @@ public class MessageForumSynopticBeanLite {
 		}
 	
 		if (sitesMap.get(siteId) == null) {
-			Site site = SiteService.getSite(siteId);
+			Site site = siteService.getSite(siteId);
 			sitesMap.put(site.getId(), site);
 			return site;
 		}

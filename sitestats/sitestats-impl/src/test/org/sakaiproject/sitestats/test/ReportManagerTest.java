@@ -37,9 +37,11 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Mockito;
+import org.springframework.aop.framework.Advised;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.AbstractTransactionalJUnit4SpringContextTests;
+import org.springframework.test.context.junit4.AbstractJUnit4SpringContextTests;
 
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.event.api.Event;
@@ -62,25 +64,24 @@ import org.sakaiproject.sitestats.test.data.FakeData;
 import org.sakaiproject.sitestats.test.mocks.FakeEventRegistryService;
 import org.sakaiproject.sitestats.test.mocks.FakeServerConfigurationService;
 import org.sakaiproject.sitestats.test.mocks.FakeSite;
-import org.sakaiproject.sitestats.test.perf.mock.StubUtils;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.util.ResourceLoader;
 
-@ContextConfiguration(locations={
-		"/hbm-db.xml",
-		"/hibernate-test.xml"})
-@Slf4j
-public class ReportManagerTest extends AbstractTransactionalJUnit4SpringContextTests {
+import javax.annotation.Resource;
 
-	@Autowired
+@ContextConfiguration(locations = {"/hibernate-test.xml"})
+@Slf4j
+public class ReportManagerTest extends AbstractJUnit4SpringContextTests {
+
+	@Resource(name = "org.sakaiproject.sitestats.test.ReportManager")
 	private ReportManager					M_rm;
-	@Autowired
+	@Resource(name = "org.sakaiproject.sitestats.test.StatsManager")
 	private StatsManager					M_sm;
-	@Autowired
+	@Resource(name = "org.sakaiproject.sitestats.test.StatsUpdateManager")
 	private StatsUpdateManager				M_sum;
 	@Autowired
 	private StatsAuthz						M_sa;
-	@Autowired
+	@Resource(name = "org.sakaiproject.sitestats.test.DB")
 	private DB								db;
 	private SiteService						M_ss;
 	@Autowired
@@ -163,14 +164,17 @@ public class ReportManagerTest extends AbstractTransactionalJUnit4SpringContextT
 		((FakeEventRegistryService)M_ers).setSiteService(M_ss);
 		((FakeEventRegistryService)M_ers).setToolManager(M_tm);
 		((FakeEventRegistryService)M_ers).setStatsManager(M_sm);
-		((ReportManagerImpl)M_rm).setEventRegistryService(M_ers);
-		((StatsManagerImpl)M_sm).setSiteService(M_ss);
+		ReportManagerImpl rmi = (ReportManagerImpl) ((Advised) M_rm).getTargetSource().getTarget();
+		StatsManagerImpl smi = (StatsManagerImpl) ((Advised) M_sm).getTargetSource().getTarget();
+		StatsUpdateManagerImpl sumi = (StatsUpdateManagerImpl) ((Advised) M_sum).getTargetSource().getTarget();
+		rmi.setEventRegistryService(M_ers);
+		smi.setSiteService(M_ss);
 		//((StatsManagerImpl)M_sm).setContentHostingService(M_chs);
-		((StatsManagerImpl)M_sm).setResourceLoader(msgs);
-		((StatsManagerImpl)M_sm).setEnableSitePresences(true);
-		((ReportManagerImpl)M_rm).setResourceLoader(msgs);
-		((StatsUpdateManagerImpl)M_sum).setSiteService(M_ss);
-		((StatsUpdateManagerImpl)M_sum).setStatsManager(M_sm);
+		smi.setResourceLoader(msgs);
+		smi.setEnableSitePresences(true);
+		rmi.setResourceLoader(msgs);
+		sumi.setSiteService(M_ss);
+		sumi.setStatsManager(M_sm);
 		// This is needed to make the tests deterministic, otherwise on occasion the collect thread will run
 		// and break the tests.
 		M_sum.setCollectThreadEnabled(false);

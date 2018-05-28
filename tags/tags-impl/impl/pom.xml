@@ -40,7 +40,7 @@
     <dependency>
       <groupId>com.github.jknack</groupId>
       <artifactId>handlebars</artifactId>
-      <version>${handlebars.version}</version>
+      <version>${handlebars2.version}</version>
     </dependency>
     <dependency>
       <groupId>org.apache.commons</groupId>

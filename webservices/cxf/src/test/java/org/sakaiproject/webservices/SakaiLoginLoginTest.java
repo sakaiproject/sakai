@@ -20,6 +20,8 @@ import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.eq;
 
 import org.apache.cxf.jaxrs.client.WebClient;
+import javax.ws.rs.core.Form;
+
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -80,11 +82,11 @@ public class SakaiLoginLoginTest extends AbstractCXFTest {
 		// client call
 		client.accept("text/plain");
 		client.path("/" + getOperation());
-		client.query("id", "admin");
-		client.query("pw", "admin");
+		Form form = new Form();
+		form.param("id", "admin").param("pw", "admin"); 
 
 		// client result
-		String result = client.get(String.class);
+		String result = client.post(form, String.class);
 
 		// test verifications
 		assertNotNull(result);
@@ -100,11 +102,11 @@ public class SakaiLoginLoginTest extends AbstractCXFTest {
 		// client call
 		client.accept("text/plain");
 		client.path("/" + getOperation());
-		client.query("id", "admin");
-		client.query("pw", "fail");
+		Form form = new Form();
+		form.param("id", "admin").param("pw", "fail"); 
 
 		// client result
 		thrown.expect(RuntimeException.class);
-		client.get(String.class);
+		client.post(form, String.class);
 	}
 }

@@ -17,23 +17,22 @@ package org.sakaiproject.gradebookng;
 
 import org.apache.wicket.core.request.handler.PageProvider;
 import org.apache.wicket.core.request.handler.RenderPageRequestHandler;
-import org.apache.wicket.RuntimeConfigurationType;
-import org.apache.wicket.Application;
 import org.apache.wicket.protocol.http.WebApplication;
-import org.apache.wicket.session.ISessionStore;
 import org.apache.wicket.request.IRequestHandler;
 import org.apache.wicket.request.cycle.AbstractRequestCycleListener;
 import org.apache.wicket.request.cycle.RequestCycle;
 import org.apache.wicket.request.resource.PackageResourceReference;
-import org.apache.wicket.settings.IExceptionSettings;
 import org.apache.wicket.settings.IRequestCycleSettings.RenderStrategy;
 import org.apache.wicket.spring.injection.annot.SpringComponentInjector;
+
 import org.sakaiproject.gradebookng.framework.GradebookNgStringResourceLoader;
+import org.sakaiproject.gradebookng.tool.pages.AccessDeniedPage;
 import org.sakaiproject.gradebookng.tool.pages.ErrorPage;
 import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
 import org.sakaiproject.gradebookng.tool.pages.ImportExportPage;
 import org.sakaiproject.gradebookng.tool.pages.PermissionsPage;
 import org.sakaiproject.gradebookng.tool.pages.SettingsPage;
+import org.sakaiproject.gradebookng.tool.pages.StudentPage;
 
 /**
  * Main application class
@@ -52,6 +51,9 @@ public class GradebookNgApplication extends WebApplication {
 		mountPage("/settings", SettingsPage.class);
 		mountPage("/importexport", ImportExportPage.class);
 		mountPage("/permissions", PermissionsPage.class);
+		mountPage("/gradebook", StudentPage.class);
+		mountPage("/accessdenied", AccessDeniedPage.class);
+		mountPage("/error", ErrorPage.class);
 
 		// remove the version number from the URL so that browser refreshes re-render the page
 		getRequestCycleSettings().setRenderStrategy(RenderStrategy.ONE_PASS_RENDER);
@@ -75,12 +77,6 @@ public class GradebookNgApplication extends WebApplication {
 		// On Wicket session timeout, redirect to main page
 		// getApplicationSettings().setPageExpiredErrorPage(getHomePage());
 
-		// show internal error page rather than default developer page
-		// for production, set to SHOW_NO_EXCEPTION_PAGE
-		getExceptionSettings().setUnexpectedExceptionDisplay(IExceptionSettings.SHOW_EXCEPTION_PAGE);
-
-		final ISessionStore sessionStore = getSessionStore();
-
 		// Intercept any unexpected error stacktrace and take to our page
 		getRequestCycleListeners().add(new AbstractRequestCycleListener() {
 			@Override
@@ -96,12 +92,12 @@ public class GradebookNgApplication extends WebApplication {
 		getMarkupSettings().setStripWicketTags(true);
 		getMarkupSettings().setStripComments(true);
 		getMarkupSettings().setCompressWhitespace(true);
-
 	}
 
 	/**
 	 * The main page for our app
 	 *
+	 * @return
 	 * @see org.apache.wicket.Application#getHomePage()
 	 */
 	@Override
@@ -112,7 +108,5 @@ public class GradebookNgApplication extends WebApplication {
 	/**
 	 * Constructor
 	 */
-	public GradebookNgApplication() {
-	}
-
+	public GradebookNgApplication() {}
 }

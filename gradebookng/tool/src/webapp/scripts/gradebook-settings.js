@@ -78,10 +78,11 @@ GradebookCategorySettings.prototype.updateCategoryOrders = function() {
 };
 
 /**************************************************************************************
- * Let's initialize our GradebookSettings 
+ * Initialise
  */
 $(function() {
   sakai.gradebookng = {
     settings: new GradebookSettings($("#gradebookSettings"))
   };
+      
 });

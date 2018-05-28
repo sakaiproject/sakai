@@ -15,19 +15,25 @@
  */
 package org.sakaiproject.assignment.impl;
 
-import au.com.bytecode.opencsv.CSVWriter;
-
-import org.apache.poi.hssf.usermodel.*;
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.CellType;
-import org.apache.poi.ss.usermodel.Font;
-import org.apache.poi.ss.usermodel.IndexedColors;
-import org.sakaiproject.util.Validator;
-
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+
+import org.apache.poi.hssf.usermodel.HSSFFont;
+import org.apache.poi.hssf.usermodel.HSSFRichTextString;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.CellType;
+import org.apache.poi.ss.usermodel.Font;
+import org.apache.poi.ss.usermodel.IndexedColors;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.sakaiproject.util.Validator;
+
+import au.com.bytecode.opencsv.CSVWriter;
 
 /**
  * Abstracts away writing to a CSV or Excel file.
@@ -121,8 +127,8 @@ class CsvExporter extends SpreadsheetExporter {
 
 class ExcelExporter extends SpreadsheetExporter {
 
-    private final HSSFWorkbook gradesWorkbook;
-    private final HSSFSheet dataSheet;
+    private final Workbook gradesWorkbook;
+    private final Sheet dataSheet;
     private int rowCount = 0;
 
     ExcelExporter(String title, String gradeType) {
@@ -130,23 +136,23 @@ class ExcelExporter extends SpreadsheetExporter {
         dataSheet = gradesWorkbook.createSheet(Validator.escapeZipEntry(title));
     }
 
-    private HSSFCellStyle createHeaderStyle(){
+    private CellStyle createHeaderStyle(){
         //TO-DO read style information from sakai.properties
-        HSSFFont font = gradesWorkbook.createFont();
+        Font font = gradesWorkbook.createFont();
         font.setFontName(HSSFFont.FONT_ARIAL);
         font.setColor(IndexedColors.PLUM.getIndex());
         font.setBold(true);
-        HSSFCellStyle cellStyle = gradesWorkbook.createCellStyle();
+        CellStyle cellStyle = gradesWorkbook.createCellStyle();
         cellStyle.setFont(font);
         return cellStyle;
     }
 
     @Override
     public SpreadsheetExporter addHeader(String... values) {
-        HSSFCellStyle cellStyle = createHeaderStyle();
-        HSSFRow headerRow = dataSheet.createRow(rowCount++);
+        CellStyle cellStyle = createHeaderStyle();
+        Row headerRow = dataSheet.createRow(rowCount++);
         for (int i = 0; i < values.length; i++) {
-            HSSFCell cell = headerRow.createCell(i);
+            Cell cell = headerRow.createCell(i);
             cell.setCellStyle(cellStyle);
             cell.setCellValue(new HSSFRichTextString(values[i]));
         }
@@ -155,9 +161,9 @@ class ExcelExporter extends SpreadsheetExporter {
 
     @Override
     public SpreadsheetExporter addRow(String... values) {
-        HSSFRow dataRow = dataSheet.createRow(rowCount++);
+        Row dataRow = dataSheet.createRow(rowCount++);
         for (int i = 0; i < values.length; i++) {
-            HSSFCell cell = dataRow.createCell(i);
+            Cell cell = dataRow.createCell(i);
             cell.setCellType(CellType.STRING);
             cell.setCellValue(values[i]);
         }

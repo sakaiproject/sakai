@@ -366,4 +366,10 @@ $overview-portlet-title-background-color: $tool-tab-background-color !default;
 $instruction-color: #5c5c5c !default;
 $instruction-background-color: #fff !default;
 
+// Accessibility
+// This should be visible based on your button colors and is based on webkit's default
+
+$focus-outline-color: #5b9dd9;
+
+
 @import url(#{$font-family-url});

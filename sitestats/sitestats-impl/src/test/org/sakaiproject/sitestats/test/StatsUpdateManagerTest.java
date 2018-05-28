@@ -23,7 +23,6 @@ import static org.easymock.EasyMock.createMock;
 import static org.easymock.EasyMock.expect;
 import static org.easymock.EasyMock.replay;
 import static org.easymock.EasyMock.reset;
-import static org.junit.runners.MethodSorters.NAME_ASCENDING;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -33,9 +32,9 @@ import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
 
+import lombok.extern.slf4j.Slf4j;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.FixMethodOrder;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -64,19 +63,23 @@ import org.sakaiproject.sitestats.test.data.FakeData;
 import org.sakaiproject.sitestats.test.mocks.FakeEvent;
 import org.sakaiproject.sitestats.test.mocks.FakeEventRegistryService;
 import org.sakaiproject.sitestats.test.mocks.FakeSite;
+import org.springframework.aop.framework.Advised;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.AbstractTransactionalJUnit4SpringContextTests;
+import org.springframework.test.context.junit4.AbstractJUnit4SpringContextTests;
 
-@FixMethodOrder(NAME_ASCENDING)
-@ContextConfiguration(locations={"/hbm-db.xml", "/hibernate-test.xml"})
-public class StatsUpdateManagerTest extends AbstractTransactionalJUnit4SpringContextTests {
+import javax.annotation.Resource;
 
-	@Autowired
-	private StatsUpdateManager			M_sum;
-	private StatsManager				M_sm;
-	@Autowired
+@ContextConfiguration(locations = {"/hibernate-test.xml"})
+@Slf4j
+public class StatsUpdateManagerTest extends AbstractJUnit4SpringContextTests {
+
+	@Resource(name = "org.sakaiproject.sitestats.test.StatsManager")
+	private StatsManager					M_sm;
+	@Resource(name = "org.sakaiproject.sitestats.test.StatsUpdateManager")
+	private StatsUpdateManager				M_sum;
+    @Resource(name = "org.sakaiproject.sitestats.test.DB")
 	private DB							db;
 	private SiteService					M_ss;
 	@Autowired
@@ -105,8 +108,8 @@ public class StatsUpdateManagerTest extends AbstractTransactionalJUnit4SpringCon
 		expect(M_ss.isSpecialSite("non_existent_site")).andStubReturn(false);
 		// apply
 		replay(M_ss);
-		((StatsUpdateManagerImpl)M_sum).setSiteService(M_ss);
-		
+		StatsUpdateManagerImpl sumi = (StatsUpdateManagerImpl) ((Advised) M_sum).getTargetSource().getTarget();
+		sumi.setSiteService(M_ss);
 		// Stats Manager
 		M_sm = createMock(StatsManager.class);
 		// Default values
@@ -115,7 +118,7 @@ public class StatsUpdateManagerTest extends AbstractTransactionalJUnit4SpringCon
 		expect(M_sm.isEnableSitePresences()).andStubReturn(true);	
 		// apply
 		replay(M_sm);
-		((StatsUpdateManagerImpl)M_sum).setStatsManager(M_sm);
+		sumi.setStatsManager(M_sm);
 		// Setups fake dependencies.
 		M_ers.setStatsManager(M_sm);
 		// By default we don't enable the collection thread as it can interfere with tests.
@@ -758,12 +761,12 @@ public class StatsUpdateManagerTest extends AbstractTransactionalJUnit4SpringCon
 	
 	@SuppressWarnings("unchecked")
 	@Test
-	public void testConfigIsShowAnonymousAccessEvents() {
+	public void testConfigIsShowAnonymousAccessEvents() throws Exception {
 		db.deleteAll();
 		// #3: ShowAnonymousAccessEvents
 		Assert.assertEquals(true, M_sm.isShowAnonymousAccessEvents());
 		// make sure it processes access events from anonymous
-		Event e1 = M_sum.buildEvent(new Date(), FakeData.EVENT_CONTENTNEW, "/content/group/"+FakeData.SITE_A_ID+"/resource_id", FakeData.SITE_A_ID, "?", "session-id-a");
+		Event e1 = M_sum.buildEvent(new Date(), FakeData.EVENT_CONTENTNEW, "/content/group/"+FakeData.SITE_A_ID+"/resource_id", FakeData.SITE_A_ID, EventTrackingService.UNKNOWN_USER, "session-id-a");
 		Event e2 = M_sum.buildEvent(new Date(), FakeData.EVENT_CONTENTNEW, "/content/group/"+FakeData.SITE_A_ID+"/resource_id", FakeData.SITE_A_ID, FakeData.USER_A_ID, "session-id-a");
 		M_sum.collectEvents(Arrays.asList(e1, e2));
 		List<ResourceStat> results = (List<ResourceStat>) db.getResultsForClass(ResourceStatImpl.class);
@@ -774,7 +777,8 @@ public class StatsUpdateManagerTest extends AbstractTransactionalJUnit4SpringCon
 		expect(M_sm.isShowAnonymousAccessEvents()).andReturn(false).anyTimes();
 		expect(M_sm.isEnableSitePresences()).andReturn(true).anyTimes();
 		replay(M_sm);
-		((StatsUpdateManagerImpl)M_sum).setStatsManager(M_sm);		
+        StatsUpdateManagerImpl sumi = (StatsUpdateManagerImpl) ((Advised) M_sum).getTargetSource().getTarget();
+		sumi.setStatsManager(M_sm);
 		Assert.assertEquals(false, M_sm.isShowAnonymousAccessEvents());
 		M_sum.collectEvents(Arrays.asList(e1, e2));
 		results = (List<ResourceStat>) db.getResultsForClass(ResourceStatImpl.class);
@@ -789,7 +793,7 @@ public class StatsUpdateManagerTest extends AbstractTransactionalJUnit4SpringCon
 	
 	@SuppressWarnings("unchecked")
 	@Test
-	public void testConfigIsEventContextSupported() {
+	public void testConfigIsEventContextSupported() throws Exception {
 		db.deleteAll();
 		// #3: EventContextSupported
 		Assert.assertEquals(true, M_sm.isEventContextSupported());
@@ -805,7 +809,8 @@ public class StatsUpdateManagerTest extends AbstractTransactionalJUnit4SpringCon
 		expect(M_sm.isShowAnonymousAccessEvents()).andReturn(true).anyTimes();
 		expect(M_sm.isEnableSitePresences()).andReturn(true).anyTimes();
 		replay(M_sm);
-		((StatsUpdateManagerImpl)M_sum).setStatsManager(M_sm);		
+        StatsUpdateManagerImpl sumi = (StatsUpdateManagerImpl) ((Advised) M_sum).getTargetSource().getTarget();
+		sumi.setStatsManager(M_sm);
 		Assert.assertEquals(false, M_sm.isEventContextSupported());
 		e1 = M_sum.buildEvent(new Date(), FakeData.EVENT_CONTENTNEW, "/content/group/non_existent_site/resource_id", FakeData.SITE_A_ID, FakeData.USER_A_ID, "session-id-a");
 		e2 = M_sum.buildEvent(new Date(), FakeData.EVENT_CONTENTNEW, "/content/group/"+FakeData.SITE_B_ID+"/resource_id", null, FakeData.USER_B_ID, "session-id-a");

@@ -16,37 +16,79 @@
 
 package org.sakaiproject.user.impl;
 
-import java.util.*;
-
-import lombok.extern.slf4j.Slf4j;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Observable;
+import java.util.Observer;
+import java.util.Set;
+import java.util.Stack;
+import java.util.TreeSet;
+import java.util.Vector;
 
 import org.apache.commons.lang3.StringUtils;
-
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-
-import org.sakaiproject.authz.api.*;
+import org.sakaiproject.authz.api.AuthzGroupService;
+import org.sakaiproject.authz.api.AuthzPermissionException;
+import org.sakaiproject.authz.api.FunctionManager;
+import org.sakaiproject.authz.api.GroupNotDefinedException;
+import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.component.cover.ComponentManager;
-import org.sakaiproject.entity.api.*;
+import org.sakaiproject.entity.api.Entity;
+import org.sakaiproject.entity.api.EntityManager;
+import org.sakaiproject.entity.api.HttpAccess;
+import org.sakaiproject.entity.api.Reference;
+import org.sakaiproject.entity.api.ResourceProperties;
+import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.id.api.IdManager;
 import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.MemoryService;
-import org.sakaiproject.time.api.Time;
 import org.sakaiproject.time.api.TimeService;
 import org.sakaiproject.tool.api.SessionBindingEvent;
 import org.sakaiproject.tool.api.SessionBindingListener;
 import org.sakaiproject.tool.api.SessionManager;
-import org.sakaiproject.user.api.*;
+import org.sakaiproject.user.api.AuthenticatedUserProvider;
+import org.sakaiproject.user.api.AuthenticationIdUDP;
+import org.sakaiproject.user.api.AuthenticationManager;
+import org.sakaiproject.user.api.ContextualUserDisplayService;
+import org.sakaiproject.user.api.DisplayAdvisorUDP;
+import org.sakaiproject.user.api.DisplaySortAdvisorUPD;
+import org.sakaiproject.user.api.ExternalUserSearchUDP;
+import org.sakaiproject.user.api.PasswordPolicyProvider;
+import org.sakaiproject.user.api.User;
+import org.sakaiproject.user.api.UserAlreadyDefinedException;
+import org.sakaiproject.user.api.UserDirectoryProvider;
+import org.sakaiproject.user.api.UserDirectoryService;
+import org.sakaiproject.user.api.UserEdit;
+import org.sakaiproject.user.api.UserFactory;
+import org.sakaiproject.user.api.UserIdInvalidException;
+import org.sakaiproject.user.api.UserLockedException;
+import org.sakaiproject.user.api.UserNotDefinedException;
+import org.sakaiproject.user.api.UserPermissionException;
+import org.sakaiproject.user.api.UsersShareEmailUDP;
 import org.sakaiproject.util.BaseResourceProperties;
 import org.sakaiproject.util.BaseResourcePropertiesEdit;
 import org.sakaiproject.util.StringUtil;
 import org.sakaiproject.util.Validator;
 import org.sakaiproject.util.api.FormattedText;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * <p>
@@ -82,7 +124,10 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 
 	/** A cache of users */
 	protected Cache<String, UserEdit> m_callCache = null;
-	
+
+	/** A cache of users' id/eid map */
+	protected Cache<String, String> m_userCache = null;
+
 	/** Optional service to provide site-specific aliases for a user's display ID and display name. */
 	protected ContextualUserDisplayService m_contextualUserDisplayService = null;
 	
@@ -540,6 +585,7 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 			}
 
             // caching for users
+            m_userCache = memoryService().getCache("org.sakaiproject.user.api.UserDirectoryService");
             m_callCache = memoryService().getCache("org.sakaiproject.user.api.UserDirectoryService.callCache");
             if (!m_callCache.isDistributed()) {
                 // KNL_1229 use an Observer for cache cleanup when the cache is not distributed
@@ -621,7 +667,9 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
                     )
                 ) {
                     String userRef = event.getResource();
-                    removeCachedUser(userRef);
+                    UserEdit u = getCachedUser(userRef);
+                    String oldEid = u != null ? u.getEid() : null;
+                    removeCachedUser(userRef, oldEid);
                 }
             }
 
@@ -638,8 +686,8 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 		m_provider = null;
 		m_anon = null;
 		m_passwordPolicyProvider = null;
-        m_callCache.close();
-        m_userCacheObserver = null;
+		m_callCache.close();
+		m_userCacheObserver = null;
 
 		log.info("destroy()");
 	}
@@ -1592,7 +1640,7 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 		}
 
 		// Remove from cache.
-		removeCachedUser(ref);
+		removeCachedUser(ref, user.getEid());
 	}
 
 	/**
@@ -1706,9 +1754,8 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 		edit.m_createdUserId = current;
 		edit.m_lastModifiedUserId = current;
 
-		Time now = timeService().newTime();
-		edit.m_createdTime = now;
-		edit.m_lastModifiedTime = (Time) now.clone();
+		edit.m_createdInstant = Instant.now();
+		edit.m_lastModifiedInstant = Instant.now();
 	}
 
 	/**
@@ -1719,7 +1766,7 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 		String current = sessionManager().getCurrentSessionUserId();
 
 		edit.m_lastModifiedUserId = current;
-		edit.m_lastModifiedTime = timeService().newTime();
+		edit.m_lastModifiedInstant = Instant.now();
 	}
 
 	/**
@@ -1785,11 +1832,16 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 		}
 	}
 
-	protected void removeCachedUser(String ref)
+	protected void removeCachedUser(String ref, String eid)
 	{
 		if (m_callCache != null)
 		{
 			m_callCache.remove(ref);
+		}
+
+		if (m_userCache != null && StringUtils.isNotBlank(eid))
+		{
+			m_userCache.remove(IDCACHE + eid);
 		}
 	}
 
@@ -1980,6 +2032,7 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 				}
 				user.setEid(newEmail);
 				user.setEmail(newEmail);
+				((BaseUserEdit) user).setEvent(SECURE_UPDATE_USER_ANY);
 				commitEdit(user);
 				return true;
 			}
@@ -1996,6 +2049,38 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 		}
 	}
 
+	public boolean updateUserEid(String id, String newEid)
+	{
+		try {
+			List<String> locksSucceeded = new ArrayList<String>();
+
+			List<String> locks = new ArrayList<String>();
+			locks.add(SECURE_UPDATE_USER_ANY);
+			locksSucceeded = unlock(locks, userReference(id));
+
+			if(!locksSucceeded.isEmpty()) {
+				UserEdit user = m_storage.edit(id);
+				if (user == null) {
+					log.warn("Can't find user " + id + " when trying to update user eid");
+					return false;
+				}
+				user.setEid(newEid);
+				((BaseUserEdit) user).setEvent(SECURE_UPDATE_USER_ANY);
+				commitEdit(user);
+				return true;
+			}
+			else {
+				log.warn("User with id: "+id+" failed permission checks" );
+				return false;
+			}
+		} catch (UserPermissionException e) {
+			log.warn("You do not have sufficient permission to edit the user eid with Id: "+id, e);
+			return false;
+		} catch (UserAlreadyDefinedException e) {
+			log.error("A user already exists with EID of: "+id +"having eid :"+ newEid, e);
+			return false;
+		}
+	}
 
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * UserEdit implementation
@@ -2045,10 +2130,10 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 		protected String m_lastModifiedUserId = null;
 
 		/** The time created. */
-		protected Time m_createdTime = null;
+		protected Instant m_createdInstant = null;
 
 		/** The time last modified. */
-		protected Time m_lastModifiedTime = null;
+		protected Instant m_lastModifiedInstant = null;
 
 		/** If editing the first name is restricted **/
 		protected boolean m_restrictedFirstName = false;
@@ -2141,13 +2226,13 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 			String time = StringUtils.trimToNull(el.getAttribute("created-time"));
 			if (time != null)
 			{
-				m_createdTime = timeService().newTimeGmt(time);
+				m_createdInstant = Instant.ofEpochMilli(timeService().newTimeGmt(time).getTime());
 			}
 
 			time = StringUtils.trimToNull(el.getAttribute("modified-time"));
 			if (time != null)
 			{
-				m_lastModifiedTime = timeService().newTimeGmt(time);
+				m_lastModifiedInstant = Instant.ofEpochMilli(timeService().newTimeGmt(time).getTime());
 			}
 
 			// the children (roles, properties)
@@ -2174,21 +2259,21 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 					{
 						m_lastModifiedUserId = m_properties.getProperty("CHEF:modifiedby");
 					}
-					if (m_createdTime == null)
+					if (m_createdInstant == null)
 					{
 						try
 						{
-							m_createdTime = m_properties.getTimeProperty("DAV:creationdate");
+							m_createdInstant = m_properties.getInstantProperty("DAV:creationdate");
 						}
 						catch (Exception ignore)
 						{
 						}
 					}
-					if (m_lastModifiedTime == null)
+					if (m_lastModifiedInstant == null)
 					{
 						try
 						{
-							m_lastModifiedTime = m_properties.getTimeProperty("DAV:getlastmodified");
+							m_lastModifiedInstant = m_properties.getInstantProperty("DAV:getlastmodified");
 						}
 						catch (Exception ignore)
 						{
@@ -2229,7 +2314,7 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 		 *        The modified on property.
 		 */
 		public BaseUserEdit(String id, String eid, String email, String firstName, String lastName, String type, String pw,
-				String createdBy, Time createdOn, String modifiedBy, Time modifiedOn)
+				String createdBy, Instant createdOn, String modifiedBy, Instant modifiedOn)
 		{
 			m_id = id;
 			m_eid = eid;
@@ -2240,8 +2325,8 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 			m_pw = pw;
 			m_createdUserId = createdBy;
 			m_lastModifiedUserId = modifiedBy;
-			m_createdTime = createdOn;
-			m_lastModifiedTime = modifiedOn;
+			if (createdOn != null) m_createdInstant = createdOn;
+			if (modifiedBy != null) m_lastModifiedInstant = modifiedOn;
 
 			// setup for properties, but mark them lazy since we have not yet established them from data
 			BaseResourcePropertiesEdit props = new BaseResourcePropertiesEdit();
@@ -2266,9 +2351,9 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 			m_pw = ((BaseUserEdit) user).m_pw;
 			m_createdUserId = ((BaseUserEdit) user).m_createdUserId;
 			m_lastModifiedUserId = ((BaseUserEdit) user).m_lastModifiedUserId;
-			if (((BaseUserEdit) user).m_createdTime != null) m_createdTime = (Time) ((BaseUserEdit) user).m_createdTime.clone();
-			if (((BaseUserEdit) user).m_lastModifiedTime != null)
-				m_lastModifiedTime = (Time) ((BaseUserEdit) user).m_lastModifiedTime.clone();
+			if (((BaseUserEdit) user).m_createdInstant != null) m_createdInstant = (Instant) ((BaseUserEdit) user).m_createdInstant;
+			if (((BaseUserEdit) user).m_lastModifiedInstant != null)
+				m_lastModifiedInstant = (Instant) ((BaseUserEdit) user).m_lastModifiedInstant;
 
 			m_properties = new BaseResourcePropertiesEdit();
 			m_properties.addAll(user.getProperties());
@@ -2301,15 +2386,18 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 			user.setAttribute("email", getEmail());
 			user.setAttribute("created-id", m_createdUserId);
 			user.setAttribute("modified-id", m_lastModifiedUserId);
+			DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyyMMddHHmmssSSS");
 			
-			if (m_createdTime != null)
+			if (m_createdInstant != null)
 			{
-				user.setAttribute("created-time", m_createdTime.toString());
+				LocalDateTime localDateTime = LocalDateTime.ofInstant(m_createdInstant, ZoneId.of("UTC"));
+				user.setAttribute("created-time", localDateTime.format(dtf));
 			}
 
-			if (m_lastModifiedTime != null)
+			if (m_lastModifiedInstant != null)
 			{
-				user.setAttribute("modified-time", m_lastModifiedTime.toString());
+				LocalDateTime localDateTime = LocalDateTime.ofInstant(m_lastModifiedInstant, ZoneId.of("UTC"));
+				user.setAttribute("modified-time", localDateTime.format(dtf));
 			}
 
 			// properties
@@ -2416,29 +2504,14 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 		/**
 		 * @inheritDoc
 		 */
-		public Time getCreatedTime()
-		{
-			return m_createdTime;
-		}
-
-		/**
-		 * @inheritDoc
-		 */
 		public Date getCreatedDate()
 		{
 			Date date = null;
-			if (m_createdTime != null) 
+			if (m_createdInstant != null) 
 			{
-				date = new Date(m_createdTime.getTime());
+				date = new Date(m_createdInstant.toEpochMilli());
 			} 
 			return date;
-		}
-		/**
-		 * @inheritDoc
-		 */
-		public Time getModifiedTime()
-		{
-			return m_lastModifiedTime;
 		}
 
 		/**
@@ -2447,8 +2520,8 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 		public Date getModifiedDate()
 		{
 			Date date = null;
-			if (m_lastModifiedTime != null) {
-				date = new Date(m_lastModifiedTime.getTime());
+			if (m_lastModifiedInstant != null) {
+				date = new Date(m_lastModifiedInstant.getEpochSecond());
 			}
 			return date;
 		}

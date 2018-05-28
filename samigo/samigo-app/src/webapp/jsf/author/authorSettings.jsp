@@ -44,7 +44,7 @@
       <title><h:outputText value="#{assessmentSettingsMessages.sakai_assessment_manager} #{assessmentSettingsMessages.dash} #{assessmentSettingsMessages.settings}" /></title>
       <samigo:script path="/jsf/widget/hideDivision/hideDivision.js"/>
       <samigo:script path="/jsf/widget/colorpicker/colorpicker.js"/>
-      <script type="text/javascript" src="/library/js/lang-datepicker/lang-datepicker.js"></script>
+      <samigo:script path="/../library/js/lang-datepicker/lang-datepicker.js"/>
       <samigo:script path="/js/authoring.js"/>
       
       <script type="text/javascript">
@@ -72,6 +72,37 @@
           // adjust the height of the iframe to accomodate the expansion from the accordion
           $("body").height($("body").outerHeight() + 900);
 
+          checkNav = function() {
+              QuesFormatRadios = ["assessmentSettingsAction\\:assessmentFormat\\:0", "assessmentSettingsAction\\:assessmentFormat\\:1", "assessmentSettingsAction\\:assessmentFormat\\:2"];
+
+              enabled = true;
+              if ($("#assessmentSettingsAction\\:itemNavigation\\:0").is(":checked")) {
+                  enabled = false;
+              }
+
+              if (enabled) {
+                  $('#assessmentSettingsAction\\:markForReview1').removeAttr("disabled");
+                  $('#assessmentSettingsAction\\:markForReview1').parent().toggleClass("placeholder");
+                  QuesFormatRadios.forEach( function(v, i, a) {
+                      $('label[for="' + v + '"]').toggleClass("placeholder");
+                      $("#" + v).removeAttr("disabled");
+                  });
+              } else {
+                  $('#assessmentSettingsAction\\:markForReview1').attr("disabled", true);
+                  $('#assessmentSettingsAction\\:markForReview1').attr("checked", false);
+                  $('#assessmentSettingsAction\\:markForReview1').parent().toggleClass("placeholder");
+                  QuesFormatRadios.forEach( function(v, i, a) {
+                      $('#assessmentSettingsAction\\:assessmentFormat\\:0').click();
+                      $('label[for="' + v + '"]').toggleClass("placeholder");
+                      $("#" + v).attr("disabled", true);
+                  });
+              }
+          };
+
+          $('#assessmentSettingsAction\\:itemNavigation\\:0').change(checkNav);
+          $('#assessmentSettingsAction\\:itemNavigation\\:1').change(checkNav);
+          checkNav();
+
           // SAM-2323 jquery-UI datepicker
           localDatePicker({
               input: '#assessmentSettingsAction\\:startDate',
@@ -93,7 +124,7 @@
               input: '#assessmentSettingsAction\\:retractDate',
               useTime: 1,
               parseFormat: 'YYYY-MM-DD HH:mm:ss',
-              allowEmptyDate: false,
+              allowEmptyDate: true,
               val: '<h:outputText value="#{assessmentSettings.retractDate}"><f:convertDateTime pattern="yyyy-MM-dd HH:mm:ss"/></h:outputText>',
               ashidden: { iso8601: 'retractDateISO8601' }
           });

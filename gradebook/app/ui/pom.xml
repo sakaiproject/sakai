@@ -84,17 +84,6 @@
       <groupId>org.sakaiproject.edu-services.sections</groupId>
       <artifactId>sections-api</artifactId>
     </dependency>
-<!-- Standalone component -->
-<!-- why?
-    <dependency>
-      <groupId>org.sakaiproject.edu-services.sections</groupId>
-      <artifactId>sections-impl-standalone</artifactId>
-    </dependency>  -->
-<!-- Used only for test data. -->
-    <dependency>
-      <groupId>org.sakaiproject.edu-services.sections</groupId>
-      <artifactId>sections-integrationsupport</artifactId>
-    </dependency>
 <!-- this is required for any Sakai JSF tool -->
     <dependency>
       <groupId>org.sakaiproject.jsf</groupId>

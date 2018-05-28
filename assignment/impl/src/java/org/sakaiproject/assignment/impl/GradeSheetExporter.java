@@ -31,11 +31,10 @@ import java.util.Optional;
 import java.util.TreeMap;
 import java.util.regex.Pattern;
 
-import lombok.Setter;
-import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -57,6 +56,9 @@ import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.SortedIterator;
+
+import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Exporter for the assignments grades spreadsheet. This encapsulates all the Apache POI code.
@@ -225,7 +227,7 @@ public class GradeSheetExporter {
                                             try {
                                                 // numeric cell type?
                                                 String grade = null;
-                                                if (StringUtils.trimToNull(a.getProperties().get(AssignmentServiceConstants.PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT)) != null) {
+                                                if (StringUtils.isNotBlank(a.getProperties().get(AssignmentServiceConstants.PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT))) {
                                                     grade = assignmentService.getGradeForUserInGradeBook(submission.getAssignment().getId(), userId);
                                                 }
 
@@ -322,7 +324,7 @@ public class GradeSheetExporter {
                     rowNum = headerRowNumber;
                     row = sheet.getRow(rowNum++);
                     cell = row.createCell(cellNum);
-                    cell.setCellType(1);
+                    cell.setCellType(CellType.STRING);
                     cell.setCellValue(rb.getString("gen.notes"));
                 }
 
@@ -343,23 +345,23 @@ public class GradeSheetExporter {
                     for (Object rowValue : rowValues) {
                         if (rowValue instanceof FloatCell) {
                             FloatCell floatValue = (FloatCell) rowValue;
-                            cell = sheetRow.createCell(column++, Cell.CELL_TYPE_NUMERIC);
+                            cell = sheetRow.createCell(column++, CellType.NUMERIC);
                             cell.setCellValue(floatValue.value);
                             style = wb.createCellStyle();
                             style.setDataFormat(wb.createDataFormat().getFormat(floatValue.format));
                             cell.setCellStyle(style);
                         } else if (rowValue != null) {
-                            cell = sheetRow.createCell(column++, Cell.CELL_TYPE_STRING);
+                            cell = sheetRow.createCell(column++, CellType.STRING);
                             cell.setCellValue(rowValue.toString());
                         } else {
-                            cell = sheetRow.createCell(column++, Cell.CELL_TYPE_STRING);
+                            cell = sheetRow.createCell(column++, CellType.STRING);
                             cell.setCellValue(rb.getString("listsub.nosub"));
                         }
                     }
                     if (isNotesEnabled) {
                         int col = column;
                         for (String note : submitter.notes) {
-                            Cell noteCell = sheetRow.createCell(col++, Cell.CELL_TYPE_STRING);
+                            Cell noteCell = sheetRow.createCell(col++, CellType.STRING);
                             noteCell.setCellValue(note);
                         }
                     }

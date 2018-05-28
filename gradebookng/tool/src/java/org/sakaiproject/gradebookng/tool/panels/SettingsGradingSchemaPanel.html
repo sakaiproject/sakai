@@ -14,12 +14,11 @@
 		</div>
 		<div wicket:id="settingsGradingSchemaPanel" id="settingsGradingSchema" class="panel-collapse collapse" role="tabpanel" aria-labelledby="settingsGradingSchemaHeader">
 			<div class="panel-body">
-				
 
 				<div class="container-fluid">
-					<div class="row pull-left">
-						<div class="col pull-left">
-						
+					<div class="row">
+						<div class="col-md-4">
+							
 							<!--  schema selector --> 
 							<div class="form-group">
 								<label for="gradingschemaType"><wicket:message key="settingspage.gradingschema.type" /></label>
@@ -28,6 +27,9 @@
 								</select>
 							</div>
 							
+							<!--  message about duplicates -->
+							<div class="messageError" wicket:id="duplicateEntries">Duplicates found.</div>
+						
 							<!--  schema table -->
 							<div wicket:id="schemaWrap">
 								<table class="table table-striped table-bordered table-hover" style="width: auto;">
@@ -35,49 +37,56 @@
 									<tr>
 										<th class=""><wicket:message key="settingspage.gradingschema.grade" /></th>
 										<th><wicket:message key="settingspage.gradingschema.minpercent" /></th>
+										<th><wicket:message key="settingspage.gradingschema.removecolhead" /></th>
 									</tr>
 									</thead>
 									<tbody>
 									<tr wicket:id="schemaView">
-										<td><span wicket:id="grade">A+</span></td>
+										<td><input wicket:id="grade" type="text" size="10" class="form-control" /></td>
 										<td><input wicket:id="minPercent" type="text" size="10" class="form-control" /></td>
+										<td><button wicket:id="remove" class="btn btn-default"><wicket:message key="button.remove" /></button></td>
 									</tr>
 									</tbody>
 								</table>
+								
+								<div>
+									<button wicket:id="addMapping" type="submit" class="btn-add-category btn btn-default btn-sm"><wicket:message key="settingspage.gradingschema.add" /></button>
+								</div>
 							</div>
+														
 						</div>
 						
-						<div class="col pull-right gb-schema-chart">
+						<div class="col-md-8">
 													
 							<!-- chart -->
-							
 							<div>
 								<div wicket:id="noStudentsWithGradesMessage" class="messageInstruction">There are no students with grades</div>
-								<img wicket:id="chart" usemap="#tooltip"></img>
+								<canvas wicket:id="gradingSchemaChart" id="gradingSchemaChart"></canvas>
 							</div>
 			
-							<!--  other stats -->
-							<dl class="dl-horizontal">
-								<wicket:enclosure>
-									<dt><wicket:message key="label.statistics.coursegrade.averagegpa"></wicket:message></dt>
-									<dd wicket:id="averagegpa"></dd>
-								</wicket:enclosure>
-								<dt><wicket:message key="label.statistics.coursegrade.average"></wicket:message></dt>
-								<dd wicket:id="average"></dd>
-								<dt><wicket:message key="label.statistics.coursegrade.median"></wicket:message></dt>
-								<dd wicket:id="median"></dd>
-								<dt><wicket:message key="label.statistics.coursegrade.deviation"></wicket:message></dt>
-								<dd wicket:id="deviation"></dd>
-								<dt><wicket:message key="label.statistics.coursegrade.lowest"></wicket:message></dt>
-								<dd wicket:id="lowest"></dd>
-								<dt><wicket:message key="label.statistics.coursegrade.highest"></wicket:message></dt>
-								<dd wicket:id="highest"></dd>
-								<dt><wicket:message key="label.statistics.coursegrade.graded"></wicket:message></dt>
-								<dd wicket:id="graded"></dd>
-							</dl>
-							
-							<div class="messageWarning"><wicket:message key="settingspage.gradingschema.refresh" /></div>
-							
+							<!--  stats -->
+							<div wicket:id="statsWrap">
+								<dl class="dl-horizontal">
+									<wicket:enclosure>
+										<dt><wicket:message key="label.statistics.coursegrade.averagegpa"></wicket:message></dt>
+										<dd wicket:id="averagegpa"></dd>
+									</wicket:enclosure>
+									<dt><wicket:message key="label.statistics.coursegrade.average"></wicket:message></dt>
+									<dd wicket:id="average"></dd>
+									<dt><wicket:message key="label.statistics.coursegrade.median"></wicket:message></dt>
+									<dd wicket:id="median"></dd>
+									<dt><wicket:message key="label.statistics.coursegrade.deviation"></wicket:message></dt>
+									<dd wicket:id="deviation"></dd>
+									<dt><wicket:message key="label.statistics.coursegrade.lowest"></wicket:message></dt>
+									<dd wicket:id="lowest"></dd>
+									<dt><wicket:message key="label.statistics.coursegrade.highest"></wicket:message></dt>
+									<dd wicket:id="highest"></dd>
+									<dt><wicket:message key="label.statistics.coursegrade.graded"></wicket:message></dt>
+									<dd wicket:id="graded"></dd>
+								</dl>
+							</div>
+								
+							<!-- info about students with course grade overrides -->						
 							<wicket:enclosure child="studentsWithCourseGradeOverrides">
 								<div class="instruction">
 									<p><wicket:message key="settingspage.gradingschema.overrides" /></p>
@@ -89,6 +98,9 @@
 						</div>
 					</div>
 				</div>
+				<div class="messageWarning" wicket:id="modifiedSchema">Schema has been modified from default</div>
+				<div class="messageError" wicket:id="unsavedSchema">There are unsaved changes</div>
+				
 			</div>
 		</div>
 	</div>

@@ -49,7 +49,6 @@
        
        #delivPageWrapper
        {
-            height:1800px;
             width: 100%
             float: left;
        }
@@ -57,16 +56,15 @@
        #delivAssessmentWrapper
        {
             width: 96%;
-            float: left;
        }
       </style>
 
       <%@ include file="/jsf/delivery/deliveryjQuery.jsp" %>
-      <script type='text/javascript' src='/library/js/headscripts.js'></script>
-      <script type='text/javascript' src="/sakai-editor/editor-bootstrap.js"></script>
-      <script type="text/javascript" src="/sakai-editor/editor.js"></script>
-      <script type="text/javascript" src="/sakai-editor/editor-launch.js"></script>
-	  <script type="text/javascript" src="/samigo-app/js/saveForm.js"></script>	  	  
+      <samigo:script path="/../library/js/headscripts.js"/>
+      <samigo:script path="/../sakai-editor/editor-bootstrap.js"/>
+      <samigo:script path="/../sakai-editor/editor.js"/>
+      <samigo:script path="/../sakai-editor/editor-launch.js"/>
+	  <samigo:script path="/js/saveForm.js"/>	  	  
     
 	<h:outputText value="#{delivery.mathJaxHeader}" escape="false" rendered="#{delivery.actionString=='takeAssessmentViaUrl' and delivery.isMathJaxEnabled}"/>
       </head>
@@ -237,8 +235,8 @@ document.links[newindex].onclick();
 	</f:verbatim>
 </h:panelGroup>
 
-<link href="/samigo-app/css/imageQuestion.student.css" type="text/css" rel="stylesheet" media="all" />
-<link href="/samigo-app/css/imageQuestion.author.css" type="text/css" rel="stylesheet" media="all" />
+<samigo:stylesheet path="/css/imageQuestion.student.css"/>
+<samigo:stylesheet path="/css/imageQuestion.author.css"/>
 
 <script type="text/JavaScript">
 	var dynamicListMap = [];		
@@ -586,7 +584,7 @@ document.links[newindex].onclick();
 <!-- end content -->
 </div>
 <f:verbatim></div></f:verbatim>
-<script type="text/javascript" src="/samigo-app/js/questionProgress.js"></script>
+<samigo:script path="/js/questionProgress.js"/>
 <script type="text/JavaScript">
 	<%= request.getAttribute("html.body.onload") %> 
 	setLocation(); 

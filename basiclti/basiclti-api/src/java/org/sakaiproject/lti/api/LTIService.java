@@ -80,6 +80,11 @@ public interface LTIService extends LTISubstitutionsFilter {
             "placement:text:hidden=true:maxlength=256",
             "placementsecret:text:hidden=true:maxlength=512",
             "oldplacementsecret:text:hidden=true:maxlength=512",
+            // SHA256 Support (See SAK-33898)
+            "sha256:radio:label=bl_sha256:choices=off,on",
+            // LTI 1.3 expansion space (See SAK-33772)
+            "lti13:radio:label=bl_lti13:role=admin",
+            "lti13_settings:text:maxlength=1M:role=admin",
             "created_at:autodate",
             "updated_at:autodate"};
     String[] CONTENT_EXTRA_FIELDS = {
@@ -143,6 +148,11 @@ public interface LTIService extends LTISubstitutionsFilter {
             "parameter:textarea:label=bl_parameter:rows=5:cols=25:maxlength=16384:only=lti2",
             "tool_proxy_binding:textarea:label=bl_tool_proxy_binding:maxlength=2M:only=lti2:hide=insert:role=admin",
             "allowcustom:checkbox:label=bl_allowcustom",
+            // SHA256 Support (See SAK-33898)
+            "sha256:radio:label=bl_sha256:choices=off,on,content",
+            // LTI 1.3 expansion space (See SAK-33772)
+            "lti13:radio:label=bl_lti13:choices=off,on,content:role=admin",
+            "lti13_settings:text:maxlength=1M:role=admin",
             "xmlimport:textarea:hidden=true:maxlength=1M",
             "splash:textarea:label=bl_splash:rows=5:cols=25:maxlength=16384",
             "created_at:autodate",
@@ -242,6 +252,8 @@ public interface LTIService extends LTISubstitutionsFilter {
     String LTI_PLACEMENTSECRET = "placementsecret";
     String LTI_OLDPLACEMENTSECRET = "oldplacementsecret";
     String LTI_DEPLOYMENT_ID = "deployment_id";
+    // SHA256 Support (See SAK-33898)
+    String LTI_SHA256 = "sha256";
     // BLTI-230 - LTI 2.0
     String LTI_VERSION = "version";
     Long LTI_VERSION_1 = 0L;

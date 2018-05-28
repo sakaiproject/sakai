@@ -107,7 +107,7 @@ public class Assignment {
     @Column(name = "INSTRUCTIONS", length = 65535)
     private String instructions;
 
-    @Column(name = "CONTEXT", length = 36, nullable = false)
+    @Column(name = "CONTEXT", length = 99, nullable = false)
     private String context;
 
     @Column(name = "SECTION")
@@ -141,10 +141,10 @@ public class Assignment {
     @Column(name = "DROP_DEAD_DATE")
     private Instant dropDeadDate;
 
-    @Column(name = "MODIFIER", length = 36)
+    @Column(name = "MODIFIER", length = 99)
     private String modifier;
 
-    @Column(name = "AUTHOR", length = 36)
+    @Column(name = "AUTHOR", length = 99)
     private String author;
 
     @Column(name = "DRAFT", nullable = false)
@@ -162,9 +162,11 @@ public class Assignment {
     @Column(name = "POSITION")
     private Integer position;
 
+    @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     @OneToMany(mappedBy = "assignment", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<AssignmentSubmission> submissions = new HashSet<>();
 
+    @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
     @ElementCollection
     @MapKeyColumn(name = "NAME")
     @Lob
@@ -172,11 +174,13 @@ public class Assignment {
     @CollectionTable(name = "ASN_ASSIGNMENT_PROPERTIES", joinColumns = @JoinColumn(name = "ASSIGNMENT_ID"))
     private Map<String, String> properties = new HashMap<>();
 
+    @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
     @ElementCollection
     @CollectionTable(name = "ASN_ASSIGNMENT_GROUPS", joinColumns = @JoinColumn(name = "ASSIGNMENT_ID"))
     @Column(name = "GROUP_ID")
     private Set<String> groups = new HashSet<>();
 
+    @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
     @ElementCollection
     @CollectionTable(name = "ASN_ASSIGNMENT_ATTACHMENTS", joinColumns = @JoinColumn(name = "ASSIGNMENT_ID"))
     @Column(name = "ATTACHMENT", length = 1024)
@@ -228,7 +232,8 @@ public class Assignment {
     @Column(name = "PEER_ASSESSMENT_NUMBER_REVIEW")
     private Integer peerAssessmentNumberReviews;
 
-    @Column(name = "PEER_ASSESSMENT_INSTRUCTIONS", length = 8000)
+    @Lob
+    @Column(name = "PEER_ASSESSMENT_INSTRUCTIONS", length = 65535)
     private String peerAssessmentInstructions;
 
     @Column(name = "CONTENT_REVIEW")

@@ -19,10 +19,10 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.sakaiproject.user.api.User;
-
 import lombok.Getter;
 import lombok.Setter;
+
+import org.sakaiproject.user.api.User;
 
 /**
  * Model for storing the grade info for a student
@@ -35,6 +35,9 @@ public class GbStudentGradeInfo implements Serializable {
 
 	@Getter
 	private String studentUuid;
+
+	@Getter
+	private String studentDisplayId;
 
 	@Getter
 	private String studentDisplayName;
@@ -64,19 +67,31 @@ public class GbStudentGradeInfo implements Serializable {
 	public GbStudentGradeInfo() {
 	}
 
-	public GbStudentGradeInfo(final User u)
-	{
+	public GbStudentGradeInfo(final User u) {
 		this(u, "");
 	}
+
+	public GbStudentGradeInfo(final GbUser u) {
+		studentUuid = u.getUserUuid();
+		studentEid = u.getDisplayId();
+		studentDisplayName = u.getDisplayName();
+		this.studentFirstName = u.getFirstName();
+		this.studentLastName = u.getLastName();
+		studentNumber = u.getStudentNumber();
+		grades = new HashMap<>();
+		categoryAverages = new HashMap<>();
+	}
+
 	public GbStudentGradeInfo(final User u, final String studentNumber) {
 		this.studentUuid = u.getId();
 		this.studentEid = u.getEid();
+		this.studentDisplayId = u.getDisplayId();
 		this.studentFirstName = u.getFirstName();
 		this.studentLastName = u.getLastName();
 		this.studentDisplayName = u.getDisplayName();
 		this.studentNumber = studentNumber;
-		this.grades = new HashMap<Long, GbGradeInfo>();
-		this.categoryAverages = new HashMap<Long, Double>();
+		this.grades = new HashMap<>();
+		this.categoryAverages = new HashMap<>();
 	}
 
 	/**
@@ -98,5 +113,4 @@ public class GbStudentGradeInfo implements Serializable {
 	public void addCategoryAverage(final Long categoryId, final Double score) {
 		this.categoryAverages.put(categoryId, score);
 	}
-
 }

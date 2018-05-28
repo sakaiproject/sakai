@@ -90,6 +90,13 @@
 						border-right: 1px solid $tool-menu-item-separator-color;
 					}
 				}
+				
+				a.#{$namespace}skipNav--toolName {
+					color: $link-color;
+					&::after {
+						border-right: 0px none;
+					}
+				}
 			}
 
 			&.#{$namespace}skipNav__menuitem--content,

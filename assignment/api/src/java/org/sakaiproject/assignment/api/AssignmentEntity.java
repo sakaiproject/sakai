@@ -18,7 +18,6 @@ package org.sakaiproject.assignment.api;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.util.Objects;
 import java.util.Stack;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -33,8 +32,6 @@ import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
-import org.sakaiproject.exception.IdUnusedException;
-import org.sakaiproject.exception.PermissionException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
@@ -55,43 +52,47 @@ public class AssignmentEntity implements Entity {
     private Reference reference;
 
     public void initEntity(Assignment assignment) {
-        Objects.requireNonNull(assignment, "Assignment cannot be null");
-        if (StringUtils.isNotBlank(assignment.getId())) {
+        if (assignment != null && StringUtils.isNotBlank(assignment.getId())) {
             // if assignment has an id assume its been persisted
             this.assignment = assignment;
             this.assignmentId = assignment.getId();
+            reference = entityManager.newReference(AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getReference());
+        } else {
+            log.warn("Can not initialize entity with assignment {}", assignment);
         }
-        reference = entityManager.newReference(AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getReference());
     }
 
     public void initEntity(String assignmentId) {
-        Objects.requireNonNull(assignmentId, "Assignment id cannot be null");
-        this.assignmentId = assignmentId;
-        try {
-            assignment = assignmentService.getAssignment(assignmentId);
-        } catch (IdUnusedException | PermissionException e) {
-            log.warn("Could not fetch assignment with id = {}", reference.getId(), e);
+        if (StringUtils.isNotBlank(assignmentId)) {
+            try {
+                assignment = assignmentService.getAssignment(assignmentId);
+                this.assignmentId = assignmentId;
+                reference = entityManager.newReference(AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getReference());
+            } catch (Exception e) {
+                log.warn("Could not initialize entity with assignment id {}", assignmentId, e);
+            }
+        } else {
+            log.warn("Can not initialize entity with assignment id {}", assignmentId);
         }
+    }
 
-        if (assignment == null) {
-            throw new RuntimeException("Cannot instantiate AssignmentEntity without an assignment...");
-        }
-        reference = entityManager.newReference(AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getReference());
+    private String getAccessPoint(boolean relative) {
+        return (relative ? "" : serverConfigurationService.getAccessUrl());
     }
 
     @Override
     public String getUrl() {
-        return reference.getUrl();
+        return (reference != null) ? getAccessPoint(false) + reference.getReference() : null;
     }
 
     @Override
     public String getReference() {
-        return reference.getReference();
+        return (reference != null) ? reference.getReference() : null;
     }
 
     @Override
     public String getUrl(String rootProperty) {
-        return null;
+        return getUrl();
     }
 
     @Override
@@ -101,16 +102,16 @@ public class AssignmentEntity implements Entity {
 
     @Override
     public String getId() {
-        return reference.getId();
+        return (reference != null) ? reference.getId() : null;
     }
 
     public String getTitle() {
-        return assignment.getTitle();
+        return (assignment != null) ? assignment.getTitle() : null;
     }
 
     @Override
     public ResourceProperties getProperties() {
-        return reference.getProperties();
+        return (reference != null) ? reference.getProperties() : null;
     }
 
     @Override

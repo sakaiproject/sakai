@@ -25,7 +25,7 @@
 <div class="portletBody container-fluid">
 	#if ($allowAddAssignment || ($withGrade && $!allowGradeSubmission))
 		## for user who cannot create assignment nor grade submission, no need to show "Assignment List" link at all since there is really no other toolbar choices
-		#navBarHREF( $allowAddAssignment $withGrade $allowGradeSubmission $allowAddAssignment $allowAllGroups $assignmentscheck $allowUpdateSite $enableViewOption $view "" )
+		#navBarHREF( $allowAddAssignment $withGrade $allowGradeSubmission $allowAddAssignment $allowRecoverAssignment $allowAllGroups $assignmentscheck $allowUpdateSite $enableViewOption $view "" )
 	#end
 	#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $alertMessage</div><div class="clear"></div>#end
 
@@ -235,7 +235,7 @@
 											#if ($!assignment.draft)
 												<span class="highlight">$tlang.getString("gen.dra2")</span>
 											#end
-												$validator.escapeHtml($validator.limit($!assignment.title, 64))
+												$validator.escapeHtml($!assignment.Title)
 
 											#if ($assignment.getContentReview())
 												<img alt="$reviewIndicator" title="$reviewIndicator" src="/library/image/silk/rosette.png" />
@@ -287,14 +287,14 @@
 												#else
 													<a name="asnActionLink" href="#toolLinkParam("AssignmentAction" "doView_grade" "submissionId=$validator.escapeUrl($submissionReference)")" title="$validator.escapeHtml($!assignment.Title)">
 												#end
-												$validator.escapeHtml($validator.limit($assignment.Title, 40))</a>
+												$validator.escapeHtml($assignment.Title)</a>
 											#else
 												#assignmentTitleIcon($assignment)
-												$validator.escapeHtml($validator.limit($assignment.Title, 40))
+												$validator.escapeHtml($assignment.Title)
 												#if ($!allowSubmit)
 													<div class="itemAction">
 														<a name="asnActionLink" href="#toolLinkParam("AssignmentAction" "doView_submission" "assignmentReference=$validator.escapeUrl($assignmentReference)&submitterIdInstructor=instructor")" onclick="SPNR.insertSpinnerInPreallocated( this, null, 'subAsStudentSpinnerPlaceholder_$validator.escapeUrl($assignmentReference)' );" title="$validator.escapeHtml($!assignment.Title)">
-															$tlang.getString("subasstudent")<span class="skip">: $validator.escapeHtml($validator.limit($assignment.Title, 40))</span>
+															$tlang.getString("subasstudent")<span class="skip">: $validator.escapeHtml($assignment.Title)</span>
 														</a>
 														<div id="subAsStudentSpinnerPlaceholder_$validator.escapeUrl($assignmentReference)" class="allocatedSpinPlaceholder"></div>
 													</div>
@@ -330,16 +330,16 @@
 													#if ($service.canSubmit($assignment.Context, $assignment))
 														## go to view submission page when (1) submission has been returned and allow for resubmit;(2)submission has not been posted yet.
 														<strong>#assignmentTitleIcon($assignment)
-															<a name="asnActionLink" href="#toolLinkParam("AssignmentAction" "doView_submission" "assignmentReference=$validator.escapeUrl($assignmentReference)")" title="$validator.escapeHtml($!assignment.Title)">$validator.escapeHtml($validator.limit($assignment.Title, 40))</a>
+															<a name="asnActionLink" href="#toolLinkParam("AssignmentAction" "doView_submission" "assignmentReference=$validator.escapeUrl($assignmentReference)")" title="$validator.escapeHtml($!assignment.Title)">$validator.escapeHtml($assignment.Title)</a>
 														</strong>
 												#else
 														<strong>#assignmentTitleIcon($assignment)
-															<a name="asnActionLink" href="#toolLinkParam("AssignmentAction" "doView_grade" "submissionId=$validator.escapeUrl($submissionReference)")" title="$validator.escapeHtml($!assignment.Title)">$validator.escapeHtml($validator.limit($assignment.Title, 40))</a>
+															<a name="asnActionLink" href="#toolLinkParam("AssignmentAction" "doView_grade" "submissionId=$validator.escapeUrl($submissionReference)")" title="$validator.escapeHtml($!assignment.Title)">$validator.escapeHtml($assignment.Title)</a>
 														</strong>
 													#end
 												#else
 												<strong>#assignmentTitleIcon($assignment)
-													<a name="asnActionLink" href="#toolLinkParam("AssignmentAction" "doView_submission" "assignmentReference=$validator.escapeUrl($assignmentReference)")" title="$validator.escapeHtml($!assignment.Title)">$validator.escapeHtml($validator.limit($assignment.Title, 40))</a>
+													<a name="asnActionLink" href="#toolLinkParam("AssignmentAction" "doView_submission" "assignmentReference=$validator.escapeUrl($assignmentReference)")" title="$validator.escapeHtml($!assignment.Title)">$validator.escapeHtml($assignment.Title)</a>
 												</strong>
 												#end
 												#if ($taggable && $allowAddAssignment)
@@ -374,7 +374,7 @@
 													</div>
 												#end
 											#else
-												<a name="asnActionLink" href="#toolLinkParam("AssignmentAction" "doView_assignment_as_student" "assignmentId=$assignmentReference")" title="$validator.escapeHtml($!assignment.Title)">$validator.escapeHtml($validator.limit($assignment.Title, 40))</a>
+												<a name="asnActionLink" href="#toolLinkParam("AssignmentAction" "doView_assignment_as_student" "assignmentId=$assignmentReference")" title="$validator.escapeHtml($!assignment.Title)">$validator.escapeHtml($assignment.Title)</a>
 											#end
 										#end
 										#set ($deleted = false)
@@ -455,19 +455,8 @@
 								<td headers="num_submissions" class="specialLink hidden-xs">
 								## not show the link for draft assignment
 								#if (!$assignment.Draft && $!service.allowGradeSubmission($assignmentReference))
-									## 1- text only; 2-attachment only; 3-text and attachment; 4-Non-electronic
-									#set($ungradedNumber = $!service.getUngradedSubmissionsCount($assignmentReference))
-									#set($totalNumber = $!service.getSubmittedSubmissionsCount($assignmentReference))
-									#set ($submissionType = $assignment.TypeOfSubmission.ordinal())
-									#if ($!submissionType == 4)
-										## non-electronic assignment
-										#set ($allowSubmitUsers = $!service.allowAddSubmissionUsers($assignmentReference))
-										#if($totalNumber == 0)
-											## in case there is no submission object for any reason
-											#set($ungradedNumber = $allowSubmitUsers.size())
-											#set($totalNumber = $ungradedNumber)
-										#end
-									#end
+									#set($ungradedNumber = $!service.countSubmissions($assignmentReference, false))
+									#set($totalNumber = $!service.countSubmissions($assignmentReference, $null))
 									<div class="spinnerBesideContainer">
 										<a name="asnActionLink" href="javascript:void(0)" onclick="if(ASN.allowClick(this)){ SPNR.insertSpinnerAfter( this, null, null ); window.location='#toolLinkParam("$action" "doGrade_assignment" "assignmentId=$validator.escapeUrl($assignmentReference)")'; }" >
 											<span class="skip"> #if ($withGrade && $gradeScale != 1)$!tlang.getString("gen.assign.gra")#else$!tlang.getString("viewsubmissions")#end : $validator.escapeHtml($!assignment.Title). </span> <span class="skip">$!tlang.getString("gen.subm2"): </span>$!totalNumber/<span class="skip">$!tlang.getString("ungra"): </span>$!ungradedNumber
@@ -519,7 +508,7 @@
 								<td></td>
 								<!-- title col -->
 								<td class="peer-header">
-									<strong title="$validator.escapeHtml($!assignment.Title)"><span class="fa fa-caret-square-o-right" aria-hidden="true"></span> $validator.escapeHtml($validator.limit($assignment.Title, 40))</strong>
+									<strong title="$validator.escapeHtml($!assignment.Title)"><span class="fa fa-caret-square-o-right" aria-hidden="true"></span> $validator.escapeHtml($assignment.Title)</strong>
 									<em>$tlang.getString("peerAssessmentName")</em>
 								</td>
 								#if ($!groups && $!allowGradeSubmission)
@@ -619,7 +608,7 @@
 												#if($review.getSubmitted())
 													$tlang.getFormattedMessage("peerassessment.student", $reviewCount)&nbsp;<img src="/library/image/silk/accept.png"/>
 												#else
-													<a name="asnActionLink" href="#toolLinkParam("$action" "doEdit_review" "assignmentId=$validator.escapeUrl($assignmentReference)&submissionId=$validator.escapeUrl($review.getSubmissionId())")">
+													<a name="asnActionLink" href="#toolLinkParam("$action" "doEdit_review" "assignmentId=$validator.escapeUrl($assignmentReference)&submissionId=$validator.escapeUrl($review.id.SubmissionId)")">
 														$tlang.getFormattedMessage("peerassessment.student", $reviewCount)
 													</a>
 												#end

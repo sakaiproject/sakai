@@ -56,12 +56,6 @@
         <artifactId>sections-impl-standalone</artifactId>
 	<version>${sakai.version}</version>
       </dependency>
-      <!-- Used only for test data. -->
-      <dependency>
-        <groupId>org.sakaiproject.edu-services.sections</groupId>
-        <artifactId>sections-integrationsupport</artifactId>
-	<version>${sakai.version}</version>
-      </dependency>
     </dependencies>
   </dependencyManagement>
 </project>

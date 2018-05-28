@@ -23,6 +23,7 @@ package org.sakaiproject.time.impl;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.time.Clock;
 import java.util.GregorianCalendar;
 import java.util.Hashtable;
 import java.util.Objects;
@@ -85,6 +86,17 @@ public class BasicTimeService implements TimeService
 
 	public void setUserLocaleService(UserLocaleServiceImpl userLocaleService) {
 		this.userLocaleService = userLocaleService;
+	}
+
+	// Can be injected for testing
+	private Clock clock = Clock.systemDefaultZone();
+
+	public void setClock(Clock clock) {
+		this.clock = clock;
+	}
+
+	public Clock getClock() {
+		return clock;
 	}
 
 	/**

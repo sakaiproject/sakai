@@ -1,9 +1,4 @@
 ${includeLatestJQuery}
-<script type="text/javascript">
-$(document).ready(function() {
-    $('form:first *:input[type!=hidden]:first').focus();
-});
-</script>
 
 <div class="portletBody">
 <script type="text/javascript" src="/library/js/headscripts.js"></script>
@@ -54,7 +49,7 @@ $(document).ready(function() {
 
                      <div class="form-group">
                     <label for="height" class="control-label form-control-label"> $tlang.getString("gen.height")</label>
-                    <select id="height" name="height" size="1" onchange="this.value=='$tlang.getString('gen.heisomelse')'?document.getElementById('customNumber').style.display = 'block':document.getElementById('customNumber').style.display = 'none'">
+                    <select id="height" name="height" size="1" onchange="checkVisibilityCustomNumber()">
                         <option value = "300px" #if ($!height == "300px") selected="selected" #end>$tlang.getString('gen.hei1')</option>
                         <option value = "450px" #if ($!height == "450px") selected="selected" #end>$tlang.getString('gen.hei2')</option>
                         <option value = "600px" #if ($!height == "600px") selected="selected" #end>$tlang.getString('gen.hei3')</option>
@@ -68,7 +63,7 @@ $(document).ready(function() {
                     </div>
                     <br />
 
-                    <div class="form-group">
+                    <div id="customNumber" class="form-group">
                     <label for="customNumberField" class="control-label form-control-label">
                         $tlang.getString('gen.custheight')
                     </label>
@@ -105,5 +100,22 @@ $(document).ready(function() {
  </div> <!-- End of row -->
 </div> <!-- End of container -->
 <div></div>
-<script type="text/javascript">$(document).ready(function () { $('.Mrphs-toolTitleNav__link.Mrphs-toolTitleNav__link--edit').hide(); fontawesome_icon_picker('#fa_icon'); });</script>
+<script type="text/javascript">
+	$(document).ready(function () {
+		$('form:first *:input[type!=hidden]:first').focus();
+		$('.Mrphs-toolTitleNav__link.Mrphs-toolTitleNav__link--edit').hide(); 
+		fontawesome_icon_picker('#fa_icon');
+		checkVisibilityCustomNumber();
+	});
+
+	function checkVisibilityCustomNumber() {
+		if(document.getElementById('height').value=='$tlang.getString('gen.heisomelse')') {
+			document.getElementById('customNumber').style.display = 'block';
+		}
+		else { 
+			document.getElementById('customNumber').style.display = 'none';
+		}
+	};
+</script>
+
 </div>

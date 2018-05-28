@@ -489,7 +489,7 @@ public class BaseAuthzGroup implements AuthzGroup
 
 		else if (getId().equals("!site.user"))
 		{
-			return "My Workspace AuthzGroup Template";
+			return "Home AuthzGroup Template";
 		}
 
 		else if (getId().startsWith("!user.template"))
@@ -1022,7 +1022,8 @@ public class BaseAuthzGroup implements AuthzGroup
 		if (role == null)
 		{
 			log.warn(".addUserRole: role undefined: " + roleId);
-			throw new IllegalArgumentException("addMember called with null role!");
+			throw new IllegalArgumentException("addMember user: "+ user+ "called with roleId: "+ roleId +
+					" that isn't found on authzGroupId: "+ m_id);
 		}
 
 		BaseMember grant = (BaseMember) m_userGrants.get(user);

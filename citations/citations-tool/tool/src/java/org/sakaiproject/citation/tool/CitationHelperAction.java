@@ -2531,6 +2531,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 			context.put("collectionSize", new Integer(collectionSize));
 			context.put("sectionBackgroundColour", scs.getString("official.institution.background.colour"));
 			context.put("sectionTextColour", scs.getString("official.institution.text.colour"));
+			context.put("enableSections", scs.getBoolean("citations.enable.sections", false));
 
 
 			Locale locale = rb.getLocale();

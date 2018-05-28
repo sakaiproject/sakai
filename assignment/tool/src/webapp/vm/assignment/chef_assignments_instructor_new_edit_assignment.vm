@@ -66,8 +66,7 @@
 				useReview.disabled=false;
 				lblUseReview.style.display = 'block';
 			#end
-			## SAK-26640
-			document.getElementById('tempAllowRes').style.display = 'block';
+			document.getElementById('tempAllowRes').parentNode.parentNode.style.display = 'block';
 			if (document.getElementById('allowResToggle').checked)
 			{
 				document.getElementById('allowResubmitNumber').style.display = 'block';
@@ -90,8 +89,7 @@
 				reviewSwitchNe1.style.removeProperty('display');
 				lblUseReview.style.display = 'none';
 			#end
-			## SAK-26640
-			document.getElementById('tempAllowRes').style.display = 'none';
+			document.getElementById('tempAllowRes').parentNode.parentNode.style.display = 'none';
 			document.getElementById('allowResubmitNumber').style.display = 'none';
 			document.getElementById('allowResubmitTime').style.display = 'none';
 			document.getElementById('resubmitNotification').style.display = 'none';
@@ -102,7 +100,7 @@
 #javascript("/library/js/lang-datepicker/lang-datepicker.js")
 
 <div class="portletBody container-fluid">
-	#navBarOnClick( $allowAddAssignment $withGrade $allowGradeSubmission $allowAddAssignment $allowAllGroups $assignmentscheck $allowUpdateSite $enableViewOption $view "newAssignmentForm" "new" )
+	#navBarOnClick( $allowAddAssignment $withGrade $allowGradeSubmission $allowAddAssignment $allowRecoverAssignment $allowAllGroups $assignmentscheck $allowUpdateSite $enableViewOption $view "newAssignmentForm" "new" )
 
 	<div class="page-header">
 		<h1>
@@ -504,7 +502,7 @@
 			</label>
 		</div>
 		#elseif( $allowAddAssignment )
-			#if ($!groups.size() >1)
+			#if ($!groupsList.size() >1)
                         <label class="$class" for="groups">$tlang.getString("groups")</label>
 			#else
                         <label class="$class" for="groups">$tlang.getString("group")</label>
@@ -516,7 +514,7 @@
 			<label class="$class" for="groups">
 			#if( !$!allowGroupAssignmentsInGradebook )
 				<input type="radio" name="range" id="groups" value="GROUP" onclick="if (document.getElementById('addToGradebook') != null){document.getElementById('addToGradebook').style.display = 'none';document.getElementById('$!name_Addtogradebook').checked=false};$('#groupTable').fadeIn('slow'); ASN.showOrHideAccessMessages( true ); ASN.resizeFrame();"
-				#if( $!range == "GROUP" && !$selectedGroupsNotFound )
+				#if( ($!range == "GROUP" && !$selectedGroupsNotFound) || !$allowAddSiteAssignment )
 					checked="checked"
 				#elseif( !$!groupsList )
 					disabled="disabled"
@@ -524,7 +522,7 @@
 				/>
 			#else
 				<input type="radio" name="range" id="groups" value="GROUP" onclick="$('#groupTable').fadeIn('slow'); ASN.showOrHideAccessMessages( true ); ASN.resizeFrame();"
-				#if( $!range == "GROUP" && !$selectedGroupsNotFound )
+				#if( ($!range == "GROUP" && !$selectedGroupsNotFound) || !$allowAddSiteAssignment)
 					checked="checked"
 				#elseif( !$!groupsList )
 					disabled="disabled"
@@ -539,7 +537,7 @@
                 #if( (($!range == "GROUP" || $!assignment.TypeOfAccess == $groupAccess) && !$selectedGroupsNotFound) || $selectedGroupsNotFound || $!range == "SITE" )
                     #set( $selectGroupsDisplay = "none" )
                 #end
-                #if( ($!range == "GROUP" || $!assignment.TypeOfAccess == $groupAccess) && !$selectedGroupsNotFound )
+                #if( (($!range == "GROUP" || $!assignment.TypeOfAccess == $groupAccess) && !$selectedGroupsNotFound) || !$allowAddSiteAssignment )
                     #set( $listDisplay = "block" )
 			#else
                     #set( $listDisplay = "none" )
@@ -731,7 +729,7 @@
 					<div id="review.switch.ne.1" class="information" style="display:none;">$reviewSwitchNe1</div>
 					<div class="checkbox">
 						<label id="lblReviewService" for="$name_UseReviewService">
-						#if($!value_UseReviewService)
+						#if($!value_UseReviewService == true)
 							<input id="$name_UseReviewService" name="$name_UseReviewService" type="checkbox" value="true" checked="checked" onclick="ASN.toggleReviewServiceOptions(this.checked)"/>
 						#else
 							<input id="$name_UseReviewService" name="$name_UseReviewService" type="checkbox" value="true" onclick="ASN.toggleReviewServiceOptions(this.checked)"/>
@@ -1033,7 +1031,7 @@
 			</div>
 			</div>
 		#end
-		#if( ($!withGrade && $!withGradebook) || ($enableAnonGrading || $value_CheckAnonymousGrading.equals("true")) )
+		#if(($!withGrade && $!withGradebook) || ($enableAnonGrading || $value_CheckAnonymousGrading))
 			<h4>$!tlang.getString('grading')</h4>
 		#end
 
@@ -1225,12 +1223,12 @@
 		#end
 
 		## SAK-17606 - Show the anonymous grading checkbox if enabled
-		#if( $enableAnonGrading || $value_CheckAnonymousGrading.equals("true") )
+		#if( $enableAnonGrading || $value_CheckAnonymousGrading)
 			#set ($anonDisabled = !$enableAnonGrading || $forceAnonGrading)
 			<div class="checkbox">
 				<label for="$name_CheckAnonymousGrading" #if($anonDisabled) class="disabled" #end>
 					<input id="$name_CheckAnonymousGrading" name="$name_CheckAnonymousGrading" type="checkbox" value="true"
-					#if ($forceAnonGrading || $value_CheckAnonymousGrading.equals("true"))
+					#if ($forceAnonGrading || $value_CheckAnonymousGrading)
 						checked="checked"
 					#end
 					#if($anonDisabled)
@@ -1302,9 +1300,9 @@
 				#else
 					<div id="peerAssessmentOptions" style="display:none" class="col-sm-offset-1">
 				#end
-					<p class="instruction">
+					<div class="messageInformation">
 						$tlang.getString("peerassessment.note")
-					</p>
+					</div>
 					<div id="peerperiod-finish">
 						$tlang.getString("peerassessment.periodfinishes")
 						<input type="text" id="new_assignment_peerperiod" name="new_assignment_peerperiod" class="datepicker" value="">
@@ -1366,7 +1364,7 @@
 		#if ($group_submissions_enabled)
 			<div class="radio">
 				<label for="$name_CheckIsGroupSubmission" class="$class">
-					<input id="$name_CheckIsGroupSubmission" name="$name_additionalOptions" type="radio" value="GROUP" onclick="ASN.toggleAddOptions('group');"
+					<input id="$name_CheckIsGroupSubmission" name="$name_additionalOptions" type="radio" value="GROUP" onclick="ASN.toggleAddOptions('GROUP');"
 					#if ($!value_additionalOptions.equals("GROUP") && $!groupsList)
 						checked="checked"
 					#elseif( !$!groupsList || ($!assignment && !$assignment.draft))
@@ -1707,20 +1705,20 @@
 			## Show This Item Checkbox
 			<div class="form-group row">
 
-				<div class="col-lg-2 col-sm-4">
+				<div class="col-sm-3">
 					<label for="allPurposeHide1">
 						<input name="allPurposeHide" id="allPurposeHide1" value="false" #if(!$!value_allPurposeHide)checked="checked"#end type="radio" />
 						$tlang.getString("allPurpose.show")
 					</label>
 				</div>
 
-				<div class="row col-lg-8 col-sm-8">
-					<div class="col-lg-12 form-group row">
-						<label for="allPurposeShowFrom" class="form-control-label col-lg-2 col-sm-3">
+				<div class="col-sm-9">
+					<div class="form-group row">
+						<label for="allPurposeShowFrom" class="col-sm-2">
 							<input name="allPurposeShowFrom" id="allPurposeShowFrom" value="true" type="checkbox" #if ($value_allPurposeShowFrom) checked="checked" #end />
 							$tlang.getString("allPurpose.show.from")
 						</label>
-						<div class="col-lg-10">
+						<div class="col-sm-10">
 							<input type="text" id="allPurposeRelease" name="allPurposeRelease" class="datepicker" value="">
 
 							<script type="text/javascript">
@@ -1740,12 +1738,12 @@
 							</script>
 						</div>
 					</div>
-					<div class="col-lg-12 form-group row">
-						<label for="allPurposeShowTo" class="form-control-label col-lg-2 col-sm-3">
+					<div class="form-group row">
+						<label for="allPurposeShowTo" class="col-sm-2">
 							<input name="allPurposeShowTo" id="allPurposeShowTo" value="true" type="checkbox" #if ($!value_allPurposeShowTo) checked="checked" #end />
 							$tlang.getString("allPurpose.show.util")
 						</label>
-						<div class="col-lg-10">
+						<div class="col-sm-10">
 							<input type="text" id="allPurposeRetract" name="allPurposeRetract" class="datepicker" value="">
 
 							<script type="text/javascript">

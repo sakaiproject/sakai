@@ -3,9 +3,10 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>org.sonatype.oss</groupId>
+        <groupId>org.sakaiproject</groupId>
         <artifactId>oss-parent</artifactId>
-        <version>9</version>
+        <version>1</version>
+        <relativePath></relativePath>
     </parent>
 
     <packaging>jar</packaging>
@@ -20,7 +21,7 @@
     <!-- Either use a tag or a SHA so the version is predictable. -->
     <!-- Source at https://github.com/w8tcha/CKEditor-AutoSave-Plugin -->
 
-    <version>786318aefed553a62cebbe4cd10b67c3ab266437</version>
+    <version>278c922c6d8529edd15a2b2c11b574fb4320e0c2</version>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -55,26 +56,14 @@
                                     <cutdirsmapper dirs="1"/>
                                 </unzip>
                                     
--                                <echo message="moving resources" />
--                                <move todir="${destDir}">
--                                    <fileset dir="${project.build.directory}/autosave" excludes="samples/" />
--                                </move>
+                                <echo message="moving resources" />
+                                <move todir="${destDir}">
+                                    <fileset dir="${project.build.directory}/autosave" excludes="samples/" />
+                                </move>
                             </target>
                         </configuration>
                     </execution>
                 </executions>
-            </plugin>
-
-            <plugin>
-                <groupId>org.sonatype.plugins</groupId>
-                <artifactId>nexus-staging-maven-plugin</artifactId>
-                <version>1.6.7</version>
-                <extensions>true</extensions>
-                <configuration>
-                    <serverId>sonatype-nexus-staging</serverId>
-                    <nexusUrl>https://oss.sonatype.org/</nexusUrl>
-                    <autoReleaseAfterClose>false</autoReleaseAfterClose>
-                </configuration>
             </plugin>
         </plugins>
     </build>

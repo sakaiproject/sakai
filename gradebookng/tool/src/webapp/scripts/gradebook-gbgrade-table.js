@@ -737,7 +737,7 @@ GbGradeTable.renderTable = function (elementId, tableData) {
           $th.find(".relative").append("<a href='javascript:void(0);' class='gb-hidden-column-visual-cue'></a>");
         }
       } else if (col >= GbGradeTable.FIXED_COLUMN_OFFSET) {
-        var origColIndex = GbGradeTable.columns.findIndex(function(c, i) {
+        var origColIndex = GbGradeTable.findIndex(GbGradeTable.columns, function(c, i) {
           return c == columnModel;
         });
 
@@ -1072,6 +1072,13 @@ GbGradeTable.renderTable = function (elementId, tableData) {
         var col = GbGradeTable.instance.view.settings.columns[colIndex]._data_;
         $togglePanel.find('.gb-item-category-score-filter :checkbox[value="'+col.categoryName+'"]').trigger('click');
       }
+  }).
+  // View Course Grade Statistics
+  on("click", ".gb-dropdown-menu .gb-view-course-grade-statistics", function() {
+    GbGradeTable.ajax({
+      action: 'viewCourseGradeStatistics',
+      siteId: GbGradeTable.container.data("siteid")
+    });
   });
 
   GbGradeTable.setupToggleGradeItems();
@@ -1178,13 +1185,13 @@ GbGradeTable.selectCourseGradeCell = function(studentId) {
 };
 
 GbGradeTable.rowForStudent = function(studentId) {
-  return GbGradeTable.instance.view.settings.data.findIndex(function(row, index, array) {
+  return GbGradeTable.findIndex(GbGradeTable.instance.view.settings.data, function(row) {
            return row[GbGradeTable.STUDENT_COLUMN_INDEX].userId === studentId;
          });
 };
 
 GbGradeTable.indexOfFirstCategoryColumn = function(categoryId) {
-  return GbGradeTable.columns.findIndex(function(column, index, array) {
+  return GbGradeTable.findIndex(GbGradeTable.columns, function(column) {
            return column.categoryId == categoryId;
          });
 };
@@ -1213,13 +1220,13 @@ GbGradeTable.modelIndexForStudent = function(studentId) {
 
 
 GbGradeTable.colForAssignment = function(assignmentId) {
-  return GbGradeTable.instance.view.settings.columns.findIndex(function(column, index, array) {
+  return GbGradeTable.findIndex(GbGradeTable.instance.view.settings.columns, function(column) {
            return column._data_ && column._data_.assignmentId === parseInt(assignmentId);
          });
 };
 
 GbGradeTable.colForCategoryScore = function(categoryId) {
-  return GbGradeTable.instance.view.settings.columns.findIndex(function(column, index, array) {
+  return GbGradeTable.findIndex(GbGradeTable.instance.view.settings.columns, function(column) {
            return column._data_ && column._data_.categoryId === parseInt(categoryId);
          });
 };
@@ -3003,6 +3010,24 @@ GbGradeTable.setupStudentNumberColumn = function() {
         width: 140,
     });
 };
+
+
+GbGradeTable.findIndex = function(array, predicateFunction) {
+    if (Array.prototype.findIndex) {
+        return array.findIndex(predicateFunction);
+    }
+
+    // IE11 (and older) does not support Array.prototype.findIndex
+    // so provide an alternative if this is the case
+    var index = -1;
+    for (var i = 0; i < array.length; ++i) {
+        if (predicateFunction(array[i], i, array)) {
+            index = i;
+            break;
+        }
+    }
+    return index;
+}
 
 /**************************************************************************************
  * GradebookAPI - all the GradebookNG entity provider calls in one happy place

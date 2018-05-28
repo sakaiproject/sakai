@@ -64,6 +64,7 @@
         <property name="toolManager">
             <ref bean="org.sakaiproject.tool.api.ToolManager"/>
         </property>
+        <property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager" />
     </bean>
 	    
     <bean id="org.sakaiproject.api.app.messageforums.MessageForumsTypeManager" 

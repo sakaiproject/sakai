@@ -2507,8 +2507,18 @@ Za.fn=Ia.prototype;var Xd=bb(1,"add"),Yd=bb(-1,"subtract");a.defaultFormat="YYYY
 		 * Init the app by making a request for a language file.
 		 * Failing the locale, we look for the base language
 		 */
-         var userLocale = (window.top.sakai.locale.userLocale) ? window.top.sakai.locale.userLocale.replace("_", "-") : 'en-US';
-         var userLang = (window.top.sakai.locale.userLanguage) ? window.top.sakai.locale.userLanguage : 'en';
+         var userLocale = 'en-US';
+         var userLang = 'en';
+         if(window.top.sakai){
+             if(window.top.sakai.locale){
+                 if(window.top.sakai.locale.userLocale){
+                     userLocale = window.top.sakai.locale.userLocale.replace("_", "-");
+                 }
+                 if(window.top.sakai.locale.userLanguage){
+                     userLang = window.top.sakai.locale.userLanguage;
+                 }
+             }
+         }
 
          // First try the full locale (fr-CA) then try just the language (fr)
          if (typeof $.datepicker.regional[userLocale] !== "undefined") {

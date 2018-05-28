@@ -90,7 +90,7 @@ profile.ignoreFriendRequest = function (removerId, friendId, cancel, callback) {
  * by marking a descendant element with the class 'profile-popup-target'. The first descendant of this
  * type will be used as the anchor.
  *
- * eg: profile.attachPopups($('.profile-popup'), {connect: myConnectCallback});
+ * eg: profile.attachPopups($PBJQ('.profile-popup'), {connect: myConnectCallback});
  *
  * @param jqArray An array of jQuery objects.
  */
@@ -106,11 +106,11 @@ profile.attachPopups = function (jqArray, callbacks) {
         var userId = this.dataset.userId;
         var callbackDisplayName = this.dataset.displayName;
 
-        var targets = $(this).find('.profile-popup-target');
-        var target = (targets.length > 0) ? targets.eq(0) : $(this);
+        var targets = $PBJQ(this).find('.profile-popup-target');
+        var target = (targets.length > 0) ? targets.eq(0) : $PBJQ(this);
 
         $PBJQ(this).qtip({
-            position: { target: target, my: 'top left', at: 'bottom center', viewport: $(window), adjust: { method: 'flipinvert none'} },
+            position: { target: target, my: 'top left', at: 'bottom center', viewport: $PBJQ(window), adjust: { method: 'flipinvert none'} },
             show: { event: 'click', delay: 0 },
             style: { classes: 'profile-popup-qtip qtip-shadow' },
             hide: { event: 'click unfocus' },

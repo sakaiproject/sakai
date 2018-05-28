@@ -42,6 +42,7 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.TimeZone;
 import java.util.Vector;
+import java.util.stream.Collectors;
 import java.util.Map.Entry;
 
 import lombok.extern.slf4j.Slf4j;
@@ -1017,7 +1018,7 @@ extends VelocityPortletStateAction
 		SessionState sstate)
 		{
 			// Go back to whatever state we were in beforehand.
-			state.setReturnState(state.getPrevState());
+			state.setReturnState(CalendarAction.STATE_INITED);
 			
 			// cancel the options, release the site lock, cleanup
 			cancelOptions();
@@ -1121,7 +1122,7 @@ extends VelocityPortletStateAction
 			enableObserver(sstate, true);
 			
 			// Go back to whatever state we were in beforehand.
-			state.setReturnState(state.getPrevState());
+			state.setReturnState(CalendarAction.STATE_INITED);
 			
 			// Clear the previous state so that we don't get confused elsewhere.
 			state.setPrevState("");
@@ -1267,7 +1268,7 @@ extends VelocityPortletStateAction
 				addFieldsCalendarList = fieldStringToArray(addFields,ADDFIELDS_DELIMITER);
 			
 			// Go back to whatever state we were in beforehand.
-			state.setReturnState(state.getPrevState());
+			state.setReturnState(CalendarAction.STATE_INITED);
 			
 			enableObserver(sstate, true);
 			
@@ -1335,7 +1336,7 @@ extends VelocityPortletStateAction
 		SessionState sstate)
 		{
 			// Go back to whatever state we were in beforehand.
-			state.setReturnState(state.getPrevState());
+			state.setReturnState(CalendarAction.STATE_INITED);
 			
 			sstate.setAttribute(CalendarAction.SSTATE_ATTRIBUTE_ADDFIELDS_CALENDARS, sstate.getAttribute(CalendarAction.SSTATE_ATTRIBUTE_ADDFIELDS_CALENDARS_INIT));
 			sstate.setAttribute(CalendarAction.SSTATE_ATTRIBUTE_ADDFIELDS_PAGE, CalendarAction.PAGE_MAIN);
@@ -1418,7 +1419,7 @@ extends VelocityPortletStateAction
 			}
 			
 			// Go back to whatever state we were in beforehand.
-			state.setReturnState(state.getPrevState());
+			state.setReturnState(CalendarAction.STATE_INITED);
 			
 			enableObserver(sstate, true);
 
@@ -1495,7 +1496,7 @@ extends VelocityPortletStateAction
 			}
 			
 			// Go back to whatever state we were in beforehand.
-			state.setReturnState(state.getPrevState());
+			state.setReturnState(CalendarAction.STATE_INITED);
 			enableObserver(sstate, true);
 			
 		} // doUpdate
@@ -1658,7 +1659,7 @@ extends VelocityPortletStateAction
 				SessionState sstate)
 		{
 			// Go back to whatever state we were in beforehand.
-			state.setReturnState(state.getPrevState());
+			state.setReturnState(CalendarAction.STATE_INITED);
 
 			// cancel the options, release the site lock, cleanup
 			cancelOptions();
@@ -1683,7 +1684,7 @@ extends VelocityPortletStateAction
 					.getAttribute(CalendarAction.SSTATE_ATTRIBUTE_ADDSUBSCRIPTIONS);
 
 			// Go back to whatever state we were in beforehand.
-			state.setReturnState(state.getPrevState());
+			state.setReturnState(CalendarAction.STATE_INITED);
 
 			enableObserver(sstate, true);
 
@@ -1713,7 +1714,10 @@ extends VelocityPortletStateAction
 						.getIdFromSubscriptionUrl(calendarUrl);
 				String ref = externalCalendarSubscriptionService
 						.calendarSubscriptionReference(contextId, id);
-				addSubscriptions.add(new SubscriptionWrapper(calendarName, ref, true));
+				String currentUserId = sessionManager.getCurrentSessionUserId();
+				String currentUserTzid = TimeService.getLocalTimeZone().getID();
+				
+				addSubscriptions.add(new SubscriptionWrapper(calendarName, ref, currentUserId, currentUserTzid, true));
 
 				// Sort collections by name
 				Collections.sort(addSubscriptions);
@@ -1769,6 +1773,7 @@ extends VelocityPortletStateAction
 			List<SubscriptionWrapper> addSubscriptions = (List<SubscriptionWrapper>) sstate
 					.getAttribute(CalendarAction.SSTATE_ATTRIBUTE_ADDSUBSCRIPTIONS);
 			List<String> subscriptionTC = new LinkedList<String>();
+			List<String> subscriptionTCWithTZ = new LinkedList<String>();
 			ParameterParser params = runData.getParameters();
 
 			// Institutional Calendars
@@ -1792,7 +1797,24 @@ extends VelocityPortletStateAction
 					{
 						String name = add.getDisplayName();
 						if (name == null || name.equals("")) name = add.getUrl();
-						subscriptionTC.add(add.getReference() + ExternalCalendarSubscriptionService.SUBS_NAME_DELIMITER + name);
+
+						if (add.getUserId()==null) {
+							// Backward compatibility: reference/name
+							StringBuilder sb = new StringBuilder(add.getReference());
+							sb.append(ExternalCalendarSubscriptionService.SUBS_NAME_DELIMITER);
+							sb.append(name);
+							subscriptionTC.add(sb.toString());
+						} else {
+							// With TZ: reference/user/tzid/name
+							StringBuilder sb = new StringBuilder(add.getReference());
+							sb.append(ExternalCalendarSubscriptionService.SUBS_NAME_DELIMITER);
+							sb.append(add.getUserId());
+							sb.append(ExternalCalendarSubscriptionService.SUBS_NAME_DELIMITER);
+							sb.append(add.getUserTzid());
+							sb.append(ExternalCalendarSubscriptionService.SUBS_NAME_DELIMITER);
+							sb.append(name);
+							subscriptionTCWithTZ.add(sb.toString());
+						}
 					}
 				}
 			}
@@ -1804,18 +1826,19 @@ extends VelocityPortletStateAction
 				Properties config = placement.getPlacementConfig();
 				if (config != null)
 				{
-					boolean first = true;
-					StringBuilder propValue = new StringBuilder();
-					for (String ref : subscriptionTC)
-					{
-						if (!first) propValue.append(ExternalCalendarSubscriptionService.SUBS_REF_DELIMITER);
-						first = false;
-						propValue.append(ref);
+					String propValue = "";
+					if (!subscriptionTC.isEmpty()) {
+						propValue = subscriptionTC.stream().collect(Collectors.joining(ExternalCalendarSubscriptionService.SUBS_REF_DELIMITER));										
 					}
-					config.setProperty(
-							ExternalCalendarSubscriptionService.TC_PROP_SUBCRIPTIONS,
-							propValue.toString());
-	
+					
+					String propValueWithTZ = "";
+					if (!subscriptionTCWithTZ.isEmpty()) {
+						propValueWithTZ = subscriptionTCWithTZ.stream().collect(Collectors.joining(ExternalCalendarSubscriptionService.SUBS_REF_DELIMITER));										
+					}
+					
+					config.setProperty(ExternalCalendarSubscriptionService.TC_PROP_SUBCRIPTIONS, propValue);
+					config.setProperty(ExternalCalendarSubscriptionService.TC_PROP_SUBCRIPTIONS_WITH_TZ, propValueWithTZ);
+					
 					// commit the change
 					saveOptions();
 				}
@@ -1825,7 +1848,7 @@ extends VelocityPortletStateAction
 			enableObserver(sstate, true);
 
 			// Go back to whatever state we were in beforehand.
-			state.setReturnState(state.getPrevState());
+			state.setReturnState(CalendarAction.STATE_INITED);
 
 			// Clear the previous state so that we don't get confused elsewhere.
 			state.setPrevState("");
@@ -1848,6 +1871,10 @@ extends VelocityPortletStateAction
 
 			private boolean isSelected;
 
+			private String userId;
+			
+			private String userTzid;
+			
 			public SubscriptionWrapper()
 			{
 			}
@@ -1859,9 +1886,13 @@ extends VelocityPortletStateAction
 				this.displayName = subscription.getSubscriptionName();
 				this.isInstitutional = subscription.isInstitutional();
 				this.isSelected = selected;
+				if (subscription.getUserId()!=null) {
+					this.setUserId(subscription.getUserId());
+				}
+				this.setUserTzid(subscription.getTzid());
 			}
 
-			public SubscriptionWrapper(String calendarName, String ref, boolean selected)
+			public SubscriptionWrapper(String calendarName, String ref, String userId, String userTzid, boolean selected)
 			{
 				Reference _reference = EntityManager.newReference(ref);
 				this.reference = ref;
@@ -1872,6 +1903,8 @@ extends VelocityPortletStateAction
 				this.isInstitutional = externalCalendarSubscriptionService
 						.isInstitutionalCalendar(ref);
 				this.isSelected = selected;
+				this.setUserId(userId);
+				this.setUserTzid(userTzid);
 			}
 
 			public String getReference()
@@ -1922,6 +1955,22 @@ extends VelocityPortletStateAction
 			public void setSelected(boolean isSelected)
 			{
 				this.isSelected = isSelected;
+			}
+			
+			public String getUserId() {
+				return userId;
+			}
+			
+			public void setUserId(String userId) {
+				this.userId = userId;
+			}
+			
+			public String getUserTzid() {
+				return userTzid;
+			}
+			
+			public void setUserTzid(String userTzid) {
+				this.userTzid = userTzid;
 			}
 
 			public int compareTo(SubscriptionWrapper sub)
@@ -2255,6 +2304,8 @@ extends VelocityPortletStateAction
 	
 	private CalendarSubscriptionsPage calendarSubscriptionsPage =	new CalendarSubscriptionsPage();
 	
+	private String defaultStateView;
+	
 	/**
 	 * See if the current tab is the workspace tab (i.e. user site)
 	 * @return true if we are currently on the "My Workspace" tab.
@@ -2324,12 +2375,12 @@ extends VelocityPortletStateAction
 		
 		// add external calendar subscriptions
       List referenceList = mergedCalendarList.getReferenceList();
-      Set subscriptionRefList = externalCalendarSubscriptionService.getCalendarSubscriptionChannelsForChannels(
+      Set<ExternalSubscriptionDetails> subscriptionDetailsList = externalCalendarSubscriptionService.getCalendarSubscriptionChannelsForChannels(
     		  primaryCalendarReference,
     		  referenceList);
-      referenceList.addAll(subscriptionRefList);
-        
-		return referenceList;
+      subscriptionDetailsList.stream().forEach(x->referenceList.add(x.getReference()));
+      
+      return referenceList;
 	}
 	
 	/**
@@ -4272,6 +4323,7 @@ extends VelocityPortletStateAction
 		CalendarActionState state = (CalendarActionState)getState(context, data, CalendarActionState.class);
 		
 		state.setState("month");
+		this.defaultStateView = "month";
 		
 	} // doMonth
 	
@@ -4346,8 +4398,8 @@ extends VelocityPortletStateAction
 		
 		// store the state coming from, like day view, week view, month view or list view
 		String returnState = state.getState();
-		state.setPrevState(returnState);
-		state.setReturnState(returnState);
+		state.setPrevState(CalendarAction.STATE_INITED);
+		state.setReturnState(CalendarAction.STATE_INITED);
 		state.setState("description");
 		state.setAttachments(null);
 		state.setCalendarEventId(calId, eventId);
@@ -4462,6 +4514,9 @@ extends VelocityPortletStateAction
 		
 		// return to the state coming from
 		String returnState = state.getReturnState();
+		if( "".equals(returnState) || CalendarAction.STATE_INITED.equals(returnState) ) {
+			returnState = this.defaultStateView;
+		}
 		state.setState(returnState);
 	}
 	
@@ -4898,7 +4953,7 @@ extends VelocityPortletStateAction
 		state.setImportWizardState(null);
 		
 		// Return to the previous state.
-		state.setState(state.getPrevState());
+		state.setState(this.defaultStateView);
 	}
 	
 	/**
@@ -4912,7 +4967,7 @@ extends VelocityPortletStateAction
 		
 		Calendar calendarObj = null;
 		String currentState = state.getState();
-		String returnState = state.getReturnState();
+		String returnState = this.defaultStateView;
 		
 		if (currentState.equals(STATE_NEW))
 		{
@@ -4930,6 +4985,8 @@ extends VelocityPortletStateAction
 				{
 					state.setReturnState(returnState.substring(0, returnState.indexOf("!!!fromDescription")));
 					returnState = "description";
+				} else {
+					returnState = this.defaultStateView;
 				}
 			}
 			else
@@ -4943,6 +5000,8 @@ extends VelocityPortletStateAction
 					{
 						state.setReturnState(returnState.substring(0, returnState.indexOf("!!!fromDescription")));
 						returnState = "description";
+					} else {
+						returnState = this.defaultStateView;
 					}
 				}
 				else
@@ -4955,6 +5014,8 @@ extends VelocityPortletStateAction
 					{
 						state.setReturnState(returnState.substring(0, returnState.indexOf("!!!fromDescription")));
 						returnState = "description";
+					} else {
+						returnState = this.defaultStateView;
 					}
 				}
 				else	// in revise view, state name varies
@@ -5144,8 +5205,9 @@ extends VelocityPortletStateAction
 			log.debug(".doConfirm(): " + e);
 		}
 		
-		String returnState = state.getReturnState();
-		state.setState(returnState);
+		String stateName = ServerConfigurationService.getString("calendar.default.view", defaultStateView);
+		state.setState(stateName);
+		state.setReturnState(stateName);
 		
 	} // doConfirm
 	
@@ -5190,6 +5252,7 @@ extends VelocityPortletStateAction
 		CalendarActionState state = (CalendarActionState)getState(context, data, CalendarActionState.class);
 		
 		state.setState("year");
+		this.defaultStateView = "year";
 	}	 // doYear
 	
 	/**
@@ -5201,6 +5264,7 @@ extends VelocityPortletStateAction
 		CalendarActionState state = (CalendarActionState)getState(context, data, CalendarActionState.class);
 		
 		state.setState("week");
+		this.defaultStateView = "week";
 	}	 // doWeek
 	
 	
@@ -5321,6 +5385,7 @@ extends VelocityPortletStateAction
 		CalendarActionState state = (CalendarActionState)getState(context, data, CalendarActionState.class);
 		
 		state.setState("day");
+		this.defaultStateView = "day";
 	}	 // doMenueday
 	
 	
@@ -5690,7 +5755,7 @@ extends VelocityPortletStateAction
 		else if ( enable == null && oldExportEnabled )
 			CalendarService.setExportEnabled( calId, false );
 			
-		String returnState = state.getReturnState();
+		String returnState = "icalEx";
 		state.setState(returnState);
 		
 	}	 // doIcalExport
@@ -6094,6 +6159,9 @@ extends VelocityPortletStateAction
 			
 			// ReturnState was set up above.	 Switch states now.
 			String returnState = state.getReturnState();
+			if(returnState.equals(CalendarAction.STATE_INITED)) {
+				returnState = STATE_MERGE_CALENDARS;
+			}
 			if (returnState.endsWith("!!!fromDescription"))
 			{
 				state.setReturnState(returnState.substring(0, returnState.indexOf("!!!fromDescription")));
@@ -6101,7 +6169,7 @@ extends VelocityPortletStateAction
 			}
 			else
 			{
-				state.setReturnState("");
+				state.setReturnState(STATE_MERGE_CALENDARS);
 				state.setState(returnState);
 			}
 			
@@ -6113,6 +6181,9 @@ extends VelocityPortletStateAction
 				
 				// ReturnState was set up above.  Switch states now.
 				String returnState = state.getReturnState();
+				if(returnState.compareTo(CalendarAction.STATE_INITED) == 0) {
+					returnState = this.defaultStateView;
+				}
 				if (returnState.endsWith("!!!fromDescription"))
 				{
 					state.setReturnState(returnState.substring(0, returnState.indexOf("!!!fromDescription")));
@@ -6120,7 +6191,7 @@ extends VelocityPortletStateAction
 				}
 				else
 				{
-					state.setReturnState("");
+					state.setReturnState(this.defaultStateView);
 					state.setState(returnState);
 				}
 				
@@ -6146,8 +6217,8 @@ extends VelocityPortletStateAction
 					}
 					else
 					{
-						state.setReturnState("");
-						state.setState(returnState);
+						state.setReturnState(CalendarAction.STATE_CUSTOMIZE_CALENDAR);
+						state.setState(CalendarAction.STATE_CUSTOMIZE_CALENDAR);
 					}
 				} // if (!state.getDelfieldAlertOff())
 			}
@@ -6444,7 +6515,10 @@ extends VelocityPortletStateAction
 						addAlert(sstate, rb.getString("java.alert.youcreate"));
 						log.debug(".doUpdate(): " + e);
 					} // try-catch
-				} // if(title.length()==0)
+				} // if(title.length()==0)				
+				String stateName = ServerConfigurationService.getString("calendar.default.view", defaultStateView);
+				state.setState(stateName);
+				state.setReturnState(stateName);
 			} // if (state.getState().equalsIgnoreCase(STATE_CUSTOMIZE_CALENDAR))
 		
 	}	 // doUpdate
@@ -6856,6 +6930,7 @@ extends VelocityPortletStateAction
 		}
 		
 		state.setState("list");
+		this.defaultStateView = "list";
 	}	 // doList
 	
 	/**

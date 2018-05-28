@@ -299,6 +299,11 @@ public class BaseExternalCalendarSubscriptionService implements
 	 */
 	public ExternalCalendarSubscription getCalendarSubscription(String reference)
 	{
+		return getCalendarSubscription(reference, null, null);
+	}
+	
+	public ExternalCalendarSubscription getCalendarSubscription(String reference, String userId, String tzid)
+	{
 		if (!isEnabled() || reference == null) return null;
 
 		// Get Reference and Subscription URL
@@ -310,7 +315,7 @@ public class BaseExternalCalendarSubscriptionService implements
 		log.debug(" |-> subscriptionUrl: " + subscriptionUrl);
 
 		BaseExternalSubscriptionDetails subscription = getExternalSubscription(subscriptionUrl,
-				_ref.getContext());
+				_ref.getContext(), userId, tzid);
 
 
 		log.debug(" |-> Subscription is " + subscription);
@@ -327,6 +332,10 @@ public class BaseExternalCalendarSubscriptionService implements
 	}
 
 	private BaseExternalSubscriptionDetails getExternalSubscription(String subscriptionUrl, String context) {
+		return getExternalSubscription(subscriptionUrl, context, null, null);
+	}
+	
+	private BaseExternalSubscriptionDetails getExternalSubscription(String subscriptionUrl, String context, String userId, String tzid) {
 		// Decide which cache to use.
 		SubscriptionCache cache = (getInstitutionalSubscription(subscriptionUrl) != null)? institutionalSubscriptionCache : usersSubscriptionCache;
 		
@@ -334,17 +343,17 @@ public class BaseExternalCalendarSubscriptionService implements
 		// Did we get it?
 		if (subscription == null)
 		{
-			subscription = loadCalendarSubscriptionFromUrl(subscriptionUrl, context);
+			subscription = loadCalendarSubscriptionFromUrl(subscriptionUrl, context, userId, tzid);
 			cache.put(subscription);
 		}
 		return subscription;
 	}
 
-	public Set<String> getCalendarSubscriptionChannelsForChannels(
+	public Set<ExternalSubscriptionDetails> getCalendarSubscriptionChannelsForChannels(
 			String primaryCalendarReference,
 			Collection<Object> channels)
 	{
-		Set<String> subscriptionChannels = new HashSet<String>();
+		Set<ExternalSubscriptionDetails> subscriptionChannels = new HashSet<ExternalSubscriptionDetails>();
 		Set<String> subscriptionUrlsAdded = new HashSet<String>();
 		if(isMyWorkspace(primaryCalendarReference) && (!mergeIntoMyworkspace || m_securityService.isSuperUser())) {
 			channels = new ArrayList<Object>();
@@ -352,14 +361,13 @@ public class BaseExternalCalendarSubscriptionService implements
 		}
 		for (Object channel : channels)
 		{
-			Set<String> channelSubscriptions = getCalendarSubscriptionChannelsForChannel((String) channel);
-			for (String channelSub : channelSubscriptions)
+			Set<ExternalSubscriptionDetails> channelSubscriptions = getCalendarSubscriptionChannelsForChannel((String) channel);
+			for (ExternalSubscriptionDetails channelSub : channelSubscriptions)
 			{
-				Reference ref = m_entityManager.newReference(channelSub);
-				if (!subscriptionUrlsAdded.contains(ref.getId()))
+				if (!subscriptionUrlsAdded.contains(channelSub.getSubscriptionUrl()))
 				{
 					subscriptionChannels.add(channelSub);
-					subscriptionUrlsAdded.add(ref.getId());
+					subscriptionUrlsAdded.add(channelSub.getSubscriptionUrl());
 				}
 			}
 		}
@@ -371,9 +379,9 @@ public class BaseExternalCalendarSubscriptionService implements
 	 * 
 	 * @see org.sakaiproject.calendar.impl.ExternalCalendarSubscriptionService#getCalendarSubscriptionChannelsForSite()
 	 */
-	public Set<String> getCalendarSubscriptionChannelsForChannel(String reference)
+	public Set<ExternalSubscriptionDetails> getCalendarSubscriptionChannelsForChannel(String reference)
 	{
-		Set<String> channels = new HashSet<String>();
+		Set<ExternalSubscriptionDetails> channels = new HashSet<ExternalSubscriptionDetails>();
 		if (!isEnabled() || reference == null) return channels;
 
 		// get externally subscribed urls from tool config
@@ -399,7 +407,24 @@ public class BaseExternalCalendarSubscriptionService implements
 				String[] chsPair = prop.split(SUBS_REF_DELIMITER);
 				for (String aChsPair : chsPair) {
 					String[] pair = aChsPair.split(SUBS_NAME_DELIMITER);
-					channels.add(pair[0]);
+					Reference refc = m_entityManager.newReference(pair[0]);
+					String url = getSubscriptionUrlFromId(refc.getId());
+					ExternalSubscriptionDetails esd = getExternalSubscription(url, ref.getContext());
+					channels.add(esd);
+				}
+			}
+			String propTz = config.getProperty(TC_PROP_SUBCRIPTIONS_WITH_TZ);
+			if (propTz != null)
+			{
+				String[] chsPair = propTz.split(SUBS_REF_DELIMITER);
+				for (String aChsPair : chsPair) {
+					String[] pair = aChsPair.split(SUBS_NAME_DELIMITER);
+					Reference refc = m_entityManager.newReference(pair[0]);
+					String url = getSubscriptionUrlFromId(refc.getId());
+					String userId = pair[1];
+					String tzid = pair[2];
+					ExternalSubscriptionDetails esd = getExternalSubscription(url, ref.getContext(), userId, tzid);
+					channels.add(esd);
 				}
 			}
 		}
@@ -482,6 +507,39 @@ public class BaseExternalCalendarSubscriptionService implements
 					subscriptions.add(detail);
 				}
 			}
+			String propWithTZ = config.getProperty(TC_PROP_SUBCRIPTIONS_WITH_TZ);
+			if (propWithTZ != null)
+			{
+				String[] chsSubscription = propWithTZ.split(SUBS_REF_DELIMITER);
+				for (String aChsSubscription : chsSubscription) {
+					String[] subscription = aChsSubscription.split(SUBS_NAME_DELIMITER);
+					String r = subscription[0];
+					Reference r1 = m_entityManager.newReference(r);
+					String url = getSubscriptionUrlFromId(r1.getId());
+					String userId = subscription[1];
+					String tzid = subscription[2];
+					String name;
+					if (subscription.length == 4) {
+						name = subscription[3];
+					} else {
+						try {
+							name = institutionalSubscriptionCache.get(url).getSubscriptionName();
+						} catch (Exception e) {
+							name = url;
+						}
+					}
+					BaseExternalSubscriptionDetails detail;
+					if (loadCalendar) {
+						detail = getExternalSubscription(url, ref.getContext(), userId, tzid);
+					} else {
+						detail = new BaseExternalSubscriptionDetails(
+								name, url, ref.getContext(),
+								null, isInstitutionalCalendar(r), userId, tzid);
+
+					}
+					subscriptions.add(detail);
+				}
+			}
 		}
 
 		return subscriptions;
@@ -494,7 +552,13 @@ public class BaseExternalCalendarSubscriptionService implements
 	 *      Collection<ExternalSubscriptionDetails>)
 	 */
 	public void setSubscriptionsForChannel(String reference,
-			Collection<ExternalSubscription> subscriptions)
+			Collection<ExternalSubscription> subscriptions) {
+		setSubscriptionsForChannel(reference, subscriptions, false);
+	}
+	
+	
+	private void setSubscriptionsForChannel(String reference,
+			Collection<ExternalSubscription> subscriptions, boolean withTz)
 	{
 		if (!isEnabled() || reference == null) return;
 
@@ -529,7 +593,7 @@ public class BaseExternalCalendarSubscriptionService implements
 			}
 
 			Properties config = tc.getConfig();
-			config.setProperty(TC_PROP_SUBCRIPTIONS, tmpStr.toString());
+			config.setProperty(withTz?TC_PROP_SUBCRIPTIONS_WITH_TZ:TC_PROP_SUBCRIPTIONS, tmpStr.toString());
 			tc.save();
 		}
 	}
@@ -629,7 +693,7 @@ public class BaseExternalCalendarSubscriptionService implements
 	}
 
 	BaseExternalSubscriptionDetails loadCalendarSubscriptionFromUrl(String url,
-																	String context)
+																	String context, String userId, String tzid)
 	{
 		InsitutionalSubscription sub = getInstitutionalSubscription(url);
 		String name = null;
@@ -639,11 +703,11 @@ public class BaseExternalCalendarSubscriptionService implements
 			name = sub.name;
 			forcedEventType = sub.eventType;
 		}
-		return loadCalendarSubscriptionFromUrl(url, context, name, forcedEventType);
+		return loadCalendarSubscriptionFromUrl(url, context, userId, tzid, name, forcedEventType);
 	}
 
 	BaseExternalSubscriptionDetails loadCalendarSubscriptionFromUrl(String url,
-																	String context, String calendarName, String forcedEventType)
+																	String context, String userId, String tzid, String calendarName, String forcedEventType)
 	{
 		boolean institutional = INSTITUTIONAL_CONTEXT.equals(context);
 		String error = null;
@@ -665,7 +729,7 @@ public class BaseExternalCalendarSubscriptionService implements
 			try (BufferedInputStream stream =  new BufferedInputStream(conn.getInputStream())) {
 				// import
 				events = m_importerService.doImport(CalendarImporterService.ICALENDAR_IMPORT,
-						stream, columnMap, null);
+						stream, columnMap, null, tzid);
 			}
 
 			String subscriptionId = getIdFromSubscriptionUrl(url);
@@ -676,11 +740,11 @@ public class BaseExternalCalendarSubscriptionService implements
 				String eventType = event.getType();
 				if (forcedEventType != null) eventType = forcedEventType;
 				calendar.addEvent(event.getRange(), event.getDisplayName(), event
-						.getDescription(), eventType, event.getLocation(), event
-						.getRecurrenceRule(), null);
+						.getDescription(), eventType, event.getLocation(), userId,
+						event.getRecurrenceRule(), null);
 			}
 			calendar.setName(calendarName);
-			BaseExternalSubscriptionDetails subscription = new BaseExternalSubscriptionDetails(calendarName, url, context, calendar, institutional, true, null, Instant.now(clock));
+			BaseExternalSubscriptionDetails subscription = new BaseExternalSubscriptionDetails(calendarName, url, context, calendar, institutional, userId, tzid, true, null, Instant.now(clock));
 			log.info("Loaded calendar subscription: " + subscription.toString());
 			return subscription;
 		}
@@ -715,7 +779,7 @@ public class BaseExternalCalendarSubscriptionService implements
 			error = "Unknown";
 		}
 		BaseExternalSubscriptionDetails subscription = new BaseExternalSubscriptionDetails(calendarName,
-				url, context, null, institutional, false, error, Instant.now(clock));
+				url, context, null, institutional, userId, tzid, false, error, Instant.now(clock));
 		return subscription;
 	}
 	
@@ -784,6 +848,14 @@ public class BaseExternalCalendarSubscriptionService implements
 				String description, String type, String location, RecurrenceRule rrule,
 				List attachments) throws PermissionException
 		{
+			String currentUser = m_sessionManager.getCurrentSessionUserId();
+			return addEvent(range, displayName, description, type, location, currentUser, rrule, attachments);
+		}
+		
+		public CalendarEvent addEvent(TimeRange range, String displayName,
+				String description, String type, String location, String creator,
+				RecurrenceRule rrule, List attachments) throws PermissionException
+		{
 			// allocate a new unique event id
 			// String id = getUniqueId();
 			String id = getUniqueIdBasedOnFields(displayName, description, type, location, m_id);
@@ -797,7 +869,7 @@ public class BaseExternalCalendarSubscriptionService implements
 			edit.setDescription(description);
 			edit.setType(type);
 			edit.setLocation(location);
-			edit.setCreator();
+			edit.setCreator(creator);
 			if (rrule != null) edit.setRecurrenceRule(rrule);
 
 			// put in storage
@@ -1412,11 +1484,15 @@ public class BaseExternalCalendarSubscriptionService implements
 			return null;
 		}
 
-		public void setCreator()
+		public void setCreator(String creator)
 		{
-			String currentUser = m_sessionManager.getCurrentSessionUserId();
+			String userId = creator;
+			// If creator is unknown, the creator is current user
+			if (userId==null) {
+				userId = m_sessionManager.getCurrentSessionUserId();
+			}
 			String now = m_timeService.newTime().toString();
-			m_properties.addProperty(ResourceProperties.PROP_CREATOR, currentUser);
+			m_properties.addProperty(ResourceProperties.PROP_CREATOR, userId);
 			m_properties.addProperty(ResourceProperties.PROP_CREATION_DATE, now);
 		}
 

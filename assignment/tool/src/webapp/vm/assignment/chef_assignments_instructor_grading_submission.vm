@@ -21,7 +21,7 @@
 <div class="portletBody">
 
     #set($gradeType = $assignment.TypeOfGrade.ordinal())
-    #navBarOnClick( $allowAddAssignment $withGrade $allowGradeSubmission $allowAddAssignment $allowAllGroups $assignmentscheck $allowUpdateSite $enableViewOption $view "gradeForm" "")
+    #navBarOnClick( $allowAddAssignment $withGrade $allowGradeSubmission $allowAddAssignment $allowRecoverAssignment $allowAllGroups $assignmentscheck $allowUpdateSite $enableViewOption $view "gradeForm" "")
     ## confirmation
     #if ($!gradingDone)
         <div class="success">
@@ -123,7 +123,7 @@
                     $tlang.getString("gen.student")
                 </th>
                 <td>
-					#if ($value_CheckAnonymousGrading.equals("true"))
+					#if ($value_CheckAnonymousGrading)
                         $validator.escapeHtml($!submission.Id) $tlang.getString("grading.anonymous.title")
                     #else
                         $!submitterNames
@@ -262,7 +262,6 @@
         #end
         #if ($assignment_expand_flag)
             #if (!$assignment.Instructions.isEmpty())
-                +
                 <div class="textPanel">$validator.escapeHtmlFormattedText($assignment.Instructions)</div>
             #end
 
@@ -577,15 +576,15 @@
                         <div id="gradeOverridePanel" style="#if(!$value_grades || $value_grades.size()<1)display:none;#end">
                             ## replace it with submitter sort names
                             #foreach ($submitter in $submission.submitters)
-                                #set($submitterName = $submitter.getDisplayName())
-                                #set($submitterId = $submitter.getDisplayId())
+                                #set($submitterName = $users.get($submitter.getSubmitter()).getDisplayName())
+                                #set($submitterId = $users.get($submitter.getSubmitter()).getDisplayId())
                                 #if ($!submitterId)
                                 ##attach the displayId
                                     #set($submitterName=$submitterName.concat(" (").concat($submitterId).concat(")"))
                                 #end
-                                #set ($group_name_grade = $name_grade.concat("_").concat($submitter.getId()))
+                                #set ($group_name_grade = $name_grade.concat("_").concat($submitter.getSubmitter()))
                                 #set ($group_value_grade = "")
-                                #set ($group_value_grade = $value_grades.get($submitter.getId()))
+                                #set ($group_value_grade = $value_grades.get($submitter.getSubmitter()))
                                 #if ($gradeType == 2)
                                     <div class="row-override">
                                         <label>$!submitterName</label>
@@ -673,8 +672,8 @@
                 #end
             </div>
             ## the previous grades
-            #set ($previousGrades =  $submission.Properties.get($submission.Properties.getNamePropSubmissionScaledPreviousGrades()))
-            #if ($!previousGrades && $!previousGrades.length() != 0 )
+            #set ($previousGrades = $submission.Properties.get($NamePropSubmissionScaledPreviousGrades))
+            #if ($previousGrades && $previousGrades.length() > 0 )
                 <h4 id="toggleGrade" class="toggleAnchor">
                     <img alt="expand" class="expand" src="/library/image/sakai/expand.gif"/>
                     <img alt="collapse" class="collapse" src="/library/image/sakai/collapse.gif"/>
@@ -707,7 +706,7 @@
         #if ($!prevFeedbackComment)
             <h4 id="toggleGen" class="toggleAnchor">
                 <img alt="expand" class="expand" src="/library/image/sakai/expand.gif"/>
-                <img alt="collapse" src="/library/image/sakai/collapse.gif"/>
+                <img alt="collapse" class="collapse" src="/library/image/sakai/collapse.gif"/>
                 $tlang.getString("gradingsub.prefee2")
             </h4>
             <div class="gencoms  toggledContent">

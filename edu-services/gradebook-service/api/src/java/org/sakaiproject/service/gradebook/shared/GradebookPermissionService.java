@@ -19,6 +19,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
+import org.sakaiproject.section.api.facade.Role;
 
 public interface GradebookPermissionService
 {
@@ -269,6 +270,18 @@ public interface GradebookPermissionService
 	  * @return
 	  */
 	 public void updatePermissionsForUser(final String gradebookUid, final String userId, List<PermissionDefinition> permissionDefinitions);
-
 	 
+	 /**
+	  * Get a list of permissions defined for the given user based on section and role or all sections if allowed. 
+	  * This method checks realms permissions for role/section and is independent of the 
+	  * gb_permissions_t permissions.
+	  * 
+	  * note: If user has the grade privilege, they are given the GraderPermission.VIEW_COURSE_GRADE permission to match
+	  * GB classic functionality. This needs to be reviewed.
+	  *
+	  * @param userUuid
+	  * @param siteId
+	  * @return list of {@link org.sakaiproject.service.gradebook.shared.PermissionDefinition PermissionDefinitions} or empty list if none
+	  */	
+	 public List<PermissionDefinition> getRealmsPermissionsForUser(String userUuid,String siteId, Role role);
 }

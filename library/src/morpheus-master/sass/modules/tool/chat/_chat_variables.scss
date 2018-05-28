@@ -5,6 +5,7 @@
 
 $footerApp__chat__border--color: 		$primary-color;
 $footerApp__chat__color: 		 		$text-color;
+$footerApp__chat__color-lighter: 		 		lighten( $text-color, 30%);
 $footerApp__chat__background: 	 		$tool-background-color;
 
 $footerApp__chat__a__color: 	 		$primary-color;

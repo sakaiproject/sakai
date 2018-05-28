@@ -71,6 +71,10 @@ public interface UserDirectoryService extends EntityProducer
 	/** User eid for the admin user. */
 	static final String ADMIN_EID = "admin";
 
+	/** Cache keys for the id/eid mapping **/
+	static final String EIDCACHE = "eid:";
+	static final String IDCACHE = "id:";
+
 	/**
 	 * This function returns a boolean value of true/false,
 	 * depending on if the given password meets the validation criteria.
@@ -178,14 +182,24 @@ public interface UserDirectoryService extends EntityProducer
 	 * @return true if the user is allowed to update their own first and last names, false if not.
 	 */
 	public boolean allowUpdateUserName(String id);
+
 	/**
-	 * Gets the UserEdit object from storage inorder to update the user Eid()
+	 * Gets the UserEdit object from storage inorder to update the user eid and email
 	 *
-	 * @param eId  The user id.
-	 * @param newEmail the Id with which userId will be updated
+	 * @param id  The user id.
+	 * @param newEmail the new email that will set the eid + email fields
 	 * @return UserEdit object
 	 */
-	public boolean updateUserId(String eId,String newEmail);
+	public boolean updateUserId(String id, String newEmail);
+
+	/**
+	 * Gets the UserEdit object from storage to remap the username (eid)
+	 *
+	 * @param id  The internal user id.
+	 * @param newEid the new username
+	 * @return UserEdit object
+	 */
+	public boolean updateUserEid(String id, String newEid);
 
 	/**
 	 * check permissions for editUser()

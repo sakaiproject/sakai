@@ -38,7 +38,7 @@
 				background-color: #f1f1f1;
 			}
 		</style>
-        <script src="/library/js/spinner.js" type="text/javascript"></script>
+        <samigo:script path="/../library/js/spinner.js"/>
 <%@ include file="/js/delivery.js" %>
 
 <script type="text/javascript">
@@ -85,7 +85,7 @@ $(document).ready(function(){
     this.existingOnclick = this.onclick;
     this.onclick = null;
     $(this).click(function(){
-      if ( confirm("Are you sure you want to delete this attempt?") ) {
+    	if ( confirm("<h:outputText value="#{commonMessages.confirm_delete_attempt}" escape="false"/>") ) {
         this.existingOnclick();
       } else {
         return false;
@@ -305,14 +305,14 @@ $(document).ready(function(){
 	<!-- Add Submission Attempt Deleter-->
 	<h:column rendered="true">
      <f:facet name="header">
-       <h:outputText value="Delete" rendered="true" />
+       <h:outputText value="#{commonMessages.delete}" rendered="true" />
      </f:facet>
      <h:panelGroup> <span class="tier2">
        <h:outputText value="<a name=\"" escape="false" />
        <h:outputText value="#{description.lastInitial}" />
        <h:outputText value="\"></a>" escape="false" />
 
-       <h:commandLink styleClass="sam-scoretable-deleteattempt" title="delete attempt" action="totalScores" immediate="true" rendered="true" >
+       <h:commandLink styleClass="sam-scoretable-deleteattempt" title="#{commonMessages.delete_attempt}" action="totalScores" immediate="true" rendered="true" >
          <h:outputText value="X" rendered="#{description.submittedDate!=null &&  description.assessmentGradingId ne '-1'}" />
          <f:actionListener  type="org.sakaiproject.tool.assessment.ui.listener.evaluation.GrantSubmissionListener" />
          <f:actionListener  type="org.sakaiproject.tool.assessment.ui.listener.evaluation.ResetTotalScoreListener" />
@@ -655,20 +655,18 @@ $(document).ready(function(){
         <h:outputText value="#{description.submittedDate}" rendered="#{description.attemptDate != null && (totalScores.anonymous eq 'false'  || description.assessmentGradingId ne '-1')}" >
           <f:convertDateTime pattern="#{generalMessages.output_data_picker_w_sec}"/>
         </h:outputText>
-		<h:panelGroup rendered="#{description.isLate == 'true' && description.attemptDate != null
-                    && (totalScores.anonymous eq 'false'  || description.assessmentGradingId ne '-1')
-					&& !(totalScores.isTimedAssessment eq 'true' && totalScores.acceptLateSubmission eq 'false')}">
-			<f:verbatim><br/></f:verbatim>
-			<h:outputText style="color:red" value="#{evaluationMessages.late}"/>
-		</h:panelGroup>
+        <h:panelGroup rendered="#{description.attemptDate != null && (totalScores.anonymous eq 'false' || description.assessmentGradingId ne '-1')}">
+          <h:panelGroup rendered="#{description.isLate == 'true' && ((description.isAutoSubmitted == 'false' && !(totalScores.isTimedAssessment eq 'true' && totalScores.acceptLateSubmission eq 'false'))
+                                      || (description.isAutoSubmitted == 'true' && totalScores.acceptLateSubmission eq 'true' && totalScores.isTimedAssessment ne 'true'))}">
+            <f:verbatim><br/></f:verbatim>
+            <h:outputText style="color:red" value="#{evaluationMessages.late}"/>
+          </h:panelGroup>
+          <h:panelGroup rendered="#{description.isAutoSubmitted == 'true' && totalScores.isTimedAssessment ne 'true' && (description.isLate == 'false' || totalScores.acceptLateSubmission eq 'true')}">
+            <f:verbatim><br/></f:verbatim>
+            <h:outputText style="color:red" value="#{evaluationMessages.auto_submit}"/>
+          </h:panelGroup>
+        </h:panelGroup>
 
-		<h:panelGroup rendered="#{description.isAutoSubmitted == 'true' && description.isLate == 'false' && description.attemptDate != null
-                    && (totalScores.anonymous eq 'false'  || description.assessmentGradingId ne '-1')
-					&& !totalScores.isTimedAssessment eq 'true'}">
-			<f:verbatim><br/></f:verbatim>
-			<h:outputText style="color:red" value="#{evaluationMessages.auto_submit}"/>
-		</h:panelGroup>
-		
       <h:outputText value="#{evaluationMessages.no_submission}"
          rendered="#{description.attemptDate == null && (totalScores.anonymous eq 'false'  || description.assessmentGradingId ne '-1')}"/>
     </h:column>
@@ -686,19 +684,17 @@ $(document).ready(function(){
         <h:outputText value="#{description.submittedDate}" rendered="#{description.attemptDate != null && (totalScores.anonymous eq 'false'  || description.assessmentGradingId ne '-1')}" >
           <f:convertDateTime pattern="#{generalMessages.output_data_picker_w_sec}"/>
         </h:outputText>
-		<h:panelGroup rendered="#{description.isLate == 'true' && description.attemptDate != null
-                    && (totalScores.anonymous eq 'false'  || description.assessmentGradingId ne '-1')
-					&& !(totalScores.isTimedAssessment eq 'true' && totalScores.acceptLateSubmission eq 'false')}">
-			<f:verbatim><br/></f:verbatim>
-			<h:outputText style="color:red" value="#{evaluationMessages.late}"/>
-		</h:panelGroup>
-
-		<h:panelGroup rendered="#{description.isAutoSubmitted == 'true' && description.isLate == 'false' && description.attemptDate != null
-                    && (totalScores.anonymous eq 'false'  || description.assessmentGradingId ne '-1')
-					&& !totalScores.isTimedAssessment eq 'true'}">
-			<f:verbatim><br/></f:verbatim>
-			<h:outputText style="color:red" value="#{evaluationMessages.auto_submit}"/>
-		</h:panelGroup>
+        <h:panelGroup rendered="#{description.attemptDate != null && (totalScores.anonymous eq 'false' || description.assessmentGradingId ne '-1')}">
+          <h:panelGroup rendered="#{description.isLate == 'true' && ((description.isAutoSubmitted == 'false' && !(totalScores.isTimedAssessment eq 'true' && totalScores.acceptLateSubmission eq 'false'))
+                                      || (description.isAutoSubmitted == 'true' && totalScores.acceptLateSubmission eq 'true' && totalScores.isTimedAssessment ne 'true'))}">
+            <f:verbatim><br/></f:verbatim>
+            <h:outputText style="color:red" value="#{evaluationMessages.late}"/>
+          </h:panelGroup>
+          <h:panelGroup rendered="#{description.isAutoSubmitted == 'true' && totalScores.isTimedAssessment ne 'true' && (description.isLate == 'false' || totalScores.acceptLateSubmission eq 'true')}">
+            <f:verbatim><br/></f:verbatim>
+            <h:outputText style="color:red" value="#{evaluationMessages.auto_submit}"/>
+          </h:panelGroup>
+        </h:panelGroup>
 
         <h:outputText value="#{evaluationMessages.no_submission}"
          rendered="#{description.attemptDate == null && (totalScores.anonymous eq 'false'  || description.assessmentGradingId ne '-1')}"/>
@@ -718,20 +714,18 @@ $(document).ready(function(){
         <h:outputText value="#{description.submittedDate}" rendered="#{description.attemptDate != null && (totalScores.anonymous eq 'false'  || description.assessmentGradingId ne '-1')}" >
           <f:convertDateTime pattern="#{generalMessages.output_data_picker_w_sec}"/>
         </h:outputText>
-		<h:panelGroup rendered="#{description.isLate == 'true' && description.attemptDate != null
-                    && (totalScores.anonymous eq 'false'  || description.assessmentGradingId ne '-1')
-					&& !(totalScores.isTimedAssessment eq 'true' && totalScores.acceptLateSubmission eq 'false')}">
-			<f:verbatim><br/></f:verbatim>
-			<h:outputText style="color:red" value="#{evaluationMessages.late}"/>
-		</h:panelGroup>
+        <h:panelGroup rendered="#{description.attemptDate != null && (totalScores.anonymous eq 'false' || description.assessmentGradingId ne '-1')}">
+          <h:panelGroup rendered="#{description.isLate == 'true' && ((description.isAutoSubmitted == 'false' && !(totalScores.isTimedAssessment eq 'true' && totalScores.acceptLateSubmission eq 'false'))
+                                      || (description.isAutoSubmitted == 'true' && totalScores.acceptLateSubmission eq 'true' && totalScores.isTimedAssessment ne 'true'))}">
+            <f:verbatim><br/></f:verbatim>
+            <h:outputText style="color:red" value="#{evaluationMessages.late}"/>
+          </h:panelGroup>
+          <h:panelGroup rendered="#{description.isAutoSubmitted == 'true' && totalScores.isTimedAssessment ne 'true' && (description.isLate == 'false' || totalScores.acceptLateSubmission eq 'true')}">
+            <f:verbatim><br/></f:verbatim>
+            <h:outputText style="color:red" value="#{evaluationMessages.auto_submit}"/>
+          </h:panelGroup>
+        </h:panelGroup>
 
-		<h:panelGroup rendered="#{description.isAutoSubmitted == 'true' && description.isLate == 'false' && description.attemptDate != null
-                    && (totalScores.anonymous eq 'false'  || description.assessmentGradingId ne '-1')
-					&& !totalScores.isTimedAssessment eq 'true'}">
-			<f:verbatim><br/></f:verbatim>
-			<h:outputText style="color:red" value="#{evaluationMessages.auto_submit}"/>
-		</h:panelGroup>
-		
         <h:outputText value="#{evaluationMessages.no_submission}"
          rendered="#{description.attemptDate == null && (totalScores.anonymous eq 'false'  || description.assessmentGradingId ne '-1')}"/>
     </h:column>

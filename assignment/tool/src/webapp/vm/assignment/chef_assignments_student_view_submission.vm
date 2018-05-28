@@ -33,6 +33,7 @@ $(document).ready(function(){
 	#set($dateSubmitted=$submission.DateSubmitted)
 	#set($submitted=false)
 	#set($submitted=$submission.Submitted)
+	#set($isUserSubmission=$submission.UserSubmission)
 	#set($returned=false)
 	#set($returned=$submission.Returned)
 	#set($closeDate = false)
@@ -56,23 +57,18 @@ $(document).ready(function(){
 				<h3>$tlang.getString("viewexampleassign") </h3>
 			#else
 			<h3>
+				$validator.escapeHtml($assignment.Title)
 				#if(!$submitted)
-					## draft submission
-##					$tlang.getString("viewassign")
-					## no need to show status if this is for an non-electronic submission type of assignment
-				 #if (!$!nonElectronicType)
-##						<span class="highlight">
-##						 	- $tlang.getString("gen.inpro")
-##						</span>
-					#end
+                    <span class="highlight">
+						 - $!service.getSubmissionStatus($!submission.Id)
+					</span>
 				#end
 				#if ($dateReturned && $dateSubmitted && $dateReturned.isAfter($dateSubmitted))
-				$validator.escapeHtml($assignment.getTitle())
 					<span class="highlight">
 						 - $tlang.getString("resubmit")
 					</span>
 				#end	
-				</h3>
+			</h3>
 			#end
 			#if ($returned)
 					#if ($dateSubmitted && $dateReturned && $dateReturned.isAfter($dateSubmitted))
@@ -89,8 +85,6 @@ $(document).ready(function(){
 					#end
 			#elseif ($submission.Graded && ($submission.GradeReleased || $returned))
 					$tlang.getString("stuviewsubm.asshasbee2")
-                        #elseif (!$submission.Submitted)
-                                        $submission.getStatus()
 			#else
 					<p class="instruction">$tlang.getString("gen.hasbee") $!service.getUsersLocalDateTimeString($submission.DateSubmitted)</p>
 					#if ($!dateSubmitted && $!dateSubmitted.isAfter($assignment.DueDate))
@@ -199,31 +193,7 @@ $(document).ready(function(){
 					<div class="col-lg-4 col-sm-6 col-xs-12">
 						<div class="itemSummaryValue">
 							#if ($!submission)
-								#if ($submitted && $dateSubmitted)
-									#if ($returned)
-										#if ($dateReturned && $dateSubmitted && $dateReturned.isAfter($dateSubmitted))
-											$tlang.getString("gen.retu") $!service.getUsersLocalDateTimeString($submission.dateReturned)
-										#else
-											$tlang.getString("gen.resub") $!service.getUsersLocalDateTimeString($submission.DateSubmitted)
-											#if ($dateSubmitted && $!dateSubmitted.isAfter($assignment.DueDate))
-												<span class="highlight"> $tlang.getString("gen.late")</span>
-											#end
-										#end
-									#elseif ($submission.getGraded() && $submission.getGradeReleased())
-										#if ($!withGrade)
-											$tlang.getString("grad3")
-										#else
-											$tlang.getString("gen.commented")
-										#end
-									#else
-										$tlang.getString("gen.subm4") $!service.getUsersLocalDateTimeString($submission.DateSubmitted)
-										#if ($dateSubmitted && $dateSubmitted.isAfter($assignment.DueDate))
-											<span class="highlight">$tlang.getString("gen.late2")</span>
-										#end
-									#end
-								#else
-									$tlang.getString("gen.inpro")
-								#end
+								$!service.getSubmissionStatus($submission.Id)
 							#else
 								$tlang.getString("gen.notsta")
 							#end
@@ -326,6 +296,10 @@ $(document).ready(function(){
 										$tlang.getString("submission.inline")
 									#else
 										$validator.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))
+									#end
+									#if (!$reviewResult.getReviewReport().equals("Error") &&
+										$reviewResult.contentReviewItem.Properties.get($NamePropContentReviewOptoutUrl))
+										(<a href="$!reviewResult.contentReviewItem.Properties.get($NamePropContentReviewOptoutUrl)" target="_blank">$tlang.getString("review.report.urkund.optoutlink")</a>)
 									#end
 								</div>
 							#end
@@ -518,49 +492,16 @@ $(document).ready(function(){
 							<h3>$tlang.getString("gen.addinst")</h3>
 						#end	
 							<div class="textPanel">$validator.escapeHtmlFormattedText($submission.FeedbackComment)</div>
-						#else
 					#end
 					## for returned (not resubmitted ) submission, show the instructor feedback
 					#if ($!prevFeedbackComment && $!prevFeedbackComment.trim().length() > 0)
 							<h4  id="toggleGen" class="toggleAnchor"><img alt="expand" class="expand" src="/library/image/sakai/expand.gif" /><img alt="collapse" class="collapse" src="/library/image/sakai/collapse.gif" />
 								$tlang.getString("gradingsub.prefee2")
-								</h4>
+							</h4>
 					<div class="toggledContent gencoms">					
 						$cheffeedbackhelper.showPrevFeedback($cheffeedbackhelper.escapeAssignmentFeedback($!prevFeedbackComment))</div>
-					#end					
-					#set ($size = 0)
-					#set ($props = false)
-					#set ($feedbackAttachments = $submission.FeedbackAttachments)	
-					#set ($size = 0)
-					#set ($props = false)
-					#foreach ($attachment in $feedbackAttachments) 
-						#set ($props = $attachment.Properties) 
-						#if ($!props)
-							#set ($size = $size + 1)
-						#end
 					#end
-					#if ($size == 0)
-						##$tlang.getString("gen.noatt")
-					#else
-						<h4>$tlang.getString("gen.addinstatts")</h4>
-						<ul class="attachList indnt1">
-							#foreach ($attachment in $feedbackAttachments) 
-								#set ($props = false)
-								#set ($props = $attachment.Properties) 
-								#if ($!props)
-									<li>
-										#if ($props.getBooleanProperty($props.NamePropIsCollection))
-											<img src = "#imageLink($contentTypeImageService.getContentTypeImage("folder"))" border="0" alt="$tlang.getString("gen.folatt")" />
-										#else
-											<img src = "#imageLink($contentTypeImageService.getContentTypeImage($props.getProperty($props.NamePropContentType)))" border="0" alt="$tlang.getString("gen.filatt")" />
-										#end
-										<a href="$attachment.Url" target="_blank">$validator.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))</a>						
-										#propertyDetails($props)
-									</li>
-								#end
-							#end
-						</ul>
-					#end
+					#parse ("/vm/assignment/chef_assignments_student_view_feedback_attachments.vm")
 			#end
 			##just show a simple done button for non-electronic submission type
 			<form name="dummyForm" action="#toolForm("AssignmentAction")" method="post" onsubmit="return true;">
@@ -971,49 +912,16 @@ $(document).ready(function(){
 							<h3>$tlang.getString("gen.addinst")</h3>
 						#end	
 							<div class="textPanel">$validator.escapeHtmlFormattedText($submission.FeedbackComment)</div>
-						#else
 					#end
 					## for returned (not resubmitted ) submission, show the instructor feedback
 					#if ($!prevFeedbackComment && $!prevFeedbackComment.trim().length() > 0)
 							<h4  id="toggleGen" class="toggleAnchor"><img alt="expand" class="expand" src="/library/image/sakai/expand.gif" /><img alt="collapse" class="collapse" src="/library/image/sakai/collapse.gif" />
 								$tlang.getString("gradingsub.prefee2")
-								</h4>
+							</h4>
 					<div class="toggledContent gencoms">					
 						$cheffeedbackhelper.showPrevFeedback($cheffeedbackhelper.escapeAssignmentFeedback($!prevFeedbackComment))</div>
 					#end					
-					#set ($size = 0)
-					#set ($props = false)
-					#set ($feedbackAttachments = $submission.FeedbackAttachments)	
-					#set ($size = 0)
-					#set ($props = false)
-					#foreach ($attachment in $feedbackAttachments) 
-						#set ($props = $attachment.Properties) 
-						#if ($!props)
-							#set ($size = $size + 1)
-						#end
-					#end
-					#if ($size == 0)
-						##$tlang.getString("gen.noatt")
-					#else
-						<h4>$tlang.getString("gen.addinstatts")</h4>
-						<ul class="attachList indnt1">
-							#foreach ($attachment in $feedbackAttachments) 
-								#set ($props = false)
-								#set ($props = $attachment.Properties) 
-								#if ($!props)
-									<li>
-										#if ($props.getBooleanProperty($props.NamePropIsCollection))
-											<img src = "#imageLink($contentTypeImageService.getContentTypeImage("folder"))" border="0" alt="$tlang.getString("gen.folatt")" />
-										#else
-											<img src = "#imageLink($contentTypeImageService.getContentTypeImage($props.getProperty($props.NamePropContentType)))" border="0" alt="$tlang.getString("gen.filatt")" />
-										#end
-										<a href="$attachment.Url" target="_blank">$validator.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))</a>						
-										#propertyDetails($props)
-									</li>
-								#end
-							#end
-						</ul>
-					#end
+					#parse ("/vm/assignment/chef_assignments_student_view_feedback_attachments.vm")
 					## show previous grading/feedback attachments if any
 					#if ($!prevFeedbackAttachments && $prevFeedbackAttachments.size()>0)
 						## show previous grading/feedback attachments if any
@@ -1124,7 +1032,7 @@ $(document).ready(function(){
 									onclick="ASN_SVS.confirmDiscardOrSubmit( '$name_submission_text', $!new_attachments ); return false;" />
 							#end
 
-                            #if ($submitted && ($submissionType == 2 || $submissionType == 5) && !$!new_attachments)
+                            #if ($submitted && $!isUserSubmission && ($submissionType == 2 || $submissionType == 5) && !$!new_attachments)
                                 <span class="messageInformation">$tlang.getString("stuviewsubm.modifytoresubmit")</span>
                             #elseif ($submissionType == 5)
                                 <span class="messageInformation">$tlang.getString("stuviewsubm.reminder")</span>
@@ -1206,47 +1114,14 @@ $(document).ready(function(){
 					#if ($submission.getGradeReleased() &&($!submission.FeedbackComment) && ($submission.FeedbackComment.trim().length()>0))
 						<h5>$tlang.getString("gen.addinst")</h5>
 						<div>$validator.escapeHtmlFormattedText($submission.FeedbackComment)</div>
-					#else
 					#end
 					## for returned submission, show the instructor feedback
 					#if ($!prevFeedbackComment && $!prevFeedbackComment.trim().length() > 0)
 						<h5>$tlang.getString("gradingsub.prefee")</h5>
 						<div class="textPanel">$cheffeedbackhelper.showPrevFeedback($cheffeedbackhelper.escapeAssignmentFeedback($!prevFeedbackComment))</div>
-					#end	
-					#set ($size = 0)
-					#set ($props = false)
-					#set ($feedbackAttachments = $submission.FeedbackAttachments)
-					#set ($size = 0)
-					#set ($props = false)
-					#foreach ($attachment in $feedbackAttachments) 
-						#set ($props = $attachment.Properties) 
-						#if ($!props)
-							#set ($size = $size + 1)
-						#end
 					#end
-					#if ($size == 0)
-						##$tlang.getString("gen.noatt")
-					#else
-						<h5>$tlang.getString("gen.addinst")</h5>
-						<ul class="attachList indnt1">
-									#foreach ($attachment in $feedbackAttachments) 
-										#set ($props = false)
-										#set ($props = $attachment.Properties) 
-										#if ($!props)
-											<li>
-												#if ($props.getBooleanProperty($props.NamePropIsCollection))
-													<img src = "#imageLink($contentTypeImageService.getContentTypeImage("folder"))" border="0" alt="$tlang.getString("gen.folatt")" />
-												#else
-													<img src = "#imageLink($contentTypeImageService.getContentTypeImage($props.getProperty($props.NamePropContentType)))" border="0" alt="$tlang.getString("gen.filatt")" />
-												#end
-												<a href="$attachment.Url" target="_blank">$validator.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))</a>						
-												#propertyDetails($props)
-											</li>
-										#end
-									#end
-							</ul>
-							#end
-					#end
+					#parse ("/vm/assignment/chef_assignments_student_view_feedback_attachments.vm")
+				#end
 					#if ($withGrade)
 						#set ($previousGrades =  $!submission.Properties.get($NamePropSubmissionScaledPreviousGrades))
 						#if ($!previousGrades.length() == 0 )
@@ -1261,7 +1136,6 @@ $(document).ready(function(){
 							</div>
 						#end
 					#end
-					
 		#if ($!linkInvoked)
 			<input type="submit" accesskey="x" onClick="SPNR.disableControlsAndSpin( this, null ); window.close();" name="eventSubmit_doConfirm_assignment_submission" value="$tlang.getString("gen.closeexit")" class="disableme"/>
 		#else

@@ -423,11 +423,8 @@ public class SubmitToGradingActionListener implements ActionListener {
 			// 2. add any modified SAQ/TF/FIB/Matching/MCMR/FIN
 			// 3. save any modified Mark for Review in FileUplaod/Audio
 
-			Map<Long, ItemDataIfc> fibMap = getFIBMap(publishedAssessment);
-			Map<Long, ItemDataIfc> finMap = getFINMap(publishedAssessment);
 			Map<Long, ItemDataIfc> calcQuestionMap = getCalcQuestionMap(publishedAssessment); // CALCULATED_QUESTION
 			Map<Long, ItemDataIfc> imagQuestionMap = getImagQuestionMap(publishedAssessment); // IMAGEMAP_QUESTION
-			Map<Long, ItemDataIfc> mcmrMap = getMCMRMap(publishedAssessment);
 			Map<Long, ItemDataIfc> emiMap = getEMIMap(publishedAssessment);
 			Set<ItemGradingData> itemGradingSet = adata.getItemGradingSet();
 			log.debug("*** 2a. before removal & addition " + (new Date()));
@@ -459,7 +456,7 @@ public class SubmitToGradingActionListener implements ActionListener {
 						+ adds.size());
 
 				HashSet<ItemGradingData> updateItemGradingSet = getUpdateItemGradingSet(
-						itemGradingSet, adds, fibMap, finMap, calcQuestionMap,imagQuestionMap,mcmrMap, emiMap, adata);
+						itemGradingSet, adds, calcQuestionMap,imagQuestionMap, emiMap, adata);
 				adata.setItemGradingSet(updateItemGradingSet);
 			}
 		}
@@ -508,15 +505,6 @@ public class SubmitToGradingActionListener implements ActionListener {
 		return adata;
 	}
 
-	private Map<Long, ItemDataIfc> getFIBMap(PublishedAssessmentIfc publishedAssessment) {
-		return publishedAssesmentService.prepareFIBItemHash(publishedAssessment);
-	}
-
-  
-  	private Map<Long, ItemDataIfc> getFINMap(PublishedAssessmentIfc publishedAssessment){
-	    return publishedAssesmentService.prepareFINItemHash(publishedAssessment);
-	}
-  	
   	/**
   	 * CALCULATED_QUESTION
   	 * @param publishedAssessment
@@ -533,10 +521,6 @@ public class SubmitToGradingActionListener implements ActionListener {
   	 */
   	private Map<Long, ItemDataIfc> getImagQuestionMap(PublishedAssessmentIfc publishedAssessment){
 	    return (Map<Long, ItemDataIfc>) publishedAssesmentService.prepareImagQuestionItemHash(publishedAssessment);
-	}  
-
-	private Map<Long, ItemDataIfc> getMCMRMap(PublishedAssessmentIfc publishedAssessment) {
-		return publishedAssesmentService.prepareMCMRItemHash(publishedAssessment);
 	}
 
 	private Map<Long, ItemDataIfc> getEMIMap(PublishedAssessmentIfc publishedAssessment) {
@@ -545,9 +529,8 @@ public class SubmitToGradingActionListener implements ActionListener {
 	}
 
 	private HashSet<ItemGradingData> getUpdateItemGradingSet(Set oldItemGradingSet, Set<ItemGradingData> newItemGradingSet,
-															 Map<Long, ItemDataIfc> fibMap, Map<Long, ItemDataIfc> finMap,
 															 Map<Long, ItemDataIfc> calcQuestionMap, Map<Long, ItemDataIfc> imagQuestionMap,
-															 Map<Long, ItemDataIfc> mcmrMap, Map<Long, ItemDataIfc> emiMap, AssessmentGradingData adata) {
+															 Map<Long, ItemDataIfc> emiMap, AssessmentGradingData adata) {
 		log.debug("Submitforgrading: oldItemGradingSet.size = "
 				+ oldItemGradingSet.size());
 		log.debug("Submitforgrading: newItemGradingSet.size = "
@@ -568,13 +551,12 @@ public class SubmitToGradingActionListener implements ActionListener {
 					.getItemGradingId());
 			if (oldItem != null) {
 			    if (!oldItem.equals(newItem) || 
-			    //Now Check all the maps
-			            fibMap.get(oldItem.getPublishedItemId()) != null
-			            || emiMap.get(oldItem.getPublishedItemId()) != null 
-			            || finMap.get(oldItem.getPublishedItemId())!=null
+			    // Check for presence of old data in the EMI, calcQuestion and imagQuestion maps.
+			    // FIB, NR, and MCMR maps are not checked; checking them for previous data can cause updates when only the date has changed.
+			    // The above check (!oldItem.equals(newItem) suffices for checking new data against these question types. See SAK-39928 for more details.
+			            emiMap.get(oldItem.getPublishedItemId()) != null
 			            || calcQuestionMap.get(oldItem.getPublishedItemId())!=null
-						|| imagQuestionMap.get(oldItem.getPublishedItemId())!=null
-			            || mcmrMap.get(oldItem.getPublishedItemId()) != null) {
+						|| imagQuestionMap.get(oldItem.getPublishedItemId()) != null) {
 			        String newAnswerText = newItem.getAnswerText();
 			        oldItem.setReview(newItem.getReview());
 			        oldItem.setPublishedAnswerId(newItem.getPublishedAnswerId());
@@ -990,7 +972,7 @@ public class SubmitToGradingActionListener implements ActionListener {
 
 		if (isLate) {
 			ExtendedTimeDeliveryService assessmentExtended = new ExtendedTimeDeliveryService((PublishedAssessmentFacade) pub, adataAgentId);
-			if (assessmentExtended.getDueDate() != null && assessmentExtended.getDueDate().after(new Date())) {
+			if (assessmentExtended.hasExtendedTime() && assessmentExtended.getDueDate() != null && assessmentExtended.getDueDate().after(new Date())) {
 				isLate = Boolean.FALSE;	
 			}
 		}

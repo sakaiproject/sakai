@@ -276,6 +276,8 @@
 #end  ## end of h1 sections
 
 ## add section button
-<div class="act" id="addSectionDiv">
-	<input id="addSectionButton" type="button" name="AddSection" class="active" value="$tlang.getString("nested.add.section.button")"/>
-</div>
+#if($enableSections)
+	<div class="act" id="addSectionDiv">
+		<input id="addSectionButton" type="button" name="AddSection" class="active" value="$tlang.getString("nested.add.section.button")"/>
+	</div>
+#end

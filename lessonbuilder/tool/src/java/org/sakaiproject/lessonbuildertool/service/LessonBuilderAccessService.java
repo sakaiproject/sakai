@@ -221,9 +221,17 @@ public class LessonBuilderAccessService {
 	public static final String INLINEHTML = "lessonbuilder.inlinehtml";
 	private boolean inlineHtml = ServerConfigurationService.getBoolean(INLINEHTML, true);
 	public static final String USECSP = "lessonbuilder.use-csp-headers";
-	// if using separate content domain we don't need this protection
-	private boolean useCsp = ServerConfigurationService.getBoolean(USECSP, 
-				   !ServerConfigurationService.getBoolean("content.separateDomains", false));
+	public static final String USECSPSTUDENT = "lessonbuilder.use-csp-headers-for-student-content";
+
+	public static final String CSPHeadersDefault = "sandbox allow-forms allow-scripts allow-top-navigation allow-popups allow-pointer-lock allow-popups-to-escape-sandbox";
+	
+	//This will either be true/false or a list of headers
+	private String CSPHeaders = ServerConfigurationService.getString(USECSP, CSPHeadersDefault);
+	//Use the regular property as the default
+	private String CSPHeadersStudent = ServerConfigurationService.getString(USECSPSTUDENT, CSPHeaders);
+	
+	private boolean useCsp = true;
+	private boolean useCspStudent = true;
         
         protected static final String MIME_SEPARATOR = "SAKAI_MIME_BOUNDARY";
 
@@ -287,6 +295,38 @@ public class LessonBuilderAccessService {
 		    byte[] keyBytes = DatatypeConverter.parseHexBinary(keyString);
 		    sessionKey = new SecretKeySpec(keyBytes, "Blowfish");
 		}
+		
+		//Explicit true/false
+		if ("true".equals(CSPHeaders)) {
+			useCsp = true;
+			CSPHeaders = CSPHeadersDefault;
+		}
+		else if ("false".equals(CSPHeaders)) {
+			useCsp = false;
+			//No headers needed
+			CSPHeaders = "";
+		}
+		else {
+			//Custom headers but if using separate content domain we don't need this protection
+			useCsp = !ServerConfigurationService.getBoolean("content.separateDomains", false);
+		}
+
+		//For student content pages
+		//Explicit true/false
+		if ("true".equals(CSPHeadersStudent)) {
+			useCspStudent = true;
+			CSPHeadersStudent = CSPHeadersDefault;
+		}
+		else if ("false".equals(CSPHeadersStudent)) {
+			useCspStudent = false;
+			//No headers needed
+			CSPHeadersStudent = "";
+		}
+		else {
+			//Custom headers but if using separate content domain we don't need this protection
+			useCspStudent = useCsp;
+		}
+
 
 	}
 
@@ -416,6 +456,10 @@ public class LessonBuilderAccessService {
 					SimplePage currentPage = simplePageToolDao.getPage(item.getPageId());
 					String owner = currentPage.getOwner();  // if student content
 					String group = currentPage.getGroup();  // if student content
+					
+					//If owner != null or group != null it's a student page, if both null/either null it isn't
+					boolean studentcontent = (owner != null || group != null);
+
 					if (group != null)
 					    group = "/site/" + currentPage.getSiteId() + "/group/" + group;
 					String currentSiteId = currentPage.getSiteId();
@@ -737,8 +781,13 @@ public class LessonBuilderAccessService {
 							
 							// note that by default inline is always set. If we have inline and dangerous (i.e. HTML or
 							// potentially HTML, we set security headers to provide some protection.
-							if (inline && dangerous && useCsp) {
-							    res.addHeader("Content-Security-Policy", "sandbox allow-forms allow-scripts allow-top-navigation allow-popups allow-pointer-lock allow-popups-to-escape-sandbox");
+
+							//This differens if it's a student page or non-student page
+							if (studentcontent && inline && dangerous && useCspStudent) {
+							    res.addHeader("Content-Security-Policy", CSPHeadersStudent);
+							}
+							else if (!studentcontent && inline && dangerous && useCsp) {
+							    res.addHeader("Content-Security-Policy", CSPHeaders);
 							}
 
 							// NOTE: Only set the encoding on the content we have to.

@@ -22,12 +22,50 @@ function toggleShortUrlOutput(defaultUrl, checkbox, textbox) {
 
 $PBJQ(document).ready(function(){
   $PBJQ('.Mrphs-toolTitleNav__link--directurl').click( function( e ){
-    var origin = $PBJQ(this).position();
-    $PBJQ(this).siblings('.Mrphs-directUrl').toggleClass('active').css( { 'left' : origin.left + 'px' } );
+    var origin = $PBJQ(this).position(),
+    	$dialog = $PBJQ(this).siblings('.Mrphs-directUrl'); 
+    
+    $dialog.toggleClass('active').css( { 'left' : origin.left + 'px' } );
+    $dialog.attr('aria-expanded', 'true');
+    $dialog.find('[tabindex]').first().focus();
     e.preventDefault();
   });
-  $PBJQ('.Mrphs-directUrl .dropDown_close').click( function( e ){
-    $PBJQ(this).parent().toggleClass('active');
+  
+  $modal_container = $PBJQ('.Mrphs-directUrl');
+  
+  $modal_container.each( function (index) {
+	 var $invokerTabs = $PBJQ(this).find('[tabindex]'); 
+	 $invokerTabs.first().on('keydown', function (e) {
+		if( e.keyCode === 9 && e.shiftKey ) {
+		  $invokerTabs.last().focus();
+		  e.preventDefault();
+		  return false;
+		}
+	 });
+	 $invokerTabs.last().on('keydown', function (e) {
+		if( e.keyCode === 9 && !e.shiftKey ) {
+		  $invokerTabs.first().focus();
+		  e.preventDefault();
+		  return false;
+		}
+	 });
+  });
+
+  $modal_container.last().on('keypress', function (e) {
+	  if( e.keyCode() === 9 ) {
+		  console.log("keypress:: primero");
+		  $modal_container.fist().focus();
+		  e.preventDefault();
+		  return false;
+	  }
+  });
+  
+  $PBJQ('.Mrphs-directUrl .dropDown_close').on('click keypress', function( e ){
+	var $dialog = $PBJQ(this).parent();
+	
+	$dialog.toggleClass('active');
+	$dialog.removeAttr('aria-expanded');
+	$PBJQ('.Mrphs-toolTitleNav__link--directurl[rel="#'+$dialog.attr('id')+'"]').focus();
     e.preventDefault();
   });
 });

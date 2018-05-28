@@ -32,6 +32,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import lombok.extern.slf4j.Slf4j;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -66,22 +67,25 @@ import org.sakaiproject.sitestats.test.mocks.FakeServerConfigurationService;
 import org.sakaiproject.sitestats.test.mocks.FakeSite;
 import org.sakaiproject.time.api.Time;
 import org.sakaiproject.util.ResourceLoader;
+import org.springframework.aop.framework.Advised;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.AbstractTransactionalJUnit4SpringContextTests;
+import org.springframework.test.context.junit4.AbstractJUnit4SpringContextTests;
 
-@ContextConfiguration(locations={
-		"/hbm-db.xml",
-		"/hibernate-test.xml"})
-public class StatsManagerTest extends AbstractTransactionalJUnit4SpringContextTests {
+import javax.annotation.Resource;
+
+@ContextConfiguration(locations = {"/hibernate-test.xml"})
+@Slf4j
+public class StatsManagerTest extends AbstractJUnit4SpringContextTests {
 	// AbstractAnnotationAwareTransactionalTests / AbstractTransactionalSpringContextTests
 	private final static boolean			enableLargeMembershipTest = false;
-	
-	@Autowired
+
+	@Resource(name = "org.sakaiproject.sitestats.test.StatsManager")
 	private StatsManager					M_sm;
-	@Autowired
+	@Resource(name = "org.sakaiproject.sitestats.test.StatsUpdateManager")
 	private StatsUpdateManager				M_sum;
-	@Autowired
+	@Resource(name = "org.sakaiproject.sitestats.test.DB")
 	private DB								db;
 	private SiteService						M_ss;
 	@Autowired
@@ -178,13 +182,16 @@ public class StatsManagerTest extends AbstractTransactionalJUnit4SpringContextTe
 		replay(M_chs);
 		replay(msgs);
 		replay(M_ctis);
-		((StatsManagerImpl)M_sm).setSiteService(M_ss);
-		((StatsManagerImpl)M_sm).setContentHostingService(M_chs);
-		((StatsManagerImpl)M_sm).setContentTypeImageService(M_ctis);
-		((StatsManagerImpl)M_sm).setResourceLoader(msgs);
-		((StatsManagerImpl)M_sm).setCountFilesUsingCHS(false);
-		((StatsUpdateManagerImpl)M_sum).setSiteService(M_ss);
-		((StatsUpdateManagerImpl)M_sum).setStatsManager(M_sm);
+		StatsManagerImpl smi = (StatsManagerImpl) ((Advised) M_sm).getTargetSource().getTarget();
+		StatsUpdateManagerImpl sumi = (StatsUpdateManagerImpl) ((Advised) M_sum).getTargetSource().getTarget();
+		smi.setSiteService(M_ss);
+		smi.setContentHostingService(M_chs);
+		smi.setContentTypeImageService(M_ctis);
+		smi.setResourceLoader(msgs);
+		smi.setCountFilesUsingCHS(false);
+		smi.setCountPagesUsingLBS(false);
+		smi.setSiteService(M_ss);
+		sumi.setStatsManager(M_sm);
 		// This is needed to make the tests deterministic, otherwise on occasion the collect thread will run
 		// and break the tests.
 		M_sum.setCollectThreadEnabled(false);
@@ -194,53 +201,54 @@ public class StatsManagerTest extends AbstractTransactionalJUnit4SpringContextTe
 
 	// ---- TESTS ----
 	@Test
-	public void testEnableVisibleSiteVisits() {
+	public void testEnableVisibleSiteVisits() throws Exception {
 		M_scs.setProperty("display.users.present", "true");
 		M_scs.setProperty("presence.events.log", "true");
-		((StatsManagerImpl)M_sm).setEnableSiteVisits(null);
-		((StatsManagerImpl)M_sm).setVisitsInfoAvailable(null);
-		((StatsManagerImpl)M_sm).setEnableSitePresences(null);
-		((StatsManagerImpl)M_sm).checkAndSetDefaultPropertiesIfNotSet();
+		StatsManagerImpl smi = (StatsManagerImpl) ((Advised) M_sm).getTargetSource().getTarget();
+		smi.setEnableSiteVisits(null);
+		smi.setVisitsInfoAvailable(null);
+		smi.setEnableSitePresences(null);
+		smi.checkAndSetDefaultPropertiesIfNotSet();
 		Assert.assertEquals(true, M_sm.isEnableSiteVisits());
 		Assert.assertEquals(true, M_sm.isVisitsInfoAvailable());
 		Assert.assertEquals(false, M_sm.isEnableSitePresences()); // off, by default
 		
 		M_scs.setProperty("display.users.present", "false");
 		M_scs.setProperty("presence.events.log", "true");
-		((StatsManagerImpl)M_sm).setEnableSiteVisits(null);
-		((StatsManagerImpl)M_sm).setVisitsInfoAvailable(null);
-		((StatsManagerImpl)M_sm).setEnableSitePresences(null);
-		((StatsManagerImpl)M_sm).checkAndSetDefaultPropertiesIfNotSet();
+		smi.setEnableSiteVisits(null);
+		smi.setVisitsInfoAvailable(null);
+		smi.setEnableSitePresences(null);
+		smi.checkAndSetDefaultPropertiesIfNotSet();
 		Assert.assertEquals(true, M_sm.isEnableSiteVisits());
 		Assert.assertEquals(true, M_sm.isVisitsInfoAvailable());
 		Assert.assertEquals(false, M_sm.isEnableSitePresences()); // off, by default
 		
 		M_scs.setProperty("display.users.present", "true");
 		M_scs.setProperty("presence.events.log", "false");
-		((StatsManagerImpl)M_sm).setEnableSiteVisits(null);
-		((StatsManagerImpl)M_sm).setVisitsInfoAvailable(null);
-		((StatsManagerImpl)M_sm).setEnableSitePresences(null);
-		((StatsManagerImpl)M_sm).checkAndSetDefaultPropertiesIfNotSet();
+		smi.setEnableSiteVisits(null);
+		smi.setVisitsInfoAvailable(null);
+		smi.setEnableSitePresences(null);
+		smi.checkAndSetDefaultPropertiesIfNotSet();
 		Assert.assertEquals(true, M_sm.isEnableSiteVisits());
 		Assert.assertEquals(true, M_sm.isVisitsInfoAvailable());
 		Assert.assertEquals(false, M_sm.isEnableSitePresences()); // off, by default
 		
 		M_scs.setProperty("display.users.present", "false");
 		M_scs.setProperty("presence.events.log", "false");
-		((StatsManagerImpl)M_sm).setEnableSiteVisits(null);
-		((StatsManagerImpl)M_sm).setVisitsInfoAvailable(null);
-		((StatsManagerImpl)M_sm).setEnableSitePresences(null);
-		((StatsManagerImpl)M_sm).checkAndSetDefaultPropertiesIfNotSet();
+		smi.setEnableSiteVisits(null);
+		smi.setVisitsInfoAvailable(null);
+		smi.setEnableSitePresences(null);
+		smi.checkAndSetDefaultPropertiesIfNotSet();
 		Assert.assertEquals(false, M_sm.isEnableSiteVisits());
 		Assert.assertEquals(false, M_sm.isVisitsInfoAvailable());
 		Assert.assertEquals(false, M_sm.isEnableSitePresences()); // off, by default
 		
 		M_scs.removeProperty("display.users.present");
 		M_scs.removeProperty("presence.events.log");
-		((StatsManagerImpl)M_sm).setEnableSiteVisits(null);
-		((StatsManagerImpl)M_sm).setVisitsInfoAvailable(null);
-		((StatsManagerImpl)M_sm).setEnableSitePresences(null);
-		((StatsManagerImpl)M_sm).checkAndSetDefaultPropertiesIfNotSet();
+		smi.setEnableSiteVisits(null);
+		smi.setVisitsInfoAvailable(null);
+		smi.setEnableSitePresences(null);
+		smi.checkAndSetDefaultPropertiesIfNotSet();
 		Assert.assertEquals(false, M_sm.isEnableSiteVisits());
 		Assert.assertEquals(false, M_sm.isVisitsInfoAvailable());
 		Assert.assertEquals(false, M_sm.isEnableSitePresences()); // off, by default
@@ -248,72 +256,73 @@ public class StatsManagerTest extends AbstractTransactionalJUnit4SpringContextTe
 		// revert
 		M_scs.setProperty("display.users.present", "false");
 		M_scs.setProperty("presence.events.log", "true");
-		((StatsManagerImpl)M_sm).setEnableSiteVisits(null);
-		((StatsManagerImpl)M_sm).setVisitsInfoAvailable(null);
-		((StatsManagerImpl)M_sm).setEnableSitePresences(null);
-		((StatsManagerImpl)M_sm).checkAndSetDefaultPropertiesIfNotSet();
+		smi.setEnableSiteVisits(null);
+		smi.setVisitsInfoAvailable(null);
+		smi.setEnableSitePresences(null);
+		smi.checkAndSetDefaultPropertiesIfNotSet();
 		Assert.assertEquals(true, M_sm.isEnableSiteVisits());
 		Assert.assertEquals(true, M_sm.isVisitsInfoAvailable());
 		Assert.assertEquals(false, M_sm.isEnableSitePresences()); // off, by default
 	}
 	
 	@Test
-	public void testOtherConfig() {
+	public void testOtherConfig() throws Exception {
 		// isEnableSiteActivity
-		((StatsManagerImpl)M_sm).setEnableSiteActivity(null);
-		((StatsManagerImpl)M_sm).checkAndSetDefaultPropertiesIfNotSet();
+		StatsManagerImpl smi = (StatsManagerImpl) ((Advised) M_sm).getTargetSource().getTarget();
+		smi.setEnableSiteActivity(null);
+		smi.checkAndSetDefaultPropertiesIfNotSet();
 		Assert.assertEquals(true, M_sm.isEnableSiteActivity());
-		((StatsManagerImpl)M_sm).setEnableSiteActivity(false);
+		smi.setEnableSiteActivity(false);
 		Assert.assertEquals(false, M_sm.isEnableSiteActivity());
-		((StatsManagerImpl)M_sm).setEnableSiteActivity(true);
+		smi.setEnableSiteActivity(true);
 		Assert.assertEquals(true, M_sm.isEnableSiteActivity());
 		// isEnableResourceStats
-		((StatsManagerImpl)M_sm).setEnableResourceStats(null);
-		((StatsManagerImpl)M_sm).checkAndSetDefaultPropertiesIfNotSet();
+		smi.setEnableResourceStats(null);
+		smi.checkAndSetDefaultPropertiesIfNotSet();
 		Assert.assertEquals(true, M_sm.isEnableResourceStats());
-		((StatsManagerImpl)M_sm).setEnableResourceStats(false);
+		smi.setEnableResourceStats(false);
 		Assert.assertEquals(false, M_sm.isEnableResourceStats());
-		((StatsManagerImpl)M_sm).setEnableResourceStats(true);
+		smi.setEnableResourceStats(true);
 		Assert.assertEquals(true, M_sm.isEnableResourceStats());
 		// isServerWideStatsEnabled
-		((StatsManagerImpl)M_sm).setServerWideStatsEnabled(false);
+		smi.setServerWideStatsEnabled(false);
 		Assert.assertEquals(false, M_sm.isServerWideStatsEnabled());
-		((StatsManagerImpl)M_sm).setServerWideStatsEnabled(true);
+		smi.setServerWideStatsEnabled(true);
 		Assert.assertEquals(true, M_sm.isServerWideStatsEnabled());
 		// ChartBackgroundColor
-		((StatsManagerImpl)M_sm).setChartBackgroundColor("#000");
+		smi.setChartBackgroundColor("#000");
 		Assert.assertEquals("#000", M_sm.getChartBackgroundColor());
-		((StatsManagerImpl)M_sm).setChartBackgroundColor("#fff");
+		smi.setChartBackgroundColor("#fff");
 		Assert.assertEquals("#fff", M_sm.getChartBackgroundColor());
 		// isChartIn3D
-		((StatsManagerImpl)M_sm).setChartIn3D(false);
+		smi.setChartIn3D(false);
 		Assert.assertEquals(false, M_sm.isChartIn3D());
-		((StatsManagerImpl)M_sm).setChartIn3D(true);
+		smi.setChartIn3D(true);
 		Assert.assertEquals(true, M_sm.isChartIn3D());
 		// ChartTransparency
-		((StatsManagerImpl)M_sm).setChartTransparency(0.5f);
+		smi.setChartTransparency(0.5f);
 		Assert.assertEquals(0.5f, M_sm.getChartTransparency(), 1e-8);
-		((StatsManagerImpl)M_sm).setChartTransparency(1.0f);
+		smi.setChartTransparency(1.0f);
 		Assert.assertEquals(1.0f, M_sm.getChartTransparency(), 1e-8);
 		// isItemLabelsVisible
-		((StatsManagerImpl)M_sm).setItemLabelsVisible(false);
+		smi.setItemLabelsVisible(false);
 		Assert.assertEquals(false, M_sm.isItemLabelsVisible());
-		((StatsManagerImpl)M_sm).setItemLabelsVisible(true);
+		smi.setItemLabelsVisible(true);
 		Assert.assertEquals(true, M_sm.isItemLabelsVisible());
 		// isShowAnonymousAccessEvents
-		((StatsManagerImpl)M_sm).setShowAnonymousAccessEvents(false);
+		smi.setShowAnonymousAccessEvents(false);
 		Assert.assertEquals(false, M_sm.isShowAnonymousAccessEvents());
-		((StatsManagerImpl)M_sm).setShowAnonymousAccessEvents(true);
+		smi.setShowAnonymousAccessEvents(true);
 		Assert.assertEquals(true, M_sm.isShowAnonymousAccessEvents());
 		// isLastJobRunDateVisible
-		((StatsManagerImpl)M_sm).setLastJobRunDateVisible(false);
+		smi.setLastJobRunDateVisible(false);
 		Assert.assertEquals(false, M_sm.isLastJobRunDateVisible());
-		((StatsManagerImpl)M_sm).setLastJobRunDateVisible(true);
+		smi.setLastJobRunDateVisible(true);
 		Assert.assertEquals(true, M_sm.isLastJobRunDateVisible());
 		// isEnableSitePresences
-		((StatsManagerImpl)M_sm).setEnableSitePresences(false);
+		smi.setEnableSitePresences(false);
 		Assert.assertEquals(false, M_sm.isEnableSitePresences());
-		((StatsManagerImpl)M_sm).setEnableSitePresences(true);
+		smi.setEnableSitePresences(true);
 		Assert.assertEquals(true, M_sm.isEnableSitePresences());
 	}
 	
@@ -545,7 +554,6 @@ public class StatsManagerTest extends AbstractTransactionalJUnit4SpringContextTe
 		int totalFilesAndFolders = M_sm.getTotalResources(FakeData.SITE_A_ID, false);
 		Assert.assertEquals(1, totalFiles);
 		Assert.assertEquals(2, totalFilesAndFolders);
-		
 	}
 	
 	private List<Event> getSampleData() {

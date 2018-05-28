@@ -27,6 +27,7 @@ import org.apache.wicket.extensions.markup.html.tabs.AbstractTab;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.ResourceModel;
 
+import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.TypeException;
@@ -263,7 +264,7 @@ public class LessonsWidget extends Panel {
                 }
                 if (user != null) {
                     String id = null;
-                    if ("-".equals(user) || "?".equals(user)){
+                    if ("-".equals(user) || EventTrackingService.UNKNOWN_USER.equals(user)){
                         id = "-";
                     } else {
                         try {
@@ -291,7 +292,7 @@ public class LessonsWidget extends Panel {
                     String name = null;
                     if (("-").equals(user)) {
                         name = (String) new ResourceModel("user_anonymous").getObject();
-                    }else if (("?").equals(user)) {
+                    }else if (EventTrackingService.UNKNOWN_USER.equals(user)) {
                         name = (String) new ResourceModel("user_anonymous_access").getObject();
                     } else {
                         name = Locator.getFacade().getStatsManager().getUserNameForDisplay(user);
@@ -421,7 +422,10 @@ public class LessonsWidget extends Panel {
             public ReportDef getTableReportDefinition() {
                 ReportDef r = getChartReportDefinition();
                 ReportParams rp = r.getReportParams();
-                rp.setHowTotalsBy(Arrays.asList(StatsManager.T_USER));
+                List<String> totalsBy = new ArrayList<String>();
+                totalsBy.add(StatsManager.T_USER);
+                totalsBy.add(StatsManager.T_PAGE);
+                rp.setHowTotalsBy(totalsBy);
                 rp.setHowSort(true);
                 rp.setHowSortBy(StatsManager.T_TOTAL);
                 rp.setHowSortAscending(false);

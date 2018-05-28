@@ -574,7 +574,7 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 			}
 			if(!isCollectAdminEvents() && ("admin").equals(userId)){
 				return;
-			}if(!M_sm.isShowAnonymousAccessEvents() && ("?").equals(userId)){
+			}if(!M_sm.isShowAnonymousAccessEvents() && EventTrackingService.UNKNOWN_USER.equals(userId)){
 				return;
 			}
 			
@@ -706,11 +706,13 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 			}
 		} else if (eventId.startsWith(StatsManager.LESSONS_EVENTID_PREFIX)) {
 			String[] resourceParts = resourceRef.split("/");
-			if (resourceParts.length > 3 && "page".equals(resourceParts[2])) {
+			if (resourceParts.length > 3) {
+				//The references are something like "/lessonbuilder/page/4" the id is in the fourth position
 				long pageId = Long.parseLong(resourceParts[3]);
 				String lessonBuilderAction = null;
 				try {
-					lessonBuilderAction = eventId.split("\\.")[1];
+					//The events are something like "lessonbuilder.page.create" the action is in the third position
+					lessonBuilderAction = eventId.split("\\.")[2];
 				} catch (ArrayIndexOutOfBoundsException ex){
 					lessonBuilderAction = eventId;
 				}
