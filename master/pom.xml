@@ -73,8 +73,8 @@
     <sakai.log4j.version>1.2.17</sakai.log4j.version>
     <sakai.slf4j.version>1.7.25</sakai.slf4j.version>
     <sakai.poi.version>3.17</sakai.poi.version>
-    <sakai.mockito.version>2.7.22</sakai.mockito.version>
-    <sakai.powermock.version>1.7.3</sakai.powermock.version>
+    <sakai.mockito.version>2.18.3</sakai.mockito.version>
+    <sakai.powermock.version>1.7.4</sakai.powermock.version>
     <sakai.okiosid.version>2.0</sakai.okiosid.version>
     <joda.time.version>2.9.9</joda.time.version>
     <jayway.jsonpath.version>2.4.0</jayway.jsonpath.version>
@@ -1658,6 +1658,8 @@
         <version>4.12</version>
         <scope>test</scope>
       </dependency>
+
+      <!-- https://mvnrepository.com/artifact/org.mockito/mockito-core -->
       <dependency>
         <groupId>org.mockito</groupId>
         <artifactId>mockito-core</artifactId>
@@ -1665,18 +1667,23 @@
         <scope>test</scope>
       </dependency>
       <!-- So we can mock static cover -->
+
+      <!-- https://mvnrepository.com/artifact/org.powermock/powermock-module-junit4 -->
       <dependency>
           <groupId>org.powermock</groupId>
           <artifactId>powermock-module-junit4</artifactId>
           <version>${sakai.powermock.version}</version>
           <scope>test</scope>
       </dependency>
+
+      <!-- https://mvnrepository.com/artifact/org.powermock/powermock-api-mockito2 -->
       <dependency>
           <groupId>org.powermock</groupId>
           <artifactId>powermock-api-mockito2</artifactId>
           <version>${sakai.powermock.version}</version>
           <scope>test</scope>
       </dependency>
+
       <dependency>
         <groupId>org.projectlombok</groupId>
         <artifactId>lombok</artifactId>
