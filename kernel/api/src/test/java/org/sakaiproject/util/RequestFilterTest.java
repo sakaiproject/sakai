@@ -42,7 +42,7 @@ import static org.mockito.Mockito.*;
  * Created by buckett on 30/09/2014.
  */
 @RunWith(PowerMockRunner.class)
-@PowerMockIgnore("javax.security.auth.*")
+@PowerMockIgnore("javax.security.auth.Subject")
 @PrepareForTest(ComponentManager.class)
 public class RequestFilterTest {
 
