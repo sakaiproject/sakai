@@ -79,6 +79,8 @@ public abstract class DbSiteService extends BaseSiteService
 	/** ID field as an array to avoid instantiating it repeatedly for no reason. */
 	protected String[] m_siteIdFieldArray = {m_siteIdFieldName};
 
+	private static final int ORACLE_MAX_ELEMENTS_IN_CLAUSE = 1000;
+
 	/*************************************************************************************************************************************************
 	 * Dependencies
 	 ************************************************************************************************************************************************/
@@ -406,6 +408,66 @@ public abstract class DbSiteService extends BaseSiteService
 		/**
 		 * @inheritDoc
 		 */
+		@Override
+		public void unpublish(final List<String> siteIds, final String modifiedBy, final Time modifiedOn)
+		{
+			final List<String> casedSiteIds = new ArrayList(siteIds.size());
+			StringBuilder tag = new StringBuilder("unpublish:");
+			String delim = "";
+			for (String siteId : siteIds)
+			{
+				tag.append(delim).append(siteId);
+				delim = ",";
+				casedSiteIds.add(caseId(siteId));
+			}
+
+			m_sql.transact(new Runnable()
+			{
+				public void run()
+				{
+					unpublishTx(casedSiteIds, modifiedBy, modifiedOn);
+				}
+			}, tag.toString());
+		}
+
+		protected void unpublishTx(List<String> siteIds, String modifiedBy, Time modifiedOn)
+		{
+			// If we're operating on thousands of siteIds, a statement will be used that has an 'in' clause with 1000 occurrences of ", ?".
+			// maxBatchSizeStatement will cache it so we don't have to generate it more than once
+			String maxBatchSizeStatement = null;
+
+			int size = siteIds.size();
+			for (int i = 0; i < size; i += ORACLE_MAX_ELEMENTS_IN_CLAUSE)
+			{
+				int batchSize = Math.min(size - i, ORACLE_MAX_ELEMENTS_IN_CLAUSE);
+
+				// statement changes based on batch size
+				String statement = null;
+				if (batchSize == ORACLE_MAX_ELEMENTS_IN_CLAUSE)
+				{
+					// cache the 1000 batch size statement so we don't have to append 1000 occurences of ", ?" every time
+					if (maxBatchSizeStatement == null)
+					{
+						maxBatchSizeStatement = siteServiceSql.getUpdateSitesUnpublishSql(m_siteTableName, batchSize);
+					}
+					statement = maxBatchSizeStatement;
+				}
+				else
+				{
+					statement = siteServiceSql.getUpdateSitesUnpublishSql(m_siteTableName, batchSize);
+				}
+
+				List<Object> fields = new ArrayList<>(batchSize + 2);
+				fields.add(modifiedBy);
+				fields.add(modifiedOn);
+				fields.addAll(siteIds.subList(i, i + batchSize));
+				m_sql.dbWrite(statement, fields.toArray());
+			}
+		}
+
+		/**
+		 * @inheritDoc
+		 */
 		public void saveToolConfig(final ToolConfiguration tool)
 		{
 			// in a transaction
@@ -449,6 +511,15 @@ public abstract class DbSiteService extends BaseSiteService
 
 			// write the tool's properties
 			writeProperties("SAKAI_SITE_TOOL_PROPERTY", "TOOL_ID", tool.getId(), "SITE_ID", caseId(tool.getSiteId()), tool.getPlacementConfig());
+		}
+
+		/**
+		 * Insert a uniform property on multiple resources. NB: this will not check for duplicates; calling method must prevent unique constraint violations
+		 */
+		@Override
+		public void writeProperty(String propertyName, String propertyValue, String... siteIds)
+		{
+			writePropertyOnResources(m_sitePropTableName, m_siteIdFieldName, siteIds, null, null, propertyName, propertyValue);
 		}
 
 		/**
@@ -509,10 +580,10 @@ public abstract class DbSiteService extends BaseSiteService
 		}
 		
 		private String getSitesWhere(SelectionType type, Object ofType, String criteria, Map propertyCriteria, SortType sort){
-			return getSitesWhere(type, ofType, criteria, propertyCriteria, sort, null);
+			return getSitesWhere(type, ofType, criteria, propertyCriteria, null, sort, null);
 		}
 
-		private String getSitesWhere(SelectionType type, Object ofType, String criteria, Map propertyCriteria, SortType sort, List excludedSites)
+		private String getSitesWhere(SelectionType type, Object ofType, String criteria, Map propertyCriteria, Map propertyRestrictions, SortType sort, List excludedSites)
 		{
 			// Note: super users are not treated any differently - they get only those sites they have permission for,
 			// not based on super user status
@@ -530,7 +601,7 @@ public abstract class DbSiteService extends BaseSiteService
 			// reject special sites
 			if (type.isIgnoreSpecial()) where.append(siteServiceSql.getSitesWhere3Sql());
 			// reject unpublished sites
-			if (type.isIgnoreUnpublished()) where.append(siteServiceSql.getSitesWhere4Sql());
+			if (SelectionType.PublishedFilter.ALL != type.getPublishedFilter()) where.append(siteServiceSql.getSitesWhere4Sql(type.getPublishedFilter()));
 
 			if (ofType != null)
 			{
@@ -603,6 +674,14 @@ public abstract class DbSiteService extends BaseSiteService
 				for (int i = 0; i < propertyCriteria.size(); i++)
 				{
 					where.append(siteServiceSql.getSitesWhere13Sql());
+				}
+			}
+
+			if ((propertyRestrictions != null) && (propertyRestrictions.size() > 0))
+			{
+				for (int i = 0; i < propertyRestrictions.size(); i++)
+				{
+					where.append(siteServiceSql.getSitesWhere13PrimeSql());
 				}
 			}
 
@@ -707,6 +786,11 @@ public abstract class DbSiteService extends BaseSiteService
 		
 		private Object[] getSitesFields(SelectionType type, Object ofType, String criteria, Map propertyCriteria, String userId, List excludedSites)
 		{
+			return getSitesFields(type, ofType, criteria, propertyCriteria, null, userId, excludedSites);
+		}
+
+		private Object[] getSitesFields(SelectionType type, Object ofType, String criteria, Map propertyCriteria, Map propertyRestrictions, String userId, List excludedSites)
+		{
 			int fieldCount = 0;
 			if (ofType != null)
 			{
@@ -732,6 +816,7 @@ public abstract class DbSiteService extends BaseSiteService
 			if (criteria != null) fieldCount += 1;
 			if ((type == SelectionType.JOINABLE) || (type == SelectionType.ACCESS) || (type == SelectionType.UPDATE) || (type == SelectionType.MEMBER) || (type == SelectionType.DELETED) || (type == SelectionType.INACTIVE_ONLY)) fieldCount++;
 			if (propertyCriteria != null) fieldCount += (2 * propertyCriteria.size());
+			if (propertyRestrictions != null) fieldCount += (2 * propertyRestrictions.size());
 			if(excludedSites != null && !excludedSites.isEmpty()) { fieldCount += excludedSites.size(); }
 			Object fields[] = null;
 			if (fieldCount > 0)
@@ -777,6 +862,17 @@ public abstract class DbSiteService extends BaseSiteService
 				if (criteria != null)
 				{
 					fields[pos++] =  "%" + criteria + "%";
+				}
+				if (propertyRestrictions != null && propertyRestrictions.size() > 0)
+				{
+					for (Iterator i = propertyRestrictions.entrySet().iterator(); i.hasNext();)
+					{
+						Map.Entry entry = (Map.Entry) i.next();
+						String name = (String) entry.getKey();
+						String value = (String) entry.getValue();
+						fields[pos++] = name;
+						fields[pos++] = "%" + value + "%";
+					}
 				}
 				if (type == SelectionType.JOINABLE)
 				{
@@ -974,6 +1070,7 @@ public abstract class DbSiteService extends BaseSiteService
 		/**
 		 * {@inheritDoc}
 		 */
+		@Override
 		public List getSites(SelectionType type, Object ofType, String criteria, Map propertyCriteria, SortType sort, PagingPosition page)
 		{
 			return getSites(type, ofType, criteria, propertyCriteria, sort, page, true);
@@ -984,12 +1081,21 @@ public abstract class DbSiteService extends BaseSiteService
 		 */
 		public List<String> getSiteIds(SelectionType type, Object ofType, String criteria, Map<String, String> propertyCriteria, List<String> excludedSites, SortType sort, PagingPosition page, String userId)
 		{
+			return getSiteIds(type, ofType, criteria, propertyCriteria, null, excludedSites, sort, page, userId);
+		}
+
+		/**
+		 * {@inheritDoc}
+		 */
+		@Override
+		public List<String> getSiteIds(SelectionType type, Object ofType, String criteria, Map<String, String> propertyCriteria, Map<String, String> propertyRestrictions, List<String> excludedSites, SortType sort, PagingPosition page, String userId)
+		{
 			userId = getCurrentUserIdIfNull(userId);
 
 			String join = getSitesJoin( type, sort );
 			String order = getSitesOrder( sort );
-			Object[] values = getSitesFields( type, ofType, criteria, propertyCriteria, userId, excludedSites );
-			String where = getSitesWhere(type, ofType, criteria, propertyCriteria, sort, excludedSites);
+			Object[] values = getSitesFields( type, ofType, criteria, propertyCriteria, propertyRestrictions, userId, excludedSites );
+			String where = getSitesWhere(type, ofType, criteria, propertyCriteria, propertyRestrictions, sort, excludedSites);
 
 			String sql;
 			if (page != null)
@@ -1012,28 +1118,23 @@ public abstract class DbSiteService extends BaseSiteService
 		/**
 		 * {@inheritDoc}
 		 */
+		@Override
 		public List<String> getSiteIds(SelectionType type, Object ofType, String criteria, Map<String, String> propertyCriteria, SortType sort, PagingPosition page)
 		{
 			// getSiteIds with userId returns the current user's site Ids
 			return getSiteIds(type, ofType, criteria, propertyCriteria, sort, page, null);
 		}
 		
-		/**
-		 * {@inheritDoc}
-		 */
 		private List<String> getSiteIds(SelectionType type, Object ofType, String criteria, Map<String, String> propertyCriteria, SortType sort, PagingPosition page, String userId)
 		{
 			// no excluded sites
-			return getSiteIds(type, ofType, criteria, propertyCriteria, null, sort, page, userId);
+			return getSiteIds(type, ofType, criteria, propertyCriteria, null, null, sort, page, userId);
 		}
 		
-		/**
-		 * {@inheritDoc}
-		 */
 		private List<String> getSiteIds(SelectionType type, Object ofType, String criteria, Map<String, String> propertyCriteria, List<String> excludedSites, SortType sort, PagingPosition page)
 		{
 			// no excluded sites
-			return getSiteIds(type, ofType, criteria, propertyCriteria, excludedSites, sort, page, null);
+			return getSiteIds(type, ofType, criteria, propertyCriteria, null, excludedSites, sort, page, null);
 		}
 
 		/**
