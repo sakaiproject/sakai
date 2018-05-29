@@ -1563,7 +1563,7 @@ public class AssignmentAction extends PagedResourceActionII {
         context.put("value_submission_text", state.getAttribute(VIEW_SUBMISSION_TEXT));
         context.put("name_submission_honor_pledge_yes", VIEW_SUBMISSION_HONOR_PLEDGE_YES);
         context.put("value_submission_honor_pledge_yes", state.getAttribute(VIEW_SUBMISSION_HONOR_PLEDGE_YES));
-        context.put("honor_pledge_text", serverConfigurationService.getString("assignment.honor.pledge", rb.getString("gen.honple2")));
+        context.put("honor_pledge_text", serverConfigurationService.getString("assignment.honor.pledge", HonorPledge.honorPledge2()));
         context.put("attachments", stripInvisibleAttachments(state.getAttribute(ATTACHMENTS)));
         context.put("new_attachments", newAttachments);
         context.put("userDirectoryService", userDirectoryService);
@@ -1994,7 +1994,7 @@ public class AssignmentAction extends PagedResourceActionII {
 
         context.put("text", state.getAttribute(PREVIEW_SUBMISSION_TEXT));
         context.put("honor_pledge_yes", state.getAttribute(PREVIEW_SUBMISSION_HONOR_PLEDGE_YES));
-        context.put("honor_pledge_text", serverConfigurationService.getString("assignment.honor.pledge", rb.getString("gen.honple2")));
+        context.put("honor_pledge_text", serverConfigurationService.getString("assignment.honor.pledge", HonorPledge.honorPledge2()));
         context.put("attachments", stripInvisibleAttachments(state.getAttribute(PREVIEW_SUBMISSION_ATTACHMENTS)));
         context.put("contentTypeImageService", contentTypeImageService);
 
@@ -2414,7 +2414,8 @@ public class AssignmentAction extends PagedResourceActionII {
 
         context.put("group_submissions_enabled", serverConfigurationService.getBoolean("assignment.group.submission.enabled", true));
         context.put("visible_date_enabled", serverConfigurationService.getBoolean("assignment.visible.date.enabled", false));
-
+        context.put("add_honor_pledge", serverConfigurationService.getString("assignment.honor.pledge", HonorPledge.addHonorPledge()));
+        
         String sortedBy = (String) state.getAttribute(SORTED_BY);
         String sortedAsc = (String) state.getAttribute(SORTED_ASC);
         context.put("sortedBy", sortedBy);
@@ -3049,7 +3050,7 @@ public class AssignmentAction extends PagedResourceActionII {
         context.put("value_opendate_notification_low", AssignmentConstants.ASSIGNMENT_OPENDATE_NOTIFICATION_LOW);
         context.put("value_opendate_notification_high", AssignmentConstants.ASSIGNMENT_OPENDATE_NOTIFICATION_HIGH);
         context.put("value_CheckAddHonorPledge", state.getAttribute(NEW_ASSIGNMENT_CHECK_ADD_HONOR_PLEDGE));
-        context.put("honor_pledge_text", serverConfigurationService.getString("assignment.honor.pledge", rb.getString("gen.honple2")));
+        context.put("honor_pledge_text", serverConfigurationService.getString("assignment.honor.pledge", HonorPledge.honorPledge2()));
 
         context.put("value_CheckAnonymousGrading", Boolean.FALSE);
 
@@ -4300,8 +4301,9 @@ public class AssignmentAction extends PagedResourceActionII {
         context.put("hideAssignmentFlag", state.getAttribute(VIEW_ASSIGNMENT_HIDE_ASSIGNMENT_FLAG));
         context.put("hideStudentViewFlag", state.getAttribute(VIEW_ASSIGNMENT_HIDE_STUDENT_VIEW_FLAG));
         context.put("contentTypeImageService", contentTypeImageService);
-        context.put("honor_pledge_text", serverConfigurationService.getString("assignment.honor.pledge", rb.getString("gen.honple2")));
-
+        context.put("honor_pledge_text", serverConfigurationService.getString("assignment.honor.pledge", HonorPledge.honorPledge2()));
+        context.put("honor_pledge", serverConfigurationService.getString("assignment.honor.pledge", HonorPledge.honorPledge()));
+        
         String template = (String) getContext(data).get("template");
         return template + TEMPLATE_INSTRUCTOR_VIEW_ASSIGNMENT;
 
@@ -5990,10 +5992,11 @@ public class AssignmentAction extends PagedResourceActionII {
             }
 
 
+
             if (state.getAttribute(STATE_MESSAGE) == null) {
                 if (a.getHonorPledge()) {
                     if (!Boolean.valueOf(honorPledgeYes)) {
-                        addAlert(state, rb.getString("youarenot18"));
+                        addAlert(state, HonorPledge.youAreNot());
                     }
                     state.setAttribute(VIEW_SUBMISSION_HONOR_PLEDGE_YES, honorPledgeYes);
                 }
