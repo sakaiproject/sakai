@@ -179,7 +179,7 @@ public class ProfileEntityProvider extends AbstractEntityProvider implements Cor
 		if(bytes != null && bytes.length > 0) {
 			try {
 				out.write(bytes);
-				ActionReturn actionReturn = new ActionReturn("BASE64", image.getMimeType(), out);
+				ActionReturn actionReturn = new ActionReturn("UTF-8", image.getMimeType(), out);
 				
 				Map<String,String> headers = new HashMap<>();
 				headers.put("Expires", "Mon, 01 Jan 2001 00:00:00 GMT");
