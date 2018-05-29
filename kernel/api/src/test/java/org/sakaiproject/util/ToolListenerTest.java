@@ -70,7 +70,7 @@ public class ToolListenerTest {
         sakaiHome = Files.createTempDirectory("ToolListenerTest");
         toolsFolder = Files.createDirectories(sakaiHome.resolve("tools"));
         when(serverConfigurationService.getSakaiHomePath()).thenReturn(sakaiHome.toString());
-        doAnswer(invocation -> "/webapp"+ invocation.getArgumentAt(0, String.class))
+        doAnswer(invocation -> "/webapp"+ invocation.getArgument(0))
                 .when(context).getRealPath(anyString());
     }
 
