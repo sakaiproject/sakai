@@ -120,7 +120,6 @@ public class ToolListenerTest {
     public void testIgnoreFiles() {
         when(context.getResourcePaths("/WEB-INF/tools/")).thenReturn(Stream.of("/WEB-INF/tools/", "/WEB-INF/tools/sakai-tool.ignored", "/WEB-INF/tools/folder/").collect(Collectors.toSet()));
         InputStream inputStream = mock(InputStream.class);
-        when(context.getResourceAsStream(anyString())).thenReturn(inputStream);
         listener.contextInitialized(event);
         verify(activeToolManager, never()).register(inputStream, context);
     }
