@@ -66,6 +66,8 @@ public interface ItemFacadeQueriesAPI
 
   public ItemFacade saveItem(ItemFacade item) throws DataFacadeException;
 
+  public List<ItemFacade> saveItems(List<ItemFacade> items) throws DataFacadeException;
+
   /**
    * Retrieve an item from storage
    * @param itemId the item id

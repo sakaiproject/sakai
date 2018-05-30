@@ -22,6 +22,8 @@
 package org.sakaiproject.tool.assessment.facade;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -427,48 +429,75 @@ public class ItemFacadeQueries extends HibernateDaoSupport implements ItemFacade
   }
 
 
- public ItemFacade saveItem(ItemFacade item) throws DataFacadeException {
-    try{
-      ItemDataIfc itemdata = (ItemDataIfc) item.getData();
-      itemdata.setLastModifiedDate(new Date());
-      itemdata.setLastModifiedBy(AgentFacade.getAgentString());
-    int retryCount = PersistenceService.getInstance().getPersistenceHelper().getRetryCount().intValue();
-    while (retryCount > 0){
-      try {
-        getHibernateTemplate().saveOrUpdate(itemdata);
-        item.setItemId(itemdata.getItemId());
-        retryCount = 0;
-      }
-      catch (Exception e) {
-        log.warn("problem save or update itemdata: "+e.getMessage());
-        retryCount = PersistenceService.getInstance().getPersistenceHelper().retryDeadlock(e, retryCount);
-      }
-    }
-    if ((item.getData()!= null) && (item.getData().getSection()!= null)) {
-    AssessmentIfc assessment = item.getData().getSection().getAssessment();
-    assessment.setLastModifiedBy(AgentFacade.getAgentString());
-    assessment.setLastModifiedDate(new Date());
-    retryCount = PersistenceService.getInstance().getPersistenceHelper().getRetryCount().intValue();
-    while (retryCount > 0){
-    	try {
-    		getHibernateTemplate().update(assessment);
-    		retryCount = 0;
-    	}
-    	catch (Exception e) {
-    		log.warn("problem updating asssessment: "+e.getMessage());
-    		retryCount = PersistenceService.getInstance().getPersistenceHelper().retryDeadlock(e, retryCount);
-    	}
-    }
-    }
-    return item;
-    }
-    catch(Exception e){
-	e.printStackTrace();
-	return null;
-    }
- }
+  public ItemFacade saveItem(ItemFacade item) throws DataFacadeException {
+     List<ItemFacade> list = new ArrayList<>(1);
+     list.add(item);
+     list = saveItems(list);
+     return list.isEmpty() ? null : list.get(0);
+  }
 
+  /**
+   * Similar to saveItem(ItemFacade item), only we can process many items within a single transaction, thereby improving performance
+   * @param items
+   * @return
+   */
+  public List<ItemFacade> saveItems(List<ItemFacade> items) throws DataFacadeException {
+    try {
+      int retryCount;
+      // Track assessments associated with each item
+      List<AssessmentIfc> assessmentsToUpdate = new ArrayList<>();
+      Set<Long> assessmentIds = new HashSet<>();
 
+      for (ItemFacade item : items) {
+        ItemDataIfc itemdata = (ItemDataIfc) item.getData();
+        itemdata.setLastModifiedDate(new Date());
+        itemdata.setLastModifiedBy(AgentFacade.getAgentString());
+        retryCount = PersistenceService.getInstance().getPersistenceHelper().getRetryCount();
+
+        while (retryCount > 0) {
+          try {
+            getHibernateTemplate().saveOrUpdate(itemdata);
+            item.setItemId(itemdata.getItemId());
+            retryCount = 0;
+          } catch (Exception e) {
+            log.warn("saveitems - problem save or update itemdata: {}", e.getMessage());
+            retryCount = PersistenceService.getInstance().getPersistenceHelper().retryDeadlock(e, retryCount);
+          }
+        }
+
+        // Update the assessment once after all items are updated. So just track them here
+        if (item.getData() != null && item.getData().getSection() != null) {
+          AssessmentIfc assessment = item.getData().getSection().getAssessment();
+          if (!assessmentIds.contains(assessment.getAssessmentId())) {
+            assessmentIds.add(assessment.getAssessmentId());
+            assessmentsToUpdate.add(item.getData().getSection().getAssessment());
+          }
+        }
+      }
+
+      // All items are updated, now mark their associated assessments' "LastModified" properties
+      for (AssessmentIfc assessment : assessmentsToUpdate) {
+        assessment.setLastModifiedBy(AgentFacade.getAgentString());
+        assessment.setLastModifiedDate(new Date());
+        retryCount = PersistenceService.getInstance().getPersistenceHelper().getRetryCount();
+
+        while (retryCount > 0) {
+          try {
+            getHibernateTemplate().update(assessment);
+            retryCount = 0;
+          } catch (Exception e) {
+            log.warn("save items: problem updating assessment: {}", e.getMessage());
+            retryCount = PersistenceService.getInstance().getPersistenceHelper().retryDeadlock(e, retryCount);
+          }
+        }
+      }
+
+      return items;
+    } catch (Exception e) {
+      log.warn(e.getMessage(), e);
+      return Collections.emptyList();
+    }
+  }
 
   private void printIfcItem(ItemDataIfc item) {
     log.debug("**Id = " + item.getItemId());
