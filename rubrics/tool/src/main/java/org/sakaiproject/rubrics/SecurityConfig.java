@@ -53,7 +53,7 @@ public class SecurityConfig extends GlobalMethodSecurityConfiguration {
 
     @Bean
     @Override
-    public AuthenticationManager authenticationManager() throws Exception {
+    public AuthenticationManager authenticationManager() {
         return new ProviderManager(Arrays.asList(authenticationProvider));
     }
 
@@ -86,7 +86,10 @@ public class SecurityConfig extends GlobalMethodSecurityConfiguration {
                     .authorizeRequests()
                     .antMatchers(
                             "/",
+                            "/rest/error",
+                            "/index",
                             "/*.html",
+                            "/*.jsp",
                             "/favicon.ico",
                             "/**/*.html",
                             "/**/*.css",

@@ -19,33 +19,39 @@ var runSequence = require('run-sequence');
 // Repository and server paths
 var paths = {
     repo: {
-        bower: "src/main/webapp/bower_components/",
-        lib: "src/main/webapp/lib/",
-        templates: "src/main/webapp/imports/",
-        html: "src/main/java/org/sakaiproject/rubrics/tool/pages/",
-        data: "src/main/webapp/data/*.json",
-        sass: "src/main/webapp/sass/",
-        js: "src/main/webapp/js/",
-        css: "src/main/webapp/css/",
+        lib: "lib/",
+        templates: "imports/",
+        sass: "sass/",
+        js: "js/",
+        css: "css/",
+        deploy: "../../../target/classes/static/"
     }
 }
 
 // ----------- Build Tasks
-// Build task (called by mvaen-frontend-plugin)
+// Build task (called by maven-frontend-plugin)
 gulp.task('build', function (done) {
   runSequence(
     'bower-install',
     'copy-lib-to-bower',
     'sass',
+    'deploy-frontend',
     done);
 });
 
 // Copies modified library files over to bower_components
 gulp.task('copy-lib-to-bower', function (done) {
   gulp.src(paths.repo.lib + 'polymer-sortablejs/*.html')
-    .pipe(gulp.dest(paths.repo.bower + 'polymer-sortablejs/'));
-
+    .pipe(gulp.dest(paths.repo.deploy + 'bower_components/polymer-sortablejs/'));
   done();
+});
+
+// deploy frontend
+gulp.task('deploy-frontend', function (done) {
+    gulp.src(paths.repo.css + '**/*').pipe(gulp.dest(paths.repo.deploy + 'css/'));
+    gulp.src(paths.repo.js + '**/*').pipe(gulp.dest(paths.repo.deploy + 'js/'));
+    gulp.src(paths.repo.templates + '**/*').pipe(gulp.dest(paths.repo.deploy + 'imports/'));
+    done();
 });
 
 // Install Bower Components
@@ -126,7 +132,7 @@ gulp.task('vulcanize-and-minify', function() {
       inlineScripts: true,
       inlineCss: true,
       stripExcludes: false,
-      excludes: [paths.repo.bower + 'polymer/polymer.html']
+      //excludes: [paths.repo.bower + 'polymer/polymer.html']
     }))
 
     // Crush all that JS and CSS and pipe out.

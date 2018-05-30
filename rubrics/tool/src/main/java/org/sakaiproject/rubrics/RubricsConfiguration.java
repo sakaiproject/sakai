@@ -22,11 +22,12 @@
 
 package org.sakaiproject.rubrics;
 
-import lombok.Data;
+import javax.validation.Valid;
+
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 
-import javax.validation.Valid;
+import lombok.Data;
 
 @Data
 @Configuration
