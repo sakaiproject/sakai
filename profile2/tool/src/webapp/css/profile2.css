@@ -1372,6 +1372,14 @@ img.ui-datepicker-trigger {
 	vertical-align: middle;
 }
 
+button.ui-datepicker-trigger {
+	margin: 0 0;
+}
+
+button.ui-datepicker-trigger .fa.fa-calendar{
+	color: #212121 !important;
+}
+
 .no-pictures {
 	margin-bottom: 10px;
 }
