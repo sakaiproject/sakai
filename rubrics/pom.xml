@@ -32,20 +32,6 @@
                 <version>${project.version}</version>
                 <scope>provided</scope>
             </dependency>
-            <dependency>
-                <groupId>org.apache.wicket</groupId>
-                <artifactId>wicket</artifactId>
-                <version>6.26.0</version>
-                <type>pom</type>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.wicket</groupId>
-                <artifactId>wicket-spring</artifactId>
-                <version>6.26.0</version>
-            </dependency>
         </dependencies>
     </dependencyManagement>
-
-
-
 </project>

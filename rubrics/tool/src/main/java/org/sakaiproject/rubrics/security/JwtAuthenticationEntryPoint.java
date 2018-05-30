@@ -36,7 +36,6 @@ import org.springframework.stereotype.Component;
 public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint, Serializable {
 
     private static final long serialVersionUID = -8970718410437077606L;
-    private final Log logger = LogFactory.getLog(this.getClass());
 
     @Override
     public void commence(HttpServletRequest request,

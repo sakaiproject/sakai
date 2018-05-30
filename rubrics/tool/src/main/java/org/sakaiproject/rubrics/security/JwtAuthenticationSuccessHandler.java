@@ -29,18 +29,18 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
+
+import lombok.extern.slf4j.Slf4j;
+
 /**
  * Defines where to go after successful login. In this implementation just make sure nothing is done (REST API
  * contains no pages)
  */
+@Slf4j
 public class JwtAuthenticationSuccessHandler implements AuthenticationSuccessHandler {
-    private final Log logger = LogFactory.getLog(this.getClass());
 
     @Override
-    public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
-            Authentication authentication) {
-        if (logger.isDebugEnabled()) {
-            logger.debug(String.format("Authenticated: %s", authentication.isAuthenticated()));
-        }
+    public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) {
+        log.debug("Authenticated: {}", authentication.isAuthenticated());
     }
 }

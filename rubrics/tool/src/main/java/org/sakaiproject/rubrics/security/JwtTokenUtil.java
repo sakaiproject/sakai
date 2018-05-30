@@ -30,12 +30,6 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.List;
 
-import com.auth0.jwt.JWT;
-import com.auth0.jwt.JWTVerifier;
-import com.auth0.jwt.algorithms.Algorithm;
-import com.auth0.jwt.exceptions.JWTVerificationException;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.rubrics.RubricsConfiguration;
 import org.sakaiproject.rubrics.logic.AuthenticatedRequestContext;
 import org.sakaiproject.rubrics.logic.Role;
@@ -44,11 +38,18 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Component;
 
+import com.auth0.jwt.JWT;
+import com.auth0.jwt.JWTVerifier;
+import com.auth0.jwt.algorithms.Algorithm;
+import com.auth0.jwt.exceptions.JWTVerificationException;
+
+import lombok.extern.slf4j.Slf4j;
+
 @Component
+@Slf4j
 public class JwtTokenUtil implements Serializable {
 
     private static final long serialVersionUID = -3301605591108950415L;
-    private final Log logger = LogFactory.getLog(this.getClass());
 
     private static final String JWT_ISSUER = "sakai";
     private static final String JWT_AUDIENCE = "rubrics";
@@ -150,12 +151,12 @@ public class JwtTokenUtil implements Serializable {
 
         } catch (MalformedURLException e) {
 
-            logger.debug("Error getting a rubric association " + e.getMessage());
+            log.debug("Error getting a rubric association " + e.getMessage());
             return false;
 
         } catch (IOException e) {
 
-            logger.debug("Error getting a rubric association" + e.getMessage());
+            log.debug("Error getting a rubric association" + e.getMessage());
             return false;
         }
     }

@@ -28,11 +28,8 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.rubrics.logic.JwtAuthenticationToken;
 import org.sakaiproject.rubrics.security.exception.JwtTokenMissingException;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -41,11 +38,6 @@ import org.springframework.security.web.authentication.WebAuthenticationDetailsS
 
 
 public class JwtAuthenticationTokenFilter extends AbstractAuthenticationProcessingFilter {
-
-    private final Log logger = LogFactory.getLog(this.getClass());
-
-    @Autowired
-    private JwtTokenUtil jwtTokenUtil;
 
     public JwtAuthenticationTokenFilter() {
         super("/rest/**");
@@ -60,7 +52,7 @@ public class JwtAuthenticationTokenFilter extends AbstractAuthenticationProcessi
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) {
 
-        String header = request.getHeader(this.tokenHeader);
+        String header = request.getHeader(tokenHeader);
         if (header == null || !header.startsWith("Bearer ")) {
             throw new JwtTokenMissingException("No JWT token found in request headers");
         }
