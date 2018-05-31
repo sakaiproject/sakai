@@ -269,7 +269,7 @@
 				<prop key="useServerPrepStmts">true</prop>
 			</props>
 		</property>
-</bean>
+	</bean>
 
 	<bean id="javax.sql.tomcat.BaseDataSource" abstract="true"
 			class="org.sakaiproject.tomcat.jdbc.pool.SakaiBasicDataSource"
@@ -414,8 +414,8 @@
     <!-- Proxy which will keep only get the connection if one is actually needed,
        this is especially helpful when using hibernate or wrapping transactions around requests
        because it keeps the connection from being opened and held if it is not needed -->
-    <bean id="javax.sql.LazyDataSource" class="org.springframework.jdbc.datasource.LazyConnectionDataSourceProxy" primary="true">
-       <property name="targetDataSource"><ref bean="javax.sql.DataSource" /></property>
+    <bean id="javax.sql.LazyDataSource" class="org.springframework.jdbc.datasource.LazyConnectionDataSourceProxy">
+       <property name="targetDataSource" ref="javax.sql.DataSource" />
     </bean>
 
 	<bean id="org.sakaiproject.springframework.orm.hibernate.SakaiPersistenceUnitManager"
