@@ -111,6 +111,15 @@
                 <span class="current">$!tlang.getString( "lisofass1" )</span>
             #end
         </li>
+        <li>
+            #if( !$!view.equals( "lisofass2" ) )
+                <span>
+                    <a href="#toolLinkParam( "$action" "doView" "view=lisofass2" )" title="$!tlang.getString( "lisofass2" )">$!tlang.getString( "lisofass2" )</a>
+                </span>
+            #else
+                <span class="current">$!tlang.getString( "lisofass2" )</span>
+            #end
+        </li>
 
         #if( $withGrade && $!allowGradeSubmission )
             <li #if( $prevAction == false ) class="firstToolBarItem" #set( $prevAction = true ) #end>
@@ -212,6 +221,23 @@
         #else
             <li>
                 <span class="disabled">$!tlang.getString( "lisofass1" )</span>
+            </li>
+        #end
+        #if( !$!view.equals( "lisofass2" ) )
+            <li>
+                <span>
+                    <a href="javascript:void(0)" title="$!tlang.getString( "lisofass2" )" onclick="ASN.submitForm( '$formID', 'view', null, 'lisofass2' ); return false;">
+                        $!tlang.getString( "lisofass2" )
+                    </a>
+                </span>
+            </li>
+        #elseif( $current == "list" )
+            <li>
+                <span class="current">$!tlang.getString( "lisofass2" )</span>
+            </li>
+        #else
+            <li>
+                <span class="disabled">$!tlang.getString( "lisofass2" )</span>
             </li>
         #end
         #if( $withGrade && $!allowGradeSubmission )

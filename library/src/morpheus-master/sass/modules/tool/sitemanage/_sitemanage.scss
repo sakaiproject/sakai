@@ -527,4 +527,44 @@
       padding: 0.5em 0;
     }
   }
+
+  .siteinfo-tableHeading
+  {
+    @include justify-content(space-between);
+    @include align-items(center);
+    margin-bottom: 10px;
+    -webkit-flex-wrap: wrap;
+    flex-wrap: wrap;
+    margin-top: 0.75em;
+
+    a
+    {
+      margin: 0 0 0.5em 0;
+    }
+  
+    h4
+    {
+      margin: 0 10px 0.5em 0;
+    }
+  }
+
+  .siteinfo-tableFooter
+  {
+    @include justify-content(space-between);
+    @include align-items(flex-end);
+    -webkit-flex-wrap: wrap;
+    flex-wrap: wrap;
+
+    .act
+    {
+      padding: 0;
+      margin-bottom: 10px;
+
+      input
+      {
+        margin-top: 0;
+        margin-bottom: 0;
+      }
+    }
+  }
 }

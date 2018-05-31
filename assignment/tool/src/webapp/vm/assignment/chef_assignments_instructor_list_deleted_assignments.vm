@@ -14,11 +14,9 @@
 			$tlang.getString("gen.thearecur1")
 		</p>
 	#else
-		<div class="navPanel row">
-			<div class="col-sm-5 col-xs-12">
-			</div>
-			<div class="col-sm-7 col-xs-12">
-				#paginator( $topMsgPos $btmMsgPos $allMsgNumber $pagesize $goFPButton $goPPButton $goNPButton $goLPButton $sakai_csrf_token $pagesizes )
+		<div class="sakai-table-toolBar">
+			<div class="sakai-table-pagerContainer">
+				#pagerPanel("pager1")
 			</div>
 		</div>
 		<form name="listDeletedAssignmentsForm" action="#toolForm("$action")" method="post">

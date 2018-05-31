@@ -1,96 +1,5 @@
 ##<!-- $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/sitesetup/chef_site-siteInfo-list.vm,v 1.6 2005/05/28 03:04:36 ggolden.umich.edu Exp $ -->
 
-## This macro has been defined in order to reuse the paging panel once at the top of the participant group table and once at the bottom of the participant group table. JIRA Ref -WL3736
-#macro(pagingPanel $pagesizeFormName)
-<div class="navPanel">
-	<div class="viewNav">
-		<h4>
-			$validator.escapeHtml($!siteTitle) $tlang.getString("sitegen.siteinfolist.part") ($tlang.getFormattedMessage("sinfo.list.participantListSize", $!participantListSize))
-		</h4>
-	</div>
-	<div class="listNav">
-		<div >
-			$tlang.getString("sitegen.siteinfolist.view") $topMsgPos - $btmMsgPos $tlang.getString("sitegen.siteinfolist.of") $allMsgNumber $tlang.getString("sitegen.siteinfolist.items")
-			<div id="pagerSpinner" class="allocatedSpinPlaceholder"></div>
-		</div>
-			#if ($pagesize != 0)
-				#if ($goFPButton == "true")
-					<form name="firstpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
-						<fieldset><legend>$tlang.getString("gen.first")</legend>
-							<input type="submit" name="eventSubmit_doList_first" value="|&lt;" title="$tlang.getString("gen.first")" onclick="SPNR.disableControlsAndSpin( this, null );" />
-						</fieldset>
-						<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
-					</form>
-				#else
-					<form name="firstpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
-						<fieldset><legend>$tlang.getString("gen.first")</legend>
-							<input type="submit" name="eventSubmit_doList_first" value="|&lt;" disabled="disabled" />
-						</fieldset>
-						<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
-					</form>
-				#end
-				#if ($goPPButton == "true")
-					<form name="prevpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
-						<fieldset><legend>$tlang.getString('gen.previous') $pagesize</legend>
-							<input type="submit" name="eventSubmit_doList_prev" value="&lt;" title="$tlang.getString('gen.previous') $pagesize" onclick="SPNR.disableControlsAndSpin( this, null );" />
-						</fieldset>
-						<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
-					</form>
-				#else
-					<form name="prevpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
-						<fieldset><legend>$tlang.getString('gen.previous') $pagesize</legend>
-							<input type="submit" name="eventSubmit_doList_prev" value="&lt;" disabled="disabled" />
-						</fieldset>
-						<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
-					</form>
-				#end
-			#end
-			<form id="$pagesizeFormName" name="$pagesizeFormName" class="inlineForm" method="post" action="#toolForm("$action")">
-				<input type="hidden" name="eventSubmit_doChange_pagesize" value="changepagesize" />
-				<label for="size_$pagesizeFormName" class="skip">$tlang.getString("sitegen.siteinfolist.view.pagesize")</label>
-				<select id="size_$pagesizeFormName" name="selectPageSize" onchange="SPNR.insertSpinnerInPreallocated( this, null, 'pagerSpinner' );document.getElementById('$pagesizeFormName').submit()">
-					#foreach ($i in $!pagesizes)
-						<option value="$i" #if($pagesize == $i) selected="selected" #end>$tlang.getString("sitegen.siteinfolist.show") $i $tlang.getString("sitegen.siteinfolist.itemspage")</option>
-					#end
-				</select>
-				<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
-			</form>
-		#if ($pagesize != 0)
-			#if($goNPButton == "true")
-				<form name="nextpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
-					<fieldset><legend>$tlang.getString('gen.next') $pagesize</legend>
-						<input type="submit" name="eventSubmit_doList_next" value="&gt;" title="$tlang.getString('gen.next') $pagesize" onclick="SPNR.disableControlsAndSpin( this, null );" />
-					</fieldset>
-						<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
-				</form>
-			#else
-				<form name="nextpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
-					<fieldset><legend>$tlang.getString('gen.next') $pagesize</legend>
-						<input type="submit" name="eventSubmit_doList_next" value="&gt;" disabled="disabled" />
-					</fieldset>
-					<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
-				</form>
-			#end
-			#if ($goLPButton == "true")
-				<form name="lastpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
-					<fieldset><legend>$tlang.getString('gen.last')</legend>
-						<input type="submit" name="eventSubmit_doList_last" value="&gt;|" title="$tlang.getString('gen.last')" onclick="SPNR.disableControlsAndSpin( this, null );" />
-					</fieldset>
-					<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
-				</form>
-			#else
-				<form name="lastpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
-					<fieldset><legend>$tlang.getString('gen.last')</legend>
-						<input type="submit" name="eventSubmit_doList_last" value="&gt;|" disabled="disabled" />
-					</fieldset>
-					 <input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
-				</form>
-			#end
-		#end
-	</div>
-</div>
-#end
-
 <div id="dialog">
 </div>
 <script type="text/javascript">
@@ -554,12 +463,22 @@
 
 	#if ($!viewRoster)
 		#if ($participantList.size() > 0)
-			#set($pagesizeFormName="pagesizeFormTop")
-			#pagingPanel($pagesizeFormName)
+			##set($pagesizeFormName="pagesizeFormTop")
+			##pagingPanel($pagesizeFormName)
+			<div class="siteinfo-tableHeading">
+				<h4>$validator.escapeHtml($!siteTitle) $tlang.getString("sitegen.siteinfolist.part") ($tlang.getFormattedMessage("sinfo.list.participantListSize", $!participantListSize))</h4>
+				## download link for print out participant list
+				<a href="$printParticipantUrl" title="$!tlang.getString('print')" target="_blank" rel="noreferrer"><span class="icon-sakai--pdf" aria-hidden="true"></span> $!tlang.getString('print')</a>
+			</div>
+			<div class="sakai-table-toolBar sakai-table-toolBar-pagerOnly">
+				#if (!$participantList.isEmpty())
+				<div class="sakai-table-pagerContainer">
+					#pagerPanel("pager1")
+				</div>
+				#end
+			</div>
 		#end
-		## download link for print out participant list
-		<a href="$printParticipantUrl" title="$!tlang.getString('print')" target="_blank" rel="noreferrer"><span class="icon-sakai--pdf" aria-hidden="true"></span> $!tlang.getString('print')</a>
-		<hr />
+
 		<form name="participantForm" id="participantForm" action="#toolForm("SiteAction")" method="post">
 			<div class="table-responsive">
 			<table class ="table table-responsive table-bordered table-striped table-hover" summary ="$tlang.getString("sitegen.siteinfolist.partlist.summary")" id="siteMembers">
@@ -764,19 +683,23 @@
 					</tr>
 				#end
 			</table></div>
-			<hr />
-			<div class="act" style="padding: 0 0">
-				<input type="submit" accesskey="s" class="active" name="eventSubmit_doUpdate_participant" value="$tlang.getString("sitegen.siteinfolist.update")" onclick="SPNR.disableControlsAndSpin( this, null );" />
-				#if ($fromWSetup)
-					<input type="submit" accesskey="x" name="eventSubmit_doBack_to_site_list" value="$tlang.getString("sitegen.siteinfolist.cancel")" onclick="SPNR.disableControlsAndSpin( this, null );" />
-				#end
-				<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
-            </div>
+			<div class="siteinfo-tableFooter">
+				<div class="act">
+					<input type="submit" accesskey="s" class="active" name="eventSubmit_doUpdate_participant" value="$tlang.getString("sitegen.siteinfolist.update")" onclick="SPNR.disableControlsAndSpin( this, null );" />
+					#if ($fromWSetup)
+						<input type="submit" accesskey="x" name="eventSubmit_doBack_to_site_list" value="$tlang.getString("sitegen.siteinfolist.cancel")" onclick="SPNR.disableControlsAndSpin( this, null );" />
+					#end
+					<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+				</div>
+				<div class="sakai-table-toolBar sakai-table-toolBar-pagerOnly">
+					#if (!$participantList.isEmpty() && $participantList.size() > 10)
+					<div class="sakai-table-pagerContainer">
+						#pagerPanel("pager2")
+					</div>
+					#end
+				</div>
+			</div>
 		</form>
-		#if ($participantList.size() > 10)
-			#set($pagesizeFormName="pagesizeFormBottom")
-			#pagingPanel($pagesizeFormName)
-		#end
 		<div style="padding-left: 0.3em;"><em>$tlang.getString("sitegen.siteinfolist.lastupdated") $realmModifiedTime</em></span></div>
 		#chef_flashnotif()
 		<h4>$tlang.getString("sitegen.siteinfolist.roledes")</h4>

@@ -266,11 +266,11 @@ a.noPointers, input.noPointers {
 	to {transform: rotate(360deg);}
 }
 
-.spinButton {
+.spinButton, .spinSelect {
 	position: relative;
 }
 
-.spinButton:after, .spinPlaceholder:after {
+.spinButton:after, .spinPlaceholder:after, .spinSelect:after {
 	content: "";
 	background: url("images/ring58.png") center center no-repeat;
 	-moz-animation-name: rotate;
@@ -294,6 +294,12 @@ a.noPointers, input.noPointers {
 	height: 100%;
 }
 
+.spinSelect:after {
+	left: initial;
+	right: 4px;
+	width: 16px;
+}
+
 .spinPlaceholder, .allocatedSpinPlaceholder {
 	position: relative;
 	display: inline-block;
@@ -312,6 +318,7 @@ a.noPointers, input.noPointers {
 		margin-bottom: 0px;
 	}
 }
+
 /*** End button spinner overlay ***/
 .ui-dialog.ui-widget {
 	@media #{$phone}{

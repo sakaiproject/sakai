@@ -70,49 +70,49 @@ function printView(url) {
 		</div>
 	#end
 
-	<div class="row">
-		<div class="col-xs-12">
-
+	<div class="sakai-asn-controlRow">
+		#set ($showMsg = false)
+		#set ($showMsg = $!allMsgNumber)
+		#if ($!showMsg || $showMsg != 0)
+		<div class="navPanel">
+			<div class="viewNav">
+			#set ($gradeType = $typeOfGrade)
+			#if(!$disableGrade)
+				<form id="defaultGradeForm" name="defaultGradeForm" class="inlineForm" method="post" action="#toolForm($action)">
+					<input type="hidden" name="$!form_action" value="setScore" />
+					<label for="defaultGrade_1" style="display:block" class="textPanelFooter">$!form_label</label>
+					##for non-point-based grading, choose the default grade from drop-down
+					#if ($!gradeType != 3)
+						<select id="defaultGrade_1" name="defaultGrade" size="1" >
+							<option value="">$tlang.getString("non.submission.grade.select")</option>
+							#if ($!gradeType == 1)
+								<option value="gen.nograd" #if($!defaultGrade && $!defaultGrade.equals("gen.nograd"))selected="selected"#end>$tlang.getString("gen.nograd")</option>
+							#elseif ($!gradeType == 2)
+								#foreach ($i in $letterGradeOptions)
+									<option value="$i" #if($!defaultGrade && $!defaultGrade.equals($i))selected="selected"#end>$i</option>
+								#end
+							#elseif ($!gradeType == 4)
+								#foreach ($i in ["Pass", "Fail"])
+									<option value="$i" #if($!defaultGrade && $!defaultGrade.equals($i))selected="selected"#end>#if ($i=="Pass") $tlang.getString("pass") #elseif ($i=="Fail") $tlang.getString("fail") #end</option>
+								#end
+							#elseif ($!gradeType == 5)
+								<option value="Checked" #if($!defaultGrade && $!defaultGrade.equals("Checked"))selected="selected"#end>$tlang.getString("gen.checked")</option>
+							#end
+						</select>
+					#else
+						## instructor needs to type in default points in point-based-grading
+						<input type="text" id="defaultGrade_2" name="defaultGrade" value="$!defaultGrade" size="5" />
+					#end
+					<input type="button" accesskey="a" class="active" name="apply" value="$tlang.getString('gen.applygrade')" onclick="SPNR.disableControlsAndSpin( this, escapeList ); ASN.submitForm( 'defaultGradeForm', null, null, null );" title="$tlang.getString("gen.applygrade")" />
+					<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+				</form>
+			#end
+			</div>
+		</div>
 		<form name="viewForm" id="viewForm" class="inlineForm" method="post" action="#toolForm("AssignmentAction")">
 			<input type="hidden" name="assignmentId" id = "assignmentId" value=$validator.escapeUrl($!assignmentReference) />
 			<input type="hidden" name="option" id="option" value="x" />
 			<input type="hidden" name="eventSubmit_doView_submission_list_option" value="x" />
-			## show the view by group choice when there is at least one group defined
-			#if (!$assignment.IsGroup)
-				#if (!$value_CheckAnonymousGrading && $!groups.hasNext())
-					<div class="form-group spinnerBesideContainer">
-						<label class="col-md-2" for="view">
-							$tlang.getString("gen.view2")
-						</label>
-						<div class="col-md-10">
-							<span class="skip">$tlang.getString("newassig.selectmessage")</span>
-							<select id="view" name="view" size="1" tabindex="3" onchange="SPNR.insertSpinnerAfter( this, escapeList, null ); ASN.submitForm( 'viewForm', 'changeView', null, null ); return false;">
-								#if (!$showSubmissionByFilterSearchOnly)
-									<option value="all" #if($!view.equals("all"))selected="selected"#end >$tlang.getString('gen.viewallgroupssections')</option>
-								#else
-									<option value="" >$tlang.getString('please_select_group')</option>
-								#end
-								#foreach($aGroup in $groups)
-									<option value="$!aGroup.Reference" #if($!view.equals($!aGroup.Reference))selected="selected"#end >$validator.escapeHtml($aGroup.Title)</option>
-								#end
-							</select>
-						</div>
-					</div>
-				#end
-
-				#if (!$value_CheckAnonymousGrading)
-					<div class="form-group">
-						<label class="col-md-2" for="$form_search">$tlang.getString("search_students")</label>
-						<div class="col-md-10">
-							<input value="$validator.escapeHtml($searchString)" placeholder="$tlang.getString( "search_student_instruction" )" name="search" id="search" type="text" class="searchField" size="20" />
-							<input type="button" value="$tlang.getString('search')" onclick="SPNR.disableControlsAndSpin( this, escapeList ); ASN.submitForm( 'viewForm', 'search', null, null ); return false;" />
-							#if (($!searchString) && (!$searchString.equals("")))
-								<input type="button" class="button" value="$tlang.getString("search_clear")" onclick="SPNR.disableControlsAndSpin( this, escapeList ); ASN.submitForm( 'viewForm', 'clearSearch', null, null ); return false;" />
-							#end
-						</div>
-					</div>
-				#end
-			#end
 			#set($disableGrade=false)
 			#if($assignment.AllowPeerAssessment && !$isPeerAssessmentClosed)
 				#set($disableGrade=true)
@@ -151,55 +151,9 @@ function printView(url) {
 			#end
 			<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 		</form>
-
-		#set ($showMsg = false)
-		#set ($showMsg = $!allMsgNumber)
-		#if (!$!showMsg || $showMsg == 0)
-		#else
-		<div class="navPanel">
-			<div class="viewNav">
-			#set ($gradeType = $typeOfGrade)
-			#if(!$disableGrade)
-				<form id="defaultGradeForm" name="defaultGradeForm" class="inlineForm" method="post" action="#toolForm($action)">
-					<input type="hidden" name="$!form_action" value="setScore" />
-					<label for="defaultGrade_1" style="display:block" class="textPanelFooter">$!form_label</label>
-					##for non-point-based grading, choose the default grade from drop-down
-					#if ($!gradeType != 3)
-						<select id="defaultGrade_1" name="defaultGrade" size="1" >
-							<option value="">$tlang.getString("non.submission.grade.select")</option>
-							#if ($!gradeType == 1)
-								<option value="gen.nograd" #if($!defaultGrade && $!defaultGrade.equals("gen.nograd"))selected="selected"#end>$tlang.getString("gen.nograd")</option>
-							#elseif ($!gradeType == 2)
-								#foreach ($i in $letterGradeOptions)
-									<option value="$i" #if($!defaultGrade && $!defaultGrade.equals($i))selected="selected"#end>$i</option>
-								#end
-							#elseif ($!gradeType == 4)
-								#foreach ($i in ["Pass", "Fail"])
-									<option value="$i" #if($!defaultGrade && $!defaultGrade.equals($i))selected="selected"#end>#if ($i=="Pass") $tlang.getString("pass") #elseif ($i=="Fail") $tlang.getString("fail") #end</option>
-								#end
-							#elseif ($!gradeType == 5)
-								<option value="Checked" #if($!defaultGrade && $!defaultGrade.equals("Checked"))selected="selected"#end>$tlang.getString("gen.checked")</option>
-							#end
-						</select>
-					#else
-						## instructor needs to type in default points in point-based-grading
-						<input type="text" id="defaultGrade_2" name="defaultGrade" value="$!defaultGrade" size="5" />
-					#end
-					<input type="button" accesskey="a" class="active" name="apply" value="$tlang.getString('gen.applygrade')" onclick="SPNR.disableControlsAndSpin( this, escapeList ); ASN.submitForm( 'defaultGradeForm', null, null, null );" title="$tlang.getString("gen.applygrade")" />
-					<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
-				</form>
-			#end
-			</div>
-		</div>
-		</div>
-		<div class="col-lg-6 col-md-7 col-xs-12 pull-right">
-			#paginator( $topMsgPos $btmMsgPos $allMsgNumber $pagesize $goFPButton $goPPButton $goNPButton $goLPButton $sakai_csrf_token $pagesizes )
-		</div>
 	</div>
-
-		<form name= "listSubmissionsForm" action="#toolForm("AssignmentAction")" method="post">
+		<form id="listSubmissionForm" name= "listSubmissionsForm" action="#toolForm("AssignmentAction")" method="post">
 			<input type="hidden" name="assignmentId" value="$assignmentReference" />
-			
 			## model answer
 			#if($allowViewModelAnswer)
 			<h4  id="toggleModel" class="toggleAnchor specialLink"><img alt="expand" class="expand" src="/library/image/sakai/expand.gif" /><img alt="collapse" class="collapse" src="/library/image/sakai/collapse.gif" />$tlang.getString('modelAnswer')</h4>
@@ -402,15 +356,41 @@ function printView(url) {
 						</div> <!-- allowResubmissionPanelContent -->
 			</div>
 			#end
-			
+
 			#if ($!isAdditionalNotesEnabled && !$assignment.IsGroup)
 				<a href="#" onclick="window.open(printView('#toolLinkParam("$action" "doGrade_assignment" "assignmentId=$validator.escapeUrl($assignmentReference)&grade_showStudentDetails=true")'));return false"><span alt="$tlang.getString("assignment.print")" class="fa fa-print"></span><span> $tlang.getString("assignment.print") $tlang.getString("assignment.additional.notes.export.title")</span></a>
 			#end
-			
-			
+
 			#if($disableGrade)
 				<div class="highlight">$tlang.getFormattedMessage("peerassessment.cantgradewithdate", $!service.getUsersLocalDateTimeString($assignment.PeerAssessmentPeriodDate))</div>
 			#end
+
+			<div class="sakai-table-toolBar">
+				<div class="sakai-table-filterContainer">
+					#if (!$assignment.IsGroup)
+						#if (!$value_CheckAnonymousGrading && $!groups.hasNext())
+							#define($viewSelectOptions)
+								#if (!$showSubmissionByFilterSearchOnly)
+									<option value="all" #if($!view.equals("all"))selected="selected"#end >$tlang.getString('gen.viewallgroupssections')</option>
+								#else
+									<option value="" >$tlang.getString('please_select_group')</option>
+								#end
+								#foreach($aGroup in $groups)
+									<option value="$!aGroup.Reference" #if($!view.equals($!aGroup.Reference))selected="selected"#end >$validator.escapeHtml($aGroup.Title)</option>
+								#end
+							#end
+							#viewFilterPanel("viewFilterForm", "view", $viewSelectOptions, "doChange_submission_list_option")
+						#end
+						#if (!$value_CheckAnonymousGrading)
+							#searchFilterPanel("$form_search", $searchString, "doView_submission_list_search", "doView_submission_list_search_clear")
+						#end
+					#end
+				</div>
+				<div class="sakai-table-pagerContainer">
+					#pagerPanel("pager1")
+				</div>
+			</div>
+
 			## show all submission
 			<table class="listHier lines nolines" id ="submissionList" cellpadding="0" cellspacing="0" summary="$tlang.getString("gen.viewassliststudentsummary")">
 				<tr>

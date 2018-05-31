@@ -44,67 +44,44 @@
 		</h1>
 	</div>
 
-	#if($!groupFilterEnabled && $!filterGroupIterator.hasNext())
-		<div class="row" id="filterByGroupDiv">
-			<div class="col-md-12">
-			<form id="groupFilterForm" name="groupFilterForm" class="inlineForm" method="post" action="#toolForm("AssignmentAction")">
-				<input type="hidden" name="eventSubmit_doFilterByGroup" value="filterByGroup" />
-					<div class="spinnerBesideContainer">
-						<label for="groupFilter">
-							$!tlang.getString("listassig.filterbygroup")
-						</label>
-						<span class="skip">$tlang.getString("newassig.selectmessage")</span>
-						<select id="filterByGroup" name="filterByGroup" onchange="SPNR.insertSpinnerAfter( this, null, null ); ASN.submitForm( 'groupFilterForm', null, null, null ); return false;">
-							<option value="all" #if($!filterByGroup.equals('all'))selected="selected"#end>$!tlang.getString("listassig.allgroups")</option>
-							#foreach($group in $!filterGroupIterator)
-								<option value="$group.getId()" #if($!filterByGroup.equals($group.getId()))selected="selected"#end>$group.getTitle()</option>
-							#end
-						</select>
-					</div>
-				<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
-			</form>
-			</div>
-		</div>
-	#end
-
 	#if (!$!assignments.hasNext())
 		<p class="instruction">
 			$tlang.getString("gen.thearecur1")
 		</p>
 	#else
-	<div class="navPanel row">
-		#if ($allowAddAssignment)
-			#if (!$!view.equals('stuvie'))
-			<div class="col-sm-5 col-xs-12">
-				<form id="viewForm" name="viewForm" class="inlineForm" method="post" action="#toolForm("AssignmentAction")">
-					<input type="hidden" name="eventSubmit_doView" value="view" />
-					<div class="spinnerBesideContainer">
-						<label for="view">
-							$tlang.getString("gen.view2")
-						</label>
-						<span class="skip">$tlang.getString("newassig.selectmessage")</span>
-						<select id="view" name="view" size="1" tabindex="3" onchange="SPNR.insertSpinnerAfter( this, null, null ); ASN.submitForm( 'viewForm', 'changeView', null, null ); return false;">
-							<option value="lisofass1" #if($!view.equals('lisofass1'))selected="selected"#end >$!tlang.getString('lisofass1')</option>
-							<option value="lisofass2" #if($!view.equals('lisofass2'))selected="selected"#end >$!tlang.getString('lisofass2')</option>
-						</select>
-					</div>
+	#if ($allowAddAssignment)
+		#if ($!view.equals('stuvie'))
+			<div class="messageInformation">$tlang.getString("stulistassig.selanass1")</div>
+		#end
+	#else
+		<div>$tlang.getString("stulistassig.selanass")</div>
+	#end
+
+	<div class="sakai-table-toolBar">
+		#if($!groupFilterEnabled && $!filterGroupIterator.hasNext())
+		<div class="sakai-table-filterContainer">
+			<div class="row" id="filterByGroupDiv">
+				<div class="col-md-12">
+				<form id="groupFilterForm" name="groupFilterForm" class="inlineForm" method="post" action="#toolForm("AssignmentAction")">
+					<input type="hidden" name="eventSubmit_doFilterByGroup" value="filterByGroup" />
+					<label for="groupFilter">
+						$!tlang.getString("listassig.filterbygroup")
+					</label>
+					<span class="skip">$tlang.getString("newassig.selectmessage")</span>
+					<select id="filterByGroup" name="filterByGroup" onchange="SPNR.disableControlsAndSpin(this, null); ASN.submitForm( 'groupFilterForm', null, null, null ); return false;">
+						<option value="all" #if($!filterByGroup.equals('all'))selected="selected"#end>$!tlang.getString("listassig.allgroups")</option>
+						#foreach($group in $!filterGroupIterator)
+							<option value="$group.getId()" #if($!filterByGroup.equals($group.getId()))selected="selected"#end>$group.getTitle()</option>
+						#end
+					</select>
 					<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 				</form>
+				</div>
 			</div>
-			<div class="col-sm-7 col-xs-12">
-			#else
-				<div class="col-md-12">
-				<div class="instruction">	$tlang.getString("stulistassig.selanass1")</div>
-			</div>
-			<div class="col-lg-6 col-md-7 col-sm-9 col-xs-12">
-			#end
-		#else
-			<div class="col-md-12">
-				<div class="instruction">$tlang.getString("stulistassig.selanass")</div>
-			</div>
-			<div class="col-lg-6 col-md-7 col-sm-9 col-xs-12">
+		</div>
 		#end
-			#paginator( $topMsgPos $btmMsgPos $allMsgNumber $pagesize $goFPButton $goPPButton $goNPButton $goLPButton $sakai_csrf_token $pagesizes )
+		<div class="sakai-table-pagerContainer">
+			#pagerPanel("pager1")
 		</div>
 	</div>
 
