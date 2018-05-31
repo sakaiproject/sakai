@@ -1658,32 +1658,24 @@
         <version>4.12</version>
         <scope>test</scope>
       </dependency>
-
-      <!-- https://mvnrepository.com/artifact/org.mockito/mockito-core -->
       <dependency>
         <groupId>org.mockito</groupId>
         <artifactId>mockito-core</artifactId>
         <version>${sakai.mockito.version}</version>
         <scope>test</scope>
       </dependency>
-      <!-- So we can mock static cover -->
-
-      <!-- https://mvnrepository.com/artifact/org.powermock/powermock-module-junit4 -->
       <dependency>
           <groupId>org.powermock</groupId>
           <artifactId>powermock-module-junit4</artifactId>
           <version>${sakai.powermock.version}</version>
           <scope>test</scope>
       </dependency>
-
-      <!-- https://mvnrepository.com/artifact/org.powermock/powermock-api-mockito2 -->
       <dependency>
           <groupId>org.powermock</groupId>
           <artifactId>powermock-api-mockito2</artifactId>
           <version>${sakai.powermock.version}</version>
           <scope>test</scope>
       </dependency>
-
       <dependency>
         <groupId>org.projectlombok</groupId>
         <artifactId>lombok</artifactId>
