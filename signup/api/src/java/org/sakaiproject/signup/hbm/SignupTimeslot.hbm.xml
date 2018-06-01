@@ -23,7 +23,7 @@
 		<property name="groupId" column="group_id" length="99" type="string" not-null="false" />
 		<property name="uuid" column="vevent_uuid" length="36" type="string" not-null="false" />
 				
-		<list name="attendees" cascade="save-update,delete" table="signup_ts_attendees" fetch="join">
+		<list name="attendees" cascade="all" table="signup_ts_attendees" fetch="join">
 			<key column="timeslot_id" not-null="true"/>
 			<list-index column="list_index" />
 			<composite-element class="org.sakaiproject.signup.model.SignupAttendee" >
@@ -38,7 +38,7 @@
 				<!-- <property name="attended" column="attended" type="boolean" not-null="false" /> -->
 			</composite-element>	
 		</list>
-		<list name="waitingList" cascade="save-update,delete" table="signup_ts_waitinglist" fetch="join">
+		<list name="waitingList" cascade="all" table="signup_ts_waitinglist" fetch="join">
 			<key column="timeslot_id" not-null="true"/>
 			<list-index column="list_index" />
 			<composite-element class="org.sakaiproject.signup.model.SignupAttendee" >
