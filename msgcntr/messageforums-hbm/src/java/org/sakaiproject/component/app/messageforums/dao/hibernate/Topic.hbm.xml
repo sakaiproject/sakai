@@ -47,12 +47,12 @@
         <key column="t_surrogateKey"/>                        
         <one-to-many class="org.sakaiproject.component.app.messageforums.dao.hibernate.AttachmentImpl"/>            
     </set>
-    <set name="messagesSet" lazy="true" cascade="save-update"
+    <set name="messagesSet" lazy="true" cascade="persist,merge,save-update"
       sort="org.sakaiproject.component.app.messageforums.dao.hibernate.util.comparator.MessageByCreatedDateDesc" batch-size="100">
         <key column="surrogateKey"/>                        
         <one-to-many class="org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl"/>            
     </set>    
-     <set name="membershipItemSet" lazy="true" cascade="save-update" batch-size="50">
+     <set name="membershipItemSet" lazy="true" cascade="persist,merge,save-update" batch-size="50">
         <key column="t_surrogateKey"/>
         <one-to-many class="org.sakaiproject.component.app.messageforums.dao.hibernate.DBMembershipItemImpl"/>
     </set>
