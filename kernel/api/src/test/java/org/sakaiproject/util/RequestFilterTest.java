@@ -20,6 +20,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.powermock.api.mockito.PowerMockito;
+import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.sakaiproject.component.api.ServerConfigurationService;
@@ -37,10 +38,8 @@ import java.security.Principal;
 
 import static org.mockito.Mockito.*;
 
-/**
- * Created by buckett on 30/09/2014.
- */
 @RunWith(PowerMockRunner.class)
+@PowerMockIgnore("javax.security.auth.Subject")
 @PrepareForTest(ComponentManager.class)
 public class RequestFilterTest {
 
