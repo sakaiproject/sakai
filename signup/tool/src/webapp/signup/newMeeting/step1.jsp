@@ -136,11 +136,11 @@
                         </h:inputText>
                         
                         <h:outputLabel id="customLocationLabel" for="customLocation" styleClass="activeTag"  onclick="handleDropDownAndInput('meeting:customLocationLabel','meeting:customLocationLabel_undo','meeting:customLocation','meeting:selectedLocation')" rendered="#{!NewSignupMeetingBean.allLocationsEmpty}">
-                            <h:graphicImage value="/images/plus.gif"  alt="open" title="#{msgs.tab_event_location_custom}" style="border:none;vertical-align: middle; padding:0 5px 0 15px;" styleClass="openCloseImageIcon"/>
+                            <h:graphicImage value="/images/plus.gif" alt="#{msgs.tab_event_location_custom}" title="#{msgs.tab_event_location_custom}" style="border:none;vertical-align: middle; padding:0 5px 0 15px;" styleClass="openCloseImageIcon"/>
                             <h:outputText value="#{msgs.tab_event_location_custom}" escape="false" style="vertical-align: middle;"/>
                         </h:outputLabel>
                         <h:outputLabel id="customLocationLabel_undo" for="customLocation" styleClass="activeTag" style="display:none" onclick="handleDropDownAndInput('meeting:customLocationLabel','meeting:customLocationLabel_undo','meeting:customLocation','meeting:selectedLocation')" rendered="#{!NewSignupMeetingBean.allLocationsEmpty}">
-                            <h:graphicImage value="/images/minus.gif"  alt="undo" title="#{msgs.event_custom_undo_tip}" style="border:none;vertical-align: middle;padding:0 5px 0 15px;" styleClass="openCloseImageIcon"/>
+                            <h:graphicImage value="/images/minus.gif" alt="#{msgs.event_custom_undo_tip}" title="#{msgs.event_custom_undo_tip}" style="border:none;vertical-align: middle;padding:0 5px 0 15px;" styleClass="openCloseImageIcon"/>
                             <h:outputText value="#{msgs.event_custom_undo}" escape="false" style="vertical-align: middle;"/>
                         </h:outputLabel>
                         <h:outputText value="&nbsp;" escape="false" rendered="#{!NewSignupMeetingBean.allLocationsEmpty}"/>
@@ -162,11 +162,11 @@
                         </h:inputText>
                         
                         <h:outputLabel id="customCategoryLabel" for="customLocation" styleClass="activeTag"  onclick="handleDropDownAndInput('meeting:customCategoryLabel','meeting:customCategoryLabel_undo','meeting:customCategory','meeting:selectedCategory')" rendered="#{NewSignupMeetingBean.categoriesExist}">
-                            <h:graphicImage value="/images/plus.gif"  alt="open" title="#{msgs.event_category_custom}" style="border:none;vertical-align: middle; padding:0 5px 0 15px;" styleClass="openCloseImageIcon"/>
+                            <h:graphicImage value="/images/plus.gif" alt="#{msgs.event_category_custom}" title="#{msgs.event_category_custom}" style="border:none;vertical-align: middle; padding:0 5px 0 15px;" styleClass="openCloseImageIcon"/>
                             <h:outputText value="#{msgs.event_category_custom}" escape="false" style="vertical-align: middle;"/>
                         </h:outputLabel>
                         <h:outputLabel id="customCategoryLabel_undo" for="customLocation" styleClass="activeTag" style="display:none" onclick="handleDropDownAndInput('meeting:customCategoryLabel','meeting:customCategoryLabel_undo','meeting:customCategory','meeting:selectedCategory')" rendered="#{NewSignupMeetingBean.categoriesExist}">
-                            <h:graphicImage value="/images/minus.gif"  alt="undo" title="#{msgs.event_custom_undo_tip}" style="border:none;vertical-align: middle;padding:0 5px 0 15px;" styleClass="openCloseImageIcon"/>
+                            <h:graphicImage value="/images/minus.gif" alt="#{msgs.event_custom_undo_tip}" title="#{msgs.event_custom_undo_tip}" style="border:none;vertical-align: middle;padding:0 5px 0 15px;" styleClass="openCloseImageIcon"/>
                             <h:outputText value="#{msgs.event_custom_undo}" escape="false" style="vertical-align: middle;"/>
                         </h:outputLabel>
                         <h:outputText value="&nbsp;" escape="false" rendered="#{NewSignupMeetingBean.categoriesExist}"/>
@@ -447,12 +447,12 @@
                             </h:panelGroup>
                             <h:panelGroup id="createEditTS" style="display:none;padding-left:35px;">
                                 <h:commandLink id="createTS" action="#{NewSignupMeetingBean.createUserDefTimeSlots}" rendered="#{!NewSignupMeetingBean.userDefineTimeslotBean.userEverCreateCTS}">
-                                    <h:graphicImage value="/images/cal.gif" alt="close" style="border:none;cursor:pointer; padding-right:5px;" styleClass="openCloseImageIcon" />
+                                    <h:graphicImage value="/images/cal.gif" alt="" style="border:none;cursor:pointer; padding-right:5px;" styleClass="openCloseImageIcon" />
                                     <h:outputText value="#{msgs.label_create_timeslots}" escape="false" styleClass="activeTag"/>
                                 </h:commandLink>
                                 <h:panelGroup rendered="#{NewSignupMeetingBean.userDefineTimeslotBean.userEverCreateCTS}">
                                     <h:commandLink action="#{NewSignupMeetingBean.editUserDefTimeSlots}" >
-                                        <h:graphicImage value="/images/cal.gif" alt="close" style="border:none;cursor:pointer; padding-right:5px;" styleClass="openCloseImageIcon" />
+                                        <h:graphicImage value="/images/cal.gif" alt="" style="border:none;cursor:pointer; padding-right:5px;" styleClass="openCloseImageIcon" />
                                         <h:outputText value="#{msgs.label_edit_timeslots}" escape="false" styleClass="activeTag"/>
                                     </h:commandLink>
                                 </h:panelGroup>

@@ -172,11 +172,11 @@
 								<f:validateLength maximum="255" />
 							</h:inputText>
 							<h:outputLabel id="customLocationLabel" for="customLocation" styleClass="activeTag"  onclick="handleDropDownAndInput('meeting:customLocationLabel','meeting:customLocationLabel_undo','meeting:customLocation','meeting:selectedLocation')">
-								<h:graphicImage value="/images/plus.gif"  alt="open" title="#{msgs.tab_event_location_custom}" style="border:none;vertical-align: middle; padding:0 5px 0 15px;" styleClass="openCloseImageIcon"/>
+								<h:graphicImage value="/images/plus.gif" alt="#{msgs.tab_event_location_custom}" title="#{msgs.tab_event_location_custom}" style="border:none;vertical-align: middle; padding:0 5px 0 15px;" styleClass="openCloseImageIcon"/>
 								<h:outputText value="#{msgs.tab_event_location_custom}" escape="false" style="vertical-align: middle;"/>
 							</h:outputLabel>
 							<h:outputLabel id="customLocationLabel_undo" for="customLocation" styleClass="activeTag" style="display:none" onclick="handleDropDownAndInput('meeting:customLocationLabel','meeting:customLocationLabel_undo','meeting:customLocation','meeting:selectedLocation')">
-								<h:graphicImage value="/images/minus.gif"  alt="undo" title="#{msgs.event_custom_undo_tip}" style="border:none;vertical-align: middle;padding:0 5px 0 15px;" styleClass="openCloseImageIcon"/>
+								<h:graphicImage value="/images/minus.gif" alt="#{msgs.event_custom_undo_tip}" title="#{msgs.event_custom_undo_tip}" style="border:none;vertical-align: middle;padding:0 5px 0 15px;" styleClass="openCloseImageIcon"/>
 								<h:outputText value="#{msgs.event_custom_undo}" escape="false" style="vertical-align: middle;"/>
 							</h:outputLabel>
 							<h:outputText value="&nbsp;" escape="false" />
@@ -198,11 +198,11 @@
 							</h:inputText>
 
 							<h:outputLabel id="customCategoryLabel" for="customLocation" styleClass="activeTag"  onclick="handleDropDownAndInput('meeting:customCategoryLabel','meeting:customCategoryLabel_undo','meeting:customCategory','meeting:selectedCategory')" >
-								<h:graphicImage value="/images/plus.gif"  alt="open" title="#{msgs.event_category_custom}" style="border:none;vertical-align: middle; padding:0 5px 0 15px;" styleClass="openCloseImageIcon"/>
+								<h:graphicImage value="/images/plus.gif" alt="#{msgs.event_category_custom}" title="#{msgs.event_category_custom}" style="border:none;vertical-align: middle; padding:0 5px 0 15px;" styleClass="openCloseImageIcon"/>
 								<h:outputText value="#{msgs.event_category_custom}" escape="false" style="vertical-align: middle;"/>
 							</h:outputLabel>
 							<h:outputLabel id="customCategoryLabel_undo" for="customLocation" styleClass="activeTag" style="display:none" onclick="handleDropDownAndInput('meeting:customCategoryLabel','meeting:customCategoryLabel_undo','meeting:customCategory','meeting:selectedCategory')">
-								<h:graphicImage value="/images/minus.gif"  alt="undo" title="#{msgs.event_custom_undo_tip}" style="border:none;vertical-align: middle;padding:0 5px 0 15px;" styleClass="openCloseImageIcon"/>
+								<h:graphicImage value="/images/minus.gif" alt="#{msgs.event_custom_undo_tip}" title="#{msgs.event_custom_undo_tip}" style="border:none;vertical-align: middle;padding:0 5px 0 15px;" styleClass="openCloseImageIcon"/>
 								<h:outputText value="#{msgs.event_custom_undo}" escape="false" style="vertical-align: middle;"/>
 							</h:outputLabel>
 							<h:outputText value="&nbsp;" escape="false"/>
@@ -397,7 +397,7 @@
 								<h:panelGroup id="createEditTS" style="display:none;">
 									<h:panelGroup>
 										<h:commandLink action="#{EditMeetingSignupMBean.editUserDefTimeSlots}" >
-											<h:graphicImage value="/images/cal.gif" alt="close" style="border:none;cursor:pointer; padding-right:5px;" styleClass="openCloseImageIcon" />
+											<h:graphicImage value="/images/cal.gif" alt="" style="border:none;cursor:pointer; padding-right:5px;" styleClass="openCloseImageIcon" />
 											<h:outputText value="#{msgs.label_edit_timeslots}" escape="false" styleClass="activeTag"/>
 										</h:commandLink>
 									</h:panelGroup>
@@ -410,7 +410,7 @@
 						<h:outputLabel value="#{msgs.event_show_schedule}" styleClass="form-control-label col-lg-2" />
 						<div class="col-lg-10">
 							<h:commandLink action="#{EditMeetingSignupMBean.editUserDefTimeSlots}" >
-								<h:graphicImage value="/images/cal.gif" alt="close" style="border:none;cursor:pointer; padding-right:5px;" styleClass="openCloseImageIcon" />
+								<h:graphicImage value="/images/cal.gif" alt="" style="border:none;cursor:pointer; padding-right:5px;" styleClass="openCloseImageIcon" />
 								<h:outputText value="#{msgs.label_view_edit_ts}" escape="false" styleClass="activeTag"/>
 							</h:commandLink>
 						</div>
@@ -475,11 +475,11 @@
 						<h:outputLabel value="#{msgs.event_other_default_setting}" escape="false" styleClass="col-lg-2 form-control-label" />
 						<div class="col-lg-10">
 							<h:outputLabel  id="imageOpen_otherSetting" style="display:none" styleClass="activeTag" onclick="showDetails('meeting:imageOpen_otherSetting','meeting:imageClose_otherSetting','meeting:otherSetting');">
-								<h:graphicImage value="/images/open.gif"  alt="open" title="#{msgs.event_tool_tips_hide_details}" style="border:none;vertical-align:middle;" styleClass="openCloseImageIcon"/>
+								<h:graphicImage value="/images/open.gif" alt="#{msgs.event_tool_tips_hide_details}" title="#{msgs.event_tool_tips_hide_details}" style="border:none;vertical-align:middle;" styleClass="openCloseImageIcon"/>
 								<h:outputText value="#{msgs.event_close_other_default_setting}" escape="false" style="vertical-align: middle;"/>
 							</h:outputLabel>
 							<h:outputLabel id="imageClose_otherSetting" styleClass="activeTag" onclick="showDetails('meeting:imageOpen_otherSetting','meeting:imageClose_otherSetting','meeting:otherSetting');">
-								<h:graphicImage value="/images/closed.gif" alt="close" title="#{msgs.event_tool_tips_show_details}" style="border:none;vertical-align:middle;" styleClass="openCloseImageIcon"/>
+								<h:graphicImage value="/images/closed.gif" alt="#{msgs.event_tool_tips_show_details}" title="#{msgs.event_tool_tips_show_details}" style="border:none;vertical-align:middle;" styleClass="openCloseImageIcon"/>
 								<h:outputText value="#{msgs.event_show_other_default_setting}" escape="false" style="vertical-align: middle;"/>
 							</h:outputLabel>
 						</div>

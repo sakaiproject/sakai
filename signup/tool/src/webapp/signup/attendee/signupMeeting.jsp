@@ -162,7 +162,7 @@
 							<!-- iCalendar link, only rendered for attendees if it is a 'no signup required/announcement' meeting -->
 							<h:outputText value="#{msgs.event_icalendar_link}" styleClass="titleText" escape="false" rendered="#{AttendeeSignupMBean.icsEnabled && AttendeeSignupMBean.meetingWrapper.meeting.meetingType =='announcement'}"/>
 							<h:commandLink id="mICS" action="#{AttendeeSignupMBean.downloadICSForMeeting}" rendered="#{AttendeeSignupMBean.icsEnabled && AttendeeSignupMBean.meetingWrapper.meeting.meetingType =='announcement'}">
-								<h:graphicImage value="/images/calendar_add.png" alt="#{msgs.label_ics}" title="#{msgs.label_download_ics_meeting}" style="margin-right: 5px;" />
+								<h:graphicImage value="/images/calendar_add.png" alt="#{msgs.label_download_ics_meeting}" title="#{msgs.label_download_ics_meeting}" style="margin-right: 5px;" />
 								<h:outputText value="#{msgs.event_icalendar_label}"/>
 							</h:commandLink>
 		
