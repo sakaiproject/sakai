@@ -1715,7 +1715,7 @@
       <dependency>
         <groupId>com.hazelcast</groupId>
         <artifactId>hazelcast-client</artifactId>
-        <version>3.2.3</version>
+        <version>3.10.1</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
