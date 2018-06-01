@@ -447,7 +447,7 @@ public class AssignmentPeerAssessmentServiceImpl extends HibernateDaoSupport imp
                         }
                     }
                     if (denominator > 0) {
-                        totalScore = Math.round(totalScore / denominator);
+                        totalScore = Math.round(totalScore.floatValue() / denominator);
                     } else {
                         totalScore = null;
                     }
