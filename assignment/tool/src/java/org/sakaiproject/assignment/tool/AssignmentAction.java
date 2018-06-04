@@ -5698,7 +5698,7 @@ public class AssignmentAction extends PagedResourceActionII {
             if (withGrade && a.getIsGroup()) {
                 for (AssignmentSubmissionSubmitter submitter : submission.getSubmitters()) {
                     String g = (String) state.getAttribute(GRADE_SUBMISSION_GRADE + "_" + submitter.getSubmitter());
-                    if (StringUtils.isNotBlank(g)) submitter.setGrade(g);
+                    if (g != submitter.getGrade()) submitter.setGrade(g);
                 }
             }
 
