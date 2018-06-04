@@ -27,7 +27,8 @@ before_cache:
 addons:
   sonarcloud:
     organization: "sakai-sandbox"
-    token: $SONAR_TOKEN
+    token: 
+      secure: $SONAR_TOKEN
 script:
   # this is what we want Travis to do
   - mvn clean install org.jacoco:jacoco-maven-plugin:prepare-agent sonar:sonar -Dsonar.host.url=https://sonarcloud.io
