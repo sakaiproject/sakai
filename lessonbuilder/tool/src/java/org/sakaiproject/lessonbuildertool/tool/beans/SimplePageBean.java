@@ -24,7 +24,7 @@
 
 package org.sakaiproject.lessonbuildertool.tool.beans;
 
-import au.com.bytecode.opencsv.CSVParser;
+import com.opencsv.CSVParser;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;

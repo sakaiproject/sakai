@@ -235,10 +235,11 @@ $(window).load( function() {
     <h:column>
       <h:panelGrid styleClass="table table-striped" columns="2" width="100%" columnClasses="navView,navList" border="0">
        <h:panelGroup rendered="#{!author.isEditPoolFlow}">
-		<h:outputText value="#{authorMessages.p}" /> <f:verbatim>&nbsp; </b></f:verbatim>
+          <h:outputLabel for="number" value="#{authorMessages.p}" />
+          <h:outputText value="&#160;" escape="false" />
           <h:selectOneMenu id="number" value="#{partBean.number}" onchange="enableOrderUpdate()" rendered="#{author.isEditPendingAssessmentFlow}" >
-          <f:selectItems value="#{assessmentBean.partNumbers}" />          
-        </h:selectOneMenu>
+            <f:selectItems value="#{assessmentBean.partNumbers}" />          
+          </h:selectOneMenu>
         <h:outputText value="#{partBean.number}: " rendered="#{!author.isEditPendingAssessmentFlow}"/>
         <h:outputText value="&#160;" escape="false" />
 	  <h:panelGroup rendered="#{!author.isEditPoolFlow}">
@@ -335,7 +336,8 @@ $(window).load( function() {
       <h:column>
          <h:panelGrid styleClass="table table-condensed" columns="2" width="100%" columnClasses="navView,navList">
           <h:panelGroup>
-          <h:outputText value="#{authorMessages.q} " />
+            <h:outputLabel for="number" value="#{authorMessages.q} " />
+            <h:outputText value="&#160;" escape="false" />
             <h:inputHidden id="currItemId" value="#{question.itemData.itemIdString}"/>
             <h:selectOneMenu id="number" onchange="enableOrderUpdate()" value="#{question.number}" rendered="#{author.isEditPendingAssessmentFlow}">
               <f:selectItems value="#{partBean.questionNumbers}" />
@@ -361,11 +363,13 @@ $(window).load( function() {
 
      <h:outputText value=" #{authorMessages.dash} " />
      <h:inputText id="answerptr" value="#{question.updatedScore}" required="true" disabled="#{author.isEditPoolFlow || (question.itemData.typeId== 14)}" label="#{authorMessages.pt}" size="6" onkeydown="inIt()" styleClass="ConvertPoint" rendered="#{question.itemData.typeId!= 3}">
-	<f:validateDoubleRange minimum="0.00"/></h:inputText>
-    <h:outputText rendered="#{question.itemData.typeId== 3}" value="#{question.updatedScore}"/>
-		<h:outputText rendered="#{question.itemData.score > 1}" value=" #{authorMessages.points_lower_case}"/>
-		<h:outputText rendered="#{question.itemData.score == 1}" value=" #{authorMessages.point_lower_case}"/>
-		<h:outputText rendered="#{question.itemData.score == 0}" value=" #{authorMessages.points_lower_case}"/>
+       <f:validateDoubleRange minimum="0.00"/>
+     </h:inputText>
+     <h:outputText value="&#160;" escape="false" />
+     <h:outputLabel styleClass="notbold" for="answerptr" rendered="#{question.itemData.typeId== 3}" value="#{question.updatedScore}"/>
+     <h:outputLabel styleClass="notbold" for="answerptr" rendered="#{question.itemData.score > 1}" value=" #{authorMessages.points_lower_case}"/>
+     <h:outputLabel styleClass="notbold" for="answerptr" rendered="#{question.itemData.score == 1}" value=" #{authorMessages.point_lower_case}"/>
+     <h:outputLabel styleClass="notbold" for="answerptr" rendered="#{question.itemData.score == 0}" value=" #{authorMessages.points_lower_case}"/>
 	</h:panelGroup>
 
 

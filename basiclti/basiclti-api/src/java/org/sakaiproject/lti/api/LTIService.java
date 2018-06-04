@@ -25,10 +25,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
-import org.sakaiproject.exception.IdUnusedException;
-import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.lti.api.LTIExportService.ExportType;
-import org.sakaiproject.site.api.Site;
 
 /**
  * <p>
@@ -105,6 +102,7 @@ public interface LTIService extends LTISubstitutionsFilter {
             "title:text:label=bl_title:required=true:maxlength=1024",
             "allowtitle:radio:label=bl_allowtitle:choices=disallow,allow",
             "fa_icon:text:label=bl_fa_icon:allowed=true:maxlength=1024",
+            "allowfa_icon:radio:label=bl_allowfa_icon:choices=disallow,allow",
             "pagetitle:text:label=bl_pagetitle:required=true:maxlength=1024",
             "allowpagetitle:radio:label=bl_allowpagetitle:choices=disallow,allow",
             "description:textarea:label=bl_description:maxlength=4096",
@@ -322,6 +320,13 @@ public interface LTIService extends LTISubstitutionsFilter {
     String[] getToolModel(String siteId);
 
     String[] getContentModel(Long tool_id, String siteId);
+
+    /**
+     * @param tool_id
+     * @param siteId
+     * @return If the form does not contain configuration, returns null; otherwise returns an array containing the result of getContentModel(tool_id, siteId)
+     */
+    public String[] getContentModelIfConfigurable(Long tool_id, String siteId);
 
     String[] getContentModel(Map<String, Object> tool, String siteId);
 

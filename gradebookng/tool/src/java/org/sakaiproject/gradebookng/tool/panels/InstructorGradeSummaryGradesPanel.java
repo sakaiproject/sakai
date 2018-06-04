@@ -21,6 +21,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.wicket.AttributeModifier;
@@ -34,6 +35,7 @@ import org.sakaiproject.gradebookng.business.model.GbStudentGradeInfo;
 import org.sakaiproject.gradebookng.business.util.CourseGradeFormatter;
 import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
 import org.sakaiproject.service.gradebook.shared.Assignment;
+import org.sakaiproject.service.gradebook.shared.CategoryDefinition;
 import org.sakaiproject.service.gradebook.shared.CourseGrade;
 import org.sakaiproject.service.gradebook.shared.GradingType;
 import org.sakaiproject.tool.gradebook.Gradebook;
@@ -103,8 +105,8 @@ public class InstructorGradeSummaryGradesPanel extends BasePanel {
 		final Map<Long, GbGradeInfo> grades = studentGradeInfo.getGrades();
 
 		// setup
-		final List<String> categoryNames = new ArrayList<String>();
-		final Map<String, List<Assignment>> categoryNamesToAssignments = new HashMap<String, List<Assignment>>();
+		final List<String> categoryNames = new ArrayList<>();
+		final Map<String, List<Assignment>> categoryNamesToAssignments = new HashMap<>();
 
 		// iterate over assignments and build map of categoryname to list of assignments
 		for (final Assignment assignment : assignments) {
@@ -113,11 +115,13 @@ public class InstructorGradeSummaryGradesPanel extends BasePanel {
 
 			if (!categoryNamesToAssignments.containsKey(categoryName)) {
 				categoryNames.add(categoryName);
-				categoryNamesToAssignments.put(categoryName, new ArrayList<Assignment>());
+				categoryNamesToAssignments.put(categoryName, new ArrayList<>());
 			}
 
 			categoryNamesToAssignments.get(categoryName).add(assignment);
 		}
+		Map<String, CategoryDefinition> categoriesMap = businessService.getGradebookCategories().stream()
+				.collect(Collectors.toMap(cat -> cat.getName(), cat -> cat));
 		Collections.sort(categoryNames);
 
 		// build the model for table
@@ -131,6 +135,7 @@ public class InstructorGradeSummaryGradesPanel extends BasePanel {
 		tableModel.put("isGroupedByCategory", this.isGroupedByCategory);
 		tableModel.put("showingStudentView", false);
 		tableModel.put("gradingType", GradingType.valueOf(gradebook.getGrade_type()));
+		tableModel.put("categoriesMap", categoriesMap);
 
 		addOrReplace(new GradeSummaryTablePanel("gradeSummaryTable", new LoadableDetachableModel<Map<String, Object>>() {
 			@Override

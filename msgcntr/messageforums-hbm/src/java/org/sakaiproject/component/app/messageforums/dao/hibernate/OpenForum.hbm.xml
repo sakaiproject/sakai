@@ -128,7 +128,7 @@
         <column name="POST_FIRST" not-null="true" />
       </property>
       <property name="restrictPermissionsForGroups">
-        <column name="RESTRICT_PERMS_FOR_GROUPS" not-null="true" />
+        <column name="RESTRICT_PERMS_FOR_GROUPS" not-null="true" default="0" />
       </property>
     </subclass>
 

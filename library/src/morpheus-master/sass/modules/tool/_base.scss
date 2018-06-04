@@ -92,8 +92,16 @@
 				box-shadow: 0 0 5px 0 rgba(0, 0, 0, 0.5);
 				label{
 					font-size: $default-font-size;
-					margin: 5px 0 0 5px;
+					margin: -4px 0 0 5px;
 					vertical-align: middle;
+					&.dropDown_title {
+						display: block;
+					    font-size: 1.1rem;
+					    font-weight: 500;
+					    margin: 0;
+					    padding: 1px 0 5px 0;
+					    white-space: nowrap;
+					}
 				}
 				textarea{
 					display: block;

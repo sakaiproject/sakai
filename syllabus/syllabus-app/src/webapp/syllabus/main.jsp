@@ -174,13 +174,13 @@
 				<li>
 					<span>
 							<a href="javascript:void(0)" id="expandLink" onclick="expandAccordion('<%= org.sakaiproject.util.Web.escapeJavascript(thisId)%>')">
-					   <span class="fa fa-expand"></span>&nbsp;&nbsp;
+					   <span class="fa fa-expand" aria-hidden="true"></span>&nbsp;&nbsp;
 								</f:verbatim>
 									<h:outputText value="#{msgs.expandAll}"/>
 								<f:verbatim>
 							</a>
 							<a href="javascript:void(0)" id="collapseLink" style="display:none" onclick="collapseAccordion('<%= org.sakaiproject.util.Web.escapeJavascript(thisId)%>')">
-					      <span class="fa fa-compress"></span>&nbsp;&nbsp;
+					      <span class="fa fa-compress" aria-hidden="true"></span>&nbsp;&nbsp;
 								</f:verbatim>
 									<h:outputText value="#{msgs.collapseAll}"/>
 								<f:verbatim>

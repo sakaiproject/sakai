@@ -45,7 +45,7 @@ public class O11Submission {
     // id="aa5d91c4-eeb0-4b51-aaae-3b27991fdac2"
     private String id;
     // isUserSubmission="true"
-    private Boolean isUserSubmission = Boolean.FALSE;
+    private Boolean isUserSubmission = null;
     // lastmod="20171215211945307"
     private String lastmod;
     // pledgeflag="true"

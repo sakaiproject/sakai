@@ -21,6 +21,8 @@
 
 package org.sakaiproject.site.impl;
 
+import org.sakaiproject.site.api.SiteService.SelectionType.PublishedFilter;
+
 /**
  * database methods.
  */
@@ -214,6 +216,11 @@ public interface SiteServiceSql
 	/**
 	 * returns the sql statement which is part of the where clause to retrieve sites.
 	 */
+	String getSitesWhere4Sql(PublishedFilter publishedFilter);
+
+	/**
+	 * returns the sql statement which is part of the where clause to retrieve sites.
+	 */
 	String getSitesWhere5Sql();
 
 	/**
@@ -255,6 +262,11 @@ public interface SiteServiceSql
 	 * returns the sql statement which is part of the where clause to retrieve sites.
 	 */
 	String getSitesWhere13Sql();
+
+	/**
+	 * Returns the sql statement which is part of the where clause to retrieve sites.
+	 */
+	String getSitesWhere13PrimeSql();
 
 	/**
 	 * returns the sql statement which is part of the where clause to retrieve sites.
@@ -372,4 +384,9 @@ public interface SiteServiceSql
 	 * returns part of the where clause to retrieve sites that are unpublished
 	 */
 	String getUnpublishedSitesOnlySql();
+
+	/**
+	 * returns the sql statement which unpublishes multiple sites in the sakai_site table
+	 */
+	String getUpdateSitesUnpublishSql(String table, int toUpdateCount);
 }

@@ -351,9 +351,14 @@ public class SakaiIFrame extends GenericPortlet {
 				return;
 			}
 
-			String[] contentToolModel=m_ltiService.getContentModel(Long.valueOf(foundLtiToolId), placement.getContext());
-			String formInput=m_ltiService.formInput(content, contentToolModel);
-			context.put("formInput", formInput);
+			String[] contentToolModel = m_ltiService.getContentModelIfConfigurable(Long.valueOf(foundLtiToolId), placement.getContext());
+			if (contentToolModel != null) {
+				String formInput = m_ltiService.formInput(content, contentToolModel);
+				context.put("formInput", formInput);
+			} else {
+				String noCustomizations = rb.getString("gen.info.nocustom");
+				context.put("noCustomizations", noCustomizations);
+			}
 			
 			vHelper.doTemplate(vengine, "/vm/edit.vm", context, out);
 		}

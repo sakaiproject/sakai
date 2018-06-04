@@ -302,7 +302,7 @@ public class ItemContentsBean implements Serializable {
 	 * @return String representation of the points.
 	 */
 	public double getPoints() {
-		return Precision.round(points, 2);
+		return points;
 	}
 
 	/**
@@ -525,7 +525,11 @@ public class ItemContentsBean implements Serializable {
 	 * @return String representation of the max points.
 	 */
 	public double getRoundedMaxPoints() {
-		return Precision.round(maxPoints, 2);
+		return maxPoints;
+	}
+	
+	public double getRoundedMaxPointsToDisplay() {
+		return Precision.round(maxPoints, 2);		
 	}
 
 	/**
@@ -1367,7 +1371,7 @@ public class ItemContentsBean implements Serializable {
       if (itemData.getScore() == null)
 	  return 0.0;
       else
-	  return Precision.round(itemData.getScore(), 2);
+	  return itemData.getScore();
   }
 	 
   public void setUpdatedScore(Double score) {

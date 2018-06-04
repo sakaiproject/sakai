@@ -53,7 +53,7 @@
     <sakai.org.json.version>20171018</sakai.org.json.version>
     <sakai.pluto.version>1.1.7</sakai.pluto.version>
     <sakai.quartz.version>2.2.3</sakai.quartz.version>
-    <sakai.opencsv.version>2.3</sakai.opencsv.version>
+    <sakai.opencsv.version>4.1</sakai.opencsv.version>
     <sakai.servletapi.version>2.4</sakai.servletapi.version>
     <sakai.groovy.version>2.4.13</sakai.groovy.version>
     <sakai.simple-xml.version>2.6.4</sakai.simple-xml.version>
@@ -66,15 +66,15 @@
     <sakai.spring.test.artifactId>spring-test</sakai.spring.test.artifactId>
     <sakai.spring.test.version>4.3.14.RELEASE</sakai.spring.test.version>
     <sakai.tika.version>1.17</sakai.tika.version>
-    <sakai.tomcat.version>8.5.28</sakai.tomcat.version>
+    <sakai.tomcat.version>8.5.31</sakai.tomcat.version>
     <sakai.velocity.version>1.6.4</sakai.velocity.version>
     <sakai.xerces.impl.version>2.11.0</sakai.xerces.impl.version>
     <sakai.xerces.api.version>2.6.2</sakai.xerces.api.version>
     <sakai.log4j.version>1.2.17</sakai.log4j.version>
     <sakai.slf4j.version>1.7.25</sakai.slf4j.version>
     <sakai.poi.version>3.17</sakai.poi.version>
-    <sakai.mockito.version>2.7.22</sakai.mockito.version>
-    <sakai.powermock.version>1.7.3</sakai.powermock.version>
+    <sakai.mockito.version>2.18.3</sakai.mockito.version>
+    <sakai.powermock.version>2.0.0-beta.5</sakai.powermock.version>
     <sakai.okiosid.version>2.0</sakai.okiosid.version>
     <joda.time.version>2.9.9</joda.time.version>
     <jayway.jsonpath.version>2.4.0</jayway.jsonpath.version>
@@ -949,7 +949,7 @@
         <scope>provided</scope>
       </dependency>
       <dependency>
-        <groupId>net.sf.opencsv</groupId>
+        <groupId>com.opencsv</groupId>
         <artifactId>opencsv</artifactId>
         <version>${sakai.opencsv.version}</version>
         <scope>provided</scope>
@@ -1664,7 +1664,6 @@
         <version>${sakai.mockito.version}</version>
         <scope>test</scope>
       </dependency>
-      <!-- So we can mock static cover -->
       <dependency>
           <groupId>org.powermock</groupId>
           <artifactId>powermock-module-junit4</artifactId>

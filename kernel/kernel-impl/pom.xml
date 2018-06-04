@@ -142,7 +142,7 @@
     </dependency>
     <dependency>
         <!-- for parsing CSV data from config service files -->
-        <groupId>net.sf.opencsv</groupId>
+        <groupId>com.opencsv</groupId>
         <artifactId>opencsv</artifactId>
     </dependency>
     <dependency>

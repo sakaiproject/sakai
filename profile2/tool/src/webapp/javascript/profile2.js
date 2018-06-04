@@ -80,6 +80,8 @@ $(document).ready(function () {
     $(".edit-button").blur(function () { 
         $(this).addClass("offscreen"); 
     }); 
+
+    $(".sakai-wicket-iconwithtooltip").qtip();
 });
 
 function doUpdateCK(){

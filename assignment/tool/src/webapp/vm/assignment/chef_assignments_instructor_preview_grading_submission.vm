@@ -22,7 +22,7 @@
 					#if ($value_CheckAnonymousGrading)
                         $validator.escapeHtml($!submission.Id) $tlang.getString("grading.anonymous.title")
                     #else
-                        $validator.escapeHtml($!submitterNames)
+                        $!submitterNames
                     #end
 
                 </td>

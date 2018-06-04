@@ -342,8 +342,6 @@
   </div>
 
   <div id="groupDiv" class="groupTable">
-    <h:selectBooleanCheckbox id="checkUncheckAllReleaseGroups" disabled="true" />
-    <h:outputText value="#{assessmentSettingsMessages.select_all_groups}" />
     <h:selectManyCheckbox id="groupsForSite" disabled="true"  layout="pagedirection" value="#{publishedSettings.groupsAuthorized}">
       <f:selectItems value="#{publishedSettings.groupsForSite}" />
     </h:selectManyCheckbox>

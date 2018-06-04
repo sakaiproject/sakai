@@ -174,7 +174,7 @@ SPNR.disableInputs = function( clickedElement, escapeList )
             // If this is the clicked button, activate the spinner on it; otherwise just disable the button
             if( allInputs[i] === clickedElement )
             {
-                SPNR.disableElementAndSpin( clickedElement.parentNode.id, clickedElement, true );
+                setTimeout(SPNR.disableElementAndSpin, 0, clickedElement.parentNode.id, clickedElement, true );
             }
             else
             {

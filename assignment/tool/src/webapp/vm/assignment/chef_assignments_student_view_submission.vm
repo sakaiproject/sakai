@@ -213,7 +213,7 @@ $(document).ready(function(){
 								<strong>
 									#if ($gradeScale != 1)
 										#if ($!override)
-											$override
+											$!service.getGradeDisplay($override, $!assignment.TypeOfGrade, $!assignment.ScaleFactor)
 										#else
 											$!service.getGradeDisplay($submission.Grade, $assignment.TypeOfGrade, $!assignment.ScaleFactor)
 										#end

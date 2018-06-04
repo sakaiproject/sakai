@@ -18,7 +18,7 @@
        			};
        		</script>
            		<script type="text/javascript">includeLatestJQuery("msgcntr");</script>
-           	<script type="text/javascript" src="/library/js/jquery/qtip/jquery.qtip-latest.min.js"></script>
+           	<script type="text/javascript" src="/library/webjars/qtip2/3.0.3/jquery.qtip.min.js"></script>
        		<sakai:script contextBase="/messageforums-tool" path="/js/sak-10625.js"/>
        		<sakai:script contextBase="/messageforums-tool" path="/js/messages.js"/>
 <!--jsp/privateMsg/pvtMsgDetail.jsp-->
