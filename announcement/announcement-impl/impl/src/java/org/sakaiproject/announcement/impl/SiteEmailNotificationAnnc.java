@@ -25,6 +25,7 @@ import java.util.Iterator;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 
+import org.apache.commons.lang.StringUtils;
 import org.sakaiproject.announcement.api.AnnouncementMessage;
 import org.sakaiproject.announcement.api.AnnouncementMessageEdit;
 import org.sakaiproject.announcement.api.AnnouncementMessageHeader;
@@ -316,8 +317,13 @@ public class SiteEmailNotificationAnnc extends SiteEmailNotification
 		String title = siteId;
 		try
 		{
-			Site site = siteService.getSite(siteId);
+			final Site site = siteService.getSite(siteId);
+			boolean shortDescription = ServerConfigurationService.getBoolean("announcement.email.use.short.description", false);
+
 			title = site.getTitle();
+			if(shortDescription && StringUtils.isNotEmpty(site.getShortDescription())) {
+				title = site.getShortDescription();
+			}
 		}
 		catch (Exception ignore)
 		{
