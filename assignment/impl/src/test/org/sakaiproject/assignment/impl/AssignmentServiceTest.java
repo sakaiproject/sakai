@@ -38,10 +38,9 @@ import java.util.TimeZone;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+
 import javax.annotation.Resource;
 
-import com.github.javafaker.Faker;
-import lombok.extern.slf4j.Slf4j;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -55,6 +54,7 @@ import org.sakaiproject.assignment.api.model.AssignmentSubmission;
 import org.sakaiproject.assignment.api.model.AssignmentSubmissionSubmitter;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.Member;
+import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.entity.api.Entity;
@@ -75,6 +75,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.AbstractTransactionalJUnit4SpringContextTests;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+
+import com.github.javafaker.Faker;
+
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -690,6 +694,10 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
         submitters.forEach(s -> {
                 Member member = mock(Member.class);
                 when(member.getUserId()).thenReturn(s);
+                Role r = mock(Role.class);
+                when(member.getRole()).thenReturn(r);
+                when(r.isAllowed(AssignmentServiceConstants.SECURE_ADD_ASSIGNMENT_SUBMISSION)).thenReturn(true);
+                when(r.isAllowed(AssignmentServiceConstants.SECURE_GRADE_ASSIGNMENT_SUBMISSION)).thenReturn(false);
                 members.add(member);
         });
         when(group.getMembers()).thenReturn(members);
