@@ -40,6 +40,9 @@ public class GbGradeInfo implements Serializable, Comparable<GbGradeInfo> {
 	@Getter
 	private final String gradeComment;
 
+	@Getter
+	private final boolean excused;
+
 	/**
 	 * Whether or not a user is able to grade this instance of the grade
 	 */
@@ -65,11 +68,13 @@ public class GbGradeInfo implements Serializable, Comparable<GbGradeInfo> {
 		if (gd == null) {
 			this.grade = null;
 			this.gradeComment = null;
+			this.excused = false;
 			this.gradeable = false;
 		} else {
 			this.grade = gd.getGrade();
 			this.gradeComment = gd.getGradeComment();
 			this.gradeable = false;
+			this.excused = gd.isExcused();
 		}
 	}
 

@@ -48,6 +48,7 @@ package org.sakaiproject.component.gradebook;
  import java.util.Set;
  import java.util.stream.Collectors;
 
+ import org.apache.commons.lang3.BooleanUtils;
  import org.apache.commons.lang3.StringUtils;
  import org.hibernate.HibernateException;
  import org.hibernate.Session;
@@ -1364,6 +1365,20 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
             return null;
         });
 	}
+
+	public boolean getIsAssignmentExcused(final String gradebookUid, final Long assignmentId, final String studentUid) throws GradebookNotFoundException, AssessmentNotFoundException {
+        if(gradebookUid == null || assignmentId == null || studentUid == null){
+            throw new IllegalArgumentException("null parameter passed to getAssignmentScoreComment. Values are gradebookUid:" + gradebookUid + " assignmentId:" + assignmentId + " studentUid:"+ studentUid);
+        }
+        GradebookAssignment assignment = getAssignmentWithoutStats(gradebookUid, assignmentId);
+        AssignmentGradeRecord agr = getAssignmentGradeRecord(assignment, studentUid);
+
+        if(agr == null){
+            return false;
+        }else{
+            return BooleanUtils.toBoolean(agr.isExcludedFromGrade());
+        }
+    }
 
 	public void updateGradeMapping(final Long gradeMappingId, final Map<String, Double> gradeMap){
 		getHibernateTemplate().execute((HibernateCallback<Void>) session -> {

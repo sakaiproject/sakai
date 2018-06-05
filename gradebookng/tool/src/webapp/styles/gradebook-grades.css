@@ -539,7 +539,8 @@ div.wicket-modal div.w_right > div {
   position: relative;
 }
 
-.gb-summary-grade-score-dropped .gb-summary-grade-score-raw
+.gb-summary-grade-score-dropped .gb-summary-grade-score-raw,
+.gb-summary-grade-score-excused .gb-summary-grade-score-raw
 {
   text-decoration: line-through;
 }

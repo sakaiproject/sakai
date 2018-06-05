@@ -260,7 +260,8 @@ GbGradeTable.cellRenderer = function (instance, td, row, col, prop, value, cellP
   var isReadOnly = column.type === "assignment" ? GbGradeTable.isReadOnly(student, column.assignmentId) : false;
   var hasConcurrentEdit = column.type === "assignment" ? GbGradeTable.hasConcurrentEdit(student, column.assignmentId) : false;
   var hasAssociatedRubric = column.type === "assignment" ? column.hasAssociatedRubric : false;
-  var keyValues = [row, index, value, student.eid, hasComment, isReadOnly, hasConcurrentEdit, column.type, scoreState, isDropped];
+  var hasExcuse = column.type === "assignment" ? GbGradeTable.hasExcuse(student, column.assignmentId) : false;
+  var keyValues = [row, index, value, student.eid, hasComment, isReadOnly, hasConcurrentEdit, column.type, scoreState, isDropped, hasExcuse];
   var cellKey = GbGradeTable.cleanKey(keyValues.join("_"));
 
   var wasInitialised = $.data(td, 'cell-initialised');
@@ -419,7 +420,7 @@ GbGradeTable.cellRenderer = function (instance, td, row, col, prop, value, cellP
     isExtraCredit = parseFloat(value) > 100;
   }
 
-  if (isExtraCredit) {
+  if (isExtraCredit && !hasExcuse) {
     $cellDiv.addClass("gb-extra-credit");
     $(gbNotification).addClass("gb-flag-extra-credit");
     notifications.push({
@@ -431,6 +432,19 @@ GbGradeTable.cellRenderer = function (instance, td, row, col, prop, value, cellP
   }
 
   $cellDiv.toggleClass("gb-dropped-grade-cell", isDropped && scoreState !== "error" && scoreState !== "invalid");
+  if(hasExcuse){
+    $cellDiv.removeClass("gb-extra-credit");
+    $(gbNotification).removeClass("gb-flag-extra-credit");
+    $cellDiv.addClass("gb-excused");
+    $(gbNotification).addClass("gb-flag-excused");
+
+    notifications.push({
+        type: 'excused'
+    });
+  }else{
+    $cellDiv.removeClass("gb-excused");
+    $(gbNotification).removeClass("gb-flag-excused");
+  }
 
   if (column.type == 'category') {
     $cellDiv.addClass('gb-category-average');
@@ -1018,6 +1032,14 @@ GbGradeTable.renderTable = function (elementId, tableData) {
 
     GbGradeTable.editComment($.data($cell[0], "studentid"), $.data($cell[0], "assignmentid"));
   }).
+
+  //Excuse Grade
+  on("click", ".gb-dropdown-menu .gb-excuse-grade", function(){
+    var $dropdown = $(this).closest(".gb-dropdown-menu");
+    var $cell = $dropdown.data("cell");
+    GbGradeTable.editExcuse($.data($cell[0], "studentid"), $.data($cell[0], "assignmentid"));
+  }).
+
   // View Grade Summary
   on("click", ".gb-view-grade-summary", function() {
     var $cell = $(this).closest('td');
@@ -1338,6 +1360,52 @@ GbGradeTable.editComment = function(studentId, assignmentId) {
   });
 };
 
+GbGradeTable.editExcuse = function(studentId, assignmentId) {
+    var student = GbGradeTable.modelForStudent(studentId);
+    var assignmentIndex = $.inArray(GbGradeTable.colModelForAssignment(assignmentId), GbGradeTable.columns);
+
+    var assignment = GbGradeTable.colModelForAssignment(assignmentId);
+    var row = GbGradeTable.rowForStudent(studentId);
+    var col = GbGradeTable.colForAssignment(assignmentId);
+    var category;
+
+    if (assignment.categoryId != null) {
+        category = assignment.categoryId;
+    }
+
+    var postData = {
+        action: 'excuseGrade',
+        studentId: studentId,
+        assignmentId: assignmentId,
+        excuseBit : student.hasExcuse[assignmentIndex],
+    }
+
+    if(category != null) {
+        postData['categoryId'] = category;
+    }
+
+    GbGradeTable.ajax(postData, function (status, data) {
+        if (status === "OK") {
+            GbGradeTable.setCellState('saved', row, col);
+
+            // update the category average cell
+            if (assignment.categoryId) {
+                GbGradeTable.syncCategoryAverage(studentId, assignment.categoryId, data.categoryScore);
+            }
+        } else if (status == "error") {
+            GbGradeTable.setCellState('error', row, col);
+        } else if (status == "invalid") {
+            GbGradeTable.setCellState('invalid', row, col);
+        } else if (status == "nochange") {
+            GbGradeTable.clearCellState(row, col);
+        } else {
+            console.log("Unhandled saveValue response: " + status);
+        }
+
+        GbGradeTable.instance.setDataAtCell(row, GbGradeTable.STUDENT_COLUMN_INDEX, GbGradeTable.modelForStudent(studentId));
+    });
+
+};
 
 GbGradeTable.editSettings = function() {
   GbGradeTable.ajax({
@@ -1455,6 +1523,27 @@ GbGradeTable.updateComment = function(assignmentId, studentId, comment) {
 
   GbGradeTable.instance.setDataAtCell(row, GbGradeTable.STUDENT_COLUMN_INDEX, student);
   GbGradeTable.redrawCell(row, col);
+};
+
+GbGradeTable.updateExcuse = function(assignmentId, studentId, excuse) {
+  var student= GbGradeTable.modelForStudent(studentId);
+  var hasExcuse = student.hasExcuse;
+
+
+  var assignmentIndex = $.inArray(GbGradeTable.colModelForAssignment(assignmentId), GbGradeTable.columns);
+  hasExcuse = hasExcuse.substr(0, assignmentIndex) + excuse + hasExcuse.substr(assignmentIndex+1);
+
+  student.hasExcuse = hasExcuse;
+  var row = GbGradeTable.rowForStudent(studentId);
+  var col = GbGradeTable.colForAssignment(assignmentId);
+
+  GbGradeTable.instance.setDataAtCell(row, GbGradeTable.STUDENT_COLUMN_INDEX, student);
+  GbGradeTable.redrawCell(row, col);
+};
+
+GbGradeTable.hasExcuse = function(student, assignmentId) {
+    var assignmentIndex = $.inArray(GbGradeTable.colModelForAssignment(assignmentId), GbGradeTable.columns);
+    return student.hasExcuse[assignmentIndex] === "1";
 };
 
 GbGradeTable.redrawCell = function(row, col) {
