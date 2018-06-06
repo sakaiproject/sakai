@@ -213,7 +213,7 @@
 															#set($grade = $!submission.Grade)
 														#end
 														#if ($grade)
-															$!service.getGradeDisplay($grade, $assignment.TypeOfGrade, $assignment.ScaleFactor) <abbr title="Group Grades">($!service.getGradeDisplay($!submission.Grade, $assignment.TypeOfGrade, $assignment.ScaleFactor))</abbr>
+															$!service.getGradeDisplay($grade, $assignment.TypeOfGrade, $assignment.ScaleFactor) <abbr title="$tlang.getString("gen.group.grade")">($!service.getGradeDisplay($!submission.Grade, $assignment.TypeOfGrade, $assignment.ScaleFactor))</abbr>
 														#else
 															$tlang.getString("gen.nograd")
 														#end

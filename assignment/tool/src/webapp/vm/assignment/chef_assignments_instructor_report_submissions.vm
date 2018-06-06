@@ -204,7 +204,7 @@
 											#if ($!assignment.IsGroup)
 												#if ($!submission.GradeForUser($!submission.User.Id))
 													$!submission.GradeForUser($!submission.User.Id)
-													<abbr title="Group Grade">($!service.getGradeDisplay($!assignmentSubmission.Grade, $typeOfGrade, $!assignment.ScaleFactor))</abbr>
+													<abbr title="$tlang.getString("gen.group.grade")">($!service.getGradeDisplay($!assignmentSubmission.Grade, $typeOfGrade, $!assignment.ScaleFactor))</abbr>
 												#else
 													$!service.getGradeDisplay($!assignmentSubmission.Grade, $typeOfGrade, $!assignment.ScaleFactor)
 												#end
