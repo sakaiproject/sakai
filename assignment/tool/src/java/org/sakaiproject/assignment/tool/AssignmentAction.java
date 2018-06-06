@@ -6104,7 +6104,9 @@ public class AssignmentAction extends PagedResourceActionII {
                     // use comma as separator for attachments
                     feedbackAttachmentHistory = StringUtils.join(feedbackAttachments, ",") + feedbackAttachmentHistory;
 
-                    properties.put(PROP_SUBMISSION_PREVIOUS_FEEDBACK_ATTACHMENTS, feedbackAttachmentHistory);
+                    if (StringUtils.isNotBlank(feedbackAttachmentHistory)) {
+                    	properties.put(PROP_SUBMISSION_PREVIOUS_FEEDBACK_ATTACHMENTS, feedbackAttachmentHistory);
+                    }
 
                     // reset the previous grading context
                     submission.setFeedbackText(null);
