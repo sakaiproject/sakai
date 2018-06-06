@@ -429,7 +429,7 @@
             <p class="text-warning">$tlang.getString("nonelec_instruction2")</p>
         #else
             #if($submissionType == 1 || $submissionType == 3)
-                #if (($submission.Submitted || !$alertGradeDraft) && !$!value_feedback_text.isEmpty())
+                #if (($submission.Submitted || !$alertGradeDraft) && $!value_feedback_text && !$!value_feedback_text.isEmpty())
                     <p class="text-info">$tlang.getString("gradingsub.belisthe")</p>
                     <div class="textarea-holder">
                         <textarea name="$name_feedback_text" id="$name_feedback_text" rows="30" wrap="virtual" cols="80">
