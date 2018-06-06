@@ -3316,15 +3316,10 @@ function openDropdown(dropDiv, button, title) {
     closeDropdowns();
     hideMultimedia();
     dropDiv.dialog('option', 'title', title);
-    dropDiv.dialog('option', 'position', { my: 'left top', at: 'left bottom', of: button });
+    dropDiv.dialog('option', 'width', modalDialogWidth());
     dropDiv.dialog('open');
-    dropDiv.find("a").first().focus();
-    if (addAboveItem === '')
-	dropDiv.find(".addContentMessage").show();
-    else
-	dropDiv.find(".addContentMessage").hide();
-    //jquery-ui#position does not work properly with large scrolls : https://bugs.jqueryui.com/ticket/15253. (if the ticket is solved, remove the line below)
-    $("[aria-describedby='addContentDiv']").offset({top : button.offset().top + button.height()});
+    
+
     return false;
 }
 
