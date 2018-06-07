@@ -20,7 +20,7 @@
     <!-- They're separate here so this can be released independently of the rest of Sakai -->
     <!-- Either use a tag or a SHA so the version is predictable. -->
     <!-- Source at https://ckeditor.com/cke4/addon/image2 -->
-    <version>4.9.1</version>
+    <version>4.9.2</version>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
