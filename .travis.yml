@@ -23,12 +23,6 @@ cache:
 before_cache:
  - find $HOME/.m2/repository/org/sakaiproject -name \*-SNAPSHOT.\*  -delete
 
-# connect SonarCloud
-addons:
-  sonarcloud:
-    organization: "sakai-sandbox"
-    token: 
-      secure: $SONAR_TOKEN
 script:
-  # this is what we want Travis to do
-  - mvn clean install org.jacoco:jacoco-maven-plugin:prepare-agent sonar:sonar -Dsonar.host.url=https://sonarcloud.io
+  - mvn clean install 
+  - mvn org.jacoco:jacoco-maven-plugin:prepare-agent sonar:sonar -Dsonar.host.url=https://sonarcloud.io -Dsonar.organization=sakai-sandbox -Dsonar.login=$SONAR_TOKEN
