@@ -21,3 +21,8 @@ cache:
 # This makes the cache smaller and helps highlight problems with a clean build
 before_cache:
  - find $HOME/.m2/repository/org/sakaiproject -name \*-SNAPSHOT.\*  -delete
+
+script: "mvn clean package cobertura:cobertura"
+
+after_success:
+  - bash <(curl -s https://codecov.io/bash)
