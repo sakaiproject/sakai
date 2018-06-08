@@ -54,7 +54,7 @@
 						</select>
 					</div>
 				</div>
-				<div class="form-group row"> 					
+				<div class="form-group row">
 					#if(!$hideTermFilter)
 						<label for="termview" class="col-sm-3">$tlang.getString("list.selectTerm")</label>
 						<div class="col-sm-5">
@@ -65,7 +65,7 @@
 									> $termViews.get($view) </option>
 								#end
 							</select>
-						</div>						
+						</div>
 					#end
 				</div>
 				<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
@@ -190,7 +190,7 @@
 						</a>
 					</th>
 					#if($show_id_column)
-						<th id="id" scope="col">
+						<th id="id" scope="col" class="hidden-xs">
 							<a href="#toolLinkParam("SiteAction" "doSort_sites" "criterion=$validator.escapeUrl($sortby_id)")" title ="$tlang.getString('list.sortbyid')"> 
 								$tlang.getString("list.id")
 								#if ($currentSortedBy.equals($sortby_id)) 
@@ -203,7 +203,7 @@
 							</a>
 						</th>
 					#end
-					<th id="type" scope="col">
+					<th id="type" scope="col" class="hidden-xs">
 						<a href="#toolLinkParam("SiteAction" "doSort_sites" "criterion=$validator.escapeUrl($sortby_type)")" title ="$tlang.getString('list.sortbytype')"> 
 							$tlang.getString("list.type")
 							#if ($currentSortedBy.equals($sortby_type)) 
@@ -214,8 +214,8 @@
 								#end 
 							#end 
 						</a>
-					</th>					
-					<th id="createdBy" scope="col">
+					</th>
+					<th id="createdBy" scope="col" class="hidden-xs">
 						<a href="#toolLinkParam("SiteAction" "doSort_sites" "criterion=$validator.escapeUrl($sortby_createdby)")" title ="$tlang.getString('list.sortbycreator')"> 
 							$tlang.getString("list.creator")
 							#if ($currentSortedBy.equals($sortby_createdby))
@@ -227,7 +227,7 @@
 							#end 
 						</a>
 					</th>
-					<th id="term" scope="col">
+					<th id="term" scope="col" class="hidden-xs">
 							$tlang.getString("list.term")
 					</th>
 					<th id="published" scope="col">
@@ -265,7 +265,7 @@
 							<tr class="siteListSoftlyDeleted">
 						#else
 							<tr>
-						#end							
+						#end
 							<td headers="checkbox" class="screenOnly attach">
 								#if ($service.allowUpdateSite($site.Id))
 									<input type="checkbox" name="selectedMembers" value="$validator.escapeHtml($site.getId())" id="site$siteCount"  class="siteSelectCheckbox"  />
@@ -285,21 +285,21 @@
 								</a>
 							</td>
 							#if($show_id_column)
-								<td headers="id">
+								<td headers="id" class="hidden-xs">
 									$validator.escapeHtml($site.getId())
 								</td>
 							#end
-							<td headers="type">
+							<td headers="type" class="hidden-xs">
 								#set($type="")
 								#set($type = $site.getType())
 								$!type
 							</td>
-							<td headers="createdBy">
+							<td headers="createdBy" class="hidden-xs">
 								#if ($site.CreatedBy)
 									$validator.escapeHtml($site.CreatedBy.DisplayId)
 								#end
 							</td>
-							<td headers="term">
+							<td headers="term" class="hidden-xs">
 								#if($!courseSiteTypeStrings.contains($site.getType()))
 									#set($term = "")
 									#set($term = $properties.getProperty('term'))
