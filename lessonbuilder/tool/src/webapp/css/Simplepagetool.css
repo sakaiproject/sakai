@@ -2349,3 +2349,17 @@ form#revise[action$=dfReviseForumSettingsAttach] #forum_grading {
 .orangeLessonsIcon {
     color: #e68a00;
 }
+/* SAKAI-3898 */
+#addContentDiv {
+    background: #fff !important;
+    -webkit-box-shadow: none !important;
+    -moz-box-shadow: none !important;
+    box-shadow: none !important;
+    border: none !important;
+    padding: 0 !important;
+    margin: 1em 0 0 0 !important;
+}
+
+#addContentDiv .panel-heading h4 {
+    margin: 0 !important;
+}

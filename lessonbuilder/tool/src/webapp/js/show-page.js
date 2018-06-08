@@ -3281,7 +3281,7 @@ var addAboveLI = null;
 function buttonOpenDropdown() {
     oldloc = $("#dropdown");
     addAboveItem = "";
-    openDropdown($("#moreDiv"), $("#dropdown"), msg("simplepage.more-tools"));
+    openDropdown($("#moreDiv"), $("#dropdown"), msg("simplepage.more-tools"), true);
 }
 
 function buttonOpenDropdownc() {
@@ -3312,15 +3312,36 @@ function buttonOpenDropdownb() {
     return false;
 }
 
-function openDropdown(dropDiv, button, title) {
+function openDropdown(dropDiv, button, title, dropDown) {
     closeDropdowns();
     hideMultimedia();
     dropDiv.dialog('option', 'title', title);
-    dropDiv.dialog('option', 'width', modalDialogWidth());
+    if (dropDown) {
+        dropDiv.dialog('option', 'position', { my: 'left top', at: 'left bottom', of: button });
+	} else {
+        dropDiv.dialog('option', 'width', calculateDropDownModalWidth());
+	}
     dropDiv.dialog('open');
-    
-
+    dropDiv.find("a").first().focus();
+    if (addAboveItem === '')
+	dropDiv.find(".addContentMessage").show();
+    else
+	dropDiv.find(".addContentMessage").hide();
     return false;
+}
+
+function calculateDropDownModalWidth() {
+    var wWidth = $(window).width();
+    var pbr = 768;
+    var dWidth = wWidth * 0.7;
+    if ( wWidth <= pbr ) {
+        dWidth = pbr * 0.7;
+        if ( dWidth > (wWidth * 0.95) ) {
+            dWidth = wWidth * 0.95;
+        }
+    }
+    if ( dWidth < 300 ) dWidth = 300; // Should not happen
+    return Math.round(dWidth);
 }
 
 function closeDropdowns() {

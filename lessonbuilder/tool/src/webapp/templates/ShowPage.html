@@ -228,7 +228,7 @@
                 
 		<li rsf:id="remove-student" class="contentButton"><span><a role="button" href="#" rsf:id="remove-page-student" class="add-at-end remove-page"><span rsf:id="msg=simplepage.remove-page" role="menuitem"></span></a></span></li>
 
-                <li class="contentButton"><span><a role="menuitem button" aria-haspopup="dialog" aria-controls="layout-dialog"  href="#" rsf:id="layout-link" class="layout-link"><span rsf:id="msg=simplepage.layoutlinktext"></span></a></span></li>
+                <li class="contentButton"><span><a role="button" aria-haspopup="dialog" aria-controls="layout-dialog"  href="#" rsf:id="layout-link" class="layout-link"><span rsf:id="msg=simplepage.layoutlinktext"></span></a></span></li>
                 <li class="contentButton"><span><a role="button" class="add-at-end" href="#" rsf:id="reorder"><span aria-hidden="true" class="fa-button-text"></span></a></span></li>
                 <li  class="contentButton">
                     <span rsf:id="title-descrip">
@@ -280,101 +280,170 @@
 </script>
 
 		<div id="addContentDiv" style="display:none" class="dropDownDiv specialLink lessonsDialog" role="menu" aria-label="Add content menu">
-		<ul>
-		  <li>
-		    <a role="button" href="#" rsf:id="add-text" class="add-text-link add-before-param" ><span rsf:id="msg.simplepage.text"></span></a>
-		  </li>
-		  <li>
-		    <a role="button" aria-haspopup="dialog" aria-controls="add-multimedia-dialog" href="#" rsf:id="add-resource" class="add-resource add-before-param"><span rsf:id="msg.simplepage.resource"></span></a>
-		  </li>
-		  <li>
-		    <a role="button" aria-haspopup="dialog" aria-controls="subpage-dialog" href="#" rsf:id="subpage-link" class="subpage-link"><span rsf:id="msg=simplepage.subpage"></span></a>
-		  </li>
-		  <li rsf:id="blti-app-li">
-		    <a href="#" role="button" rsf:id="add-blti-app" class="add-before-param"><span rsf:id="msg.simplepage.blti.app"></span></a>
-		  </li>
-		  <li>
-		    <a role="button" href="#" rsf:id="add-from-subpage" class="add-before-param"><span rsf:id="simplepage.reorder-addpage"></span></a>
-          </li>
-		  <li>
-		    <a role="button" aria-haspopup="dialog" aria-controls="add-multimedia-dialog" href="#" rsf:id="add-multimedia" class="add-multimedia add-before-param"><span rsf:id="msg.simplepage.multimedia"></span></a>
-		  </li>
-		  <hr class="addbreak" style="border:none" rsf:id="add-break1"/>
-		  <li rsf:id="add-break2" class="addbreak">
-		    <a role="button" href="#" rsf:id="add-break3" class="add-break-section"><span rsf:id="msg=simplepage.break-items"></span></a>
-		  </li>
-		  <li rsf:id="add-break4" class="addbreak">
-		    <a role="button" href="#" rsf:id="add-break5" class="add-break-column"><span rsf:id="msg=simplepage.break-columns"></span></a>
-		  </li>
-		  <hr style="border:none"/>
-		  <li rsf:id="assignment-li">
-		    <a role="button" href="#" rsf:id="add-assignment" class="add-before-param"><span rsf:id="msg.simplepage.assignment"></span></a>
-		  </li>
-		  <li rsf:id="calendar-li">
-		    <a role="button" href="#" id="calendar-link" rsf:id="calendar-link" class="calendar-link"><span rsf:id="msg=simplepage.calendarLinkText"></span></a>
-		    <form rsf:id="add-calendar-form" style="display:none" action="#" id="add-calendar-form" method="post" enctype="multipart/form-data">
-		      <input type="hidden" rsf:id="calendar-addBefore" id="calendar-addBefore" />
-		      <input type="hidden" rsf:id="csrf28" />
-		      <input type="submit" rsf:id="add-calendar" id="add-calendar"/>
-		    </form>
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col-sm-4">
+                        <div class="panel panel-default">
+                            <div class="panel-heading">
+                                <h4><span rsf:id="msg=simplepage.content.items"></span></h4>
+                            </div>
+                            <div class="panel-body">
+                                <ul>
+                                    <li>
+                                        <a role="button" href="#" rsf:id="add-text" class="add-text-link add-before-param"><span
+                                                rsf:id="msg.simplepage.text"></span></a>
+                                    </li>
+                                    <li>
+                                        <a role="button" aria-haspopup="dialog" aria-controls="add-multimedia-dialog" href="#"
+                                           rsf:id="add-resource" class="add-resource add-before-param"><span
+                                                rsf:id="msg.simplepage.resource"></span></a>
+                                    </li>
+                                    <li>
+                                        <a role="button" aria-haspopup="dialog" aria-controls="subpage-dialog" href="#"
+                                           rsf:id="subpage-link" class="subpage-link"><span rsf:id="msg=simplepage.subpage"></span></a>
+                                    </li>
+                                    <li rsf:id="blti-app-li">
+                                        <a href="#" role="menuitem button" rsf:id="add-blti-app" class="add-before-param"><span
+                                                rsf:id="msg.simplepage.blti.app"></span></a>
+                                    </li>
+                                    <li>
+                                        <a role="button" href="#" rsf:id="add-from-subpage" class="add-before-param"><span
+                                                rsf:id="simplepage.reorder-addpage"></span></a>
+                                    </li>
+                                    <li>
+                                        <a role="button" aria-haspopup="dialog" aria-controls="add-multimedia-dialog" href="#"
+                                           rsf:id="add-multimedia" class="add-multimedia add-before-param"><span
+                                                rsf:id="msg.simplepage.multimedia"></span></a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-4">
+                        <div class="panel panel-default">
+                            <div class="panel-heading">
+                                <h4><span rsf:id="msg=simplepage.linked.content.items"></span></h4>
+                            </div>
+                            <div class="panel-body">
+                                <ul>
+                                    <li rsf:id="assignment-li">
+                                        <a role="button" href="#" rsf:id="add-assignment" class="add-before-param"><span
+                                                rsf:id="msg.simplepage.assignment"></span></a>
+                                    </li>
+                                    <li rsf:id="quiz-li">
+                                        <a role="button" href="#" rsf:id="add-quiz" class="add-before-param"><span
+                                                rsf:id="msg.simplepage.quiz"></span></a>
+                                    </li>
+                                    <li rsf:id="forum-li">
+                                        <a role="button" class="add-forum-link add-before-param" href="#" rsf:id="add-forum"><span
+                                                rsf:id="msg.simplepage.forum"></span></a>
+                                    </li>
+                                    <li>
+                                        <a role="menuitem" href="#" rsf:id="add-folder" class="add-folder add-before-param"><span
+                                                rsf:id="msg.simplepage.folder"></span></a>
+                                    </li>
+                                    <li rsf:id="calendar-li">
+                                        <a role="button" href="#" id="calendar-link" rsf:id="calendar-link" class="calendar-link"><span rsf:id="msg=simplepage.calendarLinkText"></span></a>
+                                        <form rsf:id="add-calendar-form" style="display:none" action="#" id="add-calendar-form" method="post" enctype="multipart/form-data">
+                                            <input type="hidden" rsf:id="calendar-addBefore" id="calendar-addBefore" />
+                                            <input type="hidden" rsf:id="csrf28" />
+                                            <input type="submit" rsf:id="add-calendar" id="add-calendar"/>
+                                        </form>
+                                    </li>
+                                    <li rsf:id="announcements-li">
+                                        <a role="menuitem" href="#" rsf:id="announcements-link" class="announcements-link"><span
+                                                rsf:id="msg=simplepage.announcementsLinkText"></span></a>
+                                    </li>
+                                    <li rsf:id="forum-summary-li">
+                                        <a role="menuitem" href="#" rsf:id="forum-summary-link" class="forum-summary-link"><span
+                                                rsf:id="msg=simplepage.forumSummaryLinkText"></span></a>
+                                    </li>
+                                    <li rsf:id="twitter-li">
+                                        <a href="#" role="menuitem" rsf:id="add-twitter" class="twitter-link"><span
+                                                rsf:id="msg=simplepage.twitter"></span></a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-4">
+                        <div class="panel panel-default">
+                            <div class="panel-heading">
+                                <h4><span rsf:id="msg=simplepage.advanced.content.items"></span></h4>
+                            </div>
+                            <div class="panel-body">
+                                <ul>
+                                    <li rsf:id="checklist-li">
+                                        <a role="button" class="add-checklist-link add-before-param" href="#"
+                                           rsf:id="add-checklist"><span rsf:id="msg.simplepage.checklist"></span></a>
+                                    </li>
+                                    <li rsf:id="question-li">
+                                        <a role="button" aria-haspopup="dialog" aria-controls="question-dialog" href="#"
+                                           rsf:id="question-link" class="question-link"><span
+                                                rsf:id="msg=simplepage.questionLinkText"></span></a>
+                                    </li>
+                                    <li rsf:id="student-li">
+                                        <a id="add-comments-link" rsf:id="add-comments-link" href="#" role="menuitem button"><span
+                                                rsf:id="msg=simplepage.comments"></span></a>
+                                        <form rsf:id="add-comments-form" style="display:none" action="#" id="add-comments-form"
+                                              method="post" enctype="multipart/form-data">
+                                            <input type="hidden" rsf:id="comments-addBefore" id="comments-addBefore"/>
+                                            <input type="hidden" rsf:id="csrf25"/>
+                                            <input type="submit" rsf:id="add-comments" id="add-comments"/>
+                                        </form>
+                                    </li>
+                                    <li rsf:id="studentcontent-li">
+                                        <a id="add-student-link" rsf:id="add-student-link" href="#" role="menuitem button"><span
+                                                rsf:id="msg=simplepage.add-student-content"></span></a>
+                                        <form rsf:id="add-student-form" style="display:none" action="#" id="add-student-form" method="post"
+                                              enctype="multipart/form-data">
+                                            <input type="hidden" rsf:id="add-student-addBefore" id="add-student-addBefore"/>
+                                            <input type="hidden" rsf:id="csrf26"/>
+                                            <input type="submit" rsf:id="add-student" id="add-student"/>
+                                        </form>
 
-		  </li>
-		  <li rsf:id="quiz-li">
-		    <a role="button" href="#" rsf:id="add-quiz" class="add-before-param"><span rsf:id="msg.simplepage.quiz"></span></a>
-		  </li>
-                  <li rsf:id="forum-li">
-                    <a role="button" class="add-forum-link add-before-param" href="#" rsf:id="add-forum"><span rsf:id="msg.simplepage.forum"></span></a>
-                  </li>
-		  <li>
-		    <a role="menuitem" href="#" rsf:id="add-folder" class="add-folder add-before-param"><span rsf:id="msg.simplepage.folder"></span></a>
-		  </li>
-		  <li rsf:id="calendar-li">
-		    <a role="menuitem" rsf:id="calendar-link" class="calendar-link add-before-param"><span rsf:id="msg=simplepage.calendarLinkText"></span></a>
-		  </li>
-		  <li rsf:id="announcements-li">
-		    <a role="menuitem" href="#" rsf:id="announcements-link" class="announcements-link"><span rsf:id="msg=simplepage.announcementsLinkText"></span></a>
-		  </li>
-		  <li rsf:id="forum-summary-li">
-		    <a role="menuitem" href="#" rsf:id="forum-summary-link" class="forum-summary-link"><span rsf:id="msg=simplepage.forumSummaryLinkText"></span></a>
-		  </li>
-		  <li rsf:id="twitter-li">
-		    <a href="#" role="menuitem" rsf:id="add-twitter" class="twitter-link"><span rsf:id="msg=simplepage.twitter"></span></a>
-		  </li>
-		  <hr style="border:none"/>
-            <li rsf:id="checklist-li">
-                <a role="button" class="add-checklist-link add-before-param" href="#" rsf:id="add-checklist"><span rsf:id="msg.simplepage.checklist"></span></a>
-            </li>
-		  <li rsf:id="question-li">
-		    <a role="button" aria-haspopup="dialog" aria-controls="question-dialog"  href="#" rsf:id="question-link" class="question-link"><span rsf:id="msg=simplepage.questionLinkText"></span></a>
-		  </li>
-                  <li rsf:id="student-li">
-		     <a id="add-comments-link" rsf:id="add-comments-link" href="#" role="button"><span rsf:id="msg=simplepage.comments"></span></a>
-		     <form rsf:id="add-comments-form" style="display:none" action="#" id="add-comments-form" method="post" enctype="multipart/form-data">
-		      <input type="hidden" rsf:id="comments-addBefore" id="comments-addBefore" />
-		      <input type="hidden" rsf:id="csrf25" />
-		      <input type="submit" rsf:id="add-comments" id="add-comments"/>
-		    </form>
-                  </li>
-                  <li rsf:id="studentcontent-li">
-		    <a id="add-student-link" rsf:id="add-student-link" href="#" role="button"><span rsf:id="msg=simplepage.add-student-content"></span></a>
-		    <form rsf:id="add-student-form" style="display:none" action="#" id="add-student-form" method="post" enctype="multipart/form-data">
-		      <input type="hidden" rsf:id="add-student-addBefore" id="add-student-addBefore" />
-		      <input type="hidden" rsf:id="csrf26" />
-		      <input type="submit" rsf:id="add-student" id="add-student"/>
-		    </form>
-
-                  </li>
-                  <li rsf:id="addwebsite-li">
-                    <a href="#" role="button" aria-haspopup="dialog" aria-controls="add-multimedia-dialog" rsf:id="add-website" class="add-website add-before-param"><span rsf:id="msg.simplepage.website"></span></a>
-                  </li>
-                  <li rsf:id="blti-tool:">
-                    <a href="#" role="button" rsf:id="add-blti-tool" class="add-before-param"><span rsf:id="msg.simplepage.blti"></span></a>
-                  </li>
-                  <li rsf:id="blti-li">
-                    <a href="#" role="button" rsf:id="add-blti" class="add-before-param"><span rsf:id="msg.simplepage.blti"></span></a>
-                  </li>
-		</ul>
-		<div class="addContentMessage instruction" rsf:id="msg=simplepage.add-item-page"></div>
+                                    </li>
+                                    <li rsf:id="addwebsite-li">
+                                        <a href="#" role="menuitem button" aria-haspopup="dialog" aria-controls="add-multimedia-dialog"
+                                           rsf:id="add-website" class="add-website add-before-param"><span
+                                                rsf:id="msg.simplepage.website"></span></a>
+                                    </li>
+                                    <li rsf:id="blti-tool:">
+                                        <a href="#" role="menuitem button" rsf:id="add-blti-tool" class="add-before-param"><span
+                                                rsf:id="msg.simplepage.blti"></span></a>
+                                    </li>
+                                    <li rsf:id="blti-li">
+                                        <a href="#" role="menuitem button" rsf:id="add-blti" class="add-before-param"><span
+                                                rsf:id="msg.simplepage.blti"></span></a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-4">
+                        <div class="panel panel-default addbreak">
+                            <div class="panel-heading" rsf:id="add-break1">
+                                <h4><span rsf:id="msg=simplepage.layout.elements"></span></h4>
+                            </div>
+                            <div class="panel-body">
+                                <ul>
+                                    <li rsf:id="add-break2" class="addbreak">
+                                        <a role="button" href="#" rsf:id="add-break3" class="add-break-section"><span
+                                                rsf:id="msg=simplepage.break-items"></span></a>
+                                    </li>
+                                    <li rsf:id="add-break4" class="addbreak">
+                                        <a role="button" href="#" rsf:id="add-break5" class="add-break-column"><span
+                                                rsf:id="msg=simplepage.break-columns"></span></a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <p class="addContentMessage instruction" rsf:id="msg=simplepage.add-item-page"></p>
+            </div>
 		</div>
 
 		<div rsf:id="moreDiv" id="moreDiv" style="display:none" class="dropDownDiv specialLink lessonsDialog" role="menu" aria-label="More menu options">
