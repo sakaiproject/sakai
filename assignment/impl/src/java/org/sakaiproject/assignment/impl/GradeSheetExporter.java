@@ -233,7 +233,18 @@ public class GradeSheetExporter {
 
                                                 if (grade == null) {
                                                     // TODO originally called submission.getGradeForUser(userId);
-                                                    grade = submissionSubmitter.getGrade() != null ? submissionSubmitter.getGrade() : submission.getGrade();
+													if (submissionSubmitter.getGrade() != null) {
+														grade = assignmentService.getGradeDisplay(
+																submissionSubmitter.getGrade(),
+																submissionSubmitter.getSubmission().getAssignment()
+																		.getTypeOfGrade(),
+																submissionSubmitter.getSubmission().getAssignment()
+																		.getScaleFactor());
+													} else {
+														grade = assignmentService.getGradeDisplay(submission.getGrade(),
+																submission.getAssignment().getTypeOfGrade(),
+																submission.getAssignment().getScaleFactor());
+													}
                                                 }
 
                                                 int factor = submission.getAssignment().getScaleFactor();
