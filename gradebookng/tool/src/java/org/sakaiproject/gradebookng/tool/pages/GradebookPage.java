@@ -207,7 +207,7 @@ public class GradebookPage extends BasePage {
 
 			@Override
 			public boolean isVisible() {
-				return GradebookPage.this.role == GbRole.INSTRUCTOR;
+				return (businessService.isUserAbleToEditAssessments());
 			}
 		};
 		addGradeItem.setDefaultFormProcessing(false);
@@ -321,7 +321,7 @@ public class GradebookPage extends BasePage {
 
 			@Override
 			public boolean isVisible() {
-				return GradebookPage.this.role == GbRole.INSTRUCTOR;
+				return (businessService.isUserAbleToEditAssessments());
 			}
 		};
 		toolbar.add(sortGradeItemsToolbarItem);

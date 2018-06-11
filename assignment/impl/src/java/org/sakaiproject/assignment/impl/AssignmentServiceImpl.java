@@ -3492,7 +3492,9 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
 
                     nAssignment.setTitle(oAssignment.getTitle());
                     // replace all occurrence of old context with new context inside instruction text
-                    nAssignment.setInstructions(oAssignment.getInstructions().replaceAll(fromContext, toContext));
+                    if(StringUtils.isNotBlank(oAssignment.getInstructions())){
+                    	nAssignment.setInstructions(oAssignment.getInstructions().replaceAll(fromContext, toContext));
+                    }
                     nAssignment.setTypeOfGrade(oAssignment.getTypeOfGrade());
                     nAssignment.setTypeOfSubmission(oAssignment.getTypeOfSubmission());
                     // when importing, refer to property to determine draft status

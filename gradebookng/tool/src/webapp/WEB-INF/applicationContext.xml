@@ -3,7 +3,6 @@
 
 <beans>
 
-
 	<bean
 		id="org.sakaiproject.gradebookng.business.GradebookNgBusinessService"
 		class="org.sakaiproject.gradebookng.business.GradebookNgBusinessService">

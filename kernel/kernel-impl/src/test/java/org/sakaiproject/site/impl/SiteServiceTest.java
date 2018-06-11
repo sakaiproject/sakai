@@ -172,6 +172,12 @@ public class SiteServiceTest extends DbSiteService
 	}
 
 	@Override
+	public List<String> getSiteIds(SelectionType type, Object ofType, String criteria, Map<String,String> propertyCriteria, Map<String,String> propertyRestrictions, SortType sort, PagingPosition page, String userId)
+	{
+		return new ArrayList<String>(0);
+	}
+
+	@Override
 	public String getUserSpecificSiteTitle( Site site, String userID )
 	{
 		return null;

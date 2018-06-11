@@ -17,6 +17,7 @@ package org.sakaiproject.service.gradebook.shared;
 
 import java.io.Serializable;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -92,19 +93,17 @@ public class GradeMappingDefinition implements Serializable {
 	/**
 	 * Handles the sorting of a grade mapping.
 	 *
-	 * Note that the output of this is a {@link TreeMap} which should be taken into consideration if performing element comparisons as the
-	 * equals() implementation is different for TreeMaps vs HashMaps.
-	 *
 	 * @param gradeMap the grademap to be sorted
-	 * @return {@link TreeMap} of sorted entries
+	 * @return {@link LinkedHashMap} of sorted entries
 	 */
 	public static Map<String, Double> sortGradeMapping(final Map<String, Double> gradeMap) {
 
 		// we only ever order by bottom percents now
 		final DoubleComparator doubleComparator = new DoubleComparator(gradeMap);
-		final Map<String, Double> rval = new TreeMap<>(doubleComparator);
-		rval.putAll(gradeMap);
-
+		final Map<String, Double> tMap = new TreeMap<>(doubleComparator);
+		tMap.putAll(gradeMap);
+		final Map<String, Double> rval = new LinkedHashMap<>(tMap);
+		
 		return rval;
 	}
 

@@ -19,7 +19,7 @@
 	<div id="toolSubsitesContainer">
 		<nav id="toolMenu" role="navigation" aria-label="${rloader.sit_toolshead}" class="Mrphs-toolsNav__menu">
 			<ul>
-				<li id="toolsNav-toggle-li" class="Mrphs-toolsNav__menuitem Mrphs-collapseTools #if ($toolsCollapsed) min #else max #end" style='display: none;'>
+				<li id="toolsNav-toggle-li" class="Mrphs-toolsNav__menuitem Mrphs-collapseTools #if ($toolsCollapsed) min #else max #end">
 					<button type="button" aria-pressed="$toolsCollapsed" title="${rloader.sit_toggle_nav}" class="Mrphs-toggleNav js-toggle-nav btn-link  #if ($toolsCollapsed) min #else max #end">
 						<span class="fa fa-lg fa-angle-double-left" aria-hidden="true"></span>
 						<span class="sr-only">${rloader.sit_toggle_nav}</span>
