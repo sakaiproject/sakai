@@ -1,7 +1,8 @@
-.#{$namespace}sakai-siteinfo{
+.#{$namespace}sakai-siteinfo
+{
 	.groups-site{
 		list-style: none;
-		
+
 		li {
 			min-height: 4em;
 			&:nth-child(odd){
@@ -22,6 +23,13 @@
 	}
 	#groupfile {
 		vertical-align: top;
+	}
+
+	#siteMembers-selection, #groupMembers-selection
+	{
+		min-width: 100%;
+		padding-right: 0.5em;
+		background-image: none;
 	}
 }
 
