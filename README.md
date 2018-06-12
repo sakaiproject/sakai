@@ -5,6 +5,7 @@ This is the source code for the Sakai CLE.
 ## Building
 
 [![Build Status](https://travis-ci.org/sakaiproject/sakai.svg?branch=master)](https://travis-ci.org/sakaiproject/sakai)
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/c68908d6bc044e95b453bae7ddcbad4a)](https://www.codacy.com/app/sakaiproject/sakai?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=sakaiproject/sakai&amp;utm_campaign=Badge_Grade)
 
 This is the "Mini Quick Start" for more complete steps to get Sakai configured please look at [this guide on the wiki](https://github.com/sakaiproject/sakai/wiki/Quick-Start-from-Source).
 
