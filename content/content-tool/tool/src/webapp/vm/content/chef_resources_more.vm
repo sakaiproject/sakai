@@ -58,7 +58,7 @@
 						$tlang.getString("gen.cpr")
 					</th>
 					<td>
-						#if ($item.copyrightStatus != '' && $item.copyrightStatus.length() > 0 && $item.copyrightStatus != $publicdomain)
+						#if (!$item.copyrightStatus.isEmpty() && $item.copyrightStatus != $publicdomain)
 							#set ($found = false)
 							#foreach ($copyrightType in $copyrightTypes)
 								#if ($item.copyrightStatus == $copyrightType.type)

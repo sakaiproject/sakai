@@ -198,6 +198,17 @@ public class ResourcesAction
 	private static final ToolManager toolManager = ComponentManager.get(ToolManager.class);
 	private static final UserDirectoryService userDirectoryService = ComponentManager.get(UserDirectoryService.class);
 	private static final TimeService timeService = ComponentManager.get(TimeService.class);
+
+	public static final String MSG_KEY_COPYRIGHT_REQ_CHOICE = "copyright.requireChoice";
+	public static final String MSG_KEY_COPYRIGHT_REQ_CHOICE_ERROR = "copyright.requireChoice.error";
+
+	public static final String SAK_PROP_COPYRIGHT_REQ_CHOICE = "copyright.requireChoice";
+	private static final String SAK_PROP_COPYRIGHT_DEFAULT_TYPE = "copyright.type.default";
+	public static final boolean SAK_PROP_COPYRIGHT_REQ_CHOICE_DEFAULT = false;
+
+	private static final org.sakaiproject.content.copyright.api.CopyrightManager copyrightManager = (org.sakaiproject.content.copyright.api.CopyrightManager)
+			ComponentManager.get("org.sakaiproject.content.copyright.api.CopyrightManager");
+
 	
 	/**
 	 * Action
@@ -440,16 +451,6 @@ public class ResourcesAction
     private static final ResourceLoader rrb = new ResourceLoader("right");
     /** Resource bundle using current language locale */
     private static final ResourceLoader metaLang = new ResourceLoader("metadata");
-
-	public static final String MSG_KEY_COPYRIGHT_REQ_CHOICE = "copyright.requireChoice";
-	public static final String MSG_KEY_COPYRIGHT_REQ_CHOICE_ERROR = "copyright.requireChoice.error";
-
-	public static final String SAK_PROP_COPYRIGHT_REQ_CHOICE = "copyright.requireChoice";
-	private static final String SAK_PROP_COPYRIGHT_DEFAULT_TYPE = "copyright.type.default";
-	public static final boolean SAK_PROP_COPYRIGHT_REQ_CHOICE_DEFAULT = false;
-
-	private static final org.sakaiproject.content.copyright.api.CopyrightManager copyrightManager = (org.sakaiproject.content.copyright.api.CopyrightManager)
-			ComponentManager.get("org.sakaiproject.content.copyright.api.CopyrightManager");
 
 	/** Shared messages */
 	private static final String DEFAULT_RESOURCECLASS = "org.sakaiproject.sharedI18n.SharedProperties";
