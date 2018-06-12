@@ -3,7 +3,7 @@
 	<sakai:view_title value="#{msgs.delete_room_messages_confirm_title}" />
 	
 	<h:outputText value="#{msgs.delete_room_messages_confirm_alert}" styleClass="alertMessage" />
-	<sakai:messages rendered="#{!empty facesContext.maximumSeverity}" />
+	<h:messages rendered="#{!empty facesContext.maximumSeverity}" />
 	
 	<h:form styleClass="portletBody">
 	
@@ -17,10 +17,10 @@
 	</sakai:panel_edit>
 	
 	<sakai:button_bar>
-	    <sakai:button_bar_item id="delete"
+	    <h:commandButton id="delete"
 	        action="#{ChatTool.processActionDeleteRoomMessages}"
 	        value="#{msgs['gen.delete']}" />
-	    <sakai:button_bar_item id="cancel"
+	    <h:commandButton id="cancel"
 	        action="#{ChatTool.processActionDeleteRoomMessagesCancel}"
 	        value="#{msgs['gen.cancel']}" />
 	</sakai:button_bar>

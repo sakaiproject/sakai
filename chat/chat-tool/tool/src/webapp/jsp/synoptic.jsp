@@ -6,7 +6,7 @@
                <h:outputText value="#{ChatTool.accessibleOptionsLink}" escape="false"/>
             </h:commandLink>
          </sakai:tool_bar>         
-         <sakai:messages rendered="#{!empty facesContext.maximumSeverity}" />         
+         <h:messages rendered="#{!empty facesContext.maximumSeverity}" />         
 		<ul id="_id1:chatSynoptic" class="synopticList">
 		<c:forEach items="${ChatTool.synopticMessages}" var="message">  		
 			<li>

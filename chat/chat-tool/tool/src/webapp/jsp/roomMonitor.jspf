@@ -1,4 +1,4 @@
-<sakai:messages rendered="#{!empty facesContext.maximumSeverity}" />
+<h:messages rendered="#{!empty facesContext.maximumSeverity}" />
 <c:set var="deleteUrl" value="${ChatTool.toolContext}/sakai.chat.deleteMessage.helper/deleteMessageConfirm?session.current_message=" />
 <c:set var="serial" value="0" />
 <c:set var="lastMessageOwnerId" value="0" />

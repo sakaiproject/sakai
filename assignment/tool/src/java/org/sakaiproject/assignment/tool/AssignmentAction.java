@@ -2536,6 +2536,15 @@ public class AssignmentAction extends PagedResourceActionII {
             context.put("value_GradePoints", assignmentService.getGradeDisplay(maxGrade, a.getTypeOfGrade(), a.getScaleFactor() != null ? a.getScaleFactor() : assignmentService.getScaleFactor()));
             context.put("value_CheckAnonymousGrading", assignmentService.assignmentUsesAnonymousGrading(a));
         }
+        else {
+        	if (!StringUtils.isBlank(maxGrade)){
+        		int scaleFactor = assignmentService.getScaleFactor();
+        		validPointGrade(state, maxGrade, scaleFactor);
+        		maxGrade = scalePointGrade(state, maxGrade, scaleFactor);
+        		context.put("value_GradePoints", assignmentService.getGradeDisplay(maxGrade, SCORE_GRADE_TYPE, assignmentService.getScaleFactor()));
+        	}    	
+        }
+        context.put("value_CheckAnonymousGrading", state.getAttribute(NEW_ASSIGNMENT_CHECK_ANONYMOUS_GRADING));        
         context.put("value_Description", state.getAttribute(NEW_ASSIGNMENT_DESCRIPTION));
 
         //Peer Assessment
@@ -5738,7 +5747,7 @@ public class AssignmentAction extends PagedResourceActionII {
             if (withGrade && a.getIsGroup()) {
                 for (AssignmentSubmissionSubmitter submitter : submission.getSubmitters()) {
                     String g = (String) state.getAttribute(GRADE_SUBMISSION_GRADE + "_" + submitter.getSubmitter());
-                    if (StringUtils.isNotBlank(g)) submitter.setGrade(g);
+                    if (g != submitter.getGrade()) submitter.setGrade(g);
                 }
             }
 
@@ -6144,7 +6153,9 @@ public class AssignmentAction extends PagedResourceActionII {
                     // use comma as separator for attachments
                     feedbackAttachmentHistory = StringUtils.join(feedbackAttachments, ",") + feedbackAttachmentHistory;
 
-                    properties.put(PROP_SUBMISSION_PREVIOUS_FEEDBACK_ATTACHMENTS, feedbackAttachmentHistory);
+                    if (StringUtils.isNotBlank(feedbackAttachmentHistory)) {
+                    	properties.put(PROP_SUBMISSION_PREVIOUS_FEEDBACK_ATTACHMENTS, feedbackAttachmentHistory);
+                    }
 
                     // reset the previous grading context
                     submission.setFeedbackText(null);
@@ -6530,6 +6541,7 @@ public class AssignmentAction extends PagedResourceActionII {
         ParameterParser params = data.getParameters();
 
         String assignmentRef = params.getString("assignmentId");
+        String assignmentId = AssignmentReferenceReckoner.reckoner().reference(assignmentRef).reckon().getId();
 
         // put the input value into the state attributes
         String title = params.getString(NEW_ASSIGNMENT_TITLE);
@@ -6968,7 +6980,7 @@ public class AssignmentAction extends PagedResourceActionII {
                         Integer scaleFactor = assignmentService.getScaleFactor();
                         try {
                             if (StringUtils.isNotEmpty(assignmentRef)) {
-                                Assignment assignment = assignmentService.getAssignment(assignmentRef);
+                                Assignment assignment = assignmentService.getAssignment(assignmentId);
                                 if (assignment != null) {
                                     scaleFactor = assignment.getScaleFactor();
                                 }
@@ -6979,12 +6991,8 @@ public class AssignmentAction extends PagedResourceActionII {
 
                         validPointGrade(state, gradePoints, scaleFactor);
                         // when scale is points, grade must be integer and less than maximum value
-                        if (state.getAttribute(STATE_MESSAGE) == null) {
-                            gradePoints = scalePointGrade(state, gradePoints, scaleFactor);
-                        }
-                        if (state.getAttribute(STATE_MESSAGE) == null) {
-                            state.setAttribute(NEW_ASSIGNMENT_GRADE_POINTS, gradePoints);
-                        }
+                        gradePoints = scalePointGrade(state, gradePoints, scaleFactor);
+                        state.setAttribute(NEW_ASSIGNMENT_GRADE_POINTS, gradePoints);
                     }
                 }
             }
@@ -9734,7 +9742,7 @@ public class AssignmentAction extends PagedResourceActionII {
                         if (a.getTypeOfGrade() == SCORE_GRADE_TYPE
                                 && StringUtils.isNotBlank(p.get(PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT))
                                 && assignmentService.getGradeForUserInGradeBook(a.getId(), submitter.getSubmitter()) != null
-                                && !(assignmentService.getGradeForUserInGradeBook(assignmentId, submitter.getSubmitter()).equals(displayGrade(state, (String) state.getAttribute(GRADE_SUBMISSION_GRADE), a.getScaleFactor())))
+                                && !(assignmentService.getGradeForUserInGradeBook(a.getId(), submitter.getSubmitter()).equals(displayGrade(state, (String) state.getAttribute(GRADE_SUBMISSION_GRADE), a.getScaleFactor())))
                                 && state.getAttribute(GRADE_SUBMISSION_GRADE) != null) {
                             // grade from gradebook
                             grade_override = assignmentService.getGradeForUserInGradeBook(a.getId(), submitter.getSubmitter());
@@ -12313,51 +12321,49 @@ public class AssignmentAction extends PagedResourceActionII {
 
         point = validPointGrade(state, point, factor);
 
-        if (state.getAttribute(STATE_MESSAGE) == null) {
-            if (point != null && (point.length() >= 1)) {
-                // when there is decimal points inside the grade, scale the number by "factor"
-                // but only one decimal place is supported
-                // for example, change 100.0 to 1000
-                int index = point.indexOf(decSeparator);
-                if (index != -1) {
-                    if (index == 0) {
-                        int trailingData = point.substring(1).length();
-                        // if the point is the first char, add a 0 for the integer part
-                        point = "0".concat(point.substring(1));
-                        // ensure that the point value has the correct # of decimals
-                        // by padding with zeros
-                        if (trailingData < dec) {
-                            for (int i = trailingData; i < dec; i++) {
-                                point = point + "0";
-                            }
-                        }
-                    } else if (index < point.length() - 1) {
-                        // adjust the number of decimals, adding 0's to the end
-                        int length = point.length() - index - 1;
-                        for (int i = length; i < dec; i++) {
-                            point = point + "0";
-                        }
-
-                        // use scale integer for gradePoint
-                        point = point.substring(0, index) + point.substring(index + 1);
-                    } else {
-                        // decimal point is the last char
-                        point = point.substring(0, index);
-                        for (int i = 0; i < dec; i++) {
+        if (point != null && (point.length() >= 1)) {
+            // when there is decimal points inside the grade, scale the number by "factor"
+            // but only one decimal place is supported
+            // for example, change 100.0 to 1000
+            int index = point.indexOf(decSeparator);
+            if (index != -1) {
+                if (index == 0) {
+                    int trailingData = point.substring(1).length();
+                    // if the point is the first char, add a 0 for the integer part
+                    point = "0".concat(point.substring(1));
+                    // ensure that the point value has the correct # of decimals
+                    // by padding with zeros
+                    if (trailingData < dec) {
+                        for (int i = trailingData; i < dec; i++) {
                             point = point + "0";
                         }
                     }
+                } else if (index < point.length() - 1) {
+                    // adjust the number of decimals, adding 0's to the end
+                    int length = point.length() - index - 1;
+                    for (int i = length; i < dec; i++) {
+                        point = point + "0";
+                    }
+
+                    // use scale integer for gradePoint
+                    point = point.substring(0, index) + point.substring(index + 1);
                 } else {
-                    // if there is no decimal place, scale up the integer by "factor"
+                    // decimal point is the last char
+                    point = point.substring(0, index);
                     for (int i = 0; i < dec; i++) {
                         point = point + "0";
                     }
                 }
-
-                // filter out the "zero grade"
-                if ("00".equals(point)) {
-                    point = "0";
+            } else {
+                // if there is no decimal place, scale up the integer by "factor"
+                for (int i = 0; i < dec; i++) {
+                    point = point + "0";
                 }
+            }
+
+            // filter out the "zero grade"
+            if ("00".equals(point)) {
+                point = "0";
             }
         }
 
@@ -14569,24 +14575,27 @@ public class AssignmentAction extends PagedResourceActionII {
             reference = AssignmentReferenceReckoner.reckoner().submission(submission).reckon().getReference();
         }
 
-        String getGradeForUser(String id) {
-            String grade = null;
+        public String getGradeForUser(String id) {
+        	String grade = null;
 
-            if (submission != null) {
-                Assignment a = submission.getAssignment();
-                String g = a.getProperties().get(PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT);
-                if (StringUtils.isNotBlank(g) && a.getTypeOfGrade() == SCORE_GRADE_TYPE) {
-                    // check if they already have a gb entry
-                    grade = assignmentService.getGradeForUserInGradeBook(a.getId(), id);
-                }
-                if (grade == null) {
-                    AssignmentSubmissionSubmitter submitter = submission.getSubmitters().stream().filter(sbm -> StringUtils.equals(sbm.getSubmitter(), id)).findFirst().get();
-                    // if the submitter has a specific grade then use that one first
-                    grade = StringUtils.isNotBlank(submitter.getGrade()) ? submitter.getGrade() : submission.getGrade();
-                }
-            }
-            return grade;
+        	if (submission != null) {
+        		Assignment a = submission.getAssignment();
+        		String g = a.getProperties().get(PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT);
+        		if (StringUtils.isNotBlank(g) && a.getTypeOfGrade() == SCORE_GRADE_TYPE) {
+        			// check if they already have a gb entry
+        			grade = assignmentService.getGradeForUserInGradeBook(a.getId(), id);
+        		}
+        		if (grade == null) {
+        			AssignmentSubmissionSubmitter submitter = submission.getSubmitters().stream()
+        					.filter(sbm -> StringUtils.equals(sbm.getSubmitter(), id)).findFirst().get();
+        			// if the submitter has a specific grade then use that one first
+        			grade = StringUtils.isNotBlank(submitter.getGrade()) ? submitter.getGrade() : submission.getGrade();
+        		}
+        		return assignmentService.getGradeDisplay(grade, a.getTypeOfGrade(), a.getScaleFactor());
+        	}
+        	return grade;
         }
+        
     }
 
     /**
