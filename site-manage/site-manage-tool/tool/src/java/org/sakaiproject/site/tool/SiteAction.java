@@ -1684,9 +1684,10 @@ public class SiteAction extends PagedResourceActionII {
 
 			//Add flash notification when new site is created
 			if(state.getAttribute(STATE_NEW_SITE_STATUS_ID) != null){
-				String  flashNotifMsg = "<a title=\"" + state.getAttribute(STATE_NEW_SITE_STATUS_TITLE) + "\"href=\"/portal/site/"+
+				String siteTitle = Validator.escapeHtml((String)state.getAttribute(STATE_NEW_SITE_STATUS_TITLE));
+				String  flashNotifMsg = "<a title=\"" + siteTitle + "\"href=\"/portal/site/"+
 				state.getAttribute(STATE_NEW_SITE_STATUS_ID) + "\" target=\"_top\">"+
-				state.getAttribute(STATE_NEW_SITE_STATUS_TITLE)+"</a>" +" "+
+				siteTitle+"</a>" +" "+
 				rb.getString("sitdup.hasbeedup");
 				addFlashNotif(state,flashNotifMsg);
 				StringBuilder sbFlashNotifAction =  new StringBuilder();
