@@ -45,4 +45,9 @@
           </dependency>
       </dependencies>
   </dependencyManagement>
+
+  <properties>
+    <sonar.skip>true</sonar.skip>
+  </properties>
+  
 </project>

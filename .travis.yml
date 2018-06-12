@@ -13,11 +13,21 @@ jdk:
   - openjdk8
 sudo: false
 
+addons:
+  sonarcloud:
+    organization: "sakai-sandbox"
+    token:
+      secure: "I2FwSZnfN18MDQtDRPauaO2ZM0Iy30AUpN0WgZSSoB3NHRga3u3z8WOs1Gl8qOpzvKMI19NvqWHW+unwmxl59ZjgdzYWCwm0FYM4vl7EX6lEWshHm4p9sYvSTyLXpZUU3d8niGz/LvbEDoUterqtTP02wGKNV2PuoBZqdkEYB0k="
+
 cache:
  directories:
  - $HOME/.m2
+ - $HOME/.sonar/cache
 
 # We don't want to cache our own artifacts, just the externally downloaded ones.
 # This makes the cache smaller and helps highlight problems with a clean build
 before_cache:
  - find $HOME/.m2/repository/org/sakaiproject -name \*-SNAPSHOT.\*  -delete
+
+script:
+  - mvn clean org.jacoco:jacoco-maven-plugin:prepare-agent package sonar:sonar
