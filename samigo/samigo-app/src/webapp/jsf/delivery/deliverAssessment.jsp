@@ -47,15 +47,10 @@
          border-color: light grey;
        }
        
-       #delivPageWrapper
-       {
-            width: 100%
-            float: left;
-       }
-       
        #delivAssessmentWrapper
        {
             width: 96%;
+            float: left;
        }
       </style>
 
@@ -103,7 +98,7 @@
 		</div>
  
 <div class="portletBody Mrphs-sakai-samigo">
- <h:outputText value="<div style='#{delivery.settings.divBgcolor};#{delivery.settings.divBackground}'>" escape="false"/>
+<div>
 
 <!-- content... -->
 <h:form id="takeAssessmentForm" enctype="multipart/form-data"
@@ -302,7 +297,7 @@ document.links[newindex].onclick();
 </h:panelGroup>
 
 <div id="delivPageWrapper">
-  <div id="delivAssessmentWrapper">
+<h:outputText value="<div id='delivAssessmentWrapper' style='#{delivery.settings.divBgcolor};#{delivery.settings.divBackground}'>" escape="false"/>
 
     <!-- IF A SECURE DELIVERY MODULE HAS BEEN SELECTED, INJECT ITS HTML FRAGMENT (IF ANY) HERE -->
     <h:outputText  value="#{delivery.secureDeliveryHTMLFragment}" escape="false"  />
