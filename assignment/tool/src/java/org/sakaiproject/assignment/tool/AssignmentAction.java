@@ -14571,7 +14571,7 @@ public class AssignmentAction extends PagedResourceActionII {
             reference = AssignmentReferenceReckoner.reckoner().submission(submission).reckon().getReference();
         }
 
-        String getGradeForUser(String id) {
+        public String getGradeForUser(String id) {
             String grade = null;
 
             if (submission != null) {
