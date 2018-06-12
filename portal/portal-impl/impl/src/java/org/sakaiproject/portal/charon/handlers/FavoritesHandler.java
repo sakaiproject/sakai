@@ -29,6 +29,7 @@ import java.util.Collections;
 import org.sakaiproject.tool.cover.SessionManager;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import org.sakaiproject.entity.api.ResourceProperties;
@@ -141,7 +142,7 @@ public class FavoritesHandler extends BasePortalHandler
 		Set<String> favoriteSiteIds = Collections.<String>emptySet();
 		List<String> listFavoriteSiteIds = (List<String>)props.getPropertyList(FAVORITES_PROPERTY);
 		if (listFavoriteSiteIds != null) {
-			favoriteSiteIds = new HashSet<String>(listFavoriteSiteIds);
+			favoriteSiteIds = new LinkedHashSet<String>(listFavoriteSiteIds);
 		}
 
 		if (autoFavorite) {
@@ -179,7 +180,7 @@ public class FavoritesHandler extends BasePortalHandler
 
 		// This should not call getUserSites(boolean, boolean) because the property is variable, while the call is cacheable otherwise
 		List<Site> userSites = SiteService.getSites(SelectionType.MEMBER, null, null, null, SortType.TITLE_ASC, null, false);
-		Set<String> newFavorites = new HashSet<String>();
+		Set<String> newFavorites = new LinkedHashSet<String>();
 
 		props.removeProperty(SEEN_SITES_PROPERTY);
 		for (Site userSite : userSites) {
@@ -251,7 +252,7 @@ public class FavoritesHandler extends BasePortalHandler
 			JSONObject obj = (JSONObject)parser.parse(json);
 
 			UserFavorites result = new UserFavorites();
-			result.favoriteSiteIds = new HashSet<String>((List<String>)obj.get("favoriteSiteIds"));
+			result.favoriteSiteIds = new LinkedHashSet<String>((List<String>)obj.get("favoriteSiteIds"));
 			result.autoFavoritesEnabled = (Boolean)obj.get("autoFavoritesEnabled");
 
 			return result;
