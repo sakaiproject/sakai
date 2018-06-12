@@ -14475,24 +14475,27 @@ public class AssignmentAction extends PagedResourceActionII {
             reference = AssignmentReferenceReckoner.reckoner().submission(submission).reckon().getReference();
         }
 
-        String getGradeForUser(String id) {
-            String grade = null;
+        public String getGradeForUser(String id) {
+        	String grade = null;
 
-            if (submission != null) {
-                Assignment a = submission.getAssignment();
-                String g = a.getProperties().get(PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT);
-                if (StringUtils.isNotBlank(g) && a.getTypeOfGrade() == SCORE_GRADE_TYPE) {
-                    // check if they already have a gb entry
-                    grade = assignmentService.getGradeForUserInGradeBook(a.getId(), id);
-                }
-                if (grade == null) {
-                    AssignmentSubmissionSubmitter submitter = submission.getSubmitters().stream().filter(sbm -> StringUtils.equals(sbm.getSubmitter(), id)).findFirst().get();
-                    // if the submitter has a specific grade then use that one first
-                    grade = StringUtils.isNotBlank(submitter.getGrade()) ? submitter.getGrade() : submission.getGrade();
-                }
-            }
-            return grade;
+        	if (submission != null) {
+        		Assignment a = submission.getAssignment();
+        		String g = a.getProperties().get(PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT);
+        		if (StringUtils.isNotBlank(g) && a.getTypeOfGrade() == SCORE_GRADE_TYPE) {
+        			// check if they already have a gb entry
+        			grade = assignmentService.getGradeForUserInGradeBook(a.getId(), id);
+        		}
+        		if (grade == null) {
+        			AssignmentSubmissionSubmitter submitter = submission.getSubmitters().stream()
+        					.filter(sbm -> StringUtils.equals(sbm.getSubmitter(), id)).findFirst().get();
+        			// if the submitter has a specific grade then use that one first
+        			grade = StringUtils.isNotBlank(submitter.getGrade()) ? submitter.getGrade() : submission.getGrade();
+        		}
+        		return assignmentService.getGradeDisplay(grade, a.getTypeOfGrade(), a.getScaleFactor());
+        	}
+        	return grade;
         }
+        
     }
 
     /**
