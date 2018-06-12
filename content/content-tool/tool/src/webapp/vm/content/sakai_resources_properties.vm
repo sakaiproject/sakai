@@ -8,7 +8,7 @@
 	#if ($alertMessage)
 		<div class="alertMessage">$tlang.getString("label.alert") $validator.escapeHtml($alertMessage)</div>
 	#else
-		<div class="alertMessage" style="display: none; clear: both;"></div>
+		<div class="alertMessage"></div>
 	#end
 
 	<p class="instruction">
