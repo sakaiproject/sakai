@@ -79,6 +79,8 @@ import org.sakaiproject.util.Web;
 import org.sakaiproject.portal.util.ToolUtils;
 import org.sakaiproject.portal.charon.PortalStringUtil;
 import org.sakaiproject.util.FormattedText;
+import org.sakaiproject.util.Validator;
+
 import org.sakaiproject.lessonbuildertool.model.SimplePageToolDao;
 
 import lombok.extern.slf4j.Slf4j;
@@ -457,7 +459,7 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 				&& (s.getId().equals(myWorkspaceSiteId) || effectiveSite
 						.equals(myWorkspaceSiteId))));
 		
-		String siteTitle = getUserSpecificSiteTitle(s, false, false, siteProviders);
+		String siteTitle = Validator.escapeHtml(getUserSpecificSiteTitle(s, false, false, siteProviders));
 		String siteTitleTruncated = FormattedText.makeShortenedText(siteTitle, null, null, null);
 		m.put("siteTitle", siteTitle);
 		m.put("siteTitleTrunc", siteTitleTruncated);
