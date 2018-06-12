@@ -1127,6 +1127,8 @@ public class AssignmentAction extends PagedResourceActionII {
             String reviewServiceNonElectronic2 = rb.getFormattedMessage("review.switch.ne.2", reviewServiceName);
             context.put("reviewServiceName", reviewServiceName);
             context.put("reviewServiceProviderId", contentReviewService.getProviderId());
+            context.put("turnitinProviderId", ContentReviewConstants.TURNITIN_PROVIDER_ID);
+            context.put("turnitinOCProviderId", ContentReviewConstants.TURNITINOC_PROVIDER_ID);
             context.put("reviewServiceTitle", reviewServiceTitle);
             context.put("reviewServiceUse", reviewServiceUse);
             context.put("reviewIndicator", rb.getFormattedMessage("review.contentReviewIndicator", new Object[]{reviewServiceName}));

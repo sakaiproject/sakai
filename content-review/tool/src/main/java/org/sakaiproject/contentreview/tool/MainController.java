@@ -20,9 +20,13 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang.StringUtils;
+import org.sakaiproject.assignment.api.AssignmentReferenceReckoner;
 import org.sakaiproject.assignment.api.AssignmentService;
+import org.sakaiproject.assignment.api.AssignmentServiceConstants;
+import org.sakaiproject.assignment.api.model.AssignmentSubmission;
 import org.sakaiproject.contentreview.dao.ContentReviewItem;
 import org.sakaiproject.contentreview.service.ContentReviewService;
+import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.tool.api.SessionManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -56,6 +60,9 @@ public class MainController {
 	
 	@Autowired
 	private AssignmentService assignmentService;
+	
+	@Autowired
+	private EntityManager entityManager;
 
 	
 	@RequestMapping(value = "/webhooks", method = RequestMethod.POST)
@@ -110,8 +117,17 @@ public class MainController {
 		if(item != null && sessionManager.getCurrentSessionUserId().equals(item.getUserId())) {
 			return true;
 		}else {
-			if(assignmentRef.startsWith("/assignment/a/")) {
-				//TODO: ASSIGNMENT service group permission check
+			if(assignmentRef.startsWith(AssignmentServiceConstants.REFERENCE_ROOT)) {
+				//If assignment, check the current user's submission for this assignment
+				try {
+					AssignmentReferenceReckoner.AssignmentReference refReckoner = AssignmentReferenceReckoner.reckoner().reference(assignmentRef).reckon();
+					if("a".equals(refReckoner.getSubtype())) {
+						AssignmentSubmission submission = assignmentService.getSubmission(refReckoner.getId(), sessionManager.getCurrentSessionUserId());
+						return submission != null && submission.getAttachments().contains(AssignmentServiceConstants.REF_PREFIX + contentId);
+					}
+				} catch (Exception e) {
+					log.error(e.getMessage(), e);
+				}
 			}
 		}
 		return false;

@@ -294,7 +294,9 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 				// No webhook set up for this url, set one up
 				log.info("No matching webhook for " + webhookUrl);
 				String id = setupWebhook(webhookUrl);
-				log.info("successfully created webhook: " + id);
+				if(StringUtils.isNotEmpty(id)) {
+					log.info("successfully created webhook: " + id);
+				}
 			}
 		} catch (Exception e) {
 			log.error(e.getLocalizedMessage(), e);
@@ -302,7 +304,7 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 	}
 
 	public String setupWebhook(String webhookUrl) throws Exception {
-		String id;
+		String id = null;
 		Map<String, Object> data = new HashMap<String, Object>();
 		List<String> types = new ArrayList<>();
 		types.add("SIMILARITY_COMPLETE");
@@ -324,19 +326,22 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 		int responseCode = !response.containsKey(RESPONSE_CODE) ? 0 : (int) response.get(RESPONSE_CODE);
 		String responseMessage = !response.containsKey(RESPONSE_MESSAGE) ? "" : (String) response.get(RESPONSE_MESSAGE);
 		String responseBody = !response.containsKey(RESPONSE_BODY) ? "" : (String) response.get(RESPONSE_BODY);
-
+		String error = null;
 		if ((responseCode >= 200) && (responseCode < 300) && (responseBody != null)) {
 			// create JSONObject from responseBody
 			JSONObject responseJSON = JSONObject.fromObject(responseBody);
 			if (responseJSON.has("id")) {
 				id = responseJSON.getString("id");
 			} else {
-				throw new Error("Error setting up webhook - returned with no ID: " + responseJSON);
+				error = "returned with no ID: " + responseJSON;
 			}
-		} else {
-			throw new Error(responseMessage);
+		}else {
+			error = responseMessage;
 		}
-
+		
+		if(StringUtils.isEmpty(id)) {
+			log.info("Error setting up webhook: " + error);
+		}
 		return id;
 	}
 	
@@ -354,9 +359,10 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 		String responseMessage = !response.containsKey(RESPONSE_MESSAGE) ? "" : (String) response.get(RESPONSE_MESSAGE);
 		String responseBody = !response.containsKey(RESPONSE_BODY) ? "" : (String) response.get(RESPONSE_BODY);
 
-		if ((responseCode < 200) || (responseCode >= 300) || (responseBody == null)) {
-			throw new Error(responseMessage);
-		} else if (StringUtils.isNotEmpty(responseBody) && !"[]".equals(responseBody)) {
+		if(StringUtils.isNotEmpty(responseBody) 
+				&& responseCode >= 200 
+				&& responseCode < 300
+				&& !"[]".equals(responseBody)) {
 			// Loop through response via JSON, convert objects to Webhooks
 			JSONArray webhookList = JSONArray.fromObject(responseBody);
 			for (int i=0; i < webhookList.size(); i++) {
@@ -365,37 +371,26 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 					webhooks.add(new Webhook(webhookJSON.getString("id"), webhookJSON.getString("url")));
 				}
 			}
+		}else {
+			log.info("getWebhooks: " + responseMessage);
 		}
 		
 		return webhooks;
-	}
-
-	public void deleteWebhook(String id) throws Exception {
-		HashMap<String, Object> response = makeHttpCall("DELETE",
-				getNormalizedServiceUrl() + "webhooks/" + id,
-				BASE_HEADERS,
-				null,
-				null);
-
-		// Get response:
-		int responseCode = !response.containsKey(RESPONSE_CODE) ? 0 : (int) response.get(RESPONSE_CODE);
-
-		if ((responseCode < 200) || (responseCode >= 300)) {
-			throw new Error("Could not delete webhook: " + id);
-		}
 	}
 
 	public boolean allowResubmission() {
 		return true;
 	}
 
+	@Override
 	public void checkForReports() {
-
+		// Auto-generated method stub
 	}
 
+	@Override
 	public void createAssignment(final String contextId, final String assignmentRef, final Map opts)
 			throws SubmissionException, TransientSubmissionException {
-
+		// Auto-generated method stub
 	}
 
 	public List<ContentReviewItem> getAllContentReviewItems(String siteId, String taskId)
@@ -465,7 +460,8 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 		if(item != null && ContentReviewConstants.CONTENT_REVIEW_SUBMITTED_REPORT_AVAILABLE_CODE.equals(item.getStatus())) {
 			try {
 				//Get report owner user information
-				String givenName = "", familyName = "";
+				String givenName = "";
+				String familyName = "";
 				try{
 					User user = userDirectoryService.getUser(item.getUserId());
 					givenName = user.getFirstName();
@@ -512,12 +508,11 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 					if (responseJSON.containsKey("viewer_url")) {
 						viewerUrl = responseJSON.getString("viewer_url");
 						log.debug("Successfully retrieved viewer url: " + viewerUrl);
-						return viewerUrl;
 					} else {
-						throw new Error("Viewer URL not found. Response: " + responseMessage);
+						log.error("Viewer URL not found. Response: " + responseMessage);
 					}
 				} else {
-					throw new Error(responseMessage);
+					log.error(responseMessage);
 				}
 			} catch (Exception e) {
 				log.error(e.getLocalizedMessage(), e);
@@ -579,7 +574,7 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
     }
 
 	private HashMap<String, Object> makeHttpCall(String method, String urlStr, Map<String, String> headers,  Map<String, Object> data, byte[] dataBytes) 
-		throws IOException {
+		throws Exception {
 		// Set variables
 		HttpURLConnection connection = null;
 		DataOutputStream wr = null;
@@ -594,7 +589,7 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 
 		// Set headers
 		if (headers == null) {
-			throw new Error("No headers present for call: " + method + ":" + urlStr);
+			throw new Exception("No headers present for call: " + method + ":" + urlStr);
 		}
 		for (Entry<String, String> entry : headers.entrySet()) {
 			connection.setRequestProperty(entry.getKey(), entry.getValue());
@@ -668,7 +663,7 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 		} else if ((responseCode == 409)) {
 			log.debug("A Similarity Report is already generating for this submission");
 		} else {
-			throw new Error(
+			throw new Exception(
 					"Submission failed to initiate: " + responseCode + ", " + responseMessage + ", " + responseBody);
 		}
 	}
@@ -1019,7 +1014,7 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 						}
 						String externalId = getSubmissionId(item.getUserId(), fileName, site, assignment);
 						if (StringUtils.isEmpty(externalId)) {
-							throw new Error("submission id is missing");
+							throw new Exception("submission id is missing");
 						} else {
 							// Add filename to content upload headers
 							CONTENT_UPLOAD_HEADERS.put(HEADER_DISP, "inline; filename=\"" + fileName + "\"");
@@ -1201,6 +1196,7 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 				break;
 			default:
 				log.info("Unknown submission status, will retry: " + submissionStatus);
+				break;
 			}
 			if(StringUtils.isNotEmpty(errorStr)) {
 				item.setLastError(errorStr);
@@ -1272,8 +1268,9 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 		crqs.removeFromQueue(getProviderId(), contentId);
 	}
 
-	public void resetUserDetailsLockedItems(String arg0) {
-
+	@Override
+	public void resetUserDetailsLockedItems(String userId) {
+		//Auto-generated method stub
 	}
 
 	public String getReviewError(String contentId) {
@@ -1382,7 +1379,7 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 		String responseMessage = !response.containsKey(RESPONSE_MESSAGE) ? "" : (String) response.get(RESPONSE_MESSAGE);
 
 		if (responseCode < 200 || responseCode >= 300) {
-			throw new Error(responseCode + ": " + responseMessage);
+			throw new Exception(responseCode + ": " + responseMessage);
 		}
 	}
 
@@ -1450,7 +1447,6 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 				Map<String, Object> response = makeHttpCall("GET", getNormalizedServiceUrl() + "eula/" + EULA_LATEST_KEY, BASE_HEADERS, null, null);
 				String responseBody = !response.containsKey(RESPONSE_BODY) ? "" : (String) response.get(RESPONSE_BODY);
 				if(StringUtils.isNotEmpty(responseBody)) {
-					ObjectMapper objectMapper = new ObjectMapper();
 					eula = new ObjectMapper().readValue(responseBody, Map.class);
 				}
 				if(eula != null && eula.containsKey("url")) {

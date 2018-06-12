@@ -17,7 +17,6 @@ package org.sakaiproject.contentreview.logic;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.sakaiproject.contentreview.turnitin.oc.ContentReviewServiceTurnitinOC;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.AbstractTransactionalJUnit4SpringContextTests;
 
@@ -26,8 +25,6 @@ public class TurnitinOCTest extends AbstractTransactionalJUnit4SpringContextTest
 	
 	@Test
 	public void testMyTest() {
-		ContentReviewServiceTurnitinOC tiiService = new ContentReviewServiceTurnitinOC();
-		
 		Assert.assertEquals("Practical3.docx", "Practical3.docx");
 	}
 }
