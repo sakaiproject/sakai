@@ -46,6 +46,7 @@ import uk.org.ponder.rsf.components.UICommand;
 import uk.org.ponder.rsf.components.UIContainer;
 import uk.org.ponder.rsf.components.UIELBinding;
 import uk.org.ponder.rsf.components.UIForm;
+import uk.org.ponder.rsf.components.UIInput;
 import uk.org.ponder.rsf.components.UIInternalLink;
 import uk.org.ponder.rsf.components.UILink;
 import uk.org.ponder.rsf.components.UIMessage;
@@ -202,7 +203,7 @@ DefaultView,NavigationCaseReporter {
 		UIMessage.make(deleteForm, "poll-open-title", "poll_open_title");
 		UIMessage.make(deleteForm, "poll-close-title", "poll_close_title");*/
 		UIMessage.make(deleteForm, "poll-result-title", "poll_result_title");
-		UIMessage.make(deleteForm, "poll-remove-title", "poll_remove_title");
+		UIMessage.make(deleteForm, "poll_select_title_all", "poll_select_title_all");
 		
 		UILink question = UILink.make(tofill,"poll-question-title",messageLocator.getMessage("poll_question_title"), "#");
 		question.decorators = new DecoratorList(new UITooltipDecorator(messageLocator.getMessage("poll_question_title_tooltip")));
@@ -211,7 +212,9 @@ DefaultView,NavigationCaseReporter {
 		UILink close = UILink.make(tofill,"poll-close-title",messageLocator.getMessage("poll_close_title"), "#");
 		close.decorators = new DecoratorList(new UITooltipDecorator(messageLocator.getMessage("poll_close_title_tooltip")));
 
-
+		UIInput removeAll = UIInput.make(deleteForm, "remove-all", null);
+ 		removeAll.decorators = new DecoratorList(new UITooltipDecorator(messageLocator.getMessage("poll_select_title_all")));
+		
 		StringList deletable = new StringList();
 		
 		
