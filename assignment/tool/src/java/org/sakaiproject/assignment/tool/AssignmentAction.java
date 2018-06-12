@@ -6492,6 +6492,7 @@ public class AssignmentAction extends PagedResourceActionII {
         ParameterParser params = data.getParameters();
 
         String assignmentRef = params.getString("assignmentId");
+        String assignmentId = AssignmentReferenceReckoner.reckoner().reference(assignmentRef).reckon().getId();
 
         // put the input value into the state attributes
         String title = params.getString(NEW_ASSIGNMENT_TITLE);
@@ -6930,7 +6931,7 @@ public class AssignmentAction extends PagedResourceActionII {
                         Integer scaleFactor = assignmentService.getScaleFactor();
                         try {
                             if (StringUtils.isNotEmpty(assignmentRef)) {
-                                Assignment assignment = assignmentService.getAssignment(assignmentRef);
+                                Assignment assignment = assignmentService.getAssignment(assignmentId);
                                 if (assignment != null) {
                                     scaleFactor = assignment.getScaleFactor();
                                 }
@@ -6941,12 +6942,8 @@ public class AssignmentAction extends PagedResourceActionII {
 
                         validPointGrade(state, gradePoints, scaleFactor);
                         // when scale is points, grade must be integer and less than maximum value
-                        if (state.getAttribute(STATE_MESSAGE) == null) {
-                            gradePoints = scalePointGrade(state, gradePoints, scaleFactor);
-                        }
-                        if (state.getAttribute(STATE_MESSAGE) == null) {
-                            state.setAttribute(NEW_ASSIGNMENT_GRADE_POINTS, gradePoints);
-                        }
+                        gradePoints = scalePointGrade(state, gradePoints, scaleFactor);
+                        state.setAttribute(NEW_ASSIGNMENT_GRADE_POINTS, gradePoints);
                     }
                 }
             }
@@ -12224,51 +12221,49 @@ public class AssignmentAction extends PagedResourceActionII {
 
         point = validPointGrade(state, point, factor);
 
-        if (state.getAttribute(STATE_MESSAGE) == null) {
-            if (point != null && (point.length() >= 1)) {
-                // when there is decimal points inside the grade, scale the number by "factor"
-                // but only one decimal place is supported
-                // for example, change 100.0 to 1000
-                int index = point.indexOf(decSeparator);
-                if (index != -1) {
-                    if (index == 0) {
-                        int trailingData = point.substring(1).length();
-                        // if the point is the first char, add a 0 for the integer part
-                        point = "0".concat(point.substring(1));
-                        // ensure that the point value has the correct # of decimals
-                        // by padding with zeros
-                        if (trailingData < dec) {
-                            for (int i = trailingData; i < dec; i++) {
-                                point = point + "0";
-                            }
-                        }
-                    } else if (index < point.length() - 1) {
-                        // adjust the number of decimals, adding 0's to the end
-                        int length = point.length() - index - 1;
-                        for (int i = length; i < dec; i++) {
-                            point = point + "0";
-                        }
-
-                        // use scale integer for gradePoint
-                        point = point.substring(0, index) + point.substring(index + 1);
-                    } else {
-                        // decimal point is the last char
-                        point = point.substring(0, index);
-                        for (int i = 0; i < dec; i++) {
+        if (point != null && (point.length() >= 1)) {
+            // when there is decimal points inside the grade, scale the number by "factor"
+            // but only one decimal place is supported
+            // for example, change 100.0 to 1000
+            int index = point.indexOf(decSeparator);
+            if (index != -1) {
+                if (index == 0) {
+                    int trailingData = point.substring(1).length();
+                    // if the point is the first char, add a 0 for the integer part
+                    point = "0".concat(point.substring(1));
+                    // ensure that the point value has the correct # of decimals
+                    // by padding with zeros
+                    if (trailingData < dec) {
+                        for (int i = trailingData; i < dec; i++) {
                             point = point + "0";
                         }
                     }
+                } else if (index < point.length() - 1) {
+                    // adjust the number of decimals, adding 0's to the end
+                    int length = point.length() - index - 1;
+                    for (int i = length; i < dec; i++) {
+                        point = point + "0";
+                    }
+
+                    // use scale integer for gradePoint
+                    point = point.substring(0, index) + point.substring(index + 1);
                 } else {
-                    // if there is no decimal place, scale up the integer by "factor"
+                    // decimal point is the last char
+                    point = point.substring(0, index);
                     for (int i = 0; i < dec; i++) {
                         point = point + "0";
                     }
                 }
-
-                // filter out the "zero grade"
-                if ("00".equals(point)) {
-                    point = "0";
+            } else {
+                // if there is no decimal place, scale up the integer by "factor"
+                for (int i = 0; i < dec; i++) {
+                    point = point + "0";
                 }
+            }
+
+            // filter out the "zero grade"
+            if ("00".equals(point)) {
+                point = "0";
             }
         }
 
