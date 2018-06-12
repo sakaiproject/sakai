@@ -623,7 +623,7 @@ a.edit-link:link, a.edit-link:visited, a.section-merge-link:link, a.section-merg
 	padding: 0px 4px !important;
 }
 .edit-col .ui-button-text, #submit-grading .ui-button-text, .portalmenu .ui-button-text {
-	font-size: 60%;
+	font-size: 90%;
 }
 .buttonItem {
 	padding-left: 20px
@@ -1652,9 +1652,6 @@ li.resourceType .right-col {
 }
 .itemclass {
   margin-top: 2.0em !important;
-}
-.add-comment-button span {
-font-size: 90%;
 }
 .add-comment-button a {
  padding: 3px 7px;
