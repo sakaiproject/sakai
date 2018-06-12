@@ -32,8 +32,6 @@ public class CopyrightDelegate
 	private String copyrightStatus;	// Copyright status takes its value from the text area (ie. when "Use copyright below." is selected)
 	private boolean copyrightAlert;	// copyrightAlert takes it's value from the copyright alert checkbox ("Display copyright alert and require acknowledgement...")
 
-	public CopyrightDelegate() {}
-
 	/**
 	 * Overload of captureCopyright; puts properties into this class's members
 	 * @param params
