@@ -111,9 +111,23 @@ public class SiteManageServiceImpl implements SiteManageService {
         Runnable siteImportTask = () -> {
             sessionManager.setCurrentSession(session);
             sessionManager.setCurrentToolSession(toolSession);
-            eventTrackingService.post(eventTrackingService.newEvent(SiteService.EVENT_SITE_IMPORT_START, site.getReference(), false));
-
-            try {
+            
+			String importSites ="";
+			for (Map.Entry<String, List<String>> entry : importTools.entrySet()) 
+			{
+				if(importSites.length() >= 255)
+					break;
+				for(String data : entry.getValue() ) 
+				{
+					if(!importSites.contains(data) && importSites.concat(data + ", ").length() < 255)
+						importSites = importSites.concat(data + ", ");
+					}
+				}
+			//remove unnecessary ", "
+			importSites = importSites.substring(0, importSites.length() -2);
+            eventTrackingService.post(eventTrackingService.newEvent(SiteService.EVENT_SITE_IMPORT_START, importSites, id, false, NotificationService.NOTI_OPTIONAL));
+			
+			try {
                 importToolsIntoSite(site, existingTools, importTools, cleanup);
             } catch (Exception e) {
                 log.warn("Site Import Task encountered an exception for site {}, {}", id, e.getMessage());
@@ -124,7 +138,7 @@ public class SiteManageServiceImpl implements SiteManageService {
             if (serverConfigurationService.getBoolean(SiteManageConstants.SAK_PROP_IMPORT_NOTIFICATION, true)) {
                 userNotificationProvider.notifySiteImportCompleted(user.getEmail(), locale, id, site.getTitle());
             }
-            eventTrackingService.post(eventTrackingService.newEvent(SiteService.EVENT_SITE_IMPORT_END, site.getReference(), false));
+            eventTrackingService.post(eventTrackingService.newEvent(SiteService.EVENT_SITE_IMPORT_END, importSites, id, false, NotificationService.NOTI_OPTIONAL));
         };
 
         // only if the siteId was added to the list do we start the task
