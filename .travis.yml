@@ -1,0 +1,25 @@
+# travis-ci currently has Maven 3.2 which doesn't read our .mvn folder
+# and https://github.com/travis-ci/travis-ci/issues/4613 means we can't set MAVEN_OPTS directly
+before_install:
+  # To get some build progress you could have -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.event.ExecutionEventLogger=info
+  # but this results in more than 10,000 lines of build output
+  - echo "MAVEN_OPTS='-Xms168m -Xmx1536m -XX:NewSize=64m -Djava.awt.headless=true -Dorg.slf4j.simpleLogger.defaultLogLevel=warn'" > ~/.mavenrc
+  # https://github.com/travis-ci/travis-ci/issues/4629
+  # This stops lots of warning about the broken nexus.codehaus.org repository
+  - rm ~/.m2/settings.xml
+  
+language: java
+jdk:
+  - oraclejdk8
+sudo: false
+cache:
+ directories:
+ - $HOME/.m2
+
+# We don't want to cache our own artifacts, just the externally downloaded ones.
+# This makes the cache smaller and helps highlight problems with a clean build
+before_cache:
+ - find $HOME/.m2/repository/org/sakaiproject -name \*-SNAPSHOT.\*  -delete
+
+install:
+- mvn install -Psnapshots -DskipTests=true -Dmaven.javadoc.skip=true -V -B
