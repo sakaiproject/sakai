@@ -111,7 +111,7 @@
                 <module>syllabus</module>
                 <module>taggable</module>
                 <module>textarea</module>
-                <module>tool</module>
+                <module>admin-su</module>
                 <module>user</module>
                 <module>userauditservice</module>
                 <module>usermembership</module>
@@ -194,7 +194,7 @@
                 <module>syllabus</module>
                 <module>taggable</module>
                 <module>textarea</module>
-                <module>tool</module>
+                <module>admin-su</module>
                 <module>user</module>
                 <module>userauditservice</module>
                 <module>usermembership</module>
