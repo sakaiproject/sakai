@@ -1,0 +1,70 @@
+<?xml version="1.0"?>
+<facelet-taglib version="2.2"
+    xmlns="http://xmlns.jcp.org/xml/ns/javaee"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee http://xmlns.jcp.org/xml/ns/javaee/web-facelettaglibrary_2_2.xsd">
+
+	<namespace>http://sakaiproject.org/jsf2/sakai</namespace>
+	<tag>
+		<tag-name>button_bar</tag-name>
+		<component> 
+			<component-type>org.sakaiproject.ButtonBar</component-type> 
+			<renderer-type>org.sakaiproject.ButtonBar</renderer-type>
+		</component> 
+	</tag>
+
+	<tag>
+		<tag-name>group_box</tag-name>
+		<component> 
+			<component-type>org.sakaiproject.GroupBox</component-type> 
+			<renderer-type>org.sakaiproject.GroupBox</renderer-type>
+		</component> 
+	</tag>
+
+	<tag>
+		<tag-name>instruction_message</tag-name>
+		<component> 
+			<component-type>org.sakaiproject.InstructionMessage</component-type> 
+		</component> 
+	</tag>
+
+	<tag>
+		<tag-name>panel_edit</tag-name>
+		<component> 
+			<component-type>org.sakaiproject.PanelEdit</component-type> 
+		</component> 
+	</tag>
+
+	<tag>
+		<tag-name>tool_bar</tag-name>
+		<component> 
+			<component-type>org.sakaiproject.ToolBar</component-type> 
+			<renderer-type>org.sakaiproject.ToolBar</renderer-type>
+		</component> 
+	</tag>
+
+	<tag>
+		<tag-name>view</tag-name>
+		<component> 
+			<component-type>org.sakaiproject.View</component-type>
+			<renderer-type>org.sakaiproject.View</renderer-type> 
+		</component> 
+	</tag>
+
+	<tag>
+		<tag-name>view_title</tag-name>
+		<component> 
+			<component-type>org.sakaiproject.ViewTitle</component-type>
+			<renderer-type>org.sakaiproject.ViewTitle</renderer-type> 
+		</component> 
+	</tag>
+
+	<tag>
+		<tag-name>separatedList</tag-name>
+		<component> 
+			<component-type>org.sakaiproject.SeparatedList</component-type>
+			<renderer-type>org.sakaiproject.SeparatedList</renderer-type> 
+		</component> 
+	</tag>
+
+</facelet-taglib>

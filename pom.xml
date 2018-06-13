@@ -4,7 +4,7 @@
     <parent>
         <artifactId>master</artifactId>
         <groupId>org.sakaiproject</groupId>
-        <version>13-SNAPSHOT</version>
+        <version>19-SNAPSHOT</version>
         <relativePath>master/pom.xml</relativePath>
     </parent>
 
@@ -73,6 +73,7 @@
                 <module>hierarchy</module>
                 <module>jobscheduler</module>
                 <module>jsf</module>
+                <module>jsf2</module>
                 <module>kernel</module>
                 <module>lessonbuilder</module>
                 <module>library</module>

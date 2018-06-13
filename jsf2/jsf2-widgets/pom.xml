@@ -1,0 +1,108 @@
+<?xml version="1.0"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.sakaiproject.jsf2</groupId>
+        <artifactId>jsf2</artifactId>
+        <version>19-SNAPSHOT</version>
+    </parent>
+
+    <name>Sakai JSF 2 Widgets (jsf2-widgets)</name>
+    <groupId>org.sakaiproject.jsf2</groupId>
+    <artifactId>jsf2-widgets</artifactId>
+    <packaging>jar</packaging>
+
+    <description>
+        This is the Maven project for the custom JSF 2 widgets.
+        The widgets and the resources projects are closely tied together.
+        These widgets will be deployed as a jar file containing Sakai JSF 2 widgets
+        (components).
+        Web applications can include this jar in order to use the Sakai JSF 2 widgets in a JSF tool.
+    </description>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.sakaiproject.portal</groupId>
+            <artifactId>sakai-portal-util</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.sakaiproject.kernel</groupId>
+            <artifactId>sakai-kernel-util</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>servlet-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.sakaiproject.kernel</groupId>
+            <artifactId>sakai-kernel-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.sakaiproject.kernel</groupId>
+            <artifactId>sakai-component-manager</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>javax.faces</groupId>
+            <artifactId>javax.faces-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.glassfish</groupId>
+            <artifactId>javax.faces</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>jsf2-widgets-sun</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.myfaces.tomahawk</groupId>
+            <artifactId>tomahawk21</artifactId>
+            <version>1.1.14</version>
+        </dependency>
+        <!--
+            Apache Commons file upload used by inputFileUpload tag and
+            associated filter
+        -->
+        <dependency>
+            <groupId>commons-fileupload</groupId>
+            <artifactId>commons-fileupload</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>javax.servlet.jsp</groupId>
+            <artifactId>jsp-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>commons-lang</groupId>
+            <artifactId>commons-lang</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>antlr</groupId>
+            <artifactId>antlr</artifactId>
+            <version>2.7.2</version>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <resources>
+            <resource>
+                <directory>${basedir}/src/bundle</directory>
+                <includes>
+                    <include>**/*.properties</include>
+                </includes>
+            </resource>
+            <resource>
+                <directory>${basedir}/src/java</directory>
+                <includes>
+                    <include>**/*.properties</include>
+                </includes>
+            </resource>
+            <resource>
+                <directory>${basedir}/src</directory>
+                <includes>
+                    <include>META-INF/*.tld</include>
+                    <include>META-INF/*.xml</include>
+                </includes>
+            </resource>
+        </resources>
+    </build>
+</project>
