@@ -555,7 +555,7 @@ $(document).ready(function(){
 							<span style="font-size: smaller; color: blue;">	
 								#set($gusers = $!service.getSortedGroupUsers($group))
 								#foreach ($user in $gusers)
-									$user.getDisplayName()
+									$user.getDisplayName() ($user.getDisplayId())
 									##$!userDirectoryService.getUser($user).getDisplayName()
 									#if ($velocityCount < $gusers.size()),#end
 								#end
