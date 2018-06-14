@@ -75,8 +75,10 @@
                                     #if (${tabsSites.mrphs_profileToolUrl})
 
                                         <div id="loginUser" class="has-avatar Mrphs-userNav__submenuitem--userlink #if (${site.isCurrentSite}) current-site #end">
-                                            <a href="javascript:void(0);" class="Mrphs-userNav__drop-btn Mrphs-userNav__submenuitem--profilepicture" style="background-image:url(/direct/profile/${loginUserId}/image/thumb)" tabindex="-1"></a>
-                                            <a href="javascript:void(0);" class="Mrphs-userNav__drop-btn Mrphs-userNav__submenuitem--username" aria-haspopup="true">${loginUserFirstName}</a>
+                                            <a href="javascript:void(0);" role="button" aria-haspopup="true" class="Mrphs-userNav__drop-btn Mrphs-userNav__submenuitem--username">
+                                                <span class="Mrphs-userNav__submenuitem--profilepicture" style="background-image:url(/direct/profile/${loginUserId}/image/thumb)"></span>
+                                                <span class="textlink">${loginUserFirstName}</span>
+                                            </a>
                                         </div>
 
                                     #else
