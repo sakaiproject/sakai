@@ -26,7 +26,6 @@ import org.sakaiproject.assignment.api.AssignmentServiceConstants;
 import org.sakaiproject.assignment.api.model.AssignmentSubmission;
 import org.sakaiproject.contentreview.dao.ContentReviewItem;
 import org.sakaiproject.contentreview.service.ContentReviewService;
-import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.tool.api.SessionManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -60,9 +59,6 @@ public class MainController {
 	
 	@Autowired
 	private AssignmentService assignmentService;
-	
-	@Autowired
-	private EntityManager entityManager;
 
 	
 	@RequestMapping(value = "/webhooks", method = RequestMethod.POST)
@@ -77,7 +73,6 @@ public class MainController {
 	
 	@RequestMapping(value = "/viewreport", method = RequestMethod.GET)
 	public String viewReport(Model model, @RequestParam String contentId, @RequestParam String assignmentRef) {
-		//TODO: does this work for federated course properties override?
 		log.info("viewReport(): contentId: " + contentId + ", assignmentRef: " + assignmentRef);
 		if(sessionManager != null && sessionManager.getCurrentSession() != null
 				&& StringUtils.isNotEmpty(sessionManager.getCurrentSessionUserId())) {
@@ -98,9 +93,12 @@ public class MainController {
 	 */
 	private boolean hasInstructorPermissions(String assignmentRef) {
 		if(StringUtils.isNotEmpty(assignmentRef)) {
-			if(assignmentRef.startsWith("/assignment/a/")) {
-				//ASSIGNMENT1 instructor permission check
-				return assignmentService.allowGradeSubmission(assignmentRef);
+			if(assignmentRef.startsWith(AssignmentServiceConstants.REFERENCE_ROOT)) {
+				AssignmentReferenceReckoner.AssignmentReference refReckoner = AssignmentReferenceReckoner.reckoner().reference(assignmentRef).reckon();
+				if("a".equals(refReckoner.getSubtype())) {
+					//ASSIGNMENT1 instructor permission check
+					return assignmentService.allowGradeSubmission(assignmentRef);
+				}
 			}
 		}
 		return false;
