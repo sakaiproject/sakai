@@ -27,6 +27,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
+import lombok.ToString;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -50,6 +51,7 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 @Table(name = "rbc_criterion_outcome")
+@ToString(exclude = {"criterion"})
 public class CriterionOutcome implements Serializable {
 
         @Id

@@ -36,6 +36,7 @@ import javax.persistence.PostUpdate;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 
+import lombok.ToString;
 import org.sakaiproject.rubrics.logic.listener.MetadataListener;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -52,6 +53,7 @@ import lombok.NoArgsConstructor;
 @JsonPropertyOrder({"id", "title", "description", "points", "metadata"})
 @NoArgsConstructor
 @Table(name = "rbc_rating")
+@ToString(exclude = {"criterion"})
 public class Rating implements Modifiable, Serializable, Cloneable {
 
     @Id

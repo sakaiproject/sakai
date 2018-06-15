@@ -40,6 +40,7 @@ import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 
+import lombok.ToString;
 import org.sakaiproject.rubrics.logic.listener.MetadataListener;
 
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
@@ -59,6 +60,7 @@ import lombok.NonNull;
 @Table(name = "rbc_evaluation",
     uniqueConstraints = @UniqueConstraint(columnNames = { "association_id", "evaluated_item_id", "evaluator_id" })
 )
+@ToString(exclude = {"toolItemRubricAssociation", "criterionOutcomes"})
 public class Evaluation implements Modifiable, Serializable {
 
     @Id

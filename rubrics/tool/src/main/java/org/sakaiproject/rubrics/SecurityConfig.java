@@ -79,18 +79,16 @@ public class SecurityConfig extends GlobalMethodSecurityConfiguration {
         @Override
         protected void configure(HttpSecurity httpSecurity) throws Exception {
             httpSecurity
-                    // we don't need CSRF because our token is invulnerable
-                    .csrf().disable()
-                    .exceptionHandling().authenticationEntryPoint(unauthorizedHandler).and()
-                    .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
-                    .authorizeRequests()
-                    .antMatchers(
+                    .csrf().disable() // we don't need CSRF because our token is invulnerable
+                    .exceptionHandling().authenticationEntryPoint(unauthorizedHandler)
+                    .and()
+                    .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                    .and()
+                    .authorizeRequests().antMatchers(
                             "/",
-                            "/rest/error",
                             "/index",
-                            "/*.html",
-                            "/*.jsp",
                             "/favicon.ico",
+                            "/*.html",
                             "/**/*.html",
                             "/**/*.css",
                             "/**/*.js"
