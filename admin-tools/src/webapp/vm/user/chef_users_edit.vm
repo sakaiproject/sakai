@@ -84,9 +84,17 @@ function active_doSave() {
 					$tlang.getString("usecre.firnam")
 				</label>	
 			#if ($service.allowUpdateUserName($user.Id) || !$user)
-				<input type="text" name="first-name" id="first-name" #if($user)value="$validator.escapeHtml($user.FirstName)"#elseif($valueFirstName)value="$validator.escapeHtml($valueFirstName)"#end  onkeyup="active_doSave();"/>
+				#if($user)
+					<input type="text" name="first-name" id="first-name" value="$validator.escapeHtml($user.FirstName)" onkeyup="active_doSave();"/>
+				#elseif($valueFirstName) 
+					<input type="text" name="first-name" id="first-name" value="$validator.escapeHtml($valueFirstName)" onkeyup="active_doSave();"/>
+				#end
 			#else
-				#if($user)$validator.escapeHtml($user.FirstName)#elseif($valueFirstName)$validator.escapeHtml($valueFirstName)#end
+				#if($user)
+					$validator.escapeHtml($user.FirstName)
+				#elseif($valueFirstName)
+					$validator.escapeHtml($valueFirstName)
+				#end
 			#end
 			</div>
 			<div class="shorttext">
@@ -94,9 +102,17 @@ function active_doSave() {
 					$tlang.getString("usecre.lasnam")
 				</label>
 			#if ($service.allowUpdateUserName($user.Id) || !$user)
-				<input type="text" name="last-name" id="last-name" #if($user)value="$validator.escapeHtml($user.LastName)"#elseif($valueLastName)value="$validator.escapeHtml($valueLastName)"#end onkeyup="active_doSave();"/>
+				#if($user)
+					<input type="text" name="last-name" id="last-name" onkeyup="active_doSave();"/>
+				#elseif($valueLastName)
+					<input type="text" name="last-name" id="last-name" value="$validator.escapeHtml($valueLastName)" onkeyup="active_doSave();"/>
+				#end
 			#else
-				#if($user)$validator.escapeHtml($user.LastName)#elseif($valueLastName)$validator.escapeHtml($valueLastName)#end
+				#if($user)
+					$validator.escapeHtml($user.LastName)
+				#elseif($valueLastName)
+					$validator.escapeHtml($valueLastName)
+				#end
 			#end
 			</div>
 			<div class="shorttext">
@@ -104,10 +120,18 @@ function active_doSave() {
 					$tlang.getString("useconrem.ema")
 				</label>
 			#if ($service.allowUpdateUserEmail($user.Id) || !$user)
-				<input type="text" name="email" id="email" oninput="USER.validateEmail();" onkeyup="USER.validateEmail();active_doSave();" autocomplete="off"#if($user)value="$validator.escapeHtml($user.Email)"#elseif($valueEmail)value="$validator.escapeHtml($valueEmail)"#end/>
+				#if($user)
+					<input type="text" name="email" id="email" oninput="USER.validateEmail();" onkeyup="USER.validateEmail();active_doSave();" autocomplete="off" value="$validator.escapeHtml($user.Email)"/>
+				#elseif($valueEmail)
+					<input type="text" name="email" id="email" oninput="USER.validateEmail();" onkeyup="USER.validateEmail();active_doSave();" autocomplete="off" value="$validator.escapeHtml($valueEmail)"/>
+				#end
                 <div id="emailWarningMsg" style="display:none">$tlang.getString("useact.invemail")</div>
 			#else
-				#if($user)$validator.escapeHtml($user.Email)#elseif($valueEmail)$validator.escapeHtml($valueEmail)#end
+				#if($user)
+					$validator.escapeHtml($user.Email)
+				#elseif($valueEmail)
+					$validator.escapeHtml($valueEmail)
+				#end
 			#end
 			</div>	
 #if ($incPw && !$providedUserType)
