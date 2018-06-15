@@ -72,7 +72,7 @@ public class SakaiContextLoaderListener extends SakaiContextLoader implements Se
 	 * and destroy them, removing all affected ServletContext attributes eventually.
 	 * @param sc the ServletContext to check
 	 */
-	static void cleanupAttributes(ServletContext sc) {
+	private static void cleanupAttributes(ServletContext sc) {
 		Enumeration<String> attrNames = sc.getAttributeNames();
 		while (attrNames.hasMoreElements()) {
 			String attrName = attrNames.nextElement();

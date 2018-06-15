@@ -131,8 +131,8 @@ public class AuthorBean implements Serializable
 
   private boolean groupFilterEnabled;
 
-  AssessmentService assessmentService = new AssessmentService();
-  PublishedAssessmentService publishedAssessmentService = new PublishedAssessmentService();
+  private AssessmentService assessmentService = new AssessmentService();
+  private PublishedAssessmentService publishedAssessmentService = new PublishedAssessmentService();
   private RubricsService rubricsService = ComponentManager.get(RubricsService.class);
   /* ------------------------------------ /*
   

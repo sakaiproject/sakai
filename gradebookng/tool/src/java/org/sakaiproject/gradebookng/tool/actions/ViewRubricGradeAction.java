@@ -30,10 +30,6 @@ import org.sakaiproject.gradebookng.tool.panels.RubricGradePanel;
 
 public class ViewRubricGradeAction extends InjectableAction implements Serializable {
 
-    public ViewRubricGradeAction() {
-
-    }
-
     @Override
     public ActionResponse handleEvent(final JsonNode params, final AjaxRequestTarget target) {
         final String assignmentId = params.get("assignmentId").asText();

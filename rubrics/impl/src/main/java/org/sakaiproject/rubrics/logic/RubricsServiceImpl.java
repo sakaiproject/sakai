@@ -254,7 +254,7 @@ public class RubricsServiceImpl implements RubricsService {
      * @param id the id of the element to
      */
 
-    public void saveRubricAssociation(String tool, String id, HashMap<String,String> params) {
+    public void saveRubricAssociation(String tool, String id, Map<String,String> params) {
 
         String associationHref = null;
         String created = "";
@@ -306,7 +306,7 @@ public class RubricsServiceImpl implements RubricsService {
     }
 
     public void saveRubricEvaluation(String toolId, String associatedItemId, String evaluatedItemId,
-            String evaluatedItemOwnerId, String evaluatorId, HashMap<String,String> params) {
+            String evaluatedItemOwnerId, String evaluatorId, Map<String,String> params) {
 
         String evaluationUri = null;
         String created = "";
@@ -402,7 +402,7 @@ public class RubricsServiceImpl implements RubricsService {
     }
 
     private String createCriterionJsonPayload(String associatedItemId,
-                                              HashMap<String,String> formPostParameters,
+                                              Map<String,String> formPostParameters,
                                               Resource<ToolItemRubricAssociation> association) throws Exception {
 
         Map<String, Map<String, String>> criterionDataMap = extractCriterionDataFromParams(formPostParameters);
@@ -463,16 +463,16 @@ public class RubricsServiceImpl implements RubricsService {
         return criterionJsonData;
     }
 
-    private Map<String, Map<String, String>> extractCriterionDataFromParams(HashMap<String, String> params) {
+    private Map<String, Map<String, String>> extractCriterionDataFromParams(Map<String, String> params) {
 
-        Map<String, Map<String, String>> criterionDataMap = new HashMap();
+        Map<String, Map<String, String>> criterionDataMap = new HashMap<>();
 
         for (Map.Entry<String, String> param : params.entrySet()) {
             String possibleCriterionId = StringUtils.substringAfterLast(param.getKey(), "-");
             String criterionDataLabel = StringUtils.substringBeforeLast(param.getKey(), "-");
             if (StringUtils.isNumeric(possibleCriterionId)) {
                 if (!criterionDataMap.containsKey(possibleCriterionId)) {
-                    criterionDataMap.put(possibleCriterionId, new HashMap());
+                    criterionDataMap.put(possibleCriterionId, new HashMap<>());
                 }
                 criterionDataMap.get(possibleCriterionId).put(criterionDataLabel, param.getValue());
             }
@@ -487,7 +487,7 @@ public class RubricsServiceImpl implements RubricsService {
      * @return
      */
 
-    private String setConfigurationParameters(HashMap<String,String> params, Map<String,Boolean> oldParams ){
+    private String setConfigurationParameters(Map<String,String> params, Map<String,Boolean> oldParams ){
         String configuration = "";
         Boolean noFirst=false;
         //Get the parameters

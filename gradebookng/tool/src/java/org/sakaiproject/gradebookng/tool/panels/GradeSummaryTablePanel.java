@@ -27,11 +27,9 @@ import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.behavior.AttributeAppender;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
-import org.apache.wicket.markup.html.form.HiddenField;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.model.IModel;
-import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
 
@@ -49,7 +47,7 @@ import org.sakaiproject.service.gradebook.shared.GradingType;
 
 public class GradeSummaryTablePanel extends BasePanel {
 
-	GbModalWindow rubricStudentWindow;
+	private GbModalWindow rubricStudentWindow;
 
 	private static final long serialVersionUID = 1L;
 	boolean isGroupedByCategory;

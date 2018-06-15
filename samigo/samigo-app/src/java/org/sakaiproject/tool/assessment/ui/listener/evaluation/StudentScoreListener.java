@@ -45,7 +45,6 @@ import org.sakaiproject.tool.assessment.ui.bean.delivery.DeliveryBean;
 import org.sakaiproject.tool.assessment.ui.bean.delivery.ItemContentsBean;
 import org.sakaiproject.tool.assessment.ui.bean.delivery.SectionContentsBean;
 import org.sakaiproject.tool.assessment.ui.bean.evaluation.StudentScoresBean;
-import org.sakaiproject.tool.assessment.ui.bean.evaluation.SubmissionStatusBean;
 import org.sakaiproject.tool.assessment.ui.listener.delivery.DeliveryActionListener;
 import org.sakaiproject.tool.assessment.ui.listener.evaluation.util.EvaluationListenerUtil;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
@@ -110,8 +109,6 @@ import org.sakaiproject.util.FormattedText;
     {
 //  SAK-4121, do not pass studentName as f:param, will cause javascript error if name contains apostrophe 
 //    bean.setStudentName(cu.lookupParam("studentName"));
-
-      SubmissionStatusBean submissionbean = (SubmissionStatusBean) ContextUtil.lookupBean("submissionStatus");
 
       bean.setPublishedId(publishedId);
       String studentId = ContextUtil.lookupParam("studentid");
