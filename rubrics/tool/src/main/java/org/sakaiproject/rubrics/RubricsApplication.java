@@ -31,6 +31,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.impl.SpringCompMgr;
 import org.sakaiproject.util.RequestFilter;
+import org.sakaiproject.util.SakaiContextLoaderListener;
 import org.sakaiproject.util.ToolListener;
 import org.springframework.boot.Banner;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
@@ -69,7 +70,7 @@ public class RubricsApplication extends SpringBootServletInitializer {
     }
 
     @Bean
-    public ServletRegistrationBean servletRegistrationBean() {
+    public ServletRegistrationBean rubricsServlet() {
         ServletRegistrationBean srb = new ServletRegistrationBean(new DispatcherServlet(new AnnotationConfigWebApplicationContext())) {
             @Override
             public void onStartup(ServletContext servletContext) throws ServletException {
@@ -79,7 +80,7 @@ public class RubricsApplication extends SpringBootServletInitializer {
             }
         };
         srb.setName("sakai.rubrics");
-        srb.setLoadOnStartup(1);
+        srb.setLoadOnStartup(0);
         srb.addUrlMappings("/", "/index");
         return srb;
     }

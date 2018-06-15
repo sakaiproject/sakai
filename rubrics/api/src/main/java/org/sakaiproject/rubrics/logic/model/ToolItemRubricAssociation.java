@@ -40,6 +40,7 @@ import javax.persistence.MapKeyColumn;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 
+import lombok.ToString;
 import org.sakaiproject.rubrics.logic.listener.MetadataListener;
 
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
@@ -55,6 +56,7 @@ import lombok.NoArgsConstructor;
 @JsonPropertyOrder({"id", "toolId", "itemId", "rubricId", "parameters", "metadata"})
 @NoArgsConstructor
 @Table(name = "rbc_tool_item_rbc_assoc")
+@ToString(exclude = {"rubric", "parameters"})
 public class ToolItemRubricAssociation implements Modifiable, Serializable, Cloneable  {
 
     @Id

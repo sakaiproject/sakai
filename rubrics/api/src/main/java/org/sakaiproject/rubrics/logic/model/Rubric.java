@@ -41,6 +41,7 @@ import javax.persistence.PostUpdate;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 
+import lombok.ToString;
 import org.sakaiproject.rubrics.logic.listener.MetadataListener;
 import org.springframework.data.rest.core.annotation.RestResource;
 
@@ -58,6 +59,7 @@ import lombok.NoArgsConstructor;
 @JsonPropertyOrder({"id", "title", "description", "metadata"})
 @NoArgsConstructor
 @Table(name = "rbc_rubric")
+@ToString(exclude = {"criterions", "toolItemAssociations"})
 public class Rubric implements Modifiable, Serializable, Cloneable {
 
     @Id
