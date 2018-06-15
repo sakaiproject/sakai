@@ -31,7 +31,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.impl.SpringCompMgr;
 import org.sakaiproject.util.RequestFilter;
-import org.sakaiproject.util.SakaiContextLoaderListener;
 import org.sakaiproject.util.ToolListener;
 import org.springframework.boot.Banner;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;

@@ -29,7 +29,6 @@ import org.sakaiproject.tool.assessment.ui.bean.delivery.SectionContentsBean;
 import org.sakaiproject.tool.assessment.ui.bean.evaluation.StudentScoresBean;
 import org.sakaiproject.tool.assessment.ui.bean.evaluation.TotalScoresBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
-import org.sakaiproject.tool.assessment.util.ParameterUtil;
 
 @Slf4j
 public class StudentScoreAttachmentListener implements ActionListener {
@@ -38,8 +37,6 @@ public class StudentScoreAttachmentListener implements ActionListener {
         StudentScoresBean studentScoresBean = (StudentScoresBean) ContextUtil.lookupBean("studentScores");
         TotalScoresBean tbean = (TotalScoresBean) ContextUtil.lookupBean("totalScores");
         DeliveryBean delivery = (DeliveryBean) ContextUtil.lookupBean("delivery");
-
-        ParameterUtil paramUtil = new ParameterUtil();
 
         for (Object sectionContentObj : delivery.getPageContents().getPartsContents()) {
             SectionContentsBean sectionContent = (SectionContentsBean) sectionContentObj;

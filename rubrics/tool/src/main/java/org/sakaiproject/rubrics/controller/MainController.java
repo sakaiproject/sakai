@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 public class MainController {
 
     @Resource(name = "org.sakaiproject.rubrics.logic.RubricsService")
-    RubricsService rubricsService;
+    private RubricsService rubricsService;
 
     @GetMapping("/")
     public String indexRedirect() {

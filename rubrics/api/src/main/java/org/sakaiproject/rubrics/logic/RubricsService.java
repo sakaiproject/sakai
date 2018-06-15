@@ -23,7 +23,7 @@
 
 package org.sakaiproject.rubrics.logic;
 
-import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 
 import org.sakaiproject.rubrics.logic.model.ToolItemRubricAssociation;
@@ -41,14 +41,14 @@ public interface RubricsService {
 
     void saveRubricAssociation(String toolId,
                                String associatedToolItemId,
-                               HashMap<String, String> params);
+                               Map<String, String> params);
 
     void saveRubricEvaluation(String toolId,
                               String associatedToolItemId,
                               String evaluatedItemId,
                               String evaluatedItemOwnerId,
                               String evaluatorId,
-                              HashMap<String, String> params);
+                              Map<String, String> params);
 
     String generateJsonWebToken(String tool);
 

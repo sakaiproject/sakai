@@ -22,19 +22,15 @@ import java.util.Map;
 import javax.faces.context.FacesContext;
 
 public class ParameterUtil {
-    public ParameterUtil() {
-
-    }
-
     /**
      * Get parameters for a specified rubric association
      * @param entityId Entity ID of a rubric association
      * @return Map of parameters key and parameters value
      */
-    public HashMap<String,String> getRubricConfigurationParameters(String entityId) {
+    public Map<String,String> getRubricConfigurationParameters(String entityId) {
         FacesContext context = FacesContext.getCurrentInstance();
-        Map requestParams = context.getExternalContext().getRequestParameterMap();
-        HashMap list = new HashMap<String, String>();
+        Map<String, String> requestParams = context.getExternalContext().getRequestParameterMap();
+        Map<String, String> list = new HashMap<>();
 
         String entity = "rbcs-";
         if (entityId != null && !entityId.isEmpty()) {
@@ -43,7 +39,7 @@ public class ParameterUtil {
         final String startsWith = entity;
 
         requestParams.forEach((key, value) -> {
-            if (key.toString().startsWith(startsWith)) {
+            if (key.startsWith(startsWith)) {
                 list.put(key, value);
             }
         });

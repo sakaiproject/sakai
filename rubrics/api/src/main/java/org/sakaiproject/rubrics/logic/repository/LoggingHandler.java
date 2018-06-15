@@ -1,19 +1,17 @@
 package org.sakaiproject.rubrics.logic.repository;
 
+import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.AfterReturning;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
 import org.aspectj.lang.annotation.Pointcut;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 @Aspect
 @Component
+@Slf4j
 public class LoggingHandler {
-
-    Logger log = LoggerFactory.getLogger(LoggingHandler.class);
 
     @Pointcut("this(org.springframework.data.repository.Repository)")
     public void repository() {
