@@ -14372,7 +14372,7 @@ public class AssignmentAction extends PagedResourceActionII {
                     // Determine if a scoring component (like a rubric) has been associated with this gradebook item
                     ScoringComponent component = scoringService.getScoringComponent(
                             scoringAgent.getAgentId(), gradebookUid, gbItemId);
-                    boolean scoringComponentEnabled = component != null;
+                    boolean scoringComponentEnabled = component != null && !assignment.getIsGroup();
 
                     context.put("scoringComponentEnabled", scoringComponentEnabled);
 
