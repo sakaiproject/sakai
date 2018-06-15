@@ -86,8 +86,10 @@ function active_doSave() {
 			#if ($service.allowUpdateUserName($user.Id) || !$user)
 				#if($user)
 					<input type="text" name="first-name" id="first-name" value="$validator.escapeHtml($user.FirstName)" onkeyup="active_doSave();"/>
-				#elseif($valueFirstName) 
-					<input type="text" name="first-name" id="first-name" value="$validator.escapeHtml($valueFirstName)" onkeyup="active_doSave();"/>
+				#else
+					#if($valueFirstName) 
+						<input type="text" name="first-name" id="first-name" value="$validator.escapeHtml($valueFirstName)" onkeyup="active_doSave();"/>
+					#end
 				#end
 			#else
 				#if($user)
@@ -104,8 +106,10 @@ function active_doSave() {
 			#if ($service.allowUpdateUserName($user.Id) || !$user)
 				#if($user)
 					<input type="text" name="last-name" id="last-name" onkeyup="active_doSave();"/>
-				#elseif($valueLastName)
-					<input type="text" name="last-name" id="last-name" value="$validator.escapeHtml($valueLastName)" onkeyup="active_doSave();"/>
+				#else
+					#if($valueLastName)
+						<input type="text" name="last-name" id="last-name" value="$validator.escapeHtml($valueLastName)" onkeyup="active_doSave();"/>
+					#end
 				#end
 			#else
 				#if($user)
@@ -122,8 +126,10 @@ function active_doSave() {
 			#if ($service.allowUpdateUserEmail($user.Id) || !$user)
 				#if($user)
 					<input type="text" name="email" id="email" oninput="USER.validateEmail();" onkeyup="USER.validateEmail();active_doSave();" autocomplete="off" value="$validator.escapeHtml($user.Email)"/>
-				#elseif($valueEmail)
-					<input type="text" name="email" id="email" oninput="USER.validateEmail();" onkeyup="USER.validateEmail();active_doSave();" autocomplete="off" value="$validator.escapeHtml($valueEmail)"/>
+				#else
+					#if($valueEmail)
+						<input type="text" name="email" id="email" oninput="USER.validateEmail();" onkeyup="USER.validateEmail();active_doSave();" autocomplete="off" value="$validator.escapeHtml($valueEmail)"/>
+					#end
 				#end
                 <div id="emailWarningMsg" style="display:none">$tlang.getString("useact.invemail")</div>
 			#else
