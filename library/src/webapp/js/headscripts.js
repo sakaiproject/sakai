@@ -708,9 +708,9 @@ function supports_history_api() {
 //Call this to disable the back button in a page context - SAK-23247
 function disableBackButton(message) {
 	if (supports_history_api()) {
-		history.pushState(null, null, 'no-back-button');
+		history.pushState(null, null, '');
 		window.addEventListener('popstate', function(event) {
-			history.pushState(null, null, 'no-back-button');
+			history.pushState(null, null, '');
 			window.alert(message);
 		});
 	}
@@ -750,6 +750,41 @@ function includeLatestJQuery(where) {
 		document.write('\x3Clink rel="stylesheet" href="'+webjars+'jquery-ui/1.12.1/jquery-ui.min.css'+ver+'"/>');
 		window.console && console.log("jQuery+migrate+BootStrap+UI Loaded by "+where+" from "+webjars);
 	}
+}
+
+function includeWebjarLibrary(library) {
+	var webjars = "/library/webjars/";
+	var ver = "";
+	var libraryVersion = "";
+	if ( typeof portal !== 'undefined' ) {
+		if (portal.pageScriptPath) psp = portal.pageScriptPath;
+		if (portal.pageWebjarsPath) webjars = portal.pageWebjarsPath;
+		if (portal.portalCDNQuery) ver = portal.portalCDNQuery;
+	}
+
+	if (library == 'bootstrap-multiselect') {
+        libraryVersion = "0.9.15";
+        document.write('\x3Cscript type="text/javascript" src="' + webjars + 'bootstrap-multiselect/' + libraryVersion + '/js/bootstrap-multiselect.js' + ver + '">' + '\x3C/script>');
+        document.write('\x3Clink rel="stylesheet" href="' + webjars + 'bootstrap-multiselect/' + libraryVersion + '/css/bootstrap-multiselect.css' + ver + '"/>');
+    } else if (library == 'jquery.tablesorter') {
+		libraryVersion = "2.27.7";
+        document.write('\x3Cscript type="text/javascript" src="' + webjars + 'jquery.tablesorter/' + libraryVersion + '/dist/js/jquery.tablesorter.combined.min.js' + ver + '">' + '\x3C/script>');
+        document.write('\x3Cscript type="text/javascript" src="' + webjars + 'jquery.tablesorter/' + libraryVersion + '/dist/js/extras/jquery.tablesorter.pager.min.js' + ver + '">' + '\x3C/script>');
+        document.write('\x3Cscript type="text/javascript" src="' + webjars + 'jquery.tablesorter/' + libraryVersion + '/dist/js/extras/jquery.metadata.min.js' + ver + '">' + '\x3C/script>');
+        document.write('\x3Clink rel="stylesheet" href="' + webjars + 'jquery.tablesorter/' + libraryVersion + '/dist/css/theme.jui.min.css' + ver + '"/>');
+        document.write('\x3Clink rel="stylesheet" href="' + webjars + 'jquery.tablesorter/' + libraryVersion + '/dist/css/jquery.tablesorter.pager.min.css' + ver + '"/>');
+	} else if (library == 'featherlight') {
+		libraryVersion = "1.7.13";
+		document.write('\x3Cscript type="text/javascript" src="' + webjars + 'featherlight/src/featherlight.js' + ver + '">' + '\x3C/script>');
+		document.write('\x3Clink rel="stylesheet" href="' + webjars + 'featherlight/src/featherlight.css' + ver + '"/>');
+	} else {
+		if (library.endsWith(".js")) {
+			document.write('\x3Cscript type="text/javascript" src="' + webjars + library + ver + '">' + '\x3C/script>');
+		} else if (library.endsWith(".css")) {
+			document.write('\x3Clink rel="stylesheet" type="text/css" href="' + webjars + library + ver + '" />');
+		}
+	}
+	window.console && console.log('Adding webjar library '+library+', version '+libraryVersion);
 }
 
 // Return the breakpoint between small and medium sized displays - for morpheus currently the same

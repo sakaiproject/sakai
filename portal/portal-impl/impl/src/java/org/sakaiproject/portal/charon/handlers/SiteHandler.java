@@ -539,7 +539,7 @@ public class SiteHandler extends WorksiteHandler
 			rcontext.put("isUserSite", true);
 		}else{
 			rcontext.put("siteTitle", portal.getSiteHelper().getUserSpecificSiteTitle(site, false, true, providers));
-			rcontext.put("siteTitleTruncated", portal.getSiteHelper().getUserSpecificSiteTitle(site, true, false, providers));
+			rcontext.put("siteTitleTruncated", Validator.escapeHtml(portal.getSiteHelper().getUserSpecificSiteTitle(site, true, false, providers)));
 			rcontext.put("isUserSite", false);
 		}
 		

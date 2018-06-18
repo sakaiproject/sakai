@@ -202,14 +202,14 @@
 											$tlang.getString("gen.nograd")
 										#else
 											#if ($!assignment.IsGroup)
-												#if ($!submission.GradeForUser($!submission.User.Id))
-													$!submission.GradeForUser($!submission.User.Id)
-													<abbr title="Group Grade">($!service.getGradeDisplay($!assignmentSubmission.Grade, $typeOfGrade, $!assignment.ScaleFactor))</abbr>
+												#if ($!submission.getGradeForUser($!submission.User.Id))
+													$!submission.getGradeForUser($!submission.User.Id)
+													<abbr title="$tlang.getString("gen.group.grade")">($!service.getGradeDisplay($!assignmentSubmission.Grade, $typeOfGrade, $!assignment.ScaleFactor))</abbr>
 												#else
-													$!service.getGradeDisplay($!assignmentSubmission.Grade, $typeOfGrade, $!assignment.ScaleFactor)
+													$!submission.getGradeForUser($!submission.User.Id)
 												#end
 											#else
-												$!service.getGradeDisplay($!assignmentSubmission.Grade, $typeOfGrade, $!assignment.ScaleFactor)
+												$!submission.getGradeForUser($!submission.User.Id)
 											#end
 										#end
 									#end

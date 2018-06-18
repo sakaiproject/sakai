@@ -23,6 +23,8 @@ package org.sakaiproject.tool.su;
 
 import java.io.IOException;
 import java.lang.reflect.Method;
+import java.text.DateFormat;
+import java.util.Date;
 import java.util.List;
 import java.util.Vector;
 
@@ -41,6 +43,7 @@ import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.event.api.UsageSessionService;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService.SelectionType;
+import org.sakaiproject.time.api.UserTimeService;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.user.api.User;
@@ -75,6 +78,8 @@ public class SuTool
 			.getInstance();
 	
 	private EventTrackingService M_event_service = org.sakaiproject.event.cover.EventTrackingService.getInstance();
+
+	private UserTimeService userTimeService = (UserTimeService) ComponentManager.get(UserTimeService.class);
 
 	// getters for these vars
 	private String username;
@@ -371,6 +376,19 @@ public class SuTool
 	public void setUserinfo(User userinfo)
 	{
 		this.userinfo = userinfo;
+	}
+
+	public String getUserCreatedTime()
+	{
+		if (userinfo == null)
+		{
+			return "";
+		}
+
+		DateFormat dsf = DateFormat.getDateTimeInstance(DateFormat.LONG, DateFormat.LONG, msgs.getLocale());
+		dsf.setTimeZone(userTimeService.getLocalTimeZone());
+		Date createdDate = userinfo.getCreatedDate();
+		return dsf.format(createdDate == null ? new Date() : createdDate);
 	}
 
 	public String getMessage(){

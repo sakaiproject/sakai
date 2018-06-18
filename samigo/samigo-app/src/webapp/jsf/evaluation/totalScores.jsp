@@ -192,13 +192,13 @@ $(document).ready(function(){
 
 <h:panelGroup styleClass="row total-score-box" layout="block" rendered="#{totalScores.anonymous eq 'false'}">
   <h:panelGroup styleClass="col-md-6" layout="block">
-    <h:panelGroup styleClass="apply-grades" layout="block" rendered="#{totalScores.allSubmissions!='4'}">
+    <h:panelGroup styleClass="apply-grades" layout="block">
 	  <h:commandButton value="#{evaluationMessages.applyGrades} " id="applyScoreButton" styleClass="active" type="submit" onclick="SPNR.disableControlsAndSpin( this, null );">
           <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreUpdateListener" />
       </h:commandButton>
       <h:outputText value="&#160;" escape="false" />
       <h:inputText id="applyScoreUnsubmitted" value="#{totalScores.applyToUngraded}"  onkeydown="inIt()" onchange="toPoint(this.id);" size="5"/>
-      <h:outputText value=" #{evaluationMessages.applyGradesDesc}"/>
+      <h:outputText value=" #{totalScores.allSubmissions ne '4' ? evaluationMessages.applyGradesDesc : evaluationMessages.applyGradesDescAvg}"/>
     </h:panelGroup>
 
 
@@ -303,7 +303,7 @@ $(document).ready(function(){
   <h:dataTable id="totalScoreTable" value="#{totalScores.agents}" var="description" styleClass="table table-striped table-bordered" columnClasses="textTable">
 
 	<!-- Add Submission Attempt Deleter-->
-	<h:column rendered="true">
+	<h:column rendered="#{person.isAdmin || !totalScores.restrictedDelete}">
      <f:facet name="header">
        <h:outputText value="#{commonMessages.delete}" rendered="true" />
      </f:facet>
@@ -853,7 +853,46 @@ $(document).ready(function(){
       <h:inputText value="#{description.totalOverrideScore}" size="5" id="adjustTotal3" required="false" rendered="#{totalScores.anonymous eq 'false'  || description.assessmentGradingId ne '-1'}"  onchange="toPoint(this.id);" >
       </h:inputText>
     </h:column>
-  
+
+    <!-- SUBMISSION COUNT (AVERAGE SCORE VIEW) -->
+    <h:column rendered="#{totalScores.allSubmissions eq '4' && totalScores.sortType!='submissionCount'}">
+     <f:facet name="header">
+      <h:commandLink title="#{evaluationMessages.t_sortSubmissionCount}" id="submissionCount" action="totalScores" >
+        <h:outputText value="#{evaluationMessages.sub_count}" />
+         <f:actionListener
+            type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener" />
+        <f:param name="sortBy" value="submissionCount" />
+        <f:param name="sortAscending" value="true"/>
+      </h:commandLink>
+     </f:facet>
+        <h:outputText value="#{description.submissionCount}" rendered="#{totalScores.anonymous eq 'false'  || description.assessmentGradingId ne '-1'}"/>
+    </h:column>
+
+    <h:column rendered="#{totalScores.allSubmissions eq '4' && totalScores.sortType=='submissionCount' && totalScores.sortAscending}">
+      <f:facet name="header">
+        <h:commandLink title="#{evaluationMessages.t_sortSubmissionCount}" action="totalScores">
+          <h:outputText value="#{evaluationMessages.sub_count}" />
+          <f:param name="sortAscending" value="false" />
+          <h:graphicImage alt="#{evaluationMessages.alt_sortSubmissionCountDescending}" rendered="#{totalScores.sortAscending}" url="/images/sortascending.gif"/>
+          <f:actionListener
+             type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener" />
+          </h:commandLink>
+      </f:facet>
+      <h:outputText value="#{description.submissionCount}" rendered="#{totalScores.anonymous eq 'false'  || description.assessmentGradingId ne '-1'}"/>
+    </h:column>
+
+    <h:column rendered="#{totalScores.allSubmissions eq '4' && totalScores.sortType=='submissionCount'  && !totalScores.sortAscending}">
+      <f:facet name="header">
+      <h:commandLink title="#{evaluationMessages.t_sortSubmissionCount}" action="totalScores">
+        <h:outputText value="#{evaluationMessages.sub_count}" />
+        <f:param name="sortAscending" value="true"/>
+        <h:graphicImage alt="#{evaluationMessages.alt_sortSubmissionCountAscending}" rendered="#{!totalScores.sortAscending}" url="/images/sortdescending.gif"/>
+        <f:actionListener
+             type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener" />
+      </h:commandLink>
+      </f:facet>
+      <h:outputText value="#{description.submissionCount}" rendered="#{totalScores.anonymous eq 'false'  || description.assessmentGradingId ne '-1'}"/>
+    </h:column>
 
     <!-- FINAL SCORE -->
     <h:column rendered="#{totalScores.sortType!='finalScore'}">

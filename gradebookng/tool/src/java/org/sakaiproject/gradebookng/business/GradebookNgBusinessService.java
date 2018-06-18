@@ -42,6 +42,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 
 import org.sakaiproject.authz.api.Member;
+import org.sakaiproject.authz.api.SecurityAdvisor;
+import org.sakaiproject.authz.api.SecurityAdvisor.SecurityAdvice;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.coursemanagement.api.Membership;
@@ -67,6 +69,7 @@ import org.sakaiproject.gradebookng.tool.model.GradebookUiSettings;
 import org.sakaiproject.service.gradebook.shared.AssessmentNotFoundException;
 import org.sakaiproject.service.gradebook.shared.Assignment;
 import org.sakaiproject.service.gradebook.shared.CategoryDefinition;
+import org.sakaiproject.service.gradebook.shared.CategoryScoreData;
 import org.sakaiproject.service.gradebook.shared.CommentDefinition;
 import org.sakaiproject.service.gradebook.shared.CourseGrade;
 import org.sakaiproject.service.gradebook.shared.GradeDefinition;
@@ -516,6 +519,38 @@ public class GradebookNgBusinessService {
 	}
 
 	/**
+	* Retrieve the categories visible to the given student.
+	*
+	* This should only be called if you are wanting to view the categories that a student would see (ie if you ARE a student, or if you
+	* are an instructor using the student review mode)
+	*
+	* @param studentUuid
+	* @return list of visible categories
+	*/
+	public List<CategoryDefinition> getGradebookCategoriesForStudent(String studentUuid) {
+		// find the categories that this student's visible assignments belong to
+		List<Assignment> viewableAssignments = getGradebookAssignmentsForStudent(studentUuid);
+		final List<Long> catIds = new ArrayList<>();
+		for (Assignment a : viewableAssignments) {
+			Long catId = a.getCategoryId();
+			if (catId != null && !catIds.contains(catId)) {
+				catIds.add(a.getCategoryId());
+			}
+		}
+
+		// get all the categories in the gradebook, use a security advisor in case the current user is the student
+		SecurityAdvisor gbAdvisor = (String userId, String function, String reference)
+						-> "gradebook.gradeAll".equals(function) ? SecurityAdvice.ALLOWED : SecurityAdvice.PASS;
+		securityService.pushAdvisor(gbAdvisor);
+		List<CategoryDefinition> catDefs = gradebookService.getCategoryDefinitions(getGradebook().getUid());
+		securityService.popAdvisor(gbAdvisor);
+
+		// filter out the categories that don't match the categories of the viewable assignments
+		return catDefs.stream().filter(def -> catIds.contains(def.getId())).collect(Collectors.toList());
+
+	}
+
+	/**
 	 * Get a map of course grades for all students in the given site.
 	 *
 	 * @param siteId siteId to get course grades for
@@ -962,7 +997,7 @@ public class GradebookNgBusinessService {
 
 		// Setup the course grade formatter
 		// TODO we want the override except in certain cases. Can we hard code this?
-		final CourseGradeFormatter courseGradeFormatter = new CourseGradeFormatter(gradebook, role, isCourseGradeVisible, settings.getShowPoints(), false);
+		final CourseGradeFormatter courseGradeFormatter = new CourseGradeFormatter(gradebook, role, isCourseGradeVisible, settings.getShowPoints(), true);
 
 		for (final GbUser student : gbStudents) {
 			// Create and add the user info
@@ -1110,10 +1145,17 @@ public class GradebookNgBusinessService {
 						}
 					}
 
-					final Double categoryScore = this.gradebookService.calculateCategoryScore(gradebook, student.getUserUuid(), category, category.getAssignmentList(), gradeMap);
-
-					// add to GbStudentGradeInfo
-					sg.addCategoryAverage(category.getId(), categoryScore);
+					final Optional<CategoryScoreData> categoryScore = gradebookService.calculateCategoryScore(gradebook,
+							student.getUserUuid(), category, category.getAssignmentList(), gradeMap);
+					categoryScore.ifPresent(data -> {
+						for (Long item : gradeMap.keySet())	{
+							if (data.droppedItems.contains(item)) {
+								grades.get(item).setDroppedFromCategoryScore(true);
+							}
+						}
+						// add to GbStudentGradeInfo
+						sg.addCategoryAverage(category.getId(), data.score);
+					});
 
 					// TODO the TA permission check could reuse this iteration... check performance.
 				}
@@ -2094,14 +2136,14 @@ public class GradebookNgBusinessService {
 	 * @param studentUuid uuid of student
 	 * @return
 	 */
-	public Double getCategoryScoreForStudent(final Long categoryId, final String studentUuid) {
+	public Optional<CategoryScoreData> getCategoryScoreForStudent(final Long categoryId, final String studentUuid) {
 
 		final Gradebook gradebook = getGradebook();
 
-		final Double score = this.gradebookService.calculateCategoryScore(gradebook.getId(), studentUuid, categoryId);
-		log.info("Category score for category: {}, student: {}:{}", categoryId, studentUuid, score);
+		final Optional<CategoryScoreData> result = gradebookService.calculateCategoryScore(gradebook.getId(), studentUuid, categoryId);
+		log.info("Category score for category: {}, student: {}:{}", categoryId, studentUuid, result.map(r -> r.score).orElse(null));
 
-		return score;
+		return result;
 	}
 
 	/**

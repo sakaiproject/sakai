@@ -528,6 +528,19 @@ a.hideDivision {
 	height: 100%;
 }
 
+[class^=audioRecordingPopup].featherlight-inner {
+	display: block !important;
+}
+
+.featherlight .featherlight-content {
+	max-width: initial !important;
+	max-height: initial !important;
+}
+
+.featherlight .featherlight-close-icon {
+	color: #000 !important;
+}
+
 #timer-expired-warning{
 	text-align: center;	
 }
@@ -651,10 +664,10 @@ a.hideDivision {
     vertical-align: top;
 }
 #audio-posting, #audio-finished, #audio-browser-plea {
-    height: 200px;
     font-size: 28px;
     font-weight: bold;
     text-align: center;
+    margin-bottom: 15px;
     width: 100%;
 }
 div.attempts-remaining {
@@ -1321,4 +1334,10 @@ input[type='reset'].linearButton {
 .mathjax-warning.alert, .mathjax-warning .alert {
 	margin: 0;
 	padding: 6px 12px;
+}
+
+label#itemForm\:noFeedbackMsg {
+	font-weight: normal;
+	margin-left: 1em;
+	font-style: italic;
 }
