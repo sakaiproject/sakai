@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<content allowattach="true" allowreview="false"
+	allowstudentview="false" checkInstitution="false" checkInternet="false"
+	checkPublications="false" checkTurnitin="false"
+	context="1597_G_2015_N_N" datecreated="20160229102710547"
+	excludeBibliographic="false" excludeQuoted="false" excludeType="0"
+	excludeValue="1" generateOriginalityReport="0" groupproject="true"
+	hideduedate="false" honorpledge="2"
+	id="5853c01f-aae8-48b6-bb79-fc4636e85954" indivgraded="false"
+	instructions="R3JvdXAgQXNzaWdubWVudCBGb3IgR3JvdXBzICBTaW5nbGUgc3VibWlzc2lvbiBmb3IgZ3JvdXBzIFJlZCBHcmVlbiBhbmQgQmx1ZS4="
+	instructions-html="PHA+R3JvdXAgQXNzaWdubWVudCBGb3IgR3JvdXBzPC9wPiAgPHA+U2luZ2xlIHN1Ym1pc3Npb24gZm9yIGdyb3VwcyBSZWQgR3JlZW4gYW5kIEJsdWUuPC9wPg=="
+	lastmod="20160229102710547" numberofattachments="0" numberofauthors="0"
+	releasegrades="false" scaled_maxgradepoint="100" submissiontype="3"
+	submitReviewRepo="0"
+	title="Group Assignment For Groups"
+	typeofgrade="3">
+	<properties>
+		<property enc="BASE64" name="CHEF:creator"
+			value="OTg2NGRkYmUtOTQ1OS00OTE1LWEzYzktNjUzZjVjNzI1ZWYz" />
+		<property enc="BASE64" name="CHEF:modifiedby"
+			value="OTg2NGRkYmUtOTQ1OS00OTE1LWEzYzktNjUzZjVjNzI1ZWYz" />
+		<property enc="BASE64" name="DAV:getlastmodified"
+			value="MjAxNjAyMjkxMDMyNDk3OTM=" />
+		<property enc="BASE64" name="DAV:creationdate"
+			value="MjAxNjAyMjkxMDI3MTA1NTY=" />
+	</properties>
+</content>
