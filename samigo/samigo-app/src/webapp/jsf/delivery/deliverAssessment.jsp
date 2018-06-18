@@ -32,28 +32,7 @@
   <f:view>
     <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
       <head><%= request.getAttribute("html.head") %>
-      <title> <h:outputText value="#{delivery.assessmentTitle}"/>
-      </title>
-      <style type="text/css">
-        .TableColumn {
-          text-align: center
-        }
-        .TableColumnLeft {
-          text-align: left
-        }
-       .TableClass {
-         border-style: dotted;
-         border-width: 0.5px;
-         border-color: light grey;
-       }
-       
-       #delivAssessmentWrapper
-       {
-            width: 96%;
-            float: left;
-       }
-      </style>
-
+      <title> <h:outputText value="#{delivery.assessmentTitle}"/> </title>
       <%@ include file="/jsf/delivery/deliveryjQuery.jsp" %>
       <samigo:script path="/../sakai-editor/editor-bootstrap.js"/>
       <samigo:script path="/../sakai-editor/editor.js"/>
@@ -67,7 +46,7 @@
       <h:outputText value="<a name='top'></a>" escape="false" />
       
        <div id="timer-warning" style="display:none">
-      	 <h:panelGrid columns="1" rowClasses="TableColumn, TableColumnLeft, TableColumnLeft" width="100%"  border="0">
+      	 <h:panelGrid columns="1" rowClasses="timerTableColumn, timerTableColumnLeft, timerTableColumnLeft" width="100%"  border="0">
            <h:outputText value="<b>#{deliveryMessages.five_minutes_left1}</b>" escape="false"/>
       	   <h:outputText value="<br/>#{deliveryMessages.five_minutes_left2}" escape="false"/>
       	   <h:outputText value="#{deliveryMessages.five_minutes_left3}"  escape="false"/>

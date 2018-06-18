@@ -390,4 +390,24 @@
 			font-weight: normal;
 		}
 	}
+
+	.timerTableColumn {
+		text-align: center
+	}
+
+	.timerTableColumnLeft {
+		text-align: left
+	}
+
+	.matrixTable {
+		border-style: dotted;
+		border-width: 1px;
+		border-color: lightgrey;
+	}
+
+	#delivAssessmentWrapper {
+		width: 96%;
+		float: left;
+	}
+
 }
