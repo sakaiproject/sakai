@@ -2,6 +2,9 @@
 
 This is the source code for the Sakai CLE.
 
+The master branch is the most current development release, Sakai 19.
+The other branches are currently or previously supported releases. See below for more information on the release plan and support schedule.
+
 ## Building
 
 [![Build Status](https://travis-ci.org/sakaiproject/sakai.svg?branch=master)](https://travis-ci.org/sakaiproject/sakai)
@@ -76,7 +79,11 @@ Sakai 10.0 and earlier are no longer supported by the community.
 For full history of supported releases please see our [release information on confluence](https://confluence.sakaiproject.org/display/DOC/Sakai+Release+Date+list).
 
 ## Under Development
-Sakai 12.2 is under development as the second maintenance release of Sakai 12. It is expected to be released in the Q3 July/August 2018 timeframe.
+[Sakai 19.0](https://confluence.sakaiproject.org/display/REL/Sakai+19+Straw+person) is the current developement release of Sakai 19. It is expected to release Q4 2018 - Q1 2019.
+
+Sakai 12.2 is under development as the second maintenance release of Sakai 12. It is expected to be released in the June 2018 timeframe.
+
+Sakai 12.3 is under development as the third maintenance release of Sakai 12. It is expected to be released in the August 2018 timeframe.
 
 ## Accessibility
 [The Sakai Accessibility Working Group](https://confluence.sakaiproject.org/display/2ACC/Accessibility+Working+Group) is responsible for ensuring that the Sakai framework and its tools are accessible to persons with disabilities. [The Sakai Ra11y plan](https://confluence.sakaiproject.org/display/2ACC/rA11y+Plan) is working towards a VPAT and/or a WCAG2 certification.
