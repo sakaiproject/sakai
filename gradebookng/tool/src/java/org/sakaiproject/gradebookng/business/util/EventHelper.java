@@ -5,12 +5,9 @@ import org.sakaiproject.gradebookng.business.GbRole;
 
 import org.sakaiproject.gradebookng.business.GradeSaveResponse;
 import org.sakaiproject.tool.gradebook.Gradebook;
-import org.sakaiproject.user.api.User;
 import org.sakaiproject.service.gradebook.shared.Assignment;
 import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.event.api.Event;
-
-import java.util.Date;
 
 public class EventHelper {
 
