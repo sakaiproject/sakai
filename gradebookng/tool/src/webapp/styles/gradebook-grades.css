@@ -565,3 +565,138 @@ div.wicket-modal div.w_right > div {
   margin: 0;
 }
 
+.gb-noGbItems
+{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  width: 100%;
+  padding: 1em;
+  font-size: 20px;
+  text-align: center;
+  color: #666;
+  background-color: #eee;
+  -ms-grid-row: 3;
+  -ms-grid-row-span: 1;
+  -ms-grid-column: 2;
+  -ms-grid-column-span: 1;
+  grid-area: empty;
+}
+.gb-noGbItems > i
+{
+  display: block;
+  font-size: 3em;
+}
+
+.gradeTableOuterWrapper
+{
+  -ms-grid-row: 3;
+  -ms-grid-row-span: 1;
+  -ms-grid-column: 1;
+  -ms-grid-column-span: 1;
+  grid-area: grades;
+}
+
+.gradesToolbar1
+{
+  -ms-grid-row: 1;
+  -ms-grid-row-span: 1;
+  -ms-grid-column: 1;
+  -ms-grid-column-span: 2;
+  grid-area: toolbar1;
+}
+
+.gradesToolbar2
+{
+  -ms-grid-row: 2;
+  -ms-grid-row-span: 1;
+  -ms-grid-column: 1;
+  -ms-grid-column-span: 2;
+  grid-area: toolbar2;
+}
+
+.gradeTableArea
+{
+  display: -ms-grid;
+  display: grid;
+  -ms-grid-columns: auto 1fr;
+  grid-template-columns: auto 1fr;
+  -ms-grid-rows: auto auto auto;
+  grid-template-areas:
+    "toolbar1 toolbar1"
+    "toolbar2 toolbar2"
+    "grades empty";
+}
+
+#gradeTableWrapper
+{
+  background-color: #eee;
+}
+
+@media all and (max-width: 1024px)
+{
+  .gradeTableArea
+  {
+    display: block;
+  }
+
+  .gradeTableArea #gradebookGradesToolbar
+  {
+    margin-top: 0;
+  }
+
+  .gb-noGbItems div.act
+  {
+    padding-bottom: 0;
+  }
+
+  .gradeTableArea .gradeTableOuterWrapper
+  {
+    border-right: none;
+  }
+}
+
+@media all and (max-width: 640px)
+{
+  .gb-noGbItems
+  {
+    font-size: 1em;
+  }
+}
+
+.gb-noStudents
+{
+  position: absolute;
+  top: calc(30vh + 58px - 0.5em);
+  z-index: 100;
+  width: 100%;
+  text-align: center;
+  line-height: 1em;
+  font-size: 16px;
+  color: #666;
+}
+
+.gradeTableOuterWrapper
+{
+  border-right: 1px solid #ddd;
+  position: relative;
+}
+
+.gb-noGbItems button
+{
+	margin: 0;
+}
+
+div.wicket-modal {
+  z-index: 999 !important;
+  max-width: 100%;
+}
+
+div.wicket-mask-transparent, div.wicket-mask-dark {
+  z-index: 998 !important;
+}
+
+div.wicket-modal div.w_content_container {
+  overflow: initial !important;
+}

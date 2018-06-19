@@ -91,7 +91,9 @@
             </h:selectOneRadio>
         </div>
     </div>    
-    
+
+    <%@ include file="/jsf/author/item/rubricAssociation.jsp" %>
+
   <!-- 2 TEXT -->
     <div class="form-group row">
         <h:outputLabel value="#{authorMessages.q_text}" styleClass="col-md-4 col-lg-2 form-control-label"/>

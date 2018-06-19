@@ -44,7 +44,7 @@
         <key column="pf_surrogateKey"/>                        
         <one-to-many class="org.sakaiproject.component.app.messageforums.dao.hibernate.TopicImpl"/>            
     </set>-->
-    <set name="topicsSet" lazy="true" cascade="save-update"
+    <set name="topicsSet" lazy="true" cascade="persist,merge,save-update"
       sort="org.sakaiproject.component.app.messageforums.dao.hibernate.util.comparator.TopicBySortIndexAscAndCreatedDateDesc" batch-size="50">
         <key column="pf_surrogateKey"/>                        
         <one-to-many class="org.sakaiproject.component.app.messageforums.dao.hibernate.TopicImpl"/>            

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <!-- ProjectLogic -->
+    <bean id="org.sakaiproject.rubrics.logic.RubricsService"
+        class="org.sakaiproject.rubrics.logic.RubricsServiceImpl"
+        init-method="init">
+        <!-- API injection -->
+        <property name="securityService" ref="org.sakaiproject.authz.api.SecurityService" />
+        <property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager" />
+        <property name="toolManager" ref="org.sakaiproject.tool.api.ToolManager" />
+        <property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService" />
+        <property name="eventTrackingService" ref="org.sakaiproject.event.api.EventTrackingService" />
+        <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService" />
+        <property name="siteService" ref="org.sakaiproject.site.api.SiteService" />
+        <property name="functionManager" ref="org.sakaiproject.authz.api.FunctionManager" />
+        <property name="authzGroupService" ref="org.sakaiproject.authz.api.AuthzGroupService"/>
+    </bean>
+
+	<bean id="org.sakaiproject.springframework.orm.hibernate.impl.AdditionalHibernateMappings.rubrics"
+          class="org.sakaiproject.springframework.orm.hibernate.impl.AdditionalHibernateMappingsImpl">
+        <property name="annotatedClasses">
+            <list>
+                <value>org.sakaiproject.rubrics.logic.model.Criterion</value>
+                <value>org.sakaiproject.rubrics.logic.model.CriterionOutcome</value>
+                <value>org.sakaiproject.rubrics.logic.model.Evaluation</value>
+                <value>org.sakaiproject.rubrics.logic.model.Rating</value>
+                <value>org.sakaiproject.rubrics.logic.model.Rubric</value>
+                <value>org.sakaiproject.rubrics.logic.model.ToolItemRubricAssociation</value>
+                <value>org.sakaiproject.rubrics.logic.listener.MetadataListener</value>
+            </list>
+        </property>
+    </bean>
+</beans>

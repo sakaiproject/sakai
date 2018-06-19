@@ -54,7 +54,7 @@
 			<property name="templateCode" type="string" length="4000" column="template" />
 		</component>
 
-		<set name="students" lazy="true" cascade="save-update" order-by="username asc" inverse="true">
+		<set name="students" lazy="true" cascade="persist,merge,save-update" order-by="username asc" inverse="true">
 			<key column="surrogate_key" />
 			<one-to-many class="org.sakaiproject.component.app.postem.data.StudentGradesImpl" />
 		</set>

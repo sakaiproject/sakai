@@ -13,6 +13,19 @@
 
 	<div wicket:id="summary" id="studentGradeSummary"></div>
 
+	<input wicket:id="rubricsTokenHiddenField" type="hidden" />
+
+	<script>
+		var tokenAttr = $("[name$='rubricsTokenHiddenField']").val();
+		var imports = [
+			'/rubrics-service/imports/sakai-rubric-student.html'
+		];
+		var Polymerdom = 'shady';
+		var rbcstoken = tokenAttr;
+	</script>
+
+	<script src="/rubrics-service/js/sakai-rubrics.js"></script>
+
 	<script>
 		$(document).ready(function() {
 			new GradebookGradeSummary($("#studentGradeSummary"));

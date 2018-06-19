@@ -33,18 +33,7 @@ $Id$
  <f:view>
     <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
       <head><%= request.getAttribute("html.head") %>
-      <style type="text/css">
-        .TableColumn {
-          text-align: center
-        }
-       .TableClass {
-         border-style: dotted;
-         border-width: 0.5px;
-         border-color: light grey;
-       }
-      </style>
-      <title><h:outputText
-        value="#{evaluationMessages.title_question}" /></title>
+      <title><h:outputText value="#{evaluationMessages.title_question}" /></title>
       </head>
       <body onload="<%= request.getAttribute("html.body.onload") %>">
 

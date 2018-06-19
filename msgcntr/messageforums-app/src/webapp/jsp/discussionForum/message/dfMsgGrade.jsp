@@ -18,6 +18,7 @@
        		<script type="text/javascript">includeLatestJQuery("msgcntr");</script>
        		<sakai:script contextBase="/messageforums-tool" path="/js/sak-10625.js"/>
        		<sakai:script contextBase="/messageforums-tool" path="/js/messages.js"/>
+			<sakai:script contextBase="/messageforums-tool" path="/js/forum.js"/>
   <h:form id="msgForum">
 <!--jsp\discussionForum\message\dfMsgGrade.jsp-->
 
@@ -26,9 +27,7 @@
 		Application app = context.getApplication();
 		ValueBinding binding = app.createValueBinding("#{ForumTool}");
 		DiscussionForumTool forumTool = (DiscussionForumTool) binding.getValue(context);
-		
-		
-			
+					
 		//Check if user called this page with a popup dialog
 		
 		String messageId = request.getParameter("messageId");
@@ -38,7 +37,7 @@
 		String frameId = request.getParameter("frameId");
 		String dialogDivId = request.getParameter("dialogDivId");
 		String gradesSavedDiv = request.getParameter("gradesSavedDiv");
-		
+			
 		boolean isDialogBox = false;
 		if(
 		//messageId != null && !"".equals(messageId) &&
@@ -49,9 +48,7 @@
 			//All permission will be hanlded in "rendered" fields in this page below
 			
 			isDialogBox = true;
-			
-			
-			
+
 			String noProcessing = request.getParameter("noProccessing");	
 			if(noProcessing == null || "". equals(noProcessing)){
 				//this will set all the variables that need to be set
@@ -60,7 +57,6 @@
 		%>
 			<script type="text/javascript" language="javascript">
 				parent.dialogutil.replaceBodyOnLoad("myLoaded();", this);
-		
 				function myLoaded() {
 				  //  resetHeight();
 				    //don't want to update the parent's height cause that'll jack up the sizing we've already done.
@@ -69,6 +65,18 @@
 			</script>
 		
 		<%	
+		}
+		
+		String stateDetails = forumTool.getRbcsStateDetails();
+		boolean hasAssociatedRubric = forumTool.hasAssociatedRubric();
+		String entityId = forumTool.getRubricAssociationUuid();
+		String rbcsEvaluationId = "";
+		if (forumTool.getSelectedMessage() != null) {
+			rbcsEvaluationId = forumTool.getSelectedMessage().getMessage().getUuid();
+		} else if (forumTool.getSelectedTopic() != null) {
+			rbcsEvaluationId = forumTool.getSelectedTopic().getTopic().getUuid();
+		} else {
+			rbcsEvaluationId = forumTool.getSelectedForum().getForum().getUuid();
 		}
 		%>
 		
@@ -92,7 +100,20 @@
 			%>
 		</script>
 		<script type="text/javascript" src="/library/js/spinner.js"></script>
-		
+		<!-- RUBRICS JAVASCRIPT -->
+		<script>
+		  var imports = [
+			'/rubrics-service/imports/sakai-rubric-grading.html'
+		  ];
+		  var Polymerdom = 'shady';
+		  var rbcstoken = "<h:outputText value="#{ForumTool.rbcsToken}"/>";
+		  rubricsEventHandlers();
+		</script>
+
+		<script src="/rubrics-service/js/sakai-rubrics.js"></script>
+		<link rel="stylesheet" href="/rubrics-service/css/sakai-rubrics-associate.css">
+		<!-- END RUBRICS JAVASCRIPT -->
+
 		<span class="close-button fa fa-times" onClick="clearFormHiddenParams_msgForum('msgForum');SPNR.disableControlsAndSpin(this, null);closeDialogBoxIfExists();" aria-label="<h:outputText value="#{msgs.close_window}" />"></span>
 		<h3><h:outputText value="#{msgs.cdfm_grade_msg}" /></h3>
 			<h4>
@@ -176,7 +197,22 @@
        		rendered="#{!ForumTool.selGBItemRestricted}" readonly="#{!ForumTool.allowedToGradeItem}"/>
 				</h:panelGroup>	
     </h:panelGrid>
+	
+	<% if(hasAssociatedRubric){ %>
+		<sakai-rubric-grading id="rubric-grading" 
+			grade-field-id="dfMsgGradeGradePoint"
 
+			tool-id="sakai.forums"
+			entity-id=<%= entityId %>
+			evaluated-item-id=<%= rbcsEvaluationId %>
+			
+			<% if(stateDetails != null && !"".equals(stateDetails)){ %>
+				state-details=<%= stateDetails %>
+			<%}%>
+
+		></sakai-rubric-grading>
+	<%}%>
+	
     <sakai:button_bar>
     	<% if(isDialogBox){ %>
 			<sakai:button_bar_item action="#{ForumTool.processDfGradeSubmitFromDialog}" value="#{msgs.cdfm_submit_grade}"

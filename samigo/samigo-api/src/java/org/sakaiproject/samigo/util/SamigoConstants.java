@@ -129,6 +129,13 @@ public final class SamigoConstants {
     public static final		String		AUTHZ_TEMPLATE_CREATE								= "assessment.template.create";
     public static final		String		AUTHZ_TEMPLATE_EDIT_OWN								= "assessment.template.edit.own";
     public static final		String		AUTHZ_TEMPLATE_DELETE_OWN							= "assessment.template.delete.own";
+    
+    /*
+     * Rubrics
+     */
+    public static final		String		RBCS_TOOL_ID										= "sakai.samigo";
+    public static final		String		RBCS_ASSOCIATION_STATE_DETAILS						= "rbcs-state-details";
+    public static final		String		RBCS_PUBLISHED_ASSESSMENT_ENTITY_PREFIX				= "pub.";
 
     /*
      * Sakai.properties 

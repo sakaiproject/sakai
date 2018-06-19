@@ -32,34 +32,25 @@
   <f:view>
     <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
       <head><%= request.getAttribute("html.head") %>
-      <title> <h:outputText value="#{delivery.assessmentTitle}"/>
-      </title>
-      <style type="text/css">
-        .TableColumn {
-          text-align: center
-        }
-        .TableColumnLeft {
-          text-align: left
-        }
-       .TableClass {
-         border-style: dotted;
-         border-width: 0.5px;
-         border-color: light grey;
-       }
-       
-       #delivAssessmentWrapper
-       {
-            width: 96%;
-            float: left;
-       }
-      </style>
-
+      <title> <h:outputText value="#{delivery.assessmentTitle}"/> </title>
       <%@ include file="/jsf/delivery/deliveryjQuery.jsp" %>
       <samigo:script path="/../sakai-editor/editor-bootstrap.js"/>
       <samigo:script path="/../sakai-editor/editor.js"/>
       <samigo:script path="/../sakai-editor/editor-launch.js"/>
 	  <samigo:script path="/js/saveForm.js"/>	  	  
-    
+
+    <h:panelGroup rendered="#{delivery.actionString == 'reviewAssessment'}">
+      <script>
+        var imports = [
+          '/rubrics-service/imports/sakai-rubric-student.html'
+        ];
+        var Polymerdom = 'shady';
+        var rbcstoken = '<h:outputText value="#{delivery.rbcsToken}" />';
+      </script>
+
+      <script src="/rubrics-service/js/sakai-rubrics.js"></script>
+    </h:panelGroup>
+
 	<h:outputText value="#{delivery.mathJaxHeader}" escape="false" rendered="#{delivery.actionString=='takeAssessmentViaUrl' and delivery.isMathJaxEnabled}"/>
       </head>
 	<body>
@@ -67,7 +58,7 @@
       <h:outputText value="<a name='top'></a>" escape="false" />
       
        <div id="timer-warning" style="display:none">
-      	 <h:panelGrid columns="1" rowClasses="TableColumn, TableColumnLeft, TableColumnLeft" width="100%"  border="0">
+      	 <h:panelGrid columns="1" rowClasses="timerTableColumn, timerTableColumnLeft, timerTableColumnLeft" width="100%"  border="0">
            <h:outputText value="<b>#{deliveryMessages.five_minutes_left1}</b>" escape="false"/>
       	   <h:outputText value="<br/>#{deliveryMessages.five_minutes_left2}" escape="false"/>
       	   <h:outputText value="#{deliveryMessages.five_minutes_left3}"  escape="false"/>
@@ -356,6 +347,14 @@ document.links[newindex].onclick();
 			<f:convertNumber maxFractionDigits="2"/>
           </h:outputText>
          </h:panelGroup>
+       </h:panelGroup>
+
+       <h:panelGroup rendered="#{delivery.actionString == 'reviewAssessment' and delivery.feedbackComponent.showItemLevel}">
+         <sakai-rubric-student
+           tool-id="sakai.samigo"
+           entity-id='<h:outputText value="pub.#{delivery.assessmentId}.#{question.itemData.itemId}"/>'
+           evaluated-item-id='<h:outputText value="#{delivery.assessmentGradingId}.#{question.itemData.itemId}" />'>
+         </sakai-rubric-student>
        </h:panelGroup>
 
        <div class="samigo-question-callout">

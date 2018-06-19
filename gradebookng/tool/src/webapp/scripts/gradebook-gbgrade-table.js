@@ -259,6 +259,7 @@ GbGradeTable.cellRenderer = function (instance, td, row, col, prop, value, cellP
   var scoreState = GbGradeTable.getCellState(row, col, instance);
   var isReadOnly = column.type === "assignment" ? GbGradeTable.isReadOnly(student, column.assignmentId) : false;
   var hasConcurrentEdit = column.type === "assignment" ? GbGradeTable.hasConcurrentEdit(student, column.assignmentId) : false;
+  var hasAssociatedRubric = column.type === "assignment" ? column.hasAssociatedRubric : false;
   var keyValues = [row, index, value, student.eid, hasComment, isReadOnly, hasConcurrentEdit, column.type, scoreState, isDropped];
   var cellKey = GbGradeTable.cleanKey(keyValues.join("_"));
 
@@ -277,7 +278,8 @@ GbGradeTable.cellRenderer = function (instance, td, row, col, prop, value, cellP
     // First time we've initialised this cell.
     // Or we're replacing the student name cell
     GbGradeTable.templates.cell.setHTML(td, {
-      value: value
+      value: value,
+      hasAssociatedRubric: hasAssociatedRubric
     });
 
     if (td.hasAttribute('scope')) {
@@ -289,6 +291,13 @@ GbGradeTable.cellRenderer = function (instance, td, row, col, prop, value, cellP
 
     // This cell was previously holding a different value.  Just patch it.
     GbGradeTable.replaceContents(valueCell, document.createTextNode(value));
+  }
+
+  var $gradeRubricOption = $(td).find(".gb-grade-rubric").parent();
+  if (hasAssociatedRubric) {
+    $gradeRubricOption.removeClass("hidden");
+  } else {
+    $gradeRubricOption.addClass("hidden");
   }
 
   if (!valueCell) {
@@ -462,9 +471,12 @@ GbGradeTable.headerRenderer = function (col, column) {
     return colDef.headerTemplate.process({col: col, settings: GbGradeTable.settings});
   }
 
+  var hasAssociatedRubric = column.type === "assignment" ? column.hasAssociatedRubric : false;
+
   var templateData = $.extend({
     col: col,
-    settings: GbGradeTable.settings
+    settings: GbGradeTable.settings,
+    hasAssociatedRubric: hasAssociatedRubric,
   }, column);
 
   if (column.type === "assignment") {
@@ -629,7 +641,12 @@ GbGradeTable.renderTable = function (elementId, tableData) {
   };
 
   GbGradeTable.calculateIdealWidth = function() {
-    return MorpheusViewportHelper.isPhone() ? $("#pageBody").width() - 40 : $("#pageBody").width() - $("#toolMenuWrap").width() - 60;
+    if (GbGradeTable.columns.length > 0) {
+        return MorpheusViewportHelper.isPhone() ? $("#pageBody").width() - 40 : $("#pageBody").width() - $("#toolMenuWrap").width() - 60;
+    }
+
+    var scrollbarWidth = GbGradeTable.students.length > 0 ? 16 : 0;
+    return GbGradeTable.getColumnWidths().reduce(function (acc, cur) { return acc + cur; }, 0) + scrollbarWidth;
   };
 
   GbGradeTable.instance = new Handsontable(document.getElementById(elementId), {
@@ -735,7 +752,7 @@ GbGradeTable.renderTable = function (elementId, tableData) {
       // show visual cue that columns are hidden
       // check for last of the fixed columns
       if (col == GbGradeTable.FIXED_COLUMN_OFFSET - 1) { //GbGradeTable.instance.getSettings().fixedColumnsLeft - 1) {
-        if (GbGradeTable.columns[0].hidden &&
+        if (GbGradeTable.columns[0] && GbGradeTable.columns[0].hidden &&
             $th.find(".gb-hidden-column-visual-cue").length == 0) {
           $th.find(".relative").append("<a href='javascript:void(0);' class='gb-hidden-column-visual-cue'></a>");
         }
@@ -936,8 +953,25 @@ GbGradeTable.renderTable = function (elementId, tableData) {
   });
 
   // Setup menu event bindings
+  // Grade rubric
+  rubricGradingRow = 0;
+  rubricGradingCol = 0;
+  $(document).on("click", ".gb-dropdown-menu .gb-grade-rubric", function() {
+    var $dropdown = $(this).closest(".gb-dropdown-menu");
+    var $cell = $dropdown.data("cell");
+    var studentId = $.data($cell[0], "studentid");
+    var assignmentId = $.data($cell[0], "assignmentid");
+    rubricGradingRow = GbGradeTable.rowForStudent(studentId);
+    rubricGradingCol = GbGradeTable.colForAssignment(assignmentId);
+
+    GbGradeTable.ajax({
+      action: 'gradeRubric',
+      studentId: studentId,
+      assignmentId: assignmentId
+    });
+  }).
   // View Log
-  $(document).on("click", ".gb-dropdown-menu .gb-view-log", function() {
+  on("click", ".gb-dropdown-menu .gb-view-log", function() {
     var $dropdown = $(this).closest(".gb-dropdown-menu");
     var $cell = $dropdown.data("cell");
 

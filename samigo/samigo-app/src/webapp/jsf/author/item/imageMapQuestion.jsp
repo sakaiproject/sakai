@@ -172,6 +172,8 @@
         </div>
     </div>    
 
+    <%@ include file="/jsf/author/item/rubricAssociation.jsp" %>
+
     <!-- 2 TEXT -->
     <div class="form-group row">
         <h:outputLabel value="#{authorMessages.q_text_image_map}" styleClass="col-md-12 form-control-label"/> 
