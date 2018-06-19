@@ -766,7 +766,7 @@
 					</div>
 
 					<!-- Start TII custom options -->
-					#if($reviewServiceName.equals("Turnitin"))
+					#if($reviewServiceProviderId == $turnitinProviderId)
 
 					#if ($content_review_note)
 						$content_review_note
@@ -1010,6 +1010,106 @@
                         </div>
 
                         <!-- End VeriCite custom options -->
+					#elseif($reviewServiceProviderId == $turnitinOCProviderId)
+						<!-- Start TurnitinOC custom options -->
+						
+						#if($show_NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_BIBLIOGRAPHIC || $show_NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_QUOTED)
+							<br/>
+							<div>
+								<label>$tlang.getString("turnitinoc.exclude.header"):</label>
+							</div>
+							<div style="display:inline-block">
+								<!-- Exclude Bibliographic materials -->
+								#if($show_NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_BIBLIOGRAPHIC)
+									<div class="checkbox">
+										<label for="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_BIBLIOGRAPHIC">
+											#if ($!value_NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_BIBLIOGRAPHIC.equals("true"))
+												<input id="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_BIBLIOGRAPHIC" name="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_BIBLIOGRAPHIC" type="checkbox" value="true" checked="checked" />
+											#else
+												<input id="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_BIBLIOGRAPHIC" name="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_BIBLIOGRAPHIC" type="checkbox" value="true" />
+											#end
+											$tlang.getString("turnitinoc.exclude.bibliography")
+										</label>
+									</div>
+								#end
+								<!-- Exclude Quoted materials -->
+								#if($show_NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_QUOTED)
+		                            <div class="checkbox">
+		                                <label for="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_QUOTED">
+											#if ($!value_NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_QUOTED.equals("true"))
+		                                        <input id="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_QUOTED"
+		                                               name="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_QUOTED"
+		                                               type="checkbox" value="true" checked="checked"/>
+											#else
+		                                        <input id="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_QUOTED"
+		                                               name="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_QUOTED"
+		                                               type="checkbox" value="true"/>
+											#end
+											$tlang.getString("turnitinoc.exclude.quoted")
+		                                </label>
+		                            </div>
+								#end
+							</div>
+						#end
+						
+						#if($show_NEW_ASSIGNMENT_REVIEW_SERVICE_STORE_INST_INDEX)
+							<br/><br/>
+							<div>
+								<label>$tlang.getString("turnitinoc.index.header"):</label>
+								<p class="text-muted small">
+									$tlang.getString("turnitinoc.index.info")
+								</p>
+							</div>
+							<div style="display:inline-block">
+		                        <!-- Store Inst Index -->
+								#if($show_NEW_ASSIGNMENT_REVIEW_SERVICE_STORE_INST_INDEX)
+		                            <div class="checkbox">
+		                                <label for="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_STORE_INST_INDEX">
+											#if ($!value_NEW_ASSIGNMENT_REVIEW_SERVICE_STORE_INST_INDEX.equals("true"))
+		                                        <input id="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_STORE_INST_INDEX"
+		                                               name="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_STORE_INST_INDEX"
+		                                               type="checkbox" value="true" checked="checked"/>
+											#else
+		                                        <input id="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_STORE_INST_INDEX"
+		                                               name="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_STORE_INST_INDEX"
+		                                               type="checkbox" value="true"/>
+											#end
+											$tlang.getString("turnitinoc.index.all")
+		                                </label>
+		                             </div>
+								#end
+							</div>
+						#end
+						
+						
+						#if($show_NEW_ASSIGNMENT_REVIEW_SERVICE_REPORT)
+						 	<br/><br/>
+							<div>
+								<label>$tlang.getString("turnitinoc.generate.header"):</label>
+							</div>
+							<div style="display:inline-block">
+								#if($show_NEW_ASSIGNMENT_REVIEW_SERVICE_REPORT.contains($name_NEW_ASSIGNMENT_REVIEW_SERVICE_REPORT_IMMEDIATELY))
+									<div class="radio">
+										<label><input type="radio" name="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_REPORT_RADIO" value="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_REPORT_IMMEDIATELY" #if($value_NEW_ASSIGNMENT_REVIEW_SERVICE_REPORT_RADIO.equals("$name_NEW_ASSIGNMENT_REVIEW_SERVICE_REPORT_IMMEDIATELY"))checked#end/>$tlang.getString("review.originality.reports.immediately")</label>
+									</div>
+								#end
+								#if($show_NEW_ASSIGNMENT_REVIEW_SERVICE_REPORT.contains($name_NEW_ASSIGNMENT_REVIEW_SERVICE_REPORT_DUE))
+									<div class="radio">
+										<label><input type="radio" name="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_REPORT_RADIO" value="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_REPORT_DUE" #if($value_NEW_ASSIGNMENT_REVIEW_SERVICE_REPORT_RADIO.equals("$name_NEW_ASSIGNMENT_REVIEW_SERVICE_REPORT_DUE"))checked#end/>$tlang.getString("review.originality.reports.due")</label>
+									</div>
+								#end
+								#if($show_NEW_ASSIGNMENT_REVIEW_SERVICE_REPORT.contains($name_NEW_ASSIGNMENT_REVIEW_SERVICE_REPORT_IMMEDIATELY_AND_DUE))
+									<div class="radio">
+										<label><input type="radio" name="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_REPORT_RADIO" value="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_REPORT_IMMEDIATELY_AND_DUE" #if($value_NEW_ASSIGNMENT_REVIEW_SERVICE_REPORT_RADIO.equals("$name_NEW_ASSIGNMENT_REVIEW_SERVICE_REPORT_IMMEDIATELY_AND_DUE"))checked#end/>$tlang.getString("review.originality.reports.immediately_and_due")</label>
+									</div>
+								#end
+							</div>
+						#end
+						<br/><br/>
+						<p class="text-muted small">
+							<a href="https://guides.turnitin.com/03_Integrations/Turnitin_Partner_Integrations/Sakai" target="_blank">$tlang.getString("turnitinoc.instructions")</a>
+						</p>
+                        <!-- End TurnitinOC custom options -->
 				#elseif($reviewServiceName.equals("Compilatio"))
 						#if ($content_review_note)
 							$content_review_note
