@@ -26,6 +26,7 @@ import java.net.URLDecoder;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -37,13 +38,13 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.SortedSet;
 
-import lombok.extern.slf4j.Slf4j;
+import javax.servlet.http.HttpServletRequest;
+
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.http.HttpResponse;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityService;
-import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.contentreview.dao.ContentReviewConstants;
@@ -52,17 +53,8 @@ import org.sakaiproject.contentreview.exception.QueueException;
 import org.sakaiproject.contentreview.exception.ReportException;
 import org.sakaiproject.contentreview.exception.SubmissionException;
 import org.sakaiproject.contentreview.exception.TransientSubmissionException;
+import org.sakaiproject.contentreview.service.BaseContentReviewService;
 import org.sakaiproject.contentreview.service.ContentReviewQueueService;
-import org.sakaiproject.contentreview.service.ContentReviewService;
-import com.vericite.client.ApiClient;
-import com.vericite.client.ApiException;
-import com.vericite.client.api.DefaultApi;
-import com.vericite.client.model.AssignmentData;
-import com.vericite.client.model.ExternalContentData;
-import com.vericite.client.model.ExternalContentUploadInfo;
-import com.vericite.client.model.ReportMetaData;
-import com.vericite.client.model.ReportScoreReponse;
-import com.vericite.client.model.ReportURLLinkReponse;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.entity.api.EntityProducer;
@@ -81,12 +73,21 @@ import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
 
+import com.vericite.client.ApiClient;
+import com.vericite.client.ApiException;
+import com.vericite.client.api.DefaultApi;
+import com.vericite.client.model.AssignmentData;
+import com.vericite.client.model.ExternalContentData;
+import com.vericite.client.model.ExternalContentUploadInfo;
+import com.vericite.client.model.ReportMetaData;
+import com.vericite.client.model.ReportScoreReponse;
+import com.vericite.client.model.ReportURLLinkReponse;
+
 import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-public class ContentReviewServiceVeriCite implements ContentReviewService {
-	@Setter
-	private ServerConfigurationService serverConfigurationService;
+public class ContentReviewServiceVeriCite extends BaseContentReviewService {
 	
 	@Setter
 	private UserDirectoryService userDirectoryService;
@@ -985,5 +986,26 @@ public class ContentReviewServiceVeriCite implements ContentReviewService {
 			return item;
 		}
 		return null;
+	}
+
+	@Override
+	public String getEndUserLicenseAgreementLink(String userId) {
+		return null;
+	}
+
+	@Override
+	public Instant getEndUserLicenseAgreementTimestamp() {
+		return null;
+	}
+
+	@Override
+	public String getEndUserLicenseAgreementVersion() {
+		return null;
+	}
+
+	@Override
+	public void webhookEvent(HttpServletRequest request, String providerName, Optional<String> customParam) {
+		// TODO Auto-generated method stub
+		
 	}
 }

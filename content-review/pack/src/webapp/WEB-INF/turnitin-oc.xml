@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <!-- Turnitin OC Content Review Service -->
+    <bean
+        id="org.sakaiproject.contentreview.turnitin.oc.ContentReviewServiceTurnitinOC"
+        class="org.sakaiproject.contentreview.turnitin.oc.ContentReviewServiceTurnitinOC"
+        parent="org.sakaiproject.contentreview.service.BaseContentReviewService"
+        init-method="init" lazy-init="true">
+         <property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService" />
+         <property name="entityManager" ref="org.sakaiproject.entity.api.EntityManager" />
+         <property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager" />
+         <property name="securityService" ref="org.sakaiproject.authz.api.SecurityService" />
+         <property name="assignmentService" ref="org.sakaiproject.assignment.api.AssignmentService" />
+         <property name="siteService" ref="org.sakaiproject.site.api.SiteService" />
+         <property name="crqs" ref="org.sakaiproject.contentreview.service.ContentReviewQueueService" />
+         <property name="contentHostingService" ref="org.sakaiproject.content.api.ContentHostingService" />
+         <property name="memoryService" ref="org.sakaiproject.memory.api.MemoryService" />
+    </bean>
+</beans>
