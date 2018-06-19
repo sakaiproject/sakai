@@ -5047,15 +5047,10 @@ public class AssignmentAction extends PagedResourceActionII {
         }
     } // integrateGradebook
     
-    private Stream<User> getSubmitters(final AssignmentSubmission aSubmission, final String method) {
-		return aSubmission.getSubmitters().stream().map(u -> {
-		    try {
-		        return userDirectoryService.getUser(u.getSubmitter());
-		    } catch (UserNotDefinedException e) {
-		    	log.warn("Could not find user = {}, who is a submitter on submission = {} ({}), {}", u, aSubmission.getId(), method, e.getMessage());
-		        return null;
-		    }
-		}).filter(Objects::nonNull);
+	private Stream<User> getSubmitters(final AssignmentSubmission aSubmission, final String method) {
+		return userDirectoryService
+				.getUsers(aSubmission.getSubmitters().stream().map(s -> s.getSubmitter()).collect(Collectors.toList()))
+				.stream().filter(Objects::nonNull);
 	}
 
     /**
