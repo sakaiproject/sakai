@@ -12,11 +12,11 @@
 		<property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService" />
 	</bean>
 	
-	<bean id="org.sakaiproject.contentreview.compilatio.ContentReviewServiceCompilatio" class="org.sakaiproject.contentreview.compilatio.CompilatioReviewServiceImpl" init-method="init" lazy-init="true">
+	<bean id="org.sakaiproject.contentreview.compilatio.ContentReviewServiceCompilatio" class="org.sakaiproject.contentreview.compilatio.CompilatioReviewServiceImpl" 
+		parent="org.sakaiproject.contentreview.service.BaseContentReviewService" init-method="init" lazy-init="true">
 		<property name="toolManager" ref="org.sakaiproject.tool.api.ToolManager" />
 		<property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService" />
 		<property name="contentHostingService" ref="org.sakaiproject.content.api.ContentHostingService" />
-		<property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService" />
 		<property name="entityManager" ref="org.sakaiproject.entity.api.EntityManager" />
 		<property name="assignmentService" ref="org.sakaiproject.assignment.api.AssignmentService" />
 		<property name="compilatioContentValidator" ref="org.sakaiproject.contentreview.compilatio.CompilatioContentValidator" />

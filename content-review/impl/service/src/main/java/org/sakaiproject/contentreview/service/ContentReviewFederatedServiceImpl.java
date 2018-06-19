@@ -15,19 +15,22 @@
  */
 package org.sakaiproject.contentreview.service;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.SortedSet;
 import java.util.stream.Collectors;
 
-import lombok.extern.slf4j.Slf4j;
+import javax.servlet.http.HttpServletRequest;
+
 import org.apache.commons.lang.StringUtils;
-import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.contentreview.dao.ContentReviewItem;
 import org.sakaiproject.contentreview.exception.ContentReviewProviderException;
@@ -40,15 +43,13 @@ import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.ToolManager;
 
 import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 
 /* This class is passed a list of providers in the bean as references, it will use the first
  * by default unless overridden by a site property.
  */
 @Slf4j
-public class ContentReviewFederatedServiceImpl implements ContentReviewService {
-
-	@Setter
-	private ServerConfigurationService serverConfigurationService;
+public class ContentReviewFederatedServiceImpl extends BaseContentReviewService {
 
 	@Setter
 	private ToolManager toolManager;
@@ -59,9 +60,9 @@ public class ContentReviewFederatedServiceImpl implements ContentReviewService {
 	@Setter
 	private List<ContentReviewService> providers;
 
-	private String defaultProvider;
+	private int defaultProvider = -1;
 
-	private List<String> enabledProviders;
+	private Set<Integer> enabledProviders;
 
 
 	public void init() {
@@ -70,24 +71,24 @@ public class ContentReviewFederatedServiceImpl implements ContentReviewService {
 		if (enabledProviders.isEmpty()) {
 			ContentReviewService noop = new NoOpContentReviewService(); 
 			providers.add(noop);
-			enabledProviders.add(noop.getServiceName());
+			enabledProviders.add(noop.getProviderId().intValue());
 		}
 
-		providers.stream().forEach(p -> log.debug("Found Content Review Provider: "+ p.getServiceName() + " with providerId of " + p.getProviderId()));
-		enabledProviders.stream().forEach(p -> log.info("Enabled Content Review Provider: " + p + " with providerId of " + Math.abs(p.hashCode())));
+		providers.stream().forEach(p -> log.info("Found Content Review Provider: "+ p.getServiceName() + " with providerId of " + p.getProviderId()));
+		enabledProviders.stream().forEach(p -> log.info("Enabled Content Review Provider: " + p));
 
 		Optional<String> configuredDefaultProvider = Optional.ofNullable(serverConfigurationService.getString("contentreview.defaultProvider"));
 		if (configuredDefaultProvider.isPresent()) {
-			String cdp = configuredDefaultProvider.get();
-			if (enabledProviders.contains(cdp)) {
-				defaultProvider = cdp;
-				log.info("Default Content Review Provider: " + defaultProvider + " with providerId of " + Math.abs(defaultProvider.hashCode()));
+			Integer cdp = Math.abs(configuredDefaultProvider.get().hashCode());
+			if (enabledProviders.stream().anyMatch(p -> p.intValue() == cdp.intValue())) {
+				defaultProvider = cdp.intValue();
+				log.info("Default Content Review Provider: " + defaultProvider);
 			}
 		}
-		if (StringUtils.isBlank(defaultProvider)) {
+		if (defaultProvider < 0) {
 			// set the default provider to the first provider in the list
-			defaultProvider = enabledProviders.get(0);
-			log.info("Default Content Review Provider: " + defaultProvider + " with providerId of " + Math.abs(defaultProvider.hashCode()));
+			defaultProvider = new ArrayList<Integer>(enabledProviders).get(0).intValue();
+			log.info("Default Content Review Provider: " + defaultProvider);
 		}
 	}
 
@@ -104,18 +105,25 @@ public class ContentReviewFederatedServiceImpl implements ContentReviewService {
 		return site;
 	}
 	
-	private List<String> configureEnabledProviders() {
-		List<String> enabledProviders = new ArrayList<>();
+	private Set<Integer> configureEnabledProviders() {
+		Set<Integer> enabledProviders = new HashSet<Integer>();
 		Optional<String[]> configuredProviders = Optional.ofNullable(serverConfigurationService.getStrings("contentreview.enabledProviders"));
 		if (configuredProviders.isPresent()) {
 			List<String> configProviders = Arrays.asList(configuredProviders.get());
-			enabledProviders = providers.stream().filter(crs -> configProviders.contains(crs.getServiceName())).map(crs -> crs.getServiceName()).collect(Collectors.toList());
+			for(ContentReviewService provider : providers) {
+				for(String configProviderName : configProviders) {
+					if(configProviderName.equals(provider.getServiceName())
+							|| Math.abs(configProviderName.hashCode()) == provider.getProviderId().intValue()) {
+						enabledProviders.add(provider.getProviderId().intValue());
+					}
+				}
+			}
 		}
 		return enabledProviders;
 	}
 
 	private ContentReviewService getSelectedProvider() {
-		if (StringUtils.isBlank(defaultProvider)) {
+		if (defaultProvider < 0) {
 			throw new ContentReviewProviderException("No Default Content Review Provider");
 		}
 		Optional<Site> currentSite = getCurrentSite();
@@ -124,11 +132,12 @@ public class ContentReviewFederatedServiceImpl implements ContentReviewService {
 			if (log.isDebugEnabled()) log.debug("In Location:" + currentSite.get().getReference());
 			final String overrideProvider = currentSite.get().getProperties().getProperty("contentreview.provider");
 			
-			if (enabledProviders.contains(overrideProvider)) {
-				return providers.stream().filter(crs -> crs.getServiceName().equals(overrideProvider)).collect(Collectors.toList()).get(0);	
+			if (StringUtils.isNotEmpty(overrideProvider)
+					&& enabledProviders.stream().anyMatch(p -> p.intValue() == Math.abs(overrideProvider.hashCode()))) {
+				return providers.stream().filter(crs -> crs.getProviderId().intValue() == Math.abs(overrideProvider.hashCode())).collect(Collectors.toList()).get(0);	
 			}
 		}
-		return providers.stream().filter(crs -> crs.getServiceName().equals(defaultProvider)).collect(Collectors.toList()).get(0);
+		return providers.stream().filter(crs -> crs.getProviderId().intValue() == defaultProvider).collect(Collectors.toList()).get(0);
 	}
 
 	public boolean allowResubmission() {
@@ -137,9 +146,14 @@ public class ContentReviewFederatedServiceImpl implements ContentReviewService {
 
 	public void checkForReports() {
 		// this is a method that the jobs call and should check for reports for all enabled providers
-		providers.stream().filter(provider -> enabledProviders.contains(provider.getServiceName())).forEach(ContentReviewService::checkForReports);
+		providers.stream().filter(provider -> enabledProviders.stream().anyMatch(ep -> ep.intValue() ==provider.getProviderId().intValue())).forEach(ContentReviewService::checkForReports);
 	}
 
+	@Override
+	public Integer getProviderId() {
+		return getSelectedProvider().getProviderId();
+	}
+	
 	public void createAssignment(String arg0, String arg1, Map arg2)
 			throws SubmissionException, TransientSubmissionException {
 		getSelectedProvider().createAssignment(arg0, arg1, arg2);
@@ -233,7 +247,7 @@ public class ContentReviewFederatedServiceImpl implements ContentReviewService {
 
 	public void processQueue() {
 		// this is a method that the jobs call and should process items for all enabled providers
-		providers.stream().filter(provider -> enabledProviders.contains(provider.getServiceName())).forEach(ContentReviewService::processQueue);
+		providers.stream().filter(provider -> enabledProviders.stream().anyMatch(ep -> ep.intValue() == provider.getProviderId().intValue())).forEach(ContentReviewService::processQueue);
 	}
 
 	public void queueContent(String userId, String siteId, String assignmentReference, List<ContentResource> content)
@@ -262,4 +276,38 @@ public class ContentReviewFederatedServiceImpl implements ContentReviewService {
 		return getSelectedProvider().getContentReviewItemByContentId(arg0);
 	}
 
+	@Override
+	public String getEndUserLicenseAgreementLink(String userId) {
+		return getSelectedProvider().getEndUserLicenseAgreementLink(userId);
+	}
+
+	@Override
+	public Instant getEndUserLicenseAgreementTimestamp() {
+		return getSelectedProvider().getEndUserLicenseAgreementTimestamp();
+	}
+
+	@Override
+	public Instant getUserEULATimestamp(String userId) {
+		return getSelectedProvider().getUserEULATimestamp(userId);
+	}
+
+	@Override
+	public void updateUserEULATimestamp(String userId) {
+		getSelectedProvider().updateUserEULATimestamp(userId);
+	}
+
+	@Override
+	public String getEndUserLicenseAgreementVersion() {
+		return getSelectedProvider().getEndUserLicenseAgreementVersion();
+	}
+	
+	@Override
+	public String getReviewReportRedirectUrl(String contentId, String assignmentRef, String userId, boolean isInstructor) {
+		return getSelectedProvider().getReviewReportRedirectUrl(contentId, assignmentRef, userId, isInstructor);
+	}
+
+	@Override
+	public void webhookEvent(HttpServletRequest request, String providerName, Optional<String> customParam) {
+		providers.stream().filter(crs -> crs.getServiceName().equals(providerName)).collect(Collectors.toList()).get(0).webhookEvent(request, providerName, customParam);		
+	}
 }

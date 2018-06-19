@@ -15,11 +15,12 @@
 		<module>dao</module>
 		<module>service</module>
 		<module>turnitin</module>
+		<module>turnitin-oc</module>
 		<module>vericite</module>
 		<module>compilatio</module>
 		<module>urkund</module>
 	</modules>
-	
+
 	<dependencyManagement>
 		<dependencies>
 		  <!-- the API is seperately versioned from the impl -->
