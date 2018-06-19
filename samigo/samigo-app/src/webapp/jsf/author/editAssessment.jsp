@@ -221,9 +221,8 @@ $(window).load( function() {
   </h:outputLink>
 </h:panelGrid>
 
-<h:commandLink id="hiddenlink" action="#{itemauthor.doit}" value="">
-  <f:actionListener
-           type="org.sakaiproject.tool.assessment.ui.listener.author.StartCreateItemListener" />
+<h:commandLink id="hiddenlink" action="#{itemauthor.doit}" value="" styleClass="hidden">
+  <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.StartCreateItemListener" />
   <f:param name="itemSequence" value="0"/>
 </h:commandLink>
 
@@ -324,7 +323,7 @@ $(window).load( function() {
              <f:selectItem itemLabel="#{authorMessages.import_from_q}" itemValue="10,#{partBean.number},0"/>
          </h:selectOneMenu>
     </div>
-    <h:commandLink id="hiddenlink" action="#{itemauthor.doit}" value="">
+    <h:commandLink id="hiddenlink" action="#{itemauthor.doit}" value="" styleClass="hidden">
       <f:param name="itemSequence" value="0"/>
     </h:commandLink>
 </h:panelGroup>
@@ -458,7 +457,7 @@ $(window).load( function() {
             <f:selectItems value="#{itemConfig.itemTypeSelectList}" />
             <f:selectItem itemLabel="#{authorMessages.import_from_q}" itemValue="10,#{partBean.number},#{question.itemData.sequence}"/>
           </h:selectOneMenu>
-          <h:commandLink id="hiddenlink" styleClass="hiddenLink" action="#{itemauthor.doit}" value="">
+          <h:commandLink id="hiddenlink" styleClass="hidden" action="#{itemauthor.doit}" value="">
             <f:param name="itemSequence" value="#{question.itemData.sequence}"/>
           </h:commandLink>
         </div>
