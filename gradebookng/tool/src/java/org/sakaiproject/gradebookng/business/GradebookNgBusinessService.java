@@ -780,11 +780,7 @@ public class GradebookNgBusinessService {
 			rval = GradeSaveResponse.ERROR;
 		}
 
-		try {
-			EventHelper.postUpdateGradeEvent(gradebook, assignmentId, studentUuid, newGrade, rval, getUserRole(getCurrentSiteId()));
-		} catch (GbAccessDeniedException e) {
-			// oh well
-		}
+		EventHelper.postUpdateGradeEvent(gradebook, assignmentId, studentUuid, newGrade, rval, getUserRoleOrNone());
 
 		return rval;
 	}
@@ -1705,11 +1701,7 @@ public class GradebookNgBusinessService {
 			updateAssignmentCategorizedOrder(gradebook.getUid(), assignment.getCategoryId(), assignmentId,
 					Integer.MAX_VALUE);
 
-			try {
-				EventHelper.postAddAssignmentEvent(gradebook, assignmentId, assignment, getUserRole(getCurrentSiteId()));
-			} catch (GbAccessDeniedException e) {
-				// oh well
-			}
+			EventHelper.postAddAssignmentEvent(gradebook, assignmentId, assignment, getUserRoleOrNone());
 
 			return assignmentId;
 
@@ -1955,11 +1947,7 @@ public class GradebookNgBusinessService {
 		try {
 			this.gradebookService.updateAssignment(gradebook.getUid(), original.getId(), assignment);
 
-			try {
-				EventHelper.postUpdateAssignmentEvent(gradebook, assignment, getUserRole(getCurrentSiteId()));
-			} catch (GbAccessDeniedException e) {
-				// oh well
-			}
+			EventHelper.postUpdateAssignmentEvent(gradebook, assignment, getUserRoleOrNone());
 
 			if (original.getCategoryId() != null && assignment.getCategoryId() != null
 					&& original.getCategoryId().longValue() != assignment.getCategoryId().longValue()) {
@@ -2032,11 +2020,7 @@ public class GradebookNgBusinessService {
 						FormatHelper.formatGradeForDisplay(String.valueOf(grade)), null);
 			}
 
-			try {
-				EventHelper.postUpdateUngradedEvent(gradebook, assignmentId, String.valueOf(grade), getUserRole(getCurrentSiteId()));
-			} catch (GbAccessDeniedException e) {
-				// oh well
-			}
+			EventHelper.postUpdateUngradedEvent(gradebook, assignmentId, String.valueOf(grade), getUserRoleOrNone());
 
 			return true;
 		} catch (final Exception e) {
@@ -2134,11 +2118,7 @@ public class GradebookNgBusinessService {
 			// else's comment that has been updated in the interim...
 			this.gradebookService.setAssignmentScoreComment(gradebook.getUid(), assignmentId, studentUuid, comment);
 
-			try {
-				EventHelper.postUpdateCommentEvent(getGradebook(), assignmentId, studentUuid, comment, getUserRole(getCurrentSiteId()));
-			} catch (GbAccessDeniedException e) {
-				// oh well
-			}
+			EventHelper.postUpdateCommentEvent(getGradebook(), assignmentId, studentUuid, comment, getUserRoleOrNone());
 
 			return true;
 		} catch (GradebookNotFoundException | AssessmentNotFoundException | IllegalArgumentException e) {
@@ -2190,6 +2170,19 @@ public class GradebookNgBusinessService {
 		}
 
 		return rval;
+	}
+
+	/**
+	 * Get the role of the current user in the given site or GbRole.NONE if the user does not have access
+	 *
+	 * @return GbRole for the current user
+	 */
+	public GbRole getUserRoleOrNone() {
+		try {
+			return getUserRole();
+		} catch (GbAccessDeniedException e) {
+			return GbRole.NONE;
+		}
 	}
 
 	/**
@@ -2301,11 +2294,7 @@ public class GradebookNgBusinessService {
 	public void removeAssignment(final Long assignmentId) {
 		this.gradebookService.removeAssignment(assignmentId);
 
-		try {
-			EventHelper.postDeleteAssignmentEvent(getGradebook(), assignmentId, getUserRole(getCurrentSiteId()));
-		} catch (GbAccessDeniedException e) {
-			// oh well
-		}
+		EventHelper.postDeleteAssignmentEvent(getGradebook(), assignmentId, getUserRoleOrNone());
 	}
 
 	/**

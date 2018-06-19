@@ -27,7 +27,7 @@ public class EventHelper {
             String.valueOf(assignment.isReleased()),
             String.valueOf(assignment.isCounted()),
             assignment.getCategoryId() == null ? "uncategorized" : String.valueOf(assignment.getCategoryId()),
-            currentRole.toEventString()
+            currentRole.toString().toLowerCase()
         };
 
         postEvent(createEvent(GbEvent.ADD_ASSIGNMENT, String.join("/", bits), true));
@@ -44,7 +44,7 @@ public class EventHelper {
             String.valueOf(assignment.isReleased()),
             String.valueOf(assignment.isCounted()),
             assignment.getCategoryId() == null ? "uncategorized" : String.valueOf(assignment.getCategoryId()),
-            currentRole.toEventString()
+            currentRole.toString().toLowerCase()
         };
 
         postEvent(createEvent(GbEvent.UPDATE_ASSIGNMENT, String.join("/", bits), true));
@@ -56,7 +56,7 @@ public class EventHelper {
             EVENT_REF_PREFIX,
             String.valueOf(gradebook.getId()),
             String.valueOf(assignmentId),
-            currentRole.toEventString()
+            currentRole.toString().toLowerCase()
         };
 
         postEvent(createEvent(GbEvent.DELETE_ASSIGNMENT, String.join("/", bits), true));
@@ -71,7 +71,7 @@ public class EventHelper {
             studentUid,
             grade,
             gsr.toString(),
-            currentRole.toEventString()
+            currentRole.toString().toLowerCase()
         };
 
         postEvent(createEvent(GbEvent.UPDATE_GRADE, String.join("/", bits), true));
@@ -84,7 +84,7 @@ public class EventHelper {
             String.valueOf(gradebook.getId()),
             String.valueOf(assignmentId),
             grade,
-            currentRole.toEventString()
+            currentRole.toString().toLowerCase()
         };
 
         postEvent(createEvent(GbEvent.UPDATE_UNGRADED, String.join("/", bits), true));
@@ -98,7 +98,7 @@ public class EventHelper {
             String.valueOf(assignmentId),
             studentUid,
             String.valueOf(comment.length()),
-            currentRole.toEventString()
+            currentRole.toString().toLowerCase()
         };
 
         postEvent(createEvent(GbEvent.UPDATE_COMMENT, String.join("/", bits), true));
