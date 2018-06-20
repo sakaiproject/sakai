@@ -788,6 +788,8 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                 assignment.setPosition(existingAssignment.getPosition());
                 assignment.setIsGroup(existingAssignment.getIsGroup());
                 assignment.setAllowPeerAssessment(existingAssignment.getAllowPeerAssessment());
+                if (!existingAssignment.getGroups().isEmpty())
+                	assignment.setGroups(new HashSet<>(existingAssignment.getGroups()));
 
                 // peer properties
                 assignment.setPeerAssessmentInstructions(existingAssignment.getPeerAssessmentInstructions());
