@@ -550,7 +550,7 @@
 								</f:facet>
 								<h:panelGrid columns="1" columnClasses="noWrapCol">
 										<h:panelGroup id="timeslot">
-											<h:graphicImage value="/images/spacer.gif" width="15" height="13" alt="spacer" style="border:none"
+											<h:graphicImage value="/images/spacer.gif" width="15" height="13" alt="" style="border:none"
 												 rendered="#{!timeSlotWrapper.timeSlot.locked && !timeSlotWrapper.timeSlot.canceled && !OrganizerSignupMBean.meetingWrapper.meeting.meetingExpired }"/>
 											<h:graphicImage value="/images/lock.gif"  alt="this time slot is locked" style="border:none" 
 											 rendered="#{timeSlotWrapper.timeSlot.locked && !timeSlotWrapper.timeSlot.canceled && !OrganizerSignupMBean.meetingWrapper.meeting.meetingExpired}"/>
@@ -756,7 +756,7 @@
 						   				
 					   					<h:panelGroup id="addAttendee" rendered="#{!OrganizerSignupMBean.meetingWrapper.meeting.meetingExpired}">
 					   						<%-- TODO add spacer only if the attendees exist in atleast one timeslot --%>
-					   						<h:graphicImage value="/images/spacer.gif" width="20" height="16" alt="spacer" style="border:none"/>
+					   						<h:graphicImage value="/images/spacer.gif" width="20" height="16" alt="" style="border:none"/>
 						   					<h:outputLink value="javascript:showHideAddPanel('#{timeSlotWrapper.positionInTSlist}');" styleClass="addAttendee">
 						   						<h:graphicImage value="/images/add.png"  alt="add an attendee" title="#{msgs.event_tool_tips_add}" style="border:none" styleClass="openCloseImageIcon"/>
 						   						<h:outputText value="#{msgs.event_add_attendee}" escape="false" />
@@ -765,7 +765,7 @@
 							   				
 						   				<h:panelGroup id="addPanel" style="display: none;" >
 						   					<h:panelGrid id="addNewAttendeeTable" columns="2">
-							   					<h:graphicImage value="/images/spacer.gif" width="16" height="16" alt="spacer" style="border:none"/>
+							   					<h:graphicImage value="/images/spacer.gif" width="16" height="16" alt="" style="border:none"/>
 							   					<h:panelGrid id="selectAttendees" columns="2">
 						   							
 						   							<h:outputText value="#{msgs.attendee_select}" escape="false" rendered="#{!OrganizerSignupMBean.eidInputMode}"/>
@@ -815,7 +815,7 @@
 									</h:panelGroup>
 								</f:facet>
 								<h:panelGroup style="margin-left: 1px;">
-								   		<h:graphicImage value="/images/addDisabled.png"  alt="Disabled: add an waiter" title="#{msgs.event_tool_tips_action_option_disabled_label}" style="border:none" />
+								   		<h:graphicImage value="/images/addDisabled.png" alt="#{msgs.event_action_disabled_alt}" title="#{msgs.event_tool_tips_action_option_disabled_label}" style="border:none" />
 								   		<h:outputText value="#{msgs.event_add_attendee}" title="#{msgs.event_tool_tips_action_option_disabled_label}" escape="false" styleClass="disabledAddAttendee" style="color:gray;"/>
 								</h:panelGroup>
 							</h:column>  						   						   		
@@ -860,12 +860,12 @@
 									   			
 									   			<h:panelGroup id="addWaiter" rendered="#{!OrganizerSignupMBean.meetingWrapper.meeting.meetingExpired}">
 									   				<h:outputLink rendered="#{!timeSlotWrapper.timeSlot.available}" value="javascript:showHideAddWaiterPanel('#{timeSlotWrapper.positionInTSlist}');" styleClass="addWaiter">
-									   					<h:graphicImage value="/images/spacer.gif" width="4" height="16" alt="spacer" style="border:none"/>
-								   						<h:graphicImage value="/images/add.png"  alt="add an waiter"  title="#{msgs.event_tool_tips_add}" style="border:none"  styleClass="openCloseImageIcon"/>
+									   					<h:graphicImage value="/images/spacer.gif" width="4" height="16" alt="" style="border:none"/>
+								   						<h:graphicImage value="/images/add.png" alt="#{msgs.event_action_disabled_alt}"  title="#{msgs.event_tool_tips_add}" style="border:none"  styleClass="openCloseImageIcon"/>
 								   						<h:outputText value="#{msgs.event_add_attendee}" escape="false" />	
 								   					</h:outputLink>
 								   					<h:panelGroup rendered="#{timeSlotWrapper.timeSlot.available}" style="margin-left: 2px;">
-								   						<h:graphicImage value="/images/addDisabled.png"  alt="add an waiter" title="#{msgs.event_tool_tips_action_disabled_label}" style="border:none" />
+								   						<h:graphicImage value="/images/addDisabled.png"  alt="#{msgs.event_action_disabled_alt}" title="#{msgs.event_tool_tips_action_disabled_label}" style="border:none" />
 								   						<h:outputText value="#{msgs.event_add_attendee}" escape="false" styleClass="disabledAddAttendee"/>
 								   					</h:panelGroup>
 								   				</h:panelGroup>
