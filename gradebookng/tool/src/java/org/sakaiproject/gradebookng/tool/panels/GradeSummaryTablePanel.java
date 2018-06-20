@@ -271,7 +271,7 @@ public class GradeSummaryTablePanel extends BasePanel {
 							gradeScore.add(new Label("outOf").setVisible(false));
 							Label rubricIcon = new Label("rubricIcon");
 							rubricIcon.setVisible(false);
-							assignmentItem.add(rubricIcon);
+							gradeScore.add(rubricIcon);
 						} else {
 							gradeScore.add(new Label("grade", FormatHelper.formatGradeForDisplay(rawGrade)));
 							gradeScore.add(new Label("outOf",
@@ -309,7 +309,7 @@ public class GradeSummaryTablePanel extends BasePanel {
 									rubricIcon.setVisible(true);
 								}
 							}
-							assignmentItem.add(rubricIcon);
+							gradeScore.add(rubricIcon);
 						}
 						if (gradeInfo != null && gradeInfo.isDroppedFromCategoryScore()) {
 							gradeScore.add(AttributeAppender.append("class", "gb-summary-grade-score-dropped"));
