@@ -113,16 +113,14 @@ public class SiteManageServiceImpl implements SiteManageService {
             sessionManager.setCurrentToolSession(toolSession);
             
 			String importSites ="";
-			for (Map.Entry<String, List<String>> entry : importTools.entrySet()) 
-			{
+			for (Map.Entry<String, List<String>> entry : importTools.entrySet()) {
 				if(importSites.length() >= 255)
 					break;
-				for(String data : entry.getValue() ) 
-				{
+				for(String data : entry.getValue() ) {
 					if(!importSites.contains(data) && importSites.concat(data + ", ").length() < 255)
 						importSites = importSites.concat(data + ", ");
-					}
 				}
+			}
 			//remove unnecessary ", "
 			importSites = importSites.substring(0, importSites.length() -2);
             eventTrackingService.post(eventTrackingService.newEvent(SiteService.EVENT_SITE_IMPORT_START, importSites, id, false, NotificationService.NOTI_OPTIONAL));
