@@ -512,7 +512,7 @@
                     <f:facet name="header">
                         <h:panelGroup>
                             <f:verbatim><a href="#" onclick="return false;"></f:verbatim>
-                                <h:outputText value="For"/>
+                                <h:outputText value="#{authorFrontDoorMessages.assessment_release }"/>
                             <f:verbatim></a></f:verbatim>
                         </h:panelGroup>
                     </f:facet>
@@ -541,7 +541,7 @@
                     <f:facet name="header">
                         <h:panelGroup>
                             <f:verbatim><a href="#" onclick="return false;"></f:verbatim>
-                                <h:outputText value="Open"/>
+                                <h:outputText value="#{authorFrontDoorMessages.assessment_date}"/>
                             <f:verbatim></a></f:verbatim>
                         </h:panelGroup>
                     </f:facet>
@@ -556,7 +556,7 @@
                     <f:facet name="header">
                         <h:panelGroup>
                             <f:verbatim><a href="#" onclick="return false;"></f:verbatim>
-                                <h:outputText value="Due"/>
+                                <h:outputText value="#{authorFrontDoorMessages.assessment_due}"/>
                             <f:verbatim></a></f:verbatim>
                         </h:panelGroup>
                     </f:facet>
