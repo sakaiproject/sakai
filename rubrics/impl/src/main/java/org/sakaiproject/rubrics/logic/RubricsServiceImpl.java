@@ -169,7 +169,10 @@ public class RubricsServiceImpl implements RubricsService {
         String userId = sessionManager.getCurrentSessionUserId();
 
         try {
-
+            if(toolManager.getCurrentPlacement() == null){
+                log.error("generateJsonWebToken: current placement is null, Rubrics token won't be generated.");
+                return null;
+            }
             String siteId = toolManager.getCurrentPlacement().getContext();
 
             DateTime now = DateTime.now();

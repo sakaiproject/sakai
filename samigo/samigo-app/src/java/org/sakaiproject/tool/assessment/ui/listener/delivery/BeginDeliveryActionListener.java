@@ -102,6 +102,9 @@ public class BeginDeliveryActionListener implements ActionListener
       // e.g. take assessment via url, actionString is set by LoginServlet.
       // preview and take assessment is set by the parameter in the jsp pages
       delivery.setActionString(actionString);
+      if("reviewAssessment".equals(actionString)){
+        delivery.setRbcsToken(rubricsService.generateJsonWebToken(SamigoConstants.RBCS_TOOL_ID));
+      }
     }
     
     delivery.setDisplayFormat();
@@ -185,7 +188,6 @@ public class BeginDeliveryActionListener implements ActionListener
     }
     delivery.setFileUploadSizeMax(Math.round(sizeMax_float));
     delivery.setPublishedAssessment(pub);
-    delivery.setRbcsToken(rubricsService.generateJsonWebToken(SamigoConstants.RBCS_TOOL_ID));
 
     // populate backing bean from published assessment
     populateBeanFromPub(delivery, pub);
