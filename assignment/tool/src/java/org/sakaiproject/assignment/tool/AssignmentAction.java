@@ -4781,6 +4781,7 @@ public class AssignmentAction extends PagedResourceActionII {
         }
 
         context.put("studentAssignmentsTable", showStudentAssignments);
+        context.put("currentTime", Instant.now());
 
         add2ndToolbarFields(data, context);
 
@@ -10070,7 +10071,7 @@ public class AssignmentAction extends PagedResourceActionII {
         // whether the user can access the Submission object
         if (s != null) {
             String status = assignmentService.getSubmissionStatus(s.getId());
-            if ("Not Started".equals(status)) {
+            if ("Not Started".equals(status) || (rb.getString("gen.notsta").equals(status))) {
                 addAlert(state, rb.getString("stuviewsubm.theclodat"));
             }
 
