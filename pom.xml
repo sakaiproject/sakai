@@ -134,12 +134,6 @@
                 <module>blogwow</module>
                 <module>evaluation</module>
 
-       		<!--
-                  Turnitin Legacy API content-review implementation
-                  12.x includes it's own version
-                -->
-       		<!--module>turnitin/contentreview-impl</module-->
-
                 <!-- Older, removed from 11.x but still in use at UCT -->
                 <module>linktool</module>
                 <module>profile</module>

@@ -20,12 +20,6 @@
 	url = https://github.com/cilt-uct/sms.git
 	branch = 12.x
 
-# Turnitin Legacy API content-review implementation
-[external "turnitin"]
-	path = turnitin
-	url = https://github.com/cilt-uct/turnitin.git
-	branch = 12.x
-
 # No longer in 11.x but still in use at UCT
 [external "linktool"]
 	path = linktool
