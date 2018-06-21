@@ -241,6 +241,7 @@ public class AssignmentConversionServiceImpl implements AssignmentConversionServ
                         Assignment assignment = assignmentReintegration(o11a, o11ac);
 
                         if (assignment != null) {
+                        	List<String> submissionGroups = new ArrayList<>();
                             List<String> sXml = dataProvider.fetchAssignmentSubmissions(assignmentId);
                             for (String xml : sXml) {
                                 O11Submission o11s = (O11Submission) serializeFromXml(xml, O11Submission.class);
@@ -249,6 +250,12 @@ public class AssignmentConversionServiceImpl implements AssignmentConversionServ
                                     if (submission != null) {
                                         submission.setAssignment(assignment);
                                         assignment.getSubmissions().add(submission);
+                                        if (Assignment.Access.SITE.equals(assignment.getTypeOfAccess()) && assignment.getIsGroup()) {
+                                        	String submissionGrp = "/site/"+assignment.getContext()+"/group/"+submission.getGroupId(); 
+                                        	if (!submissionGroups.contains(submissionGrp)) {
+                                        		submissionGroups.add(submissionGrp);
+                                        	}
+                                        }
                                     } else {
                                         log.warn("reintegration of submission {} in assignment {} failed skipping submission", o11s.getId(), assignmentId);
                                         submissionsFailed++;
@@ -258,7 +265,11 @@ public class AssignmentConversionServiceImpl implements AssignmentConversionServ
                                     submissionsFailed++;
                                 }
                             }
-
+                            // Fix corrupted data: Group submission shouldn't be accessed by site
+                            if (Assignment.Access.SITE.equals(assignment.getTypeOfAccess()) && assignment.getIsGroup()) {
+                    			assignment.setTypeOfAccess(Assignment.Access.GROUP);
+                    			submissionGroups.forEach(g -> assignment.getGroups().add(g));
+                            }
                             // at this point everything has been added to the persistence context
                             // so we just need to merge and flush so that every assignment is persisted
                             try {
@@ -435,9 +446,26 @@ public class AssignmentConversionServiceImpl implements AssignmentConversionServ
         Set<AssignmentSubmissionSubmitter> submitters = s.getSubmitters();
         if (assignment.getIsGroup()) {
             // submitterid is the group
-            if (StringUtils.isNotBlank(submission.getSubmitterid()) 
-            		&& assignment.getGroups().contains("/site/"+assignment.getContext()+"/group/"+submission.getSubmitterid())) {
-                s.setGroupId(submission.getSubmitterid());
+            if (StringUtils.isNotBlank(submission.getSubmitterid())) {
+            	try {
+            		// The id must be any group if is SITE mode or a some of the accesed groups if its GROUPED
+            		if (Assignment.Access.GROUP.equals(assignment.getTypeOfAccess())) {
+            			if (assignment.getGroups().contains("/site/"+assignment.getContext()+"/group/"+submission.getSubmitterid())) {
+            				s.setGroupId(submission.getSubmitterid());
+            			} else {
+            				return null;
+            			}
+            		} else {
+            			Site assignmentSite = siteService.getSite(assignment.getContext());
+            			if (assignmentSite.getGroup(submission.getSubmitterid())!=null) {
+            				s.setGroupId(submission.getSubmitterid());
+            			} else {
+            				return null;
+            			}
+            		}
+            	} catch (Exception ex) {
+            		return null;
+            	}
             } else {
                 // the submitterid must not be blank for a group submission
                 return null;
