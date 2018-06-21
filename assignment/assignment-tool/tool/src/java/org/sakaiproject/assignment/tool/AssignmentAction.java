@@ -4913,6 +4913,7 @@ public class AssignmentAction extends PagedResourceActionII
 		add2ndToolbarFields(data, context);
 
 		String template = (String) getContext(data).get("template");
+		context.put("currentTime", TimeService.newTime());
 		return template + TEMPLATE_INSTRUCTOR_VIEW_STUDENTS_ASSIGNMENT;
 
 	} // build_instructor_view_students_assignment_context
@@ -11092,7 +11093,7 @@ public class AssignmentAction extends PagedResourceActionII
 		if (_s != null)
 		{
 			String status = _s.getStatus();
-			if ("Not Started".equals(status))
+			if ("Not Started".equals(status) || (rb.getString("gen.notsta").equals(status)))
 			{
 				addAlert(state, rb.getString("stuviewsubm.theclodat"));
 			}

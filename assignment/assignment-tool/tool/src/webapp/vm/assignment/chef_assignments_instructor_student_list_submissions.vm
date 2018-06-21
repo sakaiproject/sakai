@@ -156,9 +156,13 @@
 												#if ($allowAddAssignment && $allowSubmitByInstructor)
 												#set( $submitSpinnerID = "submitFor_" + $member.Id + "_" + $validator.escapeUrl($assignment.Reference) )
 												<div class="itemAction spinnerBesideContainer">
+													#if ($assignment.getDueTime().after($currentTime))
 													<a onclick="SPNR.insertSpinnerInPreallocated( this, null, '$submitSpinnerID' );" href="#toolLinkParam("AssignmentAction" "doView_submission" "assignmentReference=$validator.escapeUrl($assignment.Reference)&submitterId=$validator.escapeUrl($member.id)")">
 														$tlang.getString("submitforstudent")
 													</a>
+													#else
+														$tlang.getString("submitforstudentnotallowed")
+													#end
 													<div id="$submitSpinnerID" class="allocatedSpinPlaceholder"></div>
 												</div>
 												#end
