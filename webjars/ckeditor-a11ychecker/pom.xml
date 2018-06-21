@@ -20,7 +20,7 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <upstream.version>${ckeditor.a11ychecker.version}</upstream.version>
-        <upstream.url>http://download.ckeditor.com/a11ychecker/releases/a11ychecker</upstream.url>
+        <upstream.url>https://ckeditor.com/cke4/sites/default/files/a11ychecker/releases/a11ychecker</upstream.url>
         <destDir>${project.build.outputDirectory}/META-INF/resources/webjars/a11ychecker/${upstream.version}</destDir>
         <requirejs>
             {
