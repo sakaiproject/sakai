@@ -42,8 +42,6 @@ import net.oauth.*;
 import net.oauth.server.OAuthServlet;
 import net.oauth.signature.OAuthSignatureMethod;
 
-import org.json.simple.JSONObject;
-import org.json.simple.JSONArray;
 
 import org.tsugi.basiclti.BasicLTIConstants;
 import org.tsugi.basiclti.BasicLTIUtil;
@@ -53,7 +51,6 @@ import org.tsugi.casa.objects.Application;
 import org.tsugi.contentitem.objects.ContentItemResponse;
 
 import org.tsugi.jackson.JacksonUtil;
-import com.fasterxml.jackson.core.JsonProcessingException;
 
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.cover.SecurityService;
@@ -77,16 +74,17 @@ import org.sakaiproject.event.cover.UsageSessionService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SitePage;
+import static org.sakaiproject.site.api.SiteService.SITE_TITLE_MAX_LENGTH;
+import org.sakaiproject.site.api.SiteService.SiteTitleValidationStatus;
 import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.tool.cover.ToolManager;
-import org.sakaiproject.user.api.Preferences;
-import org.sakaiproject.user.api.PreferencesEdit;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.cover.UserDirectoryService;
+import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.util.ResourceLoader;
 
 import org.springframework.context.ApplicationContext;
@@ -778,8 +776,20 @@ public class ProviderServlet extends HttpServlet {
             log.debug("siteId={}", siteId);
         }
 
-        final String context_title = (String) payload.get(BasicLTIConstants.CONTEXT_TITLE);
+        final String context_title_orig = (String) payload.get(BasicLTIConstants.CONTEXT_TITLE);
         final String context_label = (String) payload.get(BasicLTIConstants.CONTEXT_LABEL);
+
+        // Site title is editable; cannot but null/empty after HTML stripping, and cannot exceed max length
+        String context_title = FormattedText.stripHtmlFromText(context_title_orig, true, true);
+        SiteTitleValidationStatus status = SiteService.validateSiteTitle(context_title_orig, context_title);
+
+        if (SiteTitleValidationStatus.STRIPPED_TO_EMPTY.equals(status)) {
+            log.warn("Provided context_title is empty after HTML stripping: {}", context_title_orig);
+        } else if (SiteTitleValidationStatus.EMPTY.equals(status)) {
+            log.warn("Provided context_title is empty after trimming: {}", context_title_orig);
+        } else if (SiteTitleValidationStatus.TOO_LONG.equals(status)) {
+            log.warn("Provided context_title is longer than max site title length of {}: {}", SITE_TITLE_MAX_LENGTH, context_title_orig);
+        }
 
         Site site = null;
 
