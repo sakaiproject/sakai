@@ -19,7 +19,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
@@ -33,8 +32,10 @@ import org.apache.wicket.markup.html.form.IChoiceRenderer;
 import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.markup.html.panel.FeedbackPanel;
 import org.apache.wicket.markup.html.panel.Panel;
+import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
+import org.apache.wicket.model.StringResourceModel;
 import org.apache.wicket.model.util.CollectionModel;
 import org.apache.wicket.model.util.ListModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
@@ -45,6 +46,8 @@ import org.sakaiproject.profile2.tool.components.ErrorLevelsFeedbackMessageFilte
 import org.sakaiproject.profile2.tool.components.IconWithClueTip;
 import org.sakaiproject.profile2.util.ProfileConstants;
 import org.sakaiproject.profile2.util.ProfileUtils;
+import static org.sakaiproject.site.api.SiteService.SITE_TITLE_MAX_LENGTH;
+import org.sakaiproject.site.api.SiteService.SiteTitleValidationStatus;
 
 /**
  * Panel for creating a worksite from a group of people.
@@ -123,17 +126,32 @@ public class CreateWorksitePanel extends Panel {
 			@Override
 			protected void onSubmit(AjaxRequestTarget target, Form<?> form) {
 
-				if (StringUtils.isBlank(siteNameField.getValue())) {
-					formFeedback.setDefaultModel(new ResourceModel(
-							"error.worksite.no.title"));
-					formFeedback.add(new AttributeModifier("class", true,
-							new Model<String>("alertMessage")));
+				// Site title is editable; cannot but null/empty after HTML stripping, and cannot exceed max length
+				String titleOrig = siteNameField.getValue();
+				String titleStripped = ProfileUtils.stripHtmlFromText(titleOrig, true, true);
+				SiteTitleValidationStatus status = sakaiProxy.validateSiteTitle(titleOrig, titleStripped);
+
+				boolean titleError = false;
+				IModel errorMsg = null;
+				if (SiteTitleValidationStatus.STRIPPED_TO_EMPTY.equals(status)) {
+					errorMsg = new ResourceModel("error.worksite.title.htmlStrippedToEmpty");
+					titleError = true;
+				} else if (SiteTitleValidationStatus.EMPTY.equals(status)) {
+					errorMsg = new ResourceModel("error.worksite.no.title");
+					titleError = true;
+				} else if (SiteTitleValidationStatus.TOO_LONG.equals(status)) {
+					errorMsg = new StringResourceModel("error.worksite.title.maxLength", null, new Object[] {SITE_TITLE_MAX_LENGTH});
+					titleError = true;
+				}
+
+				if (titleError) {
+					formFeedback.setDefaultModel(errorMsg);
+					formFeedback.add(new AttributeModifier("class", true, new Model<>("alertMessage")));
 					target.add(formFeedback);
 					return;
 				}
 
-				if (true == worksiteLogic.createWorksite(ProfileUtils.stripHtml(siteNameField
-						.getValue()), sakaiProxy.getCurrentUserId(),
+				if (true == worksiteLogic.createWorksite(titleStripped, sakaiProxy.getCurrentUserId(),
 						new ArrayList<Person>(palette.getModelCollection()),
 						true)) {
 
