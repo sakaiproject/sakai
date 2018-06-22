@@ -299,8 +299,7 @@ function printView(url) {
 					<a href="javascript:void(0)" onclick="ASN.toggleSendFeedbackPanel();">
 						<img id="expandSendFeedback" src="#imageLink("sakai/expand.gif")" alt="$tlang.getString("sendFeedback.show")" border="0" width="13" height="13" align="top" />
 						<img id="collapseSendFeedback" style="display: none;" src="#imageLink("sakai/collapse.gif")" alt="$tlang.getString("sendFeedback.hide")" border="0" width="13" height="13" align="top" />
-						<span id="showSendFeedbackLabel">$tlang.getString("sendFeedback.show")</span>
-						<span id="hideSendFeedbackLabel" style="display: none;">$tlang.getString("sendFeedback.hide")</span>
+						$tlang.getString("sendFeedback.label")
 					</a>
 				</p>
 				#if ($!savedFeedback)
@@ -321,13 +320,13 @@ function printView(url) {
 				#end
 				<div id="sendFeedbackPanelContent" style="display:none;">
 					<p class="text-info">
-						$tlang.getString("sendFeedback.instruction"):
+						$tlang.getString("sendFeedback.instruction")
 					</p>
 					<textarea cols=40 rows=5 name="commentFeedback"></textarea>
 					<div class="form-group">
 						<label>$tlang.getString("sendFeedback.options"):</label>
 						<div>
-							<input type="checkbox" name="overWrite"/> $tlang.getString("sendFeedback.overwrite")<br/>
+							<input type="checkbox" name="overWrite"/> $tlang.getFormattedMessage("sendFeedback.overwrite",$tlang.getString("gen.instrcomment") )<br/>
 							<input type="checkbox" name="returnToStudents"/> $tlang.getString("sendFeedback.returnToStudents")<br/>
 						</div>
 					</div>
