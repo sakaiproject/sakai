@@ -490,7 +490,12 @@
 							#set ($itemsOnLine = 0)
 							#foreach($action in $item.pasteActions)
 								#if($itemsOnLine > 0)|#end
-								<a href="#" class=" highlightlink" title="$labeler.getLabel($action) $tlang.getString("paste.here")" onclick="document.getElementById('selectedItemId').value='$qid';document.getElementById('rt_action').value='${action.typeId}${ACTION_DELIMITER}$action.id';document.getElementById('sakai_action').value='doDispatchAction';submitform('showForm');"><span class="fa fa-clipboard" aria-hidden="true"></span><span class="sr-only">$labeler.getLabel($action)</span></a> 
+								<a href="#" class="highlightlink" title="$labeler.getLabel($action) $tlang.getString("paste.here")"
+										onclick="document.getElementById('selectedItemId').value='$qid';document.getElementById('rt_action').value='${action.typeId}${ACTION_DELIMITER}$action.id';document.getElementById('sakai_action').value='doDispatchAction';submitform('showForm');">
+									<span class="iconText" aria-hidden="true">$tlang.getString("action.paste")</span>
+									<span class="fa fa-clipboard" aria-hidden="true"></span>
+									<span class="sr-only">$labeler.getLabel($action)</span>
+								</a>
 								#set ($itemsOnLine = $itemsOnLine + 1)
 							#end
 						#end
