@@ -745,7 +745,7 @@ public class SiteAction extends PagedResourceActionII {
 	/** the news tool **/
 	private final static String NEWS_TOOL_ID = "sakai.simple.rss";
 	private final static String NEWS_TOOL_CHANNEL_CONFIG = "javax.portlet-feed_url";
-	private final static String NEWS_TOOL_CHANNEL_CONFIG_VALUE = "http://sakaiproject.org/feed";
+	private final static String NEWS_TOOL_CHANNEL_CONFIG_VALUE = "https://www.sakaiproject.org/feed";
 	
    	private final static String LESSONS_TOOL_ID = "sakai.lessonbuildertool";
 
